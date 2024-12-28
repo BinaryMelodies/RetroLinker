@@ -1,0 +1,295 @@
+
+Recipe([
+	Assemble(Input = "{cpu_name}.s", Output = "obj/{output_file}{extension}.o", Arguments = [
+		"--defsym", "CPU_{cpu_name.upper()}=1",
+		"--defsym", "TARGET_{target_name.upper()}=1",
+		IfDefined("format_name"),
+			"--defsym", "FORMAT_{format_name.upper()}=1",
+		EndIf,
+		IfDefined("model_name"),
+			"--defsym", "MODEL_{model_name.upper()}=1",
+		EndIf,
+		ForAll("option", In = "assembler_options"),
+			"--defsym", "OPTION_{option.upper() + '=1' if '=' not in option else option.upper()}",
+		EndFor
+		], Dependency = ["../include/{include_name}.inc", "../include/common.inc"], Executable = "{output_file}{extension}"),
+	Link(Format = "{linker_format_name}", Input = "obj/{output_file}{extension}.o", Output = "{output_file}{extension}", Arguments = [
+		IfDefined("linker_model_name"),
+			"-M{linker_model_name}",
+		EndIf,
+		ForAll("option", In = "linker_options"),
+			"-S{option}",
+		EndFor,
+		IfDefined("custom_entry"),
+			"-d.entry=start",
+		EndIf,
+		IfDefined("code_base"),
+			"-Scode_base={code_base}",
+		EndIf,
+		IfDefined("stub"),
+			"-Sstub={stub}",
+		EndIf
+		], Dependency = ["{output_file}{extension}"]),
+])
+
+Target(
+	System = "cpm80",
+	Format = "com",
+	output_file = "cpm80")
+Target(
+	System = "cpm80",
+	Format = "prl",
+	output_file = "cpm80")
+Target(
+	System = "msxdos",
+	Format = "com",
+	output_file = "msxdos")
+Target(
+	System = "msdos",
+	Format = "com",
+	Version = "tiny",
+	output_file = "msdos_t")
+Target(
+	System = "msdos",
+	Format = "com",
+	Version = "small",
+	output_file = "msdos_s")
+Target(
+	System = "msdos",
+	Format = "com",
+	Version = "compact",
+	output_file = "msdos_c")
+Target(
+	System = "msdos",
+	Format = "mz",
+	Version = "tiny",
+	output_file = "msdos_t")
+Target(
+	System = "msdos",
+	Format = "mz",
+	Version = "small",
+	output_file = "msdos_s")
+Target(
+	System = "msdos",
+	Format = "mz",
+	Version = "compact",
+	output_file = "msdos_c")
+Target(
+	System = "msdos1",
+	Format = "mz",
+	Version = "tiny",
+	output_file = "msdos1_t")
+Target(
+	System = "msdos1",
+	Format = "mz",
+	Version = "small",
+	output_file = "msdos1_s")
+Target(
+	System = "msdos1",
+	Format = "mz",
+	Version = "compact",
+	output_file = "msdos1_c")
+Target(
+	System = "cpm86",
+	Format = "cmd_tiny",
+	Version = "tiny",
+	output_file = "cpm86tt")
+Target(
+	System = "cpm86",
+	Format = "cmd_tiny",
+	Version = "tiny-noreloc",
+	output_file = "cpm86ttn")
+Target(
+	System = "cpm86",
+	Format = "cmd_tiny",
+	Version = "small",
+	output_file = "cpm86st")
+Target(
+	System = "cpm86",
+	Format = "cmd_tiny",
+	Version = "small-noreloc",
+	output_file = "cpm86stn")
+Target(
+	System = "cpm86",
+	Format = "cmd_tiny",
+	Version = "compact",
+	output_file = "cpm86ct")
+Target(
+	System = "cpm86",
+	Format = "cmd_tiny",
+	Version = "compact-noreloc",
+	output_file = "cpm86ctn")
+Target(
+	System = "cpm86",
+	Format = "cmd_small",
+	Version = "small",
+	output_file = "cpm86ss")
+Target(
+	System = "cpm86",
+	Format = "cmd_small",
+	Version = "small-noreloc",
+	output_file = "cpm86ssn")
+Target(
+	System = "cpm86",
+	Format = "cmd_small",
+	Version = "compact",
+	output_file = "cpm86cs")
+Target(
+	System = "cpm86",
+	Format = "cmd_small",
+	Version = "compact-noreloc",
+	output_file = "cpm86csn")
+Target(
+	System = "cpm86",
+	Format = "cmd_compact",
+	Version = "compact",
+	output_file = "cpm86cc")
+Target(
+	System = "cpm86",
+	Format = "cmd_compact",
+	Version = "compact-noreloc",
+	output_file = "cpm86ccn")
+Target(
+	System = "elks",
+	Format = "aout_com",
+	output_file = "elks_combined")
+Target(
+	System = "elks",
+	Format = "aout_sep",
+	output_file = "elks_split")
+Target(
+	System = "win16",
+	output_file = "win16")
+Target(
+	System = "os2v1",
+	output_file = "os2v1")
+Target(
+	System = "msdos4",
+	Format = "ne",
+	Version = "small",
+	output_file = "msdos4_s")
+Target(
+	System = "msdos4",
+	Format = "ne",
+	Version = "large",
+	output_file = "msdos4_l")
+Target(
+	System = "dos16m",
+	Format = "bw",
+	output_file = "dos16m")
+Target(
+	System = "djgpp",
+	Format = "aout",
+	output_file = "djgppv1")
+Target(
+	System = "djgpp",
+	Format = "coff",
+	output_file = "djgpp")
+Target(
+	System = "pharlap",
+	Format = "mp",
+	output_file = "pl_mp")
+Target(
+	System = "pharlap",
+	Format = "mq",
+	output_file = "pl_mq")
+Target(
+	System = "pharlap",
+	Format = "p3",
+	output_file = "pl_p3")
+#Target(
+#	System = "pharlap",
+#	Format = "p3_seg",
+#	output_file = "pl_p3_s")
+Target(
+	System = "dos4g",
+	output_file = "dos4gexe")
+Target(
+	System = "pdos386",
+	output_file = "pdos386")
+Target(
+	System = "os2v2",
+	output_file = "os2v2")
+Target(
+	System = "cpm68k",
+	Format = "68k_cont",
+	Version = "noreloc",
+	output_file = "cpm68kc")
+Target(
+	System = "cpm68k",
+	Format = "68k_cont",
+	Version = "reloc",
+	output_file = "cpm68kcr")
+Target(
+	System = "cpm68k",
+	Format = "68k_noncont",
+	Version = "noreloc",
+	output_file = "cpm68kn")
+Target(
+	System = "cpm68k",
+	Format = "68k_noncont",
+	Version = "reloc",
+	output_file = "cpm68knr")
+Target(
+	System = "gemdos",
+	output_file = "gemdos")
+Target(
+	System = "gemdos",
+	Version = "noreloc",
+	output_file = "gemdosn")
+Target(
+	System = "gemdos",
+	Version = "reloc",
+	output_file = "gemdosr")
+Target(
+	System = "human68k",
+	Format = "rfile",
+	Version = "reloc", # TODO: remove?
+	output_file = "h68k")
+Target(
+	System = "human68k",
+	Format = "zfile",
+	output_file = "h68k")
+Target(
+	System = "human68k",
+	Format = "xfile",
+	output_file = "h68k")
+Target(
+	System = "human68k",
+	Format = "xfile",
+	code_base = "0x1234", # TODO: permit integer
+	output_file = "h68kr")
+Target(
+	System = "amiga",
+	output_file = "amiga")
+Target(
+	System = "macos",
+	output_file = "macos")
+Target(
+	System = "macos",
+	Version = "tiny",
+	output_file = "macos-tiny")
+Target(
+	System = "sql",
+	output_file = "sql")
+Target(
+	System = "cpm8k",
+	Format = "z8k",
+	output_file = "cpm8kns")
+Target(
+	System = "cpm8k",
+	Format = "z8k_split",
+	output_file = "cpm8ksp")
+Target(
+	System = "cpm8k",
+	Format = "z8k_segmented",
+	output_file = "cpm8ksg")
+Target(
+	System = "riscos",
+	Format = "ff8",
+	output_file = "riscos")
+Target(
+	System = "dxdos",
+	Format = "com",
+	output_file = "dxdos")
+

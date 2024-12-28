@@ -1,0 +1,81 @@
+
+LINKER_HEADERS=$(addprefix linker/, format.h linker.h location.h module.h position.h reader.h relocation.h resolution.h section.h segment.h symbol.h target.h writable.h writer.h)
+LINKER_CXXFILES=$(LINKER_HEADERS:.h=.cc)
+LINKER_OFILES=$(LINKER_CXXFILES:.cc=.o)
+
+FORMAT_HEADERS=$(addprefix format/, 8bitexe.h aout.h as86obj.h binary.h bwexp.h coff.h cpm68k.h cpm86.h cpm8k.h dosexe.h elf.h geos.h gsos.h huexe.h hunk.h leexe.h macho.h macos.h minix.h mzexe.h neexe.h o65.h omf.h peexe.h pefexe.h pharlap.h pmode.h xenix.h xpexp.h)
+FORMAT_CXXFILES=$(FORMAT_HEADERS:.h=.cc)
+FORMAT_OFILES=$(FORMAT_CXXFILES:.cc=.o)
+
+DUMPER_HEADERS=dumper/dumper.h
+DUMPER_CXXFILES=$(DUMPER_HEADERS:.h=.cc)
+DUMPER_OFILES=$(DUMPER_CXXFILES:.cc=.o)
+
+SCRIPT_HEADERS=script/script.h
+SCRIPT_CXXFILES=script/scan.cc script/parse.tab.cc
+SCRIPT_OFILES=$(SCRIPT_CXXFILES:.cc=.o)
+
+MAIN_HEADERS=common.h
+MAIN_CXXFILES=main.cc common.cc
+MAIN_OFILES=$(MAIN_CXXFILES:.cc=.o)
+
+CXXFLAGS=-Wall -Wsuggest-override -std=c++20 -O2
+CXXFLAGS+= -g
+LDFLAGS=-O2
+
+all: link
+
+.PHONY: all clean distclean tests tests_clean force doxygen unittests
+
+link: $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
+	g++ -o link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
+
+force:
+	rm -f link
+	make all
+
+clean: tests_clean
+	# TODO: check what needs to be actually deleted
+	rm -rf link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) script/scan.cc script/parse.tab.cc script/parse.tab.hh latex html doxygen.log
+
+tests_clean:
+	$(MAKE) -C tests/1_hello clean
+	$(MAKE) -C tests/2_asm clean
+	$(MAKE) -C tests/3_extern clean
+	$(MAKE) -C tests/4_ctest clean
+	$(MAKE) -C tests/watcom clean
+	$(MAKE) -C unittest clean
+
+distclean: clean
+	rm -rf *~ format/*~ linker/*~ dumper/*~ script/*~ __pycache__ results.xml
+	$(MAKE) -C tests/include distclean
+	$(MAKE) -C tests/1_hello distclean
+	$(MAKE) -C tests/2_asm distclean
+	$(MAKE) -C tests/3_extern distclean
+	$(MAKE) -C tests/4_ctest distclean
+	$(MAKE) -C tests/watcom distclean
+	$(MAKE) -C unittest distclean
+
+tests:
+	$(MAKE) -C tests/1_hello
+	$(MAKE) -C tests/2_asm
+	$(MAKE) -C tests/3_extern
+	$(MAKE) -C tests/4_ctest
+	$(MAKE) -C tests/watcom
+
+unittests:
+	$(MAKE) -C unittest
+	unittest/main
+
+doxygen:
+	doxygen Doxyfile
+	$(MAKE) -C latex
+
+script/scan.cc: script/scan.lex script/parse.tab.hh
+	flex -o $@ $<
+
+script/parse.tab.hh: script/parse.tab.cc
+
+script/parse.tab.cc: script/parse.yy
+	bison3 -d -o $@ $<
+

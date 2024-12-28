@@ -1,0 +1,179 @@
+Recipe([
+	CompileC(Input = "lib.c", Output = "obj/{output_file}{extension}.1.o", Arguments = [
+		"-c",
+		"-DCPU_{cpu_name.upper()}=1",
+		IfDefined("c_target_options"),
+			"{c_target_options}",
+		EndIf,
+		"-DTARGET_{target_name.upper()}=1",
+		IfDefined("format_name"),
+			"-DFORMAT_{format_name.upper()}=1",
+		EndIf,
+		IfDefined("model_name"),
+			"-DMODEL_{model_name.upper()}=1",
+		EndIf,
+		IfDefined("c_target_options2"),
+			"{c_target_options2}", # TODO: combine with c_target_options
+		EndIf
+		], Executable = "{output_file}{extension}"),
+	CompileC(Input = "main.c", Output = "obj/{output_file}{extension}.2.o", Arguments = [
+		"-c",
+		"-DCPU_{cpu_name.upper()}=1",
+		IfDefined("c_target_options"),
+			"{c_target_options}",
+		EndIf,
+		"-DTARGET_{target_name.upper()}=1",
+		IfDefined("format_name"),
+			"-DFORMAT_{format_name.upper()}=1",
+		EndIf,
+		IfDefined("model_name"),
+			"-DMODEL_{model_name.upper()}=1",
+		EndIf,
+		IfDefined("c_target_options2"),
+			"{c_target_options2}", # TODO: combine with c_target_options
+		EndIf
+		], Executable = "{output_file}{extension}"),
+	Link(Format = "{linker_format_name}", Input = ["obj/{output_file}{extension}.1.o", "obj/{output_file}{extension}.2.o"], Output = "{output_file}{extension}", Arguments = [
+		IfDefined("linker_model_name"),
+			"-M{linker_model_name}",
+		EndIf,
+		IfDefined("stub"),
+			"-Sstub={stub}",
+		EndIf,
+		ForAll("option", In = "linker_options"),
+			"-S{option}",
+		EndFor,
+		IfDefined("compiled_stack"),
+			"-d.stack_top=AppStackTop",
+		EndIf
+		], Dependency = ["{output_file}{extension}"]),
+])
+
+Target(
+	System = "msdos",
+	Format = "com",
+	Version = "tiny",
+	output_file = "msdos")
+Target(
+	System = "msdos",
+	Format = "mz",
+	Version = "small",
+	output_file = "msdos")
+Target(
+	System = "cpm86",
+	Format = "cmd_tiny",
+	Version = "noreloc",
+	output_file = "cpm86t")
+Target(
+	System = "cpm86",
+	Format = "cmd_small",
+	Version = "tiny-noreloc",
+	output_file = "cpm86s")
+Target(
+	System = "elks",
+	Format = "aout_com",
+	output_file = "elks_combined")
+Target(
+	System = "elks",
+	Format = "aout_sep",
+	output_file = "elks_split")
+Target(
+	System = "win16",
+	output_file = "win16")
+Target(
+	System = "os2v1",
+	output_file = "os2v1")
+Target(
+	System = "msdos4",
+	Format = "ne",
+	Version = "small",
+	output_file = "msdos4")
+Target(
+	System = "dos16m",
+	Format = "bw",
+	output_file = "dos16m")
+Target(
+	System = "djgpp",
+	Format = "aout",
+	output_file = "djgppv1")
+Target(
+	System = "djgpp",
+	Format = "coff",
+	output_file = "djgpp")
+Target(
+	System = "pharlap",
+	Format = "mp",
+	output_file = "pl_mp")
+Target(
+	System = "pharlap",
+	Format = "mq",
+	output_file = "pl_mq")
+Target(
+	System = "pharlap",
+	Format = "p3",
+	output_file = "pl_p3")
+#Target(
+#	System = "pharlap",
+#	Format = "p3_seg",
+#	output_file = "pl_p3_s")
+Target(
+	System = "dos4g",
+	output_file = "dos4gexe")
+Target(
+	System = "pdos386",
+	output_file = "pdos386")
+Target(
+	System = "os2v2",
+	output_file = "os2v2")
+Target(
+	System = "cpm68k",
+	Format = "68k_cont",
+	Version = "default",
+	output_file = "cpm68kc")
+Target(
+	System = "cpm68k",
+	Format = "68k_noncont-cont", # TODO: this is a bug
+	Version = "default",
+	output_file = "cpm68kn")
+Target(
+	System = "gemdos",
+	output_file = "gemdos")
+Target(
+	System = "human68k",
+	Format = "rfile",
+	output_file = "h68k")
+Target(
+	System = "human68k",
+	Format = "xfile",
+	output_file = "h68k")
+Target(
+	System = "amiga",
+	output_file = "amiga")
+Target(
+	System = "macos",
+	Version = "tiny",
+	output_file = "macos")
+Target(
+	System = "sql",
+	output_file = "sql")
+Target(
+	System = "cpm8k",
+	Format = "z8k",
+	output_file = "cpm8kns")
+Target(
+	System = "cpm8k",
+	Format = "z8k_split",
+	output_file = "cpm8ksp")
+Target(
+	System = "cpm8k",
+	Format = "z8k_segmented",
+	output_file = "cpm8ksg")
+Target(
+	System = "riscos",
+	Format = "ff8",
+	output_file = "riscos")
+Target(
+	System = "dxdos",
+	Format = "com",
+	output_file = "dxdos")
+

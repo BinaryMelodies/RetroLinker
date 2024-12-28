@@ -1,0 +1,377 @@
+/*! \mainpage RetroLinker, a linker for multiple 8-bit, 16-bit and 32-bit executable formats
+ *
+ * \section Introduction
+ *
+ * This program grew out of a desire to be able to process and generate old object and executable file formats.
+ * The initial targets were 16-bit 8086 operating systems, in particular CP/M-86, MS-DOS, Windows and ELKS (16-bit port of Linux).
+ * It was also a goal to be able to parse Intel OMF object files as well as as86 object files, to provide a drop-in replacement for the WATCOM and dev86 compilers.
+ *
+ * \section x_output_formats Supported output formats
+ *
+ * <table>
+ *
+ * <tr>
+ * <td colspan='2'>File format</td>
+ * <td>CPU</td>
+ * <td>Platform</td>
+ * </tr>
+ *
+ * <tr>
+ * <td rowspan='4' colspan='2'><a href="classBinary_1_1BinaryFormat.html">Flat binary (<tt>.com</tt>)</a></td>
+ * <td>Intel 8080<br>Zilog Z80</td>
+ * <td>CP/M-80<br>MSX-DOS</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>Intel 8086</td>
+ * <td>MS-DOS</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>Acorn ARM</td>
+ * <td>RISC OS</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>Motorola 68000</td>
+ * <td>QDOS for Sinclair QL</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1BinaryFormat.html">Relocatable (flat) binary (<tt>.r</tt>)</a></td>
+ * <td>Motorola 68000</td>
+ * <td>Human68k</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1PRLFormat.html">Page relocatable (<tt>.prl</tt>)</a></td>
+ * <td>Intel 8080<br>Zilog Z80</td>
+ * <td>MP/M-80<br>CP/M-80 3.0</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classDigitalResearch_1_1CPM86Format.html">CMD binary (<tt>.cmd</tt>)</a></td>
+ * <td>8080 model<br>Small/compact model</td>
+ * <td rowspan='2'>Intel 8086</td>
+ * <td>CP/M-86</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classDigitalResearch_1_1CPM86Format.html">FlexOS format (<tt>.186</tt>, <tt>.286</tt>)</a></td>
+ * <td>FlexOS (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classMicrosoft_1_1MZFormat.html"><tt>MZ</tt> (<tt>.exe</tt>)</a></td>
+ * <td>Intel 8086</td>
+ * <td>MS-DOS<br>GEM</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classMicrosoft_1_1MZFormat.html"><tt>DL</tt> (<tt>.exm</tt>)</a></td>
+ * <td>Intel 8086</td>
+ * <td>HP LX System Manager (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classMicrosoft_1_1NEFormat.html"><tt>NE</tt> (<tt>.exe</tt>)</a></td>
+ * <td>Intel 8086</td>
+ * <td>Windows (16-bit)<br>OS/2 (16-bit)<br>(European) Multitasking MS-DOS 4.0</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classMINIX_1_1MINIXFormat.html">MINIX a.out</a></td>
+ * <td>Combined/impure<br>Split/pure</td>
+ * <td>Intel 8086</td>
+ * <td>ELKS</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classDOS16M_1_1BWFormat.html"><tt>BW</tt> (<tt>.exp</tt>, <tt>.exe</tt>)</a></td>
+ * <td>Intel 8086</td>
+ * <td>DOS/16M extender</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classPharLap_1_1P3Format.html"><tt>P2</tt> (<tt>.exp</tt>)</a></td>
+ * <td>Intel 80286</td>
+ * <td>Phar Lap extender (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classPharLap_1_1P3Format.html"><tt>P3</tt> (<tt>.exp</tt>)</a></td>
+ * <td>Intel 80386</td>
+ * <td>Phar Lap extender</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classPharLap_1_1MPFormat.html"><tt>MP</tt> (<tt>.exp</tt>)</a><br><a href="classPharLap_1_1MPFormat.html"><tt>MQ</tt> (<tt>.rex</tt>)</a></td>
+ * <td>Intel 80386</td>
+ * <td>Phar Lap extender</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classPharLap_1_1MPFormat.html"><tt>MP</tt> (<tt>.exp</tt>)</a><br><a href="classPharLap_1_1MPFormat.html"><tt>MQ</tt> (<tt>.rex</tt>)</a></td>
+ * <td>Intel 80386</td>
+ * <td>Phar Lap extender</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classErgo_1_1XPFormat.html"><tt>XP</tt> (<tt>.exp</tt>)</a></td>
+ * <td>Intel 80286<br>Intel 80386</td>
+ * <td>Ergo OS/286 and OS/386 extenders (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td rowspan='2'><a href="classAOut_1_1AOutFormat.html">32-bit UNIX a.out</a></td>
+ * <td>ZMAGIC (<tt>.exe</tt>)</td>
+ * <td>Intel 80386</td>
+ * <td>DJGPP (prior to 1.11)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>OMAGIC (<tt>.exe</tt>)</td>
+ * <td>Intel 80386</td>
+ * <td>early PDOS/386</td>
+ * </tr>
+ *
+ * <tr>
+ * <td rowspan='3' colspan='2'><a href="classCOFF_1_1COFFFormat.html">COFF</a></td>
+ * <td rowspan='2'>Intel 80386</td>
+ * <td>DJGPP (since 1.11)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>FlexOS 386 (<tt>.386</tt>) (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>Motorola 68000</td>
+ * <td>Concurrent DOS 68K (<tt>.68k</tt>)<br>with crunched relocations (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classMicrosoft_1_1PEFormat.html"><tt>PE</tt> (<tt>.exe</tt>)</a></td>
+ * <td rowspan='3'>Intel 80386</td>
+ * <td>Windows (32-bit)<br>Windows NT<br>Windows 95<br>Win32s (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td rowspan='2'><a href="classMicrosoft_1_1LEFormat.html"><tt>LE</tt> (<tt>.exe</tt>)</a></td>
+ * <td><tt>LE</tt> (<tt>.exe</tt>)</td>
+ * <td>DOS/4G</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><tt>LX</tt> (<tt>.exe</tt>)</td>
+ * <td>OS/2 (32-bit)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classPMODE_1_1PMW1Format.html"><tt>PMW1</tt> (<tt>.exe</tt>)</a></td>
+ * <td><tt>PMW1</tt> (<tt>.exe</tt>)</td>
+ * <td>PMODE/W (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td rowspan='3'><a href="classDigitalResearch_1_1CPM68KFormat.html">CP/M-68K binary</a></td>
+ * <td>Contiguous binary</td>
+ * <td rowspan='3'>Motorola 68000</td>
+ * <td>CP/M-68K (<tt>.68k</tt>)<br>GEMDOS (<tt>.prg</tt>)<br>Atari TOS (<tt>.prg</tt>)<br>Human68k (<tt>.z</tt>)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>Non-contiguous binary (<tt>.68k</tt>)</td>
+ * <td>CP/M-68K</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>Contiguous binary (<tt>.68k</tt>)<br>with CP/M-68K or crunched relocations</td>
+ * <td>Concurrent DOS 68K</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classX68000_1_1HUFormat.html"><tt>HU</tt> (<tt>.x</tt>)</a></td>
+ * <td>Motorola 68000</td>
+ * <td>Human68k</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classAmiga_1_1HunkFormat.html">Hunk</a></td>
+ * <td>Motorola 68000<br>PowerPC</td>
+ * <td>AmigaOS</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classApple_1_1AppleSingleDouble.html">AppleSingle or AppleDouble</a>
+ * <br><a href="classApple_1_1ResourceFork.html">Macintosh resource</a>
+ * <br><a href="classApple_1_1MacBinary.html">MacBinary</a></td>
+ * <td>Motorola 68000</td>
+ * <td>Mac OS</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classApple_1_1PEFFormat.html">PEF</a></td>
+ * <td>PowerPC<br>Motorola 68000</td>
+ * <td>Mac OS (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classApple_1_1GSOS__OMFFormat.html">OMF executable</a></td>
+ * <td>WDC65C816</td>
+ * <td>GS/OS (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classDigitalResearch_1_1CPM8KFormat.html">CP/M-8000 binary</a></td>
+ * <td>Zilog Z8000</td>
+ * <td>CP/M-8000</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classMachO_1_1MachOFormat.html">Mach-O</a></td>
+ * <td>PowerPC<br>AMD64<br>ARM<br>etc.</td>
+ * <td>Mac OS X (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classELF_1_1ELFFormat.html">ELF</a></td>
+ * <td>Intel 80386<br>etc.</td>
+ * <td>Linux<br>etc.</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1AppleFormat.html">Apple ][ (<tt>.bin</tt>)</a></td>
+ * <td>MOS 6502</td>
+ * <td>Apple ][ (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1AtariFormat.html">Atari 400/800 (<tt>.exe</tt>)</a></td>
+ * <td>MOS 6502</td>
+ * <td>Atari 400/800 (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1CommodoreFormat.html">Commodore PET/VIC-20/64 (<tt>.prg</tt>)</a></td>
+ * <td>MOS 6502</td>
+ * <td>Commodore PET/VIC-20/64 (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1CPM3Format.html">CP/M Plus (<tt>.com</tt>)</a></td>
+ * <td>Intel 8080</td>
+ * <td>CP/M Plus (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1FLEXFormat.html">FLEX (<tt>.cmd</tt>)</a></td>
+ * <td>Motorola 6800<br>Motorola 6809</td>
+ * <td>FLEX (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1UZIFormat.html">UZI (Unix-like)</a></td>
+ * <td>Zilog Z80</td>
+ * <td>UZI (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBinary_1_1UZI280Format.html">UZI-280 (Unix-like)</a></td>
+ * <td>Zilog Z280</td>
+ * <td>UZI-280 (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classXenix_1_1BOutFormat.html">Xenix b.out</a></td>
+ * <td>Intel 80286</td>
+ * <td>Xenix (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classXenix_1_1XOutFormat.html">Xenix x.out</a></td>
+ * <td>Intel 80286</td>
+ * <td>Xenix (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBrocaD3X_1_1D3X1Format.html">D3X1</a></td>
+ * <td>Intel 80386</td>
+ * <td>D3X DOS extender (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classSeychellDOS32_1_1AdamFormat.html">Adam</a></td>
+ * <td>Intel 80386</td>
+ * <td>Adam Seychell DOS32 extender (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classDX64_1_1FlatFormat.html">64-bit Flat file</a></td>
+ * <td>AMD64</td>
+ * <td>DX64 DOS extender (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classDX64_1_1LVFormat.html">64-bit LV file</a></td>
+ * <td>AMD64</td>
+ * <td>DX64 DOS extender (unimplemented)</td>
+ * </tr>
+ *
+ * </table>
+ *
+ * \section x_input_formats Supported input formats
+ *
+ * <table>
+ *
+ * <tr>
+ * <td>File format</td>
+ * <td>CPU</td>
+ * <td>Used by</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classAS86Obj_1_1AS86ObjFormat.html">as86 object</a></td>
+ * <td>Intel 8086<br>etc.</td>
+ * <td>as86 (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classAOut_1_1AOutFormat.html">UNIX a.out</a></td>
+ * <td>DEC PDP-11</td>
+ * <td>GNU tools</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classCOFF_1_1COFFFormat.html">COFF</a></td>
+ * <td>Zilog Z80<br>Zilog Z8000</td>
+ * <td>GNU tools</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classELF_1_1ELFFormat.html">ELF</a></td>
+ * <td>Intel 80386<br>etc.</td>
+ * <td>GNU tools<br>etc.</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classMachO_1_1MachOFormat.html">Mach-O</a></td>
+ * <td>PowerPC<br>AMD64<br>ARM<br>etc.</td>
+ * <td>Mac OS X (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classO65_1_1O65Format.html">xa object</a></td>
+ * <td>MOS 6502</td>
+ * <td>xa (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classOMF_1_1OMFFormat.html">Intel Relocatable Object Module</a></td>
+ * <td>Intel 8086<br>Intel 80386</td>
+ * <td>16-bit Microsoft<br>Borland<br>Watcom (unimplemented)</td>
+ * </tr>
+ *
+ * </table>
+ *
+ */
