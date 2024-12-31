@@ -2,9 +2,9 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
 
-#include "../../linker/location.h"
-#include "../../linker/section.h"
-#include "../../linker/segment.h"
+#include "../../src/linker/location.h"
+#include "../../src/linker/section.h"
+#include "../../src/linker/segment.h"
 
 using namespace Linker;
 

@@ -1,22 +1,22 @@
 
-LINKER_HEADERS=$(addprefix linker/, format.h linker.h location.h module.h position.h reader.h relocation.h resolution.h section.h segment.h symbol.h target.h writable.h writer.h)
+LINKER_HEADERS=$(addprefix src/linker/, format.h linker.h location.h module.h position.h reader.h relocation.h resolution.h section.h segment.h symbol.h target.h writable.h writer.h)
 LINKER_CXXFILES=$(LINKER_HEADERS:.h=.cc)
 LINKER_OFILES=$(LINKER_CXXFILES:.cc=.o)
 
-FORMAT_HEADERS=$(addprefix format/, 8bitexe.h aout.h as86obj.h binary.h bwexp.h coff.h cpm68k.h cpm86.h cpm8k.h dosexe.h elf.h geos.h gsos.h huexe.h hunk.h leexe.h macho.h macos.h minix.h mzexe.h neexe.h o65.h omf.h peexe.h pefexe.h pharlap.h pmode.h xenix.h xpexp.h)
+FORMAT_HEADERS=$(addprefix src/format/, 8bitexe.h aout.h as86obj.h binary.h bwexp.h coff.h cpm68k.h cpm86.h cpm8k.h dosexe.h elf.h geos.h gsos.h huexe.h hunk.h leexe.h macho.h macos.h minix.h mzexe.h neexe.h o65.h omf.h peexe.h pefexe.h pharlap.h pmode.h xenix.h xpexp.h)
 FORMAT_CXXFILES=$(FORMAT_HEADERS:.h=.cc)
 FORMAT_OFILES=$(FORMAT_CXXFILES:.cc=.o)
 
-DUMPER_HEADERS=dumper/dumper.h
+DUMPER_HEADERS=src/dumper/dumper.h
 DUMPER_CXXFILES=$(DUMPER_HEADERS:.h=.cc)
 DUMPER_OFILES=$(DUMPER_CXXFILES:.cc=.o)
 
-SCRIPT_HEADERS=script/script.h
-SCRIPT_CXXFILES=script/scan.cc script/parse.tab.cc
+SCRIPT_HEADERS=src/script/script.h
+SCRIPT_CXXFILES=src/script/scan.cc src/script/parse.tab.cc
 SCRIPT_OFILES=$(SCRIPT_CXXFILES:.cc=.o)
 
-MAIN_HEADERS=common.h
-MAIN_CXXFILES=main.cc common.cc
+MAIN_HEADERS=src/common.h
+MAIN_CXXFILES=src/main.cc src/common.cc
 MAIN_OFILES=$(MAIN_CXXFILES:.cc=.o)
 
 CXXFLAGS=-Wall -Wsuggest-override -std=c++20 -O2
@@ -71,11 +71,11 @@ doxygen:
 	doxygen Doxyfile
 	$(MAKE) -C latex
 
-script/scan.cc: script/scan.lex script/parse.tab.hh
+src/script/scan.cc: src/script/scan.lex src/script/parse.tab.hh
 	flex -o $@ $<
 
-script/parse.tab.hh: script/parse.tab.cc
+src/script/parse.tab.hh: src/script/parse.tab.cc
 
-script/parse.tab.cc: script/parse.yy
+src/script/parse.tab.cc: src/script/parse.yy
 	bison3 -d -o $@ $<
 

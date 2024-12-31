@@ -428,7 +428,7 @@ DefineTarget(
 	custom_entry = True,
 	compiled_stack = True, # TODO: test?
 	extension = ".exe",
-	stub = "") # TODO: requires a DOS/16M compatible stub
+	stub = ENV.get("DOS16MSTUB", "missing")) # TODO: requires a DOS/16M compatible stub
 
 DefineTarget(
 	CPU = "i86",
@@ -510,7 +510,7 @@ DefineTarget(
 	Format = "aout",
 	LinkerName = "djgppv1",
 	extension = ".exe",
-	stub = "") # TODO: requires a GO32 compatible stub that can load a.out files
+	stub = ENV.get("GO32STUB", "missing")) # TODO: requires a GO32 compatible stub that can load a.out files
 
 DefineTarget(
 	CPU = "i386",
@@ -519,14 +519,14 @@ DefineTarget(
 	Format = "coff",
 	LinkerName = "djgpp",
 	extension = ".exe",
-	stub = "") # TODO: requires a CWSDPMI compatible stub that can load COFF files
+	stub = ENV.get("CWSDPMISTUB", "missing")) # TODO: requires a CWSDPMI compatible stub that can load COFF files
 
 DefineTarget(
 	CPU = "i386",
 	System = "dos4g",
 	IncludeName = "msdos",
 	extension = ".exe",
-	stub = "") # TODO: requires a DOS/4GW compatible stub
+	stub = ENV.get("DOS4GWSTUB", "missing")) # TODO: requires a DOS/4GW compatible stub
 
 DefineTarget(
 	CPU = "i386",

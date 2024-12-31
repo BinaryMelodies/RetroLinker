@@ -4,7 +4,7 @@
 #include <string>
 #include <sstream>
 
-#include "../../linker/reader.h"
+#include "../../src/linker/reader.h"
 
 using namespace Linker;
 

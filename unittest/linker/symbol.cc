@@ -2,7 +2,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
 
-#include "../../linker/symbol.h"
+#include "../../src/linker/symbol.h"
 
 using namespace Linker;
 

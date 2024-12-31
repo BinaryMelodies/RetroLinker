@@ -2,7 +2,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
 
-#include "../../format/mzexe.h"
+#include "../../src/format/mzexe.h"
 
 using namespace Linker;
 using namespace Microsoft;

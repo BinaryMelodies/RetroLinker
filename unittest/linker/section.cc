@@ -2,7 +2,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
 
-#include "../../linker/section.h"
+#include "../../src/linker/section.h"
 
 using namespace Linker;
 

@@ -1,9 +1,9 @@
 
 *~
 *.o
-script/parse.tab.cc
-script/parse.tab.hh
-script/scan.cc
+src/script/parse.tab.cc
+src/script/parse.tab.hh
+src/script/scan.cc
 link
 unittest/main
 results.xml
