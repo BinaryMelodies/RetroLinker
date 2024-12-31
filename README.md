@@ -15,7 +15,7 @@ Multiple sources were consulted in the research and documentation for the linker
 
 # Requirements
 
-To compile the linker and dumper, an up-to-date C++ compiler is necessary, as well as Flex as GNU Bison.
+To compile the linker and dumper, an up-to-date C++ compiler is necessary, as well as Flex and GNU Bison.
 To generate the assembly tests, a Python interpreter is required, as well as cross compilers for the ia16, i386, m68k, pdp11, arm and z8k backends.
 
 # Usage

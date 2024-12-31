@@ -36,7 +36,7 @@ namespace Microsoft
 
 		enum system_type
 		{
-			OS2 = 1, /* OS/2 1.0 - 1.3 */
+			OS2 = 1, /* OS/2 2.0+ */
 			Windows, /* Windows 386 */
 			MSDOS4, /* ? */
 			Windows386, /* ? */
