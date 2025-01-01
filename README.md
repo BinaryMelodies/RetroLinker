@@ -7,7 +7,7 @@ Not all of these goals have been achieved yet.
 
 The project is in an alpha stage, however it works sufficiently well for the author's every day purposes.
 It is released in its current state as-is, in the hopes that others might find it useful for their own work.
-The most up to date documentation is found in the [generated doxygen documents](https://binarymelodies.github.io/RetroLinker/index.html).
+The most up to date documentation is found in the [generated doxygen documents](https://binarymelodies.github.io/RetroLinker/).
 
 # Acknowledgements
 
