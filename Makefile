@@ -63,7 +63,7 @@ tests:
 	$(MAKE) -C tests/4_ctest
 	$(MAKE) -C tests/watcom
 
-unittests:
+unittests: link
 	$(MAKE) -C unittest
 	unittest/main
 
