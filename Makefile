@@ -36,7 +36,7 @@ force:
 
 clean: tests_clean
 	# TODO: check what needs to be actually deleted
-	rm -rf link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) script/scan.cc script/parse.tab.cc script/parse.tab.hh latex html doxygen.log
+	rm -rf link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) script/scan.cc script/parse.tab.cc script/parse.tab.hh latex docs doxygen.log
 
 tests_clean:
 	$(MAKE) -C tests/1_hello clean
