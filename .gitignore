@@ -7,7 +7,6 @@ src/script/scan.cc
 link
 unittest/main
 results.xml
-/html
 /latex
 tests/1_hello/*
 !tests/1_hello/*.s
