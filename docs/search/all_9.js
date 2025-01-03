@@ -25,8 +25,9 @@ var searchData=
   ['getsizeparas_22',['GetSizeParas',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#aac8e78d8db3ab63e82cf4f28554ab9d6',1,'DigitalResearch::CPM86Format::Descriptor::GetSizeParas()'],['../classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html#a3904a4cd39972c6576d06630851c5667',1,'DigitalResearch::CPM86Format::LibraryDescriptor::GetSizeParas()'],['../classDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor.html#a5d2daaf7bd73b9ab6d2a4a77b7281b67',1,'DigitalResearch::CPM86Format::FastLoadDescriptor::GetSizeParas()']]],
   ['getstartaddress_23',['GetStartAddress',['../classLinker_1_1Segment.html#aeb9e255e8bf3eeddb6e041cabca2540f',1,'Linker::Segment']]],
   ['gettotalsize_24',['GetTotalSize',['../classDOS16M_1_1BWFormat_1_1AbstractSegment.html#a64f74ccf5f36149e6bdbabcd9c52aed1',1,'DOS16M::BWFormat::AbstractSegment']]],
-  ['gnuaoutheader_25',['GNUAOutHeader',['../classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html',1,'COFF::COFFFormat']]],
-  ['group_26',['group',['../structDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor_1_1ldt__descriptor.html#abd9cd218ea7f2991098b1931ee7d9794',1,'DigitalResearch::CPM86Format::FastLoadDescriptor::ldt_descriptor']]],
-  ['group_5ftype_27',['group_type',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bc',1,'DigitalResearch::CPM86Format::Descriptor']]],
-  ['gsosomfreader_28',['GSOSOMFReader',['../classdump_1_1GSOSOMFReader.html',1,'dump']]]
+  ['getwordsize_25',['GetWordSize',['../classO65_1_1O65Format_1_1Module.html#aa9bc18f19f8e8bce3232fb62dc371715',1,'O65::O65Format::Module']]],
+  ['gnuaoutheader_26',['GNUAOutHeader',['../classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html',1,'COFF::COFFFormat']]],
+  ['group_27',['group',['../structDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor_1_1ldt__descriptor.html#abd9cd218ea7f2991098b1931ee7d9794',1,'DigitalResearch::CPM86Format::FastLoadDescriptor::ldt_descriptor']]],
+  ['group_5ftype_28',['group_type',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bc',1,'DigitalResearch::CPM86Format::Descriptor']]],
+  ['gsosomfreader_29',['GSOSOMFReader',['../classdump_1_1GSOSOMFReader.html',1,'dump']]]
 ];
