@@ -1,5 +1,5 @@
 
-LINKER_HEADERS=$(addprefix ../src/linker/, format.h linker.h location.h module.h position.h reader.h relocation.h resolution.h section.h segment.h symbol.h target.h writable.h writer.h)
+LINKER_HEADERS=$(addprefix ../src/linker/, buffer.h format.h linker.h location.h module.h position.h reader.h relocation.h resolution.h section.h segment.h symbol.h target.h writable.h writer.h)
 LINKER_CXXFILES=$(LINKER_HEADERS:.h=.cc)
 LINKER_OFILES=$(LINKER_CXXFILES:.cc=.o)
 
@@ -23,7 +23,9 @@ CXXFLAGS=-Wall -g
 
 .PHONY: all clean distclean
 
-all:
+all: main
+
+main: main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) linker/*.cc format/*.cc
 	g++ -o main main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) -lcppunit $(CXXFLAGS)
 
 clean:

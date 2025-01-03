@@ -1,4 +1,5 @@
 
+#include "linker/buffer.cc"
 #include "linker/location.cc"
 #include "linker/reader.cc"
 #include "linker/section.cc"
@@ -14,6 +15,7 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/XmlOutputter.h>
 
+CPPUNIT_TEST_SUITE_REGISTRATION(UnitTests::TestBuffer);
 CPPUNIT_TEST_SUITE_REGISTRATION(UnitTests::TestLocation);
 CPPUNIT_TEST_SUITE_REGISTRATION(UnitTests::TestReader);
 CPPUNIT_TEST_SUITE_REGISTRATION(UnitTests::TestSection);

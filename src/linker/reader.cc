@@ -6,6 +6,11 @@ using namespace Linker;
 void Reader::ReadData(size_t count, void * data)
 {
 	in->read(reinterpret_cast<char *>(data), count);
+	size_t actual_count = in->gcount();
+	if(actual_count != count)
+	{
+		Linker::Debug << "Internal warning: tried reading " << count << " only managed " << actual_count;
+	}
 }
 
 std::string Reader::ReadData(size_t count, bool terminate_at_null)
