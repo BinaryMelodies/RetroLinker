@@ -9,6 +9,7 @@
 #include "linker/module.h"
 #include "linker/position.h"
 #include "linker/reader.h"
+#include "linker/reference.h"
 #include "linker/relocation.h"
 #include "linker/resolution.h"
 #include "linker/section.h"
