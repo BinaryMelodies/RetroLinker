@@ -106,6 +106,20 @@ namespace Binary
 
 		Linker::Segment * loader; /* loader routine in BASIC */
 
+		void Initialize() override;
+
+		void Clear() override;
+
+		CommodoreFormat()
+		{
+			Initialize();
+		}
+
+		~CommodoreFormat()
+		{
+			Clear();
+		}
+
 		void SetupDefaultLoader();
 
 		void ProcessModule(Linker::Module& module) override;

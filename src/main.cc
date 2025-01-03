@@ -357,6 +357,16 @@ struct output_format_type
 	{ "z8k_segmented" },
 	{ "z8k_sg" },
 	{ "ee01" },
+	/* 6502 */
+	{ "atari-com", // TODO: testing
+		[]() -> OutputFormat * { return new AtariFormat; },
+		"Atari 8-bit file format" },
+	{ "cbm-prg", // TODO: testing
+		[]() -> OutputFormat * { return new CommodoreFormat; },
+		"Commodore 8-bit file format" },
+	{ "apple-bin", // TODO: testing
+		[]() -> OutputFormat * { return new AppleFormat; },
+		"Apple 8-bit file format" },
 };
 
 /**
@@ -444,6 +454,7 @@ enum format_type
 	FORMAT_MQ, // Phar Lap relocatable executable, .rex
 	FORMAT_MZ, // MS-DOS .exe
 	FORMAT_NE, // 16-bit Windows .exe
+	FORMAT_O65, // 6502 binary relocation format
 	FORMAT_OMF, // Intel Object file
 	FORMAT_P3, // Phar Lap new executable .exp
 	FORMAT_PE, // 32-bit Windows .exe
@@ -597,6 +608,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x00\x05\x16\x00", 4), 0, FORMAT_APPLE,   "Macintosh AppleSingle" },
 	{ std::string("\x00\x05\x16\x07", 4), 0, FORMAT_APPLE,   "Macintosh AppleDouble" },
 	{ std::string("\x00", 1),             0, FORMAT_PRL,     "MP/M-80 page relocatable executable (.prl)", VerifyDRPageRelocatable },
+	{ std::string("\x01\x00o65", 5),      0, FORMAT_O65,     "6502 binary relocation format (André Fachat, used by xa)" },
 //	{ std::string("\x01\x01"),            0, FORMAT_AOUT,    "Little endian a.out, UNIX/RT lpd" }, // conflicts with CMD format
 	{ std::string("\x01\x03"),            0, FORMAT_MINIX,   "MINIX/ELKS a.out executable" },
 	{ std::string("\x01P"),               0, FORMAT_COFF,    "Motorola 68000 COFF executable (Concurrent DOS 68K)" },
@@ -691,7 +703,7 @@ static const struct format_magic format_magics[] =
 void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, uint32_t offset = 0)
 {
 	rd.Seek(offset);
-	char magic[4];
+	char magic[5];
 	rd.ReadData(sizeof magic, magic);
 	uint32_t position = rd.Tell();
 	if(position == (uint32_t)-1)
@@ -705,6 +717,7 @@ void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, 
 			continue;
 		if(std::string(magic + format_magics[i].offset, format_magics[i].magic.size()) == format_magics[i].magic)
 		{
+//Linker::Debug << format_magics[i].description << std::endl;
 			format_description description;
 			description.magic = format_magics[i];
 			description.offset = offset;
@@ -805,7 +818,7 @@ Format * CreateFormat(Reader& rd, format_description& file_format)
 		/* TODO */
 		return nullptr;
 	case FORMAT_AOUT:
-		return new AOutFormat; // TODO: test
+		return new AOutFormat; // TODO: test dumper
 	case FORMAT_APPLE:
 		/* TODO */
 		return nullptr;
@@ -817,7 +830,7 @@ Format * CreateFormat(Reader& rd, format_description& file_format)
 		/* TODO */
 		return nullptr;
 	case FORMAT_COFF:
-		return new COFFFormat; // TODO: test
+		return new COFFFormat; // TODO: test dumper
 	case FORMAT_CMD:
 		return new CPM86Format;
 	case FORMAT_CPM3:
@@ -828,7 +841,7 @@ Format * CreateFormat(Reader& rd, format_description& file_format)
 		/* TODO */
 		return nullptr;
 	case FORMAT_ELF:
-		return new ELFFormat; // TODO: test
+		return new ELFFormat; // TODO: test dumper
 	case FORMAT_FLAT:
 		return new BinaryFormat; // TODO: test
 	case FORMAT_FLEX:
@@ -872,6 +885,8 @@ Format * CreateFormat(Reader& rd, format_description& file_format)
 	case FORMAT_NE:
 		/* TODO */
 		return nullptr;
+	case FORMAT_O65:
+		return new O65::O65Format; // TODO
 	case FORMAT_OMF:
 		/* TODO */
 		return nullptr;
@@ -1082,21 +1097,7 @@ int linker_main(int argc, char * argv[])
 
 		for(auto& file_format : file_formats)
 		{
-			switch(file_format.magic.type)
-			{
-			case FORMAT_ELF:
-				input_format = new ELFFormat;
-				break;
-			case FORMAT_COFF:
-				input_format = new COFFFormat;
-				break;
-			case FORMAT_AOUT:
-				input_format = new AOutFormat;
-				break;
-			default:
-				/* nothing */
-				break;
-			}
+			input_format = dynamic_cast<InputFormat *>(CreateFormat(rd, file_format));
 			if(input_format != nullptr)
 			{
 				input_format->file_offset = file_format.offset;

@@ -107,6 +107,19 @@ void AtariFormat::WriteFile(Linker::Writer& wr)
 
 // CommodoreFormat
 
+
+void CommodoreFormat::Initialize()
+{
+	loader = nullptr;
+}
+
+void CommodoreFormat::Clear()
+{
+	if(loader != nullptr)
+		delete loader;
+	loader = nullptr;
+}
+
 void CommodoreFormat::SetupDefaultLoader()
 {
 	Linker::Section * loader_section = new Linker::Section(".loader");
@@ -118,6 +131,10 @@ void CommodoreFormat::SetupDefaultLoader()
 	loader_section->WriteWord(1, BASIC_SYS);
 	loader_section->Append(text.c_str());
 	loader_section->WriteWord(2, 0);
+	if(loader == nullptr)
+	{
+		loader = new Linker::Segment(".loader");
+	}
 	loader->Append(loader_section);
 	loader->SetStartAddress(base_address - loader->data_size);
 }

@@ -278,6 +278,7 @@ namespace Linker
 		 */
 		Position Base() const;
 
+		using Linker::Buffer::ReadFile;
 		/**
 		 * @brief Overwrites section data with contents of input stream
 		 *
