@@ -176,32 +176,9 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
 <div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>    <span class="keywordtype">bool</span> starts_with(std::string str, std::string start);</div>
 <div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>    <span class="keywordtype">bool</span> ends_with(std::string str, std::string end);</div>
-<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
-<div class="foldopen" id="foldopen00167" data-start="{" data-end="};">
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno"><a class="line" href="classLinker_1_1Reference.html">  167</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classLinker_1_1Reference.html">Reference</a></div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>    {</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>    <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        std::optional&lt;std::string&gt; segment;</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        std::variant&lt;std::string, offset_t&gt; offset;</div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        <a class="code hl_class" href="classLinker_1_1Reference.html">Reference</a>(std::variant&lt;std::string, offset_t&gt; offset = offset_t(0))</div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>            : segment(), offset(offset)</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>        {</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>        }</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>        <a class="code hl_class" href="classLinker_1_1Reference.html">Reference</a>(std::string segment, std::variant&lt;std::string, offset_t&gt; offset = offset_t(0))</div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>            : segment(segment), offset(offset)</div>
-<div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>        {</div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>        }</div>
-<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
-<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span>        <a class="code hl_class" href="classLinker_1_1Location.html">Location</a> <a class="code hl_function" href="classLinker_1_1Reference.html#a08ba6f8edc18df8330f565de6b0ff27c">ToLocation</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Module</a>&amp; module) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>    };</div>
-</div>
-<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
-<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>    std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, <span class="keyword">const</span> <a class="code hl_class" href="classLinker_1_1Reference.html">Reference</a>&amp; ref);</div>
-<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>}</div>
-<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span> </div>
-<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span><span class="preprocessor">#endif </span><span class="comment">/* LINKER_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>}</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span><span class="preprocessor">#endif </span><span class="comment">/* LINKER_H */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="aclassLinker_1_1Exception_html"><div class="ttname"><a href="classLinker_1_1Exception.html">Linker::Exception</a></div><div class="ttdef"><b>Definition</b> linker.h:15</div></div>
 <div class="ttc" id="aclassLinker_1_1LinkerManager_html"><div class="ttname"><a href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div><div class="ttdoc">A helper class to collect sections into segments.</div><div class="ttdef"><b>Definition</b> linker.h:27</div></div>
 <div class="ttc" id="aclassLinker_1_1LinkerManager_html_a042e3111f536030659635482f65ad28a"><div class="ttname"><a href="classLinker_1_1LinkerManager.html#a042e3111f536030659635482f65ad28a">Linker::LinkerManager::OnNewSegment</a></div><div class="ttdeci">virtual void OnNewSegment(Segment *segment)</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> linker.cc:162</div></div>
@@ -224,10 +201,7 @@ $(function() { codefold.init(0); });
 <div class="ttc" id="aclassLinker_1_1LinkerManager_html_ad9071f24df9b386cc5772eca5332f55a"><div class="ttname"><a href="classLinker_1_1LinkerManager.html#ad9071f24df9b386cc5772eca5332f55a">Linker::LinkerManager::current_base</a></div><div class="ttdeci">offset_t current_base</div><div class="ttdoc">The base address of the current section.</div><div class="ttdef"><b>Definition</b> linker.h:45</div></div>
 <div class="ttc" id="aclassLinker_1_1LinkerManager_html_ae049dffc0706eb94f0215101b15ecfdc"><div class="ttname"><a href="classLinker_1_1LinkerManager.html#ae049dffc0706eb94f0215101b15ecfdc">Linker::LinkerManager::linker_script</a></div><div class="ttdeci">std::string linker_script</div><div class="ttdoc">Contents of the linker script.</div><div class="ttdef"><b>Definition</b> linker.h:65</div></div>
 <div class="ttc" id="aclassLinker_1_1LinkerManager_html_ae66d1566aff716ecd001ad48dc9d0551"><div class="ttname"><a href="classLinker_1_1LinkerManager.html#ae66d1566aff716ecd001ad48dc9d0551">Linker::LinkerManager::AppendSection</a></div><div class="ttdeci">void AppendSection(Section *section)</div><div class="ttdoc">Adds a new section to the current segment, sets the base to the same as the segment.</div><div class="ttdef"><b>Definition</b> linker.cc:189</div></div>
-<div class="ttc" id="aclassLinker_1_1Location_html"><div class="ttname"><a href="classLinker_1_1Location.html">Linker::Location</a></div><div class="ttdoc">Represents a single offset within a section, or an absolute location in memory if the section is null...</div><div class="ttdef"><b>Definition</b> location.h:16</div></div>
 <div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:19</div></div>
-<div class="ttc" id="aclassLinker_1_1Reference_html"><div class="ttname"><a href="classLinker_1_1Reference.html">Linker::Reference</a></div><div class="ttdoc">Represents a reference stored in a linker script.</div><div class="ttdef"><b>Definition</b> linker.h:168</div></div>
-<div class="ttc" id="aclassLinker_1_1Reference_html_a08ba6f8edc18df8330f565de6b0ff27c"><div class="ttname"><a href="classLinker_1_1Reference.html#a08ba6f8edc18df8330f565de6b0ff27c">Linker::Reference::ToLocation</a></div><div class="ttdeci">Location ToLocation(Module &amp;module) const</div><div class="ttdoc">Converts to location, resolving the symbol if it is a symbol.</div><div class="ttdef"><b>Definition</b> linker.cc:513</div></div>
 <div class="ttc" id="aclassLinker_1_1Segment_html"><div class="ttname"><a href="classLinker_1_1Segment.html">Linker::Segment</a></div><div class="ttdoc">A class representing a sequence of sections that must be written to the output file as a group.</div><div class="ttdef"><b>Definition</b> segment.h:25</div></div>
 <div class="ttc" id="aclassScript_1_1List_html"><div class="ttname"><a href="classScript_1_1List.html">Script::List</a></div><div class="ttdef"><b>Definition</b> script.h:61</div></div>
 <div class="ttc" id="aclassScript_1_1Node_html"><div class="ttname"><a href="classScript_1_1Node.html">Script::Node</a></div><div class="ttdef"><b>Definition</b> script.h:89</div></div>
