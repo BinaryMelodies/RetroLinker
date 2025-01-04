@@ -53,8 +53,6 @@ namespace DigitalResearch
 		class Descriptor
 		{
 		public:
-			/** @brief Reference back to the main module */
-			CPM86Format * module;
 			/** @brief Group type, stored as the first byte of the descriptor */
 			enum group_type
 			{
@@ -115,11 +113,6 @@ namespace DigitalResearch
 
 			virtual void Clear();
 
-			Descriptor(CPM86Format * module)
-				: module(module)
-			{
-			}
-
 			~Descriptor()
 			{
 				Clear();
@@ -128,17 +121,17 @@ namespace DigitalResearch
 			/**
 			 * @brief Returns the size of the segment group in 16-byte paragraphs
 			 */
-			virtual uint16_t GetSizeParas() const;
+			virtual uint16_t GetSizeParas(const CPM86Format& module) const;
 
 			void ReadDescriptor(Linker::Reader& rd);
 
-			void WriteDescriptor(Linker::Writer& wr);
+			void WriteDescriptor(Linker::Writer& wr, const CPM86Format& module);
 
-			virtual void WriteData(Linker::Writer& wr);
+			virtual void WriteData(Linker::Writer& wr, const CPM86Format& module);
 
 			std::string GetDefaultName();
 
-			virtual void ReadData(Linker::Reader& rd);
+			virtual void ReadData(Linker::Reader& rd, const CPM86Format& module);
 		};
 
 		/**
@@ -319,11 +312,6 @@ namespace DigitalResearch
 			/** @brief The shared runtime libraries to be imported */
 			std::vector<library> libraries;
 
-			LibraryDescriptor(CPM86Format * module)
-				: Descriptor(module)
-			{
-			}
-
 			void Clear() override;
 
 			/**
@@ -331,11 +319,11 @@ namespace DigitalResearch
 			 */
 			bool IsFastLoadFormat() const;
 
-			uint16_t GetSizeParas() const override;
+			uint16_t GetSizeParas(const CPM86Format& module) const override;
 
-			void WriteData(Linker::Writer& wr) override;
+			void WriteData(Linker::Writer& wr, const CPM86Format& module) override;
 
-			void ReadData(Linker::Reader& rd) override;
+			void ReadData(Linker::Reader& rd, const CPM86Format& module) override;
 		};
 
 		/** @brief (FlexOS 286 only) The fast loading group (unimplemented) */
@@ -366,20 +354,15 @@ namespace DigitalResearch
 				void Write(Linker::Writer& wr);
 			};
 
-			FastLoadDescriptor(CPM86Format * module)
-				: Descriptor(module)
-			{
-			}
-
 			std::vector<ldt_descriptor> ldt;
 
 			void Clear() override;
 
-			uint16_t GetSizeParas() const override;
+			uint16_t GetSizeParas(const CPM86Format& module) const override;
 
-			void WriteData(Linker::Writer& wr) override;
+			void WriteData(Linker::Writer& wr, const CPM86Format& module) override;
 
-			void ReadData(Linker::Reader& rd) override;
+			void ReadData(Linker::Reader& rd, const CPM86Format& module) override;
 		};
 
 		/**
@@ -467,19 +450,7 @@ namespace DigitalResearch
 		format_type format = FORMAT_SMALL;
 
 		CPM86Format(format_type format = FORMAT_UNKNOWN)
-			: descriptors(
-				Descriptor(this),
-				Descriptor(this),
-				Descriptor(this),
-				Descriptor(this),
-				Descriptor(this),
-				Descriptor(this),
-				Descriptor(this),
-				Descriptor(this)
-			),
-			library_descriptor(this),
-			fastload_descriptor(this),
-			format(format)
+			: format(format)
 		{
 		}
 

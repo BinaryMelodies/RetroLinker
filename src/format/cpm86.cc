@@ -11,11 +11,11 @@ void CPM86Format::Descriptor::Clear()
 	image = nullptr;
 }
 
-uint16_t CPM86Format::Descriptor::GetSizeParas() const
+uint16_t CPM86Format::Descriptor::GetSizeParas(const CPM86Format& module) const
 {
-	if(type == ActualFixups && module != NULL)
+	if(type == ActualFixups)
 	{
-		return module->GetRelocationSizeParas();
+		return module.GetRelocationSizeParas();
 	}
 	uint32_t size = image ? image->ActualDataSize() : 0;
 	uint16_t zero_page_extra = attach_zero_page ? 0x10 : 0;
@@ -32,9 +32,9 @@ void CPM86Format::Descriptor::ReadDescriptor(Linker::Reader& rd)
 	max_size_paras = rd.ReadUnsigned(2);
 }
 
-void CPM86Format::Descriptor::WriteDescriptor(Linker::Writer& wr)
+void CPM86Format::Descriptor::WriteDescriptor(Linker::Writer& wr, const CPM86Format& module)
 {
-	if(type == ActualFixups && module != NULL)
+	if(type == ActualFixups)
 	{
 		min_size_paras = max_size_paras = size_paras;
 	}
@@ -45,9 +45,9 @@ void CPM86Format::Descriptor::WriteDescriptor(Linker::Writer& wr)
 	wr.WriteWord(2, max_size_paras);
 }
 
-void CPM86Format::Descriptor::WriteData(Linker::Writer& wr)
+void CPM86Format::Descriptor::WriteData(Linker::Writer& wr, const CPM86Format& module)
 {
-	if(type == Undefined || type == ActualFixups || GetSizeParas() == 0)
+	if(type == Undefined || type == ActualFixups || GetSizeParas(module) == 0)
 		return;
 	wr.Seek(attach_zero_page ? offset + 0x100 : offset);
 	if(image)
@@ -96,7 +96,7 @@ std::string CPM86Format::Descriptor::GetDefaultName()
 	}
 }
 
-void CPM86Format::Descriptor::ReadData(Linker::Reader& rd)
+void CPM86Format::Descriptor::ReadData(Linker::Reader& rd, const CPM86Format& module)
 {
 	if(type == Undefined || type == ActualFixups || size_paras == 0)
 		return;
@@ -258,20 +258,15 @@ void CPM86Format::LibraryDescriptor::Clear()
 	libraries.clear();
 }
 
-bool CPM86Format::LibraryDescriptor::IsFastLoadFormat() const
+uint16_t CPM86Format::LibraryDescriptor::GetSizeParas(const CPM86Format& module) const
 {
-	return module->IsFastLoadFormat();
-}
-
-uint16_t CPM86Format::LibraryDescriptor::GetSizeParas() const
-{
-	if(IsFastLoadFormat())
+	if(module.IsFastLoadFormat())
 		return ::AlignTo(2 + 0x16 * libraries.size(), 0x10);
 	else
 		return ::AlignTo(2 + 0x12 * libraries.size(), 0x10);
 }
 
-void CPM86Format::LibraryDescriptor::WriteData(Linker::Writer& wr)
+void CPM86Format::LibraryDescriptor::WriteData(Linker::Writer& wr, const CPM86Format& module)
 {
 	if(type == Undefined)
 		return;
@@ -279,7 +274,7 @@ void CPM86Format::LibraryDescriptor::WriteData(Linker::Writer& wr)
 	wr.WriteWord(2, libraries.size());
 	for(auto& lib : libraries)
 	{
-		if(IsFastLoadFormat())
+		if(module.IsFastLoadFormat())
 			lib.WriteExtended(wr);
 		else
 			lib.Write(wr);
@@ -287,11 +282,11 @@ void CPM86Format::LibraryDescriptor::WriteData(Linker::Writer& wr)
 	wr.AlignTo(0x10);
 }
 
-void CPM86Format::LibraryDescriptor::ReadData(Linker::Reader& rd)
+void CPM86Format::LibraryDescriptor::ReadData(Linker::Reader& rd, const CPM86Format& module)
 {
 	rd.Seek(offset);
 	uint16_t count = rd.ReadUnsigned(2);
-	int srtl_entry_size = IsFastLoadFormat() ? 22 : 18;
+	int srtl_entry_size = module.IsFastLoadFormat() ? 22 : 18;
 	if(2 + count * srtl_entry_size > (size_paras << 16))
 	{
 		Linker::Error << "Error: Actual STRL group is too short, reading all libraries anyway" << std::endl;
@@ -303,7 +298,7 @@ void CPM86Format::LibraryDescriptor::ReadData(Linker::Reader& rd)
 	for(int i = 0; i < count; i++)
 	{
 		library lib;
-		if(IsFastLoadFormat())
+		if(module.IsFastLoadFormat())
 			lib.ReadExtended(rd);
 		else
 			lib.Read(rd);
@@ -334,12 +329,12 @@ void CPM86Format::FastLoadDescriptor::Clear()
 	ldt.clear();
 }
 
-uint16_t CPM86Format::FastLoadDescriptor::GetSizeParas() const
+uint16_t CPM86Format::FastLoadDescriptor::GetSizeParas(const CPM86Format& module) const
 {
 	return ::AlignTo(8 + 8 * ldt.size(), 0x10);
 }
 
-void CPM86Format::FastLoadDescriptor::WriteData(Linker::Writer& wr)
+void CPM86Format::FastLoadDescriptor::WriteData(Linker::Writer& wr, const CPM86Format& module)
 {
 	wr.WriteWord(2, maximum_entries);
 	wr.WriteWord(2, first_free_entry);
@@ -350,7 +345,7 @@ void CPM86Format::FastLoadDescriptor::WriteData(Linker::Writer& wr)
 		desc.Write(wr);
 }
 
-void CPM86Format::FastLoadDescriptor::ReadData(Linker::Reader& rd)
+void CPM86Format::FastLoadDescriptor::ReadData(Linker::Reader& rd, const CPM86Format& module)
 {
 	maximum_entries = rd.ReadUnsigned(2);
 	first_free_entry = rd.ReadUnsigned(2);
@@ -508,13 +503,13 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
 		library_descriptor.offset = rd.Tell();
-		library_descriptor.ReadData(rd);
+		library_descriptor.ReadData(rd, *this);
 	}
 
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		fastload_descriptor.offset = rd.Tell();
-		fastload_descriptor.ReadData(rd);
+		fastload_descriptor.ReadData(rd, *this);
 	}
 
 	for(size_t i = 0; i < 8; i++)
@@ -535,7 +530,7 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 			}
 		}
 		descriptors[i].offset = rd.Tell();
-		descriptors[i].ReadData(rd);
+		descriptors[i].ReadData(rd, *this);
 	}
 
 	if((flags & FLAG_FIXUPS))
@@ -569,21 +564,21 @@ void CPM86Format::WriteFile(Linker::Writer& wr)
 	{
 		if(descriptors[i].type == Descriptor::Undefined)
 			break;
-		descriptors[i].WriteDescriptor(wr);
+		descriptors[i].WriteDescriptor(wr, *this);
 	}
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
 //		assert(format == FORMAT_FLEXOS);
 		wr.Seek(file_offset + 0x48);
-		library_descriptor.WriteDescriptor(wr);
+		library_descriptor.WriteDescriptor(wr, *this);
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
 //		assert(format == FORMAT_FLEXOS);
 		wr.Seek(file_offset + 0x51);
-		fastload_descriptor.WriteDescriptor(wr);
+		fastload_descriptor.WriteDescriptor(wr, *this);
 	}
 	if(lib_id.name != "")
 	{
@@ -605,19 +600,19 @@ void CPM86Format::WriteFile(Linker::Writer& wr)
 	{
 		/* TODO: untested */
 //		assert(format == FORMAT_FLEXOS);
-		library_descriptor.WriteData(wr);
+		library_descriptor.WriteData(wr, *this);
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
 //		assert(format == FORMAT_FLEXOS);
-		fastload_descriptor.WriteData(wr);
+		fastload_descriptor.WriteData(wr, *this);
 	}
 	for(size_t i = 0; i < 8; i++)
 	{
 		if(descriptors[i].type == Descriptor::Undefined)
 			break;
-		descriptors[i].WriteData(wr);
+		descriptors[i].WriteData(wr, *this);
 	}
 	if((flags & FLAG_FIXUPS))
 	{
@@ -646,15 +641,15 @@ offset_t CPM86Format::GetFullFileSize() const
 	{
 		if(descriptors[i].type == Descriptor::Undefined)
 			break;
-		image_size += descriptors[i].GetSizeParas() << 4;
+		image_size += descriptors[i].GetSizeParas(*this) << 4;
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
-		image_size += fastload_descriptor.GetSizeParas() << 4;
+		image_size += fastload_descriptor.GetSizeParas(*this) << 4;
 	}
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
-		image_size += library_descriptor.GetSizeParas() << 4;
+		image_size += library_descriptor.GetSizeParas(*this) << 4;
 	}
 
 	image_size = std::max(image_size, (offset_t)relocations_offset + (GetRelocationSizeParas() << 4));
@@ -886,13 +881,13 @@ void CPM86Format::CalculateValues()
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
 		library_descriptor.offset = offset;
-		offset += library_descriptor.GetSizeParas() << 4;
+		offset += library_descriptor.GetSizeParas(*this) << 4;
 	}
 
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		fastload_descriptor.offset = offset;
-		offset += fastload_descriptor.GetSizeParas() << 4;
+		offset += fastload_descriptor.GetSizeParas(*this) << 4;
 	}
 
 	for(size_t i = 0; i < 8; i++)
@@ -900,7 +895,7 @@ void CPM86Format::CalculateValues()
 		if(descriptors[i].type == Descriptor::Undefined)
 			continue;
 		descriptors[i].offset = offset;
-		offset += descriptors[i].GetSizeParas() << 4;
+		offset += descriptors[i].GetSizeParas(*this) << 4;
 	}
 
 	relocations_offset = ::AlignTo(offset, 0x80);
@@ -1299,7 +1294,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 		bool is_zero_page = format == FORMAT_8080 ? i == 0 : i == 1;
 		descriptors[j].attach_zero_page = is_zero_page;
 		descriptors[j].image = Segments()[i];
-		descriptors[j].size_paras = descriptors[i].GetSizeParas();
+		descriptors[j].size_paras = descriptors[i].GetSizeParas(*this);
 		descriptors[j].load_segment = 0;
 		descriptors[j].min_size_paras = ((Segments()[i]->TotalSize() + 0xF) >> 4) + (is_zero_page ? 0x10 : 0);
 		descriptors[j].max_size_paras =
@@ -1315,9 +1310,9 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 		/* TODO: untested */
 		assert(format == FORMAT_FLEXOS);
 		library_descriptor.type = Descriptor::Libraries;
-		library_descriptor.size_paras = library_descriptor.GetSizeParas();
-		library_descriptor.min_size_paras = library_descriptor.GetSizeParas();
-		library_descriptor.max_size_paras = library_descriptor.GetSizeParas();
+		library_descriptor.size_paras =
+			library_descriptor.min_size_paras =
+			library_descriptor.max_size_paras = library_descriptor.GetSizeParas(*this);
 	}
 
 	fastload_descriptor.Clear();
@@ -1326,9 +1321,9 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 		/* TODO: untested */
 		assert(format == FORMAT_FLEXOS);
 		fastload_descriptor.type = Descriptor::FastLoad;
-		fastload_descriptor.size_paras = fastload_descriptor.GetSizeParas();
-		fastload_descriptor.min_size_paras = fastload_descriptor.GetSizeParas();
-		fastload_descriptor.max_size_paras = fastload_descriptor.GetSizeParas();
+		fastload_descriptor.size_paras =
+			fastload_descriptor.min_size_paras =
+			fastload_descriptor.max_size_paras = fastload_descriptor.GetSizeParas(*this);
 	}
 }
 
