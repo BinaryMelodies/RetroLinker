@@ -213,21 +213,6 @@ bool COFFFormat::Symbol::IsExternal() const
 	return storage_class == C_EXT && section_number == N_UNDEF && value == 0;
 }
 
-void COFFFormat::Section::Initialize()
-{
-	name = "";
-	physical_address = 0;
-	address = 0;
-	size = 0;
-	section_pointer = 0;
-	relocation_pointer = 0;
-	line_number_pointer = 0;
-	relocation_count = 0;
-	line_number_count = 0;
-	flags = 0;
-	image = nullptr;
-}
-
 void COFFFormat::Section::Clear()
 {
 	if(image)
@@ -291,10 +276,6 @@ COFFFormat::OptionalHeader::~OptionalHeader()
 {
 }
 
-void COFFFormat::OptionalHeader::Initialize()
-{
-}
-
 void COFFFormat::OptionalHeader::PostReadFile(COFFFormat& coff, Linker::Reader& rd)
 {
 }
@@ -305,11 +286,6 @@ void COFFFormat::OptionalHeader::PostWriteFile(COFFFormat& coff, Linker::Writer&
 
 void COFFFormat::OptionalHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 {
-}
-
-void COFFFormat::UnknownOptionalHeader::Initialize()
-{
-	buffer = nullptr;
 }
 
 uint32_t COFFFormat::UnknownOptionalHeader::GetSize()
@@ -330,18 +306,6 @@ void COFFFormat::UnknownOptionalHeader::WriteFile(Linker::Writer& wr)
 void COFFFormat::UnknownOptionalHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 {
 	/* TODO */
-}
-
-void COFFFormat::AOutHeader::Initialize()
-{
-	magic = 0;
-	version_stamp = 0;
-	code_size = 0;
-	data_size = 0;
-	bss_size = 0;
-	entry_address = 0;
-	code_address = 0;
-	data_address = 0;
 }
 
 uint32_t COFFFormat::AOutHeader::GetSize()
@@ -410,12 +374,6 @@ void COFFFormat::AOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 	header_region.Display(dump);
 }
 
-void COFFFormat::FlexOSAOutHeader::Initialize()
-{
-	relocations_offset = 0;
-	stack_size = 0;
-}
-
 uint32_t COFFFormat::FlexOSAOutHeader::GetSize()
 {
 	return 36;
@@ -452,18 +410,6 @@ void COFFFormat::FlexOSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& 
 	/* TODO: move display to relocation region */
 	header_region.AddField("Relocation offset", new Dumper::HexDisplay, (offset_t)relocations_offset);
 	header_region.AddField("Stack size", new Dumper::HexDisplay, (offset_t)stack_size);
-}
-
-void COFFFormat::GNUAOutHeader::Initialize()
-{
-	info = 0;
-	code_size = 0;
-	data_size = 0;
-	bss_size = 0;
-	symbol_table_size = 0;
-	entry_address = 0;
-	code_relocation_size = 0;
-	data_relocation_size = 0;
 }
 
 uint32_t COFFFormat::GNUAOutHeader::GetSize()
@@ -530,30 +476,6 @@ void COFFFormat::MIPSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& du
 	header_region.AddField("CPR #3 mask", new Dumper::HexDisplay, (offset_t)cpr_mask[2]);
 	header_region.AddField("CPR #4 mask", new Dumper::HexDisplay, (offset_t)cpr_mask[3]);
 	header_region.AddField("GP regiser value", new Dumper::HexDisplay, (offset_t)gp_value);
-}
-
-void COFFFormat::Initialize()
-{
-	/* format fields */
-	memset(signature, 0, sizeof signature);
-	timestamp = 0;
-	symbol_table_offset = 0;
-	symbol_count = 0;
-	optional_header_size = 0;
-	optional_header = nullptr;
-	flags = 0;
-	cpu_type = CPU_UNKNOWN;
-	endiantype = (EndianType)0;
-	/* writer fields */
-	type = GENERIC;
-	option_no_relocation = false;
-	stub_size = 0;
-	stack = nullptr;
-	entry_address = 0; /* TODO */
-	relocations_offset = 0;
-	/* generator fields */
-	special_prefix_char = '$';
-	option_segmentation = false;
 }
 
 void COFFFormat::Clear()

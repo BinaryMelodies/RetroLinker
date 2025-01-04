@@ -48,40 +48,40 @@ namespace Microsoft
 		};
 
 		/** @brief The magic number at the start of the executable file, usually "MZ" */
-		char signature[2]; /* TODO: make parameter */
+		char signature[2] = { 'M', 'Z' }; /* TODO: make parameter */
 
 		/** @brief Size of last 512 byte block, 0 if full. Set by CalculateValues */
-		uint16_t last_block_size;
+		uint16_t last_block_size = 0;
 		/** @brief Size of MZ image in 512 blocks, rounded up. Set by CalculateValues */
-		uint16_t file_size_blocks; /* TODO: consider making file size a parameter */
+		uint16_t file_size_blocks = 0; /* TODO: consider making file size a parameter */
 
 		uint32_t GetFileSize() const;
 
 		/** @brief Number of relocations. Updated by CalculateValues */
-		uint16_t relocation_count;
+		uint16_t relocation_count = 0;
 		/** @brief Size of MZ header. Updated by CalculateValues */
-		uint16_t header_size_paras; /* TODO: make header size a parameter */
+		uint16_t header_size_paras = 0; /* TODO: make header size a parameter */
 		/** @brief Minimum required extra memory, in paragraphs */
-		uint16_t min_extra_paras;
+		uint16_t min_extra_paras = 0;
 		/** @brief Maximum required extra memory, in paragraphs. Set by CalculateValues using extra_paras */
-		uint16_t max_extra_paras;
+		uint16_t max_extra_paras = 0;
 		/** @brief Initial value for the stack segment (SS) */
-		uint16_t ss;
+		uint16_t ss = 0;
 		/** @brief Initial value for the stack (SP) */
-		uint16_t sp;
+		uint16_t sp = 0;
 		/** @brief Checksum */
-		uint16_t checksum; /* TODO: fill when writing */
+		uint16_t checksum = 0; /* TODO: fill when writing */
 		/** @brief Entry point initial value for IP */
-		uint16_t ip;
+		uint16_t ip = 0;
 		/** @brief Initial value for the code segment (CS) */
-		uint16_t cs;
+		uint16_t cs = 0;
 		/** @brief Offset to first relocation. Updated by CalculateValues */
-		uint16_t relocation_offset; /* TODO: make parameter */
+		uint16_t relocation_offset = 0; /* TODO: make parameter */
 
 		/** @brief Overlay number, should be 0 for main programs, not used for .exm files */
-		uint16_t overlay_number;
+		uint16_t overlay_number = 0;
 		/** @brief Starting paragraph of program data, only required for .exm files */
-		uint16_t data_segment;
+		uint16_t data_segment = 0;
 
 		/**
 		 * @brief Represents a relocation entry in the header, as a pair of 16-bit words
@@ -139,22 +139,20 @@ namespace Microsoft
 		};
 
 		/** @brief Concurrent DOS program information entry, allocated only if present */
-		PIF * pif;
+		PIF * pif = nullptr;
 
 		/** @brief The program image, placed after the MZ header */
-		Linker::Writable * image;
+		Linker::Writable * image = nullptr;
 
 		magic_type GetSignature() const;
 
 		void SetSignature(magic_type magic);
 
-		void Initialize() override;
-
 		void Clear() override;
 
 		MZFormat()
 		{
-			Initialize();
+			InitializeLinkerManager();
 		}
 
 		~MZFormat()
@@ -193,20 +191,20 @@ namespace Microsoft
 			MODEL_LARGE,
 		};
 		/** @brief Memory model of generated executable */
-		memory_model_t memory_model;
+		memory_model_t memory_model = MODEL_DEFAULT;
 
 		/* filled in automatically */
 		/** @brief Required maximum extra paragraphs after bss */
-		uint16_t extra_paras;
+		uint16_t extra_paras = 0;
 
 		/** @brief Total size of bss and stack */
-		uint32_t zero_fill;
+		uint32_t zero_fill = 0;
 
 		/** @brief User provided alignment value for header size */
-		uint32_t option_header_align;
+		uint32_t option_header_align = 0x10;
 
 		/** @brief User provided alignment value for file align */
-		uint32_t option_file_align;
+		uint32_t option_file_align = 1;
 
 		bool FormatSupportsSegmentation() const override;
 

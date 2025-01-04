@@ -32,25 +32,21 @@ namespace Binary
 		/* * * General members * * */
 
 		/** @brief The actual stored image */
-		Linker::Writable * image;
+		Linker::Writable * image = nullptr;
 
 		/** @brief Concurrent DOS program information entry, allocated only if present */
-		Microsoft::MZFormat::PIF * pif;
-
-		void Initialize() override;
+		Microsoft::MZFormat::PIF * pif = nullptr;
 
 		void Clear() override;
 
 		BinaryFormat(uint64_t default_base_address = 0, std::string default_extension = "")
 			: position_independent(false), base_address(default_base_address), extension(default_extension)
 		{
-			Initialize();
 		}
 
 		BinaryFormat(std::string default_extension)
-			: position_independent(true), base_address(0), extension(default_extension)
+			: position_independent(true), extension(default_extension)
 		{
-			Initialize();
 		}
 
 		~BinaryFormat()
@@ -74,7 +70,7 @@ namespace Binary
 		/** @brief Set when the generated code must not reference absolute references */
 		bool position_independent;
 		/** @brief Address at which image is stored, it can be format specific or provided as a parameter */
-		uint64_t base_address;
+		uint64_t base_address = 0;
 		/** @brief (x86 only) Represents the memory model of the running executable, which is the way in which the segments are set up during execution */
 		enum memory_model_t
 		{
@@ -90,7 +86,7 @@ namespace Binary
 			MODEL_LARGE,
 		};
 		/** @brief Memory model of generated executable, must be MODEL_DEFAULT for all non-x86 platforms */
-		memory_model_t memory_model;
+		memory_model_t memory_model = MODEL_DEFAULT;
 		/** @brief Default filename extension for executables (such as .com for MS-DOS, .r for Human68k) */
 		std::string extension;
 

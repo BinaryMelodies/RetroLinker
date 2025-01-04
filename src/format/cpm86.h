@@ -92,34 +92,32 @@ namespace DigitalResearch
 				ActualFixups = 0x200 | Fixups,
 			};
 			/** @brief The type of the group */
-			group_type type;
+			group_type type = Undefined;
 			/** @brief Size of the group, as stored on disk, in 16-byte paragraphs */
-			uint16_t size_paras;
+			uint16_t size_paras = 0;
 			/** @brief Load segment address of the group, or 0 if it can be relocated. Not to be used outside of system drivers */
-			uint16_t load_segment;
+			uint16_t load_segment = 0;
 			/** @brief Minimum required size of the group, when loaded into memory, in 16-byte paragraphs */
-			uint16_t min_size_paras;
+			uint16_t min_size_paras = 0;
 			/** @brief Maximum required size of the group, when loaded into memory, in 16-byte paragraphs */
-			uint16_t max_size_paras;
+			uint16_t max_size_paras = 0;
 			/**
 			 * @brief Offset to image in file
 			 *
 			 * This value is not actually stored on disk. Instead, it can be determined from the lengths of the segments preceding
 			 * it in the descriptor arrays. The first group is stored at offset 0x80, the next one at the paragraph boundary, and so on.
 			 */
-			uint32_t offset;
+			uint32_t offset = 0;
 			/** @brief The actual binary image of the group */
-			Linker::Writable * image;
+			Linker::Writable * image = nullptr;
 			/** @brief Set to true if a supplementary 256 bytes of zeros are required. When generating image, it is easier to just insert 256 bytes of 0 instead of modifying the image. This is not required when storing a file loaded from disk */
-			bool attach_zero_page;
-
-			virtual void Initialize();
+			bool attach_zero_page = false;
 
 			virtual void Clear();
 
-			Descriptor()
+			Descriptor(CPM86Format * module)
+				: module(module)
 			{
-				Initialize();
 			}
 
 			~Descriptor()
@@ -171,13 +169,12 @@ namespace DigitalResearch
 		 */
 		struct Relocation
 		{
-			uint8_t source;
-			uint16_t paragraph;
-			uint8_t offset;
-			uint8_t target;
+			uint8_t source = 0;
+			uint16_t paragraph = 0;
+			uint8_t offset = 0;
+			uint8_t target = 0;
 
 			Relocation()
-				: source(0), paragraph(0), offset(0), target(0)
 			{
 			}
 
@@ -215,7 +212,7 @@ namespace DigitalResearch
 			 * The special value 0x0000 represents that the RSX file is stored separately and must be loaded dynamically.
 			 * The special value 0xFFFF does not belong to an actual RSX file, but signals the end of an RSX record table.
 			 */
-			uint16_t offset_record;
+			uint16_t offset_record = 0;
 			/**
 			 * @brief A reference to the stored module
 			 *
@@ -229,7 +226,10 @@ namespace DigitalResearch
 #define RSX_TERMINATE (reinterpret_cast<CPM86Format *>(0))
 #define RSX_DYNAMIC   (reinterpret_cast<CPM86Format *>(1))
 
-			void Initialize();
+			rsx_record(CPM86Format * module)
+				: module(module)
+			{
+			}
 
 			void Clear();
 
@@ -253,15 +253,20 @@ namespace DigitalResearch
 			/** @brief The name of the library, 8 characters long */
 			std::string name;
 			/** @brief The major version of the library */
-			uint16_t major_version;
+			uint16_t major_version = 0;
 			/** @brief The minor version of the library */
-			uint16_t minor_version;
+			uint16_t minor_version = 0;
 			/** @brief System specific flags, undocumented */
-			uint32_t flags;
+			uint32_t flags = 0x11010000;
 
 			library_id() { }
 
-			library_id(std::string name, uint16_t major_version, uint16_t minor_version, uint32_t flags = 0x11010000)
+			library_id(std::string name, uint16_t major_version, uint16_t minor_version)
+				: name(name), major_version(major_version), minor_version(minor_version)
+			{
+			}
+
+			library_id(std::string name, uint16_t major_version, uint16_t minor_version, uint32_t flags)
 				: name(name), major_version(major_version), minor_version(minor_version), flags(flags)
 			{
 			}
@@ -282,20 +287,24 @@ namespace DigitalResearch
 			/** @brief The set of relocations */
 			std::vector<Relocation> relocations;
 			/** @brief Relocation count */
-			uint16_t relocation_count;
+			uint16_t relocation_count = 0;
 
 			/** @brief (FASTLOAD only) First selector that references this library */
-			uint16_t first_selector;
+			uint16_t first_selector = 0;
 			/** @brief (FASTLOAD only) Unknown */
-			uint16_t unknown;
+			uint16_t unknown = 1;
 
 			library()
-				: library_id()
 			{
 			}
 
-			library(std::string name, uint16_t major_version, uint16_t minor_version, uint32_t flags = 0x11010000)
-				: library_id(name, major_version, minor_version, flags), unknown(1)
+			library(std::string name, uint16_t major_version, uint16_t minor_version)
+				: library_id(name, major_version, minor_version)
+			{
+			}
+
+			library(std::string name, uint16_t major_version, uint16_t minor_version, uint32_t flags)
+				: library_id(name, major_version, minor_version, flags)
 			{
 			}
 
@@ -314,6 +323,11 @@ namespace DigitalResearch
 		public:
 			/** @brief The shared runtime libraries to be imported */
 			std::vector<library> libraries;
+
+			LibraryDescriptor(CPM86Format * module)
+				: Descriptor(module)
+			{
+			}
 
 			void Clear() override;
 
@@ -334,13 +348,13 @@ namespace DigitalResearch
 		{
 		public:
 			/** @brief Maximum allowed LDT entries */
-			uint16_t maximum_entries;
+			uint16_t maximum_entries = 0;
 			/** @brief First free entry in LDT after last filled entry */
-			uint16_t first_free_entry;
+			uint16_t first_free_entry = 0;
 			/** @brief The index base */
-			uint16_t index_base;
+			uint16_t index_base = 0;
 			/** @brief First used index */
-			uint16_t first_used_index;
+			uint16_t first_used_index = 0;
 
 			struct ldt_descriptor
 			{
@@ -357,9 +371,12 @@ namespace DigitalResearch
 				void Write(Linker::Writer& wr);
 			};
 
-			std::vector<ldt_descriptor> ldt;
+			FastLoadDescriptor(CPM86Format * module)
+				: Descriptor(module)
+			{
+			}
 
-			void Initialize() override;
+			std::vector<ldt_descriptor> ldt;
 
 			void Clear() override;
 
@@ -373,7 +390,7 @@ namespace DigitalResearch
 		/**
 		 * @brief A .cmd file may contain up to 8 descriptors that describer the segment groups
 		 */
-		Descriptor descriptors[8];
+		Descriptor descriptors[8]; // TODO: does this initialize the members
 		/**
 		 * @brief FlexOS 286 defines a shared runtime library group at offset 0x48
 		 */
@@ -393,23 +410,23 @@ namespace DigitalResearch
 		/**
 		 * @brief Offset of relocation records, stored in 128 byte units at offset 0x7D
 		 */
-		uint32_t relocations_offset;
+		uint32_t relocations_offset = 0;
 		/**
 		 * @brief Represents a list of attached RSX modules
 		 */
-		rsx_record rsx_table[8];
+		rsx_record rsx_table[8]; // TODO: does this initialize the members
 		/**
 		 * @brief The actual RSX table, stored in 128 byte units at offset 0x7B
 		 */
-		uint32_t rsx_table_offset;
+		uint32_t rsx_table_offset = 0;
 		/**
 		 * @brief Execution flags, stored at offset 0x7F
 		 */
-		uint8_t flags; /* TODO: make parameter */
+		uint8_t flags = 0; /* TODO: make parameter */
 		/**
 		 * @brief The start of the image within the file, typically 0 except for embedded modules, usually for embedded RSX files
 		 */
-		uint32_t file_offset;
+		uint32_t file_offset = 0;
 
 		enum
 		{
@@ -424,8 +441,6 @@ namespace DigitalResearch
 			/** @brief Set when the program uses direct video access. Such programs cannot execute in the background */
 			FLAG_DIRECT_VIDEO = 0x08
 		};
-
-		void Initialize() override;
 
 		void Clear() override;
 
@@ -452,14 +467,35 @@ namespace DigitalResearch
 			 * @brief Only code (possibly shared), data and a stack segment is present, with postlink or SRTL (unfinished)
 			 */
 			FORMAT_FLEXOS, /* TODO: the documentation claims there are multiple models, is it about the model and not the format? */
-		}
+		};
 		/** @brief Format of file to generate */
-		format;
+		format_type format = FORMAT_SMALL;
 
 		CPM86Format(format_type format = FORMAT_UNKNOWN)
+			: descriptors(
+				Descriptor(this),
+				Descriptor(this),
+				Descriptor(this),
+				Descriptor(this),
+				Descriptor(this),
+				Descriptor(this),
+				Descriptor(this),
+				Descriptor(this)
+			),
+			library_descriptor(this),
+			fastload_descriptor(this),
+			rsx_table(
+				rsx_record(this),
+				rsx_record(this),
+				rsx_record(this),
+				rsx_record(this),
+				rsx_record(this),
+				rsx_record(this),
+				rsx_record(this),
+				rsx_record(this)
+			),
+			format(format)
 		{
-			Initialize();
-			this->format = format;
 		}
 
 		~CPM86Format()
@@ -494,9 +530,9 @@ namespace DigitalResearch
 		/* * * Writer members * * */
 
 		/** @brief Flag indicating that the code group is shared, not possible in 8080 format */
-		bool shared_code; /* TODO: make parameter */
+		bool shared_code = false; /* TODO: make parameter */
 		/** @brief Flag to indicate that relocations must be suppressed */
-		bool option_no_relocation;
+		bool option_no_relocation = false;
 
 		/** @brief Represents the memory model of the running executable, which is the way in which the segments are set up during execution */
 		enum memory_model_t
@@ -509,9 +545,9 @@ namespace DigitalResearch
 			/** @brief DS!=SS!=ES */
 			MODEL_COMPACT,
 			/* TODO: FlexOS model */
-		}
+		};
 		/** @brief Memory model of generated code, determines how the offsets are calculated within a segment group */
-		memory_model;
+		memory_model_t memory_model = MODEL_SMALL;
 
 		bool FormatSupportsSegmentation() const override;
 

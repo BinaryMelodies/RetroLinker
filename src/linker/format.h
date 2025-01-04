@@ -32,10 +32,6 @@ namespace Linker
 
 		virtual ~Format();
 		/**
-		 * @brief Sets all fields to their default values
-		 */
-		virtual void Initialize();
-		/**
 		 * @brief Resets all fields to their default values, deallocate memory
 		 */
 		virtual void Clear();

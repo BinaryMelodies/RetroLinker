@@ -145,35 +145,6 @@ void MZFormat::SetSignature(magic_type magic)
 	}
 }
 
-void MZFormat::Initialize()
-{
-	/* format fields */
-	SetSignature(MAGIC_MZ);
-	last_block_size = 0;
-	file_size_blocks = 0;
-	header_size_paras = 0;
-	relocation_count = 0;
-	relocation_offset = 0;
-	ss = 0;
-	sp = 0;
-	cs = 0;
-	ip = 0;
-	min_extra_paras = 0;
-	max_extra_paras = 0;
-	overlay_number = 0;
-	data_segment = 0;
-	checksum = 0;
-	pif = nullptr;
-	image = nullptr;
-	/* writer fields */
-	InitializeLinkerManager();
-	memory_model = MODEL_DEFAULT;
-	extra_paras = 0;
-	zero_fill = 0;
-	option_header_align = 0x10;
-	option_file_align = 1;
-}
-
 void MZFormat::Clear()
 {
 	/* format fields */

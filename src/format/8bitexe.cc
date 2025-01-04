@@ -145,12 +145,6 @@ void AtariFormat::WriteFile(Linker::Writer& wr)
 
 // CommodoreFormat
 
-
-void CommodoreFormat::Initialize()
-{
-	loader = nullptr;
-}
-
 void CommodoreFormat::Clear()
 {
 	if(loader != nullptr)
@@ -200,13 +194,6 @@ std::string CommodoreFormat::GetDefaultExtension(Linker::Module& module, std::st
 }
 
 // CPM3Format
-
-void CPM3Format::Initialize()
-{
-	memcpy(preinit_code, "\xC9\0\0\0\0\0\0\0\0\0", 10);
-	loader_active = true;
-	rsx_count = 0;
-}
 
 void CPM3Format::Clear()
 {

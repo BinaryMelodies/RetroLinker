@@ -154,26 +154,26 @@ namespace O65
 			static const int MODE_65816 = 0x8000;
 
 			/** @brief The file mode */
-			uint16_t mode_word;
+			uint16_t mode_word = 0;
 
 			/** @brief Base address of code segment */
-			offset_t code_base;
+			offset_t code_base = 0;
 			/** @brief Code segment contents */
-			Linker::Writable * code_image;
+			Linker::Writable * code_image = nullptr;
 			/** @brief Base address of data segment */
-			offset_t data_base;
+			offset_t data_base = 0;
 			/** @brief Data segment contents */
-			Linker::Writable * data_image;
+			Linker::Writable * data_image = nullptr;
 			/** @brief Base address of bss segment */
-			offset_t bss_base;
+			offset_t bss_base = 0;
 			/** @brief Bss segment size */
-			offset_t bss_size;
+			offset_t bss_size = 0;
 			/** @brief Base address of zero segment */
-			offset_t zero_base;
+			offset_t zero_base = 0;
 			/** @brief Zero segment size */
-			offset_t zero_size;
+			offset_t zero_size = 0;
 			/** @brief Stack segment size */
-			offset_t stack_size;
+			offset_t stack_size = 0;
 
 			/** @brief Additional header field entries */
 			std::vector<header_option> header_options;
@@ -188,17 +188,11 @@ namespace O65
 			/** @brief Exported global symbols */
 			std::vector<exported_global> exported_globals;
 
-			Module()
-			{
-				Initialize();
-			}
-
 			~Module()
 			{
 				Clear();
 			}
 
-			void Initialize() override;
 			void Clear() override;
 
 			/** @brief Whether file can only be relocated according to a 256 byte page (MODE_PAGE_RELOC is set in mode_word) */
@@ -231,17 +225,11 @@ namespace O65
 		Module& GetModule(offset_t index);
 		Module& AddModule();
 
-		O65Format()
-		{
-			Initialize();
-		}
-
 		~O65Format()
 		{
 			Clear();
 		}
 
-		void Initialize() override;
 		void Clear() override;
 
 		void ReadFile(Linker::Reader& rd) override;

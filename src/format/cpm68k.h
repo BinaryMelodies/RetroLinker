@@ -48,63 +48,63 @@ namespace DigitalResearch
 		};
 
 		/** @brief The magic number at the beginning of the executable file, one of 0x601A (contiguous), 0x601B (non-contiguous), 0x601C (contiguous with crunched relocations) */
-		char signature[2];
+		char signature[2] = { 0x60, 0x1A };
 
 		/**
 		 * @brief Size of the code/text segment
 		 */
-		uint32_t code_size;
+		uint32_t code_size = 0;
 		/**
 		 * @brief Size of the initialized data segment
 		 */
-		uint32_t data_size;
+		uint32_t data_size = 0;
 		/**
 		 * @brief Size of the uninitialized data (bss) segment. Human68k includes the stack in it
 		 */
-		uint32_t bss_size;
+		uint32_t bss_size = 0;
 		/**
 		 * @brief Size of the symbol table
 		 */
-		uint32_t symbol_table_size;
+		uint32_t symbol_table_size = 0;
 		/**
 		 * @brief Size of the stack segment. Only used by Concurrent DOS 68K
 		 */
-		uint32_t stack_size;
+		uint32_t stack_size = 0;
 
 		/**
 		 * @brief Load address of the code/text segment. Not used by GEMDOS which stores the program flags at this offset
 		 */
-		uint32_t code_address;
+		uint32_t code_address = 0;
 		/**
 		 * @brief Program flags, used by GEMDOS
 		 */
-		uint32_t program_flags; /* TODO: make parameter */
+		uint32_t program_flags = 0; /* TODO: make parameter */
 
 		/**
 		 * @brief Set to a non-0 value when relocations are suppressed. Typically this can be 1, but Human68k specifically expects a 0xFFFF, according to documentation
 		 */
-		uint16_t relocations_suppressed;
+		uint16_t relocations_suppressed = 1;
 		/**
 		 * @brief Load address of the initialized data segment. Only relevant for non-contiguous executables (CP/M-68K), otherwise it should follow the code/text segment directy
 		 */
-		uint32_t data_address;
+		uint32_t data_address = 0;
 		/**
 		 * @brief Load address of the uninitialized data (bss) segment. Only relevant for non-contiguous executables (CP/M-68K), otherwise it should follow the initialized data segment directy
 		 */
-		uint32_t bss_address;
+		uint32_t bss_address = 0;
 		/**
 		 * @brief Size of entire file, not used for generation
 		 */
-		offset_t file_size;
+		offset_t file_size = 0;
 
 		/**
 		 * @brief Storage for code segment
 		 */
-		Linker::Writable * code;
+		Linker::Writable * code = nullptr;
 		/**
 		 * @brief Storage for data segment
 		 */
-		Linker::Writable * data;
+		Linker::Writable * data = nullptr;
 
 		/* filled in automatically */
 		struct Relocation
@@ -129,7 +129,7 @@ namespace DigitalResearch
 		void SetSignature(magic_type magic);
 
 		/**
-		 * @brief The system which will load the executable. Different systems have different relocation formats and expectations as to what segments should be present
+		 * @brief Different systems have different relocation formats and expectations as to what segments should be present
 		 */
 		enum system_type
 		{
@@ -157,17 +157,24 @@ namespace DigitalResearch
 			 * @brief Digital Research Concurrent DOS 68K, non-contiguous not allowed, but relocations can be in CP/M-68K format or crunched format, depending on magic number. Header contains separate field for stack size
 			 */
 			SYSTEM_CDOS68K
-		} system;
+		};
 
-		void Initialize() override;
+		/**
+		 * @brief The system which will load the executable
+		 */
+		enum system_type system;
 
 		void Clear() override;
 
-		CPM68KFormat(system_type system = SYSTEM_UNKNOWN, magic_type magic = MAGIC_CONTIGUOUS)
+		CPM68KFormat(system_type system = SYSTEM_UNKNOWN)
+			: system(system)
 		{
-			Initialize();
+		}
+
+		CPM68KFormat(system_type system, magic_type magic)
+			: system(system)
+		{
 			SetSignature(magic);
-			this->system = system;
 		}
 
 		void ReadFile(Linker::Reader& rd) override;
@@ -214,12 +221,12 @@ namespace DigitalResearch
 		/**
 		 * @brief Makes sure no relocations are placed into the output file
 		 */
-		bool option_no_relocation;
+		bool option_no_relocation = true;
 
 		/** @brief Segment to collect bss */
-		Linker::Segment * bss_segment;
+		Linker::Segment * bss_segment = nullptr;
 		/** @brief Segment to collect stack (Concurrent DOS 68K only) */
-		Linker::Segment * stack_segment;
+		Linker::Segment * stack_segment = nullptr;
 
 		/** @brief Return code segment (if it exists) */
 		Linker::Segment * CodeSegment();

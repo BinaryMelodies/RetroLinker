@@ -3,14 +3,6 @@
 
 using namespace DigitalResearch;
 
-void CPM8KFormat::Segment::Initialize()
-{
-	number = 0xFF;
-	type = segment_type(0);
-	length = 0;
-	image = nullptr;
-}
-
 void CPM8KFormat::Segment::Clear()
 {
 	if(image != nullptr)
@@ -58,16 +50,6 @@ void CPM8KFormat::SetSignature(magic_type magic)
 	signature[1] = magic & 0xFF;
 }
 
-void CPM8KFormat::Initialize()
-{
-	/* format fields */
-	SetSignature(MAGIC_NONSHARED);
-	segment_count = 0;
-	total_size = 0;
-	relocation_size = 0;
-	symbol_table_size = 0;
-}
-
 void CPM8KFormat::Clear()
 {
 	/* format fields */
@@ -92,7 +74,6 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 	for(size_t i = 0; i < segment_count; i++)
 	{
 		Segment segment;
-		segment.Initialize();
 		segment.number = rd.ReadUnsigned(1);
 		segment.type = Segment::segment_type(rd.ReadUnsigned(1));
 		segment.length = rd.ReadUnsigned(2);

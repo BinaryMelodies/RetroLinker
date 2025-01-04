@@ -29,7 +29,7 @@ namespace DigitalResearch
 			/**
 			 * @brief Each segment has an associated number. For 0xFF, the linker can assign a value. For segmented executables, this is the segment number that will be used
 			 */
-			uint8_t number;
+			uint8_t number = 0xFF;
 			/**
 			 * @brief The type of a segment
 			 */
@@ -42,17 +42,19 @@ namespace DigitalResearch
 				DATA,
 				MIXED,
 				MIXED_PROTECTABLE,
-			} type;
+			};
+			/**
+			 * @brief The type of the segment
+			 */
+			segment_type type = segment_type(0);
 			/**
 			 * @brief Length of segment in bytes
 			 */
-			uint16_t length;
+			uint16_t length = 0;
 			/**
 			 * @brief Storage for segment
 			 */
-			Linker::Writable * image;
-
-			void Initialize();
+			Linker::Writable * image = nullptr;
 
 			void Clear();
 
@@ -110,13 +112,13 @@ namespace DigitalResearch
 		/** @brief The magic number at the beginning of the executable file */
 		char signature[2];
 		/** @brief Number of segments in the segment_array */
-		uint16_t segment_count;
+		uint16_t segment_count = 0;
 		/** @brief Total number of bytes in all the segments combined */
-		uint32_t total_size;
+		uint32_t total_size = 0;
 		/** @brief Total size of relocations */
-		uint32_t relocation_size;
+		uint32_t relocation_size = 0;
 		/** @brief Total size of symbols */
-		uint32_t symbol_table_size;
+		uint32_t symbol_table_size = 0;
 
 		std::vector<Segment> segments;
 		std::vector<Relocation> relocations;
@@ -126,18 +128,10 @@ namespace DigitalResearch
 
 		void SetSignature(magic_type magic);
 
-		void Initialize() override;
-
 		void Clear() override;
 
-		CPM8KFormat()
+		CPM8KFormat(magic_type magic = MAGIC_NONSHARED)
 		{
-			Initialize();
-		}
-
-		CPM8KFormat(magic_type magic)
-		{
-			Initialize();
 			SetSignature(magic);
 		}
 
@@ -152,7 +146,7 @@ namespace DigitalResearch
 		/* * * Writer members * * */
 
 		/** @brief Segment to collect bss */
-		Linker::Segment * bss_segment;
+		Linker::Segment * bss_segment = nullptr;
 
 		bool FormatSupportsSegmentation() const override;
 

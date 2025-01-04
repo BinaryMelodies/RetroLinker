@@ -13,10 +13,6 @@ void Format::Dump(Dumper::Dumper& dump)
 	Linker::Warning << "Warning: Dumping of format not implemented" << std::endl;
 }
 
-void Format::Initialize()
-{
-}
-
 void Format::Clear()
 {
 }

@@ -46,7 +46,6 @@ public:
 
 void TestMZFormat::testCreateEXE()
 {
-	exe.Initialize();
 	exe.CalculateValues();
 	std::string image = store();
 	load(image);
@@ -61,7 +60,6 @@ void TestMZFormat::testEXEFileSize()
 
 	data = generate_image(1);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.CalculateValues();
 	load(store());
@@ -73,7 +71,6 @@ void TestMZFormat::testEXEFileSize()
 
 	data = generate_image(511 - 0x20);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.CalculateValues();
 	load(store());
@@ -83,7 +80,6 @@ void TestMZFormat::testEXEFileSize()
 
 	data = generate_image(512 - 0x20);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.CalculateValues();
 	load(store());
@@ -93,7 +89,6 @@ void TestMZFormat::testEXEFileSize()
 
 	data = generate_image(513 - 0x20);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.CalculateValues();
 	load(store());
@@ -103,7 +98,6 @@ void TestMZFormat::testEXEFileSize()
 
 	data = generate_image(1023 - 0x20);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.CalculateValues();
 	load(store());
@@ -113,7 +107,6 @@ void TestMZFormat::testEXEFileSize()
 
 	data = generate_image(1024 - 0x20);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.CalculateValues();
 	load(store());
@@ -123,7 +116,6 @@ void TestMZFormat::testEXEFileSize()
 
 	data = generate_image(1025 - 0x20);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.CalculateValues();
 	load(store());
@@ -138,7 +130,6 @@ void TestMZFormat::testEXEFileSize()
 
 	data = generate_image((0xFFFF << 9) - 0x20);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.CalculateValues();
 	load(store());
@@ -163,7 +154,6 @@ void TestMZFormat::testEXEHeaderValues()
 
 	data = generate_image((cs << 4) + ip + 1 - 0x20);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.SetSignature(MZFormat::MAGIC_ZM);
 	exe.min_extra_paras = min_extra_paras;
@@ -195,7 +185,6 @@ void TestMZFormat::testEXERelocations()
 	relocations = generate_relocations(1);
 	data = generate_image(2);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.relocations = relocations;
 	exe.CalculateValues();
@@ -210,7 +199,6 @@ void TestMZFormat::testEXERelocations()
 
 	static const uint16_t relocation_offset1 = 0x56;
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.relocation_offset = relocation_offset1;
 	exe.CalculateValues();
@@ -226,7 +214,6 @@ void TestMZFormat::testEXERelocations()
 	static const uint16_t relocation_offset2 = 0x03;
 	relocations = generate_relocations(1);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.relocation_offset = relocation_offset2;
 	exe.relocations = relocations;
@@ -243,7 +230,6 @@ void TestMZFormat::testEXERelocations()
 
 	relocations = generate_relocations(0x3FF8);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.relocations = relocations;
 	CPPUNIT_ASSERT_THROW(exe.CalculateValues(), Exception);
@@ -253,7 +239,6 @@ void TestMZFormat::testEXERelocations()
 	static const uint16_t relocation_offset3 = 0xFFFF;
 	relocations = generate_relocations(1);
 	exe.Clear();
-	exe.Initialize();
 	exe.relocation_offset = relocation_offset3;
 	exe.relocations = relocations;
 	CPPUNIT_ASSERT_THROW(exe.CalculateValues(), Exception);
@@ -271,7 +256,6 @@ void TestMZFormat::testEXEHeaderSize()
 	data = generate_image(4);
 	relocations = generate_relocations(4);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.relocations = relocations;
 	exe.CalculateValues();
@@ -293,7 +277,6 @@ void TestMZFormat::testEXEHeaderSize()
 	data = generate_image(4);
 	relocations = generate_relocations(4);
 	exe.Clear();
-	exe.Initialize();
 	set_image(data);
 	exe.relocations = relocations;
 	exe.option_header_align = header_align;
@@ -310,7 +293,6 @@ void TestMZFormat::testEXEHeaderSize()
 void TestMZFormat::setUp()
 {
 	exe.Clear();
-	exe.Initialize();
 	code = new Linker::Section(".code");
 }
 

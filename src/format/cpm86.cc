@@ -4,18 +4,6 @@
 using namespace DigitalResearch;
 
 
-void CPM86Format::Descriptor::Initialize()
-{
-	type = Undefined;
-	size_paras = 0;
-	load_segment = 0;
-	min_size_paras = 0;
-	max_size_paras = 0;
-	offset = 0;
-	image = nullptr;
-	attach_zero_page = false;
-}
-
 void CPM86Format::Descriptor::Clear()
 {
 	if(image)
@@ -156,13 +144,6 @@ void CPM86Format::Relocation::Write(Linker::Writer& wr)
 CPM86Format::relocation_source CPM86Format::Relocation::GetSource() const
 {
 	return relocation_source { source, (offset_t)(paragraph << 4) + offset };
-}
-
-void CPM86Format::rsx_record::Initialize()
-{
-	name = "";
-	offset_record = 0xFFFF;
-	module = nullptr;
 }
 
 void CPM86Format::rsx_record::Clear()
@@ -347,16 +328,6 @@ void CPM86Format::FastLoadDescriptor::ldt_descriptor::Write(Linker::Writer& wr)
 	wr.WriteWord(2, reserved);
 }
 
-void CPM86Format::FastLoadDescriptor::Initialize()
-{
-	Descriptor::Initialize();
-
-	maximum_entries = 0;
-	first_free_entry = 0;
-	index_base = 0;
-	first_used_index = 0;
-}
-
 void CPM86Format::FastLoadDescriptor::Clear()
 {
 	Descriptor::Clear();
@@ -392,33 +363,6 @@ void CPM86Format::FastLoadDescriptor::ReadData(Linker::Reader& rd)
 		desc.Read(rd);
 		ldt.push_back(desc);
 	}
-}
-
-void CPM86Format::Initialize()
-{
-	/* format fields */
-	for(int i = 0; i < 8; i++)
-	{
-		descriptors[i].Initialize();
-		descriptors[i].module = this;
-	}
-	library_descriptor.Initialize();
-	library_descriptor.module = this;
-	fastload_descriptor.Initialize();
-	fastload_descriptor.module = this;
-	relocations_offset = 0;
-	for(int i = 0; i < 8; i++)
-	{
-		rsx_table[i].Initialize();
-	}
-	rsx_table_offset = 0;
-	flags = 0;
-	file_offset = 0;
-	/* writer fields */
-	format = FORMAT_SMALL;
-	shared_code = false;
-	option_no_relocation = false;
-	memory_model = MODEL_DEFAULT;
 }
 
 void CPM86Format::Clear()

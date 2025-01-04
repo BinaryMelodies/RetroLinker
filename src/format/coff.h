@@ -64,7 +64,7 @@ namespace COFF
 		static const std::map<uint32_t, MachineType> MACHINE_TYPES;
 
 		/** @brief The actual value of the magic number (COFF name: f_magic) */
-		char signature[2];
+		char signature[2] = { };
 
 		/**
 		 * @brief Retrieves the natural byte order for the architecture
@@ -202,44 +202,44 @@ namespace COFF
 			/**
 			 * @brief The physical address of the section (expected to be identical to the virtual address) (COFF name: s_paddr)
 			 */
-			uint32_t physical_address;
+			uint32_t physical_address = 0;
 			/**
 			 * @brief The virtual address of the section (COFF name: s_vaddr)
 			 */
-			uint32_t address;
+			uint32_t address = 0;
 			/**
 			 * @brief The size of the section (COFF name: s_size)
 			 */
-			uint32_t size;
+			uint32_t size = 0;
 			/**
 			 * @brief Offset of stored image data from COFF header start (COFF name: s_scnptr)
 			 */
-			uint32_t section_pointer;
+			uint32_t section_pointer = 0;
 			/**
 			 * @brief Offset to COFF relocations (COFF name: s_relptr)
 			 */
-			uint32_t relocation_pointer;
+			uint32_t relocation_pointer = 0;
 			/**
 			 * @brief unused (COFF name: s_lnnoptr)
 			 */
-			uint32_t line_number_pointer;
+			uint32_t line_number_pointer = 0;
 			/**
 			 * @brief COFF relocation count (COFF name: s_nreloc)
 			 */
-			uint16_t relocation_count;
+			uint16_t relocation_count = 0;
 			/**
 			 * @brief unused (COFF name: s_nlnno)
 			 */
-			uint16_t line_number_count;
+			uint16_t line_number_count = 0;
 			/**
 			 * @brief COFF section flags, determines the type of the section (text, data, bss, etc.) (COFF name: s_flags)
 			 */
-			uint32_t flags;
+			uint32_t flags = 0;
 
 			/**
 			 * @brief The stored image data
 			 */
-			Linker::Writable * image;
+			Linker::Writable * image = nullptr;
 
 			/**
 			 * @brief Collection of COFF relocations
@@ -257,15 +257,11 @@ namespace COFF
 				BSS  = 0x0080,
 			};
 
-			void Initialize();
-
 			void Clear();
 
 			Section(uint32_t flags = 0, Linker::Writable * image = nullptr)
+				: flags(flags), image(image)
 			{
-				Initialize();
-				this->flags = flags;
-				this->image = image;
 			}
 
 			~Section()
@@ -288,19 +284,19 @@ namespace COFF
 		/**
 		 * @brief Section count (COFF name: f_nscns)
 		 */
-		uint16_t section_count;
+		uint16_t section_count = 0;
 		/**
 		 * @brief Time stamp, unused (COFF name: f_timdat)
 		 */
-		uint32_t timestamp;
+		uint32_t timestamp = 0;
 		/**
 		 * @brief Offset to the first symbol (COFF name: f_symptr)
 		 */
-		uint32_t symbol_table_offset;
+		uint32_t symbol_table_offset = 0;
 		/**
 		 * @brief The number of symbols (COFF name: f_nsyms)
 		 */
-		uint32_t symbol_count;
+		uint32_t symbol_count = 0;
 		/**
 		 * @brief The symbols stored inside the COFF file
 		 */
@@ -308,11 +304,11 @@ namespace COFF
 		/**
 		 * @brief The size of the optional header (COFF: f_opthdr)
 		 */
-		uint32_t optional_header_size;
+		uint32_t optional_header_size = 0;
 		/**
 		 * @brief COFF flags, such as whether the file is executable (f_flags)
 		 */
-		uint16_t flags;
+		uint16_t flags = 0;
 
 		/**
 		 * @brief An abstract class to represent the optional header
@@ -321,7 +317,6 @@ namespace COFF
 		{
 		public:
 			virtual ~OptionalHeader();
-			virtual void Initialize();
 			/**
 			 * @brief Returns size of optional header
 			 */
@@ -343,7 +338,7 @@ namespace COFF
 		/**
 		 * @brief The optional header instance used for reading/writing the COFF file
 		 */
-		OptionalHeader * optional_header;
+		OptionalHeader * optional_header = nullptr;
 
 		/**
 		 * @brief Concurrent DOS 68K requires a special block of data to represent "crunched" relocations (see CPM68KWriter for more details)
@@ -356,7 +351,7 @@ namespace COFF
 		class UnknownOptionalHeader : public OptionalHeader
 		{
 		public:
-			Linker::Buffer * buffer;
+			Linker::Buffer * buffer = nullptr;
 
 			UnknownOptionalHeader(offset_t size)
 				: buffer(new Linker::Buffer(size))
@@ -367,8 +362,6 @@ namespace COFF
 			{
 				delete buffer;
 			}
-
-			void Initialize() override;
 
 			uint32_t GetSize() override;
 
@@ -388,43 +381,40 @@ namespace COFF
 			/**
 			 * @brief Type of executable, most typically ZMAGIC (COFF name: magic)
 			 */
-			uint16_t magic;
+			uint16_t magic = 0;
 			/**
 			 * @brief unused (COFF name: vstamp)
 			 */
-			uint16_t version_stamp;
+			uint16_t version_stamp = 0;
 
 			/**
 			 * @brief unused (COFF name: tsize)
 			 */
-			uint32_t code_size;
+			uint32_t code_size = 0;
 			/**
 			 * @brief unused (COFF name: dsize)
 			 */
-			uint32_t data_size;
+			uint32_t data_size = 0;
 			/**
 			 * @brief unused (COFF name: bsize)
 			 */
-			uint32_t bss_size;
+			uint32_t bss_size = 0;
 			/**
 			 * @brief Initial value of eip (COFF name: entry)
 			 */
-			uint32_t entry_address;
+			uint32_t entry_address = 0;
 			/**
 			 * @brief unused (COFF name: text_start)
 			 */
-			uint32_t code_address;
+			uint32_t code_address = 0;
 			/**
 			 * @brief unused (COFF name: data_start)
 			 */
-			uint32_t data_address;
-
-			void Initialize() override;
+			uint32_t data_address = 0;
 
 			AOutHeader(uint16_t magic = 0)
+				: magic(magic)
 			{
-				Initialize();
-				this->magic = magic;
 			}
 
 			uint32_t GetSize() override;
@@ -450,18 +440,13 @@ namespace COFF
 			/**
 			 * @brief The offset to the crunched relocation data within the file
 			 */
-			uint32_t relocations_offset;
+			uint32_t relocations_offset = 0;
 			/**
 			 * @brief Size of stack for execution
 			 */
-			uint32_t stack_size;
+			uint32_t stack_size = 0;
 
-			void Initialize() override;
-
-			FlexOSAOutHeader()
-			{
-				/* magic not needed for CDOS68K? */
-			}
+			/* TODO: magic not needed for CDOS68K? */
 
 			uint32_t GetSize() override;
 
@@ -485,21 +470,14 @@ namespace COFF
 		{
 		public:
 			/* Note: untested */
-			uint32_t info;
-			uint32_t code_size;
-			uint32_t data_size;
-			uint32_t bss_size;
-			uint32_t symbol_table_size;
-			uint32_t entry_address;
-			uint32_t code_relocation_size;
-			uint32_t data_relocation_size;
-
-			void Initialize() override;
-
-			GNUAOutHeader()
-			{
-				Initialize();
-			}
+			uint32_t info = 0;
+			uint32_t code_size = 0;
+			uint32_t data_size = 0;
+			uint32_t bss_size = 0;
+			uint32_t symbol_table_size = 0;
+			uint32_t entry_address = 0;
+			uint32_t code_relocation_size = 0;
+			uint32_t data_relocation_size = 0;
 
 			uint32_t GetSize() override;
 
@@ -533,8 +511,6 @@ namespace COFF
 			void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) override;
 		};
 
-		void Initialize() override;
-
 		void Clear() override;
 
 		void AssignMagicValue();
@@ -544,12 +520,12 @@ namespace COFF
 		 *
 		 * The byte order has to be determined heuristically.
 		 */
-		cpu cpu_type;
+		cpu cpu_type = CPU_UNKNOWN;
 
 		/**
 		 * @brief The byte order
 		 */
-		::EndianType endiantype;
+		::EndianType endiantype = ::EndianType(0);
 
 		bool DetectCpuType(::EndianType expected);
 
@@ -565,9 +541,9 @@ namespace COFF
 
 		void SetupOptions(char special_char, Linker::OutputFormat * format) override;
 
-		char special_prefix_char;
+		char special_prefix_char = '$';
 			/* GNU assembler can use '$', NASM must use '?' */
-		bool option_segmentation;
+		bool option_segmentation = false;
 
 	private:
 		/* symbols */
@@ -631,35 +607,34 @@ namespace COFF
 		/**
 		 * @brief A representation of the format to generate
 		 */
-		format_type type;
+		format_type type = GENERIC;
 
 		/**
 		 * @brief Suppress relocation generation, only relevant for Concurrent DOS 68K, since the other target formats do not store relocations
 		 */
-		bool option_no_relocation;
+		bool option_no_relocation = false;
 
 		/**
 		 * @brief Size of MZ stub, only used for DJGPP COFF executables
 		 */
-		uint32_t stub_size;
+		uint32_t stub_size = 0;
 
 		/**
 		 * @brief Concurrent DOS 68K and FlexOS 386: The stack segment, not stored as part of any section
 		 */
-		Linker::Segment * stack;
+		Linker::Segment * stack = nullptr;
 		/**
 		 * @brief Entry address, gets stored in optional header later
 		 */
-		uint32_t entry_address;
+		uint32_t entry_address = 0; /* TODO */
 		/**
 		 * @brief Concurrent DOS 68K: Offset to relocations
 		 */
-		uint32_t relocations_offset;
+		uint32_t relocations_offset = 0;
 
 		COFFFormat(format_type type = GENERIC)
+			: type(type)
 		{
-			Initialize();
-			this->type = type;
 		}
 
 		~COFFFormat()

@@ -41,28 +41,6 @@ void CPM68KFormat::SetSignature(magic_type magic)
 	}
 }
 
-void CPM68KFormat::Initialize()
-{
-	/* format fields */
-	SetSignature(MAGIC_CONTIGUOUS);
-	code_size = 0;
-	data_size = 0;
-	bss_size = 0;
-	symbol_table_size = 0;
-	stack_size = 0;
-	code_address = 0;
-	program_flags = 0;
-	relocations_suppressed = 1;
-	data_address = 0;
-	bss_address = 0;
-	code = nullptr;
-	data = nullptr;
-	/* writer fields */
-	system = SYSTEM_UNKNOWN;
-	bss_segment = nullptr;
-	stack_segment = nullptr;
-}
-
 void CPM68KFormat::Clear()
 {
 	/* format fields */

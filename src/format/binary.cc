@@ -5,14 +5,6 @@ using namespace Binary;
 
 /* * * General members * * */
 
-void BinaryFormat::Initialize()
-{
-	/* format fields */
-	image = nullptr;
-	pif = nullptr;
-	/* writer fields */
-}
-
 void BinaryFormat::Clear()
 {
 	/* format fields */

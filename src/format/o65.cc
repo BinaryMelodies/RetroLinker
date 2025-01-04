@@ -1,28 +1,7 @@
 
 #include "o65.h"
 
-/* TODO: unimplemented */
-
 using namespace O65;
-
-void O65Format::Module::Initialize()
-{
-	mode_word = 0;
-
-	code_base = 0;
-	code_image = nullptr;
-
-	data_base = 0;
-	data_image = nullptr;
-
-	bss_base = 0;
-	bss_size = 0;
-
-	zero_base = 0;
-	zero_size = 0;
-
-	stack_size = 0;
-}
 
 void O65Format::Module::Clear()
 {
@@ -394,10 +373,6 @@ O65Format::Module& O65Format::AddModule()
 	modules.back()->SetChained();
 	modules.push_back(new_module);
 	return *new_module;
-}
-
-void O65Format::Initialize()
-{
 }
 
 void O65Format::Clear()

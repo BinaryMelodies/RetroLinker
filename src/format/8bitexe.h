@@ -123,16 +123,9 @@ namespace Binary
 			BASIC_SYS = 0x9E, /* BASIC token */
 		};
 
-		Linker::Segment * loader; /* loader routine in BASIC */
-
-		void Initialize() override;
+		Linker::Segment * loader = nullptr; /* loader routine in BASIC */
 
 		void Clear() override;
-
-		CommodoreFormat()
-		{
-			Initialize();
-		}
 
 		~CommodoreFormat()
 		{
@@ -156,9 +149,9 @@ namespace Binary
 	public:
 		/* TODO: untested */
 
-		uint8_t preinit_code[10];
-		bool loader_active;
-		uint8_t rsx_count;
+		uint8_t preinit_code[10] = { 0xC9 }; /* z80 return instruction */
+		bool loader_active = true;
+		uint8_t rsx_count = 0;
 		struct rsx_record
 		{
 			std::string name;
@@ -169,14 +162,7 @@ namespace Binary
 		};
 		std::vector<rsx_record> rsx_table;
 
-		void Initialize() override;
-
 		void Clear() override;
-
-		CPM3Format()
-		{
-			Initialize();
-		}
 
 		~CPM3Format()
 		{
