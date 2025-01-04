@@ -95,7 +95,7 @@ void HunkFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	AddHunk(Hunk(hunk_type, segment, hunk_flags));
 }
 
-Script::List * HunkFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> HunkFormat::GetScript(Linker::Module& module)
 {
 	static const char * SimpleScript = R"(
 ".code"
@@ -161,7 +161,7 @@ Script::List * HunkFormat::GetScript(Linker::Module& module)
 
 void HunkFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }

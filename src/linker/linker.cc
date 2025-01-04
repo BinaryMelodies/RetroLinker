@@ -78,10 +78,11 @@ bool LinkerManager::SetLinkerParameter(std::map<std::string, std::string>& optio
 	}
 }
 
-Script::List * LinkerManager::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> LinkerManager::GetScript(Linker::Module& module)
 {
-	Script::List * list = Script::parse_file(linker_script.c_str());
-	if(list == (Script::List *)-1)
+	bool file_error = false;
+	std::unique_ptr<Script::List> list = Script::parse_file(linker_script.c_str(), file_error);
+	if(file_error)
 	{
 		Linker::Error << "Fatal error: Unable to open linker script " << linker_script << std::endl;
 		exit(1);
@@ -177,14 +178,14 @@ void LinkerManager::AppendSection(std::shared_ptr<Section> section)
 	SetLatestBase(current_base);
 }
 
-void LinkerManager::ProcessScript(List * directives, Module& module)
+void LinkerManager::ProcessScript(std::unique_ptr<List>& directives, Module& module)
 {
-	for(Node * directive : directives->children)
+	for(auto& directive : directives->children)
 	{
 		switch(directive->type)
 		{
 		case Node::Sequence:
-			for(Node * action : directive->list->children)
+			for(auto& action : directive->list->children)
 			{
 				ProcessAction(action, module);
 			}
@@ -195,11 +196,11 @@ void LinkerManager::ProcessScript(List * directives, Module& module)
 		case Node::Segment:
 			current_is_template = current_is_template_head = false;
 			AppendSegment(*directive->value->Get<std::string>());
-			for(Node * command : directive->at(0)->list->children)
+			for(auto& command : directive->at(0)->list->children)
 			{
 				ProcessCommand(command, module);
 			}
-			for(Node * action : directive->at(1)->list->children)
+			for(auto& action : directive->at(1)->list->children)
 			{
 				PostProcessAction(action, module);
 			}
@@ -217,11 +218,11 @@ void LinkerManager::ProcessScript(List * directives, Module& module)
 					continue;
 				current_is_template = true;
 				AppendSegment(current_template_name);
-				for(Node * command : directive->at(1)->list->children)
+				for(auto& command : directive->at(1)->list->children)
 				{
 					ProcessCommand(command, module);
 				}
-				for(Node * action : directive->at(2)->list->children)
+				for(auto& action : directive->at(2)->list->children)
 				{
 					PostProcessAction(action, module);
 				}
@@ -235,7 +236,7 @@ void LinkerManager::ProcessScript(List * directives, Module& module)
 	FinishCurrentSegment();
 }
 
-void Linker::LinkerManager::ProcessAction(Node * action, Module& module)
+void Linker::LinkerManager::ProcessAction(std::unique_ptr<Node>& action, Module& module)
 {
 	switch(action->type)
 	{
@@ -254,7 +255,7 @@ Linker::Debug << "Current base: " << (int64_t)current_base << std::endl;
 	}
 }
 
-void Linker::LinkerManager::PostProcessAction(Node * action, Module& module)
+void Linker::LinkerManager::PostProcessAction(std::unique_ptr<Node>& action, Module& module)
 {
 	switch(action->type)
 	{
@@ -272,12 +273,12 @@ void Linker::LinkerManager::PostProcessAction(Node * action, Module& module)
 	}
 }
 
-void Linker::LinkerManager::ProcessCommand(Node * command, Module& module)
+void Linker::LinkerManager::ProcessCommand(std::unique_ptr<Node>& command, Module& module)
 {
 	switch(command->type)
 	{
 	case Node::Sequence:
-		for(Node * action : command->list->children)
+		for(auto& action : command->list->children)
 		{
 			ProcessAction(action, module);
 		}
@@ -289,7 +290,7 @@ void Linker::LinkerManager::ProcessCommand(Node * command, Module& module)
 				continue;
 			if(!CheckPredicate(command->at(0), section, module))
 				continue;
-			for(Node * action : command->at(1)->list->children)
+			for(auto& action : command->at(1)->list->children)
 			{
 				ProcessAction(action, module);
 			}
@@ -304,14 +305,14 @@ void Linker::LinkerManager::ProcessCommand(Node * command, Module& module)
 	}
 }
 
-bool Linker::LinkerManager::CheckPredicate(Node * predicate, std::shared_ptr<Section> section, Module& module)
+bool Linker::LinkerManager::CheckPredicate(std::unique_ptr<Node>& predicate, std::shared_ptr<Section> section, Module& module)
 {
 	switch(predicate->type)
 	{
 	case Node::Collect:
 		if(!CheckPredicate(predicate->at(0), section, module))
 			return false;
-		for(Node * action : predicate->at(1)->list->children)
+		for(auto& action : predicate->at(1)->list->children)
 		{
 			ProcessAction(action, module);
 		}
@@ -396,7 +397,7 @@ bool Linker::LinkerManager::CheckPredicate(Node * predicate, std::shared_ptr<Sec
 	}
 }
 
-offset_t Linker::LinkerManager::EvaluateExpression(Node * expression, Module& module)
+offset_t Linker::LinkerManager::EvaluateExpression(std::unique_ptr<Node>& expression, Module& module)
 {
 	switch(expression->type)
 	{
@@ -433,7 +434,7 @@ offset_t Linker::LinkerManager::EvaluateExpression(Node * expression, Module& mo
 	case Node::Maximum:
 		{
 			offset_t value = 0;
-			for(auto arg : expression->list->children)
+			for(auto& arg : expression->list->children)
 			{
 				offset_t new_value = EvaluateExpression(arg, module);
 				if(new_value > value)
@@ -444,7 +445,7 @@ offset_t Linker::LinkerManager::EvaluateExpression(Node * expression, Module& mo
 	case Node::Minimum:
 		{
 			offset_t value = -1;
-			for(auto arg : expression->list->children)
+			for(auto& arg : expression->list->children)
 			{
 				offset_t new_value = EvaluateExpression(arg, module);
 				if(new_value < value)

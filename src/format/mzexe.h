@@ -221,7 +221,7 @@ namespace Microsoft
 		 */
 		void CreateDefaultSegments();
 
-		Script::List * GetScript(Linker::Module& module);
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 
 		/**
 		 * @brief Link application according to script or memory model ()

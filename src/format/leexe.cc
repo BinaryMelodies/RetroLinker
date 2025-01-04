@@ -597,7 +597,7 @@ void LEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 }
 
-Script::List * LEFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> LEFormat::GetScript(Linker::Module& module)
 {
 	static const char * SimpleScript = R"(
 ".code"
@@ -638,7 +638,7 @@ for not ".stack"
 
 void LEFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }

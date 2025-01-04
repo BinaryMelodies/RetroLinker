@@ -49,7 +49,7 @@ void MPFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 }
 
-Script::List * MPFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> MPFormat::GetScript(Linker::Module& module)
 {
 	static const char * SimpleScript = R"(
 ".code"
@@ -77,7 +77,7 @@ Script::List * MPFormat::GetScript(Linker::Module& module)
 
 void MPFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }
@@ -324,7 +324,7 @@ void P3Format::Flat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 }
 
-Script::List * P3Format::Flat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> P3Format::Flat::GetScript(Linker::Module& module)
 {
 	static const char * SimpleScript = R"(
 ".code"
@@ -352,7 +352,7 @@ Script::List * P3Format::Flat::GetScript(Linker::Module& module)
 
 void P3Format::Flat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }
@@ -665,7 +665,7 @@ void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> lin
 	}
 }
 
-Script::List * P3Format::MultiSegmented::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> P3Format::MultiSegmented::GetScript(Linker::Module& module)
 {
 	static const char * SegmentedScript = R"(
 ".code"
@@ -729,7 +729,7 @@ void P3Format::MultiSegmented::Link(Linker::Module& module)
 	segments.push_back(&idt);
 	segments.push_back(&ldt);
 
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }

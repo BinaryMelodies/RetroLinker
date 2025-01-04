@@ -1,6 +1,7 @@
 #ifndef __NODE_H
 #define __NODE_H
 
+#include <memory>
 #include <typeinfo>
 #include <vector>
 
@@ -60,14 +61,22 @@ class Node;
 class List
 {
 public:
-	std::vector<Node *> children;
+	std::vector<std::unique_ptr<Node>> children;
 
 protected:
 	void init() { }
+
 	template <typename ... Nodes>
 		void init(Node * node, Nodes ... nodes)
 	{
-		children.push_back(node);
+		children.push_back(std::unique_ptr<Node>(node));
+		init(nodes...);
+	}
+
+	template <typename ... Nodes>
+		void init(std::unique_ptr<Node> node, Nodes ... nodes)
+	{
+		children.push_back(std::move(node));
 		init(nodes...);
 	}
 
@@ -80,7 +89,13 @@ public:
 
 	List * Append(Node * node)
 	{
-		children.push_back(node);
+		children.push_back(std::unique_ptr<Node>(node));
+		return this;
+	}
+
+	List * Append(std::unique_ptr<Node> node)
+	{
+		children.push_back(std::move(node));
 		return this;
 	}
 };
@@ -164,19 +179,19 @@ public:
 	{
 	}
 
-	Node *& at(size_t index)
+	std::unique_ptr<Node>& at(size_t index)
 	{
 		return list->children[index];
 	}
 
-	Node * const& at(size_t index) const
+	const std::unique_ptr<Node>& at(size_t index) const
 	{
 		return list->children[index];
 	}
 };
 
-List * parse_string(const char * buffer);
-List * parse_file(const char * filename);
+std::unique_ptr<List> parse_string(const char * buffer);
+std::unique_ptr<List> parse_file(const char * filename, bool& file_error);
 
 }
 

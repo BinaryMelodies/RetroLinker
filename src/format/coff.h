@@ -670,7 +670,7 @@ namespace COFF
 
 		void CreateDefaultSegments();
 
-		Script::List * GetScript(Linker::Module& module);
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 
 		void Link(Linker::Module& module);
 

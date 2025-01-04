@@ -521,7 +521,7 @@ namespace DigitalResearch
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		Script::List * GetScript(Linker::Module& module);
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 
 		void Link(Linker::Module& module);
 

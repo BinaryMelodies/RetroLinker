@@ -69,7 +69,7 @@ void GenericBinaryFormat::CreateDefaultSegments()
 	}
 }
 
-Script::List * GenericBinaryFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> GenericBinaryFormat::GetScript(Linker::Module& module)
 {
 	/* most targets */
 	static const char * GenericScript = R"(
@@ -112,7 +112,7 @@ bool GenericBinaryFormat::ProcessRelocation(Linker::Module& module, Linker::Relo
 
 void GenericBinaryFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 	ProcessScript(script, module);
 	CreateDefaultSegments();
 }
@@ -313,7 +313,7 @@ void BinaryFormat::SetModel(std::string model)
 	}
 }
 
-Script::List * BinaryFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> BinaryFormat::GetScript(Linker::Module& module)
 {
 	/* most targets */
 	static const char * GenericScript = R"(

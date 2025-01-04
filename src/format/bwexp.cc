@@ -225,7 +225,7 @@ void BWFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	segments.push_back(bw_segment);
 }
 
-Script::List * BWFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> BWFormat::GetScript(Linker::Module& module)
 {
 	static const char * SegmentedScript = R"(
 ".code"
@@ -269,7 +269,7 @@ for any
 
 void BWFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }

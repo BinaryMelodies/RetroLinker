@@ -1295,7 +1295,7 @@ void COFFFormat::CreateDefaultSegments()
 	}
 }
 
-Script::List * COFFFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> COFFFormat::GetScript(Linker::Module& module)
 {
 	static const char * SimpleScript = R"(
 ".code"
@@ -1369,7 +1369,7 @@ Script::List * COFFFormat::GetScript(Linker::Module& module)
 
 void COFFFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 

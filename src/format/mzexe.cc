@@ -465,7 +465,7 @@ void MZFormat::CreateDefaultSegments()
 	}
 }
 
-Script::List * MZFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> MZFormat::GetScript(Linker::Module& module)
 {
 	static const char * TinyScript = R"(
 ".code"
@@ -542,7 +542,7 @@ Script::List * MZFormat::GetScript(Linker::Module& module)
 
 void MZFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 

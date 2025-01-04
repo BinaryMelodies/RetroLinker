@@ -228,7 +228,7 @@ bool CPM8KFormat::IsCombined()
 	return magic == MAGIC_NONSHARED || magic == MAGIC_NONSHARED_OBJECT;
 }
 
-Script::List * CPM8KFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> CPM8KFormat::GetScript(Linker::Module& module)
 {
 	static const char * CombinedScript = R"(
 ".code"
@@ -372,7 +372,7 @@ Script::List * CPM8KFormat::GetScript(Linker::Module& module)
 
 void CPM8KFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 	ProcessScript(script, module);
 }
 

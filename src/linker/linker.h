@@ -90,7 +90,7 @@ namespace Linker
 		/**
 		 * @brief Compiles the linker script into an internal format
 		 */
-		Script::List * GetScript(Linker::Module& module);
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 
 		/**
 		 * @brief Retrieves current address pointer
@@ -143,12 +143,12 @@ namespace Linker
 		 * @brief Executes a parsed linker script on a module and collects segments
 		 * The function OnNewSegment can be defined to handle each newly allocated segment.
 		 */
-		void ProcessScript(Script::List * directives, Module& module);
-		void ProcessAction(Script::Node * action, Module& module);
-		void PostProcessAction(Script::Node * action, Module& module);
-		void ProcessCommand(Script::Node * command, Module& module);
-		bool CheckPredicate(Script::Node * predicate, std::shared_ptr<Section> section, Module& module);
-		offset_t EvaluateExpression(Script::Node * expression, Module& module);
+		void ProcessScript(std::unique_ptr<Script::List>& directives, Module& module);
+		void ProcessAction(std::unique_ptr<Script::Node>& action, Module& module);
+		void PostProcessAction(std::unique_ptr<Script::Node>& action, Module& module);
+		void ProcessCommand(std::unique_ptr<Script::Node>& command, Module& module);
+		bool CheckPredicate(std::unique_ptr<Script::Node>& predicate, std::shared_ptr<Section> section, Module& module);
+		offset_t EvaluateExpression(std::unique_ptr<Script::Node>& expression, Module& module);
 	};
 
 	bool starts_with(std::string str, std::string start);

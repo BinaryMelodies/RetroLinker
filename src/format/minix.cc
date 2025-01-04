@@ -81,7 +81,7 @@ void MINIXFormat::CreateDefaultSegments()
 	}
 }
 
-Script::List * MINIXFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> MINIXFormat::GetScript(Linker::Module& module)
 {
 	static const char * SplitScript = R"(
 ".code"
@@ -152,7 +152,7 @@ Script::List * MINIXFormat::GetScript(Linker::Module& module)
 
 void MINIXFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 

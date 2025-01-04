@@ -12,7 +12,7 @@ using namespace Script;
 using namespace Script;
 
 void yyerror(const char * s);
-List * script;
+std::unique_ptr<List> script;
 %}
 
 %union
@@ -83,7 +83,7 @@ List * script;
 program
 	: script
 		{
-			script = $1;
+			script = std::unique_ptr<List>($1);
 		}
 	;
 
@@ -433,24 +433,28 @@ void yyerror(const char * s)
 	fprintf(stderr, "Error: %s\n", s);
 }
 
-List * Script::parse_string(const char * buffer)
+std::unique_ptr<List> Script::parse_string(const char * buffer)
 {
 	int result;
 	set_buffer(buffer);
 	result = yyparse();
-	return result == 0 ? script : nullptr;
+	return result == 0 ? std::move(script) : nullptr;
 }
 
-List * Script::parse_file(const char * filename)
+std::unique_ptr<List> Script::parse_file(const char * filename, bool& file_error)
 {
 	int result;
+	file_error = false;
 	FILE * file = fopen(filename, "r");
 	if(file == NULL)
-		return (List *)-1;
+	{
+		file_error = true;
+		return nullptr;
+	}
 	set_stream(file);
 	set_buffer(NULL);
 	result = yyparse();
 	fclose(file);
 	set_stream(stdin);
-	return result == 0 ? script : nullptr;
+	return result == 0 ? std::move(script) : nullptr;
 }

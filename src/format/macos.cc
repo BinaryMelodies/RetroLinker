@@ -964,7 +964,7 @@ void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 }
 
-Script::List * ResourceFork::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> ResourceFork::GetScript(Linker::Module& module)
 {
 	/* TODO: make placing .comm/.bss data inside the .a5world optional */
 
@@ -1046,7 +1046,7 @@ for any
 
 void ResourceFork::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }

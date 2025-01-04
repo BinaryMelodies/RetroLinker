@@ -364,7 +364,7 @@ namespace Microsoft
 		using LinkerManager::SetLinkScript;
 		void SetOptions(std::map<std::string, std::string>& options) override;
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
-		Script::List * GetScript(Linker::Module& module);
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;
 		void CalculateValues() override;

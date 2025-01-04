@@ -691,7 +691,7 @@ void CPM68KFormat::CreateDefaultSegments()
 	}
 }
 
-Script::List * CPM68KFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> CPM68KFormat::GetScript(Linker::Module& module)
 {
 	static const char * SimpleScript = R"(
 ".code"
@@ -775,7 +775,7 @@ void CPM68KFormat::Link(Linker::Module& module)
 		}
 	}
 
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 	CreateDefaultSegments();

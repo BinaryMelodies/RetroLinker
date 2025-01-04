@@ -96,7 +96,7 @@ namespace Amiga
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
-		Script::List * GetScript(Linker::Module& module);
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 
 		void Link(Linker::Module& module);
 

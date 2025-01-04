@@ -64,7 +64,7 @@ namespace Binary
 
 		void CreateDefaultSegments();
 
-		virtual Script::List * GetScript(Linker::Module& module);
+		virtual std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 
 		/**
 		 * @brief Callback function to process relocations
@@ -153,7 +153,7 @@ namespace Binary
 
 		void SetModel(std::string model) override;
 
-		Script::List * GetScript(Linker::Module& module) override;
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module) override;
 
 		void ProcessModule(Linker::Module& module) override;
 	};

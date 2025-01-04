@@ -358,7 +358,7 @@ Linker::Debug << "Debug: New segment " << segment->name << std::endl;
 	}
 }
 
-Script::List * NEFormat::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> NEFormat::GetScript(Linker::Module& module)
 {
 	static const char SmallScript[] = R"(
 ".code"
@@ -444,7 +444,7 @@ for not ".heap"
 
 void NEFormat::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }

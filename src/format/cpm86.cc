@@ -991,7 +991,7 @@ void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 	option_no_relocation = options.find("noreloc") != options.end();
 }
 
-Script::List * CPM86Format::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> CPM86Format::GetScript(Linker::Module& module)
 {
 	/* The formats (what Digital Research documents call "model") and actual memory models interact in the following ways:
 	- Tiny model
@@ -1222,7 +1222,7 @@ for any
 
 void CPM86Format::Link(Linker::Module& module)
 {
-	Script::List * script = GetScript(module);
+	std::unique_ptr<Script::List> script = GetScript(module);
 	ProcessScript(script, module);
 }
 
