@@ -81,7 +81,7 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classDigitalResearch_1_1CPM86Format_1_1Descriptor-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">DigitalResearch::CPM86Format::Descriptor Class Reference</div></div>
+  <div class="headertitle"><div class="title">DigitalResearch::CPM86Format::Descriptor Class Reference<div class="ingroups">module <a class="el" href="module_nullptr.html">nullptr</a></div></div></div>
 </div><!--header-->
 <div class="contents">
 
@@ -123,7 +123,7 @@ Public Types</h2></td></tr>
 , <a class="el" href="#af657b23aac9b14639cb22bf34c2847bca92571d0c94c4c0dc7d2c8542f471303a">ActualFixups</a> = 0x200 | Fixups
 <br />
  }</td></tr>
-<tr class="memdesc:af657b23aac9b14639cb22bf34c2847bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reference back to the main module.  <a href="#af657b23aac9b14639cb22bf34c2847bc">More...</a><br /></td></tr>
+<tr class="memdesc:af657b23aac9b14639cb22bf34c2847bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Group type, stored as the first byte of the descriptor.  <a href="#af657b23aac9b14639cb22bf34c2847bc">More...</a><br /></td></tr>
 <tr class="separator:af657b23aac9b14639cb22bf34c2847bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -131,27 +131,24 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a580c318d6fb5c1d85f2d639d36941766" id="r_a580c318d6fb5c1d85f2d639d36941766"><td class="memItemLeft" align="right" valign="top"><a id="a580c318d6fb5c1d85f2d639d36941766" name="a580c318d6fb5c1d85f2d639d36941766"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
 <tr class="separator:a580c318d6fb5c1d85f2d639d36941766"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af2a673ce957e583b73838048c10b2e9b" id="r_af2a673ce957e583b73838048c10b2e9b"><td class="memItemLeft" align="right" valign="top"><a id="af2a673ce957e583b73838048c10b2e9b" name="af2a673ce957e583b73838048c10b2e9b"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Descriptor</b> (<a class="el" href="classDigitalResearch_1_1CPM86Format.html">CPM86Format</a> *module)</td></tr>
-<tr class="separator:af2a673ce957e583b73838048c10b2e9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aac8e78d8db3ab63e82cf4f28554ab9d6" id="r_aac8e78d8db3ab63e82cf4f28554ab9d6"><td class="memItemLeft" align="right" valign="top">virtual uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aac8e78d8db3ab63e82cf4f28554ab9d6">GetSizeParas</a> () const</td></tr>
-<tr class="memdesc:aac8e78d8db3ab63e82cf4f28554ab9d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the segment group in 16-byte paragraphs.  <br /></td></tr>
-<tr class="separator:aac8e78d8db3ab63e82cf4f28554ab9d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5b02c744030a02c32783c4400cfbfe5" id="r_ab5b02c744030a02c32783c4400cfbfe5"><td class="memItemLeft" align="right" valign="top">virtual uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5b02c744030a02c32783c4400cfbfe5">GetSizeParas</a> (const <a class="el" href="classDigitalResearch_1_1CPM86Format.html">CPM86Format</a> &amp;module) const</td></tr>
+<tr class="memdesc:ab5b02c744030a02c32783c4400cfbfe5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the segment group in 16-byte paragraphs.  <br /></td></tr>
+<tr class="separator:ab5b02c744030a02c32783c4400cfbfe5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3347b7dd4a55561944cacf6f0cc9455b" id="r_a3347b7dd4a55561944cacf6f0cc9455b"><td class="memItemLeft" align="right" valign="top"><a id="a3347b7dd4a55561944cacf6f0cc9455b" name="a3347b7dd4a55561944cacf6f0cc9455b"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadDescriptor</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="separator:a3347b7dd4a55561944cacf6f0cc9455b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc0bc4cbb7f412ba8608a4b5dc21d6b1" id="r_acc0bc4cbb7f412ba8608a4b5dc21d6b1"><td class="memItemLeft" align="right" valign="top"><a id="acc0bc4cbb7f412ba8608a4b5dc21d6b1" name="acc0bc4cbb7f412ba8608a4b5dc21d6b1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteDescriptor</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
-<tr class="separator:acc0bc4cbb7f412ba8608a4b5dc21d6b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aee638ad3a2a59c483e51ec94223e7dd4" id="r_aee638ad3a2a59c483e51ec94223e7dd4"><td class="memItemLeft" align="right" valign="top"><a id="aee638ad3a2a59c483e51ec94223e7dd4" name="aee638ad3a2a59c483e51ec94223e7dd4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteData</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
-<tr class="separator:aee638ad3a2a59c483e51ec94223e7dd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7240bf0070359ab57d3e57b1ba93f416" id="r_a7240bf0070359ab57d3e57b1ba93f416"><td class="memItemLeft" align="right" valign="top"><a id="a7240bf0070359ab57d3e57b1ba93f416" name="a7240bf0070359ab57d3e57b1ba93f416"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteDescriptor</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classDigitalResearch_1_1CPM86Format.html">CPM86Format</a> &amp;module)</td></tr>
+<tr class="separator:a7240bf0070359ab57d3e57b1ba93f416"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac79224cfbd46f64b3960795bc9d9d1ca" id="r_ac79224cfbd46f64b3960795bc9d9d1ca"><td class="memItemLeft" align="right" valign="top"><a id="ac79224cfbd46f64b3960795bc9d9d1ca" name="ac79224cfbd46f64b3960795bc9d9d1ca"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteData</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classDigitalResearch_1_1CPM86Format.html">CPM86Format</a> &amp;module)</td></tr>
+<tr class="separator:ac79224cfbd46f64b3960795bc9d9d1ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3955ec3875cef428efdcbc14406f97ad" id="r_a3955ec3875cef428efdcbc14406f97ad"><td class="memItemLeft" align="right" valign="top"><a id="a3955ec3875cef428efdcbc14406f97ad" name="a3955ec3875cef428efdcbc14406f97ad"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>GetDefaultName</b> ()</td></tr>
 <tr class="separator:a3955ec3875cef428efdcbc14406f97ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2078a8fb05470ac77d4b490a6ff932ea" id="r_a2078a8fb05470ac77d4b490a6ff932ea"><td class="memItemLeft" align="right" valign="top"><a id="a2078a8fb05470ac77d4b490a6ff932ea" name="a2078a8fb05470ac77d4b490a6ff932ea"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadData</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
-<tr class="separator:a2078a8fb05470ac77d4b490a6ff932ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a774e172b97b5449d6669a1d8914ab30f" id="r_a774e172b97b5449d6669a1d8914ab30f"><td class="memItemLeft" align="right" valign="top"><a id="a774e172b97b5449d6669a1d8914ab30f" name="a774e172b97b5449d6669a1d8914ab30f"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadData</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, const <a class="el" href="classDigitalResearch_1_1CPM86Format.html">CPM86Format</a> &amp;module)</td></tr>
+<tr class="separator:a774e172b97b5449d6669a1d8914ab30f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -206,8 +203,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>attach_zero_page</b> 
       </table>
 </div><div class="memdoc">
 
-<p>Reference back to the main module. </p>
-<p>Group type, stored as the first byte of the descriptor </p>
+<p>Group type, stored as the first byte of the descriptor. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="af657b23aac9b14639cb22bf34c2847bca27ef7ad15cb05528aef8ac8bf8248cd2" name="af657b23aac9b14639cb22bf34c2847bca27ef7ad15cb05528aef8ac8bf8248cd2"></a>Undefined&#160;</td><td class="fielddoc"><p>This group type is not the type of an actual group. Instead, it signals the end of the group descriptor table. </p>
 </td></tr>
@@ -244,8 +240,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>attach_zero_page</b> 
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="aac8e78d8db3ab63e82cf4f28554ab9d6" name="aac8e78d8db3ab63e82cf4f28554ab9d6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aac8e78d8db3ab63e82cf4f28554ab9d6">&#9670;&#160;</a></span>GetSizeParas()</h2>
+<a id="ab5b02c744030a02c32783c4400cfbfe5" name="ab5b02c744030a02c32783c4400cfbfe5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5b02c744030a02c32783c4400cfbfe5">&#9670;&#160;</a></span>GetSizeParas()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -256,7 +252,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>attach_zero_page</b> 
         <tr>
           <td class="memname">uint16_t CPM86Format::Descriptor::GetSizeParas </td>
           <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="classDigitalResearch_1_1CPM86Format.html">CPM86Format</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em></span></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -269,7 +265,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>attach_zero_page</b> 
 
 <p>Returns the size of the segment group in 16-byte paragraphs. </p>
 
-<p>Reimplemented in <a class="el" href="classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html#a3904a4cd39972c6576d06630851c5667">DigitalResearch::CPM86Format::LibraryDescriptor</a>, and <a class="el" href="classDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor.html#a5d2daaf7bd73b9ab6d2a4a77b7281b67">DigitalResearch::CPM86Format::FastLoadDescriptor</a>.</p>
+<p>Reimplemented in <a class="el" href="classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html#a184627a2402e933c13a00c4a9d4bfab9">DigitalResearch::CPM86Format::LibraryDescriptor</a>, and <a class="el" href="classDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor.html#a4514defdfc85922e5abb51d1a8a16a1e">DigitalResearch::CPM86Format::FastLoadDescriptor</a>.</p>
 
 </div>
 </div>

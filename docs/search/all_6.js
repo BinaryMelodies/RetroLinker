@@ -1,9 +1,9 @@
 var searchData=
 [
   ['d3x1format_0',['D3X1Format',['../classBrocaD3X_1_1D3X1Format.html',1,'BrocaD3X']]],
-  ['data_1',['data',['../classCOFF_1_1COFFFormat_1_1ZilogRelocation.html#a308602da22ab9d210689ba50d1c4325c',1,'COFF::COFFFormat::ZilogRelocation::data'],['../classDigitalResearch_1_1CPM68KFormat.html#af301db1d3296622dbce7d68f215b5e84',1,'DigitalResearch::CPM68KFormat::data'],['../structO65_1_1O65Format_1_1Module_1_1header__option.html#af56812f5a2098a2b86a1b47063fa2e62',1,'O65::O65Format::Module::header_option::data']]],
+  ['data_1',['Data',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca492c2e9bd5afcfdad00b90ca418de356',1,'DigitalResearch::CPM86Format::Descriptor']]],
   ['data_2',['DATA',['../classCOFF_1_1COFFFormat_1_1Section.html#aa98e4f30e87e423b60d4f9d924473ff1ac312875fa4baa17c5155c3e9a387ba62',1,'COFF::COFFFormat::Section']]],
-  ['data_3',['Data',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca492c2e9bd5afcfdad00b90ca418de356',1,'DigitalResearch::CPM86Format::Descriptor']]],
+  ['data_3',['data',['../classCOFF_1_1COFFFormat_1_1ZilogRelocation.html#a308602da22ab9d210689ba50d1c4325c',1,'COFF::COFFFormat::ZilogRelocation::data'],['../classDigitalResearch_1_1CPM68KFormat.html#af301db1d3296622dbce7d68f215b5e84',1,'DigitalResearch::CPM68KFormat::data'],['../structO65_1_1O65Format_1_1Module_1_1header__option.html#af56812f5a2098a2b86a1b47063fa2e62',1,'O65::O65Format::Module::header_option::data']]],
   ['data_5faddress_4',['data_address',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#aedf6b2f463ba78c13d6914ace91735c9',1,'COFF::COFFFormat::AOutHeader::data_address'],['../classDigitalResearch_1_1CPM68KFormat.html#af8113bafae8080faf6741c4df80dcc69',1,'DigitalResearch::CPM68KFormat::data_address']]],
   ['data_5fbase_5',['data_base',['../classO65_1_1O65Format_1_1Module.html#aeffcade1aa67ea9d51af63d2cf401846',1,'O65::O65Format::Module']]],
   ['data_5fimage_6',['data_image',['../classO65_1_1O65Format_1_1Module.html#acad148128919f3abd771ec0d156bccb4',1,'O65::O65Format::Module']]],
