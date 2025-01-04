@@ -17,23 +17,19 @@ namespace X68000
 	public:
 		void ReadFile(Linker::Reader& rd) override;
 
-		HUFormat()
-			: load_mode(MODE_NORMAL), entry_address(0), option_no_relocation(false)
-		{
-		}
-
-		enum
+		enum load_mode_type
 		{
 			MODE_NORMAL,
 			MODE_SMALLEST,
 			MODE_HIGHEST,
-		} load_mode; /* TODO: make parameter */
-		uint32_t entry_address;
-		bool option_no_relocation; /* TODO: make parameter */
+		};
+		load_mode_type load_mode = MODE_NORMAL; /* TODO: make parameter */
+		uint32_t entry_address = 0;
+		bool option_no_relocation = false; /* TODO: make parameter */
 
 		/* filled in automatically */
 		std::shared_ptr<Linker::Segment> code, data, bss;
-		uint32_t relocation_size;
+		uint32_t relocation_size = 0;
 		std::map<uint32_t, unsigned char> relocations;
 
 		using LinkerManager::SetLinkScript;

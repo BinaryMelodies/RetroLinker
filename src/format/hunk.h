@@ -43,7 +43,7 @@ namespace Amiga
 			HUNK_HEADER = 0x3F3,
 			HUNK_PPC_CODE = 0x4E9,
 		};
-		uint32_t cpu;
+		uint32_t cpu = HUNK_CODE;
 
 		class Hunk
 		{
@@ -58,7 +58,8 @@ namespace Amiga
 				LoadLocalMem = 0x00000008,
 				Load24BitDma = 0x00000010,
 				LoadClear    = 0x00010000,
-			} flags;
+			};
+			flag_type flags;
 			std::shared_ptr<Linker::Segment> image;
 
 			Hunk(uint32_t hunk_type, std::string name = "image", unsigned flags = LoadAny)
@@ -69,11 +70,6 @@ namespace Amiga
 			Hunk(uint32_t hunk_type, std::shared_ptr<Linker::Segment> segment, unsigned flags = LoadAny)
 				: hunk_type(hunk_type), flags((flag_type)flags), image(segment)
 			{
-			}
-
-			~Hunk()
-			{
-//				delete image;
 			}
 
 			std::map<uint32_t, std::vector<uint32_t> > relocations;

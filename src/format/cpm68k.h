@@ -162,7 +162,7 @@ namespace DigitalResearch
 		/**
 		 * @brief The system which will load the executable
 		 */
-		enum system_type system;
+		system_type system;
 
 		void Clear() override;
 

@@ -28,7 +28,8 @@ namespace MINIX
 			FormatCombined = 0x10,
 			FormatSeparate = 0x20,
 			UnmappedZeroPage = 0x01,
-		} format;
+		};
+		format_type format;
 
 		enum cpu_type
 		{
@@ -38,7 +39,8 @@ namespace MINIX
 			NS16K = 0x0C,
 			I386 = 0x10,
 			SPARC = 0x17,
-		} cpu;
+		};
+		cpu_type cpu;
 
 		static ::EndianType GetEndianType(cpu_type cpu);
 
@@ -47,17 +49,17 @@ namespace MINIX
 		static constexpr size_t PAGE_SIZE = 0x1000;
 
 		MINIXFormat(format_type format, cpu_type cpu = cpu_type(0))
-			: format(format), cpu(cpu), code_base_address(0), heap_top_address(0)
+			: format(format), cpu(cpu)
 		{
 		}
 
-		uint32_t code_base_address; /* TODO: parametrize */
-		//uint32_t data_base_address; /* TODO: parametrize */
-		uint32_t heap_top_address; /* TODO: parametrize */
+		uint32_t code_base_address = 0; /* TODO: parametrize */
+		//uint32_t data_base_address = 0; /* TODO: parametrize */
+		uint32_t heap_top_address = 0; /* TODO: parametrize */
 
 		/* generated */
 		std::shared_ptr<Linker::Segment> code, data, bss;
-		uint32_t entry_address;
+		uint32_t entry_address = 0;
 
 		using LinkerManager::SetLinkScript;
 

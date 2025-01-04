@@ -46,14 +46,14 @@ namespace PharLap
 			bool operator <(const Relocation& other) const;
 		};
 
-		offset_t image_size;
+		offset_t image_size = 0;
 		std::set<Relocation> relocations;
-		offset_t header_size;
-		offset_t bss_pages;
-		offset_t extra_pages;
-		uint32_t esp;
-		uint32_t eip;
-		offset_t relocation_offset;
+		offset_t header_size = 0;
+		offset_t bss_pages = 0;
+		offset_t extra_pages = 0;
+		uint32_t esp = 0;
+		uint32_t eip = 0;
+		offset_t relocation_offset = 0;
 
 		MPFormat(bool has_relocations = false)
 			: has_relocations(has_relocations)
@@ -97,40 +97,40 @@ namespace PharLap
 		const bool is_multisegmented;
 		bool is_32bit;
 
-		uint16_t header_size;
-		uint32_t file_size;
+		uint16_t header_size = 0;
+		uint32_t file_size = 0;
 
-		uint32_t runtime_parameters_offset;
-		uint32_t runtime_parameters_size;
-		uint32_t relocation_table_offset;
-		uint32_t relocation_table_size;
-		uint32_t segment_information_table_offset;
-		uint32_t segment_information_table_size;
-		uint16_t segment_information_table_entry_size;
-		uint32_t load_image_offset;
-		uint32_t load_image_size;
-		uint32_t symbol_table_offset;
-		uint32_t symbol_table_size;
-		uint32_t gdt_address;
-		uint32_t gdt_size;
-		uint32_t ldt_address;
-		uint32_t ldt_size;
-		uint32_t idt_address;
-		uint32_t idt_size;
-		uint32_t tss_address;
-		uint32_t tss_size;
-		uint32_t minimum_extra;
-		uint32_t maximum_extra;
-		uint32_t base_load_offset;
-		uint32_t esp;
-		uint16_t ss;
-		uint32_t eip;
-		uint16_t cs;
-		uint16_t ldtr;
-		uint16_t tr;
-		uint16_t flags;
-		uint32_t memory_requirements;
-		uint32_t stack_size;
+		uint32_t runtime_parameters_offset = 0;
+		uint32_t runtime_parameters_size = 0;
+		uint32_t relocation_table_offset = 0;
+		uint32_t relocation_table_size = 0;
+		uint32_t segment_information_table_offset = 0;
+		uint32_t segment_information_table_size = 0;
+		uint16_t segment_information_table_entry_size = 0;
+		uint32_t load_image_offset = 0;
+		uint32_t load_image_size = 0;
+		uint32_t symbol_table_offset = 0;
+		uint32_t symbol_table_size = 0;
+		uint32_t gdt_address = 0;
+		uint32_t gdt_size = 0;
+		uint32_t ldt_address = 0;
+		uint32_t ldt_size = 0;
+		uint32_t idt_address = 0;
+		uint32_t idt_size = 0;
+		uint32_t tss_address = 0;
+		uint32_t tss_size = 0;
+		uint32_t minimum_extra = 0;
+		uint32_t maximum_extra = 0;
+		uint32_t base_load_offset = 0;
+		uint32_t esp = 0;
+		uint16_t ss = 0;
+		uint32_t eip = 0;
+		uint16_t cs = 0;
+		uint16_t ldtr = 0;
+		uint16_t tr = 0;
+		uint16_t flags = 0;
+		uint32_t memory_requirements = 0;
+		uint32_t stack_size = 0;
 
 		P3Format(bool is_multisegmented, bool is_32bit = true)
 			: is_multisegmented(is_multisegmented), is_32bit(is_32bit)
@@ -140,9 +140,9 @@ namespace PharLap
 		class RunTimeParameterBlock
 		{
 		public:
-			uint16_t min_realmode_param, max_realmode_param, min_int_buffer_size_kb, max_int_buffer_size_kb, int_stack_count, int_stack_size_kb;
-			uint32_t realmode_area_end;
-			uint16_t call_buffer_size_kb, flags, ring;
+			uint16_t min_realmode_param = 0, max_realmode_param = 0, min_int_buffer_size_kb = 0, max_int_buffer_size_kb = 0, int_stack_count = 0, int_stack_size_kb = 0;
+			uint32_t realmode_area_end = 0;
+			uint16_t call_buffer_size_kb = 0, flags = 0, ring = 0;
 
 			void CalculateValues();
 
@@ -192,7 +192,7 @@ namespace PharLap
 		class AbstractSegment
 		{
 		public:
-			uint32_t address;
+			uint32_t address = 0;
 			virtual ~AbstractSegment();
 			virtual uint32_t GetStoredSize() = 0;
 			virtual uint32_t GetLoadedSize() = 0;
@@ -217,12 +217,12 @@ namespace PharLap
 				DESC_G = 0x00800000,
 			};
 
-			uint32_t limit;
-			uint32_t base;
+			uint32_t limit = 0;
+			uint32_t base = 0;
 			uint32_t access;
 
 			Descriptor(uint32_t access, AbstractSegment * image = nullptr)
-				: image(image), limit(0), base(0), access(access)
+				: image(image), access(access)
 			{
 			}
 
@@ -252,10 +252,10 @@ namespace PharLap
 		public:
 			bool is_32bit;
 
-			uint32_t esp0, esp1, esp2;
-			uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;
-			uint16_t ss0, ss1, ss2, es, cs, ss, ds, fs, gs, ldtr, iopb;
-			uint16_t link;
+			uint32_t esp0 = 0, esp1 = 0, esp2 = 0;
+			uint32_t cr3 = 0, eip = 0, eflags = 0, eax = 0, ecx = 0, edx = 0, ebx = 0, esp = 0, ebp = 0, esi = 0, edi = 0;
+			uint16_t ss0 = 0, ss1 = 0, ss2 = 0, es = 0, cs = 0, ss = 0, ds = 0, fs = 0, gs = 0, ldtr = 0, iopb = 0;
+			uint16_t link = 0;
 
 			TaskStateSegment(bool is_32bit = true)
 				: is_32bit(is_32bit)
@@ -277,11 +277,11 @@ namespace PharLap
 			std::shared_ptr<Linker::Segment> segment;
 
 			uint16_t selector;
-			uint16_t flags;
-			uint32_t base_offset; /* TODO??? */
+			uint16_t flags = 0;
+			uint32_t base_offset = 0; /* TODO??? */
 
 			Segment(std::shared_ptr<Linker::Segment> segment, uint32_t access, uint16_t selector)
-				: Descriptor(access, this), segment(segment), selector(selector), base_offset(0)
+				: Descriptor(access, this), segment(segment), selector(selector)
 			{
 			}
 

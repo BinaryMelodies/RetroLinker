@@ -20,7 +20,7 @@ namespace Linker
 	{
 	public:
 		/**
-		 * @brief Encodes the CPU for the target
+		 * @brief Supported CPU types
 		 */
 		enum cpu_type
 		{
@@ -43,12 +43,12 @@ namespace Linker
 			MIPS,
 			SPARC,
 			SH,
-		} cpu;
+		};
 
-		Module()
-			: cpu(NONE)
-		{
-		}
+		/**
+		 * @brief Encodes the CPU for the target
+		 */
+		cpu_type cpu = NONE;
 	private:
 		std::vector<std::shared_ptr<Section>> sections;
 		std::map<std::string, std::shared_ptr<Section>> section_names;

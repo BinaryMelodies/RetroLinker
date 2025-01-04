@@ -81,7 +81,8 @@ namespace DigitalResearch
 				EXT_SHORT_SEGMENTED = 6,
 				/** @brief A 32-bit segmented address of external item */
 				EXT_LONG_SEGMENTED = 7,
-			} type;
+			};
+			relocation_type type;
 			/**
 			 * @brief Source offset of relocation
 			 */

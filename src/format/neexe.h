@@ -40,7 +40,8 @@ namespace Microsoft
 			Windows386,
 			BorlandOSS,
 			PharLap = 0x80,
-		} system;
+		};
+		system_type system = system_type(0);
 
 		enum program_flag_type
 		{
@@ -53,7 +54,8 @@ namespace Microsoft
 			CPU_80286 = 0x20,
 			CPU_80386 = 0x40,
 			CPU_8087 = 0x80,
-		} program_flags;
+		};
+		program_flag_type program_flags = program_flag_type(0);
 
 		enum application_flag_type
 		{
@@ -63,7 +65,8 @@ namespace Microsoft
 			FAMILY_APPLICATION = 8, /* first segment loads application */
 			ERROR_IN_IMAGE = 0x20,
 			LIBRARY = 0x80,
-		} application_flags;
+		};
+		application_flag_type application_flags = application_flag_type(0);
 
 		bool IsLibrary() const;
 
@@ -73,7 +76,8 @@ namespace Microsoft
 			WIN20_PROTECTED_MODE = 2,
 			WIN20_PROPORTIONAL_FONTS = 4,
 			FAST_LOAD_AREA = 8,
-		} additional_flags;
+		};
+		additional_flag_type additional_flags = additional_flag_type(0);
 
 		enum compatibility_type
 		{
@@ -81,14 +85,12 @@ namespace Microsoft
 			CompatibleWatcom,
 			CompatibleMicrosoft, /* TODO */
 			CompatibleGNU, /* TODO */
-		} compatibility;
+		};
+		compatibility_type compatibility = CompatibleNone;
 
 		NEFormat(system_type system, unsigned program_flags, unsigned application_flags)
-			: system(system), program_flags((program_flag_type)program_flags), application_flags((application_flag_type)application_flags), additional_flags((additional_flag_type)0), compatibility(CompatibleNone),
-				linker_version{1, 0},
-				heap_size(0), stack_size(0), sector_shift(9), code_swap_area_length(0),
-//				stack(".stack"), heap(".heap"),
-				imported_names_length(0)
+			: system(system), program_flags(program_flag_type(program_flags)), application_flags(application_flag_type(application_flags)),
+			fast_load_area_offset(0), fast_load_area_length(0)
 		{
 		}
 
@@ -108,14 +110,16 @@ namespace Microsoft
 				Unused,
 				Fixed,
 				Movable,
-			} type;
-			uint8_t segment;
+			};
+			entry_type type = Unused;
+			uint8_t segment = 0;
 			enum flag_type
 			{
 				Exported = 1,
 				SharedData = 2,
-			} flags;
-			uint16_t offset;
+			};
+			flag_type flags = flag_type(0);
+			uint16_t offset = 0;
 
 			enum
 			{
@@ -123,8 +127,8 @@ namespace Microsoft
 
 				INT_3Fh = 0x3FCD,
 			};
+
 			Entry()
-				: type(Unused), segment(0), flags((flag_type)0), offset(0)
 			{
 			}
 
@@ -144,7 +148,7 @@ namespace Microsoft
 		{
 		public:
 			std::shared_ptr<Linker::Segment> image;
-			offset_t data_offset;
+			offset_t data_offset = 0;
 			enum flag_type
 			{
 				Data = 1, Code = 0,
@@ -158,11 +162,12 @@ namespace Microsoft
 				Relocations = 0x0100,
 				DebugInfo = 0x0200,
 				Discardable = 0x1000,
-			} flags;
-			uint16_t movable_entry_index; /* for movable segments, each relocation targetting it needs one and only one entry */
+			};
+			flag_type flags;
+			uint16_t movable_entry_index = 0; /* for movable segments, each relocation targetting it needs one and only one entry */
 
 			Segment(std::shared_ptr<Linker::Segment> segment, unsigned flags)
-				: image(segment), flags((flag_type)flags), movable_entry_index(0)
+				: image(segment), flags((flag_type)flags)
 			{
 			}
 
@@ -182,7 +187,8 @@ namespace Microsoft
 					Offset16 = 5,
 					Pointer48 = 11,
 					Offset32 = 13,
-				} type;
+				};
+				source_type type = source_type(0);
 				enum flag_type
 				{
 					Internal = 0,
@@ -190,8 +196,9 @@ namespace Microsoft
 					ImportName = 2,
 					OSFixup = 3,
 					Additive = 4,
-				} flags;
-				uint16_t offset;
+				};
+				flag_type flags = flag_type(0);
+				uint16_t offset = 0;
 				union
 				{
 					uint16_t module;
@@ -206,9 +213,9 @@ namespace Microsoft
 					FIDRQQ = 5,
 					FIWRQQ = 6,
 				};
-				uint16_t target;
+				uint16_t target = 0;
 				Relocation()
-					: type((source_type)0), flags((flag_type)0), offset(0), module(0), target(0)
+					: module(0)
 				{
 				}
 
@@ -228,7 +235,7 @@ namespace Microsoft
 		{
 		public:
 			std::string name;
-			uint16_t ordinal;
+			uint16_t ordinal = 0;
 		};
 
 		class Resource
@@ -241,23 +248,24 @@ namespace Microsoft
 		struct version
 		{
 			uint8_t major, minor;
-		} linker_version, windows_version;
+		};
+		version linker_version{1, 0}, windows_version{0, 0};
 
-		uint16_t automatic_data;
-		uint16_t heap_size, stack_size;
-		uint16_t ss, sp, cs, ip;
-		uint16_t sector_shift;
+		uint16_t automatic_data = 0;
+		uint16_t heap_size = 0, stack_size = 0;
+		uint16_t ss = 0, sp = 0, cs = 0, ip = 0;
+		uint16_t sector_shift = 9;
 
-		uint32_t segment_table_offset;
-		uint32_t resource_table_offset;
-		uint32_t resident_name_table_offset;
-		uint32_t module_reference_table_offset;
-		uint32_t imported_names_table_offset;
-		uint32_t entry_table_offset;
-		uint32_t entry_table_length;
-		uint16_t movable_entry_count;
-		uint32_t nonresident_name_table_length;
-		uint32_t nonresident_name_table_offset;
+		uint32_t segment_table_offset = 0;
+		uint32_t resource_table_offset = 0;
+		uint32_t resident_name_table_offset = 0;
+		uint32_t module_reference_table_offset = 0;
+		uint32_t imported_names_table_offset = 0;
+		uint32_t entry_table_offset = 0;
+		uint32_t entry_table_length = 0;
+		uint16_t movable_entry_count = 0;
+		uint32_t nonresident_name_table_length = 0;
+		uint32_t nonresident_name_table_offset = 0;
 		union
 		{
 			/* Windows */
@@ -272,7 +280,7 @@ namespace Microsoft
 			/* OS/2 ? */
 			uint16_t segment_reference_thunks_offset;
 		};
-		uint16_t code_swap_area_length;
+		uint16_t code_swap_area_length = 0;
 
 		std::shared_ptr<Linker::Segment> stack, heap;
 		std::vector<Segment> segments;
@@ -283,7 +291,7 @@ namespace Microsoft
 		std::map<std::string, uint16_t> module_reference_offsets;
 		std::vector<std::string> imported_names;
 		std::map<std::string, uint16_t> imported_name_offsets;
-		uint16_t imported_names_length;
+		uint16_t imported_names_length = 0;
 
 		std::vector<Entry> entries;
 
@@ -291,12 +299,13 @@ namespace Microsoft
 		std::string module_name;
 		std::string program_name;
 
-		bool option_capitalize_names; /* TODO: parametrize */
+		bool option_capitalize_names = false; /* TODO: parametrize */
 		enum memory_model_t
 		{
 			MODEL_SMALL,
 			MODEL_LARGE,
-		} memory_model;
+		};
+		memory_model_t memory_model = MODEL_SMALL;
 
 		unsigned GetCodeSegmentFlags() const;
 		unsigned GetDataSegmentFlags() const;

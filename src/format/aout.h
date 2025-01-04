@@ -57,7 +57,8 @@ namespace AOut
 			NMAGIC = 0x0108,
 			ZMAGIC = 0x010B,
 			QMAGIC = 0x00CC,
-		} magic;
+		};
+		magic_type magic = magic_type(0);
 
 		enum cpu_type
 		{
@@ -70,19 +71,20 @@ namespace AOut
 			MIPS1   = 0x97,
 			MIPS2   = 0x98,
 			PDP11   = 0xFF, /* not a real magic number */
-		} cpu;
+		};
+		cpu_type cpu = UNKNOWN;
 
 		::EndianType GetEndianType() const;
 
 		unsigned GetWordSize() const;
 
-		uint32_t code_size;
-		uint32_t data_size;
-		uint32_t bss_size;
-		uint32_t symbol_table_size;
-		uint32_t entry_address;
-		uint32_t code_relocation_size;
-		uint32_t data_relocation_size;
+		uint32_t code_size = 0;
+		uint32_t data_size = 0;
+		uint32_t bss_size = 0;
+		uint32_t symbol_table_size = 0;
+		uint32_t entry_address = 0;
+		uint32_t code_relocation_size = 0;
+		uint32_t data_relocation_size = 0;
 		std::map<uint32_t, uint32_t> code_relocations, data_relocations; /* only used by PDOS386 OMAGIC */
 
 		std::shared_ptr<Linker::Writable> code, data, bss;
@@ -97,10 +99,10 @@ namespace AOut
 		{
 		public:
 			std::string name;
-			uint16_t unknown;
-			uint16_t name_offset;
-			uint16_t type;
-			uint16_t value;
+			uint16_t unknown = 0;
+			uint16_t name_offset = 0;
+			uint16_t type = 0;
+			uint16_t value = 0;
 		};
 
 		std::vector<Symbol> symbols;
@@ -124,7 +126,8 @@ namespace AOut
 			UNIX, /* also Linux */ /* TODO */
 			DJGPP1, /* early DJGPP */
 			PDOS386, /* http://pdos.sourceforge.net/ */
-		} system;
+		};
+		system_type system = system_type(0);
 
 		static AOutFormat * CreateWriter(system_type system, magic_type magic);
 

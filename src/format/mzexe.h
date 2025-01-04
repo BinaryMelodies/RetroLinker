@@ -248,15 +248,15 @@ namespace Microsoft
 	{
 	public:
 		std::string stub_file;
-		bool stub_file_valid;
+		bool stub_file_valid = true;
 		std::ifstream stub;
 
 		MZSimpleStubWriter(std::string stub_file = "")
-			: stub_file(stub_file), stub_file_valid(true), stub_size(-1)
+			: stub_file(stub_file)
 		{
 		}
 
-		offset_t stub_size;
+		offset_t stub_size = -1;
 
 		bool OpenAndCheckValidFile();
 
@@ -279,21 +279,21 @@ namespace Microsoft
 	{
 	public:
 		std::string stub_file;
-		bool stub_file_valid;
+		bool stub_file_valid = true;
 		std::ifstream stub;
 
 		MZStubWriter(std::string stub_file = "")
-			: stub_file(stub_file), stub_file_valid(true), original_file_size(-1)
+			: stub_file(stub_file)
 		{
 		}
 
-		uint32_t original_file_size;
-		uint32_t stub_file_size;
-		uint16_t stub_reloc_count;
-		uint32_t original_header_size;
-		uint32_t stub_header_size;
-		uint16_t original_reloc_offset;
-		uint16_t stub_reloc_offset;
+		uint32_t original_file_size = -1;
+		uint32_t stub_file_size = 0;
+		uint16_t stub_reloc_count = 0;
+		uint32_t original_header_size = 0;
+		uint32_t stub_header_size = 0;
+		uint16_t original_reloc_offset = 0;
+		uint16_t stub_reloc_offset = 0;
 
 		bool OpenAndCheckValidFile();
 

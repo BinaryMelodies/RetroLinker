@@ -26,16 +26,16 @@ namespace SeychellDOS32
 			}
 		}
 
-		bool is_dll;
-		uint16_t minimum_dos_version;
-		uint16_t dlink_version;
-		uint32_t relocation_size;
-		uint32_t header_size;
-		uint32_t extra_memory_size;
-		uint32_t eip;
-		uint32_t esp;
+		bool is_dll = false;
+		uint16_t minimum_dos_version = 0;
+		uint16_t dlink_version = 0;
+		uint32_t relocation_size = 0;
+		uint32_t header_size = 0;
+		uint32_t extra_memory_size = 0;
+		uint32_t eip = 0;
+		uint32_t esp = 0;
 		std::set<uint32_t> relocations;
-		uint32_t flags;
+		uint32_t flags = 0;
 
 		std::shared_ptr<Linker::Writable> image;
 
@@ -59,11 +59,11 @@ namespace BrocaD3X
 	class D3X1Format : public virtual Linker::Format
 	{
 	public:
-		uint32_t header_size;
-		uint32_t binary_size;
-		uint32_t extra_size;
-		uint32_t entry;
-		uint32_t stack_top;
+		uint32_t header_size = 0;
+		uint32_t binary_size = 0;
+		uint32_t extra_size = 0;
+		uint32_t entry = 0;
+		uint32_t stack_top = 0;
 
 		D3X1Format()
 			: header_size(24)

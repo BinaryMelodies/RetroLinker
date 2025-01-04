@@ -26,49 +26,48 @@ namespace ELF
 
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 
-		EndianType endiantype;
-		Linker::Module * module;
+		EndianType endiantype = ::LittleEndian;
+		Linker::Module * module = nullptr;
 
 		ELFFormat()
-			: endiantype(::LittleEndian), module(nullptr), special_prefix_char('$'),
-				option_segmentation(false), option_16bit(true), option_stack_section(false), option_heap_section(false), option_resources(false), option_libraries(false)
 		{
 		}
 
 		ELFFormat(Linker::Module& module)
-			: endiantype(::LittleEndian), module(&module), special_prefix_char('$'),
-				option_segmentation(false), option_16bit(true), option_stack_section(false), option_heap_section(false), option_resources(false), option_libraries(false)
+			: module(&module)
 		{
 		}
 
-		char special_prefix_char;
+		char special_prefix_char = '$';
 			/* GNU assembler can use '$', NASM must use '?' */
-		bool option_segmentation;
-		bool option_16bit;
-		bool option_linear;
-		bool option_stack_section;
-		bool option_heap_section;
-		bool option_resources;
-		bool option_libraries;
+		bool option_segmentation = false;
+		bool option_16bit = true;
+		bool option_linear = false;
+		bool option_stack_section = false;
+		bool option_heap_section = false;
+		bool option_resources = false;
+		bool option_libraries = false;
 		size_t wordbytes;
+
 		enum cpu_type
 		{
 			I386,
 			M68K,
-			ARM, /* TODO */
-		} cpu;
+			ARM,
+		};
+		cpu_type cpu;
 
 		class Symbol
 		{
 		public:
-			uint32_t name_offset;
+			uint32_t name_offset = 0;
 			std::string name;
-			offset_t value, size;
-			uint8_t bind, type, other;
-			uint16_t shndx;
-			uint16_t sh_link;
-			bool defined;
-			bool unallocated;
+			offset_t value = 0, size = 0;
+			uint8_t bind = 0, type = 0, other = 0;
+			uint16_t shndx = 0;
+			uint16_t sh_link = 0;
+			bool defined = false;
+			bool unallocated = false;
 			Linker::Location location;
 			Linker::CommonSymbol specification;
 		};
@@ -76,11 +75,11 @@ namespace ELF
 		class Section
 		{
 		public:
-			uint32_t name_offset;
+			uint32_t name_offset = 0;
 			std::string name;
-			uint32_t type, link, info;
-			offset_t flags;
-			offset_t address, file_offset, size, align, entsize;
+			uint32_t type = 0, link = 0, info = 0;
+			offset_t flags = 0;
+			offset_t address = 0, file_offset = 0, size = 0, align = 0, entsize = 0;
 			std::shared_ptr<Linker::Section> section;
 			std::vector<Symbol> symbols;
 		};
@@ -89,12 +88,12 @@ namespace ELF
 		class Relocation
 		{
 		public:
-			offset_t offset;
-			uint32_t type;
-			uint32_t symbol;
-			int64_t addend;
-			uint16_t sh_link, sh_info;
-			bool addend_from_section_data;
+			offset_t offset = 0;
+			uint32_t type = 0;
+			uint32_t symbol = 0;
+			int64_t addend = 0;
+			uint16_t sh_link = 0, sh_info = 0;
+			bool addend_from_section_data = false;
 		};
 		std::vector<Relocation> relocations;
 

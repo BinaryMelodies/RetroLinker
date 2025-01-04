@@ -28,19 +28,21 @@ namespace DOS16M
 			{
 				TYPE_DATA = 0x92,
 				TYPE_CODE = 0x9A,
-			} access;
+			};
+			access_type access;
 
 			enum flag_type
 			{
 				FLAG_EMPTY = 0x2000,
 				FLAG_TRANSPARENT = 0x8000,
-			} flags;
+			};
+			flag_type flags;
 
-			uint32_t address;
+			uint32_t address = 0;
 			uint32_t total_length;
 
 			AbstractSegment(unsigned access = TYPE_DATA, unsigned flags = 0, uint32_t total_length = 0)
-				: access((access_type)access), flags((flag_type)flags), address(0), total_length(total_length)
+				: access((access_type)access), flags((flag_type)flags), total_length(total_length)
 			{
 			}
 
@@ -130,18 +132,21 @@ namespace DOS16M
 			RelocationsNone,
 			RelocationsType1,
 			RelocationsType2,
-		} option_relocations;
-		bool option_force_relocations;
+		};
+		relocations_type option_relocations = RelocationsType2;
+		bool option_force_relocations = true;
 
 		enum exp_flag_type
 		{
 			EXP_FLAG_RELOCATABLE = 0x0001,
-		} exp_flags;
+		};
+		exp_flag_type exp_flags = exp_flag_type(0);
 
 		enum option_type
 		{
 			OPTION_RELOCATIONS = 0x1000,
-		} options;
+		};
+		option_type options = option_type(0);
 
 		std::map<uint16_t, std::set<uint16_t> > relocations;
 
@@ -151,34 +156,26 @@ namespace DOS16M
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		offset_t file_size;
-		offset_t min_extra;
-		offset_t max_extra;
-		uint16_t ss, sp, cs, ip, relocsel;
-		uint16_t runtime_gdt_length;
-		uint16_t version;
-		uint32_t next_header_offset;
-		uint32_t debug_info_offset; /* TODO: ??? */
-		uint16_t first_selector;
-		uint32_t private_xm; /* TODO: make parameter */
-		uint16_t ext_reserve; /* TODO: ??? */
-		uint16_t transparent_stack; /* TODO: ??? */
-		uint32_t program_size; /* TODO: ??? */
-		uint8_t default_memory_strategy; /* TODO: ??? */
-		uint16_t transfer_buffer_size; /* TODO: ??? */
+		offset_t file_size = 0;
+		offset_t min_extra = 0;
+		offset_t max_extra = 0;
+		uint16_t ss = 0, sp = 0, cs = 0, ip = 0, relocsel = 0;
+		uint16_t runtime_gdt_length = 0xFFFF;
+		uint16_t version = 0;
+		uint32_t next_header_offset = 0;
+		uint32_t debug_info_offset = 0; /* TODO: ??? */
+		uint16_t first_selector = 0x0080; /* TODO: make dynamic */
+		uint32_t private_xm = 0; /* TODO: make parameter */
+		uint16_t ext_reserve = 0; /* TODO: ??? */
+		uint16_t transparent_stack = 0; /* TODO: ??? */
+		uint32_t program_size = 0; /* TODO: ??? */
+		uint8_t default_memory_strategy = 0; /* TODO: ??? */
+		uint16_t transfer_buffer_size = 0; /* TODO: ??? */
 		std::string exp_name; /* TODO: ??? */
 
 		std::vector<AbstractSegment *> segments;
 		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_indices;
-		int default_data;
-
-		BWFormat()
-			: option_relocations(RelocationsType2),
-			option_force_relocations(true),
-			runtime_gdt_length(0xFFFF),
-			first_selector(0x0080) /* TODO: make dynamic */
-		{
-		}
+		int default_data = 0;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 

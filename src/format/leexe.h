@@ -32,7 +32,7 @@ namespace Microsoft
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
-		::EndianType endiantype;
+		::EndianType endiantype = ::LittleEndian;
 
 		enum system_type
 		{
@@ -69,10 +69,19 @@ namespace Microsoft
 
 		bool extended_format;
 
+		/* https://faydoc.tripod.com/formats/exe-LE.htm */
 		enum cpu_type
 		{
-			I386 = 2,
-		} cpu;
+			I286 = 0x01,
+			I386 = 0x02, /* only value used */
+			I486 = 0x03,
+			I860_N10 = 0x20,
+			I860_N11 = 0x21,
+			MIPS1 = 0x40,
+			MIPS2 = 0x41,
+			MIPS3 = 0x42,
+		};
+		cpu_type cpu = I386;
 
 		enum compatibility_type
 		{
@@ -80,12 +89,12 @@ namespace Microsoft
 			CompatibleWatcom,
 			CompatibleMicrosoft, /* TODO??? */
 			CompatibleGNU, /* TODO: emx extender */
-		} compatibility;
+		};
+		compatibility_type compatibility = CompatibleNone;
 
 	protected:
 		LEFormat(unsigned system, unsigned module_flags, bool extended_format)
-			: endiantype(::LittleEndian), system((system_type)system), module_flags(module_flags), extended_format(extended_format),
-				cpu(I386), compatibility(CompatibleNone), imported_procedure_names_length(0)
+			: system((system_type)system), module_flags(module_flags), extended_format(extended_format), last_page_size(0)
 		{
 		}
 
@@ -101,20 +110,20 @@ namespace Microsoft
 		/*std::string stub_file;*/
 		std::string program_name, module_name;
 
-		uint32_t page_count;
-		uint32_t eip_object, eip_value, esp_object, esp_value;
+		uint32_t page_count = 0;
+		uint32_t eip_object = 0, eip_value = 0, esp_object = 0, esp_value = 0;
 		union
 		{
 			uint32_t last_page_size; /* LE */
 			uint32_t page_offset_shift; /* LX */
 		};
-		uint32_t fixup_section_size, loader_section_size;
-		uint32_t object_table_offset, object_page_table_offset, object_iterated_pages_offset;
-		uint32_t resource_table_offset, resource_table_entry_count, resident_name_table_offset;
-		uint32_t entry_table_offset, fixup_page_table_offset, fixup_record_table_offset;
-		uint32_t imported_module_table_offset, imported_procedure_table_offset;
-		uint32_t data_pages_offset, nonresident_name_table_offset, nonresident_name_table_size;
-		uint32_t automatic_data, stack_size, heap_size;
+		uint32_t fixup_section_size = 0, loader_section_size = 0;
+		uint32_t object_table_offset = 0, object_page_table_offset = 0, object_iterated_pages_offset = 0;
+		uint32_t resource_table_offset = 0, resource_table_entry_count = 0, resident_name_table_offset = 0;
+		uint32_t entry_table_offset = 0, fixup_page_table_offset = 0, fixup_record_table_offset = 0;
+		uint32_t imported_module_table_offset = 0, imported_procedure_table_offset = 0;
+		uint32_t data_pages_offset = 0, nonresident_name_table_offset = 0, nonresident_name_table_size = 0;
+		uint32_t automatic_data = 0, stack_size = 0, heap_size = 0;
 
 		class Object
 		{
@@ -138,10 +147,11 @@ namespace Microsoft
 				BigSegment = 0x2000, /* x86 */
 				Conforming = 0x4000, /* x86 */
 				IOPrivilege = 0x8000, /* x86 */
-			} flags;
-			uint32_t page_table_index;
-			uint32_t page_entry_count;
-			uint32_t data_pages_offset;
+			};
+			flag_type flags;
+			uint32_t page_table_index = 0;
+			uint32_t page_entry_count = 0;
+			uint32_t data_pages_offset = 0;
 
 			Object(std::shared_ptr<Linker::Segment> segment, unsigned flags)
 				: image(segment), flags((flag_type)flags)
@@ -183,7 +193,7 @@ namespace Microsoft
 				Range,
 			};
 
-			uint32_t fixup_offset;
+			uint32_t fixup_offset = 0;
 
 			class Relocation : public Linker::Writer
 			{
@@ -202,7 +212,8 @@ namespace Microsoft
 
 					Alias = 0x10,
 					SourceList = 0x20,
-				} type;
+				};
+				source_type type = source_type(0);
 				enum flag_type
 				{
 					Internal = 0,
@@ -217,13 +228,14 @@ namespace Microsoft
 					Additive32 = 0x20,
 					Module16 = 0x40,
 					Ordinal8 = 0x80,
-				} flags;
-				uint16_t module;
-				uint32_t target;
-				uint32_t addition;
+				};
+				flag_type flags = flag_type(0);
+				uint16_t module = 0;
+				uint32_t target = 0;
+				uint32_t addition = 0;
 
 				Relocation()
-					: Writer(::LittleEndian), type(), flags(), module(0), target(0), addition(0)
+					: Writer(::LittleEndian)
 				{
 				}
 
@@ -267,18 +279,18 @@ namespace Microsoft
 			std::map<uint16_t, Relocation> relocations;
 
 			Page()
-				: lx{0, 0, 0}, fixup_offset(0)
+				: lx{0, 0, 0}
 			{
 			}
 
 		protected:
 			Page(uint16_t fixup_table_index, uint8_t type)
-				: le{fixup_table_index, type}, fixup_offset(0)
+				: le{fixup_table_index, type}
 			{
 			}
 
 			Page(uint32_t offset, uint16_t size, uint8_t flags)
-				: lx{offset, size, flags}, fixup_offset(0)
+				: lx{offset, size, flags}
 			{
 			}
 
@@ -310,17 +322,19 @@ namespace Microsoft
 				CallGate286,
 				Entry32,
 				Forwarder,
-			} type;
-			uint16_t object;
+			};
+			entry_type type = Unused;
+			uint16_t object = 0;
 			enum flag_type
 			{
 				Exported = 1,
 				SharedData = 2,
-			} flags;
-			uint32_t offset;
+			};
+			flag_type flags = flag_type(0);
+			uint32_t offset = 0;
 
 			Entry()
-				: Writer(::LittleEndian), type(Unused), object(0), flags((flag_type)0), offset(0)
+				: Writer(::LittleEndian)
 			{
 			}
 
@@ -351,7 +365,7 @@ namespace Microsoft
 		std::vector<Entry> entries;
 		std::vector<std::string> imported_modules, imported_procedures;
 		std::map<std::string, uint32_t> imported_procedure_name_offsets;
-		offset_t imported_procedure_names_length;
+		offset_t imported_procedure_names_length = 0;
 
 		unsigned GetDefaultObjectFlags() const;
 		void AddObject(const Object& object);

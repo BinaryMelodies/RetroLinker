@@ -40,28 +40,28 @@ namespace Linker
 		/**
 		 * @brief Alignment requirements of segment
 		 */
-		offset_t align;
+		offset_t align = 1;
 		/**
 		 * @brief Cached value of the non-filled data for the entire segment
 		 *
 		 * This should be equal to the sum of all sizes of sections are not zero filled.
 		 * Note that a non zero filled section may not follow a zero filled one.
 		 */
-		offset_t data_size;
+		offset_t data_size = 0;
 		/**
 		 * @brief Extra zero filled space following filled data
 		 *
 		 * This should be equal to the sum of all sizes of sections are zero filled.
 		 * Note that a non zero filled section may not follow a zero filled one.
 		 */
-		offset_t zero_fill;
+		offset_t zero_fill = 0;
 		/**
 		 * @brief Optional extra space after zero filled data
 		 */
-		offset_t optional_extra;
+		offset_t optional_extra = 0;
 
 		Segment(std::string name, offset_t base_address = 0)
-			: name(name), base_address(base_address), align(1), data_size(0), zero_fill(0), optional_extra(0)
+			: name(name), base_address(base_address)
 		{
 		}
 

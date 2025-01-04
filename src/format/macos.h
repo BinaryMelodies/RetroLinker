@@ -40,7 +40,8 @@ namespace Apple
 		{
 			SINGLE,
 			DOUBLE,
-		} type;
+		};
+		format_type type;
 		unsigned version;
 		/* Only relevant for version 1 */
 		enum hfs_type
@@ -51,7 +52,8 @@ namespace Apple
 			HFS_MSDOS,
 			HFS_UNIX,
 			HFS_VAX_VMS,
-		} home_file_system;
+		};
+		hfs_type home_file_system;
 
 		class Entry : public virtual Linker::Format
 		{
@@ -226,7 +228,8 @@ namespace Apple
 		{
 			MODEL_DEFAULT,
 			MODEL_TINY,
-		} memory_model;
+		};
+		memory_model_t memory_model;
 
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
@@ -241,13 +244,13 @@ namespace Apple
 
 		protected:
 			Resource(const char type[4], uint16_t id, uint8_t attributes = 0)
-				: id(id), attributes(attributes), name_offset(0), data_offset(0)
+				: id(id), attributes(attributes)
 			{
 				memcpy(this->type, type, 4);
 			}
 
 			Resource(const char type[4], uint16_t id, std::string name, uint8_t attributes = 0)
-				: id(id), name(name), attributes(attributes), name_offset(0), data_offset(0)
+				: id(id), name(name), attributes(attributes)
 			{
 				memcpy(this->type, type, 4);
 			}
@@ -260,8 +263,8 @@ namespace Apple
 			uint8_t attributes;
 
 			/* calculated later */
-			uint16_t name_offset;
-			uint32_t data_offset;
+			uint16_t name_offset = 0;
+			uint32_t data_offset = 0;
 
 			virtual offset_t GetLength() = 0;
 		};
@@ -289,7 +292,7 @@ namespace Apple
 		{
 		public:
 			JumpTableCodeResource()
-				: Resource("CODE", 0), above_a5(0), below_a5(0)
+				: Resource("CODE", 0)
 			{
 			}
 
@@ -299,8 +302,8 @@ namespace Apple
 				uint32_t offset;
 			};
 
-			uint32_t above_a5;
-			uint32_t below_a5;
+			uint32_t above_a5 = 0;
+			uint32_t below_a5 = 0;
 			std::vector<Entry> near_entries;
 			std::vector<Entry> far_entries;
 
@@ -326,13 +329,13 @@ namespace Apple
 			std::shared_ptr<Linker::Segment> image;
 
 			CodeResource(uint16_t id, JumpTableCodeResource * jump_table)
-				: Resource("CODE", id), jump_table(jump_table)/*, image("code")*/, is_far(false), a5_address(0), base_address(0)
+				: Resource("CODE", id), jump_table(jump_table)/*, image("code")*/
 			{
 			}
 
-			bool is_far; /* TODO: test far segments thoroughly */
-			uint32_t a5_address; /* TODO: meaning */
-			uint32_t base_address; /* TODO: meaning */
+			bool is_far = false; /* TODO: test far segments thoroughly */
+			uint32_t a5_address = 0; /* TODO: meaning */
+			uint32_t base_address = 0; /* TODO: meaning */
 
 //			std::vector<JumpTableCodeResource::Entry> near_entries;
 //			std::vector<JumpTableCodeResource::Entry> far_entries;
@@ -362,8 +365,7 @@ namespace Apple
 		};
 
 		ResourceFork()
-			: Entry(AppleSingleDouble::ID_ResourceFork), attributes(0), data_offset(0)/*,
-				a5world(".bss")*/
+			: Entry(AppleSingleDouble::ID_ResourceFork)/*, a5world(".bss")*/
 		{
 		}
 
@@ -371,16 +373,16 @@ namespace Apple
 		{
 		}
 
-		uint16_t attributes; /* TODO: parametrize */
+		uint16_t attributes = 0; /* TODO: parametrize */
 		std::map<uint32_t, std::map<uint16_t, Resource *> > resources;
 
 		/* these will be calculated */
-		uint32_t data_offset, data_length, map_offset, map_length;
-		uint16_t name_list_offset;
+		uint32_t data_offset = 0, data_length = 0, map_offset = 0, map_length = 0;
+		uint16_t name_list_offset = 0;
 		std::map<uint32_t, uint16_t> reference_list_offsets;
 
 		/* filled in during generation */
-		JumpTableCodeResource * jump_table;
+		JumpTableCodeResource * jump_table = nullptr;
 		std::vector<CodeResource *> codes;
 		std::map<std::shared_ptr<Linker::Segment>, CodeResource *> segments;
 		std::shared_ptr<Linker::Segment> a5world;
@@ -579,16 +581,14 @@ namespace Apple
 			uint16_t x, y;
 		};
 
-		char Type[4];
-		char Creator[4];
-		uint16_t Flags;
-		Point Location;
+		char Type[4] = { '?', '?', '?', '?' };
+		char Creator[4] = { '?', '?', '?', '?' };
+		uint16_t Flags = 0;
+		Point Location = { 0, 0 };
 
 		FinderInfo()
-			: Entry(AppleSingleDouble::ID_FinderInfo), Flags(0), Location({0,0})
+			: Entry(AppleSingleDouble::ID_FinderInfo)
 		{
-			memcpy(Type, "????", 4);
-			memcpy(Creator, "????", 4);
 		}
 
 		offset_t GetLength() override;
@@ -695,25 +695,26 @@ namespace Apple
 			MACBIN1_GETINFO, /* extension */
 			MACBIN2 = 0x11,
 			MACBIN3 = 0x12,
-		} version, minimum_version;
+		};
+		version_t version, minimum_version;
 
-		uint16_t secondary_header_size; /* TODO */
-		uint16_t crc;
+		uint16_t secondary_header_size = 0; /* TODO */
+		uint16_t crc = 0;
 
 		std::string generated_file_name;
 
 		MacBinary(version_t version = MACBIN3)
-			: AppleSingleDouble(AppleSingleDouble::DOUBLE), version(version), minimum_version(version <= MACBIN2 ? version : MACBIN2), secondary_header_size(0)
+			: AppleSingleDouble(AppleSingleDouble::DOUBLE), version(version), minimum_version(version <= MACBIN2 ? version : MACBIN2)
 		{
 		}
 
 		MacBinary(version_t version, version_t minimum_version)
-			: AppleSingleDouble(AppleSingleDouble::DOUBLE), version(version), minimum_version(version < minimum_version ? version : minimum_version), secondary_header_size(0)
+			: AppleSingleDouble(AppleSingleDouble::DOUBLE), version(version), minimum_version(version < minimum_version ? version : minimum_version)
 		{
 		}
 
 		explicit MacBinary(AppleSingleDouble& apple, version_t version, version_t minimum_version)
-			: AppleSingleDouble(apple, AppleSingleDouble::DOUBLE), version(version), minimum_version(version < minimum_version ? version : minimum_version), secondary_header_size(0)
+			: AppleSingleDouble(apple, AppleSingleDouble::DOUBLE), version(version), minimum_version(version < minimum_version ? version : minimum_version)
 		{
 		}
 
@@ -756,7 +757,8 @@ namespace Apple
 			TARGET_DATA_FORK, /* main file is a data fork, typically empty */
 			TARGET_RESOURCE_FORK, /* main file is a resource fork */
 			TARGET_APPLE_SINGLE, /* main file is an AppleSingle */
-		} target;
+		};
+		target_format_t target;
 
 		/* other files to produce */
 		enum produce_format_t
@@ -765,7 +767,8 @@ namespace Apple
 			PRODUCE_FINDER_INFO = 1 << 1, /* under .finf */
 			PRODUCE_APPLE_DOUBLE = 1 << 2, /* with % prefix */
 			PRODUCE_MAC_BINARY = 1 << 3, /* with .mbin extension */
-		} produce;
+		};
+		produce_format_t produce;
 
 		/* Typical combinations:
 		 * - Executor: Generate a data fork and an AppleDouble with % prefix
@@ -774,30 +777,22 @@ namespace Apple
 		 * - Generate an AppleSingle
 		 */
 
-		unsigned apple_single_double_version;
+		unsigned apple_single_double_version = 2;
 		/* Only relevant for version 1 */
-		AppleSingleDouble::hfs_type home_file_system;
+		AppleSingleDouble::hfs_type home_file_system = AppleSingleDouble::HFS_UNDEFINED;
 
-		MacBinary::version_t macbinary_version, macbinary_minimum_version;
+		MacBinary::version_t macbinary_version = MacBinary::MACBIN3, macbinary_minimum_version = MacBinary::MACBIN2;
 
 		MacDriver(target_format_t target = TARGET_DATA_FORK)
 			: target(target),
 			produce(target == TARGET_NONE ? PRODUCE_MAC_BINARY
 				: target == TARGET_DATA_FORK ? PRODUCE_APPLE_DOUBLE
-				: produce_format_t(0)),
-			apple_single_double_version(2),
-			home_file_system(AppleSingleDouble::HFS_UNDEFINED),
-			macbinary_version(MacBinary::MACBIN3),
-			macbinary_minimum_version(MacBinary::MACBIN2)
+				: produce_format_t(0))
 		{
 		}
 
 		MacDriver(target_format_t target, int produce)
-			: target(target), produce((produce_format_t)produce),
-			apple_single_double_version(2),
-			home_file_system(AppleSingleDouble::HFS_UNDEFINED),
-			macbinary_version(MacBinary::MACBIN3),
-			macbinary_minimum_version(MacBinary::MACBIN2)
+			: target(target), produce((produce_format_t)produce)
 		{
 		}
 

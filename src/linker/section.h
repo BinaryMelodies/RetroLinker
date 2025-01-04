@@ -31,10 +31,10 @@ namespace Linker
 	private:
 		/* depends on whether it is zero filled or not */
 		//std::vector<uint8_t> data; /* inherited */
-		offset_t size; /* only use if ZeroFilled */
+		offset_t size = 0; /* only use if ZeroFilled */
 	public:
 		/**
-		 * @brief The type of the section
+		 * @brief Possible flags for the section
 		 */
 		enum section_flags
 		{
@@ -99,7 +99,11 @@ namespace Linker
 			 * @brief Other flags
 			 */
 			CustomFlag = 1 << 10,
-		} flags;
+		};
+		/**
+		 * @brief The type of the section
+		 */
+		section_flags flags;
 	private:
 		union
 		{
@@ -118,7 +122,7 @@ namespace Linker
 		 * For example, the first byte of a .com file will have an address 0x100.
 		 * This is represented by setting the bias to -0x100.
 		 */
-		offset_t bias;
+		offset_t bias = 0;
 		/**
 		 * @brief The resource type and ID for a resource section
 		 *
@@ -126,7 +130,8 @@ namespace Linker
 		 * Some platforms specify which one is which (for example, Macintosh resources have a 4-character type but a 16-bit ID).
 		 * For others (for example, the NE format), they can be either.
 		 */
-		std::variant<std::string, uint16_t> resource_type, resource_id;
+		std::variant<std::string, uint16_t> resource_type = "    ";
+		std::variant<std::string, uint16_t> resource_id = uint16_t(0);
 
 		/**
 		 * @brief The segment a section belongs to
@@ -142,10 +147,8 @@ namespace Linker
 		Section(std::string name, int flags = Readable)
 			:
 				name(name),
-				size(0),
 				flags((section_flags)flags),
-				align(1), bias(0),
-				resource_type("    "), resource_id(uint16_t(0))
+				align(1)
 		{
 		}
 
