@@ -29,11 +29,11 @@ namespace Linker
 		/**
 		 * @brief Holds the current address value when there is no current_segment
 		 */
-		offset_t current_address;
+		offset_t current_address = 0;
 
-		bool current_is_template;
-		bool current_is_template_head;
-		offset_t template_counter;
+		bool current_is_template = false;
+		bool current_is_template_head = false;
+		offset_t template_counter = 0;
 		std::string current_template_name;
 	public:
 		/**
@@ -42,7 +42,7 @@ namespace Linker
 		 * By default, sections within a segment are assumed to have the same segment base.
 		 * This variable stores the segment base, as valid for the currently processed section.
 		 */
-		offset_t current_base;
+		offset_t current_base = 0;
 		/**
 		 * @brief Ordered sequence of segments
 		 */
@@ -54,7 +54,7 @@ namespace Linker
 		/**
 		 * @brief Currently processed segment
 		 */
-		Segment * current_segment;
+		Segment * current_segment = nullptr;
 		/**
 		 * @brief Parameters that permit customizing the linker script
 		 */
@@ -64,13 +64,7 @@ namespace Linker
 		 */
 		std::string linker_script;
 
-		void InitializeLinkerManager();
 		void ClearLinkerManager();
-
-		LinkerManager()
-		{
-			InitializeLinkerManager();
-		}
 
 		~LinkerManager()
 		{

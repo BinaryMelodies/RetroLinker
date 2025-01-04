@@ -19,19 +19,6 @@ namespace Linker
 	std::ostream Error(std::cerr.rdbuf());
 }
 
-void LinkerManager::InitializeLinkerManager()
-{
-	current_address = 0;
-	current_is_template = false;
-	current_is_template_head = false;
-	template_counter = 0;
-	current_template_name = "";
-
-	current_base = 0;
-	current_segment = nullptr;
-	linker_script = "";
-}
-
 void LinkerManager::ClearLinkerManager()
 {
 	segment_map.clear();

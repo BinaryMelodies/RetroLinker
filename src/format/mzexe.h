@@ -150,11 +150,6 @@ namespace Microsoft
 
 		void Clear() override;
 
-		MZFormat()
-		{
-			InitializeLinkerManager();
-		}
-
 		~MZFormat()
 		{
 			Clear();
