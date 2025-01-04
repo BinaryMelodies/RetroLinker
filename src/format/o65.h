@@ -157,11 +157,11 @@ namespace O65
 			/** @brief Base address of code segment */
 			offset_t code_base = 0;
 			/** @brief Code segment contents */
-			Linker::Writable * code_image = nullptr;
+			std::shared_ptr<Linker::Writable> code_image = nullptr;
 			/** @brief Base address of data segment */
 			offset_t data_base = 0;
 			/** @brief Data segment contents */
-			Linker::Writable * data_image = nullptr;
+			std::shared_ptr<Linker::Writable> data_image = nullptr;
 			/** @brief Base address of bss segment */
 			offset_t bss_base = 0;
 			/** @brief Bss segment size */

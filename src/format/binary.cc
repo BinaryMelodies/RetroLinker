@@ -10,8 +10,6 @@ using namespace Binary;
 void GenericBinaryFormat::Clear()
 {
 	/* format fields */
-	if(image)
-		delete image;
 	image = nullptr;
 }
 
@@ -21,7 +19,7 @@ void GenericBinaryFormat::ReadFile(Linker::Reader& rd)
 
 	rd.endiantype = (::EndianType)0; /* does not matter */
 
-	Linker::Buffer * buffer = new Linker::Buffer;
+	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
 	buffer->ReadFile(rd);
 	image = buffer;
 }
@@ -38,7 +36,7 @@ void GenericBinaryFormat::Dump(Dumper::Dumper& dump)
 
 	dump.SetTitle("Binary format");
 
-	Dumper::Block image_block("Image", file_offset, image, 0, 4);
+	Dumper::Block image_block("Image", file_offset, image.get(), 0, 4);
 
 	image_block.Display(dump);
 }
@@ -50,7 +48,7 @@ void GenericBinaryFormat::SetOptions(std::map<std::string, std::string>& options
 	SetLinkerParameter(options, "segment_bias");
 }
 
-void GenericBinaryFormat::OnNewSegment(Linker::Segment * segment)
+void GenericBinaryFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{
@@ -67,7 +65,7 @@ void GenericBinaryFormat::CreateDefaultSegments()
 {
 	if(image == nullptr)
 	{
-		image = new Linker::Segment(".code");
+		image = std::make_shared<Linker::Segment>(".code");
 	}
 }
 
@@ -229,7 +227,7 @@ void BinaryFormat::ReadFile(Linker::Reader& rd)
 	}
 	rd.Seek(position);
 
-	Linker::Buffer * buffer = new Linker::Buffer;
+	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
 	if(pif == nullptr)
 		buffer->ReadFile(rd);
 	else
@@ -251,7 +249,7 @@ void BinaryFormat::Dump(Dumper::Dumper& dump)
 
 	dump.SetTitle("Binary format");
 
-	Dumper::Block image_block("Image", file_offset, image, 0, 4);
+	Dumper::Block image_block("Image", file_offset, image.get(), 0, 4);
 
 	if(pif)
 	{

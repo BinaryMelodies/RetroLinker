@@ -215,8 +215,6 @@ bool COFFFormat::Symbol::IsExternal() const
 
 void COFFFormat::Section::Clear()
 {
-	if(image)
-		delete image;
 	image = nullptr;
 	for(Relocation * rel : relocations)
 	{
@@ -241,15 +239,15 @@ void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd)
 	/* TODO: Buffer instead of Section? */
 	if(flags & TEXT)
 	{
-		image = new Linker::Section(".text");
+		image = std::make_shared<Linker::Section>(".text");
 	}
 	else if(flags & DATA)
 	{
-		image = new Linker::Section(".data");
+		image = std::make_shared<Linker::Section>(".data");
 	}
 	else if(flags & BSS)
 	{
-		image = new Linker::Section(".bss");
+		image = std::make_shared<Linker::Section>(".bss");
 	}
 }
 
@@ -498,10 +496,6 @@ void COFFFormat::Clear()
 	}
 	symbols.clear();
 	/* writer fields */
-	if(stack)
-	{
-		delete stack;
-	}
 	stack = nullptr;
 }
 
@@ -626,7 +620,7 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 		if(section->flags & (Section::TEXT | Section::DATA))
 		{
 			rd.Seek(file_offset + section->section_pointer);
-			dynamic_cast<Linker::Buffer *>(section->image)->ReadFile(rd, section->ActualDataSize());
+			std::dynamic_pointer_cast<Linker::Buffer>(section->image)->ReadFile(rd, section->ActualDataSize());
 		}
 	}
 
@@ -804,7 +798,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 
 	for(auto& section : sections)
 	{
-		Dumper::Block block("Section", file_offset + section->section_pointer, section->image, section->address, 8);
+		Dumper::Block block("Section", file_offset + section->section_pointer, section->image.get(), section->address, 8);
 		block.InsertField(0, "Name", new Dumper::StringDisplay, section->name);
 		if(section->image->ActualDataSize() != section->size)
 			block.AddField("Size in memory", new Dumper::HexDisplay, (offset_t)section->size);
@@ -924,10 +918,10 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 		break;
 	}
 
-	std::vector<Linker::Section *> linker_sections;
+	std::vector<std::shared_ptr<Linker::Section>> linker_sections;
 	for(Section * section : sections)
 	{
-		Linker::Section * linker_section = new Linker::Section(section->name);
+		std::shared_ptr<Linker::Section> linker_section = std::make_shared<Linker::Section>(section->name);
 		linker_section->SetReadable(true);
 		if(section->flags & Section::BSS)
 		{
@@ -936,7 +930,7 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 		}
 		else if(section->flags & (Section::TEXT | Section::DATA))
 		{
-			Linker::Section * buffer = dynamic_cast<Linker::Section *>(section->image);
+			std::shared_ptr<Linker::Section> buffer = std::dynamic_pointer_cast<Linker::Section>(section->image);
 			linker_section->Append(*buffer);
 		}
 		if(section->flags & Section::TEXT)
@@ -1225,7 +1219,7 @@ void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 	option_no_relocation = false;
 }
 
-void COFFFormat::OnNewSegment(Linker::Segment * segment)
+void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{
@@ -1285,19 +1279,19 @@ void COFFFormat::CreateDefaultSegments()
 {
 	if(GetCodeSegment() == nullptr)
 	{
-		sections.push_back(new Section(Section::TEXT, new Linker::Segment(".code")));
+		sections.push_back(new Section(Section::TEXT, std::make_shared<Linker::Segment>(".code")));
 	}
 	if(GetDataSegment() == nullptr)
 	{
-		sections.push_back(new Section(Section::DATA, new Linker::Segment(".data")));
+		sections.push_back(new Section(Section::DATA, std::make_shared<Linker::Segment>(".data")));
 	}
 	if(GetBssSegment() == nullptr)
 	{
-		sections.push_back(new Section(Section::BSS, new Linker::Segment(".bss")));
+		sections.push_back(new Section(Section::BSS, std::make_shared<Linker::Segment>(".bss")));
 	}
 	if((type == CDOS68K || type == CDOS386) && stack == nullptr)
 	{
-		stack = new Linker::Segment(".stack");
+		stack = std::make_shared<Linker::Segment>(".stack");
 	}
 }
 
@@ -1383,12 +1377,12 @@ void COFFFormat::Link(Linker::Module& module)
 }
 
 /** @brief Return the segment stored inside the section, note that this only works for binary generation */
-Linker::Segment * COFFFormat::GetSegment(Section * section)
+std::shared_ptr<Linker::Segment> COFFFormat::GetSegment(Section * section)
 {
-	return dynamic_cast<Linker::Segment *>(section->image);
+	return std::dynamic_pointer_cast<Linker::Segment>(section->image);
 }
 
-Linker::Segment * COFFFormat::GetCodeSegment()
+std::shared_ptr<Linker::Segment> COFFFormat::GetCodeSegment()
 {
 	for(auto section : sections)
 	{
@@ -1398,7 +1392,7 @@ Linker::Segment * COFFFormat::GetCodeSegment()
 	return nullptr;
 }
 
-Linker::Segment * COFFFormat::GetDataSegment()
+std::shared_ptr<Linker::Segment> COFFFormat::GetDataSegment()
 {
 	for(auto section : sections)
 	{
@@ -1408,7 +1402,7 @@ Linker::Segment * COFFFormat::GetDataSegment()
 	return nullptr;
 }
 
-Linker::Segment * COFFFormat::GetBssSegment()
+std::shared_ptr<Linker::Segment> COFFFormat::GetBssSegment()
 {
 	for(auto section : sections)
 	{
@@ -1511,7 +1505,7 @@ void COFFFormat::CalculateValues()
 	}
 	for(auto section : sections)
 	{
-		Linker::Segment * image = GetSegment(section);
+		std::shared_ptr<Linker::Segment> image = GetSegment(section);
 		section->name = image->name;
 		section->physical_address = section->address = image->base_address;
 		section->size = image->TotalSize();

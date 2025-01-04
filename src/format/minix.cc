@@ -41,7 +41,7 @@ void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 	/* TODO */
 }
 
-void MINIXFormat::OnNewSegment(Linker::Segment * segment)
+void MINIXFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{
@@ -69,15 +69,15 @@ void MINIXFormat::CreateDefaultSegments()
 {
 	if(code == nullptr)
 	{
-		code = new Linker::Segment(".code");
+		code = std::make_shared<Linker::Segment>(".code");
 	}
 	if(data == nullptr)
 	{
-		data = new Linker::Segment(".data");
+		data = std::make_shared<Linker::Segment>(".data");
 	}
 	if(bss == nullptr)
 	{
-		bss = new Linker::Segment(".bss");
+		bss = std::make_shared<Linker::Segment>(".bss");
 	}
 }
 

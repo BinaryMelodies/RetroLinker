@@ -565,7 +565,7 @@ void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 	/* TODO */
 }
 
-void LEFormat::OnNewSegment(Linker::Segment * segment)
+void LEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->sections.size() == 0)
 		return;
@@ -582,7 +582,7 @@ void LEFormat::OnNewSegment(Linker::Segment * segment)
 	}
 	else
 	{
-		Linker::Section * section = segment->sections[0];
+		std::shared_ptr<Linker::Section> section = segment->sections[0];
 		unsigned flags = GetDefaultObjectFlags() | Object::BigSegment;
 		if(section->IsReadable())
 			flags |= Object::Readable;

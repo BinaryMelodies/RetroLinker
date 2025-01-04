@@ -23,7 +23,7 @@ namespace Binary
 		/* * * General members * * */
 
 		/** @brief The actual stored image */
-		Linker::Writable * image = nullptr;
+		std::shared_ptr<Linker::Writable> image = nullptr;
 
 		void Clear() override;
 
@@ -60,7 +60,7 @@ namespace Binary
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();
 

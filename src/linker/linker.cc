@@ -22,8 +22,6 @@ namespace Linker
 void LinkerManager::ClearLinkerManager()
 {
 	segment_map.clear();
-	for(auto& segment : segment_vector)
-		delete segment;
 	segment_vector.clear();
 	linker_parameters.clear();
 }
@@ -132,7 +130,7 @@ void LinkerManager::AlignCurrentAddress(offset_t align)
 void LinkerManager::SetLatestBase(offset_t address)
 {
 	assert(current_segment != nullptr && current_segment->sections.size() != 0);
-	Section * section = current_segment->sections.back();
+	std::shared_ptr<Section> section = current_segment->sections.back();
 	section->bias = section->GetStartAddress() - address;
 }
 
@@ -146,21 +144,21 @@ void LinkerManager::FinishCurrentSegment()
 	}
 }
 
-void LinkerManager::OnNewSegment(Segment * segment)
+void LinkerManager::OnNewSegment(std::shared_ptr<Segment> segment)
 {
 	/* extend */
 }
 
-Segment * LinkerManager::AppendSegment(std::string name)
+std::shared_ptr<Segment> LinkerManager::AppendSegment(std::string name)
 {
 	FinishCurrentSegment();
-	current_segment = new Segment(name, current_address);
+	current_segment = std::make_shared<Segment>(name, current_address);
 	segment_vector.push_back(current_segment);
 	segment_map[name] = current_segment;
 	return current_segment;
 }
 
-Segment * LinkerManager::FetchSegment(std::string name)
+std::shared_ptr<Segment> LinkerManager::FetchSegment(std::string name)
 {
 	auto it = segment_map.find(name);
 	if(it == segment_map.end())
@@ -173,7 +171,7 @@ Segment * LinkerManager::FetchSegment(std::string name)
 	}
 }
 
-void LinkerManager::AppendSection(Section * section)
+void LinkerManager::AppendSection(std::shared_ptr<Section> section)
 {
 	current_segment->Append(section); /* next_bias should not be used */
 	SetLatestBase(current_base);
@@ -210,9 +208,9 @@ void LinkerManager::ProcessScript(List * directives, Module& module)
 			current_is_template = false;
 			current_is_template_head = true;
 			template_counter = 0;
-			for(Section * section : module.Sections())
+			for(auto& section : module.Sections())
 			{
-				if(section->segment != nullptr)
+				if(section->segment.use_count() != 0) // TODO
 					continue;
 				current_template_name = section->name;
 				if(!CheckPredicate(directive->at(0), section, module))
@@ -285,9 +283,9 @@ void Linker::LinkerManager::ProcessCommand(Node * command, Module& module)
 		}
 		break;
 	case Node::Collect:
-		for(Section * section : module.Sections())
+		for(auto& section : module.Sections())
 		{
-			if(section->segment != nullptr)
+			if(section->segment.use_count() != 0) // TODO
 				continue;
 			if(!CheckPredicate(command->at(0), section, module))
 				continue;
@@ -306,7 +304,7 @@ void Linker::LinkerManager::ProcessCommand(Node * command, Module& module)
 	}
 }
 
-bool Linker::LinkerManager::CheckPredicate(Node * predicate, Section * section, Module& module)
+bool Linker::LinkerManager::CheckPredicate(Node * predicate, std::shared_ptr<Section> section, Module& module)
 {
 	switch(predicate->type)
 	{

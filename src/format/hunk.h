@@ -59,14 +59,14 @@ namespace Amiga
 				Load24BitDma = 0x00000010,
 				LoadClear    = 0x00010000,
 			} flags;
-			Linker::Segment * image;
+			std::shared_ptr<Linker::Segment> image;
 
 			Hunk(uint32_t hunk_type, std::string name = "image", unsigned flags = LoadAny)
-				: hunk_type(hunk_type), flags((flag_type)flags), image(new Linker::Segment(name))
+				: hunk_type(hunk_type), flags((flag_type)flags), image(std::make_shared<Linker::Segment>(name))
 			{
 			}
 
-			Hunk(uint32_t hunk_type, Linker::Segment * segment, unsigned flags = LoadAny)
+			Hunk(uint32_t hunk_type, std::shared_ptr<Linker::Segment> segment, unsigned flags = LoadAny)
 				: hunk_type(hunk_type), flags((flag_type)flags), image(segment)
 			{
 			}
@@ -86,7 +86,7 @@ namespace Amiga
 		};
 
 		std::vector<Hunk> hunks;
-		std::map<Linker::Segment *, size_t> segment_index; /* makes it easier to lookup the indices of segments */
+		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index; /* makes it easier to lookup the indices of segments */
 
 		using LinkerManager::SetLinkScript;
 
@@ -94,7 +94,7 @@ namespace Amiga
 
 		void AddHunk(const Hunk& hunk);
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		Script::List * GetScript(Linker::Module& module);
 

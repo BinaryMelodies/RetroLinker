@@ -212,7 +212,7 @@ void BWFormat::SetOptions(std::map<std::string, std::string>& options)
 	stub_file = FetchOption(options, "stub", "");
 }
 
-void BWFormat::OnNewSegment(Linker::Segment * segment)
+void BWFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->sections.size() == 0)
 		return;

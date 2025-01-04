@@ -37,7 +37,7 @@ namespace SeychellDOS32
 		std::set<uint32_t> relocations;
 		uint32_t flags;
 
-		Linker::Writable * image;
+		std::shared_ptr<Linker::Writable> image;
 
 		enum
 		{

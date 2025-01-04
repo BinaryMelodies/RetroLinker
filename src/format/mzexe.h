@@ -142,7 +142,7 @@ namespace Microsoft
 		PIF * pif = nullptr;
 
 		/** @brief The program image, placed after the MZ header */
-		Linker::Writable * image = nullptr;
+		std::shared_ptr<Linker::Writable> image = nullptr;
 
 		magic_type GetSignature() const;
 
@@ -213,7 +213,7 @@ namespace Microsoft
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		/**
 		 * @brief Create the required segments, if they have not already been allocated.

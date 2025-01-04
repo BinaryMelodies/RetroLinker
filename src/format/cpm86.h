@@ -107,7 +107,7 @@ namespace DigitalResearch
 			 */
 			uint32_t offset = 0;
 			/** @brief The actual binary image of the group */
-			Linker::Writable * image = nullptr;
+			std::shared_ptr<Linker::Writable> image = nullptr;
 			/** @brief Set to true if a supplementary 256 bytes of zeros are required. When generating image, it is easier to just insert 256 bytes of 0 instead of modifying the image. This is not required when storing a file loaded from disk */
 			bool attach_zero_page = false;
 
@@ -511,9 +511,9 @@ namespace DigitalResearch
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
-		std::vector<Linker::Segment *>& Segments();
+		std::vector<std::shared_ptr<Linker::Segment>>& Segments();
 
-		unsigned GetSegmentNumber(Linker::Segment * segment);
+		unsigned GetSegmentNumber(std::shared_ptr<Linker::Segment> segment);
 
 		using LinkerManager::SetLinkScript;
 

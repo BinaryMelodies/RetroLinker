@@ -228,7 +228,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 			if((sections[i].flags & 0x0002))
 			{
 				/* ALLOC */
-				sections[i].section = new Linker::Section(sections[i].name);
+				sections[i].section = std::make_shared<Linker::Section>(sections[i].name);
 				sections[i].section->Expand(sections[i].size);
 				in.Seek(sections[i].file_offset);
 				sections[i].section->ReadFile(in);
@@ -296,7 +296,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 			}
 			break;
 		case SHT_NOBITS:
-			sections[i].section = new Linker::Section(sections[i].name);
+			sections[i].section = std::make_shared<Linker::Section>(sections[i].name);
 			sections[i].section->SetZeroFilled(true);
 			sections[i].section->Expand(sections[i].size);
 			break;
@@ -517,7 +517,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 						/* $$SEG$<section name> */
 						/* Note: can only refer to a currently present section */
 						std::string section_name = sym_target.name.substr(segment_prefix().size());
-						Linker::Section * section = module->FindSection(section_name);
+						std::shared_ptr<Linker::Section> section = module->FindSection(section_name);
 						if(section == nullptr)
 						{
 							Linker::Error << "Error: invalid section in extended relocation `" << section_name << "'" << std::endl;
@@ -547,7 +547,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 							sep - with_respect_to_segment_prefix().size());
 						std::string section_name = sym_target.name.substr(sep + 1);
 						//Linker::Debug << "Debug: " << symbol_name << " wrt " << section_name << std::endl;
-						Linker::Section * section = module->FindSection(section_name);
+						std::shared_ptr<Linker::Section> section = module->FindSection(section_name);
 						if(section == nullptr)
 						{
 							Linker::Error << "Error: invalid section in extended relocation `" << section_name << "'" << std::endl;
@@ -564,9 +564,9 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 						size_t sep = sym_target.name.rfind(special_prefix_char);
 						std::string section1_name = sym_target.name.substr(segment_difference_prefix().size(),
 							sep - with_respect_to_segment_prefix().size());
-						Linker::Section * section1 = module->FindSection(section1_name);
+						std::shared_ptr<Linker::Section> section1 = module->FindSection(section1_name);
 						std::string section2_name = sym_target.name.substr(sep + 1);
-						Linker::Section * section2 = module->FindSection(section2_name);
+						std::shared_ptr<Linker::Section> section2 = module->FindSection(section2_name);
 						if(section1 == nullptr)
 						{
 							Linker::Error << "Error: invalid section in extended relocation `" << section1_name << "'" << std::endl;

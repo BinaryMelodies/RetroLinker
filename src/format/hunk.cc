@@ -59,7 +59,7 @@ void HunkFormat::AddHunk(const Hunk& hunk)
 	segment_index[hunks.back().image] = hunks.size() - 1;
 }
 
-void HunkFormat::OnNewSegment(Linker::Segment * segment)
+void HunkFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->sections.size() == 0)
 		return; /* ignore segment */

@@ -57,7 +57,7 @@ namespace Binary
 			uint16_t header;
 			bool header_optional;
 			uint16_t address;
-			Linker::Writable * image;
+			std::shared_ptr<Linker::Writable> image;
 
 			Segment(bool header_optional = true)
 				: header(0xFFFF), header_optional(header_optional), address(0), image(nullptr)
@@ -69,11 +69,11 @@ namespace Binary
 			{
 			}
 
-			~Segment()
-			{
-				if(image)
-					delete image;
-			}
+//			~Segment()
+//			{
+//				if(image)
+//					delete image;
+//			}
 
 			offset_t GetSize() const;
 
@@ -98,7 +98,7 @@ namespace Binary
 		/** @brief Attaches a new segment that contains the entry point */
 		void AddEntryPoint(uint16_t entry);
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void ProcessModule(Linker::Module& module) override;
 
@@ -123,7 +123,7 @@ namespace Binary
 			BASIC_SYS = 0x9E, /* BASIC token */
 		};
 
-		Linker::Segment * loader = nullptr; /* loader routine in BASIC */
+		std::shared_ptr<Linker::Segment> loader; /* loader routine in BASIC */
 
 		void Clear() override;
 
@@ -187,14 +187,14 @@ namespace Binary
 		public:
 			uint16_t address;
 			uint16_t size; /* it is supposed to be at most 255, but we can store larger segments by cutting them into pieces */
-			Linker::Writable * image;
+			std::shared_ptr<Linker::Writable> image;
 
 			void WriteFile(Linker::Writer& wr);
 		};
 
 		std::vector<Segment *> segments;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void WriteFile(Linker::Writer& wr) override;
 
@@ -220,7 +220,7 @@ namespace Binary
 		{
 		}
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		bool ProcessRelocation(Linker::Module& module, Linker::Relocation& rel, Linker::Resolution resolution) override;
 
@@ -251,9 +251,9 @@ namespace Binary
 	class UZI280Format : public GenericBinaryFormat
 	{
 	public:
-		Linker::Writable * code, * data;
+		std::shared_ptr<Linker::Writable> code, data;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		/* TODO: apparently both .code and .data are loaded at 0x0100 */
 

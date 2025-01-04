@@ -23,9 +23,9 @@ namespace Linker
 		/**
 		 * @brief The segment or address space of the position
 		 */
-		Segment * segment;
+		std::shared_ptr<Segment> segment;
 
-		Position(offset_t address = 0, Segment * segment = nullptr)
+		Position(offset_t address = 0, std::shared_ptr<Segment> segment = nullptr)
 			: address(address), segment(segment)
 		{
 		}

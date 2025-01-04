@@ -23,19 +23,19 @@ namespace Linker
 		/**
 		 * @brief The segment of the target
 		 */
-		Segment * target;
+		std::shared_ptr<Segment> target;
 		/**
 		 * @brief The segment of the reference
 		 *
 		 * Typical values might have null, indicating an absolute address, or the same segment as target, representing an inter-segment offset
 		 */
-		Segment * reference;
+		std::shared_ptr<Segment> reference;
 
 		Resolution()
 		{
 		}
 
-		Resolution(uint64_t value, Segment * target, Segment * reference)
+		Resolution(uint64_t value, std::shared_ptr<Segment> target, std::shared_ptr<Segment> reference)
 			:
 				value(value),
 				target(target == reference ? nullptr : target),

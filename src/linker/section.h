@@ -133,7 +133,7 @@ namespace Linker
 		 *
 		 * This field is assigned as part of the linking process.
 		 */
-		Segment * segment;
+		std::weak_ptr<Segment> segment;
 		/**
 		 * @brief Section name that collects sections
 		 */
@@ -145,8 +145,7 @@ namespace Linker
 				size(0),
 				flags((section_flags)flags),
 				align(1), bias(0),
-				resource_type("    "), resource_id(uint16_t(0)),
-				segment(nullptr)
+				resource_type("    "), resource_id(uint16_t(0))
 		{
 		}
 

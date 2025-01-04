@@ -2,6 +2,7 @@
 #define LOCATION_H
 
 #include <iostream>
+#include <memory>
 #include "../common.h"
 #include "position.h"
 
@@ -18,7 +19,7 @@ namespace Linker
 		/**
 		 * @brief The section the symbol is located in, or null for an absolute location
 		 */
-		Section * section;
+		std::shared_ptr<Section> section;
 		/**
 		 * @brief The offset of the symbol within a section, or the absolute address
 		 */
@@ -27,7 +28,7 @@ namespace Linker
 		/**
 		 * @brief Creates a location within a section
 		 */
-		Location(Section * section, offset_t offset = 0)
+		Location(std::shared_ptr<Section> section, offset_t offset = 0)
 			: section(section), offset(offset)
 		{
 		}

@@ -54,7 +54,7 @@ namespace DigitalResearch
 			/**
 			 * @brief Storage for segment
 			 */
-			Linker::Writable * image = nullptr;
+			std::shared_ptr<Linker::Writable> image = nullptr;
 
 			void Clear();
 
@@ -146,19 +146,19 @@ namespace DigitalResearch
 		/* * * Writer members * * */
 
 		/** @brief Segment to collect bss */
-		Linker::Segment * bss_segment = nullptr;
+		std::shared_ptr<Linker::Segment> bss_segment;
 
 		bool FormatSupportsSegmentation() const override;
 
-		std::vector<Linker::Segment *>& Segments();
+		std::vector<std::shared_ptr<Linker::Segment>>& Segments();
 
-		unsigned GetSegmentNumber(Linker::Segment * segment);
+		unsigned GetSegmentNumber(std::shared_ptr<Linker::Segment> segment);
 
 		using LinkerManager::SetLinkScript;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		bool IsCombined();
 

@@ -152,8 +152,6 @@ void MZFormat::Clear()
 	if(pif)
 		delete pif;
 	pif = nullptr;
-	if(image)
-		delete image;
 	image = nullptr;
 	/* writer fields */
 	ClearLinkerManager();
@@ -229,7 +227,7 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 	rd.Seek(header_size_paras << 4);
-	Linker::Buffer * buffer = new Linker::Section(".text");
+	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(".text");
 	image = buffer;
 	buffer->ReadFile(rd, GetFileSize() - GetHeaderSize());
 }
@@ -303,7 +301,7 @@ void MZFormat::Dump(Dumper::Dumper& dump)
 		pif->Dump(dump, file_offset + relocation_offset + relocation_count * 4);
 	}
 
-	Dumper::Block image_block("Image", file_offset + GetHeaderSize(), image, 0, 6);
+	Dumper::Block image_block("Image", file_offset + GetHeaderSize(), image.get(), 0, 6);
 
 	size_t i = 0;
 	for(auto relocation : relocations)
@@ -439,7 +437,7 @@ void MZFormat::SetOptions(std::map<std::string, std::string>& options)
 	}
 }
 
-void MZFormat::OnNewSegment(Linker::Segment * segment)
+void MZFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{
@@ -463,7 +461,7 @@ void MZFormat::CreateDefaultSegments()
 {
 	if(image == nullptr)
 	{
-		image = new Linker::Segment(".code");
+		image = std::make_shared<Linker::Segment>(".code");
 	}
 }
 
@@ -618,7 +616,7 @@ void MZFormat::ProcessModule(Linker::Module& module)
 	}
 	else
 	{
-		Linker::Section * stack = module.Sections().back();
+		std::shared_ptr<Linker::Section> stack = module.Sections().back();
 		sp = stack->Size();
 		ss = stack->Base().address >> 4;
 		Linker::Debug << "Debug: End of memory: " << sp << std::endl;
@@ -649,7 +647,7 @@ void MZFormat::ProcessModule(Linker::Module& module)
 	if(GetSignature() == MAGIC_DL)
 	{
 		offset_t code_size = 0;
-		for(auto& section : dynamic_cast<Linker::Segment *>(image)->sections)
+		for(auto& section : std::dynamic_pointer_cast<Linker::Segment>(image)->sections)
 		{
 			if(!section->IsExecable())
 				break;

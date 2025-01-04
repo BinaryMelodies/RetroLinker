@@ -239,7 +239,7 @@ namespace COFF
 			/**
 			 * @brief The stored image data
 			 */
-			Linker::Writable * image = nullptr;
+			std::shared_ptr<Linker::Writable> image;
 
 			/**
 			 * @brief Collection of COFF relocations
@@ -259,7 +259,7 @@ namespace COFF
 
 			void Clear();
 
-			Section(uint32_t flags = 0, Linker::Writable * image = nullptr)
+			Section(uint32_t flags = 0, std::shared_ptr<Linker::Writable> image = nullptr)
 				: flags(flags), image(image)
 			{
 			}
@@ -622,7 +622,7 @@ namespace COFF
 		/**
 		 * @brief Concurrent DOS 68K and FlexOS 386: The stack segment, not stored as part of any section
 		 */
-		Linker::Segment * stack = nullptr;
+		std::shared_ptr<Linker::Segment> stack;
 		/**
 		 * @brief Entry address, gets stored in optional header later
 		 */
@@ -666,7 +666,7 @@ namespace COFF
 			ZMAGIC = 0x010B,
 		};
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();
 
@@ -675,13 +675,13 @@ namespace COFF
 		void Link(Linker::Module& module);
 
 		/** @brief Return the segment stored inside the section, note that this only works for binary generation */
-		Linker::Segment * GetSegment(Section * section);
+		std::shared_ptr<Linker::Segment> GetSegment(Section * section);
 
-		Linker::Segment * GetCodeSegment();
+		std::shared_ptr<Linker::Segment> GetCodeSegment();
 
-		Linker::Segment * GetDataSegment();
+		std::shared_ptr<Linker::Segment> GetDataSegment();
 
-		Linker::Segment * GetBssSegment();
+		std::shared_ptr<Linker::Segment> GetBssSegment();
 
 		void ProcessModule(Linker::Module& module) override;
 

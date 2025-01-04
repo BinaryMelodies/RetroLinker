@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <map>
+#include <memory>
 #include <iostream>
 #include <string>
 
@@ -118,7 +119,7 @@ namespace Linker
 {
 	class Section;
 	class Location;
-	typedef std::map<Section *, Location> Displacement;
+	typedef std::map<std::shared_ptr<Section>, Location> Displacement;
 
 	class Relocation;
 	class Segment;

@@ -56,14 +56,14 @@ namespace MINIX
 		uint32_t heap_top_address; /* TODO: parametrize */
 
 		/* generated */
-		Linker::Segment * code, * data, * bss;
+		std::shared_ptr<Linker::Segment> code, data, bss;
 		uint32_t entry_address;
 
 		using LinkerManager::SetLinkScript;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();
 

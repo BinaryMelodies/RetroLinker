@@ -143,7 +143,7 @@ namespace Microsoft
 		class Segment
 		{
 		public:
-			Linker::Segment * image;
+			std::shared_ptr<Linker::Segment> image;
 			offset_t data_offset;
 			enum flag_type
 			{
@@ -161,7 +161,7 @@ namespace Microsoft
 			} flags;
 			uint16_t movable_entry_index; /* for movable segments, each relocation targetting it needs one and only one entry */
 
-			Segment(Linker::Segment * segment, unsigned flags)
+			Segment(std::shared_ptr<Linker::Segment> segment, unsigned flags)
 				: image(segment), flags((flag_type)flags), movable_entry_index(0)
 			{
 			}
@@ -274,9 +274,9 @@ namespace Microsoft
 		};
 		uint16_t code_swap_area_length;
 
-		Linker::Segment * stack, * heap;
+		std::shared_ptr<Linker::Segment> stack, heap;
 		std::vector<Segment> segments;
-		std::map<Linker::Segment *, size_t> segment_index;
+		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index;
 		std::vector<Resource> resources;
 		std::vector<Name> resident_names, nonresident_names;
 		std::vector<uint16_t> module_references;
@@ -311,7 +311,7 @@ namespace Microsoft
 		using LinkerManager::SetLinkScript;
 		void SetModel(std::string model) override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		Script::List * GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;

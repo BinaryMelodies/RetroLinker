@@ -48,28 +48,6 @@ namespace AOut
 	{
 	public:
 		/* * * General members * * */
-
-		AOutFormat()
-			: code(nullptr), data(nullptr), bss(nullptr)
-		{
-		}
-
-		~AOutFormat()
-		{
-			if(code)
-			{
-				delete code;
-			}
-			if(data)
-			{
-				delete data;
-			}
-			if(bss)
-			{
-				delete bss;
-			}
-		}
-
 		::EndianType endiantype;
 		unsigned word_size;
 
@@ -107,7 +85,7 @@ namespace AOut
 		uint32_t data_relocation_size;
 		std::map<uint32_t, uint32_t> code_relocations, data_relocations; /* only used by PDOS386 OMAGIC */
 
-		Linker::Writable * code, * data, * bss;
+		std::shared_ptr<Linker::Writable> code, data, bss;
 
 	private:
 		bool AttemptFetchMagic(uint8_t signature[4]);
@@ -162,7 +140,7 @@ namespace AOut
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();
 
@@ -170,11 +148,11 @@ namespace AOut
 
 		void Link(Linker::Module& module);
 
-		Linker::Segment * GetCodeSegment();
+		std::shared_ptr<Linker::Segment> GetCodeSegment();
 
-		Linker::Segment * GetDataSegment();
+		std::shared_ptr<Linker::Segment> GetDataSegment();
 
-		Linker::Segment * GetBssSegment();
+		std::shared_ptr<Linker::Segment> GetBssSegment();
 
 		void ProcessModule(Linker::Module& module) override;
 

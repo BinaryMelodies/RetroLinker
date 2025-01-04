@@ -333,7 +333,7 @@ void NEFormat::SetOptions(std::map<std::string, std::string>& options)
 	/* TODO */
 }
 
-void NEFormat::OnNewSegment(Linker::Segment * segment)
+void NEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->sections.size() == 0)
 		return;
@@ -452,7 +452,7 @@ void NEFormat::Link(Linker::Module& module)
 void NEFormat::ProcessModule(Linker::Module& module)
 {
 	sector_shift = 1; /* TODO: parametrize */
-	for(Linker::Section * section : module.Sections())
+	for(auto& section : module.Sections())
 	{
 		section->RealignEnd(1 << sector_shift); /* TODO: this is probably what Watcom does */
 	}

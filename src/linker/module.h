@@ -2,6 +2,7 @@
 #define MODULE_H
 
 #include <map>
+#include <memory>
 #include <vector>
 #include <string>
 #include "../common.h"
@@ -49,8 +50,8 @@ namespace Linker
 		{
 		}
 	private:
-		std::vector<Section *> sections;
-		std::map<std::string, Section *> section_names;
+		std::vector<std::shared_ptr<Section>> sections;
+		std::map<std::string, std::shared_ptr<Section>> section_names;
 		std::map<std::string, Location> symbols;
 		std::map<std::string, Location> local_symbols;
 		std::map<std::string, CommonSymbol> unallocated_symbols;
@@ -110,12 +111,12 @@ namespace Linker
 		/**
 		 * @brief Adds a new section
 		 */
-		void AddSection(Section * section);
+		void AddSection(std::shared_ptr<Section> section);
 
 		/**
 		 * @brief Retrieves list of all sections
 		 */
-		const std::vector<Section *>& Sections() const;
+		const std::vector<std::shared_ptr<Section>>& Sections() const;
 
 		/**
 		 * @brief Deletes a specific sections
@@ -130,12 +131,12 @@ namespace Linker
 		/**
 		 * @brief Searches for a section with a specific name
 		 */
-		Section * FindSection(std::string name);
+		std::shared_ptr<Section> FindSection(std::string name);
 
 		/**
 		 * @brief Searches or creates a section with a specific name, with the assigned flags
 		 */
-		Section * FetchSection(std::string name, unsigned default_flags);
+		std::shared_ptr<Section> FetchSection(std::string name, unsigned default_flags);
 
 		/**
 		 * @brief Attempts to resolve the targets of all relocations
@@ -145,7 +146,7 @@ namespace Linker
 		/**
 		 * @brief Appends two of its sections
 		 */
-		void Append(Section * dst, Section * src);
+		void Append(std::shared_ptr<Section> dst, std::shared_ptr<Section> src);
 
 		/**
 		 * @brief Appends another module object, merging identically named sections
@@ -155,7 +156,7 @@ namespace Linker
 		/**
 		 * @brief All common symbols are converted to global symbols and assigned addresses within a section
 		 */
-		void AllocateSymbols(Section * section);
+		void AllocateSymbols(std::shared_ptr<Section> section);
 
 		/**
 		 * @brief All common symbols are converted to global symbols and assigned addresses within a ".comm" section

@@ -305,14 +305,14 @@ offset_t Section::Append(Buffer& buffer)
 
 Position Section::Start() const
 {
-	assert(segment != nullptr);
+	auto the_segment = segment.lock();
+	assert(the_segment != nullptr);
 //	Linker::Debug << "Start " << name << " = " << segment << ":" << address << std::endl;
-	return Position(address, segment);
+	return Position(address, the_segment);
 }
 
 Position Section::Base() const
 {
-	assert(segment != nullptr);
 //	Linker::Debug << "Bias " << name << " = " << bias << std::endl;
 	return Start() - bias;
 }
@@ -351,7 +351,7 @@ void Section::Reset()
 	bias = 0;
 	resource_type = "    ";
 	resource_id = uint16_t(0);
-	segment = nullptr;
+	segment = std::weak_ptr<Segment>();
 
 	if(IsFixed())
 		address = 0;

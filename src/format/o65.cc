@@ -8,13 +8,9 @@ void O65Format::Module::Clear()
 	mode_word = 0;
 
 	code_base = 0;
-	if(code_image)
-		delete code_image;
 	code_image = nullptr;
 
 	data_base = 0;
-	if(data_image)
-		delete data_image;
 	data_image = nullptr;
 
 	bss_base = 0;
@@ -96,13 +92,13 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 		rd.ReadData(length, reinterpret_cast<char *>(header_options.back().data.data()));
 	}
 
-	Linker::Section * code_section = new Linker::Section(".text");
+	std::shared_ptr<Linker::Section> code_section = std::make_shared<Linker::Section>(".text");
 	code_image = code_section;
 	code_section->ReadFile(rd, code_size);
 	code_section->SetReadable(true);
 	code_section->SetExecable(true);
 
-	Linker::Section * data_section = new Linker::Section(".data");
+	std::shared_ptr<Linker::Section> data_section = std::make_shared<Linker::Section>(".data");
 	data_image = data_section;
 	data_section->ReadFile(rd, data_size);
 	data_section->SetReadable(true);
@@ -241,19 +237,19 @@ void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd
 	else
 		module.cpu = Linker::Module::MOS6502;
 
-	Linker::Section * code_section = code_image != nullptr ? dynamic_cast<Linker::Section *>(code_image) : nullptr;
+	std::shared_ptr<Linker::Section> code_section = code_image != nullptr ? std::dynamic_pointer_cast<Linker::Section>(code_image) : nullptr;
 	if(code_section != nullptr)
 	{
 		module.AddSection(code_section);
 	}
 
-	Linker::Section * data_section = data_image != nullptr ? dynamic_cast<Linker::Section *>(data_image) : nullptr;
+	std::shared_ptr<Linker::Section> data_section = data_image != nullptr ? std::dynamic_pointer_cast<Linker::Section>(data_image) : nullptr;
 	if(data_section != nullptr)
 	{
 		module.AddSection(data_section);
 	}
 
-	Linker::Section * bss_section = bss_size != 0 ? new Linker::Section(".bss") : nullptr;
+	std::shared_ptr<Linker::Section> bss_section = bss_size != 0 ? std::make_shared<Linker::Section>(".bss") : nullptr;
 	if(bss_section != nullptr)
 	{
 		bss_section->SetZeroFilled(true);
@@ -261,7 +257,7 @@ void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd
 		module.AddSection(bss_section);
 	}
 
-	Linker::Section * zero_section = zero_size != 0 ? new Linker::Section(".zero") : nullptr;
+	std::shared_ptr<Linker::Section> zero_section = zero_size != 0 ? std::make_shared<Linker::Section>(".zero") : nullptr;
 	if(zero_section != nullptr)
 	{
 		zero_section->SetZeroFilled(true);
@@ -269,7 +265,7 @@ void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd
 		module.AddSection(zero_section);
 	}
 
-	Linker::Section * stack_section = zero_size != 0 ? new Linker::Section(".stack") : nullptr;
+	std::shared_ptr<Linker::Section> stack_section = zero_size != 0 ? std::make_shared<Linker::Section>(".stack") : nullptr;
 	if(stack_section != nullptr)
 	{
 		stack_section->SetZeroFilled(true);
@@ -277,7 +273,7 @@ void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd
 		module.AddSection(stack_section);
 	}
 
-	Linker::Section * sections[] =
+	std::shared_ptr<Linker::Section> sections[] =
 	{
 		nullptr,
 		nullptr,
@@ -377,12 +373,6 @@ O65Format::Module& O65Format::AddModule()
 
 void O65Format::Clear()
 {
-	// TODO: switch over from manual memory management to more robust methods
-//	for(auto module : modules)
-//	{
-//		module->Clear();
-//		delete module;
-//	}
 	modules.clear();
 }
 

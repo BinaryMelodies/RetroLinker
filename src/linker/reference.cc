@@ -12,7 +12,7 @@ using namespace Linker;
 
 Location Reference::ToLocation(Module& module) const
 {
-	Section * l_section;
+	std::shared_ptr<Section> l_section;
 	offset_t l_offset = 0;
 	if(segment)
 		l_section = module.FindSection(*segment);

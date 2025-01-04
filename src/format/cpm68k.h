@@ -100,11 +100,11 @@ namespace DigitalResearch
 		/**
 		 * @brief Storage for code segment
 		 */
-		Linker::Writable * code = nullptr;
+		std::shared_ptr<Linker::Writable> code = nullptr;
 		/**
 		 * @brief Storage for data segment
 		 */
-		Linker::Writable * data = nullptr;
+		std::shared_ptr<Linker::Writable> data = nullptr;
 
 		/* filled in automatically */
 		struct Relocation
@@ -224,15 +224,15 @@ namespace DigitalResearch
 		bool option_no_relocation = true;
 
 		/** @brief Segment to collect bss */
-		Linker::Segment * bss_segment = nullptr;
+		std::shared_ptr<Linker::Segment> bss_segment;
 		/** @brief Segment to collect stack (Concurrent DOS 68K only) */
-		Linker::Segment * stack_segment = nullptr;
+		std::shared_ptr<Linker::Segment> stack_segment;
 
 		/** @brief Return code segment (if it exists) */
-		Linker::Segment * CodeSegment();
+		std::shared_ptr<Linker::Segment> CodeSegment();
 
 		/** @brief Return data segment (if it exists) */
-		Linker::Segment * DataSegment();
+		std::shared_ptr<Linker::Segment> DataSegment();
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
@@ -240,7 +240,7 @@ namespace DigitalResearch
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();
 

@@ -72,9 +72,9 @@ namespace DOS16M
 		class Segment : public AbstractSegment
 		{
 		public:
-			Linker::Segment * image;
+			std::shared_ptr<Linker::Segment> image;
 
-			Segment(Linker::Segment * segment, unsigned access = TYPE_DATA, unsigned flags = 0)
+			Segment(std::shared_ptr<Linker::Segment> segment, unsigned access = TYPE_DATA, unsigned flags = 0)
 				: AbstractSegment(access, flags, segment->TotalSize()), image(segment)
 			{
 			}
@@ -169,7 +169,7 @@ namespace DOS16M
 		std::string exp_name; /* TODO: ??? */
 
 		std::vector<AbstractSegment *> segments;
-		std::map<Linker::Segment *, size_t> segment_indices;
+		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_indices;
 		int default_data;
 
 		BWFormat()
@@ -180,7 +180,7 @@ namespace DOS16M
 		{
 		}
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		Script::List * GetScript(Linker::Module& module);
 

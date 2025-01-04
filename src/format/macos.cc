@@ -921,7 +921,7 @@ void ResourceFork::AddResource(Resource * resource)
 	resources[typeval][resource->id] = resource;
 }
 
-void ResourceFork::OnNewSegment(Linker::Segment * segment)
+void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".a5world")
 	{
@@ -941,7 +941,7 @@ void ResourceFork::OnNewSegment(Linker::Segment * segment)
 	}
 	else
 	{
-		Linker::Section * section = segment->sections.front();
+		std::shared_ptr<Linker::Section> section = segment->sections.front();
 		/* other resources */
 		std::string * type = std::get_if<std::string>(&section->resource_type);
 		if(type == nullptr || type->size() != 4)

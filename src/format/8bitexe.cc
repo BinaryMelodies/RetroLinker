@@ -12,7 +12,7 @@ void AppleFormat::ReadFile(Linker::Reader& rd)
 	rd.endiantype = ::LittleEndian;
 	base_address = rd.ReadUnsigned(2);
 	uint16_t size = rd.ReadUnsigned(2);
-	Linker::Buffer * buffer = new Linker::Buffer;
+	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
 	buffer->ReadFile(rd, size);
 	image = buffer;
 }
@@ -46,7 +46,7 @@ void AtariFormat::AddEntryPoint(uint16_t entry)
 {
 	Segment * entry_segment = new Segment();
 	entry_segment->address = ENTRY_ADDRESS;
-	Linker::Section * entry_section = new Linker::Section(".entry");
+	std::shared_ptr<Linker::Section> entry_section = std::make_shared<Linker::Section>(".entry");
 	entry_section->WriteWord(2, entry, ::LittleEndian);
 	entry_segment->image = entry_section;
 	segments.push_back(entry_segment);
@@ -68,7 +68,7 @@ void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 	}
 	address = word;
 	uint16_t length = (rd.ReadUnsigned(2) + 1 - address) & 0xFFFF;
-	Linker::Buffer * buffer = new Linker::Buffer;
+	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
 	buffer->ReadFile(rd, length);
 	image = buffer;
 }
@@ -88,7 +88,7 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
 	image->WriteFile(wr);
 }
 
-void AtariFormat::OnNewSegment(Linker::Segment * segment)
+void AtariFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	Segment * atari_segment = new Segment(); /* TODO: header type */
 	segment->Fill();
@@ -126,7 +126,7 @@ void AtariFormat::ReadFile(Linker::Reader& rd)
 	}
 	while(rd.Tell() < end)
 	{
-		Segment * segment = new Segment;
+		Segment * segment = new Segment();
 		segment->ReadFile(rd);
 		segments.push_back(segment);
 	}
@@ -135,7 +135,7 @@ void AtariFormat::ReadFile(Linker::Reader& rd)
 void AtariFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
-	for(Segment * segment : segments)
+	for(auto& segment : segments)
 	{
 		segment->WriteFile(wr);
 	}
@@ -145,14 +145,12 @@ void AtariFormat::WriteFile(Linker::Writer& wr)
 
 void CommodoreFormat::Clear()
 {
-	if(loader != nullptr)
-		delete loader;
 	loader = nullptr;
 }
 
 void CommodoreFormat::SetupDefaultLoader()
 {
-	Linker::Section * loader_section = new Linker::Section(".loader");
+	std::shared_ptr<Linker::Section> loader_section = std::make_shared<Linker::Section>(".loader");
 	std::ostringstream oss;
 	oss << " (" << base_address << ")";
 	std::string text = oss.str();
@@ -165,7 +163,7 @@ void CommodoreFormat::SetupDefaultLoader()
 	loader_section->WriteWord(2, 0);
 	if(loader == nullptr)
 	{
-		loader = new Linker::Segment(".loader");
+		loader = std::make_shared<Linker::Segment>(".loader");
 	}
 	loader->Append(loader_section);
 	//loader->SetStartAddress(base_address - loader->data_size);
@@ -225,13 +223,13 @@ void CPM3Format::ReadFile(Linker::Reader& rd)
 		rsx_table.push_back(rsx);
 	}
 	rd.Seek(0x100);
-	Linker::Buffer * buffer = new Linker::Section(".code");
+	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(".code");
 	image = buffer;
 	buffer->ReadFile(rd, data_size);
 	for(auto& rsx : rsx_table)
 	{
 		rd.Seek(rsx.offset);
-		Linker::Buffer * buffer = new Linker::Section(".code");
+		std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(".code");
 		rsx.module->image = buffer;
 		buffer->ReadFile(rd, rsx.length);
 	}
@@ -277,7 +275,7 @@ void FLEXFormat::Segment::WriteFile(Linker::Writer& wr)
 	}
 }
 
-void FLEXFormat::OnNewSegment(Linker::Segment * segment)
+void FLEXFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	Segment * flex_segment = new Segment();
 	segment->Fill();
@@ -289,7 +287,7 @@ void FLEXFormat::OnNewSegment(Linker::Segment * segment)
 void FLEXFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
-	for(Segment * segment : segments)
+	for(auto& segment : segments)
 	{
 		segment->WriteFile(wr);
 	}
@@ -305,7 +303,7 @@ std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string 
 /* TODO: prepare relocations offsets */
 /* TODO: SPR files start at 0, OVL files start at a specified address */
 
-void PRLFormat::OnNewSegment(Linker::Segment * segment)
+void PRLFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	bool is_first_segment = image == nullptr;
 	GenericBinaryFormat::OnNewSegment(segment);
@@ -387,7 +385,7 @@ std::string UZIFormat::GetDefaultExtension(Linker::Module& module)
 
 // UZI280Format
 
-void UZI280Format::OnNewSegment(Linker::Segment * segment)
+void UZI280Format::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{

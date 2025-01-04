@@ -258,19 +258,11 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	code_relocation_size = rd.ReadUnsigned(word_size);
 	data_relocation_size = rd.ReadUnsigned(word_size);
 
-	if(code)
-	{
-		delete code;
-	}
-	code = new Linker::Section(".text");
-	dynamic_cast<Linker::Buffer *>(code)->ReadFile(rd, code_size);
+	code = std::make_shared<Linker::Section>(".text");
+	std::dynamic_pointer_cast<Linker::Buffer>(code)->ReadFile(rd, code_size);
 
-	if(data)
-	{
-		delete data;
-	}
-	data = new Linker::Section(".data");
-	dynamic_cast<Linker::Buffer *>(data)->ReadFile(rd, data_size);
+	data = std::make_shared<Linker::Section>(".data");
+	std::dynamic_pointer_cast<Linker::Buffer>(data)->ReadFile(rd, data_size);
 
 	if(word_size == 2)
 	{
@@ -431,15 +423,11 @@ void AOutFormat::GenerateModule(Linker::Module& module)
 		break;
 	}
 
-	Linker::Section * linker_code, * linker_data, * linker_bss;
-	linker_code = dynamic_cast<Linker::Section *>(code);
-	linker_data = dynamic_cast<Linker::Section *>(data);
+	std::shared_ptr<Linker::Section> linker_code, linker_data, linker_bss;
+	linker_code = std::dynamic_pointer_cast<Linker::Section>(code);
+	linker_data = std::dynamic_pointer_cast<Linker::Section>(data);
 
-	if(bss)
-	{
-		delete bss;
-	}
-	bss = linker_bss = new Linker::Section(".bss");
+	bss = linker_bss = std::make_shared<Linker::Section>(".bss");
 	linker_bss->SetZeroFilled(true);
 	linker_bss->Expand(bss_size);
 
@@ -458,7 +446,7 @@ void AOutFormat::GenerateModule(Linker::Module& module)
 	for(Symbol& symbol : symbols)
 	{
 		offset_t offset;
-		Linker::Section * section;
+		std::shared_ptr<Linker::Section> section;
 		switch(symbol.type)
 		{
 		case 0x20:
@@ -501,7 +489,7 @@ void AOutFormat::GenerateModule(Linker::Module& module)
 
 	for(int i = 0; i < 2; i++)
 	{
-		Linker::Section * section = i == 0 ? linker_code : linker_data;
+		std::shared_ptr<Linker::Section> section = i == 0 ? linker_code : linker_data;
 		for(auto& rel : i == 0 ? code_relocations : data_relocations)
 		{
 			/* TODO: only PDP-11 specific */
@@ -615,7 +603,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 	/* TODO: other parameters */
 }
 
-void AOutFormat::OnNewSegment(Linker::Segment * segment)
+void AOutFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{
@@ -639,15 +627,15 @@ void AOutFormat::CreateDefaultSegments()
 {
 	if(code == nullptr)
 	{
-		code = new Linker::Segment(".code");
+		code = std::make_shared<Linker::Segment>(".code");
 	}
 	if(data == nullptr)
 	{
-		data = new Linker::Segment(".data");
+		data = std::make_shared<Linker::Segment>(".data");
 	}
 	if(bss == nullptr)
 	{
-		bss = new Linker::Segment(".bss");
+		bss = std::make_shared<Linker::Segment>(".bss");
 	}
 }
 
@@ -694,19 +682,19 @@ void AOutFormat::Link(Linker::Module& module)
 	CreateDefaultSegments();
 }
 
-Linker::Segment * AOutFormat::GetCodeSegment()
+std::shared_ptr<Linker::Segment> AOutFormat::GetCodeSegment()
 {
-	return dynamic_cast<Linker::Segment *>(code);
+	return std::dynamic_pointer_cast<Linker::Segment>(code);
 }
 
-Linker::Segment * AOutFormat::GetDataSegment()
+std::shared_ptr<Linker::Segment> AOutFormat::GetDataSegment()
 {
-	return dynamic_cast<Linker::Segment *>(data);
+	return std::dynamic_pointer_cast<Linker::Segment>(data);
 }
 
-Linker::Segment * AOutFormat::GetBssSegment()
+std::shared_ptr<Linker::Segment> AOutFormat::GetBssSegment()
 {
-	return dynamic_cast<Linker::Segment *>(bss);
+	return std::dynamic_pointer_cast<Linker::Segment>(bss);
 }
 
 void AOutFormat::ProcessModule(Linker::Module& module)

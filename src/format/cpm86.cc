@@ -6,8 +6,6 @@ using namespace DigitalResearch;
 
 void CPM86Format::Descriptor::Clear()
 {
-	if(image)
-		delete image;
 	image = nullptr;
 }
 
@@ -100,7 +98,7 @@ void CPM86Format::Descriptor::ReadData(Linker::Reader& rd, const CPM86Format& mo
 {
 	if(type == Undefined || type == ActualFixups || size_paras == 0)
 		return;
-	Linker::Buffer * buffer = new Linker::Section(GetDefaultName());
+	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(GetDefaultName());
 	image = buffer;
 	buffer->ReadFile(rd, size_paras << 4);
 }
@@ -718,7 +716,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 		if(descriptors[i].type == Descriptor::ActualFixups)
 			group = fixups = new Dumper::Region("Group", descriptors[i].offset, descriptors[i].size_paras << 4, 5);
 		else
-			group = new Dumper::Block("Group", descriptors[i].offset, descriptors[i].image, descriptors[i].load_segment << 4, 5);
+			group = new Dumper::Block("Group", descriptors[i].offset, descriptors[i].image.get(), descriptors[i].load_segment << 4, 5);
 		group->InsertField(0, "Type", new Dumper::ChoiceDisplay(group_types), (offset_t)descriptors[i].type);
 		group->AddField("Minimum", new Dumper::HexDisplay(5), (offset_t)descriptors[i].min_size_paras << 4);
 		group->AddField("Maximum", new Dumper::HexDisplay(5), (offset_t)descriptors[i].max_size_paras << 4);
@@ -933,12 +931,12 @@ unsigned CPM86Format::FormatAdditionalSectionFlags(std::string section_name) con
 	return flags;
 }
 
-std::vector<Linker::Segment *>& CPM86Format::Segments()
+std::vector<std::shared_ptr<Linker::Segment>>& CPM86Format::Segments()
 {
 	return segment_vector;
 }
 
-unsigned CPM86Format::GetSegmentNumber(Linker::Segment * segment)
+unsigned CPM86Format::GetSegmentNumber(std::shared_ptr<Linker::Segment> segment)
 {
 	/* Note: this only works because segments get consecutive types */
 	unsigned count = 0;

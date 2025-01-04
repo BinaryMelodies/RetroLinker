@@ -2,6 +2,7 @@
 #define LINKER_H
 
 #include <fstream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <variant>
@@ -46,15 +47,15 @@ namespace Linker
 		/**
 		 * @brief Ordered sequence of segments
 		 */
-		std::vector<Segment *> segment_vector;
+		std::vector<std::shared_ptr<Segment>> segment_vector;
 		/**
 		 * @brief Map of segments from their names
 		 */
-		std::map<std::string, Segment *> segment_map;
+		std::map<std::string, std::shared_ptr<Segment>> segment_map;
 		/**
 		 * @brief Currently processed segment
 		 */
-		Segment * current_segment = nullptr;
+		std::shared_ptr<Segment> current_segment;
 		/**
 		 * @brief Parameters that permit customizing the linker script
 		 */
@@ -120,23 +121,23 @@ namespace Linker
 		 * @brief Callback function when allocating a new segment
 		 * When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.
 		 */
-		virtual void OnNewSegment(Segment * segment);
+		virtual void OnNewSegment(std::shared_ptr<Segment> segment);
 
 		/**
 		 * @brief Terminates the current segment (if there is one), creates a new segment and attaches it to the image
 		 * @param name The name of the new segment
 		 */
-		Segment * AppendSegment(std::string name);
+		std::shared_ptr<Segment> AppendSegment(std::string name);
 
 		/**
 		 * @brief Attempts to fetch a segment, returns null if not found
 		 */
-		Segment * FetchSegment(std::string name);
+		std::shared_ptr<Segment> FetchSegment(std::string name);
 
 		/**
 		 * @brief Adds a new section to the current segment, sets the base to the same as the segment
 		 */
-		void AppendSection(Section * section);
+		void AppendSection(std::shared_ptr<Section> section);
 
 		/**
 		 * @brief Executes a parsed linker script on a module and collects segments
@@ -146,7 +147,7 @@ namespace Linker
 		void ProcessAction(Script::Node * action, Module& module);
 		void PostProcessAction(Script::Node * action, Module& module);
 		void ProcessCommand(Script::Node * command, Module& module);
-		bool CheckPredicate(Script::Node * predicate, Section * section, Module& module);
+		bool CheckPredicate(Script::Node * predicate, std::shared_ptr<Section> section, Module& module);
 		offset_t EvaluateExpression(Script::Node * expression, Module& module);
 	};
 

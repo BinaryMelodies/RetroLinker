@@ -81,7 +81,7 @@ namespace ELF
 			uint32_t type, link, info;
 			offset_t flags;
 			offset_t address, file_offset, size, align, entsize;
-			Linker::Section * section;
+			std::shared_ptr<Linker::Section> section;
 			std::vector<Symbol> symbols;
 		};
 		std::vector<Section> sections;

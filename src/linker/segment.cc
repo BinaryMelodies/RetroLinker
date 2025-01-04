@@ -11,7 +11,7 @@ bool Segment::IsMissing()
 
 void Segment::Fill()
 {
-	for(Section * section : sections)
+	for(auto& section : sections)
 	{
 		if(section->IsZeroFilled())
 		{
@@ -27,7 +27,7 @@ void Segment::RealignEnd(offset_t align)
 {
 	if(sections.size() == 0)
 		return;
-	Section * tail = sections.back();
+	std::shared_ptr<Section> tail = sections.back();
 	offset_t extra = tail->RealignEnd(align);
 	if(tail->IsZeroFilled())
 		zero_fill += extra;
@@ -37,11 +37,11 @@ void Segment::RealignEnd(offset_t align)
 		this->align = align;
 }
 
-void Segment::Append(Section * section)
+void Segment::Append(std::shared_ptr<Section> section)
 {
 	if(section == nullptr)
 		return;
-	assert(section->segment == nullptr);
+	assert(section->segment.use_count() == 0);
 	offset_t align = section->GetAlign();
 	offset_t address;
 	if(sections.size() > 0)
@@ -54,7 +54,7 @@ void Segment::Append(Section * section)
 	{
 		address = base_address;
 	}
-	section->segment = this;
+	section->segment = shared_from_this();
 	section->SetAddress(address);
 	/* TODO: is this needed? */
 	if(sections.size() > 0)
@@ -86,7 +86,7 @@ void Segment::Append(Section * section)
 offset_t Segment::WriteFile(std::ostream& out, offset_t size, offset_t offset)
 {
 	offset_t count = 0;
-	for(Section * section : sections)
+	for(auto& section : sections)
 	{
 		if(!section->IsZeroFilled())
 		{
@@ -112,7 +112,7 @@ offset_t Segment::WriteFile(std::ostream& out, offset_t size, offset_t offset)
 offset_t Segment::WriteFile(std::ostream& out)
 {
 	offset_t count = 0;
-	for(Section * section : sections)
+	for(auto& section : sections)
 	{
 		if(!section->IsZeroFilled())
 			count += section->WriteFile(out);
@@ -132,7 +132,7 @@ offset_t Segment::WriteFile(Writer& wr)
 
 int Segment::GetByte(offset_t offset)
 {
-	for(Section * section : sections)
+	for(auto& section : sections)
 	{
 		if(offset < section->Size())
 		{
@@ -154,7 +154,7 @@ offset_t Segment::TotalSize()
 offset_t Segment::ActualDataSize() /* should be always equivalent to data_size */
 {
 	offset_t sum = 0;
-	for(Section * section : sections)
+	for(auto& section : sections)
 	{
 		if(!section->IsZeroFilled())
 			sum += section->Size();
@@ -216,7 +216,7 @@ void Segment::ShiftAddress(int64_t amount)
 //	Linker::Debug << "New base address: 0x" << std::hex << new_base_address << " (attempted 0x" << std::hex << base_address + amount << ") instead of 0x" << std::hex << base_address << std::endl;
 	base_address = new_base_address;
 
-	for(Section * section : sections)
+	for(auto& section : sections)
 	{
 		section->ResetAddress(section->GetStartAddress() + amount);
 		/* note: biases don't get altered */

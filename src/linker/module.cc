@@ -59,7 +59,7 @@ bool Module::FindGlobalSymbol(std::string name, Location& location)
 	return true;
 }
 
-void Module::AddSection(Section * section)
+void Module::AddSection(std::shared_ptr<Section> section)
 {
 	sections.push_back(section);
 	if(section->name != "")
@@ -75,7 +75,7 @@ void Module::AddSection(Section * section)
 	}
 }
 
-const std::vector<Section *>& Module::Sections() const
+const std::vector<std::shared_ptr<Section>>& Module::Sections() const
 {
 	return sections;
 }
@@ -83,7 +83,6 @@ const std::vector<Section *>& Module::Sections() const
 void Module::DeleteSection(size_t index)
 {
 	/* Note: this function should not be called without calling RemoveSections before any further operations, as it leaves the module in a vulnerable state */
-	delete sections[index];
 	sections[index] = nullptr;
 }
 
@@ -93,18 +92,18 @@ void Module::RemoveSections()
 	section_names.clear();
 }
 
-Section * Module::FindSection(std::string name)
+std::shared_ptr<Section> Module::FindSection(std::string name)
 {
 	auto it = section_names.find(name);
 	return it == section_names.end() ? nullptr : it->second;
 }
 
-Section * Module::FetchSection(std::string name, unsigned default_flags)
+std::shared_ptr<Section> Module::FetchSection(std::string name, unsigned default_flags)
 {
-	Section * section = FindSection(name);
+	std::shared_ptr<Section> section = FindSection(name);
 	if(section == nullptr)
 	{
-		section = new Section(name, default_flags);
+		section = std::make_shared<Section>(name, default_flags);
 		AddSection(section);
 	}
 	return section;
@@ -127,7 +126,7 @@ void Module::ResolveRelocations()
 	}
 }
 
-void Module::Append(Section * dst, Section * src)
+void Module::Append(std::shared_ptr<Section> dst, std::shared_ptr<Section> src)
 {
 	Displacement displacement;
 	displacement[src] = Location(dst, dst->Append(*src));
@@ -152,9 +151,9 @@ void Module::Append(Module& other)
 	{
 		assert(cpu == other.cpu);
 	}
-	for(Section * other_section : other.sections)
+	for(auto& other_section : other.sections)
 	{
-		Section * section = FindSection(other_section->name);
+		std::shared_ptr<Section> section = FindSection(other_section->name);
 		if(section == nullptr)
 		{
 			AddSection(other_section);
@@ -214,7 +213,7 @@ void Module::Append(Module& other)
 	}
 }
 
-void Module::AllocateSymbols(Section * section)
+void Module::AllocateSymbols(std::shared_ptr<Section> section)
 {
 	for(auto it : unallocated_symbols)
 	{

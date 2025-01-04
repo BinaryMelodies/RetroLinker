@@ -33,12 +33,8 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 
 	rd.Skip(header_size - 0x28);
 
-	if(image)
-	{
-		delete image;
-	}
-	image = new Linker::Buffer(program_size);
-	dynamic_cast<Linker::Buffer *>(image)->ReadFile(rd, program_size);
+	image = std::make_shared<Linker::Buffer>(program_size);
+	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, program_size);
 
 	for(size_t i = 0; i < relocation_count; i++)
 	{

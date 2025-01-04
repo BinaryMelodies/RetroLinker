@@ -44,19 +44,11 @@ void CPM68KFormat::SetSignature(magic_type magic)
 void CPM68KFormat::Clear()
 {
 	/* format fields */
-	if(code)
-		delete code;
 	code = nullptr;
-	if(data)
-		delete data;
 	data = nullptr;
 	relocations.clear();
 	/* writer fields */
-	if(bss_segment)
-		delete bss_segment;
 	bss_segment = nullptr;
-	if(stack_segment)
-		delete stack_segment;
 	stack_segment = nullptr;
 }
 
@@ -173,19 +165,11 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 
 	rd.Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C));
 
-	if(code)
-	{
-		delete code;
-	}
-	Linker::Buffer * code_section = new Linker::Section(".text");
+	std::shared_ptr<Linker::Buffer> code_section = std::make_shared<Linker::Section>(".text");
 	code_section->ReadFile(rd, code_size);
 	code = code_section;
 
-	if(data)
-	{
-		delete data;
-	}
-	Linker::Buffer * data_section = new Linker::Section(".data");
+	std::shared_ptr<Linker::Buffer> data_section = std::make_shared<Linker::Section>(".data");
 	data_section->ReadFile(rd, data_size);
 	data = data_section;
 
@@ -449,9 +433,9 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 	header_region.AddField("Suppression word", new Dumper::HexDisplay(4), (offset_t)relocations_suppressed);
 	header_region.AddField("Bss size", new Dumper::HexDisplay, (offset_t)bss_size);
 
-	Dumper::Block code_block("Code segment", file_offset + header_size, code,
+	Dumper::Block code_block("Code segment", file_offset + header_size, code.get(),
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? code_address : 0, 8);
-	Dumper::Block data_block("Data segment", file_offset + header_size + code_size, data,
+	Dumper::Block data_block("Data segment", file_offset + header_size + code_size, data.get(),
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? data_address : code_size, 8);
 
 	header_region.AddField("Bss address", new Dumper::HexDisplay, (offset_t)bss_address); /* TODO: place as part of a container */
@@ -536,14 +520,14 @@ void CPM68KFormat::CalculateValues()
 
 /* * * Writer members * * */
 
-Linker::Segment * CPM68KFormat::CodeSegment()
+std::shared_ptr<Linker::Segment> CPM68KFormat::CodeSegment()
 {
-	return dynamic_cast<Linker::Segment *>(code);
+	return std::dynamic_pointer_cast<Linker::Segment>(code);
 }
 
-Linker::Segment * CPM68KFormat::DataSegment()
+std::shared_ptr<Linker::Segment> CPM68KFormat::DataSegment()
 {
-	return dynamic_cast<Linker::Segment *>(data);
+	return std::dynamic_pointer_cast<Linker::Segment>(data);
 }
 
 unsigned CPM68KFormat::FormatAdditionalSectionFlags(std::string section_name) const
@@ -630,7 +614,7 @@ void CPM68KFormat::SetOptions(std::map<std::string, std::string>& options)
 #endif
 }
 
-void CPM68KFormat::OnNewSegment(Linker::Segment * segment)
+void CPM68KFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{
@@ -691,19 +675,19 @@ void CPM68KFormat::CreateDefaultSegments()
 {
 	if(code == nullptr)
 	{
-		code = new Linker::Segment(".code");
+		code = std::make_shared<Linker::Segment>(".code");
 	}
 	if(data == nullptr)
 	{
-		data = new Linker::Segment(".data");
+		data = std::make_shared<Linker::Segment>(".data");
 	}
 	if(bss_segment == nullptr)
 	{
-		bss_segment = new Linker::Segment(".bss");
+		bss_segment = std::make_shared<Linker::Segment>(".bss");
 	}
 	if(system == SYSTEM_CDOS68K && stack_segment == nullptr)
 	{
-		stack_segment = new Linker::Segment(".stack");
+		stack_segment = std::make_shared<Linker::Segment>(".stack");
 	}
 }
 

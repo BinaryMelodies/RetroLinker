@@ -5,8 +5,6 @@ using namespace DigitalResearch;
 
 void CPM8KFormat::Segment::Clear()
 {
-	if(image != nullptr)
-		delete image;
 	image = nullptr;
 }
 
@@ -85,7 +83,7 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 		if(!segment.IsPresent())
 			continue;
 
-		Linker::Buffer * section = new Linker::Buffer;
+		std::shared_ptr<Linker::Buffer> section = std::make_shared<Linker::Buffer>();
 		section->ReadFile(rd, segment.length);
 		segment.image = section;
 	}
@@ -151,16 +149,16 @@ bool CPM8KFormat::FormatSupportsSegmentation() const
 	return magic == MAGIC_SEGMENTED || magic == MAGIC_SEGMENTED_OBJECT;
 }
 
-std::vector<Linker::Segment *>& CPM8KFormat::Segments()
+std::vector<std::shared_ptr<Linker::Segment>>& CPM8KFormat::Segments()
 {
 	return segment_vector;
 }
 
-unsigned CPM8KFormat::GetSegmentNumber(Linker::Segment * segment)
+unsigned CPM8KFormat::GetSegmentNumber(std::shared_ptr<Linker::Segment>segment)
 {
 	for(size_t i = 0; i < segments.size(); i++)
 	{
-		if(segments[i].image == dynamic_cast<Linker::Writable *>(segment))
+		if(segments[i].image == std::dynamic_pointer_cast<Linker::Writable>(segment))
 			return segments[i].number;
 	}
 	return (unsigned)-1;
@@ -170,7 +168,7 @@ void CPM8KFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 }
 
-void CPM8KFormat::OnNewSegment(Linker::Segment * segment)
+void CPM8KFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	Segment cpm_segment;
 	if(segment->name == ".code")

@@ -32,7 +32,7 @@ namespace X68000
 		bool option_no_relocation; /* TODO: make parameter */
 
 		/* filled in automatically */
-		Linker::Segment * code, * data, * bss;
+		std::shared_ptr<Linker::Segment> code, data, bss;
 		uint32_t relocation_size;
 		std::map<uint32_t, unsigned char> relocations;
 
@@ -40,7 +40,7 @@ namespace X68000
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();
 

@@ -119,7 +119,7 @@ namespace Microsoft
 		class Object
 		{
 		public:
-			Linker::Segment * image;
+			std::shared_ptr<Linker::Segment> image;
 			enum flag_type
 			{
 				Readable = 0x0001,
@@ -143,7 +143,7 @@ namespace Microsoft
 			uint32_t page_entry_count;
 			uint32_t data_pages_offset;
 
-			Object(Linker::Segment * segment, unsigned flags)
+			Object(std::shared_ptr<Linker::Segment> segment, unsigned flags)
 				: image(segment), flags((flag_type)flags)
 			{
 			}
@@ -342,9 +342,9 @@ namespace Microsoft
 
 		static const uint32_t page_size = 0x1000;
 
-		Linker::Segment * stack, * heap;
+		std::shared_ptr<Linker::Segment> stack, heap;
 		std::vector<Object> objects;
-		std::map<Linker::Segment *, size_t> object_index;
+		std::map<std::shared_ptr<Linker::Segment>, size_t> object_index;
 		std::vector<Page> pages;
 		std::vector<Resource> resources;
 		std::vector<Name> resident_names, nonresident_names;
@@ -363,7 +363,7 @@ namespace Microsoft
 
 		using LinkerManager::SetLinkScript;
 		void SetOptions(std::map<std::string, std::string>& options) override;
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		Script::List * GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;

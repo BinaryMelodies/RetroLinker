@@ -37,7 +37,7 @@ void MPFormat::SetOptions(std::map<std::string, std::string>& options)
 	stub_file = FetchOption(options, "stub", "");
 }
 
-void MPFormat::OnNewSegment(Linker::Segment * segment)
+void MPFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{
@@ -312,7 +312,7 @@ void P3Format::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, stack_size);
 }
 
-void P3Format::Flat::OnNewSegment(Linker::Segment * segment)
+void P3Format::Flat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
 	{
@@ -368,7 +368,7 @@ void P3Format::Flat::ProcessModule(Linker::Module& module)
 		maximum_extra = -1;
 	}
 
-	if(Linker::Section * stack_section = module.FindSection(".stack"))
+	if(std::shared_ptr<Linker::Section> stack_section = module.FindSection(".stack"))
 	{
 		stack_size = stack_section->Size();
 	}
@@ -644,7 +644,7 @@ void P3Format::MultiSegmented::Relocation::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, segment->selector);
 }
 
-void P3Format::MultiSegmented::OnNewSegment(Linker::Segment * linker_segment)
+void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> linker_segment)
 {
 	Segment * segment = new Segment(linker_segment,
 		/* TODO: check properly read, write, 32-bit (TODO) flags */
@@ -738,11 +738,11 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 {
 	Link(module);
 
-	Linker::Segment * stack_segment;
-	if(Linker::Section * stack_section = module.FindSection(".stack"))
+	std::shared_ptr<Linker::Segment> stack_segment;
+	if(std::shared_ptr<Linker::Section> stack_section = module.FindSection(".stack"))
 	{
 		stack_size = stack_section->Size();
-		stack_segment = stack_section->segment;
+		stack_segment = stack_section->segment.lock();
 	}
 	else
 	{

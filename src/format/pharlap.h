@@ -20,7 +20,7 @@ namespace PharLap
 		bool has_relocations;
 		std::string stub_file;
 
-		Linker::Segment * image;
+		std::shared_ptr<Linker::Segment> image;
 
 		static const uint32_t REL32 = 0x80000000;
 		union Relocation
@@ -64,7 +64,7 @@ namespace PharLap
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		Script::List * GetScript(Linker::Module& module);
 
@@ -171,9 +171,9 @@ namespace PharLap
 		{
 		}
 
-		Linker::Segment * image;
+		std::shared_ptr<Linker::Segment> image;
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		Script::List * GetScript(Linker::Module& module);
 
@@ -274,13 +274,13 @@ namespace PharLap
 		class Segment : public Descriptor, public AbstractSegment
 		{
 		public:
-			Linker::Segment * segment;
+			std::shared_ptr<Linker::Segment> segment;
 
 			uint16_t selector;
 			uint16_t flags;
 			uint32_t base_offset; /* TODO??? */
 
-			Segment(Linker::Segment * segment, uint32_t access, uint16_t selector)
+			Segment(std::shared_ptr<Linker::Segment> segment, uint32_t access, uint16_t selector)
 				: Descriptor(access, this), segment(segment), selector(selector), base_offset(0)
 			{
 			}
@@ -318,12 +318,12 @@ namespace PharLap
 		};
 
 		std::vector<AbstractSegment *> segments;
-		std::map<Linker::Segment *, Segment *> segment_associations;
+		std::map<std::shared_ptr<Linker::Segment>, Segment *> segment_associations;
 		std::set<Relocation> relocations;
 		Segment * code;
 		Segment * data;
 
-		void OnNewSegment(Linker::Segment * linker_segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> linker_segment) override;
 
 		Script::List * GetScript(Linker::Module& module);
 

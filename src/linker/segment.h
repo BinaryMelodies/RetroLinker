@@ -2,6 +2,7 @@
 #define SEGMENT_H
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 #include "../common.h"
@@ -21,7 +22,7 @@ namespace Linker
 	 *
 	 * Only sections that appear consecutively in memory (or with known displacements at linking time) may be stored in the same segment.
 	 */
-	class Segment : public Writable
+	class Segment : public Writable, public std::enable_shared_from_this<Segment>
 	{
 	public:
 		/**
@@ -31,7 +32,7 @@ namespace Linker
 		/**
 		 * @brief Sequence of sections belonging to the segment
 		 */
-		std::vector<Section *> sections;
+		std::vector<std::shared_ptr<Section>> sections;
 		/**
 		 * @brief Address where segment starts
 		 */
@@ -81,7 +82,7 @@ namespace Linker
 		 *
 		 * This action might require aligning end of last section, possibly zero filling it, and setting the base address and bias of the new section.
 		 */
-		void Append(Section * section);
+		void Append(std::shared_ptr<Section> section);
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */

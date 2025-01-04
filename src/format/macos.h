@@ -274,7 +274,7 @@ namespace Apple
 			{
 			}
 
-			Linker::Segment * resource;
+			std::shared_ptr<Linker::Segment> resource;
 
 			void ProcessModule(Linker::Module& module) override;
 
@@ -323,7 +323,7 @@ namespace Apple
 		{
 		public:
 			JumpTableCodeResource * jump_table;
-			Linker::Segment * image;
+			std::shared_ptr<Linker::Segment> image;
 
 			CodeResource(uint16_t id, JumpTableCodeResource * jump_table)
 				: Resource("CODE", id), jump_table(jump_table)/*, image("code")*/, is_far(false), a5_address(0), base_address(0)
@@ -382,12 +382,12 @@ namespace Apple
 		/* filled in during generation */
 		JumpTableCodeResource * jump_table;
 		std::vector<CodeResource *> codes;
-		std::map<Linker::Segment *, CodeResource *> segments;
-		Linker::Segment * a5world;
+		std::map<std::shared_ptr<Linker::Segment>, CodeResource *> segments;
+		std::shared_ptr<Linker::Segment> a5world;
 
 		void AddResource(Resource * resource);
 
-		void OnNewSegment(Linker::Segment * segment) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		Script::List * GetScript(Linker::Module& module);
 
