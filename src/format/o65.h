@@ -7,8 +7,6 @@
 #include "../linker/writable.h"
 #include "../linker/writer.h"
 
-/* TODO: unimplemented */
-
 /* o65 object format (input only) */
 namespace O65
 {
@@ -214,7 +212,6 @@ namespace O65
 			void ReadFile(Linker::Reader& rd) override;
 			void WriteFile(Linker::Writer& wr) override;
 			void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
-			/* TODO */
 		};
 
 	protected:
