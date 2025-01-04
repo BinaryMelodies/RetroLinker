@@ -100,8 +100,6 @@ Inheritance diagram for COFF::COFFFormat::GNUAOutHeader:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8e0cbebb7548ae9f2e14e2075166774b" id="r_a8e0cbebb7548ae9f2e14e2075166774b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e0cbebb7548ae9f2e14e2075166774b">Initialize</a> () override</td></tr>
-<tr class="separator:a8e0cbebb7548ae9f2e14e2075166774b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae370975d784e4a4a0110583bb4d76572" id="r_ae370975d784e4a4a0110583bb4d76572"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae370975d784e4a4a0110583bb4d76572">GetSize</a> () override</td></tr>
 <tr class="memdesc:ae370975d784e4a4a0110583bb4d76572"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns size of optional header.  <br /></td></tr>
 <tr class="separator:ae370975d784e4a4a0110583bb4d76572"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -122,28 +120,28 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a4f032bc54aca7a63bf934f6a492caa30" id="r_a4f032bc54aca7a63bf934f6a492caa30"><td class="memItemLeft" align="right" valign="top"><a id="a4f032bc54aca7a63bf934f6a492caa30" name="a4f032bc54aca7a63bf934f6a492caa30"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>info</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>info</b> = 0</td></tr>
 <tr class="separator:a4f032bc54aca7a63bf934f6a492caa30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0f0c2fcdd41a401a8109fadd0f07949" id="r_af0f0c2fcdd41a401a8109fadd0f07949"><td class="memItemLeft" align="right" valign="top"><a id="af0f0c2fcdd41a401a8109fadd0f07949" name="af0f0c2fcdd41a401a8109fadd0f07949"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_size</b> = 0</td></tr>
 <tr class="separator:af0f0c2fcdd41a401a8109fadd0f07949"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb964d87833ef8c9cd6adeeb868aab08" id="r_aeb964d87833ef8c9cd6adeeb868aab08"><td class="memItemLeft" align="right" valign="top"><a id="aeb964d87833ef8c9cd6adeeb868aab08" name="aeb964d87833ef8c9cd6adeeb868aab08"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_size</b> = 0</td></tr>
 <tr class="separator:aeb964d87833ef8c9cd6adeeb868aab08"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abac27ec7c2d7cb62ee12e6f7e477ff37" id="r_abac27ec7c2d7cb62ee12e6f7e477ff37"><td class="memItemLeft" align="right" valign="top"><a id="abac27ec7c2d7cb62ee12e6f7e477ff37" name="abac27ec7c2d7cb62ee12e6f7e477ff37"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>bss_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>bss_size</b> = 0</td></tr>
 <tr class="separator:abac27ec7c2d7cb62ee12e6f7e477ff37"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0e5738e5482069b889579f14914f6c3" id="r_ad0e5738e5482069b889579f14914f6c3"><td class="memItemLeft" align="right" valign="top"><a id="ad0e5738e5482069b889579f14914f6c3" name="ad0e5738e5482069b889579f14914f6c3"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_table_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_table_size</b> = 0</td></tr>
 <tr class="separator:ad0e5738e5482069b889579f14914f6c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47ae2f2ad437c7d26150851c313a0684" id="r_a47ae2f2ad437c7d26150851c313a0684"><td class="memItemLeft" align="right" valign="top"><a id="a47ae2f2ad437c7d26150851c313a0684" name="a47ae2f2ad437c7d26150851c313a0684"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_address</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_address</b> = 0</td></tr>
 <tr class="separator:a47ae2f2ad437c7d26150851c313a0684"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c1ef313661cbb77ddacc87c3b8db824" id="r_a4c1ef313661cbb77ddacc87c3b8db824"><td class="memItemLeft" align="right" valign="top"><a id="a4c1ef313661cbb77ddacc87c3b8db824" name="a4c1ef313661cbb77ddacc87c3b8db824"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_relocation_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_relocation_size</b> = 0</td></tr>
 <tr class="separator:a4c1ef313661cbb77ddacc87c3b8db824"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a48a4b326cdd5ffe8639d1cb9cac13593" id="r_a48a4b326cdd5ffe8639d1cb9cac13593"><td class="memItemLeft" align="right" valign="top"><a id="a48a4b326cdd5ffe8639d1cb9cac13593" name="a48a4b326cdd5ffe8639d1cb9cac13593"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_relocation_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_relocation_size</b> = 0</td></tr>
 <tr class="separator:a48a4b326cdd5ffe8639d1cb9cac13593"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -206,33 +204,6 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_relocation_s
 <p>Returns size of optional header. </p>
 
 <p>Implements <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#a6c982db9de1f52cc87c2b0a1f51dc894">COFF::COFFFormat::OptionalHeader</a>.</p>
-
-</div>
-</div>
-<a id="a8e0cbebb7548ae9f2e14e2075166774b" name="a8e0cbebb7548ae9f2e14e2075166774b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8e0cbebb7548ae9f2e14e2075166774b">&#9670;&#160;</a></span>Initialize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void COFFFormat::GNUAOutHeader::Initialize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html">COFF::COFFFormat::OptionalHeader</a>.</p>
 
 </div>
 </div>

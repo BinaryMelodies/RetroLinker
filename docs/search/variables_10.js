@@ -34,5 +34,6 @@ var searchData=
   ['symbol_5findex_31',['symbol_index',['../classCOFF_1_1COFFFormat_1_1ZilogRelocation.html#a2ec67dfacd98925f1192cb84781cfaa1',1,'COFF::COFFFormat::ZilogRelocation::symbol_index'],['../structO65_1_1O65Format_1_1Module_1_1relocation.html#a182b233cfe2df0826c32fce8ff2a9bbf',1,'O65::O65Format::Module::relocation::symbol_index']]],
   ['symbol_5ftable_5foffset_32',['symbol_table_offset',['../classCOFF_1_1COFFFormat.html#a702d175c72e64f9c6cb867a1ec0353f8',1,'COFF::COFFFormat']]],
   ['symbol_5ftable_5fsize_33',['symbol_table_size',['../classDigitalResearch_1_1CPM68KFormat.html#aecc60eb106b726bf3c1c9218c5bb8ef4',1,'DigitalResearch::CPM68KFormat::symbol_table_size'],['../classDigitalResearch_1_1CPM8KFormat.html#a7066939e38e13b37e6766311b797fd2e',1,'DigitalResearch::CPM8KFormat::symbol_table_size']]],
-  ['symbols_34',['symbols',['../classCOFF_1_1COFFFormat.html#a833df518cf4b6c576f724cc96eb30dbd',1,'COFF::COFFFormat']]]
+  ['symbols_34',['symbols',['../classCOFF_1_1COFFFormat.html#a833df518cf4b6c576f724cc96eb30dbd',1,'COFF::COFFFormat']]],
+  ['system_35',['system',['../classDigitalResearch_1_1CPM68KFormat.html#aaa1cddabff32d8cdd80861f9d384f90a',1,'DigitalResearch::CPM68KFormat']]]
 ];

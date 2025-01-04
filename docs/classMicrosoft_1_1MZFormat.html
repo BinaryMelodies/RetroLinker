@@ -142,9 +142,6 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetFileSize</b> (
 <tr class="memitem:ad53ca7ea872e4bbcab5e36ea83972ecf" id="r_ad53ca7ea872e4bbcab5e36ea83972ecf"><td class="memItemLeft" align="right" valign="top"><a id="ad53ca7ea872e4bbcab5e36ea83972ecf" name="ad53ca7ea872e4bbcab5e36ea83972ecf"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetSignature</b> (<a class="el" href="#a4973fba6e928696bc2bc1a59b8e4111e">magic_type</a> magic)</td></tr>
 <tr class="separator:ad53ca7ea872e4bbcab5e36ea83972ecf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0df0e6c07173252c18a019f37ae1a38d" id="r_a0df0e6c07173252c18a019f37ae1a38d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0df0e6c07173252c18a019f37ae1a38d">Initialize</a> () override</td></tr>
-<tr class="memdesc:a0df0e6c07173252c18a019f37ae1a38d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets all fields to their default values.  <br /></td></tr>
-<tr class="separator:a0df0e6c07173252c18a019f37ae1a38d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93a473b423af7a60fbbc55a69c269f80" id="r_a93a473b423af7a60fbbc55a69c269f80"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a93a473b423af7a60fbbc55a69c269f80">Clear</a> () override</td></tr>
 <tr class="memdesc:a93a473b423af7a60fbbc55a69c269f80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:a93a473b423af7a60fbbc55a69c269f80"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -321,63 +318,63 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpressio
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:abd004b9c148c50c4d504b8e96292a383" id="r_abd004b9c148c50c4d504b8e96292a383"><td class="memItemLeft" align="right" valign="top"><a id="abd004b9c148c50c4d504b8e96292a383" name="abd004b9c148c50c4d504b8e96292a383"></a>
-char&#160;</td><td class="memItemRight" valign="bottom"><b>signature</b> [2]</td></tr>
+char&#160;</td><td class="memItemRight" valign="bottom"><b>signature</b> [2] = { 'M', 'Z' }</td></tr>
 <tr class="memdesc:abd004b9c148c50c4d504b8e96292a383"><td class="mdescLeft">&#160;</td><td class="mdescRight">The magic number at the start of the executable file, usually "MZ". <br /></td></tr>
 <tr class="separator:abd004b9c148c50c4d504b8e96292a383"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59c890aebaf1849b2e7f59268279f653" id="r_a59c890aebaf1849b2e7f59268279f653"><td class="memItemLeft" align="right" valign="top"><a id="a59c890aebaf1849b2e7f59268279f653" name="a59c890aebaf1849b2e7f59268279f653"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>last_block_size</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>last_block_size</b> = 0</td></tr>
 <tr class="memdesc:a59c890aebaf1849b2e7f59268279f653"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of last 512 byte block, 0 if full. Set by CalculateValues. <br /></td></tr>
 <tr class="separator:a59c890aebaf1849b2e7f59268279f653"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82224a520647c484ebc0797b5db94dec" id="r_a82224a520647c484ebc0797b5db94dec"><td class="memItemLeft" align="right" valign="top"><a id="a82224a520647c484ebc0797b5db94dec" name="a82224a520647c484ebc0797b5db94dec"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size_blocks</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size_blocks</b> = 0</td></tr>
 <tr class="memdesc:a82224a520647c484ebc0797b5db94dec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of MZ image in 512 blocks, rounded up. Set by CalculateValues. <br /></td></tr>
 <tr class="separator:a82224a520647c484ebc0797b5db94dec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ea237caaaff372d967daf59276b4e7b" id="r_a8ea237caaaff372d967daf59276b4e7b"><td class="memItemLeft" align="right" valign="top"><a id="a8ea237caaaff372d967daf59276b4e7b" name="a8ea237caaaff372d967daf59276b4e7b"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_count</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_count</b> = 0</td></tr>
 <tr class="memdesc:a8ea237caaaff372d967daf59276b4e7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of relocations. Updated by CalculateValues. <br /></td></tr>
 <tr class="separator:a8ea237caaaff372d967daf59276b4e7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7b7d6c40c96e777908b6a0538ab8680d" id="r_a7b7d6c40c96e777908b6a0538ab8680d"><td class="memItemLeft" align="right" valign="top"><a id="a7b7d6c40c96e777908b6a0538ab8680d" name="a7b7d6c40c96e777908b6a0538ab8680d"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>header_size_paras</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>header_size_paras</b> = 0</td></tr>
 <tr class="memdesc:a7b7d6c40c96e777908b6a0538ab8680d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of MZ header. Updated by CalculateValues. <br /></td></tr>
 <tr class="separator:a7b7d6c40c96e777908b6a0538ab8680d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f13f1a439ed235f3cf2b102eaa7b803" id="r_a3f13f1a439ed235f3cf2b102eaa7b803"><td class="memItemLeft" align="right" valign="top"><a id="a3f13f1a439ed235f3cf2b102eaa7b803" name="a3f13f1a439ed235f3cf2b102eaa7b803"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>min_extra_paras</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>min_extra_paras</b> = 0</td></tr>
 <tr class="memdesc:a3f13f1a439ed235f3cf2b102eaa7b803"><td class="mdescLeft">&#160;</td><td class="mdescRight">Minimum required extra memory, in paragraphs. <br /></td></tr>
 <tr class="separator:a3f13f1a439ed235f3cf2b102eaa7b803"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae05b5020c64e5f7879134c60ebd8b6f8" id="r_ae05b5020c64e5f7879134c60ebd8b6f8"><td class="memItemLeft" align="right" valign="top"><a id="ae05b5020c64e5f7879134c60ebd8b6f8" name="ae05b5020c64e5f7879134c60ebd8b6f8"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>max_extra_paras</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>max_extra_paras</b> = 0</td></tr>
 <tr class="memdesc:ae05b5020c64e5f7879134c60ebd8b6f8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Maximum required extra memory, in paragraphs. Set by CalculateValues using extra_paras. <br /></td></tr>
 <tr class="separator:ae05b5020c64e5f7879134c60ebd8b6f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad27011affe39900d3ab24b75c2c06d86" id="r_ad27011affe39900d3ab24b75c2c06d86"><td class="memItemLeft" align="right" valign="top"><a id="ad27011affe39900d3ab24b75c2c06d86" name="ad27011affe39900d3ab24b75c2c06d86"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ss</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ss</b> = 0</td></tr>
 <tr class="memdesc:ad27011affe39900d3ab24b75c2c06d86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initial value for the stack segment (SS) <br /></td></tr>
 <tr class="separator:ad27011affe39900d3ab24b75c2c06d86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab99dba919f32a4a7de126e64a613de68" id="r_ab99dba919f32a4a7de126e64a613de68"><td class="memItemLeft" align="right" valign="top"><a id="ab99dba919f32a4a7de126e64a613de68" name="ab99dba919f32a4a7de126e64a613de68"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sp</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sp</b> = 0</td></tr>
 <tr class="memdesc:ab99dba919f32a4a7de126e64a613de68"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initial value for the stack (SP) <br /></td></tr>
 <tr class="separator:ab99dba919f32a4a7de126e64a613de68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a519a2f4849c3a3b0677acfbb1f64722a" id="r_a519a2f4849c3a3b0677acfbb1f64722a"><td class="memItemLeft" align="right" valign="top"><a id="a519a2f4849c3a3b0677acfbb1f64722a" name="a519a2f4849c3a3b0677acfbb1f64722a"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>checksum</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>checksum</b> = 0</td></tr>
 <tr class="memdesc:a519a2f4849c3a3b0677acfbb1f64722a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checksum. <br /></td></tr>
 <tr class="separator:a519a2f4849c3a3b0677acfbb1f64722a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0a4024c4273a2196086ac0ef4ca5022" id="r_ab0a4024c4273a2196086ac0ef4ca5022"><td class="memItemLeft" align="right" valign="top"><a id="ab0a4024c4273a2196086ac0ef4ca5022" name="ab0a4024c4273a2196086ac0ef4ca5022"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ip</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ip</b> = 0</td></tr>
 <tr class="memdesc:ab0a4024c4273a2196086ac0ef4ca5022"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entry point initial value for IP. <br /></td></tr>
 <tr class="separator:ab0a4024c4273a2196086ac0ef4ca5022"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a359c0b5f81f3023e47d472cfce88ae26" id="r_a359c0b5f81f3023e47d472cfce88ae26"><td class="memItemLeft" align="right" valign="top"><a id="a359c0b5f81f3023e47d472cfce88ae26" name="a359c0b5f81f3023e47d472cfce88ae26"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>cs</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>cs</b> = 0</td></tr>
 <tr class="memdesc:a359c0b5f81f3023e47d472cfce88ae26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initial value for the code segment (CS) <br /></td></tr>
 <tr class="separator:a359c0b5f81f3023e47d472cfce88ae26"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2d98f4cfab16fe969a1b34db8daa2100" id="r_a2d98f4cfab16fe969a1b34db8daa2100"><td class="memItemLeft" align="right" valign="top"><a id="a2d98f4cfab16fe969a1b34db8daa2100" name="a2d98f4cfab16fe969a1b34db8daa2100"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_offset</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_offset</b> = 0</td></tr>
 <tr class="memdesc:a2d98f4cfab16fe969a1b34db8daa2100"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset to first relocation. Updated by CalculateValues. <br /></td></tr>
 <tr class="separator:a2d98f4cfab16fe969a1b34db8daa2100"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ade87671fa31e8389cd28b8a8eddd59d3" id="r_ade87671fa31e8389cd28b8a8eddd59d3"><td class="memItemLeft" align="right" valign="top"><a id="ade87671fa31e8389cd28b8a8eddd59d3" name="ade87671fa31e8389cd28b8a8eddd59d3"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>overlay_number</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>overlay_number</b> = 0</td></tr>
 <tr class="memdesc:ade87671fa31e8389cd28b8a8eddd59d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overlay number, should be 0 for main programs, not used for .exm files. <br /></td></tr>
 <tr class="separator:ade87671fa31e8389cd28b8a8eddd59d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa592548162eb44eb47e93b40e62086e2" id="r_aa592548162eb44eb47e93b40e62086e2"><td class="memItemLeft" align="right" valign="top"><a id="aa592548162eb44eb47e93b40e62086e2" name="aa592548162eb44eb47e93b40e62086e2"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_segment</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_segment</b> = 0</td></tr>
 <tr class="memdesc:aa592548162eb44eb47e93b40e62086e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Starting paragraph of program data, only required for .exm files. <br /></td></tr>
 <tr class="separator:aa592548162eb44eb47e93b40e62086e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abd7a44c50ce7db6c6354d6cade418d9a" id="r_abd7a44c50ce7db6c6354d6cade418d9a"><td class="memItemLeft" align="right" valign="top"><a id="abd7a44c50ce7db6c6354d6cade418d9a" name="abd7a44c50ce7db6c6354d6cade418d9a"></a>
@@ -385,31 +382,31 @@ std::vector&lt; <a class="el" href="structMicrosoft_1_1MZFormat_1_1Relocation.ht
 <tr class="memdesc:abd7a44c50ce7db6c6354d6cade418d9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address relocation offsets to paragraph fixups. <br /></td></tr>
 <tr class="separator:abd7a44c50ce7db6c6354d6cade418d9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5c2674eb50c57057fef4510896b885f0" id="r_a5c2674eb50c57057fef4510896b885f0"><td class="memItemLeft" align="right" valign="top"><a id="a5c2674eb50c57057fef4510896b885f0" name="a5c2674eb50c57057fef4510896b885f0"></a>
-<a class="el" href="structMicrosoft_1_1MZFormat_1_1PIF.html">PIF</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>pif</b></td></tr>
+<a class="el" href="structMicrosoft_1_1MZFormat_1_1PIF.html">PIF</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>pif</b> = nullptr</td></tr>
 <tr class="memdesc:a5c2674eb50c57057fef4510896b885f0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent DOS program information entry, allocated only if present. <br /></td></tr>
 <tr class="separator:a5c2674eb50c57057fef4510896b885f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9d9d7a667fcddd2c54486c4affb8f7b9" id="r_a9d9d7a667fcddd2c54486c4affb8f7b9"><td class="memItemLeft" align="right" valign="top"><a id="a9d9d7a667fcddd2c54486c4affb8f7b9" name="a9d9d7a667fcddd2c54486c4affb8f7b9"></a>
-<a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>image</b> = nullptr</td></tr>
 <tr class="memdesc:a9d9d7a667fcddd2c54486c4affb8f7b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The program image, placed after the MZ header. <br /></td></tr>
 <tr class="separator:a9d9d7a667fcddd2c54486c4affb8f7b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab7b557d31473793e414f69f2f6fd8ef5" id="r_ab7b557d31473793e414f69f2f6fd8ef5"><td class="memItemLeft" align="right" valign="top"><a id="ab7b557d31473793e414f69f2f6fd8ef5" name="ab7b557d31473793e414f69f2f6fd8ef5"></a>
-<a class="el" href="#aacb034ec17033245a85deb560444ca7f">memory_model_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>memory_model</b></td></tr>
+<a class="el" href="#aacb034ec17033245a85deb560444ca7f">memory_model_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>memory_model</b> = <a class="el" href="#aacb034ec17033245a85deb560444ca7fa8c6eb30b9cb05c421cb0bf368e5e4b83">MODEL_DEFAULT</a></td></tr>
 <tr class="memdesc:ab7b557d31473793e414f69f2f6fd8ef5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memory model of generated executable. <br /></td></tr>
 <tr class="separator:ab7b557d31473793e414f69f2f6fd8ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a701a408bbf3d6e030eb1c03d11465a3b" id="r_a701a408bbf3d6e030eb1c03d11465a3b"><td class="memItemLeft" align="right" valign="top"><a id="a701a408bbf3d6e030eb1c03d11465a3b" name="a701a408bbf3d6e030eb1c03d11465a3b"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>extra_paras</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>extra_paras</b> = 0</td></tr>
 <tr class="memdesc:a701a408bbf3d6e030eb1c03d11465a3b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Required maximum extra paragraphs after bss. <br /></td></tr>
 <tr class="separator:a701a408bbf3d6e030eb1c03d11465a3b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b9d11b8bf23f3802a36f19cde01c0d7" id="r_a8b9d11b8bf23f3802a36f19cde01c0d7"><td class="memItemLeft" align="right" valign="top"><a id="a8b9d11b8bf23f3802a36f19cde01c0d7" name="a8b9d11b8bf23f3802a36f19cde01c0d7"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>zero_fill</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>zero_fill</b> = 0</td></tr>
 <tr class="memdesc:a8b9d11b8bf23f3802a36f19cde01c0d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total size of bss and stack. <br /></td></tr>
 <tr class="separator:a8b9d11b8bf23f3802a36f19cde01c0d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac56229a9b8924e82296f7d8fceb3c97f" id="r_ac56229a9b8924e82296f7d8fceb3c97f"><td class="memItemLeft" align="right" valign="top"><a id="ac56229a9b8924e82296f7d8fceb3c97f" name="ac56229a9b8924e82296f7d8fceb3c97f"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>option_header_align</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>option_header_align</b> = 0x10</td></tr>
 <tr class="memdesc:ac56229a9b8924e82296f7d8fceb3c97f"><td class="mdescLeft">&#160;</td><td class="mdescRight">User provided alignment value for header size. <br /></td></tr>
 <tr class="separator:ac56229a9b8924e82296f7d8fceb3c97f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a78a0b07fae7be7e2c36520f8b75f21d7" id="r_a78a0b07fae7be7e2c36520f8b75f21d7"><td class="memItemLeft" align="right" valign="top"><a id="a78a0b07fae7be7e2c36520f8b75f21d7" name="a78a0b07fae7be7e2c36520f8b75f21d7"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>option_file_align</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>option_file_align</b> = 1</td></tr>
 <tr class="memdesc:a78a0b07fae7be7e2c36520f8b75f21d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">User provided alignment value for file align. <br /></td></tr>
 <tr class="separator:a78a0b07fae7be7e2c36520f8b75f21d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
@@ -764,35 +761,6 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
-
-</div>
-</div>
-<a id="a0df0e6c07173252c18a019f37ae1a38d" name="a0df0e6c07173252c18a019f37ae1a38d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0df0e6c07173252c18a019f37ae1a38d">&#9670;&#160;</a></span>Initialize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void MZFormat::Initialize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Sets all fields to their default values. </p>
-
-<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a6c58e46519edff50e69764eed29f644d">Linker::Format</a>.</p>
 
 </div>
 </div>

@@ -136,15 +136,12 @@ magic_type&#160;</td><td class="memItemRight" valign="bottom"><b>GetSignature</b
 <tr class="memitem:a808fbb2746405894a470e1be4fab3534" id="r_a808fbb2746405894a470e1be4fab3534"><td class="memItemLeft" align="right" valign="top"><a id="a808fbb2746405894a470e1be4fab3534" name="a808fbb2746405894a470e1be4fab3534"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetSignature</b> (magic_type magic)</td></tr>
 <tr class="separator:a808fbb2746405894a470e1be4fab3534"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a211a162c9c14a034c3315f8d51fc6d75" id="r_a211a162c9c14a034c3315f8d51fc6d75"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a211a162c9c14a034c3315f8d51fc6d75">Initialize</a> () override</td></tr>
-<tr class="memdesc:a211a162c9c14a034c3315f8d51fc6d75"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets all fields to their default values.  <br /></td></tr>
-<tr class="separator:a211a162c9c14a034c3315f8d51fc6d75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82b5d9e40365938302fe561fff5a8163" id="r_a82b5d9e40365938302fe561fff5a8163"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a82b5d9e40365938302fe561fff5a8163">Clear</a> () override</td></tr>
 <tr class="memdesc:a82b5d9e40365938302fe561fff5a8163"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:a82b5d9e40365938302fe561fff5a8163"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d8b3461b7c32f1b32dd789b805c64b6" id="r_a4d8b3461b7c32f1b32dd789b805c64b6"><td class="memItemLeft" align="right" valign="top"><a id="a4d8b3461b7c32f1b32dd789b805c64b6" name="a4d8b3461b7c32f1b32dd789b805c64b6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CPM8KFormat</b> (magic_type magic)</td></tr>
-<tr class="separator:a4d8b3461b7c32f1b32dd789b805c64b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28cc0d6beeb4e719c2f19bdb8c8d2d12" id="r_a28cc0d6beeb4e719c2f19bdb8c8d2d12"><td class="memItemLeft" align="right" valign="top"><a id="a28cc0d6beeb4e719c2f19bdb8c8d2d12" name="a28cc0d6beeb4e719c2f19bdb8c8d2d12"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CPM8KFormat</b> (magic_type magic=MAGIC_NONSHARED)</td></tr>
+<tr class="separator:a28cc0d6beeb4e719c2f19bdb8c8d2d12"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73dc21b4399d041f4588ad360b9f0627" id="r_a73dc21b4399d041f4588ad360b9f0627"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a73dc21b4399d041f4588ad360b9f0627">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a73dc21b4399d041f4588ad360b9f0627"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a73dc21b4399d041f4588ad360b9f0627"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -315,19 +312,19 @@ char&#160;</td><td class="memItemRight" valign="bottom"><b>signature</b> [2]</td
 <tr class="memdesc:a00a4a184f9754d7819b63e7bcd0c8d8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The magic number at the beginning of the executable file. <br /></td></tr>
 <tr class="separator:a00a4a184f9754d7819b63e7bcd0c8d8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a51e4b12ca41e71778884e68855502106" id="r_a51e4b12ca41e71778884e68855502106"><td class="memItemLeft" align="right" valign="top"><a id="a51e4b12ca41e71778884e68855502106" name="a51e4b12ca41e71778884e68855502106"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>segment_count</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>segment_count</b> = 0</td></tr>
 <tr class="memdesc:a51e4b12ca41e71778884e68855502106"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of segments in the segment_array. <br /></td></tr>
 <tr class="separator:a51e4b12ca41e71778884e68855502106"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a15a827e7604b4800b47a311bbc9f736c" id="r_a15a827e7604b4800b47a311bbc9f736c"><td class="memItemLeft" align="right" valign="top"><a id="a15a827e7604b4800b47a311bbc9f736c" name="a15a827e7604b4800b47a311bbc9f736c"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_size</b> = 0</td></tr>
 <tr class="memdesc:a15a827e7604b4800b47a311bbc9f736c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total number of bytes in all the segments combined. <br /></td></tr>
 <tr class="separator:a15a827e7604b4800b47a311bbc9f736c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a61360983c41f1d17f20e70f0fc3e6b33" id="r_a61360983c41f1d17f20e70f0fc3e6b33"><td class="memItemLeft" align="right" valign="top"><a id="a61360983c41f1d17f20e70f0fc3e6b33" name="a61360983c41f1d17f20e70f0fc3e6b33"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_size</b> = 0</td></tr>
 <tr class="memdesc:a61360983c41f1d17f20e70f0fc3e6b33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total size of relocations. <br /></td></tr>
 <tr class="separator:a61360983c41f1d17f20e70f0fc3e6b33"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7066939e38e13b37e6766311b797fd2e" id="r_a7066939e38e13b37e6766311b797fd2e"><td class="memItemLeft" align="right" valign="top"><a id="a7066939e38e13b37e6766311b797fd2e" name="a7066939e38e13b37e6766311b797fd2e"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_table_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_table_size</b> = 0</td></tr>
 <tr class="memdesc:a7066939e38e13b37e6766311b797fd2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Total size of symbols. <br /></td></tr>
 <tr class="separator:a7066939e38e13b37e6766311b797fd2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a444e9acc43da9b17eb374f2d8f881a34" id="r_a444e9acc43da9b17eb374f2d8f881a34"><td class="memItemLeft" align="right" valign="top"><a id="a444e9acc43da9b17eb374f2d8f881a34" name="a444e9acc43da9b17eb374f2d8f881a34"></a>
@@ -340,7 +337,7 @@ std::vector&lt; <a class="el" href="structDigitalResearch_1_1CPM8KFormat_1_1Relo
 std::vector&lt; <a class="el" href="structDigitalResearch_1_1CPM8KFormat_1_1Symbol.html">Symbol</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>symbols</b></td></tr>
 <tr class="separator:ac9e4da78f4308a1361980db19542a110"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a964e0a017b8ddf8ef26ed62a01a4fb7b" id="r_a964e0a017b8ddf8ef26ed62a01a4fb7b"><td class="memItemLeft" align="right" valign="top"><a id="a964e0a017b8ddf8ef26ed62a01a4fb7b" name="a964e0a017b8ddf8ef26ed62a01a4fb7b"></a>
-<a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>bss_segment</b></td></tr>
+<a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>bss_segment</b> = nullptr</td></tr>
 <tr class="memdesc:a964e0a017b8ddf8ef26ed62a01a4fb7b"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classDigitalResearch_1_1CPM8KFormat_1_1Segment.html" title="Represents a segment within the module.">Segment</a> to collect bss. <br /></td></tr>
 <tr class="separator:a964e0a017b8ddf8ef26ed62a01a4fb7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
@@ -582,35 +579,6 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
-
-</div>
-</div>
-<a id="a211a162c9c14a034c3315f8d51fc6d75" name="a211a162c9c14a034c3315f8d51fc6d75"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a211a162c9c14a034c3315f8d51fc6d75">&#9670;&#160;</a></span>Initialize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void CPM8KFormat::Initialize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Sets all fields to their default values. </p>
-
-<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a6c58e46519edff50e69764eed29f644d">Linker::Format</a>.</p>
 
 </div>
 </div>

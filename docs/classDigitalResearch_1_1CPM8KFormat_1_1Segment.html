@@ -108,9 +108,6 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:abf1c9ebc3583343b76e8ac82cb355921" id="r_abf1c9ebc3583343b76e8ac82cb355921"><td class="memItemLeft" align="right" valign="top"><a id="abf1c9ebc3583343b76e8ac82cb355921" name="abf1c9ebc3583343b76e8ac82cb355921"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Initialize</b> ()</td></tr>
-<tr class="separator:abf1c9ebc3583343b76e8ac82cb355921"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8922f2f5c6eaa30eb936a3e1d096c537" id="r_a8922f2f5c6eaa30eb936a3e1d096c537"><td class="memItemLeft" align="right" valign="top"><a id="a8922f2f5c6eaa30eb936a3e1d096c537" name="a8922f2f5c6eaa30eb936a3e1d096c537"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
 <tr class="separator:a8922f2f5c6eaa30eb936a3e1d096c537"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,18 +118,19 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsPresent</b> () cons
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:aeea5863618ce8e18802109325a68a7c5" id="r_aeea5863618ce8e18802109325a68a7c5"><td class="memItemLeft" align="right" valign="top"><a id="aeea5863618ce8e18802109325a68a7c5" name="aeea5863618ce8e18802109325a68a7c5"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>number</b></td></tr>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>number</b> = 0xFF</td></tr>
 <tr class="memdesc:aeea5863618ce8e18802109325a68a7c5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Each segment has an associated number. For 0xFF, the linker can assign a value. For segmented executables, this is the segment number that will be used. <br /></td></tr>
 <tr class="separator:aeea5863618ce8e18802109325a68a7c5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a132233a20d6af4f978a125577d3e7acc" id="r_a132233a20d6af4f978a125577d3e7acc"><td class="memItemLeft" align="right" valign="top"><a id="a132233a20d6af4f978a125577d3e7acc" name="a132233a20d6af4f978a125577d3e7acc"></a>
-enum <a class="el" href="#a0818774db1a08ab47fd52e4069bf6640">DigitalResearch::CPM8KFormat::Segment::segment_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
-<tr class="separator:a132233a20d6af4f978a125577d3e7acc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a84caef8786158d092963fd57833b4c" id="r_a8a84caef8786158d092963fd57833b4c"><td class="memItemLeft" align="right" valign="top"><a id="a8a84caef8786158d092963fd57833b4c" name="a8a84caef8786158d092963fd57833b4c"></a>
+<a class="el" href="#a0818774db1a08ab47fd52e4069bf6640">segment_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = <a class="el" href="#a0818774db1a08ab47fd52e4069bf6640">segment_type</a>(0)</td></tr>
+<tr class="memdesc:a8a84caef8786158d092963fd57833b4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the segment. <br /></td></tr>
+<tr class="separator:a8a84caef8786158d092963fd57833b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afdcc145959d36ab0c7b770e741ab446b" id="r_afdcc145959d36ab0c7b770e741ab446b"><td class="memItemLeft" align="right" valign="top"><a id="afdcc145959d36ab0c7b770e741ab446b" name="afdcc145959d36ab0c7b770e741ab446b"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b> = 0</td></tr>
 <tr class="memdesc:afdcc145959d36ab0c7b770e741ab446b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of segment in bytes. <br /></td></tr>
 <tr class="separator:afdcc145959d36ab0c7b770e741ab446b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa88c704076bc372882968b46530b8177" id="r_aa88c704076bc372882968b46530b8177"><td class="memItemLeft" align="right" valign="top"><a id="aa88c704076bc372882968b46530b8177" name="aa88c704076bc372882968b46530b8177"></a>
-<a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>image</b> = nullptr</td></tr>
 <tr class="memdesc:aa88c704076bc372882968b46530b8177"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage for segment. <br /></td></tr>
 <tr class="separator:aa88c704076bc372882968b46530b8177"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>

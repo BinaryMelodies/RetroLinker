@@ -103,8 +103,6 @@ Inheritance diagram for COFF::COFFFormat::AOutHeader:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a59d17af31b6363f8e5ad3c238f82a644" id="r_a59d17af31b6363f8e5ad3c238f82a644"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a59d17af31b6363f8e5ad3c238f82a644">Initialize</a> () override</td></tr>
-<tr class="separator:a59d17af31b6363f8e5ad3c238f82a644"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aacc826fcbc7df37e7553cd1850eadae1" id="r_aacc826fcbc7df37e7553cd1850eadae1"><td class="memItemLeft" align="right" valign="top"><a id="aacc826fcbc7df37e7553cd1850eadae1" name="aacc826fcbc7df37e7553cd1850eadae1"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>AOutHeader</b> (uint16_t <a class="el" href="#a7b98197c30ecc0e3b76bc9df353e9c2d">magic</a>=0)</td></tr>
 <tr class="separator:aacc826fcbc7df37e7553cd1850eadae1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -128,35 +126,35 @@ Public Member Functions</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a7b98197c30ecc0e3b76bc9df353e9c2d" id="r_a7b98197c30ecc0e3b76bc9df353e9c2d"><td class="memItemLeft" align="right" valign="top"><a id="a7b98197c30ecc0e3b76bc9df353e9c2d" name="a7b98197c30ecc0e3b76bc9df353e9c2d"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>magic</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>magic</b> = 0</td></tr>
 <tr class="memdesc:a7b98197c30ecc0e3b76bc9df353e9c2d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of executable, most typically ZMAGIC (COFF name: magic) <br /></td></tr>
 <tr class="separator:a7b98197c30ecc0e3b76bc9df353e9c2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a075a07387315972bdf923e0d1ab32bad" id="r_a075a07387315972bdf923e0d1ab32bad"><td class="memItemLeft" align="right" valign="top"><a id="a075a07387315972bdf923e0d1ab32bad" name="a075a07387315972bdf923e0d1ab32bad"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>version_stamp</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>version_stamp</b> = 0</td></tr>
 <tr class="memdesc:a075a07387315972bdf923e0d1ab32bad"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: vstamp) <br /></td></tr>
 <tr class="separator:a075a07387315972bdf923e0d1ab32bad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb82b3fb406747ab82a98f64658e3353" id="r_abb82b3fb406747ab82a98f64658e3353"><td class="memItemLeft" align="right" valign="top"><a id="abb82b3fb406747ab82a98f64658e3353" name="abb82b3fb406747ab82a98f64658e3353"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_size</b> = 0</td></tr>
 <tr class="memdesc:abb82b3fb406747ab82a98f64658e3353"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: tsize) <br /></td></tr>
 <tr class="separator:abb82b3fb406747ab82a98f64658e3353"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae5f5827f880d97d3280440cc009082a3" id="r_ae5f5827f880d97d3280440cc009082a3"><td class="memItemLeft" align="right" valign="top"><a id="ae5f5827f880d97d3280440cc009082a3" name="ae5f5827f880d97d3280440cc009082a3"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_size</b> = 0</td></tr>
 <tr class="memdesc:ae5f5827f880d97d3280440cc009082a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: dsize) <br /></td></tr>
 <tr class="separator:ae5f5827f880d97d3280440cc009082a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae663abb1ff4c08cf1be465b456cab50f" id="r_ae663abb1ff4c08cf1be465b456cab50f"><td class="memItemLeft" align="right" valign="top"><a id="ae663abb1ff4c08cf1be465b456cab50f" name="ae663abb1ff4c08cf1be465b456cab50f"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>bss_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>bss_size</b> = 0</td></tr>
 <tr class="memdesc:ae663abb1ff4c08cf1be465b456cab50f"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: bsize) <br /></td></tr>
 <tr class="separator:ae663abb1ff4c08cf1be465b456cab50f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a591ee21664125f34aab797509a8a21ec" id="r_a591ee21664125f34aab797509a8a21ec"><td class="memItemLeft" align="right" valign="top"><a id="a591ee21664125f34aab797509a8a21ec" name="a591ee21664125f34aab797509a8a21ec"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_address</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_address</b> = 0</td></tr>
 <tr class="memdesc:a591ee21664125f34aab797509a8a21ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initial value of eip (COFF name: entry) <br /></td></tr>
 <tr class="separator:a591ee21664125f34aab797509a8a21ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0178cb0da1c95a94f4435d3fe23b683e" id="r_a0178cb0da1c95a94f4435d3fe23b683e"><td class="memItemLeft" align="right" valign="top"><a id="a0178cb0da1c95a94f4435d3fe23b683e" name="a0178cb0da1c95a94f4435d3fe23b683e"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_address</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_address</b> = 0</td></tr>
 <tr class="memdesc:a0178cb0da1c95a94f4435d3fe23b683e"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: text_start) <br /></td></tr>
 <tr class="separator:a0178cb0da1c95a94f4435d3fe23b683e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aedf6b2f463ba78c13d6914ace91735c9" id="r_aedf6b2f463ba78c13d6914ace91735c9"><td class="memItemLeft" align="right" valign="top"><a id="aedf6b2f463ba78c13d6914ace91735c9" name="aedf6b2f463ba78c13d6914ace91735c9"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_address</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_address</b> = 0</td></tr>
 <tr class="memdesc:aedf6b2f463ba78c13d6914ace91735c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: data_start) <br /></td></tr>
 <tr class="separator:aedf6b2f463ba78c13d6914ace91735c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -228,33 +226,6 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpFields</b
 <p>Implements <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#a6c982db9de1f52cc87c2b0a1f51dc894">COFF::COFFFormat::OptionalHeader</a>.</p>
 
 <p>Reimplemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a4cd88c18fa8c0d2c82a7e8012888cb8c">COFF::COFFFormat::FlexOSAOutHeader</a>.</p>
-
-</div>
-</div>
-<a id="a59d17af31b6363f8e5ad3c238f82a644" name="a59d17af31b6363f8e5ad3c238f82a644"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a59d17af31b6363f8e5ad3c238f82a644">&#9670;&#160;</a></span>Initialize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void COFFFormat::AOutHeader::Initialize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html">COFF::COFFFormat::OptionalHeader</a>.</p>
 
 </div>
 </div>

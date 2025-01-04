@@ -162,14 +162,11 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a295f84f398b6d8bd0fa18a7b5a90e44e" id="r_a295f84f398b6d8bd0fa18a7b5a90e44e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a295f84f398b6d8bd0fa18a7b5a90e44e">Initialize</a> () override</td></tr>
-<tr class="memdesc:a295f84f398b6d8bd0fa18a7b5a90e44e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets all fields to their default values.  <br /></td></tr>
-<tr class="separator:a295f84f398b6d8bd0fa18a7b5a90e44e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9afc148e9cd3946c6a3902adaf7510ad" id="r_a9afc148e9cd3946c6a3902adaf7510ad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9afc148e9cd3946c6a3902adaf7510ad">Clear</a> () override</td></tr>
 <tr class="memdesc:a9afc148e9cd3946c6a3902adaf7510ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:a9afc148e9cd3946c6a3902adaf7510ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a14ba2530da5a67641441cac2df80a70a" id="r_a14ba2530da5a67641441cac2df80a70a"><td class="memItemLeft" align="right" valign="top"><a id="a14ba2530da5a67641441cac2df80a70a" name="a14ba2530da5a67641441cac2df80a70a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CPM86Format</b> (<a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a> <a class="el" href="#a1383c61e71ff62ae7fadcad2de1ae379">format</a>=<a class="el" href="#a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e">FORMAT_UNKNOWN</a>)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CPM86Format</b> (<a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a> <a class="el" href="#ad56598e239747fb712d353065a281145">format</a>=<a class="el" href="#a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e">FORMAT_UNKNOWN</a>)</td></tr>
 <tr class="separator:a14ba2530da5a67641441cac2df80a70a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70a7d6dba52fc6fb8614b36d4ada0bb7" id="r_a70a7d6dba52fc6fb8614b36d4ada0bb7"><td class="memItemLeft" align="right" valign="top"><a id="a70a7d6dba52fc6fb8614b36d4ada0bb7" name="a70a7d6dba52fc6fb8614b36d4ada0bb7"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetRelocationSizeParas</b> () const</td></tr>
@@ -377,7 +374,7 @@ std::vector&lt; <a class="el" href="structDigitalResearch_1_1CPM86Format_1_1Relo
 <tr class="memdesc:a67402a4508e316ef53d9038b02dec2e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sequence of intramodule relocations. <br /></td></tr>
 <tr class="separator:a67402a4508e316ef53d9038b02dec2e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f0f3eb3ac7722ce384f75a17a82aeaf" id="r_a6f0f3eb3ac7722ce384f75a17a82aeaf"><td class="memItemLeft" align="right" valign="top"><a id="a6f0f3eb3ac7722ce384f75a17a82aeaf" name="a6f0f3eb3ac7722ce384f75a17a82aeaf"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocations_offset</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocations_offset</b> = 0</td></tr>
 <tr class="memdesc:a6f0f3eb3ac7722ce384f75a17a82aeaf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of relocation records, stored in 128 byte units at offset 0x7D. <br /></td></tr>
 <tr class="separator:a6f0f3eb3ac7722ce384f75a17a82aeaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a425c4806ead4bdd648de88c11c220390" id="r_a425c4806ead4bdd648de88c11c220390"><td class="memItemLeft" align="right" valign="top"><a id="a425c4806ead4bdd648de88c11c220390" name="a425c4806ead4bdd648de88c11c220390"></a>
@@ -385,33 +382,33 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocations_offse
 <tr class="memdesc:a425c4806ead4bdd648de88c11c220390"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a list of attached RSX modules. <br /></td></tr>
 <tr class="separator:a425c4806ead4bdd648de88c11c220390"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0c9c811ec1b089312dc7ec8479c1df4f" id="r_a0c9c811ec1b089312dc7ec8479c1df4f"><td class="memItemLeft" align="right" valign="top"><a id="a0c9c811ec1b089312dc7ec8479c1df4f" name="a0c9c811ec1b089312dc7ec8479c1df4f"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>rsx_table_offset</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>rsx_table_offset</b> = 0</td></tr>
 <tr class="memdesc:a0c9c811ec1b089312dc7ec8479c1df4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual RSX table, stored in 128 byte units at offset 0x7B. <br /></td></tr>
 <tr class="separator:a0c9c811ec1b089312dc7ec8479c1df4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d98daa7501c98a678dc3c96c9ef8117" id="r_a7d98daa7501c98a678dc3c96c9ef8117"><td class="memItemLeft" align="right" valign="top"><a id="a7d98daa7501c98a678dc3c96c9ef8117" name="a7d98daa7501c98a678dc3c96c9ef8117"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b></td></tr>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
 <tr class="memdesc:a7d98daa7501c98a678dc3c96c9ef8117"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execution flags, stored at offset 0x7F. <br /></td></tr>
 <tr class="separator:a7d98daa7501c98a678dc3c96c9ef8117"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7ee8da3bfc85a0bbf7410f6e046ffc1" id="r_ae7ee8da3bfc85a0bbf7410f6e046ffc1"><td class="memItemLeft" align="right" valign="top"><a id="ae7ee8da3bfc85a0bbf7410f6e046ffc1" name="ae7ee8da3bfc85a0bbf7410f6e046ffc1"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b> = 0</td></tr>
 <tr class="memdesc:ae7ee8da3bfc85a0bbf7410f6e046ffc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The start of the image within the file, typically 0 except for embedded modules, usually for embedded RSX files. <br /></td></tr>
 <tr class="separator:ae7ee8da3bfc85a0bbf7410f6e046ffc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1383c61e71ff62ae7fadcad2de1ae379" id="r_a1383c61e71ff62ae7fadcad2de1ae379"><td class="memItemLeft" align="right" valign="top"><a id="a1383c61e71ff62ae7fadcad2de1ae379" name="a1383c61e71ff62ae7fadcad2de1ae379"></a>
-enum <a class="el" href="#a62e99897dc1820e925180333ade1a3eb">DigitalResearch::CPM86Format::format_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>format</b></td></tr>
-<tr class="memdesc:a1383c61e71ff62ae7fadcad2de1ae379"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format of file to generate. <br /></td></tr>
-<tr class="separator:a1383c61e71ff62ae7fadcad2de1ae379"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad56598e239747fb712d353065a281145" id="r_ad56598e239747fb712d353065a281145"><td class="memItemLeft" align="right" valign="top"><a id="ad56598e239747fb712d353065a281145" name="ad56598e239747fb712d353065a281145"></a>
+<a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>format</b> = <a class="el" href="#a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8">FORMAT_SMALL</a></td></tr>
+<tr class="memdesc:ad56598e239747fb712d353065a281145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format of file to generate. <br /></td></tr>
+<tr class="separator:ad56598e239747fb712d353065a281145"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59517f61eb2d955b0ae5930741d06346" id="r_a59517f61eb2d955b0ae5930741d06346"><td class="memItemLeft" align="right" valign="top"><a id="a59517f61eb2d955b0ae5930741d06346" name="a59517f61eb2d955b0ae5930741d06346"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>shared_code</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>shared_code</b> = false</td></tr>
 <tr class="memdesc:a59517f61eb2d955b0ae5930741d06346"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating that the code group is shared, not possible in 8080 format. <br /></td></tr>
 <tr class="separator:a59517f61eb2d955b0ae5930741d06346"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f18716204de64f834a4c3a600f01015" id="r_a3f18716204de64f834a4c3a600f01015"><td class="memItemLeft" align="right" valign="top"><a id="a3f18716204de64f834a4c3a600f01015" name="a3f18716204de64f834a4c3a600f01015"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_no_relocation</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_no_relocation</b> = false</td></tr>
 <tr class="memdesc:a3f18716204de64f834a4c3a600f01015"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag to indicate that relocations must be suppressed. <br /></td></tr>
 <tr class="separator:a3f18716204de64f834a4c3a600f01015"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94ceae9e189f034214136f81378f28d4" id="r_a94ceae9e189f034214136f81378f28d4"><td class="memItemLeft" align="right" valign="top"><a id="a94ceae9e189f034214136f81378f28d4" name="a94ceae9e189f034214136f81378f28d4"></a>
-enum <a class="el" href="#a6503f9e1d16bfba45df9a4acb402d05f">DigitalResearch::CPM86Format::memory_model_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>memory_model</b></td></tr>
-<tr class="memdesc:a94ceae9e189f034214136f81378f28d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memory model of generated code, determines how the offsets are calculated within a segment group. <br /></td></tr>
-<tr class="separator:a94ceae9e189f034214136f81378f28d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a63d5401c8bc020f50d3affb431aed1fd" id="r_a63d5401c8bc020f50d3affb431aed1fd"><td class="memItemLeft" align="right" valign="top"><a id="a63d5401c8bc020f50d3affb431aed1fd" name="a63d5401c8bc020f50d3affb431aed1fd"></a>
+<a class="el" href="#a6503f9e1d16bfba45df9a4acb402d05f">memory_model_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>memory_model</b> = <a class="el" href="#a6503f9e1d16bfba45df9a4acb402d05fa6b5aba4c3ceb556d8b9b0775cc81a45a">MODEL_SMALL</a></td></tr>
+<tr class="memdesc:a63d5401c8bc020f50d3affb431aed1fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memory model of generated code, determines how the offsets are calculated within a segment group. <br /></td></tr>
+<tr class="separator:a63d5401c8bc020f50d3affb431aed1fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
@@ -794,35 +791,6 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
-
-</div>
-</div>
-<a id="a295f84f398b6d8bd0fa18a7b5a90e44e" name="a295f84f398b6d8bd0fa18a7b5a90e44e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a295f84f398b6d8bd0fa18a7b5a90e44e">&#9670;&#160;</a></span>Initialize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void CPM86Format::Initialize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Sets all fields to their default values. </p>
-
-<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a6c58e46519edff50e69764eed29f644d">Linker::Format</a>.</p>
 
 </div>
 </div>
