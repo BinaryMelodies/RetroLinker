@@ -32,7 +32,6 @@ offset_t AtariFormat::Segment::GetSize() const
 	return image->ActualDataSize();
 }
 
-/** @brief An entry point is present if the memory address at EntryAddress has been filled by a segment */
 bool AtariFormat::HasEntryPoint() const
 {
 	for(auto segment : segments)
@@ -43,7 +42,6 @@ bool AtariFormat::HasEntryPoint() const
 	return false;
 }
 
-/** @brief Attaches a new segment that contains the entry point */
 void AtariFormat::AddEntryPoint(uint16_t entry)
 {
 	Segment * entry_segment = new Segment();
@@ -103,7 +101,7 @@ void AtariFormat::OnNewSegment(Linker::Segment * segment)
 
 void AtariFormat::ProcessModule(Linker::Module& module)
 {
-	BinaryFormat::ProcessModule(module);
+	GenericBinaryFormat::ProcessModule(module);
 	Linker::Location entry;
 	if(module.FindGlobalSymbol(".entry", entry))
 	{
@@ -176,7 +174,7 @@ void CommodoreFormat::SetupDefaultLoader()
 
 void CommodoreFormat::ProcessModule(Linker::Module& module)
 {
-	BinaryFormat::ProcessModule(module);
+	GenericBinaryFormat::ProcessModule(module);
 	SetupDefaultLoader(); /* TODO: if a separate loader is ready, use that instead */
 }
 
@@ -310,7 +308,7 @@ std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string 
 void PRLFormat::OnNewSegment(Linker::Segment * segment)
 {
 	bool is_first_segment = image == nullptr;
-	BinaryFormat::OnNewSegment(segment);
+	GenericBinaryFormat::OnNewSegment(segment);
 	if(is_first_segment)
 	{
 		zero_fill = segment->zero_fill;
@@ -366,7 +364,7 @@ void PRLFormat::WriteFile(Linker::Writer& wr)
 /* TODO: base address should be 0x0103 */
 void UZIFormat::ProcessModule(Linker::Module& module)
 {
-	BinaryFormat::ProcessModule(module);
+	GenericBinaryFormat::ProcessModule(module);
 	entry = 0x0103; /* TODO: enable entry point */
 }
 

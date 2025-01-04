@@ -17,7 +17,7 @@ namespace Binary
 	/**
 	 * @brief BIN file for Apple ][
 	 */
-	class AppleFormat : public Binary::BinaryFormat
+	class AppleFormat : public Binary::GenericBinaryFormat
 	{
 	public:
 		/* TODO: untested */
@@ -26,7 +26,7 @@ namespace Binary
 		/* TODO: SYS files are pure binary loaded at 0x2000 */
 
 		AppleFormat(uint64_t default_base_address = 0x0803, std::string default_extension = ".bin")
-			: BinaryFormat(default_base_address, default_extension)
+			: GenericBinaryFormat(default_base_address, default_extension)
 		{
 		}
 
@@ -38,7 +38,7 @@ namespace Binary
 	/**
 	 * @brief EXE file for Atari 400/800
 	 */
-	class AtariFormat : public BinaryFormat
+	class AtariFormat : public GenericBinaryFormat
 	{
 	public:
 		/* TODO: untested */
@@ -47,7 +47,7 @@ namespace Binary
 
 		/* exe, obj, com are also used */
 		AtariFormat(uint64_t default_base_address = 0, std::string default_extension = ".xex")
-			: BinaryFormat(default_base_address, default_extension)
+			: GenericBinaryFormat(default_base_address, default_extension)
 		{
 		}
 
@@ -110,7 +110,7 @@ namespace Binary
 	/**
 	 * @brief PRG file for Commodore PET/VIC-20/64
 	 */
-	class CommodoreFormat : public BinaryFormat
+	class CommodoreFormat : public GenericBinaryFormat
 	{
 	public:
 		/* TODO */
@@ -144,7 +144,7 @@ namespace Binary
 	/**
 	 * @brief CP/M Plus .com file format
 	 */
-	class CPM3Format : public BinaryFormat
+	class CPM3Format : public GenericBinaryFormat
 	{
 	public:
 		/* TODO: untested */
@@ -158,7 +158,7 @@ namespace Binary
 			uint16_t offset;
 			uint16_t length; /* only used for reading */
 			bool nonbanked_only;
-			BinaryFormat * module;
+			GenericBinaryFormat * module;
 		};
 		std::vector<rsx_record> rsx_table;
 
@@ -177,7 +177,7 @@ namespace Binary
 	/**
 	 * @brief FLEX .cmd file format
 	 */
-	class FLEXFormat : public BinaryFormat
+	class FLEXFormat : public GenericBinaryFormat
 	{
 	public:
 		/* TODO: enable setting the base address, default should be ??? */
@@ -204,7 +204,7 @@ namespace Binary
 	/**
 	 * @brief MP/M .prl file format
 	 */
-	class PRLFormat : public BinaryFormat
+	class PRLFormat : public GenericBinaryFormat
 	{
 	public:
 		/* TODO: untested */
@@ -216,7 +216,7 @@ namespace Binary
 		std::set<uint16_t> relocations;
 
 		PRLFormat(uint64_t default_base_address = 0, std::string default_extension = ".prl")
-			: BinaryFormat(default_base_address, default_extension)
+			: GenericBinaryFormat(default_base_address, default_extension)
 		{
 		}
 
@@ -230,7 +230,7 @@ namespace Binary
 	/**
 	 * @brief UZI/UZI280 file formats
 	 */
-	class UZIFormat : public BinaryFormat
+	class UZIFormat : public GenericBinaryFormat
 	{
 	public:
 		/* TODO */
@@ -241,14 +241,14 @@ namespace Binary
 
 		void WriteFile(Linker::Writer& wr) override;
 
-		using BinaryFormat::GetDefaultExtension;
+		using GenericBinaryFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;
 	};
 
 	/**
 	 * @brief UZI280 file format
 	 */
-	class UZI280Format : public BinaryFormat
+	class UZI280Format : public GenericBinaryFormat
 	{
 	public:
 		Linker::Writable * code, * data;
@@ -259,7 +259,7 @@ namespace Binary
 
 		void WriteFile(Linker::Writer& wr) override;
 
-		using BinaryFormat::GetDefaultExtension;
+		using GenericBinaryFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;
 	};
 }

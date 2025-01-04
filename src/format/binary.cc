@@ -3,14 +3,203 @@
 
 using namespace Binary;
 
+// GenericBinaryFormat
+
 /* * * General members * * */
 
-void BinaryFormat::Clear()
+void GenericBinaryFormat::Clear()
 {
 	/* format fields */
 	if(image)
 		delete image;
 	image = nullptr;
+}
+
+void GenericBinaryFormat::ReadFile(Linker::Reader& rd)
+{
+	Clear();
+
+	rd.endiantype = (::EndianType)0; /* does not matter */
+
+	Linker::Buffer * buffer = new Linker::Buffer;
+	buffer->ReadFile(rd);
+	image = buffer;
+}
+
+void GenericBinaryFormat::WriteFile(Linker::Writer& wr)
+{
+	wr.endiantype = (::EndianType)0; /* does not matter */
+	image->WriteFile(wr);
+}
+
+void GenericBinaryFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("Binary format");
+
+	Dumper::Block image_block("Image", file_offset, image, 0, 4);
+
+	image_block.Display(dump);
+}
+
+/* * * Writer members * * */
+void GenericBinaryFormat::SetOptions(std::map<std::string, std::string>& options)
+{
+	SetLinkerParameter(options, "base_address");
+	SetLinkerParameter(options, "segment_bias");
+}
+
+void GenericBinaryFormat::OnNewSegment(Linker::Segment * segment)
+{
+	if(segment->name == ".code")
+	{
+		image = segment;
+		base_address = segment->base_address;
+	}
+	else
+	{
+		Linker::Error << "Error: unknown segment `" << segment->name << "` for format, expected `.code`, ignoring" << std::endl;
+	}
+}
+
+void GenericBinaryFormat::CreateDefaultSegments()
+{
+	if(image == nullptr)
+	{
+		image = new Linker::Segment(".code");
+	}
+}
+
+Script::List * GenericBinaryFormat::GetScript(Linker::Module& module)
+{
+	/* most targets */
+	static const char * GenericScript = R"(
+".code"
+{
+	at ?base_address?;
+	all not zero align ?section_align?;
+	all not ".stack" align ?section_align?;
+	all align ?section_align?;
+};
+)";
+
+	return Script::parse_string(GenericScript);
+}
+
+bool GenericBinaryFormat::ProcessRelocation(Linker::Module& module, Linker::Relocation& rel, Linker::Resolution resolution)
+{
+	if(resolution.target != nullptr && resolution.reference == nullptr)
+	{
+		if(position_independent)
+		{
+			/* if script file is provided, this might not be an actual relocatable file format, ignore error */
+			if(module.cpu == Linker::Module::M68K)
+			{
+				Linker::Error << "Error: Position independent format (such as Human68k .r) does not support absolute addresses, assuming 0" << std::endl;
+			}
+			else
+			{
+				Linker::Error << "Error: Position independent format does not support absolute addresses, assuming 0" << std::endl;
+			}
+		}
+		else if(module.cpu == Linker::Module::I86)
+		{
+			Linker::Error << "Error: MS-DOS .com does not support segment relocations, assuming 0" << std::endl;
+		}
+	}
+	rel.WriteWord(resolution.value);
+	return true;
+}
+
+void GenericBinaryFormat::Link(Linker::Module& module)
+{
+	Script::List * script = GetScript(module);
+	ProcessScript(script, module);
+	CreateDefaultSegments();
+}
+
+void GenericBinaryFormat::ProcessModule(Linker::Module& module)
+{
+	Link(module);
+
+	for(Linker::Relocation& rel : module.relocations)
+	{
+		Linker::Resolution resolution;
+		if(!rel.Resolve(module, resolution))
+		{
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			continue;
+		}
+		else
+		{
+			ProcessRelocation(module, rel, resolution);
+		}
+	}
+}
+
+void GenericBinaryFormat::CalculateValues()
+{
+}
+
+void GenericBinaryFormat::GenerateFile(std::string filename, Linker::Module& module)
+{
+	if(linker_parameters.find("base_address") == linker_parameters.end())
+	{
+		if(module.cpu == Linker::Module::I86)
+		{
+			linker_parameters["base_address"] = Linker::Location();
+		}
+		else
+		{
+			Linker::Debug << "Debug: Using default base address of " << base_address << std::endl;
+			linker_parameters["base_address"] = Linker::Location(base_address);
+		}
+	}
+
+	if(module.cpu == Linker::Module::I86 && linker_parameters.find("segment_bias") == linker_parameters.end())
+	{
+		linker_parameters["segment_bias"] = Linker::Location(0x100);
+	}
+
+	if(linker_parameters.find("section_align") == linker_parameters.end())
+	{
+		switch(module.cpu)
+		{
+		case Linker::Module::I86:
+			linker_parameters["section_align"] = Linker::Location(16);
+			break;
+		case Linker::Module::M68K:
+		case Linker::Module::ARM:
+			linker_parameters["section_align"] = Linker::Location(4);
+			break;
+		default:
+			linker_parameters["section_align"] = Linker::Location(1);
+			break;
+		}
+	}
+
+	Linker::OutputFormat::GenerateFile(filename, module);
+}
+
+std::string GenericBinaryFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+{
+	/* Note:
+	 * - CP/M-80, MS-DOS, DOS/65 etc. use .com
+	 * - Human68k uses .r
+	 * - RISC OS uses ,ff8 which is not an extension but an attribute suffix
+	*/
+	return filename + extension;
+}
+
+// BinaryFormat
+
+/* * * General members * * */
+
+void BinaryFormat::Clear()
+{
+	GenericBinaryFormat::Clear();
+	/* format fields */
 	if(pif)
 		delete pif;
 	pif = nullptr;
@@ -126,33 +315,6 @@ void BinaryFormat::SetModel(std::string model)
 	}
 }
 
-void BinaryFormat::SetOptions(std::map<std::string, std::string>& options)
-{
-	SetLinkerParameter(options, "base_address");
-	SetLinkerParameter(options, "segment_bias");
-}
-
-void BinaryFormat::OnNewSegment(Linker::Segment * segment)
-{
-	if(segment->name == ".code")
-	{
-		image = segment;
-		base_address = segment->base_address;
-	}
-	else
-	{
-		Linker::Error << "Error: unknown segment `" << segment->name << "` for format, expected `.code`, ignoring" << std::endl;
-	}
-}
-
-void BinaryFormat::CreateDefaultSegments()
-{
-	if(image == nullptr)
-	{
-		image = new Linker::Segment(".code");
-	}
-}
-
 Script::List * BinaryFormat::GetScript(Linker::Module& module)
 {
 	/* most targets */
@@ -165,18 +327,6 @@ Script::List * BinaryFormat::GetScript(Linker::Module& module)
 	all align ?section_align?;
 };
 )";
-
-#if 0
-	/* Human68k */
-	static const char * SimpleScript = R"(
-".code"
-{
-	all not zero align 4;
-	all not ".stack" align 4;
-	all align 4;
-};
-)";
-#endif
 
 	/* DOS memory models */
 	static const char * TinyScript = R"(
@@ -260,55 +410,9 @@ Script::List * BinaryFormat::GetScript(Linker::Module& module)
 	assert(false);
 }
 
-bool BinaryFormat::ProcessRelocation(Linker::Module& module, Linker::Relocation& rel, Linker::Resolution resolution)
-{
-	if(resolution.target != nullptr && resolution.reference == nullptr)
-	{
-		if(position_independent)
-		{
-			/* if script file is provided, this might not be an actual relocatable file format, ignore error */
-			if(module.cpu == Linker::Module::M68K)
-			{
-				Linker::Error << "Error: Position independent format (such as Human68k .r) does not support absolute addresses, assuming 0" << std::endl;
-			}
-			else
-			{
-				Linker::Error << "Error: Position independent format does not support absolute addresses, assuming 0" << std::endl;
-			}
-		}
-		else if(module.cpu == Linker::Module::I86)
-		{
-			Linker::Error << "Error: MS-DOS .com does not support segment relocations, assuming 0" << std::endl;
-		}
-	}
-	rel.WriteWord(resolution.value);
-	return true;
-}
-
-void BinaryFormat::Link(Linker::Module& module)
-{
-	Script::List * script = GetScript(module);
-	ProcessScript(script, module);
-	CreateDefaultSegments();
-}
-
 void BinaryFormat::ProcessModule(Linker::Module& module)
 {
-	Link(module);
-
-	for(Linker::Relocation& rel : module.relocations)
-	{
-		Linker::Resolution resolution;
-		if(!rel.Resolve(module, resolution))
-		{
-			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
-			continue;
-		}
-		else
-		{
-			ProcessRelocation(module, rel, resolution);
-		}
-	}
+	GenericBinaryFormat::ProcessModule(module);
 
 	Linker::Location stack_top;
 	if(module.FindGlobalSymbol(".stack_top", stack_top))
@@ -327,82 +431,5 @@ void BinaryFormat::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: entry point must be at beginning of image, ignoring" << std::endl; // TODO: not for subclasses
 		}
 	}
-}
-
-void BinaryFormat::CalculateValues()
-{
-}
-
-void BinaryFormat::GenerateFile(std::string filename, Linker::Module& module)
-{
-	if(linker_parameters.find("base_address") == linker_parameters.end())
-	{
-#if 0
-//		Linker::Debug << "Debug: Undefined base_address, loading defaults" << std::endl;
-		if(module.cpu == Linker::Module::ARM)
-		{
-//			Linker::Debug << "Debug: Setting base_address to 0x8000" << std::endl;
-			linker_parameters["base_address"] = Linker::Location(0x8000);
-		}
-		else if(module.cpu == Linker::Module::I86)
-		{
-//			Linker::Debug << "Debug: Setting base_address to 0" << std::endl;
-			linker_parameters["base_address"] = Linker::Location();
-		}
-		else
-		{
-//			Linker::Debug << "Debug: Setting base_address to 0x100" << std::endl;
-			linker_parameters["base_address"] = Linker::Location(0x0100);
-		}
-#endif
-		if(module.cpu == Linker::Module::I86)
-		{
-			linker_parameters["base_address"] = Linker::Location();
-		}
-		else
-		{
-			Linker::Debug << "Debug: Using default base address of " << base_address << std::endl;
-			linker_parameters["base_address"] = Linker::Location(base_address);
-		}
-	}
-	else
-	{
-//		Linker::Debug << "Debug: Good news! base_address is already set to ";
-//		Linker::Debug << linker_parameters.find("base_address")->second << std::endl;
-	}
-
-	if(module.cpu == Linker::Module::I86 && linker_parameters.find("segment_bias") == linker_parameters.end())
-	{
-		linker_parameters["segment_bias"] = Linker::Location(0x100);
-	}
-
-	if(linker_parameters.find("section_align") == linker_parameters.end())
-	{
-		switch(module.cpu)
-		{
-		case Linker::Module::I86:
-			linker_parameters["section_align"] = Linker::Location(16);
-			break;
-		case Linker::Module::M68K:
-		case Linker::Module::ARM:
-			linker_parameters["section_align"] = Linker::Location(4);
-			break;
-		default:
-			linker_parameters["section_align"] = Linker::Location(1);
-			break;
-		}
-	}
-
-	Linker::OutputFormat::GenerateFile(filename, module);
-}
-
-std::string BinaryFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
-{
-	/* Note:
-	 * - CP/M-80, MS-DOS, DOS/65 etc. use .com
-	 * - Human68k uses .r
-	 * - RISC OS uses ,ff8 which is not an extension but an attribute suffix
-	*/
-	return filename + extension;
 }
 
