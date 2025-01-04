@@ -77,7 +77,9 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classApple_1_1OMFFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Apple::OMFFormat Class Reference</div></div>
 </div><!--header-->
@@ -99,8 +101,16 @@ Inheritance diagram for Apple::OMFFormat:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a698546d8d12ff6f20acfb4cd2dd12a01" id="r_a698546d8d12ff6f20acfb4cd2dd12a01"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a698546d8d12ff6f20acfb4cd2dd12a01">CalculateValues</a> () override</td></tr>
+<tr class="memdesc:a698546d8d12ff6f20acfb4cd2dd12a01"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
+<tr class="separator:a698546d8d12ff6f20acfb4cd2dd12a01"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abba19c4b32dfb1215575a227182c1617" id="r_abba19c4b32dfb1215575a227182c1617"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abba19c4b32dfb1215575a227182c1617">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:abba19c4b32dfb1215575a227182c1617"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:abba19c4b32dfb1215575a227182c1617"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -135,9 +145,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a264c8d1ecae5c2cd5d20678d4479567f inherit pub_methods_classLinker_1_1OutputFormat" id="r_a264c8d1ecae5c2cd5d20678d4479567f"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a264c8d1ecae5c2cd5d20678d4479567f">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;object)</td></tr>
 <tr class="memdesc:a264c8d1ecae5c2cd5d20678d4479567f inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
 <tr class="separator:a264c8d1ecae5c2cd5d20678d4479567f inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae63d979e5fa85a76ffe06ac613b6ec27 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ae63d979e5fa85a76ffe06ac613b6ec27"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ae63d979e5fa85a76ffe06ac613b6ec27">CalculateValues</a> ()</td></tr>
-<tr class="memdesc:ae63d979e5fa85a76ffe06ac613b6ec27 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
-<tr class="separator:ae63d979e5fa85a76ffe06ac613b6ec27 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a7f0a56b4e329c20bc92d8be1aba820d8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a7f0a56b4e329c20bc92d8be1aba820d8">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -255,8 +262,11 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckPredicate</b> (<
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpression</b> (<a class="el" href="classScript_1_1Node.html">Script::Node</a> *expression, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
 <tr class="separator:a05f34c0746e0c55d41165a73b828277c inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:aa03f9b8d0a82c71f59039c733adeb8b1" id="r_aa03f9b8d0a82c71f59039c733adeb8b1"><td class="memItemLeft" align="right" valign="top"><a id="aa03f9b8d0a82c71f59039c733adeb8b1" name="aa03f9b8d0a82c71f59039c733adeb8b1"></a>
+std::vector&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segments</b></td></tr>
+<tr class="separator:aa03f9b8d0a82c71f59039c733adeb8b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
@@ -285,6 +295,9 @@ std::map&lt; std::string, <a class="el" href="classLinker_1_1Location.html">Loca
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script</b></td></tr>
 <tr class="memdesc:ae049dffc0706eb94f0215101b15ecfdc inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contents of the linker script. <br /></td></tr>
 <tr class="separator:ae049dffc0706eb94f0215101b15ecfdc inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:a810b93fa2314556615ec6287cbfbc40c inherit pro_attribs_classLinker_1_1LinkerManager" id="r_a810b93fa2314556615ec6287cbfbc40c"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b></td></tr>
@@ -307,6 +320,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <div class="textblock"><p>Apple GS/OS OMF file format. </p>
 <p>The file format was originally invented for ORCA/M as an object format, later adopted for the Apple GS/OS operating system. It had multiple versions, including a few early versions, version 1, 2 and 2.1. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a698546d8d12ff6f20acfb4cd2dd12a01" name="a698546d8d12ff6f20acfb4cd2dd12a01"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a698546d8d12ff6f20acfb4cd2dd12a01">&#9670;&#160;</a></span>CalculateValues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Apple::OMFFormat::CalculateValues </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae63d979e5fa85a76ffe06ac613b6ec27">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
 <a id="abba19c4b32dfb1215575a227182c1617" name="abba19c4b32dfb1215575a227182c1617"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#abba19c4b32dfb1215575a227182c1617">&#9670;&#160;</a></span>ReadFile()</h2>
 

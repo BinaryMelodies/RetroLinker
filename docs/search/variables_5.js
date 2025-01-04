@@ -7,6 +7,14 @@ var searchData=
   ['first_5ffree_5fentry_4',['first_free_entry',['../classDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor.html#aca9fc12e6d388f5af81872bca3a69d5f',1,'DigitalResearch::CPM86Format::FastLoadDescriptor']]],
   ['first_5fselector_5',['first_selector',['../structDigitalResearch_1_1CPM86Format_1_1library.html#a30e03dba872d181221116476454fec90',1,'DigitalResearch::CPM86Format::library']]],
   ['first_5fused_5findex_6',['first_used_index',['../classDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor.html#a93690d58fe81284763418fe51003c667',1,'DigitalResearch::CPM86Format::FastLoadDescriptor']]],
-  ['flags_7',['flags',['../classCOFF_1_1COFFFormat_1_1Section.html#af8f29d90638046cbb99f74fb6e1f1edc',1,'COFF::COFFFormat::Section::flags'],['../classCOFF_1_1COFFFormat.html#af9094cce66ef935167fe46bffa38afc7',1,'COFF::COFFFormat::flags'],['../structDigitalResearch_1_1CPM86Format_1_1library__id.html#a569dd7c92369a8dfafbfc374064fa69a',1,'DigitalResearch::CPM86Format::library_id::flags'],['../classDigitalResearch_1_1CPM86Format.html#a7d98daa7501c98a678dc3c96c9ef8117',1,'DigitalResearch::CPM86Format::flags']]],
-  ['format_8',['format',['../classDigitalResearch_1_1CPM86Format.html#a1383c61e71ff62ae7fadcad2de1ae379',1,'DigitalResearch::CPM86Format']]]
+  ['flag_5fabsolute_5fbank_7',['FLAG_ABSOLUTE_BANK',['../classApple_1_1OMFFormat_1_1Segment.html#a697c3865da012aebd797a85312e9d7fc',1,'Apple::OMFFormat::Segment']]],
+  ['flag_5fbank_5frelative_8',['FLAG_BANK_RELATIVE',['../classApple_1_1OMFFormat_1_1Segment.html#ac915ae51d4c6e10afcea857a0b059a01',1,'Apple::OMFFormat::Segment']]],
+  ['flag_5fdynamic_9',['FLAG_DYNAMIC',['../classApple_1_1OMFFormat_1_1Segment.html#ac96144bf111df768b2c347985da271f5',1,'Apple::OMFFormat::Segment']]],
+  ['flag_5fno_5fspecial_5fmemory_10',['FLAG_NO_SPECIAL_MEMORY',['../classApple_1_1OMFFormat_1_1Segment.html#a424b1e44b75a23d7c019b7631209d710',1,'Apple::OMFFormat::Segment']]],
+  ['flag_5fposition_5findependent_11',['FLAG_POSITION_INDEPENDENT',['../classApple_1_1OMFFormat_1_1Segment.html#abfd48e9338f02eb6ddc7f1e959a72ce3',1,'Apple::OMFFormat::Segment']]],
+  ['flag_5fprivate_12',['FLAG_PRIVATE',['../classApple_1_1OMFFormat_1_1Segment.html#a52b9bc1619e925b019a654690bf07df1',1,'Apple::OMFFormat::Segment']]],
+  ['flag_5freload_13',['FLAG_RELOAD',['../classApple_1_1OMFFormat_1_1Segment.html#a896cadd0d2ed6e5ef0d267f511a21093',1,'Apple::OMFFormat::Segment']]],
+  ['flag_5fskip_5fsegment_14',['FLAG_SKIP_SEGMENT',['../classApple_1_1OMFFormat_1_1Segment.html#ad75d8e1456f44a7ec84c25aceaf87322',1,'Apple::OMFFormat::Segment']]],
+  ['flags_15',['flags',['../classCOFF_1_1COFFFormat_1_1Section.html#af8f29d90638046cbb99f74fb6e1f1edc',1,'COFF::COFFFormat::Section::flags'],['../classCOFF_1_1COFFFormat.html#af9094cce66ef935167fe46bffa38afc7',1,'COFF::COFFFormat::flags'],['../structDigitalResearch_1_1CPM86Format_1_1library__id.html#a569dd7c92369a8dfafbfc374064fa69a',1,'DigitalResearch::CPM86Format::library_id::flags'],['../classDigitalResearch_1_1CPM86Format.html#a7d98daa7501c98a678dc3c96c9ef8117',1,'DigitalResearch::CPM86Format::flags'],['../classApple_1_1OMFFormat_1_1Segment.html#ae509b7bd708ea6d31882020878af78ee',1,'Apple::OMFFormat::Segment::flags']]],
+  ['format_16',['format',['../classDigitalResearch_1_1CPM86Format.html#a1383c61e71ff62ae7fadcad2de1ae379',1,'DigitalResearch::CPM86Format']]]
 ];

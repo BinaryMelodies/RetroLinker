@@ -80,6 +80,7 @@ $(function() {
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classBinary_1_1AtariFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Binary::AtariFormat Class Reference</div></div>
 </div><!--header-->
@@ -112,6 +113,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ad8beb18b94ec6c7dbcb3005c233ae58e" id="r_ad8beb18b94ec6c7dbcb3005c233ae58e"><td class="memItemLeft" align="right" valign="top"><a id="ad8beb18b94ec6c7dbcb3005c233ae58e" name="ad8beb18b94ec6c7dbcb3005c233ae58e"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>AtariFormat</b> (uint64_t default_base_address=0, std::string default_extension=&quot;.xex&quot;)</td></tr>
 <tr class="separator:ad8beb18b94ec6c7dbcb3005c233ae58e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd76b02ecafad497af0afb154072179c" id="r_afd76b02ecafad497af0afb154072179c"><td class="memItemLeft" align="right" valign="top"><a id="afd76b02ecafad497af0afb154072179c" name="afd76b02ecafad497af0afb154072179c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HasEntryPoint</b> () const</td></tr>
+<tr class="memdesc:afd76b02ecafad497af0afb154072179c"><td class="mdescLeft">&#160;</td><td class="mdescRight">An entry point is present if the memory address at EntryAddress has been filled by a segment. <br /></td></tr>
+<tr class="separator:afd76b02ecafad497af0afb154072179c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41f46b72e2253fcc381dce3c3c0bb5da" id="r_a41f46b72e2253fcc381dce3c3c0bb5da"><td class="memItemLeft" align="right" valign="top"><a id="a41f46b72e2253fcc381dce3c3c0bb5da" name="a41f46b72e2253fcc381dce3c3c0bb5da"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddEntryPoint</b> (uint16_t entry)</td></tr>
+<tr class="memdesc:a41f46b72e2253fcc381dce3c3c0bb5da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attaches a new segment that contains the entry point. <br /></td></tr>
+<tr class="separator:a41f46b72e2253fcc381dce3c3c0bb5da"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38797034a1a3d035a928c2108e401b4a" id="r_a38797034a1a3d035a928c2108e401b4a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a38797034a1a3d035a928c2108e401b4a">OnNewSegment</a> (<a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *segment) override</td></tr>
 <tr class="memdesc:a38797034a1a3d035a928c2108e401b4a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
 <tr class="separator:a38797034a1a3d035a928c2108e401b4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -355,6 +364,16 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script<
 <tr class="memdesc:ae049dffc0706eb94f0215101b15ecfdc inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contents of the linker script. <br /></td></tr>
 <tr class="separator:ae049dffc0706eb94f0215101b15ecfdc inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a10f236f31453ea27fa666b8693b14c73" id="r_a10f236f31453ea27fa666b8693b14c73"><td class="memItemLeft" align="right" valign="top"><a id="a10f236f31453ea27fa666b8693b14c73" name="a10f236f31453ea27fa666b8693b14c73"></a>
+static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>LOADER_ADDRESS</b> = 0x02E2</td></tr>
+<tr class="memdesc:a10f236f31453ea27fa666b8693b14c73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address which contains a loader between to execute between loading segments. <br /></td></tr>
+<tr class="separator:a10f236f31453ea27fa666b8693b14c73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee4fa4abc879ec1b1a12ed0df423f626" id="r_aee4fa4abc879ec1b1a12ed0df423f626"><td class="memItemLeft" align="right" valign="top">static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aee4fa4abc879ec1b1a12ed0df423f626">ENTRY_ADDRESS</a> = 0x02E0</td></tr>
+<tr class="memdesc:aee4fa4abc879ec1b1a12ed0df423f626"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address which contains the actual entry address after loading.  <br /></td></tr>
+<tr class="separator:aee4fa4abc879ec1b1a12ed0df423f626"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_types_classBinary_1_1BinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classBinary_1_1BinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classBinary_1_1BinaryFormat.html">Binary::BinaryFormat</a></td></tr>
@@ -503,6 +522,32 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Stores data in memory to file. </p>
 
 <p>Implements <a class="el" href="classLinker_1_1Format.html#a12d9426f324db2e9b0ee3ea21a4530f1">Linker::Format</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="aee4fa4abc879ec1b1a12ed0df423f626" name="aee4fa4abc879ec1b1a12ed0df423f626"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee4fa4abc879ec1b1a12ed0df423f626">&#9670;&#160;</a></span>ENTRY_ADDRESS</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const uint16_t Binary::AtariFormat::ENTRY_ADDRESS = 0x02E0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Address which contains the actual entry address after loading. </p>
+<p>Note the indirection, this is not the entry point of the program. </p>
 
 </div>
 </div>

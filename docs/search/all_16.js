@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['value_0',['Value',['../classScript_1_1Value.html',1,'Script']]],
-  ['value_1',['value',['../classCOFF_1_1COFFFormat_1_1Symbol.html#ae838008ab95bc12295509d737700a4e0',1,'COFF::COFFFormat::Symbol::value'],['../structO65_1_1O65Format_1_1Module_1_1relocation.html#a8a494224aa550f7035f960a195baa7b7',1,'O65::O65Format::Module::relocation::value'],['../structO65_1_1O65Format_1_1Module_1_1exported__global.html#a48a67f45623f2abeefe8eda4c96621d6',1,'O65::O65Format::Module::exported_global::value'],['../classLinker_1_1Resolution.html#a12359b62cf46a3d62d4734886965d7a4',1,'Linker::Resolution::value']]],
-  ['value_3c_20void_20_3e_2',['Value&lt; void &gt;',['../classScript_1_1Value_3_01void_01_4.html',1,'Script']]],
-  ['version_3',['version',['../structMicrosoft_1_1NEFormat_1_1version.html',1,'Microsoft::NEFormat']]],
-  ['version_5fstamp_4',['version_stamp',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#a075a07387315972bdf923e0d1ab32bad',1,'COFF::COFFFormat::AOutHeader']]],
-  ['versiondisplay_5',['VersionDisplay',['../classDumper_1_1VersionDisplay.html',1,'Dumper']]]
+  ['undefined_0',['Undefined',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca27ef7ad15cb05528aef8ac8bf8248cd2',1,'DigitalResearch::CPM86Format::Descriptor']]],
+  ['undefined_5freferences_1',['undefined_references',['../classO65_1_1O65Format_1_1Module.html#a972cc089911d9556808e7e904e1f4b48',1,'O65::O65Format::Module']]],
+  ['unknown_2',['unknown',['../structDigitalResearch_1_1CPM86Format_1_1library.html#a54ad417343a11e2311362bab857908cc',1,'DigitalResearch::CPM86Format::library']]],
+  ['unknownoptionalheader_3',['UnknownOptionalHeader',['../classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html',1,'COFF::COFFFormat']]],
+  ['uzi280format_4',['UZI280Format',['../classBinary_1_1UZI280Format.html',1,'Binary']]],
+  ['uziformat_5',['UZIFormat',['../classBinary_1_1UZIFormat.html',1,'Binary']]]
 ];

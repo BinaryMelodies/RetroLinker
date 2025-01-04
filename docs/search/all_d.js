@@ -1,32 +1,4 @@
 var searchData=
 [
-  ['label_0',['label',['../classDumper_1_1Field.html#a4f05b279bfdd3d63695bf214963f2d9c',1,'Dumper::Field']]],
-  ['last_5fblock_5fsize_1',['last_block_size',['../classMicrosoft_1_1MZFormat.html#a59c890aebaf1849b2e7f59268279f653',1,'Microsoft::MZFormat']]],
-  ['ldt_5fdescriptor_2',['ldt_descriptor',['../structDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor_1_1ldt__descriptor.html',1,'DigitalResearch::CPM86Format::FastLoadDescriptor']]],
-  ['leformat_3',['LEFormat',['../classMicrosoft_1_1LEFormat.html',1,'Microsoft']]],
-  ['length_4',['length',['../classDigitalResearch_1_1CPM8KFormat_1_1Segment.html#afdcc145959d36ab0c7b770e741ab446b',1,'DigitalResearch::CPM8KFormat::Segment']]],
-  ['lereader_5',['LEReader',['../classdump_1_1LEReader.html',1,'dump']]],
-  ['lib_5fid_6',['lib_id',['../classDigitalResearch_1_1CPM86Format.html#a8fb8dd133fb30ecf60aca575d0c45104',1,'DigitalResearch::CPM86Format']]],
-  ['libraries_7',['Libraries',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca387622eb0fc198d03caa95789e1644cb',1,'DigitalResearch::CPM86Format::Descriptor']]],
-  ['libraries_8',['libraries',['../classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html#abf33ad6814f77461ed94fbc94109d2cd',1,'DigitalResearch::CPM86Format::LibraryDescriptor']]],
-  ['library_9',['library',['../structDigitalResearch_1_1CPM86Format_1_1library.html',1,'DigitalResearch::CPM86Format']]],
-  ['library_5fdescriptor_10',['library_descriptor',['../classDigitalResearch_1_1CPM86Format.html#ac94f803240ab3a9525b91a0f84518159',1,'DigitalResearch::CPM86Format']]],
-  ['library_5fid_11',['library_id',['../structDigitalResearch_1_1CPM86Format_1_1library__id.html',1,'DigitalResearch::CPM86Format']]],
-  ['librarydescriptor_12',['LibraryDescriptor',['../classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html',1,'DigitalResearch::CPM86Format']]],
-  ['limit_13',['limit',['../structDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor_1_1ldt__descriptor.html#aee3c775dcb26e6c0b87a692b8cffd0d5',1,'DigitalResearch::CPM86Format::FastLoadDescriptor::ldt_descriptor']]],
-  ['line_5fnumber_5fcount_14',['line_number_count',['../classCOFF_1_1COFFFormat_1_1Section.html#a8a7f80d8a158840fe090298f461a6608',1,'COFF::COFFFormat::Section']]],
-  ['line_5fnumber_5fpointer_15',['line_number_pointer',['../classCOFF_1_1COFFFormat_1_1Section.html#af299e2743064c9654eceb12823314e70',1,'COFF::COFFFormat::Section']]],
-  ['link_16',['Link',['../classMicrosoft_1_1MZFormat.html#a510b6d6309a9f14261ebb73a1c9d2512',1,'Microsoft::MZFormat']]],
-  ['linker_20for_20multiple_208_20bit_2016_20bit_20and_2032_20bit_20executable_20formats_17',['RetroLinker, a linker for multiple 8-bit, 16-bit and 32-bit executable formats',['../index.html',1,'']]],
-  ['linker_5fparameters_18',['linker_parameters',['../classLinker_1_1LinkerManager.html#a7218e188ee0cfaa6ae1ad6dcb8e0d23a',1,'Linker::LinkerManager']]],
-  ['linker_5fscript_19',['linker_script',['../classLinker_1_1LinkerManager.html#ae049dffc0706eb94f0215101b15ecfdc',1,'Linker::LinkerManager']]],
-  ['linkermanager_20',['LinkerManager',['../classLinker_1_1LinkerManager.html',1,'Linker']]],
-  ['list_21',['List',['../classScript_1_1List.html',1,'Script']]],
-  ['load_5fsegment_22',['load_segment',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#a1c3d6491688d8c197d5343798585343f',1,'DigitalResearch::CPM86Format::Descriptor']]],
-  ['loadlibraryname_23',['LoadLibraryName',['../classLinker_1_1SymbolName.html#adfcb41f833acfa11cfec3d752c6713cd',1,'Linker::SymbolName']]],
-  ['loadname_24',['LoadName',['../classLinker_1_1SymbolName.html#a5d843b215931ce91d0b058407cd829ae',1,'Linker::SymbolName::LoadName()'],['../classLinker_1_1ExportedSymbol.html#a99c9f8f7bcc446521bbf43fcf96d4b0f',1,'Linker::ExportedSymbol::LoadName()']]],
-  ['loadordinalorhint_25',['LoadOrdinalOrHint',['../classLinker_1_1SymbolName.html#aba884bef7536a6c1a359d7c797155342',1,'Linker::SymbolName::LoadOrdinalOrHint()'],['../classLinker_1_1ExportedSymbol.html#a9d9d717e43fe2020dacca712141cabc1',1,'Linker::ExportedSymbol::LoadOrdinalOrHint()']]],
-  ['location_26',['Location',['../classLinker_1_1Location.html',1,'Linker::Location'],['../classLinker_1_1Location.html#a1a7380b1e3dfa72d673eb3918c3f30b7',1,'Linker::Location::Location(Section *section, offset_t offset=0)'],['../classLinker_1_1Location.html#a82950ae093d0c4b056c165a85cb44e3f',1,'Linker::Location::Location(offset_t offset=0)']]],
-  ['lookup_27',['Lookup',['../classLinker_1_1Target.html#af430c6f4ac6d6dea47338dac7011e7cc',1,'Linker::Target']]],
-  ['lvformat_28',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]]
+  ['kind_0',['kind',['../classApple_1_1OMFFormat_1_1Segment.html#a89fefa1e06dc9dde58a077abe9b2a34c',1,'Apple::OMFFormat::Segment']]]
 ];
