@@ -35,8 +35,7 @@ force:
 	make all
 
 clean: tests_clean
-	# TODO: check what needs to be actually deleted
-	rm -rf link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) script/scan.cc script/parse.tab.cc script/parse.tab.hh latex docs doxygen.log
+	rm -rf link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) src/script/scan.cc src/script/parse.tab.cc src/script/parse.tab.hh latex docs doxygen.log
 
 tests_clean:
 	$(MAKE) -C tests/1_hello clean
@@ -47,7 +46,7 @@ tests_clean:
 	$(MAKE) -C unittest clean
 
 distclean: clean
-	rm -rf *~ format/*~ linker/*~ dumper/*~ script/*~ __pycache__ results.xml
+	rm -rf *~ src/*~ src/format/*~ src/linker/*~ src/dumper/*~ src/script/*~ __pycache__ results.xml
 	$(MAKE) -C tests/include distclean
 	$(MAKE) -C tests/1_hello distclean
 	$(MAKE) -C tests/2_asm distclean
