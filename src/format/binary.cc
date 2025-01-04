@@ -332,7 +332,7 @@ void BinaryFormat::ProcessModule(Linker::Module& module)
 	{
 		if(entry.GetPosition().address != base_address)
 		{
-			Linker::Error << "Error: entry point must be at beginning of image, ignoring" << std::endl;
+			Linker::Error << "Error: entry point must be at beginning of image, ignoring" << std::endl; // TODO: not for subclasses
 		}
 	}
 }

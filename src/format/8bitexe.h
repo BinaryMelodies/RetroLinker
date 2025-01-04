@@ -75,12 +75,28 @@ namespace Binary
 					delete image;
 			}
 
+			offset_t GetSize() const;
+
 			void ReadFile(Linker::Reader& rd);
 
 			void WriteFile(Linker::Writer& wr);
 		};
 
 		std::vector<Segment *> segments;
+
+		/** @brief Address which contains a loader between to execute between loading segments */
+		static const uint16_t LOADER_ADDRESS = 0x02E2;
+
+		/** @brief Address which contains the actual entry address after loading
+		 *
+		 * Note the indirection, this is not the entry point of the program.
+		 */
+		static const uint16_t ENTRY_ADDRESS = 0x02E0;
+
+		/** @brief An entry point is present if the memory address at EntryAddress has been filled by a segment */
+		bool HasEntryPoint() const;
+		/** @brief Attaches a new segment that contains the entry point */
+		void AddEntryPoint(uint16_t entry);
 
 		void OnNewSegment(Linker::Segment * segment) override;
 
@@ -98,6 +114,9 @@ namespace Binary
 	{
 	public:
 		/* TODO */
+
+		/** @brief Address at which the BASIC program should start */
+		static const uint16_t BASIC_START = 0x0801;
 
 		enum
 		{

@@ -27,6 +27,33 @@ void AppleFormat::WriteFile(Linker::Writer& wr)
 
 // AtariFormat
 
+offset_t AtariFormat::Segment::GetSize() const
+{
+	return image->ActualDataSize();
+}
+
+/** @brief An entry point is present if the memory address at EntryAddress has been filled by a segment */
+bool AtariFormat::HasEntryPoint() const
+{
+	for(auto segment : segments)
+	{
+		if(segment->address <= ENTRY_ADDRESS && ENTRY_ADDRESS + 1 < segment->address + segment->GetSize())
+			return true;
+	}
+	return false;
+}
+
+/** @brief Attaches a new segment that contains the entry point */
+void AtariFormat::AddEntryPoint(uint16_t entry)
+{
+	Segment * entry_segment = new Segment();
+	entry_segment->address = ENTRY_ADDRESS;
+	Linker::Section * entry_section = new Linker::Section(".entry");
+	entry_section->WriteWord(2, entry, ::LittleEndian);
+	entry_segment->image = entry_section;
+	segments.push_back(entry_segment);
+}
+
 void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 {
 	uint16_t word = rd.ReadUnsigned(2);
@@ -50,7 +77,7 @@ void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 
 void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
 {
-	if((uint32_t)address + image->ActualDataSize() > 0x10000)
+	if((uint32_t)address + GetSize() > 0x10000)
 	{
 		Linker::Warning << "Warning: Address overflows" << std::endl;
 	}
@@ -59,7 +86,7 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(2, header);
 	}
 	wr.WriteWord(2, address);
-	wr.WriteWord(2, address + image->ActualDataSize() - 1);
+	wr.WriteWord(2, address + GetSize() - 1);
 	image->WriteFile(wr);
 }
 
@@ -77,18 +104,29 @@ void AtariFormat::OnNewSegment(Linker::Segment * segment)
 void AtariFormat::ProcessModule(Linker::Module& module)
 {
 	BinaryFormat::ProcessModule(module);
+	Linker::Location entry;
+	if(module.FindGlobalSymbol(".entry", entry))
+	{
+		AddEntryPoint(entry.GetPosition().address);
+	}
+	else if(!HasEntryPoint())
+	{
+		Linker::Warning << "Warning: no entry point must has been provided" << std::endl;
+	}
+
 	/* TODO: enable multiple segments */
-	/* TODO: enable initializers and entry point */
 }
 
 void AtariFormat::ReadFile(Linker::Reader& rd)
 {
+	rd.SeekEnd();
+	offset_t end = rd.Tell();
 	rd.Seek(0);
 	if(rd.ReadUnsigned(2) != 0xFFFF)
 	{
 		throw new Linker::Exception("Fatal Error: Expected binary image to start with 0xFFFF");
 	}
-	while(true) /* TODO: check if file ended */
+	while(rd.Tell() < end)
 	{
 		Segment * segment = new Segment;
 		segment->ReadFile(rd);
@@ -126,17 +164,20 @@ void CommodoreFormat::SetupDefaultLoader()
 	std::ostringstream oss;
 	oss << " (" << base_address << ")";
 	std::string text = oss.str();
-	loader_section->WriteWord(2, base_address + 7 + text.size());
+	//loader_section->WriteWord(2, base_address + 7 + text.size());
+	loader_section->WriteWord(2, BASIC_START + 7 + text.size());
 	loader_section->WriteWord(2, 10); /* line number */
 	loader_section->WriteWord(1, BASIC_SYS);
 	loader_section->Append(text.c_str());
+	loader_section->WriteWord(2, 0); // TODO: why are two bytes
 	loader_section->WriteWord(2, 0);
 	if(loader == nullptr)
 	{
 		loader = new Linker::Segment(".loader");
 	}
 	loader->Append(loader_section);
-	loader->SetStartAddress(base_address - loader->data_size);
+	//loader->SetStartAddress(base_address - loader->data_size);
+	loader->SetStartAddress(BASIC_START);
 }
 
 void CommodoreFormat::ProcessModule(Linker::Module& module)

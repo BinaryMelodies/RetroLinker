@@ -307,6 +307,15 @@ void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd
 		bss_section,
 		zero_section,
 	};
+	offset_t section_bases[] =
+	{
+		0,
+		0,
+		code_base,
+		data_base,
+		bss_base,
+		zero_base,
+	};
 
 	for(auto& global : exported_globals)
 	{
@@ -318,20 +327,9 @@ void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd
 		}
 		module.AddGlobalSymbol(
 			global.name,
-			Linker::Location(sections[segment_number], global.value)
+			Linker::Location(sections[segment_number], global.value - section_bases[segment_number])
 		);
 	}
-
-#if 0
-	std::vector<Linker::SymbolName> external_symbols;
-	for(auto& undefined_reference : undefined_references)
-	{
-		external_symbols.push_back(Linker::SymbolName
-		wr.WriteData(undefined_reference);
-		wr.WriteWord(1, 0);
-	}
-	/* TODO */
-#endif
 
 	std::map<offset_t, relocation> * relocation_parts[2] = { &code_relocations, &data_relocations };
 	for(int i = 0; i < 2; i++)
@@ -346,31 +344,34 @@ void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd
 				i == 0 ? code_section : data_section,
 				offset
 			);
+			int segment_number = rel.type_segment & relocation::RELOC_SEGMENT_MASK;
+			uint16_t section_base = section_bases[segment_number];
 			Linker::Target rel_target =
-				(rel.type_segment & relocation::RELOC_SEGMENT_MASK) == relocation::RELOC_SEGMENT_UNDEFINED
+				segment_number == relocation::RELOC_SEGMENT_UNDEFINED
 					? Linker::SymbolName(undefined_references[rel.symbol_index])
-					: Linker::Target(Linker::Location(sections[rel.type_segment & relocation::RELOC_SEGMENT_MASK], 0));
+					: Linker::Target(Linker::Location(sections[segment_number], 0));
 
 			switch(rel.type_segment & relocation::RELOC_TYPE_MASK)
 			{
 			case relocation::RELOC_TYPE_LOW:
-				obj_rel = Linker::Relocation::Absolute(1, rel_source, rel_target, rel.value, ::LittleEndian);
+				obj_rel = Linker::Relocation::Absolute(1, rel_source, rel_target, rel.value - section_base, ::LittleEndian);
 				break;
 			case relocation::RELOC_TYPE_HIGH:
-				obj_rel = Linker::Relocation::Absolute(1, rel_source, rel_target, rel.value, ::LittleEndian);
+				obj_rel = Linker::Relocation::Absolute(1, rel_source, rel_target, rel.value - section_base, ::LittleEndian);
 				obj_rel.SetShift(8);
 				break;
 			case relocation::RELOC_TYPE_WORD:
-				obj_rel = Linker::Relocation::Absolute(2, rel_source, rel_target, rel.value, ::LittleEndian);
+				obj_rel = Linker::Relocation::Absolute(2, rel_source, rel_target, rel.value - section_base, ::LittleEndian);
 				break;
 			case relocation::RELOC_TYPE_SEG:
-				obj_rel = Linker::Relocation::Absolute(1, rel_source, rel_target, rel.value, ::LittleEndian);
+				obj_rel = Linker::Relocation::Absolute(1, rel_source, rel_target, rel.value - section_base, ::LittleEndian);
 				obj_rel.SetShift(16);
 				break;
 			case relocation::RELOC_TYPE_SEGADDR:
-				obj_rel = Linker::Relocation::Absolute(3, rel_source, rel_target, rel.value, ::LittleEndian);
+				obj_rel = Linker::Relocation::Absolute(3, rel_source, rel_target, rel.value - section_base, ::LittleEndian);
 				break;
 			}
+			obj_rel.AddCurrentValue();
 			module.relocations.push_back(obj_rel);
 		}
 	}
