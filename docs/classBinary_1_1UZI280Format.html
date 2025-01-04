@@ -94,10 +94,10 @@ Inheritance diagram for Binary::UZI280Format:</div>
  <div class="center">
   <img src="classBinary_1_1UZI280Format.png" usemap="#Binary::UZI280Format_map" alt=""/>
   <map id="Binary::UZI280Format_map" name="Binary::UZI280Format_map">
-<area href="classBinary_1_1BinaryFormat.html" title="A flat binary format, with no header, loaded directly into memory." alt="Binary::BinaryFormat" shape="rect" coords="74,112,213,136"/>
-<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,56,139,80"/>
-<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="149,56,288,80"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,0,139,24"/>
+<area href="classBinary_1_1GenericBinaryFormat.html" title="A template for flat binary formats." alt="Binary::GenericBinaryFormat" shape="rect" coords="93,112,269,136"/>
+<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,56,176,80"/>
+<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="186,56,362,80"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,0,176,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -112,60 +112,49 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3848b5d61148f24f1005cf84f75f8c8f" id="r_a3848b5d61148f24f1005cf84f75f8c8f"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3848b5d61148f24f1005cf84f75f8c8f">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
 <tr class="memdesc:a3848b5d61148f24f1005cf84f75f8c8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a default filename for the output file.  <br /></td></tr>
 <tr class="separator:a3848b5d61148f24f1005cf84f75f8c8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a56b8efa3e41725456f273b286c45b731" id="r_a56b8efa3e41725456f273b286c45b731"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a56b8efa3e41725456f273b286c45b731">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename) override</td></tr>
-<tr class="memdesc:a56b8efa3e41725456f273b286c45b731"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
-<tr class="separator:a56b8efa3e41725456f273b286c45b731"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classBinary_1_1BinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classBinary_1_1BinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classBinary_1_1BinaryFormat.html">Binary::BinaryFormat</a></td></tr>
-<tr class="memitem:a937dd9941d6bf2f29efcb398ff8f9506 inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a937dd9941d6bf2f29efcb398ff8f9506"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a937dd9941d6bf2f29efcb398ff8f9506">Clear</a> () override</td></tr>
-<tr class="memdesc:a937dd9941d6bf2f29efcb398ff8f9506 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
-<tr class="separator:a937dd9941d6bf2f29efcb398ff8f9506 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aab40d5cea474948774583992a93d1830 inherit pub_methods_classBinary_1_1BinaryFormat" id="r_aab40d5cea474948774583992a93d1830"><td class="memItemLeft" align="right" valign="top">
-&#160;</td><td class="memItemRight" valign="bottom"><b>BinaryFormat</b> (uint64_t default_base_address=0, std::string default_extension=&quot;&quot;)</td></tr>
-<tr class="separator:aab40d5cea474948774583992a93d1830 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af82b27fd970958ea22571ceaa0ee414d inherit pub_methods_classBinary_1_1BinaryFormat" id="r_af82b27fd970958ea22571ceaa0ee414d"><td class="memItemLeft" align="right" valign="top">
-&#160;</td><td class="memItemRight" valign="bottom"><b>BinaryFormat</b> (std::string default_extension)</td></tr>
-<tr class="separator:af82b27fd970958ea22571ceaa0ee414d inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb80efcfba66019b9edf44e3633524be inherit pub_methods_classBinary_1_1BinaryFormat" id="r_afb80efcfba66019b9edf44e3633524be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#afb80efcfba66019b9edf44e3633524be">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
-<tr class="memdesc:afb80efcfba66019b9edf44e3633524be inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
-<tr class="separator:afb80efcfba66019b9edf44e3633524be inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a8d3173acc8166cf53b7553793b24c3 inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a2a8d3173acc8166cf53b7553793b24c3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a2a8d3173acc8166cf53b7553793b24c3">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
-<tr class="memdesc:a2a8d3173acc8166cf53b7553793b24c3 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
-<tr class="separator:a2a8d3173acc8166cf53b7553793b24c3 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e55c52d347946b43d01807e5f17a263 inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a6e55c52d347946b43d01807e5f17a263"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a6e55c52d347946b43d01807e5f17a263">FormatSupportsSegmentation</a> () const override</td></tr>
-<tr class="memdesc:a6e55c52d347946b43d01807e5f17a263 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports multiple segments.  <br /></td></tr>
-<tr class="separator:a6e55c52d347946b43d01807e5f17a263 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a010b248db427db178e4772757852dc64 inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a010b248db427db178e4772757852dc64"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a010b248db427db178e4772757852dc64">FormatIs16bit</a> () const override</td></tr>
-<tr class="memdesc:a010b248db427db178e4772757852dc64 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
-<tr class="separator:a010b248db427db178e4772757852dc64 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeaa569ae584f8c39209767cc3587f680 inherit pub_methods_classBinary_1_1BinaryFormat" id="r_aeaa569ae584f8c39209767cc3587f680"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#aeaa569ae584f8c39209767cc3587f680">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
-<tr class="separator:aeaa569ae584f8c39209767cc3587f680 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2572e5127ddcc994337e0a3701b1ec0b inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a2572e5127ddcc994337e0a3701b1ec0b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a2572e5127ddcc994337e0a3701b1ec0b">SetModel</a> (std::string model) override</td></tr>
-<tr class="memdesc:a2572e5127ddcc994337e0a3701b1ec0b inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
-<tr class="separator:a2572e5127ddcc994337e0a3701b1ec0b inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34ad8bbf856ed636446e652bd3c0d9bf inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a34ad8bbf856ed636446e652bd3c0d9bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a34ad8bbf856ed636446e652bd3c0d9bf">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
-<tr class="memdesc:a34ad8bbf856ed636446e652bd3c0d9bf inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
-<tr class="separator:a34ad8bbf856ed636446e652bd3c0d9bf inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a99324a3eec79b793c205ebfc91bb4b47 inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a99324a3eec79b793c205ebfc91bb4b47"><td class="memItemLeft" align="right" valign="top">
+<tr class="memitem:a2422f8bfef617335b40a3c0532a23c2c" id="r_a2422f8bfef617335b40a3c0532a23c2c"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2422f8bfef617335b40a3c0532a23c2c">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename) override</td></tr>
+<tr class="memdesc:a2422f8bfef617335b40a3c0532a23c2c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
+<tr class="separator:a2422f8bfef617335b40a3c0532a23c2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
+<tr class="memitem:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_af7c217adb86fe385521f93fc8a0a50e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#af7c217adb86fe385521f93fc8a0a50e2">Clear</a> () override</td></tr>
+<tr class="memdesc:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
+<tr class="separator:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5d75bc502d301c24e157e3e90df9627 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_ab5d75bc502d301c24e157e3e90df9627"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>GenericBinaryFormat</b> (uint64_t default_base_address=0, std::string default_extension=&quot;&quot;)</td></tr>
+<tr class="separator:ab5d75bc502d301c24e157e3e90df9627 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a013dc80ca8ac9b812335b70929089136 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a013dc80ca8ac9b812335b70929089136"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>GenericBinaryFormat</b> (std::string default_extension)</td></tr>
+<tr class="separator:a013dc80ca8ac9b812335b70929089136 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a6a6dda10611ff89870889f17635e1b9e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a6a6dda10611ff89870889f17635e1b9e">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
+<tr class="memdesc:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
+<tr class="separator:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a4a7b66eab4e8bf3f828004a7cef52819"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a4a7b66eab4e8bf3f828004a7cef52819">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
+<tr class="memdesc:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
+<tr class="separator:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0576154922df9b5a8e01c0db772ec8b1 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a0576154922df9b5a8e01c0db772ec8b1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a0576154922df9b5a8e01c0db772ec8b1">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
+<tr class="memdesc:a0576154922df9b5a8e01c0db772ec8b1 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
+<tr class="separator:a0576154922df9b5a8e01c0db772ec8b1 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40f9ba523b6f8a65634b494bfeb9b37d inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a40f9ba523b6f8a65634b494bfeb9b37d"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CreateDefaultSegments</b> ()</td></tr>
-<tr class="separator:a99324a3eec79b793c205ebfc91bb4b47 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2277fe621124ae92fe9bb7ce88db030d inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a2277fe621124ae92fe9bb7ce88db030d"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="classScript_1_1List.html">Script::List</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
-<tr class="separator:a2277fe621124ae92fe9bb7ce88db030d inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93bf5aa551ba5572b24ba6d565d4213d inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a93bf5aa551ba5572b24ba6d565d4213d"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a93bf5aa551ba5572b24ba6d565d4213d">ProcessRelocation</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, <a class="el" href="classLinker_1_1Relocation.html">Linker::Relocation</a> &amp;rel, <a class="el" href="classLinker_1_1Resolution.html">Linker::Resolution</a> resolution)</td></tr>
-<tr class="memdesc:a93bf5aa551ba5572b24ba6d565d4213d inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function to process relocations.  <br /></td></tr>
-<tr class="separator:a93bf5aa551ba5572b24ba6d565d4213d inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06cce980a556db58f619ae72770fada0 inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a06cce980a556db58f619ae72770fada0"><td class="memItemLeft" align="right" valign="top">
+<tr class="separator:a40f9ba523b6f8a65634b494bfeb9b37d inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a618a9d463e19c45e65fd42727964297b inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a618a9d463e19c45e65fd42727964297b"><td class="memItemLeft" align="right" valign="top">
+virtual <a class="el" href="classScript_1_1List.html">Script::List</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
+<tr class="separator:a618a9d463e19c45e65fd42727964297b inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32dbb313df8a636ca8c016f3a2a58775 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a32dbb313df8a636ca8c016f3a2a58775"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a32dbb313df8a636ca8c016f3a2a58775">ProcessRelocation</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, <a class="el" href="classLinker_1_1Relocation.html">Linker::Relocation</a> &amp;rel, <a class="el" href="classLinker_1_1Resolution.html">Linker::Resolution</a> resolution)</td></tr>
+<tr class="memdesc:a32dbb313df8a636ca8c016f3a2a58775 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function to process relocations.  <br /></td></tr>
+<tr class="separator:a32dbb313df8a636ca8c016f3a2a58775 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1b64dc77bb15d67eb96a7c5be109862 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_af1b64dc77bb15d67eb96a7c5be109862"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
-<tr class="separator:a06cce980a556db58f619ae72770fada0 inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a66f83cae99d2a72735f914a763f8ba9f inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a66f83cae99d2a72735f914a763f8ba9f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a66f83cae99d2a72735f914a763f8ba9f">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
-<tr class="memdesc:a66f83cae99d2a72735f914a763f8ba9f inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
-<tr class="separator:a66f83cae99d2a72735f914a763f8ba9f inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9782a2f414adba1895f72780b4aa662d inherit pub_methods_classBinary_1_1BinaryFormat" id="r_a9782a2f414adba1895f72780b4aa662d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a9782a2f414adba1895f72780b4aa662d">CalculateValues</a> () override</td></tr>
-<tr class="memdesc:a9782a2f414adba1895f72780b4aa662d inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
-<tr class="separator:a9782a2f414adba1895f72780b4aa662d inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af985aced3dbb5524755aa01f907ad3bb inherit pub_methods_classBinary_1_1BinaryFormat" id="r_af985aced3dbb5524755aa01f907ad3bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#af985aced3dbb5524755aa01f907ad3bb">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
-<tr class="memdesc:af985aced3dbb5524755aa01f907ad3bb inherit pub_methods_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
-<tr class="separator:af985aced3dbb5524755aa01f907ad3bb inherit pub_methods_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:af1b64dc77bb15d67eb96a7c5be109862 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a591047f12e684e372a8ab10cc83786d3 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a591047f12e684e372a8ab10cc83786d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a591047f12e684e372a8ab10cc83786d3">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
+<tr class="memdesc:a591047f12e684e372a8ab10cc83786d3 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
+<tr class="separator:a591047f12e684e372a8ab10cc83786d3 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5ddc51a7c269b41396a3cb58d7b0a1f inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_ad5ddc51a7c269b41396a3cb58d7b0a1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#ad5ddc51a7c269b41396a3cb58d7b0a1f">CalculateValues</a> () override</td></tr>
+<tr class="memdesc:ad5ddc51a7c269b41396a3cb58d7b0a1f inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
+<tr class="separator:ad5ddc51a7c269b41396a3cb58d7b0a1f inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a700f13ef23431c1428c8c74735db0ca3 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a700f13ef23431c1428c8c74735db0ca3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a700f13ef23431c1428c8c74735db0ca3">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
+<tr class="memdesc:a700f13ef23431c1428c8c74735db0ca3 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
+<tr class="separator:a700f13ef23431c1428c8c74735db0ca3 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1OutputFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1OutputFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1OutputFormat.html">Linker::OutputFormat</a></td></tr>
 <tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
 <tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
@@ -182,9 +171,18 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>FetchOption</b
 std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchIntegerOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name)</td></tr>
 <tr class="memdesc:a9fb1445cd62e7a05eec785abed8ef273 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name and convert it to integer. <br /></td></tr>
 <tr class="separator:a9fb1445cd62e7a05eec785abed8ef273 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ade72610728318b9d106b3276bab836e0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ade72610728318b9d106b3276bab836e0">SetModel</a> (std::string model)</td></tr>
+<tr class="memdesc:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
+<tr class="separator:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat" id="r_a817cfc3dafc78cbc76d029e1b7bb31db"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a817cfc3dafc78cbc76d029e1b7bb31db">SetLinkScript</a> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options)</td></tr>
 <tr class="memdesc:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects a script file to use for linking.  <br /></td></tr>
 <tr class="separator:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat" id="r_a0f64b63a2c6849c44a5642087698bfbf"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a0f64b63a2c6849c44a5642087698bfbf">FormatSupportsSegmentation</a> () const</td></tr>
+<tr class="memdesc:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports multiple segments.  <br /></td></tr>
+<tr class="separator:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a8e6cfc4a9c2434536ab1b31e54f2c6f7"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">FormatIs16bit</a> () const</td></tr>
+<tr class="memdesc:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
+<tr class="separator:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat" id="r_a71bf1175595e1a2ab076f3e92d5233fb"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a71bf1175595e1a2ab076f3e92d5233fb">FormatIsLinear</a> () const</td></tr>
 <tr class="memdesc:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the address space is linear or segmented.  <br /></td></tr>
 <tr class="separator:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -194,14 +192,14 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a35ff0e5cd89f53d03a15e9e9c3260ad6"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a35ff0e5cd89f53d03a15e9e9c3260ad6">FormatSupportsLibraries</a> () const</td></tr>
 <tr class="memdesc:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
 <tr class="separator:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9065ef224d05dd9702fb85bf196f9041 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a9065ef224d05dd9702fb85bf196f9041"><td class="memItemLeft" align="right" valign="top">
+virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdditionalSectionFlags</b> (std::string section_name) const</td></tr>
+<tr class="separator:a9065ef224d05dd9702fb85bf196f9041 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format" id="r_a10296b22383c5b8d061308d1f0cee6a8"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Format</b> (offset_t file_offset=0)</td></tr>
 <tr class="separator:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
-<tr class="memitem:aafdc8f1807bea3620401e7e786ef8eed inherit pub_methods_classLinker_1_1LinkerManager" id="r_aafdc8f1807bea3620401e7e786ef8eed"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>InitializeLinkerManager</b> ()</td></tr>
-<tr class="separator:aafdc8f1807bea3620401e7e786ef8eed inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ba82902513f53d3da619281f9602d41 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a0ba82902513f53d3da619281f9602d41"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearLinkerManager</b> ()</td></tr>
 <tr class="separator:a0ba82902513f53d3da619281f9602d41 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -280,37 +278,29 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a2ad2342b59c7f5e58debddf6290442c0" id="r_a2ad2342b59c7f5e58debddf6290442c0"><td class="memItemLeft" align="right" valign="top"><a id="a2ad2342b59c7f5e58debddf6290442c0" name="a2ad2342b59c7f5e58debddf6290442c0"></a>
 <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>data</b></td></tr>
 <tr class="separator:a2ad2342b59c7f5e58debddf6290442c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_attribs_classBinary_1_1BinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classBinary_1_1BinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classBinary_1_1BinaryFormat.html">Binary::BinaryFormat</a></td></tr>
-<tr class="memitem:a5de12785c4f991c39102eb339b502565 inherit pub_attribs_classBinary_1_1BinaryFormat" id="r_a5de12785c4f991c39102eb339b502565"><td class="memItemLeft" align="right" valign="top">
+<tr class="inherit_header pub_attribs_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
+<tr class="memitem:aafd6eedf5842d09a575dbac497f3aa94 inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_aafd6eedf5842d09a575dbac497f3aa94"><td class="memItemLeft" align="right" valign="top">
 <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>image</b> = nullptr</td></tr>
-<tr class="memdesc:a5de12785c4f991c39102eb339b502565 inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual stored image. <br /></td></tr>
-<tr class="separator:a5de12785c4f991c39102eb339b502565 inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa01e9439712270dc44509a36476403f9 inherit pub_attribs_classBinary_1_1BinaryFormat" id="r_aa01e9439712270dc44509a36476403f9"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="structMicrosoft_1_1MZFormat_1_1PIF.html">Microsoft::MZFormat::PIF</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>pif</b> = nullptr</td></tr>
-<tr class="memdesc:aa01e9439712270dc44509a36476403f9 inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent DOS program information entry, allocated only if present. <br /></td></tr>
-<tr class="separator:aa01e9439712270dc44509a36476403f9 inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33000166b05ee7fd80659262baa66574 inherit pub_attribs_classBinary_1_1BinaryFormat" id="r_a33000166b05ee7fd80659262baa66574"><td class="memItemLeft" align="right" valign="top">
+<tr class="memdesc:aafd6eedf5842d09a575dbac497f3aa94 inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual stored image. <br /></td></tr>
+<tr class="separator:aafd6eedf5842d09a575dbac497f3aa94 inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab26e7d22d4e556c5b81a1b4dd53fc4e2 inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_ab26e7d22d4e556c5b81a1b4dd53fc4e2"><td class="memItemLeft" align="right" valign="top">
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>position_independent</b></td></tr>
-<tr class="memdesc:a33000166b05ee7fd80659262baa66574 inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set when the generated code must not reference absolute references. <br /></td></tr>
-<tr class="separator:a33000166b05ee7fd80659262baa66574 inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac22d9050598e218a54bc11284983f29b inherit pub_attribs_classBinary_1_1BinaryFormat" id="r_ac22d9050598e218a54bc11284983f29b"><td class="memItemLeft" align="right" valign="top">
+<tr class="memdesc:ab26e7d22d4e556c5b81a1b4dd53fc4e2 inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set when the generated code must not reference absolute references. <br /></td></tr>
+<tr class="separator:ab26e7d22d4e556c5b81a1b4dd53fc4e2 inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51cc26aa6bc4d84c3fd07aec4da8149f inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_a51cc26aa6bc4d84c3fd07aec4da8149f"><td class="memItemLeft" align="right" valign="top">
 uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>base_address</b> = 0</td></tr>
-<tr class="memdesc:ac22d9050598e218a54bc11284983f29b inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address at which image is stored, it can be format specific or provided as a parameter. <br /></td></tr>
-<tr class="separator:ac22d9050598e218a54bc11284983f29b inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a23cdbe4be80fa2b76952ab511f9f2788 inherit pub_attribs_classBinary_1_1BinaryFormat" id="r_a23cdbe4be80fa2b76952ab511f9f2788"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515">memory_model_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>memory_model</b> = <a class="el" href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515a9731d98fe73b1b6d684363f6a43f232a">MODEL_DEFAULT</a></td></tr>
-<tr class="memdesc:a23cdbe4be80fa2b76952ab511f9f2788 inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memory model of generated executable, must be MODEL_DEFAULT for all non-x86 platforms. <br /></td></tr>
-<tr class="separator:a23cdbe4be80fa2b76952ab511f9f2788 inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa37e90198d51247348dd40eb60da889f inherit pub_attribs_classBinary_1_1BinaryFormat" id="r_aa37e90198d51247348dd40eb60da889f"><td class="memItemLeft" align="right" valign="top">
+<tr class="memdesc:a51cc26aa6bc4d84c3fd07aec4da8149f inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address at which image is stored, it can be format specific or provided as a parameter. <br /></td></tr>
+<tr class="separator:a51cc26aa6bc4d84c3fd07aec4da8149f inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebdf2a95e651fa7585d88aaf12a91eec inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_aebdf2a95e651fa7585d88aaf12a91eec"><td class="memItemLeft" align="right" valign="top">
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>extension</b></td></tr>
-<tr class="memdesc:aa37e90198d51247348dd40eb60da889f inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default filename extension for executables (such as .com for MS-DOS, .r for Human68k) <br /></td></tr>
-<tr class="separator:aa37e90198d51247348dd40eb60da889f inherit pub_attribs_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:aebdf2a95e651fa7585d88aaf12a91eec inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default filename extension for executables (such as .com for MS-DOS, .r for Human68k) <br /></td></tr>
+<tr class="separator:aebdf2a95e651fa7585d88aaf12a91eec inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
 <tr class="separator:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
-<tr class="memitem:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_ad9071f24df9b386cc5772eca5332f55a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#ad9071f24df9b386cc5772eca5332f55a">current_base</a></td></tr>
+<tr class="memitem:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_ad9071f24df9b386cc5772eca5332f55a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#ad9071f24df9b386cc5772eca5332f55a">current_base</a> = 0</td></tr>
 <tr class="memdesc:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
 <tr class="separator:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abdca6e8fe21c863b957f2c12f28e69a8 inherit pub_attribs_classLinker_1_1LinkerManager" id="r_abdca6e8fe21c863b957f2c12f28e69a8"><td class="memItemLeft" align="right" valign="top">
@@ -322,7 +312,7 @@ std::map&lt; std::string, <a class="el" href="classLinker_1_1Segment.html">Segme
 <tr class="memdesc:a7c15b4713acf31e216227db9f4f1e32a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of segments from their names. <br /></td></tr>
 <tr class="separator:a7c15b4713acf31e216227db9f4f1e32a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a940014bbe9e0466c622fe55c7f06ad5a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_a940014bbe9e0466c622fe55c7f06ad5a"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="classLinker_1_1Segment.html">Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>current_segment</b></td></tr>
+<a class="el" href="classLinker_1_1Segment.html">Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>current_segment</b> = nullptr</td></tr>
 <tr class="memdesc:a940014bbe9e0466c622fe55c7f06ad5a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Currently processed segment. <br /></td></tr>
 <tr class="separator:a940014bbe9e0466c622fe55c7f06ad5a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7218e188ee0cfaa6ae1ad6dcb8e0d23a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_a7218e188ee0cfaa6ae1ad6dcb8e0d23a"><td class="memItemLeft" align="right" valign="top">
@@ -336,31 +326,19 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script<
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_types_classBinary_1_1BinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classBinary_1_1BinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classBinary_1_1BinaryFormat.html">Binary::BinaryFormat</a></td></tr>
-<tr class="memitem:a5a48c0a58040c5e59c1b4d2ec8554515 inherit pub_types_classBinary_1_1BinaryFormat" id="r_a5a48c0a58040c5e59c1b4d2ec8554515"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515">memory_model_t</a> { <br />
-&#160;&#160;<a class="el" href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515a9731d98fe73b1b6d684363f6a43f232a">MODEL_DEFAULT</a>
-, <a class="el" href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515aad5371112d94eb2b20550e72f1ba650b">MODEL_TINY</a>
-, <a class="el" href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515a64dad9915d09e4e7b608bc804928ad3d">MODEL_SMALL</a>
-, <a class="el" href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515a219d8ed787548a6cfa4254544b01ba96">MODEL_COMPACT</a>
-, <br />
-&#160;&#160;<a class="el" href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515a4cd2502dd60d1aeb5625f0d5c14cd674">MODEL_LARGE</a>
-<br />
- }</td></tr>
-<tr class="memdesc:a5a48c0a58040c5e59c1b4d2ec8554515"><td class="mdescLeft">&#160;</td><td class="mdescRight">(x86 only) Represents the memory model of the running executable, which is the way in which the segments are set up during execution  <a href="classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515">More...</a><br /></td></tr>
-<tr class="separator:a5a48c0a58040c5e59c1b4d2ec8554515 inherit pub_types_classBinary_1_1BinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:a810b93fa2314556615ec6287cbfbc40c inherit pro_attribs_classLinker_1_1LinkerManager" id="r_a810b93fa2314556615ec6287cbfbc40c"><td class="memItemLeft" align="right" valign="top">
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b></td></tr>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b> = 0</td></tr>
 <tr class="memdesc:a810b93fa2314556615ec6287cbfbc40c inherit pro_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Holds the current address value when there is no current_segment. <br /></td></tr>
 <tr class="separator:a810b93fa2314556615ec6287cbfbc40c inherit pro_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a17397d11e7688fa6cc126d3e2449d741 inherit pro_attribs_classLinker_1_1LinkerManager" id="r_a17397d11e7688fa6cc126d3e2449d741"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>current_is_template</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>current_is_template</b> = false</td></tr>
 <tr class="separator:a17397d11e7688fa6cc126d3e2449d741 inherit pro_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a243b67a6fa58a2231905c30a2b0d6678 inherit pro_attribs_classLinker_1_1LinkerManager" id="r_a243b67a6fa58a2231905c30a2b0d6678"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>current_is_template_head</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>current_is_template_head</b> = false</td></tr>
 <tr class="separator:a243b67a6fa58a2231905c30a2b0d6678 inherit pro_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a27b4a50864e545571e3960350f30c2e8 inherit pro_attribs_classLinker_1_1LinkerManager" id="r_a27b4a50864e545571e3960350f30c2e8"><td class="memItemLeft" align="right" valign="top">
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>template_counter</b></td></tr>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>template_counter</b> = 0</td></tr>
 <tr class="separator:a27b4a50864e545571e3960350f30c2e8 inherit pro_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adda45534377393863e671f215c466ea7 inherit pro_attribs_classLinker_1_1LinkerManager" id="r_adda45534377393863e671f215c466ea7"><td class="memItemLeft" align="right" valign="top">
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_template_name</b></td></tr>
@@ -399,8 +377,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
-<a id="a56b8efa3e41725456f273b286c45b731" name="a56b8efa3e41725456f273b286c45b731"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a56b8efa3e41725456f273b286c45b731">&#9670;&#160;</a></span>GetDefaultExtension() <span class="overload">[2/2]</span></h2>
+<a id="a2422f8bfef617335b40a3c0532a23c2c" name="a2422f8bfef617335b40a3c0532a23c2c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2422f8bfef617335b40a3c0532a23c2c">&#9670;&#160;</a></span>GetDefaultExtension() <span class="overload">[2/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -409,7 +387,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">std::string BinaryFormat::GetDefaultExtension </td>
+          <td class="memname">std::string GenericBinaryFormat::GetDefaultExtension </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em>, </span></td>
         </tr>
@@ -429,7 +407,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Appends a default extension to the filename. </p>
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
-<p>Reimplemented from <a class="el" href="classBinary_1_1BinaryFormat.html#a56b8efa3e41725456f273b286c45b731">Binary::BinaryFormat</a>.</p>
+<p>Reimplemented from <a class="el" href="classBinary_1_1GenericBinaryFormat.html#a2422f8bfef617335b40a3c0532a23c2c">Binary::GenericBinaryFormat</a>.</p>
 
 </div>
 </div>
@@ -458,7 +436,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment. </p>
 
-<p>Reimplemented from <a class="el" href="classBinary_1_1BinaryFormat.html#ac0f4435b37b7060465169e7bd9362da5">Binary::BinaryFormat</a>.</p>
+<p>Reimplemented from <a class="el" href="classBinary_1_1GenericBinaryFormat.html#a061849df31d9e3368dca9ce10a7b7d6f">Binary::GenericBinaryFormat</a>.</p>
 
 </div>
 </div>
@@ -487,7 +465,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Stores data in memory to file. </p>
 
-<p>Reimplemented from <a class="el" href="classBinary_1_1BinaryFormat.html#a3f8e6f48a32f66ee83ff36fe2fc6b1ce">Binary::BinaryFormat</a>.</p>
+<p>Reimplemented from <a class="el" href="classBinary_1_1GenericBinaryFormat.html#a94a9c40d6a9335d58bffb488f057bfde">Binary::GenericBinaryFormat</a>.</p>
 
 </div>
 </div>

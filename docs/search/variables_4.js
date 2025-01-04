@@ -5,6 +5,6 @@ var searchData=
   ['entry_5faddress_2',['entry_address',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#a591ee21664125f34aab797509a8a21ec',1,'COFF::COFFFormat::AOutHeader::entry_address'],['../classCOFF_1_1COFFFormat.html#ac43a27d9ef5847c230dff13089ea8cce',1,'COFF::COFFFormat::entry_address']]],
   ['entry_5faddress_3',['ENTRY_ADDRESS',['../classBinary_1_1AtariFormat.html#aee4fa4abc879ec1b1a12ed0df423f626',1,'Binary::AtariFormat']]],
   ['exported_5fglobals_4',['exported_globals',['../classO65_1_1O65Format_1_1Module.html#af548ef3d4615ef611303f5c6703c2d1b',1,'O65::O65Format::Module']]],
-  ['extension_5',['extension',['../classBinary_1_1BinaryFormat.html#aa37e90198d51247348dd40eb60da889f',1,'Binary::BinaryFormat']]],
+  ['extension_5',['extension',['../classBinary_1_1GenericBinaryFormat.html#aebdf2a95e651fa7585d88aaf12a91eec',1,'Binary::GenericBinaryFormat']]],
   ['extra_5fparas_6',['extra_paras',['../classMicrosoft_1_1MZFormat.html#a701a408bbf3d6e030eb1c03d11465a3b',1,'Microsoft::MZFormat']]]
 ];

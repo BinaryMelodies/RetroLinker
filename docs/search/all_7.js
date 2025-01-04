@@ -22,7 +22,7 @@ var searchData=
   ['ext_5flong_5fsegmented_19',['EXT_LONG_SEGMENTED',['../structDigitalResearch_1_1CPM8KFormat_1_1Relocation.html#a178f324a79b912c1de63612c9576f0b7a602afe81434a4ee60b2ac34e11048cf8',1,'DigitalResearch::CPM8KFormat::Relocation']]],
   ['ext_5foffset_20',['EXT_OFFSET',['../structDigitalResearch_1_1CPM8KFormat_1_1Relocation.html#a178f324a79b912c1de63612c9576f0b7aebafb868bba8c89f6672015d7c78b338',1,'DigitalResearch::CPM8KFormat::Relocation']]],
   ['ext_5fshort_5fsegmented_21',['EXT_SHORT_SEGMENTED',['../structDigitalResearch_1_1CPM8KFormat_1_1Relocation.html#a178f324a79b912c1de63612c9576f0b7a78667166226b7dddcca7daebd8c6727e',1,'DigitalResearch::CPM8KFormat::Relocation']]],
-  ['extension_22',['extension',['../classBinary_1_1BinaryFormat.html#aa37e90198d51247348dd40eb60da889f',1,'Binary::BinaryFormat']]],
+  ['extension_22',['extension',['../classBinary_1_1GenericBinaryFormat.html#aebdf2a95e651fa7585d88aaf12a91eec',1,'Binary::GenericBinaryFormat']]],
   ['extra_23',['Extra',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca5cf9a33a0504d4559d0d2e80557481ed',1,'DigitalResearch::CPM86Format::Descriptor']]],
   ['extra_5fparas_24',['extra_paras',['../classMicrosoft_1_1MZFormat.html#a701a408bbf3d6e030eb1c03d11465a3b',1,'Microsoft::MZFormat']]]
 ];
