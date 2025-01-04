@@ -798,7 +798,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 
 	for(auto& section : sections)
 	{
-		Dumper::Block block("Section", file_offset + section->section_pointer, section->image.get(), section->address, 8);
+		Dumper::Block block("Section", file_offset + section->section_pointer, section->image, section->address, 8);
 		block.InsertField(0, "Name", new Dumper::StringDisplay, section->name);
 		if(section->image->ActualDataSize() != section->size)
 			block.AddField("Size in memory", new Dumper::HexDisplay, (offset_t)section->size);

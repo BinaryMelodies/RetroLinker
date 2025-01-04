@@ -489,7 +489,7 @@ public:
 	static char32_t encoding_cp437[256];
 	static char32_t encoding_st[256];
 
-	Linker::Writable * image;
+	std::shared_ptr<Linker::Writable> image;
 
 	std::set<offset_t> signal_starts;
 	std::set<offset_t> signal_ends;
@@ -507,7 +507,7 @@ public:
 		signal_ends.insert(end);
 	}
 
-	Block(std::string name, offset_t offset, Linker::Writable * image, offset_t address, unsigned display_width,
+	Block(std::string name, offset_t offset, std::shared_ptr<Linker::Writable> image, offset_t address, unsigned display_width,
 			unsigned offset_display_width = 8, unsigned address_display_width = -1, unsigned position_display_width = -1)
 		: Region(name, offset, image ? image->ActualDataSize() : 0, display_width),
 			offset_display_width(offset_display_width),

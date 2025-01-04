@@ -20,7 +20,7 @@ class TestLocation : public CppUnit::TestFixture
 	CPPUNIT_TEST(testLocationDisplacement);
 	CPPUNIT_TEST_SUITE_END();
 private:
-	Section * test_section;
+	std::shared_ptr<Section> test_section;
 	void testDefaultLocations();
 	void testLocationArithmetic();
 	void testLocationToPosition();
@@ -51,21 +51,20 @@ void TestLocation::testLocationArithmetic()
 
 void TestLocation::testLocationToPosition()
 {
-	test_section->segment = new Segment(".test");
+	std::shared_ptr<Segment> the_segment = std::make_shared<Segment>(".test");
+	test_section->segment = the_segment;
 	test_section->SetAddress(0x1234);
 	test_section->bias = 0x123;
 
 	Location location = Location(test_section, 123);
 
-	CPPUNIT_ASSERT_EQUAL(Position(0x1234 + 123, test_section->segment), location.GetPosition());
-	CPPUNIT_ASSERT_EQUAL(Position(0x1234 - 0x123, test_section->segment), location.GetPosition(true));
+	CPPUNIT_ASSERT_EQUAL(Position(0x1234 + 123, test_section->segment.lock()), location.GetPosition());
+	CPPUNIT_ASSERT_EQUAL(Position(0x1234 - 0x123, test_section->segment.lock()), location.GetPosition(true));
 
 	location = Location(123);
 
 	CPPUNIT_ASSERT_EQUAL(Position(123, nullptr), location.GetPosition());
 	CPPUNIT_ASSERT_EQUAL(Position(0, nullptr), location.GetPosition(true));
-
-	delete test_section->segment;
 }
 
 void TestLocation::testLocationDisplacement()
@@ -75,7 +74,7 @@ void TestLocation::testLocationDisplacement()
 	CPPUNIT_ASSERT(!location.Displace(displacement));
 	CPPUNIT_ASSERT_EQUAL(location, Location(test_section, 123));
 
-	Section * unrelated_section = new Section(".unrelated");
+	std::shared_ptr<Section> unrelated_section = std::make_shared<Section>(".unrelated");
 	displacement[unrelated_section] = 456;
 	CPPUNIT_ASSERT(!location.Displace(displacement));
 	CPPUNIT_ASSERT_EQUAL(location, Location(test_section, 123));
@@ -87,18 +86,16 @@ void TestLocation::testLocationDisplacement()
 	location = Location(nullptr, 123);
 	CPPUNIT_ASSERT(!location.Displace(displacement));
 	CPPUNIT_ASSERT_EQUAL(location, Location(nullptr, 123));
-
-	delete unrelated_section;
 }
 
 void TestLocation::setUp()
 {
-	test_section = new Section(".test");
+	test_section = std::make_shared<Section>(".test");
 }
 
 void TestLocation::tearDown()
 {
-	delete test_section;
+	test_section = nullptr;
 }
 
 }

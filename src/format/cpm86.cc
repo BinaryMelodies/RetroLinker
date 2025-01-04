@@ -716,7 +716,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 		if(descriptors[i].type == Descriptor::ActualFixups)
 			group = fixups = new Dumper::Region("Group", descriptors[i].offset, descriptors[i].size_paras << 4, 5);
 		else
-			group = new Dumper::Block("Group", descriptors[i].offset, descriptors[i].image.get(), descriptors[i].load_segment << 4, 5);
+			group = new Dumper::Block("Group", descriptors[i].offset, descriptors[i].image, descriptors[i].load_segment << 4, 5);
 		group->InsertField(0, "Type", new Dumper::ChoiceDisplay(group_types), (offset_t)descriptors[i].type);
 		group->AddField("Minimum", new Dumper::HexDisplay(5), (offset_t)descriptors[i].min_size_paras << 4);
 		group->AddField("Maximum", new Dumper::HexDisplay(5), (offset_t)descriptors[i].max_size_paras << 4);

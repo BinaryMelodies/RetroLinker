@@ -21,7 +21,7 @@ class TestMZFormat : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 private:
 	MZFormat exe;
-	Section * code;
+	std::shared_ptr<Section> code;
 
 	/** @brief Creates and verifies an empty executable */
 	void testCreateEXE();
@@ -293,13 +293,12 @@ void TestMZFormat::testEXEHeaderSize()
 void TestMZFormat::setUp()
 {
 	exe.Clear();
-	code = new Linker::Section(".code");
+	code = std::make_shared<Linker::Section>(".code");
 }
 
 void TestMZFormat::tearDown()
 {
 	exe.Clear();
-	delete code;
 	code = nullptr;
 }
 
@@ -336,10 +335,8 @@ void TestMZFormat::set_image(std::string data)
 {
 	code->Reset();
 	code->Append(data.c_str(), data.size());
-	Linker::Segment * segment = new Linker::Segment(".code");
+	std::shared_ptr<Linker::Segment> segment = std::make_shared<Linker::Segment>(".code");
 	segment->Append(code);
-	if(exe.image)
-		delete exe.image;
 	exe.image = segment;
 /*	if(exe.image_segment)
 		delete exe.image_segment;
@@ -352,7 +349,7 @@ void TestMZFormat::test_image(std::string data)
 	CPPUNIT_ASSERT_EQUAL(file_size & 0x1FF, (uint32_t)exe.last_block_size);
 	CPPUNIT_ASSERT_EQUAL((file_size + 0x1FF) >> 9, (uint32_t)exe.file_size_blocks);
 	CPPUNIT_ASSERT_EQUAL(file_size, exe.GetFileSize());
-	Linker::Buffer * buffer = dynamic_cast<Linker::Buffer *>(exe.image);
+	std::shared_ptr<Linker::Buffer> buffer = std::dynamic_pointer_cast<Linker::Buffer>(exe.image);
 	assert(buffer != nullptr); /* internal check */
 	CPPUNIT_ASSERT_EQUAL(data.size(), buffer->ActualDataSize());
 	for(uint32_t i = 0; i < data.size(); i++)

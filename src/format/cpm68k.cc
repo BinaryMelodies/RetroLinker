@@ -433,9 +433,9 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 	header_region.AddField("Suppression word", new Dumper::HexDisplay(4), (offset_t)relocations_suppressed);
 	header_region.AddField("Bss size", new Dumper::HexDisplay, (offset_t)bss_size);
 
-	Dumper::Block code_block("Code segment", file_offset + header_size, code.get(),
+	Dumper::Block code_block("Code segment", file_offset + header_size, code,
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? code_address : 0, 8);
-	Dumper::Block data_block("Data segment", file_offset + header_size + code_size, data.get(),
+	Dumper::Block data_block("Data segment", file_offset + header_size + code_size, data,
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? data_address : code_size, 8);
 
 	header_region.AddField("Bss address", new Dumper::HexDisplay, (offset_t)bss_address); /* TODO: place as part of a container */
