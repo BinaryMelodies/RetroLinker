@@ -90,7 +90,7 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 
 	rd.endiantype = ::LittleEndian;
 	rd.ReadData(5, signature);
-	if(memcpy(signature, "\1\0o65", 5) != 0)
+	if(memcmp(signature, "\1\0o65", 5) != 0)
 		throw "Invalid magic number";
 	if(rd.ReadUnsigned(1) != 0)
 		throw "Invalid format version";
@@ -106,18 +106,15 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	zero_size = ReadUnsigned(rd);
 	stack_size = ReadUnsigned(rd);
 
+//	Linker::Debug << "At offset " << rd.Tell() << std::endl;
+
 	int length;
 	while((length = rd.ReadUnsigned(1)) != 0)
 	{
+//		Linker::Debug << "Reading optional header entry of length " << length << std::endl;
 		header_options.push_back(header_option(rd.ReadUnsigned(1)));
 		header_options.back().data.resize(length);
 		rd.ReadData(length, reinterpret_cast<char *>(header_options.back().data.data()));
-	}
-
-	offset_t undefined_count = ReadUnsigned(rd);
-	for(offset_t i = 0; i < undefined_count; i++)
-	{
-		undefined_references.push_back(rd.ReadASCIIZ());
 	}
 
 	Linker::Section * code_section = new Linker::Section(".text");
@@ -131,6 +128,13 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	data_section->ReadFile(rd, data_size);
 	data_section->SetReadable(true);
 	data_section->SetWritable(true);
+
+	offset_t undefined_count = ReadUnsigned(rd);
+//	Linker::Debug << "Reading " << undefined_count << " undefined names" << std::endl;
+	for(offset_t i = 0; i < undefined_count; i++)
+	{
+		undefined_references.push_back(rd.ReadASCIIZ());
+	}
 
 	std::map<offset_t, relocation> * relocation_parts[2] = { &code_relocations, &data_relocations };
 	for(int i = 0; i < 2; i++)
@@ -393,16 +397,16 @@ O65Format::Module& O65Format::AddModule()
 
 void O65Format::Initialize()
 {
-	modules.push_back(new Module);
 }
 
 void O65Format::Clear()
 {
-	for(auto module : modules)
-	{
-		module->Clear();
-		delete module;
-	}
+	// TODO: switch over from manual memory management to more robust methods
+//	for(auto module : modules)
+//	{
+//		module->Clear();
+//		delete module;
+//	}
 	modules.clear();
 }
 
@@ -425,6 +429,7 @@ void O65Format::WriteFile(Linker::Writer& wr)
 
 void O65Format::ProduceModule(Linker::Module& module, Linker::Reader& rd)
 {
+	ReadFile(rd);
 	modules[0]->ProduceModule(module, rd);
 }
 
