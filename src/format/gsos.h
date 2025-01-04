@@ -7,6 +7,8 @@
 #include "../linker/segment.h"
 #include "../linker/writer.h"
 
+/* TODO: untested */
+
 namespace Apple
 {
 	/**
@@ -143,8 +145,9 @@ namespace Apple
 				{
 					// E: executable, O: object, L: library
 					OPC_END = 0x00, // EOL
-					OPC_CONST_01 = 0x01, // O
-					OPC_CONST_DF = 0xDF, // O
+					OPC_CONST_BASE = 0x00,
+					OPC_CONST_FIRST = 0x01, // O
+					OPC_CONST_LAST = 0xDF, // O
 					OPC_ALIGN = 0xE0, // O
 					OPC_ORG = 0xE1, // O
 					OPC_RELOC = 0xE2, // E
@@ -415,17 +418,29 @@ namespace Apple
 			class SuperCompactRecord : public Record
 			{
 			public:
-				// TODO
-				std::vector<Record *> records;
+				enum super_record_type
+				{
+					SUPER_RELOC2,
+					SUPER_RELOC3,
+					SUPER_INTERSEG1,
+					SUPER_INTERSEG13 = SUPER_INTERSEG1 - 1 + 13,
+					SUPER_INTERSEG25 = SUPER_INTERSEG1 - 1 + 25,
+				};
 
-				SuperCompactRecord(record_type type)
-					: Record(type)
+				super_record_type super_type = super_record_type(0);
+
+				std::vector<uint16_t> offsets;
+
+				SuperCompactRecord(record_type type, super_record_type super_type = super_record_type(0))
+					: Record(type), super_type(super_type)
 				{
 				}
 
 				offset_t GetLength(Segment& segment) override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+			private:
+				void WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches);
 			};
 
 			Expression * ReadExpression(Linker::Reader& rd);
@@ -474,6 +489,7 @@ namespace Apple
 			Record * makecRELOC();
 			Record * makecINTERSEG(uint8_t size, uint8_t shift, uint16_t source, uint16_t segment_number, uint16_t target);
 			Record * makecINTERSEG();
+			Record * makeSUPER(SuperCompactRecord::super_record_type super_type = SuperCompactRecord::super_record_type(0));
 		};
 
 		std::vector<Segment *> segments;

@@ -294,40 +294,40 @@ void OMFFormat::Segment::Record::WriteFile(Segment& segment, Linker::Writer& wr)
 
 offset_t OMFFormat::Segment::DataRecord::GetLength(Segment& segment)
 {
-	if(type == OPC_LCONST)
+	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
-		return 5 + data.size();
+		return 1 + data.size();
 	}
 	else
 	{
-		return 1 + data.size();
+		return 5 + data.size();
 	}
 }
 
 void OMFFormat::Segment::DataRecord::ReadFile(Segment& segment, Linker::Reader& rd)
 {
-	if(type == OPC_LCONST)
+	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
+	{
+		rd.ReadData(data.size(), reinterpret_cast<char *>(data.data()));
+	}
+	else
 	{
 		size_t length = rd.ReadUnsigned(4);
 		data.resize(length);
 		rd.ReadData(length, reinterpret_cast<char *>(data.data()));
-	}
-	else
-	{
-		rd.ReadData(data.size(), reinterpret_cast<char *>(data.data()));
 	}
 }
 
 void OMFFormat::Segment::DataRecord::WriteFile(Segment& segment, Linker::Writer& wr)
 {
 	Record::WriteFile(segment, wr);
-	if(type == OPC_LCONST)
+	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
-		wr.WriteWord(4, data.size());
 		wr.WriteData(data.size(), reinterpret_cast<char *>(data.data()));
 	}
 	else
 	{
+		wr.WriteWord(4, data.size());
 		wr.WriteData(data.size(), reinterpret_cast<char *>(data.data()));
 	}
 }
@@ -583,6 +583,112 @@ void OMFFormat::Segment::EntryRecord::WriteFile(Segment& segment, Linker::Writer
 	segment.WriteLabel(wr, name);
 }
 
+offset_t OMFFormat::Segment::SuperCompactRecord::GetLength(Segment& segment)
+{
+	offset_t record_size = 1;
+	uint16_t current_page = 0;
+	for(uint16_t offset : offsets)
+	{
+		if((offset & 0xFF00) == current_page)
+		{
+			/* append byte for next patch */
+			record_size ++;
+		}
+		else if((offset & 0xFF00) == current_page + 0x100)
+		{
+			/* append byte for next page and next patch */
+			record_size += 2;
+		}
+		else if((offset & 0xFF00) < offset_t(current_page) + 0x8000)
+		{
+			/* append byte for skip patch, next page and next patch */
+			record_size += 3;
+		}
+		else
+		{
+			/* we need two skip patch bytes */
+			record_size += 4;
+		}
+		current_page = offset & 0xFF00;
+	}
+	return 6 + record_size;
+}
+
+void OMFFormat::Segment::SuperCompactRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+{
+	offset_t record_size = rd.ReadUnsigned(4);
+	offset_t start = rd.Tell();
+	super_type = super_record_type(rd.ReadUnsigned(1));
+	uint16_t current_page = 0;
+	while(rd.Tell() < start + record_size)
+	{
+		uint8_t count = rd.ReadUnsigned(1);
+		if(count <= 0x80)
+		{
+			for(int i = 0; i < count + 1; i++)
+			{
+				offsets.push_back(current_page + rd.ReadUnsigned(1));
+			}
+			current_page += 0x100;
+		}
+		else
+		{
+			current_page += (count - 0x80) << 8;
+		}
+	}
+}
+
+void OMFFormat::Segment::SuperCompactRecord::WriteFile(Segment& segment, Linker::Writer& wr)
+{
+	Record::WriteFile(segment, wr);
+	wr.WriteWord(4, GetLength(segment) - 5);
+	wr.WriteWord(1, super_type);
+	uint16_t current_page = 0;
+	std::vector<uint8_t> patches;
+	for(uint16_t offset : offsets)
+	{
+		if((offset & 0xFF00) == current_page)
+		{
+			/* append byte for next patch */
+			patches.push_back(offset & 0xFF);
+		}
+		else if((offset & 0xFF00) == current_page + 0x100)
+		{
+			/* append byte for next page and next patch */
+			WritePatchList(wr, patches);
+			patches.clear();
+			patches.push_back(offset & 0xFF);
+		}
+		else if((offset & 0xFF00) < offset_t(current_page) + 0x8000)
+		{
+			/* append byte for skip patch, next page and next patch */
+			WritePatchList(wr, patches);
+			patches.clear();
+			wr.WriteWord(1, 0x7F + ((offset - current_page) >> 8));
+			patches.push_back(offset & 0xFF);
+		}
+		else
+		{
+			/* we need two skip patch bytes */
+			WritePatchList(wr, patches);
+			patches.clear();
+			wr.WriteWord(1, 0xFF);
+			wr.WriteWord(1, (offset - current_page) >> 8);
+			patches.push_back(offset & 0xFF);
+		}
+	}
+	WritePatchList(wr, patches);
+}
+
+void OMFFormat::Segment::SuperCompactRecord::WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches)
+{
+	wr.WriteWord(1, patches.size() - 1);
+	for(uint8_t patch : patches)
+	{
+		wr.WriteWord(1, patch);
+	}
+}
+
 OMFFormat::Segment::Expression * OMFFormat::Segment::ReadExpression(Linker::Reader& rd)
 {
 	// TODO
@@ -662,11 +768,18 @@ OMFFormat::Segment::Record * OMFFormat::Segment::ReadRecord(Linker::Reader& rd)
 		record = makecINTERSEG();
 		break;
 	case Record::OPC_SUPER: // V2
-		// TODO
+		if(version >= OMF_VERSION_2)
+		{
+			record = makeSUPER();
+		}
 	default:
-		if(Record::OPC_CONST_01 <= type && type <= Record::OPC_CONST_DF)
+		if(Record::OPC_CONST_FIRST <= type && type <= Record::OPC_CONST_LAST)
 		{
 			record = makeCONST(type);
+		}
+		else
+		{
+			record = new DataRecord(Record::record_type(type));
 		}
 	}
 	// TODO: nullptr
@@ -682,33 +795,33 @@ OMFFormat::Segment::Record * OMFFormat::Segment::makeEND()
 OMFFormat::Segment::Record * OMFFormat::Segment::makeCONST(std::vector<uint8_t> data)
 {
 	size_t length = data.size();
-	if(length >= Record::OPC_CONST_DF)
+	if(length >= Record::OPC_CONST_LAST)
 	{
-		length = Record::OPC_CONST_DF;
+		length = Record::OPC_CONST_LAST;
 	}
 	return makeCONST(data, length);
 }
 
 OMFFormat::Segment::Record * OMFFormat::Segment::makeCONST(std::vector<uint8_t> data, size_t length)
 {
-	if(length >= Record::OPC_CONST_DF)
+	if(length >= Record::OPC_CONST_LAST)
 	{
-		length = Record::OPC_CONST_DF;
+		length = Record::OPC_CONST_LAST;
 	}
 	if(length > data.size())
 	{
 		length = data.size();
 	}
-	return new DataRecord(Record::record_type(Record::OPC_CONST_01 - 1 + length), std::vector<uint8_t>(data.begin(), data.begin() + length));
+	return new DataRecord(Record::record_type(Record::OPC_CONST_BASE + length), std::vector<uint8_t>(data.begin(), data.begin() + length));
 }
 
 OMFFormat::Segment::Record * OMFFormat::Segment::makeCONST(size_t length)
 {
-	if(length >= Record::OPC_CONST_DF)
+	if(length >= Record::OPC_CONST_LAST)
 	{
-		length = Record::OPC_CONST_DF;
+		length = Record::OPC_CONST_LAST;
 	}
-	return new DataRecord(Record::record_type(Record::OPC_CONST_01 - 1 + length), length);
+	return new DataRecord(Record::record_type(Record::OPC_CONST_BASE - 1 + length), length);
 }
 
 OMFFormat::Segment::Record * OMFFormat::Segment::makeALIGN(offset_t align)
@@ -903,5 +1016,10 @@ OMFFormat::Segment::Record * OMFFormat::Segment::makecINTERSEG(uint8_t size, uin
 OMFFormat::Segment::Record * OMFFormat::Segment::makecINTERSEG()
 {
 	return new IntersegmentRelocationRecord(Record::OPC_C_INTERSEG);
+}
+
+OMFFormat::Segment::Record * OMFFormat::Segment::makeSUPER(SuperCompactRecord::super_record_type super_type)
+{
+	return new SuperCompactRecord(Record::OPC_SUPER, super_type);
 }
 
