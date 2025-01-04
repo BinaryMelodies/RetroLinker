@@ -1,6 +1,7 @@
 #ifndef CPM86_H
 #define CPM86_H
 
+#include <array>
 #include <map>
 #include <set>
 #include <vector>
@@ -183,7 +184,7 @@ namespace DigitalResearch
 
 			operator bool() const;
 
-			void Read(Linker::Reader& rd, CPM86Format * module, bool is_library = false);
+			void Read(Linker::Reader& rd, CPM86Format& module, bool is_library = false);
 
 			void Write(Linker::Writer& wr);
 
@@ -368,7 +369,7 @@ namespace DigitalResearch
 		/**
 		 * @brief A .cmd file may contain up to 8 descriptors that describer the segment groups
 		 */
-		Descriptor descriptors[8]; // TODO: does this initialize the members
+		std::array<Descriptor, 8> descriptors;
 		/**
 		 * @brief FlexOS 286 defines a shared runtime library group at offset 0x48
 		 */
@@ -392,7 +393,7 @@ namespace DigitalResearch
 		/**
 		 * @brief Represents a list of attached RSX modules
 		 */
-		rsx_record rsx_table[8]; // TODO: does this initialize the members
+		std::array<rsx_record, 8> rsx_table;
 		/**
 		 * @brief The actual RSX table, stored in 128 byte units at offset 0x7B
 		 */

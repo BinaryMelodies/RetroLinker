@@ -82,7 +82,7 @@ namespace Apple
 		static const char TXT_VAX_VMS[16];
 
 	public:
-		std::vector<Entry *> entries;
+		std::vector<std::shared_ptr<Entry>> entries;
 
 		enum
 		{
@@ -150,18 +150,18 @@ namespace Apple
 		void SetModel(std::string model) override;
 		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
-		Entry * FindEntry(uint32_t id);
+		std::shared_ptr<Entry> FindEntry(uint32_t id);
 
 	protected:
-		Entry * GetFileDatesInfo();
-		Entry * GetMacintoshFileInfo();
-		Entry * GetAUXFileInfo();
-		Entry * GetProDOSFileInfo();
-		Entry * GetMSDOSFileInfo();
+		std::shared_ptr<Entry> GetFileDatesInfo();
+		std::shared_ptr<Entry> GetMacintoshFileInfo();
+		std::shared_ptr<Entry> GetAUXFileInfo();
+		std::shared_ptr<Entry> GetProDOSFileInfo();
+		std::shared_ptr<Entry> GetMSDOSFileInfo();
 
-		Entry * GetDataFork();
-		Entry * GetResourceFork();
-		Entry * GetFinderInfo();
+		std::shared_ptr<Entry> GetDataFork();
+		std::shared_ptr<Entry> GetResourceFork();
+		std::shared_ptr<Entry> GetFinderInfo();
 
 	public:
 		void SetCreationDate(uint32_t CreationDate);

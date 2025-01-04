@@ -314,15 +314,15 @@ namespace Apple
 			class LabelExpressionRecord : public LabelRecord
 			{
 			public:
-				Expression * expression = nullptr;
+				std::unique_ptr<Expression> expression;
 
 				LabelExpressionRecord(record_type type)
 					: LabelRecord(type)
 				{
 				}
 
-				LabelExpressionRecord(record_type type, std::string name, uint16_t line_length, int operation, uint16_t private_flag, Expression * expression)
-					: LabelRecord(type, name, line_length, operation, private_flag), expression(expression)
+				LabelExpressionRecord(record_type type, std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr<Expression> expression)
+					: LabelRecord(type, name, line_length, operation, private_flag), expression(std::move(expression))
 				{
 				}
 
@@ -356,15 +356,15 @@ namespace Apple
 			{
 			public:
 				uint8_t size = 0;
-				Expression * expression = nullptr;
+				std::unique_ptr<Expression> expression;
 
 				ExpressionRecord(record_type type)
 					: Record(type)
 				{
 				}
 
-				ExpressionRecord(record_type type, uint8_t size, Expression * expression)
-					: Record(type), size(size), expression(expression)
+				ExpressionRecord(record_type type, uint8_t size, std::unique_ptr<Expression> expression)
+					: Record(type), size(size), expression(std::move(expression))
 				{
 				}
 
@@ -383,8 +383,8 @@ namespace Apple
 				{
 				}
 
-				RelativeExpressionRecord(record_type type, uint8_t size, offset_t origin, Expression * expression)
-					: ExpressionRecord(type, size, expression), origin(origin)
+				RelativeExpressionRecord(record_type type, uint8_t size, offset_t origin, std::unique_ptr<Expression> expression)
+					: ExpressionRecord(type, size, std::move(expression)), origin(origin)
 				{
 				}
 
@@ -443,56 +443,56 @@ namespace Apple
 				void WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches);
 			};
 
-			Expression * ReadExpression(Linker::Reader& rd);
+			std::unique_ptr<Expression> ReadExpression(Linker::Reader& rd);
 
-			Record * ReadRecord(Linker::Reader& rd);
+			std::unique_ptr<Record> ReadRecord(Linker::Reader& rd);
 
-			Record * makeEND();
-			Record * makeCONST(std::vector<uint8_t> data);
-			Record * makeCONST(std::vector<uint8_t> data, size_t length);
-			Record * makeCONST(size_t length);
-			Record * makeALIGN(offset_t align = 0);
-			Record * makeORG(offset_t value = 0);
-			Record * makeRELOC(uint8_t size, uint8_t shift, offset_t source, offset_t target);
-			Record * makeRELOC();
-			Record * makeINTERSEG(uint8_t size, uint8_t shift, offset_t source, uint16_t file_number, uint16_t segment_number, offset_t target);
-			Record * makeINTERSEG();
-			Record * makeUSING(std::string name = "");
-			Record * makeSTRONG(std::string name = "");
-			Record * makeGLOBAL();
-			Record * makeGLOBAL(std::string name, uint16_t line_length, int operation, uint16_t private_flag);
-			Record * makeGEQU();
-			Record * makeGEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, Expression * expression);
-			Record * makeMEM();
-			Record * makeMEM(offset_t start, offset_t end);
-			Record * makeEXPR();
-			Record * makeEXPR(uint8_t size, Expression * expression);
-			Record * makeZEXPR();
-			Record * makeZEXPR(uint8_t size, Expression * expression);
-			Record * makeBEXPR();
-			Record * makeBEXPR(uint8_t size, Expression * expression);
-			Record * makeRELEXPR();
-			Record * makeRELEXPR(uint8_t size, offset_t origin, Expression * expression);
-			Record * makeLOCAL();
-			Record * makeLOCAL(std::string name, uint16_t line_length, int operation, uint16_t private_flag);
-			Record * makeEQU();
-			Record * makeEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, Expression * expression);
-			Record * makeDS(offset_t count = 0);
-			Record * makeLCONST();
-			Record * makeLCONST(std::vector<uint8_t> data);
-			Record * makeLCONST(std::vector<uint8_t> data, size_t length);
-			Record * makeLEXPR();
-			Record * makeLEXPR(uint8_t size, Expression * expression);
-			Record * makeENTRY();
-			Record * makeENTRY(uint16_t segment_number, offset_t location, std::string name);
-			Record * makecRELOC(uint8_t size, uint8_t shift, uint16_t source, uint16_t target);
-			Record * makecRELOC();
-			Record * makecINTERSEG(uint8_t size, uint8_t shift, uint16_t source, uint16_t segment_number, uint16_t target);
-			Record * makecINTERSEG();
-			Record * makeSUPER(SuperCompactRecord::super_record_type super_type = SuperCompactRecord::super_record_type(0));
+			std::unique_ptr<Record> makeEND();
+			std::unique_ptr<Record> makeCONST(std::vector<uint8_t> data);
+			std::unique_ptr<Record> makeCONST(std::vector<uint8_t> data, size_t length);
+			std::unique_ptr<Record> makeCONST(size_t length);
+			std::unique_ptr<Record> makeALIGN(offset_t align = 0);
+			std::unique_ptr<Record> makeORG(offset_t value = 0);
+			std::unique_ptr<Record> makeRELOC(uint8_t size, uint8_t shift, offset_t source, offset_t target);
+			std::unique_ptr<Record> makeRELOC();
+			std::unique_ptr<Record> makeINTERSEG(uint8_t size, uint8_t shift, offset_t source, uint16_t file_number, uint16_t segment_number, offset_t target);
+			std::unique_ptr<Record> makeINTERSEG();
+			std::unique_ptr<Record> makeUSING(std::string name = "");
+			std::unique_ptr<Record> makeSTRONG(std::string name = "");
+			std::unique_ptr<Record> makeGLOBAL();
+			std::unique_ptr<Record> makeGLOBAL(std::string name, uint16_t line_length, int operation, uint16_t private_flag);
+			std::unique_ptr<Record> makeGEQU();
+			std::unique_ptr<Record> makeGEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr<Expression> expression);
+			std::unique_ptr<Record> makeMEM();
+			std::unique_ptr<Record> makeMEM(offset_t start, offset_t end);
+			std::unique_ptr<Record> makeEXPR();
+			std::unique_ptr<Record> makeEXPR(uint8_t size, std::unique_ptr<Expression> expression);
+			std::unique_ptr<Record> makeZEXPR();
+			std::unique_ptr<Record> makeZEXPR(uint8_t size, std::unique_ptr<Expression> expression);
+			std::unique_ptr<Record> makeBEXPR();
+			std::unique_ptr<Record> makeBEXPR(uint8_t size, std::unique_ptr<Expression> expression);
+			std::unique_ptr<Record> makeRELEXPR();
+			std::unique_ptr<Record> makeRELEXPR(uint8_t size, offset_t origin, std::unique_ptr<Expression> expression);
+			std::unique_ptr<Record> makeLOCAL();
+			std::unique_ptr<Record> makeLOCAL(std::string name, uint16_t line_length, int operation, uint16_t private_flag);
+			std::unique_ptr<Record> makeEQU();
+			std::unique_ptr<Record> makeEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr<Expression> expression);
+			std::unique_ptr<Record> makeDS(offset_t count = 0);
+			std::unique_ptr<Record> makeLCONST();
+			std::unique_ptr<Record> makeLCONST(std::vector<uint8_t> data);
+			std::unique_ptr<Record> makeLCONST(std::vector<uint8_t> data, size_t length);
+			std::unique_ptr<Record> makeLEXPR();
+			std::unique_ptr<Record> makeLEXPR(uint8_t size, std::unique_ptr<Expression> expression);
+			std::unique_ptr<Record> makeENTRY();
+			std::unique_ptr<Record> makeENTRY(uint16_t segment_number, offset_t location, std::string name);
+			std::unique_ptr<Record> makecRELOC(uint8_t size, uint8_t shift, uint16_t source, uint16_t target);
+			std::unique_ptr<Record> makecRELOC();
+			std::unique_ptr<Record> makecINTERSEG(uint8_t size, uint8_t shift, uint16_t source, uint16_t segment_number, uint16_t target);
+			std::unique_ptr<Record> makecINTERSEG();
+			std::unique_ptr<Record> makeSUPER(SuperCompactRecord::super_record_type super_type = SuperCompactRecord::super_record_type(0));
 		};
 
-		std::vector<Segment *> segments;
+		std::vector<std::unique_ptr<Segment>> segments;
 
 		void CalculateValues() override;
 		void ReadFile(Linker::Reader& rd) override;

@@ -82,7 +82,7 @@ namespace Binary
 			void WriteFile(Linker::Writer& wr);
 		};
 
-		std::vector<Segment *> segments;
+		std::vector<std::unique_ptr<Segment>> segments;
 
 		/** @brief Address which contains a loader between to execute between loading segments */
 		static const uint16_t LOADER_ADDRESS = 0x02E2;
@@ -192,7 +192,7 @@ namespace Binary
 			void WriteFile(Linker::Writer& wr);
 		};
 
-		std::vector<Segment *> segments;
+		std::vector<std::unique_ptr<Segment>> segments;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 

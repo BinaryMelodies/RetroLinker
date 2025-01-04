@@ -34,7 +34,7 @@ offset_t AtariFormat::Segment::GetSize() const
 
 bool AtariFormat::HasEntryPoint() const
 {
-	for(auto segment : segments)
+	for(auto& segment : segments)
 	{
 		if(segment->address <= ENTRY_ADDRESS && ENTRY_ADDRESS + 1 < segment->address + segment->GetSize())
 			return true;
@@ -44,12 +44,12 @@ bool AtariFormat::HasEntryPoint() const
 
 void AtariFormat::AddEntryPoint(uint16_t entry)
 {
-	Segment * entry_segment = new Segment();
+	std::unique_ptr<Segment> entry_segment = std::make_unique<Segment>();
 	entry_segment->address = ENTRY_ADDRESS;
 	std::shared_ptr<Linker::Section> entry_section = std::make_shared<Linker::Section>(".entry");
 	entry_section->WriteWord(2, entry, ::LittleEndian);
 	entry_segment->image = entry_section;
-	segments.push_back(entry_segment);
+	segments.push_back(std::move(entry_segment));
 }
 
 void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
@@ -90,13 +90,13 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
 
 void AtariFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
-	Segment * atari_segment = new Segment(); /* TODO: header type */
+	std::unique_ptr<Segment> atari_segment = std::make_unique<Segment>(); /* TODO: header type */
 	segment->Fill();
 	atari_segment->address = segment->base_address;
 	atari_segment->image = segment;
 	if(segments.size() == 0)
 		atari_segment->header_optional = false;
-	segments.push_back(atari_segment);
+	segments.push_back(std::move(atari_segment));
 }
 
 void AtariFormat::ProcessModule(Linker::Module& module)
@@ -126,9 +126,9 @@ void AtariFormat::ReadFile(Linker::Reader& rd)
 	}
 	while(rd.Tell() < end)
 	{
-		Segment * segment = new Segment();
+		std::unique_ptr<Segment> segment = std::make_unique<Segment>();
 		segment->ReadFile(rd);
-		segments.push_back(segment);
+		segments.push_back(std::move(segment));
 	}
 }
 
@@ -277,11 +277,11 @@ void FLEXFormat::Segment::WriteFile(Linker::Writer& wr)
 
 void FLEXFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
-	Segment * flex_segment = new Segment();
+	std::unique_ptr<Segment> flex_segment = std::make_unique<Segment>();
 	segment->Fill();
 	flex_segment->address = segment->base_address;
 	flex_segment->image = segment;
-	segments.push_back(flex_segment);
+	segments.push_back(std::move(flex_segment));
 }
 
 void FLEXFormat::WriteFile(Linker::Writer& wr)

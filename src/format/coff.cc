@@ -216,10 +216,6 @@ bool COFFFormat::Symbol::IsExternal() const
 void COFFFormat::Section::Clear()
 {
 	image = nullptr;
-	for(Relocation * rel : relocations)
-	{
-		delete rel;
-	}
 	relocations.clear();
 }
 
@@ -479,21 +475,9 @@ void COFFFormat::MIPSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& du
 void COFFFormat::Clear()
 {
 	/* member fields */
-	for(auto& section : sections)
-	{
-		delete section;
-	}
 	sections.clear();
-	if(optional_header)
-	{
-		delete optional_header;
-	}
 	optional_header = nullptr;
 	relocations.clear();
-	for(auto& symbol : symbols)
-	{
-		delete symbol;
-	}
 	symbols.clear();
 	/* writer fields */
 	stack = nullptr;
@@ -577,27 +561,27 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 	{
 	case 28:
 		/* a.out header */
-		optional_header = new AOutHeader;
+		optional_header = std::make_unique<AOutHeader>();
 		break;
 	case 32:
 		/* GNU a.out header */
 		if(cpu_type == CPU_I386)
 		{
-			optional_header = new GNUAOutHeader;
+			optional_header = std::make_unique<GNUAOutHeader>();
 		}
 		break;
 	case 36:
 		/* CDOS68K */
 		if(cpu_type == CPU_M68K || cpu_type == CPU_I386)
 		{
-			optional_header = new FlexOSAOutHeader;
+			optional_header = std::make_unique<FlexOSAOutHeader>();
 			break;
 		}
 		break;
 	}
 	if(optional_header == nullptr && optional_header_size != 0)
 	{
-		optional_header = new UnknownOptionalHeader(optional_header_size);
+		optional_header = std::make_unique<UnknownOptionalHeader>(optional_header_size);
 	}
 
 //	offset_t optional_header_offset = rd.Tell();
@@ -610,12 +594,12 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 
 	for(size_t i = 0; i < section_count; i++)
 	{
-		Section * section = new Section;
+		std::unique_ptr<Section> section = std::make_unique<Section>();
 		section->ReadSectionHeader(rd);
-		sections.push_back(section);
+		sections.push_back(std::move(section));
 	}
 
-	for(auto section : sections)
+	for(auto& section : sections)
 	{
 		if(section->flags & (Section::TEXT | Section::DATA))
 		{
@@ -628,16 +612,16 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 	{
 	case CPU_Z80:
 	case CPU_Z8K:
-		for(auto section : sections)
+		for(auto& section : sections)
 		{
 			if(section->relocation_count > 0)
 			{
 				rd.Seek(file_offset + section->relocation_pointer);
 				for(size_t i = 0; i < section->relocation_count; i++)
 				{
-					ZilogRelocation * rel = new ZilogRelocation(cpu_type);
+					std::unique_ptr<ZilogRelocation> rel = std::make_unique<ZilogRelocation>(cpu_type);
 					rel->Read(rd);
-					section->relocations.push_back(rel);
+					section->relocations.push_back(std::move(rel));
 				}
 			}
 		}
@@ -652,13 +636,13 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 		rd.Seek(file_offset + symbol_table_offset);
 		while(symbols.size() < symbol_count)
 		{
-			Symbol * symbol = new Symbol;
+			std::unique_ptr<Symbol> symbol = std::make_unique<Symbol>();
 			symbol->Read(rd);
-			symbols.push_back(symbol);
-			symbols.resize(symbols.size() + symbol->auxiliary_count);
+			symbols.push_back(std::move(symbol));
+			symbols.resize(symbols.size() + symbols.back()->auxiliary_count);
 		}
 		size_t string_table_offset = rd.Tell();
-		for(Symbol * symbol : symbols)
+		for(auto& symbol : symbols)
 		{
 			if(symbol && symbol->name_index != 0)
 			{
@@ -716,13 +700,13 @@ void COFFFormat::WriteFile(Linker::Writer& wr)
 	}
 
 	/* Section Header */
-	for(auto section : sections)
+	for(auto& section : sections)
 	{
 		section->WriteSectionHeader(wr);
 	}
 
 	/* Section Data */
-	for(auto section : sections)
+	for(auto& section : sections)
 	{
 		section->image->WriteFile(wr);
 	}
@@ -817,7 +801,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 		relocations.Display(dump);
 
 		unsigned i = 0;
-		for(auto relocation : section->relocations)
+		for(auto& relocation : section->relocations)
 		{
 			Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
 			relocation->FillEntry(relocation_entry);
@@ -834,7 +818,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 	symbol_table.AddField("Count", new Dumper::DecDisplay, (offset_t)symbol_count);
 	symbol_table.Display(dump);
 	unsigned i = 0;
-	for(auto symbol : symbols)
+	for(auto& symbol : symbols)
 	{
 		Dumper::Entry symbol_entry("Symbol", i + 1, file_offset + symbol_table_offset + 18 * i, 8);
 		if(symbol)
@@ -919,7 +903,7 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 	}
 
 	std::vector<std::shared_ptr<Linker::Section>> linker_sections;
-	for(Section * section : sections)
+	for(auto& section : sections)
 	{
 		std::shared_ptr<Linker::Section> linker_section = std::make_shared<Linker::Section>(section->name);
 		linker_section->SetReadable(true);
@@ -945,7 +929,7 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 		linker_sections.push_back(linker_section);
 	}
 
-	for(Symbol * symbol : symbols)
+	for(auto& symbol : symbols)
 	{
 		if(symbol == nullptr)
 			continue;
@@ -969,14 +953,14 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 
 	for(size_t i = 0; i < sections.size(); i++)
 	{
-		Section * section = sections[i];
-		for(auto _rel : section->relocations)
+		std::unique_ptr<Section>& section = sections[i];
+		for(auto& _rel : section->relocations)
 		{
 			switch(cpu_type)
 			{
 			case CPU_Z80:
 				{
-					ZilogRelocation& rel = *dynamic_cast<ZilogRelocation *>(_rel);
+					ZilogRelocation& rel = *dynamic_cast<ZilogRelocation *>(_rel.get());
 
 					Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address);
 					Symbol& sym_target = *symbols[rel.symbol_index];
@@ -1030,7 +1014,7 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 				break;
 			case CPU_Z8K:
 				{
-					ZilogRelocation& rel = *dynamic_cast<ZilogRelocation *>(_rel);
+					ZilogRelocation& rel = *dynamic_cast<ZilogRelocation *>(_rel.get());
 
 					Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address);
 					Symbol& sym_target = *symbols[rel.symbol_index];
@@ -1176,7 +1160,7 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 	}
 
 	/* release section data */
-	for(Section * section : sections)
+	for(auto& section : sections)
 	{
 		section->image = nullptr;
 	}
@@ -1232,7 +1216,7 @@ void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		{
 			Linker::Warning << "Warning: Out of order `.code` segment" << std::endl;
 		}
-		sections.push_back(new Section(Section::TEXT, segment));
+		sections.push_back(std::make_unique<Section>(Section::TEXT, segment));
 	}
 	else if(segment->name == ".data")
 	{
@@ -1245,7 +1229,7 @@ void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		{
 			Linker::Warning << "Warning: Out of order `.data` segment" << std::endl;
 		}
-		sections.push_back(new Section(Section::DATA, segment));
+		sections.push_back(std::make_unique<Section>(Section::DATA, segment));
 	}
 	else if(segment->name == ".bss")
 	{
@@ -1258,7 +1242,7 @@ void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		{
 			Linker::Warning << "Warning: Out of order `.bss` segment" << std::endl;
 		}
-		sections.push_back(new Section(Section::BSS, segment));
+		sections.push_back(std::make_unique<Section>(Section::BSS, segment));
 	}
 	else if((type == CDOS68K || type == CDOS386) && segment->name == ".stack")
 	{
@@ -1279,15 +1263,15 @@ void COFFFormat::CreateDefaultSegments()
 {
 	if(GetCodeSegment() == nullptr)
 	{
-		sections.push_back(new Section(Section::TEXT, std::make_shared<Linker::Segment>(".code")));
+		sections.push_back(std::make_unique<Section>(Section::TEXT, std::make_shared<Linker::Segment>(".code")));
 	}
 	if(GetDataSegment() == nullptr)
 	{
-		sections.push_back(new Section(Section::DATA, std::make_shared<Linker::Segment>(".data")));
+		sections.push_back(std::make_unique<Section>(Section::DATA, std::make_shared<Linker::Segment>(".data")));
 	}
 	if(GetBssSegment() == nullptr)
 	{
-		sections.push_back(new Section(Section::BSS, std::make_shared<Linker::Segment>(".bss")));
+		sections.push_back(std::make_unique<Section>(Section::BSS, std::make_shared<Linker::Segment>(".bss")));
 	}
 	if((type == CDOS68K || type == CDOS386) && stack == nullptr)
 	{
@@ -1377,14 +1361,14 @@ void COFFFormat::Link(Linker::Module& module)
 }
 
 /** @brief Return the segment stored inside the section, note that this only works for binary generation */
-std::shared_ptr<Linker::Segment> COFFFormat::GetSegment(Section * section)
+std::shared_ptr<Linker::Segment> COFFFormat::GetSegment(std::unique_ptr<Section>& section)
 {
 	return std::dynamic_pointer_cast<Linker::Segment>(section->image);
 }
 
 std::shared_ptr<Linker::Segment> COFFFormat::GetCodeSegment()
 {
-	for(auto section : sections)
+	for(auto& section : sections)
 	{
 		if((section->flags & Section::TEXT))
 			return GetSegment(section);
@@ -1394,7 +1378,7 @@ std::shared_ptr<Linker::Segment> COFFFormat::GetCodeSegment()
 
 std::shared_ptr<Linker::Segment> COFFFormat::GetDataSegment()
 {
-	for(auto section : sections)
+	for(auto& section : sections)
 	{
 		if((section->flags & Section::DATA))
 			return GetSegment(section);
@@ -1404,7 +1388,7 @@ std::shared_ptr<Linker::Segment> COFFFormat::GetDataSegment()
 
 std::shared_ptr<Linker::Segment> COFFFormat::GetBssSegment()
 {
-	for(auto section : sections)
+	for(auto& section : sections)
 	{
 		if((section->flags & Section::BSS))
 			return GetSegment(section);
@@ -1478,18 +1462,18 @@ void COFFFormat::CalculateValues()
 	case DJGPP:
 		cpu_type = CPU_I386;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
-		optional_header = new AOutHeader(ZMAGIC);
+		optional_header = std::make_unique<AOutHeader>(ZMAGIC);
 		break;
 	case CDOS386:
 		/* TODO */
 		cpu_type = CPU_I386;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
-		optional_header = new FlexOSAOutHeader;
+		optional_header = std::make_unique<FlexOSAOutHeader>();
 		break;
 	case CDOS68K:
 		cpu_type = CPU_M68K;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_BIG_ENDIAN;
-		optional_header = new FlexOSAOutHeader;
+		optional_header = std::make_unique<FlexOSAOutHeader>();
 		break;
 	}
 	endiantype = GetEndianType();
@@ -1503,7 +1487,7 @@ void COFFFormat::CalculateValues()
 	{
 		GetStubImageSize();
 	}
-	for(auto section : sections)
+	for(auto& section : sections)
 	{
 		std::shared_ptr<Linker::Segment> image = GetSegment(section);
 		section->name = image->name;
@@ -1517,7 +1501,7 @@ void COFFFormat::CalculateValues()
 		relocations_offset = offset;
 	}
 
-	if(AOutHeader * header = dynamic_cast<AOutHeader *>(optional_header))
+	if(AOutHeader * header = dynamic_cast<AOutHeader *>(optional_header.get()))
 	{
 		/* Note: for PE, these would be added up for all code/data/bss segments, but here we assume that one of each is available */
 		header->code_size = GetCodeSegment() ? GetCodeSegment()->data_size : 0; /* not needed for DJGPP */
@@ -1528,7 +1512,7 @@ void COFFFormat::CalculateValues()
 		header->data_address = GetDataSegment() ? GetDataSegment()->base_address : 0;
 	}
 
-	if(FlexOSAOutHeader * header = dynamic_cast<FlexOSAOutHeader *>(optional_header))
+	if(FlexOSAOutHeader * header = dynamic_cast<FlexOSAOutHeader *>(optional_header.get()))
 	{
 		header->relocations_offset = relocations_offset;
 		header->stack_size = stack->zero_fill;

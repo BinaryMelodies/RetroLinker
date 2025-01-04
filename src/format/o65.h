@@ -215,12 +215,12 @@ namespace O65
 		};
 
 	protected:
-		std::vector<Module *> modules;
+		std::vector<std::unique_ptr<Module>> modules;
 
 	public:
 		offset_t GetModuleCount();
-		Module& GetModule(offset_t index);
-		Module& AddModule();
+		std::unique_ptr<O65Format::Module>& GetModule(offset_t index);
+		std::unique_ptr<O65Format::Module>& AddModule();
 
 		~O65Format()
 		{

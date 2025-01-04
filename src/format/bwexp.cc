@@ -47,9 +47,9 @@ void BWFormat::AbstractSegment::SetTotalSize(uint32_t new_value)
 	}
 }
 
-void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr)
+void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, BWFormat& bw)
 {
-	uint32_t size = GetSize();
+	uint32_t size = GetSize(bw);
 	if(size == 0)
 		flags = (flag_type)(flags | FLAG_EMPTY);
 	else
@@ -66,12 +66,12 @@ void BWFormat::Segment::SetTotalSize(uint32_t new_value)
 	image->SetEndAddress(GetTotalSize());
 }
 
-uint32_t BWFormat::Segment::GetSize()
+uint32_t BWFormat::Segment::GetSize(BWFormat& bw)
 {
 	return image ? image->data_size : 0;
 }
 
-void BWFormat::Segment::WriteContent(Linker::Writer& wr)
+void BWFormat::Segment::WriteContent(Linker::Writer& wr, BWFormat& bw)
 {
 	if(image)
 	{
@@ -84,12 +84,12 @@ void BWFormat::DummySegment::SetTotalSize(uint32_t new_value)
 	AbstractSegment::SetTotalSize(new_value);
 }
 
-uint32_t BWFormat::DummySegment::GetSize()
+uint32_t BWFormat::DummySegment::GetSize(BWFormat& bw)
 {
 	return 0;
 }
 
-void BWFormat::DummySegment::WriteContent(Linker::Writer& wr)
+void BWFormat::DummySegment::WriteContent(Linker::Writer& wr, BWFormat& bw)
 {
 }
 
@@ -98,15 +98,15 @@ void BWFormat::RelocationSegment::SetTotalSize(uint32_t new_value)
 	assert(false);
 }
 
-uint32_t BWFormat::RelocationSegment::GetSize()
+uint32_t BWFormat::RelocationSegment::GetSize(BWFormat& bw)
 {
-	switch(bw->option_relocations)
+	switch(bw.option_relocations)
 	{
 	case RelocationsType1:
-		return bw->MeasureRelocations();
+		return bw.MeasureRelocations();
 	case RelocationsType2:
 		{
-			offset_t size = bw->MeasureRelocations();
+			offset_t size = bw.MeasureRelocations();
 			if(size == 0)
 				return 4; /* create dummy relocation segment */
 			else if((offset_t)(index + 1) * 0x10000 < size)
@@ -120,15 +120,15 @@ uint32_t BWFormat::RelocationSegment::GetSize()
 	}
 }
 
-void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr)
+void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, BWFormat& bw)
 {
-	switch(bw->option_relocations)
+	switch(bw.option_relocations)
 	{
 	case RelocationsType1:
 		if(index == 0)
 		{
 			/* write both segments */
-			for(auto& it : bw->relocations)
+			for(auto& it : bw.relocations)
 			{
 				for(unsigned i = 0; i < it.second.size(); i++)
 				{
@@ -136,7 +136,7 @@ void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr)
 				}
 			}
 			wr.AlignTo(0x10);
-			for(auto& it : bw->relocations)
+			for(auto& it : bw.relocations)
 			{
 				for(auto& it2 : it.second)
 				{
@@ -150,15 +150,15 @@ void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr)
 		{
 			/* write all segments */
 			size_t count = 0;
-			if(bw->relocations.empty())
+			if(bw.relocations.empty())
 			{
 				/* if no relocations are present, create dummy relocation sequence so file appears relocatable */
 				wr.WriteWord(2, 0x0002); /* end of relocations */
 				wr.WriteWord(2, 0x0000); /* 0 relocations */
 			}
-			for(auto& it : bw->relocations)
+			for(auto& it : bw.relocations)
 			{
-				if(count == bw->relocations.size() - 1)
+				if(count == bw.relocations.size() - 1)
 					wr.WriteWord(2, it.first | 2);
 				else
 					wr.WriteWord(2, it.first);
@@ -220,9 +220,9 @@ void BWFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	if(segment->name == ".data")
 		default_data = segments.size();
 
-	Segment * bw_segment = new Segment(segment, segment->sections[0]->IsExecable() ? Segment::TYPE_CODE : Segment::TYPE_DATA);
+	std::unique_ptr<Segment> bw_segment = std::make_unique<Segment>(segment, segment->sections[0]->IsExecable() ? Segment::TYPE_CODE : Segment::TYPE_DATA);
 	segment_indices[segment] = segments.size();
-	segments.push_back(bw_segment);
+	segments.push_back(std::move(bw_segment));
 }
 
 std::unique_ptr<Script::List> BWFormat::GetScript(Linker::Module& module)
@@ -278,9 +278,9 @@ size_t BWFormat::GetDefaultDataIndex()
 {
 	if(default_data == -1)
 	{
-		DummySegment * data = new DummySegment(0, Segment::TYPE_DATA);
+		std::unique_ptr<DummySegment> data = std::make_unique<DummySegment>(0, Segment::TYPE_DATA);
 		default_data = segments.size();
-		segments.push_back(data);
+		segments.push_back(std::move(data));
 	}
 	return default_data;
 }
@@ -303,7 +303,7 @@ void BWFormat::ProcessModule(Linker::Module& module)
 	{
 		Linker::Warning << "Warning: no stack found, creating one" << std::endl;
 		ss = first_selector + GetDefaultDataIndex() * 8;
-		AbstractSegment * segment = segments[GetDefaultDataIndex()];
+		std::unique_ptr<AbstractSegment>& segment = segments[GetDefaultDataIndex()];
 		segment->SetTotalSize(segment->GetTotalSize() + 0x1000);
 		sp = segment->GetTotalSize();
 	}
@@ -379,24 +379,24 @@ void BWFormat::CalculateValues()
 		case RelocationsNone:
 			break;
 		case RelocationsType1:
-			segments.push_back(new RelocationSegment(this, 0));
-			segments.push_back(new RelocationSegment(this, 1));
+			segments.push_back(std::make_unique<RelocationSegment>(0));
+			segments.push_back(std::make_unique<RelocationSegment>(1));
 			break;
 		case RelocationsType2:
 			for(unsigned i = 0;
 				i < ((MeasureRelocations() + 0xFFFF) >> 16) || (option_force_relocations && i == 0);
 				i++)
 			{
-				segments.push_back(new RelocationSegment(this, i));
+				segments.push_back(std::make_unique<RelocationSegment>(i));
 			}
 			break;
 		}
 	}
 
 	file_size = ::AlignTo(48 + first_selector + segments.size() * 8, 0x10);
-	for(AbstractSegment * segment : segments)
+	for(auto& segment : segments)
 	{
-		file_size = ::AlignTo(file_size + segment->GetSize(), 0x10);
+		file_size = ::AlignTo(file_size + segment->GetSize(*this), 0x10);
 	}
 }
 
@@ -443,12 +443,12 @@ void BWFormat::WriteFile(Linker::Writer& wr)
 	wr.Seek(file_offset + 48 + first_selector);
 	for(auto& segment : segments)
 	{
-		segment->WriteHeader(wr);
+		segment->WriteHeader(wr, *this);
 	}
 	wr.AlignTo(0x10);
 	for(auto& segment : segments)
 	{
-		segment->WriteContent(wr);
+		segment->WriteContent(wr, *this);
 		wr.AlignTo(0x10);
 	}
 }

@@ -198,8 +198,6 @@ void BinaryFormat::Clear()
 {
 	GenericBinaryFormat::Clear();
 	/* format fields */
-	if(pif)
-		delete pif;
 	pif = nullptr;
 }
 
@@ -216,12 +214,11 @@ void BinaryFormat::ReadFile(Linker::Reader& rd)
 	offset_t count = rd.Tell() - position;
 	if(rd.ReadUnsigned(4, LittleEndian) == Microsoft::MZFormat::PIF::MAGIC_BEGIN)
 	{
-		pif = new Microsoft::MZFormat::PIF;
+		pif = std::make_unique<Microsoft::MZFormat::PIF>();
 		pif->ReadFile(rd);
 		if(rd.ReadUnsigned(4, LittleEndian) != Microsoft::MZFormat::PIF::MAGIC_END)
 		{
 			/* failed */
-			delete pif;
 			pif = nullptr;
 		}
 	}

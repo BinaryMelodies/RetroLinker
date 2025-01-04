@@ -49,22 +49,22 @@ void AppleSingleDouble::SetOptions(std::map<std::string, std::string>& options)
 {
 	/* TODO */
 
-	dynamic_cast<ResourceFork *>(GetResourceFork())->SetOptions(options);
+	std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->SetOptions(options);
 }
 
 void AppleSingleDouble::SetModel(std::string model)
 {
-	dynamic_cast<ResourceFork *>(GetResourceFork())->SetModel(model);
+	std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->SetModel(model);
 }
 
 void AppleSingleDouble::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
 {
-	dynamic_cast<ResourceFork *>(GetResourceFork())->SetLinkScript(script_file, options);
+	std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->SetLinkScript(script_file, options);
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::FindEntry(uint32_t id)
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::FindEntry(uint32_t id)
 {
-	for(Entry * entry : entries)
+	for(auto entry : entries)
 	{
 		if(entry->id == id)
 			return entry;
@@ -72,9 +72,9 @@ AppleSingleDouble::Entry * AppleSingleDouble::FindEntry(uint32_t id)
 	return nullptr;
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::GetFileDatesInfo()
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetFileDatesInfo()
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -84,16 +84,16 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetFileDatesInfo()
 			switch(home_file_system)
 			{
 			case HFS_Macintosh:
-				entry = new FileInfo::Macintosh;
+				entry = std::make_shared<FileInfo::Macintosh>();
 				break;
 			case HFS_ProDOS:
-				entry = new FileInfo::ProDOS;
+				entry = std::make_shared<FileInfo::ProDOS>();
 				break;
 			case HFS_MSDOS:
-				entry = new FileInfo::MSDOS;
+				entry = std::make_shared<FileInfo::MSDOS>();
 				break;
 			case HFS_UNIX:
-				entry = new FileInfo::AUX;
+				entry = std::make_shared<FileInfo::AUX>();
 				break;
 			default:
 				return nullptr;
@@ -104,16 +104,16 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetFileDatesInfo()
 	case 2:
 		entry = FindEntry(ID_FileDatesInfo);
 		if(entry == nullptr)
-			entry = new FileDatesInfo;
+			entry = std::make_shared<FileDatesInfo>();
 		return entry;
 	default:
 		assert(false);
 	}
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::GetMacintoshFileInfo()
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetMacintoshFileInfo()
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -125,7 +125,7 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetMacintoshFileInfo()
 		entry = FindEntry(ID_MacintoshFileInfo);
 		if(entry == nullptr)
 		{
-			entry = new MacintoshFileInfo;
+			entry = std::make_shared<MacintoshFileInfo>();
 			entries.push_back(entry);
 		}
 		return entry;
@@ -134,7 +134,7 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetMacintoshFileInfo()
 	}
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::GetAUXFileInfo()
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetAUXFileInfo()
 {
 	switch(version)
 	{
@@ -150,9 +150,9 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetAUXFileInfo()
 	}
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::GetProDOSFileInfo()
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetProDOSFileInfo()
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -164,7 +164,7 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetProDOSFileInfo()
 		entry = FindEntry(ID_ProDOSFileInfo);
 		if(entry == nullptr)
 		{
-			entry = new ProDOSFileInfo;
+			entry = std::make_shared<ProDOSFileInfo>();
 			entries.push_back(entry);
 		}
 		return entry;
@@ -173,9 +173,9 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetProDOSFileInfo()
 	}
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::GetMSDOSFileInfo()
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetMSDOSFileInfo()
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -187,7 +187,7 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetMSDOSFileInfo()
 		entry = FindEntry(ID_MSDOSFileInfo);
 		if(entry == nullptr)
 		{
-			entry = new MSDOSFileInfo;
+			entry = std::make_shared<MSDOSFileInfo>();
 			entries.push_back(entry);
 		}
 		return entry;
@@ -196,37 +196,37 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetMSDOSFileInfo()
 	}
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::GetDataFork()
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetDataFork()
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	entry = FindEntry(ID_DataFork);
 	if(entry == nullptr)
 	{
-		entry = new DataFork;
+		entry = std::make_shared<DataFork>();
 		entries.push_back(entry);
 	}
 	return entry;
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::GetResourceFork()
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetResourceFork()
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	entry = FindEntry(ID_ResourceFork);
 	if(entry == nullptr)
 	{
-		entry = new ResourceFork;
+		entry = std::make_shared<ResourceFork>();
 		entries.push_back(entry);
 	}
 	return entry;
 }
 
-AppleSingleDouble::Entry * AppleSingleDouble::GetFinderInfo()
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetFinderInfo()
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	entry = FindEntry(ID_FinderInfo);
 	if(entry == nullptr)
 	{
-		entry = new FinderInfo;
+		entry = std::make_shared<FinderInfo>();
 		entries.push_back(entry);
 	}
 	return entry;
@@ -234,7 +234,7 @@ AppleSingleDouble::Entry * AppleSingleDouble::GetFinderInfo()
 
 void AppleSingleDouble::SetCreationDate(uint32_t CreationDate)
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -243,17 +243,17 @@ void AppleSingleDouble::SetCreationDate(uint32_t CreationDate)
 		case HFS_Macintosh:
 			entry = GetMacintoshFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::Macintosh *>(entry)->CreationDate = CreationDate;
+				std::dynamic_pointer_cast<FileInfo::Macintosh>(entry)->CreationDate = CreationDate;
 			break;
 		case HFS_UNIX:
 			entry = GetAUXFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::AUX *>(entry)->CreationDate = CreationDate;
+				std::dynamic_pointer_cast<FileInfo::AUX>(entry)->CreationDate = CreationDate;
 			break;
 		case HFS_ProDOS:
 			entry = GetProDOSFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::ProDOS *>(entry)->CreationDate = CreationDate;
+				std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->CreationDate = CreationDate;
 			break;
 		default:
 			break;
@@ -262,14 +262,14 @@ void AppleSingleDouble::SetCreationDate(uint32_t CreationDate)
 	case 2:
 		entry = GetFileDatesInfo();
 		if(entry != nullptr)
-			dynamic_cast<FileDatesInfo *>(entry)->CreationDate = CreationDate;
+			std::dynamic_pointer_cast<FileDatesInfo>(entry)->CreationDate = CreationDate;
 		break;
 	}
 }
 
 uint32_t AppleSingleDouble::GetCreationDate()
 {
-	Entry * entry = GetMacintoshFileInfo();
+	std::shared_ptr<Entry> entry = GetMacintoshFileInfo();
 	if(entry == nullptr)
 		return 0;
 	switch(version)
@@ -280,17 +280,17 @@ uint32_t AppleSingleDouble::GetCreationDate()
 		case HFS_Macintosh:
 			entry = GetMacintoshFileInfo();
 			if(entry != nullptr)
-				return dynamic_cast<FileInfo::Macintosh *>(entry)->CreationDate;
+				return std::dynamic_pointer_cast<FileInfo::Macintosh>(entry)->CreationDate;
 			break;
 		case HFS_UNIX:
 			entry = GetAUXFileInfo();
 			if(entry != nullptr)
-				return dynamic_cast<FileInfo::AUX *>(entry)->CreationDate;
+				return std::dynamic_pointer_cast<FileInfo::AUX>(entry)->CreationDate;
 			break;
 		case HFS_ProDOS:
 			entry = GetProDOSFileInfo();
 			if(entry != nullptr)
-				return dynamic_cast<FileInfo::ProDOS *>(entry)->CreationDate;
+				return std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->CreationDate;
 			break;
 		default:
 			break;
@@ -299,14 +299,14 @@ uint32_t AppleSingleDouble::GetCreationDate()
 	case 2:
 		entry = GetFileDatesInfo();
 		if(entry != nullptr)
-			return dynamic_cast<FileDatesInfo *>(entry)->CreationDate;
+			return std::dynamic_pointer_cast<FileDatesInfo>(entry)->CreationDate;
 	}
 	return 0;
 }
 
 void AppleSingleDouble::SetModificationDate(uint32_t ModificationDate)
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -315,22 +315,22 @@ void AppleSingleDouble::SetModificationDate(uint32_t ModificationDate)
 		case HFS_Macintosh:
 			entry = GetMacintoshFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::Macintosh *>(entry)->ModificationDate = ModificationDate;
+				std::dynamic_pointer_cast<FileInfo::Macintosh>(entry)->ModificationDate = ModificationDate;
 			break;
 		case HFS_UNIX:
 			entry = GetAUXFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::AUX *>(entry)->ModificationDate = ModificationDate;
+				std::dynamic_pointer_cast<FileInfo::AUX>(entry)->ModificationDate = ModificationDate;
 			break;
 		case HFS_ProDOS:
 			entry = GetProDOSFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::ProDOS *>(entry)->ModificationDate = ModificationDate;
+				std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->ModificationDate = ModificationDate;
 			break;
 		case HFS_MSDOS:
 			entry = GetMSDOSFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::MSDOS *>(entry)->ModificationDate = ModificationDate;
+				std::dynamic_pointer_cast<FileInfo::MSDOS>(entry)->ModificationDate = ModificationDate;
 			break;
 		default:
 			break;
@@ -339,14 +339,14 @@ void AppleSingleDouble::SetModificationDate(uint32_t ModificationDate)
 	case 2:
 		entry = GetFileDatesInfo();
 		if(entry != nullptr)
-			dynamic_cast<FileDatesInfo *>(entry)->ModificationDate = ModificationDate;
+			std::dynamic_pointer_cast<FileDatesInfo>(entry)->ModificationDate = ModificationDate;
 		break;
 	}
 }
 
 uint32_t AppleSingleDouble::GetModificationDate()
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -355,22 +355,22 @@ uint32_t AppleSingleDouble::GetModificationDate()
 		case HFS_Macintosh:
 			entry = GetMacintoshFileInfo();
 			if(entry != nullptr)
-				return dynamic_cast<FileInfo::Macintosh *>(entry)->ModificationDate;
+				return std::dynamic_pointer_cast<FileInfo::Macintosh>(entry)->ModificationDate;
 			break;
 		case HFS_UNIX:
 			entry = GetAUXFileInfo();
 			if(entry != nullptr)
-				return dynamic_cast<FileInfo::AUX *>(entry)->ModificationDate;
+				return std::dynamic_pointer_cast<FileInfo::AUX>(entry)->ModificationDate;
 			break;
 		case HFS_ProDOS:
 			entry = GetProDOSFileInfo();
 			if(entry != nullptr)
-				return dynamic_cast<FileInfo::ProDOS *>(entry)->ModificationDate;
+				return std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->ModificationDate;
 			break;
 		case HFS_MSDOS:
 			entry = GetMSDOSFileInfo();
 			if(entry != nullptr)
-				return dynamic_cast<FileInfo::MSDOS *>(entry)->ModificationDate;
+				return std::dynamic_pointer_cast<FileInfo::MSDOS>(entry)->ModificationDate;
 			break;
 		default:
 			break;
@@ -379,7 +379,7 @@ uint32_t AppleSingleDouble::GetModificationDate()
 	case 2:
 		entry = GetFileDatesInfo();
 		if(entry != nullptr)
-			return dynamic_cast<FileDatesInfo *>(entry)->ModificationDate;
+			return std::dynamic_pointer_cast<FileDatesInfo>(entry)->ModificationDate;
 		break;
 	}
 	return 0;
@@ -387,7 +387,7 @@ uint32_t AppleSingleDouble::GetModificationDate()
 
 void AppleSingleDouble::SetBackupDate(uint32_t BackupDate)
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -395,20 +395,20 @@ void AppleSingleDouble::SetBackupDate(uint32_t BackupDate)
 		{
 			entry = GetMacintoshFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::Macintosh *>(entry)->LastBackupDate = BackupDate;
+				std::dynamic_pointer_cast<FileInfo::Macintosh>(entry)->LastBackupDate = BackupDate;
 		}
 		break;
 	case 2:
 		entry = GetFileDatesInfo();
 		if(entry != nullptr)
-			dynamic_cast<FileDatesInfo *>(entry)->BackupDate = BackupDate;
+			std::dynamic_pointer_cast<FileDatesInfo>(entry)->BackupDate = BackupDate;
 		break;
 	}
 }
 
 void AppleSingleDouble::SetAccessDate(uint32_t AccessDate)
 {
-	Entry * entry;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -416,44 +416,44 @@ void AppleSingleDouble::SetAccessDate(uint32_t AccessDate)
 		{
 			entry = GetAUXFileInfo();
 			if(entry != nullptr)
-				dynamic_cast<FileInfo::AUX *>(entry)->AccessDate = AccessDate;
+				std::dynamic_pointer_cast<FileInfo::AUX>(entry)->AccessDate = AccessDate;
 		}
 		break;
 	case 2:
 		entry = GetFileDatesInfo();
 		if(entry != nullptr)
-			dynamic_cast<FileDatesInfo *>(entry)->AccessDate = AccessDate;
+			std::dynamic_pointer_cast<FileDatesInfo>(entry)->AccessDate = AccessDate;
 		break;
 	}
 }
 
 void AppleSingleDouble::SetMacintoshAttributes(uint32_t Attributes)
 {
-	Entry * entry = GetMacintoshFileInfo();
+	std::shared_ptr<Entry> entry = GetMacintoshFileInfo();
 	if(entry == nullptr)
 		return;
 	switch(version)
 	{
 	case 1:
-		dynamic_cast<FileInfo::Macintosh *>(entry)->Attributes = Attributes;
+		std::dynamic_pointer_cast<FileInfo::Macintosh>(entry)->Attributes = Attributes;
 		break;
 	case 2:
-		dynamic_cast<MacintoshFileInfo *>(entry)->Attributes = Attributes;
+		std::dynamic_pointer_cast<MacintoshFileInfo>(entry)->Attributes = Attributes;
 		break;
 	}
 }
 
 uint32_t AppleSingleDouble::GetMacintoshAttributes()
 {
-	Entry * entry = GetMacintoshFileInfo();
+	std::shared_ptr<Entry> entry = GetMacintoshFileInfo();
 	if(entry == nullptr)
 		return 0;
 	switch(version)
 	{
 	case 1:
-		return dynamic_cast<FileInfo::Macintosh *>(entry)->Attributes;
+		return std::dynamic_pointer_cast<FileInfo::Macintosh>(entry)->Attributes;
 	case 2:
-		return dynamic_cast<MacintoshFileInfo *>(entry)->Attributes;
+		return std::dynamic_pointer_cast<MacintoshFileInfo>(entry)->Attributes;
 	default:
 		return 0;
 	}
@@ -461,64 +461,64 @@ uint32_t AppleSingleDouble::GetMacintoshAttributes()
 
 void AppleSingleDouble::SetProDOSAccess(uint16_t Access)
 {
-	Entry * entry = GetProDOSFileInfo();
+	std::shared_ptr<Entry> entry = GetProDOSFileInfo();
 	if(entry == nullptr)
 		return;
 	switch(version)
 	{
 	case 1:
-		dynamic_cast<FileInfo::ProDOS *>(entry)->Access = Access;
+		std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->Access = Access;
 		break;
 	case 2:
-		dynamic_cast<ProDOSFileInfo *>(entry)->Access = Access;
+		std::dynamic_pointer_cast<ProDOSFileInfo>(entry)->Access = Access;
 		break;
 	}
 }
 
 void AppleSingleDouble::SetProDOSFileType(uint16_t FileType)
 {
-	Entry * entry = GetProDOSFileInfo();
+	std::shared_ptr<Entry> entry = GetProDOSFileInfo();
 	if(entry == nullptr)
 		return;
 	switch(version)
 	{
 	case 1:
-		dynamic_cast<FileInfo::ProDOS *>(entry)->FileType = FileType;
+		std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->FileType = FileType;
 		break;
 	case 2:
-		dynamic_cast<ProDOSFileInfo *>(entry)->FileType = FileType;
+		std::dynamic_pointer_cast<ProDOSFileInfo>(entry)->FileType = FileType;
 		break;
 	}
 }
 
 void AppleSingleDouble::SetProDOSAUXType(uint32_t AUXType)
 {
-	Entry * entry = GetProDOSFileInfo();
+	std::shared_ptr<Entry> entry = GetProDOSFileInfo();
 	if(entry == nullptr)
 		return;
 	switch(version)
 	{
 	case 1:
-		dynamic_cast<FileInfo::ProDOS *>(entry)->AUXType = AUXType;
+		std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->AUXType = AUXType;
 		break;
 	case 2:
-		dynamic_cast<ProDOSFileInfo *>(entry)->AUXType = AUXType;
+		std::dynamic_pointer_cast<ProDOSFileInfo>(entry)->AUXType = AUXType;
 		break;
 	}
 }
 
 void AppleSingleDouble::SetMSDOSAttributes(uint16_t Attributes)
 {
-	Entry * entry = GetMSDOSFileInfo();
+	std::shared_ptr<Entry> entry = GetMSDOSFileInfo();
 	if(entry == nullptr)
 		return;
 	switch(version)
 	{
 	case 1:
-		dynamic_cast<FileInfo::MSDOS *>(entry)->Attributes = Attributes;
+		std::dynamic_pointer_cast<FileInfo::MSDOS>(entry)->Attributes = Attributes;
 		break;
 	case 2:
-		dynamic_cast<MSDOSFileInfo *>(entry)->Attributes = Attributes;
+		std::dynamic_pointer_cast<MSDOSFileInfo>(entry)->Attributes = Attributes;
 		break;
 	}
 }
@@ -526,7 +526,7 @@ void AppleSingleDouble::SetMSDOSAttributes(uint16_t Attributes)
 void AppleSingleDouble::ProcessModule(Linker::Module& module)
 {
 	unsigned entry_bitmap = 0;
-	for(Entry * entry : entries)
+	for(auto entry : entries)
 	{
 		if(entry->id < 32)
 			entry_bitmap |= 1 << entry->id;
@@ -543,7 +543,7 @@ void AppleSingleDouble::ProcessModule(Linker::Module& module)
 	{
 		GetFinderInfo();
 	}
-	for(Entry * entry : entries)
+	for(auto entry : entries)
 	{
 		entry->ProcessModule(module);
 	}
@@ -551,7 +551,7 @@ void AppleSingleDouble::ProcessModule(Linker::Module& module)
 
 void AppleSingleDouble::CalculateValues()
 {
-	for(Entry * entry : entries)
+	for(auto entry : entries)
 	{
 		entry->CalculateValues();
 	}
@@ -595,14 +595,14 @@ void AppleSingleDouble::WriteFile(Linker::Writer& wr)
 	}
 	wr.WriteWord(2, entries.size());
 	uint32_t entry_offset = 26 + 12 * entries.size();
-	for(Entry * entry : entries)
+	for(auto entry : entries)
 	{
 		wr.WriteWord(4, entry->id);
 		wr.WriteWord(4, entry_offset);
 		wr.WriteWord(4, entry->GetLength());
 		entry_offset += entry->GetLength();
 	}
-	for(Entry * entry : entries)
+	for(auto entry : entries)
 	{
 		entry->WriteFile(wr);
 	}
@@ -1432,9 +1432,9 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 {
 	CRC_Initialize();
 	WriteWord(wr, 1, 0);
-	if(Entry * entry = FindEntry(ID_RealName))
+	if(auto entry = FindEntry(ID_RealName))
 	{
-		std::string& name = dynamic_cast<RealName *>(entry)->name;
+		std::string& name = std::dynamic_pointer_cast<RealName>(entry)->name;
 		WriteWord(wr, 1, name.size() > 63 ? 63 : name.size());
 		WriteData(wr, 63, name);
 	}
@@ -1443,10 +1443,10 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 		WriteWord(wr, 1, generated_file_name.size() > 63 ? 63 : generated_file_name.size());
 		WriteData(wr, 63, generated_file_name);
 	}
-	FinderInfo * info = nullptr;
-	if(Entry * entry = FindEntry(ID_FinderInfo))
+	std::shared_ptr<FinderInfo> info = nullptr;
+	if(auto entry = FindEntry(ID_FinderInfo))
 	{
-		info = dynamic_cast<FinderInfo *>(entry);
+		info = std::dynamic_pointer_cast<FinderInfo>(entry);
 		WriteData(wr, 4, info->Type);
 		WriteData(wr, 4, info->Creator);
 		WriteWord(wr, 1, info->Flags >> 1);
@@ -1461,7 +1461,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 	}
 	WriteWord(wr, 1, GetMacintoshAttributes());
 	WriteWord(wr, 1, 0);
-	if(Entry * entry = FindEntry(ID_DataFork))
+	if(auto entry = FindEntry(ID_DataFork))
 	{
 		WriteWord(wr, 4, entry->GetLength());
 	}
@@ -1469,7 +1469,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 	{
 		WriteWord(wr, 4, 0);
 	}
-	if(Entry * entry = FindEntry(ID_ResourceFork))
+	if(auto entry = FindEntry(ID_ResourceFork))
 	{
 		WriteWord(wr, 4, entry->GetLength());
 	}
@@ -1483,7 +1483,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 	{
 		return;
 	}
-	if(Entry * entry = FindEntry(ID_Comment))
+	if(auto entry = FindEntry(ID_Comment))
 	{
 		WriteWord(wr, 2, entry->GetLength());
 	}
@@ -1526,19 +1526,19 @@ void MacBinary::WriteFile(Linker::Writer& wr)
 	WriteHeader(wr);
 	wr.Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
 	/* secondary header */
-	if(Entry * entry = FindEntry(ID_DataFork))
+	if(auto entry = FindEntry(ID_DataFork))
 	{
 		entry->WriteFile(wr);
 		wr.AlignTo(0x80);
 	}
-	if(Entry * entry = FindEntry(ID_ResourceFork))
+	if(auto entry = FindEntry(ID_ResourceFork))
 	{
 		entry->WriteFile(wr);
 		wr.AlignTo(0x80);
 	}
 	if(version >= MACBIN1_GETINFO)
 	{
-		if(Entry * entry = FindEntry(ID_Comment))
+		if(auto entry = FindEntry(ID_Comment))
 		{
 			entry->WriteFile(wr);
 			wr.AlignTo(0x80);
@@ -1625,7 +1625,7 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		break;
 	case TARGET_DATA_FORK:
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
-		if(AppleSingleDouble::Entry * entry = container->FindEntry(AppleSingleDouble::ID_DataFork))
+		if(auto entry = container->FindEntry(AppleSingleDouble::ID_DataFork))
 		{
 			wr.out = &out;
 			entry->WriteFile(wr);
@@ -1634,7 +1634,7 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		break;
 	case TARGET_RESOURCE_FORK:
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
-		if(AppleSingleDouble::Entry * entry = container->FindEntry(AppleSingleDouble::ID_ResourceFork))
+		if(auto entry = container->FindEntry(AppleSingleDouble::ID_ResourceFork))
 		{
 			wr.out = &out;
 			entry->WriteFile(wr);
@@ -1662,7 +1662,7 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		else
 		{
 			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
-			if(AppleSingleDouble::Entry * entry = container->FindEntry(AppleSingleDouble::ID_ResourceFork))
+			if(auto entry = container->FindEntry(AppleSingleDouble::ID_ResourceFork))
 			{
 				wr.out = &out;
 				entry->WriteFile(wr);
@@ -1684,7 +1684,7 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		else
 		{
 			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
-			if(AppleSingleDouble::Entry * entry = container->FindEntry(AppleSingleDouble::ID_FinderInfo))
+			if(auto entry = container->FindEntry(AppleSingleDouble::ID_FinderInfo))
 			{
 				wr.out = &out;
 				entry->WriteFile(wr);

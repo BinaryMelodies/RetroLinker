@@ -59,16 +59,16 @@ namespace DOS16M
 			/**
 			 * @brief Retrieves size of segment. Some subclasses might calculate this dynamically
 			 */
-			virtual uint32_t GetSize() = 0;
+			virtual uint32_t GetSize(BWFormat& bw) = 0;
 			/**
 			 * @brief Produces the binary contents of the segment
 			 */
-			virtual void WriteContent(Linker::Writer& wr) = 0;
+			virtual void WriteContent(Linker::Writer& wr, BWFormat& bw) = 0;
 
 			/**
 			 * @brief Produces the GDT entry for the header
 			 */
-			void WriteHeader(Linker::Writer& wr);
+			void WriteHeader(Linker::Writer& wr, BWFormat& bw);
 		};
 
 		class Segment : public AbstractSegment
@@ -83,9 +83,9 @@ namespace DOS16M
 
 			void SetTotalSize(uint32_t new_value) override;
 
-			uint32_t GetSize() override;
+			uint32_t GetSize(BWFormat& bw) override;
 
-			void WriteContent(Linker::Writer& wr) override;
+			void WriteContent(Linker::Writer& wr, BWFormat& bw) override;
 		};
 
 		class DummySegment : public AbstractSegment
@@ -98,19 +98,18 @@ namespace DOS16M
 
 			void SetTotalSize(uint32_t new_value) override;
 
-			uint32_t GetSize() override;
+			uint32_t GetSize(BWFormat& bw) override;
 
-			void WriteContent(Linker::Writer& wr) override;
+			void WriteContent(Linker::Writer& wr, BWFormat& bw) override;
 		};
 
 		class RelocationSegment : public AbstractSegment
 		{
 		public:
-			BWFormat * bw;
 			uint16_t index;
 
-			RelocationSegment(BWFormat * bw, uint16_t index)
-				: AbstractSegment(TYPE_DATA), bw(bw), index(index)
+			RelocationSegment(uint16_t index)
+				: AbstractSegment(TYPE_DATA), index(index)
 			{
 			}
 
@@ -119,9 +118,9 @@ namespace DOS16M
 			 */
 			void SetTotalSize(uint32_t new_value) override;
 
-			uint32_t GetSize() override;
+			uint32_t GetSize(BWFormat& bw) override;
 
-			void WriteContent(Linker::Writer& wr) override;
+			void WriteContent(Linker::Writer& wr, BWFormat& bw) override;
 		};
 
 		/**
@@ -173,7 +172,7 @@ namespace DOS16M
 		uint16_t transfer_buffer_size = 0; /* TODO: ??? */
 		std::string exp_name; /* TODO: ??? */
 
-		std::vector<AbstractSegment *> segments;
+		std::vector<std::unique_ptr<AbstractSegment>> segments;
 		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_indices;
 		int default_data = 0;
 

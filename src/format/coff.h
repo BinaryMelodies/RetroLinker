@@ -244,7 +244,7 @@ namespace COFF
 			/**
 			 * @brief Collection of COFF relocations
 			 */
-			std::vector<Relocation *> relocations;
+			std::vector<std::unique_ptr<Relocation>> relocations;
 
 			/** @brief COFF section flags */
 			enum
@@ -279,7 +279,7 @@ namespace COFF
 		/**
 		 * @brief The list of COFF sections
 		 */
-		std::vector<Section *> sections;
+		std::vector<std::unique_ptr<Section>> sections;
 
 		/**
 		 * @brief Section count (COFF name: f_nscns)
@@ -300,7 +300,7 @@ namespace COFF
 		/**
 		 * @brief The symbols stored inside the COFF file
 		 */
-		std::vector<Symbol *> symbols;
+		std::vector<std::unique_ptr<Symbol>> symbols;
 		/**
 		 * @brief The size of the optional header (COFF: f_opthdr)
 		 */
@@ -338,7 +338,7 @@ namespace COFF
 		/**
 		 * @brief The optional header instance used for reading/writing the COFF file
 		 */
-		OptionalHeader * optional_header = nullptr;
+		std::unique_ptr<OptionalHeader> optional_header = nullptr;
 
 		/**
 		 * @brief Concurrent DOS 68K requires a special block of data to represent "crunched" relocations (see CPM68KWriter for more details)
@@ -675,7 +675,7 @@ namespace COFF
 		void Link(Linker::Module& module);
 
 		/** @brief Return the segment stored inside the section, note that this only works for binary generation */
-		std::shared_ptr<Linker::Segment> GetSegment(Section * section);
+		std::shared_ptr<Linker::Segment> GetSegment(std::unique_ptr<Section>& section);
 
 		std::shared_ptr<Linker::Segment> GetCodeSegment();
 

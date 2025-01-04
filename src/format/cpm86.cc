@@ -113,7 +113,7 @@ CPM86Format::Relocation::operator bool() const
 	return source != 0 || target != 0;
 }
 
-void CPM86Format::Relocation::Read(Linker::Reader& rd, CPM86Format * module, bool is_library)
+void CPM86Format::Relocation::Read(Linker::Reader& rd, CPM86Format& module, bool is_library)
 {
 	uint8_t segments = rd.ReadUnsigned(1);
 	if(segments == 0)
@@ -123,8 +123,8 @@ void CPM86Format::Relocation::Read(Linker::Reader& rd, CPM86Format * module, boo
 		Linker::Error << "Error: library relocation target must be 0, not " << (segments & 0xF) << std::endl;
 	}
 	if(!is_library)
-		module->CheckValidSegmentGroup(segments & 0xF);
-	module->CheckValidSegmentGroup(segments >> 4);
+		module.CheckValidSegmentGroup(segments & 0xF);
+	module.CheckValidSegmentGroup(segments >> 4);
 	source = segments >> 4;
 	target = segments & 0xF;
 	paragraph = rd.ReadUnsigned(2);
@@ -425,7 +425,7 @@ void CPM86Format::ReadRelocations(Linker::Reader& rd)
 	while(true)
 	{
 		Relocation rel;
-		rel.Read(rd, this);
+		rel.Read(rd, *this);
 		if(!rel)
 			break;
 		relocations.push_back(rel);
@@ -436,7 +436,7 @@ void CPM86Format::ReadRelocations(Linker::Reader& rd)
 		for(int i = 0; i < library.relocation_count; i++)
 		{
 			Relocation rel;
-			rel.Read(rd, this, true);
+			rel.Read(rd, *this, true);
 			if(!rel)
 				break;
 			library.relocations.push_back(rel);

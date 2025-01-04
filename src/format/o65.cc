@@ -357,18 +357,18 @@ offset_t O65Format::GetModuleCount()
 	return modules.size();
 }
 
-O65Format::Module& O65Format::GetModule(offset_t index)
+std::unique_ptr<O65Format::Module>& O65Format::GetModule(offset_t index)
 {
-	return *modules[index];
+	return modules[index];
 }
 
-O65Format::Module& O65Format::AddModule()
+std::unique_ptr<O65Format::Module>& O65Format::AddModule()
 {
-	Module * new_module = new Module;
+	std::unique_ptr<Module> new_module = std::make_unique<Module>();
 	assert(modules.size() > 0);
 	modules.back()->SetChained();
-	modules.push_back(new_module);
-	return *new_module;
+	modules.push_back(std::move(new_module));
+	return modules.back();
 }
 
 void O65Format::Clear()
@@ -380,14 +380,14 @@ void O65Format::ReadFile(Linker::Reader& rd)
 {
 	do
 	{
-		modules.push_back(new Module);
+		modules.push_back(std::make_unique<Module>());
 		modules.back()->ReadFile(rd);
 	} while(modules.back()->IsChained());
 }
 
 void O65Format::WriteFile(Linker::Writer& wr)
 {
-	for(auto module : modules)
+	for(auto& module : modules)
 	{
 		module->WriteFile(wr);
 	}

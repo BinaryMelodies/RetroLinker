@@ -100,7 +100,7 @@ namespace Binary
 		/* * * General members * * */
 
 		/** @brief Concurrent DOS program information entry, allocated only if present */
-		Microsoft::MZFormat::PIF * pif = nullptr;
+		std::unique_ptr<Microsoft::MZFormat::PIF> pif = nullptr;
 
 		void Clear() override;
 

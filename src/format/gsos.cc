@@ -260,7 +260,7 @@ void OMFFormat::ReadFile(Linker::Reader& rd)
 	rd.Seek(0);
 	while(rd.Tell() < end)
 	{
-		segments.push_back(new Segment);
+		segments.push_back(std::make_unique<Segment>());
 		segments.back()->ReadFile(rd);
 		rd.Seek(segments.back()->segment_offset + segments.back()->total_segment_size);
 	}
@@ -268,7 +268,7 @@ void OMFFormat::ReadFile(Linker::Reader& rd)
 
 void OMFFormat::WriteFile(Linker::Writer& wr)
 {
-	for(Segment * segment : segments)
+	for(auto& segment : segments)
 	{
 		segment->WriteFile(wr);
 	}
@@ -689,16 +689,16 @@ void OMFFormat::Segment::SuperCompactRecord::WritePatchList(Linker::Writer& wr, 
 	}
 }
 
-OMFFormat::Segment::Expression * OMFFormat::Segment::ReadExpression(Linker::Reader& rd)
+std::unique_ptr<OMFFormat::Segment::Expression> OMFFormat::Segment::ReadExpression(Linker::Reader& rd)
 {
 	// TODO
 	return nullptr;
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::ReadRecord(Linker::Reader& rd)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::ReadRecord(Linker::Reader& rd)
 {
 	uint8_t type = rd.ReadUnsigned(1);
-	Record * record = nullptr;
+	std::unique_ptr<Record> record = nullptr;
 	switch(type)
 	{
 	case Record::OPC_END:
@@ -779,7 +779,7 @@ OMFFormat::Segment::Record * OMFFormat::Segment::ReadRecord(Linker::Reader& rd)
 		}
 		else
 		{
-			record = new DataRecord(Record::record_type(type));
+			record = std::make_unique<DataRecord>(Record::record_type(type));
 		}
 	}
 	// TODO: nullptr
@@ -787,12 +787,12 @@ OMFFormat::Segment::Record * OMFFormat::Segment::ReadRecord(Linker::Reader& rd)
 	return record;
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeEND()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeEND()
 {
-	return new Record(Record::OPC_END);
+	return std::make_unique<Record>(Record::OPC_END);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeCONST(std::vector<uint8_t> data)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::vector<uint8_t> data)
 {
 	size_t length = data.size();
 	if(length >= Record::OPC_CONST_LAST)
@@ -802,7 +802,7 @@ OMFFormat::Segment::Record * OMFFormat::Segment::makeCONST(std::vector<uint8_t> 
 	return makeCONST(data, length);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeCONST(std::vector<uint8_t> data, size_t length)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::vector<uint8_t> data, size_t length)
 {
 	if(length >= Record::OPC_CONST_LAST)
 	{
@@ -812,214 +812,214 @@ OMFFormat::Segment::Record * OMFFormat::Segment::makeCONST(std::vector<uint8_t> 
 	{
 		length = data.size();
 	}
-	return new DataRecord(Record::record_type(Record::OPC_CONST_BASE + length), std::vector<uint8_t>(data.begin(), data.begin() + length));
+	return std::make_unique<DataRecord>(Record::record_type(Record::OPC_CONST_BASE + length), std::vector<uint8_t>(data.begin(), data.begin() + length));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeCONST(size_t length)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(size_t length)
 {
 	if(length >= Record::OPC_CONST_LAST)
 	{
 		length = Record::OPC_CONST_LAST;
 	}
-	return new DataRecord(Record::record_type(Record::OPC_CONST_BASE - 1 + length), length);
+	return std::make_unique<DataRecord>(Record::record_type(Record::OPC_CONST_BASE - 1 + length), length);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeALIGN(offset_t align)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeALIGN(offset_t align)
 {
-	return new ValueRecord(Record::Record::OPC_ALIGN, align);
+	return std::make_unique<ValueRecord>(Record::Record::OPC_ALIGN, align);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeORG(offset_t value)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeORG(offset_t value)
 {
-	return new ValueRecord(Record::OPC_ORG, value);
+	return std::make_unique<ValueRecord>(Record::OPC_ORG, value);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeRELOC(uint8_t size, uint8_t shift, offset_t source, offset_t target)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeRELOC(uint8_t size, uint8_t shift, offset_t source, offset_t target)
 {
-	return new RelocationRecord(Record::OPC_RELOC, size, shift, source, target);
+	return std::make_unique<RelocationRecord>(Record::OPC_RELOC, size, shift, source, target);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeRELOC()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeRELOC()
 {
-	return new RelocationRecord(Record::OPC_RELOC);
+	return std::make_unique<RelocationRecord>(Record::OPC_RELOC);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeINTERSEG(uint8_t size, uint8_t shift, offset_t source, uint16_t file_number, uint16_t segment_number, offset_t target)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeINTERSEG(uint8_t size, uint8_t shift, offset_t source, uint16_t file_number, uint16_t segment_number, offset_t target)
 {
-	return new IntersegmentRelocationRecord(Record::OPC_INTERSEG, size, shift, source, file_number, segment_number, target);
+	return std::make_unique<IntersegmentRelocationRecord>(Record::OPC_INTERSEG, size, shift, source, file_number, segment_number, target);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeINTERSEG()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeINTERSEG()
 {
-	return new IntersegmentRelocationRecord(Record::OPC_INTERSEG);
+	return std::make_unique<IntersegmentRelocationRecord>(Record::OPC_INTERSEG);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeUSING(std::string name)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeUSING(std::string name)
 {
-	return new StringRecord(Record::OPC_USING, name);
+	return std::make_unique<StringRecord>(Record::OPC_USING, name);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeSTRONG(std::string name)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeSTRONG(std::string name)
 {
-	return new StringRecord(Record::OPC_STRONG, name);
+	return std::make_unique<StringRecord>(Record::OPC_STRONG, name);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeGLOBAL()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeGLOBAL()
 {
-	return new LabelRecord(Record::OPC_GLOBAL);
+	return std::make_unique<LabelRecord>(Record::OPC_GLOBAL);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeGLOBAL(std::string name, uint16_t line_length, int operation, uint16_t private_flag)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeGLOBAL(std::string name, uint16_t line_length, int operation, uint16_t private_flag)
 {
-	return new LabelRecord(Record::OPC_GLOBAL, name, line_length, operation, private_flag);
+	return std::make_unique<LabelRecord>(Record::OPC_GLOBAL, name, line_length, operation, private_flag);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeGEQU()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeGEQU()
 {
-	return new LabelExpressionRecord(Record::OPC_GEQU);
+	return std::make_unique<LabelExpressionRecord>(Record::OPC_GEQU);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeGEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, Expression * expression)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeGEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr<Expression> expression)
 {
-	return new LabelExpressionRecord(Record::OPC_GEQU, name, line_length, operation, private_flag, expression);
+	return std::make_unique<LabelExpressionRecord>(Record::OPC_GEQU, name, line_length, operation, private_flag, std::move(expression));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeMEM()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeMEM()
 {
-	return new RangeRecord(Record::Record::OPC_MEM);
+	return std::make_unique<RangeRecord>(Record::Record::OPC_MEM);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeMEM(offset_t start, offset_t end)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeMEM(offset_t start, offset_t end)
 {
-	return new RangeRecord(Record::Record::OPC_MEM, start, end);
+	return std::make_unique<RangeRecord>(Record::Record::OPC_MEM, start, end);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeEXPR()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeEXPR()
 {
-	return new ExpressionRecord(Record::Record::OPC_EXPR);
+	return std::make_unique<ExpressionRecord>(Record::Record::OPC_EXPR);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeEXPR(uint8_t size, Expression * expression)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeEXPR(uint8_t size, std::unique_ptr<Expression> expression)
 {
-	return new ExpressionRecord(Record::Record::OPC_EXPR, size, expression);
+	return std::make_unique<ExpressionRecord>(Record::Record::OPC_EXPR, size, std::move(expression));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeZEXPR()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeZEXPR()
 {
-	return new ExpressionRecord(Record::Record::OPC_ZEXPR);
+	return std::make_unique<ExpressionRecord>(Record::Record::OPC_ZEXPR);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeZEXPR(uint8_t size, Expression * expression)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeZEXPR(uint8_t size, std::unique_ptr<Expression> expression)
 {
-	return new ExpressionRecord(Record::Record::OPC_ZEXPR, size, expression);
+	return std::make_unique<ExpressionRecord>(Record::Record::OPC_ZEXPR, size, std::move(expression));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeBEXPR()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeBEXPR()
 {
-	return new ExpressionRecord(Record::Record::OPC_BEXPR);
+	return std::make_unique<ExpressionRecord>(Record::Record::OPC_BEXPR);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeBEXPR(uint8_t size, Expression * expression)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeBEXPR(uint8_t size, std::unique_ptr<Expression> expression)
 {
-	return new ExpressionRecord(Record::Record::OPC_BEXPR, size, expression);
+	return std::make_unique<ExpressionRecord>(Record::Record::OPC_BEXPR, size, std::move(expression));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeRELEXPR()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeRELEXPR()
 {
-	return new RelativeExpressionRecord(Record::Record::OPC_RELEXPR);
+	return std::make_unique<RelativeExpressionRecord>(Record::Record::OPC_RELEXPR);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeRELEXPR(uint8_t size, offset_t origin, Expression * expression)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeRELEXPR(uint8_t size, offset_t origin, std::unique_ptr<Expression> expression)
 {
-	return new RelativeExpressionRecord(Record::Record::OPC_RELEXPR, size, origin, expression);
+	return std::make_unique<RelativeExpressionRecord>(Record::Record::OPC_RELEXPR, size, origin, std::move(expression));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeLOCAL()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLOCAL()
 {
-	return new LabelRecord(Record::OPC_LOCAL);
+	return std::make_unique<LabelRecord>(Record::OPC_LOCAL);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeLOCAL(std::string name, uint16_t line_length, int operation, uint16_t private_flag)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLOCAL(std::string name, uint16_t line_length, int operation, uint16_t private_flag)
 {
-	return new LabelRecord(Record::OPC_LOCAL, name, line_length, operation, private_flag);
+	return std::make_unique<LabelRecord>(Record::OPC_LOCAL, name, line_length, operation, private_flag);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeEQU()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeEQU()
 {
-	return new LabelExpressionRecord(Record::OPC_EQU);
+	return std::make_unique<LabelExpressionRecord>(Record::OPC_EQU);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, Expression * expression)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr<Expression> expression)
 {
-	return new LabelExpressionRecord(Record::OPC_EQU, name, line_length, operation, private_flag, expression);
+	return std::make_unique<LabelExpressionRecord>(Record::OPC_EQU, name, line_length, operation, private_flag, std::move(expression));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeDS(offset_t count)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeDS(offset_t count)
 {
-	return new ValueRecord(Record::OPC_DS, count);
+	return std::make_unique<ValueRecord>(Record::OPC_DS, count);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeLCONST(std::vector<uint8_t> data)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::vector<uint8_t> data)
 {
 	return makeLCONST(data, data.size());
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeLCONST(std::vector<uint8_t> data, size_t length)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::vector<uint8_t> data, size_t length)
 {
 	if(length > data.size())
 	{
 		length = data.size();
 	}
-	return new DataRecord(Record::OPC_LCONST, std::vector<uint8_t>(data.begin(), data.begin() + length));
+	return std::make_unique<DataRecord>(Record::OPC_LCONST, std::vector<uint8_t>(data.begin(), data.begin() + length));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeLCONST()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST()
 {
-	return new DataRecord(Record::OPC_LCONST);
+	return std::make_unique<DataRecord>(Record::OPC_LCONST);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeLEXPR()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLEXPR()
 {
-	return new ExpressionRecord(Record::Record::OPC_LEXPR);
+	return std::make_unique<ExpressionRecord>(Record::Record::OPC_LEXPR);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeLEXPR(uint8_t size, Expression * expression)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLEXPR(uint8_t size, std::unique_ptr<Expression> expression)
 {
-	return new ExpressionRecord(Record::Record::OPC_LEXPR, size, expression);
+	return std::make_unique<ExpressionRecord>(Record::Record::OPC_LEXPR, size, std::move(expression));
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeENTRY()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeENTRY()
 {
-	return new EntryRecord(Record::Record::OPC_ENTRY);
+	return std::make_unique<EntryRecord>(Record::Record::OPC_ENTRY);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeENTRY(uint16_t segment_number, offset_t location, std::string name)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeENTRY(uint16_t segment_number, offset_t location, std::string name)
 {
-	return new EntryRecord(Record::Record::OPC_ENTRY, segment_number, location, name);
+	return std::make_unique<EntryRecord>(Record::Record::OPC_ENTRY, segment_number, location, name);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makecRELOC(uint8_t size, uint8_t shift, uint16_t source, uint16_t target)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makecRELOC(uint8_t size, uint8_t shift, uint16_t source, uint16_t target)
 {
-	return new RelocationRecord(Record::OPC_C_RELOC, size, shift, source, target);
+	return std::make_unique<RelocationRecord>(Record::OPC_C_RELOC, size, shift, source, target);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makecRELOC()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makecRELOC()
 {
-	return new RelocationRecord(Record::OPC_C_RELOC);
+	return std::make_unique<RelocationRecord>(Record::OPC_C_RELOC);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makecINTERSEG(uint8_t size, uint8_t shift, uint16_t source, uint16_t segment_number, uint16_t target)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makecINTERSEG(uint8_t size, uint8_t shift, uint16_t source, uint16_t segment_number, uint16_t target)
 {
-	return new IntersegmentRelocationRecord(Record::OPC_C_INTERSEG, size, shift, source, 0, segment_number, target);
+	return std::make_unique<IntersegmentRelocationRecord>(Record::OPC_C_INTERSEG, size, shift, source, 0, segment_number, target);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makecINTERSEG()
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makecINTERSEG()
 {
-	return new IntersegmentRelocationRecord(Record::OPC_C_INTERSEG);
+	return std::make_unique<IntersegmentRelocationRecord>(Record::OPC_C_INTERSEG);
 }
 
-OMFFormat::Segment::Record * OMFFormat::Segment::makeSUPER(SuperCompactRecord::super_record_type super_type)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeSUPER(SuperCompactRecord::super_record_type super_type)
 {
-	return new SuperCompactRecord(Record::OPC_SUPER, super_type);
+	return std::make_unique<SuperCompactRecord>(Record::OPC_SUPER, super_type);
 }
 
