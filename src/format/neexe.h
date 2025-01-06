@@ -19,7 +19,7 @@ namespace Microsoft
 	 * - 16-bit OS/2 applications
 	 * - a Multitasking variant of MS-DOS referred to as European MS-DOS 4.0
 	 */
-	class NEFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter
+	class NEFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<NEFormat>
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -94,13 +94,13 @@ namespace Microsoft
 		{
 		}
 
-		NEFormat * SimulateLinker(compatibility_type compatibility);
+		std::shared_ptr<NEFormat> SimulateLinker(compatibility_type compatibility);
 
-		static NEFormat * CreateConsoleApplication(system_type system = Windows);
+		static std::shared_ptr<NEFormat> CreateConsoleApplication(system_type system = Windows);
 
-		static NEFormat * CreateGUIApplication(system_type system = Windows);
+		static std::shared_ptr<NEFormat> CreateGUIApplication(system_type system = Windows);
 
-		static NEFormat * CreateLibraryModule(system_type system = Windows);
+		static std::shared_ptr<NEFormat> CreateLibraryModule(system_type system = Windows);
 
 		class Entry
 		{

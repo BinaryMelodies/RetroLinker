@@ -21,7 +21,7 @@ namespace Microsoft
 	 * - LE executables for the DOS/4G DOS extender
 	 * - LX executables for 32-bit versions of OS/2
 	 */
-	class LEFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter
+	class LEFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<LEFormat>
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -92,20 +92,20 @@ namespace Microsoft
 		};
 		compatibility_type compatibility = CompatibleNone;
 
-	protected:
+	//protected:
 		LEFormat(unsigned system, unsigned module_flags, bool extended_format)
 			: system((system_type)system), module_flags(module_flags), extended_format(extended_format), last_page_size(0)
 		{
 		}
 
 	public:
-		static LEFormat * CreateConsoleApplication(system_type system = OS2);
+		static std::shared_ptr<LEFormat> CreateConsoleApplication(system_type system = OS2);
 
-		static LEFormat * CreateGUIApplication(system_type system = OS2);
+		static std::shared_ptr<LEFormat> CreateGUIApplication(system_type system = OS2);
 
-		static LEFormat * CreateLibraryModule(system_type system = OS2);
+		static std::shared_ptr<LEFormat> CreateLibraryModule(system_type system = OS2);
 
-		LEFormat * SimulateLinker(compatibility_type compatibility);
+		std::shared_ptr<LEFormat> SimulateLinker(compatibility_type compatibility);
 
 		/*std::string stub_file;*/
 		std::string program_name, module_name;

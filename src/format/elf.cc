@@ -8,7 +8,7 @@ void ELFFormat::WriteFile(Linker::Writer& wr)
 	/* TODO */
 }
 
-void ELFFormat::SetupOptions(char special_char, Linker::OutputFormat * format)
+void ELFFormat::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format)
 {
 	special_prefix_char = special_char;
 	output_format = format;
@@ -336,7 +336,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 				sections[i].section->SetFlag(Linker::Section::Heap);
 			}
 #endif
-			sections[i].section->SetFlag(output_format->FormatAdditionalSectionFlags(sections[i].name));
+			sections[i].section->SetFlag(output_format.lock()->FormatAdditionalSectionFlags(sections[i].name));
 			if(option_resources && sections[i].name.rfind(resource_prefix() + "_",  0) == 0)
 			{
 				/* $$RSRC$_<type>$<id> */

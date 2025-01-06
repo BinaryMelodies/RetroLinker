@@ -839,7 +839,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 
 /* * * Reader members * * */
 
-void COFFFormat::SetupOptions(char special_char, Linker::OutputFormat * format)
+void COFFFormat::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format)
 {
 	special_prefix_char = special_char;
 	option_segmentation = format->FormatSupportsSegmentation();
@@ -1186,9 +1186,9 @@ unsigned COFFFormat::FormatAdditionalSectionFlags(std::string section_name) cons
 	}
 }
 
-COFFFormat * COFFFormat::CreateWriter(format_type type)
+std::shared_ptr<COFFFormat> COFFFormat::CreateWriter(format_type type)
 {
-	return new COFFFormat(type);
+	return std::make_shared<COFFFormat>(type);
 }
 
 void COFFFormat::SetOptions(std::map<std::string, std::string>& options)

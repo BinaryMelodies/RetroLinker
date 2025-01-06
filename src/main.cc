@@ -69,36 +69,36 @@ typedef OMF::OMFFormat Intel_OMFFormat;
 struct output_format_type
 {
 	std::string format;
-	OutputFormat * (* produce)();
+	std::shared_ptr<OutputFormat> (* produce)();
 	std::string documentation;
 } formats[] =
 {
 	/* binary */
 	{ "bin",
-		[]() -> OutputFormat * { return new BinaryFormat(0, ""); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<BinaryFormat>(0, ""); },
 		"Flat binary (no system)" },
 	{ "com",
-		[]() -> OutputFormat * { return new BinaryFormat(0x0100, ".com"); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<BinaryFormat>(0x0100, ".com"); },
 		"Flat binary file (.com) for CP/M-80, MS-DOS, OUP/M or DOS/65 (6502) [not supported], DX-DOS (Elektronika BK)" },
 	{ "rfile",
-		[]() -> OutputFormat * { return new BinaryFormat(/*position independent,*/ ".r"); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<BinaryFormat>(/*position independent,*/ ".r"); },
 		"Flat relocatable binary file (.r) for Human68k (X68000)" },
 	{ "ff8",
-		[]() -> OutputFormat * { return new BinaryFormat(0x00008000, ",ff8"); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<BinaryFormat>(0x00008000, ",ff8"); },
 		"Flat binary file for RISC OS" },
 	{ "riscos" },
 	{ "acorn" },
 	{ "sql",
-		[]() -> OutputFormat * { return new BinaryFormat(0x00038000); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<BinaryFormat>(0x00038000); },
 		"Flat binary file for the Sinclair QL" },
 	{ "ql" },
 	/* PRL */
 	{ "prl",
-		[]() -> OutputFormat * { return new PRLFormat(0x0100, ".prl"); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<PRLFormat>(0x0100, ".prl"); },
 		"Page relocatable (.prl) for MP/M-80 and CP/M-80 Plus (Version 3)" },
 	/* MZ */
 	{ "exe",
-		[]() -> OutputFormat * { return new MZFormat; },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<MZFormat>(); },
 		"MS-DOS \"MZ\" executable (.exe)" },
 	{ "mz" },
 	{ "dos" },
@@ -107,30 +107,30 @@ struct output_format_type
 	{ "ibmpc" },
 	/* CMD */
 	{ "cmd_tiny",
-		[]() -> OutputFormat * { return new CPM86Format(CPM86Format::FORMAT_8080); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM86Format>(CPM86Format::FORMAT_8080); },
 		"CP/M-86 8080 model executable (.cmd), single segment" },
 	{ "cpm86_tiny" },
 	{ "cpm_tiny" },
 	{ "cmd_8080" },
 	{ "cpm86_8080" },
 	{ "cmd_small",
-		[]() -> OutputFormat * { return new CPM86Format(CPM86Format::FORMAT_SMALL); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM86Format>(CPM86Format::FORMAT_SMALL); },
 		"CP/M-86 small model executable (.cmd), separate code/data segments" },
 	{ "cmd" },
 	{ "cpm86_small" },
 	{ "cpm86" },
 	{ "cpm_small" },
 	{ "cmd_compact",
-		[]() -> OutputFormat * { return new CPM86Format(CPM86Format::FORMAT_COMPACT); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM86Format>(CPM86Format::FORMAT_COMPACT); },
 		"CP/M-86 compact model executable (.cmd), multiple segments" },
 	{ "cpm86_compact" },
 	{ "cpm_compact" },
 	{ "flexos",
-		[]() -> OutputFormat * { return new CPM86Format(CPM86Format::FORMAT_FLEXOS); } /* TODO: multiple models */,
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM86Format>(CPM86Format::FORMAT_FLEXOS); } /* TODO: multiple models */,
 		"FlexOS executable (.286), same format as CP/M-86 (.cmd) [untested]" },
 	/* MINIX */
 	{ "minix",
-		[]() -> OutputFormat * { return new MINIXFormat(MINIXFormat::FormatSeparate); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<MINIXFormat>(MINIXFormat::FormatSeparate); },
 		"MINIX/ELKS executable, separate code/data" },
 	{ "minix_sep" },
 	{ "minix_separate" },
@@ -140,68 +140,68 @@ struct output_format_type
 	{ "elks_separate" },
 	{ "elks_split" },
 	{ "minix_comb",
-		[]() -> OutputFormat * { return new MINIXFormat(MINIXFormat::FormatCombined); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<MINIXFormat>(MINIXFormat::FormatCombined); },
 		"MINIX/ELKS executable, combined code/data" },
 	{ "minix_combined" },
 	{ "elks_comb" },
 	{ "elks_combined" },
 	/* 68K */
 	{ "tos",
-		[]() -> OutputFormat * { return new CPM68KFormat(CPM68KFormat::SYSTEM_GEMDOS); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM68KFormat>(CPM68KFormat::SYSTEM_GEMDOS); },
 		"GEMDOS/Atari TOS contiguous executable (.prg/.tos)" },
 	{ "gemdos" },
 	{ "prg" },
 	{ "atari" },
 	{ "st" },
 	{ "cpm68k",
-		[]() -> OutputFormat * { return new CPM68KFormat(CPM68KFormat::SYSTEM_CPM68K, CPM68KFormat::MAGIC_CONTIGUOUS); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM68KFormat>(CPM68KFormat::SYSTEM_CPM68K, CPM68KFormat::MAGIC_CONTIGUOUS); },
 		"CP/M-68K contiguous executable (.68k)" },
 	{ "cpm68k_cont" },
 	{ "68k" },
 	{ "68k_cont" },
 	{ "601a" },
 	{ "cpm68k_noncont",
-		[]() -> OutputFormat * { return new CPM68KFormat(CPM68KFormat::SYSTEM_CPM68K, CPM68KFormat::MAGIC_NONCONTIGUOUS); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM68KFormat>(CPM68KFormat::SYSTEM_CPM68K, CPM68KFormat::MAGIC_NONCONTIGUOUS); },
 		"CP/M-68K non-contiguous executable (.68k)" },
 	{ "68k_noncont" },
 	{ "601b" },
 	{ "cdos68k",
-		[]() -> OutputFormat * { return new CPM68KFormat(CPM68KFormat::SYSTEM_HUMAN68K); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM68KFormat>(CPM68KFormat::SYSTEM_HUMAN68K); },
 		"Concurrent DOS 68K contiguous executable (.68k) [untested]" },
 	{ "cdos68k_c",
-		[]() -> OutputFormat * { return new CPM68KFormat(CPM68KFormat::SYSTEM_CDOS68K, CPM68KFormat::MAGIC_CONTIGUOUS); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM68KFormat>(CPM68KFormat::SYSTEM_CDOS68K, CPM68KFormat::MAGIC_CONTIGUOUS); },
 		"Concurrent DOS 68K contiguous executable with crunched relocations (.68k) [untested]" },
 	{ "cdos68k_crunched" },
 	{ "cdos68kc" },
 	{ "601c" },
 	{ "zfile",
-		[]() -> OutputFormat * { return new CPM68KFormat(CPM68KFormat::SYSTEM_HUMAN68K); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM68KFormat>(CPM68KFormat::SYSTEM_HUMAN68K); },
 		"Human68k unrelocatable contiguous executable (.z)" },
 	/* COFF */
 	{ "cdos68k_coff",
-		[]() -> OutputFormat * { return COFFFormat::CreateWriter(COFFFormat::CDOS68K); }, /* TODO: also 386 COFF writer */
+		[]() -> std::shared_ptr<OutputFormat> { return COFFFormat::CreateWriter(COFFFormat::CDOS68K); }, /* TODO: also 386 COFF writer */
 		"COFF (68000) executable for Concurrent DOS 68K (.68k) [untested]" },
 	{ "djgpp",
-		[]() -> OutputFormat * { return COFFFormat::CreateWriter(COFFFormat::DJGPP); },
+		[]() -> std::shared_ptr<OutputFormat> { return COFFFormat::CreateWriter(COFFFormat::DJGPP); },
 		"COFF (80386) executable for DJGPP 1.11 and later (.exe)" },
 	{ "djgpp_coff" },
 	{ "djgppv2" }, /* technically, 1.11 */
 	{ "coff" },
 	/* a.out */
 	{ "aout",
-		[]() -> OutputFormat * { return AOutFormat::CreateWriter(AOutFormat::DJGPP1); },
+		[]() -> std::shared_ptr<OutputFormat> { return AOutFormat::CreateWriter(AOutFormat::DJGPP1); },
 		"32-bit a.out executable (80386) with ZMAGIC for GO32/DJGPP version 1 (.exe)" },
 	{ "a.out" },
 	{ "djgppv1" },
 	{ "zmagic" },
 	{ "pdos32",
-		[]() -> OutputFormat * { return AOutFormat::CreateWriter(AOutFormat::PDOS386); },
+		[]() -> std::shared_ptr<OutputFormat> { return AOutFormat::CreateWriter(AOutFormat::PDOS386); },
 		"32-bit a.out executable (80386) with OMAGIC for PDOS/386 (.exe) (obsolete)" },
 	{ "pdos386" },
 	{ "omagic" },
 	/* HU */
 	{ "xfile",
-		[]() -> OutputFormat * { return new HUFormat; },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<HUFormat>(); },
 		"Human68k \"HU\" executable (.x) on the X68000" },
 	{ "hu" },
 	{ "human68k" },
@@ -210,128 +210,128 @@ struct output_format_type
 	{ "x68k" },
 	/* Classic Macintosh */
 	{ "code",
-		[]() -> OutputFormat * { return new Apple::MacDriver(Apple::MacDriver::TARGET_RESOURCE_FORK); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<Apple::MacDriver>(Apple::MacDriver::TARGET_RESOURCE_FORK); },
 		"Classic Macintosh 'CODE' resource executable, resource fork only" },
 	{ "resource" },
 	{ "rsrc" },
 	{ "basilisk",
-		[]() -> OutputFormat * { return new Apple::MacDriver(Apple::MacDriver::TARGET_DATA_FORK, Apple::MacDriver::PRODUCE_RESOURCE_FORK | Apple::MacDriver::PRODUCE_FINDER_INFO); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<Apple::MacDriver>(Apple::MacDriver::TARGET_DATA_FORK, Apple::MacDriver::PRODUCE_RESOURCE_FORK | Apple::MacDriver::PRODUCE_FINDER_INFO); },
 		"Classic Macintosh 'CODE' resource executable with resource fork and Finder Info in separate .rsrc, .finf folders" },
 	{ "macos",
-		[]() -> OutputFormat * { return new Apple::MacDriver(Apple::MacDriver::TARGET_DATA_FORK, Apple::MacDriver::PRODUCE_RESOURCE_FORK | Apple::MacDriver::PRODUCE_FINDER_INFO | Apple::MacDriver::PRODUCE_APPLE_DOUBLE | Apple::MacDriver::PRODUCE_MAC_BINARY); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<Apple::MacDriver>(Apple::MacDriver::TARGET_DATA_FORK, Apple::MacDriver::PRODUCE_RESOURCE_FORK | Apple::MacDriver::PRODUCE_FINDER_INFO | Apple::MacDriver::PRODUCE_APPLE_DOUBLE | Apple::MacDriver::PRODUCE_MAC_BINARY); },
 		"Classic Macintosh 'CODE' resource executable, stored as AppleDouble format and the resource fork and Finder Info in separate .rsrc, .finf folders" },
 	{ "apple" },
 	{ "appledouble",
-		[]() -> OutputFormat * { return new Apple::MacDriver(Apple::MacDriver::TARGET_DATA_FORK, Apple::MacDriver::PRODUCE_APPLE_DOUBLE); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<Apple::MacDriver>(Apple::MacDriver::TARGET_DATA_FORK, Apple::MacDriver::PRODUCE_APPLE_DOUBLE); },
 		"Classic Macintosh 'CODE' resource executable, stored as AppleDouble format" },
 	{ "applesingle",
-		[]() -> OutputFormat * { return new Apple::MacDriver(Apple::MacDriver::TARGET_APPLE_SINGLE); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<Apple::MacDriver>(Apple::MacDriver::TARGET_APPLE_SINGLE); },
 		"Classic Macintosh 'CODE' resource executable, stored as AppleSingle format" },
 	/* Hunk */
 	{ "amiga",
-		[]() -> OutputFormat * { return new HunkFormat; },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<HunkFormat>(); },
 		"Amiga Hunk executable" },
 	{ "hunk" },
 	/* NE */
 	{ "dos4",
-		[]() -> OutputFormat * { return NEFormat::CreateConsoleApplication(NEFormat::MSDOS4); },
+		[]() -> std::shared_ptr<OutputFormat> { return NEFormat::CreateConsoleApplication(NEFormat::MSDOS4); },
 		"Multitasking \"European\" MS-DOS 4.0 \"NE\" executable (.exe)" },
 	{ "msdos4" },
 	{ "dos_ne" },
 	{ "win",
-		[]() -> OutputFormat * { return NEFormat::CreateConsoleApplication(NEFormat::Windows)->SimulateLinker(NEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return NEFormat::CreateConsoleApplication(NEFormat::Windows)->SimulateLinker(NEFormat::CompatibleWatcom); },
 		"16-bit Windows \"NE\" executable (.exe), Watcom compatible" },
 	{ "win16" },
 	{ "windows" },
 	{ "windows16" },
 	{ "ne" },
 	{ "win_dll",
-		[]() -> OutputFormat * { return NEFormat::CreateLibraryModule(NEFormat::Windows)->SimulateLinker(NEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return NEFormat::CreateLibraryModule(NEFormat::Windows)->SimulateLinker(NEFormat::CompatibleWatcom); },
 		"16-bit Windows \"NE\" dynamic library (.dll), Watcom compatible" },
 	{ "win16_dll" },
 	{ "windows_dll" },
 	{ "windows16_dll" },
 	{ "os2",
-		[]() -> OutputFormat * { return NEFormat::CreateConsoleApplication(NEFormat::OS2)->SimulateLinker(NEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return NEFormat::CreateConsoleApplication(NEFormat::OS2)->SimulateLinker(NEFormat::CompatibleWatcom); },
 		"16-bit OS/2 \"NE\" console executable (.exe), Watcom compatible" },
 	{ "os2v1" },
 	{ "os2_16" },
 	{ "os2_pm",
-		[]() -> OutputFormat * { return NEFormat::CreateGUIApplication(NEFormat::OS2)->SimulateLinker(NEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return NEFormat::CreateGUIApplication(NEFormat::OS2)->SimulateLinker(NEFormat::CompatibleWatcom); },
 		"16-bit OS/2 \"NE\" GUI (Presentation Manager) executable (.exe), Watcom compatible" },
 	{ "os2v1_pm" },
 	{ "os2_16_pm" },
 	{ "os2_dll",
-		[]() -> OutputFormat * { return NEFormat::CreateLibraryModule(NEFormat::OS2)->SimulateLinker(NEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return NEFormat::CreateLibraryModule(NEFormat::OS2)->SimulateLinker(NEFormat::CompatibleWatcom); },
 		"16-bit OS/2 \"NE\" dynamic library (.dll), Watcom compatible" },
 	{ "os2v1_dll" },
 	{ "os2_16_dll" },
 	/* LE/LX */
 	{ "dos4g",
-		[]() -> OutputFormat * { return LEFormat::CreateConsoleApplication(LEFormat::DOS4G)->SimulateLinker(LEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return LEFormat::CreateConsoleApplication(LEFormat::DOS4G)->SimulateLinker(LEFormat::CompatibleWatcom); },
 		"DOS/4G \"LE\" executable (.exe), Watcom compatible" },
 	{ "dos_le" },
 	{ "win386",
-		[]() -> OutputFormat * { return LEFormat::CreateConsoleApplication(LEFormat::Windows386)->SimulateLinker(LEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return LEFormat::CreateConsoleApplication(LEFormat::Windows386)->SimulateLinker(LEFormat::CompatibleWatcom); },
 		"Windows 386 \"LE\" virtual device driver (.386 or .vxd), Watcom compatible" },
 	{ "win_vxd" },
 	{ "vxd" },
 	{ "le" },
 	{ "os2v2",
-		[]() -> OutputFormat * { return LEFormat::CreateConsoleApplication(LEFormat::OS2)->SimulateLinker(LEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return LEFormat::CreateConsoleApplication(LEFormat::OS2)->SimulateLinker(LEFormat::CompatibleWatcom); },
 		"32-bit OS/2 \"LX\" console executable (.exe), Watcom compatible" },
 	{ "os2_32" },
 	{ "lx" },
 	{ "os2v2_pm",
-		[]() -> OutputFormat * { return LEFormat::CreateGUIApplication(LEFormat::OS2)->SimulateLinker(LEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return LEFormat::CreateGUIApplication(LEFormat::OS2)->SimulateLinker(LEFormat::CompatibleWatcom); },
 		"32-bit OS/2 \"LX\" GUI (Presentation Manager) executable (.exe), Watcom compatible" },
 	{ "os2_32_pm" },
 	{ "lx_pm" },
 	{ "os2v2_dll",
-		[]() -> OutputFormat * { return LEFormat::CreateLibraryModule(LEFormat::OS2)->SimulateLinker(LEFormat::CompatibleWatcom); },
+		[]() -> std::shared_ptr<OutputFormat> { return LEFormat::CreateLibraryModule(LEFormat::OS2)->SimulateLinker(LEFormat::CompatibleWatcom); },
 		"32-bit OS/2 \"LX\" dynamic library (.dll), Watcom compatible" },
 	{ "os2_32_dll" },
 	{ "lx_dll" },
 	/* BW */
 	{ "dos16m",
-		[]() -> OutputFormat * { return new BWFormat; },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<BWFormat>(); },
 		"DOS/16M \"BW\" executable (.exp)" },
 	{ "bw" },
 	/* MP/MQ */
 	{ "pharlap",
-		[]() -> OutputFormat * { return new MPFormat(false); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<MPFormat>(false); },
 		"Phar Lap 386|DOS-Extender \"MP\" executable (.exp)" },
 	{ "mp" },
 	{ "exp" },
 	{ "pharlap_rex",
-		[]() -> OutputFormat * { return new MPFormat(true); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<MPFormat>(true); },
 		"Phar Lap 386|DOS-Extender \"MQ\" relocatable executable (.rex)" },
 	{ "mq" },
 	{ "rex" },
 	/* P2/P3 */
 	{ "pharlap_extended",
-		[]() -> OutputFormat * { return new P3Format::Flat(true); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<P3Format::Flat>(true); },
 		"Phar Lap 386|DOS-Extender flat \"P3\" executable (.exp)" },
 	{ "pharlap_ext" },
 	{ "p3" },
 	{ "pharlap_segmented",
-		[]() -> OutputFormat * { return new P3Format::MultiSegmented(true); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<P3Format::MultiSegmented>(true); },
 		"Phar Lap 386|DOS-Extender segmented \"P3\" executable (.exp) [untested]" },
 	{ "pharlap_seg" },
 	{ "p3_seg" },
 	{ "pharlap16_extended",
-		[]() -> OutputFormat * { return new P3Format::Flat(false); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<P3Format::Flat>(false); },
 		"Phar Lap 386|DOS-Extender flat \"P2\" executable (.exp) [untested]" },
 	{ "pharlap16_ext" },
 	{ "p2" },
 	{ "pharlap16_segmented",
-		[]() -> OutputFormat * { return new P3Format::MultiSegmented(false); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<P3Format::MultiSegmented>(false); },
 		"Phar Lap 386|DOS-Extender segmented \"P2\" executable (.exp) [untested]" },
 	{ "pharlap16_seg" },
 	{ "p2_seg" },
 	/* Z8K */
 	{ "cpm8k",
-		[]() -> OutputFormat * { return new CPM8KFormat(CPM8KFormat::MAGIC_NONSHARED); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM8KFormat>(CPM8KFormat::MAGIC_NONSHARED); },
 		"CP/M-8000 nonshared executable (.z8k)" },
 	{ "cpm8k_nonshared" },
 	{ "cpm8k_ns" },
@@ -340,7 +340,7 @@ struct output_format_type
 	{ "z8k_ns" },
 	{ "ee03" },
 	{ "cpm8k_split",
-		[]() -> OutputFormat * { return new CPM8KFormat(CPM8KFormat::MAGIC_SPLIT); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM8KFormat>(CPM8KFormat::MAGIC_SPLIT); },
 		"CP/M-8000 split executable (.z8k)" },
 	{ "cpm8k_split" },
 	{ "cpm8k_sp" },
@@ -349,7 +349,7 @@ struct output_format_type
 	{ "z8k_sp" },
 	{ "ee0b" },
 	{ "cpm8k_segmented",
-		[]() -> OutputFormat * { return new CPM8KFormat(CPM8KFormat::MAGIC_SEGMENTED); },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM8KFormat>(CPM8KFormat::MAGIC_SEGMENTED); },
 		"CP/M-8000 segmented executable (.z8k)" },
 	{ "cpm8k_segmented" },
 	{ "cpm8k_sg" },
@@ -359,20 +359,20 @@ struct output_format_type
 	{ "ee01" },
 	/* 6502 */
 	{ "atari-com", // TODO: testing
-		[]() -> OutputFormat * { return new AtariFormat; },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<AtariFormat>(); },
 		"Atari 8-bit file format" },
 	{ "cbm-prg", // TODO: testing
-		[]() -> OutputFormat * { return new CommodoreFormat; },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CommodoreFormat>(); },
 		"Commodore 8-bit file format" },
 	{ "apple-bin", // TODO: testing
-		[]() -> OutputFormat * { return new AppleFormat; },
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<AppleFormat>(); },
 		"Apple 8-bit file format" },
 };
 
 /**
  * @brief Searches for the associated file format
  */
-OutputFormat * FetchMainFormat(std::string text)
+std::shared_ptr<OutputFormat> FetchMainFormat(std::string text)
 {
 	output_format_type * last_format;
 	for(size_t i = 0; i < sizeof(formats) / sizeof(formats[0]); i++)
@@ -397,13 +397,13 @@ OutputFormat * FetchMainFormat(std::string text)
  *
  * Most formats are identified by an identifier, but some of them (such as the Classic Macintosh) support a <tt>+</tt> separated list of formats, the first of which is the main format, followed by supplementary formats.
  */
-OutputFormat * FetchFormat(std::string text)
+std::shared_ptr<OutputFormat> FetchFormat(std::string text)
 {
 	size_t pos = text.find("+");
 	if(pos == std::string::npos)
 		return FetchMainFormat(text);
 	std::string format_name = text.substr(0, pos);
-	OutputFormat * format = FetchMainFormat(format_name);
+	std::shared_ptr<OutputFormat> format = FetchMainFormat(format_name);
 	for(;;)
 	{
 		pos += 1;
@@ -806,44 +806,44 @@ void usage(char * argv0)
 	std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
 }
 
-Format * CreateFormat(Reader& rd, format_description& file_format)
+std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format)
 {
 	switch(file_format.magic.type)
 	{
 	case FORMAT_68K:
-		return new CPM68KFormat;
+		return std::make_shared<CPM68KFormat>();
 	case FORMAT_ADAM:
-		return new SeychellDOS32::AdamFormat; // TODO: test
+		return std::make_shared<SeychellDOS32::AdamFormat>(); // TODO: test
 	case FORMAT_AIF:
 		/* TODO */
 		return nullptr;
 	case FORMAT_AOUT:
-		return new AOutFormat; // TODO: test dumper
+		return std::make_shared<AOutFormat>(); // TODO: test dumper
 	case FORMAT_APPLE:
 		/* TODO */
 		return nullptr;
 	case FORMAT_APPLEII:
-		return new AppleFormat; // TODO: test
+		return std::make_shared<AppleFormat>(); // TODO: test
 	case FORMAT_ATARI:
-		return new AtariFormat; // TODO: test
+		return std::make_shared<AtariFormat>(); // TODO: test
 	case FORMAT_BW:
 		/* TODO */
 		return nullptr;
 	case FORMAT_COFF:
-		return new COFFFormat; // TODO: test dumper
+		return std::make_shared<COFFFormat>(); // TODO: test dumper
 	case FORMAT_CMD:
-		return new CPM86Format;
+		return std::make_shared<CPM86Format>();
 	case FORMAT_CPM3:
-		return new CPM3Format; // TODO: test
+		return std::make_shared<CPM3Format>(); // TODO: test
 	case FORMAT_D3X:
-		return new BrocaD3X::D3X1Format; // TODO: test
+		return std::make_shared<BrocaD3X::D3X1Format>(); // TODO: test
 	case FORMAT_DX64:
 		/* TODO */
 		return nullptr;
 	case FORMAT_ELF:
-		return new ELFFormat; // TODO: test dumper
+		return std::make_shared<ELFFormat>(); // TODO: test dumper
 	case FORMAT_FLAT:
-		return new BinaryFormat; // TODO: test
+		return std::make_shared<BinaryFormat>(); // TODO: test
 	case FORMAT_FLEX:
 		/* TODO */
 		return nullptr;
@@ -881,12 +881,12 @@ Format * CreateFormat(Reader& rd, format_description& file_format)
 		/* TODO */
 		return nullptr;
 	case FORMAT_MZ:
-		return new MZFormat;
+		return std::make_shared<MZFormat>();
 	case FORMAT_NE:
 		/* TODO */
 		return nullptr;
 	case FORMAT_O65:
-		return new O65::O65Format; // TODO
+		return std::make_shared<O65::O65Format>(); // TODO
 	case FORMAT_OMF:
 		/* TODO */
 		return nullptr;
@@ -924,7 +924,7 @@ Format * CreateFormat(Reader& rd, format_description& file_format)
 		/* TODO */
 		return nullptr;
 	case FORMAT_Z8K:
-		return new CPM8KFormat; // TODO: test
+		return std::make_shared<CPM8KFormat>(); // TODO: test
 #if 0
 	default:
 		/* TODO */
@@ -940,7 +940,7 @@ Format * CreateFormat(Reader& rd, format_description& file_format)
 int linker_main(int argc, char * argv[])
 {
 	Module module;
-	OutputFormat * format = nullptr;
+	std::shared_ptr<OutputFormat> format = nullptr;
 
 	std::vector<std::string> inputs;
 	std::string output;
@@ -1074,7 +1074,7 @@ int linker_main(int argc, char * argv[])
 	if(format == nullptr)
 	{
 		Linker::Warning << "Warning: Unspecified output format, using flat binary" << std::endl;
-		format = new BinaryFormat(0, "");
+		format = std::make_shared<BinaryFormat>(0, "");
 	}
 
 	for(auto input : inputs)
@@ -1093,11 +1093,11 @@ int linker_main(int argc, char * argv[])
 		std::vector<format_description> file_formats;
 		DetermineFormat(file_formats, rd);
 
-		InputFormat * input_format = nullptr;
+		std::shared_ptr<InputFormat> input_format = nullptr;
 
 		for(auto& file_format : file_formats)
 		{
-			input_format = dynamic_cast<InputFormat *>(CreateFormat(rd, file_format));
+			input_format = std::dynamic_pointer_cast<InputFormat>(CreateFormat(rd, file_format));
 			if(input_format != nullptr)
 			{
 				input_format->file_offset = file_format.offset;
@@ -1130,7 +1130,6 @@ int linker_main(int argc, char * argv[])
 		input_format->SetupOptions(special_char, format);
 		input_format->ProduceModule(module1, rd);
 		in.close();
-		delete input_format;
 
 		/* attempts to resolve as many relocations as possible */
 		/* this is needed because local symbols get lost, but segment references are still stored as references to symbol names */
@@ -1207,7 +1206,7 @@ int linker_main(int argc, char * argv[])
 int dumper_main(int argc, char * argv[])
 {
 	std::string input = "";
-	Format * format = nullptr;
+	std::shared_ptr<Format> format = nullptr;
 
 	for(int i = 1; i < argc; i++)
 	{
@@ -1270,7 +1269,6 @@ int dumper_main(int argc, char * argv[])
 			format->ReadFile(rd);
 			Dumper::Dumper dump(std::cout);
 			format->Dump(dump);
-			delete format;
 		}
 	}
 	else

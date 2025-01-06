@@ -539,7 +539,7 @@ namespace COFF
 
 		/* * * Reader members * * */
 
-		void SetupOptions(char special_char, Linker::OutputFormat * format) override;
+		void SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format) override;
 
 		char special_prefix_char = '$';
 			/* GNU assembler can use '$', NASM must use '?' */
@@ -644,7 +644,7 @@ namespace COFF
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
-		static COFFFormat * CreateWriter(format_type type);
+		static std::shared_ptr<COFFFormat> CreateWriter(format_type type);
 
 		using LinkerManager::SetLinkScript;
 

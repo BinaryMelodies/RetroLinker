@@ -21,8 +21,8 @@ namespace ELF
 	public:
 		void WriteFile(Linker::Writer& wr) override;
 
-		Linker::OutputFormat * output_format;
-		void SetupOptions(char special_char, Linker::OutputFormat * format) override;
+		std::weak_ptr<Linker::OutputFormat> output_format;
+		void SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format) override;
 
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 

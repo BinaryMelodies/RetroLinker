@@ -51,44 +51,44 @@ bool LEFormat::IsDriver() const
 	return system == Windows;
 }
 
-LEFormat * LEFormat::CreateConsoleApplication(system_type system)
+std::shared_ptr<LEFormat> LEFormat::CreateConsoleApplication(system_type system)
 {
 	switch(system)
 	{
 	case OS2:
-		return new LEFormat(system, GUIAware, true);
+		return std::make_shared<LEFormat>(system, GUIAware, true);
 	case Windows386:
-		return new LEFormat(system, Library | NoExternalFixup, false); /* TODO: actually, a driver */
+		return std::make_shared<LEFormat>(system, Library | NoExternalFixup, false); /* TODO: actually, a driver */
 	case DOS4G: /* not an actual type */
-		return new LEFormat(OS2, GUIAware, false);
+		return std::make_shared<LEFormat>(OS2, GUIAware, false);
 	default:
 		assert(false);
 	}
 }
 
-LEFormat * LEFormat::CreateGUIApplication(system_type system)
+std::shared_ptr<LEFormat> LEFormat::CreateGUIApplication(system_type system)
 {
 	switch(system)
 	{
 	case OS2:
-		return new LEFormat(system, GUI, true);
+		return std::make_shared<LEFormat>(system, GUI, true);
 	default:
 		assert(false);
 	}
 }
 
-LEFormat * LEFormat::CreateLibraryModule(system_type system)
+std::shared_ptr<LEFormat> LEFormat::CreateLibraryModule(system_type system)
 {
 	switch(system)
 	{
 	case OS2:
-		return new LEFormat(system, Library | NoInternalFixup, true);
+		return std::make_shared<LEFormat>(system, Library | NoInternalFixup, true);
 	default:
 		assert(false);
 	}
 }
 
-LEFormat * LEFormat::SimulateLinker(compatibility_type compatibility)
+std::shared_ptr<LEFormat> LEFormat::SimulateLinker(compatibility_type compatibility)
 {
 	this->compatibility = compatibility;
 	switch(compatibility)
@@ -105,7 +105,7 @@ LEFormat * LEFormat::SimulateLinker(compatibility_type compatibility)
 		break;
 	/* TODO: others */
 	}
-	return this;
+	return shared_from_this();
 }
 
 void LEFormat::AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target, uint32_t addition)

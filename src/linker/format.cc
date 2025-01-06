@@ -148,7 +148,7 @@ unsigned OutputFormat::FormatAdditionalSectionFlags(std::string section_name) co
 	return 0;
 }
 
-void InputFormat::SetupOptions(char special_char, OutputFormat * format)
+void InputFormat::SetupOptions(char special_char, std::shared_ptr<OutputFormat> format)
 {
 }
 

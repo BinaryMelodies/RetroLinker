@@ -165,7 +165,7 @@ namespace Linker
 		 * @param special_char Most input formats do not provide support for the special requirements of the output format (such as segmentation for ELF). We work around this by introducing special name prefixes $$SEGOF$ where $ is the value of special_char.
 		 * @param format The output format that will be used. This is required to know which extra special features need to be implemented (such as segmentation).
 		 */
-		virtual void SetupOptions(char special_char, OutputFormat * format);
+		virtual void SetupOptions(char special_char, std::shared_ptr<OutputFormat> format);
 		/**
 		 * @brief Reads a file and loads the information into a module object
 		 */

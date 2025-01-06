@@ -571,15 +571,15 @@ void AOutFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
 
 /* * * Writer * * */
 
-AOutFormat * AOutFormat::CreateWriter(system_type system, magic_type magic)
+std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system, magic_type magic)
 {
-	AOutFormat * format = new AOutFormat;
+	std::shared_ptr<AOutFormat> format = std::make_shared<AOutFormat>();
 	format->system = system;
 	format->magic = magic;
 	return format;
 }
 
-AOutFormat * AOutFormat::CreateWriter(system_type system)
+std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system)
 {
 	return CreateWriter(system, GetDefaultMagic(system));
 }

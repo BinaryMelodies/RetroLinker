@@ -129,9 +129,9 @@ namespace AOut
 		};
 		system_type system = system_type(0);
 
-		static AOutFormat * CreateWriter(system_type system, magic_type magic);
+		static std::shared_ptr<AOutFormat> CreateWriter(system_type system, magic_type magic);
 
-		static AOutFormat * CreateWriter(system_type system);
+		static std::shared_ptr<AOutFormat> CreateWriter(system_type system);
 
 		/**
 		 * @brief Default magic number associated with the system

@@ -45,7 +45,7 @@ bool NEFormat::IsLibrary() const
 	return application_flags & LIBRARY;
 }
 
-NEFormat * NEFormat::SimulateLinker(compatibility_type compatibility)
+std::shared_ptr<NEFormat> NEFormat::SimulateLinker(compatibility_type compatibility)
 {
 	this->compatibility = compatibility;
 	switch(compatibility)
@@ -61,45 +61,45 @@ NEFormat * NEFormat::SimulateLinker(compatibility_type compatibility)
 		break;
 	/* TODO: others */
 	}
-	return this;
+	return shared_from_this();
 }
 
-NEFormat * NEFormat::CreateConsoleApplication(system_type system)
+std::shared_ptr<NEFormat> NEFormat::CreateConsoleApplication(system_type system)
 {
 	switch(system)
 	{
 	case OS2:
 	case Windows:
-		return new NEFormat(system, MULTIPLEDATA, GUI_AWARE);
+		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE);
 	case MSDOS4:
-		return new NEFormat(system, MULTIPLEDATA | GLOBAL_INITIALIZATION, 0);
+		return std::make_shared<NEFormat>(system, MULTIPLEDATA | GLOBAL_INITIALIZATION, 0);
 	default:
 		assert(false);
 	}
 }
 
-NEFormat * NEFormat::CreateGUIApplication(system_type system)
+std::shared_ptr<NEFormat> NEFormat::CreateGUIApplication(system_type system)
 {
 	switch(system)
 	{
 	case OS2:
-		return new NEFormat(system, MULTIPLEDATA, GUI);
+		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI);
 	case Windows:
-		return new NEFormat(system, MULTIPLEDATA, GUI_AWARE);
+		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE);
 	default:
 		assert(false);
 	}
 }
 
-NEFormat * NEFormat::CreateLibraryModule(system_type system)
+std::shared_ptr<NEFormat> NEFormat::CreateLibraryModule(system_type system)
 {
 	switch(system)
 	{
 	case OS2:
 	case Windows:
-		return new NEFormat(system, SINGLEDATA, GUI_AWARE | LIBRARY);
+		return std::make_shared<NEFormat>(system, SINGLEDATA, GUI_AWARE | LIBRARY);
 	case MSDOS4:
-		return new NEFormat(system, SINGLEDATA | GLOBAL_INITIALIZATION, LIBRARY);
+		return std::make_shared<NEFormat>(system, SINGLEDATA | GLOBAL_INITIALIZATION, LIBRARY);
 	default:
 		assert(false);
 	}
