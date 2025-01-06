@@ -1,6 +1,24 @@
 
 #include "dosexe.h"
 
+/* untested */
+
+void SeychellDOS32::AdamFormat::CalculateValues()
+{
+	is_v35 = (dlink_version & 0xFF) * (dlink_version >> 8) >= 0xF0; // Michael Tippach's condition
+	uint32_t relocation_size = 0;
+	if(!is_v35)
+	{
+		relocation_size = 4 * relocations.size();
+	}
+	else
+	{
+		// TODO: relocation_size for v3.5
+	}
+	image_size = header_size + image->ActualDataSize() + relocation_size;
+	relocation_start = header_size + image->ActualDataSize();
+}
+
 void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
@@ -20,15 +38,36 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 	rd.Skip(3);
 	minimum_dos_version = rd.ReadUnsigned(2);
 	dlink_version = rd.ReadUnsigned(2);
-	uint32_t image_size = rd.ReadUnsigned(4);
-	header_size = rd.ReadUnsigned(4);
-	uint32_t program_size = rd.ReadUnsigned(4);
-	relocation_size = image_size - header_size - program_size;
-	extra_memory_size = rd.ReadUnsigned(4) - program_size;
-	eip = rd.ReadUnsigned(4);
-	esp = rd.ReadUnsigned(4);
-	uint32_t relocation_count = rd.ReadUnsigned(4);
-	flags = rd.ReadUnsigned(4);
+	is_v35 = (dlink_version & 0xFF) * (dlink_version >> 8) >= 0xF0; // Michael Tippach's condition
+
+	uint32_t program_size;
+	uint32_t relocation_count = 0;
+
+	if(!is_v35)
+	{
+		image_size = rd.ReadUnsigned(4);
+		header_size = rd.ReadUnsigned(4);
+		program_size = rd.ReadUnsigned(4);
+		extra_memory_size = rd.ReadUnsigned(4) - program_size;
+		eip = rd.ReadUnsigned(4);
+		esp = rd.ReadUnsigned(4);
+		relocation_count = rd.ReadUnsigned(4);
+		flags = rd.ReadUnsigned(4);
+		// TODO: relocation size?
+	}
+	else
+	{
+		// TODO: needs verification
+		program_size = rd.ReadUnsigned(4);
+		image_size = rd.ReadUnsigned(4);
+		header_size = rd.ReadUnsigned(4);
+		eip = rd.ReadUnsigned(4);
+		extra_memory_size = rd.ReadUnsigned(4) - program_size;
+		esp = rd.ReadUnsigned(4);
+		relocation_start = rd.ReadUnsigned(4);
+		flags = rd.ReadUnsigned(4);
+		last_header_field = rd.ReadUnsigned(4);
+	}
 
 	rd.Skip(header_size - 0x28);
 
@@ -37,6 +76,8 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 
 	for(size_t i = 0; i < relocation_count; i++)
 	{
+		if(is_v35)
+			Linker::FatalError("Fatal error: relocations for 3.5 not implemented"); // TODO: not for v3.5
 		relocations.insert(rd.ReadUnsigned(4));
 	}
 }
@@ -56,7 +97,7 @@ void SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(2, dlink_version);
 	if(!is_v35)
 	{
-		wr.WriteWord(4, header_size + image->ActualDataSize() + relocation_size);
+		wr.WriteWord(4, image_size);
 		wr.WriteWord(4, header_size);
 		wr.WriteWord(4, image->ActualDataSize());
 		wr.WriteWord(4, image->ActualDataSize() + extra_memory_size);
@@ -67,17 +108,15 @@ void SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr)
 	}
 	else
 	{
-#if 0
-		/* TODO */
-		wr.WriteWord(4, image->ActualDataSize() + relocation_size);
-		wr.WriteWord(4, header_size + image->ActualDataSize() + relocation_size); /* ? */
+		wr.WriteWord(4, image->ActualDataSize() /* + relocation_size*/); // TODO
+		wr.WriteWord(4, image_size);
 		wr.WriteWord(4, header_size);
 		wr.WriteWord(4, eip);
-		wr.WriteWord(4, memory_size);
+		wr.WriteWord(4, image->ActualDataSize() + extra_memory_size);
 		wr.WriteWord(4, esp);
-		wr.WriteWord(4, header_size + image->ActualDataSize()); /* ? */
+		wr.WriteWord(4, relocation_start);
 		wr.WriteWord(4, flags);
-#endif
+		wr.WriteWord(4, last_header_field);
 	}
 
 	wr.Skip(header_size - 0x28);
@@ -113,27 +152,46 @@ void BrocaD3X::D3X1Format::WriteFile(Linker::Writer& wr)
 	/* TODO */
 }
 
-void DX64::FlatFormat::ReadFile(Linker::Reader& rd)
+void DX64::LVFormat::SetSignature(format_type type)
 {
-	rd.endiantype = ::LittleEndian;
-	/* TODO */
-}
-
-void DX64::FlatFormat::WriteFile(Linker::Writer& wr)
-{
-	wr.endiantype = ::LittleEndian;
-	/* TODO */
+	switch(type)
+	{
+	case FORMAT_FLAT:
+		memcpy(signature, "Flat", 4);
+		break;
+	case FORMAT_LV:
+		memcpy(signature, "LV\0\0", 4);
+		break;
+	default:
+		Linker::FatalError("Internal error: invalid format type");
+	}
 }
 
 void DX64::LVFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	/* TODO */
+	rd.ReadData(4, signature);
+	if(memcmp(signature, "Flat", 4) != 0 && memcmp(signature, "LV\0\0", 4) != 0)
+	{
+		Linker::Error << "Error: invalid signature" << std::endl;
+	}
+	uint32_t program_size = rd.ReadUnsigned(4);
+	eip = rd.ReadUnsigned(4);
+	esp = rd.ReadUnsigned(4);
+	extra_memory_size = rd.ReadUnsigned(4);
+
+	image = std::make_shared<Linker::Buffer>(program_size);
+	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, program_size);
 }
 
 void DX64::LVFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
-	/* TODO */
+	wr.WriteData(4, signature);
+	wr.WriteWord(4, image->ActualDataSize());
+	wr.WriteWord(4, eip);
+	wr.WriteWord(4, esp);
+	wr.WriteWord(4, extra_memory_size);
+	image->WriteFile(wr);
 }
 

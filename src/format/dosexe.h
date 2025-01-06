@@ -11,7 +11,7 @@ namespace SeychellDOS32
 	/**
 	 * @brief Adam Seychell's DOS32 "Adam" executable format
 	 */
-	class AdamFormat : public virtual Linker::Format
+	class AdamFormat : public virtual Linker::Format, public virtual Linker::OutputFormat
 	{
 	public:
 		bool is_v35; /* based on Michael Tippach's research */
@@ -28,13 +28,16 @@ namespace SeychellDOS32
 		bool is_dll = false;
 		uint16_t minimum_dos_version = 0;
 		uint16_t dlink_version = 0;
-		uint32_t relocation_size = 0;
+		uint32_t image_size = 0;
 		uint32_t header_size = 0;
 		uint32_t extra_memory_size = 0;
 		uint32_t eip = 0;
 		uint32_t esp = 0;
 		std::set<uint32_t> relocations;
 		uint32_t flags = 0;
+		uint32_t relocation_start = 0;
+		/** @brief Unknown field for version 3.5 */
+		uint32_t last_header_field = 0;
 
 		std::shared_ptr<Linker::Writable> image;
 
@@ -43,6 +46,8 @@ namespace SeychellDOS32
 			FLAG_COMPRESSED = 0x0001,
 			FLAG_DISPLAY_LOGO = 0x0002,
 		};
+
+		void CalculateValues() override;
 
 		void ReadFile(Linker::Reader& rd) override;
 
@@ -78,22 +83,30 @@ namespace BrocaD3X
 namespace DX64
 {
 	/**
-	 * @brief CandyMan's DX64 "Flat" executable format
-	 */
-	class FlatFormat : public virtual Linker::Format
-	{
-	public:
-		void ReadFile(Linker::Reader& rd) override;
-
-		void WriteFile(Linker::Writer& wr) override;
-	};
-
-	/**
-	 * @brief CandyMan's DX64 "LV" executable format
+	 * @brief CandyMan's DX64 "Flat" and "LV" executable formats
 	 */
 	class LVFormat : public virtual Linker::Format
 	{
 	public:
+		enum format_type
+		{
+			FORMAT_FLAT,
+			FORMAT_LV,
+		};
+
+		char signature[4];
+		uint32_t eip = 0;
+		uint32_t esp = 0;
+		uint32_t extra_memory_size = 0;
+		std::shared_ptr<Linker::Writable> image;
+
+		LVFormat(format_type type)
+		{
+			SetSignature(type);
+		}
+
+		void SetSignature(format_type type);
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		void WriteFile(Linker::Writer& wr) override;
