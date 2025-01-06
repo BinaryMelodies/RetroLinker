@@ -10,8 +10,8 @@ clean:
 distclean: clean
 	rm -rf *~
 
-verify: all
-	for file in bak/*; do diff $$file l/`basename $$file`; done
+verify:
+	for file in l.ref/*; do diff $$file l/`basename $$file`; done
 
 w:
 	if [ ! -d w ]; then mkdir w; fi

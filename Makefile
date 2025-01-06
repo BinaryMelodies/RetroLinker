@@ -25,7 +25,7 @@ LDFLAGS=-O2
 
 all: link
 
-.PHONY: all clean distclean tests tests_clean force doxygen unittests
+.PHONY: all clean distclean tests tests_clean verify force doxygen unittests
 
 link: $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
 	g++ -o link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
@@ -61,6 +61,13 @@ tests:
 	$(MAKE) -C tests/3_extern
 	$(MAKE) -C tests/4_ctest
 	$(MAKE) -C tests/watcom
+
+verify:
+	$(MAKE) -C tests/1_hello verify
+	$(MAKE) -C tests/2_asm verify
+	$(MAKE) -C tests/3_extern verify
+	$(MAKE) -C tests/4_ctest verify
+	$(MAKE) -C tests/watcom verify
 
 unittests: link
 	$(MAKE) -C unittest
