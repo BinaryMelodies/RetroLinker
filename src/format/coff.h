@@ -36,6 +36,7 @@ namespace COFF
 			CPU_I386  = 0x014C,
 			CPU_M68K  = 0x0150,
 			// GNU binutils output
+			CPU_W65   = 0x6500,
 			CPU_Z80   = 0x805A,
 			CPU_Z8K   = 0x8000,
 			// other CPU types, included for completeness sake
@@ -109,6 +110,17 @@ namespace COFF
 			static const uint16_t R_Z8K_IMM32 = 0x11;
 			static const uint16_t R_Z8K_JR    = 0x02; /* jr */
 			static const uint16_t R_Z8K_CALLR = 0x05; /* callr */
+
+			static const uint16_t R_W65_ABS8     = 0x01;
+			static const uint16_t R_W65_ABS16    = 0x02;
+			static const uint16_t R_W65_ABS24    = 0x03;
+			static const uint16_t R_W65_ABS8S8   = 0x04;
+			static const uint16_t R_W65_ABS8S16  = 0x05;
+			static const uint16_t R_W65_ABS16S8  = 0x06;
+			static const uint16_t R_W65_ABS16S16 = 0x07;
+			static const uint16_t R_W65_PCR8     = 0x08;
+			static const uint16_t R_W65_PCR16    = 0x09;
+			static const uint16_t R_W65_DP       = 0x0A;
 
 			cpu cpu_type;
 

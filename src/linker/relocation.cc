@@ -193,6 +193,18 @@ std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation
 	{
 		out << " add " << (int64_t)relocation.addend;
 	}
+	if(relocation.shift < 0)
+	{
+		out << " shifted right by " << -relocation.shift;
+	}
+	else if(relocation.shift > 0)
+	{
+		out << " shifted left by " << relocation.shift;
+	}
+	if(relocation.mask != -(uint64_t)1u)
+	{
+		out << " masked by " << std::hex << relocation.mask;
+	}
 	out << ")";
 	return out;
 }

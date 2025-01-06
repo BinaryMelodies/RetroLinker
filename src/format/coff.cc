@@ -69,6 +69,7 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(CPU_SHARC, MachineType { CPU_SHARC, ::LittleEndian }) },
 	{ std::make_pair(CPU_Z8K,   MachineType { CPU_Z8K,   ::BigEndian }) }, // GNU binutils
 	{ std::make_pair(CPU_Z80,   MachineType { CPU_Z80,   ::LittleEndian }) }, // GNU binutils
+	{ std::make_pair(CPU_W65,   MachineType { CPU_W65,   ::LittleEndian }) }, // GNU binutils
 	/* due to overloaded values, these require more than 16 bits and therefore cannot appear in files, included for endianness */
 	// for now, there are none
 };
@@ -138,6 +139,26 @@ size_t COFFFormat::ZilogRelocation::GetSize()
 			Linker::Error << "Error: Unknown relocation type" << std::endl;
 			return -1;
 		}
+	case CPU_W65:
+		switch(type)
+		{
+		case R_W65_ABS8:
+		case R_W65_ABS8S8:
+		case R_W65_ABS8S16:
+		case R_W65_PCR8:
+		case R_W65_DP:
+			return 1;
+		case R_W65_ABS16:
+		case R_W65_ABS16S8:
+		case R_W65_ABS16S16:
+		case R_W65_PCR16:
+			return 2;
+		case R_W65_ABS24:
+			return 3;
+		default:
+			Linker::Error << "Error: Unknown relocation type" << std::endl;
+			return -1;
+		}
 	default:
 		Linker::Error << "Error: Unknown relocation type" << std::endl;
 		return -1;
@@ -167,6 +188,18 @@ void COFFFormat::ZilogRelocation::FillEntry(Dumper::Entry& entry)
 		relocation_type_names[ZilogRelocation::R_Z8K_IMM32] = "imm32";
 		relocation_type_names[ZilogRelocation::R_Z8K_JR]    = "jr";
 		relocation_type_names[ZilogRelocation::R_Z8K_CALLR] = "callr";
+		break;
+	case CPU_W65:
+		relocation_type_names[ZilogRelocation::R_W65_ABS8]     = "abs8";
+		relocation_type_names[ZilogRelocation::R_W65_ABS16]    = "abs16";
+		relocation_type_names[ZilogRelocation::R_W65_ABS24]    = "abs24";
+		relocation_type_names[ZilogRelocation::R_W65_ABS8S8]   = "abs8s8";
+		relocation_type_names[ZilogRelocation::R_W65_ABS8S16]  = "abs8s16";
+		relocation_type_names[ZilogRelocation::R_W65_ABS16S8]  = "abs16s8";
+		relocation_type_names[ZilogRelocation::R_W65_ABS16S16] = "abs16s16";
+		relocation_type_names[ZilogRelocation::R_W65_PCR8]     = "pcr8";
+		relocation_type_names[ZilogRelocation::R_W65_PCR16]    = "pcr16";
+		relocation_type_names[ZilogRelocation::R_W65_DP]       = "dp";
 		break;
 	default:
 		/* TODO */
@@ -353,6 +386,9 @@ void COFFFormat::AOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, 
 	case CPU_Z80:
 		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(4), (offset_t)entry_address);
 		break;
+	case CPU_W65:
+		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(6), (offset_t)entry_address);
+		break;
 	default:
 		header_region.AddField("Entry address", Dumper::HexDisplay::Make(), (offset_t)entry_address);
 		break;
@@ -449,6 +485,9 @@ void COFFFormat::GNUAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 		break;
 	case CPU_Z80:
 		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(4), (offset_t)entry_address);
+		break;
+	case CPU_W65:
+		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(6), (offset_t)entry_address);
 		break;
 	default:
 		header_region.AddField("Entry address", Dumper::HexDisplay::Make(), (offset_t)entry_address);
@@ -611,6 +650,7 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 	{
 	case CPU_Z80:
 	case CPU_Z8K:
+	case CPU_W65:
 		for(auto& section : sections)
 		{
 			if(section->relocation_count > 0)
@@ -736,6 +776,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 	cpu_descriptions[CPU_M68K]  = "Motorola 68000";
 	cpu_descriptions[CPU_Z80]   = "Zilog Z80";
 	cpu_descriptions[CPU_Z8K]   = "Zilog Z8000";
+	cpu_descriptions[CPU_W65]   = "WDC 6502/65C816";
 
 	cpu_descriptions[CPU_I86]   = "Intel 8086";
 	cpu_descriptions[CPU_NS32K] = "National Semiconductor NS32000",
@@ -896,12 +937,16 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 	case CPU_Z8K:
 		module.cpu = Linker::Module::Z8K;
 		break;
+	case CPU_W65:
+		module.cpu = Linker::Module::MOS6502; // or W65K
+		break;
 	default:
 		/* unknown CPU */
 		break;
 	}
 
 	std::vector<std::shared_ptr<Linker::Section>> linker_sections;
+	std::map<std::string, offset_t> linker_section_addresses;
 	for(auto& section : sections)
 	{
 		std::shared_ptr<Linker::Section> linker_section = std::make_shared<Linker::Section>(section->name);
@@ -926,26 +971,40 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 		}
 		module.AddSection(linker_section);
 		linker_sections.push_back(linker_section);
+		linker_section_addresses[section->name] = section->address;
 	}
 
 	for(auto& symbol : symbols)
 	{
 		if(symbol == nullptr)
 			continue;
+		offset_t displacement = 0;
 		switch(symbol->storage_class)
 		{
 		case C_EXT:
 			if(symbol->section_number != N_UNDEF)
-				module.AddGlobalSymbol(symbol->name, Linker::Location(linker_sections[symbol->section_number - 1], symbol->value));
+			{
+				if(cpu_type == CPU_W65)
+					displacement = -sections[symbol->section_number - 1]->address; // symbols in W65 are shifted by the section base
+				module.AddGlobalSymbol(symbol->name, Linker::Location(linker_sections[symbol->section_number - 1], symbol->value + displacement));
+			}
 			else if(symbol->value != 0)
+			{
 				module.AddCommonSymbol(symbol->name, Linker::CommonSymbol(symbol->name, symbol->value, 1 /* TODO: alignment */));
+			}
 			break;
 		case C_STAT:
 		case C_LABEL:
 			if(symbol->section_number == N_ABS)
+			{
 				module.AddLocalSymbol(symbol->name, Linker::Location(symbol->value));
+			}
 			else if(symbol->section_number != N_UNDEF && symbol->section_number != N_DEBUG)
-				module.AddLocalSymbol(symbol->name, Linker::Location(linker_sections[symbol->section_number - 1], symbol->value));
+			{
+				if(cpu_type == CPU_W65)
+					displacement = -sections[symbol->section_number - 1]->address; // symbols in W65 are shifted by the section base
+				module.AddLocalSymbol(symbol->name, Linker::Location(linker_sections[symbol->section_number - 1], symbol->value + displacement));
+			}
 			break;
 		}
 	}
@@ -969,27 +1028,7 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 						: Linker::Target(Linker::SymbolName(sym_target.name));
 					Linker::Relocation obj_rel = Linker::Relocation::Empty();
 
-					size_t rel_size;
-					switch(rel.type)
-					{
-					case ZilogRelocation::R_Z80_IMM8:
-					case ZilogRelocation::R_Z80_OFF8:
-					case ZilogRelocation::R_Z80_JR:
-						rel_size = 1;
-						break;
-					case ZilogRelocation::R_Z80_IMM16:
-						rel_size = 2;
-						break;
-					case ZilogRelocation::R_Z80_IMM24:
-						rel_size = 3;
-						break;
-					case ZilogRelocation::R_Z80_IMM32:
-						rel_size = 4;
-						break;
-					default:
-						Linker::Error << "Error: Unknown relocation type" << std::endl;
-						continue;
-					}
+					size_t rel_size = rel.GetSize();
 
 					switch(rel.type)
 					{
@@ -1149,6 +1188,58 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 					//obj_rel.AddCurrentValue();
 					module.relocations.push_back(obj_rel);
 					Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
+				}
+				break;
+			case CPU_W65:
+				{
+					ZilogRelocation& rel = *dynamic_cast<ZilogRelocation *>(_rel.get());
+
+					Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address - sections[i]->address);
+					Symbol& sym_target = *symbols[rel.symbol_index];
+					bool is_section = sym_target.storage_class == C_STAT && sym_target.value == 0;
+					Linker::Target rel_target =
+						is_section
+						? Linker::Target(Linker::Location(linker_sections[sym_target.section_number - 1]))
+						: Linker::Target(Linker::SymbolName(sym_target.name));
+					Linker::Relocation obj_rel = Linker::Relocation::Empty();
+
+					offset_t rel_addend = 0;
+					if(!is_section)
+					{
+						auto it = linker_section_addresses.find(sym_target.name);
+						if(it != linker_section_addresses.end())
+						{
+							// Section values are already added
+							Linker::Debug << "Debug: " << sym_target.name << ", start: " << it->second << std::endl;
+							rel_addend -= it->second;
+						}
+					}
+
+					size_t rel_size = rel.GetSize();
+
+					switch(rel.type)
+					{
+					case ZilogRelocation::R_W65_PCR8:
+					case ZilogRelocation::R_W65_PCR16:
+						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, ::LittleEndian);
+						break;
+					case ZilogRelocation::R_W65_ABS8S8:
+					case ZilogRelocation::R_W65_ABS16S8:
+						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
+						obj_rel.SetShift(8);
+						break;
+					case ZilogRelocation::R_W65_ABS8S16:
+					case ZilogRelocation::R_W65_ABS16S16:
+						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
+						obj_rel.SetShift(16);
+					default:
+						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
+						break;
+					}
+					obj_rel.AddCurrentValue();
+					module.relocations.push_back(obj_rel);
+					Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
+					Linker::Debug << "Debug: value at location: " << obj_rel.addend - rel_addend << std::endl;
 				}
 				break;
 			default:
