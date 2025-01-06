@@ -325,10 +325,10 @@ namespace Apple
 		class CodeResource : public Resource
 		{
 		public:
-			JumpTableCodeResource * jump_table;
+			std::shared_ptr<JumpTableCodeResource> jump_table;
 			std::shared_ptr<Linker::Segment> image;
 
-			CodeResource(uint16_t id, JumpTableCodeResource * jump_table)
+			CodeResource(uint16_t id, std::shared_ptr<JumpTableCodeResource> jump_table)
 				: Resource("CODE", id), jump_table(jump_table)/*, image("code")*/
 			{
 			}
@@ -374,7 +374,7 @@ namespace Apple
 		}
 
 		uint16_t attributes = 0; /* TODO: parametrize */
-		std::map<uint32_t, std::map<uint16_t, Resource *> > resources;
+		std::map<uint32_t, std::map<uint16_t, std::shared_ptr<Resource>>> resources;
 
 		/* these will be calculated */
 		uint32_t data_offset = 0, data_length = 0, map_offset = 0, map_length = 0;
@@ -382,12 +382,12 @@ namespace Apple
 		std::map<uint32_t, uint16_t> reference_list_offsets;
 
 		/* filled in during generation */
-		JumpTableCodeResource * jump_table = nullptr;
-		std::vector<CodeResource *> codes;
-		std::map<std::shared_ptr<Linker::Segment>, CodeResource *> segments;
+		std::shared_ptr<JumpTableCodeResource> jump_table;
+		std::vector<std::shared_ptr<CodeResource>> codes;
+		std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<CodeResource>> segments;
 		std::shared_ptr<Linker::Segment> a5world;
 
-		void AddResource(Resource * resource);
+		void AddResource(std::shared_ptr<Resource> resource);
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 

@@ -149,8 +149,6 @@ void MZFormat::Clear()
 {
 	/* format fields */
 	relocations.clear();
-	if(pif)
-		delete pif;
 	pif = nullptr;
 	image = nullptr;
 	/* writer fields */
@@ -217,12 +215,11 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 	rd.Seek(GetPifOffset());
 	if(rd.ReadUnsigned(4) == PIF::MAGIC_BEGIN)
 	{
-		pif = new PIF;
+		pif = std::make_unique<PIF>();
 		pif->ReadFile(rd);
 		if(rd.ReadUnsigned(4) != PIF::MAGIC_END)
 		{
 			/* failed */
-			delete pif;
 			pif = nullptr;
 		}
 	}

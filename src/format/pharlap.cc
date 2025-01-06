@@ -487,7 +487,8 @@ P3Format::MultiSegmented::AbstractSegment::~AbstractSegment()
 
 void P3Format::MultiSegmented::Descriptor::CalculateValues()
 {
-	uint32_t size = image ? image->GetLoadedSize() : 0;
+	std::shared_ptr<AbstractSegment> segment = image.lock();
+	uint32_t size = segment ? segment->GetLoadedSize() : 0;
 	if(size != 0)
 		size -= 1;
 	if(size > 0xFFFFF)
@@ -500,7 +501,7 @@ void P3Format::MultiSegmented::Descriptor::CalculateValues()
 		access &= ~DESC_G;
 	}
 	limit = size;
-	base = image ? image->address : 0;
+	base = segment ? segment->address : 0;
 }
 
 void P3Format::MultiSegmented::Descriptor::WriteEntry(Linker::Writer& wr)
@@ -523,17 +524,17 @@ uint32_t P3Format::MultiSegmented::DescriptorTable::GetLoadedSize()
 
 void P3Format::MultiSegmented::DescriptorTable::WriteFile(Linker::Writer& wr)
 {
-	for(auto descriptor : descriptors)
+	for(auto& descriptor : descriptors)
 	{
-		descriptor->WriteEntry(wr);
+		descriptor.WriteEntry(wr);
 	}
 }
 
 void P3Format::MultiSegmented::DescriptorTable::CalculateValues()
 {
-	for(auto descriptor : descriptors)
+	for(auto& descriptor : descriptors)
 	{
-		descriptor->CalculateValues();
+		descriptor.CalculateValues();
 	}
 }
 
@@ -646,14 +647,14 @@ void P3Format::MultiSegmented::Relocation::WriteFile(Linker::Writer& wr) const
 
 void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> linker_segment)
 {
-	Segment * segment = new Segment(linker_segment,
+	std::shared_ptr<Segment> segment = std::make_shared<Segment>(linker_segment,
 		/* TODO: check properly read, write, 32-bit (TODO) flags */
 		linker_segment->sections[0]->IsExecable() ? Descriptor::Code32 : Descriptor::Data32,
-		ldt.descriptors.size() * 8 + 4);
+		ldt->descriptors.size() * 8 + 4);
 
 	segments.push_back(segment);
 	segment_associations[linker_segment] = segment;
-	ldt.descriptors.push_back(segment);
+	ldt->descriptors.push_back(Descriptor(segment->access, segment));
 
 	if(linker_segment->name == ".code")
 	{
@@ -710,24 +711,29 @@ for any
 void P3Format::MultiSegmented::Link(Linker::Module& module)
 {
 	/* WATCOM set up */
-	gdt.descriptors.push_back(new Descriptor(0));
-	tr = gdt.descriptors.size() * 8;
-	gdt.descriptors.push_back(new Descriptor(Descriptor::TSS32, &tss));
-	gdt.descriptors.push_back(new Descriptor(Descriptor::Data16, &tss));
-	gdt.descriptors.push_back(new Descriptor(Descriptor::Data16, &gdt));
-	gdt.descriptors.push_back(new Descriptor(Descriptor::Data16, &idt));
-	tss.ldtr = ldtr = gdt.descriptors.size() * 8;
-	gdt.descriptors.push_back(new Descriptor(Descriptor::LDT, &ldt));
-	gdt.descriptors.push_back(new Descriptor(Descriptor::Data16, &ldt));
+	gdt = std::make_shared<DescriptorTable>();
+	idt = std::make_shared<DescriptorTable>();
+	ldt = std::make_shared<DescriptorTable>();
+	tss = std::make_shared<TaskStateSegment>();
 
-	idt.descriptors.push_back(new Descriptor(0));
+	gdt->descriptors.push_back(Descriptor(0));
+	tr = gdt->descriptors.size() * 8;
+	gdt->descriptors.push_back(Descriptor(Descriptor::TSS32, tss));
+	gdt->descriptors.push_back(Descriptor(Descriptor::Data16, tss));
+	gdt->descriptors.push_back(Descriptor(Descriptor::Data16, gdt));
+	gdt->descriptors.push_back(Descriptor(Descriptor::Data16, idt));
+	tss->ldtr = ldtr = gdt->descriptors.size() * 8;
+	gdt->descriptors.push_back(Descriptor(Descriptor::LDT, ldt));
+	gdt->descriptors.push_back(Descriptor(Descriptor::Data16, ldt));
 
-	ldt.descriptors.push_back(new Descriptor(0));
+	idt->descriptors.push_back(Descriptor(0));
 
-	segments.push_back(&tss);
-	segments.push_back(&gdt);
-	segments.push_back(&idt);
-	segments.push_back(&ldt);
+	ldt->descriptors.push_back(Descriptor(0));
+
+	segments.push_back(tss);
+	segments.push_back(gdt);
+	segments.push_back(idt);
+	segments.push_back(ldt);
 
 	std::unique_ptr<Script::List> script = GetScript(module);
 
@@ -766,7 +772,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 		if(stack_segment != nullptr)
 		{
 			/* Attempt to use .stack segment */
-			Segment * segment = segment_associations[stack_segment];
+			std::shared_ptr<Segment> segment = segment_associations[stack_segment];
 			esp = segment->GetLoadedSize();
 			ss = segment->selector;
 		}
@@ -845,7 +851,7 @@ void P3Format::MultiSegmented::CalculateValues()
 	uint32_t sit_entry_count = 0;
 	for(auto segment : segments)
 	{
-		if(dynamic_cast<Segment *>(segment))
+		if(std::dynamic_pointer_cast<Segment>(segment))
 		{
 			sit_entry_count ++;
 		}
@@ -869,41 +875,41 @@ void P3Format::MultiSegmented::CalculateValues()
 
 	file_size = load_image_offset + load_image_size;
 
-	tss_address = tss.address = 0;
-	tss_size = tss.GetStoredSize();
+	tss_address = tss->address = 0;
+	tss_size = tss->GetStoredSize();
 
-	gdt_address = gdt.address = tss_address + tss_size;
-	gdt_size = gdt.GetStoredSize();
+	gdt_address = gdt->address = tss_address + tss_size;
+	gdt_size = gdt->GetStoredSize();
 
-	idt_address = idt.address = gdt_address + gdt_size;
-	idt_size = idt.GetStoredSize();
+	idt_address = idt->address = gdt_address + gdt_size;
+	idt_size = idt->GetStoredSize();
 
-	ldt_address = ldt.address = idt_address + idt_size;
-	ldt_size = ldt.GetStoredSize();
+	ldt_address = ldt->address = idt_address + idt_size;
+	ldt_size = ldt->GetStoredSize();
 
 	uint32_t offset = ldt_address + ldt_size;
 	for(auto abstract_segment : segments)
 	{
-		if(Segment * segment = dynamic_cast<Segment *>(abstract_segment))
+		if(auto segment = std::dynamic_pointer_cast<Segment>(abstract_segment))
 		{
 			segment->address = offset;
 			offset += segment->GetStoredSize();
 		}
 	}
 
-	gdt.CalculateValues();
-	ldt.CalculateValues();
-	idt.CalculateValues();
+	gdt->CalculateValues();
+	ldt->CalculateValues();
+	idt->CalculateValues();
 
 	minimum_extra = 0;
 	maximum_extra = 0;
 
 	base_load_offset = 0;
 
-	tss.esp = esp;
-	tss.ds = data ? data->selector : ss;
-	tss.ss = ss;
-	tss.cs = cs;
+	tss->esp = esp;
+	tss->ds = data ? data->selector : ss;
+	tss->ss = ss;
+	tss->cs = cs;
 
 	flags = 0;
 
@@ -919,7 +925,7 @@ void P3Format::MultiSegmented::WriteFile(Linker::Writer& wr)
 	wr.Seek(file_offset + segment_information_table_offset);
 	for(auto abstract_segment : segments)
 	{
-		if(Segment * segment = dynamic_cast<Segment *>(abstract_segment))
+		if(auto segment = std::dynamic_pointer_cast<Segment>(abstract_segment))
 		{
 			segment->WriteSITEntry(wr);
 		}

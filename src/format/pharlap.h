@@ -202,7 +202,7 @@ namespace PharLap
 		class Descriptor
 		{
 		public:
-			AbstractSegment * image;
+			std::weak_ptr<AbstractSegment> image;
 
 			enum
 			{
@@ -221,7 +221,7 @@ namespace PharLap
 			uint32_t base = 0;
 			uint32_t access;
 
-			Descriptor(uint32_t access, AbstractSegment * image = nullptr)
+			Descriptor(uint32_t access, std::weak_ptr<AbstractSegment> image = std::weak_ptr<AbstractSegment>())
 				: image(image), access(access)
 			{
 			}
@@ -234,7 +234,7 @@ namespace PharLap
 		class DescriptorTable : public AbstractSegment
 		{
 		public:
-			std::vector<Descriptor *> descriptors;
+			std::vector<Descriptor> descriptors;
 
 			uint32_t GetStoredSize() override;
 
@@ -245,7 +245,9 @@ namespace PharLap
 			void CalculateValues();
 		};
 
-		DescriptorTable gdt, idt, ldt;
+		std::shared_ptr<DescriptorTable> gdt;
+		std::shared_ptr<DescriptorTable> idt;
+		std::shared_ptr<DescriptorTable> ldt;
 
 		class TaskStateSegment : public AbstractSegment
 		{
@@ -269,19 +271,21 @@ namespace PharLap
 			void WriteFile(Linker::Writer& wr) override;
 		};
 
-		TaskStateSegment tss;
+		std::shared_ptr<TaskStateSegment> tss;
 
-		class Segment : public Descriptor, public AbstractSegment
+		class Segment : public AbstractSegment
 		{
 		public:
+			/* Segment members */
 			std::shared_ptr<Linker::Segment> segment;
 
+			uint32_t access;
 			uint16_t selector;
 			uint16_t flags = 0;
 			uint32_t base_offset = 0; /* TODO??? */
 
 			Segment(std::shared_ptr<Linker::Segment> segment, uint32_t access, uint16_t selector)
-				: Descriptor(access, this), segment(segment), selector(selector)
+				: segment(segment), access(access), selector(selector)
 			{
 			}
 
@@ -302,10 +306,10 @@ namespace PharLap
 		class Relocation
 		{
 		public:
-			Segment * segment;
+			std::shared_ptr<Segment> segment;
 			uint32_t offset;
 
-			Relocation(Segment * segment, uint32_t offset)
+			Relocation(std::shared_ptr<Segment> segment, uint32_t offset)
 				: segment(segment), offset(offset)
 			{
 			}
@@ -317,11 +321,11 @@ namespace PharLap
 			void WriteFile(Linker::Writer& wr) const;
 		};
 
-		std::vector<AbstractSegment *> segments;
-		std::map<std::shared_ptr<Linker::Segment>, Segment *> segment_associations;
+		std::vector<std::shared_ptr<AbstractSegment>> segments;
+		std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<Segment>> segment_associations;
 		std::set<Relocation> relocations;
-		Segment * code;
-		Segment * data;
+		std::shared_ptr<Segment> code;
+		std::shared_ptr<Segment> data;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> linker_segment) override;
 

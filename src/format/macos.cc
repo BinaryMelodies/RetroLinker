@@ -911,7 +911,7 @@ void ResourceFork::CodeResource::WriteFile(Linker::Writer& wr)
 	}
 }
 
-void ResourceFork::AddResource(Resource * resource)
+void ResourceFork::AddResource(std::shared_ptr<Resource> resource)
 {
 	uint32_t typeval =
 		((uint32_t)(uint8_t)resource->type[0] << 24)
@@ -933,7 +933,7 @@ void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else if(!(segment->sections.front()->GetFlags() & Linker::Section::Resource))
 	{
-		CodeResource * codeN = new CodeResource(codes.size() + 1, jump_table);
+		std::shared_ptr<CodeResource> codeN = std::make_shared<CodeResource>(codes.size() + 1, jump_table);
 		codeN->image = segment;
 		codes.push_back(codeN);
 		segments[codeN->image] = codeN;
@@ -956,7 +956,7 @@ void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			return;
 		}
 		Linker::Debug << "Debug: Adding resource type " << *type << ", id " << *id << std::endl;
-		GenericResource * rsrc = new GenericResource(type->c_str(), *id);
+		std::shared_ptr<GenericResource> rsrc = std::make_shared<GenericResource>(type->c_str(), *id);
 //				rsrc->resource = new Linker::Segment(".rsrc");
 //				rsrc->resource->Append(section);
 		rsrc->resource = segment;
@@ -1053,7 +1053,7 @@ void ResourceFork::Link(Linker::Module& module)
 
 void ResourceFork::ProcessModule(Linker::Module& module)
 {
-	jump_table = new JumpTableCodeResource;
+	jump_table = std::make_shared<JumpTableCodeResource>();
 	AddResource(jump_table);
 
 	Link(module);
@@ -1094,7 +1094,7 @@ void ResourceFork::ProcessModule(Linker::Module& module)
 	/* must be the first entry */
 	jump_table->near_entries.push_back(JumpTableCodeResource::Entry{1, entry_offset});
 
-	for(CodeResource * resource : codes)
+	for(auto& resource : codes)
 	{
 		/* since the first entry is already loaded, we have to skip it */
 		resource->first_near_entry_offset = resource == codes[0] ? 0 : jump_table->near_entries.size() * 8;
@@ -1105,7 +1105,7 @@ void ResourceFork::ProcessModule(Linker::Module& module)
 			jump_table->near_entries.push_back(JumpTableCodeResource::Entry{1, entry}); /* TODO: segment number */
 		}
 	}
-	for(CodeResource * resource : codes)
+	for(auto& resource : codes)
 	{
 		if(resource->far_entries.size() == 0)
 			continue;
@@ -1130,7 +1130,7 @@ void ResourceFork::CalculateValues()
 		name_list_offset += 12 * it.second.size();
 		for(auto it2 : it.second)
 		{
-			Resource * resource = it2.second;
+			std::shared_ptr<Resource> resource = it2.second;
 			resource->data_offset = data_length;
 			resource->CalculateValues();
 			data_length += 4 + resource->GetLength();
@@ -1169,7 +1169,7 @@ void ResourceFork::WriteFile(Linker::Writer& wr)
 	{
 		for(auto it2 : it.second)
 		{
-			Resource * resource = it2.second;
+			std::shared_ptr<Resource> resource = it2.second;
 			wr.WriteWord(4, resource->GetLength());
 			resource->WriteFile(wr);
 		}
@@ -1192,7 +1192,7 @@ void ResourceFork::WriteFile(Linker::Writer& wr)
 	{
 		for(auto it2 : it.second)
 		{
-			Resource * resource = it2.second;
+			std::shared_ptr<Resource> resource = it2.second;
 			wr.WriteWord(2, it2.first);
 			wr.WriteWord(2, resource->name_offset);
 			wr.WriteWord(4, (resource->data_offset & 0x00FFFFFF) | (resource->attributes << 24));
@@ -1204,7 +1204,7 @@ void ResourceFork::WriteFile(Linker::Writer& wr)
 	{
 		for(auto it2 : it.second)
 		{
-			Resource * resource = it2.second;
+			std::shared_ptr<Resource> resource = it2.second;
 			if(resource->name)
 			{
 				wr.WriteWord(1, resource->name->size());

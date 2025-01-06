@@ -139,10 +139,10 @@ namespace Microsoft
 		};
 
 		/** @brief Concurrent DOS program information entry, allocated only if present */
-		PIF * pif = nullptr;
+		std::unique_ptr<PIF> pif;
 
 		/** @brief The program image, placed after the MZ header */
-		std::shared_ptr<Linker::Writable> image = nullptr;
+		std::shared_ptr<Linker::Writable> image;
 
 		magic_type GetSignature() const;
 
