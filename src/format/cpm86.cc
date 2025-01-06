@@ -3,6 +3,7 @@
 
 using namespace DigitalResearch;
 
+std::shared_ptr<CPM86Format> CPM86Format::rsx_record::dynamic_module = std::make_shared<CPM86Format>();
 
 void CPM86Format::Descriptor::Clear()
 {
@@ -146,8 +147,6 @@ CPM86Format::relocation_source CPM86Format::Relocation::GetSource() const
 
 void CPM86Format::rsx_record::Clear()
 {
-	if(module && module != RSX_TERMINATE && module != RSX_DYNAMIC)
-		delete module;
 	module = nullptr;
 }
 
@@ -171,7 +170,7 @@ void CPM86Format::rsx_record::ReadModule(Linker::Reader& rd)
 	}
 	else
 	{
-		module = new CPM86Format();
+		module = std::make_shared<CPM86Format>();
 		module->file_offset = offset_record << 7;
 		rd.Seek(module->file_offset);
 		module->ReadFile(rd);

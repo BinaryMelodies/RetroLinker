@@ -214,11 +214,10 @@ namespace DigitalResearch
 			 * 0xFFFF and 0x0000, respectively. The choice of pointer values ensures that they cannot be dereferenced, and
 			 * checking the end of a list is as easy as checking a null pointer.
 			 */
-			CPM86Format * module = nullptr;
-//			static constexpr CPM86Format * TERMINATE = reinterpret_cast<CPM86Format *>(0);
-//			static constexpr CPM86Format * DYNAMIC = reinterpret_cast<CPM86Format *>(1);
-#define RSX_TERMINATE (reinterpret_cast<CPM86Format *>(0))
-#define RSX_DYNAMIC   (reinterpret_cast<CPM86Format *>(1))
+			std::shared_ptr<CPM86Format> module = nullptr;
+			static std::shared_ptr<CPM86Format> dynamic_module;
+#define RSX_TERMINATE (std::shared_ptr<CPM86Format>(nullptr))
+#define RSX_DYNAMIC   (::DigitalResearch::CPM86Format::rsx_record::dynamic_module)
 
 			void Clear();
 
