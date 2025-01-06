@@ -26,7 +26,7 @@ LDFLAGS=-O2
 
 all: link
 
-.PHONY: all clean distclean tests tests_clean verify force doxygen unittests
+.PHONY: all clean distclean tests tests_clean verify force docs unittests
 
 link: $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
 	g++ -o link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
@@ -74,7 +74,7 @@ unittests: link
 	$(MAKE) -C unittest
 	unittest/main
 
-doxygen:
+docs:
 	doxygen Doxyfile
 	$(MAKE) -C latex
 
