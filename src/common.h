@@ -117,6 +117,22 @@ bool LookupOption(std::map<std::string, std::string>& options, std::string key, 
 
 namespace Linker
 {
+	class Exception
+	{
+	public:
+		std::string message;
+		Exception(std::string message) : message(message)
+		{
+		}
+	};
+
+	/* TODO: implement these properly */
+	extern std::ostream Debug;
+	extern std::ostream Warning;
+	extern std::ostream Error;
+
+	[[noreturn]] void FatalError(std::string message);
+
 	class Section;
 	class Location;
 	typedef std::map<std::shared_ptr<Section>, Location> Displacement;
@@ -124,11 +140,6 @@ namespace Linker
 	class Relocation;
 	class Segment;
 	class Writer;
-
-	/* TODO: implement these properly */
-	extern std::ostream Debug;
-	extern std::ostream Warning;
-	extern std::ostream Error;
 }
 
 #endif /* COMMON_H */

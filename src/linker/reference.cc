@@ -1,5 +1,6 @@
 
 #include <set>
+#include <sstream>
 #include "linker.h"
 #include "module.h"
 #include "position.h"
@@ -23,8 +24,9 @@ Location Reference::ToLocation(Module& module) const
 		Location location;
 		if(!module.FindGlobalSymbol(*stringp, location))
 		{
-			Linker::Error << "Fatal error: Undefined symbol " << *stringp << ", aborting" << std::endl;
-			exit(1);
+			std::ostringstream message;
+			message << "Fatal error: Undefined symbol " << *stringp << ", aborting";
+			Linker::FatalError(message.str());
 		}
 		if(l_section != nullptr && location.section != nullptr && l_section != location.section)
 		{

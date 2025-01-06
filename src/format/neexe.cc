@@ -74,7 +74,7 @@ std::shared_ptr<NEFormat> NEFormat::CreateConsoleApplication(system_type system)
 	case MSDOS4:
 		return std::make_shared<NEFormat>(system, MULTIPLEDATA | GLOBAL_INITIALIZATION, 0);
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 
@@ -87,7 +87,7 @@ std::shared_ptr<NEFormat> NEFormat::CreateGUIApplication(system_type system)
 	case Windows:
 		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE);
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 
@@ -101,7 +101,7 @@ std::shared_ptr<NEFormat> NEFormat::CreateLibraryModule(system_type system)
 	case MSDOS4:
 		return std::make_shared<NEFormat>(system, SINGLEDATA | GLOBAL_INITIALIZATION, LIBRARY);
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 
@@ -117,7 +117,7 @@ offset_t NEFormat::Entry::GetEntrySize() const
 	case Movable:
 		return 6;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid entry type");
 	}
 }
 
@@ -132,7 +132,7 @@ uint8_t NEFormat::Entry::GetIndicatorByte() const
 	case Movable:
 		return 0xFF;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid entry type");
 	}
 }
 
@@ -196,7 +196,7 @@ unsigned NEFormat::GetCodeSegmentFlags() const
 	case MSDOS4:
 		return Segment::Movable | Segment::Shareable | Segment::Preload | (0 << Segment::PrivilegeLevelShift);
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 
@@ -437,9 +437,10 @@ for not ".heap"
 		case MODEL_LARGE:
 			/* TODO: this is MSDOS4 only */
 			return Script::parse_string(LargeScript);
+		default:
+			Linker::FatalError("Internal error: invalid memory model");
 		}
 	}
-	assert(false);
 }
 
 void NEFormat::Link(Linker::Module& module)
@@ -688,7 +689,7 @@ void NEFormat::CalculateValues()
 		windows_version.minor = 0;
 		break;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 
 	if(ss != automatic_data)
@@ -902,8 +903,7 @@ void NEFormat::GenerateFile(std::string filename, Linker::Module& module)
 		module_name = filename;
 	if(module.cpu != Linker::Module::I86)
 	{
-		Linker::Error << "Fatal error: Format only supports Intel 8086 binaries" << std::endl;
-		exit(1);
+		Linker::FatalError("Fatal error: Format only supports Intel 8086 binaries");
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);

@@ -66,9 +66,9 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	rd.endiantype = ::LittleEndian;
 	rd.ReadData(5, signature);
 	if(memcmp(signature, "\1\0o65", 5) != 0)
-		throw "Invalid magic number";
+		Linker::FatalError("Fatal error: Invalid magic number");
 	if(rd.ReadUnsigned(1) != 0)
-		throw "Invalid format version";
+		Linker::FatalError("Fatal error: Invalid format version");
 
 	mode_word = rd.ReadUnsigned(2);
 	code_base = ReadUnsigned(rd);

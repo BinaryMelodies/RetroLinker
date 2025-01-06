@@ -548,7 +548,7 @@ void CPM68KFormat::SetOptions(std::map<std::string, std::string>& options)
 	relocations_suppressed = options.find("reloc") != options.end() ? 0 : 1;
 	if(option_no_relocation && relocations_suppressed == 0)
 	{
-		throw new Linker::Exception("Fatal error: inconsistent expectations for relocations, aborting");
+		Linker::FatalError("Fatal error: inconsistent expectations for relocations, aborting");
 	}
 
 	SetLinkerParameter(options, "code_base", "code_base_address");
@@ -882,7 +882,7 @@ void CPM68KFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::M68K)
 	{
-		throw new Linker::Exception("Fatal error: Format only supports Motorola 68000 binaries");
+		Linker::FatalError("Fatal error: Format only supports Motorola 68000 binaries");
 	}
 
 	if(linker_parameters.find("code_base_address") == linker_parameters.end())

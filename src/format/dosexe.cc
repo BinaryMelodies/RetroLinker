@@ -15,8 +15,7 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 		is_dll = true;
 		break;
 	default:
-		throw "Unknown signature";
-		break;
+		Linker::FatalError("Fatal error: Unknown signature");
 	}
 	rd.Skip(3);
 	minimum_dos_version = rd.ReadUnsigned(2);

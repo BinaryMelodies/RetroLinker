@@ -15,7 +15,7 @@ size_t GetOffset(EndianType endiantype, size_t bytes, size_t index)
 	case AntiPDP11Endian:
 		return bytes > 1 ? index ^ 1 : index;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid endianness");
 	}
 }
 
@@ -168,7 +168,7 @@ uint64_t ReadUnsigned(size_t bytes, size_t maximum, uint8_t const * data, Endian
 			case AntiPDP11Endian:
 				return FromBigEndian16(value);
 			default:
-				assert(false);
+				Linker::FatalError("Internal error: invalid endianness");
 			}
 			break;
 		case 4:
@@ -183,7 +183,7 @@ uint64_t ReadUnsigned(size_t bytes, size_t maximum, uint8_t const * data, Endian
 				return FromPDP11Endian32(value);
 			/* TODO: AntiPDP11Endian */
 			default:
-				assert(false);
+				Linker::FatalError("Internal error: invalid endianness");
 			}
 			break;
 		case 8:
@@ -198,7 +198,7 @@ uint64_t ReadUnsigned(size_t bytes, size_t maximum, uint8_t const * data, Endian
 				return FromPDP11Endian64(value);
 			/* TODO: AntiPDP11Endian */
 			default:
-				assert(false);
+				Linker::FatalError("Internal error: invalid endianness");
 			}
 			break;
 		}
@@ -256,5 +256,15 @@ bool LookupOption(std::map<std::string, std::string>& options, std::string key, 
 	{
 		return false;
 	}
+}
+
+std::ostream Linker::Debug(std::cerr.rdbuf());
+std::ostream Linker::Warning(std::cerr.rdbuf());
+std::ostream Linker::Error(std::cerr.rdbuf());
+
+[[noreturn]] void Linker::FatalError(std::string message)
+{
+	Linker::Error << message << std::endl;
+	throw Linker::Exception(message);
 }
 

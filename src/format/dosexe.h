@@ -21,8 +21,7 @@ namespace SeychellDOS32
 		{
 			if(is_v35)
 			{
-				Linker::Error << "Fatal Error: 3.5 format unimplemented" << std::endl;
-				assert(false);
+				Linker::FatalError("Fatal error: 3.5 format unimplemented");
 			}
 		}
 

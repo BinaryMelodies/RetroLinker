@@ -178,7 +178,7 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 		cpu = HUNK_PPC_CODE;
 		break;
 	default:
-		assert(false);
+		Linker::FatalError("Fatal error: invalid CPU type");
 	}
 
 	Link(module);

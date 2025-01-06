@@ -107,7 +107,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetFileDatesInfo()
 			entry = std::make_shared<FileDatesInfo>();
 		return entry;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid AppleSingle/AppleDouble version");
 	}
 }
 
@@ -130,7 +130,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetMacintoshFileInf
 		}
 		return entry;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid AppleSingle/AppleDouble version");
 	}
 }
 
@@ -146,7 +146,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetAUXFileInfo()
 	case 2:
 		return nullptr;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid AppleSingle/AppleDouble version");
 	}
 }
 
@@ -169,7 +169,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetProDOSFileInfo()
 		}
 		return entry;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid AppleSingle/AppleDouble version");
 	}
 }
 
@@ -192,7 +192,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetMSDOSFileInfo()
 		}
 		return entry;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid AppleSingle/AppleDouble version");
 	}
 }
 
@@ -569,7 +569,7 @@ void AppleSingleDouble::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, 0x00051607);
 		break;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid AppleSingle/AppleDouble type");
 	}
 	wr.WriteWord(4, version << 16);
 	switch(home_file_system)
@@ -957,8 +957,8 @@ void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		}
 		Linker::Debug << "Debug: Adding resource type " << *type << ", id " << *id << std::endl;
 		std::shared_ptr<GenericResource> rsrc = std::make_shared<GenericResource>(type->c_str(), *id);
-//				rsrc->resource = new Linker::Segment(".rsrc");
-//				rsrc->resource->Append(section);
+//		rsrc->resource = std::make_shared<Linker::Segment>(".rsrc");
+//		rsrc->resource->Append(section);
 		rsrc->resource = segment;
 		AddResource(rsrc);
 	}
@@ -1612,7 +1612,7 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
 	}
 
-	container = new AppleSingleDouble(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
+	container = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 		apple_single_double_version, home_file_system);
 	container->ProcessModule(module);
 	container->CalculateValues();
@@ -1728,13 +1728,11 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 
 void MacDriver::ReadFile(Linker::Reader& rd)
 {
-	Linker::Error << "Fatal error: Reading the Apple output driver is not supported" << std::endl;
-	throw new std::string("Fatal error: Reading the Apple output driver is not supported");
+	Linker::FatalError("Fatal error: Reading the Apple output driver is not supported");
 }
 
 void MacDriver::WriteFile(Linker::Writer& wr)
 {
-	Linker::Error << "Fatal error: Writing the Apple output driver is not supported" << std::endl;
-	throw new std::string("Fatal error: Writing the Apple output driver is not supported");
+	Linker::FatalError("Fatal error: Writing the Apple output driver is not supported");
 }
 

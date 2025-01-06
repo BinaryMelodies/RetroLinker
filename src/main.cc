@@ -388,8 +388,9 @@ std::shared_ptr<OutputFormat> FetchMainFormat(std::string text)
 			return last_format->produce();
 		}
 	}
-	Linker::Error << "Fatal error: Unknown output format `" << text << "'" << std::endl;
-	exit(1);
+	std::ostringstream message;
+	message << "Fatal error: Unknown output format `" << text << "'";
+	Linker::FatalError(message.str());
 }
 
 /**
@@ -931,7 +932,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return nullptr;
 #endif
 	}
-	assert(false);
+	Linker::FatalError("Internal error: invalid output format");
 }
 
 /**
@@ -1060,8 +1061,9 @@ int linker_main(int argc, char * argv[])
 			}
 			else
 			{
-				Linker::Error << "Fatal error: Unknown option `" << argv[i] << "'" << std::endl;
-				exit(1);
+				std::ostringstream message;
+				message << "Fatal error: Unknown option `" << argv[i] << "'";
+				Linker::FatalError(message.str());
 			}
 			/* TODO: define new symbols and parameters */
 		}
@@ -1085,8 +1087,9 @@ int linker_main(int argc, char * argv[])
 		in.open(input, std::ios_base::in | std::ios_base::binary);
 		if(!in.is_open())
 		{
-			Linker::Error << "Fatal error: Unable to open file " << input << std::endl;
-			exit(1);
+			std::ostringstream message;
+			message << "Fatal error: Unable to open file " << input;
+			Linker::FatalError(message.str());
 		}
 		Reader rd (LittleEndian, &in);
 
@@ -1107,10 +1110,11 @@ int linker_main(int argc, char * argv[])
 		}
 		if(!input_format)
 		{
-			Linker::Error << "Fatal error: Unable to process input file " << input << ", file format: ";
+			std::ostringstream message;
+			message << "Fatal error: Unable to process input file " << input << ", file format: ";
 			if(file_formats.size() == 0)
 			{
-				Linker::Error << "unknown" << std::endl;
+				message << "unknown";
 			}
 			else
 			{
@@ -1118,13 +1122,12 @@ int linker_main(int argc, char * argv[])
 				for(auto& file_format : file_formats)
 				{
 					if(not_first)
-						Linker::Error << ", ";
-					Linker::Error << file_format.magic.description;
+						message << ", ";
+					message << file_format.magic.description;
 					not_first = true;
 				}
-				Linker::Error << std::endl;
 			}
-			return 1;
+			Linker::FatalError(message.str());
 		}
 
 		input_format->SetupOptions(special_char, format);
@@ -1226,8 +1229,9 @@ int dumper_main(int argc, char * argv[])
 			/* TODO: select text encoding */
 			else
 			{
-				Linker::Error << "Fatal error: Unknown option `" << argv[i] << "'" << std::endl;
-				exit(1);
+				std::ostringstream message;
+				message << "Fatal error: Unknown option `" << argv[i] << "'";
+				Linker::FatalError(message.str());
 			}
 		}
 		else

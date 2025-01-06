@@ -95,7 +95,7 @@ void BWFormat::DummySegment::WriteContent(Linker::Writer& wr, BWFormat& bw)
 
 void BWFormat::RelocationSegment::SetTotalSize(uint32_t new_value)
 {
-	assert(false);
+	Linker::FatalError("Internal error: relocation segment's size is predetermined");
 }
 
 uint32_t BWFormat::RelocationSegment::GetSize(BWFormat& bw)
@@ -115,8 +115,7 @@ uint32_t BWFormat::RelocationSegment::GetSize(BWFormat& bw)
 				return size - index * 0x10000;
 		}
 	default:
-		Linker::Error << "Internal error: Impossible relocation mode" << std::endl;
-		assert(false);
+		Linker::FatalError("Internal error: Impossible relocation mode");
 	}
 }
 
@@ -172,8 +171,7 @@ void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, BWFormat& bw)
 		}
 		break;
 	default:
-		Linker::Error << "Internal error: Impossible relocation mode" << std::endl;
-		assert(false);
+		Linker::FatalError("Internal error: Impossible relocation mode");
 	}
 }
 
@@ -202,8 +200,7 @@ offset_t BWFormat::MeasureRelocations()
 			return count;
 		}
 	default:
-		Linker::Error << "Internal error: Impossible relocation type" << std::endl;
-		assert(false);
+		Linker::FatalError("Internal error: Impossible relocation type");
 	}
 }
 

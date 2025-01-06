@@ -122,7 +122,7 @@ void AtariFormat::ReadFile(Linker::Reader& rd)
 	rd.Seek(0);
 	if(rd.ReadUnsigned(2) != 0xFFFF)
 	{
-		throw new Linker::Exception("Fatal Error: Expected binary image to start with 0xFFFF");
+		Linker::FatalError("Fatal error: Expected binary image to start with 0xFFFF");
 	}
 	while(rd.Tell() < end)
 	{

@@ -1,5 +1,6 @@
 
 #include <set>
+#include <sstream>
 #include "linker.h"
 #include "module.h"
 #include "position.h"
@@ -11,13 +12,6 @@ using namespace Linker;
 using namespace Script;
 
 EndianType DefaultEndianType = LittleEndian;
-
-namespace Linker
-{
-	std::ostream Debug(std::cerr.rdbuf());
-	std::ostream Warning(std::cerr.rdbuf());
-	std::ostream Error(std::cerr.rdbuf());
-}
 
 void LinkerManager::ClearLinkerManager()
 {
@@ -84,13 +78,15 @@ std::unique_ptr<Script::List> LinkerManager::GetScript(Linker::Module& module)
 	std::unique_ptr<Script::List> list = Script::parse_file(linker_script.c_str(), file_error);
 	if(file_error)
 	{
-		Linker::Error << "Fatal error: Unable to open linker script " << linker_script << std::endl;
-		exit(1);
+		std::ostringstream message;
+		message << "Fatal error: Unable to open linker script " << linker_script;
+		Linker::FatalError(message.str());
 	}
 	else if(list == nullptr)
 	{
-		Linker::Error << "Fatal error: Unable to parse linker script " << linker_script << std::endl;
-		exit(1);
+		std::ostringstream message;
+		message << "Fatal error: Unable to parse linker script " << linker_script;
+		Linker::FatalError(message.str());
 	}
 	return list;
 }
@@ -230,7 +226,7 @@ void LinkerManager::ProcessScript(std::unique_ptr<List>& directives, Module& mod
 			}
 			break;
 		default:
-			assert(false);
+			Linker::FatalError("Internal error: invalid script");
 		}
 	}
 	FinishCurrentSegment();
@@ -251,7 +247,7 @@ void Linker::LinkerManager::ProcessAction(std::unique_ptr<Node>& action, Module&
 Linker::Debug << "Current base: " << (int64_t)current_base << std::endl;
 		break;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid script");
 	}
 }
 
@@ -266,10 +262,9 @@ void Linker::LinkerManager::PostProcessAction(std::unique_ptr<Node>& action, Mod
 		/* TODO */
 		break;
 	case Node::SetNextBase:
-		Linker::Error << "Script: Invalid use of `base` directive in postprocessing" << std::endl;
-		assert(false);
+		Linker::FatalError("Fatal error: Script: Invalid use of `base` directive in postprocessing");
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid script");
 	}
 }
 
@@ -298,10 +293,10 @@ void Linker::LinkerManager::ProcessCommand(std::unique_ptr<Node>& command, Modul
 		}
 		break;
 	case Node::Assign:
-		/* TODO */
+		Linker::FatalError("Internal error: unimplemented");
 		break;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid script");
 	}
 }
 
@@ -393,7 +388,7 @@ bool Linker::LinkerManager::CheckPredicate(std::unique_ptr<Node>& predicate, std
 	case Node::IsCustomFlag:
 		return (section->GetFlags() & EvaluateExpression(predicate->at(0), module)) != 0;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid script");
 	}
 }
 
@@ -479,10 +474,9 @@ offset_t Linker::LinkerManager::EvaluateExpression(std::unique_ptr<Node>& expres
 		return EvaluateExpression(expression->at(0), module)
 			| EvaluateExpression(expression->at(1), module);
 	case Node::Location:
-		Linker::Error << "Script: Invalid use of location in expression context" << std::endl;
-		exit(1);
+		Linker::FatalError("Script: Invalid use of location in expression context");
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid expression type");
 	}
 }
 

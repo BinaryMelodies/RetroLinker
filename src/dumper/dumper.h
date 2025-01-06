@@ -410,43 +410,36 @@ public:
 	}
 
 	template <typename D, typename ... Ts>
-//		void AddField(std::string label, Display<Ts...> * display, Ts... values)
 		void AddField(std::string label, std::shared_ptr<D> display, Ts... values)
 	{
-//		AddField(new typename display_arguments<D>::Field(label, display, values..., false, false));
 		AddField(std::make_shared<FieldOf<Ts...>>(label, display, values..., false, false));
 	}
 
 	template <typename D, typename ... Ts>
-//		void AddOptionalField(std::string label, Display<Ts...> * display, Ts... values)
 		void AddOptionalField(std::string label, std::shared_ptr<D> display, Ts... values)
 	{
 		AddField(std::make_shared<FieldOf<Ts...>>(label, display, values..., true, false));
 	}
 
 	template <typename D, typename ... Ts>
-//		void AddHiddenField(std::string label, Display<Ts...> * display, Ts... values)
 		void AddHiddenField(std::string label, std::shared_ptr<D> display, Ts... values)
 	{
 		AddField(std::make_shared<FieldOf<Ts...>>(label, display, values..., false, true));
 	}
 
 	template <typename D, typename ... Ts>
-//		void AddField(std::string label, Display<Ts...> * display, Ts... values)
 		void InsertField(size_t index, std::string label, std::shared_ptr<D> display, Ts... values)
 	{
 		AddField(index, std::make_shared<FieldOf<Ts...>>(label, display, values..., false, false));
 	}
 
 	template <typename D, typename ... Ts>
-//		void AddOptionalField(std::string label, Display<Ts...> * display, Ts... values)
 		void InsertOptionalField(size_t index, std::string label, std::shared_ptr<D> display, Ts... values)
 	{
 		AddField(index, std::make_shared<FieldOf<Ts...>>(label, display, values..., true, false));
 	}
 
 	template <typename D, typename ... Ts>
-//		void AddHiddenField(std::string label, Display<Ts...> * display, Ts... values)
 		void InsertHiddenField(size_t index, std::string label, std::shared_ptr<D> display, Ts... values)
 	{
 		AddField(index, std::make_shared<FieldOf<Ts...>>(label, display, values..., false, true));

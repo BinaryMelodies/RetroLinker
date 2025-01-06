@@ -364,8 +364,7 @@ std::unique_ptr<Script::List> CPM8KFormat::GetScript(Linker::Module& module)
 			return Script::parse_string(SegmentedScript);
 
 		default:
-			Linker::Error << "Fatal error: unknown output format" << std::endl;
-			assert(false);
+			Linker::FatalError("Fatal error: unknown output format");
 		}
 	}
 }
@@ -427,8 +426,7 @@ void CPM8KFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::Z8K)
 	{
-		Linker::Error << "Error: Format only supports Zilog Z8000 binaries" << std::endl;
-		exit(1);
+		Linker::FatalError("Fatal error: Format only supports Zilog Z8000 binaries");
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);

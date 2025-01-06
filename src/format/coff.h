@@ -351,16 +351,11 @@ namespace COFF
 		class UnknownOptionalHeader : public OptionalHeader
 		{
 		public:
-			Linker::Buffer * buffer = nullptr;
+			std::unique_ptr<Linker::Buffer> buffer = nullptr;
 
 			UnknownOptionalHeader(offset_t size)
-				: buffer(new Linker::Buffer(size))
+				: buffer(std::make_unique<Linker::Buffer>(size))
 			{
-			}
-
-			~UnknownOptionalHeader()
-			{
-				delete buffer;
 			}
 
 			uint32_t GetSize() override;

@@ -135,7 +135,7 @@ std::ostream& Linker::operator<<(std::ostream& out, const SymbolName& symbol)
 	}
 	else
 	{
-		assert(false);
+		Linker::FatalError("Internal error: invalid symbol type");
 	}
 	return out;
 }
@@ -272,7 +272,7 @@ std::ostream& Linker::operator<<(std::ostream& out, const ExportedSymbol& symbol
 	}
 	else
 	{
-		assert(false);
+		Linker::FatalError("Internal error: invalid symbol type");
 	}
 	return out;
 }

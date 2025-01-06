@@ -12,15 +12,6 @@
 
 namespace Linker
 {
-	class Exception
-	{
-	public:
-		std::string message;
-		Exception(std::string message) : message(message)
-		{
-		}
-	};
-
 	/**
 	 * @brief A helper class to collect sections into segments
 	 */

@@ -178,7 +178,9 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 	rd.endiantype = ::LittleEndian;
 	rd.ReadData(2, signature);
 	if(GetSignature() == magic_type(0))
-		throw "Invalid magic number";
+	{
+		Linker::FatalError("Invalid magic number");
+	}
 	last_block_size = rd.ReadUnsigned(2);
 	file_size_blocks = rd.ReadUnsigned(2);
 	relocation_count = rd.ReadUnsigned(2);
@@ -317,7 +319,7 @@ void MZFormat::CalculateValues()
 {
 	if(relocations.size() >= 0x10000)
 	{
-		throw Linker::Exception("Fatal error: Too many relocations");
+		Linker::FatalError("Fatal error: Too many relocations");
 	}
 	relocation_count = relocations.size();
 	uint32_t header_size = header_size_paras << 4;
@@ -351,7 +353,7 @@ void MZFormat::CalculateValues()
 	header_size = ::AlignTo(header_size, option_header_align);
 	if(header_size >= 0x10000)
 	{
-		throw Linker::Exception("Fatal error: Header too large");
+		Linker::FatalError("Fatal error: Header too large");
 	}
 	header_size_paras = header_size >> 4;
 
@@ -532,9 +534,10 @@ std::unique_ptr<Script::List> MZFormat::GetScript(Linker::Module& module)
 			/* TODO */
 			//return Script::parse_string(LargeScript);
 			;
+		default:
+			Linker::FatalError("Internal error: invalid memory model");
 		}
 	}
-	assert(false);
 }
 
 void MZFormat::Link(Linker::Module& module)
@@ -667,7 +670,7 @@ void MZFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::I86)
 	{
-		throw Linker::Exception("Fatal error: Format only supports Intel 8086 binaries");
+		Linker::FatalError("Fatal error: Format only supports Intel 8086 binaries");
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);

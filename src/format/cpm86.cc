@@ -960,8 +960,7 @@ void CPM86Format::SetModel(std::string model)
 	{
 		if(format != FORMAT_8080)
 		{
-			Linker::Error << "Fatal error: Invalid memory model for format" << std::endl;
-			exit(1);
+			Linker::FatalError("Fatal error: Invalid memory model for format");
 		}
 		memory_model = MODEL_TINY;
 	}
@@ -969,8 +968,7 @@ void CPM86Format::SetModel(std::string model)
 	{
 		if(format == FORMAT_COMPACT)
 		{
-			Linker::Error << "Fatal error: Invalid memory model for format" << std::endl;
-			exit(1);
+			Linker::FatalError("Fatal error: Invalid memory model for format");
 		}
 		memory_model = MODEL_SMALL;
 	}
@@ -1182,6 +1180,8 @@ for any
 				return Script::parse_string(SmallScript_8080);
 			case MODEL_COMPACT:
 				return Script::parse_string(CompactScript_8080);
+			default:
+				Linker::FatalError("Internal error: invalid memory model");
 			}
 			break;
 		case FORMAT_UNKNOWN:
@@ -1190,7 +1190,7 @@ for any
 			switch(memory_model)
 			{
 			default:
-				assert(false);
+				Linker::FatalError("Internal error: invalid memory model");
 			case MODEL_DEFAULT:
 			case MODEL_SMALL:
 				return Script::parse_string(SmallScript);
@@ -1202,7 +1202,7 @@ for any
 			switch(memory_model)
 			{
 			default:
-				assert(false);
+				Linker::FatalError("Internal error: invalid memory model");
 			case MODEL_DEFAULT:
 			case MODEL_SMALL:
 				/* TODO */
@@ -1214,9 +1214,10 @@ for any
 			break;
 		case FORMAT_COMPACT:
 			return Script::parse_string(CompactScript);
+		default:
+			Linker::FatalError("Internal error: invalid memory model");
 		}
 	}
-	assert(false);
 }
 
 void CPM86Format::Link(Linker::Module& module)
@@ -1328,8 +1329,7 @@ void CPM86Format::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::I86)
 	{
-		Linker::Error << "Error: Format only supports Intel 8086 binaries" << std::endl;
-		exit(1);
+		Linker::FatalError("Fatal error: Format only supports Intel 8086 binaries");
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);
@@ -1347,7 +1347,7 @@ std::string CPM86Format::GetDefaultExtension(Linker::Module& module, std::string
 	case FORMAT_FLEXOS:
 		return filename + ".286";
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid memory model");
 	}
 }
 

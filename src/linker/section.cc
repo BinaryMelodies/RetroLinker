@@ -267,7 +267,7 @@ offset_t Section::Append(const Section& other)
 	}
 	if(IsMergeable())
 	{
-		assert(false); /* TODO - probably with OMF */
+		Linker::FatalError("Internal error: unimplemented: appending mergeable sections"); /* TODO - probably with OMF */
 	}
 	RealignEnd(other.align);
 	offset_t offset = Size();

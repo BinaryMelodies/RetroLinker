@@ -157,8 +157,11 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 		wordbytes = 8;
 		break;
 	default:
-		Linker::Error << "Fatal Error: Illegal ELF class " << c << std::endl;
-		exit(1);
+		{
+			std::ostringstream message;
+			message << "Fatal error: Illegal ELF class " << c;
+			Linker::FatalError(message.str());
+		}
 	}
 	switch(in.ReadUnsigned(1))
 	{
@@ -169,8 +172,11 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 		endiantype = in.endiantype = ::BigEndian;
 		break;
 	default:
-		Linker::Error << "Fatal Error: Illegal ELF byte order " << c << std::endl;
-		exit(1);
+		{
+			std::ostringstream message;
+			message << "Fatal error: Illegal ELF byte order " << c;
+			Linker::FatalError(message.str());
+		}
 	}
 	in.Seek(16 + 2);
 	uint16_t tmp;
@@ -189,8 +195,11 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 		module->cpu = Linker::Module::ARM;
 		break;
 	default:
-		Linker::Error << "Fatal Error: Unknown CPU type in ELF file " << tmp << std::endl;
-		exit(1);
+		{
+			std::ostringstream message;
+			message << "Fatal error: Unknown CPU type in ELF file " << tmp;
+			Linker::FatalError(message.str());
+		}
 	}
 	in.Skip(4 + 2 * wordbytes);
 	uint64_t shoff = in.ReadUnsigned(wordbytes);

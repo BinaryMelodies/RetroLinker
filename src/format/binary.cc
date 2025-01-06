@@ -400,9 +400,10 @@ std::unique_ptr<Script::List> BinaryFormat::GetScript(Linker::Module& module)
 			/* TODO */
 			//return Script::parse_string(LargeScript);
 			;
+		default:
+			Linker::FatalError("Internal error: invalid memory model");
 		}
 	}
-	assert(false);
 }
 
 void BinaryFormat::ProcessModule(Linker::Module& module)

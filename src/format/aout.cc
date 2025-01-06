@@ -18,7 +18,7 @@ using namespace AOut;
 	case PDP11:
 		return ::LittleEndian; /* Note: actually, PDP-11 endian */
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid CPU type");
 	}
 }
 
@@ -37,7 +37,7 @@ unsigned AOutFormat::GetWordSize() const
 	case PDP11:
 		return 2;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid CPU type");
 	}
 }
 
@@ -55,7 +55,7 @@ bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
 		attempted_magic = signature[word_size - 1] | (signature[word_size - 2] << 8);
 		break;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid endianness");
 	}
 
 	if(attempted_magic != OMAGIC && attempted_magic != NMAGIC && attempted_magic != ZMAGIC && attempted_magic != QMAGIC)
@@ -192,8 +192,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 					/* finally, attempt 16-bit big endian (unsure if any ever supported UNIX with a.out) */
 					if(!AttemptReadFile(rd, signature, file_end - file_offset))
 					{
-						Linker::Error << "Fatal error: Unable to determine file format" << std::endl;
-						exit(1);
+						Linker::FatalError("Fatal error: Unable to determine file format");
 					}
 				}
 			}
@@ -239,8 +238,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		}
 		if(!AttemptFetchMagic(signature))
 		{
-			Linker::Error << "Fatal error: Unable to determine file format" << std::endl;
-			exit(1);
+			Linker::FatalError("Fatal error: Unable to determine file format");
 		}
 	}
 
@@ -712,7 +710,7 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 		linker_parameters["data_align"] = Linker::Location(4); /* TODO: is this needed? */
 		break;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 
 	Link(module);
@@ -735,7 +733,7 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 			else if(resolution.target == bss)
 				symbol = 8;
 			else
-				assert(false);
+				Linker::FatalError("Internal error: invalid target segment for relocation");
 			switch(rel.size)
 			{
 			case 1:
@@ -839,7 +837,7 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	case UNIX:
 		return filename;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 
@@ -853,7 +851,7 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module)
 	case UNIX:
 		return "a.out";
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 

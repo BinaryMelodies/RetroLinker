@@ -537,8 +537,7 @@ void COFFFormat::DetectCpuType()
 #endif
 	else
 	{
-		Linker::Error << "Fatal Error: Unrecognized magic number, unable to determine endianness" << std::endl;
-		throw "Unrecognized magic number";
+		Linker::FatalError("Fatal error: Unrecognized magic number, unable to determine endianness");
 	}
 	Linker::Error << "Error: Unrecognized magic number, assuming " << (endiantype == BigEndian ? "big endian" : "little endian") << std::endl;
 }
@@ -1458,7 +1457,7 @@ void COFFFormat::CalculateValues()
 	{
 	case GENERIC:
 		/* TODO */
-		throw Linker::Exception("Internal error: no generation type specified, exiting");
+		Linker::FatalError("Internal error: no generation type specified, exiting");
 	case DJGPP:
 		cpu_type = CPU_I386;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
@@ -1570,7 +1569,7 @@ std::string COFFFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	case CDOS386:
 		return filename + ".386";
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 

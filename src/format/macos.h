@@ -801,7 +801,7 @@ namespace Apple
 		bool AddSupplementaryOutputFormat(std::string subformat) override;
 
 	private:
-		AppleSingleDouble * container;
+		std::shared_ptr<AppleSingleDouble> container;
 
 	public:
 		void SetOptions(std::map<std::string, std::string>& options) override;

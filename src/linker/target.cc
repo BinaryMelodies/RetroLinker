@@ -63,7 +63,7 @@ bool Target::Lookup(Module& object, Position& position)
 			return false;
 		}
 	}
-	assert(false);
+	Linker::FatalError("Internal error: invalid target type");
 }
 
 bool Linker::operator==(const Target& a, const Target& b)

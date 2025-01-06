@@ -62,7 +62,7 @@ std::shared_ptr<LEFormat> LEFormat::CreateConsoleApplication(system_type system)
 	case DOS4G: /* not an actual type */
 		return std::make_shared<LEFormat>(OS2, GUIAware, false);
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 
@@ -73,7 +73,7 @@ std::shared_ptr<LEFormat> LEFormat::CreateGUIApplication(system_type system)
 	case OS2:
 		return std::make_shared<LEFormat>(system, GUI, true);
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 
@@ -84,7 +84,7 @@ std::shared_ptr<LEFormat> LEFormat::CreateLibraryModule(system_type system)
 	case OS2:
 		return std::make_shared<LEFormat>(system, Library | NoInternalFixup, true);
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid target system");
 	}
 }
 
@@ -197,7 +197,7 @@ size_t LEFormat::Page::Relocation::GetSourceSize() const
 	case Pointer48:
 		return 6;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid relocation type");
 	}
 }
 
@@ -385,7 +385,7 @@ bool LEFormat::Entry::SameBundle(const Entry& other) const
 	case Entry32:
 		return object == other.object;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid entry type");
 	}
 }
 
@@ -400,7 +400,7 @@ offset_t LEFormat::Entry::GetEntryHeadSize() const
 	case Entry32:
 		return 4;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid entry type");
 	}
 }
 
@@ -418,7 +418,7 @@ offset_t LEFormat::Entry::GetEntryBodySize() const
 	case Forwarder:
 		return 7;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid entry type");
 	}
 }
 
@@ -896,8 +896,11 @@ void LEFormat::CalculateValues()
 		heap_size = 0;
 		break;
 	default:
-		Linker::Error << "Fatal error: " << system << std::endl;
-		assert(false);
+		{
+			std::ostringstream message;
+			message << "Fatal error: " << system;
+			Linker::FatalError(message.str());
+		}
 	}
 
 	if(IsLibrary() || IsDriver())
@@ -1048,7 +1051,7 @@ void LEFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteData(2, "\1\0");
 		break;
 	default:
-		assert(false);
+		Linker::FatalError("Internal error: invalid endianness");
 	}
 	wr.WriteWord(4, 0); /* format level */
 	wr.WriteWord(2, cpu);
@@ -1263,8 +1266,7 @@ void LEFormat::GenerateFile(std::string filename, Linker::Module& module)
 		module_name = filename;
 	if(module.cpu != Linker::Module::I386)
 	{
-		Linker::Error << "Fatal error: Format only supports Intel 80386 binaries" << std::endl;
-		exit(1);
+		Linker::FatalError("Fatal error: Format only supports Intel 80386 binaries");
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);
