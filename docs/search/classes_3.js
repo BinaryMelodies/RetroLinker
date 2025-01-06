@@ -12,7 +12,6 @@ var searchData=
   ['display_3c_20offset_5ft_2c_20offset_5ft_20_3e_9',['Display&lt; offset_t, offset_t &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
   ['display_3c_20offset_5ft_2c_20ts_2e_2e_2e_20_3e_10',['Display&lt; offset_t, Ts... &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
   ['display_3c_20std_3a_3astring_20_3e_11',['Display&lt; std::string &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
-  ['display_3c_20ts_2e_2e_2e_20_3e_12',['Display&lt; Ts... &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
-  ['dummysegment_13',['DummySegment',['../classDOS16M_1_1BWFormat_1_1DummySegment.html',1,'DOS16M::BWFormat']]],
-  ['dumper_14',['Dumper',['../classDumper_1_1Dumper.html',1,'Dumper']]]
+  ['dummysegment_12',['DummySegment',['../classDOS16M_1_1BWFormat_1_1DummySegment.html',1,'DOS16M::BWFormat']]],
+  ['dumper_13',['Dumper',['../classDumper_1_1Dumper.html',1,'Dumper']]]
 ];

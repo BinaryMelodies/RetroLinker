@@ -118,7 +118,7 @@ Public Types</h2></td></tr>
 , <b>SH</b>
 <br />
  }</td></tr>
-<tr class="memdesc:a91adcc0d6d9aa631e4d79dad0154a756"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the CPU for the target. <br /></td></tr>
+<tr class="memdesc:a91adcc0d6d9aa631e4d79dad0154a756"><td class="mdescLeft">&#160;</td><td class="mdescRight">Supported CPU types. <br /></td></tr>
 <tr class="separator:a91adcc0d6d9aa631e4d79dad0154a756"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -159,14 +159,14 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>FindLocalSymbol</b> (
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>FindGlobalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> &amp;location)</td></tr>
 <tr class="memdesc:a5aea788c1415f8976b83f5a52b562a32"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for a global symbol. <br /></td></tr>
 <tr class="separator:a5aea788c1415f8976b83f5a52b562a32"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adbeb6b70c7faa2e1d484e1c0e337d97a" id="r_adbeb6b70c7faa2e1d484e1c0e337d97a"><td class="memItemLeft" align="right" valign="top"><a id="adbeb6b70c7faa2e1d484e1c0e337d97a" name="adbeb6b70c7faa2e1d484e1c0e337d97a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddSection</b> (<a class="el" href="classLinker_1_1Section.html">Section</a> *section)</td></tr>
-<tr class="memdesc:adbeb6b70c7faa2e1d484e1c0e337d97a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new section. <br /></td></tr>
-<tr class="separator:adbeb6b70c7faa2e1d484e1c0e337d97a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42e6ef39e2cf388f1d0e9187facdbb70" id="r_a42e6ef39e2cf388f1d0e9187facdbb70"><td class="memItemLeft" align="right" valign="top"><a id="a42e6ef39e2cf388f1d0e9187facdbb70" name="a42e6ef39e2cf388f1d0e9187facdbb70"></a>
-const std::vector&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> * &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Sections</b> () const</td></tr>
-<tr class="memdesc:a42e6ef39e2cf388f1d0e9187facdbb70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves list of all sections. <br /></td></tr>
-<tr class="separator:a42e6ef39e2cf388f1d0e9187facdbb70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45d065188acd2f0a26c7db2b19cc9121" id="r_a45d065188acd2f0a26c7db2b19cc9121"><td class="memItemLeft" align="right" valign="top"><a id="a45d065188acd2f0a26c7db2b19cc9121" name="a45d065188acd2f0a26c7db2b19cc9121"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddSection</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; section)</td></tr>
+<tr class="memdesc:a45d065188acd2f0a26c7db2b19cc9121"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new section. <br /></td></tr>
+<tr class="separator:a45d065188acd2f0a26c7db2b19cc9121"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32f4bde244571e2b95ce4f15112619fb" id="r_a32f4bde244571e2b95ce4f15112619fb"><td class="memItemLeft" align="right" valign="top"><a id="a32f4bde244571e2b95ce4f15112619fb" name="a32f4bde244571e2b95ce4f15112619fb"></a>
+const std::vector&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Sections</b> () const</td></tr>
+<tr class="memdesc:a32f4bde244571e2b95ce4f15112619fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves list of all sections. <br /></td></tr>
+<tr class="separator:a32f4bde244571e2b95ce4f15112619fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae537c795e8d0046c4499a1e66bbde27" id="r_aae537c795e8d0046c4499a1e66bbde27"><td class="memItemLeft" align="right" valign="top"><a id="aae537c795e8d0046c4499a1e66bbde27" name="aae537c795e8d0046c4499a1e66bbde27"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>DeleteSection</b> (size_t index)</td></tr>
 <tr class="memdesc:aae537c795e8d0046c4499a1e66bbde27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Deletes a specific sections. <br /></td></tr>
@@ -175,30 +175,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DeleteSection</b> (si
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RemoveSections</b> ()</td></tr>
 <tr class="memdesc:a6a4eda34cd479a9106046f1e26327465"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes all sections from internal list, without deleting them. <br /></td></tr>
 <tr class="separator:a6a4eda34cd479a9106046f1e26327465"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7169903a78039021c158c75287f11892" id="r_a7169903a78039021c158c75287f11892"><td class="memItemLeft" align="right" valign="top"><a id="a7169903a78039021c158c75287f11892" name="a7169903a78039021c158c75287f11892"></a>
-<a class="el" href="classLinker_1_1Section.html">Section</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>FindSection</b> (std::string name)</td></tr>
-<tr class="memdesc:a7169903a78039021c158c75287f11892"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for a section with a specific name. <br /></td></tr>
-<tr class="separator:a7169903a78039021c158c75287f11892"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a154b90ea74e33c2840967d6a2687a329" id="r_a154b90ea74e33c2840967d6a2687a329"><td class="memItemLeft" align="right" valign="top"><a id="a154b90ea74e33c2840967d6a2687a329" name="a154b90ea74e33c2840967d6a2687a329"></a>
-<a class="el" href="classLinker_1_1Section.html">Section</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>FetchSection</b> (std::string name, unsigned default_flags)</td></tr>
-<tr class="memdesc:a154b90ea74e33c2840967d6a2687a329"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches or creates a section with a specific name, with the assigned flags. <br /></td></tr>
-<tr class="separator:a154b90ea74e33c2840967d6a2687a329"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a091576bfd0e70570d6c22ab7a87f2d80" id="r_a091576bfd0e70570d6c22ab7a87f2d80"><td class="memItemLeft" align="right" valign="top"><a id="a091576bfd0e70570d6c22ab7a87f2d80" name="a091576bfd0e70570d6c22ab7a87f2d80"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FindSection</b> (std::string name)</td></tr>
+<tr class="memdesc:a091576bfd0e70570d6c22ab7a87f2d80"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for a section with a specific name. <br /></td></tr>
+<tr class="separator:a091576bfd0e70570d6c22ab7a87f2d80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33ed80505ac60f87eaa1c072e5c9ba60" id="r_a33ed80505ac60f87eaa1c072e5c9ba60"><td class="memItemLeft" align="right" valign="top"><a id="a33ed80505ac60f87eaa1c072e5c9ba60" name="a33ed80505ac60f87eaa1c072e5c9ba60"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchSection</b> (std::string name, unsigned default_flags)</td></tr>
+<tr class="memdesc:a33ed80505ac60f87eaa1c072e5c9ba60"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches or creates a section with a specific name, with the assigned flags. <br /></td></tr>
+<tr class="separator:a33ed80505ac60f87eaa1c072e5c9ba60"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa20a1e19fee67b2522417e1630b200e6" id="r_aa20a1e19fee67b2522417e1630b200e6"><td class="memItemLeft" align="right" valign="top"><a id="aa20a1e19fee67b2522417e1630b200e6" name="aa20a1e19fee67b2522417e1630b200e6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ResolveRelocations</b> ()</td></tr>
 <tr class="memdesc:aa20a1e19fee67b2522417e1630b200e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to resolve the targets of all relocations. <br /></td></tr>
 <tr class="separator:aa20a1e19fee67b2522417e1630b200e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a06298d0a85295d9ba2b060097d11031d" id="r_a06298d0a85295d9ba2b060097d11031d"><td class="memItemLeft" align="right" valign="top"><a id="a06298d0a85295d9ba2b060097d11031d" name="a06298d0a85295d9ba2b060097d11031d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (<a class="el" href="classLinker_1_1Section.html">Section</a> *dst, <a class="el" href="classLinker_1_1Section.html">Section</a> *src)</td></tr>
-<tr class="memdesc:a06298d0a85295d9ba2b060097d11031d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends two of its sections. <br /></td></tr>
-<tr class="separator:a06298d0a85295d9ba2b060097d11031d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2713075c75b65eaea333ff4ecb3c1a84" id="r_a2713075c75b65eaea333ff4ecb3c1a84"><td class="memItemLeft" align="right" valign="top"><a id="a2713075c75b65eaea333ff4ecb3c1a84" name="a2713075c75b65eaea333ff4ecb3c1a84"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; dst, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; src)</td></tr>
+<tr class="memdesc:a2713075c75b65eaea333ff4ecb3c1a84"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends two of its sections. <br /></td></tr>
+<tr class="separator:a2713075c75b65eaea333ff4ecb3c1a84"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8e39ce2d456bae6b064d2dd9ffe0bb11" id="r_a8e39ce2d456bae6b064d2dd9ffe0bb11"><td class="memItemLeft" align="right" valign="top"><a id="a8e39ce2d456bae6b064d2dd9ffe0bb11" name="a8e39ce2d456bae6b064d2dd9ffe0bb11"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;other)</td></tr>
 <tr class="memdesc:a8e39ce2d456bae6b064d2dd9ffe0bb11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends another module object, merging identically named sections. <br /></td></tr>
 <tr class="separator:a8e39ce2d456bae6b064d2dd9ffe0bb11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a45504e9a720fd2a58dd17d440cadcf" id="r_a9a45504e9a720fd2a58dd17d440cadcf"><td class="memItemLeft" align="right" valign="top"><a id="a9a45504e9a720fd2a58dd17d440cadcf" name="a9a45504e9a720fd2a58dd17d440cadcf"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> (<a class="el" href="classLinker_1_1Section.html">Section</a> *section)</td></tr>
-<tr class="memdesc:a9a45504e9a720fd2a58dd17d440cadcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">All common symbols are converted to global symbols and assigned addresses within a section. <br /></td></tr>
-<tr class="separator:a9a45504e9a720fd2a58dd17d440cadcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3be52be53f501fc0ca417943135b542e" id="r_a3be52be53f501fc0ca417943135b542e"><td class="memItemLeft" align="right" valign="top"><a id="a3be52be53f501fc0ca417943135b542e" name="a3be52be53f501fc0ca417943135b542e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; section)</td></tr>
+<tr class="memdesc:a3be52be53f501fc0ca417943135b542e"><td class="mdescLeft">&#160;</td><td class="mdescRight">All common symbols are converted to global symbols and assigned addresses within a section. <br /></td></tr>
+<tr class="separator:a3be52be53f501fc0ca417943135b542e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc97fc4bf30de0c91c53bd93de4a48c1" id="r_afc97fc4bf30de0c91c53bd93de4a48c1"><td class="memItemLeft" align="right" valign="top"><a id="afc97fc4bf30de0c91c53bd93de4a48c1" name="afc97fc4bf30de0c91c53bd93de4a48c1"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> ()</td></tr>
 <tr class="memdesc:afc97fc4bf30de0c91c53bd93de4a48c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">All common symbols are converted to global symbols and assigned addresses within a ".comm" section. <br /></td></tr>
@@ -206,9 +206,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> (
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ab010f6036c1dd5c36b9e1092461b6b04" id="r_ab010f6036c1dd5c36b9e1092461b6b04"><td class="memItemLeft" align="right" valign="top"><a id="ab010f6036c1dd5c36b9e1092461b6b04" name="ab010f6036c1dd5c36b9e1092461b6b04"></a>
-enum <a class="el" href="#a91adcc0d6d9aa631e4d79dad0154a756">Linker::Module::cpu_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cpu</b></td></tr>
-<tr class="separator:ab010f6036c1dd5c36b9e1092461b6b04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ace0a48e1b03e842e0ca80912872a65dd" id="r_ace0a48e1b03e842e0ca80912872a65dd"><td class="memItemLeft" align="right" valign="top"><a id="ace0a48e1b03e842e0ca80912872a65dd" name="ace0a48e1b03e842e0ca80912872a65dd"></a>
+<a class="el" href="#a91adcc0d6d9aa631e4d79dad0154a756">cpu_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cpu</b> = NONE</td></tr>
+<tr class="memdesc:ace0a48e1b03e842e0ca80912872a65dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the CPU for the target. <br /></td></tr>
+<tr class="separator:ace0a48e1b03e842e0ca80912872a65dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4f3bf290f658eb8a7bdd4221f433b19" id="r_ae4f3bf290f658eb8a7bdd4221f433b19"><td class="memItemLeft" align="right" valign="top"><a id="ae4f3bf290f658eb8a7bdd4221f433b19" name="ae4f3bf290f658eb8a7bdd4221f433b19"></a>
 std::vector&lt; <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="memdesc:ae4f3bf290f658eb8a7bdd4221f433b19"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of relocations within the module. <br /></td></tr>

@@ -78,6 +78,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="classDumper_1_1Region-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Dumper::Region Class Reference</div></div>
 </div><!--header-->
@@ -107,46 +108,52 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0dcdd10f48a24d5c495f3c4daa153bdc inherit pub_methods_classDumper_1_1Container" id="r_a0dcdd10f48a24d5c495f3c4daa153bdc"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Container</b> (std::string name=&quot;&quot;)</td></tr>
 <tr class="separator:a0dcdd10f48a24d5c495f3c4daa153bdc inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4a86b7260ff1bfb8df0a5862a2e8afef inherit pub_methods_classDumper_1_1Container" id="r_a4a86b7260ff1bfb8df0a5862a2e8afef"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="classDumper_1_1Field.html">Field</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>FindField</b> (std::string name)</td></tr>
-<tr class="separator:a4a86b7260ff1bfb8df0a5862a2e8afef inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac74e6994c34567ecfe3f2a7f5dacfec0 inherit pub_methods_classDumper_1_1Container" id="r_ac74e6994c34567ecfe3f2a7f5dacfec0"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classDumper_1_1Field.html">Field</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FindField</b> (std::string name)</td></tr>
+<tr class="separator:ac74e6994c34567ecfe3f2a7f5dacfec0 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbcef8a29521cc6077507694375bdd0a inherit pub_methods_classDumper_1_1Container" id="r_adbcef8a29521cc6077507694375bdd0a"><td class="memTemplParams" colspan="2">
 template&lt;typename T &gt; </td></tr>
 <tr class="memitem:adbcef8a29521cc6077507694375bdd0a inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">T&#160;</td><td class="memTemplItemRight" valign="bottom"><b>GetField</b> (std::string name, offset_t default_value=T())</td></tr>
 <tr class="separator:adbcef8a29521cc6077507694375bdd0a inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad428107634d33d4463ae50425ef877c8 inherit pub_methods_classDumper_1_1Container" id="r_ad428107634d33d4463ae50425ef877c8"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddField</b> (<a class="el" href="classDumper_1_1Field.html">Field</a> *field)</td></tr>
-<tr class="separator:ad428107634d33d4463ae50425ef877c8 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acfb992db26cda4052efb40e90e7341eb inherit pub_methods_classDumper_1_1Container" id="r_acfb992db26cda4052efb40e90e7341eb"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddField</b> (size_t index, <a class="el" href="classDumper_1_1Field.html">Field</a> *field)</td></tr>
-<tr class="separator:acfb992db26cda4052efb40e90e7341eb inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3fbe402201daa1011e0bd7246aa6b416 inherit pub_methods_classDumper_1_1Container" id="r_a3fbe402201daa1011e0bd7246aa6b416"><td class="memTemplParams" colspan="2">
+<tr class="memitem:a668c33de3594cec1be0f98e5ee16c757 inherit pub_methods_classDumper_1_1Container" id="r_a668c33de3594cec1be0f98e5ee16c757"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddField</b> (std::shared_ptr&lt; <a class="el" href="classDumper_1_1Field.html">Field</a> &gt; field)</td></tr>
+<tr class="separator:a668c33de3594cec1be0f98e5ee16c757 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a123cf72ee111976f86e019aa46258b inherit pub_methods_classDumper_1_1Container" id="r_a0a123cf72ee111976f86e019aa46258b"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddField</b> (size_t index, std::shared_ptr&lt; <a class="el" href="classDumper_1_1Field.html">Field</a> &gt; field)</td></tr>
+<tr class="separator:a0a123cf72ee111976f86e019aa46258b inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5251c7150350f6cf3e928e7c950b989e inherit pub_methods_classDumper_1_1Container" id="r_a5251c7150350f6cf3e928e7c950b989e"><td class="memTemplParams" colspan="2">
 template&lt;typename D , typename ... Ts&gt; </td></tr>
-<tr class="memitem:a3fbe402201daa1011e0bd7246aa6b416 inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>AddField</b> (std::string label, D *display, Ts... values)</td></tr>
-<tr class="separator:a3fbe402201daa1011e0bd7246aa6b416 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd99e44ab99f122c3ca7728922391a8c inherit pub_methods_classDumper_1_1Container" id="r_acd99e44ab99f122c3ca7728922391a8c"><td class="memTemplParams" colspan="2">
+<tr class="memitem:a5251c7150350f6cf3e928e7c950b989e inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>AddField</b> (std::string label, std::shared_ptr&lt; D &gt; display, Ts... values)</td></tr>
+<tr class="separator:a5251c7150350f6cf3e928e7c950b989e inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44eafb8943b5a534416f795d5f579036 inherit pub_methods_classDumper_1_1Container" id="r_a44eafb8943b5a534416f795d5f579036"><td class="memTemplParams" colspan="2">
 template&lt;typename D , typename ... Ts&gt; </td></tr>
-<tr class="memitem:acd99e44ab99f122c3ca7728922391a8c inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>AddOptionalField</b> (std::string label, D *display, Ts... values)</td></tr>
-<tr class="separator:acd99e44ab99f122c3ca7728922391a8c inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acd4cfbf0ad5ad47804e6a8d07fc3d3bb inherit pub_methods_classDumper_1_1Container" id="r_acd4cfbf0ad5ad47804e6a8d07fc3d3bb"><td class="memTemplParams" colspan="2">
+<tr class="memitem:a44eafb8943b5a534416f795d5f579036 inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>AddOptionalField</b> (std::string label, std::shared_ptr&lt; D &gt; display, Ts... values)</td></tr>
+<tr class="separator:a44eafb8943b5a534416f795d5f579036 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8064814e48325b000e49fe54fb9acb2b inherit pub_methods_classDumper_1_1Container" id="r_a8064814e48325b000e49fe54fb9acb2b"><td class="memTemplParams" colspan="2">
 template&lt;typename D , typename ... Ts&gt; </td></tr>
-<tr class="memitem:acd4cfbf0ad5ad47804e6a8d07fc3d3bb inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>AddHiddenField</b> (std::string label, D *display, Ts... values)</td></tr>
-<tr class="separator:acd4cfbf0ad5ad47804e6a8d07fc3d3bb inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab94723e3e1930d4c21d9a82122f97d84 inherit pub_methods_classDumper_1_1Container" id="r_ab94723e3e1930d4c21d9a82122f97d84"><td class="memTemplParams" colspan="2">
+<tr class="memitem:a8064814e48325b000e49fe54fb9acb2b inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>AddHiddenField</b> (std::string label, std::shared_ptr&lt; D &gt; display, Ts... values)</td></tr>
+<tr class="separator:a8064814e48325b000e49fe54fb9acb2b inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a709d6b71e00634cefaaf7cfad48590c1 inherit pub_methods_classDumper_1_1Container" id="r_a709d6b71e00634cefaaf7cfad48590c1"><td class="memTemplParams" colspan="2">
 template&lt;typename D , typename ... Ts&gt; </td></tr>
-<tr class="memitem:ab94723e3e1930d4c21d9a82122f97d84 inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>InsertField</b> (size_t index, std::string label, D *display, Ts... values)</td></tr>
-<tr class="separator:ab94723e3e1930d4c21d9a82122f97d84 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a60b9f897d2f5d9eb22628f625be7a3d9 inherit pub_methods_classDumper_1_1Container" id="r_a60b9f897d2f5d9eb22628f625be7a3d9"><td class="memTemplParams" colspan="2">
+<tr class="memitem:a709d6b71e00634cefaaf7cfad48590c1 inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>InsertField</b> (size_t index, std::string label, std::shared_ptr&lt; D &gt; display, Ts... values)</td></tr>
+<tr class="separator:a709d6b71e00634cefaaf7cfad48590c1 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaaf31a2e90952368752315a1062c57cc inherit pub_methods_classDumper_1_1Container" id="r_aaaf31a2e90952368752315a1062c57cc"><td class="memTemplParams" colspan="2">
 template&lt;typename D , typename ... Ts&gt; </td></tr>
-<tr class="memitem:a60b9f897d2f5d9eb22628f625be7a3d9 inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>InsertOptionalField</b> (size_t index, std::string label, D *display, Ts... values)</td></tr>
-<tr class="separator:a60b9f897d2f5d9eb22628f625be7a3d9 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a561b65f60690a3305c643baed460d1a3 inherit pub_methods_classDumper_1_1Container" id="r_a561b65f60690a3305c643baed460d1a3"><td class="memTemplParams" colspan="2">
+<tr class="memitem:aaaf31a2e90952368752315a1062c57cc inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>InsertOptionalField</b> (size_t index, std::string label, std::shared_ptr&lt; D &gt; display, Ts... values)</td></tr>
+<tr class="separator:aaaf31a2e90952368752315a1062c57cc inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b143216ef93616afd170113ea9fcfcf inherit pub_methods_classDumper_1_1Container" id="r_a5b143216ef93616afd170113ea9fcfcf"><td class="memTemplParams" colspan="2">
 template&lt;typename D , typename ... Ts&gt; </td></tr>
-<tr class="memitem:a561b65f60690a3305c643baed460d1a3 inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>InsertHiddenField</b> (size_t index, std::string label, D *display, Ts... values)</td></tr>
-<tr class="separator:a561b65f60690a3305c643baed460d1a3 inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b143216ef93616afd170113ea9fcfcf inherit pub_methods_classDumper_1_1Container"><td class="memTemplItemLeft" align="right" valign="top">void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>InsertHiddenField</b> (size_t index, std::string label, std::shared_ptr&lt; D &gt; display, Ts... values)</td></tr>
+<tr class="separator:a5b143216ef93616afd170113ea9fcfcf inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cb191a753ad97ea07af0b2269c408df inherit pub_methods_classDumper_1_1Container" id="r_a2cb191a753ad97ea07af0b2269c408df"><td class="memItemLeft" align="right" valign="top">
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Display</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;dump)</td></tr>
 <tr class="separator:a2cb191a753ad97ea07af0b2269c408df inherit pub_methods_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a1fbb59dbde26de48067433e6fb7c32e8" id="r_a1fbb59dbde26de48067433e6fb7c32e8"><td class="memItemLeft" align="right" valign="top"><a id="a1fbb59dbde26de48067433e6fb7c32e8" name="a1fbb59dbde26de48067433e6fb7c32e8"></a>
+static std::shared_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Region</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (std::string name, offset_t offset, offset_t length, unsigned display_width)</td></tr>
+<tr class="separator:a1fbb59dbde26de48067433e6fb7c32e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -154,12 +161,12 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memitem:aec8018a197a01bdc3e7931dff53f1c3d inherit pub_attribs_classDumper_1_1Container" id="r_aec8018a197a01bdc3e7931dff53f1c3d"><td class="memItemLeft" align="right" valign="top">
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
 <tr class="separator:aec8018a197a01bdc3e7931dff53f1c3d inherit pub_attribs_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65cc6bf392c0f8d2a426fba43debd5f3 inherit pub_attribs_classDumper_1_1Container" id="r_a65cc6bf392c0f8d2a426fba43debd5f3"><td class="memItemLeft" align="right" valign="top">
-std::map&lt; std::string, <a class="el" href="classDumper_1_1Field.html">Field</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>field_names</b></td></tr>
-<tr class="separator:a65cc6bf392c0f8d2a426fba43debd5f3 inherit pub_attribs_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a76b449b7cdc4681d2055f597cbc119c3 inherit pub_attribs_classDumper_1_1Container" id="r_a76b449b7cdc4681d2055f597cbc119c3"><td class="memItemLeft" align="right" valign="top">
-std::vector&lt; <a class="el" href="classDumper_1_1Field.html">Field</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fields</b></td></tr>
-<tr class="separator:a76b449b7cdc4681d2055f597cbc119c3 inherit pub_attribs_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86cd984cd197f9e402c858d57f519ee3 inherit pub_attribs_classDumper_1_1Container" id="r_a86cd984cd197f9e402c858d57f519ee3"><td class="memItemLeft" align="right" valign="top">
+std::map&lt; std::string, std::shared_ptr&lt; <a class="el" href="classDumper_1_1Field.html">Field</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>field_names</b></td></tr>
+<tr class="separator:a86cd984cd197f9e402c858d57f519ee3 inherit pub_attribs_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d4a65582e10827d42ec68c7356523d2 inherit pub_attribs_classDumper_1_1Container" id="r_a8d4a65582e10827d42ec68c7356523d2"><td class="memItemLeft" align="right" valign="top">
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classDumper_1_1Field.html">Field</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>fields</b></td></tr>
+<tr class="separator:a8d4a65582e10827d42ec68c7356523d2 inherit pub_attribs_classDumper_1_1Container"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A record that represents a region within the file. </p>

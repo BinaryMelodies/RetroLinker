@@ -108,7 +108,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>    CPPUNIT_TEST_SUITE_END();</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">private</span>:</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <a class="code hl_class" href="classMicrosoft_1_1MZFormat.html">MZFormat</a> exe;</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <a class="code hl_class" href="classLinker_1_1Section.html">Section</a> * code;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    std::shared_ptr&lt;Section&gt; code;</div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    <span class="keywordtype">void</span> testCreateEXE();</div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    <span class="keywordtype">void</span> testEXEFileSize();</div>
@@ -380,124 +380,113 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span><span class="keywordtype">void</span> TestMZFormat::setUp()</div>
 <div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>{</div>
 <div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>    exe.<a class="code hl_function" href="classMicrosoft_1_1MZFormat.html#a93a473b423af7a60fbbc55a69c269f80">Clear</a>();</div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    code = <span class="keyword">new</span> <a class="code hl_class" href="classLinker_1_1Section.html">Linker::Section</a>(<span class="stringliteral">&quot;.code&quot;</span>);</div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>    code = std::make_shared&lt;Linker::Section&gt;(<span class="stringliteral">&quot;.code&quot;</span>);</div>
 <div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>}</div>
 <div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span> </div>
 <div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span><span class="keywordtype">void</span> TestMZFormat::tearDown()</div>
 <div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>{</div>
 <div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>    exe.<a class="code hl_function" href="classMicrosoft_1_1MZFormat.html#a93a473b423af7a60fbbc55a69c269f80">Clear</a>();</div>
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    <span class="keyword">delete</span> code;</div>
-<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>    code = <span class="keyword">nullptr</span>;</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>}</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>std::string TestMZFormat::store()</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>{</div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    std::string image;</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    std::ostringstream out;</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    <a class="code hl_class" href="classLinker_1_1Writer.html">Writer</a> wr(::Undefined, &amp;out);</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    exe.<a class="code hl_function" href="classMicrosoft_1_1MZFormat.html#a242b466acbaf015b8e3887d938f3e267">WriteFile</a>(wr);</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>    <span class="keywordflow">return</span> out.str();</div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>}</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span><span class="keywordtype">void</span> TestMZFormat::load(std::string data)</div>
-<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>{</div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    std::istringstream in(data);</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    <a class="code hl_class" href="classLinker_1_1Reader.html">Reader</a> rd(::Undefined, &amp;in);</div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>    CPPUNIT_ASSERT_NO_THROW(exe.<a class="code hl_function" href="classMicrosoft_1_1MZFormat.html#a3b74f4517a1e84a8a504f72d883fb224">ReadFile</a>(rd));</div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>}</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span> </div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>std::string TestMZFormat::generate_image(<span class="keywordtype">size_t</span> size)</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>{</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    <span class="comment">/* first it generates a sequence of 256 sequential bytes, but then the next 256 bytes are incremented by 3 each, then 5, then 7 etc. */</span></div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    std::ostringstream out;</div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; size; i++)</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>    {</div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>        <span class="keywordtype">int</span> off = i &amp; 0xFF;</div>
-<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>        <span class="keywordtype">size_t</span> inc = (i &gt;&gt; 7) | 1;</div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>        out.put(<span class="keywordtype">char</span>(inc * off));</div>
-<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    }</div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>    <span class="keywordflow">return</span> out.str();</div>
-<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span>}</div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span> </div>
-<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span><span class="keywordtype">void</span> TestMZFormat::set_image(std::string data)</div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>{</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    code-&gt;<a class="code hl_function" href="classLinker_1_1Section.html#a0a902380623f10988b63c3c709794cf6">Reset</a>();</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    code-&gt;<a class="code hl_function" href="classLinker_1_1Section.html#ab4d26d74a06752724795de2c9d526bf3">Append</a>(data.c_str(), data.size());</div>
-<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    <a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a> * segment = <span class="keyword">new</span> <a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a>(<span class="stringliteral">&quot;.code&quot;</span>);</div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    segment-&gt;<a class="code hl_function" href="classLinker_1_1Segment.html#aebb72654447cd853c865f93f9a65c790">Append</a>(code);</div>
-<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    <span class="keywordflow">if</span>(exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a9d9d7a667fcddd2c54486c4affb8f7b9">image</a>)</div>
-<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>        <span class="keyword">delete</span> exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a9d9d7a667fcddd2c54486c4affb8f7b9">image</a>;</div>
-<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span>    exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a9d9d7a667fcddd2c54486c4affb8f7b9">image</a> = segment;</div>
-<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="comment">/*  if(exe.image_segment)</span></div>
-<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span><span class="comment">        delete exe.image_segment;</span></div>
-<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="comment">    exe.image_segment = segment;*/</span></div>
-<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>}</div>
-<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span> </div>
-<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span><span class="keywordtype">void</span> TestMZFormat::test_image(std::string data)</div>
-<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>{</div>
-<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    uint32_t file_size = exe.GetHeaderSize() + data.size();</div>
-<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    CPPUNIT_ASSERT_EQUAL(file_size &amp; 0x1FF, (uint32_t)exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a59c890aebaf1849b2e7f59268279f653">last_block_size</a>);</div>
-<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    CPPUNIT_ASSERT_EQUAL((file_size + 0x1FF) &gt;&gt; 9, (uint32_t)exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a82224a520647c484ebc0797b5db94dec">file_size_blocks</a>);</div>
-<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    CPPUNIT_ASSERT_EQUAL(file_size, exe.GetFileSize());</div>
-<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <a class="code hl_class" href="classLinker_1_1Buffer.html">Linker::Buffer</a> * buffer = <span class="keyword">dynamic_cast&lt;</span><a class="code hl_class" href="classLinker_1_1Buffer.html">Linker::Buffer</a> *<span class="keyword">&gt;</span>(exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a9d9d7a667fcddd2c54486c4affb8f7b9">image</a>);</div>
-<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    assert(buffer != <span class="keyword">nullptr</span>); <span class="comment">/* internal check */</span></div>
-<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>    CPPUNIT_ASSERT_EQUAL(data.size(), buffer-&gt;<a class="code hl_function" href="classLinker_1_1Buffer.html#a197ddf4ac1014305c343b1e95288cedc">ActualDataSize</a>());</div>
-<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    <span class="keywordflow">for</span>(uint32_t i = 0; i &lt; data.size(); i++)</div>
-<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>    {</div>
-<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span>        CPPUNIT_ASSERT_EQUAL(data[i] &amp; 0xFF, buffer-&gt;<a class="code hl_function" href="classLinker_1_1Buffer.html#afa37ec81b00582464e8d65475582947a">GetByte</a>(i) &amp; 0xFF);</div>
-<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>    }</div>
-<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>}</div>
-<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span> </div>
-<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>std::vector&lt;MZFormat::Relocation&gt; TestMZFormat::generate_relocations(<span class="keywordtype">size_t</span> count)</div>
-<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>{</div>
-<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>    std::vector&lt;MZFormat::Relocation&gt; relocations;</div>
-<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>    <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; count; i++)</div>
-<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>    {</div>
-<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>        <span class="keywordtype">int</span> off = i &amp; 0xFF;</div>
-<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>        <span class="keywordtype">size_t</span> inc = (i &gt;&gt; 7) | 1;</div>
-<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>        off = (off * inc) &amp; 0xFF;</div>
-<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>        relocations.push_back(<a class="code hl_struct" href="structMicrosoft_1_1MZFormat_1_1Relocation.html">MZFormat::Relocation</a>(off * 0x0102, off * 0x0304));</div>
-<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span>    }</div>
-<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span>    <span class="keywordflow">return</span> relocations;</div>
-<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>}</div>
-<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span> </div>
-<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span><span class="keywordtype">void</span> TestMZFormat::test_relocations(std::vector&lt;MZFormat::Relocation&gt;&amp; relocations)</div>
-<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>{</div>
-<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    <span class="comment">/* TODO: relocations do not have to be exactly the same, in the exact same order */</span></div>
-<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>    CPPUNIT_ASSERT_EQUAL(relocations.size(), exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#abd7a44c50ce7db6c6354d6cade418d9a">relocations</a>.size());</div>
-<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>    <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; relocations.size(); i++)</div>
-<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>    {</div>
-<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span>        CPPUNIT_ASSERT(relocations[i] == exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#abd7a44c50ce7db6c6354d6cade418d9a">relocations</a>[i]);</div>
-<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>    }</div>
-<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span>}</div>
-<div class="line"><a id="l00386" name="l00386"></a><span class="lineno">  386</span> </div>
-<div class="line"><a id="l00387" name="l00387"></a><span class="lineno">  387</span>}</div>
-<div class="line"><a id="l00388" name="l00388"></a><span class="lineno">  388</span> </div>
-<div class="ttc" id="aclassLinker_1_1Buffer_html"><div class="ttname"><a href="classLinker_1_1Buffer.html">Linker::Buffer</a></div><div class="ttdoc">A buffer that can be used to read and store data from a file.</div><div class="ttdef"><b>Definition</b> buffer.h:22</div></div>
-<div class="ttc" id="aclassLinker_1_1Buffer_html_a197ddf4ac1014305c343b1e95288cedc"><div class="ttname"><a href="classLinker_1_1Buffer.html#a197ddf4ac1014305c343b1e95288cedc">Linker::Buffer::ActualDataSize</a></div><div class="ttdeci">offset_t ActualDataSize() override</div><div class="ttdoc">Retrieves size of stored data.</div><div class="ttdef"><b>Definition</b> buffer.cc:6</div></div>
-<div class="ttc" id="aclassLinker_1_1Buffer_html_afa37ec81b00582464e8d65475582947a"><div class="ttname"><a href="classLinker_1_1Buffer.html#afa37ec81b00582464e8d65475582947a">Linker::Buffer::GetByte</a></div><div class="ttdeci">int GetByte(offset_t offset) override</div><div class="ttdoc">Retrieve byte at a certain offset (optional, might not be defined)</div><div class="ttdef"><b>Definition</b> buffer.cc:36</div></div>
-<div class="ttc" id="aclassLinker_1_1Exception_html"><div class="ttname"><a href="classLinker_1_1Exception.html">Linker::Exception</a></div><div class="ttdef"><b>Definition</b> linker.h:15</div></div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>    code = <span class="keyword">nullptr</span>;</div>
+<div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>}</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span> </div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>std::string TestMZFormat::store()</div>
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>{</div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>    std::string image;</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>    std::ostringstream out;</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>    <a class="code hl_class" href="classLinker_1_1Writer.html">Writer</a> wr(::Undefined, &amp;out);</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>    exe.<a class="code hl_function" href="classMicrosoft_1_1MZFormat.html#a242b466acbaf015b8e3887d938f3e267">WriteFile</a>(wr);</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>    <span class="keywordflow">return</span> out.str();</div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>}</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span> </div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span><span class="keywordtype">void</span> TestMZFormat::load(std::string data)</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>{</div>
+<div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span>    std::istringstream in(data);</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>    <a class="code hl_class" href="classLinker_1_1Reader.html">Reader</a> rd(::Undefined, &amp;in);</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>    CPPUNIT_ASSERT_NO_THROW(exe.<a class="code hl_function" href="classMicrosoft_1_1MZFormat.html#a3b74f4517a1e84a8a504f72d883fb224">ReadFile</a>(rd));</div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>}</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>std::string TestMZFormat::generate_image(<span class="keywordtype">size_t</span> size)</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>{</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>    <span class="comment">/* first it generates a sequence of 256 sequential bytes, but then the next 256 bytes are incremented by 3 each, then 5, then 7 etc. */</span></div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>    std::ostringstream out;</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>    <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; size; i++)</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>    {</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>        <span class="keywordtype">int</span> off = i &amp; 0xFF;</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>        <span class="keywordtype">size_t</span> inc = (i &gt;&gt; 7) | 1;</div>
+<div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span>        out.put(<span class="keywordtype">char</span>(inc * off));</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>    }</div>
+<div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span>    <span class="keywordflow">return</span> out.str();</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>}</div>
+<div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span><span class="keywordtype">void</span> TestMZFormat::set_image(std::string data)</div>
+<div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span>{</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>    code-&gt;Reset();</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    code-&gt;Append(data.c_str(), data.size());</div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>    std::shared_ptr&lt;Linker::Segment&gt; segment = std::make_shared&lt;Linker::Segment&gt;(<span class="stringliteral">&quot;.code&quot;</span>);</div>
+<div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span>    segment-&gt;Append(code);</div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>    exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a8c6c98841adc404f3a1d5397efbd9226">image</a> = segment;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span><span class="comment">/*  if(exe.image_segment)</span></div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span><span class="comment">        delete exe.image_segment;</span></div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span><span class="comment">    exe.image_segment = segment;*/</span></div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span>}</div>
+<div class="line"><a id="l00345" name="l00345"></a><span class="lineno">  345</span> </div>
+<div class="line"><a id="l00346" name="l00346"></a><span class="lineno">  346</span><span class="keywordtype">void</span> TestMZFormat::test_image(std::string data)</div>
+<div class="line"><a id="l00347" name="l00347"></a><span class="lineno">  347</span>{</div>
+<div class="line"><a id="l00348" name="l00348"></a><span class="lineno">  348</span>    uint32_t file_size = exe.GetHeaderSize() + data.size();</div>
+<div class="line"><a id="l00349" name="l00349"></a><span class="lineno">  349</span>    CPPUNIT_ASSERT_EQUAL(file_size &amp; 0x1FF, (uint32_t)exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a59c890aebaf1849b2e7f59268279f653">last_block_size</a>);</div>
+<div class="line"><a id="l00350" name="l00350"></a><span class="lineno">  350</span>    CPPUNIT_ASSERT_EQUAL((file_size + 0x1FF) &gt;&gt; 9, (uint32_t)exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a82224a520647c484ebc0797b5db94dec">file_size_blocks</a>);</div>
+<div class="line"><a id="l00351" name="l00351"></a><span class="lineno">  351</span>    CPPUNIT_ASSERT_EQUAL(file_size, exe.GetFileSize());</div>
+<div class="line"><a id="l00352" name="l00352"></a><span class="lineno">  352</span>    std::shared_ptr&lt;Linker::Buffer&gt; buffer = std::dynamic_pointer_cast&lt;Linker::Buffer&gt;(exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#a8c6c98841adc404f3a1d5397efbd9226">image</a>);</div>
+<div class="line"><a id="l00353" name="l00353"></a><span class="lineno">  353</span>    assert(buffer != <span class="keyword">nullptr</span>); <span class="comment">/* internal check */</span></div>
+<div class="line"><a id="l00354" name="l00354"></a><span class="lineno">  354</span>    CPPUNIT_ASSERT_EQUAL(data.size(), buffer-&gt;ActualDataSize());</div>
+<div class="line"><a id="l00355" name="l00355"></a><span class="lineno">  355</span>    <span class="keywordflow">for</span>(uint32_t i = 0; i &lt; data.size(); i++)</div>
+<div class="line"><a id="l00356" name="l00356"></a><span class="lineno">  356</span>    {</div>
+<div class="line"><a id="l00357" name="l00357"></a><span class="lineno">  357</span>        CPPUNIT_ASSERT_EQUAL(data[i] &amp; 0xFF, buffer-&gt;GetByte(i) &amp; 0xFF);</div>
+<div class="line"><a id="l00358" name="l00358"></a><span class="lineno">  358</span>    }</div>
+<div class="line"><a id="l00359" name="l00359"></a><span class="lineno">  359</span>}</div>
+<div class="line"><a id="l00360" name="l00360"></a><span class="lineno">  360</span> </div>
+<div class="line"><a id="l00361" name="l00361"></a><span class="lineno">  361</span>std::vector&lt;MZFormat::Relocation&gt; TestMZFormat::generate_relocations(<span class="keywordtype">size_t</span> count)</div>
+<div class="line"><a id="l00362" name="l00362"></a><span class="lineno">  362</span>{</div>
+<div class="line"><a id="l00363" name="l00363"></a><span class="lineno">  363</span>    std::vector&lt;MZFormat::Relocation&gt; relocations;</div>
+<div class="line"><a id="l00364" name="l00364"></a><span class="lineno">  364</span>    <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; count; i++)</div>
+<div class="line"><a id="l00365" name="l00365"></a><span class="lineno">  365</span>    {</div>
+<div class="line"><a id="l00366" name="l00366"></a><span class="lineno">  366</span>        <span class="keywordtype">int</span> off = i &amp; 0xFF;</div>
+<div class="line"><a id="l00367" name="l00367"></a><span class="lineno">  367</span>        <span class="keywordtype">size_t</span> inc = (i &gt;&gt; 7) | 1;</div>
+<div class="line"><a id="l00368" name="l00368"></a><span class="lineno">  368</span>        off = (off * inc) &amp; 0xFF;</div>
+<div class="line"><a id="l00369" name="l00369"></a><span class="lineno">  369</span>        relocations.push_back(<a class="code hl_struct" href="structMicrosoft_1_1MZFormat_1_1Relocation.html">MZFormat::Relocation</a>(off * 0x0102, off * 0x0304));</div>
+<div class="line"><a id="l00370" name="l00370"></a><span class="lineno">  370</span>    }</div>
+<div class="line"><a id="l00371" name="l00371"></a><span class="lineno">  371</span>    <span class="keywordflow">return</span> relocations;</div>
+<div class="line"><a id="l00372" name="l00372"></a><span class="lineno">  372</span>}</div>
+<div class="line"><a id="l00373" name="l00373"></a><span class="lineno">  373</span> </div>
+<div class="line"><a id="l00374" name="l00374"></a><span class="lineno">  374</span><span class="keywordtype">void</span> TestMZFormat::test_relocations(std::vector&lt;MZFormat::Relocation&gt;&amp; relocations)</div>
+<div class="line"><a id="l00375" name="l00375"></a><span class="lineno">  375</span>{</div>
+<div class="line"><a id="l00376" name="l00376"></a><span class="lineno">  376</span>    <span class="comment">/* TODO: relocations do not have to be exactly the same, in the exact same order */</span></div>
+<div class="line"><a id="l00377" name="l00377"></a><span class="lineno">  377</span>    CPPUNIT_ASSERT_EQUAL(relocations.size(), exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#abd7a44c50ce7db6c6354d6cade418d9a">relocations</a>.size());</div>
+<div class="line"><a id="l00378" name="l00378"></a><span class="lineno">  378</span>    <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; relocations.size(); i++)</div>
+<div class="line"><a id="l00379" name="l00379"></a><span class="lineno">  379</span>    {</div>
+<div class="line"><a id="l00380" name="l00380"></a><span class="lineno">  380</span>        CPPUNIT_ASSERT(relocations[i] == exe.<a class="code hl_variable" href="classMicrosoft_1_1MZFormat.html#abd7a44c50ce7db6c6354d6cade418d9a">relocations</a>[i]);</div>
+<div class="line"><a id="l00381" name="l00381"></a><span class="lineno">  381</span>    }</div>
+<div class="line"><a id="l00382" name="l00382"></a><span class="lineno">  382</span>}</div>
+<div class="line"><a id="l00383" name="l00383"></a><span class="lineno">  383</span> </div>
+<div class="line"><a id="l00384" name="l00384"></a><span class="lineno">  384</span>}</div>
+<div class="line"><a id="l00385" name="l00385"></a><span class="lineno">  385</span> </div>
+<div class="ttc" id="aclassLinker_1_1Exception_html"><div class="ttname"><a href="classLinker_1_1Exception.html">Linker::Exception</a></div><div class="ttdef"><b>Definition</b> common.h:121</div></div>
 <div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:15</div></div>
-<div class="ttc" id="aclassLinker_1_1Section_html"><div class="ttname"><a href="classLinker_1_1Section.html">Linker::Section</a></div><div class="ttdoc">A section of data as read from an object file.</div><div class="ttdef"><b>Definition</b> section.h:25</div></div>
-<div class="ttc" id="aclassLinker_1_1Section_html_a0a902380623f10988b63c3c709794cf6"><div class="ttname"><a href="classLinker_1_1Section.html#a0a902380623f10988b63c3c709794cf6">Linker::Section::Reset</a></div><div class="ttdeci">void Reset()</div><div class="ttdoc">Clear the section.</div><div class="ttdef"><b>Definition</b> section.cc:346</div></div>
-<div class="ttc" id="aclassLinker_1_1Section_html_ab4d26d74a06752724795de2c9d526bf3"><div class="ttname"><a href="classLinker_1_1Section.html#ab4d26d74a06752724795de2c9d526bf3">Linker::Section::Append</a></div><div class="ttdeci">offset_t Append(const void *new_data, size_t length)</div><div class="ttdoc">Appends data at the end of a section.</div><div class="ttdef"><b>Definition</b> section.cc:244</div></div>
-<div class="ttc" id="aclassLinker_1_1Segment_html"><div class="ttname"><a href="classLinker_1_1Segment.html">Linker::Segment</a></div><div class="ttdoc">A class representing a sequence of sections that must be written to the output file as a group.</div><div class="ttdef"><b>Definition</b> segment.h:25</div></div>
-<div class="ttc" id="aclassLinker_1_1Segment_html_aebb72654447cd853c865f93f9a65c790"><div class="ttname"><a href="classLinker_1_1Segment.html#aebb72654447cd853c865f93f9a65c790">Linker::Segment::Append</a></div><div class="ttdeci">void Append(Section *section)</div><div class="ttdoc">Appends section to segment.</div><div class="ttdef"><b>Definition</b> segment.cc:40</div></div>
 <div class="ttc" id="aclassLinker_1_1Writer_html"><div class="ttname"><a href="classLinker_1_1Writer.html">Linker::Writer</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to export binary data.</div><div class="ttdef"><b>Definition</b> writer.h:15</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html">Microsoft::MZFormat</a></div><div class="ttdoc">MZ .EXE format for MS-DOS.</div><div class="ttdef"><b>Definition</b> mzexe.h:35</div></div>
-<div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a242b466acbaf015b8e3887d938f3e267"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a242b466acbaf015b8e3887d938f3e267">Microsoft::MZFormat::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> mzexe.cc:237</div></div>
+<div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a242b466acbaf015b8e3887d938f3e267"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a242b466acbaf015b8e3887d938f3e267">Microsoft::MZFormat::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> mzexe.cc:234</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a2d98f4cfab16fe969a1b34db8daa2100"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a2d98f4cfab16fe969a1b34db8daa2100">Microsoft::MZFormat::relocation_offset</a></div><div class="ttdeci">uint16_t relocation_offset</div><div class="ttdoc">Offset to first relocation. Updated by CalculateValues.</div><div class="ttdef"><b>Definition</b> mzexe.h:79</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a359c0b5f81f3023e47d472cfce88ae26"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a359c0b5f81f3023e47d472cfce88ae26">Microsoft::MZFormat::cs</a></div><div class="ttdeci">uint16_t cs</div><div class="ttdoc">Initial value for the code segment (CS)</div><div class="ttdef"><b>Definition</b> mzexe.h:77</div></div>
-<div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a3b74f4517a1e84a8a504f72d883fb224"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a3b74f4517a1e84a8a504f72d883fb224">Microsoft::MZFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> mzexe.cc:178</div></div>
+<div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a3b74f4517a1e84a8a504f72d883fb224"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a3b74f4517a1e84a8a504f72d883fb224">Microsoft::MZFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> mzexe.cc:174</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a3f13f1a439ed235f3cf2b102eaa7b803"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a3f13f1a439ed235f3cf2b102eaa7b803">Microsoft::MZFormat::min_extra_paras</a></div><div class="ttdeci">uint16_t min_extra_paras</div><div class="ttdoc">Minimum required extra memory, in paragraphs.</div><div class="ttdef"><b>Definition</b> mzexe.h:65</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a4973fba6e928696bc2bc1a59b8e4111eabe83036ddf8e49e5c0016785d1f47041"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a4973fba6e928696bc2bc1a59b8e4111eabe83036ddf8e49e5c0016785d1f47041">Microsoft::MZFormat::MAGIC_ZM</a></div><div class="ttdeci">@ MAGIC_ZM</div><div class="ttdoc">According to some sources such as Ralf Brown's interrupt list, some early excutables started with the...</div><div class="ttdef"><b>Definition</b> mzexe.h:45</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a4973fba6e928696bc2bc1a59b8e4111eac07251a926d754bffb47e6c6c45928aa"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a4973fba6e928696bc2bc1a59b8e4111eac07251a926d754bffb47e6c6c45928aa">Microsoft::MZFormat::MAGIC_MZ</a></div><div class="ttdeci">@ MAGIC_MZ</div><div class="ttdoc">The most common magic number &quot;MZ&quot;.</div><div class="ttdef"><b>Definition</b> mzexe.h:43</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a59c890aebaf1849b2e7f59268279f653"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a59c890aebaf1849b2e7f59268279f653">Microsoft::MZFormat::last_block_size</a></div><div class="ttdeci">uint16_t last_block_size</div><div class="ttdoc">Size of last 512 byte block, 0 if full. Set by CalculateValues.</div><div class="ttdef"><b>Definition</b> mzexe.h:54</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a701a408bbf3d6e030eb1c03d11465a3b"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a701a408bbf3d6e030eb1c03d11465a3b">Microsoft::MZFormat::extra_paras</a></div><div class="ttdeci">uint16_t extra_paras</div><div class="ttdoc">Required maximum extra paragraphs after bss.</div><div class="ttdef"><b>Definition</b> mzexe.h:193</div></div>
-<div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a7bcdf0f44cc2a9b48f66906bf40a6cf6"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a7bcdf0f44cc2a9b48f66906bf40a6cf6">Microsoft::MZFormat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> mzexe.cc:321</div></div>
+<div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a7bcdf0f44cc2a9b48f66906bf40a6cf6"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a7bcdf0f44cc2a9b48f66906bf40a6cf6">Microsoft::MZFormat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> mzexe.cc:318</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a82224a520647c484ebc0797b5db94dec"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a82224a520647c484ebc0797b5db94dec">Microsoft::MZFormat::file_size_blocks</a></div><div class="ttdeci">uint16_t file_size_blocks</div><div class="ttdoc">Size of MZ image in 512 blocks, rounded up. Set by CalculateValues.</div><div class="ttdef"><b>Definition</b> mzexe.h:56</div></div>
+<div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a8c6c98841adc404f3a1d5397efbd9226"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a8c6c98841adc404f3a1d5397efbd9226">Microsoft::MZFormat::image</a></div><div class="ttdeci">std::shared_ptr&lt; Linker::Writable &gt; image</div><div class="ttdoc">The program image, placed after the MZ header.</div><div class="ttdef"><b>Definition</b> mzexe.h:145</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a93a473b423af7a60fbbc55a69c269f80"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a93a473b423af7a60fbbc55a69c269f80">Microsoft::MZFormat::Clear</a></div><div class="ttdeci">void Clear() override</div><div class="ttdoc">Resets all fields to their default values, deallocate memory.</div><div class="ttdef"><b>Definition</b> mzexe.cc:148</div></div>
-<div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_a9d9d7a667fcddd2c54486c4affb8f7b9"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#a9d9d7a667fcddd2c54486c4affb8f7b9">Microsoft::MZFormat::image</a></div><div class="ttdeci">Linker::Writable * image</div><div class="ttdoc">The program image, placed after the MZ header.</div><div class="ttdef"><b>Definition</b> mzexe.h:145</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_ab0a4024c4273a2196086ac0ef4ca5022"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#ab0a4024c4273a2196086ac0ef4ca5022">Microsoft::MZFormat::ip</a></div><div class="ttdeci">uint16_t ip</div><div class="ttdoc">Entry point initial value for IP.</div><div class="ttdef"><b>Definition</b> mzexe.h:75</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_ab99dba919f32a4a7de126e64a613de68"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#ab99dba919f32a4a7de126e64a613de68">Microsoft::MZFormat::sp</a></div><div class="ttdeci">uint16_t sp</div><div class="ttdoc">Initial value for the stack (SP)</div><div class="ttdef"><b>Definition</b> mzexe.h:71</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZFormat_html_abd7a44c50ce7db6c6354d6cade418d9a"><div class="ttname"><a href="classMicrosoft_1_1MZFormat.html#abd7a44c50ce7db6c6354d6cade418d9a">Microsoft::MZFormat::relocations</a></div><div class="ttdeci">std::vector&lt; Relocation &gt; relocations</div><div class="ttdoc">Address relocation offsets to paragraph fixups.</div><div class="ttdef"><b>Definition</b> mzexe.h:113</div></div>

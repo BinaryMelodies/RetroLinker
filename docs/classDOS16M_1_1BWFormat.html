@@ -148,12 +148,12 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>MeasureRelocation
 <tr class="memitem:a2a0a74b5ad1597a04648e8310cd5ebe1" id="r_a2a0a74b5ad1597a04648e8310cd5ebe1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a0a74b5ad1597a04648e8310cd5ebe1">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
 <tr class="memdesc:a2a0a74b5ad1597a04648e8310cd5ebe1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
 <tr class="separator:a2a0a74b5ad1597a04648e8310cd5ebe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3c2b5119c8831e1e3aa5e52952ee1082" id="r_a3c2b5119c8831e1e3aa5e52952ee1082"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3c2b5119c8831e1e3aa5e52952ee1082">OnNewSegment</a> (<a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *segment) override</td></tr>
-<tr class="memdesc:a3c2b5119c8831e1e3aa5e52952ee1082"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
-<tr class="separator:a3c2b5119c8831e1e3aa5e52952ee1082"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea9f89302fa2d0b924d6dbcded422308" id="r_aea9f89302fa2d0b924d6dbcded422308"><td class="memItemLeft" align="right" valign="top"><a id="aea9f89302fa2d0b924d6dbcded422308" name="aea9f89302fa2d0b924d6dbcded422308"></a>
-<a class="el" href="classScript_1_1List.html">Script::List</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
-<tr class="separator:aea9f89302fa2d0b924d6dbcded422308"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afc6dc3249af21c3dded1b5d25657b1ec" id="r_afc6dc3249af21c3dded1b5d25657b1ec"><td class="memItemLeft" align="right" valign="top"><a id="afc6dc3249af21c3dded1b5d25657b1ec" name="afc6dc3249af21c3dded1b5d25657b1ec"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>OnNewSegment</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment) override</td></tr>
+<tr class="separator:afc6dc3249af21c3dded1b5d25657b1ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc010e3afb76e35a5aad644f86a52d98" id="r_adc010e3afb76e35a5aad644f86a52d98"><td class="memItemLeft" align="right" valign="top"><a id="adc010e3afb76e35a5aad644f86a52d98" name="adc010e3afb76e35a5aad644f86a52d98"></a>
+std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
+<tr class="separator:adc010e3afb76e35a5aad644f86a52d98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2aa196e034318d049da5fef6efe87bee" id="r_a2aa196e034318d049da5fef6efe87bee"><td class="memItemLeft" align="right" valign="top"><a id="a2aa196e034318d049da5fef6efe87bee" name="a2aa196e034318d049da5fef6efe87bee"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="separator:a2aa196e034318d049da5fef6efe87bee"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -235,10 +235,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkerParameter</b
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkerParameter</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string key, std::string variable)</td></tr>
 <tr class="memdesc:a95270665ba4a6c881c4cd50802d6ac83 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a single linker parameter, if inside options. <br /></td></tr>
 <tr class="separator:a95270665ba4a6c881c4cd50802d6ac83 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aba6595fd0528b2f46aac4d364ac60466 inherit pub_methods_classLinker_1_1LinkerManager" id="r_aba6595fd0528b2f46aac4d364ac60466"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="classScript_1_1List.html">Script::List</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
-<tr class="memdesc:aba6595fd0528b2f46aac4d364ac60466 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles the linker script into an internal format. <br /></td></tr>
-<tr class="separator:aba6595fd0528b2f46aac4d364ac60466 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager" id="r_a3ad399a7c024427c9f524659ba0868cb"><td class="memItemLeft" align="right" valign="top">
+std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
+<tr class="memdesc:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles the linker script into an internal format. <br /></td></tr>
+<tr class="separator:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a34bb86e85d02e21083be3feac1c87389 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a34bb86e85d02e21083be3feac1c87389"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetCurrentAddress</b> () const</td></tr>
 <tr class="memdesc:a34bb86e85d02e21083be3feac1c87389 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves current address pointer. <br /></td></tr>
@@ -259,122 +259,125 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetLatestBase</b> (of
 void&#160;</td><td class="memItemRight" valign="bottom"><b>FinishCurrentSegment</b> ()</td></tr>
 <tr class="memdesc:aa0a1b1554b4ff9b8b49306518fb3edd8 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the current segment, sets current_segment to null. <br /></td></tr>
 <tr class="separator:aa0a1b1554b4ff9b8b49306518fb3edd8 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94ae35491ad1755ee49c632bd708c814 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a94ae35491ad1755ee49c632bd708c814"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLinker_1_1Segment.html">Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#a94ae35491ad1755ee49c632bd708c814">AppendSegment</a> (std::string name)</td></tr>
-<tr class="memdesc:a94ae35491ad1755ee49c632bd708c814 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Terminates the current segment (if there is one), creates a new segment and attaches it to the image.  <br /></td></tr>
-<tr class="separator:a94ae35491ad1755ee49c632bd708c814 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a940cfa3403f3542623e9b3c64ade38 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a5a940cfa3403f3542623e9b3c64ade38"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="classLinker_1_1Segment.html">Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>FetchSegment</b> (std::string name)</td></tr>
-<tr class="memdesc:a5a940cfa3403f3542623e9b3c64ade38 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to fetch a segment, returns null if not found. <br /></td></tr>
-<tr class="separator:a5a940cfa3403f3542623e9b3c64ade38 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae66d1566aff716ecd001ad48dc9d0551 inherit pub_methods_classLinker_1_1LinkerManager" id="r_ae66d1566aff716ecd001ad48dc9d0551"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AppendSection</b> (<a class="el" href="classLinker_1_1Section.html">Section</a> *section)</td></tr>
-<tr class="memdesc:ae66d1566aff716ecd001ad48dc9d0551 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new section to the current segment, sets the base to the same as the segment. <br /></td></tr>
-<tr class="separator:ae66d1566aff716ecd001ad48dc9d0551 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a78436685f5eb510f136a40c0722f53f0 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a78436685f5eb510f136a40c0722f53f0"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ProcessScript</b> (<a class="el" href="classScript_1_1List.html">Script::List</a> *directives, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
-<tr class="memdesc:a78436685f5eb510f136a40c0722f53f0 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Executes a parsed linker script on a module and collects segments The function OnNewSegment can be defined to handle each newly allocated segment. <br /></td></tr>
-<tr class="separator:a78436685f5eb510f136a40c0722f53f0 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13e20b08e244805e4eec00eaf07cbe28 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a13e20b08e244805e4eec00eaf07cbe28"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ProcessAction</b> (<a class="el" href="classScript_1_1Node.html">Script::Node</a> *action, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
-<tr class="separator:a13e20b08e244805e4eec00eaf07cbe28 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac42d5a995f5e5b01c76ab254f3c51de7 inherit pub_methods_classLinker_1_1LinkerManager" id="r_ac42d5a995f5e5b01c76ab254f3c51de7"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>PostProcessAction</b> (<a class="el" href="classScript_1_1Node.html">Script::Node</a> *action, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
-<tr class="separator:ac42d5a995f5e5b01c76ab254f3c51de7 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0201d88ac85859f73363e2d10a785821 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a0201d88ac85859f73363e2d10a785821"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ProcessCommand</b> (<a class="el" href="classScript_1_1Node.html">Script::Node</a> *command, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
-<tr class="separator:a0201d88ac85859f73363e2d10a785821 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21551a1724c01dd7b83db7588e04e38f inherit pub_methods_classLinker_1_1LinkerManager" id="r_a21551a1724c01dd7b83db7588e04e38f"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckPredicate</b> (<a class="el" href="classScript_1_1Node.html">Script::Node</a> *predicate, <a class="el" href="classLinker_1_1Section.html">Section</a> *section, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
-<tr class="separator:a21551a1724c01dd7b83db7588e04e38f inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a05f34c0746e0c55d41165a73b828277c inherit pub_methods_classLinker_1_1LinkerManager" id="r_a05f34c0746e0c55d41165a73b828277c"><td class="memItemLeft" align="right" valign="top">
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpression</b> (<a class="el" href="classScript_1_1Node.html">Script::Node</a> *expression, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
-<tr class="separator:a05f34c0746e0c55d41165a73b828277c inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae13354e024a648d2356cd33f4602eb6a inherit pub_methods_classLinker_1_1LinkerManager" id="r_ae13354e024a648d2356cd33f4602eb6a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#ae13354e024a648d2356cd33f4602eb6a">OnNewSegment</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> &gt; segment)</td></tr>
+<tr class="memdesc:ae13354e024a648d2356cd33f4602eb6a inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
+<tr class="separator:ae13354e024a648d2356cd33f4602eb6a inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5980c7a81a7432f395cf8ace8b4d40b5 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a5980c7a81a7432f395cf8ace8b4d40b5"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#a5980c7a81a7432f395cf8ace8b4d40b5">AppendSegment</a> (std::string name)</td></tr>
+<tr class="memdesc:a5980c7a81a7432f395cf8ace8b4d40b5 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Terminates the current segment (if there is one), creates a new segment and attaches it to the image.  <br /></td></tr>
+<tr class="separator:a5980c7a81a7432f395cf8ace8b4d40b5 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04d54aca0309728548d5d14e12e417af inherit pub_methods_classLinker_1_1LinkerManager" id="r_a04d54aca0309728548d5d14e12e417af"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchSegment</b> (std::string name)</td></tr>
+<tr class="memdesc:a04d54aca0309728548d5d14e12e417af inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to fetch a segment, returns null if not found. <br /></td></tr>
+<tr class="separator:a04d54aca0309728548d5d14e12e417af inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa04921cdb3d59ac9db4b993cb58c4214 inherit pub_methods_classLinker_1_1LinkerManager" id="r_aa04921cdb3d59ac9db4b993cb58c4214"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AppendSection</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; section)</td></tr>
+<tr class="memdesc:aa04921cdb3d59ac9db4b993cb58c4214 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a new section to the current segment, sets the base to the same as the segment. <br /></td></tr>
+<tr class="separator:aa04921cdb3d59ac9db4b993cb58c4214 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95db9e0fa8e7c4bc76636948b709b502 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a95db9e0fa8e7c4bc76636948b709b502"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ProcessScript</b> (std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt; &amp;directives, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
+<tr class="memdesc:a95db9e0fa8e7c4bc76636948b709b502 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Executes a parsed linker script on a module and collects segments The function OnNewSegment can be defined to handle each newly allocated segment. <br /></td></tr>
+<tr class="separator:a95db9e0fa8e7c4bc76636948b709b502 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa91f930e1546f9c00780c172f19e9bcd inherit pub_methods_classLinker_1_1LinkerManager" id="r_aa91f930e1546f9c00780c172f19e9bcd"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ProcessAction</b> (std::unique_ptr&lt; <a class="el" href="classScript_1_1Node.html">Script::Node</a> &gt; &amp;action, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
+<tr class="separator:aa91f930e1546f9c00780c172f19e9bcd inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af59715b72a86cf2eeae798ddf48d58d1 inherit pub_methods_classLinker_1_1LinkerManager" id="r_af59715b72a86cf2eeae798ddf48d58d1"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PostProcessAction</b> (std::unique_ptr&lt; <a class="el" href="classScript_1_1Node.html">Script::Node</a> &gt; &amp;action, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
+<tr class="separator:af59715b72a86cf2eeae798ddf48d58d1 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93817d57299b86a4846287447fa9d331 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a93817d57299b86a4846287447fa9d331"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ProcessCommand</b> (std::unique_ptr&lt; <a class="el" href="classScript_1_1Node.html">Script::Node</a> &gt; &amp;command, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
+<tr class="separator:a93817d57299b86a4846287447fa9d331 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabb454a9f85644c477d8c1b501723bc4 inherit pub_methods_classLinker_1_1LinkerManager" id="r_aabb454a9f85644c477d8c1b501723bc4"><td class="memItemLeft" align="right" valign="top">
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckPredicate</b> (std::unique_ptr&lt; <a class="el" href="classScript_1_1Node.html">Script::Node</a> &gt; &amp;predicate, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; section, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
+<tr class="separator:aabb454a9f85644c477d8c1b501723bc4 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a308472292f18707ade78f1cf33b4c5a5 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a308472292f18707ade78f1cf33b4c5a5"><td class="memItemLeft" align="right" valign="top">
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpression</b> (std::unique_ptr&lt; <a class="el" href="classScript_1_1Node.html">Script::Node</a> &gt; &amp;expression, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
+<tr class="separator:a308472292f18707ade78f1cf33b4c5a5 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a2c92cb7f5e319542bcf4c4699db0e59a" id="r_a2c92cb7f5e319542bcf4c4699db0e59a"><td class="memItemLeft" align="right" valign="top"><a id="a2c92cb7f5e319542bcf4c4699db0e59a" name="a2c92cb7f5e319542bcf4c4699db0e59a"></a>
-enum <a class="el" href="#a3395277dce362ec553740b0c45a8a4b0">DOS16M::BWFormat::relocations_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>option_relocations</b></td></tr>
-<tr class="separator:a2c92cb7f5e319542bcf4c4699db0e59a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e65aa0e687e6757838981c657252bfc" id="r_a1e65aa0e687e6757838981c657252bfc"><td class="memItemLeft" align="right" valign="top"><a id="a1e65aa0e687e6757838981c657252bfc" name="a1e65aa0e687e6757838981c657252bfc"></a>
+<a class="el" href="#a3395277dce362ec553740b0c45a8a4b0">relocations_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>option_relocations</b> = RelocationsType2</td></tr>
+<tr class="separator:a1e65aa0e687e6757838981c657252bfc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85d10c8f1b48860587f23f98a2167aeb" id="r_a85d10c8f1b48860587f23f98a2167aeb"><td class="memItemLeft" align="right" valign="top"><a id="a85d10c8f1b48860587f23f98a2167aeb" name="a85d10c8f1b48860587f23f98a2167aeb"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_force_relocations</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_force_relocations</b> = true</td></tr>
 <tr class="separator:a85d10c8f1b48860587f23f98a2167aeb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab08594c8e4b0dd1f74c5d108f61c61ef" id="r_ab08594c8e4b0dd1f74c5d108f61c61ef"><td class="memItemLeft" align="right" valign="top"><a id="ab08594c8e4b0dd1f74c5d108f61c61ef" name="ab08594c8e4b0dd1f74c5d108f61c61ef"></a>
-enum DOS16M::BWFormat::exp_flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>exp_flags</b></td></tr>
-<tr class="separator:ab08594c8e4b0dd1f74c5d108f61c61ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a33e6640bd332b5630c02f3a8f26a367b" id="r_a33e6640bd332b5630c02f3a8f26a367b"><td class="memItemLeft" align="right" valign="top"><a id="a33e6640bd332b5630c02f3a8f26a367b" name="a33e6640bd332b5630c02f3a8f26a367b"></a>
-enum DOS16M::BWFormat::option_type&#160;</td><td class="memItemRight" valign="bottom"><b>options</b></td></tr>
-<tr class="separator:a33e6640bd332b5630c02f3a8f26a367b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3d648c05eee00c0d22e402a437c10eb" id="r_ad3d648c05eee00c0d22e402a437c10eb"><td class="memItemLeft" align="right" valign="top"><a id="ad3d648c05eee00c0d22e402a437c10eb" name="ad3d648c05eee00c0d22e402a437c10eb"></a>
+exp_flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>exp_flags</b> = exp_flag_type(0)</td></tr>
+<tr class="separator:ad3d648c05eee00c0d22e402a437c10eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7662644f6d448e1541d95b07bd3affd3" id="r_a7662644f6d448e1541d95b07bd3affd3"><td class="memItemLeft" align="right" valign="top"><a id="a7662644f6d448e1541d95b07bd3affd3" name="a7662644f6d448e1541d95b07bd3affd3"></a>
+option_type&#160;</td><td class="memItemRight" valign="bottom"><b>options</b> = option_type(0)</td></tr>
+<tr class="separator:a7662644f6d448e1541d95b07bd3affd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab7dfbeafe12ccdc60813c6c706a30d73" id="r_ab7dfbeafe12ccdc60813c6c706a30d73"><td class="memItemLeft" align="right" valign="top"><a id="ab7dfbeafe12ccdc60813c6c706a30d73" name="ab7dfbeafe12ccdc60813c6c706a30d73"></a>
 std::map&lt; uint16_t, std::set&lt; uint16_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="separator:ab7dfbeafe12ccdc60813c6c706a30d73"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acaa56bfe1a89e0837852212b4c6f70f9" id="r_acaa56bfe1a89e0837852212b4c6f70f9"><td class="memItemLeft" align="right" valign="top"><a id="acaa56bfe1a89e0837852212b4c6f70f9" name="acaa56bfe1a89e0837852212b4c6f70f9"></a>
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b></td></tr>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = 0</td></tr>
 <tr class="separator:acaa56bfe1a89e0837852212b4c6f70f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace0105485f52ac7512a0c40512d9e6f5" id="r_ace0105485f52ac7512a0c40512d9e6f5"><td class="memItemLeft" align="right" valign="top"><a id="ace0105485f52ac7512a0c40512d9e6f5" name="ace0105485f52ac7512a0c40512d9e6f5"></a>
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>min_extra</b></td></tr>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>min_extra</b> = 0</td></tr>
 <tr class="separator:ace0105485f52ac7512a0c40512d9e6f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a824f9aee948683461ec1fbd8d6f4a6c0" id="r_a824f9aee948683461ec1fbd8d6f4a6c0"><td class="memItemLeft" align="right" valign="top"><a id="a824f9aee948683461ec1fbd8d6f4a6c0" name="a824f9aee948683461ec1fbd8d6f4a6c0"></a>
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>max_extra</b></td></tr>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>max_extra</b> = 0</td></tr>
 <tr class="separator:a824f9aee948683461ec1fbd8d6f4a6c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5a0a016f7a3ef7592cb06b101ba05e19" id="r_a5a0a016f7a3ef7592cb06b101ba05e19"><td class="memItemLeft" align="right" valign="top"><a id="a5a0a016f7a3ef7592cb06b101ba05e19" name="a5a0a016f7a3ef7592cb06b101ba05e19"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ss</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ss</b> = 0</td></tr>
 <tr class="separator:a5a0a016f7a3ef7592cb06b101ba05e19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcde340367239614c9c02538b374cc35" id="r_afcde340367239614c9c02538b374cc35"><td class="memItemLeft" align="right" valign="top"><a id="afcde340367239614c9c02538b374cc35" name="afcde340367239614c9c02538b374cc35"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sp</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sp</b> = 0</td></tr>
 <tr class="separator:afcde340367239614c9c02538b374cc35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2eb4ea8ba7430c72fb0fa159f4d1ff4c" id="r_a2eb4ea8ba7430c72fb0fa159f4d1ff4c"><td class="memItemLeft" align="right" valign="top"><a id="a2eb4ea8ba7430c72fb0fa159f4d1ff4c" name="a2eb4ea8ba7430c72fb0fa159f4d1ff4c"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>cs</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>cs</b> = 0</td></tr>
 <tr class="separator:a2eb4ea8ba7430c72fb0fa159f4d1ff4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8706f99f9ad60e9ebd4bfab55f0d19ea" id="r_a8706f99f9ad60e9ebd4bfab55f0d19ea"><td class="memItemLeft" align="right" valign="top"><a id="a8706f99f9ad60e9ebd4bfab55f0d19ea" name="a8706f99f9ad60e9ebd4bfab55f0d19ea"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ip</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ip</b> = 0</td></tr>
 <tr class="separator:a8706f99f9ad60e9ebd4bfab55f0d19ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3782a40c2d2cafd55152b2145486605" id="r_af3782a40c2d2cafd55152b2145486605"><td class="memItemLeft" align="right" valign="top"><a id="af3782a40c2d2cafd55152b2145486605" name="af3782a40c2d2cafd55152b2145486605"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocsel</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocsel</b> = 0</td></tr>
 <tr class="separator:af3782a40c2d2cafd55152b2145486605"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa6de166bf5453ed146f67b8a692820f1" id="r_aa6de166bf5453ed146f67b8a692820f1"><td class="memItemLeft" align="right" valign="top"><a id="aa6de166bf5453ed146f67b8a692820f1" name="aa6de166bf5453ed146f67b8a692820f1"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>runtime_gdt_length</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>runtime_gdt_length</b> = 0xFFFF</td></tr>
 <tr class="separator:aa6de166bf5453ed146f67b8a692820f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a875306fde10b782d6723a42798bd645a" id="r_a875306fde10b782d6723a42798bd645a"><td class="memItemLeft" align="right" valign="top"><a id="a875306fde10b782d6723a42798bd645a" name="a875306fde10b782d6723a42798bd645a"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>version</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> = 0</td></tr>
 <tr class="separator:a875306fde10b782d6723a42798bd645a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad31d2bb848659f2475eb182327741474" id="r_ad31d2bb848659f2475eb182327741474"><td class="memItemLeft" align="right" valign="top"><a id="ad31d2bb848659f2475eb182327741474" name="ad31d2bb848659f2475eb182327741474"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>next_header_offset</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>next_header_offset</b> = 0</td></tr>
 <tr class="separator:ad31d2bb848659f2475eb182327741474"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abaf10c67e74e16f9bfb6cf465e85640f" id="r_abaf10c67e74e16f9bfb6cf465e85640f"><td class="memItemLeft" align="right" valign="top"><a id="abaf10c67e74e16f9bfb6cf465e85640f" name="abaf10c67e74e16f9bfb6cf465e85640f"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>debug_info_offset</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>debug_info_offset</b> = 0</td></tr>
 <tr class="separator:abaf10c67e74e16f9bfb6cf465e85640f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb88c33fd062c8cf1d3252eaebe03634" id="r_abb88c33fd062c8cf1d3252eaebe03634"><td class="memItemLeft" align="right" valign="top"><a id="abb88c33fd062c8cf1d3252eaebe03634" name="abb88c33fd062c8cf1d3252eaebe03634"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>first_selector</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>first_selector</b> = 0x0080</td></tr>
 <tr class="separator:abb88c33fd062c8cf1d3252eaebe03634"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a91f15cee936d1502fdd01cf024be7569" id="r_a91f15cee936d1502fdd01cf024be7569"><td class="memItemLeft" align="right" valign="top"><a id="a91f15cee936d1502fdd01cf024be7569" name="a91f15cee936d1502fdd01cf024be7569"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>private_xm</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>private_xm</b> = 0</td></tr>
 <tr class="separator:a91f15cee936d1502fdd01cf024be7569"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c196639b818c98cdd56f46957ae8321" id="r_a6c196639b818c98cdd56f46957ae8321"><td class="memItemLeft" align="right" valign="top"><a id="a6c196639b818c98cdd56f46957ae8321" name="a6c196639b818c98cdd56f46957ae8321"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ext_reserve</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ext_reserve</b> = 0</td></tr>
 <tr class="separator:a6c196639b818c98cdd56f46957ae8321"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a836b719da1d21919b9c5e321efff5b64" id="r_a836b719da1d21919b9c5e321efff5b64"><td class="memItemLeft" align="right" valign="top"><a id="a836b719da1d21919b9c5e321efff5b64" name="a836b719da1d21919b9c5e321efff5b64"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>transparent_stack</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>transparent_stack</b> = 0</td></tr>
 <tr class="separator:a836b719da1d21919b9c5e321efff5b64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abafa5ce87a9549a28ce38c6b22be28e8" id="r_abafa5ce87a9549a28ce38c6b22be28e8"><td class="memItemLeft" align="right" valign="top"><a id="abafa5ce87a9549a28ce38c6b22be28e8" name="abafa5ce87a9549a28ce38c6b22be28e8"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>program_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>program_size</b> = 0</td></tr>
 <tr class="separator:abafa5ce87a9549a28ce38c6b22be28e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0762bdae6906a1917a6ac5a3559e84a2" id="r_a0762bdae6906a1917a6ac5a3559e84a2"><td class="memItemLeft" align="right" valign="top"><a id="a0762bdae6906a1917a6ac5a3559e84a2" name="a0762bdae6906a1917a6ac5a3559e84a2"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>default_memory_strategy</b></td></tr>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>default_memory_strategy</b> = 0</td></tr>
 <tr class="separator:a0762bdae6906a1917a6ac5a3559e84a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f724651cd06cc14acac60e0e37dd45f" id="r_a0f724651cd06cc14acac60e0e37dd45f"><td class="memItemLeft" align="right" valign="top"><a id="a0f724651cd06cc14acac60e0e37dd45f" name="a0f724651cd06cc14acac60e0e37dd45f"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>transfer_buffer_size</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>transfer_buffer_size</b> = 0</td></tr>
 <tr class="separator:a0f724651cd06cc14acac60e0e37dd45f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2722903015b84d3abca5088f981dc586" id="r_a2722903015b84d3abca5088f981dc586"><td class="memItemLeft" align="right" valign="top"><a id="a2722903015b84d3abca5088f981dc586" name="a2722903015b84d3abca5088f981dc586"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>exp_name</b></td></tr>
 <tr class="separator:a2722903015b84d3abca5088f981dc586"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad94220bea987e693e5cb585492093d67" id="r_ad94220bea987e693e5cb585492093d67"><td class="memItemLeft" align="right" valign="top"><a id="ad94220bea987e693e5cb585492093d67" name="ad94220bea987e693e5cb585492093d67"></a>
-std::vector&lt; <a class="el" href="classDOS16M_1_1BWFormat_1_1AbstractSegment.html">AbstractSegment</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segments</b></td></tr>
-<tr class="separator:ad94220bea987e693e5cb585492093d67"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61aa2d519ac1b4f90f4497b66256f9ac" id="r_a61aa2d519ac1b4f90f4497b66256f9ac"><td class="memItemLeft" align="right" valign="top"><a id="a61aa2d519ac1b4f90f4497b66256f9ac" name="a61aa2d519ac1b4f90f4497b66256f9ac"></a>
-std::map&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *, size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_indices</b></td></tr>
-<tr class="separator:a61aa2d519ac1b4f90f4497b66256f9ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af7458d9177bbd4b9644dae1818369da9" id="r_af7458d9177bbd4b9644dae1818369da9"><td class="memItemLeft" align="right" valign="top"><a id="af7458d9177bbd4b9644dae1818369da9" name="af7458d9177bbd4b9644dae1818369da9"></a>
+std::vector&lt; std::unique_ptr&lt; <a class="el" href="classDOS16M_1_1BWFormat_1_1AbstractSegment.html">AbstractSegment</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segments</b></td></tr>
+<tr class="separator:af7458d9177bbd4b9644dae1818369da9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a60f610e047ce985994afa4bc5e20dd99" id="r_a60f610e047ce985994afa4bc5e20dd99"><td class="memItemLeft" align="right" valign="top"><a id="a60f610e047ce985994afa4bc5e20dd99" name="a60f610e047ce985994afa4bc5e20dd99"></a>
+std::map&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;, size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_indices</b></td></tr>
+<tr class="separator:a60f610e047ce985994afa4bc5e20dd99"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aceccded291464170b490576e2f585bcc" id="r_aceccded291464170b490576e2f585bcc"><td class="memItemLeft" align="right" valign="top"><a id="aceccded291464170b490576e2f585bcc" name="aceccded291464170b490576e2f585bcc"></a>
-int&#160;</td><td class="memItemRight" valign="bottom"><b>default_data</b></td></tr>
+int&#160;</td><td class="memItemRight" valign="bottom"><b>default_data</b> = 0</td></tr>
 <tr class="separator:aceccded291464170b490576e2f585bcc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
@@ -384,18 +387,18 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 <tr class="memitem:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_ad9071f24df9b386cc5772eca5332f55a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#ad9071f24df9b386cc5772eca5332f55a">current_base</a> = 0</td></tr>
 <tr class="memdesc:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
 <tr class="separator:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abdca6e8fe21c863b957f2c12f28e69a8 inherit pub_attribs_classLinker_1_1LinkerManager" id="r_abdca6e8fe21c863b957f2c12f28e69a8"><td class="memItemLeft" align="right" valign="top">
-std::vector&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_vector</b></td></tr>
-<tr class="memdesc:abdca6e8fe21c863b957f2c12f28e69a8 inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ordered sequence of segments. <br /></td></tr>
-<tr class="separator:abdca6e8fe21c863b957f2c12f28e69a8 inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c15b4713acf31e216227db9f4f1e32a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_a7c15b4713acf31e216227db9f4f1e32a"><td class="memItemLeft" align="right" valign="top">
-std::map&lt; std::string, <a class="el" href="classLinker_1_1Segment.html">Segment</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_map</b></td></tr>
-<tr class="memdesc:a7c15b4713acf31e216227db9f4f1e32a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of segments from their names. <br /></td></tr>
-<tr class="separator:a7c15b4713acf31e216227db9f4f1e32a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a940014bbe9e0466c622fe55c7f06ad5a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_a940014bbe9e0466c622fe55c7f06ad5a"><td class="memItemLeft" align="right" valign="top">
-<a class="el" href="classLinker_1_1Segment.html">Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>current_segment</b> = nullptr</td></tr>
-<tr class="memdesc:a940014bbe9e0466c622fe55c7f06ad5a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Currently processed segment. <br /></td></tr>
-<tr class="separator:a940014bbe9e0466c622fe55c7f06ad5a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9bdaf41acc34eae7be0594f5731b603 inherit pub_attribs_classLinker_1_1LinkerManager" id="r_af9bdaf41acc34eae7be0594f5731b603"><td class="memItemLeft" align="right" valign="top">
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_vector</b></td></tr>
+<tr class="memdesc:af9bdaf41acc34eae7be0594f5731b603 inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ordered sequence of segments. <br /></td></tr>
+<tr class="separator:af9bdaf41acc34eae7be0594f5731b603 inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc3c53fb06989e81f824dc214fc77ace inherit pub_attribs_classLinker_1_1LinkerManager" id="r_acc3c53fb06989e81f824dc214fc77ace"><td class="memItemLeft" align="right" valign="top">
+std::map&lt; std::string, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_map</b></td></tr>
+<tr class="memdesc:acc3c53fb06989e81f824dc214fc77ace inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Map of segments from their names. <br /></td></tr>
+<tr class="separator:acc3c53fb06989e81f824dc214fc77ace inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afcd6767139fd0c3eeb51141ec41d29b5 inherit pub_attribs_classLinker_1_1LinkerManager" id="r_afcd6767139fd0c3eeb51141ec41d29b5"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>current_segment</b></td></tr>
+<tr class="memdesc:afcd6767139fd0c3eeb51141ec41d29b5 inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Currently processed segment. <br /></td></tr>
+<tr class="separator:afcd6767139fd0c3eeb51141ec41d29b5 inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7218e188ee0cfaa6ae1ad6dcb8e0d23a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_a7218e188ee0cfaa6ae1ad6dcb8e0d23a"><td class="memItemLeft" align="right" valign="top">
 std::map&lt; std::string, <a class="el" href="classLinker_1_1Location.html">Location</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>linker_parameters</b></td></tr>
 <tr class="memdesc:a7218e188ee0cfaa6ae1ad6dcb8e0d23a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parameters that permit customizing the linker script. <br /></td></tr>
@@ -445,31 +448,31 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file</b></td></tr>
 <tr class="separator:afe6810f1735d042a55c4bc0e00a9d9cb inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb69034fe2bb233cf123dc3eae65f338 inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_adb69034fe2bb233cf123dc3eae65f338"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file_valid</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file_valid</b> = true</td></tr>
 <tr class="separator:adb69034fe2bb233cf123dc3eae65f338 inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a352422ac4bcdb11f53a66429d7cc507d inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_a352422ac4bcdb11f53a66429d7cc507d"><td class="memItemLeft" align="right" valign="top">
 std::ifstream&#160;</td><td class="memItemRight" valign="bottom"><b>stub</b></td></tr>
 <tr class="separator:a352422ac4bcdb11f53a66429d7cc507d inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9cbdee9fe61999e0ed8226d19cea99cc inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_a9cbdee9fe61999e0ed8226d19cea99cc"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_file_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_file_size</b> = -1</td></tr>
 <tr class="separator:a9cbdee9fe61999e0ed8226d19cea99cc inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeba6c22005f1c066a3dcd555eb8ea20b inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_aeba6c22005f1c066a3dcd555eb8ea20b"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file_size</b> = 0</td></tr>
 <tr class="separator:aeba6c22005f1c066a3dcd555eb8ea20b inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad721aecfd8e318795e3e2a1eed6604e3 inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_ad721aecfd8e318795e3e2a1eed6604e3"><td class="memItemLeft" align="right" valign="top">
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_count</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_count</b> = 0</td></tr>
 <tr class="separator:ad721aecfd8e318795e3e2a1eed6604e3 inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc57f3dc68261a7a867fe818083fe9f5 inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_adc57f3dc68261a7a867fe818083fe9f5"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_header_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_header_size</b> = 0</td></tr>
 <tr class="separator:adc57f3dc68261a7a867fe818083fe9f5 inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a020e72c98cbe1b3d74f1d661cc9775bd inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_a020e72c98cbe1b3d74f1d661cc9775bd"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_header_size</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_header_size</b> = 0</td></tr>
 <tr class="separator:a020e72c98cbe1b3d74f1d661cc9775bd inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac9f82c2062682681a6df361c940e3dcd inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_ac9f82c2062682681a6df361c940e3dcd"><td class="memItemLeft" align="right" valign="top">
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_reloc_offset</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_reloc_offset</b> = 0</td></tr>
 <tr class="separator:ac9f82c2062682681a6df361c940e3dcd inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab59fc773fb75a0bf9d04c8da870d654e inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_ab59fc773fb75a0bf9d04c8da870d654e"><td class="memItemLeft" align="right" valign="top">
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset</b> = 0</td></tr>
 <tr class="separator:ab59fc773fb75a0bf9d04c8da870d654e inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -628,35 +631,6 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
-
-</div>
-</div>
-<a id="a3c2b5119c8831e1e3aa5e52952ee1082" name="a3c2b5119c8831e1e3aa5e52952ee1082"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3c2b5119c8831e1e3aa5e52952ee1082">&#9670;&#160;</a></span>OnNewSegment()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void BWFormat::OnNewSegment </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *</td>          <td class="paramname"><span class="paramname"><em>segment</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment. </p>
-
-<p>Reimplemented from <a class="el" href="classLinker_1_1LinkerManager.html#a042e3111f536030659635482f65ad28a">Linker::LinkerManager</a>.</p>
 
 </div>
 </div>

@@ -118,13 +118,13 @@ Public Types</h2></td></tr>
 , <a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8fae0a0ecea4c542ca2f039f5d47f979a94">CustomFlag</a> = 1 &lt;&lt; 10
 <br />
  }</td></tr>
-<tr class="memdesc:ac63d033d602ad0a9a0f82dddeaeb7d8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the section.  <a href="#ac63d033d602ad0a9a0f82dddeaeb7d8f">More...</a><br /></td></tr>
+<tr class="memdesc:ac63d033d602ad0a9a0f82dddeaeb7d8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Possible flags for the section.  <a href="#ac63d033d602ad0a9a0f82dddeaeb7d8f">More...</a><br /></td></tr>
 <tr class="separator:ac63d033d602ad0a9a0f82dddeaeb7d8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:ae2b9f9e4f3ed980c95eb0efdbad6f233" id="r_ae2b9f9e4f3ed980c95eb0efdbad6f233"><td class="memItemLeft" align="right" valign="top"><a id="ae2b9f9e4f3ed980c95eb0efdbad6f233" name="ae2b9f9e4f3ed980c95eb0efdbad6f233"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (std::string <a class="el" href="#a4794feadb079cd87ee55ce7620f529c8">name</a>, int flags=<a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8fab550e096ede3ba6d373fdfebfa22225a">Readable</a>)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (std::string <a class="el" href="#a4794feadb079cd87ee55ce7620f529c8">name</a>, int <a class="el" href="#acf49c25ad35f9685a29b73ef3d055ecd">flags</a>=<a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8fab550e096ede3ba6d373fdfebfa22225a">Readable</a>)</td></tr>
 <tr class="separator:ae2b9f9e4f3ed980c95eb0efdbad6f233"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79245340c416065aaa0c4a2344854330" id="r_a79245340c416065aaa0c4a2344854330"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a79245340c416065aaa0c4a2344854330">SetFlag</a> (unsigned newflags)</td></tr>
 <tr class="memdesc:a79245340c416065aaa0c4a2344854330"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the flags of the section.  <br /></td></tr>
@@ -294,21 +294,22 @@ Public Attributes</h2></td></tr>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
 <tr class="memdesc:a4794feadb079cd87ee55ce7620f529c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of the section. <br /></td></tr>
 <tr class="separator:a4794feadb079cd87ee55ce7620f529c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aadff9e8843cfb0b64b6c57a160bfe742" id="r_aadff9e8843cfb0b64b6c57a160bfe742"><td class="memItemLeft" align="right" valign="top"><a id="aadff9e8843cfb0b64b6c57a160bfe742" name="aadff9e8843cfb0b64b6c57a160bfe742"></a>
-enum <a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8f">Linker::Section::section_flags</a>&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b></td></tr>
-<tr class="separator:aadff9e8843cfb0b64b6c57a160bfe742"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9a471b95f8c6da2b82a7c48ce8399d26" id="r_a9a471b95f8c6da2b82a7c48ce8399d26"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9a471b95f8c6da2b82a7c48ce8399d26">bias</a></td></tr>
+<tr class="memitem:acf49c25ad35f9685a29b73ef3d055ecd" id="r_acf49c25ad35f9685a29b73ef3d055ecd"><td class="memItemLeft" align="right" valign="top"><a id="acf49c25ad35f9685a29b73ef3d055ecd" name="acf49c25ad35f9685a29b73ef3d055ecd"></a>
+<a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8f">section_flags</a>&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b></td></tr>
+<tr class="memdesc:acf49c25ad35f9685a29b73ef3d055ecd"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the section. <br /></td></tr>
+<tr class="separator:acf49c25ad35f9685a29b73ef3d055ecd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a471b95f8c6da2b82a7c48ce8399d26" id="r_a9a471b95f8c6da2b82a7c48ce8399d26"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9a471b95f8c6da2b82a7c48ce8399d26">bias</a> = 0</td></tr>
 <tr class="memdesc:a9a471b95f8c6da2b82a7c48ce8399d26"><td class="mdescLeft">&#160;</td><td class="mdescRight">Difference between the first byte of the section and the zero address associated with the section.  <br /></td></tr>
 <tr class="separator:a9a471b95f8c6da2b82a7c48ce8399d26"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade1c6e12c76068a4c3173df0bf0959ba" id="r_ade1c6e12c76068a4c3173df0bf0959ba"><td class="memItemLeft" align="right" valign="top">std::variant&lt; std::string, uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ade1c6e12c76068a4c3173df0bf0959ba">resource_type</a></td></tr>
+<tr class="memitem:ade1c6e12c76068a4c3173df0bf0959ba" id="r_ade1c6e12c76068a4c3173df0bf0959ba"><td class="memItemLeft" align="right" valign="top">std::variant&lt; std::string, uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ade1c6e12c76068a4c3173df0bf0959ba">resource_type</a> = &quot; &quot;</td></tr>
 <tr class="memdesc:ade1c6e12c76068a4c3173df0bf0959ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">The resource type and ID for a resource section.  <br /></td></tr>
 <tr class="separator:ade1c6e12c76068a4c3173df0bf0959ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52460f0e5e80557af08efd60e4525059" id="r_a52460f0e5e80557af08efd60e4525059"><td class="memItemLeft" align="right" valign="top"><a id="a52460f0e5e80557af08efd60e4525059" name="a52460f0e5e80557af08efd60e4525059"></a>
-std::variant&lt; std::string, uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resource_id</b></td></tr>
+std::variant&lt; std::string, uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resource_id</b> = uint16_t(0)</td></tr>
 <tr class="separator:a52460f0e5e80557af08efd60e4525059"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae558ba2a44d706d8ba408a5a64d59dc4" id="r_ae558ba2a44d706d8ba408a5a64d59dc4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLinker_1_1Segment.html">Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae558ba2a44d706d8ba408a5a64d59dc4">segment</a></td></tr>
-<tr class="memdesc:ae558ba2a44d706d8ba408a5a64d59dc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">The segment a section belongs to.  <br /></td></tr>
-<tr class="separator:ae558ba2a44d706d8ba408a5a64d59dc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64c52fa50c76387b5fdf19f1630e9ec1" id="r_a64c52fa50c76387b5fdf19f1630e9ec1"><td class="memItemLeft" align="right" valign="top">std::weak_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a64c52fa50c76387b5fdf19f1630e9ec1">segment</a></td></tr>
+<tr class="memdesc:a64c52fa50c76387b5fdf19f1630e9ec1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The segment a section belongs to.  <br /></td></tr>
+<tr class="separator:a64c52fa50c76387b5fdf19f1630e9ec1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4869c8751c1ea74b7d3e66706c34acc" id="r_aa4869c8751c1ea74b7d3e66706c34acc"><td class="memItemLeft" align="right" valign="top"><a id="aa4869c8751c1ea74b7d3e66706c34acc" name="aa4869c8751c1ea74b7d3e66706c34acc"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>collection_name</b></td></tr>
 <tr class="memdesc:aa4869c8751c1ea74b7d3e66706c34acc"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classLinker_1_1Section.html" title="A section of data as read from an object file.">Section</a> name that collects sections. <br /></td></tr>
@@ -337,7 +338,7 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
       </table>
 </div><div class="memdoc">
 
-<p>The type of the section. </p>
+<p>Possible flags for the section. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac63d033d602ad0a9a0f82dddeaeb7d8fab550e096ede3ba6d373fdfebfa22225a" name="ac63d033d602ad0a9a0f82dddeaeb7d8fab550e096ede3ba6d373fdfebfa22225a"></a>Readable&#160;</td><td class="fielddoc"><p>The data in the section can be read at runtime. </p>
 </td></tr>
@@ -607,7 +608,7 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">offset_t Linker::Section::bias</td>
+          <td class="memname">offset_t Linker::Section::bias = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -625,7 +626,7 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">std::variant&lt;std::string, uint16_t&gt; Linker::Section::resource_type</td>
+          <td class="memname">std::variant&lt;std::string, uint16_t&gt; Linker::Section::resource_type = &quot; &quot;</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -635,14 +636,14 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 
 </div>
 </div>
-<a id="ae558ba2a44d706d8ba408a5a64d59dc4" name="ae558ba2a44d706d8ba408a5a64d59dc4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae558ba2a44d706d8ba408a5a64d59dc4">&#9670;&#160;</a></span>segment</h2>
+<a id="a64c52fa50c76387b5fdf19f1630e9ec1" name="a64c52fa50c76387b5fdf19f1630e9ec1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64c52fa50c76387b5fdf19f1630e9ec1">&#9670;&#160;</a></span>segment</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname"><a class="el" href="classLinker_1_1Segment.html">Segment</a>* Linker::Section::segment</td>
+          <td class="memname">std::weak_ptr&lt;<a class="el" href="classLinker_1_1Segment.html">Segment</a>&gt; Linker::Section::segment</td>
         </tr>
       </table>
 </div><div class="memdoc">

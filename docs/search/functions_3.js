@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['datasegment_0',['DataSegment',['../classDigitalResearch_1_1CPM68KFormat.html#a6153aa2356eae02abde97495cf990812',1,'DigitalResearch::CPM68KFormat']]],
+  ['datasegment_0',['DataSegment',['../classDigitalResearch_1_1CPM68KFormat.html#a932953f784c7095ac861c6fa2ffe015e',1,'DigitalResearch::CPM68KFormat']]],
   ['deletesection_1',['DeleteSection',['../classLinker_1_1Module.html#aae537c795e8d0046c4499a1e66bbde27',1,'Linker::Module']]],
   ['displace_2',['Displace',['../classLinker_1_1Location.html#abe76dceca566c3aee80013c80308ad6d',1,'Linker::Location::Displace()'],['../classLinker_1_1Relocation.html#a997e3f105f20348bb79fb9f550dd3a2e',1,'Linker::Relocation::Displace()'],['../classLinker_1_1Target.html#ac136ed2a72fa0c95779643fd57fc6367',1,'Linker::Target::Displace()']]],
   ['displayvalue_3',['DisplayValue',['../classDumper_1_1Display.html#a9a91ab30a111e6fcdc129e0f164fa138',1,'Dumper::Display']]],

@@ -99,9 +99,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6f73625a7215676f279237d697f8ea2d" id="r_a6f73625a7215676f279237d697f8ea2d"><td class="memItemLeft" align="right" valign="top"><a id="a6f73625a7215676f279237d697f8ea2d" name="a6f73625a7215676f279237d697f8ea2d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ExpressionRecord</b> (record_type type)</td></tr>
 <tr class="separator:a6f73625a7215676f279237d697f8ea2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a61203b622a500a4800efc49d92105be1" id="r_a61203b622a500a4800efc49d92105be1"><td class="memItemLeft" align="right" valign="top"><a id="a61203b622a500a4800efc49d92105be1" name="a61203b622a500a4800efc49d92105be1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>ExpressionRecord</b> (record_type type, uint8_t size, <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> *expression)</td></tr>
-<tr class="separator:a61203b622a500a4800efc49d92105be1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2899f00f37f97ffe4f9749c1c3264392" id="r_a2899f00f37f97ffe4f9749c1c3264392"><td class="memItemLeft" align="right" valign="top"><a id="a2899f00f37f97ffe4f9749c1c3264392" name="a2899f00f37f97ffe4f9749c1c3264392"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>ExpressionRecord</b> (record_type type, uint8_t size, std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt; expression)</td></tr>
+<tr class="separator:a2899f00f37f97ffe4f9749c1c3264392"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7235b2cf21cb934b4f9e94ba82e493f6" id="r_a7235b2cf21cb934b4f9e94ba82e493f6"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7235b2cf21cb934b4f9e94ba82e493f6">GetLength</a> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment) override</td></tr>
 <tr class="separator:a7235b2cf21cb934b4f9e94ba82e493f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ac7c98bd8084a168ad1baae58e5b23c" id="r_a6ac7c98bd8084a168ad1baae58e5b23c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6ac7c98bd8084a168ad1baae58e5b23c">ReadFile</a> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
@@ -118,9 +118,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a5e965cb4b6fdf5c60ef78a1fd5844494" id="r_a5e965cb4b6fdf5c60ef78a1fd5844494"><td class="memItemLeft" align="right" valign="top"><a id="a5e965cb4b6fdf5c60ef78a1fd5844494" name="a5e965cb4b6fdf5c60ef78a1fd5844494"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> = 0</td></tr>
 <tr class="separator:a5e965cb4b6fdf5c60ef78a1fd5844494"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeab07a18e6b0c618f6246c1d53c5d24b" id="r_aeab07a18e6b0c618f6246c1d53c5d24b"><td class="memItemLeft" align="right" valign="top"><a id="aeab07a18e6b0c618f6246c1d53c5d24b" name="aeab07a18e6b0c618f6246c1d53c5d24b"></a>
-<a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>expression</b> = nullptr</td></tr>
-<tr class="separator:aeab07a18e6b0c618f6246c1d53c5d24b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f75669b9fdbc284581adf4744955c5f" id="r_a7f75669b9fdbc284581adf4744955c5f"><td class="memItemLeft" align="right" valign="top"><a id="a7f75669b9fdbc284581adf4744955c5f" name="a7f75669b9fdbc284581adf4744955c5f"></a>
+std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>expression</b></td></tr>
+<tr class="separator:a7f75669b9fdbc284581adf4744955c5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classApple_1_1OMFFormat_1_1Segment_1_1Record')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html">Apple::OMFFormat::Segment::Record</a></td></tr>
 <tr class="memitem:ad7982b0a2760aa2a84b2cb8f4d9fe9d7 inherit pub_attribs_classApple_1_1OMFFormat_1_1Segment_1_1Record" id="r_ad7982b0a2760aa2a84b2cb8f4d9fe9d7"><td class="memItemLeft" align="right" valign="top">
 record_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>

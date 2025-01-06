@@ -95,18 +95,18 @@ Inheritance diagram for DOS16M::BWFormat::Segment:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a1a157177bf58b4c890c31de8b618bad6" id="r_a1a157177bf58b4c890c31de8b618bad6"><td class="memItemLeft" align="right" valign="top"><a id="a1a157177bf58b4c890c31de8b618bad6" name="a1a157177bf58b4c890c31de8b618bad6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (<a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *segment, unsigned access=TYPE_DATA, unsigned flags=0)</td></tr>
-<tr class="separator:a1a157177bf58b4c890c31de8b618bad6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2c7e8b9c618778123f1523c6d457aff" id="r_ab2c7e8b9c618778123f1523c6d457aff"><td class="memItemLeft" align="right" valign="top"><a id="ab2c7e8b9c618778123f1523c6d457aff" name="ab2c7e8b9c618778123f1523c6d457aff"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment, unsigned access=TYPE_DATA, unsigned flags=0)</td></tr>
+<tr class="separator:ab2c7e8b9c618778123f1523c6d457aff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a639993747924b90005f1b9f4df5367ab" id="r_a639993747924b90005f1b9f4df5367ab"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a639993747924b90005f1b9f4df5367ab">SetTotalSize</a> (uint32_t new_value) override</td></tr>
 <tr class="memdesc:a639993747924b90005f1b9f4df5367ab"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies the total size of the segment, including the bss. Note that this is not guaranteed to work for all segment types.  <br /></td></tr>
 <tr class="separator:a639993747924b90005f1b9f4df5367ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a20943ba6504963ce4fa54b6ca1601a2e" id="r_a20943ba6504963ce4fa54b6ca1601a2e"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a20943ba6504963ce4fa54b6ca1601a2e">GetSize</a> () override</td></tr>
-<tr class="memdesc:a20943ba6504963ce4fa54b6ca1601a2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of segment. Some subclasses might calculate this dynamically.  <br /></td></tr>
-<tr class="separator:a20943ba6504963ce4fa54b6ca1601a2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6f607528e1c2c9cc8aba8f52d8d9ed0b" id="r_a6f607528e1c2c9cc8aba8f52d8d9ed0b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6f607528e1c2c9cc8aba8f52d8d9ed0b">WriteContent</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="memdesc:a6f607528e1c2c9cc8aba8f52d8d9ed0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the binary contents of the segment.  <br /></td></tr>
-<tr class="separator:a6f607528e1c2c9cc8aba8f52d8d9ed0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b92103f4c80d80704f58db4eb433779" id="r_a4b92103f4c80d80704f58db4eb433779"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4b92103f4c80d80704f58db4eb433779">GetSize</a> (<a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw) override</td></tr>
+<tr class="memdesc:a4b92103f4c80d80704f58db4eb433779"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of segment. Some subclasses might calculate this dynamically.  <br /></td></tr>
+<tr class="separator:a4b92103f4c80d80704f58db4eb433779"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22e62682483f277842fb3d917db82ffa" id="r_a22e62682483f277842fb3d917db82ffa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a22e62682483f277842fb3d917db82ffa">WriteContent</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw) override</td></tr>
+<tr class="memdesc:a22e62682483f277842fb3d917db82ffa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the binary contents of the segment.  <br /></td></tr>
+<tr class="separator:a22e62682483f277842fb3d917db82ffa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classDOS16M_1_1BWFormat_1_1AbstractSegment.html">DOS16M::BWFormat::AbstractSegment</a></td></tr>
 <tr class="memitem:a4c4cd428b392c0b24f62bc00c089c959 inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_a4c4cd428b392c0b24f62bc00c089c959"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>AbstractSegment</b> (unsigned access=TYPE_DATA, unsigned flags=0, uint32_t total_length=0)</td></tr>
@@ -115,25 +115,25 @@ Public Member Functions</h2></td></tr>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetTotalSize</b> ()</td></tr>
 <tr class="memdesc:a64f74ccf5f36149e6bdbabcd9c52aed1 inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the total size of the segment, including the bss. <br /></td></tr>
 <tr class="separator:a64f74ccf5f36149e6bdbabcd9c52aed1 inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1332ec123131e73c4ca4a9173a38e865 inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_a1332ec123131e73c4ca4a9173a38e865"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
-<tr class="memdesc:a1332ec123131e73c4ca4a9173a38e865 inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the GDT entry for the header. <br /></td></tr>
-<tr class="separator:a1332ec123131e73c4ca4a9173a38e865 inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af77010254b58e1b07a0575c5b5df5c7b inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_af77010254b58e1b07a0575c5b5df5c7b"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw)</td></tr>
+<tr class="memdesc:af77010254b58e1b07a0575c5b5df5c7b inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the GDT entry for the header. <br /></td></tr>
+<tr class="separator:af77010254b58e1b07a0575c5b5df5c7b inherit pub_methods_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a65d929f5e448360d523d1709beddb321" id="r_a65d929f5e448360d523d1709beddb321"><td class="memItemLeft" align="right" valign="top"><a id="a65d929f5e448360d523d1709beddb321" name="a65d929f5e448360d523d1709beddb321"></a>
-<a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="separator:a65d929f5e448360d523d1709beddb321"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf839fa4816139a3fb536efe0890daf8" id="r_adf839fa4816139a3fb536efe0890daf8"><td class="memItemLeft" align="right" valign="top"><a id="adf839fa4816139a3fb536efe0890daf8" name="adf839fa4816139a3fb536efe0890daf8"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:adf839fa4816139a3fb536efe0890daf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classDOS16M_1_1BWFormat_1_1AbstractSegment.html">DOS16M::BWFormat::AbstractSegment</a></td></tr>
-<tr class="memitem:a29e581320ef04fbf9509b063ab6a8d2d inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_a29e581320ef04fbf9509b063ab6a8d2d"><td class="memItemLeft" align="right" valign="top">
-enum DOS16M::BWFormat::AbstractSegment::access_type&#160;</td><td class="memItemRight" valign="bottom"><b>access</b></td></tr>
-<tr class="separator:a29e581320ef04fbf9509b063ab6a8d2d inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f6c2131b854ef03cf60ca902e538a98 inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_a2f6c2131b854ef03cf60ca902e538a98"><td class="memItemLeft" align="right" valign="top">
-enum DOS16M::BWFormat::AbstractSegment::flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b></td></tr>
-<tr class="separator:a2f6c2131b854ef03cf60ca902e538a98 inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a43cb47ecd97e7cf4ca1a149c56ff86d9 inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_a43cb47ecd97e7cf4ca1a149c56ff86d9"><td class="memItemLeft" align="right" valign="top">
+access_type&#160;</td><td class="memItemRight" valign="bottom"><b>access</b></td></tr>
+<tr class="separator:a43cb47ecd97e7cf4ca1a149c56ff86d9 inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2e851244986f72072d507256dfa7ef4 inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_ae2e851244986f72072d507256dfa7ef4"><td class="memItemLeft" align="right" valign="top">
+flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b></td></tr>
+<tr class="separator:ae2e851244986f72072d507256dfa7ef4 inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa1d070c6daeb2a70313f70c14c7e528b inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_aa1d070c6daeb2a70313f70c14c7e528b"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</td></tr>
 <tr class="separator:aa1d070c6daeb2a70313f70c14c7e528b inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4859a05c92e2104b489b2a570f6a92df inherit pub_attribs_classDOS16M_1_1BWFormat_1_1AbstractSegment" id="r_a4859a05c92e2104b489b2a570f6a92df"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_length</b></td></tr>
@@ -152,8 +152,8 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a81106bea70c5866fc0afc343894dd8c8 inherit pub_types_classDOS16M_1_1BWFormat_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a20943ba6504963ce4fa54b6ca1601a2e" name="a20943ba6504963ce4fa54b6ca1601a2e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a20943ba6504963ce4fa54b6ca1601a2e">&#9670;&#160;</a></span>GetSize()</h2>
+<a id="a4b92103f4c80d80704f58db4eb433779" name="a4b92103f4c80d80704f58db4eb433779"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b92103f4c80d80704f58db4eb433779">&#9670;&#160;</a></span>GetSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -164,7 +164,7 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">uint32_t BWFormat::Segment::GetSize </td>
           <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>bw</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -177,7 +177,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Retrieves size of segment. Some subclasses might calculate this dynamically. </p>
 
-<p>Implements <a class="el" href="classDOS16M_1_1BWFormat_1_1AbstractSegment.html#a7a2d1c115033e43f657e67d834804cbd">DOS16M::BWFormat::AbstractSegment</a>.</p>
+<p>Implements <a class="el" href="classDOS16M_1_1BWFormat_1_1AbstractSegment.html#af4d40b51cd1afbc86c2c101f75958230">DOS16M::BWFormat::AbstractSegment</a>.</p>
 
 </div>
 </div>
@@ -210,8 +210,8 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a6f607528e1c2c9cc8aba8f52d8d9ed0b" name="a6f607528e1c2c9cc8aba8f52d8d9ed0b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6f607528e1c2c9cc8aba8f52d8d9ed0b">&#9670;&#160;</a></span>WriteContent()</h2>
+<a id="a22e62682483f277842fb3d917db82ffa" name="a22e62682483f277842fb3d917db82ffa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22e62682483f277842fb3d917db82ffa">&#9670;&#160;</a></span>WriteContent()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -222,8 +222,12 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void BWFormat::Segment::WriteContent </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype"><a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>bw</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -235,7 +239,7 @@ Additional Inherited Members</h2></td></tr>
 
 <p>Produces the binary contents of the segment. </p>
 
-<p>Implements <a class="el" href="classDOS16M_1_1BWFormat_1_1AbstractSegment.html#a1d0f3f22973ba7224d6dc817f7702522">DOS16M::BWFormat::AbstractSegment</a>.</p>
+<p>Implements <a class="el" href="classDOS16M_1_1BWFormat_1_1AbstractSegment.html#acbf85df971dec72d0baad4c54744e1b9">DOS16M::BWFormat::AbstractSegment</a>.</p>
 
 </div>
 </div>

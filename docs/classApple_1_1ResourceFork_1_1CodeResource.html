@@ -97,9 +97,9 @@ Inheritance diagram for Apple::ResourceFork::CodeResource:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6d0d0e0ddc59202d2d5164512f430b4c" id="r_a6d0d0e0ddc59202d2d5164512f430b4c"><td class="memItemLeft" align="right" valign="top"><a id="a6d0d0e0ddc59202d2d5164512f430b4c" name="a6d0d0e0ddc59202d2d5164512f430b4c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CodeResource</b> (uint16_t id, <a class="el" href="classApple_1_1ResourceFork_1_1JumpTableCodeResource.html">JumpTableCodeResource</a> *jump_table)</td></tr>
-<tr class="separator:a6d0d0e0ddc59202d2d5164512f430b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71b812813b4d7946dc47ac926d614d1b" id="r_a71b812813b4d7946dc47ac926d614d1b"><td class="memItemLeft" align="right" valign="top"><a id="a71b812813b4d7946dc47ac926d614d1b" name="a71b812813b4d7946dc47ac926d614d1b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CodeResource</b> (uint16_t id, std::shared_ptr&lt; <a class="el" href="classApple_1_1ResourceFork_1_1JumpTableCodeResource.html">JumpTableCodeResource</a> &gt; jump_table)</td></tr>
+<tr class="separator:a71b812813b4d7946dc47ac926d614d1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ec4dfd31e760718d3a7490bc9dcb221" id="r_a1ec4dfd31e760718d3a7490bc9dcb221"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1ec4dfd31e760718d3a7490bc9dcb221">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
 <tr class="memdesc:a1ec4dfd31e760718d3a7490bc9dcb221"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
 <tr class="separator:a1ec4dfd31e760718d3a7490bc9dcb221"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -189,20 +189,20 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a988730c595f09336a7d8a930129d3d4e" id="r_a988730c595f09336a7d8a930129d3d4e"><td class="memItemLeft" align="right" valign="top"><a id="a988730c595f09336a7d8a930129d3d4e" name="a988730c595f09336a7d8a930129d3d4e"></a>
-<a class="el" href="classApple_1_1ResourceFork_1_1JumpTableCodeResource.html">JumpTableCodeResource</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>jump_table</b></td></tr>
-<tr class="separator:a988730c595f09336a7d8a930129d3d4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaea9051a07f3453cf607d0a5581ae2ac" id="r_aaea9051a07f3453cf607d0a5581ae2ac"><td class="memItemLeft" align="right" valign="top"><a id="aaea9051a07f3453cf607d0a5581ae2ac" name="aaea9051a07f3453cf607d0a5581ae2ac"></a>
-<a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="separator:aaea9051a07f3453cf607d0a5581ae2ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a120e40c114e55739a4485e90f1514435" id="r_a120e40c114e55739a4485e90f1514435"><td class="memItemLeft" align="right" valign="top"><a id="a120e40c114e55739a4485e90f1514435" name="a120e40c114e55739a4485e90f1514435"></a>
+std::shared_ptr&lt; <a class="el" href="classApple_1_1ResourceFork_1_1JumpTableCodeResource.html">JumpTableCodeResource</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>jump_table</b></td></tr>
+<tr class="separator:a120e40c114e55739a4485e90f1514435"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af417ea0aef634d6b61192be262a6333c" id="r_af417ea0aef634d6b61192be262a6333c"><td class="memItemLeft" align="right" valign="top"><a id="af417ea0aef634d6b61192be262a6333c" name="af417ea0aef634d6b61192be262a6333c"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:af417ea0aef634d6b61192be262a6333c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96f877fb18090a8d86d035d3848ef0dc" id="r_a96f877fb18090a8d86d035d3848ef0dc"><td class="memItemLeft" align="right" valign="top"><a id="a96f877fb18090a8d86d035d3848ef0dc" name="a96f877fb18090a8d86d035d3848ef0dc"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_far</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_far</b> = false</td></tr>
 <tr class="separator:a96f877fb18090a8d86d035d3848ef0dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a656bb84d61bc6bc235688bffd6942046" id="r_a656bb84d61bc6bc235688bffd6942046"><td class="memItemLeft" align="right" valign="top"><a id="a656bb84d61bc6bc235688bffd6942046" name="a656bb84d61bc6bc235688bffd6942046"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>a5_address</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>a5_address</b> = 0</td></tr>
 <tr class="separator:a656bb84d61bc6bc235688bffd6942046"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af716bbf9692b0d55f5d0e839532bbafd" id="r_af716bbf9692b0d55f5d0e839532bbafd"><td class="memItemLeft" align="right" valign="top"><a id="af716bbf9692b0d55f5d0e839532bbafd" name="af716bbf9692b0d55f5d0e839532bbafd"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>base_address</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>base_address</b> = 0</td></tr>
 <tr class="separator:af716bbf9692b0d55f5d0e839532bbafd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46339b69e79decf11cff7689d23c726b" id="r_a46339b69e79decf11cff7689d23c726b"><td class="memItemLeft" align="right" valign="top"><a id="a46339b69e79decf11cff7689d23c726b" name="a46339b69e79decf11cff7689d23c726b"></a>
 std::set&lt; uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>near_entries</b></td></tr>
@@ -245,10 +245,10 @@ std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bo
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>attributes</b></td></tr>
 <tr class="separator:a9cef2b934e3fa948517b8e7cfae35702 inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a56c8c9b4651902519ea653b1c027497c inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource" id="r_a56c8c9b4651902519ea653b1c027497c"><td class="memItemLeft" align="right" valign="top">
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>name_offset</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>name_offset</b> = 0</td></tr>
 <tr class="separator:a56c8c9b4651902519ea653b1c027497c inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa9c727f2f443217cf48cb96836361da7 inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource" id="r_aa9c727f2f443217cf48cb96836361da7"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_offset</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_offset</b> = 0</td></tr>
 <tr class="separator:aa9c727f2f443217cf48cb96836361da7 inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">

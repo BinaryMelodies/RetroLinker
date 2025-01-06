@@ -99,9 +99,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a03021efbaa0e1baeccd3b346117de02a" id="r_a03021efbaa0e1baeccd3b346117de02a"><td class="memItemLeft" align="right" valign="top"><a id="a03021efbaa0e1baeccd3b346117de02a" name="a03021efbaa0e1baeccd3b346117de02a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>LabelExpressionRecord</b> (record_type type)</td></tr>
 <tr class="separator:a03021efbaa0e1baeccd3b346117de02a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d4e03edfe5654690f03f405301e2677" id="r_a6d4e03edfe5654690f03f405301e2677"><td class="memItemLeft" align="right" valign="top"><a id="a6d4e03edfe5654690f03f405301e2677" name="a6d4e03edfe5654690f03f405301e2677"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>LabelExpressionRecord</b> (record_type type, std::string name, uint16_t line_length, int operation, uint16_t private_flag, <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> *expression)</td></tr>
-<tr class="separator:a6d4e03edfe5654690f03f405301e2677"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b318781976f82182d620b3979eab7c0" id="r_a3b318781976f82182d620b3979eab7c0"><td class="memItemLeft" align="right" valign="top"><a id="a3b318781976f82182d620b3979eab7c0" name="a3b318781976f82182d620b3979eab7c0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>LabelExpressionRecord</b> (record_type type, std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt; expression)</td></tr>
+<tr class="separator:a3b318781976f82182d620b3979eab7c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0185ab9cd0a89e6a4ce3fda73bc8b79" id="r_aa0185ab9cd0a89e6a4ce3fda73bc8b79"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0185ab9cd0a89e6a4ce3fda73bc8b79">GetLength</a> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment) override</td></tr>
 <tr class="separator:aa0185ab9cd0a89e6a4ce3fda73bc8b79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7867e41a966691213f77f08fbd5fd191" id="r_a7867e41a966691213f77f08fbd5fd191"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7867e41a966691213f77f08fbd5fd191">ReadFile</a> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
@@ -128,9 +128,9 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ae22d278337b8130364744656f4e2d4e4" id="r_ae22d278337b8130364744656f4e2d4e4"><td class="memItemLeft" align="right" valign="top"><a id="ae22d278337b8130364744656f4e2d4e4" name="ae22d278337b8130364744656f4e2d4e4"></a>
-<a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>expression</b> = nullptr</td></tr>
-<tr class="separator:ae22d278337b8130364744656f4e2d4e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7542e3431902dc4154af6adf053269e9" id="r_a7542e3431902dc4154af6adf053269e9"><td class="memItemLeft" align="right" valign="top"><a id="a7542e3431902dc4154af6adf053269e9" name="a7542e3431902dc4154af6adf053269e9"></a>
+std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>expression</b></td></tr>
+<tr class="separator:a7542e3431902dc4154af6adf053269e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classApple_1_1OMFFormat_1_1Segment_1_1LabelRecord"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classApple_1_1OMFFormat_1_1Segment_1_1LabelRecord')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1LabelRecord.html">Apple::OMFFormat::Segment::LabelRecord</a></td></tr>
 <tr class="memitem:acbd6b2a0e1fe501cb445d1b2e232a174 inherit pub_attribs_classApple_1_1OMFFormat_1_1Segment_1_1LabelRecord" id="r_acbd6b2a0e1fe501cb445d1b2e232a174"><td class="memItemLeft" align="right" valign="top">
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>

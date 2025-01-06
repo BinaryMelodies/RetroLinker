@@ -107,9 +107,9 @@ Inheritance diagram for Linker::InputFormat:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6b3dd88f974178a02070c631a67426a2" id="r_a6b3dd88f974178a02070c631a67426a2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6b3dd88f974178a02070c631a67426a2">SetupOptions</a> (char special_char, <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> *format)</td></tr>
-<tr class="memdesc:a6b3dd88f974178a02070c631a67426a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
-<tr class="separator:a6b3dd88f974178a02070c631a67426a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5db0030239934d0a46e6c98436fd9787" id="r_a5db0030239934d0a46e6c98436fd9787"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5db0030239934d0a46e6c98436fd9787">SetupOptions</a> (char special_char, std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt; format)</td></tr>
+<tr class="memdesc:a5db0030239934d0a46e6c98436fd9787"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
+<tr class="separator:a5db0030239934d0a46e6c98436fd9787"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58bcbddd1c00b23b581c8bf55e65c8dc" id="r_a58bcbddd1c00b23b581c8bf55e65c8dc"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a58bcbddd1c00b23b581c8bf55e65c8dc">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)=0</td></tr>
 <tr class="memdesc:a58bcbddd1c00b23b581c8bf55e65c8dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object.  <br /></td></tr>
 <tr class="separator:a58bcbddd1c00b23b581c8bf55e65c8dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -173,8 +173,8 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 
 </div>
 </div>
-<a id="a6b3dd88f974178a02070c631a67426a2" name="a6b3dd88f974178a02070c631a67426a2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6b3dd88f974178a02070c631a67426a2">&#9670;&#160;</a></span>SetupOptions()</h2>
+<a id="a5db0030239934d0a46e6c98436fd9787" name="a5db0030239934d0a46e6c98436fd9787"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5db0030239934d0a46e6c98436fd9787">&#9670;&#160;</a></span>SetupOptions()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -190,7 +190,7 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> *</td>          <td class="paramname"><span class="paramname"><em>format</em></span>&#160;)</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>format</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -209,7 +209,7 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classCOFF_1_1COFFFormat.html#afc232281548bee94289e86b26e13c08b">COFF::COFFFormat</a>, and <a class="el" href="classELF_1_1ELFFormat.html#a3f97fe47d2c0a33bbfc829d84daa2e87">ELF::ELFFormat</a>.</p>
+<p>Reimplemented in <a class="el" href="classCOFF_1_1COFFFormat.html#a99042b0a31a8c6c31aeb55551f651b13">COFF::COFFFormat</a>, and <a class="el" href="classELF_1_1ELFFormat.html#a9f9449136bbd3cd565e313c2229383da">ELF::ELFFormat</a>.</p>
 
 </div>
 </div>

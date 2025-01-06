@@ -104,9 +104,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7a3b4ee4b4daf8e6e3fbfd9c5414fe79" id="r_a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"><td class="memItemLeft" align="right" valign="top"><a id="a7a3b4ee4b4daf8e6e3fbfd9c5414fe79" name="a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
 <tr class="separator:a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a142b83623de66fe9dca2e46f65bbd9ef" id="r_a142b83623de66fe9dca2e46f65bbd9ef"><td class="memItemLeft" align="right" valign="top"><a id="a142b83623de66fe9dca2e46f65bbd9ef" name="a142b83623de66fe9dca2e46f65bbd9ef"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> *<a class="el" href="#a0f99c5622ca9cd29eeb8f5877f3e7712">image</a>=nullptr)</td></tr>
-<tr class="separator:a142b83623de66fe9dca2e46f65bbd9ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a69129565608d5265930d53e3970390f3" id="r_a69129565608d5265930d53e3970390f3"><td class="memItemLeft" align="right" valign="top"><a id="a69129565608d5265930d53e3970390f3" name="a69129565608d5265930d53e3970390f3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt; <a class="el" href="#a231b0bce432797645b2751325cf5e891">image</a>=nullptr)</td></tr>
+<tr class="separator:a69129565608d5265930d53e3970390f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f89acf1975e951a178f7c0d9afbad4f" id="r_a6f89acf1975e951a178f7c0d9afbad4f"><td class="memItemLeft" align="right" valign="top"><a id="a6f89acf1975e951a178f7c0d9afbad4f" name="a6f89acf1975e951a178f7c0d9afbad4f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="separator:a6f89acf1975e951a178f7c0d9afbad4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -159,14 +159,14 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>line_number_count
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
 <tr class="memdesc:af8f29d90638046cbb99f74fb6e1f1edc"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flags, determines the type of the section (text, data, bss, etc.) (COFF name: s_flags) <br /></td></tr>
 <tr class="separator:af8f29d90638046cbb99f74fb6e1f1edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f99c5622ca9cd29eeb8f5877f3e7712" id="r_a0f99c5622ca9cd29eeb8f5877f3e7712"><td class="memItemLeft" align="right" valign="top"><a id="a0f99c5622ca9cd29eeb8f5877f3e7712" name="a0f99c5622ca9cd29eeb8f5877f3e7712"></a>
-<a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>image</b> = nullptr</td></tr>
-<tr class="memdesc:a0f99c5622ca9cd29eeb8f5877f3e7712"><td class="mdescLeft">&#160;</td><td class="mdescRight">The stored image data. <br /></td></tr>
-<tr class="separator:a0f99c5622ca9cd29eeb8f5877f3e7712"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acdf44a0a114992f2a5fb14329aa45108" id="r_acdf44a0a114992f2a5fb14329aa45108"><td class="memItemLeft" align="right" valign="top"><a id="acdf44a0a114992f2a5fb14329aa45108" name="acdf44a0a114992f2a5fb14329aa45108"></a>
-std::vector&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Relocation.html">Relocation</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
-<tr class="memdesc:acdf44a0a114992f2a5fb14329aa45108"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of COFF relocations. <br /></td></tr>
-<tr class="separator:acdf44a0a114992f2a5fb14329aa45108"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a231b0bce432797645b2751325cf5e891" id="r_a231b0bce432797645b2751325cf5e891"><td class="memItemLeft" align="right" valign="top"><a id="a231b0bce432797645b2751325cf5e891" name="a231b0bce432797645b2751325cf5e891"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="memdesc:a231b0bce432797645b2751325cf5e891"><td class="mdescLeft">&#160;</td><td class="mdescRight">The stored image data. <br /></td></tr>
+<tr class="separator:a231b0bce432797645b2751325cf5e891"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7455282ac373333f88b84edf7379258f" id="r_a7455282ac373333f88b84edf7379258f"><td class="memItemLeft" align="right" valign="top"><a id="a7455282ac373333f88b84edf7379258f" name="a7455282ac373333f88b84edf7379258f"></a>
+std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Relocation.html">Relocation</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="memdesc:a7455282ac373333f88b84edf7379258f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of COFF relocations. <br /></td></tr>
+<tr class="separator:a7455282ac373333f88b84edf7379258f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A COFF section. </p>

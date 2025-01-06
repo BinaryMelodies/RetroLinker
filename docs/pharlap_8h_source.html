@@ -104,7 +104,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="keywordtype">bool</span> has_relocations;</div>
 <div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        std::string stub_file;</div>
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a> * image;</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        std::shared_ptr&lt;Linker::Segment&gt; image;</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
 <div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="keyword">static</span> <span class="keyword">const</span> uint32_t REL32 = 0x80000000;</div>
 <div class="foldopen" id="foldopen00026" data-start="{" data-end="};">
@@ -132,14 +132,14 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        };</div>
 </div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        offset_t image_size;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        offset_t image_size = 0;</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        std::set&lt;Relocation&gt; relocations;</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        offset_t header_size;</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        offset_t bss_pages;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        offset_t extra_pages;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        uint32_t esp;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        uint32_t eip;</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        offset_t relocation_offset;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        offset_t header_size = 0;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        offset_t bss_pages = 0;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        offset_t extra_pages = 0;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        uint32_t esp = 0;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        uint32_t eip = 0;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        offset_t relocation_offset = 0;</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        <a class="code hl_class" href="classPharLap_1_1MPFormat.html">MPFormat</a>(<span class="keywordtype">bool</span> has_relocations = <span class="keyword">false</span>)</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>            : has_relocations(has_relocations)</div>
@@ -150,9 +150,9 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1MPFormat.html#ab1c92042fde29422a3e9871b2d75a708">SetOptions</a>(std::map&lt;std::string, std::string&gt;&amp; options) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1MPFormat.html#a3de080158ea6605be327284ce73b9ad1">OnNewSegment</a>(<a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a> * segment) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1MPFormat.html#a92213fa021146a1e79439438fd9f5c93">OnNewSegment</a>(std::shared_ptr&lt;Linker::Segment&gt; segment) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        <a class="code hl_class" href="classScript_1_1List.html">Script::List</a> * GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        std::unique_ptr&lt;Script::List&gt; GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
 <div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        <span class="keywordtype">void</span> Link(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
@@ -182,40 +182,40 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        <span class="keyword">const</span> <span class="keywordtype">bool</span> is_multisegmented;</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>        <span class="keywordtype">bool</span> is_32bit;</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        uint16_t header_size;</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        uint32_t file_size;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        uint16_t header_size = 0;</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        uint32_t file_size = 0;</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        uint32_t runtime_parameters_offset;</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        uint32_t runtime_parameters_size;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        uint32_t relocation_table_offset;</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>        uint32_t relocation_table_size;</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>        uint32_t segment_information_table_offset;</div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        uint32_t segment_information_table_size;</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        uint16_t segment_information_table_entry_size;</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        uint32_t load_image_offset;</div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        uint32_t load_image_size;</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        uint32_t symbol_table_offset;</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        uint32_t symbol_table_size;</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        uint32_t gdt_address;</div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        uint32_t gdt_size;</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        uint32_t ldt_address;</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        uint32_t ldt_size;</div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>        uint32_t idt_address;</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        uint32_t idt_size;</div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        uint32_t tss_address;</div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        uint32_t tss_size;</div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        uint32_t minimum_extra;</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        uint32_t maximum_extra;</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        uint32_t base_load_offset;</div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        uint32_t esp;</div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        uint16_t ss;</div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>        uint32_t eip;</div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        uint16_t cs;</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>        uint16_t ldtr;</div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        uint16_t tr;</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>        uint16_t flags;</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>        uint32_t memory_requirements;</div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>        uint32_t stack_size;</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        uint32_t runtime_parameters_offset = 0;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        uint32_t runtime_parameters_size = 0;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        uint32_t relocation_table_offset = 0;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>        uint32_t relocation_table_size = 0;</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>        uint32_t segment_information_table_offset = 0;</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        uint32_t segment_information_table_size = 0;</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        uint16_t segment_information_table_entry_size = 0;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        uint32_t load_image_offset = 0;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        uint32_t load_image_size = 0;</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        uint32_t symbol_table_offset = 0;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        uint32_t symbol_table_size = 0;</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        uint32_t gdt_address = 0;</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        uint32_t gdt_size = 0;</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        uint32_t ldt_address = 0;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        uint32_t ldt_size = 0;</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>        uint32_t idt_address = 0;</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        uint32_t idt_size = 0;</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        uint32_t tss_address = 0;</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        uint32_t tss_size = 0;</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        uint32_t minimum_extra = 0;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        uint32_t maximum_extra = 0;</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        uint32_t base_load_offset = 0;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        uint32_t esp = 0;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        uint16_t ss = 0;</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>        uint32_t eip = 0;</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        uint16_t cs = 0;</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>        uint16_t ldtr = 0;</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        uint16_t tr = 0;</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>        uint16_t flags = 0;</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>        uint32_t memory_requirements = 0;</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>        uint32_t stack_size = 0;</div>
 <div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span> </div>
 <div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>        <a class="code hl_class" href="classPharLap_1_1P3Format.html">P3Format</a>(<span class="keywordtype">bool</span> is_multisegmented, <span class="keywordtype">bool</span> is_32bit = <span class="keyword">true</span>)</div>
 <div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>            : is_multisegmented(is_multisegmented), is_32bit(is_32bit)</div>
@@ -226,9 +226,9 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00140" name="l00140"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1RunTimeParameterBlock.html">  140</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1RunTimeParameterBlock.html">RunTimeParameterBlock</a></div>
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>        {</div>
 <div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>        <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>            uint16_t min_realmode_param, max_realmode_param, min_int_buffer_size_kb, max_int_buffer_size_kb, int_stack_count, int_stack_size_kb;</div>
-<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>            uint32_t realmode_area_end;</div>
-<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>            uint16_t call_buffer_size_kb, flags, ring;</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>            uint16_t min_realmode_param = 0, max_realmode_param = 0, min_int_buffer_size_kb = 0, max_int_buffer_size_kb = 0, int_stack_count = 0, int_stack_size_kb = 0;</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>            uint32_t realmode_area_end = 0;</div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>            uint16_t call_buffer_size_kb = 0, flags = 0, ring = 0;</div>
 <div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span> </div>
 <div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>            <span class="keywordtype">void</span> CalculateValues();</div>
 <div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span> </div>
@@ -260,11 +260,11 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        {</div>
 <div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        }</div>
 <div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        <a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a> * image;</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        std::shared_ptr&lt;Linker::Segment&gt; image;</div>
 <div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1Flat.html#a1fcf5a52ef60b57b0b21bfafa7203cce">OnNewSegment</a>(<a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a> * segment) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1Flat.html#a813e4e35aabf56df1961333fa57fc47f">OnNewSegment</a>(std::shared_ptr&lt;Linker::Segment&gt; segment) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
-<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>        <a class="code hl_class" href="classScript_1_1List.html">Script::List</a> * GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span>        std::unique_ptr&lt;Script::List&gt; GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
 <div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span> </div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span>        <span class="keywordtype">void</span> Link(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
 <div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span> </div>
@@ -284,7 +284,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00192" name="l00192"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">  192</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">AbstractSegment</a></div>
 <div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span>        {</div>
 <div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>        <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>            uint32_t address;</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span>            uint32_t address = 0;</div>
 <div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span>            <span class="keyword">virtual</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">~AbstractSegment</a>();</div>
 <div class="line"><a id="l00197" name="l00197"></a><span class="lineno">  197</span>            <span class="keyword">virtual</span> uint32_t GetStoredSize() = 0;</div>
 <div class="line"><a id="l00198" name="l00198"></a><span class="lineno">  198</span>            <span class="keyword">virtual</span> uint32_t GetLoadedSize() = 0;</div>
@@ -296,7 +296,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00202" name="l00202"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Descriptor.html">  202</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Descriptor.html">Descriptor</a></div>
 <div class="line"><a id="l00203" name="l00203"></a><span class="lineno">  203</span>        {</div>
 <div class="line"><a id="l00204" name="l00204"></a><span class="lineno">  204</span>        <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">AbstractSegment</a> * image;</div>
+<div class="line"><a id="l00205" name="l00205"></a><span class="lineno">  205</span>            std::weak_ptr&lt;AbstractSegment&gt; image;</div>
 <div class="line"><a id="l00206" name="l00206"></a><span class="lineno">  206</span> </div>
 <div class="line"><a id="l00207" name="l00207"></a><span class="lineno">  207</span>            <span class="keyword">enum</span></div>
 <div class="line"><a id="l00208" name="l00208"></a><span class="lineno">  208</span>            {</div>
@@ -311,12 +311,12 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00217" name="l00217"></a><span class="lineno">  217</span>                DESC_G = 0x00800000,</div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>            };</div>
 <div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
-<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>            uint32_t limit;</div>
-<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>            uint32_t base;</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span>            uint32_t limit = 0;</div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span>            uint32_t base = 0;</div>
 <div class="line"><a id="l00222" name="l00222"></a><span class="lineno">  222</span>            uint32_t access;</div>
 <div class="line"><a id="l00223" name="l00223"></a><span class="lineno">  223</span> </div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Descriptor.html">Descriptor</a>(uint32_t access, <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">AbstractSegment</a> * image = <span class="keyword">nullptr</span>)</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>                : image(image), limit(0), base(0), access(access)</div>
+<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Descriptor.html">Descriptor</a>(uint32_t access, std::weak_ptr&lt;AbstractSegment&gt; image = std::weak_ptr&lt;AbstractSegment&gt;())</div>
+<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>                : image(image), access(access)</div>
 <div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>            {</div>
 <div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>            }</div>
 <div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
@@ -330,7 +330,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00234" name="l00234"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1DescriptorTable.html">  234</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1DescriptorTable.html">DescriptorTable</a> : <span class="keyword">public</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">AbstractSegment</a></div>
 <div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>        {</div>
 <div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>        <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>            std::vector&lt;Descriptor *&gt; descriptors;</div>
+<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span>            std::vector&lt;Descriptor&gt; descriptors;</div>
 <div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span> </div>
 <div class="line"><a id="l00239" name="l00239"></a><span class="lineno">  239</span>            uint32_t GetStoredSize() <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00240" name="l00240"></a><span class="lineno">  240</span> </div>
@@ -342,137 +342,139 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00246" name="l00246"></a><span class="lineno">  246</span>        };</div>
 </div>
 <div class="line"><a id="l00247" name="l00247"></a><span class="lineno">  247</span> </div>
-<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>        <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1DescriptorTable.html">DescriptorTable</a> gdt, idt, ldt;</div>
-<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span> </div>
-<div class="foldopen" id="foldopen00250" data-start="{" data-end="};">
-<div class="line"><a id="l00250" name="l00250"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">  250</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">TaskStateSegment</a> : <span class="keyword">public</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">AbstractSegment</a></div>
-<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span>        {</div>
-<div class="line"><a id="l00252" name="l00252"></a><span class="lineno">  252</span>        <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>            <span class="keywordtype">bool</span> is_32bit;</div>
-<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span> </div>
-<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>            uint32_t esp0, esp1, esp2;</div>
-<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span>            uint32_t cr3, eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;</div>
-<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>            uint16_t ss0, ss1, ss2, es, cs, ss, ds, fs, gs, ldtr, iopb;</div>
-<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>            uint16_t link;</div>
-<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span> </div>
-<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">TaskStateSegment</a>(<span class="keywordtype">bool</span> is_32bit = <span class="keyword">true</span>)</div>
-<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span>                : is_32bit(is_32bit)</div>
-<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>            {</div>
-<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>            }</div>
-<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span> </div>
-<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>            uint32_t GetStoredSize() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00248" name="l00248"></a><span class="lineno">  248</span>        std::shared_ptr&lt;DescriptorTable&gt; gdt;</div>
+<div class="line"><a id="l00249" name="l00249"></a><span class="lineno">  249</span>        std::shared_ptr&lt;DescriptorTable&gt; idt;</div>
+<div class="line"><a id="l00250" name="l00250"></a><span class="lineno">  250</span>        std::shared_ptr&lt;DescriptorTable&gt; ldt;</div>
+<div class="line"><a id="l00251" name="l00251"></a><span class="lineno">  251</span> </div>
+<div class="foldopen" id="foldopen00252" data-start="{" data-end="};">
+<div class="line"><a id="l00252" name="l00252"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">  252</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">TaskStateSegment</a> : <span class="keyword">public</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">AbstractSegment</a></div>
+<div class="line"><a id="l00253" name="l00253"></a><span class="lineno">  253</span>        {</div>
+<div class="line"><a id="l00254" name="l00254"></a><span class="lineno">  254</span>        <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00255" name="l00255"></a><span class="lineno">  255</span>            <span class="keywordtype">bool</span> is_32bit;</div>
+<div class="line"><a id="l00256" name="l00256"></a><span class="lineno">  256</span> </div>
+<div class="line"><a id="l00257" name="l00257"></a><span class="lineno">  257</span>            uint32_t esp0 = 0, esp1 = 0, esp2 = 0;</div>
+<div class="line"><a id="l00258" name="l00258"></a><span class="lineno">  258</span>            uint32_t cr3 = 0, eip = 0, eflags = 0, eax = 0, ecx = 0, edx = 0, ebx = 0, esp = 0, ebp = 0, esi = 0, edi = 0;</div>
+<div class="line"><a id="l00259" name="l00259"></a><span class="lineno">  259</span>            uint16_t ss0 = 0, ss1 = 0, ss2 = 0, es = 0, cs = 0, ss = 0, ds = 0, fs = 0, gs = 0, ldtr = 0, iopb = 0;</div>
+<div class="line"><a id="l00260" name="l00260"></a><span class="lineno">  260</span>            uint16_t link = 0;</div>
+<div class="line"><a id="l00261" name="l00261"></a><span class="lineno">  261</span> </div>
+<div class="line"><a id="l00262" name="l00262"></a><span class="lineno">  262</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">TaskStateSegment</a>(<span class="keywordtype">bool</span> is_32bit = <span class="keyword">true</span>)</div>
+<div class="line"><a id="l00263" name="l00263"></a><span class="lineno">  263</span>                : is_32bit(is_32bit)</div>
+<div class="line"><a id="l00264" name="l00264"></a><span class="lineno">  264</span>            {</div>
+<div class="line"><a id="l00265" name="l00265"></a><span class="lineno">  265</span>            }</div>
 <div class="line"><a id="l00266" name="l00266"></a><span class="lineno">  266</span> </div>
-<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>            uint32_t GetLoadedSize() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00267" name="l00267"></a><span class="lineno">  267</span>            uint32_t GetStoredSize() <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00268" name="l00268"></a><span class="lineno">  268</span> </div>
-<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>            <span class="keywordtype">void</span> WriteFile(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span>        };</div>
+<div class="line"><a id="l00269" name="l00269"></a><span class="lineno">  269</span>            uint32_t GetLoadedSize() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00270" name="l00270"></a><span class="lineno">  270</span> </div>
+<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span>            <span class="keywordtype">void</span> WriteFile(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>        };</div>
 </div>
-<div class="line"><a id="l00271" name="l00271"></a><span class="lineno">  271</span> </div>
-<div class="line"><a id="l00272" name="l00272"></a><span class="lineno">  272</span>        <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">TaskStateSegment</a> tss;</div>
 <div class="line"><a id="l00273" name="l00273"></a><span class="lineno">  273</span> </div>
-<div class="foldopen" id="foldopen00274" data-start="{" data-end="};">
-<div class="line"><a id="l00274" name="l00274"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">  274</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">Segment</a> : <span class="keyword">public</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Descriptor.html">Descriptor</a>, <span class="keyword">public</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">AbstractSegment</a></div>
-<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span>        {</div>
-<div class="line"><a id="l00276" name="l00276"></a><span class="lineno">  276</span>        <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>            <a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a> * segment;</div>
-<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span> </div>
-<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            uint16_t selector;</div>
-<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            uint16_t flags;</div>
-<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span>            uint32_t base_offset; <span class="comment">/* TODO??? */</span></div>
-<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span> </div>
-<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">Segment</a>(<a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a> * segment, uint32_t access, uint16_t selector)</div>
-<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>                : <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Descriptor.html">Descriptor</a>(access, <span class="keyword">this</span>), segment(segment), selector(selector), base_offset(0)</div>
-<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>            {</div>
-<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span>            }</div>
-<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span> </div>
-<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>            uint32_t GetStoredSize() <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span> </div>
-<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>            uint32_t GetLoadedSize() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00274" name="l00274"></a><span class="lineno">  274</span>        std::shared_ptr&lt;TaskStateSegment&gt; tss;</div>
+<div class="line"><a id="l00275" name="l00275"></a><span class="lineno">  275</span> </div>
+<div class="foldopen" id="foldopen00276" data-start="{" data-end="};">
+<div class="line"><a id="l00276" name="l00276"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">  276</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">Segment</a> : <span class="keyword">public</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">AbstractSegment</a></div>
+<div class="line"><a id="l00277" name="l00277"></a><span class="lineno">  277</span>        {</div>
+<div class="line"><a id="l00278" name="l00278"></a><span class="lineno">  278</span>        <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00279" name="l00279"></a><span class="lineno">  279</span>            <span class="comment">/* Segment members */</span></div>
+<div class="line"><a id="l00280" name="l00280"></a><span class="lineno">  280</span>            std::shared_ptr&lt;Linker::Segment&gt; segment;</div>
+<div class="line"><a id="l00281" name="l00281"></a><span class="lineno">  281</span> </div>
+<div class="line"><a id="l00282" name="l00282"></a><span class="lineno">  282</span>            uint32_t access;</div>
+<div class="line"><a id="l00283" name="l00283"></a><span class="lineno">  283</span>            uint16_t selector;</div>
+<div class="line"><a id="l00284" name="l00284"></a><span class="lineno">  284</span>            uint16_t flags = 0;</div>
+<div class="line"><a id="l00285" name="l00285"></a><span class="lineno">  285</span>            uint32_t base_offset = 0; <span class="comment">/* TODO??? */</span></div>
+<div class="line"><a id="l00286" name="l00286"></a><span class="lineno">  286</span> </div>
+<div class="line"><a id="l00287" name="l00287"></a><span class="lineno">  287</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">Segment</a>(std::shared_ptr&lt;Linker::Segment&gt; segment, uint32_t access, uint16_t selector)</div>
+<div class="line"><a id="l00288" name="l00288"></a><span class="lineno">  288</span>                : segment(segment), access(access), selector(selector)</div>
+<div class="line"><a id="l00289" name="l00289"></a><span class="lineno">  289</span>            {</div>
+<div class="line"><a id="l00290" name="l00290"></a><span class="lineno">  290</span>            }</div>
 <div class="line"><a id="l00291" name="l00291"></a><span class="lineno">  291</span> </div>
-<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>            <span class="keywordtype">void</span> WriteSITEntry(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr);</div>
+<div class="line"><a id="l00292" name="l00292"></a><span class="lineno">  292</span>            uint32_t GetStoredSize() <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00293" name="l00293"></a><span class="lineno">  293</span> </div>
-<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>            <span class="keywordtype">void</span> WriteFile(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span>        };</div>
+<div class="line"><a id="l00294" name="l00294"></a><span class="lineno">  294</span>            uint32_t GetLoadedSize() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00295" name="l00295"></a><span class="lineno">  295</span> </div>
+<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span>            <span class="keywordtype">void</span> WriteSITEntry(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr);</div>
+<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span> </div>
+<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>            <span class="keywordtype">void</span> WriteFile(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        };</div>
 </div>
-<div class="line"><a id="l00296" name="l00296"></a><span class="lineno">  296</span> </div>
-<div class="line"><a id="l00297" name="l00297"></a><span class="lineno">  297</span>        <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented.html">MultiSegmented</a>(<span class="keywordtype">bool</span> is_32bit = <span class="keyword">true</span>)</div>
-<div class="line"><a id="l00298" name="l00298"></a><span class="lineno">  298</span>            : <a class="code hl_class" href="classPharLap_1_1P3Format.html">P3Format</a>(true, is_32bit)</div>
-<div class="line"><a id="l00299" name="l00299"></a><span class="lineno">  299</span>        {</div>
-<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span>        }</div>
-<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span> </div>
-<div class="foldopen" id="foldopen00302" data-start="{" data-end="};">
-<div class="line"><a id="l00302" name="l00302"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">  302</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">Relocation</a></div>
+<div class="line"><a id="l00300" name="l00300"></a><span class="lineno">  300</span> </div>
+<div class="line"><a id="l00301" name="l00301"></a><span class="lineno">  301</span>        <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented.html">MultiSegmented</a>(<span class="keywordtype">bool</span> is_32bit = <span class="keyword">true</span>)</div>
+<div class="line"><a id="l00302" name="l00302"></a><span class="lineno">  302</span>            : <a class="code hl_class" href="classPharLap_1_1P3Format.html">P3Format</a>(true, is_32bit)</div>
 <div class="line"><a id="l00303" name="l00303"></a><span class="lineno">  303</span>        {</div>
-<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>        <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">Segment</a> * segment;</div>
-<div class="line"><a id="l00306" name="l00306"></a><span class="lineno">  306</span>            uint32_t offset;</div>
-<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span> </div>
-<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">Relocation</a>(<a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">Segment</a> * segment, uint32_t offset)</div>
-<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>                : segment(segment), offset(offset)</div>
-<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>            {</div>
-<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span>            }</div>
-<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span> </div>
-<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>            <span class="keywordtype">bool</span> operator ==(<span class="keyword">const</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">Relocation</a>&amp; other) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span> </div>
-<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>            <span class="keywordtype">bool</span> operator &lt;(<span class="keyword">const</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">Relocation</a>&amp; other) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00304" name="l00304"></a><span class="lineno">  304</span>        }</div>
+<div class="line"><a id="l00305" name="l00305"></a><span class="lineno">  305</span> </div>
+<div class="foldopen" id="foldopen00306" data-start="{" data-end="};">
+<div class="line"><a id="l00306" name="l00306"></a><span class="lineno"><a class="line" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">  306</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">Relocation</a></div>
+<div class="line"><a id="l00307" name="l00307"></a><span class="lineno">  307</span>        {</div>
+<div class="line"><a id="l00308" name="l00308"></a><span class="lineno">  308</span>        <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00309" name="l00309"></a><span class="lineno">  309</span>            std::shared_ptr&lt;Segment&gt; segment;</div>
+<div class="line"><a id="l00310" name="l00310"></a><span class="lineno">  310</span>            uint32_t offset;</div>
+<div class="line"><a id="l00311" name="l00311"></a><span class="lineno">  311</span> </div>
+<div class="line"><a id="l00312" name="l00312"></a><span class="lineno">  312</span>            <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">Relocation</a>(std::shared_ptr&lt;Segment&gt; segment, uint32_t offset)</div>
+<div class="line"><a id="l00313" name="l00313"></a><span class="lineno">  313</span>                : segment(segment), offset(offset)</div>
+<div class="line"><a id="l00314" name="l00314"></a><span class="lineno">  314</span>            {</div>
+<div class="line"><a id="l00315" name="l00315"></a><span class="lineno">  315</span>            }</div>
 <div class="line"><a id="l00316" name="l00316"></a><span class="lineno">  316</span> </div>
-<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>            <span class="keywordtype">void</span> WriteFile(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span>        };</div>
+<div class="line"><a id="l00317" name="l00317"></a><span class="lineno">  317</span>            <span class="keywordtype">bool</span> operator ==(<span class="keyword">const</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">Relocation</a>&amp; other) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00318" name="l00318"></a><span class="lineno">  318</span> </div>
+<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span>            <span class="keywordtype">bool</span> operator &lt;(<span class="keyword">const</span> <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">Relocation</a>&amp; other) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span> </div>
+<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>            <span class="keywordtype">void</span> WriteFile(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>        };</div>
 </div>
-<div class="line"><a id="l00319" name="l00319"></a><span class="lineno">  319</span> </div>
-<div class="line"><a id="l00320" name="l00320"></a><span class="lineno">  320</span>        std::vector&lt;AbstractSegment *&gt; segments;</div>
-<div class="line"><a id="l00321" name="l00321"></a><span class="lineno">  321</span>        std::map&lt;Linker::Segment *, Segment *&gt; segment_associations;</div>
-<div class="line"><a id="l00322" name="l00322"></a><span class="lineno">  322</span>        std::set&lt;Relocation&gt; relocations;</div>
-<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span>        <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">Segment</a> * code;</div>
-<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>        <a class="code hl_class" href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">Segment</a> * data;</div>
-<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span> </div>
-<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1MultiSegmented.html#a9837df407d3cc958af2d253b8d287067">OnNewSegment</a>(<a class="code hl_class" href="classLinker_1_1Segment.html">Linker::Segment</a> * linker_segment) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span> </div>
-<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>        <a class="code hl_class" href="classScript_1_1List.html">Script::List</a> * GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00323" name="l00323"></a><span class="lineno">  323</span> </div>
+<div class="line"><a id="l00324" name="l00324"></a><span class="lineno">  324</span>        std::vector&lt;std::shared_ptr&lt;AbstractSegment&gt;&gt; segments;</div>
+<div class="line"><a id="l00325" name="l00325"></a><span class="lineno">  325</span>        std::map&lt;std::shared_ptr&lt;Linker::Segment&gt;, std::shared_ptr&lt;Segment&gt;&gt; segment_associations;</div>
+<div class="line"><a id="l00326" name="l00326"></a><span class="lineno">  326</span>        std::set&lt;Relocation&gt; relocations;</div>
+<div class="line"><a id="l00327" name="l00327"></a><span class="lineno">  327</span>        std::shared_ptr&lt;Segment&gt; code;</div>
+<div class="line"><a id="l00328" name="l00328"></a><span class="lineno">  328</span>        std::shared_ptr&lt;Segment&gt; data;</div>
 <div class="line"><a id="l00329" name="l00329"></a><span class="lineno">  329</span> </div>
-<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>        <span class="keywordtype">void</span> Link(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00330" name="l00330"></a><span class="lineno">  330</span>        <span class="keywordtype">void</span> OnNewSegment(std::shared_ptr&lt;Linker::Segment&gt; linker_segment) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00331" name="l00331"></a><span class="lineno">  331</span> </div>
-<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1MultiSegmented.html#a4db8e384678f3da2eb2bc82e62af1f1f">ProcessModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00332" name="l00332"></a><span class="lineno">  332</span>        std::unique_ptr&lt;Script::List&gt; GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
 <div class="line"><a id="l00333" name="l00333"></a><span class="lineno">  333</span> </div>
-<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1MultiSegmented.html#afcb01358809136d90dd0d3c19c1b312c">CalculateValues</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00334" name="l00334"></a><span class="lineno">  334</span>        <span class="keywordtype">void</span> Link(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
 <div class="line"><a id="l00335" name="l00335"></a><span class="lineno">  335</span> </div>
-<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1MultiSegmented.html#aa57de7ee344486f70e5501c062c1b9f0">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span>    };</div>
-</div>
-<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>}</div>
+<div class="line"><a id="l00336" name="l00336"></a><span class="lineno">  336</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1MultiSegmented.html#a4db8e384678f3da2eb2bc82e62af1f1f">ProcessModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00337" name="l00337"></a><span class="lineno">  337</span> </div>
+<div class="line"><a id="l00338" name="l00338"></a><span class="lineno">  338</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1MultiSegmented.html#afcb01358809136d90dd0d3c19c1b312c">CalculateValues</a>() <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00339" name="l00339"></a><span class="lineno">  339</span> </div>
-<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span><span class="preprocessor">#endif </span><span class="comment">/* PHARLAP_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="aclassLinker_1_1LinkerManager_html"><div class="ttname"><a href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div><div class="ttdoc">A helper class to collect sections into segments.</div><div class="ttdef"><b>Definition</b> linker.h:27</div></div>
-<div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:19</div></div>
+<div class="line"><a id="l00340" name="l00340"></a><span class="lineno">  340</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classPharLap_1_1P3Format_1_1MultiSegmented.html#aa57de7ee344486f70e5501c062c1b9f0">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00341" name="l00341"></a><span class="lineno">  341</span>    };</div>
+</div>
+<div class="line"><a id="l00342" name="l00342"></a><span class="lineno">  342</span>}</div>
+<div class="line"><a id="l00343" name="l00343"></a><span class="lineno">  343</span> </div>
+<div class="line"><a id="l00344" name="l00344"></a><span class="lineno">  344</span><span class="preprocessor">#endif </span><span class="comment">/* PHARLAP_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="aclassLinker_1_1LinkerManager_html"><div class="ttname"><a href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div><div class="ttdoc">A helper class to collect sections into segments.</div><div class="ttdef"><b>Definition</b> linker.h:19</div></div>
+<div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:20</div></div>
 <div class="ttc" id="aclassLinker_1_1OutputFormat_html"><div class="ttname"><a href="classLinker_1_1OutputFormat.html">Linker::OutputFormat</a></div><div class="ttdoc">A class that provides a general interface to setting up generation for a format.</div><div class="ttdef"><b>Definition</b> format.h:56</div></div>
 <div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:15</div></div>
-<div class="ttc" id="aclassLinker_1_1Segment_html"><div class="ttname"><a href="classLinker_1_1Segment.html">Linker::Segment</a></div><div class="ttdoc">A class representing a sequence of sections that must be written to the output file as a group.</div><div class="ttdef"><b>Definition</b> segment.h:25</div></div>
 <div class="ttc" id="aclassLinker_1_1Writer_html"><div class="ttname"><a href="classLinker_1_1Writer.html">Linker::Writer</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to export binary data.</div><div class="ttdef"><b>Definition</b> writer.h:15</div></div>
 <div class="ttc" id="aclassMicrosoft_1_1MZStubWriter_html"><div class="ttname"><a href="classMicrosoft_1_1MZStubWriter.html">Microsoft::MZStubWriter</a></div><div class="ttdef"><b>Definition</b> mzexe.h:279</div></div>
 <div class="ttc" id="aclassPharLap_1_1MPFormat_html"><div class="ttname"><a href="classPharLap_1_1MPFormat.html">PharLap::MPFormat</a></div><div class="ttdoc">Phar Lap &quot;MP&quot; .exp and &quot;MQ&quot; .rex file.</div><div class="ttdef"><b>Definition</b> pharlap.h:14</div></div>
-<div class="ttc" id="aclassPharLap_1_1MPFormat_html_a3de080158ea6605be327284ce73b9ad1"><div class="ttname"><a href="classPharLap_1_1MPFormat.html#a3de080158ea6605be327284ce73b9ad1">PharLap::MPFormat::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(Linker::Segment *segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> pharlap.cc:40</div></div>
 <div class="ttc" id="aclassPharLap_1_1MPFormat_html_a4723a4d88cf26e49e0f11b79944441bf"><div class="ttname"><a href="classPharLap_1_1MPFormat.html#a4723a4d88cf26e49e0f11b79944441bf">PharLap::MPFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> pharlap.cc:8</div></div>
 <div class="ttc" id="aclassPharLap_1_1MPFormat_html_a4f75a159485d47338053c820ba747807"><div class="ttname"><a href="classPharLap_1_1MPFormat.html#a4f75a159485d47338053c820ba747807">PharLap::MPFormat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> pharlap.cc:143</div></div>
+<div class="ttc" id="aclassPharLap_1_1MPFormat_html_a92213fa021146a1e79439438fd9f5c93"><div class="ttname"><a href="classPharLap_1_1MPFormat.html#a92213fa021146a1e79439438fd9f5c93">PharLap::MPFormat::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(std::shared_ptr&lt; Linker::Segment &gt; segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> pharlap.cc:40</div></div>
 <div class="ttc" id="aclassPharLap_1_1MPFormat_html_ab1c92042fde29422a3e9871b2d75a708"><div class="ttname"><a href="classPharLap_1_1MPFormat.html#ab1c92042fde29422a3e9871b2d75a708">PharLap::MPFormat::SetOptions</a></div><div class="ttdeci">void SetOptions(std::map&lt; std::string, std::string &gt; &amp;options) override</div><div class="ttdoc">Passes command line parameters as settings over to format object.</div><div class="ttdef"><b>Definition</b> pharlap.cc:35</div></div>
 <div class="ttc" id="aclassPharLap_1_1MPFormat_html_ab608287487d09e21d313b86e6778beb3"><div class="ttname"><a href="classPharLap_1_1MPFormat.html#ab608287487d09e21d313b86e6778beb3">PharLap::MPFormat::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> pharlap.cc:153</div></div>
 <div class="ttc" id="aclassPharLap_1_1MPFormat_html_ab713ade15c665377ce3e1e8688a17af6"><div class="ttname"><a href="classPharLap_1_1MPFormat.html#ab713ade15c665377ce3e1e8688a17af6">PharLap::MPFormat::GetDefaultExtension</a></div><div class="ttdeci">std::string GetDefaultExtension(Linker::Module &amp;module, std::string filename) override</div><div class="ttdoc">Appends a default extension to the filename.</div><div class="ttdef"><b>Definition</b> pharlap.cc:187</div></div>
 <div class="ttc" id="aclassPharLap_1_1MPFormat_html_acd49e88b77e48274108aa21ccab58517"><div class="ttname"><a href="classPharLap_1_1MPFormat.html#acd49e88b77e48274108aa21ccab58517">PharLap::MPFormat::ProcessModule</a></div><div class="ttdeci">void ProcessModule(Linker::Module &amp;module) override</div><div class="ttdoc">Processes the module object and initializes format fields.</div><div class="ttdef"><b>Definition</b> pharlap.cc:85</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1Flat_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1Flat.html">PharLap::P3Format::Flat</a></div><div class="ttdef"><b>Definition</b> pharlap.h:167</div></div>
-<div class="ttc" id="aclassPharLap_1_1P3Format_1_1Flat_html_a1fcf5a52ef60b57b0b21bfafa7203cce"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1Flat.html#a1fcf5a52ef60b57b0b21bfafa7203cce">PharLap::P3Format::Flat::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(Linker::Segment *segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> pharlap.cc:315</div></div>
+<div class="ttc" id="aclassPharLap_1_1P3Format_1_1Flat_html_a813e4e35aabf56df1961333fa57fc47f"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1Flat.html#a813e4e35aabf56df1961333fa57fc47f">PharLap::P3Format::Flat::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(std::shared_ptr&lt; Linker::Segment &gt; segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> pharlap.cc:315</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1Flat_html_a9f8d94a21dbc4db2c319913d7acf6f99"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1Flat.html#a9f8d94a21dbc4db2c319913d7acf6f99">PharLap::P3Format::Flat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> pharlap.cc:429</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1Flat_html_af6bcf8273dd8568a2258b379dc3fedb0"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1Flat.html#af6bcf8273dd8568a2258b379dc3fedb0">PharLap::P3Format::Flat::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> pharlap.cc:473</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1Flat_html_afd68e3988d8da3bd2f25c97e56d9ddc7"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1Flat.html#afd68e3988d8da3bd2f25c97e56d9ddc7">PharLap::P3Format::Flat::ProcessModule</a></div><div class="ttdeci">void ProcessModule(Linker::Module &amp;module) override</div><div class="ttdoc">Processes the module object and initializes format fields.</div><div class="ttdef"><b>Definition</b> pharlap.cc:360</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment.html">PharLap::P3Format::MultiSegmented::AbstractSegment</a></div><div class="ttdef"><b>Definition</b> pharlap.h:193</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1DescriptorTable_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1DescriptorTable.html">PharLap::P3Format::MultiSegmented::DescriptorTable</a></div><div class="ttdef"><b>Definition</b> pharlap.h:235</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1Descriptor_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Descriptor.html">PharLap::P3Format::MultiSegmented::Descriptor</a></div><div class="ttdef"><b>Definition</b> pharlap.h:203</div></div>
-<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">PharLap::P3Format::MultiSegmented::Relocation</a></div><div class="ttdef"><b>Definition</b> pharlap.h:303</div></div>
-<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">PharLap::P3Format::MultiSegmented::Segment</a></div><div class="ttdef"><b>Definition</b> pharlap.h:275</div></div>
-<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">PharLap::P3Format::MultiSegmented::TaskStateSegment</a></div><div class="ttdef"><b>Definition</b> pharlap.h:251</div></div>
+<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html">PharLap::P3Format::MultiSegmented::Relocation</a></div><div class="ttdef"><b>Definition</b> pharlap.h:307</div></div>
+<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1Segment.html">PharLap::P3Format::MultiSegmented::Segment</a></div><div class="ttdef"><b>Definition</b> pharlap.h:277</div></div>
+<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html">PharLap::P3Format::MultiSegmented::TaskStateSegment</a></div><div class="ttdef"><b>Definition</b> pharlap.h:253</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented.html">PharLap::P3Format::MultiSegmented</a></div><div class="ttdef"><b>Definition</b> pharlap.h:190</div></div>
-<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_html_a4db8e384678f3da2eb2bc82e62af1f1f"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented.html#a4db8e384678f3da2eb2bc82e62af1f1f">PharLap::P3Format::MultiSegmented::ProcessModule</a></div><div class="ttdeci">void ProcessModule(Linker::Module &amp;module) override</div><div class="ttdoc">Processes the module object and initializes format fields.</div><div class="ttdef"><b>Definition</b> pharlap.cc:737</div></div>
-<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_html_a9837df407d3cc958af2d253b8d287067"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented.html#a9837df407d3cc958af2d253b8d287067">PharLap::P3Format::MultiSegmented::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(Linker::Segment *linker_segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> pharlap.cc:647</div></div>
-<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_html_aa57de7ee344486f70e5501c062c1b9f0"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented.html#aa57de7ee344486f70e5501c062c1b9f0">PharLap::P3Format::MultiSegmented::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> pharlap.cc:915</div></div>
-<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_html_afcb01358809136d90dd0d3c19c1b312c"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented.html#afcb01358809136d90dd0d3c19c1b312c">PharLap::P3Format::MultiSegmented::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> pharlap.cc:837</div></div>
+<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_html_a4db8e384678f3da2eb2bc82e62af1f1f"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented.html#a4db8e384678f3da2eb2bc82e62af1f1f">PharLap::P3Format::MultiSegmented::ProcessModule</a></div><div class="ttdeci">void ProcessModule(Linker::Module &amp;module) override</div><div class="ttdoc">Processes the module object and initializes format fields.</div><div class="ttdef"><b>Definition</b> pharlap.cc:743</div></div>
+<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_html_aa57de7ee344486f70e5501c062c1b9f0"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented.html#aa57de7ee344486f70e5501c062c1b9f0">PharLap::P3Format::MultiSegmented::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> pharlap.cc:921</div></div>
+<div class="ttc" id="aclassPharLap_1_1P3Format_1_1MultiSegmented_html_afcb01358809136d90dd0d3c19c1b312c"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1MultiSegmented.html#afcb01358809136d90dd0d3c19c1b312c">PharLap::P3Format::MultiSegmented::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> pharlap.cc:843</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_1_1RunTimeParameterBlock_html"><div class="ttname"><a href="classPharLap_1_1P3Format_1_1RunTimeParameterBlock.html">PharLap::P3Format::RunTimeParameterBlock</a></div><div class="ttdef"><b>Definition</b> pharlap.h:141</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_html"><div class="ttname"><a href="classPharLap_1_1P3Format.html">PharLap::P3Format</a></div><div class="ttdoc">Phar Lap &quot;P2&quot;/&quot;P3&quot; .exp file.</div><div class="ttdef"><b>Definition</b> pharlap.h:86</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_html_a2903dd38d0d535cb2570f8ae2efa6682"><div class="ttname"><a href="classPharLap_1_1P3Format.html#a2903dd38d0d535cb2570f8ae2efa6682">PharLap::P3Format::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> pharlap.cc:205</div></div>
@@ -480,7 +482,6 @@ $(function() { codefold.init(0); });
 <div class="ttc" id="aclassPharLap_1_1P3Format_html_a794241630c24126d739a36b99e028da8"><div class="ttname"><a href="classPharLap_1_1P3Format.html#a794241630c24126d739a36b99e028da8">PharLap::P3Format::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> pharlap.cc:268</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_html_a96dea43941291a7aec830cddb3f5f49b"><div class="ttname"><a href="classPharLap_1_1P3Format.html#a96dea43941291a7aec830cddb3f5f49b">PharLap::P3Format::FormatSupportsSegmentation</a></div><div class="ttdeci">bool FormatSupportsSegmentation() const override</div><div class="ttdoc">Whether the format supports multiple segments.</div><div class="ttdef"><b>Definition</b> pharlap.cc:210</div></div>
 <div class="ttc" id="aclassPharLap_1_1P3Format_html_abd7ca40d033d4d2447739fda021625d2"><div class="ttname"><a href="classPharLap_1_1P3Format.html#abd7ca40d033d4d2447739fda021625d2">PharLap::P3Format::GetDefaultExtension</a></div><div class="ttdeci">std::string GetDefaultExtension(Linker::Module &amp;module, std::string filename) override</div><div class="ttdoc">Appends a default extension to the filename.</div><div class="ttdef"><b>Definition</b> pharlap.cc:256</div></div>
-<div class="ttc" id="aclassScript_1_1List_html"><div class="ttname"><a href="classScript_1_1List.html">Script::List</a></div><div class="ttdef"><b>Definition</b> script.h:61</div></div>
 <div class="ttc" id="aunionPharLap_1_1MPFormat_1_1Relocation_html"><div class="ttname"><a href="unionPharLap_1_1MPFormat_1_1Relocation.html">PharLap::MPFormat::Relocation</a></div><div class="ttdef"><b>Definition</b> pharlap.h:27</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->

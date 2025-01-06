@@ -95,7 +95,7 @@ Inheritance diagram for Linker::Segment:</div>
  <div class="center">
   <img src="classLinker_1_1Segment.png" usemap="#Linker::Segment_map" alt=""/>
   <map id="Linker::Segment_map" name="Linker::Segment_map">
-<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,101,24"/>
+<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,248,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -116,9 +116,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Fill</b> ()</td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>RealignEnd</b> (offset_t <a class="el" href="#afe5134038e9b51f882b6b0d4392bc226">align</a>)</td></tr>
 <tr class="memdesc:a7f3e66e62db0be090c2a73dd619d339b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Aligns end of segment by increasing size of last section. <br /></td></tr>
 <tr class="separator:a7f3e66e62db0be090c2a73dd619d339b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aebb72654447cd853c865f93f9a65c790" id="r_aebb72654447cd853c865f93f9a65c790"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aebb72654447cd853c865f93f9a65c790">Append</a> (<a class="el" href="classLinker_1_1Section.html">Section</a> *section)</td></tr>
-<tr class="memdesc:aebb72654447cd853c865f93f9a65c790"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends section to segment.  <br /></td></tr>
-<tr class="separator:aebb72654447cd853c865f93f9a65c790"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1cdf976d8a00a0f99559347bed2f1a30" id="r_a1cdf976d8a00a0f99559347bed2f1a30"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1cdf976d8a00a0f99559347bed2f1a30">Append</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; section)</td></tr>
+<tr class="memdesc:a1cdf976d8a00a0f99559347bed2f1a30"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends section to segment.  <br /></td></tr>
+<tr class="separator:a1cdf976d8a00a0f99559347bed2f1a30"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d4ea3d17c420c322d938adf712c9d90" id="r_a8d4ea3d17c420c322d938adf712c9d90"><td class="memItemLeft" align="right" valign="top"><a id="a8d4ea3d17c420c322d938adf712c9d90" name="a8d4ea3d17c420c322d938adf712c9d90"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (std::ostream &amp;out, offset_t size, offset_t offset=0)</td></tr>
 <tr class="memdesc:a8d4ea3d17c420c322d938adf712c9d90"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections. <br /></td></tr>
@@ -175,26 +175,26 @@ Public Attributes</h2></td></tr>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
 <tr class="memdesc:a13dcf42dec1b18aefdb7d62474e7ff4c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The name of the segment. <br /></td></tr>
 <tr class="separator:a13dcf42dec1b18aefdb7d62474e7ff4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5d86c1cc7d2a390d72ce2797360f9971" id="r_a5d86c1cc7d2a390d72ce2797360f9971"><td class="memItemLeft" align="right" valign="top"><a id="a5d86c1cc7d2a390d72ce2797360f9971" name="a5d86c1cc7d2a390d72ce2797360f9971"></a>
-std::vector&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> * &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sections</b></td></tr>
-<tr class="memdesc:a5d86c1cc7d2a390d72ce2797360f9971"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sequence of sections belonging to the segment. <br /></td></tr>
-<tr class="separator:a5d86c1cc7d2a390d72ce2797360f9971"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fea8ec6536c2e096a0f5327969770d4" id="r_a6fea8ec6536c2e096a0f5327969770d4"><td class="memItemLeft" align="right" valign="top"><a id="a6fea8ec6536c2e096a0f5327969770d4" name="a6fea8ec6536c2e096a0f5327969770d4"></a>
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sections</b></td></tr>
+<tr class="memdesc:a6fea8ec6536c2e096a0f5327969770d4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sequence of sections belonging to the segment. <br /></td></tr>
+<tr class="separator:a6fea8ec6536c2e096a0f5327969770d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a505d7e7dd1293fe5fb71fefeab07b0ed" id="r_a505d7e7dd1293fe5fb71fefeab07b0ed"><td class="memItemLeft" align="right" valign="top"><a id="a505d7e7dd1293fe5fb71fefeab07b0ed" name="a505d7e7dd1293fe5fb71fefeab07b0ed"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>base_address</b></td></tr>
 <tr class="memdesc:a505d7e7dd1293fe5fb71fefeab07b0ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address where segment starts. <br /></td></tr>
 <tr class="separator:a505d7e7dd1293fe5fb71fefeab07b0ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afe5134038e9b51f882b6b0d4392bc226" id="r_afe5134038e9b51f882b6b0d4392bc226"><td class="memItemLeft" align="right" valign="top"><a id="afe5134038e9b51f882b6b0d4392bc226" name="afe5134038e9b51f882b6b0d4392bc226"></a>
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>align</b></td></tr>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>align</b> = 1</td></tr>
 <tr class="memdesc:afe5134038e9b51f882b6b0d4392bc226"><td class="mdescLeft">&#160;</td><td class="mdescRight">Alignment requirements of segment. <br /></td></tr>
 <tr class="separator:afe5134038e9b51f882b6b0d4392bc226"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cf80f3afd7573beb864e60b2cb23da2" id="r_a8cf80f3afd7573beb864e60b2cb23da2"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8cf80f3afd7573beb864e60b2cb23da2">data_size</a></td></tr>
+<tr class="memitem:a8cf80f3afd7573beb864e60b2cb23da2" id="r_a8cf80f3afd7573beb864e60b2cb23da2"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8cf80f3afd7573beb864e60b2cb23da2">data_size</a> = 0</td></tr>
 <tr class="memdesc:a8cf80f3afd7573beb864e60b2cb23da2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Cached value of the non-filled data for the entire segment.  <br /></td></tr>
 <tr class="separator:a8cf80f3afd7573beb864e60b2cb23da2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a27c763324e53c308760702b4ac538c35" id="r_a27c763324e53c308760702b4ac538c35"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a27c763324e53c308760702b4ac538c35">zero_fill</a></td></tr>
+<tr class="memitem:a27c763324e53c308760702b4ac538c35" id="r_a27c763324e53c308760702b4ac538c35"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a27c763324e53c308760702b4ac538c35">zero_fill</a> = 0</td></tr>
 <tr class="memdesc:a27c763324e53c308760702b4ac538c35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extra zero filled space following filled data.  <br /></td></tr>
 <tr class="separator:a27c763324e53c308760702b4ac538c35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8d1a62222394361fe319e6037c31ce7e" id="r_a8d1a62222394361fe319e6037c31ce7e"><td class="memItemLeft" align="right" valign="top"><a id="a8d1a62222394361fe319e6037c31ce7e" name="a8d1a62222394361fe319e6037c31ce7e"></a>
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>optional_extra</b></td></tr>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>optional_extra</b> = 0</td></tr>
 <tr class="memdesc:a8d1a62222394361fe319e6037c31ce7e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Optional extra space after zero filled data. <br /></td></tr>
 <tr class="separator:a8d1a62222394361fe319e6037c31ce7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -239,8 +239,8 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShiftAddress</b> (int
 
 </div>
 </div>
-<a id="aebb72654447cd853c865f93f9a65c790" name="aebb72654447cd853c865f93f9a65c790"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aebb72654447cd853c865f93f9a65c790">&#9670;&#160;</a></span>Append()</h2>
+<a id="a1cdf976d8a00a0f99559347bed2f1a30" name="a1cdf976d8a00a0f99559347bed2f1a30"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1cdf976d8a00a0f99559347bed2f1a30">&#9670;&#160;</a></span>Append()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -248,7 +248,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShiftAddress</b> (int
         <tr>
           <td class="memname">void Segment::Append </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Section.html">Section</a> *</td>          <td class="paramname"><span class="paramname"><em>section</em></span></td><td>)</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>section</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -354,7 +354,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShiftAddress</b> (int
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">offset_t Linker::Segment::data_size</td>
+          <td class="memname">offset_t Linker::Segment::data_size = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -371,7 +371,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShiftAddress</b> (int
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">offset_t Linker::Segment::zero_fill</td>
+          <td class="memname">offset_t Linker::Segment::zero_fill = 0</td>
         </tr>
       </table>
 </div><div class="memdoc">

@@ -78,6 +78,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classDumper_1_1SectionedDisplay-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Dumper::SectionedDisplay&lt; Ts &gt; Class Template Reference</div></div>
@@ -100,12 +101,9 @@ Inheritance diagram for Dumper::SectionedDisplay&lt; Ts &gt;:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af22273b5048359d0489b161d96da8d6e" id="r_af22273b5048359d0489b161d96da8d6e"><td class="memItemLeft" align="right" valign="top"><a id="af22273b5048359d0489b161d96da8d6e" name="af22273b5048359d0489b161d96da8d6e"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SectionedDisplay</b> (<a class="el" href="classDumper_1_1Display.html">Display</a>&lt; Ts... &gt; *offset_display)</td></tr>
-<tr class="separator:af22273b5048359d0489b161d96da8d6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a81f6e22202fdc4e9992ed1ef93844785" id="r_a81f6e22202fdc4e9992ed1ef93844785"><td class="memItemLeft" align="right" valign="top"><a id="a81f6e22202fdc4e9992ed1ef93844785" name="a81f6e22202fdc4e9992ed1ef93844785"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>SectionedDisplay</b> (std::string suffix, <a class="el" href="classDumper_1_1Display.html">Display</a>&lt; Ts... &gt; *offset_display)</td></tr>
-<tr class="separator:a81f6e22202fdc4e9992ed1ef93844785"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5af1d5df4f1c6f58f1a2ee9f6a3d493a" id="r_a5af1d5df4f1c6f58f1a2ee9f6a3d493a"><td class="memItemLeft" align="right" valign="top"><a id="a5af1d5df4f1c6f58f1a2ee9f6a3d493a" name="a5af1d5df4f1c6f58f1a2ee9f6a3d493a"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SectionedDisplay</b> (std::string suffix, std::shared_ptr&lt; <a class="el" href="classDumper_1_1Display.html">Display</a>&lt; Ts... &gt; &gt; offset_display)</td></tr>
+<tr class="separator:a5af1d5df4f1c6f58f1a2ee9f6a3d493a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a650e9e93d8e332bfafa700454b6fc9ba" id="r_a650e9e93d8e332bfafa700454b6fc9ba"><td class="memItemLeft" align="right" valign="top"><a id="a650e9e93d8e332bfafa700454b6fc9ba" name="a650e9e93d8e332bfafa700454b6fc9ba"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>DisplayValue</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;dump, std::tuple&lt; offset_t, Ts... &gt; values) override</td></tr>
 <tr class="separator:a650e9e93d8e332bfafa700454b6fc9ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -119,14 +117,23 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DisplayValue<
 <tr class="memdesc:a9a91ab30a111e6fcdc129e0f164fa138 inherit pub_methods_classDumper_1_1Display"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the value through the <a class="el" href="classDumper_1_1Dumper.html" title="A class to control the output of a file analysis.">Dumper</a>, different types of fields can be displayed in different ways. <br /></td></tr>
 <tr class="separator:a9a91ab30a111e6fcdc129e0f164fa138 inherit pub_methods_classDumper_1_1Display"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a327d3235f84d10abc331fb8ac4ef2eee" id="r_a327d3235f84d10abc331fb8ac4ef2eee"><td class="memItemLeft" align="right" valign="top"><a id="a327d3235f84d10abc331fb8ac4ef2eee" name="a327d3235f84d10abc331fb8ac4ef2eee"></a>
+static std::shared_ptr&lt; <a class="el" href="classDumper_1_1SectionedDisplay.html">SectionedDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (std::shared_ptr&lt; <a class="el" href="classDumper_1_1Display.html">Display</a>&lt; Ts... &gt; &gt; offset_display)</td></tr>
+<tr class="separator:a327d3235f84d10abc331fb8ac4ef2eee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a400695138fd7493eb5613fccfb16f2" id="r_a0a400695138fd7493eb5613fccfb16f2"><td class="memItemLeft" align="right" valign="top"><a id="a0a400695138fd7493eb5613fccfb16f2" name="a0a400695138fd7493eb5613fccfb16f2"></a>
+static std::shared_ptr&lt; <a class="el" href="classDumper_1_1SectionedDisplay.html">SectionedDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (std::string suffix, std::shared_ptr&lt; <a class="el" href="classDumper_1_1Display.html">Display</a>&lt; Ts... &gt; &gt; offset_display)</td></tr>
+<tr class="separator:a0a400695138fd7493eb5613fccfb16f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a8f5053eadf2fc0f6623dadb171e116b3" id="r_a8f5053eadf2fc0f6623dadb171e116b3"><td class="memItemLeft" align="right" valign="top"><a id="a8f5053eadf2fc0f6623dadb171e116b3" name="a8f5053eadf2fc0f6623dadb171e116b3"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>suffix</b></td></tr>
 <tr class="separator:a8f5053eadf2fc0f6623dadb171e116b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1b29e9ea4fb43f80e34b56a0ec6592a6" id="r_a1b29e9ea4fb43f80e34b56a0ec6592a6"><td class="memItemLeft" align="right" valign="top"><a id="a1b29e9ea4fb43f80e34b56a0ec6592a6" name="a1b29e9ea4fb43f80e34b56a0ec6592a6"></a>
-<a class="el" href="classDumper_1_1Display.html">Display</a>&lt; Ts... &gt; *&#160;</td><td class="memItemRight" valign="bottom"><b>offset_display</b></td></tr>
-<tr class="separator:a1b29e9ea4fb43f80e34b56a0ec6592a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a226ef5b6b028420a144280390e06e612" id="r_a226ef5b6b028420a144280390e06e612"><td class="memItemLeft" align="right" valign="top"><a id="a226ef5b6b028420a144280390e06e612" name="a226ef5b6b028420a144280390e06e612"></a>
+std::shared_ptr&lt; <a class="el" href="classDumper_1_1Display.html">Display</a>&lt; Ts... &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>offset_display</b></td></tr>
+<tr class="separator:a226ef5b6b028420a144280390e06e612"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><div class="compoundTemplParams">template&lt;typename ... Ts&gt;<br />
