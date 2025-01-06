@@ -679,16 +679,16 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 	x87_values[2] = "8087 optional";
 	x87_values[3] = "invalid 8087 requirement";
 	file_region.AddField("Flags",
-		&Dumper::BitFieldDisplay::Make(2)
-			.AddBitField(7, 1, new Dumper::ChoiceDisplay("fixups"), true)
-			.AddBitField(5, 2, new Dumper::ChoiceDisplay(x87_values), true)
-			.AddBitField(4, 1, new Dumper::ChoiceDisplay("RSX"), true)
-			.AddBitField(3, 1, new Dumper::ChoiceDisplay("direct video access"), true),
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("fixups"), true)
+			->AddBitField(5, 2, Dumper::ChoiceDisplay::Make(x87_values), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("RSX"), true)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("direct video access"), true),
 		(offset_t)flags);
 
-	file_region.AddOptionalField("Library name", new Dumper::StringDisplay(8, "\"", "\""), lib_id.name);
-	file_region.AddOptionalField("Library version", new Dumper::VersionDisplay, (offset_t)lib_id.major_version, (offset_t)lib_id.minor_version);
-	file_region.AddOptionalField("Library flags", new Dumper::HexDisplay(8), (offset_t)lib_id.flags);
+	file_region.AddOptionalField("Library name", Dumper::StringDisplay::Make(8, "\"", "\""), lib_id.name);
+	file_region.AddOptionalField("Library version", Dumper::VersionDisplay::Make(), (offset_t)lib_id.major_version, (offset_t)lib_id.minor_version);
+	file_region.AddOptionalField("Library flags", Dumper::HexDisplay::Make(8), (offset_t)lib_id.flags);
 
 	file_region.Display(dump);
 
@@ -705,28 +705,28 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 	group_types[Descriptor::ActualAuxiliary4] = "Auxiliary 4 group";
 	group_types[Descriptor::SharedCode] = "Shared code group";
 
-	Dumper::Region * fixups = nullptr;
-	std::vector<Dumper::Region *> groups;
+	std::shared_ptr<Dumper::Region> fixups = nullptr;
+	std::vector<std::shared_ptr<Dumper::Region>> groups;
 	for(int i = 0; i < 8; i++)
 	{
 		if(descriptors[i].type == Descriptor::Undefined)
 			break;
-		Dumper::Region * group;
+		std::shared_ptr<Dumper::Region> group;
 		if(descriptors[i].type == Descriptor::ActualFixups)
-			group = fixups = new Dumper::Region("Group", descriptors[i].offset, descriptors[i].size_paras << 4, 5);
+			group = fixups = Dumper::Region::Make("Group", descriptors[i].offset, descriptors[i].size_paras << 4, 5);
 		else
-			group = new Dumper::Block("Group", descriptors[i].offset, descriptors[i].image, descriptors[i].load_segment << 4, 5);
-		group->InsertField(0, "Type", new Dumper::ChoiceDisplay(group_types), (offset_t)descriptors[i].type);
-		group->AddField("Minimum", new Dumper::HexDisplay(5), (offset_t)descriptors[i].min_size_paras << 4);
-		group->AddField("Maximum", new Dumper::HexDisplay(5), (offset_t)descriptors[i].max_size_paras << 4);
-		group->AddHiddenField("number", new Dumper::DecDisplay, (offset_t)i + 1);
+			group = Dumper::Block::Make("Group", descriptors[i].offset, descriptors[i].image, descriptors[i].load_segment << 4, 5);
+		group->InsertField(0, "Type", Dumper::ChoiceDisplay::Make(group_types), (offset_t)descriptors[i].type);
+		group->AddField("Minimum", Dumper::HexDisplay::Make(5), (offset_t)descriptors[i].min_size_paras << 4);
+		group->AddField("Maximum", Dumper::HexDisplay::Make(5), (offset_t)descriptors[i].max_size_paras << 4);
+		group->AddHiddenField("number", Dumper::DecDisplay::Make(), (offset_t)i + 1);
 		groups.push_back(group);
 	}
 
 	offset_t fixups_paras = GetRelocationSizeParas();
 	if(fixups == nullptr && fixups_paras != 0)
 	{
-		fixups = new Dumper::Region("Fixups", relocations_offset, fixups_paras << 4, 5);
+		fixups = Dumper::Region::Make("Fixups", relocations_offset, fixups_paras << 4, 5);
 		fixups->Display(dump);
 	}
 
@@ -735,14 +735,14 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, relocations_offset + i * 4, 5);
 		relocation_source source = rel.GetSource();
-		relocation_entry.AddField("Source", new Dumper::SectionedDisplay<offset_t>(new Dumper::HexDisplay(5)), source.segment, source.offset);
-		relocation_entry.AddField("Target", new Dumper::DecDisplay, (offset_t)rel.target);
+		relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), source.segment, source.offset);
+		relocation_entry.AddField("Target", Dumper::DecDisplay::Make(), (offset_t)rel.target);
 		relocation_entry.Display(dump);
 
 		number_t segment = FindSegmentGroup(source.segment);
 		if(segment != (size_t)-1)
 		{
-			if(Dumper::Block * group = dynamic_cast<Dumper::Block *>(groups[segment]))
+			if(auto group = std::dynamic_pointer_cast<Dumper::Block>(groups[segment]))
 			{
 				group->AddSignal(source.offset, 2);
 			}
@@ -760,17 +760,17 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 		for(auto& library : library_descriptor.libraries)
 		{
 			Dumper::Container lib("Library");
-			lib.AddField("Name", new Dumper::StringDisplay(8, "\"", "\""), library.name);
-			lib.AddField("Version", new Dumper::VersionDisplay, (offset_t)library.major_version, (offset_t)library.minor_version);
-			lib.AddField("Flags", new Dumper::HexDisplay(8), (offset_t)library.flags);
+			lib.AddField("Name", Dumper::StringDisplay::Make(8, "\"", "\""), library.name);
+			lib.AddField("Version", Dumper::VersionDisplay::Make(), (offset_t)library.major_version, (offset_t)library.minor_version);
+			lib.AddField("Flags", Dumper::HexDisplay::Make(8), (offset_t)library.flags);
 			if(IsFastLoadFormat())
 			{
-				lib.AddField("First selector", new Dumper::DecDisplay, (offset_t)library.first_selector);
-				//lib.AddField("Unknown", new Dumper::HexDisplay(4), (offset_t)library.unknown); // TODO: only display if not 1
+				lib.AddField("First selector", Dumper::DecDisplay::Make(), (offset_t)library.first_selector);
+				//lib.AddField("Unknown", Dumper::HexDisplay::Make(4), (offset_t)library.unknown); // TODO: only display if not 1
 				first_selectors[library.first_selector] = library;
 			}
 
-			lib.AddHiddenField("number", new Dumper::DecDisplay, (offset_t)j + 1);
+			lib.AddHiddenField("number", Dumper::DecDisplay::Make(), (offset_t)j + 1);
 			lib.Display(dump);
 			j += 1;
 
@@ -780,13 +780,13 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 				Dumper::Entry relocation_entry("Relocation", i + 1, next_relocation_offset, 5);
 				next_relocation_offset += 4;
 				relocation_source source = rel.GetSource();
-				relocation_entry.AddField("Source", new Dumper::SectionedDisplay<offset_t>(new Dumper::HexDisplay(5)), source.segment, source.offset);
+				relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), source.segment, source.offset);
 				relocation_entry.Display(dump);
 
 				number_t segment = FindSegmentGroup(source.segment);
 				if(segment != (size_t)-1)
 				{
-					if(Dumper::Block * group = dynamic_cast<Dumper::Block *>(groups[segment]))
+					if(auto group = std::dynamic_pointer_cast<Dumper::Block>(groups[segment]))
 					{
 						group->AddSignal(source.offset, 2);
 					}
@@ -800,10 +800,10 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 	{
 		Dumper::Region postlink("Postlink group", fastload_descriptor.offset, fastload_descriptor.size_paras << 4, 5);
 
-		postlink.AddField("Maximum entries", new Dumper::HexDisplay(4), (offset_t)fastload_descriptor.maximum_entries);
-		postlink.AddField("First free entry", new Dumper::HexDisplay(4), (offset_t)fastload_descriptor.first_free_entry);
-		postlink.AddField("Index base", new Dumper::HexDisplay(4), (offset_t)fastload_descriptor.index_base);
-		postlink.AddField("First used index", new Dumper::HexDisplay(4), (offset_t)fastload_descriptor.first_used_index);
+		postlink.AddField("Maximum entries", Dumper::HexDisplay::Make(4), (offset_t)fastload_descriptor.maximum_entries);
+		postlink.AddField("First free entry", Dumper::HexDisplay::Make(4), (offset_t)fastload_descriptor.first_free_entry);
+		postlink.AddField("Index base", Dumper::HexDisplay::Make(4), (offset_t)fastload_descriptor.index_base);
+		postlink.AddField("First used index", Dumper::HexDisplay::Make(4), (offset_t)fastload_descriptor.first_used_index);
 
 		postlink.Display(dump);
 
@@ -820,12 +820,12 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 			if(i >= fastload_descriptor.first_used_index)
 			{
 				Dumper::Entry descriptor_entry("Descriptor", i, fastload_descriptor.offset + 8 + 8 * i, 4);
-				descriptor_entry.AddField("Selector", new Dumper::HexDisplay(4), (offset_t)i << 3);
-				descriptor_entry.AddField("Limit", new Dumper::HexDisplay(4), (offset_t)desc.limit);
-				descriptor_entry.AddField("Address", new Dumper::HexDisplay(6), (offset_t)desc.address);
-				descriptor_entry.AddField("Group", new Dumper::HexDisplay(2), (offset_t)desc.group);
+				descriptor_entry.AddField("Selector", Dumper::HexDisplay::Make(4), (offset_t)i << 3);
+				descriptor_entry.AddField("Limit", Dumper::HexDisplay::Make(4), (offset_t)desc.limit);
+				descriptor_entry.AddField("Address", Dumper::HexDisplay::Make(6), (offset_t)desc.address);
+				descriptor_entry.AddField("Group", Dumper::HexDisplay::Make(2), (offset_t)desc.group);
 				if(current_library.name != "")
-					descriptor_entry.AddField("Library", new Dumper::StringDisplay(8, "\"", "\""), current_library.name);
+					descriptor_entry.AddField("Library", Dumper::StringDisplay::Make(8, "\"", "\""), current_library.name);
 				descriptor_entry.Display(dump);
 			}
 			i ++;
@@ -854,8 +854,8 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 			if(rsx_table[i].offset_record == 0xFFFF)
 				break;
 			Dumper::Region rsx_entry("RSX", rsx_table[i].offset_record << 7, rsx_table[i].module != RSX_DYNAMIC ? rsx_table[i].module->GetFullFileSize() : 0, 6);
-			rsx_entry.AddField("Name", new Dumper::StringDisplay(8, "\""), rsx_table[i].name);
-			rsx_entry.AddHiddenField("number", new Dumper::DecDisplay, (offset_t)i + 1);
+			rsx_entry.AddField("Name", Dumper::StringDisplay::Make(8, "\""), rsx_table[i].name);
+			rsx_entry.AddHiddenField("number", Dumper::DecDisplay::Make(), (offset_t)i + 1);
 			rsx_entry.Display(dump);
 		}
 

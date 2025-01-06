@@ -79,36 +79,36 @@ void MZFormat::PIF::Dump(Dumper::Dumper& dump, offset_t file_offset)
 {
 	Dumper::Region pif_region("Program information", file_offset, SIZE, 5);
 
-	pif_region.AddField("Minimum", new Dumper::HexDisplay(6), (offset_t)minimum_extra_paragraphs << 4);
-	pif_region.AddField("Maximum", new Dumper::HexDisplay(6), (offset_t)maximum_extra_paragraphs << 4);
+	pif_region.AddField("Minimum", Dumper::HexDisplay::Make(6), (offset_t)minimum_extra_paragraphs << 4);
+	pif_region.AddField("Maximum", Dumper::HexDisplay::Make(6), (offset_t)maximum_extra_paragraphs << 4);
 
 	pif_region.AddField("Flags",
-		&Dumper::BitFieldDisplay::Make(2)
-			.AddBitField(0, 1, new Dumper::ChoiceDisplay("Requires 8087 coprocessor"), true)
-			.AddBitField(1, 1, new Dumper::ChoiceDisplay("May run in banked memory"), true)
-			.AddBitField(2, 1, new Dumper::ChoiceDisplay("Runs only in the foreground"), true)
-			.AddBitField(4, 1, new Dumper::ChoiceDisplay("Waits in idle loop"), true)
-			.AddBitField(5, 1, new Dumper::ChoiceDisplay("Requires aligned memory"), true),
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("Requires 8087 coprocessor"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("May run in banked memory"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("Runs only in the foreground"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("Waits in idle loop"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("Requires aligned memory"), true),
 		(offset_t)flags);
-	pif_region.AddField("Lowest used interrupt", new Dumper::HexDisplay(2), (offset_t)lowest_used_interrupt);
-	pif_region.AddField("Highest used interrupt", new Dumper::HexDisplay(2), (offset_t)highest_used_interrupt);
+	pif_region.AddField("Lowest used interrupt", Dumper::HexDisplay::Make(2), (offset_t)lowest_used_interrupt);
+	pif_region.AddField("Highest used interrupt", Dumper::HexDisplay::Make(2), (offset_t)highest_used_interrupt);
 	pif_region.AddField("COM port usage",
-		&Dumper::BitFieldDisplay::Make(2)
-			.AddBitField(4, 1, new Dumper::ChoiceDisplay("Direct access to COM1"), true)
-			.AddBitField(5, 1, new Dumper::ChoiceDisplay("Direct access to COM2"), true),
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("Direct access to COM1"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("Direct access to COM2"), true),
 		(offset_t)com_port_usage);
 	pif_region.AddField("LPT port usage",
-		&Dumper::BitFieldDisplay::Make(2)
-			.AddBitField(0, 1, new Dumper::ChoiceDisplay("Direct access to LPT1"), true)
-			.AddBitField(1, 1, new Dumper::ChoiceDisplay("Direct access to LPT2"), true)
-			.AddBitField(2, 1, new Dumper::ChoiceDisplay("Direct access to LPT3"), true),
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("Direct access to LPT1"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("Direct access to LPT2"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("Direct access to LPT3"), true),
 		(offset_t)lpt_port_usage);
 	pif_region.AddField("Screen usage",
-		&Dumper::BitFieldDisplay::Make(2)
-			.AddBitField(1, 1, new Dumper::ChoiceDisplay("Uses 25 lines", "Uses 24 lines"), false)
-			.AddBitField(2, 1, new Dumper::ChoiceDisplay("Uses ANSI escape sequences"), true)
-			.AddBitField(3, 1, new Dumper::ChoiceDisplay("Uses ROS calls"), true)
-			.AddBitField(4, 1, new Dumper::ChoiceDisplay("Direct video access"), true),
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("Uses 25 lines", "Uses 24 lines"), false)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("Uses ANSI escape sequences"), true)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("Uses ROS calls"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("Direct video access"), true),
 		(offset_t)screen_usage);
 
 	pif_region.Display(dump);
@@ -275,22 +275,22 @@ void MZFormat::Dump(Dumper::Dumper& dump)
 	magic_field_descriptions[MAGIC_ZM] = "old-style executable";
 	magic_field_descriptions[MAGIC_DL] = "HP 100LX/200LX System Manager compliant module";
 	Dumper::Region file_region("File", file_offset, GetFileSize(), 6);
-	file_region.AddField("Signature", new Dumper::StringDisplay(2, "'"), std::string(signature, 2));
-	file_region.AddField("Type", new Dumper::ChoiceDisplay(magic_field_descriptions), (offset_t)magic_field);
-	file_region.AddOptionalField("Overlay", new Dumper::DecDisplay, magic_field != MAGIC_DL ? overlay_number : (offset_t)0);
-	file_region.AddOptionalField("Data segment", new Dumper::HexDisplay, magic_field != MAGIC_DL ? 0 : (offset_t)data_segment << 4);
+	file_region.AddField("Signature", Dumper::StringDisplay::Make(2, "'"), std::string(signature, 2));
+	file_region.AddField("Type", Dumper::ChoiceDisplay::Make(magic_field_descriptions), (offset_t)magic_field);
+	file_region.AddOptionalField("Overlay", Dumper::DecDisplay::Make(), magic_field != MAGIC_DL ? overlay_number : (offset_t)0);
+	file_region.AddOptionalField("Data segment", Dumper::HexDisplay::Make(), magic_field != MAGIC_DL ? 0 : (offset_t)data_segment << 4);
 	file_region.Display(dump);
 
 	Dumper::Region header_region("Header", file_offset, GetHeaderSize(), 6);
-	header_region.AddField("SS:SP", new Dumper::SegmentedDisplay, (offset_t)ss, (offset_t)sp);
-	header_region.AddField("CS:IP", new Dumper::SegmentedDisplay, (offset_t)cs, (offset_t)ip);
-	header_region.AddField("Minimum", new Dumper::HexDisplay, (offset_t)GetFileSize() - GetHeaderSize() + (min_extra_paras << 4));
-	header_region.AddField("Maximum", new Dumper::HexDisplay, (offset_t)GetFileSize() - GetHeaderSize() + (max_extra_paras << 4));
-	header_region.AddOptionalField("Checksum", new Dumper::HexDisplay(4), (offset_t)checksum);
+	header_region.AddField("SS:SP", Dumper::SegmentedDisplay::Make(), (offset_t)ss, (offset_t)sp);
+	header_region.AddField("CS:IP", Dumper::SegmentedDisplay::Make(), (offset_t)cs, (offset_t)ip);
+	header_region.AddField("Minimum", Dumper::HexDisplay::Make(), (offset_t)GetFileSize() - GetHeaderSize() + (min_extra_paras << 4));
+	header_region.AddField("Maximum", Dumper::HexDisplay::Make(), (offset_t)GetFileSize() - GetHeaderSize() + (max_extra_paras << 4));
+	header_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(4), (offset_t)checksum);
 	header_region.Display(dump);
 
 	Dumper::Region relocations_region("Relocations", file_offset + relocation_offset, relocation_count * 4, 8);
-	relocations_region.AddField("Count", new Dumper::DecDisplay, (offset_t)relocation_count);
+	relocations_region.AddField("Count", Dumper::DecDisplay::Make(), (offset_t)relocation_count);
 	relocations_region.Display(dump);
 
 	if(pif)
@@ -304,7 +304,7 @@ void MZFormat::Dump(Dumper::Dumper& dump)
 	for(auto relocation : relocations)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + relocation_offset + i * 4, 6);
-		relocation_entry.AddField("Source", new Dumper::SegmentedDisplay, (offset_t)relocation.segment, (offset_t)relocation.offset);
+		relocation_entry.AddField("Source", Dumper::SegmentedDisplay::Make(), (offset_t)relocation.segment, (offset_t)relocation.offset);
 		relocation_entry.Display(dump);
 		image_block.AddSignal(relocation.GetOffset(), 2);
 		i++;

@@ -57,42 +57,49 @@ public:
 	 */
 	offset_t missing_value;
 
-	ChoiceDisplay(std::map<offset_t, std::string> names, std::string default_name = "unknown")
-		: names(names), default_name(default_name), missing_on_value(false), missing_value(0)
+	ChoiceDisplay(std::map<offset_t, std::string> names, std::string default_name, bool missing_on_value, offset_t missing_value)
+		: names(names), default_name(default_name), missing_on_value(true), missing_value(missing_value)
 	{
 	}
 
-	ChoiceDisplay(std::map<offset_t, std::string> names, offset_t missing_value, std::string default_name = "unknown")
-		: names(names), default_name(default_name), missing_on_value(true), missing_value(missing_value)
+	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, std::string default_name = "unknown")
 	{
+		return std::make_shared<ChoiceDisplay>(names, default_name, false, 0);
+	}
+
+	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, offset_t missing_value, std::string default_name = "unknown")
+	{
+		return std::make_shared<ChoiceDisplay>(names, default_name, true, missing_value);
 	}
 
 	/**
 	 * @brief Creates a boolean choice
 	 */
-	ChoiceDisplay(std::string on_true, std::string on_false)
-		: missing_on_value(false), missing_value(0)
+	static std::shared_ptr<ChoiceDisplay> Make(std::string on_true, std::string on_false)
 	{
+		std::map<offset_t, std::string> names;
 		/* TODO: alternative?
 			default_name = on_true;
 			names[0] = on_false;
 		*/
 		names[0] = on_false;
 		names[1] = on_true;
+		return std::make_shared<ChoiceDisplay>(names, "", false, 0);
 	}
 
 	/**
 	 * @brief Creates a boolean choice that is either present with name or not present at all
 	 */
-	ChoiceDisplay(std::string on_true)
-		: default_name("unknown"), missing_on_value(false), missing_value(0)
+	static std::shared_ptr<ChoiceDisplay> Make(std::string on_true)
 	{
+		std::map<offset_t, std::string> names;
 		/* TODO: alternative?
 			default_name = on_true;
 			missing_on_value = true;
 			missing_value = 0;
 		*/
 		names[1] = on_true;
+		return std::make_shared<ChoiceDisplay>(names, "unknown", false, 0);
 	}
 
 	bool IsMissing(std::tuple<offset_t>& values) override;
@@ -106,9 +113,14 @@ class HexDisplay : public Display<offset_t>
 {
 public:
 	unsigned width;
-	HexDisplay(unsigned width = 8)
+	HexDisplay(unsigned width)
 		: width(width)
 	{
+	}
+
+	static std::shared_ptr<HexDisplay> Make(unsigned width = 8)
+	{
+		return std::make_shared<HexDisplay>(width);
 	}
 
 	void DisplayValue(Dumper& dump, std::tuple<offset_t> values) override;
@@ -121,9 +133,14 @@ class DecDisplay : public Display<offset_t>
 {
 public:
 	std::string suffix;
-	DecDisplay(std::string suffix = "")
+	DecDisplay(std::string suffix)
 		: suffix(suffix)
 	{
+	}
+
+	static std::shared_ptr<DecDisplay> Make(std::string suffix = "")
+	{
+		return std::make_shared<DecDisplay>(suffix);
 	}
 
 	void DisplayValue(Dumper& dump, std::tuple<offset_t> values) override;
@@ -136,9 +153,14 @@ class SegmentedDisplay : public Display<offset_t, offset_t>
 {
 public:
 	unsigned width;
-	SegmentedDisplay(unsigned width = 4)
+	SegmentedDisplay(unsigned width)
 		: width(width)
 	{
+	}
+
+	static std::shared_ptr<SegmentedDisplay> Make(unsigned width = 4)
+	{
+		return std::make_shared<SegmentedDisplay>(width);
 	}
 
 	void DisplayValue(Dumper& dump, std::tuple<offset_t, offset_t> values) override;
@@ -151,9 +173,14 @@ class VersionDisplay : public Display<offset_t, offset_t>
 {
 public:
 	std::string separator;
-	VersionDisplay(std::string separator = ".")
+	VersionDisplay(std::string separator)
 		: separator(separator)
 	{
+	}
+
+	static std::shared_ptr<VersionDisplay> Make(std::string separator = ".")
+	{
+		return std::make_shared<VersionDisplay>(separator);
 	}
 
 	void DisplayValue(Dumper& dump, std::tuple<offset_t, offset_t> values) override;
@@ -167,21 +194,21 @@ template <typename ... Ts>
 {
 public:
 	std::string suffix;
-	Display<Ts...> * offset_display;
+	std::shared_ptr<Display<Ts...>> offset_display;
 
-	SectionedDisplay(Display<Ts...> * offset_display)
-		: suffix(""), offset_display(offset_display)
-	{
-	}
-
-	SectionedDisplay(std::string suffix, Display<Ts...> * offset_display)
+	SectionedDisplay(std::string suffix, std::shared_ptr<Display<Ts...>> offset_display)
 		: suffix(suffix), offset_display(offset_display)
 	{
 	}
 
-	~SectionedDisplay()
+	static std::shared_ptr<SectionedDisplay> Make(std::shared_ptr<Display<Ts...>> offset_display)
 	{
-		delete offset_display;
+		return Make("", offset_display);
+	}
+
+	static std::shared_ptr<SectionedDisplay> Make(std::string suffix, std::shared_ptr<Display<Ts...>> offset_display)
+	{
+		return std::make_shared<SectionedDisplay>(suffix, offset_display);
 	}
 
 	void DisplayValue(Dumper& dump, std::tuple<offset_t, Ts...> values) override;
@@ -190,23 +217,18 @@ public:
 /**
  * @brief A value that is separated into bitfields, typically bit flags
  */
-class BitFieldDisplay : public HexDisplay
+class BitFieldDisplay : public HexDisplay, public std::enable_shared_from_this<BitFieldDisplay>
 {
 public:
 	class BitField
 	{
 	public:
 		unsigned offset, length;
-		Display<offset_t> * display;
+		std::shared_ptr<Display<offset_t>> display;
 		bool optional_field;
-		BitField(unsigned offset, unsigned length, Display<offset_t> * display, bool optional_field)
+		BitField(unsigned offset, unsigned length, std::shared_ptr<Display<offset_t>> display, bool optional_field)
 			: offset(offset), length(length), display(display), optional_field(optional_field)
 		{
-		}
-
-		~BitField()
-		{
-			delete display;
 		}
 
 		bool ShouldDisplay(std::tuple<offset_t>& values)
@@ -215,24 +237,22 @@ public:
 		}
 	};
 
-	std::map<unsigned, BitField *> bitfields;
+	std::map<unsigned, std::unique_ptr<BitField>> bitfields;
 
-	BitFieldDisplay(unsigned width = 8)
+	BitFieldDisplay(unsigned width)
 		: HexDisplay(width)
 	{
 	}
 
-	static BitFieldDisplay& Make(unsigned width = 8)
+	static std::shared_ptr<BitFieldDisplay> Make(unsigned width = 8)
 	{
-		return *new BitFieldDisplay(width);
+		return std::make_shared<BitFieldDisplay>(width);
 	}
 
-	~BitFieldDisplay();
-
-	BitFieldDisplay& AddBitField(unsigned offset, unsigned length, Display<offset_t> * display, bool optional_field)
+	std::shared_ptr<BitFieldDisplay> AddBitField(unsigned offset, unsigned length, std::shared_ptr<Display<offset_t>> display, bool optional_field)
 	{
-		bitfields[offset] = new BitField(offset, length, display, optional_field);
-		return *this;
+		bitfields[offset] = std::make_unique<BitField>(offset, length, display, optional_field);
+		return shared_from_this();
 	}
 
 	void DisplayValue(Dumper& dump, std::tuple<offset_t> values) override;
@@ -255,14 +275,19 @@ public:
 	{
 	}
 
-	StringDisplay(size_t width, std::string quote = "")
-		: width(width), open_quote(quote), close_quote(quote)
+	static std::shared_ptr<StringDisplay> Make(size_t width, std::string open_quote, std::string close_quote)
 	{
+		return std::make_shared<StringDisplay>(width, open_quote, close_quote);
 	}
 
-	StringDisplay(std::string quote = "")
-		: width(-1), open_quote(quote), close_quote(quote)
+	static std::shared_ptr<StringDisplay> Make(size_t width, std::string quote = "")
 	{
+		return std::make_shared<StringDisplay>(width, quote, quote);
+	}
+
+	static std::shared_ptr<StringDisplay> Make(std::string quote = "")
+	{
+		return std::make_shared<StringDisplay>(-1, quote, quote);
 	}
 
 	bool IsMissing(std::tuple<std::string>& values) override;
@@ -287,7 +312,7 @@ public:
 	/** @brief The field should not be displayed, it is for internal use (alternatively, it can be displayed through another method) */
 	bool internal;
 
-	Field(std::string label, bool optional_field = false, bool internal = false)
+	Field(std::string label, bool optional_field, bool internal)
 		: label(label), optional_field(optional_field), internal(internal)
 	{
 	}
@@ -306,18 +331,12 @@ template <typename ... Ts>
 {
 public:
 	/** @brief The method to show it in */
-	Display<Ts...> * display;
+	std::shared_ptr<Display<Ts...>> display;
 	std::tuple<Ts...> values;
 
-	FieldOf(std::string label, Display<Ts...> * display, Ts... values, bool optional_field = false, bool internal = false)
+	FieldOf(std::string label, std::shared_ptr<Display<Ts...>> display, Ts... values, bool optional_field = false, bool internal = false)
 		: Field(label, optional_field, internal), display{display}, values{values...}
 	{
-	}
-
-	~FieldOf()
-	{
-		if(display)
-			delete display;
 	}
 
 	bool ShouldDisplay() override
@@ -339,17 +358,15 @@ class Container
 public:
 	std::string name;
 
-	std::map<std::string, Field *> field_names;
-	std::vector<Field *> fields;
+	std::map<std::string, std::shared_ptr<Field>> field_names;
+	std::vector<std::shared_ptr<Field>> fields;
 
 	Container(std::string name = "")
 		: name(name)
 	{
 	}
 
-	virtual ~Container();
-
-	Field * FindField(std::string name)
+	std::shared_ptr<Field> FindField(std::string name)
 	{
 		auto it = field_names.find(name);
 		if(it == field_names.end())
@@ -363,7 +380,7 @@ public:
 		auto it = field_names.find(name);
 		if(it == field_names.end())
 			return default_value;
-		if(FieldOf<T> * field = dynamic_cast<FieldOf<T> *>(it->second))
+		if(auto field = std::dynamic_pointer_cast<FieldOf<T>>(it->second))
 		{
 			return std::get<0>(field->values);
 		}
@@ -380,13 +397,13 @@ public:
 	}
 #endif
 
-	void AddField(Field * field)
+	void AddField(std::shared_ptr<Field> field)
 	{
 		fields.push_back(field);
 		field_names[field->label] = field;
 	}
 
-	void AddField(size_t index, Field * field)
+	void AddField(size_t index, std::shared_ptr<Field> field)
 	{
 		fields.insert(fields.begin() + index, field);
 		field_names[field->label] = field;
@@ -394,45 +411,45 @@ public:
 
 	template <typename D, typename ... Ts>
 //		void AddField(std::string label, Display<Ts...> * display, Ts... values)
-		void AddField(std::string label, D * display, Ts... values)
+		void AddField(std::string label, std::shared_ptr<D> display, Ts... values)
 	{
 //		AddField(new typename display_arguments<D>::Field(label, display, values..., false, false));
-		AddField(new FieldOf<Ts...>(label, display, values..., false, false));
+		AddField(std::make_shared<FieldOf<Ts...>>(label, display, values..., false, false));
 	}
 
 	template <typename D, typename ... Ts>
 //		void AddOptionalField(std::string label, Display<Ts...> * display, Ts... values)
-		void AddOptionalField(std::string label, D * display, Ts... values)
+		void AddOptionalField(std::string label, std::shared_ptr<D> display, Ts... values)
 	{
-		AddField(new FieldOf<Ts...>(label, display, values..., true, false));
+		AddField(std::make_shared<FieldOf<Ts...>>(label, display, values..., true, false));
 	}
 
 	template <typename D, typename ... Ts>
 //		void AddHiddenField(std::string label, Display<Ts...> * display, Ts... values)
-		void AddHiddenField(std::string label, D * display, Ts... values)
+		void AddHiddenField(std::string label, std::shared_ptr<D> display, Ts... values)
 	{
-		AddField(new FieldOf<Ts...>(label, display, values..., false, true));
+		AddField(std::make_shared<FieldOf<Ts...>>(label, display, values..., false, true));
 	}
 
 	template <typename D, typename ... Ts>
 //		void AddField(std::string label, Display<Ts...> * display, Ts... values)
-		void InsertField(size_t index, std::string label, D * display, Ts... values)
+		void InsertField(size_t index, std::string label, std::shared_ptr<D> display, Ts... values)
 	{
-		AddField(index, new FieldOf<Ts...>(label, display, values..., false, false));
+		AddField(index, std::make_shared<FieldOf<Ts...>>(label, display, values..., false, false));
 	}
 
 	template <typename D, typename ... Ts>
 //		void AddOptionalField(std::string label, Display<Ts...> * display, Ts... values)
-		void InsertOptionalField(size_t index, std::string label, D * display, Ts... values)
+		void InsertOptionalField(size_t index, std::string label, std::shared_ptr<D> display, Ts... values)
 	{
-		AddField(index, new FieldOf<Ts...>(label, display, values..., true, false));
+		AddField(index, std::make_shared<FieldOf<Ts...>>(label, display, values..., true, false));
 	}
 
 	template <typename D, typename ... Ts>
 //		void AddHiddenField(std::string label, Display<Ts...> * display, Ts... values)
-		void InsertHiddenField(size_t index, std::string label, D * display, Ts... values)
+		void InsertHiddenField(size_t index, std::string label, std::shared_ptr<D> display, Ts... values)
 	{
-		AddField(index, new FieldOf<Ts...>(label, display, values..., false, true));
+		AddField(index, std::make_shared<FieldOf<Ts...>>(label, display, values..., false, true));
 	}
 
 	virtual void Display(Dumper& dump);
@@ -447,8 +464,13 @@ public:
 	Region(std::string name, offset_t offset, offset_t length, unsigned display_width)
 		: Container(name)
 	{
-		AddField("Offset", new HexDisplay(display_width), offset);
-		AddField("Length", new HexDisplay(display_width), length);
+		AddField("Offset", HexDisplay::Make(display_width), offset);
+		AddField("Length", HexDisplay::Make(display_width), length);
+	}
+
+	static std::shared_ptr<Region> Make(std::string name, offset_t offset, offset_t length, unsigned display_width)
+	{
+		return std::make_shared<Region>(name, offset, length, display_width);
 	}
 
 //	void Display(Dumper& dump);
@@ -508,7 +530,7 @@ public:
 	}
 
 	Block(std::string name, offset_t offset, std::shared_ptr<Linker::Writable> image, offset_t address, unsigned display_width,
-			unsigned offset_display_width = 8, unsigned address_display_width = -1, unsigned position_display_width = -1)
+			unsigned offset_display_width = 8, unsigned address_display_width = -1u, unsigned position_display_width = -1u)
 		: Region(name, offset, image ? image->ActualDataSize() : 0, display_width),
 			offset_display_width(offset_display_width),
 			position_display_width(position_display_width != -1u ? position_display_width
@@ -516,7 +538,13 @@ public:
 			address_display_width(address_display_width != -1u ? address_display_width : offset_display_width),
 			image(image)
 	{
-		AddField("Address", new HexDisplay(display_width), address);
+		AddField("Address", HexDisplay::Make(display_width), address);
+	}
+
+	static std::shared_ptr<Block> Make(std::string name, offset_t offset, std::shared_ptr<Linker::Writable> image, offset_t address, unsigned display_width,
+			unsigned offset_display_width = 8, unsigned address_display_width = -1u, unsigned position_display_width = -1u)
+	{
+		return std::make_shared<Block>(name, offset, image, address, display_width, offset_display_width, address_display_width, position_display_width);
 	}
 
 	void Display(Dumper& dump) override;

@@ -141,18 +141,10 @@ void StringDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)
 	dump.out << close_quote;
 }
 
-BitFieldDisplay::~BitFieldDisplay()
-{
-	for(auto it : bitfields)
-	{
-		delete it.second;
-	}
-}
-
 void BitFieldDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)
 {
 	HexDisplay::DisplayValue(dump, values);
-	for(auto it : bitfields)
+	for(auto& it : bitfields)
 	{
 		std::tuple<offset_t> bit_value;
 		std::get<0>(bit_value) = (std::get<0>(values) >> it.second->offset) & ((1 << it.second->length) - 1);
@@ -168,18 +160,10 @@ Field::~Field()
 {
 }
 
-Container::~Container()
-{
-	for(auto field : fields)
-	{
-		delete field;
-	}
-}
-
 void Container::Display(Dumper& dump)
 {
 	dump.out << "== " << name;
-	Field * number_field;
+	std::shared_ptr<Field> number_field;
 	if((number_field = FindField("number")) && number_field->internal)
 	{
 		dump.out << " ";

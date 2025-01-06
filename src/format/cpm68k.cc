@@ -425,23 +425,23 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 	offset_t header_size = GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C;
 
 	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.AddField("Magic", new Dumper::ChoiceDisplay(format_descriptions), (offset_t)GetSignature());
-	file_region.AddField("System", new Dumper::ChoiceDisplay(system_descriptions), (offset_t)system);
+	file_region.AddField("Magic", Dumper::ChoiceDisplay::Make(format_descriptions), (offset_t)GetSignature());
+	file_region.AddField("System", Dumper::ChoiceDisplay::Make(system_descriptions), (offset_t)system);
 	file_region.Display(dump);
 
 	Dumper::Region header_region("Header", file_offset, header_size, 8);
-	header_region.AddField("Suppression word", new Dumper::HexDisplay(4), (offset_t)relocations_suppressed);
-	header_region.AddField("Bss size", new Dumper::HexDisplay, (offset_t)bss_size);
+	header_region.AddField("Suppression word", Dumper::HexDisplay::Make(4), (offset_t)relocations_suppressed);
+	header_region.AddField("Bss size", Dumper::HexDisplay::Make(), (offset_t)bss_size);
 
 	Dumper::Block code_block("Code segment", file_offset + header_size, code,
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? code_address : 0, 8);
 	Dumper::Block data_block("Data segment", file_offset + header_size + code_size, data,
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? data_address : code_size, 8);
 
-	header_region.AddField("Bss address", new Dumper::HexDisplay, (offset_t)bss_address); /* TODO: place as part of a container */
+	header_region.AddField("Bss address", Dumper::HexDisplay::Make(), (offset_t)bss_address); /* TODO: place as part of a container */
 
-	header_region.AddOptionalField("Symbol table size", new Dumper::HexDisplay, (offset_t)symbol_table_size);
-	header_region.AddOptionalField("Stack size", new Dumper::HexDisplay, (offset_t)stack_size);
+	header_region.AddOptionalField("Symbol table size", Dumper::HexDisplay::Make(), (offset_t)symbol_table_size);
+	header_region.AddOptionalField("Stack size", Dumper::HexDisplay::Make(), (offset_t)stack_size);
 	if(system == SYSTEM_GEMDOS)
 	{
 		std::map<offset_t, std::string> memory_protection;
@@ -450,14 +450,14 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 		memory_protection[2] = "supervisor global memory";
 		memory_protection[3] = "read only global memory";
 		header_region.AddField("Program flags",
-			&Dumper::BitFieldDisplay::Make()
-				.AddBitField(0, 1, new Dumper::ChoiceDisplay("fastload (do not clear heap)"), true)
-				.AddBitField(1, 1, new Dumper::ChoiceDisplay("may load program into alternate RAM"), true)
-				.AddBitField(2, 1, new Dumper::ChoiceDisplay("may Malloc from alternate RAM"), true)
-				.AddBitField(3, 1, new Dumper::ChoiceDisplay("no heap required (MagiC 6.0 shared library)"), true)
-				.AddBitField(4, 2, new Dumper::ChoiceDisplay(memory_protection), false)
-				.AddBitField(12, 1, new Dumper::ChoiceDisplay("shared text"), true)
-				.AddBitField(28, 4, new Dumper::DecDisplay(" 128 KiB alternate RAM"), true),
+			Dumper::BitFieldDisplay::Make()
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("fastload (do not clear heap)"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("may load program into alternate RAM"), true)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("may Malloc from alternate RAM"), true)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("no heap required (MagiC 6.0 shared library)"), true)
+				->AddBitField(4, 2, Dumper::ChoiceDisplay::Make(memory_protection), false)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("shared text"), true)
+				->AddBitField(28, 4, Dumper::DecDisplay::Make(" 128 KiB alternate RAM"), true),
 		(offset_t)program_flags);
 	}
 
@@ -474,9 +474,9 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 	for(auto relocation : relocations)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
-		relocation_entry.AddField("Source", new Dumper::HexDisplay, (offset_t)relocation.first);
-		relocation_entry.AddField("Size", new Dumper::HexDisplay(1), (offset_t)relocation.second.size);
-		relocation_entry.AddField("Target", new Dumper::ChoiceDisplay(segment_names), (offset_t)relocation.second.segment);
+		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(), (offset_t)relocation.first);
+		relocation_entry.AddField("Size", Dumper::HexDisplay::Make(1), (offset_t)relocation.second.size);
+		relocation_entry.AddField("Target", Dumper::ChoiceDisplay::Make(segment_names), (offset_t)relocation.second.segment);
 		relocation_entry.Display(dump);
 
 		if(relocation.first < code_address + code_size)
