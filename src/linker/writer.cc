@@ -8,6 +8,24 @@ void Writer::WriteData(size_t count, const void * data)
 	out->write(reinterpret_cast<const char *>(data), count);
 }
 
+size_t Writer::WriteData(size_t max_count, const std::vector<uint8_t>& data, size_t offset)
+{
+	if(offset >= data.size())
+		return 0;
+	if(data.size() - offset < max_count)
+		max_count = data.size() - offset;
+	WriteData(max_count, reinterpret_cast<const void *>(data.data() + offset));
+	return max_count;
+}
+
+size_t Writer::WriteData(const std::vector<uint8_t>& data, size_t offset)
+{
+	if(offset >= data.size())
+		return 0;
+	WriteData(data.size() - offset, reinterpret_cast<const void *>(data.data() + offset));
+	return data.size() - offset;
+}
+
 void Writer::WriteData(size_t count, std::string text, char padding)
 {
 	char data[count];

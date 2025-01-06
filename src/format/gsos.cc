@@ -308,13 +308,12 @@ void OMFFormat::Segment::DataRecord::ReadFile(Segment& segment, Linker::Reader& 
 {
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
-		rd.ReadData(data.size(), reinterpret_cast<char *>(data.data()));
+		rd.ReadData(data);
 	}
 	else
 	{
 		size_t length = rd.ReadUnsigned(4);
-		data.resize(length);
-		rd.ReadData(length, reinterpret_cast<char *>(data.data()));
+		rd.ReadData(length, data);
 	}
 }
 
@@ -323,12 +322,12 @@ void OMFFormat::Segment::DataRecord::WriteFile(Segment& segment, Linker::Writer&
 	Record::WriteFile(segment, wr);
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
-		wr.WriteData(data.size(), reinterpret_cast<char *>(data.data()));
+		wr.WriteData(data);
 	}
 	else
 	{
 		wr.WriteWord(4, data.size());
-		wr.WriteData(data.size(), reinterpret_cast<char *>(data.data()));
+		wr.WriteData(data);
 	}
 }
 

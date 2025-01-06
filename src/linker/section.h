@@ -152,6 +152,9 @@ namespace Linker
 		{
 		}
 
+		static std::shared_ptr<Section> ReadFromFile(Reader& rd, std::string name, int flags = Readable);
+		static std::shared_ptr<Section> ReadFromFile(Reader& rd, offset_t count, std::string name, int flags = Readable);
+
 	private:
 		void AlterFlags(bool state, unsigned flags_mask);
 

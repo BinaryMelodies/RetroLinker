@@ -13,6 +13,19 @@ void Reader::ReadData(size_t count, void * data)
 	}
 }
 
+void Reader::ReadData(size_t count, std::vector<uint8_t>& data, size_t offset)
+{
+	data.resize(offset + count);
+	ReadData(count, reinterpret_cast<void *>(data.data() + offset));
+}
+
+void Reader::ReadData(std::vector<uint8_t>& data, size_t offset)
+{
+	if(offset >= data.size())
+		return;
+	ReadData(data.size() - offset, reinterpret_cast<void *>(data.data() + offset));
+}
+
 std::string Reader::ReadData(size_t count, bool terminate_at_null)
 {
 	char data[count];

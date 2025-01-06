@@ -71,8 +71,7 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 
 	rd.Skip(header_size - 0x28);
 
-	image = std::make_shared<Linker::Buffer>(program_size);
-	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, program_size);
+	image = Linker::Buffer::ReadFromFile(rd, program_size);
 
 	for(size_t i = 0; i < relocation_count; i++)
 	{
@@ -180,8 +179,7 @@ void DX64::LVFormat::ReadFile(Linker::Reader& rd)
 	esp = rd.ReadUnsigned(4);
 	extra_memory_size = rd.ReadUnsigned(4);
 
-	image = std::make_shared<Linker::Buffer>(program_size);
-	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, program_size);
+	image = Linker::Buffer::ReadFromFile(rd, program_size);
 }
 
 void DX64::LVFormat::WriteFile(Linker::Writer& wr)

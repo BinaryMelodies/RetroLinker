@@ -4,6 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include <string>
+#include <vector>
 #include "../common.h"
 
 namespace Linker
@@ -32,6 +33,16 @@ namespace Linker
 		 * @brief Read in a sequence of bytes
 		 */
 		void ReadData(size_t count, void * data);
+
+		/**
+		 * @brief Read in a sequence of bytes, resize the vector
+		 */
+		void ReadData(size_t count, std::vector<uint8_t>& data, size_t offset = 0);
+
+		/**
+		 * @brief Read in a sequence of bytes, filling the vector
+		 */
+		void ReadData(std::vector<uint8_t>& data, size_t offset = 0);
 
 		/**
 		 * @brief Read in a sequence of bytes

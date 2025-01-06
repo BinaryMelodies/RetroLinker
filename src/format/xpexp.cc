@@ -72,8 +72,7 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 	}
 
 	rd.Seek(image_offset);
-	image = std::make_shared<Linker::Buffer>(image_size);
-	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, image_size);
+	image = Linker::Buffer::ReadFromFile(rd, image_size);
 
 	// TODO: relocations, format unknown
 	(void) relocation_count;

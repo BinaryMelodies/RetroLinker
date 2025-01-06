@@ -36,6 +36,8 @@ namespace Linker
 		offset_t ActualDataSize() override;
 		void ReadFile(Reader& rd);
 		void ReadFile(Reader& rd, offset_t count);
+		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd);
+		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd, offset_t count);
 		using Writable::WriteFile;
 		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) override;
 		int GetByte(offset_t offset) override;

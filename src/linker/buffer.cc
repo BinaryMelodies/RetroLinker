@@ -10,8 +10,7 @@ offset_t Buffer::ActualDataSize()
 
 void Buffer::ReadFile(Reader& rd, offset_t count)
 {
-	data.resize(count);
-	rd.ReadData(data.size(), reinterpret_cast<char *>(data.data()));
+	rd.ReadData(count, data);
 }
 
 void Buffer::ReadFile(Reader& rd)
@@ -24,13 +23,23 @@ void Buffer::ReadFile(Reader& rd)
 	ReadFile(rd, total - current);
 }
 
+std::shared_ptr<Buffer> Buffer::ReadFromFile(Reader& rd)
+{
+	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>();
+	buffer->ReadFile(rd);
+	return buffer;
+}
+
+std::shared_ptr<Buffer> Buffer::ReadFromFile(Reader& rd, offset_t count)
+{
+	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>();
+	buffer->ReadFile(rd, count);
+	return buffer;
+}
+
 offset_t Buffer::WriteFile(Writer& wr, offset_t count, offset_t offset)
 {
-	if(offset >= data.size())
-		return 0;
-	count = std::min(data.size(), offset + count) - offset;
-	wr.WriteData(count, reinterpret_cast<char *>(data.data()) + offset);
-	return count;
+	return wr.WriteData(count, data, offset);
 }
 
 int Buffer::GetByte(offset_t offset)

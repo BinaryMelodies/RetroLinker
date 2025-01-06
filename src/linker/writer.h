@@ -34,6 +34,16 @@ namespace Linker
 		void WriteData(size_t count, const void * data);
 
 		/**
+		 * @brief Write out a sequence of bytes
+		 */
+		size_t WriteData(size_t max_count, const std::vector<uint8_t>& data, size_t offset = 0);
+
+		/**
+		 * @brief Write out a sequence of bytes
+		 */
+		size_t WriteData(const std::vector<uint8_t>& data, size_t offset = 0);
+
+		/**
 		 * @brief Write a string, possibly truncated or zero padded
 		 */
 		void WriteData(size_t count, std::string text, char padding = '\0');

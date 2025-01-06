@@ -89,7 +89,7 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 //		Linker::Debug << "Reading optional header entry of length " << length << std::endl;
 		header_options.push_back(header_option(rd.ReadUnsigned(1)));
 		header_options.back().data.resize(length);
-		rd.ReadData(length, reinterpret_cast<char *>(header_options.back().data.data()));
+		rd.ReadData(length, header_options.back().data);
 	}
 
 	std::shared_ptr<Linker::Section> code_section = std::make_shared<Linker::Section>(".text");
@@ -179,7 +179,7 @@ void O65Format::Module::WriteFile(Linker::Writer& wr)
 	{
 		wr.WriteWord(1, header_option.data.size());
 		wr.WriteWord(1, header_option.type);
-		wr.WriteData(header_option.data.size(), reinterpret_cast<char *>(header_option.data.data()));
+		wr.WriteData(header_option.data);
 	}
 	wr.WriteWord(1, 0);
 

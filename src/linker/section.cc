@@ -3,6 +3,20 @@
 
 using namespace Linker;
 
+std::shared_ptr<Section> Section::ReadFromFile(Reader& rd, std::string name, int flags)
+{
+	std::shared_ptr<Section> section = std::make_shared<Section>(name, flags);
+	section->ReadFile(rd);
+	return section;
+}
+
+std::shared_ptr<Section> Section::ReadFromFile(Reader& rd, offset_t count, std::string name, int flags)
+{
+	std::shared_ptr<Section> section = std::make_shared<Section>(name, flags);
+	section->ReadFile(rd, count);
+	return section;
+}
+
 void Section::AlterFlags(bool state, unsigned flags_mask)
 {
 	if(state)

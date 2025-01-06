@@ -256,11 +256,8 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	code_relocation_size = rd.ReadUnsigned(word_size);
 	data_relocation_size = rd.ReadUnsigned(word_size);
 
-	code = std::make_shared<Linker::Section>(".text");
-	std::dynamic_pointer_cast<Linker::Buffer>(code)->ReadFile(rd, code_size);
-
-	data = std::make_shared<Linker::Section>(".data");
-	std::dynamic_pointer_cast<Linker::Buffer>(data)->ReadFile(rd, data_size);
+	code = Linker::Section::ReadFromFile(rd, code_size, ".text");
+	data = Linker::Section::ReadFromFile(rd, data_size, ".data");
 
 	if(word_size == 2)
 	{
