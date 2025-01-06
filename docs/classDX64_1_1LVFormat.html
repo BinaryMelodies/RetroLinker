@@ -77,13 +77,15 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classDX64_1_1LVFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">DX64::LVFormat Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>CandyMan's DX64 "LV" executable format.  
+<p>CandyMan's DX64 "Flat" and "LV" executable formats.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="dosexe_8h_source.html">dosexe.h</a>&gt;</code></p>
@@ -97,8 +99,21 @@ Inheritance diagram for DX64::LVFormat:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a4a426b0acbc45c423f0bc7010425425e" id="r_a4a426b0acbc45c423f0bc7010425425e"><td class="memItemLeft" align="right" valign="top"><a id="a4a426b0acbc45c423f0bc7010425425e" name="a4a426b0acbc45c423f0bc7010425425e"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>format_type</b> { <b>FORMAT_FLAT</b>
+, <b>FORMAT_LV</b>
+ }</td></tr>
+<tr class="separator:a4a426b0acbc45c423f0bc7010425425e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ad50f6d229e4075058e2144b5fea3cb95" id="r_ad50f6d229e4075058e2144b5fea3cb95"><td class="memItemLeft" align="right" valign="top"><a id="ad50f6d229e4075058e2144b5fea3cb95" name="ad50f6d229e4075058e2144b5fea3cb95"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>LVFormat</b> (format_type type)</td></tr>
+<tr class="separator:ad50f6d229e4075058e2144b5fea3cb95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0e408b8ec06cfa2f86f25df1e28762d" id="r_ac0e408b8ec06cfa2f86f25df1e28762d"><td class="memItemLeft" align="right" valign="top"><a id="ac0e408b8ec06cfa2f86f25df1e28762d" name="ac0e408b8ec06cfa2f86f25df1e28762d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetSignature</b> (format_type type)</td></tr>
+<tr class="separator:ac0e408b8ec06cfa2f86f25df1e28762d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad0894e46545362697dd39a686b2dfe1" id="r_aad0894e46545362697dd39a686b2dfe1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad0894e46545362697dd39a686b2dfe1">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:aad0894e46545362697dd39a686b2dfe1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:aad0894e46545362697dd39a686b2dfe1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -116,15 +131,30 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a56a84a2b9988159f6b8fe8a8d65882a4" id="r_a56a84a2b9988159f6b8fe8a8d65882a4"><td class="memItemLeft" align="right" valign="top"><a id="a56a84a2b9988159f6b8fe8a8d65882a4" name="a56a84a2b9988159f6b8fe8a8d65882a4"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><b>signature</b> [4]</td></tr>
+<tr class="separator:a56a84a2b9988159f6b8fe8a8d65882a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6bbad9bcd0d6ccb9ef93de8e0885699" id="r_ad6bbad9bcd0d6ccb9ef93de8e0885699"><td class="memItemLeft" align="right" valign="top"><a id="ad6bbad9bcd0d6ccb9ef93de8e0885699" name="ad6bbad9bcd0d6ccb9ef93de8e0885699"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>eip</b> = 0</td></tr>
+<tr class="separator:ad6bbad9bcd0d6ccb9ef93de8e0885699"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32ca34cc3dc30de3393905e871503ea8" id="r_a32ca34cc3dc30de3393905e871503ea8"><td class="memItemLeft" align="right" valign="top"><a id="a32ca34cc3dc30de3393905e871503ea8" name="a32ca34cc3dc30de3393905e871503ea8"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>esp</b> = 0</td></tr>
+<tr class="separator:a32ca34cc3dc30de3393905e871503ea8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec2fbdcf3967ba294b6a89815dbf1cf5" id="r_aec2fbdcf3967ba294b6a89815dbf1cf5"><td class="memItemLeft" align="right" valign="top"><a id="aec2fbdcf3967ba294b6a89815dbf1cf5" name="aec2fbdcf3967ba294b6a89815dbf1cf5"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>extra_memory_size</b> = 0</td></tr>
+<tr class="separator:aec2fbdcf3967ba294b6a89815dbf1cf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4cebbe336a94ec935d2834d2c88143e9" id="r_a4cebbe336a94ec935d2834d2c88143e9"><td class="memItemLeft" align="right" valign="top"><a id="a4cebbe336a94ec935d2834d2c88143e9" name="a4cebbe336a94ec935d2834d2c88143e9"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:a4cebbe336a94ec935d2834d2c88143e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
 <tr class="separator:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>CandyMan's DX64 "LV" executable format. </p>
+<div class="textblock"><p>CandyMan's DX64 "Flat" and "LV" executable formats. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="aad0894e46545362697dd39a686b2dfe1" name="aad0894e46545362697dd39a686b2dfe1"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aad0894e46545362697dd39a686b2dfe1">&#9670;&#160;</a></span>ReadFile()</h2>

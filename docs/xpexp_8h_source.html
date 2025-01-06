@@ -102,25 +102,72 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <span class="keyword">public</span>:</div>
 <div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        std::string stub_file; <span class="comment">// TODO</span></div>
 <div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classErgo_1_1XPFormat.html#acc2ad9b8ae6cbfcd67640b5f4c92595d">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; in) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classErgo_1_1XPFormat.html#a9c2f56e22788e32f42c61932589a3376">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; out) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <span class="comment">/* TODO */</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        std::string <a class="code hl_function" href="classErgo_1_1XPFormat.html#ae166664f87546d62348b1c4198ebdd22">GetDefaultExtension</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module, std::string filename) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    };</div>
+<div class="foldopen" id="foldopen00021" data-start="{" data-end="};">
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="structErgo_1_1XPFormat_1_1Segment.html">   21</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="structErgo_1_1XPFormat_1_1Segment.html">Segment</a></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        {</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>            uint16_t limit;</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>            uint32_t base;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>            <span class="keyword">enum</span></div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>            {</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>                ACCESS_DATA = 0x92,</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>                ACCESS_CODE = 0x9A,</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span> </div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>                ACCESS_CPL0 = 0x00,</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>                ACCESS_CPL1 = 0x20,</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>                ACCESS_CPL2 = 0x40,</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>                ACCESS_CPL3 = 0x60,</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>            };</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>            uint8_t access;</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>            <span class="keyword">enum</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>            {</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>                FLAG_ALIAS = 0x10,</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>                FLAG_WINDOW = 0x20,</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>                FLAG_32BIT = 0x40,</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>                FLAG_PAGES = 0x80, <span class="comment">// instead of bytes, for limit size</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>            };</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>            uint8_t flags;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span> </div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>            <span class="keyword">static</span> <a class="code hl_struct" href="structErgo_1_1XPFormat_1_1Segment.html">Segment</a> ReadFile(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd);</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>            <span class="keywordtype">void</span> WriteFile(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr);</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        };</div>
 </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>}</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span><span class="preprocessor">#endif </span><span class="comment">/* XPEXP_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        uint32_t offset = 0;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        uint32_t ldt_offset = 0;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        uint32_t image_offset = 0;</div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        uint32_t relocation_offset = 0; <span class="comment">// TODO: unsure</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        uint32_t minimum_extent = 0;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        uint32_t maximum_extent = 0;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        uint32_t unknown_field = 0;</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        uint32_t gs, fs, ds, ss, cs, es, edi, esi, ebp, esp, ebx, edx, ecx, eax, eflags, eip;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        std::vector&lt;Segment&gt; ldt;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        std::shared_ptr&lt;Linker::Writable&gt; image;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classErgo_1_1XPFormat.html#a064a0653d2cd672cdd9b267b33b8c405">Clear</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classErgo_1_1XPFormat.html#a696ac454407a75f62ee657924c3de1e8">CalculateValues</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classErgo_1_1XPFormat.html#acc2ad9b8ae6cbfcd67640b5f4c92595d">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; in) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classErgo_1_1XPFormat.html#a9c2f56e22788e32f42c61932589a3376">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; out) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="comment">/* TODO */</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span> </div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        std::string <a class="code hl_function" href="classErgo_1_1XPFormat.html#ae166664f87546d62348b1c4198ebdd22">GetDefaultExtension</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module, std::string filename) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    };</div>
+</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>}</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span> </div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span><span class="preprocessor">#endif </span><span class="comment">/* XPEXP_H */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="aclassErgo_1_1XPFormat_html"><div class="ttname"><a href="classErgo_1_1XPFormat.html">Ergo::XPFormat</a></div><div class="ttdoc">Ergo OS/286 and OS/386 &quot;XP&quot; .exp file (Ergo was formerly A.I. Architects, then Eclipse)</div><div class="ttdef"><b>Definition</b> xpexp.h:17</div></div>
-<div class="ttc" id="aclassErgo_1_1XPFormat_html_a9c2f56e22788e32f42c61932589a3376"><div class="ttname"><a href="classErgo_1_1XPFormat.html#a9c2f56e22788e32f42c61932589a3376">Ergo::XPFormat::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;out) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> xpexp.cc:13</div></div>
-<div class="ttc" id="aclassErgo_1_1XPFormat_html_acc2ad9b8ae6cbfcd67640b5f4c92595d"><div class="ttname"><a href="classErgo_1_1XPFormat.html#acc2ad9b8ae6cbfcd67640b5f4c92595d">Ergo::XPFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;in) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> xpexp.cc:8</div></div>
-<div class="ttc" id="aclassErgo_1_1XPFormat_html_ae166664f87546d62348b1c4198ebdd22"><div class="ttname"><a href="classErgo_1_1XPFormat.html#ae166664f87546d62348b1c4198ebdd22">Ergo::XPFormat::GetDefaultExtension</a></div><div class="ttdeci">std::string GetDefaultExtension(Linker::Module &amp;module, std::string filename) override</div><div class="ttdoc">Appends a default extension to the filename.</div><div class="ttdef"><b>Definition</b> xpexp.cc:18</div></div>
+<div class="ttc" id="aclassErgo_1_1XPFormat_html_a064a0653d2cd672cdd9b267b33b8c405"><div class="ttname"><a href="classErgo_1_1XPFormat.html#a064a0653d2cd672cdd9b267b33b8c405">Ergo::XPFormat::Clear</a></div><div class="ttdeci">void Clear() override</div><div class="ttdoc">Resets all fields to their default values, deallocate memory.</div><div class="ttdef"><b>Definition</b> xpexp.cc:22</div></div>
+<div class="ttc" id="aclassErgo_1_1XPFormat_html_a696ac454407a75f62ee657924c3de1e8"><div class="ttname"><a href="classErgo_1_1XPFormat.html#a696ac454407a75f62ee657924c3de1e8">Ergo::XPFormat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> xpexp.cc:8</div></div>
+<div class="ttc" id="aclassErgo_1_1XPFormat_html_a9c2f56e22788e32f42c61932589a3376"><div class="ttname"><a href="classErgo_1_1XPFormat.html#a9c2f56e22788e32f42c61932589a3376">Ergo::XPFormat::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;out) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> xpexp.cc:81</div></div>
+<div class="ttc" id="aclassErgo_1_1XPFormat_html_acc2ad9b8ae6cbfcd67640b5f4c92595d"><div class="ttname"><a href="classErgo_1_1XPFormat.html#acc2ad9b8ae6cbfcd67640b5f4c92595d">Ergo::XPFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;in) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> xpexp.cc:36</div></div>
+<div class="ttc" id="aclassErgo_1_1XPFormat_html_ae166664f87546d62348b1c4198ebdd22"><div class="ttname"><a href="classErgo_1_1XPFormat.html#ae166664f87546d62348b1c4198ebdd22">Ergo::XPFormat::GetDefaultExtension</a></div><div class="ttdeci">std::string GetDefaultExtension(Linker::Module &amp;module, std::string filename) override</div><div class="ttdoc">Appends a default extension to the filename.</div><div class="ttdef"><b>Definition</b> xpexp.cc:124</div></div>
 <div class="ttc" id="aclassLinker_1_1LinkerManager_html"><div class="ttname"><a href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div><div class="ttdoc">A helper class to collect sections into segments.</div><div class="ttdef"><b>Definition</b> linker.h:19</div></div>
 <div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:20</div></div>
 <div class="ttc" id="aclassLinker_1_1OutputFormat_html"><div class="ttname"><a href="classLinker_1_1OutputFormat.html">Linker::OutputFormat</a></div><div class="ttdoc">A class that provides a general interface to setting up generation for a format.</div><div class="ttdef"><b>Definition</b> format.h:56</div></div>
-<div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:15</div></div>
+<div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:16</div></div>
 <div class="ttc" id="aclassLinker_1_1Writer_html"><div class="ttname"><a href="classLinker_1_1Writer.html">Linker::Writer</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to export binary data.</div><div class="ttdef"><b>Definition</b> writer.h:15</div></div>
+<div class="ttc" id="astructErgo_1_1XPFormat_1_1Segment_html"><div class="ttname"><a href="structErgo_1_1XPFormat_1_1Segment.html">Ergo::XPFormat::Segment</a></div><div class="ttdef"><b>Definition</b> xpexp.h:22</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

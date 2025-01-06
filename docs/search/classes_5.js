@@ -8,10 +8,9 @@ var searchData=
   ['filereader_5',['FileReader',['../classdump_1_1FileReader.html',1,'dump']]],
   ['finderinfo_6',['FinderInfo',['../classApple_1_1FinderInfo.html',1,'Apple']]],
   ['flat_7',['Flat',['../classPharLap_1_1P3Format_1_1Flat.html',1,'PharLap::P3Format']]],
-  ['flatformat_8',['FlatFormat',['../classDX64_1_1FlatFormat.html',1,'DX64']]],
-  ['flexformat_9',['FLEXFormat',['../classBinary_1_1FLEXFormat.html',1,'Binary']]],
-  ['flexosaoutheader_10',['FlexOSAOutHeader',['../classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html',1,'COFF::COFFFormat']]],
-  ['format_11',['Format',['../classLinker_1_1Format.html',1,'Linker']]],
-  ['format_5fdescription_12',['format_description',['../structformat__description.html',1,'']]],
-  ['format_5fmagic_13',['format_magic',['../structformat__magic.html',1,'']]]
+  ['flexformat_8',['FLEXFormat',['../classBinary_1_1FLEXFormat.html',1,'Binary']]],
+  ['flexosaoutheader_9',['FlexOSAOutHeader',['../classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html',1,'COFF::COFFFormat']]],
+  ['format_10',['Format',['../classLinker_1_1Format.html',1,'Linker']]],
+  ['format_5fdescription_11',['format_description',['../structformat__description.html',1,'']]],
+  ['format_5fmagic_12',['format_magic',['../structformat__magic.html',1,'']]]
 ];
