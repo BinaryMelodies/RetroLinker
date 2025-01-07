@@ -1,0 +1,36 @@
+
+TARGET_CPM86 defl 0
+TARGET_MSDOS defl 0
+TARGET_ELKS defl 0
+TARGET_WIN16 defl 0
+TARGET_OS2 defl 0
+TARGET_CPM68K defl 0
+TARGET_GEMDOS defl 0
+TARGET_HUMAN68K defl 0
+TARGET_AMIGA defl 0
+TARGET_MACOS defl 0
+TARGET_RISCOS defl 0
+TARGET_SQL defl 0
+TARGET_CPM8K defl 0
+TARGET_DXDOS defl 0
+
+.ifndef TARGET_CPM80
+TARGET_CPM80 defl 0
+.endif
+
+.ifndef TARGET_MSXDOS
+TARGET_MSXDOS defl 0
+.endif
+
+.ifndef FORMAT_COM
+FORMAT_COM defl 0
+.endif
+
+.ifndef FORMAT_PRL
+FORMAT_PRL defl 0
+.endif
+
+.if TARGET_CPM80 | TARGET_MSXDOS
+.include "../include/cpm80.inc"
+.endif
+

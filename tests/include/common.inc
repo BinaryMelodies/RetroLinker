@@ -1,47 +1,9 @@
 
-.ifdef CPU_Z80
-# .set is replaced by defl
-
-TARGET_CPM86 defl 0
-TARGET_MSDOS defl 0
-TARGET_ELKS defl 0
-TARGET_WIN16 defl 0
-TARGET_OS2 defl 0
-TARGET_CPM68K defl 0
-TARGET_GEMDOS defl 0
-TARGET_HUMAN68K defl 0
-TARGET_AMIGA defl 0
-TARGET_MACOS defl 0
-TARGET_RISCOS defl 0
-TARGET_SQL defl 0
-TARGET_CPM8K defl 0
-TARGET_DXDOS defl 0
-
-.ifndef TARGET_CPM80
-TARGET_CPM80 defl 0
-.endif
-
-.ifndef TARGET_MSXDOS
-TARGET_MSXDOS defl 0
-.endif
-
-.ifndef FORMAT_COM
-FORMAT_COM defl 0
-.endif
-
-.ifndef FORMAT_PRL
-FORMAT_PRL defl 0
-.endif
-
-.else
-
 .set CPU_Z80, 0
 .set TARGET_CPM80, 0
 .set TARGET_MSXDOS, 0
 #.set FORMAT_COM, 0 # used by other targets
 .set FORMAT_PRL, 0
-
-# not CPU_Z80
 
 .ifndef CPU_86
 .set CPU_86, 0
@@ -347,10 +309,6 @@ FORMAT_PRL defl 0
 .set MODEL_LARGE, 0
 .endif
 
-.ifndef MODEL_TINY
-.set MODEL_TINY, 0
-.endif
-
 #### Options
 
 .if TARGET_MSDOS & (FORMAT_MZ | FORMAT_NE | FORMAT_BW | FORMAT_MP | FORMAT_MQ | FORMAT_P3)
@@ -413,14 +371,7 @@ FORMAT_PRL defl 0
 .set OPTION_ONLY_LF, 0
 .endif
 
-.endif
-# CPU_Z80
-
 #### General includes
-
-.if TARGET_CPM80 | TARGET_MSXDOS
-.include "../include/cpm80.inc"
-.endif
 
 .if TARGET_CPM86
 .include "../include/cpm86.inc"

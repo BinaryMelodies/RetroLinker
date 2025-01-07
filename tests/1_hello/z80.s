@@ -1,5 +1,6 @@
 
-.include	"../include/common.inc"
+#.include	"../include/common.inc"
+.include	"../include/z80.inc"
 
 	.section	.text
 
