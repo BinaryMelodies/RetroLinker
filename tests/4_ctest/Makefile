@@ -12,3 +12,5 @@ distclean: clean
 
 verify: all
 	for file in ref/*; do diff $$file `basename $$file`; done
+	for file in ref/.rsrc/*; do diff $$file .rsrc/`basename $$file`; done
+
