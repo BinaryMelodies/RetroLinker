@@ -568,6 +568,8 @@ namespace COFF
 		std::string segment_difference_prefix();
 #endif
 
+		std::string fix_byte_prefix();
+
 		enum
 		{
 			/* section number */

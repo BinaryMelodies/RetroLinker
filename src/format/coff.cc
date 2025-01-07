@@ -921,6 +921,13 @@ std::string COFFFormat::segment_difference_prefix()
 }
 #endif
 
+std::string COFFFormat::fix_byte_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "FIX" << special_prefix_char;
+	return oss.str();
+}
+
 void COFFFormat::GenerateModule(Linker::Module& module)
 {
 	switch(cpu_type)
@@ -978,6 +985,19 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 	{
 		if(symbol == nullptr)
 			continue;
+
+		/* The w65-wdc assembler is bugged and sometimes erases bytes, this is an ugly work around to fix it */
+		if(cpu_type == CPU_W65 && symbol->name.rfind(fix_byte_prefix(), 0) == 0)
+		{
+			/* $$FIX$<byte>$<rest> */
+			size_t dollar_offset = symbol->name.find("$", fix_byte_prefix().size()) - fix_byte_prefix().size();
+			std::string byte_text = symbol->name.substr(fix_byte_prefix().size(), dollar_offset);
+			Linker::Debug << "Debug: Interpreting " << byte_text << " as part of " << symbol->name << std::endl;
+			unsigned byte_value = stoul(byte_text, nullptr, 16);
+			linker_sections[symbol->section_number - 1]->WriteWord(1, symbol->value - sections[symbol->section_number - 1]->address, byte_value, ::LittleEndian);
+			continue;
+		}
+
 		offset_t displacement = 0;
 		switch(symbol->storage_class)
 		{
