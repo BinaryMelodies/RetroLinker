@@ -1,16 +1,16 @@
 
 Recipe([
 	Assemble(Input = "{cpu_name}.s", Output = "obj/{output_file}{extension}.o", Arguments = [
-		"--defsym", "CPU_{cpu_name.upper()}=1",
-		"--defsym", "TARGET_{target_name.upper()}=1",
+		DefineSymbol("CPU_{cpu_name.upper()})"),
+		DefineSymbol("TARGET_{target_name.upper()}"),
 		IfDefined("format_name"),
-			"--defsym", "FORMAT_{format_name.upper()}=1",
+			DefineSymbol("FORMAT_{format_name.upper()}"),
 		EndIf,
 		IfDefined("model_name"),
-			"--defsym", "MODEL_{model_name.upper()}=1",
+			DefineSymbol("MODEL_{model_name.upper()}"),
 		EndIf,
 		ForAll("option", In = "assembler_options"),
-			"--defsym", "OPTION_{option.upper() + '=1' if '=' not in option else option.upper()}",
+			DefineSymbol("OPTION_{option.upper().split('=')[0]}", "{'1' if '=' not in option else '='.join(option.upper().split('=')[1:])}"),
 		EndFor
 		], Dependency = ["../include/{include_name}.inc", "../include/common.inc"], Executable = "{output_file}{extension}"),
 	Link(Format = "{linker_format_name}", Input = "obj/{output_file}{extension}.o", Output = "{output_file}{extension}", Arguments = [

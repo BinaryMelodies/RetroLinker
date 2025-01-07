@@ -109,7 +109,7 @@ void AtariFormat::ProcessModule(Linker::Module& module)
 	}
 	else if(!HasEntryPoint())
 	{
-		Linker::Warning << "Warning: no entry point must has been provided" << std::endl;
+		Linker::Warning << "Warning: no entry point has been provided" << std::endl;
 	}
 
 	/* TODO: enable multiple segments */

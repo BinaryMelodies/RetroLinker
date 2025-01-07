@@ -157,6 +157,17 @@ class Copy(RecipeStep):
 	def __init__(self, Source, Destination, Arguments = []):
 		super(Copy, self).__init__(Input = Source, Output = Destination, Arguments = ["cp"] + Arguments + [Source, Destination])
 
+class DefineSymbol(RecipeStep):
+	def __init__(self, name, value = "1"):
+		self.name = name
+		self.value = value
+
+	def process(self, *remaining_arguments, **keywords):
+		if keywords.get('assembler', '').split(' ')[0] == "xa": # TODO: this is a very hacky solution
+			return [f"-D{ext_format(self.name, **keywords)}={ext_format(self.value, **keywords)}"], remaining_arguments
+		else:
+			return ["--defsym", f"{ext_format(self.name, **keywords)}={ext_format(self.value, **keywords)}"], remaining_arguments
+
 class IfDefined:
 	"""In place of an argument, provides conditional arguments."""
 	def __init__(self, name):
@@ -334,6 +345,15 @@ CPUS = {
 	'z8k': {
 		'assembler': 'z8k-coff-as',
 		'compiler': 'z8k-coff-gcc',
+	},
+	'mos6502': {
+		'assembler': 'xa -R -c',
+		'compiler': 'echo "Error: GCC does not support 6502" #',
+	},
+	'w65': {
+		# also MOS 6502, but using old binutils
+		'assembler': 'w65-wdc-none-as',
+		'compiler': 'echo "Error: GCC does not support 6502" #',
 	},
 }
 
@@ -724,6 +744,27 @@ DefineTarget(
 		DefineVersion("", LinkerOptions = [f"base_address={DXDOS_BASE}"]),
 	],
 	extension = ".com")
+
+DefineTarget(
+	CPU = "mos6502",
+	System = "atari400",
+	Format = "atari-com",
+	FormatName = "atari",
+	custom_entry = True,
+	Versions = [
+		DefineVersion("", LinkerOptions = ["base_address=0x600"]),
+	],
+	extension = ".xex")
+
+DefineTarget(
+	CPU = "mos6502",
+	System = "c64",
+	Format = "cbm-prg",
+	FormatName = "c64",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["base_address=0x811"]),
+	],
+	extension = ".prg")
 
 if __name__ == '__main__':
 	exec(open('Bakefile').read())
