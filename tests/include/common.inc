@@ -29,6 +29,10 @@
 .set CPU_ARM, 0
 .endif
 
+.ifndef CPU_6502
+.set CPU_6502, 0
+.endif
+
 #### 8086/80286 targets
 
 .ifndef TARGET_MSDOS1
@@ -156,6 +160,16 @@
 
 .ifndef TARGET_RISCOS
 .set TARGET_RISCOS, 0
+.endif
+
+#### MOS 6502 targets
+
+.ifndef TARGET_ATARI400
+.set TARGET_ATARI400, 0
+.endif
+
+.ifndef TARGET_C64
+.set TARGET_C64, 0
 .endif
 
 #### Other targets
@@ -427,5 +441,13 @@
 
 .if TARGET_DXDOS
 .include "../include/dxdos.inc"
+.endif
+
+.if TARGET_ATARI400
+.include "../include/atari400.inc"
+.endif
+
+.if TARGET_C64
+.include "../include/c64.inc"
 .endif
 

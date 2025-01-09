@@ -757,8 +757,33 @@ DefineTarget(
 	extension = ".xex")
 
 DefineTarget(
+	CPU = "w65",
+	System = "atari400-binutils",
+	TargetName = "atari400",
+	IncludeName = "atari400",
+	Format = "atari-com",
+	FormatName = "atari",
+	custom_entry = True,
+	Versions = [
+		DefineVersion("", LinkerOptions = ["base_address=0x600"]),
+	],
+	extension = ".xex")
+
+DefineTarget(
 	CPU = "mos6502",
 	System = "c64",
+	Format = "cbm-prg",
+	FormatName = "c64",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["base_address=0x811"]),
+	],
+	extension = ".prg")
+
+DefineTarget(
+	CPU = "w65",
+	System = "c64-binutils",
+	TargetName = "c64",
+	IncludeName = "c64",
 	Format = "cbm-prg",
 	FormatName = "c64",
 	Versions = [
