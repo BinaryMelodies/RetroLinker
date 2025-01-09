@@ -100,7 +100,7 @@ namespace Linker
 		void AddLocalSymbol(std::string name, Location location);
 
 		/**
-		 * @brief Adds an exported symbol
+		 * @brief Adds and processes exported symbol for extended syntax
 		 */
 		void AddGlobalSymbol(std::string name, Location location);
 	private:
@@ -122,6 +122,14 @@ namespace Linker
 		 */
 		void AddExportedSymbol(ExportedSymbol name, Location symbol);
 
+		/**
+		 * @brief Processes undefined symbol for extended syntax
+		 */
+		void AddUndefinedSymbol(std::string symbol_name);
+
+		/**
+		 * @brief Adds and processes relocation for extended syntax
+		 */
 		void AddRelocation(Relocation relocation);
 
 		/**

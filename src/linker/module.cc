@@ -184,6 +184,48 @@ void Module::AddExportedSymbol(ExportedSymbol name, Location symbol)
 	exported_symbols[name] = symbol;
 }
 
+void Module::AddUndefinedSymbol(std::string symbol_name)
+{
+	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
+	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+
+	if(output_format != nullptr && output_format->FormatSupportsLibraries()
+	&& input_format != nullptr && !input_format->FormatProvidesLibraries())
+	{
+		if(symbol_name.rfind(import_prefix(), 0) == 0)
+		{
+			/* $$IMPORT$<library name>$<ordinal> */
+			/* $$IMPORT$<library name>$_<name> */
+			std::string reference_name = symbol_name.substr(import_prefix().size());
+			Linker::SymbolName name("");
+			if(parse_imported_name(reference_name, name))
+			{
+				AddImportedSymbol(name);
+			}
+			else
+			{
+				Linker::Error << "Error: Unable to parse import name " << symbol_name << ", proceeding" << std::endl;
+			}
+		}
+		else if(symbol_name.rfind(segment_of_import_prefix(), 0) == 0)
+		{
+			/* $$IMPSEG$<library name>$<ordinal> */
+			/* $$IMPSEG$<library name>$_<name> */
+			std::string reference_name = symbol_name.substr(segment_of_import_prefix().size());
+			Linker::SymbolName name("");
+			if(parse_imported_name(reference_name, name))
+			{
+				AddImportedSymbol(name);
+			}
+			else
+			{
+				Linker::Error << "Error: Unable to parse import name " << symbol_name << ", proceeding" << std::endl;
+			}
+		}
+	}
+	// undefined symbol ignored
+}
+
 void Module::AddRelocation(Relocation relocation)
 {
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();

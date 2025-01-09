@@ -418,35 +418,9 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 				{
 					module->AddCommonSymbol(symbol.name, symbol.specification);
 				}
-				else if(option_libraries && symbol.name.rfind(import_prefix(), 0) == 0)
+				else
 				{
-					/* $$IMPORT$<library name>$<ordinal> */
-					/* $$IMPORT$<library name>$_<name> */
-					std::string reference_name = symbol.name.substr(import_prefix().size());
-					Linker::SymbolName name("");
-					if(parse_imported_name(reference_name, name))
-					{
-						module->AddImportedSymbol(name);
-					}
-					else
-					{
-						Linker::Error << "Error: Unable to parse import name " << symbol.name << ", proceeding" << std::endl;
-					}
-				}
-				else if(option_libraries && symbol.name.rfind(segment_of_import_prefix(), 0) == 0)
-				{
-					/* $$IMPSEG$<library name>$<ordinal> */
-					/* $$IMPSEG$<library name>$_<name> */
-					std::string reference_name = symbol.name.substr(segment_of_import_prefix().size());
-					Linker::SymbolName name("");
-					if(parse_imported_name(reference_name, name))
-					{
-						module->AddImportedSymbol(name);
-					}
-					else
-					{
-						Linker::Error << "Error: Unable to parse import name " << symbol.name << ", proceeding" << std::endl;
-					}
+					module->AddUndefinedSymbol(symbol.name);
 				}
 				i++;
 			}
