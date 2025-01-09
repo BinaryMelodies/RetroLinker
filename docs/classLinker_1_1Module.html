@@ -123,14 +123,17 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a828a23753d979857943659de799f8a5d" id="r_a828a23753d979857943659de799f8a5d"><td class="memItemLeft" align="right" valign="top"><a id="a828a23753d979857943659de799f8a5d" name="a828a23753d979857943659de799f8a5d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddLocalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> symbol)</td></tr>
-<tr class="memdesc:a828a23753d979857943659de799f8a5d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an internal symbol. <br /></td></tr>
-<tr class="separator:a828a23753d979857943659de799f8a5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a671906d40d548939cc0b7d1bc12ab04e" id="r_a671906d40d548939cc0b7d1bc12ab04e"><td class="memItemLeft" align="right" valign="top"><a id="a671906d40d548939cc0b7d1bc12ab04e" name="a671906d40d548939cc0b7d1bc12ab04e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddGlobalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> symbol)</td></tr>
-<tr class="memdesc:a671906d40d548939cc0b7d1bc12ab04e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an exported symbol. <br /></td></tr>
-<tr class="separator:a671906d40d548939cc0b7d1bc12ab04e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a112025d1703e88970ba0269858d5c93f" id="r_a112025d1703e88970ba0269858d5c93f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a112025d1703e88970ba0269858d5c93f">SetupOptions</a> (char special_char, std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt; output_format, std::shared_ptr&lt; <a class="el" href="classLinker_1_1InputFormat.html">InputFormat</a> &gt; input_format)</td></tr>
+<tr class="memdesc:a112025d1703e88970ba0269858d5c93f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
+<tr class="separator:a112025d1703e88970ba0269858d5c93f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcc5a24a25aefc8bbf5f4ac8494abf7d" id="r_abcc5a24a25aefc8bbf5f4ac8494abf7d"><td class="memItemLeft" align="right" valign="top"><a id="abcc5a24a25aefc8bbf5f4ac8494abf7d" name="abcc5a24a25aefc8bbf5f4ac8494abf7d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddLocalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> location)</td></tr>
+<tr class="memdesc:abcc5a24a25aefc8bbf5f4ac8494abf7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an internal symbol. <br /></td></tr>
+<tr class="separator:abcc5a24a25aefc8bbf5f4ac8494abf7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7564e86747525d29722e7fd7ef3d5c0" id="r_ae7564e86747525d29722e7fd7ef3d5c0"><td class="memItemLeft" align="right" valign="top"><a id="ae7564e86747525d29722e7fd7ef3d5c0" name="ae7564e86747525d29722e7fd7ef3d5c0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddGlobalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> location)</td></tr>
+<tr class="memdesc:ae7564e86747525d29722e7fd7ef3d5c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds and processes exported symbol for extended syntax. <br /></td></tr>
+<tr class="separator:ae7564e86747525d29722e7fd7ef3d5c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38dd4b20975c68f2c930f3d971f6a813" id="r_a38dd4b20975c68f2c930f3d971f6a813"><td class="memItemLeft" align="right" valign="top"><a id="a38dd4b20975c68f2c930f3d971f6a813" name="a38dd4b20975c68f2c930f3d971f6a813"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddCommonSymbol</b> (std::string name, <a class="el" href="classLinker_1_1CommonSymbol.html">CommonSymbol</a> symbol)</td></tr>
 <tr class="memdesc:a38dd4b20975c68f2c930f3d971f6a813"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a common symbol. <br /></td></tr>
@@ -143,6 +146,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>AddImportedSymbol</b>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddExportedSymbol</b> (<a class="el" href="classLinker_1_1ExportedSymbol.html">ExportedSymbol</a> name, <a class="el" href="classLinker_1_1Location.html">Location</a> symbol)</td></tr>
 <tr class="memdesc:a333949c04bd348d6271c659fd0340c74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an exported symbol. <br /></td></tr>
 <tr class="separator:a333949c04bd348d6271c659fd0340c74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aabdf0f47224ad67ac738e22b60a3fe23" id="r_aabdf0f47224ad67ac738e22b60a3fe23"><td class="memItemLeft" align="right" valign="top"><a id="aabdf0f47224ad67ac738e22b60a3fe23" name="aabdf0f47224ad67ac738e22b60a3fe23"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddUndefinedSymbol</b> (std::string symbol_name)</td></tr>
+<tr class="memdesc:aabdf0f47224ad67ac738e22b60a3fe23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes undefined symbol for extended syntax. <br /></td></tr>
+<tr class="separator:aabdf0f47224ad67ac738e22b60a3fe23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed88659dd3ebe9be73f9c14a1ed914cc" id="r_aed88659dd3ebe9be73f9c14a1ed914cc"><td class="memItemLeft" align="right" valign="top"><a id="aed88659dd3ebe9be73f9c14a1ed914cc" name="aed88659dd3ebe9be73f9c14a1ed914cc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddRelocation</b> (<a class="el" href="classLinker_1_1Relocation.html">Relocation</a> relocation)</td></tr>
+<tr class="memdesc:aed88659dd3ebe9be73f9c14a1ed914cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds and processes relocation for extended syntax. <br /></td></tr>
+<tr class="separator:aed88659dd3ebe9be73f9c14a1ed914cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d4a9688ee77875de9961e868590e321" id="r_a0d4a9688ee77875de9961e868590e321"><td class="memItemLeft" align="right" valign="top"><a id="a0d4a9688ee77875de9961e868590e321" name="a0d4a9688ee77875de9961e868590e321"></a>
 const std::vector&lt; <a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetImportedSymbols</b> () const</td></tr>
 <tr class="memdesc:a0d4a9688ee77875de9961e868590e321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves list of all imported symbols. <br /></td></tr>
@@ -217,7 +228,44 @@ std::vector&lt; <a class="el" href="classLinker_1_1Relocation.html">Relocation</
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Encodes an object module file as a collection of sections, symbols and relocations. </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a112025d1703e88970ba0269858d5c93f" name="a112025d1703e88970ba0269858d5c93f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a112025d1703e88970ba0269858d5c93f">&#9670;&#160;</a></span>SetupOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Module::SetupOptions </td>
+          <td>(</td>
+          <td class="paramtype">char</td>          <td class="paramname"><span class="paramname"><em>special_char</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>output_format</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classLinker_1_1InputFormat.html">InputFormat</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>input_format</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Initializes the reader for linking purposes. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">special_char</td><td>Most input formats do not provide support for the special requirements of the output format (such as segmentation for ELF). We work around this by introducing special name prefixes $$SEGOF$ where $ is the value of special_char. </td></tr>
+    <tr><td class="paramname">output_format</td><td>The output format that will be used. This is required to know which extra special features need to be implemented (such as segmentation). </td></tr>
+    <tr><td class="paramname">input_format</td><td>The input format that will be used. This is required to know which extra special features need to be implemented (such as segmentation). </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/linker/<a class="el" href="module_8h_source.html">module.h</a></li>
 <li>src/linker/<b>module.cc</b></li>
 </ul>
