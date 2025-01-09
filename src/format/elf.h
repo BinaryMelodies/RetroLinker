@@ -23,17 +23,15 @@ namespace ELF
 
 		void SetupOptions(std::shared_ptr<Linker::OutputFormat> format) override;
 
+	private:
+		void GenerateModule(Linker::Module& module) const;
+
+	public:
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 
 		EndianType endiantype = ::LittleEndian;
-		Linker::Module * module = nullptr;
 
 		ELFFormat()
-		{
-		}
-
-		ELFFormat(Linker::Module& module)
-			: module(&module)
 		{
 		}
 
