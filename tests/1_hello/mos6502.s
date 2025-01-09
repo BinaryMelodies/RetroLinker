@@ -38,11 +38,12 @@ End:
 	.data
 
 Message:
+	.aasc	"GREETINGS!"
 #ifdef	TARGET_ATARI400
-	.aasc	"HELLO, ATARI 400/400!"
+	.aasc	" ATARI 400/800"
 #endif
 #ifdef	TARGET_C64
-	.aasc	"HELLO, COMMODORE 64!"
+	.aasc	" COMMODORE 64"
 #endif
 	.byte	0
 
