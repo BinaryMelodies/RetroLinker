@@ -1,16 +1,86 @@
 
+#include <sstream>
 #include "module.h"
 
 using namespace Linker;
 
-void Module::AddLocalSymbol(std::string name, Location symbol)
+void Module::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> output_format, std::shared_ptr<Linker::InputFormat> input_format)
 {
-	local_symbols[name] = symbol;
+	special_prefix_char = special_char;
+	this->output_format = output_format;
+	this->input_format = input_format;
 }
 
-void Module::AddGlobalSymbol(std::string name, Location symbol)
+std::string Module::export_prefix()
 {
-	symbols[name] = symbol;
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "EXPORT" << special_prefix_char;
+	return oss.str();
+}
+
+bool Module::parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol)
+{
+	try
+	{
+		/* <name> */
+		/* <name>$<ordinal> */
+		/* <ordinal>$_<name> */
+		size_t ix = reference_name.find(special_prefix_char);
+		if(ix == std::string::npos)
+		{
+			symbol = Linker::ExportedSymbol(reference_name);
+		}
+		else if(ix < reference_name.size() - 1 && reference_name[ix + 1] == '_')
+		{
+			symbol = Linker::ExportedSymbol(stoll(reference_name.substr(0, ix)), reference_name.substr(ix + 2));
+		}
+		else
+		{
+			symbol = Linker::ExportedSymbol(reference_name.substr(0, ix), stoll(reference_name.substr(ix + 1)));
+		}
+		return true;
+	}
+	catch(std::invalid_argument& a)
+	{
+		return false;
+	}
+}
+
+void Module::AddLocalSymbol(std::string name, Location location)
+{
+	local_symbols[name] = location;
+}
+
+void Module::AddGlobalSymbol(std::string name, Location location)
+{
+	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
+	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+
+	if(output_format != nullptr && output_format->FormatSupportsLibraries()
+	&& input_format != nullptr && !input_format->FormatProvidesLibraries()
+	&& name.rfind(export_prefix(), 0) == 0)
+	{
+		/* $$EXPORT$<name> */
+		/* $$EXPORT$<name>$<ordinal> */
+		std::string reference_name = name.substr(export_prefix().size());
+		Linker::ExportedSymbol name("");
+		if(parse_exported_name(reference_name, name))
+		{
+			AddExportedSymbol(name, location);
+			return;
+		}
+		else
+		{
+			Linker::Error << "Error: Unable to parse export name " << name << ", proceeding" << std::endl;
+		}
+	}
+
+	_AddGlobalSymbol(name, location);
+}
+
+void Module::_AddGlobalSymbol(std::string name, Location location)
+{
+	symbols[name] = location;
 }
 
 void Module::AddCommonSymbol(std::string name, CommonSymbol symbol)

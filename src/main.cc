@@ -1131,6 +1131,7 @@ int linker_main(int argc, char * argv[])
 			Linker::FatalError(message.str());
 		}
 
+		module1.SetupOptions(special_char, format, input_format);
 		input_format->SetupOptions(special_char, format);
 		input_format->ProduceModule(module1, rd);
 		in.close();

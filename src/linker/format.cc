@@ -152,3 +152,8 @@ void InputFormat::SetupOptions(char special_char, std::shared_ptr<OutputFormat> 
 {
 }
 
+bool InputFormat::FormatProvidesLibraries() const
+{
+	return false;
+}
+

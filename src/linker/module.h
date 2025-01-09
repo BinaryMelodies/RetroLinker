@@ -64,15 +64,37 @@ namespace Linker
 		std::vector<Relocation> relocations;
 
 		/**
+		 * @brief Initializes the reader for linking purposes
+		 * @param special_char Most input formats do not provide support for the special requirements of the output format (such as segmentation for ELF). We work around this by introducing special name prefixes $$SEGOF$ where $ is the value of special_char.
+		 * @param output_format The output format that will be used. This is required to know which extra special features need to be implemented (such as segmentation).
+		 * @param input_format The input format that will be used. This is required to know which extra special features need to be implemented (such as segmentation).
+		 */
+		void SetupOptions(char special_char, std::shared_ptr<OutputFormat> output_format, std::shared_ptr<InputFormat> input_format);
+
+	private:
+		/* GNU assembler can use '$', NASM must use '?' */
+		char special_prefix_char = '$';
+		std::weak_ptr<Linker::OutputFormat> output_format;
+		std::weak_ptr<Linker::InputFormat> input_format;
+
+		std::string export_prefix();
+
+		bool parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol);
+
+	public:
+		/**
 		 * @brief Adds an internal symbol
 		 */
-		void AddLocalSymbol(std::string name, Location symbol);
+		void AddLocalSymbol(std::string name, Location location);
 
 		/**
 		 * @brief Adds an exported symbol
 		 */
-		void AddGlobalSymbol(std::string name, Location symbol);
+		void AddGlobalSymbol(std::string name, Location location);
+	private:
+		void _AddGlobalSymbol(std::string name, Location location);
 
+	public:
 		/**
 		 * @brief Adds a common symbol
 		 */

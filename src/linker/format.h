@@ -170,6 +170,10 @@ namespace Linker
 		 * @brief Reads a file and loads the information into a module object
 		 */
 		virtual void ProduceModule(Module& module, Reader& rd) = 0;
+		/**
+		 * @brief Whether the format enables importing/exporting libraries
+		 */
+		virtual bool FormatProvidesLibraries() const;
 	};
 }
 

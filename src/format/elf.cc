@@ -10,6 +10,7 @@ void ELFFormat::WriteFile(Linker::Writer& wr)
 
 void ELFFormat::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format)
 {
+	// TODO: remove
 	special_prefix_char = special_char;
 	output_format = format;
 	option_segmentation = format->FormatSupportsSegmentation();
@@ -409,6 +410,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 						module->AddLocalSymbol(symbol.name, symbol.location);
 						break;
 					default:
+#if 0
 						if(option_libraries && symbol.name.rfind(export_prefix(), 0) == 0)
 						{
 							/* $$EXPORT$<name> */
@@ -425,6 +427,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 								Linker::Error << "Error: Unable to parse export name " << symbol.name << ", proceeding" << std::endl;
 							}
 						}
+#endif
 						module->AddGlobalSymbol(symbol.name, symbol.location);
 						break;
 					}
