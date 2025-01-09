@@ -193,16 +193,135 @@ void Module::AddRelocation(Relocation relocation)
 	{
 		/* undefined symbol */
 		std::string unparsed_name;
+		assert(symbolp->LoadName(unparsed_name));
 
-		if(cpu == I86
-		&& output_format != nullptr && output_format->FormatSupportsSegmentation()
-		&& input_format != nullptr && !input_format->FormatProvidesSegmentation()
-		&& symbolp->LoadName(unparsed_name)
-		&& unparsed_name.rfind(segment_of_prefix(), 0) == 0 && relocation.size == 2)
+		if(output_format != nullptr && input_format != nullptr
+		&& (cpu == I86 || cpu == I386))
 		{
-			/* $$SEGOF$<symbol name> */
-			std::string symbol_name = unparsed_name.substr(segment_of_prefix().size());
-			relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend);
+			/* Note: a much more general syntax could be developed:
+				segment :=
+					SEGMENT(section name)
+					SEGMENT OF(symbol)
+				frame :=
+					symbol
+					segment
+				reference :=
+					frame
+					SEGMENT AT(symbol)
+					symbol WRT frame
+					SEGMENT frame WRT frame
+			However, this would probably result in an overwhelming syntax
+			*/
+			if(output_format->FormatSupportsSegmentation() && !input_format->FormatProvidesSegmentation())
+			{
+				if(unparsed_name.rfind(segment_prefix(), 0) == 0 && relocation.size == 2)
+				{
+					/* $$SEG$<section name> */
+					/* Note: can only refer to a currently present section */
+					std::string section_name = unparsed_name.substr(segment_prefix().size());
+					std::shared_ptr<Section> section = FindSection(section_name);
+					if(section == nullptr)
+					{
+						Linker::Error << "Error: invalid section in extended relocation `" << section_name << "'" << std::endl;
+					}
+					else
+					{
+						relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend);
+					}
+				}
+				else if(unparsed_name.rfind(segment_of_prefix(), 0) == 0 && relocation.size == 2)
+				{
+					/* $$SEGOF$<symbol name> */
+					std::string symbol_name = unparsed_name.substr(segment_of_prefix().size());
+					relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend);
+				}
+				else if(unparsed_name.rfind(segment_at_prefix(), 0) == 0 && relocation.size == 2)
+				{
+					/* $$SEGAT$<symbol name> */
+					std::string symbol_name = unparsed_name.substr(segment_of_prefix().size());
+					relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend);
+				}
+				else if(unparsed_name.rfind(with_respect_to_segment_prefix(), 0) == 0)
+				{
+					/* $$WRTSEG$<symbol name>$<section name> */
+					size_t sep = unparsed_name.rfind(special_prefix_char);
+					std::string symbol_name = unparsed_name.substr(with_respect_to_segment_prefix().size(),
+						sep - with_respect_to_segment_prefix().size());
+					std::string section_name = unparsed_name.substr(sep + 1);
+					//Linker::Debug << "Debug: " << symbol_name << " wrt " << section_name << std::endl;
+					std::shared_ptr<Linker::Section> section = FindSection(section_name);
+					if(section == nullptr)
+					{
+						Linker::Error << "Error: invalid section in extended relocation `" << section_name << "'" << std::endl;
+					}
+					else
+					{
+						relocation = Linker::Relocation::OffsetFrom(relocation.size, relocation.source,
+							Linker::Target(Linker::SymbolName(symbol_name)), Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend, ::LittleEndian);
+					}
+				}
+				else if(unparsed_name.rfind(segment_difference_prefix(), 0) == 0)
+				{
+					/* $$SEGDIF$<section name>$<section name> */
+					size_t sep = unparsed_name.rfind(special_prefix_char);
+					std::string section1_name = unparsed_name.substr(segment_difference_prefix().size(),
+						sep - with_respect_to_segment_prefix().size());
+					std::shared_ptr<Linker::Section> section1 = FindSection(section1_name);
+					std::string section2_name = unparsed_name.substr(sep + 1);
+					std::shared_ptr<Linker::Section> section2 = FindSection(section2_name);
+					if(section1 == nullptr)
+					{
+						Linker::Error << "Error: invalid section in extended relocation `" << section1_name << "'" << std::endl;
+					}
+					else if(section2 == nullptr)
+					{
+						Linker::Error << "Error: invalid section in extended relocation `" << section2_name << "'" << std::endl;
+					}
+					else
+					{
+						relocation = Linker::Relocation::ParagraphDifference(relocation.source,
+							Linker::Target(Linker::Location(section1)).GetSegment(), Linker::Target(Linker::Location(section2)).GetSegment(), relocation.addend);
+					}
+				}
+			}
+			if(output_format->FormatSupportsLibraries() && !input_format->FormatProvidesLibraries())
+			{
+				if(unparsed_name.rfind(import_prefix(), 0) == 0)
+				{
+					/* $$IMPORT$<library name>$<ordinal> */
+					/* $$IMPORT$<library name>$_<name> */
+					std::string reference_name = unparsed_name.substr(import_prefix().size());
+					Linker::SymbolName symbol("");
+					if(parse_imported_name(reference_name, symbol))
+					{
+						relocation =
+							relocation.IsRelative()
+							? Linker::Relocation::Relative(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend)
+							: output_format->FormatIsLinear()
+								? Linker::Relocation::Absolute(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend)
+								: Linker::Relocation::Offset(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend);
+					}
+					else
+					{
+						Linker::Error << "Error: Unable to parse import name " << unparsed_name << ", proceeding" << std::endl;
+					}
+				}
+				else if(unparsed_name.rfind(segment_of_import_prefix(), 0) == 0)
+				{
+					/* $$IMPSEG$<library name>$<ordinal> */
+					/* $$IMPSEG$<library name>$_<name> */
+					std::string reference_name = unparsed_name.substr(segment_of_import_prefix().size());
+					Linker::SymbolName symbol("");
+					if(parse_imported_name(reference_name, symbol))
+					{
+						relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(symbol), relocation.addend);
+					}
+					else
+					{
+						Linker::Error << "Error: Unable to parse import name " << unparsed_name << ", proceeding" << std::endl;
+					}
+				}
+			}
 		}
 	}
 
