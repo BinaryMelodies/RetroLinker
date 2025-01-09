@@ -237,7 +237,7 @@
  * <tr>
  * <td colspan='2'><a href="classELF_1_1ELFFormat.html">ELF</a></td>
  * <td>Intel 80386<br>etc.</td>
- * <td>Linux<br>etc.</td>
+ * <td>Linux<br>etc. (unimplemented)</td>
  * </tr>
  *
  * <tr>
@@ -249,13 +249,13 @@
  * <tr>
  * <td colspan='2'><a href="classBinary_1_1AtariFormat.html">Atari 400/800 (<tt>.exe</tt>)</a></td>
  * <td>MOS 6502</td>
- * <td>Atari 400/800 (untested)</td>
+ * <td>Atari 400/800</td>
  * </tr>
  *
  * <tr>
  * <td colspan='2'><a href="classBinary_1_1CommodoreFormat.html">Commodore PET/VIC-20/64 (<tt>.prg</tt>)</a></td>
  * <td>MOS 6502</td>
- * <td>Commodore PET/VIC-20/64 (untested)</td>
+ * <td>Commodore PET/VIC-20/64</td>
  * </tr>
  *
  * <tr>
@@ -363,7 +363,7 @@
  * <tr>
  * <td><a href="classO65_1_1O65Format.html">xa object</a></td>
  * <td>MOS 6502</td>
- * <td>xa (unimplemented)</td>
+ * <td>xa</td>
  * </tr>
  *
  * <tr>
