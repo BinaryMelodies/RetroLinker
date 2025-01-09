@@ -337,6 +337,9 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		wr.WriteWord(4, it.second);
 	}
 #endif
+
+	/* this is required for module generation */
+	bss = std::make_shared<Linker::Section>(".bss");
 }
 
 void AOutFormat::WriteFile(Linker::Writer& wr)
@@ -375,7 +378,7 @@ void AOutFormat::WriteFile(Linker::Writer& wr)
 
 /* * * Reader * * */
 
-void AOutFormat::GenerateModule(Linker::Module& module)
+void AOutFormat::GenerateModule(Linker::Module& module) const
 {
 	switch(cpu)
 	{
@@ -421,8 +424,8 @@ void AOutFormat::GenerateModule(Linker::Module& module)
 	std::shared_ptr<Linker::Section> linker_code, linker_data, linker_bss;
 	linker_code = std::dynamic_pointer_cast<Linker::Section>(code);
 	linker_data = std::dynamic_pointer_cast<Linker::Section>(data);
+	linker_bss  = std::dynamic_pointer_cast<Linker::Section>(bss);
 
-	bss = linker_bss = std::make_shared<Linker::Section>(".bss");
 	linker_bss->SetZeroFilled(true);
 	linker_bss->Expand(bss_size);
 
@@ -438,7 +441,7 @@ void AOutFormat::GenerateModule(Linker::Module& module)
 	module.AddSection(linker_data);
 	module.AddSection(linker_bss);
 
-	for(Symbol& symbol : symbols)
+	for(const Symbol& symbol : symbols)
 	{
 		offset_t offset;
 		std::shared_ptr<Linker::Section> section;
@@ -518,7 +521,7 @@ void AOutFormat::GenerateModule(Linker::Module& module)
 			case 0x08:
 				/* external symbol */
 				{
-					Symbol& symbol = symbols[rel.second >> 4];
+					const Symbol& symbol = symbols[rel.second >> 4];
 #if 0
 					if(symbol.name == ".text")
 					{
@@ -551,11 +554,6 @@ void AOutFormat::GenerateModule(Linker::Module& module)
 			Linker::Debug << "Debug: a.out relocation " << obj_rel << std::endl;
 		}
 	}
-
-	/* release sections */
-	code = nullptr;
-	data = nullptr;
-	bss = nullptr;
 }
 
 void AOutFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)

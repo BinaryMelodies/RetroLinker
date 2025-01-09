@@ -889,7 +889,7 @@ bool COFFFormat::FormatRequiresDataStreamFix() const
 	return cpu_type == CPU_W65; // the w65 assembler generates faulty binary
 }
 
-void COFFFormat::GenerateModule(Linker::Module& module)
+void COFFFormat::GenerateModule(Linker::Module& module) const
 {
 	switch(cpu_type)
 	{
@@ -980,7 +980,7 @@ void COFFFormat::GenerateModule(Linker::Module& module)
 
 	for(size_t i = 0; i < sections.size(); i++)
 	{
-		std::unique_ptr<Section>& section = sections[i];
+		const std::unique_ptr<Section>& section = sections[i];
 		for(auto& _rel : section->relocations)
 		{
 			switch(cpu_type)

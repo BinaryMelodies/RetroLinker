@@ -19,7 +19,7 @@ namespace O65
 	{
 	public:
 		/** @brief A object file typically contains a single module */
-		class Module : public virtual Linker::InputFormat, public Linker::LinkerManager
+		class Module
 		{
 		public:
 			/** @brief Additional entries in the header */
@@ -191,7 +191,7 @@ namespace O65
 				Clear();
 			}
 
-			void Clear() override;
+			void Clear();
 
 			/** @brief Whether file can only be relocated according to a 256 byte page (MODE_PAGE_RELOC is set in mode_word) */
 			bool IsPageRelocatable() const;
@@ -209,9 +209,9 @@ namespace O65
 			/** @brief Writes a module dependent word, the size of which is given by GetWordSize() */
 			void WriteWord(Linker::Writer& wr, offset_t value) const;
 
-			void ReadFile(Linker::Reader& rd) override;
-			void WriteFile(Linker::Writer& wr) override;
-			void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+			void ReadFile(Linker::Reader& rd);
+			void WriteFile(Linker::Writer& wr);
+			void GenerateModule(Linker::Module& module, Linker::Reader& rd) const;
 		};
 
 	protected:

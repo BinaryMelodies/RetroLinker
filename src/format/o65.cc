@@ -230,7 +230,7 @@ void O65Format::Module::WriteFile(Linker::Writer& wr)
 	}
 }
 
-void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd)
+void O65Format::Module::GenerateModule(Linker::Module& module, Linker::Reader& rd) const
 {
 	if((mode_word & MODE_65816))
 		module.cpu = Linker::Module::W65K;
@@ -306,7 +306,7 @@ void O65Format::Module::ProduceModule(Linker::Module& module, Linker::Reader& rd
 		);
 	}
 
-	std::map<offset_t, relocation> * relocation_parts[2] = { &code_relocations, &data_relocations };
+	const std::map<offset_t, relocation> * relocation_parts[2] = { &code_relocations, &data_relocations };
 	for(int i = 0; i < 2; i++)
 	{
 		for(auto pair : *relocation_parts[i])
@@ -396,6 +396,6 @@ void O65Format::WriteFile(Linker::Writer& wr)
 void O65Format::ProduceModule(Linker::Module& module, Linker::Reader& rd)
 {
 	ReadFile(rd);
-	modules[0]->ProduceModule(module, rd);
+	modules[0]->GenerateModule(module, rd);
 }
 
