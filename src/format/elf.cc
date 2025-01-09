@@ -3,6 +3,20 @@
 
 using namespace ELF;
 
+ELFFormat::Segment::Block::~Block()
+{
+}
+
+offset_t ELFFormat::Segment::Section::GetSize() const
+{
+	return size;
+}
+
+offset_t ELFFormat::Segment::Data::GetSize() const
+{
+	return image->ActualDataSize();
+}
+
 void ELFFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
@@ -18,22 +32,26 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 {
 	switch(cpu)
 	{
-	case I386:
+	case EM_386:
 		module.cpu = option_16bit ? Linker::Module::I86 : Linker::Module::I386;
 		break;
-	case M68K:
+	case EM_68K:
 		module.cpu = Linker::Module::M68K;
 		break;
-	case ARM:
+	case EM_ARM:
 		module.cpu = Linker::Module::ARM;
 		break;
 	default:
-		Linker::FatalError("Internal error: Invalid CPU type");
+		{
+			std::ostringstream message;
+			message << "Fatal error: Unknown CPU type in ELF file " << cpu;
+			Linker::FatalError(message.str());
+		}
 	}
 
 	for(const Section& section : sections)
 	{
-		if(section.section != nullptr)
+		if((section.flags & SHF_ALLOC) != 0 && section.section != nullptr)
 		{
 			module.AddSection(section.section);
 		}
@@ -79,7 +97,7 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 		size_t rel_size;
 		switch(cpu)
 		{
-		case I386:
+		case EM_386:
 			/* TODO: 386 linear model will have to use Absolute instead of Offset */
 			switch(rel.type)
 			{
@@ -117,7 +135,7 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 			}
 			break;
 
-		case M68K:
+		case EM_68K:
 			switch(rel.type)
 			{
 			case R_68K_8:
@@ -151,7 +169,7 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 			}
 			break;
 
-		case ARM:
+		case EM_ARM:
 			/* TODO: use endianness of object file, or make parametrizable */
 			switch(rel.type)
 			{
@@ -191,7 +209,8 @@ void ELFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
 void ELFFormat::ReadFile(Linker::Reader& in)
 {
 	int c;
-	in.Seek(4);
+	in.Seek(4); // skip signature
+
 	switch(c = in.ReadUnsigned(1))
 	{
 	case ELFCLASS32:
@@ -203,10 +222,11 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 	default:
 		{
 			std::ostringstream message;
-			message << "Fatal error: Illegal ELF class " << c;
+			message << "Fatal error: Illegal ELF class " << int(c);
 			Linker::FatalError(message.str());
 		}
 	}
+
 	switch(in.ReadUnsigned(1))
 	{
 	case ELFDATA2LSB:
@@ -218,42 +238,52 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 	default:
 		{
 			std::ostringstream message;
-			message << "Fatal error: Illegal ELF byte order " << c;
+			message << "Fatal error: Illegal ELF byte order " << int(c);
 			Linker::FatalError(message.str());
 		}
 	}
-	in.Seek(16 + 2);
-	uint16_t tmp;
-	switch(tmp = in.ReadUnsigned(2))
+
+	header_version = in.ReadUnsigned(1);
+	if(header_version != EV_CURRENT)
 	{
-	case EM_386:
-		cpu = I386;
-		break;
-	case EM_68K:
-		cpu = M68K;
-		break;
-	case EM_ARM:
-		cpu = ARM;
-		break;
-	default:
-		{
-			std::ostringstream message;
-			message << "Fatal error: Unknown CPU type in ELF file " << tmp;
-			Linker::FatalError(message.str());
-		}
+		std::ostringstream message;
+		message << "Fatal error: Illegal ELF header version " << int(header_version);
+		Linker::FatalError(message.str());
 	}
-	in.Skip(4 + 2 * wordbytes);
-	uint64_t shoff = in.ReadUnsigned(wordbytes);
-	in.Skip(10);
-	uint16_t shentsize = in.ReadUnsigned(2);
+
+	osabi = in.ReadUnsigned(1);
+	abi_version = in.ReadUnsigned(1);
+
+	in.Seek(16);
+
+	object_file_type = file_type(in.ReadUnsigned(2));
+	cpu = cpu_type(in.ReadUnsigned(2));
+	Linker::Debug << "Debug: " << in.Tell() << std::endl;
+	file_version = in.ReadUnsigned(4);
+	if(file_version != EV_CURRENT)
+	{
+		std::ostringstream message;
+		message << "Fatal error: Illegal ELF file version " << int(file_version);
+		Linker::FatalError(message.str());
+	}
+
+	entry = in.ReadUnsigned(wordbytes);
+	program_header_offset = in.ReadUnsigned(wordbytes); // phoff
+	section_header_offset = in.ReadUnsigned(wordbytes); // shoff
+	flags = in.ReadUnsigned(4);
+	elf_header_size = in.ReadUnsigned(2); // ehsize
+	program_header_entry_size = in.ReadUnsigned(2); // phentsize
+	uint16_t phnum = in.ReadUnsigned(2);
+	section_header_entry_size = in.ReadUnsigned(2); // shentsize
 	uint16_t shnum = in.ReadUnsigned(2);
-	uint16_t shstrndx = in.ReadUnsigned(2);
+	section_name_string_table = in.ReadUnsigned(2); // shstrndx
+
 	for(size_t i = 0; i < shnum; i++)
 	{
-		in.Seek(shoff + i * shentsize);
+		in.Seek(section_header_offset + i * section_header_entry_size);
 		Section section;
 		section.name_offset = in.ReadUnsigned(4);
-		section.type = in.ReadUnsigned(4);
+		section.type = Section::section_type(in.ReadUnsigned(4));
 		section.flags = in.ReadUnsigned(wordbytes);
 		section.address = in.ReadUnsigned(wordbytes);
 		section.file_offset = in.ReadUnsigned(wordbytes);
@@ -264,9 +294,28 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 		section.entsize = in.ReadUnsigned(wordbytes);
 		sections.push_back(section);
 	}
+
+	for(size_t i = 0; i < phnum; i++)
+	{
+		in.Seek(program_header_offset + i * program_header_entry_size);
+		Segment segment;
+		segment.type = in.ReadUnsigned(4);
+		if(wordbytes == 4)
+			segment.flags = in.ReadUnsigned(4);
+		segment.offset = in.ReadUnsigned(wordbytes);
+		segment.vaddr = in.ReadUnsigned(wordbytes);
+		segment.paddr = in.ReadUnsigned(wordbytes);
+		segment.filesz = in.ReadUnsigned(wordbytes);
+		segment.memsz = in.ReadUnsigned(wordbytes);
+		if(wordbytes == 8)
+			segment.flags = in.ReadUnsigned(4);
+		segment.align = in.ReadUnsigned(wordbytes);
+		segments.push_back(segment);
+	}
+
 	for(size_t i = 0; i < shnum; i++)
 	{
-		in.Seek(sections[shstrndx].file_offset + sections[i].name_offset);
+		in.Seek(sections[section_name_string_table].file_offset + sections[i].name_offset);
 		sections[i].name = in.ReadASCIIZ();
 #if DISPLAY_LOGS
 		Linker::Debug << "Debug: Section #" << i << ": `" << sections[i].name << "'" << ", type: " << sections[i].type << ", flags: " << sections[i].flags << std::endl;
@@ -274,17 +323,14 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 		sections[i].section = nullptr;
 		switch(sections[i].type)
 		{
-		case SHT_PROGBITS:
-			if((sections[i].flags & 0x0002))
-			{
-				/* ALLOC */
-				sections[i].section = std::make_shared<Linker::Section>(sections[i].name);
-				sections[i].section->Expand(sections[i].size);
-				in.Seek(sections[i].file_offset);
-				sections[i].section->ReadFile(in);
-			}
+		case Section::SHT_PROGBITS:
+			sections[i].section = std::make_shared<Linker::Section>(sections[i].name);
+			sections[i].section->Expand(sections[i].size);
+			in.Seek(sections[i].file_offset);
+			sections[i].section->ReadFile(in);
 			break;
-		case SHT_SYMTAB:
+		case Section::SHT_SYMTAB:
+		case Section::SHT_DYNSYM:
 			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
 			{
 				in.Seek(sections[i].file_offset + j);
@@ -314,10 +360,10 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 				sections[i].symbols.push_back(symbol);
 			}
 			break;
-		//case SHT_STRTAB:
+		//case Section::SHT_STRTAB: // TODO
 		//	break;
-		case SHT_RELA:
-		case SHT_REL:
+		case Section::SHT_RELA:
+		case Section::SHT_REL:
 			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
 			{
 				in.Seek(sections[i].file_offset + j);
@@ -334,7 +380,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 					rel.symbol = info >> 32;
 					rel.type = info;
 				}
-				rel.addend_from_section_data = sections[i].type == SHT_REL;
+				rel.addend_from_section_data = sections[i].type == Section::SHT_REL;
 				if(rel.addend_from_section_data)
 					rel.addend = 0;
 				else
@@ -345,13 +391,30 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 				relocations.push_back(rel);
 			}
 			break;
-		case SHT_NOBITS:
+		case Section::SHT_NOBITS:
 			sections[i].section = std::make_shared<Linker::Section>(sections[i].name);
 			sections[i].section->SetZeroFilled(true);
 			sections[i].section->Expand(sections[i].size);
 			break;
-		case SHT_GROUP:
+		case Section::SHT_GROUP:
 			/* TODO */
+			break;
+		//case Section::SHT_HASH: // TODO
+		//	break;
+		//case Section::SHT_DYNAMIC: // TODO
+		//	break;
+		//case Section::SHT_NOTE: // TODO
+		//	break;
+		//case Section::SHT_INIT_ARRAY: // TODO
+		//	break;
+		//case Section::SHT_FINI_ARRAY: // TODO
+		//	break;
+		//case Section::SHT_PREINIT_ARRAY: // TODO
+		//	break;
+		//case Section::SHT_SYMTAB_SHNDX: // TODO
+		//	break;
+		default:
+			// TODO: read the section anyway
 			break;
 		}
 		if(sections[i].section != nullptr)
