@@ -182,6 +182,14 @@ namespace Linker
 		 * - $$SEGDIF$<section name>$<section name>
 		 */
 		virtual bool FormatProvidesSegmentation() const;
+		/* general */
+		/**
+		 * @brief Whether the format supports resources
+		 *
+		 * Formats such as NE, LE/LX, PE and the Macintosh classic support including resources in the final binary.
+		 * To simplify writing resources, the ELF parser permits incorporating them directly in the binary image as $$RSRC$_<type>$<id>.
+		 */
+		virtual bool FormatProvidesResources() const;
 		/**
 		 * @brief Whether the format enables importing/exporting libraries
 		 */

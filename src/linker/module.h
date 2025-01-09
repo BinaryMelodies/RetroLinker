@@ -157,6 +157,10 @@ namespace Linker
 		 */
 		void AddSection(std::shared_ptr<Section> section);
 
+	private:
+		void _AddSection(std::shared_ptr<Section> section);
+
+	public:
 		/**
 		 * @brief Retrieves list of all sections
 		 */

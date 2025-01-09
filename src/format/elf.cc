@@ -91,60 +91,6 @@ std::string ELFFormat::resource_prefix()
 	return oss.str();
 }
 
-bool ELFFormat::parse_imported_name(std::string reference_name, Linker::SymbolName& symbol)
-{
-	try
-	{
-		/* <library name>$<ordinal> */
-		/* <library name>$_<name> */
-//		Linker::Debug << "Debug: Reference name " << reference_name << std::endl;
-		size_t ix = reference_name.find(special_prefix_char);
-		std::string library_name = reference_name.substr(0, ix);
-		if(reference_name[ix + 1] == '_')
-		{
-			symbol = Linker::SymbolName(library_name, reference_name.substr(ix + 2));
-		}
-		else
-		{
-//			Linker::Debug << "Debug: Attempt parsing " << reference_name.substr(ix + 1) << std::endl;
-			symbol = Linker::SymbolName(library_name, stoll(reference_name.substr(ix + 1), nullptr, 16));
-		}
-		return true;
-	}
-	catch(std::invalid_argument& a)
-	{
-		return false;
-	}
-}
-
-bool ELFFormat::parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol)
-{
-	try
-	{
-		/* <name> */
-		/* <name>$<ordinal> */
-		/* <ordinal>$_<name> */
-		size_t ix = reference_name.find(special_prefix_char);
-		if(ix == std::string::npos)
-		{
-			symbol = Linker::ExportedSymbol(reference_name);
-		}
-		else if(ix < reference_name.size() - 1 && reference_name[ix + 1] == '_')
-		{
-			symbol = Linker::ExportedSymbol(stoll(reference_name.substr(0, ix)), reference_name.substr(ix + 2));
-		}
-		else
-		{
-			symbol = Linker::ExportedSymbol(reference_name.substr(0, ix), stoll(reference_name.substr(ix + 1)));
-		}
-		return true;
-	}
-	catch(std::invalid_argument& a)
-	{
-		return false;
-	}
-}
-
 void ELFFormat::ReadFile(Linker::Reader& in)
 {
 	int c;
@@ -347,24 +293,6 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 			}
 #endif
 			sections[i].section->SetFlag(output_format.lock()->FormatAdditionalSectionFlags(sections[i].name));
-			if(option_resources && sections[i].name.rfind(resource_prefix() + "_",  0) == 0)
-			{
-				/* $$RSRC$_<type>$<id> */
-				sections[i].section->SetFlag(Linker::Section::Resource);
-				size_t sep = sections[i].name.rfind(special_prefix_char);
-				std::string resource_type = sections[i].name.substr(resource_prefix().size() + 1, sep - resource_prefix().size() - 1);
-				try
-				{
-					uint16_t resource_id = stoll(sections[i].name.substr(sep + 1), nullptr, 16);
-					sections[i].section->resource_type = resource_type;
-					sections[i].section->resource_id = resource_id;
-					Linker::Debug << "Debug: Resource type " << resource_type << ", id " << resource_id << std::endl;
-				}
-				catch(std::invalid_argument& a)
-				{
-					Linker::Error << "Error: Unable to parse resource section name " << sections[i].name << ", proceeding" << std::endl;
-				}
-			}
 			module->AddSection(sections[i].section);
 		}
 	}

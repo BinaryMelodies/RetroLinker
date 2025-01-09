@@ -157,6 +157,11 @@ bool InputFormat::FormatProvidesSegmentation() const
 	return false;
 }
 
+bool InputFormat::FormatProvidesResources() const
+{
+	return false;
+}
+
 bool InputFormat::FormatProvidesLibraries() const
 {
 	return false;

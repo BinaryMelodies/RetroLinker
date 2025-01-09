@@ -173,10 +173,6 @@ namespace ELF
 		static const offset_t R_ARM_PC24 = 1;
 		static const offset_t R_ARM_V4BX = 40;
 
-		bool parse_imported_name(std::string reference_name, Linker::SymbolName& symbol); // TODO: remove
-
-		bool parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol); // TODO: remove
-
 		void ReadFile(Linker::Reader& in) override;
 	};
 

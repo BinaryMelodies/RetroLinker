@@ -400,6 +400,35 @@ bool Module::FindGlobalSymbol(std::string name, Location& location)
 
 void Module::AddSection(std::shared_ptr<Section> section)
 {
+	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
+	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+
+	if(output_format != nullptr && output_format->FormatSupportsResources()
+	&& input_format != nullptr && !input_format->FormatProvidesResources()
+	&& section->name.rfind(resource_prefix() + "_",  0) == 0)
+	{
+		/* $$RSRC$_<type>$<id> */
+		section->SetFlag(Linker::Section::Resource);
+		size_t sep = section->name.rfind(special_prefix_char);
+		std::string resource_type = section->name.substr(resource_prefix().size() + 1, sep - resource_prefix().size() - 1);
+		try
+		{
+			uint16_t resource_id = stoll(section->name.substr(sep + 1), nullptr, 16);
+			section->resource_type = resource_type;
+			section->resource_id = resource_id;
+			Linker::Debug << "Debug: Resource type " << resource_type << ", id " << resource_id << std::endl;
+		}
+		catch(std::invalid_argument& a)
+		{
+			Linker::Error << "Error: Unable to parse resource section name " << section->name << ", proceeding" << std::endl;
+		}
+	}
+
+	_AddSection(section);
+}
+
+void Module::_AddSection(std::shared_ptr<Section> section)
+{
 	sections.push_back(section);
 	if(section->name != "")
 	{
