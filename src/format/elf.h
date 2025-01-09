@@ -21,8 +21,8 @@ namespace ELF
 	public:
 		void WriteFile(Linker::Writer& wr) override;
 
-		std::weak_ptr<Linker::OutputFormat> output_format;
-		void SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format) override;
+		std::weak_ptr<Linker::OutputFormat> output_format; // TODO: remove
+		void SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format) override; // TODO: remove
 
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 
@@ -38,15 +38,15 @@ namespace ELF
 		{
 		}
 
-		char special_prefix_char = '$';
+		char special_prefix_char = '$'; // TODO: remove
 			/* GNU assembler can use '$', NASM must use '?' */
-		bool option_segmentation = false;
-		bool option_16bit = true;
-		bool option_linear = false;
-		bool option_stack_section = false;
-		bool option_heap_section = false;
-		bool option_resources = false;
-		bool option_libraries = false;
+		bool option_segmentation = false; // TODO: remove
+		bool option_16bit = true; // TODO: remove
+		bool option_linear = false; // TODO: remove
+		bool option_stack_section = false; // TODO: remove
+		bool option_heap_section = false; // TODO: remove
+		bool option_resources = false; // TODO: remove
+		bool option_libraries = false; // TODO: remove
 		size_t wordbytes;
 
 		enum cpu_type
@@ -99,17 +99,17 @@ namespace ELF
 
 	private:
 		/* symbols */
-		std::string segment_prefix();
-		std::string segment_of_prefix();
-		std::string segment_at_prefix();
-		std::string with_respect_to_segment_prefix();
-		std::string segment_difference_prefix();
-		std::string import_prefix();
-		std::string segment_of_import_prefix();
-		std::string export_prefix();
+		std::string segment_prefix(); // TODO: remove
+		std::string segment_of_prefix(); // TODO: remove
+		std::string segment_at_prefix(); // TODO: remove
+		std::string with_respect_to_segment_prefix(); // TODO: remove
+		std::string segment_difference_prefix(); // TODO: remove
+		std::string import_prefix(); // TODO: remove
+		std::string segment_of_import_prefix(); // TODO: remove
+		std::string export_prefix(); // TODO: remove
 
 		/* sections */
-		std::string resource_prefix();
+		std::string resource_prefix(); // TODO: remove
 
 	public:
 		static const uint8_t ELFCLASS32 = 1;
@@ -173,9 +173,9 @@ namespace ELF
 		static const offset_t R_ARM_PC24 = 1;
 		static const offset_t R_ARM_V4BX = 40;
 
-		bool parse_imported_name(std::string reference_name, Linker::SymbolName& symbol);
+		bool parse_imported_name(std::string reference_name, Linker::SymbolName& symbol); // TODO: remove
 
-		bool parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol);
+		bool parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol); // TODO: remove
 
 		void ReadFile(Linker::Reader& in) override;
 	};

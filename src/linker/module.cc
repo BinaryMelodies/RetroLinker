@@ -11,11 +11,94 @@ void Module::SetupOptions(char special_char, std::shared_ptr<Linker::OutputForma
 	this->input_format = input_format;
 }
 
+std::string Module::segment_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "SEG" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::segment_of_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "SEGOF" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::segment_at_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "SEGAT" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::with_respect_to_segment_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "WRTSEG" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::segment_difference_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "SEGDIF" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::import_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "IMPORT" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::segment_of_import_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "IMPSEG" << special_prefix_char;
+	return oss.str();
+}
+
 std::string Module::export_prefix()
 {
 	std::ostringstream oss;
 	oss << special_prefix_char << special_prefix_char << "EXPORT" << special_prefix_char;
 	return oss.str();
+}
+
+/* sections */
+std::string Module::resource_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "RSRC" << special_prefix_char;
+	return oss.str();
+}
+
+bool Module::parse_imported_name(std::string reference_name, Linker::SymbolName& symbol)
+{
+	try
+	{
+		/* <library name>$<ordinal> */
+		/* <library name>$_<name> */
+//		Linker::Debug << "Debug: Reference name " << reference_name << std::endl;
+		size_t ix = reference_name.find(special_prefix_char);
+		std::string library_name = reference_name.substr(0, ix);
+		if(reference_name[ix + 1] == '_')
+		{
+			symbol = Linker::SymbolName(library_name, reference_name.substr(ix + 2));
+		}
+		else
+		{
+//			Linker::Debug << "Debug: Attempt parsing " << reference_name.substr(ix + 1) << std::endl;
+			symbol = Linker::SymbolName(library_name, stoll(reference_name.substr(ix + 1), nullptr, 16));
+		}
+		return true;
+	}
+	catch(std::invalid_argument& a)
+	{
+		return false;
+	}
 }
 
 bool Module::parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol)
@@ -99,6 +182,31 @@ void Module::AddImportedSymbol(SymbolName name)
 void Module::AddExportedSymbol(ExportedSymbol name, Location symbol)
 {
 	exported_symbols[name] = symbol;
+}
+
+void Module::AddRelocation(Relocation relocation)
+{
+	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
+	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+
+	if(SymbolName * symbolp = std::get_if<SymbolName>(&relocation.target.target))
+	{
+		/* undefined symbol */
+		std::string unparsed_name;
+
+		if(cpu == I86
+		&& output_format != nullptr && output_format->FormatSupportsSegmentation()
+		&& input_format != nullptr && !input_format->FormatProvidesSegmentation()
+		&& symbolp->LoadName(unparsed_name)
+		&& unparsed_name.rfind(segment_of_prefix(), 0) == 0 && relocation.size == 2)
+		{
+			/* $$SEGOF$<symbol name> */
+			std::string symbol_name = unparsed_name.substr(segment_of_prefix().size());
+			relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend);
+		}
+	}
+
+	relocations.push_back(relocation);
 }
 
 const std::vector<SymbolName>& Module::GetImportedSymbols() const

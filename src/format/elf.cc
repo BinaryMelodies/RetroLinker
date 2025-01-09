@@ -539,12 +539,14 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 							obj_rel = Linker::Relocation::Paragraph(rel_source, Linker::Target(Linker::Location(section)).GetSegment(), rel.addend);
 						}
 					}
+#if 0
 					else if(option_segmentation && sym_target.name.rfind(segment_of_prefix(), 0) == 0 && rel_size == 2)
 					{
 						/* $$SEGOF$<symbol name> */
 						std::string symbol_name = sym_target.name.substr(segment_of_prefix().size());
 						obj_rel = Linker::Relocation::Paragraph(rel_source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), rel.addend);
 					}
+#endif
 					else if(option_segmentation && sym_target.name.rfind(segment_at_prefix(), 0) == 0 && rel_size == 2)
 					{
 						/* $$SEGAT$<symbol name> */
@@ -749,7 +751,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 		}
 		if(rel.addend_from_section_data)
 			obj_rel.AddCurrentValue();
-		module->relocations.push_back(obj_rel);
+		module->AddRelocation(obj_rel);
 #if DISPLAY_LOGS
 		Linker::Debug << "Debug: Relocation at #" << rel.sh_info << ":" << std::hex << rel.offset << std::dec << " to symbol " << rel.symbol << ", type " << rel.type << std::endl;
 #endif

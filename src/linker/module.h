@@ -77,8 +77,20 @@ namespace Linker
 		std::weak_ptr<Linker::OutputFormat> output_format;
 		std::weak_ptr<Linker::InputFormat> input_format;
 
+		/* symbols */
+		std::string segment_prefix();
+		std::string segment_of_prefix();
+		std::string segment_at_prefix();
+		std::string with_respect_to_segment_prefix();
+		std::string segment_difference_prefix();
+		std::string import_prefix();
+		std::string segment_of_import_prefix();
 		std::string export_prefix();
 
+		/* sections */
+		std::string resource_prefix();
+
+		bool parse_imported_name(std::string reference_name, Linker::SymbolName& symbol);
 		bool parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol);
 
 	public:
@@ -109,6 +121,8 @@ namespace Linker
 		 * @brief Adds an exported symbol
 		 */
 		void AddExportedSymbol(ExportedSymbol name, Location symbol);
+
+		void AddRelocation(Relocation relocation);
 
 		/**
 		 * @brief Retrieves list of all imported symbols

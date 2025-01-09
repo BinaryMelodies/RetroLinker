@@ -171,6 +171,18 @@ namespace Linker
 		 */
 		virtual void ProduceModule(Module& module, Reader& rd) = 0;
 		/**
+		 * @brief Whether the format enables multiple x86 segments
+		 *
+		 * This is typically true for Intel 8086 targets and false for non-Intel targets.
+		 * The ELF parser uses this to provide extended relocations, including the following:
+		 * - $$SEG$<section name>
+		 * - $$SEGOF$<symbol name>
+		 * - $$SEGAT$<symbol name>
+		 * - $$WRTSEG$<symbol name>$<section name>
+		 * - $$SEGDIF$<section name>$<section name>
+		 */
+		virtual bool FormatProvidesSegmentation() const;
+		/**
 		 * @brief Whether the format enables importing/exporting libraries
 		 */
 		virtual bool FormatProvidesLibraries() const;
