@@ -8,7 +8,7 @@ void ELFFormat::WriteFile(Linker::Writer& wr)
 	/* TODO */
 }
 
-void ELFFormat::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format)
+void ELFFormat::SetupOptions(std::shared_ptr<Linker::OutputFormat> format)
 {
 	option_16bit = format->FormatIs16bit();
 	option_linear = format->FormatIsLinear();

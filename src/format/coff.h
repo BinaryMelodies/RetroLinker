@@ -546,11 +546,11 @@ namespace COFF
 
 		/* * * Reader members * * */
 
-		void SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format) override;
+		void SetupOptions(std::shared_ptr<Linker::OutputFormat> format) override;
 
-		char special_prefix_char = '$';
-			/* GNU assembler can use '$', NASM must use '?' */
 		bool option_segmentation = false;
+
+		bool FormatRequiresDataStreamFix() const override;
 
 	private:
 		/* symbols */
@@ -567,8 +567,6 @@ namespace COFF
 		// TODO: can this be used?
 		std::string segment_difference_prefix();
 #endif
-
-		std::string fix_byte_prefix();
 
 		enum
 		{

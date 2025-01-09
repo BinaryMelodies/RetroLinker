@@ -1132,7 +1132,7 @@ int linker_main(int argc, char * argv[])
 		}
 
 		module1.SetupOptions(special_char, format, input_format);
-		input_format->SetupOptions(special_char, format);
+		input_format->SetupOptions(format);
 		input_format->ProduceModule(module1, rd);
 		in.close();
 

@@ -148,11 +148,16 @@ unsigned OutputFormat::FormatAdditionalSectionFlags(std::string section_name) co
 	return 0;
 }
 
-void InputFormat::SetupOptions(char special_char, std::shared_ptr<OutputFormat> format)
+void InputFormat::SetupOptions(std::shared_ptr<OutputFormat> format)
 {
 }
 
 bool InputFormat::FormatProvidesSegmentation() const
+{
+	return false;
+}
+
+bool InputFormat::FormatRequiresDataStreamFix() const
 {
 	return false;
 }

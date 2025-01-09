@@ -86,6 +86,7 @@ namespace Linker
 		std::string import_prefix();
 		std::string segment_of_import_prefix();
 		std::string export_prefix();
+		std::string fix_byte_prefix();
 
 		/* sections */
 		std::string resource_prefix();
@@ -98,7 +99,10 @@ namespace Linker
 		 * @brief Adds an internal symbol
 		 */
 		void AddLocalSymbol(std::string name, Location location);
+	private:
+		void _AddLocalSymbol(std::string name, Location location);
 
+	public:
 		/**
 		 * @brief Adds and processes exported symbol for extended syntax
 		 */

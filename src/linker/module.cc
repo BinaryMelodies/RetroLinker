@@ -67,7 +67,13 @@ std::string Module::export_prefix()
 	return oss.str();
 }
 
-/* sections */
+std::string Module::fix_byte_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "FIX" << special_prefix_char;
+	return oss.str();
+}
+
 std::string Module::resource_prefix()
 {
 	std::ostringstream oss;
@@ -130,6 +136,25 @@ bool Module::parse_exported_name(std::string reference_name, Linker::ExportedSym
 }
 
 void Module::AddLocalSymbol(std::string name, Location location)
+{
+	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+
+	/* The w65-wdc assembler is bugged and sometimes erases bytes, this is an ugly work around to fix it */
+	if(input_format != nullptr && input_format->FormatRequiresDataStreamFix() && name.rfind(fix_byte_prefix(), 0) == 0)
+	{
+		/* $$FIX$<byte>$<rest> */
+		size_t dollar_offset = name.find("$", fix_byte_prefix().size()) - fix_byte_prefix().size();
+		std::string byte_text = name.substr(fix_byte_prefix().size(), dollar_offset);
+		Linker::Debug << "Debug: Interpreting " << byte_text << " as part of " << name << std::endl;
+		unsigned byte_value = stoul(byte_text, nullptr, 16);
+		location.section->WriteWord(1, location.offset, byte_value, ::LittleEndian);
+		return;
+	}
+
+	_AddLocalSymbol(name, location);
+}
+
+void Module::_AddLocalSymbol(std::string name, Location location)
 {
 	local_symbols[name] = location;
 }

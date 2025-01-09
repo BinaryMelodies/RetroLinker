@@ -162,14 +162,14 @@ namespace Linker
 	public:
 		/**
 		 * @brief Initializes the reader for linking purposes
-		 * @param special_char Most input formats do not provide support for the special requirements of the output format (such as segmentation for ELF). We work around this by introducing special name prefixes $$SEGOF$ where $ is the value of special_char.
 		 * @param format The output format that will be used. This is required to know which extra special features need to be implemented (such as segmentation).
 		 */
-		virtual void SetupOptions(char special_char, std::shared_ptr<OutputFormat> format);
+		virtual void SetupOptions(std::shared_ptr<OutputFormat> format);
 		/**
 		 * @brief Reads a file and loads the information into a module object
 		 */
 		virtual void ProduceModule(Module& module, Reader& rd) = 0;
+		/* x86 only */
 		/**
 		 * @brief Whether the format enables multiple x86 segments
 		 *
@@ -182,6 +182,11 @@ namespace Linker
 		 * - $$SEGDIF$<section name>$<section name>
 		 */
 		virtual bool FormatProvidesSegmentation() const;
+		/* w65 only */
+		/**
+		 * @brief Whether the generated file might contain bugs that require fixing
+		 */
+		virtual bool FormatRequiresDataStreamFix() const;
 		/* general */
 		/**
 		 * @brief Whether the format supports resources
