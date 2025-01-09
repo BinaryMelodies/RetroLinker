@@ -10,85 +10,14 @@ void ELFFormat::WriteFile(Linker::Writer& wr)
 
 void ELFFormat::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> format)
 {
-	// TODO: remove
-	special_prefix_char = special_char;
-	output_format = format;
-	option_segmentation = format->FormatSupportsSegmentation();
 	option_16bit = format->FormatIs16bit();
 	option_linear = format->FormatIsLinear();
-//	option_stack_section = format->FormatSupportsStackSection();
-	option_resources = format->FormatSupportsResources();
-	option_libraries = format->FormatSupportsLibraries();
 }
 
 void ELFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
 {
 	this->module = &module;
 	ReadFile(rd); /* TODO: refactor */
-}
-
-std::string ELFFormat::segment_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "SEG" << special_prefix_char;
-	return oss.str();
-}
-
-std::string ELFFormat::segment_of_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "SEGOF" << special_prefix_char;
-	return oss.str();
-}
-
-std::string ELFFormat::segment_at_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "SEGAT" << special_prefix_char;
-	return oss.str();
-}
-
-std::string ELFFormat::with_respect_to_segment_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "WRTSEG" << special_prefix_char;
-	return oss.str();
-}
-
-std::string ELFFormat::segment_difference_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "SEGDIF" << special_prefix_char;
-	return oss.str();
-}
-
-std::string ELFFormat::import_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "IMPORT" << special_prefix_char;
-	return oss.str();
-}
-
-std::string ELFFormat::segment_of_import_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "IMPSEG" << special_prefix_char;
-	return oss.str();
-}
-
-std::string ELFFormat::export_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "EXPORT" << special_prefix_char;
-	return oss.str();
-}
-
-/* sections */
-std::string ELFFormat::resource_prefix()
-{
-	std::ostringstream oss;
-	oss << special_prefix_char << special_prefix_char << "RSRC" << special_prefix_char;
-	return oss.str();
 }
 
 void ELFFormat::ReadFile(Linker::Reader& in)
@@ -292,7 +221,6 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 				sections[i].section->SetFlag(Linker::Section::Heap);
 			}
 #endif
-			sections[i].section->SetFlag(output_format.lock()->FormatAdditionalSectionFlags(sections[i].name));
 			module->AddSection(sections[i].section);
 		}
 	}

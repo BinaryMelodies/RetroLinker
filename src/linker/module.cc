@@ -403,6 +403,9 @@ void Module::AddSection(std::shared_ptr<Section> section)
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
 	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
 
+	if(output_format != nullptr)
+		section->SetFlag(output_format->FormatAdditionalSectionFlags(section->name));
+
 	if(output_format != nullptr && output_format->FormatSupportsResources()
 	&& input_format != nullptr && !input_format->FormatProvidesResources()
 	&& section->name.rfind(resource_prefix() + "_",  0) == 0)
