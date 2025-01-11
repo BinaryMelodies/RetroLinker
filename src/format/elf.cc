@@ -494,5 +494,60 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 			}
 		}
 	}
+
+	// TODO: test
+	for(size_t i = 0; i < phnum; i++)
+	{
+		offset_t offset = segments[i].offset;
+		offset_t end = segments[i].offset + segments[i].filesz;
+		offset_t covered = offset;
+		while(offset < end)
+		{
+			offset_t next_offset = end;
+			for(size_t j = 0; j < shnum; j++)
+			{
+				if(offset < sections[j].file_offset && sections[j].file_offset < next_offset)
+				{
+					next_offset = sections[j].file_offset;
+				}
+
+				if(sections[j].type == Section::SHT_NOBITS)
+				{
+					if(sections[j].file_offset == offset)
+					{
+						segments[i].blocks.push_back(std::make_shared<Segment::Section>(j, 0, 0));
+					}
+				}
+				else
+				{
+					if(sections[j].file_offset == offset)
+					{
+						offset_t size = std::min(end - offset, sections[j].size);
+						segments[i].blocks.push_back(std::make_shared<Segment::Section>(j, 0, size));
+						if(covered < offset + size)
+							covered = offset + size;
+					}
+					else if(offset == segments[i].offset && sections[j].file_offset < offset && offset < sections[j].file_offset + sections[j].size)
+					{
+						offset_t cutoff = offset - sections[j].file_offset;
+						offset_t size = std::min(end - offset, sections[j].size - cutoff);
+						segments[i].blocks.push_back(std::make_shared<Segment::Section>(j, cutoff, size));
+						if(covered < offset + size)
+							covered = offset + size;
+					}
+				}
+			}
+			if(covered < next_offset)
+			{
+				std::shared_ptr<Segment::Data> data = std::make_shared<Segment::Data>();
+				data->file_offset = covered;
+				in.Seek(covered);
+				data->image = Linker::Buffer::ReadFromFile(in, next_offset - covered);
+				segments[i].blocks.push_back(data);
+				covered = next_offset;
+			}
+			offset = next_offset;
+		}
+	}
 }
 

@@ -89,8 +89,8 @@ namespace ELF
 			{
 			public:
 				uint16_t index;
-				uint32_t offset, size;
-				Section(uint16_t index, uint32_t offset, uint32_t size)
+				offset_t offset, size;
+				Section(uint16_t index, offset_t offset, offset_t size)
 					: index(index), offset(offset), size(size)
 				{
 				}
@@ -100,6 +100,7 @@ namespace ELF
 			class Data : public Block
 			{
 			public:
+				offset_t file_offset;
 				std::shared_ptr<Linker::Writable> image;
 				offset_t GetSize() const override;
 			};
