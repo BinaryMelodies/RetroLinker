@@ -464,7 +464,7 @@ namespace ELF
 		{
 		}
 
-		void ReadFile(Linker::Reader& in) override;
+		void ReadFile(Linker::Reader& rd) override;
 
 		void WriteFile(Linker::Writer& wr) override;
 
