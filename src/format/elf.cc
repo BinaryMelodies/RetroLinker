@@ -194,7 +194,6 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 
 	object_file_type = file_type(rd.ReadUnsigned(2));
 	cpu = cpu_type(rd.ReadUnsigned(2));
-	Linker::Debug << "Debug: " << rd.Tell() << std::endl;
 	file_version = rd.ReadUnsigned(4);
 	if(file_version != EV_CURRENT)
 	{
@@ -484,6 +483,44 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				covered = next_offset;
 			}
 			offset = next_offset;
+		}
+	}
+
+	if(cpu == EM_HOBBIT)
+	{
+		/* BeOS Hobbit section */
+		rd.SeekEnd();
+		offset_t end = rd.Tell();
+		rd.Seek(end - 8);
+		if(rd.ReadData(4) == "RSRC")
+		{
+			Linker::Debug << "Debug: There is an AT&T Hobbit BeOS resource block" << std::endl;
+			hobbit_beos_resource_offset = rd.ReadUnsigned(4);
+			rd.Seek(hobbit_beos_resource_offset);
+			if(rd.Tell() != hobbit_beos_resource_offset)
+			{
+				Linker::Warning << "Warning: Invalid resource block" << std::endl;
+				hobbit_beos_resource_offset = 0;
+			}
+			else
+			{
+				uint32_t resource_count = rd.ReadUnsigned(4);
+				for(uint32_t i = 0; i < resource_count; i++)
+				{
+					HobbitBeOSResource resource;
+					rd.ReadData(4, resource.type);
+					resource.unknown1 = rd.ReadUnsigned(4);
+					resource.offset = rd.ReadUnsigned(4);
+					resource.size = rd.ReadUnsigned(4);
+					resource.unknown2 = rd.ReadUnsigned(4);
+					hobbit_beos_resources.push_back(resource);
+				}
+				for(auto& resource : hobbit_beos_resources)
+				{
+					rd.Seek(hobbit_beos_resource_offset + 4 + 20 * hobbit_beos_resources.size() + resource.offset);
+					resource.image = Linker::Buffer::ReadFromFile(rd, resource.size);
+				}
+			}
 		}
 	}
 }
@@ -813,10 +850,33 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 		section_header_region.AddField("Section name string table name", Dumper::StringDisplay::Make(), sections[section_name_string_table].name);
 	section_header_region.Display(dump);
 
+	// TODO
+
 	unsigned i = 0;
 	for(auto& section : sections)
 	{
 		section.Dump(dump, wordbytes, i++);
+	}
+
+	// TODO: segments
+
+	if(hobbit_beos_resource_offset != 0)
+	{
+		Dumper::Region resources_region("Resources", hobbit_beos_resource_offset, 4 + 20 * hobbit_beos_resources.size(), 8);
+		resources_region.AddField("Entry count", Dumper::DecDisplay::Make(), offset_t(hobbit_beos_resources.size()));
+		resources_region.Display(dump);
+
+		i = 0;
+		for(auto& resource : hobbit_beos_resources)
+		{
+			Dumper::Block resource_block("Resource", hobbit_beos_resource_offset + 4 + 20 * hobbit_beos_resources.size() + resource.offset, resource.image, 0, 8);
+			resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
+			resource_block.AddField("Type", Dumper::StringDisplay::Make(4, "'"), std::string(resource.type, 4));
+			resource_block.AddField("Unknown entry 1", Dumper::HexDisplay::Make(), resource.unknown1);
+			resource_block.AddField("Unknown entry 2", Dumper::HexDisplay::Make(), resource.unknown2);
+			resource_block.Display(dump);
+			i += 1;
+		}
 	}
 }
 

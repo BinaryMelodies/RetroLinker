@@ -460,6 +460,21 @@ namespace ELF
 		};
 		std::vector<Segment> segments;
 
+		/* AT&T Hobbit BeOS specific */
+
+		/** @brief Resources for the prototype BeOS Development Release for the AT&T Hobbit
+		 *
+		 * The layout is based on Steve White's resource-extractor.
+		 */
+		struct HobbitBeOSResource
+		{
+			char type[4];
+			offset_t unknown1, offset, size, unknown2;
+			std::shared_ptr<Linker::Buffer> image;
+		};
+		offset_t hobbit_beos_resource_offset = 0;
+		std::vector<HobbitBeOSResource> hobbit_beos_resources;
+
 		ELFFormat()
 		{
 		}
