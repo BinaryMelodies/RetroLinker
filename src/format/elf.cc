@@ -111,14 +111,14 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 		in.Seek(program_header_offset + i * program_header_entry_size);
 		Segment segment;
 		segment.type = in.ReadUnsigned(4);
-		if(wordbytes == 4)
+		if(wordbytes == 8)
 			segment.flags = in.ReadUnsigned(4);
 		segment.offset = in.ReadUnsigned(wordbytes);
 		segment.vaddr = in.ReadUnsigned(wordbytes);
 		segment.paddr = in.ReadUnsigned(wordbytes);
 		segment.filesz = in.ReadUnsigned(wordbytes);
 		segment.memsz = in.ReadUnsigned(wordbytes);
-		if(wordbytes == 8)
+		if(wordbytes == 4)
 			segment.flags = in.ReadUnsigned(4);
 		segment.align = in.ReadUnsigned(wordbytes);
 		segments.push_back(segment);
@@ -539,6 +539,10 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 				Linker::Warning << "Warning: unhandled ARM relocation type " << rel.type << std::endl;
 				continue;
 			}
+			break;
+
+		default:
+			// unknown backend
 			break;
 		}
 		if(rel.addend_from_section_data)
