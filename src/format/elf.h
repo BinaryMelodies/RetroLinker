@@ -89,8 +89,10 @@ namespace ELF
 		static constexpr offset_t R_ARM_PC24 = 1;
 		static constexpr offset_t R_ARM_V4BX = 40;
 
+		uint8_t file_class;
 		EndianType endiantype = ::LittleEndian;
 
+		uint8_t data_encoding;
 		size_t wordbytes;
 
 		enum cpu_type
@@ -404,6 +406,8 @@ namespace ELF
 			offset_t address = 0, file_offset = 0, size = 0, align = 0, entsize = 0;
 			std::shared_ptr<Linker::Section> section;
 			std::vector<Symbol> symbols;
+
+			void Dump(Dumper::Dumper& dump, size_t wordbytes, unsigned index);
 		};
 		std::vector<Section> sections;
 

@@ -17,12 +17,133 @@ offset_t ELFFormat::Segment::Data::GetSize() const
 	return image->ActualDataSize();
 }
 
+void ELFFormat::Section::Dump(Dumper::Dumper& dump, size_t wordbytes, unsigned index)
+{
+	switch(type)
+	{
+	// TODO: other types
+	default:
+		{
+			Dumper::Block section_block("Section", file_offset, section, address, 2 * wordbytes);
+			section_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index));
+			section_block.InsertField(1, "Name", Dumper::StringDisplay::Make(), name);
+			section_block.InsertField(2, "Name offset", Dumper::HexDisplay::Make(), offset_t(name_offset));
+
+			std::map<offset_t, std::string> type_descriptions;
+			type_descriptions[SHT_NULL] = "SHT_NULL - Inactive";
+			type_descriptions[SHT_PROGBITS] = "SHT_PROGBITS - Program data";
+			type_descriptions[SHT_SYMTAB] = "SHT_SYMTAB - Symbol table";
+			type_descriptions[SHT_STRTAB] = "SHT_STRTAB - String table";
+			type_descriptions[SHT_RELA] = "SHT_RELA - Relocations with explicit addends";
+			type_descriptions[SHT_HASH] = "SHT_HASH - Hash table";
+			type_descriptions[SHT_DYNAMIC] = "SHT_DYNAMIC - Dynamic linking information";
+			type_descriptions[SHT_NOTE] = "SHT_NOTE - File information";
+			type_descriptions[SHT_NOBITS] = "SHT_NOBITS - Zero filled section";
+			type_descriptions[SHT_REL] = "SHT_REL - Relocations without explicit addends";
+			type_descriptions[SHT_SHLIB] = "SHT_SHLIB - reserved";
+			type_descriptions[SHT_DYNSYM] = "SHT_DYNSYM - Dynamic linking symbol table";
+			type_descriptions[SHT_INIT_ARRAY] = "SHT_INIT_ARRAY - Array of initialization functions";
+			type_descriptions[SHT_FINI_ARRAY] = "SHT_INIT_ARRAY - Array of termination functions";
+			type_descriptions[SHT_PREINIT_ARRAY] = "SHT_PREINIT_ARRAY - Array of pre-initialization functions";
+			type_descriptions[SHT_GROUP] = "SHT_GROUP - Section group";
+			type_descriptions[SHT_SYMTAB_SHNDX] = "SHT_SYMTAB_SHNDX - Symbol table section indexes";
+				/* IBM OS/2 specific */
+			type_descriptions[SHT_OS] = "SHT_OS - (IBM OS/2) Target operating system identification";
+			type_descriptions[SHT_IMPORTS] = "SHT_IMPORTS - (IBM OS/2) External symbol references";
+			type_descriptions[SHT_EXPORTS] = "SHT_EXPORTS - (IBM OS/2) Exported symbols";
+			type_descriptions[SHT_RES] = "SHT_RES - (IBM OS/2) Resource data";
+				/* GNU extensions */
+			type_descriptions[SHT_GNU_INCREMENTAL_INPUTS] = "SHT_GNU_INCREMENTAL_INPUTS";
+			type_descriptions[SHT_GNU_ATTRIBUTES] = "SHT_GNU_ATTRIBUTES";
+			type_descriptions[SHT_GNU_HASH] = "SHT_GNU_HASH";
+			type_descriptions[SHT_GNU_LIBLIST] = "SHT_GNU_LIBLIST";
+			type_descriptions[SHT_SUNW_verdef] = "SHT_SUNW_verdef";
+			type_descriptions[SHT_SUNW_verneed] = "SHT_SUNW_verneed";
+			type_descriptions[SHT_SUNW_versym] = "SHT_SUNW_versym";
+			section_block.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(type));
+
+			section_block.AddField("Flags",
+				Dumper::BitFieldDisplay::Make()
+					->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("SHF_WRITE - writable"), true)
+					->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("SHF_ALLOC - occupies memory during execution"), true)
+					->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("SHF_EXECINSTR - contains executable instructions"), true)
+					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("SHF_MERGE - section data may be merged to eliminate duplication"), true)
+					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("SHF_STRINGS - null-terminated strings"), true)
+					->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("SHF_INFO_LINK - sh_info contains section index"), true)
+					->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("SHF_LINK_ORDER - order with section in sh_link must be preserved"), true)
+					->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("SHF_OS_NONCONFORMING - requires OS-specific processing"), true)
+					->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("SHF_GROUP - member of a section group"), true)
+					->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("SHF_TLS - thread-local storage"), true)
+					->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("SHF_COMPRESSED - compressed"), true),
+				offset_t(flags));
+
+			// TODO: only display if NOBITS or section data is nullptr?
+			section_block.AddField("Size", Dumper::HexDisplay::Make(), offset_t(size));
+
+			std::string name_link;
+			switch(type)
+			{
+			case SHT_DYNAMIC:
+			case SHT_SYMTAB:
+			case SHT_DYNSYM:
+			case SHT_GROUP:
+			case SHT_SYMTAB_SHNDX:
+				name_link = "Link to string table";
+				break;
+			case SHT_HASH:
+			case SHT_REL:
+			case SHT_RELA:
+				name_link = "Link to symbol table";
+				break;
+			default:
+				name_link = "Link";
+				break;
+			}
+			section_block.AddOptionalField(name_link, Dumper::DecDisplay::Make(), offset_t(link));
+
+			std::string name_info;
+			switch(type)
+			{
+			case SHT_GROUP:
+				name_link = "Info, symbol index";
+				break;
+			case SHT_SYMTAB:
+			case SHT_DYNSYM:
+				name_link = "Info, symbol index after last local symbol";
+				break;
+			case SHT_REL:
+			case SHT_RELA:
+				name_link = "Info, section index";
+				break;
+			default:
+				if((flags & SHF_INFO_LINK))
+					name_link = "Info, section index";
+				else
+					name_link = "Info";
+				break;
+			}
+			section_block.AddOptionalField(name_info, Dumper::DecDisplay::Make(), offset_t(info));
+
+			section_block.AddField("Alignment", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(align));
+
+			std::string name_entsize;
+			if((flags & SHF_STRINGS))
+				name_entsize = "Character size";
+			else
+				name_entsize = "Entry size";
+			section_block.AddOptionalField(name_entsize, Dumper::HexDisplay::Make(2 * wordbytes), offset_t(entsize));
+			section_block.Display(dump);
+		}
+		break;
+	}
+}
+
 void ELFFormat::ReadFile(Linker::Reader& in)
 {
-	int c;
 	in.Seek(4); // skip signature
 
-	switch(c = in.ReadUnsigned(1))
+	file_class = in.ReadUnsigned(1);
+	switch(file_class)
 	{
 	case ELFCLASS32:
 		wordbytes = 4;
@@ -33,12 +154,13 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 	default:
 		{
 			std::ostringstream message;
-			message << "Fatal error: Illegal ELF class " << int(c);
+			message << "Fatal error: Illegal ELF class " << int(file_class);
 			Linker::FatalError(message.str());
 		}
 	}
 
-	switch(in.ReadUnsigned(1))
+	data_encoding = in.ReadUnsigned(1);
+	switch(data_encoding)
 	{
 	case ELFDATA2LSB:
 		endiantype = in.endiantype = ::LittleEndian;
@@ -49,7 +171,7 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 	default:
 		{
 			std::ostringstream message;
-			message << "Fatal error: Illegal ELF byte order " << int(c);
+			message << "Fatal error: Illegal ELF byte order " << int(data_encoding);
 			Linker::FatalError(message.str());
 		}
 	}
@@ -57,9 +179,12 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 	header_version = in.ReadUnsigned(1);
 	if(header_version != EV_CURRENT)
 	{
+#if 0
 		std::ostringstream message;
-		message << "Fatal error: Illegal ELF header version " << int(header_version);
+		message << "Fatal error: Unrecognized ELF header version " << int(header_version);
 		Linker::FatalError(message.str());
+#endif
+		Linker::Warning << "Warning: Unrecognized ELF header version " << int(header_version);
 	}
 
 	osabi = in.ReadUnsigned(1);
@@ -73,9 +198,12 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 	file_version = in.ReadUnsigned(4);
 	if(file_version != EV_CURRENT)
 	{
+#if 0
 		std::ostringstream message;
-		message << "Fatal error: Illegal ELF file version " << int(file_version);
+		message << "Fatal error: Unrecognized ELF file version " << int(file_version);
 		Linker::FatalError(message.str());
+#endif
+		Linker::Warning << "Warning: Unrecognized ELF file version " << int(file_version);
 	}
 
 	entry = in.ReadUnsigned(wordbytes);
@@ -242,14 +370,12 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 			if((sections[i].flags & SHF_MERGE))
 			{
 				sections[i].section->SetMergeable(true);
-				Linker::Debug << "Debug: Mergaeble sections currently not supported" << std::endl;
-				/* TODO - with OMF */
 			}
-			if((sections[i].flags & SHF_GROUP))
-			{
-				Linker::Debug << "Debug: Groups currently not supported" << std::endl;
-				/* TODO - when?? */
-			}
+//			if((sections[i].flags & SHF_GROUP))
+//			{
+//				Linker::Debug << "Debug: Groups currently not supported" << std::endl;
+//				/* TODO - when?? */
+//			}
 #if 0
 			if(option_stack_section && sections[i].name == ".stack")
 			{
@@ -364,15 +490,107 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 
 void ELFFormat::WriteFile(Linker::Writer& wr)
 {
+	/* TODO: test */
+
+	wr.endiantype = endiantype;
+
+	wr.WriteData(4, "\7F" "ELF");
+	wr.WriteWord(1, file_class);
+	wr.WriteWord(1, data_encoding);
+	wr.WriteWord(1, header_version);
+	wr.WriteWord(1, osabi);
+	wr.WriteWord(1, abi_version);
+
+	wr.Seek(16);
+
+	wr.WriteWord(2, object_file_type);
+	wr.WriteWord(2, cpu);
+	wr.WriteWord(4, file_version);
+	wr.WriteWord(wordbytes, entry);
+	wr.WriteWord(wordbytes, program_header_offset); // phoff
+	wr.WriteWord(wordbytes, section_header_offset); // shoff
+	wr.WriteWord(4, flags);
+	wr.WriteWord(2, elf_header_size); // ehsize
+	wr.WriteWord(2, program_header_entry_size); // phentsize
+	wr.WriteWord(2, segments.size()); // phnum
+	wr.WriteWord(2, section_header_entry_size); // shentsize
+	wr.WriteWord(2, sections.size()); // shnum
+	wr.WriteWord(2, section_name_string_table); // shstrndx
+
+	unsigned i;
+
+	i = 0;
+	for(auto& segment : segments)
+	{
+		wr.Seek(program_header_offset + i++ * program_header_entry_size);
+		wr.WriteWord(4, segment.type);
+		if(wordbytes == 8)
+			wr.WriteWord(4, segment.flags);
+		wr.WriteWord(wordbytes, segment.offset);
+		wr.WriteWord(wordbytes, segment.vaddr);
+		wr.WriteWord(wordbytes, segment.paddr);
+		wr.WriteWord(wordbytes, segment.filesz);
+		wr.WriteWord(wordbytes, segment.memsz);
+		if(wordbytes == 4)
+			wr.WriteWord(4, segment.flags);
+		wr.WriteWord(wordbytes, segment.align);
+	}
+
+	i = 0;
+	for(auto& section : sections)
+	{
+		wr.Seek(section_header_offset + i++ * section_header_entry_size);
+		wr.WriteWord(4, section.name_offset);
+		wr.WriteWord(4, section.type);
+		wr.WriteWord(wordbytes, section.flags);
+		wr.WriteWord(wordbytes, section.address);
+		wr.WriteWord(wordbytes, section.file_offset);
+		wr.WriteWord(wordbytes, section.size);
+		wr.WriteWord(4, section.link);
+		wr.WriteWord(4, section.info);
+		wr.WriteWord(wordbytes, section.align);
+		wr.WriteWord(wordbytes, section.entsize);
+	}
+
 	/* TODO */
 }
 
 void ELFFormat::Dump(Dumper::Dumper& dump)
 {
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
 	dump.SetTitle("ELF format");
 
-	std::map<offset_t, std::string> cpu_descriptions;
+//	Dumper::Region file_region("File", 0, 0, 2 * wordbytes); /* TODO: file size */
+//	/* TODO */
+//	file_region.Display(dump);
 
+	Dumper::Region identification_region("ELF Identification", 0, 16, 2);
+	std::map<offset_t, std::string> class_descriptions;
+	class_descriptions[ELFCLASS32] = "32-bit";
+	class_descriptions[ELFCLASS64] = "64-bit";
+	identification_region.AddField("File class", Dumper::ChoiceDisplay::Make(class_descriptions), offset_t(file_class));
+	std::map<offset_t, std::string> encoding_descriptions;
+	encoding_descriptions[ELFDATA2LSB] = "2's complement little endian";
+	encoding_descriptions[ELFDATA2MSB] = "2's complement big endian";
+	identification_region.AddField("Data encoding", Dumper::ChoiceDisplay::Make(encoding_descriptions), offset_t(data_encoding));
+	identification_region.AddField("ELF header version", Dumper::DecDisplay::Make(), offset_t(header_version));
+	std::map<offset_t, std::string> osabi_descriptions;
+	osabi_descriptions[0] = "None";
+	identification_region.AddField("OS/ABI extensions", Dumper::ChoiceDisplay::Make(osabi_descriptions), offset_t(osabi));
+	identification_region.AddField("ABI version", Dumper::DecDisplay::Make(), offset_t(abi_version));
+	identification_region.Display(dump);
+
+	Dumper::Region header_region("ELF Header", 0, elf_header_size, 2 * wordbytes);
+	std::map<offset_t, std::string> file_type_descriptions;
+	file_type_descriptions[ET_NONE] = "No file type";
+	file_type_descriptions[ET_REL] = "Relocatable file";
+	file_type_descriptions[ET_EXEC] = "Executable file";
+	file_type_descriptions[ET_DYN] = "Shared object file";
+	file_type_descriptions[ET_CORE] = "Core file";
+	header_region.AddField("Object file type", Dumper::ChoiceDisplay::Make(file_type_descriptions), offset_t(object_file_type));
+
+	std::map<offset_t, std::string> cpu_descriptions;
 	// Most of these descriptions are from https://www.sco.com/developers/gabi/latest/ch4.eheader.html
 	// Some adjustments using https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
 	cpu_descriptions[EM_NONE] = "No machine";
@@ -576,11 +794,30 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 	cpu_descriptions[EM_56800EF] = "NXP 56800EF Digital Signal Controller (DSC) ";
 	cpu_descriptions[EM_HOBBIT] = "AT&T Hobbit";
 	cpu_descriptions[EM_MOS] = "MOS 6502 (llvm-mos ELF specification)";
+	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions), offset_t(cpu));
+	header_region.AddField("Object file version", Dumper::DecDisplay::Make(), offset_t(file_version));
+	header_region.AddField("Entry", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(entry));
+	header_region.AddField("Flags", Dumper::HexDisplay::Make(4), offset_t(flags));
+	header_region.Display(dump);
 
-	Dumper::Region file_region("File", 0, 0, 8); /* TODO: file size */
-	file_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions), offset_t(cpu));
-	/* TODO */
-	file_region.Display(dump);
+	Dumper::Region program_header_region("Program header", program_header_offset, segments.size() * program_header_entry_size, 2 * wordbytes);
+	program_header_region.AddField("Entry size", Dumper::HexDisplay::Make(4), offset_t(program_header_entry_size));
+	program_header_region.AddField("Entry count", Dumper::DecDisplay::Make(), offset_t(segments.size()));
+	program_header_region.Display(dump);
+
+	Dumper::Region section_header_region("Section header", section_header_offset, sections.size() * section_header_entry_size, 2 * wordbytes);
+	section_header_region.AddField("Entry size", Dumper::HexDisplay::Make(4), offset_t(section_header_entry_size));
+	section_header_region.AddField("Entry count", Dumper::DecDisplay::Make(), offset_t(sections.size()));
+	section_header_region.AddField("Section name string table", Dumper::DecDisplay::Make(), offset_t(section_name_string_table));
+	if(section_name_string_table != 0)
+		section_header_region.AddField("Section name string table name", Dumper::StringDisplay::Make(), sections[section_name_string_table].name);
+	section_header_region.Display(dump);
+
+	unsigned i = 0;
+	for(auto& section : sections)
+	{
+		section.Dump(dump, wordbytes, i++);
+	}
 }
 
 void ELFFormat::SetupOptions(std::shared_ptr<Linker::OutputFormat> format)
@@ -612,6 +849,16 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 
 	for(const Section& section : sections)
 	{
+		if((section.flags & SHF_MERGE))
+		{
+			Linker::Debug << "Debug: Mergaeble sections currently not supported" << std::endl;
+			/* TODO - with OMF */
+		}
+		if((section.flags & SHF_GROUP))
+		{
+			Linker::Debug << "Debug: Groups currently not supported" << std::endl;
+			/* TODO - when?? */
+		}
 		if((section.flags & SHF_ALLOC) != 0 && section.section != nullptr)
 		{
 			module.AddSection(section.section);
