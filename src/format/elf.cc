@@ -590,6 +590,34 @@ void ELFFormat::WriteFile(Linker::Writer& wr)
 	}
 
 	/* TODO */
+
+	if(hobbit_beos_resource_offset != 0)
+	{
+		/* BeOS Hobbit section */
+
+		// TODO: untested
+		wr.Seek(hobbit_beos_resource_offset);
+		wr.WriteWord(4, hobbit_beos_resources.size());
+		for(auto& resource : hobbit_beos_resources)
+		{
+			wr.WriteData(4, resource.type);
+			wr.WriteWord(4, resource.unknown1);
+			wr.WriteWord(4, resource.offset);
+			wr.WriteWord(4, resource.size);
+			wr.WriteWord(4, resource.unknown2);
+		}
+		for(auto& resource : hobbit_beos_resources)
+		{
+			wr.Seek(hobbit_beos_resource_offset + 4 + 20 * hobbit_beos_resources.size() + resource.offset);
+			resource.image->WriteFile(wr);
+		}
+
+		wr.SeekEnd();
+		offset_t end = wr.Tell();
+		wr.Seek(end - 8);
+		wr.WriteData(4, "RSRC");
+		wr.WriteWord(4, hobbit_beos_resource_offset);
+	}
 }
 
 void ELFFormat::Dump(Dumper::Dumper& dump)
