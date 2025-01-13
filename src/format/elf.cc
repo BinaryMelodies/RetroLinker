@@ -17,195 +17,6 @@ offset_t ELFFormat::Segment::Data::GetSize() const
 	return image->ActualDataSize();
 }
 
-void ELFFormat::WriteFile(Linker::Writer& wr)
-{
-	/* TODO */
-}
-
-void ELFFormat::SetupOptions(std::shared_ptr<Linker::OutputFormat> format)
-{
-	option_16bit = format->FormatIs16bit();
-	option_linear = format->FormatIsLinear();
-}
-
-void ELFFormat::GenerateModule(Linker::Module& module) const
-{
-	switch(cpu)
-	{
-	case EM_386:
-		module.cpu = option_16bit ? Linker::Module::I86 : Linker::Module::I386;
-		break;
-	case EM_68K:
-		module.cpu = Linker::Module::M68K;
-		break;
-	case EM_ARM:
-		module.cpu = Linker::Module::ARM;
-		break;
-	default:
-		{
-			std::ostringstream message;
-			message << "Fatal error: Unknown CPU type in ELF file " << cpu;
-			Linker::FatalError(message.str());
-		}
-	}
-
-	for(const Section& section : sections)
-	{
-		if((section.flags & SHF_ALLOC) != 0 && section.section != nullptr)
-		{
-			module.AddSection(section.section);
-		}
-	}
-
-	for(const Section& section : sections)
-	{
-		if(section.type == 2)
-		{
-			/* SYMTAB */
-			for(const Symbol& symbol : section.symbols)
-			{
-				if(symbol.name != "" && symbol.defined)
-				{
-					switch(symbol.bind)
-					{
-					case STB_LOCAL:
-						module.AddLocalSymbol(symbol.name, symbol.location);
-						break;
-					default:
-						module.AddGlobalSymbol(symbol.name, symbol.location);
-						break;
-					}
-				}
-				else if(symbol.unallocated)
-				{
-					module.AddCommonSymbol(symbol.name, symbol.specification);
-				}
-				else
-				{
-					module.AddUndefinedSymbol(symbol.name);
-				}
-			}
-		}
-	}
-
-	for(Relocation rel : relocations)
-	{
-		Linker::Location rel_source = Linker::Location(sections[rel.sh_info].section, rel.offset);
-		const Symbol& sym_target = sections[rel.sh_link].symbols[rel.symbol];
-		Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(Linker::SymbolName(sym_target.name));
-		Linker::Relocation obj_rel = Linker::Relocation::Empty();
-		size_t rel_size;
-		switch(cpu)
-		{
-		case EM_386:
-			/* TODO: 386 linear model will have to use Absolute instead of Offset */
-			switch(rel.type)
-			{
-			case R_386_8:
-			case R_386_PC8:
-				rel_size = 1;
-				break;
-			case R_386_16:
-			case R_386_PC16:
-				rel_size = 2;
-				break;
-			case R_386_32:
-			case R_386_PC32:
-				rel_size = 4;
-				break;
-			default:
-				continue;
-			}
-
-			switch(rel.type)
-			{
-			case R_386_8:
-			case R_386_16:
-			case R_386_32:
-				obj_rel =
-					option_linear
-					? Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian)
-					: Linker::Relocation::Offset(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
-				break;
-			case R_386_PC8:
-			case R_386_PC16:
-			case R_386_PC32:
-				obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
-				break;
-			}
-			break;
-
-		case EM_68K:
-			switch(rel.type)
-			{
-			case R_68K_8:
-			case R_68K_PC8:
-				rel_size = 1;
-				break;
-			case R_68K_16:
-			case R_68K_PC16:
-				rel_size = 2;
-				break;
-			case R_68K_32:
-			case R_68K_PC32:
-				rel_size = 4;
-				break;
-			default:
-				continue;
-			}
-
-			switch(rel.type)
-			{
-			case R_68K_8:
-			case R_68K_16:
-			case R_68K_32:
-				obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
-				break;
-			case R_68K_PC8:
-			case R_68K_PC16:
-			case R_68K_PC32:
-				obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
-				break;
-			}
-			break;
-
-		case EM_ARM:
-			/* TODO: use endianness of object file, or make parametrizable */
-			switch(rel.type)
-			{
-			case R_ARM_ABS32:
-				obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::LittleEndian);
-				break;
-			case R_ARM_CALL:
-			case R_ARM_JUMP24:
-			case R_ARM_PC24:
-				obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::LittleEndian);
-				obj_rel.SetMask(0x00FFFFFF);
-				obj_rel.SetShift(2);
-				break;
-			case R_ARM_V4BX:
-				continue;
-			default:
-				Linker::Warning << "Warning: unhandled ARM relocation type " << rel.type << std::endl;
-				continue;
-			}
-			break;
-		}
-		if(rel.addend_from_section_data)
-			obj_rel.AddCurrentValue();
-		module.AddRelocation(obj_rel);
-#if DISPLAY_LOGS
-		Linker::Debug << "Debug: Relocation at #" << rel.sh_info << ":" << std::hex << rel.offset << std::dec << " to symbol " << rel.symbol << ", type " << rel.type << std::endl;
-#endif
-	}
-}
-
-void ELFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
-{
-	ReadFile(rd);
-	GenerateModule(module);
-}
-
 void ELFFormat::ReadFile(Linker::Reader& in)
 {
 	int c;
@@ -549,5 +360,199 @@ void ELFFormat::ReadFile(Linker::Reader& in)
 			offset = next_offset;
 		}
 	}
+}
+
+void ELFFormat::WriteFile(Linker::Writer& wr)
+{
+	/* TODO */
+}
+
+void ELFFormat::Dump(Dumper::Dumper& dump)
+{
+	/* TODO */
+}
+
+void ELFFormat::SetupOptions(std::shared_ptr<Linker::OutputFormat> format)
+{
+	option_16bit = format->FormatIs16bit();
+	option_linear = format->FormatIsLinear();
+}
+
+void ELFFormat::GenerateModule(Linker::Module& module) const
+{
+	switch(cpu)
+	{
+	case EM_386:
+		module.cpu = option_16bit ? Linker::Module::I86 : Linker::Module::I386;
+		break;
+	case EM_68K:
+		module.cpu = Linker::Module::M68K;
+		break;
+	case EM_ARM:
+		module.cpu = Linker::Module::ARM;
+		break;
+	default:
+		{
+			std::ostringstream message;
+			message << "Fatal error: Unknown CPU type in ELF file " << cpu;
+			Linker::FatalError(message.str());
+		}
+	}
+
+	for(const Section& section : sections)
+	{
+		if((section.flags & SHF_ALLOC) != 0 && section.section != nullptr)
+		{
+			module.AddSection(section.section);
+		}
+	}
+
+	for(const Section& section : sections)
+	{
+		if(section.type == 2)
+		{
+			/* SYMTAB */
+			for(const Symbol& symbol : section.symbols)
+			{
+				if(symbol.name != "" && symbol.defined)
+				{
+					switch(symbol.bind)
+					{
+					case STB_LOCAL:
+						module.AddLocalSymbol(symbol.name, symbol.location);
+						break;
+					default:
+						module.AddGlobalSymbol(symbol.name, symbol.location);
+						break;
+					}
+				}
+				else if(symbol.unallocated)
+				{
+					module.AddCommonSymbol(symbol.name, symbol.specification);
+				}
+				else
+				{
+					module.AddUndefinedSymbol(symbol.name);
+				}
+			}
+		}
+	}
+
+	for(Relocation rel : relocations)
+	{
+		Linker::Location rel_source = Linker::Location(sections[rel.sh_info].section, rel.offset);
+		const Symbol& sym_target = sections[rel.sh_link].symbols[rel.symbol];
+		Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(Linker::SymbolName(sym_target.name));
+		Linker::Relocation obj_rel = Linker::Relocation::Empty();
+		size_t rel_size;
+		switch(cpu)
+		{
+		case EM_386:
+			/* TODO: 386 linear model will have to use Absolute instead of Offset */
+			switch(rel.type)
+			{
+			case R_386_8:
+			case R_386_PC8:
+				rel_size = 1;
+				break;
+			case R_386_16:
+			case R_386_PC16:
+				rel_size = 2;
+				break;
+			case R_386_32:
+			case R_386_PC32:
+				rel_size = 4;
+				break;
+			default:
+				continue;
+			}
+
+			switch(rel.type)
+			{
+			case R_386_8:
+			case R_386_16:
+			case R_386_32:
+				obj_rel =
+					option_linear
+					? Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian)
+					: Linker::Relocation::Offset(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+				break;
+			case R_386_PC8:
+			case R_386_PC16:
+			case R_386_PC32:
+				obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+				break;
+			}
+			break;
+
+		case EM_68K:
+			switch(rel.type)
+			{
+			case R_68K_8:
+			case R_68K_PC8:
+				rel_size = 1;
+				break;
+			case R_68K_16:
+			case R_68K_PC16:
+				rel_size = 2;
+				break;
+			case R_68K_32:
+			case R_68K_PC32:
+				rel_size = 4;
+				break;
+			default:
+				continue;
+			}
+
+			switch(rel.type)
+			{
+			case R_68K_8:
+			case R_68K_16:
+			case R_68K_32:
+				obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
+				break;
+			case R_68K_PC8:
+			case R_68K_PC16:
+			case R_68K_PC32:
+				obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
+				break;
+			}
+			break;
+
+		case EM_ARM:
+			/* TODO: use endianness of object file, or make parametrizable */
+			switch(rel.type)
+			{
+			case R_ARM_ABS32:
+				obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::LittleEndian);
+				break;
+			case R_ARM_CALL:
+			case R_ARM_JUMP24:
+			case R_ARM_PC24:
+				obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::LittleEndian);
+				obj_rel.SetMask(0x00FFFFFF);
+				obj_rel.SetShift(2);
+				break;
+			case R_ARM_V4BX:
+				continue;
+			default:
+				Linker::Warning << "Warning: unhandled ARM relocation type " << rel.type << std::endl;
+				continue;
+			}
+			break;
+		}
+		if(rel.addend_from_section_data)
+			obj_rel.AddCurrentValue();
+		module.AddRelocation(obj_rel);
+#if DISPLAY_LOGS
+		Linker::Debug << "Debug: Relocation at #" << rel.sh_info << ":" << std::hex << rel.offset << std::dec << " to symbol " << rel.symbol << ", type " << rel.type << std::endl;
+#endif
+	}
+}
+
+void ELFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
+{
+	ReadFile(rd);
+	GenerateModule(module);
 }
 

@@ -4,6 +4,7 @@
 #include <sstream>
 #include <vector>
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/format.h"
 #include "../linker/linker.h"
 #include "../linker/module.h"
@@ -19,24 +20,76 @@ namespace ELF
 	class ELFFormat : public virtual Linker::InputFormat, public virtual Linker::OutputFormat, public Linker::LinkerManager
 	{
 	public:
-		void WriteFile(Linker::Writer& wr) override;
+		/* * * General members * * */
+		static constexpr uint8_t ELFCLASS32 = 1;
+		static constexpr uint8_t ELFCLASS64 = 2;
 
-		void SetupOptions(std::shared_ptr<Linker::OutputFormat> format) override;
+		static constexpr uint8_t ELFDATA2LSB = 1;
+		static constexpr uint8_t ELFDATA2MSB = 2;
 
-	private:
-		void GenerateModule(Linker::Module& module) const;
+		static constexpr uint8_t EV_NONE = 0;
+		static constexpr uint8_t EV_CURRENT = 1;
 
-	public:
-		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+		static constexpr uint8_t ELFOSABI_NONE = 0;
+
+		static constexpr offset_t SHF_WRITE = 0x0001;
+		static constexpr offset_t SHF_ALLOC = 0x0002;
+		static constexpr offset_t SHF_EXECINSTR = 0x0004;
+		static constexpr offset_t SHF_MERGE = 0x0010;
+		static constexpr offset_t SHF_STRINGS = 0x0020;
+		static constexpr offset_t SHF_INFO_LINK = 0x0040;
+		static constexpr offset_t SHF_LINK_ORDER = 0x0080;
+		static constexpr offset_t SHF_OS_NONCONFORMING = 0x0100;
+		static constexpr offset_t SHF_GROUP = 0x0200;
+		static constexpr offset_t SHF_TLS = 0x0400;
+		static constexpr offset_t SHF_COMPRESSED = 0x0800;
+		/* GNU specific */
+		static constexpr offset_t SHF_GNU_RETAIN = 0x00200000;
+		static constexpr offset_t SHF_GNU_MBIND = 0x01000000;
+		static constexpr offset_t SHF_EXCLUDE = 0x80000000;
+		/* OS/2 specific */
+		static constexpr offset_t SHF_BEGIN = 0x01000000;
+		static constexpr offset_t SHF_END = 0x02000000;
+
+		static constexpr uint16_t SHN_UNDEF = 0;
+		static constexpr uint16_t SHN_ABS = 0xFFF1;
+		static constexpr uint16_t SHN_COMMON = 0xFFF2;
+		static constexpr uint16_t SHN_XINDEX = 0xFFFF;
+
+		static constexpr uint8_t STB_LOCAL = 0;
+		static constexpr uint8_t STB_GLOBAL = 1;
+
+		static constexpr offset_t R_386_8 = 22;
+		static constexpr offset_t R_386_PC8 = 23;
+		static constexpr offset_t R_386_16 = 20;
+		static constexpr offset_t R_386_PC16 = 21;
+		static constexpr offset_t R_386_32 = 1;
+		static constexpr offset_t R_386_PC32 = 2;
+		/* extensions, see https://github.com/tkchia/build-ia16/blob/master/elf16-writeup.md (TODO: unsupported for now) */
+		static constexpr offset_t R_386_SEG16 = 45;
+		static constexpr offset_t R_386_SUB16 = 46;
+		static constexpr offset_t R_386_SUB32 = 47;
+		static constexpr offset_t R_386_SEGRELATIVE = 48;
+		static constexpr offset_t R_386_OZSEG16 = 80;
+		static constexpr offset_t R_386_OZRELSEG16 = 81;
+
+		static constexpr offset_t R_68K_8 = 3;
+		static constexpr offset_t R_68K_PC8 = 6;
+		static constexpr offset_t R_68K_16 = 2;
+		static constexpr offset_t R_68K_PC16 = 5;
+		static constexpr offset_t R_68K_32 = 1;
+		static constexpr offset_t R_68K_PC32 = 4;
+
+		static constexpr offset_t R_ARM_ABS8 = 8;
+		static constexpr offset_t R_ARM_ABS16 = 16;
+		static constexpr offset_t R_ARM_ABS32 = 2;
+		static constexpr offset_t R_ARM_REL32 = 3;
+		static constexpr offset_t R_ARM_CALL = 28;
+		static constexpr offset_t R_ARM_JUMP24 = 29;
+		static constexpr offset_t R_ARM_PC24 = 1;
+		static constexpr offset_t R_ARM_V4BX = 40;
 
 		EndianType endiantype = ::LittleEndian;
-
-		ELFFormat()
-		{
-		}
-
-		bool option_16bit = true;
-		bool option_linear = false;
 
 		size_t wordbytes;
 
@@ -45,6 +98,10 @@ namespace ELF
 			EM_386 = 3,
 			EM_68K = 4,
 			EM_ARM = 40,
+
+			EM_RISCV = 243,
+			// https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
+			EM_LANAI = 244,
 		};
 		cpu_type cpu;
 
@@ -71,43 +128,6 @@ namespace ELF
 		uint16_t program_header_entry_size;
 		uint16_t section_header_entry_size;
 		uint16_t section_name_string_table;
-
-		class Segment
-		{
-		public:
-			uint32_t type = 0, flags = 0;
-			offset_t offset = 0, vaddr = 0, paddr = 0, filesz = 0, memsz = 0, align = 0;
-
-			class Block
-			{
-			public:
-				virtual ~Block();
-				virtual offset_t GetSize() const = 0;
-			};
-
-			class Section : public Block
-			{
-			public:
-				uint16_t index;
-				offset_t offset, size;
-				Section(uint16_t index, offset_t offset, offset_t size)
-					: index(index), offset(offset), size(size)
-				{
-				}
-				offset_t GetSize() const override;
-			};
-
-			class Data : public Block
-			{
-			public:
-				offset_t file_offset;
-				std::shared_ptr<Linker::Writable> image;
-				offset_t GetSize() const override;
-			};
-
-			std::vector<std::shared_ptr<Block>> blocks;
-		};
-		std::vector<Segment> segments;
 
 		class Symbol
 		{
@@ -183,75 +203,65 @@ namespace ELF
 		};
 		std::vector<Relocation> relocations;
 
-		static constexpr uint8_t ELFCLASS32 = 1;
-		static constexpr uint8_t ELFCLASS64 = 2;
+		class Segment
+		{
+		public:
+			uint32_t type = 0, flags = 0;
+			offset_t offset = 0, vaddr = 0, paddr = 0, filesz = 0, memsz = 0, align = 0;
 
-		static constexpr uint8_t ELFDATA2LSB = 1;
-		static constexpr uint8_t ELFDATA2MSB = 2;
+			class Block
+			{
+			public:
+				virtual ~Block();
+				virtual offset_t GetSize() const = 0;
+			};
 
-		static constexpr uint8_t EV_NONE = 0;
-		static constexpr uint8_t EV_CURRENT = 1;
+			class Section : public Block
+			{
+			public:
+				uint16_t index;
+				offset_t offset, size;
+				Section(uint16_t index, offset_t offset, offset_t size)
+					: index(index), offset(offset), size(size)
+				{
+				}
+				offset_t GetSize() const override;
+			};
 
-		static constexpr uint8_t ELFOSABI_NONE = 0;
+			class Data : public Block
+			{
+			public:
+				offset_t file_offset;
+				std::shared_ptr<Linker::Writable> image;
+				offset_t GetSize() const override;
+			};
 
-		static constexpr offset_t SHF_WRITE = 0x0001;
-		static constexpr offset_t SHF_ALLOC = 0x0002;
-		static constexpr offset_t SHF_EXECINSTR = 0x0004;
-		static constexpr offset_t SHF_MERGE = 0x0010;
-		static constexpr offset_t SHF_STRINGS = 0x0020;
-		static constexpr offset_t SHF_INFO_LINK = 0x0040;
-		static constexpr offset_t SHF_LINK_ORDER = 0x0080;
-		static constexpr offset_t SHF_OS_NONCONFORMING = 0x0100;
-		static constexpr offset_t SHF_GROUP = 0x0200;
-		static constexpr offset_t SHF_TLS = 0x0400;
-		static constexpr offset_t SHF_COMPRESSED = 0x0800;
-		/* GNU specific */
-		static constexpr offset_t SHF_GNU_RETAIN = 0x00200000;
-		static constexpr offset_t SHF_GNU_MBIND = 0x01000000;
-		static constexpr offset_t SHF_EXCLUDE = 0x80000000;
-		/* OS/2 specific */
-		static constexpr offset_t SHF_BEGIN = 0x01000000;
-		static constexpr offset_t SHF_END = 0x02000000;
+			std::vector<std::shared_ptr<Block>> blocks;
+		};
+		std::vector<Segment> segments;
 
-		static constexpr uint16_t SHN_UNDEF = 0;
-		static constexpr uint16_t SHN_ABS = 0xFFF1;
-		static constexpr uint16_t SHN_COMMON = 0xFFF2;
-		static constexpr uint16_t SHN_XINDEX = 0xFFFF;
-
-		static constexpr uint8_t STB_LOCAL = 0;
-		static constexpr uint8_t STB_GLOBAL = 1;
-
-		static constexpr offset_t R_386_8 = 22;
-		static constexpr offset_t R_386_PC8 = 23;
-		static constexpr offset_t R_386_16 = 20;
-		static constexpr offset_t R_386_PC16 = 21;
-		static constexpr offset_t R_386_32 = 1;
-		static constexpr offset_t R_386_PC32 = 2;
-		/* extensions, see https://github.com/tkchia/build-ia16/blob/master/elf16-writeup.md (TODO: unsupported for now) */
-		static constexpr offset_t R_386_SEG16 = 45;
-		static constexpr offset_t R_386_SUB16 = 46;
-		static constexpr offset_t R_386_SUB32 = 47;
-		static constexpr offset_t R_386_SEGRELATIVE = 48;
-		static constexpr offset_t R_386_OZSEG16 = 80;
-		static constexpr offset_t R_386_OZRELSEG16 = 81;
-
-		static constexpr offset_t R_68K_8 = 3;
-		static constexpr offset_t R_68K_PC8 = 6;
-		static constexpr offset_t R_68K_16 = 2;
-		static constexpr offset_t R_68K_PC16 = 5;
-		static constexpr offset_t R_68K_32 = 1;
-		static constexpr offset_t R_68K_PC32 = 4;
-
-		static constexpr offset_t R_ARM_ABS8 = 8;
-		static constexpr offset_t R_ARM_ABS16 = 16;
-		static constexpr offset_t R_ARM_ABS32 = 2;
-		static constexpr offset_t R_ARM_REL32 = 3;
-		static constexpr offset_t R_ARM_CALL = 28;
-		static constexpr offset_t R_ARM_JUMP24 = 29;
-		static constexpr offset_t R_ARM_PC24 = 1;
-		static constexpr offset_t R_ARM_V4BX = 40;
+		ELFFormat()
+		{
+		}
 
 		void ReadFile(Linker::Reader& in) override;
+
+		void WriteFile(Linker::Writer& wr) override;
+
+		void Dump(Dumper::Dumper& dump) override;
+
+		/* * * Reader members * * */
+
+		bool option_16bit = true;
+		bool option_linear = false;
+
+		void SetupOptions(std::shared_ptr<Linker::OutputFormat> format) override;
+
+	private:
+		void GenerateModule(Linker::Module& module) const;
+
+	public:
+		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 	};
 
 }
