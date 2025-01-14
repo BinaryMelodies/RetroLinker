@@ -109,6 +109,53 @@ namespace ELF
 		static constexpr offset_t R_ARM_PC24 = 1;
 		static constexpr offset_t R_ARM_V4BX = 40;
 
+		static constexpr offset_t DT_NULL = 0;
+		static constexpr offset_t DT_NEEDED = 1;
+		static constexpr offset_t DT_PLTRELSZ = 2;
+		static constexpr offset_t DT_PLTGOT = 3;
+		static constexpr offset_t DT_HASH = 4;
+		static constexpr offset_t DT_STRTAB = 5;
+		static constexpr offset_t DT_SYMTAB = 6;
+		static constexpr offset_t DT_RELA = 7;
+		static constexpr offset_t DT_RELASZ = 8;
+		static constexpr offset_t DT_RELAENT = 9;
+		static constexpr offset_t DT_STRSZ = 10;
+		static constexpr offset_t DT_SYMENT = 11;
+		static constexpr offset_t DT_INIT = 12;
+		static constexpr offset_t DT_FINI = 13;
+		static constexpr offset_t DT_SONAME = 14;
+		static constexpr offset_t DT_RPATH = 15;
+		static constexpr offset_t DT_SYMBOLIC = 16;
+		static constexpr offset_t DT_REL = 17;
+		static constexpr offset_t DT_RELSZ = 18;
+		static constexpr offset_t DT_RELENT = 19;
+		static constexpr offset_t DT_PLTREL = 20;
+		static constexpr offset_t DT_DEBUG = 21;
+		static constexpr offset_t DT_TEXTREL = 22;
+		static constexpr offset_t DT_JMPREL = 23;
+		static constexpr offset_t DT_BIND_NOW = 24;
+		static constexpr offset_t DT_INIT_ARRAY = 25;
+		static constexpr offset_t DT_FINI_ARRAY = 26;
+		static constexpr offset_t DT_INIT_ARRAYSZ = 27;
+		static constexpr offset_t DT_FINI_ARRAYSZ = 28;
+		static constexpr offset_t DT_RUNPATH = 29;
+		static constexpr offset_t DT_FLAGS = 30;
+		static constexpr offset_t DT_ENCODING = 31;
+		static constexpr offset_t DT_PREINIT_ARRAY = 32;
+		static constexpr offset_t DT_PREINIT_ARRAYSZ = 33;
+		static constexpr offset_t DT_SYMTAB_SHNDX = 34;
+		/* IBM OS/2 specific */
+		static constexpr offset_t DT_EXPORT = 0x60000001;
+		static constexpr offset_t DT_EXPORTSZ = 0x60000002;
+		static constexpr offset_t DT_EXPENT = 0x60000003;
+		static constexpr offset_t DT_IMPORT = 0x60000004;
+		static constexpr offset_t DT_IMPORTSZ = 0x60000005;
+		static constexpr offset_t DT_IMPENT = 0x60000006;
+		static constexpr offset_t DT_IT = 0x60000007;
+		static constexpr offset_t DT_ITPRTY = 0x60000008;
+		static constexpr offset_t DT_INITTERM = 0x60000009;
+		static constexpr offset_t DT_STACKSZ = 0x6000000A;
+
 		uint8_t file_class;
 		EndianType endiantype = ::LittleEndian;
 
@@ -393,6 +440,23 @@ namespace ELF
 			bool addend_from_section_data = false;
 		};
 
+		class DynamicObject
+		{
+		public:
+			offset_t tag;
+			offset_t value;
+
+			DynamicObject()
+				: tag(0), value(0)
+			{
+			}
+
+			DynamicObject(offset_t tag, offset_t value)
+				: tag(tag), value(value)
+			{
+			}
+		};
+
 		class Section
 		{
 		public:
@@ -445,6 +509,8 @@ namespace ELF
 			std::vector<offset_t> array;
 			/* used for SHT_REL, SHT_RELA */
 			std::vector<Relocation> relocations;
+			/* used for SHT_DYNAMIC */
+			std::vector<DynamicObject> dynamic;
 
 			enum stored_format
 			{
@@ -454,6 +520,7 @@ namespace ELF
 				StringTableLike,
 				RelocationLike,
 				ArrayLike,
+				DynamicLike,
 			};
 			stored_format GetStoredFormatKind() const;
 

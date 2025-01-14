@@ -24,8 +24,8 @@ ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() cons
 		return SectionLike;
 	//case Section::SHT_HASH: // TODO
 	//	break;
-	//case Section::SHT_DYNAMIC: // TODO
-	//	break;
+	case Section::SHT_DYNAMIC:
+		return DynamicLike;
 	//case Section::SHT_NOTE: // TODO
 	//	break;
 	case Section::SHT_INIT_ARRAY:
@@ -81,6 +81,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	case StringTableLike:
 	case RelocationLike:
 	case ArrayLike:
+	case DynamicLike:
 		region = std::make_unique<Dumper::Region>("Section", file_offset, symbols.size() * entsize, 2 * fmt.wordbytes);
 		break;
 	}
@@ -288,6 +289,64 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 			if(!rel.addend_from_section_data)
 				relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.addend));
 			relocation_entry.Display(dump);
+			i += 1;
+		}
+		break;
+	case DynamicLike:
+		i = 0;
+		for(auto& dynobj : dynamic)
+		{
+			Dumper::Entry dynamic_entry("Object", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
+			std::map<offset_t, std::string> tag_descriptions;
+			tag_descriptions[DT_NULL] = "DT_NULL";
+			tag_descriptions[DT_NEEDED] = "DT_NEEDED";
+			tag_descriptions[DT_PLTRELSZ] = "DT_PLTRELSZ";
+			tag_descriptions[DT_PLTGOT] = "DT_PLTGOT";
+			tag_descriptions[DT_HASH] = "DT_HASH";
+			tag_descriptions[DT_STRTAB] = "DT_STRTAB";
+			tag_descriptions[DT_SYMTAB] = "DT_SYMTAB";
+			tag_descriptions[DT_RELA] = "DT_RELA";
+			tag_descriptions[DT_RELASZ] = "DT_RELASZ";
+			tag_descriptions[DT_RELAENT] = "DT_RELAENT";
+			tag_descriptions[DT_STRSZ] = "DT_STRSZ";
+			tag_descriptions[DT_SYMENT] = "DT_SYMENT";
+			tag_descriptions[DT_INIT] = "DT_INIT";
+			tag_descriptions[DT_FINI] = "DT_FINI";
+			tag_descriptions[DT_SONAME] = "DT_SONAME";
+			tag_descriptions[DT_RPATH] = "DT_RPATH";
+			tag_descriptions[DT_SYMBOLIC] = "DT_SYMBOLIC";
+			tag_descriptions[DT_REL] = "DT_REL";
+			tag_descriptions[DT_RELSZ] = "DT_RELSZ";
+			tag_descriptions[DT_RELENT] = "DT_RELENT";
+			tag_descriptions[DT_PLTREL] = "DT_PLTREL";
+			tag_descriptions[DT_DEBUG] = "DT_DEBUG";
+			tag_descriptions[DT_TEXTREL] = "DT_TEXTREL";
+			tag_descriptions[DT_JMPREL] = "DT_JMPREL";
+			tag_descriptions[DT_BIND_NOW] = "DT_BIND_NOW";
+			tag_descriptions[DT_INIT_ARRAY] = "DT_INIT_ARRAY";
+			tag_descriptions[DT_FINI_ARRAY] = "DT_FINI_ARRAY";
+			tag_descriptions[DT_INIT_ARRAYSZ] = "DT_INIT_ARRAYSZ";
+			tag_descriptions[DT_FINI_ARRAYSZ] = "DT_FINI_ARRAYSZ";
+			tag_descriptions[DT_RUNPATH] = "DT_RUNPATH";
+			tag_descriptions[DT_FLAGS] = "DT_FLAGS";
+			tag_descriptions[DT_ENCODING] = "DT_ENCODING";
+			tag_descriptions[DT_PREINIT_ARRAY] = "DT_PREINIT_ARRAY";
+			tag_descriptions[DT_PREINIT_ARRAYSZ] = "DT_PREINIT_ARRAYSZ";
+			tag_descriptions[DT_SYMTAB_SHNDX] = "DT_SYMTAB_SHNDX";
+			tag_descriptions[DT_EXPORT] = "DT_EXPORT (IBM OS/2)";
+			tag_descriptions[DT_EXPORTSZ] = "DT_EXPORTSZ (IBM OS/2)";
+			tag_descriptions[DT_EXPENT] = "DT_EXPENT (IBM OS/2)";
+			tag_descriptions[DT_IMPORT] = "DT_IMPORT (IBM OS/2)";
+			tag_descriptions[DT_IMPORTSZ] = "DT_IMPORTSZ (IBM OS/2)";
+			tag_descriptions[DT_IMPENT] = "DT_IMPENT (IBM OS/2)";
+			tag_descriptions[DT_IT] = "DT_IT (IBM OS/2)";
+			tag_descriptions[DT_ITPRTY] = "DT_ITPRTY (IBM OS/2)";
+			tag_descriptions[DT_INITTERM] = "DT_INITTERM (IBM OS/2)";
+			tag_descriptions[DT_STACKSZ] = "DT_STACKSZ (IBM OS/2)";
+			dynamic_entry.AddField("Tag", Dumper::ChoiceDisplay::Make(tag_descriptions), dynobj.tag);
+			//dynamic_entry.AddField("Tag", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.tag);
+			dynamic_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.value);
+			dynamic_entry.Display(dump);
 			i += 1;
 		}
 		break;
@@ -509,6 +568,16 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			for(size_t j = 0; j < sections[i].size / 4; j++)
 			{
 				sections[i].array.push_back(rd.ReadUnsigned(sections[i].entsize));
+			}
+			break;
+		case Section::DynamicLike:
+			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
+			{
+				rd.Seek(sections[i].file_offset + j);
+				DynamicObject dyn;
+				dyn.tag = rd.ReadSigned(wordbytes);
+				dyn.value = rd.ReadSigned(wordbytes);
+				sections[i].dynamic.push_back(dyn);
 			}
 			break;
 		}
