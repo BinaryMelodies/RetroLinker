@@ -23,8 +23,8 @@ ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() cons
 	//	break;
 	case Section::SHT_DYNAMIC:
 		return DynamicLike;
-	//case Section::SHT_NOTE: // TODO
-	//	break;
+	case Section::SHT_NOTE:
+		return NoteLike;
 	case Section::SHT_INIT_ARRAY:
 	case Section::SHT_FINI_ARRAY:
 	case Section::SHT_PREINIT_ARRAY:
@@ -82,6 +82,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	case ArrayLike:
 	case SectionArrayLike:
 	case DynamicLike:
+	case NoteLike:
 		region = std::make_unique<Dumper::Region>("Section", file_offset, symbols.size() * entsize, 2 * fmt.wordbytes);
 		break;
 	}
@@ -389,6 +390,23 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 			i += 1;
 		}
 		break;
+	case NoteLike:
+		i = 0;
+		offset = 0;
+		for(auto& note : notes)
+		{
+			Dumper::Entry note_entry("Note", i + 1, file_offset + offset, 2 * fmt.wordbytes);
+			note_entry.AddField("Name", Dumper::StringDisplay::Make(), note.name);
+			note_entry.AddField("Description", Dumper::StringDisplay::Make(), note.descriptor);
+			note_entry.AddField("Type", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(note.type));
+			note_entry.Display(dump);
+			i += 1;
+			offset += 3 * 4 + note.name.size() + 1;
+			offset = ::AlignTo(offset, 4);
+			offset += note.descriptor.size() + 1;
+			offset = ::AlignTo(offset, 4);
+		}
+		break;
 	}
 }
 
@@ -618,6 +636,23 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				dyn.tag = rd.ReadSigned(wordbytes);
 				dyn.value = rd.ReadSigned(wordbytes);
 				sections[i].dynamic.push_back(dyn);
+			}
+			break;
+		case Section::NoteLike:
+			rd.Seek(sections[i].file_offset);
+			while(rd.Tell() < sections[i].file_offset + sections[i].size)
+			{
+				Note note;
+				offset_t namesz = rd.ReadUnsigned(4);
+				offset_t descsz = rd.ReadUnsigned(4);
+				note.type = rd.ReadUnsigned(4);
+				note.name = rd.ReadASCIIZ(namesz);
+				if((namesz & 3) != 0)
+					rd.Skip((-namesz & 3));
+				note.descriptor = rd.ReadASCIIZ(descsz);
+				if((descsz & 3) != 0)
+					rd.Skip((-descsz & 3));
+				sections[i].notes.push_back(note);
 			}
 			break;
 		}

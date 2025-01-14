@@ -457,6 +457,14 @@ namespace ELF
 			}
 		};
 
+		class Note
+		{
+		public:
+			std::string name;
+			std::string descriptor;
+			offset_t type;
+		};
+
 		class Section
 		{
 		public:
@@ -511,6 +519,8 @@ namespace ELF
 			std::vector<Relocation> relocations;
 			/* used for SHT_DYNAMIC */
 			std::vector<DynamicObject> dynamic;
+			/* used for SHT_NOTE */
+			std::vector<Note> notes;
 
 			enum stored_format
 			{
@@ -522,6 +532,7 @@ namespace ELF
 				ArrayLike,
 				SectionArrayLike,
 				DynamicLike,
+				NoteLike,
 			};
 			stored_format GetStoredFormatKind() const;
 
