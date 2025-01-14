@@ -28,14 +28,11 @@ ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() cons
 	//	break;
 	//case Section::SHT_NOTE: // TODO
 	//	break;
-	//case Section::SHT_INIT_ARRAY: // TODO
-	//	break;
-	//case Section::SHT_FINI_ARRAY: // TODO
-	//	break;
-	//case Section::SHT_PREINIT_ARRAY: // TODO
-	//	break;
+	case Section::SHT_INIT_ARRAY:
+	case Section::SHT_FINI_ARRAY:
+	case Section::SHT_PREINIT_ARRAY:
 	case Section::SHT_SYMTAB_SHNDX:
-		return IndexTableLike;
+		return ArrayLike;
 	}
 }
 
@@ -77,12 +74,13 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	{
 	case SectionLike:
 		region = std::make_unique<Dumper::Block>("Section", file_offset, section, address, 2 * fmt.wordbytes);
+		// TODO: provide relocations for the section data
 		break;
 	case Empty:
 	case SymbolTableLike:
 	case StringTableLike:
 	case RelocationLike:
-	case IndexTableLike:
+	case ArrayLike:
 		region = std::make_unique<Dumper::Region>("Section", file_offset, symbols.size() * entsize, 2 * fmt.wordbytes);
 		break;
 	}
@@ -105,7 +103,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	type_descriptions[SHT_SHLIB] = "SHT_SHLIB - reserved";
 	type_descriptions[SHT_DYNSYM] = "SHT_DYNSYM - Dynamic linking symbol table";
 	type_descriptions[SHT_INIT_ARRAY] = "SHT_INIT_ARRAY - Array of initialization functions";
-	type_descriptions[SHT_FINI_ARRAY] = "SHT_INIT_ARRAY - Array of termination functions";
+	type_descriptions[SHT_FINI_ARRAY] = "SHT_FINI_ARRAY - Array of termination functions";
 	type_descriptions[SHT_PREINIT_ARRAY] = "SHT_PREINIT_ARRAY - Array of pre-initialization functions";
 	type_descriptions[SHT_GROUP] = "SHT_GROUP - Section group";
 	type_descriptions[SHT_SYMTAB_SHNDX] = "SHT_SYMTAB_SHNDX - Symbol table section indexes";
@@ -203,13 +201,20 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	{
 	default:
 		break;
-	case IndexTableLike: // TODO
+	case ArrayLike:
+		i = 0;
+		for(auto& value : array)
+		{
+			Dumper::Entry array_entry("Value", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
+			array_entry.AddField("Value", Dumper::HexDisplay::Make(2 * entsize), value);
+			array_entry.Display(dump);
+			i += 1;
+		}
 		break;
 	case SymbolTableLike:
 		i = 0;
 		for(auto& symbol : symbols)
 		{
-			// TODO: provide relocations
 			Dumper::Entry symbol_entry("Symbol", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
 			symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
 			symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(symbol.name_offset));
@@ -499,11 +504,11 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				sections[i].relocations.push_back(rel);
 			}
 			break;
-		case Section::IndexTableLike:
+		case Section::ArrayLike:
 			rd.Seek(sections[i].file_offset);
 			for(size_t j = 0; j < sections[i].size / 4; j++)
 			{
-				sections[i].indexes.push_back(rd.ReadUnsigned(4));
+				sections[i].array.push_back(rd.ReadUnsigned(sections[i].entsize));
 			}
 			break;
 		}
@@ -549,7 +554,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		{
 		case Section::SHT_SYMTAB_SHNDX:
 			// TODO: untested
-			for(size_t index = 0; index < section.indexes.size(); index++)
+			for(size_t index = 0; index < section.array.size(); index++)
 			{
 				Symbol& symbol = sections[section.link].symbols[index];
 				if(symbol.shndx == SHN_XINDEX)
@@ -557,7 +562,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 #if DISPLAY_LOGS
 					Linker::Debug << "Debug: Symbol #" << i << ": SHN_XINDEX" << std::endl;
 #endif
-					symbol.shndx = section.indexes[index];
+					symbol.shndx = section.array[index];
 					symbol.location = Linker::Location(sections[symbol.shndx].section, symbol.value);
 					symbol.defined = true;
 				}
@@ -1487,12 +1492,12 @@ void ELFFormat::CalculateValues()
 		case Section::SHT_SYMTAB_SHNDX:
 			// TODO: untested
 			// TODO: create the section if required
-			for(size_t index = 0; index < section.indexes.size(); index++)
+			for(size_t index = 0; index < section.array.size(); index++)
 			{
 				Symbol& symbol = sections[section.link].symbols[index];
 				if(symbol.shndx >= SHN_LORESERVE)
 				{
-					section.indexes[index] = symbol.shndx;
+					section.array[index] = symbol.shndx;
 				}
 			}
 			break;

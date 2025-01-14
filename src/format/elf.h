@@ -437,13 +437,13 @@ namespace ELF
 			offset_t address = 0, file_offset = 0, size = 0, align = 0, entsize = 0;
 			/* not used for SHT_NOBITS */
 			std::shared_ptr<Linker::Section> section;
-			/* only used for SHT_SYMTAB and SHT_DYNSYM */
+			/* used for SHT_SYMTAB and SHT_DYNSYM */
 			std::vector<Symbol> symbols;
-			/* only used for SHT_STRTAB */
+			/* used for SHT_STRTAB */
 			std::vector<std::string> strings;
-			/* only used for SHT_SYMTAB_SHNDX */
-			std::vector<uint32_t> indexes;
-			/* only used for SHT_REL, SHT_RELA */
+			/* used for SHT_SYMTAB_SHNDX, SHT_INIT_ARRAY/SHT_FINI_ARRAY/SHT_PREINIT_ARRAY */
+			std::vector<offset_t> array;
+			/* used for SHT_REL, SHT_RELA */
 			std::vector<Relocation> relocations;
 
 			enum stored_format
@@ -453,7 +453,7 @@ namespace ELF
 				SymbolTableLike,
 				StringTableLike,
 				RelocationLike,
-				IndexTableLike,
+				ArrayLike,
 			};
 			stored_format GetStoredFormatKind() const;
 
