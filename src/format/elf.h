@@ -505,7 +505,7 @@ namespace ELF
 			std::vector<Symbol> symbols;
 			/* used for SHT_STRTAB */
 			std::vector<std::string> strings;
-			/* used for SHT_SYMTAB_SHNDX, SHT_INIT_ARRAY/SHT_FINI_ARRAY/SHT_PREINIT_ARRAY */
+			/* used for SHT_SYMTAB_SHNDX, SHT_INIT_ARRAY/SHT_FINI_ARRAY/SHT_PREINIT_ARRAY, SHT_GROUP */
 			std::vector<offset_t> array;
 			/* used for SHT_REL, SHT_RELA */
 			std::vector<Relocation> relocations;
@@ -520,6 +520,7 @@ namespace ELF
 				StringTableLike,
 				RelocationLike,
 				ArrayLike,
+				SectionArrayLike,
 				DynamicLike,
 			};
 			stored_format GetStoredFormatKind() const;

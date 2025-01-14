@@ -19,9 +19,6 @@ ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() cons
 	case Section::SHT_RELA:
 	case Section::SHT_REL:
 		return RelocationLike;
-	case Section::SHT_GROUP:
-		/* TODO */
-		return SectionLike;
 	//case Section::SHT_HASH: // TODO
 	//	break;
 	case Section::SHT_DYNAMIC:
@@ -31,8 +28,10 @@ ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() cons
 	case Section::SHT_INIT_ARRAY:
 	case Section::SHT_FINI_ARRAY:
 	case Section::SHT_PREINIT_ARRAY:
-	case Section::SHT_SYMTAB_SHNDX:
 		return ArrayLike;
+	case Section::SHT_GROUP:
+	case Section::SHT_SYMTAB_SHNDX:
+		return SectionArrayLike;
 	}
 }
 
@@ -81,6 +80,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	case StringTableLike:
 	case RelocationLike:
 	case ArrayLike:
+	case SectionArrayLike:
 	case DynamicLike:
 		region = std::make_unique<Dumper::Region>("Section", file_offset, symbols.size() * entsize, 2 * fmt.wordbytes);
 		break;
@@ -193,10 +193,20 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	else
 		name_entsize = "Entry size";
 	region->AddOptionalField(name_entsize, Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(entsize));
+
+	if(type == SHT_GROUP)
+	{
+		region->AddField("Group flags",
+			Dumper::BitFieldDisplay::Make()
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("GRP_COMDAT"), true),
+			offset_t(array[0]));
+	}
+
 	region->Display(dump);
 
 	unsigned i;
 	offset_t offset;
+	bool already_started;
 
 	switch(GetStoredFormatKind())
 	{
@@ -208,6 +218,34 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		{
 			Dumper::Entry array_entry("Value", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
 			array_entry.AddField("Value", Dumper::HexDisplay::Make(2 * entsize), value);
+			array_entry.Display(dump);
+			i += 1;
+		}
+		break;
+	case SectionArrayLike:
+		// TODO: untested
+		i = 0;
+		already_started = false;
+		for(auto& value : array)
+		{
+			if(type == SHT_GROUP && !already_started)
+			{
+				already_started = true;
+				continue;
+			}
+			if(type == SHT_SYMTAB_SHNDX && value == 0)
+			{
+				i += 1;
+				continue;
+			}
+			Dumper::Entry array_entry("Value", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
+			array_entry.AddField("Section", Dumper::HexDisplay::Make(2 * entsize), value);
+			array_entry.AddField("Section name", Dumper::StringDisplay::Make(),
+				value == SHN_UNDEF ? "SHN_UNDEF" :
+				value == SHN_ABS ? "SHN_ABS" :
+				value == SHN_COMMON ? "SHN_COMMON" :
+				value == SHN_XINDEX ? "SHN_XINDEX" :
+				fmt.sections[value].name);
 			array_entry.Display(dump);
 			i += 1;
 		}
@@ -288,6 +326,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 			relocation_entry.AddField("Symbol index", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.symbol)); // TODO: display name
 			if(!rel.addend_from_section_data)
 				relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.addend));
+			// TODO: display current value
 			relocation_entry.Display(dump);
 			i += 1;
 		}
@@ -563,6 +602,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				sections[i].relocations.push_back(rel);
 			}
 			break;
+		case Section::SectionArrayLike: // TODO: untested
 		case Section::ArrayLike:
 			rd.Seek(sections[i].file_offset);
 			for(size_t j = 0; j < sections[i].size / 4; j++)
