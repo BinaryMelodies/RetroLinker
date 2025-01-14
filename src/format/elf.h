@@ -21,9 +21,12 @@ namespace ELF
 	{
 	public:
 		/* * * General members * * */
+
+		static constexpr uint8_t ELFCLASSNONE = 0;
 		static constexpr uint8_t ELFCLASS32 = 1;
 		static constexpr uint8_t ELFCLASS64 = 2;
 
+		static constexpr uint8_t ELFDATANONE = 0;
 		static constexpr uint8_t ELFDATA2LSB = 1;
 		static constexpr uint8_t ELFDATA2MSB = 2;
 
@@ -52,12 +55,29 @@ namespace ELF
 		static constexpr offset_t SHF_END = 0x02000000;
 
 		static constexpr uint16_t SHN_UNDEF = 0;
+		static constexpr uint16_t SHN_LORESERVE = 0xFF00;
 		static constexpr uint16_t SHN_ABS = 0xFFF1;
 		static constexpr uint16_t SHN_COMMON = 0xFFF2;
 		static constexpr uint16_t SHN_XINDEX = 0xFFFF;
 
 		static constexpr uint8_t STB_LOCAL = 0;
 		static constexpr uint8_t STB_GLOBAL = 1;
+		static constexpr uint8_t STB_WEAK = 2;
+		static constexpr uint8_t STB_ENTRY = 12; /* IBM OS/2 */
+
+		static constexpr uint8_t STT_NOTYPE = 0;
+		static constexpr uint8_t STT_OBJECT = 1;
+		static constexpr uint8_t STT_FUNC = 2;
+		static constexpr uint8_t STT_SECTION = 3;
+		static constexpr uint8_t STT_FILE = 4;
+		static constexpr uint8_t STT_COMMON = 5;
+		static constexpr uint8_t STT_TLS = 6;
+		static constexpr uint8_t STT_IMPORT = 11; /* IBM OS/2 */
+
+		static constexpr uint8_t STV_DEFAULT = 0;
+		static constexpr uint8_t STV_INTERNAL = 1;
+		static constexpr uint8_t STV_HIDDEN = 2;
+		static constexpr uint8_t STV_PROTECTED = 3;
 
 		static constexpr offset_t R_386_8 = 22;
 		static constexpr offset_t R_386_PC8 = 23;
@@ -362,6 +382,17 @@ namespace ELF
 			Linker::CommonSymbol specification;
 		};
 
+		class Relocation
+		{
+		public:
+			offset_t offset = 0;
+			uint32_t type = 0;
+			uint32_t symbol = 0;
+			int64_t addend = 0;
+			uint16_t sh_link = 0, sh_info = 0;
+			bool addend_from_section_data = false;
+		};
+
 		class Section
 		{
 		public:
@@ -404,24 +435,33 @@ namespace ELF
 			uint32_t link = 0, info = 0;
 			offset_t flags = 0;
 			offset_t address = 0, file_offset = 0, size = 0, align = 0, entsize = 0;
+			/* not used for SHT_NOBITS */
 			std::shared_ptr<Linker::Section> section;
+			/* only used for SHT_SYMTAB and SHT_DYNSYM */
 			std::vector<Symbol> symbols;
+			/* only used for SHT_STRTAB */
+			std::vector<std::string> strings;
+			/* only used for SHT_SYMTAB_SHNDX */
+			std::vector<uint32_t> indexes;
+			/* only used for SHT_REL, SHT_RELA */
+			std::vector<Relocation> relocations;
 
-			void Dump(Dumper::Dumper& dump, size_t wordbytes, unsigned index);
+			enum stored_format
+			{
+				Empty,
+				SectionLike,
+				SymbolTableLike,
+				StringTableLike,
+				RelocationLike,
+				IndexTableLike,
+			};
+			stored_format GetStoredFormatKind() const;
+
+			bool GetFileSize() const;
+
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
 		};
 		std::vector<Section> sections;
-
-		class Relocation
-		{
-		public:
-			offset_t offset = 0;
-			uint32_t type = 0;
-			uint32_t symbol = 0;
-			int64_t addend = 0;
-			uint16_t sh_link = 0, sh_info = 0;
-			bool addend_from_section_data = false;
-		};
-		std::vector<Relocation> relocations;
 
 		class Segment
 		{
@@ -535,6 +575,7 @@ namespace ELF
 
 	public:
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+		void CalculateValues() override;
 	};
 
 }

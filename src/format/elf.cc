@@ -3,6 +3,47 @@
 
 using namespace ELF;
 
+ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() const
+{
+	switch(type)
+	{
+	default:
+	case Section::SHT_PROGBITS:
+	case Section::SHT_NOBITS:
+		return SectionLike;
+	case Section::SHT_SYMTAB:
+	case Section::SHT_DYNSYM:
+		return SymbolTableLike;
+	case Section::SHT_STRTAB:
+		return StringTableLike;
+	case Section::SHT_RELA:
+	case Section::SHT_REL:
+		return RelocationLike;
+	case Section::SHT_GROUP:
+		/* TODO */
+		return SectionLike;
+	//case Section::SHT_HASH: // TODO
+	//	break;
+	//case Section::SHT_DYNAMIC: // TODO
+	//	break;
+	//case Section::SHT_NOTE: // TODO
+	//	break;
+	//case Section::SHT_INIT_ARRAY: // TODO
+	//	break;
+	//case Section::SHT_FINI_ARRAY: // TODO
+	//	break;
+	//case Section::SHT_PREINIT_ARRAY: // TODO
+	//	break;
+	case Section::SHT_SYMTAB_SHNDX:
+		return IndexTableLike;
+	}
+}
+
+bool ELFFormat::Section::GetFileSize() const
+{
+	return type == SHT_NOBITS ? 0 : size;
+}
+
 offset_t ELFFormat::Segment::Part::GetOffset(ELFFormat& fmt)
 {
 	switch(type)
@@ -21,7 +62,7 @@ offset_t ELFFormat::Segment::Part::GetActualSize(ELFFormat& fmt)
 	switch(type)
 	{
 	case Section:
-		return fmt.sections[index].type == Section::SHT_NOBITS ? 0 : fmt.sections[index].size;
+		return fmt.sections[index].GetFileSize();
 	case Block:
 		return fmt.blocks[index].size;
 	default:
@@ -29,122 +70,220 @@ offset_t ELFFormat::Segment::Part::GetActualSize(ELFFormat& fmt)
 	}
 }
 
-void ELFFormat::Section::Dump(Dumper::Dumper& dump, size_t wordbytes, unsigned index)
+void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
 {
+	std::unique_ptr<Dumper::Region> region;
+	switch(GetStoredFormatKind())
+	{
+	case SectionLike:
+		region = std::make_unique<Dumper::Block>("Section", file_offset, section, address, 2 * fmt.wordbytes);
+		break;
+	case Empty:
+	case SymbolTableLike:
+	case StringTableLike:
+	case RelocationLike:
+	case IndexTableLike:
+		region = std::make_unique<Dumper::Region>("Section", file_offset, symbols.size() * entsize, 2 * fmt.wordbytes);
+		break;
+	}
+
+	region->InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index));
+	region->InsertField(1, "Name", Dumper::StringDisplay::Make(), name);
+	region->InsertField(2, "Name offset", Dumper::HexDisplay::Make(), offset_t(name_offset));
+
+	std::map<offset_t, std::string> type_descriptions;
+	type_descriptions[SHT_NULL] = "SHT_NULL - Inactive";
+	type_descriptions[SHT_PROGBITS] = "SHT_PROGBITS - Program data";
+	type_descriptions[SHT_SYMTAB] = "SHT_SYMTAB - Symbol table";
+	type_descriptions[SHT_STRTAB] = "SHT_STRTAB - String table";
+	type_descriptions[SHT_RELA] = "SHT_RELA - Relocations with explicit addends";
+	type_descriptions[SHT_HASH] = "SHT_HASH - Hash table";
+	type_descriptions[SHT_DYNAMIC] = "SHT_DYNAMIC - Dynamic linking information";
+	type_descriptions[SHT_NOTE] = "SHT_NOTE - File information";
+	type_descriptions[SHT_NOBITS] = "SHT_NOBITS - Zero filled section";
+	type_descriptions[SHT_REL] = "SHT_REL - Relocations without explicit addends";
+	type_descriptions[SHT_SHLIB] = "SHT_SHLIB - reserved";
+	type_descriptions[SHT_DYNSYM] = "SHT_DYNSYM - Dynamic linking symbol table";
+	type_descriptions[SHT_INIT_ARRAY] = "SHT_INIT_ARRAY - Array of initialization functions";
+	type_descriptions[SHT_FINI_ARRAY] = "SHT_INIT_ARRAY - Array of termination functions";
+	type_descriptions[SHT_PREINIT_ARRAY] = "SHT_PREINIT_ARRAY - Array of pre-initialization functions";
+	type_descriptions[SHT_GROUP] = "SHT_GROUP - Section group";
+	type_descriptions[SHT_SYMTAB_SHNDX] = "SHT_SYMTAB_SHNDX - Symbol table section indexes";
+		/* IBM OS/2 specific */
+	type_descriptions[SHT_OS] = "SHT_OS - (IBM OS/2) Target operating system identification";
+	type_descriptions[SHT_IMPORTS] = "SHT_IMPORTS - (IBM OS/2) External symbol references";
+	type_descriptions[SHT_EXPORTS] = "SHT_EXPORTS - (IBM OS/2) Exported symbols";
+	type_descriptions[SHT_RES] = "SHT_RES - (IBM OS/2) Resource data";
+		/* GNU extensions */
+	type_descriptions[SHT_GNU_INCREMENTAL_INPUTS] = "SHT_GNU_INCREMENTAL_INPUTS";
+	type_descriptions[SHT_GNU_ATTRIBUTES] = "SHT_GNU_ATTRIBUTES";
+	type_descriptions[SHT_GNU_HASH] = "SHT_GNU_HASH";
+	type_descriptions[SHT_GNU_LIBLIST] = "SHT_GNU_LIBLIST";
+	type_descriptions[SHT_SUNW_verdef] = "SHT_SUNW_verdef";
+	type_descriptions[SHT_SUNW_verneed] = "SHT_SUNW_verneed";
+	type_descriptions[SHT_SUNW_versym] = "SHT_SUNW_versym";
+	region->AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(type));
+
+	region->AddField("Flags",
+		Dumper::BitFieldDisplay::Make()
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("SHF_WRITE - writable"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("SHF_ALLOC - occupies memory during execution"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("SHF_EXECINSTR - contains executable instructions"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("SHF_MERGE - section data may be merged to eliminate duplication"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("SHF_STRINGS - null-terminated strings"), true)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("SHF_INFO_LINK - sh_info contains section index"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("SHF_LINK_ORDER - order with section in sh_link must be preserved"), true)
+			->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("SHF_OS_NONCONFORMING - requires OS-specific processing"), true)
+			->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("SHF_GROUP - member of a section group"), true)
+			->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("SHF_TLS - thread-local storage"), true)
+			->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("SHF_COMPRESSED - compressed"), true),
+		offset_t(flags));
+
+	// TODO: only display if NOBITS or section data is nullptr?
+	region->AddField("Size", Dumper::HexDisplay::Make(), offset_t(size));
+
+	std::string name_link;
 	switch(type)
 	{
-	// TODO: other types
+	case SHT_DYNAMIC:
+	case SHT_SYMTAB:
+	case SHT_DYNSYM:
+	case SHT_GROUP:
+	case SHT_SYMTAB_SHNDX:
+		name_link = "Link to string table";
+		break;
+	case SHT_HASH:
+	case SHT_REL:
+	case SHT_RELA:
+		name_link = "Link to symbol table";
+		break;
 	default:
+		name_link = "Link";
+		break;
+	}
+	region->AddOptionalField(name_link, Dumper::DecDisplay::Make(), offset_t(link));
+
+	std::string name_info;
+	switch(type)
+	{
+	case SHT_GROUP:
+		name_info = "Info, symbol index";
+		break;
+	case SHT_SYMTAB:
+	case SHT_DYNSYM:
+		name_info = "Info, symbol index after last local symbol";
+		break;
+	case SHT_REL:
+	case SHT_RELA:
+		name_info = "Info, section index";
+		break;
+	default:
+		if((flags & SHF_INFO_LINK))
+			name_info = "Info, section index";
+		else
+			name_info = "Info";
+		break;
+	}
+	region->AddOptionalField(name_info, Dumper::DecDisplay::Make(), offset_t(info));
+
+	region->AddField("Alignment", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(align));
+
+	std::string name_entsize;
+	if((flags & SHF_STRINGS))
+		name_entsize = "Character size";
+	else
+		name_entsize = "Entry size";
+	region->AddOptionalField(name_entsize, Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(entsize));
+	region->Display(dump);
+
+	unsigned i;
+	offset_t offset;
+
+	switch(GetStoredFormatKind())
+	{
+	default:
+		break;
+	case IndexTableLike: // TODO
+		break;
+	case SymbolTableLike:
+		i = 0;
+		for(auto& symbol : symbols)
 		{
-			Dumper::Block section_block("Section", file_offset, section, address, 2 * wordbytes);
-			section_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index));
-			section_block.InsertField(1, "Name", Dumper::StringDisplay::Make(), name);
-			section_block.InsertField(2, "Name offset", Dumper::HexDisplay::Make(), offset_t(name_offset));
+			// TODO: provide relocations
+			Dumper::Entry symbol_entry("Symbol", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
+			symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
+			symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(symbol.name_offset));
+			if(symbol.shndx == SHN_COMMON)
+				symbol_entry.AddField("Alignment", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(symbol.value));
+			else
+				symbol_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(symbol.value));
+			symbol_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(symbol.size));
+			symbol_entry.AddField("Section number", Dumper::DecDisplay::Make(), offset_t(symbol.shndx));
+			symbol_entry.AddField("Section name", Dumper::StringDisplay::Make(),
+				symbol.shndx == SHN_UNDEF ? "SHN_UNDEF" :
+				symbol.shndx == SHN_ABS ? "SHN_ABS" :
+				symbol.shndx == SHN_COMMON ? "SHN_COMMON" :
+				symbol.shndx == SHN_XINDEX ? "SHN_XINDEX" :
+				fmt.sections[symbol.shndx].name);
+
+			std::map<offset_t, std::string> binding_descriptions;
+			binding_descriptions[STB_LOCAL] = "STB_LOCAL";
+			binding_descriptions[STB_GLOBAL] = "STB_GLOBAL";
+			binding_descriptions[STB_WEAK] = "STB_WEAK";
+			binding_descriptions[STB_ENTRY] = "STB_ENTRY - (IBM OS/2)";
+			symbol_entry.AddField("Binding", Dumper::ChoiceDisplay::Make(binding_descriptions), offset_t(symbol.bind));
 
 			std::map<offset_t, std::string> type_descriptions;
-			type_descriptions[SHT_NULL] = "SHT_NULL - Inactive";
-			type_descriptions[SHT_PROGBITS] = "SHT_PROGBITS - Program data";
-			type_descriptions[SHT_SYMTAB] = "SHT_SYMTAB - Symbol table";
-			type_descriptions[SHT_STRTAB] = "SHT_STRTAB - String table";
-			type_descriptions[SHT_RELA] = "SHT_RELA - Relocations with explicit addends";
-			type_descriptions[SHT_HASH] = "SHT_HASH - Hash table";
-			type_descriptions[SHT_DYNAMIC] = "SHT_DYNAMIC - Dynamic linking information";
-			type_descriptions[SHT_NOTE] = "SHT_NOTE - File information";
-			type_descriptions[SHT_NOBITS] = "SHT_NOBITS - Zero filled section";
-			type_descriptions[SHT_REL] = "SHT_REL - Relocations without explicit addends";
-			type_descriptions[SHT_SHLIB] = "SHT_SHLIB - reserved";
-			type_descriptions[SHT_DYNSYM] = "SHT_DYNSYM - Dynamic linking symbol table";
-			type_descriptions[SHT_INIT_ARRAY] = "SHT_INIT_ARRAY - Array of initialization functions";
-			type_descriptions[SHT_FINI_ARRAY] = "SHT_INIT_ARRAY - Array of termination functions";
-			type_descriptions[SHT_PREINIT_ARRAY] = "SHT_PREINIT_ARRAY - Array of pre-initialization functions";
-			type_descriptions[SHT_GROUP] = "SHT_GROUP - Section group";
-			type_descriptions[SHT_SYMTAB_SHNDX] = "SHT_SYMTAB_SHNDX - Symbol table section indexes";
-				/* IBM OS/2 specific */
-			type_descriptions[SHT_OS] = "SHT_OS - (IBM OS/2) Target operating system identification";
-			type_descriptions[SHT_IMPORTS] = "SHT_IMPORTS - (IBM OS/2) External symbol references";
-			type_descriptions[SHT_EXPORTS] = "SHT_EXPORTS - (IBM OS/2) Exported symbols";
-			type_descriptions[SHT_RES] = "SHT_RES - (IBM OS/2) Resource data";
-				/* GNU extensions */
-			type_descriptions[SHT_GNU_INCREMENTAL_INPUTS] = "SHT_GNU_INCREMENTAL_INPUTS";
-			type_descriptions[SHT_GNU_ATTRIBUTES] = "SHT_GNU_ATTRIBUTES";
-			type_descriptions[SHT_GNU_HASH] = "SHT_GNU_HASH";
-			type_descriptions[SHT_GNU_LIBLIST] = "SHT_GNU_LIBLIST";
-			type_descriptions[SHT_SUNW_verdef] = "SHT_SUNW_verdef";
-			type_descriptions[SHT_SUNW_verneed] = "SHT_SUNW_verneed";
-			type_descriptions[SHT_SUNW_versym] = "SHT_SUNW_versym";
-			section_block.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(type));
+			type_descriptions[STT_NOTYPE] = "STT_NOTYPE";
+			type_descriptions[STT_OBJECT] = "STT_OBJECT";
+			type_descriptions[STT_FUNC] = "STT_FUNC";
+			type_descriptions[STT_SECTION] = "STT_SECTION";
+			type_descriptions[STT_FILE] = "STT_FILE";
+			type_descriptions[STT_COMMON] = "STT_COMMON";
+			type_descriptions[STT_TLS] = "STT_TLS";
+			type_descriptions[STT_IMPORT] = "STT_IMPORT - (IBM OS/2)"; // TODO: st_value is offset of import table entry
+			symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(symbol.type));
 
-			section_block.AddField("Flags",
-				Dumper::BitFieldDisplay::Make()
-					->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("SHF_WRITE - writable"), true)
-					->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("SHF_ALLOC - occupies memory during execution"), true)
-					->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("SHF_EXECINSTR - contains executable instructions"), true)
-					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("SHF_MERGE - section data may be merged to eliminate duplication"), true)
-					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("SHF_STRINGS - null-terminated strings"), true)
-					->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("SHF_INFO_LINK - sh_info contains section index"), true)
-					->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("SHF_LINK_ORDER - order with section in sh_link must be preserved"), true)
-					->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("SHF_OS_NONCONFORMING - requires OS-specific processing"), true)
-					->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("SHF_GROUP - member of a section group"), true)
-					->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("SHF_TLS - thread-local storage"), true)
-					->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("SHF_COMPRESSED - compressed"), true),
-				offset_t(flags));
+			std::map<offset_t, std::string> visibility_descriptions;
+			visibility_descriptions[STV_DEFAULT] = "STV_DEFAULT";
+			visibility_descriptions[STV_INTERNAL] = "STV_INTERNAL";
+			visibility_descriptions[STV_HIDDEN] = "STV_HIDDEN";
+			visibility_descriptions[STV_PROTECTED] = "STV_PROTECTED";
+			symbol_entry.AddField("Visibility", Dumper::ChoiceDisplay::Make(visibility_descriptions), offset_t(symbol.other));
 
-			// TODO: only display if NOBITS or section data is nullptr?
-			section_block.AddField("Size", Dumper::HexDisplay::Make(), offset_t(size));
+			symbol_entry.Display(dump);
 
-			std::string name_link;
-			switch(type)
-			{
-			case SHT_DYNAMIC:
-			case SHT_SYMTAB:
-			case SHT_DYNSYM:
-			case SHT_GROUP:
-			case SHT_SYMTAB_SHNDX:
-				name_link = "Link to string table";
-				break;
-			case SHT_HASH:
-			case SHT_REL:
-			case SHT_RELA:
-				name_link = "Link to symbol table";
-				break;
-			default:
-				name_link = "Link";
-				break;
-			}
-			section_block.AddOptionalField(name_link, Dumper::DecDisplay::Make(), offset_t(link));
-
-			std::string name_info;
-			switch(type)
-			{
-			case SHT_GROUP:
-				name_link = "Info, symbol index";
-				break;
-			case SHT_SYMTAB:
-			case SHT_DYNSYM:
-				name_link = "Info, symbol index after last local symbol";
-				break;
-			case SHT_REL:
-			case SHT_RELA:
-				name_link = "Info, section index";
-				break;
-			default:
-				if((flags & SHF_INFO_LINK))
-					name_link = "Info, section index";
-				else
-					name_link = "Info";
-				break;
-			}
-			section_block.AddOptionalField(name_info, Dumper::DecDisplay::Make(), offset_t(info));
-
-			section_block.AddField("Alignment", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(align));
-
-			std::string name_entsize;
-			if((flags & SHF_STRINGS))
-				name_entsize = "Character size";
-			else
-				name_entsize = "Entry size";
-			section_block.AddOptionalField(name_entsize, Dumper::HexDisplay::Make(2 * wordbytes), offset_t(entsize));
-			section_block.Display(dump);
+			i += 1;
+		}
+		break;
+	case StringTableLike:
+		i = 0;
+		offset = file_offset;
+		for(auto& s : strings)
+		{
+			Dumper::Entry string_entry("String", i + 1, offset, 2 * fmt.wordbytes);
+			string_entry.AddField("Value name", Dumper::StringDisplay::Make(), s);
+			string_entry.Display(dump);
+			i += 1;
+			offset += s.size() + 1;
+		}
+		break;
+	case RelocationLike:
+		i = 0;
+		if(relocations.size() > 0 && relocations[0].addend_from_section_data)
+			offset = 2 * fmt.wordbytes;
+		else
+			offset = 3 * fmt.wordbytes;
+		for(auto& rel : relocations)
+		{
+			Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + i * offset, 2 * fmt.wordbytes);
+			relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.offset));
+			relocation_entry.AddField("Type", Dumper::DecDisplay::Make(), offset_t(rel.type)); // TODO: display name
+			relocation_entry.AddField("Symbol index", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.symbol)); // TODO: display name
+			if(!rel.addend_from_section_data)
+				relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.addend));
+			relocation_entry.Display(dump);
+			i += 1;
 		}
 		break;
 	}
@@ -243,6 +382,13 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		section.align = rd.ReadUnsigned(wordbytes);
 		section.entsize = rd.ReadUnsigned(wordbytes);
 		sections.push_back(section);
+		if(shnum == SHN_XINDEX && i == 0)
+			shnum = section.info;
+	}
+
+	if(section_name_string_table == SHN_XINDEX)
+	{
+		section_name_string_table = sections[0].link;
 	}
 
 	for(size_t i = 0; i < phnum; i++)
@@ -270,17 +416,24 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 #if DISPLAY_LOGS
 		Linker::Debug << "Debug: Section #" << i << ": `" << sections[i].name << "'" << ", type: " << sections[i].type << ", flags: " << sections[i].flags << std::endl;
 #endif
-		sections[i].section = nullptr;
-		switch(sections[i].type)
+		//switch(sections[i].type)
+		switch(sections[i].GetStoredFormatKind())
 		{
-		case Section::SHT_PROGBITS:
+		case Section::Empty:
+		case Section::SectionLike:
 			sections[i].section = std::make_shared<Linker::Section>(sections[i].name);
+			if(sections[i].type == Section::SHT_NOBITS)
+			{
+				sections[i].section->SetZeroFilled(true);
+			}
 			sections[i].section->Expand(sections[i].size);
-			rd.Seek(sections[i].file_offset);
-			sections[i].section->ReadFile(rd);
+			if(sections[i].type != Section::SHT_NOBITS)
+			{
+				rd.Seek(sections[i].file_offset);
+				sections[i].section->ReadFile(rd);
+			}
 			break;
-		case Section::SHT_SYMTAB:
-		case Section::SHT_DYNSYM:
+		case Section::SymbolTableLike:
 			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
 			{
 				rd.Seek(sections[i].file_offset + j);
@@ -310,10 +463,15 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				sections[i].symbols.push_back(symbol);
 			}
 			break;
-		//case Section::SHT_STRTAB: // TODO
-		//	break;
-		case Section::SHT_RELA:
-		case Section::SHT_REL:
+		case Section::StringTableLike:
+			rd.Seek(sections[i].file_offset);
+			while(rd.Tell() < sections[i].file_offset + sections[i].size)
+			{
+				std::string s = rd.ReadASCIIZ();
+				sections[i].strings.push_back(s);
+			}
+			break;
+		case Section::RelocationLike:
 			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
 			{
 				rd.Seek(sections[i].file_offset + j);
@@ -335,36 +493,18 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 					rel.addend = 0;
 				else
 					rel.addend = rd.ReadUnsigned(wordbytes);
-//						Debug::Debug << "Debug: Type " << sections[i].type << " addend " << rel.addend << std::endl;
+//				Debug::Debug << "Debug: Type " << sections[i].type << " addend " << rel.addend << std::endl;
 				rel.sh_link = sections[i].link;
 				rel.sh_info = sections[i].info;
-				relocations.push_back(rel);
+				sections[i].relocations.push_back(rel);
 			}
 			break;
-		case Section::SHT_NOBITS:
-			sections[i].section = std::make_shared<Linker::Section>(sections[i].name);
-			sections[i].section->SetZeroFilled(true);
-			sections[i].section->Expand(sections[i].size);
-			break;
-		case Section::SHT_GROUP:
-			/* TODO */
-			break;
-		//case Section::SHT_HASH: // TODO
-		//	break;
-		//case Section::SHT_DYNAMIC: // TODO
-		//	break;
-		//case Section::SHT_NOTE: // TODO
-		//	break;
-		//case Section::SHT_INIT_ARRAY: // TODO
-		//	break;
-		//case Section::SHT_FINI_ARRAY: // TODO
-		//	break;
-		//case Section::SHT_PREINIT_ARRAY: // TODO
-		//	break;
-		//case Section::SHT_SYMTAB_SHNDX: // TODO
-		//	break;
-		default:
-			// TODO: read the section anyway
+		case Section::IndexTableLike:
+			rd.Seek(sections[i].file_offset);
+			for(size_t j = 0; j < sections[i].size / 4; j++)
+			{
+				sections[i].indexes.push_back(rd.ReadUnsigned(4));
+			}
 			break;
 		}
 		if(sections[i].section != nullptr)
@@ -405,9 +545,26 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 #endif
 	for(Section& section : sections)
 	{
-		if(section.type == 2)
+		switch(section.type)
 		{
-			/* SYMTAB */
+		case Section::SHT_SYMTAB_SHNDX:
+			// TODO: untested
+			for(size_t index = 0; index < section.indexes.size(); index++)
+			{
+				Symbol& symbol = sections[section.link].symbols[index];
+				if(symbol.shndx == SHN_XINDEX)
+				{
+#if DISPLAY_LOGS
+					Linker::Debug << "Debug: Symbol #" << i << ": SHN_XINDEX" << std::endl;
+#endif
+					symbol.shndx = section.indexes[index];
+					symbol.location = Linker::Location(sections[symbol.shndx].section, symbol.value);
+					symbol.defined = true;
+				}
+			}
+			break;
+		case Section::SHT_SYMTAB:
+		case Section::SHT_DYNSYM:
 			for(Symbol& symbol : section.symbols)
 			{
 				rd.Seek(sections[symbol.sh_link].file_offset + symbol.name_offset);
@@ -429,9 +586,11 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 					symbol.unallocated = true;
 					symbol.specification = Linker::CommonSymbol(symbol.name, symbol.size, symbol.value);
 					break;
+#if 0
 				case SHN_XINDEX:
 					Linker::Warning << "Warning: Extended section numbers not supported" << std::endl;
 					break;
+#endif
 				default:
 					symbol.location = Linker::Location(sections[symbol.shndx].section, symbol.value);
 					symbol.defined = true;
@@ -440,6 +599,9 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				i++;
 #endif
 			}
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -463,7 +625,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 	{
 		if(section.type != Section::SHT_NULL)
 			all_parts.push_back(Segment::Part(Segment::Part::Section, i, section.file_offset,
-				section.type == Section::SHT_NOBITS ? 0 : section.size));
+				section.GetFileSize()));
 		i++;
 	}
 
@@ -580,7 +742,7 @@ void ELFFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(2, segments.size()); // phnum
 	wr.WriteWord(2, section_header_entry_size); // shentsize
 	wr.WriteWord(2, sections.size()); // shnum
-	wr.WriteWord(2, section_name_string_table); // shstrndx
+	wr.WriteWord(2, section_name_string_table >= SHN_LORESERVE ? SHN_XINDEX : 0); // shstrndx
 
 	unsigned i;
 
@@ -909,7 +1071,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 	unsigned i = 0;
 	for(auto& section : sections)
 	{
-		section.Dump(dump, wordbytes, i++);
+		section.Dump(dump, *this, i++);
 	}
 
 	i = 0;
@@ -1076,154 +1238,160 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 		}
 		if((section.flags & SHF_ALLOC) != 0 && section.section != nullptr)
 		{
-			module.AddSection(section.section);
+			if(section.type == Section::SHT_PROGBITS || section.type == Section::SHT_NOBITS)
+				module.AddSection(section.section);
 		}
 	}
 
 	for(const Section& section : sections)
 	{
-		if(section.type == 2)
+		for(const Symbol& symbol : section.symbols)
 		{
-			/* SYMTAB */
-			for(const Symbol& symbol : section.symbols)
+			if(symbol.shndx == SHN_XINDEX)
 			{
-				if(symbol.name != "" && symbol.defined)
+				Linker::Error << "Error: Extended section numbers not updated" << std::endl;
+				continue;
+			}
+
+			if(symbol.name != "" && symbol.defined)
+			{
+				switch(symbol.bind)
 				{
-					switch(symbol.bind)
-					{
-					case STB_LOCAL:
-						module.AddLocalSymbol(symbol.name, symbol.location);
-						break;
-					default:
-						module.AddGlobalSymbol(symbol.name, symbol.location);
-						break;
-					}
+				case STB_LOCAL:
+					module.AddLocalSymbol(symbol.name, symbol.location);
+					break;
+				default:
+					module.AddGlobalSymbol(symbol.name, symbol.location);
+					break;
 				}
-				else if(symbol.unallocated)
-				{
-					module.AddCommonSymbol(symbol.name, symbol.specification);
-				}
-				else
-				{
-					module.AddUndefinedSymbol(symbol.name);
-				}
+			}
+			else if(symbol.unallocated)
+			{
+				module.AddCommonSymbol(symbol.name, symbol.specification);
+			}
+			else
+			{
+				module.AddUndefinedSymbol(symbol.name);
 			}
 		}
 	}
 
-	for(Relocation rel : relocations)
+	for(const Section& section : sections)
 	{
-		Linker::Location rel_source = Linker::Location(sections[rel.sh_info].section, rel.offset);
-		const Symbol& sym_target = sections[rel.sh_link].symbols[rel.symbol];
-		Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(Linker::SymbolName(sym_target.name));
-		Linker::Relocation obj_rel = Linker::Relocation::Empty();
-		size_t rel_size;
-		switch(cpu)
+		for(Relocation rel : section.relocations)
 		{
-		case EM_386:
-			/* TODO: 386 linear model will have to use Absolute instead of Offset */
-			switch(rel.type)
+			Linker::Location rel_source = Linker::Location(sections[rel.sh_info].section, rel.offset);
+			const Symbol& sym_target = sections[rel.sh_link].symbols[rel.symbol];
+			Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(Linker::SymbolName(sym_target.name));
+			Linker::Relocation obj_rel = Linker::Relocation::Empty();
+			size_t rel_size;
+			switch(cpu)
 			{
-			case R_386_8:
-			case R_386_PC8:
-				rel_size = 1;
+			case EM_386:
+				/* TODO: 386 linear model will have to use Absolute instead of Offset */
+				switch(rel.type)
+				{
+				case R_386_8:
+				case R_386_PC8:
+					rel_size = 1;
+					break;
+				case R_386_16:
+				case R_386_PC16:
+					rel_size = 2;
+					break;
+				case R_386_32:
+				case R_386_PC32:
+					rel_size = 4;
+					break;
+				default:
+					continue;
+				}
+
+				switch(rel.type)
+				{
+				case R_386_8:
+				case R_386_16:
+				case R_386_32:
+					obj_rel =
+						option_linear
+						? Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian)
+						: Linker::Relocation::Offset(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+					break;
+				case R_386_PC8:
+				case R_386_PC16:
+				case R_386_PC32:
+					obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+					break;
+				}
 				break;
-			case R_386_16:
-			case R_386_PC16:
-				rel_size = 2;
+
+			case EM_68K:
+				switch(rel.type)
+				{
+				case R_68K_8:
+				case R_68K_PC8:
+					rel_size = 1;
+					break;
+				case R_68K_16:
+				case R_68K_PC16:
+					rel_size = 2;
+					break;
+				case R_68K_32:
+				case R_68K_PC32:
+					rel_size = 4;
+					break;
+				default:
+					continue;
+				}
+
+				switch(rel.type)
+				{
+				case R_68K_8:
+				case R_68K_16:
+				case R_68K_32:
+					obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
+					break;
+				case R_68K_PC8:
+				case R_68K_PC16:
+				case R_68K_PC32:
+					obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
+					break;
+				}
 				break;
-			case R_386_32:
-			case R_386_PC32:
-				rel_size = 4;
+
+			case EM_ARM:
+				/* TODO: use endianness of object file, or make parametrizable */
+				switch(rel.type)
+				{
+				case R_ARM_ABS32:
+					obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::LittleEndian);
+					break;
+				case R_ARM_CALL:
+				case R_ARM_JUMP24:
+				case R_ARM_PC24:
+					obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::LittleEndian);
+					obj_rel.SetMask(0x00FFFFFF);
+					obj_rel.SetShift(2);
+					break;
+				case R_ARM_V4BX:
+					continue;
+				default:
+					Linker::Warning << "Warning: unhandled ARM relocation type " << rel.type << std::endl;
+					continue;
+				}
 				break;
+
 			default:
-				continue;
-			}
-
-			switch(rel.type)
-			{
-			case R_386_8:
-			case R_386_16:
-			case R_386_32:
-				obj_rel =
-					option_linear
-					? Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian)
-					: Linker::Relocation::Offset(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
-				break;
-			case R_386_PC8:
-			case R_386_PC16:
-			case R_386_PC32:
-				obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+				// unknown backend
 				break;
 			}
-			break;
-
-		case EM_68K:
-			switch(rel.type)
-			{
-			case R_68K_8:
-			case R_68K_PC8:
-				rel_size = 1;
-				break;
-			case R_68K_16:
-			case R_68K_PC16:
-				rel_size = 2;
-				break;
-			case R_68K_32:
-			case R_68K_PC32:
-				rel_size = 4;
-				break;
-			default:
-				continue;
-			}
-
-			switch(rel.type)
-			{
-			case R_68K_8:
-			case R_68K_16:
-			case R_68K_32:
-				obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
-				break;
-			case R_68K_PC8:
-			case R_68K_PC16:
-			case R_68K_PC32:
-				obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
-				break;
-			}
-			break;
-
-		case EM_ARM:
-			/* TODO: use endianness of object file, or make parametrizable */
-			switch(rel.type)
-			{
-			case R_ARM_ABS32:
-				obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::LittleEndian);
-				break;
-			case R_ARM_CALL:
-			case R_ARM_JUMP24:
-			case R_ARM_PC24:
-				obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::LittleEndian);
-				obj_rel.SetMask(0x00FFFFFF);
-				obj_rel.SetShift(2);
-				break;
-			case R_ARM_V4BX:
-				continue;
-			default:
-				Linker::Warning << "Warning: unhandled ARM relocation type " << rel.type << std::endl;
-				continue;
-			}
-			break;
-
-		default:
-			// unknown backend
-			break;
-		}
-		if(rel.addend_from_section_data)
-			obj_rel.AddCurrentValue();
-		module.AddRelocation(obj_rel);
+			if(rel.addend_from_section_data)
+				obj_rel.AddCurrentValue();
+			module.AddRelocation(obj_rel);
 #if DISPLAY_LOGS
-		Linker::Debug << "Debug: Relocation at #" << rel.sh_info << ":" << std::hex << rel.offset << std::dec << " to symbol " << rel.symbol << ", type " << rel.type << std::endl;
+			Linker::Debug << "Debug: Relocation at #" << rel.sh_info << ":" << std::hex << rel.offset << std::dec << " to symbol " << rel.symbol << ", type " << rel.type << std::endl;
 #endif
+		}
 	}
 }
 
@@ -1231,5 +1399,106 @@ void ELFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
 {
 	ReadFile(rd);
 	GenerateModule(module);
+}
+
+void ELFFormat::CalculateValues()
+{
+	// TODO: untested
+	// TODO: unfinished
+	size_t minimum_elf_header_size = 0;
+	size_t minimum_program_header_entry_size = 0;
+	size_t minimum_section_header_entry_size = 0;
+	switch(wordbytes)
+	{
+	default:
+		if(file_class != ELFCLASSNONE)
+			break; // we will assume the user knows what they are doing
+		Linker::Error << "Error: unspecified or invalid word size, assuming 32-bit" << std::endl;
+		wordbytes = 4;
+	case 4:
+		file_class = ELFCLASS32;
+		minimum_elf_header_size = 52;
+		minimum_program_header_entry_size = 32;
+		minimum_section_header_entry_size = 40;
+		break;
+	case 8:
+		file_class = ELFCLASS64;
+		minimum_elf_header_size = 64;
+		minimum_program_header_entry_size = 56;
+		minimum_section_header_entry_size = 64;
+		break;
+	}
+
+	switch(endiantype)
+	{
+	default:
+		if(file_class != ELFDATANONE)
+			break; // we will assume the user knows what they are doing
+		Linker::Error << "Error: unspecified or invalid byte order, assuming little endian" << std::endl;
+		endiantype = ::LittleEndian;
+	case ::LittleEndian:
+		data_encoding = ELFDATA2LSB;
+		break;
+	case ::BigEndian:
+		data_encoding = ELFDATA2MSB;
+		break;
+	}
+
+	if(header_version == EV_NONE)
+	{
+		header_version = EV_CURRENT;
+	}
+
+	if(file_version == EV_NONE)
+	{
+		file_version = EV_CURRENT;
+	}
+
+	if(elf_header_size < minimum_elf_header_size)
+	{
+		elf_header_size = minimum_elf_header_size;
+	}
+
+	if(sections.size() != 0 && section_header_entry_size < minimum_section_header_entry_size)
+	{
+		section_header_entry_size = minimum_section_header_entry_size;
+	}
+
+	if(segments.size() != 0 && program_header_entry_size < minimum_program_header_entry_size)
+	{
+		program_header_entry_size = minimum_program_header_entry_size;
+	}
+
+	if(program_header_offset < elf_header_size)
+	{
+		program_header_offset = elf_header_size;
+	}
+
+	if(sections.size() >= SHN_LORESERVE)
+		sections[0].info = sections.size();
+
+	if(section_name_string_table >= SHN_LORESERVE)
+		sections[0].link = section_name_string_table;
+
+	for(Section& section : sections)
+	{
+		switch(section.type)
+		{
+		case Section::SHT_SYMTAB_SHNDX:
+			// TODO: untested
+			// TODO: create the section if required
+			for(size_t index = 0; index < section.indexes.size(); index++)
+			{
+				Symbol& symbol = sections[section.link].symbols[index];
+				if(symbol.shndx >= SHN_LORESERVE)
+				{
+					section.indexes[index] = symbol.shndx;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }
 
