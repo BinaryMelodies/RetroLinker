@@ -19,8 +19,6 @@ ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() cons
 	case Section::SHT_RELA:
 	case Section::SHT_REL:
 		return RelocationLike;
-	//case Section::SHT_HASH: // TODO
-	//	break;
 	case Section::SHT_DYNAMIC:
 		return DynamicLike;
 	case Section::SHT_NOTE:
@@ -28,6 +26,7 @@ ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() cons
 	case Section::SHT_INIT_ARRAY:
 	case Section::SHT_FINI_ARRAY:
 	case Section::SHT_PREINIT_ARRAY:
+	case Section::SHT_HASH: // TODO: improve
 		return ArrayLike;
 	case Section::SHT_GROUP:
 	case Section::SHT_SYMTAB_SHNDX:
