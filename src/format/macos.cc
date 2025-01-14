@@ -707,10 +707,12 @@ void ResourceFork::SetModel(std::string model)
 {
 	if(model == "" || model == "default")
 	{
+		Linker::Debug << "Debug: new memory model: default" << std::endl;
 		memory_model = MODEL_DEFAULT;
 	}
 	else if(model == "tiny")
 	{
+		Linker::Debug << "Debug: new memory model: tiny" << std::endl;
 		memory_model = MODEL_TINY;
 	}
 	else
@@ -1037,8 +1039,10 @@ for any
 		{
 		case MODEL_DEFAULT:
 		default:
+std::cout << SimpleScript << std::endl;
 			return Script::parse_string(SimpleScript);
 		case MODEL_TINY:
+std::cout << TinyScript << std::endl;
 			return Script::parse_string(TinyScript);
 		}
 	}
@@ -1056,8 +1060,13 @@ void ResourceFork::ProcessModule(Linker::Module& module)
 	jump_table = std::make_shared<JumpTableCodeResource>();
 	AddResource(jump_table);
 
+for(auto section : module.Sections())
+{
+	Linker::Debug << "Debug: " << *section << std::endl;
+}
 	Link(module);
 	jump_table->below_a5 = a5world->zero_fill;
+	Linker::Debug << "Debug: Setting the A5 world to " << a5world->zero_fill << std::endl;
 
 	uint32_t entry_offset = 0;
 	Linker::Location entry;
@@ -1592,17 +1601,18 @@ bool MacDriver::AddSupplementaryOutputFormat(std::string subformat)
 
 void MacDriver::SetOptions(std::map<std::string, std::string>& options)
 {
-	/* TODO */
+	this->options = options;
 }
 
 void MacDriver::SetModel(std::string model)
 {
-	/* TODO */
+	this->model = model;
 }
 
 void MacDriver::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
 {
-	/* TODO */
+	this->script_file = script_file;
+	this->script_options = options;
 }
 
 void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
@@ -1614,6 +1624,11 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 
 	container = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 		apple_single_double_version, home_file_system);
+
+	container->SetOptions(options);
+	container->SetModel(model);
+	container->SetLinkScript(script_file, script_options);
+
 	container->ProcessModule(module);
 	container->CalculateValues();
 

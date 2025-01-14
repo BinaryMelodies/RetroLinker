@@ -229,7 +229,7 @@ namespace Apple
 			MODEL_DEFAULT,
 			MODEL_TINY,
 		};
-		memory_model_t memory_model;
+		memory_model_t memory_model = MODEL_DEFAULT;
 
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
@@ -802,6 +802,11 @@ namespace Apple
 
 	private:
 		std::shared_ptr<AppleSingleDouble> container;
+
+		std::map<std::string, std::string> options;
+		std::string model;
+		std::string script_file;
+		std::map<std::string, std::string> script_options;
 
 	public:
 		void SetOptions(std::map<std::string, std::string>& options) override;

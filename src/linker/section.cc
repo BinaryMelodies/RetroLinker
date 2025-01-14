@@ -383,7 +383,17 @@ std::ostream& Linker::operator<<(std::ostream& out, const Section& section)
 		out << "X";
 	if(section.IsZeroFilled())
 		out << "Z";
+	if(section.IsMergeable())
+		out << "M";
+	if(section.IsFixed())
+		out << "F";
 	out << " section(" << section.name << " size 0x" << std::hex << section.Size() << std::dec;
+	if(section.bias != 0)
+		out << " bias 0x" << std::hex << section.bias << std::dec;
+	if(section.GetAlign() > 1)
+		out << " align 0x" << std::hex << section.GetAlign() << std::dec;
+	if(section.GetStartAddress() != 0)
+		out << " address 0x" << std::hex << section.GetStartAddress() << std::dec;
 	out << ")";
 	return out;
 }
