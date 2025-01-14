@@ -3,18 +3,30 @@
 
 using namespace ELF;
 
-ELFFormat::Segment::Block::~Block()
+offset_t ELFFormat::Segment::Part::GetOffset(ELFFormat& fmt)
 {
+	switch(type)
+	{
+	case Section:
+		return fmt.sections[index].file_offset + offset;
+	case Block:
+		return fmt.blocks[index].offset + offset;
+	default:
+		assert(false);
+	}
 }
 
-offset_t ELFFormat::Segment::Section::GetSize() const
+offset_t ELFFormat::Segment::Part::GetActualSize(ELFFormat& fmt)
 {
-	return size;
-}
-
-offset_t ELFFormat::Segment::Data::GetSize() const
-{
-	return image->ActualDataSize();
+	switch(type)
+	{
+	case Section:
+		return fmt.sections[index].type == Section::SHT_NOBITS ? 0 : fmt.sections[index].size;
+	case Block:
+		return fmt.blocks[index].size;
+	default:
+		assert(false);
+	}
 }
 
 void ELFFormat::Section::Dump(Dumper::Dumper& dump, size_t wordbytes, unsigned index)
@@ -237,7 +249,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 	{
 		rd.Seek(program_header_offset + i * program_header_entry_size);
 		Segment segment;
-		segment.type = rd.ReadUnsigned(4);
+		segment.type = Segment::segment_type(rd.ReadUnsigned(4));
 		if(wordbytes == 8)
 			segment.flags = rd.ReadUnsigned(4);
 		segment.offset = rd.ReadUnsigned(wordbytes);
@@ -431,7 +443,30 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
-	// TODO: test
+	/* in all_parts, offset refers to the offset within the file instead within the section/block */
+	std::vector<Segment::Part> all_parts;
+
+	/* header */
+	blocks.push_back(Block(0, elf_header_size));
+	all_parts.push_back(Segment::Part(Segment::Part::Block, 0, 0, elf_header_size));
+	/* section header */
+	blocks.push_back(Block(section_header_offset, shnum * section_header_entry_size));
+	if(shnum != 0)
+		all_parts.push_back(Segment::Part(Segment::Part::Block, 1, section_header_offset, shnum * section_header_entry_size));
+	/* program header */
+	blocks.push_back(Block(program_header_offset, phnum * program_header_entry_size));
+	if(phnum != 0)
+		all_parts.push_back(Segment::Part(Segment::Part::Block, 2, program_header_offset, phnum * program_header_entry_size));
+
+	unsigned i = 0;
+	for(auto& section : sections)
+	{
+		if(section.type != Section::SHT_NULL)
+			all_parts.push_back(Segment::Part(Segment::Part::Section, i, section.file_offset,
+				section.type == Section::SHT_NOBITS ? 0 : section.size));
+		i++;
+	}
+
 	for(size_t i = 0; i < phnum; i++)
 	{
 		offset_t offset = segments[i].offset;
@@ -440,46 +475,39 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		while(offset < end)
 		{
 			offset_t next_offset = end;
-			for(size_t j = 0; j < shnum; j++)
+			for(auto& part : all_parts)
 			{
-				if(offset < sections[j].file_offset && sections[j].file_offset < next_offset)
+				if(offset < part.offset && part.offset < next_offset)
 				{
-					next_offset = sections[j].file_offset;
+					next_offset = part.offset;
 				}
 
-				if(sections[j].type == Section::SHT_NOBITS)
+				if(part.offset == offset)
 				{
-					if(sections[j].file_offset == offset)
-					{
-						segments[i].blocks.push_back(std::make_shared<Segment::Section>(j, 0, 0));
-					}
+					offset_t size = std::min(end - offset, part.size);
+					segments[i].parts.push_back(Segment::Part(part.type, part.index, 0, size));
+					if(covered < offset + size)
+						covered = offset + size;
 				}
-				else
+				else if(offset == segments[i].offset && part.offset < offset && offset < part.offset + part.size)
 				{
-					if(sections[j].file_offset == offset)
-					{
-						offset_t size = std::min(end - offset, sections[j].size);
-						segments[i].blocks.push_back(std::make_shared<Segment::Section>(j, 0, size));
-						if(covered < offset + size)
-							covered = offset + size;
-					}
-					else if(offset == segments[i].offset && sections[j].file_offset < offset && offset < sections[j].file_offset + sections[j].size)
-					{
-						offset_t cutoff = offset - sections[j].file_offset;
-						offset_t size = std::min(end - offset, sections[j].size - cutoff);
-						segments[i].blocks.push_back(std::make_shared<Segment::Section>(j, cutoff, size));
-						if(covered < offset + size)
-							covered = offset + size;
-					}
+					offset_t cutoff = offset - part.offset;
+					offset_t size = std::min(end - offset, part.size - cutoff);
+					segments[i].parts.push_back(Segment::Part(part.type, part.index, cutoff, size));
+					if(covered < offset + size)
+						covered = offset + size;
 				}
 			}
 			if(covered < next_offset)
 			{
-				std::shared_ptr<Segment::Data> data = std::make_shared<Segment::Data>();
-				data->file_offset = covered;
+				Block block;
+				block.offset = covered;
 				rd.Seek(covered);
-				data->image = Linker::Buffer::ReadFromFile(rd, next_offset - covered);
-				segments[i].blocks.push_back(data);
+				block.size = next_offset - covered;
+				block.image = Linker::Buffer::ReadFromFile(rd, block.size);
+				blocks.push_back(block);
+				segments[i].parts.push_back(Segment::Part(Segment::Part::Block, blocks.size() - 1, 0, block.size));
+				all_parts.push_back(Segment::Part(Segment::Part::Block, blocks.size() - 1, covered, block.size));
 				covered = next_offset;
 			}
 			offset = next_offset;
@@ -878,15 +906,114 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 		section_header_region.AddField("Section name string table name", Dumper::StringDisplay::Make(), sections[section_name_string_table].name);
 	section_header_region.Display(dump);
 
-	// TODO
-
 	unsigned i = 0;
 	for(auto& section : sections)
 	{
 		section.Dump(dump, wordbytes, i++);
 	}
 
-	// TODO: segments
+	i = 0;
+	for(auto& segment : segments)
+	{
+		Dumper::Region segment_region("Segment", segment.offset, segment.filesz, 2 * wordbytes);
+		segment_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i));
+
+		std::map<offset_t, std::string> type_descriptions;
+		type_descriptions[Segment::PT_NULL] = "PT_NULL - ignored";
+		type_descriptions[Segment::PT_LOAD] = "PT_LOAD - loadable segment";
+		type_descriptions[Segment::PT_DYNAMIC] = "PT_DYNAMIC - dynamic linking information";
+		type_descriptions[Segment::PT_INTERP] = "PT_INTERP - interpreter name";
+		type_descriptions[Segment::PT_NOTE] = "PT_NOTE - auxiliary information";
+		type_descriptions[Segment::PT_SHLIB] = "PT_SHLIB - reserved";
+		type_descriptions[Segment::PT_PHDR] = "PT_PHDR - program header table";
+		type_descriptions[Segment::PT_TLS] = "PT_TLS - thread-local storage";
+		type_descriptions[Segment::PT_OS] = "PT_OS - (IBM OS/2) target operating system identification";
+		type_descriptions[Segment::PT_RES] = "PT_RES - (IBM OS/2) read-only resource data";
+		type_descriptions[Segment::PT_SUNW_EH_FRAME] = "PT_SUNW_EH_FRAME - frame unwind information";
+		type_descriptions[Segment::PT_GNU_STACK] = "PT_GNU_STACK - stack flags";
+		type_descriptions[Segment::PT_GNU_RELRO] = "PT_GNU_RELRO - read-only after relocation";
+		type_descriptions[Segment::PT_GNU_PROPERTY] = "PT_GNU_PROPERTY - GNU property";
+		type_descriptions[Segment::PT_GNU_SFRAME] = "PT_GNU_SFRAME - stack trace information";
+		//type_descriptions[Segment::PT_GNU_MBIND_LO] = "",
+		//type_descriptions[Segment::PT_GNU_MBIND_HI] = "",
+		type_descriptions[Segment::PT_OPENBSD_MUTABLE] = "PT_OPENBSD_MUTABLE - mutable .bss";
+		type_descriptions[Segment::PT_OPENBSD_RANDOMIZE] = "PT_OPENBSD_RANDOMIZE - fill with random data";
+		type_descriptions[Segment::PT_OPENBSD_WXNEEDED] = "PT_OPENBSD_WXNEEDED - program does W^X violation";
+		type_descriptions[Segment::PT_OPENBSD_NOBTCFI] = "PT_OPENBSD_NOBTCFI - no branch target CFI";
+		type_descriptions[Segment::PT_OPENBSD_BOOTDATA] = "PT_OPENBSD_BOOTDATA - section for boot arguments";
+		segment_region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(segment.type));
+
+		segment_region.AddField("Flags",
+			Dumper::BitFieldDisplay::Make()
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("PF_X - executable"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("PF_W - writable"), true)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("PF_R - readable"), true)
+				->AddBitField(24, 1, Dumper::ChoiceDisplay::Make("PF_S - (IBM OS/2) shared segment"), true)
+				->AddBitField(25, 1, Dumper::ChoiceDisplay::Make("PF_K - (IBM OS/2) mapped to kernel address space"), true)
+				->AddBitField(26, 1, Dumper::ChoiceDisplay::Make("PF_M - (IBM OS/2) memory resident"), true),
+			offset_t(flags));
+
+		segment_region.AddField("Virtual address", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(segment.vaddr));
+		if(segment.vaddr != segment.paddr)
+			segment_region.AddField("Physical address", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(segment.paddr));
+		if(segment.filesz != segment.memsz)
+			segment_region.AddField("Memory length", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(segment.memsz));
+		if(segment.align > 1)
+			segment_region.AddField("Alignment", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(segment.align));
+		segment_region.Display(dump);
+
+		unsigned j = 0;
+		for(auto& part : segment.parts)
+		{
+			Dumper::Entry part_entry("Part", j + 1, part.GetOffset(*this), 8);
+			std::string part_name = "invalid";
+			switch(part.type)
+			{
+			case Segment::Part::Section:
+				if(part.offset == 0 && part.size == part.GetActualSize(*this))
+					part_name = "section";
+				else
+					part_name = "partial section";
+				break;
+			case Segment::Part::Block:
+				switch(part.index)
+				{
+				case 0:
+					part_name = "file header";
+					break;
+				case 1:
+					part_name = "section header";
+					break;
+				case 2:
+					part_name = "program header";
+					break;
+				default:
+					part_name = "block";
+					break;
+				}
+				break;
+			}
+			part_entry.AddField("Type", Dumper::StringDisplay::Make(), part_name);
+			if(part.type == Segment::Part::Section)
+			{
+				part_entry.AddField("Section", Dumper::DecDisplay::Make(), offset_t(part.index));
+				part_entry.AddField("Section name", Dumper::StringDisplay::Make(), sections[part.index].name);
+				part_entry.AddOptionalField("Offset within section", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(part.offset));
+			}
+			part_entry.AddField("Length", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(part.size));
+			part_entry.Display(dump);
+			if(part.type == Segment::Part::Block && part.offset == 0 && part.size == part.GetActualSize(*this) && blocks[part.index].image != nullptr)
+			{
+				Dumper::Block block("Block", blocks[part.index].offset, blocks[part.index].image,
+					segment.vaddr + (blocks[part.index].offset - segment.offset),
+					2 * wordbytes);
+				block.Display(dump);
+			}
+			j++;
+		}
+
+		i++;
+	}
 
 	if(hobbit_beos_resource_offset != 0)
 	{

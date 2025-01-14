@@ -426,39 +426,77 @@ namespace ELF
 		class Segment
 		{
 		public:
-			uint32_t type = 0, flags = 0;
+			enum segment_type
+			{
+				PT_NULL = 0,
+				PT_LOAD = 1,
+				PT_DYNAMIC = 2,
+				PT_INTERP = 3,
+				PT_NOTE = 4,
+				PT_SHLIB = 5,
+				PT_PHDR = 6,
+				PT_TLS = 7,
+				/* IBM OS/2 specific */
+				PT_OS = 0x60000001,
+				PT_RES = 0x60000002,
+				/* SUN, GNU, OpenBSD extensions */
+				PT_SUNW_EH_FRAME = 0x6474E550,
+				PT_GNU_STACK = 0x6474E551,
+				PT_GNU_RELRO = 0x6474E552,
+				PT_GNU_PROPERTY = 0x6474E553,
+				PT_GNU_SFRAME = 0x6474E554,
+				PT_GNU_MBIND_LO = 0x6474E555,
+				PT_GNU_MBIND_HI = 0x6474F554,
+				PT_OPENBSD_MUTABLE = 0x65A3DBE5,
+				PT_OPENBSD_RANDOMIZE = 0x65A3DBE6,
+				PT_OPENBSD_WXNEEDED = 0x65A3DBE7,
+				PT_OPENBSD_NOBTCFI = 0x65A3DBE8,
+				PT_OPENBSD_BOOTDATA = 0x65A41BE6,
+			};
+			segment_type type;
+			uint32_t flags = 0;
 			offset_t offset = 0, vaddr = 0, paddr = 0, filesz = 0, memsz = 0, align = 0;
 
-			class Block
+			struct Part
 			{
 			public:
-				virtual ~Block();
-				virtual offset_t GetSize() const = 0;
-			};
+				enum part_type
+				{
+					/** @brief A section or part of a section */
+					Section = 1,
+					/** @brief Some other area inside the binary, including one of the headers */
+					Block = 2,
+				};
+				part_type type;
 
-			class Section : public Block
-			{
-			public:
 				uint16_t index;
 				offset_t offset, size;
-				Section(uint16_t index, offset_t offset, offset_t size)
-					: index(index), offset(offset), size(size)
+				Part(part_type type, uint16_t index, offset_t offset, offset_t size)
+					: type(type), index(index), offset(offset), size(size)
 				{
 				}
-				offset_t GetSize() const override;
+
+				offset_t GetOffset(ELFFormat& fmt);
+				offset_t GetActualSize(ELFFormat& fmt);
 			};
 
-			class Data : public Block
-			{
-			public:
-				offset_t file_offset;
-				std::shared_ptr<Linker::Writable> image;
-				offset_t GetSize() const override;
-			};
-
-			std::vector<std::shared_ptr<Block>> blocks;
+			std::vector<Part> parts;
 		};
 		std::vector<Segment> segments;
+
+		class Block
+		{
+		public:
+			offset_t offset = 0;
+			offset_t size = 0;
+			std::shared_ptr<Linker::Writable> image;
+			Block(offset_t offset = 0, offset_t size = 0)
+				: offset(offset), size(size)
+			{
+			}
+		};
+		/** @brief Collection of blocks of data that do not belong to any section */
+		std::vector<Block> blocks;
 
 		/* AT&T Hobbit BeOS specific */
 
