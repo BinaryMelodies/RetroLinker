@@ -7,6 +7,10 @@ void ELFFormat::SectionContents::AddDumperFields(std::unique_ptr<Dumper::Region>
 {
 }
 
+void ELFFormat::SectionContents::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+}
+
 offset_t ELFFormat::SymbolTable::ActualDataSize()
 {
 	return symbols.size() * entsize;
@@ -16,6 +20,58 @@ offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr, offset_t count, o
 {
 	// TODO
 	return 0;
+}
+
+void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	for(auto& symbol : symbols)
+	{
+		Dumper::Entry symbol_entry("Symbol", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
+		symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(symbol.name_offset));
+		if(symbol.shndx == SHN_COMMON)
+			symbol_entry.AddField("Alignment", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(symbol.value));
+		else
+			symbol_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(symbol.value));
+		symbol_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(symbol.size));
+		symbol_entry.AddField("Section number", Dumper::DecDisplay::Make(), offset_t(symbol.shndx));
+		symbol_entry.AddField("Section name", Dumper::StringDisplay::Make(),
+			symbol.shndx == SHN_UNDEF ? "SHN_UNDEF" :
+			symbol.shndx == SHN_ABS ? "SHN_ABS" :
+			symbol.shndx == SHN_COMMON ? "SHN_COMMON" :
+			symbol.shndx == SHN_XINDEX ? "SHN_XINDEX" :
+			fmt.sections[symbol.shndx].name);
+
+		std::map<offset_t, std::string> binding_descriptions;
+		binding_descriptions[STB_LOCAL] = "STB_LOCAL";
+		binding_descriptions[STB_GLOBAL] = "STB_GLOBAL";
+		binding_descriptions[STB_WEAK] = "STB_WEAK";
+		binding_descriptions[STB_ENTRY] = "STB_ENTRY - (IBM OS/2)";
+		symbol_entry.AddField("Binding", Dumper::ChoiceDisplay::Make(binding_descriptions), offset_t(symbol.bind));
+
+		std::map<offset_t, std::string> type_descriptions;
+		type_descriptions[STT_NOTYPE] = "STT_NOTYPE";
+		type_descriptions[STT_OBJECT] = "STT_OBJECT";
+		type_descriptions[STT_FUNC] = "STT_FUNC";
+		type_descriptions[STT_SECTION] = "STT_SECTION";
+		type_descriptions[STT_FILE] = "STT_FILE";
+		type_descriptions[STT_COMMON] = "STT_COMMON";
+		type_descriptions[STT_TLS] = "STT_TLS";
+		type_descriptions[STT_IMPORT] = "STT_IMPORT - (IBM OS/2)"; // TODO: st_value is offset of import table entry
+		symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(symbol.type));
+
+		std::map<offset_t, std::string> visibility_descriptions;
+		visibility_descriptions[STV_DEFAULT] = "STV_DEFAULT";
+		visibility_descriptions[STV_INTERNAL] = "STV_INTERNAL";
+		visibility_descriptions[STV_HIDDEN] = "STV_HIDDEN";
+		visibility_descriptions[STV_PROTECTED] = "STV_PROTECTED";
+		symbol_entry.AddField("Visibility", Dumper::ChoiceDisplay::Make(visibility_descriptions), offset_t(symbol.other));
+
+		symbol_entry.Display(dump);
+
+		i += 1;
+	}
 }
 
 offset_t ELFFormat::StringTable::ActualDataSize()
@@ -29,6 +85,20 @@ offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr, offset_t count, o
 	return 0;
 }
 
+void ELFFormat::StringTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	offset_t offset = fmt.sections[index].file_offset;
+	for(auto& s : strings)
+	{
+		Dumper::Entry string_entry("String", i + 1, offset, 2 * fmt.wordbytes);
+		string_entry.AddField("Value name", Dumper::StringDisplay::Make(), s);
+		string_entry.Display(dump);
+		i += 1;
+		offset += s.size() + 1;
+	}
+}
+
 offset_t ELFFormat::Array::ActualDataSize()
 {
 	return array.size() * entsize;
@@ -38,6 +108,61 @@ offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr, offset_t count, offset_
 {
 	// TODO
 	return 0;
+}
+
+void ELFFormat::Array::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	for(auto& value : array)
+	{
+		Dumper::Entry array_entry("Value", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		array_entry.AddField("Value", Dumper::HexDisplay::Make(2 * entsize), value);
+		array_entry.Display(dump);
+		i += 1;
+	}
+}
+
+void ELFFormat::SectionGroup::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	// TODO: untested
+	unsigned i = 0;
+	for(auto& value : array)
+	{
+		Dumper::Entry array_entry("Value", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		array_entry.AddField("Section", Dumper::HexDisplay::Make(2 * entsize), value);
+		array_entry.AddField("Section name", Dumper::StringDisplay::Make(),
+			value == SHN_UNDEF ? "SHN_UNDEF" :
+			value == SHN_ABS ? "SHN_ABS" :
+			value == SHN_COMMON ? "SHN_COMMON" :
+			value == SHN_XINDEX ? "SHN_XINDEX" :
+			fmt.sections[value].name);
+		array_entry.Display(dump);
+		i += 1;
+	}
+}
+
+void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	// TODO: untested
+	unsigned i = 0;
+	for(auto& value : array)
+	{
+		if(value == 0)
+		{
+			i += 1;
+			continue;
+		}
+		Dumper::Entry array_entry("Value", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		array_entry.AddField("Section", Dumper::HexDisplay::Make(2 * entsize), value);
+		array_entry.AddField("Section name", Dumper::StringDisplay::Make(),
+			value == SHN_UNDEF ? "SHN_UNDEF" :
+			value == SHN_ABS ? "SHN_ABS" :
+			value == SHN_COMMON ? "SHN_COMMON" :
+			value == SHN_XINDEX ? "SHN_XINDEX" :
+			fmt.sections[value].name);
+		array_entry.Display(dump);
+		i += 1;
+	}
 }
 
 offset_t ELFFormat::SectionGroup::ActualDataSize()
@@ -70,6 +195,23 @@ offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr, offset_t count, o
 	return 0;
 }
 
+void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	for(auto& rel : relocations)
+	{
+		Dumper::Entry relocation_entry("Relocation", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.offset));
+		relocation_entry.AddField("Type", Dumper::DecDisplay::Make(), offset_t(rel.type)); // TODO: display name
+		relocation_entry.AddField("Symbol index", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.symbol)); // TODO: display name
+		if(!rel.addend_from_section_data)
+			relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.addend));
+		// TODO: display current value
+		relocation_entry.Display(dump);
+		i += 1;
+	}
+}
+
 offset_t ELFFormat::DynamicSection::ActualDataSize()
 {
 	return dynamic.size() * entsize;
@@ -81,6 +223,66 @@ offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr, offset_t count
 	return 0;
 }
 
+void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	for(auto& dynobj : dynamic)
+	{
+		Dumper::Entry dynamic_entry("Object", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		std::map<offset_t, std::string> tag_descriptions;
+		tag_descriptions[DT_NULL] = "DT_NULL";
+		tag_descriptions[DT_NEEDED] = "DT_NEEDED";
+		tag_descriptions[DT_PLTRELSZ] = "DT_PLTRELSZ";
+		tag_descriptions[DT_PLTGOT] = "DT_PLTGOT";
+		tag_descriptions[DT_HASH] = "DT_HASH";
+		tag_descriptions[DT_STRTAB] = "DT_STRTAB";
+		tag_descriptions[DT_SYMTAB] = "DT_SYMTAB";
+		tag_descriptions[DT_RELA] = "DT_RELA";
+		tag_descriptions[DT_RELASZ] = "DT_RELASZ";
+		tag_descriptions[DT_RELAENT] = "DT_RELAENT";
+		tag_descriptions[DT_STRSZ] = "DT_STRSZ";
+		tag_descriptions[DT_SYMENT] = "DT_SYMENT";
+		tag_descriptions[DT_INIT] = "DT_INIT";
+		tag_descriptions[DT_FINI] = "DT_FINI";
+		tag_descriptions[DT_SONAME] = "DT_SONAME";
+		tag_descriptions[DT_RPATH] = "DT_RPATH";
+		tag_descriptions[DT_SYMBOLIC] = "DT_SYMBOLIC";
+		tag_descriptions[DT_REL] = "DT_REL";
+		tag_descriptions[DT_RELSZ] = "DT_RELSZ";
+		tag_descriptions[DT_RELENT] = "DT_RELENT";
+		tag_descriptions[DT_PLTREL] = "DT_PLTREL";
+		tag_descriptions[DT_DEBUG] = "DT_DEBUG";
+		tag_descriptions[DT_TEXTREL] = "DT_TEXTREL";
+		tag_descriptions[DT_JMPREL] = "DT_JMPREL";
+		tag_descriptions[DT_BIND_NOW] = "DT_BIND_NOW";
+		tag_descriptions[DT_INIT_ARRAY] = "DT_INIT_ARRAY";
+		tag_descriptions[DT_FINI_ARRAY] = "DT_FINI_ARRAY";
+		tag_descriptions[DT_INIT_ARRAYSZ] = "DT_INIT_ARRAYSZ";
+		tag_descriptions[DT_FINI_ARRAYSZ] = "DT_FINI_ARRAYSZ";
+		tag_descriptions[DT_RUNPATH] = "DT_RUNPATH";
+		tag_descriptions[DT_FLAGS] = "DT_FLAGS";
+		tag_descriptions[DT_ENCODING] = "DT_ENCODING";
+		tag_descriptions[DT_PREINIT_ARRAY] = "DT_PREINIT_ARRAY";
+		tag_descriptions[DT_PREINIT_ARRAYSZ] = "DT_PREINIT_ARRAYSZ";
+		tag_descriptions[DT_SYMTAB_SHNDX] = "DT_SYMTAB_SHNDX";
+		tag_descriptions[DT_EXPORT] = "DT_EXPORT (IBM OS/2)";
+		tag_descriptions[DT_EXPORTSZ] = "DT_EXPORTSZ (IBM OS/2)";
+		tag_descriptions[DT_EXPENT] = "DT_EXPENT (IBM OS/2)";
+		tag_descriptions[DT_IMPORT] = "DT_IMPORT (IBM OS/2)";
+		tag_descriptions[DT_IMPORTSZ] = "DT_IMPORTSZ (IBM OS/2)";
+		tag_descriptions[DT_IMPENT] = "DT_IMPENT (IBM OS/2)";
+		tag_descriptions[DT_IT] = "DT_IT (IBM OS/2)";
+		tag_descriptions[DT_ITPRTY] = "DT_ITPRTY (IBM OS/2)";
+		tag_descriptions[DT_INITTERM] = "DT_INITTERM (IBM OS/2)";
+		tag_descriptions[DT_STACKSZ] = "DT_STACKSZ (IBM OS/2)";
+		dynamic_entry.AddField("Tag", Dumper::ChoiceDisplay::Make(tag_descriptions), dynobj.tag);
+		//dynamic_entry.AddField("Tag", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.tag);
+		dynamic_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.value);
+		dynamic_entry.Display(dump);
+		i += 1;
+	}
+}
+
 offset_t ELFFormat::NotesSection::ActualDataSize()
 {
 	return size;
@@ -90,6 +292,26 @@ offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr, offset_t count, 
 {
 	// TODO
 	return 0;
+}
+
+void ELFFormat::NotesSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	offset_t offset = 0;
+	for(auto& note : notes)
+	{
+		// TODO: probably wrong
+		Dumper::Entry note_entry("Note", i + 1, fmt.sections[index].file_offset + offset, 2 * fmt.wordbytes);
+		note_entry.AddField("Name", Dumper::StringDisplay::Make(), note.name);
+		note_entry.AddField("Description", Dumper::StringDisplay::Make(), note.descriptor);
+		note_entry.AddField("Type", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(note.type));
+		note_entry.Display(dump);
+		i += 1;
+		offset += 3 * 4 + note.name.size() + 1;
+		offset = ::AlignTo(offset, 4);
+		offset += note.descriptor.size() + 1;
+		offset = ::AlignTo(offset, 4);
+	}
 }
 
 bool ELFFormat::SystemInfo::IsOS2Specific() const
@@ -383,198 +605,9 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 
 	region->Display(dump);
 
-	unsigned i;
-	offset_t offset;
-
-	switch(GetStoredFormatKind())
+	if(auto section_contents = std::dynamic_pointer_cast<SectionContents>(contents))
 	{
-	default:
-		break;
-	case ArrayLike:
-		i = 0;
-		for(auto& value : GetArray()->array)
-		{
-			Dumper::Entry array_entry("Value", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
-			array_entry.AddField("Value", Dumper::HexDisplay::Make(2 * entsize), value);
-			array_entry.Display(dump);
-			i += 1;
-		}
-		break;
-	case SectionArrayLike:
-		// TODO: untested
-		i = 0;
-		for(auto& value : GetArray()->array)
-		{
-			if(type == SHT_SYMTAB_SHNDX && value == 0)
-			{
-				i += 1;
-				continue;
-			}
-			Dumper::Entry array_entry("Value", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
-			array_entry.AddField("Section", Dumper::HexDisplay::Make(2 * entsize), value);
-			array_entry.AddField("Section name", Dumper::StringDisplay::Make(),
-				value == SHN_UNDEF ? "SHN_UNDEF" :
-				value == SHN_ABS ? "SHN_ABS" :
-				value == SHN_COMMON ? "SHN_COMMON" :
-				value == SHN_XINDEX ? "SHN_XINDEX" :
-				fmt.sections[value].name);
-			array_entry.Display(dump);
-			i += 1;
-		}
-		break;
-	case SymbolTableLike:
-		i = 0;
-		for(auto& symbol : GetSymbolTable()->symbols)
-		{
-			Dumper::Entry symbol_entry("Symbol", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
-			symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
-			symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(symbol.name_offset));
-			if(symbol.shndx == SHN_COMMON)
-				symbol_entry.AddField("Alignment", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(symbol.value));
-			else
-				symbol_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(symbol.value));
-			symbol_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(symbol.size));
-			symbol_entry.AddField("Section number", Dumper::DecDisplay::Make(), offset_t(symbol.shndx));
-			symbol_entry.AddField("Section name", Dumper::StringDisplay::Make(),
-				symbol.shndx == SHN_UNDEF ? "SHN_UNDEF" :
-				symbol.shndx == SHN_ABS ? "SHN_ABS" :
-				symbol.shndx == SHN_COMMON ? "SHN_COMMON" :
-				symbol.shndx == SHN_XINDEX ? "SHN_XINDEX" :
-				fmt.sections[symbol.shndx].name);
-
-			std::map<offset_t, std::string> binding_descriptions;
-			binding_descriptions[STB_LOCAL] = "STB_LOCAL";
-			binding_descriptions[STB_GLOBAL] = "STB_GLOBAL";
-			binding_descriptions[STB_WEAK] = "STB_WEAK";
-			binding_descriptions[STB_ENTRY] = "STB_ENTRY - (IBM OS/2)";
-			symbol_entry.AddField("Binding", Dumper::ChoiceDisplay::Make(binding_descriptions), offset_t(symbol.bind));
-
-			std::map<offset_t, std::string> type_descriptions;
-			type_descriptions[STT_NOTYPE] = "STT_NOTYPE";
-			type_descriptions[STT_OBJECT] = "STT_OBJECT";
-			type_descriptions[STT_FUNC] = "STT_FUNC";
-			type_descriptions[STT_SECTION] = "STT_SECTION";
-			type_descriptions[STT_FILE] = "STT_FILE";
-			type_descriptions[STT_COMMON] = "STT_COMMON";
-			type_descriptions[STT_TLS] = "STT_TLS";
-			type_descriptions[STT_IMPORT] = "STT_IMPORT - (IBM OS/2)"; // TODO: st_value is offset of import table entry
-			symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(symbol.type));
-
-			std::map<offset_t, std::string> visibility_descriptions;
-			visibility_descriptions[STV_DEFAULT] = "STV_DEFAULT";
-			visibility_descriptions[STV_INTERNAL] = "STV_INTERNAL";
-			visibility_descriptions[STV_HIDDEN] = "STV_HIDDEN";
-			visibility_descriptions[STV_PROTECTED] = "STV_PROTECTED";
-			symbol_entry.AddField("Visibility", Dumper::ChoiceDisplay::Make(visibility_descriptions), offset_t(symbol.other));
-
-			symbol_entry.Display(dump);
-
-			i += 1;
-		}
-		break;
-	case StringTableLike:
-		i = 0;
-		offset = file_offset;
-		for(auto& s : GetStringTable()->strings)
-		{
-			Dumper::Entry string_entry("String", i + 1, offset, 2 * fmt.wordbytes);
-			string_entry.AddField("Value name", Dumper::StringDisplay::Make(), s);
-			string_entry.Display(dump);
-			i += 1;
-			offset += s.size() + 1;
-		}
-		break;
-	case RelocationLike:
-		i = 0;
-		offset = GetRelocations()->entsize;
-		for(auto& rel : GetRelocations()->relocations)
-		{
-			Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + i * offset, 2 * fmt.wordbytes);
-			relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.offset));
-			relocation_entry.AddField("Type", Dumper::DecDisplay::Make(), offset_t(rel.type)); // TODO: display name
-			relocation_entry.AddField("Symbol index", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.symbol)); // TODO: display name
-			if(!rel.addend_from_section_data)
-				relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.addend));
-			// TODO: display current value
-			relocation_entry.Display(dump);
-			i += 1;
-		}
-		break;
-	case DynamicLike:
-		i = 0;
-		for(auto& dynobj : GetDynamicSection()->dynamic)
-		{
-			Dumper::Entry dynamic_entry("Object", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
-			std::map<offset_t, std::string> tag_descriptions;
-			tag_descriptions[DT_NULL] = "DT_NULL";
-			tag_descriptions[DT_NEEDED] = "DT_NEEDED";
-			tag_descriptions[DT_PLTRELSZ] = "DT_PLTRELSZ";
-			tag_descriptions[DT_PLTGOT] = "DT_PLTGOT";
-			tag_descriptions[DT_HASH] = "DT_HASH";
-			tag_descriptions[DT_STRTAB] = "DT_STRTAB";
-			tag_descriptions[DT_SYMTAB] = "DT_SYMTAB";
-			tag_descriptions[DT_RELA] = "DT_RELA";
-			tag_descriptions[DT_RELASZ] = "DT_RELASZ";
-			tag_descriptions[DT_RELAENT] = "DT_RELAENT";
-			tag_descriptions[DT_STRSZ] = "DT_STRSZ";
-			tag_descriptions[DT_SYMENT] = "DT_SYMENT";
-			tag_descriptions[DT_INIT] = "DT_INIT";
-			tag_descriptions[DT_FINI] = "DT_FINI";
-			tag_descriptions[DT_SONAME] = "DT_SONAME";
-			tag_descriptions[DT_RPATH] = "DT_RPATH";
-			tag_descriptions[DT_SYMBOLIC] = "DT_SYMBOLIC";
-			tag_descriptions[DT_REL] = "DT_REL";
-			tag_descriptions[DT_RELSZ] = "DT_RELSZ";
-			tag_descriptions[DT_RELENT] = "DT_RELENT";
-			tag_descriptions[DT_PLTREL] = "DT_PLTREL";
-			tag_descriptions[DT_DEBUG] = "DT_DEBUG";
-			tag_descriptions[DT_TEXTREL] = "DT_TEXTREL";
-			tag_descriptions[DT_JMPREL] = "DT_JMPREL";
-			tag_descriptions[DT_BIND_NOW] = "DT_BIND_NOW";
-			tag_descriptions[DT_INIT_ARRAY] = "DT_INIT_ARRAY";
-			tag_descriptions[DT_FINI_ARRAY] = "DT_FINI_ARRAY";
-			tag_descriptions[DT_INIT_ARRAYSZ] = "DT_INIT_ARRAYSZ";
-			tag_descriptions[DT_FINI_ARRAYSZ] = "DT_FINI_ARRAYSZ";
-			tag_descriptions[DT_RUNPATH] = "DT_RUNPATH";
-			tag_descriptions[DT_FLAGS] = "DT_FLAGS";
-			tag_descriptions[DT_ENCODING] = "DT_ENCODING";
-			tag_descriptions[DT_PREINIT_ARRAY] = "DT_PREINIT_ARRAY";
-			tag_descriptions[DT_PREINIT_ARRAYSZ] = "DT_PREINIT_ARRAYSZ";
-			tag_descriptions[DT_SYMTAB_SHNDX] = "DT_SYMTAB_SHNDX";
-			tag_descriptions[DT_EXPORT] = "DT_EXPORT (IBM OS/2)";
-			tag_descriptions[DT_EXPORTSZ] = "DT_EXPORTSZ (IBM OS/2)";
-			tag_descriptions[DT_EXPENT] = "DT_EXPENT (IBM OS/2)";
-			tag_descriptions[DT_IMPORT] = "DT_IMPORT (IBM OS/2)";
-			tag_descriptions[DT_IMPORTSZ] = "DT_IMPORTSZ (IBM OS/2)";
-			tag_descriptions[DT_IMPENT] = "DT_IMPENT (IBM OS/2)";
-			tag_descriptions[DT_IT] = "DT_IT (IBM OS/2)";
-			tag_descriptions[DT_ITPRTY] = "DT_ITPRTY (IBM OS/2)";
-			tag_descriptions[DT_INITTERM] = "DT_INITTERM (IBM OS/2)";
-			tag_descriptions[DT_STACKSZ] = "DT_STACKSZ (IBM OS/2)";
-			dynamic_entry.AddField("Tag", Dumper::ChoiceDisplay::Make(tag_descriptions), dynobj.tag);
-			//dynamic_entry.AddField("Tag", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.tag);
-			dynamic_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.value);
-			dynamic_entry.Display(dump);
-			i += 1;
-		}
-		break;
-	case NoteLike:
-		i = 0;
-		offset = 0;
-		for(auto& note : GetNotesSection()->notes)
-		{
-			Dumper::Entry note_entry("Note", i + 1, file_offset + offset, 2 * fmt.wordbytes);
-			note_entry.AddField("Name", Dumper::StringDisplay::Make(), note.name);
-			note_entry.AddField("Description", Dumper::StringDisplay::Make(), note.descriptor);
-			note_entry.AddField("Type", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(note.type));
-			note_entry.Display(dump);
-			i += 1;
-			offset += 3 * 4 + note.name.size() + 1;
-			offset = ::AlignTo(offset, 4);
-			offset += note.descriptor.size() + 1;
-			offset = ::AlignTo(offset, 4);
-		}
-		break;
+		section_contents->Dump(dump, fmt, index);
 	}
 }
 
@@ -797,6 +830,10 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			{
 				sections[i].contents = std::make_shared<SectionGroup>(sections[i].entsize);
 				std::dynamic_pointer_cast<SectionGroup>(sections[i].contents)->flags = rd.ReadUnsigned(sections[i].entsize);
+			}
+			else if(sections[i].type == Section::SHT_SYMTAB_SHNDX)
+			{
+				sections[i].contents = std::make_shared<IndexArray>(sections[i].entsize);
 			}
 			else
 			{

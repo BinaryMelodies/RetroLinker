@@ -433,9 +433,10 @@ namespace ELF
 		{
 		public:
 			virtual void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
+			virtual void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
 		};
 
-		class SymbolTable : public Linker::Writable
+		class SymbolTable : public SectionContents
 		{
 		public:
 			offset_t entsize;
@@ -449,9 +450,10 @@ namespace ELF
 
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
-		class StringTable : public Linker::Writable
+		class StringTable : public SectionContents
 		{
 		public:
 			offset_t size;
@@ -465,6 +467,7 @@ namespace ELF
 
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		class Array : public SectionContents
@@ -481,6 +484,7 @@ namespace ELF
 
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		class SectionGroup : public Array
@@ -496,6 +500,18 @@ namespace ELF
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+		};
+
+		class IndexArray : public Array
+		{
+		public:
+			IndexArray(offset_t entsize)
+				: Array(entsize)
+			{
+			}
+
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		class Relocation
@@ -509,7 +525,7 @@ namespace ELF
 			bool addend_from_section_data = false;
 		};
 
-		class Relocations : public Linker::Writable
+		class Relocations : public SectionContents
 		{
 		public:
 			offset_t entsize;
@@ -523,6 +539,7 @@ namespace ELF
 
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		class DynamicObject
@@ -542,7 +559,7 @@ namespace ELF
 			}
 		};
 
-		class DynamicSection : public Linker::Writable
+		class DynamicSection : public SectionContents
 		{
 		public:
 			offset_t entsize;
@@ -556,6 +573,7 @@ namespace ELF
 
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		class Note
@@ -566,7 +584,7 @@ namespace ELF
 			offset_t type;
 		};
 
-		class NotesSection : public Linker::Writable
+		class NotesSection : public SectionContents
 		{
 		public:
 			offset_t size;
@@ -581,6 +599,7 @@ namespace ELF
 
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		/* IBM OS/2 extension */
