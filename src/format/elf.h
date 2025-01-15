@@ -691,6 +691,32 @@ namespace ELF
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
+		/* IBM OS/2 extension */
+		class IBMExportEntry
+		{
+		public:
+			uint32_t ordinal = 0, symbol_index = 0, name_offset = 0;
+			std::string name = "";
+			uint32_t sh_link = 0, sh_info = 0;
+		};
+
+		/* IBM OS/2 extension */
+		class IBMExportTable : public SectionContents
+		{
+		public:
+			offset_t entsize;
+			std::vector<IBMExportEntry> exports;
+
+			IBMExportTable(offset_t entsize)
+				: entsize(entsize)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+		};
+
 		class Section
 		{
 		public:
@@ -759,6 +785,7 @@ namespace ELF
 #endif
 
 			std::shared_ptr<IBMImportTable> GetIBMImportTable();
+			std::shared_ptr<IBMExportTable> GetIBMExportTable();
 
 			bool GetFileSize() const;
 
@@ -777,6 +804,7 @@ namespace ELF
 			static std::shared_ptr<NotesSection> ReadNote(Linker::Reader& rd, offset_t file_offset, offset_t section_size);
 			static std::shared_ptr<IBMSystemInfo> ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset);
 			static std::shared_ptr<IBMImportTable> ReadIBMImportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<IBMExportTable> ReadIBMExportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
 		};
 		std::vector<Section> sections;
 

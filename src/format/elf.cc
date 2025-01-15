@@ -610,6 +610,8 @@ void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& 
 	}
 }
 
+//// IBMImportTable
+
 offset_t ELFFormat::IBMImportTable::ActualDataSize()
 {
 	return imports.size() * entsize;
@@ -651,6 +653,45 @@ void ELFFormat::IBMImportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 		import_entry.AddOptionalField("DLL name", Dumper::StringDisplay::Make(), import.dll_name);
 
 		import_entry.Display(dump);
+		i++;
+	}
+}
+
+//// IBMExportTable
+
+offset_t ELFFormat::IBMExportTable::ActualDataSize()
+{
+	return exports.size() * entsize;
+}
+
+offset_t ELFFormat::IBMExportTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	assert(offset == 0 && count == ActualDataSize());
+	offset_t file_offset = wr.Tell();
+	for(auto& _export : exports)
+	{
+		wr.Seek(file_offset);
+		wr.WriteWord(4, _export.ordinal);
+		wr.WriteWord(4, _export.symbol_index);
+		wr.WriteWord(4, _export.name_offset);
+		file_offset += entsize;
+	}
+	return ActualDataSize();
+}
+
+void ELFFormat::IBMExportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	for(auto& _export : exports)
+	{
+		Dumper::Entry export_entry("Export", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		if(_export.ordinal != uint32_t(-1))
+			export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(_export.ordinal));
+		export_entry.AddField("Symbol index", Dumper::DecDisplay::Make(), offset_t(_export.symbol_index)); // TODO: display symbol
+		export_entry.AddOptionalField("Name offset", Dumper::HexDisplay::Make(8), offset_t(_export.name_offset));
+		export_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), _export.name);
+
+		export_entry.Display(dump);
 		i++;
 	}
 }
@@ -719,6 +760,11 @@ std::shared_ptr<ELFFormat::IBMSystemInfo> ELFFormat::Section::GetIBMSystemInfo()
 std::shared_ptr<ELFFormat::IBMImportTable> ELFFormat::Section::GetIBMImportTable()
 {
 	return std::dynamic_pointer_cast<ELFFormat::IBMImportTable>(contents);
+}
+
+std::shared_ptr<ELFFormat::IBMExportTable> ELFFormat::Section::GetIBMExportTable()
+{
+	return std::dynamic_pointer_cast<ELFFormat::IBMExportTable>(contents);
 }
 
 bool ELFFormat::Section::GetFileSize() const
@@ -941,6 +987,21 @@ std::shared_ptr<ELFFormat::IBMImportTable> ELFFormat::Section::ReadIBMImportTabl
 		import.type = IBMImportEntry::import_type(import.dll >> 24);
 		import.dll &= 0x00FFFFFF;
 		table->imports.push_back(import);
+	}
+	return table;
+}
+
+std::shared_ptr<ELFFormat::IBMExportTable> ELFFormat::Section::ReadIBMExportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+{
+	std::shared_ptr<IBMExportTable> table = std::make_shared<IBMExportTable>(entsize);
+	for(size_t j = 0; j < section_size; j += entsize)
+	{
+		rd.Seek(file_offset + j);
+		IBMExportEntry _export;
+		_export.ordinal = rd.ReadUnsigned(4);
+		_export.symbol_index = rd.ReadUnsigned(4);
+		_export.name_offset = rd.ReadUnsigned(4);
+		table->exports.push_back(_export);
 	}
 	return table;
 }
@@ -1302,6 +1363,9 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		case Section::SHT_IMPORTS:
 			sections[i].contents = Section::ReadIBMImportTable(rd, sections[i].file_offset, sections[i].size, sections[i].entsize == 0 ? 32 : sections[i].entsize);
 			break;
+		case Section::SHT_EXPORTS:
+			sections[i].contents = Section::ReadIBMExportTable(rd, sections[i].file_offset, sections[i].size, sections[i].entsize == 0 ? 32 : sections[i].entsize);
+			break;
 		}
 		if(sections[i].GetSection() != nullptr)
 		{
@@ -1417,6 +1481,17 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 					break;
 				}
 			}
+			break;
+		case Section::SHT_EXPORTS:
+			for(IBMExportEntry& _export : section.GetIBMExportTable()->exports)
+			{
+				if(_export.name_offset != 0)
+				{
+					rd.Seek(sections[section.info].file_offset + _export.name_offset);
+					_export.name = rd.ReadASCIIZ();
+				}
+			}
+			break;
 		default:
 			break;
 		}
