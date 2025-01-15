@@ -18,8 +18,32 @@ offset_t ELFFormat::SymbolTable::ActualDataSize()
 
 offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
 {
-	// TODO
-	return 0;
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	offset_t file_offset = wr.Tell();
+	for(auto symbol : symbols)
+	{
+		wr.Seek(file_offset);
+		file_offset += entsize;
+		wr.WriteWord(4, symbol.name_offset);
+		if(wordbytes == 4)
+		{
+			wr.WriteWord(wordbytes, symbol.value);
+			wr.WriteWord(wordbytes, symbol.size);
+			wr.WriteWord(1, (symbol.bind << 4) | (symbol.type & 0xF));
+			wr.WriteWord(1, symbol.other);
+			wr.WriteWord(2, symbol.shndx);
+		}
+		else
+		{
+			wr.WriteWord(1, (symbol.bind << 4) | (symbol.type & 0xF));
+			wr.WriteWord(1, symbol.other);
+			wr.WriteWord(2, symbol.shndx);
+			wr.WriteWord(wordbytes, symbol.value);
+			wr.WriteWord(wordbytes, symbol.size);
+		}
+	}
+	return ActualDataSize();
 }
 
 void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -81,8 +105,14 @@ offset_t ELFFormat::StringTable::ActualDataSize()
 
 offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
 {
-	// TODO
-	return 0;
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	for(auto& s : strings)
+	{
+		wr.WriteData(s);
+		wr.WriteWord(1, 0);
+	}
+	return ActualDataSize();
 }
 
 void ELFFormat::StringTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -106,8 +136,13 @@ offset_t ELFFormat::Array::ActualDataSize()
 
 offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
 {
-	// TODO
-	return 0;
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	for(auto& entry : array)
+	{
+		wr.WriteWord(entsize, entry);
+	}
+	return ActualDataSize();
 }
 
 void ELFFormat::Array::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -120,6 +155,27 @@ void ELFFormat::Array::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index
 		array_entry.Display(dump);
 		i += 1;
 	}
+}
+
+offset_t ELFFormat::SectionGroup::ActualDataSize()
+{
+	return (1 + array.size()) * entsize;
+}
+
+offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	offset_t file_offset = wr.Tell();
+	wr.WriteWord(4, flags);
+	file_offset += entsize;
+	for(auto& entry : array)
+	{
+		wr.Seek(file_offset);
+		wr.WriteWord(4, entry);
+		file_offset += entsize;
+	}
+	return ActualDataSize();
 }
 
 void ELFFormat::SectionGroup::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -139,6 +195,14 @@ void ELFFormat::SectionGroup::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigne
 		array_entry.Display(dump);
 		i += 1;
 	}
+}
+
+void ELFFormat::SectionGroup::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	region->AddField("Group flags",
+		Dumper::BitFieldDisplay::Make()
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("GRP_COMDAT"), true),
+		flags);
 }
 
 void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -165,25 +229,6 @@ void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned 
 	}
 }
 
-offset_t ELFFormat::SectionGroup::ActualDataSize()
-{
-	return (1 + array.size()) * entsize;
-}
-
-offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
-{
-	// TODO
-	return 0;
-}
-
-void ELFFormat::SectionGroup::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
-{
-	region->AddField("Group flags",
-		Dumper::BitFieldDisplay::Make()
-			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("GRP_COMDAT"), true),
-		flags);
-}
-
 offset_t ELFFormat::Relocations::ActualDataSize()
 {
 	return relocations.size() * entsize;
@@ -191,8 +236,26 @@ offset_t ELFFormat::Relocations::ActualDataSize()
 
 offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
 {
-	// TODO
-	return 0;
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	offset_t file_offset = wr.Tell();
+	for(auto& rel : relocations)
+	{
+		wr.Seek(file_offset);
+		wr.WriteWord(wordbytes, rel.offset);
+		if(wordbytes == 4)
+		{
+			wr.WriteWord(wordbytes, (rel.symbol << 8) | (rel.type & 0xFF));
+		}
+		else
+		{
+			wr.WriteWord(wordbytes, ((uint64_t)rel.symbol << 32) | rel.type);
+		}
+		if(!rel.addend_from_section_data)
+			wr.WriteWord(wordbytes, rel.addend);
+		file_offset += entsize;
+	}
+	return ActualDataSize();
 }
 
 void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -219,8 +282,17 @@ offset_t ELFFormat::DynamicSection::ActualDataSize()
 
 offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
 {
-	// TODO
-	return 0;
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	offset_t file_offset = wr.Tell();
+	for(auto& dyn : dynamic)
+	{
+		wr.Seek(file_offset);
+		wr.WriteWord(wordbytes, dyn.tag);
+		wr.WriteWord(wordbytes, dyn.value);
+		file_offset += entsize;
+	}
+	return ActualDataSize();
 }
 
 void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -290,8 +362,25 @@ offset_t ELFFormat::NotesSection::ActualDataSize()
 
 offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
 {
-	// TODO
-	return 0;
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	for(auto& note : notes)
+	{
+		offset_t namesz = note.name.size() + 1;
+		offset_t descsz = note.descriptor.size() + 1;
+		wr.WriteWord(4, (namesz + 3) & ~3);
+		wr.WriteWord(4, (descsz + 3) & ~3);
+		wr.WriteWord(4, note.type);
+		wr.WriteData(note.name);
+		wr.WriteWord(1, 0);
+		if((namesz & 3) != 0)
+			wr.Skip((-namesz & 3));
+		wr.WriteData(note.descriptor);
+		wr.WriteWord(1, 0);
+		if((descsz & 3) != 0)
+			wr.Skip((-descsz & 3));
+	}
+	return ActualDataSize();
 }
 
 void ELFFormat::NotesSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -326,8 +415,22 @@ offset_t ELFFormat::SystemInfo::ActualDataSize()
 
 offset_t ELFFormat::SystemInfo::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
 {
-	// TODO
-	return 0;
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	wr.WriteWord(4, os_type);
+	wr.WriteWord(4, os_size);
+	if(IsOS2Specific())
+	{
+		wr.WriteWord(1, os2.sessiontype);
+		wr.WriteWord(1, os2.sessionflags);
+		wr.Skip(14 - 1);
+		wr.WriteWord(1, 0);
+	}
+	else
+	{
+		wr.WriteData(os_specific);
+	}
+	return ActualDataSize();
 }
 
 void ELFFormat::SystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -441,7 +544,7 @@ std::shared_ptr<Linker::Section> ELFFormat::Section::ReadNoBits(const std::strin
 
 std::shared_ptr<ELFFormat::SymbolTable> ELFFormat::Section::ReadSymbolTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, size_t wordbytes)
 {
-	std::shared_ptr<SymbolTable> symbol_table = std::make_shared<SymbolTable>(entsize);
+	std::shared_ptr<SymbolTable> symbol_table = std::make_shared<SymbolTable>(wordbytes, entsize);
 	for(size_t j = 0; j < section_size; j += entsize)
 	{
 		rd.Seek(file_offset + j);
@@ -487,7 +590,7 @@ std::shared_ptr<ELFFormat::StringTable> ELFFormat::Section::ReadStringTable(Link
 
 std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::ReadRelocations(Linker::Reader& rd, Section::section_type type, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, uint32_t section_info, size_t wordbytes)
 {
-	std::shared_ptr<Relocations> relocations = std::make_shared<Relocations>(entsize);
+	std::shared_ptr<Relocations> relocations = std::make_shared<Relocations>(wordbytes, entsize);
 	for(size_t j = 0; j < section_size; j += entsize)
 	{
 		rd.Seek(file_offset + j);
@@ -532,7 +635,7 @@ std::shared_ptr<ELFFormat::SectionGroup> ELFFormat::Section::ReadSectionGroup(Li
 {
 	// TODO: untested
 	std::shared_ptr<SectionGroup> section_group = std::make_shared<SectionGroup>(entsize);
-	section_group->flags = rd.ReadUnsigned(entsize);
+	section_group->flags = rd.ReadUnsigned(4);
 	for(size_t j = 0; j < section_size / entsize; j++)
 	{
 		rd.Seek(file_offset + j * entsize);
@@ -555,7 +658,7 @@ std::shared_ptr<ELFFormat::IndexArray> ELFFormat::Section::ReadIndexArray(Linker
 
 std::shared_ptr<ELFFormat::DynamicSection> ELFFormat::Section::ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes)
 {
-	std::shared_ptr<DynamicSection> dynamic_section = std::make_shared<DynamicSection>(entsize);
+	std::shared_ptr<DynamicSection> dynamic_section = std::make_shared<DynamicSection>(wordbytes, entsize);
 	for(size_t j = 0; j < section_size; j += entsize)
 	{
 		rd.Seek(file_offset + j);

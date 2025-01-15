@@ -439,12 +439,13 @@ namespace ELF
 		class SymbolTable : public SectionContents
 		{
 		public:
+			size_t wordbytes;
 			offset_t entsize;
 			/* used for SHT_SYMTAB and SHT_DYNSYM */
 			std::vector<Symbol> symbols;
 
-			SymbolTable(offset_t entsize)
-				: entsize(entsize)
+			SymbolTable(size_t wordbytes, offset_t entsize)
+				: wordbytes(wordbytes), entsize(entsize)
 			{
 			}
 
@@ -528,12 +529,13 @@ namespace ELF
 		class Relocations : public SectionContents
 		{
 		public:
+			size_t wordbytes;
 			offset_t entsize;
 			/* used for SHT_REL, SHT_RELA */
 			std::vector<Relocation> relocations;
 
-			Relocations(offset_t entsize)
-				: entsize(entsize)
+			Relocations(size_t wordbytes, offset_t entsize)
+				: wordbytes(wordbytes), entsize(entsize)
 			{
 			}
 
@@ -562,12 +564,13 @@ namespace ELF
 		class DynamicSection : public SectionContents
 		{
 		public:
+			size_t wordbytes;
 			offset_t entsize;
 			/* used for SHT_DYNAMIC */
 			std::vector<DynamicObject> dynamic;
 
-			DynamicSection(offset_t entsize)
-				: entsize(entsize)
+			DynamicSection(size_t wordbytes, offset_t entsize)
+				: wordbytes(wordbytes), entsize(entsize)
 			{
 			}
 
