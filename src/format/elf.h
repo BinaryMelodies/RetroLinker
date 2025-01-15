@@ -414,6 +414,13 @@ namespace ELF
 		uint16_t section_header_entry_size;
 		uint16_t section_name_string_table;
 
+		class SectionContents : public Linker::Writable
+		{
+		public:
+			virtual void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
+			virtual void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
+		};
+
 		class Symbol
 		{
 		public:
@@ -427,13 +434,6 @@ namespace ELF
 			bool unallocated = false;
 			Linker::Location location;
 			Linker::CommonSymbol specification;
-		};
-
-		class SectionContents : public Linker::Writable
-		{
-		public:
-			virtual void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
-			virtual void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
 		};
 
 		class SymbolTable : public SectionContents
