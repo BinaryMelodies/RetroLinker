@@ -26,9 +26,10 @@ var searchData=
   ['optional_5fheader_23',['optional_header',['../classCOFF_1_1COFFFormat.html#af4a1f9294249418e6024b641dd660b7a',1,'COFF::COFFFormat']]],
   ['optional_5fheader_5fsize_24',['optional_header_size',['../classCOFF_1_1COFFFormat.html#a2221ccffecbd782ee7856d888559cf9d',1,'COFF::COFFFormat']]],
   ['optionalheader_25',['OptionalHeader',['../classCOFF_1_1COFFFormat_1_1OptionalHeader.html',1,'COFF::COFFFormat']]],
-  ['out_26',['out',['../classLinker_1_1Writer.html#ad96e63b6bb67ab5b2647ed531a805f89',1,'Linker::Writer']]],
-  ['output_20formats_27',['Supported output formats',['../index.html#x_output_formats',1,'']]],
-  ['output_5fformat_5ftype_28',['output_format_type',['../structoutput__format__type.html',1,'']]],
-  ['outputformat_29',['OutputFormat',['../classLinker_1_1OutputFormat.html',1,'Linker']]],
-  ['overlay_5fnumber_30',['overlay_number',['../classMicrosoft_1_1MZFormat.html#ade87671fa31e8389cd28b8a8eddd59d3',1,'Microsoft::MZFormat']]]
+  ['os2_5fspecific_26',['os2_specific',['../structELF_1_1ELFFormat_1_1IBMSystemInfo_1_1os2__specific.html',1,'ELF::ELFFormat::IBMSystemInfo']]],
+  ['out_27',['out',['../classLinker_1_1Writer.html#ad96e63b6bb67ab5b2647ed531a805f89',1,'Linker::Writer']]],
+  ['output_20formats_28',['Supported output formats',['../index.html#x_output_formats',1,'']]],
+  ['output_5fformat_5ftype_29',['output_format_type',['../structoutput__format__type.html',1,'']]],
+  ['outputformat_30',['OutputFormat',['../classLinker_1_1OutputFormat.html',1,'Linker']]],
+  ['overlay_5fnumber_31',['overlay_number',['../classMicrosoft_1_1MZFormat.html#ade87671fa31e8389cd28b8a8eddd59d3',1,'Microsoft::MZFormat']]]
 ];

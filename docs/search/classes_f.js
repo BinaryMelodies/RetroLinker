@@ -12,10 +12,11 @@ var searchData=
   ['relocation_9',['Relocation',['../unionPharLap_1_1MPFormat_1_1Relocation.html',1,'PharLap::MPFormat::Relocation'],['../classPharLap_1_1P3Format_1_1MultiSegmented_1_1Relocation.html',1,'PharLap::P3Format::MultiSegmented::Relocation']]],
   ['relocation_5fsource_10',['relocation_source',['../structDigitalResearch_1_1CPM86Format_1_1relocation__source.html',1,'DigitalResearch::CPM86Format']]],
   ['relocationrecord_11',['RelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1RelocationRecord.html',1,'Apple::OMFFormat::Segment']]],
-  ['relocationsegment_12',['RelocationSegment',['../classDOS16M_1_1BWFormat_1_1RelocationSegment.html',1,'DOS16M::BWFormat']]],
-  ['resolution_13',['Resolution',['../classLinker_1_1Resolution.html',1,'Linker']]],
-  ['resource_14',['Resource',['../classApple_1_1ResourceFork_1_1Resource.html',1,'Apple::ResourceFork::Resource'],['../classMicrosoft_1_1LEFormat_1_1Resource.html',1,'Microsoft::LEFormat::Resource'],['../classMicrosoft_1_1NEFormat_1_1Resource.html',1,'Microsoft::NEFormat::Resource']]],
-  ['resourcefork_15',['ResourceFork',['../classApple_1_1ResourceFork.html',1,'Apple']]],
-  ['rsx_5frecord_16',['rsx_record',['../structBinary_1_1CPM3Format_1_1rsx__record.html',1,'Binary::CPM3Format::rsx_record'],['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html',1,'DigitalResearch::CPM86Format::rsx_record']]],
-  ['runtimeparameterblock_17',['RunTimeParameterBlock',['../classPharLap_1_1P3Format_1_1RunTimeParameterBlock.html',1,'PharLap::P3Format']]]
+  ['relocations_12',['Relocations',['../classELF_1_1ELFFormat_1_1Relocations.html',1,'ELF::ELFFormat']]],
+  ['relocationsegment_13',['RelocationSegment',['../classDOS16M_1_1BWFormat_1_1RelocationSegment.html',1,'DOS16M::BWFormat']]],
+  ['resolution_14',['Resolution',['../classLinker_1_1Resolution.html',1,'Linker']]],
+  ['resource_15',['Resource',['../classApple_1_1ResourceFork_1_1Resource.html',1,'Apple::ResourceFork::Resource'],['../classMicrosoft_1_1LEFormat_1_1Resource.html',1,'Microsoft::LEFormat::Resource'],['../classMicrosoft_1_1NEFormat_1_1Resource.html',1,'Microsoft::NEFormat::Resource']]],
+  ['resourcefork_16',['ResourceFork',['../classApple_1_1ResourceFork.html',1,'Apple']]],
+  ['rsx_5frecord_17',['rsx_record',['../structBinary_1_1CPM3Format_1_1rsx__record.html',1,'Binary::CPM3Format::rsx_record'],['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html',1,'DigitalResearch::CPM86Format::rsx_record']]],
+  ['runtimeparameterblock_18',['RunTimeParameterBlock',['../classPharLap_1_1P3Format_1_1RunTimeParameterBlock.html',1,'PharLap::P3Format']]]
 ];

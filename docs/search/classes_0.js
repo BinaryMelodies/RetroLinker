@@ -11,7 +11,8 @@ var searchData=
   ['appleformat_8',['AppleFormat',['../classBinary_1_1AppleFormat.html',1,'Binary']]],
   ['applereader_9',['AppleReader',['../classdump_1_1AppleReader.html',1,'dump']]],
   ['applesingledouble_10',['AppleSingleDouble',['../classApple_1_1AppleSingleDouble.html',1,'Apple']]],
-  ['as86objformat_11',['AS86ObjFormat',['../classAS86Obj_1_1AS86ObjFormat.html',1,'AS86Obj']]],
-  ['atariformat_12',['AtariFormat',['../classBinary_1_1AtariFormat.html',1,'Binary']]],
-  ['aux_13',['AUX',['../classApple_1_1FileInfo_1_1AUX.html',1,'Apple::FileInfo']]]
+  ['array_11',['Array',['../classELF_1_1ELFFormat_1_1Array.html',1,'ELF::ELFFormat']]],
+  ['as86objformat_12',['AS86ObjFormat',['../classAS86Obj_1_1AS86ObjFormat.html',1,'AS86Obj']]],
+  ['atariformat_13',['AtariFormat',['../classBinary_1_1AtariFormat.html',1,'Binary']]],
+  ['aux_14',['AUX',['../classApple_1_1FileInfo_1_1AUX.html',1,'Apple::FileInfo']]]
 ];

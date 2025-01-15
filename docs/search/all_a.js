@@ -1,14 +1,16 @@
 var searchData=
 [
   ['hasentrypoint_0',['HasEntryPoint',['../classBinary_1_1AtariFormat.html#afd76b02ecafad497af0afb154072179c',1,'Binary::AtariFormat']]],
-  ['header_5foption_1',['header_option',['../structO65_1_1O65Format_1_1Module_1_1header__option.html',1,'O65::O65Format::Module']]],
-  ['header_5foptions_2',['header_options',['../classO65_1_1O65Format_1_1Module.html#a2325c2948273de967b76091fcc56fc45',1,'O65::O65Format::Module']]],
-  ['header_5fsize_5fparas_3',['header_size_paras',['../classMicrosoft_1_1MZFormat.html#a7b7d6c40c96e777908b6a0538ab8680d',1,'Microsoft::MZFormat']]],
-  ['heap_4',['Heap',['../classLinker_1_1Section.html#ac63d033d602ad0a9a0f82dddeaeb7d8fa76011044e12099fa5bd23737d781c15c',1,'Linker::Section']]],
-  ['hexdisplay_5',['HexDisplay',['../classDumper_1_1HexDisplay.html',1,'Dumper']]],
-  ['huformat_6',['HUFormat',['../classX68000_1_1HUFormat.html',1,'X68000']]],
-  ['hunk_7',['Hunk',['../classAmiga_1_1HunkFormat_1_1Hunk.html',1,'Amiga::HunkFormat']]],
-  ['hunkformat_8',['HunkFormat',['../classAmiga_1_1HunkFormat.html',1,'Amiga']]],
-  ['hunkreader_9',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
-  ['hureader_10',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]
+  ['hashtable_1',['HashTable',['../classELF_1_1ELFFormat_1_1HashTable.html',1,'ELF::ELFFormat']]],
+  ['header_5foption_2',['header_option',['../structO65_1_1O65Format_1_1Module_1_1header__option.html',1,'O65::O65Format::Module']]],
+  ['header_5foptions_3',['header_options',['../classO65_1_1O65Format_1_1Module.html#a2325c2948273de967b76091fcc56fc45',1,'O65::O65Format::Module']]],
+  ['header_5fsize_5fparas_4',['header_size_paras',['../classMicrosoft_1_1MZFormat.html#a7b7d6c40c96e777908b6a0538ab8680d',1,'Microsoft::MZFormat']]],
+  ['heap_5',['Heap',['../classLinker_1_1Section.html#ac63d033d602ad0a9a0f82dddeaeb7d8fa76011044e12099fa5bd23737d781c15c',1,'Linker::Section']]],
+  ['hexdisplay_6',['HexDisplay',['../classDumper_1_1HexDisplay.html',1,'Dumper']]],
+  ['hobbitbeosresource_7',['HobbitBeOSResource',['../structELF_1_1ELFFormat_1_1HobbitBeOSResource.html',1,'ELF::ELFFormat']]],
+  ['huformat_8',['HUFormat',['../classX68000_1_1HUFormat.html',1,'X68000']]],
+  ['hunk_9',['Hunk',['../classAmiga_1_1HunkFormat_1_1Hunk.html',1,'Amiga::HunkFormat']]],
+  ['hunkformat_10',['HunkFormat',['../classAmiga_1_1HunkFormat.html',1,'Amiga']]],
+  ['hunkreader_11',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
+  ['hureader_12',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]
 ];

@@ -7,6 +7,8 @@ var searchData=
   ['neformat_4',['NEFormat',['../classMicrosoft_1_1NEFormat.html',1,'Microsoft']]],
   ['nereader_5',['NEReader',['../classdump_1_1NEReader.html',1,'dump']]],
   ['node_6',['Node',['../classScript_1_1Node.html',1,'Script']]],
-  ['number_7',['number',['../classDigitalResearch_1_1CPM8KFormat_1_1Segment.html#aeea5863618ce8e18802109325a68a7c5',1,'DigitalResearch::CPM8KFormat::Segment']]],
-  ['number_5flength_8',['number_length',['../classApple_1_1OMFFormat_1_1Segment.html#a40587512c8490b880dd35a3973b6539f',1,'Apple::OMFFormat::Segment']]]
+  ['note_7',['Note',['../classELF_1_1ELFFormat_1_1Note.html',1,'ELF::ELFFormat']]],
+  ['notessection_8',['NotesSection',['../classELF_1_1ELFFormat_1_1NotesSection.html',1,'ELF::ELFFormat']]],
+  ['number_9',['number',['../classDigitalResearch_1_1CPM8KFormat_1_1Segment.html#aeea5863618ce8e18802109325a68a7c5',1,'DigitalResearch::CPM8KFormat::Segment']]],
+  ['number_5flength_10',['number_length',['../classApple_1_1OMFFormat_1_1Segment.html#a40587512c8490b880dd35a3973b6539f',1,'Apple::OMFFormat::Segment']]]
 ];
