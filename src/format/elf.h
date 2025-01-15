@@ -524,6 +524,8 @@ namespace ELF
 			int64_t addend = 0;
 			uint32_t sh_link = 0, sh_info = 0;
 			bool addend_from_section_data = false;
+
+			size_t GetSize(cpu_type cpu) const;
 		};
 
 		class Relocations : public SectionContents

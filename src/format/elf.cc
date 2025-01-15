@@ -229,6 +229,68 @@ void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned 
 	}
 }
 
+size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
+{
+	switch(cpu)
+	{
+	case EM_386:
+		switch(type)
+		{
+		default:
+			return 0;
+		case R_386_8:
+		case R_386_PC8:
+			return 1;
+		case R_386_16:
+		case R_386_PC16:
+		case R_386_SEG16:
+		case R_386_SUB16:
+		case R_386_SEGRELATIVE:
+		case R_386_OZSEG16:
+		case R_386_OZRELSEG16:
+			return 2;
+		case R_386_32:
+		case R_386_PC32:
+		case R_386_SUB32:
+			return 4;
+		}
+	case EM_68K:
+		switch(type)
+		{
+		default:
+			return 0;
+		case R_68K_8:
+		case R_68K_PC8:
+			return 1;
+		case R_68K_16:
+		case R_68K_PC16:
+			return 2;
+		case R_68K_32:
+		case R_68K_PC32:
+			return 4;
+		}
+	case EM_ARM:
+		switch(type)
+		{
+		default:
+			return 0;
+		case R_ARM_ABS8:
+			return 1;
+		case R_ARM_ABS16:
+			return 2;
+		case R_ARM_ABS32:
+		case R_ARM_REL32:
+		case R_ARM_CALL:
+		case R_ARM_JUMP24:
+		case R_ARM_PC24:
+		case R_ARM_V4BX:
+			return 4;
+		}
+	default:
+		return 0;
+	}
+}
+
 offset_t ELFFormat::Relocations::ActualDataSize()
 {
 	return relocations.size() * entsize;
@@ -824,6 +886,19 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	if(auto section = std::dynamic_pointer_cast<Linker::Buffer>(contents))
 	{
 		region = std::make_unique<Dumper::Block>("Section", file_offset, section, address, 2 * fmt.wordbytes);
+		for(auto& section : fmt.sections)
+		{
+			auto relocations = section.GetRelocations();
+			if(relocations != nullptr && section.info == index)
+			{
+				for(auto rel : relocations->relocations)
+				{
+					size_t size = rel.GetSize(fmt.cpu);
+					if(size != 0)
+						dynamic_cast<Dumper::Block *>(region.get())->AddSignal(rel.offset, size);
+				}
+			}
+		}
 		// TODO: provide relocations for the section data
 	}
 	else
