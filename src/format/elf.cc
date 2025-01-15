@@ -3,6 +3,11 @@
 
 using namespace ELF;
 
+bool ELFFormat::SystemInfo::IsOS2Specific() const
+{
+	return os_type == EOS_OS2 && os_size >= 16;
+}
+
 ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() const
 {
 	switch(type)
@@ -31,6 +36,8 @@ ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() cons
 	case Section::SHT_GROUP:
 	case Section::SHT_SYMTAB_SHNDX:
 		return SectionArrayLike;
+	case Section::SHT_OS:
+		return IBMSystemInfo;
 	}
 }
 
@@ -74,14 +81,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		region = std::make_unique<Dumper::Block>("Section", file_offset, section, address, 2 * fmt.wordbytes);
 		// TODO: provide relocations for the section data
 		break;
-	case Empty:
-	case SymbolTableLike:
-	case StringTableLike:
-	case RelocationLike:
-	case ArrayLike:
-	case SectionArrayLike:
-	case DynamicLike:
-	case NoteLike:
+	default:
 		region = std::make_unique<Dumper::Region>("Section", file_offset, symbols.size() * entsize, 2 * fmt.wordbytes);
 		break;
 	}
@@ -194,12 +194,44 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		name_entsize = "Entry size";
 	region->AddOptionalField(name_entsize, Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(entsize));
 
-	if(type == SHT_GROUP)
+	switch(type)
 	{
+	case SHT_GROUP:
 		region->AddField("Group flags",
 			Dumper::BitFieldDisplay::Make()
 				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("GRP_COMDAT"), true),
 			offset_t(array[0]));
+		break;
+	case SHT_OS:
+		{
+			std::map<offset_t, std::string> operating_system_descriptions;
+			operating_system_descriptions[SystemInfo::EOS_NONE] = "EOS_NONE - Unknown";
+			operating_system_descriptions[SystemInfo::EOS_PN] = "EOS_PN - IBM Microkernel personality neutral";
+			operating_system_descriptions[SystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
+			operating_system_descriptions[SystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
+			operating_system_descriptions[SystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
+			region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions), offset_t(system_info.os_type));
+
+			region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(system_info.os_size));
+			if(system_info.IsOS2Specific())
+			{
+				std::map<offset_t, std::string> session_type_descriptions;
+				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_NONE] = "OS2_SES_NONE - None";
+				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_FS] = "OS2_SES_FS - Full Screen session";
+				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_PM] = "OS2_SES_PM - Presentation Manager session";
+				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_VIO] = "OS2_SES_VIO - Windowed (character-mode) session";
+				region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions), offset_t(system_info.os2.sessiontype));
+
+				region->AddField("Session flags", Dumper::HexDisplay::Make(8), offset_t(system_info.os2.sessionflags));
+			}
+			else
+			{
+				// TODO
+			}
+		}
+		break;
+	default:
+		break;
 	}
 
 	region->Display(dump);
@@ -652,6 +684,21 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				if((descsz & 3) != 0)
 					rd.Skip((-descsz & 3));
 				sections[i].notes.push_back(note);
+			}
+			break;
+		case Section::IBMSystemInfo:
+			rd.Seek(sections[i].file_offset);
+			sections[i].system_info.os_type = SystemInfo::system_type(rd.ReadUnsigned(4));
+			sections[i].system_info.os_size = rd.ReadUnsigned(4);
+			if(sections[i].system_info.IsOS2Specific())
+			{
+				sections[i].system_info.os2.sessiontype = SystemInfo::os2_specific::os2_session(rd.ReadUnsigned(1));
+				sections[i].system_info.os2.sessionflags = rd.ReadUnsigned(1);
+			}
+			else
+			{
+				sections[i].system_info.os_specific.resize(sections[i].system_info.os_size, '\0');
+				rd.ReadData(sections[i].system_info.os_specific);
 			}
 			break;
 		}

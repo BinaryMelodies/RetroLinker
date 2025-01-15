@@ -465,6 +465,38 @@ namespace ELF
 			offset_t type;
 		};
 
+		/* IBM OS/2 extension */
+		class SystemInfo
+		{
+		public:
+			enum system_type : uint32_t
+			{
+				EOS_NONE = 0,
+				EOS_PN = 1,
+				EOS_SVR4 = 2,
+				EOS_AIX = 3,
+				EOS_OS2 = 4,
+			};
+			system_type os_type = EOS_NONE;
+			uint32_t os_size = 0;
+			bool IsOS2Specific() const;
+			struct os2_specific
+			{
+				/* OS/2 specific */
+				enum os2_session : uint8_t
+				{
+					OS2_SES_NONE = 0,
+					OS2_SES_FS = 1,
+					OS2_SES_PM = 2,
+					OS2_SES_VIO = 3,
+				};
+				os2_session sessiontype = OS2_SES_NONE;
+				uint8_t sessionflags;
+			} os2;
+			/* unspecified */
+			std::vector<uint8_t> os_specific;
+		};
+
 		class Section
 		{
 		public:
@@ -521,6 +553,8 @@ namespace ELF
 			std::vector<DynamicObject> dynamic;
 			/* used for SHT_NOTE */
 			std::vector<Note> notes;
+			/* used for SHT_OS (IBM OS/2) */
+			SystemInfo system_info;
 
 			enum stored_format
 			{
@@ -533,6 +567,7 @@ namespace ELF
 				SectionArrayLike,
 				DynamicLike,
 				NoteLike,
+				IBMSystemInfo,
 			};
 			stored_format GetStoredFormatKind() const;
 
