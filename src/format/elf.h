@@ -544,6 +544,20 @@ namespace ELF
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
+		class HashTable : public SectionContents
+		{
+		public:
+			std::vector<uint32_t> buckets;
+			std::vector<uint32_t> chains;
+
+			static uint32_t Hash(const std::string& name);
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+		};
+
 		class DynamicObject
 		{
 		public:
@@ -720,6 +734,7 @@ namespace ELF
 			static std::shared_ptr<Array> ReadArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
 			static std::shared_ptr<SectionGroup> ReadSectionGroup(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
 			static std::shared_ptr<IndexArray> ReadIndexArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<HashTable> ReadHashTable(Linker::Reader& rd, offset_t file_offset);
 			static std::shared_ptr<DynamicSection> ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes);
 			static std::shared_ptr<NotesSection> ReadNote(Linker::Reader& rd, offset_t file_offset, offset_t section_size);
 			static std::shared_ptr<SystemInfo> ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset);

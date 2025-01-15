@@ -51,7 +51,7 @@ void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 	unsigned i = 0;
 	for(auto& symbol : symbols)
 	{
-		Dumper::Entry symbol_entry("Symbol", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		Dumper::Entry symbol_entry("Symbol", i, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
 		symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
 		symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(symbol.name_offset));
 		if(symbol.shndx == SHN_COMMON)
@@ -355,6 +355,71 @@ void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 	}
 }
 
+uint32_t ELFFormat::HashTable::Hash(const std::string& name)
+{
+	uint32_t hash = 0;
+	for(uint8_t c : name)
+	{
+		hash = (hash << 4) + c;
+		uint32_t top_bits = hash & 0xF0000000;
+		if(top_bits != 0)
+			hash ^= top_bits >> 24;
+		hash &= 0x0FFFFFFF;
+	}
+	return hash;
+}
+
+offset_t ELFFormat::HashTable::ActualDataSize()
+{
+	return (2 + buckets.size() + chains.size()) * 4;
+}
+
+offset_t ELFFormat::HashTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO: untested
+	assert(offset == 0 && count == ActualDataSize());
+	wr.WriteWord(4, buckets.size());
+	wr.WriteWord(4, chains.size());
+	for(auto bucket : buckets)
+	{
+		wr.WriteWord(4, bucket);
+	}
+	for(auto chain : chains)
+	{
+		wr.WriteWord(4, chain);
+	}
+	return ActualDataSize();
+}
+
+void ELFFormat::HashTable::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	region->AddField("Buckets", Dumper::DecDisplay::Make(), offset_t(buckets.size()));
+	region->AddField("Chains", Dumper::DecDisplay::Make(), offset_t(chains.size()));
+}
+
+void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	for(auto bucket : buckets)
+	{
+		Dumper::Entry bucket_entry("Bucket", i + 1, fmt.sections[index].file_offset + 8 + i * 4, 2 * fmt.wordbytes);
+		bucket_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(bucket));
+		// TODO: display actual symbol
+		bucket_entry.Display(dump);
+		i++;
+	}
+
+	i = 0;
+	for(auto chain : chains)
+	{
+		Dumper::Entry chain_entry("Chain", i + 1, fmt.sections[index].file_offset + 8 + buckets.size() * 4 + i * 4, 2 * fmt.wordbytes);
+		chain_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(chain));
+		// TODO: display actual symbol
+		chain_entry.Display(dump);
+		i++;
+	}
+}
+
 offset_t ELFFormat::NotesSection::ActualDataSize()
 {
 	return size;
@@ -654,6 +719,23 @@ std::shared_ptr<ELFFormat::IndexArray> ELFFormat::Section::ReadIndexArray(Linker
 		array->array.push_back(rd.ReadUnsigned(4));
 	}
 	return array;
+}
+
+std::shared_ptr<ELFFormat::HashTable> ELFFormat::Section::ReadHashTable(Linker::Reader& rd, offset_t file_offset)
+{
+	std::shared_ptr<HashTable> hash_table = std::make_shared<HashTable>();
+	rd.Seek(file_offset);
+	uint32_t nbucket = rd.ReadUnsigned(4);
+	uint32_t nchain = rd.ReadUnsigned(4);
+	for(size_t j = 0; j < nbucket; j++)
+	{
+		hash_table->buckets.push_back(rd.ReadUnsigned(4));
+	}
+	for(size_t j = 0; j < nchain; j++)
+	{
+		hash_table->chains.push_back(rd.ReadUnsigned(4));
+	}
+	return hash_table;
 }
 
 std::shared_ptr<ELFFormat::DynamicSection> ELFFormat::Section::ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes)
@@ -1020,11 +1102,12 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		case Section::SHT_INIT_ARRAY:
 		case Section::SHT_FINI_ARRAY:
 		case Section::SHT_PREINIT_ARRAY:
-		case Section::SHT_HASH: // TODO: improve
 			Linker::Debug << "Debug: type " << sections[i].type << " of entry size " << sections[i].entsize << std::endl;
 			sections[i].contents = Section::ReadArray(rd, sections[i].file_offset, sections[i].size,
-				sections[i].entsize != 0 ? sections[i].entsize
-				: sections[i].type == Section::SHT_HASH ? 4 : wordbytes);
+				sections[i].entsize != 0 ? sections[i].entsize : wordbytes);
+			break;
+		case Section::SHT_HASH:
+			sections[i].contents = Section::ReadHashTable(rd, sections[i].file_offset);
 			break;
 		case Section::SHT_GROUP:
 			rd.Seek(sections[i].file_offset);
