@@ -421,8 +421,8 @@ namespace ELF
 			std::string name;
 			offset_t value = 0, size = 0;
 			uint8_t bind = 0, type = 0, other = 0;
-			uint16_t shndx = 0;
-			uint16_t sh_link = 0;
+			uint32_t shndx = 0;
+			uint32_t sh_link = 0;
 			bool defined = false;
 			bool unallocated = false;
 			Linker::Location location;
@@ -521,7 +521,7 @@ namespace ELF
 			uint32_t type = 0;
 			uint32_t symbol = 0;
 			int64_t addend = 0;
-			uint16_t sh_link = 0, sh_info = 0;
+			uint32_t sh_link = 0, sh_info = 0;
 			bool addend_from_section_data = false;
 		};
 
@@ -689,37 +689,37 @@ namespace ELF
 			std::shared_ptr<SymbolTable> GetSymbolTable();
 			const std::shared_ptr<SymbolTable> GetSymbolTable() const;
 
+#if 0
 			std::shared_ptr<StringTable> GetStringTable();
-
+#endif
 			std::shared_ptr<Array> GetArray();
 
 			std::shared_ptr<Relocations> GetRelocations();
 			const std::shared_ptr<Relocations> GetRelocations() const;
 
+#if 0
 			std::shared_ptr<DynamicSection> GetDynamicSection();
 
 			std::shared_ptr<NotesSection> GetNotesSection();
 
 			std::shared_ptr<SystemInfo> GetSystemInfo();
-
-			enum stored_format
-			{
-				Empty,
-				SectionLike,
-				SymbolTableLike,
-				StringTableLike,
-				RelocationLike,
-				ArrayLike,
-				SectionArrayLike,
-				DynamicLike,
-				NoteLike,
-				IBMSystemInfo,
-			};
-			stored_format GetStoredFormatKind() const;
+#endif
 
 			bool GetFileSize() const;
 
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
+
+			static std::shared_ptr<Linker::Section> ReadProgBits(Linker::Reader& rd, offset_t file_offset, const std::string& name, offset_t size);
+			static std::shared_ptr<Linker::Section> ReadNoBits(const std::string& name, offset_t size);
+			static std::shared_ptr<SymbolTable> ReadSymbolTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, size_t wordbytes);
+			static std::shared_ptr<Relocations> ReadRelocations(Linker::Reader& rd, Section::section_type type, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, uint32_t section_info, size_t wordbytes);
+			static std::shared_ptr<StringTable> ReadStringTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size);
+			static std::shared_ptr<Array> ReadArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<SectionGroup> ReadSectionGroup(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<IndexArray> ReadIndexArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<DynamicSection> ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes);
+			static std::shared_ptr<NotesSection> ReadNote(Linker::Reader& rd, offset_t file_offset, offset_t section_size);
+			static std::shared_ptr<SystemInfo> ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset);
 		};
 		std::vector<Section> sections;
 

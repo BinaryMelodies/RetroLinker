@@ -378,10 +378,12 @@ const std::shared_ptr<ELFFormat::SymbolTable> ELFFormat::Section::GetSymbolTable
 	return std::dynamic_pointer_cast<SymbolTable>(contents);
 }
 
+#if 0
 std::shared_ptr<ELFFormat::StringTable> ELFFormat::Section::GetStringTable()
 {
 	return std::dynamic_pointer_cast<StringTable>(contents);
 }
+#endif
 
 std::shared_ptr<ELFFormat::Array> ELFFormat::Section::GetArray()
 {
@@ -398,6 +400,7 @@ const std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::GetRelocations
 	return std::dynamic_pointer_cast<ELFFormat::Relocations>(contents);
 }
 
+#if 0
 std::shared_ptr<ELFFormat::DynamicSection> ELFFormat::Section::GetDynamicSection()
 {
 	return std::dynamic_pointer_cast<ELFFormat::DynamicSection>(contents);
@@ -412,43 +415,196 @@ std::shared_ptr<ELFFormat::SystemInfo> ELFFormat::Section::GetSystemInfo()
 {
 	return std::dynamic_pointer_cast<ELFFormat::SystemInfo>(contents);
 }
-
-ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() const
-{
-	switch(type)
-	{
-	default:
-	case Section::SHT_PROGBITS:
-	case Section::SHT_NOBITS:
-		return SectionLike;
-	case Section::SHT_SYMTAB:
-	case Section::SHT_DYNSYM:
-		return SymbolTableLike;
-	case Section::SHT_STRTAB:
-		return StringTableLike;
-	case Section::SHT_RELA:
-	case Section::SHT_REL:
-		return RelocationLike;
-	case Section::SHT_DYNAMIC:
-		return DynamicLike;
-	case Section::SHT_NOTE:
-		return NoteLike;
-	case Section::SHT_INIT_ARRAY:
-	case Section::SHT_FINI_ARRAY:
-	case Section::SHT_PREINIT_ARRAY:
-	case Section::SHT_HASH: // TODO: improve
-		return ArrayLike;
-	case Section::SHT_GROUP:
-	case Section::SHT_SYMTAB_SHNDX:
-		return SectionArrayLike;
-	case Section::SHT_OS:
-		return IBMSystemInfo;
-	}
-}
+#endif
 
 bool ELFFormat::Section::GetFileSize() const
 {
 	return type == SHT_NOBITS ? 0 : size;
+}
+
+std::shared_ptr<Linker::Section> ELFFormat::Section::ReadProgBits(Linker::Reader& rd, offset_t file_offset, const std::string& name, offset_t size)
+{
+	std::shared_ptr<Linker::Section> section = std::make_shared<Linker::Section>(name);
+	rd.Seek(file_offset);
+	section->Expand(size);
+	section->ReadFile(rd);
+	return section;
+}
+
+std::shared_ptr<Linker::Section> ELFFormat::Section::ReadNoBits(const std::string& name, offset_t size)
+{
+	std::shared_ptr<Linker::Section> section = std::make_shared<Linker::Section>(name);
+	section->SetZeroFilled(true);
+	section->Expand(size);
+	return section;
+}
+
+std::shared_ptr<ELFFormat::SymbolTable> ELFFormat::Section::ReadSymbolTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, size_t wordbytes)
+{
+	std::shared_ptr<SymbolTable> symbol_table = std::make_shared<SymbolTable>(entsize);
+	for(size_t j = 0; j < section_size; j += entsize)
+	{
+		rd.Seek(file_offset + j);
+		Symbol symbol;
+		symbol.name_offset = rd.ReadUnsigned(4);
+		if(wordbytes == 4)
+		{
+			symbol.value = rd.ReadUnsigned(wordbytes);
+			symbol.size = rd.ReadUnsigned(wordbytes);
+			symbol.type = rd.ReadUnsigned(1);
+			symbol.bind = symbol.type >> 4;
+			symbol.type &= 0xF;
+			symbol.other = rd.ReadUnsigned(1);
+			symbol.shndx = rd.ReadUnsigned(2);
+		}
+		else
+		{
+			symbol.type = rd.ReadUnsigned(1);
+			symbol.bind = symbol.type >> 4;
+			symbol.type &= 0xF;
+			symbol.other = rd.ReadUnsigned(1);
+			symbol.shndx = rd.ReadUnsigned(2);
+			symbol.value = rd.ReadUnsigned(wordbytes);
+			symbol.size = rd.ReadUnsigned(wordbytes);
+		}
+		symbol.sh_link = section_link;
+		symbol_table->symbols.push_back(symbol);
+	}
+	return symbol_table;
+}
+
+std::shared_ptr<ELFFormat::StringTable> ELFFormat::Section::ReadStringTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size)
+{
+	std::shared_ptr<StringTable> string_table = std::make_shared<StringTable>(section_size);
+	rd.Seek(file_offset);
+	while(rd.Tell() < file_offset + section_size)
+	{
+		std::string s = rd.ReadASCIIZ();
+		string_table->strings.push_back(s);
+	}
+	return string_table;
+}
+
+std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::ReadRelocations(Linker::Reader& rd, Section::section_type type, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, uint32_t section_info, size_t wordbytes)
+{
+	std::shared_ptr<Relocations> relocations = std::make_shared<Relocations>(entsize);
+	for(size_t j = 0; j < section_size; j += entsize)
+	{
+		rd.Seek(file_offset + j);
+		Relocation rel;
+		rel.offset = rd.ReadUnsigned(wordbytes);
+		offset_t info = rd.ReadUnsigned(wordbytes);
+		if(wordbytes == 4)
+		{
+			rel.symbol = info >> 8;
+			rel.type = info & 0xFF;
+		}
+		else
+		{
+			rel.symbol = info >> 32;
+			rel.type = info;
+		}
+		rel.addend_from_section_data = type == Section::SHT_REL;
+		if(rel.addend_from_section_data)
+			rel.addend = 0;
+		else
+			rel.addend = rd.ReadUnsigned(wordbytes);
+//		Debug::Debug << "Debug: Type " << sections[i].type << " addend " << rel.addend << std::endl;
+		rel.sh_link = section_link;
+		rel.sh_info = section_info;
+		relocations->relocations.push_back(rel);
+	}
+	return relocations;
+}
+
+std::shared_ptr<ELFFormat::Array> ELFFormat::Section::ReadArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+{
+	std::shared_ptr<Array> array = std::make_shared<Array>(entsize);
+	rd.Seek(file_offset);
+	for(size_t j = 0; j < section_size / entsize; j++)
+	{
+		array->array.push_back(rd.ReadUnsigned(entsize));
+	}
+	return array;
+}
+
+std::shared_ptr<ELFFormat::SectionGroup> ELFFormat::Section::ReadSectionGroup(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+{
+	// TODO: untested
+	std::shared_ptr<SectionGroup> section_group = std::make_shared<SectionGroup>(entsize);
+	section_group->flags = rd.ReadUnsigned(entsize);
+	for(size_t j = 0; j < section_size / entsize; j++)
+	{
+		rd.Seek(file_offset + j * entsize);
+		section_group->array.push_back(rd.ReadUnsigned(4));
+	}
+	return section_group;
+}
+
+std::shared_ptr<ELFFormat::IndexArray> ELFFormat::Section::ReadIndexArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+{
+	// TODO: untested
+	std::shared_ptr<IndexArray> array = std::make_shared<IndexArray>(entsize);
+	for(size_t j = 0; j < section_size / entsize; j++)
+	{
+		rd.Seek(file_offset + j * entsize);
+		array->array.push_back(rd.ReadUnsigned(4));
+	}
+	return array;
+}
+
+std::shared_ptr<ELFFormat::DynamicSection> ELFFormat::Section::ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes)
+{
+	std::shared_ptr<DynamicSection> dynamic_section = std::make_shared<DynamicSection>(entsize);
+	for(size_t j = 0; j < section_size; j += entsize)
+	{
+		rd.Seek(file_offset + j);
+		DynamicObject dyn;
+		dyn.tag = rd.ReadSigned(wordbytes);
+		dyn.value = rd.ReadSigned(wordbytes);
+		dynamic_section->dynamic.push_back(dyn);
+	}
+	return dynamic_section;
+}
+
+std::shared_ptr<ELFFormat::NotesSection> ELFFormat::Section::ReadNote(Linker::Reader& rd, offset_t file_offset, offset_t section_size)
+{
+	std::shared_ptr<NotesSection> notes = std::make_shared<NotesSection>(section_size);
+	rd.Seek(file_offset);
+	while(rd.Tell() < file_offset + section_size)
+	{
+		Note note;
+		offset_t namesz = rd.ReadUnsigned(4);
+		offset_t descsz = rd.ReadUnsigned(4);
+		note.type = rd.ReadUnsigned(4);
+		note.name = rd.ReadASCIIZ(namesz);
+		if((namesz & 3) != 0)
+			rd.Skip((-namesz & 3));
+		note.descriptor = rd.ReadASCIIZ(descsz);
+		if((descsz & 3) != 0)
+			rd.Skip((-descsz & 3));
+		notes->notes.push_back(note);
+	}
+	return notes;
+}
+
+std::shared_ptr<ELFFormat::SystemInfo> ELFFormat::Section::ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset)
+{
+	std::shared_ptr<ELFFormat::SystemInfo> system_info = std::make_shared<SystemInfo>();
+	rd.Seek(file_offset);
+	system_info->os_type = SystemInfo::system_type(rd.ReadUnsigned(4));
+	system_info->os_size = rd.ReadUnsigned(4);
+	if(system_info->IsOS2Specific())
+	{
+		system_info->os2.sessiontype = SystemInfo::os2_specific::os2_session(rd.ReadUnsigned(1));
+		system_info->os2.sessionflags = rd.ReadUnsigned(1);
+	}
+	else
+	{
+		system_info->os_specific.resize(system_info->os_size, '\0');
+		rd.ReadData(system_info->os_specific);
+	}
+	return system_info;
 }
 
 offset_t ELFFormat::Segment::Part::GetOffset(ELFFormat& fmt)
@@ -738,156 +894,51 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 #if DISPLAY_LOGS
 		Linker::Debug << "Debug: Section #" << i << ": `" << sections[i].name << "'" << ", type: " << sections[i].type << ", flags: " << sections[i].flags << std::endl;
 #endif
-		switch(sections[i].GetStoredFormatKind())
+		switch(sections[i].type)
 		{
-		case Section::Empty:
-		case Section::SectionLike:
-			sections[i].contents = std::make_shared<Linker::Section>(sections[i].name);
-			if(sections[i].type == Section::SHT_NOBITS)
-			{
-				sections[i].GetSection()->SetZeroFilled(true);
-			}
-			sections[i].GetSection()->Expand(sections[i].size);
-			if(sections[i].type != Section::SHT_NOBITS)
-			{
-				rd.Seek(sections[i].file_offset);
-				sections[i].GetSection()->ReadFile(rd);
-			}
+		default:
+		case Section::SHT_PROGBITS:
+			sections[i].contents = Section::ReadProgBits(rd, sections[i].file_offset, sections[i].name, sections[i].size);
 			break;
-		case Section::SymbolTableLike:
-			sections[i].contents = std::make_shared<SymbolTable>(sections[i].entsize);
-			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
-			{
-				rd.Seek(sections[i].file_offset + j);
-				Symbol symbol;
-				symbol.name_offset = rd.ReadUnsigned(4);
-				if(wordbytes == 4)
-				{
-					symbol.value = rd.ReadUnsigned(wordbytes);
-					symbol.size = rd.ReadUnsigned(wordbytes);
-					symbol.type = rd.ReadUnsigned(1);
-					symbol.bind = symbol.type >> 4;
-					symbol.type &= 0xF;
-					symbol.other = rd.ReadUnsigned(1);
-					symbol.shndx = rd.ReadUnsigned(2);
-				}
-				else
-				{
-					symbol.type = rd.ReadUnsigned(1);
-					symbol.bind = symbol.type >> 4;
-					symbol.type &= 0xF;
-					symbol.other = rd.ReadUnsigned(1);
-					symbol.shndx = rd.ReadUnsigned(2);
-					symbol.value = rd.ReadUnsigned(wordbytes);
-					symbol.size = rd.ReadUnsigned(wordbytes);
-				}
-				symbol.sh_link = sections[i].link;
-				sections[i].GetSymbolTable()->symbols.push_back(symbol);
-			}
+		case Section::SHT_NOBITS:
+			sections[i].contents = Section::ReadNoBits(sections[i].name, sections[i].size);
 			break;
-		case Section::StringTableLike:
-			sections[i].contents = std::make_shared<StringTable>(sections[i].size);
+		case Section::SHT_SYMTAB:
+		case Section::SHT_DYNSYM:
+			sections[i].contents = Section::ReadSymbolTable(rd, sections[i].file_offset, sections[i].size, sections[i].entsize, sections[i].link, wordbytes);
+			break;
+		case Section::SHT_STRTAB:
+			sections[i].contents = Section::ReadStringTable(rd, sections[i].file_offset, sections[i].size);
+			break;
+		case Section::SHT_RELA:
+		case Section::SHT_REL:
+			sections[i].contents = Section::ReadRelocations(rd, sections[i].type, sections[i].file_offset, sections[i].size, sections[i].entsize, sections[i].link, sections[i].info, wordbytes);
+			break;
+		case Section::SHT_INIT_ARRAY:
+		case Section::SHT_FINI_ARRAY:
+		case Section::SHT_PREINIT_ARRAY:
+		case Section::SHT_HASH: // TODO: improve
+			Linker::Debug << "Debug: type " << sections[i].type << " of entry size " << sections[i].entsize << std::endl;
+			sections[i].contents = Section::ReadArray(rd, sections[i].file_offset, sections[i].size,
+				sections[i].entsize != 0 ? sections[i].entsize
+				: sections[i].type == Section::SHT_HASH ? 4 : wordbytes);
+			break;
+		case Section::SHT_GROUP:
 			rd.Seek(sections[i].file_offset);
-			while(rd.Tell() < sections[i].file_offset + sections[i].size)
-			{
-				std::string s = rd.ReadASCIIZ();
-				sections[i].GetStringTable()->strings.push_back(s);
-			}
+			sections[i].contents = Section::ReadSectionGroup(rd, sections[i].file_offset, sections[i].size, sections[i].entsize ? 4 : sections[i].entsize);
 			break;
-		case Section::RelocationLike:
-			sections[i].contents = std::make_shared<Relocations>(sections[i].entsize);
-			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
-			{
-				rd.Seek(sections[i].file_offset + j);
-				Relocation rel;
-				rel.offset = rd.ReadUnsigned(wordbytes);
-				offset_t info = rd.ReadUnsigned(wordbytes);
-				if(wordbytes == 4)
-				{
-					rel.symbol = info >> 8;
-					rel.type = info & 0xFF;
-				}
-				else
-				{
-					rel.symbol = info >> 32;
-					rel.type = info;
-				}
-				rel.addend_from_section_data = sections[i].type == Section::SHT_REL;
-				if(rel.addend_from_section_data)
-					rel.addend = 0;
-				else
-					rel.addend = rd.ReadUnsigned(wordbytes);
-//				Debug::Debug << "Debug: Type " << sections[i].type << " addend " << rel.addend << std::endl;
-				rel.sh_link = sections[i].link;
-				rel.sh_info = sections[i].info;
-				sections[i].GetRelocations()->relocations.push_back(rel);
-			}
-			break;
-		case Section::ArrayLike:
-		case Section::SectionArrayLike: // TODO: untested
+		case Section::SHT_SYMTAB_SHNDX:
 			rd.Seek(sections[i].file_offset);
-			if(sections[i].type == Section::SHT_GROUP)
-			{
-				sections[i].contents = std::make_shared<SectionGroup>(sections[i].entsize);
-				std::dynamic_pointer_cast<SectionGroup>(sections[i].contents)->flags = rd.ReadUnsigned(sections[i].entsize);
-			}
-			else if(sections[i].type == Section::SHT_SYMTAB_SHNDX)
-			{
-				sections[i].contents = std::make_shared<IndexArray>(sections[i].entsize);
-			}
-			else
-			{
-				sections[i].contents = std::make_shared<Array>(sections[i].entsize);
-			}
-			for(size_t j = 0; j < sections[i].size / 4; j++)
-			{
-				sections[i].GetArray()->array.push_back(rd.ReadUnsigned(sections[i].entsize));
-			}
+			sections[i].contents = Section::ReadIndexArray(rd, sections[i].file_offset, sections[i].size, sections[i].entsize == 0 ? 4 : sections[i].entsize);
 			break;
-		case Section::DynamicLike:
-			sections[i].contents = std::make_shared<DynamicSection>(sections[i].entsize);
-			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
-			{
-				rd.Seek(sections[i].file_offset + j);
-				DynamicObject dyn;
-				dyn.tag = rd.ReadSigned(wordbytes);
-				dyn.value = rd.ReadSigned(wordbytes);
-				sections[i].GetDynamicSection()->dynamic.push_back(dyn);
-			}
+		case Section::SHT_DYNAMIC:
+			sections[i].contents = Section::ReadDynamic(rd, sections[i].file_offset, sections[i].size, sections[i].entsize, wordbytes);
 			break;
-		case Section::NoteLike:
-			sections[i].contents = std::make_shared<NotesSection>(sections[i].size);
-			rd.Seek(sections[i].file_offset);
-			while(rd.Tell() < sections[i].file_offset + sections[i].size)
-			{
-				Note note;
-				offset_t namesz = rd.ReadUnsigned(4);
-				offset_t descsz = rd.ReadUnsigned(4);
-				note.type = rd.ReadUnsigned(4);
-				note.name = rd.ReadASCIIZ(namesz);
-				if((namesz & 3) != 0)
-					rd.Skip((-namesz & 3));
-				note.descriptor = rd.ReadASCIIZ(descsz);
-				if((descsz & 3) != 0)
-					rd.Skip((-descsz & 3));
-				sections[i].GetNotesSection()->notes.push_back(note);
-			}
+		case Section::SHT_NOTE:
+			sections[i].contents = Section::ReadNote(rd, sections[i].file_offset, sections[i].size);
 			break;
-		case Section::IBMSystemInfo:
-			sections[i].contents = std::make_shared<SystemInfo>();
-			rd.Seek(sections[i].file_offset);
-			sections[i].GetSystemInfo()->os_type = SystemInfo::system_type(rd.ReadUnsigned(4));
-			sections[i].GetSystemInfo()->os_size = rd.ReadUnsigned(4);
-			if(sections[i].GetSystemInfo()->IsOS2Specific())
-			{
-				sections[i].GetSystemInfo()->os2.sessiontype = SystemInfo::os2_specific::os2_session(rd.ReadUnsigned(1));
-				sections[i].GetSystemInfo()->os2.sessionflags = rd.ReadUnsigned(1);
-			}
-			else
-			{
-				sections[i].GetSystemInfo()->os_specific.resize(sections[i].GetSystemInfo()->os_size, '\0');
-				rd.ReadData(sections[i].GetSystemInfo()->os_specific);
-			}
+		case Section::SHT_OS:
+			sections[i].contents = Section::ReadIBMSystemInfo(rd, sections[i].file_offset);
 			break;
 		}
 		if(sections[i].GetSection() != nullptr)
