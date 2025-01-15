@@ -11,6 +11,8 @@ void ELFFormat::SectionContents::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsi
 {
 }
 
+//// SymbolTable
+
 offset_t ELFFormat::SymbolTable::ActualDataSize()
 {
 	return symbols.size() * entsize;
@@ -98,6 +100,8 @@ void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 	}
 }
 
+//// StringTable
+
 offset_t ELFFormat::StringTable::ActualDataSize()
 {
 	return size;
@@ -129,6 +133,8 @@ void ELFFormat::StringTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 	}
 }
 
+//// Array
+
 offset_t ELFFormat::Array::ActualDataSize()
 {
 	return array.size() * entsize;
@@ -156,6 +162,8 @@ void ELFFormat::Array::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index
 		i += 1;
 	}
 }
+
+//// SectionGroup
 
 offset_t ELFFormat::SectionGroup::ActualDataSize()
 {
@@ -205,6 +213,8 @@ void ELFFormat::SectionGroup::AddDumperFields(std::unique_ptr<Dumper::Region>& r
 		flags);
 }
 
+//// IndexArray
+
 void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
 {
 	// TODO: untested
@@ -228,6 +238,8 @@ void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned 
 		i += 1;
 	}
 }
+
+//// Relocation
 
 size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 {
@@ -291,6 +303,8 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 	}
 }
 
+//// Relocations
+
 offset_t ELFFormat::Relocations::ActualDataSize()
 {
 	return relocations.size() * entsize;
@@ -336,6 +350,8 @@ void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 		i += 1;
 	}
 }
+
+//// DynamicSection
 
 offset_t ELFFormat::DynamicSection::ActualDataSize()
 {
@@ -417,6 +433,8 @@ void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 	}
 }
 
+//// HashTable
+
 uint32_t ELFFormat::HashTable::Hash(const std::string& name)
 {
 	uint32_t hash = 0;
@@ -482,6 +500,8 @@ void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned i
 	}
 }
 
+//// NotesSection
+
 offset_t ELFFormat::NotesSection::ActualDataSize()
 {
 	return size;
@@ -530,17 +550,19 @@ void ELFFormat::NotesSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigne
 	}
 }
 
-bool ELFFormat::SystemInfo::IsOS2Specific() const
+//// IBMSystemInfo
+
+bool ELFFormat::IBMSystemInfo::IsOS2Specific() const
 {
 	return os_type == EOS_OS2 && os_size >= 16;
 }
 
-offset_t ELFFormat::SystemInfo::ActualDataSize()
+offset_t ELFFormat::IBMSystemInfo::ActualDataSize()
 {
 	return 8 + os_size;
 }
 
-offset_t ELFFormat::SystemInfo::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::IBMSystemInfo::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
 {
 	// TODO: untested
 	assert(offset == 0 && count == ActualDataSize());
@@ -560,24 +582,24 @@ offset_t ELFFormat::SystemInfo::WriteFile(Linker::Writer& wr, offset_t count, of
 	return ActualDataSize();
 }
 
-void ELFFormat::SystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
 {
 	std::map<offset_t, std::string> operating_system_descriptions;
-	operating_system_descriptions[SystemInfo::EOS_NONE] = "EOS_NONE - Unknown";
-	operating_system_descriptions[SystemInfo::EOS_PN] = "EOS_PN - IBM Microkernel personality neutral";
-	operating_system_descriptions[SystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
-	operating_system_descriptions[SystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
-	operating_system_descriptions[SystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
+	operating_system_descriptions[IBMSystemInfo::EOS_NONE] = "EOS_NONE - Unknown";
+	operating_system_descriptions[IBMSystemInfo::EOS_PN] = "EOS_PN - IBM Microkernel personality neutral";
+	operating_system_descriptions[IBMSystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
+	operating_system_descriptions[IBMSystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
+	operating_system_descriptions[IBMSystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
 	region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions), offset_t(os_type));
 
 	region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(os_size));
 	if(IsOS2Specific())
 	{
 		std::map<offset_t, std::string> session_type_descriptions;
-		session_type_descriptions[SystemInfo::os2_specific::OS2_SES_NONE] = "OS2_SES_NONE - None";
-		session_type_descriptions[SystemInfo::os2_specific::OS2_SES_FS] = "OS2_SES_FS - Full Screen session";
-		session_type_descriptions[SystemInfo::os2_specific::OS2_SES_PM] = "OS2_SES_PM - Presentation Manager session";
-		session_type_descriptions[SystemInfo::os2_specific::OS2_SES_VIO] = "OS2_SES_VIO - Windowed (character-mode) session";
+		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_NONE] = "OS2_SES_NONE - None";
+		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_FS] = "OS2_SES_FS - Full Screen session";
+		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_PM] = "OS2_SES_PM - Presentation Manager session";
+		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_VIO] = "OS2_SES_VIO - Windowed (character-mode) session";
 		region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions), offset_t(os2.sessiontype));
 
 		region->AddField("Session flags", Dumper::HexDisplay::Make(8), offset_t(os2.sessionflags));
@@ -587,6 +609,53 @@ void ELFFormat::SystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& reg
 		// TODO
 	}
 }
+
+offset_t ELFFormat::IBMImportTable::ActualDataSize()
+{
+	return imports.size() * entsize;
+}
+
+offset_t ELFFormat::IBMImportTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	assert(offset == 0 && count == ActualDataSize());
+	offset_t file_offset = wr.Tell();
+	for(auto& import : imports)
+	{
+		wr.Seek(file_offset);
+		wr.WriteWord(4, import.ordinal);
+		wr.WriteWord(4, import.name_offset);
+		wr.WriteWord(4, (import.type << 24) | (import.dll & 0x00FFFFFF));
+		file_offset += entsize;
+	}
+	return ActualDataSize();
+}
+
+void ELFFormat::IBMImportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	for(auto& import : imports)
+	{
+		Dumper::Entry import_entry("Import", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
+		if(import.ordinal != uint32_t(-1))
+			import_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(import.ordinal));
+		import_entry.AddOptionalField("Name offset", Dumper::HexDisplay::Make(8), offset_t(import.name_offset));
+		import_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), import.name);
+
+		std::map<offset_t, std::string> type_descriptions;
+		type_descriptions[IBMImportEntry::IMP_IGNORED] = "IMP_IGNORED - Ignored";
+		type_descriptions[IBMImportEntry::IMP_STR_IDX] = "IMP_STR_IDX - String table index";
+		type_descriptions[IBMImportEntry::IMP_DT_IDX] = "IMP_DT_IDX - Dynamic segment DT_NEEDED index";
+		import_entry.AddField("Load module type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(import.type));
+
+		import_entry.AddField("DLL value", Dumper::HexDisplay::Make(8), offset_t(import.dll));
+		import_entry.AddOptionalField("DLL name", Dumper::StringDisplay::Make(), import.dll_name);
+
+		import_entry.Display(dump);
+		i++;
+	}
+}
+
+//// Section
 
 std::shared_ptr<Linker::Section> ELFFormat::Section::GetSection()
 {
@@ -641,11 +710,16 @@ std::shared_ptr<ELFFormat::NotesSection> ELFFormat::Section::GetNotesSection()
 	return std::dynamic_pointer_cast<ELFFormat::NotesSection>(contents);
 }
 
-std::shared_ptr<ELFFormat::SystemInfo> ELFFormat::Section::GetSystemInfo()
+std::shared_ptr<ELFFormat::IBMSystemInfo> ELFFormat::Section::GetIBMSystemInfo()
 {
-	return std::dynamic_pointer_cast<ELFFormat::SystemInfo>(contents);
+	return std::dynamic_pointer_cast<ELFFormat::IBMSystemInfo>(contents);
 }
 #endif
+
+std::shared_ptr<ELFFormat::IBMImportTable> ELFFormat::Section::GetIBMImportTable()
+{
+	return std::dynamic_pointer_cast<ELFFormat::IBMImportTable>(contents);
+}
 
 bool ELFFormat::Section::GetFileSize() const
 {
@@ -835,15 +909,15 @@ std::shared_ptr<ELFFormat::NotesSection> ELFFormat::Section::ReadNote(Linker::Re
 	return notes;
 }
 
-std::shared_ptr<ELFFormat::SystemInfo> ELFFormat::Section::ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset)
+std::shared_ptr<ELFFormat::IBMSystemInfo> ELFFormat::Section::ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset)
 {
-	std::shared_ptr<ELFFormat::SystemInfo> system_info = std::make_shared<SystemInfo>();
+	std::shared_ptr<ELFFormat::IBMSystemInfo> system_info = std::make_shared<IBMSystemInfo>();
 	rd.Seek(file_offset);
-	system_info->os_type = SystemInfo::system_type(rd.ReadUnsigned(4));
+	system_info->os_type = IBMSystemInfo::system_type(rd.ReadUnsigned(4));
 	system_info->os_size = rd.ReadUnsigned(4);
 	if(system_info->IsOS2Specific())
 	{
-		system_info->os2.sessiontype = SystemInfo::os2_specific::os2_session(rd.ReadUnsigned(1));
+		system_info->os2.sessiontype = IBMSystemInfo::os2_specific::os2_session(rd.ReadUnsigned(1));
 		system_info->os2.sessionflags = rd.ReadUnsigned(1);
 	}
 	else
@@ -854,30 +928,21 @@ std::shared_ptr<ELFFormat::SystemInfo> ELFFormat::Section::ReadIBMSystemInfo(Lin
 	return system_info;
 }
 
-offset_t ELFFormat::Segment::Part::GetOffset(ELFFormat& fmt)
+std::shared_ptr<ELFFormat::IBMImportTable> ELFFormat::Section::ReadIBMImportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
 {
-	switch(type)
+	std::shared_ptr<IBMImportTable> table = std::make_shared<IBMImportTable>(entsize);
+	for(size_t j = 0; j < section_size; j += entsize)
 	{
-	case Section:
-		return fmt.sections[index].file_offset + offset;
-	case Block:
-		return fmt.blocks[index].offset + offset;
-	default:
-		assert(false);
+		rd.Seek(file_offset + j);
+		IBMImportEntry import;
+		import.ordinal = rd.ReadUnsigned(4);
+		import.name_offset = rd.ReadUnsigned(4);
+		import.dll = rd.ReadUnsigned(4);
+		import.type = IBMImportEntry::import_type(import.dll >> 24);
+		import.dll &= 0x00FFFFFF;
+		table->imports.push_back(import);
 	}
-}
-
-offset_t ELFFormat::Segment::Part::GetActualSize(ELFFormat& fmt)
-{
-	switch(type)
-	{
-	case Section:
-		return fmt.sections[index].GetFileSize();
-	case Block:
-		return fmt.blocks[index].size;
-	default:
-		assert(false);
-	}
+	return table;
 }
 
 void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -969,11 +1034,13 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	case SHT_DYNSYM:
 	case SHT_GROUP:
 	case SHT_SYMTAB_SHNDX:
+	case SHT_IMPORTS:
 		name_link = "Link to string table";
 		break;
 	case SHT_HASH:
 	case SHT_REL:
 	case SHT_RELA:
+	case SHT_EXPORTS:
 		name_link = "Link to symbol table";
 		break;
 	default:
@@ -994,6 +1061,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		break;
 	case SHT_REL:
 	case SHT_RELA:
+	case SHT_EXPORTS:
 		name_info = "Info, section index";
 		break;
 	default:
@@ -1026,6 +1094,36 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		section_contents->Dump(dump, fmt, index);
 	}
 }
+
+//// Segment
+
+offset_t ELFFormat::Segment::Part::GetOffset(ELFFormat& fmt)
+{
+	switch(type)
+	{
+	case Section:
+		return fmt.sections[index].file_offset + offset;
+	case Block:
+		return fmt.blocks[index].offset + offset;
+	default:
+		assert(false);
+	}
+}
+
+offset_t ELFFormat::Segment::Part::GetActualSize(ELFFormat& fmt)
+{
+	switch(type)
+	{
+	case Section:
+		return fmt.sections[index].GetFileSize();
+	case Block:
+		return fmt.blocks[index].size;
+	default:
+		assert(false);
+	}
+}
+
+//// ELFFormat
 
 void ELFFormat::ReadFile(Linker::Reader& rd)
 {
@@ -1201,6 +1299,9 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		case Section::SHT_OS:
 			sections[i].contents = Section::ReadIBMSystemInfo(rd, sections[i].file_offset);
 			break;
+		case Section::SHT_IMPORTS:
+			sections[i].contents = Section::ReadIBMImportTable(rd, sections[i].file_offset, sections[i].size, sections[i].entsize == 0 ? 32 : sections[i].entsize);
+			break;
 		}
 		if(sections[i].GetSection() != nullptr)
 		{
@@ -1295,6 +1396,27 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 #endif
 			}
 			break;
+		case Section::SHT_IMPORTS:
+			for(IBMImportEntry& import : section.GetIBMImportTable()->imports)
+			{
+				if(import.name_offset != 0)
+				{
+					rd.Seek(sections[section.link].file_offset + import.name_offset);
+					import.name = rd.ReadASCIIZ();
+				}
+				switch(import.type)
+				{
+				default:
+					break;
+				case IBMImportEntry::IMP_STR_IDX:
+					rd.Seek(sections[section.link].file_offset + import.dll);
+					import.dll_name = rd.ReadASCIIZ();
+					break;
+				case IBMImportEntry::IMP_DT_IDX:
+					/* TODO */
+					break;
+				}
+			}
 		default:
 			break;
 		}

@@ -622,7 +622,7 @@ namespace ELF
 		};
 
 		/* IBM OS/2 extension */
-		class SystemInfo : public SectionContents
+		class IBMSystemInfo : public SectionContents
 		{
 		public:
 			enum system_type : uint32_t
@@ -655,6 +655,40 @@ namespace ELF
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+		};
+
+		/* IBM OS/2 extension */
+		class IBMImportEntry
+		{
+		public:
+			uint32_t ordinal = 0, name_offset = 0;
+			std::string name = "";
+			enum import_type
+			{
+				IMP_IGNORED = 0,
+				IMP_STR_IDX = 1,
+				IMP_DT_IDX = 2,
+			};
+			import_type type = IMP_IGNORED;
+			uint32_t dll = 0;
+			std::string dll_name;
+		};
+
+		/* IBM OS/2 extension */
+		class IBMImportTable : public SectionContents
+		{
+		public:
+			offset_t entsize;
+			std::vector<IBMImportEntry> imports;
+
+			IBMImportTable(offset_t entsize)
+				: entsize(entsize)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		class Section
@@ -721,8 +755,10 @@ namespace ELF
 
 			std::shared_ptr<NotesSection> GetNotesSection();
 
-			std::shared_ptr<SystemInfo> GetSystemInfo();
+			std::shared_ptr<IBMSystemInfo> GetIBMSystemInfo();
 #endif
+
+			std::shared_ptr<IBMImportTable> GetIBMImportTable();
 
 			bool GetFileSize() const;
 
@@ -739,7 +775,8 @@ namespace ELF
 			static std::shared_ptr<HashTable> ReadHashTable(Linker::Reader& rd, offset_t file_offset);
 			static std::shared_ptr<DynamicSection> ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes);
 			static std::shared_ptr<NotesSection> ReadNote(Linker::Reader& rd, offset_t file_offset, offset_t section_size);
-			static std::shared_ptr<SystemInfo> ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset);
+			static std::shared_ptr<IBMSystemInfo> ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset);
+			static std::shared_ptr<IBMImportTable> ReadIBMImportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
 		};
 		std::vector<Section> sections;
 
