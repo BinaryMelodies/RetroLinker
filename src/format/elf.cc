@@ -696,6 +696,58 @@ void ELFFormat::IBMExportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 	}
 }
 
+//// IBMResourceCollection
+
+offset_t ELFFormat::IBMResourceCollection::ActualDataSize()
+{
+	// TODO
+	return 0;
+}
+
+offset_t ELFFormat::IBMResourceCollection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+void ELFFormat::IBMResourceCollection::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	region->AddField("Version", Dumper::DecDisplay::Make(), offset_t(version));
+	region->AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(flags));
+	region->AddField("Name", Dumper::StringDisplay::Make(), name);
+	region->AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(name_offset));
+	region->AddField("Item array offset", Dumper::HexDisplay::Make(8), offset_t(item_array_offset));
+	region->AddField("Item array entry size", Dumper::HexDisplay::Make(8), offset_t(item_array_entry_size));
+	region->AddField("Header size", Dumper::HexDisplay::Make(8), offset_t(header_size));
+	region->AddField("String table offset", Dumper::HexDisplay::Make(8), offset_t(string_table_offset));
+	region->AddField("Locale offset", Dumper::HexDisplay::Make(8), offset_t(locale_offset));
+	if(locale_offset != 0)
+	{
+		char _country[2] = { (char) country[0], (char) country[1] }; // TODO: wide characters
+		char _language[2] = { (char) language[0], (char) language[1] }; // TODO: wide characters
+		region->AddField("Country", Dumper::StringDisplay::Make(), std::string(_country, 2));
+		region->AddField("Language", Dumper::StringDisplay::Make(), std::string(_language, 2));
+	}
+}
+
+void ELFFormat::IBMResourceCollection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	unsigned i = 0;
+	for(auto& resource : resources)
+	{
+		Dumper::Block resource_block("Resource", offset + resource.data_offset, resource.data, 0, 2 * fmt.wordbytes);
+		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
+		resource_block.AddField("Type", Dumper::HexDisplay::Make(8), offset_t(resource.type));
+		resource_block.AddField("Ordinal", Dumper::HexDisplay::Make(8), offset_t(resource.ordinal));
+		resource_block.AddField("Name", Dumper::StringDisplay::Make(), resource.name);
+		resource_block.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(resource.name_offset));
+		resource_block.AddField("Data offset", Dumper::HexDisplay::Make(8), offset_t(resource.data_offset));
+		resource_block.Display(dump);
+
+		i++;
+	}
+}
+
 //// Section
 
 std::shared_ptr<Linker::Section> ELFFormat::Section::GetSection()
@@ -1004,6 +1056,59 @@ std::shared_ptr<ELFFormat::IBMExportTable> ELFFormat::Section::ReadIBMExportTabl
 		table->exports.push_back(_export);
 	}
 	return table;
+}
+
+std::shared_ptr<ELFFormat::IBMResourceCollection> ELFFormat::Section::ReadIBMResourceCollection(Linker::Reader& rd, offset_t file_offset)
+{
+	std::shared_ptr<IBMResourceCollection> collection = std::make_shared<IBMResourceCollection>();
+	rd.Seek(file_offset);
+	collection->offset = file_offset;
+	collection->version = rd.ReadUnsigned(2);
+	collection->flags = rd.ReadUnsigned(2);
+	collection->name_offset = rd.ReadUnsigned(4);
+	collection->item_array_offset = rd.ReadUnsigned(4); // rioff
+	collection->item_array_entry_size = rd.ReadUnsigned(4); // rientsize
+	uint32_t item_array_count = rd.ReadUnsigned(4); // rinum
+	collection->header_size = rd.ReadUnsigned(4); // rhsize
+	collection->string_table_offset = rd.ReadUnsigned(4); // strtab
+	collection->locale_offset = rd.ReadUnsigned(4); // locale
+
+	if(collection->locale_offset != 0)
+	{
+		rd.Seek(file_offset + collection->locale_offset);
+		collection->country[0] = rd.ReadUnsigned(2);
+		collection->country[1] = rd.ReadUnsigned(2);
+		collection->language[0] = rd.ReadUnsigned(2);
+		collection->language[1] = rd.ReadUnsigned(2);
+	}
+
+	rd.Seek(file_offset + collection->string_table_offset + collection->name_offset);
+	collection->name = rd.ReadASCIIZ();
+
+	for(size_t i = 0; i < item_array_count; i++)
+	{
+		rd.Seek(file_offset + collection->item_array_offset + collection->item_array_entry_size * i);
+		IBMResource resource;
+		resource.type = rd.ReadUnsigned(4);
+		resource.ordinal = rd.ReadUnsigned(4);
+		resource.name_offset = rd.ReadUnsigned(4);
+		resource.data_offset = rd.ReadUnsigned(4);
+		resource.data_size = rd.ReadUnsigned(4);
+		collection->resources.push_back(resource);
+	}
+
+	for(auto& resource : collection->resources)
+	{
+		if(resource.name_offset != 0)
+		{
+			rd.Seek(file_offset + collection->string_table_offset + resource.name_offset);
+			resource.name = rd.ReadASCIIZ();
+		}
+		rd.Seek(file_offset + resource.data_offset);
+		resource.data = Linker::Buffer::ReadFromFile(rd, resource.data_size);
+	}
+
+	return collection;
 }
 
 void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
@@ -1365,6 +1470,9 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			break;
 		case Section::SHT_EXPORTS:
 			sections[i].contents = Section::ReadIBMExportTable(rd, sections[i].file_offset, sections[i].size, sections[i].entsize == 0 ? 32 : sections[i].entsize);
+			break;
+		case Section::SHT_RES:
+			sections[i].contents = Section::ReadIBMResourceCollection(rd, sections[i].file_offset);
 			break;
 		}
 		if(sections[i].GetSection() != nullptr)

@@ -156,11 +156,11 @@ namespace ELF
 		static constexpr offset_t DT_INITTERM = 0x60000009;
 		static constexpr offset_t DT_STACKSZ = 0x6000000A;
 
-		uint8_t file_class;
+		uint8_t file_class = 0;
 		EndianType endiantype = ::LittleEndian;
 
-		uint8_t data_encoding;
-		size_t wordbytes;
+		uint8_t data_encoding = 0;
+		size_t wordbytes = 4;
 
 		enum cpu_type
 		{
@@ -388,11 +388,11 @@ namespace ELF
 			// https://llvm-mos.org/wiki/ELF_specification
 			EM_MOS = 6502,
 		};
-		cpu_type cpu;
+		cpu_type cpu = EM_NONE;
 
-		uint8_t header_version;
-		uint8_t osabi;
-		uint8_t abi_version;
+		uint8_t header_version = 0;
+		uint8_t osabi = 0;
+		uint8_t abi_version = 0;
 
 		enum file_type
 		{
@@ -402,17 +402,17 @@ namespace ELF
 			ET_DYN = 3,
 			ET_CORE = 4,
 		};
-		file_type object_file_type;
-		uint16_t file_version;
+		file_type object_file_type = ET_NONE;
+		uint16_t file_version = 0;
 
-		offset_t entry;
-		offset_t program_header_offset;
-		offset_t section_header_offset;
-		uint32_t flags;
-		uint16_t elf_header_size;
-		uint16_t program_header_entry_size;
-		uint16_t section_header_entry_size;
-		uint16_t section_name_string_table;
+		offset_t entry = 0;
+		offset_t program_header_offset = 0;
+		offset_t section_header_offset = 0;
+		uint32_t flags = 0;
+		uint16_t elf_header_size = 0;
+		uint16_t program_header_entry_size = 0;
+		uint16_t section_header_entry_size = 0;
+		uint16_t section_name_string_table = 0;
 
 		class SectionContents : public Linker::Writable
 		{
@@ -662,7 +662,7 @@ namespace ELF
 		{
 		public:
 			uint32_t ordinal = 0, name_offset = 0;
-			std::string name = "";
+			std::string name;
 			enum import_type
 			{
 				IMP_IGNORED = 0,
@@ -696,7 +696,7 @@ namespace ELF
 		{
 		public:
 			uint32_t ordinal = 0, symbol_index = 0, name_offset = 0;
-			std::string name = "";
+			std::string name;
 			uint32_t sh_link = 0, sh_info = 0;
 		};
 
@@ -716,6 +716,70 @@ namespace ELF
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
+
+		/* IBM OS/2 extension */
+		class IBMResource
+		{
+		public:
+			uint32_t type = 0;
+			uint32_t ordinal = 0;
+			uint32_t name_offset = 0;
+			std::string name;
+			uint32_t data_offset = 0;
+			uint32_t data_size = 0;
+			std::shared_ptr<Linker::Writable> data;
+		};
+
+		/* IBM OS/2 extension */
+		class IBMResourceCollection : public SectionContents
+		{
+		public:
+#if 0
+			uint32_t offset = 0;
+			uint32_t size = 0;
+#endif
+
+			offset_t offset = 0;
+
+			uint16_t version = 0;
+			uint16_t flags = 0;
+			uint32_t name_offset = 0;
+			std::string name;
+			uint32_t item_array_offset = 0;
+			uint32_t item_array_entry_size = 0;
+			uint32_t header_size = 0;
+			uint32_t string_table_offset = 0;
+			uint32_t locale_offset = 0;
+
+			char16_t country[2] = { };
+			char16_t language[2] = { };
+
+			std::vector<IBMResource> resources;
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+		};
+
+#if 0
+		/* IBM OS/2 extension */
+		class IBMResourceFile
+		{
+		public:
+			uint8_t file_class = 0;
+			EndianType endiantype = ::LittleEndian;
+
+			uint8_t data_encoding = 0;
+			size_t wordbytes = 4;
+
+			uint8_t version = 0;
+
+			uint32_t header_size = 0;
+			uint32_t resource_collection_offset = 0;
+			std::vector<IBMResourceCollection> resource_collections;
+		};
+#endif
 
 		class Section
 		{
@@ -805,6 +869,7 @@ namespace ELF
 			static std::shared_ptr<IBMSystemInfo> ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset);
 			static std::shared_ptr<IBMImportTable> ReadIBMImportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
 			static std::shared_ptr<IBMExportTable> ReadIBMExportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<IBMResourceCollection> ReadIBMResourceCollection(Linker::Reader& rd, offset_t file_offset);
 		};
 		std::vector<Section> sections;
 
