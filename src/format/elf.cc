@@ -3,9 +3,141 @@
 
 using namespace ELF;
 
+offset_t ELFFormat::SymbolTable::ActualDataSize()
+{
+	return symbols.size() * entsize;
+}
+
+offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+offset_t ELFFormat::StringTable::ActualDataSize()
+{
+	return size;
+}
+
+offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+offset_t ELFFormat::Array::ActualDataSize()
+{
+	return array.size() * entsize;
+}
+
+offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+offset_t ELFFormat::Relocations::ActualDataSize()
+{
+	return relocations.size() * entsize;
+}
+
+offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+offset_t ELFFormat::DynamicSection::ActualDataSize()
+{
+	return dynamic.size() * entsize;
+}
+
+offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+offset_t ELFFormat::NotesSection::ActualDataSize()
+{
+	return size;
+}
+
+offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
 bool ELFFormat::SystemInfo::IsOS2Specific() const
 {
 	return os_type == EOS_OS2 && os_size >= 16;
+}
+
+offset_t ELFFormat::SystemInfo::ActualDataSize()
+{
+	return 8 + os_size;
+}
+
+offset_t ELFFormat::SystemInfo::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+std::shared_ptr<Linker::Section> ELFFormat::Section::GetSection()
+{
+	return std::dynamic_pointer_cast<Linker::Section>(contents);
+}
+
+const std::shared_ptr<Linker::Section> ELFFormat::Section::GetSection() const
+{
+	return std::dynamic_pointer_cast<Linker::Section>(contents);
+}
+
+std::shared_ptr<ELFFormat::SymbolTable> ELFFormat::Section::GetSymbolTable()
+{
+	return std::dynamic_pointer_cast<SymbolTable>(contents);
+}
+
+const std::shared_ptr<ELFFormat::SymbolTable> ELFFormat::Section::GetSymbolTable() const
+{
+	return std::dynamic_pointer_cast<SymbolTable>(contents);
+}
+
+std::shared_ptr<ELFFormat::StringTable> ELFFormat::Section::GetStringTable()
+{
+	return std::dynamic_pointer_cast<StringTable>(contents);
+}
+
+std::shared_ptr<ELFFormat::Array> ELFFormat::Section::GetArray()
+{
+	return std::dynamic_pointer_cast<Array>(contents);
+}
+
+std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::GetRelocations()
+{
+	return std::dynamic_pointer_cast<ELFFormat::Relocations>(contents);
+}
+
+const std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::GetRelocations() const
+{
+	return std::dynamic_pointer_cast<ELFFormat::Relocations>(contents);
+}
+
+std::shared_ptr<ELFFormat::DynamicSection> ELFFormat::Section::GetDynamicSection()
+{
+	return std::dynamic_pointer_cast<ELFFormat::DynamicSection>(contents);
+}
+
+std::shared_ptr<ELFFormat::NotesSection> ELFFormat::Section::GetNotesSection()
+{
+	return std::dynamic_pointer_cast<ELFFormat::NotesSection>(contents);
+}
+
+std::shared_ptr<ELFFormat::SystemInfo> ELFFormat::Section::GetSystemInfo()
+{
+	return std::dynamic_pointer_cast<ELFFormat::SystemInfo>(contents);
 }
 
 ELFFormat::Section::stored_format ELFFormat::Section::GetStoredFormatKind() const
@@ -78,11 +210,11 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	switch(GetStoredFormatKind())
 	{
 	case SectionLike:
-		region = std::make_unique<Dumper::Block>("Section", file_offset, section, address, 2 * fmt.wordbytes);
+		region = std::make_unique<Dumper::Block>("Section", file_offset, GetSection(), address, 2 * fmt.wordbytes);
 		// TODO: provide relocations for the section data
 		break;
 	default:
-		region = std::make_unique<Dumper::Region>("Section", file_offset, symbols.size() * entsize, 2 * fmt.wordbytes);
+		region = std::make_unique<Dumper::Region>("Section", file_offset, contents != nullptr ? contents->ActualDataSize() : 0, 2 * fmt.wordbytes);
 		break;
 	}
 
@@ -200,7 +332,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		region->AddField("Group flags",
 			Dumper::BitFieldDisplay::Make()
 				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("GRP_COMDAT"), true),
-			offset_t(array[0]));
+			offset_t(GetArray()->array[0])); // TODO
 		break;
 	case SHT_OS:
 		{
@@ -210,19 +342,19 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 			operating_system_descriptions[SystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
 			operating_system_descriptions[SystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
 			operating_system_descriptions[SystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
-			region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions), offset_t(system_info.os_type));
+			region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions), offset_t(GetSystemInfo()->os_type));
 
-			region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(system_info.os_size));
-			if(system_info.IsOS2Specific())
+			region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(GetSystemInfo()->os_size));
+			if(GetSystemInfo()->IsOS2Specific())
 			{
 				std::map<offset_t, std::string> session_type_descriptions;
 				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_NONE] = "OS2_SES_NONE - None";
 				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_FS] = "OS2_SES_FS - Full Screen session";
 				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_PM] = "OS2_SES_PM - Presentation Manager session";
 				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_VIO] = "OS2_SES_VIO - Windowed (character-mode) session";
-				region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions), offset_t(system_info.os2.sessiontype));
+				region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions), offset_t(GetSystemInfo()->os2.sessiontype));
 
-				region->AddField("Session flags", Dumper::HexDisplay::Make(8), offset_t(system_info.os2.sessionflags));
+				region->AddField("Session flags", Dumper::HexDisplay::Make(8), offset_t(GetSystemInfo()->os2.sessionflags));
 			}
 			else
 			{
@@ -246,7 +378,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		break;
 	case ArrayLike:
 		i = 0;
-		for(auto& value : array)
+		for(auto& value : GetArray()->array)
 		{
 			Dumper::Entry array_entry("Value", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
 			array_entry.AddField("Value", Dumper::HexDisplay::Make(2 * entsize), value);
@@ -258,7 +390,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		// TODO: untested
 		i = 0;
 		already_started = false;
-		for(auto& value : array)
+		for(auto& value : GetArray()->array)
 		{
 			if(type == SHT_GROUP && !already_started)
 			{
@@ -284,7 +416,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		break;
 	case SymbolTableLike:
 		i = 0;
-		for(auto& symbol : symbols)
+		for(auto& symbol : GetSymbolTable()->symbols)
 		{
 			Dumper::Entry symbol_entry("Symbol", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
 			symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
@@ -335,7 +467,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	case StringTableLike:
 		i = 0;
 		offset = file_offset;
-		for(auto& s : strings)
+		for(auto& s : GetStringTable()->strings)
 		{
 			Dumper::Entry string_entry("String", i + 1, offset, 2 * fmt.wordbytes);
 			string_entry.AddField("Value name", Dumper::StringDisplay::Make(), s);
@@ -346,11 +478,8 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		break;
 	case RelocationLike:
 		i = 0;
-		if(relocations.size() > 0 && relocations[0].addend_from_section_data)
-			offset = 2 * fmt.wordbytes;
-		else
-			offset = 3 * fmt.wordbytes;
-		for(auto& rel : relocations)
+		offset = GetRelocations()->entsize;
+		for(auto& rel : GetRelocations()->relocations)
 		{
 			Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + i * offset, 2 * fmt.wordbytes);
 			relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.offset));
@@ -365,7 +494,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		break;
 	case DynamicLike:
 		i = 0;
-		for(auto& dynobj : dynamic)
+		for(auto& dynobj : GetDynamicSection()->dynamic)
 		{
 			Dumper::Entry dynamic_entry("Object", i + 1, file_offset + i * entsize, 2 * fmt.wordbytes);
 			std::map<offset_t, std::string> tag_descriptions;
@@ -424,7 +553,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	case NoteLike:
 		i = 0;
 		offset = 0;
-		for(auto& note : notes)
+		for(auto& note : GetNotesSection()->notes)
 		{
 			Dumper::Entry note_entry("Note", i + 1, file_offset + offset, 2 * fmt.wordbytes);
 			note_entry.AddField("Name", Dumper::StringDisplay::Make(), note.name);
@@ -568,24 +697,24 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 #if DISPLAY_LOGS
 		Linker::Debug << "Debug: Section #" << i << ": `" << sections[i].name << "'" << ", type: " << sections[i].type << ", flags: " << sections[i].flags << std::endl;
 #endif
-		//switch(sections[i].type)
 		switch(sections[i].GetStoredFormatKind())
 		{
 		case Section::Empty:
 		case Section::SectionLike:
-			sections[i].section = std::make_shared<Linker::Section>(sections[i].name);
+			sections[i].contents = std::make_shared<Linker::Section>(sections[i].name);
 			if(sections[i].type == Section::SHT_NOBITS)
 			{
-				sections[i].section->SetZeroFilled(true);
+				sections[i].GetSection()->SetZeroFilled(true);
 			}
-			sections[i].section->Expand(sections[i].size);
+			sections[i].GetSection()->Expand(sections[i].size);
 			if(sections[i].type != Section::SHT_NOBITS)
 			{
 				rd.Seek(sections[i].file_offset);
-				sections[i].section->ReadFile(rd);
+				sections[i].GetSection()->ReadFile(rd);
 			}
 			break;
 		case Section::SymbolTableLike:
+			sections[i].contents = std::make_shared<SymbolTable>(sections[i].entsize);
 			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
 			{
 				rd.Seek(sections[i].file_offset + j);
@@ -612,18 +741,20 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 					symbol.size = rd.ReadUnsigned(wordbytes);
 				}
 				symbol.sh_link = sections[i].link;
-				sections[i].symbols.push_back(symbol);
+				sections[i].GetSymbolTable()->symbols.push_back(symbol);
 			}
 			break;
 		case Section::StringTableLike:
+			sections[i].contents = std::make_shared<StringTable>(sections[i].size);
 			rd.Seek(sections[i].file_offset);
 			while(rd.Tell() < sections[i].file_offset + sections[i].size)
 			{
 				std::string s = rd.ReadASCIIZ();
-				sections[i].strings.push_back(s);
+				sections[i].GetStringTable()->strings.push_back(s);
 			}
 			break;
 		case Section::RelocationLike:
+			sections[i].contents = std::make_shared<Relocations>(sections[i].entsize);
 			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
 			{
 				rd.Seek(sections[i].file_offset + j);
@@ -648,28 +779,31 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 //				Debug::Debug << "Debug: Type " << sections[i].type << " addend " << rel.addend << std::endl;
 				rel.sh_link = sections[i].link;
 				rel.sh_info = sections[i].info;
-				sections[i].relocations.push_back(rel);
+				sections[i].GetRelocations()->relocations.push_back(rel);
 			}
 			break;
 		case Section::SectionArrayLike: // TODO: untested
 		case Section::ArrayLike:
+			sections[i].contents = std::make_shared<Array>(sections[i].entsize);
 			rd.Seek(sections[i].file_offset);
 			for(size_t j = 0; j < sections[i].size / 4; j++)
 			{
-				sections[i].array.push_back(rd.ReadUnsigned(sections[i].entsize));
+				sections[i].GetArray()->array.push_back(rd.ReadUnsigned(sections[i].entsize));
 			}
 			break;
 		case Section::DynamicLike:
+			sections[i].contents = std::make_shared<DynamicSection>(sections[i].entsize);
 			for(size_t j = 0; j < sections[i].size; j += sections[i].entsize)
 			{
 				rd.Seek(sections[i].file_offset + j);
 				DynamicObject dyn;
 				dyn.tag = rd.ReadSigned(wordbytes);
 				dyn.value = rd.ReadSigned(wordbytes);
-				sections[i].dynamic.push_back(dyn);
+				sections[i].GetDynamicSection()->dynamic.push_back(dyn);
 			}
 			break;
 		case Section::NoteLike:
+			sections[i].contents = std::make_shared<NotesSection>(sections[i].size);
 			rd.Seek(sections[i].file_offset);
 			while(rd.Tell() < sections[i].file_offset + sections[i].size)
 			{
@@ -683,39 +817,40 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				note.descriptor = rd.ReadASCIIZ(descsz);
 				if((descsz & 3) != 0)
 					rd.Skip((-descsz & 3));
-				sections[i].notes.push_back(note);
+				sections[i].GetNotesSection()->notes.push_back(note);
 			}
 			break;
 		case Section::IBMSystemInfo:
+			sections[i].contents = std::make_shared<SystemInfo>();
 			rd.Seek(sections[i].file_offset);
-			sections[i].system_info.os_type = SystemInfo::system_type(rd.ReadUnsigned(4));
-			sections[i].system_info.os_size = rd.ReadUnsigned(4);
-			if(sections[i].system_info.IsOS2Specific())
+			sections[i].GetSystemInfo()->os_type = SystemInfo::system_type(rd.ReadUnsigned(4));
+			sections[i].GetSystemInfo()->os_size = rd.ReadUnsigned(4);
+			if(sections[i].GetSystemInfo()->IsOS2Specific())
 			{
-				sections[i].system_info.os2.sessiontype = SystemInfo::os2_specific::os2_session(rd.ReadUnsigned(1));
-				sections[i].system_info.os2.sessionflags = rd.ReadUnsigned(1);
+				sections[i].GetSystemInfo()->os2.sessiontype = SystemInfo::os2_specific::os2_session(rd.ReadUnsigned(1));
+				sections[i].GetSystemInfo()->os2.sessionflags = rd.ReadUnsigned(1);
 			}
 			else
 			{
-				sections[i].system_info.os_specific.resize(sections[i].system_info.os_size, '\0');
-				rd.ReadData(sections[i].system_info.os_specific);
+				sections[i].GetSystemInfo()->os_specific.resize(sections[i].GetSystemInfo()->os_size, '\0');
+				rd.ReadData(sections[i].GetSystemInfo()->os_specific);
 			}
 			break;
 		}
-		if(sections[i].section != nullptr)
+		if(sections[i].GetSection() != nullptr)
 		{
-			sections[i].section->SetReadable(true);
+			sections[i].GetSection()->SetReadable(true);
 			if((sections[i].flags & SHF_WRITE))
 			{
-				sections[i].section->SetWritable(true);
+				sections[i].GetSection()->SetWritable(true);
 			}
 			if((sections[i].flags & SHF_EXECINSTR))
 			{
-				sections[i].section->SetExecable(true);
+				sections[i].GetSection()->SetExecable(true);
 			}
 			if((sections[i].flags & SHF_MERGE))
 			{
-				sections[i].section->SetMergeable(true);
+				sections[i].GetSection()->SetMergeable(true);
 			}
 //			if((sections[i].flags & SHF_GROUP))
 //			{
@@ -725,11 +860,11 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 #if 0
 			if(option_stack_section && sections[i].name == ".stack")
 			{
-				sections[i].section->SetFlag(Linker::Section::Stack);
+				sections[i].GetSection()->SetFlag(Linker::Section::Stack);
 			}
 			if(option_heap_section && sections[i].name == ".heap")
 			{
-				sections[i].section->SetFlag(Linker::Section::Heap);
+				sections[i].GetSection()->SetFlag(Linker::Section::Heap);
 			}
 #endif
 		}
@@ -744,23 +879,23 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		{
 		case Section::SHT_SYMTAB_SHNDX:
 			// TODO: untested
-			for(size_t index = 0; index < section.array.size(); index++)
+			for(size_t index = 0; index < section.GetArray()->array.size(); index++)
 			{
-				Symbol& symbol = sections[section.link].symbols[index];
+				Symbol& symbol = sections[section.link].GetSymbolTable()->symbols[index];
 				if(symbol.shndx == SHN_XINDEX)
 				{
 #if DISPLAY_LOGS
 					Linker::Debug << "Debug: Symbol #" << i << ": SHN_XINDEX" << std::endl;
 #endif
-					symbol.shndx = section.array[index];
-					symbol.location = Linker::Location(sections[symbol.shndx].section, symbol.value);
+					symbol.shndx = section.GetArray()->array[index];
+					symbol.location = Linker::Location(sections[symbol.shndx].GetSection(), symbol.value);
 					symbol.defined = true;
 				}
 			}
 			break;
 		case Section::SHT_SYMTAB:
 		case Section::SHT_DYNSYM:
-			for(Symbol& symbol : section.symbols)
+			for(Symbol& symbol : section.GetSymbolTable()->symbols)
 			{
 				rd.Seek(sections[symbol.sh_link].file_offset + symbol.name_offset);
 				symbol.name = rd.ReadASCIIZ();
@@ -787,7 +922,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 					break;
 #endif
 				default:
-					symbol.location = Linker::Location(sections[symbol.shndx].section, symbol.value);
+					symbol.location = Linker::Location(sections[symbol.shndx].GetSection(), symbol.value);
 					symbol.defined = true;
 				}
 #if DISPLAY_LOGS
@@ -1431,161 +1566,167 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 			Linker::Debug << "Debug: Groups currently not supported" << std::endl;
 			/* TODO - when?? */
 		}
-		if((section.flags & SHF_ALLOC) != 0 && section.section != nullptr)
+		if((section.flags & SHF_ALLOC) != 0 && section.GetSection() != nullptr)
 		{
 			if(section.type == Section::SHT_PROGBITS || section.type == Section::SHT_NOBITS)
-				module.AddSection(section.section);
+				module.AddSection(section.GetSection());
 		}
 	}
 
 	for(const Section& section : sections)
 	{
-		for(const Symbol& symbol : section.symbols)
+		if(auto symbol_table = section.GetSymbolTable())
 		{
-			if(symbol.shndx == SHN_XINDEX)
+			for(const Symbol& symbol : symbol_table->symbols)
 			{
-				Linker::Error << "Error: Extended section numbers not updated" << std::endl;
-				continue;
-			}
-
-			if(symbol.name != "" && symbol.defined)
-			{
-				switch(symbol.bind)
+				if(symbol.shndx == SHN_XINDEX)
 				{
-				case STB_LOCAL:
-					module.AddLocalSymbol(symbol.name, symbol.location);
-					break;
-				default:
-					module.AddGlobalSymbol(symbol.name, symbol.location);
-					break;
+					Linker::Error << "Error: Extended section numbers not updated" << std::endl;
+					continue;
 				}
-			}
-			else if(symbol.unallocated)
-			{
-				module.AddCommonSymbol(symbol.name, symbol.specification);
-			}
-			else
-			{
-				module.AddUndefinedSymbol(symbol.name);
+
+				if(symbol.name != "" && symbol.defined)
+				{
+					switch(symbol.bind)
+					{
+					case STB_LOCAL:
+						module.AddLocalSymbol(symbol.name, symbol.location);
+						break;
+					default:
+						module.AddGlobalSymbol(symbol.name, symbol.location);
+						break;
+					}
+				}
+				else if(symbol.unallocated)
+				{
+					module.AddCommonSymbol(symbol.name, symbol.specification);
+				}
+				else
+				{
+					module.AddUndefinedSymbol(symbol.name);
+				}
 			}
 		}
 	}
 
 	for(const Section& section : sections)
 	{
-		for(Relocation rel : section.relocations)
+		if(auto relocations = section.GetRelocations())
 		{
-			Linker::Location rel_source = Linker::Location(sections[rel.sh_info].section, rel.offset);
-			const Symbol& sym_target = sections[rel.sh_link].symbols[rel.symbol];
-			Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(Linker::SymbolName(sym_target.name));
-			Linker::Relocation obj_rel = Linker::Relocation::Empty();
-			size_t rel_size;
-			switch(cpu)
+			for(Relocation rel : relocations->relocations)
 			{
-			case EM_386:
-				/* TODO: 386 linear model will have to use Absolute instead of Offset */
-				switch(rel.type)
+				Linker::Location rel_source = Linker::Location(sections[rel.sh_info].GetSection(), rel.offset);
+				const Symbol& sym_target = sections[rel.sh_link].GetSymbolTable()->symbols[rel.symbol];
+				Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(Linker::SymbolName(sym_target.name));
+				Linker::Relocation obj_rel = Linker::Relocation::Empty();
+				size_t rel_size;
+				switch(cpu)
 				{
-				case R_386_8:
-				case R_386_PC8:
-					rel_size = 1;
+				case EM_386:
+					/* TODO: 386 linear model will have to use Absolute instead of Offset */
+					switch(rel.type)
+					{
+					case R_386_8:
+					case R_386_PC8:
+						rel_size = 1;
+						break;
+					case R_386_16:
+					case R_386_PC16:
+						rel_size = 2;
+						break;
+					case R_386_32:
+					case R_386_PC32:
+						rel_size = 4;
+						break;
+					default:
+						continue;
+					}
+
+					switch(rel.type)
+					{
+					case R_386_8:
+					case R_386_16:
+					case R_386_32:
+						obj_rel =
+							option_linear
+							? Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian)
+							: Linker::Relocation::Offset(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+						break;
+					case R_386_PC8:
+					case R_386_PC16:
+					case R_386_PC32:
+						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+						break;
+					}
 					break;
-				case R_386_16:
-				case R_386_PC16:
-					rel_size = 2;
+
+				case EM_68K:
+					switch(rel.type)
+					{
+					case R_68K_8:
+					case R_68K_PC8:
+						rel_size = 1;
+						break;
+					case R_68K_16:
+					case R_68K_PC16:
+						rel_size = 2;
+						break;
+					case R_68K_32:
+					case R_68K_PC32:
+						rel_size = 4;
+						break;
+					default:
+						continue;
+					}
+
+					switch(rel.type)
+					{
+					case R_68K_8:
+					case R_68K_16:
+					case R_68K_32:
+						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
+						break;
+					case R_68K_PC8:
+					case R_68K_PC16:
+					case R_68K_PC32:
+						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
+						break;
+					}
 					break;
-				case R_386_32:
-				case R_386_PC32:
-					rel_size = 4;
+
+				case EM_ARM:
+					/* TODO: use endianness of object file, or make parametrizable */
+					switch(rel.type)
+					{
+					case R_ARM_ABS32:
+						obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::LittleEndian);
+						break;
+					case R_ARM_CALL:
+					case R_ARM_JUMP24:
+					case R_ARM_PC24:
+						obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::LittleEndian);
+						obj_rel.SetMask(0x00FFFFFF);
+						obj_rel.SetShift(2);
+						break;
+					case R_ARM_V4BX:
+						continue;
+					default:
+						Linker::Warning << "Warning: unhandled ARM relocation type " << rel.type << std::endl;
+						continue;
+					}
 					break;
+
 				default:
-					continue;
-				}
-
-				switch(rel.type)
-				{
-				case R_386_8:
-				case R_386_16:
-				case R_386_32:
-					obj_rel =
-						option_linear
-						? Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian)
-						: Linker::Relocation::Offset(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
-					break;
-				case R_386_PC8:
-				case R_386_PC16:
-				case R_386_PC32:
-					obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+					// unknown backend
 					break;
 				}
-				break;
-
-			case EM_68K:
-				switch(rel.type)
-				{
-				case R_68K_8:
-				case R_68K_PC8:
-					rel_size = 1;
-					break;
-				case R_68K_16:
-				case R_68K_PC16:
-					rel_size = 2;
-					break;
-				case R_68K_32:
-				case R_68K_PC32:
-					rel_size = 4;
-					break;
-				default:
-					continue;
-				}
-
-				switch(rel.type)
-				{
-				case R_68K_8:
-				case R_68K_16:
-				case R_68K_32:
-					obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
-					break;
-				case R_68K_PC8:
-				case R_68K_PC16:
-				case R_68K_PC32:
-					obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
-					break;
-				}
-				break;
-
-			case EM_ARM:
-				/* TODO: use endianness of object file, or make parametrizable */
-				switch(rel.type)
-				{
-				case R_ARM_ABS32:
-					obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::LittleEndian);
-					break;
-				case R_ARM_CALL:
-				case R_ARM_JUMP24:
-				case R_ARM_PC24:
-					obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::LittleEndian);
-					obj_rel.SetMask(0x00FFFFFF);
-					obj_rel.SetShift(2);
-					break;
-				case R_ARM_V4BX:
-					continue;
-				default:
-					Linker::Warning << "Warning: unhandled ARM relocation type " << rel.type << std::endl;
-					continue;
-				}
-				break;
-
-			default:
-				// unknown backend
-				break;
-			}
-			if(rel.addend_from_section_data)
-				obj_rel.AddCurrentValue();
-			module.AddRelocation(obj_rel);
+				if(rel.addend_from_section_data)
+					obj_rel.AddCurrentValue();
+				module.AddRelocation(obj_rel);
 #if DISPLAY_LOGS
-			Linker::Debug << "Debug: Relocation at #" << rel.sh_info << ":" << std::hex << rel.offset << std::dec << " to symbol " << rel.symbol << ", type " << rel.type << std::endl;
+				Linker::Debug << "Debug: Relocation at #" << rel.sh_info << ":" << std::hex << rel.offset << std::dec << " to symbol " << rel.symbol << ", type " << rel.type << std::endl;
 #endif
+			}
 		}
 	}
 }
@@ -1682,12 +1823,12 @@ void ELFFormat::CalculateValues()
 		case Section::SHT_SYMTAB_SHNDX:
 			// TODO: untested
 			// TODO: create the section if required
-			for(size_t index = 0; index < section.array.size(); index++)
+			for(size_t index = 0; index < section.GetArray()->array.size(); index++)
 			{
-				Symbol& symbol = sections[section.link].symbols[index];
+				Symbol& symbol = sections[section.link].GetSymbolTable()->symbols[index];
 				if(symbol.shndx >= SHN_LORESERVE)
 				{
-					section.array[index] = symbol.shndx;
+					section.GetArray()->array[index] = symbol.shndx;
 				}
 			}
 			break;

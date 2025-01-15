@@ -429,6 +429,54 @@ namespace ELF
 			Linker::CommonSymbol specification;
 		};
 
+		class SymbolTable : public Linker::Writable
+		{
+		public:
+			offset_t entsize;
+			/* used for SHT_SYMTAB and SHT_DYNSYM */
+			std::vector<Symbol> symbols;
+
+			SymbolTable(offset_t entsize)
+				: entsize(entsize)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+		};
+
+		class StringTable : public Linker::Writable
+		{
+		public:
+			offset_t size;
+			/* used for SHT_STRTAB */
+			std::vector<std::string> strings;
+
+			StringTable(offset_t size)
+				: size(size)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+		};
+
+		class Array : public Linker::Writable
+		{
+		public:
+			offset_t entsize;
+			/* used for SHT_SYMTAB_SHNDX, SHT_INIT_ARRAY/SHT_FINI_ARRAY/SHT_PREINIT_ARRAY, SHT_GROUP */
+			std::vector<offset_t> array;
+
+			Array(offset_t entsize)
+				: entsize(entsize)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+		};
+
 		class Relocation
 		{
 		public:
@@ -438,6 +486,22 @@ namespace ELF
 			int64_t addend = 0;
 			uint16_t sh_link = 0, sh_info = 0;
 			bool addend_from_section_data = false;
+		};
+
+		class Relocations : public Linker::Writable
+		{
+		public:
+			offset_t entsize;
+			/* used for SHT_REL, SHT_RELA */
+			std::vector<Relocation> relocations;
+
+			Relocations(offset_t entsize)
+				: entsize(entsize)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 		};
 
 		class DynamicObject
@@ -457,6 +521,22 @@ namespace ELF
 			}
 		};
 
+		class DynamicSection : public Linker::Writable
+		{
+		public:
+			offset_t entsize;
+			/* used for SHT_DYNAMIC */
+			std::vector<DynamicObject> dynamic;
+
+			DynamicSection(offset_t entsize)
+				: entsize(entsize)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+		};
+
 		class Note
 		{
 		public:
@@ -465,8 +545,25 @@ namespace ELF
 			offset_t type;
 		};
 
+		class NotesSection : public Linker::Writable
+		{
+		public:
+			offset_t size;
+
+			/* used for SHT_NOTE */
+			std::vector<Note> notes;
+
+			NotesSection(offset_t size)
+				: size(size)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+		};
+
 		/* IBM OS/2 extension */
-		class SystemInfo
+		class SystemInfo : public Linker::Writable
 		{
 		public:
 			enum system_type : uint32_t
@@ -495,6 +592,9 @@ namespace ELF
 			} os2;
 			/* unspecified */
 			std::vector<uint8_t> os_specific;
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 		};
 
 		class Section
@@ -539,22 +639,27 @@ namespace ELF
 			uint32_t link = 0, info = 0;
 			offset_t flags = 0;
 			offset_t address = 0, file_offset = 0, size = 0, align = 0, entsize = 0;
-			/* not used for SHT_NOBITS */
-			std::shared_ptr<Linker::Section> section;
-			/* used for SHT_SYMTAB and SHT_DYNSYM */
-			std::vector<Symbol> symbols;
-			/* used for SHT_STRTAB */
-			std::vector<std::string> strings;
-			/* used for SHT_SYMTAB_SHNDX, SHT_INIT_ARRAY/SHT_FINI_ARRAY/SHT_PREINIT_ARRAY, SHT_GROUP */
-			std::vector<offset_t> array;
-			/* used for SHT_REL, SHT_RELA */
-			std::vector<Relocation> relocations;
-			/* used for SHT_DYNAMIC */
-			std::vector<DynamicObject> dynamic;
-			/* used for SHT_NOTE */
-			std::vector<Note> notes;
-			/* used for SHT_OS (IBM OS/2) */
-			SystemInfo system_info;
+
+			std::shared_ptr<Linker::Writable> contents;
+
+			std::shared_ptr<Linker::Section> GetSection();
+			const std::shared_ptr<Linker::Section> GetSection() const;
+
+			std::shared_ptr<SymbolTable> GetSymbolTable();
+			const std::shared_ptr<SymbolTable> GetSymbolTable() const;
+
+			std::shared_ptr<StringTable> GetStringTable();
+
+			std::shared_ptr<Array> GetArray();
+
+			std::shared_ptr<Relocations> GetRelocations();
+			const std::shared_ptr<Relocations> GetRelocations() const;
+
+			std::shared_ptr<DynamicSection> GetDynamicSection();
+
+			std::shared_ptr<NotesSection> GetNotesSection();
+
+			std::shared_ptr<SystemInfo> GetSystemInfo();
 
 			enum stored_format
 			{
