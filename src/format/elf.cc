@@ -1399,7 +1399,21 @@ void ELFFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(wordbytes, section.entsize);
 	}
 
-	/* TODO */
+	for(auto& section : sections)
+	{
+		if(section.contents != nullptr)
+		{
+			section.contents->WriteFile(wr);
+		}
+	}
+
+	for(auto& block : blocks)
+	{
+		if(block.image != nullptr)
+		{
+			block.image->WriteFile(wr);
+		}
+	}
 
 	if(hobbit_beos_resource_offset != 0)
 	{
