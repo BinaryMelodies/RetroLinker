@@ -429,6 +429,12 @@ namespace ELF
 			Linker::CommonSymbol specification;
 		};
 
+		class SectionContents : public Linker::Writable
+		{
+		public:
+			virtual void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
+		};
+
 		class SymbolTable : public Linker::Writable
 		{
 		public:
@@ -461,7 +467,7 @@ namespace ELF
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 		};
 
-		class Array : public Linker::Writable
+		class Array : public SectionContents
 		{
 		public:
 			offset_t entsize;
@@ -475,6 +481,21 @@ namespace ELF
 
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+		};
+
+		class SectionGroup : public Array
+		{
+		public:
+			offset_t flags = 0;
+
+			SectionGroup(offset_t entsize)
+				: Array(entsize)
+			{
+			}
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		class Relocation
@@ -563,7 +584,7 @@ namespace ELF
 		};
 
 		/* IBM OS/2 extension */
-		class SystemInfo : public Linker::Writable
+		class SystemInfo : public SectionContents
 		{
 		public:
 			enum system_type : uint32_t
@@ -595,6 +616,7 @@ namespace ELF
 
 			offset_t ActualDataSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
 		class Section

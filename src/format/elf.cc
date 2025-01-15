@@ -3,6 +3,10 @@
 
 using namespace ELF;
 
+void ELFFormat::SectionContents::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+}
+
 offset_t ELFFormat::SymbolTable::ActualDataSize()
 {
 	return symbols.size() * entsize;
@@ -34,6 +38,25 @@ offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr, offset_t count, offset_
 {
 	// TODO
 	return 0;
+}
+
+offset_t ELFFormat::SectionGroup::ActualDataSize()
+{
+	return (1 + array.size()) * entsize;
+}
+
+offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+void ELFFormat::SectionGroup::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	region->AddField("Group flags",
+		Dumper::BitFieldDisplay::Make()
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("GRP_COMDAT"), true),
+		flags);
 }
 
 offset_t ELFFormat::Relocations::ActualDataSize()
@@ -83,6 +106,34 @@ offset_t ELFFormat::SystemInfo::WriteFile(Linker::Writer& wr, offset_t count, of
 {
 	// TODO
 	return 0;
+}
+
+void ELFFormat::SystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	std::map<offset_t, std::string> operating_system_descriptions;
+	operating_system_descriptions[SystemInfo::EOS_NONE] = "EOS_NONE - Unknown";
+	operating_system_descriptions[SystemInfo::EOS_PN] = "EOS_PN - IBM Microkernel personality neutral";
+	operating_system_descriptions[SystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
+	operating_system_descriptions[SystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
+	operating_system_descriptions[SystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
+	region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions), offset_t(os_type));
+
+	region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(os_size));
+	if(IsOS2Specific())
+	{
+		std::map<offset_t, std::string> session_type_descriptions;
+		session_type_descriptions[SystemInfo::os2_specific::OS2_SES_NONE] = "OS2_SES_NONE - None";
+		session_type_descriptions[SystemInfo::os2_specific::OS2_SES_FS] = "OS2_SES_FS - Full Screen session";
+		session_type_descriptions[SystemInfo::os2_specific::OS2_SES_PM] = "OS2_SES_PM - Presentation Manager session";
+		session_type_descriptions[SystemInfo::os2_specific::OS2_SES_VIO] = "OS2_SES_VIO - Windowed (character-mode) session";
+		region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions), offset_t(os2.sessiontype));
+
+		region->AddField("Session flags", Dumper::HexDisplay::Make(8), offset_t(os2.sessionflags));
+	}
+	else
+	{
+		// TODO
+	}
 }
 
 std::shared_ptr<Linker::Section> ELFFormat::Section::GetSection()
@@ -207,15 +258,14 @@ offset_t ELFFormat::Segment::Part::GetActualSize(ELFFormat& fmt)
 void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
 {
 	std::unique_ptr<Dumper::Region> region;
-	switch(GetStoredFormatKind())
+	if(auto section = std::dynamic_pointer_cast<Linker::Buffer>(contents))
 	{
-	case SectionLike:
-		region = std::make_unique<Dumper::Block>("Section", file_offset, GetSection(), address, 2 * fmt.wordbytes);
+		region = std::make_unique<Dumper::Block>("Section", file_offset, section, address, 2 * fmt.wordbytes);
 		// TODO: provide relocations for the section data
-		break;
-	default:
+	}
+	else
+	{
 		region = std::make_unique<Dumper::Region>("Section", file_offset, contents != nullptr ? contents->ActualDataSize() : 0, 2 * fmt.wordbytes);
-		break;
 	}
 
 	region->InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index));
@@ -326,51 +376,15 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 		name_entsize = "Entry size";
 	region->AddOptionalField(name_entsize, Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(entsize));
 
-	switch(type)
+	if(auto section_contents = std::dynamic_pointer_cast<SectionContents>(contents))
 	{
-	case SHT_GROUP:
-		region->AddField("Group flags",
-			Dumper::BitFieldDisplay::Make()
-				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("GRP_COMDAT"), true),
-			offset_t(GetArray()->array[0])); // TODO
-		break;
-	case SHT_OS:
-		{
-			std::map<offset_t, std::string> operating_system_descriptions;
-			operating_system_descriptions[SystemInfo::EOS_NONE] = "EOS_NONE - Unknown";
-			operating_system_descriptions[SystemInfo::EOS_PN] = "EOS_PN - IBM Microkernel personality neutral";
-			operating_system_descriptions[SystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
-			operating_system_descriptions[SystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
-			operating_system_descriptions[SystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
-			region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions), offset_t(GetSystemInfo()->os_type));
-
-			region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(GetSystemInfo()->os_size));
-			if(GetSystemInfo()->IsOS2Specific())
-			{
-				std::map<offset_t, std::string> session_type_descriptions;
-				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_NONE] = "OS2_SES_NONE - None";
-				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_FS] = "OS2_SES_FS - Full Screen session";
-				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_PM] = "OS2_SES_PM - Presentation Manager session";
-				session_type_descriptions[SystemInfo::os2_specific::OS2_SES_VIO] = "OS2_SES_VIO - Windowed (character-mode) session";
-				region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions), offset_t(GetSystemInfo()->os2.sessiontype));
-
-				region->AddField("Session flags", Dumper::HexDisplay::Make(8), offset_t(GetSystemInfo()->os2.sessionflags));
-			}
-			else
-			{
-				// TODO
-			}
-		}
-		break;
-	default:
-		break;
+		section_contents->AddDumperFields(region, dump, fmt, index);
 	}
 
 	region->Display(dump);
 
 	unsigned i;
 	offset_t offset;
-	bool already_started;
 
 	switch(GetStoredFormatKind())
 	{
@@ -389,14 +403,8 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	case SectionArrayLike:
 		// TODO: untested
 		i = 0;
-		already_started = false;
 		for(auto& value : GetArray()->array)
 		{
-			if(type == SHT_GROUP && !already_started)
-			{
-				already_started = true;
-				continue;
-			}
 			if(type == SHT_SYMTAB_SHNDX && value == 0)
 			{
 				i += 1;
@@ -782,10 +790,18 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				sections[i].GetRelocations()->relocations.push_back(rel);
 			}
 			break;
-		case Section::SectionArrayLike: // TODO: untested
 		case Section::ArrayLike:
-			sections[i].contents = std::make_shared<Array>(sections[i].entsize);
+		case Section::SectionArrayLike: // TODO: untested
 			rd.Seek(sections[i].file_offset);
+			if(sections[i].type == Section::SHT_GROUP)
+			{
+				sections[i].contents = std::make_shared<SectionGroup>(sections[i].entsize);
+				std::dynamic_pointer_cast<SectionGroup>(sections[i].contents)->flags = rd.ReadUnsigned(sections[i].entsize);
+			}
+			else
+			{
+				sections[i].contents = std::make_shared<Array>(sections[i].entsize);
+			}
 			for(size_t j = 0; j < sections[i].size / 4; j++)
 			{
 				sections[i].GetArray()->array.push_back(rd.ReadUnsigned(sections[i].entsize));
