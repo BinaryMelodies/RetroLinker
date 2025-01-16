@@ -564,6 +564,7 @@ namespace ELF
 			bool addend_from_section_data = false;
 
 			size_t GetSize(cpu_type cpu) const;
+			std::string GetName(cpu_type cpu) const;
 		};
 
 		class Relocations : public SectionContents

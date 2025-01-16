@@ -303,6 +303,85 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 	}
 }
 
+std::string ELFFormat::Relocation::GetName(cpu_type cpu) const
+{
+	switch(cpu)
+	{
+	case EM_386:
+		switch(type)
+		{
+		default:
+			return "";
+		case R_386_8:
+			return "R_386_8";
+		case R_386_PC8:
+			return "R_386_PC8";
+		case R_386_16:
+			return "R_386_16";
+		case R_386_PC16:
+			return "R_386_PC16";
+		case R_386_SEG16:
+			return "R_386_SEG16";
+		case R_386_SUB16:
+			return "R_386_SUB16";
+		case R_386_SEGRELATIVE:
+			return "R_386_SEGRELATIVE";
+		case R_386_OZSEG16:
+			return "R_386_OZSEG16";
+		case R_386_OZRELSEG16:
+			return "R_386_OZRELSEG16";
+		case R_386_32:
+			return "R_386_32";
+		case R_386_PC32:
+			return "R_386_PC32";
+		case R_386_SUB32:
+			return "R_386_SUB32";
+		}
+	case EM_68K:
+		switch(type)
+		{
+		default:
+			return "";
+		case R_68K_8:
+			return "R_68K_8";
+		case R_68K_PC8:
+			return "R_68K_PC8";
+		case R_68K_16:
+			return "R_68K_16";
+		case R_68K_PC16:
+			return "R_68K_PC16";
+		case R_68K_32:
+			return "R_68K_32";
+		case R_68K_PC32:
+			return "R_68K_PC32";
+		}
+	case EM_ARM:
+		switch(type)
+		{
+		default:
+			return "";
+		case R_ARM_ABS8:
+			return "R_ARM_ABS8";
+		case R_ARM_ABS16:
+			return "R_ARM_ABS16";
+		case R_ARM_ABS32:
+			return "R_ARM_ABS32";
+		case R_ARM_REL32:
+			return "R_ARM_REL32";
+		case R_ARM_CALL:
+			return "R_ARM_CALL";
+		case R_ARM_JUMP24:
+			return "R_ARM_JUMP24";
+		case R_ARM_PC24:
+			return "R_ARM_PC24";
+		case R_ARM_V4BX:
+			return "R_ARM_V4BX";
+		}
+	default:
+		return "";
+	}
+}
+
 //// Relocations
 
 offset_t ELFFormat::Relocations::ActualDataSize()
@@ -341,8 +420,18 @@ void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
 		relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.offset));
-		relocation_entry.AddField("Type", Dumper::DecDisplay::Make(), offset_t(rel.type)); // TODO: display name
-		relocation_entry.AddField("Symbol index", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.symbol)); // TODO: display name
+		relocation_entry.AddField("Type", Dumper::DecDisplay::Make(), offset_t(rel.type));
+		relocation_entry.AddOptionalField("Type name", Dumper::StringDisplay::Make(), rel.GetName(fmt.cpu));
+		relocation_entry.AddField("Symbol index", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.symbol));
+		Symbol& sym = fmt.sections[rel.sh_link].GetSymbolTable()->symbols[rel.symbol];
+		if(sym.type == STT_SECTION)
+		{
+			relocation_entry.AddOptionalField("Section", Dumper::StringDisplay::Make(), fmt.sections[sym.shndx].name);
+		}
+		else
+		{
+			relocation_entry.AddOptionalField("Symbol", Dumper::StringDisplay::Make(), sym.name);
+		}
 		if(!rel.addend_from_section_data)
 			relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.addend));
 		// TODO: display current value
