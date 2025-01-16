@@ -831,7 +831,9 @@ void ELFFormat::IBMExportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 		Dumper::Entry export_entry("Export", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
 		if(_export.ordinal != uint32_t(-1))
 			export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(_export.ordinal));
-		export_entry.AddField("Symbol index", Dumper::DecDisplay::Make(), offset_t(_export.symbol_index)); // TODO: display symbol
+		export_entry.AddField("Symbol index", Dumper::DecDisplay::Make(), offset_t(_export.symbol_index));
+		Symbol& sym = fmt.sections[fmt.sections[index].link].GetSymbolTable()->symbols[_export.symbol_index];
+		export_entry.AddOptionalField("Symbol", Dumper::StringDisplay::Make(), sym.name);
 		export_entry.AddOptionalField("Name offset", Dumper::HexDisplay::Make(8), offset_t(_export.name_offset));
 		export_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), _export.name);
 
@@ -1274,7 +1276,6 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 				}
 			}
 		}
-		// TODO: provide relocations for the section data
 	}
 	else
 	{
@@ -1772,7 +1773,30 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 					import.dll_name = rd.ReadASCIIZ();
 					break;
 				case IBMImportEntry::IMP_DT_IDX:
-					/* TODO */
+					for(auto& dynamic_section : sections)
+					{
+						if(dynamic_section.type == Section::SHT_DYNAMIC)
+						{
+							unsigned dt_needed_index = 1;
+							for(auto& dynobj : dynamic_section.GetDynamicSection()->dynamic)
+							{
+								if(dynobj.tag == DT_NEEDED)
+								{
+									if(dt_needed_index == import.dll)
+									{
+										rd.Seek(sections[dynamic_section.link].file_offset + dynobj.value);
+										import.dll_name = rd.ReadASCIIZ();
+										break;
+									}
+									else
+									{
+										dt_needed_index ++;
+									}
+								}
+							}
+							break;
+						}
+					}
 					break;
 				}
 			}
