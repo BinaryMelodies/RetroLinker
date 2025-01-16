@@ -1164,6 +1164,13 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	type_descriptions[SHT_IMPORTS] = "SHT_IMPORTS - (IBM OS/2) External symbol references";
 	type_descriptions[SHT_EXPORTS] = "SHT_EXPORTS - (IBM OS/2) Exported symbols";
 	type_descriptions[SHT_RES] = "SHT_RES - (IBM OS/2) Resource data";
+	if(fmt.IsOldOS2Format())
+	{
+		type_descriptions[SHT_OLD_OS] = "SHT_OS - (IBM OS/2) Target operating system identification";
+		type_descriptions[SHT_OLD_IMPORTS] = "SHT_IMPORTS - (IBM OS/2) External symbol references";
+		type_descriptions[SHT_OLD_EXPORTS] = "SHT_EXPORTS - (IBM OS/2) Exported symbols";
+		type_descriptions[SHT_OLD_RES] = "SHT_RES - (IBM OS/2) Resource data";
+	}
 		/* GNU extensions */
 	type_descriptions[SHT_GNU_INCREMENTAL_INPUTS] = "SHT_GNU_INCREMENTAL_INPUTS";
 	type_descriptions[SHT_GNU_ATTRIBUTES] = "SHT_GNU_ATTRIBUTES";
@@ -1439,8 +1446,22 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			sections[i].contents = Section::ReadRelocations(rd, sections[i].type, sections[i].file_offset, sections[i].size, sections[i].entsize, sections[i].link, sections[i].info, wordbytes);
 			break;
 		case Section::SHT_INIT_ARRAY:
+		//case Section::SHT_OLD_EXPORTS:
+			if(IsOldOS2Format())
+				goto parse_exports_section;
+			else
+				goto parse_array_section;
+
 		case Section::SHT_FINI_ARRAY:
+		//case Section::SHT_OLD_RES:
+			if(IsOldOS2Format())
+				goto parse_res_section;
+			else
+				goto parse_array_section;
+
 		case Section::SHT_PREINIT_ARRAY:
+
+		parse_array_section:
 			Linker::Debug << "Debug: type " << sections[i].type << " of entry size " << sections[i].entsize << std::endl;
 			sections[i].contents = Section::ReadArray(rd, sections[i].file_offset, sections[i].size,
 				sections[i].entsize != 0 ? sections[i].entsize : wordbytes);
@@ -1463,15 +1484,21 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			sections[i].contents = Section::ReadNote(rd, sections[i].file_offset, sections[i].size);
 			break;
 		case Section::SHT_OS:
+		case Section::SHT_OLD_OS:
 			sections[i].contents = Section::ReadIBMSystemInfo(rd, sections[i].file_offset);
 			break;
 		case Section::SHT_IMPORTS:
+		case Section::SHT_OLD_IMPORTS:
 			sections[i].contents = Section::ReadIBMImportTable(rd, sections[i].file_offset, sections[i].size, sections[i].entsize == 0 ? 32 : sections[i].entsize);
 			break;
 		case Section::SHT_EXPORTS:
+		//case Section::SHT_OLD_EXPORTS:
+		parse_exports_section:
 			sections[i].contents = Section::ReadIBMExportTable(rd, sections[i].file_offset, sections[i].size, sections[i].entsize == 0 ? 32 : sections[i].entsize);
 			break;
 		case Section::SHT_RES:
+		//case Section::SHT_OLD_RES: // TODO: seems like it uses a different format
+		parse_res_section:
 			sections[i].contents = Section::ReadIBMResourceCollection(rd, sections[i].file_offset);
 			break;
 		}
@@ -1569,6 +1596,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			}
 			break;
 		case Section::SHT_IMPORTS:
+		case Section::SHT_OLD_IMPORTS:
 			for(IBMImportEntry& import : section.GetIBMImportTable()->imports)
 			{
 				if(import.name_offset != 0)
@@ -1590,6 +1618,12 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				}
 			}
 			break;
+		case Section::SHT_OLD_EXPORTS:
+			if(!IsOldOS2Format())
+			{
+				break;
+			}
+
 		case Section::SHT_EXPORTS:
 			for(IBMExportEntry& _export : section.GetIBMExportTable()->exports)
 			{
@@ -2063,6 +2097,10 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 	cpu_descriptions[EM_56800EF] = "NXP 56800EF Digital Signal Controller (DSC) ";
 	cpu_descriptions[EM_HOBBIT] = "AT&T Hobbit";
 	cpu_descriptions[EM_MOS] = "MOS 6502 (llvm-mos ELF specification)";
+	if(IsOldOS2Format())
+	{
+		cpu_descriptions[EM_VPP500] = "PowerPC (beta OS/2)";
+	}
 	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::DecDisplay::Make()), offset_t(cpu));
 	header_region.AddField("Object file version", Dumper::DecDisplay::Make(), offset_t(file_version));
 	header_region.AddField("Entry", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(entry));
@@ -2105,6 +2143,11 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 		type_descriptions[Segment::PT_TLS] = "PT_TLS - thread-local storage";
 		type_descriptions[Segment::PT_OS] = "PT_OS - (IBM OS/2) target operating system identification";
 		type_descriptions[Segment::PT_RES] = "PT_RES - (IBM OS/2) read-only resource data";
+		if(IsOldOS2Format())
+		{
+			type_descriptions[Segment::PT_OLD_OS] = "PT_OS - (IBM OS/2) target operating system identification";
+			type_descriptions[Segment::PT_OLD_RES] = "PT_RES - (IBM OS/2) read-only resource data";
+		}
 		type_descriptions[Segment::PT_SUNW_EH_FRAME] = "PT_SUNW_EH_FRAME - frame unwind information";
 		type_descriptions[Segment::PT_GNU_STACK] = "PT_GNU_STACK - stack flags";
 		type_descriptions[Segment::PT_GNU_RELRO] = "PT_GNU_RELRO - read-only after relocation";
@@ -2209,6 +2252,42 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 			i += 1;
 		}
 	}
+}
+
+bool ELFFormat::IsOldOS2Format() const
+{
+	if(cpu != EM_VPP500)
+	{
+		return false;
+	}
+	if(segments.size() > 0)
+	{
+		bool found_old_os = false;
+		for(auto& segment : segments)
+		{
+			if(segment.type == Segment::PT_OLD_RES)
+			{
+				return true;
+			}
+			if(segment.type == Segment::PT_OLD_OS)
+			{
+				found_old_os = false;
+			}
+		}
+		if(!found_old_os)
+		{
+			/* Such an executable must contain a PT_OLD_OS segment, however that is also used by PT_TLS */
+			return false;
+		}
+	}
+	for(auto& section : sections)
+	{
+		if(section.type == Section::SHT_OLD_OS || section.type == Section::SHT_OLD_IMPORTS)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 void ELFFormat::SetupOptions(std::shared_ptr<Linker::OutputFormat> format)

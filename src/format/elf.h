@@ -810,6 +810,12 @@ namespace ELF
 				SHT_IMPORTS = 0x60000002,
 				SHT_EXPORTS = 0x60000003,
 				SHT_RES = 0x60000004,
+
+				SHT_OLD_OS = 12,
+				SHT_OLD_IMPORTS = 13,
+				SHT_OLD_EXPORTS = 14,
+				SHT_OLD_RES = 15,
+
 				/* GNU extensions */
 				SHT_GNU_INCREMENTAL_INPUTS = 0x6FFF4700,
 				SHT_GNU_ATTRIBUTES = 0x6FFFFFF5,
@@ -889,6 +895,9 @@ namespace ELF
 				/* IBM OS/2 specific */
 				PT_OS = 0x60000001,
 				PT_RES = 0x60000002,
+
+				PT_OLD_OS = 7,
+				PT_OLD_RES = 9,
 				/* SUN, GNU, OpenBSD extensions */
 				PT_SUNW_EH_FRAME = 0x6474E550,
 				PT_GNU_STACK = 0x6474E551,
@@ -972,6 +981,11 @@ namespace ELF
 		void WriteFile(Linker::Writer& wr) override;
 
 		void Dump(Dumper::Dumper& dump) override;
+
+		/**
+		 * @brief Attempts to heuristically determine if it is in a beta OS/2 format
+		 */
+		bool IsOldOS2Format() const;
 
 		/* * * Reader members * * */
 
