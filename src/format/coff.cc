@@ -208,7 +208,7 @@ void COFFFormat::ZilogRelocation::FillEntry(Dumper::Entry& entry)
 
 	entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(address));
 	entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(GetSize()));
-	entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_names), offset_t(type));
+	entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_names, Dumper::HexDisplay::Make(4)), offset_t(type));
 	entry.AddOptionalField("Offset", Dumper::HexDisplay::Make(), offset_t(offset));
 	/* TODO */
 	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), offset_t(symbol_index));
@@ -368,7 +368,7 @@ void COFFFormat::AOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, 
 {
 	std::map<offset_t, std::string> magic_choice;
 	magic_choice[ZMAGIC] = "ZMAGIC";
-	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_choice), offset_t(magic));
+	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_choice, Dumper::HexDisplay::Make(4)), offset_t(magic));
 	header_region.AddOptionalField("Version stamp", Dumper::HexDisplay::Make(), offset_t(version_stamp));
 	header_region.AddField("Text size", Dumper::HexDisplay::Make(), offset_t(code_size));
 	header_region.AddField("Data size", Dumper::HexDisplay::Make(), offset_t(data_size));
@@ -792,7 +792,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 	cpu_descriptions[CPU_SHARC] = "SHARC";
 
 	Dumper::Region file_region("File", file_offset, 0, 8); /* TODO: file size */
-	file_region.AddField("CPU type", Dumper::ChoiceDisplay::Make(cpu_descriptions), offset_t(cpu_type));
+	file_region.AddField("CPU type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(cpu_type));
 
 	std::map<offset_t, std::string> endian_descriptions;
 	endian_descriptions[::LittleEndian] = "little endian";

@@ -476,7 +476,7 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
 		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(relocation.first));
 		relocation_entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(relocation.second.size));
-		relocation_entry.AddField("Target", Dumper::ChoiceDisplay::Make(segment_names), offset_t(relocation.second.segment));
+		relocation_entry.AddField("Target", Dumper::ChoiceDisplay::Make(segment_names, Dumper::DecDisplay::Make()), offset_t(relocation.second.segment));
 		relocation_entry.Display(dump);
 
 		if(relocation.first < code_address + code_size)

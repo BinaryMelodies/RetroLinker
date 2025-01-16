@@ -74,7 +74,7 @@ void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 		binding_descriptions[STB_GLOBAL] = "STB_GLOBAL";
 		binding_descriptions[STB_WEAK] = "STB_WEAK";
 		binding_descriptions[STB_ENTRY] = "STB_ENTRY - (IBM OS/2)";
-		symbol_entry.AddField("Binding", Dumper::ChoiceDisplay::Make(binding_descriptions), offset_t(symbol.bind));
+		symbol_entry.AddField("Binding", Dumper::ChoiceDisplay::Make(binding_descriptions, Dumper::HexDisplay::Make(1)), offset_t(symbol.bind));
 
 		std::map<offset_t, std::string> type_descriptions;
 		type_descriptions[STT_NOTYPE] = "STT_NOTYPE";
@@ -85,14 +85,14 @@ void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 		type_descriptions[STT_COMMON] = "STT_COMMON";
 		type_descriptions[STT_TLS] = "STT_TLS";
 		type_descriptions[STT_IMPORT] = "STT_IMPORT - (IBM OS/2)"; // TODO: st_value is offset of import table entry
-		symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::DecDisplay::Make()), offset_t(symbol.type));
+		symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(1)), offset_t(symbol.type));
 
 		std::map<offset_t, std::string> visibility_descriptions;
 		visibility_descriptions[STV_DEFAULT] = "STV_DEFAULT";
 		visibility_descriptions[STV_INTERNAL] = "STV_INTERNAL";
 		visibility_descriptions[STV_HIDDEN] = "STV_HIDDEN";
 		visibility_descriptions[STV_PROTECTED] = "STV_PROTECTED";
-		symbol_entry.AddField("Visibility", Dumper::ChoiceDisplay::Make(visibility_descriptions), offset_t(symbol.other));
+		symbol_entry.AddField("Visibility", Dumper::ChoiceDisplay::Make(visibility_descriptions, Dumper::DecDisplay::Make()), offset_t(symbol.other));
 
 		symbol_entry.Display(dump);
 
@@ -425,7 +425,7 @@ void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 		tag_descriptions[DT_ITPRTY] = "DT_ITPRTY (IBM OS/2)";
 		tag_descriptions[DT_INITTERM] = "DT_INITTERM (IBM OS/2)";
 		tag_descriptions[DT_STACKSZ] = "DT_STACKSZ (IBM OS/2)";
-		dynamic_entry.AddField("Tag", Dumper::ChoiceDisplay::Make(tag_descriptions), dynobj.tag);
+		dynamic_entry.AddField("Tag", Dumper::ChoiceDisplay::Make(tag_descriptions, Dumper::HexDisplay::Make(2 * fmt.wordbytes)), dynobj.tag);
 		//dynamic_entry.AddField("Tag", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.tag);
 		dynamic_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.value);
 		dynamic_entry.Display(dump);
@@ -590,7 +590,7 @@ void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& 
 	operating_system_descriptions[IBMSystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
 	operating_system_descriptions[IBMSystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
 	operating_system_descriptions[IBMSystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
-	region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions, Dumper::DecDisplay::Make()), offset_t(os_type));
+	region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions, Dumper::HexDisplay::Make(2)), offset_t(os_type));
 
 	region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(os_size));
 	if(IsOS2Specific())
@@ -600,7 +600,7 @@ void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& 
 		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_FS] = "OS2_SES_FS - Full Screen session";
 		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_PM] = "OS2_SES_PM - Presentation Manager session";
 		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_VIO] = "OS2_SES_VIO - Windowed (character-mode) session";
-		region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions), offset_t(os2.sessiontype));
+		region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(os2.sessiontype));
 
 		region->AddField("Session flags", Dumper::HexDisplay::Make(8), offset_t(os2.sessionflags));
 	}
@@ -647,7 +647,7 @@ void ELFFormat::IBMImportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 		type_descriptions[IBMImportEntry::IMP_IGNORED] = "IMP_IGNORED - Ignored";
 		type_descriptions[IBMImportEntry::IMP_STR_IDX] = "IMP_STR_IDX - String table index";
 		type_descriptions[IBMImportEntry::IMP_DT_IDX] = "IMP_DT_IDX - Dynamic segment DT_NEEDED index";
-		import_entry.AddField("Load module type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(import.type));
+		import_entry.AddField("Load module type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(8)), offset_t(import.type));
 
 		import_entry.AddField("DLL value", Dumper::HexDisplay::Make(8), offset_t(import.dll));
 		import_entry.AddOptionalField("DLL name", Dumper::StringDisplay::Make(), import.dll_name);
@@ -1872,15 +1872,31 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 	std::map<offset_t, std::string> class_descriptions;
 	class_descriptions[ELFCLASS32] = "32-bit";
 	class_descriptions[ELFCLASS64] = "64-bit";
-	identification_region.AddField("File class", Dumper::ChoiceDisplay::Make(class_descriptions), offset_t(file_class));
+	identification_region.AddField("File class", Dumper::ChoiceDisplay::Make(class_descriptions, Dumper::HexDisplay::Make(2)), offset_t(file_class));
 	std::map<offset_t, std::string> encoding_descriptions;
 	encoding_descriptions[ELFDATA2LSB] = "2's complement little endian";
 	encoding_descriptions[ELFDATA2MSB] = "2's complement big endian";
-	identification_region.AddField("Data encoding", Dumper::ChoiceDisplay::Make(encoding_descriptions), offset_t(data_encoding));
+	identification_region.AddField("Data encoding", Dumper::ChoiceDisplay::Make(encoding_descriptions, Dumper::HexDisplay::Make(2)), offset_t(data_encoding));
 	identification_region.AddField("ELF header version", Dumper::DecDisplay::Make(), offset_t(header_version));
 	std::map<offset_t, std::string> osabi_descriptions;
 	osabi_descriptions[0] = "None";
-	identification_region.AddField("OS/ABI extensions", Dumper::ChoiceDisplay::Make(osabi_descriptions), offset_t(osabi));
+	osabi_descriptions[1] = "Hewlett-Packard HP-UX";
+	osabi_descriptions[2] = "NetBSD";
+	osabi_descriptions[3] = "GNU (Linux)";
+	osabi_descriptions[6] = "Sun Solaris";
+	osabi_descriptions[7] = "AIX";
+	osabi_descriptions[8] = "IRIX";
+	osabi_descriptions[9] = "FreeBSD";
+	osabi_descriptions[10] = "Compaq TRU64 UNIX";
+	osabi_descriptions[11] = "Novell Modesto";
+	osabi_descriptions[12] = "Open BSD";
+	osabi_descriptions[13] = "Open VMS";
+	osabi_descriptions[14] = "Hewlett-Packard Non-Stop Kernel";
+	osabi_descriptions[15] = "Amiga Research OS";
+	osabi_descriptions[16] = "The FenixOS highly scalable multi-core OS";
+	osabi_descriptions[17] = "Nuxi CloudABI";
+	osabi_descriptions[18] = "Stratus Technologies OpenVOS";
+	identification_region.AddField("OS/ABI extensions", Dumper::ChoiceDisplay::Make(osabi_descriptions, Dumper::HexDisplay::Make(2)), offset_t(osabi));
 	identification_region.AddField("ABI version", Dumper::DecDisplay::Make(), offset_t(abi_version));
 	identification_region.Display(dump);
 
@@ -1891,7 +1907,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 	file_type_descriptions[ET_EXEC] = "Executable file";
 	file_type_descriptions[ET_DYN] = "Shared object file";
 	file_type_descriptions[ET_CORE] = "Core file";
-	header_region.AddField("Object file type", Dumper::ChoiceDisplay::Make(file_type_descriptions), offset_t(object_file_type));
+	header_region.AddField("Object file type", Dumper::ChoiceDisplay::Make(file_type_descriptions, Dumper::HexDisplay::Make(8)), offset_t(object_file_type));
 
 	std::map<offset_t, std::string> cpu_descriptions;
 	// Most of these descriptions are from https://www.sco.com/developers/gabi/latest/ch4.eheader.html
