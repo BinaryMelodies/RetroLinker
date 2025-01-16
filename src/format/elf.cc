@@ -626,7 +626,8 @@ void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned i
 	{
 		Dumper::Entry bucket_entry("Bucket", i + 1, fmt.sections[index].file_offset + 8 + i * 4, 2 * fmt.wordbytes);
 		bucket_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(bucket));
-		// TODO: display actual symbol
+		Symbol& sym = fmt.sections[fmt.sections[index].link].GetSymbolTable()->symbols[bucket];
+		bucket_entry.AddOptionalField("Symbol", Dumper::StringDisplay::Make(), sym.name);
 		bucket_entry.Display(dump);
 		i++;
 	}
@@ -636,7 +637,8 @@ void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned i
 	{
 		Dumper::Entry chain_entry("Chain", i + 1, fmt.sections[index].file_offset + 8 + buckets.size() * 4 + i * 4, 2 * fmt.wordbytes);
 		chain_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(chain));
-		// TODO: display actual symbol
+		Symbol& sym = fmt.sections[fmt.sections[index].link].GetSymbolTable()->symbols[chain];
+		chain_entry.AddOptionalField("Symbol", Dumper::StringDisplay::Make(), sym.name);
 		chain_entry.Display(dump);
 		i++;
 	}
