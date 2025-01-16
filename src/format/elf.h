@@ -144,6 +144,9 @@ namespace ELF
 		static constexpr offset_t DT_PREINIT_ARRAY = 32;
 		static constexpr offset_t DT_PREINIT_ARRAYSZ = 33;
 		static constexpr offset_t DT_SYMTAB_SHNDX = 34;
+		static constexpr offset_t DT_RELRSZ = 35;
+		static constexpr offset_t DT_RELR = 36;
+		static constexpr offset_t DT_RELRENT = 37;
 		/* IBM OS/2 specific */
 		static constexpr offset_t DT_EXPORT = 0x60000001;
 		static constexpr offset_t DT_EXPORTSZ = 0x60000002;
@@ -155,6 +158,41 @@ namespace ELF
 		static constexpr offset_t DT_ITPRTY = 0x60000008;
 		static constexpr offset_t DT_INITTERM = 0x60000009;
 		static constexpr offset_t DT_STACKSZ = 0x6000000A;
+		/* GNU binutils */
+		static constexpr offset_t DT_GNU_FLAGS1 = 0x6FFFFDF4;
+		static constexpr offset_t DT_GNU_PRELINKED = 0x6FFFFDF5;
+		static constexpr offset_t DT_GNU_CONFLICTSZ = 0x6FFFFDF6;
+		static constexpr offset_t DT_GNU_LIBLISTSZ = 0x6FFFFDF7;
+		static constexpr offset_t DT_CHECKSUM = 0x6FFFFDF8;
+		static constexpr offset_t DT_PLTPADSZ = 0x6FFFFDF9;
+		static constexpr offset_t DT_MOVEENT = 0x6FFFFDFA;
+		static constexpr offset_t DT_MOVESZ = 0x6FFFFDFB;
+		static constexpr offset_t DT_FEATURE = 0x6FFFFDFC;
+		static constexpr offset_t DT_POSTFLAG_1 = 0x6FFFFDFD;
+		static constexpr offset_t DT_SYMINSZ = 0x6FFFFDFE;
+		static constexpr offset_t DT_SYMINENT = 0x6FFFFDFF;
+		static constexpr offset_t DT_GNU_HASH = 0x6FFFFEF5;
+		static constexpr offset_t DT_TLSDESC_PLT = 0x6FFFFEF6;
+		static constexpr offset_t DT_TLSDESC_GOT = 0x6FFFFEF7;
+		static constexpr offset_t DT_GNU_CONFLICT = 0x6FFFFFEF8;
+		static constexpr offset_t DT_GNU_LIBLIST = 0x6FFFFEF9;
+		static constexpr offset_t DT_CONFIG = 0x6FFFFEFA;
+		static constexpr offset_t DT_DEPAUDIT = 0x6FFFFEFB;
+		static constexpr offset_t DT_AUDIT = 0x6FFFFEFC;
+		static constexpr offset_t DT_PLTPAD = 0x6FFFFEFD;
+		static constexpr offset_t DT_MOVETAB = 0x6FFFFEFE;
+		static constexpr offset_t DT_SYMINFO = 0x6FFFFEFF;
+		static constexpr offset_t DT_VERSYM = 0x6FFFFFF0;
+		static constexpr offset_t DT_RELACOUNT = 0x6FFFFFF9;
+		static constexpr offset_t DT_RELCOUNT = 0x6FFFFFFA;
+		static constexpr offset_t DT_FLAGS_1 = 0x6FFFFFFB;
+		static constexpr offset_t DT_VERDEF = 0x6FFFFFFC;
+		static constexpr offset_t DT_VERDEFNUM = 0x6FFFFFFD;
+		static constexpr offset_t DT_VERNEED = 0x6FFFFFFE;
+		static constexpr offset_t DT_VERNEEDNUM = 0x6FFFFFFF;
+		static constexpr offset_t DT_AUXILIARY = 0x7FFFFFFD;
+		static constexpr offset_t DT_USED = 0x7FFFFFFE;
+		static constexpr offset_t DT_FILTER = 0x7FFFFFFFF;
 
 		uint8_t file_class = 0;
 		EndianType endiantype = ::LittleEndian;
@@ -565,6 +603,7 @@ namespace ELF
 		public:
 			offset_t tag;
 			offset_t value;
+			std::string name;
 
 			DynamicObject()
 				: tag(0), value(0)
@@ -846,9 +885,9 @@ namespace ELF
 			std::shared_ptr<Relocations> GetRelocations();
 			const std::shared_ptr<Relocations> GetRelocations() const;
 
-#if 0
 			std::shared_ptr<DynamicSection> GetDynamicSection();
 
+#if 0
 			std::shared_ptr<NotesSection> GetNotesSection();
 
 			std::shared_ptr<IBMSystemInfo> GetIBMSystemInfo();

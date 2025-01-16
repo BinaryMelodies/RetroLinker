@@ -415,6 +415,10 @@ void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 		tag_descriptions[DT_PREINIT_ARRAY] = "DT_PREINIT_ARRAY";
 		tag_descriptions[DT_PREINIT_ARRAYSZ] = "DT_PREINIT_ARRAYSZ";
 		tag_descriptions[DT_SYMTAB_SHNDX] = "DT_SYMTAB_SHNDX";
+		tag_descriptions[DT_RELRSZ] = "DT_RELRSZ";
+		tag_descriptions[DT_RELR] = "DT_RELR";
+		tag_descriptions[DT_RELRENT] = "DT_RELRENT";
+		/* IBM OS/2 specific */
 		tag_descriptions[DT_EXPORT] = "DT_EXPORT (IBM OS/2)";
 		tag_descriptions[DT_EXPORTSZ] = "DT_EXPORTSZ (IBM OS/2)";
 		tag_descriptions[DT_EXPENT] = "DT_EXPENT (IBM OS/2)";
@@ -425,9 +429,58 @@ void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 		tag_descriptions[DT_ITPRTY] = "DT_ITPRTY (IBM OS/2)";
 		tag_descriptions[DT_INITTERM] = "DT_INITTERM (IBM OS/2)";
 		tag_descriptions[DT_STACKSZ] = "DT_STACKSZ (IBM OS/2)";
+		/* GNU binutils */
+		tag_descriptions[DT_GNU_FLAGS1] = "DT_GNU_FLAGS1";
+		tag_descriptions[DT_GNU_PRELINKED] = "DT_GNU_PRELINKED";
+		tag_descriptions[DT_GNU_CONFLICTSZ] = "DT_GNU_CONFLICTSZ";
+		tag_descriptions[DT_GNU_LIBLISTSZ] = "DT_GNU_LIBLISTSZ";
+		tag_descriptions[DT_CHECKSUM] = "DT_CHECKSUM";
+		tag_descriptions[DT_PLTPADSZ] = "DT_PLTPADSZ";
+		tag_descriptions[DT_MOVEENT] = "DT_MOVEENT";
+		tag_descriptions[DT_MOVESZ] = "DT_MOVESZ";
+		tag_descriptions[DT_FEATURE] = "DT_FEATURE";
+		tag_descriptions[DT_POSTFLAG_1] = "DT_POSTFLAG_1";
+		tag_descriptions[DT_SYMINSZ] = "DT_SYMINSZ";
+		tag_descriptions[DT_SYMINENT] = "DT_SYMINENT";
+		tag_descriptions[DT_GNU_HASH] = "DT_GNU_HASH";
+		tag_descriptions[DT_TLSDESC_PLT] = "DT_TLSDESC_PLT";
+		tag_descriptions[DT_TLSDESC_GOT] = "DT_TLSDESC_GOT";
+		tag_descriptions[DT_GNU_CONFLICT] = "DT_GNU_CONFLICT";
+		tag_descriptions[DT_GNU_LIBLIST] = "DT_GNU_LIBLIST";
+		tag_descriptions[DT_CONFIG] = "DT_CONFIG";
+		tag_descriptions[DT_DEPAUDIT] = "DT_DEPAUDIT";
+		tag_descriptions[DT_AUDIT] = "DT_AUDIT";
+		tag_descriptions[DT_PLTPAD] = "DT_PLTPAD";
+		tag_descriptions[DT_MOVETAB] = "DT_MOVETAB";
+		tag_descriptions[DT_SYMINFO] = "DT_SYMINFO";
+		tag_descriptions[DT_VERSYM] = "DT_VERSYM";
+		tag_descriptions[DT_RELACOUNT] = "DT_RELACOUNT";
+		tag_descriptions[DT_RELCOUNT] = "DT_RELCOUNT";
+		tag_descriptions[DT_FLAGS_1] = "DT_FLAGS_1";
+		tag_descriptions[DT_VERDEF] = "DT_VERDEF";
+		tag_descriptions[DT_VERDEFNUM] = "DT_VERDEFNUM";
+		tag_descriptions[DT_VERNEED] = "DT_VERNEED";
+		tag_descriptions[DT_VERNEEDNUM] = "DT_VERNEEDNUM";
+		tag_descriptions[DT_AUXILIARY] = "DT_AUXILIARY";
+		tag_descriptions[DT_USED] = "DT_USED";
+		tag_descriptions[DT_FILTER] = "DT_FILTER";
 		dynamic_entry.AddField("Tag", Dumper::ChoiceDisplay::Make(tag_descriptions, Dumper::HexDisplay::Make(2 * fmt.wordbytes)), dynobj.tag);
-		//dynamic_entry.AddField("Tag", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.tag);
-		dynamic_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.value);
+		if(dynobj.tag == DT_FLAGS)
+		{
+			dynamic_entry.AddField("Value",
+				Dumper::BitFieldDisplay::Make(2 * fmt.wordbytes)
+					->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("DF_ORIGIN"), true)
+					->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("DF_SYMBOLIC"), true)
+					->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("DF_TEXTREL"), true)
+					->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("DF_BIND_NOW"), true)
+					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("DF_STATIC_TLS"), true),
+			dynobj.value);
+		}
+		else
+		{
+			dynamic_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.value);
+			dynamic_entry.AddOptionalField("Value name", Dumper::StringDisplay::Make(), dynobj.name);
+		}
 		dynamic_entry.Display(dump);
 		i += 1;
 	}
@@ -792,12 +845,12 @@ const std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::GetRelocations
 	return std::dynamic_pointer_cast<ELFFormat::Relocations>(contents);
 }
 
-#if 0
 std::shared_ptr<ELFFormat::DynamicSection> ELFFormat::Section::GetDynamicSection()
 {
 	return std::dynamic_pointer_cast<ELFFormat::DynamicSection>(contents);
 }
 
+#if 0
 std::shared_ptr<ELFFormat::NotesSection> ELFFormat::Section::GetNotesSection()
 {
 	return std::dynamic_pointer_cast<ELFFormat::NotesSection>(contents);
@@ -1593,6 +1646,21 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 #if DISPLAY_LOGS
 				i++;
 #endif
+			}
+			break;
+		case Section::SHT_DYNAMIC:
+			for(auto& dynamic_object : section.GetDynamicSection()->dynamic)
+			{
+				switch(dynamic_object.tag)
+				{
+				case DT_NEEDED:
+				case DT_SONAME:
+				case DT_RPATH:
+//				case DT_RUNPATH:
+					rd.Seek(sections[section.link].file_offset + dynamic_object.value);
+					dynamic_object.name = rd.ReadASCIIZ();
+					break;
+				}
 			}
 			break;
 		case Section::SHT_IMPORTS:
