@@ -244,7 +244,7 @@ void Linker::LinkerManager::ProcessAction(std::unique_ptr<Node>& action, Module&
 		break;
 	case Node::SetNextBase:
 		current_base = EvaluateExpression(action->at(0), module);
-Linker::Debug << "Current base: " << (int64_t)current_base << std::endl;
+Linker::Debug << "Current base: " << int64_t(current_base) << std::endl;
 		break;
 	default:
 		Linker::FatalError("Internal error: invalid script");

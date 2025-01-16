@@ -172,7 +172,7 @@ NEFormat::Segment::Relocation::source_type NEFormat::Segment::Relocation::GetTyp
 		case 4:
 			return Offset32;
 		default:
-			return (source_type)-1;
+			return source_type(-1);
 		}
 	}
 }
@@ -747,7 +747,7 @@ void NEFormat::CalculateValues()
 		current_offset = segment.data_offset + segment.image->data_size;
 		if(segment.relocations.size() != 0)
 		{
-			segment.flags = (Segment::flag_type)(segment.flags | Segment::Relocations);
+			segment.flags = Segment::flag_type(segment.flags | Segment::Relocations);
 			current_offset += 2 + 8 * segment.relocations.size();
 		}
 	}

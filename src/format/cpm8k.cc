@@ -15,9 +15,9 @@ bool CPM8KFormat::Segment::IsPresent() const
 
 CPM8KFormat::magic_type CPM8KFormat::GetSignature() const
 {
-	if((unsigned char)signature[0] == 0xEE)
+	if((signature[0] & 0xFF) == 0xEE)
 	{
-		switch((unsigned char)signature[1])
+		switch(signature[1] & 0xFF)
 		{
 		case MAGIC_SEGMENTED_OBJECT & 0xFF:
 			return MAGIC_SEGMENTED_OBJECT;
@@ -161,7 +161,7 @@ unsigned CPM8KFormat::GetSegmentNumber(std::shared_ptr<Linker::Segment>segment)
 		if(segments[i].image == std::dynamic_pointer_cast<Linker::Writable>(segment))
 			return segments[i].number;
 	}
-	return (unsigned)-1;
+	return unsigned(-1);
 }
 
 void CPM8KFormat::SetOptions(std::map<std::string, std::string>& options)
@@ -394,7 +394,7 @@ void CPM8KFormat::ProcessModule(Linker::Module& module)
 				Linker::Error << "Error: Invalid segment offset, ignoring reference" << std::endl;
 			}
 			unsigned number = GetSegmentNumber(resolution.target);
-			if(number == (unsigned)-1)
+			if(number == unsigned(-1))
 			{
 				Linker::Error << "Error: Invalid segment, ignoring" << std::endl;
 			}

@@ -52,7 +52,7 @@ namespace Linker
 		/**
 		 * @brief Read a zero terminated ASCII string
 		 */
-		std::string ReadASCIIZ(size_t maximum = (size_t)-1);
+		std::string ReadASCIIZ(size_t maximum = size_t(-1));
 
 		/**
 		 * @brief Read an unsigned word

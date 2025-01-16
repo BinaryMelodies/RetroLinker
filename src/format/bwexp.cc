@@ -51,9 +51,9 @@ void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, BWFormat& bw)
 {
 	uint32_t size = GetSize(bw);
 	if(size == 0)
-		flags = (flag_type)(flags | FLAG_EMPTY);
+		flags = flag_type(flags | FLAG_EMPTY);
 	else
-		flags = (flag_type)(flags & ~FLAG_EMPTY);
+		flags = flag_type(flags & ~FLAG_EMPTY);
 	wr.WriteWord(2, size > 0 ? size - 1 : 0);
 	wr.WriteWord(3, address);
 	wr.WriteWord(1, access);
@@ -109,7 +109,7 @@ uint32_t BWFormat::RelocationSegment::GetSize(BWFormat& bw)
 			offset_t size = bw.MeasureRelocations();
 			if(size == 0)
 				return 4; /* create dummy relocation segment */
-			else if((offset_t)(index + 1) * 0x10000 < size)
+			else if(offset_t((index + 1) * 0x10000) < size)
 				return 0x10000;
 			else
 				return size - index * 0x10000;

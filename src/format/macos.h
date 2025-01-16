@@ -792,7 +792,7 @@ namespace Apple
 		}
 
 		MacDriver(target_format_t target, int produce)
-			: target(target), produce((produce_format_t)produce)
+			: target(target), produce(produce_format_t(produce))
 		{
 		}
 

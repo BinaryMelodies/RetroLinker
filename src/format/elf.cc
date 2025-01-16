@@ -325,7 +325,7 @@ offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr, offset_t count, o
 		}
 		else
 		{
-			wr.WriteWord(wordbytes, ((uint64_t)rel.symbol << 32) | rel.type);
+			wr.WriteWord(wordbytes, (uint64_t(rel.symbol) << 32) | rel.type);
 		}
 		if(!rel.addend_from_section_data)
 			wr.WriteWord(wordbytes, rel.addend);
@@ -723,8 +723,8 @@ void ELFFormat::IBMResourceCollection::AddDumperFields(std::unique_ptr<Dumper::R
 	region->AddField("Locale offset", Dumper::HexDisplay::Make(8), offset_t(locale_offset));
 	if(locale_offset != 0)
 	{
-		char _country[2] = { (char) country[0], (char) country[1] }; // TODO: wide characters
-		char _language[2] = { (char) language[0], (char) language[1] }; // TODO: wide characters
+		char _country[2] = { char(country[0]), char(country[1]) }; // TODO: wide characters
+		char _language[2] = { char(language[0]), char(language[1]) }; // TODO: wide characters
 		region->AddField("Country", Dumper::StringDisplay::Make(), std::string(_country, 2));
 		region->AddField("Language", Dumper::StringDisplay::Make(), std::string(_language, 2));
 	}

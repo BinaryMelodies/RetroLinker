@@ -19,7 +19,7 @@ MAIN_HEADERS=src/common.h
 MAIN_CXXFILES=src/main.cc src/common.cc
 MAIN_OFILES=$(MAIN_CXXFILES:.cc=.o)
 
-CXXFLAGS=-Wall -Wsuggest-override -std=c++20
+CXXFLAGS=-Wall -Wsuggest-override -Wold-style-cast -std=c++20
 CXXFLAGS+= -O2
 CXXFLAGS+= -g
 LDFLAGS=-O2

@@ -94,7 +94,7 @@ namespace Microsoft
 
 	//protected:
 		LEFormat(unsigned system, unsigned module_flags, bool extended_format)
-			: system((system_type)system), module_flags(module_flags), extended_format(extended_format), last_page_size(0)
+			: system(system_type(system)), module_flags(module_flags), extended_format(extended_format), last_page_size(0)
 		{
 		}
 
@@ -154,7 +154,7 @@ namespace Microsoft
 			uint32_t data_pages_offset = 0;
 
 			Object(std::shared_ptr<Linker::Segment> segment, unsigned flags)
-				: image(segment), flags((flag_type)flags)
+				: image(segment), flags(flag_type(flags))
 			{
 			}
 		};
@@ -240,7 +240,7 @@ namespace Microsoft
 				}
 
 				Relocation(unsigned type, unsigned flags, uint16_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0)
-					: Writer(::LittleEndian), type((source_type)type), flags((flag_type)flags), module(module), target(target), addition(addition)
+					: Writer(::LittleEndian), type(source_type(type)), flags(flag_type(flags)), module(module), target(target), addition(addition)
 				{
 					sources.push_back(offset);
 				}
@@ -339,7 +339,7 @@ namespace Microsoft
 			}
 
 			Entry(unsigned type, uint16_t object, unsigned flags, uint32_t offset)
-				: Writer(::LittleEndian), type((entry_type)type), object(object), flags((flag_type)flags), offset(offset)
+				: Writer(::LittleEndian), type(entry_type(type)), object(object), flags(flag_type(flags)), offset(offset)
 			{
 			}
 

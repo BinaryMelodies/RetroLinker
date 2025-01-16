@@ -78,8 +78,8 @@ void Writer::ForceSeek(offset_t offset)
 {
 //	out->clear(std::ostream::goodbit);
 	out->seekp(0, std::ios_base::end);
-//	assert(offset >= (offset_t)out->tellp());
-	if(offset < (offset_t)out->tellp())
+//	assert(offset >= offset_t(out->tellp()));
+	if(offset < offset_t(out->tellp()))
 	{
 		out->seekp(offset);
 	}

@@ -365,7 +365,7 @@ void CPM68KFormat::WriteFile(Linker::Writer& wr)
 			offset_t last_relocation = -1;
 			for(auto it : relocations)
 			{
-				if(last_relocation == (offset_t)-1)
+				if(last_relocation == offset_t(-1))
 				{
 					wr.WriteWord(4, it.first);
 					last_relocation = it.first;
@@ -382,7 +382,7 @@ void CPM68KFormat::WriteFile(Linker::Writer& wr)
 					last_relocation = it.first;
 				}
 			}
-			if(last_relocation == (offset_t)-1)
+			if(last_relocation == offset_t(-1))
 				wr.WriteWord(4, 0);
 			else
 				wr.WriteWord(1, 0);
@@ -425,23 +425,23 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 	offset_t header_size = GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C;
 
 	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.AddField("Magic", Dumper::ChoiceDisplay::Make(format_descriptions), (offset_t)GetSignature());
-	file_region.AddField("System", Dumper::ChoiceDisplay::Make(system_descriptions), (offset_t)system);
+	file_region.AddField("Magic", Dumper::ChoiceDisplay::Make(format_descriptions), offset_t(GetSignature()));
+	file_region.AddField("System", Dumper::ChoiceDisplay::Make(system_descriptions), offset_t(system));
 	file_region.Display(dump);
 
 	Dumper::Region header_region("Header", file_offset, header_size, 8);
-	header_region.AddField("Suppression word", Dumper::HexDisplay::Make(4), (offset_t)relocations_suppressed);
-	header_region.AddField("Bss size", Dumper::HexDisplay::Make(), (offset_t)bss_size);
+	header_region.AddField("Suppression word", Dumper::HexDisplay::Make(4), offset_t(relocations_suppressed));
+	header_region.AddField("Bss size", Dumper::HexDisplay::Make(), offset_t(bss_size));
 
 	Dumper::Block code_block("Code segment", file_offset + header_size, code,
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? code_address : 0, 8);
 	Dumper::Block data_block("Data segment", file_offset + header_size + code_size, data,
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? data_address : code_size, 8);
 
-	header_region.AddField("Bss address", Dumper::HexDisplay::Make(), (offset_t)bss_address); /* TODO: place as part of a container */
+	header_region.AddField("Bss address", Dumper::HexDisplay::Make(), offset_t(bss_address)); /* TODO: place as part of a container */
 
-	header_region.AddOptionalField("Symbol table size", Dumper::HexDisplay::Make(), (offset_t)symbol_table_size);
-	header_region.AddOptionalField("Stack size", Dumper::HexDisplay::Make(), (offset_t)stack_size);
+	header_region.AddOptionalField("Symbol table size", Dumper::HexDisplay::Make(), offset_t(symbol_table_size));
+	header_region.AddOptionalField("Stack size", Dumper::HexDisplay::Make(), offset_t(stack_size));
 	if(system == SYSTEM_GEMDOS)
 	{
 		std::map<offset_t, std::string> memory_protection;
@@ -458,7 +458,7 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 				->AddBitField(4, 2, Dumper::ChoiceDisplay::Make(memory_protection), false)
 				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("shared text"), true)
 				->AddBitField(28, 4, Dumper::DecDisplay::Make(" 128 KiB alternate RAM"), true),
-		(offset_t)program_flags);
+		offset_t(program_flags));
 	}
 
 	header_region.Display(dump);
@@ -474,9 +474,9 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump)
 	for(auto relocation : relocations)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
-		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(), (offset_t)relocation.first);
-		relocation_entry.AddField("Size", Dumper::HexDisplay::Make(1), (offset_t)relocation.second.size);
-		relocation_entry.AddField("Target", Dumper::ChoiceDisplay::Make(segment_names), (offset_t)relocation.second.segment);
+		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(relocation.first));
+		relocation_entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(relocation.second.size));
+		relocation_entry.AddField("Target", Dumper::ChoiceDisplay::Make(segment_names), offset_t(relocation.second.segment));
 		relocation_entry.Display(dump);
 
 		if(relocation.first < code_address + code_size)
@@ -821,7 +821,7 @@ void CPM68KFormat::ProcessModule(Linker::Module& module)
 				else if(resolution.target == bss_segment)
 					segment_num = 3; /* as encoded in the CP/M-68K executable */
 //						Linker::Debug << "Debug: " << resolution.target->name << std::endl;
-				assert(segment_num != (unsigned)-1);
+				assert(segment_num != unsigned(-1));
 				if((system == SYSTEM_GEMDOS || system == SYSTEM_GEMDOS_EARLY) && rel.size != 4)
 				{
 					Linker::Error << "Error: Format only supports longword relocations: " << rel << ", ignoring" << std::endl;

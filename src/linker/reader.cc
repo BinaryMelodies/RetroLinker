@@ -101,7 +101,7 @@ offset_t Reader::Tell()
 		SeekEnd();
 	}
 	offset_t value = in->tellg();
-	if(value == (offset_t)-1)
+	if(value == offset_t(-1))
 	{
 	Linker::Debug << "no!" << std::endl;
 		in->clear();

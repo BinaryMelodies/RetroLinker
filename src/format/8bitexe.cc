@@ -75,7 +75,7 @@ void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 
 void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
 {
-	if((uint32_t)address + GetSize() > 0x10000)
+	if(uint32_t(address) + GetSize() > 0x10000)
 	{
 		Linker::Warning << "Warning: Address overflows" << std::endl;
 	}
@@ -269,7 +269,7 @@ void FLEXFormat::Segment::WriteFile(Linker::Writer& wr)
 		/* cut the segment up into 255 byte morcels */
 		wr.WriteWord(1, 0x02);
 		wr.WriteWord(2, address + offset);
-		uint16_t count = std::min((offset_t)0xFF, image->ActualDataSize() - address - offset);
+		uint16_t count = std::min(offset_t(0xFF), image->ActualDataSize() - address - offset);
 		wr.WriteWord(1, count);
 		image->WriteFile(wr, count, offset);
 	}

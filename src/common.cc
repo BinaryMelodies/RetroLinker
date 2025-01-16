@@ -55,7 +55,7 @@ uint16_t FromBigEndian16(uint16_t value)
 
 uint32_t Swap32(uint32_t value)
 {
-	return ((uint32_t)Swap16(value) << 16) | (Swap16(value >> 16));
+	return (uint32_t(Swap16(value)) << 16) | (Swap16(value >> 16));
 }
 
 uint32_t Swap32words(uint32_t value)
@@ -101,12 +101,12 @@ uint32_t FromPDP11Endian32(uint32_t value)
 
 uint64_t Swap64(uint64_t value)
 {
-	return ((uint64_t)Swap32(value) << 32) | (Swap32(value >> 32));
+	return (uint64_t(Swap32(value)) << 32) | (Swap32(value >> 32));
 }
 
 uint64_t Swap64words(uint64_t value)
 {
-	return ((uint64_t)Swap32words(value) << 32) | (Swap32words(value >> 32));
+	return (uint64_t(Swap32words(value)) << 32) | (Swap32words(value >> 32));
 }
 
 uint64_t FromLittleEndian64(uint64_t value)
@@ -156,9 +156,9 @@ uint64_t ReadUnsigned(size_t bytes, size_t maximum, uint8_t const * data, Endian
 		switch(bytes)
 		{
 		case 1:
-			return *(uint8_t *)data;
+			return *reinterpret_cast<uint8_t const *>(data);
 		case 2:
-			value = *(uint16_t *)data;
+			value = *reinterpret_cast<uint16_t const *>(data);
 			switch(endiantype)
 			{
 			case LittleEndian:
@@ -172,7 +172,7 @@ uint64_t ReadUnsigned(size_t bytes, size_t maximum, uint8_t const * data, Endian
 			}
 			break;
 		case 4:
-			value = *(uint32_t *)data;
+			value = *reinterpret_cast<uint32_t const *>(data);
 			switch(endiantype)
 			{
 			case LittleEndian:
@@ -187,7 +187,7 @@ uint64_t ReadUnsigned(size_t bytes, size_t maximum, uint8_t const * data, Endian
 			}
 			break;
 		case 8:
-			value = *(uint64_t *)data;
+			value = *reinterpret_cast<uint64_t const *>(data);
 			switch(endiantype)
 			{
 			case LittleEndian:
@@ -218,20 +218,20 @@ int64_t SignExtend(size_t bytes, int64_t value)
 	switch(bytes)
 	{
 	case 1:
-		return (int8_t)value;
+		return int8_t(value);
 	case 2:
-		return (int16_t)value;
+		return int16_t(value);
 	case 4:
-		return (int32_t)value;
+		return int32_t(value);
 	}
-	if((value & (int64_t)1 << ((bytes << 3) - 1)))
-		value |= (int64_t)-1 << (bytes << 3);
+	if((value & int64_t(1) << ((bytes << 3) - 1)))
+		value |= int64_t(-1) << (bytes << 3);
 	return value;
 }
 
 int64_t ReadSigned(size_t bytes, size_t maximum, uint8_t const * data, EndianType endiantype)
 {
-	return SignExtend(bytes, (int64_t)ReadUnsigned(bytes, maximum, data, endiantype));
+	return SignExtend(bytes, int64_t(ReadUnsigned(bytes, maximum, data, endiantype)));
 }
 
 void WriteWord(size_t bytes, size_t maximum, uint8_t * data, uint64_t value, EndianType endiantype)

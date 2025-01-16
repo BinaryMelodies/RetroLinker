@@ -146,7 +146,7 @@ LEFormat::Page::Relocation::source_type LEFormat::Page::Relocation::GetType(Link
 		case 4:
 			return rel.IsRelative() ? Relative32 : Offset32;
 		default:
-			return (source_type)-1;
+			return source_type(-1);
 		}
 	}
 }
@@ -246,32 +246,32 @@ size_t LEFormat::Page::Relocation::GetOrdinalSize() const
 void LEFormat::Page::Relocation::CalculateSizes(compatibility_type compatibility)
 {
 	if(sources.size() != 1)
-		type = (source_type)(type | SourceList);
+		type = source_type(type | SourceList);
 	if(module > 0xFF)
-		flags = (flag_type)(flags | Module16);
+		flags = flag_type(flags | Module16);
 	switch(flags & FlagTypeMask)
 	{
 	case Internal:
 		if(!IsSelector() && target > 0xFFFF)
-			flags = (flag_type)(flags | Target32);
+			flags = flag_type(flags | Target32);
 		break;
 	case ImportOrdinal:
 		if(target <= 0xFF && compatibility != CompatibleWatcom)
-			flags = (flag_type)(flags | Ordinal8);
+			flags = flag_type(flags | Ordinal8);
 		else if(target > 0xFFFF)
-			flags = (flag_type)(flags | Target32);
+			flags = flag_type(flags | Target32);
 		if(IsAdditive() && addition > 0xFFFF) /* TODO: signed or unsigned? */
-			flags = (flag_type)(flags | Additive32);
+			flags = flag_type(flags | Additive32);
 		break;
 	case ImportName:
 		if(target > 0xFFFF)
-			flags = (flag_type)(flags | Target32);
+			flags = flag_type(flags | Target32);
 		if(IsAdditive() && addition > 0xFFFF) /* TODO: signed or unsigned? */
-			flags = (flag_type)(flags | Additive32);
+			flags = flag_type(flags | Additive32);
 		break;
 	case Entry:
 		if(IsAdditive() && addition > 0xFFFF) /* TODO: signed or unsigned? */
-			flags = (flag_type)(flags | Additive32);
+			flags = flag_type(flags | Additive32);
 		break;
 	}
 }

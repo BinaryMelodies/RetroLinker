@@ -140,9 +140,9 @@ XPFormat::Segment XPFormat::Segment::ReadFile(Linker::Reader& rd)
 	segment.base = rd.ReadUnsigned(3);
 	segment.access = rd.ReadUnsigned(1);
 	segment.flags = rd.ReadUnsigned(1);
-	segment.limit |= (uint32_t)(segment.flags & 0x0F) << 16;
+	segment.limit |= uint32_t(segment.flags & 0x0F) << 16;
 	segment.flags &= ~0x0F;
-	segment.base |= (uint32_t)rd.ReadUnsigned(1) << 24;
+	segment.base |= uint32_t(rd.ReadUnsigned(1)) << 24;
 	return segment;
 }
 

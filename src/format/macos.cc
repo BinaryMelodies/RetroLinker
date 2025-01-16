@@ -916,10 +916,10 @@ void ResourceFork::CodeResource::WriteFile(Linker::Writer& wr)
 void ResourceFork::AddResource(std::shared_ptr<Resource> resource)
 {
 	uint32_t typeval =
-		((uint32_t)(uint8_t)resource->type[0] << 24)
-		| ((uint32_t)(uint8_t)resource->type[1] << 16)
-		| ((uint32_t)(uint8_t)resource->type[2] << 8)
-		| (uint32_t)(uint8_t)resource->type[3];
+		(uint32_t(uint8_t(resource->type[0])) << 24)
+		| (uint32_t(uint8_t(resource->type[1])) << 16)
+		| (uint32_t(uint8_t(resource->type[2])) << 8)
+		| uint32_t(uint8_t(resource->type[3]));
 	resources[typeval][resource->id] = resource;
 }
 
@@ -1573,23 +1573,23 @@ bool MacDriver::AddSupplementaryOutputFormat(std::string subformat)
 	if(subformat == "rsrc")
 	{
 		Linker::Debug << "Debug: Requested to generate resource fork under .rsrc" << std::endl;
-		produce = (produce_format_t)(produce | PRODUCE_RESOURCE_FORK);
+		produce = produce_format_t(produce | PRODUCE_RESOURCE_FORK);
 	}
 	else if(subformat == "finf")
 	{
 		Linker::Debug << "Debug: Requested to generate Finder Info file under .finf" << std::endl;
-		produce = (produce_format_t)(produce | PRODUCE_FINDER_INFO);
+		produce = produce_format_t(produce | PRODUCE_FINDER_INFO);
 	}
 	else if(subformat == "double" || subformat == "appledouble")
 	{
 		Linker::Debug << "Debug: Requested to generate AppleDouble" << std::endl;
-		produce = (produce_format_t)(produce | PRODUCE_APPLE_DOUBLE);
+		produce = produce_format_t(produce | PRODUCE_APPLE_DOUBLE);
 		/* TODO: versions */
 	}
 	else if(subformat == "mbin" || subformat == "macbin" || subformat == "macbinary")
 	{
 		Linker::Debug << "Debug: Requested to generate MacBinary" << std::endl;
-		produce = (produce_format_t)(produce | PRODUCE_MAC_BINARY);
+		produce = produce_format_t(produce | PRODUCE_MAC_BINARY);
 		/* TODO: versions */
 	}
 	else

@@ -147,7 +147,7 @@ namespace Linker
 		Section(std::string name, int flags = Readable)
 			:
 				name(name),
-				flags((section_flags)flags),
+				flags(section_flags(flags)),
 				align(1)
 		{
 		}

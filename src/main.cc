@@ -542,7 +542,7 @@ static bool VerifyCPM86(Reader& in, format_description& description)
 	in.Seek(description.offset);
 	for(int i = 0; i < 8; i++)
 	{
-		int type = in.ReadUnsigned(1, (EndianType)0);
+		int type = in.ReadUnsigned(1, EndianType(0));
 		if(type == 0)
 			break;
 		if(type > 9)
@@ -708,7 +708,7 @@ void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, 
 	char magic[5];
 	rd.ReadData(sizeof magic, magic);
 	uint32_t position = rd.Tell();
-	if(position == (uint32_t)-1)
+	if(position == uint32_t(-1))
 		return;
 	uint32_t bytes_read = position > offset ? position - offset : 0;
 	if(bytes_read == 0)

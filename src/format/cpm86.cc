@@ -101,7 +101,7 @@ void CPM86Format::Descriptor::ReadData(Linker::Reader& rd, const CPM86Format& mo
 		return;
 	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(GetDefaultName());
 	image = buffer;
-	buffer->ReadFile(rd, size_paras << 4);
+	buffer->ReadFile(rd, uint32_t(size_paras) << 4);
 }
 
 bool CPM86Format::relocation_source::operator<(const relocation_source& other) const
@@ -142,7 +142,7 @@ void CPM86Format::Relocation::Write(Linker::Writer& wr)
 
 CPM86Format::relocation_source CPM86Format::Relocation::GetSource() const
 {
-	return relocation_source { source, (offset_t)(paragraph << 4) + offset };
+	return relocation_source { source, (uint32_t(paragraph) << 4) + offset };
 }
 
 void CPM86Format::rsx_record::Clear()
@@ -288,7 +288,7 @@ void CPM86Format::LibraryDescriptor::ReadData(Linker::Reader& rd, const CPM86For
 	{
 		Linker::Error << "Error: Actual STRL group is too short, reading all libraries anyway" << std::endl;
 	}
-	else if(::AlignTo(2 + count * srtl_entry_size, 16) < ((offset_t)size_paras << 4))
+	else if(::AlignTo(2 + count * srtl_entry_size, 16) < (uint32_t(size_paras) << 4))
 	{
 		Linker::Warning << "Warning: Actual STRL group is too long, ignoring extra parts" << std::endl;
 	}
@@ -301,7 +301,7 @@ void CPM86Format::LibraryDescriptor::ReadData(Linker::Reader& rd, const CPM86For
 			lib.Read(rd);
 		libraries.push_back(lib);
 	}
-	rd.Seek(offset + ((offset_t)size_paras << 4));
+	rd.Seek(offset + (uint32_t(size_paras) << 4));
 }
 
 void CPM86Format::FastLoadDescriptor::ldt_descriptor::Read(Linker::Reader& rd)
@@ -349,7 +349,7 @@ void CPM86Format::FastLoadDescriptor::ReadData(Linker::Reader& rd, const CPM86Fo
 	index_base = rd.ReadUnsigned(2);
 	first_used_index = rd.ReadUnsigned(2);
 
-	for(size_t i = 8; i < (size_t)size_paras << 4; i += 8) /* TODO: check if this is the actual limit */
+	for(size_t i = 8; i < uint32_t(size_paras) << 4; i += 8) /* TODO: check if this is the actual limit */
 	{
 		ldt_descriptor desc;
 		desc.Read(rd);
@@ -404,12 +404,12 @@ number_t CPM86Format::FindSegmentGroup(unsigned group) const
 		if(descriptors[i].type == Descriptor::SharedCode && group == 1)
 			return i;
 	}
-	return (size_t)-1;
+	return size_t(-1);
 }
 
 void CPM86Format::CheckValidSegmentGroup(unsigned group)
 {
-	if(FindSegmentGroup(group) == (size_t)-1)
+	if(FindSegmentGroup(group) == size_t(-1))
 		Linker::Error << "Error: invalid group " << group << std::endl;
 }
 
@@ -518,7 +518,7 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 			if((flags & FLAG_FIXUPS) && relocations_offset == rd.Tell())
 			{
 				descriptors[i].type = Descriptor::ActualFixups;
-				rd.Skip(descriptors[i].size_paras << 4);
+				rd.Skip(uint32_t(descriptors[i].size_paras) << 4);
 				continue;
 			}
 			else
@@ -638,18 +638,18 @@ offset_t CPM86Format::GetFullFileSize() const
 	{
 		if(descriptors[i].type == Descriptor::Undefined)
 			break;
-		image_size += descriptors[i].GetSizeParas(*this) << 4;
+		image_size += uint32_t(descriptors[i].GetSizeParas(*this)) << 4;
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
-		image_size += fastload_descriptor.GetSizeParas(*this) << 4;
+		image_size += uint32_t(fastload_descriptor.GetSizeParas(*this)) << 4;
 	}
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
-		image_size += library_descriptor.GetSizeParas(*this) << 4;
+		image_size += uint32_t(library_descriptor.GetSizeParas(*this)) << 4;
 	}
 
-	image_size = std::max(image_size, (offset_t)relocations_offset + (GetRelocationSizeParas() << 4));
+	image_size = std::max(image_size, offset_t(relocations_offset + (uint32_t(GetRelocationSizeParas()) << 4)));
 
 	offset_t rsx_end = rsx_table_offset;
 	for(int i = 0; i < 8; i++)
@@ -684,11 +684,11 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 			->AddBitField(5, 2, Dumper::ChoiceDisplay::Make(x87_values), true)
 			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("RSX"), true)
 			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("direct video access"), true),
-		(offset_t)flags);
+		offset_t(flags));
 
 	file_region.AddOptionalField("Library name", Dumper::StringDisplay::Make(8, "\"", "\""), lib_id.name);
-	file_region.AddOptionalField("Library version", Dumper::VersionDisplay::Make(), (offset_t)lib_id.major_version, (offset_t)lib_id.minor_version);
-	file_region.AddOptionalField("Library flags", Dumper::HexDisplay::Make(8), (offset_t)lib_id.flags);
+	file_region.AddOptionalField("Library version", Dumper::VersionDisplay::Make(), offset_t(lib_id.major_version), offset_t(lib_id.minor_version));
+	file_region.AddOptionalField("Library flags", Dumper::HexDisplay::Make(8), offset_t(lib_id.flags));
 
 	file_region.Display(dump);
 
@@ -713,20 +713,20 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 			break;
 		std::shared_ptr<Dumper::Region> group;
 		if(descriptors[i].type == Descriptor::ActualFixups)
-			group = fixups = Dumper::Region::Make("Group", descriptors[i].offset, descriptors[i].size_paras << 4, 5);
+			group = fixups = Dumper::Region::Make("Group", descriptors[i].offset, uint32_t(descriptors[i].size_paras) << 4, 5);
 		else
-			group = Dumper::Block::Make("Group", descriptors[i].offset, descriptors[i].image, descriptors[i].load_segment << 4, 5);
-		group->InsertField(0, "Type", Dumper::ChoiceDisplay::Make(group_types), (offset_t)descriptors[i].type);
-		group->AddField("Minimum", Dumper::HexDisplay::Make(5), (offset_t)descriptors[i].min_size_paras << 4);
-		group->AddField("Maximum", Dumper::HexDisplay::Make(5), (offset_t)descriptors[i].max_size_paras << 4);
-		group->AddHiddenField("number", Dumper::DecDisplay::Make(), (offset_t)i + 1);
+			group = Dumper::Block::Make("Group", descriptors[i].offset, descriptors[i].image, uint32_t(descriptors[i].load_segment) << 4, 5);
+		group->InsertField(0, "Type", Dumper::ChoiceDisplay::Make(group_types), offset_t(descriptors[i].type));
+		group->AddField("Minimum", Dumper::HexDisplay::Make(5), offset_t(uint32_t(descriptors[i].min_size_paras) << 4));
+		group->AddField("Maximum", Dumper::HexDisplay::Make(5), offset_t(uint32_t(descriptors[i].max_size_paras) << 4));
+		group->AddHiddenField("number", Dumper::DecDisplay::Make(), offset_t(i + 1));
 		groups.push_back(group);
 	}
 
 	offset_t fixups_paras = GetRelocationSizeParas();
 	if(fixups == nullptr && fixups_paras != 0)
 	{
-		fixups = Dumper::Region::Make("Fixups", relocations_offset, fixups_paras << 4, 5);
+		fixups = Dumper::Region::Make("Fixups", relocations_offset, uint32_t(fixups_paras) << 4, 5);
 		fixups->Display(dump);
 	}
 
@@ -736,11 +736,11 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 		Dumper::Entry relocation_entry("Relocation", i + 1, relocations_offset + i * 4, 5);
 		relocation_source source = rel.GetSource();
 		relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), source.segment, source.offset);
-		relocation_entry.AddField("Target", Dumper::DecDisplay::Make(), (offset_t)rel.target);
+		relocation_entry.AddField("Target", Dumper::DecDisplay::Make(), offset_t(rel.target));
 		relocation_entry.Display(dump);
 
 		number_t segment = FindSegmentGroup(source.segment);
-		if(segment != (size_t)-1)
+		if(segment != size_t(-1))
 		{
 			if(auto group = std::dynamic_pointer_cast<Dumper::Block>(groups[segment]))
 			{
@@ -754,23 +754,23 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 	std::map<size_t, library> first_selectors;
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
-		Dumper::Region libraries("SRTL group", library_descriptor.offset, library_descriptor.size_paras << 4, 5);
+		Dumper::Region libraries("SRTL group", library_descriptor.offset, uint32_t(library_descriptor.size_paras) << 4, 5);
 		libraries.Display(dump);
 		size_t j = 0;
 		for(auto& library : library_descriptor.libraries)
 		{
 			Dumper::Container lib("Library");
 			lib.AddField("Name", Dumper::StringDisplay::Make(8, "\"", "\""), library.name);
-			lib.AddField("Version", Dumper::VersionDisplay::Make(), (offset_t)library.major_version, (offset_t)library.minor_version);
-			lib.AddField("Flags", Dumper::HexDisplay::Make(8), (offset_t)library.flags);
+			lib.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(library.major_version), offset_t(library.minor_version));
+			lib.AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(library.flags));
 			if(IsFastLoadFormat())
 			{
-				lib.AddField("First selector", Dumper::DecDisplay::Make(), (offset_t)library.first_selector);
-				//lib.AddField("Unknown", Dumper::HexDisplay::Make(4), (offset_t)library.unknown); // TODO: only display if not 1
+				lib.AddField("First selector", Dumper::DecDisplay::Make(), offset_t(library.first_selector));
+				//lib.AddField("Unknown", Dumper::HexDisplay::Make(4), offset_t(library.unknown)); // TODO: only display if not 1
 				first_selectors[library.first_selector] = library;
 			}
 
-			lib.AddHiddenField("number", Dumper::DecDisplay::Make(), (offset_t)j + 1);
+			lib.AddHiddenField("number", Dumper::DecDisplay::Make(), offset_t(j + 1));
 			lib.Display(dump);
 			j += 1;
 
@@ -784,7 +784,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 				relocation_entry.Display(dump);
 
 				number_t segment = FindSegmentGroup(source.segment);
-				if(segment != (size_t)-1)
+				if(segment != size_t(-1))
 				{
 					if(auto group = std::dynamic_pointer_cast<Dumper::Block>(groups[segment]))
 					{
@@ -798,12 +798,12 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
-		Dumper::Region postlink("Postlink group", fastload_descriptor.offset, fastload_descriptor.size_paras << 4, 5);
+		Dumper::Region postlink("Postlink group", fastload_descriptor.offset, uint32_t(fastload_descriptor.size_paras) << 4, 5);
 
-		postlink.AddField("Maximum entries", Dumper::HexDisplay::Make(4), (offset_t)fastload_descriptor.maximum_entries);
-		postlink.AddField("First free entry", Dumper::HexDisplay::Make(4), (offset_t)fastload_descriptor.first_free_entry);
-		postlink.AddField("Index base", Dumper::HexDisplay::Make(4), (offset_t)fastload_descriptor.index_base);
-		postlink.AddField("First used index", Dumper::HexDisplay::Make(4), (offset_t)fastload_descriptor.first_used_index);
+		postlink.AddField("Maximum entries", Dumper::HexDisplay::Make(4), offset_t(fastload_descriptor.maximum_entries));
+		postlink.AddField("First free entry", Dumper::HexDisplay::Make(4), offset_t(fastload_descriptor.first_free_entry));
+		postlink.AddField("Index base", Dumper::HexDisplay::Make(4), offset_t(fastload_descriptor.index_base));
+		postlink.AddField("First used index", Dumper::HexDisplay::Make(4), offset_t(fastload_descriptor.first_used_index));
 
 		postlink.Display(dump);
 
@@ -820,10 +820,10 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 			if(i >= fastload_descriptor.first_used_index)
 			{
 				Dumper::Entry descriptor_entry("Descriptor", i, fastload_descriptor.offset + 8 + 8 * i, 4);
-				descriptor_entry.AddField("Selector", Dumper::HexDisplay::Make(4), (offset_t)i << 3);
-				descriptor_entry.AddField("Limit", Dumper::HexDisplay::Make(4), (offset_t)desc.limit);
-				descriptor_entry.AddField("Address", Dumper::HexDisplay::Make(6), (offset_t)desc.address);
-				descriptor_entry.AddField("Group", Dumper::HexDisplay::Make(2), (offset_t)desc.group);
+				descriptor_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(i << 3));
+				descriptor_entry.AddField("Limit", Dumper::HexDisplay::Make(4), offset_t(desc.limit));
+				descriptor_entry.AddField("Address", Dumper::HexDisplay::Make(6), offset_t(desc.address));
+				descriptor_entry.AddField("Group", Dumper::HexDisplay::Make(2), offset_t(desc.group));
 				if(current_library.name != "")
 					descriptor_entry.AddField("Library", Dumper::StringDisplay::Make(8, "\"", "\""), current_library.name);
 				descriptor_entry.Display(dump);
@@ -855,7 +855,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 				break;
 			Dumper::Region rsx_entry("RSX", rsx_table[i].offset_record << 7, rsx_table[i].module != RSX_DYNAMIC ? rsx_table[i].module->GetFullFileSize() : 0, 6);
 			rsx_entry.AddField("Name", Dumper::StringDisplay::Make(8, "\""), rsx_table[i].name);
-			rsx_entry.AddHiddenField("number", Dumper::DecDisplay::Make(), (offset_t)i + 1);
+			rsx_entry.AddHiddenField("number", Dumper::DecDisplay::Make(), offset_t(i + 1));
 			rsx_entry.Display(dump);
 		}
 
@@ -878,13 +878,13 @@ void CPM86Format::CalculateValues()
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
 		library_descriptor.offset = offset;
-		offset += library_descriptor.GetSizeParas(*this) << 4;
+		offset += uint32_t(library_descriptor.GetSizeParas(*this)) << 4;
 	}
 
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		fastload_descriptor.offset = offset;
-		offset += fastload_descriptor.GetSizeParas(*this) << 4;
+		offset += uint32_t(fastload_descriptor.GetSizeParas(*this)) << 4;
 	}
 
 	for(size_t i = 0; i < 8; i++)
@@ -892,7 +892,7 @@ void CPM86Format::CalculateValues()
 		if(descriptors[i].type == Descriptor::Undefined)
 			continue;
 		descriptors[i].offset = offset;
-		offset += descriptors[i].GetSizeParas(*this) << 4;
+		offset += uint32_t(descriptors[i].GetSizeParas(*this)) << 4;
 	}
 
 	relocations_offset = ::AlignTo(offset, 0x80);

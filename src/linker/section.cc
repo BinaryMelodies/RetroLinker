@@ -20,9 +20,9 @@ std::shared_ptr<Section> Section::ReadFromFile(Reader& rd, offset_t count, std::
 void Section::AlterFlags(bool state, unsigned flags_mask)
 {
 	if(state)
-		flags = (section_flags)(flags | flags_mask);
+		flags = section_flags(flags | flags_mask);
 	else
-		flags = (section_flags)(flags & ~flags_mask);
+		flags = section_flags(flags & ~flags_mask);
 }
 
 void Section::SetFlag(unsigned newflags)

@@ -577,7 +577,7 @@ void P3Format::MultiSegmented::TaskStateSegment::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, fs);
 		wr.WriteWord(4, gs);
 		wr.WriteWord(4, ldtr);
-		wr.WriteWord(4, (uint32_t)iopb << 16);
+		wr.WriteWord(4, uint32_t(iopb) << 16);
 	}
 	else
 	{

@@ -60,7 +60,7 @@ bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
 
 	if(attempted_magic != OMAGIC && attempted_magic != NMAGIC && attempted_magic != ZMAGIC && attempted_magic != QMAGIC)
 		return false;
-	magic = (magic_type)attempted_magic;
+	magic = magic_type(attempted_magic);
 	return true;
 }
 

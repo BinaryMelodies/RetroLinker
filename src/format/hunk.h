@@ -63,12 +63,12 @@ namespace Amiga
 			std::shared_ptr<Linker::Segment> image;
 
 			Hunk(uint32_t hunk_type, std::string name = "image", unsigned flags = LoadAny)
-				: hunk_type(hunk_type), flags((flag_type)flags), image(std::make_shared<Linker::Segment>(name))
+				: hunk_type(hunk_type), flags(flag_type(flags)), image(std::make_shared<Linker::Segment>(name))
 			{
 			}
 
 			Hunk(uint32_t hunk_type, std::shared_ptr<Linker::Segment> segment, unsigned flags = LoadAny)
-				: hunk_type(hunk_type), flags((flag_type)flags), image(segment)
+				: hunk_type(hunk_type), flags(flag_type(flags)), image(segment)
 			{
 			}
 

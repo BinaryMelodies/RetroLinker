@@ -206,12 +206,12 @@ void COFFFormat::ZilogRelocation::FillEntry(Dumper::Entry& entry)
 		break;
 	}
 
-	entry.AddField("Source", Dumper::HexDisplay::Make(), (offset_t)address);
-	entry.AddField("Size", Dumper::HexDisplay::Make(1), (offset_t)GetSize());
-	entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_names), (offset_t)type);
-	entry.AddOptionalField("Offset", Dumper::HexDisplay::Make(), (offset_t)offset);
+	entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(address));
+	entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(GetSize()));
+	entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_names), offset_t(type));
+	entry.AddOptionalField("Offset", Dumper::HexDisplay::Make(), offset_t(offset));
 	/* TODO */
-	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), (offset_t)symbol_index);
+	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), offset_t(symbol_index));
 //				entry.AddField("Target", ???);
 }
 
@@ -368,33 +368,33 @@ void COFFFormat::AOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, 
 {
 	std::map<offset_t, std::string> magic_choice;
 	magic_choice[ZMAGIC] = "ZMAGIC";
-	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_choice), (offset_t)magic);
-	header_region.AddOptionalField("Version stamp", Dumper::HexDisplay::Make(), (offset_t)version_stamp);
-	header_region.AddField("Text size", Dumper::HexDisplay::Make(), (offset_t)code_size);
-	header_region.AddField("Data size", Dumper::HexDisplay::Make(), (offset_t)data_size);
-	header_region.AddField("Bss size",  Dumper::HexDisplay::Make(), (offset_t)bss_size);
+	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_choice), offset_t(magic));
+	header_region.AddOptionalField("Version stamp", Dumper::HexDisplay::Make(), offset_t(version_stamp));
+	header_region.AddField("Text size", Dumper::HexDisplay::Make(), offset_t(code_size));
+	header_region.AddField("Data size", Dumper::HexDisplay::Make(), offset_t(data_size));
+	header_region.AddField("Bss size",  Dumper::HexDisplay::Make(), offset_t(bss_size));
 	std::string entry;
 	switch(coff.cpu_type)
 	{
 	case CPU_I386:
-		header_region.AddField("Entry address (EIP)", Dumper::HexDisplay::Make(), (offset_t)entry_address);
+		header_region.AddField("Entry address (EIP)", Dumper::HexDisplay::Make(), offset_t(entry_address));
 		break;
 	case CPU_M68K:
 	case CPU_Z8K:
-		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(), (offset_t)entry_address);
+		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(), offset_t(entry_address));
 		break;
 	case CPU_Z80:
-		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(4), (offset_t)entry_address);
+		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(4), offset_t(entry_address));
 		break;
 	case CPU_W65:
-		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(6), (offset_t)entry_address);
+		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(6), offset_t(entry_address));
 		break;
 	default:
-		header_region.AddField("Entry address", Dumper::HexDisplay::Make(), (offset_t)entry_address);
+		header_region.AddField("Entry address", Dumper::HexDisplay::Make(), offset_t(entry_address));
 		break;
 	}
-	header_region.AddField("Text address", Dumper::HexDisplay::Make(), (offset_t)code_address);
-	header_region.AddField("Data address", Dumper::HexDisplay::Make(), (offset_t)data_address);
+	header_region.AddField("Text address", Dumper::HexDisplay::Make(), offset_t(code_address));
+	header_region.AddField("Data address", Dumper::HexDisplay::Make(), offset_t(data_address));
 }
 
 void COFFFormat::AOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
@@ -436,10 +436,10 @@ void COFFFormat::FlexOSAOutHeader::PostWriteFile(COFFFormat& coff, Linker::Write
 void COFFFormat::FlexOSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
 {
 	AOutHeader::DumpFields(coff, dump, header_region);
-	header_region.AddField("Data address", Dumper::HexDisplay::Make(), (offset_t)data_address);
+	header_region.AddField("Data address", Dumper::HexDisplay::Make(), offset_t(data_address));
 	/* TODO: move display to relocation region */
-	header_region.AddField("Relocation offset", Dumper::HexDisplay::Make(), (offset_t)relocations_offset);
-	header_region.AddField("Stack size", Dumper::HexDisplay::Make(), (offset_t)stack_size);
+	header_region.AddField("Relocation offset", Dumper::HexDisplay::Make(), offset_t(relocations_offset));
+	header_region.AddField("Stack size", Dumper::HexDisplay::Make(), offset_t(stack_size));
 }
 
 uint32_t COFFFormat::GNUAOutHeader::GetSize()
@@ -468,33 +468,33 @@ void COFFFormat::GNUAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 {
 	/* TODO: untested */
 	Dumper::Region header_region("Optional header", coff.file_offset + 20, GetSize(), 8);
-	header_region.AddField("Info", Dumper::HexDisplay::Make(), (offset_t)info); // TODO: improve display?
-	header_region.AddField("Text size", Dumper::HexDisplay::Make(), (offset_t)code_size);
-	header_region.AddField("Data size", Dumper::HexDisplay::Make(), (offset_t)data_size);
-	header_region.AddField("Bss size",  Dumper::HexDisplay::Make(), (offset_t)bss_size);
-	header_region.AddField("Symbol table size",  Dumper::HexDisplay::Make(), (offset_t)symbol_table_size);
+	header_region.AddField("Info", Dumper::HexDisplay::Make(), offset_t(info)); // TODO: improve display?
+	header_region.AddField("Text size", Dumper::HexDisplay::Make(), offset_t(code_size));
+	header_region.AddField("Data size", Dumper::HexDisplay::Make(), offset_t(data_size));
+	header_region.AddField("Bss size",  Dumper::HexDisplay::Make(), offset_t(bss_size));
+	header_region.AddField("Symbol table size",  Dumper::HexDisplay::Make(), offset_t(symbol_table_size));
 	std::string entry;
 	switch(coff.cpu_type)
 	{
 	case CPU_I386:
-		header_region.AddField("Entry address (EIP)", Dumper::HexDisplay::Make(), (offset_t)entry_address);
+		header_region.AddField("Entry address (EIP)", Dumper::HexDisplay::Make(), offset_t(entry_address));
 		break;
 	case CPU_M68K:
 	case CPU_Z8K:
-		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(), (offset_t)entry_address);
+		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(), offset_t(entry_address));
 		break;
 	case CPU_Z80:
-		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(4), (offset_t)entry_address);
+		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(4), offset_t(entry_address));
 		break;
 	case CPU_W65:
-		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(6), (offset_t)entry_address);
+		header_region.AddField("Entry address (PC)", Dumper::HexDisplay::Make(6), offset_t(entry_address));
 		break;
 	default:
-		header_region.AddField("Entry address", Dumper::HexDisplay::Make(), (offset_t)entry_address);
+		header_region.AddField("Entry address", Dumper::HexDisplay::Make(), offset_t(entry_address));
 		break;
 	}
-	header_region.AddField("Text relocation size", Dumper::HexDisplay::Make(), (offset_t)code_relocation_size);
-	header_region.AddField("Data relocation size", Dumper::HexDisplay::Make(), (offset_t)data_relocation_size);
+	header_region.AddField("Text relocation size", Dumper::HexDisplay::Make(), offset_t(code_relocation_size));
+	header_region.AddField("Data relocation size", Dumper::HexDisplay::Make(), offset_t(data_relocation_size));
 	header_region.Display(dump);
 }
 
@@ -502,13 +502,13 @@ void COFFFormat::MIPSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& du
 {
 	/* TODO: untested */
 	AOutHeader::DumpFields(coff, dump, header_region);
-	header_region.AddField("Bss address", Dumper::HexDisplay::Make(), (offset_t)bss_address);
-	header_region.AddField("GPR mask", Dumper::HexDisplay::Make(), (offset_t)gpr_mask);
-	header_region.AddField("CPR #1 mask", Dumper::HexDisplay::Make(), (offset_t)cpr_mask[0]);
-	header_region.AddField("CPR #2 mask", Dumper::HexDisplay::Make(), (offset_t)cpr_mask[1]);
-	header_region.AddField("CPR #3 mask", Dumper::HexDisplay::Make(), (offset_t)cpr_mask[2]);
-	header_region.AddField("CPR #4 mask", Dumper::HexDisplay::Make(), (offset_t)cpr_mask[3]);
-	header_region.AddField("GP regiser value", Dumper::HexDisplay::Make(), (offset_t)gp_value);
+	header_region.AddField("Bss address", Dumper::HexDisplay::Make(), offset_t(bss_address));
+	header_region.AddField("GPR mask", Dumper::HexDisplay::Make(), offset_t(gpr_mask));
+	header_region.AddField("CPR #1 mask", Dumper::HexDisplay::Make(), offset_t(cpr_mask[0]));
+	header_region.AddField("CPR #2 mask", Dumper::HexDisplay::Make(), offset_t(cpr_mask[1]));
+	header_region.AddField("CPR #3 mask", Dumper::HexDisplay::Make(), offset_t(cpr_mask[2]));
+	header_region.AddField("CPR #4 mask", Dumper::HexDisplay::Make(), offset_t(cpr_mask[3]));
+	header_region.AddField("GP regiser value", Dumper::HexDisplay::Make(), offset_t(gp_value));
 }
 
 void COFFFormat::Clear()
@@ -525,7 +525,7 @@ void COFFFormat::Clear()
 void COFFFormat::AssignMagicValue()
 {
 	::WriteWord(2, 2, reinterpret_cast<uint8_t *>(signature), cpu_type, endiantype);
-	Linker::Debug << "Debug: COFF MAGIC VALUE " << (int)signature[0] << ", " << (int)signature[1] << std::endl;
+	Linker::Debug << "Debug: COFF MAGIC VALUE " << int(signature[0]) << ", " << int(signature[1]) << std::endl;
 }
 
 bool COFFFormat::DetectCpuType(::EndianType expected)
@@ -792,18 +792,18 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 	cpu_descriptions[CPU_SHARC] = "SHARC";
 
 	Dumper::Region file_region("File", file_offset, 0, 8); /* TODO: file size */
-	file_region.AddField("CPU type", Dumper::ChoiceDisplay::Make(cpu_descriptions), (offset_t)cpu_type);
+	file_region.AddField("CPU type", Dumper::ChoiceDisplay::Make(cpu_descriptions), offset_t(cpu_type));
 
 	std::map<offset_t, std::string> endian_descriptions;
 	endian_descriptions[::LittleEndian] = "little endian";
 	endian_descriptions[::BigEndian] = "big endian";
-	file_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(endian_descriptions), (offset_t)endiantype);
+	file_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(endian_descriptions), offset_t(endiantype));
 
 	file_region.Display(dump);
 
 	Dumper::Region header_region("File header", file_offset, 20, 8);
-	header_region.AddField("Signature", Dumper::HexDisplay::Make(4), (offset_t)ReadUnsigned(2, 2, reinterpret_cast<uint8_t *>(signature), endiantype));
-	header_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), (offset_t)timestamp);
+	header_region.AddField("Signature", Dumper::HexDisplay::Make(4), offset_t(ReadUnsigned(2, 2, reinterpret_cast<uint8_t *>(signature), endiantype)));
+	header_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
 	header_region.AddOptionalField("Flags",
 		Dumper::BitFieldDisplay::Make()
 			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("no relocations"), true)
@@ -812,7 +812,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("no symbols"), true)
 			->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("32-bit little endian"), true)
 			->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("32-bit big endian"), true),
-		(offset_t)flags);
+		offset_t(flags));
 	header_region.Display(dump);
 
 	if(optional_header)
@@ -825,19 +825,19 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 		Dumper::Block block("Section", file_offset + section->section_pointer, section->image, section->address, 8);
 		block.InsertField(0, "Name", Dumper::StringDisplay::Make(), section->name);
 		if(section->image->ActualDataSize() != section->size)
-			block.AddField("Size in memory", Dumper::HexDisplay::Make(), (offset_t)section->size);
-		block.AddField("Physical address", Dumper::HexDisplay::Make(), (offset_t)section->physical_address);
-		block.AddOptionalField("Line numbers", Dumper::HexDisplay::Make(), (offset_t)section->line_number_pointer); /* TODO */
-		block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), (offset_t)section->line_number_count); /* TODO */
+			block.AddField("Size in memory", Dumper::HexDisplay::Make(), offset_t(section->size));
+		block.AddField("Physical address", Dumper::HexDisplay::Make(), offset_t(section->physical_address));
+		block.AddOptionalField("Line numbers", Dumper::HexDisplay::Make(), offset_t(section->line_number_pointer)); /* TODO */
+		block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count)); /* TODO */
 		block.AddOptionalField("Flags",
 			Dumper::BitFieldDisplay::Make()
 				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
 				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
 				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
-			(offset_t)section->flags);
+			offset_t(section->flags));
 
 		Dumper::Region relocations("Section relocation", file_offset + section->relocation_pointer, 0, 8); /* TODO: size */
-		block.AddOptionalField("Count", Dumper::DecDisplay::Make(), (offset_t)section->relocation_count);
+		block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
 		relocations.Display(dump);
 
 		unsigned i = 0;
@@ -855,7 +855,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 	}
 
 	Dumper::Region symbol_table("Symbol table", file_offset + symbol_table_offset, symbol_count * 18, 8);
-	symbol_table.AddField("Count", Dumper::DecDisplay::Make(), (offset_t)symbol_count);
+	symbol_table.AddField("Count", Dumper::DecDisplay::Make(), offset_t(symbol_count));
 	symbol_table.Display(dump);
 	unsigned i = 0;
 	for(auto& symbol : symbols)
@@ -865,12 +865,12 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 		{
 			/* otherwise, ignored symbol */
 			symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol->name);
-			symbol_entry.AddOptionalField("Name index", Dumper::HexDisplay::Make(), (offset_t)symbol->name_index);
-			symbol_entry.AddField("Value", Dumper::HexDisplay::Make(), (offset_t)symbol->value);
-			symbol_entry.AddField("Section", Dumper::HexDisplay::Make(), (offset_t)symbol->section_number);
-			symbol_entry.AddField("Type", Dumper::HexDisplay::Make(4), (offset_t)symbol->type);
-			symbol_entry.AddField("Storage class", Dumper::HexDisplay::Make(2), (offset_t)symbol->storage_class);
-			symbol_entry.AddOptionalField("Auxiliary count", Dumper::DecDisplay::Make(), (offset_t)symbol->auxiliary_count);
+			symbol_entry.AddOptionalField("Name index", Dumper::HexDisplay::Make(), offset_t(symbol->name_index));
+			symbol_entry.AddField("Value", Dumper::HexDisplay::Make(), offset_t(symbol->value));
+			symbol_entry.AddField("Section", Dumper::HexDisplay::Make(), offset_t(symbol->section_number));
+			symbol_entry.AddField("Type", Dumper::HexDisplay::Make(4), offset_t(symbol->type));
+			symbol_entry.AddField("Storage class", Dumper::HexDisplay::Make(2), offset_t(symbol->storage_class));
+			symbol_entry.AddOptionalField("Auxiliary count", Dumper::DecDisplay::Make(), offset_t(symbol->auxiliary_count));
 		}
 		symbol_entry.Display(dump);
 		i += 1;

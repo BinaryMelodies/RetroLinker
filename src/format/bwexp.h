@@ -42,7 +42,7 @@ namespace DOS16M
 			uint32_t total_length;
 
 			AbstractSegment(unsigned access = TYPE_DATA, unsigned flags = 0, uint32_t total_length = 0)
-				: access((access_type)access), flags((flag_type)flags), total_length(total_length)
+				: access(access_type(access)), flags(flag_type(flags)), total_length(total_length)
 			{
 			}
 

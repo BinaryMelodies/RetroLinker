@@ -153,7 +153,7 @@ void Relocation::WriteWord(uint64_t value)
 		value <<= -shift;
 	else
 		value >>= shift; /* TODO: signed */
-	if(mask != (uint64_t)-1)
+	if(mask != uint64_t(-1))
 	{
 		uint64_t word = source.section->ReadUnsigned(size, source.offset, endiantype);
 		value = (value & mask) | (word & ~mask);
@@ -191,7 +191,7 @@ std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation
 	out << " relative to " << relocation.reference;
 	if(relocation.addend)
 	{
-		out << " add " << (int64_t)relocation.addend;
+		out << " add " << int64_t(relocation.addend);
 	}
 	if(relocation.shift < 0)
 	{
@@ -201,7 +201,7 @@ std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation
 	{
 		out << " shifted left by " << relocation.shift;
 	}
-	if(relocation.mask != -(uint64_t)1u)
+	if(relocation.mask != -uint64_t(1u))
 	{
 		out << " masked by " << std::hex << relocation.mask;
 	}

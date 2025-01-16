@@ -133,7 +133,7 @@ namespace Microsoft
 			}
 
 			Entry(unsigned type, uint8_t segment, unsigned flags, uint16_t offset)
-				: type((entry_type)type), segment(segment), flags((flag_type)flags), offset(offset)
+				: type(entry_type(type)), segment(segment), flags(flag_type(flags)), offset(offset)
 			{
 			}
 
@@ -167,7 +167,7 @@ namespace Microsoft
 			uint16_t movable_entry_index = 0; /* for movable segments, each relocation targetting it needs one and only one entry */
 
 			Segment(std::shared_ptr<Linker::Segment> segment, unsigned flags)
-				: image(segment), flags((flag_type)flags)
+				: image(segment), flags(flag_type(flags))
 			{
 			}
 
@@ -220,7 +220,7 @@ namespace Microsoft
 				}
 
 				Relocation(unsigned type, unsigned flags, uint16_t offset, uint16_t module, uint16_t target)
-					: type((source_type)type), flags((flag_type)flags), offset(offset), module(module), target(target)
+					: type(source_type(type)), flags(flag_type(flags)), offset(offset), module(module), target(target)
 				{
 				}
 
