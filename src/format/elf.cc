@@ -85,7 +85,7 @@ void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 		type_descriptions[STT_COMMON] = "STT_COMMON";
 		type_descriptions[STT_TLS] = "STT_TLS";
 		type_descriptions[STT_IMPORT] = "STT_IMPORT - (IBM OS/2)"; // TODO: st_value is offset of import table entry
-		symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(symbol.type));
+		symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::DecDisplay::Make()), offset_t(symbol.type));
 
 		std::map<offset_t, std::string> visibility_descriptions;
 		visibility_descriptions[STV_DEFAULT] = "STV_DEFAULT";
@@ -590,7 +590,7 @@ void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& 
 	operating_system_descriptions[IBMSystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
 	operating_system_descriptions[IBMSystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
 	operating_system_descriptions[IBMSystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
-	region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions), offset_t(os_type));
+	region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions, Dumper::DecDisplay::Make()), offset_t(os_type));
 
 	region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(os_size));
 	if(IsOS2Specific())
@@ -1172,7 +1172,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 	type_descriptions[SHT_SUNW_verdef] = "SHT_SUNW_verdef";
 	type_descriptions[SHT_SUNW_verneed] = "SHT_SUNW_verneed";
 	type_descriptions[SHT_SUNW_versym] = "SHT_SUNW_versym";
-	region->AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(type));
+	region->AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(8)), offset_t(type));
 
 	region->AddField("Flags",
 		Dumper::BitFieldDisplay::Make()
@@ -2063,7 +2063,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 	cpu_descriptions[EM_56800EF] = "NXP 56800EF Digital Signal Controller (DSC) ";
 	cpu_descriptions[EM_HOBBIT] = "AT&T Hobbit";
 	cpu_descriptions[EM_MOS] = "MOS 6502 (llvm-mos ELF specification)";
-	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions), offset_t(cpu));
+	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::DecDisplay::Make()), offset_t(cpu));
 	header_region.AddField("Object file version", Dumper::DecDisplay::Make(), offset_t(file_version));
 	header_region.AddField("Entry", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(entry));
 	header_region.AddField("Flags", Dumper::HexDisplay::Make(4), offset_t(flags));
@@ -2117,7 +2117,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 		type_descriptions[Segment::PT_OPENBSD_WXNEEDED] = "PT_OPENBSD_WXNEEDED - program does W^X violation";
 		type_descriptions[Segment::PT_OPENBSD_NOBTCFI] = "PT_OPENBSD_NOBTCFI - no branch target CFI";
 		type_descriptions[Segment::PT_OPENBSD_BOOTDATA] = "PT_OPENBSD_BOOTDATA - section for boot arguments";
-		segment_region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(segment.type));
+		segment_region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(8)), offset_t(segment.type));
 
 		segment_region.AddField("Flags",
 			Dumper::BitFieldDisplay::Make()

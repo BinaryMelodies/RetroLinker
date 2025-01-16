@@ -27,6 +27,12 @@ void ChoiceDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)
 	{
 		dump.out << it->second;
 	}
+	if(secondary_display != nullptr)
+	{
+		dump.out << " (";
+		secondary_display->DisplayValue(dump, values);
+		dump.out << ")";
+	}
 }
 
 void HexDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)

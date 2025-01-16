@@ -56,20 +56,34 @@ public:
 	 * @brief The single missing value, only used for missing_on_value true
 	 */
 	offset_t missing_value;
+	/**
+	 * @brief Alternative representation, appearing in parentheses after the value
+	 */
+	std::shared_ptr<Display<offset_t>> secondary_display;
 
-	ChoiceDisplay(std::map<offset_t, std::string> names, std::string default_name, bool missing_on_value, offset_t missing_value)
-		: names(names), default_name(default_name), missing_on_value(true), missing_value(missing_value)
+	ChoiceDisplay(std::map<offset_t, std::string> names, std::string default_name, bool missing_on_value, offset_t missing_value, std::shared_ptr<Display<offset_t>> secondary_display)
+		: names(names), default_name(default_name), missing_on_value(true), missing_value(missing_value), secondary_display(secondary_display)
 	{
 	}
 
-	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, std::string default_name = "unknown")
+	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, std::string default_name = "unknown", std::shared_ptr<Display<offset_t>> secondary_display = nullptr)
 	{
-		return std::make_shared<ChoiceDisplay>(names, default_name, false, 0);
+		return std::make_shared<ChoiceDisplay>(names, default_name, false, 0, secondary_display);
 	}
 
-	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, offset_t missing_value, std::string default_name = "unknown")
+	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, offset_t missing_value, std::string default_name = "unknown", std::shared_ptr<Display<offset_t>> secondary_display = nullptr)
 	{
-		return std::make_shared<ChoiceDisplay>(names, default_name, true, missing_value);
+		return std::make_shared<ChoiceDisplay>(names, default_name, true, missing_value, secondary_display);
+	}
+
+	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, std::shared_ptr<Display<offset_t>> secondary_display)
+	{
+		return std::make_shared<ChoiceDisplay>(names, "unknown", false, 0, secondary_display);
+	}
+
+	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, offset_t missing_value, std::shared_ptr<Display<offset_t>> secondary_display)
+	{
+		return std::make_shared<ChoiceDisplay>(names, "unknown", true, missing_value, secondary_display);
 	}
 
 	/**
@@ -84,7 +98,7 @@ public:
 		*/
 		names[0] = on_false;
 		names[1] = on_true;
-		return std::make_shared<ChoiceDisplay>(names, "", false, 0);
+		return std::make_shared<ChoiceDisplay>(names, "", false, 0, nullptr);
 	}
 
 	/**
@@ -99,7 +113,7 @@ public:
 			missing_value = 0;
 		*/
 		names[1] = on_true;
-		return std::make_shared<ChoiceDisplay>(names, "unknown", false, 0);
+		return std::make_shared<ChoiceDisplay>(names, "unknown", false, 0, nullptr);
 	}
 
 	bool IsMissing(std::tuple<offset_t>& values) override;
