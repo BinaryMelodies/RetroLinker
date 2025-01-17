@@ -44,36 +44,6 @@ void LinkerManager::SetLinkScript(std::string script_file, std::map<std::string,
 	}
 }
 
-bool LinkerManager::SetLinkerParameter(std::map<std::string, std::string>& options, std::string key)
-{
-	return SetLinkerParameter(options, key, key);
-}
-
-bool LinkerManager::SetLinkerParameter(std::map<std::string, std::string>& options, std::string key, std::string variable)
-{
-	std::string value_s;
-	if(::LookupOption(options, key, value_s))
-	{
-		try
-		{
-			offset_t value = std::stoll(value_s, nullptr, 0);
-			linker_parameters[variable] = Linker::Location(value);
-			Linker::Warning << "Warning: Setting linker parameters via -S" << key << " is obsolete, use -P" << variable << std::endl;
-			Linker::Debug << "Debug: Setting linker parameter " << variable << " to " << value << std::endl;
-			return true;
-		}
-		catch(std::invalid_argument& a)
-		{
-			Linker::Error << "Error: Unable to parse " << value_s << ", ignoring" << std::endl;
-			return false;
-		}
-	}
-	else
-	{
-		return false;
-	}
-}
-
 std::unique_ptr<Script::List> LinkerManager::GetScript(Linker::Module& module)
 {
 	bool file_error = false;

@@ -47,12 +47,6 @@ void GenericBinaryFormat::SetLinkScript(std::string script_file, std::map<std::s
 	LinkerManager::SetLinkScript(script_file, options);
 }
 
-void GenericBinaryFormat::SetOptions(std::map<std::string, std::string>& options)
-{
-	SetLinkerParameter(options, "base_address");
-	SetLinkerParameter(options, "segment_bias");
-}
-
 void GenericBinaryFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")

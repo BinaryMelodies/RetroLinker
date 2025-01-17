@@ -1259,10 +1259,6 @@ void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	stub_file = FetchOption(options, "stub", "");
 
-	SetLinkerParameter(options, "code_base", "code_base_address");
-	SetLinkerParameter(options, "data_base", "data_base_address");
-	SetLinkerParameter(options, "bss_base", "bss_base_address");
-
 	/* TODO */
 	option_no_relocation = false;
 }

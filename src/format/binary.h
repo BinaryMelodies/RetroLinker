@@ -59,8 +59,6 @@ namespace Binary
 		using OutputFormat::SetLinkScript;
 		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
-		void SetOptions(std::map<std::string, std::string>& options) override;
-
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();

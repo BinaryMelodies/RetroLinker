@@ -69,16 +69,6 @@ namespace Linker
 		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options);
 
 		/**
-		 * @brief Sets a single linker parameter, if inside options
-		 */
-		bool SetLinkerParameter(std::map<std::string, std::string>& options, std::string key);
-
-		/**
-		 * @brief Sets a single linker parameter, if inside options
-		 */
-		bool SetLinkerParameter(std::map<std::string, std::string>& options, std::string key, std::string variable);
-
-		/**
 		 * @brief Compiles the linker script into an internal format
 		 */
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);

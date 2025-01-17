@@ -556,10 +556,6 @@ void CPM68KFormat::SetOptions(std::map<std::string, std::string>& options)
 		Linker::FatalError("Fatal error: inconsistent expectations for relocations, aborting");
 	}
 
-	SetLinkerParameter(options, "code_base", "code_base_address");
-	SetLinkerParameter(options, "data_base", "data_base_address");
-	SetLinkerParameter(options, "bss_base", "bss_base_address");
-
 #if 0
 	auto code_base_it = options.find("code_base");
 	if(code_base_it != options.end())
