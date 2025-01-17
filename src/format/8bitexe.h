@@ -141,6 +141,8 @@ namespace Binary
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 	};
 
+	class PRLFormat;
+
 	/**
 	 * @brief CP/M Plus .com file format
 	 */
@@ -158,7 +160,7 @@ namespace Binary
 			uint16_t offset;
 			uint16_t length; /* only used for reading */
 			bool nonbanked_only;
-			GenericBinaryFormat * module;
+			std::shared_ptr<PRLFormat> module;
 		};
 		std::vector<rsx_record> rsx_table;
 
@@ -209,7 +211,9 @@ namespace Binary
 	public:
 		/* TODO: untested */
 
-		uint16_t zero_fill;
+		uint16_t zero_fill = 0;
+		uint16_t load_address = 0;
+		uint16_t csbase = 0;
 
 		bool suppress_relocations;
 
@@ -224,7 +228,11 @@ namespace Binary
 
 		bool ProcessRelocation(Linker::Module& module, Linker::Relocation& rel, Linker::Resolution resolution) override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		void WriteFile(Linker::Writer& wr) override;
+
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	/**

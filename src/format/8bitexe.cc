@@ -193,11 +193,6 @@ std::string CommodoreFormat::GetDefaultExtension(Linker::Module& module, std::st
 
 void CPM3Format::Clear()
 {
-	for(auto& rsx : rsx_table)
-	{
-		if(rsx.module)
-			delete rsx.module;
-	}
 	rsx_table.clear();
 }
 
@@ -329,6 +324,45 @@ bool PRLFormat::ProcessRelocation(Linker::Module& module, Linker::Relocation& re
 	return true;
 }
 
+void PRLFormat::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = ::LittleEndian;
+	rd.SeekEnd();
+	offset_t end = rd.Tell();
+	rd.Seek(1);
+	uint16_t image_size = rd.ReadUnsigned(2);
+	rd.Skip(1);
+	zero_fill = rd.ReadUnsigned(2);
+	rd.Skip(1);
+	load_address = rd.ReadUnsigned(2);
+	rd.Skip(1);
+	csbase = rd.ReadUnsigned(2);
+	rd.Seek(0x0100);
+	image = Linker::Buffer::ReadFromFile(rd, image_size);
+
+	relocations.clear();
+	if(end >= offset_t(0x0100) + image_size + ((image_size + 7) >> 3))
+	{
+		suppress_relocations = false;
+		for(uint16_t byte_offset = 0; byte_offset < image_size; byte_offset += 8)
+		{
+			uint8_t reloc_byte = rd.ReadUnsigned(1);
+			for(int byte = 7; byte >= 0; byte --)
+			{
+				if((reloc_byte & 1) != 0 && byte_offset + byte < image_size)
+				{
+					relocations.insert(byte_offset + byte);
+				}
+				reloc_byte >>= 1;
+			}
+		}
+	}
+	else
+	{
+		suppress_relocations = true;
+	}
+}
+
 void PRLFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
@@ -337,9 +371,9 @@ void PRLFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(1, 0);
 	wr.WriteWord(2, zero_fill);
 	wr.WriteWord(1, 0);
-	wr.WriteWord(2, 0); /* load address, non-zero only for OVL files */
+	wr.WriteWord(2, load_address); /* load address, non-zero only for OVL files */
 	wr.WriteWord(1, 0);
-	wr.WriteWord(2, 0); /* base address of code group, usually zero */
+	wr.WriteWord(2, csbase); /* base address of code group, usually zero */
 	wr.Seek(0x0100);
 	image->WriteFile(wr);
 
@@ -357,6 +391,35 @@ void PRLFormat::WriteFile(Linker::Writer& wr)
 			}
 			wr.WriteWord(1, reloc_byte);
 		}
+	}
+}
+
+void PRLFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("PRL format");
+	Dumper::Region file_region("File", 0, offset_t(0x0100) + image->ActualDataSize() + (suppress_relocations ? 0 : (image->ActualDataSize() + 7) >> 3), 4);
+	file_region.AddField("Zero fill", Dumper::HexDisplay::Make(4), offset_t(zero_fill));
+	file_region.AddOptionalField("Load address", Dumper::HexDisplay::Make(4), offset_t(load_address));
+	file_region.AddOptionalField("BIOS link", Dumper::HexDisplay::Make(4), offset_t(csbase));
+	file_region.AddField("Relocations", Dumper::ChoiceDisplay::Make("present", "missing"), offset_t(!suppress_relocations));
+	file_region.Display(dump);
+
+	Dumper::Block image_block("Image", 0x0100, image, 0x0100, 4); // TODO: .SPR files
+	for(auto relocation : relocations)
+	{
+		image_block.AddSignal(relocation, 1);
+	}
+	image_block.Display(dump);
+
+	unsigned i = 0;
+	for(auto relocation : relocations)
+	{
+		Dumper::Entry relocation_entry("Relocation", i + 1, 0x100 + image->ActualDataSize() + (relocation >> 3), 4);
+		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(4), offset_t(relocation));
+		relocation_entry.Display(dump);
+		i++;
 	}
 }
 
