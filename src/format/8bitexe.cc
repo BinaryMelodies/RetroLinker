@@ -318,10 +318,13 @@ bool PRLFormat::ProcessRelocation(Linker::Module& module, Linker::Relocation& re
 	rel.WriteWord(resolution.value);
 	if(resolution.target != nullptr && resolution.reference == nullptr)
 	{
-		Linker::Debug << "Debug: PRL relocation: " << rel << " at " <<
-			rel.source.GetPosition().GetSegmentOffset()
-			<< std::endl;
-		relocations.insert(rel.source.GetPosition().GetSegmentOffset());
+		if(rel.size == 2)
+		{
+			Linker::Debug << "Debug: PRL relocation: " << rel << " at " <<
+				rel.source.GetPosition().GetSegmentOffset() + 1
+				<< std::endl;
+			relocations.insert(rel.source.GetPosition().GetSegmentOffset() + 1);
+		}
 	}
 	return true;
 }
