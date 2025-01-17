@@ -207,7 +207,8 @@ namespace Microsoft
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
-		using LinkerManager::SetLinkScript;
+		using OutputFormat::SetLinkScript;
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetModel(std::string model) override;
 

@@ -35,6 +35,7 @@ void LinkerManager::SetLinkScript(std::string script_file, std::map<std::string,
 		{
 			offset_t value = std::stoll(it.second, nullptr, 0);
 			linker_parameters[it.first] = Linker::Location(value);
+			Linker::Debug << "Debug: Setting linker parameter " << it.first << " to " << value << std::endl;
 		}
 		catch(std::invalid_argument& a)
 		{
@@ -58,6 +59,7 @@ bool LinkerManager::SetLinkerParameter(std::map<std::string, std::string>& optio
 			offset_t value = std::stoll(value_s, nullptr, 0);
 			linker_parameters[variable] = Linker::Location(value);
 			Linker::Warning << "Warning: Setting linker parameters via -S" << key << " is obsolete, use -P" << variable << std::endl;
+			Linker::Debug << "Debug: Setting linker parameter " << variable << " to " << value << std::endl;
 			return true;
 		}
 		catch(std::invalid_argument& a)

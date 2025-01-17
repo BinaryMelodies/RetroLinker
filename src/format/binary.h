@@ -56,7 +56,8 @@ namespace Binary
 		/** @brief Default filename extension for executables (such as .com for MS-DOS, .r for Human68k) */
 		std::string extension;
 
-		using LinkerManager::SetLinkScript;
+		using OutputFormat::SetLinkScript;
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
@@ -148,8 +149,6 @@ namespace Binary
 		};
 		/** @brief Memory model of generated executable, must be MODEL_DEFAULT for all non-x86 platforms */
 		memory_model_t memory_model = MODEL_DEFAULT;
-
-		using LinkerManager::SetLinkScript;
 
 		void SetModel(std::string model) override;
 

@@ -241,17 +241,20 @@ EndFor = EndFor()
 
 class DefineVersion:
 	"""Provides variation in executable generation where the file format does not change significantly. Typically used for linking model or relocation suppression."""
-	def __init__(self, Id, ModelName = None, LinkerName = None, AssemblerOptions = (), LinkerOptions = ()):
+	def __init__(self, Id, ModelName = None, LinkerName = None, AssemblerOptions = (), LinkerOptions = (), LinkerParameters = ()):
 		"""
 			Id - version is identified by this
 			ModelName - passed to assembler as symbol MODEL_*
 			LinkerName - passed to linker as -M*, default: Id
+			LinkerOptions - passed to linker as -P*
+			LinkerParameters - passed to linker as -S*
 		"""
 		self.id = Id
 		self.model_name = ModelName
 		self.linker_name = LinkerName if LinkerName is not None else Id
 		self.assembler_options = tuple(AssemblerOptions)
 		self.linker_options = tuple(LinkerOptions)
+		self.linker_parameters = tuple(LinkerParameters)
 
 class DefineTarget:
 	"""Registers a new target, for CPU/OS/binary format. Instantiating this class automatically registers the target for compilation."""
@@ -299,6 +302,7 @@ class DefineTarget:
 				keywords['linker_model_name'] = self.versions[version].linker_name
 			keywords['assembler_options'] = self.versions[version].assembler_options
 			keywords['linker_options'] = self.versions[version].linker_options
+			keywords['linker_parameters'] = self.versions[version].linker_parameters
 		return keywords
 
 def PostProcess(System, PostProcess):
@@ -741,7 +745,7 @@ DefineTarget(
 	System = "dxdos",
 	Format = "com",
 	Versions = [
-		DefineVersion("", LinkerOptions = [f"base_address={DXDOS_BASE}"]),
+		DefineVersion("", LinkerParameters = [f"base_address={DXDOS_BASE}"]),
 	],
 	extension = ".com")
 
@@ -752,7 +756,7 @@ DefineTarget(
 	FormatName = "atari",
 	custom_entry = True,
 	Versions = [
-		DefineVersion("", LinkerOptions = ["base_address=0x600"]),
+		DefineVersion("", LinkerParameters = ["base_address=0x600"]),
 	],
 	extension = ".xex")
 
@@ -765,7 +769,7 @@ DefineTarget(
 	FormatName = "atari",
 	custom_entry = True,
 	Versions = [
-		DefineVersion("", LinkerOptions = ["base_address=0x600"]),
+		DefineVersion("", LinkerParameters = ["base_address=0x600"]),
 	],
 	extension = ".xex")
 
@@ -775,7 +779,7 @@ DefineTarget(
 	Format = "cbm-prg",
 	FormatName = "c64",
 	Versions = [
-		DefineVersion("", LinkerOptions = ["base_address=0x811"]),
+		DefineVersion("", LinkerParameters = ["base_address=0x811"]),
 	],
 	extension = ".prg")
 
@@ -787,7 +791,7 @@ DefineTarget(
 	Format = "cbm-prg",
 	FormatName = "c64",
 	Versions = [
-		DefineVersion("", LinkerOptions = ["base_address=0x811"]),
+		DefineVersion("", LinkerParameters = ["base_address=0x811"]),
 	],
 	extension = ".prg")
 

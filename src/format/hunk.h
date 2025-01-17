@@ -84,7 +84,8 @@ namespace Amiga
 		std::vector<Hunk> hunks;
 		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index; /* makes it easier to lookup the indices of segments */
 
-		using LinkerManager::SetLinkScript;
+		using OutputFormat::SetLinkScript;
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

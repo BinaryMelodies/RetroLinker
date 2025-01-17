@@ -1250,6 +1250,11 @@ std::shared_ptr<COFFFormat> COFFFormat::CreateWriter(format_type type)
 	return std::make_shared<COFFFormat>(type);
 }
 
+void COFFFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	LinkerManager::SetLinkScript(script_file, options);
+}
+
 void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	stub_file = FetchOption(options, "stub", "");

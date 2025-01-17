@@ -805,6 +805,11 @@ void AOutFormat::CalculateValues()
 	data_relocation_size = data_relocations.size() * 8;
 }
 
+void AOutFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	LinkerManager::SetLinkScript(script_file, options);
+}
+
 void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
 	switch(module.cpu)

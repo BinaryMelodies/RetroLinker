@@ -43,6 +43,9 @@ Recipe([
 		ForAll("option", In = "linker_options"),
 			"-S{option}",
 		EndFor,
+		ForAll("parameter", In = "linker_parameters"),
+			"-P{parameter}",
+		EndFor,
 		IfDefined("compiled_stack"),
 			"-d.stack_top=AppStackTop",
 		EndIf

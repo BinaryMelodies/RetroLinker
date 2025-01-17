@@ -8,6 +8,11 @@ void HUFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
+void HUFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	LinkerManager::SetLinkScript(script_file, options);
+}
+
 void HUFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	SetLinkerParameter(options, "code_base", "base_address");

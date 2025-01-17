@@ -45,6 +45,11 @@ uint32_t HunkFormat::Hunk::GetAdditionalFlags()
 	return flags & ~LoadPublic;
 }
 
+void HunkFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	LinkerManager::SetLinkScript(script_file, options);
+}
+
 void HunkFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	/* TODO */

@@ -32,7 +32,8 @@ namespace X68000
 		uint32_t relocation_size = 0;
 		std::map<uint32_t, unsigned char> relocations;
 
-		using LinkerManager::SetLinkScript;
+		using OutputFormat::SetLinkScript;
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

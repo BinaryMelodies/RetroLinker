@@ -60,7 +60,8 @@ namespace PharLap
 		{
 		}
 
-		using LinkerManager::SetLinkScript;
+		using OutputFormat::SetLinkScript;
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
@@ -151,7 +152,8 @@ namespace PharLap
 
 		RunTimeParameterBlock runtime_parameters;
 
-		using LinkerManager::SetLinkScript;
+		using OutputFormat::SetLinkScript;
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

@@ -950,6 +950,11 @@ unsigned CPM86Format::GetSegmentNumber(std::shared_ptr<Linker::Segment> segment)
 	return 0;
 }
 
+void CPM86Format::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	LinkerManager::SetLinkScript(script_file, options);
+}
+
 void CPM86Format::SetModel(std::string model)
 {
 	if(model == "")

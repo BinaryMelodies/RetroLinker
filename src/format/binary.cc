@@ -42,6 +42,11 @@ void GenericBinaryFormat::Dump(Dumper::Dumper& dump)
 }
 
 /* * * Writer members * * */
+void GenericBinaryFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	LinkerManager::SetLinkScript(script_file, options);
+}
+
 void GenericBinaryFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	SetLinkerParameter(options, "base_address");
