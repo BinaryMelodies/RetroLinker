@@ -694,6 +694,26 @@ void ELFFormat::NotesSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigne
 	}
 }
 
+//// VersionRequirements
+
+offset_t ELFFormat::VersionRequirements::ActualDataSize()
+{
+	// TODO
+	return 0;
+}
+
+offset_t ELFFormat::VersionRequirements::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+{
+	// TODO
+	return 0;
+}
+
+void ELFFormat::VersionRequirements::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+{
+	// TODO
+}
+
+
 //// IBMSystemInfo
 
 bool ELFFormat::IBMSystemInfo::IsOS2Specific() const
@@ -1080,6 +1100,7 @@ std::shared_ptr<ELFFormat::SectionGroup> ELFFormat::Section::ReadSectionGroup(Li
 {
 	// TODO: untested
 	std::shared_ptr<SectionGroup> section_group = std::make_shared<SectionGroup>(entsize);
+	rd.Seek(file_offset);
 	section_group->flags = rd.ReadUnsigned(4);
 	for(size_t j = 0; j < section_size / entsize; j++)
 	{
@@ -1153,9 +1174,43 @@ std::shared_ptr<ELFFormat::NotesSection> ELFFormat::Section::ReadNote(Linker::Re
 	return notes;
 }
 
+std::shared_ptr<ELFFormat::VersionRequirements> ELFFormat::Section::ReadVersionRequirements(Linker::Reader& rd, offset_t file_offset, offset_t section_link, offset_t section_info)
+{
+	std::shared_ptr<VersionRequirements> verneed = std::make_shared<VersionRequirements>();
+	rd.Seek(file_offset);
+	for(offset_t j = 0; j < section_info; j++)
+	{
+		VersionRequirement vern;
+		vern.version = rd.ReadUnsigned(2);
+		uint16_t vn_cnt = rd.ReadUnsigned(2);
+		vern.file_name_offset = rd.ReadUnsigned(4);
+		vern.offset_auxiliary_array = rd.ReadUnsigned(4);
+		vern.offset_next_entry = rd.ReadUnsigned(4);
+		Linker::Debug << "Debug: next entry " << vern.offset_next_entry << std::endl;
+		Linker::Debug << "Debug: reading " << vn_cnt << " auxiliary" << std::endl;
+		rd.Seek(file_offset + vern.offset_auxiliary_array);
+		for(int i = 0; i < vn_cnt; i++)
+		{
+			VersionRequirement::Auxiliary vernaux;
+			vernaux.hash = rd.ReadUnsigned(4);
+			vernaux.flags = rd.ReadUnsigned(2);
+			vernaux.other = rd.ReadUnsigned(2);
+			vernaux.name_offset = rd.ReadUnsigned(4);
+			vernaux.offset_next_entry = rd.ReadUnsigned(4);
+			vern.auxiliary_array.push_back(vernaux);
+			if(i != vn_cnt - 1)
+				rd.Seek(file_offset + vernaux.offset_next_entry);
+		}
+		verneed->requirements.push_back(vern);
+		if(j != section_info - 1)
+			rd.Seek(file_offset + vern.offset_next_entry);
+	}
+	return verneed;
+}
+
 std::shared_ptr<ELFFormat::IBMSystemInfo> ELFFormat::Section::ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset)
 {
-	std::shared_ptr<ELFFormat::IBMSystemInfo> system_info = std::make_shared<IBMSystemInfo>();
+	std::shared_ptr<IBMSystemInfo> system_info = std::make_shared<IBMSystemInfo>();
 	rd.Seek(file_offset);
 	system_info->os_type = IBMSystemInfo::system_type(rd.ReadUnsigned(4));
 	system_info->os_size = rd.ReadUnsigned(4);
@@ -1615,11 +1670,9 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			sections[i].contents = Section::ReadHashTable(rd, sections[i].file_offset);
 			break;
 		case Section::SHT_GROUP:
-			rd.Seek(sections[i].file_offset);
 			sections[i].contents = Section::ReadSectionGroup(rd, sections[i].file_offset, sections[i].size, sections[i].entsize ? 4 : sections[i].entsize);
 			break;
 		case Section::SHT_SYMTAB_SHNDX:
-			rd.Seek(sections[i].file_offset);
 			sections[i].contents = Section::ReadIndexArray(rd, sections[i].file_offset, sections[i].size, sections[i].entsize == 0 ? 4 : sections[i].entsize);
 			break;
 		case Section::SHT_DYNAMIC:
@@ -1628,6 +1681,17 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		case Section::SHT_NOTE:
 			sections[i].contents = Section::ReadNote(rd, sections[i].file_offset, sections[i].size);
 			break;
+		case Section::SHT_SUNW_versym:
+			sections[i].contents = Section::ReadArray(rd, sections[i].file_offset, sections[i].size,
+				sections[i].entsize != 0 ? sections[i].entsize : 2);
+			// TODO: link seems to point to dynsym
+			break;
+#if 0
+		// TODO: does not work yet
+		case Section::SHT_SUNW_verneed:
+			sections[i].contents = Section::ReadVersionRequirements(rd, sections[i].file_offset, sections[i].link, sections[i].info);
+			break;
+#endif
 		case Section::SHT_OS:
 		case Section::SHT_OLD_OS:
 			sections[i].contents = Section::ReadIBMSystemInfo(rd, sections[i].file_offset);

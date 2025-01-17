@@ -661,6 +661,38 @@ namespace ELF
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
 
+		class VersionRequirement
+		{
+		public:
+			class Auxiliary
+			{
+			public:
+				uint32_t hash = 0;
+				uint16_t flags = 0;
+				uint16_t other = 0;
+				uint32_t name_offset = 0;
+				std::string name;
+				uint32_t offset_next_entry = 0;
+			};
+
+			uint16_t version = 0;
+			uint32_t file_name_offset = 0;
+			std::string file_name;
+			uint32_t offset_auxiliary_array = 0;
+			std::vector<Auxiliary> auxiliary_array;
+			uint32_t offset_next_entry = 0;
+		};
+
+		class VersionRequirements : public SectionContents
+		{
+		public:
+			std::vector<VersionRequirement> requirements;
+
+			offset_t ActualDataSize() override;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
+			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
+		};
+
 		/* IBM OS/2 extension */
 		class IBMSystemInfo : public SectionContents
 		{
@@ -912,6 +944,7 @@ namespace ELF
 			static std::shared_ptr<HashTable> ReadHashTable(Linker::Reader& rd, offset_t file_offset);
 			static std::shared_ptr<DynamicSection> ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes);
 			static std::shared_ptr<NotesSection> ReadNote(Linker::Reader& rd, offset_t file_offset, offset_t section_size);
+			static std::shared_ptr<VersionRequirements> ReadVersionRequirements(Linker::Reader& rd, offset_t file_offset, offset_t section_link, offset_t section_info);
 			static std::shared_ptr<IBMSystemInfo> ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset);
 			static std::shared_ptr<IBMImportTable> ReadIBMImportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
 			static std::shared_ptr<IBMExportTable> ReadIBMExportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
