@@ -212,16 +212,9 @@ namespace DigitalResearch
 			static constexpr uint16_t RSX_TERMINATE = 0xFFFF;
 			static constexpr uint16_t RSX_DYNAMIC = 0x0000;
 			/**
-			 * @brief A reference to the stored module
-			 *
-			 * The special macros RSX_TERMINATE and RSX_DYNAMIC represent the special offset values
-			 * 0xFFFF and 0x0000, respectively. The choice of pointer values ensures that they cannot be dereferenced, and
-			 * checking the end of a list is as easy as checking a null pointer.
-			 * The value RSX_RAWDATA is a placeholder, meaning that the actual contents are to be found in rawdata.
+			 * @brief A reference to the stored module, either parsed or a raw block of data
 			 */
-			std::shared_ptr<CPM86Format> module;
-			/** @brief Alternatively, the contents can be represented as raw data */
-			std::shared_ptr<Linker::Writable> rawdata;
+			std::variant<std::shared_ptr<CPM86Format>, std::shared_ptr<Linker::Writable>, nullptr_t> contents;
 
 			void Clear();
 
@@ -232,6 +225,11 @@ namespace DigitalResearch
 			void Write(Linker::Writer& wr);
 
 			void WriteModule(Linker::Writer& wr);
+
+			offset_t GetFullFileSize() const;
+			void SetOffset(offset_t new_offset);
+
+			void Dump(Dumper::Dumper& dump);
 		};
 
 		/**
