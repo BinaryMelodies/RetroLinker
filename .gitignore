@@ -5,6 +5,7 @@ src/script/parse.tab.cc
 src/script/parse.tab.hh
 src/script/scan.cc
 link
+dump
 unittest/main
 results.xml
 /latex

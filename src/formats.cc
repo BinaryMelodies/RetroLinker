@@ -1,22 +1,5 @@
 
-#include <filesystem>
-#include <fstream>
-#include <optional>
-#include <set>
-#include <sstream>
-#include "common.h"
-#include "linker/location.h"
-#include "linker/module.h"
-#include "linker/position.h"
-#include "linker/reader.h"
-#include "linker/reference.h"
-#include "linker/relocation.h"
-#include "linker/resolution.h"
-#include "linker/section.h"
-#include "linker/segment.h"
-#include "linker/symbol.h"
-#include "linker/target.h"
-#include "linker/writer.h"
+#include "formats.h"
 #include "format/8bitexe.h" /* 8-bit binary formats */ /* TODO: not yet finished or tested */
 #include "format/aout.h" /* a.out format */
 #include "format/as86obj.h" /* TODO: not implemented */
@@ -46,7 +29,6 @@
 #include "format/pmode.h" /* TODO: not implemented */
 #include "format/xenix.h" /* TODO: not implemented */
 #include "format/xpexp.h" /* TODO: not implemented */
-#include "dumper/dumper.h"
 
 using namespace Linker;
 
@@ -66,12 +48,7 @@ using namespace PharLap;
 typedef Apple::OMFFormat GSOS_OMFFormat;
 typedef OMF::OMFFormat Intel_OMFFormat;
 
-struct output_format_type
-{
-	std::string format;
-	std::shared_ptr<OutputFormat> (* produce)();
-	std::string documentation;
-} formats[] =
+output_format_type formats[] =
 {
 	/* binary */
 	{ "bin",
@@ -376,6 +353,8 @@ struct output_format_type
 		"Apple 8-bit file format" },
 };
 
+const size_t formats_size = sizeof(formats) / sizeof(formats[0]);
+
 /**
  * @brief Searches for the associated file format
  */
@@ -400,11 +379,6 @@ std::shared_ptr<OutputFormat> FetchMainFormat(std::string text)
 	Linker::FatalError(message.str());
 }
 
-/**
- * @brief Converts a string representation into an output format
- *
- * Most formats are identified by an identifier, but some of them (such as the Classic Macintosh) support a <tt>+</tt> separated list of formats, the first of which is the main format, followed by supplementary formats.
- */
 std::shared_ptr<OutputFormat> FetchFormat(std::string text)
 {
 	size_t pos = text.find("+");
@@ -427,73 +401,6 @@ std::shared_ptr<OutputFormat> FetchFormat(std::string text)
 	}
 	return format;
 }
-
-/**
- * @brief Descriptor to return when checking the signature of a binary file
- */
-enum format_type
-{
-	FORMAT_68K, // .68k used by CP/M-68K, Concurrent DOS 68K, GEMDOS/Atari TOS, Human68k
-	FORMAT_ADAM, // Adam Seychell's DOS32 DOS extender
-	FORMAT_AIF, // ARM image format /* TODO: not implemented */
-	FORMAT_AOUT, // UNIX a.out
-	FORMAT_APPLE, // Macintosh AppleSingle/AppleDouble, used to store Macintosh files on other systems
-	FORMAT_APPLEII, // Apple ][ binary format
-	FORMAT_ATARI, // Atari 8-bit binary format
-	FORMAT_BW, // DOS/16M .exp file
-	FORMAT_COFF, // UNIX COFF
-	FORMAT_CMD, // CP/M-86
-	FORMAT_CPM3, // CP/M-80 Plus format /* TODO: not implemented */
-	FORMAT_D3X, // Daniel Broca's D3X DOS extender
-	FORMAT_DX64, // CandyMan's DX64 DOS extender, Flat format
-	FORMAT_ELF, // UNIX ELF
-	FORMAT_FLAT, // flat unstructured file
-	FORMAT_FLEX, // FLEX .cmd (6800 or 6809 CPUs)
-	FORMAT_GEOS, // PC/GEOS Geode format
-	FORMAT_GSOS, // Apple IIgs GS/OS format
-	FORMAT_HU, // Human68k .x
-	FORMAT_HUNK, // Amiga hunk
-	FORMAT_JAVA, // Java class file
-	FORMAT_LE, // Linear executable (OS/2, DOS/4G)
-	FORMAT_LV, // CandyMan's DX64 DOS extender, LV format
-	FORMAT_MACHO, // Mach-O format
-	FORMAT_MINIX, // MINIX a.out
-	FORMAT_MP, // Phar Lap executable .exp
-	FORMAT_MQ, // Phar Lap relocatable executable, .rex
-	FORMAT_MZ, // MS-DOS .exe
-	FORMAT_NE, // 16-bit Windows .exe
-	FORMAT_O65, // 6502 binary relocation format
-	FORMAT_OMF, // Intel Object file
-	FORMAT_P3, // Phar Lap new executable .exp
-	FORMAT_PE, // 32-bit Windows .exe
-	FORMAT_PEF, // Classic Macintosh PowerPC executable
-	FORMAT_PMODEW, // PMODE/W executable
-	FORMAT_PRL, // MP/M-80 relocatable
-	FORMAT_RSRC, // Classic Macintosh resource, possibly containing an executable
-	FORMAT_UZI280, // UZI-280 executable
-	FORMAT_W3, // Windows unique file
-	FORMAT_W4, // Windows unique file
-	FORMAT_XENIX, // Xenix segmented executable
-	FORMAT_XP, // OS/286 or OS/386 executable
-	FORMAT_Z8K, // CP/M-8000
-};
-
-struct format_description;
-
-struct format_magic
-{
-	std::string magic;
-	unsigned offset;
-	format_type type;
-	std::string description;
-	bool (* special_parse)(Reader& in, format_description& description);
-};
-
-struct format_description
-{
-	format_magic magic;
-	uint32_t offset;
-};
 
 static bool VerifyMacintoshResource(Reader& in, format_description& description)
 {
@@ -706,10 +613,7 @@ static const struct format_magic format_magics[] =
 	{ std::string(""),                    0, FORMAT_AIF,     "ARM AIF format", VerifyAIF },
 };
 
-/**
- * @brief Collects all the possible file formats, this includes skipping over MZ stubs for protected mode DOS or Windows 3.x executables
- */
-void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, uint32_t offset = 0)
+void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, uint32_t offset)
 {
 	rd.Seek(offset);
 	char magic[5];
@@ -777,42 +681,6 @@ void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, 
 			}
 		}
 	}
-}
-
-void usage(char * argv0)
-{
-	std::cerr << "Usage: " << argv0 << "(--link) [options] <input files>" << std::endl;
-	std::cerr << "\t-h" << std::endl << "\t\tDisplay this help page" << std::endl;
-	std::cerr << "\t-F<format>" << std::endl << "\t\tSelect output format" << std::endl;
-	std::cerr << "\t-o<output file>" << std::endl << "\t\tSpecify output binary file name" << std::endl;
-	std::cerr << "\t-M<memory model>" << std::endl << "\t\tSelect memory model, format dependent" << std::endl;
-	std::cerr << "\t-T<linker script>" << std::endl;
-	std::cerr << "\t-P<parameter>=<value>" << std::endl << "\t\tSet parameter for linker script (syntax: ?parameter?)" << std::endl;
-	std::cerr << "\t-S<setting>, -S<setting>=<value>" << std::endl << "\t\tSet parameter, format dependent" << std::endl;
-	std::cerr << "\t-d<symbol>, -d<symbol>=<value> -d<symbol>=<segment>:<offset>" << std::endl << "\t\tDefine symbol, including special names such as .entry" << std::endl;
-	std::cerr << "\t-$=<char>, -$ <char>" << std::endl << "\t\tSet special character (default: '$')" << std::endl;
-
-/* TODO: usage for --dump (dumper_main) */
-
-	std::cerr << "List of supported output formats:" << std::endl;
-	output_format_type * last = nullptr;
-
-	size_t i = 0;
-	do
-	{
-		if(formats[i].documentation != "")
-		{
-			if(last != nullptr)
-			{
-				std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
-			}
-			last = &formats[i];
-		}
-		std::cerr << "\t" << formats[i].format;
-		i += 1;
-	}
-	while(i < sizeof(formats) / sizeof(formats[0]));
-	std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
 }
 
 std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format)
@@ -941,377 +809,5 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 #endif
 	}
 	Linker::FatalError("Internal error: invalid output format");
-}
-
-/**
- * @brief The main entry to the linker
- */
-int linker_main(int argc, char * argv[])
-{
-	Module module;
-	std::shared_ptr<OutputFormat> format = nullptr;
-
-	std::vector<std::string> inputs;
-	std::string output;
-	std::string model;
-	std::string linker_script; /* TODO: not actually used */
-	std::map<std::string, std::string> options;
-	std::map<std::string, std::string> parameters;
-	std::map<std::string, Reference> defines;
-	char special_char = '$';
-
-	for(int i = 1; i < argc; i++)
-	{
-		if(argv[i][0] == '-')
-		{
-			if(argv[i][1] == 'h')
-			{
-				/* help */
-				usage(argv[0]);
-				exit(0);
-			}
-			else if(argv[i][1] == 'F')
-			{
-				/* format type */
-				format = FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]);
-			}
-			else if(argv[i][1] == 'o')
-			{
-				/* output file */
-				if(output != "")
-				{
-					Linker::Error << "Error: Multiple output files provided, using first one" << std::endl;
-				}
-				else
-				{
-					output = argv[i][2] ? &argv[i][2] : argv[++i];
-				}
-			}
-			else if(argv[i][1] == 'M')
-			{
-				/* memory model */
-				model = std::string(&argv[i][2]);
-			}
-			else if(argv[i][1] == 'T')
-			{
-				/* linker script */
-				linker_script = std::string(&argv[i][2]);
-			}
-			else if(argv[i][1] == 'S')
-			{
-				/* linker options */
-				std::string setting = std::string(&argv[i][2]);
-				size_t ix = setting.find('=');
-				if(ix == std::string::npos)
-					options[setting] = "";
-				else
-					options[setting.substr(0, ix)] = setting.substr(ix + 1);
-			}
-			else if(argv[i][1] == 'P')
-			{
-				/* linker script parameters */
-				std::string setting = std::string(&argv[i][2]);
-				size_t ix = setting.find('=');
-				if(ix == std::string::npos)
-					parameters[setting] = "";
-				else
-					parameters[setting.substr(0, ix)] = setting.substr(ix + 1);
-			}
-			else if(argv[i][1] == 'd')
-			{
-				/* define symbol */
-				try
-				{
-					std::string name = std::string(&argv[i][2]);
-					size_t ix = name.find('=');
-					Reference ref;
-					if(ix == std::string::npos)
-					{
-						ref.offset = offset_t(1);
-					}
-					else
-					{
-						size_t ix2 = name.find(':');
-						std::string value;
-						if(ix2 == std::string::npos)
-						{
-							value = name.substr(ix + 1);
-						}
-						else
-						{
-							ref.segment = name.substr(ix + 1, ix2 - ix - 1);
-							value = name.substr(ix2 + 1);
-						}
-						name = name.substr(0, ix);
-						if(value.size() >= 1 && '0' <= value[0] && value[0] <= '9')
-						{
-//							Linker::Debug << "Debug: ?" << value << std::endl;
-							ref.offset = offset_t(stoll(value, nullptr, 0));
-//							Linker::Debug << "Debug: ?" << std::get<offset_t>(ref.offset) << std::endl;
-						}
-						else
-						{
-							ref.offset = value;
-						}
-					}
-					Linker::Debug << "Debug: Define " << name << " as " << ref << std::endl;
-					defines[name] = ref;
-				}
-				catch(std::invalid_argument& a)
-				{
-					Linker::Error << "Error: Unable to parse definition argument " << &argv[i][2] << ", ignoring" << std::endl;
-				}
-			}
-			else if(argv[i][1] == '$')
-			{
-				/* assembler escape symbol, to extend input object file feature set (for example, segmentation or automatic imports) */
-				special_char = argv[i][2] == '=' ? argv[i][3] : argv[i++][0];
-			}
-			else
-			{
-				std::ostringstream message;
-				message << "Fatal error: Unknown option `" << argv[i] << "'";
-				Linker::FatalError(message.str());
-			}
-			/* TODO: define new symbols and parameters */
-		}
-		else
-		{
-			inputs.push_back(argv[i]);
-		}
-	}
-
-	if(format == nullptr)
-	{
-		Linker::Warning << "Warning: Unspecified output format, using flat binary" << std::endl;
-		format = std::make_shared<BinaryFormat>(0, "");
-	}
-
-	for(auto input : inputs)
-	{
-		Module module1;
-
-		std::ifstream in;
-		in.open(input, std::ios_base::in | std::ios_base::binary);
-		if(!in.is_open())
-		{
-			std::ostringstream message;
-			message << "Fatal error: Unable to open file " << input;
-			Linker::FatalError(message.str());
-		}
-		Reader rd (LittleEndian, &in);
-
-		std::vector<format_description> file_formats;
-		DetermineFormat(file_formats, rd);
-
-		std::shared_ptr<InputFormat> input_format = nullptr;
-
-		for(auto& file_format : file_formats)
-		{
-			input_format = std::dynamic_pointer_cast<InputFormat>(CreateFormat(rd, file_format));
-			if(input_format != nullptr)
-			{
-				input_format->file_offset = file_format.offset;
-				rd.Seek(file_format.offset);
-				break; /* already processed */
-			}
-		}
-		if(!input_format)
-		{
-			std::ostringstream message;
-			message << "Fatal error: Unable to process input file " << input << ", file format: ";
-			if(file_formats.size() == 0)
-			{
-				message << "unknown";
-			}
-			else
-			{
-				bool not_first = false;
-				for(auto& file_format : file_formats)
-				{
-					if(not_first)
-						message << ", ";
-					message << file_format.magic.description;
-					not_first = true;
-				}
-			}
-			Linker::FatalError(message.str());
-		}
-
-		module1.SetupOptions(special_char, format, input_format);
-		input_format->SetupOptions(format);
-		input_format->ProduceModule(module1, rd);
-		in.close();
-
-		/* attempts to resolve as many relocations as possible */
-		/* this is needed because local symbols get lost, but segment references are still stored as references to symbol names */
-		module1.ResolveRelocations();
-		module.Append(module1);
-	}
-
-#if DISPLAY_LOGS
-	for(auto section : module.Sections())
-	{
-		Linker::Debug << "Debug: " << section << std::endl;
-	}
-#endif
-#if DISPLAY_LOGS
-	for(auto pairs : module.symbols)
-	{
-		Linker::Debug << "Debug: " << pairs.first << ":" << pairs.second << std::endl;
-	}
-#endif
-#if DISPLAY_LOGS
-	for(auto relocation : module.relocations)
-	{
-		Linker::Debug << "Debug: " << relocation << std::endl;
-	}
-#endif
-
-	for(auto it : defines)
-	{
-		module.AddGlobalSymbol(it.first, it.second.ToLocation(module));
-//		Location loc;
-//		Linker::Debug << "Debug: " << module.FindGlobalSymbol(it.first, loc);
-//		Linker::Debug << it.first << " = " << loc << std::endl;
-	}
-
-	module.AllocateSymbols();
-	format->SetOptions(options); /* extension might depend on options */
-
-	if(output == "")
-	{
-		if(inputs.size() == 1)
-		{
-#if 0
-			size_t pos = inputs[0].find_last_of(".");
-			if(pos == std::string::npos || inputs[0].find_first_of("/", pos) != std::string::npos) /* TODO: UNIX specific */
-			{
-				output = inputs[0];
-			}
-			else
-			{
-				output = inputs[0].substr(0, pos);
-			}
-#endif
-			output = std::filesystem::path(inputs[0]).replace_extension().string();
-			output = format->GetDefaultExtension(module, output);
-		}
-		else
-		{
-			output = format->GetDefaultExtension(module);
-		}
-	}
-
-	format->SetModel(model);
-	format->SetLinkScript(linker_script, parameters);
-
-	Linker::Debug << "Debug: Generating " << output << std::endl;
-	format->GenerateFile(output, module);
-
-	return 0;
-}
-
-/**
- * @brief The main entry to the dumper
- */
-int dumper_main(int argc, char * argv[])
-{
-	std::string input = "";
-	std::shared_ptr<Format> format = nullptr;
-
-	for(int i = 1; i < argc; i++)
-	{
-		if(argv[i][0] == '-')
-		{
-			if(argv[i][1] == 'h')
-			{
-				usage(argv[0]);
-				exit(0);
-			}
-			else if(argv[i][1] == 'F')
-			{
-				/* TODO: FetchFormat with another table for input formats, enable setting system type */
-				format = FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]);
-				/* TODO: enable selecting a format within the determined formats, or force parsing a format at a specified address */
-			}
-			/* TODO: select text encoding */
-			else
-			{
-				std::ostringstream message;
-				message << "Fatal error: Unknown option `" << argv[i] << "'";
-				Linker::FatalError(message.str());
-			}
-		}
-		else
-		{
-			if(input != "")
-			{
-				Linker::Error << "Error: Multiple input files provided, ignoring" << std::endl;
-			}
-			input = argv[i];
-		}
-	}
-
-	std::ifstream in;
-	in.open(input, std::ios_base::in | std::ios_base::binary);
-	Reader rd (LittleEndian, &in);
-	int status = 0;
-
-	if(format == nullptr)
-	{
-		std::vector<format_description> file_formats;
-		DetermineFormat(file_formats, rd);
-
-		if(file_formats.size() == 0)
-		{
-			Linker::Error << "Fatal error: Unable to determine file format" << std::endl;
-			return 1;
-		}
-
-		for(auto& file_format : file_formats)
-		{
-			format = CreateFormat(rd, file_format);
-			if(!format)
-			{
-				Linker::Error << "Error: Unable to parse file, unimplemented format " << file_format.magic.description << std::endl;
-				status = 1;
-				continue;
-			}
-			rd.Seek(file_format.offset);
-			format->ReadFile(rd);
-			Dumper::Dumper dump(std::cout);
-			format->Dump(dump);
-		}
-	}
-	else
-	{
-		format->ReadFile(rd);
-		Dumper::Dumper dump(std::cout);
-		format->Dump(dump);
-	}
-
-	return status;
-}
-
-int main(int argc, char * argv[])
-{
-	if(argc >= 2 && argv[1] == std::string("--dump"))
-	{
-		argv[1] = argv[0];
-		argc --;
-		argv ++;
-		return dumper_main(argc, argv);
-	}
-	else
-	{
-		if(argc >= 2 && argv[1] == std::string("--link"))
-		{
-			argv[1] = argv[0];
-			argc --;
-			argv ++;
-		}
-		return linker_main(argc, argv);
-	}
 }
 

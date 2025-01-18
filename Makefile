@@ -15,8 +15,8 @@ SCRIPT_HEADERS=src/script/script.h
 SCRIPT_CXXFILES=src/script/scan.cc src/script/parse.tab.cc
 SCRIPT_OFILES=$(SCRIPT_CXXFILES:.cc=.o)
 
-MAIN_HEADERS=src/common.h
-MAIN_CXXFILES=src/main.cc src/common.cc
+MAIN_HEADERS=src/common.h src/formats.h
+MAIN_CXXFILES=$(MAIN_HEADERS:.h=.cc)
 MAIN_OFILES=$(MAIN_CXXFILES:.cc=.o)
 
 CXXFLAGS=-Wall -Wsuggest-override -Wold-style-cast -std=c++20
@@ -24,19 +24,22 @@ CXXFLAGS+= -O2
 CXXFLAGS+= -g
 LDFLAGS=-O2
 
-all: link
+all: link dump
 
 .PHONY: all clean distclean tests tests_clean verify force docs unittests
 
-link: $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
-	g++ -o link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
+link: src/link.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
+	g++ -o link src/link.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
+
+dump: src/dump.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
+	g++ -o dump src/dump.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
 
 force:
-	rm -f link
+	rm -f link dump
 	make all
 
 clean: tests_clean
-	rm -rf link $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) src/script/scan.cc src/script/parse.tab.cc src/script/parse.tab.hh
+	rm -rf link dump $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) src/script/scan.cc src/script/parse.tab.cc src/script/parse.tab.hh
 
 tests_clean:
 	$(MAKE) -C tests/1_hello clean

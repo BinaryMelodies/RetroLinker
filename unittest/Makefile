@@ -16,7 +16,7 @@ SCRIPT_CXXFILES=../src/script/scan.cc ../src/script/parse.tab.cc
 SCRIPT_OFILES=$(SCRIPT_CXXFILES:.cc=.o)
 
 MAIN_HEADERS=../src/common.h
-MAIN_CXXFILES=../src/common.cc
+MAIN_CXXFILES=$(MAIN_HEADERS:.h=.cc)
 MAIN_OFILES=$(MAIN_CXXFILES:.cc=.o)
 
 CXXFLAGS=-Wall -g
