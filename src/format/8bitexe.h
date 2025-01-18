@@ -156,11 +156,15 @@ namespace Binary
 		uint8_t rsx_count = 0;
 		struct rsx_record
 		{
+			std::string rsx_file_name;
+
 			std::string name;
-			uint16_t offset;
-			uint16_t length; /* only used for reading */
-			bool nonbanked_only;
+			uint16_t offset = 0;
+			uint16_t length = 0; /* only used for reading */
+			bool nonbanked_only = false;
 			std::shared_ptr<PRLFormat> module;
+
+			void OpenAndPrepare();
 		};
 		std::vector<rsx_record> rsx_table;
 
@@ -171,9 +175,13 @@ namespace Binary
 			Clear();
 		}
 
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		void WriteFile(Linker::Writer& wr) override;
+
+		void CalculateValues() override;
 	};
 
 	/**
@@ -215,7 +223,7 @@ namespace Binary
 		uint16_t load_address = 0;
 		uint16_t csbase = 0;
 
-		bool suppress_relocations;
+		bool suppress_relocations = false;
 
 		std::set<uint16_t> relocations;
 
@@ -231,6 +239,7 @@ namespace Binary
 		void ReadFile(Linker::Reader& rd) override;
 
 		void WriteFile(Linker::Writer& wr) override;
+		void WriteWithoutHeader(Linker::Writer& wr);
 
 		void Dump(Dumper::Dumper& dump) override;
 	};

@@ -96,6 +96,10 @@ struct output_format_type
 	{ "prl",
 		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<PRLFormat>(0x0100, ".prl"); },
 		"Page relocatable (.prl) for MP/M-80 and CP/M-80 Plus (Version 3)" },
+	/* CP/M 3 */
+	{ "cpm3",
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM3Format>(); },
+		"CP/M-80 Plus format (Version 3)" },
 	/* MZ */
 	{ "exe",
 		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<MZFormat>(); },

@@ -1,5 +1,6 @@
 
 #include "8bitexe.h"
+#include <filesystem>
 
 using namespace Binary;
 
@@ -191,9 +192,66 @@ std::string CommodoreFormat::GetDefaultExtension(Linker::Module& module, std::st
 
 // CPM3Format
 
+void CPM3Format::rsx_record::OpenAndPrepare()
+{
+	if(rsx_file_name != "")
+	{
+		std::ifstream rsx_file;
+		rsx_file.open(rsx_file_name, std::ios_base::in | std::ios_base::binary);
+		if(rsx_file.is_open())
+		{
+			Linker::Reader rd(::LittleEndian, &rsx_file);
+			module = std::make_shared<PRLFormat>();
+			module->ReadFile(rd);
+			rsx_file.close();
+		}
+		else
+		{
+			Linker::Error << "Error: unable to open RSX file " << rsx_file_name << ", generating dummy entry" << std::endl;
+		}
+	}
+}
+
 void CPM3Format::Clear()
 {
 	rsx_table.clear();
+}
+
+void CPM3Format::SetOptions(std::map<std::string, std::string>& options)
+{
+	if(auto rsx_file_names_option = FetchOption(options, "rsx"))
+	{
+		// TODO: non-banked only flag
+		std::string rsx_file_names = rsx_file_names_option.value();
+		size_t string_offset = 0;
+		size_t comma;
+		while((comma = rsx_file_names.find(',', string_offset)) != std::string::npos)
+		{
+			rsx_table.push_back(rsx_record());
+			rsx_table.back().rsx_file_name = rsx_file_names.substr(string_offset, comma - string_offset);
+			string_offset = comma + 1;
+		}
+		rsx_table.push_back(rsx_record());
+		rsx_table.back().rsx_file_name = rsx_file_names.substr(string_offset);
+	}
+
+	for(auto& rsx : rsx_table)
+	{
+		size_t eq_offset = rsx.rsx_file_name.find('=');
+		if(eq_offset != std::string::npos)
+		{
+			rsx.name = rsx.rsx_file_name.substr(0, eq_offset);
+			rsx.rsx_file_name = rsx.rsx_file_name.substr(eq_offset + 1);
+		}
+		else
+		{
+			std::filesystem::path rsx_file_path(rsx.rsx_file_name);
+			rsx.name = rsx_file_path.stem();
+		}
+
+		rsx.name.resize(8, ' ');
+		std::transform(rsx.name.begin(), rsx.name.end(), rsx.name.begin(), ::toupper);
+	}
 }
 
 void CPM3Format::ReadFile(Linker::Reader& rd)
@@ -205,6 +263,7 @@ void CPM3Format::ReadFile(Linker::Reader& rd)
 	uint16_t data_size = rd.ReadUnsigned(2);
 	rd.ReadData(10, preinit_code);
 	loader_active = rd.ReadUnsigned(1) != 0;
+	rd.Skip(1);
 	uint8_t rsx_count = rd.ReadUnsigned(1);
 	for(int i = 0; i < rsx_count; i++)
 	{
@@ -237,6 +296,7 @@ void CPM3Format::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(2, image->ActualDataSize());
 	wr.WriteData(10, preinit_code);
 	wr.WriteWord(1, rsx_table.size() == 0 && loader_active ? 0xFF : 0);
+	wr.Skip(1);
 	wr.WriteWord(1, rsx_table.size());
 	for(auto& rsx : rsx_table)
 	{
@@ -247,11 +307,23 @@ void CPM3Format::WriteFile(Linker::Writer& wr)
 		wr.WriteData(8, rsx.name);
 		wr.Skip(2);
 	}
+	wr.Seek(0x100);
 	image->WriteFile(wr);
 	for(auto& rsx : rsx_table)
 	{
 		wr.Seek(rsx.offset);
-		rsx.module->image->WriteFile(wr);
+		rsx.module->WriteWithoutHeader(wr);
+	}
+}
+
+void CPM3Format::CalculateValues()
+{
+	uint16_t offset = 0x100 + image->ActualDataSize();
+	for(auto& rsx : rsx_table)
+	{
+		rsx.offset = offset;
+		rsx.OpenAndPrepare();
+		offset += rsx.module->image->ActualDataSize() + ((rsx.module->image->ActualDataSize() + 7) >> 3);
 	}
 }
 
@@ -341,6 +413,7 @@ void PRLFormat::ReadFile(Linker::Reader& rd)
 	image = Linker::Buffer::ReadFromFile(rd, image_size);
 
 	relocations.clear();
+	Linker::Debug << "Debug: File size: " << end << ", expected size with relocations: " << (offset_t(0x0100) + image_size + ((image_size + 7) >> 3)) << std::endl;
 	if(end >= offset_t(0x0100) + image_size + ((image_size + 7) >> 3))
 	{
 		suppress_relocations = false;
@@ -375,10 +448,17 @@ void PRLFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(1, 0);
 	wr.WriteWord(2, csbase); /* base address of code group, usually zero */
 	wr.Seek(0x0100);
+	WriteWithoutHeader(wr);
+}
+
+void PRLFormat::WriteWithoutHeader(Linker::Writer& wr)
+{
+	wr.endiantype = ::LittleEndian;
 	image->WriteFile(wr);
 
 	if(!suppress_relocations) /* suppress relocations only for OVL files */
 	{
+		Linker::Debug << "Debug: Writing relocations" << std::endl;
 		for(uint16_t offset = 0; offset < ::AlignTo(image->ActualDataSize(), 8); offset += 8)
 		{
 			uint8_t reloc_byte = 0;
