@@ -36,3 +36,9 @@ tests/rsx/z80/*
 !tests/rsx/z80/main.s
 !tests/rsx/z80/common.s
 !tests/rsx/z80/Makefile
+tests/rsx/i86/*
+!tests/rsx/i86/rsx1.s
+!tests/rsx/i86/rsx2.s
+!tests/rsx/i86/main.s
+!tests/rsx/i86/common.s
+!tests/rsx/i86/Makefile
