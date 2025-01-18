@@ -129,8 +129,11 @@ struct output_format_type
 		"CP/M-86 compact model executable (.cmd), multiple segments" },
 	{ "cpm86_compact" },
 	{ "cpm_compact" },
+	{ "rsx",
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM86Format>(CPM86Format::FORMAT_SMALL, CPM86Format::APPL_RSX); }, /* TODO: other models? */
+		"CP/M-86 small model resident system extension (.rsx), separate code/data segments" },
 	{ "flexos",
-		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM86Format>(CPM86Format::FORMAT_FLEXOS); } /* TODO: multiple models */,
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<CPM86Format>(CPM86Format::FORMAT_FLEXOS, CPM86Format::APPL_286); } /* TODO: multiple models */,
 		"FlexOS executable (.286), same format as CP/M-86 (.cmd) [untested]" },
 	/* MINIX */
 	{ "minix",

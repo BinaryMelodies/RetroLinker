@@ -1,9 +1,11 @@
 
 #include "cpm86.h"
+#include <filesystem>
 
 using namespace DigitalResearch;
 
 std::shared_ptr<CPM86Format> CPM86Format::rsx_record::dynamic_module = std::make_shared<CPM86Format>();
+std::shared_ptr<CPM86Format> CPM86Format::rsx_record::rawdata_module = std::make_shared<CPM86Format>();
 
 void CPM86Format::Descriptor::Clear()
 {
@@ -188,7 +190,7 @@ void CPM86Format::rsx_record::Write(Linker::Writer& wr)
 	{
 		offset_record = 0;
 	}
-	else
+	else if(module != RSX_RAWDATA)
 	{
 		offset_record = module->file_offset >> 7;
 	}
@@ -200,7 +202,14 @@ void CPM86Format::rsx_record::Write(Linker::Writer& wr)
 void CPM86Format::rsx_record::WriteModule(Linker::Writer& wr)
 {
 	/* TODO: untested */
-	if(module != RSX_DYNAMIC && module != RSX_TERMINATE)
+	if(offset_record == 0xFFFF)
+		return;
+	if(module == RSX_RAWDATA)
+	{
+		wr.Seek(offset_record << 7);
+		rawdata->WriteFile(wr);
+	}
+	else if(module != RSX_DYNAMIC && module != RSX_TERMINATE)
 	{
 		module->WriteFile(wr);
 	}
@@ -464,6 +473,16 @@ void CPM86Format::WriteRelocations(Linker::Writer& wr)
 	}
 	/* align tail */
 	wr.AlignTo(0x80);
+}
+
+offset_t CPM86Format::MeasureRelocations()
+{
+	offset_t size = relocations.size() * 4 + 4;
+	for(auto& library : library_descriptor.libraries)
+	{
+		size += library.relocations.size() * 4 + 4;
+	}
+	return size;
 }
 
 void CPM86Format::ReadFile(Linker::Reader& rd)
@@ -895,9 +914,25 @@ void CPM86Format::CalculateValues()
 		offset += uint32_t(descriptors[i].GetSizeParas(*this)) << 4;
 	}
 
-	relocations_offset = ::AlignTo(offset, 0x80);
+	if((flags & FLAG_FIXUPS))
+	{
+		relocations_offset = ::AlignTo(offset, 0x80);
+		offset = relocations_offset + MeasureRelocations();
+	}
+	offset = ::AlignTo(offset, 0x80);
 
-	/* TODO: libraries, RSX modules */
+	for(unsigned i = 0; i < 8; i++)
+	{
+		Linker::Debug << "Debug: Record #" << i + 1 << " from " << rsx_table[i].rsx_file_name << " (offset: " << rsx_table[i].offset_record << ")" << std::endl;
+		if(rsx_table[i].offset_record == 0xFFFF)
+			break;
+		assert(rsx_table[i].module == RSX_RAWDATA); // TODO
+		rsx_table[i].offset_record = offset >> 7;
+		Linker::Debug << "Debug: New offset: " << rsx_table[i].offset_record << std::endl;
+		offset += rsx_table[i].rawdata->ActualDataSize();
+		offset = ::AlignTo(offset, 0x80);
+		rsx_table_offset = offset;
+	}
 }
 
 /* * * Writer members * * */
@@ -991,6 +1026,53 @@ void CPM86Format::SetModel(std::string model)
 void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 {
 	option_no_relocation = options.find("noreloc") != options.end();
+
+	unsigned rsx_count = 0;
+	if(auto rsx_file_names_option = FetchOption(options, "rsx"))
+	{
+		std::string rsx_file_names = rsx_file_names_option.value();
+		size_t string_offset = 0;
+		size_t comma;
+		while((comma = rsx_file_names.find(',', string_offset)) != std::string::npos)
+		{
+			if(rsx_count < 7)
+			{
+				rsx_table[rsx_count].rsx_file_name = rsx_file_names.substr(string_offset, comma - string_offset);
+//				Linker::Debug << "Debug: Adding RSX #" << rsx_count + 1 << " as " << rsx_table[rsx_count].rsx_file_name << std::endl;
+				rsx_count ++;
+			}
+			string_offset = comma + 1;
+		}
+		if(rsx_count < 7)
+		{
+			rsx_table[rsx_count].rsx_file_name = rsx_file_names.substr(string_offset);
+//			Linker::Debug << "Debug: Adding RSX #" << rsx_count + 1 << " as " << rsx_table[rsx_count].rsx_file_name << std::endl;
+			rsx_count ++;
+		}
+	}
+
+	for(unsigned i = 0; i < rsx_count; i++)
+	{
+		auto& rsx = rsx_table[i];
+		rsx.offset_record = 0;
+		size_t eq_offset = rsx.rsx_file_name.find('=');
+		if(eq_offset != std::string::npos)
+		{
+			rsx.name = rsx.rsx_file_name.substr(0, eq_offset);
+			rsx.rsx_file_name = rsx.rsx_file_name.substr(eq_offset + 1);
+		}
+		else
+		{
+			std::filesystem::path rsx_file_path(rsx.rsx_file_name);
+			rsx.name = rsx_file_path.stem();
+		}
+
+		Linker::Debug << "Debug: Adding RSX #" << i + 1 << " as " << rsx.rsx_file_name << std::endl;
+
+		rsx.name.resize(8, ' ');
+		std::transform(rsx.name.begin(), rsx.name.end(), rsx.name.begin(), ::toupper);
+	}
+	rsx_table[rsx_count].offset_record = 0xFFFF;
 }
 
 std::unique_ptr<Script::List> CPM86Format::GetScript(Linker::Module& module)
@@ -1235,6 +1317,11 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 {
 	Link(module);
 
+	if(application == APPL_RSX)
+	{
+		flags |= FLAG_RSX;
+	}
+
 	std::map<relocation_source, size_t> relocation_targets;
 	for(Linker::Relocation& rel : module.relocations)
 	{
@@ -1306,6 +1393,30 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 				: ((Segments()[i]->TotalSize() + Segments()[i]->optional_extra + 0xF) >> 4) + (is_zero_page ? 0x10 : 0);
 		/* TODO: optional extra */
 		j++;
+	}
+
+	for(unsigned i = 0; i < 7; i++)
+	{
+		Linker::Debug << "Debug: RSX module " << rsx_table[i].rsx_file_name << std::endl;
+		if(rsx_table[i].rsx_file_name != "")
+		{
+			rsx_table[i].module = RSX_RAWDATA;
+			std::ifstream rsx_file;
+			rsx_file.open(rsx_table[i].rsx_file_name, std::ios_base::in | std::ios_base::binary);
+			if(rsx_file.is_open())
+			{
+				Linker::Reader rd(::LittleEndian, &rsx_file);
+				rsx_table[i].rawdata = Linker::Buffer::ReadFromFile(rd);
+				/*rsx_table[i].module = std::make_shared<CPM86Format>();
+				rsx_table[i].module->ReadFile(rd);*/
+				rsx_file.close();
+				Linker::Debug << "Debug: read " << rsx_table[i].rawdata->ActualDataSize() << " from " << rsx_table[i].rsx_file_name << std::endl;
+			}
+			else
+			{
+				Linker::Error << "Error: unable to open RSX file " << rsx_table[i].rsx_file_name << ", generating dummy entry" << std::endl;
+			}
+		}
 	}
 
 	if(library_descriptor.libraries.size() > 0)

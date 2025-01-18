@@ -198,6 +198,8 @@ namespace DigitalResearch
 		 */
 		struct rsx_record
 		{
+			/** @brief The host filename of the RSX file, used only for writing */
+			std::string rsx_file_name;
 			/** @brief The filename of the RSX file, 8-byte long */
 			std::string name;
 			/**
@@ -210,14 +212,19 @@ namespace DigitalResearch
 			/**
 			 * @brief A reference to the stored module
 			 *
-			 * The special macros RSX_TERMINATE (value 0) and RSX_DYNAMIC (value 1) represent the special offset values
+			 * The special macros RSX_TERMINATE and RSX_DYNAMIC represent the special offset values
 			 * 0xFFFF and 0x0000, respectively. The choice of pointer values ensures that they cannot be dereferenced, and
 			 * checking the end of a list is as easy as checking a null pointer.
+			 * The value RSX_RAWDATA is a placeholder, meaning that the actual contents are to be found in rawdata.
 			 */
-			std::shared_ptr<CPM86Format> module = nullptr;
+			std::shared_ptr<CPM86Format> module;
+			/** @brief Alternatively, the contents can be represented as raw data */
+			std::shared_ptr<Linker::Writable> rawdata;
 			static std::shared_ptr<CPM86Format> dynamic_module;
+			static std::shared_ptr<CPM86Format> rawdata_module;
 #define RSX_TERMINATE (std::shared_ptr<CPM86Format>(nullptr))
 #define RSX_DYNAMIC   (::DigitalResearch::CPM86Format::rsx_record::dynamic_module)
+#define RSX_RAWDATA   (::DigitalResearch::CPM86Format::rsx_record::rawdata_module)
 
 			void Clear();
 
@@ -449,8 +456,20 @@ namespace DigitalResearch
 		/** @brief Format of file to generate */
 		format_type format = FORMAT_SMALL;
 
-		CPM86Format(format_type format = FORMAT_UNKNOWN)
-			: format(format)
+		enum application_type
+		{
+			/** @brief CP/M-86 .cmd file */
+			APPL_CMD,
+			/** @brief CP/M-86 .rsx file */
+			APPL_RSX,
+			/** @brief FlexOS 86 .286 file */
+			APPL_286,
+		};
+		/** @brief Target application type */
+		application_type application = APPL_CMD;
+
+		CPM86Format(format_type format = FORMAT_UNKNOWN, application_type application = APPL_CMD)
+			: format(format), application(application)
 		{
 		}
 
@@ -472,6 +491,8 @@ namespace DigitalResearch
 		void ReadRelocations(Linker::Reader& rd);
 
 		void WriteRelocations(Linker::Writer& wr);
+
+		offset_t MeasureRelocations();
 
 		void ReadFile(Linker::Reader& rd) override;
 
