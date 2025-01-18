@@ -63,9 +63,9 @@ namespace Binary
 				/** @brief SpartaDOS X fixed-address segment (not implemented) */
 				SDX_FIXED = 0xFFFA,
 				/** @brief SpartaDOS X required symbols (not implemented) */
-				SDX_SYMREQS = 0xFFFB,
+				SDX_SYMREQ = 0xFFFB,
 				/** @brief SpartaDOS X symbol definitions (not implemented) */
-				SDX_SYMDEFS = 0xFFFC,
+				SDX_SYMDEF = 0xFFFC,
 				/** @brief SpartaDOS X fixup information (not implemented) */
 				SDX_FIXUPS = 0xFFFD,
 				/** @brief SpartaDOS X RAM allocation block (not implemented) */
@@ -78,27 +78,60 @@ namespace Binary
 			/**
 			 * @brief Header type, Atari DOS uses only 0xFFFF, signature only obligatory for the first segment
 			 */
-			segment_type header_type;
+			segment_type header_type = ATARI_SEGMENT;
 			/**
 			 * @brief Set if placing header type is optional, also set when signature is absent in file when reading
 			 */
-			bool header_type_optional;
+			bool header_type_optional = false;
 			/**
 			 * @brief Address at which segment must be loaded
 			 */
-			uint16_t address;
+			uint16_t address = 0;
+			/**
+			 * @brief Only used for SDX_RAMALLOC/SDX_POSIND, SDX_SYMREQ
+			 */
+			uint8_t block_number = 0;
+			enum control_byte_type : uint8_t
+			{
+				/** @brief allocate in conventional RAM */
+				CB_CONVRAM = 0x00,
+				/** @brief allocate in system extended area */
+				CB_SYSEXTAREA = 0x02,
+				/** @brief (SDX 4.47+) allocate in program extended area */
+				CB_PROGEXTAREA = 0x04,
+				/** @brief (SDX 4.43+) page aligned */
+				CB_PAGEALIGNED = 0x40,
+				/** @brief SDX_RAMALLOC instead of SDX_POSIND */
+				CB_RAMALLOC = 0x80,
+			};
+			/**
+			 * @brief Only used for SDX_RAMALLOC/SDX_POSIND
+			 */
+			control_byte_type control_byte = control_byte_type(0);
+			/**
+			 * @brief Only used for SDX_RAMALLOC/SDX_POSIND
+			 */
+			uint16_t size = 0;
+			/**
+			 * @brief Only used for SDX_SYMREQ, SDX_SYMDEF
+			 */
+			char symbol_name[8] = { };
 			/**
 			 * @brief The binary data in the segment
 			 */
 			std::shared_ptr<Linker::Writable> image;
+			/**
+			 * @brief Relocations, only used for SDX_SYMREQ and SDX_FIXUPS
+			 */
+			std::set<uint16_t> relocations; // TODO: multiple blocks?
 
 			Segment(bool header_type_optional = true)
-				: header_type(ATARI_SEGMENT), header_type_optional(header_type_optional), address(0), image(nullptr)
+				: header_type(ATARI_SEGMENT), header_type_optional(header_type_optional)
 			{
 			}
 
 			Segment(uint16_t header_type)
-				: header_type(segment_type(header_type)), header_type_optional(false), address(0), image(nullptr)
+				: header_type(segment_type(header_type)), header_type_optional(false)
 			{
 			}
 
@@ -116,6 +149,16 @@ namespace Binary
 			 * @brief Writes the segment into a file
 			 */
 			void WriteFile(Linker::Writer& wr);
+
+			/**
+			 * @brief Read relocations
+			 */
+			void ReadRelocations(Linker::Reader& rd);
+
+			/**
+			 * @brief Writes relocations
+			 */
+			void WriteRelocations(Linker::Writer& wr);
 		};
 
 		/**

@@ -60,18 +60,49 @@ void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 	{
 		header_type = segment_type(word);
 		header_type_optional = false;
-		word = rd.ReadUnsigned(2);
+		if(header_type == ATARI_SEGMENT || header_type == SDX_FIXED)
+			address = rd.ReadUnsigned(2);
 	}
 	else
 	{
 		header_type = ATARI_SEGMENT;
 		header_type_optional = true;
+		address = word;
 	}
-	address = word;
-	uint16_t length = (rd.ReadUnsigned(2) + 1 - address) & 0xFFFF;
-	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
-	buffer->ReadFile(rd, length);
-	image = buffer;
+	switch(header_type)
+	{
+	case SDX_SYMREQ:
+		block_number = rd.ReadUnsigned(1);
+		rd.ReadData(8, symbol_name);
+		address = rd.ReadUnsigned(2);
+		break;
+	case SDX_SYMDEF:
+		rd.ReadData(8, symbol_name);
+		ReadRelocations(rd);
+		break;
+	case SDX_FIXUPS:
+		block_number = rd.ReadUnsigned(1);
+		ReadRelocations(rd);
+		break;
+	case SDX_RAMALLOC:
+	//case SDX_POSIND:
+		block_number = rd.ReadUnsigned(1);
+		control_byte = control_byte_type(rd.ReadUnsigned(1));
+		address = rd.ReadUnsigned(2);
+		size = rd.ReadUnsigned(2);
+		if((control_byte & CB_RAMALLOC) == 0)
+		{
+			image = Linker::Buffer::ReadFromFile(rd, size);
+		}
+		break;
+	case SDX_FIXED:
+	case ATARI_SEGMENT:
+		size = (rd.ReadUnsigned(2) + 1 - address) & 0xFFFF;
+		image = Linker::Buffer::ReadFromFile(rd, size);
+		break;
+	default:
+		Linker::FatalError("Fatal error: Invalid segment type");
+	}
 }
 
 void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
@@ -80,13 +111,59 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
 	{
 		Linker::Warning << "Warning: Address overflows" << std::endl;
 	}
-	if(!header_type_optional || header_type != ATARI_SEGMENT)
+	switch(header_type)
 	{
+	case SDX_SYMREQ:
 		wr.WriteWord(2, header_type);
+		wr.WriteWord(1, block_number);
+		wr.WriteData(8, symbol_name);
+		wr.WriteWord(2, address);
+		break;
+	case SDX_SYMDEF:
+		wr.WriteWord(2, header_type);
+		wr.WriteData(8, symbol_name);
+		WriteRelocations(wr);
+		break;
+	case SDX_FIXUPS:
+		wr.WriteWord(2, header_type);
+		wr.WriteWord(1, block_number);
+		WriteRelocations(wr);
+		break;
+	case SDX_RAMALLOC:
+	//case SDX_POSIND:
+		wr.WriteWord(2, header_type);
+		wr.WriteWord(1, block_number);
+		wr.WriteWord(1, control_byte);
+		wr.WriteWord(2, address); // TODO: is this the right field?
+		wr.WriteWord(2, size);
+		if((control_byte & CB_RAMALLOC) == 0)
+		{
+			image->WriteFile(wr);
+		}
+		break;
+	case SDX_FIXED:
+	case ATARI_SEGMENT:
+		if(!header_type_optional || header_type != ATARI_SEGMENT)
+		{
+			wr.WriteWord(2, header_type);
+		}
+		wr.WriteWord(2, address);
+		wr.WriteWord(2, address + GetSize() - 1);
+		image->WriteFile(wr);
+		break;
+	default:
+		Linker::FatalError("Fatal error: Invalid segment type");
 	}
-	wr.WriteWord(2, address);
-	wr.WriteWord(2, address + GetSize() - 1);
-	image->WriteFile(wr);
+}
+
+void AtariFormat::Segment::ReadRelocations(Linker::Reader& rd)
+{
+	// TODO
+}
+
+void AtariFormat::Segment::WriteRelocations(Linker::Writer& wr)
+{
+	// TODO
 }
 
 void AtariFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
