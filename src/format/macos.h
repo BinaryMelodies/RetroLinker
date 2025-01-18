@@ -214,16 +214,13 @@ namespace Apple
 	 *
 	 * This format has been obsoleted in favor of the PEF format, used on PowerPC based Macintosh computers.
 	 */
-	class ResourceFork : public virtual AppleSingleDouble::Entry, public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class ResourceFork : public virtual AppleSingleDouble::Entry, public virtual Linker::LinkerManager
 	{
 	public:
 		bool FormatSupportsResources() const override
 		{
 			return true;
 		}
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		enum memory_model_t
 		{

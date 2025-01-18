@@ -11,7 +11,7 @@ namespace Apple
 	/**
 	 * @brief PowerPC Classic Mac OS "PEF" file format
 	 */
-	class PEFFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class PEFFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

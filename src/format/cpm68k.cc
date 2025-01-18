@@ -542,11 +542,6 @@ unsigned CPM68KFormat::FormatAdditionalSectionFlags(std::string section_name) co
 	}
 }
 
-void CPM68KFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void CPM68KFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	option_no_relocation = options.find("noreloc") != options.end();

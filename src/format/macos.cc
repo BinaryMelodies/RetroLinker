@@ -698,11 +698,6 @@ std::string AppleSingleDouble::GetDefaultExtension(Linker::Module& module)
 	return "a.out";
 }
 
-void ResourceFork::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void ResourceFork::SetOptions(std::map<std::string, std::string>& options)
 {
 	/* TODO */

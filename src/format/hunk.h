@@ -14,7 +14,7 @@ namespace Amiga
 	 *
 	 * Introduced for the TRIPOS system and then adopted for AmigaOS, a hunk file stores the binary executable for an Amiga application.
 	 */
-	class HunkFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class HunkFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		enum flags
@@ -83,9 +83,6 @@ namespace Amiga
 
 		std::vector<Hunk> hunks;
 		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index; /* makes it easier to lookup the indices of segments */
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

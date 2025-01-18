@@ -204,11 +204,6 @@ offset_t BWFormat::MeasureRelocations()
 	}
 }
 
-void BWFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void BWFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	stub_file = FetchOption(options, "stub", "");

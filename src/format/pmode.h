@@ -13,7 +13,7 @@ namespace PMODE
 	/**
 	 * @brief PMODE/W linear executable format (https://github.com/amindlost/pmodew/blob/main/docs/pmw1fmt.txt)
 	 */
-	class PMW1Format : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class PMW1Format : public virtual Linker::LinkerManager
 	{
 	public:
 		void ReadFile(Linker::Reader& in) override;

@@ -17,7 +17,7 @@ namespace ELF
 	 *
 	 * The latest and most widespread file format, developed for the UNIX operating system.
 	 */
-	class ELFFormat : public virtual Linker::InputFormat, public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class ELFFormat : public virtual Linker::InputFormat, public virtual Linker::LinkerManager
 	{
 	public:
 		/* * * General members * * */

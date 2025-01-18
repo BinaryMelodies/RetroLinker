@@ -559,11 +559,6 @@ uint8_t LEFormat::CountBundles(size_t entry_index)
 	return entry_count;
 }
 
-void LEFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	stub_file = FetchOption(options, "stub", "");

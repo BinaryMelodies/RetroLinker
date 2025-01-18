@@ -23,7 +23,7 @@ namespace DigitalResearch
 	 * - Concurrent DOS 68K .68k contiguous files with normal or crunched relocations
 	 * - Human68k .z files with no relocations
 	 */
-	class CPM68KFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class CPM68KFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		/* * * General members * * */
@@ -235,9 +235,6 @@ namespace DigitalResearch
 		std::shared_ptr<Linker::Segment> DataSegment();
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

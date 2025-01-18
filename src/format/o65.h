@@ -15,7 +15,7 @@ namespace O65
 	 *
 	 * Documented here: http://www.6502.org/users/andre/o65/fileformat.html
 	 */
-	class O65Format : public virtual Linker::InputFormat, public Linker::LinkerManager
+	class O65Format : public virtual Linker::InputFormat
 	{
 	public:
 		/** @brief A object file typically contains a single module */

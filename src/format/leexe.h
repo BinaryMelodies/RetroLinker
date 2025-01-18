@@ -21,7 +21,7 @@ namespace Microsoft
 	 * - LE executables for the DOS/4G DOS extender
 	 * - LX executables for 32-bit versions of OS/2
 	 */
-	class LEFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<LEFormat>
+	class LEFormat : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<LEFormat>
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -375,8 +375,6 @@ namespace Microsoft
 		uint16_t MakeEntry(uint16_t index, Linker::Position value);
 		uint8_t CountBundles(size_t entry_index);
 
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);

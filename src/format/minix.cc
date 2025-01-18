@@ -36,11 +36,6 @@ bool MINIXFormat::FormatIs16bit() const
 	return GetEndianType(cpu);
 }
 
-void MINIXFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	/* TODO */

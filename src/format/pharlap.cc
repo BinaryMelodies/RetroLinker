@@ -32,11 +32,6 @@ bool MPFormat::Relocation::operator <(const Relocation& other) const
 	return offset < other.offset || (offset == other.offset && rel32 < other.rel32);
 }
 
-void MPFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void MPFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	stub_file = FetchOption(options, "stub", "");
@@ -251,11 +246,6 @@ void P3Format::RunTimeParameterBlock::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(2, call_buffer_size_kb);
 	wr.WriteWord(2, flags);
 	wr.WriteWord(2, ring);
-}
-
-void P3Format::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
 }
 
 void P3Format::SetOptions(std::map<std::string, std::string>& options)

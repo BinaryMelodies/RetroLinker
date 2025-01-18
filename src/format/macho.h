@@ -15,7 +15,7 @@ namespace MachO
 	 *
 	 * Originally developed for the Mach kernel, it has been adopted by other UNIX systems based on the Mach kernel, including NeXTSTEP and macOS.
 	 */
-	class MachOFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class MachOFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

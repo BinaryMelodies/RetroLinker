@@ -395,11 +395,6 @@ unsigned MZFormat::FormatAdditionalSectionFlags(std::string section_name) const
 	return flags;
 }
 
-void MZFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void MZFormat::SetModel(std::string model)
 {
 	if(model == "")

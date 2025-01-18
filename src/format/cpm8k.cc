@@ -164,11 +164,6 @@ unsigned CPM8KFormat::GetSegmentNumber(std::shared_ptr<Linker::Segment>segment)
 	return unsigned(-1);
 }
 
-void CPM8KFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void CPM8KFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 }

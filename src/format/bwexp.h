@@ -10,7 +10,7 @@ namespace DOS16M
 	/**
 	 * @brief Rational Systems DOS/16M "BW" .exp file
 	 */
-	class BWFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter
+	class BWFormat : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -150,9 +150,6 @@ namespace DOS16M
 		std::map<uint16_t, std::set<uint16_t> > relocations;
 
 		offset_t MeasureRelocations();
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

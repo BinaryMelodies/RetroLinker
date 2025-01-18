@@ -10,7 +10,7 @@ namespace PharLap
 	/**
 	 * @brief Phar Lap "MP" .exp and "MQ" .rex file
 	 */
-	class MPFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter
+	class MPFormat : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -60,9 +60,6 @@ namespace PharLap
 		{
 		}
 
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
-
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
@@ -83,7 +80,7 @@ namespace PharLap
 	/**
 	 * @brief Phar Lap "P2"/"P3" .exp file
 	 */
-	class P3Format : public Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter
+	class P3Format : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -151,9 +148,6 @@ namespace PharLap
 		};
 
 		RunTimeParameterBlock runtime_parameters;
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

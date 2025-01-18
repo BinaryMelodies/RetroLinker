@@ -19,7 +19,7 @@ namespace Microsoft
 	 * - 16-bit OS/2 applications
 	 * - a Multitasking variant of MS-DOS referred to as European MS-DOS 4.0
 	 */
-	class NEFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<NEFormat>
+	class NEFormat : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<NEFormat>
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -317,8 +317,6 @@ namespace Microsoft
 		uint16_t MakeEntry(uint16_t ordinal, Linker::Position value);
 		uint8_t CountBundles(size_t entry_index);
 
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 		void SetModel(std::string model) override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;

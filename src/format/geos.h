@@ -13,7 +13,7 @@ namespace GEOS
 	/**
 	 * @brief Berkeley Softworks GEOS or GeoWorks Ensemble or NewDeal Office or Breadbox Ensemble Geode file format
 	 */
-	class GeodeFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class GeodeFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		void ReadFile(Linker::Reader& in) override;

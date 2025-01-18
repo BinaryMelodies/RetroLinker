@@ -13,7 +13,7 @@ namespace Ergo
 	/**
 	 * @brief Ergo OS/286 and OS/386 "XP" .exp file (Ergo was formerly A.I. Architects, then Eclipse)
 	 */
-	class XPFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class XPFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		std::string stub_file; // TODO

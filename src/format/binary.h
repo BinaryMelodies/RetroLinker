@@ -17,7 +17,7 @@ namespace Binary
 	/**
 	 * @brief A template for flat binary formats
 	 */
-	class GenericBinaryFormat : public Linker::OutputFormat, public Linker::LinkerManager
+	class GenericBinaryFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		/* * * General members * * */
@@ -55,9 +55,6 @@ namespace Binary
 		uint64_t base_address = 0;
 		/** @brief Default filename extension for executables (such as .com for MS-DOS, .r for Human68k) */
 		std::string extension;
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 

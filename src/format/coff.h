@@ -22,7 +22,7 @@ namespace COFF
 	 * - DJGPP version 1.11 or later, running on top of MS-DOS
 	 * - Digital Research Concurrent DOS 68K
 	 */
-	class COFFFormat : public virtual Linker::InputFormat, public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZSimpleStubWriter
+	class COFFFormat : public virtual Linker::InputFormat, public virtual Linker::LinkerManager, protected Microsoft::MZSimpleStubWriter
 	{
 		/* * * General members * * */
 	public:
@@ -652,9 +652,6 @@ namespace COFF
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
 		static std::shared_ptr<COFFFormat> CreateWriter(format_type type);
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

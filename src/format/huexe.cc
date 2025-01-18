@@ -8,11 +8,6 @@ void HUFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void HUFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void HUFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")

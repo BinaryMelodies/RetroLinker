@@ -6,6 +6,7 @@
 #include <optional>
 #include <string>
 #include <variant>
+#include "format.h"
 #include "module.h"
 #include "writer.h"
 #include "../script/script.h"
@@ -15,7 +16,7 @@ namespace Linker
 	/**
 	 * @brief A helper class to collect sections into segments
 	 */
-	class LinkerManager
+	class LinkerManager : public Linker::OutputFormat
 	{
 	protected:
 		/**
@@ -66,7 +67,7 @@ namespace Linker
 		/**
 		 * @brief Sets up the linker script and linker parameters
 		 */
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options);
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		/**
 		 * @brief Compiles the linker script into an internal format

@@ -27,7 +27,7 @@ namespace DigitalResearch
 	 * It supports many special features, such as shared libraries and attachable residential system extensions.
 	 * These are not currently implemented.
 	 */
-	class CPM86Format : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class CPM86Format : public virtual Linker::LinkerManager
 	{
 	public:
 		/* * * General members * * */
@@ -530,9 +530,6 @@ namespace DigitalResearch
 		std::vector<std::shared_ptr<Linker::Segment>>& Segments();
 
 		unsigned GetSegmentNumber(std::shared_ptr<Linker::Segment> segment);
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetModel(std::string model) override;
 

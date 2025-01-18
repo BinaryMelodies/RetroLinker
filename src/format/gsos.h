@@ -17,7 +17,7 @@ namespace Apple
 	 * The file format was originally invented for ORCA/M as an object format, later adopted for the Apple GS/OS operating system.
 	 * It had multiple versions, including a few early versions, version 1, 2 and 2.1.
 	 */
-	class OMFFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class OMFFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		class Segment

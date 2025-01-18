@@ -42,11 +42,6 @@ void GenericBinaryFormat::Dump(Dumper::Dumper& dump)
 }
 
 /* * * Writer members * * */
-void GenericBinaryFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void GenericBinaryFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")

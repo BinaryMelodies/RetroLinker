@@ -14,7 +14,7 @@ namespace Xenix
 	/**
 	 * @brief Xenix b.out executable
 	 */
-	class BOutFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class BOutFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -25,7 +25,7 @@ namespace Xenix
 	/**
 	 * @brief Xenix x.out executable
 	 */
-	class XOutFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class XOutFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

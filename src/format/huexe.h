@@ -12,7 +12,7 @@ namespace X68000
 	/**
 	 * @brief Human68k "HU" .X file
 	 */
-	class HUFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class HUFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -31,9 +31,6 @@ namespace X68000
 		std::shared_ptr<Linker::Segment> code, data, bss;
 		uint32_t relocation_size = 0;
 		std::map<uint32_t, unsigned char> relocations;
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 

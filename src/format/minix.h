@@ -14,7 +14,7 @@ namespace MINIX
 	 *
 	 * This is the native executable format for MINX and ELKS (Linux for 8086)
 	 */
-	class MINIXFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class MINIXFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		/* TODO: incorporate relocations and far code segment from around ELKS 0.8.0 */
@@ -60,9 +60,6 @@ namespace MINIX
 		/* generated */
 		std::shared_ptr<Linker::Segment> code, data, bss;
 		uint32_t entry_address = 0;
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

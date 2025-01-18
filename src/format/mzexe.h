@@ -31,7 +31,7 @@ namespace Microsoft
 	 * the new file extension ".exe". Since MS-DOS 2.0, MZ executables may also have the extension ".com", as DOS only looks
 	 * at the first two bytes to determine the file format.
 	 */
-	class MZFormat : public virtual Linker::OutputFormat, public Linker::LinkerManager
+	class MZFormat : public virtual Linker::LinkerManager
 	{
 	public:
 		/* * * General members * * */
@@ -206,9 +206,6 @@ namespace Microsoft
 		bool FormatIs16bit() const override;
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void SetModel(std::string model) override;
 

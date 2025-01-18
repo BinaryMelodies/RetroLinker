@@ -44,7 +44,7 @@ namespace AOut
 	 * - early DJGPP before version 1.11
 	 * - early PDOS/386 and PD-Windows (http://pdos.sourceforge.net/) (obsolete)
 	 */
-	class AOutFormat : public virtual Linker::InputFormat, public virtual Linker::OutputFormat, public Linker::LinkerManager, protected Microsoft::MZSimpleStubWriter
+	class AOutFormat : public virtual Linker::InputFormat, public virtual Linker::LinkerManager, protected Microsoft::MZSimpleStubWriter
 	{
 	public:
 		/* * * General members * * */
@@ -160,9 +160,6 @@ namespace AOut
 		void ProcessModule(Linker::Module& module) override;
 
 		void CalculateValues() override;
-
-		using OutputFormat::SetLinkScript;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 

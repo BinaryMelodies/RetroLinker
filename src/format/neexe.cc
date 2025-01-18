@@ -876,11 +876,6 @@ void NEFormat::WriteFile(Linker::Writer& wr)
 }
 
 
-void NEFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	LinkerManager::SetLinkScript(script_file, options);
-}
-
 void NEFormat::SetModel(std::string model)
 {
 	if(model == "" || model == "small")
