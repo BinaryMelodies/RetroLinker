@@ -204,6 +204,20 @@ void CPM3Format::rsx_record::OpenAndPrepare()
 			module = std::make_shared<PRLFormat>();
 			module->ReadFile(rd);
 			rsx_file.close();
+
+			uint8_t nonbanked_flag = module->image->GetByte(15);
+			switch(nonbanked_flag)
+			{
+			case 0x00:
+				nonbanked_only = false;
+				break;
+			case 0xFF:
+				nonbanked_only = true;
+				break;
+			default:
+				Linker::Warning << "Warning: invalid nonbank flag in RSX file, pretending to be 0" << std::endl;
+				break;
+			}
 		}
 		else
 		{
@@ -221,7 +235,6 @@ void CPM3Format::SetOptions(std::map<std::string, std::string>& options)
 {
 	if(auto rsx_file_names_option = FetchOption(options, "rsx"))
 	{
-		// TODO: non-banked only flag
 		std::string rsx_file_names = rsx_file_names_option.value();
 		size_t string_offset = 0;
 		size_t comma;

@@ -170,6 +170,11 @@ namespace Binary
 
 		void Clear() override;
 
+		CPM3Format()
+			: GenericBinaryFormat(0x0100, ".com")
+		{
+		}
+
 		~CPM3Format()
 		{
 			Clear();
@@ -217,8 +222,6 @@ namespace Binary
 	class PRLFormat : public GenericBinaryFormat
 	{
 	public:
-		/* TODO: untested */
-
 		uint16_t zero_fill = 0;
 		uint16_t load_address = 0;
 		uint16_t csbase = 0;

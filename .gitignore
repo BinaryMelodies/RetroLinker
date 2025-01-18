@@ -30,3 +30,9 @@ tests/4_ctest/*
 !tests/4_ctest/Bakefile
 tests/watcom/w
 tests/watcom/l
+tests/rsx/z80/*
+!tests/rsx/z80/rsx1.s
+!tests/rsx/z80/rsx2.s
+!tests/rsx/z80/main.s
+!tests/rsx/z80/common.s
+!tests/rsx/z80/Makefile
