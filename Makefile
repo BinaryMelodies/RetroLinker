@@ -44,6 +44,7 @@ tests_clean:
 	$(MAKE) -C tests/3_extern clean
 	$(MAKE) -C tests/4_ctest clean
 	$(MAKE) -C tests/watcom clean
+	$(MAKE) -C tests/rsx/z80 clean
 	$(MAKE) -C unittest clean
 
 distclean: clean
@@ -54,6 +55,7 @@ distclean: clean
 	$(MAKE) -C tests/3_extern distclean
 	$(MAKE) -C tests/4_ctest distclean
 	$(MAKE) -C tests/watcom distclean
+	$(MAKE) -C tests/rsx/z80 distclean
 	$(MAKE) -C unittest distclean
 
 tests:
@@ -62,6 +64,7 @@ tests:
 	$(MAKE) -C tests/3_extern
 	$(MAKE) -C tests/4_ctest
 	$(MAKE) -C tests/watcom
+	$(MAKE) -C tests/rsx/z80
 
 verify:
 	$(MAKE) -C tests/1_hello verify
@@ -69,6 +72,7 @@ verify:
 	$(MAKE) -C tests/3_extern verify
 	$(MAKE) -C tests/4_ctest verify
 	$(MAKE) -C tests/watcom verify
+	$(MAKE) -C tests/rsx/z80 verify
 
 unittests: link
 	$(MAKE) -C unittest
