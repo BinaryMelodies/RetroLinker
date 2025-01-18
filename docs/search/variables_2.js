@@ -8,10 +8,13 @@ var searchData=
   ['code_5frelocations_5',['code_relocations',['../classO65_1_1O65Format_1_1Module.html#a617013fe2ac20f19642a4ac7bcddf059',1,'O65::O65Format::Module']]],
   ['code_5fsize_6',['code_size',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#abb82b3fb406747ab82a98f64658e3353',1,'COFF::COFFFormat::AOutHeader::code_size'],['../classDigitalResearch_1_1CPM68KFormat.html#abcff6f1611092147e7f418530b9d38b2',1,'DigitalResearch::CPM68KFormat::code_size']]],
   ['collection_5fname_7',['collection_name',['../classLinker_1_1Section.html#aa4869c8751c1ea74b7d3e66706c34acc',1,'Linker::Section']]],
-  ['cpu_8',['cpu',['../classLinker_1_1Module.html#ace0a48e1b03e842e0ca80912872a65dd',1,'Linker::Module']]],
-  ['cpu_5ftype_9',['cpu_type',['../classCOFF_1_1COFFFormat.html#af9d261fcedc71436f42a988518a2000a',1,'COFF::COFFFormat']]],
-  ['cs_10',['cs',['../classMicrosoft_1_1MZFormat.html#a359c0b5f81f3023e47d472cfce88ae26',1,'Microsoft::MZFormat']]],
-  ['current_5faddress_11',['current_address',['../classLinker_1_1LinkerManager.html#a810b93fa2314556615ec6287cbfbc40c',1,'Linker::LinkerManager']]],
-  ['current_5fbase_12',['current_base',['../classLinker_1_1LinkerManager.html#ad9071f24df9b386cc5772eca5332f55a',1,'Linker::LinkerManager']]],
-  ['current_5fsegment_13',['current_segment',['../classLinker_1_1LinkerManager.html#afcd6767139fd0c3eeb51141ec41d29b5',1,'Linker::LinkerManager']]]
+  ['contents_8',['contents',['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html#a0cb006b169b6a4a1785ab53344801077',1,'DigitalResearch::CPM86Format::rsx_record']]],
+  ['control_5fbyte_9',['control_byte',['../structBinary_1_1AtariFormat_1_1Segment.html#abcf77392930aa50a1fbbdc784f1e871b',1,'Binary::AtariFormat::Segment']]],
+  ['cpu_10',['cpu',['../classLinker_1_1Module.html#ace0a48e1b03e842e0ca80912872a65dd',1,'Linker::Module']]],
+  ['cpu_5ftype_11',['cpu_type',['../classCOFF_1_1COFFFormat.html#af9d261fcedc71436f42a988518a2000a',1,'COFF::COFFFormat']]],
+  ['cs_12',['cs',['../classMicrosoft_1_1MZFormat.html#a359c0b5f81f3023e47d472cfce88ae26',1,'Microsoft::MZFormat']]],
+  ['csbase_13',['csbase',['../classBinary_1_1PRLFormat.html#af756772dedcdd34960bdebe622009a9d',1,'Binary::PRLFormat']]],
+  ['current_5faddress_14',['current_address',['../classLinker_1_1LinkerManager.html#a810b93fa2314556615ec6287cbfbc40c',1,'Linker::LinkerManager']]],
+  ['current_5fbase_15',['current_base',['../classLinker_1_1LinkerManager.html#ad9071f24df9b386cc5772eca5332f55a',1,'Linker::LinkerManager']]],
+  ['current_5fsegment_16',['current_segment',['../classLinker_1_1LinkerManager.html#afcd6767139fd0c3eeb51141ec41d29b5',1,'Linker::LinkerManager']]]
 ];

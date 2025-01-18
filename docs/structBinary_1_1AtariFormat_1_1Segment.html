@@ -77,46 +77,177 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structBinary_1_1AtariFormat_1_1Segment-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Binary::AtariFormat::Segment Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents a loadable segment in the binary.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="8bitexe_8h_source.html">8bitexe.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:ada19b41ce6bc348665ff82434be4ba3a" id="r_ada19b41ce6bc348665ff82434be4ba3a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada19b41ce6bc348665ff82434be4ba3a">segment_type</a> : uint16_t { <br />
+&#160;&#160;<a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aac8ac26e4353753c1c8b8d431d6f75779">SIGNATURE_LOW</a> = 0xFFFA
+, <a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aa678dbe8ef16236d3b15bb384a4270a43">SDX_FIXED</a> = 0xFFFA
+, <a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aa461c8d8547e2901fdb1546ac1359bf8b">SDX_SYMREQ</a> = 0xFFFB
+, <a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aaf8b7b1b5efdef2d0ef545a7b1c4cde43">SDX_SYMDEF</a> = 0xFFFC
+, <br />
+&#160;&#160;<a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aa2e5e86c5cee195dae7f5350bb37cecf1">SDX_FIXUPS</a> = 0xFFFD
+, <a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aab19ce12de6b17c4006efd399d6cd29f2">SDX_RAMALLOC</a> = 0xFFFE
+, <a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aac86ea986ce99bd913048e489eaaf0f8b">SDX_POSIND</a> = 0xFFFE
+, <a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aa0fe218f11b7ff10b19bb696fde672550">ATARI_SEGMENT</a> = 0xFFFF
+<br />
+ }</td></tr>
+<tr class="memdesc:ada19b41ce6bc348665ff82434be4ba3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Types of segments, represented by their signature values.  <a href="#ada19b41ce6bc348665ff82434be4ba3a">More...</a><br /></td></tr>
+<tr class="separator:ada19b41ce6bc348665ff82434be4ba3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac83acef83b917757a258581c2cb3088a" id="r_ac83acef83b917757a258581c2cb3088a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac83acef83b917757a258581c2cb3088a">control_byte_type</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="#ac83acef83b917757a258581c2cb3088aa48ad97812bf8ae00b5ebb4e16887b0ef">CB_CONVRAM</a> = 0x00
+, <a class="el" href="#ac83acef83b917757a258581c2cb3088aa898340429d0c030170b086acd67af69d">CB_SYSEXTAREA</a> = 0x02
+, <a class="el" href="#ac83acef83b917757a258581c2cb3088aa6556994a497f0a09425f33c01bfbe439">CB_PROGEXTAREA</a> = 0x04
+, <a class="el" href="#ac83acef83b917757a258581c2cb3088aadf3d245dd316612770e14f1539791294">CB_PAGEALIGNED</a> = 0x40
+, <br />
+&#160;&#160;<a class="el" href="#ac83acef83b917757a258581c2cb3088aa2a7f188b242ac8f115210e56c0bc1d1e">CB_RAMALLOC</a> = 0x80
+<br />
+ }</td></tr>
+<tr class="separator:ac83acef83b917757a258581c2cb3088a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a898ebebb31cff55c97f9d3f9c81521ca" id="r_a898ebebb31cff55c97f9d3f9c81521ca"><td class="memItemLeft" align="right" valign="top"><a id="a898ebebb31cff55c97f9d3f9c81521ca" name="a898ebebb31cff55c97f9d3f9c81521ca"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (bool header_optional=true)</td></tr>
-<tr class="separator:a898ebebb31cff55c97f9d3f9c81521ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d75ea2c767c8c1274ab51ac218b3c52" id="r_a2d75ea2c767c8c1274ab51ac218b3c52"><td class="memItemLeft" align="right" valign="top"><a id="a2d75ea2c767c8c1274ab51ac218b3c52" name="a2d75ea2c767c8c1274ab51ac218b3c52"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (uint16_t header)</td></tr>
-<tr class="separator:a2d75ea2c767c8c1274ab51ac218b3c52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7345206dbe9edf8318b513fe364a80d" id="r_ab7345206dbe9edf8318b513fe364a80d"><td class="memItemLeft" align="right" valign="top"><a id="ab7345206dbe9edf8318b513fe364a80d" name="ab7345206dbe9edf8318b513fe364a80d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (bool <a class="el" href="#ab0c3aad03fe631a224a6581e61f2d81f">header_type_optional</a>=true)</td></tr>
+<tr class="separator:ab7345206dbe9edf8318b513fe364a80d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad54b77b510b85996106133c8310512b5" id="r_ad54b77b510b85996106133c8310512b5"><td class="memItemLeft" align="right" valign="top"><a id="ad54b77b510b85996106133c8310512b5" name="ad54b77b510b85996106133c8310512b5"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (uint16_t <a class="el" href="#affba734bc2770b7c7c497854ee6c6410">header_type</a>)</td></tr>
+<tr class="separator:ad54b77b510b85996106133c8310512b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5ae0b7d084fa660c314a4d51a914cf46" id="r_a5ae0b7d084fa660c314a4d51a914cf46"><td class="memItemLeft" align="right" valign="top"><a id="a5ae0b7d084fa660c314a4d51a914cf46" name="a5ae0b7d084fa660c314a4d51a914cf46"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> () const</td></tr>
+<tr class="memdesc:a5ae0b7d084fa660c314a4d51a914cf46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the number of bytes in the segment body. <br /></td></tr>
 <tr class="separator:a5ae0b7d084fa660c314a4d51a914cf46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7d7e0883e5c4d9fbae0038f71338ec6" id="r_ad7d7e0883e5c4d9fbae0038f71338ec6"><td class="memItemLeft" align="right" valign="top"><a id="ad7d7e0883e5c4d9fbae0038f71338ec6" name="ad7d7e0883e5c4d9fbae0038f71338ec6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:ad7d7e0883e5c4d9fbae0038f71338ec6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a segment from a file into this object. <br /></td></tr>
 <tr class="separator:ad7d7e0883e5c4d9fbae0038f71338ec6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afdccddddb5eb2928dc52eefb812ba900" id="r_afdccddddb5eb2928dc52eefb812ba900"><td class="memItemLeft" align="right" valign="top"><a id="afdccddddb5eb2928dc52eefb812ba900" name="afdccddddb5eb2928dc52eefb812ba900"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
+<tr class="memdesc:afdccddddb5eb2928dc52eefb812ba900"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the segment into a file. <br /></td></tr>
 <tr class="separator:afdccddddb5eb2928dc52eefb812ba900"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a945cf3ac5117d763e69d7090a7dd3ecc" id="r_a945cf3ac5117d763e69d7090a7dd3ecc"><td class="memItemLeft" align="right" valign="top"><a id="a945cf3ac5117d763e69d7090a7dd3ecc" name="a945cf3ac5117d763e69d7090a7dd3ecc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadRelocations</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a945cf3ac5117d763e69d7090a7dd3ecc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read relocations. <br /></td></tr>
+<tr class="separator:a945cf3ac5117d763e69d7090a7dd3ecc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac898f1c1ef63cfdfe86ea0c8d241c8d9" id="r_ac898f1c1ef63cfdfe86ea0c8d241c8d9"><td class="memItemLeft" align="right" valign="top"><a id="ac898f1c1ef63cfdfe86ea0c8d241c8d9" name="ac898f1c1ef63cfdfe86ea0c8d241c8d9"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteRelocations</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
+<tr class="memdesc:ac898f1c1ef63cfdfe86ea0c8d241c8d9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes relocations. <br /></td></tr>
+<tr class="separator:ac898f1c1ef63cfdfe86ea0c8d241c8d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a86900171966007e619723528467090a1" id="r_a86900171966007e619723528467090a1"><td class="memItemLeft" align="right" valign="top"><a id="a86900171966007e619723528467090a1" name="a86900171966007e619723528467090a1"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>header</b></td></tr>
-<tr class="separator:a86900171966007e619723528467090a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9de4469f0d8c880d6d2c0227ba2923f1" id="r_a9de4469f0d8c880d6d2c0227ba2923f1"><td class="memItemLeft" align="right" valign="top"><a id="a9de4469f0d8c880d6d2c0227ba2923f1" name="a9de4469f0d8c880d6d2c0227ba2923f1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>header_optional</b></td></tr>
-<tr class="separator:a9de4469f0d8c880d6d2c0227ba2923f1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affba734bc2770b7c7c497854ee6c6410" id="r_affba734bc2770b7c7c497854ee6c6410"><td class="memItemLeft" align="right" valign="top"><a id="affba734bc2770b7c7c497854ee6c6410" name="affba734bc2770b7c7c497854ee6c6410"></a>
+<a class="el" href="#ada19b41ce6bc348665ff82434be4ba3a">segment_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>header_type</b> = <a class="el" href="#ada19b41ce6bc348665ff82434be4ba3aa0fe218f11b7ff10b19bb696fde672550">ATARI_SEGMENT</a></td></tr>
+<tr class="memdesc:affba734bc2770b7c7c497854ee6c6410"><td class="mdescLeft">&#160;</td><td class="mdescRight">Header type, Atari DOS uses only 0xFFFF, signature only obligatory for the first segment. <br /></td></tr>
+<tr class="separator:affba734bc2770b7c7c497854ee6c6410"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0c3aad03fe631a224a6581e61f2d81f" id="r_ab0c3aad03fe631a224a6581e61f2d81f"><td class="memItemLeft" align="right" valign="top"><a id="ab0c3aad03fe631a224a6581e61f2d81f" name="ab0c3aad03fe631a224a6581e61f2d81f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>header_type_optional</b> = false</td></tr>
+<tr class="memdesc:ab0c3aad03fe631a224a6581e61f2d81f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set if placing header type is optional, also set when signature is absent in file when reading. <br /></td></tr>
+<tr class="separator:ab0c3aad03fe631a224a6581e61f2d81f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44007b23b5b64d17852016a4e86d0cae" id="r_a44007b23b5b64d17852016a4e86d0cae"><td class="memItemLeft" align="right" valign="top"><a id="a44007b23b5b64d17852016a4e86d0cae" name="a44007b23b5b64d17852016a4e86d0cae"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</td></tr>
+<tr class="memdesc:a44007b23b5b64d17852016a4e86d0cae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address at which segment must be loaded. <br /></td></tr>
 <tr class="separator:a44007b23b5b64d17852016a4e86d0cae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8cea5ad1df71d03ac3439bb0cc1d3f05" id="r_a8cea5ad1df71d03ac3439bb0cc1d3f05"><td class="memItemLeft" align="right" valign="top"><a id="a8cea5ad1df71d03ac3439bb0cc1d3f05" name="a8cea5ad1df71d03ac3439bb0cc1d3f05"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>block_number</b> = 0</td></tr>
+<tr class="memdesc:a8cea5ad1df71d03ac3439bb0cc1d3f05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Only used for SDX_RAMALLOC/SDX_POSIND, SDX_SYMREQ. <br /></td></tr>
+<tr class="separator:a8cea5ad1df71d03ac3439bb0cc1d3f05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abcf77392930aa50a1fbbdc784f1e871b" id="r_abcf77392930aa50a1fbbdc784f1e871b"><td class="memItemLeft" align="right" valign="top"><a id="abcf77392930aa50a1fbbdc784f1e871b" name="abcf77392930aa50a1fbbdc784f1e871b"></a>
+<a class="el" href="#ac83acef83b917757a258581c2cb3088a">control_byte_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>control_byte</b> = <a class="el" href="#ac83acef83b917757a258581c2cb3088a">control_byte_type</a>(0)</td></tr>
+<tr class="memdesc:abcf77392930aa50a1fbbdc784f1e871b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Only used for SDX_RAMALLOC/SDX_POSIND. <br /></td></tr>
+<tr class="separator:abcf77392930aa50a1fbbdc784f1e871b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa98702d94b70b26955ed56fece8eed0c" id="r_aa98702d94b70b26955ed56fece8eed0c"><td class="memItemLeft" align="right" valign="top"><a id="aa98702d94b70b26955ed56fece8eed0c" name="aa98702d94b70b26955ed56fece8eed0c"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> = 0</td></tr>
+<tr class="memdesc:aa98702d94b70b26955ed56fece8eed0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Only used for SDX_RAMALLOC/SDX_POSIND. <br /></td></tr>
+<tr class="separator:aa98702d94b70b26955ed56fece8eed0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d8c6213d2dff8e6d83e195e19e9d710" id="r_a8d8c6213d2dff8e6d83e195e19e9d710"><td class="memItemLeft" align="right" valign="top"><a id="a8d8c6213d2dff8e6d83e195e19e9d710" name="a8d8c6213d2dff8e6d83e195e19e9d710"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_name</b> [8] = { }</td></tr>
+<tr class="memdesc:a8d8c6213d2dff8e6d83e195e19e9d710"><td class="mdescLeft">&#160;</td><td class="mdescRight">Only used for SDX_SYMREQ, SDX_SYMDEF. <br /></td></tr>
+<tr class="separator:a8d8c6213d2dff8e6d83e195e19e9d710"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adb0ffe6fd207fbb99d0e7926ac3c6f6d" id="r_adb0ffe6fd207fbb99d0e7926ac3c6f6d"><td class="memItemLeft" align="right" valign="top"><a id="adb0ffe6fd207fbb99d0e7926ac3c6f6d" name="adb0ffe6fd207fbb99d0e7926ac3c6f6d"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="memdesc:adb0ffe6fd207fbb99d0e7926ac3c6f6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The binary data in the segment. <br /></td></tr>
 <tr class="separator:adb0ffe6fd207fbb99d0e7926ac3c6f6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8db34919e72518b0fb9b8812cc575363" id="r_a8db34919e72518b0fb9b8812cc575363"><td class="memItemLeft" align="right" valign="top"><a id="a8db34919e72518b0fb9b8812cc575363" name="a8db34919e72518b0fb9b8812cc575363"></a>
+std::set&lt; uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="memdesc:a8db34919e72518b0fb9b8812cc575363"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relocations, only used for SDX_SYMREQ and SDX_FIXUPS. <br /></td></tr>
+<tr class="separator:a8db34919e72518b0fb9b8812cc575363"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents a loadable segment in the binary. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="ac83acef83b917757a258581c2cb3088a" name="ac83acef83b917757a258581c2cb3088a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac83acef83b917757a258581c2cb3088a">&#9670;&#160;</a></span>control_byte_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#ac83acef83b917757a258581c2cb3088a">Binary::AtariFormat::Segment::control_byte_type</a> : uint8_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac83acef83b917757a258581c2cb3088aa48ad97812bf8ae00b5ebb4e16887b0ef" name="ac83acef83b917757a258581c2cb3088aa48ad97812bf8ae00b5ebb4e16887b0ef"></a>CB_CONVRAM&#160;</td><td class="fielddoc"><p>allocate in conventional RAM </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac83acef83b917757a258581c2cb3088aa898340429d0c030170b086acd67af69d" name="ac83acef83b917757a258581c2cb3088aa898340429d0c030170b086acd67af69d"></a>CB_SYSEXTAREA&#160;</td><td class="fielddoc"><p>allocate in system extended area </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac83acef83b917757a258581c2cb3088aa6556994a497f0a09425f33c01bfbe439" name="ac83acef83b917757a258581c2cb3088aa6556994a497f0a09425f33c01bfbe439"></a>CB_PROGEXTAREA&#160;</td><td class="fielddoc"><p>(SDX 4.47+) allocate in program extended area </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac83acef83b917757a258581c2cb3088aadf3d245dd316612770e14f1539791294" name="ac83acef83b917757a258581c2cb3088aadf3d245dd316612770e14f1539791294"></a>CB_PAGEALIGNED&#160;</td><td class="fielddoc"><p>(SDX 4.43+) page aligned </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac83acef83b917757a258581c2cb3088aa2a7f188b242ac8f115210e56c0bc1d1e" name="ac83acef83b917757a258581c2cb3088aa2a7f188b242ac8f115210e56c0bc1d1e"></a>CB_RAMALLOC&#160;</td><td class="fielddoc"><p>SDX_RAMALLOC instead of SDX_POSIND. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ada19b41ce6bc348665ff82434be4ba3a" name="ada19b41ce6bc348665ff82434be4ba3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada19b41ce6bc348665ff82434be4ba3a">&#9670;&#160;</a></span>segment_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#ada19b41ce6bc348665ff82434be4ba3a">Binary::AtariFormat::Segment::segment_type</a> : uint16_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Types of segments, represented by their signature values. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ada19b41ce6bc348665ff82434be4ba3aac8ac26e4353753c1c8b8d431d6f75779" name="ada19b41ce6bc348665ff82434be4ba3aac8ac26e4353753c1c8b8d431d6f75779"></a>SIGNATURE_LOW&#160;</td><td class="fielddoc"><p>Lowest currently defined signature to check on reading. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ada19b41ce6bc348665ff82434be4ba3aa678dbe8ef16236d3b15bb384a4270a43" name="ada19b41ce6bc348665ff82434be4ba3aa678dbe8ef16236d3b15bb384a4270a43"></a>SDX_FIXED&#160;</td><td class="fielddoc"><p>SpartaDOS X fixed-address segment (not implemented) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ada19b41ce6bc348665ff82434be4ba3aa461c8d8547e2901fdb1546ac1359bf8b" name="ada19b41ce6bc348665ff82434be4ba3aa461c8d8547e2901fdb1546ac1359bf8b"></a>SDX_SYMREQ&#160;</td><td class="fielddoc"><p>SpartaDOS X required symbols (not implemented) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ada19b41ce6bc348665ff82434be4ba3aaf8b7b1b5efdef2d0ef545a7b1c4cde43" name="ada19b41ce6bc348665ff82434be4ba3aaf8b7b1b5efdef2d0ef545a7b1c4cde43"></a>SDX_SYMDEF&#160;</td><td class="fielddoc"><p>SpartaDOS X symbol definitions (not implemented) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ada19b41ce6bc348665ff82434be4ba3aa2e5e86c5cee195dae7f5350bb37cecf1" name="ada19b41ce6bc348665ff82434be4ba3aa2e5e86c5cee195dae7f5350bb37cecf1"></a>SDX_FIXUPS&#160;</td><td class="fielddoc"><p>SpartaDOS X fixup information (not implemented) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ada19b41ce6bc348665ff82434be4ba3aab19ce12de6b17c4006efd399d6cd29f2" name="ada19b41ce6bc348665ff82434be4ba3aab19ce12de6b17c4006efd399d6cd29f2"></a>SDX_RAMALLOC&#160;</td><td class="fielddoc"><p>SpartaDOS X RAM allocation block (not implemented) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ada19b41ce6bc348665ff82434be4ba3aac86ea986ce99bd913048e489eaaf0f8b" name="ada19b41ce6bc348665ff82434be4ba3aac86ea986ce99bd913048e489eaaf0f8b"></a>SDX_POSIND&#160;</td><td class="fielddoc"><p>SpartaDOS X position independent (not implemented) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ada19b41ce6bc348665ff82434be4ba3aa0fe218f11b7ff10b19bb696fde672550" name="ada19b41ce6bc348665ff82434be4ba3aa0fe218f11b7ff10b19bb696fde672550"></a>ATARI_SEGMENT&#160;</td><td class="fielddoc"><p>Atari segment type. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <hr/>The documentation for this struct was generated from the following files:<ul>
 <li>src/format/<a class="el" href="8bitexe_8h_source.html">8bitexe.h</a></li>
 <li>src/format/<b>8bitexe.cc</b></li>

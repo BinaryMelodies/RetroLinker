@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['cpu_0',['cpu',['../classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114',1,'COFF::COFFFormat']]],
-  ['cpu_5ftype_1',['cpu_type',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756',1,'Linker::Module']]]
+  ['application_5ftype_0',['application_type',['../classDigitalResearch_1_1CPM86Format.html#a75362ea0346d2253fe1f1d28ed260c07',1,'DigitalResearch::CPM86Format']]]
 ];

@@ -105,6 +105,7 @@ Inheritance diagram for Binary::CPM3Format:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structBinary_1_1CPM3Format_1_1rsx__record.html">rsx_record</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A single RSX record.  <a href="structBinary_1_1CPM3Format_1_1rsx__record.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -112,12 +113,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae040dd0d1749353e2882e753c5ef7ca9" id="r_ae040dd0d1749353e2882e753c5ef7ca9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae040dd0d1749353e2882e753c5ef7ca9">Clear</a> () override</td></tr>
 <tr class="memdesc:ae040dd0d1749353e2882e753c5ef7ca9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:ae040dd0d1749353e2882e753c5ef7ca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0589c8ad608572f71e520a9e4ce5f20" id="r_aa0589c8ad608572f71e520a9e4ce5f20"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0589c8ad608572f71e520a9e4ce5f20">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
+<tr class="memdesc:aa0589c8ad608572f71e520a9e4ce5f20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
+<tr class="separator:aa0589c8ad608572f71e520a9e4ce5f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42dec76ab0c22a30b591f679e6bc9550" id="r_a42dec76ab0c22a30b591f679e6bc9550"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42dec76ab0c22a30b591f679e6bc9550">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a42dec76ab0c22a30b591f679e6bc9550"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a42dec76ab0c22a30b591f679e6bc9550"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a636e7573e555f70d6096f4a230a65649" id="r_a636e7573e555f70d6096f4a230a65649"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a636e7573e555f70d6096f4a230a65649">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a636e7573e555f70d6096f4a230a65649"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a636e7573e555f70d6096f4a230a65649"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42736faa5f7cd1901b0c4c73dae971b2" id="r_a42736faa5f7cd1901b0c4c73dae971b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42736faa5f7cd1901b0c4c73dae971b2">CalculateValues</a> () override</td></tr>
+<tr class="memdesc:a42736faa5f7cd1901b0c4c73dae971b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
+<tr class="separator:a42736faa5f7cd1901b0c4c73dae971b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
 <tr class="memitem:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_af7c217adb86fe385521f93fc8a0a50e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#af7c217adb86fe385521f93fc8a0a50e2">Clear</a> () override</td></tr>
 <tr class="memdesc:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
@@ -137,9 +144,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a4a7b66eab4e8bf3f828004a7cef52819"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a4a7b66eab4e8bf3f828004a7cef52819">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
 <tr class="memdesc:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0576154922df9b5a8e01c0db772ec8b1 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a0576154922df9b5a8e01c0db772ec8b1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a0576154922df9b5a8e01c0db772ec8b1">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
-<tr class="memdesc:a0576154922df9b5a8e01c0db772ec8b1 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
-<tr class="separator:a0576154922df9b5a8e01c0db772ec8b1 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae88dad4ad9c8cd090f6f4a1bcdca587b inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_ae88dad4ad9c8cd090f6f4a1bcdca587b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#ae88dad4ad9c8cd090f6f4a1bcdca587b">SetLinkScript</a> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
+<tr class="memdesc:ae88dad4ad9c8cd090f6f4a1bcdca587b inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects a script file to use for linking.  <br /></td></tr>
+<tr class="separator:ae88dad4ad9c8cd090f6f4a1bcdca587b inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9e3f08387655a5d661a427a4df46d63 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_ae9e3f08387655a5d661a427a4df46d63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#ae9e3f08387655a5d661a427a4df46d63">OnNewSegment</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment) override</td></tr>
 <tr class="memdesc:ae9e3f08387655a5d661a427a4df46d63 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
 <tr class="separator:ae9e3f08387655a5d661a427a4df46d63 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -186,9 +193,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ade72610728318b9d106b3276bab836e0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ade72610728318b9d106b3276bab836e0">SetModel</a> (std::string model)</td></tr>
 <tr class="memdesc:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
 <tr class="separator:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat" id="r_a817cfc3dafc78cbc76d029e1b7bb31db"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a817cfc3dafc78cbc76d029e1b7bb31db">SetLinkScript</a> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options)</td></tr>
-<tr class="memdesc:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects a script file to use for linking.  <br /></td></tr>
-<tr class="separator:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a451daf1a2db1498a4bc70ef11b89b16e inherit pub_methods_classLinker_1_1OutputFormat" id="r_a451daf1a2db1498a4bc70ef11b89b16e"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a451daf1a2db1498a4bc70ef11b89b16e">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a451daf1a2db1498a4bc70ef11b89b16e inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a default filename for the output file.  <br /></td></tr>
 <tr class="separator:a451daf1a2db1498a4bc70ef11b89b16e inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -222,14 +226,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearLinkerManager</b
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkScript</b> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options)</td></tr>
 <tr class="memdesc:a0b537dd19bd73699d7440107b9fc5318 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the linker script and linker parameters. <br /></td></tr>
 <tr class="separator:a0b537dd19bd73699d7440107b9fc5318 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac272c92dd4f8303f4baaf61f11883a68 inherit pub_methods_classLinker_1_1LinkerManager" id="r_ac272c92dd4f8303f4baaf61f11883a68"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkerParameter</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string key)</td></tr>
-<tr class="memdesc:ac272c92dd4f8303f4baaf61f11883a68 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a single linker parameter, if inside options. <br /></td></tr>
-<tr class="separator:ac272c92dd4f8303f4baaf61f11883a68 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95270665ba4a6c881c4cd50802d6ac83 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a95270665ba4a6c881c4cd50802d6ac83"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkerParameter</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string key, std::string variable)</td></tr>
-<tr class="memdesc:a95270665ba4a6c881c4cd50802d6ac83 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a single linker parameter, if inside options. <br /></td></tr>
-<tr class="separator:a95270665ba4a6c881c4cd50802d6ac83 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager" id="r_a3ad399a7c024427c9f524659ba0868cb"><td class="memItemLeft" align="right" valign="top">
 std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles the linker script into an internal format. <br /></td></tr>
@@ -289,15 +285,15 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpressio
 Public Attributes</h2></td></tr>
 <tr class="memitem:a45e524ed39b32650ced697417e69d0fb" id="r_a45e524ed39b32650ced697417e69d0fb"><td class="memItemLeft" align="right" valign="top"><a id="a45e524ed39b32650ced697417e69d0fb" name="a45e524ed39b32650ced697417e69d0fb"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>preinit_code</b> [10] = { 0xC9 }</td></tr>
+<tr class="memdesc:a45e524ed39b32650ced697417e69d0fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pre-initialization code to be executed before fully loading program. <br /></td></tr>
 <tr class="separator:a45e524ed39b32650ced697417e69d0fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c7a2ede9c1da1abb778a55cf058ca69" id="r_a9c7a2ede9c1da1abb778a55cf058ca69"><td class="memItemLeft" align="right" valign="top"><a id="a9c7a2ede9c1da1abb778a55cf058ca69" name="a9c7a2ede9c1da1abb778a55cf058ca69"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>loader_active</b> = true</td></tr>
+<tr class="memdesc:a9c7a2ede9c1da1abb778a55cf058ca69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether loader should be active, even if no RSXs are attached. <br /></td></tr>
 <tr class="separator:a9c7a2ede9c1da1abb778a55cf058ca69"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11fd250e40fbc96673f2d4bd78d4a072" id="r_a11fd250e40fbc96673f2d4bd78d4a072"><td class="memItemLeft" align="right" valign="top"><a id="a11fd250e40fbc96673f2d4bd78d4a072" name="a11fd250e40fbc96673f2d4bd78d4a072"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>rsx_count</b> = 0</td></tr>
-<tr class="separator:a11fd250e40fbc96673f2d4bd78d4a072"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af4d55a4750096a5ec37002cf092af030" id="r_af4d55a4750096a5ec37002cf092af030"><td class="memItemLeft" align="right" valign="top"><a id="af4d55a4750096a5ec37002cf092af030" name="af4d55a4750096a5ec37002cf092af030"></a>
 std::vector&lt; <a class="el" href="structBinary_1_1CPM3Format_1_1rsx__record.html">rsx_record</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>rsx_table</b></td></tr>
+<tr class="memdesc:af4d55a4750096a5ec37002cf092af030"><td class="mdescLeft">&#160;</td><td class="mdescRight">The attached RSX records. <br /></td></tr>
 <tr class="separator:af4d55a4750096a5ec37002cf092af030"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
 <tr class="memitem:af7aa1e28a73cd1f6109338b0a574e9ca inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_af7aa1e28a73cd1f6109338b0a574e9ca"><td class="memItemLeft" align="right" valign="top">
@@ -368,6 +364,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>CP/M Plus .com file format. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a42736faa5f7cd1901b0c4c73dae971b2" name="a42736faa5f7cd1901b0c4c73dae971b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42736faa5f7cd1901b0c4c73dae971b2">&#9670;&#160;</a></span>CalculateValues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CPM3Format::CalculateValues </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae63d979e5fa85a76ffe06ac613b6ec27">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
 <a id="ae040dd0d1749353e2882e753c5ef7ca9" name="ae040dd0d1749353e2882e753c5ef7ca9"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae040dd0d1749353e2882e753c5ef7ca9">&#9670;&#160;</a></span>Clear()</h2>
 
@@ -423,6 +448,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Loads file into memory. </p>
 
 <p>Implements <a class="el" href="classLinker_1_1Format.html#a84465b0adcb1d902012cf290c3b74d38">Linker::Format</a>.</p>
+
+</div>
+</div>
+<a id="aa0589c8ad608572f71e520a9e4ce5f20" name="aa0589c8ad608572f71e520a9e4ce5f20"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0589c8ad608572f71e520a9e4ce5f20">&#9670;&#160;</a></span>SetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CPM3Format::SetOptions </td>
+          <td>(</td>
+          <td class="paramtype">std::map&lt; std::string, std::string &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>options</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Passes command line parameters as settings over to format object. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#aabb33f0f671aa3eaeb66d64b2ca4664b">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

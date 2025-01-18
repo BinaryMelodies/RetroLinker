@@ -77,29 +77,73 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="structBinary_1_1CPM3Format_1_1rsx__record-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Binary::CPM3Format::rsx_record Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>A single RSX record.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="8bitexe_8h_source.html">8bitexe.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ac5d1431545c51f96364390620f4cb6ec" id="r_ac5d1431545c51f96364390620f4cb6ec"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classBinary_1_1PRLFormat.html">PRLFormat</a> &gt; void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac5d1431545c51f96364390620f4cb6ec">OpenAndPrepare</a> ()</td></tr>
+<tr class="memdesc:ac5d1431545c51f96364390620f4cb6ec"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual RSX data, stored in <a class="el" href="classBinary_1_1PRLFormat.html" title="MP/M .prl file format.">PRLFormat</a> (on disk, without the header)  <br /></td></tr>
+<tr class="separator:ac5d1431545c51f96364390620f4cb6ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:a44a736227d9fc9eefd75d86582e4d991" id="r_a44a736227d9fc9eefd75d86582e4d991"><td class="memItemLeft" align="right" valign="top"><a id="a44a736227d9fc9eefd75d86582e4d991" name="a44a736227d9fc9eefd75d86582e4d991"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>rsx_file_name</b></td></tr>
+<tr class="memdesc:a44a736227d9fc9eefd75d86582e4d991"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of RSX file to load, only used for writing. <br /></td></tr>
+<tr class="separator:a44a736227d9fc9eefd75d86582e4d991"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38be34a720ee8dc11f17f96f0209eba7" id="r_a38be34a720ee8dc11f17f96f0209eba7"><td class="memItemLeft" align="right" valign="top"><a id="a38be34a720ee8dc11f17f96f0209eba7" name="a38be34a720ee8dc11f17f96f0209eba7"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
+<tr class="memdesc:a38be34a720ee8dc11f17f96f0209eba7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Name of RSX file, as stored inside RSX. <br /></td></tr>
 <tr class="separator:a38be34a720ee8dc11f17f96f0209eba7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3b37988920e878a11a5e296e31b0ce86" id="r_a3b37988920e878a11a5e296e31b0ce86"><td class="memItemLeft" align="right" valign="top"><a id="a3b37988920e878a11a5e296e31b0ce86" name="a3b37988920e878a11a5e296e31b0ce86"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>offset</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>offset</b> = 0</td></tr>
+<tr class="memdesc:a3b37988920e878a11a5e296e31b0ce86"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset to RSX block. <br /></td></tr>
 <tr class="separator:a3b37988920e878a11a5e296e31b0ce86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4716c446f53ef92490dedd444f880682" id="r_a4716c446f53ef92490dedd444f880682"><td class="memItemLeft" align="right" valign="top"><a id="a4716c446f53ef92490dedd444f880682" name="a4716c446f53ef92490dedd444f880682"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b></td></tr>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>length</b> = 0</td></tr>
+<tr class="memdesc:a4716c446f53ef92490dedd444f880682"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of RSX module, only used for reading. <br /></td></tr>
 <tr class="separator:a4716c446f53ef92490dedd444f880682"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74fc37fc06f4073fe364aca2ed3ff45f" id="r_a74fc37fc06f4073fe364aca2ed3ff45f"><td class="memItemLeft" align="right" valign="top"><a id="a74fc37fc06f4073fe364aca2ed3ff45f" name="a74fc37fc06f4073fe364aca2ed3ff45f"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>nonbanked_only</b></td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>nonbanked_only</b> = false</td></tr>
+<tr class="memdesc:a74fc37fc06f4073fe364aca2ed3ff45f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether RSX is only loaded on non-banked systems. <br /></td></tr>
 <tr class="separator:a74fc37fc06f4073fe364aca2ed3ff45f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>A single RSX record. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac5d1431545c51f96364390620f4cb6ec" name="ac5d1431545c51f96364390620f4cb6ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5d1431545c51f96364390620f4cb6ec">&#9670;&#160;</a></span>OpenAndPrepare()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CPM3Format::rsx_record::OpenAndPrepare </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The actual RSX data, stored in <a class="el" href="classBinary_1_1PRLFormat.html" title="MP/M .prl file format.">PRLFormat</a> (on disk, without the header) </p>
+<p>Reads RSX file and prepares fields </p>
+
+</div>
+</div>
+<hr/>The documentation for this struct was generated from the following files:<ul>
 <li>src/format/<a class="el" href="8bitexe_8h_source.html">8bitexe.h</a></li>
+<li>src/format/<b>8bitexe.cc</b></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

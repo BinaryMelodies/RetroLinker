@@ -115,6 +115,11 @@ Public Types</h2></td></tr>
 , <b>SHT_EXPORTS</b> = 0x60000003
 , <br />
 &#160;&#160;<b>SHT_RES</b> = 0x60000004
+, <b>SHT_OLD_OS</b> = 12
+, <b>SHT_OLD_IMPORTS</b> = 13
+, <b>SHT_OLD_EXPORTS</b> = 14
+, <br />
+&#160;&#160;<b>SHT_OLD_RES</b> = 15
 , <b>SHT_GNU_INCREMENTAL_INPUTS</b> = 0x6FFF4700
 , <b>SHT_GNU_ATTRIBUTES</b> = 0x6FFFFFF5
 , <b>SHT_GNU_HASH</b> = 0x6FFFFFF6
@@ -150,6 +155,9 @@ std::shared_ptr&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocations.htm
 <tr class="memitem:aa91a6c4b8626ee23c25f9ea0a5974bd0" id="r_aa91a6c4b8626ee23c25f9ea0a5974bd0"><td class="memItemLeft" align="right" valign="top"><a id="aa91a6c4b8626ee23c25f9ea0a5974bd0" name="aa91a6c4b8626ee23c25f9ea0a5974bd0"></a>
 const std::shared_ptr&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocations.html">Relocations</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetRelocations</b> () const</td></tr>
 <tr class="separator:aa91a6c4b8626ee23c25f9ea0a5974bd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab98fe5ce11aa7b7067d6e7b7006ca29b" id="r_ab98fe5ce11aa7b7067d6e7b7006ca29b"><td class="memItemLeft" align="right" valign="top"><a id="ab98fe5ce11aa7b7067d6e7b7006ca29b" name="ab98fe5ce11aa7b7067d6e7b7006ca29b"></a>
+std::shared_ptr&lt; <a class="el" href="classELF_1_1ELFFormat_1_1DynamicSection.html">DynamicSection</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetDynamicSection</b> ()</td></tr>
+<tr class="separator:ab98fe5ce11aa7b7067d6e7b7006ca29b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afb1b52bc29c48e5595056760d51068dd" id="r_afb1b52bc29c48e5595056760d51068dd"><td class="memItemLeft" align="right" valign="top"><a id="afb1b52bc29c48e5595056760d51068dd" name="afb1b52bc29c48e5595056760d51068dd"></a>
 std::shared_ptr&lt; <a class="el" href="classELF_1_1ELFFormat_1_1IBMImportTable.html">IBMImportTable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetIBMImportTable</b> ()</td></tr>
 <tr class="separator:afb1b52bc29c48e5595056760d51068dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -198,6 +206,9 @@ static std::shared_ptr&lt; <a class="el" href="classELF_1_1ELFFormat_1_1DynamicS
 <tr class="memitem:a43ae3e36f41fded8f44311aeaf2c8e1b" id="r_a43ae3e36f41fded8f44311aeaf2c8e1b"><td class="memItemLeft" align="right" valign="top"><a id="a43ae3e36f41fded8f44311aeaf2c8e1b" name="a43ae3e36f41fded8f44311aeaf2c8e1b"></a>
 static std::shared_ptr&lt; <a class="el" href="classELF_1_1ELFFormat_1_1NotesSection.html">NotesSection</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ReadNote</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, offset_t file_offset, offset_t section_size)</td></tr>
 <tr class="separator:a43ae3e36f41fded8f44311aeaf2c8e1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a52826769f19c44a21c56cbb6badc878c" id="r_a52826769f19c44a21c56cbb6badc878c"><td class="memItemLeft" align="right" valign="top"><a id="a52826769f19c44a21c56cbb6badc878c" name="a52826769f19c44a21c56cbb6badc878c"></a>
+static std::shared_ptr&lt; <a class="el" href="classELF_1_1ELFFormat_1_1VersionRequirements.html">VersionRequirements</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ReadVersionRequirements</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, offset_t file_offset, offset_t section_link, offset_t section_info)</td></tr>
+<tr class="separator:a52826769f19c44a21c56cbb6badc878c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76fa8337f4fe686c7bd2f37b690a1bd1" id="r_a76fa8337f4fe686c7bd2f37b690a1bd1"><td class="memItemLeft" align="right" valign="top"><a id="a76fa8337f4fe686c7bd2f37b690a1bd1" name="a76fa8337f4fe686c7bd2f37b690a1bd1"></a>
 static std::shared_ptr&lt; <a class="el" href="classELF_1_1ELFFormat_1_1IBMSystemInfo.html">IBMSystemInfo</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ReadIBMSystemInfo</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, offset_t file_offset)</td></tr>
 <tr class="separator:a76fa8337f4fe686c7bd2f37b690a1bd1"><td class="memSeparator" colspan="2">&#160;</td></tr>

@@ -11,13 +11,14 @@ var searchData=
   ['bitfield_8',['BitField',['../classDumper_1_1BitFieldDisplay_1_1BitField.html',1,'Dumper::BitFieldDisplay']]],
   ['bitfielddisplay_9',['BitFieldDisplay',['../classDumper_1_1BitFieldDisplay.html',1,'Dumper']]],
   ['block_10',['Block',['../classDumper_1_1Block.html',1,'Dumper::Block'],['../classELF_1_1ELFFormat_1_1Block.html',1,'ELF::ELFFormat::Block'],['../structELF_1_1ELFFormat_1_1Segment_1_1Part.html#a269042e386f99b6621af8508245782b9aaa5222145fa2eec51a57917431b63674',1,'ELF::ELFFormat::Segment::Part::Block']]],
-  ['blocks_11',['blocks',['../classELF_1_1ELFFormat.html#ad1c406777ad6832b60e1fc5c6ceb1752',1,'ELF::ELFFormat']]],
-  ['boutformat_12',['BOutFormat',['../classXenix_1_1BOutFormat.html',1,'Xenix']]],
-  ['bss_13',['BSS',['../classCOFF_1_1COFFFormat_1_1Section.html#aa98e4f30e87e423b60d4f9d924473ff1acd6fe573a51ee5fb35133d867cf4ec5b',1,'COFF::COFFFormat::Section']]],
-  ['bss_5faddress_14',['bss_address',['../classDigitalResearch_1_1CPM68KFormat.html#a2dc31f3559026df0fbdebdfb409ae35f',1,'DigitalResearch::CPM68KFormat']]],
-  ['bss_5fbase_15',['bss_base',['../classO65_1_1O65Format_1_1Module.html#af2eec1e3cd75ca531bdf60b652c02f72',1,'O65::O65Format::Module']]],
-  ['bss_5fsegment_16',['bss_segment',['../classDigitalResearch_1_1CPM68KFormat.html#a0c074fecc2633b4b7db6681e89f299e3',1,'DigitalResearch::CPM68KFormat::bss_segment'],['../classDigitalResearch_1_1CPM8KFormat.html#ac90fdbc6b8b06bc2206f3ace609f6c65',1,'DigitalResearch::CPM8KFormat::bss_segment']]],
-  ['bss_5fsize_17',['bss_size',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#ae663abb1ff4c08cf1be465b456cab50f',1,'COFF::COFFFormat::AOutHeader::bss_size'],['../classDigitalResearch_1_1CPM68KFormat.html#a0cac256f4016f247237d738a132fb954',1,'DigitalResearch::CPM68KFormat::bss_size'],['../classApple_1_1OMFFormat_1_1Segment.html#a37aa8a3c72418f329cb5388c6cbab85c',1,'Apple::OMFFormat::Segment::bss_size'],['../classO65_1_1O65Format_1_1Module.html#ae03d3b763de1f7d57333260a35d5bfe6',1,'O65::O65Format::Module::bss_size']]],
-  ['buffer_18',['Buffer',['../classLinker_1_1Buffer.html',1,'Linker']]],
-  ['bwformat_19',['BWFormat',['../classDOS16M_1_1BWFormat.html',1,'DOS16M']]]
+  ['block_5fnumber_11',['block_number',['../structBinary_1_1AtariFormat_1_1Segment.html#a8cea5ad1df71d03ac3439bb0cc1d3f05',1,'Binary::AtariFormat::Segment']]],
+  ['blocks_12',['blocks',['../classELF_1_1ELFFormat.html#ad1c406777ad6832b60e1fc5c6ceb1752',1,'ELF::ELFFormat']]],
+  ['boutformat_13',['BOutFormat',['../classXenix_1_1BOutFormat.html',1,'Xenix']]],
+  ['bss_14',['BSS',['../classCOFF_1_1COFFFormat_1_1Section.html#aa98e4f30e87e423b60d4f9d924473ff1acd6fe573a51ee5fb35133d867cf4ec5b',1,'COFF::COFFFormat::Section']]],
+  ['bss_5faddress_15',['bss_address',['../classDigitalResearch_1_1CPM68KFormat.html#a2dc31f3559026df0fbdebdfb409ae35f',1,'DigitalResearch::CPM68KFormat']]],
+  ['bss_5fbase_16',['bss_base',['../classO65_1_1O65Format_1_1Module.html#af2eec1e3cd75ca531bdf60b652c02f72',1,'O65::O65Format::Module']]],
+  ['bss_5fsegment_17',['bss_segment',['../classDigitalResearch_1_1CPM68KFormat.html#a0c074fecc2633b4b7db6681e89f299e3',1,'DigitalResearch::CPM68KFormat::bss_segment'],['../classDigitalResearch_1_1CPM8KFormat.html#ac90fdbc6b8b06bc2206f3ace609f6c65',1,'DigitalResearch::CPM8KFormat::bss_segment']]],
+  ['bss_5fsize_18',['bss_size',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#ae663abb1ff4c08cf1be465b456cab50f',1,'COFF::COFFFormat::AOutHeader::bss_size'],['../classDigitalResearch_1_1CPM68KFormat.html#a0cac256f4016f247237d738a132fb954',1,'DigitalResearch::CPM68KFormat::bss_size'],['../classApple_1_1OMFFormat_1_1Segment.html#a37aa8a3c72418f329cb5388c6cbab85c',1,'Apple::OMFFormat::Segment::bss_size'],['../classO65_1_1O65Format_1_1Module.html#ae03d3b763de1f7d57333260a35d5bfe6',1,'O65::O65Format::Module::bss_size']]],
+  ['buffer_19',['Buffer',['../classLinker_1_1Buffer.html',1,'Linker']]],
+  ['bwformat_20',['BWFormat',['../classDOS16M_1_1BWFormat.html',1,'DOS16M']]]
 ];

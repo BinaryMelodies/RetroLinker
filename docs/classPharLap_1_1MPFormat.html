@@ -118,6 +118,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac0befaab66f96eff702cf639793014f6" id="r_ac0befaab66f96eff702cf639793014f6"><td class="memItemLeft" align="right" valign="top"><a id="ac0befaab66f96eff702cf639793014f6" name="ac0befaab66f96eff702cf639793014f6"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MPFormat</b> (bool has_relocations=false)</td></tr>
 <tr class="separator:ac0befaab66f96eff702cf639793014f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8564391ead2a9b4072796d137e0d188f" id="r_a8564391ead2a9b4072796d137e0d188f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8564391ead2a9b4072796d137e0d188f">SetLinkScript</a> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
+<tr class="memdesc:a8564391ead2a9b4072796d137e0d188f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects a script file to use for linking.  <br /></td></tr>
+<tr class="separator:a8564391ead2a9b4072796d137e0d188f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1c92042fde29422a3e9871b2d75a708" id="r_ab1c92042fde29422a3e9871b2d75a708"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1c92042fde29422a3e9871b2d75a708">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
 <tr class="memdesc:ab1c92042fde29422a3e9871b2d75a708"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
 <tr class="separator:ab1c92042fde29422a3e9871b2d75a708"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -161,9 +164,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ade72610728318b9d106b3276bab836e0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ade72610728318b9d106b3276bab836e0">SetModel</a> (std::string model)</td></tr>
 <tr class="memdesc:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
 <tr class="separator:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat" id="r_a817cfc3dafc78cbc76d029e1b7bb31db"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a817cfc3dafc78cbc76d029e1b7bb31db">SetLinkScript</a> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options)</td></tr>
-<tr class="memdesc:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects a script file to use for linking.  <br /></td></tr>
-<tr class="separator:a817cfc3dafc78cbc76d029e1b7bb31db inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a7f0a56b4e329c20bc92d8be1aba820d8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a7f0a56b4e329c20bc92d8be1aba820d8">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -203,14 +203,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearLinkerManager</b
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkScript</b> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options)</td></tr>
 <tr class="memdesc:a0b537dd19bd73699d7440107b9fc5318 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the linker script and linker parameters. <br /></td></tr>
 <tr class="separator:a0b537dd19bd73699d7440107b9fc5318 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac272c92dd4f8303f4baaf61f11883a68 inherit pub_methods_classLinker_1_1LinkerManager" id="r_ac272c92dd4f8303f4baaf61f11883a68"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkerParameter</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string key)</td></tr>
-<tr class="memdesc:ac272c92dd4f8303f4baaf61f11883a68 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a single linker parameter, if inside options. <br /></td></tr>
-<tr class="separator:ac272c92dd4f8303f4baaf61f11883a68 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95270665ba4a6c881c4cd50802d6ac83 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a95270665ba4a6c881c4cd50802d6ac83"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkerParameter</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string key, std::string variable)</td></tr>
-<tr class="memdesc:a95270665ba4a6c881c4cd50802d6ac83 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets a single linker parameter, if inside options. <br /></td></tr>
-<tr class="separator:a95270665ba4a6c881c4cd50802d6ac83 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager" id="r_a3ad399a7c024427c9f524659ba0868cb"><td class="memItemLeft" align="right" valign="top">
 std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles the linker script into an internal format. <br /></td></tr>
@@ -580,6 +572,39 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 <p>Loads file into memory. </p>
 
 <p>Implements <a class="el" href="classLinker_1_1Format.html#a84465b0adcb1d902012cf290c3b74d38">Linker::Format</a>.</p>
+
+</div>
+</div>
+<a id="a8564391ead2a9b4072796d137e0d188f" name="a8564391ead2a9b4072796d137e0d188f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8564391ead2a9b4072796d137e0d188f">&#9670;&#160;</a></span>SetLinkScript()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MPFormat::SetLinkScript </td>
+          <td>(</td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>script_file</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::map&lt; std::string, std::string &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>options</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Selects a script file to use for linking. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a817cfc3dafc78cbc76d029e1b7bb31db">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>
