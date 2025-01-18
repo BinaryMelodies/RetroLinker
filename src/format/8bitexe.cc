@@ -491,8 +491,6 @@ bool PRLFormat::ProcessRelocation(Linker::Module& module, Linker::Relocation& re
 void PRLFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
 	rd.Seek(1);
 	uint16_t image_size = rd.ReadUnsigned(2);
 	rd.Skip(1);
@@ -502,11 +500,21 @@ void PRLFormat::ReadFile(Linker::Reader& rd)
 	rd.Skip(1);
 	csbase = rd.ReadUnsigned(2);
 	rd.Seek(0x0100);
+	ReadWithoutHeader(rd, image_size);
+}
+
+void PRLFormat::ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size)
+{
+	offset_t offset = rd.Tell();
+	rd.SeekEnd();
+	offset_t end = rd.Tell();
+	rd.Seek(offset);
+
 	image = Linker::Buffer::ReadFromFile(rd, image_size);
 
 	relocations.clear();
-	Linker::Debug << "Debug: File size: " << end << ", expected size with relocations: " << (offset_t(0x0100) + image_size + ((image_size + 7) >> 3)) << std::endl;
-	if(end >= offset_t(0x0100) + image_size + ((image_size + 7) >> 3))
+	Linker::Debug << "Debug: File end: " << end << ", expected end with relocations: " << (offset + image_size + ((image_size + 7) >> 3)) << std::endl;
+	if(end >= offset + image_size + ((image_size + 7) >> 3))
 	{
 		suppress_relocations = false;
 		for(uint16_t byte_offset = 0; byte_offset < image_size; byte_offset += 8)

@@ -231,21 +231,30 @@ namespace Binary
 	class CPM3Format : public GenericBinaryFormat
 	{
 	public:
+		/** @brief Pre-initialization code to be executed before fully loading program */
 		uint8_t preinit_code[10] = { 0xC9 }; /* z80 return instruction */
+		/** @brief Whether loader should be active, even if no RSXs are attached */
 		bool loader_active = true;
-		uint8_t rsx_count = 0;
+		/** @brief A single RSX record */
 		struct rsx_record
 		{
+			/** @brief Name of RSX file to load, only used for writing */
 			std::string rsx_file_name;
-
+			/** @brief Name of RSX file, as stored inside RSX */
 			std::string name;
+			/** @brief Offset to RSX block */
 			uint16_t offset = 0;
-			uint16_t length = 0; /* only used for reading */
+			/** @brief Length of RSX module, only used for reading */
+			uint16_t length = 0;
+			/** @brief Whether RSX is only loaded on non-banked systems */
 			bool nonbanked_only = false;
+			/** @brief The actual RSX data, stored in PRLFormat (on disk, without the header) */
 			std::shared_ptr<PRLFormat> module;
 
+			/** @brief Reads RSX file and prepares fields */
 			void OpenAndPrepare();
 		};
+		/** @brief The attached RSX records */
 		std::vector<rsx_record> rsx_table;
 
 		void Clear() override;
@@ -302,12 +311,17 @@ namespace Binary
 	class PRLFormat : public GenericBinaryFormat
 	{
 	public:
+		/** @brief Additional memory to allocate, similar to .bss */
 		uint16_t zero_fill = 0;
+		/** @brief Address to be loaded at, only used for .OVL files */
 		uint16_t load_address = 0;
+		/** @brief BIOS link */
 		uint16_t csbase = 0;
 
+		/** @brief Do not include relocations, only used for .OVL files */
 		bool suppress_relocations = false;
 
+		/** @brief Offsets to bytes referencing pages that must be relocated */
 		std::set<uint16_t> relocations;
 
 		PRLFormat(uint64_t default_base_address = 0, std::string default_extension = ".prl")
@@ -322,6 +336,11 @@ namespace Binary
 		void ReadFile(Linker::Reader& rd) override;
 
 		void WriteFile(Linker::Writer& wr) override;
+
+		/** @brief Read without header, only needed for RSX files stored inside a CP/M 3 .COM file */
+		void ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size);
+
+		/** @brief Write without header, only needed for RSX files stored inside a CP/M 3 .COM file */
 		void WriteWithoutHeader(Linker::Writer& wr);
 
 		void Dump(Dumper::Dumper& dump) override;
