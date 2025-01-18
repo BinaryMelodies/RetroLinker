@@ -4,9 +4,6 @@
 
 using namespace DigitalResearch;
 
-std::shared_ptr<CPM86Format> CPM86Format::rsx_record::dynamic_module = std::make_shared<CPM86Format>();
-std::shared_ptr<CPM86Format> CPM86Format::rsx_record::rawdata_module = std::make_shared<CPM86Format>();
-
 void CPM86Format::Descriptor::Clear()
 {
 	image = nullptr;
@@ -150,6 +147,7 @@ CPM86Format::relocation_source CPM86Format::Relocation::GetSource() const
 void CPM86Format::rsx_record::Clear()
 {
 	module = nullptr;
+	rawdata = nullptr;
 }
 
 void CPM86Format::rsx_record::Read(Linker::Reader& rd)
@@ -162,38 +160,20 @@ void CPM86Format::rsx_record::Read(Linker::Reader& rd)
 void CPM86Format::rsx_record::ReadModule(Linker::Reader& rd)
 {
 	/* TODO: untested */
-	if(offset_record == 0)
-	{
-		module = RSX_DYNAMIC;
-	}
-	else if(offset_record == 0xFFFF)
-	{
-		module = RSX_TERMINATE;
-	}
-	else
-	{
-		module = std::make_shared<CPM86Format>();
-		module->file_offset = offset_record << 7;
-		rd.Seek(module->file_offset);
-		module->ReadFile(rd);
-	}
+	if(offset_record == 0 || offset_record == 0xFFFF)
+		return;
+
+	if(rawdata != nullptr)
+		rawdata = nullptr;
+
+	module = std::make_shared<CPM86Format>();
+	module->file_offset = offset_record << 7;
+	rd.Seek(module->file_offset);
+	module->ReadFile(rd);
 }
 
 void CPM86Format::rsx_record::Write(Linker::Writer& wr)
 {
-	/* TODO: untested */
-	if(module == RSX_TERMINATE)
-	{
-		offset_record = 0xFFFF;
-	}
-	else if(module == RSX_DYNAMIC)
-	{
-		offset_record = 0;
-	}
-	else if(module != RSX_RAWDATA)
-	{
-		offset_record = module->file_offset >> 7;
-	}
 	wr.WriteWord(2, offset_record);
 	wr.WriteData(8, name, '\0');
 	wr.Skip(6);
@@ -201,16 +181,16 @@ void CPM86Format::rsx_record::Write(Linker::Writer& wr)
 
 void CPM86Format::rsx_record::WriteModule(Linker::Writer& wr)
 {
-	/* TODO: untested */
 	if(offset_record == 0xFFFF)
 		return;
-	if(module == RSX_RAWDATA)
+	if(rawdata != nullptr)
 	{
 		wr.Seek(offset_record << 7);
 		rawdata->WriteFile(wr);
 	}
-	else if(module != RSX_DYNAMIC && module != RSX_TERMINATE)
+	else if(module != nullptr)
 	{
+		/* TODO: untested */
 		module->WriteFile(wr);
 	}
 }
@@ -563,11 +543,9 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 			if(rsx_table[i].offset_record == 0xFFFF)
 				break; /* should be the case for the last record */
 		}
-		for(int i = 0; i < 8; i++)
+		for(int i = 0; i < 8 && rsx_table[i].offset_record == 0xFFFF; i++)
 		{
 			rsx_table[i].ReadModule(rd);
-			if(rsx_table[i].module == RSX_TERMINATE)
-				break;
 		}
 	}
 }
@@ -872,7 +850,9 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 		{
 			if(rsx_table[i].offset_record == 0xFFFF)
 				break;
-			Dumper::Region rsx_entry("RSX", rsx_table[i].offset_record << 7, rsx_table[i].module != RSX_DYNAMIC ? rsx_table[i].module->GetFullFileSize() : 0, 6);
+			Dumper::Region rsx_entry("RSX", rsx_table[i].offset_record << 7,
+				rsx_table[i].module != nullptr ? rsx_table[i].module->GetFullFileSize()
+				: rsx_table[i].rawdata != nullptr ? rsx_table[i].rawdata->ActualDataSize() : 0, 6);
 			rsx_entry.AddField("Name", Dumper::StringDisplay::Make(8, "\""), rsx_table[i].name);
 			rsx_entry.AddHiddenField("number", Dumper::DecDisplay::Make(), offset_t(i + 1));
 			rsx_entry.Display(dump);
@@ -880,12 +860,15 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 
 		for(int i = 0; i < 8; i++)
 		{
-			if(rsx_table[i].module == RSX_TERMINATE)
+			if(rsx_table[i].offset_record == 0xFFFF)
 				break;
 			std::cout << "=== RSX " << (i + 1) << " ===" << std::endl;
-			if(rsx_table[i].module == RSX_DYNAMIC)
+			if(rsx_table[i].offset_record == 0x0000)
 				continue;
-			rsx_table[i].module->Dump(dump);
+			if(rsx_table[i].module != nullptr)
+				rsx_table[i].module->Dump(dump);
+			//else if(rsx_table[i].rawdata != nullptr)
+				//rsx_table[i].rawdata->Dump(dump); // TODO
 		}
 	}
 }
@@ -926,7 +909,7 @@ void CPM86Format::CalculateValues()
 		Linker::Debug << "Debug: Record #" << i + 1 << " from " << rsx_table[i].rsx_file_name << " (offset: " << rsx_table[i].offset_record << ")" << std::endl;
 		if(rsx_table[i].offset_record == 0xFFFF)
 			break;
-		assert(rsx_table[i].module == RSX_RAWDATA); // TODO
+		assert(rsx_table[i].module == nullptr); // TODO
 		rsx_table[i].offset_record = offset >> 7;
 		Linker::Debug << "Debug: New offset: " << rsx_table[i].offset_record << std::endl;
 		offset += rsx_table[i].rawdata->ActualDataSize();
@@ -1400,7 +1383,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 		Linker::Debug << "Debug: RSX module " << rsx_table[i].rsx_file_name << std::endl;
 		if(rsx_table[i].rsx_file_name != "")
 		{
-			rsx_table[i].module = RSX_RAWDATA;
+			rsx_table[i].module = nullptr;
 			std::ifstream rsx_file;
 			rsx_file.open(rsx_table[i].rsx_file_name, std::ios_base::in | std::ios_base::binary);
 			if(rsx_file.is_open())

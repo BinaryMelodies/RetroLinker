@@ -209,6 +209,8 @@ namespace DigitalResearch
 			 * The special value 0xFFFF does not belong to an actual RSX file, but signals the end of an RSX record table.
 			 */
 			uint16_t offset_record = 0;
+			//static constexpr uint16_t RSX_TERMINATE = 0xFFFF;
+			//static constexpr uint16_t RSX_DYNAMIC = 0x0000;
 			/**
 			 * @brief A reference to the stored module
 			 *
@@ -220,11 +222,6 @@ namespace DigitalResearch
 			std::shared_ptr<CPM86Format> module;
 			/** @brief Alternatively, the contents can be represented as raw data */
 			std::shared_ptr<Linker::Writable> rawdata;
-			static std::shared_ptr<CPM86Format> dynamic_module;
-			static std::shared_ptr<CPM86Format> rawdata_module;
-#define RSX_TERMINATE (std::shared_ptr<CPM86Format>(nullptr))
-#define RSX_DYNAMIC   (::DigitalResearch::CPM86Format::rsx_record::dynamic_module)
-#define RSX_RAWDATA   (::DigitalResearch::CPM86Format::rsx_record::rawdata_module)
 
 			void Clear();
 
