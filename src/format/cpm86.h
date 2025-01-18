@@ -209,8 +209,8 @@ namespace DigitalResearch
 			 * The special value 0xFFFF does not belong to an actual RSX file, but signals the end of an RSX record table.
 			 */
 			uint16_t offset_record = 0;
-			//static constexpr uint16_t RSX_TERMINATE = 0xFFFF;
-			//static constexpr uint16_t RSX_DYNAMIC = 0x0000;
+			static constexpr uint16_t RSX_TERMINATE = 0xFFFF;
+			static constexpr uint16_t RSX_DYNAMIC = 0x0000;
 			/**
 			 * @brief A reference to the stored module
 			 *
