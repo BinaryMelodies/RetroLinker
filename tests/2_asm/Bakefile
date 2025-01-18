@@ -26,8 +26,8 @@ Recipe([
 		IfDefined("custom_entry"),
 			"-d.entry=start",
 		EndIf,
-		IfDefined("code_base"),
-			"-Scode_base={code_base}",
+		IfDefined("base_address"),
+			"-Pbase_address={base_address}",
 		EndIf,
 		IfDefined("stub"),
 			"-Sstub={stub}",
@@ -260,7 +260,7 @@ Target(
 Target(
 	System = "human68k",
 	Format = "xfile",
-	code_base = "0x1234", # TODO: permit integer
+	base_address = "0x1234", # TODO: permit integer
 	output_file = "h68kr")
 Target(
 	System = "amiga",
