@@ -41,47 +41,86 @@ namespace Binary
 	class AtariFormat : public GenericBinaryFormat
 	{
 	public:
-		/* TODO: untested */
-
-		/* TODO: enable setting the base address, default should be ??? */
-
 		/* exe, obj, com are also used */
 		AtariFormat(uint64_t default_base_address = 0, std::string default_extension = ".xex")
 			: GenericBinaryFormat(default_base_address, default_extension)
 		{
 		}
 
+		/**
+		 * @brief Represents a loadable segment in the binary
+		 */
 		struct Segment
 		{
 		public:
-			uint16_t header;
-			bool header_optional;
+			/**
+			 * @brief Types of segments, represented by their signature values
+			 */
+			enum segment_type : uint16_t
+			{
+				/** @brief Lowest currently defined signature to check on reading */
+				SIGNATURE_LOW = 0xFFFA,
+				/** @brief SpartaDOS X fixed-address segment (not implemented) */
+				SDX_FIXED = 0xFFFA,
+				/** @brief SpartaDOS X required symbols (not implemented) */
+				SDX_SYMREQS = 0xFFFB,
+				/** @brief SpartaDOS X symbol definitions (not implemented) */
+				SDX_SYMDEFS = 0xFFFC,
+				/** @brief SpartaDOS X fixup information (not implemented) */
+				SDX_FIXUPS = 0xFFFD,
+				/** @brief SpartaDOS X RAM allocation block (not implemented) */
+				SDX_RAMALLOC = 0xFFFE,
+				/** @brief SpartaDOS X position independent (not implemented) */
+				SDX_POSIND = 0xFFFE,
+				/** @brief Atari segment type */
+				ATARI_SEGMENT = 0xFFFF,
+			};
+			/**
+			 * @brief Header type, Atari DOS uses only 0xFFFF, signature only obligatory for the first segment
+			 */
+			segment_type header_type;
+			/**
+			 * @brief Set if placing header type is optional, also set when signature is absent in file when reading
+			 */
+			bool header_type_optional;
+			/**
+			 * @brief Address at which segment must be loaded
+			 */
 			uint16_t address;
+			/**
+			 * @brief The binary data in the segment
+			 */
 			std::shared_ptr<Linker::Writable> image;
 
-			Segment(bool header_optional = true)
-				: header(0xFFFF), header_optional(header_optional), address(0), image(nullptr)
+			Segment(bool header_type_optional = true)
+				: header_type(ATARI_SEGMENT), header_type_optional(header_type_optional), address(0), image(nullptr)
 			{
 			}
 
-			Segment(uint16_t header)
-				: header(header), header_optional(false), address(0), image(nullptr)
+			Segment(uint16_t header_type)
+				: header_type(segment_type(header_type)), header_type_optional(false), address(0), image(nullptr)
 			{
 			}
 
-//			~Segment()
-//			{
-//				if(image)
-//					delete image;
-//			}
-
+			/**
+			 * @brief Retrieves the number of bytes in the segment body
+			 */
 			offset_t GetSize() const;
 
+			/**
+			 * @brief Reads a segment from a file into this object
+			 */
 			void ReadFile(Linker::Reader& rd);
 
+			/**
+			 * @brief Writes the segment into a file
+			 */
 			void WriteFile(Linker::Writer& wr);
 		};
 
+		/**
+		 * @brief Sequence of segments
+		 */
 		std::vector<std::unique_ptr<Segment>> segments;
 
 		/** @brief Address which contains a loader between to execute between loading segments */
@@ -149,8 +188,6 @@ namespace Binary
 	class CPM3Format : public GenericBinaryFormat
 	{
 	public:
-		/* TODO: untested */
-
 		uint8_t preinit_code[10] = { 0xC9 }; /* z80 return instruction */
 		bool loader_active = true;
 		uint8_t rsx_count = 0;

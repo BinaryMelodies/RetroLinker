@@ -56,16 +56,16 @@ void AtariFormat::AddEntryPoint(uint16_t entry)
 void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 {
 	uint16_t word = rd.ReadUnsigned(2);
-	if(word >= 0xFFFF) /* TODO: check SpartaDOS X allowed entries */
+	if(word >= SIGNATURE_LOW)
 	{
-		header = word;
-		header_optional = false;
+		header_type = segment_type(word);
+		header_type_optional = false;
 		word = rd.ReadUnsigned(2);
 	}
 	else
 	{
-		header = 0xFFFF;
-		header_optional = true;
+		header_type = ATARI_SEGMENT;
+		header_type_optional = true;
 	}
 	address = word;
 	uint16_t length = (rd.ReadUnsigned(2) + 1 - address) & 0xFFFF;
@@ -80,9 +80,9 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
 	{
 		Linker::Warning << "Warning: Address overflows" << std::endl;
 	}
-	if(!header_optional || header != 0xFFFF)
+	if(!header_type_optional || header_type != ATARI_SEGMENT)
 	{
-		wr.WriteWord(2, header);
+		wr.WriteWord(2, header_type);
 	}
 	wr.WriteWord(2, address);
 	wr.WriteWord(2, address + GetSize() - 1);
@@ -91,12 +91,12 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
 
 void AtariFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
-	std::unique_ptr<Segment> atari_segment = std::make_unique<Segment>(); /* TODO: header type */
+	std::unique_ptr<Segment> atari_segment = std::make_unique<Segment>(); /* TODO: header type, for now we set it to the default value 0xFFFF */
 	segment->Fill();
 	atari_segment->address = segment->base_address;
 	atari_segment->image = segment;
 	if(segments.size() == 0)
-		atari_segment->header_optional = false;
+		atari_segment->header_type_optional = false;
 	segments.push_back(std::move(atari_segment));
 }
 
@@ -121,10 +121,12 @@ void AtariFormat::ReadFile(Linker::Reader& rd)
 	rd.SeekEnd();
 	offset_t end = rd.Tell();
 	rd.Seek(0);
-	if(rd.ReadUnsigned(2) != 0xFFFF)
+	uint16_t signature = rd.ReadUnsigned(2);
+	if(signature < Segment::segment_type::SIGNATURE_LOW)
 	{
-		Linker::FatalError("Fatal error: Expected binary image to start with 0xFFFF");
+		Linker::FatalError("Fatal error: Expected binary image to start with 0xFFFF or valid SpartaDOS X signature");
 	}
+	rd.Seek(0);
 	while(rd.Tell() < end)
 	{
 		std::unique_ptr<Segment> segment = std::make_unique<Segment>();
