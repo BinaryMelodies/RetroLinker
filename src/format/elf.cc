@@ -2584,7 +2584,7 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 	{
 		if((section.flags & SHF_MERGE))
 		{
-			Linker::Debug << "Debug: Mergaeble sections currently not supported" << std::endl;
+			Linker::Debug << "Debug: Mergeable sections currently not supported" << std::endl;
 			/* TODO - with OMF */
 		}
 		if((section.flags & SHF_GROUP))

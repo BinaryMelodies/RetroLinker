@@ -786,7 +786,7 @@ void CPM68KFormat::ProcessModule(Linker::Module& module)
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))
 		{
-			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignroing" << std::endl;
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 		}
 		rel.WriteWord(resolution.value);
 		if(system == SYSTEM_HUMAN68K)

@@ -715,7 +715,7 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))
 		{
-			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignroing" << std::endl;
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 		}
 		rel.WriteWord(resolution.value);
 		if(system == PDOS386 && resolution.target != nullptr && resolution.reference == nullptr)
