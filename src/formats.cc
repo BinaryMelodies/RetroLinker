@@ -1,6 +1,7 @@
 
 #include "formats.h"
 #include "format/8bitexe.h" /* 8-bit binary formats */ /* TODO: not yet finished or tested */
+#include "format/aif.h" /* AIF format */ /* TODO: not implemented */
 #include "format/aout.h" /* a.out format */
 #include "format/as86obj.h" /* TODO: not implemented */
 #include "format/binary.h" /* .com, .r (Human68k) */
@@ -28,6 +29,7 @@
 #include "format/pefexe.h" /* TODO: not implemented */
 #include "format/pharlap.h" /* .exp, .rex (Phar Lap) */
 #include "format/pmode.h" /* TODO: not implemented */
+#include "format/w3exe.h" /* TODO: not implemented */
 #include "format/xenix.h" /* TODO: not implemented */
 #include "format/xpexp.h" /* TODO: not implemented */
 
@@ -703,8 +705,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_ADAM:
 		return std::make_shared<SeychellDOS32::AdamFormat>(); // TODO: test
 	case FORMAT_AIF:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<ARM::AIFFormat>(); // TODO
 	case FORMAT_AOUT:
 		return std::make_shared<AOutFormat>(); // TODO: test dumper
 	case FORMAT_APPLE:
@@ -776,7 +777,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<UZI280Format>(); // TODO
 	case FORMAT_W3:
 		/* TODO */
-		return nullptr;
+		return std::make_shared<W3Format>(); // TODO
 	case FORMAT_W4:
 		/* TODO */
 		return nullptr;

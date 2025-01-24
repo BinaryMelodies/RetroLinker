@@ -1,0 +1,43 @@
+#ifndef W3EXE_H
+#define W3EXE_H
+
+#include <array>
+#include "../common.h"
+#include "../linker/linker.h"
+#include "../linker/reader.h"
+#include "../linker/writer.h"
+
+/* TODO: unimplemented */
+
+namespace Microsoft
+{
+	/**
+	 * @brief WIN386.EXE (TODO: not implemented)
+	 */
+	class W3Format : public virtual Linker::OutputFormat
+	{
+	public:
+		class Entry
+		{
+		public:
+			std::array<char, 8> filename;
+			uint32_t file_offset;
+			uint32_t unknown;
+			// TODO: data contents
+		};
+
+		offset_t file_offset;
+		uint16_t unknown;
+		std::vector<Entry> entries;
+
+//		void Clear() override;
+//		void CalculateValues() override;
+		void ReadFile(Linker::Reader& in) override;
+		void WriteFile(Linker::Writer& out) override;
+		/* TODO */
+
+//		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+	};
+}
+
+#endif /* W3EXE_H */
