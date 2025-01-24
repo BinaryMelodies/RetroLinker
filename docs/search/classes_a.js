@@ -10,6 +10,7 @@ var searchData=
   ['librarydescriptor_7',['LibraryDescriptor',['../classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html',1,'DigitalResearch::CPM86Format']]],
   ['linkermanager_8',['LinkerManager',['../classLinker_1_1LinkerManager.html',1,'Linker']]],
   ['list_9',['List',['../classScript_1_1List.html',1,'Script']]],
-  ['location_10',['Location',['../classLinker_1_1Location.html',1,'Linker']]],
-  ['lvformat_11',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]]
+  ['loadblock_10',['LoadBlock',['../classPCOS_1_1CMDFormat_1_1LoadBlock.html',1,'PCOS::CMDFormat']]],
+  ['location_11',['Location',['../classLinker_1_1Location.html',1,'Linker']]],
+  ['lvformat_12',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]]
 ];

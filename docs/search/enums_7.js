@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['section_5fflags_0',['section_flags',['../classLinker_1_1Section.html#ac63d033d602ad0a9a0f82dddeaeb7d8f',1,'Linker::Section']]],
-  ['segment_5fkind_1',['segment_kind',['../classApple_1_1OMFFormat_1_1Segment.html#af80db61ad3a6fc5244c0699a050d9bd6',1,'Apple::OMFFormat::Segment']]],
-  ['segment_5ftype_2',['segment_type',['../structBinary_1_1AtariFormat_1_1Segment.html#ada19b41ce6bc348665ff82434be4ba3a',1,'Binary::AtariFormat::Segment::segment_type'],['../classDigitalResearch_1_1CPM8KFormat_1_1Segment.html#a0818774db1a08ab47fd52e4069bf6640',1,'DigitalResearch::CPM8KFormat::Segment::segment_type']]],
-  ['system_5ftype_3',['system_type',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1b',1,'DigitalResearch::CPM68KFormat']]]
+  ['relocation_5ftype_0',['relocation_type',['../structDigitalResearch_1_1CPM8KFormat_1_1Relocation.html#a178f324a79b912c1de63612c9576f0b7',1,'DigitalResearch::CPM8KFormat::Relocation']]],
+  ['relocations_5ftype_1',['relocations_type',['../classDOS16M_1_1BWFormat.html#a3395277dce362ec553740b0c45a8a4b0',1,'DOS16M::BWFormat']]]
 ];

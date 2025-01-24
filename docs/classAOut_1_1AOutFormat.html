@@ -97,11 +97,11 @@ Inheritance diagram for AOut::AOutFormat:</div>
  <div class="center">
   <img src="classAOut_1_1AOutFormat.png" usemap="#AOut::AOutFormat_map" alt=""/>
   <map id="AOut::AOutFormat_map" name="AOut::AOutFormat_map">
-<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="0,56,187,80"/>
+<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="0,112,187,136"/>
+<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="197,112,384,136"/>
+<area href="classMicrosoft_1_1MZSimpleStubWriter.html" alt="Microsoft::MZSimpleStubWriter" shape="rect" coords="394,112,581,136"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,187,80"/>
 <area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="197,56,384,80"/>
-<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="394,56,581,80"/>
-<area href="classMicrosoft_1_1MZSimpleStubWriter.html" alt="Microsoft::MZSimpleStubWriter" shape="rect" coords="591,56,778,80"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,0,187,24"/>
 <area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="197,0,384,24"/>
   </map>
 </div></div>
@@ -187,9 +187,6 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Seg
 <tr class="memitem:ac63886fecdf1c9adf140a637fea08e47" id="r_ac63886fecdf1c9adf140a637fea08e47"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac63886fecdf1c9adf140a637fea08e47">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:ac63886fecdf1c9adf140a637fea08e47"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:ac63886fecdf1c9adf140a637fea08e47"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a743ed7b2af943068cda623c29ac99f14" id="r_a743ed7b2af943068cda623c29ac99f14"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a743ed7b2af943068cda623c29ac99f14">SetLinkScript</a> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
-<tr class="memdesc:a743ed7b2af943068cda623c29ac99f14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Selects a script file to use for linking.  <br /></td></tr>
-<tr class="separator:a743ed7b2af943068cda623c29ac99f14"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb2dca4af06fc91eee3b0ec541a7c2e9" id="r_aeb2dca4af06fc91eee3b0ec541a7c2e9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeb2dca4af06fc91eee3b0ec541a7c2e9">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
 <tr class="memdesc:aeb2dca4af06fc91eee3b0ec541a7c2e9"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:aeb2dca4af06fc91eee3b0ec541a7c2e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -226,51 +223,13 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>FormatProvide
 <tr class="memitem:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format" id="r_adda815844b654ffdd8f78e4828767702"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump)</td></tr>
 <tr class="memdesc:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classLinker_1_1OutputFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1OutputFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1OutputFormat.html">Linker::OutputFormat</a></td></tr>
-<tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
-<tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
-<tr class="separator:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ad1ac5336a836f4bdddd593b6430261c8"><td class="memItemLeft" align="right" valign="top">
-std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name)</td></tr>
-<tr class="memdesc:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name. <br /></td></tr>
-<tr class="separator:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3fb1623474b9baad197c5e42cf7be8f inherit pub_methods_classLinker_1_1OutputFormat" id="r_ad3fb1623474b9baad197c5e42cf7be8f"><td class="memItemLeft" align="right" valign="top">
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>FetchOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name, std::string default_value)</td></tr>
-<tr class="memdesc:ad3fb1623474b9baad197c5e42cf7be8f inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name, returning default value if name is missing. <br /></td></tr>
-<tr class="separator:ad3fb1623474b9baad197c5e42cf7be8f inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9fb1445cd62e7a05eec785abed8ef273 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a9fb1445cd62e7a05eec785abed8ef273"><td class="memItemLeft" align="right" valign="top">
-std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchIntegerOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name)</td></tr>
-<tr class="memdesc:a9fb1445cd62e7a05eec785abed8ef273 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name and convert it to integer. <br /></td></tr>
-<tr class="separator:a9fb1445cd62e7a05eec785abed8ef273 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ade72610728318b9d106b3276bab836e0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ade72610728318b9d106b3276bab836e0">SetModel</a> (std::string model)</td></tr>
-<tr class="memdesc:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
-<tr class="separator:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat" id="r_a0f64b63a2c6849c44a5642087698bfbf"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a0f64b63a2c6849c44a5642087698bfbf">FormatSupportsSegmentation</a> () const</td></tr>
-<tr class="memdesc:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports multiple segments.  <br /></td></tr>
-<tr class="separator:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a8e6cfc4a9c2434536ab1b31e54f2c6f7"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">FormatIs16bit</a> () const</td></tr>
-<tr class="memdesc:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
-<tr class="separator:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat" id="r_a71bf1175595e1a2ab076f3e92d5233fb"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a71bf1175595e1a2ab076f3e92d5233fb">FormatIsLinear</a> () const</td></tr>
-<tr class="memdesc:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the address space is linear or segmented.  <br /></td></tr>
-<tr class="separator:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat" id="r_afd51a2eb946dc0ed9b9750e840bcd247"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#afd51a2eb946dc0ed9b9750e840bcd247">FormatSupportsResources</a> () const</td></tr>
-<tr class="memdesc:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports resources.  <br /></td></tr>
-<tr class="separator:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a35ff0e5cd89f53d03a15e9e9c3260ad6"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a35ff0e5cd89f53d03a15e9e9c3260ad6">FormatSupportsLibraries</a> () const</td></tr>
-<tr class="memdesc:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
-<tr class="separator:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9065ef224d05dd9702fb85bf196f9041 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a9065ef224d05dd9702fb85bf196f9041"><td class="memItemLeft" align="right" valign="top">
-virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdditionalSectionFlags</b> (std::string section_name) const</td></tr>
-<tr class="separator:a9065ef224d05dd9702fb85bf196f9041 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:a0ba82902513f53d3da619281f9602d41 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a0ba82902513f53d3da619281f9602d41"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearLinkerManager</b> ()</td></tr>
 <tr class="separator:a0ba82902513f53d3da619281f9602d41 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b537dd19bd73699d7440107b9fc5318 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a0b537dd19bd73699d7440107b9fc5318"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetLinkScript</b> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options)</td></tr>
-<tr class="memdesc:a0b537dd19bd73699d7440107b9fc5318 inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the linker script and linker parameters. <br /></td></tr>
-<tr class="separator:a0b537dd19bd73699d7440107b9fc5318 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac316041ec0dd308cdd3ecdf0f77e8d7a inherit pub_methods_classLinker_1_1LinkerManager" id="r_ac316041ec0dd308cdd3ecdf0f77e8d7a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#ac316041ec0dd308cdd3ecdf0f77e8d7a">SetLinkScript</a> (std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
+<tr class="memdesc:ac316041ec0dd308cdd3ecdf0f77e8d7a inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the linker script and linker parameters.  <br /></td></tr>
+<tr class="separator:ac316041ec0dd308cdd3ecdf0f77e8d7a inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager" id="r_a3ad399a7c024427c9f524659ba0868cb"><td class="memItemLeft" align="right" valign="top">
 std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a3ad399a7c024427c9f524659ba0868cb inherit pub_methods_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compiles the linker script into an internal format. <br /></td></tr>
@@ -325,6 +284,43 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>CheckPredicate</b> (s
 <tr class="memitem:a308472292f18707ade78f1cf33b4c5a5 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a308472292f18707ade78f1cf33b4c5a5"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpression</b> (std::unique_ptr&lt; <a class="el" href="classScript_1_1Node.html">Script::Node</a> &gt; &amp;expression, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
 <tr class="separator:a308472292f18707ade78f1cf33b4c5a5 inherit pub_methods_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classLinker_1_1OutputFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1OutputFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1OutputFormat.html">Linker::OutputFormat</a></td></tr>
+<tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
+<tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
+<tr class="separator:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ad1ac5336a836f4bdddd593b6430261c8"><td class="memItemLeft" align="right" valign="top">
+std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name)</td></tr>
+<tr class="memdesc:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name. <br /></td></tr>
+<tr class="separator:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3fb1623474b9baad197c5e42cf7be8f inherit pub_methods_classLinker_1_1OutputFormat" id="r_ad3fb1623474b9baad197c5e42cf7be8f"><td class="memItemLeft" align="right" valign="top">
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>FetchOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name, std::string default_value)</td></tr>
+<tr class="memdesc:ad3fb1623474b9baad197c5e42cf7be8f inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name, returning default value if name is missing. <br /></td></tr>
+<tr class="separator:ad3fb1623474b9baad197c5e42cf7be8f inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fb1445cd62e7a05eec785abed8ef273 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a9fb1445cd62e7a05eec785abed8ef273"><td class="memItemLeft" align="right" valign="top">
+std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchIntegerOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name)</td></tr>
+<tr class="memdesc:a9fb1445cd62e7a05eec785abed8ef273 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name and convert it to integer. <br /></td></tr>
+<tr class="separator:a9fb1445cd62e7a05eec785abed8ef273 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ade72610728318b9d106b3276bab836e0"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ade72610728318b9d106b3276bab836e0">SetModel</a> (std::string model)</td></tr>
+<tr class="memdesc:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
+<tr class="separator:ade72610728318b9d106b3276bab836e0 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat" id="r_a0f64b63a2c6849c44a5642087698bfbf"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a0f64b63a2c6849c44a5642087698bfbf">FormatSupportsSegmentation</a> () const</td></tr>
+<tr class="memdesc:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports multiple segments.  <br /></td></tr>
+<tr class="separator:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a8e6cfc4a9c2434536ab1b31e54f2c6f7"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">FormatIs16bit</a> () const</td></tr>
+<tr class="memdesc:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
+<tr class="separator:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat" id="r_a71bf1175595e1a2ab076f3e92d5233fb"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a71bf1175595e1a2ab076f3e92d5233fb">FormatIsLinear</a> () const</td></tr>
+<tr class="memdesc:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the address space is linear or segmented.  <br /></td></tr>
+<tr class="separator:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat" id="r_afd51a2eb946dc0ed9b9750e840bcd247"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#afd51a2eb946dc0ed9b9750e840bcd247">FormatSupportsResources</a> () const</td></tr>
+<tr class="memdesc:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports resources.  <br /></td></tr>
+<tr class="separator:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a35ff0e5cd89f53d03a15e9e9c3260ad6"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a35ff0e5cd89f53d03a15e9e9c3260ad6">FormatSupportsLibraries</a> () const</td></tr>
+<tr class="memdesc:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
+<tr class="separator:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9065ef224d05dd9702fb85bf196f9041 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a9065ef224d05dd9702fb85bf196f9041"><td class="memItemLeft" align="right" valign="top">
+virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdditionalSectionFlags</b> (std::string section_name) const</td></tr>
+<tr class="separator:a9065ef224d05dd9702fb85bf196f9041 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -764,39 +760,6 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_size</b> = -
 <p>Loads file into memory. </p>
 
 <p>Implements <a class="el" href="classLinker_1_1Format.html#a84465b0adcb1d902012cf290c3b74d38">Linker::Format</a>.</p>
-
-</div>
-</div>
-<a id="a743ed7b2af943068cda623c29ac99f14" name="a743ed7b2af943068cda623c29ac99f14"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a743ed7b2af943068cda623c29ac99f14">&#9670;&#160;</a></span>SetLinkScript()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void AOutFormat::SetLinkScript </td>
-          <td>(</td>
-          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>script_file</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">std::map&lt; std::string, std::string &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>options</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Selects a script file to use for linking. </p>
-
-<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a817cfc3dafc78cbc76d029e1b7bb31db">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

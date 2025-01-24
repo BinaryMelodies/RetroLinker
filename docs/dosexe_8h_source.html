@@ -181,23 +181,27 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        uint32_t extra_memory_size = 0;</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        std::shared_ptr&lt;Linker::Writable&gt; image;</div>
 <div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        <a class="code hl_class" href="classDX64_1_1LVFormat.html">LVFormat</a>(format_type type)</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>        <span class="keyword">explicit</span> <a class="code hl_class" href="classDX64_1_1LVFormat.html">LVFormat</a>()</div>
 <div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>        {</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            SetSignature(type);</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>        }</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span> </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        <span class="keywordtype">void</span> SetSignature(format_type type);</div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classDX64_1_1LVFormat.html#aad0894e46545362697dd39a686b2dfe1">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>        }</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span> </div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>        <a class="code hl_class" href="classDX64_1_1LVFormat.html">LVFormat</a>(format_type type)</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        {</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>            SetSignature(type);</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        }</div>
 <div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classDX64_1_1LVFormat.html#a9716d2c8c82dd435e2c1328987c65b64">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>    };</div>
-</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>}</div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="keywordtype">void</span> SetSignature(format_type type);</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classDX64_1_1LVFormat.html#aad0894e46545362697dd39a686b2dfe1">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span><span class="comment">/* TODO: other formats? */</span></div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span><span class="preprocessor">#endif </span><span class="comment">/* DOSEXE_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classDX64_1_1LVFormat.html#a9716d2c8c82dd435e2c1328987c65b64">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>    };</div>
+</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>}</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span><span class="comment">/* TODO: other formats? */</span></div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span><span class="preprocessor">#endif </span><span class="comment">/* DOSEXE_H */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="aclassBrocaD3X_1_1D3X1Format_html"><div class="ttname"><a href="classBrocaD3X_1_1D3X1Format.html">BrocaD3X::D3X1Format</a></div><div class="ttdoc">Daniel Broca's D3X executable format.</div><div class="ttdef"><b>Definition</b> dosexe.h:64</div></div>
 <div class="ttc" id="aclassBrocaD3X_1_1D3X1Format_html_a40328852e56220241a6d18a86bd0e405"><div class="ttname"><a href="classBrocaD3X_1_1D3X1Format.html#a40328852e56220241a6d18a86bd0e405">BrocaD3X::D3X1Format::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> dosexe.cc:130</div></div>
 <div class="ttc" id="aclassBrocaD3X_1_1D3X1Format_html_a6db159d94043a0bf2dcf6736689685bf"><div class="ttname"><a href="classBrocaD3X_1_1D3X1Format.html#a6db159d94043a0bf2dcf6736689685bf">BrocaD3X::D3X1Format::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> dosexe.cc:142</div></div>
