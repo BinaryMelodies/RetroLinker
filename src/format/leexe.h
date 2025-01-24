@@ -42,7 +42,8 @@ namespace Microsoft
 			Windows386, /* ? */
 
 			DOS4G = -1, /* not a real system type */
-		} system;
+		};
+		system_type system = system_type(0);
 
 		bool IsOS2() const;
 
@@ -61,13 +62,13 @@ namespace Microsoft
 			VirtualDriver = 0x00028000,
 			PerProcessTermination = 0x40000000,
 		};
-		uint32_t module_flags;
+		uint32_t module_flags = 0;
 
 		bool IsLibrary() const;
 
 		bool IsDriver() const;
 
-		bool extended_format;
+		bool extended_format = false;
 
 		/* https://faydoc.tripod.com/formats/exe-LE.htm */
 		enum cpu_type
@@ -91,6 +92,11 @@ namespace Microsoft
 			CompatibleGNU, /* TODO: emx extender */
 		};
 		compatibility_type compatibility = CompatibleNone;
+
+		explicit LEFormat()
+			: last_page_size(0)
+		{
+		}
 
 	//protected:
 		LEFormat(unsigned system, unsigned module_flags, bool extended_format)

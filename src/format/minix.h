@@ -29,7 +29,7 @@ namespace MINIX
 			FormatSeparate = 0x20,
 			UnmappedZeroPage = 0x01,
 		};
-		format_type format;
+		format_type format = format_type(0);
 
 		enum cpu_type
 		{
@@ -40,7 +40,7 @@ namespace MINIX
 			I386 = 0x10,
 			SPARC = 0x17,
 		};
-		cpu_type cpu;
+		cpu_type cpu = cpu_type(0);
 
 		static ::EndianType GetEndianType(cpu_type cpu);
 
@@ -48,7 +48,16 @@ namespace MINIX
 
 		static constexpr size_t PAGE_SIZE = 0x1000;
 
-		MINIXFormat(format_type format, cpu_type cpu = cpu_type(0))
+		explicit MINIXFormat()
+		{
+		}
+
+		MINIXFormat(format_type format)
+			: format(format)
+		{
+		}
+
+		MINIXFormat(format_type format, cpu_type cpu)
 			: format(format), cpu(cpu)
 		{
 		}

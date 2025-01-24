@@ -100,6 +100,10 @@ namespace DX64
 		uint32_t extra_memory_size = 0;
 		std::shared_ptr<Linker::Writable> image;
 
+		explicit LVFormat()
+		{
+		}
+
 		LVFormat(format_type type)
 		{
 			SetSignature(type);

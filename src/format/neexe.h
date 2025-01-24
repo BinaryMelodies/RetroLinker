@@ -88,6 +88,10 @@ namespace Microsoft
 		};
 		compatibility_type compatibility = CompatibleNone;
 
+		explicit NEFormat()
+		{
+		}
+
 		NEFormat(system_type system, unsigned program_flags, unsigned application_flags)
 			: system(system), program_flags(program_flag_type(program_flags)), application_flags(application_flag_type(application_flags)),
 			fast_load_area_offset(0), fast_load_area_length(0)

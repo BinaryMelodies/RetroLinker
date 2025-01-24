@@ -72,8 +72,7 @@ int main(int argc, char * argv[])
 
 		if(file_formats.size() == 0)
 		{
-			Linker::Error << "Fatal error: Unable to determine file format" << std::endl;
-			return 1;
+			Linker::FatalError("Fatal error: Unable to determine file format");
 		}
 
 		for(auto& file_format : file_formats)

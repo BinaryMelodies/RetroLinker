@@ -12,7 +12,7 @@
 #include "format/dosexe.h" /* TODO: not yet finished or tested */
 #include "format/elf.h"
 #include "format/geos.h" /* TODO: not implemented */
-#include "format/gsos.h" /* TODO: not implemented */
+#include "format/gsos.h" /* TODO: not yet finished or tested */
 #include "format/huexe.h" /* .x (Human68k "HU") */
 #include "format/hunk.h" /* AmigaOS */
 #include "format/leexe.h" /* .exe (OS/2 "LE" and "LX") */
@@ -551,7 +551,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("DLL "),                0, FORMAT_ADAM,    "Adam Seychell's DOS32 DOS Extender format \"DLL \" dynamic library" },
 	{ std::string("DL"),                  0, FORMAT_MZ,      "HP 100LX/200LX System Manager compliant executable (\"DL\") format (.exm), MZ variant", VerifyHPSystemManager },
 	{ std::string("DX"),                  0, FORMAT_NE,      "Microsoft 16-bit new executable (\"NE\") for Windows, OS/2 (Rational Systems modification)" },
-	{ std::string("Flat"),                0, FORMAT_DX64,    "CandyMan's DX64 DOS Extender \"Flat\" executable" },
+	{ std::string("Flat"),                0, FORMAT_LV,      "CandyMan's DX64 DOS Extender \"Flat\" executable" },
 	{ std::string("HU"),                  0, FORMAT_HU,      "Human68k \"HU\" executable (.x)" },
 	{ std::string("Joy!"),                0, FORMAT_PEF,     "Apple Preferred Executable Format (\"Joy!\") executable" },
 	{ std::string("L\x01"),               0, FORMAT_COFF,    "Intel 80386 COFF executable (DJGPP)" },
@@ -560,7 +560,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("LC"),                  0, FORMAT_LE,      "DOS/32A compressed linear executable" }, /* ??? */
 	{ std::string("LV\x00\x00", 4),       0, FORMAT_LV,      "CandyMan's DX64 DOS Extender \"LV\" executable" },
 	{ std::string("MP"),                  0, FORMAT_MP,      "Phar Lap 386|DOS-Extender \"MP\" executable (.exp)" },
-	{ std::string("MQ"),                  0, FORMAT_MQ,      "Phar Lap 386|DOS-Extender \"MQ\" relocatable executable (.rex)" },
+	{ std::string("MQ"),                  0, FORMAT_MP,      "Phar Lap 386|DOS-Extender \"MQ\" relocatable executable (.rex)" },
 	{ std::string("MZ"),                  0, FORMAT_MZ,      "MS-DOS \"MZ\" executable (.exe)" },
 	{ std::string("NE"),                  0, FORMAT_NE,      "Microsoft 16-bit new executable (\"NE\") for Windows, OS/2 and Multitasking (\"European\") MS-DOS 4" },
 	{ std::string("P2"),                  0, FORMAT_P3,      "Phar Lap 386|DOS-Extender \"P2\" executable (.exp)" },
@@ -628,6 +628,7 @@ void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, 
 	{
 		if(bytes_read < format_magics[i].offset + format_magics[i].magic.size())
 			continue;
+//Linker::Debug << "\"" << std::string(magic + format_magics[i].offset, format_magics[i].magic.size()) << "\"" << std::endl;
 		if(std::string(magic + format_magics[i].offset, format_magics[i].magic.size()) == format_magics[i].magic)
 		{
 //Linker::Debug << format_magics[i].description << std::endl;
@@ -704,8 +705,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_ATARI:
 		return std::make_shared<AtariFormat>(); // TODO: test
 	case FORMAT_BW:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<BWFormat>(); // TODO: test dumper
 	case FORMAT_COFF:
 		return std::make_shared<COFFFormat>(); // TODO: test dumper
 	case FORMAT_CMD:
@@ -714,80 +714,57 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<CPM3Format>(); // TODO: test
 	case FORMAT_D3X:
 		return std::make_shared<BrocaD3X::D3X1Format>(); // TODO: test
-	case FORMAT_DX64:
-		/* TODO */
-		return nullptr;
 	case FORMAT_ELF:
 		return std::make_shared<ELFFormat>(); // TODO: test dumper
 	case FORMAT_FLAT:
 		return std::make_shared<BinaryFormat>(); // TODO: test
 	case FORMAT_FLEX:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<FLEXFormat>(); // TODO
 	case FORMAT_GEOS:
-		/* TODO */
-		return nullptr;
-	case FORMAT_GSOS: /* TODO */
-		/* TODO */
-		return nullptr;
+		return std::make_shared<GEOS::GeodeFormat>(); // TODO
+	case FORMAT_GSOS:
+		return std::make_shared<GSOS_OMFFormat>(); // TODO
 	case FORMAT_HU:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<HUFormat>(); // TODO
 	case FORMAT_HUNK:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<HunkFormat>(); // TODO
 	case FORMAT_JAVA:
 		/* TODO */
 		return nullptr;
 	case FORMAT_LE:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<LEFormat>(); // TODO
 	case FORMAT_LV:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<DX64::LVFormat>(); // TODO
 	case FORMAT_MACHO:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<MachOFormat>(); // TODO
 	case FORMAT_MINIX:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<MINIXFormat>(); // TODO
 	case FORMAT_MP:
-		/* TODO */
-		return nullptr;
-	case FORMAT_MQ:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<MPFormat>(); // TODO
 	case FORMAT_MZ:
 		return std::make_shared<MZFormat>();
 	case FORMAT_NE:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<NEFormat>(); // TODO
 	case FORMAT_O65:
 		return std::make_shared<O65::O65Format>(); // TODO
 	case FORMAT_OMF:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<OMF::OMFFormat>(); // TODO
 	case FORMAT_P3:
 		/* TODO */
 		return nullptr;
 	case FORMAT_PE:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<PEFormat>(); // TODO
 	case FORMAT_PEF:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<Apple::PEFFormat>(); // TODO
 	case FORMAT_PMODEW:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<PMODE::PMW1Format>(); // TODO
 	case FORMAT_PRL:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<PRLFormat>(); // TODO
 	case FORMAT_RSRC:
 		/* TODO */
 		return nullptr;
 	case FORMAT_UZI280:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<UZI280Format>(); // TODO
 	case FORMAT_W3:
 		/* TODO */
 		return nullptr;
@@ -799,7 +776,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return nullptr;
 	case FORMAT_XP:
 		/* TODO */
-		return nullptr;
+		return std::make_shared<Ergo::XPFormat>(); // TODO
 	case FORMAT_Z8K:
 		return std::make_shared<CPM8KFormat>(); // TODO: test
 #if 0

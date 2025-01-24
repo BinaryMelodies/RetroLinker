@@ -253,6 +253,15 @@ void OMFFormat::Segment::WriteFile(Linker::Writer& wr)
 	// TODO: read contents
 }
 
+void OMFFormat::CalculateValues()
+{
+	offset_t current_offset = 0;
+	for(unsigned i = 0; i < segments.size(); i++)
+	{
+		current_offset = segments[i]->CalculateValues(i, current_offset);
+	}
+}
+
 void OMFFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.SeekEnd();

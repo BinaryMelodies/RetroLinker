@@ -33,9 +33,8 @@ enum format_type
 	FORMAT_BW, // DOS/16M .exp file
 	FORMAT_COFF, // UNIX COFF
 	FORMAT_CMD, // CP/M-86
-	FORMAT_CPM3, // CP/M-80 Plus format /* TODO: not implemented */
+	FORMAT_CPM3, // CP/M-80 Plus format
 	FORMAT_D3X, // Daniel Broca's D3X DOS extender
-	FORMAT_DX64, // CandyMan's DX64 DOS extender, Flat format
 	FORMAT_ELF, // UNIX ELF
 	FORMAT_FLAT, // flat unstructured file
 	FORMAT_FLEX, // FLEX .cmd (6800 or 6809 CPUs)
@@ -45,11 +44,10 @@ enum format_type
 	FORMAT_HUNK, // Amiga hunk
 	FORMAT_JAVA, // Java class file
 	FORMAT_LE, // Linear executable (OS/2, DOS/4G)
-	FORMAT_LV, // CandyMan's DX64 DOS extender, LV format
+	FORMAT_LV, // CandyMan's DX64 DOS extender, LV/Float format
 	FORMAT_MACHO, // Mach-O format
 	FORMAT_MINIX, // MINIX a.out
-	FORMAT_MP, // Phar Lap executable .exp
-	FORMAT_MQ, // Phar Lap relocatable executable, .rex
+	FORMAT_MP, // Phar Lap executable .exp and relocatable executable, .rex
 	FORMAT_MZ, // MS-DOS .exe
 	FORMAT_NE, // 16-bit Windows .exe
 	FORMAT_O65, // 6502 binary relocation format
