@@ -30,7 +30,7 @@ namespace PCOS
 		class MemoryBlock
 		{
 		public:
-			enum block_type
+			enum block_type : uint8_t
 			{
 				TYPE_LOAD = 3,
 				TYPE_OFFSET_RELOCATION = 4,
@@ -75,24 +75,21 @@ namespace PCOS
 			void AddFields(Dumper::Region& region) const override;
 		};
 
-		struct relocation
-		{
-			uint8_t source = 0, target = 0;
-		};
-
 		class RelocationBlock : public MemoryBlock
 		{
 		public:
+			uint8_t source = 0, target = 0;
+			std::vector<uint16_t> offsets;
+
 			RelocationBlock(int type)
 				: MemoryBlock(type)
 			{
 			}
 
-			std::vector<relocation> relocations;
-
 			uint16_t GetLength() const override;
 			void ReadFile(Linker::Reader& rd, uint16_t length) override;
 			void WriteFile(Linker::Writer& wr) const override;
+			void AddFields(Dumper::Region& region) const override;
 			void DumpContents(Dumper::Dumper& dump, offset_t file_offset) const override;
 		};
 

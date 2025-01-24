@@ -107,38 +107,43 @@ void CMDFormat::LoadBlock::AddFields(Dumper::Region& region) const
 
 uint16_t CMDFormat::RelocationBlock::GetLength() const
 {
-	return 2 * relocations.size();
+	return 2 + 2 * offsets.size();
 }
 
 void CMDFormat::RelocationBlock::ReadFile(Linker::Reader& rd, uint16_t length)
 {
-	for(uint16_t i = 0; i < length; i += 2)
+	source = rd.ReadUnsigned(1);
+	target = rd.ReadUnsigned(1);
+	for(uint16_t i = 2; i < length; i += 2)
 	{
-		relocation rel;
-		rel.source = rd.ReadUnsigned(1);
-		rel.target = rd.ReadUnsigned(1);
-		relocations.push_back(rel);
+		offsets.push_back(rd.ReadUnsigned(2));
 	}
 }
 
 void CMDFormat::RelocationBlock::WriteFile(Linker::Writer& wr) const
 {
 	MemoryBlock::WriteFile(wr);
-	for(auto rel : relocations)
+	wr.WriteWord(1, source);
+	wr.WriteWord(1, target);
+	for(auto rel : offsets)
 	{
-		wr.WriteWord(1, rel.source);
-		wr.WriteWord(1, rel.target);
+		wr.WriteWord(2, rel);
 	}
+}
+
+void CMDFormat::RelocationBlock::AddFields(Dumper::Region& region) const
+{
+	region.AddField("Source block", Dumper::HexDisplay::Make(2), offset_t(source));
+	region.AddField("Target block", Dumper::HexDisplay::Make(2), offset_t(target));
 }
 
 void CMDFormat::RelocationBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	unsigned i = 0;
-	for(auto rel : relocations)
+	for(auto rel : offsets)
 	{
-		Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + 3 + 2 * i, 6);
-		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(2), offset_t(rel.source));
-		relocation_entry.AddField("Target", Dumper::HexDisplay::Make(2), offset_t(rel.target));
+		Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + 3 + 2 + 2 * i, 6);
+		relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(2), offset_t(rel));
 		relocation_entry.Display(dump);
 		i ++;
 	}
@@ -228,7 +233,7 @@ void CMDFormat::Dump(Dumper::Dumper& dump)
 
 	file_region.Display(dump);
 
-	offset_t file_offset = file_header_size;
+	offset_t file_offset = 3 + file_header_size;
 
 	for(auto& block : blocks)
 	{
