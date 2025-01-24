@@ -111,12 +111,6 @@
  * </tr>
  *
  * <tr>
- * <td colspan='2'><a href="classPharLap_1_1MPFormat.html"><tt>MP</tt> (<tt>.exp</tt>)</a><br><a href="classPharLap_1_1MPFormat.html"><tt>MQ</tt> (<tt>.rex</tt>)</a></td>
- * <td>Intel 80386</td>
- * <td>Phar Lap extender</td>
- * </tr>
- *
- * <tr>
  * <td colspan='2'><a href="classErgo_1_1XPFormat.html"><tt>XP</tt> (<tt>.exp</tt>)</a></td>
  * <td>Intel 80286<br>Intel 80386</td>
  * <td>Ergo OS/286 and OS/386 extenders (unimplemented)</td>
@@ -217,15 +211,21 @@
  * </tr>
  *
  * <tr>
- * <td colspan='2'><a href="classApple_1_1GSOS__OMFFormat.html">OMF executable</a></td>
+ * <td colspan='2'><a href="classApple_1_1OMFFormat.html">OMF executable</a></td>
  * <td>WDC65C816</td>
  * <td>GS/OS (unimplemented)</td>
  * </tr>
  *
  * <tr>
- * <td colspan='2'><a href="classDigitalResearch_1_1CPM8KFormat.html">CP/M-8000 binary</a></td>
+ * <td colspan='2'><a href="classDigitalResearch_1_1CPM8KFormat.html">CP/M-8000 binary (<tt>.z8k</tt>)</a></td>
  * <td>Zilog Z8000</td>
  * <td>CP/M-8000</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classPCOS_1_1CMDFormat.html">Olivetti PCOS binary (<tt>.cmd</tt>, <tt>.sav</tt>)</a></td>
+ * <td>Zilog Z8000</td>
+ * <td>Olivetti PCOS (unimplemented)</td>
  * </tr>
  *
  * <tr>
@@ -307,7 +307,7 @@
  * </tr>
  *
  * <tr>
- * <td colspan='2'><a href="classDX64_1_1FlatFormat.html">64-bit Flat file</a></td>
+ * <td colspan='2'><a href="classDX64_1_1LVFormat.html">64-bit Flat file</a></td>
  * <td>AMD64</td>
  * <td>DX64 DOS extender (unimplemented)</td>
  * </tr>
