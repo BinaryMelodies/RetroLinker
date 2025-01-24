@@ -53,6 +53,7 @@ enum format_type
 	FORMAT_O65, // 6502 binary relocation format
 	FORMAT_OMF, // Intel Object file
 	FORMAT_P3, // Phar Lap new executable .exp
+	FORMAT_PCOS, // Olivetti M20 PCOS .cmd/.sav files
 	FORMAT_PE, // 32-bit Windows .exe
 	FORMAT_PEF, // Classic Macintosh PowerPC executable
 	FORMAT_PMODEW, // PMODE/W executable

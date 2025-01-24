@@ -23,6 +23,7 @@
 #include "format/neexe.h" /* .exe (Win16 "NE") */
 #include "format/o65.h" /* TODO: not implemented */
 #include "format/omf.h" /* TODO: not implemented */
+#include "format/pcos.h" /* M20 PCOS files */ /* TODO: not yet finished or tested */
 #include "format/peexe.h" /* TODO: not implemented */
 #include "format/pefexe.h" /* TODO: not implemented */
 #include "format/pharlap.h" /* .exp, .rex (Phar Lap) */
@@ -341,6 +342,14 @@ output_format_type formats[] =
 	{ "z8k_segmented" },
 	{ "z8k_sg" },
 	{ "ee01" },
+	/* PCOS */
+	{ "pcos",
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<PCOS::CMDFormat>(); },
+		"Olivetti M20 PCOS cmd format (version 2)" }, // note: "version" here simply refers to the first byte in the header
+	{ "pcos_cmd" },
+	{ "pcos_sav",
+		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<PCOS::CMDFormat>(PCOS::CMDFormat::TYPE_SAV); },
+		"Olivetti M20 PCOS cmd format (version 2)" }, // note: "version" here simply refers to the first byte in the header
 	/* 6502 */
 	{ "atari-com", // TODO: testing
 		[]() -> std::shared_ptr<OutputFormat> { return std::make_shared<AtariFormat>(); },
@@ -608,6 +617,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x01\x18"),            2, FORMAT_AOUT,    "Big endian a.out, 2.11BSD overlay, combined code/data" },
 	{ std::string("\x01\x19"),            2, FORMAT_AOUT,    "Big endian a.out, 2.11BSD overlay, separate code/data" },
 	{ std::string("\x01\x1F"),            2, FORMAT_AOUT,    "Big endian a.out, System V overlay, separate code/data" },
+	{ std::string("TLOC"),                3, FORMAT_PCOS,    "Olivetti M20 PCOS file format" },
 	{ std::string(""),                    0, FORMAT_CMD,     "CP/M-86 executable format (.cmd)", VerifyCPM86 },
 	{ std::string(""),                    0, FORMAT_GSOS,    "Apple GS/OS object format", VerifyGSOS },
 	{ std::string(""),                    0, FORMAT_AIF,     "ARM AIF format", VerifyAIF },
@@ -616,7 +626,7 @@ static const struct format_magic format_magics[] =
 void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, uint32_t offset)
 {
 	rd.Seek(offset);
-	char magic[5];
+	char magic[7];
 	rd.ReadData(sizeof magic, magic);
 	uint32_t position = rd.Tell();
 	if(position == uint32_t(-1))
@@ -752,6 +762,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_P3:
 		/* TODO */
 		return nullptr;
+	case FORMAT_PCOS:
+		return std::make_shared<PCOS::CMDFormat>(); // TODO
 	case FORMAT_PE:
 		return std::make_shared<PEFormat>(); // TODO
 	case FORMAT_PEF:

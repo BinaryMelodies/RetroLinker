@@ -50,6 +50,17 @@ namespace Linker
 		std::string ReadData(size_t count, bool terminate_at_null = false);
 
 		/**
+		 * @brief Read in a sequence of bytes
+		 */
+		template <class T, std::size_t N>
+			void ReadData(std::array<T, N>& data, size_t offset = 0)
+		{
+			if(offset >= N)
+				return;
+			ReadData(N - offset, reinterpret_cast<char *>(data.data()) + offset);
+		}
+
+		/**
 		 * @brief Read a zero terminated ASCII string
 		 */
 		std::string ReadASCIIZ(size_t maximum = size_t(-1));

@@ -3,7 +3,7 @@ LINKER_HEADERS=$(addprefix ../src/linker/, buffer.h format.h linker.h location.h
 LINKER_CXXFILES=$(LINKER_HEADERS:.h=.cc)
 LINKER_OFILES=$(LINKER_CXXFILES:.cc=.o)
 
-FORMAT_HEADERS=$(addprefix ../src/format/, 8bitexe.h aout.h as86obj.h binary.h bwexp.h coff.h cpm68k.h cpm86.h cpm8k.h dosexe.h elf.h geos.h gsos.h huexe.h hunk.h leexe.h macho.h macos.h minix.h mzexe.h neexe.h o65.h omf.h peexe.h pefexe.h pharlap.h pmode.h xenix.h xpexp.h)
+FORMAT_HEADERS=$(addprefix ../src/format/, 8bitexe.h aout.h as86obj.h binary.h bwexp.h coff.h cpm68k.h cpm86.h cpm8k.h dosexe.h elf.h geos.h gsos.h huexe.h hunk.h leexe.h macho.h macos.h minix.h mzexe.h neexe.h o65.h omf.h pcos.h peexe.h pefexe.h pharlap.h pmode.h xenix.h xpexp.h)
 FORMAT_CXXFILES=$(FORMAT_HEADERS:.h=.cc)
 FORMAT_OFILES=$(FORMAT_CXXFILES:.cc=.o)
 

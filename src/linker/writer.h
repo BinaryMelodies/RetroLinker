@@ -44,6 +44,17 @@ namespace Linker
 		size_t WriteData(const std::vector<uint8_t>& data, size_t offset = 0);
 
 		/**
+		 * @brief Write out a sequence of bytes
+		 */
+		template <class T, std::size_t N>
+			void WriteData(const std::array<T, N>& data, size_t offset = 0)
+		{
+			if(offset >= N)
+				return;
+			WriteData(N - offset, reinterpret_cast<const char *>(data.data()) + offset);
+		}
+
+		/**
 		 * @brief Write a string, possibly truncated or zero padded
 		 */
 		void WriteData(size_t count, std::string text, char padding = '\0');
