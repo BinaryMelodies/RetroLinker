@@ -63,6 +63,7 @@ enum format_type
 	FORMAT_W3, // Windows unique file
 	FORMAT_W4, // Windows unique file
 	FORMAT_XENIX, // Xenix segmented executable
+	FORMAT_XENIX_BOUT, // Xenix b.out executable
 	FORMAT_XP, // OS/286 or OS/386 executable
 	FORMAT_Z8K, // CP/M-8000
 };

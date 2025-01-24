@@ -708,8 +708,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_AOUT:
 		return std::make_shared<AOutFormat>(); // TODO: test dumper
 	case FORMAT_APPLE:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<Apple::AppleSingleDouble>(); // TODO: test
 	case FORMAT_APPLEII:
 		return std::make_shared<AppleFormat>(); // TODO: test
 	case FORMAT_ATARI:
@@ -760,8 +759,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_OMF:
 		return std::make_shared<OMF::OMFFormat>(); // TODO
 	case FORMAT_P3:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<P3FormatContainer>(); // TODO
 	case FORMAT_PCOS:
 		return std::make_shared<PCOS::CMDFormat>(); // TODO
 	case FORMAT_PE:
@@ -773,8 +771,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_PRL:
 		return std::make_shared<PRLFormat>(); // TODO
 	case FORMAT_RSRC:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<Apple::ResourceFork>(); // TODO: test
 	case FORMAT_UZI280:
 		return std::make_shared<UZI280Format>(); // TODO
 	case FORMAT_W3:
@@ -785,7 +782,9 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return nullptr;
 	case FORMAT_XENIX:
 		/* TODO */
-		return nullptr;
+		return std::make_shared<Xenix::XOutFormat>(); // TODO
+	case FORMAT_XENIX_BOUT:
+		return std::make_shared<Xenix::BOutFormat>(); // TODO
 	case FORMAT_XP:
 		/* TODO */
 		return std::make_shared<Ergo::XPFormat>(); // TODO

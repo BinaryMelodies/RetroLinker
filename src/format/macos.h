@@ -41,8 +41,8 @@ namespace Apple
 			SINGLE,
 			DOUBLE,
 		};
-		format_type type;
-		unsigned version;
+		format_type type = DOUBLE;
+		unsigned version = 2;
 		/* Only relevant for version 1 */
 		enum hfs_type
 		{
@@ -53,7 +53,7 @@ namespace Apple
 			HFS_UNIX,
 			HFS_VAX_VMS,
 		};
-		hfs_type home_file_system;
+		hfs_type home_file_system = HFS_UNDEFINED;
 
 		class Entry : public virtual Linker::Format
 		{
@@ -102,6 +102,10 @@ namespace Apple
 			ID_AFPFileInfo, /* v2 only */
 			ID_AFPDirectoryID, /* v2 only */
 		};
+
+		explicit AppleSingleDouble()
+		{
+		}
 
 		AppleSingleDouble(format_type type, unsigned version, hfs_type home_file_system)
 			: type(type), version(version), home_file_system(version == 1 ? home_file_system : HFS_UNDEFINED)

@@ -947,3 +947,62 @@ void P3Format::MultiSegmented::WriteFile(Linker::Writer& wr)
 	}
 }
 
+void P3FormatContainer::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = ::LittleEndian;
+	offset_t file_offset = rd.Tell();
+	rd.Skip(2);
+	uint16_t level = rd.ReadUnsigned(2);
+	switch(level)
+	{
+	case 1:
+		contents = std::make_unique<P3Format::Flat>();
+		break;
+	case 2:
+		contents = std::make_unique<P3Format::MultiSegmented>();
+		break;
+	default:
+		Linker::Error << "Error: invalid P2/P3 format level " << level << std::endl;
+		contents = std::make_unique<P3Format::MultiSegmented>();
+		break;
+	}
+	rd.Seek(file_offset);
+	contents->ReadFile(rd);
+}
+
+bool P3FormatContainer::FormatSupportsSegmentation() const
+{
+	return contents ? contents->FormatSupportsSegmentation() : true;
+}
+
+void P3FormatContainer::SetOptions(std::map<std::string, std::string>& options)
+{
+	Linker::FatalError("Internal error: P2/P3 file level not provided");
+}
+
+std::string P3FormatContainer::GetDefaultExtension(Linker::Module& module, std::string filename)
+{
+	Linker::FatalError("Internal error: P2/P3 file level not provided");
+}
+
+void P3FormatContainer::ProcessModule(Linker::Module& module)
+{
+	Linker::FatalError("Internal error: P2/P3 file level not provided");
+}
+
+void P3FormatContainer::CalculateValues()
+{
+	if(contents != nullptr)
+	{
+		contents->CalculateValues();
+	}
+}
+
+void P3FormatContainer::WriteFile(Linker::Writer& wr)
+{
+	if(contents != nullptr)
+	{
+		contents->WriteFile(wr);
+	}
+}
+

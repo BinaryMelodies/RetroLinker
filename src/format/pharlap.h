@@ -335,6 +335,28 @@ namespace PharLap
 
 		void WriteFile(Linker::Writer& wr) override;
 	};
+
+	/**
+	 * @brief Container for Phar Lap "P2"/"P3" .exp files, used when reading in a P2/P3 file
+	 */
+	class P3FormatContainer : public virtual Linker::OutputFormat
+	{
+	public:
+		std::unique_ptr<P3Format> contents;
+
+		void ReadFile(Linker::Reader& rd) override;
+		bool FormatSupportsSegmentation() const override;
+
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+
+		void ProcessModule(Linker::Module& module) override;
+
+		void CalculateValues() override;
+
+		void WriteFile(Linker::Writer& wr) override;
+	};
 }
 
 #endif /* PHARLAP_H */
