@@ -1,0 +1,22 @@
+# Support for CP/M-8000 disk images
+
+diskdef cpm8000
+	# copying values from ibm-8ss
+	# the next three values are from https://jandelgado.github.io/blog/posts/olivetti-m20-disk-preservation/
+	seclen 256
+	tracks 70
+	sectrk 16
+	# checked by hand
+	blocksize 2048
+	# checked by hand, same as ibm-8ss
+	maxdir 64
+	#? not sure
+	boottrk 3
+	os 2.2
+	# checked by hand
+#	offset 12288
+end
+
+# first sector: 0x1000 (after track 0)
+# directory offset: 0x3000
+
