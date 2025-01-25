@@ -39,7 +39,7 @@ force:
 	make all
 
 clean: tests_clean
-	rm -rf link dump $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) src/script/scan.cc src/script/parse.tab.cc src/script/parse.tab.hh
+	rm -rf link src/link.o dump src/dump.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) src/script/scan.cc src/script/parse.tab.cc src/script/parse.tab.hh
 
 tests_clean:
 	$(MAKE) -C tests/1_hello clean
