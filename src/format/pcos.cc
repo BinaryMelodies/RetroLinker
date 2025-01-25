@@ -53,7 +53,7 @@ std::unique_ptr<Dumper::Region> CMDFormat::MemoryBlock::MakeRegion(std::string n
 	return std::make_unique<Dumper::Region>(name, offset, 3 + GetLength(), display_width);
 }
 
-void CMDFormat::MemoryBlock::AddFields(Dumper::Region& region) const
+void CMDFormat::MemoryBlock::AddFields(Dumper::Region& region, CMDFormat& module) const
 {
 }
 
@@ -61,7 +61,7 @@ void CMDFormat::MemoryBlock::DumpContents(Dumper::Dumper& dump, offset_t file_of
 {
 }
 
-void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset) const
+void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const
 {
 	std::unique_ptr<Dumper::Region> region = MakeRegion("Block", file_offset, 6);
 	std::map<offset_t, std::string> type_descriptions;
@@ -70,7 +70,7 @@ void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset) co
 	type_descriptions[TYPE_SEGMENT_RELOCATION] = "segment relocations";
 	type_descriptions[TYPE_END] = "end block";
 	region->AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(type));
-	AddFields(*region);
+	AddFields(*region, module);
 	region->Display(dump);
 
 	DumpContents(dump, file_offset);
@@ -100,9 +100,24 @@ std::unique_ptr<Dumper::Region> CMDFormat::LoadBlock::MakeRegion(std::string nam
 	return std::make_unique<Dumper::Block>(name, offset + 3 + 4, image, 0, display_width, 4, 4);
 }
 
-void CMDFormat::LoadBlock::AddFields(Dumper::Region& region) const
+void CMDFormat::LoadBlock::AddFields(Dumper::Region& region, CMDFormat& module) const
 {
 	region.AddField("Block ID", Dumper::HexDisplay::Make(4), offset_t(block_id));
+
+	Dumper::Block& load_block = dynamic_cast<Dumper::Block&>(region);
+	for(auto& block : module.blocks)
+	{
+		if(RelocationBlock * blockp = dynamic_cast<RelocationBlock *>(block.get()))
+		{
+			if(blockp->source == (block_id >> 24))
+			{
+				for(uint16_t offset : blockp->offsets)
+				{
+					load_block.AddSignal(offset, 2);
+				}
+			}
+		}
+	}
 }
 
 uint16_t CMDFormat::RelocationBlock::GetLength() const
@@ -131,7 +146,7 @@ void CMDFormat::RelocationBlock::WriteFile(Linker::Writer& wr) const
 	}
 }
 
-void CMDFormat::RelocationBlock::AddFields(Dumper::Region& region) const
+void CMDFormat::RelocationBlock::AddFields(Dumper::Region& region, CMDFormat& module) const
 {
 	region.AddField("Source block", Dumper::HexDisplay::Make(2), offset_t(source));
 	region.AddField("Target block", Dumper::HexDisplay::Make(2), offset_t(target));
@@ -237,7 +252,7 @@ void CMDFormat::Dump(Dumper::Dumper& dump)
 
 	for(auto& block : blocks)
 	{
-		block->Dump(dump, file_offset);
+		block->Dump(dump, file_offset, *this);
 		file_offset += 3 + block->GetLength();
 	}
 }
