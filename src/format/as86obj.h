@@ -19,6 +19,8 @@ namespace AS86Obj
 	class AS86ObjFormat : public virtual Linker::InputFormat
 	{
 	public:
+		static inline constexpr int GetSize(int size) { return size < 3 ? size : 4; }
+
 		class Symbol
 		{
 		public:
@@ -44,7 +46,7 @@ namespace AS86Obj
 		public:
 			uint8_t size;
 			RelocatorSize(uint8_t size)
-				: size(size > 3 ? 3 : size)
+				: size(GetSize(size > 3 ? 3 : size))
 			{
 			}
 
@@ -96,7 +98,7 @@ namespace AS86Obj
 			bool ip_relative;
 			int relocation_size;
 			SimpleRelocator(uint8_t type, uint32_t offset, int relocation_size)
-				: offset(offset), segment(type & 0xF), ip_relative((type & 0x20) != 0), relocation_size(relocation_size)
+				: offset(offset), segment(type & 0xF), ip_relative((type & 0x20) != 0), relocation_size(GetSize(relocation_size))
 			{
 			}
 
@@ -115,7 +117,7 @@ namespace AS86Obj
 			int offset_size;
 			int index_size;
 			SymbolRelocator(uint8_t type, uint32_t offset, uint16_t symbol_index, int relocation_size, int offset_size, int index_size)
-				: offset(offset), symbol_index(symbol_index), ip_relative((type & 0x20) != 0), relocation_size(relocation_size), offset_size(offset_size), index_size(index_size)
+				: offset(offset), symbol_index(symbol_index), ip_relative((type & 0x20) != 0), relocation_size(GetSize(relocation_size)), offset_size(GetSize(offset_size)), index_size(GetSize(index_size))
 			{
 			}
 
@@ -124,10 +126,27 @@ namespace AS86Obj
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
 		};
 
+		struct segment_size_list
+		{
+			uint32_t word = 0;
+			struct offset
+			{
+				uint32_t& word;
+				int index;
+
+				operator int() const;
+				offset& operator =(int value);
+			};
+			int operator[](int index) const;
+			offset operator[](int index);
+			segment_size_list& operator =(uint32_t value);
+		};
+
 		class Module
 		{
 		public:
 			offset_t file_offset = 0;
+			offset_t module_size = 0;
 			uint32_t code_offset = 0;
 			uint32_t image_size = 0;
 			uint16_t string_table_size = 0;
@@ -137,24 +156,8 @@ namespace AS86Obj
 			};
 			version module_version = { };
 			uint32_t maximum_segment_size = 0;
-			struct segment_size_list
-			{
-				uint32_t word = 0;
-				struct offset
-				{
-					uint32_t& word;
-					int index;
-
-					operator int() const;
-					offset& operator =(int value);
-				};
-				int operator[](int index) const;
-				offset operator[](int index);
-				segment_size_list& operator =(uint32_t value);
-			};
 			segment_size_list segment_sizes_word;
-			typedef uint32_t Segment;
-			std::array<Segment, 16> segment_sizes = { };
+			std::array<uint32_t, 16> segment_sizes = { };
 			std::vector<Symbol> symbols;
 			offset_t string_table_offset = 0;
 			std::string module_name;
