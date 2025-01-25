@@ -106,7 +106,8 @@ void AS86ObjFormat::SymbolRelocator::Dump(Dumper::Dumper& dump, unsigned index, 
 	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation_size));
 	entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
 	entry.AddField("Offset size", Dumper::DecDisplay::Make(), offset_t(offset_size));
-	entry.AddField("Symbol index", Dumper::HexDisplay::Make(4), offset_t(symbol_index)); // TODO: print name
+	entry.AddField("Symbol index", Dumper::HexDisplay::Make(4), offset_t(symbol_index));
+	entry.AddField("Symbol name", Dumper::StringDisplay::Make(), symbol_name);
 	entry.AddField("Symbol index size", Dumper::DecDisplay::Make(), offset_t(index_size));
 	entry.AddOptionalField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
 	entry.Display(dump);
@@ -232,7 +233,7 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index)
 	unsigned i = 0;
 	for(auto& symbol : symbols)
 	{
-		Dumper::Entry symbol_entry("Symbol", i, 0 /* TODO: symbol definition offset */, 8);
+		Dumper::Entry symbol_entry("Symbol", i, symbol.symbol_definition_offset, 8);
 		symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
 		symbol_entry.AddField("Offset to name", Dumper::HexDisplay::Make(4), offset_t(symbol.name_offset));
 		symbol_entry.AddField("Symbol type", Dumper::HexDisplay::Make(4), offset_t(symbol.symbol_type)); // TODO: more descriptive display
@@ -290,6 +291,7 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 		{
 			module.symbols.push_back(Symbol());
 			Symbol& symbol = module.symbols.back();
+			symbol.symbol_definition_offset = rd.Tell();
 			symbol.name_offset = rd.ReadUnsigned(2);
 			symbol.symbol_type = rd.ReadUnsigned(2);
 			symbol.offset_size = GetSize(symbol.symbol_type >> 14);
@@ -313,6 +315,10 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 			if(bytecode == nullptr)
 			{
 				break;
+			}
+			if(SymbolRelocator * relocation = dynamic_cast<SymbolRelocator *>(bytecode.get()))
+			{
+				relocation->symbol_name = module.symbols[relocation->symbol_index].name;
 			}
 			module.data.push_back(std::move(bytecode));
 		}

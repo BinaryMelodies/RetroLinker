@@ -29,6 +29,7 @@ namespace AS86Obj
 			uint16_t symbol_type = 0;
 			int offset_size = 0;
 			uint32_t offset = 0;
+			offset_t symbol_definition_offset = 0; // convenience entry
 		};
 
 		class ByteCode
@@ -112,6 +113,7 @@ namespace AS86Obj
 		public:
 			uint32_t offset;
 			uint16_t symbol_index;
+			std::string symbol_name;
 			bool ip_relative;
 			int relocation_size;
 			int offset_size;
