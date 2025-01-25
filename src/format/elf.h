@@ -487,7 +487,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -504,7 +504,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -521,7 +521,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -536,7 +536,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
@@ -580,7 +580,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -593,7 +593,7 @@ namespace ELF
 
 			static uint32_t Hash(const std::string& name);
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
@@ -630,7 +630,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -656,7 +656,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -688,7 +688,7 @@ namespace ELF
 		public:
 			std::vector<VersionRequirement> requirements;
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -724,7 +724,7 @@ namespace ELF
 			/* unspecified */
 			std::vector<uint8_t> os_specific;
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -758,7 +758,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -784,7 +784,7 @@ namespace ELF
 			{
 			}
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 		};
@@ -828,7 +828,7 @@ namespace ELF
 
 			std::vector<IBMResource> resources;
 
-			offset_t ActualDataSize() override;
+			offset_t ImageSize() override;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) override;
 			void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;
 			void Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index) override;

@@ -285,7 +285,7 @@ namespace COFF
 
 			void WriteSectionHeader(Linker::Writer& wr);
 
-			uint32_t ActualDataSize();
+			uint32_t ImageSize();
 		};
 
 		/**

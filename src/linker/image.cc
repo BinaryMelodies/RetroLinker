@@ -15,6 +15,6 @@ int Image::GetByte(offset_t offset)
 
 offset_t Image::WriteFile(Writer& wr)
 {
-	return WriteFile(wr, ActualDataSize());
+	return WriteFile(wr, ImageSize());
 }
 

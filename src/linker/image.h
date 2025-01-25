@@ -17,7 +17,7 @@ namespace Linker
 		/**
 		 * @brief Retrieves size of stored data
 		 */
-		virtual offset_t ActualDataSize() = 0;
+		virtual offset_t ImageSize() = 0;
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */

@@ -22,7 +22,7 @@ offset_t AppleFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, base_address);
-	wr.WriteWord(2, image->ActualDataSize());
+	wr.WriteWord(2, image->ImageSize());
 	image->WriteFile(wr);
 	return offset_t(-1);
 }
@@ -31,7 +31,7 @@ offset_t AppleFormat::WriteFile(Linker::Writer& wr)
 
 offset_t AtariFormat::Segment::GetSize() const
 {
-	return image->ActualDataSize();
+	return image->ImageSize();
 }
 
 bool AtariFormat::HasEntryPoint() const
@@ -388,7 +388,7 @@ offset_t CPM3Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(1, 0xC9);
-	wr.WriteWord(2, image->ActualDataSize());
+	wr.WriteWord(2, image->ImageSize());
 	wr.WriteData(10, preinit_code);
 	wr.WriteWord(1, rsx_table.size() == 0 && loader_active ? 0xFF : 0);
 	wr.Skip(1);
@@ -396,7 +396,7 @@ offset_t CPM3Format::WriteFile(Linker::Writer& wr)
 	for(auto& rsx : rsx_table)
 	{
 		wr.WriteWord(2, rsx.offset);
-		wr.WriteWord(2, rsx.module->image->ActualDataSize());
+		wr.WriteWord(2, rsx.module->image->ImageSize());
 		wr.WriteWord(1, rsx.nonbanked_only ? 0xFF : 0);
 		wr.Skip(1);
 		wr.WriteData(8, rsx.name);
@@ -414,12 +414,12 @@ offset_t CPM3Format::WriteFile(Linker::Writer& wr)
 
 void CPM3Format::CalculateValues()
 {
-	uint16_t offset = 0x100 + image->ActualDataSize();
+	uint16_t offset = 0x100 + image->ImageSize();
 	for(auto& rsx : rsx_table)
 	{
 		rsx.offset = offset;
 		rsx.OpenAndPrepare();
-		offset += rsx.module->image->ActualDataSize() + ((rsx.module->image->ActualDataSize() + 7) >> 3);
+		offset += rsx.module->image->ImageSize() + ((rsx.module->image->ImageSize() + 7) >> 3);
 	}
 }
 
@@ -427,12 +427,12 @@ void CPM3Format::CalculateValues()
 
 void FLEXFormat::Segment::WriteFile(Linker::Writer& wr)
 {
-	for(uint16_t offset = 0; offset < image->ActualDataSize(); offset += 0xFF)
+	for(uint16_t offset = 0; offset < image->ImageSize(); offset += 0xFF)
 	{
 		/* cut the segment up into 255 byte morcels */
 		wr.WriteWord(1, 0x02);
 		wr.WriteWord(2, address + offset);
-		uint16_t count = std::min(offset_t(0xFF), image->ActualDataSize() - address - offset);
+		uint16_t count = std::min(offset_t(0xFF), image->ImageSize() - address - offset);
 		wr.WriteWord(1, count);
 		image->WriteFile(wr, count, offset);
 	}
@@ -545,7 +545,7 @@ offset_t PRLFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(1, 0);
-	wr.WriteWord(2, image->ActualDataSize());
+	wr.WriteWord(2, image->ImageSize());
 	wr.WriteWord(1, 0);
 	wr.WriteWord(2, zero_fill);
 	wr.WriteWord(1, 0);
@@ -565,7 +565,7 @@ void PRLFormat::WriteWithoutHeader(Linker::Writer& wr)
 	if(!suppress_relocations) /* suppress relocations only for OVL files */
 	{
 		Linker::Debug << "Debug: Writing relocations" << std::endl;
-		for(uint16_t offset = 0; offset < ::AlignTo(image->ActualDataSize(), 8); offset += 8)
+		for(uint16_t offset = 0; offset < ::AlignTo(image->ImageSize(), 8); offset += 8)
 		{
 			uint8_t reloc_byte = 0;
 			for(int byte = 0; byte < 8; byte ++)
@@ -585,7 +585,7 @@ void PRLFormat::Dump(Dumper::Dumper& dump)
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("PRL format");
-	Dumper::Region file_region("File", 0, offset_t(0x0100) + image->ActualDataSize() + (suppress_relocations ? 0 : (image->ActualDataSize() + 7) >> 3), 4);
+	Dumper::Region file_region("File", 0, offset_t(0x0100) + image->ImageSize() + (suppress_relocations ? 0 : (image->ImageSize() + 7) >> 3), 4);
 	file_region.AddField("Zero fill", Dumper::HexDisplay::Make(4), offset_t(zero_fill));
 	file_region.AddOptionalField("Load address", Dumper::HexDisplay::Make(4), offset_t(load_address));
 	file_region.AddOptionalField("BIOS link", Dumper::HexDisplay::Make(4), offset_t(csbase));
@@ -602,7 +602,7 @@ void PRLFormat::Dump(Dumper::Dumper& dump)
 	unsigned i = 0;
 	for(auto relocation : relocations)
 	{
-		Dumper::Entry relocation_entry("Relocation", i + 1, 0x100 + image->ActualDataSize() + (relocation >> 3), 4);
+		Dumper::Entry relocation_entry("Relocation", i + 1, 0x100 + image->ImageSize() + (relocation >> 3), 4);
 		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(4), offset_t(relocation));
 		relocation_entry.Display(dump);
 		i++;
@@ -660,8 +660,8 @@ offset_t UZI280Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, 0x00FF);
-	wr.WriteWord(2, data->ActualDataSize());
-	wr.WriteWord(2, code->ActualDataSize());
+	wr.WriteWord(2, data->ImageSize());
+	wr.WriteWord(2, code->ImageSize());
 	wr.AlignTo(512);
 	data->WriteFile(wr);
 	wr.AlignTo(512);

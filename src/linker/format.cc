@@ -17,9 +17,9 @@ void Format::Clear()
 {
 }
 
-offset_t Format::ActualDataSize()
+offset_t Format::ImageSize()
 {
-	Linker::FatalError("Internal error: format cannot give data size");
+	Linker::FatalError("Internal error: format does not provide image size");
 }
 
 offset_t Format::WriteFile(Writer& wr, offset_t count, offset_t offset)

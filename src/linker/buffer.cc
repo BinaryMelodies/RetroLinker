@@ -3,7 +3,7 @@
 
 using namespace Linker;
 
-offset_t Buffer::ActualDataSize()
+offset_t Buffer::ImageSize()
 {
 	return data.size();
 }

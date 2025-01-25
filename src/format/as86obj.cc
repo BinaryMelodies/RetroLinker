@@ -55,12 +55,12 @@ void AS86ObjFormat::ChangeSegment::Dump(Dumper::Dumper& dump, unsigned index, of
 
 offset_t AS86ObjFormat::RawBytes::GetLength() const
 {
-	return 1 + buffer->ActualDataSize();
+	return 1 + buffer->ImageSize();
 }
 
 offset_t AS86ObjFormat::RawBytes::GetMemorySize() const
 {
-	return buffer->ActualDataSize();
+	return buffer->ImageSize();
 }
 
 void AS86ObjFormat::RawBytes::Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const

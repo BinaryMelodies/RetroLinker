@@ -15,8 +15,8 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 	{
 		// TODO: relocation_size for v3.5
 	}
-	image_size = header_size + image->ActualDataSize() + relocation_size;
-	relocation_start = header_size + image->ActualDataSize();
+	image_size = header_size + image->ImageSize() + relocation_size;
+	relocation_start = header_size + image->ImageSize();
 }
 
 void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
@@ -98,8 +98,8 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr)
 	{
 		wr.WriteWord(4, image_size);
 		wr.WriteWord(4, header_size);
-		wr.WriteWord(4, image->ActualDataSize());
-		wr.WriteWord(4, image->ActualDataSize() + extra_memory_size);
+		wr.WriteWord(4, image->ImageSize());
+		wr.WriteWord(4, image->ImageSize() + extra_memory_size);
 		wr.WriteWord(4, eip);
 		wr.WriteWord(4, esp);
 		wr.WriteWord(4, relocations.size());
@@ -107,11 +107,11 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr)
 	}
 	else
 	{
-		wr.WriteWord(4, image->ActualDataSize() /* + relocation_size*/); // TODO
+		wr.WriteWord(4, image->ImageSize() /* + relocation_size*/); // TODO
 		wr.WriteWord(4, image_size);
 		wr.WriteWord(4, header_size);
 		wr.WriteWord(4, eip);
-		wr.WriteWord(4, image->ActualDataSize() + extra_memory_size);
+		wr.WriteWord(4, image->ImageSize() + extra_memory_size);
 		wr.WriteWord(4, esp);
 		wr.WriteWord(4, relocation_start);
 		wr.WriteWord(4, flags);
@@ -189,7 +189,7 @@ offset_t DX64::LVFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteData(4, signature);
-	wr.WriteWord(4, image->ActualDataSize());
+	wr.WriteWord(4, image->ImageSize());
 	wr.WriteWord(4, eip);
 	wr.WriteWord(4, esp);
 	wr.WriteWord(4, extra_memory_size);

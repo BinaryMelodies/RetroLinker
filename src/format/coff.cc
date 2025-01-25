@@ -294,9 +294,9 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr)
 	wr.WriteWord(4, flags);
 }
 
-uint32_t COFFFormat::Section::ActualDataSize()
+uint32_t COFFFormat::Section::ImageSize()
 {
-	return size; //image->ActualDataSize();
+	return size; //image->ImageSize();
 }
 
 COFFFormat::OptionalHeader::~OptionalHeader()
@@ -317,7 +317,7 @@ void COFFFormat::OptionalHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 
 uint32_t COFFFormat::UnknownOptionalHeader::GetSize()
 {
-	return buffer->ActualDataSize();
+	return buffer->ImageSize();
 }
 
 void COFFFormat::UnknownOptionalHeader::ReadFile(Linker::Reader& rd)
@@ -642,7 +642,7 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 		if(section->flags & (Section::TEXT | Section::DATA))
 		{
 			rd.Seek(file_offset + section->section_pointer);
-			std::dynamic_pointer_cast<Linker::Buffer>(section->image)->ReadFile(rd, section->ActualDataSize());
+			std::dynamic_pointer_cast<Linker::Buffer>(section->image)->ReadFile(rd, section->ImageSize());
 		}
 	}
 
@@ -826,7 +826,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 	{
 		Dumper::Block block("Section", file_offset + section->section_pointer, section->image, section->address, 8);
 		block.InsertField(0, "Name", Dumper::StringDisplay::Make(), section->name);
-		if(section->image->ActualDataSize() != section->size)
+		if(section->image->ImageSize() != section->size)
 			block.AddField("Size in memory", Dumper::HexDisplay::Make(), offset_t(section->size));
 		block.AddField("Physical address", Dumper::HexDisplay::Make(), offset_t(section->physical_address));
 		block.AddOptionalField("Line numbers", Dumper::HexDisplay::Make(), offset_t(section->line_number_pointer)); /* TODO */

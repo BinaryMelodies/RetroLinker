@@ -104,12 +104,12 @@ namespace Linker
 		 */
 		offset_t TotalSize();
 		/**
-		 * @brief Retrieves size of all data in segment
+		 * @brief Retrieves size of all data in segment, as present in the binary image
 		 *
 		 * This function should always return the same value as data_size.
 		 * This is checked by an assert value.
 		 */
-		offset_t ActualDataSize() override;
+		offset_t ImageSize() override;
 		/**
 		 * @brief Returns starting address (base_address)
 		 */

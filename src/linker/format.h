@@ -49,7 +49,7 @@ namespace Linker
 		 */
 		virtual void Dump(Dumper::Dumper& dump);
 
-		offset_t ActualDataSize() override;
+		offset_t ImageSize() override;
 		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) override;
 		int GetByte(offset_t offset) override;
 	};

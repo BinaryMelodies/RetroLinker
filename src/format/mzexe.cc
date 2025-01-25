@@ -621,7 +621,7 @@ void MZFormat::ProcessModule(Linker::Module& module)
 		sp = stack->Size();
 		ss = stack->Base().address >> 4;
 		Linker::Debug << "Debug: End of memory: " << sp << std::endl;
-		Linker::Debug << "Debug: Total size: " << (image->ActualDataSize() + zero_fill) << std::endl;
+		Linker::Debug << "Debug: Total size: " << (image->ImageSize() + zero_fill) << std::endl;
 		Linker::Debug << "Debug: Stack base: " << ss << std::endl;
 #if 0
 		if(!(stack->GetFlags() & Linker::Section::Stack)) /* TODO: allocate stack instead */
@@ -663,7 +663,7 @@ void MZFormat::ProcessModule(Linker::Module& module)
 
 uint32_t MZFormat::GetDataSize() const
 {
-	return image ? image->ActualDataSize() : 0;
+	return image ? image->ImageSize() : 0;
 }
 
 void MZFormat::GenerateFile(std::string filename, Linker::Module& module)

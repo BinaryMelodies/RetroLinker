@@ -150,8 +150,8 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 
 void O65Format::Module::WriteFile(Linker::Writer& wr)
 {
-	if(data_base == code_base + (code_image ? code_image->ActualDataSize() : 0)
-	&& bss_base  == data_base + (data_image ? data_image->ActualDataSize() : 0))
+	if(data_base == code_base + (code_image ? code_image->ImageSize() : 0)
+	&& bss_base  == data_base + (data_image ? data_image->ImageSize() : 0))
 	{
 		mode_word |= MODE_SIMPLE;
 	}
@@ -166,9 +166,9 @@ void O65Format::Module::WriteFile(Linker::Writer& wr)
 	wr.WriteData(6, "\1\0o65\0");
 	wr.WriteWord(2, mode_word);
 	WriteWord(wr, code_base);
-	WriteWord(wr, code_image ? code_image->ActualDataSize() : 0);
+	WriteWord(wr, code_image ? code_image->ImageSize() : 0);
 	WriteWord(wr, data_base);
-	WriteWord(wr, data_image ? data_image->ActualDataSize() : 0);
+	WriteWord(wr, data_image ? data_image->ImageSize() : 0);
 	WriteWord(wr, bss_base);
 	WriteWord(wr, bss_size);
 	WriteWord(wr, zero_base);

@@ -90,9 +90,9 @@ offset_t Segment::WriteFile(std::ostream& out, offset_t size, offset_t offset)
 	{
 		if(!section->IsZeroFilled())
 		{
-			if(offset > section->ActualDataSize())
+			if(offset > section->ImageSize())
 			{
-				offset -= section->ActualDataSize();
+				offset -= section->ImageSize();
 			}
 			else
 			{
@@ -151,7 +151,7 @@ offset_t Segment::TotalSize()
 	return data_size + zero_fill;
 }
 
-offset_t Segment::ActualDataSize() /* should be always equivalent to data_size */
+offset_t Segment::ImageSize() /* should be always equivalent to data_size */
 {
 	offset_t sum = 0;
 	for(auto& section : sections)

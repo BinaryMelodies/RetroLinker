@@ -86,7 +86,7 @@ offset_t XPFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, ldt_offset);
 	wr.WriteWord(4, ldt.size());
 	wr.WriteWord(4, image_offset);
-	wr.WriteWord(4, image->ActualDataSize());
+	wr.WriteWord(4, image->ImageSize());
 	wr.WriteWord(4, relocation_offset);
 	wr.WriteWord(4, 0); // TODO: relocation_count
 	wr.WriteWord(4, minimum_extent);

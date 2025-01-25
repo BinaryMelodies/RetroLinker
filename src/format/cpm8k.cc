@@ -135,7 +135,7 @@ void CPM8KFormat::CalculateValues()
 	{
 		if(segment.IsPresent())
 		{
-			segment.length = segment.image->ActualDataSize();
+			segment.length = segment.image->ImageSize();
 			total_size += segment.length;
 		}
 	}

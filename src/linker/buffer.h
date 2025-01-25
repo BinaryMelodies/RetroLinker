@@ -33,7 +33,7 @@ namespace Linker
 			data.resize(size);
 		}
 
-		offset_t ActualDataSize() override;
+		offset_t ImageSize() override;
 		void ReadFile(Reader& rd);
 		void ReadFile(Reader& rd, offset_t count);
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd);

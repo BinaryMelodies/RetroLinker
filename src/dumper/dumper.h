@@ -538,7 +538,7 @@ public:
 
 	Block(std::string name, offset_t offset, std::shared_ptr<Linker::Image> image, offset_t address, unsigned display_width,
 			unsigned offset_display_width = 8, unsigned address_display_width = -1u, unsigned position_display_width = -1u)
-		: Region(name, offset, image ? image->ActualDataSize() : 0, display_width),
+		: Region(name, offset, image ? image->ImageSize() : 0, display_width),
 			offset_display_width(offset_display_width),
 			position_display_width(position_display_width != -1u ? position_display_width
 				: address_display_width != -1u ? address_display_width : offset_display_width),

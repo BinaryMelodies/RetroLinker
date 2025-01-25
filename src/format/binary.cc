@@ -246,7 +246,7 @@ void BinaryFormat::Dump(Dumper::Dumper& dump)
 
 	if(pif)
 	{
-		pif->Dump(dump, image->ActualDataSize());
+		pif->Dump(dump, image->ImageSize());
 	}
 
 	image_block.Display(dump);

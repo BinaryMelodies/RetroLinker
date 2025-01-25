@@ -79,7 +79,7 @@ void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset, CM
 
 uint16_t CMDFormat::LoadBlock::GetLength() const
 {
-	return 4 + image->ActualDataSize();
+	return 4 + image->ImageSize();
 }
 
 void CMDFormat::LoadBlock::ReadFile(Linker::Reader& rd, uint16_t length)
@@ -166,7 +166,7 @@ void CMDFormat::RelocationBlock::DumpContents(Dumper::Dumper& dump, offset_t fil
 
 uint16_t CMDFormat::UnknownBlock::GetLength() const
 {
-	return image->ActualDataSize();
+	return image->ImageSize();
 }
 
 void CMDFormat::UnknownBlock::ReadFile(Linker::Reader& rd, uint16_t length)

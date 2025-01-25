@@ -15,7 +15,7 @@ uint16_t CPM86Format::Descriptor::GetSizeParas(const CPM86Format& module) const
 	{
 		return module.GetRelocationSizeParas();
 	}
-	uint32_t size = image ? image->ActualDataSize() : 0;
+	uint32_t size = image ? image->ImageSize() : 0;
 	uint16_t zero_page_extra = attach_zero_page ? 0x10 : 0;
 	return ((size + 0xF) >> 4) + zero_page_extra;
 }
@@ -187,7 +187,7 @@ void CPM86Format::rsx_record::WriteModule(Linker::Writer& wr)
 
 offset_t CPM86Format::rsx_record::GetFullFileSize() const
 {
-	return contents->ActualDataSize();
+	return contents->ImageSize();
 }
 
 void CPM86Format::rsx_record::SetOffset(offset_t new_offset)
@@ -208,7 +208,7 @@ void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump)
 	}
 	else
 	{
-		Dumper::Block block("Image", uint32_t(offset_record) << 7, contents, contents->ActualDataSize(), 6);
+		Dumper::Block block("Image", uint32_t(offset_record) << 7, contents, contents->ImageSize(), 6);
 		block.Display(dump);
 	}
 }

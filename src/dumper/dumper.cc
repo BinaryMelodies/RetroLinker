@@ -241,7 +241,7 @@ void Entry::Display(Dumper& dump)
 void Block::Display(Dumper& dump)
 {
 	Region::Display(dump);
-	if(!image || image->ActualDataSize() == 0)
+	if(!image || image->ImageSize() == 0)
 		return;
 	size_t block_offset = GetField<offset_t>("Offset", 0);
 	size_t block_address = GetField<offset_t>("Address", 0);
@@ -272,7 +272,7 @@ void Block::Display(Dumper& dump)
 	}
 	dump.out << "\tDATA" << std::endl;
 
-	for(size_t off = 0; off < (image_offset & 0xF) + image->ActualDataSize(); off += 16)
+	for(size_t off = 0; off < (image_offset & 0xF) + image->ImageSize(); off += 16)
 	{
 		size_t address = block_address - image_offset + off;
 		bool current_underlined = false;
@@ -343,7 +343,7 @@ void Block::Display(Dumper& dump)
 			}
 			int byte;
 			if(block_address <= address + i
-			&& off - image_offset + i < image->ActualDataSize()
+			&& off - image_offset + i < image->ImageSize()
 			&& ((byte = image->GetByte(off - image_offset + i)) != -1))
 			{
 				dump.PrintHex(byte, 2, "");
@@ -374,7 +374,7 @@ void Block::Display(Dumper& dump)
 				current_underlined = true;
 			}
 			if(block_address <= address + i
-			&& off - image_offset + i < image->ActualDataSize()
+			&& off - image_offset + i < image->ImageSize()
 			&& ((byte = image->GetByte(off - image_offset + i)) != -1))
 			{
 				dump.PutChar((*dump.encoding)[byte]);

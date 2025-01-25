@@ -322,7 +322,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr)
 	case SYSTEM_CPM68K:
 		if(relocations_suppressed == 0)
 		{
-			for(size_t i = 0; i < code->ActualDataSize(); i++)
+			for(size_t i = 0; i < code->ImageSize(); i++)
 			{
 				auto it = relocations.find(code_address + i);
 				if(it == relocations.end())
@@ -339,7 +339,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr)
 					wr.WriteWord(2, it->second.segment);
 				}
 			}
-			for(size_t i = 0; i < data->ActualDataSize(); i++)
+			for(size_t i = 0; i < data->ImageSize(); i++)
 			{
 				auto it = relocations.find(data_address + i);
 				if(it == relocations.end())
@@ -858,8 +858,8 @@ void CPM68KFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
-	code_size = code ? code->ActualDataSize() : 0;
-	data_size = data ? data->ActualDataSize() : 0;
+	code_size = code ? code->ImageSize() : 0;
+	data_size = data ? data->ImageSize() : 0;
 	bss_size = bss_segment ? bss_segment->zero_fill : 0;
 	stack_size = stack_segment ? stack_segment->zero_fill : 0;
 
