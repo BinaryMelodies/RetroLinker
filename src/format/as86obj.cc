@@ -12,6 +12,52 @@ AS86ObjFormat::ByteCode::~ByteCode()
 {
 }
 
+void AS86ObjFormat::RelocatorSize::Dump(Dumper::Dumper& dump, unsigned index)
+{
+	Dumper::Entry entry("Relocation size", index, 0 /* TODO: file offset */, 8);
+	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(as86_sizes[size]));
+	entry.Display(dump);
+}
+
+void AS86ObjFormat::SkipBytes::Dump(Dumper::Dumper& dump, unsigned index)
+{
+	Dumper::Entry entry("Skip bytes", index, 0 /* TODO: file offset */, 8);
+	entry.AddField("Count", Dumper::HexDisplay::Make(), offset_t(count));
+	entry.Display(dump);
+}
+
+void AS86ObjFormat::ChangeSegment::Dump(Dumper::Dumper& dump, unsigned index)
+{
+	Dumper::Entry entry("Change segment", index, 0 /* TODO: file offset */, 8);
+	entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(segment));
+	entry.Display(dump);
+}
+
+void AS86ObjFormat::RawBytes::Dump(Dumper::Dumper& dump, unsigned index)
+{
+	Dumper::Block block("Raw bytes", 0 /* TODO: file offset */, buffer, 0 /* TODO: actual offset */, 8);
+	block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index));
+	block.Display(dump);
+}
+
+void AS86ObjFormat::SimpleRelocator::Dump(Dumper::Dumper& dump, unsigned index)
+{
+	Dumper::Entry entry("Relocation", index, 0 /* TODO: file offset */, 8);
+	entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
+	entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(segment));
+	entry.AddField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
+	entry.Display(dump);
+}
+
+void AS86ObjFormat::SymbolRelocator::Dump(Dumper::Dumper& dump, unsigned index)
+{
+	Dumper::Entry entry("Relocation", index, 0 /* TODO: file offset */, 8);
+	entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
+	entry.AddField("Symvol index", Dumper::HexDisplay::Make(4), offset_t(symbol_index)); // TODO: print name
+	entry.AddField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
+	entry.Display(dump);
+}
+
 std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linker::Reader& rd, int& relocation_size)
 {
 	int c = rd.ReadUnsigned(1);
@@ -95,6 +141,60 @@ AS86ObjFormat::Module::segment_size_list& AS86ObjFormat::Module::segment_size_li
 	return *this;
 }
 
+void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index)
+{
+	Dumper::Region module_region("Module", file_offset, 0 /* TODO: size */, 8);
+	module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index + 1));
+	module_region.AddField("Module name", Dumper::StringDisplay::Make(), module_name);
+	module_region.AddField("Code offset", Dumper::HexDisplay::Make(8), offset_t(code_offset));
+	module_region.AddField("Image size", Dumper::HexDisplay::Make(8), offset_t(image_size));
+	module_region.AddField("Module version", Dumper::VersionDisplay::Make(), offset_t(module_version.major), offset_t(module_version.minor));
+	module_region.AddField("Maximum segment size", Dumper::HexDisplay::Make(8), offset_t(maximum_segment_size));
+	for(int i = 0; i < 16; i++)
+	{
+		int size_len = segment_sizes_word[i];
+		if(size_len != 0 || segment_sizes[i] != 0)
+		{
+			{
+				std::ostringstream oss;
+				oss << "Segment #" << i << " size length";
+				module_region.AddField(oss.str(), Dumper::DecDisplay::Make(), offset_t(as86_sizes[size_len]));
+			}
+
+			{
+				std::ostringstream oss;
+				oss << "Segment #" << i << " size";
+				module_region.AddField(oss.str(), Dumper::HexDisplay::Make(4), offset_t(segment_sizes[i]));
+			}
+		}
+	}
+
+	module_region.Display(dump);
+
+	Dumper::Region string_table_region("String table region", string_table_offset, string_table_size, 8);
+	string_table_region.Display(dump);
+
+	unsigned i = 0;
+	for(auto& symbol : symbols)
+	{
+		Dumper::Entry symbol_entry("Symbol", i, 0 /* TODO: symbol definition offset */, 8);
+		symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
+		symbol_entry.AddField("Offset to name", Dumper::HexDisplay::Make(4), offset_t(symbol.name_offset));
+		symbol_entry.AddField("Symbol type", Dumper::HexDisplay::Make(4), offset_t(symbol.symbol_type)); // TODO: more descriptive display
+		symbol_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(symbol.offset));
+		symbol_entry.AddField("Offset size", Dumper::DecDisplay::Make(), offset_t(as86_sizes[symbol.offset_size]));
+		symbol_entry.Display(dump);
+		i ++;
+	}
+
+	i = 0;
+	for(auto& bytecode : data)
+	{
+		bytecode->Dump(dump, i);
+		i ++;
+	}
+}
+
 void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
@@ -158,6 +258,22 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 void AS86ObjFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+}
+
+void AS86ObjFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("as86 format");
+
+	//Dumper::Region file_region("File", 0, 0 /* TODO: file size unknown */, 8);
+
+	unsigned i = 0;
+	for(auto& module : modules)
+	{
+		module.Dump(dump, i);
+		i++;
+	}
 }
 
 void AS86ObjFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)

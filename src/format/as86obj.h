@@ -3,6 +3,7 @@
 
 #include <array>
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/buffer.h"
 #include "../linker/reader.h"
 #include "../linker/writer.h"
@@ -32,6 +33,7 @@ namespace AS86Obj
 		{
 		public:
 			virtual ~ByteCode();
+			virtual void Dump(Dumper::Dumper& dump, unsigned index) = 0;
 			static std::unique_ptr<ByteCode> ReadFile(Linker::Reader& rd, int& relocation_size);
 		};
 
@@ -43,6 +45,8 @@ namespace AS86Obj
 				: size(size > 3 ? 3 : size)
 			{
 			}
+
+			void Dump(Dumper::Dumper& dump, unsigned index) override;
 		};
 
 		class SkipBytes : public ByteCode
@@ -53,6 +57,8 @@ namespace AS86Obj
 				: count(count)
 			{
 			}
+
+			void Dump(Dumper::Dumper& dump, unsigned index) override;
 		};
 
 		class ChangeSegment : public ByteCode
@@ -63,12 +69,16 @@ namespace AS86Obj
 				: segment(segment)
 			{
 			}
+
+			void Dump(Dumper::Dumper& dump, unsigned index) override;
 		};
 
 		class RawBytes : public ByteCode
 		{
 		public:
-			std::unique_ptr<Linker::Buffer> buffer;
+			std::shared_ptr<Linker::Buffer> buffer;
+
+			void Dump(Dumper::Dumper& dump, unsigned index) override;
 		};
 
 		class SimpleRelocator : public ByteCode
@@ -81,6 +91,8 @@ namespace AS86Obj
 				: offset(offset), segment(type & 0xF), ip_relative((type & 0x20) != 0)
 			{
 			}
+
+			void Dump(Dumper::Dumper& dump, unsigned index) override;
 		};
 
 		class SymbolRelocator : public ByteCode
@@ -93,6 +105,8 @@ namespace AS86Obj
 				: offset(offset), symbol_index(symbol_index), ip_relative((type & 0x20) != 0)
 			{
 			}
+
+			void Dump(Dumper::Dumper& dump, unsigned index) override;
 		};
 
 		class Module
@@ -130,12 +144,15 @@ namespace AS86Obj
 			offset_t string_table_offset = 0;
 			std::string module_name;
 			std::vector<std::unique_ptr<ByteCode>> data;
+
+			void Dump(Dumper::Dumper& dump, unsigned index);
 		};
 
 		std::vector<Module> modules;
 
 		void ReadFile(Linker::Reader& rd) override;
 		void WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 		/* TODO */
 	};
