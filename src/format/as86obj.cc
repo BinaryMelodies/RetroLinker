@@ -12,49 +12,105 @@ AS86ObjFormat::ByteCode::~ByteCode()
 {
 }
 
-void AS86ObjFormat::RelocatorSize::Dump(Dumper::Dumper& dump, unsigned index)
+offset_t AS86ObjFormat::ByteCode::GetLength() const
 {
-	Dumper::Entry entry("Relocation size", index, 0 /* TODO: file offset */, 8);
+	// This is a common enough behavior to place into the superclass
+	return 1;
+}
+
+offset_t AS86ObjFormat::RelocatorSize::GetMemorySize() const
+{
+	return 0;
+}
+
+void AS86ObjFormat::RelocatorSize::Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const
+{
+	Dumper::Entry entry("Relocation size", index, file_offset, 8);
 	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(as86_sizes[size]));
 	entry.Display(dump);
 }
 
-void AS86ObjFormat::SkipBytes::Dump(Dumper::Dumper& dump, unsigned index)
+offset_t AS86ObjFormat::SkipBytes::GetMemorySize() const
 {
-	Dumper::Entry entry("Skip bytes", index, 0 /* TODO: file offset */, 8);
+	return count;
+}
+
+void AS86ObjFormat::SkipBytes::Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const
+{
+	Dumper::Entry entry("Skip bytes", index, file_offset, 8);
 	entry.AddField("Count", Dumper::HexDisplay::Make(), offset_t(count));
 	entry.Display(dump);
 }
 
-void AS86ObjFormat::ChangeSegment::Dump(Dumper::Dumper& dump, unsigned index)
+offset_t AS86ObjFormat::ChangeSegment::GetMemorySize() const
 {
-	Dumper::Entry entry("Change segment", index, 0 /* TODO: file offset */, 8);
+	// This actually resets the offset pointer
+	return 0;
+}
+
+void AS86ObjFormat::ChangeSegment::Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const
+{
+	Dumper::Entry entry("Change segment", index, file_offset, 8);
 	entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(segment));
 	entry.Display(dump);
 }
 
-void AS86ObjFormat::RawBytes::Dump(Dumper::Dumper& dump, unsigned index)
+offset_t AS86ObjFormat::RawBytes::GetLength() const
 {
-	Dumper::Block block("Raw bytes", 0 /* TODO: file offset */, buffer, 0 /* TODO: actual offset */, 8);
+	return 1 + buffer->ActualDataSize();
+}
+
+offset_t AS86ObjFormat::RawBytes::GetMemorySize() const
+{
+	return buffer->ActualDataSize();
+}
+
+void AS86ObjFormat::RawBytes::Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const
+{
+	Dumper::Block block("Raw bytes",file_offset, buffer, memory_offset, 8);
 	block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index));
 	block.Display(dump);
 }
 
-void AS86ObjFormat::SimpleRelocator::Dump(Dumper::Dumper& dump, unsigned index)
+offset_t AS86ObjFormat::SimpleRelocator::GetLength() const
 {
-	Dumper::Entry entry("Relocation", index, 0 /* TODO: file offset */, 8);
+	return 1 + as86_sizes[relocation_size];
+}
+
+offset_t AS86ObjFormat::SimpleRelocator::GetMemorySize() const
+{
+	return as86_sizes[relocation_size];
+}
+
+void AS86ObjFormat::SimpleRelocator::Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const
+{
+	Dumper::Entry entry("Relocation", index, file_offset, 8);
+	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(as86_sizes[relocation_size]));
 	entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
 	entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(segment));
-	entry.AddField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
+	entry.AddOptionalField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
 	entry.Display(dump);
 }
 
-void AS86ObjFormat::SymbolRelocator::Dump(Dumper::Dumper& dump, unsigned index)
+offset_t AS86ObjFormat::SymbolRelocator::GetLength() const
 {
-	Dumper::Entry entry("Relocation", index, 0 /* TODO: file offset */, 8);
+	return 1 + index_size + as86_sizes[offset_size];
+}
+
+offset_t AS86ObjFormat::SymbolRelocator::GetMemorySize() const
+{
+	return as86_sizes[relocation_size];
+}
+
+void AS86ObjFormat::SymbolRelocator::Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const
+{
+	Dumper::Entry entry("Relocation", index, file_offset, 8);
+	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(as86_sizes[relocation_size]));
 	entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
-	entry.AddField("Symvol index", Dumper::HexDisplay::Make(4), offset_t(symbol_index)); // TODO: print name
-	entry.AddField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
+	entry.AddField("Offset size", Dumper::DecDisplay::Make(), offset_t(as86_sizes[offset_size]));
+	entry.AddField("Symbol index", Dumper::HexDisplay::Make(4), offset_t(symbol_index)); // TODO: print name
+	entry.AddField("Symbol index size", Dumper::DecDisplay::Make(), offset_t(as86_sizes[index_size]));
+	entry.AddOptionalField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
 	entry.Display(dump);
 }
 
@@ -96,16 +152,17 @@ std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linke
 	case 0xB:
 		{
 			uint32_t offset = rd.ReadUnsigned(as86_sizes[relocation_size]);
-			return std::make_unique<SimpleRelocator>(offset, c);
+			return std::make_unique<SimpleRelocator>(offset, c, relocation_size);
 		}
 	case 0xC:
 	case 0xD:
 	case 0xE:
 	case 0xF:
 		{
-			uint16_t symbol_index = rd.ReadUnsigned((c & 4) != 0 ? 2 : 1);
+			int index_size = (c & 4) != 0 ? 2 : 1;
+			uint16_t symbol_index = rd.ReadUnsigned(index_size);
 			uint32_t offset = rd.ReadUnsigned(as86_sizes[c & 3]);
-			return std::make_unique<SymbolRelocator>(offset, symbol_index, c);
+			return std::make_unique<SymbolRelocator>(offset, symbol_index, c, relocation_size, c & 3, index_size);
 		}
 	default:
 		Linker::FatalError("Fatal error: invalid bytecode in module data");
@@ -188,9 +245,18 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index)
 	}
 
 	i = 0;
+	offset_t file_offset = string_table_offset + string_table_size;
+	int current_segment = 0;
+	offset_t memory_offsets[16] = { };
 	for(auto& bytecode : data)
 	{
-		bytecode->Dump(dump, i);
+		bytecode->Dump(dump, i, file_offset, memory_offsets[current_segment]);
+		file_offset += bytecode->GetLength();
+		memory_offsets[current_segment] += bytecode->GetMemorySize();
+		if(ChangeSegment * change = dynamic_cast<ChangeSegment *>(bytecode.get()))
+		{
+			current_segment = change->segment;
+		}
 		i ++;
 	}
 }

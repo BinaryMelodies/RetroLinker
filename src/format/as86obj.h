@@ -33,7 +33,9 @@ namespace AS86Obj
 		{
 		public:
 			virtual ~ByteCode();
-			virtual void Dump(Dumper::Dumper& dump, unsigned index) = 0;
+			virtual offset_t GetLength() const;
+			virtual offset_t GetMemorySize() const = 0;
+			virtual void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const = 0;
 			static std::unique_ptr<ByteCode> ReadFile(Linker::Reader& rd, int& relocation_size);
 		};
 
@@ -46,7 +48,8 @@ namespace AS86Obj
 			{
 			}
 
-			void Dump(Dumper::Dumper& dump, unsigned index) override;
+			offset_t GetMemorySize() const override;
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
 		};
 
 		class SkipBytes : public ByteCode
@@ -58,7 +61,8 @@ namespace AS86Obj
 			{
 			}
 
-			void Dump(Dumper::Dumper& dump, unsigned index) override;
+			offset_t GetMemorySize() const override;
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
 		};
 
 		class ChangeSegment : public ByteCode
@@ -70,7 +74,8 @@ namespace AS86Obj
 			{
 			}
 
-			void Dump(Dumper::Dumper& dump, unsigned index) override;
+			offset_t GetMemorySize() const override;
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
 		};
 
 		class RawBytes : public ByteCode
@@ -78,7 +83,9 @@ namespace AS86Obj
 		public:
 			std::shared_ptr<Linker::Buffer> buffer;
 
-			void Dump(Dumper::Dumper& dump, unsigned index) override;
+			offset_t GetLength() const override;
+			offset_t GetMemorySize() const override;
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
 		};
 
 		class SimpleRelocator : public ByteCode
@@ -87,12 +94,15 @@ namespace AS86Obj
 			uint32_t offset;
 			uint8_t segment;
 			bool ip_relative;
-			SimpleRelocator(uint8_t type, uint32_t offset)
-				: offset(offset), segment(type & 0xF), ip_relative((type & 0x20) != 0)
+			int relocation_size;
+			SimpleRelocator(uint8_t type, uint32_t offset, int relocation_size)
+				: offset(offset), segment(type & 0xF), ip_relative((type & 0x20) != 0), relocation_size(relocation_size)
 			{
 			}
 
-			void Dump(Dumper::Dumper& dump, unsigned index) override;
+			offset_t GetLength() const override;
+			offset_t GetMemorySize() const override;
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
 		};
 
 		class SymbolRelocator : public ByteCode
@@ -101,12 +111,17 @@ namespace AS86Obj
 			uint32_t offset;
 			uint16_t symbol_index;
 			bool ip_relative;
-			SymbolRelocator(uint8_t type, uint32_t offset, uint16_t symbol_index)
-				: offset(offset), symbol_index(symbol_index), ip_relative((type & 0x20) != 0)
+			int relocation_size;
+			int offset_size;
+			int index_size;
+			SymbolRelocator(uint8_t type, uint32_t offset, uint16_t symbol_index, int relocation_size, int offset_size, int index_size)
+				: offset(offset), symbol_index(symbol_index), ip_relative((type & 0x20) != 0), relocation_size(relocation_size), offset_size(offset_size), index_size(index_size)
 			{
 			}
 
-			void Dump(Dumper::Dumper& dump, unsigned index) override;
+			offset_t GetLength() const override;
+			offset_t GetMemorySize() const override;
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
 		};
 
 		class Module
