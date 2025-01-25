@@ -35,18 +35,19 @@
 
 using namespace Linker;
 
-using namespace Binary;
-using namespace Microsoft;
-using namespace DigitalResearch;
-using namespace MINIX;
+using namespace Amiga;
 using namespace AOut;
+using namespace AS86Obj;
+using namespace Binary;
 using namespace COFF;
+using namespace DOS16M;
+using namespace DigitalResearch;
 using namespace ELF;
 using namespace MachO;
-using namespace X68000;
-using namespace Amiga;
-using namespace DOS16M;
+using namespace Microsoft;
+using namespace MINIX;
 using namespace PharLap;
+using namespace X68000;
 
 typedef Apple::OMFFormat GSOS_OMFFormat;
 typedef OMF::OMFFormat Intel_OMFFormat;
@@ -587,6 +588,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x7F" "ELF"),          0, FORMAT_ELF,     "UNIX/Linux ELF file format" },
 	{ std::string("\x80\x00", 2),         0, FORMAT_COFF,    "Zilog Z8000 COFF object file (GNU binutils)" },
 	{ std::string("\x80"),                0, FORMAT_OMF,     "Intel Object Module Format object file" },
+	{ std::string("\xA3\x86"),            0, FORMAT_AS86,    "as86 object format" },
 	{ std::string("\xC7\x45\xC1\x53"),    0, FORMAT_GEOS,    "PC/GEOS Geode format (version 2)" },
 	{ std::string("\xC7\x45\xCF\x53"),    0, FORMAT_GEOS,    "PC/GEOS Geode format (version 1)" },
 	{ std::string("\xC9"),                0, FORMAT_CPM3,    "CP/M Plus for Intel 8080", VerifyCPM3 },
@@ -712,6 +714,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<Apple::AppleSingleDouble>(); // TODO: test
 	case FORMAT_APPLEII:
 		return std::make_shared<AppleFormat>(); // TODO: test
+	case FORMAT_AS86:
+		return std::make_shared<AS86ObjFormat>(); // TODO: test
 	case FORMAT_ATARI:
 		return std::make_shared<AtariFormat>(); // TODO: test
 	case FORMAT_BW:

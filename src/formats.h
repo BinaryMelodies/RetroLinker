@@ -29,6 +29,7 @@ enum format_type
 	FORMAT_AOUT, // UNIX a.out
 	FORMAT_APPLE, // Macintosh AppleSingle/AppleDouble, used to store Macintosh files on other systems
 	FORMAT_APPLEII, // Apple ][ binary format
+	FORMAT_AS86, // as86 object file
 	FORMAT_ATARI, // Atari 8-bit binary format
 	FORMAT_BW, // DOS/16M .exp file
 	FORMAT_COFF, // UNIX COFF
