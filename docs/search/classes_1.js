@@ -6,5 +6,6 @@ var searchData=
   ['block_3',['Block',['../classDumper_1_1Block.html',1,'Dumper::Block'],['../classELF_1_1ELFFormat_1_1Block.html',1,'ELF::ELFFormat::Block']]],
   ['boutformat_4',['BOutFormat',['../classXenix_1_1BOutFormat.html',1,'Xenix']]],
   ['buffer_5',['Buffer',['../classLinker_1_1Buffer.html',1,'Linker']]],
-  ['bwformat_6',['BWFormat',['../classDOS16M_1_1BWFormat.html',1,'DOS16M']]]
+  ['bwformat_6',['BWFormat',['../classDOS16M_1_1BWFormat.html',1,'DOS16M']]],
+  ['bytecode_7',['ByteCode',['../classAS86Obj_1_1AS86ObjFormat_1_1ByteCode.html',1,'AS86Obj::AS86ObjFormat']]]
 ];

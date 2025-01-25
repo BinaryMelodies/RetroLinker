@@ -126,16 +126,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a32e2763b7534c726c29a4b9de720100a" id="r_a32e2763b7534c726c29a4b9de720100a"><td class="memItemLeft" align="right" valign="top">virtual std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a32e2763b7534c726c29a4b9de720100a">MakeRegion</a> (std::string name, offset_t offset, unsigned display_width) const</td></tr>
 <tr class="memdesc:a32e2763b7534c726c29a4b9de720100a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a region for displaying the block contents.  <br /></td></tr>
 <tr class="separator:a32e2763b7534c726c29a4b9de720100a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc3db227f03406ed700173876bedaa53" id="r_afc3db227f03406ed700173876bedaa53"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afc3db227f03406ed700173876bedaa53">AddFields</a> (<a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region) const</td></tr>
-<tr class="memdesc:afc3db227f03406ed700173876bedaa53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds block specific fields.  <br /></td></tr>
-<tr class="separator:afc3db227f03406ed700173876bedaa53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5db6faeaee938b72d61b46d409260e7f" id="r_a5db6faeaee938b72d61b46d409260e7f"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5db6faeaee938b72d61b46d409260e7f">AddFields</a> (<a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, <a class="el" href="classPCOS_1_1CMDFormat.html">CMDFormat</a> &amp;module) const</td></tr>
+<tr class="memdesc:a5db6faeaee938b72d61b46d409260e7f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds block specific fields.  <br /></td></tr>
+<tr class="separator:a5db6faeaee938b72d61b46d409260e7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a967a6e836f4a92d3ac680402bcd83d35" id="r_a967a6e836f4a92d3ac680402bcd83d35"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a967a6e836f4a92d3ac680402bcd83d35">DumpContents</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, offset_t file_offset) const</td></tr>
 <tr class="memdesc:a967a6e836f4a92d3ac680402bcd83d35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display block specific contents.  <br /></td></tr>
 <tr class="separator:a967a6e836f4a92d3ac680402bcd83d35"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adcf506959c26ba3c59fedf0035f6a2a0" id="r_adcf506959c26ba3c59fedf0035f6a2a0"><td class="memItemLeft" align="right" valign="top"><a id="adcf506959c26ba3c59fedf0035f6a2a0" name="adcf506959c26ba3c59fedf0035f6a2a0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, offset_t file_offset) const</td></tr>
-<tr class="memdesc:adcf506959c26ba3c59fedf0035f6a2a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the entire block. <br /></td></tr>
-<tr class="separator:adcf506959c26ba3c59fedf0035f6a2a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c37d03f2491cec1b937dac9d60877c8" id="r_a1c37d03f2491cec1b937dac9d60877c8"><td class="memItemLeft" align="right" valign="top"><a id="a1c37d03f2491cec1b937dac9d60877c8" name="a1c37d03f2491cec1b937dac9d60877c8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, offset_t file_offset, <a class="el" href="classPCOS_1_1CMDFormat.html">CMDFormat</a> &amp;module) const</td></tr>
+<tr class="memdesc:a1c37d03f2491cec1b937dac9d60877c8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the entire block. <br /></td></tr>
+<tr class="separator:a1c37d03f2491cec1b937dac9d60877c8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaf30f5f0cdf01ee80394e3219ee49d0a" id="r_aaf30f5f0cdf01ee80394e3219ee49d0a"><td class="memItemLeft" align="right" valign="top"><a id="aaf30f5f0cdf01ee80394e3219ee49d0a" name="aaf30f5f0cdf01ee80394e3219ee49d0a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MemoryBlock</b> (int <a class="el" href="#afadae3074fa433dd4c3d44940514ab3b">type</a>)</td></tr>
 <tr class="separator:aaf30f5f0cdf01ee80394e3219ee49d0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,8 +184,8 @@ Public Attributes</h2></td></tr>
 </div>
 </div>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="afc3db227f03406ed700173876bedaa53" name="afc3db227f03406ed700173876bedaa53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afc3db227f03406ed700173876bedaa53">&#9670;&#160;</a></span>AddFields()</h2>
+<a id="a5db6faeaee938b72d61b46d409260e7f" name="a5db6faeaee938b72d61b46d409260e7f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5db6faeaee938b72d61b46d409260e7f">&#9670;&#160;</a></span>AddFields()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -196,8 +196,12 @@ Public Attributes</h2></td></tr>
         <tr>
           <td class="memname">void CMDFormat::MemoryBlock::AddFields </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>region</em></span></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>region</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classPCOS_1_1CMDFormat.html">CMDFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -209,7 +213,7 @@ Public Attributes</h2></td></tr>
 
 <p>Adds block specific fields. </p>
 
-<p>Reimplemented in <a class="el" href="classPCOS_1_1CMDFormat_1_1LoadBlock.html#a86392f6a53603053b23b3aaf6479acf8">PCOS::CMDFormat::LoadBlock</a>, and <a class="el" href="classPCOS_1_1CMDFormat_1_1RelocationBlock.html#a5164ab524586ca28155657eeeb1f8285">PCOS::CMDFormat::RelocationBlock</a>.</p>
+<p>Reimplemented in <a class="el" href="classPCOS_1_1CMDFormat_1_1LoadBlock.html#ac88d37aedf8d140bbb1621ce56b254b2">PCOS::CMDFormat::LoadBlock</a>, and <a class="el" href="classPCOS_1_1CMDFormat_1_1RelocationBlock.html#a464bdf1f69f307d6047ffef7f65d94a5">PCOS::CMDFormat::RelocationBlock</a>.</p>
 
 </div>
 </div>

@@ -22,5 +22,6 @@ var searchData=
   ['bss_5fsegment_19',['bss_segment',['../classDigitalResearch_1_1CPM68KFormat.html#a0c074fecc2633b4b7db6681e89f299e3',1,'DigitalResearch::CPM68KFormat::bss_segment'],['../classDigitalResearch_1_1CPM8KFormat.html#ac90fdbc6b8b06bc2206f3ace609f6c65',1,'DigitalResearch::CPM8KFormat::bss_segment']]],
   ['bss_5fsize_20',['bss_size',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#ae663abb1ff4c08cf1be465b456cab50f',1,'COFF::COFFFormat::AOutHeader::bss_size'],['../classDigitalResearch_1_1CPM68KFormat.html#a0cac256f4016f247237d738a132fb954',1,'DigitalResearch::CPM68KFormat::bss_size'],['../classApple_1_1OMFFormat_1_1Segment.html#a37aa8a3c72418f329cb5388c6cbab85c',1,'Apple::OMFFormat::Segment::bss_size'],['../classO65_1_1O65Format_1_1Module.html#ae03d3b763de1f7d57333260a35d5bfe6',1,'O65::O65Format::Module::bss_size']]],
   ['buffer_21',['Buffer',['../classLinker_1_1Buffer.html',1,'Linker']]],
-  ['bwformat_22',['BWFormat',['../classDOS16M_1_1BWFormat.html',1,'DOS16M']]]
+  ['bwformat_22',['BWFormat',['../classDOS16M_1_1BWFormat.html',1,'DOS16M']]],
+  ['bytecode_23',['ByteCode',['../classAS86Obj_1_1AS86ObjFormat_1_1ByteCode.html',1,'AS86Obj::AS86ObjFormat']]]
 ];

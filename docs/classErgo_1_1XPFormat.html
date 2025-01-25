@@ -114,12 +114,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a696ac454407a75f62ee657924c3de1e8" id="r_a696ac454407a75f62ee657924c3de1e8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a696ac454407a75f62ee657924c3de1e8">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:a696ac454407a75f62ee657924c3de1e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:a696ac454407a75f62ee657924c3de1e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acc2ad9b8ae6cbfcd67640b5f4c92595d" id="r_acc2ad9b8ae6cbfcd67640b5f4c92595d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acc2ad9b8ae6cbfcd67640b5f4c92595d">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;in) override</td></tr>
-<tr class="memdesc:acc2ad9b8ae6cbfcd67640b5f4c92595d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
-<tr class="separator:acc2ad9b8ae6cbfcd67640b5f4c92595d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c2f56e22788e32f42c61932589a3376" id="r_a9c2f56e22788e32f42c61932589a3376"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9c2f56e22788e32f42c61932589a3376">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;out) override</td></tr>
-<tr class="memdesc:a9c2f56e22788e32f42c61932589a3376"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:a9c2f56e22788e32f42c61932589a3376"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae24fbf5789ae0f40e1fc7ce918afbc8b" id="r_ae24fbf5789ae0f40e1fc7ce918afbc8b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae24fbf5789ae0f40e1fc7ce918afbc8b">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
+<tr class="memdesc:ae24fbf5789ae0f40e1fc7ce918afbc8b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
+<tr class="separator:ae24fbf5789ae0f40e1fc7ce918afbc8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a78c94b1603f207cd610a58dd6bab1553" id="r_a78c94b1603f207cd610a58dd6bab1553"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a78c94b1603f207cd610a58dd6bab1553">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
+<tr class="memdesc:a78c94b1603f207cd610a58dd6bab1553"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="separator:a78c94b1603f207cd610a58dd6bab1553"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae166664f87546d62348b1c4198ebdd22" id="r_ae166664f87546d62348b1c4198ebdd22"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae166664f87546d62348b1c4198ebdd22">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename) override</td></tr>
 <tr class="memdesc:ae166664f87546d62348b1c4198ebdd22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
 <tr class="separator:ae166664f87546d62348b1c4198ebdd22"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -468,8 +468,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
-<a id="acc2ad9b8ae6cbfcd67640b5f4c92595d" name="acc2ad9b8ae6cbfcd67640b5f4c92595d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acc2ad9b8ae6cbfcd67640b5f4c92595d">&#9670;&#160;</a></span>ReadFile()</h2>
+<a id="ae24fbf5789ae0f40e1fc7ce918afbc8b" name="ae24fbf5789ae0f40e1fc7ce918afbc8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae24fbf5789ae0f40e1fc7ce918afbc8b">&#9670;&#160;</a></span>ReadFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -480,7 +480,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
         <tr>
           <td class="memname">void XPFormat::ReadFile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>in</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -493,12 +493,12 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Loads file into memory. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#a84465b0adcb1d902012cf290c3b74d38">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#a2c868606ec11583e57a3d5b474035c42">Linker::Format</a>.</p>
 
 </div>
 </div>
-<a id="a9c2f56e22788e32f42c61932589a3376" name="a9c2f56e22788e32f42c61932589a3376"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9c2f56e22788e32f42c61932589a3376">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="a78c94b1603f207cd610a58dd6bab1553" name="a78c94b1603f207cd610a58dd6bab1553"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a78c94b1603f207cd610a58dd6bab1553">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -509,7 +509,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
         <tr>
           <td class="memname">void XPFormat::WriteFile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -522,7 +522,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Stores data in memory to file. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#a12d9426f324db2e9b0ee3ea21a4530f1">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#a1d7bfc5809e8ab349afc586c0e182729">Linker::Format</a>.</p>
 
 </div>
 </div>

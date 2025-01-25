@@ -303,13 +303,13 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:afd45ddd76e851a511109d8bb3f321481" id="r_afd45ddd76e851a511109d8bb3f321481"><td class="memItemLeft" align="right" valign="top"><a id="afd45ddd76e851a511109d8bb3f321481" name="afd45ddd76e851a511109d8bb3f321481"></a>
-format_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
+format_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = DOUBLE</td></tr>
 <tr class="separator:afd45ddd76e851a511109d8bb3f321481"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c0648e8aa415ca8e9fbbd8ef03ceb40" id="r_a4c0648e8aa415ca8e9fbbd8ef03ceb40"><td class="memItemLeft" align="right" valign="top"><a id="a4c0648e8aa415ca8e9fbbd8ef03ceb40" name="a4c0648e8aa415ca8e9fbbd8ef03ceb40"></a>
-unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>version</b></td></tr>
+unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> = 2</td></tr>
 <tr class="separator:a4c0648e8aa415ca8e9fbbd8ef03ceb40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4c510b865a16590d3b62f8abe471ae4" id="r_aa4c510b865a16590d3b62f8abe471ae4"><td class="memItemLeft" align="right" valign="top"><a id="aa4c510b865a16590d3b62f8abe471ae4" name="aa4c510b865a16590d3b62f8abe471ae4"></a>
-hfs_type&#160;</td><td class="memItemRight" valign="bottom"><b>home_file_system</b></td></tr>
+hfs_type&#160;</td><td class="memItemRight" valign="bottom"><b>home_file_system</b> = HFS_UNDEFINED</td></tr>
 <tr class="separator:aa4c510b865a16590d3b62f8abe471ae4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa453fed222bb256c18d842b370c88bce" id="r_aa453fed222bb256c18d842b370c88bce"><td class="memItemLeft" align="right" valign="top"><a id="aa453fed222bb256c18d842b370c88bce" name="aa453fed222bb256c18d842b370c88bce"></a>
 std::vector&lt; std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry.html">Entry</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>entries</b></td></tr>
@@ -516,7 +516,7 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
         <tr>
           <td class="memname">void AppleSingleDouble::ReadFile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>in</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -529,7 +529,7 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
 
 <p>Loads file into memory. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#a84465b0adcb1d902012cf290c3b74d38">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#a2c868606ec11583e57a3d5b474035c42">Linker::Format</a>.</p>
 
 </div>
 </div>
@@ -636,7 +636,7 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
         <tr>
           <td class="memname">void AppleSingleDouble::WriteFile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>out</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -649,7 +649,7 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
 
 <p>Stores data in memory to file. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#a12d9426f324db2e9b0ee3ea21a4530f1">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#a1d7bfc5809e8ab349afc586c0e182729">Linker::Format</a>.</p>
 
 <p>Reimplemented in <a class="el" href="classApple_1_1MacBinary.html#ad8d638540f9fb4cb16989a6aeccfe59a">Apple::MacBinary</a>.</p>
 

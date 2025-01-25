@@ -6,7 +6,7 @@ var searchData=
   ['addcurrentvalue_3',['AddCurrentValue',['../classLinker_1_1Relocation.html#a52614e87d0765b572eb7f171e3809253',1,'Linker::Relocation']]],
   ['addentrypoint_4',['AddEntryPoint',['../classBinary_1_1AtariFormat.html#a41f46b72e2253fcc381dce3c3c0bb5da',1,'Binary::AtariFormat']]],
   ['addexportedsymbol_5',['AddExportedSymbol',['../classLinker_1_1Module.html#a333949c04bd348d6271c659fd0340c74',1,'Linker::Module']]],
-  ['addfields_6',['AddFields',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#afc3db227f03406ed700173876bedaa53',1,'PCOS::CMDFormat::MemoryBlock::AddFields()'],['../classPCOS_1_1CMDFormat_1_1LoadBlock.html#a86392f6a53603053b23b3aaf6479acf8',1,'PCOS::CMDFormat::LoadBlock::AddFields()'],['../classPCOS_1_1CMDFormat_1_1RelocationBlock.html#a5164ab524586ca28155657eeeb1f8285',1,'PCOS::CMDFormat::RelocationBlock::AddFields()']]],
+  ['addfields_6',['AddFields',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#a5db6faeaee938b72d61b46d409260e7f',1,'PCOS::CMDFormat::MemoryBlock::AddFields()'],['../classPCOS_1_1CMDFormat_1_1LoadBlock.html#ac88d37aedf8d140bbb1621ce56b254b2',1,'PCOS::CMDFormat::LoadBlock::AddFields()'],['../classPCOS_1_1CMDFormat_1_1RelocationBlock.html#a464bdf1f69f307d6047ffef7f65d94a5',1,'PCOS::CMDFormat::RelocationBlock::AddFields()']]],
   ['addglobalsymbol_7',['AddGlobalSymbol',['../classLinker_1_1Module.html#ae7564e86747525d29722e7fd7ef3d5c0',1,'Linker::Module']]],
   ['addimportedsymbol_8',['AddImportedSymbol',['../classLinker_1_1Module.html#a71d051047356e374379eecc9d16aba55',1,'Linker::Module']]],
   ['addlocalsymbol_9',['AddLocalSymbol',['../classLinker_1_1Module.html#abcc5a24a25aefc8bbf5f4ac8494abf7d',1,'Linker::Module']]],

@@ -12,7 +12,7 @@ var searchData=
   ['minixaoutreader_9',['MINIXAOutReader',['../classdump_1_1MINIXAOutReader.html',1,'dump']]],
   ['minixformat_10',['MINIXFormat',['../classMINIX_1_1MINIXFormat.html',1,'MINIX']]],
   ['mipsaoutheader_11',['MIPSAOutHeader',['../classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html',1,'COFF::COFFFormat']]],
-  ['module_12',['Module',['../classLinker_1_1Module.html',1,'Linker::Module'],['../classO65_1_1O65Format_1_1Module.html',1,'O65::O65Format::Module']]],
+  ['module_12',['Module',['../classAS86Obj_1_1AS86ObjFormat_1_1Module.html',1,'AS86Obj::AS86ObjFormat::Module'],['../classLinker_1_1Module.html',1,'Linker::Module'],['../classO65_1_1O65Format_1_1Module.html',1,'O65::O65Format::Module']]],
   ['mpformat_13',['MPFormat',['../classPharLap_1_1MPFormat.html',1,'PharLap']]],
   ['msdos_14',['MSDOS',['../classApple_1_1FileInfo_1_1MSDOS.html',1,'Apple::FileInfo']]],
   ['msdosfileinfo_15',['MSDOSFileInfo',['../classApple_1_1MSDOSFileInfo.html',1,'Apple']]],
