@@ -10,9 +10,11 @@ void PMW1Format::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void PMW1Format::WriteFile(Linker::Writer& wr)
+offset_t PMW1Format::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+
+	return offset_t(-1);
 }
 
 std::string PMW1Format::GetDefaultExtension(Linker::Module& module, std::string filename)

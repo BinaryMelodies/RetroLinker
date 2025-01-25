@@ -8,8 +8,10 @@ void MachOFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void MachOFormat::WriteFile(Linker::Writer& wr)
+offset_t MachOFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+
+	return offset_t(-1);
 }
 

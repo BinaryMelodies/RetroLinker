@@ -84,7 +84,7 @@ namespace MINIX
 
 		void CalculateValues() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 

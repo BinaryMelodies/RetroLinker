@@ -72,7 +72,7 @@ namespace PharLap
 
 		void CalculateValues() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 	};
@@ -153,7 +153,7 @@ namespace PharLap
 
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		class Flat;
 		class MultiSegmented;
@@ -179,7 +179,7 @@ namespace PharLap
 
 		void CalculateValues() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	class P3Format::MultiSegmented : public P3Format
@@ -333,7 +333,7 @@ namespace PharLap
 
 		void CalculateValues() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	/**
@@ -355,7 +355,7 @@ namespace PharLap
 
 		void CalculateValues() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 }
 

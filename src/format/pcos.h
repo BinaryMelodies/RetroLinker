@@ -165,7 +165,7 @@ namespace PCOS
 
 		void ReadFile(Linker::Reader& rd) override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void Dump(Dumper::Dumper& dump) override;
 

@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include "../common.h"
+#include "format.h"
 #include "location.h"
 #include "relocation.h"
 

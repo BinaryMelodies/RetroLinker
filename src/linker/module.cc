@@ -1,6 +1,7 @@
 
 #include <sstream>
 #include "module.h"
+#include "format.h"
 
 using namespace Linker;
 

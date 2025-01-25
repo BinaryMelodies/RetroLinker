@@ -92,7 +92,7 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 	// TODO: symbols
 }
 
-void CPM8KFormat::WriteFile(Linker::Writer& wr)
+offset_t CPM8KFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(2, signature);
@@ -118,6 +118,8 @@ void CPM8KFormat::WriteFile(Linker::Writer& wr)
 
 	// TODO: relocations
 	// TODO: symbols
+
+	return offset_t(-1);
 }
 
 void CPM8KFormat::Dump(Dumper::Dumper& dump)

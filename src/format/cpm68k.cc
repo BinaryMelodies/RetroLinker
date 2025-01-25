@@ -292,7 +292,7 @@ template <typename SizeType>
 }
 #endif
 
-void CPM68KFormat::WriteFile(Linker::Writer& wr)
+offset_t CPM68KFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(2, signature);
@@ -392,6 +392,8 @@ void CPM68KFormat::WriteFile(Linker::Writer& wr)
 	case SYSTEM_HUMAN68K:
 		break;
 	}
+
+	return offset_t(-1);
 }
 
 void CPM68KFormat::Dump(Dumper::Dumper& dump)

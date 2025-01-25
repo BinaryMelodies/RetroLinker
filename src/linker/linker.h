@@ -16,7 +16,7 @@ namespace Linker
 	/**
 	 * @brief A helper class to collect sections into segments
 	 */
-	class LinkerManager : public Linker::OutputFormat
+	class LinkerManager : public virtual Linker::OutputFormat
 	{
 	protected:
 		/**

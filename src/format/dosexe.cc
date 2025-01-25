@@ -81,7 +81,7 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr)
+offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	if(!is_dll)
@@ -125,6 +125,8 @@ void SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr)
 	{
 		wr.WriteWord(4, rel);
 	}
+
+	return offset_t(-1);
 }
 
 void BrocaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
@@ -139,7 +141,7 @@ void BrocaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void BrocaD3X::D3X1Format::WriteFile(Linker::Writer& wr)
+offset_t BrocaD3X::D3X1Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteData(4, "D3X1");
@@ -149,6 +151,7 @@ void BrocaD3X::D3X1Format::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, entry);
 	wr.WriteWord(4, stack_top);
 	/* TODO */
+	return offset_t(-1);
 }
 
 void DX64::LVFormat::SetSignature(format_type type)
@@ -182,7 +185,7 @@ void DX64::LVFormat::ReadFile(Linker::Reader& rd)
 	image = Linker::Buffer::ReadFromFile(rd, program_size);
 }
 
-void DX64::LVFormat::WriteFile(Linker::Writer& wr)
+offset_t DX64::LVFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteData(4, signature);
@@ -191,5 +194,6 @@ void DX64::LVFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, esp);
 	wr.WriteWord(4, extra_memory_size);
 	image->WriteFile(wr);
+	return offset_t(-1);
 }
 

@@ -275,12 +275,14 @@ void OMFFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void OMFFormat::WriteFile(Linker::Writer& wr)
+offset_t OMFFormat::WriteFile(Linker::Writer& wr)
 {
 	for(auto& segment : segments)
 	{
 		segment->WriteFile(wr);
 	}
+
+	return offset_t(-1);
 }
 
 OMFFormat::Segment::Record::~Record()

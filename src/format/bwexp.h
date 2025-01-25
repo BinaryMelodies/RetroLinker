@@ -186,7 +186,7 @@ namespace DOS16M
 
 		void CalculateValues() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 	};

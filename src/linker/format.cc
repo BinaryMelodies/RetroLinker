@@ -17,6 +17,26 @@ void Format::Clear()
 {
 }
 
+offset_t Format::ActualDataSize()
+{
+	Linker::FatalError("Internal error: format cannot give data size");
+}
+
+offset_t Format::WriteFile(Writer& wr, offset_t count, offset_t offset)
+{
+	if(offset != 0)
+	{
+		Linker::FatalError("Internal error: format cannot generate partial data");
+	}
+	// count is ignored
+	return WriteFile(wr);
+}
+
+int Format::GetByte(offset_t offset)
+{
+	Linker::FatalError("Internal error: format cannot generate partial data");
+}
+
 bool OutputFormat::AddSupplementaryOutputFormat(std::string subformat)
 {
 	return false;

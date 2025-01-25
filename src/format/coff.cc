@@ -714,7 +714,7 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void COFFFormat::WriteFile(Linker::Writer& wr)
+offset_t COFFFormat::WriteFile(Linker::Writer& wr)
 {
 	if(type == DJGPP && stub_file != "")
 	{
@@ -756,6 +756,8 @@ void COFFFormat::WriteFile(Linker::Writer& wr)
 	{
 		optional_header->PostWriteFile(*this, wr);
 	}
+
+	return offset_t(-1);
 }
 
 void COFFFormat::Dump(Dumper::Dumper& dump)

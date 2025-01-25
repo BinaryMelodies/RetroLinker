@@ -10,9 +10,11 @@ void BOutFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void BOutFormat::WriteFile(Linker::Writer& wr)
+offset_t BOutFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+
+	return offset_t(-1);
 }
 
 void XOutFormat::ReadFile(Linker::Reader& rd)
@@ -20,8 +22,10 @@ void XOutFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void XOutFormat::WriteFile(Linker::Writer& wr)
+offset_t XOutFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+
+	return offset_t(-1);
 }
 

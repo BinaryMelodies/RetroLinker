@@ -10,9 +10,11 @@ void OMFFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void OMFFormat::WriteFile(Linker::Writer& wr)
+offset_t OMFFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+
+	return offset_t(-1);
 }
 
 void OMFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)

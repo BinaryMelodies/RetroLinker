@@ -7,6 +7,7 @@
 #include "../common.h"
 #include "reader.h"
 #include "writer.h"
+#include "writable.h"
 
 namespace Dumper
 {
@@ -20,7 +21,7 @@ namespace Linker
 	/**
 	 * @brief A class to encode a general file format
 	 */
-	class Format
+	class Format : public virtual Writable
 	{
 	public:
 		offset_t file_offset;
@@ -42,11 +43,15 @@ namespace Linker
 		/**
 		 * @brief Stores data in memory to file
 		 */
-		virtual void WriteFile(Writer& wr) = 0;
+		offset_t WriteFile(Writer& wr) override = 0;
 		/**
 		 * @brief Display file contents in a nice manner
 		 */
 		virtual void Dump(Dumper::Dumper& dump);
+
+		offset_t ActualDataSize() override;
+		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) override;
+		int GetByte(offset_t offset) override;
 	};
 
 	/**

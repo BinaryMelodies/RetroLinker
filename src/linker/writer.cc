@@ -1,4 +1,5 @@
 
+#include <cstring>
 #include "writer.h"
 
 using namespace Linker;

@@ -231,7 +231,7 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 	buffer->ReadFile(rd, GetFileSize() - GetHeaderSize());
 }
 
-void MZFormat::WriteFile(Linker::Writer& wr)
+offset_t MZFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteData(2, signature);
@@ -264,6 +264,8 @@ void MZFormat::WriteFile(Linker::Writer& wr)
 		image->WriteFile(wr);
 
 	wr.FillTo(GetFileSize());
+
+	return offset_t(-1);
 }
 
 void MZFormat::Dump(Dumper::Dumper& dump)

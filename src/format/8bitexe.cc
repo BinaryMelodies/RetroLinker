@@ -18,12 +18,13 @@ void AppleFormat::ReadFile(Linker::Reader& rd)
 	image = buffer;
 }
 
-void AppleFormat::WriteFile(Linker::Writer& wr)
+offset_t AppleFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, base_address);
 	wr.WriteWord(2, image->ActualDataSize());
 	image->WriteFile(wr);
+	return offset_t(-1);
 }
 
 // AtariFormat
@@ -212,13 +213,14 @@ void AtariFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void AtariFormat::WriteFile(Linker::Writer& wr)
+offset_t AtariFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	for(auto& segment : segments)
 	{
 		segment->WriteFile(wr);
 	}
+	return offset_t(-1);
 }
 
 // CommodoreFormat
@@ -256,12 +258,13 @@ void CommodoreFormat::ProcessModule(Linker::Module& module)
 	SetupDefaultLoader(); /* TODO: if a separate loader is ready, use that instead */
 }
 
-void CommodoreFormat::WriteFile(Linker::Writer& wr)
+offset_t CommodoreFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, loader->base_address);
 	loader->WriteFile(wr);
 	image->WriteFile(wr);
+	return offset_t(-1);
 }
 
 std::string CommodoreFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
@@ -381,7 +384,7 @@ void CPM3Format::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void CPM3Format::WriteFile(Linker::Writer& wr)
+offset_t CPM3Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(1, 0xC9);
@@ -406,6 +409,7 @@ void CPM3Format::WriteFile(Linker::Writer& wr)
 		wr.Seek(rsx.offset);
 		rsx.module->WriteWithoutHeader(wr);
 	}
+	return offset_t(-1);
 }
 
 void CPM3Format::CalculateValues()
@@ -443,13 +447,14 @@ void FLEXFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	segments.push_back(std::move(flex_segment));
 }
 
-void FLEXFormat::WriteFile(Linker::Writer& wr)
+offset_t FLEXFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
 	for(auto& segment : segments)
 	{
 		segment->WriteFile(wr);
 	}
+	return offset_t(-1);
 }
 
 std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
@@ -536,7 +541,7 @@ void PRLFormat::ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size)
 	}
 }
 
-void PRLFormat::WriteFile(Linker::Writer& wr)
+offset_t PRLFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(1, 0);
@@ -549,6 +554,7 @@ void PRLFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(2, csbase); /* base address of code group, usually zero */
 	wr.Seek(0x0100);
 	WriteWithoutHeader(wr);
+	return offset_t(-1);
 }
 
 void PRLFormat::WriteWithoutHeader(Linker::Writer& wr)
@@ -612,7 +618,7 @@ void UZIFormat::ProcessModule(Linker::Module& module)
 	entry = 0x0103; /* TODO: enable entry point */
 }
 
-void UZIFormat::WriteFile(Linker::Writer& wr)
+offset_t UZIFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(1, 0xC3);
@@ -622,6 +628,7 @@ void UZIFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteData("UZI");
 	}
 	image->WriteFile(wr);
+	return offset_t(-1);
 }
 
 std::string UZIFormat::GetDefaultExtension(Linker::Module& module)
@@ -649,7 +656,7 @@ void UZI280Format::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 
 /* TODO: apparently both .code and .data are loaded at 0x0100 */
 
-void UZI280Format::WriteFile(Linker::Writer& wr)
+offset_t UZI280Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, 0x00FF);
@@ -660,6 +667,7 @@ void UZI280Format::WriteFile(Linker::Writer& wr)
 	wr.AlignTo(512);
 	code->WriteFile(wr);
 	wr.AlignTo(512);
+	return offset_t(-1);
 }
 
 std::string UZI280Format::GetDefaultExtension(Linker::Module& module)

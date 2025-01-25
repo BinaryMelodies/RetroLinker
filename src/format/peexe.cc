@@ -10,9 +10,11 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void PEFormat::WriteFile(Linker::Writer& wr)
+offset_t PEFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+
+	return offset_t(-1);
 }
 
 std::string PEFormat::GetDefaultExtension(Linker::Module& module, std::string filename)

@@ -78,7 +78,7 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 	(void) relocation_count;
 }
 
-void XPFormat::WriteFile(Linker::Writer& wr)
+offset_t XPFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.Seek(offset);
@@ -119,6 +119,8 @@ void XPFormat::WriteFile(Linker::Writer& wr)
 	image->WriteFile(wr);
 
 	/* TODO */
+
+	return offset_t(-1);
 }
 
 std::string XPFormat::GetDefaultExtension(Linker::Module& module, std::string filename)

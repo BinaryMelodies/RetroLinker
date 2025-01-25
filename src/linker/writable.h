@@ -25,10 +25,7 @@ namespace Linker
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		offset_t WriteFile(Writer& wr)
-		{
-			return WriteFile(wr, ActualDataSize());
-		}
+		virtual offset_t WriteFile(Writer& wr);
 		/**
 		 * @brief Retrieve byte at a certain offset (optional, might not be defined)
 		 */

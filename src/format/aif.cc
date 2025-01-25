@@ -90,7 +90,7 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 
 }
 
-void AIFFormat::WriteFile(Linker::Writer& wr)
+offset_t AIFFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = endiantype;
 	wr.WriteWord(4, ARM_NOP);
@@ -135,6 +135,8 @@ void AIFFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, data_base);
 
 	/* TODO: rest of the header */
+
+	return offset_t(-1);
 }
 
 std::string AIFFormat::GetDefaultExtension(Linker::Module& module, std::string filename)

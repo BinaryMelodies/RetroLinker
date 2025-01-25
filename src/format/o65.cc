@@ -385,12 +385,14 @@ void O65Format::ReadFile(Linker::Reader& rd)
 	} while(modules.back()->IsChained());
 }
 
-void O65Format::WriteFile(Linker::Writer& wr)
+offset_t O65Format::WriteFile(Linker::Writer& wr)
 {
 	for(auto& module : modules)
 	{
 		module->WriteFile(wr);
 	}
+
+	return offset_t(-1);
 }
 
 void O65Format::ProduceModule(Linker::Module& module, Linker::Reader& rd)

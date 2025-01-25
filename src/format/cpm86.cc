@@ -594,7 +594,7 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void CPM86Format::WriteFile(Linker::Writer& wr)
+offset_t CPM86Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.Seek(file_offset);
@@ -670,6 +670,8 @@ void CPM86Format::WriteFile(Linker::Writer& wr)
 			rsx_table[i].WriteModule(wr);
 		}
 	}
+
+	return offset_t(-1);
 }
 
 offset_t CPM86Format::GetFullFileSize() const

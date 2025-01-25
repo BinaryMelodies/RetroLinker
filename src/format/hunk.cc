@@ -216,7 +216,7 @@ void HunkFormat::CalculateValues()
 {
 }
 
-void HunkFormat::WriteFile(Linker::Writer& wr)
+offset_t HunkFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, HUNK_HEADER);
@@ -268,6 +268,8 @@ void HunkFormat::WriteFile(Linker::Writer& wr)
 		/* End block */
 		wr.WriteWord(4, HUNK_END);
 	}
+
+	return offset_t(-1);
 }
 
 void HunkFormat::GenerateFile(std::string filename, Linker::Module& module)

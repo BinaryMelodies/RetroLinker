@@ -240,7 +240,7 @@ total_memory
 	heap_top_value
 */
 
-void MINIXFormat::WriteFile(Linker::Writer& wr)
+offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = GetEndianType();
 	wr.WriteData(2, "\x01\x03\?\?");
@@ -256,6 +256,8 @@ void MINIXFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, 0); /* symbol table */
 	code->WriteFile(wr);
 	data->WriteFile(wr);
+
+	return offset_t(-1);
 }
 
 void MINIXFormat::GenerateFile(std::string filename, Linker::Module& module)

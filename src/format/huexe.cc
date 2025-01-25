@@ -153,7 +153,7 @@ void HUFormat::CalculateValues()
 	}
 }
 
-void HUFormat::WriteFile(Linker::Writer& wr)
+offset_t HUFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(3, "HU\0");
@@ -190,6 +190,8 @@ void HUFormat::WriteFile(Linker::Writer& wr)
 		}
 		last_relocation = it.first;
 	}
+
+	return offset_t(-1);
 }
 
 void HUFormat::GenerateFile(std::string filename, Linker::Module& module)

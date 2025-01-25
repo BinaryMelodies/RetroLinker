@@ -33,7 +33,7 @@ namespace Microsoft
 //		void Clear() override;
 //		void CalculateValues() override;
 		void ReadFile(Linker::Reader& rd) override;
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 		/* TODO */
 
 //		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;

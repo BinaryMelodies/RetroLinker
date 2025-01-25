@@ -757,7 +757,7 @@ void NEFormat::CalculateValues()
 	fast_load_area_length = 0 >> sector_shift;
 }
 
-void NEFormat::WriteFile(Linker::Writer& wr)
+offset_t NEFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	WriteStubImage(wr);
@@ -873,6 +873,8 @@ void NEFormat::WriteFile(Linker::Writer& wr)
 			}
 		}
 	}
+
+	return offset_t(-1);
 }
 
 

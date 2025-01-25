@@ -397,7 +397,7 @@ void BWFormat::CalculateValues()
 	}
 }
 
-void BWFormat::WriteFile(Linker::Writer& wr)
+offset_t BWFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	if(stub_file != "")
@@ -448,6 +448,8 @@ void BWFormat::WriteFile(Linker::Writer& wr)
 		segment->WriteContent(wr, *this);
 		wr.AlignTo(0x10);
 	}
+
+	return offset_t(-1);
 }
 
 std::string BWFormat::GetDefaultExtension(Linker::Module& module, std::string filename)

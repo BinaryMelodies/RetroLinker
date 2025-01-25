@@ -348,9 +348,10 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void AS86ObjFormat::WriteFile(Linker::Writer& wr)
+offset_t AS86ObjFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+	return offset_t(-1);
 }
 
 void AS86ObjFormat::Dump(Dumper::Dumper& dump)

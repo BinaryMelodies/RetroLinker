@@ -207,7 +207,7 @@ void CMDFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void CMDFormat::WriteFile(Linker::Writer& wr)
+offset_t CMDFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
 	wr.Seek(0);
@@ -226,6 +226,8 @@ void CMDFormat::WriteFile(Linker::Writer& wr)
 	{
 		block->WriteFile(wr);
 	}
+
+	return offset_t(-1);
 }
 
 void CMDFormat::Dump(Dumper::Dumper& dump)

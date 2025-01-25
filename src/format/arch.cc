@@ -146,7 +146,7 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void ArchiveFormat::WriteFile(Linker::Writer& wr)
+offset_t ArchiveFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::EndianType(0); // should not matter
 	wr.Seek(file_offset);
@@ -161,6 +161,7 @@ void ArchiveFormat::WriteFile(Linker::Writer& wr)
 		// TODO
 	}
 	// TODO
+	return offset_t(-1);
 }
 
 void ArchiveFormat::Dump(Dumper::Dumper& dump)

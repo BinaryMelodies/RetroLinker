@@ -67,7 +67,7 @@ namespace Apple
 		public:
 			virtual offset_t GetLength();
 			void ReadFile(Linker::Reader& rd) override;
-			void WriteFile(Linker::Writer& out) override;
+			offset_t WriteFile(Linker::Writer& out) override;
 
 			virtual void ProcessModule(Linker::Module& module);
 			virtual void CalculateValues();
@@ -184,7 +184,7 @@ namespace Apple
 
 		void ProcessModule(Linker::Module& module) override;
 		void CalculateValues() override;
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		std::string PrefixFilename(std::string prefix, std::string filename);
 		std::string PrefixFilename(std::string prefix, std::string filename, size_t limit);
@@ -242,7 +242,7 @@ namespace Apple
 		{
 		public:
 			void ReadFile(Linker::Reader& rd) override;
-			void WriteFile(Linker::Writer& wr) override;
+			offset_t WriteFile(Linker::Writer& wr) override;
 
 		protected:
 			Resource(const char type[4], uint16_t id, uint8_t attributes = 0)
@@ -287,7 +287,7 @@ namespace Apple
 
 			offset_t GetLength() override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			offset_t WriteFile(Linker::Writer& wr) override;
 		};
 
 		class JumpTableCodeResource : public Resource
@@ -321,7 +321,7 @@ namespace Apple
 				LOADSEG = 0xA9F0,
 			};
 
-			void WriteFile(Linker::Writer& wr) override;
+			offset_t WriteFile(Linker::Writer& wr) override;
 		};
 
 		class CodeResource : public Resource
@@ -363,7 +363,7 @@ namespace Apple
 
 			void WriteRelocations(Linker::Writer& wr, std::set<uint32_t>& relocations);
 
-			void WriteFile(Linker::Writer& wr) override;
+			offset_t WriteFile(Linker::Writer& wr) override;
 		};
 
 		ResourceFork()
@@ -403,7 +403,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
@@ -422,7 +422,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	class Comment : public AppleSingleDouble::Entry
@@ -489,7 +489,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	class FileInfo::ProDOS : public FileInfo
@@ -512,7 +512,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	class FileInfo::MSDOS : public FileInfo
@@ -529,7 +529,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	class FileInfo::AUX : public FileInfo
@@ -548,7 +548,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	/* Version 2 only */
@@ -572,7 +572,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	class FinderInfo : public AppleSingleDouble::Entry
@@ -595,7 +595,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void ProcessModule(Linker::Module& module) override;
 	};
@@ -612,7 +612,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	/* Version 2 only */
@@ -632,7 +632,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	/* Version 2 only */
@@ -648,7 +648,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
 	/* Version 2 only */
@@ -737,7 +737,7 @@ namespace Apple
 
 		void WriteHeader(Linker::Writer& wr);
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 	};
@@ -821,7 +821,7 @@ namespace Apple
 
 		void ReadFile(Linker::Reader& rd) override;
 
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 }
 

@@ -10,8 +10,10 @@ void PEFFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-void PEFFormat::WriteFile(Linker::Writer& wr)
+offset_t PEFFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
+
+	return offset_t(-1);
 }
 

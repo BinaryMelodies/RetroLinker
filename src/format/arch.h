@@ -5,6 +5,7 @@
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/buffer.h"
+#include "../linker/format.h"
 #include "../linker/reader.h"
 #include "../linker/writer.h"
 
@@ -56,7 +57,7 @@ namespace Archive
 		std::vector<File> files;
 
 		void ReadFile(Linker::Reader& rd) override;
-		void WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 		void CalculateValues() override;

@@ -342,7 +342,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	bss = std::make_shared<Linker::Section>(".bss");
 }
 
-void AOutFormat::WriteFile(Linker::Writer& wr)
+offset_t AOutFormat::WriteFile(Linker::Writer& wr)
 {
 	if(system == DJGPP1 && stub_file != "")
 	{
@@ -374,6 +374,8 @@ void AOutFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, it.first);
 		wr.WriteWord(4, it.second);
 	}
+
+	return offset_t(-1);
 }
 
 /* * * Reader * * */

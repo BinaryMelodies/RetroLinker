@@ -150,7 +150,7 @@ void MPFormat::CalculateValues()
 	extra_pages = (image->optional_extra + 0x3FFF) >> 12; /* TODO */
 }
 
-void MPFormat::WriteFile(Linker::Writer& wr)
+offset_t MPFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	if(stub_file != "")
@@ -182,6 +182,8 @@ void MPFormat::WriteFile(Linker::Writer& wr)
 
 	wr.Seek(file_offset + ::AlignTo(header_size, 0x10));
 	image->WriteFile(wr);
+
+	return offset_t(-1);
 }
 
 std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
@@ -265,7 +267,7 @@ std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string fi
 	}
 }
 
-void P3Format::WriteFile(Linker::Writer& wr)
+offset_t P3Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	if(stub_file != "")
@@ -310,6 +312,8 @@ void P3Format::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, memory_requirements);
 	wr.WriteWord(4, 0); /* TODO: checksum */
 	wr.WriteWord(4, stack_size);
+
+	return offset_t(-1);
 }
 
 void P3Format::Flat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -470,7 +474,7 @@ void P3Format::Flat::CalculateValues()
 	symbol_table_size = 0;
 }
 
-void P3Format::Flat::WriteFile(Linker::Writer& wr)
+offset_t P3Format::Flat::WriteFile(Linker::Writer& wr)
 {
 	P3Format::WriteFile(wr);
 
@@ -479,6 +483,8 @@ void P3Format::Flat::WriteFile(Linker::Writer& wr)
 
 	wr.Seek(file_offset + load_image_offset);
 	image->WriteFile(wr);
+
+	return offset_t(-1);
 }
 
 P3Format::MultiSegmented::AbstractSegment::~AbstractSegment()
@@ -918,7 +924,7 @@ void P3Format::MultiSegmented::CalculateValues()
 	symbol_table_size = 0;
 }
 
-void P3Format::MultiSegmented::WriteFile(Linker::Writer& wr)
+offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr)
 {
 	P3Format::WriteFile(wr);
 
@@ -945,6 +951,8 @@ void P3Format::MultiSegmented::WriteFile(Linker::Writer& wr)
 	{
 		segment->WriteFile(wr);
 	}
+
+	return offset_t(-1);
 }
 
 void P3FormatContainer::ReadFile(Linker::Reader& rd)
@@ -998,11 +1006,15 @@ void P3FormatContainer::CalculateValues()
 	}
 }
 
-void P3FormatContainer::WriteFile(Linker::Writer& wr)
+offset_t P3FormatContainer::WriteFile(Linker::Writer& wr)
 {
 	if(contents != nullptr)
 	{
-		contents->WriteFile(wr);
+		return contents->WriteFile(wr);
+	}
+	else
+	{
+		return 0;
 	}
 }
 

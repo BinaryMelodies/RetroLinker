@@ -1028,7 +1028,7 @@ void LEFormat::CalculateValues()
 	}
 }
 
-void LEFormat::WriteFile(Linker::Writer& wr)
+offset_t LEFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = endiantype;
 	WriteStubImage(wr);
@@ -1254,6 +1254,8 @@ void LEFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(2, name.ordinal);
 	}
 	wr.WriteWord(1, 0);
+
+	return offset_t(-1);
 }
 
 void LEFormat::GenerateFile(std::string filename, Linker::Module& module)

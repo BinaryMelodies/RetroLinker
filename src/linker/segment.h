@@ -98,7 +98,7 @@ namespace Linker
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		offset_t WriteFile(Writer& wr);
+		offset_t WriteFile(Writer& wr) override;
 		int GetByte(offset_t offset) override;
 		/**
 		 * @brief Retrieves total size of segment

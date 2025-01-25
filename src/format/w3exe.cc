@@ -22,7 +22,7 @@ void W3Format::ReadFile(Linker::Reader& rd)
 	// TODO: read contents
 }
 
-void W3Format::WriteFile(Linker::Writer& wr)
+offset_t W3Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
 	wr.Seek(file_offset);
@@ -37,5 +37,7 @@ void W3Format::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, entry.unknown);
 	}
 	// TODO: write contents
+
+	return offset_t(-1);
 }
 

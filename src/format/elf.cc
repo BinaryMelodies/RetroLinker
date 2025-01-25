@@ -1996,7 +1996,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void ELFFormat::WriteFile(Linker::Writer& wr)
+offset_t ELFFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO: test */
 
@@ -2103,6 +2103,8 @@ void ELFFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteData(4, "RSRC");
 		wr.WriteWord(4, hobbit_beos_resource_offset);
 	}
+
+	return offset_t(-1);
 }
 
 void ELFFormat::Dump(Dumper::Dumper& dump)
