@@ -630,7 +630,61 @@ static const struct format_magic format_magics[] =
 	{ std::string(""),                    0, FORMAT_AIF,     "ARM AIF format", VerifyAIF },
 };
 
-void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, uint32_t offset)
+// only files that may appear in a static library // TODO
+static const struct format_magic library_format_magics[] =
+{
+	{ std::string("\x00\x65", 2),         0, FORMAT_COFF,    "WDC65 COFF object file" },
+//	{ std::string("\x01\x01"),            0, FORMAT_AOUT,    "Little endian a.out, UNIX/RT lpd" }, // conflicts with CMD format
+	{ std::string("\x01P"),               0, FORMAT_COFF,    "Motorola 68000 COFF executable (Concurrent DOS 68K)" },
+	{ std::string("\x05\x01"),            0, FORMAT_AOUT,    "Little endian a.out, UNIX version 1 or overlay" },
+	{ std::string("\x07\x01"),            0, FORMAT_AOUT,    "Little endian OMAGIC a.out, combined code/data (old PDOS/386)" },
+	{ std::string("\x08\x01"),            0, FORMAT_AOUT,    "Little endian NMAGIC a.out, separate code/data" },
+	{ std::string("\x09\x01"),            0, FORMAT_AOUT,    "Little endian a.out, UNIX separate code/data" },
+	{ std::string("\x0B\x01"),            0, FORMAT_AOUT,    "Little endian ZMAGIC a.out, on-demand paged (old DJGPP)" },
+	{ std::string("\x0C\x01"),            0, FORMAT_AOUT,    "Little endian a.out, on-demand paged pure" },
+	{ std::string("\x0E\x01"),            0, FORMAT_AOUT,    "Little endian a.out, readable on-demand paged pure" },
+	{ std::string("\x11\x01"),            0, FORMAT_AOUT,    "Little endian CMAGIC a.out, core dump" },
+	{ std::string("\x18\x01"),            0, FORMAT_AOUT,    "Little endian a.out, 2.11BSD overlay, combined code/data" },
+	{ std::string("\x19\x01"),            0, FORMAT_AOUT,    "Little endian a.out, 2.11BSD overlay, separate code/data" },
+	{ std::string("\x1F\x01"),            0, FORMAT_AOUT,    "Little endian a.out, System V overlay, separate code/data" },
+	{ std::string("L\x01"),               0, FORMAT_COFF,    "Intel 80386 COFF executable (DJGPP)" },
+	{ std::string("Z\x80"),               0, FORMAT_COFF,    "Zilog Z80 COFF object file" },
+	{ std::string("`\x1A"),               0, FORMAT_68K,     "CP/M-68K/Concurrent DOS 68K/GEMDOS/Atari TOS/Human68k contiguous executable (.68k/.prg/.tos/.z)" },
+	{ std::string("`\x1B"),               0, FORMAT_68K,     "CP/M-68K non-contiguous executable (.68k)" },
+	{ std::string("`\x1C"),               0, FORMAT_68K,     "Concurrent DOS 68K contiguous executable with crunched relocations (.68k)" },
+	{ std::string("\x7F" "ELF"),          0, FORMAT_ELF,     "UNIX/Linux ELF file format" },
+	{ std::string("\x80\x00", 2),         0, FORMAT_COFF,    "Zilog Z8000 COFF object file (GNU binutils)" },
+	{ std::string("\xA3\x86"),            0, FORMAT_AS86,    "as86 object format" },
+	{ std::string("\xCC\x00", 2),         0, FORMAT_AOUT,    "Little endian QMAGIC a.out, header part of code segment" },
+	{ std::string("\xCE\xFA\xED\xFE"),    0, FORMAT_MACHO,   "32-bit little endian Mach-O format" },
+	{ std::string("\xCF\xFA\xED\xFE"),    0, FORMAT_MACHO,   "64-bit little endian Mach-O format" },
+	{ std::string("\xEE\x00", 2),         0, FORMAT_Z8K,     "CP/M-8000 object file, segmented" },
+	{ std::string("\xEE\x01"),            0, FORMAT_Z8K,     "CP/M-8000 executable file, segmented" },
+	{ std::string("\xEE\x02"),            0, FORMAT_Z8K,     "CP/M-8000 object file, non-segmented" },
+	{ std::string("\xEE\x03"),            0, FORMAT_Z8K,     "CP/M-8000 executable file, non-segmented, non-shared code/data" },
+	{ std::string("\xEE\x06"),            0, FORMAT_Z8K,     "CP/M-8000 object file, non-segmented, shared code/data" }, /* undocumented */
+	{ std::string("\xEE\x07"),            0, FORMAT_Z8K,     "CP/M-8000 executable file, non-segmented, shared code/data" }, /* CP/M-8000 cannot execute it */
+	{ std::string("\xEE\x0A"),            0, FORMAT_Z8K,     "CP/M-8000 object file, non-segmented, split code/data" }, /* undocumented */
+	{ std::string("\xEE\x0B"),            0, FORMAT_Z8K,     "CP/M-8000 executable file, non-segmented, split code/data" },
+	{ std::string("\xFE\xED\xFA\xCE"),    0, FORMAT_MACHO,   "32-bit big endian Mach-O format" },
+	{ std::string("\xFE\xED\xFA\xCF"),    0, FORMAT_MACHO,   "64-bit big endian Mach-O format" },
+	{ std::string("\xFF\x00", 2),         0, FORMAT_UZI280,  "UZI-280 executable" },
+	{ std::string("\x00\xCC", 2),         2, FORMAT_AOUT,    "Big endian QMAGIC a.out, header part of code segment" },
+//	{ std::string("\x01\x01"),            2, FORMAT_AOUT,    "Big endian a.out, UNIX/RT lpd" }, // removed to keep symmetry with little endian form
+	{ std::string("\x01\x05"),            2, FORMAT_AOUT,    "Big endian a.out, UNIX version 1 or overlay" },
+	{ std::string("\x01\x07"),            2, FORMAT_AOUT,    "Big endian OMAGIC a.out, combined code/data (old PDOS/386)" },
+	{ std::string("\x01\x08"),            2, FORMAT_AOUT,    "Big endian NMAGIC a.out, separate code/data" },
+	{ std::string("\x01\x09"),            2, FORMAT_AOUT,    "Big endian a.out, UNIX separate code/data" },
+	{ std::string("\x01\x0B"),            2, FORMAT_AOUT,    "Big endian ZMAGIC a.out, on-demand paged (old DJGPP)" },
+	{ std::string("\x01\x0C"),            2, FORMAT_AOUT,    "Big endian a.out, on-demand paged pure" },
+	{ std::string("\x01\x0E"),            2, FORMAT_AOUT,    "Big endian a.out, readable on-demand paged pure" },
+	{ std::string("\x01\x11"),            2, FORMAT_AOUT,    "Big endian CMAGIC a.out, core dump" },
+	{ std::string("\x01\x18"),            2, FORMAT_AOUT,    "Big endian a.out, 2.11BSD overlay, combined code/data" },
+	{ std::string("\x01\x19"),            2, FORMAT_AOUT,    "Big endian a.out, 2.11BSD overlay, separate code/data" },
+	{ std::string("\x01\x1F"),            2, FORMAT_AOUT,    "Big endian a.out, System V overlay, separate code/data" },
+};
+
+void DetermineFormatFor(const format_magic * format_magics, size_t format_magics_count, std::vector<format_description>& descriptions, Reader& rd, uint32_t offset)
 {
 	rd.Seek(offset);
 	char magic[8];
@@ -641,7 +695,7 @@ void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, 
 	uint32_t bytes_read = position > offset ? position - offset : 0;
 	if(bytes_read == 0)
 		return;
-	for(size_t i = 0; i < sizeof(format_magics) / sizeof(format_magics[0]); i++)
+	for(size_t i = 0; i < format_magics_count; i++)
 	{
 		if(bytes_read < format_magics[i].offset + format_magics[i].magic.size())
 			continue;
@@ -701,6 +755,13 @@ void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, 
 	}
 }
 
+void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, uint32_t offset)
+{
+	DetermineFormatFor(format_magics, sizeof(format_magics) / sizeof(format_magics[0]), descriptions, rd, offset);
+}
+
+std::shared_ptr<Linker::Writable> ReadArchiveFile(Linker::Reader& rd, offset_t size);
+
 std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format)
 {
 	switch(file_format.magic.type)
@@ -718,7 +779,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_APPLEII:
 		return std::make_shared<AppleFormat>(); // TODO: test
 	case FORMAT_AR:
-		return std::make_shared<ArchiveFormat>(); // TODO: test
+		return std::make_shared<ArchiveFormat>(ReadArchiveFile); // TODO: test
 	case FORMAT_AS86:
 		return std::make_shared<AS86ObjFormat>(); // TODO: test
 	case FORMAT_ATARI:
@@ -807,5 +868,23 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 #endif
 	}
 	Linker::FatalError("Internal error: invalid output format");
+}
+
+std::shared_ptr<Linker::Writable> ReadArchiveFile(Linker::Reader& rd, offset_t size)
+{
+	std::vector<format_description> descriptions;
+	offset_t offset = rd.Tell();
+	DetermineFormatFor(library_format_magics, sizeof library_format_magics / sizeof library_format_magics[0], descriptions, rd, offset);
+	rd.Seek(offset);
+	if(descriptions.size() == 0)
+	{
+		return Linker::Buffer::ReadFromFile(rd, size);
+	}
+	else
+	{
+		std::shared_ptr<Format> format = CreateFormat(rd, descriptions[0]);
+		// TODO
+		return Linker::Buffer::ReadFromFile(rd, size);
+	}
 }
 

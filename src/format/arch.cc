@@ -54,6 +54,16 @@ void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Writable> (* file_read
 	this->file_reader = std::make_shared<FileReaderWrapper1>(file_reader);
 }
 
+ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size))
+{
+	SetFileReader(file_reader);
+}
+
+ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd))
+{
+	SetFileReader(file_reader);
+}
+
 void ArchiveFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::EndianType(0); // should not matter
@@ -129,7 +139,7 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 			if(entry.name == "" && entry.extended_name_offset != 0)
 			{
 				rd.Seek(extended_file_name_table + entry.extended_name_offset);
-				entry.name = rd.ReadASCIIZ('\n');
+				entry.name = rd.ReadASCII('\n');
 				Linker::Debug << "Debug: extended file name `" << entry.name << "' from offset " << entry.extended_name_offset << std::endl;
 			}
 		}

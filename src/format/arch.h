@@ -33,6 +33,14 @@ namespace Archive
 		void SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size));
 		void SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd));
 
+		ArchiveFormat(std::shared_ptr<FileReader> file_reader = nullptr)
+			: file_reader(file_reader)
+		{
+		}
+
+		ArchiveFormat(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size));
+		ArchiveFormat(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd));
+
 		class File
 		{
 		public:
