@@ -3,6 +3,7 @@
 #include "format/8bitexe.h" /* 8-bit binary formats */ /* TODO: not yet finished or tested */
 #include "format/aif.h" /* AIF format */ /* TODO: not implemented */
 #include "format/aout.h" /* a.out format */
+#include "format/arch.h" /* UNIX archive format */
 #include "format/as86obj.h" /* TODO: not implemented */
 #include "format/binary.h" /* .com, .r (Human68k) */
 #include "format/bwexp.h" /* .exp (DOS/16M) */
@@ -37,6 +38,7 @@ using namespace Linker;
 
 using namespace Amiga;
 using namespace AOut;
+using namespace Archive;
 using namespace AS86Obj;
 using namespace Binary;
 using namespace COFF;
@@ -554,9 +556,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x18\x01"),            0, FORMAT_AOUT,    "Little endian a.out, 2.11BSD overlay, combined code/data" },
 	{ std::string("\x19\x01"),            0, FORMAT_AOUT,    "Little endian a.out, 2.11BSD overlay, separate code/data" },
 	{ std::string("\x1F\x01"),            0, FORMAT_AOUT,    "Little endian a.out, System V overlay, separate code/data" },
-	{ std::string("`\x1A"),               0, FORMAT_68K,     "CP/M-68K/Concurrent DOS 68K/GEMDOS/Atari TOS/Human68k contiguous executable (.68k/.prg/.tos/.z)" },
-	{ std::string("`\x1B"),               0, FORMAT_68K,     "CP/M-68K non-contiguous executable (.68k)" },
-	{ std::string("`\x1C"),               0, FORMAT_68K,     "Concurrent DOS 68K contiguous executable with crunched relocations (.68k)" },
+	{ std::string("!<arch>\n"),           0, FORMAT_AR,      "UNIX archive" },
 	{ std::string("Adam"),                0, FORMAT_ADAM,    "Adam Seychell's DOS32 DOS Extender format \"Adam\" executable" },
 	{ std::string("BW"),                  0, FORMAT_BW,      "Rational Systems/Tenberry Software DOS/16M 16-bit protected mode \"BW\" executable (.exp)" },
 	{ std::string("D3X1"),                0, FORMAT_D3X,     "Daniel Broca's D3X DOS Extender format \"D3X1\" executable" },
@@ -585,6 +585,9 @@ static const struct format_magic format_magics[] =
 	{ std::string("XP\x01\x00", 4),       0, FORMAT_XP,      "Ergo OS/286 and OS/386 executable (.exp)" },
 	{ std::string("ZM"),                  0, FORMAT_MZ,      "MS-DOS executable (.exe), old-style \"ZM\" variant" },
 	{ std::string("Z\x80"),               0, FORMAT_COFF,    "Zilog Z80 COFF object file" },
+	{ std::string("`\x1A"),               0, FORMAT_68K,     "CP/M-68K/Concurrent DOS 68K/GEMDOS/Atari TOS/Human68k contiguous executable (.68k/.prg/.tos/.z)" },
+	{ std::string("`\x1B"),               0, FORMAT_68K,     "CP/M-68K non-contiguous executable (.68k)" },
+	{ std::string("`\x1C"),               0, FORMAT_68K,     "Concurrent DOS 68K contiguous executable with crunched relocations (.68k)" },
 	{ std::string("\x7F" "ELF"),          0, FORMAT_ELF,     "UNIX/Linux ELF file format" },
 	{ std::string("\x80\x00", 2),         0, FORMAT_COFF,    "Zilog Z8000 COFF object file (GNU binutils)" },
 	{ std::string("\x80"),                0, FORMAT_OMF,     "Intel Object Module Format object file" },
@@ -630,7 +633,7 @@ static const struct format_magic format_magics[] =
 void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, uint32_t offset)
 {
 	rd.Seek(offset);
-	char magic[7];
+	char magic[8];
 	rd.ReadData(sizeof magic, magic);
 	uint32_t position = rd.Tell();
 	if(position == uint32_t(-1))
@@ -714,6 +717,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<Apple::AppleSingleDouble>(); // TODO: test
 	case FORMAT_APPLEII:
 		return std::make_shared<AppleFormat>(); // TODO: test
+	case FORMAT_AR:
+		return std::make_shared<ArchiveFormat>(); // TODO: test
 	case FORMAT_AS86:
 		return std::make_shared<AS86ObjFormat>(); // TODO: test
 	case FORMAT_ATARI:
