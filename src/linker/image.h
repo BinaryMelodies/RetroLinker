@@ -1,5 +1,5 @@
-#ifndef WRITABLE_H
-#define WRITABLE_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
 #include <vector>
 #include "../common.h"
@@ -9,9 +9,9 @@
 namespace Linker
 {
 	/**
-	 * @brief Represents an abstract interface whose data can be written to a file
+	 * @brief Represents an abstract data image whose data can be written to a file
 	 */
-	class Writable
+	class Image
 	{
 	public:
 		/**
@@ -30,8 +30,8 @@ namespace Linker
 		 * @brief Retrieve byte at a certain offset (optional, might not be defined)
 		 */
 		virtual int GetByte(offset_t offset);
-		virtual ~Writable();
+		virtual ~Image();
 	};
 }
 
-#endif /* WRITABLE_H */
+#endif /* IMAGE_H */

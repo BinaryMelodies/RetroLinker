@@ -6,7 +6,7 @@
 #include <set>
 #include <vector>
 #include "../common.h"
-#include "../linker/writable.h"
+#include "../linker/image.h"
 
 namespace Dumper
 {
@@ -518,7 +518,7 @@ public:
 	static char32_t encoding_cp437[256];
 	static char32_t encoding_st[256];
 
-	std::shared_ptr<Linker::Writable> image;
+	std::shared_ptr<Linker::Image> image;
 
 	std::set<offset_t> signal_starts;
 	std::set<offset_t> signal_ends;
@@ -536,7 +536,7 @@ public:
 		signal_ends.insert(end);
 	}
 
-	Block(std::string name, offset_t offset, std::shared_ptr<Linker::Writable> image, offset_t address, unsigned display_width,
+	Block(std::string name, offset_t offset, std::shared_ptr<Linker::Image> image, offset_t address, unsigned display_width,
 			unsigned offset_display_width = 8, unsigned address_display_width = -1u, unsigned position_display_width = -1u)
 		: Region(name, offset, image ? image->ActualDataSize() : 0, display_width),
 			offset_display_width(offset_display_width),
@@ -548,7 +548,7 @@ public:
 		AddField("Address", HexDisplay::Make(display_width), address);
 	}
 
-	static std::shared_ptr<Block> Make(std::string name, offset_t offset, std::shared_ptr<Linker::Writable> image, offset_t address, unsigned display_width,
+	static std::shared_ptr<Block> Make(std::string name, offset_t offset, std::shared_ptr<Linker::Image> image, offset_t address, unsigned display_width,
 			unsigned offset_display_width = 8, unsigned address_display_width = -1u, unsigned position_display_width = -1u)
 	{
 		return std::make_shared<Block>(name, offset, image, address, display_width, offset_display_width, address_display_width, position_display_width);

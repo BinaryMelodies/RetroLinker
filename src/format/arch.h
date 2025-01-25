@@ -23,7 +23,7 @@ namespace Archive
 		{
 		public:
 			virtual ~FileReader();
-			virtual std::shared_ptr<Linker::Writable> ReadFile(Linker::Reader& rd, offset_t size) = 0;
+			virtual std::shared_ptr<Linker::Image> ReadFile(Linker::Reader& rd, offset_t size) = 0;
 		};
 
 		offset_t file_offset = 0;
@@ -31,16 +31,16 @@ namespace Archive
 		std::shared_ptr<FileReader> file_reader = nullptr;
 
 		void SetFileReader(std::shared_ptr<FileReader> file_reader);
-		void SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size));
-		void SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd));
+		void SetFileReader(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd, offset_t size));
+		void SetFileReader(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd));
 
 		ArchiveFormat(std::shared_ptr<FileReader> file_reader = nullptr)
 			: file_reader(file_reader)
 		{
 		}
 
-		ArchiveFormat(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size));
-		ArchiveFormat(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd));
+		ArchiveFormat(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd, offset_t size));
+		ArchiveFormat(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd));
 
 		class File
 		{
@@ -51,7 +51,7 @@ namespace Archive
 			uint32_t owner_id = 0, group_id = 0;
 			uint32_t mode;
 			uint64_t size;
-			std::shared_ptr<Linker::Writable> contents;
+			std::shared_ptr<Linker::Image> contents;
 		};
 
 		std::vector<File> files;

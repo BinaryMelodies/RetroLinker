@@ -142,7 +142,7 @@ namespace Microsoft
 		std::unique_ptr<PIF> pif;
 
 		/** @brief The program image, placed after the MZ header */
-		std::shared_ptr<Linker::Writable> image;
+		std::shared_ptr<Linker::Image> image;
 
 		magic_type GetSignature() const;
 

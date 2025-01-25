@@ -6,13 +6,12 @@
 #include <string>
 #include <vector>
 #include "../common.h"
-#include "writable.h"
+#include "image.h"
 #include "writer.h"
 
 namespace Linker
 {
 	class Section;
-	class Writable;
 
 	/**
 	 * @brief A class representing a sequence of sections that must be written to the output file as a group
@@ -22,7 +21,7 @@ namespace Linker
 	 *
 	 * Only sections that appear consecutively in memory (or with known displacements at linking time) may be stored in the same segment.
 	 */
-	class Segment : public Writable, public std::enable_shared_from_this<Segment>
+	class Segment : public Image, public std::enable_shared_from_this<Segment>
 	{
 	public:
 		/**

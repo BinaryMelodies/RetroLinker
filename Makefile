@@ -1,5 +1,5 @@
 
-LINKER_HEADERS=$(addprefix src/linker/, buffer.h format.h linker.h location.h module.h position.h reader.h reference.h relocation.h resolution.h section.h segment.h symbol.h target.h writable.h writer.h)
+LINKER_HEADERS=$(addprefix src/linker/, buffer.h format.h image.h linker.h location.h module.h position.h reader.h reference.h relocation.h resolution.h section.h segment.h symbol.h target.h writer.h)
 LINKER_CXXFILES=$(LINKER_HEADERS:.h=.cc)
 LINKER_OFILES=$(LINKER_CXXFILES:.cc=.o)
 

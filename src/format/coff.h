@@ -251,7 +251,7 @@ namespace COFF
 			/**
 			 * @brief The stored image data
 			 */
-			std::shared_ptr<Linker::Writable> image;
+			std::shared_ptr<Linker::Image> image;
 
 			/**
 			 * @brief Collection of COFF relocations
@@ -271,7 +271,7 @@ namespace COFF
 
 			void Clear();
 
-			Section(uint32_t flags = 0, std::shared_ptr<Linker::Writable> image = nullptr)
+			Section(uint32_t flags = 0, std::shared_ptr<Linker::Image> image = nullptr)
 				: flags(flags), image(image)
 			{
 			}

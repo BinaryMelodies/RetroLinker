@@ -54,7 +54,7 @@ namespace DigitalResearch
 			/**
 			 * @brief Storage for segment
 			 */
-			std::shared_ptr<Linker::Writable> image = nullptr;
+			std::shared_ptr<Linker::Image> image = nullptr;
 
 			void Clear();
 

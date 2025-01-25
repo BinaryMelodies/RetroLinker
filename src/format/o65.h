@@ -2,9 +2,9 @@
 #define O65_H
 
 #include "../common.h"
+#include "../linker/image.h"
 #include "../linker/linker.h"
 #include "../linker/reader.h"
-#include "../linker/writable.h"
 #include "../linker/writer.h"
 
 /* o65 object format (input only) */
@@ -157,11 +157,11 @@ namespace O65
 			/** @brief Base address of code segment */
 			offset_t code_base = 0;
 			/** @brief Code segment contents */
-			std::shared_ptr<Linker::Writable> code_image = nullptr;
+			std::shared_ptr<Linker::Image> code_image = nullptr;
 			/** @brief Base address of data segment */
 			offset_t data_base = 0;
 			/** @brief Data segment contents */
-			std::shared_ptr<Linker::Writable> data_image = nullptr;
+			std::shared_ptr<Linker::Image> data_image = nullptr;
 			/** @brief Base address of bss segment */
 			offset_t bss_base = 0;
 			/** @brief Bss segment size */

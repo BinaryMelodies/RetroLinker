@@ -760,7 +760,7 @@ void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, 
 	DetermineFormatFor(format_magics, sizeof(format_magics) / sizeof(format_magics[0]), descriptions, rd, offset);
 }
 
-std::shared_ptr<Linker::Writable> ReadArchiveFile(Linker::Reader& rd, offset_t size);
+std::shared_ptr<Linker::Image> ReadArchiveFile(Linker::Reader& rd, offset_t size);
 
 std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format)
 {
@@ -870,7 +870,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	Linker::FatalError("Internal error: invalid output format");
 }
 
-std::shared_ptr<Linker::Writable> ReadArchiveFile(Linker::Reader& rd, offset_t size)
+std::shared_ptr<Linker::Image> ReadArchiveFile(Linker::Reader& rd, offset_t size)
 {
 	std::vector<format_description> descriptions;
 	offset_t offset = rd.Tell();

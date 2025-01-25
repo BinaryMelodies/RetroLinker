@@ -119,7 +119,7 @@ namespace Binary
 			/**
 			 * @brief The binary data in the segment
 			 */
-			std::shared_ptr<Linker::Writable> image;
+			std::shared_ptr<Linker::Image> image;
 			/**
 			 * @brief Relocations, only used for SDX_SYMREQ and SDX_FIXUPS
 			 */
@@ -291,7 +291,7 @@ namespace Binary
 		public:
 			uint16_t address;
 			uint16_t size; /* it is supposed to be at most 255, but we can store larger segments by cutting them into pieces */
-			std::shared_ptr<Linker::Writable> image;
+			std::shared_ptr<Linker::Image> image;
 
 			void WriteFile(Linker::Writer& wr);
 		};
@@ -370,7 +370,7 @@ namespace Binary
 	class UZI280Format : public GenericBinaryFormat
 	{
 	public:
-		std::shared_ptr<Linker::Writable> code, data;
+		std::shared_ptr<Linker::Image> code, data;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 

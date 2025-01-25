@@ -8,9 +8,9 @@
 #include <vector>
 #include "../common.h"
 #include "buffer.h"
+#include "image.h"
 #include "position.h"
 #include "reader.h"
-#include "writable.h"
 
 namespace Linker
 {

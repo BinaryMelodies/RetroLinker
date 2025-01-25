@@ -5,9 +5,9 @@
 #include <optional>
 #include <string>
 #include "../common.h"
+#include "image.h"
 #include "reader.h"
 #include "writer.h"
-#include "writable.h"
 
 namespace Dumper
 {
@@ -21,7 +21,7 @@ namespace Linker
 	/**
 	 * @brief A class to encode a general file format
 	 */
-	class Format : public virtual Writable
+	class Format : public virtual Image
 	{
 	public:
 		offset_t file_offset;

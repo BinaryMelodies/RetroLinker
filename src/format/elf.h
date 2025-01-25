@@ -452,7 +452,7 @@ namespace ELF
 		uint16_t section_header_entry_size = 0;
 		uint16_t section_name_string_table = 0;
 
-		class SectionContents : public Linker::Writable
+		class SectionContents : public Linker::Image
 		{
 		public:
 			virtual void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index);
@@ -799,7 +799,7 @@ namespace ELF
 			std::string name;
 			uint32_t data_offset = 0;
 			uint32_t data_size = 0;
-			std::shared_ptr<Linker::Writable> data;
+			std::shared_ptr<Linker::Image> data;
 		};
 
 		/* IBM OS/2 extension */
@@ -902,7 +902,7 @@ namespace ELF
 			offset_t flags = 0;
 			offset_t address = 0, file_offset = 0, size = 0, align = 0, entsize = 0;
 
-			std::shared_ptr<Linker::Writable> contents;
+			std::shared_ptr<Linker::Image> contents;
 
 			std::shared_ptr<Linker::Section> GetSection();
 			const std::shared_ptr<Linker::Section> GetSection() const;
@@ -1021,7 +1021,7 @@ namespace ELF
 		public:
 			offset_t offset = 0;
 			offset_t size = 0;
-			std::shared_ptr<Linker::Writable> image;
+			std::shared_ptr<Linker::Image> image;
 			Block(offset_t offset = 0, offset_t size = 0)
 				: offset(offset), size(size)
 			{

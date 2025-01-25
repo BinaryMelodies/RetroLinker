@@ -15,20 +15,20 @@ void ArchiveFormat::SetFileReader(std::shared_ptr<FileReader> file_reader)
 class FileReaderWrapper : public ArchiveFormat::FileReader
 {
 public:
-	std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader&, offset_t);
+	std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader&, offset_t);
 
-	FileReaderWrapper(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader&, offset_t))
+	FileReaderWrapper(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader&, offset_t))
 		: file_reader(file_reader)
 	{
 	}
 
-	std::shared_ptr<Linker::Writable> ReadFile(Linker::Reader& rd, offset_t size) override
+	std::shared_ptr<Linker::Image> ReadFile(Linker::Reader& rd, offset_t size) override
 	{
 		return file_reader(rd, size);
 	}
 };
 
-void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size))
+void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd, offset_t size))
 {
 	this->file_reader = std::make_shared<FileReaderWrapper>(file_reader);
 }
@@ -36,30 +36,30 @@ void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Writable> (* file_read
 class FileReaderWrapper1 : public ArchiveFormat::FileReader
 {
 public:
-	std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader&);
+	std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader&);
 
-	FileReaderWrapper1(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader&))
+	FileReaderWrapper1(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader&))
 		: file_reader(file_reader)
 	{
 	}
 
-	std::shared_ptr<Linker::Writable> ReadFile(Linker::Reader& rd, offset_t size) override
+	std::shared_ptr<Linker::Image> ReadFile(Linker::Reader& rd, offset_t size) override
 	{
 		return file_reader(rd);
 	}
 };
 
-void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd))
+void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd))
 {
 	this->file_reader = std::make_shared<FileReaderWrapper1>(file_reader);
 }
 
-ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size))
+ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd, offset_t size))
 {
 	SetFileReader(file_reader);
 }
 
-ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd))
+ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd))
 {
 	SetFileReader(file_reader);
 }

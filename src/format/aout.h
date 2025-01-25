@@ -87,7 +87,7 @@ namespace AOut
 		uint32_t data_relocation_size = 0;
 		std::map<uint32_t, uint32_t> code_relocations, data_relocations; /* only used by PDOS386 OMAGIC */
 
-		std::shared_ptr<Linker::Writable> code, data, bss;
+		std::shared_ptr<Linker::Image> code, data, bss;
 
 	private:
 		bool AttemptFetchMagic(uint8_t signature[4]);
