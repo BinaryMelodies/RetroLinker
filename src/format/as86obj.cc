@@ -249,6 +249,12 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index)
 		{
 			symbol_entry.AddField("Offset", Dumper::ChoiceDisplay::Make("Undefined"), offset_t(true));
 		}
+		else if((symbol.symbol_type & Symbol::Common) != 0)
+		{
+			symbol_entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(symbol.segment));
+			symbol_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(symbol.offset));
+			symbol_entry.AddField("Size size", Dumper::DecDisplay::Make(), offset_t(symbol.offset_size));
+		}
 		else
 		{
 			symbol_entry.AddField("Offset", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(symbol.segment), offset_t(symbol.offset));
