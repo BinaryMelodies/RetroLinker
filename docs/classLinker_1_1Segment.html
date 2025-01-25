@@ -95,7 +95,7 @@ Inheritance diagram for Linker::Segment:</div>
  <div class="center">
   <img src="classLinker_1_1Segment.png" usemap="#Linker::Segment_map" alt=""/>
   <map id="Linker::Segment_map" name="Linker::Segment_map">
-<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,248,24"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,248,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -140,9 +140,9 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (st
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>TotalSize</b> ()</td></tr>
 <tr class="memdesc:ac62e516f60e68d46d6b7f101e526da2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves total size of segment. <br /></td></tr>
 <tr class="separator:ac62e516f60e68d46d6b7f101e526da2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9ca37dea54f271851d44ffe964334553" id="r_a9ca37dea54f271851d44ffe964334553"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9ca37dea54f271851d44ffe964334553">ActualDataSize</a> () override</td></tr>
-<tr class="memdesc:a9ca37dea54f271851d44ffe964334553"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of all data in segment.  <br /></td></tr>
-<tr class="separator:a9ca37dea54f271851d44ffe964334553"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a788a394a353bd4237e96238eb6095a94" id="r_a788a394a353bd4237e96238eb6095a94"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a788a394a353bd4237e96238eb6095a94">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a788a394a353bd4237e96238eb6095a94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of all data in segment, as present in the binary image.  <br /></td></tr>
+<tr class="separator:a788a394a353bd4237e96238eb6095a94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeb9e255e8bf3eeddb6e041cabca2540f" id="r_aeb9e255e8bf3eeddb6e041cabca2540f"><td class="memItemLeft" align="right" valign="top"><a id="aeb9e255e8bf3eeddb6e041cabca2540f" name="aeb9e255e8bf3eeddb6e041cabca2540f"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetStartAddress</b> ()</td></tr>
 <tr class="memdesc:aeb9e255e8bf3eeddb6e041cabca2540f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns starting address (base_address) <br /></td></tr>
@@ -203,36 +203,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShiftAddress</b> (int
 <p>A segment represents a collection of sections that appear within the same addressing space. It also makes it easier to write several sections into the output file consecutively.</p>
 <p>Only sections that appear consecutively in memory (or with known displacements at linking time) may be stored in the same segment. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a9ca37dea54f271851d44ffe964334553" name="a9ca37dea54f271851d44ffe964334553"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9ca37dea54f271851d44ffe964334553">&#9670;&#160;</a></span>ActualDataSize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">offset_t Segment::ActualDataSize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Retrieves size of all data in segment. </p>
-<p>This function should always return the same value as data_size. This is checked by an assert value. </p>
-
-<p>Implements <a class="el" href="classLinker_1_1Writable.html#a8554e5aef765d9b8b4851a5543a21f84">Linker::Writable</a>.</p>
-
-</div>
-</div>
 <a id="a1cdf976d8a00a0f99559347bed2f1a30" name="a1cdf976d8a00a0f99559347bed2f1a30"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a1cdf976d8a00a0f99559347bed2f1a30">&#9670;&#160;</a></span>Append()</h2>
 
@@ -278,7 +248,37 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShiftAddress</b> (int
 
 <p>Retrieve byte at a certain offset (optional, might not be defined) </p>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1Writable.html#a65ddff0c88316f30d86bf90af61d4b6b">Linker::Writable</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1Image.html#a0ac42787d4887dc862d80a2ccd19e458">Linker::Image</a>.</p>
+
+</div>
+</div>
+<a id="a788a394a353bd4237e96238eb6095a94" name="a788a394a353bd4237e96238eb6095a94"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a788a394a353bd4237e96238eb6095a94">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t Segment::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of all data in segment, as present in the binary image. </p>
+<p>This function should always return the same value as data_size. This is checked by an assert value. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>
@@ -327,7 +327,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShiftAddress</b> (int
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1Writable.html#a46ce6fffe1dd39bc0edfee5ec0042c1d">Linker::Writable</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1Image.html#aeca7376ed4f5a73c895179b024f4c2d8">Linker::Image</a>.</p>
 
 </div>
 </div>
@@ -365,7 +365,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ShiftAddress</b> (int
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Writable.html#a310c770333046a3944c566fd173b5d53">Linker::Writable</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a02b58d8155dbb1807ef955cd864fc67e">Linker::Image</a>.</p>
 
 </div>
 </div>

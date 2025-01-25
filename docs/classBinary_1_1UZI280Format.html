@@ -98,7 +98,7 @@ Inheritance diagram for Binary::UZI280Format:</div>
 <area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="0,168,176,192"/>
 <area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,112,176,136"/>
 <area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,176,80"/>
-<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,176,24"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,176,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -258,9 +258,9 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 <tr class="memitem:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format" id="r_a10296b22383c5b8d061308d1f0cee6a8"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Format</b> (offset_t file_offset=0)</td></tr>
 <tr class="separator:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format" id="r_ad5413b2bd172398a04e5cdb29b99d4f7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#ad5413b2bd172398a04e5cdb29b99d4f7">ActualDataSize</a> () override</td></tr>
-<tr class="memdesc:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
 <tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -270,17 +270,17 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a83c82eae662f95fdf70efde23597f929" id="r_a83c82eae662f95fdf70efde23597f929"><td class="memItemLeft" align="right" valign="top"><a id="a83c82eae662f95fdf70efde23597f929" name="a83c82eae662f95fdf70efde23597f929"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>code</b></td></tr>
-<tr class="separator:a83c82eae662f95fdf70efde23597f929"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4e4fc202cd5c64458fec0b29a3548e4f" id="r_a4e4fc202cd5c64458fec0b29a3548e4f"><td class="memItemLeft" align="right" valign="top"><a id="a4e4fc202cd5c64458fec0b29a3548e4f" name="a4e4fc202cd5c64458fec0b29a3548e4f"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>data</b></td></tr>
-<tr class="separator:a4e4fc202cd5c64458fec0b29a3548e4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ce1a20e7b771987d3e0f8e9e1c21b1c" id="r_a3ce1a20e7b771987d3e0f8e9e1c21b1c"><td class="memItemLeft" align="right" valign="top"><a id="a3ce1a20e7b771987d3e0f8e9e1c21b1c" name="a3ce1a20e7b771987d3e0f8e9e1c21b1c"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>code</b></td></tr>
+<tr class="separator:a3ce1a20e7b771987d3e0f8e9e1c21b1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23edd044b3bc0f5bc50ba29d7ee0a57a" id="r_a23edd044b3bc0f5bc50ba29d7ee0a57a"><td class="memItemLeft" align="right" valign="top"><a id="a23edd044b3bc0f5bc50ba29d7ee0a57a" name="a23edd044b3bc0f5bc50ba29d7ee0a57a"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>data</b></td></tr>
+<tr class="separator:a23edd044b3bc0f5bc50ba29d7ee0a57a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
-<tr class="memitem:af7aa1e28a73cd1f6109338b0a574e9ca inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_af7aa1e28a73cd1f6109338b0a574e9ca"><td class="memItemLeft" align="right" valign="top">
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b> = nullptr</td></tr>
-<tr class="memdesc:af7aa1e28a73cd1f6109338b0a574e9ca inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual stored image. <br /></td></tr>
-<tr class="separator:af7aa1e28a73cd1f6109338b0a574e9ca inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3af29abaad7f5150359401fd51a2b27c inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_a3af29abaad7f5150359401fd51a2b27c"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b> = nullptr</td></tr>
+<tr class="memdesc:a3af29abaad7f5150359401fd51a2b27c inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual stored image. <br /></td></tr>
+<tr class="separator:a3af29abaad7f5150359401fd51a2b27c inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab26e7d22d4e556c5b81a1b4dd53fc4e2 inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_ab26e7d22d4e556c5b81a1b4dd53fc4e2"><td class="memItemLeft" align="right" valign="top">
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>position_independent</b></td></tr>
 <tr class="memdesc:ab26e7d22d4e556c5b81a1b4dd53fc4e2 inherit pub_attribs_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set when the generated code must not reference absolute references. <br /></td></tr>

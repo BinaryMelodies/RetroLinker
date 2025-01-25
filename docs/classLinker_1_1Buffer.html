@@ -96,8 +96,8 @@ Inheritance diagram for Linker::Buffer:</div>
  <div class="center">
   <img src="classLinker_1_1Buffer.png" usemap="#Linker::Buffer_map" alt=""/>
   <map id="Linker::Buffer_map" name="Linker::Buffer_map">
-<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,99,24"/>
-<area href="classLinker_1_1Section.html" title="A section of data as read from an object file." alt="Linker::Section" shape="rect" coords="0,112,99,136"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,95,24"/>
+<area href="classLinker_1_1Section.html" title="A section of data as read from an object file." alt="Linker::Section" shape="rect" coords="0,112,95,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -106,9 +106,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9af2bea647f1a30b745c4f2ecec5ef94" id="r_a9af2bea647f1a30b745c4f2ecec5ef94"><td class="memItemLeft" align="right" valign="top"><a id="a9af2bea647f1a30b745c4f2ecec5ef94" name="a9af2bea647f1a30b745c4f2ecec5ef94"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Buffer</b> (size_t size)</td></tr>
 <tr class="separator:a9af2bea647f1a30b745c4f2ecec5ef94"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a197ddf4ac1014305c343b1e95288cedc" id="r_a197ddf4ac1014305c343b1e95288cedc"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a197ddf4ac1014305c343b1e95288cedc">ActualDataSize</a> () override</td></tr>
-<tr class="memdesc:a197ddf4ac1014305c343b1e95288cedc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:a197ddf4ac1014305c343b1e95288cedc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e5604100c1ffdd84234821d5c37507b" id="r_a8e5604100c1ffdd84234821d5c37507b"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e5604100c1ffdd84234821d5c37507b">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a8e5604100c1ffdd84234821d5c37507b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a8e5604100c1ffdd84234821d5c37507b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5eca73e4abff5445c613cb45461e06a" id="r_af5eca73e4abff5445c613cb45461e06a"><td class="memItemLeft" align="right" valign="top"><a id="af5eca73e4abff5445c613cb45461e06a" name="af5eca73e4abff5445c613cb45461e06a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
 <tr class="separator:af5eca73e4abff5445c613cb45461e06a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -121,12 +121,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a clas
 <tr class="memitem:afa37ec81b00582464e8d65475582947a" id="r_afa37ec81b00582464e8d65475582947a"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afa37ec81b00582464e8d65475582947a">GetByte</a> (offset_t offset) override</td></tr>
 <tr class="memdesc:afa37ec81b00582464e8d65475582947a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined)  <br /></td></tr>
 <tr class="separator:afa37ec81b00582464e8d65475582947a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a310c770333046a3944c566fd173b5d53" id="r_a310c770333046a3944c566fd173b5d53"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a310c770333046a3944c566fd173b5d53">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0)=0</td></tr>
-<tr class="memdesc:a310c770333046a3944c566fd173b5d53"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:a310c770333046a3944c566fd173b5d53"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46ce6fffe1dd39bc0edfee5ec0042c1d" id="r_a46ce6fffe1dd39bc0edfee5ec0042c1d"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a46ce6fffe1dd39bc0edfee5ec0042c1d">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr)</td></tr>
-<tr class="memdesc:a46ce6fffe1dd39bc0edfee5ec0042c1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:a46ce6fffe1dd39bc0edfee5ec0042c1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02b58d8155dbb1807ef955cd864fc67e" id="r_a02b58d8155dbb1807ef955cd864fc67e"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a02b58d8155dbb1807ef955cd864fc67e">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0)=0</td></tr>
+<tr class="memdesc:a02b58d8155dbb1807ef955cd864fc67e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a02b58d8155dbb1807ef955cd864fc67e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeca7376ed4f5a73c895179b024f4c2d8" id="r_aeca7376ed4f5a73c895179b024f4c2d8"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeca7376ed4f5a73c895179b024f4c2d8">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr)</td></tr>
+<tr class="memdesc:aeca7376ed4f5a73c895179b024f4c2d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:aeca7376ed4f5a73c895179b024f4c2d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -152,35 +152,6 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b></td></tr
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A buffer that can be used to read and store data from a file. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a197ddf4ac1014305c343b1e95288cedc" name="a197ddf4ac1014305c343b1e95288cedc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a197ddf4ac1014305c343b1e95288cedc">&#9670;&#160;</a></span>ActualDataSize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">offset_t Buffer::ActualDataSize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Retrieves size of stored data. </p>
-
-<p>Implements <a class="el" href="classLinker_1_1Writable.html#a8554e5aef765d9b8b4851a5543a21f84">Linker::Writable</a>.</p>
-
-</div>
-</div>
 <a id="afa37ec81b00582464e8d65475582947a" name="afa37ec81b00582464e8d65475582947a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afa37ec81b00582464e8d65475582947a">&#9670;&#160;</a></span>GetByte()</h2>
 
@@ -206,14 +177,14 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b></td></tr
 
 <p>Retrieve byte at a certain offset (optional, might not be defined) </p>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1Writable.html#a65ddff0c88316f30d86bf90af61d4b6b">Linker::Writable</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1Image.html#a0ac42787d4887dc862d80a2ccd19e458">Linker::Image</a>.</p>
 
 <p>Reimplemented in <a class="el" href="classLinker_1_1Section.html#aa5471535dccc7d3efc5839a70e7a4151">Linker::Section</a>.</p>
 
 </div>
 </div>
-<a id="a46ce6fffe1dd39bc0edfee5ec0042c1d" name="a46ce6fffe1dd39bc0edfee5ec0042c1d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a46ce6fffe1dd39bc0edfee5ec0042c1d">&#9670;&#160;</a></span>WriteFile() <span class="overload">[1/3]</span></h2>
+<a id="a8e5604100c1ffdd84234821d5c37507b" name="a8e5604100c1ffdd84234821d5c37507b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e5604100c1ffdd84234821d5c37507b">&#9670;&#160;</a></span>ImageSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -222,7 +193,36 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b></td></tr
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">offset_t Writable::WriteFile </td>
+          <td class="memname">offset_t Buffer::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
+
+</div>
+</div>
+<a id="aeca7376ed4f5a73c895179b024f4c2d8" name="aeca7376ed4f5a73c895179b024f4c2d8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeca7376ed4f5a73c895179b024f4c2d8">&#9670;&#160;</a></span>WriteFile() <span class="overload">[1/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t Image::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
           <td></td>
@@ -237,7 +237,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b></td></tr
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1Writable.html#a46ce6fffe1dd39bc0edfee5ec0042c1d">Linker::Writable</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1Image.html#aeca7376ed4f5a73c895179b024f4c2d8">Linker::Image</a>.</p>
 
 </div>
 </div>
@@ -275,12 +275,12 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b></td></tr
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Writable.html#a310c770333046a3944c566fd173b5d53">Linker::Writable</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a02b58d8155dbb1807ef955cd864fc67e">Linker::Image</a>.</p>
 
 </div>
 </div>
-<a id="a310c770333046a3944c566fd173b5d53" name="a310c770333046a3944c566fd173b5d53"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a310c770333046a3944c566fd173b5d53">&#9670;&#160;</a></span>WriteFile() <span class="overload">[3/3]</span></h2>
+<a id="a02b58d8155dbb1807ef955cd864fc67e" name="a02b58d8155dbb1807ef955cd864fc67e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02b58d8155dbb1807ef955cd864fc67e">&#9670;&#160;</a></span>WriteFile() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -289,7 +289,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b></td></tr
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual offset_t Linker::Writable::WriteFile </td>
+          <td class="memname">virtual offset_t Linker::Image::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em>, </span></td>
         </tr>
@@ -313,7 +313,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b></td></tr
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Writable.html#a310c770333046a3944c566fd173b5d53">Linker::Writable</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a02b58d8155dbb1807ef955cd864fc67e">Linker::Image</a>.</p>
 
 </div>
 </div>

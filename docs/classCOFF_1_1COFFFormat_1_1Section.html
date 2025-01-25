@@ -104,18 +104,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a7a3b4ee4b4daf8e6e3fbfd9c5414fe79" id="r_a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"><td class="memItemLeft" align="right" valign="top"><a id="a7a3b4ee4b4daf8e6e3fbfd9c5414fe79" name="a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
 <tr class="separator:a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a69129565608d5265930d53e3970390f3" id="r_a69129565608d5265930d53e3970390f3"><td class="memItemLeft" align="right" valign="top"><a id="a69129565608d5265930d53e3970390f3" name="a69129565608d5265930d53e3970390f3"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt; <a class="el" href="#a231b0bce432797645b2751325cf5e891">image</a>=nullptr)</td></tr>
-<tr class="separator:a69129565608d5265930d53e3970390f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af91a6ab97c922d4f8bf420520c126954" id="r_af91a6ab97c922d4f8bf420520c126954"><td class="memItemLeft" align="right" valign="top"><a id="af91a6ab97c922d4f8bf420520c126954" name="af91a6ab97c922d4f8bf420520c126954"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt; <a class="el" href="#ae9cd2bb74e3a12cec1fdc82409225666">image</a>=nullptr)</td></tr>
+<tr class="separator:af91a6ab97c922d4f8bf420520c126954"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f89acf1975e951a178f7c0d9afbad4f" id="r_a6f89acf1975e951a178f7c0d9afbad4f"><td class="memItemLeft" align="right" valign="top"><a id="a6f89acf1975e951a178f7c0d9afbad4f" name="a6f89acf1975e951a178f7c0d9afbad4f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="separator:a6f89acf1975e951a178f7c0d9afbad4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2f0a8960a4b44e203ef56c4ba7a9cdb" id="r_ad2f0a8960a4b44e203ef56c4ba7a9cdb"><td class="memItemLeft" align="right" valign="top"><a id="ad2f0a8960a4b44e203ef56c4ba7a9cdb" name="ad2f0a8960a4b44e203ef56c4ba7a9cdb"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
 <tr class="separator:ad2f0a8960a4b44e203ef56c4ba7a9cdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac2e3411d660bf95479eb9ad38c30c7b4" id="r_ac2e3411d660bf95479eb9ad38c30c7b4"><td class="memItemLeft" align="right" valign="top"><a id="ac2e3411d660bf95479eb9ad38c30c7b4" name="ac2e3411d660bf95479eb9ad38c30c7b4"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ActualDataSize</b> ()</td></tr>
-<tr class="separator:ac2e3411d660bf95479eb9ad38c30c7b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84fb6a769d289020411df7ca59f6128a" id="r_a84fb6a769d289020411df7ca59f6128a"><td class="memItemLeft" align="right" valign="top"><a id="a84fb6a769d289020411df7ca59f6128a" name="a84fb6a769d289020411df7ca59f6128a"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ImageSize</b> ()</td></tr>
+<tr class="separator:a84fb6a769d289020411df7ca59f6128a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -159,10 +159,10 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>line_number_count
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
 <tr class="memdesc:af8f29d90638046cbb99f74fb6e1f1edc"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flags, determines the type of the section (text, data, bss, etc.) (COFF name: s_flags) <br /></td></tr>
 <tr class="separator:af8f29d90638046cbb99f74fb6e1f1edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a231b0bce432797645b2751325cf5e891" id="r_a231b0bce432797645b2751325cf5e891"><td class="memItemLeft" align="right" valign="top"><a id="a231b0bce432797645b2751325cf5e891" name="a231b0bce432797645b2751325cf5e891"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="memdesc:a231b0bce432797645b2751325cf5e891"><td class="mdescLeft">&#160;</td><td class="mdescRight">The stored image data. <br /></td></tr>
-<tr class="separator:a231b0bce432797645b2751325cf5e891"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae9cd2bb74e3a12cec1fdc82409225666" id="r_ae9cd2bb74e3a12cec1fdc82409225666"><td class="memItemLeft" align="right" valign="top"><a id="ae9cd2bb74e3a12cec1fdc82409225666" name="ae9cd2bb74e3a12cec1fdc82409225666"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="memdesc:ae9cd2bb74e3a12cec1fdc82409225666"><td class="mdescLeft">&#160;</td><td class="mdescRight">The stored image data. <br /></td></tr>
+<tr class="separator:ae9cd2bb74e3a12cec1fdc82409225666"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7455282ac373333f88b84edf7379258f" id="r_a7455282ac373333f88b84edf7379258f"><td class="memItemLeft" align="right" valign="top"><a id="a7455282ac373333f88b84edf7379258f" name="a7455282ac373333f88b84edf7379258f"></a>
 std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Relocation.html">Relocation</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="memdesc:a7455282ac373333f88b84edf7379258f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of COFF relocations. <br /></td></tr>

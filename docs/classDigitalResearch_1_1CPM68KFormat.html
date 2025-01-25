@@ -100,7 +100,7 @@ Inheritance diagram for DigitalResearch::CPM68KFormat:</div>
 <area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="0,168,196,192"/>
 <area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,112,196,136"/>
 <area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,196,80"/>
-<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,196,24"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,196,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -295,9 +295,9 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format" id="r_a10296b22383c5b8d061308d1f0cee6a8"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Format</b> (offset_t file_offset=0)</td></tr>
 <tr class="separator:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format" id="r_ad5413b2bd172398a04e5cdb29b99d4f7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#ad5413b2bd172398a04e5cdb29b99d4f7">ActualDataSize</a> () override</td></tr>
-<tr class="memdesc:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
 <tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -362,14 +362,14 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>bss_address</b> =
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = 0</td></tr>
 <tr class="memdesc:a00d14720586cf0960d73abfb37ee6485"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of entire file, not used for generation. <br /></td></tr>
 <tr class="separator:a00d14720586cf0960d73abfb37ee6485"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adcd41b7bf712f2007d161b390e2c91b0" id="r_adcd41b7bf712f2007d161b390e2c91b0"><td class="memItemLeft" align="right" valign="top"><a id="adcd41b7bf712f2007d161b390e2c91b0" name="adcd41b7bf712f2007d161b390e2c91b0"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>code</b> = nullptr</td></tr>
-<tr class="memdesc:adcd41b7bf712f2007d161b390e2c91b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage for code segment. <br /></td></tr>
-<tr class="separator:adcd41b7bf712f2007d161b390e2c91b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aed9fa31bddea9a61c8a87c42ef51cbc4" id="r_aed9fa31bddea9a61c8a87c42ef51cbc4"><td class="memItemLeft" align="right" valign="top"><a id="aed9fa31bddea9a61c8a87c42ef51cbc4" name="aed9fa31bddea9a61c8a87c42ef51cbc4"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Writable.html">Linker::Writable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>data</b> = nullptr</td></tr>
-<tr class="memdesc:aed9fa31bddea9a61c8a87c42ef51cbc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage for data segment. <br /></td></tr>
-<tr class="separator:aed9fa31bddea9a61c8a87c42ef51cbc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae704513b626822d62f12e60f651da35a" id="r_ae704513b626822d62f12e60f651da35a"><td class="memItemLeft" align="right" valign="top"><a id="ae704513b626822d62f12e60f651da35a" name="ae704513b626822d62f12e60f651da35a"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>code</b> = nullptr</td></tr>
+<tr class="memdesc:ae704513b626822d62f12e60f651da35a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage for code segment. <br /></td></tr>
+<tr class="separator:ae704513b626822d62f12e60f651da35a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a425cdad9ab0ff1c2e6eedf5fbc2982e1" id="r_a425cdad9ab0ff1c2e6eedf5fbc2982e1"><td class="memItemLeft" align="right" valign="top"><a id="a425cdad9ab0ff1c2e6eedf5fbc2982e1" name="a425cdad9ab0ff1c2e6eedf5fbc2982e1"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>data</b> = nullptr</td></tr>
+<tr class="memdesc:a425cdad9ab0ff1c2e6eedf5fbc2982e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Storage for data segment. <br /></td></tr>
+<tr class="separator:a425cdad9ab0ff1c2e6eedf5fbc2982e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37bac2c4e2736541cd471bc2e812132b" id="r_a37bac2c4e2736541cd471bc2e812132b"><td class="memItemLeft" align="right" valign="top"><a id="a37bac2c4e2736541cd471bc2e812132b" name="a37bac2c4e2736541cd471bc2e812132b"></a>
 std::map&lt; uint32_t, <a class="el" href="structDigitalResearch_1_1CPM68KFormat_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="memdesc:a37bac2c4e2736541cd471bc2e812132b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Relocations, not used for Human68k. <br /></td></tr>

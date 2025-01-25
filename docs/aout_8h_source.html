@@ -151,7 +151,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        uint32_t data_relocation_size = 0;</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        std::map&lt;uint32_t, uint32_t&gt; code_relocations, data_relocations; <span class="comment">/* only used by PDOS386 OMAGIC */</span></div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        std::shared_ptr&lt;Linker::Writable&gt; code, data, bss;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        std::shared_ptr&lt;Linker::Image&gt; code, data, bss;</div>
 <div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    <span class="keyword">private</span>:</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        <span class="keywordtype">bool</span> AttemptFetchMagic(uint8_t signature[4]);</div>

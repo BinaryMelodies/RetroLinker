@@ -96,8 +96,8 @@ Inheritance diagram for Linker::Section:</div>
  <div class="center">
   <img src="classLinker_1_1Section.png" usemap="#Linker::Section_map" alt=""/>
   <map id="Linker::Section_map" name="Linker::Section_map">
-<area href="classLinker_1_1Buffer.html" title="A buffer that can be used to read and store data from a file." alt="Linker::Buffer" shape="rect" coords="0,56,99,80"/>
-<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,99,24"/>
+<area href="classLinker_1_1Buffer.html" title="A buffer that can be used to read and store data from a file." alt="Linker::Buffer" shape="rect" coords="0,56,95,80"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,95,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -264,9 +264,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> ()</td></tr
 <tr class="memitem:a9af2bea647f1a30b745c4f2ecec5ef94 inherit pub_methods_classLinker_1_1Buffer" id="r_a9af2bea647f1a30b745c4f2ecec5ef94"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Buffer</b> (size_t size)</td></tr>
 <tr class="separator:a9af2bea647f1a30b745c4f2ecec5ef94 inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a197ddf4ac1014305c343b1e95288cedc inherit pub_methods_classLinker_1_1Buffer" id="r_a197ddf4ac1014305c343b1e95288cedc"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Buffer.html#a197ddf4ac1014305c343b1e95288cedc">ActualDataSize</a> () override</td></tr>
-<tr class="memdesc:a197ddf4ac1014305c343b1e95288cedc inherit pub_methods_classLinker_1_1Buffer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:a197ddf4ac1014305c343b1e95288cedc inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e5604100c1ffdd84234821d5c37507b inherit pub_methods_classLinker_1_1Buffer" id="r_a8e5604100c1ffdd84234821d5c37507b"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Buffer.html#a8e5604100c1ffdd84234821d5c37507b">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a8e5604100c1ffdd84234821d5c37507b inherit pub_methods_classLinker_1_1Buffer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a8e5604100c1ffdd84234821d5c37507b inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5eca73e4abff5445c613cb45461e06a inherit pub_methods_classLinker_1_1Buffer" id="r_af5eca73e4abff5445c613cb45461e06a"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
 <tr class="separator:af5eca73e4abff5445c613cb45461e06a inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -276,12 +276,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a clas
 <tr class="memitem:ae13ce28cf7bc9f28e1ac1d57e409d312 inherit pub_methods_classLinker_1_1Buffer" id="r_ae13ce28cf7bc9f28e1ac1d57e409d312"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Buffer.html#ae13ce28cf7bc9f28e1ac1d57e409d312">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
 <tr class="memdesc:ae13ce28cf7bc9f28e1ac1d57e409d312 inherit pub_methods_classLinker_1_1Buffer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:ae13ce28cf7bc9f28e1ac1d57e409d312 inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a310c770333046a3944c566fd173b5d53 inherit pub_methods_classLinker_1_1Buffer" id="r_a310c770333046a3944c566fd173b5d53"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Buffer.html#a310c770333046a3944c566fd173b5d53">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0)=0</td></tr>
-<tr class="memdesc:a310c770333046a3944c566fd173b5d53 inherit pub_methods_classLinker_1_1Buffer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:a310c770333046a3944c566fd173b5d53 inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a46ce6fffe1dd39bc0edfee5ec0042c1d inherit pub_methods_classLinker_1_1Buffer" id="r_a46ce6fffe1dd39bc0edfee5ec0042c1d"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Buffer.html#a46ce6fffe1dd39bc0edfee5ec0042c1d">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr)</td></tr>
-<tr class="memdesc:a46ce6fffe1dd39bc0edfee5ec0042c1d inherit pub_methods_classLinker_1_1Buffer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:a46ce6fffe1dd39bc0edfee5ec0042c1d inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02b58d8155dbb1807ef955cd864fc67e inherit pub_methods_classLinker_1_1Buffer" id="r_a02b58d8155dbb1807ef955cd864fc67e"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Buffer.html#a02b58d8155dbb1807ef955cd864fc67e">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0)=0</td></tr>
+<tr class="memdesc:a02b58d8155dbb1807ef955cd864fc67e inherit pub_methods_classLinker_1_1Buffer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a02b58d8155dbb1807ef955cd864fc67e inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeca7376ed4f5a73c895179b024f4c2d8 inherit pub_methods_classLinker_1_1Buffer" id="r_aeca7376ed4f5a73c895179b024f4c2d8"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Buffer.html#aeca7376ed4f5a73c895179b024f4c2d8">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr)</td></tr>
+<tr class="memdesc:aeca7376ed4f5a73c895179b024f4c2d8 inherit pub_methods_classLinker_1_1Buffer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:aeca7376ed4f5a73c895179b024f4c2d8 inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>

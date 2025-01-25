@@ -1,14 +1,14 @@
 var searchData=
 [
   ['checksum_0',['checksum',['../classMicrosoft_1_1MZFormat.html#a519a2f4849c3a3b0677acfbb1f64722a',1,'Microsoft::MZFormat']]],
-  ['code_1',['code',['../classDigitalResearch_1_1CPM68KFormat.html#adcd41b7bf712f2007d161b390e2c91b0',1,'DigitalResearch::CPM68KFormat']]],
+  ['code_1',['code',['../classDigitalResearch_1_1CPM68KFormat.html#ae704513b626822d62f12e60f651da35a',1,'DigitalResearch::CPM68KFormat']]],
   ['code_5faddress_2',['code_address',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#a0178cb0da1c95a94f4435d3fe23b683e',1,'COFF::COFFFormat::AOutHeader::code_address'],['../classDigitalResearch_1_1CPM68KFormat.html#a087c7710c4ff97c238ed18cb78f71e4a',1,'DigitalResearch::CPM68KFormat::code_address']]],
   ['code_5fbase_3',['code_base',['../classO65_1_1O65Format_1_1Module.html#aca685bd0b0763e1131a5750278773f64',1,'O65::O65Format::Module']]],
-  ['code_5fimage_4',['code_image',['../classO65_1_1O65Format_1_1Module.html#a6b770e2e7c33a70d96fdeb78adf9f714',1,'O65::O65Format::Module']]],
+  ['code_5fimage_4',['code_image',['../classO65_1_1O65Format_1_1Module.html#a79319e6d10c272bdd930a65ef7df5a4c',1,'O65::O65Format::Module']]],
   ['code_5frelocations_5',['code_relocations',['../classO65_1_1O65Format_1_1Module.html#a617013fe2ac20f19642a4ac7bcddf059',1,'O65::O65Format::Module']]],
   ['code_5fsize_6',['code_size',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#abb82b3fb406747ab82a98f64658e3353',1,'COFF::COFFFormat::AOutHeader::code_size'],['../classDigitalResearch_1_1CPM68KFormat.html#abcff6f1611092147e7f418530b9d38b2',1,'DigitalResearch::CPM68KFormat::code_size']]],
   ['collection_5fname_7',['collection_name',['../classLinker_1_1Section.html#aa4869c8751c1ea74b7d3e66706c34acc',1,'Linker::Section']]],
-  ['contents_8',['contents',['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html#a0cb006b169b6a4a1785ab53344801077',1,'DigitalResearch::CPM86Format::rsx_record']]],
+  ['contents_8',['contents',['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html#a574c280cc2a5836b74ec5b22ad4c0a7e',1,'DigitalResearch::CPM86Format::rsx_record']]],
   ['control_5fbyte_9',['control_byte',['../structBinary_1_1AtariFormat_1_1Segment.html#abcf77392930aa50a1fbbdc784f1e871b',1,'Binary::AtariFormat::Segment']]],
   ['cpu_10',['cpu',['../classLinker_1_1Module.html#ace0a48e1b03e842e0ca80912872a65dd',1,'Linker::Module']]],
   ['cpu_5ftype_11',['cpu_type',['../classCOFF_1_1COFFFormat.html#af9d261fcedc71436f42a988518a2000a',1,'COFF::COFFFormat']]],

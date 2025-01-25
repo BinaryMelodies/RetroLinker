@@ -9,7 +9,8 @@ var searchData=
   ['ibmsysteminfo_6',['IBMSystemInfo',['../classELF_1_1ELFFormat_1_1IBMSystemInfo.html',1,'ELF::ELFFormat']]],
   ['iconbw_7',['IconBW',['../classApple_1_1IconBW.html',1,'Apple']]],
   ['iconcolor_8',['IconColor',['../classApple_1_1IconColor.html',1,'Apple']]],
-  ['indexarray_9',['IndexArray',['../classELF_1_1ELFFormat_1_1IndexArray.html',1,'ELF::ELFFormat']]],
-  ['inputformat_10',['InputFormat',['../classLinker_1_1InputFormat.html',1,'Linker']]],
-  ['intersegmentrelocationrecord_11',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]]
+  ['image_9',['Image',['../classLinker_1_1Image.html',1,'Linker']]],
+  ['indexarray_10',['IndexArray',['../classELF_1_1ELFFormat_1_1IndexArray.html',1,'ELF::ELFFormat']]],
+  ['inputformat_11',['InputFormat',['../classLinker_1_1InputFormat.html',1,'Linker']]],
+  ['intersegmentrelocationrecord_12',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]]
 ];

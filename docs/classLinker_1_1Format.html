@@ -94,7 +94,7 @@ Inheritance diagram for Linker::Format:</div>
  <div class="center">
   <img src="classLinker_1_1Format.png" usemap="#Linker::Format_map" alt=""/>
   <map id="Linker::Format_map" name="Linker::Format_map">
-<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="512,0,707,24"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="512,0,707,24"/>
 <area href="classApple_1_1AppleSingleDouble_1_1Entry.html" alt="Apple::AppleSingleDouble::Entry" shape="rect" coords="0,112,195,136"/>
 <area href="classBrocaD3X_1_1D3X1Format.html" title="Daniel Broca&#39;s D3X executable format." alt="BrocaD3X::D3X1Format" shape="rect" coords="205,112,400,136"/>
 <area href="classDX64_1_1LVFormat.html" title="CandyMan&#39;s DX64 &quot;Flat&quot; and &quot;LV&quot; executable formats." alt="DX64::LVFormat" shape="rect" coords="410,112,605,136"/>
@@ -151,9 +151,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:adda815844b654ffdd8f78e4828767702" id="r_adda815844b654ffdd8f78e4828767702"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adda815844b654ffdd8f78e4828767702">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump)</td></tr>
 <tr class="memdesc:adda815844b654ffdd8f78e4828767702"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:adda815844b654ffdd8f78e4828767702"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad5413b2bd172398a04e5cdb29b99d4f7" id="r_ad5413b2bd172398a04e5cdb29b99d4f7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5413b2bd172398a04e5cdb29b99d4f7">ActualDataSize</a> () override</td></tr>
-<tr class="memdesc:ad5413b2bd172398a04e5cdb29b99d4f7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:ad5413b2bd172398a04e5cdb29b99d4f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8dbd43046eb76473ba4cce819239c113" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a8dbd43046eb76473ba4cce819239c113"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a8dbd43046eb76473ba4cce819239c113"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d991adc5f7b285a3451306e2adb9787" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
 <tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:a0d991adc5f7b285a3451306e2adb9787"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,35 +170,6 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A class to encode a general file format. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="ad5413b2bd172398a04e5cdb29b99d4f7" name="ad5413b2bd172398a04e5cdb29b99d4f7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad5413b2bd172398a04e5cdb29b99d4f7">&#9670;&#160;</a></span>ActualDataSize()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">offset_t Format::ActualDataSize </td>
-          <td>(</td>
-          <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Retrieves size of stored data. </p>
-
-<p>Implements <a class="el" href="classLinker_1_1Writable.html#a8554e5aef765d9b8b4851a5543a21f84">Linker::Writable</a>.</p>
-
-</div>
-</div>
 <a id="af096ef1500e69a6b3112c7640b3748bd" name="af096ef1500e69a6b3112c7640b3748bd"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af096ef1500e69a6b3112c7640b3748bd">&#9670;&#160;</a></span>Clear()</h2>
 
@@ -282,7 +253,36 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 
 <p>Retrieve byte at a certain offset (optional, might not be defined) </p>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1Writable.html#a65ddff0c88316f30d86bf90af61d4b6b">Linker::Writable</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1Image.html#a0ac42787d4887dc862d80a2ccd19e458">Linker::Image</a>.</p>
+
+</div>
+</div>
+<a id="a8dbd43046eb76473ba4cce819239c113" name="a8dbd43046eb76473ba4cce819239c113"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8dbd43046eb76473ba4cce819239c113">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t Format::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>
@@ -340,7 +340,7 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 
 <p>Stores data in memory to file. </p>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1Writable.html#a46ce6fffe1dd39bc0edfee5ec0042c1d">Linker::Writable</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1Image.html#aeca7376ed4f5a73c895179b024f4c2d8">Linker::Image</a>.</p>
 
 <p>Implemented in <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry.html#ad086819d4e1df5513c38a7615a1f61d8">Apple::AppleSingleDouble::Entry</a>, <a class="el" href="classBinary_1_1AppleFormat.html#a1255f37e4aa782139a11076a9485712e">Binary::AppleFormat</a>, <a class="el" href="classBinary_1_1AtariFormat.html#aefdbafcc46b71850398143e13d9c7b52">Binary::AtariFormat</a>, <a class="el" href="classBinary_1_1CommodoreFormat.html#aa4e8390c98d42a979801d986157d9f44">Binary::CommodoreFormat</a>, <a class="el" href="classBinary_1_1CPM3Format.html#a39e128c8d8d224f4361c33e33724fea1">Binary::CPM3Format</a>, <a class="el" href="classBinary_1_1FLEXFormat.html#a5d749efe342ec57d7ba828a64e8d0efe">Binary::FLEXFormat</a>, <a class="el" href="classBinary_1_1PRLFormat.html#a584f91f303e8cc51670a1222a04932af">Binary::PRLFormat</a>, <a class="el" href="classBinary_1_1UZIFormat.html#af3301d7da5454fb296b5a27884698245">Binary::UZIFormat</a>, <a class="el" href="classBinary_1_1UZI280Format.html#afa2fb6b1ab3c31a8e131638179a5c2e9">Binary::UZI280Format</a>, <a class="el" href="classARM_1_1AIFFormat.html#ad6b247ae9dd9cc01310c328b436122c6">ARM::AIFFormat</a>, <a class="el" href="classAOut_1_1AOutFormat.html#a9cd8271431b0dd099e4462ed3e4724cb">AOut::AOutFormat</a>, <a class="el" href="classArchive_1_1ArchiveFormat.html#ae7ffce1a531246862ddd67e995e0fd70">Archive::ArchiveFormat</a>, <a class="el" href="classAS86Obj_1_1AS86ObjFormat.html#a4104ff6c1cf93152633281be4a1f49d1">AS86Obj::AS86ObjFormat</a>, <a class="el" href="classBinary_1_1GenericBinaryFormat.html#a6a87c8d103b364ae2877cf6306bf9f0e">Binary::GenericBinaryFormat</a>, <a class="el" href="classBinary_1_1BinaryFormat.html#a710147773f12ca2e0b19ea9076022014">Binary::BinaryFormat</a>, <a class="el" href="classDOS16M_1_1BWFormat.html#a025c3cb9292925d6e924501e06f5623d">DOS16M::BWFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a075b3f7fff08315190b8fa029e5dd7e2">COFF::COFFFormat</a>, <a class="el" href="classDigitalResearch_1_1CPM68KFormat.html#a256346daeb97873e1b0f592de546185e">DigitalResearch::CPM68KFormat</a>, <a class="el" href="classDigitalResearch_1_1CPM86Format.html#a167260d23269f6eb1dc73993071b1ae3">DigitalResearch::CPM86Format</a>, <a class="el" href="classDigitalResearch_1_1CPM8KFormat.html#a9657978e4beb3cd9a14a6c698a479cb2">DigitalResearch::CPM8KFormat</a>, <a class="el" href="classSeychellDOS32_1_1AdamFormat.html#ace928a78d5d7f838c412b1b6d778830f">SeychellDOS32::AdamFormat</a>, <a class="el" href="classBrocaD3X_1_1D3X1Format.html#ac2a3ad1ad8ebf25376b3e30313aa11dc">BrocaD3X::D3X1Format</a>, <a class="el" href="classDX64_1_1LVFormat.html#a21980e3bb0d3b73092ab2bdda5bc5221">DX64::LVFormat</a>, <a class="el" href="classELF_1_1ELFFormat.html#a8a0344b2b23e883cacc118c709d756b1">ELF::ELFFormat</a>, <a class="el" href="classGEOS_1_1GeodeFormat.html#a2588b75f18a44f33bb118f3491220fd4">GEOS::GeodeFormat</a>, <a class="el" href="classApple_1_1OMFFormat.html#aed5e41c1db3b3b74d8870cff0ae67fd6">Apple::OMFFormat</a>, <a class="el" href="classX68000_1_1HUFormat.html#aaf2caaf2c681f9fec853b21f757a4cb4">X68000::HUFormat</a>, <a class="el" href="classAmiga_1_1HunkFormat.html#af39a52a558dbb834b7aacef094ed88c8">Amiga::HunkFormat</a>, <a class="el" href="classMicrosoft_1_1LEFormat.html#a46fca679e0d58f014041e336205f0816">Microsoft::LEFormat</a>, <a class="el" href="classMachO_1_1MachOFormat.html#a57fbedb35ee093c8ad63e0a6d3ef3350">MachO::MachOFormat</a>, <a class="el" href="classApple_1_1AppleSingleDouble.html#a84c0274d72995a66f54966d50cffdd8a">Apple::AppleSingleDouble</a>, <a class="el" href="classApple_1_1ResourceFork_1_1Resource.html#af7ea439ea9fbf55a432e511f929a8a1f">Apple::ResourceFork::Resource</a>, <a class="el" href="classApple_1_1ResourceFork_1_1GenericResource.html#ab0c74fd94d80fdbade653b0f8573c5f3">Apple::ResourceFork::GenericResource</a>, <a class="el" href="classApple_1_1ResourceFork_1_1JumpTableCodeResource.html#a6f0925f3397b102d10b94e982a3267aa">Apple::ResourceFork::JumpTableCodeResource</a>, <a class="el" href="classApple_1_1ResourceFork_1_1CodeResource.html#a01a6298fd965f7c851e70fb694be9d15">Apple::ResourceFork::CodeResource</a>, <a class="el" href="classApple_1_1ResourceFork.html#aa60402fe8d82290d244552302021e6fb">Apple::ResourceFork</a>, <a class="el" href="classApple_1_1RealName.html#a505c7841cb83ceef896e5734cc94c1c4">Apple::RealName</a>, <a class="el" href="classApple_1_1FileInfo_1_1Macintosh.html#a794f5b7fe34c7421d4ab097c11672f93">Apple::FileInfo::Macintosh</a>, <a class="el" href="classApple_1_1FileInfo_1_1ProDOS.html#afda606c46cb1c6011e40153267680e8b">Apple::FileInfo::ProDOS</a>, <a class="el" href="classApple_1_1FileInfo_1_1MSDOS.html#a4c13aeec6c5bfa6e8be13230e7d3a296">Apple::FileInfo::MSDOS</a>, <a class="el" href="classApple_1_1FileInfo_1_1AUX.html#a88e7fdbea0470a5736833a8d8dab2c5f">Apple::FileInfo::AUX</a>, <a class="el" href="classApple_1_1FileDatesInfo.html#afbc27dd59d46612f8d34b1d2b229ce68">Apple::FileDatesInfo</a>, <a class="el" href="classApple_1_1FinderInfo.html#a021637ac1575517cb2cd2b9973d2d537">Apple::FinderInfo</a>, <a class="el" href="classApple_1_1MacintoshFileInfo.html#a816916f8462d0e972b39bb8bf488d667">Apple::MacintoshFileInfo</a>, <a class="el" href="classApple_1_1ProDOSFileInfo.html#af69c6e8021fc896bdd9c2eb053988882">Apple::ProDOSFileInfo</a>, <a class="el" href="classApple_1_1MSDOSFileInfo.html#abc27dbaac16d21b3c6739c0648cf8733">Apple::MSDOSFileInfo</a>, <a class="el" href="classApple_1_1MacBinary.html#a25376f9ba8ae704eceafb47c199bc2df">Apple::MacBinary</a>, <a class="el" href="classApple_1_1MacDriver.html#a46742a4791dbaa61b5f4d0213af75fed">Apple::MacDriver</a>, <a class="el" href="classMINIX_1_1MINIXFormat.html#a81f8d33df608bb0dc2c76d20cb175f3f">MINIX::MINIXFormat</a>, <a class="el" href="classMicrosoft_1_1MZFormat.html#a7369ca8fada28d1ea0459f83fd8f9a1e">Microsoft::MZFormat</a>, <a class="el" href="classMicrosoft_1_1NEFormat.html#a1f7caf80fc81b5a1f215a36fac0c2b02">Microsoft::NEFormat</a>, <a class="el" href="classO65_1_1O65Format.html#a26078ab2c9c6e12872e577f9290c8842">O65::O65Format</a>, <a class="el" href="classOMF_1_1OMFFormat.html#aed5e41c1db3b3b74d8870cff0ae67fd6">OMF::OMFFormat</a>, <a class="el" href="classPCOS_1_1CMDFormat.html#a5e6492b92081a3155e6649ddb02a4f05">PCOS::CMDFormat</a>, <a class="el" href="classMicrosoft_1_1PEFormat.html#a5f1a660554f28fead9b3fce44ee30e0b">Microsoft::PEFormat</a>, <a class="el" href="classApple_1_1PEFFormat.html#afecd833357f4582a8f65d953db75d4fa">Apple::PEFFormat</a>, <a class="el" href="classPharLap_1_1MPFormat.html#a9b1db00624dd3cbcbbf2901c1dac1fd5">PharLap::MPFormat</a>, <a class="el" href="classPharLap_1_1P3Format.html#a11ebf44723d2b7bb0fc748f7cf75d36d">PharLap::P3Format</a>, <a class="el" href="classPharLap_1_1P3Format_1_1Flat.html#a44ac228d213685de49170204cfb41a05">PharLap::P3Format::Flat</a>, <a class="el" href="classPharLap_1_1P3Format_1_1MultiSegmented.html#a476b76549346c891893d04b05e47294b">PharLap::P3Format::MultiSegmented</a>, <a class="el" href="classPharLap_1_1P3FormatContainer.html#afaf46dde1bad77f816d24c2fa5255687">PharLap::P3FormatContainer</a>, <a class="el" href="classPMODE_1_1PMW1Format.html#a3fdca1798464df39a735a1831b7c4b67">PMODE::PMW1Format</a>, <a class="el" href="classMicrosoft_1_1W3Format.html#a70bcf7b19300a4030eaebc0eab718aa3">Microsoft::W3Format</a>, <a class="el" href="classXenix_1_1BOutFormat.html#aa97ada0f69894b9e40057c07e135c1a8">Xenix::BOutFormat</a>, <a class="el" href="classXenix_1_1XOutFormat.html#aa1959c254a0443cf4159b8ad9b54a08a">Xenix::XOutFormat</a>, and <a class="el" href="classErgo_1_1XPFormat.html#ace4a82fd1309d65dd77def94d9ea93f7">Ergo::XPFormat</a>.</p>
 
@@ -380,7 +380,7 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Writable.html#a310c770333046a3944c566fd173b5d53">Linker::Writable</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a02b58d8155dbb1807ef955cd864fc67e">Linker::Image</a>.</p>
 
 </div>
 </div>
