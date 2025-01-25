@@ -214,7 +214,7 @@ namespace DigitalResearch
 			/**
 			 * @brief A reference to the stored module, either parsed or a raw block of data
 			 */
-			std::variant<std::shared_ptr<CPM86Format>, std::shared_ptr<Linker::Writable>, nullptr_t> contents;
+			std::shared_ptr<Linker::Writable> contents;
 
 			void Clear();
 

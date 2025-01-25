@@ -180,62 +180,36 @@ void CPM86Format::rsx_record::WriteModule(Linker::Writer& wr)
 {
 	if(offset_record == RSX_TERMINATE || offset_record == RSX_DYNAMIC)
 		return;
-	if(std::shared_ptr<Linker::Writable> * rawdatap = std::get_if<std::shared_ptr<Linker::Writable>>(&contents))
-	{
-		auto& rawdata = *rawdatap;
-		wr.Seek(offset_record << 7);
-		rawdata->WriteFile(wr);
-	}
-	else if(std::shared_ptr<CPM86Format> * modulep = std::get_if<std::shared_ptr<CPM86Format>>(&contents))
-	{
-		/* TODO: untested */
-		auto& module = *modulep;
-		module->WriteFile(wr);
-	}
+	/* TODO: untested for CP/M-86 modules */
+	wr.Seek(offset_record << 7);
+	contents->WriteFile(wr);
 }
 
 offset_t CPM86Format::rsx_record::GetFullFileSize() const
 {
-	if(const std::shared_ptr<Linker::Writable> * rawdatap = std::get_if<std::shared_ptr<Linker::Writable>>(&contents))
-	{
-		auto& rawdata = *rawdatap;
-		return rawdata->ActualDataSize();
-	}
-	else if(const std::shared_ptr<CPM86Format> * modulep = std::get_if<std::shared_ptr<CPM86Format>>(&contents))
-	{
-		auto& module = *modulep;
-		return module->GetFullFileSize();
-	}
-	else
-	{
-		return 0;
-	}
+	return contents->ActualDataSize();
 }
 
 void CPM86Format::rsx_record::SetOffset(offset_t new_offset)
 {
 	offset_record = new_offset >> 7;
-	if(const std::shared_ptr<CPM86Format> * modulep = std::get_if<std::shared_ptr<CPM86Format>>(&contents))
+	if(const std::shared_ptr<CPM86Format> module = std::dynamic_pointer_cast<CPM86Format>(contents))
 	{
-		auto& module = *modulep;
 		module->file_offset = offset_record << 7;
 	}
 }
 
 void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump)
 {
-	if(const std::shared_ptr<Linker::Writable> * rawdatap = std::get_if<std::shared_ptr<Linker::Writable>>(&contents))
+	if(const std::shared_ptr<CPM86Format> module = std::dynamic_pointer_cast<CPM86Format>(contents))
 	{
 		// TODO: untested
-		auto& rawdata = *rawdatap;
-		Dumper::Block block("Image", uint32_t(offset_record) << 7, rawdata, rawdata->ActualDataSize(), 6);
-		block.Display(dump);
-	}
-	else if(const std::shared_ptr<CPM86Format> * modulep = std::get_if<std::shared_ptr<CPM86Format>>(&contents))
-	{
-		// TODO: untested
-		auto& module = *modulep;
 		module->Dump(dump);
+	}
+	else
+	{
+		Dumper::Block block("Image", uint32_t(offset_record) << 7, contents, contents->ActualDataSize(), 6);
+		block.Display(dump);
 	}
 }
 
