@@ -37,15 +37,20 @@ std::string Reader::ReadData(size_t count, bool terminate_at_null)
 	return std::string(data, count);
 }
 
-std::string Reader::ReadASCIIZ(size_t maximum)
+std::string Reader::ReadASCIIZ(size_t maximum, char terminator)
 {
 	std::string tmp;
 	int c;
-	while(tmp.size() < maximum && (c = in->get()) != 0)
+	while(tmp.size() < maximum && (c = in->get()) != terminator)
 	{
 		tmp += c;
 	}
 	return tmp;
+}
+
+std::string Reader::ReadASCIIZ(char terminator)
+{
+	return ReadASCIIZ(offset_t(-1), terminator);
 }
 
 uint64_t Reader::ReadUnsigned(size_t bytes, EndianType endiantype)

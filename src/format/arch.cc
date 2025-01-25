@@ -7,6 +7,53 @@ ArchiveFormat::FileReader::~FileReader()
 {
 }
 
+void ArchiveFormat::SetFileReader(std::shared_ptr<FileReader> file_reader)
+{
+	this->file_reader = file_reader;
+}
+
+class FileReaderWrapper : public ArchiveFormat::FileReader
+{
+public:
+	std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader&, offset_t);
+
+	FileReaderWrapper(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader&, offset_t))
+		: file_reader(file_reader)
+	{
+	}
+
+	std::shared_ptr<Linker::Writable> ReadFile(Linker::Reader& rd, offset_t size) override
+	{
+		return file_reader(rd, size);
+	}
+};
+
+void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size))
+{
+	this->file_reader = std::make_shared<FileReaderWrapper>(file_reader);
+}
+
+class FileReaderWrapper1 : public ArchiveFormat::FileReader
+{
+public:
+	std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader&);
+
+	FileReaderWrapper1(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader&))
+		: file_reader(file_reader)
+	{
+	}
+
+	std::shared_ptr<Linker::Writable> ReadFile(Linker::Reader& rd, offset_t size) override
+	{
+		return file_reader(rd);
+	}
+};
+
+void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd))
+{
+	this->file_reader = std::make_shared<FileReaderWrapper1>(file_reader);
+}
+
 void ArchiveFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::EndianType(0); // should not matter
@@ -17,6 +64,7 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 		file_size = rd.Tell() - file_offset;
 	}
 	rd.Seek(file_offset + 8);
+	offset_t extended_file_name_table = 0;
 	while(rd.Tell() < file_offset + file_size)
 	{
 		if((rd.Tell() & 1) != 0)
@@ -30,14 +78,31 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 			last_space ++;
 		entry.name = entry.name.substr(0, last_space);
 		Linker::Debug << "Debug: archive entry name: " << entry.name << std::endl;
-		if(entry.name == "//")
+		if(entry.name == "/")
 		{
-			// System V extended file names
+			// System V symbol table
 			rd.Skip(32);
 			// TODO
 		}
+		else if(entry.name == "//")
+		{
+			// System V extended file names
+			rd.Skip(32);
+			extended_file_name_table = rd.Tell() + 12;
+		}
 		else
 		{
+			if(entry.name.size() >= 1 && entry.name[0] == '/')
+			{
+				try
+				{
+					entry.extended_name_offset = std::stoll(entry.name.substr(1), nullptr, 10);
+					entry.name = "";
+				}
+				catch(std::invalid_argument&)
+				{
+				}
+			}
 			entry.modification = std::stoll(rd.ReadData(12), nullptr, 10);
 			entry.owner_id = std::stoll(rd.ReadData(6), nullptr, 10);
 			entry.group_id = std::stoll(rd.ReadData(6), nullptr, 10);
@@ -46,7 +111,7 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 		entry.size = std::stoll(rd.ReadData(10), nullptr, 10);
 		Linker::Debug << "Debug: archive entry size: " << entry.size << std::endl;
 		rd.Skip(2); // 0x60 0x0A
-		if(file_reader == nullptr)
+		if(file_reader == nullptr || entry.name == "//")
 		{
 			entry.contents = Linker::Buffer::ReadFromFile(rd, entry.size);
 		}
@@ -55,6 +120,19 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 			entry.contents = file_reader->ReadFile(rd, entry.size);
 		}
 		files.push_back(entry);
+	}
+
+	if(extended_file_name_table != 0)
+	{
+		for(auto& entry : files)
+		{
+			if(entry.name == "" && entry.extended_name_offset != 0)
+			{
+				rd.Seek(extended_file_name_table + entry.extended_name_offset);
+				entry.name = rd.ReadASCIIZ('\n');
+				Linker::Debug << "Debug: extended file name `" << entry.name << "' from offset " << entry.extended_name_offset << std::endl;
+			}
+		}
 	}
 }
 
@@ -65,6 +143,8 @@ void ArchiveFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteData("!<arch>\n");
 	for(auto& entry : files)
 	{
+		if((wr.Tell() & 1) != 0)
+			wr.Skip(1);
 		std::string filename = entry.name;
 		filename.resize(16, ' ');
 		wr.WriteData(filename);

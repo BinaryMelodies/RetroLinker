@@ -61,9 +61,14 @@ namespace Linker
 		}
 
 		/**
-		 * @brief Read a zero terminated ASCII string
+		 * @brief Read a zero terminated ASCII string, or an ASCII string terminated by a specific character
 		 */
-		std::string ReadASCIIZ(size_t maximum = size_t(-1));
+		std::string ReadASCIIZ(size_t maximum = size_t(-1), char terminator = '\0');
+
+		/**
+		 * @brief Read a zero terminated ASCII string, or an ASCII string terminated by a specific character
+		 */
+		std::string ReadASCIIZ(char terminator);
 
 		/**
 		 * @brief Read an unsigned word

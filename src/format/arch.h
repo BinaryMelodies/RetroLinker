@@ -29,10 +29,15 @@ namespace Archive
 		offset_t file_size = offset_t(-1);
 		std::shared_ptr<FileReader> file_reader = nullptr;
 
+		void SetFileReader(std::shared_ptr<FileReader> file_reader);
+		void SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd, offset_t size));
+		void SetFileReader(std::shared_ptr<Linker::Writable> (* file_reader)(Linker::Reader& rd));
+
 		class File
 		{
 		public:
 			std::string name;
+			offset_t extended_name_offset = 0;
 			uint64_t modification = 0;
 			uint32_t owner_id = 0, group_id = 0;
 			uint32_t mode;
