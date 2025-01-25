@@ -4,7 +4,7 @@
 
 using namespace AS86Obj;
 
-/* TODO: unimplemented */
+/* TODO: not fully implemented */
 
 AS86ObjFormat::ByteCode::~ByteCode()
 {
@@ -236,9 +236,24 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index)
 		Dumper::Entry symbol_entry("Symbol", i, symbol.symbol_definition_offset, 8);
 		symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol.name);
 		symbol_entry.AddField("Offset to name", Dumper::HexDisplay::Make(4), offset_t(symbol.name_offset));
-		symbol_entry.AddField("Symbol type", Dumper::HexDisplay::Make(4), offset_t(symbol.symbol_type)); // TODO: more descriptive display
-		symbol_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(symbol.offset));
-		symbol_entry.AddField("Offset size", Dumper::DecDisplay::Make(), offset_t(symbol.offset_size));
+		symbol_entry.AddField("Symbol type",
+			Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("Absolute"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("Relative"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("Imported"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("Exported"), true)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("Entry point"), true)
+				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("Common symbol"), true),
+			offset_t(symbol.symbol_type));
+		if((symbol.symbol_type & Symbol::Imported) != 0 && symbol.segment == 0xF && symbol.offset_size == 0)
+		{
+			symbol_entry.AddField("Offset", Dumper::ChoiceDisplay::Make("Undefined"), offset_t(true));
+		}
+		else
+		{
+			symbol_entry.AddField("Offset", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(symbol.segment), offset_t(symbol.offset));
+			symbol_entry.AddField("Offset size", Dumper::DecDisplay::Make(), offset_t(symbol.offset_size));
+		}
 		symbol_entry.Display(dump);
 		i ++;
 	}
@@ -295,7 +310,8 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 			symbol.name_offset = rd.ReadUnsigned(2);
 			symbol.symbol_type = rd.ReadUnsigned(2);
 			symbol.offset_size = GetSize(symbol.symbol_type >> 14);
-			symbol.symbol_type &= 0x3FFF;
+			symbol.segment = symbol.symbol_type & 0xF;
+			symbol.symbol_type &= 0x3FF0;
 			symbol.offset = rd.ReadUnsigned(symbol.offset_size);
 			module.symbols.push_back(symbol);
 		}

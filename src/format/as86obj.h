@@ -8,9 +8,8 @@
 #include "../linker/reader.h"
 #include "../linker/writer.h"
 
-/* TODO: unimplemented */
+/* TODO: not fully implemented */
 
-/* as86 object format (input only) */
 namespace AS86Obj
 {
 	/**
@@ -24,9 +23,17 @@ namespace AS86Obj
 		class Symbol
 		{
 		public:
+			static constexpr uint16_t Absolute = 0x0010;
+			static constexpr uint16_t Relative = 0x0020;
+			static constexpr uint16_t Imported = 0x0040;
+			static constexpr uint16_t Exported = 0x0080;
+			static constexpr uint16_t Entry = 0x0100;
+			static constexpr uint16_t Common = 0x2000;
+
 			uint16_t name_offset = 0;
 			std::string name;
 			uint16_t symbol_type = 0;
+			uint8_t segment = 0;
 			int offset_size = 0;
 			uint32_t offset = 0;
 			offset_t symbol_definition_offset = 0; // convenience entry
@@ -174,7 +181,6 @@ namespace AS86Obj
 		void WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
-		/* TODO */
 	};
 }
 
