@@ -93,10 +93,11 @@ Inheritance diagram for Binary::AppleFormat:</div>
  <div class="center">
   <img src="classBinary_1_1AppleFormat.png" usemap="#Binary::AppleFormat_map" alt=""/>
   <map id="Binary::AppleFormat_map" name="Binary::AppleFormat_map">
-<area href="classBinary_1_1GenericBinaryFormat.html" title="A template for flat binary formats." alt="Binary::GenericBinaryFormat" shape="rect" coords="0,168,176,192"/>
-<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="0,112,176,136"/>
-<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,56,176,80"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,0,176,24"/>
+<area href="classBinary_1_1GenericBinaryFormat.html" title="A template for flat binary formats." alt="Binary::GenericBinaryFormat" shape="rect" coords="0,224,176,248"/>
+<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="0,168,176,192"/>
+<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,112,176,136"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,176,80"/>
+<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,176,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -108,9 +109,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abf003455fbb57696c6b283c81081b8d2" id="r_abf003455fbb57696c6b283c81081b8d2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abf003455fbb57696c6b283c81081b8d2">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:abf003455fbb57696c6b283c81081b8d2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:abf003455fbb57696c6b283c81081b8d2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf14bc3473dacb540d6e773be9c57448" id="r_aaf14bc3473dacb540d6e773be9c57448"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaf14bc3473dacb540d6e773be9c57448">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="memdesc:aaf14bc3473dacb540d6e773be9c57448"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:aaf14bc3473dacb540d6e773be9c57448"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1255f37e4aa782139a11076a9485712e" id="r_a1255f37e4aa782139a11076a9485712e"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1255f37e4aa782139a11076a9485712e">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
+<tr class="memdesc:a1255f37e4aa782139a11076a9485712e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="separator:a1255f37e4aa782139a11076a9485712e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
 <tr class="memitem:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_af7c217adb86fe385521f93fc8a0a50e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#af7c217adb86fe385521f93fc8a0a50e2">Clear</a> () override</td></tr>
 <tr class="memdesc:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
@@ -124,9 +125,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a6a6dda10611ff89870889f17635e1b9e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a6a6dda10611ff89870889f17635e1b9e">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a94a9c40d6a9335d58bffb488f057bfde inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a94a9c40d6a9335d58bffb488f057bfde"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a94a9c40d6a9335d58bffb488f057bfde">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="memdesc:a94a9c40d6a9335d58bffb488f057bfde inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:a94a9c40d6a9335d58bffb488f057bfde inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a87c8d103b364ae2877cf6306bf9f0e inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a6a87c8d103b364ae2877cf6306bf9f0e"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a6a87c8d103b364ae2877cf6306bf9f0e">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
+<tr class="memdesc:a6a87c8d103b364ae2877cf6306bf9f0e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="separator:a6a87c8d103b364ae2877cf6306bf9f0e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a4a7b66eab4e8bf3f828004a7cef52819"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a4a7b66eab4e8bf3f828004a7cef52819">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
 <tr class="memdesc:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:a4a7b66eab4e8bf3f828004a7cef52819 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -265,6 +266,15 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 <tr class="memitem:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format" id="r_a10296b22383c5b8d061308d1f0cee6a8"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Format</b> (offset_t file_offset=0)</td></tr>
 <tr class="separator:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format" id="r_ad5413b2bd172398a04e5cdb29b99d4f7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#ad5413b2bd172398a04e5cdb29b99d4f7">ActualDataSize</a> () override</td></tr>
+<tr class="memdesc:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
+<tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format" id="r_a12da087d78c8a1eba1e3076522b604c1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a12da087d78c8a1eba1e3076522b604c1">GetByte</a> (offset_t offset) override</td></tr>
+<tr class="memdesc:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined)  <br /></td></tr>
+<tr class="separator:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -363,8 +373,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
-<a id="aaf14bc3473dacb540d6e773be9c57448" name="aaf14bc3473dacb540d6e773be9c57448"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aaf14bc3473dacb540d6e773be9c57448">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="a1255f37e4aa782139a11076a9485712e" name="a1255f37e4aa782139a11076a9485712e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1255f37e4aa782139a11076a9485712e">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -373,7 +383,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void AppleFormat::WriteFile </td>
+          <td class="memname">offset_t AppleFormat::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
           <td></td>
@@ -388,7 +398,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Stores data in memory to file. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#a1d7bfc5809e8ab349afc586c0e182729">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format</a>.</p>
 
 </div>
 </div>

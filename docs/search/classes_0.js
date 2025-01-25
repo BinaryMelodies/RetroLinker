@@ -12,9 +12,10 @@ var searchData=
   ['appleformat_9',['AppleFormat',['../classBinary_1_1AppleFormat.html',1,'Binary']]],
   ['applereader_10',['AppleReader',['../classdump_1_1AppleReader.html',1,'dump']]],
   ['applesingledouble_11',['AppleSingleDouble',['../classApple_1_1AppleSingleDouble.html',1,'Apple']]],
-  ['array_12',['Array',['../classELF_1_1ELFFormat_1_1Array.html',1,'ELF::ELFFormat']]],
-  ['as86objformat_13',['AS86ObjFormat',['../classAS86Obj_1_1AS86ObjFormat.html',1,'AS86Obj']]],
-  ['atariformat_14',['AtariFormat',['../classBinary_1_1AtariFormat.html',1,'Binary']]],
-  ['aux_15',['AUX',['../classApple_1_1FileInfo_1_1AUX.html',1,'Apple::FileInfo']]],
-  ['auxiliary_16',['Auxiliary',['../classELF_1_1ELFFormat_1_1VersionRequirement_1_1Auxiliary.html',1,'ELF::ELFFormat::VersionRequirement']]]
+  ['archiveformat_12',['ArchiveFormat',['../classArchive_1_1ArchiveFormat.html',1,'Archive']]],
+  ['array_13',['Array',['../classELF_1_1ELFFormat_1_1Array.html',1,'ELF::ELFFormat']]],
+  ['as86objformat_14',['AS86ObjFormat',['../classAS86Obj_1_1AS86ObjFormat.html',1,'AS86Obj']]],
+  ['atariformat_15',['AtariFormat',['../classBinary_1_1AtariFormat.html',1,'Binary']]],
+  ['aux_16',['AUX',['../classApple_1_1FileInfo_1_1AUX.html',1,'Apple::FileInfo']]],
+  ['auxiliary_17',['Auxiliary',['../classELF_1_1ELFFormat_1_1VersionRequirement_1_1Auxiliary.html',1,'ELF::ELFFormat::VersionRequirement']]]
 ];

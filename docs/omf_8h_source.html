@@ -88,36 +88,37 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define OMF_H</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;../common.h&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;../linker/reader.h&quot;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;../linker/writer.h&quot;</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">/* TODO: unimplemented */</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="comment">/* Intel Object Module format (input only) */</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keyword">namespace </span>OMF</div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>{</div>
-<div class="foldopen" id="foldopen00017" data-start="{" data-end="};">
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="classOMF_1_1OMFFormat.html">   17</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classOMF_1_1OMFFormat.html">OMFFormat</a> : <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1InputFormat.html">Linker::InputFormat</a></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    {</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classOMF_1_1OMFFormat.html#abba19c4b32dfb1215575a227182c1617">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classOMF_1_1OMFFormat.html#a7feb462007d32c53a30b5bd8f44cc5a2">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classOMF_1_1OMFFormat.html#a3045b8b01b76cd6e485aefb65ee5a3cb">ProduceModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module, <a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <span class="comment">/* TODO */</span></div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    };</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;../linker/format.h&quot;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;../linker/reader.h&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;../linker/writer.h&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="comment">/* TODO: unimplemented */</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="comment">/* Intel Object Module format (input only) */</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keyword">namespace </span>OMF</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>{</div>
+<div class="foldopen" id="foldopen00018" data-start="{" data-end="};">
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="classOMF_1_1OMFFormat.html">   18</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classOMF_1_1OMFFormat.html">OMFFormat</a> : <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1InputFormat.html">Linker::InputFormat</a></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    {</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classOMF_1_1OMFFormat.html#abba19c4b32dfb1215575a227182c1617">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        offset_t <a class="code hl_function" href="classOMF_1_1OMFFormat.html#aed5e41c1db3b3b74d8870cff0ae67fd6">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classOMF_1_1OMFFormat.html#a3045b8b01b76cd6e485aefb65ee5a3cb">ProduceModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module, <a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="comment">/* TODO */</span></div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    };</div>
 </div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>}</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span><span class="preprocessor">#endif </span><span class="comment">/* OMF_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="aclassLinker_1_1InputFormat_html"><div class="ttname"><a href="classLinker_1_1InputFormat.html">Linker::InputFormat</a></div><div class="ttdoc">A class that provides a general interface to loading a module.</div><div class="ttdef"><b>Definition</b> format.h:161</div></div>
-<div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:20</div></div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>}</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span> </div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span><span class="preprocessor">#endif </span><span class="comment">/* OMF_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="aclassLinker_1_1InputFormat_html"><div class="ttname"><a href="classLinker_1_1InputFormat.html">Linker::InputFormat</a></div><div class="ttdoc">A class that provides a general interface to loading a module.</div><div class="ttdef"><b>Definition</b> format.h:166</div></div>
+<div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:21</div></div>
 <div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:16</div></div>
 <div class="ttc" id="aclassLinker_1_1Writer_html"><div class="ttname"><a href="classLinker_1_1Writer.html">Linker::Writer</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to export binary data.</div><div class="ttdef"><b>Definition</b> writer.h:15</div></div>
-<div class="ttc" id="aclassOMF_1_1OMFFormat_html"><div class="ttname"><a href="classOMF_1_1OMFFormat.html">OMF::OMFFormat</a></div><div class="ttdoc">Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,...</div><div class="ttdef"><b>Definition</b> omf.h:18</div></div>
-<div class="ttc" id="aclassOMF_1_1OMFFormat_html_a3045b8b01b76cd6e485aefb65ee5a3cb"><div class="ttname"><a href="classOMF_1_1OMFFormat.html#a3045b8b01b76cd6e485aefb65ee5a3cb">OMF::OMFFormat::ProduceModule</a></div><div class="ttdeci">void ProduceModule(Linker::Module &amp;module, Linker::Reader &amp;rd) override</div><div class="ttdoc">Reads a file and loads the information into a module object.</div><div class="ttdef"><b>Definition</b> omf.cc:18</div></div>
-<div class="ttc" id="aclassOMF_1_1OMFFormat_html_a7feb462007d32c53a30b5bd8f44cc5a2"><div class="ttname"><a href="classOMF_1_1OMFFormat.html#a7feb462007d32c53a30b5bd8f44cc5a2">OMF::OMFFormat::WriteFile</a></div><div class="ttdeci">void WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> omf.cc:13</div></div>
+<div class="ttc" id="aclassOMF_1_1OMFFormat_html"><div class="ttname"><a href="classOMF_1_1OMFFormat.html">OMF::OMFFormat</a></div><div class="ttdoc">Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,...</div><div class="ttdef"><b>Definition</b> omf.h:19</div></div>
+<div class="ttc" id="aclassOMF_1_1OMFFormat_html_a3045b8b01b76cd6e485aefb65ee5a3cb"><div class="ttname"><a href="classOMF_1_1OMFFormat.html#a3045b8b01b76cd6e485aefb65ee5a3cb">OMF::OMFFormat::ProduceModule</a></div><div class="ttdeci">void ProduceModule(Linker::Module &amp;module, Linker::Reader &amp;rd) override</div><div class="ttdoc">Reads a file and loads the information into a module object.</div><div class="ttdef"><b>Definition</b> omf.cc:20</div></div>
 <div class="ttc" id="aclassOMF_1_1OMFFormat_html_abba19c4b32dfb1215575a227182c1617"><div class="ttname"><a href="classOMF_1_1OMFFormat.html#abba19c4b32dfb1215575a227182c1617">OMF::OMFFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> omf.cc:8</div></div>
+<div class="ttc" id="aclassOMF_1_1OMFFormat_html_aed5e41c1db3b3b74d8870cff0ae67fd6"><div class="ttname"><a href="classOMF_1_1OMFFormat.html#aed5e41c1db3b3b74d8870cff0ae67fd6">OMF::OMFFormat::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> omf.cc:13</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

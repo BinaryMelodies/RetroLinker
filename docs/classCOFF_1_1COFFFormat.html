@@ -98,13 +98,15 @@ Inheritance diagram for COFF::COFFFormat:</div>
  <div class="center">
   <img src="classCOFF_1_1COFFFormat.png" usemap="#COFF::COFFFormat_map" alt=""/>
   <map id="COFF::COFFFormat_map" name="COFF::COFFFormat_map">
-<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="0,112,187,136"/>
-<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="197,112,384,136"/>
-<area href="classMicrosoft_1_1MZSimpleStubWriter.html" alt="Microsoft::MZSimpleStubWriter" shape="rect" coords="394,112,581,136"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,187,80"/>
-<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="197,56,384,80"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="197,0,384,24"/>
-<area href="classMicrosoft_1_1PEFormat.html" title="Microsoft PE .EXE portable executable file format." alt="Microsoft::PEFormat" shape="rect" coords="197,224,384,248"/>
+<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="0,168,187,192"/>
+<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="197,168,384,192"/>
+<area href="classMicrosoft_1_1MZSimpleStubWriter.html" alt="Microsoft::MZSimpleStubWriter" shape="rect" coords="394,168,581,192"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,112,187,136"/>
+<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="197,112,384,136"/>
+<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,56,187,80"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="197,56,384,80"/>
+<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="197,0,384,24"/>
+<area href="classMicrosoft_1_1PEFormat.html" title="Microsoft PE .EXE portable executable file format." alt="Microsoft::PEFormat" shape="rect" coords="197,280,384,304"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -214,9 +216,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DetectCpuType</b> ()<
 <tr class="memitem:aab8530040f5357e86cecd607605816ba" id="r_aab8530040f5357e86cecd607605816ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aab8530040f5357e86cecd607605816ba">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:aab8530040f5357e86cecd607605816ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:aab8530040f5357e86cecd607605816ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a25871f4b6e54e7b6d9864af9c3b1a07f" id="r_a25871f4b6e54e7b6d9864af9c3b1a07f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25871f4b6e54e7b6d9864af9c3b1a07f">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="memdesc:a25871f4b6e54e7b6d9864af9c3b1a07f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:a25871f4b6e54e7b6d9864af9c3b1a07f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a075b3f7fff08315190b8fa029e5dd7e2" id="r_a075b3f7fff08315190b8fa029e5dd7e2"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a075b3f7fff08315190b8fa029e5dd7e2">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
+<tr class="memdesc:a075b3f7fff08315190b8fa029e5dd7e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="separator:a075b3f7fff08315190b8fa029e5dd7e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ea5f59639fe34d30cad54aa61676736" id="r_a1ea5f59639fe34d30cad54aa61676736"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1ea5f59639fe34d30cad54aa61676736">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
 <tr class="memdesc:a1ea5f59639fe34d30cad54aa61676736"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:a1ea5f59639fe34d30cad54aa61676736"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -289,6 +291,15 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>FormatProvide
 <tr class="memitem:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format" id="r_a10296b22383c5b8d061308d1f0cee6a8"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Format</b> (offset_t file_offset=0)</td></tr>
 <tr class="separator:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format" id="r_ad5413b2bd172398a04e5cdb29b99d4f7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#ad5413b2bd172398a04e5cdb29b99d4f7">ActualDataSize</a> () override</td></tr>
+<tr class="memdesc:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
+<tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format" id="r_a12da087d78c8a1eba1e3076522b604c1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a12da087d78c8a1eba1e3076522b604c1">GetByte</a> (offset_t offset) override</td></tr>
+<tr class="memdesc:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined)  <br /></td></tr>
+<tr class="separator:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:a0ba82902513f53d3da619281f9602d41 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a0ba82902513f53d3da619281f9602d41"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearLinkerManager</b> ()</td></tr>
@@ -1011,8 +1022,8 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_size</b> = -
 
 </div>
 </div>
-<a id="a25871f4b6e54e7b6d9864af9c3b1a07f" name="a25871f4b6e54e7b6d9864af9c3b1a07f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a25871f4b6e54e7b6d9864af9c3b1a07f">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="a075b3f7fff08315190b8fa029e5dd7e2" name="a075b3f7fff08315190b8fa029e5dd7e2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a075b3f7fff08315190b8fa029e5dd7e2">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -1021,7 +1032,7 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_size</b> = -
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void COFFFormat::WriteFile </td>
+          <td class="memname">offset_t COFFFormat::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
           <td></td>
@@ -1036,9 +1047,9 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_size</b> = -
 
 <p>Stores data in memory to file. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#a1d7bfc5809e8ab349afc586c0e182729">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#ae610cd11e4a7a3d34c47fafaaccd024c">Microsoft::PEFormat</a>.</p>
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#a5f1a660554f28fead9b3fce44ee30e0b">Microsoft::PEFormat</a>.</p>
 
 </div>
 </div>

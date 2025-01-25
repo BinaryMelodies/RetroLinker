@@ -97,9 +97,10 @@ Inheritance diagram for Apple::AppleSingleDouble:</div>
  <div class="center">
   <img src="classApple_1_1AppleSingleDouble.png" usemap="#Apple::AppleSingleDouble_map" alt=""/>
   <map id="Apple::AppleSingleDouble_map" name="Apple::AppleSingleDouble_map">
-<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,56,159,80"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,0,159,24"/>
-<area href="classApple_1_1MacBinary.html" title="MacBinary is an alternative format to AppleSingle for representing a Macintosh file on a non-Macintos..." alt="Apple::MacBinary" shape="rect" coords="0,168,159,192"/>
+<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,112,159,136"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,159,80"/>
+<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,159,24"/>
+<area href="classApple_1_1MacBinary.html" title="MacBinary is an alternative format to AppleSingle for representing a Macintosh file on a non-Macintos..." alt="Apple::MacBinary" shape="rect" coords="0,224,159,248"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -225,9 +226,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetMacintoshAttri
 <tr class="memitem:ada5c7760fea6e4ddd3b59f7a3c3aed6a" id="r_ada5c7760fea6e4ddd3b59f7a3c3aed6a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada5c7760fea6e4ddd3b59f7a3c3aed6a">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:ada5c7760fea6e4ddd3b59f7a3c3aed6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:ada5c7760fea6e4ddd3b59f7a3c3aed6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6475b5b94cb43b80e02f57df395a9277" id="r_a6475b5b94cb43b80e02f57df395a9277"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6475b5b94cb43b80e02f57df395a9277">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="memdesc:a6475b5b94cb43b80e02f57df395a9277"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:a6475b5b94cb43b80e02f57df395a9277"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84c0274d72995a66f54966d50cffdd8a" id="r_a84c0274d72995a66f54966d50cffdd8a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a84c0274d72995a66f54966d50cffdd8a">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
+<tr class="memdesc:a84c0274d72995a66f54966d50cffdd8a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="separator:a84c0274d72995a66f54966d50cffdd8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a46bce2bbfcf84b9e5c8459b7ae730148" id="r_a46bce2bbfcf84b9e5c8459b7ae730148"><td class="memItemLeft" align="right" valign="top"><a id="a46bce2bbfcf84b9e5c8459b7ae730148" name="a46bce2bbfcf84b9e5c8459b7ae730148"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>PrefixFilename</b> (std::string prefix, std::string filename)</td></tr>
 <tr class="separator:a46bce2bbfcf84b9e5c8459b7ae730148"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -299,6 +300,15 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 <tr class="memitem:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format" id="r_adda815844b654ffdd8f78e4828767702"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump)</td></tr>
 <tr class="memdesc:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format" id="r_ad5413b2bd172398a04e5cdb29b99d4f7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#ad5413b2bd172398a04e5cdb29b99d4f7">ActualDataSize</a> () override</td></tr>
+<tr class="memdesc:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
+<tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format" id="r_a12da087d78c8a1eba1e3076522b604c1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a12da087d78c8a1eba1e3076522b604c1">GetByte</a> (offset_t offset) override</td></tr>
+<tr class="memdesc:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined)  <br /></td></tr>
+<tr class="separator:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -624,8 +634,8 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
 
 </div>
 </div>
-<a id="a6475b5b94cb43b80e02f57df395a9277" name="a6475b5b94cb43b80e02f57df395a9277"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6475b5b94cb43b80e02f57df395a9277">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="a84c0274d72995a66f54966d50cffdd8a" name="a84c0274d72995a66f54966d50cffdd8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84c0274d72995a66f54966d50cffdd8a">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -634,7 +644,7 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void AppleSingleDouble::WriteFile </td>
+          <td class="memname">offset_t AppleSingleDouble::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
           <td></td>
@@ -649,9 +659,9 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
 
 <p>Stores data in memory to file. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#a1d7bfc5809e8ab349afc586c0e182729">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classApple_1_1MacBinary.html#ad8d638540f9fb4cb16989a6aeccfe59a">Apple::MacBinary</a>.</p>
+<p>Reimplemented in <a class="el" href="classApple_1_1MacBinary.html#a25376f9ba8ae704eceafb47c199bc2df">Apple::MacBinary</a>.</p>
 
 </div>
 </div>

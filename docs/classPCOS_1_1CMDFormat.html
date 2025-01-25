@@ -96,9 +96,10 @@ Inheritance diagram for PCOS::CMDFormat:</div>
  <div class="center">
   <img src="classPCOS_1_1CMDFormat.png" usemap="#PCOS::CMDFormat_map" alt=""/>
   <map id="PCOS::CMDFormat_map" name="PCOS::CMDFormat_map">
-<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="0,112,139,136"/>
-<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,56,139,80"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,0,139,24"/>
+<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="0,168,139,192"/>
+<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,112,139,136"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,139,80"/>
+<area href="classLinker_1_1Writable.html" title="Represents an abstract interface whose data can be written to a file." alt="Linker::Writable" shape="rect" coords="0,0,139,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -132,9 +133,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a064c316230e847d0a79f93c782eb39a7" id="r_a064c316230e847d0a79f93c782eb39a7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a064c316230e847d0a79f93c782eb39a7">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a064c316230e847d0a79f93c782eb39a7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a064c316230e847d0a79f93c782eb39a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ada9bc71bdca0e39cf28fbdd5df1351" id="r_a5ada9bc71bdca0e39cf28fbdd5df1351"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5ada9bc71bdca0e39cf28fbdd5df1351">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="memdesc:a5ada9bc71bdca0e39cf28fbdd5df1351"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:a5ada9bc71bdca0e39cf28fbdd5df1351"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e6492b92081a3155e6649ddb02a4f05" id="r_a5e6492b92081a3155e6649ddb02a4f05"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e6492b92081a3155e6649ddb02a4f05">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
+<tr class="memdesc:a5e6492b92081a3155e6649ddb02a4f05"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="separator:a5e6492b92081a3155e6649ddb02a4f05"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7218d3d5069bb0887ee3d65956d22df3" id="r_a7218d3d5069bb0887ee3d65956d22df3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7218d3d5069bb0887ee3d65956d22df3">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
 <tr class="memdesc:a7218d3d5069bb0887ee3d65956d22df3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:a7218d3d5069bb0887ee3d65956d22df3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -264,6 +265,15 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 <tr class="memitem:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format" id="r_af096ef1500e69a6b3112c7640b3748bd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Clear</a> ()</td></tr>
 <tr class="memdesc:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format" id="r_ad5413b2bd172398a04e5cdb29b99d4f7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#ad5413b2bd172398a04e5cdb29b99d4f7">ActualDataSize</a> () override</td></tr>
+<tr class="memdesc:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:ad5413b2bd172398a04e5cdb29b99d4f7 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
+<tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format" id="r_a12da087d78c8a1eba1e3076522b604c1"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a12da087d78c8a1eba1e3076522b604c1">GetByte</a> (offset_t offset) override</td></tr>
+<tr class="memdesc:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined)  <br /></td></tr>
+<tr class="separator:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -457,8 +467,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
-<a id="a5ada9bc71bdca0e39cf28fbdd5df1351" name="a5ada9bc71bdca0e39cf28fbdd5df1351"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5ada9bc71bdca0e39cf28fbdd5df1351">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="a5e6492b92081a3155e6649ddb02a4f05" name="a5e6492b92081a3155e6649ddb02a4f05"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e6492b92081a3155e6649ddb02a4f05">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -467,7 +477,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void CMDFormat::WriteFile </td>
+          <td class="memname">offset_t CMDFormat::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
           <td></td>
@@ -482,7 +492,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Stores data in memory to file. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#a1d7bfc5809e8ab349afc586c0e182729">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format</a>.</p>
 
 </div>
 </div>

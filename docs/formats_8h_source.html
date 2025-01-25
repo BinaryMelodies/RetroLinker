@@ -114,77 +114,78 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    FORMAT_AOUT, <span class="comment">// UNIX a.out</span></div>
 <div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>    FORMAT_APPLE, <span class="comment">// Macintosh AppleSingle/AppleDouble, used to store Macintosh files on other systems</span></div>
 <div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>    FORMAT_APPLEII, <span class="comment">// Apple ][ binary format</span></div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    FORMAT_AS86, <span class="comment">// as86 object file</span></div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    FORMAT_ATARI, <span class="comment">// Atari 8-bit binary format</span></div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    FORMAT_BW, <span class="comment">// DOS/16M .exp file</span></div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    FORMAT_COFF, <span class="comment">// UNIX COFF</span></div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    FORMAT_CMD, <span class="comment">// CP/M-86</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    FORMAT_CPM3, <span class="comment">// CP/M-80 Plus format</span></div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    FORMAT_D3X, <span class="comment">// Daniel Broca&#39;s D3X DOS extender</span></div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    FORMAT_ELF, <span class="comment">// UNIX ELF</span></div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    FORMAT_FLAT, <span class="comment">// flat unstructured file</span></div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    FORMAT_FLEX, <span class="comment">// FLEX .cmd (6800 or 6809 CPUs)</span></div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    FORMAT_GEOS, <span class="comment">// PC/GEOS Geode format</span></div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    FORMAT_GSOS, <span class="comment">// Apple IIgs GS/OS format</span></div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    FORMAT_HU, <span class="comment">// Human68k .x</span></div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    FORMAT_HUNK, <span class="comment">// Amiga hunk</span></div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    FORMAT_JAVA, <span class="comment">// Java class file</span></div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    FORMAT_LE, <span class="comment">// Linear executable (OS/2, DOS/4G)</span></div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    FORMAT_LV, <span class="comment">// CandyMan&#39;s DX64 DOS extender, LV/Float format</span></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    FORMAT_MACHO, <span class="comment">// Mach-O format</span></div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    FORMAT_MINIX, <span class="comment">// MINIX a.out</span></div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    FORMAT_MP, <span class="comment">// Phar Lap executable .exp and relocatable executable, .rex</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    FORMAT_MZ, <span class="comment">// MS-DOS .exe</span></div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    FORMAT_NE, <span class="comment">// 16-bit Windows .exe</span></div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    FORMAT_O65, <span class="comment">// 6502 binary relocation format</span></div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    FORMAT_OMF, <span class="comment">// Intel Object file</span></div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    FORMAT_P3, <span class="comment">// Phar Lap new executable .exp</span></div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    FORMAT_PCOS, <span class="comment">// Olivetti M20 PCOS .cmd/.sav files</span></div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    FORMAT_PE, <span class="comment">// 32-bit Windows .exe</span></div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    FORMAT_PEF, <span class="comment">// Classic Macintosh PowerPC executable</span></div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    FORMAT_PMODEW, <span class="comment">// PMODE/W executable</span></div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    FORMAT_PRL, <span class="comment">// MP/M-80 relocatable</span></div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    FORMAT_RSRC, <span class="comment">// Classic Macintosh resource, possibly containing an executable</span></div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    FORMAT_UZI280, <span class="comment">// UZI-280 executable</span></div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    FORMAT_W3, <span class="comment">// Windows unique file</span></div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    FORMAT_W4, <span class="comment">// Windows unique file</span></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    FORMAT_XENIX, <span class="comment">// Xenix segmented executable</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    FORMAT_XENIX_BOUT, <span class="comment">// Xenix b.out executable</span></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    FORMAT_XP, <span class="comment">// OS/286 or OS/386 executable</span></div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    FORMAT_Z8K, <span class="comment">// CP/M-8000</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>};</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span> </div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span><span class="keyword">struct </span><a class="code hl_struct" href="structformat__description.html">format_description</a>;</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span> </div>
-<div class="foldopen" id="foldopen00074" data-start="{" data-end="};">
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno"><a class="line" href="structformat__magic.html">   74</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structformat__magic.html">format_magic</a></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>{</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>    std::string magic;</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    <span class="keywordtype">unsigned</span> offset;</div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    format_type type;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    std::string description;</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    bool (* special_parse)(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; in, <a class="code hl_struct" href="structformat__description.html">format_description</a>&amp; description);</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>};</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>    FORMAT_AR, <span class="comment">// UNIX archive files</span></div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>    FORMAT_AS86, <span class="comment">// as86 object file</span></div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>    FORMAT_ATARI, <span class="comment">// Atari 8-bit binary format</span></div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    FORMAT_BW, <span class="comment">// DOS/16M .exp file</span></div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    FORMAT_COFF, <span class="comment">// UNIX COFF</span></div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    FORMAT_CMD, <span class="comment">// CP/M-86</span></div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    FORMAT_CPM3, <span class="comment">// CP/M-80 Plus format</span></div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>    FORMAT_D3X, <span class="comment">// Daniel Broca&#39;s D3X DOS extender</span></div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    FORMAT_ELF, <span class="comment">// UNIX ELF</span></div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    FORMAT_FLAT, <span class="comment">// flat unstructured file</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    FORMAT_FLEX, <span class="comment">// FLEX .cmd (6800 or 6809 CPUs)</span></div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    FORMAT_GEOS, <span class="comment">// PC/GEOS Geode format</span></div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    FORMAT_GSOS, <span class="comment">// Apple IIgs GS/OS format</span></div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    FORMAT_HU, <span class="comment">// Human68k .x</span></div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    FORMAT_HUNK, <span class="comment">// Amiga hunk</span></div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    FORMAT_JAVA, <span class="comment">// Java class file</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>    FORMAT_LE, <span class="comment">// Linear executable (OS/2, DOS/4G)</span></div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    FORMAT_LV, <span class="comment">// CandyMan&#39;s DX64 DOS extender, LV/Float format</span></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    FORMAT_MACHO, <span class="comment">// Mach-O format</span></div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    FORMAT_MINIX, <span class="comment">// MINIX a.out</span></div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    FORMAT_MP, <span class="comment">// Phar Lap executable .exp and relocatable executable, .rex</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    FORMAT_MZ, <span class="comment">// MS-DOS .exe</span></div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    FORMAT_NE, <span class="comment">// 16-bit Windows .exe</span></div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    FORMAT_O65, <span class="comment">// 6502 binary relocation format</span></div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    FORMAT_OMF, <span class="comment">// Intel Object file</span></div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>    FORMAT_P3, <span class="comment">// Phar Lap new executable .exp</span></div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    FORMAT_PCOS, <span class="comment">// Olivetti M20 PCOS .cmd/.sav files</span></div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    FORMAT_PE, <span class="comment">// 32-bit Windows .exe</span></div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    FORMAT_PEF, <span class="comment">// Classic Macintosh PowerPC executable</span></div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    FORMAT_PMODEW, <span class="comment">// PMODE/W executable</span></div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    FORMAT_PRL, <span class="comment">// MP/M-80 relocatable</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    FORMAT_RSRC, <span class="comment">// Classic Macintosh resource, possibly containing an executable</span></div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    FORMAT_UZI280, <span class="comment">// UZI-280 executable</span></div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    FORMAT_W3, <span class="comment">// Windows unique file</span></div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    FORMAT_W4, <span class="comment">// Windows unique file</span></div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    FORMAT_XENIX, <span class="comment">// Xenix segmented executable</span></div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    FORMAT_XENIX_BOUT, <span class="comment">// Xenix b.out executable</span></div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>    FORMAT_XP, <span class="comment">// OS/286 or OS/386 executable</span></div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>    FORMAT_Z8K, <span class="comment">// CP/M-8000</span></div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>};</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span><span class="keyword">struct </span><a class="code hl_struct" href="structformat__description.html">format_description</a>;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
+<div class="foldopen" id="foldopen00075" data-start="{" data-end="};">
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno"><a class="line" href="structformat__magic.html">   75</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structformat__magic.html">format_magic</a></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>{</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>    std::string magic;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>    <span class="keywordtype">unsigned</span> offset;</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>    format_type type;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>    std::string description;</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>    bool (* special_parse)(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; in, <a class="code hl_struct" href="structformat__description.html">format_description</a>&amp; description);</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>};</div>
 </div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="foldopen" id="foldopen00083" data-start="{" data-end="};">
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno"><a class="line" href="structformat__description.html">   83</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structformat__description.html">format_description</a></div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>{</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>    <a class="code hl_struct" href="structformat__magic.html">format_magic</a> magic;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    uint32_t offset;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>};</div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span> </div>
+<div class="foldopen" id="foldopen00084" data-start="{" data-end="};">
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno"><a class="line" href="structformat__description.html">   84</a></span><span class="keyword">struct </span><a class="code hl_struct" href="structformat__description.html">format_description</a></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>{</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>    <a class="code hl_struct" href="structformat__magic.html">format_magic</a> magic;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>    uint32_t offset;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>};</div>
 </div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>std::shared_ptr&lt;Linker::OutputFormat&gt; FetchFormat(std::string text);</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span><span class="keywordtype">void</span> DetermineFormat(std::vector&lt;format_description&gt;&amp; descriptions, <a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd, uint32_t offset = 0);</div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span> </div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>std::shared_ptr&lt;Linker::Format&gt; CreateFormat(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd, <a class="code hl_struct" href="structformat__description.html">format_description</a>&amp; file_format);</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span> </div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span><span class="preprocessor">#endif </span><span class="comment">/* FORMATS_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>std::shared_ptr&lt;Linker::OutputFormat&gt; FetchFormat(std::string text);</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span><span class="keywordtype">void</span> DetermineFormat(std::vector&lt;format_description&gt;&amp; descriptions, <a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd, uint32_t offset = 0);</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>std::shared_ptr&lt;Linker::Format&gt; CreateFormat(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd, <a class="code hl_struct" href="structformat__description.html">format_description</a>&amp; file_format);</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span> </div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span><span class="preprocessor">#endif </span><span class="comment">/* FORMATS_H */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:16</div></div>
-<div class="ttc" id="astructformat__description_html"><div class="ttname"><a href="structformat__description.html">format_description</a></div><div class="ttdef"><b>Definition</b> formats.h:84</div></div>
-<div class="ttc" id="astructformat__magic_html"><div class="ttname"><a href="structformat__magic.html">format_magic</a></div><div class="ttdef"><b>Definition</b> formats.h:75</div></div>
+<div class="ttc" id="astructformat__description_html"><div class="ttname"><a href="structformat__description.html">format_description</a></div><div class="ttdef"><b>Definition</b> formats.h:85</div></div>
+<div class="ttc" id="astructformat__magic_html"><div class="ttname"><a href="structformat__magic.html">format_magic</a></div><div class="ttdef"><b>Definition</b> formats.h:76</div></div>
 <div class="ttc" id="astructoutput__format__type_html"><div class="ttname"><a href="structoutput__format__type.html">output_format_type</a></div><div class="ttdef"><b>Definition</b> formats.h:12</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
