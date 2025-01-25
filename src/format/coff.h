@@ -150,7 +150,7 @@ namespace COFF
 			{
 			}
 
-			void Read(Linker::Reader& in);
+			void Read(Linker::Reader& rd);
 
 			offset_t GetAddress() override;
 

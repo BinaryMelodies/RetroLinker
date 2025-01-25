@@ -337,10 +337,10 @@ void Section::ReadFile(std::istream& in)
 	in.read(reinterpret_cast<char *>(data.data()), data.size());
 }
 
-void Section::ReadFile(Reader& in)
+void Section::ReadFile(Reader& rd)
 {
 	SetZeroFilled(false);
-	in.ReadData(data.size(), reinterpret_cast<char *>(data.data()));
+	rd.ReadData(data.size(), reinterpret_cast<char *>(data.data()));
 }
 
 offset_t Section::WriteFile(std::ostream& out, offset_t size, offset_t offset) const

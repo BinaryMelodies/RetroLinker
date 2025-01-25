@@ -85,13 +85,13 @@ COFFFormat::Relocation::~Relocation()
 {
 }
 
-void COFFFormat::ZilogRelocation::Read(Linker::Reader& in)
+void COFFFormat::ZilogRelocation::Read(Linker::Reader& rd)
 {
-	address = in.ReadUnsigned(4);
-	symbol_index = in.ReadUnsigned(4);
-	offset = in.ReadUnsigned(4);
-	type = in.ReadUnsigned(2);
-	data = in.ReadUnsigned(2);
+	address = rd.ReadUnsigned(4);
+	symbol_index = rd.ReadUnsigned(4);
+	offset = rd.ReadUnsigned(4);
+	type = rd.ReadUnsigned(2);
+	data = rd.ReadUnsigned(2);
 }
 
 offset_t COFFFormat::ZilogRelocation::GetAddress()

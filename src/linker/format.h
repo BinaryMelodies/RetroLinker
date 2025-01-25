@@ -38,11 +38,11 @@ namespace Linker
 		/**
 		 * @brief Loads file into memory
 		 */
-		virtual void ReadFile(Reader& in) = 0;
+		virtual void ReadFile(Reader& rd) = 0;
 		/**
 		 * @brief Stores data in memory to file
 		 */
-		virtual void WriteFile(Writer& out) = 0;
+		virtual void WriteFile(Writer& wr) = 0;
 		/**
 		 * @brief Display file contents in a nice manner
 		 */

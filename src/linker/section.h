@@ -296,7 +296,7 @@ namespace Linker
 		 *
 		 * Note that only as many bytes are read in as the size of the section.
 		 */
-		void ReadFile(Reader& in);
+		void ReadFile(Reader& rd);
 
 		/**
 		 * @brief Writes data into file

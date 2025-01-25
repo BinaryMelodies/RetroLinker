@@ -60,8 +60,8 @@ namespace Ergo
 
 		void Clear() override;
 		void CalculateValues() override;
-		void ReadFile(Linker::Reader& in) override;
-		void WriteFile(Linker::Writer& out) override;
+		void ReadFile(Linker::Reader& rd) override;
+		void WriteFile(Linker::Writer& wr) override;
 		/* TODO */
 
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;

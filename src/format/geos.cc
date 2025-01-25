@@ -5,12 +5,12 @@
 
 using namespace GEOS;
 
-void GeodeFormat::ReadFile(Linker::Reader& in)
+void GeodeFormat::ReadFile(Linker::Reader& rd)
 {
 	/* TODO */
 }
 
-void GeodeFormat::WriteFile(Linker::Writer& out)
+void GeodeFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
 }

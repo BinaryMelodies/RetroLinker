@@ -17,8 +17,8 @@ namespace OMF
 	class OMFFormat : public virtual Linker::InputFormat
 	{
 	public:
-		void ReadFile(Linker::Reader& in) override;
-		void WriteFile(Linker::Writer& out) override;
+		void ReadFile(Linker::Reader& rd) override;
+		void WriteFile(Linker::Writer& wr) override;
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 		/* TODO */
 	};

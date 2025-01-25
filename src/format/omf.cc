@@ -5,12 +5,12 @@
 
 using namespace OMF;
 
-void OMFFormat::ReadFile(Linker::Reader& in)
+void OMFFormat::ReadFile(Linker::Reader& rd)
 {
 	/* TODO */
 }
 
-void OMFFormat::WriteFile(Linker::Writer& out)
+void OMFFormat::WriteFile(Linker::Writer& wr)
 {
 	/* TODO */
 }
