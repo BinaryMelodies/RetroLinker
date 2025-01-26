@@ -3,6 +3,19 @@
 
 using namespace Linker;
 
+void ModuleCollector::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> output_format)
+{
+	special_prefix_char = special_char;
+	this->output_format = output_format;
+}
+
+std::shared_ptr<Module> ModuleCollector::CreateModule(std::shared_ptr<InputFormat> input_format, std::string file_name)
+{
+	std::shared_ptr<Module> module = std::make_shared<Module>(file_name);
+	module->SetupOptions(special_prefix_char, output_format.lock(), input_format);
+	return module;
+}
+
 void ModuleCollector::AddModule(std::shared_ptr<Module> module, bool is_library)
 {
 	/* attempts to resolve as many relocations as possible */

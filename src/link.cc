@@ -203,9 +203,11 @@ int main(int argc, char * argv[])
 
 	ModuleCollector linker;
 
+	linker.SetupOptions(special_char, format);
+
 	for(auto input : inputs)
 	{
-		std::shared_ptr<Module> module1 = std::make_shared<Module>(input);
+//		std::shared_ptr<Module> module1 = std::make_shared<Module>(input);
 
 		std::ifstream in;
 		in.open(input, std::ios_base::in | std::ios_base::binary);
@@ -254,7 +256,8 @@ int main(int argc, char * argv[])
 			Linker::FatalError(message.str());
 		}
 
-		module1->SetupOptions(special_char, format, input_format);
+		//module1->SetupOptions(special_char, format, input_format);
+		std::shared_ptr<Module> module1 = linker.CreateModule(input_format, input);
 		input_format->SetupOptions(format);
 		input_format->ProduceModule(*module1, rd);
 		in.close();
