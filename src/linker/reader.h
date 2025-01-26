@@ -24,10 +24,20 @@ namespace Linker
 		 */
 		std::istream * in;
 
+		const offset_t start_offset;
+		const offset_t maximum_size;
+
 		Reader(EndianType endiantype, std::istream * in = nullptr)
-			: endiantype(endiantype), in(in)
+			: endiantype(endiantype), in(in), start_offset(0), maximum_size(offset_t(-1))
 		{
 		}
+
+		Reader(offset_t start_offset, offset_t maximum_size, EndianType endiantype, std::istream * in = nullptr)
+			: endiantype(endiantype), in(in), start_offset(start_offset), maximum_size(maximum_size)
+		{
+		}
+
+		Reader CreateWindow(offset_t new_start_offset, offset_t new_maximum_size = offset_t(-1));
 
 		/**
 		 * @brief Read in a sequence of bytes
