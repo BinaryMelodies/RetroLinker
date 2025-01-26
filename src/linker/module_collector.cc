@@ -9,7 +9,7 @@ void ModuleCollector::SetupOptions(char special_char, std::shared_ptr<Linker::Ou
 	this->output_format = output_format;
 }
 
-std::shared_ptr<Module> ModuleCollector::CreateModule(std::shared_ptr<InputFormat> input_format, std::string file_name)
+std::shared_ptr<Module> ModuleCollector::CreateModule(std::shared_ptr<const InputFormat> input_format, std::string file_name)
 {
 	std::shared_ptr<Module> module = std::make_shared<Module>(file_name);
 	module->SetupOptions(special_prefix_char, output_format.lock(), input_format);

@@ -558,12 +558,6 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 	}
 }
 
-void AOutFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
-{
-	ReadFile(rd);
-	GenerateModule(module);
-}
-
 /* * * Writer * * */
 
 std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system, magic_type magic)

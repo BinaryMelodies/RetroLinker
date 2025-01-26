@@ -179,6 +179,14 @@ namespace Linker
 		 * @brief Reads a file and loads the information into a module object, a convenience method when there is a single module generated
 		 */
 		virtual void ProduceModule(Module& module, Reader& rd);
+		/**
+		 * @brief Loads the information into a module object
+		 */
+		virtual void GenerateModule(ModuleCollector& linker, std::string file_name) const;
+		/**
+		 * @brief Loads the information into a module object, a convenience method when there is a single module generated
+		 */
+		virtual void GenerateModule(Module& module) const;
 	public:
 		/* x86 only */
 		/**

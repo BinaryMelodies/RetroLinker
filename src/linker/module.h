@@ -84,13 +84,13 @@ namespace Linker
 		 * @param output_format The output format that will be used. This is required to know which extra special features need to be implemented (such as segmentation).
 		 * @param input_format The input format that will be used. This is required to know which extra special features need to be implemented (such as segmentation).
 		 */
-		void SetupOptions(char special_char, std::shared_ptr<OutputFormat> output_format, std::shared_ptr<InputFormat> input_format);
+		void SetupOptions(char special_char, std::shared_ptr<OutputFormat> output_format, std::shared_ptr<const InputFormat> input_format);
 
 	private:
 		/* GNU assembler can use '$', NASM must use '?' */
 		char special_prefix_char = '$';
 		std::weak_ptr<Linker::OutputFormat> output_format;
-		std::weak_ptr<Linker::InputFormat> input_format;
+		std::weak_ptr<const Linker::InputFormat> input_format;
 
 		/* symbols */
 		std::string segment_prefix();

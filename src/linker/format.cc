@@ -175,12 +175,24 @@ void InputFormat::SetupOptions(std::shared_ptr<OutputFormat> format)
 
 void InputFormat::ProduceModule(ModuleCollector& linker, Reader& rd, std::string file_name)
 {
-	std::shared_ptr<Module> module = linker.CreateModule(shared_from_this(), file_name);
-	ProduceModule(*module, rd);
-	linker.AddModule(module);
+	ReadFile(rd);
+	GenerateModule(linker, file_name);
 }
 
 void InputFormat::ProduceModule(Module& module, Reader& rd)
+{
+	ReadFile(rd);
+	GenerateModule(module);
+}
+
+void InputFormat::GenerateModule(ModuleCollector& linker, std::string file_name) const
+{
+	std::shared_ptr<Module> module = linker.CreateModule(shared_from_this(), file_name);
+	GenerateModule(*module);
+	linker.AddModule(module);
+}
+
+void InputFormat::GenerateModule(Module& module) const
 {
 	Linker::FatalError("Internal error: processing input format not implemented");
 }

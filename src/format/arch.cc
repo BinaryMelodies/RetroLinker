@@ -169,9 +169,22 @@ void ArchiveFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-void ArchiveFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
+void ArchiveFormat::GenerateModule(Linker::ModuleCollector& linker, std::string file_name) const
 {
-	// TODO
+	for(auto& entry : files)
+	{
+		if(entry.name == "/" || entry.name == "//")
+			continue;
+
+		if(const std::shared_ptr<Linker::InputFormat> input_format = std::dynamic_pointer_cast<Linker::InputFormat>(entry.contents))
+		{
+			input_format->GenerateModule(linker, file_name + ":" + entry.name);
+		}
+		else
+		{
+			Linker::Error << "Error: unable to process module " << entry.name << " from archive " << file_name << ", ignoring" << std::endl;
+		}
+	}
 }
 
 void ArchiveFormat::CalculateValues()

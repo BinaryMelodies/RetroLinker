@@ -230,7 +230,7 @@ void O65Format::Module::WriteFile(Linker::Writer& wr)
 	}
 }
 
-void O65Format::Module::GenerateModule(Linker::Module& module, Linker::Reader& rd) const
+void O65Format::Module::GenerateModule(Linker::Module& module) const
 {
 	if((mode_word & MODE_65816))
 		module.cpu = Linker::Module::W65K;
@@ -395,9 +395,12 @@ offset_t O65Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void O65Format::ProduceModule(Linker::Module& module, Linker::Reader& rd)
+void O65Format::GenerateModule(Linker::Module& module) const
 {
-	ReadFile(rd);
-	modules[0]->GenerateModule(module, rd);
+	// TODO: this should be separate modules?
+	for(auto& member_module : modules)
+	{
+		member_module->GenerateModule(module);
+	}
 }
 

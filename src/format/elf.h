@@ -1067,11 +1067,7 @@ namespace ELF
 
 		void SetupOptions(std::shared_ptr<Linker::OutputFormat> format) override;
 
-	private:
-		void GenerateModule(Linker::Module& module) const;
-
-	public:
-		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+		void GenerateModule(Linker::Module& module) const override;
 		void CalculateValues() override;
 	};
 

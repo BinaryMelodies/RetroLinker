@@ -22,7 +22,7 @@ namespace Linker
 		 */
 		void SetupOptions(char special_char, std::shared_ptr<OutputFormat> output_format);
 
-		std::shared_ptr<Module> CreateModule(std::shared_ptr<InputFormat> input_format, std::string file_name = "");
+		std::shared_ptr<Module> CreateModule(std::shared_ptr<const InputFormat> input_format, std::string file_name = "");
 	private:
 		/* GNU assembler can use '$', NASM must use '?' */
 		char special_prefix_char = '$';

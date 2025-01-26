@@ -1227,12 +1227,6 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 	}
 }
 
-void COFFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
-{
-	ReadFile(rd);
-	GenerateModule(module);
-}
-
 /* * * Writer members * * */
 
 unsigned COFFFormat::FormatAdditionalSectionFlags(std::string section_name) const

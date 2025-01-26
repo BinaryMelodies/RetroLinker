@@ -113,11 +113,7 @@ namespace AOut
 
 		/* * * Reader * * */
 
-	private:
-		void GenerateModule(Linker::Module& module) const;
-
-	public:
-		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+		void GenerateModule(Linker::Module& module) const override;
 
 		/* * * Writer * * */
 

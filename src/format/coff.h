@@ -581,14 +581,11 @@ namespace COFF
 			C_LABEL = 6,
 		};
 
-		void GenerateModule(Linker::Module& module) const;
-
 	public:
-		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+		void GenerateModule(Linker::Module& module) const override;
 
 		/* * * Writer members * * */
 
-	public:
 		/**
 		 * @brief Represents the type of target system, which will determine the CPU type and several other fields
 		 */

@@ -187,11 +187,11 @@ namespace AS86Obj
 		void ReadFile(Linker::Reader& rd) override;
 		offset_t WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;
-		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
 
 	protected:
 		static std::shared_ptr<Linker::Section> GetDefaultSection(unsigned index);
-		void GenerateModule(Linker::Module& module) const;
+	public:
+		void GenerateModule(Linker::Module& module) const override;
 	};
 }
 

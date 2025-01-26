@@ -5,7 +5,7 @@
 
 using namespace Linker;
 
-void Module::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> output_format, std::shared_ptr<Linker::InputFormat> input_format)
+void Module::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> output_format, std::shared_ptr<const Linker::InputFormat> input_format)
 {
 	special_prefix_char = special_char;
 	this->output_format = output_format;
@@ -138,7 +138,7 @@ bool Module::parse_exported_name(std::string reference_name, Linker::ExportedSym
 
 void Module::AddLocalSymbol(std::string name, Location location)
 {
-	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
 
 	/* The w65-wdc assembler is bugged and sometimes erases bytes, this is an ugly work around to fix it */
 	if(input_format != nullptr && input_format->FormatRequiresDataStreamFix() && name.rfind(fix_byte_prefix(), 0) == 0)
@@ -164,7 +164,7 @@ void Module::_AddLocalSymbol(std::string name, Location location)
 void Module::AddGlobalSymbol(std::string name, Location location)
 {
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
-	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
 
 	if(output_format != nullptr && output_format->FormatSupportsLibraries()
 	&& input_format != nullptr && !input_format->FormatProvidesLibraries()
@@ -226,7 +226,7 @@ void Module::AddExportedSymbol(ExportedSymbol name, Location symbol)
 void Module::AddUndefinedSymbol(std::string symbol_name)
 {
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
-	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
 
 	if(output_format != nullptr && output_format->FormatSupportsLibraries()
 	&& input_format != nullptr && !input_format->FormatProvidesLibraries())
@@ -268,7 +268,7 @@ void Module::AddUndefinedSymbol(std::string symbol_name)
 void Module::AddRelocation(Relocation relocation)
 {
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
-	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
 
 	if(SymbolName * symbolp = std::get_if<SymbolName>(&relocation.target.target))
 	{
@@ -446,7 +446,7 @@ bool Module::FindGlobalSymbol(std::string name, Location& location)
 void Module::AddSection(std::shared_ptr<Section> section)
 {
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
-	std::shared_ptr<Linker::InputFormat> input_format = this->input_format.lock();
+	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
 
 	if(output_format != nullptr)
 		section->SetFlag(output_format->FormatAdditionalSectionFlags(section->name));

@@ -427,12 +427,6 @@ void AS86ObjFormat::Dump(Dumper::Dumper& dump)
 	}
 }
 
-void AS86ObjFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
-{
-	ReadFile(rd);
-	GenerateModule(module);
-}
-
 std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index)
 {
 	std::ostringstream oss;

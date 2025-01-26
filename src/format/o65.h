@@ -211,7 +211,7 @@ namespace O65
 
 			void ReadFile(Linker::Reader& rd);
 			void WriteFile(Linker::Writer& wr);
-			void GenerateModule(Linker::Module& module, Linker::Reader& rd) const;
+			void GenerateModule(Linker::Module& module) const;
 		};
 
 	protected:
@@ -231,7 +231,7 @@ namespace O65
 
 		void ReadFile(Linker::Reader& rd) override;
 		offset_t WriteFile(Linker::Writer& wr) override;
-		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+		void GenerateModule(Linker::Module& module) const override;
 	};
 }
 

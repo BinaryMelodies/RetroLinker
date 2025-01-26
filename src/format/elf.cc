@@ -2765,12 +2765,6 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 	}
 }
 
-void ELFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
-{
-	ReadFile(rd);
-	GenerateModule(module);
-}
-
 void ELFFormat::CalculateValues()
 {
 	// TODO: untested
