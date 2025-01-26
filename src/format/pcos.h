@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 #include "../common.h"
-#include "../linker/linker.h"
+#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
 #include "../linker/writer.h"
 #include "../dumper/dumper.h"

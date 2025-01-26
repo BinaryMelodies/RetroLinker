@@ -2,7 +2,7 @@
 #define AIF_H
 
 #include "../common.h"
-#include "../linker/linker.h"
+#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
 #include "../linker/writer.h"
 

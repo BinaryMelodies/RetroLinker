@@ -1,5 +1,5 @@
-#ifndef LINKER_H
-#define LINKER_H
+#ifndef LINKER_MANAGER_H
+#define LINKER_MANAGER_H
 
 #include <fstream>
 #include <memory>
@@ -137,4 +137,4 @@ namespace Linker
 	bool ends_with(std::string str, std::string end);
 }
 
-#endif /* LINKER_H */
+#endif /* LINKER_MANAGER_H */

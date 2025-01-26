@@ -2,7 +2,7 @@
 #define PEFEXE_H
 
 #include "../common.h"
-#include "../linker/linker.h"
+#include "../linker/linker_manager.h"
 
 /* TODO: unimplemented */
 

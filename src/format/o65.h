@@ -3,7 +3,7 @@
 
 #include "../common.h"
 #include "../linker/image.h"
-#include "../linker/linker.h"
+#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
 #include "../linker/writer.h"
 

@@ -2,7 +2,7 @@
 #define PHARLAP_H
 
 #include "../common.h"
-#include "../linker/linker.h"
+#include "../linker/linker_manager.h"
 #include "mzexe.h"
 
 namespace PharLap

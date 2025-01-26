@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include "../common.h"
-#include "../linker/linker.h"
+#include "../linker/linker_manager.h"
 #include "../linker/format.h"
 #include "../linker/module.h"
 #include "../linker/reader.h"

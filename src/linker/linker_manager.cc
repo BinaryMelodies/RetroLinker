@@ -1,7 +1,7 @@
 
 #include <set>
 #include <sstream>
-#include "linker.h"
+#include "linker_manager.h"
 #include "module.h"
 #include "position.h"
 #include "relocation.h"

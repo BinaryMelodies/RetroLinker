@@ -2,7 +2,7 @@
 #define PEEXE_H
 
 #include "../common.h"
-#include "../linker/linker.h"
+#include "../linker/linker_manager.h"
 #include "coff.h"
 #include "mzexe.h"
 
