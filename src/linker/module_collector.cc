@@ -6,20 +6,41 @@ using namespace Linker;
 void ModuleCollector::AddModule(std::shared_ptr<Module> module, bool is_library)
 {
 	/* attempts to resolve as many relocations as possible */
-	/* this is needed because local symbols get lost, but segment references are still stored as references to symbol names */
-	module->ResolveRelocations();
+	/* this is needed because local symbols can get lost or duplicated, but segment references are still stored as references to symbol names */
+	module->ResolveLocalRelocations();
 	modules.push_back(module);
-	for(auto& symbol_definition : module->symbols)
+	for(auto& symbol_definition : module->global_symbols)
 	{
 		const std::string& symbol_name = symbol_definition.first;
 		if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
 		{
-			// TODO: also display module file names
-			// TODO: enable weak symbols
-			Linker::Error << "Error: duplicate symbol " << symbol_name << ", ignoring duplicate" << std::endl;
+			if(weak_symbols.find(symbol_name) == weak_symbols.end())
+			{
+				// TODO: also display module file names
+				Linker::Error << "Error: duplicate symbol " << symbol_name << ", ignoring duplicate" << std::endl;
+				continue;
+			}
+			else
+			{
+				weak_symbols.erase(symbol_name);
+			}
+		}
+		symbol_definitions[symbol_name] = module;
+		if(required_symbols.find(symbol_name) != required_symbols.end())
+		{
+			/* include and link module */
+			IncludeModule(module);
+		}
+	}
+	for(auto& symbol_definition : module->weak_symbols)
+	{
+		const std::string& symbol_name = symbol_definition.first;
+		if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
+		{
 			continue;
 		}
 		symbol_definitions[symbol_name] = module;
+		weak_symbols.insert(symbol_name);
 		if(required_symbols.find(symbol_name) != required_symbols.end())
 		{
 			/* include and link module */
@@ -56,7 +77,15 @@ void ModuleCollector::IncludeModule(std::shared_ptr<Module> module)
 	// must be set first to avoid a possible infinite recursion, if two modules reference each other
 	module->is_included = true;
 
-	for(auto& symbol_definition : module->symbols)
+	for(auto& symbol_definition : module->global_symbols)
+	{
+		const std::string& symbol_name = symbol_definition.first;
+		if(required_symbols.find(symbol_name) != required_symbols.end())
+		{
+			required_symbols.erase(symbol_name);
+		}
+	}
+	for(auto& symbol_definition : module->weak_symbols)
 	{
 		const std::string& symbol_name = symbol_definition.first;
 		if(required_symbols.find(symbol_name) != required_symbols.end())

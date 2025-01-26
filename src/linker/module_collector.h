@@ -17,6 +17,7 @@ namespace Linker
 		std::vector<std::shared_ptr<Module>> modules;
 		std::set<std::string> required_symbols;
 		std::map<std::string, std::weak_ptr<Module>> symbol_definitions;
+		std::set<std::string> weak_symbols;
 
 		void AddModule(std::shared_ptr<Module> module, bool is_library = false);
 		void AddLibraryModule(std::shared_ptr<Module> module);

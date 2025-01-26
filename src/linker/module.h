@@ -53,8 +53,9 @@ namespace Linker
 	private:
 		std::vector<std::shared_ptr<Section>> sections;
 		std::map<std::string, std::shared_ptr<Section>> section_names;
-		std::map<std::string, Location> symbols;
-		std::map<std::string, Location> local_symbols;
+		std::map<std::string, Location> global_symbols;
+		std::map<std::string, std::vector<Location>> local_symbols;
+		std::map<std::string, Location> weak_symbols; // must be disjoined from global symbols
 		std::map<std::string, CommonSymbol> unallocated_symbols;
 		std::vector<SymbolName> imported_symbols;
 		std::map<ExportedSymbol, Location> exported_symbols;
@@ -118,17 +119,22 @@ namespace Linker
 
 	public:
 		/**
+		 * @brief Adds a weakly bound symbol
+		 */
+		void AddWeakSymbol(std::string name, Location location);
+
+		/**
 		 * @brief Adds a common symbol
 		 */
 		void AddCommonSymbol(std::string name, CommonSymbol symbol);
 
 		/**
-		 * @brief Adds an imported symbol
+		 * @brief Adds an imported symbol (Microsoft format: library name + symbol name + ordinal/hint)
 		 */
 		void AddImportedSymbol(SymbolName name);
 
 		/**
-		 * @brief Adds an exported symbol
+		 * @brief Adds an exported symbol (Microsoft format: library name + symbol name + ordinal/hint)
 		 */
 		void AddExportedSymbol(ExportedSymbol name, Location symbol);
 
@@ -158,7 +164,7 @@ namespace Linker
 		bool FindLocalSymbol(std::string name, Location& location);
 
 		/**
-		 * @brief Searches for a global symbol
+		 * @brief Searches for a global or weak symbol
 		 */
 		bool FindGlobalSymbol(std::string name, Location& location);
 
@@ -197,12 +203,12 @@ namespace Linker
 		std::shared_ptr<Section> FetchSection(std::string name, unsigned default_flags);
 
 		/**
-		 * @brief Attempts to resolve the targets of all relocations
+		 * @brief Attempts to resolve the local targets of all relocations
 		 */
-		void ResolveRelocations();
+		void ResolveLocalRelocations();
 
 		/**
-		 * @brief Appends two of its sections
+		 * @brief Appends two sections by shifting all symbols locations and relocation targets in the second one
 		 */
 		void Append(std::shared_ptr<Section> dst, std::shared_ptr<Section> src);
 

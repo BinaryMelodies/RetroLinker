@@ -157,7 +157,8 @@ void Module::AddLocalSymbol(std::string name, Location location)
 
 void Module::_AddLocalSymbol(std::string name, Location location)
 {
-	local_symbols[name] = location;
+	local_symbols[name] = std::vector<Location>();
+	local_symbols[name].push_back(location);
 }
 
 void Module::AddGlobalSymbol(std::string name, Location location)
@@ -189,7 +190,19 @@ void Module::AddGlobalSymbol(std::string name, Location location)
 
 void Module::_AddGlobalSymbol(std::string name, Location location)
 {
-	symbols[name] = location;
+	global_symbols[name] = location;
+	if(weak_symbols.find(name) != weak_symbols.end())
+	{
+		weak_symbols.erase(name);
+	}
+}
+
+void Module::AddWeakSymbol(std::string name, Location location)
+{
+	if(global_symbols.find(name) == global_symbols.end())
+	{
+		weak_symbols[name] = location;
+	}
 }
 
 void Module::AddCommonSymbol(std::string name, CommonSymbol symbol)
@@ -409,17 +422,23 @@ const std::map<ExportedSymbol, Location>& Module::GetExportedSymbols() const
 bool Module::FindLocalSymbol(std::string name, Location& location)
 {
 	auto it = local_symbols.find(name);
-	if(it == local_symbols.end())
+	if(it == local_symbols.end() || it->second.size() != 1)
 		return false;
-	location = it->second;
+	location = it->second[0];
 	return true;
 }
 
 bool Module::FindGlobalSymbol(std::string name, Location& location)
 {
-	auto it = symbols.find(name);
-	if(it == symbols.end())
-		return false;
+	auto it = global_symbols.find(name);
+	if(it == global_symbols.end())
+	{
+		auto it = weak_symbols.find(name);
+		if(it == weak_symbols.end())
+			return false;
+		location = it->second;
+		return true;
+	}
 	location = it->second;
 	return true;
 }
@@ -506,7 +525,7 @@ std::shared_ptr<Section> Module::FetchSection(std::string name, unsigned default
 	return section;
 }
 
-void Module::ResolveRelocations()
+void Module::ResolveLocalRelocations()
 {
 	for(auto& rel : relocations)
 	{
@@ -527,7 +546,18 @@ void Module::Append(std::shared_ptr<Section> dst, std::shared_ptr<Section> src)
 {
 	Displacement displacement;
 	displacement[src] = Location(dst, dst->Append(*src));
-	for(auto& symbol : symbols)
+	for(auto& symbol : global_symbols)
+	{
+		symbol.second.Displace(displacement);
+	}
+	for(auto& symbols : local_symbols)
+	{
+		for(auto& symbol : symbols.second)
+		{
+			symbol.Displace(displacement);
+		}
+	}
+	for(auto& symbol : weak_symbols)
 	{
 		symbol.second.Displace(displacement);
 	}
@@ -560,15 +590,42 @@ void Module::Append(Module& other)
 			displacement[other_section] = Location(section, section->Append(*other_section));
 		}
 	}
-	for(auto symbol : other.symbols)
+	for(auto symbol : other.global_symbols)
 	{
-		if(symbols.find(symbol.first) != symbols.end())
+		if(global_symbols.find(symbol.first) != global_symbols.end())
 		{
-			Linker::Debug << "Symbol " << symbol.first << " defined in multiple modules, ignoring repetition" << std::endl;
+			Linker::Error << "Error: Symbol " << symbol.first << " defined in multiple modules, ignoring repetition" << std::endl;
+			continue;
+		}
+		if(weak_symbols.find(symbol.first) != weak_symbols.end())
+		{
+			weak_symbols.erase(symbol.first);
+		}
+		symbol.second.Displace(displacement);
+		global_symbols.emplace(symbol);
+	}
+	for(auto& symbols_pair : other.local_symbols)
+	{
+		if(local_symbols.find(symbols_pair.first) == local_symbols.end())
+		{
+			local_symbols[symbols_pair.first] = std::vector<Location>();
+		}
+		std::vector<Location>& symbol_vector = local_symbols[symbols_pair.first];
+		for(auto& symbol : symbols_pair.second)
+		{
+			symbol.Displace(displacement);
+			symbol_vector.push_back(symbol);
+		}
+	}
+	for(auto symbol : other.weak_symbols)
+	{
+		if(global_symbols.find(symbol.first) != global_symbols.end() || weak_symbols.find(symbol.first) != weak_symbols.end())
+		{
+			Linker::Debug << "Weak symbol " << symbol.first << " defined in multiple modules, weak definition" << std::endl;
 			continue;
 		}
 		symbol.second.Displace(displacement);
-		symbols.emplace(symbol);
+		weak_symbols.emplace(symbol);
 	}
 	for(auto unalloc : other.unallocated_symbols)
 	{
@@ -614,12 +671,13 @@ void Module::AllocateSymbols(std::shared_ptr<Section> section)
 {
 	for(auto it : unallocated_symbols)
 	{
-		if(symbols.find(it.first) == symbols.end())
+		if(global_symbols.find(it.first) == global_symbols.end()
+		&& weak_symbols.find(it.first) == weak_symbols.end())
 		{
 			section->RealignEnd(it.second.align);
 			size_t offset = section->Size();
 			section->Expand(offset + it.second.size);
-			symbols[it.first] = Location(section, offset);
+			global_symbols[it.first] = Location(section, offset);
 #if DISPLAY_LOGS
 			Linker::Debug << "Allocating " << it.first << " in " << section->name << " to " << offset << ", size " << it.second.size << std::endl;
 #endif
