@@ -17,6 +17,7 @@ namespace Dumper
 namespace Linker
 {
 	class Module;
+	class ModuleCollector;
 
 	/**
 	 * @brief A class to encode a general file format
@@ -162,7 +163,7 @@ namespace Linker
 	/**
 	 * @brief A class that provides a general interface to loading a module
 	 */
-	class InputFormat : public virtual Format
+	class InputFormat : public virtual Format, public std::enable_shared_from_this<InputFormat>
 	{
 	public:
 		/**
@@ -173,7 +174,12 @@ namespace Linker
 		/**
 		 * @brief Reads a file and loads the information into a module object
 		 */
-		virtual void ProduceModule(Module& module, Reader& rd) = 0;
+		virtual void ProduceModule(ModuleCollector& linker, Reader& rd, std::string file_name);
+		/**
+		 * @brief Reads a file and loads the information into a module object, a convenience method when there is a single module generated
+		 */
+		virtual void ProduceModule(Module& module, Reader& rd);
+	public:
 		/* x86 only */
 		/**
 		 * @brief Whether the format enables multiple x86 segments

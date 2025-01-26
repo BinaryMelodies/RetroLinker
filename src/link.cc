@@ -207,8 +207,6 @@ int main(int argc, char * argv[])
 
 	for(auto input : inputs)
 	{
-//		std::shared_ptr<Module> module1 = std::make_shared<Module>(input);
-
 		std::ifstream in;
 		in.open(input, std::ios_base::in | std::ios_base::binary);
 		if(!in.is_open())
@@ -256,13 +254,9 @@ int main(int argc, char * argv[])
 			Linker::FatalError(message.str());
 		}
 
-		//module1->SetupOptions(special_char, format, input_format);
-		std::shared_ptr<Module> module1 = linker.CreateModule(input_format, input);
 		input_format->SetupOptions(format);
-		input_format->ProduceModule(*module1, rd);
+		input_format->ProduceModule(linker, rd, input);
 		in.close();
-
-		linker.AddModule(module1);
 	}
 
 	linker.CombineModulesInto(module);

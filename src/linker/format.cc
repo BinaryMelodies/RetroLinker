@@ -1,6 +1,7 @@
 
 #include <fstream>
 #include "format.h"
+#include "module_collector.h"
 
 using namespace Linker;
 
@@ -170,6 +171,18 @@ unsigned OutputFormat::FormatAdditionalSectionFlags(std::string section_name) co
 
 void InputFormat::SetupOptions(std::shared_ptr<OutputFormat> format)
 {
+}
+
+void InputFormat::ProduceModule(ModuleCollector& linker, Reader& rd, std::string file_name)
+{
+	std::shared_ptr<Module> module = linker.CreateModule(shared_from_this(), file_name);
+	ProduceModule(*module, rd);
+	linker.AddModule(module);
+}
+
+void InputFormat::ProduceModule(Module& module, Reader& rd)
+{
+	Linker::FatalError("Internal error: processing input format not implemented");
 }
 
 bool InputFormat::FormatProvidesSegmentation() const
