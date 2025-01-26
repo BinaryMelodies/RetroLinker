@@ -104,6 +104,8 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a7a4d2e120e78c1986737d7d5fdcf556d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74c6b5c72bb40224bd1138ae65c2bac7" id="r_a74c6b5c72bb40224bd1138ae65c2bac7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a74c6b5c72bb40224bd1138ae65c2bac7">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, unsigned index, offset_t &amp;file_offset, offset_t &amp;memory_offset) const override</td></tr>
 <tr class="separator:a74c6b5c72bb40224bd1138ae65c2bac7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f99ef95b553c80f9944ab6b825e4eee" id="r_a3f99ef95b553c80f9944ab6b825e4eee"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3f99ef95b553c80f9944ab6b825e4eee">Generate</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, int &amp;current_segment, std::array&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Linker::Section</a> &gt;, 16 &gt; &amp;segments) const override</td></tr>
+<tr class="separator:a3f99ef95b553c80f9944ab6b825e4eee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -166,6 +168,42 @@ static std::unique_ptr&lt; <a class="el" href="classAS86Obj_1_1AS86ObjFormat_1_1
 </div><div class="memdoc">
 
 <p>Implements <a class="el" href="classAS86Obj_1_1AS86ObjFormat_1_1ByteCode.html">AS86Obj::AS86ObjFormat::ByteCode</a>.</p>
+
+</div>
+</div>
+<a id="a3f99ef95b553c80f9944ab6b825e4eee" name="a3f99ef95b553c80f9944ab6b825e4eee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f99ef95b553c80f9944ab6b825e4eee">&#9670;&#160;</a></span>Generate()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AS86ObjFormat::SimpleRelocator::Generate </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int &amp;</td>          <td class="paramname"><span class="paramname"><em>current_segment</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::array&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Linker::Section</a> &gt;, 16 &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>segments</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classAS86Obj_1_1AS86ObjFormat_1_1ByteCode.html">AS86Obj::AS86ObjFormat::ByteCode</a>.</p>
 
 </div>
 </div>
