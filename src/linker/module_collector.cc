@@ -18,6 +18,7 @@ std::shared_ptr<Module> ModuleCollector::CreateModule(std::shared_ptr<const Inpu
 
 void ModuleCollector::AddModule(std::shared_ptr<Module> module, bool is_library)
 {
+Linker::Debug << "Register new module " << module->file_name << std::endl;
 	/* attempts to resolve as many relocations as possible */
 	/* this is needed because local symbols can get lost or duplicated, but segment references are still stored as references to symbol names */
 	module->ResolveLocalRelocations();
@@ -38,6 +39,7 @@ void ModuleCollector::AddModule(std::shared_ptr<Module> module, bool is_library)
 			}
 		}
 		symbol_definitions[symbol_name] = module;
+Linker::Debug << "Register new symbol " << symbol_name << std::endl;
 		if(required_symbols.find(symbol_name) != required_symbols.end())
 		{
 			/* include and link module */
@@ -52,6 +54,7 @@ void ModuleCollector::AddModule(std::shared_ptr<Module> module, bool is_library)
 			continue;
 		}
 		symbol_definitions[symbol_name] = module;
+Linker::Debug << "Register new symbol " << symbol_name << std::endl;
 		weak_symbols.insert(symbol_name);
 		if(required_symbols.find(symbol_name) != required_symbols.end())
 		{
@@ -85,6 +88,8 @@ void ModuleCollector::IncludeModule(std::shared_ptr<Module> module)
 {
 	if(module->is_included)
 		return;
+
+Linker::Debug << "Include module " << module->file_name << std::endl;
 
 	// must be set first to avoid a possible infinite recursion, if two modules reference each other
 	module->is_included = true;
@@ -125,6 +130,7 @@ void ModuleCollector::IncludeModule(std::shared_ptr<Module> module)
 				else
 				{
 					required_symbols.insert(symbol_name);
+Linker::Debug << "New required symbol " << symbol_name << std::endl;
 				}
 			}
 		}

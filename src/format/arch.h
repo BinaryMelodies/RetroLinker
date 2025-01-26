@@ -63,7 +63,7 @@ namespace Archive
 		offset_t WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;
 		using Linker::InputFormat::GenerateModule;
-		void GenerateModule(Linker::ModuleCollector& linker, std::string file_name) const override;
+		void GenerateModule(Linker::ModuleCollector& linker, std::string file_name, bool is_library = false) const override;
 		void CalculateValues() override;
 		// TODO
 	};

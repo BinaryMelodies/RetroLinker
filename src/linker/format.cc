@@ -185,11 +185,14 @@ void InputFormat::ProduceModule(Module& module, Reader& rd)
 	GenerateModule(module);
 }
 
-void InputFormat::GenerateModule(ModuleCollector& linker, std::string file_name) const
+void InputFormat::GenerateModule(ModuleCollector& linker, std::string file_name, bool is_library) const
 {
 	std::shared_ptr<Module> module = linker.CreateModule(shared_from_this(), file_name);
 	GenerateModule(*module);
-	linker.AddModule(module);
+	if(is_library)
+		linker.AddLibraryModule(module);
+	else
+		linker.AddModule(module);
 }
 
 void InputFormat::GenerateModule(Module& module) const

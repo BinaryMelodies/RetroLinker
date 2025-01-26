@@ -182,7 +182,7 @@ namespace Linker
 		/**
 		 * @brief Loads the information into a module object
 		 */
-		virtual void GenerateModule(ModuleCollector& linker, std::string file_name) const;
+		virtual void GenerateModule(ModuleCollector& linker, std::string file_name, bool is_library = false) const;
 		/**
 		 * @brief Loads the information into a module object, a convenience method when there is a single module generated
 		 */

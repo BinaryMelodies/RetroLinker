@@ -171,8 +171,9 @@ void ArchiveFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-void ArchiveFormat::GenerateModule(Linker::ModuleCollector& linker, std::string file_name) const
+void ArchiveFormat::GenerateModule(Linker::ModuleCollector& linker, std::string file_name, bool is_library) const
 {
+	//is_library = true;
 	for(auto& entry : files)
 	{
 		if(entry.name == "/" || entry.name == "//")
@@ -180,7 +181,7 @@ void ArchiveFormat::GenerateModule(Linker::ModuleCollector& linker, std::string 
 
 		if(const std::shared_ptr<Linker::InputFormat> input_format = std::dynamic_pointer_cast<Linker::InputFormat>(entry.contents))
 		{
-			input_format->GenerateModule(linker, file_name + ":" + entry.name);
+			input_format->GenerateModule(linker, file_name + ":" + entry.name, true);
 		}
 		else
 		{
