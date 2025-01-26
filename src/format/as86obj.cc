@@ -431,15 +431,24 @@ std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index
 {
 	std::ostringstream oss;
 	oss << "." << index;
-	return std::make_shared<Linker::Section>(oss.str()); // TODO: flags
+	int flags;
+	if(index == 0 || index > 3)
+	{
+		flags = Linker::Section::Readable | Linker::Section::Execable;
+	}
+	else
+	{
+		flags = Linker::Section::Readable | Linker::Section::Writable;
+	}
+	return std::make_shared<Linker::Section>(oss.str(), flags);
 }
 
 void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 {
 	module.cpu = Linker::Module::I86; // TODO: I386?
 	std::array<std::shared_ptr<Linker::Section>, 16> segments;
-	segments[0] = std::make_shared<Linker::Section>(".text"); // TODO: flags
-	segments[3] = std::make_shared<Linker::Section>(".data"); // TODO: flags
+	segments[0] = std::make_shared<Linker::Section>(".text", Linker::Section::Readable | Linker::Section::Execable);
+	segments[3] = std::make_shared<Linker::Section>(".data", Linker::Section::Readable | Linker::Section::Writable);
 	for(auto& objmod : modules)
 	{
 		for(auto& symbol : objmod.symbols)
