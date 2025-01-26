@@ -594,7 +594,7 @@ void Module::Append(Module& other)
 	{
 		if(global_symbols.find(symbol.first) != global_symbols.end())
 		{
-			Linker::Error << "Error: Symbol " << symbol.first << " defined in multiple modules, ignoring repetition" << std::endl;
+			Linker::Debug << "Duplicate symbol " << symbol.first << ", ignoring duplicate" << std::endl;
 			continue;
 		}
 		if(weak_symbols.find(symbol.first) != weak_symbols.end())

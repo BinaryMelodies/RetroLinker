@@ -16,8 +16,7 @@ void ModuleCollector::AddModule(std::shared_ptr<Module> module, bool is_library)
 		{
 			if(weak_symbols.find(symbol_name) == weak_symbols.end())
 			{
-				// TODO: also display module file names
-				Linker::Error << "Error: duplicate symbol " << symbol_name << ", ignoring duplicate" << std::endl;
+				Linker::Error << "Error: Symbol " << symbol_name << " defined in multiple modules: " << symbol_definitions[symbol_name].lock()->file_name << " and " << module->file_name << ", ignoring repetition" << std::endl;
 				continue;
 			}
 			else

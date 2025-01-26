@@ -205,7 +205,7 @@ int main(int argc, char * argv[])
 
 	for(auto input : inputs)
 	{
-		std::shared_ptr<Module> module1 = std::make_shared<Module>();
+		std::shared_ptr<Module> module1 = std::make_shared<Module>(input);
 
 		std::ifstream in;
 		in.open(input, std::ios_base::in | std::ios_base::binary);

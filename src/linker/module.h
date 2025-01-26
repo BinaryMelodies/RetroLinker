@@ -20,6 +20,14 @@ namespace Linker
 	class Module
 	{
 	public:
+		/** @brief Stores source/destination file name */
+		std::string file_name;
+
+		Module(std::string file_name = "")
+			: file_name(file_name)
+		{
+		}
+
 		/**
 		 * @brief Supported CPU types
 		 */

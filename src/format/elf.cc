@@ -2620,8 +2620,14 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					case STB_LOCAL:
 						module.AddLocalSymbol(symbol.name, symbol.location);
 						break;
-					default:
+					case STB_GLOBAL:
 						module.AddGlobalSymbol(symbol.name, symbol.location);
+						break;
+					case STB_WEAK:
+						module.AddWeakSymbol(symbol.name, symbol.location);
+						break;
+					default:
+						Linker::Debug << "Debug: Unknown symbol binding type " << int(symbol.bind) << ", ignoring" << std::endl;
 						break;
 					}
 				}
