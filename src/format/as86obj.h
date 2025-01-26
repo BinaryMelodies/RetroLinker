@@ -47,6 +47,7 @@ namespace AS86Obj
 			virtual offset_t GetLength() const;
 			virtual offset_t GetMemorySize() const = 0;
 			virtual void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const = 0;
+			virtual void Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const;
 			static std::unique_ptr<ByteCode> ReadFile(Linker::Reader& rd, int& relocation_size);
 		};
 
@@ -74,6 +75,7 @@ namespace AS86Obj
 
 			offset_t GetMemorySize() const override;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
+			void Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const override;
 		};
 
 		class ChangeSegment : public ByteCode
@@ -87,6 +89,7 @@ namespace AS86Obj
 
 			offset_t GetMemorySize() const override;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
+			void Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const override;
 		};
 
 		class RawBytes : public ByteCode
@@ -97,6 +100,7 @@ namespace AS86Obj
 			offset_t GetLength() const override;
 			offset_t GetMemorySize() const override;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
+			void Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const override;
 		};
 
 		class SimpleRelocator : public ByteCode
@@ -114,6 +118,7 @@ namespace AS86Obj
 			offset_t GetLength() const override;
 			offset_t GetMemorySize() const override;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
+			void Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const override;
 		};
 
 		class SymbolRelocator : public ByteCode
@@ -134,6 +139,7 @@ namespace AS86Obj
 			offset_t GetLength() const override;
 			offset_t GetMemorySize() const override;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const override;
+			void Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const override;
 		};
 
 		struct segment_size_list
@@ -182,6 +188,10 @@ namespace AS86Obj
 		offset_t WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;
 		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+
+	protected:
+		static std::shared_ptr<Linker::Section> GetDefaultSection(unsigned index);
+		void GenerateModule(Linker::Module& module) const;
 	};
 }
 

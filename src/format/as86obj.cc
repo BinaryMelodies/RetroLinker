@@ -1,6 +1,10 @@
 
 #include "as86obj.h"
 #include "../linker/buffer.h"
+#include "../linker/location.h"
+#include "../linker/module.h"
+#include "../linker/section.h"
+#include "../linker/target.h"
 
 using namespace AS86Obj;
 
@@ -14,6 +18,10 @@ offset_t AS86ObjFormat::ByteCode::GetLength() const
 {
 	// This is a common enough behavior to place into the superclass
 	return 1;
+}
+
+void AS86ObjFormat::ByteCode::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
+{
 }
 
 offset_t AS86ObjFormat::RelocatorSize::GetMemorySize() const
@@ -40,6 +48,11 @@ void AS86ObjFormat::SkipBytes::Dump(Dumper::Dumper& dump, unsigned index, offset
 	entry.Display(dump);
 }
 
+void AS86ObjFormat::SkipBytes::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
+{
+	segments[current_segment]->Expand(segments[current_segment]->Size() + count);
+}
+
 offset_t AS86ObjFormat::ChangeSegment::GetMemorySize() const
 {
 	// This actually resets the offset pointer
@@ -51,6 +64,11 @@ void AS86ObjFormat::ChangeSegment::Dump(Dumper::Dumper& dump, unsigned index, of
 	Dumper::Entry entry("Change segment", index, file_offset, 8);
 	entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(segment));
 	entry.Display(dump);
+}
+
+void AS86ObjFormat::ChangeSegment::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
+{
+	current_segment = segment;
 }
 
 offset_t AS86ObjFormat::RawBytes::GetLength() const
@@ -68,6 +86,12 @@ void AS86ObjFormat::RawBytes::Dump(Dumper::Dumper& dump, unsigned index, offset_
 	Dumper::Block block("Raw bytes",file_offset, buffer, memory_offset, 8);
 	block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index));
 	block.Display(dump);
+}
+
+void AS86ObjFormat::RawBytes::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
+{
+	segments[current_segment]->SetZeroFilled(false);
+	segments[current_segment]->Append(*buffer);
 }
 
 offset_t AS86ObjFormat::SimpleRelocator::GetLength() const
@@ -88,6 +112,23 @@ void AS86ObjFormat::SimpleRelocator::Dump(Dumper::Dumper& dump, unsigned index, 
 	entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(segment));
 	entry.AddOptionalField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
 	entry.Display(dump);
+}
+
+void AS86ObjFormat::SimpleRelocator::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
+{
+	Linker::Location rel_source = Linker::Location(segments[current_segment], segments[current_segment]->Size());
+	segments[current_segment]->Expand(segments[current_segment]->Size() + relocation_size);
+	if(segments[segment] == nullptr)
+	{
+		segments[segment] = GetDefaultSection(segment);
+	}
+	Linker::Target rel_target = Linker::Target(Linker::Location(segments[segment], offset));
+	Linker::Relocation rel = Linker::Relocation::Empty();
+	if(ip_relative)
+		rel = Linker::Relocation::Relative(relocation_size, rel_source, rel_target, 0, ::LittleEndian);
+	else
+		rel = Linker::Relocation::Offset(relocation_size, rel_source, rel_target, 0, ::LittleEndian);
+	module.AddRelocation(rel);
 }
 
 offset_t AS86ObjFormat::SymbolRelocator::GetLength() const
@@ -111,6 +152,20 @@ void AS86ObjFormat::SymbolRelocator::Dump(Dumper::Dumper& dump, unsigned index, 
 	entry.AddField("Symbol index size", Dumper::DecDisplay::Make(), offset_t(index_size));
 	entry.AddOptionalField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
 	entry.Display(dump);
+}
+
+void AS86ObjFormat::SymbolRelocator::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
+{
+	Linker::Location rel_source = Linker::Location(segments[current_segment], segments[current_segment]->Size());
+	segments[current_segment]->Expand(segments[current_segment]->Size() + relocation_size);
+	Linker::Target rel_target = Linker::Target(Linker::SymbolName(symbol_name));
+//Linker::Debug << "Debug: symbol " << symbol_name << std::endl;
+	Linker::Relocation rel = Linker::Relocation::Empty();
+	if(ip_relative)
+		rel = Linker::Relocation::Relative(relocation_size, rel_source, rel_target, offset, ::LittleEndian);
+	else
+		rel = Linker::Relocation::Offset(relocation_size, rel_source, rel_target, offset, ::LittleEndian);
+	module.AddRelocation(rel);
 }
 
 std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linker::Reader& rd, int& relocation_size)
@@ -151,7 +206,7 @@ std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linke
 	case 0xB:
 		{
 			uint32_t offset = rd.ReadUnsigned(GetSize(relocation_size));
-			return std::make_unique<SimpleRelocator>(offset, c, GetSize(relocation_size));
+			return std::make_unique<SimpleRelocator>(c, offset, GetSize(relocation_size));
 		}
 	case 0xC:
 	case 0xD:
@@ -160,8 +215,9 @@ std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linke
 		{
 			int index_size = (c & 4) != 0 ? 2 : 1;
 			uint16_t symbol_index = rd.ReadUnsigned(index_size);
+//Linker::Debug << "Debug: symbol index " << symbol_index << std::endl;
 			uint32_t offset = rd.ReadUnsigned(GetSize(c & 3));
-			return std::make_unique<SymbolRelocator>(offset, symbol_index, c, GetSize(relocation_size), GetSize(c & 3), index_size);
+			return std::make_unique<SymbolRelocator>(c, offset, symbol_index, GetSize(relocation_size), GetSize(c & 3), index_size);
 		}
 	default:
 		Linker::FatalError("Fatal error: invalid bytecode in module data");
@@ -319,7 +375,6 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 			symbol.segment = symbol.symbol_type & 0xF;
 			symbol.symbol_type &= 0x3FF0;
 			symbol.offset = rd.ReadUnsigned(symbol.offset_size);
-			module.symbols.push_back(symbol);
 		}
 		module.string_table_offset = rd.Tell();
 		module.module_name = rd.ReadASCIIZ();
@@ -340,6 +395,7 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 			}
 			if(SymbolRelocator * relocation = dynamic_cast<SymbolRelocator *>(bytecode.get()))
 			{
+//Linker::Debug << "Debug: relocator " << relocation->symbol_index << std::endl;
 				relocation->symbol_name = module.symbols[relocation->symbol_index].name;
 			}
 			module.data.push_back(std::move(bytecode));
@@ -373,6 +429,75 @@ void AS86ObjFormat::Dump(Dumper::Dumper& dump)
 
 void AS86ObjFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
 {
-	/* TODO */
+	ReadFile(rd);
+	GenerateModule(module);
+}
+
+std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index)
+{
+	std::ostringstream oss;
+	oss << "." << index;
+	return std::make_shared<Linker::Section>(oss.str()); // TODO: flags
+}
+
+void AS86ObjFormat::GenerateModule(Linker::Module& module) const
+{
+	module.cpu = Linker::Module::I86; // TODO: I386?
+	std::array<std::shared_ptr<Linker::Section>, 16> segments;
+	segments[0] = std::make_shared<Linker::Section>(".text"); // TODO: flags
+	segments[3] = std::make_shared<Linker::Section>(".data"); // TODO: flags
+	for(auto& objmod : modules)
+	{
+		for(auto& symbol : objmod.symbols)
+		{
+			if((symbol.symbol_type & Symbol::Imported) != 0 && symbol.segment == 0xF && symbol.offset_size == 0)
+			{
+				// TODO: what happens on imported but offset != 0?
+				module.AddUndefinedSymbol(symbol.name);
+			}
+			else if((symbol.symbol_type & Symbol::Common) != 0)
+			{
+				module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 1)); // TODO: third field?
+			}
+			else
+			{
+				std::shared_ptr<Linker::Section> section;
+				if((symbol.symbol_type & Symbol::Absolute) != 0)
+				{
+					section = nullptr;
+				}
+				else
+				{
+					if(segments[symbol.segment] == nullptr)
+					{
+						segments[symbol.segment] = GetDefaultSection(symbol.segment);
+					}
+					section = segments[symbol.segment];
+				}
+				Linker::Location location = Linker::Location(section, symbol.offset);
+				if((symbol.symbol_type & Symbol::Exported) != 0)
+					module.AddGlobalSymbol(symbol.name, location);
+				else
+					module.AddLocalSymbol(symbol.name, location);
+			}
+		}
+
+		int current_segment = 0;
+		for(auto& bytecode : objmod.data)
+		{
+			bytecode->Generate(module, current_segment, segments);
+			if(segments[current_segment] == nullptr)
+			{
+				segments[current_segment] = GetDefaultSection(current_segment);
+			}
+		}
+	}
+	for(unsigned i = 0; i < 16; i++)
+	{
+		if(segments[i] != nullptr)
+		{
+			module.AddSection(segments[i]);
+		}
+	}
 }
 
