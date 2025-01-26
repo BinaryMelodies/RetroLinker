@@ -125,7 +125,7 @@ void AS86ObjFormat::SimpleRelocator::Generate(Linker::Module& module, int& curre
 	Linker::Target rel_target = Linker::Target(Linker::Location(segments[segment], offset));
 	Linker::Relocation rel = Linker::Relocation::Empty();
 	if(ip_relative)
-		rel = Linker::Relocation::Relative(relocation_size, rel_source, rel_target, 0, ::LittleEndian);
+		rel = Linker::Relocation::Relative(relocation_size, rel_source, rel_target, -relocation_size, ::LittleEndian);
 	else
 		rel = Linker::Relocation::Offset(relocation_size, rel_source, rel_target, 0, ::LittleEndian);
 	module.AddRelocation(rel);
@@ -162,7 +162,7 @@ void AS86ObjFormat::SymbolRelocator::Generate(Linker::Module& module, int& curre
 //Linker::Debug << "Debug: symbol " << symbol_name << std::endl;
 	Linker::Relocation rel = Linker::Relocation::Empty();
 	if(ip_relative)
-		rel = Linker::Relocation::Relative(relocation_size, rel_source, rel_target, offset, ::LittleEndian);
+		rel = Linker::Relocation::Relative(relocation_size, rel_source, rel_target, offset - relocation_size, ::LittleEndian);
 	else
 		rel = Linker::Relocation::Offset(relocation_size, rel_source, rel_target, offset, ::LittleEndian);
 	module.AddRelocation(rel);
