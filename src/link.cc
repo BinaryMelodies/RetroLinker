@@ -224,7 +224,7 @@ int main(int argc, char * argv[])
 
 		for(auto& file_format : file_formats)
 		{
-			input_format = std::dynamic_pointer_cast<InputFormat>(CreateFormat(rd, file_format));
+			input_format = std::dynamic_pointer_cast<InputFormat>(CreateFormat(rd, file_format, ReadLibraryFile));
 			if(input_format != nullptr)
 			{
 				input_format->file_offset = file_format.offset;

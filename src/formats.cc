@@ -760,9 +760,7 @@ void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, 
 	DetermineFormatFor(format_magics, sizeof(format_magics) / sizeof(format_magics[0]), descriptions, rd, offset);
 }
 
-std::shared_ptr<Linker::Image> ReadArchiveFile(Linker::Reader& rd, offset_t size);
-
-std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format)
+std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format, Archive::ArchiveFormat::file_reader_type * file_reader)
 {
 	switch(file_format.magic.type)
 	{
@@ -779,7 +777,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_APPLEII:
 		return std::make_shared<AppleFormat>(); // TODO: test
 	case FORMAT_AR:
-		return std::make_shared<ArchiveFormat>(ReadArchiveFile); // TODO: test
+		return std::make_shared<ArchiveFormat>(file_reader); // TODO: test
 	case FORMAT_AS86:
 		return std::make_shared<AS86ObjFormat>(); // TODO: test
 	case FORMAT_ATARI:
@@ -874,6 +872,25 @@ std::shared_ptr<Linker::Image> ReadArchiveFile(Linker::Reader& rd, offset_t size
 {
 	std::vector<format_description> descriptions;
 	offset_t offset = rd.Tell();
+	DetermineFormat(descriptions, rd, offset);
+	rd.Seek(offset);
+	if(descriptions.size() == 0)
+	{
+		return Linker::Buffer::ReadFromFile(rd, size);
+	}
+	else
+	{
+		Linker::Reader wrd = rd.CreateWindow(offset, size);
+		std::shared_ptr<Format> format = CreateFormat(wrd, descriptions[0]);
+		format->ReadFile(wrd);
+		return format;
+	}
+}
+
+std::shared_ptr<Linker::Image> ReadLibraryFile(Linker::Reader& rd, offset_t size)
+{
+	std::vector<format_description> descriptions;
+	offset_t offset = rd.Tell();
 	DetermineFormatFor(library_format_magics, sizeof library_format_magics / sizeof library_format_magics[0], descriptions, rd, offset);
 	rd.Seek(offset);
 	if(descriptions.size() == 0)
@@ -882,9 +899,10 @@ std::shared_ptr<Linker::Image> ReadArchiveFile(Linker::Reader& rd, offset_t size
 	}
 	else
 	{
-		std::shared_ptr<Format> format = CreateFormat(rd, descriptions[0]);
-		// TODO
-		return Linker::Buffer::ReadFromFile(rd, size);
+		Linker::Reader wrd = rd.CreateWindow(offset, size);
+		std::shared_ptr<Format> format = CreateFormat(wrd, descriptions[0]);
+		format->ReadFile(wrd);
+		return format;
 	}
 }
 

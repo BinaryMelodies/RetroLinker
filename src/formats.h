@@ -7,6 +7,7 @@
 #include <vector>
 #include "linker/format.h"
 #include "linker/reader.h"
+#include "format/arch.h"
 
 struct output_format_type
 {
@@ -99,6 +100,16 @@ std::shared_ptr<Linker::OutputFormat> FetchFormat(std::string text);
  */
 void DetermineFormat(std::vector<format_description>& descriptions, Linker::Reader& rd, uint32_t offset = 0);
 
-std::shared_ptr<Linker::Format> CreateFormat(Linker::Reader& rd, format_description& file_format);
+std::shared_ptr<Linker::Image> ReadArchiveFile(Linker::Reader& rd, offset_t size);
+std::shared_ptr<Linker::Image> ReadLibraryFile(Linker::Reader& rd, offset_t size);
+
+/**
+ * @brief Creates a format object that can be used to read in a binary file
+ *
+ * @param rd The file reader
+ * @param file_format A descriptor of the file format to create
+ * @param file_reader The file reader to be used for entries in an archive
+ */
+std::shared_ptr<Linker::Format> CreateFormat(Linker::Reader& rd, format_description& file_format, Archive::ArchiveFormat::file_reader_type * file_reader = ReadArchiveFile);
 
 #endif /* FORMATS_H */
