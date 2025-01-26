@@ -30,6 +30,9 @@ namespace Archive
 		offset_t file_size = offset_t(-1);
 		std::shared_ptr<FileReader> file_reader = nullptr;
 
+		typedef std::shared_ptr<Linker::Image> file_reader_type(Linker::Reader& rd, offset_t size);
+		typedef std::shared_ptr<Linker::Image> file_reader1_type(Linker::Reader& rd);
+
 		void SetFileReader(std::shared_ptr<FileReader> file_reader);
 		void SetFileReader(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd, offset_t size));
 		void SetFileReader(std::shared_ptr<Linker::Image> (* file_reader)(Linker::Reader& rd));

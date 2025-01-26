@@ -77,8 +77,6 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 	offset_t extended_file_name_table = 0;
 	while(rd.Tell() < file_offset + file_size)
 	{
-		if((rd.Tell() & 1) != 0)
-			rd.Skip(1);
 		File entry;
 		entry.name = rd.ReadData(16);
 		size_t last_space = entry.name.find_last_not_of(' ');
@@ -121,6 +119,7 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 		entry.size = std::stoll(rd.ReadData(10), nullptr, 10);
 		Linker::Debug << "Debug: archive entry size: " << entry.size << std::endl;
 		rd.Skip(2); // 0x60 0x0A
+		offset_t entry_start = rd.Tell();
 		if(file_reader == nullptr || entry.name == "//")
 		{
 			entry.contents = Linker::Buffer::ReadFromFile(rd, entry.size);
@@ -130,6 +129,9 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 			entry.contents = file_reader->ReadFile(rd, entry.size);
 		}
 		files.push_back(entry);
+		rd.Seek(entry_start + entry.size);
+		if((rd.Tell() & 1) != 0)
+			rd.Skip(1);
 	}
 
 	if(extended_file_name_table != 0)
