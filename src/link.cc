@@ -14,6 +14,7 @@
 #include "formats.h"
 #include "linker/format.h"
 #include "linker/module.h"
+#include "linker/module_collector.h"
 #include "linker/reader.h"
 #include "linker/reference.h"
 #include "format/binary.h"
@@ -200,9 +201,11 @@ int main(int argc, char * argv[])
 		format = std::make_shared<BinaryFormat>(0, "");
 	}
 
+	ModuleCollector linker;
+
 	for(auto input : inputs)
 	{
-		Module module1;
+		std::shared_ptr<Module> module1 = std::make_shared<Module>();
 
 		std::ifstream in;
 		in.open(input, std::ios_base::in | std::ios_base::binary);
@@ -251,16 +254,15 @@ int main(int argc, char * argv[])
 			Linker::FatalError(message.str());
 		}
 
-		module1.SetupOptions(special_char, format, input_format);
+		module1->SetupOptions(special_char, format, input_format);
 		input_format->SetupOptions(format);
-		input_format->ProduceModule(module1, rd);
+		input_format->ProduceModule(*module1, rd);
 		in.close();
 
-		/* attempts to resolve as many relocations as possible */
-		/* this is needed because local symbols get lost, but segment references are still stored as references to symbol names */
-		module1.ResolveRelocations();
-		module.Append(module1);
+		linker.AddModule(module1);
 	}
+
+	linker.CombineModulesInto(module);
 
 #if DISPLAY_LOGS
 	for(auto section : module.Sections())

@@ -58,11 +58,16 @@ namespace Linker
 		std::map<std::string, CommonSymbol> unallocated_symbols;
 		std::vector<SymbolName> imported_symbols;
 		std::map<ExportedSymbol, Location> exported_symbols;
+
+		friend class ModuleCollector;
 	public:
 		/**
 		 * @brief List of relocations within the module
 		 */
 		std::vector<Relocation> relocations;
+
+		/** @brief Set to true if module is included in the linking process, relevant for libraries */
+		bool is_included = false;
 
 		/**
 		 * @brief Initializes the reader for linking purposes
