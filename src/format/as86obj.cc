@@ -182,7 +182,7 @@ std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linke
 			return bytecode;
 		}
 	case 0x1:
-		return std::make_unique<SkipBytes>(c & 0xF);
+		return std::make_unique<SkipBytes>(rd.ReadUnsigned(GetSize(c & 3)));
 	case 0x2:
 		return std::make_unique<ChangeSegment>(c & 0xF);
 	case 0x4:
@@ -427,10 +427,14 @@ void AS86ObjFormat::Dump(Dumper::Dumper& dump)
 	}
 }
 
-std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index)
+std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index, std::string name)
 {
-	std::ostringstream oss;
-	oss << "." << index;
+	if(name == "")
+	{
+		std::ostringstream oss;
+		oss << "." << index;
+		name = oss.str();
+	}
 	int flags;
 	if(index == 0 || index > 3)
 	{
@@ -440,22 +444,23 @@ std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index
 	{
 		flags = Linker::Section::Readable | Linker::Section::Writable;
 	}
-	return std::make_shared<Linker::Section>(oss.str(), flags);
+	std::shared_ptr<Linker::Section> section = std::make_shared<Linker::Section>(name, flags);
+	section->SetAlign(4);
+	return section;
 }
 
 void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 {
 	module.cpu = Linker::Module::I86; // TODO: I386?
 	std::array<std::shared_ptr<Linker::Section>, 16> segments;
-	segments[0] = std::make_shared<Linker::Section>(".text", Linker::Section::Readable | Linker::Section::Execable);
-	segments[3] = std::make_shared<Linker::Section>(".data", Linker::Section::Readable | Linker::Section::Writable);
+	segments[0] = GetDefaultSection(0, ".text");
+	segments[3] = GetDefaultSection(3, ".data");
 	for(auto& objmod : modules)
 	{
 		for(auto& symbol : objmod.symbols)
 		{
-			if((symbol.symbol_type & Symbol::Imported) != 0 && symbol.segment == 0xF && symbol.offset_size == 0)
+			if((symbol.symbol_type & Symbol::Imported) != 0)
 			{
-				// TODO: what happens on imported but offset != 0?
 				module.AddUndefinedSymbol(symbol.name);
 			}
 			else if((symbol.symbol_type & Symbol::Common) != 0)

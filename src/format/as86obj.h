@@ -189,7 +189,7 @@ namespace AS86Obj
 		void Dump(Dumper::Dumper& dump) override;
 
 	protected:
-		static std::shared_ptr<Linker::Section> GetDefaultSection(unsigned index);
+		static std::shared_ptr<Linker::Section> GetDefaultSection(unsigned index, std::string name = "");
 	public:
 		void GenerateModule(Linker::Module& module) const override;
 	};
