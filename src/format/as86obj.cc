@@ -474,11 +474,19 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 		{
 			if((symbol.symbol_type & Symbol::Imported) != 0)
 			{
-				module.AddUndefinedSymbol(symbol.name);
+				if(symbol.offset == 0 && (symbol.segment == 0x0 || symbol.segment == 0xF))
+				{
+					module.AddUndefinedSymbol(symbol.name);
+				}
+				else
+				{
+					// TODO: this is a guess
+					module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 1)); // TODO: alignment?
+				}
 			}
 			else if((symbol.symbol_type & Symbol::Common) != 0)
 			{
-				module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 1)); // TODO: third field?
+				module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 1)); // TODO: alignment?
 			}
 			else
 			{
@@ -516,9 +524,17 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 	for(unsigned i = 0; i < 16; i++)
 	{
 		if(segments[i] != nullptr)
+//		if(segments[i] != nullptr && segments[i]->IsExecable())
 		{
 			module.AddSection(segments[i]);
 		}
 	}
+/*	for(unsigned i = 0; i < 16; i++)
+	{
+		if(segments[i] != nullptr && !segments[i]->IsExecable())
+		{
+			module.AddSection(segments[i]);
+		}
+	}*/
 }
 
