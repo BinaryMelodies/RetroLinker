@@ -429,25 +429,27 @@ void AS86ObjFormat::Dump(Dumper::Dumper& dump)
 	}
 }
 
-std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index)
+std::string AS86ObjFormat::GetDefaultSectionName(unsigned index)
 {
-	std::string name;
 	switch(index)
 	{
 	case 0:
-		name = ".text";
+		return ".text";
 		break;
 	case 3:
-		name = ".data";
-		break;
+		return ".data";
 	default:
 		{
 			std::ostringstream oss;
 			oss << "." << index;
-			name = oss.str();
+			return oss.str();
 		}
-		break;
 	}
+}
+
+std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index)
+{
+	std::string name = GetDefaultSectionName(index);
 	int flags;
 	if(index == 0 || index > 3)
 	{
@@ -475,7 +477,6 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 		for(auto& symbol : objmod.symbols)
 		{
 			// TODO: apparently imported symbols get treated like weak common symbols
-			// TODO: weak imported/common symbols should also have a preferred segment
 			if((symbol.symbol_type & Symbol::Imported) != 0)
 			{
 				if(symbol.offset == 0 && (symbol.segment == 0x0 || symbol.segment == 0xF))
@@ -484,12 +485,12 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 				}
 				else
 				{
-					module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 4));
+					module.AddCommonSymbol(Linker::CommonSymbol(symbol.name, symbol.offset, 4, segments[symbol.segment]->name));
 				}
 			}
 			else if((symbol.symbol_type & Symbol::Common) != 0)
 			{
-				module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 4));
+				module.AddCommonSymbol(Linker::CommonSymbol(symbol.name, symbol.offset, 4, segments[symbol.segment]->name));
 			}
 			else
 			{

@@ -2633,7 +2633,7 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 				}
 				else if(symbol.unallocated)
 				{
-					module.AddCommonSymbol(symbol.name, symbol.specification);
+					module.AddCommonSymbol(symbol.specification);
 				}
 				else
 				{

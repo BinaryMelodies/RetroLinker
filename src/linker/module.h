@@ -134,7 +134,7 @@ namespace Linker
 		/**
 		 * @brief Adds a common symbol
 		 */
-		void AddCommonSymbol(std::string name, CommonSymbol symbol);
+		void AddCommonSymbol(CommonSymbol symbol);
 
 		/**
 		 * @brief Adds an imported symbol (Microsoft format: library name + symbol name + ordinal/hint)
@@ -226,14 +226,9 @@ namespace Linker
 		void Append(Module& other);
 
 		/**
-		 * @brief All common symbols are converted to global symbols and assigned addresses within a section
+		 * @brief All common symbols are converted to global symbols and assigned addresses within a their section (usually ".comm")
 		 */
-		void AllocateSymbols(std::shared_ptr<Section> section);
-
-		/**
-		 * @brief All common symbols are converted to global symbols and assigned addresses within a ".comm" section
-		 */
-		void AllocateSymbols();
+		void AllocateSymbols(std::string default_section_name = ".comm");
 	};
 }
 

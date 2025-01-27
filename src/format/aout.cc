@@ -453,7 +453,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 			/* external or common */
 			if(symbol.value != 0)
 			{
-				module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.value, 1 /* TODO: alignment */));
+				module.AddCommonSymbol(Linker::CommonSymbol(symbol.name, symbol.value, 1 /* TODO: alignment */));
 			}
 			continue;
 		case 0x01:

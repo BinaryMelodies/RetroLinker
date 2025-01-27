@@ -205,9 +205,9 @@ void Module::AddWeakSymbol(std::string name, Location location)
 	}
 }
 
-void Module::AddCommonSymbol(std::string name, CommonSymbol symbol)
+void Module::AddCommonSymbol(CommonSymbol symbol)
 {
-	unallocated_symbols[name] = symbol;
+	unallocated_symbols[symbol.name] = symbol;
 }
 
 void Module::AddImportedSymbol(SymbolName name)
@@ -667,13 +667,15 @@ void Module::Append(Module& other)
 	}
 }
 
-void Module::AllocateSymbols(std::shared_ptr<Section> section)
+void Module::AllocateSymbols(std::string default_section_name)
 {
+	FetchSection(default_section_name, Section::Readable|Section::Writable|Section::ZeroFilled);
 	for(auto it : unallocated_symbols)
 	{
 		if(global_symbols.find(it.first) == global_symbols.end()
 		&& weak_symbols.find(it.first) == weak_symbols.end())
 		{
+			std::shared_ptr<Section> section = FetchSection(it.second.section != "" ? it.second.section : default_section_name, Section::Readable|Section::Writable|Section::ZeroFilled);
 			section->RealignEnd(it.second.align);
 			size_t offset = section->Size();
 			section->Expand(offset + it.second.size);
@@ -684,10 +686,5 @@ void Module::AllocateSymbols(std::shared_ptr<Section> section)
 		}
 	}
 	unallocated_symbols.clear();
-}
-
-void Module::AllocateSymbols()
-{
-	AllocateSymbols(FetchSection(".comm", Section::Readable|Section::Writable|Section::ZeroFilled));
 }
 

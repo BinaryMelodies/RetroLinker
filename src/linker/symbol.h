@@ -225,9 +225,15 @@ namespace Linker
 	public:
 		std::string name;
 		offset_t size, align;
+		std::string section;
 
-		CommonSymbol(std::string name = "", offset_t size = 0, offset_t align = 1)
-			: name(name), size(size), align(align)
+		CommonSymbol(std::string name = "", offset_t size = 0, offset_t align = 1, std::string section = "")
+			: name(name), size(size), align(align), section(section)
+		{
+		}
+
+		CommonSymbol(std::string name, offset_t size, std::string section)
+			: name(name), size(size), align(1), section(section)
 		{
 		}
 	};
