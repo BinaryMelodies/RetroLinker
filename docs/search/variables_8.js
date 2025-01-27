@@ -4,5 +4,6 @@ var searchData=
   ['in_1',['in',['../classLinker_1_1Reader.html#aa4c1fc496c1388c0cf88eef5eed692a3',1,'Linker::Reader']]],
   ['index_5fbase_2',['index_base',['../classDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor.html#a82e27b2e1a505e341eeb4bca16ca8f3d',1,'DigitalResearch::CPM86Format::FastLoadDescriptor']]],
   ['internal_3',['internal',['../classDumper_1_1Field.html#ae646e571d652615bd52b7d661173d349',1,'Dumper::Field']]],
-  ['ip_4',['ip',['../classMicrosoft_1_1MZFormat.html#ab0a4024c4273a2196086ac0ef4ca5022',1,'Microsoft::MZFormat']]]
+  ['ip_4',['ip',['../classMicrosoft_1_1MZFormat.html#ab0a4024c4273a2196086ac0ef4ca5022',1,'Microsoft::MZFormat']]],
+  ['is_5fincluded_5',['is_included',['../classLinker_1_1Module.html#a29d32dcfb957951871fbd33afec7a34f',1,'Linker::Module']]]
 ];

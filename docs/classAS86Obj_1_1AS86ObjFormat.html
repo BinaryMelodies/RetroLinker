@@ -81,7 +81,6 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="#pro-static-methods">Static Protected Member Functions</a> &#124;
 <a href="classAS86Obj_1_1AS86ObjFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">AS86Obj::AS86ObjFormat Class Reference</div></div>
@@ -98,9 +97,9 @@ Inheritance diagram for AS86Obj::AS86ObjFormat:</div>
  <div class="center">
   <img src="classAS86Obj_1_1AS86ObjFormat.png" usemap="#AS86Obj::AS86ObjFormat_map" alt=""/>
   <map id="AS86Obj::AS86ObjFormat_map" name="AS86Obj::AS86ObjFormat_map">
-<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="0,112,159,136"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,159,80"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,159,24"/>
+<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="138,112,404,136"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,266,80"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,266,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -138,13 +137,23 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a75e620e1afb4ff5698e13a703d9e2c5c" id="r_a75e620e1afb4ff5698e13a703d9e2c5c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a75e620e1afb4ff5698e13a703d9e2c5c">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
 <tr class="memdesc:a75e620e1afb4ff5698e13a703d9e2c5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:a75e620e1afb4ff5698e13a703d9e2c5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a053cb4076029477f441d322af61383a4" id="r_a053cb4076029477f441d322af61383a4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a053cb4076029477f441d322af61383a4">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
-<tr class="memdesc:a053cb4076029477f441d322af61383a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object.  <br /></td></tr>
-<tr class="separator:a053cb4076029477f441d322af61383a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a653d951840e580fe0be4b9be4f695994" id="r_a653d951840e580fe0be4b9be4f695994"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a653d951840e580fe0be4b9be4f695994">GenerateModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) const override</td></tr>
+<tr class="memdesc:a653d951840e580fe0be4b9be4f695994"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="separator:a653d951840e580fe0be4b9be4f695994"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1InputFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1InputFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1InputFormat.html">Linker::InputFormat</a></td></tr>
 <tr class="memitem:a1f90a1c9f53d10295a5719fdd43ba847 inherit pub_methods_classLinker_1_1InputFormat" id="r_a1f90a1c9f53d10295a5719fdd43ba847"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a1f90a1c9f53d10295a5719fdd43ba847">SetupOptions</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt; format)</td></tr>
 <tr class="memdesc:a1f90a1c9f53d10295a5719fdd43ba847 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
 <tr class="separator:a1f90a1c9f53d10295a5719fdd43ba847 inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat" id="r_a9769ff8202117ab97d6045e4d70b55df"><td class="memItemLeft" align="right" valign="top">
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, std::string file_name)</td></tr>
+<tr class="memdesc:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object. <br /></td></tr>
+<tr class="separator:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a9e95887e38bd041def051b38d07df273">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="separator:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f878066b29cd9aa752b80c68b3ed1be inherit pub_methods_classLinker_1_1InputFormat" id="r_a4f878066b29cd9aa752b80c68b3ed1be"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a4f878066b29cd9aa752b80c68b3ed1be">GenerateModule</a> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, std::string file_name, bool is_library=false) const</td></tr>
+<tr class="memdesc:a4f878066b29cd9aa752b80c68b3ed1be inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object.  <br /></td></tr>
+<tr class="separator:a4f878066b29cd9aa752b80c68b3ed1be inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f6e99463b2e007feeb25a67473027d5 inherit pub_methods_classLinker_1_1InputFormat" id="r_a6f6e99463b2e007feeb25a67473027d5"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a6f6e99463b2e007feeb25a67473027d5">FormatProvidesSegmentation</a> () const</td></tr>
 <tr class="memdesc:a6f6e99463b2e007feeb25a67473027d5 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format enables multiple x86 segments.  <br /></td></tr>
 <tr class="separator:a6f6e99463b2e007feeb25a67473027d5 inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -191,12 +200,6 @@ std::vector&lt; <a class="el" href="classAS86Obj_1_1AS86ObjFormat_1_1Module.html
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
 <tr class="separator:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:a13d07e0e65c0054ce0410be883bf9d7c" id="r_a13d07e0e65c0054ce0410be883bf9d7c"><td class="memItemLeft" align="right" valign="top"><a id="a13d07e0e65c0054ce0410be883bf9d7c" name="a13d07e0e65c0054ce0410be883bf9d7c"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>GenerateModule</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) const</td></tr>
-<tr class="separator:a13d07e0e65c0054ce0410be883bf9d7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-static-methods" name="pro-static-methods"></a>
 Static Protected Member Functions</h2></td></tr>
 <tr class="memitem:aabce567b6ee2c30b93921d551b8638e3" id="r_aabce567b6ee2c30b93921d551b8638e3"><td class="memItemLeft" align="right" valign="top"><a id="aabce567b6ee2c30b93921d551b8638e3" name="aabce567b6ee2c30b93921d551b8638e3"></a>
@@ -235,8 +238,8 @@ static std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Link
 
 </div>
 </div>
-<a id="a053cb4076029477f441d322af61383a4" name="a053cb4076029477f441d322af61383a4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a053cb4076029477f441d322af61383a4">&#9670;&#160;</a></span>ProduceModule()</h2>
+<a id="a653d951840e580fe0be4b9be4f695994" name="a653d951840e580fe0be4b9be4f695994"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a653d951840e580fe0be4b9be4f695994">&#9670;&#160;</a></span>GenerateModule()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -245,14 +248,10 @@ static std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Link
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void AS86ObjFormat::ProduceModule </td>
+          <td class="memname">void AS86ObjFormat::GenerateModule </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span>&#160;)</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em></span></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -262,9 +261,9 @@ static std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Link
 </table>
 </div><div class="memdoc">
 
-<p>Reads a file and loads the information into a module object. </p>
+<p>Loads the information into a module object, a convenience method when there is a single module generated. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1InputFormat.html#a58bcbddd1c00b23b581c8bf55e65c8dc">Linker::InputFormat</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1InputFormat.html#ae338295011d23d50c6cba0e3fcf12db2">Linker::InputFormat</a>.</p>
 
 </div>
 </div>

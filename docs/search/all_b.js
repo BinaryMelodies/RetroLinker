@@ -20,10 +20,11 @@ var searchData=
   ['internal_17',['internal',['../classDumper_1_1Field.html#ae646e571d652615bd52b7d661173d349',1,'Dumper::Field']]],
   ['intersegmentrelocationrecord_18',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]],
   ['ip_19',['ip',['../classMicrosoft_1_1MZFormat.html#ab0a4024c4273a2196086ac0ef4ca5022',1,'Microsoft::MZFormat']]],
-  ['ischained_20',['IsChained',['../classO65_1_1O65Format_1_1Module.html#abe16bee7c205e33ec0e0eae57a30eafb',1,'O65::O65Format::Module']]],
-  ['isfastloadformat_21',['IsFastLoadFormat',['../classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html#a09d130ea83e0ffe76d19137a1fb150d8',1,'DigitalResearch::CPM86Format::LibraryDescriptor']]],
-  ['ismissing_22',['IsMissing',['../classDumper_1_1Display.html#a86e7fa92f5200f65d9c56ff579ea9594',1,'Dumper::Display::IsMissing()'],['../classLinker_1_1Segment.html#ac6a54fa3ebb99e2d982270cb67b3f274',1,'Linker::Segment::IsMissing()']]],
-  ['isoldos2format_23',['IsOldOS2Format',['../classELF_1_1ELFFormat.html#ab04ee3fe83f776c3ef649c1f2dd83f18',1,'ELF::ELFFormat']]],
-  ['ispagerelocatable_24',['IsPageRelocatable',['../classO65_1_1O65Format_1_1Module.html#abbe7fff9f61936a95834512afb5df992',1,'O65::O65Format::Module']]],
-  ['isrelative_25',['IsRelative',['../classLinker_1_1Relocation.html#ad31cfab7377ed147069785e88b2c96aa',1,'Linker::Relocation']]]
+  ['is_5fincluded_20',['is_included',['../classLinker_1_1Module.html#a29d32dcfb957951871fbd33afec7a34f',1,'Linker::Module']]],
+  ['ischained_21',['IsChained',['../classO65_1_1O65Format_1_1Module.html#abe16bee7c205e33ec0e0eae57a30eafb',1,'O65::O65Format::Module']]],
+  ['isfastloadformat_22',['IsFastLoadFormat',['../classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html#a09d130ea83e0ffe76d19137a1fb150d8',1,'DigitalResearch::CPM86Format::LibraryDescriptor']]],
+  ['ismissing_23',['IsMissing',['../classDumper_1_1Display.html#a86e7fa92f5200f65d9c56ff579ea9594',1,'Dumper::Display::IsMissing()'],['../classLinker_1_1Segment.html#ac6a54fa3ebb99e2d982270cb67b3f274',1,'Linker::Segment::IsMissing()']]],
+  ['isoldos2format_24',['IsOldOS2Format',['../classELF_1_1ELFFormat.html#ab04ee3fe83f776c3ef649c1f2dd83f18',1,'ELF::ELFFormat']]],
+  ['ispagerelocatable_25',['IsPageRelocatable',['../classO65_1_1O65Format_1_1Module.html#abbe7fff9f61936a95834512afb5df992',1,'O65::O65Format::Module']]],
+  ['isrelative_26',['IsRelative',['../classLinker_1_1Relocation.html#ad31cfab7377ed147069785e88b2c96aa',1,'Linker::Relocation']]]
 ];

@@ -94,6 +94,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abe3aa26956def5e54826d50687ca7f1a" id="r_abe3aa26956def5e54826d50687ca7f1a"><td class="memItemLeft" align="right" valign="top"><a id="abe3aa26956def5e54826d50687ca7f1a" name="abe3aa26956def5e54826d50687ca7f1a"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Reader</b> (EndianType <a class="el" href="#a68d6cabb6e7905e40963d9377db7fe4f">endiantype</a>, std::istream *<a class="el" href="#aa4c1fc496c1388c0cf88eef5eed692a3">in</a>=nullptr)</td></tr>
 <tr class="separator:abe3aa26956def5e54826d50687ca7f1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a904c00389d0e3fdb272ebad1633c4d89" id="r_a904c00389d0e3fdb272ebad1633c4d89"><td class="memItemLeft" align="right" valign="top"><a id="a904c00389d0e3fdb272ebad1633c4d89" name="a904c00389d0e3fdb272ebad1633c4d89"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Reader</b> (offset_t start_offset, offset_t maximum_size, EndianType <a class="el" href="#a68d6cabb6e7905e40963d9377db7fe4f">endiantype</a>, std::istream *<a class="el" href="#aa4c1fc496c1388c0cf88eef5eed692a3">in</a>=nullptr)</td></tr>
+<tr class="separator:a904c00389d0e3fdb272ebad1633c4d89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45e7dd448c0c8cbd0861e43931de879e" id="r_a45e7dd448c0c8cbd0861e43931de879e"><td class="memItemLeft" align="right" valign="top"><a id="a45e7dd448c0c8cbd0861e43931de879e" name="a45e7dd448c0c8cbd0861e43931de879e"></a>
+<a class="el" href="classLinker_1_1Reader.html">Reader</a>&#160;</td><td class="memItemRight" valign="bottom"><b>CreateWindow</b> (offset_t new_start_offset, offset_t new_maximum_size=offset_t(-1))</td></tr>
+<tr class="separator:a45e7dd448c0c8cbd0861e43931de879e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9a7925fcebb6d17538e16d39292267f" id="r_ab9a7925fcebb6d17538e16d39292267f"><td class="memItemLeft" align="right" valign="top"><a id="ab9a7925fcebb6d17538e16d39292267f" name="ab9a7925fcebb6d17538e16d39292267f"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadData</b> (size_t count, void *data)</td></tr>
 <tr class="memdesc:ab9a7925fcebb6d17538e16d39292267f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Read in a sequence of bytes. <br /></td></tr>
@@ -166,6 +172,12 @@ EndianType&#160;</td><td class="memItemRight" valign="bottom"><b>endiantype</b><
 std::istream *&#160;</td><td class="memItemRight" valign="bottom"><b>in</b></td></tr>
 <tr class="memdesc:aa4c1fc496c1388c0cf88eef5eed692a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The input stream. <br /></td></tr>
 <tr class="separator:aa4c1fc496c1388c0cf88eef5eed692a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a520d1e42533ee9117f5f1beddff1b4d1" id="r_a520d1e42533ee9117f5f1beddff1b4d1"><td class="memItemLeft" align="right" valign="top"><a id="a520d1e42533ee9117f5f1beddff1b4d1" name="a520d1e42533ee9117f5f1beddff1b4d1"></a>
+const offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>start_offset</b></td></tr>
+<tr class="separator:a520d1e42533ee9117f5f1beddff1b4d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b7fe30d4db1c6915c280e95d2abec55" id="r_a3b7fe30d4db1c6915c280e95d2abec55"><td class="memItemLeft" align="right" valign="top"><a id="a3b7fe30d4db1c6915c280e95d2abec55" name="a3b7fe30d4db1c6915c280e95d2abec55"></a>
+const offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>maximum_size</b></td></tr>
+<tr class="separator:a3b7fe30d4db1c6915c280e95d2abec55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A helper class, encapsulating functionality needed to import binary data. </p>

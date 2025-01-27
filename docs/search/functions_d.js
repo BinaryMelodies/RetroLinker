@@ -15,6 +15,6 @@ var searchData=
   ['reset_12',['Reset',['../classLinker_1_1Section.html#a0a902380623f10988b63c3c709794cf6',1,'Linker::Section']]],
   ['resetaddress_13',['ResetAddress',['../classLinker_1_1Section.html#a421d65927c27ef21fa0616b5bf385873',1,'Linker::Section']]],
   ['resolve_14',['Resolve',['../classLinker_1_1Relocation.html#a24f13a02af2e31ef0cbb4ecd68ed3e7d',1,'Linker::Relocation']]],
-  ['resolvelocals_15',['ResolveLocals',['../classLinker_1_1Target.html#a000bc2a78e3e359911ae48da803d2fe9',1,'Linker::Target']]],
-  ['resolverelocations_16',['ResolveRelocations',['../classLinker_1_1Module.html#aa20a1e19fee67b2522417e1630b200e6',1,'Linker::Module']]]
+  ['resolvelocalrelocations_15',['ResolveLocalRelocations',['../classLinker_1_1Module.html#a6fe56e636fdbc8e251b0c87c6b9c3314',1,'Linker::Module']]],
+  ['resolvelocals_16',['ResolveLocals',['../classLinker_1_1Target.html#a000bc2a78e3e359911ae48da803d2fe9',1,'Linker::Target']]]
 ];

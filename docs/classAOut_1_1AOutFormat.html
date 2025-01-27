@@ -97,14 +97,14 @@ Inheritance diagram for AOut::AOutFormat:</div>
  <div class="center">
   <img src="classAOut_1_1AOutFormat.png" usemap="#AOut::AOutFormat_map" alt=""/>
   <map id="AOut::AOutFormat_map" name="AOut::AOutFormat_map">
-<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="0,168,187,192"/>
-<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="197,168,384,192"/>
-<area href="classMicrosoft_1_1MZSimpleStubWriter.html" alt="Microsoft::MZSimpleStubWriter" shape="rect" coords="394,168,581,192"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,112,187,136"/>
-<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="197,112,384,136"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,56,187,80"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="197,56,384,80"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="197,0,384,24"/>
+<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="138,168,404,192"/>
+<area href="classLinker_1_1LinkerManager.html" title="A helper class to collect sections into segments." alt="Linker::LinkerManager" shape="rect" coords="552,168,818,192"/>
+<area href="classMicrosoft_1_1MZSimpleStubWriter.html" alt="Microsoft::MZSimpleStubWriter" shape="rect" coords="828,168,1094,192"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,112,266,136"/>
+<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="552,112,818,136"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,56,266,80"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="552,56,818,80"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="552,0,818,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -156,9 +156,9 @@ unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>GetWordSize</b> (
 <tr class="memitem:a9cd8271431b0dd099e4462ed3e4724cb" id="r_a9cd8271431b0dd099e4462ed3e4724cb"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9cd8271431b0dd099e4462ed3e4724cb">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a9cd8271431b0dd099e4462ed3e4724cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a9cd8271431b0dd099e4462ed3e4724cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0323a0b83974707ef47894364c211d7d" id="r_a0323a0b83974707ef47894364c211d7d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0323a0b83974707ef47894364c211d7d">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
-<tr class="memdesc:a0323a0b83974707ef47894364c211d7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object.  <br /></td></tr>
-<tr class="separator:a0323a0b83974707ef47894364c211d7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a7d91a754d98b715fd1a1cb5e6cd26f" id="r_a6a7d91a754d98b715fd1a1cb5e6cd26f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6a7d91a754d98b715fd1a1cb5e6cd26f">GenerateModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) const override</td></tr>
+<tr class="memdesc:a6a7d91a754d98b715fd1a1cb5e6cd26f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="separator:a6a7d91a754d98b715fd1a1cb5e6cd26f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba95a501b20d3244db008021ac058944" id="r_aba95a501b20d3244db008021ac058944"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aba95a501b20d3244db008021ac058944">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
 <tr class="memdesc:aba95a501b20d3244db008021ac058944"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
 <tr class="separator:aba95a501b20d3244db008021ac058944"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -202,6 +202,16 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Seg
 <tr class="memitem:a1f90a1c9f53d10295a5719fdd43ba847 inherit pub_methods_classLinker_1_1InputFormat" id="r_a1f90a1c9f53d10295a5719fdd43ba847"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a1f90a1c9f53d10295a5719fdd43ba847">SetupOptions</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt; format)</td></tr>
 <tr class="memdesc:a1f90a1c9f53d10295a5719fdd43ba847 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
 <tr class="separator:a1f90a1c9f53d10295a5719fdd43ba847 inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat" id="r_a9769ff8202117ab97d6045e4d70b55df"><td class="memItemLeft" align="right" valign="top">
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, std::string file_name)</td></tr>
+<tr class="memdesc:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object. <br /></td></tr>
+<tr class="separator:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a9e95887e38bd041def051b38d07df273">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="separator:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f878066b29cd9aa752b80c68b3ed1be inherit pub_methods_classLinker_1_1InputFormat" id="r_a4f878066b29cd9aa752b80c68b3ed1be"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a4f878066b29cd9aa752b80c68b3ed1be">GenerateModule</a> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, std::string file_name, bool is_library=false) const</td></tr>
+<tr class="memdesc:a4f878066b29cd9aa752b80c68b3ed1be inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object.  <br /></td></tr>
+<tr class="separator:a4f878066b29cd9aa752b80c68b3ed1be inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f6e99463b2e007feeb25a67473027d5 inherit pub_methods_classLinker_1_1InputFormat" id="r_a6f6e99463b2e007feeb25a67473027d5"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a6f6e99463b2e007feeb25a67473027d5">FormatProvidesSegmentation</a> () const</td></tr>
 <tr class="memdesc:a6f6e99463b2e007feeb25a67473027d5 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format enables multiple x86 segments.  <br /></td></tr>
 <tr class="separator:a6f6e99463b2e007feeb25a67473027d5 inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -562,6 +572,35 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_size</b> = -
 
 </div>
 </div>
+<a id="a6a7d91a754d98b715fd1a1cb5e6cd26f" name="a6a7d91a754d98b715fd1a1cb5e6cd26f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a7d91a754d98b715fd1a1cb5e6cd26f">&#9670;&#160;</a></span>GenerateModule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AOutFormat::GenerateModule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Loads the information into a module object, a convenience method when there is a single module generated. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1InputFormat.html#ae338295011d23d50c6cba0e3fcf12db2">Linker::InputFormat</a>.</p>
+
+</div>
+</div>
 <a id="aa850fe3c8282e4c953596c245bc10e99" name="aa850fe3c8282e4c953596c245bc10e99"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa850fe3c8282e4c953596c245bc10e99">&#9670;&#160;</a></span>GetDefaultExtension() <span class="overload">[1/2]</span></h2>
 
@@ -709,39 +748,6 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_size</b> = -
 <p>Processes the module object and initializes format fields. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a264c8d1ecae5c2cd5d20678d4479567f">Linker::OutputFormat</a>.</p>
-
-</div>
-</div>
-<a id="a0323a0b83974707ef47894364c211d7d" name="a0323a0b83974707ef47894364c211d7d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0323a0b83974707ef47894364c211d7d">&#9670;&#160;</a></span>ProduceModule()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void AOutFormat::ProduceModule </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reads a file and loads the information into a module object. </p>
-
-<p>Implements <a class="el" href="classLinker_1_1InputFormat.html#a58bcbddd1c00b23b581c8bf55e65c8dc">Linker::InputFormat</a>.</p>
 
 </div>
 </div>

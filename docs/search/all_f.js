@@ -55,13 +55,14 @@ var searchData=
   ['model_5fsmall_52',['MODEL_SMALL',['../classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515a64dad9915d09e4e7b608bc804928ad3d',1,'Binary::BinaryFormat::MODEL_SMALL'],['../classDigitalResearch_1_1CPM86Format.html#a6503f9e1d16bfba45df9a4acb402d05fa6b5aba4c3ceb556d8b9b0775cc81a45a',1,'DigitalResearch::CPM86Format::MODEL_SMALL'],['../classMicrosoft_1_1MZFormat.html#aacb034ec17033245a85deb560444ca7fa3145bf8d231e8711df1664c163599525',1,'Microsoft::MZFormat::MODEL_SMALL']]],
   ['model_5ftiny_53',['MODEL_TINY',['../classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515aad5371112d94eb2b20550e72f1ba650b',1,'Binary::BinaryFormat::MODEL_TINY'],['../classDigitalResearch_1_1CPM86Format.html#a6503f9e1d16bfba45df9a4acb402d05fa466c6cec694d20390c38c9b2e3965c9d',1,'DigitalResearch::CPM86Format::MODEL_TINY'],['../classMicrosoft_1_1MZFormat.html#aacb034ec17033245a85deb560444ca7fa93baf16a07e3bb9130d73238637f6c6d',1,'Microsoft::MZFormat::MODEL_TINY']]],
   ['module_54',['Module',['../classAS86Obj_1_1AS86ObjFormat_1_1Module.html',1,'AS86Obj::AS86ObjFormat::Module'],['../classLinker_1_1Module.html',1,'Linker::Module'],['../classO65_1_1O65Format_1_1Module.html',1,'O65::O65Format::Module']]],
-  ['mpformat_55',['MPFormat',['../classPharLap_1_1MPFormat.html',1,'PharLap']]],
-  ['msdos_56',['MSDOS',['../classApple_1_1FileInfo_1_1MSDOS.html',1,'Apple::FileInfo']]],
-  ['msdosfileinfo_57',['MSDOSFileInfo',['../classApple_1_1MSDOSFileInfo.html',1,'Apple']]],
-  ['multiple_208_20bit_2016_20bit_20and_2032_20bit_20executable_20formats_58',['RetroLinker, a linker for multiple 8-bit, 16-bit and 32-bit executable formats',['../index.html',1,'']]],
-  ['multisegmented_59',['MultiSegmented',['../classPharLap_1_1P3Format_1_1MultiSegmented.html',1,'PharLap::P3Format']]],
-  ['mzformat_60',['MZFormat',['../classMicrosoft_1_1MZFormat.html',1,'Microsoft']]],
-  ['mzreader_61',['MZReader',['../classdump_1_1MZReader.html',1,'dump']]],
-  ['mzsimplestubwriter_62',['MZSimpleStubWriter',['../classMicrosoft_1_1MZSimpleStubWriter.html',1,'Microsoft']]],
-  ['mzstubwriter_63',['MZStubWriter',['../classMicrosoft_1_1MZStubWriter.html',1,'Microsoft']]]
+  ['modulecollector_55',['ModuleCollector',['../classLinker_1_1ModuleCollector.html',1,'Linker']]],
+  ['mpformat_56',['MPFormat',['../classPharLap_1_1MPFormat.html',1,'PharLap']]],
+  ['msdos_57',['MSDOS',['../classApple_1_1FileInfo_1_1MSDOS.html',1,'Apple::FileInfo']]],
+  ['msdosfileinfo_58',['MSDOSFileInfo',['../classApple_1_1MSDOSFileInfo.html',1,'Apple']]],
+  ['multiple_208_20bit_2016_20bit_20and_2032_20bit_20executable_20formats_59',['RetroLinker, a linker for multiple 8-bit, 16-bit and 32-bit executable formats',['../index.html',1,'']]],
+  ['multisegmented_60',['MultiSegmented',['../classPharLap_1_1P3Format_1_1MultiSegmented.html',1,'PharLap::P3Format']]],
+  ['mzformat_61',['MZFormat',['../classMicrosoft_1_1MZFormat.html',1,'Microsoft']]],
+  ['mzreader_62',['MZReader',['../classdump_1_1MZReader.html',1,'dump']]],
+  ['mzsimplestubwriter_63',['MZSimpleStubWriter',['../classMicrosoft_1_1MZSimpleStubWriter.html',1,'Microsoft']]],
+  ['mzstubwriter_64',['MZStubWriter',['../classMicrosoft_1_1MZStubWriter.html',1,'Microsoft']]]
 ];

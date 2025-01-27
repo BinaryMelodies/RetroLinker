@@ -79,7 +79,7 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="classLinker_1_1InputFormat-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">Linker::InputFormat Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
+  <div class="headertitle"><div class="title">Linker::InputFormat Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
@@ -93,16 +93,16 @@ Inheritance diagram for Linker::InputFormat:</div>
  <div class="center">
   <img src="classLinker_1_1InputFormat.png" usemap="#Linker::InputFormat_map" alt=""/>
   <map id="Linker::InputFormat_map" name="Linker::InputFormat_map">
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="507,56,666,80"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="507,0,666,24"/>
-<area href="classAOut_1_1AOutFormat.html" title="UNIX/Linux a.out binary file format." alt="AOut::AOutFormat" shape="rect" coords="0,168,159,192"/>
-<area href="classAS86Obj_1_1AS86ObjFormat.html" title="Output format for as86, used as an output by Bruce&#39;s C compiler from the dev86 package." alt="AS86Obj::AS86ObjFormat" shape="rect" coords="169,168,328,192"/>
-<area href="classArchive_1_1ArchiveFormat.html" title="UNIX archive format." alt="Archive::ArchiveFormat" shape="rect" coords="338,168,497,192"/>
-<area href="classCOFF_1_1COFFFormat.html" title="The UNIX COFF file format." alt="COFF::COFFFormat" shape="rect" coords="507,168,666,192"/>
-<area href="classELF_1_1ELFFormat.html" title="ELF object and executable format." alt="ELF::ELFFormat" shape="rect" coords="676,168,835,192"/>
-<area href="classO65_1_1O65Format.html" title="Output format for the 6502 assembler xa." alt="O65::O65Format" shape="rect" coords="845,168,1004,192"/>
-<area href="classOMF_1_1OMFFormat.html" title="Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,..." alt="OMF::OMFFormat" shape="rect" coords="1014,168,1173,192"/>
-<area href="classMicrosoft_1_1PEFormat.html" title="Microsoft PE .EXE portable executable file format." alt="Microsoft::PEFormat" shape="rect" coords="507,224,666,248"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="690,56,956,80"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="690,0,956,24"/>
+<area href="classAOut_1_1AOutFormat.html" title="UNIX/Linux a.out binary file format." alt="AOut::AOutFormat" shape="rect" coords="0,168,266,192"/>
+<area href="classAS86Obj_1_1AS86ObjFormat.html" title="Output format for as86, used as an output by Bruce&#39;s C compiler from the dev86 package." alt="AS86Obj::AS86ObjFormat" shape="rect" coords="276,168,542,192"/>
+<area href="classArchive_1_1ArchiveFormat.html" title="UNIX archive format." alt="Archive::ArchiveFormat" shape="rect" coords="552,168,818,192"/>
+<area href="classCOFF_1_1COFFFormat.html" title="The UNIX COFF file format." alt="COFF::COFFFormat" shape="rect" coords="828,168,1094,192"/>
+<area href="classELF_1_1ELFFormat.html" title="ELF object and executable format." alt="ELF::ELFFormat" shape="rect" coords="1104,168,1370,192"/>
+<area href="classO65_1_1O65Format.html" title="Output format for the 6502 assembler xa." alt="O65::O65Format" shape="rect" coords="1380,168,1646,192"/>
+<area href="classOMF_1_1OMFFormat.html" title="Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,..." alt="OMF::OMFFormat" shape="rect" coords="1656,168,1922,192"/>
+<area href="classMicrosoft_1_1PEFormat.html" title="Microsoft PE .EXE portable executable file format." alt="Microsoft::PEFormat" shape="rect" coords="828,224,1094,248"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -111,9 +111,19 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a1f90a1c9f53d10295a5719fdd43ba847" id="r_a1f90a1c9f53d10295a5719fdd43ba847"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1f90a1c9f53d10295a5719fdd43ba847">SetupOptions</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt; format)</td></tr>
 <tr class="memdesc:a1f90a1c9f53d10295a5719fdd43ba847"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
 <tr class="separator:a1f90a1c9f53d10295a5719fdd43ba847"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a58bcbddd1c00b23b581c8bf55e65c8dc" id="r_a58bcbddd1c00b23b581c8bf55e65c8dc"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a58bcbddd1c00b23b581c8bf55e65c8dc">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)=0</td></tr>
-<tr class="memdesc:a58bcbddd1c00b23b581c8bf55e65c8dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object.  <br /></td></tr>
-<tr class="separator:a58bcbddd1c00b23b581c8bf55e65c8dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9769ff8202117ab97d6045e4d70b55df" id="r_a9769ff8202117ab97d6045e4d70b55df"><td class="memItemLeft" align="right" valign="top"><a id="a9769ff8202117ab97d6045e4d70b55df" name="a9769ff8202117ab97d6045e4d70b55df"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, std::string file_name)</td></tr>
+<tr class="memdesc:a9769ff8202117ab97d6045e4d70b55df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object. <br /></td></tr>
+<tr class="separator:a9769ff8202117ab97d6045e4d70b55df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9e95887e38bd041def051b38d07df273" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9e95887e38bd041def051b38d07df273">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a9e95887e38bd041def051b38d07df273"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="separator:a9e95887e38bd041def051b38d07df273"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f878066b29cd9aa752b80c68b3ed1be" id="r_a4f878066b29cd9aa752b80c68b3ed1be"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4f878066b29cd9aa752b80c68b3ed1be">GenerateModule</a> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, std::string file_name, bool is_library=false) const</td></tr>
+<tr class="memdesc:a4f878066b29cd9aa752b80c68b3ed1be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object.  <br /></td></tr>
+<tr class="separator:a4f878066b29cd9aa752b80c68b3ed1be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae338295011d23d50c6cba0e3fcf12db2" id="r_ae338295011d23d50c6cba0e3fcf12db2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae338295011d23d50c6cba0e3fcf12db2">GenerateModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module) const</td></tr>
+<tr class="memdesc:ae338295011d23d50c6cba0e3fcf12db2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="separator:ae338295011d23d50c6cba0e3fcf12db2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f6e99463b2e007feeb25a67473027d5" id="r_a6f6e99463b2e007feeb25a67473027d5"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6f6e99463b2e007feeb25a67473027d5">FormatProvidesSegmentation</a> () const</td></tr>
 <tr class="memdesc:a6f6e99463b2e007feeb25a67473027d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format enables multiple x86 segments.  <br /></td></tr>
 <tr class="separator:a6f6e99463b2e007feeb25a67473027d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -254,8 +264,8 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 
 </div>
 </div>
-<a id="a58bcbddd1c00b23b581c8bf55e65c8dc" name="a58bcbddd1c00b23b581c8bf55e65c8dc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a58bcbddd1c00b23b581c8bf55e65c8dc">&#9670;&#160;</a></span>ProduceModule()</h2>
+<a id="ae338295011d23d50c6cba0e3fcf12db2" name="ae338295011d23d50c6cba0e3fcf12db2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae338295011d23d50c6cba0e3fcf12db2">&#9670;&#160;</a></span>GenerateModule() <span class="overload">[1/2]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -264,7 +274,74 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void Linker::InputFormat::ProduceModule </td>
+          <td class="memname">void InputFormat::GenerateModule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Loads the information into a module object, a convenience method when there is a single module generated. </p>
+
+<p>Reimplemented in <a class="el" href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">AOut::AOutFormat</a>, <a class="el" href="classAS86Obj_1_1AS86ObjFormat.html#a653d951840e580fe0be4b9be4f695994">AS86Obj::AS86ObjFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a071e6dddbcb4ad0649ac8625c61bcd78">COFF::COFFFormat</a>, <a class="el" href="classELF_1_1ELFFormat.html#ad61ac5b2c2f8c49acc0556324eeb9f67">ELF::ELFFormat</a>, and <a class="el" href="classO65_1_1O65Format.html#a6217125970edc7b305f45bb0c80f3531">O65::O65Format</a>.</p>
+
+</div>
+</div>
+<a id="a4f878066b29cd9aa752b80c68b3ed1be" name="a4f878066b29cd9aa752b80c68b3ed1be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4f878066b29cd9aa752b80c68b3ed1be">&#9670;&#160;</a></span>GenerateModule() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void InputFormat::GenerateModule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>linker</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>file_name</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>is_library</em><span class="paramdefsep"> = </span><span class="paramdefval">false</span></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Loads the information into a module object. </p>
+
+<p>Reimplemented in <a class="el" href="classArchive_1_1ArchiveFormat.html#a8218fb0e1d3dd2982ae221b5ced0ad5a">Archive::ArchiveFormat</a>.</p>
+
+</div>
+</div>
+<a id="a9e95887e38bd041def051b38d07df273" name="a9e95887e38bd041def051b38d07df273"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9e95887e38bd041def051b38d07df273">&#9670;&#160;</a></span>ProduceModule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void InputFormat::ProduceModule </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em>, </span></td>
         </tr>
@@ -276,14 +353,14 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
       </table>
   </td>
   <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
   </tr>
 </table>
 </div><div class="memdoc">
 
-<p>Reads a file and loads the information into a module object. </p>
+<p>Reads a file and loads the information into a module object, a convenience method when there is a single module generated. </p>
 
-<p>Implemented in <a class="el" href="classAOut_1_1AOutFormat.html#a0323a0b83974707ef47894364c211d7d">AOut::AOutFormat</a>, <a class="el" href="classArchive_1_1ArchiveFormat.html#affcc060c514f534fb29effb2b2d11e37">Archive::ArchiveFormat</a>, <a class="el" href="classAS86Obj_1_1AS86ObjFormat.html#a053cb4076029477f441d322af61383a4">AS86Obj::AS86ObjFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a4c4ce3924c5e57d3427fe4aa667474f4">COFF::COFFFormat</a>, <a class="el" href="classELF_1_1ELFFormat.html#aeb5460f1f1a717f45d2ae52b98a8b925">ELF::ELFFormat</a>, <a class="el" href="classO65_1_1O65Format.html#ab51cae36f93e26d75e63b086379238cf">O65::O65Format</a>, and <a class="el" href="classOMF_1_1OMFFormat.html#a3045b8b01b76cd6e485aefb65ee5a3cb">OMF::OMFFormat</a>.</p>
+<p>Reimplemented in <a class="el" href="classOMF_1_1OMFFormat.html#a3045b8b01b76cd6e485aefb65ee5a3cb">OMF::OMFFormat</a>.</p>
 
 </div>
 </div>
