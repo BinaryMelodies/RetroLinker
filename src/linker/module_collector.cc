@@ -82,6 +82,25 @@ void ModuleCollector::CombineModulesInto(Module& output_module)
 			output_module.Append(*module);
 		}
 	}
+
+	// debug
+	for(auto& symbol_definition : output_module.global_symbols)
+	{
+		Linker::Debug << "Debug: global symbol " << symbol_definition.first << " is defined as " << symbol_definition.second << std::endl;
+	}
+	for(auto& symbols_definition : output_module.local_symbols)
+	{
+		Linker::Debug << "Debug: local symbol " << symbols_definition.first << " is defined as ";
+		unsigned i = 0;
+		for(auto& definition : symbols_definition.second)
+		{
+			if(i != 0)
+				Linker::Debug << ", ";
+			Linker::Debug << definition;
+			i ++;
+		}
+		Linker::Debug << std::endl;
+	}
 }
 
 void ModuleCollector::IncludeModule(std::shared_ptr<Module> module)
@@ -89,7 +108,7 @@ void ModuleCollector::IncludeModule(std::shared_ptr<Module> module)
 	if(module->is_included)
 		return;
 
-Linker::Debug << "Include module " << module->file_name << std::endl;
+	Linker::Debug << "Debug: Include module " << module->file_name << std::endl;
 
 	// must be set first to avoid a possible infinite recursion, if two modules reference each other
 	module->is_included = true;
@@ -114,6 +133,7 @@ Linker::Debug << "Include module " << module->file_name << std::endl;
 	{
 		/* look for missing relocation targets */
 
+		Linker::Debug << "Debug: Module " << module->file_name << " has " << relocation << std::endl;
 		if(Linker::SymbolName * symbolp = std::get_if<Linker::SymbolName>(&relocation.target.target))
 		{
 			/* only check symbol names, not specific locations */
@@ -129,8 +149,11 @@ Linker::Debug << "Include module " << module->file_name << std::endl;
 				}
 				else
 				{
+					if(required_symbols.find(symbol_name) == required_symbols.end())
+						Linker::Debug << "Debug: New required symbol " << symbol_name << std::endl;
+					else
+						Linker::Debug << "Debug: Required symbol " << symbol_name << std::endl;
 					required_symbols.insert(symbol_name);
-Linker::Debug << "New required symbol " << symbol_name << std::endl;
 				}
 			}
 		}

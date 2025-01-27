@@ -28,6 +28,7 @@ bool Target::ResolveLocals(Module& object)
 			Location location;
 			if(!object.FindLocalSymbol(symbol_name, location))
 				return false;
+			Linker::Debug << "Debug: Resolved " << target << " to " << location << std::endl;
 			target = location;
 			return true;
 		}

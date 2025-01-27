@@ -128,6 +128,7 @@ void AS86ObjFormat::SimpleRelocator::Generate(Linker::Module& module, int& curre
 		rel = Linker::Relocation::Relative(relocation_size, rel_source, rel_target, -relocation_size, ::LittleEndian);
 	else
 		rel = Linker::Relocation::Offset(relocation_size, rel_source, rel_target, 0, ::LittleEndian);
+//Linker::Debug << module.file_name << " has relocation " << rel << std::endl;
 	module.AddRelocation(rel);
 }
 
@@ -165,6 +166,7 @@ void AS86ObjFormat::SymbolRelocator::Generate(Linker::Module& module, int& curre
 		rel = Linker::Relocation::Relative(relocation_size, rel_source, rel_target, offset - relocation_size, ::LittleEndian);
 	else
 		rel = Linker::Relocation::Offset(relocation_size, rel_source, rel_target, offset, ::LittleEndian);
+//Linker::Debug << module.file_name << " has relocation " << rel << std::endl;
 	module.AddRelocation(rel);
 }
 
@@ -472,6 +474,8 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 	{
 		for(auto& symbol : objmod.symbols)
 		{
+			// TODO: apparently imported symbols get treated like weak common symbols
+			// TODO: weak imported/common symbols should also have a preferred segment
 			if((symbol.symbol_type & Symbol::Imported) != 0)
 			{
 				if(symbol.offset == 0 && (symbol.segment == 0x0 || symbol.segment == 0xF))
@@ -480,13 +484,12 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 				}
 				else
 				{
-					// TODO: this is a guess
-					module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 1)); // TODO: alignment?
+					module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 4));
 				}
 			}
 			else if((symbol.symbol_type & Symbol::Common) != 0)
 			{
-				module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 1)); // TODO: alignment?
+				module.AddCommonSymbol(symbol.name, Linker::CommonSymbol(symbol.name, symbol.offset, 4));
 			}
 			else
 			{
@@ -524,17 +527,9 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 	for(unsigned i = 0; i < 16; i++)
 	{
 		if(segments[i] != nullptr)
-//		if(segments[i] != nullptr && segments[i]->IsExecable())
 		{
 			module.AddSection(segments[i]);
 		}
 	}
-/*	for(unsigned i = 0; i < 16; i++)
-	{
-		if(segments[i] != nullptr && !segments[i]->IsExecable())
-		{
-			module.AddSection(segments[i]);
-		}
-	}*/
 }
 

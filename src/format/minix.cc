@@ -221,6 +221,21 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: entry point must be beginning of .code segment, ignoring" << std::endl;
 		}
 	}
+
+#if 0
+	for(auto section : code->sections)
+	{
+		Linker::Debug << "Code segment: " << section->name << std::endl;
+	}
+	for(auto section : data->sections)
+	{
+		Linker::Debug << "Data segment: " << section->name << std::endl;
+	}
+	for(auto section : bss->sections)
+	{
+		Linker::Debug << "Bss  segment: " << section->name << std::endl;
+	}
+#endif
 }
 
 void MINIXFormat::CalculateValues()
