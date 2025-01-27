@@ -427,13 +427,24 @@ void AS86ObjFormat::Dump(Dumper::Dumper& dump)
 	}
 }
 
-std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index, std::string name)
+std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index)
 {
-	if(name == "")
+	std::string name;
+	switch(index)
 	{
-		std::ostringstream oss;
-		oss << "." << index;
-		name = oss.str();
+	case 0:
+		name = ".text";
+		break;
+	case 3:
+		name = ".data";
+		break;
+	default:
+		{
+			std::ostringstream oss;
+			oss << "." << index;
+			name = oss.str();
+		}
+		break;
 	}
 	int flags;
 	if(index == 0 || index > 3)
@@ -453,8 +464,10 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 {
 	module.cpu = Linker::Module::I86; // TODO: I386?
 	std::array<std::shared_ptr<Linker::Section>, 16> segments;
-	segments[0] = GetDefaultSection(0, ".text");
-	segments[3] = GetDefaultSection(3, ".data");
+	for(int i = 0; i < 16; i++)
+	{
+		segments[i] = GetDefaultSection(i);
+	}
 	for(auto& objmod : modules)
 	{
 		for(auto& symbol : objmod.symbols)
