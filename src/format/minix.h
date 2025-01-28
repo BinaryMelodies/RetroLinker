@@ -33,7 +33,7 @@ namespace MINIX
 
 		enum cpu_type
 		{
-			/* TODO: extend for 68K? */
+			/* TODO: make support for 68K? */
 			I86 = 0x04,
 			M68K = 0x0B,
 			NS16K = 0x0C,
@@ -41,6 +41,9 @@ namespace MINIX
 			SPARC = 0x17,
 		};
 		cpu_type cpu = cpu_type(0);
+
+		uint8_t header_size = 0x20;
+		uint16_t format_version = 0;
 
 		static ::EndianType GetEndianType(cpu_type cpu);
 
@@ -52,22 +55,56 @@ namespace MINIX
 		{
 		}
 
-		MINIXFormat(format_type format)
-			: format(format)
+		MINIXFormat(format_type format, int version = 0)
+			: format(format), format_version(version)
 		{
 		}
 
-		MINIXFormat(format_type format, cpu_type cpu)
-			: format(format), cpu(cpu)
+		MINIXFormat(format_type format, cpu_type cpu, int version = 0)
+			: format(format), cpu(cpu), format_version(version)
 		{
 		}
 
-		uint32_t code_base_address = 0; /* TODO: parametrize */
-		//uint32_t data_base_address = 0; /* TODO: parametrize */
+		uint32_t bss_size = 0;
 		uint32_t heap_top_address = 0; /* TODO: parametrize */
+		uint16_t heap_size = 0, stack_size = 0;
+		uint32_t symbol_table_offset = 0;
+		uint32_t code_relocation_base = 0;
+		uint32_t data_relocation_base = 0;
+
+		struct relocation
+		{
+			static constexpr uint16_t S_ABS = uint16_t(-1);
+			static constexpr uint16_t S_TEXT = uint16_t(-2);
+			static constexpr uint16_t S_DATA = uint16_t(-3);
+			static constexpr uint16_t S_BSS = uint16_t(-4);
+			/* ELKS extension */
+			static constexpr uint16_t S_FTEXT = uint16_t(-5);
+
+			static constexpr uint16_t R_ABBS = 0;
+			static constexpr uint16_t R_RELLBYTE = 2;
+			static constexpr uint16_t R_PCRBYTE = 3;
+			static constexpr uint16_t R_RELWORD = 4;
+			static constexpr uint16_t R_PCRWORD = 5;
+			static constexpr uint16_t R_RELLONG = 6;
+			static constexpr uint16_t R_PCRLONG = 7;
+			static constexpr uint16_t R_REL3BYTE = 8;
+			static constexpr uint16_t R_KBRANCHE = 9;
+			/* ELKS extension */
+			static constexpr uint16_t R_SEGWORD = 80;
+
+			uint32_t address = 0;
+			uint16_t symbol = 0;
+			uint16_t type = 0;
+
+			static relocation Read(Linker::Reader& rd);
+			void Write(Linker::Writer& wr);
+		};
+		std::vector<relocation> code_relocations, data_relocations, far_code_relocations;
 
 		/* generated */
-		std::shared_ptr<Linker::Segment> code, data, bss;
+		std::shared_ptr<Linker::Image> code, data, far_code;
+		std::shared_ptr<Linker::Segment> bss;
 		uint32_t entry_address = 0;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;

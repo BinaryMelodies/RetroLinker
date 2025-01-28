@@ -4,9 +4,110 @@
 
 using namespace MINIX;
 
+MINIXFormat::relocation MINIXFormat::relocation::Read(Linker::Reader& rd)
+{
+	relocation rel;
+	rel.address = rd.ReadUnsigned(4);
+	rel.symbol = rd.ReadUnsigned(2);
+	rel.type = rd.ReadUnsigned(2);
+	return rel;
+}
+
+void MINIXFormat::relocation::Write(Linker::Writer& wr)
+{
+	wr.WriteWord(4, address);
+	wr.WriteWord(2, symbol);
+	wr.WriteWord(2, type);
+}
+
 void MINIXFormat::ReadFile(Linker::Reader& rd)
 {
-	/* TODO */
+	rd.endiantype = ::EndianType(0); // should not matter
+	rd.Skip(2); // signature: \x01\x03
+	format = format_type(rd.ReadUnsigned(1));
+	cpu = cpu_type(rd.ReadUnsigned(1));
+	// the cpu field can be used to determine the endianness
+	rd.endiantype = GetEndianType();
+	header_size = rd.ReadUnsigned(1);
+	rd.Skip(1);
+	format_version = rd.ReadUnsigned(2);
+
+	uint32_t code_size;
+	uint32_t data_size;
+	uint32_t far_code_size = 0;
+	switch(format_version)
+	{
+	case 0:
+		code_size = rd.ReadUnsigned(4);
+		data_size = rd.ReadUnsigned(4);
+		bss_size = rd.ReadUnsigned(4);
+		entry_address = rd.ReadUnsigned(4);
+		heap_top_address = rd.ReadUnsigned(4);
+		symbol_table_offset = rd.ReadUnsigned(4);
+		break;
+	case 1:
+		code_size = rd.ReadUnsigned(2);
+		rd.Skip(2);
+		data_size = rd.ReadUnsigned(2);
+		rd.Skip(2);
+		entry_address = rd.ReadUnsigned(2);
+		rd.Skip(2);
+		entry_address = rd.ReadUnsigned(4);
+		heap_size = rd.ReadUnsigned(2);
+		stack_size = rd.ReadUnsigned(2);
+		symbol_table_offset = rd.ReadUnsigned(4);
+		break;
+	default:
+		{
+			std::ostringstream oss;
+			oss << "Fatal error: unknown format version " << format_version;
+			Linker::FatalError(oss.str());
+		}
+	}
+	uint32_t code_relocation_size = 0;
+	uint32_t data_relocation_size = 0;
+	uint32_t far_code_relocation_size = 0;
+	if(header_size >= 0x30)
+	{
+		code_relocation_size = rd.ReadUnsigned(4);
+		data_relocation_size = rd.ReadUnsigned(4);
+		code_relocation_base = rd.ReadUnsigned(4);
+		data_relocation_base = rd.ReadUnsigned(4);
+		if(header_size >= 0x40)
+		{
+			far_code_size = rd.ReadUnsigned(2);
+			rd.Skip(2);
+			far_code_relocation_size = rd.ReadUnsigned(4);
+		}
+	}
+	rd.Seek(header_size);
+
+	if(code_size != 0)
+	{
+		code = Linker::Buffer::ReadFromFile(rd, code_size);
+	}
+	if(far_code_size != 0)
+	{
+		far_code = Linker::Buffer::ReadFromFile(rd, far_code_size);
+	}
+	if(data_size != 0)
+	{
+		data = Linker::Buffer::ReadFromFile(rd, data_size);
+	}
+
+	uint32_t i;
+	for(i = 0; i < code_relocation_size; i += 8)
+	{
+		code_relocations.emplace_back(relocation::Read(rd));
+	}
+	for(i = 0; i < far_code_relocation_size; i += 8)
+	{
+		far_code_relocations.emplace_back(relocation::Read(rd));
+	}
+	for(i = 0; i < data_relocation_size; i += 8)
+	{
+		data_relocations.emplace_back(relocation::Read(rd));
+	}
 }
 
 bool MINIXFormat::FormatIs16bit() const
@@ -94,7 +195,7 @@ std::unique_ptr<Script::List> MINIXFormat::GetScript(Linker::Module& module)
 
 ".data"
 {
-	at max(here, ?code_base_address?);
+	at max(here, ?data_base_address?);
 	base here;
 	all not zero align 4;
 };
@@ -135,8 +236,6 @@ std::unique_ptr<Script::List> MINIXFormat::GetScript(Linker::Module& module)
 };
 )";
 
-	/* TODO: code_base_address */
-
 	if(linker_script != "")
 	{
 		return LinkerManager::GetScript(module);
@@ -176,8 +275,6 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 		code.base_address = code_base_address;
 	}
 #endif
-
-	/* TODO: linker_parameters["code_base_address"] and linker_parameters["data_base_address"] */
 
 	Link(module);
 
@@ -223,6 +320,8 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
+	bss_size = bss->zero_fill;
+
 #if 0
 	for(auto section : code->sections)
 	{
@@ -259,19 +358,74 @@ total_memory
 offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = GetEndianType();
-	wr.WriteData(2, "\x01\x03\?\?");
+	wr.WriteData(2, "\x01\x03");
 	wr.WriteWord(1, format);
 	wr.WriteWord(1, cpu);
-	wr.WriteWord(1, 0x20);
-	wr.Skip(3);
-	wr.WriteWord(4, code->data_size);
-	wr.WriteWord(4, data->data_size);
-	wr.WriteWord(4, bss->zero_fill);
-	wr.WriteWord(4, entry_address);
-	wr.WriteWord(4, heap_top_address); /* total memory */
-	wr.WriteWord(4, 0); /* symbol table */
-	code->WriteFile(wr);
-	data->WriteFile(wr);
+	wr.WriteWord(1, header_size);
+	wr.Skip(1);
+	wr.WriteWord(2, format_version);
+	switch(format_version)
+	{
+	case 0:
+		wr.WriteWord(4, code->ImageSize());
+		wr.WriteWord(4, data->ImageSize());
+		wr.WriteWord(4, bss_size);
+		wr.WriteWord(4, entry_address);
+		wr.WriteWord(4, heap_top_address); /* total memory */
+		wr.WriteWord(4, 0); /* symbol table */
+		break;
+	case 1:
+		wr.WriteWord(2, code->ImageSize());
+		wr.Skip(2);
+		wr.WriteWord(2, data->ImageSize());
+		wr.Skip(2);
+		wr.WriteWord(4, bss_size);
+		wr.Skip(2);
+		wr.WriteWord(4, entry_address);
+		wr.WriteWord(2, heap_size);
+		wr.WriteWord(2, stack_size);
+		wr.WriteWord(4, 0); /* symbol table */
+		break;
+	}
+	if(header_size >= 0x30)
+	{
+		wr.WriteWord(4, code_relocations.size() * 8);
+		wr.WriteWord(4, data_relocations.size() * 8);
+		wr.WriteWord(4, code_relocation_base);
+		wr.WriteWord(4, data_relocation_base);
+		if(header_size >= 0x40)
+		{
+			wr.WriteWord(2, far_code->ImageSize());
+			wr.Skip(2);
+			wr.WriteWord(4, far_code_relocations.size() * 8);
+		}
+	}
+	wr.Seek(header_size);
+	if(code != nullptr)
+	{
+		code->WriteFile(wr);
+	}
+	if(far_code != nullptr)
+	{
+		far_code->WriteFile(wr);
+	}
+	if(data != nullptr)
+	{
+		data->WriteFile(wr);
+	}
+
+	for(auto& rel : code_relocations)
+	{
+		rel.Write(wr);
+	}
+	for(auto& rel : far_code_relocations)
+	{
+		rel.Write(wr);
+	}
+	for(auto& rel : data_relocations)
+	{
+		rel.Write(wr);
+	}
 
 	return offset_t(-1);
 }
