@@ -1,6 +1,7 @@
 
 #include "8bitexe.h"
 #include <filesystem>
+#include <sstream>
 
 using namespace Binary;
 

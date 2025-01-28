@@ -1,6 +1,7 @@
 
 #include "leexe.h"
 #include "mzexe.h"
+#include <sstream>
 
 using namespace Microsoft;
 

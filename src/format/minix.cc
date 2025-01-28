@@ -1,5 +1,6 @@
 
 #include "minix.h"
+#include <sstream>
 
 using namespace MINIX;
 

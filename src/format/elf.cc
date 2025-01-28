@@ -1,5 +1,6 @@
 
 #include "elf.h"
+#include <sstream>
 
 using namespace ELF;
 

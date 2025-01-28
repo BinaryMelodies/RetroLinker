@@ -5,6 +5,7 @@
 #include "../linker/module.h"
 #include "../linker/section.h"
 #include "../linker/target.h"
+#include <sstream>
 
 using namespace AS86Obj;
 
