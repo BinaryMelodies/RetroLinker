@@ -95,7 +95,7 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 				else
 				{
 					rd.SeekEnd();
-					long size = rd.Tell();
+					offset_t size = rd.Tell();
 					size -= current;
 					if(size < 2 * (code_size + data_size) + symbol_table_size)
 					{
