@@ -472,6 +472,8 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 	for(int i = 0; i < 16; i++)
 	{
 		segments[i] = GetDefaultSection(i);
+		bss_segments[i] = std::make_shared<Linker::Section>(GetDefaultSectionName(i) + ".bss", Linker::Section::Readable | Linker::Section::Writable | Linker::Section::ZeroFilled);
+		bss_segments[i]->SetAlign(4);
 	}
 	for(auto& objmod : modules)
 	{
@@ -486,23 +488,11 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 				}
 				else
 				{
-					if(bss_segments[symbol.segment] == nullptr)
-					{
-						bss_segments[symbol.segment] = std::make_shared<Linker::Section>(GetDefaultSectionName(symbol.segment) + ".bss", Linker::Section::Readable | Linker::Section::Writable | Linker::Section::ZeroFilled);
-						bss_segments[symbol.segment]->SetAlign(4);
-					}
-
 					module.AddCommonSymbol(Linker::CommonSymbol(symbol.name, symbol.offset, 4, bss_segments[symbol.segment]->name));
 				}
 			}
 			else if((symbol.symbol_type & Symbol::Common) != 0)
 			{
-				if(bss_segments[symbol.segment] == nullptr)
-				{
-					bss_segments[symbol.segment] = std::make_shared<Linker::Section>(GetDefaultSectionName(symbol.segment) + ".bss", Linker::Section::Readable | Linker::Section::Writable | Linker::Section::ZeroFilled);
-					bss_segments[symbol.segment]->SetAlign(4);
-				}
-
 				module.AddCommonSymbol(Linker::CommonSymbol(symbol.name, symbol.offset, 4, bss_segments[symbol.segment]->name));
 			}
 			else
@@ -544,10 +534,7 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 	}
 	for(unsigned i = 0; i < 16; i++)
 	{
-		if(bss_segments[i] != nullptr)
-		{
-			module.AddSection(bss_segments[i]);
-		}
+		module.AddSection(bss_segments[i]);
 	}
 }
 
