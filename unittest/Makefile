@@ -1,9 +1,9 @@
 
-LINKER_HEADERS=$(addprefix ../src/linker/, buffer.h format.h linker_manager.h location.h module.h module_collector.h position.h reader.h reference.h relocation.h resolution.h section.h segment.h symbol.h target.h writable.h writer.h)
+LINKER_HEADERS=$(addprefix ../src/linker/, buffer.h format.h image.h linker_manager.h location.h module.h module_collector.h position.h reader.h reference.h relocation.h resolution.h section.h segment.h symbol.h target.h writer.h)
 LINKER_CXXFILES=$(LINKER_HEADERS:.h=.cc)
 LINKER_OFILES=$(LINKER_CXXFILES:.cc=.o)
 
-FORMAT_HEADERS=$(addprefix ../src/format/, 8bitexe.h aout.h arch.h as86obj.h binary.h bwexp.h coff.h cpm68k.h cpm86.h cpm8k.h dosexe.h elf.h geos.h gsos.h huexe.h hunk.h leexe.h macho.h macos.h minix.h mzexe.h neexe.h o65.h omf.h pcos.h peexe.h pefexe.h pharlap.h pmode.h xenix.h xpexp.h)
+FORMAT_HEADERS=$(addprefix ../src/format/, 8bitexe.h aif.h aout.h arch.h as86obj.h binary.h bwexp.h coff.h cpm68k.h cpm86.h cpm8k.h dosexe.h elf.h geos.h gsos.h huexe.h hunk.h leexe.h macho.h macos.h minix.h mzexe.h neexe.h o65.h omf.h pcos.h peexe.h pefexe.h pharlap.h pmode.h w3exe.h xenix.h xpexp.h)
 FORMAT_CXXFILES=$(FORMAT_HEADERS:.h=.cc)
 FORMAT_OFILES=$(FORMAT_CXXFILES:.cc=.o)
 
@@ -19,7 +19,8 @@ MAIN_HEADERS=../src/common.h
 MAIN_CXXFILES=$(MAIN_HEADERS:.h=.cc)
 MAIN_OFILES=$(MAIN_CXXFILES:.cc=.o)
 
-CXXFLAGS=-Wall -g
+CXXFLAGS=-Wall -Wsuggest-override -Woverloaded-virtual -Wold-style-cast -std=c++20
+CXXFLAGS+= -g
 
 .PHONY: all clean distclean
 

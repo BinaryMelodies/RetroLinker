@@ -205,7 +205,7 @@ void TestMZFormat::testEXERelocations()
 	load(store());
 	CPPUNIT_ASSERT_EQUAL(MZFormat::MAGIC_MZ, exe.GetSignature());
 	CPPUNIT_ASSERT_EQUAL(relocation_offset1, exe.relocation_offset);
-	CPPUNIT_ASSERT_EQUAL(0ul, exe.relocations.size());
+	CPPUNIT_ASSERT_EQUAL(size_t(0), exe.relocations.size());
 	CPPUNIT_ASSERT(exe.GetHeaderSize() >= exe.relocation_offset);
 	test_image(data);
 
@@ -351,7 +351,7 @@ void TestMZFormat::test_image(std::string data)
 	CPPUNIT_ASSERT_EQUAL(file_size, exe.GetFileSize());
 	std::shared_ptr<Linker::Buffer> buffer = std::dynamic_pointer_cast<Linker::Buffer>(exe.image);
 	assert(buffer != nullptr); /* internal check */
-	CPPUNIT_ASSERT_EQUAL(data.size(), buffer->ActualDataSize());
+	CPPUNIT_ASSERT_EQUAL(offset_t(data.size()), buffer->ImageSize());
 	for(uint32_t i = 0; i < data.size(); i++)
 	{
 		CPPUNIT_ASSERT_EQUAL(data[i] & 0xFF, buffer->GetByte(i) & 0xFF);
