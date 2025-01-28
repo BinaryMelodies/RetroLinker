@@ -55,18 +55,18 @@ namespace MINIX
 		{
 		}
 
-		MINIXFormat(format_type format, int version = 0)
+		MINIXFormat(format_type format, int version = -1)
 			: format(format), format_version(version)
 		{
 		}
 
-		MINIXFormat(format_type format, cpu_type cpu, int version = 0)
+		MINIXFormat(format_type format, cpu_type cpu, int version = -1)
 			: format(format), cpu(cpu), format_version(version)
 		{
 		}
 
 		uint32_t bss_size = 0;
-		uint32_t heap_top_address = 0; /* TODO: parametrize */
+		uint32_t total_memory = 0; /* TODO: parametrize */
 		uint16_t heap_size = 0, stack_size = 0;
 		uint32_t symbol_table_offset = 0;
 		uint32_t code_relocation_base = 0;
@@ -104,7 +104,7 @@ namespace MINIX
 
 		/* generated */
 		std::shared_ptr<Linker::Image> code, data, far_code;
-		std::shared_ptr<Linker::Segment> bss;
+		std::shared_ptr<Linker::Segment> bss, heap, stack;
 		uint32_t entry_address = 0;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
@@ -113,6 +113,7 @@ namespace MINIX
 
 		void CreateDefaultSegments();
 
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 
 		void Link(Linker::Module& module);

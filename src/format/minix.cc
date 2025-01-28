@@ -42,7 +42,7 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 		data_size = rd.ReadUnsigned(4);
 		bss_size = rd.ReadUnsigned(4);
 		entry_address = rd.ReadUnsigned(4);
-		heap_top_address = rd.ReadUnsigned(4);
+		total_memory = rd.ReadUnsigned(4);
 		symbol_table_offset = rd.ReadUnsigned(4);
 		break;
 	case 1:
@@ -140,7 +140,56 @@ bool MINIXFormat::FormatIs16bit() const
 
 void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	/* TODO */
+	if(auto total_memory_option = FetchIntegerOption(options, "total_memory"))
+	{
+		if(format_version == -1)
+		{
+			format_version = 0;
+		}
+
+		if(format_version != 0)
+		{
+			Linker::Error << "Error: total memory only supported in file format version 0, ignoring" << std::endl;
+		}
+		else
+		{
+			total_memory = total_memory_option.value();
+		}
+	}
+
+	if(auto stack_size_option = FetchIntegerOption(options, "stack_size"))
+	{
+		if(format_version == -1)
+		{
+			format_version = 1;
+		}
+
+		if(format_version != 1)
+		{
+			Linker::Error << "Error: stack size option only supported in file format version 1, ignoring" << std::endl;
+		}
+		else
+		{
+			stack_size = stack_size_option.value();
+		}
+	}
+
+	if(auto heap_size_option = FetchIntegerOption(options, "heap_size"))
+	{
+		if(format_version == -1)
+		{
+			format_version = 1;
+		}
+
+		if(format_version != 1)
+		{
+			Linker::Error << "Error: heap size option only supported in file format version 1, ignoring" << std::endl;
+		}
+		else
+		{
+			heap_size = heap_size_option.value();
+		}
+	}
 }
 
 void MINIXFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -159,7 +208,11 @@ void MINIXFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else if(segment->name == ".heap")
 	{
-		/* TODO */
+		heap = segment;
+	}
+	else if(segment->name == ".stack")
+	{
+		stack = segment;
 	}
 	else
 	{
@@ -183,8 +236,29 @@ void MINIXFormat::CreateDefaultSegments()
 	}
 }
 
+void MINIXFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	LinkerManager::SetLinkScript(script_file, options);
+
+	if((format & UnmappedZeroPage) != 0)
+	{
+		// TODO: untested
+		if(linker_parameters.find("code_base_address") == linker_parameters.end())
+		{
+			linker_parameters["code_base_address"] = PAGE_SIZE;
+		}
+		if(linker_parameters.find("data_base_address") == linker_parameters.end())
+		{
+			/* gets overwritten for tiny model */
+			linker_parameters["data_base_address"] = PAGE_SIZE;
+		}
+	}
+}
+
 std::unique_ptr<Script::List> MINIXFormat::GetScript(Linker::Module& module)
 {
+	// TODO: stack not in link script
+
 	static const char * SplitScript = R"(
 ".code"
 {
@@ -257,34 +331,48 @@ void MINIXFormat::Link(Linker::Module& module)
 	ProcessScript(script, module);
 
 	CreateDefaultSegments();
-
-	/* TODO: heap */
 }
 
 void MINIXFormat::ProcessModule(Linker::Module& module)
 {
-#if 0
-	/* TODO: utilize */
-	if(code_base_address == 0 && (format & UnmappedZeroPage))
-	{
-		code.base_address = PAGE_SIZE;
-		data.base_address = PAGE_SIZE; /* gets overwritten for tiny model */
-	}
-	else
-	{
-		code.base_address = code_base_address;
-	}
-#endif
-
 	Link(module);
 
-	uint32_t end;
-	end = bss->GetEndAddress();
-	/* TODO: This is how ld86 does it, maybe make it customizable? */
-	if(heap_top_address < end + 0x0100)
-		heap_top_address = end + 0x8000;
-	if(heap_top_address > 0x10000)
-		heap_top_address = 0x10000;
+	// TODO: set format version according to the given values
+	if(format_version == uint16_t(-1))
+	{
+		format_version = 0;
+	}
+
+	switch(format_version)
+	{
+	case 0:
+		{
+			// TODO: heap segment untested
+			uint32_t end = heap == nullptr ? bss->GetEndAddress() : heap->GetEndAddress();
+			if(end > 0x10000)
+			{
+				Linker::Error << "Error: generated image exceeds 64 KiB" << std::endl;
+			}
+			/* This is how ld86 does it */
+			if((heap == nullptr || heap->zero_fill == 0)
+			&& total_memory < end + 0x0100)
+				total_memory = end + 0x8000;
+			if(total_memory > 0x10000)
+				total_memory = 0x10000;
+		}
+		break;
+	case 1:
+		// TODO: untested
+		if(heap != nullptr)
+		{
+			heap_size = heap->zero_fill;
+		}
+		if(stack != nullptr)
+		{
+			stack_size = stack->zero_fill;
+		}
+		break;
+	}
 
 	for(Linker::Relocation& rel : module.relocations)
 	{
@@ -371,7 +459,7 @@ offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, data->ImageSize());
 		wr.WriteWord(4, bss_size);
 		wr.WriteWord(4, entry_address);
-		wr.WriteWord(4, heap_top_address); /* total memory */
+		wr.WriteWord(4, total_memory); /* total memory */
 		wr.WriteWord(4, 0); /* symbol table */
 		break;
 	case 1:
