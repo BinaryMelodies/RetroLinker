@@ -26,7 +26,7 @@ CXXFLAGS=-Wall -g
 all: main
 
 main: main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) linker/*.cc format/*.cc
-	g++ -o main main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) -lcppunit $(CXXFLAGS)
+	$(CXX) -o main main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) -lcppunit $(CXXFLAGS)
 
 clean:
 	rm -rf main results.xml
