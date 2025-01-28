@@ -51,6 +51,7 @@ namespace SeychellDOS32
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 };
@@ -76,6 +77,7 @@ namespace BrocaD3X
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 };
@@ -113,6 +115,7 @@ namespace DX64
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 }

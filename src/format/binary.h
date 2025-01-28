@@ -9,7 +9,7 @@
 #include "mzexe.h"
 
 /* TODO:
-	refactor, use a Writable for writing, introduce base_address and zero_fill fields? maybe only for specific subclasses (such as PRL)
+	refactor, use an Image for writing, introduce base_address and zero_fill fields? maybe only for specific subclasses (such as PRL)
 */
 
 namespace Binary
@@ -44,6 +44,7 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void Dump(Dumper::Dumper& dump) override;
@@ -75,6 +76,7 @@ namespace Binary
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 	};
 
@@ -117,6 +119,7 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void Dump(Dumper::Dumper& dump) override;

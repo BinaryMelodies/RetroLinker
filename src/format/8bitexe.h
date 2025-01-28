@@ -32,6 +32,7 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -186,6 +187,7 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -218,8 +220,10 @@ namespace Binary
 
 		void ProcessModule(Linker::Module& module) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 	};
 
@@ -273,6 +277,7 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void CalculateValues() override;
@@ -300,8 +305,10 @@ namespace Binary
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 	};
 
@@ -335,6 +342,7 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		/** @brief Read without header, only needed for RSX files stored inside a CP/M 3 .COM file */
@@ -358,9 +366,10 @@ namespace Binary
 
 		void ProcessModule(Linker::Module& module) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
-		using GenericBinaryFormat::GetDefaultExtension;
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;
 	};
 
@@ -376,9 +385,10 @@ namespace Binary
 
 		/* TODO: apparently both .code and .data are loaded at 0x0100 */
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
-		using GenericBinaryFormat::GetDefaultExtension;
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;
 	};
 }

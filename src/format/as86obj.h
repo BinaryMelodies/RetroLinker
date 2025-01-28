@@ -185,6 +185,7 @@ namespace AS86Obj
 		std::vector<Module> modules;
 
 		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;
 
@@ -192,6 +193,7 @@ namespace AS86Obj
 		static std::string GetDefaultSectionName(unsigned index);
 		static std::shared_ptr<Linker::Section> GetDefaultSection(unsigned index);
 	public:
+		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 	};
 }

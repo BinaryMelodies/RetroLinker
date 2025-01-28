@@ -230,7 +230,9 @@ namespace O65
 		void Clear() override;
 
 		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 	};
 }

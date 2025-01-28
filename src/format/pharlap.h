@@ -72,8 +72,10 @@ namespace PharLap
 
 		void CalculateValues() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 	};
 
@@ -151,8 +153,10 @@ namespace PharLap
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		class Flat;
@@ -179,6 +183,7 @@ namespace PharLap
 
 		void CalculateValues() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -333,6 +338,7 @@ namespace PharLap
 
 		void CalculateValues() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -349,12 +355,14 @@ namespace PharLap
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 
 		void ProcessModule(Linker::Module& module) override;
 
 		void CalculateValues() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 }

@@ -98,10 +98,12 @@ namespace Amiga
 
 		void CalculateValues() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;
 
 	};

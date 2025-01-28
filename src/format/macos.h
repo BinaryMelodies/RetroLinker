@@ -67,6 +67,7 @@ namespace Apple
 		public:
 			virtual offset_t GetLength();
 			void ReadFile(Linker::Reader& rd) override;
+			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& out) override;
 
 			virtual void ProcessModule(Linker::Module& module);
@@ -184,6 +185,7 @@ namespace Apple
 
 		void ProcessModule(Linker::Module& module) override;
 		void CalculateValues() override;
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		std::string PrefixFilename(std::string prefix, std::string filename);
@@ -197,6 +199,7 @@ namespace Apple
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;
 	};
 
@@ -242,6 +245,7 @@ namespace Apple
 		{
 		public:
 			void ReadFile(Linker::Reader& rd) override;
+			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) override;
 
 		protected:
@@ -287,6 +291,7 @@ namespace Apple
 
 			offset_t GetLength() override;
 
+			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) override;
 		};
 
@@ -321,6 +326,7 @@ namespace Apple
 				LOADSEG = 0xA9F0,
 			};
 
+			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) override;
 		};
 
@@ -363,6 +369,7 @@ namespace Apple
 
 			void WriteRelocations(Linker::Writer& wr, std::set<uint32_t>& relocations);
 
+			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) override;
 		};
 
@@ -403,10 +410,12 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;
 	};
 
@@ -422,6 +431,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -489,6 +499,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -512,6 +523,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -529,6 +541,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -548,6 +561,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -572,6 +586,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -595,6 +610,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void ProcessModule(Linker::Module& module) override;
@@ -612,6 +628,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -632,6 +649,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -648,6 +666,7 @@ namespace Apple
 
 		offset_t GetLength() override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 
@@ -737,6 +756,7 @@ namespace Apple
 
 		void WriteHeader(Linker::Writer& wr);
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
@@ -821,6 +841,7 @@ namespace Apple
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 	};
 }

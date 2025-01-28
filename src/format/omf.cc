@@ -17,7 +17,7 @@ offset_t OMFFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void OMFFormat::ProduceModule(Linker::Module& module, Linker::Reader& rd)
+void OMFFormat::GenerateModule(Linker::Module& module) const
 {
 	/* TODO */
 }

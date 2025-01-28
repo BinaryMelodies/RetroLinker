@@ -298,6 +298,8 @@ namespace Linker
 		 */
 		void ReadFile(Reader& rd);
 
+		using Buffer::WriteFile;
+
 		/**
 		 * @brief Writes data into file
 		 *

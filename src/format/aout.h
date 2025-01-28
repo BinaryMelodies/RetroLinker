@@ -109,10 +109,12 @@ namespace AOut
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
 		/* * * Reader * * */
 
+		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 
 		/* * * Writer * * */
@@ -159,8 +161,8 @@ namespace AOut
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
-
 		std::string GetDefaultExtension(Linker::Module& module) override;
 	};
 

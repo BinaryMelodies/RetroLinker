@@ -60,6 +60,7 @@ namespace Archive
 		std::vector<File> files;
 
 		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;
 		using Linker::InputFormat::GenerateModule;

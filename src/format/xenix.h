@@ -18,6 +18,7 @@ namespace Xenix
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 		/* TODO */
 	};
@@ -29,6 +30,7 @@ namespace Xenix
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 		/* TODO */
 	};

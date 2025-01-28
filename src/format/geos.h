@@ -17,9 +17,11 @@ namespace GEOS
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 		/* TODO */
 
+		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
 	};
 }

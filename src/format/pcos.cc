@@ -264,3 +264,8 @@ void CMDFormat::CalculateValues()
 	// TODO
 }
 
+std::string CMDFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+{
+	return filename + (type == TYPE_SAV ? ".sav" : ".cmd");
+}
+

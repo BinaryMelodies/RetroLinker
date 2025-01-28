@@ -19,8 +19,10 @@ namespace OMF
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
-		void ProduceModule(Linker::Module& module, Linker::Reader& rd) override;
+		using Linker::InputFormat::GenerateModule;
+		void GenerateModule(Linker::Module& module) const override;
 		/* TODO */
 	};
 }
