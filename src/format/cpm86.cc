@@ -752,7 +752,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, relocations_offset + i * 4, 5);
 		relocation_source source = rel.GetSource();
-		relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), source.segment, source.offset);
+		relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), offset_t(source.segment), source.offset);
 		relocation_entry.AddField("Target", Dumper::DecDisplay::Make(), offset_t(rel.target));
 		relocation_entry.Display(dump);
 
@@ -797,7 +797,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 				Dumper::Entry relocation_entry("Relocation", i + 1, next_relocation_offset, 5);
 				next_relocation_offset += 4;
 				relocation_source source = rel.GetSource();
-				relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), source.segment, source.offset);
+				relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), offset_t(source.segment), source.offset);
 				relocation_entry.Display(dump);
 
 				number_t segment = FindSegmentGroup(source.segment);
