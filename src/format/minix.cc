@@ -388,6 +388,37 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 		{
 			Linker::Error << "Error: inter-segment differences are not supported, generating image anyway (generate with relocations disable)" << std::endl;
 		}
+		else if(enable_relocations && rel.segment_of && resolution.target != nullptr)
+		{
+			relocation exe_rel;
+			exe_rel.type = relocation::R_SEGWORD;
+
+			if(resolution.target == code)
+				exe_rel.symbol = relocation::S_TEXT;
+			else if(resolution.target == far_code)
+				exe_rel.symbol = relocation::S_FTEXT;
+			else // data, bss, etc.
+				exe_rel.symbol = relocation::S_DATA;
+
+			Linker::Position source = rel.source.GetPosition();
+			auto& segment = source.segment;
+			exe_rel.address = source.address;
+			if(segment == code)
+			{
+				exe_rel.address -= dynamic_cast<Linker::Segment *>(code.get())->GetStartAddress();
+				code_relocations.emplace_back(exe_rel);
+			}
+			else if(segment == far_code)
+			{
+				exe_rel.address -= dynamic_cast<Linker::Segment *>(far_code.get())->GetStartAddress();
+				far_code_relocations.emplace_back(exe_rel);
+			}
+			else // data, bss, etc.
+			{
+				exe_rel.address -= dynamic_cast<Linker::Segment *>(data.get())->GetStartAddress();
+				data_relocations.emplace_back(exe_rel);
+			}
+		}
 	}
 
 	Linker::Location stack_top;
@@ -409,6 +440,21 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 	}
 
 	bss_size = bss->zero_fill;
+
+	uint8_t minimum_header_size = 0x20;
+	if(far_code != nullptr && far_code->ImageSize() > 0)
+	{
+		minimum_header_size = 0x40;
+	}
+	else if(code_relocations.size() > 0 || data_relocations.size() > 0)
+	{
+		minimum_header_size = 0x30;
+	}
+
+	if(header_size < minimum_header_size)
+	{
+		header_size = minimum_header_size;
+	}
 
 #if 0
 	for(auto section : code->sections)

@@ -72,6 +72,8 @@ namespace MINIX
 		uint32_t code_relocation_base = 0;
 		uint32_t data_relocation_base = 0;
 
+		bool enable_relocations = false;
+
 		struct relocation
 		{
 			static constexpr uint16_t S_ABS = uint16_t(-1);
