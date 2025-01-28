@@ -195,6 +195,12 @@ int main(int argc, char * argv[])
 		}
 	}
 
+	if(inputs.size() == 0)
+	{
+		usage(argv[0]);
+		exit(0);
+	}
+
 	if(format == nullptr)
 	{
 		Linker::Warning << "Warning: Unspecified output format, using flat binary" << std::endl;

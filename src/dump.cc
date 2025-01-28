@@ -16,7 +16,29 @@ using namespace Linker;
 
 void usage(char * argv0)
 {
-	// TODO
+	std::cerr << "Usage: " << argv0 << "[options] <input file>" << std::endl;
+	std::cerr << "\t-h" << std::endl << "\t\tDisplay this help page" << std::endl;
+	std::cerr << "\t-F<format>" << std::endl << "\t\tSelect output format" << std::endl;
+
+	std::cerr << "List of supported formats:" << std::endl;
+	output_format_type * last = nullptr;
+
+	size_t i = 0;
+	do
+	{
+		if(formats[i].documentation != "")
+		{
+			if(last != nullptr)
+			{
+				std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
+			}
+			last = &formats[i];
+		}
+		std::cerr << "\t" << formats[i].format;
+		i += 1;
+	}
+	while(i < formats_size);
+	std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
 }
 
 /**
@@ -58,6 +80,12 @@ int main(int argc, char * argv[])
 			}
 			input = argv[i];
 		}
+	}
+
+	if(input == "")
+	{
+		usage(argv[0]);
+		exit(0);
 	}
 
 	std::ifstream in;
