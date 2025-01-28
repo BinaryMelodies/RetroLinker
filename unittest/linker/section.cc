@@ -22,8 +22,8 @@ private:
 	void testZeroFilledFlag();
 	void testFixedFlag();
 public:
-	void setUp();
-	void tearDown();
+	void setUp() override;
+	void tearDown() override;
 };
 
 void TestSection::testSimpleFlags()
@@ -51,20 +51,20 @@ void TestSection::testZeroFilledFlag()
 {
 	section->SetZeroFilled(true);
 	section->Expand(123);
-	CPPUNIT_ASSERT_EQUAL((offset_t)123, section->Size());
+	CPPUNIT_ASSERT_EQUAL(offset_t(123), section->Size());
 	section->SetZeroFilled(false);
-	CPPUNIT_ASSERT_EQUAL((offset_t)123, section->Size());
+	CPPUNIT_ASSERT_EQUAL(offset_t(123), section->Size());
 }
 
 void TestSection::testFixedFlag()
 {
 	CPPUNIT_ASSERT(!section->IsFixed());
 	section->SetAlign(16);
-	CPPUNIT_ASSERT_EQUAL((offset_t)16, section->GetAlign());
-	CPPUNIT_ASSERT_EQUAL((offset_t)0, section->GetStartAddress());
+	CPPUNIT_ASSERT_EQUAL(offset_t(16), section->GetAlign());
+	CPPUNIT_ASSERT_EQUAL(offset_t(0), section->GetStartAddress());
 	section->SetAddress(0x1234);
 	CPPUNIT_ASSERT(section->IsFixed());
-	CPPUNIT_ASSERT_EQUAL((offset_t)0x1240, section->GetStartAddress());
+	CPPUNIT_ASSERT_EQUAL(offset_t(0x1240), section->GetStartAddress());
 }
 
 void TestSection::setUp()

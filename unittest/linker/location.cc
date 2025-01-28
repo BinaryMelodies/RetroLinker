@@ -26,8 +26,8 @@ private:
 	void testLocationToPosition();
 	void testLocationDisplacement();
 public:
-	void setUp();
-	void tearDown();
+	void setUp() override;
+	void tearDown() override;
 };
 
 void TestLocation::testDefaultLocations()

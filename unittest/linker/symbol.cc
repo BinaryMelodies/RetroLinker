@@ -35,8 +35,8 @@ private:
 	void testGetImportedOrdinal();
 	void testEquality();
 public:
-	void setUp();
-	void tearDown();
+	void setUp() override;
+	void tearDown() override;
 };
 
 void TestSymbolName::testLoadName()
@@ -227,8 +227,8 @@ private:
 	bool unequal(const ExportedSymbol& a, const ExportedSymbol& b);
 	void testComparison();
 public:
-	void setUp();
-	void tearDown();
+	void setUp() override;
+	void tearDown() override;
 };
 
 void TestExportedSymbol::testIsExportedByOrdinal()
