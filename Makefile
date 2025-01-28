@@ -96,5 +96,5 @@ src/script/scan.cc: src/script/scan.lex src/script/parse.tab.hh
 src/script/parse.tab.hh: src/script/parse.tab.cc
 
 src/script/parse.tab.cc: src/script/parse.yy
-	bison3 -d -o $@ $<
+	bison -d -o $@ $<
 

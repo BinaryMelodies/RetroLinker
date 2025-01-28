@@ -347,7 +347,7 @@ offset_t Section::WriteFile(std::ostream& out, offset_t size, offset_t offset) c
 {
 	if(offset >= data.size())
 		return 0;
-	size = std::min(size + offset, data.size()) - offset;
+	size = std::min(size + offset, offset_t(data.size())) - offset;
 	out.write(reinterpret_cast<const char *>(data.data()) + offset, size);
 	return size;
 }
