@@ -166,6 +166,10 @@ Field::~Field()
 {
 }
 
+Container::~Container()
+{
+}
+
 void Container::Display(Dumper& dump)
 {
 	dump.out << "== " << name;

@@ -46,6 +46,8 @@ namespace DOS16M
 			{
 			}
 
+			virtual ~AbstractSegment();
+
 			/**
 			 * @brief Retrieves the total size of the segment, including the bss
 			 */

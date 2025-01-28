@@ -285,6 +285,10 @@ offset_t OMFFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+OMFFormat::Segment::Expression::~Expression()
+{
+}
+
 OMFFormat::Segment::Record::~Record()
 {
 }

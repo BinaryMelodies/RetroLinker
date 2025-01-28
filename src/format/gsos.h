@@ -133,6 +133,7 @@ namespace Apple
 			{
 			public:
 				/* TODO */
+				virtual ~Expression();
 				virtual offset_t GetLength(Segment& segment) = 0;
 				virtual void ReadFile(Segment& segment, Linker::Reader& rd) = 0;
 				virtual void WriteFile(Segment& segment, Linker::Writer& wr) = 0;

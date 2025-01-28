@@ -94,7 +94,13 @@ Relocation& Relocation::SetSubtract(bool to_subtract)
 
 bool Relocation::Displace(const Displacement& displacement)
 {
-	return source.Displace(displacement) | target.Displace(displacement) | reference.Displace(displacement);
+	bool changed =
+		source.Displace(displacement);
+	changed |=
+		target.Displace(displacement);
+	changed |=
+		reference.Displace(displacement);
+	return changed;
 }
 
 bool Relocation::Resolve(Module& object, Resolution& resolution)

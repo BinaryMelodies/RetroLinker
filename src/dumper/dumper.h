@@ -380,6 +380,8 @@ public:
 	{
 	}
 
+	virtual ~Container();
+
 	std::shared_ptr<Field> FindField(std::string name)
 	{
 		auto it = field_names.find(name);

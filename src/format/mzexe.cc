@@ -838,7 +838,7 @@ void MZStubWriter::WriteStubImage(Linker::Writer& wr)
 {
 	if(OpenAndCheckValidFile())
 	{
-		if(original_file_size == offset_t(-1))
+		if(original_file_size == uint32_t(-1))
 		{
 			GetStubImageSize();
 		}

@@ -30,6 +30,10 @@ unsigned BWFormat::FormatAdditionalSectionFlags(std::string section_name) const
 	}
 }
 
+BWFormat::AbstractSegment::~AbstractSegment()
+{
+}
+
 uint32_t BWFormat::AbstractSegment::GetTotalSize()
 {
 	return total_length;
