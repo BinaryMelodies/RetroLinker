@@ -4,19 +4,40 @@
 
 using namespace MINIX;
 
-MINIXFormat::relocation MINIXFormat::relocation::Read(Linker::Reader& rd)
+MINIXFormat::Relocation MINIXFormat::Relocation::Read(Linker::Reader& rd)
 {
-	relocation rel;
+	Relocation rel;
 	rel.address = rd.ReadUnsigned(4);
 	rel.symbol = rd.ReadUnsigned(2);
 	rel.type = rd.ReadUnsigned(2);
 	return rel;
 }
 
-void MINIXFormat::relocation::Write(Linker::Writer& wr)
+void MINIXFormat::Relocation::Write(Linker::Writer& wr)
 {
 	wr.WriteWord(4, address);
 	wr.WriteWord(2, symbol);
+	wr.WriteWord(2, type);
+}
+
+MINIXFormat::Symbol MINIXFormat::Symbol::Read(Linker::Reader& rd)
+{
+	Symbol sym;
+	sym.name = rd.ReadData(8);
+	sym.name.erase(sym.name.find_last_not_of(' ') + 1);
+	sym.value = rd.ReadSigned(4);
+	sym.sclass = rd.ReadUnsigned(1);
+	sym.numaux = rd.ReadUnsigned(1);
+	sym.type = rd.ReadUnsigned(2);
+	return sym;
+}
+
+void MINIXFormat::Symbol::Write(Linker::Writer& wr)
+{
+	wr.WriteData(8, name, ' ');
+	wr.WriteWord(4, value);
+	wr.WriteWord(1, sclass);
+	wr.WriteWord(1, numaux);
 	wr.WriteWord(2, type);
 }
 
@@ -35,6 +56,7 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 	uint32_t code_size;
 	uint32_t data_size;
 	uint32_t far_code_size = 0;
+	uint32_t symbol_count = 0;
 	switch(format_version)
 	{
 	case 0:
@@ -43,7 +65,7 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 		bss_size = rd.ReadUnsigned(4);
 		entry_address = rd.ReadUnsigned(4);
 		total_memory = rd.ReadUnsigned(4);
-		symbol_table_offset = rd.ReadUnsigned(4);
+		symbol_count = rd.ReadUnsigned(4);
 		break;
 	case 1:
 		code_size = rd.ReadUnsigned(2);
@@ -55,7 +77,7 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 		entry_address = rd.ReadUnsigned(4);
 		heap_size = rd.ReadUnsigned(2);
 		stack_size = rd.ReadUnsigned(2);
-		symbol_table_offset = rd.ReadUnsigned(4);
+		symbol_count = rd.ReadUnsigned(4);
 		break;
 	default:
 		{
@@ -75,8 +97,15 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 		data_relocation_base = rd.ReadUnsigned(4);
 		if(header_size >= 0x40)
 		{
-			far_code_size = rd.ReadUnsigned(2);
-			rd.Skip(2);
+			if(format_version == 0)
+			{
+				far_code_size = rd.ReadUnsigned(4);
+			}
+			else
+			{
+				far_code_size = rd.ReadUnsigned(2);
+				rd.Skip(2);
+			}
 			far_code_relocation_size = rd.ReadUnsigned(4);
 		}
 	}
@@ -98,15 +127,19 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 	uint32_t i;
 	for(i = 0; i < code_relocation_size; i += 8)
 	{
-		code_relocations.emplace_back(relocation::Read(rd));
+		code_relocations.emplace_back(Relocation::Read(rd));
 	}
 	for(i = 0; i < far_code_relocation_size; i += 8)
 	{
-		far_code_relocations.emplace_back(relocation::Read(rd));
+		far_code_relocations.emplace_back(Relocation::Read(rd));
 	}
 	for(i = 0; i < data_relocation_size; i += 8)
 	{
-		data_relocations.emplace_back(relocation::Read(rd));
+		data_relocations.emplace_back(Relocation::Read(rd));
+	}
+	for(i = 0; i < symbol_count; i += 16)
+	{
+		symbols.emplace_back(Symbol::Read(rd));
 	}
 }
 
@@ -390,15 +423,15 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 		}
 		else if(enable_relocations && rel.segment_of && resolution.target != nullptr)
 		{
-			relocation exe_rel;
-			exe_rel.type = relocation::R_SEGWORD;
+			Relocation exe_rel;
+			exe_rel.type = Relocation::R_SEGWORD;
 
 			if(resolution.target == code)
-				exe_rel.symbol = relocation::S_TEXT;
+				exe_rel.symbol = Relocation::S_TEXT;
 			else if(resolution.target == far_code)
-				exe_rel.symbol = relocation::S_FTEXT;
+				exe_rel.symbol = Relocation::S_FTEXT;
 			else // data, bss, etc.
-				exe_rel.symbol = relocation::S_DATA;
+				exe_rel.symbol = Relocation::S_DATA;
 
 			Linker::Position source = rel.source.GetPosition();
 			auto& segment = source.segment;
@@ -418,6 +451,136 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 				exe_rel.address -= dynamic_cast<Linker::Segment *>(data.get())->GetStartAddress();
 				data_relocations.emplace_back(exe_rel);
 			}
+		}
+	}
+
+	if(enable_symbols)
+	{
+		std::map<std::string, size_t> local_counter;
+		for(auto& mention : module.symbol_sequence)
+		{
+			Symbol symbol = { };
+			symbol.name = mention.name;
+			Linker::Location location;
+			Linker::Position position;
+			size_t index;
+			switch(mention.binding)
+			{
+			case Linker::Module::SymbolMention::Undefined:
+				symbol.sclass = Symbol::S_EXT;
+				break;
+			case Linker::Module::SymbolMention::Local:
+				symbol.sclass = Symbol::S_STAT;
+				if(local_counter.find(mention.name) == local_counter.end())
+				{
+					index = 0;
+					local_counter[mention.name] = 1;
+				}
+				else
+				{
+					index = local_counter[mention.name]++;
+				}
+				if(!module.FindLocalSymbol(mention.name, location, index))
+				{
+					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
+					continue;
+				}
+				position = location.GetPosition();
+				symbol.value = position.address;
+				if(position.segment == nullptr)
+				{
+					symbol.sclass = Symbol::N_ABS;
+				}
+				else if(position.segment == code || position.segment == far_code)
+				{
+					symbol.sclass = Symbol::N_TEXT | Symbol::S_STAT;
+				}
+				else if(position.segment == data)
+				{
+					symbol.sclass = Symbol::N_DATA | Symbol::S_STAT;
+				}
+				else
+				{
+					symbol.sclass = Symbol::N_BSS | Symbol::S_STAT;
+				}
+				break;
+			case Linker::Module::SymbolMention::Global:
+				if(!module.FindGlobalSymbol(mention.name, location))
+				{
+					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
+					continue;
+				}
+				position = location.GetPosition();
+				symbol.value = position.address;
+				if(position.segment == nullptr)
+				{
+					symbol.sclass = Symbol::N_ABS;
+				}
+				else if(position.segment == code || position.segment == far_code)
+				{
+					symbol.sclass = Symbol::N_TEXT | Symbol::S_EXT;
+				}
+				else if(position.segment == data)
+				{
+					symbol.sclass = Symbol::N_DATA | Symbol::S_EXT;
+				}
+				else
+				{
+					symbol.sclass = Symbol::N_BSS | Symbol::S_EXT;
+				}
+				break;
+			case Linker::Module::SymbolMention::Weak:
+				if(!module.FindGlobalSymbol(mention.name, location))
+				{
+					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
+					continue;
+				}
+				position = location.GetPosition();
+				symbol.value = position.address;
+				if(position.segment == nullptr)
+				{
+					symbol.sclass = Symbol::N_ABS;
+				}
+				else if(position.segment == code || position.segment == far_code)
+				{
+					symbol.sclass = Symbol::N_TEXT | Symbol::S_EXT;
+				}
+				else if(position.segment == data)
+				{
+					symbol.sclass = Symbol::N_DATA | Symbol::S_EXT;
+				}
+				else
+				{
+					symbol.sclass = Symbol::N_BSS | Symbol::S_EXT;
+				}
+				break;
+			case Linker::Module::SymbolMention::Common:
+				if(!module.FindGlobalSymbol(mention.name, location))
+				{
+					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
+					continue;
+				}
+				position = location.GetPosition();
+				symbol.value = position.address;
+				if(position.segment == nullptr)
+				{
+					symbol.sclass = Symbol::N_ABS;
+				}
+				else if(position.segment == code || position.segment == far_code)
+				{
+					symbol.sclass = Symbol::N_TEXT | Symbol::S_EXT;
+				}
+				else if(position.segment == data)
+				{
+					symbol.sclass = Symbol::N_DATA | Symbol::S_EXT;
+				}
+				else
+				{
+					symbol.sclass = Symbol::N_BSS | Symbol::S_EXT;
+				}
+				break;
+			}
+			symbols.push_back(symbol);
 		}
 	}
 
@@ -506,7 +669,7 @@ offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, bss_size);
 		wr.WriteWord(4, entry_address);
 		wr.WriteWord(4, total_memory); /* total memory */
-		wr.WriteWord(4, 0); /* symbol table */
+		wr.WriteWord(4, symbols.size() * 16);
 		break;
 	case 1:
 		wr.WriteWord(2, code->ImageSize());
@@ -518,7 +681,7 @@ offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, entry_address);
 		wr.WriteWord(2, heap_size);
 		wr.WriteWord(2, stack_size);
-		wr.WriteWord(4, 0); /* symbol table */
+		wr.WriteWord(4, symbols.size() * 16);
 		break;
 	}
 	if(header_size >= 0x30)
@@ -559,6 +722,10 @@ offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
 	for(auto& rel : data_relocations)
 	{
 		rel.Write(wr);
+	}
+	for(auto& sym : symbols)
+	{
+		sym.Write(wr);
 	}
 
 	return offset_t(-1);

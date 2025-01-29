@@ -2658,7 +2658,6 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 				switch(cpu)
 				{
 				case EM_386:
-					/* TODO: 386 linear model will have to use Absolute instead of Offset */
 					switch(rel.type)
 					{
 					case R_386_8:
@@ -2667,10 +2666,16 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 						break;
 					case R_386_16:
 					case R_386_PC16:
+					case R_386_SEG16:
+					case R_386_SUB16:
+					case R_386_SEGRELATIVE:
+					case R_386_OZSEG16:
+					case R_386_OZRELSEG16:
 						rel_size = 2;
 						break;
 					case R_386_32:
 					case R_386_PC32:
+					case R_386_SUB32:
 						rel_size = 4;
 						break;
 					default:
@@ -2691,6 +2696,26 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					case R_386_PC16:
 					case R_386_PC32:
 						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+						break;
+					case R_386_SUB16:
+					case R_386_SUB32:
+						// TODO: untested
+						obj_rel =
+							Linker::Relocation::OffsetFrom(rel_size, rel_source, Linker::Target(Linker::Location()),
+								rel_target, rel.addend, ::LittleEndian);
+						break;
+					case R_386_SEG16:
+						// TODO: untested
+						obj_rel = Linker::Relocation::Paragraph(rel_source, rel_target, rel.addend);
+						break;
+					case R_386_SEGRELATIVE:
+						// TODO
+						break;
+					case R_386_OZSEG16:
+						// TODO
+						break;
+					case R_386_OZRELSEG16:
+						// TODO
 						break;
 					}
 					break;

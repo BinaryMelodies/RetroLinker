@@ -68,13 +68,13 @@ namespace MINIX
 		uint32_t bss_size = 0;
 		uint32_t total_memory = 0; /* TODO: parametrize */
 		uint16_t heap_size = 0, stack_size = 0;
-		uint32_t symbol_table_offset = 0;
 		uint32_t code_relocation_base = 0;
 		uint32_t data_relocation_base = 0;
 
 		bool enable_relocations = false;
+		bool enable_symbols = false;
 
-		struct relocation
+		struct Relocation
 		{
 			static constexpr uint16_t S_ABS = uint16_t(-1);
 			static constexpr uint16_t S_TEXT = uint16_t(-2);
@@ -99,10 +99,38 @@ namespace MINIX
 			uint16_t symbol = 0;
 			uint16_t type = 0;
 
-			static relocation Read(Linker::Reader& rd);
+			static Relocation Read(Linker::Reader& rd);
 			void Write(Linker::Writer& wr);
 		};
-		std::vector<relocation> code_relocations, data_relocations, far_code_relocations;
+		std::vector<Relocation> code_relocations, data_relocations, far_code_relocations;
+
+		struct Symbol
+		{
+			static constexpr uint8_t N_SECT = 0x07; // mask
+
+			static constexpr uint8_t N_UNDF = 0x00;
+			static constexpr uint8_t N_ABS = 0x01;
+			static constexpr uint8_t N_TEXT = 0x02;
+			static constexpr uint8_t N_DATA = 0x03;
+			static constexpr uint8_t N_BSS = 0x04;
+			static constexpr uint8_t N_COMM = 0x05;
+
+			static constexpr uint8_t N_CLASS = 0xF8; // mask
+
+			static constexpr uint8_t S_NULL = 0x00;
+			static constexpr uint8_t S_EXT = 0x10; // external
+			static constexpr uint8_t S_STAT = 0x18; // static
+
+			std::string name;
+			int32_t value;
+			uint8_t sclass;
+			uint8_t numaux; // not used by MINIX/ELKS
+			uint16_t type; // not used by MINIX/ELKS
+
+			static Symbol Read(Linker::Reader& rd);
+			void Write(Linker::Writer& wr);
+		};
+		std::vector<Symbol> symbols;
 
 		/* generated */
 		std::shared_ptr<Linker::Image> code, data, far_code;

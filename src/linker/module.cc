@@ -5,6 +5,72 @@
 
 using namespace Linker;
 
+void Module::AddSymbolMention(const SymbolMention& mention)
+{
+	if(std::find(symbol_sequence.begin(), symbol_sequence.end(), mention) == symbol_sequence.end())
+	{
+		symbol_sequence.emplace_back(mention);
+	}
+}
+
+void Module::AppendSymbolMention(const SymbolMention& mention)
+{
+	symbol_sequence.emplace_back(mention);
+}
+
+void Module::DeleteSymbolMention(const SymbolMention& mention)
+{
+	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), mention);
+	if(it != symbol_sequence.end())
+	{
+		symbol_sequence.erase(it);
+	}
+}
+
+bool Module::HasSymbolMention(const SymbolMention& mention)
+{
+	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), mention);
+	return it != symbol_sequence.end();
+}
+
+void Module::NewSymbolMention(const SymbolMention& mention)
+{
+	switch(mention.binding)
+	{
+	case SymbolMention::Undefined:
+		if(!HasSymbolMention(SymbolMention(SymbolMention::Global, mention.name))
+		&& !HasSymbolMention(SymbolMention(SymbolMention::Undefined, mention.name))
+		&& !HasSymbolMention(SymbolMention(SymbolMention::Common, mention.name)))
+		{
+			AddSymbolMention(mention);
+		}
+		break;
+	case SymbolMention::Local:
+		AppendSymbolMention(mention);
+		break;
+	case SymbolMention::Global:
+		AddSymbolMention(mention);
+		DeleteSymbolMention(SymbolMention(SymbolMention::Weak, mention.name));
+		DeleteSymbolMention(SymbolMention(SymbolMention::Undefined, mention.name));
+		DeleteSymbolMention(SymbolMention(SymbolMention::Common, mention.name));
+		break;
+	case SymbolMention::Weak:
+		if(!HasSymbolMention(SymbolMention(SymbolMention::Global, mention.name)))
+		{
+			AddSymbolMention(mention);
+			DeleteSymbolMention(SymbolMention(SymbolMention::Undefined, mention.name));
+		}
+		break;
+	case SymbolMention::Common:
+		if(!HasSymbolMention(SymbolMention(SymbolMention::Global, mention.name)))
+		{
+			AddSymbolMention(mention);
+			DeleteSymbolMention(SymbolMention(SymbolMention::Undefined, mention.name));
+		}
+		break;
+	}
+}
+
 void Module::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> output_format, std::shared_ptr<const Linker::InputFormat> input_format)
 {
 	special_prefix_char = special_char;
@@ -157,8 +223,14 @@ void Module::AddLocalSymbol(std::string name, Location location)
 
 void Module::_AddLocalSymbol(std::string name, Location location)
 {
+	if(local_symbols.find(name) != local_symbols.end())
+	{
+		Linker::Debug << "Debug: duplicated local symbol " << name << " in module " << file_name << ", ignoring" << std::endl;
+		return;
+	}
 	local_symbols[name] = std::vector<Location>();
 	local_symbols[name].push_back(location);
+	NewSymbolMention(SymbolMention(SymbolMention::Local, name));
 }
 
 void Module::AddGlobalSymbol(std::string name, Location location)
@@ -195,19 +267,30 @@ void Module::_AddGlobalSymbol(std::string name, Location location)
 	{
 		weak_symbols.erase(name);
 	}
+	if(unallocated_symbols.find(name) != unallocated_symbols.end())
+	{
+		// TODO: check segments
+		unallocated_symbols.erase(name);
+	}
+
+	NewSymbolMention(SymbolMention(SymbolMention::Global, name));
 }
 
 void Module::AddWeakSymbol(std::string name, Location location)
 {
+	// TODO: what if common symbol exists?
 	if(global_symbols.find(name) == global_symbols.end())
 	{
 		weak_symbols[name] = location;
 	}
+
+	NewSymbolMention(SymbolMention(SymbolMention::Weak, name));
 }
 
 void Module::AddCommonSymbol(CommonSymbol symbol)
 {
 	unallocated_symbols[symbol.name] = symbol;
+	NewSymbolMention(SymbolMention(SymbolMention::Common, symbol.name));
 }
 
 void Module::AddImportedSymbol(SymbolName name)
@@ -263,6 +346,8 @@ void Module::AddUndefinedSymbol(std::string symbol_name)
 		}
 	}
 	// undefined symbol ignored
+
+	NewSymbolMention(SymbolMention(SymbolMention::Undefined, symbol_name));
 }
 
 void Module::AddRelocation(Relocation relocation)
@@ -428,6 +513,15 @@ bool Module::FindLocalSymbol(std::string name, Location& location)
 	return true;
 }
 
+bool Module::FindLocalSymbol(std::string name, Location& location, size_t index)
+{
+	auto it = local_symbols.find(name);
+	if(it == local_symbols.end() || it->second.size() <= index)
+		return false;
+	location = it->second[index];
+	return true;
+}
+
 bool Module::FindGlobalSymbol(std::string name, Location& location)
 {
 	auto it = global_symbols.find(name);
@@ -589,6 +683,10 @@ void Module::Append(Module& other)
 		{
 			displacement[other_section] = Location(section, section->Append(*other_section));
 		}
+	}
+	for(auto mention : other.symbol_sequence)
+	{
+		NewSymbolMention(mention);
 	}
 	for(auto symbol : other.global_symbols)
 	{
