@@ -461,7 +461,7 @@ static bool VerifyMachOOrJava(Reader& rd, format_description& description)
 	}
 	else
 	{
-		description.magic.type = FORMAT_MACHO;
+		description.magic.type = FORMAT_MACHO_MULTIPLE;
 		description.magic.description = "Mach-O universal binary";
 	}
 	return true;
@@ -625,6 +625,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\xEE\x0A"),            0, FORMAT_Z8K,     "CP/M-8000 object file, non-segmented, split code/data" }, /* undocumented */
 	{ std::string("\xEE\x0B"),            0, FORMAT_Z8K,     "CP/M-8000 executable file, non-segmented, split code/data" },
 	{ std::string("\xF0"),                0, FORMAT_OMF,     "Intel Object Module Format, library" },
+	{ std::string("\xFA\x70\x0E\x1F"),    0, FORMAT_ELF_MULTIPLE, "FatELF" },
 	{ std::string("\xFE\xED\xFA\xCE"),    0, FORMAT_MACHO,   "32-bit big endian Mach-O format" },
 	{ std::string("\xFE\xED\xFA\xCF"),    0, FORMAT_MACHO,   "64-bit big endian Mach-O format" },
 	{ std::string("\xFF\x00", 2),         0, FORMAT_UZI280,  "UZI-280 executable" },
@@ -811,6 +812,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<BrocaD3X::D3X1Format>(); // TODO: test
 	case FORMAT_ELF:
 		return std::make_shared<ELFFormat>(); // TODO: test dumper
+	case FORMAT_ELF_MULTIPLE:
+		return std::make_shared<FatELFFormat>(); // TODO: test
 	case FORMAT_FLAT:
 		return std::make_shared<BinaryFormat>(); // TODO: test
 	case FORMAT_FLEX:

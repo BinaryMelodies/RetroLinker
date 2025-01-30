@@ -22,6 +22,11 @@ namespace ELF
 	public:
 		/* * * General members * * */
 
+		static constexpr uint8_t EI_OSABI = 7;
+		static constexpr uint8_t EI_ABIVERSION = 8;
+		static constexpr uint8_t EI_CLASS = 4;
+		static constexpr uint8_t EI_DATA = 5;
+
 		static constexpr uint8_t ELFCLASSNONE = 0;
 		static constexpr uint8_t ELFCLASS32 = 1;
 		static constexpr uint8_t ELFCLASS64 = 2;
@@ -198,6 +203,8 @@ namespace ELF
 		static constexpr offset_t DT_AUXILIARY = 0x7FFFFFFD;
 		static constexpr offset_t DT_USED = 0x7FFFFFFE;
 		static constexpr offset_t DT_FILTER = 0x7FFFFFFFF;
+
+		offset_t file_offset = 0;
 
 		uint8_t file_class = 0;
 		EndianType endiantype = ::LittleEndian;
@@ -1091,6 +1098,40 @@ namespace ELF
 		void CalculateValues() override;
 	};
 
+	/**
+	 * @brief FatELF developed by icculus (Ryan C. Gordon) to contain multiple ELF binaries for different architectures, not widely used
+	 *
+	 * https://icculus.org/fatelf/
+	 */
+	class FatELFFormat : public virtual Linker::OutputFormat
+	{
+	public:
+		struct Record
+		{
+			ELFFormat::cpu_type cpu = ELFFormat::EM_NONE;
+			uint8_t osabi = 0;
+			uint8_t abi_version = 0;
+			uint8_t file_class = 0;
+			uint8_t data_encoding = 0;
+			uint64_t offset = 0;
+			uint64_t size = 0;
+			std::shared_ptr<Linker::Image> image;
+
+			static Record Read(Linker::Reader& rd);
+			void Write(Linker::Writer& wr) const;
+		};
+		uint16_t version = ELFFormat::EV_CURRENT;
+		std::vector<Record> records;
+
+		offset_t ImageSize() override;
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) override;
+
+		void Dump(Dumper::Dumper& dump) override;
+		void CalculateValues() override;
+	};
 }
 
 #endif /* ELF_H */

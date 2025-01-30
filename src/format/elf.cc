@@ -1501,7 +1501,8 @@ offset_t ELFFormat::Segment::Part::GetActualSize(ELFFormat& fmt)
 
 void ELFFormat::ReadFile(Linker::Reader& rd)
 {
-	rd.Seek(4); // skip signature
+	file_offset = rd.Tell();
+	rd.Skip(4); // skip signature
 
 	file_class = rd.ReadUnsigned(1);
 	switch(file_class)
@@ -1551,7 +1552,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 	osabi = rd.ReadUnsigned(1);
 	abi_version = rd.ReadUnsigned(1);
 
-	rd.Seek(16);
+	rd.Seek(file_offset + 16);
 
 	object_file_type = file_type(rd.ReadUnsigned(2));
 	cpu = cpu_type(rd.ReadUnsigned(2));
@@ -1579,7 +1580,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 
 	for(size_t i = 0; i < shnum; i++)
 	{
-		rd.Seek(section_header_offset + i * section_header_entry_size);
+		rd.Seek(file_offset + section_header_offset + i * section_header_entry_size);
 		Section section;
 		section.name_offset = rd.ReadUnsigned(4);
 		section.type = Section::section_type(rd.ReadUnsigned(4));
@@ -1603,7 +1604,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 
 	for(size_t i = 0; i < phnum; i++)
 	{
-		rd.Seek(program_header_offset + i * program_header_entry_size);
+		rd.Seek(file_offset + program_header_offset + i * program_header_entry_size);
 		Segment segment;
 		segment.type = Segment::segment_type(rd.ReadUnsigned(4));
 		if(wordbytes == 8)
@@ -1621,7 +1622,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 
 	for(size_t i = 0; i < shnum; i++)
 	{
-		rd.Seek(sections[section_name_string_table].file_offset + sections[i].name_offset);
+		rd.Seek(file_offset + sections[section_name_string_table].file_offset + sections[i].name_offset);
 		sections[i].name = rd.ReadASCIIZ();
 #if DISPLAY_LOGS
 		Linker::Debug << "Debug: Section #" << i << ": `" << sections[i].name << "'" << ", type: " << sections[i].type << ", flags: " << sections[i].flags << std::endl;
@@ -1772,7 +1773,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		case Section::SHT_DYNSYM:
 			for(Symbol& symbol : section.GetSymbolTable()->symbols)
 			{
-				rd.Seek(sections[symbol.sh_link].file_offset + symbol.name_offset);
+				rd.Seek(file_offset + sections[symbol.sh_link].file_offset + symbol.name_offset);
 				symbol.name = rd.ReadASCIIZ();
 #if DISPLAY_LOGS
 				Linker::Debug << "Debug: Symbol #" << i << ": `" << symbol.name << "' = 0x" << std::hex << symbol.shndx << ":" << std::dec << symbol.value << std::endl;
@@ -1814,7 +1815,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				case DT_SONAME:
 				case DT_RPATH:
 //				case DT_RUNPATH:
-					rd.Seek(sections[section.link].file_offset + dynamic_object.value);
+					rd.Seek(file_offset + sections[section.link].file_offset + dynamic_object.value);
 					dynamic_object.name = rd.ReadASCIIZ();
 					break;
 				}
@@ -1826,7 +1827,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			{
 				if(import.name_offset != 0)
 				{
-					rd.Seek(sections[section.link].file_offset + import.name_offset);
+					rd.Seek(file_offset + sections[section.link].file_offset + import.name_offset);
 					import.name = rd.ReadASCIIZ();
 				}
 				switch(import.type)
@@ -1834,7 +1835,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				default:
 					break;
 				case IBMImportEntry::IMP_STR_IDX:
-					rd.Seek(sections[section.link].file_offset + import.dll);
+					rd.Seek(file_offset + sections[section.link].file_offset + import.dll);
 					import.dll_name = rd.ReadASCIIZ();
 					break;
 				case IBMImportEntry::IMP_DT_IDX:
@@ -1849,7 +1850,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 								{
 									if(dt_needed_index == import.dll)
 									{
-										rd.Seek(sections[dynamic_section.link].file_offset + dynobj.value);
+										rd.Seek(file_offset + sections[dynamic_section.link].file_offset + dynobj.value);
 										import.dll_name = rd.ReadASCIIZ();
 										break;
 									}
@@ -1877,7 +1878,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			{
 				if(_export.name_offset != 0)
 				{
-					rd.Seek(sections[section.info].file_offset + _export.name_offset);
+					rd.Seek(file_offset + sections[section.info].file_offset + _export.name_offset);
 					_export.name = rd.ReadASCIIZ();
 				}
 			}
@@ -1946,7 +1947,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			{
 				Block block;
 				block.offset = covered;
-				rd.Seek(covered);
+				rd.Seek(file_offset + covered);
 				block.size = next_offset - covered;
 				block.image = Linker::Buffer::ReadFromFile(rd, block.size);
 				blocks.push_back(block);
@@ -2889,6 +2890,147 @@ void ELFFormat::CalculateValues()
 		default:
 			break;
 		}
+	}
+}
+
+FatELFFormat::Record FatELFFormat::Record::Read(Linker::Reader& rd)
+{
+	Record record;
+	record.cpu = ELFFormat::cpu_type(rd.ReadUnsigned(2));
+	record.osabi = rd.ReadUnsigned(1);
+	record.abi_version = rd.ReadUnsigned(1);
+	record.file_class = rd.ReadUnsigned(1);
+	record.data_encoding = rd.ReadUnsigned(1);
+	rd.Skip(2);
+	record.offset = rd.ReadUnsigned(8);
+	record.size = rd.ReadUnsigned(8);
+	return record;
+}
+
+void FatELFFormat::Record::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(2, cpu);
+	wr.WriteWord(1, osabi);
+	wr.WriteWord(1, abi_version);
+	wr.WriteWord(1, file_class);
+	wr.WriteWord(1, data_encoding);
+	wr.Skip(2);
+	wr.WriteWord(8, offset);
+	wr.WriteWord(8, size);
+}
+
+offset_t FatELFFormat::ImageSize()
+{
+	// the size of the header
+	offset_t furthest = 8 + records.size() * 24;
+	for(auto& record : records)
+	{
+		offset_t record_end = record.offset + record.size;
+		if(record_end > furthest)
+			furthest = record_end;
+	}
+	return furthest;
+}
+
+void FatELFFormat::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = ::LittleEndian;
+	rd.Skip(4); // magic code
+	version = rd.ReadUnsigned(2);
+	if(version != ELFFormat::EV_CURRENT)
+	{
+		std::ostringstream oss;
+		oss << "Fatal error: unknown FatELF version " << version;
+		Linker::FatalError(oss.str());
+	}
+	uint8_t record_count = rd.ReadUnsigned(1);
+	rd.Skip(1);
+	for(int i = 0; i < record_count; i++)
+	{
+		records.emplace_back(Record::Read(rd));
+	}
+	for(auto& record : records)
+	{
+		std::shared_ptr<ELFFormat> elf = std::make_shared<ELFFormat>();
+		record.image = elf;
+		rd.Seek(record.offset);
+		elf->ReadFile(rd);
+	}
+}
+
+offset_t FatELFFormat::WriteFile(Linker::Writer& wr)
+{
+	wr.endiantype = ::LittleEndian;
+	wr.WriteData("\xFA\x70\x0E\x1F");
+	wr.WriteWord(2, version);
+	if(records.size() > 255)
+	{
+		std::ostringstream oss;
+		oss << "Fatal error: number of binaries exceeds 255, " << records.size() << " found";
+		Linker::FatalError(oss.str());
+	}
+	wr.WriteWord(1, records.size());
+	wr.Skip(1);
+	for(auto& record : records)
+	{
+		record.Write(wr);
+	}
+	for(auto& record : records)
+	{
+		wr.Seek(record.offset);
+		record.image->WriteFile(wr);
+	}
+	return ImageSize();
+}
+
+void FatELFFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("FatELF format");
+
+	// TODO
+	for(auto& record : records)
+	{
+		if(ELFFormat * elf = dynamic_cast<ELFFormat *>(record.image.get()))
+		{
+			elf->Dump(dump);
+		}
+		else
+		{
+			// TODO
+			//record.image->Dump(dump);
+		}
+	}
+}
+
+void FatELFFormat::CalculateValues()
+{
+	version = ELFFormat::EV_CURRENT;
+
+	offset_t current_offset = 8 + records.size() * 24;
+	for(auto& record : records)
+	{
+		if(ELFFormat * elf = dynamic_cast<ELFFormat *>(record.image.get()))
+		{
+			record.cpu = elf->cpu;
+			record.osabi = elf->osabi;
+			record.abi_version = elf->abi_version;
+			record.file_class = elf->file_class;
+			record.data_encoding = elf->data_encoding;
+		}
+		else
+		{
+			record.osabi = record.image->GetByte(ELFFormat::EI_OSABI);
+			record.abi_version = record.image->GetByte(ELFFormat::EI_ABIVERSION);
+			record.file_class = record.image->GetByte(ELFFormat::EI_CLASS);
+			record.data_encoding = record.image->GetByte(ELFFormat::EI_DATA);
+			record.cpu = ELFFormat::cpu_type(record.image->GetByte(18) + (record.image->GetByte(19) << 8));
+		}
+		offset_t page_size = 4096; // TODO: depends on architecture
+		record.offset = ::AlignTo(current_offset, page_size);
+		record.size = record.image->ImageSize(); // TODO
+		current_offset = record.offset + record.size;
 	}
 }
 

@@ -39,6 +39,7 @@ enum format_type
 	FORMAT_CPM3, // CP/M-80 Plus format
 	FORMAT_D3X, // Daniel Broca's D3X DOS extender
 	FORMAT_ELF, // UNIX ELF
+	FORMAT_ELF_MULTIPLE, // FatELF for multiple ELF binaries
 	FORMAT_FLAT, // flat unstructured file
 	FORMAT_FLEX, // FLEX .cmd (6800 or 6809 CPUs)
 	FORMAT_GEOS, // PC/GEOS Geode format
@@ -49,6 +50,7 @@ enum format_type
 	FORMAT_LE, // Linear executable (OS/2, DOS/4G)
 	FORMAT_LV, // CandyMan's DX64 DOS extender, LV/Float format
 	FORMAT_MACHO, // Mach-O format
+	FORMAT_MACHO_MULTIPLE, // Multi-architecture binary Mach-O format
 	FORMAT_MINIX, // MINIX a.out
 	FORMAT_MP, // Phar Lap executable .exp and relocatable executable, .rex
 	FORMAT_MZ, // MS-DOS .exe
