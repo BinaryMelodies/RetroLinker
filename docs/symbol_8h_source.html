@@ -215,26 +215,9 @@ $(function() { codefold.init(0); });
 </div>
 <div class="line"><a id="l00214" name="l00214"></a><span class="lineno">  214</span> </div>
 <div class="line"><a id="l00218" name="l00218"></a><span class="lineno">  218</span>    std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, <span class="keyword">const</span> ExportedSymbol&amp; symbol);</div>
-<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span> </div>
-<div class="foldopen" id="foldopen00223" data-start="{" data-end="};">
-<div class="line"><a id="l00223" name="l00223"></a><span class="lineno"><a class="line" href="classLinker_1_1CommonSymbol.html">  223</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classLinker_1_1CommonSymbol.html">CommonSymbol</a></div>
-<div class="line"><a id="l00224" name="l00224"></a><span class="lineno">  224</span>    {</div>
-<div class="line"><a id="l00225" name="l00225"></a><span class="lineno">  225</span>    <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00226" name="l00226"></a><span class="lineno">  226</span>        std::string name;</div>
-<div class="line"><a id="l00227" name="l00227"></a><span class="lineno">  227</span>        offset_t size, align;</div>
-<div class="line"><a id="l00228" name="l00228"></a><span class="lineno">  228</span> </div>
-<div class="line"><a id="l00229" name="l00229"></a><span class="lineno">  229</span>        <a class="code hl_class" href="classLinker_1_1CommonSymbol.html">CommonSymbol</a>(std::string name = <span class="stringliteral">&quot;&quot;</span>, offset_t size = 0, offset_t align = 1)</div>
-<div class="line"><a id="l00230" name="l00230"></a><span class="lineno">  230</span>            : name(name), size(size), align(align)</div>
-<div class="line"><a id="l00231" name="l00231"></a><span class="lineno">  231</span>        {</div>
-<div class="line"><a id="l00232" name="l00232"></a><span class="lineno">  232</span>        }</div>
-<div class="line"><a id="l00233" name="l00233"></a><span class="lineno">  233</span>    };</div>
-</div>
-<div class="line"><a id="l00234" name="l00234"></a><span class="lineno">  234</span> </div>
-<div class="line"><a id="l00235" name="l00235"></a><span class="lineno">  235</span>    std::ostream&amp; operator&lt;&lt;(std::ostream&amp; out, <span class="keyword">const</span> <a class="code hl_class" href="classLinker_1_1CommonSymbol.html">CommonSymbol</a>&amp; symbol);</div>
-<div class="line"><a id="l00236" name="l00236"></a><span class="lineno">  236</span>}</div>
-<div class="line"><a id="l00237" name="l00237"></a><span class="lineno">  237</span> </div>
-<div class="line"><a id="l00238" name="l00238"></a><span class="lineno">  238</span><span class="preprocessor">#endif </span><span class="comment">/* SYMBOLNAME_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="aclassLinker_1_1CommonSymbol_html"><div class="ttname"><a href="classLinker_1_1CommonSymbol.html">Linker::CommonSymbol</a></div><div class="ttdoc">Represents a currently unallocated variable that should be allocated in the final stages of the linki...</div><div class="ttdef"><b>Definition</b> symbol.h:224</div></div>
+<div class="line"><a id="l00219" name="l00219"></a><span class="lineno">  219</span>}</div>
+<div class="line"><a id="l00220" name="l00220"></a><span class="lineno">  220</span> </div>
+<div class="line"><a id="l00221" name="l00221"></a><span class="lineno">  221</span><span class="preprocessor">#endif </span><span class="comment">/* SYMBOLNAME_H */</span><span class="preprocessor"></span></div>
 <div class="ttc" id="aclassLinker_1_1ExportedSymbol_html"><div class="ttname"><a href="classLinker_1_1ExportedSymbol.html">Linker::ExportedSymbol</a></div><div class="ttdoc">Represents a symbol to be exported from the module.</div><div class="ttdef"><b>Definition</b> symbol.h:119</div></div>
 <div class="ttc" id="aclassLinker_1_1ExportedSymbol_html_a3381e59ff0cee6adab8af5e98a85e44d"><div class="ttname"><a href="classLinker_1_1ExportedSymbol.html#a3381e59ff0cee6adab8af5e98a85e44d">Linker::ExportedSymbol::operator&gt;</a></div><div class="ttdeci">bool operator&gt;(const ExportedSymbol &amp;other) const</div><div class="ttdoc">Compares two symbols for ordering.</div><div class="ttdef"><b>Definition</b> symbol.cc:249</div></div>
 <div class="ttc" id="aclassLinker_1_1ExportedSymbol_html_a4306df9ff6cdc8241709947407bc8627"><div class="ttname"><a href="classLinker_1_1ExportedSymbol.html#a4306df9ff6cdc8241709947407bc8627">Linker::ExportedSymbol::operator&lt;</a></div><div class="ttdeci">bool operator&lt;(const ExportedSymbol &amp;other) const</div><div class="ttdoc">Compares two symbols for ordering.</div><div class="ttdef"><b>Definition</b> symbol.cc:236</div></div>

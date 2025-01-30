@@ -109,8 +109,8 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>    <span class="keywordtype">void</span> testZeroFilledFlag();</div>
 <div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    <span class="keywordtype">void</span> testFixedFlag();</div>
 <div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordtype">void</span> setUp();</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keywordtype">void</span> tearDown();</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>    <span class="keywordtype">void</span> setUp() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    <span class="keywordtype">void</span> tearDown() <span class="keyword">override</span>;</div>
 <div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>};</div>
 </div>
 <div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
@@ -139,20 +139,20 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>{</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    section-&gt;SetZeroFilled(<span class="keyword">true</span>);</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>    section-&gt;<a class="code hl_function" href="classLinker_1_1Section.html#a3339e1b63c42c3c4d710001e63ce216e">Expand</a>(123);</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    CPPUNIT_ASSERT_EQUAL((offset_t)123, section-&gt;Size());</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    CPPUNIT_ASSERT_EQUAL(offset_t(123), section-&gt;Size());</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    section-&gt;SetZeroFilled(<span class="keyword">false</span>);</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    CPPUNIT_ASSERT_EQUAL((offset_t)123, section-&gt;Size());</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>    CPPUNIT_ASSERT_EQUAL(offset_t(123), section-&gt;Size());</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>}</div>
 <div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span><span class="keywordtype">void</span> TestSection::testFixedFlag()</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>{</div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    CPPUNIT_ASSERT(!section-&gt;IsFixed());</div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>    section-&gt;SetAlign(16);</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    CPPUNIT_ASSERT_EQUAL((offset_t)16, section-&gt;GetAlign());</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    CPPUNIT_ASSERT_EQUAL((offset_t)0, section-&gt;GetStartAddress());</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>    CPPUNIT_ASSERT_EQUAL(offset_t(16), section-&gt;GetAlign());</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>    CPPUNIT_ASSERT_EQUAL(offset_t(0), section-&gt;GetStartAddress());</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>    section-&gt;<a class="code hl_function" href="classLinker_1_1Section.html#a0ca5f545223d3dd4b4f64bc7013a4373">SetAddress</a>(0x1234);</div>
 <div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>    CPPUNIT_ASSERT(section-&gt;IsFixed());</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    CPPUNIT_ASSERT_EQUAL((offset_t)0x1240, section-&gt;GetStartAddress());</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>    CPPUNIT_ASSERT_EQUAL(offset_t(0x1240), section-&gt;GetStartAddress());</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>}</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span> </div>
 <div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span><span class="keywordtype">void</span> TestSection::setUp()</div>

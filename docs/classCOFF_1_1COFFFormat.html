@@ -281,8 +281,9 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Seg
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, std::string file_name)</td></tr>
 <tr class="memdesc:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object. <br /></td></tr>
 <tr class="separator:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a9e95887e38bd041def051b38d07df273">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
-<tr class="memdesc:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="memitem:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top">
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated. <br /></td></tr>
 <tr class="separator:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f878066b29cd9aa752b80c68b3ed1be inherit pub_methods_classLinker_1_1InputFormat" id="r_a4f878066b29cd9aa752b80c68b3ed1be"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a4f878066b29cd9aa752b80c68b3ed1be">GenerateModule</a> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, std::string file_name, bool is_library=false) const</td></tr>
 <tr class="memdesc:a4f878066b29cd9aa752b80c68b3ed1be inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object.  <br /></td></tr>
@@ -718,6 +719,8 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_size</b> = -
 <p>Display file contents in a nice manner. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Linker::Format</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#a2505995875f811575d7e2e75d63bad6d">Microsoft::PEFormat</a>.</p>
 
 </div>
 </div>

@@ -156,6 +156,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="e
 <tr class="memitem:aa60402fe8d82290d244552302021e6fb" id="r_aa60402fe8d82290d244552302021e6fb"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa60402fe8d82290d244552302021e6fb">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:aa60402fe8d82290d244552302021e6fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:aa60402fe8d82290d244552302021e6fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f4f091e121b7b22a2c3dd92f0e540bb" id="r_a7f4f091e121b7b22a2c3dd92f0e540bb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7f4f091e121b7b22a2c3dd92f0e540bb">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
+<tr class="memdesc:a7f4f091e121b7b22a2c3dd92f0e540bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
+<tr class="separator:a7f4f091e121b7b22a2c3dd92f0e540bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3a6a72c5d7707e6237c14f10b3588ac1" id="r_a3a6a72c5d7707e6237c14f10b3588ac1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a6a72c5d7707e6237c14f10b3588ac1">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
 <tr class="memdesc:a3a6a72c5d7707e6237c14f10b3588ac1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:a3a6a72c5d7707e6237c14f10b3588ac1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -173,9 +176,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="e
 <tr class="memitem:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format" id="r_af096ef1500e69a6b3112c7640b3748bd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Clear</a> ()</td></tr>
 <tr class="memdesc:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format" id="r_adda815844b654ffdd8f78e4828767702"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump)</td></tr>
-<tr class="memdesc:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
-<tr class="separator:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
 <tr class="memdesc:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
 <tr class="separator:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -408,6 +408,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </div><div class="memdoc">
 
 <p>Reimplemented from <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry.html">Apple::AppleSingleDouble::Entry</a>.</p>
+
+</div>
+</div>
+<a id="a7f4f091e121b7b22a2c3dd92f0e540bb" name="a7f4f091e121b7b22a2c3dd92f0e540bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f4f091e121b7b22a2c3dd92f0e540bb">&#9670;&#160;</a></span>Dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ResourceFork::Dump </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Display file contents in a nice manner. </p>
+
+<p>Reimplemented from <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry.html#a1a3c568deded6cff888328404bc25aec">Apple::AppleSingleDouble::Entry</a>.</p>
 
 </div>
 </div>

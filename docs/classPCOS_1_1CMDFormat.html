@@ -142,6 +142,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a51f6aed7fc15b50b9bacd18f312ee743" id="r_a51f6aed7fc15b50b9bacd18f312ee743"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a51f6aed7fc15b50b9bacd18f312ee743">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:a51f6aed7fc15b50b9bacd18f312ee743"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:a51f6aed7fc15b50b9bacd18f312ee743"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a669ea3e21655021f370b3e8030b37dca" id="r_a669ea3e21655021f370b3e8030b37dca"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a669ea3e21655021f370b3e8030b37dca">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename) override</td></tr>
+<tr class="memdesc:a669ea3e21655021f370b3e8030b37dca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
+<tr class="separator:a669ea3e21655021f370b3e8030b37dca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:a0ba82902513f53d3da619281f9602d41 inherit pub_methods_classLinker_1_1LinkerManager" id="r_a0ba82902513f53d3da619281f9602d41"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearLinkerManager</b> ()</td></tr>
@@ -234,9 +237,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a7f0a56b4e329c20bc92d8be1aba820d8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a7f0a56b4e329c20bc92d8be1aba820d8">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:a7f0a56b4e329c20bc92d8be1aba820d8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad3db971f3bccdc2d3b6bb4f0366cd108 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ad3db971f3bccdc2d3b6bb4f0366cd108"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename)</td></tr>
-<tr class="memdesc:ad3db971f3bccdc2d3b6bb4f0366cd108 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
-<tr class="separator:ad3db971f3bccdc2d3b6bb4f0366cd108 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a451daf1a2db1498a4bc70ef11b89b16e inherit pub_methods_classLinker_1_1OutputFormat" id="r_a451daf1a2db1498a4bc70ef11b89b16e"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a451daf1a2db1498a4bc70ef11b89b16e">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a451daf1a2db1498a4bc70ef11b89b16e inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a default filename for the output file.  <br /></td></tr>
 <tr class="separator:a451daf1a2db1498a4bc70ef11b89b16e inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -435,6 +435,40 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Display file contents in a nice manner. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Linker::Format</a>.</p>
+
+</div>
+</div>
+<a id="a669ea3e21655021f370b3e8030b37dca" name="a669ea3e21655021f370b3e8030b37dca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a669ea3e21655021f370b3e8030b37dca">&#9670;&#160;</a></span>GetDefaultExtension()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::string CMDFormat::GetDefaultExtension </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>filename</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Appends a default extension to the filename. </p>
+<p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

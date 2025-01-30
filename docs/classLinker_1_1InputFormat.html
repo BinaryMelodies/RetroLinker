@@ -115,8 +115,9 @@ Public Member Functions</h2></td></tr>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, std::string file_name)</td></tr>
 <tr class="memdesc:a9769ff8202117ab97d6045e4d70b55df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object. <br /></td></tr>
 <tr class="separator:a9769ff8202117ab97d6045e4d70b55df"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e95887e38bd041def051b38d07df273" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9e95887e38bd041def051b38d07df273">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
-<tr class="memdesc:a9e95887e38bd041def051b38d07df273"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="memitem:a9e95887e38bd041def051b38d07df273" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top"><a id="a9e95887e38bd041def051b38d07df273" name="a9e95887e38bd041def051b38d07df273"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a9e95887e38bd041def051b38d07df273"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated. <br /></td></tr>
 <tr class="separator:a9e95887e38bd041def051b38d07df273"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f878066b29cd9aa752b80c68b3ed1be" id="r_a4f878066b29cd9aa752b80c68b3ed1be"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4f878066b29cd9aa752b80c68b3ed1be">GenerateModule</a> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, std::string file_name, bool is_library=false) const</td></tr>
 <tr class="memdesc:a4f878066b29cd9aa752b80c68b3ed1be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object.  <br /></td></tr>
@@ -289,7 +290,7 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 
 <p>Loads the information into a module object, a convenience method when there is a single module generated. </p>
 
-<p>Reimplemented in <a class="el" href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">AOut::AOutFormat</a>, <a class="el" href="classAS86Obj_1_1AS86ObjFormat.html#a653d951840e580fe0be4b9be4f695994">AS86Obj::AS86ObjFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a071e6dddbcb4ad0649ac8625c61bcd78">COFF::COFFFormat</a>, <a class="el" href="classELF_1_1ELFFormat.html#ad61ac5b2c2f8c49acc0556324eeb9f67">ELF::ELFFormat</a>, and <a class="el" href="classO65_1_1O65Format.html#a6217125970edc7b305f45bb0c80f3531">O65::O65Format</a>.</p>
+<p>Reimplemented in <a class="el" href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">AOut::AOutFormat</a>, <a class="el" href="classAS86Obj_1_1AS86ObjFormat.html#a653d951840e580fe0be4b9be4f695994">AS86Obj::AS86ObjFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a071e6dddbcb4ad0649ac8625c61bcd78">COFF::COFFFormat</a>, <a class="el" href="classELF_1_1ELFFormat.html#ad61ac5b2c2f8c49acc0556324eeb9f67">ELF::ELFFormat</a>, <a class="el" href="classO65_1_1O65Format.html#a6217125970edc7b305f45bb0c80f3531">O65::O65Format</a>, and <a class="el" href="classOMF_1_1OMFFormat.html#a7f1dc3f65e211187be00e413cbe8cdaa">OMF::OMFFormat</a>.</p>
 
 </div>
 </div>
@@ -328,39 +329,6 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 <p>Loads the information into a module object. </p>
 
 <p>Reimplemented in <a class="el" href="classArchive_1_1ArchiveFormat.html#a8218fb0e1d3dd2982ae221b5ced0ad5a">Archive::ArchiveFormat</a>.</p>
-
-</div>
-</div>
-<a id="a9e95887e38bd041def051b38d07df273" name="a9e95887e38bd041def051b38d07df273"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9e95887e38bd041def051b38d07df273">&#9670;&#160;</a></span>ProduceModule()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void InputFormat::ProduceModule </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em>, </span></td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Reads a file and loads the information into a module object, a convenience method when there is a single module generated. </p>
-
-<p>Reimplemented in <a class="el" href="classOMF_1_1OMFFormat.html#a3045b8b01b76cd6e485aefb65ee5a3cb">OMF::OMFFormat</a>.</p>
 
 </div>
 </div>

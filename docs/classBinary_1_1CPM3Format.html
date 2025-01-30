@@ -123,6 +123,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a39e128c8d8d224f4361c33e33724fea1" id="r_a39e128c8d8d224f4361c33e33724fea1"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a39e128c8d8d224f4361c33e33724fea1">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a39e128c8d8d224f4361c33e33724fea1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a39e128c8d8d224f4361c33e33724fea1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ef02e4f354f2f1c00e05359eafb07bf" id="r_a6ef02e4f354f2f1c00e05359eafb07bf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6ef02e4f354f2f1c00e05359eafb07bf">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
+<tr class="memdesc:a6ef02e4f354f2f1c00e05359eafb07bf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
+<tr class="separator:a6ef02e4f354f2f1c00e05359eafb07bf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a42736faa5f7cd1901b0c4c73dae971b2" id="r_a42736faa5f7cd1901b0c4c73dae971b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42736faa5f7cd1901b0c4c73dae971b2">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:a42736faa5f7cd1901b0c4c73dae971b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:a42736faa5f7cd1901b0c4c73dae971b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -425,6 +428,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Resets all fields to their default values, deallocate memory. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Linker::Format</a>.</p>
+
+</div>
+</div>
+<a id="a6ef02e4f354f2f1c00e05359eafb07bf" name="a6ef02e4f354f2f1c00e05359eafb07bf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ef02e4f354f2f1c00e05359eafb07bf">&#9670;&#160;</a></span>Dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void CPM3Format::Dump </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Display file contents in a nice manner. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Linker::Format</a>.</p>
 
 </div>
 </div>

@@ -6,7 +6,8 @@ var searchData=
   ['valuerecord_3',['ValueRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1ValueRecord.html',1,'Apple::OMFFormat::Segment']]],
   ['version_4',['version',['../structAS86Obj_1_1AS86ObjFormat_1_1Module_1_1version.html',1,'AS86Obj::AS86ObjFormat::Module::version'],['../structMicrosoft_1_1NEFormat_1_1version.html',1,'Microsoft::NEFormat::version'],['../classApple_1_1OMFFormat_1_1Segment.html#a418756015f8630dd2860001e63663672',1,'Apple::OMFFormat::Segment::version']]],
   ['version_5fstamp_5',['version_stamp',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#a075a07387315972bdf923e0d1ab32bad',1,'COFF::COFFFormat::AOutHeader']]],
-  ['versiondisplay_6',['VersionDisplay',['../classDumper_1_1VersionDisplay.html',1,'Dumper']]],
-  ['versionrequirement_7',['VersionRequirement',['../classELF_1_1ELFFormat_1_1VersionRequirement.html',1,'ELF::ELFFormat']]],
-  ['versionrequirements_8',['VersionRequirements',['../classELF_1_1ELFFormat_1_1VersionRequirements.html',1,'ELF::ELFFormat']]]
+  ['version_5ftype_6',['version_type',['../structPMODE_1_1PMW1Format_1_1version__type.html',1,'PMODE::PMW1Format']]],
+  ['versiondisplay_7',['VersionDisplay',['../classDumper_1_1VersionDisplay.html',1,'Dumper']]],
+  ['versionrequirement_8',['VersionRequirement',['../classELF_1_1ELFFormat_1_1VersionRequirement.html',1,'ELF::ELFFormat']]],
+  ['versionrequirements_9',['VersionRequirements',['../classELF_1_1ELFFormat_1_1VersionRequirements.html',1,'ELF::ELFFormat']]]
 ];

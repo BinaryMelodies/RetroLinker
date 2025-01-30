@@ -30,7 +30,7 @@ var searchData=
   ['processscript_27',['ProcessScript',['../classLinker_1_1LinkerManager.html#a95db9e0fa8e7c4bc76636948b709b502',1,'Linker::LinkerManager']]],
   ['prodos_28',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
   ['prodosfileinfo_29',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]],
-  ['producemodule_30',['ProduceModule',['../classOMF_1_1OMFFormat.html#a3045b8b01b76cd6e485aefb65ee5a3cb',1,'OMF::OMFFormat::ProduceModule()'],['../classLinker_1_1InputFormat.html#a9769ff8202117ab97d6045e4d70b55df',1,'Linker::InputFormat::ProduceModule(ModuleCollector &amp;linker, Reader &amp;rd, std::string file_name)'],['../classLinker_1_1InputFormat.html#a9e95887e38bd041def051b38d07df273',1,'Linker::InputFormat::ProduceModule(Module &amp;module, Reader &amp;rd)']]],
+  ['producemodule_30',['ProduceModule',['../classLinker_1_1InputFormat.html#a9769ff8202117ab97d6045e4d70b55df',1,'Linker::InputFormat::ProduceModule(ModuleCollector &amp;linker, Reader &amp;rd, std::string file_name)'],['../classLinker_1_1InputFormat.html#a9e95887e38bd041def051b38d07df273',1,'Linker::InputFormat::ProduceModule(Module &amp;module, Reader &amp;rd)']]],
   ['program_5fflags_31',['program_flags',['../classDigitalResearch_1_1CPM68KFormat.html#a2afc0b8e6ac0aff40e946bea69166133',1,'DigitalResearch::CPM68KFormat']]],
   ['putchar_32',['PutChar',['../classDumper_1_1Dumper.html#ad70bd979bbe1b63554ddec79eb14d942',1,'Dumper::Dumper']]]
 ];

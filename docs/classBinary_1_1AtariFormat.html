@@ -135,6 +135,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>OnNewSegment</b> (std
 <tr class="memitem:aefdbafcc46b71850398143e13d9c7b52" id="r_aefdbafcc46b71850398143e13d9c7b52"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aefdbafcc46b71850398143e13d9c7b52">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:aefdbafcc46b71850398143e13d9c7b52"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:aefdbafcc46b71850398143e13d9c7b52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c9b6c08771206837d3bac096a0a8fa1" id="r_a7c9b6c08771206837d3bac096a0a8fa1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7c9b6c08771206837d3bac096a0a8fa1">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
+<tr class="memdesc:a7c9b6c08771206837d3bac096a0a8fa1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
+<tr class="separator:a7c9b6c08771206837d3bac096a0a8fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
 <tr class="memitem:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_af7c217adb86fe385521f93fc8a0a50e2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#af7c217adb86fe385521f93fc8a0a50e2">Clear</a> () override</td></tr>
 <tr class="memdesc:af7c217adb86fe385521f93fc8a0a50e2 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
@@ -384,6 +387,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>EXE file for Atari 400/800. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7c9b6c08771206837d3bac096a0a8fa1" name="a7c9b6c08771206837d3bac096a0a8fa1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c9b6c08771206837d3bac096a0a8fa1">&#9670;&#160;</a></span>Dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AtariFormat::Dump </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Display file contents in a nice manner. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Linker::Format</a>.</p>
+
+</div>
+</div>
 <a id="ad99743036f489514006642c6a7e6c458" name="ad99743036f489514006642c6a7e6c458"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad99743036f489514006642c6a7e6c458">&#9670;&#160;</a></span>ProcessModule()</h2>
 

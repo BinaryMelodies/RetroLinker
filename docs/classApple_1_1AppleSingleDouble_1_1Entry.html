@@ -121,6 +121,9 @@ virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetLength
 <tr class="memitem:ad086819d4e1df5513c38a7615a1f61d8" id="r_ad086819d4e1df5513c38a7615a1f61d8"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad086819d4e1df5513c38a7615a1f61d8">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;out) override</td></tr>
 <tr class="memdesc:ad086819d4e1df5513c38a7615a1f61d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:ad086819d4e1df5513c38a7615a1f61d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a3c568deded6cff888328404bc25aec" id="r_a1a3c568deded6cff888328404bc25aec"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1a3c568deded6cff888328404bc25aec">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
+<tr class="memdesc:a1a3c568deded6cff888328404bc25aec"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
+<tr class="separator:a1a3c568deded6cff888328404bc25aec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f2108fd12b7678495aa040f059ed9ce" id="r_a6f2108fd12b7678495aa040f059ed9ce"><td class="memItemLeft" align="right" valign="top"><a id="a6f2108fd12b7678495aa040f059ed9ce" name="a6f2108fd12b7678495aa040f059ed9ce"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProcessModule</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="separator:a6f2108fd12b7678495aa040f059ed9ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,9 +137,6 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateValu
 <tr class="memitem:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format" id="r_af096ef1500e69a6b3112c7640b3748bd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Clear</a> ()</td></tr>
 <tr class="memdesc:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format" id="r_adda815844b654ffdd8f78e4828767702"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump)</td></tr>
-<tr class="memdesc:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
-<tr class="separator:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
 <tr class="memdesc:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
 <tr class="separator:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,6 +164,37 @@ Protected Member Functions</h2></td></tr>
 <tr class="separator:acd9974a979002b267cdadb42f32bce74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a1a3c568deded6cff888328404bc25aec" name="a1a3c568deded6cff888328404bc25aec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a3c568deded6cff888328404bc25aec">&#9670;&#160;</a></span>Dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void AppleSingleDouble::Entry::Dump </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Display file contents in a nice manner. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Linker::Format</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classApple_1_1ResourceFork.html#a7f4f091e121b7b22a2c3dd92f0e540bb">Apple::ResourceFork</a>, <a class="el" href="classApple_1_1RealName.html#a3d9179fc0412c9e14ca0017cb8ada20c">Apple::RealName</a>, <a class="el" href="classApple_1_1FileInfo_1_1Macintosh.html#ad1da5c6e4765cd564060e7775918d0a6">Apple::FileInfo::Macintosh</a>, <a class="el" href="classApple_1_1FileInfo_1_1ProDOS.html#aa80a919e40249572285dcedb5fa99a8b">Apple::FileInfo::ProDOS</a>, <a class="el" href="classApple_1_1FileInfo_1_1MSDOS.html#af23285d70c4c75fb164964f7d9be0345">Apple::FileInfo::MSDOS</a>, <a class="el" href="classApple_1_1FileDatesInfo.html#a6227909b4bd53a210466564107572f3f">Apple::FileDatesInfo</a>, <a class="el" href="classApple_1_1FinderInfo.html#affb7305c5ca7f58c9cca7182b57ddc09">Apple::FinderInfo</a>, <a class="el" href="classApple_1_1MacintoshFileInfo.html#a94ba8caffe3de380398f1027c6261518">Apple::MacintoshFileInfo</a>, <a class="el" href="classApple_1_1ProDOSFileInfo.html#ac2ef9d909e24eb265681afea52c6c917">Apple::ProDOSFileInfo</a>, and <a class="el" href="classApple_1_1MSDOSFileInfo.html#a2a681ec557deae9de525a488155717ae">Apple::MSDOSFileInfo</a>.</p>
+
+</div>
+</div>
 <a id="a0c165886c9df4157d0a83d0a360fcbf7" name="a0c165886c9df4157d0a83d0a360fcbf7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a0c165886c9df4157d0a83d0a360fcbf7">&#9670;&#160;</a></span>ReadFile()</h2>
 

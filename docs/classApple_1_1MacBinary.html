@@ -185,6 +185,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteHeader</b> (<a c
 <tr class="memitem:a25376f9ba8ae704eceafb47c199bc2df" id="r_a25376f9ba8ae704eceafb47c199bc2df"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25376f9ba8ae704eceafb47c199bc2df">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a25376f9ba8ae704eceafb47c199bc2df"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a25376f9ba8ae704eceafb47c199bc2df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42d4f3f87746bb5fb971dead9169cdc8" id="r_a42d4f3f87746bb5fb971dead9169cdc8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42d4f3f87746bb5fb971dead9169cdc8">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
+<tr class="memdesc:a42d4f3f87746bb5fb971dead9169cdc8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
+<tr class="separator:a42d4f3f87746bb5fb971dead9169cdc8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaaecfa1a8afa5f8630a5460e95cd3142" id="r_aaaecfa1a8afa5f8630a5460e95cd3142"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaaecfa1a8afa5f8630a5460e95cd3142">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
 <tr class="memdesc:aaaecfa1a8afa5f8630a5460e95cd3142"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:aaaecfa1a8afa5f8630a5460e95cd3142"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -329,9 +332,6 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 <tr class="memitem:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format" id="r_af096ef1500e69a6b3112c7640b3748bd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Clear</a> ()</td></tr>
 <tr class="memdesc:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format" id="r_adda815844b654ffdd8f78e4828767702"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump)</td></tr>
-<tr class="memdesc:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
-<tr class="separator:adda815844b654ffdd8f78e4828767702 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
 <tr class="memdesc:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
 <tr class="separator:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -414,6 +414,35 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p><a class="el" href="classApple_1_1MacBinary.html" title="MacBinary is an alternative format to AppleSingle for representing a Macintosh file on a non-Macintos...">MacBinary</a> is an alternative format to AppleSingle for representing a Macintosh file on a non-Macintosh filesystem. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a42d4f3f87746bb5fb971dead9169cdc8" name="a42d4f3f87746bb5fb971dead9169cdc8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42d4f3f87746bb5fb971dead9169cdc8">&#9670;&#160;</a></span>Dump()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MacBinary::Dump </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Display file contents in a nice manner. </p>
+
+<p>Reimplemented from <a class="el" href="classApple_1_1AppleSingleDouble.html#a5dce557b7e5c8087071b65d8f76881ea">Apple::AppleSingleDouble</a>.</p>
+
+</div>
+</div>
 <a id="aaaecfa1a8afa5f8630a5460e95cd3142" name="aaaecfa1a8afa5f8630a5460e95cd3142"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aaaecfa1a8afa5f8630a5460e95cd3142">&#9670;&#160;</a></span>GenerateFile()</h2>
 

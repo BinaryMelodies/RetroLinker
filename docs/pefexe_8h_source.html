@@ -88,27 +88,33 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define PEFEXE_H</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;../common.h&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;../linker/linker_manager.h&quot;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span> </div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="comment">/* TODO: unimplemented */</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span> </div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="keyword">namespace </span>Apple</div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span>{</div>
-<div class="foldopen" id="foldopen00014" data-start="{" data-end="};">
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno"><a class="line" href="classApple_1_1PEFFormat.html">   14</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classApple_1_1PEFFormat.html">PEFFormat</a> : <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>    {</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classApple_1_1PEFFormat.html#ac2afe6e4739d901bf05310a513b9ce29">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        offset_t <a class="code hl_function" href="classApple_1_1PEFFormat.html#afecd833357f4582a8f65d953db75d4fa">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        <span class="comment">/* TODO */</span></div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    };</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;../dumper/dumper.h&quot;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;../linker/linker_manager.h&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="comment">/* TODO: unimplemented */</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">namespace </span>Apple</div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>{</div>
+<div class="foldopen" id="foldopen00015" data-start="{" data-end="};">
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno"><a class="line" href="classApple_1_1PEFFormat.html">   15</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classApple_1_1PEFFormat.html">PEFFormat</a> : <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>    {</div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classApple_1_1PEFFormat.html#ac2afe6e4739d901bf05310a513b9ce29">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format::WriteFile</a>;</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        offset_t <a class="code hl_function" href="classApple_1_1PEFFormat.html#afecd833357f4582a8f65d953db75d4fa">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classApple_1_1PEFFormat.html#a2716c71bf691b300fc440895c01e693b">Dump</a>(<a class="code hl_class" href="classDumper_1_1Dumper.html">Dumper::Dumper</a>&amp; dump) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="comment">/* TODO */</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    };</div>
 </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>}</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="preprocessor">#endif </span><span class="comment">/* PEFEXE_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="aclassApple_1_1PEFFormat_html"><div class="ttname"><a href="classApple_1_1PEFFormat.html">Apple::PEFFormat</a></div><div class="ttdoc">PowerPC Classic Mac OS &quot;PEF&quot; file format.</div><div class="ttdef"><b>Definition</b> pefexe.h:15</div></div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>}</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span><span class="preprocessor">#endif </span><span class="comment">/* PEFEXE_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="aclassApple_1_1PEFFormat_html"><div class="ttname"><a href="classApple_1_1PEFFormat.html">Apple::PEFFormat</a></div><div class="ttdoc">PowerPC Classic Mac OS &quot;PEF&quot; file format.</div><div class="ttdef"><b>Definition</b> pefexe.h:16</div></div>
+<div class="ttc" id="aclassApple_1_1PEFFormat_html_a2716c71bf691b300fc440895c01e693b"><div class="ttname"><a href="classApple_1_1PEFFormat.html#a2716c71bf691b300fc440895c01e693b">Apple::PEFFormat::Dump</a></div><div class="ttdeci">void Dump(Dumper::Dumper &amp;dump) override</div><div class="ttdoc">Display file contents in a nice manner.</div><div class="ttdef"><b>Definition</b> pefexe.cc:20</div></div>
 <div class="ttc" id="aclassApple_1_1PEFFormat_html_ac2afe6e4739d901bf05310a513b9ce29"><div class="ttname"><a href="classApple_1_1PEFFormat.html#ac2afe6e4739d901bf05310a513b9ce29">Apple::PEFFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> pefexe.cc:8</div></div>
 <div class="ttc" id="aclassApple_1_1PEFFormat_html_afecd833357f4582a8f65d953db75d4fa"><div class="ttname"><a href="classApple_1_1PEFFormat.html#afecd833357f4582a8f65d953db75d4fa">Apple::PEFFormat::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> pefexe.cc:13</div></div>
+<div class="ttc" id="aclassDumper_1_1Dumper_html"><div class="ttname"><a href="classDumper_1_1Dumper.html">Dumper::Dumper</a></div><div class="ttdoc">A class to control the output of a file analysis.</div><div class="ttdef"><b>Definition</b> dumper.h:566</div></div>
+<div class="ttc" id="aclassLinker_1_1Format_html_ab34d0b44ed4e540aaabb800273e56eaa"><div class="ttname"><a href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Writer &amp;wr) override=0</div><div class="ttdoc">Stores data in memory to file.</div></div>
 <div class="ttc" id="aclassLinker_1_1LinkerManager_html"><div class="ttname"><a href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div><div class="ttdoc">A helper class to collect sections into segments.</div><div class="ttdef"><b>Definition</b> linker_manager.h:20</div></div>
 <div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:16</div></div>
 <div class="ttc" id="aclassLinker_1_1Writer_html"><div class="ttname"><a href="classLinker_1_1Writer.html">Linker::Writer</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to export binary data.</div><div class="ttdef"><b>Definition</b> writer.h:15</div></div>

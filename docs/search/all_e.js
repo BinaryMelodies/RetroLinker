@@ -37,7 +37,9 @@ var searchData=
   ['loadlibraryname_34',['LoadLibraryName',['../classLinker_1_1SymbolName.html#adfcb41f833acfa11cfec3d752c6713cd',1,'Linker::SymbolName']]],
   ['loadname_35',['LoadName',['../classLinker_1_1SymbolName.html#a5d843b215931ce91d0b058407cd829ae',1,'Linker::SymbolName::LoadName()'],['../classLinker_1_1ExportedSymbol.html#a99c9f8f7bcc446521bbf43fcf96d4b0f',1,'Linker::ExportedSymbol::LoadName()']]],
   ['loadordinalorhint_36',['LoadOrdinalOrHint',['../classLinker_1_1SymbolName.html#aba884bef7536a6c1a359d7c797155342',1,'Linker::SymbolName::LoadOrdinalOrHint()'],['../classLinker_1_1ExportedSymbol.html#a9d9d717e43fe2020dacca712141cabc1',1,'Linker::ExportedSymbol::LoadOrdinalOrHint()']]],
-  ['location_37',['Location',['../classLinker_1_1Location.html',1,'Linker::Location'],['../classLinker_1_1Location.html#a7324cc125864d82fcae43a135970c9b6',1,'Linker::Location::Location(std::shared_ptr&lt; Section &gt; section, offset_t offset=0)'],['../classLinker_1_1Location.html#a82950ae093d0c4b056c165a85cb44e3f',1,'Linker::Location::Location(offset_t offset=0)']]],
-  ['lookup_38',['Lookup',['../classLinker_1_1Target.html#af430c6f4ac6d6dea47338dac7011e7cc',1,'Linker::Target']]],
-  ['lvformat_39',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]]
+  ['local_37',['Local',['../classLinker_1_1SymbolDefinition.html#a8c8788c78a80c54ad6bb9e41de70bf97ae98270051db0001b2302f6010c84f305',1,'Linker::SymbolDefinition']]],
+  ['localcommon_38',['LocalCommon',['../classLinker_1_1SymbolDefinition.html#a8c8788c78a80c54ad6bb9e41de70bf97abdaecb8a1878a9752abe351e156909ed',1,'Linker::SymbolDefinition']]],
+  ['location_39',['Location',['../classLinker_1_1Location.html',1,'Linker::Location'],['../classLinker_1_1Location.html#a7324cc125864d82fcae43a135970c9b6',1,'Linker::Location::Location(std::shared_ptr&lt; Section &gt; section, offset_t offset=0)'],['../classLinker_1_1Location.html#a82950ae093d0c4b056c165a85cb44e3f',1,'Linker::Location::Location(offset_t offset=0)']]],
+  ['lookup_40',['Lookup',['../classLinker_1_1Target.html#af430c6f4ac6d6dea47338dac7011e7cc',1,'Linker::Target']]],
+  ['lvformat_41',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]]
 ];

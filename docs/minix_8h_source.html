@@ -88,109 +88,203 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00002" name="l00002"></a><span class="lineno">    2</span><span class="preprocessor">#define MINIX_H</span></div>
 <div class="line"><a id="l00003" name="l00003"></a><span class="lineno">    3</span> </div>
 <div class="line"><a id="l00004" name="l00004"></a><span class="lineno">    4</span><span class="preprocessor">#include &quot;../common.h&quot;</span></div>
-<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;../linker/linker_manager.h&quot;</span></div>
-<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;../linker/module.h&quot;</span></div>
-<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;../linker/segment.h&quot;</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;../linker/writer.h&quot;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="keyword">namespace </span>MINIX</div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span>{</div>
-<div class="foldopen" id="foldopen00017" data-start="{" data-end="};">
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno"><a class="line" href="classMINIX_1_1MINIXFormat.html">   17</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classMINIX_1_1MINIXFormat.html">MINIXFormat</a> : <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    {</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>        <span class="comment">/* TODO: incorporate relocations and far code segment from around ELKS 0.8.0 */</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span> </div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a38c43f66c9c4cb4687abcd304699f373">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a4c7cc4597d24c12b99daa4796a83d377">FormatIs16bit</a>() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span> </div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>        <span class="keyword">enum</span> format_type</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        {</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>            FormatCombined = 0x10,</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>            FormatSeparate = 0x20,</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>            UnmappedZeroPage = 0x01,</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>        };</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>        format_type format = format_type(0);</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>        <span class="keyword">enum</span> cpu_type</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>        {</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>            <span class="comment">/* TODO: extend for 68K? */</span></div>
-<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>            I86 = 0x04,</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>            M68K = 0x0B,</div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>            NS16K = 0x0C,</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>            I386 = 0x10,</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>            SPARC = 0x17,</div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        };</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        cpu_type cpu = cpu_type(0);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span> </div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>        static ::EndianType GetEndianType(cpu_type cpu);</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        ::EndianType GetEndianType() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">size_t</span> PAGE_SIZE = 0x1000;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span> </div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <span class="keyword">explicit</span> <a class="code hl_class" href="classMINIX_1_1MINIXFormat.html">MINIXFormat</a>()</div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        {</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        }</div>
+<div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;../dumper/dumper.h&quot;</span></div>
+<div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;../linker/linker_manager.h&quot;</span></div>
+<div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;../linker/module.h&quot;</span></div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;../linker/segment.h&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;../linker/writer.h&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span> </div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="keyword">namespace </span>MINIX</div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span>{</div>
+<div class="foldopen" id="foldopen00018" data-start="{" data-end="};">
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="classMINIX_1_1MINIXFormat.html">   18</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classMINIX_1_1MINIXFormat.html">MINIXFormat</a> : <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    {</div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>        <span class="comment">/* TODO: incorporate relocations and far code segment from around ELKS 0.8.0 */</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a38c43f66c9c4cb4687abcd304699f373">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span> </div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>        <span class="keywordtype">bool</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a4c7cc4597d24c12b99daa4796a83d377">FormatIs16bit</a>() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span> </div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>        <span class="keyword">enum</span> format_type</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>        {</div>
+<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>            UnmappedZeroPage = 0x01,</div>
+<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>            PageAligned = 0x02,</div>
+<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>            NewStyleSymbolTable = 0x04,</div>
+<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>            FormatCombined = 0x10,</div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>            FormatSeparate = 0x20,</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span>            PureText = 0x40,</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>            TextOverlay = 0x80,</div>
+<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>        };</div>
+<div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>        format_type format = format_type(0);</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span>        <span class="keyword">enum</span> cpu_type</div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>        {</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>            <span class="comment">/* TODO: make support for 68K? */</span></div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>            I86 = 0x04,</div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>            M68K = 0x0B,</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>            NS16K = 0x0C,</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>            I386 = 0x10,</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>            SPARC = 0x17,</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>        };</div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        cpu_type cpu = cpu_type(0);</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span> </div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        uint8_t header_size = 0x20;</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        uint16_t format_version = 0;</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span> </div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        static ::EndianType GetEndianType(cpu_type cpu);</div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        <a class="code hl_class" href="classMINIX_1_1MINIXFormat.html">MINIXFormat</a>(format_type format)</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>            : format(format)</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        {</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        }</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span> </div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        <a class="code hl_class" href="classMINIX_1_1MINIXFormat.html">MINIXFormat</a>(format_type format, cpu_type cpu)</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>            : format(format), cpu(cpu)</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        {</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        }</div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        uint32_t code_base_address = 0; <span class="comment">/* TODO: parametrize */</span></div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        <span class="comment">//uint32_t data_base_address = 0; /* TODO: parametrize */</span></div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        uint32_t heap_top_address = 0; <span class="comment">/* TODO: parametrize */</span></div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span> </div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>        <span class="comment">/* generated */</span></div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        std::shared_ptr&lt;Linker::Segment&gt; code, data, bss;</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        uint32_t entry_address = 0;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        ::EndianType GetEndianType() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        <span class="keyword">static</span> <span class="keyword">constexpr</span> <span class="keywordtype">size_t</span> PAGE_SIZE = 0x1000;</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>        <span class="keyword">explicit</span> <a class="code hl_class" href="classMINIX_1_1MINIXFormat.html">MINIXFormat</a>()</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>        {</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        }</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        <a class="code hl_class" href="classMINIX_1_1MINIXFormat.html">MINIXFormat</a>(format_type format, <span class="keywordtype">int</span> version = -1)</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>            : format(format), format_version(version)</div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        {</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        }</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span> </div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>        <a class="code hl_class" href="classMINIX_1_1MINIXFormat.html">MINIXFormat</a>(format_type format, cpu_type cpu, <span class="keywordtype">int</span> version = -1)</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>            : format(format), cpu(cpu), format_version(version)</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>        {</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>        }</div>
 <div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span> </div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a07cb6ce4902dd5e62f62ffaad7b3bd0d">SetOptions</a>(std::map&lt;std::string, std::string&gt;&amp; options) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span> </div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a8d4984e23eb074f330785101562ead2a">OnNewSegment</a>(std::shared_ptr&lt;Linker::Segment&gt; segment) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span> </div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        <span class="keywordtype">void</span> CreateDefaultSegments();</div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>        uint32_t bss_size = 0;</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>        uint32_t total_memory = 0; <span class="comment">/* TODO: parametrize */</span></div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        uint16_t heap_size = 0, stack_size = 0;</div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        uint32_t code_relocation_base = 0;</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        uint32_t data_relocation_base = 0;</div>
 <div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        std::unique_ptr&lt;Script::List&gt; GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        <span class="keywordtype">void</span> Link(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a3e07151724b42f7b720d8f962b8ce520">ProcessModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span> </div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a90bfee0ea7ce2677e470f6631cc9d408">CalculateValues</a>() <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span> </div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        offset_t <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a81f8d33df608bb0dc2c76d20cb175f3f">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span> </div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#acf17c17209c21db3524666df77dced27">GenerateFile</a>(std::string filename, <a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        std::string <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#ac669f0002ca757ad94315f7d8c62f298">GetDefaultExtension</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>    };</div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        <span class="keywordtype">bool</span> enable_relocations = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        <span class="keywordtype">bool</span> enable_symbols = <span class="keyword">false</span>;</div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
+<div class="foldopen" id="foldopen00082" data-start="{" data-end="};">
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno"><a class="line" href="structMINIX_1_1MINIXFormat_1_1Symbol.html">   82</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="structMINIX_1_1MINIXFormat_1_1Symbol.html">Symbol</a></div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        {</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t N_SECT = 0x07; <span class="comment">// mask</span></div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span> </div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t N_UNDF = 0x00;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t N_ABS = 0x01;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t N_TEXT = 0x02;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t N_DATA = 0x03;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t N_BSS = 0x04;</div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t N_COMM = 0x05;</div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t N_CLASS = 0xF8; <span class="comment">// mask</span></div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span> </div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t S_NULL = 0x00;</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t S_EXT = 0x10; <span class="comment">// external</span></div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint8_t S_STAT = 0x18; <span class="comment">// static</span></div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>            std::string name;</div>
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>            int32_t value;</div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>            uint8_t sclass;</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            uint8_t numaux; <span class="comment">// not used by MINIX/ELKS</span></div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>            uint16_t type; <span class="comment">// not used by MINIX/ELKS</span></div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span> </div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            <span class="keyword">static</span> <a class="code hl_struct" href="structMINIX_1_1MINIXFormat_1_1Symbol.html">Symbol</a> Read(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd);</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>            <span class="keywordtype">void</span> Write(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr);</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>            <span class="keywordtype">void</span> Dump(<a class="code hl_class" href="classDumper_1_1Dumper.html">Dumper::Dumper</a>&amp; dump, <span class="keywordtype">unsigned</span> index, offset_t relocations_offset);</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        };</div>
 </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>}</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span><span class="preprocessor">#endif </span><span class="comment">/* MINIX_H */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        std::vector&lt;Symbol&gt; symbols;</div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
+<div class="foldopen" id="foldopen00111" data-start="{" data-end="};">
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno"><a class="line" href="structMINIX_1_1MINIXFormat_1_1Relocation.html">  111</a></span>        <span class="keyword">struct </span><a class="code hl_struct" href="structMINIX_1_1MINIXFormat_1_1Relocation.html">Relocation</a></div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        {</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t S_ABS = uint16_t(-1);</div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t S_TEXT = uint16_t(-2);</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t S_DATA = uint16_t(-3);</div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t S_BSS = uint16_t(-4);</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>            <span class="comment">/* ELKS extension */</span></div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t S_FTEXT = uint16_t(-5);</div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_ABBS = 0;</div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_RELLBYTE = 2;</div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_PCRBYTE = 3;</div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_RELWORD = 4;</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_PCRWORD = 5;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_RELLONG = 6;</div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_PCRLONG = 7;</div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_REL3BYTE = 8;</div>
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_KBRANCHE = 9;</div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>            <span class="comment">/* ELKS extension */</span></div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>            <span class="keyword">static</span> <span class="keyword">constexpr</span> uint16_t R_SEGWORD = 80;</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span> </div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>            uint32_t address = 0;</div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>            uint16_t symbol = 0;</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>            uint16_t type = 0;</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>            std::string symbol_name;</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span> </div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>            <span class="keyword">static</span> <a class="code hl_struct" href="structMINIX_1_1MINIXFormat_1_1Relocation.html">Relocation</a> Read(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd);</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>            <span class="keywordtype">void</span> FetchSymbolName(std::vector&lt;Symbol&gt;&amp; symbols);</div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>            <span class="keywordtype">void</span> Write(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr);</div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>            <span class="keywordtype">void</span> Dump(<a class="code hl_class" href="classDumper_1_1Dumper.html">Dumper::Dumper</a>&amp; dump, <span class="keywordtype">unsigned</span> index, offset_t relocations_offset);</div>
+<div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span>            <span class="keywordtype">size_t</span> GetSize() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>        };</div>
+</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>        std::vector&lt;Relocation&gt; code_relocations, data_relocations, far_code_relocations;</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span> </div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>        <span class="comment">/* generated */</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>        std::shared_ptr&lt;Linker::Image&gt; code, data, far_code;</div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>        std::shared_ptr&lt;Linker::Segment&gt; bss, heap, stack;</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        uint32_t entry_address = 0;</div>
+<div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a07cb6ce4902dd5e62f62ffaad7b3bd0d">SetOptions</a>(std::map&lt;std::string, std::string&gt;&amp; options) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a8d4984e23eb074f330785101562ead2a">OnNewSegment</a>(std::shared_ptr&lt;Linker::Segment&gt; segment) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
+<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>        <span class="keywordtype">void</span> CreateDefaultSegments();</div>
+<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
+<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a73cae2465b39d04dd780cde5b6daedf1">SetLinkScript</a>(std::string script_file, std::map&lt;std::string, std::string&gt;&amp; options) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span>        std::unique_ptr&lt;Script::List&gt; GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span> </div>
+<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span>        <span class="keywordtype">void</span> Link(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span> </div>
+<div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a3e07151724b42f7b720d8f962b8ce520">ProcessModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span> </div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a90bfee0ea7ce2677e470f6631cc9d408">CalculateValues</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>        offset_t <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#ad6bcdd02433323f8d56a467aa8734dfb">ImageSize</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format::WriteFile</a>;</div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        offset_t <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#a81f8d33df608bb0dc2c76d20cb175f3f">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#af43ce6f314661b949e24a3ac28864b1d">Dump</a>(<a class="code hl_class" href="classDumper_1_1Dumper.html">Dumper::Dumper</a>&amp; dump) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span> </div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#acf17c17209c21db3524666df77dced27">GenerateFile</a>(std::string filename, <a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat::GetDefaultExtension</a>;</div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        std::string <a class="code hl_function" href="classMINIX_1_1MINIXFormat.html#ac669f0002ca757ad94315f7d8c62f298">GetDefaultExtension</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>    };</div>
+</div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span> </div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>}</div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span> </div>
+<div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span><span class="preprocessor">#endif </span><span class="comment">/* MINIX_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="aclassDumper_1_1Dumper_html"><div class="ttname"><a href="classDumper_1_1Dumper.html">Dumper::Dumper</a></div><div class="ttdoc">A class to control the output of a file analysis.</div><div class="ttdef"><b>Definition</b> dumper.h:566</div></div>
+<div class="ttc" id="aclassLinker_1_1Format_html_ab34d0b44ed4e540aaabb800273e56eaa"><div class="ttname"><a href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Writer &amp;wr) override=0</div><div class="ttdoc">Stores data in memory to file.</div></div>
 <div class="ttc" id="aclassLinker_1_1LinkerManager_html"><div class="ttname"><a href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></div><div class="ttdoc">A helper class to collect sections into segments.</div><div class="ttdef"><b>Definition</b> linker_manager.h:20</div></div>
-<div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:21</div></div>
+<div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:22</div></div>
+<div class="ttc" id="aclassLinker_1_1OutputFormat_html_ad3db971f3bccdc2d3b6bb4f0366cd108"><div class="ttname"><a href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat::GetDefaultExtension</a></div><div class="ttdeci">virtual std::string GetDefaultExtension(Linker::Module &amp;module, std::string filename)</div><div class="ttdoc">Appends a default extension to the filename.</div></div>
 <div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:16</div></div>
 <div class="ttc" id="aclassLinker_1_1Writer_html"><div class="ttname"><a href="classLinker_1_1Writer.html">Linker::Writer</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to export binary data.</div><div class="ttdef"><b>Definition</b> writer.h:15</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html">MINIX::MINIXFormat</a></div><div class="ttdoc">MINIX/ELKS a.out file format.</div><div class="ttdef"><b>Definition</b> minix.h:18</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a07cb6ce4902dd5e62f62ffaad7b3bd0d"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a07cb6ce4902dd5e62f62ffaad7b3bd0d">MINIX::MINIXFormat::SetOptions</a></div><div class="ttdeci">void SetOptions(std::map&lt; std::string, std::string &gt; &amp;options) override</div><div class="ttdoc">Passes command line parameters as settings over to format object.</div><div class="ttdef"><b>Definition</b> minix.cc:39</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a38c43f66c9c4cb4687abcd304699f373"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a38c43f66c9c4cb4687abcd304699f373">MINIX::MINIXFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> minix.cc:6</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a3e07151724b42f7b720d8f962b8ce520"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a3e07151724b42f7b720d8f962b8ce520">MINIX::MINIXFormat::ProcessModule</a></div><div class="ttdeci">void ProcessModule(Linker::Module &amp;module) override</div><div class="ttdoc">Processes the module object and initializes format fields.</div><div class="ttdef"><b>Definition</b> minix.cc:164</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a4c7cc4597d24c12b99daa4796a83d377"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a4c7cc4597d24c12b99daa4796a83d377">MINIX::MINIXFormat::FormatIs16bit</a></div><div class="ttdeci">bool FormatIs16bit() const override</div><div class="ttdoc">Whether the format is 16-bit or not.</div><div class="ttdef"><b>Definition</b> minix.cc:11</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a81f8d33df608bb0dc2c76d20cb175f3f"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a81f8d33df608bb0dc2c76d20cb175f3f">MINIX::MINIXFormat::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> minix.cc:258</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a8d4984e23eb074f330785101562ead2a"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a8d4984e23eb074f330785101562ead2a">MINIX::MINIXFormat::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(std::shared_ptr&lt; Linker::Segment &gt; segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> minix.cc:44</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a90bfee0ea7ce2677e470f6631cc9d408"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a90bfee0ea7ce2677e470f6631cc9d408">MINIX::MINIXFormat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> minix.cc:241</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_ac669f0002ca757ad94315f7d8c62f298"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#ac669f0002ca757ad94315f7d8c62f298">MINIX::MINIXFormat::GetDefaultExtension</a></div><div class="ttdeci">std::string GetDefaultExtension(Linker::Module &amp;module) override</div><div class="ttdoc">Provides a default filename for the output file.</div><div class="ttdef"><b>Definition</b> minix.cc:295</div></div>
-<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_acf17c17209c21db3524666df77dced27"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#acf17c17209c21db3524666df77dced27">MINIX::MINIXFormat::GenerateFile</a></div><div class="ttdeci">void GenerateFile(std::string filename, Linker::Module &amp;module) override</div><div class="ttdoc">The main function that handles processing, calculating and generating the final image.</div><div class="ttdef"><b>Definition</b> minix.cc:278</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html">MINIX::MINIXFormat</a></div><div class="ttdoc">MINIX/ELKS a.out file format.</div><div class="ttdef"><b>Definition</b> minix.h:19</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a07cb6ce4902dd5e62f62ffaad7b3bd0d"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a07cb6ce4902dd5e62f62ffaad7b3bd0d">MINIX::MINIXFormat::SetOptions</a></div><div class="ttdeci">void SetOptions(std::map&lt; std::string, std::string &gt; &amp;options) override</div><div class="ttdoc">Passes command line parameters as settings over to format object.</div><div class="ttdef"><b>Definition</b> minix.cc:283</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a38c43f66c9c4cb4687abcd304699f373"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a38c43f66c9c4cb4687abcd304699f373">MINIX::MINIXFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> minix.cc:140</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a3e07151724b42f7b720d8f962b8ce520"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a3e07151724b42f7b720d8f962b8ce520">MINIX::MINIXFormat::ProcessModule</a></div><div class="ttdeci">void ProcessModule(Linker::Module &amp;module) override</div><div class="ttdoc">Processes the module object and initializes format fields.</div><div class="ttdef"><b>Definition</b> minix.cc:478</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a4c7cc4597d24c12b99daa4796a83d377"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a4c7cc4597d24c12b99daa4796a83d377">MINIX::MINIXFormat::FormatIs16bit</a></div><div class="ttdeci">bool FormatIs16bit() const override</div><div class="ttdoc">Whether the format is 16-bit or not.</div><div class="ttdef"><b>Definition</b> minix.cc:255</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a73cae2465b39d04dd780cde5b6daedf1"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a73cae2465b39d04dd780cde5b6daedf1">MINIX::MINIXFormat::SetLinkScript</a></div><div class="ttdeci">void SetLinkScript(std::string script_file, std::map&lt; std::string, std::string &gt; &amp;options) override</div><div class="ttdoc">Sets up the linker script and linker parameters.</div><div class="ttdef"><b>Definition</b> minix.cc:381</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a81f8d33df608bb0dc2c76d20cb175f3f"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a81f8d33df608bb0dc2c76d20cb175f3f">MINIX::MINIXFormat::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Linker::Writer &amp;wr) override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> minix.cc:750</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a8d4984e23eb074f330785101562ead2a"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a8d4984e23eb074f330785101562ead2a">MINIX::MINIXFormat::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(std::shared_ptr&lt; Linker::Segment &gt; segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> minix.cc:337</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_a90bfee0ea7ce2677e470f6631cc9d408"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#a90bfee0ea7ce2677e470f6631cc9d408">MINIX::MINIXFormat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> minix.cc:721</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_ac669f0002ca757ad94315f7d8c62f298"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#ac669f0002ca757ad94315f7d8c62f298">MINIX::MINIXFormat::GetDefaultExtension</a></div><div class="ttdeci">std::string GetDefaultExtension(Linker::Module &amp;module) override</div><div class="ttdoc">Provides a default filename for the output file.</div><div class="ttdef"><b>Definition</b> minix.cc:976</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_acf17c17209c21db3524666df77dced27"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#acf17c17209c21db3524666df77dced27">MINIX::MINIXFormat::GenerateFile</a></div><div class="ttdeci">void GenerateFile(std::string filename, Linker::Module &amp;module) override</div><div class="ttdoc">The main function that handles processing, calculating and generating the final image.</div><div class="ttdef"><b>Definition</b> minix.cc:959</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_ad6bcdd02433323f8d56a467aa8734dfb"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#ad6bcdd02433323f8d56a467aa8734dfb">MINIX::MINIXFormat::ImageSize</a></div><div class="ttdeci">offset_t ImageSize() override</div><div class="ttdoc">Retrieves size of stored data.</div><div class="ttdef"><b>Definition</b> minix.cc:725</div></div>
+<div class="ttc" id="aclassMINIX_1_1MINIXFormat_html_af43ce6f314661b949e24a3ac28864b1d"><div class="ttname"><a href="classMINIX_1_1MINIXFormat.html#af43ce6f314661b949e24a3ac28864b1d">MINIX::MINIXFormat::Dump</a></div><div class="ttdeci">void Dump(Dumper::Dumper &amp;dump) override</div><div class="ttdoc">Display file contents in a nice manner.</div><div class="ttdef"><b>Definition</b> minix.cc:829</div></div>
+<div class="ttc" id="astructMINIX_1_1MINIXFormat_1_1Relocation_html"><div class="ttname"><a href="structMINIX_1_1MINIXFormat_1_1Relocation.html">MINIX::MINIXFormat::Relocation</a></div><div class="ttdef"><b>Definition</b> minix.h:112</div></div>
+<div class="ttc" id="astructMINIX_1_1MINIXFormat_1_1Symbol_html"><div class="ttname"><a href="structMINIX_1_1MINIXFormat_1_1Symbol.html">MINIX::MINIXFormat::Symbol</a></div><div class="ttdef"><b>Definition</b> minix.h:83</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

@@ -127,25 +127,32 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aa9fe1ada4e5bb47d27a6c11daf65d1b0" id="r_aa9fe1ada4e5bb47d27a6c11daf65d1b0"><td class="memItemLeft" align="right" valign="top"><a id="aa9fe1ada4e5bb47d27a6c11daf65d1b0" name="aa9fe1ada4e5bb47d27a6c11daf65d1b0"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Module</b> (std::string <a class="el" href="#acc9e11633c4eead1022c97401849b699">file_name</a>=&quot;&quot;)</td></tr>
 <tr class="separator:aa9fe1ada4e5bb47d27a6c11daf65d1b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d40c4f9e592b3d33dd43ab9dc14dbcf" id="r_a4d40c4f9e592b3d33dd43ab9dc14dbcf"><td class="memItemLeft" align="right" valign="top"><a id="a4d40c4f9e592b3d33dd43ab9dc14dbcf" name="a4d40c4f9e592b3d33dd43ab9dc14dbcf"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>HasSymbolDefinition</b> (const <a class="el" href="classLinker_1_1SymbolDefinition.html">SymbolDefinition</a> &amp;symbol)</td></tr>
+<tr class="separator:a4d40c4f9e592b3d33dd43ab9dc14dbcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74d5d024f2318aa4a82e9fad7fc0ccb2" id="r_a74d5d024f2318aa4a82e9fad7fc0ccb2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a74d5d024f2318aa4a82e9fad7fc0ccb2">SetupOptions</a> (char special_char, std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt; output_format, std::shared_ptr&lt; const <a class="el" href="classLinker_1_1InputFormat.html">InputFormat</a> &gt; input_format)</td></tr>
 <tr class="memdesc:a74d5d024f2318aa4a82e9fad7fc0ccb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
 <tr class="separator:a74d5d024f2318aa4a82e9fad7fc0ccb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abcc5a24a25aefc8bbf5f4ac8494abf7d" id="r_abcc5a24a25aefc8bbf5f4ac8494abf7d"><td class="memItemLeft" align="right" valign="top"><a id="abcc5a24a25aefc8bbf5f4ac8494abf7d" name="abcc5a24a25aefc8bbf5f4ac8494abf7d"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddLocalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> location)</td></tr>
-<tr class="memdesc:abcc5a24a25aefc8bbf5f4ac8494abf7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an internal symbol. <br /></td></tr>
-<tr class="separator:abcc5a24a25aefc8bbf5f4ac8494abf7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae7564e86747525d29722e7fd7ef3d5c0" id="r_ae7564e86747525d29722e7fd7ef3d5c0"><td class="memItemLeft" align="right" valign="top"><a id="ae7564e86747525d29722e7fd7ef3d5c0" name="ae7564e86747525d29722e7fd7ef3d5c0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddGlobalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> location)</td></tr>
-<tr class="memdesc:ae7564e86747525d29722e7fd7ef3d5c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds and processes exported symbol for extended syntax. <br /></td></tr>
-<tr class="separator:ae7564e86747525d29722e7fd7ef3d5c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a92538f65f72229fa0f384785c26c64c3" id="r_a92538f65f72229fa0f384785c26c64c3"><td class="memItemLeft" align="right" valign="top"><a id="a92538f65f72229fa0f384785c26c64c3" name="a92538f65f72229fa0f384785c26c64c3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddWeakSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> location)</td></tr>
-<tr class="memdesc:a92538f65f72229fa0f384785c26c64c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a weakly bound symbol. <br /></td></tr>
-<tr class="separator:a92538f65f72229fa0f384785c26c64c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38dd4b20975c68f2c930f3d971f6a813" id="r_a38dd4b20975c68f2c930f3d971f6a813"><td class="memItemLeft" align="right" valign="top"><a id="a38dd4b20975c68f2c930f3d971f6a813" name="a38dd4b20975c68f2c930f3d971f6a813"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddCommonSymbol</b> (std::string name, <a class="el" href="classLinker_1_1CommonSymbol.html">CommonSymbol</a> symbol)</td></tr>
-<tr class="memdesc:a38dd4b20975c68f2c930f3d971f6a813"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a common symbol. <br /></td></tr>
-<tr class="separator:a38dd4b20975c68f2c930f3d971f6a813"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3575493f5e3cadcc5c844f07db224376" id="r_a3575493f5e3cadcc5c844f07db224376"><td class="memItemLeft" align="right" valign="top"><a id="a3575493f5e3cadcc5c844f07db224376" name="a3575493f5e3cadcc5c844f07db224376"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddLocalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> location)</td></tr>
+<tr class="memdesc:a3575493f5e3cadcc5c844f07db224376"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an internal symbol. <br /></td></tr>
+<tr class="separator:a3575493f5e3cadcc5c844f07db224376"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a153c3860821f263f6f465406d1605cba" id="r_a153c3860821f263f6f465406d1605cba"><td class="memItemLeft" align="right" valign="top"><a id="a153c3860821f263f6f465406d1605cba" name="a153c3860821f263f6f465406d1605cba"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddGlobalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> location)</td></tr>
+<tr class="memdesc:a153c3860821f263f6f465406d1605cba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds and processes exported symbol for extended syntax. <br /></td></tr>
+<tr class="separator:a153c3860821f263f6f465406d1605cba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6264c72abd6782363d1ae4e1387aa915" id="r_a6264c72abd6782363d1ae4e1387aa915"><td class="memItemLeft" align="right" valign="top"><a id="a6264c72abd6782363d1ae4e1387aa915" name="a6264c72abd6782363d1ae4e1387aa915"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddWeakSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> location)</td></tr>
+<tr class="memdesc:a6264c72abd6782363d1ae4e1387aa915"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a weakly bound symbol. <br /></td></tr>
+<tr class="separator:a6264c72abd6782363d1ae4e1387aa915"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0bbd55ec5d130aeabb5cff120735dde" id="r_af0bbd55ec5d130aeabb5cff120735dde"><td class="memItemLeft" align="right" valign="top"><a id="af0bbd55ec5d130aeabb5cff120735dde" name="af0bbd55ec5d130aeabb5cff120735dde"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddCommonSymbol</b> (<a class="el" href="classLinker_1_1SymbolDefinition.html">SymbolDefinition</a> symbol)</td></tr>
+<tr class="memdesc:af0bbd55ec5d130aeabb5cff120735dde"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a common symbol. <br /></td></tr>
+<tr class="separator:af0bbd55ec5d130aeabb5cff120735dde"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada49eabf46c82cd8dbbf9f886a7e8cd3" id="r_ada49eabf46c82cd8dbbf9f886a7e8cd3"><td class="memItemLeft" align="right" valign="top"><a id="ada49eabf46c82cd8dbbf9f886a7e8cd3" name="ada49eabf46c82cd8dbbf9f886a7e8cd3"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddLocalCommonSymbol</b> (<a class="el" href="classLinker_1_1SymbolDefinition.html">SymbolDefinition</a> symbol)</td></tr>
+<tr class="memdesc:ada49eabf46c82cd8dbbf9f886a7e8cd3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a local common symbol. <br /></td></tr>
+<tr class="separator:ada49eabf46c82cd8dbbf9f886a7e8cd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71d051047356e374379eecc9d16aba55" id="r_a71d051047356e374379eecc9d16aba55"><td class="memItemLeft" align="right" valign="top"><a id="a71d051047356e374379eecc9d16aba55" name="a71d051047356e374379eecc9d16aba55"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddImportedSymbol</b> (<a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> name)</td></tr>
 <tr class="memdesc:a71d051047356e374379eecc9d16aba55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an imported symbol (Microsoft format: library name + symbol name + ordinal/hint) <br /></td></tr>
@@ -154,10 +161,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>AddImportedSymbol</b>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddExportedSymbol</b> (<a class="el" href="classLinker_1_1ExportedSymbol.html">ExportedSymbol</a> name, <a class="el" href="classLinker_1_1Location.html">Location</a> symbol)</td></tr>
 <tr class="memdesc:a333949c04bd348d6271c659fd0340c74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an exported symbol (Microsoft format: library name + symbol name + ordinal/hint) <br /></td></tr>
 <tr class="separator:a333949c04bd348d6271c659fd0340c74"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aabdf0f47224ad67ac738e22b60a3fe23" id="r_aabdf0f47224ad67ac738e22b60a3fe23"><td class="memItemLeft" align="right" valign="top"><a id="aabdf0f47224ad67ac738e22b60a3fe23" name="aabdf0f47224ad67ac738e22b60a3fe23"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddUndefinedSymbol</b> (std::string symbol_name)</td></tr>
-<tr class="memdesc:aabdf0f47224ad67ac738e22b60a3fe23"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes undefined symbol for extended syntax. <br /></td></tr>
-<tr class="separator:aabdf0f47224ad67ac738e22b60a3fe23"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a134147c9f3b503231c0419d11a26ac2b" id="r_a134147c9f3b503231c0419d11a26ac2b"><td class="memItemLeft" align="right" valign="top"><a id="a134147c9f3b503231c0419d11a26ac2b" name="a134147c9f3b503231c0419d11a26ac2b"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddUndefinedSymbol</b> (std::string symbol_name)</td></tr>
+<tr class="memdesc:a134147c9f3b503231c0419d11a26ac2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes undefined symbol for extended syntax. <br /></td></tr>
+<tr class="separator:a134147c9f3b503231c0419d11a26ac2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed88659dd3ebe9be73f9c14a1ed914cc" id="r_aed88659dd3ebe9be73f9c14a1ed914cc"><td class="memItemLeft" align="right" valign="top"><a id="aed88659dd3ebe9be73f9c14a1ed914cc" name="aed88659dd3ebe9be73f9c14a1ed914cc"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddRelocation</b> (<a class="el" href="classLinker_1_1Relocation.html">Relocation</a> relocation)</td></tr>
 <tr class="memdesc:aed88659dd3ebe9be73f9c14a1ed914cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds and processes relocation for extended syntax. <br /></td></tr>
@@ -214,14 +221,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (std::shar
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;other)</td></tr>
 <tr class="memdesc:a8e39ce2d456bae6b064d2dd9ffe0bb11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends another module object, merging identically named sections. <br /></td></tr>
 <tr class="separator:a8e39ce2d456bae6b064d2dd9ffe0bb11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3be52be53f501fc0ca417943135b542e" id="r_a3be52be53f501fc0ca417943135b542e"><td class="memItemLeft" align="right" valign="top"><a id="a3be52be53f501fc0ca417943135b542e" name="a3be52be53f501fc0ca417943135b542e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Section</a> &gt; section)</td></tr>
-<tr class="memdesc:a3be52be53f501fc0ca417943135b542e"><td class="mdescLeft">&#160;</td><td class="mdescRight">All common symbols are converted to global symbols and assigned addresses within a section. <br /></td></tr>
-<tr class="separator:a3be52be53f501fc0ca417943135b542e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afc97fc4bf30de0c91c53bd93de4a48c1" id="r_afc97fc4bf30de0c91c53bd93de4a48c1"><td class="memItemLeft" align="right" valign="top"><a id="afc97fc4bf30de0c91c53bd93de4a48c1" name="afc97fc4bf30de0c91c53bd93de4a48c1"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> ()</td></tr>
-<tr class="memdesc:afc97fc4bf30de0c91c53bd93de4a48c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">All common symbols are converted to global symbols and assigned addresses within a ".comm" section. <br /></td></tr>
-<tr class="separator:afc97fc4bf30de0c91c53bd93de4a48c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a768bd7cc4e03bee3e7402374e6ef803e" id="r_a768bd7cc4e03bee3e7402374e6ef803e"><td class="memItemLeft" align="right" valign="top"><a id="a768bd7cc4e03bee3e7402374e6ef803e" name="a768bd7cc4e03bee3e7402374e6ef803e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> (std::string default_section_name=&quot;.comm&quot;)</td></tr>
+<tr class="memdesc:a768bd7cc4e03bee3e7402374e6ef803e"><td class="mdescLeft">&#160;</td><td class="mdescRight">All common symbols are converted to global symbols and assigned addresses within a their section (usually ".comm") <br /></td></tr>
+<tr class="separator:a768bd7cc4e03bee3e7402374e6ef803e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -233,6 +236,10 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>file_name</b><
 <a class="el" href="#a91adcc0d6d9aa631e4d79dad0154a756">cpu_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>cpu</b> = NONE</td></tr>
 <tr class="memdesc:ace0a48e1b03e842e0ca80912872a65dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Encodes the CPU for the target. <br /></td></tr>
 <tr class="separator:ace0a48e1b03e842e0ca80912872a65dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24f93938d68f7237fd017c313aee8431" id="r_a24f93938d68f7237fd017c313aee8431"><td class="memItemLeft" align="right" valign="top"><a id="a24f93938d68f7237fd017c313aee8431" name="a24f93938d68f7237fd017c313aee8431"></a>
+std::vector&lt; <a class="el" href="classLinker_1_1SymbolDefinition.html">SymbolDefinition</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_sequence</b></td></tr>
+<tr class="memdesc:a24f93938d68f7237fd017c313aee8431"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sorted collection of all symbols appearing in the module, duplicates removed. <br /></td></tr>
+<tr class="separator:a24f93938d68f7237fd017c313aee8431"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4f3bf290f658eb8a7bdd4221f433b19" id="r_ae4f3bf290f658eb8a7bdd4221f433b19"><td class="memItemLeft" align="right" valign="top"><a id="ae4f3bf290f658eb8a7bdd4221f433b19" name="ae4f3bf290f658eb8a7bdd4221f433b19"></a>
 std::vector&lt; <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="memdesc:ae4f3bf290f658eb8a7bdd4221f433b19"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of relocations within the module. <br /></td></tr>

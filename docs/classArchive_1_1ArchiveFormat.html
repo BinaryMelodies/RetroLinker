@@ -147,6 +147,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetFileReader</b> (st
 <tr class="memitem:ae7ffce1a531246862ddd67e995e0fd70" id="r_ae7ffce1a531246862ddd67e995e0fd70"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae7ffce1a531246862ddd67e995e0fd70">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:ae7ffce1a531246862ddd67e995e0fd70"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:ae7ffce1a531246862ddd67e995e0fd70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbf5b21a242697ab10ddeb0c87ee8d64" id="r_adbf5b21a242697ab10ddeb0c87ee8d64"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adbf5b21a242697ab10ddeb0c87ee8d64">ImageSize</a> () override</td></tr>
+<tr class="memdesc:adbf5b21a242697ab10ddeb0c87ee8d64"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:adbf5b21a242697ab10ddeb0c87ee8d64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aac2de4c1138289c33be3b7ebc44bd67b" id="r_aac2de4c1138289c33be3b7ebc44bd67b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aac2de4c1138289c33be3b7ebc44bd67b">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
 <tr class="memdesc:aac2de4c1138289c33be3b7ebc44bd67b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:aac2de4c1138289c33be3b7ebc44bd67b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -164,8 +167,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetFileReader</b> (st
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, std::string file_name)</td></tr>
 <tr class="memdesc:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object. <br /></td></tr>
 <tr class="separator:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#a9e95887e38bd041def051b38d07df273">ProduceModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
-<tr class="memdesc:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
+<tr class="memitem:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat" id="r_a9e95887e38bd041def051b38d07df273"><td class="memItemLeft" align="right" valign="top">
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a file and loads the information into a module object, a convenience method when there is a single module generated. <br /></td></tr>
 <tr class="separator:a9e95887e38bd041def051b38d07df273 inherit pub_methods_classLinker_1_1InputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae338295011d23d50c6cba0e3fcf12db2 inherit pub_methods_classLinker_1_1InputFormat" id="r_ae338295011d23d50c6cba0e3fcf12db2"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1InputFormat.html#ae338295011d23d50c6cba0e3fcf12db2">GenerateModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module) const</td></tr>
 <tr class="memdesc:ae338295011d23d50c6cba0e3fcf12db2 inherit pub_methods_classLinker_1_1InputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
@@ -370,6 +374,35 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 <p>Loads the information into a module object. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1InputFormat.html#a4f878066b29cd9aa752b80c68b3ed1be">Linker::InputFormat</a>.</p>
+
+</div>
+</div>
+<a id="adbf5b21a242697ab10ddeb0c87ee8d64" name="adbf5b21a242697ab10ddeb0c87ee8d64"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adbf5b21a242697ab10ddeb0c87ee8d64">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t ArchiveFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>
