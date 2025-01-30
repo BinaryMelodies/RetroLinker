@@ -456,14 +456,12 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 
 	if(enable_symbols)
 	{
-		std::map<std::string, size_t> local_counter;
 		for(auto& mention : module.symbol_sequence)
 		{
 			Symbol symbol = { };
 			symbol.name = mention.name;
-			Linker::Location location;
 			Linker::Position position;
-			size_t index;
+			// TODO: rewrite
 			switch(mention.binding)
 			{
 			case Linker::SymbolDefinition::Undefined:
@@ -471,21 +469,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 				break;
 			case Linker::SymbolDefinition::Local:
 				symbol.sclass = Symbol::S_STAT;
-				if(local_counter.find(mention.name) == local_counter.end())
-				{
-					index = 0;
-					local_counter[mention.name] = 1;
-				}
-				else
-				{
-					index = local_counter[mention.name]++;
-				}
-				if(!module.FindLocalSymbol(mention.name, location, index))
-				{
-					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
-					continue;
-				}
-				position = location.GetPosition();
+				position = mention.location.GetPosition();
 				symbol.value = position.address;
 				if(position.segment == nullptr)
 				{
@@ -505,12 +489,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 				}
 				break;
 			case Linker::SymbolDefinition::Global:
-				if(!module.FindGlobalSymbol(mention.name, location))
-				{
-					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
-					continue;
-				}
-				position = location.GetPosition();
+				position = mention.location.GetPosition();
 				symbol.value = position.address;
 				if(position.segment == nullptr)
 				{
@@ -530,12 +509,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 				}
 				break;
 			case Linker::SymbolDefinition::Weak:
-				if(!module.FindGlobalSymbol(mention.name, location))
-				{
-					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
-					continue;
-				}
-				position = location.GetPosition();
+				position = mention.location.GetPosition();
 				symbol.value = position.address;
 				if(position.segment == nullptr)
 				{
@@ -555,12 +529,10 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 				}
 				break;
 			case Linker::SymbolDefinition::Common:
-				if(!module.FindGlobalSymbol(mention.name, location))
-				{
-					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
-					continue;
-				}
-				position = location.GetPosition();
+				Linker::Error << "Internal error: " << mention.name << " should not be common" << std::endl;
+				break;
+#if 0
+				position = mention.location.GetPosition();
 				symbol.value = position.address;
 				if(position.segment == nullptr)
 				{
@@ -579,6 +551,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 					symbol.sclass = Symbol::N_BSS | Symbol::S_EXT;
 				}
 				break;
+#endif
 			}
 			symbols.push_back(symbol);
 		}

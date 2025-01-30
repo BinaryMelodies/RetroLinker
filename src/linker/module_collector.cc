@@ -94,18 +94,9 @@ void ModuleCollector::CombineModulesInto(Module& output_module)
 	{
 		Linker::Debug << "Debug: global symbol " << symbol_definition.first << " is defined as " << symbol_definition.second << std::endl;
 	}
-	for(auto& symbols_definition : output_module.local_symbols)
+	for(auto& symbol_definition : output_module.local_symbols)
 	{
-		Linker::Debug << "Debug: local symbol " << symbols_definition.first << " is defined as ";
-		unsigned i = 0;
-		for(auto& definition : symbols_definition.second)
-		{
-			if(i != 0)
-				Linker::Debug << ", ";
-			Linker::Debug << definition;
-			i ++;
-		}
-		Linker::Debug << std::endl;
+		Linker::Debug << "Debug: local symbol " << symbol_definition.first << " is defined as " << symbol_definition.second << std::endl;
 	}
 }
 

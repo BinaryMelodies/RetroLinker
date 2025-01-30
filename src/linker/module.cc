@@ -10,6 +10,7 @@ void Module::AddSymbol(const SymbolDefinition& symbol)
 	switch(symbol.binding)
 	{
 	case SymbolDefinition::Undefined:
+		AddUndefinedSymbol(symbol);
 		break;
 	case SymbolDefinition::Local:
 		AddLocalSymbol(symbol);
@@ -250,8 +251,7 @@ void Module::AddLocalSymbol(const SymbolDefinition& symbol)
 		Linker::Debug << "Debug: duplicated local symbol " << symbol.name << " in module " << file_name << ", ignoring" << std::endl;
 		return;
 	}
-	local_symbols[symbol.name] = std::vector<Location>();
-	local_symbols[symbol.name].push_back(symbol.location);
+	local_symbols[symbol.name] = symbol;
 	NewSymbolDefinition(symbol);
 }
 
@@ -428,9 +428,15 @@ void Module::AddUndefinedSymbol(std::string symbol_name)
 			}
 		}
 	}
+
+	AddUndefinedSymbol(SymbolDefinition::CreateUndefined(symbol_name));
+}
+
+void Module::AddUndefinedSymbol(const SymbolDefinition& symbol)
+{
 	// undefined symbol ignored
 
-	NewSymbolDefinition(SymbolDefinition::CreateUndefined(symbol_name));
+	NewSymbolDefinition(symbol);
 }
 
 void Module::AddRelocation(Relocation relocation)
@@ -590,18 +596,9 @@ const std::map<ExportedSymbol, Location>& Module::GetExportedSymbols() const
 bool Module::FindLocalSymbol(std::string name, Location& location)
 {
 	auto it = local_symbols.find(name);
-	if(it == local_symbols.end() || it->second.size() != 1)
+	if(it == local_symbols.end())
 		return false;
-	location = it->second[0];
-	return true;
-}
-
-bool Module::FindLocalSymbol(std::string name, Location& location, size_t index)
-{
-	auto it = local_symbols.find(name);
-	if(it == local_symbols.end() || it->second.size() <= index)
-		return false;
-	location = it->second[index];
+	location = it->second.location;
 	return true;
 }
 
@@ -721,12 +718,9 @@ void Module::Append(std::shared_ptr<Section> dst, std::shared_ptr<Section> src)
 	{
 		symbol.second.Displace(displacement);
 	}
-	for(auto& symbols : local_symbols)
+	for(auto& symbol : local_symbols)
 	{
-		for(auto& symbol : symbols.second)
-		{
-			symbol.Displace(displacement);
-		}
+		symbol.second.Displace(displacement);
 	}
 	for(Relocation& rel : relocations)
 	{
@@ -757,6 +751,7 @@ void Module::Append(Module& other)
 			displacement[other_section] = Location(section, section->Append(*other_section));
 		}
 	}
+	// TODO: use the sequence to add symbols
 	for(auto mention : other.symbol_sequence)
 	{
 		NewSymbolDefinition(mention);
@@ -802,6 +797,8 @@ void Module::Append(Module& other)
 		symbol.second.Displace(displacement);
 		AddSymbol(symbol.second);
 	}
+	// local symbols are not copied over in the dictionary
+#if 0
 	for(auto& symbols_pair : other.local_symbols)
 	{
 		if(local_symbols.find(symbols_pair.first) == local_symbols.end())
@@ -815,6 +812,7 @@ void Module::Append(Module& other)
 			symbol_vector.push_back(symbol);
 		}
 	}
+#endif
 	for(auto& import : other.imported_symbols)
 	{
 		auto it = std::find(imported_symbols.begin(), imported_symbols.end(), import);

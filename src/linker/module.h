@@ -63,7 +63,7 @@ namespace Linker
 		std::vector<std::shared_ptr<Section>> sections;
 		std::map<std::string, std::shared_ptr<Section>> section_names;
 		std::map<std::string, SymbolDefinition> global_symbols; // includes Weak and Common symbols
-		std::map<std::string, std::vector<Location>> local_symbols;
+		std::map<std::string, SymbolDefinition> local_symbols;
 		std::vector<SymbolName> imported_symbols;
 		std::map<ExportedSymbol, Location> exported_symbols;
 
@@ -163,7 +163,10 @@ namespace Linker
 		 * @brief Processes undefined symbol for extended syntax
 		 */
 		void AddUndefinedSymbol(std::string symbol_name);
+	private:
+		void AddUndefinedSymbol(const SymbolDefinition& symbol);
 
+	public:
 		/**
 		 * @brief Adds and processes relocation for extended syntax
 		 */
@@ -183,11 +186,6 @@ namespace Linker
 		 * @brief Searches for a local symbol
 		 */
 		bool FindLocalSymbol(std::string name, Location& location);
-
-		/**
-		 * @brief Searches for a local symbol of a specific index
-		 */
-		bool FindLocalSymbol(std::string name, Location& location, size_t index);
 
 		/**
 		 * @brief Searches for a global or weak symbol
