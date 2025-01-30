@@ -24,6 +24,9 @@ void Module::AddSymbol(const SymbolDefinition& symbol)
 	case SymbolDefinition::Common:
 		AddCommonSymbol(symbol);
 		break;
+	case SymbolDefinition::LocalCommon:
+		AddLocalCommonSymbol(symbol);
+		break;
 	}
 }
 
@@ -372,6 +375,34 @@ void Module::AddCommonSymbol(SymbolDefinition symbol)
 		}
 	}
 	global_symbols[symbol.name] = symbol;
+
+	NewSymbolDefinition(symbol);
+}
+
+void Module::AddLocalCommonSymbol(SymbolDefinition symbol)
+{
+	auto it = local_symbols.find(symbol.name);
+	if(it != local_symbols.end())
+	{
+		switch(it->second.binding)
+		{
+		case SymbolDefinition::Local:
+			// ignore common definition
+			break;
+		case SymbolDefinition::LocalCommon:
+			// TODO: is this the expected behavior?
+			if(it->second.size < symbol.size)
+				it->second.size = symbol.size;
+			if(it->second.align < symbol.align)
+				it->second.align = symbol.align;
+			// TODO: also replace in symbol sequence
+			return;
+		default:
+			Linker::Error << "Internal error: invalid symbol type" << std::endl;
+			return;
+		}
+	}
+	local_symbols[symbol.name] = symbol;
 
 	NewSymbolDefinition(symbol);
 }

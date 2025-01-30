@@ -38,6 +38,21 @@ SymbolDefinition SymbolDefinition::CreateCommon(std::string name, std::string se
 	return SymbolDefinition(name, Common, Location(), 0, 1, section, alternative_section);
 }
 
+bool SymbolDefinition::IsLocal() const
+{
+	return binding == Local || binding == LocalCommon;
+}
+
+bool SymbolDefinition::IsCommon() const
+{
+	return binding == Common || binding == LocalCommon;
+}
+
+bool SymbolDefinition::IsAllocated() const
+{
+	return binding == Local || binding == Global || binding == Weak;
+}
+
 bool SymbolDefinition::operator ==(const SymbolDefinition& other) const
 {
 	// definitions are identified by their name and for local symbols by their location
@@ -72,9 +87,12 @@ std::ostream& Linker::operator <<(std::ostream& out, const SymbolDefinition& sym
 	case SymbolDefinition::Common:
 		out << "common ";
 		break;
+	case SymbolDefinition::LocalCommon:
+		out << "local common ";
+		break;
 	}
 	out << symbol.name;
-	if(symbol.binding == SymbolDefinition::Local || symbol.binding == SymbolDefinition::Global || symbol.binding == SymbolDefinition::Weak)
+	if(symbol.IsAllocated())
 	{
 		out << " at " << symbol.location;
 	}
@@ -86,7 +104,7 @@ std::ostream& Linker::operator <<(std::ostream& out, const SymbolDefinition& sym
 	{
 		out << " align " << symbol.align;
 	}
-	if(symbol.binding == SymbolDefinition::Common)
+	if(symbol.IsCommon())
 	{
 		if(symbol.section_name != "")
 		{

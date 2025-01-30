@@ -28,6 +28,8 @@ namespace Linker
 			Weak,
 			/** @brief A currently unallocated variable that should be allocated in the final stages of the linking process */
 			Common,
+			/** @brief A currently unallocated local variable that should be allocated in the final stages of the linking process */
+			LocalCommon,
 		};
 		binding_type binding = Undefined;
 		Location location;
@@ -52,8 +54,15 @@ namespace Linker
 		static SymbolDefinition CreateCommon(std::string name, std::string section, offset_t size = 0, offset_t align = 1);
 		static SymbolDefinition CreateCommon(std::string name, std::string section, offset_t size, offset_t align, std::string alternative_section);
 		static SymbolDefinition CreateCommon(std::string name, std::string section, std::string alternative_section);
+		static SymbolDefinition CreateLocalCommon(std::string name, std::string section, offset_t size = 0, offset_t align = 1);
+		static SymbolDefinition CreateLocalCommon(std::string name, std::string section, offset_t size, offset_t align, std::string alternative_section);
+		static SymbolDefinition CreateLocalCommon(std::string name, std::string section, std::string alternative_section);
 
 		bool operator ==(const SymbolDefinition& other) const;
+
+		bool IsLocal() const;
+		bool IsCommon() const;
+		bool IsAllocated() const;
 
 		/**
 		 * @brief Recalculates the location after a section has moved

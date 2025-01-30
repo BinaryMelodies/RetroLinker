@@ -150,6 +150,11 @@ namespace Linker
 		void AddCommonSymbol(SymbolDefinition symbol);
 
 		/**
+		 * @brief Adds a local common symbol
+		 */
+		void AddLocalCommonSymbol(SymbolDefinition symbol);
+
+		/**
 		 * @brief Adds an imported symbol (Microsoft format: library name + symbol name + ordinal/hint)
 		 */
 		void AddImportedSymbol(SymbolName name);

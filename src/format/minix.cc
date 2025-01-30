@@ -529,6 +529,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 				}
 				break;
 			case Linker::SymbolDefinition::Common:
+			case Linker::SymbolDefinition::LocalCommon:
 				Linker::Error << "Internal error: " << mention.name << " should not be common" << std::endl;
 				break;
 #if 0
