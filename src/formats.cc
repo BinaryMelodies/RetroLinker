@@ -416,32 +416,41 @@ std::shared_ptr<OutputFormat> FetchFormat(std::string text)
 	return format;
 }
 
-static bool VerifyMacintoshResource(Reader& in, format_description& description)
+static bool VerifyMacintoshResource(Reader& rd, format_description& description)
 {
 	/* TODO */
 	return true;
 }
 
-static bool VerifyDRPageRelocatable(Reader& in, format_description& description)
+static bool VerifyDRPageRelocatable(Reader& rd, format_description& description)
 {
-	/* TODO */
+	Linker::Debug << "Debug: Testing for .PRL" << std::endl;
+	rd.SeekEnd();
+	offset_t size = rd.Tell() - description.offset;
+	if(size < 256)
+		return false;
+	rd.Seek(description.offset + 1);
+	uint16_t bytes = rd.ReadUnsigned(2, ::LittleEndian);
+	if(bytes == 0 || 256 + uint32_t(bytes) < size)
+		return false;
+	Linker::Debug << "Debug: Looks like .PRL" << std::endl;
 	return true;
 }
 
-static bool VerifyHPSystemManager(Reader& in, format_description& description)
+static bool VerifyHPSystemManager(Reader& rd, format_description& description)
 {
 	/* conflicts with Adam DOS32 dynamic library */
-	in.Seek(description.offset + 2);
+	rd.Seek(description.offset + 2);
 	char rest[2];
-	in.ReadData(sizeof(rest), rest);
+	rd.ReadData(sizeof(rest), rest);
 	return std::string(rest) != "L "; /* Adam dynamic library */
 }
 
-static bool VerifyMachOOrJava(Reader& in, format_description& description)
+static bool VerifyMachOOrJava(Reader& rd, format_description& description)
 {
 	/* Apple Universal Binary or Java class file */
-	in.Seek(description.offset + 4);
-	uint32_t value = in.ReadUnsigned(4, BigEndian);
+	rd.Seek(description.offset + 4);
+	uint32_t value = rd.ReadUnsigned(4, BigEndian);
 	/* according to magic: */
 	/* for Java class files, this is the version (minor.major), which is at least 0x002E */
 	/* for big endian Mach-O, this is the number of architectures, which is currently at most 18 */
@@ -458,19 +467,24 @@ static bool VerifyMachOOrJava(Reader& in, format_description& description)
 	return true;
 }
 
-static bool VerifyCPM3(Reader& in, format_description& description)
+static bool VerifyCPM3(Reader& rd, format_description& description)
 {
 	/* TODO */
 	return true;
 }
 
-static bool VerifyCPM86(Reader& in, format_description& description)
+static bool VerifyCPM86(Reader& rd, format_description& description)
 {
 	int groups = 0;
-	in.Seek(description.offset);
+	rd.SeekEnd();
+	offset_t size = rd.Tell() - description.offset;
+	if(size < 128)
+		return false;
+	rd.Seek(description.offset);
+	uint32_t image_size = 0;
 	for(int i = 0; i < 8; i++)
 	{
-		int type = in.ReadUnsigned(1, EndianType(0));
+		int type = rd.ReadUnsigned(1, ::LittleEndian);
 		if(type == 0)
 			break;
 		if(type > 9)
@@ -481,50 +495,53 @@ static bool VerifyCPM86(Reader& in, format_description& description)
 		if((groups & type))
 			return false;
 		groups |= type;
-		in.Skip(8);
+		image_size += uint32_t(rd.ReadUnsigned(2, ::LittleEndian)) << 4;
+		rd.Skip(8);
 	}
+	if(size < image_size)
+		return false;
 	/* must have code (type 1) or pure code (type 9) present (stored as bit 0) */
 	return groups & 1;
 }
 
-static bool VerifyGSOS(Reader& in, format_description& description)
+static bool VerifyGSOS(Reader& rd, format_description& description)
 {
-	in.Seek(description.offset + 0x0E);
-	if(in.ReadUnsigned(1) != 4)
+	rd.Seek(description.offset + 0x0E);
+	if(rd.ReadUnsigned(1) != 4)
 		return false; /* NUMLEN must be 4 for 32-bit values */
 
-	uint64_t version = in.ReadUnsigned(1);
+	uint64_t version = rd.ReadUnsigned(1);
 	if(version != 1 && version != 2)
 		return false; /* unexpected VERSION value */
 
-	in.Seek(description.offset + 0x20);
-	uint64_t endian = in.ReadUnsigned(1);
+	rd.Seek(description.offset + 0x20);
+	uint64_t endian = rd.ReadUnsigned(1);
 	if(endian != 0 && endian != 1)
 		return false; /* invalid NUMSEX */
 
 	EndianType endian_type = endian == 1 ? BigEndian : LittleEndian;
-	in.Seek(description.offset + 0x22);
-	if(in.ReadUnsigned(1, endian_type) != 1)
+	rd.Seek(description.offset + 0x22);
+	if(rd.ReadUnsigned(1, endian_type) != 1)
 		return false; /* invalid SEGNUM, must start with 1 */
 
 	/* if these are all satisfied, there is not much else we can verify */
 	return true;
 }
 
-static bool VerifyFLEX(Reader& in, format_description& description)
+static bool VerifyFLEX(Reader& rd, format_description& description)
 {
 	/* TODO */
 	return false;
 }
 
-static bool VerifyAIF(Reader& in, format_description& description)
+static bool VerifyAIF(Reader& rd, format_description& description)
 {
 	/* The ARM/RISC OS binary format has a special SWI instruction at offset 0x10.
 	 * Other entries are possible as well, but we will only look for this. */
 	char buffer[4];
 	memset(buffer, 0, sizeof(buffer));
-	in.Seek(description.offset + 0x10);
-	in.ReadData(sizeof(buffer), buffer);
+	rd.Seek(description.offset + 0x10);
+	rd.ReadData(sizeof(buffer), buffer);
 	return std::string(buffer) == "\x11\x00\x00\xEF";
 }
 

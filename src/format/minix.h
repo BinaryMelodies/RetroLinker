@@ -26,9 +26,13 @@ namespace MINIX
 
 		enum format_type
 		{
+			UnmappedZeroPage = 0x01,
+			PageAligned = 0x02,
+			NewStyleSymbolTable = 0x04,
 			FormatCombined = 0x10,
 			FormatSeparate = 0x20,
-			UnmappedZeroPage = 0x01,
+			PureText = 0x40,
+			TextOverlay = 0x80,
 		};
 		format_type format = format_type(0);
 
@@ -75,36 +79,6 @@ namespace MINIX
 		bool enable_relocations = false;
 		bool enable_symbols = false;
 
-		struct Relocation
-		{
-			static constexpr uint16_t S_ABS = uint16_t(-1);
-			static constexpr uint16_t S_TEXT = uint16_t(-2);
-			static constexpr uint16_t S_DATA = uint16_t(-3);
-			static constexpr uint16_t S_BSS = uint16_t(-4);
-			/* ELKS extension */
-			static constexpr uint16_t S_FTEXT = uint16_t(-5);
-
-			static constexpr uint16_t R_ABBS = 0;
-			static constexpr uint16_t R_RELLBYTE = 2;
-			static constexpr uint16_t R_PCRBYTE = 3;
-			static constexpr uint16_t R_RELWORD = 4;
-			static constexpr uint16_t R_PCRWORD = 5;
-			static constexpr uint16_t R_RELLONG = 6;
-			static constexpr uint16_t R_PCRLONG = 7;
-			static constexpr uint16_t R_REL3BYTE = 8;
-			static constexpr uint16_t R_KBRANCHE = 9;
-			/* ELKS extension */
-			static constexpr uint16_t R_SEGWORD = 80;
-
-			uint32_t address = 0;
-			uint16_t symbol = 0;
-			uint16_t type = 0;
-
-			static Relocation Read(Linker::Reader& rd);
-			void Write(Linker::Writer& wr);
-		};
-		std::vector<Relocation> code_relocations, data_relocations, far_code_relocations;
-
 		struct Symbol
 		{
 			static constexpr uint8_t N_SECT = 0x07; // mask
@@ -130,8 +104,43 @@ namespace MINIX
 
 			static Symbol Read(Linker::Reader& rd);
 			void Write(Linker::Writer& wr);
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset);
 		};
 		std::vector<Symbol> symbols;
+
+		struct Relocation
+		{
+			static constexpr uint16_t S_ABS = uint16_t(-1);
+			static constexpr uint16_t S_TEXT = uint16_t(-2);
+			static constexpr uint16_t S_DATA = uint16_t(-3);
+			static constexpr uint16_t S_BSS = uint16_t(-4);
+			/* ELKS extension */
+			static constexpr uint16_t S_FTEXT = uint16_t(-5);
+
+			static constexpr uint16_t R_ABBS = 0;
+			static constexpr uint16_t R_RELLBYTE = 2;
+			static constexpr uint16_t R_PCRBYTE = 3;
+			static constexpr uint16_t R_RELWORD = 4;
+			static constexpr uint16_t R_PCRWORD = 5;
+			static constexpr uint16_t R_RELLONG = 6;
+			static constexpr uint16_t R_PCRLONG = 7;
+			static constexpr uint16_t R_REL3BYTE = 8;
+			static constexpr uint16_t R_KBRANCHE = 9;
+			/* ELKS extension */
+			static constexpr uint16_t R_SEGWORD = 80;
+
+			uint32_t address = 0;
+			uint16_t symbol = 0;
+			uint16_t type = 0;
+			std::string symbol_name;
+
+			static Relocation Read(Linker::Reader& rd);
+			void FetchSymbolName(std::vector<Symbol>& symbols);
+			void Write(Linker::Writer& wr);
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset);
+			size_t GetSize() const;
+		};
+		std::vector<Relocation> code_relocations, data_relocations, far_code_relocations;
 
 		/* generated */
 		std::shared_ptr<Linker::Image> code, data, far_code;
@@ -153,6 +162,7 @@ namespace MINIX
 
 		void CalculateValues() override;
 
+		offset_t ImageSize() override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;

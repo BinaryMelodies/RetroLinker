@@ -13,11 +13,86 @@ MINIXFormat::Relocation MINIXFormat::Relocation::Read(Linker::Reader& rd)
 	return rel;
 }
 
+void MINIXFormat::Relocation::FetchSymbolName(std::vector<Symbol>& symbols)
+{
+	if(symbol < symbols.size())
+	{
+		symbol_name = symbols[symbol].name;
+	}
+}
+
 void MINIXFormat::Relocation::Write(Linker::Writer& wr)
 {
 	wr.WriteWord(4, address);
 	wr.WriteWord(2, symbol);
 	wr.WriteWord(2, type);
+}
+
+void MINIXFormat::Relocation::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset)
+{
+	Dumper::Entry relocation_entry("Relocation", index + 1, relocations_offset + index * 8, 8);
+	std::map<offset_t, std::string> relocation_descriptions;
+	relocation_descriptions[R_ABBS] = "R_ABBS";
+	relocation_descriptions[R_RELLBYTE] = "R_RELLBYTE";
+	relocation_descriptions[R_PCRBYTE] = "R_PCRBYTE";
+	relocation_descriptions[R_RELWORD] = "R_RELWORD";
+	relocation_descriptions[R_PCRWORD] = "R_PCRWORD";
+	relocation_descriptions[R_RELLONG] = "R_RELLONG";
+	relocation_descriptions[R_PCRLONG] = "R_PCRLONG";
+	relocation_descriptions[R_REL3BYTE] = "R_REL3BYTE";
+	relocation_descriptions[R_KBRANCHE] = "R_KBRANCHE";
+	relocation_descriptions[R_SEGWORD] = "R_SEGWORD";
+	relocation_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type));
+	relocation_entry.AddField("Symbol number", Dumper::DecDisplay::Make(), offset_t(symbol));
+	std::string name;
+	switch(symbol)
+	{
+	case S_ABS:
+		name = "absolute reference";
+		break;
+	case S_TEXT:
+		name = "code segment";
+		break;
+	case S_DATA:
+		name = "data segment";
+		break;
+	case S_BSS:
+		name = "bss segment";
+		break;
+	case S_FTEXT:
+		name = "far code segment";
+		break;
+	default:
+		name = symbol_name;
+	}
+	relocation_entry.AddOptionalField("Symbol", Dumper::StringDisplay::Make(), name);
+	relocation_entry.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(address));
+	relocation_entry.Display(dump);
+}
+
+size_t MINIXFormat::Relocation::GetSize() const
+{
+	switch(type)
+	{
+	case R_ABBS:
+		return 0; // TODO
+	case R_RELLBYTE:
+	case R_PCRBYTE:
+		return 1;
+	case R_RELWORD:
+	case R_PCRWORD:
+	case R_SEGWORD:
+		return 2;
+	case R_RELLONG:
+	case R_PCRLONG:
+		return 4;
+	case R_REL3BYTE:
+		return 3;
+	case R_KBRANCHE:
+		return 0; // TODO
+	default:
+		return 0;
+	}
 }
 
 MINIXFormat::Symbol MINIXFormat::Symbol::Read(Linker::Reader& rd)
@@ -34,11 +109,32 @@ MINIXFormat::Symbol MINIXFormat::Symbol::Read(Linker::Reader& rd)
 
 void MINIXFormat::Symbol::Write(Linker::Writer& wr)
 {
-	wr.WriteData(8, name, ' ');
+	wr.WriteData(8, name, '\0');
 	wr.WriteWord(4, value);
 	wr.WriteWord(1, sclass);
 	wr.WriteWord(1, numaux);
 	wr.WriteWord(2, type);
+}
+
+void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset)
+{
+	Dumper::Entry symbol_entry("Symbol", index, relocations_offset + index * 8, 8);
+	symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), name);
+	symbol_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
+	std::map<offset_t, std::string> section_descriptions;
+	section_descriptions[N_UNDF] = "undefined";
+	section_descriptions[N_ABS] = "absolute";
+	section_descriptions[N_TEXT] = "code";
+	section_descriptions[N_DATA] = "data";
+	section_descriptions[N_BSS] = "bss";
+	section_descriptions[N_COMM] = "common";
+	symbol_entry.AddField("Section", Dumper::ChoiceDisplay::Make(section_descriptions, Dumper::HexDisplay::Make(2)), offset_t(sclass & N_SECT));
+	std::map<offset_t, std::string> sclass_descriptions;
+	sclass_descriptions[S_NULL] = "none";
+	sclass_descriptions[S_EXT] = "external";
+	sclass_descriptions[S_STAT] = "static";
+	symbol_entry.AddField("Storage class", Dumper::ChoiceDisplay::Make(section_descriptions, Dumper::HexDisplay::Make(2)), offset_t(sclass & N_CLASS));
+	symbol_entry.Display(dump);
 }
 
 void MINIXFormat::ReadFile(Linker::Reader& rd)
@@ -140,6 +236,19 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 	for(i = 0; i < symbol_count; i += 16)
 	{
 		symbols.emplace_back(Symbol::Read(rd));
+	}
+
+	for(auto& rel : code_relocations)
+	{
+		rel.FetchSymbolName(symbols);
+	}
+	for(auto& rel : far_code_relocations)
+	{
+		rel.FetchSymbolName(symbols);
+	}
+	for(auto& rel : data_relocations)
+	{
+		rel.FetchSymbolName(symbols);
 	}
 }
 
@@ -613,6 +722,18 @@ void MINIXFormat::CalculateValues()
 {
 }
 
+offset_t MINIXFormat::ImageSize()
+{
+	return header_size
+		+ (code != nullptr ? code->ImageSize() : 0)
+		+ (far_code != nullptr ? far_code->ImageSize() : 0)
+		+ (data != nullptr ? data->ImageSize() : 0)
+		+ code_relocations.size() * 8
+		+ far_code_relocations.size() * 8
+		+ data_relocations.size() * 8
+		+ symbols.size() * 16;
+}
+
 /* ld86
 code.total_size
 	etextpadoff - code.base_address
@@ -702,7 +823,7 @@ offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
 		sym.Write(wr);
 	}
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void MINIXFormat::Dump(Dumper::Dumper& dump)
@@ -710,10 +831,129 @@ void MINIXFormat::Dump(Dumper::Dumper& dump)
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("MINIX format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
+	file_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make()
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("unmapped zero"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("page aligned"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("new-style symbol table"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("combined executable"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("split executable"), true)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("pure text"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("text overlay"), true),
+		offset_t(format));
+
+	std::map<offset_t, std::string> endian_descriptions;
+	endian_descriptions[0] = "little endian";
+	endian_descriptions[1] = "reversed PDP-11 endian";
+	endian_descriptions[2] = "PDP-11 endian";
+	endian_descriptions[3] = "big endian";
+
+	std::map<offset_t, std::string> cpu_descriptions;
+	cpu_descriptions[I86 >> 2] = "Intel 8086";
+	cpu_descriptions[M68K >> 2] = "Motorola 680xx";
+	cpu_descriptions[NS16K >> 2] = "NS320xx";
+	cpu_descriptions[I386 >> 2] = "Intel 80386";
+	cpu_descriptions[SPARC >> 2] = "Sun SPARC";
+
+	file_region.AddField("CPU",
+		Dumper::BitFieldDisplay::Make()
+			->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(endian_descriptions), false)
+			->AddBitField(2, 6, Dumper::ChoiceDisplay::Make(cpu_descriptions), false),
+		offset_t(cpu));
+
+	file_region.AddField("Header size", Dumper::HexDisplay::Make(2), offset_t(header_size));
+	file_region.AddField("Header format version", Dumper::DecDisplay::Make(), offset_t(format_version));
+	file_region.AddField("Entry", Dumper::HexDisplay::Make(8), offset_t(entry_address));
+
+	switch(format_version)
+	{
+	case 0:
+		file_region.AddOptionalField("Total memory", Dumper::HexDisplay::Make(8), offset_t(total_memory));
+		break;
+	case 1:
+		file_region.AddOptionalField("Heap size", Dumper::HexDisplay::Make(8), offset_t(heap_size));
+		file_region.AddOptionalField("Stack size", Dumper::HexDisplay::Make(8), offset_t(stack_size));
+		break;
+	}
+
+	if(code_relocations.size() != 0)
+	{
+		file_region.AddOptionalField("Code relocation base address", Dumper::HexDisplay::Make(8), offset_t(code_relocation_base));
+	}
+	/*if(far_code_relocations.size() != 0)
+	{
+		file_region.AddOptionalField("Far code relocation base address", Dumper::HexDisplay::Make(8), offset_t(far_code_relocation_base));
+	}*/
+	if(data_relocations.size() != 0)
+	{
+		file_region.AddOptionalField("Data relocation base address", Dumper::HexDisplay::Make(8), offset_t(data_relocation_base));
+	}
+
 	file_region.Display(dump);
 
-	// TODO
+	offset_t current_offset = header_size;
+
+	Dumper::Block code_block("Code", current_offset, code, 0 /* TODO: what is the base address? */, 8);
+	for(auto& rel : code_relocations)
+	{
+		size_t size = rel.GetSize();
+		if(size != 0)
+			code_block.AddSignal(rel.address, 2);
+	}
+	code_block.Display(dump);
+	current_offset += code->ImageSize();
+
+	if(far_code != nullptr && far_code->ImageSize() > 0)
+	{
+		Dumper::Block far_code_block("Far code", current_offset, far_code, 0, 8);
+		for(auto& rel : far_code_relocations)
+		{
+			size_t size = rel.GetSize();
+			if(size != 0)
+				far_code_block.AddSignal(rel.address, 2);
+		}
+		far_code_block.Display(dump);
+		current_offset += far_code->ImageSize();
+	}
+
+	Dumper::Block data_block("Code", current_offset, data, 0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0), 8);
+	for(auto& rel : data_relocations)
+	{
+		size_t size = rel.GetSize();
+		if(size != 0)
+			data_block.AddSignal(rel.address, 2);
+	}
+	data_block.Display(dump);
+	current_offset += data->ImageSize();
+
+	unsigned i = 0;
+	for(auto& rel : code_relocations)
+	{
+		rel.Dump(dump, i, current_offset);
+		i++;
+	}
+	current_offset += code_relocations.size() * 8;
+	i = 0;
+	for(auto& rel : far_code_relocations)
+	{
+		rel.Dump(dump, i, current_offset);
+		i++;
+	}
+	current_offset += far_code_relocations.size() * 8;
+	i = 0;
+	for(auto& rel : data_relocations)
+	{
+		rel.Dump(dump, i, current_offset);
+		i++;
+	}
+	current_offset += data_relocations.size() * 8;
+	i = 0;
+	for(auto& sym : symbols)
+	{
+		sym.Dump(dump, i, current_offset);
+		i++;
+	}
 }
 
 void MINIXFormat::GenerateFile(std::string filename, Linker::Module& module)
