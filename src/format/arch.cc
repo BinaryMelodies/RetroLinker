@@ -111,6 +111,11 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 				{
 				}
 			}
+			if(entry.name.size() >= 1 && entry.name[entry.name.size() - 1] == '/')
+			{
+				entry.sysv_filename = true;
+				entry.name = entry.name.substr(0, entry.name.size() - 1);
+			}
 			entry.modification = std::stoll(rd.ReadData(12), nullptr, 10);
 			entry.owner_id = std::stoll(rd.ReadData(6), nullptr, 10);
 			entry.group_id = std::stoll(rd.ReadData(6), nullptr, 10);
@@ -163,7 +168,12 @@ offset_t ArchiveFormat::WriteFile(Linker::Writer& wr)
 		// TODO
 	}
 	// TODO
-	return offset_t(-1);
+	return file_size; // TODO
+}
+
+offset_t ArchiveFormat::ImageSize()
+{
+	return file_size;
 }
 
 void ArchiveFormat::Dump(Dumper::Dumper& dump)
@@ -171,10 +181,34 @@ void ArchiveFormat::Dump(Dumper::Dumper& dump)
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("Archive format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, file_size != offset_t(-1) ? file_size : 0, 8);
 	file_region.Display(dump);
 
-	// TODO
+	offset_t current_offset = 8;
+	unsigned i = 0;
+	for(auto& file : files)
+	{
+		Dumper::Entry file_entry("Entry", i + 1, current_offset, 8);
+		file_entry.AddField("Name", Dumper::StringDisplay::Make(), file.name);
+		file_entry.AddField("Offset", Dumper::HexDisplay::Make(8), current_offset + 60);
+		file_entry.AddField("Length", Dumper::HexDisplay::Make(8), file.size);
+		// TODO: other fields
+		file_entry.Display(dump);
+		current_offset += 60 + file.size;
+		i++;
+	}
+
+	for(auto& file : files)
+	{
+		if(Linker::Format * format = dynamic_cast<Linker::Format *>(file.contents.get()))
+		{
+			format->Dump(dump);
+		}
+		else
+		{
+			// TODO
+		}
+	}
 }
 
 void ArchiveFormat::GenerateModule(Linker::ModuleCollector& linker, std::string file_name, bool is_library) const

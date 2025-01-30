@@ -49,11 +49,12 @@ namespace Archive
 		{
 		public:
 			std::string name;
+			bool sysv_filename = false;
 			offset_t extended_name_offset = 0;
 			uint64_t modification = 0;
 			uint32_t owner_id = 0, group_id = 0;
-			uint32_t mode;
-			uint64_t size;
+			uint32_t mode = 0;
+			uint64_t size = 0;
 			std::shared_ptr<Linker::Image> contents;
 		};
 
@@ -62,6 +63,7 @@ namespace Archive
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t ImageSize() override;
 		void Dump(Dumper::Dumper& dump) override;
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::ModuleCollector& linker, std::string file_name, bool is_library = false) const override;
