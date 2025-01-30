@@ -59,26 +59,27 @@ namespace Linker
 		 * @brief Encodes the CPU for the target
 		 */
 		cpu_type cpu = NONE;
+		/** @brief Sorted collection of all symbols appearing in the module, duplicates removed */
+		std::vector<SymbolDefinition> symbol_sequence;
 	private:
 		std::vector<std::shared_ptr<Section>> sections;
 		std::map<std::string, std::shared_ptr<Section>> section_names;
+		/** Mapping global symbols to their definitions */
 		std::map<std::string, SymbolDefinition> global_symbols; // includes Weak and Common symbols
+		/** Mapping local symbols to their definitions */
 		std::map<std::string, SymbolDefinition> local_symbols;
 		std::vector<SymbolName> imported_symbols;
 		std::map<ExportedSymbol, Location> exported_symbols;
 
 		friend class ModuleCollector;
 
-	public:
-		std::vector<SymbolDefinition> symbol_sequence;
 	private:
-		void AddSymbol(const SymbolDefinition& symbol);
-		void AddSymbolDefinition(const SymbolDefinition& mention);
-		void AppendSymbolDefinition(const SymbolDefinition& mention);
-		void DeleteSymbolDefinition(const SymbolDefinition& mention);
+		bool AddSymbol(const SymbolDefinition& symbol);
+		void AppendSymbolDefinition(const SymbolDefinition& symbol);
+		void DeleteSymbolDefinition(const SymbolDefinition& symbol);
+		SymbolDefinition * FetchSymbolDefinition(const SymbolDefinition& symbol);
 	public:
-		bool HasSymbolDefinition(const SymbolDefinition& mention);
-		void NewSymbolDefinition(const SymbolDefinition& mention);
+		bool HasSymbolDefinition(const SymbolDefinition& symbol);
 
 		/**
 		 * @brief List of relocations within the module
@@ -123,36 +124,36 @@ namespace Linker
 		/**
 		 * @brief Adds an internal symbol
 		 */
-		void AddLocalSymbol(std::string name, Location location);
+		bool AddLocalSymbol(std::string name, Location location);
 	private:
-		void AddLocalSymbol(const SymbolDefinition& symbol);
+		bool AddLocalSymbol(const SymbolDefinition& symbol);
 
 	public:
 		/**
 		 * @brief Adds and processes exported symbol for extended syntax
 		 */
-		void AddGlobalSymbol(std::string name, Location location);
+		bool AddGlobalSymbol(std::string name, Location location);
 	private:
-		void AddGlobalSymbol(const SymbolDefinition& symbol);
+		bool AddGlobalSymbol(const SymbolDefinition& symbol);
 
 	public:
 		/**
 		 * @brief Adds a weakly bound symbol
 		 */
-		void AddWeakSymbol(std::string name, Location location);
+		bool AddWeakSymbol(std::string name, Location location);
 	private:
-		void AddWeakSymbol(const SymbolDefinition& symbol);
+		bool AddWeakSymbol(const SymbolDefinition& symbol);
 
 	public:
 		/**
 		 * @brief Adds a common symbol
 		 */
-		void AddCommonSymbol(SymbolDefinition symbol);
+		bool AddCommonSymbol(SymbolDefinition symbol);
 
 		/**
 		 * @brief Adds a local common symbol
 		 */
-		void AddLocalCommonSymbol(SymbolDefinition symbol);
+		bool AddLocalCommonSymbol(SymbolDefinition symbol);
 
 		/**
 		 * @brief Adds an imported symbol (Microsoft format: library name + symbol name + ordinal/hint)
@@ -167,9 +168,9 @@ namespace Linker
 		/**
 		 * @brief Processes undefined symbol for extended syntax
 		 */
-		void AddUndefinedSymbol(std::string symbol_name);
+		bool AddUndefinedSymbol(std::string symbol_name);
 	private:
-		void AddUndefinedSymbol(const SymbolDefinition& symbol);
+		bool AddUndefinedSymbol(const SymbolDefinition& symbol);
 
 	public:
 		/**

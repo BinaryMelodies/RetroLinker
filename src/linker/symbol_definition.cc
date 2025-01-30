@@ -55,8 +55,12 @@ bool SymbolDefinition::IsAllocated() const
 
 bool SymbolDefinition::operator ==(const SymbolDefinition& other) const
 {
-	// definitions are identified by their name and for local symbols by their location
-	return name == other.name && (binding == Local ? other.binding == Local && location == other.location : other.binding != Local);
+	// definitions are identified by their name, whether they are local or global, and for local symbols by their location (TODO: this might not be necessary)
+	// this ensures that global names appear only once but local names can appear repeatedly
+	return name == other.name &&
+		(binding == Local ? other.binding == Local && location == other.location
+			: binding == LocalCommon ? other.binding == LocalCommon
+			: !other.IsLocal());
 }
 
 bool SymbolDefinition::Displace(const Displacement& displacement)

@@ -5,96 +5,66 @@
 
 using namespace Linker;
 
-void Module::AddSymbol(const SymbolDefinition& symbol)
+// when set to 1, undefined symbol definitions are stored in the global_symbols table
+// this could help speed up removing undefined symbols, but then global symbol definitions need to be checked they are not Undefined
+#define STORE_UNDEFINED_AS_GLOBAL 1
+
+bool Module::AddSymbol(const SymbolDefinition& symbol)
 {
 	switch(symbol.binding)
 	{
 	case SymbolDefinition::Undefined:
-		AddUndefinedSymbol(symbol);
-		break;
+		return AddUndefinedSymbol(symbol);
 	case SymbolDefinition::Local:
-		AddLocalSymbol(symbol);
-		break;
+		return AddLocalSymbol(symbol);
 	case SymbolDefinition::Global:
-		AddGlobalSymbol(symbol);
-		break;
+		return AddGlobalSymbol(symbol);
 	case SymbolDefinition::Weak:
-		AddWeakSymbol(symbol);
-		break;
+		return AddWeakSymbol(symbol);
 	case SymbolDefinition::Common:
-		AddCommonSymbol(symbol);
-		break;
+		return AddCommonSymbol(symbol);
 	case SymbolDefinition::LocalCommon:
-		AddLocalCommonSymbol(symbol);
-		break;
+		return AddLocalCommonSymbol(symbol);
 	}
+	assert(false);
 }
 
-void Module::AddSymbolDefinition(const SymbolDefinition& mention)
+void Module::AppendSymbolDefinition(const SymbolDefinition& symbol)
 {
-	if(std::find(symbol_sequence.begin(), symbol_sequence.end(), mention) == symbol_sequence.end())
+	if(!symbol.IsLocal())
 	{
-		symbol_sequence.emplace_back(mention);
+		// global symbols can be repeated
+		auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), symbol);
+		if(it != symbol_sequence.end() && it->binding == SymbolDefinition::Undefined)
+		{
+			Linker::Debug << "Debug: remove " << symbol.name << " from symbol_sequence" << std::endl;
+			symbol_sequence.erase(it);
+		}
 	}
+	Linker::Debug << "Debug: append " << symbol.name << " to symbol_sequence" << std::endl;
+	symbol_sequence.emplace_back(symbol);
 }
 
-void Module::AppendSymbolDefinition(const SymbolDefinition& mention)
+void Module::DeleteSymbolDefinition(const SymbolDefinition& symbol)
 {
-	symbol_sequence.emplace_back(mention);
-}
-
-void Module::DeleteSymbolDefinition(const SymbolDefinition& mention)
-{
-	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), mention);
+	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), symbol);
 	if(it != symbol_sequence.end())
 	{
+		Linker::Debug << "Debug: remove " << symbol.name << " from symbol_sequence" << std::endl;
 		symbol_sequence.erase(it);
 	}
 }
 
-bool Module::HasSymbolDefinition(const SymbolDefinition& mention)
+SymbolDefinition * Module::FetchSymbolDefinition(const SymbolDefinition& symbol)
 {
-	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), mention);
-	return it != symbol_sequence.end();
+	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), symbol);
+	return it == symbol_sequence.end() ? nullptr : &*it;
 }
 
-void Module::NewSymbolDefinition(const SymbolDefinition& mention)
+bool Module::HasSymbolDefinition(const SymbolDefinition& symbol)
 {
-	// TODO: refactor
-	switch(mention.binding)
-	{
-	case SymbolDefinition::Undefined:
-		if(!HasSymbolDefinition(SymbolDefinition::CreateGlobal(mention.name, Location()))
-		&& !HasSymbolDefinition(SymbolDefinition::CreateUndefined(mention.name))
-		&& !HasSymbolDefinition(SymbolDefinition::CreateCommon(mention.name, "")))
-		{
-			AddSymbolDefinition(mention);
-		}
-		break;
-	case SymbolDefinition::Local:
-		AppendSymbolDefinition(mention);
-		break;
-	case SymbolDefinition::Global:
-		AddSymbolDefinition(mention);
-		DeleteSymbolDefinition(SymbolDefinition::CreateWeak(mention.name, Location()));
-		DeleteSymbolDefinition(SymbolDefinition::CreateUndefined(mention.name));
-		DeleteSymbolDefinition(SymbolDefinition::CreateCommon(mention.name, ""));
-		break;
-	case SymbolDefinition::Weak:
-		if(!HasSymbolDefinition(SymbolDefinition::CreateGlobal(mention.name, Location())))
-		{
-			AddSymbolDefinition(mention);
-			DeleteSymbolDefinition(SymbolDefinition::CreateUndefined(mention.name));
-		}
-		break;
-	case SymbolDefinition::Common:
-		if(!HasSymbolDefinition(SymbolDefinition::CreateGlobal(mention.name, Location())))
-		{
-			AddSymbolDefinition(mention);
-			DeleteSymbolDefinition(SymbolDefinition::CreateUndefined(mention.name));
-		}
-		break;
-	}
+	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), symbol);
+	return it != symbol_sequence.end();
 }
 
 void Module::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> output_format, std::shared_ptr<const Linker::InputFormat> input_format)
@@ -228,7 +198,7 @@ bool Module::parse_exported_name(std::string reference_name, Linker::ExportedSym
 	}
 }
 
-void Module::AddLocalSymbol(std::string name, Location location)
+bool Module::AddLocalSymbol(std::string name, Location location)
 {
 	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
 
@@ -241,24 +211,26 @@ void Module::AddLocalSymbol(std::string name, Location location)
 		Linker::Debug << "Debug: Interpreting " << byte_text << " as part of " << name << std::endl;
 		unsigned byte_value = stoul(byte_text, nullptr, 16);
 		location.section->WriteWord(1, location.offset, byte_value, ::LittleEndian);
-		return;
+		return false;
 	}
 
-	AddLocalSymbol(SymbolDefinition::CreateLocal(name, location));
+	return AddLocalSymbol(SymbolDefinition::CreateLocal(name, location));
 }
 
-void Module::AddLocalSymbol(const SymbolDefinition& symbol)
+bool Module::AddLocalSymbol(const SymbolDefinition& symbol)
 {
+	Linker::Debug << "Debug: `" << file_name << "'.AddLocalSymbol(" << symbol.name << ")" << std::endl;
 	if(local_symbols.find(symbol.name) != local_symbols.end())
 	{
 		Linker::Debug << "Debug: duplicated local symbol " << symbol.name << " in module " << file_name << ", ignoring" << std::endl;
-		return;
+		return false;
 	}
 	local_symbols[symbol.name] = symbol;
-	NewSymbolDefinition(symbol);
+	AppendSymbolDefinition(symbol);
+	return true;
 }
 
-void Module::AddGlobalSymbol(std::string name, Location location)
+bool Module::AddGlobalSymbol(std::string name, Location location)
 {
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
 	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
@@ -274,7 +246,7 @@ void Module::AddGlobalSymbol(std::string name, Location location)
 		if(parse_exported_name(reference_name, name))
 		{
 			AddExportedSymbol(name, location);
-			return;
+			return false;
 		}
 		else
 		{
@@ -282,19 +254,26 @@ void Module::AddGlobalSymbol(std::string name, Location location)
 		}
 	}
 
-	AddGlobalSymbol(SymbolDefinition::CreateGlobal(name, location));
+	return AddGlobalSymbol(SymbolDefinition::CreateGlobal(name, location));
 }
 
-void Module::AddGlobalSymbol(const SymbolDefinition& symbol)
+bool Module::AddGlobalSymbol(const SymbolDefinition& symbol)
 {
+	Linker::Debug << "Debug: `" << file_name << "'.AddGlobalSymbol(" << symbol.name << ")" << std::endl;
 	auto it = global_symbols.find(symbol.name);
 	if(it != global_symbols.end())
 	{
+		Linker::Debug << "Debug: AddGlobalSymbol received duplicate" << std::endl;
 		switch(it->second.binding)
 		{
+#if STORE_UNDEFINED_AS_GLOBAL
+		case SymbolDefinition::Undefined:
+			// remove undefined
+			break;
+#endif
 		case SymbolDefinition::Global:
 			Linker::Error << "Error: symbol " << symbol.name << " defined multiple times, ignoring" << std::endl;
-			return;
+			return false;
 		case SymbolDefinition::Weak:
 			// overriding weak definition
 			break;
@@ -304,83 +283,174 @@ void Module::AddGlobalSymbol(const SymbolDefinition& symbol)
 			break;
 		default:
 			Linker::Error << "Internal error: invalid symbol type" << std::endl;
-			return;
+			return false;
 		}
+		if(!HasSymbolDefinition(symbol))
+		{
+			Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in global_symbols but not in symbol_sequence" << std::endl;
+		}
+		//Linker::Debug << "Debug: attempting to delete " << symbol.name << " from symbol_sequence" << std::endl;
+		DeleteSymbolDefinition(symbol);
 	}
 	global_symbols[symbol.name] = symbol;
 
-	// TODO
-	NewSymbolDefinition(symbol);
+#if STORE_UNDEFINED_AS_GLOBAL
+	if(HasSymbolDefinition(symbol))
+	{
+		Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in symbol_sequence but not in global_symbols" << std::endl;
+	}
+#else
+	if(auto def = FetchSymbolDefinition(symbol))
+	{
+		if(def->binding == SymbolDefinition::Undefined)
+		{
+			DeleteSymbolDefinition(symbol);
+		}
+		else
+		{
+			Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in symbol_sequence but not in global_symbols" << std::endl;
+		}
+	}
+#endif
+	AppendSymbolDefinition(symbol);
+
+	return true;
 }
 
-void Module::AddWeakSymbol(std::string name, Location location)
+bool Module::AddWeakSymbol(std::string name, Location location)
 {
-	AddWeakSymbol(SymbolDefinition::CreateWeak(name, location));
+	return AddWeakSymbol(SymbolDefinition::CreateWeak(name, location));
 }
 
-void Module::AddWeakSymbol(const SymbolDefinition& symbol)
+bool Module::AddWeakSymbol(const SymbolDefinition& symbol)
 {
+	Linker::Debug << "Debug: `" << file_name << "'.AddWeakSymbol(" << symbol.name << ")" << std::endl;
 	auto it = global_symbols.find(symbol.name);
 	if(it != global_symbols.end())
 	{
 		switch(it->second.binding)
 		{
+#if STORE_UNDEFINED_AS_GLOBAL
+		case SymbolDefinition::Undefined:
+			// remove undefined
+			break;
+#endif
 		case SymbolDefinition::Global:
 			// ignore weak definition
-			return;
+			return false;
 		case SymbolDefinition::Weak:
 			// ignore weak definition
-			return;
+			return false;
 		case SymbolDefinition::Common:
 			// overriding common definition
-			// TODO: is this the expected behavior?
-			// TODO: check segments
 			break;
 		default:
 			Linker::Error << "Internal error: invalid symbol type" << std::endl;
-			return;
+			return false;
 		}
+		if(!HasSymbolDefinition(symbol))
+		{
+			Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in global_symbols but not in symbol_sequence" << std::endl;
+		}
+		DeleteSymbolDefinition(symbol);
 	}
 	global_symbols[symbol.name] = symbol;
 
-	NewSymbolDefinition(symbol);
+#if STORE_UNDEFINED_AS_GLOBAL
+	if(HasSymbolDefinition(symbol))
+	{
+		Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in symbol_sequence but not in global_symbols" << std::endl;
+	}
+#else
+	if(auto def = FetchSymbolDefinition(symbol))
+	{
+		if(def->binding == SymbolDefinition::Undefined)
+		{
+			DeleteSymbolDefinition(symbol);
+		}
+		else
+		{
+			Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in symbol_sequence but not in global_symbols" << std::endl;
+		}
+	}
+#endif
+	AppendSymbolDefinition(symbol);
+
+	return true;
 }
 
-void Module::AddCommonSymbol(SymbolDefinition symbol)
+bool Module::AddCommonSymbol(SymbolDefinition symbol)
 {
+	Linker::Debug << "Debug: `" << file_name << "'.AddCommonSymbol(" << symbol.name << ")" << std::endl;
 	auto it = global_symbols.find(symbol.name);
 	if(it != global_symbols.end())
 	{
 		switch(it->second.binding)
 		{
+#if STORE_UNDEFINED_AS_GLOBAL
+		case SymbolDefinition::Undefined:
+			// remove undefined
+			break;
+#endif
 		case SymbolDefinition::Global:
 			// ignore common definition
-			// TODO: check segments
-			break;
+			// TODO: check segments and alignment
+			return false;
 		case SymbolDefinition::Weak:
 			// ignore weak definition
-			// TODO: is this the expected behavior?
-			return;
+			break;
 		case SymbolDefinition::Common:
-			// TODO: is this the expected behavior?
 			if(it->second.size < symbol.size)
 				it->second.size = symbol.size;
 			if(it->second.align < symbol.align)
 				it->second.align = symbol.align;
-			// TODO: also replace in symbol sequence
-			return;
+			if(auto def = FetchSymbolDefinition(symbol))
+			{
+				*def = it->second;
+			}
+			else
+			{
+				Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in global_symbols but not in symbol_sequence" << std::endl;
+			}
+			return false;
 		default:
 			Linker::Error << "Internal error: invalid symbol type" << std::endl;
-			return;
+			return false;
 		}
+		if(!HasSymbolDefinition(symbol))
+		{
+			Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in global_symbols but not in symbol_sequence" << std::endl;
+		}
+		DeleteSymbolDefinition(symbol);
 	}
 	global_symbols[symbol.name] = symbol;
 
-	NewSymbolDefinition(symbol);
+#if STORE_UNDEFINED_AS_GLOBAL
+	if(HasSymbolDefinition(symbol))
+	{
+		Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in symbol_sequence but not in global_symbols" << std::endl;
+	}
+#else
+	if(auto def = FetchSymbolDefinition(symbol))
+	{
+		if(def->binding == SymbolDefinition::Undefined)
+		{
+			DeleteSymbolDefinition(symbol);
+		}
+		else
+		{
+			Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in symbol_sequence but not in global_symbols" << std::endl;
+		}
+	}
+#endif
+	AppendSymbolDefinition(symbol);
+
+	return true;
 }
 
-void Module::AddLocalCommonSymbol(SymbolDefinition symbol)
+bool Module::AddLocalCommonSymbol(SymbolDefinition symbol)
 {
+	Linker::Debug << "Debug: `" << file_name << "'.AddLocalCommonSymbol(" << symbol.name << ")" << std::endl;
 	auto it = local_symbols.find(symbol.name);
 	if(it != local_symbols.end())
 	{
@@ -388,23 +458,32 @@ void Module::AddLocalCommonSymbol(SymbolDefinition symbol)
 		{
 		case SymbolDefinition::Local:
 			// ignore common definition
-			break;
+			return false;
 		case SymbolDefinition::LocalCommon:
 			// TODO: is this the expected behavior?
 			if(it->second.size < symbol.size)
 				it->second.size = symbol.size;
 			if(it->second.align < symbol.align)
 				it->second.align = symbol.align;
-			// TODO: also replace in symbol sequence
-			return;
+			if(auto def = FetchSymbolDefinition(symbol))
+			{
+				*def = it->second;
+			}
+			else
+			{
+				Linker::Error << "Internal error: symbol table mismatch for " << symbol.name << ", in local_symbols but not in symbol_sequence" << std::endl;
+			}
+			return false;
 		default:
 			Linker::Error << "Internal error: invalid symbol type" << std::endl;
-			return;
+			return false;
 		}
 	}
 	local_symbols[symbol.name] = symbol;
 
-	NewSymbolDefinition(symbol);
+	AppendSymbolDefinition(symbol);
+
+	return true;
 }
 
 void Module::AddImportedSymbol(SymbolName name)
@@ -420,10 +499,24 @@ void Module::AddExportedSymbol(ExportedSymbol name, Location symbol)
 	exported_symbols[name] = symbol;
 }
 
-void Module::AddUndefinedSymbol(std::string symbol_name)
+bool Module::AddUndefinedSymbol(std::string symbol_name)
 {
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
 	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
+
+	if(output_format != nullptr && output_format->FormatSupportsSegmentation()
+	&& input_format != nullptr && !input_format->FormatProvidesSegmentation())
+	{
+		if(symbol_name.rfind(segment_prefix(), 0) == 0
+		|| symbol_name.rfind(segment_of_prefix(), 0) == 0
+		|| symbol_name.rfind(segment_at_prefix(), 0) == 0
+		|| symbol_name.rfind(with_respect_to_segment_prefix(), 0) == 0
+		|| symbol_name.rfind(segment_difference_prefix(), 0) == 0)
+		{
+			/* these are used for relocations, we do not need to include them in the module symbol table */
+			return false;
+		}
+	}
 
 	if(output_format != nullptr && output_format->FormatSupportsLibraries()
 	&& input_format != nullptr && !input_format->FormatProvidesLibraries())
@@ -442,6 +535,7 @@ void Module::AddUndefinedSymbol(std::string symbol_name)
 			{
 				Linker::Error << "Error: Unable to parse import name " << symbol_name << ", proceeding" << std::endl;
 			}
+			return false;
 		}
 		else if(symbol_name.rfind(segment_of_import_prefix(), 0) == 0)
 		{
@@ -457,17 +551,28 @@ void Module::AddUndefinedSymbol(std::string symbol_name)
 			{
 				Linker::Error << "Error: Unable to parse import name " << symbol_name << ", proceeding" << std::endl;
 			}
+			return false;
 		}
 	}
 
-	AddUndefinedSymbol(SymbolDefinition::CreateUndefined(symbol_name));
+	return AddUndefinedSymbol(SymbolDefinition::CreateUndefined(symbol_name));
 }
 
-void Module::AddUndefinedSymbol(const SymbolDefinition& symbol)
+bool Module::AddUndefinedSymbol(const SymbolDefinition& symbol)
 {
-	// undefined symbol ignored
+	Linker::Debug << "Debug: `" << file_name << "'.AddUndefinedSymbol(" << symbol.name << ")" << std::endl;
+#if STORE_UNDEFINED_AS_GLOBAL
+	auto it = global_symbols.find(symbol.name);
+	if(it != global_symbols.end())
+	{
+		return false;
+	}
+	global_symbols[symbol.name] = symbol;
+#endif
 
-	NewSymbolDefinition(symbol);
+	AppendSymbolDefinition(symbol);
+
+	return true;
 }
 
 void Module::AddRelocation(Relocation relocation)
@@ -638,6 +743,10 @@ bool Module::FindGlobalSymbol(std::string name, Location& location)
 	auto it = global_symbols.find(name);
 	if(it == global_symbols.end())
 		return false;
+#if STORE_UNDEFINED_AS_GLOBAL
+	if(it->second.binding == SymbolDefinition::Undefined)
+		return false;
+#endif
 	location = it->second.location;
 	return true;
 }
@@ -782,68 +891,19 @@ void Module::Append(Module& other)
 			displacement[other_section] = Location(section, section->Append(*other_section));
 		}
 	}
-	// TODO: use the sequence to add symbols
-	for(auto mention : other.symbol_sequence)
+	for(auto symbol : other.symbol_sequence)
 	{
-		NewSymbolDefinition(mention);
-	}
-	for(auto symbol : other.global_symbols)
-	{
-		auto it = global_symbols.find(symbol.first);
-		if(it != global_symbols.end())
+		symbol.Displace(displacement);
+		if(symbol.IsLocal())
 		{
-			// TODO: this duplicates the behavior of AddSymbol, should be removed
-			switch(symbol.second.binding)
-			{
-			case SymbolDefinition::Global:
-				switch(it->second.binding)
-				{
-				case SymbolDefinition::Global:
-					Linker::Debug << "Duplicate symbol " << symbol.first << ", ignoring duplicate" << std::endl;
-					continue;
-				case SymbolDefinition::Weak:
-					// overwrite
-					break;
-				case SymbolDefinition::Common:
-					// TODO
-					break;
-				}
-				break;
-			case SymbolDefinition::Weak:
-				switch(it->second.binding)
-				{
-				case SymbolDefinition::Global:
-				case SymbolDefinition::Weak:
-					Linker::Debug << "Weak symbol " << symbol.first << " defined in multiple modules, ignoring duplicate" << std::endl;
-					continue;
-				case SymbolDefinition::Common:
-					// TODO
-					break;
-				}
-				break;
-			case SymbolDefinition::Common:
-				break;
-			}
+			// local symbols are only added to the symbol sequence, which permits duplication
+			AppendSymbolDefinition(symbol);
 		}
-		symbol.second.Displace(displacement);
-		AddSymbol(symbol.second);
-	}
-	// local symbols are not copied over in the dictionary
-#if 0
-	for(auto& symbols_pair : other.local_symbols)
-	{
-		if(local_symbols.find(symbols_pair.first) == local_symbols.end())
+		else
 		{
-			local_symbols[symbols_pair.first] = std::vector<Location>();
-		}
-		std::vector<Location>& symbol_vector = local_symbols[symbols_pair.first];
-		for(auto& symbol : symbols_pair.second)
-		{
-			symbol.Displace(displacement);
-			symbol_vector.push_back(symbol);
+			AddSymbol(symbol);
 		}
 	}
-#endif
 	for(auto& import : other.imported_symbols)
 	{
 		auto it = std::find(imported_symbols.begin(), imported_symbols.end(), import);
