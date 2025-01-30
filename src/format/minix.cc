@@ -284,7 +284,7 @@ void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	if(auto total_memory_option = FetchIntegerOption(options, "total_memory"))
 	{
-		if(format_version == -1)
+		if(format_version == uint16_t(-1))
 		{
 			format_version = 0;
 		}
@@ -301,7 +301,7 @@ void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 
 	if(auto stack_size_option = FetchIntegerOption(options, "stack_size"))
 	{
-		if(format_version == -1)
+		if(format_version == uint16_t(-1))
 		{
 			format_version = 1;
 		}
@@ -318,7 +318,7 @@ void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 
 	if(auto heap_size_option = FetchIntegerOption(options, "heap_size"))
 	{
-		if(format_version == -1)
+		if(format_version == uint16_t(-1))
 		{
 			format_version = 1;
 		}
