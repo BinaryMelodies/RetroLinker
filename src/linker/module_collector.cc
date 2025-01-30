@@ -18,7 +18,7 @@ std::shared_ptr<Module> ModuleCollector::CreateModule(std::shared_ptr<const Inpu
 
 void ModuleCollector::AddModule(std::shared_ptr<Module> module, bool is_library)
 {
-Linker::Debug << "Register new module " << module->file_name << std::endl;
+	Linker::Debug << "Register new module " << module->file_name << std::endl;
 	/* attempts to resolve as many relocations as possible */
 	/* this is needed because local symbols can get lost or duplicated, but segment references are still stored as references to symbol names */
 	module->ResolveLocalRelocations();
@@ -30,24 +30,23 @@ Linker::Debug << "Register new module " << module->file_name << std::endl;
 		switch(symbol_definition.second.binding)
 		{
 		case SymbolDefinition::Global:
-			if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
 			{
-				if(weak_symbols.find(symbol_name) == weak_symbols.end())
+				auto it = symbol_definitions.find(symbol_name);
+				if(it != symbol_definitions.end())
 				{
-					Linker::Error << "Error: Symbol " << symbol_name << " defined in multiple modules: " << symbol_definitions[symbol_name].lock()->file_name << " and " << module->file_name << ", ignoring repetition" << std::endl;
-					continue;
+					if(it->second.binding == SymbolDefinition::Global)
+					{
+						Linker::Error << "Error: Symbol " << symbol_name << " defined in multiple modules: " << it->second.module.lock()->file_name << " and " << module->file_name << ", ignoring repetition" << std::endl;
+						continue;
+					}
 				}
-				else
+				symbol_definitions[symbol_name] = definition { SymbolDefinition::Global, module };
+				Linker::Debug << "Register new symbol " << symbol_name << std::endl;
+				if(required_symbols.find(symbol_name) != required_symbols.end())
 				{
-					weak_symbols.erase(symbol_name);
+					/* include and link module */
+					IncludeModule(module);
 				}
-			}
-			symbol_definitions[symbol_name] = module;
-	Linker::Debug << "Register new symbol " << symbol_name << std::endl;
-			if(required_symbols.find(symbol_name) != required_symbols.end())
-			{
-				/* include and link module */
-				IncludeModule(module);
 			}
 			break;
 		case SymbolDefinition::Weak:
@@ -55,9 +54,8 @@ Linker::Debug << "Register new module " << module->file_name << std::endl;
 			{
 				continue;
 			}
-			symbol_definitions[symbol_name] = module;
-	Linker::Debug << "Register new symbol " << symbol_name << std::endl;
-			weak_symbols.insert(symbol_name);
+			symbol_definitions[symbol_name] = definition { SymbolDefinition::Weak, module };
+			Linker::Debug << "Register new symbol " << symbol_name << std::endl;
 			if(required_symbols.find(symbol_name) != required_symbols.end())
 			{
 				/* include and link module */
@@ -134,7 +132,7 @@ void ModuleCollector::IncludeModule(std::shared_ptr<Module> module)
 
 				if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
 				{
-					IncludeModule(symbol_definitions[symbol_name].lock());
+					IncludeModule(symbol_definitions[symbol_name].module.lock());
 				}
 				else
 				{
