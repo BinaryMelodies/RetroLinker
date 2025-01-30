@@ -5,6 +5,27 @@
 
 using namespace Linker;
 
+void Module::AddSymbol(const SymbolDefinition& symbol)
+{
+	switch(symbol.binding)
+	{
+	case SymbolDefinition::Undefined:
+		break;
+	case SymbolDefinition::Local:
+		AddLocalSymbol(symbol);
+		break;
+	case SymbolDefinition::Global:
+		AddGlobalSymbol(symbol);
+		break;
+	case SymbolDefinition::Weak:
+		AddWeakSymbol(symbol);
+		break;
+	case SymbolDefinition::Common:
+		AddCommonSymbol(symbol);
+		break;
+	}
+}
+
 void Module::AddSymbolDefinition(const SymbolDefinition& mention)
 {
 	if(std::find(symbol_sequence.begin(), symbol_sequence.end(), mention) == symbol_sequence.end())
@@ -219,19 +240,19 @@ void Module::AddLocalSymbol(std::string name, Location location)
 		return;
 	}
 
-	_AddLocalSymbol(name, location);
+	AddLocalSymbol(SymbolDefinition::CreateLocal(name, location));
 }
 
-void Module::_AddLocalSymbol(std::string name, Location location)
+void Module::AddLocalSymbol(const SymbolDefinition& symbol)
 {
-	if(local_symbols.find(name) != local_symbols.end())
+	if(local_symbols.find(symbol.name) != local_symbols.end())
 	{
-		Linker::Debug << "Debug: duplicated local symbol " << name << " in module " << file_name << ", ignoring" << std::endl;
+		Linker::Debug << "Debug: duplicated local symbol " << symbol.name << " in module " << file_name << ", ignoring" << std::endl;
 		return;
 	}
-	local_symbols[name] = std::vector<Location>();
-	local_symbols[name].push_back(location);
-	NewSymbolDefinition(SymbolDefinition::CreateLocal(name, location));
+	local_symbols[symbol.name] = std::vector<Location>();
+	local_symbols[symbol.name].push_back(symbol.location);
+	NewSymbolDefinition(symbol);
 }
 
 void Module::AddGlobalSymbol(std::string name, Location location)
@@ -258,39 +279,100 @@ void Module::AddGlobalSymbol(std::string name, Location location)
 		}
 	}
 
-	_AddGlobalSymbol(name, location);
+	AddGlobalSymbol(SymbolDefinition::CreateGlobal(name, location));
 }
 
-void Module::_AddGlobalSymbol(std::string name, Location location)
+void Module::AddGlobalSymbol(const SymbolDefinition& symbol)
 {
-	global_symbols[name] = location;
-	if(weak_symbols.find(name) != weak_symbols.end())
+	auto it = global_symbols.find(symbol.name);
+	if(it != global_symbols.end())
 	{
-		weak_symbols.erase(name);
+		switch(it->second.binding)
+		{
+		case SymbolDefinition::Global:
+			Linker::Error << "Error: symbol " << symbol.name << " defined multiple times, ignoring" << std::endl;
+			return;
+		case SymbolDefinition::Weak:
+			// overriding weak definition
+			break;
+		case SymbolDefinition::Common:
+			// overriding common definition
+			// TODO: check segments
+			break;
+		default:
+			Linker::Error << "Internal error: invalid symbol type" << std::endl;
+			return;
+		}
 	}
-	if(unallocated_symbols.find(name) != unallocated_symbols.end())
-	{
-		// TODO: check segments
-		unallocated_symbols.erase(name);
-	}
+	global_symbols[symbol.name] = symbol;
 
-	NewSymbolDefinition(SymbolDefinition::CreateGlobal(name, location));
+	// TODO
+	NewSymbolDefinition(symbol);
 }
 
 void Module::AddWeakSymbol(std::string name, Location location)
 {
-	// TODO: what if common symbol exists?
-	if(global_symbols.find(name) == global_symbols.end())
-	{
-		weak_symbols[name] = location;
-	}
+	AddWeakSymbol(SymbolDefinition::CreateWeak(name, location));
+}
 
-	NewSymbolDefinition(SymbolDefinition::CreateWeak(name, location));
+void Module::AddWeakSymbol(const SymbolDefinition& symbol)
+{
+	auto it = global_symbols.find(symbol.name);
+	if(it != global_symbols.end())
+	{
+		switch(it->second.binding)
+		{
+		case SymbolDefinition::Global:
+			// ignore weak definition
+			return;
+		case SymbolDefinition::Weak:
+			// ignore weak definition
+			return;
+		case SymbolDefinition::Common:
+			// overriding common definition
+			// TODO: is this the expected behavior?
+			// TODO: check segments
+			break;
+		default:
+			Linker::Error << "Internal error: invalid symbol type" << std::endl;
+			return;
+		}
+	}
+	global_symbols[symbol.name] = symbol;
+
+	NewSymbolDefinition(symbol);
 }
 
 void Module::AddCommonSymbol(SymbolDefinition symbol)
 {
-	unallocated_symbols[symbol.name] = symbol;
+	auto it = global_symbols.find(symbol.name);
+	if(it != global_symbols.end())
+	{
+		switch(it->second.binding)
+		{
+		case SymbolDefinition::Global:
+			// ignore common definition
+			// TODO: check segments
+			break;
+		case SymbolDefinition::Weak:
+			// ignore weak definition
+			// TODO: is this the expected behavior?
+			return;
+		case SymbolDefinition::Common:
+			// TODO: is this the expected behavior?
+			if(it->second.size < symbol.size)
+				it->second.size = symbol.size;
+			if(it->second.align < symbol.align)
+				it->second.align = symbol.align;
+			// TODO: also replace in symbol sequence
+			return;
+		default:
+			Linker::Error << "Internal error: invalid symbol type" << std::endl;
+			return;
+		}
+	}
+	global_symbols[symbol.name] = symbol;
+
 	NewSymbolDefinition(symbol);
 }
 
@@ -527,14 +609,8 @@ bool Module::FindGlobalSymbol(std::string name, Location& location)
 {
 	auto it = global_symbols.find(name);
 	if(it == global_symbols.end())
-	{
-		auto it = weak_symbols.find(name);
-		if(it == weak_symbols.end())
-			return false;
-		location = it->second;
-		return true;
-	}
-	location = it->second;
+		return false;
+	location = it->second.location;
 	return true;
 }
 
@@ -652,10 +728,6 @@ void Module::Append(std::shared_ptr<Section> dst, std::shared_ptr<Section> src)
 			symbol.Displace(displacement);
 		}
 	}
-	for(auto& symbol : weak_symbols)
-	{
-		symbol.second.Displace(displacement);
-	}
 	for(Relocation& rel : relocations)
 	{
 		rel.Displace(displacement);
@@ -691,17 +763,44 @@ void Module::Append(Module& other)
 	}
 	for(auto symbol : other.global_symbols)
 	{
-		if(global_symbols.find(symbol.first) != global_symbols.end())
+		auto it = global_symbols.find(symbol.first);
+		if(it != global_symbols.end())
 		{
-			Linker::Debug << "Duplicate symbol " << symbol.first << ", ignoring duplicate" << std::endl;
-			continue;
-		}
-		if(weak_symbols.find(symbol.first) != weak_symbols.end())
-		{
-			weak_symbols.erase(symbol.first);
+			// TODO: this duplicates the behavior of AddSymbol, should be removed
+			switch(symbol.second.binding)
+			{
+			case SymbolDefinition::Global:
+				switch(it->second.binding)
+				{
+				case SymbolDefinition::Global:
+					Linker::Debug << "Duplicate symbol " << symbol.first << ", ignoring duplicate" << std::endl;
+					continue;
+				case SymbolDefinition::Weak:
+					// overwrite
+					break;
+				case SymbolDefinition::Common:
+					// TODO
+					break;
+				}
+				break;
+			case SymbolDefinition::Weak:
+				switch(it->second.binding)
+				{
+				case SymbolDefinition::Global:
+				case SymbolDefinition::Weak:
+					Linker::Debug << "Weak symbol " << symbol.first << " defined in multiple modules, ignoring duplicate" << std::endl;
+					continue;
+				case SymbolDefinition::Common:
+					// TODO
+					break;
+				}
+				break;
+			case SymbolDefinition::Common:
+				break;
+			}
 		}
 		symbol.second.Displace(displacement);
-		global_symbols.emplace(symbol);
+		AddSymbol(symbol.second);
 	}
 	for(auto& symbols_pair : other.local_symbols)
 	{
@@ -714,31 +813,6 @@ void Module::Append(Module& other)
 		{
 			symbol.Displace(displacement);
 			symbol_vector.push_back(symbol);
-		}
-	}
-	for(auto symbol : other.weak_symbols)
-	{
-		if(global_symbols.find(symbol.first) != global_symbols.end() || weak_symbols.find(symbol.first) != weak_symbols.end())
-		{
-			Linker::Debug << "Weak symbol " << symbol.first << " defined in multiple modules, weak definition" << std::endl;
-			continue;
-		}
-		symbol.second.Displace(displacement);
-		weak_symbols.emplace(symbol);
-	}
-	for(auto unalloc : other.unallocated_symbols)
-	{
-		auto it = unallocated_symbols.find(unalloc.first);
-		if(it == unallocated_symbols.end())
-		{
-			unallocated_symbols.emplace(unalloc);
-		}
-		else
-		{
-			if(it->second.size < unalloc.second.size)
-				it->second.size = unalloc.second.size;
-			if(it->second.align < unalloc.second.align)
-				it->second.align = unalloc.second.align;
 		}
 	}
 	for(auto& import : other.imported_symbols)
@@ -769,21 +843,19 @@ void Module::Append(Module& other)
 void Module::AllocateSymbols(std::string default_section_name)
 {
 	FetchSection(default_section_name, Section::Readable|Section::Writable|Section::ZeroFilled);
-	for(auto it : unallocated_symbols)
+	for(auto it : global_symbols)
 	{
-		if(global_symbols.find(it.first) == global_symbols.end()
-		&& weak_symbols.find(it.first) == weak_symbols.end())
+		if(it.second.binding == SymbolDefinition::Common)
 		{
 			std::shared_ptr<Section> section = FetchSection(it.second.section_name != "" ? it.second.section_name : default_section_name, Section::Readable|Section::Writable|Section::ZeroFilled);
 			section->RealignEnd(it.second.align);
 			size_t offset = section->Size();
 			section->Expand(offset + it.second.size);
-			global_symbols[it.first] = Location(section, offset);
+			global_symbols[it.first] = SymbolDefinition::CreateGlobal(it.second.name, Location(section, offset));
 #if DISPLAY_LOGS
 			Linker::Debug << "Allocating " << it.first << " in " << section->name << " to " << offset << ", size " << it.second.size << std::endl;
 #endif
 		}
 	}
-	unallocated_symbols.clear();
 }
 

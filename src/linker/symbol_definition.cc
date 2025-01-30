@@ -44,3 +44,59 @@ bool SymbolDefinition::operator ==(const SymbolDefinition& other) const
 	return name == other.name && (binding == Local ? other.binding == Local && location == other.location : other.binding != Local);
 }
 
+bool SymbolDefinition::Displace(const Displacement& displacement)
+{
+	if(binding == Local || binding == Global || binding == Weak)
+	{
+		return location.Displace(displacement);
+	}
+	return false;
+}
+
+std::ostream& Linker::operator <<(std::ostream& out, const SymbolDefinition& symbol)
+{
+	switch(symbol.binding)
+	{
+	case SymbolDefinition::Undefined:
+		out << "undefined ";
+		break;
+	case SymbolDefinition::Local:
+		out << "local ";
+		break;
+	case SymbolDefinition::Global:
+		out << "global ";
+		break;
+	case SymbolDefinition::Weak:
+		out << "weak ";
+		break;
+	case SymbolDefinition::Common:
+		out << "common ";
+		break;
+	}
+	out << symbol.name;
+	if(symbol.binding == SymbolDefinition::Local || symbol.binding == SymbolDefinition::Global || symbol.binding == SymbolDefinition::Weak)
+	{
+		out << " at " << symbol.location;
+	}
+	if(symbol.size != 0)
+	{
+		out << " size " << symbol.size;
+	}
+	if(symbol.align != 0 && symbol.align != 1)
+	{
+		out << " align " << symbol.align;
+	}
+	if(symbol.binding == SymbolDefinition::Common)
+	{
+		if(symbol.section_name != "")
+		{
+			out << " section " << symbol.section_name;
+			if(symbol.alternative_section_name != "")
+			{
+				out << " or " << symbol.alternative_section_name;
+			}
+		}
+	}
+	return out;
+}
+

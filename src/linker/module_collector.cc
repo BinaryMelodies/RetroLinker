@@ -25,41 +25,47 @@ Linker::Debug << "Register new module " << module->file_name << std::endl;
 	modules.push_back(module);
 	for(auto& symbol_definition : module->global_symbols)
 	{
+		// TODO: refactor
 		const std::string& symbol_name = symbol_definition.first;
-		if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
+		switch(symbol_definition.second.binding)
 		{
-			if(weak_symbols.find(symbol_name) == weak_symbols.end())
+		case SymbolDefinition::Global:
+			if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
 			{
-				Linker::Error << "Error: Symbol " << symbol_name << " defined in multiple modules: " << symbol_definitions[symbol_name].lock()->file_name << " and " << module->file_name << ", ignoring repetition" << std::endl;
+				if(weak_symbols.find(symbol_name) == weak_symbols.end())
+				{
+					Linker::Error << "Error: Symbol " << symbol_name << " defined in multiple modules: " << symbol_definitions[symbol_name].lock()->file_name << " and " << module->file_name << ", ignoring repetition" << std::endl;
+					continue;
+				}
+				else
+				{
+					weak_symbols.erase(symbol_name);
+				}
+			}
+			symbol_definitions[symbol_name] = module;
+	Linker::Debug << "Register new symbol " << symbol_name << std::endl;
+			if(required_symbols.find(symbol_name) != required_symbols.end())
+			{
+				/* include and link module */
+				IncludeModule(module);
+			}
+			break;
+		case SymbolDefinition::Weak:
+			if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
+			{
 				continue;
 			}
-			else
+			symbol_definitions[symbol_name] = module;
+	Linker::Debug << "Register new symbol " << symbol_name << std::endl;
+			weak_symbols.insert(symbol_name);
+			if(required_symbols.find(symbol_name) != required_symbols.end())
 			{
-				weak_symbols.erase(symbol_name);
+				/* include and link module */
+				IncludeModule(module);
 			}
-		}
-		symbol_definitions[symbol_name] = module;
-Linker::Debug << "Register new symbol " << symbol_name << std::endl;
-		if(required_symbols.find(symbol_name) != required_symbols.end())
-		{
-			/* include and link module */
-			IncludeModule(module);
-		}
-	}
-	for(auto& symbol_definition : module->weak_symbols)
-	{
-		const std::string& symbol_name = symbol_definition.first;
-		if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
-		{
-			continue;
-		}
-		symbol_definitions[symbol_name] = module;
-Linker::Debug << "Register new symbol " << symbol_name << std::endl;
-		weak_symbols.insert(symbol_name);
-		if(required_symbols.find(symbol_name) != required_symbols.end())
-		{
-			/* include and link module */
-			IncludeModule(module);
+			break;
+		default:
+			break;
 		}
 	}
 	if(!is_library)
@@ -114,14 +120,6 @@ void ModuleCollector::IncludeModule(std::shared_ptr<Module> module)
 	module->is_included = true;
 
 	for(auto& symbol_definition : module->global_symbols)
-	{
-		const std::string& symbol_name = symbol_definition.first;
-		if(required_symbols.find(symbol_name) != required_symbols.end())
-		{
-			required_symbols.erase(symbol_name);
-		}
-	}
-	for(auto& symbol_definition : module->weak_symbols)
 	{
 		const std::string& symbol_name = symbol_definition.first;
 		if(required_symbols.find(symbol_name) != required_symbols.end())

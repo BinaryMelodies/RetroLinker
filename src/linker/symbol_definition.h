@@ -18,11 +18,15 @@ namespace Linker
 		std::string name;
 		enum binding_type
 		{
+			/** @brief An undefined variable that needs to appear in another module for the linking process to succeed */
 			Undefined,
+			/** @brief A variable that is only visible in the current module */
 			Local,
+			/** @brief A variable that is visible in all modules and must appear once */
 			Global,
+			/** @brief A variable that is visible in all modules, however takes lower precedence than a Global variable */
 			Weak,
-			/** @brief Represents a currently unallocated variable that should be allocated in the final stages of the linking process */
+			/** @brief A currently unallocated variable that should be allocated in the final stages of the linking process */
 			Common,
 		};
 		binding_type binding = Undefined;
@@ -50,6 +54,17 @@ namespace Linker
 		static SymbolDefinition CreateCommon(std::string name, std::string section, std::string alternative_section);
 
 		bool operator ==(const SymbolDefinition& other) const;
+
+		/**
+		 * @brief Recalculates the location after a section has moved
+		 *
+		 * Note that only local, global and weak symbol definitions have a location
+		 *
+		 * @param displacement A map from sections to locations, specifying the new starting place of the section.
+		 * This can also indicate when a section has been appended to another one, and the location will be updated to reference the new section.
+		 * @return True if location changed due to displacement.
+		 */
+		bool Displace(const Displacement& displacement);
 	};
 
 	std::ostream& operator <<(std::ostream& out, const SymbolDefinition& symbol);

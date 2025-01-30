@@ -62,10 +62,8 @@ namespace Linker
 	private:
 		std::vector<std::shared_ptr<Section>> sections;
 		std::map<std::string, std::shared_ptr<Section>> section_names;
-		std::map<std::string, Location> global_symbols;
+		std::map<std::string, SymbolDefinition> global_symbols; // includes Weak and Common symbols
 		std::map<std::string, std::vector<Location>> local_symbols;
-		std::map<std::string, Location> weak_symbols; // must be disjoined from global symbols
-		std::map<std::string, SymbolDefinition> unallocated_symbols;
 		std::vector<SymbolName> imported_symbols;
 		std::map<ExportedSymbol, Location> exported_symbols;
 
@@ -74,6 +72,7 @@ namespace Linker
 	public:
 		std::vector<SymbolDefinition> symbol_sequence;
 	private:
+		void AddSymbol(const SymbolDefinition& symbol);
 		void AddSymbolDefinition(const SymbolDefinition& mention);
 		void AppendSymbolDefinition(const SymbolDefinition& mention);
 		void DeleteSymbolDefinition(const SymbolDefinition& mention);
@@ -126,7 +125,7 @@ namespace Linker
 		 */
 		void AddLocalSymbol(std::string name, Location location);
 	private:
-		void _AddLocalSymbol(std::string name, Location location);
+		void AddLocalSymbol(const SymbolDefinition& symbol);
 
 	public:
 		/**
@@ -134,14 +133,17 @@ namespace Linker
 		 */
 		void AddGlobalSymbol(std::string name, Location location);
 	private:
-		void _AddGlobalSymbol(std::string name, Location location);
+		void AddGlobalSymbol(const SymbolDefinition& symbol);
 
 	public:
 		/**
 		 * @brief Adds a weakly bound symbol
 		 */
 		void AddWeakSymbol(std::string name, Location location);
+	private:
+		void AddWeakSymbol(const SymbolDefinition& symbol);
 
+	public:
 		/**
 		 * @brief Adds a common symbol
 		 */
