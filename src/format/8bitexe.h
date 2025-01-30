@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "binary.h"
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/module.h"
 #include "../linker/reader.h"
 #include "../linker/segment.h"
@@ -34,6 +35,7 @@ namespace Binary
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	/**
@@ -189,6 +191,7 @@ namespace Binary
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	/**
@@ -222,6 +225,7 @@ namespace Binary
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
@@ -279,6 +283,7 @@ namespace Binary
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		void CalculateValues() override;
 	};
@@ -307,6 +312,7 @@ namespace Binary
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
@@ -368,6 +374,7 @@ namespace Binary
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;
@@ -387,6 +394,7 @@ namespace Binary
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) override;

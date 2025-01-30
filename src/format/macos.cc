@@ -31,6 +31,11 @@ offset_t AppleSingleDouble::Entry::WriteFile(Linker::Writer& out)
 	return offset_t(-1);
 }
 
+void AppleSingleDouble::Entry::Dump(Dumper::Dumper& dump)
+{
+	// TODO
+}
+
 void AppleSingleDouble::Entry::ProcessModule(Linker::Module& module)
 {
 }
@@ -611,6 +616,17 @@ offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void AppleSingleDouble::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("AppleSingle/AppleDouble format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 std::string AppleSingleDouble::PrefixFilename(std::string prefix, std::string filename)
 {
 	std::filesystem::path path(filename);
@@ -737,6 +753,11 @@ offset_t ResourceFork::Resource::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void ResourceFork::Resource::Dump(Dumper::Dumper& dump)
+{
+	// TODO
+}
+
 void ResourceFork::GenericResource::ProcessModule(Linker::Module& module)
 {
 }
@@ -755,6 +776,11 @@ offset_t ResourceFork::GenericResource::WriteFile(Linker::Writer& wr)
 	resource->WriteFile(wr);
 
 	return offset_t(-1);
+}
+
+void ResourceFork::GenericResource::Dump(Dumper::Dumper& dump)
+{
+	// TODO
 }
 
 void ResourceFork::JumpTableCodeResource::ProcessModule(Linker::Module& module)
@@ -817,6 +843,11 @@ offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr)
 	}
 
 	return offset_t(-1);
+}
+
+void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump)
+{
+	// TODO
 }
 
 void ResourceFork::CodeResource::ProcessModule(Linker::Module& module)
@@ -922,6 +953,11 @@ offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr)
 	}
 
 	return offset_t(-1);
+}
+
+void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump)
+{
+	// TODO
 }
 
 void ResourceFork::AddResource(std::shared_ptr<Resource> resource)
@@ -1236,6 +1272,17 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void ResourceFork::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Macintosh resource fork format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 void ResourceFork::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::M68K)
@@ -1264,6 +1311,11 @@ offset_t RealName::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void RealName::Dump(Dumper::Dumper& dump)
+{
+	// TODO
+}
+
 offset_t FileInfo::Macintosh::GetLength()
 {
 	return 16;
@@ -1278,6 +1330,11 @@ offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, Attributes);
 
 	return offset_t(-1);
+}
+
+void FileInfo::Macintosh::Dump(Dumper::Dumper& dump)
+{
+	// TODO
 }
 
 offset_t FileInfo::ProDOS::GetLength()
@@ -1297,6 +1354,11 @@ offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void FileInfo::ProDOS::Dump(Dumper::Dumper& dump)
+{
+	// TODO
+}
+
 offset_t FileInfo::MSDOS::GetLength()
 {
 	return 6;
@@ -1309,6 +1371,11 @@ offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(2, Attributes);
 
 	return offset_t(-1);
+}
+
+void FileInfo::MSDOS::Dump(Dumper::Dumper& dump)
+{
+	// TODO
 }
 
 offset_t FileInfo::AUX::GetLength()
@@ -1326,6 +1393,11 @@ offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void FileInfo::AUX::Dump(Dumper::Dumper& dump)
+{
+	// TODO
+}
+
 offset_t FileDatesInfo::GetLength()
 {
 	return 16;
@@ -1340,6 +1412,11 @@ offset_t FileDatesInfo::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, AccessDate);
 
 	return offset_t(-1);
+}
+
+void FileDatesInfo::Dump(Dumper::Dumper& dump)
+{
+	// TODO
 }
 
 offset_t FinderInfo::GetLength()
@@ -1361,6 +1438,11 @@ offset_t FinderInfo::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void FinderInfo::Dump(Dumper::Dumper& dump)
+{
+	// TODO
+}
+
 void FinderInfo::ProcessModule(Linker::Module& module)
 {
 	memcpy(Type, "APPL", 4);
@@ -1380,6 +1462,11 @@ offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void MacintoshFileInfo::Dump(Dumper::Dumper& dump)
+{
+	// TODO
+}
+
 offset_t ProDOSFileInfo::GetLength()
 {
 	return 8;
@@ -1395,6 +1482,11 @@ offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void ProDOSFileInfo::Dump(Dumper::Dumper& dump)
+{
+	// TODO
+}
+
 offset_t MSDOSFileInfo::GetLength()
 {
 	return 2;
@@ -1406,6 +1498,11 @@ offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(2, Attributes);
 
 	return offset_t(-1);
+}
+
+void MSDOSFileInfo::Dump(Dumper::Dumper& dump)
+{
+	// TODO
 }
 
 uint16_t MacBinary::crc_step[256];
@@ -1588,6 +1685,17 @@ offset_t MacBinary::WriteFile(Linker::Writer& wr)
 	}
 
 	return offset_t(-1);
+}
+
+void MacBinary::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("MacBinary format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
 }
 
 void MacBinary::GenerateFile(std::string filename, Linker::Module& module)

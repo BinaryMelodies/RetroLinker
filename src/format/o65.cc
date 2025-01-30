@@ -395,6 +395,17 @@ offset_t O65Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void O65Format::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("O64 format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 void O65Format::GenerateModule(Linker::Module& module) const
 {
 	// TODO: this should be separate modules?

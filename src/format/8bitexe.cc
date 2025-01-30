@@ -28,6 +28,17 @@ offset_t AppleFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void AppleFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Apple 8-bit format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 // AtariFormat
 
 offset_t AtariFormat::Segment::GetSize() const
@@ -224,6 +235,17 @@ offset_t AtariFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void AtariFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Atari 8-bit format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 // CommodoreFormat
 
 void CommodoreFormat::Clear()
@@ -266,6 +288,17 @@ offset_t CommodoreFormat::WriteFile(Linker::Writer& wr)
 	loader->WriteFile(wr);
 	image->WriteFile(wr);
 	return offset_t(-1);
+}
+
+void CommodoreFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Commodore 8-bit format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	file_region.Display(dump);
+
+	// TODO
 }
 
 std::string CommodoreFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
@@ -413,6 +446,17 @@ offset_t CPM3Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void CPM3Format::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("CP/M Plus format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 void CPM3Format::CalculateValues()
 {
 	uint16_t offset = 0x100 + image->ImageSize();
@@ -456,6 +500,17 @@ offset_t FLEXFormat::WriteFile(Linker::Writer& wr)
 		segment->WriteFile(wr);
 	}
 	return offset_t(-1);
+}
+
+void FLEXFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("FLEX format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	file_region.Display(dump);
+
+	// TODO
 }
 
 std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
@@ -632,6 +687,17 @@ offset_t UZIFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void UZIFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("UZI format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 std::string UZIFormat::GetDefaultExtension(Linker::Module& module)
 {
 	return "a.out";
@@ -669,6 +735,17 @@ offset_t UZI280Format::WriteFile(Linker::Writer& wr)
 	code->WriteFile(wr);
 	wr.AlignTo(512);
 	return offset_t(-1);
+}
+
+void UZI280Format::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("UZI280 format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	file_region.Display(dump);
+
+	// TODO
 }
 
 std::string UZI280Format::GetDefaultExtension(Linker::Module& module)

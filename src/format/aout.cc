@@ -378,6 +378,18 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+
+void AOutFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("UNIX a.out format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 2 * word_size);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 /* * * Reader * * */
 
 void AOutFormat::GenerateModule(Linker::Module& module) const

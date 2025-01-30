@@ -2,6 +2,7 @@
 #define BWEXP_H
 
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/linker_manager.h"
 #include "mzexe.h"
 
@@ -190,6 +191,7 @@ namespace DOS16M
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;

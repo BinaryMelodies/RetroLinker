@@ -3,6 +3,7 @@
 
 #include <array>
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/linker_manager.h"
 #include "../linker/reader.h"
 #include "../linker/writer.h"
@@ -35,6 +36,7 @@ namespace Microsoft
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 		/* TODO */
 
 //		using Linker::OutputFormat::GetDefaultExtension;

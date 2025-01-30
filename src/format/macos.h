@@ -5,6 +5,7 @@
 #include <optional>
 #include <set>
 #include <vector>
+#include "../dumper/dumper.h"
 #include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
@@ -69,6 +70,7 @@ namespace Apple
 			void ReadFile(Linker::Reader& rd) override;
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& out) override;
+			void Dump(Dumper::Dumper& dump) override;
 
 			virtual void ProcessModule(Linker::Module& module);
 			virtual void CalculateValues();
@@ -187,6 +189,7 @@ namespace Apple
 		void CalculateValues() override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		std::string PrefixFilename(std::string prefix, std::string filename);
 		std::string PrefixFilename(std::string prefix, std::string filename, size_t limit);
@@ -247,6 +250,7 @@ namespace Apple
 			void ReadFile(Linker::Reader& rd) override;
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) override;
+			void Dump(Dumper::Dumper& dump) override;
 
 		protected:
 			Resource(const char type[4], uint16_t id, uint8_t attributes = 0)
@@ -293,6 +297,7 @@ namespace Apple
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) override;
+			void Dump(Dumper::Dumper& dump) override;
 		};
 
 		class JumpTableCodeResource : public Resource
@@ -328,6 +333,7 @@ namespace Apple
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) override;
+			void Dump(Dumper::Dumper& dump) override;
 		};
 
 		class CodeResource : public Resource
@@ -371,6 +377,7 @@ namespace Apple
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) override;
+			void Dump(Dumper::Dumper& dump) override;
 		};
 
 		ResourceFork()
@@ -412,6 +419,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
@@ -433,6 +441,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	class Comment : public AppleSingleDouble::Entry
@@ -501,6 +510,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	class FileInfo::ProDOS : public FileInfo
@@ -525,6 +535,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	class FileInfo::MSDOS : public FileInfo
@@ -543,6 +554,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	class FileInfo::AUX : public FileInfo
@@ -563,6 +575,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	/* Version 2 only */
@@ -588,6 +601,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	class FinderInfo : public AppleSingleDouble::Entry
@@ -612,6 +626,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		void ProcessModule(Linker::Module& module) override;
 	};
@@ -630,6 +645,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	/* Version 2 only */
@@ -651,6 +667,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	/* Version 2 only */
@@ -668,6 +685,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	/* Version 2 only */
@@ -758,6 +776,7 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 	};

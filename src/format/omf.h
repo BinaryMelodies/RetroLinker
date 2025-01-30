@@ -2,6 +2,7 @@
 #define OMF_H
 
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/format.h"
 #include "../linker/reader.h"
 #include "../linker/writer.h"
@@ -21,6 +22,7 @@ namespace OMF
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 		/* TODO */

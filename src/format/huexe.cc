@@ -194,6 +194,17 @@ offset_t HUFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void HUFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("HU format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 void HUFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::M68K)

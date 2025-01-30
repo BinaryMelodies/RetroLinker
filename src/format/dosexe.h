@@ -2,6 +2,7 @@
 #define DOSEXE_H
 
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/linker_manager.h"
 #include "../linker/section.h"
 #include "mzexe.h"
@@ -53,6 +54,7 @@ namespace SeychellDOS32
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 };
 
@@ -79,6 +81,7 @@ namespace BrocaD3X
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 };
 
@@ -117,6 +120,7 @@ namespace DX64
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 }
 

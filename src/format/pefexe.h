@@ -2,6 +2,7 @@
 #define PEFEXE_H
 
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/linker_manager.h"
 
 /* TODO: unimplemented */
@@ -17,6 +18,7 @@ namespace Apple
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 		/* TODO */
 	};
 }

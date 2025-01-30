@@ -124,7 +124,13 @@ offset_t CPM8KFormat::WriteFile(Linker::Writer& wr)
 
 void CPM8KFormat::Dump(Dumper::Dumper& dump)
 {
-	/* TODO */
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("CP/M-8000 format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 6);
+	file_region.Display(dump);
+
+	// TODO
 }
 
 void CPM8KFormat::CalculateValues()

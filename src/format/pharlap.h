@@ -2,6 +2,7 @@
 #define PHARLAP_H
 
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/linker_manager.h"
 #include "mzexe.h"
 
@@ -74,6 +75,7 @@ namespace PharLap
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
@@ -158,6 +160,7 @@ namespace PharLap
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		class Flat;
 		class MultiSegmented;
@@ -185,6 +188,7 @@ namespace PharLap
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	class P3Format::MultiSegmented : public P3Format
@@ -340,6 +344,7 @@ namespace PharLap
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 
 	/**
@@ -364,6 +369,7 @@ namespace PharLap
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 	};
 }
 

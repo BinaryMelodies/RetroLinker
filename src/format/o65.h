@@ -2,6 +2,7 @@
 #define O65_H
 
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/image.h"
 #include "../linker/linker_manager.h"
 #include "../linker/reader.h"
@@ -232,6 +233,7 @@ namespace O65
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 	};

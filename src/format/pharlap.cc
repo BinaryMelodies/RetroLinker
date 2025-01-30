@@ -186,6 +186,17 @@ offset_t MPFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void MPFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("MP/MQ format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
 {
 	if(stub_file != "")
@@ -314,6 +325,17 @@ offset_t P3Format::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, stack_size);
 
 	return offset_t(-1);
+}
+
+void P3Format::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("P2/P3 format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
 }
 
 void P3Format::Flat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -485,6 +507,12 @@ offset_t P3Format::Flat::WriteFile(Linker::Writer& wr)
 	image->WriteFile(wr);
 
 	return offset_t(-1);
+}
+
+void P3Format::Flat::Dump(Dumper::Dumper& dump)
+{
+	P3Format::Dump(dump);
+	// TODO
 }
 
 P3Format::MultiSegmented::AbstractSegment::~AbstractSegment()
@@ -955,6 +983,12 @@ offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void P3Format::MultiSegmented::Dump(Dumper::Dumper& dump)
+{
+	P3Format::Dump(dump);
+	// TODO
+}
+
 void P3FormatContainer::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
@@ -1015,6 +1049,18 @@ offset_t P3FormatContainer::WriteFile(Linker::Writer& wr)
 	else
 	{
 		return 0;
+	}
+}
+
+void P3FormatContainer::Dump(Dumper::Dumper& dump)
+{
+	if(contents != nullptr)
+	{
+		contents->Dump(dump);
+	}
+	else
+	{
+		Linker::Error << "Internal error: empty P3 container" << std::endl;
 	}
 }
 

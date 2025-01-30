@@ -41,3 +41,15 @@ offset_t W3Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void W3Format::Dump(Dumper::Dumper& dump)
+{
+	// TODO: encoding
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("W3 format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+

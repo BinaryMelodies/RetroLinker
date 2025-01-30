@@ -877,6 +877,17 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void NEFormat::Dump(Dumper::Dumper& dump)
+{
+	// TODO: switch to Windows encoding
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("NE format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
 
 void NEFormat::SetModel(std::string model)
 {

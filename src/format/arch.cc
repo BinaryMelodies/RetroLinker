@@ -168,6 +168,12 @@ offset_t ArchiveFormat::WriteFile(Linker::Writer& wr)
 
 void ArchiveFormat::Dump(Dumper::Dumper& dump)
 {
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Archive format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
 	// TODO
 }
 

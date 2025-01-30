@@ -272,6 +272,17 @@ offset_t HunkFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void HunkFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Hunk format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 void HunkFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::M68K)

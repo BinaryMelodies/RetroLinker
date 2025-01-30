@@ -129,6 +129,17 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("Adam format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 void BrocaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
@@ -152,6 +163,17 @@ offset_t BrocaD3X::D3X1Format::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, stack_top);
 	/* TODO */
 	return offset_t(-1);
+}
+
+void BrocaD3X::D3X1Format::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("D3X1 format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
 }
 
 void DX64::LVFormat::SetSignature(format_type type)
@@ -195,5 +217,16 @@ offset_t DX64::LVFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, extra_memory_size);
 	image->WriteFile(wr);
 	return offset_t(-1);
+}
+
+void DX64::LVFormat::Dump(Dumper::Dumper& dump)
+{
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("LV/Flat format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
 }
 

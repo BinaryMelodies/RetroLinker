@@ -1259,6 +1259,18 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+void LEFormat::Dump(Dumper::Dumper& dump)
+{
+	// TODO: switch to different encoding for OS/2 (LX)
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("LE/LX format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
 void LEFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
 	program_name = filename;

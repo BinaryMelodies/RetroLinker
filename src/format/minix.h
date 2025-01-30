@@ -2,6 +2,7 @@
 #define MINIX_H
 
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
@@ -154,6 +155,7 @@ namespace MINIX
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 

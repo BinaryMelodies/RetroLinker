@@ -2,6 +2,7 @@
 #define PEEXE_H
 
 #include "../common.h"
+#include "../dumper/dumper.h"
 #include "../linker/linker_manager.h"
 #include "coff.h"
 #include "mzexe.h"
@@ -19,6 +20,7 @@ namespace Microsoft
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+		void Dump(Dumper::Dumper& dump) override;
 		/* TODO */
 
 		using Linker::OutputFormat::GetDefaultExtension;
