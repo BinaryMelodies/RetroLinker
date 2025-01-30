@@ -489,12 +489,12 @@ void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 				}
 				else
 				{
-					module.AddCommonSymbol(Linker::CommonSymbol(symbol.name, symbol.offset, 4, bss_segments[symbol.segment]->name));
+					module.AddCommonSymbol(Linker::SymbolDefinition::CreateCommon(symbol.name, bss_segments[symbol.segment]->name, symbol.offset, 4));
 				}
 			}
 			else if((symbol.symbol_type & Symbol::Common) != 0)
 			{
-				module.AddCommonSymbol(Linker::CommonSymbol(symbol.name, symbol.offset, 4, bss_segments[symbol.segment]->name));
+				module.AddCommonSymbol(Linker::SymbolDefinition::CreateCommon(symbol.name, bss_segments[symbol.segment]->name, symbol.offset, 4));
 			}
 			else
 			{

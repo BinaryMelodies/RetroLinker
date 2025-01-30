@@ -476,7 +476,7 @@ namespace ELF
 			bool defined = false;
 			bool unallocated = false;
 			Linker::Location location;
-			Linker::CommonSymbol specification;
+			Linker::SymbolDefinition specification;
 		};
 
 		class SymbolTable : public SectionContents

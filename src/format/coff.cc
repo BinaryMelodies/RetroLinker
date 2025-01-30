@@ -961,7 +961,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 			}
 			else if(symbol->value != 0)
 			{
-				module.AddCommonSymbol(Linker::CommonSymbol(symbol->name, symbol->value, 1 /* TODO: alignment */));
+				module.AddCommonSymbol(Linker::SymbolDefinition::CreateCommon(symbol->name, "", symbol->value, 1 /* TODO: alignment */));
 			}
 			break;
 		case C_STAT:

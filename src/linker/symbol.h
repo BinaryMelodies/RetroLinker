@@ -216,29 +216,6 @@ namespace Linker
 	 * @brief Displays an exported symbol is a nice way
 	 */
 	std::ostream& operator<<(std::ostream& out, const ExportedSymbol& symbol);
-
-	/**
-	 * @brief Represents a currently unallocated variable that should be allocated in the final stages of the linking process
-	 */
-	class CommonSymbol
-	{
-	public:
-		std::string name;
-		offset_t size, align;
-		std::string section;
-
-		CommonSymbol(std::string name = "", offset_t size = 0, offset_t align = 1, std::string section = "")
-			: name(name), size(size), align(align), section(section)
-		{
-		}
-
-		CommonSymbol(std::string name, offset_t size, std::string section)
-			: name(name), size(size), align(1), section(section)
-		{
-		}
-	};
-
-	std::ostream& operator<<(std::ostream& out, const CommonSymbol& symbol);
 }
 
 #endif /* SYMBOLNAME_H */

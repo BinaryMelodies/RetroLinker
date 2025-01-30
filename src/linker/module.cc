@@ -5,7 +5,7 @@
 
 using namespace Linker;
 
-void Module::AddSymbolMention(const SymbolMention& mention)
+void Module::AddSymbolDefinition(const SymbolDefinition& mention)
 {
 	if(std::find(symbol_sequence.begin(), symbol_sequence.end(), mention) == symbol_sequence.end())
 	{
@@ -13,12 +13,12 @@ void Module::AddSymbolMention(const SymbolMention& mention)
 	}
 }
 
-void Module::AppendSymbolMention(const SymbolMention& mention)
+void Module::AppendSymbolDefinition(const SymbolDefinition& mention)
 {
 	symbol_sequence.emplace_back(mention);
 }
 
-void Module::DeleteSymbolMention(const SymbolMention& mention)
+void Module::DeleteSymbolDefinition(const SymbolDefinition& mention)
 {
 	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), mention);
 	if(it != symbol_sequence.end())
@@ -27,45 +27,46 @@ void Module::DeleteSymbolMention(const SymbolMention& mention)
 	}
 }
 
-bool Module::HasSymbolMention(const SymbolMention& mention)
+bool Module::HasSymbolDefinition(const SymbolDefinition& mention)
 {
 	auto it = std::find(symbol_sequence.begin(), symbol_sequence.end(), mention);
 	return it != symbol_sequence.end();
 }
 
-void Module::NewSymbolMention(const SymbolMention& mention)
+void Module::NewSymbolDefinition(const SymbolDefinition& mention)
 {
+	// TODO: refactor
 	switch(mention.binding)
 	{
-	case SymbolMention::Undefined:
-		if(!HasSymbolMention(SymbolMention(SymbolMention::Global, mention.name))
-		&& !HasSymbolMention(SymbolMention(SymbolMention::Undefined, mention.name))
-		&& !HasSymbolMention(SymbolMention(SymbolMention::Common, mention.name)))
+	case SymbolDefinition::Undefined:
+		if(!HasSymbolDefinition(SymbolDefinition::CreateGlobal(mention.name, Location()))
+		&& !HasSymbolDefinition(SymbolDefinition::CreateUndefined(mention.name))
+		&& !HasSymbolDefinition(SymbolDefinition::CreateCommon(mention.name, "")))
 		{
-			AddSymbolMention(mention);
+			AddSymbolDefinition(mention);
 		}
 		break;
-	case SymbolMention::Local:
-		AppendSymbolMention(mention);
+	case SymbolDefinition::Local:
+		AppendSymbolDefinition(mention);
 		break;
-	case SymbolMention::Global:
-		AddSymbolMention(mention);
-		DeleteSymbolMention(SymbolMention(SymbolMention::Weak, mention.name));
-		DeleteSymbolMention(SymbolMention(SymbolMention::Undefined, mention.name));
-		DeleteSymbolMention(SymbolMention(SymbolMention::Common, mention.name));
+	case SymbolDefinition::Global:
+		AddSymbolDefinition(mention);
+		DeleteSymbolDefinition(SymbolDefinition::CreateWeak(mention.name, Location()));
+		DeleteSymbolDefinition(SymbolDefinition::CreateUndefined(mention.name));
+		DeleteSymbolDefinition(SymbolDefinition::CreateCommon(mention.name, ""));
 		break;
-	case SymbolMention::Weak:
-		if(!HasSymbolMention(SymbolMention(SymbolMention::Global, mention.name)))
+	case SymbolDefinition::Weak:
+		if(!HasSymbolDefinition(SymbolDefinition::CreateGlobal(mention.name, Location())))
 		{
-			AddSymbolMention(mention);
-			DeleteSymbolMention(SymbolMention(SymbolMention::Undefined, mention.name));
+			AddSymbolDefinition(mention);
+			DeleteSymbolDefinition(SymbolDefinition::CreateUndefined(mention.name));
 		}
 		break;
-	case SymbolMention::Common:
-		if(!HasSymbolMention(SymbolMention(SymbolMention::Global, mention.name)))
+	case SymbolDefinition::Common:
+		if(!HasSymbolDefinition(SymbolDefinition::CreateGlobal(mention.name, Location())))
 		{
-			AddSymbolMention(mention);
-			DeleteSymbolMention(SymbolMention(SymbolMention::Undefined, mention.name));
+			AddSymbolDefinition(mention);
+			DeleteSymbolDefinition(SymbolDefinition::CreateUndefined(mention.name));
 		}
 		break;
 	}
@@ -230,7 +231,7 @@ void Module::_AddLocalSymbol(std::string name, Location location)
 	}
 	local_symbols[name] = std::vector<Location>();
 	local_symbols[name].push_back(location);
-	NewSymbolMention(SymbolMention(SymbolMention::Local, name));
+	NewSymbolDefinition(SymbolDefinition::CreateLocal(name, location));
 }
 
 void Module::AddGlobalSymbol(std::string name, Location location)
@@ -273,7 +274,7 @@ void Module::_AddGlobalSymbol(std::string name, Location location)
 		unallocated_symbols.erase(name);
 	}
 
-	NewSymbolMention(SymbolMention(SymbolMention::Global, name));
+	NewSymbolDefinition(SymbolDefinition::CreateGlobal(name, location));
 }
 
 void Module::AddWeakSymbol(std::string name, Location location)
@@ -284,13 +285,13 @@ void Module::AddWeakSymbol(std::string name, Location location)
 		weak_symbols[name] = location;
 	}
 
-	NewSymbolMention(SymbolMention(SymbolMention::Weak, name));
+	NewSymbolDefinition(SymbolDefinition::CreateWeak(name, location));
 }
 
-void Module::AddCommonSymbol(CommonSymbol symbol)
+void Module::AddCommonSymbol(SymbolDefinition symbol)
 {
 	unallocated_symbols[symbol.name] = symbol;
-	NewSymbolMention(SymbolMention(SymbolMention::Common, symbol.name));
+	NewSymbolDefinition(symbol);
 }
 
 void Module::AddImportedSymbol(SymbolName name)
@@ -347,7 +348,7 @@ void Module::AddUndefinedSymbol(std::string symbol_name)
 	}
 	// undefined symbol ignored
 
-	NewSymbolMention(SymbolMention(SymbolMention::Undefined, symbol_name));
+	NewSymbolDefinition(SymbolDefinition::CreateUndefined(symbol_name));
 }
 
 void Module::AddRelocation(Relocation relocation)
@@ -686,7 +687,7 @@ void Module::Append(Module& other)
 	}
 	for(auto mention : other.symbol_sequence)
 	{
-		NewSymbolMention(mention);
+		NewSymbolDefinition(mention);
 	}
 	for(auto symbol : other.global_symbols)
 	{
@@ -773,7 +774,7 @@ void Module::AllocateSymbols(std::string default_section_name)
 		if(global_symbols.find(it.first) == global_symbols.end()
 		&& weak_symbols.find(it.first) == weak_symbols.end())
 		{
-			std::shared_ptr<Section> section = FetchSection(it.second.section != "" ? it.second.section : default_section_name, Section::Readable|Section::Writable|Section::ZeroFilled);
+			std::shared_ptr<Section> section = FetchSection(it.second.section_name != "" ? it.second.section_name : default_section_name, Section::Readable|Section::Writable|Section::ZeroFilled);
 			section->RealignEnd(it.second.align);
 			size_t offset = section->Size();
 			section->Expand(offset + it.second.size);

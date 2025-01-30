@@ -466,10 +466,10 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 			size_t index;
 			switch(mention.binding)
 			{
-			case Linker::Module::SymbolMention::Undefined:
+			case Linker::SymbolDefinition::Undefined:
 				symbol.sclass = Symbol::S_EXT;
 				break;
-			case Linker::Module::SymbolMention::Local:
+			case Linker::SymbolDefinition::Local:
 				symbol.sclass = Symbol::S_STAT;
 				if(local_counter.find(mention.name) == local_counter.end())
 				{
@@ -504,7 +504,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 					symbol.sclass = Symbol::N_BSS | Symbol::S_STAT;
 				}
 				break;
-			case Linker::Module::SymbolMention::Global:
+			case Linker::SymbolDefinition::Global:
 				if(!module.FindGlobalSymbol(mention.name, location))
 				{
 					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
@@ -529,7 +529,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 					symbol.sclass = Symbol::N_BSS | Symbol::S_EXT;
 				}
 				break;
-			case Linker::Module::SymbolMention::Weak:
+			case Linker::SymbolDefinition::Weak:
 				if(!module.FindGlobalSymbol(mention.name, location))
 				{
 					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;
@@ -554,7 +554,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 					symbol.sclass = Symbol::N_BSS | Symbol::S_EXT;
 				}
 				break;
-			case Linker::Module::SymbolMention::Common:
+			case Linker::SymbolDefinition::Common:
 				if(!module.FindGlobalSymbol(mention.name, location))
 				{
 					Linker::Error << "Internal error: " << mention.name << " not defined but mentioned" << std::endl;

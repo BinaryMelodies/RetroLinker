@@ -277,8 +277,3 @@ std::ostream& Linker::operator<<(std::ostream& out, const ExportedSymbol& symbol
 	return out;
 }
 
-std::ostream& Linker::operator<<(std::ostream& out, const CommonSymbol& symbol)
-{
-	return out << symbol.name;
-}
-

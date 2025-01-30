@@ -1789,7 +1789,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 					break;
 				case SHN_COMMON:
 					symbol.unallocated = true;
-					symbol.specification = Linker::CommonSymbol(symbol.name, symbol.size, symbol.value);
+					symbol.specification = Linker::SymbolDefinition::CreateCommon(symbol.name, "", symbol.size, symbol.value);
 					break;
 #if 0
 				case SHN_XINDEX:

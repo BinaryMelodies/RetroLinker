@@ -9,6 +9,7 @@
 #include "format.h"
 #include "location.h"
 #include "relocation.h"
+#include "symbol_definition.h"
 
 namespace Linker
 {
@@ -64,51 +65,21 @@ namespace Linker
 		std::map<std::string, Location> global_symbols;
 		std::map<std::string, std::vector<Location>> local_symbols;
 		std::map<std::string, Location> weak_symbols; // must be disjoined from global symbols
-		std::map<std::string, CommonSymbol> unallocated_symbols;
+		std::map<std::string, SymbolDefinition> unallocated_symbols;
 		std::vector<SymbolName> imported_symbols;
 		std::map<ExportedSymbol, Location> exported_symbols;
 
 		friend class ModuleCollector;
 
 	public:
-		struct SymbolMention
-		{
-			enum binding_type
-			{
-				Undefined,
-				Local,
-				Global,
-				Weak,
-				Common,
-			};
-			binding_type binding = Undefined;
-			std::string name;
-			mutable size_t local_index = 0; // only for Local
-
-			SymbolMention()
-			{
-			}
-			SymbolMention(binding_type binding, std::string name)
-				: binding(binding), name(name)
-			{
-			}
-			SymbolMention(std::string name, size_t local_index)
-				: binding(Local), name(name)
-			{
-			}
-			bool operator ==(const SymbolMention& other) const
-			{
-				return binding == other.binding && name == other.name && local_index == other.local_index;
-			}
-		};
-		std::vector<SymbolMention> symbol_sequence;
+		std::vector<SymbolDefinition> symbol_sequence;
 	private:
-		void AddSymbolMention(const SymbolMention& mention);
-		void AppendSymbolMention(const SymbolMention& mention);
-		void DeleteSymbolMention(const SymbolMention& mention);
+		void AddSymbolDefinition(const SymbolDefinition& mention);
+		void AppendSymbolDefinition(const SymbolDefinition& mention);
+		void DeleteSymbolDefinition(const SymbolDefinition& mention);
 	public:
-		bool HasSymbolMention(const SymbolMention& mention);
-		void NewSymbolMention(const SymbolMention& mention);
+		bool HasSymbolDefinition(const SymbolDefinition& mention);
+		void NewSymbolDefinition(const SymbolDefinition& mention);
 
 		/**
 		 * @brief List of relocations within the module
@@ -174,7 +145,7 @@ namespace Linker
 		/**
 		 * @brief Adds a common symbol
 		 */
-		void AddCommonSymbol(CommonSymbol symbol);
+		void AddCommonSymbol(SymbolDefinition symbol);
 
 		/**
 		 * @brief Adds an imported symbol (Microsoft format: library name + symbol name + ordinal/hint)
