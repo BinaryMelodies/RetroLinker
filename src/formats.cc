@@ -835,6 +835,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<DX64::LVFormat>(); // TODO
 	case FORMAT_MACHO:
 		return std::make_shared<MachOFormat>(); // TODO
+	case FORMAT_MACHO_MULTIPLE:
+		return std::make_shared<FatMachOFormat>(); // TODO
 	case FORMAT_MINIX:
 		return std::make_shared<MINIXFormat>(); // TODO
 	case FORMAT_MP:
