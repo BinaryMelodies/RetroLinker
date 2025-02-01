@@ -4,7 +4,7 @@
 #include "format/aif.h" /* AIF format */ /* TODO: not implemented */
 #include "format/aout.h" /* a.out format */
 #include "format/arch.h" /* UNIX archive format */
-#include "format/as86obj.h" /* TODO: not implemented */
+#include "format/as86obj.h" /* Introl object format (used by as86) */
 #include "format/binary.h" /* .com, .r (Human68k) */
 #include "format/bwexp.h" /* .exp (DOS/16M) */
 #include "format/coff.h" /* COFF format (DJGPP, Concurrend DOS 68K) */
@@ -600,6 +600,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("W3"),                  0, FORMAT_W3,      "Windows WIN386.EXE file" },
 //	{ std::string("W4"),                  0, FORMAT_W4,      "Windows 95 WIN32.VXD file" }, /* TODO: unverified */
 	{ std::string("XP\x01\x00", 4),       0, FORMAT_XP,      "Ergo OS/286 and OS/386 executable (.exp)" },
+	{ std::string("S1"),                  0, FORMAT_AS86,    "Introl object format (6809)" },
 	{ std::string("ZM"),                  0, FORMAT_MZ,      "MS-DOS executable (.exe), old-style \"ZM\" variant" },
 	{ std::string("Z\x80"),               0, FORMAT_COFF,    "Zilog Z80 COFF object file" },
 	{ std::string("`\x1A"),               0, FORMAT_68K,     "CP/M-68K/Concurrent DOS 68K/GEMDOS/Atari TOS/Human68k contiguous executable (.68k/.prg/.tos/.z)" },
@@ -608,7 +609,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x7F" "ELF"),          0, FORMAT_ELF,     "UNIX/Linux ELF file format" },
 	{ std::string("\x80\x00", 2),         0, FORMAT_COFF,    "Zilog Z8000 COFF object file (GNU binutils)" },
 	{ std::string("\x80"),                0, FORMAT_OMF,     "Intel Object Module Format object file" },
-	{ std::string("\xA3\x86"),            0, FORMAT_AS86,    "as86 object format" },
+	{ std::string("\xA3\x86"),            0, FORMAT_AS86,    "Introl object format (x86)" },
 	{ std::string("\xC7\x45\xC1\x53"),    0, FORMAT_GEOS,    "PC/GEOS Geode format (version 2)" },
 	{ std::string("\xC7\x45\xCF\x53"),    0, FORMAT_GEOS,    "PC/GEOS Geode format (version 1)" },
 	{ std::string("\xC9"),                0, FORMAT_CPM3,    "CP/M Plus for Intel 8080", VerifyCPM3 },

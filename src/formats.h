@@ -31,7 +31,7 @@ enum format_type
 	FORMAT_APPLE, // Macintosh AppleSingle/AppleDouble, used to store Macintosh files on other systems
 	FORMAT_APPLEII, // Apple ][ binary format
 	FORMAT_AR, // UNIX archive files
-	FORMAT_AS86, // as86 object file
+	FORMAT_AS86, // Introl object file
 	FORMAT_ATARI, // Atari 8-bit binary format
 	FORMAT_BW, // DOS/16M .exp file
 	FORMAT_COFF, // UNIX COFF

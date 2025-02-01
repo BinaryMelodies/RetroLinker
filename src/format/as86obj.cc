@@ -342,9 +342,17 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index)
 
 void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 {
-	rd.endiantype = ::LittleEndian;
-	if(rd.ReadUnsigned(2) != 0x86A3)
+	cpu = cpu_type(rd.ReadUnsigned(2, ::BigEndian));
+	switch(cpu)
 	{
+	case CPU_I8086:
+	case CPU_I80386:
+		rd.endiantype = ::LittleEndian;
+		break;
+	case CPU_MC6809:
+		rd.endiantype = ::BigEndian;
+		break;
+	default:
 		Linker::FatalError("Fatal error: invalid file signature");
 	}
 	uint16_t module_count = rd.ReadUnsigned(2);
@@ -417,7 +425,7 @@ void AS86ObjFormat::Dump(Dumper::Dumper& dump)
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
-	dump.SetTitle("as86 format");
+	dump.SetTitle("Introl object format");
 
 	Dumper::Region file_region("File", 0, modules.back().file_offset + modules.back().module_size, 8);
 	file_region.Display(dump);
@@ -467,7 +475,18 @@ std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index
 
 void AS86ObjFormat::GenerateModule(Linker::Module& module) const
 {
-	module.cpu = Linker::Module::I86; // TODO: I386?
+	switch(cpu)
+	{
+	case CPU_I8086:
+	case CPU_I80386:
+		module.cpu = Linker::Module::I86; // TODO: I386?
+		break;
+	case CPU_MC6809:
+		module.cpu = Linker::Module::M6809;
+		break;
+	default:
+		Linker::Error << "Internal error: undefined CPU" << std::endl;
+	}
 	std::array<std::shared_ptr<Linker::Section>, 16> segments;
 	std::array<std::shared_ptr<Linker::Section>, 16> bss_segments;
 	for(int i = 0; i < 16; i++)

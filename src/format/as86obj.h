@@ -14,7 +14,7 @@
 namespace AS86Obj
 {
 	/**
-	 * @brief Output format for as86, used as an output by Bruce's C compiler from the dev86 package
+	 * @brief Object format of Introl-C, output format for as86, used as an output by Bruce's C compiler from the dev86 package
 	 */
 	class AS86ObjFormat : public virtual Linker::InputFormat
 	{
@@ -181,6 +181,15 @@ namespace AS86Obj
 
 			void Dump(Dumper::Dumper& dump, unsigned index);
 		};
+
+		enum cpu_type
+		{
+			/* represented here in big-endian format */
+			CPU_I8086 = 0xA086,
+			CPU_I80386 = 0xA386,
+			CPU_MC6809 = 0x5331, /* S1 */
+		};
+		cpu_type cpu;
 
 		std::vector<Module> modules;
 
