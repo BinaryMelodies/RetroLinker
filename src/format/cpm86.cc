@@ -568,6 +568,11 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 	}
 }
 
+offset_t CPM86Format::ImageSize()
+{
+	return file_size;
+}
+
 offset_t CPM86Format::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
@@ -645,11 +650,16 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr)
 		}
 	}
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 offset_t CPM86Format::GetFullFileSize() const
 {
+	if(file_size != offset_t(-1))
+	{
+		return file_size;
+	}
+
 	offset_t image_size = 0x80;
 	for(int i = 0; i < 8; i++)
 	{
@@ -681,7 +691,7 @@ offset_t CPM86Format::GetFullFileSize() const
 
 	// TODO: do we want to also measure the internal RSX modules?
 
-	return image_size;
+	return file_size = image_size;
 }
 
 void CPM86Format::Dump(Dumper::Dumper& dump)
@@ -917,18 +927,28 @@ void CPM86Format::CalculateValues()
 		relocations_offset = ::AlignTo(offset, 0x80);
 		offset = relocations_offset + MeasureRelocations();
 	}
-	offset = ::AlignTo(offset, 0x80);
 
-	for(unsigned i = 0; i < 8; i++)
+	if(rsx_table[0].offset_record != rsx_record::RSX_TERMINATE)
 	{
-		Linker::Debug << "Debug: Record #" << i + 1 << " from " << rsx_table[i].rsx_file_name << " (offset: " << rsx_table[i].offset_record << ")" << std::endl;
-		if(rsx_table[i].offset_record == rsx_record::RSX_TERMINATE)
-			break;
-		rsx_table[i].offset_record = offset >> 7;
-		Linker::Debug << "Debug: New offset: " << rsx_table[i].offset_record << std::endl;
-		offset += rsx_table[i].GetFullFileSize();
 		offset = ::AlignTo(offset, 0x80);
+
+		for(unsigned i = 0; i < 8; i++)
+		{
+			Linker::Debug << "Debug: Record #" << i + 1 << " from " << rsx_table[i].rsx_file_name << " (offset: " << rsx_table[i].offset_record << ")" << std::endl;
+			if(rsx_table[i].offset_record == rsx_record::RSX_TERMINATE)
+				break;
+			rsx_table[i].offset_record = offset >> 7;
+			Linker::Debug << "Debug: New offset: " << rsx_table[i].offset_record << std::endl;
+			offset += rsx_table[i].GetFullFileSize();
+			offset = ::AlignTo(offset, 0x80);
+		}
 		rsx_table_offset = offset;
+		offset += 0x80;
+	}
+
+	if(file_size == offset_t(-1) || file_size < offset)
+	{
+		file_size = offset;
 	}
 }
 

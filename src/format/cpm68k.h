@@ -180,6 +180,35 @@ namespace DigitalResearch
 		void ReadFile(Linker::Reader& rd) override;
 
 		template <typename SizeType>
+			static offset_t CDOS68K_MeasureRelocations(std::map<uint32_t, SizeType> relocations)
+		{
+			/* TODO: test */
+			offset_t count = 0;
+			offset_t last_relocation = 0;
+			for(auto it : relocations)
+			{
+				offset_t difference = it.first - last_relocation;
+				if(difference != 0 && difference <= 0x7C)
+				{
+					count += 1;
+				}
+				else if(difference < 0x100)
+				{
+					count += 2;
+				}
+				else if(difference < 0x10000)
+				{
+					count += 3;
+				}
+				else
+				{
+					count += 5;
+				}
+			}
+			return count;
+		}
+
+		template <typename SizeType>
 			static void CDOS68K_WriteRelocations(Linker::Writer& wr, std::map<uint32_t, SizeType> relocations)
 		{
 			/* TODO: test */
@@ -209,6 +238,10 @@ namespace DigitalResearch
 				}
 			}
 		}
+
+		offset_t MeasureRelocations() const;
+
+		offset_t ImageSize() override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;

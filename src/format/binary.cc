@@ -24,11 +24,15 @@ void GenericBinaryFormat::ReadFile(Linker::Reader& rd)
 	image = buffer;
 }
 
+offset_t GenericBinaryFormat::ImageSize()
+{
+	return image->ImageSize();
+}
+
 offset_t GenericBinaryFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::EndianType(0); /* does not matter */
-	image->WriteFile(wr);
-	return offset_t(-1);
+	return image->WriteFile(wr);
 }
 
 void GenericBinaryFormat::Dump(Dumper::Dumper& dump)
@@ -227,13 +231,18 @@ void BinaryFormat::ReadFile(Linker::Reader& rd)
 	image = buffer;
 }
 
+offset_t BinaryFormat::ImageSize()
+{
+	return image->ImageSize() + (pif != nullptr ? 9 : 0);
+}
+
 offset_t BinaryFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::EndianType(0); /* does not matter */
 	image->WriteFile(wr);
 	if(pif)
 		pif->WriteFile(wr);
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void BinaryFormat::Dump(Dumper::Dumper& dump)

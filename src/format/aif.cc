@@ -16,7 +16,23 @@ void AIFFormat::CalculateValues()
 void AIFFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = endiantype;
-	rd.Skip(4); // nop
+
+	decompression_code = rd.ReadUnsigned(4);
+	if((decompression_code >> 24) == ARM_BL_OP)
+	{
+		compressed = true;
+		decompression_code = ((decompression_code & 0x00FFFFFF) << 4) + 16;
+	}
+	else
+	{
+		if(decompression_code != ARM_NOP && (decompression_code >> 24) != ARM_BLNV)
+		{
+			Linker::Error << "Error: invalid relocation code offset at second word" << std::endl;
+			// TODO: print word
+		}
+		compressed = false;
+		decompression_code = 0;
+	}
 
 	relocation_code = rd.ReadUnsigned(4);
 	if((relocation_code >> 24) == ARM_BL_OP)
@@ -26,7 +42,7 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 	}
 	else
 	{
-		if(relocation_code != ARM_NOP)
+		if(relocation_code != ARM_NOP && (relocation_code >> 24) != ARM_BLNV)
 		{
 			Linker::Error << "Error: invalid relocation code offset at second word" << std::endl;
 			// TODO: print word
@@ -43,7 +59,7 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 	}
 	else
 	{
-		if(zero_init_code != ARM_NOP)
+		if(zero_init_code != ARM_NOP && (zero_init_code >> 24) != ARM_BLNV)
 		{
 			Linker::Error << "Error: invalid relocation code offset at second word" << std::endl;
 			// TODO: print word
@@ -86,14 +102,26 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 	address_mode = address_mode_type(rd.ReadUnsigned(4));
 	data_base = rd.ReadUnsigned(4);
 
-	/* TODO: rest of the header */
+	/* TODO: rest of the header and file */
 
+}
+
+offset_t AIFFormat::ImageSize()
+{
+	return file_size;
 }
 
 offset_t AIFFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = endiantype;
-	wr.WriteWord(4, ARM_NOP);
+	if(compressed)
+	{
+		wr.WriteWord(4, ARM_BL + ((decompression_code - 16) >> 4));
+	}
+	else
+	{
+		wr.WriteWord(4, ARM_NOP);
+	}
 
 	if(relocatable)
 	{
@@ -144,7 +172,7 @@ void AIFFormat::Dump(Dumper::Dumper& dump)
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("AIF format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, file_size, 8);
 	file_region.Display(dump);
 
 	// TODO

@@ -575,6 +575,11 @@ void COFFFormat::UnknownOptionalHeader::WriteFile(Linker::Writer& wr)
 	buffer->WriteFile(wr);
 }
 
+offset_t COFFFormat::UnknownOptionalHeader::CalculateValues(COFFFormat& coff)
+{
+	return 0;
+}
+
 void COFFFormat::UnknownOptionalHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 {
 	/* TODO */
@@ -607,6 +612,18 @@ void COFFFormat::AOutHeader::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, entry_address);
 	wr.WriteWord(4, code_address);
 	wr.WriteWord(4, data_address);
+}
+
+offset_t COFFFormat::AOutHeader::CalculateValues(COFFFormat& coff)
+{
+	/* Note: for PE, these would be added up for all code/data/bss segments, but here we assume that one of each is available */
+	code_size = coff.GetCodeSegment() ? coff.GetCodeSegment()->data_size : 0; /* not needed for DJGPP */
+	data_size = coff.GetDataSegment() ? coff.GetDataSegment()->data_size : 0; /* not needed for DJGPP */
+	bss_size  = coff.GetBssSegment() ? coff.GetBssSegment()->zero_fill : 0; /* not needed for DJGPP */
+	entry_address = coff.entry_address;
+	code_address = coff.GetCodeSegment() ? coff.GetCodeSegment()->base_address : 0;
+	data_address = coff.GetDataSegment() ? coff.GetDataSegment()->base_address : 0;
+	return 0;
 }
 
 void COFFFormat::AOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
@@ -668,6 +685,14 @@ void COFFFormat::FlexOSAOutHeader::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, stack_size);
 }
 
+offset_t COFFFormat::FlexOSAOutHeader::CalculateValues(COFFFormat& coff)
+{
+	AOutHeader::CalculateValues(coff);
+	relocations_offset = coff.relocations_offset;
+	stack_size = coff.stack->zero_fill;
+	return DigitalResearch::CPM68KFormat::CDOS68K_MeasureRelocations(coff.relocations);;
+}
+
 void COFFFormat::FlexOSAOutHeader::PostReadFile(COFFFormat& coff, Linker::Reader& rd)
 {
 	/* TODO */
@@ -707,6 +732,11 @@ void COFFFormat::GNUAOutHeader::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, entry_address);
 	wr.WriteWord(4, code_relocation_size);
 	wr.WriteWord(4, data_relocation_size);
+}
+
+offset_t COFFFormat::GNUAOutHeader::CalculateValues(COFFFormat& coff)
+{
+	return 0;
 }
 
 void COFFFormat::GNUAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
@@ -771,6 +801,11 @@ void COFFFormat::MIPSAOutHeader::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, cpr_mask[3]);
 }
 
+offset_t COFFFormat::MIPSAOutHeader::CalculateValues(COFFFormat& coff)
+{
+	return AOutHeader::CalculateValues(coff);
+}
+
 void COFFFormat::MIPSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
 {
 	/* TODO: untested */
@@ -823,6 +858,11 @@ void COFFFormat::ECOFFAOutHeader::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, gpr_mask);
 	wr.WriteWord(4, fpr_mask);
 	wr.WriteWord(8, global_pointer);
+}
+
+offset_t COFFFormat::ECOFFAOutHeader::CalculateValues(COFFFormat& coff)
+{
+	return 0;
 }
 
 void COFFFormat::ECOFFAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
@@ -961,6 +1001,11 @@ void COFFFormat::XCOFFAOutHeader::WriteFile(Linker::Writer& wr)
 	}
 }
 
+offset_t COFFFormat::XCOFFAOutHeader::CalculateValues(COFFFormat& coff)
+{
+	return 0;
+}
+
 void COFFFormat::XCOFFAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 {
 	// TODO
@@ -1042,6 +1087,7 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 	ReadCOFFHeader(rd);
 	ReadOptionalHeader(rd);
 	ReadRestOfFile(rd);
+	file_size = rd.Tell() - file_offset; // TODO: read might have finished inside the COFF image
 }
 
 void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
@@ -1288,16 +1334,48 @@ offset_t COFFFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+offset_t COFFFormat::ImageSize()
+{
+	return file_size;
+}
+
 offset_t COFFFormat::WriteFileContents(Linker::Writer& wr)
 {
 	/* File Header */
-	wr.WriteData(2, signature);
-	wr.WriteWord(2, section_count);
-	wr.WriteWord(4, timestamp); /* unused */
-	wr.WriteWord(4, symbol_table_offset); /* unused */
-	wr.WriteWord(4, symbol_count); /* unused */
-	wr.WriteWord(2, optional_header_size);
-	wr.WriteWord(2, flags);
+	switch(coff_variant)
+	{
+	case PECOFF:
+	case COFF:
+	case XCOFF32:
+		wr.WriteData(2, signature);
+		wr.WriteWord(2, section_count);
+		wr.WriteWord(4, timestamp);
+		wr.WriteWord(4, symbol_table_offset);
+		wr.WriteWord(4, symbol_count);
+		wr.WriteWord(2, optional_header_size);
+		wr.WriteWord(2, flags);
+		break;
+
+	case ECOFF:
+		wr.WriteData(2, signature);
+		wr.WriteWord(2, section_count);
+		wr.WriteWord(4, timestamp);
+		wr.WriteWord(8, symbol_table_offset);
+		wr.WriteWord(4, symbol_count);
+		wr.WriteWord(2, optional_header_size);
+		wr.WriteWord(2, flags);
+		break;
+
+	case XCOFF64:
+		wr.WriteData(2, signature);
+		wr.WriteWord(2, section_count);
+		wr.WriteWord(4, timestamp);
+		wr.WriteWord(8, symbol_table_offset);
+		wr.WriteWord(2, optional_header_size);
+		wr.WriteWord(2, flags);
+		wr.WriteWord(4, symbol_count);
+		break;
+	}
 
 	/* Optional Header */
 	if(optional_header)
@@ -1324,7 +1402,7 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr)
 		optional_header->PostWriteFile(*this, wr);
 	}
 
-	return offset_t(-1);
+	return file_size;
 }
 
 void COFFFormat::Dump(Dumper::Dumper& dump)
@@ -1360,7 +1438,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 	cpu_descriptions[CPU_PPC64] = "IBM POWER, 64-bit";
 	cpu_descriptions[CPU_SHARC] = "SHARC";
 
-	Dumper::Region file_region("File", file_offset, 0, 8); /* TODO: file size */
+	Dumper::Region file_region("File", file_offset, file_size, 8);
 	file_region.AddField("CPU type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(cpu_type));
 
 	std::map<offset_t, std::string> endian_descriptions;
@@ -2100,7 +2178,24 @@ void COFFFormat::CalculateValues()
 
 	optional_header_size = optional_header->GetSize();
 
-	offset_t offset = 20 + optional_header->GetSize() + sections.size() * 40;
+	offset_t offset = 0;
+
+	switch(coff_variant)
+	{
+	case PECOFF:
+	case COFF:
+	case XCOFF32:
+		offset = 20;
+		break;
+
+	case ECOFF:
+	case XCOFF64:
+		offset = 24;
+		break;
+	}
+
+	offset += optional_header->GetSize() + sections.size() * 40;
+
 	if(type == DJGPP)
 	{
 		GetStubImageSize();
@@ -2119,21 +2214,10 @@ void COFFFormat::CalculateValues()
 		relocations_offset = offset;
 	}
 
-	if(AOutHeader * header = dynamic_cast<AOutHeader *>(optional_header.get()))
+	offset += optional_header->CalculateValues(*this);
+	if(file_size == offset_t(-1) || file_size < offset)
 	{
-		/* Note: for PE, these would be added up for all code/data/bss segments, but here we assume that one of each is available */
-		header->code_size = GetCodeSegment() ? GetCodeSegment()->data_size : 0; /* not needed for DJGPP */
-		header->data_size = GetDataSegment() ? GetDataSegment()->data_size : 0; /* not needed for DJGPP */
-		header->bss_size  = GetBssSegment() ? GetBssSegment()->zero_fill : 0; /* not needed for DJGPP */
-		header->entry_address = entry_address;
-		header->code_address = GetCodeSegment() ? GetCodeSegment()->base_address : 0;
-		header->data_address = GetDataSegment() ? GetDataSegment()->base_address : 0;
-	}
-
-	if(FlexOSAOutHeader * header = dynamic_cast<FlexOSAOutHeader *>(optional_header.get()))
-	{
-		header->relocations_offset = relocations_offset;
-		header->stack_size = stack->zero_fill;
+		file_size = offset;
 	}
 
 	AssignMagicValue();

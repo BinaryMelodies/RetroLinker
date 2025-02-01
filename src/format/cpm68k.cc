@@ -292,6 +292,61 @@ template <typename SizeType>
 }
 #endif
 
+offset_t CPM68KFormat::MeasureRelocations() const
+{
+	switch(system)
+	{
+	case SYSTEM_CDOS68K:
+		return CDOS68K_MeasureRelocations(relocations);
+	case SYSTEM_CPM68K:
+		return code->ImageSize() + data->ImageSize();
+	case SYSTEM_GEMDOS:
+	case SYSTEM_GEMDOS_EARLY:
+		if(relocations_suppressed == 0)
+		{
+			offset_t count = 0;
+			offset_t last_relocation = -1;
+			for(auto it : relocations)
+			{
+				if(last_relocation == offset_t(-1))
+				{
+					count += 4;
+					last_relocation = it.first;
+				}
+				else
+				{
+					offset_t difference = it.first - last_relocation;
+					while(difference > 254)
+					{
+						count += 1;
+						difference -= 254;
+					}
+					count += 1;
+					last_relocation = it.first;
+				}
+			}
+			if(last_relocation == offset_t(-1))
+				count += 4;
+			else
+				count += 1;
+			return count;
+		}
+		else
+		{
+			return 0;
+		}
+	case SYSTEM_UNKNOWN:
+	case SYSTEM_HUMAN68K:
+	default:
+		return 0;
+	}
+}
+
+offset_t CPM68KFormat::ImageSize()
+{
+	return file_size;
+}
+
 offset_t CPM68KFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
@@ -393,7 +448,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr)
 		break;
 	}
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void CPM68KFormat::Dump(Dumper::Dumper& dump)
@@ -517,7 +572,12 @@ void CPM68KFormat::CalculateValues()
 		/* early GEMDOS did not allow relocation suppression */
 		relocations_suppressed = 0;
 	}
-	/* TODO: calculate file_size, not very important */
+
+	offset_t actual_file_size = (GetSignature() == MAGIC_NONCONTIGUOUS ? 36 : 28) + code->ImageSize() + data->ImageSize() + MeasureRelocations();
+	if(file_size == offset_t(-1) || file_size < actual_file_size)
+	{
+		file_size = actual_file_size;
+	}
 }
 
 /* * * Writer members * * */

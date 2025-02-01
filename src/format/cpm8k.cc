@@ -92,6 +92,24 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 	// TODO: symbols
 }
 
+offset_t CPM8KFormat::ImageSize()
+{
+	offset_t size = 16 + segments.size() * 4;
+
+	for(auto& segment : segments)
+	{
+		if(segment.IsPresent())
+		{
+			size += segment.image->ImageSize();
+		}
+	}
+
+	// TODO: relocations
+	// TODO: symbols
+
+	return size;
+}
+
 offset_t CPM8KFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::BigEndian;
@@ -119,7 +137,7 @@ offset_t CPM8KFormat::WriteFile(Linker::Writer& wr)
 	// TODO: relocations
 	// TODO: symbols
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void CPM8KFormat::Dump(Dumper::Dumper& dump)
@@ -127,7 +145,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump)
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("CP/M-8000 format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 6);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 6);
 	file_region.Display(dump);
 
 	// TODO

@@ -401,6 +401,11 @@ void BWFormat::CalculateValues()
 	}
 }
 
+offset_t BWFormat::ImageSize()
+{
+	return file_size;
+}
+
 offset_t BWFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
@@ -453,7 +458,7 @@ offset_t BWFormat::WriteFile(Linker::Writer& wr)
 		wr.AlignTo(0x10);
 	}
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void BWFormat::Dump(Dumper::Dumper& dump)

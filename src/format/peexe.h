@@ -164,6 +164,8 @@ namespace Microsoft
 
 			void WriteFile(Linker::Writer& wr) override;
 
+			offset_t CalculateValues(COFFFormat& coff) override;
+
 		protected:
 			void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) override;
 		};

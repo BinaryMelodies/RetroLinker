@@ -342,6 +342,11 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	bss = std::make_shared<Linker::Section>(".bss");
 }
 
+offset_t AOutFormat::ImageSize()
+{
+	return 8 * word_size + code->ImageSize() + data->ImageSize() + code_relocations.size() * 8 + data_relocations.size() * 8;
+}
+
 offset_t AOutFormat::WriteFile(Linker::Writer& wr)
 {
 	if(system == DJGPP1 && stub_file != "")
@@ -375,7 +380,7 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, it.second);
 	}
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 

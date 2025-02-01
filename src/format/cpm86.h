@@ -407,6 +407,8 @@ namespace DigitalResearch
 		 * @brief The start of the image within the file, typically 0 except for embedded modules, usually for embedded RSX files
 		 */
 		uint32_t file_offset = 0;
+		/** @brief The full size of the image */
+		mutable offset_t file_size = offset_t(-1);
 
 		enum
 		{
@@ -490,6 +492,8 @@ namespace DigitalResearch
 		offset_t MeasureRelocations();
 
 		void ReadFile(Linker::Reader& rd) override;
+
+		offset_t ImageSize() override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;

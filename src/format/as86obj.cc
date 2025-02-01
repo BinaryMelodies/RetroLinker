@@ -342,6 +342,11 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index)
 
 void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 {
+	offset_t current_offset = rd.Tell();
+	rd.SeekEnd();
+	file_size = rd.Tell() - current_offset;
+	rd.Seek(current_offset);
+
 	cpu = cpu_type(rd.ReadUnsigned(2, ::BigEndian));
 	switch(cpu)
 	{
@@ -413,6 +418,11 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 		}
 		module.module_size = rd.Tell() - module.file_offset;
 	}
+}
+
+offset_t AS86ObjFormat::ImageSize()
+{
+	return file_size;
 }
 
 offset_t AS86ObjFormat::WriteFile(Linker::Writer& wr)

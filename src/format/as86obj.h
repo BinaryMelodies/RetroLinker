@@ -182,6 +182,8 @@ namespace AS86Obj
 			void Dump(Dumper::Dumper& dump, unsigned index);
 		};
 
+		offset_t file_size = offset_t(-1);
+
 		enum cpu_type
 		{
 			/* represented here in big-endian format */
@@ -189,18 +191,23 @@ namespace AS86Obj
 			CPU_I80386 = 0xA386,
 			CPU_MC6809 = 0x5331, /* S1 */
 		};
-		cpu_type cpu;
+		cpu_type cpu = cpu_type(0);
 
 		std::vector<Module> modules;
 
 		void ReadFile(Linker::Reader& rd) override;
+
+		offset_t ImageSize() override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+
 		void Dump(Dumper::Dumper& dump) override;
 
 	protected:
 		static std::string GetDefaultSectionName(unsigned index);
 		static std::shared_ptr<Linker::Section> GetDefaultSection(unsigned index);
+
 	public:
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;

@@ -17,11 +17,17 @@ namespace ARM
 	class AIFFormat : public virtual Linker::LinkerManager
 	{
 	public:
-		static constexpr uint32_t ARM_NOP = 0xE1A00000;
+		static constexpr uint32_t ARM_NOP = 0xE1A00000; // mov r0, r0
+		static constexpr uint32_t ARM_BLNV = 0xFB;
 		static constexpr uint32_t ARM_BL = 0xEB000000;
 		static constexpr uint32_t ARM_BL_OP = ARM_BL >> 24;
 
 		::EndianType endiantype = ::LittleEndian;
+
+		offset_t file_size;
+
+		bool compressed = false;
+		uint32_t decompression_code = 0; // relative to image start
 
 		bool relocatable = false;
 		uint32_t relocation_code = 0; // relative to image start
@@ -62,6 +68,7 @@ namespace ARM
 		void Clear() override;
 		void CalculateValues() override;
 		void ReadFile(Linker::Reader& rd) override;
+		offset_t ImageSize() override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 		void Dump(Dumper::Dumper& dump) override;

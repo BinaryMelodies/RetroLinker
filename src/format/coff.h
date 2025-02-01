@@ -24,8 +24,9 @@ namespace COFF
 	 */
 	class COFFFormat : public virtual Linker::InputFormat, public virtual Linker::LinkerManager, protected Microsoft::MZSimpleStubWriter
 	{
-		/* * * General members * * */
 	public:
+		/* * * General members * * */
+
 		/**
 		 * @brief Represents the first 16-bit word of a COFF file
 		 */
@@ -238,6 +239,8 @@ namespace COFF
 		};
 
 		static const std::map<uint32_t, MachineType> MACHINE_TYPES;
+
+		offset_t file_size;
 
 		/** @brief The actual value of the magic number (COFF name: f_magic) */
 		char signature[2] = { };
@@ -574,6 +577,12 @@ namespace COFF
 			virtual void ReadFile(Linker::Reader& rd) = 0;
 			virtual void WriteFile(Linker::Writer& wr) = 0;
 			/**
+			 * @brief Sets up fields to be consistent
+			 *
+			 * @return Number of extra bytes following symbol table
+			 */
+			virtual offset_t CalculateValues(COFFFormat& coff) = 0;
+			/**
 			 * @brief Retrieves any additional data from the file corresponding to this type of optional header
 			 */
 			virtual void PostReadFile(COFFFormat& coff, Linker::Reader& rd);
@@ -613,6 +622,8 @@ namespace COFF
 			void ReadFile(Linker::Reader& rd) override;
 
 			void WriteFile(Linker::Writer& wr) override;
+
+			offset_t CalculateValues(COFFFormat& coff) override;
 
 			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
 		};
@@ -668,6 +679,8 @@ namespace COFF
 
 			void WriteFile(Linker::Writer& wr) override;
 
+			offset_t CalculateValues(COFFFormat& coff) override;
+
 		protected:
 			virtual void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region);
 
@@ -698,6 +711,8 @@ namespace COFF
 			void ReadFile(Linker::Reader& rd) override;
 
 			void WriteFile(Linker::Writer& wr) override;
+
+			offset_t CalculateValues(COFFFormat& coff) override;
 
 			void PostReadFile(COFFFormat& coff, Linker::Reader& rd) override;
 
@@ -730,6 +745,8 @@ namespace COFF
 
 			void WriteFile(Linker::Writer& wr) override;
 
+			offset_t CalculateValues(COFFFormat& coff) override;
+
 			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
 		};
 
@@ -761,6 +778,8 @@ namespace COFF
 			void ReadFile(Linker::Reader& rd) override;
 
 			void WriteFile(Linker::Writer& wr) override;
+
+			offset_t CalculateValues(COFFFormat& coff) override;
 
 		protected:
 			void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) override;
@@ -836,6 +855,8 @@ namespace COFF
 			void ReadFile(Linker::Reader& rd) override;
 
 			void WriteFile(Linker::Writer& wr) override;
+
+			offset_t CalculateValues(COFFFormat& coff) override;
 
 			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
 		};
@@ -988,6 +1009,8 @@ namespace COFF
 
 			void WriteFile(Linker::Writer& wr) override;
 
+			offset_t CalculateValues(COFFFormat& coff) override;
+
 			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
 		};
 
@@ -1021,6 +1044,8 @@ namespace COFF
 		void ReadRestOfFile(Linker::Reader& rd);
 
 	public:
+		offset_t ImageSize() override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 

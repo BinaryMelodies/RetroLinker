@@ -189,8 +189,11 @@ namespace DOS16M
 
 		void CalculateValues() override;
 
+		offset_t ImageSize() override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
+
 		void Dump(Dumper::Dumper& dump) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;

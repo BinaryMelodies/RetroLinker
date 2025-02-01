@@ -44,6 +44,8 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		offset_t ImageSize() override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
@@ -118,6 +120,8 @@ namespace Binary
 		}
 
 		void ReadFile(Linker::Reader& rd) override;
+
+		offset_t ImageSize() override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;

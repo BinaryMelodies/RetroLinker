@@ -97,6 +97,12 @@ void PEFormat::PEOptionalHeader::WriteFile(Linker::Writer& wr)
 	}
 }
 
+offset_t PEFormat::PEOptionalHeader::CalculateValues(COFFFormat& coff)
+{
+	// TODO
+	return offset_t(-1);
+}
+
 void PEFormat::PEOptionalHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
 {
 	// TODO
