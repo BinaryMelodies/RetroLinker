@@ -557,8 +557,8 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x00\x00\x03\xF3", 4), 0, FORMAT_HUNK,    "Amiga Hunk executable" },
 	{ std::string("\x00\x00\x03\xE7", 4), 0, FORMAT_HUNK,    "Amiga Hunk unit (object or library)" },
 	{ std::string("\x00\x00\x01\x00", 4), 0, FORMAT_RSRC,    "Macintosh resource fork", VerifyMacintoshResource },
-	{ std::string("\x00\x02"),            0, FORMAT_COFF,    "Microsoft COFF, Intel Itanium" },
-	{ std::string("\x00\x05"),            0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH big endian" },
+	{ std::string("\x00\x02", 2),         0, FORMAT_COFF,    "Microsoft COFF, Intel Itanium" },
+	{ std::string("\x00\x05", 2),         0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH big endian" },
 	{ std::string("\x00\x05\x16\x00", 4), 0, FORMAT_APPLE,   "Macintosh AppleSingle" },
 	{ std::string("\x00\x05\x16\x07", 4), 0, FORMAT_APPLE,   "Macintosh AppleDouble" },
 	{ std::string("\x00\x65", 2),         0, FORMAT_COFF,    "WDC65 COFF object file" },
@@ -695,8 +695,8 @@ static const struct format_magic format_magics[] =
 // only files that may appear in a static library // TODO
 static const struct format_magic library_format_magics[] =
 {
-	{ std::string("\x00\x02"),            0, FORMAT_COFF,    "Microsoft COFF, Intel Itanium" },
-	{ std::string("\x00\x05"),            0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH big endian" },
+	{ std::string("\x00\x02", 2),         0, FORMAT_COFF,    "Microsoft COFF, Intel Itanium" },
+	{ std::string("\x00\x05", 2),         0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH big endian" },
 	{ std::string("\x00\x65", 2),         0, FORMAT_COFF,    "WDC65 COFF object file" },
 //	{ std::string("\x01\x01"),            0, FORMAT_AOUT,    "Little endian a.out, UNIX/RT lpd" }, // conflicts with CMD format
 	{ std::string("\x01\x06"),            0, FORMAT_COFF,    "Microsoft COFF, PowerPC based Macintosh (stored in little endian)" },

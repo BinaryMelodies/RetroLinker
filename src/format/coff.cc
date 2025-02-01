@@ -496,6 +496,8 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType
 {
 	switch(coff_variant)
 	{
+	default:
+		Linker::FatalError("Internal error: undefined COFF variant");
 	case COFF:
 	case XCOFF32:
 	case PECOFF:

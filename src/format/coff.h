@@ -1123,8 +1123,8 @@ namespace COFF
 		 */
 		uint32_t relocations_offset = 0;
 
-		COFFFormat(format_type type = GENERIC)
-			: type(type)
+		COFFFormat(format_type type = GENERIC, COFFVariantType coff_variant = COFF)
+			: coff_variant(coff_variant), type(type)
 		{
 		}
 
