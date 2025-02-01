@@ -40,6 +40,7 @@ namespace COFF
 			 * Value as used by UNIX, Microsoft and DJGPP
 			 */
 			CPU_I386  = 0x014C,
+
 			/** @brief Motorola 68000 and compatibles
 			 *
 			 * Value as used by UNIX and Digital Research Concurrent DOS 68K
@@ -53,11 +54,13 @@ namespace COFF
 			 * Value as used by GNU binutils
 			 */
 			CPU_W65   = 0x6500,
+
 			/** @brief Zilog Z80
 			 *
 			 * Value as used by GNU binutils
 			 */
 			CPU_Z80   = 0x805A,
+
 			/** @brief Zilog Z8000
 			 *
 			 * Value as used by GNU binutils
@@ -71,56 +74,67 @@ namespace COFF
 			 * Value as used by UNIX
 			 */
 			CPU_I86   = 0x0148,
+
 			/** @brief National Semiconductor NS32000
 			 *
 			 * Value as used by UNIX
 			 */
 			CPU_NS32K = 0x0154,
+
 			/** @brief IBM System/370
 			 *
 			 * Value as used by UNIX
 			 */
 			CPU_I370  = 0x0158,
+
 			/** @brief MIPS architecture
 			 *
 			 * Value as used by UNIX
 			 */
 			CPU_MIPS  = 0x0160,
+
 			/** @brief Motorola 88000
 			 *
 			 * Value as used by UNIX and also defined in ECOFF
 			 */
 			CPU_M88K  = 0x016D,
+
 			/** @brief AT&T Bellmac 32, Western Electric 32000 and family
 			 *
 			 * Value as used by UNIX
 			 */
 			CPU_WE32K = 0x0170,
+
 			/** @brief DEC VAX
 			 *
 			 * Value as used by UNIX
 			 */
 			CPU_VAX   = 0x0178,
+
 			/** @brief AMD 29000
 			 *
 			 * Value as used by UNIX
 			 */
 			CPU_AM29K = 0x017A,
+
 			/** @brief DEC Alpha
 			 *
 			 * Value as used by UNIX
 			 */
 			CPU_ALPHA = 0x0183,
+
 			/** @brief IBM PowerPC, 32-bit
 			 *
 			 * Value as defined by XCOFF
 			 */
 			CPU_PPC   = 0x01DF,
+
 			/** @brief IBM PowerPC, 64-bit
 			 *
 			 * Value as defined by XCOFF
 			 */
 			CPU_PPC64 = 0x01F7,
+
 			/** @brief SHARC from Analog Devices */
 			CPU_SHARC = 0x521C,
 
@@ -131,61 +145,73 @@ namespace COFF
 			 * Value as shown in early Microsoft documentation
 			 */
 			CPU_I860  = 0x014D,
+
 			/** @brief Hitachi SuperH family
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_SH    = 0x01A2,
+
 			/** @brief ARM, also known as ARM32 or AArch32; also represents Thumb
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_ARM   = 0x01C0,
+
 			/** @brief Matsushita AM33
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_AM33  = 0x01D3,
+
 			/** @brief Intel Itanium architecture, also known as IA-64
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_IA64  = 0x0200,
+
 			/** @brief Hewlett-Packard PA-RISC
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_HPPA  = 0x0290,
+
 			/** @brief EFI bytecode
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_EFI   = 0x0EBC,
+
 			/** @brief RISC-V 32
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_RISCV32 = 0x5032,
+
 			/** @brief RISC-V 64
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_RISCV64 = 0x5064,
+
 			/** @brief RISC-V 128
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_RISCV128 = 0x5128,
+
 			/** @brief x86-64, introduced by AMD
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_AMD64 = 0x8664,
+
 			/** @brief Mitsubishi M32R
 			 *
 			 * Value as defined by Microsoft
 			 */
 			CPU_M32R  = 0x9041,
+
 			/** @brief ARM64, also known as AArch64
 			 *
 			 * Value as defined by Microsoft
@@ -198,11 +224,11 @@ namespace COFF
 
 		enum COFFVariantType
 		{
-			COFF = 0,
-			ECOFF = 1,
-			XCOFF32 = 2,
-			XCOFF64 = 3,
-			PECOFF = 4,
+			COFF = 1,
+			ECOFF = 2,
+			XCOFF32 = 3,
+			XCOFF64 = 4,
+			PECOFF = 5,
 		};
 
 		struct MachineType
@@ -228,9 +254,66 @@ namespace COFF
 		{
 		public:
 			virtual ~Relocation();
-			virtual offset_t GetAddress() = 0;
-			virtual size_t GetSize() = 0;
-			virtual void FillEntry(Dumper::Entry& entry) = 0;
+			virtual offset_t GetAddress() const = 0;
+			virtual size_t GetSize() const = 0;
+			virtual size_t GetEntrySize() const = 0;
+			virtual void WriteFile(Linker::Writer& wr) const = 0;
+			virtual void FillEntry(Dumper::Entry& entry) const = 0;
+		};
+
+		/**
+		 * @brief The standard UNIX COFF relocation format
+		 */
+		class UNIXRelocation : public Relocation
+		{
+		public:
+			/** @brief No relocation */
+			static constexpr uint16_t R_ABS = 0;
+			/** @brief 16-bit virtual address of symbol */
+			static constexpr uint16_t R_DIR16 = 1;
+			/** @brief 16-bit relative address of symbol */
+			static constexpr uint16_t R_REL16 = 2;
+			/** @brief 32-bit virtual address of symbol */
+			static constexpr uint16_t R_DIR32 = 6;
+			/** @brief (Microsoft COFF) 32-bit relative virtual address of symbol */
+			static constexpr uint16_t R_DIR32NB = 7;
+			/** @brief (Intel x86) 16-bit segment selector of symbol */
+			static constexpr uint16_t R_SEG12 = 9;
+			/** @brief (Microsoft, debugging) 16-bit section index */
+			static constexpr uint16_t R_SECTION = 10;
+			/** @brief (Microsoft, debugging) 32-bit offset from section start */
+			static constexpr uint16_t R_SECREL = 11;
+			/** @brief (Microsoft) CLR token */
+			static constexpr uint16_t R_TOKEN = 12;
+			/** @brief (Microsoft) 7-bit offset from section base */
+			static constexpr uint16_t R_SECREL7 = 13;
+			/** @brief 32-bit relative address of symbol */
+			static constexpr uint16_t R_REL32 = 20;
+
+			COFFVariantType coff_variant;
+			cpu cpu_type;
+
+			offset_t address = 0;
+			uint32_t symbol_index = 0;
+			uint16_t type = 0;
+			uint32_t information = 0;
+
+			UNIXRelocation(COFFVariantType coff_variant, cpu cpu_type)
+				: coff_variant(coff_variant), cpu_type(cpu_type)
+			{
+			}
+
+			void Read(Linker::Reader& rd);
+
+			offset_t GetAddress() const override;
+
+			size_t GetSize() const override;
+
+			size_t GetEntrySize() const override;
+
+			void WriteFile(Linker::Writer& wr) const override;
+
+			void FillEntry(Dumper::Entry& entry) const override;
 		};
 
 		/**
@@ -243,33 +326,33 @@ namespace COFF
 			// https://github.com/aixoss/binutils/blob/master/include/coff/z80.h
 			// https://github.com/aixoss/binutils/blob/master/include/coff/z8k.h
 
-			static const uint16_t R_Z80_IMM8  = 0x22;
-			static const uint16_t R_Z80_IMM16 = 0x01;
-			static const uint16_t R_Z80_IMM24 = 0x33;
-			static const uint16_t R_Z80_IMM32 = 0x17;
-			static const uint16_t R_Z80_OFF8  = 0x32;
-			static const uint16_t R_Z80_JR    = 0x02;
+			static constexpr uint16_t R_Z80_IMM8  = 0x22;
+			static constexpr uint16_t R_Z80_IMM16 = 0x01;
+			static constexpr uint16_t R_Z80_IMM24 = 0x33;
+			static constexpr uint16_t R_Z80_IMM32 = 0x17;
+			static constexpr uint16_t R_Z80_OFF8  = 0x32;
+			static constexpr uint16_t R_Z80_JR    = 0x02;
 
-			static const uint16_t R_Z8K_IMM4L = 0x23;
-			static const uint16_t R_Z8K_IMM4H = 0x24;
-			static const uint16_t R_Z8K_DISP7 = 0x25; /* djnz */
-			static const uint16_t R_Z8K_IMM8  = 0x22;
-			static const uint16_t R_Z8K_IMM16 = 0x01;
-			static const uint16_t R_Z8K_REL16 = 0x04;
-			static const uint16_t R_Z8K_IMM32 = 0x11;
-			static const uint16_t R_Z8K_JR    = 0x02; /* jr */
-			static const uint16_t R_Z8K_CALLR = 0x05; /* callr */
+			static constexpr uint16_t R_Z8K_IMM4L = 0x23;
+			static constexpr uint16_t R_Z8K_IMM4H = 0x24;
+			static constexpr uint16_t R_Z8K_DISP7 = 0x25; /* djnz */
+			static constexpr uint16_t R_Z8K_IMM8  = 0x22;
+			static constexpr uint16_t R_Z8K_IMM16 = 0x01;
+			static constexpr uint16_t R_Z8K_REL16 = 0x04;
+			static constexpr uint16_t R_Z8K_IMM32 = 0x11;
+			static constexpr uint16_t R_Z8K_JR    = 0x02; /* jr */
+			static constexpr uint16_t R_Z8K_CALLR = 0x05; /* callr */
 
-			static const uint16_t R_W65_ABS8     = 0x01;
-			static const uint16_t R_W65_ABS16    = 0x02;
-			static const uint16_t R_W65_ABS24    = 0x03;
-			static const uint16_t R_W65_ABS8S8   = 0x04;
-			static const uint16_t R_W65_ABS8S16  = 0x05;
-			static const uint16_t R_W65_ABS16S8  = 0x06;
-			static const uint16_t R_W65_ABS16S16 = 0x07;
-			static const uint16_t R_W65_PCR8     = 0x08;
-			static const uint16_t R_W65_PCR16    = 0x09;
-			static const uint16_t R_W65_DP       = 0x0A;
+			static constexpr uint16_t R_W65_ABS8     = 0x01;
+			static constexpr uint16_t R_W65_ABS16    = 0x02;
+			static constexpr uint16_t R_W65_ABS24    = 0x03;
+			static constexpr uint16_t R_W65_ABS8S8   = 0x04;
+			static constexpr uint16_t R_W65_ABS8S16  = 0x05;
+			static constexpr uint16_t R_W65_ABS16S8  = 0x06;
+			static constexpr uint16_t R_W65_ABS16S16 = 0x07;
+			static constexpr uint16_t R_W65_PCR8     = 0x08;
+			static constexpr uint16_t R_W65_PCR16    = 0x09;
+			static constexpr uint16_t R_W65_DP       = 0x0A;
 
 			cpu cpu_type;
 
@@ -301,11 +384,15 @@ namespace COFF
 
 			void Read(Linker::Reader& rd);
 
-			offset_t GetAddress() override;
+			offset_t GetAddress() const override;
 
-			size_t GetSize() override;
+			size_t GetSize() const override;
 
-			void FillEntry(Dumper::Entry& entry) override;
+			size_t GetEntrySize() const override;
+
+			void WriteFile(Linker::Writer& wr) const override;
+
+			void FillEntry(Dumper::Entry& entry) const override;
 		};
 
 		/**
@@ -908,7 +995,7 @@ namespace COFF
 
 		void AssignMagicValue();
 
-		COFFVariantType coff_variant = COFF;
+		COFFVariantType coff_variant = COFFVariantType(0);
 
 		/**
 		 * @brief The CPU type, reflected by the first 16-bit word of a COFF file
@@ -928,9 +1015,19 @@ namespace COFF
 
 		void ReadFile(Linker::Reader& rd) override;
 
+	protected:
+		void ReadCOFFHeader(Linker::Reader& rd);
+		void ReadOptionalHeader(Linker::Reader& rd);
+		void ReadRestOfFile(Linker::Reader& rd);
+
+	public:
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) override;
 
+	protected:
+		offset_t WriteFileContents(Linker::Writer& wr);
+
+	public:
 		void Dump(Dumper::Dumper& dump) override;
 
 		/* * * Reader members * * */

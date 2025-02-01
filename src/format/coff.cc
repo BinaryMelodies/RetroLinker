@@ -127,6 +127,131 @@ COFFFormat::Relocation::~Relocation()
 {
 }
 
+void COFFFormat::UNIXRelocation::Read(Linker::Reader& rd)
+{
+	switch(coff_variant)
+	{
+	case COFF:
+	case PECOFF:
+		address = rd.ReadUnsigned(4);
+		symbol_index = rd.ReadUnsigned(4);
+		type = rd.ReadUnsigned(2);
+		break;
+	case ECOFF:
+		address = rd.ReadUnsigned(8);
+		symbol_index = rd.ReadUnsigned(4);
+		type = rd.ReadUnsigned(1);
+		information = rd.ReadUnsigned(3);
+		break;
+	case XCOFF32:
+		address = rd.ReadUnsigned(4);
+		symbol_index = rd.ReadUnsigned(4);
+		information = rd.ReadUnsigned(1);
+		type = rd.ReadUnsigned(1);
+		break;
+	case XCOFF64:
+		address = rd.ReadUnsigned(8);
+		symbol_index = rd.ReadUnsigned(4);
+		information = rd.ReadUnsigned(1);
+		type = rd.ReadUnsigned(1);
+		break;
+	}
+}
+
+offset_t COFFFormat::UNIXRelocation::GetAddress() const
+{
+	return address;
+}
+
+size_t COFFFormat::UNIXRelocation::GetSize() const
+{
+	switch(coff_variant)
+	{
+	case COFF:
+		switch(type)
+		{
+		case R_ABS:
+		case R_TOKEN: // TODO
+		default:
+			return 0;
+		case R_SECREL7:
+			return 1;
+		case R_DIR16:
+		case R_REL16:
+		case R_SEG12:
+		case R_SECTION:
+			return 2;
+		case R_DIR32:
+		case R_REL32:
+		case R_DIR32NB:
+		case R_SECREL:
+			return 4;
+		}
+	case PECOFF:
+		return 0; // TODO
+	case ECOFF:
+		return 0; // TODO
+	case XCOFF32:
+		return 0; // TODO
+	case XCOFF64:
+		return 0; // TODO
+	}
+	assert(false);
+}
+
+offset_t COFFFormat::UNIXRelocation::GetEntrySize() const
+{
+	switch(coff_variant)
+	{
+	case COFF:
+	case PECOFF:
+		return 10;
+	case ECOFF:
+		return 16;
+	case XCOFF32:
+		return 10;
+	case XCOFF64:
+		return 14;
+	}
+	assert(false);
+}
+
+void COFFFormat::UNIXRelocation::WriteFile(Linker::Writer& wr) const
+{
+	switch(coff_variant)
+	{
+	case COFF:
+	case PECOFF:
+		wr.WriteWord(4, address);
+		wr.WriteWord(4, symbol_index);
+		wr.WriteWord(2, type);
+		break;
+	case ECOFF:
+		wr.WriteWord(8, address);
+		wr.WriteWord(4, symbol_index);
+		wr.WriteWord(1, type);
+		wr.WriteWord(3, information);
+		break;
+	case XCOFF32:
+		wr.WriteWord(4, address);
+		wr.WriteWord(4, symbol_index);
+		wr.WriteWord(1, information);
+		wr.WriteWord(1, type);
+		break;
+	case XCOFF64:
+		wr.WriteWord(8, address);
+		wr.WriteWord(4, symbol_index);
+		wr.WriteWord(1, information);
+		wr.WriteWord(1, type);
+		break;
+	}
+}
+
+void COFFFormat::UNIXRelocation::FillEntry(Dumper::Entry& entry) const
+{
+	// TODO
+}
+
 void COFFFormat::ZilogRelocation::Read(Linker::Reader& rd)
 {
 	address = rd.ReadUnsigned(4);
@@ -136,12 +261,12 @@ void COFFFormat::ZilogRelocation::Read(Linker::Reader& rd)
 	data = rd.ReadUnsigned(2);
 }
 
-offset_t COFFFormat::ZilogRelocation::GetAddress()
+offset_t COFFFormat::ZilogRelocation::GetAddress() const
 {
 	return address;
 }
 
-size_t COFFFormat::ZilogRelocation::GetSize()
+size_t COFFFormat::ZilogRelocation::GetSize() const
 {
 	switch(cpu_type)
 	{
@@ -207,7 +332,21 @@ size_t COFFFormat::ZilogRelocation::GetSize()
 	}
 }
 
-void COFFFormat::ZilogRelocation::FillEntry(Dumper::Entry& entry)
+size_t COFFFormat::ZilogRelocation::GetEntrySize() const
+{
+	return 16;
+}
+
+void COFFFormat::ZilogRelocation::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteWord(4, address);
+	wr.WriteWord(4, symbol_index);
+	wr.WriteWord(4, offset);
+	wr.WriteWord(2, type);
+	wr.WriteWord(2, data);
+}
+
+void COFFFormat::ZilogRelocation::FillEntry(Dumper::Entry& entry) const
 {
 	std::map<offset_t, std::string> relocation_type_names;
 	switch(cpu_type)
@@ -813,7 +952,10 @@ void COFFFormat::XCOFFAOutHeader::WriteFile(Linker::Writer& wr)
 	if(is64)
 	{
 		wr.WriteWord(2, xcoff64_flags);
+#if 0
+		// TODO: this seems to make the header too long, is it 111 bytes long?
 		wr.WriteWord(1, shared_memory_page);
+#endif
 	}
 }
 
@@ -895,27 +1037,38 @@ void COFFFormat::DetectCpuType()
 void COFFFormat::ReadFile(Linker::Reader& rd)
 {
 	file_offset = rd.Tell();
+	ReadCOFFHeader(rd);
+	ReadOptionalHeader(rd);
+	ReadRestOfFile(rd);
+}
+
+void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
+{
 	rd.ReadData(2, signature);
 	DetectCpuType();
 	rd.endiantype = endiantype;
 
-	// TODO: determine coff_variant
-#if 0
-	switch(uint8_t(signature[0]) | (uint8_t(signature[1]) << 8))
+	if(coff_variant == COFFVariantType(0))
 	{
-	case 0x0183:
-	case 0x0188:
-	case 0x018F:
-		coff_variant = ECOFF;
-		break;
-	case 0xDF01:
-		coff_variant = XCOFF32;
-		break;
-	case 0xF701:
-		coff_variant = XCOFF64;
-		break;
-	}
+		coff_variant = COFF;
+		// TODO: determine coff_variant
+#if 0
+		switch(uint8_t(signature[0]) | (uint8_t(signature[1]) << 8))
+		{
+		case 0x0183:
+		case 0x0188:
+		case 0x018F:
+			coff_variant = ECOFF;
+			break;
+		case 0xDF01:
+			coff_variant = XCOFF32;
+			break;
+		case 0xF701:
+			coff_variant = XCOFF64;
+			break;
+		}
 #endif
+	}
 
 	switch(coff_variant)
 	{
@@ -950,7 +1103,10 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 		symbol_count = rd.ReadUnsigned(4); // moved
 		break;
 	}
+}
 
+void COFFFormat::ReadOptionalHeader(Linker::Reader& rd)
+{
 	switch(optional_header_size)
 	{
 	case 28:
@@ -1018,7 +1174,10 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 	}
 //	/* if not recognized, skip optional header */
 //	rd.Seek(optional_header_offset + optional_header_size);
+}
 
+void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
+{
 	for(size_t i = 0; i < section_count; i++)
 	{
 		std::unique_ptr<Section> section = std::make_unique<Section>();
@@ -1055,7 +1214,19 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 		}
 		break;
 	default:
-		/* TODO: relocations for other formats */
+		for(auto& section : sections)
+		{
+			if(section->relocation_count > 0)
+			{
+				rd.Seek(file_offset + section->relocation_pointer);
+				for(size_t i = 0; i < section->relocation_count; i++)
+				{
+					std::unique_ptr<UNIXRelocation> rel = std::make_unique<UNIXRelocation>(coff_variant, cpu_type);
+					rel->Read(rd);
+					section->relocations.push_back(std::move(rel));
+				}
+			}
+		}
 		break;
 	}
 
@@ -1111,7 +1282,12 @@ offset_t COFFFormat::WriteFile(Linker::Writer& wr)
 	}
 
 	wr.endiantype = endiantype;
+	WriteFileContents(wr);
+	return offset_t(-1);
+}
 
+offset_t COFFFormat::WriteFileContents(Linker::Writer& wr)
+{
 	/* File Header */
 	wr.WriteData(2, signature);
 	wr.WriteWord(2, section_count);
