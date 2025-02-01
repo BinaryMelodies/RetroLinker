@@ -32,28 +32,168 @@ namespace COFF
 		enum cpu
 		{
 			CPU_UNKNOWN = 0,
-			// main supported types
+
+			//// main supported types
+
+			/** @brief Intel x86-32, introduced with the Intel 80386
+			 *
+			 * Value as used by UNIX, Microsoft and DJGPP
+			 */
 			CPU_I386  = 0x014C,
+			/** @brief Motorola 68000 and compatibles
+			 *
+			 * Value as used by UNIX and Digital Research Concurrent DOS 68K
+			 */
 			CPU_M68K  = 0x0150,
-			// GNU binutils output
+
+			//// GNU binutils output
+
+			/** @brief WDC 65C816
+			 *
+			 * Value as used by GNU binutils
+			 */
 			CPU_W65   = 0x6500,
+			/** @brief Zilog Z80
+			 *
+			 * Value as used by GNU binutils
+			 */
 			CPU_Z80   = 0x805A,
+			/** @brief Zilog Z8000
+			 *
+			 * Value as used by GNU binutils
+			 */
 			CPU_Z8K   = 0x8000,
-			// other CPU types, included for completeness sake
+
+			//// other CPU types, included for completeness sake
+
+			/** @brief Intel x86-16, introduced with the Intel 8086
+			 *
+			 * Value as used by UNIX
+			 */
 			CPU_I86   = 0x0148,
+			/** @brief National Semiconductor NS32000
+			 *
+			 * Value as used by UNIX
+			 */
 			CPU_NS32K = 0x0154,
-			CPU_I370  = 0x0158, // IBM 370
+			/** @brief IBM System/370
+			 *
+			 * Value as used by UNIX
+			 */
+			CPU_I370  = 0x0158,
+			/** @brief MIPS architecture
+			 *
+			 * Value as used by UNIX
+			 */
 			CPU_MIPS  = 0x0160,
+			/** @brief Motorola 88000
+			 *
+			 * Value as used by UNIX and also defined in ECOFF
+			 */
 			CPU_M88K  = 0x016D,
+			/** @brief AT&T Bellmac 32, Western Electric 32000 and family
+			 *
+			 * Value as used by UNIX
+			 */
 			CPU_WE32K = 0x0170,
+			/** @brief DEC VAX
+			 *
+			 * Value as used by UNIX
+			 */
 			CPU_VAX   = 0x0178,
+			/** @brief AMD 29000
+			 *
+			 * Value as used by UNIX
+			 */
 			CPU_AM29K = 0x017A,
+			/** @brief DEC Alpha
+			 *
+			 * Value as used by UNIX
+			 */
 			CPU_ALPHA = 0x0183,
+			/** @brief IBM PowerPC, 32-bit
+			 *
+			 * Value as defined by XCOFF
+			 */
 			CPU_PPC   = 0x01DF,
+			/** @brief IBM PowerPC, 64-bit
+			 *
+			 * Value as defined by XCOFF
+			 */
 			CPU_PPC64 = 0x01F7,
+			/** @brief SHARC from Analog Devices */
 			CPU_SHARC = 0x521C,
-			// overloaded values
-			// for now, none
+
+			//// Microsoft values
+
+			/** @brief Intel i860
+			 *
+			 * Value as shown in early Microsoft documentation
+			 */
+			CPU_I860  = 0x014D,
+			/** @brief Hitachi SuperH family
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_SH    = 0x01A2,
+			/** @brief ARM, also known as ARM32 or AArch32; also represents Thumb
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_ARM   = 0x01C0,
+			/** @brief Matsushita AM33
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_AM33  = 0x01D3,
+			/** @brief Intel Itanium architecture, also known as IA-64
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_IA64  = 0x0200,
+			/** @brief Hewlett-Packard PA-RISC
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_HPPA  = 0x0290,
+			/** @brief EFI bytecode
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_EFI   = 0x0EBC,
+			/** @brief RISC-V 32
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_RISCV32 = 0x5032,
+			/** @brief RISC-V 64
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_RISCV64 = 0x5064,
+			/** @brief RISC-V 128
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_RISCV128 = 0x5128,
+			/** @brief x86-64, introduced by AMD
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_AMD64 = 0x8664,
+			/** @brief Mitsubishi M32R
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_M32R  = 0x9041,
+			/** @brief ARM64, also known as AArch64
+			 *
+			 * Value as defined by Microsoft
+			 */
+			CPU_ARM64 = 0xAA64,
+
+			//// overloaded values (greater or equal to 0x10000)
+			// for now, there are no overloaded values
 		};
 
 		struct MachineType
