@@ -294,18 +294,49 @@ void COFFFormat::Section::Clear()
 	relocations.clear();
 }
 
-void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd)
+void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFVariantType coff_variant)
 {
-	name = rd.ReadData(8, true);
-	physical_address = rd.ReadUnsigned(4);
-	address = rd.ReadUnsigned(4);
-	size = rd.ReadUnsigned(4);
-	section_pointer = rd.ReadUnsigned(4);
-	relocation_pointer = rd.ReadUnsigned(4);
-	line_number_pointer = rd.ReadUnsigned(4);
-	relocation_count = rd.ReadUnsigned(2);
-	line_number_count = rd.ReadUnsigned(2);
-	flags = rd.ReadUnsigned(4);
+	switch(coff_variant)
+	{
+	case COFF:
+	case XCOFF32:
+	case PECOFF:
+		name = rd.ReadData(8, true);
+		physical_address = rd.ReadUnsigned(4);
+		address = rd.ReadUnsigned(4);
+		size = rd.ReadUnsigned(4);
+		section_pointer = rd.ReadUnsigned(4);
+		relocation_pointer = rd.ReadUnsigned(4);
+		line_number_pointer = rd.ReadUnsigned(4);
+		relocation_count = rd.ReadUnsigned(2);
+		line_number_count = rd.ReadUnsigned(2);
+		flags = rd.ReadUnsigned(coff_variant == XCOFF32 ? 2 : 4);
+		break;
+	case ECOFF:
+		name = rd.ReadData(8, true);
+		physical_address = rd.ReadUnsigned(8);
+		address = rd.ReadUnsigned(8);
+		size = rd.ReadUnsigned(8);
+		section_pointer = rd.ReadUnsigned(8);
+		relocation_pointer = rd.ReadUnsigned(8);
+		line_number_pointer = rd.ReadUnsigned(8);
+		relocation_count = rd.ReadUnsigned(2);
+		line_number_count = rd.ReadUnsigned(2);
+		flags = rd.ReadUnsigned(4);
+		break;
+	case XCOFF64:
+		name = rd.ReadData(8, true);
+		physical_address = rd.ReadUnsigned(8);
+		address = rd.ReadUnsigned(8);
+		size = rd.ReadUnsigned(8);
+		section_pointer = rd.ReadUnsigned(8);
+		relocation_pointer = rd.ReadUnsigned(8);
+		line_number_pointer = rd.ReadUnsigned(8);
+		relocation_count = rd.ReadUnsigned(4);
+		line_number_count = rd.ReadUnsigned(4);
+		flags = rd.ReadUnsigned(4);
+		break;
+	}
 
 	/* TODO: Buffer instead of Section? */
 	if(flags & TEXT)
@@ -322,18 +353,49 @@ void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd)
 	}
 }
 
-void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr)
+void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType coff_variant)
 {
-	wr.WriteData(8, name);
-	wr.WriteWord(4, physical_address);
-	wr.WriteWord(4, address);
-	wr.WriteWord(4, size);
-	wr.WriteWord(4, section_pointer);
-	wr.WriteWord(4, relocation_pointer);
-	wr.WriteWord(4, line_number_pointer);
-	wr.WriteWord(2, relocation_count);
-	wr.WriteWord(2, line_number_count);
-	wr.WriteWord(4, flags);
+	switch(coff_variant)
+	{
+	case COFF:
+	case XCOFF32:
+	case PECOFF:
+		wr.WriteData(8, name);
+		wr.WriteWord(4, physical_address);
+		wr.WriteWord(4, address);
+		wr.WriteWord(4, size);
+		wr.WriteWord(4, section_pointer);
+		wr.WriteWord(4, relocation_pointer);
+		wr.WriteWord(4, line_number_pointer);
+		wr.WriteWord(2, relocation_count);
+		wr.WriteWord(2, line_number_count);
+		wr.WriteWord(coff_variant == XCOFF32 ? 2 : 4, flags);
+		break;
+	case ECOFF:
+		wr.WriteData(8, name);
+		wr.WriteWord(8, physical_address);
+		wr.WriteWord(8, address);
+		wr.WriteWord(8, size);
+		wr.WriteWord(8, section_pointer);
+		wr.WriteWord(8, relocation_pointer);
+		wr.WriteWord(8, line_number_pointer);
+		wr.WriteWord(2, relocation_count);
+		wr.WriteWord(2, line_number_count);
+		wr.WriteWord(4, flags);
+		break;
+	case XCOFF64:
+		wr.WriteData(8, name);
+		wr.WriteWord(8, physical_address);
+		wr.WriteWord(8, address);
+		wr.WriteWord(8, size);
+		wr.WriteWord(8, section_pointer);
+		wr.WriteWord(8, relocation_pointer);
+		wr.WriteWord(8, line_number_pointer);
+		wr.WriteWord(4, relocation_count);
+		wr.WriteWord(4, line_number_count);
+		wr.WriteWord(4, flags);
+		break;
+	}
 }
 
 uint32_t COFFFormat::Section::ImageSize()
@@ -540,6 +602,34 @@ void COFFFormat::GNUAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 	header_region.Display(dump);
 }
 
+uint32_t COFFFormat::MIPSAOutHeader::GetSize()
+{
+	return 56;
+}
+
+void COFFFormat::MIPSAOutHeader::ReadFile(Linker::Reader& rd)
+{
+	AOutHeader::ReadFile(rd);
+	bss_address = rd.ReadUnsigned(4);
+	gpr_mask = rd.ReadUnsigned(4);
+	cpr_mask[0] = rd.ReadUnsigned(4);
+	cpr_mask[1] = rd.ReadUnsigned(4);
+	cpr_mask[2] = rd.ReadUnsigned(4);
+	cpr_mask[3] = rd.ReadUnsigned(4);
+	gp_value = rd.ReadUnsigned(4);
+}
+
+void COFFFormat::MIPSAOutHeader::WriteFile(Linker::Writer& wr)
+{
+	AOutHeader::WriteFile(wr);
+	wr.WriteWord(4, bss_address);
+	wr.WriteWord(4, gpr_mask);
+	wr.WriteWord(4, cpr_mask[0]);
+	wr.WriteWord(4, cpr_mask[1]);
+	wr.WriteWord(4, cpr_mask[2]);
+	wr.WriteWord(4, cpr_mask[3]);
+}
+
 void COFFFormat::MIPSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
 {
 	/* TODO: untested */
@@ -551,6 +641,185 @@ void COFFFormat::MIPSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& du
 	header_region.AddField("CPR #3 mask", Dumper::HexDisplay::Make(), offset_t(cpr_mask[2]));
 	header_region.AddField("CPR #4 mask", Dumper::HexDisplay::Make(), offset_t(cpr_mask[3]));
 	header_region.AddField("GP regiser value", Dumper::HexDisplay::Make(), offset_t(gp_value));
+}
+
+uint32_t COFFFormat::ECOFFAOutHeader::GetSize()
+{
+	return 80;
+}
+
+void COFFFormat::ECOFFAOutHeader::ReadFile(Linker::Reader& rd)
+{
+	magic = rd.ReadUnsigned(2);
+	version_stamp = rd.ReadUnsigned(2);
+	build_revision = rd.ReadUnsigned(2);
+	rd.Skip(2);
+	code_size = rd.ReadUnsigned(8);
+	data_size = rd.ReadUnsigned(8);
+	bss_size = rd.ReadUnsigned(8);
+	entry_address = rd.ReadUnsigned(8);
+	code_address = rd.ReadUnsigned(8);
+	data_address = rd.ReadUnsigned(8);
+	bss_address = rd.ReadUnsigned(8);
+	gpr_mask = rd.ReadUnsigned(4);
+	fpr_mask = rd.ReadUnsigned(4);
+	global_pointer = rd.ReadUnsigned(8);
+}
+
+void COFFFormat::ECOFFAOutHeader::WriteFile(Linker::Writer& wr)
+{
+	wr.WriteWord(2, magic);
+	wr.WriteWord(2, version_stamp);
+	wr.WriteWord(2, build_revision);
+	wr.Skip(2);
+	wr.WriteWord(8, code_size);
+	wr.WriteWord(8, data_size);
+	wr.WriteWord(8, bss_size);
+	wr.WriteWord(8, entry_address);
+	wr.WriteWord(8, code_address);
+	wr.WriteWord(8, data_address);
+	wr.WriteWord(8, bss_address);
+	wr.WriteWord(4, gpr_mask);
+	wr.WriteWord(4, fpr_mask);
+	wr.WriteWord(8, global_pointer);
+}
+
+void COFFFormat::ECOFFAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
+{
+	// TODO
+}
+
+uint32_t COFFFormat::XCOFFAOutHeader::GetSize()
+{
+	return is64 ? 110 : 72;
+}
+
+void COFFFormat::XCOFFAOutHeader::ReadFile(Linker::Reader& rd)
+{
+	magic = rd.ReadUnsigned(2);
+	version_stamp = rd.ReadUnsigned(2);
+	if(is64)
+	{
+		debugger_data = rd.ReadUnsigned(4);
+		code_address = rd.ReadUnsigned(8);
+		data_address = rd.ReadUnsigned(8);
+		toc_address = rd.ReadUnsigned(8);
+	}
+	else
+	{
+		code_size = rd.ReadUnsigned(4);
+		data_size = rd.ReadUnsigned(4);
+		bss_size = rd.ReadUnsigned(4);
+		entry_address = rd.ReadUnsigned(4);
+		code_address = rd.ReadUnsigned(4);
+		data_address = rd.ReadUnsigned(4);
+		toc_address = rd.ReadUnsigned(4);
+	}
+	entry_section = rd.ReadUnsigned(2);
+	code_section = rd.ReadUnsigned(2);
+	data_section = rd.ReadUnsigned(2);
+	toc_section = rd.ReadUnsigned(2);
+	loader_section = rd.ReadUnsigned(2);
+	bss_section = rd.ReadUnsigned(2);
+	code_align = rd.ReadUnsigned(2);
+	data_align = rd.ReadUnsigned(2);
+	module_type = rd.ReadUnsigned(2);
+	cpu_flags = rd.ReadUnsigned(1);
+	cpu_type = rd.ReadUnsigned(1);
+	if(!is64)
+	{
+		maximum_stack_size = rd.ReadUnsigned(4);
+		maximum_data_size = rd.ReadUnsigned(4);
+		debugger_data = rd.ReadUnsigned(4);
+	}
+	code_page_size = rd.ReadUnsigned(1);
+	text_page_size = rd.ReadUnsigned(1);
+	stack_page_size = rd.ReadUnsigned(1);
+	flags = rd.ReadUnsigned(1);
+	if(is64)
+	{
+		code_size = rd.ReadUnsigned(8);
+		data_size = rd.ReadUnsigned(8);
+		bss_size = rd.ReadUnsigned(8);
+		entry_address = rd.ReadUnsigned(8);
+		maximum_stack_size = rd.ReadUnsigned(8);
+		maximum_data_size = rd.ReadUnsigned(8);
+	}
+	tdata_section = rd.ReadUnsigned(2);
+	tbss_section = rd.ReadUnsigned(2);
+	if(is64)
+	{
+		xcoff64_flags = rd.ReadUnsigned(2);
+#if 0
+		// TODO: this seems to make the header too long, is it 111 bytes long?
+		shared_memory_page = rd.ReadUnsigned(1);
+#endif
+	}
+}
+
+void COFFFormat::XCOFFAOutHeader::WriteFile(Linker::Writer& wr)
+{
+	wr.WriteWord(2, magic);
+	wr.WriteWord(2, version_stamp);
+	if(is64)
+	{
+		wr.WriteWord(4, debugger_data);
+		wr.WriteWord(8, code_address);
+		wr.WriteWord(8, data_address);
+		wr.WriteWord(8, toc_address);
+	}
+	else
+	{
+		wr.WriteWord(4, code_size);
+		wr.WriteWord(4, data_size);
+		wr.WriteWord(4, bss_size);
+		wr.WriteWord(4, entry_address);
+		wr.WriteWord(4, code_address);
+		wr.WriteWord(4, data_address);
+		wr.WriteWord(4, toc_address);
+	}
+	wr.WriteWord(2, entry_section);
+	wr.WriteWord(2, code_section);
+	wr.WriteWord(2, data_section);
+	wr.WriteWord(2, toc_section);
+	wr.WriteWord(2, loader_section);
+	wr.WriteWord(2, bss_section);
+	wr.WriteWord(2, code_align);
+	wr.WriteWord(2, data_align);
+	wr.WriteWord(2, module_type);
+	wr.WriteWord(1, cpu_flags);
+	wr.WriteWord(1, cpu_type);
+	if(!is64)
+	{
+		wr.WriteWord(4, maximum_stack_size);
+		wr.WriteWord(4, maximum_data_size);
+		wr.WriteWord(4, debugger_data);
+	}
+	wr.WriteWord(1, code_page_size);
+	wr.WriteWord(1, text_page_size);
+	wr.WriteWord(1, stack_page_size);
+	wr.WriteWord(1, flags);
+	if(is64)
+	{
+		wr.WriteWord(8, code_size);
+		wr.WriteWord(8, data_size);
+		wr.WriteWord(8, bss_size);
+		wr.WriteWord(8, entry_address);
+		wr.WriteWord(8, maximum_stack_size);
+		wr.WriteWord(8, maximum_data_size);
+	}
+	wr.WriteWord(2, tdata_section);
+	wr.WriteWord(2, tbss_section);
+	if(is64)
+	{
+		wr.WriteWord(2, xcoff64_flags);
+		wr.WriteWord(1, shared_memory_page);
+	}
+}
+
+void COFFFormat::XCOFFAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
+{
+	// TODO
 }
 
 void COFFFormat::Clear()
@@ -630,12 +899,57 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 	DetectCpuType();
 	rd.endiantype = endiantype;
 
-	section_count = rd.ReadUnsigned(2);
-	timestamp = rd.ReadUnsigned(4);
-	symbol_table_offset = rd.ReadUnsigned(4);
-	symbol_count = rd.ReadUnsigned(4);
-	optional_header_size = rd.ReadUnsigned(2);
-	flags = rd.ReadUnsigned(2);
+	// TODO: determine coff_variant
+#if 0
+	switch(uint8_t(signature[0]) | (uint8_t(signature[1]) << 8))
+	{
+	case 0x0183:
+	case 0x0188:
+	case 0x018F:
+		coff_variant = ECOFF;
+		break;
+	case 0xDF01:
+		coff_variant = XCOFF32;
+		break;
+	case 0xF701:
+		coff_variant = XCOFF64;
+		break;
+	}
+#endif
+
+	switch(coff_variant)
+	{
+	case PECOFF:
+		rd.endiantype = ::LittleEndian;
+
+	case COFF:
+	case XCOFF32:
+		section_count = rd.ReadUnsigned(2);
+		timestamp = rd.ReadUnsigned(4);
+		symbol_table_offset = rd.ReadUnsigned(4);
+		symbol_count = rd.ReadUnsigned(4);
+		optional_header_size = rd.ReadUnsigned(2);
+		flags = rd.ReadUnsigned(2);
+		break;
+
+	case ECOFF:
+		section_count = rd.ReadUnsigned(2);
+		timestamp = rd.ReadUnsigned(4);
+		symbol_table_offset = rd.ReadUnsigned(8); // extended
+		symbol_count = rd.ReadUnsigned(4);
+		optional_header_size = rd.ReadUnsigned(2);
+		flags = rd.ReadUnsigned(2);
+		break;
+
+	case XCOFF64:
+		section_count = rd.ReadUnsigned(2);
+		timestamp = rd.ReadUnsigned(4);
+		symbol_table_offset = rd.ReadUnsigned(8); // extended
+		optional_header_size = rd.ReadUnsigned(2);
+		flags = rd.ReadUnsigned(2);
+		symbol_count = rd.ReadUnsigned(4); // moved
+		break;
+	}
 
 	switch(optional_header_size)
 	{
@@ -658,6 +972,39 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 			break;
 		}
 		break;
+	case 56:
+		/* MIPS header */
+		if(cpu_type == CPU_MIPS)
+		{
+			optional_header = std::make_unique<MIPSAOutHeader>();
+			break;
+		}
+		break;
+	case 80:
+		/* ECOFF header */
+		if(cpu_type == CPU_ALPHA && coff_variant == ECOFF)
+		{
+			optional_header = std::make_unique<ECOFFAOutHeader>();
+			break;
+		}
+		break;
+	case 72:
+		/* XCOFF32 header */
+		if(cpu_type == CPU_PPC && (coff_variant == COFF || coff_variant == XCOFF32))
+		{
+			coff_variant = XCOFF32;
+			optional_header = std::make_unique<XCOFFAOutHeader>(false);
+			break;
+		}
+		break;
+	case 110:
+		/* XCOFF64 header */
+		if(cpu_type == CPU_PPC64 && coff_variant == XCOFF64)
+		{
+			optional_header = std::make_unique<XCOFFAOutHeader>(true);
+			break;
+		}
+		break;
 	}
 	if(optional_header == nullptr && optional_header_size != 0)
 	{
@@ -675,7 +1022,7 @@ void COFFFormat::ReadFile(Linker::Reader& rd)
 	for(size_t i = 0; i < section_count; i++)
 	{
 		std::unique_ptr<Section> section = std::make_unique<Section>();
-		section->ReadSectionHeader(rd);
+		section->ReadSectionHeader(rd, coff_variant);
 		sections.push_back(std::move(section));
 	}
 
@@ -783,7 +1130,7 @@ offset_t COFFFormat::WriteFile(Linker::Writer& wr)
 	/* Section Header */
 	for(auto& section : sections)
 	{
-		section->WriteSectionHeader(wr);
+		section->WriteSectionHeader(wr, coff_variant);
 	}
 
 	/* Section Data */

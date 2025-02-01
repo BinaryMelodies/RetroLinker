@@ -196,6 +196,15 @@ namespace COFF
 			// for now, there are no overloaded values
 		};
 
+		enum COFFVariantType
+		{
+			COFF = 0,
+			ECOFF = 1,
+			XCOFF32 = 2,
+			XCOFF64 = 3,
+			PECOFF = 4,
+		};
+
 		struct MachineType
 		{
 			cpu actual_cpu;
@@ -353,36 +362,38 @@ namespace COFF
 			std::string name;
 			/**
 			 * @brief The physical address of the section (expected to be identical to the virtual address) (COFF name: s_paddr)
+			 *
+			 * For PE/COFF, this field is reinterpreted as the size of the section in memory
 			 */
-			uint32_t physical_address = 0;
+			offset_t physical_address = 0;
 			/**
 			 * @brief The virtual address of the section (COFF name: s_vaddr)
 			 */
-			uint32_t address = 0;
+			offset_t address = 0;
 			/**
 			 * @brief The size of the section (COFF name: s_size)
 			 */
-			uint32_t size = 0;
+			offset_t size = 0;
 			/**
 			 * @brief Offset of stored image data from COFF header start (COFF name: s_scnptr)
 			 */
-			uint32_t section_pointer = 0;
+			offset_t section_pointer = 0;
 			/**
 			 * @brief Offset to COFF relocations (COFF name: s_relptr)
 			 */
-			uint32_t relocation_pointer = 0;
+			offset_t relocation_pointer = 0;
 			/**
 			 * @brief unused (COFF name: s_lnnoptr)
 			 */
-			uint32_t line_number_pointer = 0;
+			offset_t line_number_pointer = 0;
 			/**
 			 * @brief COFF relocation count (COFF name: s_nreloc)
 			 */
-			uint16_t relocation_count = 0;
+			uint32_t relocation_count = 0;
 			/**
 			 * @brief unused (COFF name: s_nlnno)
 			 */
-			uint16_t line_number_count = 0;
+			uint32_t line_number_count = 0;
 			/**
 			 * @brief COFF section flags, determines the type of the section (text, data, bss, etc.) (COFF name: s_flags)
 			 */
@@ -421,9 +432,9 @@ namespace COFF
 				Clear();
 			}
 
-			void ReadSectionHeader(Linker::Reader& rd);
+			void ReadSectionHeader(Linker::Reader& rd, COFFVariantType coff_variant);
 
-			void WriteSectionHeader(Linker::Writer& wr);
+			void WriteSectionHeader(Linker::Writer& wr, COFFVariantType coff_variant);
 
 			uint32_t ImageSize();
 		};
@@ -444,7 +455,7 @@ namespace COFF
 		/**
 		 * @brief Offset to the first symbol (COFF name: f_symptr)
 		 */
-		uint32_t symbol_table_offset = 0;
+		offset_t symbol_table_offset = 0;
 		/**
 		 * @brief The number of symbols (COFF name: f_nsyms)
 		 */
@@ -636,9 +647,9 @@ namespace COFF
 		};
 
 		/**
-		 * @brief A standard 28 byte a.out optional header, used by DJGPP
+		 * @brief 56 byte long header used on MIPS
 		 *
-		 * unimplemented
+		 * TODO: untested
 		 */
 		class MIPSAOutHeader : public AOutHeader
 		{
@@ -652,15 +663,252 @@ namespace COFF
 			uint32_t cpr_mask[4];
 			/* gp_value */
 			uint32_t gp_value;
-			/* TODO */
+
+			MIPSAOutHeader(uint16_t magic = 0)
+				: AOutHeader(magic)
+			{
+			}
+
+			uint32_t GetSize() override;
+
+			void ReadFile(Linker::Reader& rd) override;
+
+			void WriteFile(Linker::Writer& wr) override;
 
 		protected:
 			void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) override;
 		};
 
+		/**
+		 * @brief ECOFF optional header
+		 *
+		 * TODO: untested
+		 */
+		class ECOFFAOutHeader : public OptionalHeader
+		{
+		public:
+			static constexpr uint16_t OMAGIC = 0x0107;
+			static constexpr uint16_t NMAGIC = 0x0108;
+			static constexpr uint16_t ZMAGIC = 0x010B;
+			/**
+			 * @brief Type of executable
+			 */
+			uint16_t magic = 0;
+			static constexpr uint16_t SYM_STAMP = 0x030D;
+			/**
+			 * @brief Object file version stamp (ECOFF name: vstamp)
+			 */
+			uint16_t version_stamp = SYM_STAMP;
+			/**
+			 * @brief Revision build of system tools (ECOFF name: bldrev)
+			 */
+			uint16_t build_revision = 0;
+
+			/**
+			 * @brief Size of code segment (ECOFF name: tsize)
+			 */
+			uint64_t code_size = 0;
+			/**
+			 * @brief Size of data segment (ECOFF name: dsize)
+			 */
+			uint64_t data_size = 0;
+			/**
+			 * @brief Size of bss segment (ECOFF name: bsize)
+			 */
+			uint64_t bss_size = 0;
+			/**
+			 * @brief Virtual address of execution start (ECOFF name: entry)
+			 */
+			uint64_t entry_address = 0;
+			/**
+			 * @brief Base address for code segment (ECOFF name: text_start)
+			 */
+			uint64_t code_address = 0;
+			/**
+			 * @brief Base address for data segment (ECOFF name: data_start)
+			 */
+			uint64_t data_address = 0;
+			/**
+			 * @brief Base address for bss segment (ECOFF name: bss_start)
+			 */
+			uint64_t bss_address = 0;
+			/** @brief unused (ECOFF name: gprmask) */
+			uint32_t gpr_mask = 0;
+			/** @brief unused (ECOFF name: fprmask) */
+			uint32_t fpr_mask = 0;
+			/** @brief Initial global pointer value (ECOFF name: gp_value) */
+			uint64_t global_pointer = 0;
+
+			ECOFFAOutHeader(uint16_t magic = 0)
+				: magic(magic)
+			{
+			}
+
+			uint32_t GetSize() override;
+
+			void ReadFile(Linker::Reader& rd) override;
+
+			void WriteFile(Linker::Writer& wr) override;
+
+			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
+		};
+
+		/**
+		 * @brief XCOFF optional header
+		 *
+		 * TODO: untested
+		 */
+		class XCOFFAOutHeader : public OptionalHeader
+		{
+		public:
+			/** @brief False for XCOFF32, true for XCOFF64 */
+			bool is64 = false;
+			/**
+			 * @brief Type of executable (XCOFF name: mflag)
+			 */
+			uint16_t magic = 0;
+			/**
+			 * @brief Object file version stamp (XCOFF name: vstamp)
+			 */
+			uint16_t version_stamp = 0;
+			/**
+			 * @brief Size of code segment (XCOFF name: tsize)
+			 */
+			uint64_t code_size = 0;
+			/**
+			 * @brief Size of data segment (XCOFF name: dsize)
+			 */
+			uint64_t data_size = 0;
+			/**
+			 * @brief Size of bss segment (XCOFF name: bsize)
+			 */
+			uint64_t bss_size = 0;
+			/**
+			 * @brief Virtual address of execution start (XCOFF name: entry)
+			 */
+			uint64_t entry_address = 0;
+			/**
+			 * @brief Base address for code segment (XCOFF name: text_start)
+			 */
+			uint64_t code_address = 0;
+			/**
+			 * @brief Base address for data segment (XCOFF name: data_start)
+			 */
+			uint64_t data_address = 0;
+			/**
+			 * @brief Address of TOC (XCOFF name: toc)
+			 */
+			uint64_t toc_address = 0;
+			/**
+			 * @brief Section number for entry point (XCOFF name: snentry)
+			 */
+			uint16_t entry_section = 0;
+			/**
+			 * @brief Section number for text (XCOFF name: sntext)
+			 */
+			uint16_t code_section = 0;
+			/**
+			 * @brief Section number for data (XCOFF name: sndata)
+			 */
+			uint16_t data_section = 0;
+			/**
+			 * @brief Section number for TOC (XCOFF name: sntoc)
+			 */
+			uint16_t toc_section = 0;
+			/**
+			 * @brief Section number for loader data (XCOFF name: snloader)
+			 */
+			uint16_t loader_section = 0;
+			/**
+			 * @brief Section number for bss (XCOFF name: snbss)
+			 */
+			uint16_t bss_section = 0;
+			/**
+			 * @brief Maximum alignment of text (XCOFF name: algntext)
+			 */
+			uint16_t code_align = 0;
+			/**
+			 * @brief Maximum alignment of data (XCOFF name: algndata)
+			 */
+			uint16_t data_align = 0;
+			/**
+			 * @brief Module type (XCOFF name: modtype)
+			 */
+			uint16_t module_type = 0;
+			/**
+			 * @brief CPU flags (XCOFF name: cpuflag)
+			 */
+			uint8_t cpu_flags = 0;
+			/**
+			 * @brief CPU type (XCOFF name: cputype)
+			 */
+			uint8_t cpu_type = 0;
+			/**
+			 * @brief Maximum stack size (XCOFF name: maxstack)
+			 */
+			uint64_t maximum_stack_size = 0;
+			/**
+			 * @brief Maximum data size (XCOFF name: maxdata)
+			 */
+			uint64_t maximum_data_size = 0;
+			/**
+			 * @brief Reserved for debugger (XCOFF name: debugger)
+			 */
+			uint32_t debugger_data = 0;
+			/**
+			 * @brief Requested code page size (XCOFF name: textpsize)
+			 */
+			uint8_t code_page_size = 0;
+			/**
+			 * @brief Requested data page size (XCOFF name: datapsize)
+			 */
+			uint8_t text_page_size = 0;
+			/**
+			 * @brief Requested stack page size (XCOFF name: stackpsize)
+			 */
+			uint8_t stack_page_size = 0;
+			/**
+			 * @brief Flags
+			 */
+			uint8_t flags = 0;
+			/**
+			 * @brief Section number for tdata (XCOFF name: sntdata)
+			 */
+			uint16_t tdata_section = 0;
+			/**
+			 * @brief Section number for tbss (XCOFF name: sntbss)
+			 */
+			uint16_t tbss_section = 0;
+			/**
+			 * @brief XCOFF64 specific flags (XCOFF64 name: x64flags)
+			 */
+			uint32_t xcoff64_flags = 0;
+#if 0
+			/**
+			 * @brief Shared memory page size (XCOFF64 name: shmpsize)
+			 */
+			uint8_t shared_memory_page = 0;
+#endif
+
+			XCOFFAOutHeader(bool is64, uint16_t magic = 0)
+				: is64(is64), magic(magic)
+			{
+			}
+
+			uint32_t GetSize() override;
+
+			void ReadFile(Linker::Reader& rd) override;
+
+			void WriteFile(Linker::Writer& wr) override;
+
+			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
+		};
+
 		void Clear() override;
 
 		void AssignMagicValue();
+
+		COFFVariantType coff_variant = COFF;
 
 		/**
 		 * @brief The CPU type, reflected by the first 16-bit word of a COFF file
