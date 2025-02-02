@@ -101,7 +101,7 @@ namespace Microsoft
 					Additive = 4,
 				};
 				flag_type flags = flag_type(0);
-				uint16_t offset = 0;
+				std::vector<uint16_t> offsets;
 				union
 				{
 					uint16_t module;
@@ -123,8 +123,9 @@ namespace Microsoft
 				}
 
 				Relocation(unsigned type, unsigned flags, uint16_t offset, uint16_t module, uint16_t target)
-					: type(source_type(type)), flags(flag_type(flags)), offset(offset), module(module), target(target)
+					: type(source_type(type)), flags(flag_type(flags)), module(module), target(target)
 				{
+					offsets.push_back(offset);
 				}
 
 				static source_type GetType(Linker::Relocation& rel);

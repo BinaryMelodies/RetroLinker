@@ -48,7 +48,9 @@ offset_t NEFormat::Segment::Relocation::GetSize() const
 
 void NEFormat::Segment::AddRelocation(const Relocation& rel)
 {
-	relocations_map[rel.offset] = rel;
+	if(rel.offsets.size() == 0)
+		return;
+	relocations_map[rel.offsets[0]] = rel;
 }
 
 void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
@@ -77,10 +79,82 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 		offset_t(flags));
 	for(auto& relocation : relocations)
 	{
-		segment_block.AddSignal(relocation.offset, relocation.GetSize());
+		for(uint16_t offset : relocation.offsets)
+		{
+			segment_block.AddSignal(offset, relocation.GetSize());
+		}
 	}
 	segment_block.Display(dump);
-	// TODO: print out relocations
+	unsigned i = 0;
+	std::map<offset_t, std::string> type_descriptions;
+	type_descriptions[Relocation::Offset8] = "8-bit offset";
+	type_descriptions[Relocation::Selector16] = "16-bit selector";
+	type_descriptions[Relocation::Pointer32] = "16:16-bit pointer";
+	type_descriptions[Relocation::Offset16] = "16-bit offset";
+	type_descriptions[Relocation::Pointer48] = "16:32-bit pointer";
+	type_descriptions[Relocation::Offset32] = "32-bit offset";
+	std::map<offset_t, std::string> target_descriptions;
+	target_descriptions[Relocation::Internal] = "internal";
+	target_descriptions[Relocation::ImportOrdinal] = "import by ordinal";
+	target_descriptions[Relocation::ImportName] = "import by name";
+	target_descriptions[Relocation::OSFixup] = "operating system";
+	for(auto& relocation : relocations)
+	{
+		unsigned j = 0;
+		for(uint16_t offset : relocation.offsets)
+		{
+			if(j == 0)
+			{
+				Dumper::Entry rel_entry("Relocation", i + 1, data_offset + image->ImageSize() + i * 8, 8);
+				rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(relocation.type));
+				rel_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation.GetSize()));
+				rel_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(offset));
+				rel_entry.AddField("Flags",
+					Dumper::BitFieldDisplay::Make(2)
+						->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(target_descriptions), false)
+						->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("additive"), true),
+					offset_t(relocation.flags));
+				switch(relocation.flags & 3)
+				{
+				case Relocation::Internal:
+					if(relocation.segment == 0xFF)
+					{
+						// TODO: get name
+						rel_entry.AddField("Entry", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
+					}
+					else
+					{
+						rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(4)), offset_t(relocation.segment), offset_t(relocation.target));
+					}
+					break;
+				case Relocation::ImportOrdinal:
+					// TODO: get module name
+					rel_entry.AddField("Module", Dumper::DecDisplay::Make(), offset_t(relocation.segment));
+					rel_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
+					break;
+				case Relocation::ImportName:
+					// TODO: get module name
+					rel_entry.AddField("Module", Dumper::DecDisplay::Make(), offset_t(relocation.segment));
+					// TODO: get procedure name
+					rel_entry.AddField("Name offset", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
+					break;
+				case Relocation::OSFixup:
+					rel_entry.AddField("Fixup type", Dumper::HexDisplay::Make(4), offset_t(relocation.module));
+					break;
+				}
+				rel_entry.Display(dump);
+			}
+			else
+			{
+				Dumper::Entry rel_entry("Chained", j, data_offset + relocation.offsets[j - 1], 8);
+				rel_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(offset));
+				rel_entry.Display(dump);
+			}
+			j++;
+		}
+		// TODO: finish
+		i++;
+	}
 }
 
 void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
@@ -118,7 +192,10 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 			offset_t(flags));
 		for(auto& relocation : relocations)
 		{
-			resource_block.AddSignal(relocation.offset, relocation.GetSize());
+			for(uint16_t offset : relocation.offsets)
+			{
+				resource_block.AddSignal(offset, relocation.GetSize());
+			}
 		}
 		resource_block.Display(dump);
 		// TODO: print out relocations
@@ -536,7 +613,6 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		}
 		if((segment.flags & Segment::Relocations) != 0)
 		{
-			// TODO: chained relocations
 			segment.relocations.clear();
 			uint16_t count = rd.ReadUnsigned(2);
 			for(i = 0; i < count; i++)
@@ -544,22 +620,25 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				Segment::Relocation relocation;
 				relocation.type = Segment::Relocation::source_type(rd.ReadUnsigned(1));
 				relocation.flags = Segment::Relocation::flag_type(rd.ReadUnsigned(1));
-				relocation.offset = rd.ReadUnsigned(2);
+				relocation.offsets.push_back(rd.ReadUnsigned(2));
 				relocation.module = rd.ReadUnsigned(2);
 				relocation.target = rd.ReadUnsigned(2);
-				segment.relocations.emplace_back(relocation);
 				if((relocation.flags & Segment::Relocation::Additive) != 0)
 				{
+					uint16_t offset = relocation.offsets[0];
 					while(true)
 					{
-						uint16_t new_offset = segment.image->GetByte(relocation.offset) | (segment.image->GetByte(relocation.offset + 1) << 8);
+						uint16_t new_offset = segment.image->GetByte(offset) | (segment.image->GetByte(offset + 1) << 8);
 						if(new_offset == 0xFFFF)
 							break;
-						Linker::Debug << "Debug: chained relocation from offset " << std::hex << relocation.offset << " to " << new_offset << std::endl;
-						relocation.offset = new_offset;
-						segment.relocations.emplace_back(relocation);
+						Linker::Debug << "Debug: chained relocation from offset " << std::hex << offset << " to " << new_offset << std::endl;
+						//relocation.offset = new_offset;
+						//segment.relocations.emplace_back(relocation);
+						relocation.offsets.push_back(new_offset);
+						offset = new_offset;
 					}
 				}
+				segment.relocations.emplace_back(relocation);
 			}
 		}
 		file_size = std::max(file_size, rd.Tell());
@@ -760,9 +839,15 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 			{
 				wr.WriteWord(1, it.type);
 				wr.WriteWord(1, it.flags);
-				wr.WriteWord(2, it.offset);
+				wr.WriteWord(2, it.offsets[0]);
 				wr.WriteWord(2, it.module);
 				wr.WriteWord(2, it.target);
+				// TODO: check that this works
+				for(unsigned i = 1; i < it.offsets.size(); i++)
+				{
+					wr.Seek(segment.data_offset + it.offsets[i - 1]);
+					wr.WriteWord(2, it.offsets[i]);
+				}
 			}
 		}
 	}
