@@ -133,50 +133,7 @@ namespace Microsoft
 			std::map<uint16_t, Relocation> relocations;
 
 			void AddRelocation(const Relocation& rel);
-		};
-
-		/** @brief Represents an entry into the binary, typically DLL exported procedures */
-		class Entry
-		{
-		public:
-			enum entry_type
-			{
-				Unused,
-				Fixed,
-				Movable,
-			};
-			entry_type type = Unused;
-			uint8_t segment = 0;
-			enum flag_type
-			{
-				Exported = 1,
-				SharedData = 2,
-			};
-			flag_type flags = flag_type(0);
-			uint16_t offset = 0;
-
-			enum
-			{
-				WordCountShift = 3,
-
-				INT_3Fh = 0x3FCD,
-			};
-
-			Entry()
-			{
-			}
-
-			Entry(unsigned type, uint8_t segment, unsigned flags, uint16_t offset)
-				: type(entry_type(type)), segment(segment), flags(flag_type(flags)), offset(offset)
-			{
-			}
-
-			offset_t GetEntrySize() const;
-
-			uint8_t GetIndicatorByte() const;
-
-			static Entry ReadEntry(Linker::Reader& rd, uint8_t indicator_byte);
-			void WriteEntry(Linker::Writer& wr);
+			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2);
 		};
 
 		class Resource : public Segment
@@ -218,6 +175,8 @@ namespace Microsoft
 			std::string id_name;
 			uint16_t handle = 0;
 			uint16_t usage = 0;
+
+			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2);
 		};
 
 		class ResourceType
@@ -226,6 +185,71 @@ namespace Microsoft
 			uint16_t type_id = 0;
 			std::string type_id_name;
 			std::vector<Resource> resources;
+		};
+
+		/** @brief Represents an entry into the binary, typically DLL exported procedures */
+		class Entry
+		{
+		public:
+			enum entry_type
+			{
+				Unused,
+				Fixed,
+				Movable,
+			};
+			entry_type type = Unused;
+			uint8_t segment = 0;
+			enum flag_type : uint8_t
+			{
+				Exported = 1,
+				SharedData = 2,
+			};
+			flag_type flags = flag_type(0);
+			uint16_t offset = 0;
+			// informational purposes
+			enum export_type
+			{
+				NotExported,
+				ExportByName,
+				ExportByOrdinal,
+			};
+			export_type export_state = NotExported;
+			std::string entry_name;
+
+			enum
+			{
+				WordCountShift = 3,
+
+				INT_3Fh = 0x3FCD,
+			};
+
+			Entry()
+			{
+			}
+
+			Entry(unsigned type, uint8_t segment, unsigned flags, uint16_t offset)
+				: type(entry_type(type)), segment(segment), flags(flag_type(flags)), offset(offset)
+			{
+			}
+
+			offset_t GetEntrySize() const;
+
+			uint8_t GetIndicatorByte() const;
+
+			static Entry ReadEntry(Linker::Reader& rd, uint8_t indicator_byte);
+			void WriteEntry(Linker::Writer& wr);
+		};
+
+		class ModuleReference
+		{
+		public:
+			uint16_t name_offset = 0;
+			std::string name;
+
+			ModuleReference(uint16_t name_offset, std::string name = "")
+				: name_offset(name_offset), name(name)
+			{
+			}
 		};
 
 		/** @brief The signature, almost always "NE" */
@@ -344,7 +368,7 @@ namespace Microsoft
 		 */
 		uint32_t module_reference_table_offset = 0;
 
-		std::vector<uint16_t> module_references;
+		std::vector<ModuleReference> module_references;
 
 		/** @brief Offset of imported names table, containing the names of imported modules and procedures imported by name
 		 *

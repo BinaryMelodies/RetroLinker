@@ -51,6 +51,132 @@ void NEFormat::Segment::AddRelocation(const Relocation& rel)
 	relocations[rel.offset] = rel;
 }
 
+void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
+{
+	Dumper::Block segment_block("Segment", data_offset, image, 0, 8);
+	segment_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
+	segment_block.AddField("Memory size", Dumper::HexDisplay::Make(4), offset_t(total_size));
+	segment_block.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(4)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("allocated"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("loaded/real mode"), true)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("iterated"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("movable", "fixed"), false)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("pure", "impure"), false)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make((flags & Segment::Data) != 0 ? "read only" : "execute only"), true)
+			->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("relocations present"), true)
+			->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("debugging information present/conforming code segment"), true)
+			->AddBitField(10, 2, "descriptor privilege level", Dumper::HexDisplay::Make(1))
+			->AddBitField(12, 4, "discard priority", Dumper::HexDisplay::Make(1))
+			->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
+			->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("32-bit"), true)
+			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
+		offset_t(flags));
+	for(auto& pair : relocations)
+	{
+		segment_block.AddSignal(pair.second.offset, pair.second.GetSize());
+	}
+	segment_block.Display(dump);
+	// TODO: print out relocations
+}
+
+void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
+{
+	if(isos2)
+	{
+		std::map<offset_t, std::string> resource_id_descriptions;
+		resource_id_descriptions[Resource::OS2_POINTER] = "POINTER";
+		resource_id_descriptions[Resource::OS2_BITMAP] = "BITMAP";
+		resource_id_descriptions[Resource::OS2_MENU] = "MENU";
+
+		Dumper::Block resource_block("Resource", data_offset, image, 0, 8);
+		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
+		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
+		resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(id));
+		resource_block.AddField("Memory size", Dumper::HexDisplay::Make(4), offset_t(total_size));
+		resource_block.AddField("Flags",
+			Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("allocated"), true)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("loaded/real mode"), true)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("iterated"), true)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("movable", "fixed"), false)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("pure", "impure"), false)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make((flags & Segment::Data) != 0 ? "read only" : "execute only"), true)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("relocations present"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("debugging information present/conforming code segment"), true)
+				->AddBitField(10, 2, "descriptor privilege level", Dumper::HexDisplay::Make(1), true)
+				->AddBitField(12, 4, "discard priority", Dumper::HexDisplay::Make(1), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
+				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("32-bit"), true)
+				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
+			offset_t(flags));
+		for(auto& pair : relocations)
+		{
+			resource_block.AddSignal(pair.second.offset, pair.second.GetSize());
+		}
+		resource_block.Display(dump);
+		// TODO: print out relocations
+	}
+	else
+	{
+		std::map<offset_t, std::string> resource_id_descriptions;
+		resource_id_descriptions[0x8000 | Resource::RT_CURSOR] = "RT_CURSOR";
+		resource_id_descriptions[0x8000 | Resource::RT_BITMAP] = "RT_BITMAP";
+		resource_id_descriptions[0x8000 | Resource::RT_ICON] = "RT_ICON";
+		resource_id_descriptions[0x8000 | Resource::RT_MENU] = "RT_MENU";
+		resource_id_descriptions[0x8000 | Resource::RT_DIALOG] = "RT_DIALOG";
+		resource_id_descriptions[0x8000 | Resource::RT_STRING] = "RT_STRING";
+		resource_id_descriptions[0x8000 | Resource::RT_FONTDIR] = "RT_FONTDIR";
+		resource_id_descriptions[0x8000 | Resource::RT_FONT] = "RT_FONT";
+		resource_id_descriptions[0x8000 | Resource::RT_ACCELERATOR] = "RT_ACCELERATOR";
+		resource_id_descriptions[0x8000 | Resource::RT_RCDATA] = "RT_RCDATA";
+		resource_id_descriptions[0x8000 | Resource::RT_MESSAGETABLE] = "RT_MESSAGETABLE";
+		resource_id_descriptions[0x8000 | Resource::RT_GROUP_CURSOR] = "RT_GROUP_CURSOR";
+		resource_id_descriptions[0x8000 | Resource::RT_GROUP_ICON] = "RT_GROUP_ICON";
+		resource_id_descriptions[0x8000 | Resource::RT_VERSION] = "RT_VERSION";
+		resource_id_descriptions[0x8000 | Resource::RT_DLGINCLUDE] = "RT_DLGINCLUDE";
+		resource_id_descriptions[0x8000 | Resource::RT_PLUGPLAY] = "RT_PLUGPLAY";
+		resource_id_descriptions[0x8000 | Resource::RT_VXD] = "RT_VXD";
+		resource_id_descriptions[0x8000 | Resource::RT_ANICURSOR] = "RT_ANICURSOR";
+		resource_id_descriptions[0x8000 | Resource::RT_ANIICON] = "RT_ANIICON";
+		resource_id_descriptions[0x8000 | Resource::RT_HTML] = "RT_HTML";
+		resource_id_descriptions[0x8000 | Resource::RT_MANIFEST] = "RT_MANIFEST";
+
+		Dumper::Block resource_block("Resource", data_offset, image, 0, 8);
+		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
+		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
+		resource_block.AddOptionalField("Type ID name", Dumper::StringDisplay::Make(), type_id_name);
+		resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(id));
+		resource_block.AddOptionalField("Resource ID name", Dumper::StringDisplay::Make(), id_name);
+		resource_block.AddField("Flags",
+			Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("allocated"), true)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("loaded/real mode"), true)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("iterated"), true)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("movable", "fixed"), false)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("pure", "impure"), false)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make((flags & Segment::Data) != 0 ? "read only" : "execute only"), true)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("relocations present"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("debugging information present/conforming code segment"), true)
+				->AddBitField(10, 2, "descriptor privilege level", Dumper::HexDisplay::Make(1), true)
+				->AddBitField(12, 4, "discard priority", Dumper::HexDisplay::Make(1), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
+				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("32-bit"), true)
+				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
+			offset_t(flags));
+		resource_block.Display(dump);
+	}
+}
+
 offset_t NEFormat::Entry::GetEntrySize() const
 {
 	/* Note: a bundle has at least 2 more bytes */
@@ -344,10 +470,17 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	module_references.clear();
 	for(i = 0; i < module_reference_count; i++)
 	{
-		module_references.emplace_back(rd.ReadUnsigned(2));
+		module_references.emplace_back(ModuleReference(rd.ReadUnsigned(2)));
 	}
 
 	file_size = std::max(file_size, rd.Tell());
+
+	for(auto& module : module_references)
+	{
+		rd.Seek(imported_names_table_offset + module.name_offset);
+		uint8_t length = rd.ReadUnsigned(1);
+		module.name = rd.ReadData(length);
+	}
 
 	/* Imported name table */
 	rd.Seek(imported_names_table_offset);
@@ -388,7 +521,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		Name name;
 		name.name = rd.ReadData(length);
 		name.ordinal = rd.ReadUnsigned(2);
-		resident_names.emplace_back(name);
+		nonresident_names.emplace_back(name);
 	}
 
 	file_size = std::max(file_size, rd.Tell());
@@ -403,6 +536,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		}
 		if((segment.flags & Segment::Relocations) != 0)
 		{
+			// TODO: chained relocations
 			segment.relocations.clear();
 			uint16_t count = rd.ReadUnsigned(2);
 			for(i = 0; i < count; i++)
@@ -445,6 +579,24 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				}
 				file_size = std::max(file_size, rd.Tell());
 			}
+		}
+	}
+
+	for(auto& name : resident_names)
+	{
+		if(0 < name.ordinal && name.ordinal <= entries.size())
+		{
+			entries[name.ordinal - 1].export_state = Entry::ExportByName;
+			entries[name.ordinal - 1].entry_name = name.name;
+		}
+	}
+
+	for(auto& name : nonresident_names)
+	{
+		if(0 < name.ordinal && name.ordinal <= entries.size())
+		{
+			entries[name.ordinal - 1].export_state = Entry::ExportByOrdinal;
+			entries[name.ordinal - 1].entry_name = name.name;
 		}
 	}
 }
@@ -527,7 +679,11 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 			resource_types.emplace_back(rtype);
 		}
 		wr.WriteWord(2, 0);
-		// TODO: write out name list
+		for(auto& string : resource_strings)
+		{
+			wr.WriteWord(1, string.size());
+			wr.WriteData(string);
+		}
 		wr.WriteWord(1, 0);
 	}
 
@@ -543,9 +699,9 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 
 	/* Module reference table */
 	wr.Seek(module_reference_table_offset);
-	for(uint16_t module : module_references)
+	for(auto& module : module_references)
 	{
-		wr.WriteWord(2, module);
+		wr.WriteWord(2, module.name_offset);
 	}
 
 	/* Imported name table */
@@ -633,6 +789,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 void NEFormat::Dump(Dumper::Dumper& dump)
 {
 	offset_t i;
+	offset_t current_offset;
 
 	dump.SetEncoding(Dumper::Block::encoding_windows1252);
 
@@ -687,9 +844,15 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("non-conforming program, no valid stack maintained/private DLL"), true)
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("library (DLL)", "application (EXE)"), false),
 		offset_t(application_flags));
-	// TODO: additional_flags
-	file_region.AddOptionalField(IsOS2() ? "Offset to return thunks" : "Offset to gangload area", Dumper::HexDisplay::Make(4), offset_t(fast_load_area_offset));
-	file_region.AddOptionalField(IsOS2() ? "Offset to segment reference thunks" : "Offset to gangload length", Dumper::HexDisplay::Make(4), offset_t(fast_load_area_length));
+	file_region.AddField("Additional flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("(OS/2) support long filenames"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("Windows 2.x application running in protected mode"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("Windows 2.x application supporting proportional fonts"), true)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("(Windows) contains fast load area"), true),
+		offset_t(application_flags));
+	file_region.AddOptionalField(IsOS2() ? "Offset to return thunks" : "Offset to fast load area", Dumper::HexDisplay::Make(4), offset_t(fast_load_area_offset));
+	file_region.AddOptionalField(IsOS2() ? "Offset to segment reference thunks" : "Offset to fast load length", Dumper::HexDisplay::Make(4), offset_t(fast_load_area_length));
 	file_region.AddOptionalField("Minimum code swap area size", Dumper::HexDisplay::Make(4), offset_t(code_swap_area_length));
 	file_region.AddOptionalField("Minimal Windows version", Dumper::VersionDisplay::Make(), offset_t(windows_version.major), offset_t(windows_version.minor));
 	file_region.Display(dump);
@@ -713,7 +876,7 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 		resource_table_region.Display(dump);
 
 		// calculate the offset of the first string
-		offset_t current_offset = 4;
+		current_offset = resource_table_offset + 4;
 		for(auto& rtype : resource_types)
 		{
 			current_offset += 8 + 12 * rtype.resources.size();
@@ -722,7 +885,7 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 		i = 0;
 		for(auto& string : resource_strings)
 		{
-			Dumper::Entry string_entry("String", i + 1, current_offset, 4);
+			Dumper::Entry string_entry("String", i + 1, current_offset, 8);
 			string_entry.AddField("Name", Dumper::StringDisplay::Make("\""), string);
 			string_entry.Display(dump);
 			current_offset += string.size() + 1;
@@ -731,158 +894,122 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 	}
 
 	Dumper::Region resident_name_table_region("Resident name table", resident_name_table_offset, module_reference_table_offset - resident_name_table_offset, 8);
-	// TODO
 	resident_name_table_region.Display(dump);
 
+	i = 0;
+	current_offset = resident_name_table_offset;
+	for(auto& name : resident_names)
+	{
+		Dumper::Entry name_entry("Name", i + 1, current_offset, 8);
+		name_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name.name);
+		name_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(name.ordinal));
+		name_entry.Display(dump);
+		current_offset += name.name.size() + 3;
+		i++;
+	}
+
 	Dumper::Region module_reference_table_region("Module reference table", module_reference_table_offset, module_references.size(), 8);
-	// TODO
 	module_reference_table_region.Display(dump);
+	i = 0;
+	for(auto& module : module_references)
+	{
+		Dumper::Entry name_entry("Module", i + 1, module_reference_table_offset + i * 2, 8);
+		name_entry.AddField("Name", Dumper::StringDisplay::Make(), module.name);
+		name_entry.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(imported_names_table_offset + module.name_offset));
+		name_entry.Display(dump);
+		i++;
+	}
 
 	Dumper::Region imported_names_table_region("Imported names table", imported_names_table_offset, entry_table_offset - imported_names_table_offset, 8);
-	// TODO
 	imported_names_table_region.Display(dump);
 
-	// TODO
+	i = 0;
+	current_offset = imported_names_table_offset;
+	for(auto& name : imported_names)
+	{
+		Dumper::Entry name_entry("Name", i + 1, current_offset, 8);
+		name_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name);
+		name_entry.Display(dump);
+		current_offset += name.size() + 1;
+		i++;
+	}
 
 	Dumper::Region entry_table_region("Entry table", entry_table_offset, entry_table_length, 8);
 	entry_table_region.AddField("Movable entry count", Dumper::DecDisplay::Make(), offset_t(movable_entry_count));
-	// TODO
 	entry_table_region.Display(dump);
 
+	i = 0;
+	current_offset = entry_table_offset;
+	std::map<offset_t, std::string> type_descriptions;
+	type_descriptions[Entry::Unused] = "Unused";
+	type_descriptions[Entry::Fixed] = "Fixed";
+	type_descriptions[Entry::Movable] = "Movable";
+	std::map<offset_t, std::string> export_descriptions;
+	export_descriptions[Entry::ExportByName] = "by name";
+	export_descriptions[Entry::ExportByOrdinal] = "by ordinal";
+
+	for(auto& entry : entries)
+	{
+		Dumper::Entry call_entry("Entry", i + 1, 0 /* TODO */, 8);
+		call_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(i));
+		call_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(entry.type));
+		if(entry.type != Entry::Unused)
+		{
+			call_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(4)), offset_t(entry.segment), offset_t(entry.offset));
+			call_entry.AddField("Flags",
+				Dumper::BitFieldDisplay::Make(2)
+					->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("exported"), true)
+					->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("shared data"), true),
+				offset_t(entry.flags));
+			if(entry.export_state != Entry::NotExported)
+			{
+				call_entry.AddField("Export", Dumper::ChoiceDisplay::Make(export_descriptions), offset_t(entry.export_state));
+				call_entry.AddField("Name", Dumper::StringDisplay::Make(), entry.entry_name);
+			}
+		}
+		call_entry.Display(dump);
+		//current_offset += entry.GetEntrySize();
+		i++;
+	}
+
 	Dumper::Region nonresident_name_table_region("Non-resident name table", nonresident_name_table_offset, nonresident_name_table_length, 8);
-	// TODO
 	nonresident_name_table_region.Display(dump);
+
+	i = 0;
+	current_offset = nonresident_name_table_offset;
+	for(auto& name : nonresident_names)
+	{
+		Dumper::Entry name_entry("Name", i + 1, current_offset, 8);
+		name_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name.name);
+		name_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(name.ordinal));
+		name_entry.Display(dump);
+		current_offset += name.name.size() + 3;
+		i++;
+	}
 
 	i = 0;
 	for(auto& segment : segments)
 	{
-		Dumper::Block segment_block("Segment", segment.data_offset, segment.image, 0, 8);
-		segment_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
-		segment_block.AddField("Memory size", Dumper::HexDisplay::Make(4), offset_t(segment.total_size));
-		segment_block.AddField("Flags",
-			Dumper::BitFieldDisplay::Make(4)
-				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
-				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("allocated"), true)
-				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("loaded/real mode"), true)
-				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("iterated"), true)
-				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("movable", "fixed"), false)
-				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("pure", "impure"), false)
-				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
-				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make((segment.flags & Segment::Data) != 0 ? "read only" : "execute only"), true)
-				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("relocations present"), true)
-				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("debugging information present/conforming code segment"), true)
-				->AddBitField(10, 2, "descriptor privilege level", Dumper::HexDisplay::Make(1))
-				->AddBitField(12, 4, "discard priority", Dumper::HexDisplay::Make(1))
-				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
-				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("32-bit"), true)
-				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
-				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
-			offset_t(segment.flags));
-		for(auto& pair : segment.relocations)
-		{
-			segment_block.AddSignal(pair.second.offset, pair.second.GetSize());
-		}
-		segment_block.Display(dump);
+		segment.Dump(dump, i, IsOS2());
 		i++;
 	}
 
 	if(IsOS2())
 	{
-		std::map<offset_t, std::string> resource_id_descriptions;
-		resource_id_descriptions[Resource::OS2_POINTER] = "POINTER";
-		resource_id_descriptions[Resource::OS2_BITMAP] = "BITMAP";
-		resource_id_descriptions[Resource::OS2_MENU] = "MENU";
-
 		for(auto& resource : resources)
 		{
-			Dumper::Block resource_block("Resource", resource.data_offset, resource.image, 0, 8);
-			resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
-			resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(resource.type_id));
-			resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(resource.id));
-			resource_block.AddField("Memory size", Dumper::HexDisplay::Make(4), offset_t(resource.total_size));
-			resource_block.AddField("Flags",
-				Dumper::BitFieldDisplay::Make(4)
-					->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data"), true)
-					->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("allocated"), true)
-					->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("loaded/real mode"), true)
-					->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("iterated"), true)
-					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("movable", "fixed"), false)
-					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("pure", "impure"), false)
-					->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
-					->AddBitField(7, 1, Dumper::ChoiceDisplay::Make((resource.flags & Segment::Data) != 0 ? "read only" : "execute only"), true)
-					->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("relocations present"), true)
-					->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("debugging information present/conforming code segment"), true)
-					->AddBitField(10, 2, "descriptor privilege level", Dumper::HexDisplay::Make(1), true)
-					->AddBitField(12, 4, "discard priority", Dumper::HexDisplay::Make(1), true)
-					->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
-					->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("32-bit"), true)
-					->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
-					->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
-				offset_t(resource.flags));
-			for(auto& pair : resource.relocations)
-			{
-				resource_block.AddSignal(pair.second.offset, pair.second.GetSize());
-			}
-			resource_block.Display(dump);
+			resource.Dump(dump, i, true);
 			i++;
 		}
 	}
 	else
 	{
-		std::map<offset_t, std::string> resource_id_descriptions;
-		resource_id_descriptions[0x8000 | Resource::RT_CURSOR] = "RT_CURSOR";
-		resource_id_descriptions[0x8000 | Resource::RT_BITMAP] = "RT_BITMAP";
-		resource_id_descriptions[0x8000 | Resource::RT_ICON] = "RT_ICON";
-		resource_id_descriptions[0x8000 | Resource::RT_MENU] = "RT_MENU";
-		resource_id_descriptions[0x8000 | Resource::RT_DIALOG] = "RT_DIALOG";
-		resource_id_descriptions[0x8000 | Resource::RT_STRING] = "RT_STRING";
-		resource_id_descriptions[0x8000 | Resource::RT_FONTDIR] = "RT_FONTDIR";
-		resource_id_descriptions[0x8000 | Resource::RT_FONT] = "RT_FONT";
-		resource_id_descriptions[0x8000 | Resource::RT_ACCELERATOR] = "RT_ACCELERATOR";
-		resource_id_descriptions[0x8000 | Resource::RT_RCDATA] = "RT_RCDATA";
-		resource_id_descriptions[0x8000 | Resource::RT_MESSAGETABLE] = "RT_MESSAGETABLE";
-		resource_id_descriptions[0x8000 | Resource::RT_GROUP_CURSOR] = "RT_GROUP_CURSOR";
-		resource_id_descriptions[0x8000 | Resource::RT_GROUP_ICON] = "RT_GROUP_ICON";
-		resource_id_descriptions[0x8000 | Resource::RT_VERSION] = "RT_VERSION";
-		resource_id_descriptions[0x8000 | Resource::RT_DLGINCLUDE] = "RT_DLGINCLUDE";
-		resource_id_descriptions[0x8000 | Resource::RT_PLUGPLAY] = "RT_PLUGPLAY";
-		resource_id_descriptions[0x8000 | Resource::RT_VXD] = "RT_VXD";
-		resource_id_descriptions[0x8000 | Resource::RT_ANICURSOR] = "RT_ANICURSOR";
-		resource_id_descriptions[0x8000 | Resource::RT_ANIICON] = "RT_ANIICON";
-		resource_id_descriptions[0x8000 | Resource::RT_HTML] = "RT_HTML";
-		resource_id_descriptions[0x8000 | Resource::RT_MANIFEST] = "RT_MANIFEST";
-
 		i = 0;
 		for(auto& rtype : resource_types)
 		{
 			for(auto& resource : rtype.resources)
 			{
-				Dumper::Block resource_block("Resource", resource.data_offset, resource.image, 0, 8);
-				resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
-				resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(resource.type_id));
-				resource_block.AddOptionalField("Type ID name", Dumper::StringDisplay::Make(), resource.type_id_name);
-				resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(resource.id));
-				resource_block.AddOptionalField("Resource ID name", Dumper::StringDisplay::Make(), resource.id_name);
-				resource_block.AddField("Flags",
-					Dumper::BitFieldDisplay::Make(4)
-						->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data"), true)
-						->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("allocated"), true)
-						->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("loaded/real mode"), true)
-						->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("iterated"), true)
-						->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("movable", "fixed"), false)
-						->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("pure", "impure"), false)
-						->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
-						->AddBitField(7, 1, Dumper::ChoiceDisplay::Make((resource.flags & Segment::Data) != 0 ? "read only" : "execute only"), true)
-						->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("relocations present"), true)
-						->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("debugging information present/conforming code segment"), true)
-						->AddBitField(10, 2, "descriptor privilege level", Dumper::HexDisplay::Make(1), true)
-						->AddBitField(12, 4, "discard priority", Dumper::HexDisplay::Make(1), true)
-						->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
-						->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("32-bit"), true)
-						->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
-						->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
-					offset_t(resource.flags));
-				resource_block.Display(dump);
+				resource.Dump(dump, i, false);
 				i++;
 			}
 		}
@@ -1025,7 +1152,7 @@ uint16_t NEFormat::FetchModule(std::string name)
 	if(it == module_reference_offsets.end())
 	{
 		uint16_t module = FetchImportedName(name);
-		module_references.push_back(module);
+		module_references.push_back(ModuleReference(module, name));
 		return module_reference_offsets[name] = module_references.size() - 1;
 	}
 	else
@@ -1287,6 +1414,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 		uint16_t ordinal;
 		if(it.first.LoadOrdinalOrHint(ordinal))
 		{
+			// TODO: entry instances can now store the name and export state
 			MakeEntry(ordinal - 1, it.second.GetPosition());
 			if(it.first.IsExportedByOrdinal())
 			{
@@ -1303,6 +1431,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 		uint16_t ordinal;
 		if(!it.first.LoadOrdinalOrHint(ordinal))
 		{
+			// TODO: entry instances can now store the name and export state
 			ordinal = MakeEntry(it.second.GetPosition()) + 1;
 		}
 		if(!it.first.IsExportedByOrdinal())
