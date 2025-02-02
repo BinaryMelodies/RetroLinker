@@ -321,10 +321,14 @@ namespace Microsoft
 		/** @brief Specifies the shift count to get the actual offsets for the resource data */
 		uint16_t resource_shift = 0;
 
-		/** @brief For non-OS/2 targets, this must be compiled into resource_types */
+		/** @brief On OS/2, this is a sequence of resources, for non-OS/2 targets, this must be compiled into resource_types */
 		std::vector<Resource> resources;
 
+		/** @brief For non-OS/2 targets, the resources get organized according to their types */
 		std::vector<ResourceType> resource_types;
+
+		/** @brief For non-OS/2 targets, this is a list of all the resource type strings and resource strings */
+		std::vector<std::string> resource_strings;
 
 		/** @brief Offset of resident name table, containing this module's name and the names and ordinals of procedures exported by name
 		 *

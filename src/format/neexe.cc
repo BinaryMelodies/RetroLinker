@@ -225,7 +225,6 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 
 	if(IsOS2())
 	{
-		// TODO: test this out
 		for(i = 0; i < resource_count; i++)
 		{
 			Resource resource;
@@ -248,7 +247,6 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	file_size = std::max(file_size, rd.Tell());
 
 	/* Resource table */
-	// TODO: test this out
 	resource_types.clear();
 	if(IsOS2())
 	{
@@ -292,7 +290,15 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				resource_types.emplace_back(rtype);
 			}
 		}
-		// TODO: read in name list
+
+		resource_strings.clear();
+		while(true)
+		{
+			uint8_t length = rd.ReadUnsigned(1);
+			if(length == 0)
+				break;
+			resource_strings.emplace_back(rd.ReadData(length));
+		}
 
 		for(auto& rtype : resource_types)
 		{
@@ -705,6 +711,23 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 		resource_table_region.AddField("Resource count", Dumper::DecDisplay::Make(), offset_t(resource_count));
 		resource_table_region.AddField("Sector shift count", Dumper::DecDisplay::Make(), offset_t(resource_shift));
 		resource_table_region.Display(dump);
+
+		// calculate the offset of the first string
+		offset_t current_offset = 4;
+		for(auto& rtype : resource_types)
+		{
+			current_offset += 8 + 12 * rtype.resources.size();
+		}
+
+		i = 0;
+		for(auto& string : resource_strings)
+		{
+			Dumper::Entry string_entry("String", i + 1, current_offset, 4);
+			string_entry.AddField("Name", Dumper::StringDisplay::Make("\""), string);
+			string_entry.Display(dump);
+			current_offset += string.size() + 1;
+			i++;
+		}
 	}
 
 	Dumper::Region resident_name_table_region("Resident name table", resident_name_table_offset, module_reference_table_offset - resident_name_table_offset, 8);
