@@ -240,8 +240,10 @@ public:
 		unsigned offset, length;
 		std::shared_ptr<Display<offset_t>> display;
 		bool optional_field;
-		BitField(unsigned offset, unsigned length, std::shared_ptr<Display<offset_t>> display, bool optional_field)
-			: offset(offset), length(length), display(display), optional_field(optional_field)
+		std::string label;
+
+		BitField(unsigned offset, unsigned length, std::shared_ptr<Display<offset_t>> display, bool optional_field, std::string label)
+			: offset(offset), length(length), display(display), optional_field(optional_field), label(label)
 		{
 		}
 
@@ -265,7 +267,13 @@ public:
 
 	std::shared_ptr<BitFieldDisplay> AddBitField(unsigned offset, unsigned length, std::shared_ptr<Display<offset_t>> display, bool optional_field)
 	{
-		bitfields[offset] = std::make_unique<BitField>(offset, length, display, optional_field);
+		bitfields[offset] = std::make_unique<BitField>(offset, length, display, optional_field, "");
+		return shared_from_this();
+	}
+
+	std::shared_ptr<BitFieldDisplay> AddBitField(unsigned offset, unsigned length, std::string label, std::shared_ptr<Display<offset_t>> display, bool optional_field = false)
+	{
+		bitfields[offset] = std::make_unique<BitField>(offset, length, display, optional_field, label);
 		return shared_from_this();
 	}
 
@@ -519,6 +527,8 @@ public:
 	static char32_t encoding_default[256];
 	static char32_t encoding_cp437[256];
 	static char32_t encoding_st[256];
+	static char32_t encoding_iso8859_1[256];
+	static char32_t encoding_windows1252[256];
 
 	std::shared_ptr<Linker::Image> image;
 

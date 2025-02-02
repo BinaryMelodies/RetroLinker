@@ -41,7 +41,7 @@ namespace Microsoft
 			std::shared_ptr<Linker::Image> image;
 			offset_t data_offset = 0;
 			/** @brief Size of segment as stored in the file, only used during reading */
-			uint32_t image_size = 0;
+			offset_t image_size = 0;
 			enum flag_type
 			{
 				Data = 1, Code = 0,
@@ -59,7 +59,11 @@ namespace Microsoft
 			flag_type flags = flag_type(0);
 			/** @brief Size of segment as stored in memory */
 			uint32_t total_size = 0;
-			uint16_t movable_entry_index = 0; /* for movable segments, each relocation targetting it needs one and only one entry */
+			/** @brief Entry number for movable segments (field not present in segment table)
+			 *
+			 * When generating a file, for movable segments, each relocation targetting it needs one and only one entry
+			 */
+			uint16_t movable_entry_index = 0;
 
 			Segment()
 			{
@@ -124,6 +128,7 @@ namespace Microsoft
 				}
 
 				static source_type GetType(Linker::Relocation& rel);
+				size_t GetSize() const;
 			};
 			std::map<uint16_t, Relocation> relocations;
 
@@ -224,7 +229,7 @@ namespace Microsoft
 
 			GLOBAL_INITIALIZATION = 4,
 			PROTECTED_MODE_ONLY = 8,
-			CPU_8086 = 0x10, /* TODO: this is not how all systems handle this */
+			CPU_8086 = 0x10, /* this is not how all systems handle this */
 			CPU_80286 = 0x20,
 			CPU_80386 = 0x40,
 			CPU_8087 = 0x80,
@@ -285,7 +290,7 @@ namespace Microsoft
 		uint16_t resource_count = 0;
 
 		/** @brief Specifies the shift count to get the actual offsets for the resource data */
-		uint16_t resource_shift_count = 0;
+		uint16_t resource_shift = 0;
 
 		/** @brief For non-OS/2 targets, this must be compiled into resource_types */
 		std::vector<Resource> resources;
@@ -383,26 +388,20 @@ namespace Microsoft
 
 		version windows_version{0, 0};
 
-		void ReadFile(Linker::Reader& rd) override;
-
-		bool FormatSupportsSegmentation() const override;
-
-		bool FormatIs16bit() const override;
-
-		bool FormatSupportsLibraries() const override;
-
-		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
+		offset_t file_size = offset_t(-1);
 
 		bool IsLibrary() const;
 
-		enum compatibility_type
-		{
-			CompatibleNone,
-			CompatibleWatcom,
-			CompatibleMicrosoft, /* TODO */
-			CompatibleGNU, /* TODO */
-		};
-		compatibility_type compatibility = CompatibleNone;
+		bool IsOS2() const;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		offset_t ImageSize() override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) override;
+
+		void Dump(Dumper::Dumper& dump) override;
 
 		explicit NEFormat()
 		{
@@ -413,14 +412,6 @@ namespace Microsoft
 			fast_load_area_offset(0), fast_load_area_length(0)
 		{
 		}
-
-		std::shared_ptr<NEFormat> SimulateLinker(compatibility_type compatibility);
-
-		static std::shared_ptr<NEFormat> CreateConsoleApplication(system_type system = Windows);
-
-		static std::shared_ptr<NEFormat> CreateGUIApplication(system_type system = Windows);
-
-		static std::shared_ptr<NEFormat> CreateLibraryModule(system_type system = Windows);
 
 		/* * * Writer members * * */
 
@@ -442,6 +433,31 @@ namespace Microsoft
 		};
 		memory_model_t memory_model = MODEL_SMALL;
 
+		bool FormatSupportsSegmentation() const override;
+
+		bool FormatIs16bit() const override;
+
+		bool FormatSupportsLibraries() const override;
+
+		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
+
+		enum compatibility_type
+		{
+			CompatibleNone,
+			CompatibleWatcom,
+			CompatibleMicrosoft, /* TODO */
+			CompatibleGNU, /* TODO */
+		};
+		compatibility_type compatibility = CompatibleNone;
+
+		std::shared_ptr<NEFormat> SimulateLinker(compatibility_type compatibility);
+
+		static std::shared_ptr<NEFormat> CreateConsoleApplication(system_type system = Windows);
+
+		static std::shared_ptr<NEFormat> CreateGUIApplication(system_type system = Windows);
+
+		static std::shared_ptr<NEFormat> CreateLibraryModule(system_type system = Windows);
+
 		unsigned GetCodeSegmentFlags() const;
 		unsigned GetDataSegmentFlags() const;
 		void AddSegment(const Segment& segment);
@@ -459,9 +475,6 @@ namespace Microsoft
 		void Link(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;
 		void CalculateValues() override;
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
