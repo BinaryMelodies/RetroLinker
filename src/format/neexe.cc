@@ -48,7 +48,7 @@ offset_t NEFormat::Segment::Relocation::GetSize() const
 
 void NEFormat::Segment::AddRelocation(const Relocation& rel)
 {
-	relocations[rel.offset] = rel;
+	relocations_map[rel.offset] = rel;
 }
 
 void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
@@ -75,9 +75,9 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
 			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
 		offset_t(flags));
-	for(auto& pair : relocations)
+	for(auto& relocation : relocations)
 	{
-		segment_block.AddSignal(pair.second.offset, pair.second.GetSize());
+		segment_block.AddSignal(relocation.offset, relocation.GetSize());
 	}
 	segment_block.Display(dump);
 	// TODO: print out relocations
@@ -116,9 +116,9 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
 				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
 			offset_t(flags));
-		for(auto& pair : relocations)
+		for(auto& relocation : relocations)
 		{
-			resource_block.AddSignal(pair.second.offset, pair.second.GetSize());
+			resource_block.AddSignal(relocation.offset, relocation.GetSize());
 		}
 		resource_block.Display(dump);
 		// TODO: print out relocations
@@ -547,7 +547,19 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				relocation.offset = rd.ReadUnsigned(2);
 				relocation.module = rd.ReadUnsigned(2);
 				relocation.target = rd.ReadUnsigned(2);
-				segment.relocations[relocation.offset] = relocation;
+				segment.relocations.emplace_back(relocation);
+				if((relocation.flags & Segment::Relocation::Additive) != 0)
+				{
+					while(true)
+					{
+						uint16_t new_offset = segment.image->GetByte(relocation.offset) | (segment.image->GetByte(relocation.offset + 1) << 8);
+						if(new_offset == 0xFFFF)
+							break;
+						Linker::Debug << "Debug: chained relocation from offset " << std::hex << relocation.offset << " to " << new_offset << std::endl;
+						relocation.offset = new_offset;
+						segment.relocations.emplace_back(relocation);
+					}
+				}
 			}
 		}
 		file_size = std::max(file_size, rd.Tell());
@@ -746,11 +758,11 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 			wr.WriteWord(2, segment.relocations.size());
 			for(auto& it : segment.relocations)
 			{
-				wr.WriteWord(1, it.second.type);
-				wr.WriteWord(1, it.second.flags);
-				wr.WriteWord(2, it.second.offset);
-				wr.WriteWord(2, it.second.module);
-				wr.WriteWord(2, it.second.target);
+				wr.WriteWord(1, it.type);
+				wr.WriteWord(1, it.flags);
+				wr.WriteWord(2, it.offset);
+				wr.WriteWord(2, it.module);
+				wr.WriteWord(2, it.target);
 			}
 		}
 	}
@@ -1534,6 +1546,15 @@ void NEFormat::ProcessModule(Linker::Module& module)
 				}
 			}
 			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+		}
+	}
+
+	for(auto& segment : segments)
+	{
+		segment.relocations.clear();
+		for(auto& pair : segment.relocations_map)
+		{
+			segment.relocations.emplace_back(pair.second);
 		}
 	}
 

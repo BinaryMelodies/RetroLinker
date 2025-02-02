@@ -130,7 +130,9 @@ namespace Microsoft
 				static source_type GetType(Linker::Relocation& rel);
 				size_t GetSize() const;
 			};
-			std::map<uint16_t, Relocation> relocations;
+			std::vector<Relocation> relocations;
+			/** @brief Used internally during output generation */
+			std::map<uint16_t, Relocation> relocations_map;
 
 			void AddRelocation(const Relocation& rel);
 			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2);
