@@ -182,6 +182,35 @@ namespace Microsoft
 		class Resource : public Segment
 		{
 		public:
+			enum Windows
+			{
+				RT_CURSOR = 0x0001,
+				RT_BITMAP = 0x0002,
+				RT_ICON = 0x0003,
+				RT_MENU = 0x0004,
+				RT_DIALOG = 0x0005,
+				RT_STRING = 0x0006,
+				RT_FONTDIR = 0x0007,
+				RT_FONT = 0x0008,
+				RT_ACCELERATOR = 0x0009,
+				RT_RCDATA = 0x000A,
+				RT_MESSAGETABLE = 0x000B,
+				RT_GROUP_CURSOR = 0x000C,
+				RT_GROUP_ICON = 0x000E,
+				RT_VERSION = 0x0010,
+				RT_DLGINCLUDE = 0x0011,
+				RT_PLUGPLAY = 0x0013,
+				RT_VXD = 0x0014,
+				RT_ANICURSOR = 0x0015,
+				RT_ANIICON = 0x0016,
+				RT_HTML = 0x0017,
+				RT_MANIFEST = 0x0018,
+
+				OS2_POINTER = 1,
+				OS2_BITMAP = 2,
+				OS2_MENU = 3,
+			};
+
 			uint16_t type_id = 0;
 			std::string type_id_name;
 			uint16_t flags = 0;

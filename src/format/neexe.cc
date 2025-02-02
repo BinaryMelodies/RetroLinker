@@ -765,11 +765,16 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 
 	if(IsOS2())
 	{
+		std::map<offset_t, std::string> resource_id_descriptions;
+		resource_id_descriptions[Resource::OS2_POINTER] = "POINTER";
+		resource_id_descriptions[Resource::OS2_BITMAP] = "BITMAP";
+		resource_id_descriptions[Resource::OS2_MENU] = "MENU";
+
 		for(auto& resource : resources)
 		{
 			Dumper::Block resource_block("Resource", resource.data_offset, resource.image, 0, 8);
 			resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
-			resource_block.AddField("Type ID", Dumper::HexDisplay::Make(4), offset_t(resource.type_id));
+			resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(resource.type_id));
 			resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(resource.id));
 			resource_block.AddField("Memory size", Dumper::HexDisplay::Make(4), offset_t(resource.total_size));
 			resource_block.AddField("Flags",
@@ -801,6 +806,29 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 	}
 	else
 	{
+		std::map<offset_t, std::string> resource_id_descriptions;
+		resource_id_descriptions[0x8000 | Resource::RT_CURSOR] = "RT_CURSOR";
+		resource_id_descriptions[0x8000 | Resource::RT_BITMAP] = "RT_BITMAP";
+		resource_id_descriptions[0x8000 | Resource::RT_ICON] = "RT_ICON";
+		resource_id_descriptions[0x8000 | Resource::RT_MENU] = "RT_MENU";
+		resource_id_descriptions[0x8000 | Resource::RT_DIALOG] = "RT_DIALOG";
+		resource_id_descriptions[0x8000 | Resource::RT_STRING] = "RT_STRING";
+		resource_id_descriptions[0x8000 | Resource::RT_FONTDIR] = "RT_FONTDIR";
+		resource_id_descriptions[0x8000 | Resource::RT_FONT] = "RT_FONT";
+		resource_id_descriptions[0x8000 | Resource::RT_ACCELERATOR] = "RT_ACCELERATOR";
+		resource_id_descriptions[0x8000 | Resource::RT_RCDATA] = "RT_RCDATA";
+		resource_id_descriptions[0x8000 | Resource::RT_MESSAGETABLE] = "RT_MESSAGETABLE";
+		resource_id_descriptions[0x8000 | Resource::RT_GROUP_CURSOR] = "RT_GROUP_CURSOR";
+		resource_id_descriptions[0x8000 | Resource::RT_GROUP_ICON] = "RT_GROUP_ICON";
+		resource_id_descriptions[0x8000 | Resource::RT_VERSION] = "RT_VERSION";
+		resource_id_descriptions[0x8000 | Resource::RT_DLGINCLUDE] = "RT_DLGINCLUDE";
+		resource_id_descriptions[0x8000 | Resource::RT_PLUGPLAY] = "RT_PLUGPLAY";
+		resource_id_descriptions[0x8000 | Resource::RT_VXD] = "RT_VXD";
+		resource_id_descriptions[0x8000 | Resource::RT_ANICURSOR] = "RT_ANICURSOR";
+		resource_id_descriptions[0x8000 | Resource::RT_ANIICON] = "RT_ANIICON";
+		resource_id_descriptions[0x8000 | Resource::RT_HTML] = "RT_HTML";
+		resource_id_descriptions[0x8000 | Resource::RT_MANIFEST] = "RT_MANIFEST";
+
 		i = 0;
 		for(auto& rtype : resource_types)
 		{
@@ -808,7 +836,7 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 			{
 				Dumper::Block resource_block("Resource", resource.data_offset, resource.image, 0, 8);
 				resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
-				resource_block.AddField("Type ID", Dumper::HexDisplay::Make(4), offset_t(resource.type_id));
+				resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(resource.type_id));
 				resource_block.AddOptionalField("Type ID name", Dumper::StringDisplay::Make(), resource.type_id_name);
 				resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(resource.id));
 				resource_block.AddOptionalField("Resource ID name", Dumper::StringDisplay::Make(), resource.id_name);
