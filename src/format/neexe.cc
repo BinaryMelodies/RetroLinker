@@ -6,7 +6,285 @@ using namespace Microsoft;
 
 void NEFormat::ReadFile(Linker::Reader& rd)
 {
-	/* TODO */
+	/* TODO: test reader */
+	rd.endiantype = ::LittleEndian;
+	file_offset = rd.Tell();
+	rd.ReadData(signature);
+	linker_version.major = rd.ReadUnsigned(1);
+	linker_version.minor = rd.ReadUnsigned(1);
+	entry_table_offset = rd.ReadUnsigned(2);
+	if(entry_table_offset != 0)
+		entry_table_offset += file_offset;
+	entry_table_length = rd.ReadUnsigned(2);
+	crc32 = rd.ReadUnsigned(4);
+	program_flags = program_flag_type(rd.ReadUnsigned(1));
+	application_flags = application_flag_type(rd.ReadUnsigned(1));
+	automatic_data = rd.ReadUnsigned(2);
+	heap_size = rd.ReadUnsigned(2);
+	stack_size = rd.ReadUnsigned(2);
+	ip = rd.ReadUnsigned(2);
+	cs = rd.ReadUnsigned(2);
+	sp = rd.ReadUnsigned(2);
+	ss = rd.ReadUnsigned(2);
+	uint16_t segment_count = rd.ReadUnsigned(2);
+	uint16_t module_reference_count = rd.ReadUnsigned(2);
+	nonresident_name_table_length = rd.ReadUnsigned(2);
+	segment_table_offset = rd.ReadUnsigned(2);
+	if(segment_table_offset != 0)
+	{
+		segment_table_offset += file_offset;
+	}
+	resource_table_offset = rd.ReadUnsigned(2);
+	if(resource_table_offset != 0)
+	{
+		resource_table_offset += file_offset;
+	}
+	resident_name_table_offset = rd.ReadUnsigned(2);
+	if(resident_name_table_offset != 0)
+	{
+		resident_name_table_offset += file_offset;
+	}
+	module_reference_table_offset = rd.ReadUnsigned(2);
+	if(module_reference_table_offset != 0)
+	{
+		module_reference_table_offset += file_offset;
+	}
+	imported_names_table_offset = rd.ReadUnsigned(2);
+	if(imported_names_table_offset != 0)
+	{
+		imported_names_table_offset += file_offset;
+	}
+	nonresident_name_table_offset = rd.ReadUnsigned(4);
+	movable_entry_count = rd.ReadUnsigned(2);
+	sector_shift = rd.ReadUnsigned(2);
+	uint16_t resource_count = rd.ReadUnsigned(2);
+	system = system_type(rd.ReadUnsigned(1));
+	additional_flags = additional_flag_type(rd.ReadUnsigned(1));
+	fast_load_area_offset = rd.ReadUnsigned(2);
+	fast_load_area_length = rd.ReadUnsigned(2);
+	code_swap_area_length = rd.ReadUnsigned(2);
+	windows_version.minor = rd.ReadUnsigned(1);
+	windows_version.major = rd.ReadUnsigned(1);
+
+	uint32_t i;
+	/* Segment table */
+	rd.Seek(segment_table_offset);
+	segments.clear();
+	uint16_t actual_segment_count = system == OS2 ? segment_count - resource_count : segment_count;
+	for(i = 0; i < actual_segment_count; i++)
+	{
+		Segment segment;
+		segment.data_offset = offset_t(rd.ReadUnsigned(2)) << sector_shift;
+		segment.image_size = rd.ReadUnsigned(2);
+		if(segment.data_offset != 0 && segment.image_size == 0)
+		{
+			segment.image_size = 0x10000;
+		}
+		segment.flags = Segment::flag_type(rd.ReadUnsigned(2));
+		segment.total_size = rd.ReadUnsigned(2);
+		if(segment.total_size == 0)
+		{
+			segment.total_size = 0x10000;
+		}
+		segments.emplace_back(segment);
+	}
+	if(system == OS2)
+	{
+		// TODO: test this out
+		for(i = 0; i < resource_count; i++)
+		{
+			Resource resource;
+			resource.data_offset = offset_t(rd.ReadUnsigned(2)) << sector_shift;
+			resource.image_size = rd.ReadUnsigned(2);
+			if(resource.data_offset != 0 && resource.image_size == 0)
+			{
+				resource.image_size = 0x10000;
+			}
+			resource.flags = Segment::flag_type(rd.ReadUnsigned(2));
+			resource.total_size = rd.ReadUnsigned(2);
+			if(resource.total_size == 0)
+			{
+				resource.total_size = 0x10000;
+			}
+			resources.emplace_back(resource);
+		}
+	}
+
+	/* Resource table */
+	resource_types.clear();
+	if(resource_count != 0 && resource_table_offset != 0 && resource_table_offset != resident_name_table_offset)
+	{
+		// TODO: test this out
+		rd.Seek(resource_table_offset);
+		if(system == OS2)
+		{
+			for(i = 0; i < resource_count; i++)
+			{
+				resources[i].type_id = rd.ReadUnsigned(2);
+				resources[i].id = rd.ReadUnsigned(2);
+			}
+		}
+		else
+		{
+			resource_shift_count = rd.ReadUnsigned(2);
+			while(true)
+			{
+				uint16_t type_id = rd.ReadUnsigned(2);
+				if(type_id == 0)
+					break;
+				ResourceType rtype;
+				rtype.type_id = type_id;
+				uint16_t resource_count = rd.ReadUnsigned(2);
+				rd.Skip(4);
+				for(i = 0; i < resource_count; i++)
+				{
+					Resource resource;
+					resource.type_id = type_id;
+					resource.data_offset = offset_t(rd.ReadUnsigned(2)) << resource_shift_count;
+					resource.image_size = rd.ReadUnsigned(2);
+					resource.flags = rd.ReadUnsigned(2);
+					resource.id = rd.ReadUnsigned(2);
+					resource.handle = rd.ReadUnsigned(2);
+					resource.usage = rd.ReadUnsigned(2);
+					rtype.resources.emplace_back(resource);
+				}
+				resource_types.emplace_back(rtype);
+			}
+		}
+		// TODO: read in name list
+
+		for(auto& rtype : resource_types)
+		{
+			if((rtype.type_id & 0x8000) == 0)
+			{
+				rd.Seek(resource_table_offset + rtype.type_id);
+				uint8_t length = rd.ReadUnsigned(1);
+				rtype.type_id_name = rd.ReadData(length);
+			}
+			for(auto& resource : rtype.resources)
+			{
+				resource.type_id_name = rtype.type_id_name;
+				if((resource.id & 0x8000) == 0)
+				{
+					rd.Seek(resource_table_offset + resource.id);
+					uint8_t length = rd.ReadUnsigned(1);
+					resource.id_name = rd.ReadData(length);
+				}
+			}
+		}
+	}
+
+	/* Resident name table */
+	rd.Seek(resident_name_table_offset);
+	resident_names.clear();
+	while(true)
+	{
+		uint8_t length = rd.ReadUnsigned(1);
+		if(length == 0)
+			break;
+		Name name;
+		name.name = rd.ReadData(length);
+		name.ordinal = rd.ReadUnsigned(2);
+		resident_names.emplace_back(name);
+	}
+
+	/* Module reference table */
+	rd.Seek(module_reference_table_offset);
+	module_references.clear();
+	for(i = 0; i < module_reference_count; i++)
+	{
+		module_references.emplace_back(rd.ReadUnsigned(2));
+	}
+
+	/* Imported name table */
+	rd.Seek(imported_names_table_offset);
+	imported_names.clear();
+	while(rd.Tell() < entry_table_offset)
+	{
+		uint8_t length = rd.ReadUnsigned(1);
+		imported_names.emplace_back(rd.ReadData(length));
+	}
+
+	/* Entry table */
+	rd.Seek(entry_table_offset);
+	entries.clear();
+	while(rd.Tell() < entry_table_offset + entry_table_length)
+	{
+		size_t entry_count = rd.ReadUnsigned(1);
+		if(entry_count == 0)
+			break;
+		uint8_t indicator_byte = rd.ReadUnsigned(1);
+		for(i = 0; i < entry_count; i ++)
+		{
+			entries.emplace_back(Entry::ReadEntry(rd, indicator_byte));
+		}
+	}
+
+	/* Nonresident name table */
+	rd.Seek(nonresident_name_table_offset);
+	nonresident_names.clear();
+	while(true)
+	{
+		uint8_t length = rd.ReadUnsigned(1);
+		if(length == 0)
+			break;
+		Name name;
+		name.name = rd.ReadData(length);
+		name.ordinal = rd.ReadUnsigned(2);
+		resident_names.emplace_back(name);
+	}
+
+	/* Segment data */
+	for(Segment& segment : segments)
+	{
+		if(segment.data_offset != 0)
+		{
+			rd.Seek(segment.data_offset);
+			segment.image = Linker::Buffer::ReadFromFile(rd, segment.image_size);
+		}
+		if((segment.flags & Segment::Relocations) != 0)
+		{
+			segment.relocations.clear();
+			uint16_t count = rd.ReadUnsigned(2);
+			for(i = 0; i < count; i++)
+			{
+				Segment::Relocation relocation;
+				relocation.type = Segment::Relocation::source_type(rd.ReadUnsigned(1));
+				relocation.flags = Segment::Relocation::flag_type(rd.ReadUnsigned(1));
+				relocation.offset = rd.ReadUnsigned(2);
+				relocation.module = rd.ReadUnsigned(2);
+				relocation.target = rd.ReadUnsigned(2);
+				segment.relocations[relocation.offset] = relocation;
+			}
+		}
+	}
+
+	/* Resource data */
+	if(system == OS2)
+	{
+		for(Resource& resource : resources)
+		{
+			if(resource.data_offset != 0)
+			{
+				rd.Seek(resource.data_offset);
+				resource.image = Linker::Buffer::ReadFromFile(rd, resource.image_size);
+			}
+		}
+	}
+	else
+	{
+		for(ResourceType& rtype : resource_types)
+		{
+			for(Resource& resource : rtype.resources)
+			{
+				if(resource.data_offset != 0)
+				{
+					rd.Seek(resource.data_offset);
+					resource.image = Linker::Buffer::ReadFromFile(rd, resource.image_size);
+				}
+			}
+		}
+	}
 }
 
 bool NEFormat::FormatSupportsSegmentation() const
@@ -136,6 +414,31 @@ uint8_t NEFormat::Entry::GetIndicatorByte() const
 	}
 }
 
+NEFormat::Entry NEFormat::Entry::ReadEntry(Linker::Reader& rd, uint8_t indicator_byte)
+{
+	Entry entry;
+	switch(indicator_byte)
+	{
+	case 0x00:
+		entry.type = Unused;
+		break;
+	case 0xFF:
+		entry.type = Movable;
+		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
+		rd.Skip(2);
+		entry.segment = rd.ReadUnsigned(1);
+		entry.offset = rd.ReadUnsigned(2);
+		break;
+	default:
+		entry.type = Fixed;
+		entry.segment = rd.ReadUnsigned(1);
+		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
+		entry.offset = rd.ReadUnsigned(2);
+		break;
+	}
+	return entry;
+}
+
 void NEFormat::Entry::WriteEntry(Linker::Writer& wr)
 {
 	switch(type)
@@ -217,7 +520,7 @@ unsigned NEFormat::GetDataSegmentFlags() const
 void NEFormat::AddSegment(const Segment& segment)
 {
 	segments.push_back(segment);
-	segment_index[segments.back().image] = segments.size() - 1;
+	segment_index[std::dynamic_pointer_cast<Linker::Segment>(segments.back().image)] = segments.size() - 1;
 }
 
 uint16_t NEFormat::FetchModule(std::string name)
@@ -633,7 +936,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 		}
 		else
 		{
-			sp = segments[automatic_data - 1].image->TotalSize();
+			sp = std::dynamic_pointer_cast<Linker::Segment>(segments[automatic_data - 1].image)->TotalSize();
 			ss = automatic_data;
 //			Linker::Debug << "Debug: End of memory: " << sp << std::endl;
 //			Linker::Debug << "Debug: Total size: " << image.TotalSize() << std::endl;
@@ -744,7 +1047,16 @@ void NEFormat::CalculateValues()
 	for(Segment& segment : segments)
 	{
 		segment.data_offset = ::AlignTo(current_offset, 1 << sector_shift);
-		current_offset = segment.data_offset + segment.image->data_size;
+		current_offset = segment.data_offset + segment.image->ImageSize();
+		if(Linker::Segment * segmentp = dynamic_cast<Linker::Segment *>(segment.image.get()))
+		{
+			segment.total_size = segmentp->TotalSize();
+		}
+		else
+		{
+			segment.total_size = segment.image->ImageSize();
+		}
+
 		if(segment.relocations.size() != 0)
 		{
 			segment.flags = Segment::flag_type(segment.flags | Segment::Relocations);
@@ -763,12 +1075,12 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	WriteStubImage(wr);
 	/* new header */
 	wr.Seek(file_offset);
-	wr.WriteData(2, "NE");
+	wr.WriteData(signature);
 	wr.WriteWord(1, linker_version.major);
 	wr.WriteWord(1, linker_version.minor);
 	wr.WriteWord(2, entry_table_offset - file_offset);
 	wr.WriteWord(2, entry_table_length);
-	wr.WriteWord(4, 0); /* CRC */
+	wr.WriteWord(4, crc32);
 	wr.WriteWord(1, program_flags);
 	wr.WriteWord(1, application_flags);
 	wr.WriteWord(2, automatic_data);
@@ -789,7 +1101,12 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, nonresident_name_table_offset);
 	wr.WriteWord(2, movable_entry_count);
 	wr.WriteWord(2, sector_shift);
-	wr.WriteWord(2, resources.size());
+	uint16_t resource_count = 0;
+	for(auto& rtype : resource_types)
+	{
+		resource_count += rtype.resources.size();
+	}
+	wr.WriteWord(2, resource_count);
 	wr.WriteWord(1, system);
 	wr.WriteWord(1, additional_flags);
 	wr.WriteWord(2, fast_load_area_offset);
@@ -800,18 +1117,42 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(1, windows_version.major);
 
 	/* Segment table */
+	wr.Seek(segment_table_offset);
 	for(Segment& segment : segments)
 	{
 		wr.WriteWord(2, segment.data_offset >> sector_shift);
-		wr.WriteWord(2, segment.image->data_size);
+		wr.WriteWord(2, segment.image->ImageSize());
 		wr.WriteWord(2, segment.flags);
-		wr.WriteWord(2, segment.image->TotalSize());
+		wr.WriteWord(2, segment.total_size);
 	}
 
 	/* Resource table */
-	/* TODO */
+	if(resource_types.size() != 0)
+	{
+		// TODO: test this out
+		wr.Seek(resource_table_offset);
+		for(auto& rtype : resource_types)
+		{
+			wr.WriteWord(2, rtype.type_id);
+			wr.WriteWord(2, rtype.resources.size());
+			wr.Skip(4);
+			for(auto& resource : rtype.resources)
+			{
+				wr.WriteWord(2, resource.image->ImageSize());
+				wr.WriteWord(2, resource.flags);
+				wr.WriteWord(2, resource.id);
+				wr.WriteWord(2, resource.handle);
+				wr.WriteWord(2, resource.usage);
+			}
+			resource_types.emplace_back(rtype);
+		}
+		wr.WriteWord(2, 0);
+		// TODO: write out name list
+		wr.WriteWord(1, 0);
+	}
 
 	/* Resident name table */
+	wr.Seek(resident_name_table_offset);
 	for(Name& name : resident_names)
 	{
 		wr.WriteWord(1, name.name.size());
@@ -821,12 +1162,14 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(1, 0);
 
 	/* Module reference table */
+	wr.Seek(module_reference_table_offset);
 	for(uint16_t module : module_references)
 	{
 		wr.WriteWord(2, module);
 	}
 
 	/* Imported name table */
+	wr.Seek(imported_names_table_offset);
 	for(std::string& name : imported_names)
 	{
 		wr.WriteWord(1, name.size());
@@ -834,6 +1177,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	}
 
 	/* Entry table */
+	wr.Seek(entry_table_offset);
 	for(size_t entry_index = 0; entry_index < entries.size();)
 	{
 		size_t entry_count = CountBundles(entry_index);
@@ -848,6 +1192,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(2, 0);
 
 	/* Nonresident name table */
+	wr.Seek(nonresident_name_table_offset);
 	for(Name& name : nonresident_names)
 	{
 		wr.WriteWord(1, name.name.size());
@@ -870,6 +1215,34 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 				wr.WriteWord(2, it.second.offset);
 				wr.WriteWord(2, it.second.module);
 				wr.WriteWord(2, it.second.target);
+			}
+		}
+	}
+
+	/* Resource data */
+	// TODO: needs testing
+	if(system == OS2)
+	{
+		for(Resource& resource : resources)
+		{
+			if(resource.image != nullptr)
+			{
+				wr.Seek(resource.data_offset);
+				resource.image->WriteFile(wr);
+			}
+		}
+	}
+	else
+	{
+		for(ResourceType& rtype : resource_types)
+		{
+			for(Resource& resource : rtype.resources)
+			{
+				if(resource.image != nullptr)
+				{
+					wr.Seek(resource.data_offset);
+					resource.image->WriteFile(wr);
+				}
 			}
 		}
 	}
