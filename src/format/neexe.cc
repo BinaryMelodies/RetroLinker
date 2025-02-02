@@ -623,7 +623,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				relocation.offsets.push_back(rd.ReadUnsigned(2));
 				relocation.module = rd.ReadUnsigned(2);
 				relocation.target = rd.ReadUnsigned(2);
-				if((relocation.flags & Segment::Relocation::Additive) != 0)
+				if((relocation.flags & Segment::Relocation::Additive) == 0)
 				{
 					uint16_t offset = relocation.offsets[0];
 					while(true)
