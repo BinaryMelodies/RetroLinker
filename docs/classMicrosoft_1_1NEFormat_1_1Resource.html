@@ -84,6 +84,11 @@ $(function() {
   <div class="headertitle"><div class="title">Microsoft::NEFormat::Resource Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents a resource entry.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="neexe_8h_source.html">neexe.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Microsoft::NEFormat::Resource:</div>
 <div class="dyncontent">
@@ -96,7 +101,7 @@ Inheritance diagram for Microsoft::NEFormat::Resource:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a4603b4053ebef474a16c07c077442504" id="r_a4603b4053ebef474a16c07c077442504"><td class="memItemLeft" align="right" valign="top"><a id="a4603b4053ebef474a16c07c077442504" name="a4603b4053ebef474a16c07c077442504"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>Windows</b> { <br />
+<tr class="memitem:a7a98acba22ac4f45761bbd94efe1b118" id="r_a7a98acba22ac4f45761bbd94efe1b118"><td class="memItemLeft" align="right" valign="top"><a id="a7a98acba22ac4f45761bbd94efe1b118" name="a7a98acba22ac4f45761bbd94efe1b118"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
 &#160;&#160;<b>RT_CURSOR</b> = 0x0001
 , <b>RT_BITMAP</b> = 0x0002
 , <b>RT_ICON</b> = 0x0003
@@ -128,9 +133,9 @@ Public Types</h2></td></tr>
 , <b>OS2_MENU</b> = 3
 <br />
  }</td></tr>
-<tr class="separator:a4603b4053ebef474a16c07c077442504"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a7a98acba22ac4f45761bbd94efe1b118"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_types_classMicrosoft_1_1NEFormat_1_1Segment"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classMicrosoft_1_1NEFormat_1_1Segment')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html">Microsoft::NEFormat::Segment</a></td></tr>
-<tr class="memitem:a1a82880f17148f7337a1adf71adba4d4 inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a1a82880f17148f7337a1adf71adba4d4"><td class="memItemLeft" align="right" valign="top"><a id="a1a82880f17148f7337a1adf71adba4d4" name="a1a82880f17148f7337a1adf71adba4d4"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>flag_type</b> { <br />
+<tr class="memitem:af7f01f44141d76c3003c83f147a351c0 inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment" id="r_af7f01f44141d76c3003c83f147a351c0"><td class="memItemLeft" align="right" valign="top"><a id="af7f01f44141d76c3003c83f147a351c0" name="af7f01f44141d76c3003c83f147a351c0"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>flag_type</b> : uint16_t { <br />
 &#160;&#160;<b>Data</b> = 1
 , <b>Code</b> = 0
 , <b>Allocated</b> = 2
@@ -143,7 +148,7 @@ Public Types</h2></td></tr>
 , <br />
 &#160;&#160;<b>Preload</b> = 0x40
 , <b>LoadOnCall</b> = 0
-, <b>ExecuteOnly</b> = 0x80
+, <b>ExecuteOnly</b> = 0x80|Code
 , <b>ReadOnly</b> = 0x80|Data
 , <br />
 &#160;&#160;<b>Relocations</b> = 0x0100
@@ -151,7 +156,7 @@ Public Types</h2></td></tr>
 , <b>Discardable</b> = 0x1000
 <br />
  }</td></tr>
-<tr class="separator:a1a82880f17148f7337a1adf71adba4d4 inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:af7f01f44141d76c3003c83f147a351c0 inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae3b7e75b3026a7d62747b6be42aaef8f inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment" id="r_ae3b7e75b3026a7d62747b6be42aaef8f"><td class="memItemLeft" align="right" valign="top"><a id="ae3b7e75b3026a7d62747b6be42aaef8f" name="ae3b7e75b3026a7d62747b6be42aaef8f"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>PrivilegeLevelShift</b> = 10
  }</td></tr>
 <tr class="separator:ae3b7e75b3026a7d62747b6be42aaef8f inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,26 +179,27 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="e
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ae15ff13da881dc96edce77e1a8392c66" id="r_ae15ff13da881dc96edce77e1a8392c66"><td class="memItemLeft" align="right" valign="top"><a id="ae15ff13da881dc96edce77e1a8392c66" name="ae15ff13da881dc96edce77e1a8392c66"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>type_id</b> = 0</td></tr>
+<tr class="memitem:ae15ff13da881dc96edce77e1a8392c66" id="r_ae15ff13da881dc96edce77e1a8392c66"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae15ff13da881dc96edce77e1a8392c66">type_id</a> = 0</td></tr>
+<tr class="memdesc:ae15ff13da881dc96edce77e1a8392c66"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type identifier, used by both Windows and OS/2.  <br /></td></tr>
 <tr class="separator:ae15ff13da881dc96edce77e1a8392c66"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c504f4952a02a8cc27d5e3951da83d3" id="r_a4c504f4952a02a8cc27d5e3951da83d3"><td class="memItemLeft" align="right" valign="top"><a id="a4c504f4952a02a8cc27d5e3951da83d3" name="a4c504f4952a02a8cc27d5e3951da83d3"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>type_id_name</b></td></tr>
+<tr class="memdesc:a4c504f4952a02a8cc27d5e3951da83d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type name, used only by Windows. <br /></td></tr>
 <tr class="separator:a4c504f4952a02a8cc27d5e3951da83d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c6410a500b1a665dcb5d6169a27a829" id="r_a9c6410a500b1a665dcb5d6169a27a829"><td class="memItemLeft" align="right" valign="top"><a id="a9c6410a500b1a665dcb5d6169a27a829" name="a9c6410a500b1a665dcb5d6169a27a829"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
-<tr class="separator:a9c6410a500b1a665dcb5d6169a27a829"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a041e7908d1e5f3abbce341afa846f330" id="r_a041e7908d1e5f3abbce341afa846f330"><td class="memItemLeft" align="right" valign="top"><a id="a041e7908d1e5f3abbce341afa846f330" name="a041e7908d1e5f3abbce341afa846f330"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>id</b> = 0</td></tr>
+<tr class="memitem:a041e7908d1e5f3abbce341afa846f330" id="r_a041e7908d1e5f3abbce341afa846f330"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a041e7908d1e5f3abbce341afa846f330">id</a> = 0</td></tr>
+<tr class="memdesc:a041e7908d1e5f3abbce341afa846f330"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classMicrosoft_1_1NEFormat_1_1Resource.html" title="Represents a resource entry.">Resource</a> dentifier, used by both Windows and OS/2.  <br /></td></tr>
 <tr class="separator:a041e7908d1e5f3abbce341afa846f330"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa8882d96b0cd2ad364e9fe8861373302" id="r_aa8882d96b0cd2ad364e9fe8861373302"><td class="memItemLeft" align="right" valign="top"><a id="aa8882d96b0cd2ad364e9fe8861373302" name="aa8882d96b0cd2ad364e9fe8861373302"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>id_name</b></td></tr>
+<tr class="memdesc:aa8882d96b0cd2ad364e9fe8861373302"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classMicrosoft_1_1NEFormat_1_1Resource.html" title="Represents a resource entry.">Resource</a> name, used only by Windows. <br /></td></tr>
 <tr class="separator:aa8882d96b0cd2ad364e9fe8861373302"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0adeb77f8a4af3e4942d82043061e8a4" id="r_a0adeb77f8a4af3e4942d82043061e8a4"><td class="memItemLeft" align="right" valign="top"><a id="a0adeb77f8a4af3e4942d82043061e8a4" name="a0adeb77f8a4af3e4942d82043061e8a4"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>handle</b> = 0</td></tr>
+<tr class="memdesc:a0adeb77f8a4af3e4942d82043061e8a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reserved field, named so in Microsoft documentation. <br /></td></tr>
 <tr class="separator:a0adeb77f8a4af3e4942d82043061e8a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c5f0d2dc8eafbf612a67e39b3530792" id="r_a4c5f0d2dc8eafbf612a67e39b3530792"><td class="memItemLeft" align="right" valign="top"><a id="a4c5f0d2dc8eafbf612a67e39b3530792" name="a4c5f0d2dc8eafbf612a67e39b3530792"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>usage</b> = 0</td></tr>
+<tr class="memdesc:a4c5f0d2dc8eafbf612a67e39b3530792"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reserved field, named so in Microsoft documentation. <br /></td></tr>
 <tr class="separator:a4c5f0d2dc8eafbf612a67e39b3530792"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html">Microsoft::NEFormat::Segment</a></td></tr>
 <tr class="memitem:aacdaf6e14d8a9da671e751b740fd7c9e inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_aacdaf6e14d8a9da671e751b740fd7c9e"><td class="memItemLeft" align="right" valign="top">
@@ -224,6 +230,44 @@ std::map&lt; uint16_t, <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment
 <tr class="memdesc:a3f1fe2f558d9e902ba34802dfc82a1d3 inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used internally during output generation. <br /></td></tr>
 <tr class="separator:a3f1fe2f558d9e902ba34802dfc82a1d3 inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents a resource entry. </p>
+<p>For Windows executables, resources have very similar properties to segments, and for OS/2 executables, resources are also segments </p>
+</div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="a041e7908d1e5f3abbce341afa846f330" name="a041e7908d1e5f3abbce341afa846f330"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a041e7908d1e5f3abbce341afa846f330">&#9670;&#160;</a></span>id</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t Microsoft::NEFormat::Resource::id = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classMicrosoft_1_1NEFormat_1_1Resource.html" title="Represents a resource entry.">Resource</a> dentifier, used by both Windows and OS/2. </p>
+<p>Under Windows, if bit 15 is cleared, it references a string </p>
+
+</div>
+</div>
+<a id="ae15ff13da881dc96edce77e1a8392c66" name="ae15ff13da881dc96edce77e1a8392c66"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae15ff13da881dc96edce77e1a8392c66">&#9670;&#160;</a></span>type_id</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t Microsoft::NEFormat::Resource::type_id = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Type identifier, used by both Windows and OS/2. </p>
+<p>Under Windows, if bit 15 is cleared, it references a string </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="neexe_8h_source.html">neexe.h</a></li>
 <li>src/format/<b>neexe.cc</b></li>

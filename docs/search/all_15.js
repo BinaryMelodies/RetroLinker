@@ -33,10 +33,12 @@ var searchData=
   ['type_5fcreation_30',['TYPE_CREATION',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a630cece86fe6f73aa0d8c590f5f2f6a6',1,'O65::O65Format::Module::header_option']]],
   ['type_5fend_31',['TYPE_END',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a01f8e120d7b9cfc5384632b24465f7f8',1,'PCOS::CMDFormat::MemoryBlock']]],
   ['type_5ffilename_32',['TYPE_FILENAME',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a82a0cb53601be1e6ab805f6e52a21bf4',1,'O65::O65Format::Module::header_option']]],
-  ['type_5fload_33',['TYPE_LOAD',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a089d49ccf3fe69474d72c2b54d237bec',1,'PCOS::CMDFormat::MemoryBlock']]],
-  ['type_5foffset_5frelocation_34',['TYPE_OFFSET_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671ae914d3f15724daa5d644948e784f29ee',1,'PCOS::CMDFormat::MemoryBlock']]],
-  ['type_5fsav_35',['TYPE_SAV',['../classPCOS_1_1CMDFormat.html#a758f992ed1c64ca88e64f243ae71c8c3a45becd7ee74f562e1cf733bfdf051210',1,'PCOS::CMDFormat']]],
-  ['type_5fsegment_36',['type_segment',['../structO65_1_1O65Format_1_1Module_1_1relocation.html#ac9e4ff5b435da703c27aef71ab9fd2c6',1,'O65::O65Format::Module::relocation']]],
-  ['type_5fsegment_5frelocation_37',['TYPE_SEGMENT_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a18a19e367bda74cec4f4d4da412b3332',1,'PCOS::CMDFormat::MemoryBlock']]],
-  ['type_5fsystem_38',['TYPE_SYSTEM',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a36646fda560ed168b68456b4d6e0ecc5',1,'O65::O65Format::Module::header_option']]]
+  ['type_5fid_33',['type_id',['../classMicrosoft_1_1NEFormat_1_1Resource.html#ae15ff13da881dc96edce77e1a8392c66',1,'Microsoft::NEFormat::Resource']]],
+  ['type_5fid_5fname_34',['type_id_name',['../classMicrosoft_1_1NEFormat_1_1Resource.html#a4c504f4952a02a8cc27d5e3951da83d3',1,'Microsoft::NEFormat::Resource']]],
+  ['type_5fload_35',['TYPE_LOAD',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a089d49ccf3fe69474d72c2b54d237bec',1,'PCOS::CMDFormat::MemoryBlock']]],
+  ['type_5foffset_5frelocation_36',['TYPE_OFFSET_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671ae914d3f15724daa5d644948e784f29ee',1,'PCOS::CMDFormat::MemoryBlock']]],
+  ['type_5fsav_37',['TYPE_SAV',['../classPCOS_1_1CMDFormat.html#a758f992ed1c64ca88e64f243ae71c8c3a45becd7ee74f562e1cf733bfdf051210',1,'PCOS::CMDFormat']]],
+  ['type_5fsegment_38',['type_segment',['../structO65_1_1O65Format_1_1Module_1_1relocation.html#ac9e4ff5b435da703c27aef71ab9fd2c6',1,'O65::O65Format::Module::relocation']]],
+  ['type_5fsegment_5frelocation_39',['TYPE_SEGMENT_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a18a19e367bda74cec4f4d4da412b3332',1,'PCOS::CMDFormat::MemoryBlock']]],
+  ['type_5fsystem_40',['TYPE_SYSTEM',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a36646fda560ed168b68456b4d6e0ecc5',1,'O65::O65Format::Module::header_option']]]
 ];

@@ -8,6 +8,7 @@ var searchData=
   ['unknownblock_5',['UnknownBlock',['../classPCOS_1_1CMDFormat_1_1UnknownBlock.html',1,'PCOS::CMDFormat']]],
   ['unknownoptionalheader_6',['UnknownOptionalHeader',['../classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html',1,'COFF::COFFFormat']]],
   ['unused_7',['Unused',['../classMicrosoft_1_1NEFormat_1_1Entry.html#adc00fcef26d344e30fa3a6ddd737a9b2a50aa81788194c2d8e0c89a0303c0bf4a',1,'Microsoft::NEFormat::Entry']]],
-  ['uzi280format_8',['UZI280Format',['../classBinary_1_1UZI280Format.html',1,'Binary']]],
-  ['uziformat_9',['UZIFormat',['../classBinary_1_1UZIFormat.html',1,'Binary']]]
+  ['usage_8',['usage',['../classMicrosoft_1_1NEFormat_1_1Resource.html#a4c5f0d2dc8eafbf612a67e39b3530792',1,'Microsoft::NEFormat::Resource']]],
+  ['uzi280format_9',['UZI280Format',['../classBinary_1_1UZI280Format.html',1,'Binary']]],
+  ['uziformat_10',['UZIFormat',['../classBinary_1_1UZIFormat.html',1,'Binary']]]
 ];

@@ -17,6 +17,8 @@ var searchData=
   ['type_5fauthor_14',['TYPE_AUTHOR',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a3b71845901ca987dc3b4aa4b43e02a17',1,'O65::O65Format::Module::header_option']]],
   ['type_5fcreation_15',['TYPE_CREATION',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a630cece86fe6f73aa0d8c590f5f2f6a6',1,'O65::O65Format::Module::header_option']]],
   ['type_5ffilename_16',['TYPE_FILENAME',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a82a0cb53601be1e6ab805f6e52a21bf4',1,'O65::O65Format::Module::header_option']]],
-  ['type_5fsegment_17',['type_segment',['../structO65_1_1O65Format_1_1Module_1_1relocation.html#ac9e4ff5b435da703c27aef71ab9fd2c6',1,'O65::O65Format::Module::relocation']]],
-  ['type_5fsystem_18',['TYPE_SYSTEM',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a36646fda560ed168b68456b4d6e0ecc5',1,'O65::O65Format::Module::header_option']]]
+  ['type_5fid_17',['type_id',['../classMicrosoft_1_1NEFormat_1_1Resource.html#ae15ff13da881dc96edce77e1a8392c66',1,'Microsoft::NEFormat::Resource']]],
+  ['type_5fid_5fname_18',['type_id_name',['../classMicrosoft_1_1NEFormat_1_1Resource.html#a4c504f4952a02a8cc27d5e3951da83d3',1,'Microsoft::NEFormat::Resource']]],
+  ['type_5fsegment_19',['type_segment',['../structO65_1_1O65Format_1_1Module_1_1relocation.html#ac9e4ff5b435da703c27aef71ab9fd2c6',1,'O65::O65Format::Module::relocation']]],
+  ['type_5fsystem_20',['TYPE_SYSTEM',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a36646fda560ed168b68456b4d6e0ecc5',1,'O65::O65Format::Module::header_option']]]
 ];
