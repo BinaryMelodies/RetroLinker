@@ -309,6 +309,7 @@ void MZFormat::Dump(Dumper::Dumper& dump)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + relocation_offset + i * 4, 6);
 		relocation_entry.AddField("Source", Dumper::SegmentedDisplay::Make(), offset_t(relocation.segment), offset_t(relocation.offset));
+		relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(4), image->AsImage()->ReadUnsigned(2, (offset_t(relocation.segment) << 4) | relocation.offset));
 		relocation_entry.Display(dump);
 		image_block.AddSignal(relocation.GetOffset(), 2);
 		i++;

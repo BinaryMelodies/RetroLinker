@@ -57,7 +57,7 @@ void CMDFormat::MemoryBlock::AddFields(Dumper::Region& region, CMDFormat& module
 {
 }
 
-void CMDFormat::MemoryBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset) const
+void CMDFormat::MemoryBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const
 {
 }
 
@@ -73,7 +73,7 @@ void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset, CM
 	AddFields(*region, module);
 	region->Display(dump);
 
-	DumpContents(dump, file_offset);
+	DumpContents(dump, file_offset, module);
 	// TODO: display relocations, they are contained in different blocks
 }
 
@@ -152,13 +152,14 @@ void CMDFormat::RelocationBlock::AddFields(Dumper::Region& region, CMDFormat& mo
 	region.AddField("Target block", Dumper::HexDisplay::Make(2), offset_t(target));
 }
 
-void CMDFormat::RelocationBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset) const
+void CMDFormat::RelocationBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const
 {
 	unsigned i = 0;
 	for(auto rel : offsets)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + 3 + 2 + 2 * i, 6);
 		relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(2), offset_t(rel));
+		relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(4), module.GetLoadBlockById(source)->image->AsImage()->ReadUnsigned(2, rel));
 		relocation_entry.Display(dump);
 		i ++;
 	}
@@ -267,5 +268,20 @@ void CMDFormat::CalculateValues()
 std::string CMDFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
 {
 	return filename + (type == TYPE_SAV ? ".sav" : ".cmd");
+}
+
+CMDFormat::LoadBlock * CMDFormat::GetLoadBlockById(uint32_t block_id)
+{
+	for(auto& block : blocks)
+	{
+		if(LoadBlock * load_block = dynamic_cast<LoadBlock *>(block.get()))
+		{
+			if(load_block->block_id == block_id)
+			{
+				return load_block;
+			}
+		}
+	}
+	return nullptr;
 }
 

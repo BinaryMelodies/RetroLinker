@@ -660,6 +660,7 @@ void PRLFormat::Dump(Dumper::Dumper& dump)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, 0x100 + image->ImageSize() + (relocation >> 3), 4);
 		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(4), offset_t(relocation));
+		relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(2), offset_t(image->AsImage()->ReadUnsigned(1, relocation, ::LittleEndian)));
 		relocation_entry.Display(dump);
 		i++;
 	}

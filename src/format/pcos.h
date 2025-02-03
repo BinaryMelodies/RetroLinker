@@ -62,7 +62,7 @@ namespace PCOS
 			/** @brief Adds block specific fields */
 			virtual void AddFields(Dumper::Region& region, CMDFormat& module) const;
 			/** @brief Display block specific contents */
-			virtual void DumpContents(Dumper::Dumper& dump, offset_t file_offset) const;
+			virtual void DumpContents(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const;
 			/** @brief Displays the entire block */
 			void Dump(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const;
 
@@ -115,7 +115,7 @@ namespace PCOS
 			void ReadFile(Linker::Reader& rd, uint16_t length) override;
 			void WriteFile(Linker::Writer& wr) const override;
 			void AddFields(Dumper::Region& region, CMDFormat& module) const override;
-			void DumpContents(Dumper::Dumper& dump, offset_t file_offset) const override;
+			void DumpContents(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const override;
 		};
 
 		/** @brief Represents the contents of a block whose format is not known or implemented */
@@ -174,6 +174,8 @@ namespace PCOS
 
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+
+		LoadBlock * GetLoadBlockById(uint32_t block_id);
 	};
 }
 

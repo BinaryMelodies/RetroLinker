@@ -154,6 +154,7 @@ void PMW1Format::Dump(Dumper::Dumper& dump)
 			relocation_entry.AddField("Type", Dumper::HexDisplay::Make(4), offset_t(rel.type));
 			relocation_entry.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(rel.source));
 			relocation_entry.AddField("Target", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(rel.target_object), offset_t(rel.target_offset));
+			// TODO: addend
 			relocation_entry.Display(dump);
 			j++;
 		}

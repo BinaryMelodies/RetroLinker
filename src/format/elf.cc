@@ -435,7 +435,7 @@ void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 		}
 		if(!rel.addend_from_section_data)
 			relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.addend));
-		// TODO: display current value
+		// TODO: fill addend
 		relocation_entry.Display(dump);
 		i += 1;
 	}

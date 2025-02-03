@@ -143,6 +143,10 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 					rel_entry.AddField("Fixup type", Dumper::HexDisplay::Make(4), offset_t(relocation.module));
 					break;
 				}
+				if((relocation.flags & Relocation::Additive) != 0)
+				{
+					rel_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(4), offset_t(image->AsImage()->ReadUnsigned(2, offset, ::LittleEndian)));
+				}
 				rel_entry.Display(dump);
 			}
 			else

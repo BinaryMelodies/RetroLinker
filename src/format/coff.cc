@@ -1492,6 +1492,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 		{
 			Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
 			relocation->FillEntry(relocation_entry);
+			// TODO: fill addend
 			relocation_entry.Display(dump);
 
 			block.AddSignal(relocation->GetAddress() - section->address, relocation->GetSize());
