@@ -29,3 +29,32 @@ std::shared_ptr<ActualImage> ActualImage::AsImage()
 	return shared_from_this();
 }
 
+uint64_t ActualImage::ReadUnsigned(size_t bytes, offset_t offset, EndianType endiantype) const
+{
+	uint8_t buffer[bytes];
+	offset_t count = ReadData(bytes, offset, buffer);
+	return ::ReadUnsigned(bytes, count, buffer, endiantype);
+}
+
+uint64_t ActualImage::ReadUnsigned(size_t bytes, offset_t offset) const
+{
+	return ReadUnsigned(bytes, offset, ::DefaultEndianType);
+}
+
+int64_t ActualImage::ReadSigned(size_t bytes, offset_t offset, EndianType endiantype) const
+{
+	uint8_t buffer[bytes];
+	offset_t count = ReadData(bytes, offset, buffer);
+	return ::ReadSigned(bytes, count, buffer, endiantype);
+}
+
+int64_t ActualImage::ReadSigned(size_t bytes, offset_t offset) const
+{
+	return ReadSigned(bytes, offset, ::DefaultEndianType);
+}
+
+int ActualImage::GetByte(offset_t offset) const
+{
+	return ReadUnsigned(1, offset, ::EndianType(0));
+}
+

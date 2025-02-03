@@ -130,20 +130,27 @@ offset_t Segment::WriteFile(Writer& wr)
 	return WriteFile(*wr.out);
 }
 
-int Segment::GetByte(offset_t offset)
+size_t Segment::ReadData(size_t bytes, offset_t offset, void * buffer) const
 {
+	size_t total_count = 0;
 	for(auto& section : sections)
 	{
 		if(offset < section->Size())
 		{
-			return section->GetByte(offset);
+			size_t actual_count = ReadData(bytes, offset, buffer);
+			total_count += actual_count;
+			if(actual_count >= bytes)
+				return total_count;
+			bytes -= actual_count;
+			offset = 0;
+			buffer = reinterpret_cast<char *>(buffer) + actual_count;
 		}
 		else
 		{
 			offset -= section->Size();
 		}
 	}
-	return -1;
+	return total_count;
 }
 
 offset_t Segment::TotalSize()

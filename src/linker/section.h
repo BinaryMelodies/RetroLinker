@@ -227,15 +227,7 @@ namespace Linker
 		 */
 		offset_t RealignEnd(offset_t align);
 
-		int GetByte(offset_t offset) override;
-
-		uint64_t ReadUnsigned(size_t bytes, offset_t offset, EndianType endiantype) const;
-
-		uint64_t ReadUnsigned(size_t bytes, offset_t offset) const;
-
-		int64_t ReadSigned(size_t bytes, offset_t offset, EndianType endiantype) const;
-
-		uint64_t ReadSigned(size_t bytes, offset_t offset) const;
+		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
 		void WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype);
 

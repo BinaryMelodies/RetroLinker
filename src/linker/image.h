@@ -39,10 +39,33 @@ namespace Linker
 	{
 	public:
 		std::shared_ptr<ActualImage> AsImage() override;
+
+		/**
+		 * @brief Attempts to fill a buffer with data
+		 *
+		 * @param bytes The (maximum) number of bytes to place in buffer
+		 * @param offset The offset in the image to start reading the data
+		 * @param buffer A byte buffer
+		 * @result Actual number of bytes copied into buffer
+		 */
+		virtual size_t ReadData(size_t bytes, offset_t offset, void * buffer) const = 0;
+
+		/** @brief Reads an unsigned number at a specific offset */
+		uint64_t ReadUnsigned(size_t bytes, offset_t offset, EndianType endiantype) const;
+
+		/** @brief Reads an unsigned number at a specific offset with the default endianness */
+		uint64_t ReadUnsigned(size_t bytes, offset_t offset) const;
+
+		/** @brief Reads a signed number at a specific offset */
+		int64_t ReadSigned(size_t bytes, offset_t offset, EndianType endiantype) const;
+
+		/** @brief Reads a signed number at a specific offset with the default endianness */
+		int64_t ReadSigned(size_t bytes, offset_t offset) const;
+
 		/**
 		 * @brief Retrieve byte at a certain offset (optional, might not be defined)
 		 */
-		virtual int GetByte(offset_t offset) = 0;
+		int GetByte(offset_t offset) const;
 	};
 }
 

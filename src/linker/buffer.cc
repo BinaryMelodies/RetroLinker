@@ -42,8 +42,15 @@ offset_t Buffer::WriteFile(Writer& wr, offset_t count, offset_t offset)
 	return wr.WriteData(count, data, offset);
 }
 
-int Buffer::GetByte(offset_t offset)
+size_t Buffer::ReadData(size_t bytes, offset_t offset, void * buffer) const
 {
-	return offset < data.size() ? data[offset] : -1;
+	if(offset >= data.size())
+		return 0;
+	if(offset + bytes > data.size())
+	{
+		bytes = data.size() - offset;
+	}
+	memcpy(buffer, data.data() + offset, bytes);
+	return bytes;
 }
 

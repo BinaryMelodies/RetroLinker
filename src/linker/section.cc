@@ -203,32 +203,21 @@ offset_t Section::RealignEnd(offset_t align)
 	}
 }
 
-int Section::GetByte(offset_t offset)
+size_t Section::ReadData(size_t bytes, offset_t offset, void * buffer) const
 {
 	if(IsZeroFilled())
-		return offset < size ? 0 : -1;
+	{
+		if(offset >= size)
+			return 0;
+		if(offset + bytes > size)
+			bytes = size - offset;
+		memset(buffer, 0, bytes);
+		return bytes;
+	}
 	else
-		return offset < data.size() ? data[offset] : -1;
-}
-
-uint64_t Section::ReadUnsigned(size_t bytes, offset_t offset, EndianType endiantype) const
-{
-	return offset >= data.size() ? 0 : ::ReadUnsigned(bytes, data.size() - offset, data.data() + offset, endiantype);
-}
-
-uint64_t Section::ReadUnsigned(size_t bytes, offset_t offset) const
-{
-	return ReadUnsigned(bytes, offset, ::DefaultEndianType);
-}
-
-int64_t Section::ReadSigned(size_t bytes, offset_t offset, EndianType endiantype) const
-{
-	return offset >= data.size() ? 0 : ::ReadSigned(bytes, data.size() - offset, data.data() + offset, endiantype);
-}
-
-uint64_t Section::ReadSigned(size_t bytes, offset_t offset) const
-{
-	return ReadSigned(bytes, offset, ::DefaultEndianType);
+	{
+		return Buffer::ReadData(bytes, offset, buffer);
+	}
 }
 
 void Section::WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype)
