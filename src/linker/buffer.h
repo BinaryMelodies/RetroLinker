@@ -41,6 +41,7 @@ namespace Linker
 		int GetByte(offset_t offset) override;
 
 		friend class Section;
+		friend class Image;
 	};
 }
 
