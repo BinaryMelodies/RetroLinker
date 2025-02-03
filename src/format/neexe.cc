@@ -483,6 +483,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 					Resource resource;
 					resource.type_id = type_id;
 					resource.data_offset = offset_t(rd.ReadUnsigned(2)) << resource_shift;
+					// the official Microsoft documentation mistakenly claims that this length is in bytes
 					resource.image_size = offset_t(rd.ReadUnsigned(2)) << resource_shift;
 					resource.flags = rd.ReadUnsigned(2);
 					resource.id = rd.ReadUnsigned(2);
@@ -944,10 +945,11 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 	file_region.AddField("Additional flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("(OS/2) support long filenames"), true)
-			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("Windows 2.x application running in protected mode"), true)
-			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("Windows 2.x application supporting proportional fonts"), true)
+		// the official Microsoft documentation mixes up these two fields
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("Windows 2.x application supporting proportional fonts"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("Windows 2.x application running in protected mode"), true)
 			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("(Windows) contains fast load area"), true),
-		offset_t(application_flags));
+		offset_t(additional_flags));
 	file_region.AddOptionalField(IsOS2() ? "Offset to return thunks" : "Offset to fast load area", Dumper::HexDisplay::Make(4), offset_t(fast_load_area_offset));
 	file_region.AddOptionalField(IsOS2() ? "Offset to segment reference thunks" : "Offset to fast load length", Dumper::HexDisplay::Make(4), offset_t(fast_load_area_length));
 	file_region.AddOptionalField("Minimum code swap area size", Dumper::HexDisplay::Make(4), offset_t(code_swap_area_length));
