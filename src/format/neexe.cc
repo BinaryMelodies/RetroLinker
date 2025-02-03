@@ -931,14 +931,17 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 
 	dump.SetTitle("NE format");
 	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.AddField("Signature", Dumper::StringDisplay::Make("'"), std::string(signature.data(), 2));
-	file_region.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(linker_version.major), offset_t(linker_version.minor));
-	file_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(crc32));
-	file_region.AddOptionalField("Automatic data segment", Dumper::DecDisplay::Make(), offset_t(automatic_data));
-	file_region.AddField("Initial heap size", Dumper::HexDisplay::Make(4), offset_t(heap_size));
-	file_region.AddField("Initial stack size", Dumper::HexDisplay::Make(4), offset_t(stack_size));
-	file_region.AddField("Entry point (CS:IP)", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(cs), offset_t(ip));
-	file_region.AddField("Initial stack (SS:SP)", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(ss), offset_t(sp));
+	file_region.Display(dump);
+
+	Dumper::Region header_region("New header", file_offset, segment_table_offset - file_offset, 8);
+	header_region.AddField("Signature", Dumper::StringDisplay::Make("'"), std::string(signature.data(), 2));
+	header_region.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(linker_version.major), offset_t(linker_version.minor));
+	header_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(crc32));
+	header_region.AddOptionalField("Automatic data segment", Dumper::DecDisplay::Make(), offset_t(automatic_data));
+	header_region.AddField("Initial heap size", Dumper::HexDisplay::Make(4), offset_t(heap_size));
+	header_region.AddField("Initial stack size", Dumper::HexDisplay::Make(4), offset_t(stack_size));
+	header_region.AddField("Entry point (CS:IP)", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(cs), offset_t(ip));
+	header_region.AddField("Initial stack (SS:SP)", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(ss), offset_t(sp));
 
 	std::map<offset_t, std::string> os_descriptions;
 	os_descriptions[OS2] = "Microsoft&IBM OS/2 1.0 - 1.3";
@@ -948,13 +951,13 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 	os_descriptions[BorlandOSS] = "Borland Operating System Services";
 	os_descriptions[OS2 | PharLap] = "Pharlap 286|DOS-Extender, OS/2 simulation";
 	os_descriptions[Windows | PharLap] = "Pharlap 286|DOS-Extender, Windows simulation";
-	file_region.AddField("Operating system", Dumper::ChoiceDisplay::Make(os_descriptions), offset_t(system));
+	header_region.AddField("Operating system", Dumper::ChoiceDisplay::Make(os_descriptions), offset_t(system));
 
 	std::map<offset_t, std::string> data_count_descriptions;
 	data_count_descriptions[NODATA] = "NODATA - No automatic data segment";
 	data_count_descriptions[SINGLEDATA] = "SINGLEDATA - Single automatic data segment instance shared (DLLs)";
 	data_count_descriptions[MULTIPLEDATA] = "MULTIPLEDATA - Separate automatic data segment instances shared (EXEs)";
-	file_region.AddField("Program flags",
+	header_region.AddField("Program flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(data_count_descriptions), false)
 			->AddBitField(2, 1,
@@ -972,7 +975,7 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 	gui_descriptions[FULLSCREEN] = "Fullscreen";
 	gui_descriptions[GUI_AWARE] = "GUI compatible";
 	gui_descriptions[GUI] = "GUI";
-	file_region.AddField("Application flags",
+	header_region.AddField("Application flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(gui_descriptions), false)
 			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("(Windows) first segment contains code to load application/(OS/2) Family Application (runs on DOS as well)"), true)
@@ -980,7 +983,7 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("non-conforming program, no valid stack maintained/private DLL"), true)
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("library (DLL)", "application (EXE)"), false),
 		offset_t(application_flags));
-	file_region.AddField("Additional flags",
+	header_region.AddField("Additional flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("(OS/2) support long filenames"), true)
 		// the official Microsoft documentation mixes up these two fields
@@ -988,11 +991,11 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("Windows 2.x application running in protected mode"), true)
 			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("(Windows) contains fast load area"), true),
 		offset_t(additional_flags));
-	file_region.AddOptionalField(IsOS2() ? "Offset to return thunks" : "Offset to fast load area", Dumper::HexDisplay::Make(4), offset_t(fast_load_area_offset));
-	file_region.AddOptionalField(IsOS2() ? "Offset to segment reference thunks" : "Offset to fast load length", Dumper::HexDisplay::Make(4), offset_t(fast_load_area_length));
-	file_region.AddOptionalField("Minimum code swap area size", Dumper::HexDisplay::Make(4), offset_t(code_swap_area_length));
-	file_region.AddOptionalField("Minimal Windows version", Dumper::VersionDisplay::Make(), offset_t(windows_version.major), offset_t(windows_version.minor));
-	file_region.Display(dump);
+	header_region.AddOptionalField(IsOS2() ? "Offset to return thunks" : "Offset to fast load area", Dumper::HexDisplay::Make(8), offset_t(fast_load_area_offset) << sector_shift);
+	header_region.AddOptionalField(IsOS2() ? "Offset to segment reference thunks" : "Offset to fast load length", Dumper::HexDisplay::Make(8), offset_t(fast_load_area_length) << sector_shift);
+	header_region.AddOptionalField("Minimum code swap area size", Dumper::HexDisplay::Make(4), offset_t(code_swap_area_length));
+	header_region.AddOptionalField("Minimal Windows version", Dumper::VersionDisplay::Make(), offset_t(windows_version.major), offset_t(windows_version.minor));
+	header_region.Display(dump);
 
 	Dumper::Region segment_table_region("Segment table", segment_table_offset, segments.size() * 8, 8);
 	segment_table_region.AddField("Segment count", Dumper::DecDisplay::Make(), offset_t(segments.size()));
