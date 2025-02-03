@@ -114,29 +114,30 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 						->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(target_descriptions), false)
 						->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("additive"), true),
 					offset_t(relocation.flags));
-				switch(relocation.flags & 3)
+				switch(relocation.flags & Relocation::TargetTypeMask)
 				{
 				case Relocation::Internal:
-					if(relocation.segment == 0xFF)
+					if((relocation.module & 0xFF) == 0xFF)
 					{
-						// TODO: get name
 						rel_entry.AddField("Entry", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
+						rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(4)), offset_t(relocation.actual_segment), offset_t(relocation.actual_offset));
+						rel_entry.AddOptionalField("Exported name", Dumper::StringDisplay::Make(), relocation.import_name);
 					}
 					else
 					{
-						rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(4)), offset_t(relocation.segment), offset_t(relocation.target));
+						rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(4)), offset_t(relocation.module & 0xFF), offset_t(relocation.target));
 					}
 					break;
 				case Relocation::ImportOrdinal:
-					// TODO: get module name
-					rel_entry.AddField("Module", Dumper::DecDisplay::Make(), offset_t(relocation.segment));
+					rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation.module));
+					rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation.module_name);
 					rel_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
 					break;
 				case Relocation::ImportName:
-					// TODO: get module name
-					rel_entry.AddField("Module", Dumper::DecDisplay::Make(), offset_t(relocation.segment));
-					// TODO: get procedure name
+					rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation.module));
+					rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation.module_name);
 					rel_entry.AddField("Name offset", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
+					rel_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), relocation.import_name);
 					break;
 				case Relocation::OSFixup:
 					rel_entry.AddField("Fixup type", Dumper::HexDisplay::Make(4), offset_t(relocation.module));
@@ -152,7 +153,6 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 			}
 			j++;
 		}
-		// TODO: finish
 		i++;
 	}
 }
@@ -341,9 +341,11 @@ bool NEFormat::IsOS2() const
 
 void NEFormat::ReadFile(Linker::Reader& rd)
 {
-	/* TODO: test reader */
 	rd.endiantype = ::LittleEndian;
 	file_offset = rd.Tell();
+
+	/* New header */
+
 	rd.ReadData(signature);
 	linker_version.major = rd.ReadUnsigned(1);
 	linker_version.minor = rd.ReadUnsigned(1);
@@ -404,6 +406,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	file_size = rd.Tell();
 
 	uint32_t i;
+
 	/* Segment table */
 	rd.Seek(segment_table_offset);
 	segments.clear();
@@ -553,6 +556,8 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 
 	file_size = std::max(file_size, rd.Tell());
 
+	// Load module names for convenience
+
 	for(auto& module : module_references)
 	{
 		rd.Seek(imported_names_table_offset + module.name_offset);
@@ -632,9 +637,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 						uint16_t new_offset = segment.image->GetByte(offset) | (segment.image->GetByte(offset + 1) << 8);
 						if(new_offset == 0xFFFF)
 							break;
-						Linker::Debug << "Debug: chained relocation from offset " << std::hex << offset << " to " << new_offset << std::endl;
-						//relocation.offset = new_offset;
-						//segment.relocations.emplace_back(relocation);
+						//Linker::Debug << "Debug: chained relocation from offset " << std::hex << offset << " to " << new_offset << std::endl;
 						relocation.offsets.push_back(new_offset);
 						offset = new_offset;
 					}
@@ -674,6 +677,8 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
+	/* Load entry descriptions for readability */
+
 	for(auto& name : resident_names)
 	{
 		if(0 < name.ordinal && name.ordinal <= entries.size())
@@ -689,6 +694,39 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		{
 			entries[name.ordinal - 1].export_state = Entry::ExportByOrdinal;
 			entries[name.ordinal - 1].entry_name = name.name;
+		}
+	}
+
+	/* Load relocation descriptions for readability */
+	for(auto& segment : segments)
+	{
+		for(auto& relocation : segment.relocations)
+		{
+			if((relocation.flags & Segment::Relocation::TargetTypeMask) == Segment::Relocation::ImportOrdinal
+			|| (relocation.flags & Segment::Relocation::TargetTypeMask) == Segment::Relocation::ImportName)
+			{
+				if(0 < relocation.module && relocation.module <= module_references.size())
+				{
+					relocation.module_name = module_references[relocation.module - 1].name;
+				}
+			}
+
+			if((relocation.flags & Segment::Relocation::TargetTypeMask) == Segment::Relocation::ImportName)
+			{
+				rd.Seek(imported_names_table_offset + relocation.target);
+				uint8_t length = rd.ReadUnsigned(1);
+				relocation.import_name = rd.ReadData(length);
+			}
+
+			if((relocation.flags & Segment::Relocation::TargetTypeMask) == Segment::Relocation::Internal && (relocation.module & 0xFF) == 0xFF)
+			{
+				if(0 < relocation.target && relocation.target <= entries.size())
+				{
+					relocation.actual_segment = entries[relocation.target - 1].segment;
+					relocation.actual_offset = entries[relocation.target - 1].offset;
+					relocation.import_name = entries[relocation.target - 1].entry_name;
+				}
+			}
 		}
 	}
 }
@@ -1050,7 +1088,7 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 	for(auto& entry : entries)
 	{
 		Dumper::Entry call_entry("Entry", i + 1, 0 /* TODO */, 8);
-		call_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(i));
+		call_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(i + 1));
 		call_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(entry.type));
 		if(entry.type != Entry::Unused)
 		{
@@ -1617,7 +1655,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 						Segment::Relocation(type, Segment::Relocation::ImportName,
 							position.address, FetchModule(library) + 1, FetchImportedName(MakeProcedureName(name)))
 					);
-					rel.WriteWord(0xFFFFFFFF);
+					rel.WriteWord(0xFFFFFFFF); // gets truncated for shorter relocations
 					/* TODO: if not additive? */
 					continue;
 				}
@@ -1627,7 +1665,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 						Segment::Relocation(type, Segment::Relocation::ImportOrdinal,
 							position.address, FetchModule(library) + 1, ordinal)
 					);
-					rel.WriteWord(0xFFFFFFFF);
+					rel.WriteWord(0xFFFFFFFF); // gets truncated for shorter relocations
 					/* TODO: if not additive? */
 					continue;
 				}
@@ -1746,7 +1784,7 @@ void NEFormat::CalculateValues()
 		resource_count += rtype.resources.size();
 	}
 
-	resident_name_table_offset = resource_table_offset + 0; /* TODO: resource table */
+	resident_name_table_offset = resource_table_offset + 0; /* TODO: store resource table */
 	current_offset = resident_name_table_offset + 1;
 	for(Name& name : resident_names)
 	{

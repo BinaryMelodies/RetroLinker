@@ -82,31 +82,52 @@ namespace Microsoft
 			class Relocation
 			{
 			public:
+				/** @brief The type of the field that needs to be updated in the binary image */
 				enum source_type
 				{
+					/** @brief Lower 8 bits of value */
 					Offset8 = 0,
+					/** @brief A 16-bit segment selector value (or paragraph in real mode) */
 					Selector16 = 2,
+					/** @brief A 32-bit far pointer, 16-bit segment and 16-bit offset value */
 					Pointer32 = 3,
+					/** @brief A 16-bit offset within its preferred segment */
 					Offset16 = 5,
+					/** @brief A 48-bit far pointer, 16-bit segment and 32-bit offset value */
 					Pointer48 = 11,
+					/** @brief A 32-bit offset within its preferred segment */
 					Offset32 = 13,
 				};
+				/** @brief The type of relocation */
 				source_type type = source_type(0);
+				/** @brief Encodes what the type of the target is for this relocation */
 				enum flag_type
 				{
+					/** @brief Mask to get the type of the target */
+					TargetTypeMask = 3,
+					/** @brief An internal segment:offset, or if segment is 0xFF, offset is the entry number */
 					Internal = 0,
+					/** @brief An imported module:ordinal where module is the module number */
 					ImportOrdinal = 1,
+					/** @brief An imported module:offset where module is the module number and offset is an offset to the name */
 					ImportName = 2,
+					/** @brief This is actually an 80x87 instruction sequence that needs to be fixed up for 80x87 emulation */
 					OSFixup = 3,
+					/** @brief Whether the relocation has an added in the image or it is the first element in a relocation chain
+					 *
+					 * If set, the value stored in the image has to be added to the target value.
+					 * If cleared, the value stored in the image is part of a relocation chain, providing the offset to the following relocation.
+					 * The chain is closed if the value 0xFFFF is present.
+					 * All other properties of the relocation are the same as the first member of the chain.
+					 */
 					Additive = 4,
 				};
+				/** @brief The type of target */
 				flag_type flags = flag_type(0);
+				/** @brief The offset to the relocation, or if the relocation is chained, a list of offsets (this is not possible for Offset8) */
 				std::vector<uint16_t> offsets;
-				union
-				{
-					uint16_t module;
-					uint8_t segment;
-				};
+				/** @brief This field is a segment (1 based) or module (1 based) or 80x87 instruction reference, depending on the flags */
+				uint16_t module = 0;
 				enum
 				{
 					FIARQQ = 1, FJARQQ = 1,
@@ -116,11 +137,19 @@ namespace Microsoft
 					FIDRQQ = 5,
 					FIWRQQ = 6,
 				};
+				/** @brief This field is an offset or ordinal, depending on the flags */
 				uint16_t target = 0;
-				Relocation()
-					: module(0)
-				{
-				}
+
+				/** @brief Convenience field that stores the module name */
+				std::string module_name;
+				/** @brief Convenience field that stores the imported procedure name, if imported by name, also the name for an exported entry */
+				std::string import_name;
+				/** @brief Convenience field that stores the actual segment for an entry */
+				uint8_t actual_segment = 0;
+				/** @brief Convenience field that stores the actual offset for an entry */
+				uint16_t actual_offset = 0;
+
+				Relocation() = default;
 
 				Relocation(unsigned type, unsigned flags, uint16_t offset, uint16_t module, uint16_t target)
 					: type(source_type(type)), flags(flag_type(flags)), module(module), target(target)
@@ -194,41 +223,56 @@ namespace Microsoft
 		class Entry
 		{
 		public:
+			/** @brief This field represents the type of the entry */
 			enum entry_type
 			{
+				/** @brief The entry is unused, the other fields are meaningless */
 				Unused,
+				/** @brief The entry references a fixed segment */
 				Fixed,
+				/** @brief The entry references a movable segment */
 				Movable,
 			};
+			/** @brief The type of entry, based on the first byte in an entry bundle */
 			entry_type type = Unused;
+			/** @brief The number of the segment, 1 based */
 			uint8_t segment = 0;
+			/** @brief Flags present in an entry */
 			enum flag_type : uint8_t
 			{
+				/** @brief Set if the entry is exported */
 				Exported = 1,
+				/** @brief Set if the data segment used by the entry is global, used in SINGLEDATA modules (libraries) */
 				SharedData = 2,
 			};
 			flag_type flags = flag_type(0);
+			/** @brief Offset within the segment */
 			uint16_t offset = 0;
+
 			// informational purposes
 			enum export_type
 			{
+				/** @brief The entry is not exported, the Exported bit is not set */
 				NotExported,
+				/** @brief The entry is exported by name, it is referenced in the resident name table */
 				ExportByName,
+				/** @brief The entry is exported by ordinal, it is referenced in the nonresident name table */
 				ExportByOrdinal,
 			};
+			/** @brief Whether the entry is exported. This is not actually stored in the entry table and its value is ignored during program generation */
 			export_type export_state = NotExported;
+			/** @brief The name of an exported entry. This is not actually stored in the entry table and its value is ignored during program generation */
 			std::string entry_name;
 
 			enum
 			{
 				WordCountShift = 3,
 
+				/** @brief Byte code for interrupt call that must be placed in the entry field */
 				INT_3Fh = 0x3FCD,
 			};
 
-			Entry()
-			{
-			}
+			Entry() = default;
 
 			Entry(unsigned type, uint8_t segment, unsigned flags, uint16_t offset)
 				: type(entry_type(type)), segment(segment), flags(flag_type(flags)), offset(offset)
@@ -246,7 +290,9 @@ namespace Microsoft
 		class ModuleReference
 		{
 		public:
+			/** @brief Offset to the module name within the imported names table */
 			uint16_t name_offset = 0;
+			/** @brief The name of the module, not actually used during program generation */
 			std::string name;
 
 			ModuleReference(uint16_t name_offset, std::string name = "")
