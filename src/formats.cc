@@ -431,7 +431,7 @@ static bool VerifyDRPageRelocatable(Reader& rd, format_description& description)
 		return false;
 	rd.Seek(description.offset + 1);
 	uint16_t bytes = rd.ReadUnsigned(2, ::LittleEndian);
-	if(bytes == 0 || 256 + uint32_t(bytes) < size)
+	if(bytes == 0 || size < 256 + uint32_t(bytes))
 		return false;
 	Linker::Debug << "Debug: Looks like .PRL" << std::endl;
 	return true;
