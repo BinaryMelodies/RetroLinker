@@ -272,6 +272,9 @@ namespace Microsoft
 				INT_3Fh = 0x3FCD,
 			};
 
+			/** @brief Convenience field to signify this entry is part of the same bundle as the previous one */
+			mutable bool same_bundle = false; // mutable because this isn't actually part of the entry state but the entire entry table
+
 			Entry() = default;
 
 			Entry(unsigned type, uint8_t segment, unsigned flags, uint16_t offset)
@@ -279,11 +282,15 @@ namespace Microsoft
 			{
 			}
 
+			/** @brief Returns the size of an entry as stored in the file, without the first two bytes of the bundle */
 			offset_t GetEntrySize() const;
 
+			/** @brief Retrieves the segment indicator byte. For Fixed entries, this the same as the segment number */
 			uint8_t GetIndicatorByte() const;
 
+			/** @brief Reads an entry within a bundle */
 			static Entry ReadEntry(Linker::Reader& rd, uint8_t indicator_byte);
+			/** @brief Writes an entry within a bundle */
 			void WriteEntry(Linker::Writer& wr);
 		};
 

@@ -588,6 +588,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		for(i = 0; i < entry_count; i ++)
 		{
 			entries.emplace_back(Entry::ReadEntry(rd, indicator_byte));
+			entries.back().same_bundle = i != 0;
 		}
 	}
 
@@ -1090,7 +1091,7 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 
 	for(auto& entry : entries)
 	{
-		Dumper::Entry call_entry("Entry", i + 1, 0 /* TODO */, 8);
+		Dumper::Entry call_entry("Entry", i + 1, current_offset, 8);
 		call_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(i + 1));
 		call_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(entry.type));
 		if(entry.type != Entry::Unused)
@@ -1108,7 +1109,9 @@ void NEFormat::Dump(Dumper::Dumper& dump)
 			}
 		}
 		call_entry.Display(dump);
-		//current_offset += entry.GetEntrySize();
+		current_offset += entry.GetEntrySize();
+		if(!entry.same_bundle)
+			current_offset += 2;
 		i++;
 	}
 
@@ -1368,6 +1371,7 @@ uint16_t NEFormat::MakeEntry(uint16_t index, Linker::Position value)
 uint8_t NEFormat::CountBundles(size_t entry_index)
 {
 	size_t entry_count;
+	entries[entry_index].same_bundle = false;
 	for(entry_count = 1; entry_count < 0xFF && entry_index + entry_count < entries.size(); entry_count++)
 	{
 		if(entries[entry_index].type != entries[entry_index + entry_count].type)
@@ -1378,7 +1382,9 @@ uint8_t NEFormat::CountBundles(size_t entry_index)
 		{
 			break;
 		}
+		entries[entry_index + entry_count].same_bundle = true;
 	}
+	entries[entry_index + entry_count].same_bundle = false;
 	return entry_count;
 }
 
