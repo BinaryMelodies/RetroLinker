@@ -488,7 +488,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 					resource.data_offset = offset_t(rd.ReadUnsigned(2)) << resource_shift;
 					// the official Microsoft documentation mistakenly claims that this length is in bytes
 					resource.image_size = offset_t(rd.ReadUnsigned(2)) << resource_shift;
-					resource.flags = rd.ReadUnsigned(2);
+					resource.flags = Resource::flag_type(rd.ReadUnsigned(2));
 					resource.id = rd.ReadUnsigned(2);
 					resource.handle = rd.ReadUnsigned(2);
 					resource.usage = rd.ReadUnsigned(2);

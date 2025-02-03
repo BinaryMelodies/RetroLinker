@@ -42,7 +42,7 @@ namespace Microsoft
 			offset_t data_offset = 0;
 			/** @brief Size of segment as stored in the file, only used during reading */
 			offset_t image_size = 0;
-			enum flag_type
+			enum flag_type : uint16_t
 			{
 				Data = 1, Code = 0,
 				Allocated = 2,
@@ -51,7 +51,7 @@ namespace Microsoft
 				Movable = 0x10, Fixed = 0,
 				Shareable = 0x20,
 				Preload = 0x40, LoadOnCall = 0,
-				ExecuteOnly = 0x80, ReadOnly = 0x80|Data,
+				ExecuteOnly = 0x80|Code, ReadOnly = 0x80|Data,
 				Relocations = 0x0100,
 				DebugInfo = 0x0200,
 				Discardable = 0x1000,
@@ -168,11 +168,16 @@ namespace Microsoft
 			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2);
 		};
 
+		/** @brief Represents a resource entry
+		 *
+		 * For Windows executables, resources have very similar properties to segments, and for OS/2 executables, resources are also segments
+		 */
 		class Resource : public Segment
 		{
 		public:
-			enum Windows
+			enum
 			{
+				// Windows resource types
 				RT_CURSOR = 0x0001,
 				RT_BITMAP = 0x0002,
 				RT_ICON = 0x0003,
@@ -195,22 +200,36 @@ namespace Microsoft
 				RT_HTML = 0x0017,
 				RT_MANIFEST = 0x0018,
 
+				// OS/2 resource types
 				OS2_POINTER = 1,
 				OS2_BITMAP = 2,
 				OS2_MENU = 3,
+				// TODO: other OS/2 resource types
 			};
 
+			/** @brief Type identifier, used by both Windows and OS/2
+			 *
+			 * Under Windows, if bit 15 is cleared, it references a string
+			 */
 			uint16_t type_id = 0;
+			/** @brief Type name, used only by Windows */
 			std::string type_id_name;
-			uint16_t flags = 0;
+			/** @brief Resource dentifier, used by both Windows and OS/2
+			 *
+			 * Under Windows, if bit 15 is cleared, it references a string
+			 */
 			uint16_t id = 0;
+			/** @brief Resource name, used only by Windows */
 			std::string id_name;
+			/** @brief Reserved field, named so in Microsoft documentation */
 			uint16_t handle = 0;
+			/** @brief Reserved field, named so in Microsoft documentation */
 			uint16_t usage = 0;
 
 			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2);
 		};
 
+		/** @brief Windows executables bundle their resources by resource type */
 		class ResourceType
 		{
 		public:
@@ -294,6 +313,7 @@ namespace Microsoft
 			void WriteEntry(Linker::Writer& wr);
 		};
 
+		/** @brief Represents an imported module in the module reference table */
 		class ModuleReference
 		{
 		public:
