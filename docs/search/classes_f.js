@@ -4,7 +4,7 @@ var searchData=
   ['rawbytes_1',['RawBytes',['../classAS86Obj_1_1AS86ObjFormat_1_1RawBytes.html',1,'AS86Obj::AS86ObjFormat']]],
   ['reader_2',['Reader',['../classdump_1_1Reader.html',1,'dump.Reader'],['../classLinker_1_1Reader.html',1,'Linker::Reader']]],
   ['realname_3',['RealName',['../classApple_1_1RealName.html',1,'Apple']]],
-  ['record_4',['Record',['../classApple_1_1OMFFormat_1_1Segment_1_1Record.html',1,'Apple::OMFFormat::Segment']]],
+  ['record_4',['Record',['../classApple_1_1OMFFormat_1_1Segment_1_1Record.html',1,'Apple::OMFFormat::Segment::Record'],['../structELF_1_1FatELFFormat_1_1Record.html',1,'ELF::FatELFFormat::Record']]],
   ['reference_5',['Reference',['../classLinker_1_1Reference.html',1,'Linker']]],
   ['region_6',['Region',['../classDumper_1_1Region.html',1,'Dumper']]],
   ['relativeexpressionrecord_7',['RelativeExpressionRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1RelativeExpressionRecord.html',1,'Apple::OMFFormat::Segment']]],
@@ -20,6 +20,7 @@ var searchData=
   ['resolution_17',['Resolution',['../classLinker_1_1Resolution.html',1,'Linker']]],
   ['resource_18',['Resource',['../classApple_1_1ResourceFork_1_1Resource.html',1,'Apple::ResourceFork::Resource'],['../classMicrosoft_1_1LEFormat_1_1Resource.html',1,'Microsoft::LEFormat::Resource'],['../classMicrosoft_1_1NEFormat_1_1Resource.html',1,'Microsoft::NEFormat::Resource']]],
   ['resourcefork_19',['ResourceFork',['../classApple_1_1ResourceFork.html',1,'Apple']]],
-  ['rsx_5frecord_20',['rsx_record',['../structBinary_1_1CPM3Format_1_1rsx__record.html',1,'Binary::CPM3Format::rsx_record'],['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html',1,'DigitalResearch::CPM86Format::rsx_record']]],
-  ['runtimeparameterblock_21',['RunTimeParameterBlock',['../classPharLap_1_1P3Format_1_1RunTimeParameterBlock.html',1,'PharLap::P3Format']]]
+  ['resourcetype_20',['ResourceType',['../classMicrosoft_1_1NEFormat_1_1ResourceType.html',1,'Microsoft::NEFormat']]],
+  ['rsx_5frecord_21',['rsx_record',['../structBinary_1_1CPM3Format_1_1rsx__record.html',1,'Binary::CPM3Format::rsx_record'],['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html',1,'DigitalResearch::CPM86Format::rsx_record']]],
+  ['runtimeparameterblock_22',['RunTimeParameterBlock',['../classPharLap_1_1P3Format_1_1RunTimeParameterBlock.html',1,'PharLap::P3Format']]]
 ];

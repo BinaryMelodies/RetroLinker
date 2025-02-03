@@ -110,6 +110,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a1cb5c9077229054c9be0beee6f75592d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a458800eaac7d93df816874fc70b805fd" id="r_a458800eaac7d93df816874fc70b805fd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a458800eaac7d93df816874fc70b805fd">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="separator:a458800eaac7d93df816874fc70b805fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7bd62c01e46cff804bd6adb2639f8c7b" id="r_a7bd62c01e46cff804bd6adb2639f8c7b"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7bd62c01e46cff804bd6adb2639f8c7b">CalculateValues</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff) override</td></tr>
+<tr class="memdesc:a7bd62c01e46cff804bd6adb2639f8c7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up fields to be consistent.  <br /></td></tr>
+<tr class="separator:a7bd62c01e46cff804bd6adb2639f8c7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeabfbaa238f5fcf9cad7817627dd51b2" id="r_aeabfbaa238f5fcf9cad7817627dd51b2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeabfbaa238f5fcf9cad7817627dd51b2">Dump</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
 <tr class="separator:aeabfbaa238f5fcf9cad7817627dd51b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html">COFF::COFFFormat::OptionalHeader</a></td></tr>
@@ -129,6 +132,36 @@ std::unique_ptr&lt; <a class="el" href="classLinker_1_1Buffer.html">Linker::Buff
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A simplified class to represent an optional header of unknown structure. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a7bd62c01e46cff804bd6adb2639f8c7b" name="a7bd62c01e46cff804bd6adb2639f8c7b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7bd62c01e46cff804bd6adb2639f8c7b">&#9670;&#160;</a></span>CalculateValues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t COFFFormat::UnknownOptionalHeader::CalculateValues </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets up fields to be consistent. </p>
+<dl class="section return"><dt>Returns</dt><dd>Number of extra bytes following symbol table </dd></dl>
+
+<p>Implements <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#a8bfdea3b71c99cca046ad3a8f43949d5">COFF::COFFFormat::OptionalHeader</a>.</p>
+
+</div>
+</div>
 <a id="aeabfbaa238f5fcf9cad7817627dd51b2" name="aeabfbaa238f5fcf9cad7817627dd51b2"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aeabfbaa238f5fcf9cad7817627dd51b2">&#9670;&#160;</a></span>Dump()</h2>
 

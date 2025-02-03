@@ -76,11 +76,157 @@ $(function() {
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="classMicrosoft_1_1NEFormat_1_1Resource-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Microsoft::NEFormat::Resource Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<hr/>The documentation for this class was generated from the following file:<ul>
+<div class="dynheader">
+Inheritance diagram for Microsoft::NEFormat::Resource:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classMicrosoft_1_1NEFormat_1_1Resource.png" usemap="#Microsoft::NEFormat::Resource_map" alt=""/>
+  <map id="Microsoft::NEFormat::Resource_map" name="Microsoft::NEFormat::Resource_map">
+<area href="classMicrosoft_1_1NEFormat_1_1Segment.html" title="Represents an NE segment as stored in the segment table and segment data." alt="Microsoft::NEFormat::Segment" shape="rect" coords="0,0,187,24"/>
+  </map>
+</div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a4603b4053ebef474a16c07c077442504" id="r_a4603b4053ebef474a16c07c077442504"><td class="memItemLeft" align="right" valign="top"><a id="a4603b4053ebef474a16c07c077442504" name="a4603b4053ebef474a16c07c077442504"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>Windows</b> { <br />
+&#160;&#160;<b>RT_CURSOR</b> = 0x0001
+, <b>RT_BITMAP</b> = 0x0002
+, <b>RT_ICON</b> = 0x0003
+, <b>RT_MENU</b> = 0x0004
+, <br />
+&#160;&#160;<b>RT_DIALOG</b> = 0x0005
+, <b>RT_STRING</b> = 0x0006
+, <b>RT_FONTDIR</b> = 0x0007
+, <b>RT_FONT</b> = 0x0008
+, <br />
+&#160;&#160;<b>RT_ACCELERATOR</b> = 0x0009
+, <b>RT_RCDATA</b> = 0x000A
+, <b>RT_MESSAGETABLE</b> = 0x000B
+, <b>RT_GROUP_CURSOR</b> = 0x000C
+, <br />
+&#160;&#160;<b>RT_GROUP_ICON</b> = 0x000E
+, <b>RT_VERSION</b> = 0x0010
+, <b>RT_DLGINCLUDE</b> = 0x0011
+, <b>RT_PLUGPLAY</b> = 0x0013
+, <br />
+&#160;&#160;<b>RT_VXD</b> = 0x0014
+, <b>RT_ANICURSOR</b> = 0x0015
+, <b>RT_ANIICON</b> = 0x0016
+, <b>RT_HTML</b> = 0x0017
+, <br />
+&#160;&#160;<b>RT_MANIFEST</b> = 0x0018
+, <b>OS2_POINTER</b> = 1
+, <b>OS2_BITMAP</b> = 2
+, <b>OS2_MENU</b> = 3
+<br />
+ }</td></tr>
+<tr class="separator:a4603b4053ebef474a16c07c077442504"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_types_classMicrosoft_1_1NEFormat_1_1Segment"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classMicrosoft_1_1NEFormat_1_1Segment')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html">Microsoft::NEFormat::Segment</a></td></tr>
+<tr class="memitem:a1a82880f17148f7337a1adf71adba4d4 inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a1a82880f17148f7337a1adf71adba4d4"><td class="memItemLeft" align="right" valign="top"><a id="a1a82880f17148f7337a1adf71adba4d4" name="a1a82880f17148f7337a1adf71adba4d4"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>flag_type</b> { <br />
+&#160;&#160;<b>Data</b> = 1
+, <b>Code</b> = 0
+, <b>Allocated</b> = 2
+, <b>Loaded</b> = 4
+, <br />
+&#160;&#160;<b>Iterated</b> = 8
+, <b>Movable</b> = 0x10
+, <b>Fixed</b> = 0
+, <b>Shareable</b> = 0x20
+, <br />
+&#160;&#160;<b>Preload</b> = 0x40
+, <b>LoadOnCall</b> = 0
+, <b>ExecuteOnly</b> = 0x80
+, <b>ReadOnly</b> = 0x80|Data
+, <br />
+&#160;&#160;<b>Relocations</b> = 0x0100
+, <b>DebugInfo</b> = 0x0200
+, <b>Discardable</b> = 0x1000
+<br />
+ }</td></tr>
+<tr class="separator:a1a82880f17148f7337a1adf71adba4d4 inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3b7e75b3026a7d62747b6be42aaef8f inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment" id="r_ae3b7e75b3026a7d62747b6be42aaef8f"><td class="memItemLeft" align="right" valign="top"><a id="ae3b7e75b3026a7d62747b6be42aaef8f" name="ae3b7e75b3026a7d62747b6be42aaef8f"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>PrivilegeLevelShift</b> = 10
+ }</td></tr>
+<tr class="separator:ae3b7e75b3026a7d62747b6be42aaef8f inherit pub_types_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a52faff5c1f2b95752b34f0d7b0105636" id="r_a52faff5c1f2b95752b34f0d7b0105636"><td class="memItemLeft" align="right" valign="top"><a id="a52faff5c1f2b95752b34f0d7b0105636" name="a52faff5c1f2b95752b34f0d7b0105636"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, unsigned index, bool isos2)</td></tr>
+<tr class="separator:a52faff5c1f2b95752b34f0d7b0105636"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classMicrosoft_1_1NEFormat_1_1Segment"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classMicrosoft_1_1NEFormat_1_1Segment')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html">Microsoft::NEFormat::Segment</a></td></tr>
+<tr class="memitem:af7947de2d45584afec7e562319bc960d inherit pub_methods_classMicrosoft_1_1NEFormat_1_1Segment" id="r_af7947de2d45584afec7e562319bc960d"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment, unsigned flags)</td></tr>
+<tr class="separator:af7947de2d45584afec7e562319bc960d inherit pub_methods_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3b1bb6c1dbb6f858ff280498bdd7aac inherit pub_methods_classMicrosoft_1_1NEFormat_1_1Segment" id="r_ae3b1bb6c1dbb6f858ff280498bdd7aac"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddRelocation</b> (const <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html">Relocation</a> &amp;rel)</td></tr>
+<tr class="separator:ae3b1bb6c1dbb6f858ff280498bdd7aac inherit pub_methods_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7558dccb47e63be976de98b5bb2b9a0c inherit pub_methods_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a7558dccb47e63be976de98b5bb2b9a0c"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, unsigned index, bool isos2)</td></tr>
+<tr class="separator:a7558dccb47e63be976de98b5bb2b9a0c inherit pub_methods_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:ae15ff13da881dc96edce77e1a8392c66" id="r_ae15ff13da881dc96edce77e1a8392c66"><td class="memItemLeft" align="right" valign="top"><a id="ae15ff13da881dc96edce77e1a8392c66" name="ae15ff13da881dc96edce77e1a8392c66"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>type_id</b> = 0</td></tr>
+<tr class="separator:ae15ff13da881dc96edce77e1a8392c66"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c504f4952a02a8cc27d5e3951da83d3" id="r_a4c504f4952a02a8cc27d5e3951da83d3"><td class="memItemLeft" align="right" valign="top"><a id="a4c504f4952a02a8cc27d5e3951da83d3" name="a4c504f4952a02a8cc27d5e3951da83d3"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>type_id_name</b></td></tr>
+<tr class="separator:a4c504f4952a02a8cc27d5e3951da83d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c6410a500b1a665dcb5d6169a27a829" id="r_a9c6410a500b1a665dcb5d6169a27a829"><td class="memItemLeft" align="right" valign="top"><a id="a9c6410a500b1a665dcb5d6169a27a829" name="a9c6410a500b1a665dcb5d6169a27a829"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
+<tr class="separator:a9c6410a500b1a665dcb5d6169a27a829"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a041e7908d1e5f3abbce341afa846f330" id="r_a041e7908d1e5f3abbce341afa846f330"><td class="memItemLeft" align="right" valign="top"><a id="a041e7908d1e5f3abbce341afa846f330" name="a041e7908d1e5f3abbce341afa846f330"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>id</b> = 0</td></tr>
+<tr class="separator:a041e7908d1e5f3abbce341afa846f330"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa8882d96b0cd2ad364e9fe8861373302" id="r_aa8882d96b0cd2ad364e9fe8861373302"><td class="memItemLeft" align="right" valign="top"><a id="aa8882d96b0cd2ad364e9fe8861373302" name="aa8882d96b0cd2ad364e9fe8861373302"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>id_name</b></td></tr>
+<tr class="separator:aa8882d96b0cd2ad364e9fe8861373302"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0adeb77f8a4af3e4942d82043061e8a4" id="r_a0adeb77f8a4af3e4942d82043061e8a4"><td class="memItemLeft" align="right" valign="top"><a id="a0adeb77f8a4af3e4942d82043061e8a4" name="a0adeb77f8a4af3e4942d82043061e8a4"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>handle</b> = 0</td></tr>
+<tr class="separator:a0adeb77f8a4af3e4942d82043061e8a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c5f0d2dc8eafbf612a67e39b3530792" id="r_a4c5f0d2dc8eafbf612a67e39b3530792"><td class="memItemLeft" align="right" valign="top"><a id="a4c5f0d2dc8eafbf612a67e39b3530792" name="a4c5f0d2dc8eafbf612a67e39b3530792"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>usage</b> = 0</td></tr>
+<tr class="separator:a4c5f0d2dc8eafbf612a67e39b3530792"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html">Microsoft::NEFormat::Segment</a></td></tr>
+<tr class="memitem:aacdaf6e14d8a9da671e751b740fd7c9e inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_aacdaf6e14d8a9da671e751b740fd7c9e"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:aacdaf6e14d8a9da671e751b740fd7c9e inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea3ecf5ef3a633d4cc37519c6a9bde80 inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_aea3ecf5ef3a633d4cc37519c6a9bde80"><td class="memItemLeft" align="right" valign="top">
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_offset</b> = 0</td></tr>
+<tr class="separator:aea3ecf5ef3a633d4cc37519c6a9bde80 inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36ee622cb9f0d196455f586efae249ea inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a36ee622cb9f0d196455f586efae249ea"><td class="memItemLeft" align="right" valign="top">
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>image_size</b> = 0</td></tr>
+<tr class="memdesc:a36ee622cb9f0d196455f586efae249ea inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of segment as stored in the file, only used during reading. <br /></td></tr>
+<tr class="separator:a36ee622cb9f0d196455f586efae249ea inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39332cdff74d3dca684cbf91389ffe9f inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a39332cdff74d3dca684cbf91389ffe9f"><td class="memItemLeft" align="right" valign="top">
+flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = flag_type(0)</td></tr>
+<tr class="separator:a39332cdff74d3dca684cbf91389ffe9f inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a25ab099b6c1b34da2636eacbcc7d5aee inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a25ab099b6c1b34da2636eacbcc7d5aee"><td class="memItemLeft" align="right" valign="top">
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_size</b> = 0</td></tr>
+<tr class="memdesc:a25ab099b6c1b34da2636eacbcc7d5aee inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of segment as stored in memory. <br /></td></tr>
+<tr class="separator:a25ab099b6c1b34da2636eacbcc7d5aee inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55efab167d7ec74044bb0cf0baf566cc inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a55efab167d7ec74044bb0cf0baf566cc"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html#a55efab167d7ec74044bb0cf0baf566cc">movable_entry_index</a> = 0</td></tr>
+<tr class="memdesc:a55efab167d7ec74044bb0cf0baf566cc inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classMicrosoft_1_1NEFormat_1_1Entry.html" title="Represents an entry into the binary, typically DLL exported procedures.">Entry</a> number for movable segments (field not present in segment table)  <br /></td></tr>
+<tr class="separator:a55efab167d7ec74044bb0cf0baf566cc inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d14631d77eecdfec353e54158f1c79a inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a6d14631d77eecdfec353e54158f1c79a"><td class="memItemLeft" align="right" valign="top">
+std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="separator:a6d14631d77eecdfec353e54158f1c79a inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f1fe2f558d9e902ba34802dfc82a1d3 inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment" id="r_a3f1fe2f558d9e902ba34802dfc82a1d3"><td class="memItemLeft" align="right" valign="top">
+std::map&lt; uint16_t, <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations_map</b></td></tr>
+<tr class="memdesc:a3f1fe2f558d9e902ba34802dfc82a1d3 inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used internally during output generation. <br /></td></tr>
+<tr class="separator:a3f1fe2f558d9e902ba34802dfc82a1d3 inherit pub_attribs_classMicrosoft_1_1NEFormat_1_1Segment"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="neexe_8h_source.html">neexe.h</a></li>
+<li>src/format/<b>neexe.cc</b></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

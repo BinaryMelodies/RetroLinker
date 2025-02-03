@@ -79,58 +79,185 @@ $(function() {
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classMicrosoft_1_1NEFormat_1_1Entry-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Microsoft::NEFormat::Entry Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents an entry into the binary, typically DLL exported procedures.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="neexe_8h_source.html">neexe.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:adc00fcef26d344e30fa3a6ddd737a9b2" id="r_adc00fcef26d344e30fa3a6ddd737a9b2"><td class="memItemLeft" align="right" valign="top"><a id="adc00fcef26d344e30fa3a6ddd737a9b2" name="adc00fcef26d344e30fa3a6ddd737a9b2"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>entry_type</b> { <b>Unused</b>
-, <b>Fixed</b>
-, <b>Movable</b>
+<tr class="memitem:adc00fcef26d344e30fa3a6ddd737a9b2" id="r_adc00fcef26d344e30fa3a6ddd737a9b2"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adc00fcef26d344e30fa3a6ddd737a9b2">entry_type</a> { <a class="el" href="#adc00fcef26d344e30fa3a6ddd737a9b2a50aa81788194c2d8e0c89a0303c0bf4a">Unused</a>
+, <a class="el" href="#adc00fcef26d344e30fa3a6ddd737a9b2a1ceb4d386ddca3944a969b2efbb37df0">Fixed</a>
+, <a class="el" href="#adc00fcef26d344e30fa3a6ddd737a9b2a4fed6bfead9d0075004602d4c15cbc18">Movable</a>
  }</td></tr>
+<tr class="memdesc:adc00fcef26d344e30fa3a6ddd737a9b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">This field represents the type of the entry.  <a href="#adc00fcef26d344e30fa3a6ddd737a9b2">More...</a><br /></td></tr>
 <tr class="separator:adc00fcef26d344e30fa3a6ddd737a9b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc1cb215ec2470f8c696a8a6be7d9be1" id="r_adc1cb215ec2470f8c696a8a6be7d9be1"><td class="memItemLeft" align="right" valign="top"><a id="adc1cb215ec2470f8c696a8a6be7d9be1" name="adc1cb215ec2470f8c696a8a6be7d9be1"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>flag_type</b> { <b>Exported</b> = 1
-, <b>SharedData</b> = 2
+<tr class="memitem:a3a34211fd1c5d9abfd709b3f9704cdc0" id="r_a3a34211fd1c5d9abfd709b3f9704cdc0"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a34211fd1c5d9abfd709b3f9704cdc0">flag_type</a> : uint8_t { <a class="el" href="#a3a34211fd1c5d9abfd709b3f9704cdc0a8da0aac5e768106193e04ca8cd944572">Exported</a> = 1
+, <a class="el" href="#a3a34211fd1c5d9abfd709b3f9704cdc0a931234c03cc5e826fee10407fbcdf803">SharedData</a> = 2
  }</td></tr>
-<tr class="separator:adc1cb215ec2470f8c696a8a6be7d9be1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a51a12db3f3448801bd538ec812c0a573" id="r_a51a12db3f3448801bd538ec812c0a573"><td class="memItemLeft" align="right" valign="top"><a id="a51a12db3f3448801bd538ec812c0a573" name="a51a12db3f3448801bd538ec812c0a573"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>WordCountShift</b> = 3
-, <b>INT_3Fh</b> = 0x3FCD
+<tr class="memdesc:a3a34211fd1c5d9abfd709b3f9704cdc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flags present in an entry.  <a href="#a3a34211fd1c5d9abfd709b3f9704cdc0">More...</a><br /></td></tr>
+<tr class="separator:a3a34211fd1c5d9abfd709b3f9704cdc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5c3a5bfb01a0bf54de4138ab43528cc" id="r_aa5c3a5bfb01a0bf54de4138ab43528cc"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa5c3a5bfb01a0bf54de4138ab43528cc">export_type</a> { <a class="el" href="#aa5c3a5bfb01a0bf54de4138ab43528cca6a3a56f817fe2f7ce70c8879d869618e">NotExported</a>
+, <a class="el" href="#aa5c3a5bfb01a0bf54de4138ab43528ccab2f196ecd981802665d8b62d2fb22d1b">ExportByName</a>
+, <a class="el" href="#aa5c3a5bfb01a0bf54de4138ab43528ccaa75a70483032dc3b7bd8b584d1dfd8a4">ExportByOrdinal</a>
  }</td></tr>
-<tr class="separator:a51a12db3f3448801bd538ec812c0a573"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:aa5c3a5bfb01a0bf54de4138ab43528cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32ca4b15912453721d7b97d41dc0f96e" id="r_a32ca4b15912453721d7b97d41dc0f96e"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>WordCountShift</b> = 3
+, <a class="el" href="#a32ca4b15912453721d7b97d41dc0f96eaefa46b3f917cca8c647f9a3da16b3b13">INT_3Fh</a> = 0x3FCD
+ }</td></tr>
+<tr class="separator:a32ca4b15912453721d7b97d41dc0f96e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a541bf4c630e86dd52624e38937d2ca4f" id="r_a541bf4c630e86dd52624e38937d2ca4f"><td class="memItemLeft" align="right" valign="top"><a id="a541bf4c630e86dd52624e38937d2ca4f" name="a541bf4c630e86dd52624e38937d2ca4f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Entry</b> (unsigned type, uint8_t segment, unsigned flags, uint16_t offset)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Entry</b> (unsigned <a class="el" href="#aff0b5b003d09105256aa90be907731e0">type</a>, uint8_t <a class="el" href="#a2ac93ec577bdb3434c21b4f08c97059a">segment</a>, unsigned flags, uint16_t <a class="el" href="#a55fc1460b80501fb758afb0701c61ea6">offset</a>)</td></tr>
 <tr class="separator:a541bf4c630e86dd52624e38937d2ca4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2032667daaea9214e9a1b45fe0de897e" id="r_a2032667daaea9214e9a1b45fe0de897e"><td class="memItemLeft" align="right" valign="top"><a id="a2032667daaea9214e9a1b45fe0de897e" name="a2032667daaea9214e9a1b45fe0de897e"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntrySize</b> () const</td></tr>
+<tr class="memdesc:a2032667daaea9214e9a1b45fe0de897e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of an entry as stored in the file, without the first two bytes of the bundle. <br /></td></tr>
 <tr class="separator:a2032667daaea9214e9a1b45fe0de897e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89a0644c0c6f57d9de3c349eaab042a6" id="r_a89a0644c0c6f57d9de3c349eaab042a6"><td class="memItemLeft" align="right" valign="top"><a id="a89a0644c0c6f57d9de3c349eaab042a6" name="a89a0644c0c6f57d9de3c349eaab042a6"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetIndicatorByte</b> () const</td></tr>
+<tr class="memdesc:a89a0644c0c6f57d9de3c349eaab042a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the segment indicator byte. For Fixed entries, this the same as the segment number. <br /></td></tr>
 <tr class="separator:a89a0644c0c6f57d9de3c349eaab042a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37cf03fd0c3166a5d247a69445f91515" id="r_a37cf03fd0c3166a5d247a69445f91515"><td class="memItemLeft" align="right" valign="top"><a id="a37cf03fd0c3166a5d247a69445f91515" name="a37cf03fd0c3166a5d247a69445f91515"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteEntry</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
+<tr class="memdesc:a37cf03fd0c3166a5d247a69445f91515"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an entry within a bundle. <br /></td></tr>
 <tr class="separator:a37cf03fd0c3166a5d247a69445f91515"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a7725cabbe7ae059c3fd139b078935da3" id="r_a7725cabbe7ae059c3fd139b078935da3"><td class="memItemLeft" align="right" valign="top"><a id="a7725cabbe7ae059c3fd139b078935da3" name="a7725cabbe7ae059c3fd139b078935da3"></a>
+static <a class="el" href="classMicrosoft_1_1NEFormat_1_1Entry.html">Entry</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ReadEntry</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, uint8_t indicator_byte)</td></tr>
+<tr class="memdesc:a7725cabbe7ae059c3fd139b078935da3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads an entry within a bundle. <br /></td></tr>
+<tr class="separator:a7725cabbe7ae059c3fd139b078935da3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:aff0b5b003d09105256aa90be907731e0" id="r_aff0b5b003d09105256aa90be907731e0"><td class="memItemLeft" align="right" valign="top"><a id="aff0b5b003d09105256aa90be907731e0" name="aff0b5b003d09105256aa90be907731e0"></a>
-entry_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = Unused</td></tr>
+<a class="el" href="#adc00fcef26d344e30fa3a6ddd737a9b2">entry_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = <a class="el" href="#adc00fcef26d344e30fa3a6ddd737a9b2a50aa81788194c2d8e0c89a0303c0bf4a">Unused</a></td></tr>
+<tr class="memdesc:aff0b5b003d09105256aa90be907731e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of entry, based on the first byte in an entry bundle. <br /></td></tr>
 <tr class="separator:aff0b5b003d09105256aa90be907731e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2ac93ec577bdb3434c21b4f08c97059a" id="r_a2ac93ec577bdb3434c21b4f08c97059a"><td class="memItemLeft" align="right" valign="top"><a id="a2ac93ec577bdb3434c21b4f08c97059a" name="a2ac93ec577bdb3434c21b4f08c97059a"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>segment</b> = 0</td></tr>
+<tr class="memdesc:a2ac93ec577bdb3434c21b4f08c97059a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of the segment, 1 based. <br /></td></tr>
 <tr class="separator:a2ac93ec577bdb3434c21b4f08c97059a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab63ba1fd0eba20d3252adc7580d0a107" id="r_ab63ba1fd0eba20d3252adc7580d0a107"><td class="memItemLeft" align="right" valign="top"><a id="ab63ba1fd0eba20d3252adc7580d0a107" name="ab63ba1fd0eba20d3252adc7580d0a107"></a>
-flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = flag_type(0)</td></tr>
+<a class="el" href="#a3a34211fd1c5d9abfd709b3f9704cdc0">flag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = <a class="el" href="#a3a34211fd1c5d9abfd709b3f9704cdc0">flag_type</a>(0)</td></tr>
 <tr class="separator:ab63ba1fd0eba20d3252adc7580d0a107"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55fc1460b80501fb758afb0701c61ea6" id="r_a55fc1460b80501fb758afb0701c61ea6"><td class="memItemLeft" align="right" valign="top"><a id="a55fc1460b80501fb758afb0701c61ea6" name="a55fc1460b80501fb758afb0701c61ea6"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>offset</b> = 0</td></tr>
+<tr class="memdesc:a55fc1460b80501fb758afb0701c61ea6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset within the segment. <br /></td></tr>
 <tr class="separator:a55fc1460b80501fb758afb0701c61ea6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c3472dbe0ddb0979fd5ccba9a13794a" id="r_a5c3472dbe0ddb0979fd5ccba9a13794a"><td class="memItemLeft" align="right" valign="top"><a id="a5c3472dbe0ddb0979fd5ccba9a13794a" name="a5c3472dbe0ddb0979fd5ccba9a13794a"></a>
+<a class="el" href="#aa5c3a5bfb01a0bf54de4138ab43528cc">export_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>export_state</b> = <a class="el" href="#aa5c3a5bfb01a0bf54de4138ab43528cca6a3a56f817fe2f7ce70c8879d869618e">NotExported</a></td></tr>
+<tr class="memdesc:a5c3472dbe0ddb0979fd5ccba9a13794a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the entry is exported. This is not actually stored in the entry table and its value is ignored during program generation. <br /></td></tr>
+<tr class="separator:a5c3472dbe0ddb0979fd5ccba9a13794a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6f8983170281f8a55cf9a6ac5ab576a" id="r_ab6f8983170281f8a55cf9a6ac5ab576a"><td class="memItemLeft" align="right" valign="top"><a id="ab6f8983170281f8a55cf9a6ac5ab576a" name="ab6f8983170281f8a55cf9a6ac5ab576a"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>entry_name</b></td></tr>
+<tr class="memdesc:ab6f8983170281f8a55cf9a6ac5ab576a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The name of an exported entry. This is not actually stored in the entry table and its value is ignored during program generation. <br /></td></tr>
+<tr class="separator:ab6f8983170281f8a55cf9a6ac5ab576a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49da34f73e0476550283ac3b61433539" id="r_a49da34f73e0476550283ac3b61433539"><td class="memItemLeft" align="right" valign="top"><a id="a49da34f73e0476550283ac3b61433539" name="a49da34f73e0476550283ac3b61433539"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>same_bundle</b> = false</td></tr>
+<tr class="memdesc:a49da34f73e0476550283ac3b61433539"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience field to signify this entry is part of the same bundle as the previous one. <br /></td></tr>
+<tr class="separator:a49da34f73e0476550283ac3b61433539"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents an entry into the binary, typically DLL exported procedures. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a32ca4b15912453721d7b97d41dc0f96e" name="a32ca4b15912453721d7b97d41dc0f96e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a32ca4b15912453721d7b97d41dc0f96e">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a32ca4b15912453721d7b97d41dc0f96eaefa46b3f917cca8c647f9a3da16b3b13" name="a32ca4b15912453721d7b97d41dc0f96eaefa46b3f917cca8c647f9a3da16b3b13"></a>INT_3Fh&#160;</td><td class="fielddoc"><p>Byte code for interrupt call that must be placed in the entry field. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="adc00fcef26d344e30fa3a6ddd737a9b2" name="adc00fcef26d344e30fa3a6ddd737a9b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adc00fcef26d344e30fa3a6ddd737a9b2">&#9670;&#160;</a></span>entry_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#adc00fcef26d344e30fa3a6ddd737a9b2">Microsoft::NEFormat::Entry::entry_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This field represents the type of the entry. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="adc00fcef26d344e30fa3a6ddd737a9b2a50aa81788194c2d8e0c89a0303c0bf4a" name="adc00fcef26d344e30fa3a6ddd737a9b2a50aa81788194c2d8e0c89a0303c0bf4a"></a>Unused&#160;</td><td class="fielddoc"><p>The entry is unused, the other fields are meaningless. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="adc00fcef26d344e30fa3a6ddd737a9b2a1ceb4d386ddca3944a969b2efbb37df0" name="adc00fcef26d344e30fa3a6ddd737a9b2a1ceb4d386ddca3944a969b2efbb37df0"></a>Fixed&#160;</td><td class="fielddoc"><p>The entry references a fixed segment. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="adc00fcef26d344e30fa3a6ddd737a9b2a4fed6bfead9d0075004602d4c15cbc18" name="adc00fcef26d344e30fa3a6ddd737a9b2a4fed6bfead9d0075004602d4c15cbc18"></a>Movable&#160;</td><td class="fielddoc"><p>The entry references a movable segment. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="aa5c3a5bfb01a0bf54de4138ab43528cc" name="aa5c3a5bfb01a0bf54de4138ab43528cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa5c3a5bfb01a0bf54de4138ab43528cc">&#9670;&#160;</a></span>export_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#aa5c3a5bfb01a0bf54de4138ab43528cc">Microsoft::NEFormat::Entry::export_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aa5c3a5bfb01a0bf54de4138ab43528cca6a3a56f817fe2f7ce70c8879d869618e" name="aa5c3a5bfb01a0bf54de4138ab43528cca6a3a56f817fe2f7ce70c8879d869618e"></a>NotExported&#160;</td><td class="fielddoc"><p>The entry is not exported, the Exported bit is not set. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa5c3a5bfb01a0bf54de4138ab43528ccab2f196ecd981802665d8b62d2fb22d1b" name="aa5c3a5bfb01a0bf54de4138ab43528ccab2f196ecd981802665d8b62d2fb22d1b"></a>ExportByName&#160;</td><td class="fielddoc"><p>The entry is exported by name, it is referenced in the resident name table. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa5c3a5bfb01a0bf54de4138ab43528ccaa75a70483032dc3b7bd8b584d1dfd8a4" name="aa5c3a5bfb01a0bf54de4138ab43528ccaa75a70483032dc3b7bd8b584d1dfd8a4"></a>ExportByOrdinal&#160;</td><td class="fielddoc"><p>The entry is exported by ordinal, it is referenced in the nonresident name table. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a3a34211fd1c5d9abfd709b3f9704cdc0" name="a3a34211fd1c5d9abfd709b3f9704cdc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3a34211fd1c5d9abfd709b3f9704cdc0">&#9670;&#160;</a></span>flag_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a3a34211fd1c5d9abfd709b3f9704cdc0">Microsoft::NEFormat::Entry::flag_type</a> : uint8_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Flags present in an entry. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a3a34211fd1c5d9abfd709b3f9704cdc0a8da0aac5e768106193e04ca8cd944572" name="a3a34211fd1c5d9abfd709b3f9704cdc0a8da0aac5e768106193e04ca8cd944572"></a>Exported&#160;</td><td class="fielddoc"><p>Set if the entry is exported. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a3a34211fd1c5d9abfd709b3f9704cdc0a931234c03cc5e826fee10407fbcdf803" name="a3a34211fd1c5d9abfd709b3f9704cdc0a931234c03cc5e826fee10407fbcdf803"></a>SharedData&#160;</td><td class="fielddoc"><p>Set if the data segment used by the entry is global, used in SINGLEDATA modules (libraries) </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="neexe_8h_source.html">neexe.h</a></li>
 <li>src/format/<b>neexe.cc</b></li>

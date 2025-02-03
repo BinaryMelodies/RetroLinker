@@ -93,21 +93,28 @@ Inheritance diagram for COFF::COFFFormat::Relocation:</div>
  <div class="center">
   <img src="classCOFF_1_1COFFFormat_1_1Relocation.png" usemap="#COFF::COFFFormat::Relocation_map" alt=""/>
   <map id="COFF::COFFFormat::Relocation_map" name="COFF::COFFFormat::Relocation_map">
-<area href="classCOFF_1_1COFFFormat_1_1ZilogRelocation.html" title="A relocation, as stored by the Z80/Z8000 backend." alt="COFF::COFFFormat::ZilogRelocation" shape="rect" coords="0,56,221,80"/>
+<area href="classCOFF_1_1COFFFormat_1_1UNIXRelocation.html" title="The standard UNIX COFF relocation format." alt="COFF::COFFFormat::UNIXRelocation" shape="rect" coords="0,56,221,80"/>
+<area href="classCOFF_1_1COFFFormat_1_1ZilogRelocation.html" title="A relocation, as stored by the Z80/Z8000 backend." alt="COFF::COFFFormat::ZilogRelocation" shape="rect" coords="231,56,452,80"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a8b721fa8ba3e171e39d7f9c8a5077e72" id="r_a8b721fa8ba3e171e39d7f9c8a5077e72"><td class="memItemLeft" align="right" valign="top"><a id="a8b721fa8ba3e171e39d7f9c8a5077e72" name="a8b721fa8ba3e171e39d7f9c8a5077e72"></a>
-virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetAddress</b> ()=0</td></tr>
-<tr class="separator:a8b721fa8ba3e171e39d7f9c8a5077e72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a11bee4ddd97a612ab3579b1e4b550043" id="r_a11bee4ddd97a612ab3579b1e4b550043"><td class="memItemLeft" align="right" valign="top"><a id="a11bee4ddd97a612ab3579b1e4b550043" name="a11bee4ddd97a612ab3579b1e4b550043"></a>
-virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> ()=0</td></tr>
-<tr class="separator:a11bee4ddd97a612ab3579b1e4b550043"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5ea4660d06d96fc7e60bebfd821e1dd2" id="r_a5ea4660d06d96fc7e60bebfd821e1dd2"><td class="memItemLeft" align="right" valign="top"><a id="a5ea4660d06d96fc7e60bebfd821e1dd2" name="a5ea4660d06d96fc7e60bebfd821e1dd2"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>FillEntry</b> (<a class="el" href="classDumper_1_1Entry.html">Dumper::Entry</a> &amp;entry)=0</td></tr>
-<tr class="separator:a5ea4660d06d96fc7e60bebfd821e1dd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4456eafd305d86e48967ceaa4637d6b" id="r_ac4456eafd305d86e48967ceaa4637d6b"><td class="memItemLeft" align="right" valign="top"><a id="ac4456eafd305d86e48967ceaa4637d6b" name="ac4456eafd305d86e48967ceaa4637d6b"></a>
+virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetAddress</b> () const =0</td></tr>
+<tr class="separator:ac4456eafd305d86e48967ceaa4637d6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5baf1b4d910dd2a6f0bab65b1d574e7b" id="r_a5baf1b4d910dd2a6f0bab65b1d574e7b"><td class="memItemLeft" align="right" valign="top"><a id="a5baf1b4d910dd2a6f0bab65b1d574e7b" name="a5baf1b4d910dd2a6f0bab65b1d574e7b"></a>
+virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> () const =0</td></tr>
+<tr class="separator:a5baf1b4d910dd2a6f0bab65b1d574e7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec5af79920d9022cb0c410e5b9abea71" id="r_aec5af79920d9022cb0c410e5b9abea71"><td class="memItemLeft" align="right" valign="top"><a id="aec5af79920d9022cb0c410e5b9abea71" name="aec5af79920d9022cb0c410e5b9abea71"></a>
+virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntrySize</b> () const =0</td></tr>
+<tr class="separator:aec5af79920d9022cb0c410e5b9abea71"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafe33a31e8e5f1104306cb54adc8325a" id="r_aafe33a31e8e5f1104306cb54adc8325a"><td class="memItemLeft" align="right" valign="top"><a id="aafe33a31e8e5f1104306cb54adc8325a" name="aafe33a31e8e5f1104306cb54adc8325a"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const =0</td></tr>
+<tr class="separator:aafe33a31e8e5f1104306cb54adc8325a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa7c8e366f1b0bb09da888d547c357ec8" id="r_aa7c8e366f1b0bb09da888d547c357ec8"><td class="memItemLeft" align="right" valign="top"><a id="aa7c8e366f1b0bb09da888d547c357ec8" name="aa7c8e366f1b0bb09da888d547c357ec8"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>FillEntry</b> (<a class="el" href="classDumper_1_1Entry.html">Dumper::Entry</a> &amp;entry) const =0</td></tr>
+<tr class="separator:aa7c8e366f1b0bb09da888d547c357ec8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A generic COFF relocation. </p>

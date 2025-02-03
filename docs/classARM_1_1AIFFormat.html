@@ -129,6 +129,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8ad4b56d6f4db7244f7338b00a3acf07" id="r_a8ad4b56d6f4db7244f7338b00a3acf07"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8ad4b56d6f4db7244f7338b00a3acf07">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a8ad4b56d6f4db7244f7338b00a3acf07"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a8ad4b56d6f4db7244f7338b00a3acf07"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa300e9766824ec8efee8b2a8181744d" id="r_aaa300e9766824ec8efee8b2a8181744d"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaa300e9766824ec8efee8b2a8181744d">ImageSize</a> () override</td></tr>
+<tr class="memdesc:aaa300e9766824ec8efee8b2a8181744d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:aaa300e9766824ec8efee8b2a8181744d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad6b247ae9dd9cc01310c328b436122c6" id="r_ad6b247ae9dd9cc01310c328b436122c6"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad6b247ae9dd9cc01310c328b436122c6">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:ad6b247ae9dd9cc01310c328b436122c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:ad6b247ae9dd9cc01310c328b436122c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -270,6 +273,15 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a518b6de19061a638f856f829ad71e350" id="r_a518b6de19061a638f856f829ad71e350"><td class="memItemLeft" align="right" valign="top"><a id="a518b6de19061a638f856f829ad71e350" name="a518b6de19061a638f856f829ad71e350"></a>
 ::EndianType&#160;</td><td class="memItemRight" valign="bottom"><b>endiantype</b> = ::LittleEndian</td></tr>
 <tr class="separator:a518b6de19061a638f856f829ad71e350"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48b4cd54fc14cd45deb22d58e9e15d43" id="r_a48b4cd54fc14cd45deb22d58e9e15d43"><td class="memItemLeft" align="right" valign="top"><a id="a48b4cd54fc14cd45deb22d58e9e15d43" name="a48b4cd54fc14cd45deb22d58e9e15d43"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b></td></tr>
+<tr class="separator:a48b4cd54fc14cd45deb22d58e9e15d43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab47379a08bfa021e1ce31d9fb4e055af" id="r_ab47379a08bfa021e1ce31d9fb4e055af"><td class="memItemLeft" align="right" valign="top"><a id="ab47379a08bfa021e1ce31d9fb4e055af" name="ab47379a08bfa021e1ce31d9fb4e055af"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>compressed</b> = false</td></tr>
+<tr class="separator:ab47379a08bfa021e1ce31d9fb4e055af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada26ea57e50f67d18f3c4303d62c3cbe" id="r_ada26ea57e50f67d18f3c4303d62c3cbe"><td class="memItemLeft" align="right" valign="top"><a id="ada26ea57e50f67d18f3c4303d62c3cbe" name="ada26ea57e50f67d18f3c4303d62c3cbe"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>decompression_code</b> = 0</td></tr>
+<tr class="separator:ada26ea57e50f67d18f3c4303d62c3cbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab0f00e611b33593984acbe119e00c2fe" id="r_ab0f00e611b33593984acbe119e00c2fe"><td class="memItemLeft" align="right" valign="top"><a id="ab0f00e611b33593984acbe119e00c2fe" name="ab0f00e611b33593984acbe119e00c2fe"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>relocatable</b> = false</td></tr>
 <tr class="separator:ab0f00e611b33593984acbe119e00c2fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -352,6 +364,9 @@ Static Public Attributes</h2></td></tr>
 <tr class="memitem:a4e084a34f92e67c09d864310ceab3604" id="r_a4e084a34f92e67c09d864310ceab3604"><td class="memItemLeft" align="right" valign="top"><a id="a4e084a34f92e67c09d864310ceab3604" name="a4e084a34f92e67c09d864310ceab3604"></a>
 static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ARM_NOP</b> = 0xE1A00000</td></tr>
 <tr class="separator:a4e084a34f92e67c09d864310ceab3604"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8ae9fa609a15710f6fcd416e305ccdb" id="r_ab8ae9fa609a15710f6fcd416e305ccdb"><td class="memItemLeft" align="right" valign="top"><a id="ab8ae9fa609a15710f6fcd416e305ccdb" name="ab8ae9fa609a15710f6fcd416e305ccdb"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ARM_BLNV</b> = 0xFB</td></tr>
+<tr class="separator:ab8ae9fa609a15710f6fcd416e305ccdb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae042ecf8dc576748c2185d51ea705ed0" id="r_ae042ecf8dc576748c2185d51ea705ed0"><td class="memItemLeft" align="right" valign="top"><a id="ae042ecf8dc576748c2185d51ea705ed0" name="ae042ecf8dc576748c2185d51ea705ed0"></a>
 static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ARM_BL</b> = 0xEB000000</td></tr>
 <tr class="separator:ae042ecf8dc576748c2185d51ea705ed0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -503,6 +518,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="aaa300e9766824ec8efee8b2a8181744d" name="aaa300e9766824ec8efee8b2a8181744d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa300e9766824ec8efee8b2a8181744d">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t AIFFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>

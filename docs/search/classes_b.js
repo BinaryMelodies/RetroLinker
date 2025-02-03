@@ -14,12 +14,13 @@ var searchData=
   ['mipsaoutheader_11',['MIPSAOutHeader',['../classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html',1,'COFF::COFFFormat']]],
   ['module_12',['Module',['../classAS86Obj_1_1AS86ObjFormat_1_1Module.html',1,'AS86Obj::AS86ObjFormat::Module'],['../classLinker_1_1Module.html',1,'Linker::Module'],['../classO65_1_1O65Format_1_1Module.html',1,'O65::O65Format::Module']]],
   ['modulecollector_13',['ModuleCollector',['../classLinker_1_1ModuleCollector.html',1,'Linker']]],
-  ['mpformat_14',['MPFormat',['../classPharLap_1_1MPFormat.html',1,'PharLap']]],
-  ['msdos_15',['MSDOS',['../classApple_1_1FileInfo_1_1MSDOS.html',1,'Apple::FileInfo']]],
-  ['msdosfileinfo_16',['MSDOSFileInfo',['../classApple_1_1MSDOSFileInfo.html',1,'Apple']]],
-  ['multisegmented_17',['MultiSegmented',['../classPharLap_1_1P3Format_1_1MultiSegmented.html',1,'PharLap::P3Format']]],
-  ['mzformat_18',['MZFormat',['../classMicrosoft_1_1MZFormat.html',1,'Microsoft']]],
-  ['mzreader_19',['MZReader',['../classdump_1_1MZReader.html',1,'dump']]],
-  ['mzsimplestubwriter_20',['MZSimpleStubWriter',['../classMicrosoft_1_1MZSimpleStubWriter.html',1,'Microsoft']]],
-  ['mzstubwriter_21',['MZStubWriter',['../classMicrosoft_1_1MZStubWriter.html',1,'Microsoft']]]
+  ['modulereference_14',['ModuleReference',['../classMicrosoft_1_1NEFormat_1_1ModuleReference.html',1,'Microsoft::NEFormat']]],
+  ['mpformat_15',['MPFormat',['../classPharLap_1_1MPFormat.html',1,'PharLap']]],
+  ['msdos_16',['MSDOS',['../classApple_1_1FileInfo_1_1MSDOS.html',1,'Apple::FileInfo']]],
+  ['msdosfileinfo_17',['MSDOSFileInfo',['../classApple_1_1MSDOSFileInfo.html',1,'Apple']]],
+  ['multisegmented_18',['MultiSegmented',['../classPharLap_1_1P3Format_1_1MultiSegmented.html',1,'PharLap::P3Format']]],
+  ['mzformat_19',['MZFormat',['../classMicrosoft_1_1MZFormat.html',1,'Microsoft']]],
+  ['mzreader_20',['MZReader',['../classdump_1_1MZReader.html',1,'dump']]],
+  ['mzsimplestubwriter_21',['MZSimpleStubWriter',['../classMicrosoft_1_1MZSimpleStubWriter.html',1,'Microsoft']]],
+  ['mzstubwriter_22',['MZStubWriter',['../classMicrosoft_1_1MZStubWriter.html',1,'Microsoft']]]
 ];

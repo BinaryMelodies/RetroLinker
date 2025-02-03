@@ -146,6 +146,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetSignature</b> (mag
 <tr class="memitem:a73dc21b4399d041f4588ad360b9f0627" id="r_a73dc21b4399d041f4588ad360b9f0627"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a73dc21b4399d041f4588ad360b9f0627">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a73dc21b4399d041f4588ad360b9f0627"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a73dc21b4399d041f4588ad360b9f0627"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c895bda3a687f4f9ee72c86db1e2935" id="r_a1c895bda3a687f4f9ee72c86db1e2935"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1c895bda3a687f4f9ee72c86db1e2935">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a1c895bda3a687f4f9ee72c86db1e2935"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a1c895bda3a687f4f9ee72c86db1e2935"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9657978e4beb3cd9a14a6c698a479cb2" id="r_a9657978e4beb3cd9a14a6c698a479cb2"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9657978e4beb3cd9a14a6c698a479cb2">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a9657978e4beb3cd9a14a6c698a479cb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a9657978e4beb3cd9a14a6c698a479cb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -577,6 +580,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a1c895bda3a687f4f9ee72c86db1e2935" name="a1c895bda3a687f4f9ee72c86db1e2935"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c895bda3a687f4f9ee72c86db1e2935">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t CPM8KFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>

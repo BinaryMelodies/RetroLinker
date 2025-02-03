@@ -150,6 +150,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetSignature</b> (<a 
 <tr class="memitem:ad9c349c889f6ee6f7e6b4f60a82f41b6" id="r_ad9c349c889f6ee6f7e6b4f60a82f41b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad9c349c889f6ee6f7e6b4f60a82f41b6">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:ad9c349c889f6ee6f7e6b4f60a82f41b6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:ad9c349c889f6ee6f7e6b4f60a82f41b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae084282961d184a6db828b1cc14d283" id="r_aae084282961d184a6db828b1cc14d283"><td class="memItemLeft" align="right" valign="top"><a id="aae084282961d184a6db828b1cc14d283" name="aae084282961d184a6db828b1cc14d283"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>MeasureRelocations</b> () const</td></tr>
+<tr class="separator:aae084282961d184a6db828b1cc14d283"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a67b3fb9825c64d3c6d948febb6d06a3d" id="r_a67b3fb9825c64d3c6d948febb6d06a3d"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a67b3fb9825c64d3c6d948febb6d06a3d">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a67b3fb9825c64d3c6d948febb6d06a3d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a67b3fb9825c64d3c6d948febb6d06a3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a256346daeb97873e1b0f592de546185e" id="r_a256346daeb97873e1b0f592de546185e"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a256346daeb97873e1b0f592de546185e">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a256346daeb97873e1b0f592de546185e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a256346daeb97873e1b0f592de546185e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -307,6 +313,10 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a20fc85506711ba089a30ce317f39ba6e" id="r_a20fc85506711ba089a30ce317f39ba6e"><td class="memTemplParams" colspan="2"><a id="a20fc85506711ba089a30ce317f39ba6e" name="a20fc85506711ba089a30ce317f39ba6e"></a>
+template&lt;typename SizeType &gt; </td></tr>
+<tr class="memitem:a20fc85506711ba089a30ce317f39ba6e"><td class="memTemplItemLeft" align="right" valign="top">static offset_t&#160;</td><td class="memTemplItemRight" valign="bottom"><b>CDOS68K_MeasureRelocations</b> (std::map&lt; uint32_t, SizeType &gt; <a class="el" href="#a37bac2c4e2736541cd471bc2e812132b">relocations</a>)</td></tr>
+<tr class="separator:a20fc85506711ba089a30ce317f39ba6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92ffdb5f873b70e7aabe0b6a03b05589" id="r_a92ffdb5f873b70e7aabe0b6a03b05589"><td class="memTemplParams" colspan="2"><a id="a92ffdb5f873b70e7aabe0b6a03b05589" name="a92ffdb5f873b70e7aabe0b6a03b05589"></a>
 template&lt;typename SizeType &gt; </td></tr>
 <tr class="memitem:a92ffdb5f873b70e7aabe0b6a03b05589"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>CDOS68K_WriteRelocations</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, std::map&lt; uint32_t, SizeType &gt; <a class="el" href="#a37bac2c4e2736541cd471bc2e812132b">relocations</a>)</td></tr>
@@ -682,6 +692,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a67b3fb9825c64d3c6d948febb6d06a3d" name="a67b3fb9825c64d3c6d948febb6d06a3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a67b3fb9825c64d3c6d948febb6d06a3d">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t CPM68KFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>

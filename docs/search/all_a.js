@@ -8,11 +8,12 @@ var searchData=
   ['header_5ftype_5',['header_type',['../structBinary_1_1AtariFormat_1_1Segment.html#affba734bc2770b7c7c497854ee6c6410',1,'Binary::AtariFormat::Segment']]],
   ['header_5ftype_5foptional_6',['header_type_optional',['../structBinary_1_1AtariFormat_1_1Segment.html#ab0c3aad03fe631a224a6581e61f2d81f',1,'Binary::AtariFormat::Segment']]],
   ['heap_7',['Heap',['../classLinker_1_1Section.html#ac63d033d602ad0a9a0f82dddeaeb7d8fa76011044e12099fa5bd23737d781c15c',1,'Linker::Section']]],
-  ['hexdisplay_8',['HexDisplay',['../classDumper_1_1HexDisplay.html',1,'Dumper']]],
-  ['hobbitbeosresource_9',['HobbitBeOSResource',['../structELF_1_1ELFFormat_1_1HobbitBeOSResource.html',1,'ELF::ELFFormat']]],
-  ['huformat_10',['HUFormat',['../classX68000_1_1HUFormat.html',1,'X68000']]],
-  ['hunk_11',['Hunk',['../classAmiga_1_1HunkFormat_1_1Hunk.html',1,'Amiga::HunkFormat']]],
-  ['hunkformat_12',['HunkFormat',['../classAmiga_1_1HunkFormat.html',1,'Amiga']]],
-  ['hunkreader_13',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
-  ['hureader_14',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]
+  ['heap_5fsize_8',['heap_size',['../classMicrosoft_1_1NEFormat.html#a37347677e9f825e91026610950c2e7e4',1,'Microsoft::NEFormat']]],
+  ['hexdisplay_9',['HexDisplay',['../classDumper_1_1HexDisplay.html',1,'Dumper']]],
+  ['hobbitbeosresource_10',['HobbitBeOSResource',['../structELF_1_1ELFFormat_1_1HobbitBeOSResource.html',1,'ELF::ELFFormat']]],
+  ['huformat_11',['HUFormat',['../classX68000_1_1HUFormat.html',1,'X68000']]],
+  ['hunk_12',['Hunk',['../classAmiga_1_1HunkFormat_1_1Hunk.html',1,'Amiga::HunkFormat']]],
+  ['hunkformat_13',['HunkFormat',['../classAmiga_1_1HunkFormat.html',1,'Amiga']]],
+  ['hunkreader_14',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
+  ['hureader_15',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]
 ];

@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['yy_5fbs_5fcolumn_0',['yy_bs_column',['../structyy__buffer__state.html#a10c4fcd8be759e6bf11e6d3e8cdb0307',1,'yy_buffer_state']]],
-  ['yy_5fbs_5flineno_1',['yy_bs_lineno',['../structyy__buffer__state.html#a818e94bc9c766e683c60df1e9fd01199',1,'yy_buffer_state']]]
+  ['xcoff64_5fflags_0',['xcoff64_flags',['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#a46d9d5b4d74e4be0b7fc1dcfd4f412a5',1,'COFF::COFFFormat::XCOFFAOutHeader']]]
 ];

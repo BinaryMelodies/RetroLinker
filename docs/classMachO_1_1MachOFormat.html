@@ -77,7 +77,10 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classMachO_1_1MachOFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">MachO::MachOFormat Class Reference</div></div>
 </div><!--header-->
@@ -100,6 +103,46 @@ Inheritance diagram for MachO::MachOFormat:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMachO_1_1MachOFormat_1_1GenericDataCommand.html">GenericDataCommand</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMachO_1_1MachOFormat_1_1LoadCommand.html">LoadCommand</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMachO_1_1MachOFormat_1_1Section.html">Section</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMachO_1_1MachOFormat_1_1SegmentCommand.html">SegmentCommand</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a45b26f3c9e9ce441f9758069a4daec18" id="r_a45b26f3c9e9ce441f9758069a4daec18"><td class="memItemLeft" align="right" valign="top"><a id="a45b26f3c9e9ce441f9758069a4daec18" name="a45b26f3c9e9ce441f9758069a4daec18"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>cpu_type</b> { <br />
+&#160;&#160;<b>CPU_VAX</b> = 1
+, <b>CPU_ROMP</b> = 2
+, <b>CPU_NS32032</b> = 4
+, <b>CPU_NS32332</b> = 5
+, <br />
+&#160;&#160;<b>CPU_MC680x0</b> = 6
+, <b>CPU_X86</b> = 7
+, <b>CPU_MIPS</b> = 8
+, <b>CPU_NS32352</b> = 9
+, <br />
+&#160;&#160;<b>CPU_MC98000</b> = 10
+, <b>CPU_HPPA</b> = 11
+, <b>CPU_ARM</b> = 12
+, <b>CPU_MC88000</b> = 13
+, <br />
+&#160;&#160;<b>CPU_SPARC</b> = 14
+, <b>CPU_I860</b> = 15
+, <b>CPU_I860_LE</b> = 16
+, <b>CPU_ALPHA</b> = 16
+, <br />
+&#160;&#160;<b>CPU_RS6000</b> = 17
+, <b>CPU_POWERPC</b> = 18
+<br />
+ }</td></tr>
+<tr class="separator:a45b26f3c9e9ce441f9758069a4daec18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa4f3382726cace72f9d02f929b0c6f59" id="r_aa4f3382726cace72f9d02f929b0c6f59"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa4f3382726cace72f9d02f929b0c6f59">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
@@ -247,8 +290,32 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 <tr class="memdesc:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined)  <br /></td></tr>
 <tr class="separator:a12da087d78c8a1eba1e3076522b604c1 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a3c8b3bc8b5f21587dbd312b4075e34a5" id="r_a3c8b3bc8b5f21587dbd312b4075e34a5"><td class="memItemLeft" align="right" valign="top"><a id="a3c8b3bc8b5f21587dbd312b4075e34a5" name="a3c8b3bc8b5f21587dbd312b4075e34a5"></a>
+::EndianType&#160;</td><td class="memItemRight" valign="bottom"><b>endiantype</b> = ::EndianType(0)</td></tr>
+<tr class="separator:a3c8b3bc8b5f21587dbd312b4075e34a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad088c79527aea2200e4cb1538b1c4aea" id="r_ad088c79527aea2200e4cb1538b1c4aea"><td class="memItemLeft" align="right" valign="top"><a id="ad088c79527aea2200e4cb1538b1c4aea" name="ad088c79527aea2200e4cb1538b1c4aea"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>wordsize</b></td></tr>
+<tr class="separator:ad088c79527aea2200e4cb1538b1c4aea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e565ffa93b3b52cce9c239633ecfcc4" id="r_a8e565ffa93b3b52cce9c239633ecfcc4"><td class="memItemLeft" align="right" valign="top"><a id="a8e565ffa93b3b52cce9c239633ecfcc4" name="a8e565ffa93b3b52cce9c239633ecfcc4"></a>
+cpu_type&#160;</td><td class="memItemRight" valign="bottom"><b>cpu</b> = cpu_type(0)</td></tr>
+<tr class="separator:a8e565ffa93b3b52cce9c239633ecfcc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c36cb87be36dbedc8d0cd2cb0853a27" id="r_a5c36cb87be36dbedc8d0cd2cb0853a27"><td class="memItemLeft" align="right" valign="top"><a id="a5c36cb87be36dbedc8d0cd2cb0853a27" name="a5c36cb87be36dbedc8d0cd2cb0853a27"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>cpu_subtype</b> = 0</td></tr>
+<tr class="separator:a5c36cb87be36dbedc8d0cd2cb0853a27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a97ae091f7dc8a4a0a083e20a201ff1da" id="r_a97ae091f7dc8a4a0a083e20a201ff1da"><td class="memItemLeft" align="right" valign="top"><a id="a97ae091f7dc8a4a0a083e20a201ff1da" name="a97ae091f7dc8a4a0a083e20a201ff1da"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_type</b> = 0</td></tr>
+<tr class="separator:a97ae091f7dc8a4a0a083e20a201ff1da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8da824825507e6868a184b275f59451" id="r_ae8da824825507e6868a184b275f59451"><td class="memItemLeft" align="right" valign="top"><a id="ae8da824825507e6868a184b275f59451" name="ae8da824825507e6868a184b275f59451"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>commands_size</b> = 0</td></tr>
+<tr class="separator:ae8da824825507e6868a184b275f59451"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9fae46e383e641873013c6a14d7cb36c" id="r_a9fae46e383e641873013c6a14d7cb36c"><td class="memItemLeft" align="right" valign="top"><a id="a9fae46e383e641873013c6a14d7cb36c" name="a9fae46e383e641873013c6a14d7cb36c"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
+<tr class="separator:a9fae46e383e641873013c6a14d7cb36c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4589d4fcd493ed17ea40849d2f54224a" id="r_a4589d4fcd493ed17ea40849d2f54224a"><td class="memItemLeft" align="right" valign="top"><a id="a4589d4fcd493ed17ea40849d2f54224a" name="a4589d4fcd493ed17ea40849d2f54224a"></a>
+std::vector&lt; std::unique_ptr&lt; <a class="el" href="classMachO_1_1MachOFormat_1_1LoadCommand.html">LoadCommand</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>load_commands</b></td></tr>
+<tr class="separator:a4589d4fcd493ed17ea40849d2f54224a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_ad9071f24df9b386cc5772eca5332f55a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#ad9071f24df9b386cc5772eca5332f55a">current_base</a> = 0</td></tr>
 <tr class="memdesc:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
@@ -277,6 +344,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script<
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
 <tr class="separator:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:a810b93fa2314556615ec6287cbfbc40c inherit pro_attribs_classLinker_1_1LinkerManager" id="r_a810b93fa2314556615ec6287cbfbc40c"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b> = 0</td></tr>

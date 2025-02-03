@@ -93,11 +93,14 @@ Inheritance diagram for COFF::COFFFormat::OptionalHeader:</div>
  <div class="center">
   <img src="classCOFF_1_1COFFFormat_1_1OptionalHeader.png" usemap="#COFF::COFFFormat::OptionalHeader_map" alt=""/>
   <map id="COFF::COFFFormat::OptionalHeader_map" name="COFF::COFFFormat::OptionalHeader_map">
-<area href="classCOFF_1_1COFFFormat_1_1AOutHeader.html" title="A standard 28 byte a.out optional header, used by DJGPP." alt="COFF::COFFFormat::AOutHeader" shape="rect" coords="141,56,414,80"/>
-<area href="classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html" title="GNU a.out optional header TODO." alt="COFF::COFFFormat::GNUAOutHeader" shape="rect" coords="424,56,697,80"/>
-<area href="classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html" title="A simplified class to represent an optional header of unknown structure." alt="COFF::COFFFormat::UnknownOptionalHeader" shape="rect" coords="707,56,980,80"/>
+<area href="classCOFF_1_1COFFFormat_1_1AOutHeader.html" title="A standard 28 byte a.out optional header, used by DJGPP." alt="COFF::COFFFormat::AOutHeader" shape="rect" coords="283,56,556,80"/>
+<area href="classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html" title="ECOFF optional header." alt="COFF::COFFFormat::ECOFFAOutHeader" shape="rect" coords="566,56,839,80"/>
+<area href="classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html" title="GNU a.out optional header TODO." alt="COFF::COFFFormat::GNUAOutHeader" shape="rect" coords="849,56,1122,80"/>
+<area href="classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html" title="A simplified class to represent an optional header of unknown structure." alt="COFF::COFFFormat::UnknownOptionalHeader" shape="rect" coords="1132,56,1405,80"/>
+<area href="classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html" title="XCOFF optional header." alt="COFF::COFFFormat::XCOFFAOutHeader" shape="rect" coords="1415,56,1688,80"/>
 <area href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html" title="Concurrent DOS 68K/FlexOS 386 optional header Concurrent DOS 68K uses the typical a...." alt="COFF::COFFFormat::FlexOSAOutHeader" shape="rect" coords="0,112,273,136"/>
-<area href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html" title="A standard 28 byte a.out optional header, used by DJGPP." alt="COFF::COFFFormat::MIPSAOutHeader" shape="rect" coords="283,112,556,136"/>
+<area href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html" title="56 byte long header used on MIPS" alt="COFF::COFFFormat::MIPSAOutHeader" shape="rect" coords="283,112,556,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html" alt="Microsoft::PEFormat::PEOptionalHeader" shape="rect" coords="566,112,839,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -112,6 +115,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> 
 <tr class="memitem:a2e097f7d84a0b1fb7e234916adf916d4" id="r_a2e097f7d84a0b1fb7e234916adf916d4"><td class="memItemLeft" align="right" valign="top"><a id="a2e097f7d84a0b1fb7e234916adf916d4" name="a2e097f7d84a0b1fb7e234916adf916d4"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)=0</td></tr>
 <tr class="separator:a2e097f7d84a0b1fb7e234916adf916d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8bfdea3b71c99cca046ad3a8f43949d5" id="r_a8bfdea3b71c99cca046ad3a8f43949d5"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8bfdea3b71c99cca046ad3a8f43949d5">CalculateValues</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff)=0</td></tr>
+<tr class="memdesc:a8bfdea3b71c99cca046ad3a8f43949d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up fields to be consistent.  <br /></td></tr>
+<tr class="separator:a8bfdea3b71c99cca046ad3a8f43949d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a62da5a8e339d05035eaf22d2296241" id="r_a9a62da5a8e339d05035eaf22d2296241"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9a62da5a8e339d05035eaf22d2296241">PostReadFile</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="memdesc:a9a62da5a8e339d05035eaf22d2296241"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves any additional data from the file corresponding to this type of optional header.  <br /></td></tr>
 <tr class="separator:a9a62da5a8e339d05035eaf22d2296241"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -125,6 +131,36 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a 
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An abstract class to represent the optional header. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a8bfdea3b71c99cca046ad3a8f43949d5" name="a8bfdea3b71c99cca046ad3a8f43949d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8bfdea3b71c99cca046ad3a8f43949d5">&#9670;&#160;</a></span>CalculateValues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual offset_t COFF::COFFFormat::OptionalHeader::CalculateValues </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">pure virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets up fields to be consistent. </p>
+<dl class="section return"><dt>Returns</dt><dd>Number of extra bytes following symbol table </dd></dl>
+
+<p>Implemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html#a7bd62c01e46cff804bd6adb2639f8c7b">COFF::COFFFormat::UnknownOptionalHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a7a51bdc80bc726db4de83a1b90206582">COFF::COFFFormat::AOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a5e730f963b9aefd1d820e1f47bb4b21f">COFF::COFFFormat::FlexOSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html#a053aae8c76fead0f95f475cb8d05f9a5">COFF::COFFFormat::GNUAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html#aada2fe122bdc6434acda0f8cff46c65f">COFF::COFFFormat::MIPSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html#a6ab6ee8a69473db345b41d6f5482cc1a">COFF::COFFFormat::ECOFFAOutHeader</a>, and <a class="el" href="classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#adfc1220485a8cc37590224ed58dce41d">COFF::COFFFormat::XCOFFAOutHeader</a>.</p>
+
+</div>
+</div>
 <a id="a6c982db9de1f52cc87c2b0a1f51dc894" name="a6c982db9de1f52cc87c2b0a1f51dc894"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6c982db9de1f52cc87c2b0a1f51dc894">&#9670;&#160;</a></span>GetSize()</h2>
 
@@ -150,7 +186,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a 
 
 <p>Returns size of optional header. </p>
 
-<p>Implemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html#a4546ecab891b8d99ea33d2cc7e844ac3">COFF::COFFFormat::UnknownOptionalHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a8df0e070d04fcbe3f18282e24ac2b9e3">COFF::COFFFormat::AOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a4cd88c18fa8c0d2c82a7e8012888cb8c">COFF::COFFFormat::FlexOSAOutHeader</a>, and <a class="el" href="classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html#ae370975d784e4a4a0110583bb4d76572">COFF::COFFFormat::GNUAOutHeader</a>.</p>
+<p>Implemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html#a4546ecab891b8d99ea33d2cc7e844ac3">COFF::COFFFormat::UnknownOptionalHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a8df0e070d04fcbe3f18282e24ac2b9e3">COFF::COFFFormat::AOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a4cd88c18fa8c0d2c82a7e8012888cb8c">COFF::COFFFormat::FlexOSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html#ae370975d784e4a4a0110583bb4d76572">COFF::COFFFormat::GNUAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html#a4e4ebbb21d07dae58b1a5650881ca833">COFF::COFFFormat::MIPSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html#a29beef551f753a0cb80d334369d58ef7">COFF::COFFFormat::ECOFFAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#ae8ac1cd67eaba525fe00fc545eafcf3a">COFF::COFFFormat::XCOFFAOutHeader</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#ab656865bb0b7a7bf4a819343b934f6df">Microsoft::PEFormat::PEOptionalHeader</a>.</p>
 
 </div>
 </div>

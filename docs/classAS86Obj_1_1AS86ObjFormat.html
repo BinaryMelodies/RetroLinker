@@ -78,6 +78,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
@@ -87,7 +88,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>Output format for as86, used as an output by Bruce's C compiler from the dev86 package.  
+<p>Object format of Introl-C, output format for as86, used as an output by Bruce's C compiler from the dev86 package.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="as86obj_8h_source.html">as86obj.h</a>&gt;</code></p>
@@ -126,11 +127,22 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAS86Obj_1_1AS86ObjFormat_1_1SymbolRelocator.html">SymbolRelocator</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a8671a4a3cf4b6aa572be4263bc874d8f" id="r_a8671a4a3cf4b6aa572be4263bc874d8f"><td class="memItemLeft" align="right" valign="top"><a id="a8671a4a3cf4b6aa572be4263bc874d8f" name="a8671a4a3cf4b6aa572be4263bc874d8f"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>cpu_type</b> { <b>CPU_I8086</b> = 0xA086
+, <b>CPU_I80386</b> = 0xA386
+, <b>CPU_MC6809</b> = 0x5331
+ }</td></tr>
+<tr class="separator:a8671a4a3cf4b6aa572be4263bc874d8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a67839c08f2e524802ac3496f43de8a36" id="r_a67839c08f2e524802ac3496f43de8a36"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a67839c08f2e524802ac3496f43de8a36">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a67839c08f2e524802ac3496f43de8a36"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a67839c08f2e524802ac3496f43de8a36"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6dbea1bec19867b771ecd7c095aa9f5" id="r_ae6dbea1bec19867b771ecd7c095aa9f5"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae6dbea1bec19867b771ecd7c095aa9f5">ImageSize</a> () override</td></tr>
+<tr class="memdesc:ae6dbea1bec19867b771ecd7c095aa9f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:ae6dbea1bec19867b771ecd7c095aa9f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4104ff6c1cf93152633281be4a1f49d1" id="r_a4104ff6c1cf93152633281be4a1f49d1"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4104ff6c1cf93152633281be4a1f49d1">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a4104ff6c1cf93152633281be4a1f49d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a4104ff6c1cf93152633281be4a1f49d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -193,6 +205,12 @@ static constexpr int&#160;</td><td class="memItemRight" valign="bottom"><b>GetSi
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:af88679b3adfe8ee2b944e02a68febbc2" id="r_af88679b3adfe8ee2b944e02a68febbc2"><td class="memItemLeft" align="right" valign="top"><a id="af88679b3adfe8ee2b944e02a68febbc2" name="af88679b3adfe8ee2b944e02a68febbc2"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = offset_t(-1)</td></tr>
+<tr class="separator:af88679b3adfe8ee2b944e02a68febbc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f7c1c14d7a0d79bd0f646b4e1033aed" id="r_a6f7c1c14d7a0d79bd0f646b4e1033aed"><td class="memItemLeft" align="right" valign="top"><a id="a6f7c1c14d7a0d79bd0f646b4e1033aed" name="a6f7c1c14d7a0d79bd0f646b4e1033aed"></a>
+cpu_type&#160;</td><td class="memItemRight" valign="bottom"><b>cpu</b> = cpu_type(0)</td></tr>
+<tr class="separator:a6f7c1c14d7a0d79bd0f646b4e1033aed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59c407df1686c4692a64be46829a3186" id="r_a59c407df1686c4692a64be46829a3186"><td class="memItemLeft" align="right" valign="top"><a id="a59c407df1686c4692a64be46829a3186" name="a59c407df1686c4692a64be46829a3186"></a>
 std::vector&lt; <a class="el" href="classAS86Obj_1_1AS86ObjFormat_1_1Module.html">Module</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>modules</b></td></tr>
 <tr class="separator:a59c407df1686c4692a64be46829a3186"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -211,7 +229,7 @@ static std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Link
 <tr class="separator:aabce567b6ee2c30b93921d551b8638e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Output format for as86, used as an output by Bruce's C compiler from the dev86 package. </p>
+<div class="textblock"><p>Object format of Introl-C, output format for as86, used as an output by Bruce's C compiler from the dev86 package. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a75e620e1afb4ff5698e13a703d9e2c5c" name="a75e620e1afb4ff5698e13a703d9e2c5c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a75e620e1afb4ff5698e13a703d9e2c5c">&#9670;&#160;</a></span>Dump()</h2>
@@ -268,6 +286,35 @@ static std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Link
 <p>Loads the information into a module object, a convenience method when there is a single module generated. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1InputFormat.html#ae338295011d23d50c6cba0e3fcf12db2">Linker::InputFormat</a>.</p>
+
+</div>
+</div>
+<a id="ae6dbea1bec19867b771ecd7c095aa9f5" name="ae6dbea1bec19867b771ecd7c095aa9f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6dbea1bec19867b771ecd7c095aa9f5">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t AS86ObjFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>

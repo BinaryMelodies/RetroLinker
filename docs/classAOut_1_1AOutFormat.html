@@ -153,6 +153,9 @@ unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>GetWordSize</b> (
 <tr class="memitem:aeaf8a3d71f995d4c83b6451d234628c1" id="r_aeaf8a3d71f995d4c83b6451d234628c1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeaf8a3d71f995d4c83b6451d234628c1">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:aeaf8a3d71f995d4c83b6451d234628c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:aeaf8a3d71f995d4c83b6451d234628c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79253f4e90907d64e6b79490ec70b957" id="r_a79253f4e90907d64e6b79490ec70b957"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a79253f4e90907d64e6b79490ec70b957">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a79253f4e90907d64e6b79490ec70b957"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a79253f4e90907d64e6b79490ec70b957"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9cd8271431b0dd099e4462ed3e4724cb" id="r_a9cd8271431b0dd099e4462ed3e4724cb"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9cd8271431b0dd099e4462ed3e4724cb">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a9cd8271431b0dd099e4462ed3e4724cb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a9cd8271431b0dd099e4462ed3e4724cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -720,6 +723,35 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_size</b> = -
 
 <p>Default magic number associated with the system. </p>
 <p>This information is based on studying the executables included with that software. PDOS/386 uses OMAGIC, whereas DJGPP uses ZMAGIC. </p>
+
+</div>
+</div>
+<a id="a79253f4e90907d64e6b79490ec70b957" name="a79253f4e90907d64e6b79490ec70b957"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a79253f4e90907d64e6b79490ec70b957">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t AOutFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>

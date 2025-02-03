@@ -107,12 +107,16 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aaedb3b5ef9d24273cad757f826634ab0" id="r_aaedb3b5ef9d24273cad757f826634ab0"><td class="memItemLeft" align="right" valign="top"><a id="aaedb3b5ef9d24273cad757f826634ab0" name="aaedb3b5ef9d24273cad757f826634ab0"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Read</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="separator:aaedb3b5ef9d24273cad757f826634ab0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae439348040849170373a093ded6f27ab" id="r_ae439348040849170373a093ded6f27ab"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae439348040849170373a093ded6f27ab">GetAddress</a> () override</td></tr>
-<tr class="separator:ae439348040849170373a093ded6f27ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a21e78d4e94569355857d4799bf35ce" id="r_a3a21e78d4e94569355857d4799bf35ce"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3a21e78d4e94569355857d4799bf35ce">GetSize</a> () override</td></tr>
-<tr class="separator:a3a21e78d4e94569355857d4799bf35ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5da81d875c44234d6b55a64989702c89" id="r_a5da81d875c44234d6b55a64989702c89"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5da81d875c44234d6b55a64989702c89">FillEntry</a> (<a class="el" href="classDumper_1_1Entry.html">Dumper::Entry</a> &amp;entry) override</td></tr>
-<tr class="separator:a5da81d875c44234d6b55a64989702c89"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9ed5a5c355fbf5c9f52afff935c9c5f" id="r_aa9ed5a5c355fbf5c9f52afff935c9c5f"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9ed5a5c355fbf5c9f52afff935c9c5f">GetAddress</a> () const override</td></tr>
+<tr class="separator:aa9ed5a5c355fbf5c9f52afff935c9c5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae75138f02a910f3999a4d18819d85a5e" id="r_ae75138f02a910f3999a4d18819d85a5e"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae75138f02a910f3999a4d18819d85a5e">GetSize</a> () const override</td></tr>
+<tr class="separator:ae75138f02a910f3999a4d18819d85a5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2a7520b3bad279c35febcaa724afa285" id="r_a2a7520b3bad279c35febcaa724afa285"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a7520b3bad279c35febcaa724afa285">GetEntrySize</a> () const override</td></tr>
+<tr class="separator:a2a7520b3bad279c35febcaa724afa285"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1dd4a7db79888a2c6d089200c11dfe24" id="r_a1dd4a7db79888a2c6d089200c11dfe24"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1dd4a7db79888a2c6d089200c11dfe24">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
+<tr class="separator:a1dd4a7db79888a2c6d089200c11dfe24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a831b0782d7cb32fa68056075f0a57a88" id="r_a831b0782d7cb32fa68056075f0a57a88"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a831b0782d7cb32fa68056075f0a57a88">FillEntry</a> (<a class="el" href="classDumper_1_1Entry.html">Dumper::Entry</a> &amp;entry) const override</td></tr>
+<tr class="separator:a831b0782d7cb32fa68056075f0a57a88"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -142,87 +146,87 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>data</b></td></tr
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
-<tr class="memitem:aedf0104a88b7e7b1e0be0cad5a3e108d" id="r_aedf0104a88b7e7b1e0be0cad5a3e108d"><td class="memItemLeft" align="right" valign="top"><a id="aedf0104a88b7e7b1e0be0cad5a3e108d" name="aedf0104a88b7e7b1e0be0cad5a3e108d"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_IMM8</b> = 0x22</td></tr>
-<tr class="separator:aedf0104a88b7e7b1e0be0cad5a3e108d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c08d4ed002af5a9045b6bc877f3effa" id="r_a8c08d4ed002af5a9045b6bc877f3effa"><td class="memItemLeft" align="right" valign="top"><a id="a8c08d4ed002af5a9045b6bc877f3effa" name="a8c08d4ed002af5a9045b6bc877f3effa"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_IMM16</b> = 0x01</td></tr>
-<tr class="separator:a8c08d4ed002af5a9045b6bc877f3effa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab56e94a930d294f5cccc4f0c3eb494ac" id="r_ab56e94a930d294f5cccc4f0c3eb494ac"><td class="memItemLeft" align="right" valign="top"><a id="ab56e94a930d294f5cccc4f0c3eb494ac" name="ab56e94a930d294f5cccc4f0c3eb494ac"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_IMM24</b> = 0x33</td></tr>
-<tr class="separator:ab56e94a930d294f5cccc4f0c3eb494ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3136d6ff82bcfb17d2113d05566179a2" id="r_a3136d6ff82bcfb17d2113d05566179a2"><td class="memItemLeft" align="right" valign="top"><a id="a3136d6ff82bcfb17d2113d05566179a2" name="a3136d6ff82bcfb17d2113d05566179a2"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_IMM32</b> = 0x17</td></tr>
-<tr class="separator:a3136d6ff82bcfb17d2113d05566179a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc46637174cd807d2882f3f8082ca2e1" id="r_adc46637174cd807d2882f3f8082ca2e1"><td class="memItemLeft" align="right" valign="top"><a id="adc46637174cd807d2882f3f8082ca2e1" name="adc46637174cd807d2882f3f8082ca2e1"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_OFF8</b> = 0x32</td></tr>
-<tr class="separator:adc46637174cd807d2882f3f8082ca2e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab1064a70b2171e4c8dd1fa59d4d57023" id="r_ab1064a70b2171e4c8dd1fa59d4d57023"><td class="memItemLeft" align="right" valign="top"><a id="ab1064a70b2171e4c8dd1fa59d4d57023" name="ab1064a70b2171e4c8dd1fa59d4d57023"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_JR</b> = 0x02</td></tr>
-<tr class="separator:ab1064a70b2171e4c8dd1fa59d4d57023"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7f73b87269f9f20843e921f5c2f2da12" id="r_a7f73b87269f9f20843e921f5c2f2da12"><td class="memItemLeft" align="right" valign="top"><a id="a7f73b87269f9f20843e921f5c2f2da12" name="a7f73b87269f9f20843e921f5c2f2da12"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM4L</b> = 0x23</td></tr>
-<tr class="separator:a7f73b87269f9f20843e921f5c2f2da12"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a971eb44443c3609223fbde8264dee5e3" id="r_a971eb44443c3609223fbde8264dee5e3"><td class="memItemLeft" align="right" valign="top"><a id="a971eb44443c3609223fbde8264dee5e3" name="a971eb44443c3609223fbde8264dee5e3"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM4H</b> = 0x24</td></tr>
-<tr class="separator:a971eb44443c3609223fbde8264dee5e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c582bdcffb9d43040a6f05ffae2521b" id="r_a6c582bdcffb9d43040a6f05ffae2521b"><td class="memItemLeft" align="right" valign="top"><a id="a6c582bdcffb9d43040a6f05ffae2521b" name="a6c582bdcffb9d43040a6f05ffae2521b"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_DISP7</b> = 0x25</td></tr>
-<tr class="separator:a6c582bdcffb9d43040a6f05ffae2521b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab766d942a48de6cb4a55ca35465f72e5" id="r_ab766d942a48de6cb4a55ca35465f72e5"><td class="memItemLeft" align="right" valign="top"><a id="ab766d942a48de6cb4a55ca35465f72e5" name="ab766d942a48de6cb4a55ca35465f72e5"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM8</b> = 0x22</td></tr>
-<tr class="separator:ab766d942a48de6cb4a55ca35465f72e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ca7cb5c2fdcc0a63558a708f3ec0a45" id="r_a4ca7cb5c2fdcc0a63558a708f3ec0a45"><td class="memItemLeft" align="right" valign="top"><a id="a4ca7cb5c2fdcc0a63558a708f3ec0a45" name="a4ca7cb5c2fdcc0a63558a708f3ec0a45"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM16</b> = 0x01</td></tr>
-<tr class="separator:a4ca7cb5c2fdcc0a63558a708f3ec0a45"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a89362f4c596570c833c03e080ea23175" id="r_a89362f4c596570c833c03e080ea23175"><td class="memItemLeft" align="right" valign="top"><a id="a89362f4c596570c833c03e080ea23175" name="a89362f4c596570c833c03e080ea23175"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_REL16</b> = 0x04</td></tr>
-<tr class="separator:a89362f4c596570c833c03e080ea23175"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a999e0062247c750a88229b9f86014880" id="r_a999e0062247c750a88229b9f86014880"><td class="memItemLeft" align="right" valign="top"><a id="a999e0062247c750a88229b9f86014880" name="a999e0062247c750a88229b9f86014880"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM32</b> = 0x11</td></tr>
-<tr class="separator:a999e0062247c750a88229b9f86014880"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa45db16393ac62f0977e785030291b21" id="r_aa45db16393ac62f0977e785030291b21"><td class="memItemLeft" align="right" valign="top"><a id="aa45db16393ac62f0977e785030291b21" name="aa45db16393ac62f0977e785030291b21"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_JR</b> = 0x02</td></tr>
-<tr class="separator:aa45db16393ac62f0977e785030291b21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7c0cf6181c7528e124875d5ef0c26a5b" id="r_a7c0cf6181c7528e124875d5ef0c26a5b"><td class="memItemLeft" align="right" valign="top"><a id="a7c0cf6181c7528e124875d5ef0c26a5b" name="a7c0cf6181c7528e124875d5ef0c26a5b"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_CALLR</b> = 0x05</td></tr>
-<tr class="separator:a7c0cf6181c7528e124875d5ef0c26a5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa35a3630e77dcb8bea1c7bce87f643d4" id="r_aa35a3630e77dcb8bea1c7bce87f643d4"><td class="memItemLeft" align="right" valign="top"><a id="aa35a3630e77dcb8bea1c7bce87f643d4" name="aa35a3630e77dcb8bea1c7bce87f643d4"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS8</b> = 0x01</td></tr>
-<tr class="separator:aa35a3630e77dcb8bea1c7bce87f643d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a599ce0ce33f9eebe85301052e95fcf9d" id="r_a599ce0ce33f9eebe85301052e95fcf9d"><td class="memItemLeft" align="right" valign="top"><a id="a599ce0ce33f9eebe85301052e95fcf9d" name="a599ce0ce33f9eebe85301052e95fcf9d"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS16</b> = 0x02</td></tr>
-<tr class="separator:a599ce0ce33f9eebe85301052e95fcf9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7797a59a7cacfbe105f947608eb7d927" id="r_a7797a59a7cacfbe105f947608eb7d927"><td class="memItemLeft" align="right" valign="top"><a id="a7797a59a7cacfbe105f947608eb7d927" name="a7797a59a7cacfbe105f947608eb7d927"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS24</b> = 0x03</td></tr>
-<tr class="separator:a7797a59a7cacfbe105f947608eb7d927"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6497e1380809b887b644fd595ac26a20" id="r_a6497e1380809b887b644fd595ac26a20"><td class="memItemLeft" align="right" valign="top"><a id="a6497e1380809b887b644fd595ac26a20" name="a6497e1380809b887b644fd595ac26a20"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS8S8</b> = 0x04</td></tr>
-<tr class="separator:a6497e1380809b887b644fd595ac26a20"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90195b37dae4ed88cd1ba99d075cf3e3" id="r_a90195b37dae4ed88cd1ba99d075cf3e3"><td class="memItemLeft" align="right" valign="top"><a id="a90195b37dae4ed88cd1ba99d075cf3e3" name="a90195b37dae4ed88cd1ba99d075cf3e3"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS8S16</b> = 0x05</td></tr>
-<tr class="separator:a90195b37dae4ed88cd1ba99d075cf3e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6836b0c688d20199795a83e87129f848" id="r_a6836b0c688d20199795a83e87129f848"><td class="memItemLeft" align="right" valign="top"><a id="a6836b0c688d20199795a83e87129f848" name="a6836b0c688d20199795a83e87129f848"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS16S8</b> = 0x06</td></tr>
-<tr class="separator:a6836b0c688d20199795a83e87129f848"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a83cbafebe9bd2c18fc342e8e60311d21" id="r_a83cbafebe9bd2c18fc342e8e60311d21"><td class="memItemLeft" align="right" valign="top"><a id="a83cbafebe9bd2c18fc342e8e60311d21" name="a83cbafebe9bd2c18fc342e8e60311d21"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS16S16</b> = 0x07</td></tr>
-<tr class="separator:a83cbafebe9bd2c18fc342e8e60311d21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac66175668df6e82d674386fe3b2515cc" id="r_ac66175668df6e82d674386fe3b2515cc"><td class="memItemLeft" align="right" valign="top"><a id="ac66175668df6e82d674386fe3b2515cc" name="ac66175668df6e82d674386fe3b2515cc"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_PCR8</b> = 0x08</td></tr>
-<tr class="separator:ac66175668df6e82d674386fe3b2515cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7987793739709851dd6d0bedecdbe90f" id="r_a7987793739709851dd6d0bedecdbe90f"><td class="memItemLeft" align="right" valign="top"><a id="a7987793739709851dd6d0bedecdbe90f" name="a7987793739709851dd6d0bedecdbe90f"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_PCR16</b> = 0x09</td></tr>
-<tr class="separator:a7987793739709851dd6d0bedecdbe90f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95dfe21f7ad78dc61c77e1fa3c3996cd" id="r_a95dfe21f7ad78dc61c77e1fa3c3996cd"><td class="memItemLeft" align="right" valign="top"><a id="a95dfe21f7ad78dc61c77e1fa3c3996cd" name="a95dfe21f7ad78dc61c77e1fa3c3996cd"></a>
-static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_DP</b> = 0x0A</td></tr>
-<tr class="separator:a95dfe21f7ad78dc61c77e1fa3c3996cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af05c2f8f69724f466786d55946368372" id="r_af05c2f8f69724f466786d55946368372"><td class="memItemLeft" align="right" valign="top"><a id="af05c2f8f69724f466786d55946368372" name="af05c2f8f69724f466786d55946368372"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_IMM8</b> = 0x22</td></tr>
+<tr class="separator:af05c2f8f69724f466786d55946368372"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28d81b2c48dd2898a546f5662c4690ca" id="r_a28d81b2c48dd2898a546f5662c4690ca"><td class="memItemLeft" align="right" valign="top"><a id="a28d81b2c48dd2898a546f5662c4690ca" name="a28d81b2c48dd2898a546f5662c4690ca"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_IMM16</b> = 0x01</td></tr>
+<tr class="separator:a28d81b2c48dd2898a546f5662c4690ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7be53e9d919b408af9c3165e9e48f7a" id="r_ad7be53e9d919b408af9c3165e9e48f7a"><td class="memItemLeft" align="right" valign="top"><a id="ad7be53e9d919b408af9c3165e9e48f7a" name="ad7be53e9d919b408af9c3165e9e48f7a"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_IMM24</b> = 0x33</td></tr>
+<tr class="separator:ad7be53e9d919b408af9c3165e9e48f7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a08c449e5f3d65dc75732485bd5c39c0d" id="r_a08c449e5f3d65dc75732485bd5c39c0d"><td class="memItemLeft" align="right" valign="top"><a id="a08c449e5f3d65dc75732485bd5c39c0d" name="a08c449e5f3d65dc75732485bd5c39c0d"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_IMM32</b> = 0x17</td></tr>
+<tr class="separator:a08c449e5f3d65dc75732485bd5c39c0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad431db84bc74d15c44c375889adcbce2" id="r_ad431db84bc74d15c44c375889adcbce2"><td class="memItemLeft" align="right" valign="top"><a id="ad431db84bc74d15c44c375889adcbce2" name="ad431db84bc74d15c44c375889adcbce2"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_OFF8</b> = 0x32</td></tr>
+<tr class="separator:ad431db84bc74d15c44c375889adcbce2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56e0ba778ee4665029d2062067321474" id="r_a56e0ba778ee4665029d2062067321474"><td class="memItemLeft" align="right" valign="top"><a id="a56e0ba778ee4665029d2062067321474" name="a56e0ba778ee4665029d2062067321474"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z80_JR</b> = 0x02</td></tr>
+<tr class="separator:a56e0ba778ee4665029d2062067321474"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ef846ee5946470b8c76af21d990bbf2" id="r_a8ef846ee5946470b8c76af21d990bbf2"><td class="memItemLeft" align="right" valign="top"><a id="a8ef846ee5946470b8c76af21d990bbf2" name="a8ef846ee5946470b8c76af21d990bbf2"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM4L</b> = 0x23</td></tr>
+<tr class="separator:a8ef846ee5946470b8c76af21d990bbf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6617cf3fd2834ce64c89242b1be5a46" id="r_ab6617cf3fd2834ce64c89242b1be5a46"><td class="memItemLeft" align="right" valign="top"><a id="ab6617cf3fd2834ce64c89242b1be5a46" name="ab6617cf3fd2834ce64c89242b1be5a46"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM4H</b> = 0x24</td></tr>
+<tr class="separator:ab6617cf3fd2834ce64c89242b1be5a46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4c0b747df1c4082423cb68a6deda5810" id="r_a4c0b747df1c4082423cb68a6deda5810"><td class="memItemLeft" align="right" valign="top"><a id="a4c0b747df1c4082423cb68a6deda5810" name="a4c0b747df1c4082423cb68a6deda5810"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_DISP7</b> = 0x25</td></tr>
+<tr class="separator:a4c0b747df1c4082423cb68a6deda5810"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a999023a162e15f81c308657e9d8cd5" id="r_a0a999023a162e15f81c308657e9d8cd5"><td class="memItemLeft" align="right" valign="top"><a id="a0a999023a162e15f81c308657e9d8cd5" name="a0a999023a162e15f81c308657e9d8cd5"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM8</b> = 0x22</td></tr>
+<tr class="separator:a0a999023a162e15f81c308657e9d8cd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad933980fd14e19d9368eacbf8af06443" id="r_ad933980fd14e19d9368eacbf8af06443"><td class="memItemLeft" align="right" valign="top"><a id="ad933980fd14e19d9368eacbf8af06443" name="ad933980fd14e19d9368eacbf8af06443"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM16</b> = 0x01</td></tr>
+<tr class="separator:ad933980fd14e19d9368eacbf8af06443"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac53f1e4f39c94604a14b8aa0b36c6e58" id="r_ac53f1e4f39c94604a14b8aa0b36c6e58"><td class="memItemLeft" align="right" valign="top"><a id="ac53f1e4f39c94604a14b8aa0b36c6e58" name="ac53f1e4f39c94604a14b8aa0b36c6e58"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_REL16</b> = 0x04</td></tr>
+<tr class="separator:ac53f1e4f39c94604a14b8aa0b36c6e58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a05bfb8e582a60be6c2748e1c563d7fab" id="r_a05bfb8e582a60be6c2748e1c563d7fab"><td class="memItemLeft" align="right" valign="top"><a id="a05bfb8e582a60be6c2748e1c563d7fab" name="a05bfb8e582a60be6c2748e1c563d7fab"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_IMM32</b> = 0x11</td></tr>
+<tr class="separator:a05bfb8e582a60be6c2748e1c563d7fab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32f5a8643cd76f05ce720a63bb31728f" id="r_a32f5a8643cd76f05ce720a63bb31728f"><td class="memItemLeft" align="right" valign="top"><a id="a32f5a8643cd76f05ce720a63bb31728f" name="a32f5a8643cd76f05ce720a63bb31728f"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_JR</b> = 0x02</td></tr>
+<tr class="separator:a32f5a8643cd76f05ce720a63bb31728f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d0c1be43f36c0e2d08276be37cf5f05" id="r_a9d0c1be43f36c0e2d08276be37cf5f05"><td class="memItemLeft" align="right" valign="top"><a id="a9d0c1be43f36c0e2d08276be37cf5f05" name="a9d0c1be43f36c0e2d08276be37cf5f05"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_Z8K_CALLR</b> = 0x05</td></tr>
+<tr class="separator:a9d0c1be43f36c0e2d08276be37cf5f05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e95124ec1ef319898e340503692f4f8" id="r_a2e95124ec1ef319898e340503692f4f8"><td class="memItemLeft" align="right" valign="top"><a id="a2e95124ec1ef319898e340503692f4f8" name="a2e95124ec1ef319898e340503692f4f8"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS8</b> = 0x01</td></tr>
+<tr class="separator:a2e95124ec1ef319898e340503692f4f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a940b8607c0ef266cec3086ac4f7c3138" id="r_a940b8607c0ef266cec3086ac4f7c3138"><td class="memItemLeft" align="right" valign="top"><a id="a940b8607c0ef266cec3086ac4f7c3138" name="a940b8607c0ef266cec3086ac4f7c3138"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS16</b> = 0x02</td></tr>
+<tr class="separator:a940b8607c0ef266cec3086ac4f7c3138"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab15d4f94e7a08f6246dc271348c62e3d" id="r_ab15d4f94e7a08f6246dc271348c62e3d"><td class="memItemLeft" align="right" valign="top"><a id="ab15d4f94e7a08f6246dc271348c62e3d" name="ab15d4f94e7a08f6246dc271348c62e3d"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS24</b> = 0x03</td></tr>
+<tr class="separator:ab15d4f94e7a08f6246dc271348c62e3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad11b1577fc417c9db54474576cad3011" id="r_ad11b1577fc417c9db54474576cad3011"><td class="memItemLeft" align="right" valign="top"><a id="ad11b1577fc417c9db54474576cad3011" name="ad11b1577fc417c9db54474576cad3011"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS8S8</b> = 0x04</td></tr>
+<tr class="separator:ad11b1577fc417c9db54474576cad3011"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9f4cc6ad1de50fff6f9d09796aa1342" id="r_af9f4cc6ad1de50fff6f9d09796aa1342"><td class="memItemLeft" align="right" valign="top"><a id="af9f4cc6ad1de50fff6f9d09796aa1342" name="af9f4cc6ad1de50fff6f9d09796aa1342"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS8S16</b> = 0x05</td></tr>
+<tr class="separator:af9f4cc6ad1de50fff6f9d09796aa1342"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18af4df372f031f45463e98071acbbd0" id="r_a18af4df372f031f45463e98071acbbd0"><td class="memItemLeft" align="right" valign="top"><a id="a18af4df372f031f45463e98071acbbd0" name="a18af4df372f031f45463e98071acbbd0"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS16S8</b> = 0x06</td></tr>
+<tr class="separator:a18af4df372f031f45463e98071acbbd0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1215d84cbc69380d363206afa151084" id="r_aa1215d84cbc69380d363206afa151084"><td class="memItemLeft" align="right" valign="top"><a id="aa1215d84cbc69380d363206afa151084" name="aa1215d84cbc69380d363206afa151084"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_ABS16S16</b> = 0x07</td></tr>
+<tr class="separator:aa1215d84cbc69380d363206afa151084"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00d97bf6cf0c0556d3f08a9958a6c688" id="r_a00d97bf6cf0c0556d3f08a9958a6c688"><td class="memItemLeft" align="right" valign="top"><a id="a00d97bf6cf0c0556d3f08a9958a6c688" name="a00d97bf6cf0c0556d3f08a9958a6c688"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_PCR8</b> = 0x08</td></tr>
+<tr class="separator:a00d97bf6cf0c0556d3f08a9958a6c688"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeb4a2fc839d3c85fb74d287f04f6c459" id="r_aeb4a2fc839d3c85fb74d287f04f6c459"><td class="memItemLeft" align="right" valign="top"><a id="aeb4a2fc839d3c85fb74d287f04f6c459" name="aeb4a2fc839d3c85fb74d287f04f6c459"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_PCR16</b> = 0x09</td></tr>
+<tr class="separator:aeb4a2fc839d3c85fb74d287f04f6c459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a084b22e804ad0896a444c8a6f53a0092" id="r_a084b22e804ad0896a444c8a6f53a0092"><td class="memItemLeft" align="right" valign="top"><a id="a084b22e804ad0896a444c8a6f53a0092" name="a084b22e804ad0896a444c8a6f53a0092"></a>
+static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W65_DP</b> = 0x0A</td></tr>
+<tr class="separator:a084b22e804ad0896a444c8a6f53a0092"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A relocation, as stored by the Z80/Z8000 backend. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a5da81d875c44234d6b55a64989702c89" name="a5da81d875c44234d6b55a64989702c89"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5da81d875c44234d6b55a64989702c89">&#9670;&#160;</a></span>FillEntry()</h2>
+<a id="a831b0782d7cb32fa68056075f0a57a88" name="a831b0782d7cb32fa68056075f0a57a88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a831b0782d7cb32fa68056075f0a57a88">&#9670;&#160;</a></span>FillEntry()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -234,7 +238,7 @@ static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W6
           <td class="memname">void COFFFormat::ZilogRelocation::FillEntry </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classDumper_1_1Entry.html">Dumper::Entry</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>entry</em></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -248,8 +252,8 @@ static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W6
 
 </div>
 </div>
-<a id="ae439348040849170373a093ded6f27ab" name="ae439348040849170373a093ded6f27ab"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae439348040849170373a093ded6f27ab">&#9670;&#160;</a></span>GetAddress()</h2>
+<a id="aa9ed5a5c355fbf5c9f52afff935c9c5f" name="aa9ed5a5c355fbf5c9f52afff935c9c5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9ed5a5c355fbf5c9f52afff935c9c5f">&#9670;&#160;</a></span>GetAddress()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -261,7 +265,7 @@ static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W6
           <td class="memname">offset_t COFFFormat::ZilogRelocation::GetAddress </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -275,8 +279,35 @@ static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W6
 
 </div>
 </div>
-<a id="a3a21e78d4e94569355857d4799bf35ce" name="a3a21e78d4e94569355857d4799bf35ce"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3a21e78d4e94569355857d4799bf35ce">&#9670;&#160;</a></span>GetSize()</h2>
+<a id="a2a7520b3bad279c35febcaa724afa285" name="a2a7520b3bad279c35febcaa724afa285"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a7520b3bad279c35febcaa724afa285">&#9670;&#160;</a></span>GetEntrySize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">size_t COFFFormat::ZilogRelocation::GetEntrySize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="classCOFF_1_1COFFFormat_1_1Relocation.html">COFF::COFFFormat::Relocation</a>.</p>
+
+</div>
+</div>
+<a id="ae75138f02a910f3999a4d18819d85a5e" name="ae75138f02a910f3999a4d18819d85a5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae75138f02a910f3999a4d18819d85a5e">&#9670;&#160;</a></span>GetSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -288,7 +319,34 @@ static const uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_W6
           <td class="memname">size_t COFFFormat::ZilogRelocation::GetSize </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="classCOFF_1_1COFFFormat_1_1Relocation.html">COFF::COFFFormat::Relocation</a>.</p>
+
+</div>
+</div>
+<a id="a1dd4a7db79888a2c6d089200c11dfe24" name="a1dd4a7db79888a2c6d089200c11dfe24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1dd4a7db79888a2c6d089200c11dfe24">&#9670;&#160;</a></span>WriteFile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void COFFFormat::ZilogRelocation::WriteFile </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>

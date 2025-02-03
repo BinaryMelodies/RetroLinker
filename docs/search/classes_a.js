@@ -11,6 +11,7 @@ var searchData=
   ['linkermanager_8',['LinkerManager',['../classLinker_1_1LinkerManager.html',1,'Linker']]],
   ['list_9',['List',['../classScript_1_1List.html',1,'Script']]],
   ['loadblock_10',['LoadBlock',['../classPCOS_1_1CMDFormat_1_1LoadBlock.html',1,'PCOS::CMDFormat']]],
-  ['location_11',['Location',['../classLinker_1_1Location.html',1,'Linker']]],
-  ['lvformat_12',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]]
+  ['loadcommand_11',['LoadCommand',['../classMachO_1_1MachOFormat_1_1LoadCommand.html',1,'MachO::MachOFormat']]],
+  ['location_12',['Location',['../classLinker_1_1Location.html',1,'Linker']]],
+  ['lvformat_13',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]]
 ];

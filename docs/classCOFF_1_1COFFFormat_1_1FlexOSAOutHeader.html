@@ -109,6 +109,9 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:a7f11a7e1e2be4e89c9829a35f0bf986d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60bdf14e331297f861f49e28695150b6" id="r_a60bdf14e331297f861f49e28695150b6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a60bdf14e331297f861f49e28695150b6">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="separator:a60bdf14e331297f861f49e28695150b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e730f963b9aefd1d820e1f47bb4b21f" id="r_a5e730f963b9aefd1d820e1f47bb4b21f"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5e730f963b9aefd1d820e1f47bb4b21f">CalculateValues</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff) override</td></tr>
+<tr class="memdesc:a5e730f963b9aefd1d820e1f47bb4b21f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up fields to be consistent.  <br /></td></tr>
+<tr class="separator:a5e730f963b9aefd1d820e1f47bb4b21f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71a0a2a89dd45195a27beff8cf2d7728" id="r_a71a0a2a89dd45195a27beff8cf2d7728"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a71a0a2a89dd45195a27beff8cf2d7728">PostReadFile</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a71a0a2a89dd45195a27beff8cf2d7728"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves any additional data from the file corresponding to this type of optional header.  <br /></td></tr>
 <tr class="separator:a71a0a2a89dd45195a27beff8cf2d7728"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,6 +177,36 @@ Protected Member Functions</h2></td></tr>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Concurrent DOS 68K/FlexOS 386 optional header Concurrent DOS 68K uses the typical a.out header with two additional fields for the offset to relocations and the size of the stack. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a5e730f963b9aefd1d820e1f47bb4b21f" name="a5e730f963b9aefd1d820e1f47bb4b21f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5e730f963b9aefd1d820e1f47bb4b21f">&#9670;&#160;</a></span>CalculateValues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t COFFFormat::FlexOSAOutHeader::CalculateValues </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Sets up fields to be consistent. </p>
+<dl class="section return"><dt>Returns</dt><dd>Number of extra bytes following symbol table </dd></dl>
+
+<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a7a51bdc80bc726db4de83a1b90206582">COFF::COFFFormat::AOutHeader</a>.</p>
+
+</div>
+</div>
 <a id="aa39a9c82dd0a54f23a35f93956daf36f" name="aa39a9c82dd0a54f23a35f93956daf36f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa39a9c82dd0a54f23a35f93956daf36f">&#9670;&#160;</a></span>DumpFields()</h2>
 

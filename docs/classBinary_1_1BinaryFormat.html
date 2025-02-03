@@ -131,6 +131,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afb80efcfba66019b9edf44e3633524be" id="r_afb80efcfba66019b9edf44e3633524be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb80efcfba66019b9edf44e3633524be">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:afb80efcfba66019b9edf44e3633524be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:afb80efcfba66019b9edf44e3633524be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3fc640738860100281807bc42111dc4" id="r_af3fc640738860100281807bc42111dc4"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af3fc640738860100281807bc42111dc4">ImageSize</a> () override</td></tr>
+<tr class="memdesc:af3fc640738860100281807bc42111dc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:af3fc640738860100281807bc42111dc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a710147773f12ca2e0b19ea9076022014" id="r_a710147773f12ca2e0b19ea9076022014"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a710147773f12ca2e0b19ea9076022014">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a710147773f12ca2e0b19ea9076022014"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a710147773f12ca2e0b19ea9076022014"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -166,6 +169,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a6a6dda10611ff89870889f17635e1b9e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a6a6dda10611ff89870889f17635e1b9e">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a6a6dda10611ff89870889f17635e1b9e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aff7e870fab203b1786829ea54f79c2bf inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_aff7e870fab203b1786829ea54f79c2bf"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#aff7e870fab203b1786829ea54f79c2bf">ImageSize</a> () override</td></tr>
+<tr class="memdesc:aff7e870fab203b1786829ea54f79c2bf inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:aff7e870fab203b1786829ea54f79c2bf inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a87c8d103b364ae2877cf6306bf9f0e inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a6a87c8d103b364ae2877cf6306bf9f0e"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a6a87c8d103b364ae2877cf6306bf9f0e">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a6a87c8d103b364ae2877cf6306bf9f0e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a6a87c8d103b364ae2877cf6306bf9f0e inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -292,9 +298,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format" id="r_a10296b22383c5b8d061308d1f0cee6a8"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Format</b> (offset_t file_offset=0)</td></tr>
 <tr class="separator:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
-<tr class="memdesc:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
 <tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -593,6 +596,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </div><div class="memdoc">
 
 <p>Reimplemented from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a>.</p>
+
+</div>
+</div>
+<a id="af3fc640738860100281807bc42111dc4" name="af3fc640738860100281807bc42111dc4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3fc640738860100281807bc42111dc4">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t BinaryFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>

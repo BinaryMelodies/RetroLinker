@@ -108,12 +108,19 @@ Inheritance diagram for Microsoft::NEFormat:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1NEFormat_1_1Entry.html">Entry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents an entry into the binary, typically DLL exported procedures.  <a href="classMicrosoft_1_1NEFormat_1_1Entry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1NEFormat_1_1ModuleReference.html">ModuleReference</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMicrosoft_1_1NEFormat_1_1Name.html">Name</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A name and ordinal pair, as used for resident and non-resident names.  <a href="structMicrosoft_1_1NEFormat_1_1Name.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1NEFormat_1_1Resource.html">Resource</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1NEFormat_1_1ResourceType.html">ResourceType</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html">Segment</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents an NE segment as stored in the segment table and segment data.  <a href="classMicrosoft_1_1NEFormat_1_1Segment.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMicrosoft_1_1NEFormat_1_1version.html">version</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version number.  <a href="structMicrosoft_1_1NEFormat_1_1version.html#details">More...</a><br /></td></tr>
@@ -121,21 +128,10 @@ Classes</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a520d932e9ea81c5caa94148c1fd4104c" id="r_a520d932e9ea81c5caa94148c1fd4104c"><td class="memItemLeft" align="right" valign="top"><a id="a520d932e9ea81c5caa94148c1fd4104c" name="a520d932e9ea81c5caa94148c1fd4104c"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>system_type</b> { <br />
-&#160;&#160;<b>OS2</b> = 1
-, <b>Windows</b>
-, <b>MSDOS4</b>
-, <b>Windows386</b>
-, <br />
-&#160;&#160;<b>BorlandOSS</b>
-, <b>PharLap</b> = 0x80
-<br />
- }</td></tr>
-<tr class="separator:a520d932e9ea81c5caa94148c1fd4104c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a857e94ef071d606e34ee97ef205672ef" id="r_a857e94ef071d606e34ee97ef205672ef"><td class="memItemLeft" align="right" valign="top"><a id="a857e94ef071d606e34ee97ef205672ef" name="a857e94ef071d606e34ee97ef205672ef"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>program_flag_type</b> { <br />
-&#160;&#160;<b>NODATA</b> = 0
-, <b>SINGLEDATA</b> = 1
-, <b>MULTIPLEDATA</b> = 2
+<tr class="memitem:a45beeb2a4ab17368b6860673f05246fe" id="r_a45beeb2a4ab17368b6860673f05246fe"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a45beeb2a4ab17368b6860673f05246fe">program_flag_type</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="#a45beeb2a4ab17368b6860673f05246fea4d8341b446b00ebccfcc04870ba9c2ec">NODATA</a> = 0
+, <a class="el" href="#a45beeb2a4ab17368b6860673f05246feaa4720de2a197fe1c2e6386fbd97f81b3">SINGLEDATA</a> = 1
+, <a class="el" href="#a45beeb2a4ab17368b6860673f05246fea3f21709a6680512bba5bcc8aac9697b6">MULTIPLEDATA</a> = 2
 , <b>GLOBAL_INITIALIZATION</b> = 4
 , <br />
 &#160;&#160;<b>PROTECTED_MODE_ONLY</b> = 8
@@ -146,40 +142,69 @@ Public Types</h2></td></tr>
 &#160;&#160;<b>CPU_8087</b> = 0x80
 <br />
  }</td></tr>
-<tr class="separator:a857e94ef071d606e34ee97ef205672ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7e74c18ad8d93db675cfdf54cea077d" id="r_ab7e74c18ad8d93db675cfdf54cea077d"><td class="memItemLeft" align="right" valign="top"><a id="ab7e74c18ad8d93db675cfdf54cea077d" name="ab7e74c18ad8d93db675cfdf54cea077d"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>application_flag_type</b> { <br />
-&#160;&#160;<b>FULLSCREEN</b> = 1
-, <b>GUI_AWARE</b> = 2
-, <b>GUI</b> = 3
+<tr class="separator:a45beeb2a4ab17368b6860673f05246fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a541d9228cf3e81eb203ca4f7af53868c" id="r_a541d9228cf3e81eb203ca4f7af53868c"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a541d9228cf3e81eb203ca4f7af53868c">application_flag_type</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="#a541d9228cf3e81eb203ca4f7af53868caf23b1db91e0b6ca1efd038803b3da117">FULLSCREEN</a> = 1
+, <a class="el" href="#a541d9228cf3e81eb203ca4f7af53868ca602ce15b3471f8cb6aa7aa909f654a3a">GUI_AWARE</a> = 2
+, <a class="el" href="#a541d9228cf3e81eb203ca4f7af53868ca29a74cdc1901b798c9c26e6372d8ddba">GUI</a> = 3
 , <b>FAMILY_APPLICATION</b> = 8
 , <br />
 &#160;&#160;<b>ERROR_IN_IMAGE</b> = 0x20
-, <b>LIBRARY</b> = 0x80
+, <a class="el" href="#a541d9228cf3e81eb203ca4f7af53868ca62b9e1d36174e221343d4be9e9e5ddac">LIBRARY</a> = 0x80
 <br />
  }</td></tr>
-<tr class="separator:ab7e74c18ad8d93db675cfdf54cea077d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad114aae01699d30e3b06fac87db8ccf0" id="r_ad114aae01699d30e3b06fac87db8ccf0"><td class="memItemLeft" align="right" valign="top"><a id="ad114aae01699d30e3b06fac87db8ccf0" name="ad114aae01699d30e3b06fac87db8ccf0"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>additional_flag_type</b> { <b>SUPPORT_LONGFILENAME</b> = 1
+<tr class="separator:a541d9228cf3e81eb203ca4f7af53868c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac3ca11e474f3acf463ed93794ebdeaad" id="r_ac3ca11e474f3acf463ed93794ebdeaad"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaad">system_type</a> : uint8_t { <br />
+&#160;&#160;<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaada1aa171c73f4a7183aa2c7075e1c6bd15">OS2</a> = 1
+, <a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaadaf2be2d376cd2df958bed250604f70610">Windows</a>
+, <a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaada5cadc3189b14ea4b4fc41d0aa0e15e5b">MSDOS4</a>
+, <b>Windows386</b>
+, <br />
+&#160;&#160;<b>BorlandOSS</b>
+, <b>PharLap</b> = 0x80
+<br />
+ }</td></tr>
+<tr class="separator:ac3ca11e474f3acf463ed93794ebdeaad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28243ec01903c36fa18bc2db40ee1697" id="r_a28243ec01903c36fa18bc2db40ee1697"><td class="memItemLeft" align="right" valign="top"><a id="a28243ec01903c36fa18bc2db40ee1697" name="a28243ec01903c36fa18bc2db40ee1697"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>additional_flag_type</b> : uint8_t { <b>SUPPORT_LONGFILENAME</b> = 1
 , <b>WIN20_PROTECTED_MODE</b> = 2
 , <b>WIN20_PROPORTIONAL_FONTS</b> = 4
 , <b>FAST_LOAD_AREA</b> = 8
  }</td></tr>
-<tr class="separator:ad114aae01699d30e3b06fac87db8ccf0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a28243ec01903c36fa18bc2db40ee1697"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2623e7e51d96d6cee1a272e7883eb5b7" id="r_a2623e7e51d96d6cee1a272e7883eb5b7"><td class="memItemLeft" align="right" valign="top"><a id="a2623e7e51d96d6cee1a272e7883eb5b7" name="a2623e7e51d96d6cee1a272e7883eb5b7"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>memory_model_t</b> { <b>MODEL_SMALL</b>
+, <b>MODEL_LARGE</b>
+ }</td></tr>
+<tr class="separator:a2623e7e51d96d6cee1a272e7883eb5b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a506eb1a76b8e300b176f51e8f88c569c" id="r_a506eb1a76b8e300b176f51e8f88c569c"><td class="memItemLeft" align="right" valign="top"><a id="a506eb1a76b8e300b176f51e8f88c569c" name="a506eb1a76b8e300b176f51e8f88c569c"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>compatibility_type</b> { <b>CompatibleNone</b>
 , <b>CompatibleWatcom</b>
 , <b>CompatibleMicrosoft</b>
 , <b>CompatibleGNU</b>
  }</td></tr>
 <tr class="separator:a506eb1a76b8e300b176f51e8f88c569c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2623e7e51d96d6cee1a272e7883eb5b7" id="r_a2623e7e51d96d6cee1a272e7883eb5b7"><td class="memItemLeft" align="right" valign="top"><a id="a2623e7e51d96d6cee1a272e7883eb5b7" name="a2623e7e51d96d6cee1a272e7883eb5b7"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>memory_model_t</b> { <b>MODEL_SMALL</b>
-, <b>MODEL_LARGE</b>
- }</td></tr>
-<tr class="separator:a2623e7e51d96d6cee1a272e7883eb5b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a696f4b058b275b537d2a7a7db2b916a6" id="r_a696f4b058b275b537d2a7a7db2b916a6"><td class="memItemLeft" align="right" valign="top"><a id="a696f4b058b275b537d2a7a7db2b916a6" name="a696f4b058b275b537d2a7a7db2b916a6"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsLibrary</b> () const</td></tr>
+<tr class="separator:a696f4b058b275b537d2a7a7db2b916a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7b0eb63f418daa8bc05dfad0348ed03" id="r_ae7b0eb63f418daa8bc05dfad0348ed03"><td class="memItemLeft" align="right" valign="top"><a id="ae7b0eb63f418daa8bc05dfad0348ed03" name="ae7b0eb63f418daa8bc05dfad0348ed03"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsOS2</b> () const</td></tr>
+<tr class="separator:ae7b0eb63f418daa8bc05dfad0348ed03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab2eaeaddbbde85f9c25c4b4dcbd2b567" id="r_ab2eaeaddbbde85f9c25c4b4dcbd2b567"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab2eaeaddbbde85f9c25c4b4dcbd2b567">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:ab2eaeaddbbde85f9c25c4b4dcbd2b567"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:ab2eaeaddbbde85f9c25c4b4dcbd2b567"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7ab2c72ed0d8ff248ea1a40f036edc7" id="r_ab7ab2c72ed0d8ff248ea1a40f036edc7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab7ab2c72ed0d8ff248ea1a40f036edc7">ImageSize</a> () override</td></tr>
+<tr class="memdesc:ab7ab2c72ed0d8ff248ea1a40f036edc7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:ab7ab2c72ed0d8ff248ea1a40f036edc7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f7caf80fc81b5a1f215a36fac0c2b02" id="r_a1f7caf80fc81b5a1f215a36fac0c2b02"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1f7caf80fc81b5a1f215a36fac0c2b02">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
+<tr class="memdesc:a1f7caf80fc81b5a1f215a36fac0c2b02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="separator:a1f7caf80fc81b5a1f215a36fac0c2b02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8231eada525c1fd5447a306e36a7800e" id="r_a8231eada525c1fd5447a306e36a7800e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8231eada525c1fd5447a306e36a7800e">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
+<tr class="memdesc:a8231eada525c1fd5447a306e36a7800e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
+<tr class="separator:a8231eada525c1fd5447a306e36a7800e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ab4b1be3d5df15b93484f79fbeb38e8" id="r_a6ab4b1be3d5df15b93484f79fbeb38e8"><td class="memItemLeft" align="right" valign="top"><a id="a6ab4b1be3d5df15b93484f79fbeb38e8" name="a6ab4b1be3d5df15b93484f79fbeb38e8"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>NEFormat</b> (<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaad">system_type</a> system, unsigned <a class="el" href="#a4bf95971b5f791863dcbe18430955a8c">program_flags</a>, unsigned <a class="el" href="#ab8b17eb8f7696d55566d825ae813ab85">application_flags</a>)</td></tr>
+<tr class="separator:a6ab4b1be3d5df15b93484f79fbeb38e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a655726f8e8ebd89016120424cbf66439" id="r_a655726f8e8ebd89016120424cbf66439"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a655726f8e8ebd89016120424cbf66439">FormatSupportsSegmentation</a> () const override</td></tr>
 <tr class="memdesc:a655726f8e8ebd89016120424cbf66439"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports multiple segments.  <br /></td></tr>
 <tr class="separator:a655726f8e8ebd89016120424cbf66439"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -191,12 +216,6 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:addafeb4098ab2b0dc9b9b72ee2a1b7b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1091af9220735323facc6d6f070468b9" id="r_a1091af9220735323facc6d6f070468b9"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1091af9220735323facc6d6f070468b9">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
 <tr class="separator:a1091af9220735323facc6d6f070468b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a696f4b058b275b537d2a7a7db2b916a6" id="r_a696f4b058b275b537d2a7a7db2b916a6"><td class="memItemLeft" align="right" valign="top"><a id="a696f4b058b275b537d2a7a7db2b916a6" name="a696f4b058b275b537d2a7a7db2b916a6"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsLibrary</b> () const</td></tr>
-<tr class="separator:a696f4b058b275b537d2a7a7db2b916a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ab4b1be3d5df15b93484f79fbeb38e8" id="r_a6ab4b1be3d5df15b93484f79fbeb38e8"><td class="memItemLeft" align="right" valign="top"><a id="a6ab4b1be3d5df15b93484f79fbeb38e8" name="a6ab4b1be3d5df15b93484f79fbeb38e8"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>NEFormat</b> (system_type system, unsigned program_flags, unsigned application_flags)</td></tr>
-<tr class="separator:a6ab4b1be3d5df15b93484f79fbeb38e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a75035652f73ed45b8a8f261104e910d5" id="r_a75035652f73ed45b8a8f261104e910d5"><td class="memItemLeft" align="right" valign="top"><a id="a75035652f73ed45b8a8f261104e910d5" name="a75035652f73ed45b8a8f261104e910d5"></a>
 std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1NEFormat.html">NEFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>SimulateLinker</b> (compatibility_type compatibility)</td></tr>
 <tr class="separator:a75035652f73ed45b8a8f261104e910d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -248,12 +267,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="e
 <tr class="memitem:a6a73699bab6ddb3922eded05d7bcc5a8" id="r_a6a73699bab6ddb3922eded05d7bcc5a8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6a73699bab6ddb3922eded05d7bcc5a8">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:a6a73699bab6ddb3922eded05d7bcc5a8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:a6a73699bab6ddb3922eded05d7bcc5a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1f7caf80fc81b5a1f215a36fac0c2b02" id="r_a1f7caf80fc81b5a1f215a36fac0c2b02"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1f7caf80fc81b5a1f215a36fac0c2b02">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="memdesc:a1f7caf80fc81b5a1f215a36fac0c2b02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:a1f7caf80fc81b5a1f215a36fac0c2b02"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8231eada525c1fd5447a306e36a7800e" id="r_a8231eada525c1fd5447a306e36a7800e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8231eada525c1fd5447a306e36a7800e">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
-<tr class="memdesc:a8231eada525c1fd5447a306e36a7800e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
-<tr class="separator:a8231eada525c1fd5447a306e36a7800e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afa08577f8c91f95e46199f3a87c6e878" id="r_afa08577f8c91f95e46199f3a87c6e878"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afa08577f8c91f95e46199f3a87c6e878">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
 <tr class="memdesc:afa08577f8c91f95e46199f3a87c6e878"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:afa08577f8c91f95e46199f3a87c6e878"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -356,9 +369,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format" id="r_af096ef1500e69a6b3112c7640b3748bd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Clear</a> ()</td></tr>
 <tr class="memdesc:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
-<tr class="memdesc:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
 <tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -369,92 +379,139 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:ac82af20359a3402916667d9da0acfcf1" id="r_ac82af20359a3402916667d9da0acfcf1"><td class="memItemLeft" align="right" valign="top"><a id="ac82af20359a3402916667d9da0acfcf1" name="ac82af20359a3402916667d9da0acfcf1"></a>
-static std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1NEFormat.html">NEFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateConsoleApplication</b> (system_type system=Windows)</td></tr>
+static std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1NEFormat.html">NEFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateConsoleApplication</b> (<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaad">system_type</a> system=<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaadaf2be2d376cd2df958bed250604f70610">Windows</a>)</td></tr>
 <tr class="separator:ac82af20359a3402916667d9da0acfcf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a594556c77a10ebc6d259cb4cfce26ada" id="r_a594556c77a10ebc6d259cb4cfce26ada"><td class="memItemLeft" align="right" valign="top"><a id="a594556c77a10ebc6d259cb4cfce26ada" name="a594556c77a10ebc6d259cb4cfce26ada"></a>
-static std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1NEFormat.html">NEFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateGUIApplication</b> (system_type system=Windows)</td></tr>
+static std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1NEFormat.html">NEFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateGUIApplication</b> (<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaad">system_type</a> system=<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaadaf2be2d376cd2df958bed250604f70610">Windows</a>)</td></tr>
 <tr class="separator:a594556c77a10ebc6d259cb4cfce26ada"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c46400e8898f9118fddb8f2955b8714" id="r_a6c46400e8898f9118fddb8f2955b8714"><td class="memItemLeft" align="right" valign="top"><a id="a6c46400e8898f9118fddb8f2955b8714" name="a6c46400e8898f9118fddb8f2955b8714"></a>
-static std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1NEFormat.html">NEFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateLibraryModule</b> (system_type system=Windows)</td></tr>
+static std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1NEFormat.html">NEFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateLibraryModule</b> (<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaad">system_type</a> system=<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaadaf2be2d376cd2df958bed250604f70610">Windows</a>)</td></tr>
 <tr class="separator:a6c46400e8898f9118fddb8f2955b8714"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a19a303ab27ee8024ee2faa6cfb7310d4" id="r_a19a303ab27ee8024ee2faa6cfb7310d4"><td class="memItemLeft" align="right" valign="top"><a id="a19a303ab27ee8024ee2faa6cfb7310d4" name="a19a303ab27ee8024ee2faa6cfb7310d4"></a>
-system_type&#160;</td><td class="memItemRight" valign="bottom"><b>system</b> = system_type(0)</td></tr>
-<tr class="separator:a19a303ab27ee8024ee2faa6cfb7310d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bf95971b5f791863dcbe18430955a8c" id="r_a4bf95971b5f791863dcbe18430955a8c"><td class="memItemLeft" align="right" valign="top"><a id="a4bf95971b5f791863dcbe18430955a8c" name="a4bf95971b5f791863dcbe18430955a8c"></a>
-program_flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>program_flags</b> = program_flag_type(0)</td></tr>
-<tr class="separator:a4bf95971b5f791863dcbe18430955a8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8b17eb8f7696d55566d825ae813ab85" id="r_ab8b17eb8f7696d55566d825ae813ab85"><td class="memItemLeft" align="right" valign="top"><a id="ab8b17eb8f7696d55566d825ae813ab85" name="ab8b17eb8f7696d55566d825ae813ab85"></a>
-application_flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>application_flags</b> = application_flag_type(0)</td></tr>
-<tr class="separator:ab8b17eb8f7696d55566d825ae813ab85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d909ae9a13398c8a7d84921930f64eb" id="r_a4d909ae9a13398c8a7d84921930f64eb"><td class="memItemLeft" align="right" valign="top"><a id="a4d909ae9a13398c8a7d84921930f64eb" name="a4d909ae9a13398c8a7d84921930f64eb"></a>
-additional_flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>additional_flags</b> = additional_flag_type(0)</td></tr>
-<tr class="separator:a4d909ae9a13398c8a7d84921930f64eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa24a66142866bbb05e6a7c6d35057402" id="r_aa24a66142866bbb05e6a7c6d35057402"><td class="memItemLeft" align="right" valign="top"><a id="aa24a66142866bbb05e6a7c6d35057402" name="aa24a66142866bbb05e6a7c6d35057402"></a>
-compatibility_type&#160;</td><td class="memItemRight" valign="bottom"><b>compatibility</b> = CompatibleNone</td></tr>
-<tr class="separator:aa24a66142866bbb05e6a7c6d35057402"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdd48dd7fa266b24ae7edfc928d1e39d" id="r_acdd48dd7fa266b24ae7edfc928d1e39d"><td class="memItemLeft" align="right" valign="top"><a id="acdd48dd7fa266b24ae7edfc928d1e39d" name="acdd48dd7fa266b24ae7edfc928d1e39d"></a>
+std::array&lt; char, 2 &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>signature</b> {'N', 'E'}</td></tr>
+<tr class="memdesc:acdd48dd7fa266b24ae7edfc928d1e39d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The signature, almost always "NE". <br /></td></tr>
+<tr class="separator:acdd48dd7fa266b24ae7edfc928d1e39d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa92d3e8b80917d947f6cc9329db7f6b5" id="r_aa92d3e8b80917d947f6cc9329db7f6b5"><td class="memItemLeft" align="right" valign="top"><a id="aa92d3e8b80917d947f6cc9329db7f6b5" name="aa92d3e8b80917d947f6cc9329db7f6b5"></a>
 <a class="el" href="structMicrosoft_1_1NEFormat_1_1version.html">version</a>&#160;</td><td class="memItemRight" valign="bottom"><b>linker_version</b> {1, 0}</td></tr>
+<tr class="memdesc:aa92d3e8b80917d947f6cc9329db7f6b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version of the linker. <br /></td></tr>
 <tr class="separator:aa92d3e8b80917d947f6cc9329db7f6b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf2f72a1ea293791f5924fc9221cb2ed" id="r_aaf2f72a1ea293791f5924fc9221cb2ed"><td class="memItemLeft" align="right" valign="top"><a id="aaf2f72a1ea293791f5924fc9221cb2ed" name="aaf2f72a1ea293791f5924fc9221cb2ed"></a>
-<a class="el" href="structMicrosoft_1_1NEFormat_1_1version.html">version</a>&#160;</td><td class="memItemRight" valign="bottom"><b>windows_version</b> {0, 0}</td></tr>
-<tr class="separator:aaf2f72a1ea293791f5924fc9221cb2ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1eb2e1058011c42e9dc4557feb18cf41" id="r_a1eb2e1058011c42e9dc4557feb18cf41"><td class="memItemLeft" align="right" valign="top"><a id="a1eb2e1058011c42e9dc4557feb18cf41" name="a1eb2e1058011c42e9dc4557feb18cf41"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>crc32</b> = 0</td></tr>
+<tr class="separator:a1eb2e1058011c42e9dc4557feb18cf41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4bf95971b5f791863dcbe18430955a8c" id="r_a4bf95971b5f791863dcbe18430955a8c"><td class="memItemLeft" align="right" valign="top"><a id="a4bf95971b5f791863dcbe18430955a8c" name="a4bf95971b5f791863dcbe18430955a8c"></a>
+<a class="el" href="#a45beeb2a4ab17368b6860673f05246fe">program_flag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>program_flags</b> = <a class="el" href="#a45beeb2a4ab17368b6860673f05246fe">program_flag_type</a>(0)</td></tr>
+<tr class="memdesc:a4bf95971b5f791863dcbe18430955a8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Properties of the program during execution. <br /></td></tr>
+<tr class="separator:a4bf95971b5f791863dcbe18430955a8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab8b17eb8f7696d55566d825ae813ab85" id="r_ab8b17eb8f7696d55566d825ae813ab85"><td class="memItemLeft" align="right" valign="top"><a id="ab8b17eb8f7696d55566d825ae813ab85" name="ab8b17eb8f7696d55566d825ae813ab85"></a>
+<a class="el" href="#a541d9228cf3e81eb203ca4f7af53868c">application_flag_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>application_flags</b> = <a class="el" href="#a541d9228cf3e81eb203ca4f7af53868c">application_flag_type</a>(0)</td></tr>
+<tr class="memdesc:ab8b17eb8f7696d55566d825ae813ab85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Properties of the application. <br /></td></tr>
+<tr class="separator:ab8b17eb8f7696d55566d825ae813ab85"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92de4b31837bf95e7e9f5dd255c7f2c3" id="r_a92de4b31837bf95e7e9f5dd255c7f2c3"><td class="memItemLeft" align="right" valign="top"><a id="a92de4b31837bf95e7e9f5dd255c7f2c3" name="a92de4b31837bf95e7e9f5dd255c7f2c3"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>automatic_data</b> = 0</td></tr>
+<tr class="memdesc:a92de4b31837bf95e7e9f5dd255c7f2c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Automatic data segment number, starting from 1, only used for SINGLEDATA/MULTIPLEDATA. <br /></td></tr>
 <tr class="separator:a92de4b31837bf95e7e9f5dd255c7f2c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37347677e9f825e91026610950c2e7e4" id="r_a37347677e9f825e91026610950c2e7e4"><td class="memItemLeft" align="right" valign="top"><a id="a37347677e9f825e91026610950c2e7e4" name="a37347677e9f825e91026610950c2e7e4"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>heap_size</b> = 0</td></tr>
-<tr class="separator:a37347677e9f825e91026610950c2e7e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9c609eee1e1391034ca2c1c498a4e016" id="r_a9c609eee1e1391034ca2c1c498a4e016"><td class="memItemLeft" align="right" valign="top"><a id="a9c609eee1e1391034ca2c1c498a4e016" name="a9c609eee1e1391034ca2c1c498a4e016"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stack_size</b> = 0</td></tr>
+<tr class="memdesc:a9c609eee1e1391034ca2c1c498a4e016"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of initial stack, added to the size of the automatic data segment. <br /></td></tr>
 <tr class="separator:a9c609eee1e1391034ca2c1c498a4e016"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aedc383d77b661e4cd69d4dbcee44da83" id="r_aedc383d77b661e4cd69d4dbcee44da83"><td class="memItemLeft" align="right" valign="top"><a id="aedc383d77b661e4cd69d4dbcee44da83" name="aedc383d77b661e4cd69d4dbcee44da83"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ss</b> = 0</td></tr>
-<tr class="separator:aedc383d77b661e4cd69d4dbcee44da83"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe984a4053124d48f2835c1a599110d0" id="r_abe984a4053124d48f2835c1a599110d0"><td class="memItemLeft" align="right" valign="top"><a id="abe984a4053124d48f2835c1a599110d0" name="abe984a4053124d48f2835c1a599110d0"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sp</b> = 0</td></tr>
-<tr class="separator:abe984a4053124d48f2835c1a599110d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35c513de1cb940cec02970e812cf85e8" id="r_a35c513de1cb940cec02970e812cf85e8"><td class="memItemLeft" align="right" valign="top"><a id="a35c513de1cb940cec02970e812cf85e8" name="a35c513de1cb940cec02970e812cf85e8"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>cs</b> = 0</td></tr>
-<tr class="separator:a35c513de1cb940cec02970e812cf85e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37347677e9f825e91026610950c2e7e4" id="r_a37347677e9f825e91026610950c2e7e4"><td class="memItemLeft" align="right" valign="top"><a id="a37347677e9f825e91026610950c2e7e4" name="a37347677e9f825e91026610950c2e7e4"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>heap_size</b> = 0</td></tr>
+<tr class="memdesc:a37347677e9f825e91026610950c2e7e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of initial heap, added to the size of the automatic data segment. <br /></td></tr>
+<tr class="separator:a37347677e9f825e91026610950c2e7e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7ec50607743f7e434178d16a4edc178" id="r_ac7ec50607743f7e434178d16a4edc178"><td class="memItemLeft" align="right" valign="top"><a id="ac7ec50607743f7e434178d16a4edc178" name="ac7ec50607743f7e434178d16a4edc178"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ip</b> = 0</td></tr>
 <tr class="separator:ac7ec50607743f7e434178d16a4edc178"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae8b555eb9754b5c34ef36118d39c2df0" id="r_ae8b555eb9754b5c34ef36118d39c2df0"><td class="memItemLeft" align="right" valign="top"><a id="ae8b555eb9754b5c34ef36118d39c2df0" name="ae8b555eb9754b5c34ef36118d39c2df0"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sector_shift</b> = 9</td></tr>
-<tr class="separator:ae8b555eb9754b5c34ef36118d39c2df0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1a0bd583c3cfcd4338f59aefb879c404" id="r_a1a0bd583c3cfcd4338f59aefb879c404"><td class="memItemLeft" align="right" valign="top"><a id="a1a0bd583c3cfcd4338f59aefb879c404" name="a1a0bd583c3cfcd4338f59aefb879c404"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>segment_table_offset</b> = 0</td></tr>
+<tr class="memitem:a35c513de1cb940cec02970e812cf85e8" id="r_a35c513de1cb940cec02970e812cf85e8"><td class="memItemLeft" align="right" valign="top"><a id="a35c513de1cb940cec02970e812cf85e8" name="a35c513de1cb940cec02970e812cf85e8"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>cs</b> = 0</td></tr>
+<tr class="separator:a35c513de1cb940cec02970e812cf85e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe984a4053124d48f2835c1a599110d0" id="r_abe984a4053124d48f2835c1a599110d0"><td class="memItemLeft" align="right" valign="top"><a id="abe984a4053124d48f2835c1a599110d0" name="abe984a4053124d48f2835c1a599110d0"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sp</b> = 0</td></tr>
+<tr class="separator:abe984a4053124d48f2835c1a599110d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedc383d77b661e4cd69d4dbcee44da83" id="r_aedc383d77b661e4cd69d4dbcee44da83"><td class="memItemLeft" align="right" valign="top"><a id="aedc383d77b661e4cd69d4dbcee44da83" name="aedc383d77b661e4cd69d4dbcee44da83"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ss</b> = 0</td></tr>
+<tr class="separator:aedc383d77b661e4cd69d4dbcee44da83"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a0bd583c3cfcd4338f59aefb879c404" id="r_a1a0bd583c3cfcd4338f59aefb879c404"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1a0bd583c3cfcd4338f59aefb879c404">segment_table_offset</a> = 0</td></tr>
+<tr class="memdesc:a1a0bd583c3cfcd4338f59aefb879c404"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of segment table.  <br /></td></tr>
 <tr class="separator:a1a0bd583c3cfcd4338f59aefb879c404"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a687335d9cfac43b36068046b845e9a85" id="r_a687335d9cfac43b36068046b845e9a85"><td class="memItemLeft" align="right" valign="top"><a id="a687335d9cfac43b36068046b845e9a85" name="a687335d9cfac43b36068046b845e9a85"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>resource_table_offset</b> = 0</td></tr>
+<tr class="memitem:ac7363a7443b2feeb5560ccea16774d0a" id="r_ac7363a7443b2feeb5560ccea16774d0a"><td class="memItemLeft" align="right" valign="top"><a id="ac7363a7443b2feeb5560ccea16774d0a" name="ac7363a7443b2feeb5560ccea16774d0a"></a>
+std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html">Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segments</b></td></tr>
+<tr class="separator:ac7363a7443b2feeb5560ccea16774d0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a687335d9cfac43b36068046b845e9a85" id="r_a687335d9cfac43b36068046b845e9a85"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a687335d9cfac43b36068046b845e9a85">resource_table_offset</a> = 0</td></tr>
+<tr class="memdesc:a687335d9cfac43b36068046b845e9a85"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of resource table.  <br /></td></tr>
 <tr class="separator:a687335d9cfac43b36068046b845e9a85"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a41f7f1c074989b1b31b73a2055df1b3c" id="r_a41f7f1c074989b1b31b73a2055df1b3c"><td class="memItemLeft" align="right" valign="top"><a id="a41f7f1c074989b1b31b73a2055df1b3c" name="a41f7f1c074989b1b31b73a2055df1b3c"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>resident_name_table_offset</b> = 0</td></tr>
+<tr class="memitem:a5a6e8886e9693b0bf4a71632c6100c4a" id="r_a5a6e8886e9693b0bf4a71632c6100c4a"><td class="memItemLeft" align="right" valign="top"><a id="a5a6e8886e9693b0bf4a71632c6100c4a" name="a5a6e8886e9693b0bf4a71632c6100c4a"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>resource_count</b> = 0</td></tr>
+<tr class="separator:a5a6e8886e9693b0bf4a71632c6100c4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a68ce3589017c61c815e9b72d5c1734f4" id="r_a68ce3589017c61c815e9b72d5c1734f4"><td class="memItemLeft" align="right" valign="top"><a id="a68ce3589017c61c815e9b72d5c1734f4" name="a68ce3589017c61c815e9b72d5c1734f4"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>resource_shift</b> = 0</td></tr>
+<tr class="memdesc:a68ce3589017c61c815e9b72d5c1734f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the shift count to get the actual offsets for the resource data. <br /></td></tr>
+<tr class="separator:a68ce3589017c61c815e9b72d5c1734f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afdee14d08ec666866b95ed82edc24d45" id="r_afdee14d08ec666866b95ed82edc24d45"><td class="memItemLeft" align="right" valign="top"><a id="afdee14d08ec666866b95ed82edc24d45" name="afdee14d08ec666866b95ed82edc24d45"></a>
+std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1Resource.html">Resource</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resources</b></td></tr>
+<tr class="memdesc:afdee14d08ec666866b95ed82edc24d45"><td class="mdescLeft">&#160;</td><td class="mdescRight">On OS/2, this is a sequence of resources, for non-OS/2 targets, this must be compiled into resource_types. <br /></td></tr>
+<tr class="separator:afdee14d08ec666866b95ed82edc24d45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d4d17168622370e1cf7d8571419181e" id="r_a1d4d17168622370e1cf7d8571419181e"><td class="memItemLeft" align="right" valign="top"><a id="a1d4d17168622370e1cf7d8571419181e" name="a1d4d17168622370e1cf7d8571419181e"></a>
+std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1ResourceType.html">ResourceType</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resource_types</b></td></tr>
+<tr class="memdesc:a1d4d17168622370e1cf7d8571419181e"><td class="mdescLeft">&#160;</td><td class="mdescRight">For non-OS/2 targets, the resources get organized according to their types. <br /></td></tr>
+<tr class="separator:a1d4d17168622370e1cf7d8571419181e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae16fae6249b87f5515f18f32a8ca8fc2" id="r_ae16fae6249b87f5515f18f32a8ca8fc2"><td class="memItemLeft" align="right" valign="top"><a id="ae16fae6249b87f5515f18f32a8ca8fc2" name="ae16fae6249b87f5515f18f32a8ca8fc2"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resource_strings</b></td></tr>
+<tr class="memdesc:ae16fae6249b87f5515f18f32a8ca8fc2"><td class="mdescLeft">&#160;</td><td class="mdescRight">For non-OS/2 targets, this is a list of all the resource type strings and resource strings. <br /></td></tr>
+<tr class="separator:ae16fae6249b87f5515f18f32a8ca8fc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a41f7f1c074989b1b31b73a2055df1b3c" id="r_a41f7f1c074989b1b31b73a2055df1b3c"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a41f7f1c074989b1b31b73a2055df1b3c">resident_name_table_offset</a> = 0</td></tr>
+<tr class="memdesc:a41f7f1c074989b1b31b73a2055df1b3c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of resident name table, containing this module's name and the names and ordinals of procedures exported by name.  <br /></td></tr>
 <tr class="separator:a41f7f1c074989b1b31b73a2055df1b3c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afea0b76550ec39f03073e3f0b8834113" id="r_afea0b76550ec39f03073e3f0b8834113"><td class="memItemLeft" align="right" valign="top"><a id="afea0b76550ec39f03073e3f0b8834113" name="afea0b76550ec39f03073e3f0b8834113"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>module_reference_table_offset</b> = 0</td></tr>
+<tr class="memitem:a6ebb9b534b26b20e1a7a0c052838ba04" id="r_a6ebb9b534b26b20e1a7a0c052838ba04"><td class="memItemLeft" align="right" valign="top"><a id="a6ebb9b534b26b20e1a7a0c052838ba04" name="a6ebb9b534b26b20e1a7a0c052838ba04"></a>
+std::vector&lt; <a class="el" href="structMicrosoft_1_1NEFormat_1_1Name.html">Name</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resident_names</b></td></tr>
+<tr class="separator:a6ebb9b534b26b20e1a7a0c052838ba04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afea0b76550ec39f03073e3f0b8834113" id="r_afea0b76550ec39f03073e3f0b8834113"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afea0b76550ec39f03073e3f0b8834113">module_reference_table_offset</a> = 0</td></tr>
+<tr class="memdesc:afea0b76550ec39f03073e3f0b8834113"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of module reference table, containing 16-bit offsets to the names of the imported modules in the imported names table.  <br /></td></tr>
 <tr class="separator:afea0b76550ec39f03073e3f0b8834113"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a4315ef5ed4bac4959595e0ff628584" id="r_a0a4315ef5ed4bac4959595e0ff628584"><td class="memItemLeft" align="right" valign="top"><a id="a0a4315ef5ed4bac4959595e0ff628584" name="a0a4315ef5ed4bac4959595e0ff628584"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>imported_names_table_offset</b> = 0</td></tr>
+<tr class="memitem:a8751281cca1fe88ce1a7d05786c40618" id="r_a8751281cca1fe88ce1a7d05786c40618"><td class="memItemLeft" align="right" valign="top"><a id="a8751281cca1fe88ce1a7d05786c40618" name="a8751281cca1fe88ce1a7d05786c40618"></a>
+std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1ModuleReference.html">ModuleReference</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>module_references</b></td></tr>
+<tr class="separator:a8751281cca1fe88ce1a7d05786c40618"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a4315ef5ed4bac4959595e0ff628584" id="r_a0a4315ef5ed4bac4959595e0ff628584"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0a4315ef5ed4bac4959595e0ff628584">imported_names_table_offset</a> = 0</td></tr>
+<tr class="memdesc:a0a4315ef5ed4bac4959595e0ff628584"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of imported names table, containing the names of imported modules and procedures imported by name.  <br /></td></tr>
 <tr class="separator:a0a4315ef5ed4bac4959595e0ff628584"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acb147ed2aae61467530832b0cba6524e" id="r_acb147ed2aae61467530832b0cba6524e"><td class="memItemLeft" align="right" valign="top"><a id="acb147ed2aae61467530832b0cba6524e" name="acb147ed2aae61467530832b0cba6524e"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_table_offset</b> = 0</td></tr>
-<tr class="separator:acb147ed2aae61467530832b0cba6524e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8a87f2bc666c5a58ab67a07dbc95efaa" id="r_a8a87f2bc666c5a58ab67a07dbc95efaa"><td class="memItemLeft" align="right" valign="top"><a id="a8a87f2bc666c5a58ab67a07dbc95efaa" name="a8a87f2bc666c5a58ab67a07dbc95efaa"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_table_length</b> = 0</td></tr>
-<tr class="separator:a8a87f2bc666c5a58ab67a07dbc95efaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9269a247080cbd301cdd24f6d34c37f" id="r_ac9269a247080cbd301cdd24f6d34c37f"><td class="memItemLeft" align="right" valign="top"><a id="ac9269a247080cbd301cdd24f6d34c37f" name="ac9269a247080cbd301cdd24f6d34c37f"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>movable_entry_count</b> = 0</td></tr>
-<tr class="separator:ac9269a247080cbd301cdd24f6d34c37f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aafcb1691e9edf80714d14022c1b029ea" id="r_aafcb1691e9edf80714d14022c1b029ea"><td class="memItemLeft" align="right" valign="top"><a id="aafcb1691e9edf80714d14022c1b029ea" name="aafcb1691e9edf80714d14022c1b029ea"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>imported_names</b></td></tr>
+<tr class="separator:aafcb1691e9edf80714d14022c1b029ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe35086f5e7902373f3ee33e21e9f674" id="r_afe35086f5e7902373f3ee33e21e9f674"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afe35086f5e7902373f3ee33e21e9f674">nonresident_name_table_offset</a> = 0</td></tr>
+<tr class="memdesc:afe35086f5e7902373f3ee33e21e9f674"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of non-resident names table, containing this module's description and the names of procedures exported by ordinal.  <br /></td></tr>
+<tr class="separator:afe35086f5e7902373f3ee33e21e9f674"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3553524fd9f6a4f04accc3531c9c4983" id="r_a3553524fd9f6a4f04accc3531c9c4983"><td class="memItemLeft" align="right" valign="top"><a id="a3553524fd9f6a4f04accc3531c9c4983" name="a3553524fd9f6a4f04accc3531c9c4983"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>nonresident_name_table_length</b> = 0</td></tr>
 <tr class="separator:a3553524fd9f6a4f04accc3531c9c4983"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afe35086f5e7902373f3ee33e21e9f674" id="r_afe35086f5e7902373f3ee33e21e9f674"><td class="memItemLeft" align="right" valign="top"><a id="afe35086f5e7902373f3ee33e21e9f674" name="afe35086f5e7902373f3ee33e21e9f674"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>nonresident_name_table_offset</b> = 0</td></tr>
-<tr class="separator:afe35086f5e7902373f3ee33e21e9f674"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5f84eb8dadd794471b87b1bc928480b" id="r_ab5f84eb8dadd794471b87b1bc928480b"><td class="memItemLeft" align="right" valign="top"><a id="ab5f84eb8dadd794471b87b1bc928480b" name="ab5f84eb8dadd794471b87b1bc928480b"></a>
+std::vector&lt; <a class="el" href="structMicrosoft_1_1NEFormat_1_1Name.html">Name</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>nonresident_names</b></td></tr>
+<tr class="separator:ab5f84eb8dadd794471b87b1bc928480b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb147ed2aae61467530832b0cba6524e" id="r_acb147ed2aae61467530832b0cba6524e"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acb147ed2aae61467530832b0cba6524e">entry_table_offset</a> = 0</td></tr>
+<tr class="memdesc:acb147ed2aae61467530832b0cba6524e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of entry table.  <br /></td></tr>
+<tr class="separator:acb147ed2aae61467530832b0cba6524e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a87f2bc666c5a58ab67a07dbc95efaa" id="r_a8a87f2bc666c5a58ab67a07dbc95efaa"><td class="memItemLeft" align="right" valign="top"><a id="a8a87f2bc666c5a58ab67a07dbc95efaa" name="a8a87f2bc666c5a58ab67a07dbc95efaa"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_table_length</b> = 0</td></tr>
+<tr class="memdesc:a8a87f2bc666c5a58ab67a07dbc95efaa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of entry table in bytes. <br /></td></tr>
+<tr class="separator:a8a87f2bc666c5a58ab67a07dbc95efaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9269a247080cbd301cdd24f6d34c37f" id="r_ac9269a247080cbd301cdd24f6d34c37f"><td class="memItemLeft" align="right" valign="top"><a id="ac9269a247080cbd301cdd24f6d34c37f" name="ac9269a247080cbd301cdd24f6d34c37f"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>movable_entry_count</b> = 0</td></tr>
+<tr class="memdesc:ac9269a247080cbd301cdd24f6d34c37f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of movable entries in the entry table. <br /></td></tr>
+<tr class="separator:ac9269a247080cbd301cdd24f6d34c37f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9604afd39e58d31504b10fc4fa767aba" id="r_a9604afd39e58d31504b10fc4fa767aba"><td class="memItemLeft" align="right" valign="top"><a id="a9604afd39e58d31504b10fc4fa767aba" name="a9604afd39e58d31504b10fc4fa767aba"></a>
+std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1Entry.html">Entry</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>entries</b></td></tr>
+<tr class="separator:a9604afd39e58d31504b10fc4fa767aba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8b555eb9754b5c34ef36118d39c2df0" id="r_ae8b555eb9754b5c34ef36118d39c2df0"><td class="memItemLeft" align="right" valign="top"><a id="ae8b555eb9754b5c34ef36118d39c2df0" name="ae8b555eb9754b5c34ef36118d39c2df0"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sector_shift</b> = 9</td></tr>
+<tr class="memdesc:ae8b555eb9754b5c34ef36118d39c2df0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the shift count to get the actual offsets of segments. <br /></td></tr>
+<tr class="separator:ae8b555eb9754b5c34ef36118d39c2df0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19a303ab27ee8024ee2faa6cfb7310d4" id="r_a19a303ab27ee8024ee2faa6cfb7310d4"><td class="memItemLeft" align="right" valign="top"><a id="a19a303ab27ee8024ee2faa6cfb7310d4" name="a19a303ab27ee8024ee2faa6cfb7310d4"></a>
+<a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaad">system_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>system</b> = <a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaad">system_type</a>(0)</td></tr>
+<tr class="separator:a19a303ab27ee8024ee2faa6cfb7310d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d909ae9a13398c8a7d84921930f64eb" id="r_a4d909ae9a13398c8a7d84921930f64eb"><td class="memItemLeft" align="right" valign="top"><a id="a4d909ae9a13398c8a7d84921930f64eb" name="a4d909ae9a13398c8a7d84921930f64eb"></a>
+additional_flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>additional_flags</b> = additional_flag_type(0)</td></tr>
+<tr class="separator:a4d909ae9a13398c8a7d84921930f64eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0b850b470108736fa58d0ed17f163a55" id="r_a0b850b470108736fa58d0ed17f163a55"><td class="memItemLeft" ><a id="a0b850b470108736fa58d0ed17f163a55" name="a0b850b470108736fa58d0ed17f163a55"></a>
 union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -480,45 +537,30 @@ union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="memitem:af6a020942c3e77cb7c61500ad568f416" id="r_af6a020942c3e77cb7c61500ad568f416"><td class="memItemLeft" align="right" valign="top"><a id="af6a020942c3e77cb7c61500ad568f416" name="af6a020942c3e77cb7c61500ad568f416"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_swap_area_length</b> = 0</td></tr>
 <tr class="separator:af6a020942c3e77cb7c61500ad568f416"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf2f72a1ea293791f5924fc9221cb2ed" id="r_aaf2f72a1ea293791f5924fc9221cb2ed"><td class="memItemLeft" align="right" valign="top"><a id="aaf2f72a1ea293791f5924fc9221cb2ed" name="aaf2f72a1ea293791f5924fc9221cb2ed"></a>
+<a class="el" href="structMicrosoft_1_1NEFormat_1_1version.html">version</a>&#160;</td><td class="memItemRight" valign="bottom"><b>windows_version</b> {0, 0}</td></tr>
+<tr class="separator:aaf2f72a1ea293791f5924fc9221cb2ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aca44b4fd27aa4ac087d898d99c12dd00" id="r_aca44b4fd27aa4ac087d898d99c12dd00"><td class="memItemLeft" align="right" valign="top"><a id="aca44b4fd27aa4ac087d898d99c12dd00" name="aca44b4fd27aa4ac087d898d99c12dd00"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = offset_t(-1)</td></tr>
+<tr class="separator:aca44b4fd27aa4ac087d898d99c12dd00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4e187deaba51778985759746951bc7b4" id="r_a4e187deaba51778985759746951bc7b4"><td class="memItemLeft" align="right" valign="top"><a id="a4e187deaba51778985759746951bc7b4" name="a4e187deaba51778985759746951bc7b4"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>stack</b></td></tr>
 <tr class="separator:a4e187deaba51778985759746951bc7b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab3a8968e22ab16ae606907e8dd1d4d1d" id="r_ab3a8968e22ab16ae606907e8dd1d4d1d"><td class="memItemLeft" align="right" valign="top"><a id="ab3a8968e22ab16ae606907e8dd1d4d1d" name="ab3a8968e22ab16ae606907e8dd1d4d1d"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>heap</b></td></tr>
 <tr class="separator:ab3a8968e22ab16ae606907e8dd1d4d1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac7363a7443b2feeb5560ccea16774d0a" id="r_ac7363a7443b2feeb5560ccea16774d0a"><td class="memItemLeft" align="right" valign="top"><a id="ac7363a7443b2feeb5560ccea16774d0a" name="ac7363a7443b2feeb5560ccea16774d0a"></a>
-std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment.html">Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segments</b></td></tr>
-<tr class="separator:ac7363a7443b2feeb5560ccea16774d0a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab07a2033220cc51308bb397973932ba" id="r_aab07a2033220cc51308bb397973932ba"><td class="memItemLeft" align="right" valign="top"><a id="aab07a2033220cc51308bb397973932ba" name="aab07a2033220cc51308bb397973932ba"></a>
 std::map&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;, size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_index</b></td></tr>
 <tr class="separator:aab07a2033220cc51308bb397973932ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afdee14d08ec666866b95ed82edc24d45" id="r_afdee14d08ec666866b95ed82edc24d45"><td class="memItemLeft" align="right" valign="top"><a id="afdee14d08ec666866b95ed82edc24d45" name="afdee14d08ec666866b95ed82edc24d45"></a>
-std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1Resource.html">Resource</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resources</b></td></tr>
-<tr class="separator:afdee14d08ec666866b95ed82edc24d45"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6ebb9b534b26b20e1a7a0c052838ba04" id="r_a6ebb9b534b26b20e1a7a0c052838ba04"><td class="memItemLeft" align="right" valign="top"><a id="a6ebb9b534b26b20e1a7a0c052838ba04" name="a6ebb9b534b26b20e1a7a0c052838ba04"></a>
-std::vector&lt; <a class="el" href="structMicrosoft_1_1NEFormat_1_1Name.html">Name</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resident_names</b></td></tr>
-<tr class="separator:a6ebb9b534b26b20e1a7a0c052838ba04"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5f84eb8dadd794471b87b1bc928480b" id="r_ab5f84eb8dadd794471b87b1bc928480b"><td class="memItemLeft" align="right" valign="top"><a id="ab5f84eb8dadd794471b87b1bc928480b" name="ab5f84eb8dadd794471b87b1bc928480b"></a>
-std::vector&lt; <a class="el" href="structMicrosoft_1_1NEFormat_1_1Name.html">Name</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>nonresident_names</b></td></tr>
-<tr class="separator:ab5f84eb8dadd794471b87b1bc928480b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad20d48bba0a6f41111f08333d8d5d890" id="r_ad20d48bba0a6f41111f08333d8d5d890"><td class="memItemLeft" align="right" valign="top"><a id="ad20d48bba0a6f41111f08333d8d5d890" name="ad20d48bba0a6f41111f08333d8d5d890"></a>
-std::vector&lt; uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>module_references</b></td></tr>
-<tr class="separator:ad20d48bba0a6f41111f08333d8d5d890"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f457689e00d8a683539a6dc161a8f35" id="r_a0f457689e00d8a683539a6dc161a8f35"><td class="memItemLeft" align="right" valign="top"><a id="a0f457689e00d8a683539a6dc161a8f35" name="a0f457689e00d8a683539a6dc161a8f35"></a>
 std::map&lt; std::string, uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>module_reference_offsets</b></td></tr>
 <tr class="separator:a0f457689e00d8a683539a6dc161a8f35"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafcb1691e9edf80714d14022c1b029ea" id="r_aafcb1691e9edf80714d14022c1b029ea"><td class="memItemLeft" align="right" valign="top"><a id="aafcb1691e9edf80714d14022c1b029ea" name="aafcb1691e9edf80714d14022c1b029ea"></a>
-std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>imported_names</b></td></tr>
-<tr class="separator:aafcb1691e9edf80714d14022c1b029ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f890b75f5824868c5c63fbb40fe060c" id="r_a2f890b75f5824868c5c63fbb40fe060c"><td class="memItemLeft" align="right" valign="top"><a id="a2f890b75f5824868c5c63fbb40fe060c" name="a2f890b75f5824868c5c63fbb40fe060c"></a>
 std::map&lt; std::string, uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>imported_name_offsets</b></td></tr>
 <tr class="separator:a2f890b75f5824868c5c63fbb40fe060c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a67e98180a5d12965e4ba70da88fc769d" id="r_a67e98180a5d12965e4ba70da88fc769d"><td class="memItemLeft" align="right" valign="top"><a id="a67e98180a5d12965e4ba70da88fc769d" name="a67e98180a5d12965e4ba70da88fc769d"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>imported_names_length</b> = 0</td></tr>
 <tr class="separator:a67e98180a5d12965e4ba70da88fc769d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9604afd39e58d31504b10fc4fa767aba" id="r_a9604afd39e58d31504b10fc4fa767aba"><td class="memItemLeft" align="right" valign="top"><a id="a9604afd39e58d31504b10fc4fa767aba" name="a9604afd39e58d31504b10fc4fa767aba"></a>
-std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1Entry.html">Entry</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>entries</b></td></tr>
-<tr class="separator:a9604afd39e58d31504b10fc4fa767aba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa938c61f6edbae4378d65af9ea6af73c" id="r_aa938c61f6edbae4378d65af9ea6af73c"><td class="memItemLeft" align="right" valign="top"><a id="aa938c61f6edbae4378d65af9ea6af73c" name="aa938c61f6edbae4378d65af9ea6af73c"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>module_name</b></td></tr>
 <tr class="separator:aa938c61f6edbae4378d65af9ea6af73c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -531,6 +573,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_capitalize_nam
 <tr class="memitem:a1574f20e01a965005bf3247fdc942e41" id="r_a1574f20e01a965005bf3247fdc942e41"><td class="memItemLeft" align="right" valign="top"><a id="a1574f20e01a965005bf3247fdc942e41" name="a1574f20e01a965005bf3247fdc942e41"></a>
 memory_model_t&#160;</td><td class="memItemRight" valign="bottom"><b>memory_model</b> = MODEL_SMALL</td></tr>
 <tr class="separator:a1574f20e01a965005bf3247fdc942e41"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa24a66142866bbb05e6a7c6d35057402" id="r_aa24a66142866bbb05e6a7c6d35057402"><td class="memItemLeft" align="right" valign="top"><a id="aa24a66142866bbb05e6a7c6d35057402" name="aa24a66142866bbb05e6a7c6d35057402"></a>
+compatibility_type&#160;</td><td class="memItemRight" valign="bottom"><b>compatibility</b> = CompatibleNone</td></tr>
+<tr class="separator:aa24a66142866bbb05e6a7c6d35057402"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager" id="r_ad9071f24df9b386cc5772eca5332f55a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1LinkerManager.html#ad9071f24df9b386cc5772eca5332f55a">current_base</a> = 0</td></tr>
 <tr class="memdesc:ad9071f24df9b386cc5772eca5332f55a inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
@@ -634,7 +679,80 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 <li>16-bit OS/2 applications</li>
 <li>a Multitasking variant of MS-DOS referred to as European MS-DOS 4.0 </li>
 </ul>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a541d9228cf3e81eb203ca4f7af53868c" name="a541d9228cf3e81eb203ca4f7af53868c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a541d9228cf3e81eb203ca4f7af53868c">&#9670;&#160;</a></span>application_flag_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a541d9228cf3e81eb203ca4f7af53868c">Microsoft::NEFormat::application_flag_type</a> : uint8_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a541d9228cf3e81eb203ca4f7af53868caf23b1db91e0b6ca1efd038803b3da117" name="a541d9228cf3e81eb203ca4f7af53868caf23b1db91e0b6ca1efd038803b3da117"></a>FULLSCREEN&#160;</td><td class="fielddoc"><p>Application can only run in full screen mode. </p>
+<pre class="fragment">       This is typically the case for programs that directly access video memory
+</pre> </td></tr>
+<tr><td class="fieldname"><a id="a541d9228cf3e81eb203ca4f7af53868ca602ce15b3471f8cb6aa7aa909f654a3a" name="a541d9228cf3e81eb203ca4f7af53868ca602ce15b3471f8cb6aa7aa909f654a3a"></a>GUI_AWARE&#160;</td><td class="fielddoc"><p>Application is well behaved when running in windowed mode. </p>
+<pre class="fragment">       This is typically the case for programs that are text/console only but use BIOS and/or DOS calls to access the screen, as these can be translated by the system to windowing functions
+</pre> </td></tr>
+<tr><td class="fieldname"><a id="a541d9228cf3e81eb203ca4f7af53868ca29a74cdc1901b798c9c26e6372d8ddba" name="a541d9228cf3e81eb203ca4f7af53868ca29a74cdc1901b798c9c26e6372d8ddba"></a>GUI&#160;</td><td class="fielddoc"><p>Graphical application. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a541d9228cf3e81eb203ca4f7af53868ca62b9e1d36174e221343d4be9e9e5ddac" name="a541d9228cf3e81eb203ca4f7af53868ca62b9e1d36174e221343d4be9e9e5ddac"></a>LIBRARY&#160;</td><td class="fielddoc"><p>Set for library modules (DLL) </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a45beeb2a4ab17368b6860673f05246fe" name="a45beeb2a4ab17368b6860673f05246fe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a45beeb2a4ab17368b6860673f05246fe">&#9670;&#160;</a></span>program_flag_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a45beeb2a4ab17368b6860673f05246fe">Microsoft::NEFormat::program_flag_type</a> : uint8_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a45beeb2a4ab17368b6860673f05246fea4d8341b446b00ebccfcc04870ba9c2ec" name="a45beeb2a4ab17368b6860673f05246fea4d8341b446b00ebccfcc04870ba9c2ec"></a>NODATA&#160;</td><td class="fielddoc"><p>There are no automatic data segments. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a45beeb2a4ab17368b6860673f05246feaa4720de2a197fe1c2e6386fbd97f81b3" name="a45beeb2a4ab17368b6860673f05246feaa4720de2a197fe1c2e6386fbd97f81b3"></a>SINGLEDATA&#160;</td><td class="fielddoc"><p>There is a single, shared automatic segment, used for libraries (DLL) </p>
+<pre class="fragment">       Cannot be set with MULTIPLEDATA at the same time
+</pre> </td></tr>
+<tr><td class="fieldname"><a id="a45beeb2a4ab17368b6860673f05246fea3f21709a6680512bba5bcc8aac9697b6" name="a45beeb2a4ab17368b6860673f05246fea3f21709a6680512bba5bcc8aac9697b6"></a>MULTIPLEDATA&#160;</td><td class="fielddoc"><p>There is an automatic data segment for each task instance, used for applications (EXE) </p>
+<pre class="fragment">       Cannot be set with SINGLEDATA at the same time
+</pre> </td></tr>
+</table>
+
+</div>
+</div>
+<a id="ac3ca11e474f3acf463ed93794ebdeaad" name="ac3ca11e474f3acf463ed93794ebdeaad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac3ca11e474f3acf463ed93794ebdeaad">&#9670;&#160;</a></span>system_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#ac3ca11e474f3acf463ed93794ebdeaad">Microsoft::NEFormat::system_type</a> : uint8_t</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac3ca11e474f3acf463ed93794ebdeaada1aa171c73f4a7183aa2c7075e1c6bd15" name="ac3ca11e474f3acf463ed93794ebdeaada1aa171c73f4a7183aa2c7075e1c6bd15"></a>OS2&#160;</td><td class="fielddoc"><p>Used for OS/2 1.0 - 1.3. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac3ca11e474f3acf463ed93794ebdeaadaf2be2d376cd2df958bed250604f70610" name="ac3ca11e474f3acf463ed93794ebdeaadaf2be2d376cd2df958bed250604f70610"></a>Windows&#160;</td><td class="fielddoc"><p>Used for Windows 1.0 - 3.11. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac3ca11e474f3acf463ed93794ebdeaada5cadc3189b14ea4b4fc41d0aa0e15e5b" name="ac3ca11e474f3acf463ed93794ebdeaada5cadc3189b14ea4b4fc41d0aa0e15e5b"></a>MSDOS4&#160;</td><td class="fielddoc"><p>Signifies Multitasking MS-DOS 4.0. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a6a73699bab6ddb3922eded05d7bcc5a8" name="a6a73699bab6ddb3922eded05d7bcc5a8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6a73699bab6ddb3922eded05d7bcc5a8">&#9670;&#160;</a></span>CalculateValues()</h2>
 
@@ -882,6 +1000,35 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 
 </div>
 </div>
+<a id="ab7ab2c72ed0d8ff248ea1a40f036edc7" name="ab7ab2c72ed0d8ff248ea1a40f036edc7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab7ab2c72ed0d8ff248ea1a40f036edc7">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t NEFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">Linker::Format</a>.</p>
+
+</div>
+</div>
 <a id="afa8dd720f2f63991cb5d3daa07346c45" name="afa8dd720f2f63991cb5d3daa07346c45"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#afa8dd720f2f63991cb5d3daa07346c45">&#9670;&#160;</a></span>ProcessModule()</h2>
 
@@ -1024,6 +1171,126 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 <p>Stores data in memory to file. </p>
 
 <p>Implements <a class="el" href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="acb147ed2aae61467530832b0cba6524e" name="acb147ed2aae61467530832b0cba6524e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb147ed2aae61467530832b0cba6524e">&#9670;&#160;</a></span>entry_table_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Microsoft::NEFormat::entry_table_offset = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset of entry table. </p>
+<p>The image contains a 16-bit offset from the start of the NE header, but this value stores it from the beginning of the file </p>
+
+</div>
+</div>
+<a id="a0a4315ef5ed4bac4959595e0ff628584" name="a0a4315ef5ed4bac4959595e0ff628584"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a4315ef5ed4bac4959595e0ff628584">&#9670;&#160;</a></span>imported_names_table_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Microsoft::NEFormat::imported_names_table_offset = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset of imported names table, containing the names of imported modules and procedures imported by name. </p>
+<p>The image contains a 16-bit offset from the start of the NE header, but this value stores it from the beginning of the file </p>
+
+</div>
+</div>
+<a id="afea0b76550ec39f03073e3f0b8834113" name="afea0b76550ec39f03073e3f0b8834113"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afea0b76550ec39f03073e3f0b8834113">&#9670;&#160;</a></span>module_reference_table_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Microsoft::NEFormat::module_reference_table_offset = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset of module reference table, containing 16-bit offsets to the names of the imported modules in the imported names table. </p>
+<p>The image contains a 16-bit offset from the start of the NE header, but this value stores it from the beginning of the file </p>
+
+</div>
+</div>
+<a id="afe35086f5e7902373f3ee33e21e9f674" name="afe35086f5e7902373f3ee33e21e9f674"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe35086f5e7902373f3ee33e21e9f674">&#9670;&#160;</a></span>nonresident_name_table_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Microsoft::NEFormat::nonresident_name_table_offset = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset of non-resident names table, containing this module's description and the names of procedures exported by ordinal. </p>
+<p>The image contains a 16-bit offset from the start of the NE header, but this value stores it from the beginning of the file </p>
+
+</div>
+</div>
+<a id="a41f7f1c074989b1b31b73a2055df1b3c" name="a41f7f1c074989b1b31b73a2055df1b3c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a41f7f1c074989b1b31b73a2055df1b3c">&#9670;&#160;</a></span>resident_name_table_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Microsoft::NEFormat::resident_name_table_offset = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset of resident name table, containing this module's name and the names and ordinals of procedures exported by name. </p>
+<p>The image contains a 16-bit offset from the start of the NE header, but this value stores it from the beginning of the file </p>
+
+</div>
+</div>
+<a id="a687335d9cfac43b36068046b845e9a85" name="a687335d9cfac43b36068046b845e9a85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a687335d9cfac43b36068046b845e9a85">&#9670;&#160;</a></span>resource_table_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Microsoft::NEFormat::resource_table_offset = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset of resource table. </p>
+<p>The image contains a 16-bit offset from the start of the NE header, but this value stores it from the beginning of the file </p>
+
+</div>
+</div>
+<a id="a1a0bd583c3cfcd4338f59aefb879c404" name="a1a0bd583c3cfcd4338f59aefb879c404"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a0bd583c3cfcd4338f59aefb879c404">&#9670;&#160;</a></span>segment_table_offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Microsoft::NEFormat::segment_table_offset = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Offset of segment table. </p>
+<p>The image contains a 16-bit offset from the start of the NE header, but this value stores it from the beginning of the file </p>
 
 </div>
 </div>

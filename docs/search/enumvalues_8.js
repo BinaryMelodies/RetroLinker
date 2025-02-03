@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['libraries_0',['Libraries',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca387622eb0fc198d03caa95789e1644cb',1,'DigitalResearch::CPM86Format::Descriptor']]],
-  ['local_1',['Local',['../classLinker_1_1SymbolDefinition.html#a8c8788c78a80c54ad6bb9e41de70bf97ae98270051db0001b2302f6010c84f305',1,'Linker::SymbolDefinition']]],
-  ['localcommon_2',['LocalCommon',['../classLinker_1_1SymbolDefinition.html#a8c8788c78a80c54ad6bb9e41de70bf97abdaecb8a1878a9752abe351e156909ed',1,'Linker::SymbolDefinition']]]
+  ['importname_0',['ImportName',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a966f80e32bb3d588d3865c21953b1751a7f012dd478aa619e484bed30111bf823',1,'Microsoft::NEFormat::Segment::Relocation']]],
+  ['importordinal_1',['ImportOrdinal',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a966f80e32bb3d588d3865c21953b1751af825b84bd98a78205080d2b37973a319',1,'Microsoft::NEFormat::Segment::Relocation']]],
+  ['int_5f3fh_2',['INT_3Fh',['../classMicrosoft_1_1NEFormat_1_1Entry.html#a32ca4b15912453721d7b97d41dc0f96eaefa46b3f917cca8c647f9a3da16b3b13',1,'Microsoft::NEFormat::Entry']]],
+  ['internal_3',['Internal',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a966f80e32bb3d588d3865c21953b1751a77729984d4245e4b0cb636d4a1c8ed2b',1,'Microsoft::NEFormat::Segment::Relocation']]]
 ];

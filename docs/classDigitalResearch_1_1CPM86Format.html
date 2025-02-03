@@ -201,6 +201,9 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>MeasureRelocation
 <tr class="memitem:a45b61af50486ac7916c122d832f1f46a" id="r_a45b61af50486ac7916c122d832f1f46a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a45b61af50486ac7916c122d832f1f46a">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a45b61af50486ac7916c122d832f1f46a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a45b61af50486ac7916c122d832f1f46a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4d022cd6328b5b7d2d8eefe65b2cb1b7" id="r_a4d022cd6328b5b7d2d8eefe65b2cb1b7"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4d022cd6328b5b7d2d8eefe65b2cb1b7">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a4d022cd6328b5b7d2d8eefe65b2cb1b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a4d022cd6328b5b7d2d8eefe65b2cb1b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a167260d23269f6eb1dc73993071b1ae3" id="r_a167260d23269f6eb1dc73993071b1ae3"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a167260d23269f6eb1dc73993071b1ae3">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a167260d23269f6eb1dc73993071b1ae3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a167260d23269f6eb1dc73993071b1ae3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -396,6 +399,10 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b> = 0</td></tr>
 <tr class="memdesc:ae7ee8da3bfc85a0bbf7410f6e046ffc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The start of the image within the file, typically 0 except for embedded modules, usually for embedded RSX files. <br /></td></tr>
 <tr class="separator:ae7ee8da3bfc85a0bbf7410f6e046ffc1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18978e46a4ee03cab19be5d548160efa" id="r_a18978e46a4ee03cab19be5d548160efa"><td class="memItemLeft" align="right" valign="top"><a id="a18978e46a4ee03cab19be5d548160efa" name="a18978e46a4ee03cab19be5d548160efa"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = offset_t(-1)</td></tr>
+<tr class="memdesc:a18978e46a4ee03cab19be5d548160efa"><td class="mdescLeft">&#160;</td><td class="mdescRight">The full size of the image. <br /></td></tr>
+<tr class="separator:a18978e46a4ee03cab19be5d548160efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad56598e239747fb712d353065a281145" id="r_ad56598e239747fb712d353065a281145"><td class="memItemLeft" align="right" valign="top"><a id="ad56598e239747fb712d353065a281145" name="ad56598e239747fb712d353065a281145"></a>
 <a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>format</b> = <a class="el" href="#a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8">FORMAT_SMALL</a></td></tr>
 <tr class="memdesc:ad56598e239747fb712d353065a281145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format of file to generate. <br /></td></tr>
@@ -820,6 +827,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a4d022cd6328b5b7d2d8eefe65b2cb1b7" name="a4d022cd6328b5b7d2d8eefe65b2cb1b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4d022cd6328b5b7d2d8eefe65b2cb1b7">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t CPM86Format::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>

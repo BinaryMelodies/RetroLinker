@@ -7,12 +7,13 @@ var searchData=
   ['pefformat_4',['PEFFormat',['../classApple_1_1PEFFormat.html',1,'Apple']]],
   ['peformat_5',['PEFormat',['../classMicrosoft_1_1PEFormat.html',1,'Microsoft']]],
   ['pefreader_6',['PEFReader',['../classdump_1_1PEFReader.html',1,'dump']]],
-  ['pereader_7',['PEReader',['../classdump_1_1PEReader.html',1,'dump']]],
-  ['pif_8',['PIF',['../structMicrosoft_1_1MZFormat_1_1PIF.html',1,'Microsoft::MZFormat']]],
-  ['pmw1format_9',['PMW1Format',['../classPMODE_1_1PMW1Format.html',1,'PMODE']]],
-  ['point_10',['Point',['../structApple_1_1FinderInfo_1_1Point.html',1,'Apple::FinderInfo']]],
-  ['position_11',['Position',['../classLinker_1_1Position.html',1,'Linker']]],
-  ['prlformat_12',['PRLFormat',['../classBinary_1_1PRLFormat.html',1,'Binary']]],
-  ['prodos_13',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
-  ['prodosfileinfo_14',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]]
+  ['peoptionalheader_7',['PEOptionalHeader',['../classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html',1,'Microsoft::PEFormat']]],
+  ['pereader_8',['PEReader',['../classdump_1_1PEReader.html',1,'dump']]],
+  ['pif_9',['PIF',['../structMicrosoft_1_1MZFormat_1_1PIF.html',1,'Microsoft::MZFormat']]],
+  ['pmw1format_10',['PMW1Format',['../classPMODE_1_1PMW1Format.html',1,'PMODE']]],
+  ['point_11',['Point',['../structApple_1_1FinderInfo_1_1Point.html',1,'Apple::FinderInfo']]],
+  ['position_12',['Position',['../classLinker_1_1Position.html',1,'Linker']]],
+  ['prlformat_13',['PRLFormat',['../classBinary_1_1PRLFormat.html',1,'Binary']]],
+  ['prodos_14',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
+  ['prodosfileinfo_15',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]]
 ];

@@ -10,14 +10,16 @@ var searchData=
   ['libraries_7',['libraries',['../classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html#abf33ad6814f77461ed94fbc94109d2cd',1,'DigitalResearch::CPM86Format::LibraryDescriptor']]],
   ['library_5fdescriptor_8',['library_descriptor',['../classDigitalResearch_1_1CPM86Format.html#ac94f803240ab3a9525b91a0f84518159',1,'DigitalResearch::CPM86Format']]],
   ['limit_9',['limit',['../structDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor_1_1ldt__descriptor.html#aee3c775dcb26e6c0b87a692b8cffd0d5',1,'DigitalResearch::CPM86Format::FastLoadDescriptor::ldt_descriptor']]],
-  ['line_5fnumber_5fcount_10',['line_number_count',['../classCOFF_1_1COFFFormat_1_1Section.html#a8a7f80d8a158840fe090298f461a6608',1,'COFF::COFFFormat::Section']]],
-  ['line_5fnumber_5fpointer_11',['line_number_pointer',['../classCOFF_1_1COFFFormat_1_1Section.html#af299e2743064c9654eceb12823314e70',1,'COFF::COFFFormat::Section']]],
+  ['line_5fnumber_5fcount_10',['line_number_count',['../classCOFF_1_1COFFFormat_1_1Section.html#af20587713e8b370e2154a80d1e32ad77',1,'COFF::COFFFormat::Section']]],
+  ['line_5fnumber_5fpointer_11',['line_number_pointer',['../classCOFF_1_1COFFFormat_1_1Section.html#a7f2b81701214da2362887113df1cfb3b',1,'COFF::COFFFormat::Section']]],
   ['linker_5fparameters_12',['linker_parameters',['../classLinker_1_1LinkerManager.html#a7218e188ee0cfaa6ae1ad6dcb8e0d23a',1,'Linker::LinkerManager']]],
   ['linker_5fscript_13',['linker_script',['../classLinker_1_1LinkerManager.html#ae049dffc0706eb94f0215101b15ecfdc',1,'Linker::LinkerManager']]],
   ['linker_5fsegment_5fname_14',['linker_segment_name',['../classApple_1_1OMFFormat_1_1Segment.html#a4ecd9b0db8900f947f3a3d83be033098',1,'Apple::OMFFormat::Segment']]],
-  ['linker_5fversion_15',['linker_version',['../classPCOS_1_1CMDFormat.html#abe3e7f645d8358a6e3e1b9896669ac37',1,'PCOS::CMDFormat']]],
+  ['linker_5fversion_15',['linker_version',['../classMicrosoft_1_1NEFormat.html#aa92d3e8b80917d947f6cc9329db7f6b5',1,'Microsoft::NEFormat::linker_version'],['../classPCOS_1_1CMDFormat.html#abe3e7f645d8358a6e3e1b9896669ac37',1,'PCOS::CMDFormat::linker_version']]],
   ['load_5faddress_16',['load_address',['../classBinary_1_1PRLFormat.html#a3fef930278e4cb4e81c6ec965dd8f1f5',1,'Binary::PRLFormat']]],
   ['load_5fsegment_17',['load_segment',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#a1c3d6491688d8c197d5343798585343f',1,'DigitalResearch::CPM86Format::Descriptor']]],
   ['loader_5factive_18',['loader_active',['../classBinary_1_1CPM3Format.html#a9c7a2ede9c1da1abb778a55cf058ca69',1,'Binary::CPM3Format']]],
-  ['loader_5faddress_19',['LOADER_ADDRESS',['../classBinary_1_1AtariFormat.html#a10f236f31453ea27fa666b8693b14c73',1,'Binary::AtariFormat']]]
+  ['loader_5faddress_19',['LOADER_ADDRESS',['../classBinary_1_1AtariFormat.html#a10f236f31453ea27fa666b8693b14c73',1,'Binary::AtariFormat']]],
+  ['loader_5fflags_20',['loader_flags',['../classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#a3354a62ee3f5c3464e1d782d7d72fd1b',1,'Microsoft::PEFormat::PEOptionalHeader']]],
+  ['loader_5fsection_21',['loader_section',['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#a78460f0022557fbdd51d59e5e65c2186',1,'COFF::COFFFormat::XCOFFAOutHeader']]]
 ];

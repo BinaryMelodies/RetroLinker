@@ -85,6 +85,20 @@ $(function() {
   <div class="headertitle"><div class="title">Microsoft::NEFormat::Segment Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents an NE segment as stored in the segment table and segment data.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="neexe_8h_source.html">neexe.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for Microsoft::NEFormat::Segment:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classMicrosoft_1_1NEFormat_1_1Segment.png" usemap="#Microsoft::NEFormat::Segment_map" alt=""/>
+  <map id="Microsoft::NEFormat::Segment_map" name="Microsoft::NEFormat::Segment_map">
+<area href="classMicrosoft_1_1NEFormat_1_1Resource.html" alt="Microsoft::NEFormat::Resource" shape="rect" coords="0,56,187,80"/>
+  </map>
+</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
@@ -115,9 +129,9 @@ Public Types</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a1a82880f17148f7337a1adf71adba4d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a962c368be4ec7c9e1a8336890e0f0400" id="r_a962c368be4ec7c9e1a8336890e0f0400"><td class="memItemLeft" align="right" valign="top"><a id="a962c368be4ec7c9e1a8336890e0f0400" name="a962c368be4ec7c9e1a8336890e0f0400"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>PrivilegeLevelShift</b> = 10
+<tr class="memitem:ae3b7e75b3026a7d62747b6be42aaef8f" id="r_ae3b7e75b3026a7d62747b6be42aaef8f"><td class="memItemLeft" align="right" valign="top"><a id="ae3b7e75b3026a7d62747b6be42aaef8f" name="ae3b7e75b3026a7d62747b6be42aaef8f"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>PrivilegeLevelShift</b> = 10
  }</td></tr>
-<tr class="separator:a962c368be4ec7c9e1a8336890e0f0400"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:ae3b7e75b3026a7d62747b6be42aaef8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -127,25 +141,60 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae3b1bb6c1dbb6f858ff280498bdd7aac" id="r_ae3b1bb6c1dbb6f858ff280498bdd7aac"><td class="memItemLeft" align="right" valign="top"><a id="ae3b1bb6c1dbb6f858ff280498bdd7aac" name="ae3b1bb6c1dbb6f858ff280498bdd7aac"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddRelocation</b> (const <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html">Relocation</a> &amp;rel)</td></tr>
 <tr class="separator:ae3b1bb6c1dbb6f858ff280498bdd7aac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7558dccb47e63be976de98b5bb2b9a0c" id="r_a7558dccb47e63be976de98b5bb2b9a0c"><td class="memItemLeft" align="right" valign="top"><a id="a7558dccb47e63be976de98b5bb2b9a0c" name="a7558dccb47e63be976de98b5bb2b9a0c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, unsigned index, bool isos2)</td></tr>
+<tr class="separator:a7558dccb47e63be976de98b5bb2b9a0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aa44cf8ca3a2d35066d72f95fb0380f37" id="r_aa44cf8ca3a2d35066d72f95fb0380f37"><td class="memItemLeft" align="right" valign="top"><a id="aa44cf8ca3a2d35066d72f95fb0380f37" name="aa44cf8ca3a2d35066d72f95fb0380f37"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="separator:aa44cf8ca3a2d35066d72f95fb0380f37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacdaf6e14d8a9da671e751b740fd7c9e" id="r_aacdaf6e14d8a9da671e751b740fd7c9e"><td class="memItemLeft" align="right" valign="top"><a id="aacdaf6e14d8a9da671e751b740fd7c9e" name="aacdaf6e14d8a9da671e751b740fd7c9e"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:aacdaf6e14d8a9da671e751b740fd7c9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea3ecf5ef3a633d4cc37519c6a9bde80" id="r_aea3ecf5ef3a633d4cc37519c6a9bde80"><td class="memItemLeft" align="right" valign="top"><a id="aea3ecf5ef3a633d4cc37519c6a9bde80" name="aea3ecf5ef3a633d4cc37519c6a9bde80"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_offset</b> = 0</td></tr>
 <tr class="separator:aea3ecf5ef3a633d4cc37519c6a9bde80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36ee622cb9f0d196455f586efae249ea" id="r_a36ee622cb9f0d196455f586efae249ea"><td class="memItemLeft" align="right" valign="top"><a id="a36ee622cb9f0d196455f586efae249ea" name="a36ee622cb9f0d196455f586efae249ea"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>image_size</b> = 0</td></tr>
+<tr class="memdesc:a36ee622cb9f0d196455f586efae249ea"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of segment as stored in the file, only used during reading. <br /></td></tr>
+<tr class="separator:a36ee622cb9f0d196455f586efae249ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a39332cdff74d3dca684cbf91389ffe9f" id="r_a39332cdff74d3dca684cbf91389ffe9f"><td class="memItemLeft" align="right" valign="top"><a id="a39332cdff74d3dca684cbf91389ffe9f" name="a39332cdff74d3dca684cbf91389ffe9f"></a>
-flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b></td></tr>
+flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = flag_type(0)</td></tr>
 <tr class="separator:a39332cdff74d3dca684cbf91389ffe9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55efab167d7ec74044bb0cf0baf566cc" id="r_a55efab167d7ec74044bb0cf0baf566cc"><td class="memItemLeft" align="right" valign="top"><a id="a55efab167d7ec74044bb0cf0baf566cc" name="a55efab167d7ec74044bb0cf0baf566cc"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>movable_entry_index</b> = 0</td></tr>
+<tr class="memitem:a25ab099b6c1b34da2636eacbcc7d5aee" id="r_a25ab099b6c1b34da2636eacbcc7d5aee"><td class="memItemLeft" align="right" valign="top"><a id="a25ab099b6c1b34da2636eacbcc7d5aee" name="a25ab099b6c1b34da2636eacbcc7d5aee"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_size</b> = 0</td></tr>
+<tr class="memdesc:a25ab099b6c1b34da2636eacbcc7d5aee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of segment as stored in memory. <br /></td></tr>
+<tr class="separator:a25ab099b6c1b34da2636eacbcc7d5aee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55efab167d7ec74044bb0cf0baf566cc" id="r_a55efab167d7ec74044bb0cf0baf566cc"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a55efab167d7ec74044bb0cf0baf566cc">movable_entry_index</a> = 0</td></tr>
+<tr class="memdesc:a55efab167d7ec74044bb0cf0baf566cc"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classMicrosoft_1_1NEFormat_1_1Entry.html" title="Represents an entry into the binary, typically DLL exported procedures.">Entry</a> number for movable segments (field not present in segment table)  <br /></td></tr>
 <tr class="separator:a55efab167d7ec74044bb0cf0baf566cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa402382082141e16f7e5c7686aa1362" id="r_afa402382082141e16f7e5c7686aa1362"><td class="memItemLeft" align="right" valign="top"><a id="afa402382082141e16f7e5c7686aa1362" name="afa402382082141e16f7e5c7686aa1362"></a>
-std::map&lt; uint16_t, <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
-<tr class="separator:afa402382082141e16f7e5c7686aa1362"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d14631d77eecdfec353e54158f1c79a" id="r_a6d14631d77eecdfec353e54158f1c79a"><td class="memItemLeft" align="right" valign="top"><a id="a6d14631d77eecdfec353e54158f1c79a" name="a6d14631d77eecdfec353e54158f1c79a"></a>
+std::vector&lt; <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="separator:a6d14631d77eecdfec353e54158f1c79a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f1fe2f558d9e902ba34802dfc82a1d3" id="r_a3f1fe2f558d9e902ba34802dfc82a1d3"><td class="memItemLeft" align="right" valign="top"><a id="a3f1fe2f558d9e902ba34802dfc82a1d3" name="a3f1fe2f558d9e902ba34802dfc82a1d3"></a>
+std::map&lt; uint16_t, <a class="el" href="classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations_map</b></td></tr>
+<tr class="memdesc:a3f1fe2f558d9e902ba34802dfc82a1d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used internally during output generation. <br /></td></tr>
+<tr class="separator:a3f1fe2f558d9e902ba34802dfc82a1d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents an NE segment as stored in the segment table and segment data. </p>
+</div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="a55efab167d7ec74044bb0cf0baf566cc" name="a55efab167d7ec74044bb0cf0baf566cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55efab167d7ec74044bb0cf0baf566cc">&#9670;&#160;</a></span>movable_entry_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t Microsoft::NEFormat::Segment::movable_entry_index = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p><a class="el" href="classMicrosoft_1_1NEFormat_1_1Entry.html" title="Represents an entry into the binary, typically DLL exported procedures.">Entry</a> number for movable segments (field not present in segment table) </p>
+<p>When generating a file, for movable segments, each relocation targetting it needs one and only one entry </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="neexe_8h_source.html">neexe.h</a></li>
 <li>src/format/<b>neexe.cc</b></li>

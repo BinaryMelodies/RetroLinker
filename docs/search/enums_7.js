@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['relocation_5ftype_0',['relocation_type',['../structDigitalResearch_1_1CPM8KFormat_1_1Relocation.html#a178f324a79b912c1de63612c9576f0b7',1,'DigitalResearch::CPM8KFormat::Relocation']]],
-  ['relocations_5ftype_1',['relocations_type',['../classDOS16M_1_1BWFormat.html#a3395277dce362ec553740b0c45a8a4b0',1,'DOS16M::BWFormat']]]
+  ['part_5ftype_0',['part_type',['../structELF_1_1ELFFormat_1_1Segment_1_1Part.html#a269042e386f99b6621af8508245782b9',1,'ELF::ELFFormat::Segment::Part']]],
+  ['program_5fflag_5ftype_1',['program_flag_type',['../classMicrosoft_1_1NEFormat.html#a45beeb2a4ab17368b6860673f05246fe',1,'Microsoft::NEFormat']]]
 ];

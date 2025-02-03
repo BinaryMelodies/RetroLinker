@@ -167,6 +167,9 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetDefaultDataIndex
 <tr class="memitem:a24c289d13fb346385875f3c052f27218" id="r_a24c289d13fb346385875f3c052f27218"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a24c289d13fb346385875f3c052f27218">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:a24c289d13fb346385875f3c052f27218"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:a24c289d13fb346385875f3c052f27218"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aefa43fd4c1511ee123515b80346744ed" id="r_aefa43fd4c1511ee123515b80346744ed"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aefa43fd4c1511ee123515b80346744ed">ImageSize</a> () override</td></tr>
+<tr class="memdesc:aefa43fd4c1511ee123515b80346744ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:aefa43fd4c1511ee123515b80346744ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a025c3cb9292925d6e924501e06f5623d" id="r_a025c3cb9292925d6e924501e06f5623d"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a025c3cb9292925d6e924501e06f5623d">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
 <tr class="memdesc:a025c3cb9292925d6e924501e06f5623d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a025c3cb9292925d6e924501e06f5623d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -658,6 +661,35 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ad3db971f3bccdc2d3b6bb4f0366cd108">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="aefa43fd4c1511ee123515b80346744ed" name="aefa43fd4c1511ee123515b80346744ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aefa43fd4c1511ee123515b80346744ed">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t BWFormat::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
 
 </div>
 </div>

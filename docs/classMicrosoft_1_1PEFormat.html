@@ -77,7 +77,10 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="classMicrosoft_1_1PEFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Microsoft::PEFormat Class Reference</div></div>
 </div><!--header-->
@@ -106,6 +109,11 @@ Inheritance diagram for Microsoft::PEFormat:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html">PEOptionalHeader</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aa93e7c752954377cb2b64a3ee9dfacac" id="r_aa93e7c752954377cb2b64a3ee9dfacac"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa93e7c752954377cb2b64a3ee9dfacac">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
@@ -137,6 +145,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>DetectCpuType</b> (::
 <tr class="memitem:abcf4418447d2b28463bda0ace279f52b inherit pub_methods_classCOFF_1_1COFFFormat" id="r_abcf4418447d2b28463bda0ace279f52b"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>DetectCpuType</b> ()</td></tr>
 <tr class="separator:abcf4418447d2b28463bda0ace279f52b inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a130145b009933cea7af9fab1fdbe5d1f inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a130145b009933cea7af9fab1fdbe5d1f"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a130145b009933cea7af9fab1fdbe5d1f">ImageSize</a> () override</td></tr>
+<tr class="memdesc:a130145b009933cea7af9fab1fdbe5d1f inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a130145b009933cea7af9fab1fdbe5d1f inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aab34bc23323354c24aa11b9eb4483b66 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_aab34bc23323354c24aa11b9eb4483b66"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#aab34bc23323354c24aa11b9eb4483b66">SetupOptions</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">Linker::OutputFormat</a> &gt; format) override</td></tr>
 <tr class="memdesc:aab34bc23323354c24aa11b9eb4483b66 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
 <tr class="separator:aab34bc23323354c24aa11b9eb4483b66 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -146,9 +157,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DetectCpuType</b> ()<
 <tr class="memitem:a071e6dddbcb4ad0649ac8625c61bcd78 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a071e6dddbcb4ad0649ac8625c61bcd78"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a071e6dddbcb4ad0649ac8625c61bcd78">GenerateModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) const override</td></tr>
 <tr class="memdesc:a071e6dddbcb4ad0649ac8625c61bcd78 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the information into a module object, a convenience method when there is a single module generated.  <br /></td></tr>
 <tr class="separator:a071e6dddbcb4ad0649ac8625c61bcd78 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3e94cb01888af2d74eaa2c66d494a401 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a3e94cb01888af2d74eaa2c66d494a401"><td class="memItemLeft" align="right" valign="top">
-&#160;</td><td class="memItemRight" valign="bottom"><b>COFFFormat</b> (<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> <a class="el" href="classCOFF_1_1COFFFormat.html#a63f75feed644eb7f7d81c71087832a0d">type</a>=<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>)</td></tr>
-<tr class="separator:a3e94cb01888af2d74eaa2c66d494a401 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20db51cecced5ad4635a3fde92930a67 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a20db51cecced5ad4635a3fde92930a67"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>COFFFormat</b> (<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> <a class="el" href="classCOFF_1_1COFFFormat.html#a63f75feed644eb7f7d81c71087832a0d">type</a>=<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>, COFFVariantType coff_variant=COFF)</td></tr>
+<tr class="separator:a20db51cecced5ad4635a3fde92930a67 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea56aaf8438bb91e3dbe83ec523b1fef inherit pub_methods_classCOFF_1_1COFFFormat" id="r_aea56aaf8438bb91e3dbe83ec523b1fef"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#aea56aaf8438bb91e3dbe83ec523b1fef">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
 <tr class="separator:aea56aaf8438bb91e3dbe83ec523b1fef inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad4cd9543645d19c01a9902bce9cf2ea2 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_ad4cd9543645d19c01a9902bce9cf2ea2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#ad4cd9543645d19c01a9902bce9cf2ea2">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
@@ -322,61 +333,15 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memdesc:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
 <tr class="separator:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_types_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
-<tr class="memitem:a804c399c94ce4aff3c5905406d7b0114 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a804c399c94ce4aff3c5905406d7b0114"><td class="memItemLeft" align="right" valign="top"><a id="a804c399c94ce4aff3c5905406d7b0114" name="a804c399c94ce4aff3c5905406d7b0114"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114">cpu</a> { <br />
-&#160;&#160;<b>CPU_UNKNOWN</b> = 0
-, <b>CPU_I386</b> = 0x014C
-, <b>CPU_M68K</b> = 0x0150
-, <b>CPU_W65</b> = 0x6500
-, <br />
-&#160;&#160;<b>CPU_Z80</b> = 0x805A
-, <b>CPU_Z8K</b> = 0x8000
-, <b>CPU_I86</b> = 0x0148
-, <b>CPU_NS32K</b> = 0x0154
-, <br />
-&#160;&#160;<b>CPU_I370</b> = 0x0158
-, <b>CPU_MIPS</b> = 0x0160
-, <b>CPU_M88K</b> = 0x016D
-, <b>CPU_WE32K</b> = 0x0170
-, <br />
-&#160;&#160;<b>CPU_VAX</b> = 0x0178
-, <b>CPU_AM29K</b> = 0x017A
-, <b>CPU_ALPHA</b> = 0x0183
-, <b>CPU_PPC</b> = 0x01DF
-, <br />
-&#160;&#160;<b>CPU_PPC64</b> = 0x01F7
-, <b>CPU_SHARC</b> = 0x521C
-<br />
- }</td></tr>
-<tr class="memdesc:a804c399c94ce4aff3c5905406d7b0114"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the first 16-bit word of a COFF file. <br /></td></tr>
-<tr class="separator:a804c399c94ce4aff3c5905406d7b0114 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a205bb77ac2289ed12beb03a1a72d25ac inherit pub_types_classCOFF_1_1COFFFormat" id="r_a205bb77ac2289ed12beb03a1a72d25ac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> { <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6">DJGPP</a>
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541">CDOS68K</a>
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c">CDOS386</a>
- }</td></tr>
-<tr class="memdesc:a205bb77ac2289ed12beb03a1a72d25ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the type of target system, which will determine the CPU type and several other fields.  <a href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">More...</a><br /></td></tr>
-<tr class="separator:a205bb77ac2289ed12beb03a1a72d25ac inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29adeff9d932998e06a35922718bea12 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a29adeff9d932998e06a35922718bea12"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
-&#160;&#160;<b>FLAG_NO_RELOCATIONS</b> = 0x0001
-, <b>FLAG_EXECUTABLE</b> = 0x0002
-, <b>FLAG_NO_LINE_NUMBERS</b> = 0x0004
-, <b>FLAG_NO_SYMBOLS</b> = 0x0008
-, <br />
-&#160;&#160;<b>FLAG_32BIT_LITTLE_ENDIAN</b> = 0x0100
-, <b>FLAG_32BIT_BIG_ENDIAN</b> = 0x0200
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a73d5453307f61d03b130b653422f6e1a">ZMAGIC</a> = 0x010B
-<br />
- }</td></tr>
-<tr class="memdesc:a29adeff9d932998e06a35922718bea12"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF file header flags, most of these are obsolete, we only use them as precombined flag sets.  <a href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12">More...</a><br /></td></tr>
-<tr class="separator:a29adeff9d932998e06a35922718bea12 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_static_methods_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_methods_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
-<tr class="memitem:a7b430a746bc0454116e2e7af3ffc755a inherit pub_static_methods_classCOFF_1_1COFFFormat" id="r_a7b430a746bc0454116e2e7af3ffc755a"><td class="memItemLeft" align="right" valign="top">
-static std::shared_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateWriter</b> (<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> <a class="el" href="classCOFF_1_1COFFFormat.html#a63f75feed644eb7f7d81c71087832a0d">type</a>)</td></tr>
-<tr class="separator:a7b430a746bc0454116e2e7af3ffc755a inherit pub_static_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:af4fe988e718f86059fc591030694e1d6" id="r_af4fe988e718f86059fc591030694e1d6"><td class="memItemLeft" align="right" valign="top"><a id="af4fe988e718f86059fc591030694e1d6" name="af4fe988e718f86059fc591030694e1d6"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><b>pe_signature</b> [4]</td></tr>
+<tr class="separator:af4fe988e718f86059fc591030694e1d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
+<tr class="memitem:ab80648dbac1a60c13a74187c68b9649c inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_ab80648dbac1a60c13a74187c68b9649c"><td class="memItemLeft" align="right" valign="top">
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b></td></tr>
+<tr class="separator:ab80648dbac1a60c13a74187c68b9649c inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ea5fe54f69b59cc42f7ed0d67c1e883 inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_a6ea5fe54f69b59cc42f7ed0d67c1e883"><td class="memItemLeft" align="right" valign="top">
 char&#160;</td><td class="memItemRight" valign="bottom"><b>signature</b> [2] = { }</td></tr>
 <tr class="memdesc:a6ea5fe54f69b59cc42f7ed0d67c1e883 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual value of the magic number (COFF name: f_magic) <br /></td></tr>
@@ -393,10 +358,10 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>section_count</b>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>timestamp</b> = 0</td></tr>
 <tr class="memdesc:afc42d190cd350e793c757261c3659206 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Time stamp, unused (COFF name: f_timdat) <br /></td></tr>
 <tr class="separator:afc42d190cd350e793c757261c3659206 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a702d175c72e64f9c6cb867a1ec0353f8 inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_a702d175c72e64f9c6cb867a1ec0353f8"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_table_offset</b> = 0</td></tr>
-<tr class="memdesc:a702d175c72e64f9c6cb867a1ec0353f8 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset to the first symbol (COFF name: f_symptr) <br /></td></tr>
-<tr class="separator:a702d175c72e64f9c6cb867a1ec0353f8 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1baa4eeea0efa38a2ffd83bfb09afe2 inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_ae1baa4eeea0efa38a2ffd83bfb09afe2"><td class="memItemLeft" align="right" valign="top">
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_table_offset</b> = 0</td></tr>
+<tr class="memdesc:ae1baa4eeea0efa38a2ffd83bfb09afe2 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset to the first symbol (COFF name: f_symptr) <br /></td></tr>
+<tr class="separator:ae1baa4eeea0efa38a2ffd83bfb09afe2 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acdbe8a8b81b3acc58972e7c4f0c86565 inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_acdbe8a8b81b3acc58972e7c4f0c86565"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_count</b> = 0</td></tr>
 <tr class="memdesc:acdbe8a8b81b3acc58972e7c4f0c86565 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of symbols (COFF name: f_nsyms) <br /></td></tr>
@@ -421,6 +386,9 @@ std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeade
 std::map&lt; uint32_t, size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="memdesc:a326c430ca03d7d60467e62513286fd5f inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent DOS 68K requires a special block of data to represent "crunched" relocations (see CPM68KWriter for more details) <br /></td></tr>
 <tr class="separator:a326c430ca03d7d60467e62513286fd5f inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7f9bcf072b033cd7905f72376f131ba inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_ac7f9bcf072b033cd7905f72376f131ba"><td class="memItemLeft" align="right" valign="top">
+COFFVariantType&#160;</td><td class="memItemRight" valign="bottom"><b>coff_variant</b> = COFFVariantType(0)</td></tr>
+<tr class="separator:ac7f9bcf072b033cd7905f72376f131ba inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af9d261fcedc71436f42a988518a2000a inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_af9d261fcedc71436f42a988518a2000a"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114">cpu</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#af9d261fcedc71436f42a988518a2000a">cpu_type</a> = CPU_UNKNOWN</td></tr>
 <tr class="memdesc:af9d261fcedc71436f42a988518a2000a inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The CPU type, reflected by the first 16-bit word of a COFF file.  <br /></td></tr>
 <tr class="separator:af9d261fcedc71436f42a988518a2000a inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -483,10 +451,25 @@ std::map&lt; std::string, <a class="el" href="classLinker_1_1Location.html">Loca
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script</b></td></tr>
 <tr class="memdesc:ae049dffc0706eb94f0215101b15ecfdc inherit pub_attribs_classLinker_1_1LinkerManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contents of the linker script. <br /></td></tr>
 <tr class="separator:ae049dffc0706eb94f0215101b15ecfdc inherit pub_attribs_classLinker_1_1LinkerManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_static_attribs_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_attribs_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
-<tr class="memitem:a4ca14354930d750a5edd569e80cad5d0 inherit pub_static_attribs_classCOFF_1_1COFFFormat" id="r_a4ca14354930d750a5edd569e80cad5d0"><td class="memItemLeft" align="right" valign="top">
-static const std::map&lt; uint32_t, <a class="el" href="structCOFF_1_1COFFFormat_1_1MachineType.html">MachineType</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>MACHINE_TYPES</b></td></tr>
-<tr class="separator:a4ca14354930d750a5edd569e80cad5d0 inherit pub_static_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a2dd10f43765291a4f9202033efb32498" id="r_a2dd10f43765291a4f9202033efb32498"><td class="memItemLeft" align="right" valign="top"><a id="a2dd10f43765291a4f9202033efb32498" name="a2dd10f43765291a4f9202033efb32498"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadOptionalHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="separator:a2dd10f43765291a4f9202033efb32498"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pro_methods_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
+<tr class="memitem:a5bf5c0cc5940bf1fe8d4ba74e62b9a66 inherit pro_methods_classCOFF_1_1COFFFormat" id="r_a5bf5c0cc5940bf1fe8d4ba74e62b9a66"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadCOFFHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="separator:a5bf5c0cc5940bf1fe8d4ba74e62b9a66 inherit pro_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2fd6f84f5ef014cbbf73569246e97f0 inherit pro_methods_classCOFF_1_1COFFFormat" id="r_af2fd6f84f5ef014cbbf73569246e97f0"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadOptionalHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="separator:af2fd6f84f5ef014cbbf73569246e97f0 inherit pro_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44d43653e70786f444c107e194a58f9d inherit pro_methods_classCOFF_1_1COFFFormat" id="r_a44d43653e70786f444c107e194a58f9d"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadRestOfFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="separator:a44d43653e70786f444c107e194a58f9d inherit pro_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19c3963f3eb2aee601578bc41a3394cc inherit pro_methods_classCOFF_1_1COFFFormat" id="r_a19c3963f3eb2aee601578bc41a3394cc"><td class="memItemLeft" align="right" valign="top">
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFileContents</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
+<tr class="separator:a19c3963f3eb2aee601578bc41a3394cc inherit pro_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_methods_classMicrosoft_1_1MZSimpleStubWriter"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_classMicrosoft_1_1MZSimpleStubWriter')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classMicrosoft_1_1MZSimpleStubWriter.html">Microsoft::MZSimpleStubWriter</a></td></tr>
 <tr class="memitem:a2cef4f23676530de0743184ddeedcc2f inherit pro_methods_classMicrosoft_1_1MZSimpleStubWriter" id="r_a2cef4f23676530de0743184ddeedcc2f"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>MZSimpleStubWriter</b> (std::string stub_file=&quot;&quot;)</td></tr>
@@ -519,6 +502,91 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteStubImage</b> (s
 <tr class="memitem:aad02b0c964ff9a997dfdff7d800130ba inherit pro_methods_classMicrosoft_1_1MZStubWriter" id="r_aad02b0c964ff9a997dfdff7d800130ba"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteStubImage</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
 <tr class="separator:aad02b0c964ff9a997dfdff7d800130ba inherit pro_methods_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_types_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
+<tr class="memitem:a804c399c94ce4aff3c5905406d7b0114 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a804c399c94ce4aff3c5905406d7b0114"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114">cpu</a> { <br />
+&#160;&#160;<b>CPU_UNKNOWN</b> = 0
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a5d0b4c33bf696ef64a80813744eaae79">CPU_I386</a> = 0x014C
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a8d612b09952c2e82a2b4960615400569">CPU_M68K</a> = 0x0150
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114adb9abe0e12ba4f059071dc895e8fe930">CPU_W65</a> = 0x6500
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a35b4506baa99baa01f20f5eddeba499e">CPU_Z80</a> = 0x805A
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a31232bd2cee14b66772280e029938fa9">CPU_Z8K</a> = 0x8000
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a12f19daaf2a18799df4f9a98c51e226a">CPU_I86</a> = 0x0148
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a494aa1d938eae39a0d7b516e67f538cc">CPU_NS32K</a> = 0x0154
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a47e4ea0f57f044285d3bfdcb1a69a442">CPU_I370</a> = 0x0158
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ada00d2720768aa39bd5df6485dd0c811">CPU_MIPS</a> = 0x0160
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114abe3fda9b1563ac3b809373791656d76f">CPU_M88K</a> = 0x016D
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aab2244a3a2217d1a65656198b4205a34">CPU_WE32K</a> = 0x0170
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a11318e92b137c7ba69dad86d4fb92fb7">CPU_VAX</a> = 0x0178
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aea30194e3dd1a82d2fec9b75f35523f2">CPU_AM29K</a> = 0x017A
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0bf3bfa9f9c4576c72d33214aba05c27">CPU_ALPHA</a> = 0x0183
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0ceb98cac951c4569dfc5d1bb403a0cb">CPU_PPC</a> = 0x01DF
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a591156045fccf5789d75ad854dc2af8f">CPU_PPC64</a> = 0x01F7
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114acbabecea306e34424361af045b57157a">CPU_SHARC</a> = 0x521C
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aaa9c85b8fb5e16c64afb845478f2eb00">CPU_I860</a> = 0x014D
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ac1c472c9d3b4088c6cf8b86f836be50e">CPU_SH</a> = 0x01A2
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a7811d333db5070b6d113828c1be22d40">CPU_ARM</a> = 0x01C0
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a22ec50ee14ff54b174929903b8dcd7f0">CPU_AM33</a> = 0x01D3
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a06165a13d125968c85555aead8c3e181">CPU_IA64</a> = 0x0200
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ac86ca3ab9792d221d8252ef03874b163">CPU_HPPA</a> = 0x0290
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a801c68f3bac83fa532d84b37099065cd">CPU_EFI</a> = 0x0EBC
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a23f48f56ca04e359a0dbaafc64076769">CPU_RISCV32</a> = 0x5032
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ade1f19400e4f17160f3eb2a8754d8b04">CPU_RISCV64</a> = 0x5064
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ae1eed7b0a128e92e97b33abc95c47e17">CPU_RISCV128</a> = 0x5128
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0d7fba27483c64a7426210ed89621386">CPU_AMD64</a> = 0x8664
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a209f19b3a1bdf0249ae029528298a936">CPU_M32R</a> = 0x9041
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ad58d70f9ba2ddfcdf92ad3c6c9bbfe0e">CPU_ARM64</a> = 0xAA64
+<br />
+ }</td></tr>
+<tr class="memdesc:a804c399c94ce4aff3c5905406d7b0114"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the first 16-bit word of a COFF file.  <a href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114">More...</a><br /></td></tr>
+<tr class="separator:a804c399c94ce4aff3c5905406d7b0114 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07b40a36f51ffa98f39b074237c9c997 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a07b40a36f51ffa98f39b074237c9c997"><td class="memItemLeft" align="right" valign="top"><a id="a07b40a36f51ffa98f39b074237c9c997" name="a07b40a36f51ffa98f39b074237c9c997"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>COFFVariantType</b> { <br />
+&#160;&#160;<b>COFF</b> = 1
+, <b>ECOFF</b> = 2
+, <b>XCOFF32</b> = 3
+, <b>XCOFF64</b> = 4
+, <br />
+&#160;&#160;<b>PECOFF</b> = 5
+<br />
+ }</td></tr>
+<tr class="separator:a07b40a36f51ffa98f39b074237c9c997 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a205bb77ac2289ed12beb03a1a72d25ac inherit pub_types_classCOFF_1_1COFFFormat" id="r_a205bb77ac2289ed12beb03a1a72d25ac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> { <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6">DJGPP</a>
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541">CDOS68K</a>
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c">CDOS386</a>
+ }</td></tr>
+<tr class="memdesc:a205bb77ac2289ed12beb03a1a72d25ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the type of target system, which will determine the CPU type and several other fields.  <a href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">More...</a><br /></td></tr>
+<tr class="separator:a205bb77ac2289ed12beb03a1a72d25ac inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29adeff9d932998e06a35922718bea12 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a29adeff9d932998e06a35922718bea12"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<b>FLAG_NO_RELOCATIONS</b> = 0x0001
+, <b>FLAG_EXECUTABLE</b> = 0x0002
+, <b>FLAG_NO_LINE_NUMBERS</b> = 0x0004
+, <b>FLAG_NO_SYMBOLS</b> = 0x0008
+, <br />
+&#160;&#160;<b>FLAG_32BIT_LITTLE_ENDIAN</b> = 0x0100
+, <b>FLAG_32BIT_BIG_ENDIAN</b> = 0x0200
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a73d5453307f61d03b130b653422f6e1a">ZMAGIC</a> = 0x010B
+<br />
+ }</td></tr>
+<tr class="memdesc:a29adeff9d932998e06a35922718bea12"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF file header flags, most of these are obsolete, we only use them as precombined flag sets.  <a href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12">More...</a><br /></td></tr>
+<tr class="separator:a29adeff9d932998e06a35922718bea12 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_methods_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_methods_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
+<tr class="memitem:a7b430a746bc0454116e2e7af3ffc755a inherit pub_static_methods_classCOFF_1_1COFFFormat" id="r_a7b430a746bc0454116e2e7af3ffc755a"><td class="memItemLeft" align="right" valign="top">
+static std::shared_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateWriter</b> (<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> <a class="el" href="classCOFF_1_1COFFFormat.html#a63f75feed644eb7f7d81c71087832a0d">type</a>)</td></tr>
+<tr class="separator:a7b430a746bc0454116e2e7af3ffc755a inherit pub_static_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_attribs_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_attribs_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
+<tr class="memitem:a4ca14354930d750a5edd569e80cad5d0 inherit pub_static_attribs_classCOFF_1_1COFFFormat" id="r_a4ca14354930d750a5edd569e80cad5d0"><td class="memItemLeft" align="right" valign="top">
+static const std::map&lt; uint32_t, <a class="el" href="structCOFF_1_1COFFFormat_1_1MachineType.html">MachineType</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>MACHINE_TYPES</b></td></tr>
+<tr class="separator:a4ca14354930d750a5edd569e80cad5d0 inherit pub_static_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1LinkerManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLinker_1_1LinkerManager')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLinker_1_1LinkerManager.html">Linker::LinkerManager</a></td></tr>
 <tr class="memitem:a810b93fa2314556615ec6287cbfbc40c inherit pro_attribs_classLinker_1_1LinkerManager" id="r_a810b93fa2314556615ec6287cbfbc40c"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b> = 0</td></tr>
