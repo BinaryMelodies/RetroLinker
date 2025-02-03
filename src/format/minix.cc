@@ -894,7 +894,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump)
 
 	offset_t current_offset = header_size;
 
-	Dumper::Block code_block("Code", current_offset, code, 0 /* TODO: what is the base address? */, 8);
+	Dumper::Block code_block("Code", current_offset, code->AsImage(), 0 /* TODO: what is the base address? */, 8);
 	for(auto& rel : code_relocations)
 	{
 		size_t size = rel.GetSize();
@@ -906,7 +906,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump)
 
 	if(far_code != nullptr && far_code->ImageSize() > 0)
 	{
-		Dumper::Block far_code_block("Far code", current_offset, far_code, 0, 8);
+		Dumper::Block far_code_block("Far code", current_offset, far_code->AsImage(), 0, 8);
 		for(auto& rel : far_code_relocations)
 		{
 			size_t size = rel.GetSize();
@@ -917,7 +917,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump)
 		current_offset += far_code->ImageSize();
 	}
 
-	Dumper::Block data_block("Code", current_offset, data, 0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0), 8);
+	Dumper::Block data_block("Code", current_offset, data->AsImage(), 0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0), 8);
 	for(auto& rel : data_relocations)
 	{
 		size_t size = rel.GetSize();

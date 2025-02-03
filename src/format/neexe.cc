@@ -55,7 +55,7 @@ void NEFormat::Segment::AddRelocation(const Relocation& rel)
 
 void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 {
-	Dumper::Block segment_block("Segment", data_offset, image, 0, 8);
+	Dumper::Block segment_block("Segment", data_offset, image->AsImage(), 0, 8);
 	segment_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
 	segment_block.AddField("Memory size", Dumper::HexDisplay::Make(4), offset_t(total_size));
 	segment_block.AddField("Flags",
@@ -166,7 +166,7 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 		resource_id_descriptions[Resource::OS2_BITMAP] = "BITMAP";
 		resource_id_descriptions[Resource::OS2_MENU] = "MENU";
 
-		Dumper::Block resource_block("Resource", data_offset, image, 0, 8);
+		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
 		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
 		resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(id));
@@ -225,7 +225,7 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 		resource_id_descriptions[0x8000 | Resource::RT_HTML] = "RT_HTML";
 		resource_id_descriptions[0x8000 | Resource::RT_MANIFEST] = "RT_MANIFEST";
 
-		Dumper::Block resource_block("Resource", data_offset, image, 0, 8);
+		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
 		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
 		resource_block.AddOptionalField("Type ID name", Dumper::StringDisplay::Make(), type_id_name);
@@ -633,9 +633,10 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				if((relocation.flags & Segment::Relocation::Additive) == 0)
 				{
 					uint16_t offset = relocation.offsets[0];
+					auto image = segment.image->AsImage();
 					while(true)
 					{
-						uint16_t new_offset = segment.image->GetByte(offset) | (segment.image->GetByte(offset + 1) << 8);
+						uint16_t new_offset = image->GetByte(offset) | (image->GetByte(offset + 1) << 8);
 						if(new_offset == 0xFFFF)
 							break;
 						//Linker::Debug << "Debug: chained relocation from offset " << std::hex << offset << " to " << new_offset << std::endl;

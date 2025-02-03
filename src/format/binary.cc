@@ -41,7 +41,7 @@ void GenericBinaryFormat::Dump(Dumper::Dumper& dump)
 
 	dump.SetTitle("Binary format");
 
-	Dumper::Block image_block("Image", file_offset, image, 0, 4);
+	Dumper::Block image_block("Image", file_offset, image->AsImage(), 0, 4);
 
 	image_block.Display(dump);
 }
@@ -251,7 +251,7 @@ void BinaryFormat::Dump(Dumper::Dumper& dump)
 
 	dump.SetTitle("Binary format");
 
-	Dumper::Block image_block("Image", file_offset, image, 0, 4);
+	Dumper::Block image_block("Image", file_offset, image->AsImage(), 0, 4);
 
 	if(pif)
 	{

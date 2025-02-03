@@ -21,7 +21,7 @@ namespace Linker
 	 *
 	 * Only sections that appear consecutively in memory (or with known displacements at linking time) may be stored in the same segment.
 	 */
-	class Segment : public Image, public std::enable_shared_from_this<Segment>
+	class Segment : public ActualImage
 	{
 	public:
 		/**
@@ -135,6 +135,8 @@ namespace Linker
 		 * @brief Forcibly resets starting address of segment
 		 */
 		void SetStartAddress(offset_t address);
+	protected:
+		std::shared_ptr<Segment> shared_from_this();
 	};
 
 	std::ostream& operator<<(std::ostream& out, const Segment& segment);

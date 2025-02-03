@@ -360,9 +360,10 @@ void FatMachOFormat::CalculateValues()
 		}
 		else
 		{
+			auto image = entry.image->AsImage();
 			entry.cpu = MachOFormat::cpu_type(
-				(entry.image->GetByte(4) << 24) + (entry.image->GetByte(5) << 16) + (entry.image->GetByte(6) << 8) + entry.image->GetByte(7));
-			entry.cpu_subtype = (entry.image->GetByte(8) << 24) + (entry.image->GetByte(9) << 16) + (entry.image->GetByte(10) << 8) + entry.image->GetByte(11);
+				(image->GetByte(4) << 24) + (image->GetByte(5) << 16) + (image->GetByte(6) << 8) + image->GetByte(7));
+			entry.cpu_subtype = (image->GetByte(8) << 24) + (image->GetByte(9) << 16) + (image->GetByte(10) << 8) + image->GetByte(11);
 		}
 		offset_t page_shift = 12; // TODO: depends on architecture
 		entry.offset = ::AlignTo(current_offset, 1 << page_shift);

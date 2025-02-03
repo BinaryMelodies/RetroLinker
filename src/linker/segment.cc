@@ -228,6 +228,11 @@ void Segment::SetStartAddress(offset_t address)
 	ShiftAddress(address - base_address);
 }
 
+std::shared_ptr<Segment> Segment::shared_from_this()
+{
+	return std::static_pointer_cast<Segment>(ActualImage::shared_from_this());
+}
+
 std::ostream& Linker::operator<<(std::ostream& out, const Segment& segment)
 {
 	out << "segment " << segment.name;

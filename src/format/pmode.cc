@@ -132,7 +132,7 @@ void PMW1Format::Dump(Dumper::Dumper& dump)
 	for(auto& object : objects)
 	{
 		// TODO: decompress
-		Dumper::Block object_block("Object", object_offset, object.image, 0, 8);
+		Dumper::Block object_block("Object", object_offset, object.image->AsImage(), 0, 8);
 		object_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
 		object_block.AddField("Size in memory", Dumper::HexDisplay::Make(8), offset_t(object.memory_size));
 		object_block.AddField("Size in image", Dumper::HexDisplay::Make(8), offset_t(object.image_size));

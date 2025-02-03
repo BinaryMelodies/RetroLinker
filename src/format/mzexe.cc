@@ -302,7 +302,7 @@ void MZFormat::Dump(Dumper::Dumper& dump)
 		pif->Dump(dump, file_offset + relocation_offset + relocation_count * 4);
 	}
 
-	Dumper::Block image_block("Image", file_offset + GetHeaderSize(), image, 0, 6);
+	Dumper::Block image_block("Image", file_offset + GetHeaderSize(), image->AsImage(), 0, 6);
 
 	size_t i = 0;
 	for(auto relocation : relocations)

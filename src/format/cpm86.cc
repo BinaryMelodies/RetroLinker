@@ -208,7 +208,7 @@ void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump)
 	}
 	else
 	{
-		Dumper::Block block("Image", uint32_t(offset_record) << 7, contents, contents->ImageSize(), 6);
+		Dumper::Block block("Image", uint32_t(offset_record) << 7, contents->AsImage(), contents->ImageSize(), 6);
 		block.Display(dump);
 	}
 }
@@ -742,7 +742,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump)
 		if(descriptors[i].type == Descriptor::ActualFixups)
 			group = fixups = Dumper::Region::Make("Group", descriptors[i].offset, uint32_t(descriptors[i].size_paras) << 4, 5);
 		else
-			group = Dumper::Block::Make("Group", descriptors[i].offset, descriptors[i].image, uint32_t(descriptors[i].load_segment) << 4, 5);
+			group = Dumper::Block::Make("Group", descriptors[i].offset, descriptors[i].image->AsImage(), uint32_t(descriptors[i].load_segment) << 4, 5);
 		group->InsertField(0, "Type", Dumper::ChoiceDisplay::Make(group_types), offset_t(descriptors[i].type));
 		group->AddField("Minimum", Dumper::HexDisplay::Make(5), offset_t(uint32_t(descriptors[i].min_size_paras) << 4));
 		group->AddField("Maximum", Dumper::HexDisplay::Make(5), offset_t(uint32_t(descriptors[i].max_size_paras) << 4));

@@ -4,17 +4,19 @@
 
 using namespace Linker;
 
-Image::~Image()
+std::shared_ptr<ActualImage> Image::AsImage()
 {
-}
-
-int Image::GetByte(offset_t offset)
-{
-	return -1;
+	// TODO
+	return nullptr;
 }
 
 offset_t Image::WriteFile(Writer& wr)
 {
 	return WriteFile(wr, ImageSize());
+}
+
+std::shared_ptr<ActualImage> ActualImage::AsImage()
+{
+	return shared_from_this();
 }
 

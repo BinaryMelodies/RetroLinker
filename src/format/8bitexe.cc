@@ -321,7 +321,7 @@ void CPM3Format::rsx_record::OpenAndPrepare()
 			module->ReadFile(rd);
 			rsx_file.close();
 
-			uint8_t nonbanked_flag = module->image->GetByte(15);
+			uint8_t nonbanked_flag = module->image->AsImage()->GetByte(15);
 			switch(nonbanked_flag)
 			{
 			case 0x00:
@@ -648,7 +648,7 @@ void PRLFormat::Dump(Dumper::Dumper& dump)
 	file_region.AddField("Relocations", Dumper::ChoiceDisplay::Make("present", "missing"), offset_t(!suppress_relocations));
 	file_region.Display(dump);
 
-	Dumper::Block image_block("Image", 0x0100, image, 0x0100, 4); // TODO: .SPR files
+	Dumper::Block image_block("Image", 0x0100, image->AsImage(), 0x0100, 4); // TODO: .SPR files
 	for(auto relocation : relocations)
 	{
 		image_block.AddSignal(relocation, 1);

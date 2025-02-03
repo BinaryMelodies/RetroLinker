@@ -902,7 +902,7 @@ void ELFFormat::IBMResourceCollection::Dump(Dumper::Dumper& dump, ELFFormat& fmt
 	unsigned i = 0;
 	for(auto& resource : resources)
 	{
-		Dumper::Block resource_block("Resource", offset + resource.data_offset, resource.data, 0, 2 * fmt.wordbytes);
+		Dumper::Block resource_block("Resource", offset + resource.data_offset, resource.data->AsImage(), 0, 2 * fmt.wordbytes);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
 		resource_block.AddField("Type", Dumper::HexDisplay::Make(8), offset_t(resource.type));
 		resource_block.AddField("Ordinal", Dumper::HexDisplay::Make(8), offset_t(resource.ordinal));
@@ -2490,7 +2490,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump)
 			part_entry.Display(dump);
 			if(part.type == Segment::Part::Block && part.offset == 0 && part.size == part.GetActualSize(*this) && blocks[part.index].image != nullptr)
 			{
-				Dumper::Block block("Block", blocks[part.index].offset, blocks[part.index].image,
+				Dumper::Block block("Block", blocks[part.index].offset, blocks[part.index].image->AsImage(),
 					segment.vaddr + (blocks[part.index].offset - segment.offset),
 					2 * wordbytes);
 				block.Display(dump);
@@ -3021,11 +3021,15 @@ void FatELFFormat::CalculateValues()
 		}
 		else
 		{
-			record.osabi = record.image->GetByte(ELFFormat::EI_OSABI);
-			record.abi_version = record.image->GetByte(ELFFormat::EI_ABIVERSION);
-			record.file_class = record.image->GetByte(ELFFormat::EI_CLASS);
-			record.data_encoding = record.image->GetByte(ELFFormat::EI_DATA);
-			record.cpu = ELFFormat::cpu_type(record.image->GetByte(18) + (record.image->GetByte(19) << 8));
+			auto image = record.image->AsImage();
+			record.osabi = image->GetByte(ELFFormat::EI_OSABI);
+			record.abi_version = image->GetByte(ELFFormat::EI_ABIVERSION);
+			record.file_class = image->GetByte(ELFFormat::EI_CLASS);
+			record.data_encoding = image->GetByte(ELFFormat::EI_DATA);
+			if(record.data_encoding == ELFFormat::ELFDATA2MSB)
+				record.cpu = ELFFormat::cpu_type((image->GetByte(18) << 8) + image->GetByte(19));
+			else
+				record.cpu = ELFFormat::cpu_type(image->GetByte(18) + (image->GetByte(19) << 8));
 		}
 		offset_t page_size = 4096; // TODO: depends on architecture
 		record.offset = ::AlignTo(current_offset, page_size);

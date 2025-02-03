@@ -18,15 +18,13 @@ namespace Linker
 	/**
 	 * @brief A buffer that can be used to read and store data from a file
 	 */
-	class Buffer : public Image
+	class Buffer : public ActualImage
 	{
 	protected:
 		std::vector<uint8_t> data;
 
 	public:
-		Buffer()
-		{
-		}
+		Buffer() = default;
 
 		Buffer(size_t size)
 		{

@@ -97,7 +97,7 @@ void CMDFormat::LoadBlock::WriteFile(Linker::Writer& wr) const
 
 std::unique_ptr<Dumper::Region> CMDFormat::LoadBlock::MakeRegion(std::string name, offset_t offset, unsigned display_width) const
 {
-	return std::make_unique<Dumper::Block>(name, offset + 3 + 4, image, 0, display_width, 4, 4);
+	return std::make_unique<Dumper::Block>(name, offset + 3 + 4, image->AsImage(), 0, display_width, 4, 4);
 }
 
 void CMDFormat::LoadBlock::AddFields(Dumper::Region& region, CMDFormat& module) const
@@ -182,7 +182,7 @@ void CMDFormat::UnknownBlock::WriteFile(Linker::Writer& wr) const
 
 std::unique_ptr<Dumper::Region> CMDFormat::UnknownBlock::MakeRegion(std::string name, offset_t offset, unsigned display_width) const
 {
-	return std::make_unique<Dumper::Block>(name, offset, image, 0, display_width, 4, 4);
+	return std::make_unique<Dumper::Block>(name, offset, image->AsImage(), 0, display_width, 4, 4);
 }
 
 void CMDFormat::ReadFile(Linker::Reader& rd)

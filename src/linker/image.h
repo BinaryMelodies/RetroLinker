@@ -8,6 +8,8 @@
 
 namespace Linker
 {
+	class ActualImage;
+
 	/**
 	 * @brief Represents an abstract data image whose data can be written to a file
 	 */
@@ -27,10 +29,20 @@ namespace Linker
 		 */
 		virtual offset_t WriteFile(Writer& wr);
 		/**
+		 * @brief Retrieves a randomly accessible image
+		 */
+		virtual std::shared_ptr<ActualImage> AsImage();
+		virtual ~Image() = default;
+	};
+
+	class ActualImage : public Image, public std::enable_shared_from_this<ActualImage>
+	{
+	public:
+		std::shared_ptr<ActualImage> AsImage() override;
+		/**
 		 * @brief Retrieve byte at a certain offset (optional, might not be defined)
 		 */
-		virtual int GetByte(offset_t offset);
-		virtual ~Image();
+		virtual int GetByte(offset_t offset) = 0;
 	};
 }
 

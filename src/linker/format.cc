@@ -33,10 +33,12 @@ offset_t Format::WriteFile(Writer& wr, offset_t count, offset_t offset)
 	return WriteFile(wr);
 }
 
+#if 0
 int Format::GetByte(offset_t offset)
 {
 	Linker::FatalError("Internal error: format cannot generate partial data");
 }
+#endif
 
 bool OutputFormat::AddSupplementaryOutputFormat(std::string subformat)
 {
