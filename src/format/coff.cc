@@ -2201,7 +2201,7 @@ void COFFFormat::CalculateValues()
 
 	if(type == DJGPP)
 	{
-		stub.GetStubImageSize();
+		file_offset = stub.GetStubImageSize();
 	}
 	for(auto& section : sections)
 	{

@@ -117,6 +117,11 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 	ReadRestOfFile(rd);
 }
 
+void PEFormat::CalculateValues()
+{
+	file_offset = stub.GetStubImageSize();
+}
+
 void PEFormat::ReadOptionalHeader(Linker::Reader& rd)
 {
 	optional_header = std::make_unique<PEOptionalHeader>();

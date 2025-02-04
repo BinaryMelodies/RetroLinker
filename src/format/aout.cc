@@ -810,6 +810,11 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 
 void AOutFormat::CalculateValues()
 {
+	if(system == DJGPP1 && stub.filename != "")
+	{
+		file_offset = stub.GetStubImageSize();
+	}
+
 	endiantype = GetEndianType();
 	word_size = GetWordSize();
 	code_size = GetCodeSegment()->data_size;

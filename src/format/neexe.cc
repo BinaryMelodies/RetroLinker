@@ -1787,6 +1787,7 @@ void NEFormat::CalculateValues()
 	if(IsLibrary())
 		stack_size = ss = sp = 0;
 
+	// TODO: provide option to suppress stub generation
 	file_offset = stub.GetStubImageSize();
 
 	segment_table_offset = file_offset + 0x40;

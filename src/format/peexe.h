@@ -173,6 +173,7 @@ namespace Microsoft
 		mutable MZStubWriter stub;
 
 		void ReadFile(Linker::Reader& rd) override;
+		void CalculateValues() override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
