@@ -85,13 +85,13 @@ namespace Amiga
 		};
 
 		/** @brief Represents the first block inside of an object file */
-		class UnitBlock : public Block
+		class TextBlock : public Block
 		{
 		public:
 			std::string name;
 
-			UnitBlock()
-				: Block(HUNK_UNIT)
+			TextBlock(block_type type, std::string name = "")
+				: Block(type), name(name)
 			{
 			}
 
@@ -220,7 +220,6 @@ namespace Amiga
 		class RelocationBlock : public Block
 		{
 		public:
-			size_t size = 4;
 			struct RelocationData
 			{
 				uint32_t hunk;
@@ -232,6 +231,8 @@ namespace Amiga
 				: Block(type)
 			{
 			}
+
+			size_t GetRelocationSize() const;
 
 			void Read(Linker::Reader& rd) override;
 			void Write(Linker::Writer& wr) const override;
@@ -264,6 +265,8 @@ namespace Amiga
 			std::shared_ptr<Linker::Image> image;
 			/** @brief Size of the memory image, if it is a zero filled segment (bss) */
 			offset_t image_size = 0;
+
+			std::string name;
 
 			explicit Hunk()
 				: type(Undefined), flags(LoadBlock::LoadAny), image(nullptr)
@@ -309,7 +312,7 @@ namespace Amiga
 			void AppendBlock(std::shared_ptr<Block> block);
 		};
 
-		/** @brief Every file is supposed to start with either a UnitBlock (type HUNK_UNIT) or a HeaderBlock (HUNK_BLOCK), which is stored here */
+		/** @brief Every file is supposed to start with either a HUNK_UNIT or a HUNK_BLOCK, which is stored here */
 		std::shared_ptr<Block> start_block;
 		std::vector<Hunk> hunks;
 
@@ -320,6 +323,9 @@ namespace Amiga
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
+
+		/** @brief If a header block is available, checks the associated hunk size in the header, returns 0 otherwise */
+		offset_t GetHunkSizeInHeader(uint32_t index) const;
 
 		static std::string ReadString(Linker::Reader& rd, uint32_t& longword_count);
 		static std::string ReadString(Linker::Reader& rd);
