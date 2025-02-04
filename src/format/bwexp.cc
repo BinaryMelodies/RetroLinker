@@ -212,7 +212,7 @@ offset_t BWFormat::MeasureRelocations() const
 
 void BWFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub_file = FetchOption(options, "stub", "");
+	stub.filename = FetchOption(options, "stub", "");
 }
 
 void BWFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -365,7 +365,7 @@ void BWFormat::ProcessModule(Linker::Module& module)
 
 void BWFormat::CalculateValues()
 {
-	file_offset = stub_file != "" ? GetStubImageSize() : 0;;
+	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
 	//Linker::Debug << "Debug: New header offset: " << std::hex << file_offset << std::endl;
 
 	min_extra = 0; /* TODO: parametrize */
@@ -411,9 +411,9 @@ offset_t BWFormat::ImageSize() const
 offset_t BWFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	if(stub_file != "")
+	if(stub.filename != "")
 	{
-		const_cast<BWFormat *>(this)->WriteStubImage(wr); // TODO
+		stub.WriteStubImage(wr);
 	}
 	wr.Seek(file_offset);
 	wr.WriteData(2, "BW");
@@ -476,7 +476,7 @@ void BWFormat::Dump(Dumper::Dumper& dump) const
 
 std::string BWFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	if(stub_file != "")
+	if(stub.filename != "")
 	{
 		return filename + ".exe";
 	}

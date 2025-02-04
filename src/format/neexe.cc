@@ -747,7 +747,7 @@ offset_t NEFormat::ImageSize() const
 offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	const_cast<NEFormat *>(this)->WriteStubImage(wr); // TODO
+	stub.WriteStubImage(wr);
 	/* new header */
 	wr.Seek(file_offset);
 	wr.WriteData(signature);
@@ -1396,7 +1396,7 @@ uint8_t NEFormat::CountBundles(size_t entry_index) const
 
 void NEFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub_file = FetchOption(options, "stub", "");
+	stub.filename = FetchOption(options, "stub", "");
 
 	switch(system & ~PharLap)
 	{
@@ -1787,7 +1787,7 @@ void NEFormat::CalculateValues()
 	if(IsLibrary())
 		stack_size = ss = sp = 0;
 
-	file_offset = GetStubImageSize();
+	file_offset = stub.GetStubImageSize();
 
 	segment_table_offset = file_offset + 0x40;
 

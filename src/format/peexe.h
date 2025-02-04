@@ -14,7 +14,7 @@ namespace Microsoft
 	/**
 	 * @brief Microsoft PE .EXE portable executable file format
 	 */
-	class PEFormat : public COFF::COFFFormat, protected Microsoft::MZStubWriter
+	class PEFormat : public COFF::COFFFormat
 	{
 	public:
 		char pe_signature[4];
@@ -170,6 +170,8 @@ namespace Microsoft
 			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
 		};
 
+		mutable MZStubWriter stub;
+
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -181,7 +183,6 @@ namespace Microsoft
 
 	protected:
 		void ReadOptionalHeader(Linker::Reader& rd);
-		using Microsoft::MZStubWriter::WriteStubImage;
 	};
 }
 

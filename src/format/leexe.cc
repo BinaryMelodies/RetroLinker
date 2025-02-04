@@ -564,7 +564,7 @@ uint8_t LEFormat::CountBundles(size_t entry_index) const
 
 void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub_file = FetchOption(options, "stub", "");
+	stub.filename = FetchOption(options, "stub", "");
 	/* TODO */
 }
 
@@ -926,7 +926,7 @@ void LEFormat::CalculateValues()
 #endif
 	}
 
-	file_offset = GetStubImageSize();
+	file_offset = stub.GetStubImageSize();
 
 	object_table_offset = file_offset + 0xC4;
 
@@ -1034,7 +1034,7 @@ void LEFormat::CalculateValues()
 offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = endiantype;
-	const_cast<LEFormat *>(this)->WriteStubImage(wr); // TODO
+	stub.WriteStubImage(wr);
 
 	/* new header */
 	wr.Seek(file_offset);

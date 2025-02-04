@@ -45,7 +45,7 @@ namespace AOut
 	 * - early DJGPP before version 1.11
 	 * - early PDOS/386 and PD-Windows (http://pdos.sourceforge.net/) (obsolete)
 	 */
-	class AOutFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager, protected Microsoft::MZSimpleStubWriter
+	class AOutFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */
@@ -123,6 +123,9 @@ namespace AOut
 		void GenerateModule(Linker::Module& module) const override;
 
 		/* * * Writer * * */
+
+		// for old DJGPP executables
+		mutable Microsoft::MZSimpleStubWriter stub;
 
 		enum system_type
 		{

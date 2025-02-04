@@ -11,7 +11,7 @@ namespace DOS16M
 	/**
 	 * @brief Rational Systems DOS/16M "BW" .exp file
 	 */
-	class BWFormat : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter
+	class BWFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -173,6 +173,8 @@ namespace DOS16M
 		uint8_t default_memory_strategy = 0; /* TODO: ??? */
 		uint16_t transfer_buffer_size = 0; /* TODO: ??? */
 		std::string exp_name; /* TODO: ??? */
+
+		mutable Microsoft::MZStubWriter stub;
 
 		std::vector<std::unique_ptr<AbstractSegment>> segments;
 		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_indices;

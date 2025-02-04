@@ -126,7 +126,7 @@ void PEFormat::ReadOptionalHeader(Linker::Reader& rd)
 offset_t PEFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	const_cast<PEFormat *>(this)->WriteStubImage(wr); // TODO
+	stub.WriteStubImage(wr);
 	wr.Seek(file_offset);
 	wr.WriteData(4, pe_signature);
 	WriteFileContents(wr);

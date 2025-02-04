@@ -351,9 +351,9 @@ offset_t AOutFormat::ImageSize() const
 
 offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 {
-	if(system == DJGPP1 && stub_file != "")
+	if(system == DJGPP1 && stub.filename != "")
 	{
-		const_cast<AOutFormat *>(this)->WriteStubImage(wr);
+		stub.WriteStubImage(wr);
 	}
 
 	wr.endiantype = endiantype;
@@ -606,7 +606,7 @@ AOutFormat::magic_type AOutFormat::GetDefaultMagic(system_type system)
 
 void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub_file = FetchOption(options, "stub", "");
+	stub.filename = FetchOption(options, "stub", "");
 
 	/* TODO: other parameters */
 }

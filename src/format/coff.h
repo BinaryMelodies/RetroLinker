@@ -22,7 +22,7 @@ namespace COFF
 	 * - DJGPP version 1.11 or later, running on top of MS-DOS
 	 * - Digital Research Concurrent DOS 68K
 	 */
-	class COFFFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager, protected Microsoft::MZSimpleStubWriter
+	class COFFFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */
@@ -1097,6 +1097,9 @@ namespace COFF
 		void GenerateModule(Linker::Module& module) const override;
 
 		/* * * Writer members * * */
+
+		// for DJGPP binaries
+		mutable Microsoft::MZSimpleStubWriter stub;
 
 		/**
 		 * @brief Represents the type of target system, which will determine the CPU type and several other fields

@@ -36,7 +36,7 @@ bool MPFormat::Relocation::operator <(const Relocation& other) const
 
 void MPFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub_file = FetchOption(options, "stub", "");
+	stub.filename = FetchOption(options, "stub", "");
 }
 
 void MPFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -144,7 +144,7 @@ void MPFormat::ProcessModule(Linker::Module& module)
 
 void MPFormat::CalculateValues()
 {
-	file_offset = stub_file != "" ? GetStubImageSize() : 0;;
+	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
 	relocation_offset = 0x1E;
 	header_size = ::AlignTo(relocation_offset + (has_relocations ? 4 * relocations.size() : 0), 0x10);
 	image_size = header_size + image->data_size;
@@ -155,9 +155,9 @@ void MPFormat::CalculateValues()
 offset_t MPFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	if(stub_file != "")
+	if(stub.filename != "")
 	{
-		const_cast<MPFormat *>(this)->WriteStubImage(wr); // TODO
+		stub.WriteStubImage(wr);
 	}
 	wr.Seek(file_offset);
 	wr.WriteData(2, has_relocations ? "MQ" : "MP");
@@ -201,7 +201,7 @@ void MPFormat::Dump(Dumper::Dumper& dump) const
 
 std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	if(stub_file != "")
+	if(stub.filename != "")
 	{
 		return filename + ".exe";
 	}
@@ -265,12 +265,12 @@ void P3Format::RunTimeParameterBlock::WriteFile(Linker::Writer& wr) const
 
 void P3Format::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub_file = FetchOption(options, "stub", "");
+	stub.filename = FetchOption(options, "stub", "");
 }
 
 std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	if(stub_file != "")
+	if(stub.filename != "")
 	{
 		return filename + ".exe";
 	}
@@ -283,9 +283,9 @@ std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string fi
 offset_t P3Format::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	if(stub_file != "")
+	if(stub.filename != "")
 	{
-		const_cast<P3Format *>(this)->WriteStubImage(wr); // TODO
+		stub.WriteStubImage(wr);
 	}
 	wr.Seek(file_offset);
 	wr.WriteData(2, is_32bit ? "P3" : "P2");
@@ -456,7 +456,7 @@ void P3Format::Flat::ProcessModule(Linker::Module& module)
 
 void P3Format::Flat::CalculateValues()
 {
-	file_offset = stub_file != "" ? GetStubImageSize() : 0;;
+	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
 
 	header_size = 0x180;
 
@@ -878,7 +878,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 
 void P3Format::MultiSegmented::CalculateValues()
 {
-	file_offset = stub_file != "" ? GetStubImageSize() : 0;;
+	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
 
 	header_size = 0x180;
 

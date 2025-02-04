@@ -21,7 +21,7 @@ namespace Microsoft
 	 * - 16-bit OS/2 applications
 	 * - a Multitasking variant of MS-DOS referred to as European MS-DOS 4.0
 	 */
-	class NEFormat : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<NEFormat>
+	class NEFormat : public virtual Linker::SegmentManager, public std::enable_shared_from_this<NEFormat>
 	{
 	public:
 		/* * * General members * * */
@@ -548,6 +548,7 @@ namespace Microsoft
 
 		/* * * Writer members * * */
 
+		mutable MZStubWriter stub;
 		std::shared_ptr<Linker::Segment> stack, heap;
 		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index;
 		std::map<std::string, uint16_t> module_reference_offsets;

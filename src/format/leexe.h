@@ -22,7 +22,7 @@ namespace Microsoft
 	 * - LE executables for the DOS/4G DOS extender
 	 * - LX executables for 32-bit versions of OS/2
 	 */
-	class LEFormat : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<LEFormat>
+	class LEFormat : public virtual Linker::SegmentManager, public std::enable_shared_from_this<LEFormat>
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -361,6 +361,7 @@ namespace Microsoft
 			void WriteEntryBody(Linker::Writer& wr) const;
 		};
 
+		mutable MZStubWriter stub;
 		static const uint32_t page_size = 0x1000;
 
 		std::shared_ptr<Linker::Segment> stack, heap;

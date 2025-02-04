@@ -1326,9 +1326,9 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 
 offset_t COFFFormat::WriteFile(Linker::Writer& wr) const
 {
-	if(type == DJGPP && stub_file != "")
+	if(type == DJGPP && stub.filename != "")
 	{
-		const_cast<COFFFormat *>(this)->WriteStubImage(wr);
+		stub.WriteStubImage(wr);
 	}
 
 	wr.endiantype = endiantype;
@@ -1896,7 +1896,7 @@ std::shared_ptr<COFFFormat> COFFFormat::CreateWriter(format_type type)
 
 void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub_file = FetchOption(options, "stub", "");
+	stub.filename = FetchOption(options, "stub", "");
 
 	/* TODO */
 	option_no_relocation = false;
@@ -2201,7 +2201,7 @@ void COFFFormat::CalculateValues()
 
 	if(type == DJGPP)
 	{
-		GetStubImageSize();
+		stub.GetStubImageSize();
 	}
 	for(auto& section : sections)
 	{

@@ -11,7 +11,7 @@ namespace PharLap
 	/**
 	 * @brief Phar Lap "MP" .exp and "MQ" .rex file
 	 */
-	class MPFormat : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter
+	class MPFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -19,7 +19,6 @@ namespace PharLap
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
 		bool has_relocations;
-		std::string stub_file;
 
 		std::shared_ptr<Linker::Segment> image;
 
@@ -55,6 +54,7 @@ namespace PharLap
 		uint32_t esp = 0;
 		uint32_t eip = 0;
 		offset_t relocation_offset = 0;
+		mutable Microsoft::MZStubWriter stub;
 
 		MPFormat(bool has_relocations = false)
 			: has_relocations(has_relocations)
@@ -84,7 +84,7 @@ namespace PharLap
 	/**
 	 * @brief Phar Lap "P2"/"P3" .exp file
 	 */
-	class P3Format : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter
+	class P3Format : public virtual Linker::SegmentManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -95,7 +95,6 @@ namespace PharLap
 		bool FormatSupportsStackSection() const override;
 #endif
 
-		/*std::string stub_file;*/
 		const bool is_multisegmented;
 		bool is_32bit;
 
@@ -133,6 +132,8 @@ namespace PharLap
 		uint16_t flags = 0;
 		uint32_t memory_requirements = 0;
 		uint32_t stack_size = 0;
+
+		mutable Microsoft::MZStubWriter stub;
 
 		P3Format(bool is_multisegmented, bool is_32bit = true)
 			: is_multisegmented(is_multisegmented), is_32bit(is_32bit)

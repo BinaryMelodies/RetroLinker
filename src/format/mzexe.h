@@ -247,16 +247,16 @@ namespace Microsoft
 	class MZSimpleStubWriter
 	{
 	public:
-		std::string stub_file;
-		bool stub_file_valid = true;
-		mutable std::ifstream stub;
+		std::string filename;
+		bool valid = true;
+		std::ifstream stream;
 
-		MZSimpleStubWriter(std::string stub_file = "")
-			: stub_file(stub_file)
+		MZSimpleStubWriter(std::string filename = "")
+			: filename(filename)
 		{
 		}
 
-		offset_t stub_size = -1;
+		offset_t size = -1;
 
 		bool OpenAndCheckValidFile();
 
@@ -268,9 +268,9 @@ namespace Microsoft
 
 		~MZSimpleStubWriter()
 		{
-			if(stub.is_open())
+			if(stream.is_open())
 			{
-				stub.close();
+				stream.close();
 			}
 		}
 	};
@@ -278,12 +278,12 @@ namespace Microsoft
 	class MZStubWriter
 	{
 	public:
-		std::string stub_file;
-		bool stub_file_valid = true;
-		mutable std::ifstream stub;
+		std::string filename;
+		bool valid = true;
+		std::ifstream stream;
 
-		MZStubWriter(std::string stub_file = "")
-			: stub_file(stub_file)
+		MZStubWriter(std::string filename = "")
+			: filename(filename)
 		{
 		}
 
@@ -305,9 +305,9 @@ namespace Microsoft
 
 		~MZStubWriter()
 		{
-			if(stub.is_open())
+			if(stream.is_open())
 			{
-				stub.close();
+				stream.close();
 			}
 		}
 	};

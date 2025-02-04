@@ -688,16 +688,16 @@ std::string MZFormat::GetDefaultExtension(Linker::Module& module, std::string fi
 
 bool MZSimpleStubWriter::OpenAndCheckValidFile()
 {
-	if(stub_file != "" && stub_file_valid)
+	if(filename != "" && valid)
 	{
-		if(!stub.is_open())
+		if(!stream.is_open())
 		{
-			stub.open(stub_file, std::ios_base::in | std::ios_base::binary);
+			stream.open(filename, std::ios_base::in | std::ios_base::binary);
 		}
-		if(!stub.good())
+		if(!stream.good())
 		{
-			Linker::Error << "Error: unable to open stub file " << stub_file << ", generating dummy stub" << std::endl;
-			stub_file_valid = false;
+			Linker::Error << "Error: unable to open stub file " << filename << ", generating dummy stub" << std::endl;
+			valid = false;
 			return false;
 		}
 		else
@@ -713,15 +713,15 @@ offset_t MZSimpleStubWriter::GetStubImageSize()
 	if(OpenAndCheckValidFile())
 	{
 		Linker::Reader reader(::LittleEndian);
-		reader.in = &stub;
+		reader.in = &stream;
 		reader.Seek(2);
 		uint32_t file_size = reader.ReadUnsigned(2);
-		return stub_size = (reader.ReadUnsigned(2) << 9) - ((-file_size) & 0x1FF);
+		return size = (reader.ReadUnsigned(2) << 9) - ((-file_size) & 0x1FF);
 	}
 	else
 	{
 		/* minimal stub */
-		return stub_size = 0x20;
+		return size = 0x20;
 	}
 }
 
@@ -736,17 +736,16 @@ void MZSimpleStubWriter::WriteStubImage(Linker::Writer& wr)
 	wr.endiantype = ::LittleEndian;
 	if(OpenAndCheckValidFile())
 	{
-		if(stub_size == offset_t(-1))
+		if(size == offset_t(-1))
 		{
 			GetStubImageSize();
 		}
-		stub.seekg(0);
-		wr.WriteData(stub_size, stub);
+		stream.seekg(0);
+		wr.WriteData(size, stream);
 	}
 	else
 	{
 		/* minimal stub */
-		/* TODO: consider creating MZ object */
 		wr.WriteData(2, "MZ");
 		wr.WriteWord(2, 0x20);
 		wr.WriteWord(2, 1);
@@ -764,9 +763,9 @@ void MZSimpleStubWriter::WriteStubImage(Linker::Writer& wr)
 		wr.Seek(0x20);
 	}
 
-	if(stub.is_open())
+	if(stream.is_open())
 	{
-		stub.close();
+		stream.close();
 	}
 }
 
@@ -774,16 +773,16 @@ void MZSimpleStubWriter::WriteStubImage(Linker::Writer& wr)
 
 bool MZStubWriter::OpenAndCheckValidFile()
 {
-	if(stub_file != "" && stub_file_valid)
+	if(filename != "" && valid)
 	{
-		if(!stub.is_open())
+		if(!stream.is_open())
 		{
-			stub.open(stub_file, std::ios_base::in | std::ios_base::binary);
+			stream.open(filename, std::ios_base::in | std::ios_base::binary);
 		}
-		if(!stub.good())
+		if(!stream.good())
 		{
-			Linker::Error << "Error: unable to open stub file " << stub_file << ", generating dummy stub" << std::endl;
-			stub_file_valid = false;
+			Linker::Error << "Error: unable to open stub file " << filename << ", generating dummy stub" << std::endl;
+			valid = false;
 			return false;
 		}
 		else
@@ -799,7 +798,7 @@ offset_t MZStubWriter::GetStubImageSize()
 	if(OpenAndCheckValidFile())
 	{
 		Linker::Reader reader(::LittleEndian);
-		reader.in = &stub;
+		reader.in = &stream;
 		reader.Seek(2);
 		original_file_size = reader.ReadUnsigned(2);
 		original_file_size = (reader.ReadUnsigned(2) << 9) - ((-original_file_size) & 0x1FF);
@@ -853,27 +852,26 @@ void MZStubWriter::WriteStubImage(Linker::Writer& wr)
 			wr.WriteWord(2, (stub_file_size + 0x1FF) >> 9);
 			wr.WriteWord(2, stub_reloc_count);
 			wr.WriteWord(2, stub_header_size >> 4);
-			stub.seekg(0x0A);
-			wr.WriteData(0x0E, stub);
+			stream.seekg(0x0A);
+			wr.WriteData(0x0E, stream);
 			wr.WriteWord(2, stub_reloc_offset);
 			wr.Seek(0x3C);
 			wr.WriteWord(4, stub_file_size);
-			stub.seekg(original_reloc_offset);
-			wr.WriteData(4 * stub_reloc_count, stub);
+			stream.seekg(original_reloc_offset);
+			wr.WriteData(4 * stub_reloc_count, stream);
 			wr.Seek(stub_header_size);
-			stub.seekg(original_header_size);
-			wr.WriteData(original_file_size - original_header_size, stub);
+			stream.seekg(original_header_size);
+			wr.WriteData(original_file_size - original_header_size, stream);
 		}
 		else
 		{
-			stub.seekg(0);
-			wr.WriteData(original_file_size, stub);
+			stream.seekg(0);
+			wr.WriteData(original_file_size, stream);
 		}
 	}
 	else
 	{
 		/* minimal stub */
-		/* TODO: consider creating MZ object */
 		wr.WriteData(2, "MZ");
 		wr.WriteWord(2, 0x40);
 		wr.WriteWord(2, 1);
@@ -892,9 +890,9 @@ void MZStubWriter::WriteStubImage(Linker::Writer& wr)
 		wr.WriteWord(4, 0x40);
 	}
 
-	if(stub.is_open())
+	if(stream.is_open())
 	{
-		stub.close();
+		stream.close();
 	}
 }
 
