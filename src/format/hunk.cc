@@ -1,6 +1,7 @@
 
 #include "hunk.h"
 #include "../linker/position.h"
+#include "../linker/reader.h"
 #include "../linker/resolution.h"
 
 using namespace Amiga;
@@ -23,28 +24,261 @@ unsigned HunkFormat::FormatAdditionalSectionFlags(std::string section_name) cons
 	}
 }
 
+std::string HunkFormat::ReadString(Linker::Reader& rd, uint32_t& longword_count)
+{
+	longword_count = rd.ReadUnsigned(4);
+	return rd.ReadData(longword_count * 4, '\0');
+}
+
+std::string HunkFormat::ReadString(Linker::Reader& rd)
+{
+	uint32_t tmp;
+	return ReadString(rd, tmp);
+}
+
+void HunkFormat::WriteString(Linker::Writer& wr, std::string name)
+{
+	offset_t size = ::AlignTo(name.size(), 4);
+	wr.WriteWord(4, size / 4);
+	wr.WriteData(size, name, '\0');
+}
+
 void HunkFormat::ReadFile(Linker::Reader& rd)
 {
 	/* TODO */
 }
 
-uint32_t HunkFormat::Hunk::GetSizeField() const
+std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& rd)
 {
-	uint32_t size = (image->TotalSize() + 3) >> 2;
+	uint32_t type = rd.ReadUnsigned(4);
+	std::shared_ptr<Block> block = nullptr;
+	switch(type)
+	{
+	case HUNK_HEADER:
+		block = std::make_shared<HeaderBlock>();
+		break;
+	// TODO
+	}
+	block->Read(rd);
+	return block;
+}
+
+void HunkFormat::Block::Read(Linker::Reader& rd)
+{
+}
+
+void HunkFormat::Block::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(4, type);
+}
+
+void HunkFormat::HeaderBlock::Read(Linker::Reader& rd)
+{
+	while(true)
+	{
+		uint32_t longword_count;
+		std::string name = HunkFormat::ReadString(rd, longword_count);
+		if(longword_count == 0)
+			break;
+		library_names.push_back(name);
+	}
+	table_size = rd.ReadUnsigned(4);
+	first_hunk = rd.ReadUnsigned(4);
+	uint32_t last_hunk = rd.ReadUnsigned(4);
+	for(uint32_t i = 0; i < last_hunk - first_hunk + 1; i++)
+	{
+		hunk_sizes.emplace_back(rd.ReadUnsigned(4));
+	}
+}
+
+void HunkFormat::HeaderBlock::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(4, type);
+	for(auto& name : library_names)
+	{
+		HunkFormat::WriteString(wr, name);
+	}
+	wr.WriteWord(4, 0);
+	wr.WriteWord(4, table_size);
+	wr.WriteWord(4, first_hunk);
+	wr.WriteWord(4, hunk_sizes.size() + first_hunk - 1);
+	for(uint32_t size : hunk_sizes)
+	{
+		wr.WriteWord(4, size);
+	}
+}
+
+uint32_t HunkFormat::InitialHunkBlock::GetSizeField() const
+{
+	uint32_t size = GetSize();
 	if(RequiresAdditionalFlags())
 		return size | 0xC0000000;
 	else
 		return size | ((flags & ~LoadPublic) << 29);
 }
 
-bool HunkFormat::Hunk::RequiresAdditionalFlags() const
+bool HunkFormat::InitialHunkBlock::RequiresAdditionalFlags() const
 {
 	return (flags & ~(LoadChipMem | LoadFastMem | LoadPublic)) != 0;
 }
 
-uint32_t HunkFormat::Hunk::GetAdditionalFlags() const
+uint32_t HunkFormat::InitialHunkBlock::GetAdditionalFlags() const
 {
 	return flags & ~LoadPublic;
+}
+
+void HunkFormat::InitialHunkBlock::Read(Linker::Reader& rd)
+{
+	uint32_t longword_count = rd.ReadUnsigned(4);
+	if((longword_count & FlagMask) == BitAdditional)
+	{
+		flags = flag_type(rd.ReadUnsigned(4) | LoadPublic);
+	}
+	else
+	{
+		flags = flag_type(((longword_count & FlagMask) >> 29) | LoadPublic);
+	}
+	ReadBody(rd, longword_count);
+}
+
+void HunkFormat::InitialHunkBlock::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(4, type);
+	wr.WriteWord(4, GetSizeField());
+	if(RequiresAdditionalFlags())
+		wr.WriteWord(4, GetAdditionalFlags()); // TODO: this is not tested
+	WriteBody(wr);
+}
+
+void HunkFormat::InitialHunkBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
+{
+}
+
+void HunkFormat::InitialHunkBlock::WriteBody(Linker::Writer& wr) const
+{
+}
+
+uint32_t HunkFormat::LoadBlock::GetSize() const
+{
+	return ::AlignTo(image->ImageSize(), 4) / 4;
+}
+
+void HunkFormat::LoadBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
+{
+	image = Linker::Buffer::ReadFromFile(rd, longword_count * 4);
+}
+
+void HunkFormat::LoadBlock::WriteBody(Linker::Writer& wr) const
+{
+	uint32_t full_size = GetSize() * 4;
+	offset_t image_start = wr.Tell();
+	image->WriteFile(wr);
+	if(wr.Tell() != image_start + full_size)
+		wr.Skip(image_start + full_size - wr.Tell());
+}
+
+uint32_t HunkFormat::BssBlock::GetSize() const
+{
+	return size;
+}
+
+void HunkFormat::BssBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
+{
+	size = longword_count;
+}
+
+void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
+{
+	while(true)
+	{
+		uint32_t relocation_count = rd.ReadUnsigned(4);
+		if(relocation_count == 0)
+			break;
+
+		RelocationData data;
+		data.hunk = rd.ReadUnsigned(4);
+		for(uint32_t i = 0; i < relocation_count; i++)
+		{
+			data.offsets.push_back(rd.ReadUnsigned(4));
+		}
+	}
+}
+
+void HunkFormat::RelocationBlock::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(4, type);
+	for(auto& data : relocations)
+	{
+		// to make sure to avoid accidentally closing the list prematurely
+		if(data.offsets.size() == 0)
+			continue;
+
+		wr.WriteWord(4, data.offsets.size());
+		wr.WriteWord(4, data.hunk);
+		for(auto offset : data.offsets)
+		{
+			wr.WriteWord(4, offset);
+		}
+	}
+	wr.WriteWord(4, 0); /* terminator */
+}
+
+void HunkFormat::Hunk::ProduceBlocks()
+{
+	/* Initial hunk block */
+	if(type != Hunk::Bss)
+	{
+		std::shared_ptr<LoadBlock> load = std::make_shared<LoadBlock>(Block::block_type(type), flags);
+		load->image = image;
+		blocks.push_back(load);
+	}
+	else
+	{
+		assert(image->data_size == 0);
+		std::shared_ptr<BssBlock> bss = std::make_shared<BssBlock>((image->TotalSize() + 3) / 4, flags);
+		blocks.push_back(bss);
+	}
+
+	if(relocations.size() != 0)
+	{
+		/* Relocation block */
+		std::shared_ptr<RelocationBlock> relocation = std::make_shared<RelocationBlock>(Block::HUNK_RELOC32);
+		for(auto it : relocations)
+		{
+			relocation->relocations.emplace_back(RelocationBlock::RelocationData(it.first));
+			for(uint32_t rel : it.second)
+			{
+				relocation->relocations.back().offsets.push_back(rel);
+			}
+		}
+		blocks.push_back(relocation);
+	}
+
+	/* End block */
+	std::shared_ptr<Block> end = std::make_shared<Block>(Block::HUNK_END);
+	blocks.push_back(end);
+}
+
+uint32_t HunkFormat::Hunk::GetSizeField()
+{
+	if(blocks.size() == 0)
+	{
+		ProduceBlocks();
+		if(blocks.size() == 0)
+		{
+			Linker::Error << "Internal error: Hunk produced no blocks" << std::endl;
+			return 0;
+		}
+	}
+	if(InitialHunkBlock * block = dynamic_cast<InitialHunkBlock *>(blocks[0].get()))
+	{
+		return block->GetSizeField();
+	}
+	else
+	{
+		Linker::Error << "Internal error: Hunk produced unexpected first block" << std::endl;
+		return 0;
+	}
 }
 
 void HunkFormat::SetOptions(std::map<std::string, std::string>& options)
@@ -68,30 +302,30 @@ void HunkFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 
 	unsigned flags = segment->sections.front()->GetFlags();
 	Linker::Debug << "Debug: section flags " << std::hex << flags << std::endl;
-	uint32_t hunk_type;
-	unsigned hunk_flags = Hunk::LoadAny;
+	Hunk::hunk_type hunk_type;
+	unsigned hunk_flags = LoadBlock::LoadAny;
 	if(!(flags & Linker::Section::Writable))
 	{
-		hunk_type = cpu;
+		hunk_type = Hunk::hunk_type(cpu);
 	}
 	else if(!(flags & Linker::Section::ZeroFilled))
 	{
-		hunk_type = HUNK_DATA;
+		hunk_type = Hunk::Data;
 	}
 	else
 	{
-		hunk_type = HUNK_BSS;
+		hunk_type = Hunk::Bss;
 	}
 
 	if((flags & ChipMemory))
 	{
 		Linker::Debug << "Debug: Setting flags to chip memory" << std::endl;
-		hunk_flags = Hunk::LoadChipMem;
+		hunk_flags = LoadBlock::LoadChipMem;
 	}
 	else if((flags & FastMemory))
 	{
 		Linker::Debug << "Debug: Setting flags to fast memory" << std::endl;
-		hunk_flags = Hunk::LoadFastMem;
+		hunk_flags = LoadBlock::LoadFastMem;
 	}
 
 	AddHunk(Hunk(hunk_type, segment, hunk_flags));
@@ -174,10 +408,10 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 	switch(module.cpu)
 	{
 	case Linker::Module::M68K:
-		cpu = HUNK_CODE;
+		cpu = CPU_M68K;
 		break;
 	case Linker::Module::PPC:
-		cpu = HUNK_PPC_CODE;
+		cpu = CPU_PPC;
 		break;
 	default:
 		Linker::FatalError("Fatal error: invalid CPU type");
@@ -212,6 +446,15 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 			hunks[source].relocations[target].push_back(position.address);
 		}
 	}
+
+	std::shared_ptr<HeaderBlock> header = std::make_shared<HeaderBlock>();
+	header->table_size = hunks.size();
+	header->first_hunk = 0;
+	for(Hunk& hunk : hunks)
+	{
+		header->hunk_sizes.emplace_back(hunk.GetSizeField());
+	}
+	start_block = header;
 }
 
 void HunkFormat::CalculateValues()
@@ -221,54 +464,15 @@ void HunkFormat::CalculateValues()
 offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
-	wr.WriteWord(4, HUNK_HEADER);
-	wr.WriteWord(4, 0); /* no libraries */
-	wr.WriteWord(4, hunks.size());
-	wr.WriteWord(4, 0); /* first hunk: hunk #0 */
-	wr.WriteWord(4, hunks.size() - 1); /* last hunk */
+
+	start_block->Write(wr);
+
 	for(const Hunk& hunk : hunks)
 	{
-		wr.WriteWord(4, hunk.GetSizeField());
-	}
-	for(const Hunk& hunk : hunks)
-	{
-		/* Initial hunk block */
-		wr.WriteWord(4, hunk.hunk_type);
-		wr.WriteWord(4, hunk.GetSizeField());
-		if(hunk.RequiresAdditionalFlags())
-			wr.WriteWord(4, hunk.GetAdditionalFlags()); /* TODO: must be tested out */
-		if(hunk.hunk_type != HUNK_BSS)
+		for(auto& block : hunk.blocks)
 		{
-			/* bss hunks do not contain data */
-//					Linker::Debug << "Debug: No! " << hunk.image->total_size << ", " << hunk.image->data_size << std::endl;
-			hunk.image->WriteFile(wr);
-			int skip = (-hunk.image->data_size) & 3;
-			if(skip != 0)
-			{
-				wr.Skip(skip);
-			}
+			block->Write(wr);
 		}
-		else
-		{
-			assert(hunk.image->data_size == 0);
-		}
-		if(hunk.relocations.size() != 0)
-		{
-			/* Relocations block */
-			wr.WriteWord(4, HUNK_RELOC32);
-			for(auto it : hunk.relocations)
-			{
-				wr.WriteWord(4, it.second.size());
-				wr.WriteWord(4, it.first); /* hunk number */
-				for(uint32_t relocation : it.second)
-				{
-					wr.WriteWord(4, relocation);
-				}
-			}
-			wr.WriteWord(4, 0); /* terminator */
-		}
-		/* End block */
-		wr.WriteWord(4, HUNK_END);
 	}
 
 	return offset_t(-1);

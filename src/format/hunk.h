@@ -33,24 +33,65 @@ namespace Amiga
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
+		static std::string ReadString(Linker::Reader& rd, uint32_t& longword_count);
+		static std::string ReadString(Linker::Reader& rd);
+		static void WriteString(Linker::Writer& wr, std::string name);
+
 		void ReadFile(Linker::Reader& rd) override;
 
-		enum
-		{
-			HUNK_CODE = 0x3E9,
-			HUNK_DATA = 0x3EA,
-			HUNK_BSS = 0x3EB,
-			HUNK_RELOC32 = 0x3EC,
-			HUNK_END = 0x3F2,
-			HUNK_HEADER = 0x3F3,
-			HUNK_PPC_CODE = 0x4E9,
-		};
-		uint32_t cpu = HUNK_CODE;
-
-		class Hunk
+		class Block
 		{
 		public:
-			uint32_t hunk_type;
+			enum block_type
+			{
+				HUNK_UNIT = 0x3E7,
+				HUNK_CODE = 0x3E9,
+				HUNK_DATA = 0x3EA,
+				HUNK_BSS = 0x3EB,
+				HUNK_RELOC32 = 0x3EC,
+				HUNK_END = 0x3F2,
+				HUNK_HEADER = 0x3F3,
+				HUNK_PPC_CODE = 0x4E9,
+			};
+			block_type type;
+			Block(block_type type)
+				: type(type)
+			{
+			}
+			virtual ~Block() = default;
+			static std::shared_ptr<Block> ReadBlock(Linker::Reader& rd);
+			virtual void Read(Linker::Reader& rd);
+			virtual void Write(Linker::Writer& wr) const;
+		};
+
+		class HeaderBlock : public Block
+		{
+		public:
+			std::vector<std::string> library_names;
+			uint32_t table_size = 0;
+			uint32_t first_hunk = 0;
+			std::vector<uint32_t> hunk_sizes;
+
+			HeaderBlock()
+				: Block(HUNK_HEADER)
+			{
+			}
+
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
+		};
+
+		class InitialHunkBlock : public Block
+		{
+		public:
+			enum
+			{
+				FlagMask      = 0xC0000000,
+				BitChipMem    = 0x40000000,
+				BitFastMem    = 0x80000000,
+				BitAdditional = 0xC0000000,
+			};
+
 			enum flag_type
 			{
 				LoadAny      = 0x00000000,
@@ -62,29 +103,121 @@ namespace Amiga
 				LoadClear    = 0x00010000,
 			};
 			flag_type flags;
-			std::shared_ptr<Linker::Segment> image;
 
-			Hunk(uint32_t hunk_type, std::string name = "image", unsigned flags = LoadAny)
-				: hunk_type(hunk_type), flags(flag_type(flags)), image(std::make_shared<Linker::Segment>(name))
+			InitialHunkBlock(block_type type, uint32_t flags = LoadAny)
+				: Block(type), flags(flag_type(flags | LoadPublic))
 			{
 			}
 
-			Hunk(uint32_t hunk_type, std::shared_ptr<Linker::Segment> segment, unsigned flags = LoadAny)
-				: hunk_type(hunk_type), flags(flag_type(flags)), image(segment)
-			{
-			}
-
-			std::map<uint32_t, std::vector<uint32_t> > relocations;
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
 
 			uint32_t GetSizeField() const;
 
 			bool RequiresAdditionalFlags() const;
 
 			uint32_t GetAdditionalFlags() const;
+
+		protected:
+			virtual uint32_t GetSize() const = 0;
+			virtual void ReadBody(Linker::Reader& rd, uint32_t longword_count);
+			virtual void WriteBody(Linker::Writer& wr) const;
 		};
 
+		class LoadBlock : public InitialHunkBlock
+		{
+		public:
+			std::shared_ptr<Linker::Image> image;
+
+			LoadBlock(block_type type, uint32_t flags = LoadAny)
+				: InitialHunkBlock(type, flags)
+			{
+			}
+
+		protected:
+			uint32_t GetSize() const override;
+			void ReadBody(Linker::Reader& rd, uint32_t longword_count) override;
+			void WriteBody(Linker::Writer& wr) const override;
+		};
+
+		class BssBlock : public InitialHunkBlock
+		{
+		public:
+			uint32_t size;
+
+			BssBlock(uint32_t size = 0, uint32_t flags = LoadAny)
+				: InitialHunkBlock(HUNK_BSS, flags), size(size)
+			{
+			}
+
+		protected:
+			uint32_t GetSize() const override;
+			void ReadBody(Linker::Reader& rd, uint32_t longword_count) override;
+		};
+
+		class RelocationBlock : public Block
+		{
+		public:
+			struct RelocationData
+			{
+				uint32_t hunk;
+				std::vector<uint32_t> offsets;
+			};
+			std::vector<RelocationData> relocations;
+
+			RelocationBlock(block_type type)
+				: Block(type)
+			{
+			}
+
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
+		};
+
+		class Hunk
+		{
+		public:
+			std::vector<std::shared_ptr<Block>> blocks;
+
+			enum hunk_type
+			{
+				Code = Block::HUNK_CODE,
+				CodePPC = Block::HUNK_PPC_CODE,
+				Data = Block::HUNK_DATA,
+				Bss = Block::HUNK_BSS,
+			};
+			hunk_type type;
+
+			LoadBlock::flag_type flags;
+			std::shared_ptr<Linker::Segment> image;
+
+			Hunk(hunk_type type, std::string name = "image", unsigned flags = LoadBlock::LoadAny)
+				: type(hunk_type(type)), flags(LoadBlock::flag_type(flags)), image(std::make_shared<Linker::Segment>(name))
+			{
+			}
+
+			Hunk(hunk_type type, std::shared_ptr<Linker::Segment> segment, unsigned flags = LoadBlock::LoadAny)
+				: type(hunk_type(type)), flags(LoadBlock::flag_type(flags)), image(segment)
+			{
+			}
+
+			std::map<uint32_t, std::vector<uint32_t> > relocations;
+
+			void ProduceBlocks();
+
+			uint32_t GetSizeField();
+		};
+
+		enum cpu_type
+		{
+			CPU_M68K = Block::HUNK_CODE,
+			CPU_PPC = Block::HUNK_PPC_CODE,
+		};
+		cpu_type cpu = CPU_PPC;
+
+		std::shared_ptr<Block> start_block;
 		std::vector<Hunk> hunks;
-		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index; /* makes it easier to lookup the indices of segments */
+		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index; /* makes it easier to look up the indices of segments */
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
