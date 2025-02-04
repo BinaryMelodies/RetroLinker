@@ -19,25 +19,7 @@ namespace Amiga
 	class HunkFormat : public virtual Linker::SegmentManager
 	{
 	public:
-		enum flags
-		{
-			/**
-			 * @brief Section to be stored in fast memory
-			 */
-			FastMemory = Linker::Section::CustomFlag,
-			/**
-			 * @brief Section to be stored in chip memory
-			 */
-			ChipMemory = Linker::Section::CustomFlag << 1,
-		};
-
-		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
-
-		static std::string ReadString(Linker::Reader& rd, uint32_t& longword_count);
-		static std::string ReadString(Linker::Reader& rd);
-		static void WriteString(Linker::Writer& wr, std::string name);
-
-		void ReadFile(Linker::Reader& rd) override;
+		/* * * General members * * */
 
 		class Block
 		{
@@ -208,6 +190,23 @@ namespace Amiga
 			uint32_t GetSizeField();
 		};
 
+		std::shared_ptr<Block> start_block;
+		std::vector<Hunk> hunks;
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+
+		static std::string ReadString(Linker::Reader& rd, uint32_t& longword_count);
+		static std::string ReadString(Linker::Reader& rd);
+		static void WriteString(Linker::Writer& wr, std::string name);
+
+		/* * * Writer members * * */
+
 		enum cpu_type
 		{
 			CPU_M68K = Block::HUNK_CODE,
@@ -215,9 +214,21 @@ namespace Amiga
 		};
 		cpu_type cpu = CPU_PPC;
 
-		std::shared_ptr<Block> start_block;
-		std::vector<Hunk> hunks;
 		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index; /* makes it easier to look up the indices of segments */
+
+		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
+
+		enum flags
+		{
+			/**
+			 * @brief Section to be stored in fast memory
+			 */
+			FastMemory = Linker::Section::CustomFlag,
+			/**
+			 * @brief Section to be stored in chip memory
+			 */
+			ChipMemory = Linker::Section::CustomFlag << 1,
+		};
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
@@ -232,10 +243,6 @@ namespace Amiga
 		void ProcessModule(Linker::Module& module) override;
 
 		void CalculateValues() override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 

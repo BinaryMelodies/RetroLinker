@@ -6,47 +6,7 @@
 
 using namespace Amiga;
 
-unsigned HunkFormat::FormatAdditionalSectionFlags(std::string section_name) const
-{
-	if(section_name == ".chip" || section_name.rfind(".chip.", 0) == 0)
-	{
-		Linker::Debug << "Debug: Using chip memory" << std::endl;
-		return ChipMemory;
-	}
-	else if(section_name == ".fast" || section_name.rfind(".fast.", 0) == 0)
-	{
-		Linker::Debug << "Debug: Using fast memory" << std::endl;
-		return FastMemory;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-std::string HunkFormat::ReadString(Linker::Reader& rd, uint32_t& longword_count)
-{
-	longword_count = rd.ReadUnsigned(4);
-	return rd.ReadData(longword_count * 4, '\0');
-}
-
-std::string HunkFormat::ReadString(Linker::Reader& rd)
-{
-	uint32_t tmp;
-	return ReadString(rd, tmp);
-}
-
-void HunkFormat::WriteString(Linker::Writer& wr, std::string name)
-{
-	offset_t size = ::AlignTo(name.size(), 4);
-	wr.WriteWord(4, size / 4);
-	wr.WriteData(size, name, '\0');
-}
-
-void HunkFormat::ReadFile(Linker::Reader& rd)
-{
-	/* TODO */
-}
+// Block
 
 std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& rd)
 {
@@ -71,6 +31,8 @@ void HunkFormat::Block::Write(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, type);
 }
+
+// HeaderBlock
 
 void HunkFormat::HeaderBlock::Read(Linker::Reader& rd)
 {
@@ -107,6 +69,8 @@ void HunkFormat::HeaderBlock::Write(Linker::Writer& wr) const
 		wr.WriteWord(4, size);
 	}
 }
+
+// InitialHunkBlock
 
 uint32_t HunkFormat::InitialHunkBlock::GetSizeField() const
 {
@@ -158,6 +122,8 @@ void HunkFormat::InitialHunkBlock::WriteBody(Linker::Writer& wr) const
 {
 }
 
+// LoadBlock
+
 uint32_t HunkFormat::LoadBlock::GetSize() const
 {
 	return ::AlignTo(image->ImageSize(), 4) / 4;
@@ -177,6 +143,8 @@ void HunkFormat::LoadBlock::WriteBody(Linker::Writer& wr) const
 		wr.Skip(image_start + full_size - wr.Tell());
 }
 
+// BssBlock
+
 uint32_t HunkFormat::BssBlock::GetSize() const
 {
 	return size;
@@ -186,6 +154,8 @@ void HunkFormat::BssBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
 {
 	size = longword_count;
 }
+
+// RelocationBlock
 
 void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
 {
@@ -223,6 +193,7 @@ void HunkFormat::RelocationBlock::Write(Linker::Writer& wr) const
 	wr.WriteWord(4, 0); /* terminator */
 }
 
+
 void HunkFormat::Hunk::ProduceBlocks()
 {
 	/* Initial hunk block */
@@ -259,6 +230,8 @@ void HunkFormat::Hunk::ProduceBlocks()
 	blocks.push_back(end);
 }
 
+// Hunk
+
 uint32_t HunkFormat::Hunk::GetSizeField()
 {
 	if(blocks.size() == 0)
@@ -277,6 +250,84 @@ uint32_t HunkFormat::Hunk::GetSizeField()
 	else
 	{
 		Linker::Error << "Internal error: Hunk produced unexpected first block" << std::endl;
+		return 0;
+	}
+}
+
+// HunkFormat
+
+offset_t HunkFormat::ImageSize() const
+{
+	/* TODO */
+	return offset_t(-1);
+}
+
+void HunkFormat::ReadFile(Linker::Reader& rd)
+{
+	/* TODO */
+}
+
+offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
+{
+	wr.endiantype = ::BigEndian;
+
+	start_block->Write(wr);
+
+	for(const Hunk& hunk : hunks)
+	{
+		for(auto& block : hunk.blocks)
+		{
+			block->Write(wr);
+		}
+	}
+
+	return offset_t(-1);
+}
+
+void HunkFormat::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Hunk format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
+std::string HunkFormat::ReadString(Linker::Reader& rd, uint32_t& longword_count)
+{
+	longword_count = rd.ReadUnsigned(4);
+	return rd.ReadData(longword_count * 4, '\0');
+}
+
+std::string HunkFormat::ReadString(Linker::Reader& rd)
+{
+	uint32_t tmp;
+	return ReadString(rd, tmp);
+}
+
+void HunkFormat::WriteString(Linker::Writer& wr, std::string name)
+{
+	offset_t size = ::AlignTo(name.size(), 4);
+	wr.WriteWord(4, size / 4);
+	wr.WriteData(size, name, '\0');
+}
+
+unsigned HunkFormat::FormatAdditionalSectionFlags(std::string section_name) const
+{
+	if(section_name == ".chip" || section_name.rfind(".chip.", 0) == 0)
+	{
+		Linker::Debug << "Debug: Using chip memory" << std::endl;
+		return ChipMemory;
+	}
+	else if(section_name == ".fast" || section_name.rfind(".fast.", 0) == 0)
+	{
+		Linker::Debug << "Debug: Using fast memory" << std::endl;
+		return FastMemory;
+	}
+	else
+	{
 		return 0;
 	}
 }
@@ -459,34 +510,6 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 
 void HunkFormat::CalculateValues()
 {
-}
-
-offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
-{
-	wr.endiantype = ::BigEndian;
-
-	start_block->Write(wr);
-
-	for(const Hunk& hunk : hunks)
-	{
-		for(auto& block : hunk.blocks)
-		{
-			block->Write(wr);
-		}
-	}
-
-	return offset_t(-1);
-}
-
-void HunkFormat::Dump(Dumper::Dumper& dump) const
-{
-	dump.SetEncoding(Dumper::Block::encoding_default);
-
-	dump.SetTitle("Hunk format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
-
-	// TODO
 }
 
 void HunkFormat::GenerateFile(std::string filename, Linker::Module& module)
