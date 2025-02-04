@@ -320,7 +320,6 @@ size_t LEFormat::Page::Relocation::GetSize() const
 
 void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr, compatibility_type compatibility) const
 {
-	const_cast<Relocation *>(this)->CalculateSizes(compatibility); // TODO: remove this ugly hack
 	wr.WriteWord(1, type);
 	wr.WriteWord(1, flags);
 	if(IsSourceList())

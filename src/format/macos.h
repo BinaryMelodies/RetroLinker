@@ -741,6 +741,10 @@ namespace Apple
 		uint16_t secondary_header_size = 0; /* TODO */
 		mutable uint16_t crc = 0;
 
+		uint8_t attributes = 0;
+		uint32_t creation = 0;
+		uint32_t modification = 0;
+
 		std::string generated_file_name;
 
 		MacBinary(version_t version = MACBIN3)
@@ -774,6 +778,8 @@ namespace Apple
 		void WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const;
 
 		void WriteHeader(Linker::Writer& wr) const;
+
+		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

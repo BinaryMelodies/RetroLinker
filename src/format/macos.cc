@@ -1607,7 +1607,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	{
 		WriteData(wr, 16, "");
 	}
-	WriteWord(wr, 1, const_cast<MacBinary *>(this)->GetMacintoshAttributes()); // TODO: move this elsewhere
+	WriteWord(wr, 1, attributes);
 	WriteWord(wr, 1, 0);
 	if(auto entry = FindEntry(ID_DataFork))
 	{
@@ -1625,8 +1625,8 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	{
 		WriteWord(wr, 4, 0);
 	}
-	WriteWord(wr, 4, const_cast<MacBinary *>(this)->GetCreationDate()); // TODO: move this elsewhere
-	WriteWord(wr, 4, const_cast<MacBinary *>(this)->GetModificationDate()); // TODO: move this elsewhere
+	WriteWord(wr, 4, creation);
+	WriteWord(wr, 4, modification);
 	if(version < MACBIN1_GETINFO)
 	{
 		return;
@@ -1667,6 +1667,14 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	WriteWord(wr, 1, version);
 	WriteWord(wr, 1, minimum_version);
 	wr.WriteWord(2, crc);
+}
+
+void MacBinary::CalculateValues()
+{
+	attributes = GetMacintoshAttributes();
+	creation = GetCreationDate();
+	modification = GetModificationDate();
+	AppleSingleDouble::CalculateValues();
 }
 
 offset_t MacBinary::WriteFile(Linker::Writer& wr) const
