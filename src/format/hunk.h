@@ -44,6 +44,22 @@ namespace Amiga
 			static std::shared_ptr<Block> ReadBlock(Linker::Reader& rd);
 			virtual void Read(Linker::Reader& rd);
 			virtual void Write(Linker::Writer& wr) const;
+			virtual offset_t FileSize() const;
+		};
+
+		class UnitBlock : public Block
+		{
+		public:
+			std::string name;
+
+			UnitBlock()
+				: Block(HUNK_UNIT)
+			{
+			}
+
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
+			offset_t FileSize() const override;
 		};
 
 		class HeaderBlock : public Block
@@ -61,6 +77,7 @@ namespace Amiga
 
 			void Read(Linker::Reader& rd) override;
 			void Write(Linker::Writer& wr) const override;
+			offset_t FileSize() const override;
 		};
 
 		class InitialHunkBlock : public Block
@@ -91,14 +108,15 @@ namespace Amiga
 			{
 			}
 
-			void Read(Linker::Reader& rd) override;
-			void Write(Linker::Writer& wr) const override;
-
 			uint32_t GetSizeField() const;
 
 			bool RequiresAdditionalFlags() const;
 
 			uint32_t GetAdditionalFlags() const;
+
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
+			offset_t FileSize() const override;
 
 		protected:
 			virtual uint32_t GetSize() const = 0;
@@ -125,12 +143,15 @@ namespace Amiga
 		class BssBlock : public InitialHunkBlock
 		{
 		public:
+			/** @brief Size of memory in 4-byte longwords */
 			uint32_t size;
 
 			BssBlock(uint32_t size = 0, uint32_t flags = LoadAny)
 				: InitialHunkBlock(HUNK_BSS, flags), size(size)
 			{
 			}
+
+			offset_t FileSize() const override;
 
 		protected:
 			uint32_t GetSize() const override;
@@ -154,6 +175,7 @@ namespace Amiga
 
 			void Read(Linker::Reader& rd) override;
 			void Write(Linker::Writer& wr) const override;
+			offset_t FileSize() const override;
 		};
 
 		class Hunk
@@ -161,17 +183,26 @@ namespace Amiga
 		public:
 			std::vector<std::shared_ptr<Block>> blocks;
 
-			enum hunk_type
+			enum hunk_type : uint32_t
 			{
+				Undefined = 0,
+				Invalid = uint32_t(-1),
+
 				Code = Block::HUNK_CODE,
 				CodePPC = Block::HUNK_PPC_CODE,
 				Data = Block::HUNK_DATA,
 				Bss = Block::HUNK_BSS,
 			};
-			hunk_type type;
+			hunk_type type = Undefined;
 
-			LoadBlock::flag_type flags;
-			std::shared_ptr<Linker::Segment> image;
+			LoadBlock::flag_type flags = LoadBlock::LoadPublic;
+			std::shared_ptr<Linker::Image> image;
+			offset_t image_size = 0; // only relevant for bss
+
+			explicit Hunk()
+				: type(Undefined), flags(LoadBlock::LoadAny), image(nullptr)
+			{
+			}
 
 			Hunk(hunk_type type, std::string name = "image", unsigned flags = LoadBlock::LoadAny)
 				: type(hunk_type(type)), flags(LoadBlock::flag_type(flags)), image(std::make_shared<Linker::Segment>(name))
@@ -187,7 +218,11 @@ namespace Amiga
 
 			void ProduceBlocks();
 
+			uint32_t GetMemorySize() const;
+
 			uint32_t GetSizeField();
+
+			void AppendBlock(std::shared_ptr<Block> block);
 		};
 
 		std::shared_ptr<Block> start_block;
@@ -204,6 +239,7 @@ namespace Amiga
 		static std::string ReadString(Linker::Reader& rd, uint32_t& longword_count);
 		static std::string ReadString(Linker::Reader& rd);
 		static void WriteString(Linker::Writer& wr, std::string name);
+		static offset_t MeasureString(std::string name);
 
 		/* * * Writer members * * */
 
