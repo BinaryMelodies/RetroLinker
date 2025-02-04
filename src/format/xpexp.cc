@@ -9,7 +9,7 @@ using namespace Ergo;
 
 void XPFormat::CalculateValues()
 {
-	offset = 0; // TODO: if stub is available, later
+	file_offset = 0; // TODO: if stub is available, later
 	if(ldt_offset < 0x68)
 	{
 		ldt_offset = 0x68;
@@ -23,10 +23,11 @@ void XPFormat::CalculateValues()
 
 void XPFormat::Clear()
 {
-	offset = 0;
+	file_offset = 0;
 	ldt_offset = 0;
 	image_offset = 0;
 	relocation_offset = 0; // TODO: unsure
+	relocation_count = 0; // TODO: unsure
 	minimum_extent = 0;
 	maximum_extent = 0;
 	unknown_field = 0;
@@ -39,14 +40,14 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 {
 	Clear();
 	rd.endiantype = ::LittleEndian;
-	offset = rd.Tell();
+	file_offset = rd.Tell();
 	rd.Skip(4); // signature
 	ldt_offset = rd.ReadUnsigned(4);
 	uint32_t ldt_count = rd.ReadUnsigned(4);
 	image_offset = rd.ReadUnsigned(4);
 	uint32_t image_size = rd.ReadUnsigned(4);
 	relocation_offset = rd.ReadUnsigned(4);
-	uint32_t relocation_count = rd.ReadUnsigned(4);
+	relocation_count = rd.ReadUnsigned(4);
 	minimum_extent = rd.ReadUnsigned(4);
 	maximum_extent = rd.ReadUnsigned(4);
 	rd.Skip(4);
@@ -67,7 +68,7 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 	eflags = rd.ReadUnsigned(4);
 	eip = rd.ReadUnsigned(4);
 
-	rd.Seek(offset + ldt_offset);
+	rd.Seek(file_offset + ldt_offset);
 	for(uint32_t i = 0; i < ldt_count; i++)
 	{
 		ldt.push_back(Segment::ReadFile(rd));
@@ -77,20 +78,19 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 	image = Linker::Buffer::ReadFromFile(rd, image_size);
 
 	// TODO: relocations, format unknown
-	(void) relocation_count;
 }
 
 offset_t XPFormat::WriteFile(Linker::Writer& wr)
 {
 	wr.endiantype = ::LittleEndian;
-	wr.Seek(offset);
+	wr.Seek(file_offset);
 	wr.WriteData(4, "XP\1\0");
 	wr.WriteWord(4, ldt_offset);
 	wr.WriteWord(4, ldt.size());
 	wr.WriteWord(4, image_offset);
 	wr.WriteWord(4, image->ImageSize());
 	wr.WriteWord(4, relocation_offset);
-	wr.WriteWord(4, 0); // TODO: relocation_count
+	wr.WriteWord(4, relocation_count);
 	wr.WriteWord(4, minimum_extent);
 	wr.WriteWord(4, maximum_extent);
 	wr.WriteWord(4, 0);
@@ -111,7 +111,7 @@ offset_t XPFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, eflags);
 	wr.WriteWord(4, eip);
 
-	wr.Seek(offset + ldt_offset);
+	wr.Seek(file_offset + ldt_offset);
 	for(auto segment : ldt)
 	{
 		segment.WriteFile(wr);
@@ -125,15 +125,50 @@ offset_t XPFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
+offset_t XPFormat::ImageSize()
+{
+	return std::max(
+		ldt_offset + 8 * ldt.size(),
+		image_offset + image->ImageSize());
+}
+
 void XPFormat::Dump(Dumper::Dumper& dump)
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
 	dump.SetTitle("XP format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
+	file_region.AddField("Minimum extents", Dumper::HexDisplay::Make(8), offset_t(minimum_extent)); // TODO: meaning and unit unknown
+	file_region.AddField("Maximum extents", Dumper::HexDisplay::Make(8), offset_t(maximum_extent)); // TODO: meaning and unit unknown
+	file_region.AddField("Entry (CS:EIP)", Dumper::SegmentedDisplay::Make(8), offset_t(cs), offset_t(eip));
+	file_region.AddField("Stack (SS:ESP)", Dumper::SegmentedDisplay::Make(8), offset_t(ss), offset_t(esp));
+	file_region.AddOptionalField("EFLAGS", Dumper::HexDisplay::Make(8), offset_t(eflags)); // TODO: flags
+	file_region.AddOptionalField("EAX", Dumper::HexDisplay::Make(8), offset_t(eax));
+	file_region.AddOptionalField("ECX", Dumper::HexDisplay::Make(8), offset_t(ecx)); // apparently also LDT size in bytes
+	file_region.AddOptionalField("EDX", Dumper::HexDisplay::Make(8), offset_t(edx));
+	file_region.AddOptionalField("EBX", Dumper::HexDisplay::Make(8), offset_t(ebx));
+	file_region.AddOptionalField("EBP", Dumper::HexDisplay::Make(8), offset_t(ebp));
+	file_region.AddOptionalField("ESI", Dumper::HexDisplay::Make(8), offset_t(esi));
+	file_region.AddOptionalField("EDI", Dumper::HexDisplay::Make(8), offset_t(edi));
+	file_region.AddOptionalField("DS", Dumper::HexDisplay::Make(4), offset_t(ds));
+	file_region.AddOptionalField("FS", Dumper::HexDisplay::Make(4), offset_t(fs));
+	file_region.AddOptionalField("GS", Dumper::HexDisplay::Make(4), offset_t(gs));
 	file_region.Display(dump);
 
-	// TODO
+	Dumper::Region ldt_region("Local Descriptor Table", file_offset + ldt_offset, 8 * ldt.size(), 8);
+	ldt_region.Display(dump);
+	unsigned i = 0;
+	for(auto& segment : ldt)
+	{
+		segment.Dump(dump, *this, i);
+		i++;
+	}
+
+	Dumper::Block image_block("Image", file_offset + image_offset, image->AsImage(), 0, 8);
+	image_block.Display(dump);
+
+	Dumper::Region relocation_region("Relocations", file_offset + relocation_offset, relocation_count /* TODO: unit of relocation */, 8); // TODO: nothing is known about relocations aside from their position
+	relocation_region.Display(dump);
 }
 
 std::string XPFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
@@ -161,7 +196,7 @@ XPFormat::Segment XPFormat::Segment::ReadFile(Linker::Reader& rd)
 	return segment;
 }
 
-void XPFormat::Segment::WriteFile(Linker::Writer& wr)
+void XPFormat::Segment::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, limit & 0xFFFF);
 	wr.WriteWord(3, base & 0xFFFFFF);
@@ -170,5 +205,59 @@ void XPFormat::Segment::WriteFile(Linker::Writer& wr)
 		((limit >> 16) & 0x0F)
 		| (flags & 0xF0));
 	wr.WriteWord(1, base >> 24);
+}
+
+void XPFormat::Segment::Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned index) const
+{
+	Dumper::Entry descriptor_entry("Descriptor", index + 1, xp.ldt_offset + index * 8);
+	descriptor_entry.AddField("Base", Dumper::HexDisplay::Make(8), offset_t(base));
+	descriptor_entry.AddField((flags & FLAG_PAGES) != 0 ? "Limit (in 4096 byte pages)" : "Limit (in bytes)", Dumper::HexDisplay::Make(5), offset_t(limit));
+	if((access & ACCESS_S) != 0)
+	{
+		descriptor_entry.AddField("Access bits",
+			Dumper::BitFieldDisplay::Make(2)
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("accessed"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make(
+					(access & ACCESS_E) != 0 ? "readable" : "writable",
+					(access & ACCESS_E) != 0 ? "execute-only" : "read-only"), false)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make((access & ACCESS_E) != 0 ? "conforming" : "grow down"), true)
+					// conforming: can be jumped to from lower privilege level
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("code", "data"), false)
+				->AddBitField(5, 2, Dumper::DecDisplay::Make(), "privilege level")
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("present"), false),
+			offset_t(access));
+	}
+	else
+	{
+		// note: these are included for completeness sake, it is unlikely they would be present
+		std::map<offset_t, std::string> type_descriptions;
+		type_descriptions[ACCESS_TYPE_EMPTY] = "empty";
+		type_descriptions[ACCESS_TYPE_TSS16_A] = "16-bit TSS (available)";
+		type_descriptions[ACCESS_TYPE_LDT] = "LDT";
+		type_descriptions[ACCESS_TYPE_TSS16_B] = "16-bit TSS (busy)";
+		type_descriptions[ACCESS_TYPE_CALLGATE16] = "16-bit call gate";
+		type_descriptions[ACCESS_TYPE_TASKGATE] = "task gate";
+		type_descriptions[ACCESS_TYPE_INTGATE16] = "16-bit interrupt gate";
+		type_descriptions[ACCESS_TYPE_TRAPGATE16] = "16-bit trap gate";
+		type_descriptions[ACCESS_TYPE_TSS32_A] = "32-bit TSS (available)";
+		type_descriptions[ACCESS_TYPE_TSS32_B] = "32-bit TSS (busy)";
+		type_descriptions[ACCESS_TYPE_CALLGATE32] = "32-bit call gate";
+		type_descriptions[ACCESS_TYPE_INTGATE32] = "32-bit interrupt gate";
+		type_descriptions[ACCESS_TYPE_TRAPGATE32] = "32-bit trap gate";
+		descriptor_entry.AddField("Access bits",
+			Dumper::BitFieldDisplay::Make(2)
+				->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(type_descriptions), false)
+				->AddBitField(5, 2, Dumper::DecDisplay::Make(), "privilege level")
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("present"), false),
+			offset_t(access));
+	}
+	descriptor_entry.AddField("Attribute bits",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("alias"), true) // Ergo specific field
+			->AddBitField(5, 2, Dumper::ChoiceDisplay::Make("window"), true) // Ergo specific field
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("32-bit", "16-bit"), false)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("limit in pages", "limit in bytes"), false),
+			offset_t(flags & 0xF0));
+	descriptor_entry.Display(dump);
 }
 
