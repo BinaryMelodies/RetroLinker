@@ -1,7 +1,9 @@
 
+#include <sstream>
 #include "leexe.h"
 #include "mzexe.h"
-#include <sstream>
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace Microsoft;
 
@@ -589,8 +591,8 @@ void LEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			flags |= Object::Readable;
 		if(section->IsWritable())
 			flags |= Object::Writable;
-		if(section->IsExecable())
-			flags |= Object::Execable;
+		if(section->IsExecutable())
+			flags |= Object::Executable;
 		AddObject(Object(segment, flags));
 
 		if(segment->name == ".data")
@@ -629,7 +631,7 @@ for not ".stack"
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

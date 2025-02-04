@@ -1,5 +1,5 @@
 
-#include "symbol.h"
+#include "symbol_name.h"
 
 using namespace Linker;
 
@@ -140,18 +140,18 @@ std::ostream& Linker::operator<<(std::ostream& out, const SymbolName& symbol)
 	return out;
 }
 
-bool ExportedSymbol::IsExportedByOrdinal() const
+bool ExportedSymbolName::IsExportedByOrdinal() const
 {
 	return by_ordinal;
 }
 
-bool ExportedSymbol::LoadName(std::string& result) const
+bool ExportedSymbolName::LoadName(std::string& result) const
 {
 	result = name;
 	return true;
 }
 
-bool ExportedSymbol::LoadOrdinalOrHint(uint16_t& result) const
+bool ExportedSymbolName::LoadOrdinalOrHint(uint16_t& result) const
 {
 	if(ordinal)
 	{
@@ -164,7 +164,7 @@ bool ExportedSymbol::LoadOrdinalOrHint(uint16_t& result) const
 	}
 }
 
-bool ExportedSymbol::GetExportedByName(std::string& result) const
+bool ExportedSymbolName::GetExportedByName(std::string& result) const
 {
 	if(!by_ordinal)
 	{
@@ -177,7 +177,7 @@ bool ExportedSymbol::GetExportedByName(std::string& result) const
 	}
 }
 
-bool ExportedSymbol::GetExportedByName(std::string& result, uint16_t& hint) const
+bool ExportedSymbolName::GetExportedByName(std::string& result, uint16_t& hint) const
 {
 	if(!by_ordinal)
 	{
@@ -194,7 +194,7 @@ bool ExportedSymbol::GetExportedByName(std::string& result, uint16_t& hint) cons
 	}
 }
 
-bool ExportedSymbol::GetExportedByOrdinal(uint16_t& result) const
+bool ExportedSymbolName::GetExportedByOrdinal(uint16_t& result) const
 {
 	if(by_ordinal)
 	{
@@ -208,7 +208,7 @@ bool ExportedSymbol::GetExportedByOrdinal(uint16_t& result) const
 	}
 }
 
-bool ExportedSymbol::GetExportedByOrdinal(uint16_t& result, std::string& result_name) const
+bool ExportedSymbolName::GetExportedByOrdinal(uint16_t& result, std::string& result_name) const
 {
 	if(by_ordinal)
 	{
@@ -223,17 +223,17 @@ bool ExportedSymbol::GetExportedByOrdinal(uint16_t& result, std::string& result_
 	}
 }
 
-bool ExportedSymbol::operator ==(const ExportedSymbol& other) const
+bool ExportedSymbolName::operator ==(const ExportedSymbolName& other) const
 {
 	return by_ordinal == other.by_ordinal && name == other.name && ordinal == other.ordinal;
 }
 
-bool ExportedSymbol::operator !=(const ExportedSymbol& other) const
+bool ExportedSymbolName::operator !=(const ExportedSymbolName& other) const
 {
 	return !(*this == other);
 }
 
-bool ExportedSymbol::operator <(const ExportedSymbol& other) const
+bool ExportedSymbolName::operator <(const ExportedSymbolName& other) const
 {
 	return (by_ordinal && !other.by_ordinal)
 		|| (by_ordinal == other.by_ordinal &&
@@ -241,22 +241,22 @@ bool ExportedSymbol::operator <(const ExportedSymbol& other) const
 			|| (name == other.name && ordinal < other.ordinal)));
 }
 
-bool ExportedSymbol::operator >=(const ExportedSymbol& other) const
+bool ExportedSymbolName::operator >=(const ExportedSymbolName& other) const
 {
 	return !(*this < other);
 }
 
-bool ExportedSymbol::operator >(const ExportedSymbol& other) const
+bool ExportedSymbolName::operator >(const ExportedSymbolName& other) const
 {
 	return other < *this;
 }
 
-bool ExportedSymbol::operator <=(const ExportedSymbol& other) const
+bool ExportedSymbolName::operator <=(const ExportedSymbolName& other) const
 {
 	return !(other < *this);
 }
 
-std::ostream& Linker::operator<<(std::ostream& out, const ExportedSymbol& symbol)
+std::ostream& Linker::operator<<(std::ostream& out, const ExportedSymbolName& symbol)
 {
 	std::string name;
 	uint16_t hint;

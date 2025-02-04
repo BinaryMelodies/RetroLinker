@@ -6,9 +6,9 @@
 #include <string>
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 namespace DigitalResearch
@@ -16,7 +16,7 @@ namespace DigitalResearch
 	/**
 	 * @brief CP/M-8000 .z8k file format
 	 */
-	class CPM8KFormat : public virtual Linker::LinkerManager
+	class CPM8KFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */

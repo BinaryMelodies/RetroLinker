@@ -3,7 +3,7 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
+#include "../linker/segment_manager.h"
 
 /* TODO: unimplemented */
 
@@ -12,7 +12,7 @@ namespace Apple
 	/**
 	 * @brief PowerPC Classic Mac OS "PEF" file format
 	 */
-	class PEFFormat : public virtual Linker::LinkerManager
+	class PEFFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

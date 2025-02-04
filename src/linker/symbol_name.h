@@ -1,5 +1,5 @@
-#ifndef SYMBOLNAME_H
-#define SYMBOLNAME_H
+#ifndef SYMBOL_NAME_H
+#define SYMBOL_NAME_H
 
 #include <iostream>
 #include <optional>
@@ -115,7 +115,7 @@ namespace Linker
 	/**
 	 * @brief Represents a symbol to be exported from the module
 	 */
-	class ExportedSymbol
+	class ExportedSymbolName
 	{
 	protected:
 		bool by_ordinal;
@@ -126,7 +126,7 @@ namespace Linker
 		/**
 		 * @brief Creates a symbol exported by name
 		 */
-		ExportedSymbol(std::string name)
+		ExportedSymbolName(std::string name)
 			: by_ordinal(false), name(name), ordinal()
 		{
 		}
@@ -136,7 +136,7 @@ namespace Linker
 		 *
 		 * This is used exclusively for PE.
 		 */
-		ExportedSymbol(std::string name, uint16_t hint)
+		ExportedSymbolName(std::string name, uint16_t hint)
 			: by_ordinal(false), name(name), ordinal(hint)
 		{
 		}
@@ -144,7 +144,7 @@ namespace Linker
 		/**
 		 * @brief Creates a symbol exported by ordinal, with an associated internal name
 		 */
-		ExportedSymbol(uint16_t ordinal, std::string internal_name)
+		ExportedSymbolName(uint16_t ordinal, std::string internal_name)
 			: by_ordinal(true), name(internal_name), ordinal(ordinal)
 		{
 		}
@@ -184,38 +184,38 @@ namespace Linker
 		/**
 		 * @brief Compares two symbols for equality
 		 */
-		bool operator ==(const ExportedSymbol& other) const;
+		bool operator ==(const ExportedSymbolName& other) const;
 
 		/**
 		 * @brief Compares two symbols for inequality
 		 */
-		bool operator !=(const ExportedSymbol& other) const;
+		bool operator !=(const ExportedSymbolName& other) const;
 
 		/**
 		 * @brief Compares two symbols for ordering
 		 */
-		bool operator <(const ExportedSymbol& other) const;
+		bool operator <(const ExportedSymbolName& other) const;
 
 		/**
 		 * @brief Compares two symbols for ordering
 		 */
-		bool operator >=(const ExportedSymbol& other) const;
+		bool operator >=(const ExportedSymbolName& other) const;
 
 		/**
 		 * @brief Compares two symbols for ordering
 		 */
-		bool operator >(const ExportedSymbol& other) const;
+		bool operator >(const ExportedSymbolName& other) const;
 
 		/**
 		 * @brief Compares two symbols for ordering
 		 */
-		bool operator <=(const ExportedSymbol& other) const;
+		bool operator <=(const ExportedSymbolName& other) const;
 	};
 
 	/**
 	 * @brief Displays an exported symbol is a nice way
 	 */
-	std::ostream& operator<<(std::ostream& out, const ExportedSymbol& symbol);
+	std::ostream& operator<<(std::ostream& out, const ExportedSymbolName& symbol);
 }
 
-#endif /* SYMBOLNAME_H */
+#endif /* SYMBOL_NAME_H */

@@ -6,8 +6,6 @@
 #include <string>
 #include "../common.h"
 #include "image.h"
-#include "reader.h"
-#include "writer.h"
 
 namespace Dumper
 {
@@ -18,6 +16,8 @@ namespace Linker
 {
 	class Module;
 	class ModuleCollector;
+	class Reader;
+	class Writer;
 
 	/**
 	 * @brief A class to encode a general file format
@@ -32,7 +32,7 @@ namespace Linker
 		{
 		}
 
-		virtual ~Format();
+		virtual ~Format() = default;
 		/**
 		 * @brief Resets all fields to their default values, deallocate memory
 		 */
@@ -95,7 +95,7 @@ namespace Linker
 		/**
 		 * @brief Processes the module object and initializes format fields
 		 */
-		virtual void ProcessModule(Linker::Module& object);
+		virtual void ProcessModule(Module& object);
 		/**
 		 * @brief Intermediate step between processing module and generating output file to set up headers and management sections
 		 * It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.
@@ -104,20 +104,20 @@ namespace Linker
 		/**
 		 * @brief The main function that handles processing, calculating and generating the final image
 		 */
-		virtual void GenerateFile(std::string filename, Linker::Module& module);
+		virtual void GenerateFile(std::string filename, Module& module);
 		/**
 		 * @brief Appends a default extension to the filename
 		 *
 		 * A typical behavior would be to append .exe at the end of the filename.
 		 * The default action is to leave it intact.
 		 */
-		virtual std::string GetDefaultExtension(Linker::Module& module, std::string filename);
+		virtual std::string GetDefaultExtension(Module& module, std::string filename);
 		/**
 		 * @brief Provides a default filename for the output file
 		 *
 		 * Typically a.out or some other extension, such as a.exe.
 		 */
-		virtual std::string GetDefaultExtension(Linker::Module& module);
+		virtual std::string GetDefaultExtension(Module& module);
 		/* x86 only */
 		/**
 		 * @brief Whether the format supports multiple segments

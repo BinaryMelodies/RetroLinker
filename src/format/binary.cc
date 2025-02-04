@@ -1,5 +1,7 @@
 
 #include "binary.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace Binary;
 
@@ -379,7 +381,7 @@ std::unique_ptr<Script::List> BinaryFormat::GetScript(Linker::Module& module)
 		{
 			Linker::Warning << "Warning: linker script provided, overriding memory model" << std::endl;
 		}
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

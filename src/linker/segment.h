@@ -7,11 +7,11 @@
 #include <vector>
 #include "../common.h"
 #include "image.h"
-#include "writer.h"
 
 namespace Linker
 {
 	class Section;
+	class Writer;
 
 	/**
 	 * @brief A class representing a sequence of sections that must be written to the output file as a group

@@ -1,5 +1,7 @@
 
 #include "macho.h"
+#include "../linker/buffer.h"
+#include "../linker/writer.h"
 
 using namespace MachO;
 

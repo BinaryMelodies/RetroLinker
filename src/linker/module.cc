@@ -1,7 +1,9 @@
 
+#include <algorithm>
 #include <sstream>
-#include "module.h"
 #include "format.h"
+#include "module.h"
+#include "section.h"
 
 using namespace Linker;
 
@@ -170,7 +172,7 @@ bool Module::parse_imported_name(std::string reference_name, Linker::SymbolName&
 	}
 }
 
-bool Module::parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol)
+bool Module::parse_exported_name(std::string reference_name, Linker::ExportedSymbolName& symbol)
 {
 	try
 	{
@@ -180,15 +182,15 @@ bool Module::parse_exported_name(std::string reference_name, Linker::ExportedSym
 		size_t ix = reference_name.find(special_prefix_char);
 		if(ix == std::string::npos)
 		{
-			symbol = Linker::ExportedSymbol(reference_name);
+			symbol = Linker::ExportedSymbolName(reference_name);
 		}
 		else if(ix < reference_name.size() - 1 && reference_name[ix + 1] == '_')
 		{
-			symbol = Linker::ExportedSymbol(stoll(reference_name.substr(0, ix)), reference_name.substr(ix + 2));
+			symbol = Linker::ExportedSymbolName(stoll(reference_name.substr(0, ix)), reference_name.substr(ix + 2));
 		}
 		else
 		{
-			symbol = Linker::ExportedSymbol(reference_name.substr(0, ix), stoll(reference_name.substr(ix + 1)));
+			symbol = Linker::ExportedSymbolName(reference_name.substr(0, ix), stoll(reference_name.substr(ix + 1)));
 		}
 		return true;
 	}
@@ -242,7 +244,7 @@ bool Module::AddGlobalSymbol(std::string name, Location location)
 		/* $$EXPORT$<name> */
 		/* $$EXPORT$<name>$<ordinal> */
 		std::string reference_name = name.substr(export_prefix().size());
-		Linker::ExportedSymbol name("");
+		Linker::ExportedSymbolName name("");
 		if(parse_exported_name(reference_name, name))
 		{
 			AddExportedSymbol(name, location);
@@ -494,7 +496,7 @@ void Module::AddImportedSymbol(SymbolName name)
 	}
 }
 
-void Module::AddExportedSymbol(ExportedSymbol name, Location symbol)
+void Module::AddExportedSymbol(ExportedSymbolName name, Location symbol)
 {
 	exported_symbols[name] = symbol;
 }
@@ -724,7 +726,7 @@ const std::vector<SymbolName>& Module::GetImportedSymbols() const
 	return imported_symbols;
 }
 
-const std::map<ExportedSymbol, Location>& Module::GetExportedSymbols() const
+const std::map<ExportedSymbolName, Location>& Module::GetExportedSymbols() const
 {
 	return exported_symbols;
 }

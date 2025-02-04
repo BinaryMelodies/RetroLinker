@@ -1,5 +1,6 @@
 
 #include "pefexe.h"
+#include "../linker/location.h"
 
 /* TODO: unimplemented */
 

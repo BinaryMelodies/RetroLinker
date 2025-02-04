@@ -1,5 +1,7 @@
 
 #include "pcos.h"
+#include "../linker/buffer.h"
+#include "../linker/location.h"
 
 using namespace PCOS;
 

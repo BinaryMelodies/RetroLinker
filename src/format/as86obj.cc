@@ -472,7 +472,7 @@ std::shared_ptr<Linker::Section> AS86ObjFormat::GetDefaultSection(unsigned index
 	int flags;
 	if(index == 0 || index > 3)
 	{
-		flags = Linker::Section::Readable | Linker::Section::Execable;
+		flags = Linker::Section::Readable | Linker::Section::Executable;
 	}
 	else
 	{

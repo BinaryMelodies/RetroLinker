@@ -6,9 +6,9 @@
 #include <set>
 #include <vector>
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 /* Classic 68000 Mac OS file formats */
@@ -224,7 +224,7 @@ namespace Apple
 	 *
 	 * This format has been obsoleted in favor of the PEF format, used on PowerPC based Macintosh computers.
 	 */
-	class ResourceFork : public virtual AppleSingleDouble::Entry, public virtual Linker::LinkerManager
+	class ResourceFork : public virtual AppleSingleDouble::Entry, public virtual Linker::SegmentManager
 	{
 	public:
 		bool FormatSupportsResources() const override

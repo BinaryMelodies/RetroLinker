@@ -3,8 +3,8 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 /* TODO: unimplemented */
@@ -14,7 +14,7 @@ namespace Ergo
 	/**
 	 * @brief Ergo OS/286 and OS/386 "XP" .exp file (Ergo was formerly A.I. Architects, then Eclipse)
 	 */
-	class XPFormat : public virtual Linker::LinkerManager
+	class XPFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		std::string stub_file; // TODO

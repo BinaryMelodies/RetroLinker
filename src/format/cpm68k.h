@@ -5,9 +5,9 @@
 #include <set>
 #include <string>
 #include "../common.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 #include "../dumper/dumper.h"
 
@@ -23,7 +23,7 @@ namespace DigitalResearch
 	 * - Concurrent DOS 68K .68k contiguous files with normal or crunched relocations
 	 * - Human68k .z files with no relocations
 	 */
-	class CPM68KFormat : public virtual Linker::LinkerManager
+	class CPM68KFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */

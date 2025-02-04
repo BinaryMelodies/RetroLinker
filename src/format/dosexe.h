@@ -3,7 +3,7 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
+#include "../linker/segment_manager.h"
 #include "../linker/section.h"
 #include "mzexe.h"
 

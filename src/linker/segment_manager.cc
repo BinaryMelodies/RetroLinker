@@ -1,10 +1,12 @@
 
 #include <set>
 #include <sstream>
-#include "linker_manager.h"
 #include "module.h"
 #include "position.h"
 #include "relocation.h"
+#include "section.h"
+#include "segment.h"
+#include "segment_manager.h"
 #include "target.h"
 #include "writer.h"
 
@@ -13,14 +15,14 @@ using namespace Script;
 
 EndianType DefaultEndianType = LittleEndian;
 
-void LinkerManager::ClearLinkerManager()
+void SegmentManager::ClearSegmentManager()
 {
 	segment_map.clear();
 	segment_vector.clear();
 	linker_parameters.clear();
 }
 
-void LinkerManager::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+void SegmentManager::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
 {
 	if(script_file != "")
 	{
@@ -44,7 +46,7 @@ void LinkerManager::SetLinkScript(std::string script_file, std::map<std::string,
 	}
 }
 
-std::unique_ptr<Script::List> LinkerManager::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> SegmentManager::GetScript(Linker::Module& module)
 {
 	bool file_error = false;
 	std::unique_ptr<Script::List> list = Script::parse_file(linker_script.c_str(), file_error);
@@ -63,7 +65,7 @@ std::unique_ptr<Script::List> LinkerManager::GetScript(Linker::Module& module)
 	return list;
 }
 
-offset_t LinkerManager::GetCurrentAddress() const
+offset_t SegmentManager::GetCurrentAddress() const
 {
 	if(current_segment == nullptr)
 	{
@@ -75,7 +77,7 @@ offset_t LinkerManager::GetCurrentAddress() const
 	}
 }
 
-void LinkerManager::SetCurrentAddress(offset_t address)
+void SegmentManager::SetCurrentAddress(offset_t address)
 {
 	if(current_segment == nullptr)
 	{
@@ -91,19 +93,19 @@ void LinkerManager::SetCurrentAddress(offset_t address)
 	}
 }
 
-void LinkerManager::AlignCurrentAddress(offset_t align)
+void SegmentManager::AlignCurrentAddress(offset_t align)
 {
 	SetCurrentAddress(::AlignTo(GetCurrentAddress(), align));
 }
 
-void LinkerManager::SetLatestBase(offset_t address)
+void SegmentManager::SetLatestBase(offset_t address)
 {
 	assert(current_segment != nullptr && current_segment->sections.size() != 0);
 	std::shared_ptr<Section> section = current_segment->sections.back();
 	section->bias = section->GetStartAddress() - address;
 }
 
-void LinkerManager::FinishCurrentSegment()
+void SegmentManager::FinishCurrentSegment()
 {
 	if(current_segment != nullptr)
 	{
@@ -113,12 +115,12 @@ void LinkerManager::FinishCurrentSegment()
 	}
 }
 
-void LinkerManager::OnNewSegment(std::shared_ptr<Segment> segment)
+void SegmentManager::OnNewSegment(std::shared_ptr<Segment> segment)
 {
 	/* extend */
 }
 
-std::shared_ptr<Segment> LinkerManager::AppendSegment(std::string name)
+std::shared_ptr<Segment> SegmentManager::AppendSegment(std::string name)
 {
 	FinishCurrentSegment();
 	current_segment = std::make_shared<Segment>(name, current_address);
@@ -127,7 +129,7 @@ std::shared_ptr<Segment> LinkerManager::AppendSegment(std::string name)
 	return current_segment;
 }
 
-std::shared_ptr<Segment> LinkerManager::FetchSegment(std::string name)
+std::shared_ptr<Segment> SegmentManager::FetchSegment(std::string name)
 {
 	auto it = segment_map.find(name);
 	if(it == segment_map.end())
@@ -140,13 +142,13 @@ std::shared_ptr<Segment> LinkerManager::FetchSegment(std::string name)
 	}
 }
 
-void LinkerManager::AppendSection(std::shared_ptr<Section> section)
+void SegmentManager::AppendSection(std::shared_ptr<Section> section)
 {
 	current_segment->Append(section); /* next_bias should not be used */
 	SetLatestBase(current_base);
 }
 
-void LinkerManager::ProcessScript(std::unique_ptr<List>& directives, Module& module)
+void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& module)
 {
 	for(auto& directive : directives->children)
 	{
@@ -204,7 +206,7 @@ void LinkerManager::ProcessScript(std::unique_ptr<List>& directives, Module& mod
 	FinishCurrentSegment();
 }
 
-void Linker::LinkerManager::ProcessAction(std::unique_ptr<Node>& action, Module& module)
+void Linker::SegmentManager::ProcessAction(std::unique_ptr<Node>& action, Module& module)
 {
 	switch(action->type)
 	{
@@ -223,7 +225,7 @@ Linker::Debug << "Current base: " << int64_t(current_base) << std::endl;
 	}
 }
 
-void Linker::LinkerManager::PostProcessAction(std::unique_ptr<Node>& action, Module& module)
+void Linker::SegmentManager::PostProcessAction(std::unique_ptr<Node>& action, Module& module)
 {
 	switch(action->type)
 	{
@@ -240,7 +242,7 @@ void Linker::LinkerManager::PostProcessAction(std::unique_ptr<Node>& action, Mod
 	}
 }
 
-void Linker::LinkerManager::ProcessCommand(std::unique_ptr<Node>& command, Module& module)
+void Linker::SegmentManager::ProcessCommand(std::unique_ptr<Node>& command, Module& module)
 {
 	switch(command->type)
 	{
@@ -272,7 +274,7 @@ void Linker::LinkerManager::ProcessCommand(std::unique_ptr<Node>& command, Modul
 	}
 }
 
-bool Linker::LinkerManager::CheckPredicate(std::unique_ptr<Node>& predicate, std::shared_ptr<Section> section, Module& module)
+bool Linker::SegmentManager::CheckPredicate(std::unique_ptr<Node>& predicate, std::shared_ptr<Section> section, Module& module)
 {
 	switch(predicate->type)
 	{
@@ -342,7 +344,7 @@ bool Linker::LinkerManager::CheckPredicate(std::unique_ptr<Node>& predicate, std
 	case Node::IsWritable:
 		return section->IsWritable();
 	case Node::IsExecutable:
-		return section->IsExecable();
+		return section->IsExecutable();
 	case Node::IsMergeable:
 		return section->IsMergeable();
 	case Node::IsZeroFilled:
@@ -364,7 +366,7 @@ bool Linker::LinkerManager::CheckPredicate(std::unique_ptr<Node>& predicate, std
 	}
 }
 
-offset_t Linker::LinkerManager::EvaluateExpression(std::unique_ptr<Node>& expression, Module& module)
+offset_t Linker::SegmentManager::EvaluateExpression(std::unique_ptr<Node>& expression, Module& module)
 {
 	switch(expression->type)
 	{

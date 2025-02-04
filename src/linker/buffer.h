@@ -8,12 +8,12 @@
 #include <vector>
 #include "../common.h"
 #include "image.h"
-#include "position.h"
-#include "reader.h"
 
 namespace Linker
 {
+	class Reader;
 	class Segment;
+	class Writer;
 
 	/**
 	 * @brief A buffer that can be used to read and store data from a file

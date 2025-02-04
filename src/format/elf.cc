@@ -1,6 +1,11 @@
 
-#include "elf.h"
 #include <sstream>
+#include "elf.h"
+#include "../linker/position.h"
+#include "../linker/reader.h"
+#include "../linker/resolution.h"
+#include "../linker/section.h"
+#include "../linker/writer.h"
 
 using namespace ELF;
 
@@ -1722,7 +1727,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			}
 			if((sections[i].flags & SHF_EXECINSTR))
 			{
-				sections[i].GetSection()->SetExecable(true);
+				sections[i].GetSection()->SetExecutable(true);
 			}
 			if((sections[i].flags & SHF_MERGE))
 			{

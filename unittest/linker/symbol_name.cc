@@ -2,7 +2,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
 
-#include "../../src/linker/symbol.h"
+#include "../../src/linker/symbol_name.h"
 
 using namespace Linker;
 
@@ -213,9 +213,9 @@ class TestExportedSymbol : public CppUnit::TestFixture
 	CPPUNIT_TEST(testComparison);
 	CPPUNIT_TEST_SUITE_END();
 private:
-	ExportedSymbol * exportedSymbolByName;
-	ExportedSymbol * exportedSymbolWithHint;
-	ExportedSymbol * exportedSymbolByOrdinal;
+	ExportedSymbolName * exportedSymbolByName;
+	ExportedSymbolName * exportedSymbolWithHint;
+	ExportedSymbolName * exportedSymbolByOrdinal;
 
 	void testIsExportedByOrdinal();
 	void testLoadName();
@@ -223,8 +223,8 @@ private:
 	void testGetExportedByName();
 	void testGetExportedByOrdinal();
 	void testEquality();
-	bool equal(const ExportedSymbol& a, const ExportedSymbol& b);
-	bool unequal(const ExportedSymbol& a, const ExportedSymbol& b);
+	bool equal(const ExportedSymbolName& a, const ExportedSymbolName& b);
+	bool unequal(const ExportedSymbolName& a, const ExportedSymbolName& b);
 	void testComparison();
 public:
 	void setUp() override;
@@ -325,53 +325,53 @@ void TestExportedSymbol::testGetExportedByOrdinal()
 
 void TestExportedSymbol::testEquality()
 {
-	CPPUNIT_ASSERT_EQUAL(*exportedSymbolByName, ExportedSymbol("ExportedName"));
-	CPPUNIT_ASSERT_EQUAL(*exportedSymbolWithHint, ExportedSymbol("ExportedName", 1234));
-	CPPUNIT_ASSERT_EQUAL(*exportedSymbolByOrdinal, ExportedSymbol(1234, "InternalName"));
+	CPPUNIT_ASSERT_EQUAL(*exportedSymbolByName, ExportedSymbolName("ExportedName"));
+	CPPUNIT_ASSERT_EQUAL(*exportedSymbolWithHint, ExportedSymbolName("ExportedName", 1234));
+	CPPUNIT_ASSERT_EQUAL(*exportedSymbolByOrdinal, ExportedSymbolName(1234, "InternalName"));
 
-	CPPUNIT_ASSERT(ExportedSymbol("abc") != ExportedSymbol("def"));
-	CPPUNIT_ASSERT(ExportedSymbol("abc") != ExportedSymbol("abc", 1234));
-	CPPUNIT_ASSERT(ExportedSymbol("abc") != ExportedSymbol(1234, "abc"));
+	CPPUNIT_ASSERT(ExportedSymbolName("abc") != ExportedSymbolName("def"));
+	CPPUNIT_ASSERT(ExportedSymbolName("abc") != ExportedSymbolName("abc", 1234));
+	CPPUNIT_ASSERT(ExportedSymbolName("abc") != ExportedSymbolName(1234, "abc"));
 
-	CPPUNIT_ASSERT(ExportedSymbol("abc", 1234) != ExportedSymbol("def", 1234));
-	CPPUNIT_ASSERT(ExportedSymbol("abc", 1234) != ExportedSymbol("abc", 5678));
-	CPPUNIT_ASSERT(ExportedSymbol("abc", 1234) != ExportedSymbol(1234, "abc"));
+	CPPUNIT_ASSERT(ExportedSymbolName("abc", 1234) != ExportedSymbolName("def", 1234));
+	CPPUNIT_ASSERT(ExportedSymbolName("abc", 1234) != ExportedSymbolName("abc", 5678));
+	CPPUNIT_ASSERT(ExportedSymbolName("abc", 1234) != ExportedSymbolName(1234, "abc"));
 
-	CPPUNIT_ASSERT(ExportedSymbol(1234, "abc") != ExportedSymbol(5678, "abc"));
-	CPPUNIT_ASSERT(ExportedSymbol(1234, "abc") != ExportedSymbol(1234, "def"));
-	CPPUNIT_ASSERT(ExportedSymbol(1234, "abc") != ExportedSymbol("abc", 1234));
+	CPPUNIT_ASSERT(ExportedSymbolName(1234, "abc") != ExportedSymbolName(5678, "abc"));
+	CPPUNIT_ASSERT(ExportedSymbolName(1234, "abc") != ExportedSymbolName(1234, "def"));
+	CPPUNIT_ASSERT(ExportedSymbolName(1234, "abc") != ExportedSymbolName("abc", 1234));
 }
 
-bool TestExportedSymbol::equal(const ExportedSymbol& a, const ExportedSymbol& b)
+bool TestExportedSymbol::equal(const ExportedSymbolName& a, const ExportedSymbolName& b)
 {
 	return a <= b && a >= b;
 }
 
-bool TestExportedSymbol::unequal(const ExportedSymbol& a, const ExportedSymbol& b)
+bool TestExportedSymbol::unequal(const ExportedSymbolName& a, const ExportedSymbolName& b)
 {
 	return a < b || a > b;
 }
 
 void TestExportedSymbol::testComparison()
 {
-	CPPUNIT_ASSERT(unequal(ExportedSymbol("abc"), ExportedSymbol("def")));
-	CPPUNIT_ASSERT(unequal(ExportedSymbol("abc"), ExportedSymbol("abc", 1234)));
-	CPPUNIT_ASSERT(unequal(ExportedSymbol("abc"), ExportedSymbol(1234, "abc")));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName("abc"), ExportedSymbolName("def")));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName("abc"), ExportedSymbolName("abc", 1234)));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName("abc"), ExportedSymbolName(1234, "abc")));
 
-	CPPUNIT_ASSERT(unequal(ExportedSymbol("abc", 1234), ExportedSymbol("def", 1234)));
-	CPPUNIT_ASSERT(unequal(ExportedSymbol("abc", 1234), ExportedSymbol("abc", 5678)));
-	CPPUNIT_ASSERT(unequal(ExportedSymbol("abc", 1234), ExportedSymbol(1234, "abc")));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName("abc", 1234), ExportedSymbolName("def", 1234)));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName("abc", 1234), ExportedSymbolName("abc", 5678)));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName("abc", 1234), ExportedSymbolName(1234, "abc")));
 
-	CPPUNIT_ASSERT(unequal(ExportedSymbol(1234, "abc"), ExportedSymbol(5678, "abc")));
-	CPPUNIT_ASSERT(unequal(ExportedSymbol(1234, "abc"), ExportedSymbol(1234, "def")));
-	CPPUNIT_ASSERT(unequal(ExportedSymbol(1234, "abc"), ExportedSymbol("abc", 1234)));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName(1234, "abc"), ExportedSymbolName(5678, "abc")));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName(1234, "abc"), ExportedSymbolName(1234, "def")));
+	CPPUNIT_ASSERT(unequal(ExportedSymbolName(1234, "abc"), ExportedSymbolName("abc", 1234)));
 }
 
 void TestExportedSymbol::setUp()
 {
-	exportedSymbolByName = new ExportedSymbol("ExportedName");
-	exportedSymbolWithHint = new ExportedSymbol("ExportedName", 1234);
-	exportedSymbolByOrdinal = new ExportedSymbol(1234, "InternalName");
+	exportedSymbolByName = new ExportedSymbolName("ExportedName");
+	exportedSymbolWithHint = new ExportedSymbolName("ExportedName", 1234);
+	exportedSymbolByOrdinal = new ExportedSymbolName(1234, "InternalName");
 }
 
 void TestExportedSymbol::tearDown()

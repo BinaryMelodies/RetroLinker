@@ -1,11 +1,11 @@
 
 #include <set>
 #include <sstream>
-#include "linker_manager.h"
 #include "module.h"
 #include "position.h"
 #include "reference.h"
 #include "relocation.h"
+#include "segment_manager.h"
 #include "target.h"
 #include "writer.h"
 

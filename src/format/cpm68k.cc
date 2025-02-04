@@ -1,5 +1,10 @@
 
 #include "cpm68k.h"
+#include "../linker/buffer.h"
+#include "../linker/position.h"
+#include "../linker/reader.h"
+#include "../linker/resolution.h"
+#include "../linker/section.h"
 
 using namespace DigitalResearch;
 
@@ -806,7 +811,7 @@ std::unique_ptr<Script::List> CPM68KFormat::GetScript(Linker::Module& module)
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

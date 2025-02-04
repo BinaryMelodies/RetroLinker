@@ -3,9 +3,9 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 namespace MINIX
@@ -15,7 +15,7 @@ namespace MINIX
 	 *
 	 * This is the native executable format for MINX and ELKS (Linux for 8086)
 	 */
-	class MINIXFormat : public virtual Linker::LinkerManager
+	class MINIXFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		/* TODO: incorporate relocations and far code segment from around ELKS 0.8.0 */

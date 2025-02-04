@@ -1,7 +1,9 @@
 
-#include "8bitexe.h"
 #include <filesystem>
 #include <sstream>
+#include "8bitexe.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace Binary;
 

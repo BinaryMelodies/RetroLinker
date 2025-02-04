@@ -1,5 +1,6 @@
 
 #include "gsos.h"
+#include "../linker/reader.h"
 
 using namespace Apple;
 

@@ -3,6 +3,8 @@
 #include <cppunit/TestFixture.h>
 
 #include "../../src/linker/buffer.h"
+#include "../../src/linker/reader.h"
+#include "../../src/linker/writer.h"
 
 using namespace Linker;
 

@@ -3,8 +3,8 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 /* TODO: unimplemented */
@@ -15,7 +15,7 @@ namespace Xenix
 	/**
 	 * @brief Xenix b.out executable
 	 */
-	class BOutFormat : public virtual Linker::LinkerManager
+	class BOutFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -28,7 +28,7 @@ namespace Xenix
 	/**
 	 * @brief Xenix x.out executable
 	 */
-	class XOutFormat : public virtual Linker::LinkerManager
+	class XOutFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

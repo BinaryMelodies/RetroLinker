@@ -6,9 +6,9 @@
 #include <set>
 #include <vector>
 #include "../common.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 #include "../dumper/dumper.h"
 
@@ -27,7 +27,7 @@ namespace DigitalResearch
 	 * It supports many special features, such as shared libraries and attachable residential system extensions.
 	 * These are not currently implemented.
 	 */
-	class CPM86Format : public virtual Linker::LinkerManager
+	class CPM86Format : public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */

@@ -2,7 +2,9 @@
 #include "coff.h"
 #include "../linker/location.h"
 #include "../linker/section.h"
-#include "../linker/symbol.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
+#include "../linker/symbol_name.h"
 
 using namespace COFF;
 
@@ -1579,7 +1581,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 		}
 		if(section->flags & Section::TEXT)
 		{
-			linker_section->SetExecable(true);
+			linker_section->SetExecutable(true);
 		}
 		else
 		{
@@ -2033,7 +2035,7 @@ std::unique_ptr<Script::List> COFFFormat::GetScript(Linker::Module& module)
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

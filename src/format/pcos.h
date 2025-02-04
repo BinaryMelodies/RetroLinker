@@ -5,8 +5,8 @@
 #include <memory>
 #include <vector>
 #include "../common.h"
-#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 #include "../dumper/dumper.h"
 
@@ -22,7 +22,7 @@ namespace PCOS
 	 * The PCOS also has a separate file format for abs executables.
 	 * This is based on Christian Groessler's work.
 	 */
-	class CMDFormat : public virtual Linker::LinkerManager
+	class CMDFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */

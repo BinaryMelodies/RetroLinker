@@ -1,5 +1,7 @@
 
 #include "pharlap.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace PharLap;
 
@@ -67,7 +69,7 @@ std::unique_ptr<Script::List> MPFormat::GetScript(Linker::Module& module)
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{
@@ -368,7 +370,7 @@ std::unique_ptr<Script::List> P3Format::Flat::GetScript(Linker::Module& module)
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{
@@ -683,7 +685,7 @@ void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> lin
 {
 	std::shared_ptr<Segment> segment = std::make_shared<Segment>(linker_segment,
 		/* TODO: check properly read, write, 32-bit (TODO) flags */
-		linker_segment->sections[0]->IsExecable() ? Descriptor::Code32 : Descriptor::Data32,
+		linker_segment->sections[0]->IsExecutable() ? Descriptor::Code32 : Descriptor::Data32,
 		ldt->descriptors.size() * 8 + 4);
 
 	segments.push_back(segment);
@@ -734,7 +736,7 @@ for any
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

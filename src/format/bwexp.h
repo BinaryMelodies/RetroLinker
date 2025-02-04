@@ -3,7 +3,7 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
+#include "../linker/segment_manager.h"
 #include "mzexe.h"
 
 namespace DOS16M
@@ -11,7 +11,7 @@ namespace DOS16M
 	/**
 	 * @brief Rational Systems DOS/16M "BW" .exp file
 	 */
-	class BWFormat : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter
+	class BWFormat : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

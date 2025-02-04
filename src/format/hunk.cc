@@ -1,5 +1,7 @@
 
 #include "hunk.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace Amiga;
 
@@ -150,7 +152,7 @@ std::unique_ptr<Script::List> HunkFormat::GetScript(Linker::Module& module)
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

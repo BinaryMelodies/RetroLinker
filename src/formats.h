@@ -5,9 +5,14 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "linker/format.h"
-#include "linker/reader.h"
 #include "format/arch.h"
+
+namespace Linker
+{
+	class Image;
+	class OutputFormat;
+	class Reader;
+}
 
 struct output_format_type
 {

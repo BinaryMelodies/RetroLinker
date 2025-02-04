@@ -2,12 +2,9 @@
 #include <fstream>
 #include "format.h"
 #include "module_collector.h"
+#include "writer.h"
 
 using namespace Linker;
-
-Format::~Format()
-{
-}
 
 void Format::Dump(Dumper::Dumper& dump)
 {
@@ -32,13 +29,6 @@ offset_t Format::WriteFile(Writer& wr, offset_t count, offset_t offset)
 	// count is ignored
 	return WriteFile(wr);
 }
-
-#if 0
-int Format::GetByte(offset_t offset)
-{
-	Linker::FatalError("Internal error: format cannot generate partial data");
-}
-#endif
 
 bool OutputFormat::AddSupplementaryOutputFormat(std::string subformat)
 {

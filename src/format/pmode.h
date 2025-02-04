@@ -2,8 +2,8 @@
 #define PMODE_H
 
 #include "../common.h"
-#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 /* TODO: unimplemented */
@@ -13,7 +13,7 @@ namespace PMODE
 	/**
 	 * @brief PMODE/W linear executable format (https://github.com/amindlost/pmodew/blob/main/docs/pmw1fmt.txt)
 	 */
-	class PMW1Format : public virtual Linker::LinkerManager
+	class PMW1Format : public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */

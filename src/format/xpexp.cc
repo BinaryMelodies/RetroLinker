@@ -1,5 +1,7 @@
 
 #include "xpexp.h"
+#include "../linker/buffer.h"
+#include "../linker/location.h"
 
 /* TODO: untested */
 

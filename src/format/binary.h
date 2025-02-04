@@ -2,9 +2,9 @@
 #define BINARY_H
 
 #include "../common.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 #include "mzexe.h"
 
@@ -17,7 +17,7 @@ namespace Binary
 	/**
 	 * @brief A template for flat binary formats
 	 */
-	class GenericBinaryFormat : public virtual Linker::LinkerManager
+	class GenericBinaryFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */

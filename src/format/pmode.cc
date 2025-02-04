@@ -1,6 +1,8 @@
 
 #include "pmode.h"
 #include "../dumper/dumper.h"
+#include "../linker/buffer.h"
+#include "../linker/location.h"
 
 /* TODO: unimplemented */
 

@@ -1,5 +1,7 @@
 
 #include "huexe.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace X68000;
 
@@ -69,7 +71,7 @@ std::unique_ptr<Script::List> HUFormat::GetScript(Linker::Module& module)
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

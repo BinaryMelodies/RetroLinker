@@ -1,5 +1,7 @@
 
+#include "module.h"
 #include "module_collector.h"
+#include "symbol_name.h"
 
 using namespace Linker;
 

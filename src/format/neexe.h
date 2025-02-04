@@ -5,9 +5,9 @@
 #include "mzexe.h"
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 namespace Microsoft
@@ -21,7 +21,7 @@ namespace Microsoft
 	 * - 16-bit OS/2 applications
 	 * - a Multitasking variant of MS-DOS referred to as European MS-DOS 4.0
 	 */
-	class NEFormat : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<NEFormat>
+	class NEFormat : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<NEFormat>
 	{
 	public:
 		/* * * General members * * */

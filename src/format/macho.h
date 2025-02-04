@@ -5,8 +5,8 @@
 #include <vector>
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
+#include "../linker/segment_manager.h"
 #include "../linker/reader.h"
 
 // TODO: incomplete, untested
@@ -18,7 +18,7 @@ namespace MachO
 	 *
 	 * Originally developed for the Mach kernel, it has been adopted by other UNIX systems based on the Mach kernel, including NeXTSTEP and macOS.
 	 */
-	class MachOFormat : public virtual Linker::LinkerManager
+	class MachOFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		::EndianType endiantype = ::EndianType(0);

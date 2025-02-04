@@ -3,6 +3,7 @@
 #include <cppunit/TestFixture.h>
 
 #include "../../src/linker/location.h"
+#include "../../src/linker/position.h"
 #include "../../src/linker/section.h"
 #include "../../src/linker/segment.h"
 

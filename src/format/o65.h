@@ -4,8 +4,8 @@
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/image.h"
-#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 /* o65 object format (input only) */

@@ -32,15 +32,15 @@ void TestSection::testSimpleFlags()
 
 	section->SetWritable(true);
 	CPPUNIT_ASSERT(section->IsWritable());
-	section->SetExecable(true);
-	CPPUNIT_ASSERT(section->IsExecable());
+	section->SetExecutable(true);
+	CPPUNIT_ASSERT(section->IsExecutable());
 	section->SetMergeable(true);
 	CPPUNIT_ASSERT(section->IsMergeable());
 
 	section->SetReadable(false);
 	CPPUNIT_ASSERT(!section->IsReadable());
-	section->SetExecable(false);
-	CPPUNIT_ASSERT(!section->IsExecable());
+	section->SetExecutable(false);
+	CPPUNIT_ASSERT(!section->IsExecutable());
 	section->SetWritable(false);
 	CPPUNIT_ASSERT(!section->IsWritable());
 	section->SetMergeable(false);

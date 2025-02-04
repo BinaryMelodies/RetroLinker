@@ -1,7 +1,7 @@
 
 #include "section.h"
-#include "segment.h"
 #include "location.h"
+#include "position.h"
 
 using namespace Linker;
 

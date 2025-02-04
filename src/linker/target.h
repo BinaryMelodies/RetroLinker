@@ -5,7 +5,7 @@
 #include <variant>
 #include "../common.h"
 #include "location.h"
-#include "symbol.h"
+#include "symbol_name.h"
 
 namespace Linker
 {

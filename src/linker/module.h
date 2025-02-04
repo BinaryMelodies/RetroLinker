@@ -6,13 +6,15 @@
 #include <vector>
 #include <string>
 #include "../common.h"
-#include "format.h"
 #include "location.h"
 #include "relocation.h"
 #include "symbol_definition.h"
+#include "symbol_name.h"
 
 namespace Linker
 {
+	class InputFormat;
+	class OutputFormat;
 	class Section;
 
 	/**
@@ -69,7 +71,7 @@ namespace Linker
 		/** Mapping local symbols to their definitions */
 		std::map<std::string, SymbolDefinition> local_symbols;
 		std::vector<SymbolName> imported_symbols;
-		std::map<ExportedSymbol, Location> exported_symbols;
+		std::map<ExportedSymbolName, Location> exported_symbols;
 
 		friend class ModuleCollector;
 
@@ -100,8 +102,8 @@ namespace Linker
 	private:
 		/* GNU assembler can use '$', NASM must use '?' */
 		char special_prefix_char = '$';
-		std::weak_ptr<Linker::OutputFormat> output_format;
-		std::weak_ptr<const Linker::InputFormat> input_format;
+		std::weak_ptr<OutputFormat> output_format;
+		std::weak_ptr<const InputFormat> input_format;
 
 		/* symbols */
 		std::string segment_prefix();
@@ -117,8 +119,8 @@ namespace Linker
 		/* sections */
 		std::string resource_prefix();
 
-		bool parse_imported_name(std::string reference_name, Linker::SymbolName& symbol);
-		bool parse_exported_name(std::string reference_name, Linker::ExportedSymbol& symbol);
+		bool parse_imported_name(std::string reference_name, SymbolName& symbol);
+		bool parse_exported_name(std::string reference_name, ExportedSymbolName& symbol);
 
 	public:
 		/**
@@ -163,7 +165,7 @@ namespace Linker
 		/**
 		 * @brief Adds an exported symbol (Microsoft format: library name + symbol name + ordinal/hint)
 		 */
-		void AddExportedSymbol(ExportedSymbol name, Location symbol);
+		void AddExportedSymbol(ExportedSymbolName name, Location symbol);
 
 		/**
 		 * @brief Processes undefined symbol for extended syntax
@@ -186,7 +188,7 @@ namespace Linker
 		/**
 		 * @brief Retrieves map of all exported symbols and their locations
 		 */
-		const std::map<ExportedSymbol, Location>& GetExportedSymbols() const;
+		const std::map<ExportedSymbolName, Location>& GetExportedSymbols() const;
 
 		/**
 		 * @brief Searches for a local symbol

@@ -6,12 +6,12 @@
 #include <string>
 #include <vector>
 #include "../common.h"
-#include "../linker/linker_manager.h"
 #include "../linker/format.h"
 #include "../linker/module.h"
 #include "../linker/reader.h"
 #include "../linker/section.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 #include "../dumper/dumper.h"
 
@@ -31,7 +31,7 @@ namespace Microsoft
 	 * the new file extension ".exe". Since MS-DOS 2.0, MZ executables may also have the extension ".com", as DOS only looks
 	 * at the first two bytes to determine the file format.
 	 */
-	class MZFormat : public virtual Linker::LinkerManager
+	class MZFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */

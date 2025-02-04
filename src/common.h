@@ -136,10 +136,6 @@ namespace Linker
 	class Section;
 	class Location;
 	typedef std::map<std::shared_ptr<Section>, Location> Displacement;
-
-	class Relocation;
-	class Segment;
-	class Writer;
 }
 
 #endif /* COMMON_H */

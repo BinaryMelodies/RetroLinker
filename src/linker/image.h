@@ -3,12 +3,12 @@
 
 #include <vector>
 #include "../common.h"
-#include "reader.h"
-#include "writer.h"
 
 namespace Linker
 {
 	class ActualImage;
+	class Reader;
+	class Writer;
 
 	/**
 	 * @brief Represents an abstract data image whose data can be written to a file
@@ -16,6 +16,7 @@ namespace Linker
 	class Image
 	{
 	public:
+		virtual ~Image() = default;
 		/**
 		 * @brief Retrieves size of stored data
 		 */
@@ -32,7 +33,6 @@ namespace Linker
 		 * @brief Retrieves a randomly accessible image
 		 */
 		virtual std::shared_ptr<ActualImage> AsImage();
-		virtual ~Image() = default;
 	};
 
 	class ActualImage : public Image, public std::enable_shared_from_this<ActualImage>

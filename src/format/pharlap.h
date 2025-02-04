@@ -3,7 +3,7 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
+#include "../linker/segment_manager.h"
 #include "mzexe.h"
 
 namespace PharLap
@@ -11,7 +11,7 @@ namespace PharLap
 	/**
 	 * @brief Phar Lap "MP" .exp and "MQ" .rex file
 	 */
-	class MPFormat : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter
+	class MPFormat : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -84,7 +84,7 @@ namespace PharLap
 	/**
 	 * @brief Phar Lap "P2"/"P3" .exp file
 	 */
-	class P3Format : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter
+	class P3Format : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

@@ -1,6 +1,12 @@
 
-#include "cpm86.h"
+#include <algorithm>
 #include <filesystem>
+#include "cpm86.h"
+#include "../linker/buffer.h"
+#include "../linker/section.h"
+#include "../linker/position.h"
+#include "../linker/reader.h"
+#include "../linker/resolution.h"
 
 using namespace DigitalResearch;
 
@@ -1264,7 +1270,7 @@ for any
 		{
 			Linker::Warning << "Warning: linker script provided, overriding memory model" << std::endl;
 		}
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

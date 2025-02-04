@@ -1,5 +1,8 @@
 
+#include "position.h"
 #include "relocation.h"
+#include "resolution.h"
+#include "section.h"
 
 using namespace Linker;
 

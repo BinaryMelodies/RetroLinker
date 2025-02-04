@@ -3,9 +3,9 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 namespace X68000
@@ -13,7 +13,7 @@ namespace X68000
 	/**
 	 * @brief Human68k "HU" .X file
 	 */
-	class HUFormat : public virtual Linker::LinkerManager
+	class HUFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

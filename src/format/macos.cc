@@ -1,5 +1,9 @@
 
+#include <cstring>
 #include "macos.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
+#include "../linker/section.h"
 
 using namespace Apple;
 
@@ -1078,7 +1082,7 @@ for any
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

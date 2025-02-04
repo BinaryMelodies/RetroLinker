@@ -5,11 +5,11 @@
 #include <optional>
 #include <string>
 #include <variant>
-#include "module.h"
-#include "writer.h"
 
 namespace Linker
 {
+	class Module;
+
 	/**
 	 * @brief Represents a reference stored in a linker script
 	 *

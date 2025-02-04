@@ -1,6 +1,7 @@
 
 #include "target.h"
 #include "module.h"
+#include "position.h"
 
 using namespace Linker;
 

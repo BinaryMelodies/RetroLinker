@@ -8,12 +8,11 @@
 #include <vector>
 #include "../common.h"
 #include "buffer.h"
-#include "image.h"
-#include "position.h"
-#include "reader.h"
 
 namespace Linker
 {
+	class Position;
+	class Reader;
 	class Segment;
 
 	/**
@@ -49,7 +48,7 @@ namespace Linker
 			/**
 			 * @brief The section data can be used as instruction
 			 */
-			Execable = 1 << 2,
+			Executable = 1 << 2,
 			/**
 			 * @brief Sections of the same name with this flag are overlayed instead of appended
 			 *
@@ -176,9 +175,9 @@ namespace Linker
 
 		void SetWritable(bool state);
 
-		bool IsExecable() const;
+		bool IsExecutable() const;
 
-		void SetExecable(bool state);
+		void SetExecutable(bool state);
 
 		bool IsMergeable() const;
 
@@ -275,7 +274,7 @@ namespace Linker
 		 */
 		Position Base() const;
 
-		using Linker::Buffer::ReadFile;
+		using Buffer::ReadFile;
 		/**
 		 * @brief Overwrites section data with contents of input stream
 		 *

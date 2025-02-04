@@ -3,6 +3,7 @@
 #include "buffer.h"
 #include "image.h"
 #include "segment.h"
+#include "writer.h"
 
 using namespace Linker;
 

@@ -1,4 +1,7 @@
 
+#include <cstring>
+#include "position.h"
+#include "reader.h"
 #include "section.h"
 
 using namespace Linker;
@@ -61,14 +64,14 @@ void Section::SetWritable(bool state)
 	AlterFlags(state, Writable);
 }
 
-bool Section::IsExecable() const
+bool Section::IsExecutable() const
 {
-	return flags & Execable;
+	return flags & Executable;
 }
 
-void Section::SetExecable(bool state)
+void Section::SetExecutable(bool state)
 {
-	AlterFlags(state, Execable);
+	AlterFlags(state, Executable);
 }
 
 bool Section::IsMergeable() const
@@ -368,7 +371,7 @@ std::ostream& Linker::operator<<(std::ostream& out, const Section& section)
 		out << "R";
 	if(section.IsWritable())
 		out << "W";
-	if(section.IsExecable())
+	if(section.IsExecutable())
 		out << "X";
 	if(section.IsZeroFilled())
 		out << "Z";

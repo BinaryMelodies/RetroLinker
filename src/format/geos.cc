@@ -1,5 +1,6 @@
 
 #include "geos.h"
+#include "../linker/location.h"
 
 /* TODO: unimplemented */
 

@@ -1,16 +1,19 @@
-#ifndef LINKER_H
-#define LINKER_H
+#ifndef MODULE_COLLECTOR_H
+#define MODULE_COLLECTOR_H
 
 #include <map>
 #include <memory>
 #include <set>
 #include <string>
 #include <vector>
-#include "format.h"
-#include "module.h"
+#include "symbol_definition.h"
 
 namespace Linker
 {
+	class Module;
+	class InputFormat;
+	class OutputFormat;
+
 	/** @brief Helper class that collects object files and libraries, and includes library objects for required symbols */
 	class ModuleCollector
 	{
@@ -26,7 +29,7 @@ namespace Linker
 	private:
 		/* GNU assembler can use '$', NASM must use '?' */
 		char special_prefix_char = '$';
-		std::weak_ptr<Linker::OutputFormat> output_format;
+		std::weak_ptr<OutputFormat> output_format;
 
 	public:
 		struct definition
@@ -50,4 +53,4 @@ namespace Linker
 	};
 }
 
-#endif /* LINKER_H */
+#endif /* MODULE_COLLECTOR_H */

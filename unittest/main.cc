@@ -3,7 +3,7 @@
 #include "linker/location.cc"
 #include "linker/reader.cc"
 #include "linker/section.cc"
-#include "linker/symbol.cc"
+#include "linker/symbol_name.cc"
 #include "format/mzexe.cc"
 
 #include <cppunit/extensions/HelperMacros.h>

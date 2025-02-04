@@ -4,9 +4,9 @@
 #include "mzexe.h"
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 namespace Microsoft
@@ -22,7 +22,7 @@ namespace Microsoft
 	 * - LE executables for the DOS/4G DOS extender
 	 * - LX executables for 32-bit versions of OS/2
 	 */
-	class LEFormat : public virtual Linker::LinkerManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<LEFormat>
+	class LEFormat : public virtual Linker::SegmentManager, protected Microsoft::MZStubWriter, public std::enable_shared_from_this<LEFormat>
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;
@@ -140,7 +140,7 @@ namespace Microsoft
 			{
 				Readable = 0x0001,
 				Writable = 0x0002,
-				Execable = 0x0004,
+				Executable = 0x0004,
 				Resource = 0x0008,
 				Discardable = 0x0010,
 				Shared = 0x0020,

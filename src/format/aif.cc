@@ -1,5 +1,6 @@
 
 #include "aif.h"
+#include "../linker/location.h"
 
 using namespace ARM;
 

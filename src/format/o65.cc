@@ -1,5 +1,7 @@
 
 #include "o65.h"
+#include "../linker/module.h"
+#include "../linker/section.h"
 
 using namespace O65;
 
@@ -96,7 +98,7 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	code_image = code_section;
 	code_section->ReadFile(rd, code_size);
 	code_section->SetReadable(true);
-	code_section->SetExecable(true);
+	code_section->SetExecutable(true);
 
 	std::shared_ptr<Linker::Section> data_section = std::make_shared<Linker::Section>(".data");
 	data_image = data_section;

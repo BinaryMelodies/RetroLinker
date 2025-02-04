@@ -3,12 +3,12 @@
 
 #include "../common.h"
 #include "location.h"
-#include "resolution.h"
-#include "section.h"
 #include "target.h"
 
 namespace Linker
 {
+	class Resolution;
+
 	/**
 	 * @brief A representation of a value within some binary data that has to be fixed up once the exact position of certain symbols within memory is known.
 	 *

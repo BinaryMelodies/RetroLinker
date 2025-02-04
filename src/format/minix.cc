@@ -1,6 +1,10 @@
 
-#include "minix.h"
 #include <sstream>
+#include "minix.h"
+#include "../linker/buffer.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
+#include "../linker/reader.h"
 
 using namespace MINIX;
 
@@ -380,7 +384,7 @@ void MINIXFormat::CreateDefaultSegments()
 
 void MINIXFormat::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
 {
-	LinkerManager::SetLinkScript(script_file, options);
+	SegmentManager::SetLinkScript(script_file, options);
 
 	if((format & UnmappedZeroPage) != 0)
 	{
@@ -454,7 +458,7 @@ std::unique_ptr<Script::List> MINIXFormat::GetScript(Linker::Module& module)
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else if((format & FormatSeparate))
 	{

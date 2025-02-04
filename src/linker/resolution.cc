@@ -1,5 +1,6 @@
 
 #include "resolution.h"
+#include "segment.h"
 
 using namespace Linker;
 

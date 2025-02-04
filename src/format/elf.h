@@ -5,10 +5,11 @@
 #include <vector>
 #include "../common.h"
 #include "../dumper/dumper.h"
+#include "../linker/buffer.h"
 #include "../linker/format.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/reader.h"
+#include "../linker/segment_manager.h"
 
 namespace ELF
 {
@@ -17,7 +18,7 @@ namespace ELF
 	 *
 	 * The latest and most widespread file format, developed for the UNIX operating system.
 	 */
-	class ELFFormat : public virtual Linker::InputFormat, public virtual Linker::LinkerManager
+	class ELFFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager
 	{
 	public:
 		/* * * General members * * */

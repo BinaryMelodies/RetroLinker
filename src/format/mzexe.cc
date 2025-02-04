@@ -1,5 +1,7 @@
 
 #include "mzexe.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace Microsoft;
 
@@ -152,7 +154,7 @@ void MZFormat::Clear()
 	pif = nullptr;
 	image = nullptr;
 	/* writer fields */
-	ClearLinkerManager();
+	ClearSegmentManager();
 }
 
 void MZFormat::SetFileSize(uint32_t size)
@@ -516,7 +518,7 @@ std::unique_ptr<Script::List> MZFormat::GetScript(Linker::Module& module)
 		{
 			Linker::Warning << "Warning: linker script provided, overriding memory model" << std::endl;
 		}
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{
@@ -567,7 +569,7 @@ void MZFormat::LinkLarge(Linker::Module& module)
 {
 	static const char _code[] = ".code";
 	Linker::AppendSections<Linker::IsCalled<_code>::predicate>(module, image);
-	Linker::AppendSections<Linker::IsExecable>(module, image, false);
+	Linker::AppendSections<Linker::IsExecutable>(module, image, false);
 	static const char _data[] = ".data";
 	static const char _rodata[] = ".rodata";
 	image.next_bias = 0;
@@ -650,7 +652,7 @@ void MZFormat::ProcessModule(Linker::Module& module)
 		offset_t code_size = 0;
 		for(auto& section : std::dynamic_pointer_cast<Linker::Segment>(image)->sections)
 		{
-			if(!section->IsExecable())
+			if(!section->IsExecutable())
 				break;
 			assert(section->GetStartAddress() == code_size);
 			code_size += section->Size();

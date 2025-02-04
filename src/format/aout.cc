@@ -1,5 +1,7 @@
 
 #include "aout.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace AOut;
 
@@ -452,7 +454,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 	linker_data->SetReadable(true);
 	linker_bss->SetReadable(true);
 
-	linker_code->SetExecable(true);
+	linker_code->SetExecutable(true);
 	linker_data->SetWritable(true);
 	linker_bss->SetWritable(true);
 
@@ -671,7 +673,7 @@ std::unique_ptr<Script::List> AOutFormat::GetScript(Linker::Module& module)
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

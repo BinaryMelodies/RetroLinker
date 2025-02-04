@@ -3,8 +3,8 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 /* TODO: unimplemented */
@@ -14,7 +14,7 @@ namespace GEOS
 	/**
 	 * @brief Berkeley Softworks GEOS or GeoWorks Ensemble or NewDeal Office or Breadbox Ensemble Geode file format
 	 */
-	class GeodeFormat : public virtual Linker::LinkerManager
+	class GeodeFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		void ReadFile(Linker::Reader& rd) override;

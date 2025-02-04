@@ -1,5 +1,6 @@
 
 #include "xenix.h"
+#include "../linker/location.h"
 
 /* TODO: unimplemented */
 

@@ -1,6 +1,8 @@
 
 #include "neexe.h"
 #include "mzexe.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace Microsoft;
 
@@ -1428,7 +1430,7 @@ void NEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	else
 	{
 Linker::Debug << "Debug: New segment " << segment->name << std::endl;
-		AddSegment(Segment(segment, segment->sections[0]->IsExecable() ? GetCodeSegmentFlags() : GetDataSegmentFlags()));
+		AddSegment(Segment(segment, segment->sections[0]->IsExecutable() ? GetCodeSegmentFlags() : GetDataSegmentFlags()));
 
 		if(segment->name == ".data")
 			automatic_data = segments.size();
@@ -1496,7 +1498,7 @@ for not ".heap"
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

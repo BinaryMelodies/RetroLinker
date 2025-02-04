@@ -5,9 +5,9 @@
 #include "cpm68k.h"
 #include "mzexe.h"
 #include "../common.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 namespace COFF
@@ -22,7 +22,7 @@ namespace COFF
 	 * - DJGPP version 1.11 or later, running on top of MS-DOS
 	 * - Digital Research Concurrent DOS 68K
 	 */
-	class COFFFormat : public virtual Linker::InputFormat, public virtual Linker::LinkerManager, protected Microsoft::MZSimpleStubWriter
+	class COFFFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager, protected Microsoft::MZSimpleStubWriter
 	{
 	public:
 		/* * * General members * * */

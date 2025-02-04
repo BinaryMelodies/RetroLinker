@@ -1,5 +1,5 @@
-#ifndef LINKER_MANAGER_H
-#define LINKER_MANAGER_H
+#ifndef SEGMENT_MANAGER_H
+#define SEGMENT_MANAGER_H
 
 #include <fstream>
 #include <memory>
@@ -7,16 +7,28 @@
 #include <string>
 #include <variant>
 #include "format.h"
-#include "module.h"
-#include "writer.h"
 #include "../script/script.h"
+
+namespace Script
+{
+	class List;
+	class Node;
+}
 
 namespace Linker
 {
+	class Location;
+	class Module;
+	class OutputFormat;
+	class Reader;
+	class Section;
+	class Segment;
+	class Writer;
+
 	/**
 	 * @brief A helper class to collect sections into segments
 	 */
-	class LinkerManager : public virtual Linker::OutputFormat
+	class SegmentManager : public virtual OutputFormat
 	{
 	protected:
 		/**
@@ -57,12 +69,7 @@ namespace Linker
 		 */
 		std::string linker_script;
 
-		void ClearLinkerManager();
-
-		~LinkerManager()
-		{
-			ClearLinkerManager();
-		}
+		void ClearSegmentManager();
 
 		/**
 		 * @brief Sets up the linker script and linker parameters
@@ -72,7 +79,7 @@ namespace Linker
 		/**
 		 * @brief Compiles the linker script into an internal format
 		 */
-		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
+		std::unique_ptr<Script::List> GetScript(Module& module);
 
 		/**
 		 * @brief Retrieves current address pointer
@@ -137,4 +144,4 @@ namespace Linker
 	bool ends_with(std::string str, std::string end);
 }
 
-#endif /* LINKER_MANAGER_H */
+#endif /* SEGMENT_MANAGER_H */

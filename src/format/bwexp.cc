@@ -1,5 +1,7 @@
 
 #include "bwexp.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 using namespace DOS16M;
 
@@ -221,7 +223,7 @@ void BWFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	if(segment->name == ".data")
 		default_data = segments.size();
 
-	std::unique_ptr<Segment> bw_segment = std::make_unique<Segment>(segment, segment->sections[0]->IsExecable() ? Segment::TYPE_CODE : Segment::TYPE_DATA);
+	std::unique_ptr<Segment> bw_segment = std::make_unique<Segment>(segment, segment->sections[0]->IsExecutable() ? Segment::TYPE_CODE : Segment::TYPE_DATA);
 	segment_indices[segment] = segments.size();
 	segments.push_back(std::move(bw_segment));
 }
@@ -260,7 +262,7 @@ for any
 
 	if(linker_script != "")
 	{
-		return LinkerManager::GetScript(module);
+		return SegmentManager::GetScript(module);
 	}
 	else
 	{

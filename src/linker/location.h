@@ -4,10 +4,10 @@
 #include <iostream>
 #include <memory>
 #include "../common.h"
-#include "position.h"
 
 namespace Linker
 {
+	class Position;
 	class Section;
 
 	/**

@@ -3,11 +3,11 @@
 
 #include <iostream>
 #include "../common.h"
-#include "target.h"
-#include "segment.h"
 
 namespace Linker
 {
+	class Segment;
+
 	/**
 	 * @brief Representing a resolved relocation
 	 *

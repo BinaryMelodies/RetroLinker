@@ -4,9 +4,9 @@
 #include "mzexe.h"
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 /* TODO: UNIX v1 a.out
@@ -45,7 +45,7 @@ namespace AOut
 	 * - early DJGPP before version 1.11
 	 * - early PDOS/386 and PD-Windows (http://pdos.sourceforge.net/) (obsolete)
 	 */
-	class AOutFormat : public virtual Linker::InputFormat, public virtual Linker::LinkerManager, protected Microsoft::MZSimpleStubWriter
+	class AOutFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager, protected Microsoft::MZSimpleStubWriter
 	{
 	public:
 		/* * * General members * * */

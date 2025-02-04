@@ -1,6 +1,7 @@
 
 #include "section.h"
 #include "segment.h"
+#include "writer.h"
 
 using namespace Linker;
 

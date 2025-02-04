@@ -1,5 +1,8 @@
 
+#include <cstring>
 #include "buffer.h"
+#include "reader.h"
+#include "writer.h"
 
 using namespace Linker;
 

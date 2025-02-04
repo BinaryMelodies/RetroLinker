@@ -3,8 +3,8 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/reader.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 /* TODO: unimplemented */
@@ -14,7 +14,7 @@ namespace ARM
 	/**
 	 * @brief ARM Image Format
 	 */
-	class AIFFormat : public virtual Linker::LinkerManager
+	class AIFFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		static constexpr uint32_t ARM_NOP = 0xE1A00000; // mov r0, r0

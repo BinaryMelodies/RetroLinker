@@ -3,9 +3,10 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
-#include "../linker/linker_manager.h"
 #include "../linker/module.h"
+#include "../linker/section.h"
 #include "../linker/segment.h"
+#include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
 namespace Amiga
@@ -15,7 +16,7 @@ namespace Amiga
 	 *
 	 * Introduced for the TRIPOS system and then adopted for AmigaOS, a hunk file stores the binary executable for an Amiga application.
 	 */
-	class HunkFormat : public virtual Linker::LinkerManager
+	class HunkFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		enum flags
