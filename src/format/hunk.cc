@@ -61,6 +61,50 @@ offset_t HunkFormat::Block::FileSize() const
 	return 4;
 }
 
+void HunkFormat::Block::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	Dumper::Region block_region("Block", current_offset, FileSize(), 8);
+	AddCommonFields(block_region, index);
+	AddExtraFields(block_region, module, hunk, index, current_offset);
+	block_region.Display(dump);
+}
+
+void HunkFormat::Block::AddCommonFields(Dumper::Region& region, unsigned index) const
+{
+	region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
+	std::map<offset_t, std::string> type_descriptions;
+	type_descriptions[HUNK_UNIT] = "HUNK_UNIT";
+	type_descriptions[HUNK_NAME] = "HUNK_NAME";
+	type_descriptions[HUNK_CODE] = "HUNK_CODE";
+	type_descriptions[HUNK_DATA] = "HUNK_DATA";
+	type_descriptions[HUNK_BSS] = "HUNK_BSS";
+	type_descriptions[HUNK_RELOC32] = "HUNK_RELOC32";
+	type_descriptions[HUNK_RELOC16] = "HUNK_RELOC16";
+	type_descriptions[HUNK_RELOC8] = "HUNK_RELOC8";
+	type_descriptions[HUNK_EXT] = "HUNK_EXT";
+	type_descriptions[HUNK_SYMBOL] = "HUNK_SYMBOL";
+	type_descriptions[HUNK_DEBUG] = "HUNK_DEBUG";
+	type_descriptions[HUNK_END] = "HUNK_END";
+	type_descriptions[HUNK_HEADER] = "HUNK_HEADER";
+	type_descriptions[HUNK_OVERLAY] = "HUNK_OVERLAY";
+	type_descriptions[HUNK_BREAK] = "HUNK_BREAK";
+	type_descriptions[HUNK_DRELOC32] = "HUNK_DRELOC32";
+	type_descriptions[HUNK_DRELOC16] = "HUNK_DRELOC16";
+	type_descriptions[HUNK_DRELOC8] = "HUNK_DRELOC8";
+	type_descriptions[HUNK_LIB] = "HUNK_LIB";
+	type_descriptions[HUNK_INDEX] = "HUNK_INDEX";
+	type_descriptions[HUNK_RELOC32SHORT] = "HUNK_RELOC32SHORT";
+	type_descriptions[HUNK_RELRELOC32] = "HUNK_RELRELOC32";
+	type_descriptions[HUNK_ABSRELOC16] = "HUNK_ABSRELOC16";
+	type_descriptions[HUNK_PPC_CODE] = "HUNK_PPC_CODE";
+	type_descriptions[HUNK_RELRELOC26] = "HUNK_RELRELOC26";
+	region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(type));
+}
+
+void HunkFormat::Block::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+}
+
 // UnitBlock
 
 void HunkFormat::UnitBlock::Read(Linker::Reader& rd)
@@ -127,6 +171,27 @@ offset_t HunkFormat::HeaderBlock::FileSize() const
 	return size;
 }
 
+void HunkFormat::HeaderBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	Block::Dump(dump, module, hunk, index, current_offset);
+	current_offset += 4;
+	// TODO: print libraries
+	current_offset += 4;
+	for(uint32_t i = 0; i < hunk_sizes.size(); i++)
+	{
+		Dumper::Entry hunk_size_entry("Hunk size", first_hunk + i, current_offset + i * 4);
+		hunk_size_entry.AddField("Size", Dumper::HexDisplay::Make(8), offset_t(hunk_sizes[i]));
+		hunk_size_entry.Display(dump);
+	}
+}
+
+void HunkFormat::HeaderBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	region.AddField("Table size", Dumper::HexDisplay::Make(8), offset_t(table_size));
+	region.AddField("First hunk", Dumper::HexDisplay::Make(8), offset_t(first_hunk));
+	region.AddField("Last hunk", Dumper::HexDisplay::Make(8), offset_t(first_hunk + hunk_sizes.size() - 1));
+}
+
 // InitialHunkBlock
 
 uint32_t HunkFormat::InitialHunkBlock::GetSizeField() const
@@ -140,7 +205,7 @@ uint32_t HunkFormat::InitialHunkBlock::GetSizeField() const
 
 bool HunkFormat::InitialHunkBlock::RequiresAdditionalFlags() const
 {
-	return (flags & ~(LoadChipMem | LoadFastMem | LoadPublic)) != 0;
+	return loaded_with_additional_flags || (flags & ~(LoadChipMem | LoadFastMem | LoadPublic)) != 0;
 }
 
 uint32_t HunkFormat::InitialHunkBlock::GetAdditionalFlags() const
@@ -153,6 +218,7 @@ void HunkFormat::InitialHunkBlock::Read(Linker::Reader& rd)
 	uint32_t longword_count = rd.ReadUnsigned(4);
 	if((longword_count & FlagMask) == BitAdditional)
 	{
+		loaded_with_additional_flags = true;
 		flags = flag_type(rd.ReadUnsigned(4) | LoadPublic);
 	}
 	else
@@ -176,6 +242,30 @@ offset_t HunkFormat::InitialHunkBlock::FileSize() const
 	return 8 + 4 * GetSize() + (RequiresAdditionalFlags() ? 4 : 0);
 }
 
+void HunkFormat::InitialHunkBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	if(RequiresAdditionalFlags())
+	{
+		region.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("public"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("chip memory"), true)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("fast memory"), true)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("local memory"), true) // TODO: meaning
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("24-bit DMA"), true) // TODO: meaning
+				->AddBitField(16, 1, Dumper::ChoiceDisplay::Make("clear"), true), // TODO: meaning
+			offset_t(flags) & FlagMask);
+	}
+	else
+	{
+		region.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(30, 1, Dumper::ChoiceDisplay::Make("chip memory"), true)
+				->AddBitField(31, 1, Dumper::ChoiceDisplay::Make("fast memory"), true),
+			offset_t(flags) & FlagMask);
+	}
+}
+
 void HunkFormat::InitialHunkBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
 {
 }
@@ -185,6 +275,23 @@ void HunkFormat::InitialHunkBlock::WriteBody(Linker::Writer& wr) const
 }
 
 // LoadBlock
+
+void HunkFormat::LoadBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	Block::Dump(dump, module, hunk, index, current_offset);
+
+	Dumper::Block hunk_block("Data", current_offset + (RequiresAdditionalFlags() ? 12 : 8), image->AsImage(), 0, 8);
+//	AddCommonFields(hunk_block, index);
+	for(auto pair : hunk->relocations)
+	{
+		for(auto rel : pair.second)
+		{
+			hunk_block.AddSignal(rel.offset, rel.size);
+		}
+	}
+//	AddExtraFields(hunk_block, module, hunk, index, current_offset);
+	hunk_block.Display(dump);
+}
 
 uint32_t HunkFormat::LoadBlock::GetSize() const
 {
@@ -220,6 +327,12 @@ uint32_t HunkFormat::BssBlock::GetSize() const
 void HunkFormat::BssBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
 {
 	size = longword_count;
+}
+
+void HunkFormat::BssBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	InitialHunkBlock::AddExtraFields(region, module, hunk, index, current_offset);
+	region.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(size * 4));
 }
 
 // RelocationBlock
@@ -276,6 +389,32 @@ offset_t HunkFormat::RelocationBlock::FileSize() const
 	return size;
 }
 
+void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	Block::Dump(dump, module, hunk, index, current_offset);
+	unsigned i = 0;
+	current_offset += 12;
+	for(auto& data : relocations)
+	{
+		for(auto& offset : data.offsets)
+		{
+			Dumper::Entry relocation_entry("Relocation", i + 1, current_offset);
+			relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
+			relocation_entry.AddField("Target hunk", Dumper::DecDisplay::Make(), offset_t(data.hunk)); // TODO: add first_hunk?
+			relocation_entry.AddField("Size", Dumper::HexDisplay::Make(8), offset_t(size));
+			if(hunk->image != nullptr)
+			{
+				relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(2 * size), offset_t(
+					hunk->image->AsImage()->ReadUnsigned(size, offset, ::BigEndian)));
+			}
+			relocation_entry.Display(dump);
+			i += 1;
+			current_offset += 4;
+		}
+		current_offset += 8;
+	}
+}
+
 // Hunk
 
 void HunkFormat::Hunk::ProduceBlocks()
@@ -300,9 +439,9 @@ void HunkFormat::Hunk::ProduceBlocks()
 		for(auto it : relocations)
 		{
 			relocation->relocations.emplace_back(RelocationBlock::RelocationData(it.first));
-			for(uint32_t rel : it.second)
+			for(Relocation rel : it.second)
 			{
-				relocation->relocations.back().offsets.push_back(rel);
+				relocation->relocations.back().offsets.push_back(rel.offset);
 			}
 		}
 		blocks.push_back(relocation);
@@ -333,6 +472,17 @@ uint32_t HunkFormat::Hunk::GetMemorySize() const
 			return image_size;
 		}
 	}
+}
+
+uint32_t HunkFormat::Hunk::GetFileSize() const
+{
+	offset_t size = 0;
+	for(auto& block : blocks)
+	{
+//		Linker::Debug << "Debug: size of " << std::hex << block->type << " is " << block->FileSize() << std::endl;
+		size += block->FileSize();
+	}
+	return size;
 }
 
 uint32_t HunkFormat::Hunk::GetSizeField()
@@ -386,10 +536,19 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 		}
 		break;
 	case Block::HUNK_BSS:
-		// TODO
+		image = nullptr;
+		image_size = dynamic_cast<BssBlock *>(block.get())->size;
 		break;
 	case Block::HUNK_RELOC32:
-		// TODO
+		for(auto& data : dynamic_cast<RelocationBlock *>(block.get())->relocations)
+		{
+			if(relocations.find(data.hunk) == relocations.end())
+				relocations[data.hunk] = std::vector<Relocation>();
+			for(auto offset : data.offsets)
+			{
+				relocations[data.hunk].push_back(Relocation(4, offset));
+			}
+		}
 		break;
 	case Block::HUNK_END:
 		// TODO
@@ -413,11 +572,7 @@ offset_t HunkFormat::ImageSize() const
 	}
 	for(auto& hunk : hunks)
 	{
-		for(auto& block : hunk.blocks)
-		{
-			Linker::Debug << "Debug: size of " << std::hex << block->type << " is " << block->FileSize() << std::endl;
-			size += block->FileSize();
-		}
+		size += hunk.GetFileSize();
 	}
 	return size;
 }
@@ -483,7 +638,34 @@ void HunkFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
 	file_region.Display(dump);
 
-	// TODO
+	offset_t current_offset = 0;
+
+	if(start_block == nullptr)
+	{
+		Dumper::Region header_region("Missing header", file_offset, 0, 8);
+		header_region.Display(dump);
+	}
+	else
+	{
+		start_block->Dump(dump, *this, nullptr, 0, 0);
+		current_offset = start_block->FileSize();
+	}
+
+	unsigned current_block = 1;
+	unsigned hunk_number = 0; // TODO: starting number
+	for(auto& hunk : hunks)
+	{
+		Dumper::Region hunk_region("Hunk", current_offset, hunk.GetFileSize(), 8);
+		hunk_region.AddField("Number", Dumper::DecDisplay::Make(), offset_t(hunk_number));
+		hunk_region.Display(dump);
+		for(auto& block : hunk.blocks)
+		{
+			block->Dump(dump, *this, &hunk, current_block, current_offset);
+			current_offset += block->FileSize();
+			current_block++;
+		}
+		hunk_number += 1;
+	}
 }
 
 std::string HunkFormat::ReadString(Linker::Reader& rd, uint32_t& longword_count)
@@ -690,7 +872,7 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 			Linker::Position position = rel.source.GetPosition();
 			uint32_t source = segment_index[position.segment];
 			uint32_t target = segment_index[resolution.target];
-			hunks[source].relocations[target].push_back(position.address);
+			hunks[source].relocations[target].push_back(Hunk::Relocation(rel.size, position.address));
 		}
 	}
 
