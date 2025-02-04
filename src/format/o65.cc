@@ -150,8 +150,9 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void O65Format::Module::WriteFile(Linker::Writer& wr) const
+void O65Format::Module::CalculateValues()
 {
+	// TODO
 	if(data_base == code_base + (code_image ? code_image->ImageSize() : 0)
 	&& bss_base  == data_base + (data_image ? data_image->ImageSize() : 0))
 	{
@@ -161,7 +162,10 @@ void O65Format::Module::WriteFile(Linker::Writer& wr) const
 	{
 		mode_word &= ~MODE_SIMPLE;
 	}
+}
 
+void O65Format::Module::WriteFile(Linker::Writer& wr) const
+{
 //Linker::Debug << wr.Tell() << std::endl;
 
 	wr.endiantype = ::LittleEndian;
@@ -385,6 +389,14 @@ void O65Format::ReadFile(Linker::Reader& rd)
 		modules.push_back(std::make_unique<Module>());
 		modules.back()->ReadFile(rd);
 	} while(modules.back()->IsChained());
+}
+
+void O65Format::CalculateValues()
+{
+	for(auto& module : modules)
+	{
+		module->CalculateValues();
+	}
 }
 
 offset_t O65Format::WriteFile(Linker::Writer& wr) const

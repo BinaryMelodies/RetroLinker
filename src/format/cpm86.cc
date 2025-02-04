@@ -36,12 +36,16 @@ void CPM86Format::Descriptor::ReadDescriptor(Linker::Reader& rd)
 	max_size_paras = rd.ReadUnsigned(2);
 }
 
-void CPM86Format::Descriptor::WriteDescriptor(Linker::Writer& wr, const CPM86Format& module) const
+void CPM86Format::Descriptor::Prepare(CPM86Format& module)
 {
 	if(type == ActualFixups)
 	{
 		min_size_paras = max_size_paras = size_paras;
 	}
+}
+
+void CPM86Format::Descriptor::WriteDescriptor(Linker::Writer& wr, const CPM86Format& module) const
+{
 	wr.WriteWord(1, type & 0xFF);
 	wr.WriteWord(2, size_paras);
 	wr.WriteWord(2, load_segment);
@@ -956,6 +960,21 @@ void CPM86Format::CalculateValues()
 	if(file_size == offset_t(-1) || file_size < offset)
 	{
 		file_size = offset;
+	}
+
+	for(size_t i = 0; i < 8; i++)
+	{
+		if(descriptors[i].type == Descriptor::Undefined)
+			break;
+		descriptors[i].Prepare(*this);
+	}
+	if(library_descriptor.type != Descriptor::Undefined)
+	{
+		library_descriptor.Prepare(*this);
+	}
+	if(fastload_descriptor.type != Descriptor::Undefined)
+	{
+		fastload_descriptor.Prepare(*this);
 	}
 }
 

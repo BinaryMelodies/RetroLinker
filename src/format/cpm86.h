@@ -96,11 +96,10 @@ namespace DigitalResearch
 			uint16_t size_paras = 0;
 			/** @brief Load segment address of the group, or 0 if it can be relocated. Not to be used outside of system drivers */
 			uint16_t load_segment = 0;
-			// the following two fields are mutable because a fixup section sets these during write
 			/** @brief Minimum required size of the group, when loaded into memory, in 16-byte paragraphs */
-			mutable uint16_t min_size_paras = 0;
+			uint16_t min_size_paras = 0;
 			/** @brief Maximum required size of the group, when loaded into memory, in 16-byte paragraphs */
-			mutable uint16_t max_size_paras = 0;
+			uint16_t max_size_paras = 0;
 			/**
 			 * @brief Offset to image in file
 			 *
@@ -126,6 +125,11 @@ namespace DigitalResearch
 			virtual uint16_t GetSizeParas(const CPM86Format& module) const;
 
 			void ReadDescriptor(Linker::Reader& rd);
+
+			/**
+			 * @brief Sets up any values before it can be written to file
+			 */
+			void Prepare(CPM86Format& module);
 
 			void WriteDescriptor(Linker::Writer& wr, const CPM86Format& module) const;
 

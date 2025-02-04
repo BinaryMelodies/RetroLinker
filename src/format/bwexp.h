@@ -37,8 +37,7 @@ namespace DOS16M
 				FLAG_EMPTY = 0x2000,
 				FLAG_TRANSPARENT = 0x8000,
 			};
-			// set to mutable because FLAG_EMPTY is set during creating output
-			mutable flag_type flags;
+			flag_type flags;
 
 			uint32_t address = 0;
 			uint32_t total_length;
@@ -68,6 +67,11 @@ namespace DOS16M
 			 * @brief Produces the binary contents of the segment
 			 */
 			virtual void WriteContent(Linker::Writer& wr, const BWFormat& bw) const = 0;
+
+			/**
+			 * @brief Sets up any values before it can be written to file
+			 */
+			void Prepare(BWFormat& bw);
 
 			/**
 			 * @brief Produces the GDT entry for the header

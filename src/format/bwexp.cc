@@ -53,13 +53,18 @@ void BWFormat::AbstractSegment::SetTotalSize(uint32_t new_value)
 	}
 }
 
-void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, const BWFormat& bw) const
+void BWFormat::AbstractSegment::Prepare(BWFormat& bw)
 {
 	uint32_t size = GetSize(bw);
 	if(size == 0)
 		flags = flag_type(flags | FLAG_EMPTY);
 	else
 		flags = flag_type(flags & ~FLAG_EMPTY);
+}
+
+void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, const BWFormat& bw) const
+{
+	uint32_t size = GetSize(bw);
 	wr.WriteWord(2, size > 0 ? size - 1 : 0);
 	wr.WriteWord(3, address);
 	wr.WriteWord(1, access);
@@ -400,6 +405,11 @@ void BWFormat::CalculateValues()
 	for(auto& segment : segments)
 	{
 		file_size = ::AlignTo(file_size + segment->GetSize(*this), 0x10);
+	}
+
+	for(auto& segment : segments)
+	{
+		segment->Prepare(*this);
 	}
 }
 

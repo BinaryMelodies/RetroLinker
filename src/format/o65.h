@@ -152,9 +152,8 @@ namespace O65
 			/** @brief Set for 65816 mode */
 			static const int MODE_65816 = 0x8000;
 
-			// mutable because one of the bits is set/cleared during image generation
 			/** @brief The file mode */
-			mutable uint16_t mode_word = 0;
+			uint16_t mode_word = 0;
 
 			/** @brief Base address of code segment */
 			offset_t code_base = 0;
@@ -212,6 +211,7 @@ namespace O65
 			void WriteWord(Linker::Writer& wr, offset_t value) const;
 
 			void ReadFile(Linker::Reader& rd);
+			void CalculateValues();
 			void WriteFile(Linker::Writer& wr) const;
 			void GenerateModule(Linker::Module& module) const;
 		};
@@ -233,6 +233,7 @@ namespace O65
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
+		void CalculateValues() /*override*/;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 		using Linker::InputFormat::GenerateModule;
