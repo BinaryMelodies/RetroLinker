@@ -6,7 +6,7 @@
 
 using namespace Linker;
 
-void Format::Dump(Dumper::Dumper& dump)
+void Format::Dump(Dumper::Dumper& dump) const
 {
 	Linker::Warning << "Warning: Dumping of format not implemented" << std::endl;
 }
@@ -15,12 +15,12 @@ void Format::Clear()
 {
 }
 
-offset_t Format::ImageSize()
+offset_t Format::ImageSize() const
 {
 	Linker::FatalError("Internal error: format does not provide image size");
 }
 
-offset_t Format::WriteFile(Writer& wr, offset_t count, offset_t offset)
+offset_t Format::WriteFile(Writer& wr, offset_t count, offset_t offset) const
 {
 	if(offset != 0)
 	{
@@ -114,12 +114,12 @@ void OutputFormat::GenerateFile(std::string filename, ::Linker::Module& module)
 	out.close();
 }
 
-std::string OutputFormat::GetDefaultExtension(::Linker::Module& module, std::string filename)
+std::string OutputFormat::GetDefaultExtension(::Linker::Module& module, std::string filename) const
 {
 	return filename;
 }
 
-std::string OutputFormat::GetDefaultExtension(::Linker::Module& module)
+std::string OutputFormat::GetDefaultExtension(::Linker::Module& module) const
 {
 	return GetDefaultExtension(module, "a");
 }

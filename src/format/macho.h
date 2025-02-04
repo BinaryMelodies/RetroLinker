@@ -198,8 +198,8 @@ namespace MachO
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 	};
 
@@ -220,13 +220,13 @@ namespace MachO
 		};
 		std::vector<Entry> entries;
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 		void CalculateValues() override;
 	};
 }

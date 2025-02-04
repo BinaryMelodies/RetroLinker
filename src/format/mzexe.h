@@ -133,9 +133,9 @@ namespace Microsoft
 
 			void ReadFile(Linker::Reader& rd);
 
-			void WriteFile(Linker::Writer& wr);
+			void WriteFile(Linker::Writer& wr) const;
 
-			void Dump(Dumper::Dumper& dump, offset_t file_offset);
+			void Dump(Dumper::Dumper& dump, offset_t file_offset) const;
 		};
 
 		/** @brief Concurrent DOS program information entry, allocated only if present */
@@ -157,16 +157,16 @@ namespace Microsoft
 
 		void SetFileSize(uint32_t size);
 
-		uint32_t GetHeaderSize();
+		uint32_t GetHeaderSize() const;
 
 		uint32_t GetPifOffset() const;
 
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		void CalculateValues() override;
 
@@ -241,7 +241,7 @@ namespace Microsoft
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 	class MZSimpleStubWriter
@@ -249,7 +249,7 @@ namespace Microsoft
 	public:
 		std::string stub_file;
 		bool stub_file_valid = true;
-		std::ifstream stub;
+		mutable std::ifstream stub;
 
 		MZSimpleStubWriter(std::string stub_file = "")
 			: stub_file(stub_file)
@@ -280,7 +280,7 @@ namespace Microsoft
 	public:
 		std::string stub_file;
 		bool stub_file_valid = true;
-		std::ifstream stub;
+		mutable std::ifstream stub;
 
 		MZStubWriter(std::string stub_file = "")
 			: stub_file(stub_file)

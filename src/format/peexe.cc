@@ -10,7 +10,7 @@ bool PEFormat::PEOptionalHeader::Is64Bit() const
 	return magic == EXE64;
 }
 
-uint32_t PEFormat::PEOptionalHeader::GetSize()
+uint32_t PEFormat::PEOptionalHeader::GetSize() const
 {
 	return (Is64Bit() ? 112 : 96) + 8 * data_directories.size();
 }
@@ -57,7 +57,7 @@ void PEFormat::PEOptionalHeader::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void PEFormat::PEOptionalHeader::WriteFile(Linker::Writer& wr)
+void PEFormat::PEOptionalHeader::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, magic);
 	wr.WriteWord(2, version_stamp);
@@ -103,7 +103,7 @@ offset_t PEFormat::PEOptionalHeader::CalculateValues(COFFFormat& coff)
 	return offset_t(-1);
 }
 
-void PEFormat::PEOptionalHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
+void PEFormat::PEOptionalHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
 	// TODO
 }
@@ -123,17 +123,17 @@ void PEFormat::ReadOptionalHeader(Linker::Reader& rd)
 	optional_header->ReadFile(rd);
 }
 
-offset_t PEFormat::WriteFile(Linker::Writer& wr)
+offset_t PEFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	WriteStubImage(wr);
+	const_cast<PEFormat *>(this)->WriteStubImage(wr); // TODO
 	wr.Seek(file_offset);
 	wr.WriteData(4, pe_signature);
 	WriteFileContents(wr);
 	return offset_t(-1);
 }
 
-void PEFormat::Dump(Dumper::Dumper& dump)
+void PEFormat::Dump(Dumper::Dumper& dump) const
 {
 	// TODO: Windows encoding
 	dump.SetEncoding(Dumper::Block::encoding_default);
@@ -145,7 +145,7 @@ void PEFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string PEFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string PEFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".exe";
 }

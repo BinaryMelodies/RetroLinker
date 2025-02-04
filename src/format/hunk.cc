@@ -28,7 +28,7 @@ void HunkFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-uint32_t HunkFormat::Hunk::GetSizeField()
+uint32_t HunkFormat::Hunk::GetSizeField() const
 {
 	uint32_t size = (image->TotalSize() + 3) >> 2;
 	if(RequiresAdditionalFlags())
@@ -37,12 +37,12 @@ uint32_t HunkFormat::Hunk::GetSizeField()
 		return size | ((flags & ~LoadPublic) << 29);
 }
 
-bool HunkFormat::Hunk::RequiresAdditionalFlags()
+bool HunkFormat::Hunk::RequiresAdditionalFlags() const
 {
 	return (flags & ~(LoadChipMem | LoadFastMem | LoadPublic)) != 0;
 }
 
-uint32_t HunkFormat::Hunk::GetAdditionalFlags()
+uint32_t HunkFormat::Hunk::GetAdditionalFlags() const
 {
 	return flags & ~LoadPublic;
 }
@@ -218,7 +218,7 @@ void HunkFormat::CalculateValues()
 {
 }
 
-offset_t HunkFormat::WriteFile(Linker::Writer& wr)
+offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, HUNK_HEADER);
@@ -226,11 +226,11 @@ offset_t HunkFormat::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, hunks.size());
 	wr.WriteWord(4, 0); /* first hunk: hunk #0 */
 	wr.WriteWord(4, hunks.size() - 1); /* last hunk */
-	for(Hunk& hunk : hunks)
+	for(const Hunk& hunk : hunks)
 	{
 		wr.WriteWord(4, hunk.GetSizeField());
 	}
-	for(Hunk& hunk : hunks)
+	for(const Hunk& hunk : hunks)
 	{
 		/* Initial hunk block */
 		wr.WriteWord(4, hunk.hunk_type);
@@ -274,7 +274,7 @@ offset_t HunkFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void HunkFormat::Dump(Dumper::Dumper& dump)
+void HunkFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -295,7 +295,7 @@ void HunkFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string HunkFormat::GetDefaultExtension(Linker::Module& module)
+std::string HunkFormat::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
 }

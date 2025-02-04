@@ -34,8 +34,8 @@ namespace Binary
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/**
@@ -151,7 +151,7 @@ namespace Binary
 			/**
 			 * @brief Writes the segment into a file
 			 */
-			void WriteFile(Linker::Writer& wr);
+			void WriteFile(Linker::Writer& wr) const;
 
 			/**
 			 * @brief Read relocations
@@ -161,7 +161,7 @@ namespace Binary
 			/**
 			 * @brief Writes relocations
 			 */
-			void WriteRelocations(Linker::Writer& wr);
+			void WriteRelocations(Linker::Writer& wr) const;
 		};
 
 		/**
@@ -190,8 +190,8 @@ namespace Binary
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/**
@@ -224,11 +224,11 @@ namespace Binary
 		void ProcessModule(Linker::Module& module) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 	class PRLFormat;
@@ -282,8 +282,8 @@ namespace Binary
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		void CalculateValues() override;
 	};
@@ -303,7 +303,7 @@ namespace Binary
 			uint16_t size; /* it is supposed to be at most 255, but we can store larger segments by cutting them into pieces */
 			std::shared_ptr<Linker::Image> image;
 
-			void WriteFile(Linker::Writer& wr);
+			void WriteFile(Linker::Writer& wr) const;
 		};
 
 		std::vector<std::unique_ptr<Segment>> segments;
@@ -311,11 +311,11 @@ namespace Binary
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 	/**
@@ -349,15 +349,15 @@ namespace Binary
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		/** @brief Read without header, only needed for RSX files stored inside a CP/M 3 .COM file */
 		void ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size);
 
 		/** @brief Write without header, only needed for RSX files stored inside a CP/M 3 .COM file */
-		void WriteWithoutHeader(Linker::Writer& wr);
+		void WriteWithoutHeader(Linker::Writer& wr) const;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/**
@@ -373,11 +373,11 @@ namespace Binary
 		void ProcessModule(Linker::Module& module) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) override;
+		std::string GetDefaultExtension(Linker::Module& module) const override;
 	};
 
 	/**
@@ -393,11 +393,11 @@ namespace Binary
 		/* TODO: apparently both .code and .data are loaded at 0x0100 */
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) override;
+		std::string GetDefaultExtension(Linker::Module& module) const override;
 	};
 }
 

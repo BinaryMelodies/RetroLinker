@@ -541,7 +541,7 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType
 	}
 }
 
-uint32_t COFFFormat::Section::ImageSize()
+uint32_t COFFFormat::Section::ImageSize() const
 {
 	return size; //image->ImageSize();
 }
@@ -554,15 +554,15 @@ void COFFFormat::OptionalHeader::PostReadFile(COFFFormat& coff, Linker::Reader& 
 {
 }
 
-void COFFFormat::OptionalHeader::PostWriteFile(COFFFormat& coff, Linker::Writer& wr)
+void COFFFormat::OptionalHeader::PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const
 {
 }
 
-void COFFFormat::OptionalHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
+void COFFFormat::OptionalHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
 }
 
-uint32_t COFFFormat::UnknownOptionalHeader::GetSize()
+uint32_t COFFFormat::UnknownOptionalHeader::GetSize() const
 {
 	return buffer->ImageSize();
 }
@@ -572,7 +572,7 @@ void COFFFormat::UnknownOptionalHeader::ReadFile(Linker::Reader& rd)
 	buffer->ReadFile(rd);
 }
 
-void COFFFormat::UnknownOptionalHeader::WriteFile(Linker::Writer& wr)
+void COFFFormat::UnknownOptionalHeader::WriteFile(Linker::Writer& wr) const
 {
 	buffer->WriteFile(wr);
 }
@@ -582,12 +582,12 @@ offset_t COFFFormat::UnknownOptionalHeader::CalculateValues(COFFFormat& coff)
 	return 0;
 }
 
-void COFFFormat::UnknownOptionalHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
+void COFFFormat::UnknownOptionalHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
 	/* TODO */
 }
 
-uint32_t COFFFormat::AOutHeader::GetSize()
+uint32_t COFFFormat::AOutHeader::GetSize() const
 {
 	return 28;
 }
@@ -604,7 +604,7 @@ void COFFFormat::AOutHeader::ReadFile(Linker::Reader& rd)
 	data_address = rd.ReadUnsigned(4);
 }
 
-void COFFFormat::AOutHeader::WriteFile(Linker::Writer& wr)
+void COFFFormat::AOutHeader::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, magic);
 	wr.WriteWord(2, version_stamp); /* unused */
@@ -628,7 +628,7 @@ offset_t COFFFormat::AOutHeader::CalculateValues(COFFFormat& coff)
 	return 0;
 }
 
-void COFFFormat::AOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
+void COFFFormat::AOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
 	std::map<offset_t, std::string> magic_choice;
 	magic_choice[ZMAGIC] = "ZMAGIC";
@@ -661,14 +661,14 @@ void COFFFormat::AOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, 
 	header_region.AddField("Data address", Dumper::HexDisplay::Make(), offset_t(data_address));
 }
 
-void COFFFormat::AOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
+void COFFFormat::AOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
 	Dumper::Region header_region("Optional header", coff.file_offset + 20, GetSize(), 8);
 	DumpFields(coff, dump, header_region);
 	header_region.Display(dump);
 }
 
-uint32_t COFFFormat::FlexOSAOutHeader::GetSize()
+uint32_t COFFFormat::FlexOSAOutHeader::GetSize() const
 {
 	return 36;
 }
@@ -680,7 +680,7 @@ void COFFFormat::FlexOSAOutHeader::ReadFile(Linker::Reader& rd)
 	stack_size = rd.ReadUnsigned(4);
 }
 
-void COFFFormat::FlexOSAOutHeader::WriteFile(Linker::Writer& wr)
+void COFFFormat::FlexOSAOutHeader::WriteFile(Linker::Writer& wr) const
 {
 	AOutHeader::WriteFile(wr);
 	wr.WriteWord(4, relocations_offset);
@@ -700,12 +700,12 @@ void COFFFormat::FlexOSAOutHeader::PostReadFile(COFFFormat& coff, Linker::Reader
 	/* TODO */
 }
 
-void COFFFormat::FlexOSAOutHeader::PostWriteFile(COFFFormat& coff, Linker::Writer& wr)
+void COFFFormat::FlexOSAOutHeader::PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const
 {
 	DigitalResearch::CPM68KFormat::CDOS68K_WriteRelocations(wr, coff.relocations);
 }
 
-void COFFFormat::FlexOSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
+void COFFFormat::FlexOSAOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
 	AOutHeader::DumpFields(coff, dump, header_region);
 	header_region.AddField("Data address", Dumper::HexDisplay::Make(), offset_t(data_address));
@@ -714,7 +714,7 @@ void COFFFormat::FlexOSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& 
 	header_region.AddField("Stack size", Dumper::HexDisplay::Make(), offset_t(stack_size));
 }
 
-uint32_t COFFFormat::GNUAOutHeader::GetSize()
+uint32_t COFFFormat::GNUAOutHeader::GetSize() const
 {
 	return 32;
 }
@@ -724,7 +724,7 @@ void COFFFormat::GNUAOutHeader::ReadFile(Linker::Reader& wr)
 	/* TODO */
 }
 
-void COFFFormat::GNUAOutHeader::WriteFile(Linker::Writer& wr)
+void COFFFormat::GNUAOutHeader::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, info); /* ??? */
 	wr.WriteWord(4, code_size);
@@ -741,7 +741,7 @@ offset_t COFFFormat::GNUAOutHeader::CalculateValues(COFFFormat& coff)
 	return 0;
 }
 
-void COFFFormat::GNUAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
+void COFFFormat::GNUAOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
 	/* TODO: untested */
 	Dumper::Region header_region("Optional header", coff.file_offset + 20, GetSize(), 8);
@@ -775,7 +775,7 @@ void COFFFormat::GNUAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
 	header_region.Display(dump);
 }
 
-uint32_t COFFFormat::MIPSAOutHeader::GetSize()
+uint32_t COFFFormat::MIPSAOutHeader::GetSize() const
 {
 	return 56;
 }
@@ -792,7 +792,7 @@ void COFFFormat::MIPSAOutHeader::ReadFile(Linker::Reader& rd)
 	gp_value = rd.ReadUnsigned(4);
 }
 
-void COFFFormat::MIPSAOutHeader::WriteFile(Linker::Writer& wr)
+void COFFFormat::MIPSAOutHeader::WriteFile(Linker::Writer& wr) const
 {
 	AOutHeader::WriteFile(wr);
 	wr.WriteWord(4, bss_address);
@@ -808,7 +808,7 @@ offset_t COFFFormat::MIPSAOutHeader::CalculateValues(COFFFormat& coff)
 	return AOutHeader::CalculateValues(coff);
 }
 
-void COFFFormat::MIPSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region)
+void COFFFormat::MIPSAOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
 	/* TODO: untested */
 	AOutHeader::DumpFields(coff, dump, header_region);
@@ -821,7 +821,7 @@ void COFFFormat::MIPSAOutHeader::DumpFields(COFFFormat& coff, Dumper::Dumper& du
 	header_region.AddField("GP regiser value", Dumper::HexDisplay::Make(), offset_t(gp_value));
 }
 
-uint32_t COFFFormat::ECOFFAOutHeader::GetSize()
+uint32_t COFFFormat::ECOFFAOutHeader::GetSize() const
 {
 	return 80;
 }
@@ -844,7 +844,7 @@ void COFFFormat::ECOFFAOutHeader::ReadFile(Linker::Reader& rd)
 	global_pointer = rd.ReadUnsigned(8);
 }
 
-void COFFFormat::ECOFFAOutHeader::WriteFile(Linker::Writer& wr)
+void COFFFormat::ECOFFAOutHeader::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, magic);
 	wr.WriteWord(2, version_stamp);
@@ -867,12 +867,12 @@ offset_t COFFFormat::ECOFFAOutHeader::CalculateValues(COFFFormat& coff)
 	return 0;
 }
 
-void COFFFormat::ECOFFAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
+void COFFFormat::ECOFFAOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-uint32_t COFFFormat::XCOFFAOutHeader::GetSize()
+uint32_t COFFFormat::XCOFFAOutHeader::GetSize() const
 {
 	return is64 ? 110 : 72;
 }
@@ -940,7 +940,7 @@ void COFFFormat::XCOFFAOutHeader::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void COFFFormat::XCOFFAOutHeader::WriteFile(Linker::Writer& wr)
+void COFFFormat::XCOFFAOutHeader::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, magic);
 	wr.WriteWord(2, version_stamp);
@@ -1008,7 +1008,7 @@ offset_t COFFFormat::XCOFFAOutHeader::CalculateValues(COFFFormat& coff)
 	return 0;
 }
 
-void COFFFormat::XCOFFAOutHeader::Dump(COFFFormat& coff, Dumper::Dumper& dump)
+void COFFFormat::XCOFFAOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
 	// TODO
 }
@@ -1324,11 +1324,11 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 	}
 }
 
-offset_t COFFFormat::WriteFile(Linker::Writer& wr)
+offset_t COFFFormat::WriteFile(Linker::Writer& wr) const
 {
 	if(type == DJGPP && stub_file != "")
 	{
-		WriteStubImage(wr);
+		const_cast<COFFFormat *>(this)->WriteStubImage(wr);
 	}
 
 	wr.endiantype = endiantype;
@@ -1336,12 +1336,12 @@ offset_t COFFFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-offset_t COFFFormat::ImageSize()
+offset_t COFFFormat::ImageSize() const
 {
 	return file_size;
 }
 
-offset_t COFFFormat::WriteFileContents(Linker::Writer& wr)
+offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 {
 	/* File Header */
 	switch(coff_variant)
@@ -1407,7 +1407,7 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr)
 	return file_size;
 }
 
-void COFFFormat::Dump(Dumper::Dumper& dump)
+void COFFFormat::Dump(Dumper::Dumper& dump) const
 {
 	if(cpu_type == CPU_I386)
 	{
@@ -1451,7 +1451,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump)
 	file_region.Display(dump);
 
 	Dumper::Region header_region("File header", file_offset, 20, 8);
-	header_region.AddField("Signature", Dumper::HexDisplay::Make(4), offset_t(ReadUnsigned(2, 2, reinterpret_cast<uint8_t *>(signature), endiantype)));
+	header_region.AddField("Signature", Dumper::HexDisplay::Make(4), offset_t(ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
 	header_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
 	header_region.AddOptionalField("Flags",
 		Dumper::BitFieldDisplay::Make()
@@ -2264,7 +2264,7 @@ void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string COFFFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string COFFFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	switch(type)
 	{

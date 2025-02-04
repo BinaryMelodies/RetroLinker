@@ -84,7 +84,7 @@ void Segment::Append(std::shared_ptr<Section> section)
 		this->align = align;
 }
 
-offset_t Segment::WriteFile(std::ostream& out, offset_t size, offset_t offset)
+offset_t Segment::WriteFile(std::ostream& out, offset_t size, offset_t offset) const
 {
 	offset_t count = 0;
 	for(auto& section : sections)
@@ -110,7 +110,7 @@ offset_t Segment::WriteFile(std::ostream& out, offset_t size, offset_t offset)
 	return count;
 }
 
-offset_t Segment::WriteFile(std::ostream& out)
+offset_t Segment::WriteFile(std::ostream& out) const
 {
 	offset_t count = 0;
 	for(auto& section : sections)
@@ -121,12 +121,12 @@ offset_t Segment::WriteFile(std::ostream& out)
 	return count;
 }
 
-offset_t Segment::WriteFile(Writer& wr, offset_t count, offset_t offset)
+offset_t Segment::WriteFile(Writer& wr, offset_t count, offset_t offset) const
 {
 	return WriteFile(*wr.out, count, offset);
 }
 
-offset_t Segment::WriteFile(Writer& wr)
+offset_t Segment::WriteFile(Writer& wr) const
 {
 	return WriteFile(*wr.out);
 }
@@ -159,7 +159,7 @@ offset_t Segment::TotalSize()
 	return data_size + zero_fill;
 }
 
-offset_t Segment::ImageSize() /* should be always equivalent to data_size */
+offset_t Segment::ImageSize() const /* should be always equivalent to data_size */
 {
 	offset_t sum = 0;
 	for(auto& section : sections)

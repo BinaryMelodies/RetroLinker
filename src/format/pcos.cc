@@ -55,15 +55,15 @@ std::unique_ptr<Dumper::Region> CMDFormat::MemoryBlock::MakeRegion(std::string n
 	return std::make_unique<Dumper::Region>(name, offset, 3 + GetLength(), display_width);
 }
 
-void CMDFormat::MemoryBlock::AddFields(Dumper::Region& region, CMDFormat& module) const
+void CMDFormat::MemoryBlock::AddFields(Dumper::Region& region, const CMDFormat& module) const
 {
 }
 
-void CMDFormat::MemoryBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const
+void CMDFormat::MemoryBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset, const CMDFormat& module) const
 {
 }
 
-void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const
+void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset, const CMDFormat& module) const
 {
 	std::unique_ptr<Dumper::Region> region = MakeRegion("Block", file_offset, 6);
 	std::map<offset_t, std::string> type_descriptions;
@@ -102,7 +102,7 @@ std::unique_ptr<Dumper::Region> CMDFormat::LoadBlock::MakeRegion(std::string nam
 	return std::make_unique<Dumper::Block>(name, offset + 3 + 4, image->AsImage(), 0, display_width, 4, 4);
 }
 
-void CMDFormat::LoadBlock::AddFields(Dumper::Region& region, CMDFormat& module) const
+void CMDFormat::LoadBlock::AddFields(Dumper::Region& region, const CMDFormat& module) const
 {
 	region.AddField("Block ID", Dumper::HexDisplay::Make(4), offset_t(block_id));
 
@@ -148,13 +148,13 @@ void CMDFormat::RelocationBlock::WriteFile(Linker::Writer& wr) const
 	}
 }
 
-void CMDFormat::RelocationBlock::AddFields(Dumper::Region& region, CMDFormat& module) const
+void CMDFormat::RelocationBlock::AddFields(Dumper::Region& region, const CMDFormat& module) const
 {
 	region.AddField("Source block", Dumper::HexDisplay::Make(2), offset_t(source));
 	region.AddField("Target block", Dumper::HexDisplay::Make(2), offset_t(target));
 }
 
-void CMDFormat::RelocationBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset, CMDFormat& module) const
+void CMDFormat::RelocationBlock::DumpContents(Dumper::Dumper& dump, offset_t file_offset, const CMDFormat& module) const
 {
 	unsigned i = 0;
 	for(auto rel : offsets)
@@ -210,7 +210,7 @@ void CMDFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t CMDFormat::WriteFile(Linker::Writer& wr)
+offset_t CMDFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.Seek(0);
@@ -233,7 +233,7 @@ offset_t CMDFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void CMDFormat::Dump(Dumper::Dumper& dump)
+void CMDFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -267,12 +267,12 @@ void CMDFormat::CalculateValues()
 	// TODO
 }
 
-std::string CMDFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string CMDFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + (type == TYPE_SAV ? ".sav" : ".cmd");
 }
 
-CMDFormat::LoadBlock * CMDFormat::GetLoadBlockById(uint32_t block_id)
+const CMDFormat::LoadBlock * CMDFormat::GetLoadBlockById(uint32_t block_id) const
 {
 	for(auto& block : blocks)
 	{
@@ -285,5 +285,10 @@ CMDFormat::LoadBlock * CMDFormat::GetLoadBlockById(uint32_t block_id)
 		}
 	}
 	return nullptr;
+}
+
+CMDFormat::LoadBlock * CMDFormat::GetLoadBlockById(uint32_t block_id)
+{
+	return const_cast<LoadBlock *>(const_cast<const CMDFormat *>(this)->GetLoadBlockById(block_id));
 }
 

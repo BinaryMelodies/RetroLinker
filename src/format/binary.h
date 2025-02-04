@@ -44,12 +44,12 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		/* * * Writer members * * */
 		/** @brief Set when the generated code must not reference absolute references */
@@ -79,7 +79,7 @@ namespace Binary
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 	/**
@@ -121,12 +121,12 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		/* * * Writer members * * */
 		bool FormatSupportsSegmentation() const override;

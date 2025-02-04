@@ -318,9 +318,9 @@ size_t LEFormat::Page::Relocation::GetSize() const
 	return size;
 }
 
-void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr, compatibility_type compatibility)
+void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr, compatibility_type compatibility) const
 {
-	CalculateSizes(compatibility);
+	const_cast<Relocation *>(this)->CalculateSizes(compatibility); // TODO: remove this ugly hack
 	wr.WriteWord(1, type);
 	wr.WriteWord(1, flags);
 	if(IsSourceList())
@@ -425,7 +425,7 @@ offset_t LEFormat::Entry::GetEntryBodySize() const
 	}
 }
 
-void LEFormat::Entry::WriteEntryHead(Linker::Writer& wr)
+void LEFormat::Entry::WriteEntryHead(Linker::Writer& wr) const
 {
 	wr.WriteWord(1, type);
 	switch(type)
@@ -443,7 +443,7 @@ void LEFormat::Entry::WriteEntryHead(Linker::Writer& wr)
 	}
 }
 
-void LEFormat::Entry::WriteEntryBody(Linker::Writer& wr)
+void LEFormat::Entry::WriteEntryBody(Linker::Writer& wr) const
 {
 	switch(type)
 	{
@@ -549,7 +549,7 @@ uint16_t LEFormat::MakeEntry(uint16_t index, Linker::Position value)
 	return index;
 }
 
-uint8_t LEFormat::CountBundles(size_t entry_index)
+uint8_t LEFormat::CountBundles(size_t entry_index) const
 {
 	size_t entry_count;
 	for(entry_count = 1; entry_count < 0xFF && entry_index + entry_count < entries.size(); entry_count++)
@@ -1031,10 +1031,10 @@ void LEFormat::CalculateValues()
 	}
 }
 
-offset_t LEFormat::WriteFile(Linker::Writer& wr)
+offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = endiantype;
-	WriteStubImage(wr);
+	const_cast<LEFormat *>(this)->WriteStubImage(wr); // TODO
 
 	/* new header */
 	wr.Seek(file_offset);
@@ -1111,7 +1111,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 	/*** Loader Section ***/
 	/* Object Table */
 	assert(wr.Tell() == object_table_offset);
-	for(Object& object : objects)
+	for(const Object& object : objects)
 	{
 		wr.WriteWord(4, object.image->TotalSize());
 		wr.WriteWord(4, object.image->base_address);
@@ -1125,7 +1125,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 	assert(wr.Tell() == object_page_table_offset);
 	if(extended_format)
 	{
-		for(Page& page : pages)
+		for(const Page& page : pages)
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
@@ -1136,7 +1136,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 	}
 	else
 	{
-		for(Page& page : pages)
+		for(const Page& page : pages)
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
@@ -1154,7 +1154,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 
 	/* Resident Name Table */
 	assert(wr.Tell() == resident_name_table_offset);
-	for(Name& name : resident_names)
+	for(const Name& name : resident_names)
 	{
 		wr.WriteWord(1, name.name.size());
 		wr.WriteData(name.name.size(), name.name);
@@ -1186,7 +1186,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 	/*** Fixup Section ***/
 	/* Fixup Page Table */
 	assert(wr.Tell() == fixup_page_table_offset);
-	for(Page& page : pages)
+	for(const Page& page : pages)
 	{
 		if(&page == &pages.front())
 			continue;
@@ -1196,7 +1196,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 	/* Fixup Record Table */
 	assert(wr.Tell() == fixup_record_table_offset);
 //size_t _ = wr.Tell();
-	for(Page& page : pages)
+	for(const Page& page : pages)
 	{
 		if(&page == &pages.front() || &page == &pages.back())
 			continue;
@@ -1218,7 +1218,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 
 	/* Import Module Name Table */
 	assert(wr.Tell() == imported_module_table_offset);
-	for(std::string& name : imported_modules)
+	for(const std::string& name : imported_modules)
 	{
 		wr.WriteWord(1, name.size());
 		wr.WriteData(name.size(), name);
@@ -1226,7 +1226,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 
 	/* Import Procedure Name Table */
 	assert(wr.Tell() == imported_procedure_table_offset);
-	for(std::string& name : imported_procedures)
+	for(const std::string& name : imported_procedures)
 	{
 		wr.WriteWord(1, name.size());
 		wr.WriteData(name.size(), name);
@@ -1235,7 +1235,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 	/* Per-page Checksum (LE) */
 
 	/*** Segment Data ***/
-	for(Object& object : objects)
+	for(const Object& object : objects)
 	{
 		wr.Seek(object.data_pages_offset);
 		object.image->WriteFile(wr);
@@ -1250,7 +1250,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 
 	/*** Non-Resident ***/
 	/* Non-Resident Name Table */
-	for(Name& name : nonresident_names)
+	for(const Name& name : nonresident_names)
 	{
 		wr.WriteWord(1, name.name.size());
 		wr.WriteData(name.name.size(), name.name);
@@ -1261,7 +1261,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void LEFormat::Dump(Dumper::Dumper& dump)
+void LEFormat::Dump(Dumper::Dumper& dump) const
 {
 	// TODO: switch to different encoding for OS/2 (LX)
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
@@ -1289,7 +1289,7 @@ void LEFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string LEFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string LEFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".exe";
 }

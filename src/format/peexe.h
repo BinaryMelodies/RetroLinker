@@ -158,26 +158,26 @@ namespace Microsoft
 			{
 			}
 
-			uint32_t GetSize() override;
+			uint32_t GetSize() const override;
 
 			void ReadFile(Linker::Reader& rd) override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
 		protected:
-			void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) override;
+			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
 		};
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 
 	protected:
 		void ReadOptionalHeader(Linker::Reader& rd);

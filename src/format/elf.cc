@@ -9,22 +9,22 @@
 
 using namespace ELF;
 
-void ELFFormat::SectionContents::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::SectionContents::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 }
 
-void ELFFormat::SectionContents::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::SectionContents::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 }
 
 //// SymbolTable
 
-offset_t ELFFormat::SymbolTable::ImageSize()
+offset_t ELFFormat::SymbolTable::ImageSize() const
 {
 	return symbols.size() * entsize;
 }
 
-offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -54,7 +54,7 @@ offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr, offset_t count, o
 	return ImageSize();
 }
 
-void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	for(auto& symbol : symbols)
@@ -108,12 +108,12 @@ void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 
 //// StringTable
 
-offset_t ELFFormat::StringTable::ImageSize()
+offset_t ELFFormat::StringTable::ImageSize() const
 {
 	return size;
 }
 
-offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -125,7 +125,7 @@ offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr, offset_t count, o
 	return ImageSize();
 }
 
-void ELFFormat::StringTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::StringTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	offset_t offset = fmt.sections[index].file_offset;
@@ -141,12 +141,12 @@ void ELFFormat::StringTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 
 //// Array
 
-offset_t ELFFormat::Array::ImageSize()
+offset_t ELFFormat::Array::ImageSize() const
 {
 	return array.size() * entsize;
 }
 
-offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -157,7 +157,7 @@ offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr, offset_t count, offset_
 	return ImageSize();
 }
 
-void ELFFormat::Array::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::Array::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	for(auto& value : array)
@@ -171,12 +171,12 @@ void ELFFormat::Array::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index
 
 //// SectionGroup
 
-offset_t ELFFormat::SectionGroup::ImageSize()
+offset_t ELFFormat::SectionGroup::ImageSize() const
 {
 	return (1 + array.size()) * entsize;
 }
 
-offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -192,7 +192,7 @@ offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr, offset_t count, 
 	return ImageSize();
 }
 
-void ELFFormat::SectionGroup::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::SectionGroup::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	// TODO: untested
 	unsigned i = 0;
@@ -211,7 +211,7 @@ void ELFFormat::SectionGroup::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigne
 	}
 }
 
-void ELFFormat::SectionGroup::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::SectionGroup::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	region->AddField("Group flags",
 		Dumper::BitFieldDisplay::Make()
@@ -221,7 +221,7 @@ void ELFFormat::SectionGroup::AddDumperFields(std::unique_ptr<Dumper::Region>& r
 
 //// IndexArray
 
-void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	// TODO: untested
 	unsigned i = 0;
@@ -390,12 +390,12 @@ std::string ELFFormat::Relocation::GetName(cpu_type cpu) const
 
 //// Relocations
 
-offset_t ELFFormat::Relocations::ImageSize()
+offset_t ELFFormat::Relocations::ImageSize() const
 {
 	return relocations.size() * entsize;
 }
 
-offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -419,7 +419,7 @@ offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr, offset_t count, o
 	return ImageSize();
 }
 
-void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	for(auto& rel : relocations)
@@ -448,12 +448,12 @@ void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned
 
 //// DynamicSection
 
-offset_t ELFFormat::DynamicSection::ImageSize()
+offset_t ELFFormat::DynamicSection::ImageSize() const
 {
 	return dynamic.size() * entsize;
 }
 
-offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -468,7 +468,7 @@ offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr, offset_t count
 	return ImageSize();
 }
 
-void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	for(auto& dynobj : dynamic)
@@ -597,12 +597,12 @@ uint32_t ELFFormat::HashTable::Hash(const std::string& name)
 	return hash;
 }
 
-offset_t ELFFormat::HashTable::ImageSize()
+offset_t ELFFormat::HashTable::ImageSize() const
 {
 	return (2 + buckets.size() + chains.size()) * 4;
 }
 
-offset_t ELFFormat::HashTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::HashTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -619,13 +619,13 @@ offset_t ELFFormat::HashTable::WriteFile(Linker::Writer& wr, offset_t count, off
 	return ImageSize();
 }
 
-void ELFFormat::HashTable::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::HashTable::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	region->AddField("Buckets", Dumper::DecDisplay::Make(), offset_t(buckets.size()));
 	region->AddField("Chains", Dumper::DecDisplay::Make(), offset_t(chains.size()));
 }
 
-void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	for(auto bucket : buckets)
@@ -652,12 +652,12 @@ void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned i
 
 //// NotesSection
 
-offset_t ELFFormat::NotesSection::ImageSize()
+offset_t ELFFormat::NotesSection::ImageSize() const
 {
 	return size;
 }
 
-offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -680,7 +680,7 @@ offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr, offset_t count, 
 	return ImageSize();
 }
 
-void ELFFormat::NotesSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::NotesSection::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	offset_t offset = 0;
@@ -702,19 +702,19 @@ void ELFFormat::NotesSection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigne
 
 //// VersionRequirements
 
-offset_t ELFFormat::VersionRequirements::ImageSize()
+offset_t ELFFormat::VersionRequirements::ImageSize() const
 {
 	// TODO
 	return 0;
 }
 
-offset_t ELFFormat::VersionRequirements::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::VersionRequirements::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO
 	return 0;
 }
 
-void ELFFormat::VersionRequirements::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::VersionRequirements::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	// TODO
 }
@@ -727,12 +727,12 @@ bool ELFFormat::IBMSystemInfo::IsOS2Specific() const
 	return os_type == EOS_OS2 && os_size >= 16;
 }
 
-offset_t ELFFormat::IBMSystemInfo::ImageSize()
+offset_t ELFFormat::IBMSystemInfo::ImageSize() const
 {
 	return 8 + os_size;
 }
 
-offset_t ELFFormat::IBMSystemInfo::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::IBMSystemInfo::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO: untested
 	assert(offset == 0 && count == ImageSize());
@@ -752,7 +752,7 @@ offset_t ELFFormat::IBMSystemInfo::WriteFile(Linker::Writer& wr, offset_t count,
 	return ImageSize();
 }
 
-void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	std::map<offset_t, std::string> operating_system_descriptions;
 	operating_system_descriptions[IBMSystemInfo::EOS_NONE] = "EOS_NONE - Unknown";
@@ -782,12 +782,12 @@ void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& 
 
 //// IBMImportTable
 
-offset_t ELFFormat::IBMImportTable::ImageSize()
+offset_t ELFFormat::IBMImportTable::ImageSize() const
 {
 	return imports.size() * entsize;
 }
 
-offset_t ELFFormat::IBMImportTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::IBMImportTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	assert(offset == 0 && count == ImageSize());
 	offset_t file_offset = wr.Tell();
@@ -802,7 +802,7 @@ offset_t ELFFormat::IBMImportTable::WriteFile(Linker::Writer& wr, offset_t count
 	return ImageSize();
 }
 
-void ELFFormat::IBMImportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::IBMImportTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	for(auto& import : imports)
@@ -829,12 +829,12 @@ void ELFFormat::IBMImportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 
 //// IBMExportTable
 
-offset_t ELFFormat::IBMExportTable::ImageSize()
+offset_t ELFFormat::IBMExportTable::ImageSize() const
 {
 	return exports.size() * entsize;
 }
 
-offset_t ELFFormat::IBMExportTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::IBMExportTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	assert(offset == 0 && count == ImageSize());
 	offset_t file_offset = wr.Tell();
@@ -849,7 +849,7 @@ offset_t ELFFormat::IBMExportTable::WriteFile(Linker::Writer& wr, offset_t count
 	return ImageSize();
 }
 
-void ELFFormat::IBMExportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::IBMExportTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	for(auto& _export : exports)
@@ -870,19 +870,19 @@ void ELFFormat::IBMExportTable::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsig
 
 //// IBMResourceCollection
 
-offset_t ELFFormat::IBMResourceCollection::ImageSize()
+offset_t ELFFormat::IBMResourceCollection::ImageSize() const
 {
 	// TODO
 	return 0;
 }
 
-offset_t ELFFormat::IBMResourceCollection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset)
+offset_t ELFFormat::IBMResourceCollection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
 	// TODO
 	return 0;
 }
 
-void ELFFormat::IBMResourceCollection::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::IBMResourceCollection::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	region->AddField("Version", Dumper::DecDisplay::Make(), offset_t(version));
 	region->AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(flags));
@@ -902,7 +902,7 @@ void ELFFormat::IBMResourceCollection::AddDumperFields(std::unique_ptr<Dumper::R
 	}
 }
 
-void ELFFormat::IBMResourceCollection::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::IBMResourceCollection::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	unsigned i = 0;
 	for(auto& resource : resources)
@@ -1318,7 +1318,7 @@ std::shared_ptr<ELFFormat::IBMResourceCollection> ELFFormat::Section::ReadIBMRes
 	return collection;
 }
 
-void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned index)
+void ELFFormat::Section::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
 	std::unique_ptr<Dumper::Region> region;
 	if(auto section = std::dynamic_pointer_cast<Linker::Buffer>(contents))
@@ -1476,7 +1476,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, ELFFormat& fmt, unsigned ind
 
 //// Segment
 
-offset_t ELFFormat::Segment::Part::GetOffset(ELFFormat& fmt)
+offset_t ELFFormat::Segment::Part::GetOffset(const ELFFormat& fmt) const
 {
 	switch(type)
 	{
@@ -1489,7 +1489,7 @@ offset_t ELFFormat::Segment::Part::GetOffset(ELFFormat& fmt)
 	}
 }
 
-offset_t ELFFormat::Segment::Part::GetActualSize(ELFFormat& fmt)
+offset_t ELFFormat::Segment::Part::GetActualSize(const ELFFormat& fmt) const
 {
 	switch(type)
 	{
@@ -2003,7 +2003,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t ELFFormat::WriteFile(Linker::Writer& wr)
+offset_t ELFFormat::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO: test */
 
@@ -2114,7 +2114,7 @@ offset_t ELFFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void ELFFormat::Dump(Dumper::Dumper& dump)
+void ELFFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -2924,7 +2924,7 @@ void FatELFFormat::Record::Write(Linker::Writer& wr) const
 	wr.WriteWord(8, size);
 }
 
-offset_t FatELFFormat::ImageSize()
+offset_t FatELFFormat::ImageSize() const
 {
 	// the size of the header
 	offset_t furthest = 8 + records.size() * 24;
@@ -2963,7 +2963,7 @@ void FatELFFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t FatELFFormat::WriteFile(Linker::Writer& wr)
+offset_t FatELFFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteData("\xFA\x70\x0E\x1F");
@@ -2988,7 +2988,7 @@ offset_t FatELFFormat::WriteFile(Linker::Writer& wr)
 	return ImageSize();
 }
 
-void FatELFFormat::Dump(Dumper::Dumper& dump)
+void FatELFFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 

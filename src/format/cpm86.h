@@ -96,10 +96,11 @@ namespace DigitalResearch
 			uint16_t size_paras = 0;
 			/** @brief Load segment address of the group, or 0 if it can be relocated. Not to be used outside of system drivers */
 			uint16_t load_segment = 0;
+			// the following two fields are mutable because a fixup section sets these during write
 			/** @brief Minimum required size of the group, when loaded into memory, in 16-byte paragraphs */
-			uint16_t min_size_paras = 0;
+			mutable uint16_t min_size_paras = 0;
 			/** @brief Maximum required size of the group, when loaded into memory, in 16-byte paragraphs */
-			uint16_t max_size_paras = 0;
+			mutable uint16_t max_size_paras = 0;
 			/**
 			 * @brief Offset to image in file
 			 *
@@ -126,11 +127,11 @@ namespace DigitalResearch
 
 			void ReadDescriptor(Linker::Reader& rd);
 
-			void WriteDescriptor(Linker::Writer& wr, const CPM86Format& module);
+			void WriteDescriptor(Linker::Writer& wr, const CPM86Format& module) const;
 
-			virtual void WriteData(Linker::Writer& wr, const CPM86Format& module);
+			virtual void WriteData(Linker::Writer& wr, const CPM86Format& module) const;
 
-			std::string GetDefaultName();
+			std::string GetDefaultName() const;
 
 			virtual void ReadData(Linker::Reader& rd, const CPM86Format& module);
 		};
@@ -186,7 +187,7 @@ namespace DigitalResearch
 
 			void Read(Linker::Reader& rd, CPM86Format& module, bool is_library = false);
 
-			void Write(Linker::Writer& wr);
+			void Write(Linker::Writer& wr) const;
 
 			relocation_source GetSource() const;
 		};
@@ -222,14 +223,14 @@ namespace DigitalResearch
 
 			void ReadModule(Linker::Reader& rd);
 
-			void Write(Linker::Writer& wr);
+			void Write(Linker::Writer& wr) const;
 
-			void WriteModule(Linker::Writer& wr);
+			void WriteModule(Linker::Writer& wr) const;
 
 			offset_t GetFullFileSize() const;
 			void SetOffset(offset_t new_offset);
 
-			void Dump(Dumper::Dumper& dump);
+			void Dump(Dumper::Dumper& dump) const;
 		};
 
 		/**
@@ -261,7 +262,7 @@ namespace DigitalResearch
 			{
 			}
 
-			void Write(Linker::Writer& wr);
+			void Write(Linker::Writer& wr) const;
 
 			void Read(Linker::Reader& rd);
 		};
@@ -298,9 +299,9 @@ namespace DigitalResearch
 			{
 			}
 
-			void Write(Linker::Writer& wr);
+			void Write(Linker::Writer& wr) const;
 
-			void WriteExtended(Linker::Writer& wr);
+			void WriteExtended(Linker::Writer& wr) const;
 
 			void Read(Linker::Reader& rd);
 
@@ -323,7 +324,7 @@ namespace DigitalResearch
 
 			uint16_t GetSizeParas(const CPM86Format& module) const override;
 
-			void WriteData(Linker::Writer& wr, const CPM86Format& module) override;
+			void WriteData(Linker::Writer& wr, const CPM86Format& module) const override;
 
 			void ReadData(Linker::Reader& rd, const CPM86Format& module) override;
 		};
@@ -353,7 +354,7 @@ namespace DigitalResearch
 
 				void Read(Linker::Reader& rd);
 
-				void Write(Linker::Writer& wr);
+				void Write(Linker::Writer& wr) const;
 			};
 
 			std::vector<ldt_descriptor> ldt;
@@ -362,7 +363,7 @@ namespace DigitalResearch
 
 			uint16_t GetSizeParas(const CPM86Format& module) const override;
 
-			void WriteData(Linker::Writer& wr, const CPM86Format& module) override;
+			void WriteData(Linker::Writer& wr, const CPM86Format& module) const override;
 
 			void ReadData(Linker::Reader& rd, const CPM86Format& module) override;
 		};
@@ -487,20 +488,20 @@ namespace DigitalResearch
 
 		void ReadRelocations(Linker::Reader& rd);
 
-		void WriteRelocations(Linker::Writer& wr);
+		void WriteRelocations(Linker::Writer& wr) const;
 
 		offset_t MeasureRelocations();
 
 		void ReadFile(Linker::Reader& rd) override;
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		offset_t GetFullFileSize() const;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		void CalculateValues() override;
 
@@ -549,7 +550,7 @@ namespace DigitalResearch
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 }

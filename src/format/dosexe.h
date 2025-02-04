@@ -53,8 +53,8 @@ namespace SeychellDOS32
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 };
 
@@ -80,8 +80,8 @@ namespace BrocaD3X
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 };
 
@@ -119,8 +119,8 @@ namespace DX64
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 }
 

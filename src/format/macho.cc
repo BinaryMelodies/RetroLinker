@@ -197,7 +197,7 @@ void MachOFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t MachOFormat::WriteFile(Linker::Writer& wr)
+offset_t MachOFormat::WriteFile(Linker::Writer& wr) const
 {
 	if(wordsize != 4 && wordsize != 8)
 	{
@@ -262,7 +262,7 @@ offset_t MachOFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void MachOFormat::Dump(Dumper::Dumper& dump)
+void MachOFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -293,7 +293,7 @@ void FatMachOFormat::Entry::Write(Linker::Writer& wr) const
 	wr.WriteWord(4, align);
 }
 
-offset_t FatMachOFormat::ImageSize()
+offset_t FatMachOFormat::ImageSize() const
 {
 	// the size of the header
 	offset_t furthest = 8 + entries.size() * 20;
@@ -324,7 +324,7 @@ void FatMachOFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t FatMachOFormat::WriteFile(Linker::Writer& wr)
+offset_t FatMachOFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteData("\xCA\xFE\xBA\xBE");
@@ -341,7 +341,7 @@ offset_t FatMachOFormat::WriteFile(Linker::Writer& wr)
 	return ImageSize();
 }
 
-void FatMachOFormat::Dump(Dumper::Dumper& dump)
+void FatMachOFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 

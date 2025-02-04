@@ -85,19 +85,19 @@ namespace Linker
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		offset_t WriteFile(std::ostream& out, offset_t size, offset_t offset = 0);
+		offset_t WriteFile(std::ostream& out, offset_t size, offset_t offset = 0) const;
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		offset_t WriteFile(std::ostream& out);
+		offset_t WriteFile(std::ostream& out) const;
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) override;
+		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		offset_t WriteFile(Writer& wr) override;
+		offset_t WriteFile(Writer& wr) const override;
 
 		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
@@ -111,7 +111,7 @@ namespace Linker
 		 * This function should always return the same value as data_size.
 		 * This is checked by an assert value.
 		 */
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 		/**
 		 * @brief Returns starting address (base_address)
 		 */

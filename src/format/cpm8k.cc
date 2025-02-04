@@ -96,7 +96,7 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 	// TODO: symbols
 }
 
-offset_t CPM8KFormat::ImageSize()
+offset_t CPM8KFormat::ImageSize() const
 {
 	offset_t size = 16 + segments.size() * 4;
 
@@ -114,7 +114,7 @@ offset_t CPM8KFormat::ImageSize()
 	return size;
 }
 
-offset_t CPM8KFormat::WriteFile(Linker::Writer& wr)
+offset_t CPM8KFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(2, signature);
@@ -144,7 +144,7 @@ offset_t CPM8KFormat::WriteFile(Linker::Writer& wr)
 	return ImageSize();
 }
 
-void CPM8KFormat::Dump(Dumper::Dumper& dump)
+void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -252,7 +252,7 @@ void CPM8KFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	segments.push_back(cpm_segment);
 }
 
-bool CPM8KFormat::IsCombined()
+bool CPM8KFormat::IsCombined() const
 {
 	magic_type magic = GetSignature();
 	return magic == MAGIC_NONSHARED || magic == MAGIC_NONSHARED_OBJECT;
@@ -462,7 +462,7 @@ void CPM8KFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string CPM8KFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string CPM8KFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".z8k";
 }

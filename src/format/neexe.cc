@@ -55,7 +55,7 @@ void NEFormat::Segment::AddRelocation(const Relocation& rel)
 	relocations_map[rel.offsets[0]] = rel;
 }
 
-void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
+void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) const
 {
 	Dumper::Block segment_block("Segment", data_offset, image->AsImage(), 0, 8);
 	segment_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
@@ -163,7 +163,7 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
 	}
 }
 
-void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2)
+void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) const
 {
 	if(isos2)
 	{
@@ -316,7 +316,7 @@ NEFormat::Entry NEFormat::Entry::ReadEntry(Linker::Reader& rd, uint8_t indicator
 	return entry;
 }
 
-void NEFormat::Entry::WriteEntry(Linker::Writer& wr)
+void NEFormat::Entry::WriteEntry(Linker::Writer& wr) const
 {
 	switch(type)
 	{
@@ -739,15 +739,15 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t NEFormat::ImageSize()
+offset_t NEFormat::ImageSize() const
 {
 	return file_size;
 }
 
-offset_t NEFormat::WriteFile(Linker::Writer& wr)
+offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	WriteStubImage(wr);
+	const_cast<NEFormat *>(this)->WriteStubImage(wr); // TODO
 	/* new header */
 	wr.Seek(file_offset);
 	wr.WriteData(signature);
@@ -788,7 +788,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 
 	/* Segment table */
 	wr.Seek(segment_table_offset);
-	for(Segment& segment : segments)
+	for(const Segment& segment : segments)
 	{
 		wr.WriteWord(2, segment.data_offset >> sector_shift);
 		wr.WriteWord(2, segment.image->ImageSize());
@@ -814,7 +814,6 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 				wr.WriteWord(2, resource.handle);
 				wr.WriteWord(2, resource.usage);
 			}
-			resource_types.emplace_back(rtype);
 		}
 		wr.WriteWord(2, 0);
 		for(auto& string : resource_strings)
@@ -827,7 +826,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 
 	/* Resident name table */
 	wr.Seek(resident_name_table_offset);
-	for(Name& name : resident_names)
+	for(const Name& name : resident_names)
 	{
 		wr.WriteWord(1, name.name.size());
 		wr.WriteData(name.name.size(), name.name.c_str());
@@ -844,7 +843,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 
 	/* Imported name table */
 	wr.Seek(imported_names_table_offset);
-	for(std::string& name : imported_names)
+	for(const std::string& name : imported_names)
 	{
 		wr.WriteWord(1, name.size());
 		wr.WriteData(name.size(), name.c_str());
@@ -867,7 +866,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 
 	/* Nonresident name table */
 	wr.Seek(nonresident_name_table_offset);
-	for(Name& name : nonresident_names)
+	for(const Name& name : nonresident_names)
 	{
 		wr.WriteWord(1, name.name.size());
 		wr.WriteData(name.name.size(), name.name.c_str());
@@ -875,7 +874,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	}
 	wr.WriteWord(1, 0);
 
-	for(Segment& segment : segments)
+	for(const Segment& segment : segments)
 	{
 		wr.Seek(segment.data_offset);
 		segment.image->WriteFile(wr);
@@ -903,7 +902,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	// TODO: needs testing
 	if(IsOS2())
 	{
-		for(Resource& resource : resources)
+		for(const Resource& resource : resources)
 		{
 			if(resource.image != nullptr)
 			{
@@ -914,9 +913,9 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	}
 	else
 	{
-		for(ResourceType& rtype : resource_types)
+		for(const ResourceType& rtype : resource_types)
 		{
-			for(Resource& resource : rtype.resources)
+			for(const Resource& resource : rtype.resources)
 			{
 				if(resource.image != nullptr)
 				{
@@ -930,7 +929,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void NEFormat::Dump(Dumper::Dumper& dump)
+void NEFormat::Dump(Dumper::Dumper& dump) const
 {
 	offset_t i;
 	offset_t current_offset;
@@ -1375,7 +1374,7 @@ uint16_t NEFormat::MakeEntry(uint16_t index, Linker::Position value)
 	return index;
 }
 
-uint8_t NEFormat::CountBundles(size_t entry_index)
+uint8_t NEFormat::CountBundles(size_t entry_index) const
 {
 	size_t entry_count;
 	entries[entry_index].same_bundle = false;
@@ -1897,7 +1896,7 @@ void NEFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string NEFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string NEFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".exe";
 }

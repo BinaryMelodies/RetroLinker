@@ -66,11 +66,11 @@ namespace Apple
 			{
 			}
 		public:
-			virtual offset_t GetLength();
+			offset_t ImageSize() const override;
 			void ReadFile(Linker::Reader& rd) override;
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& out) override;
-			void Dump(Dumper::Dumper& dump) override;
+			offset_t WriteFile(Linker::Writer& out) const override;
+			void Dump(Dumper::Dumper& dump) const override;
 
 			virtual void ProcessModule(Linker::Module& module);
 			virtual void CalculateValues();
@@ -157,6 +157,7 @@ namespace Apple
 		void SetModel(std::string model) override;
 		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
+		std::shared_ptr<const Entry> FindEntry(uint32_t id) const;
 		std::shared_ptr<Entry> FindEntry(uint32_t id);
 
 	protected:
@@ -188,8 +189,8 @@ namespace Apple
 		void ProcessModule(Linker::Module& module) override;
 		void CalculateValues() override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		std::string PrefixFilename(std::string prefix, std::string filename);
 		std::string PrefixFilename(std::string prefix, std::string filename, size_t limit);
@@ -203,7 +204,7 @@ namespace Apple
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) override;
+		std::string GetDefaultExtension(Linker::Module& module) const override;
 	};
 
 	class DataFork : public AppleSingleDouble::Entry
@@ -249,8 +250,8 @@ namespace Apple
 		public:
 			void ReadFile(Linker::Reader& rd) override;
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) override;
-			void Dump(Dumper::Dumper& dump) override;
+			offset_t WriteFile(Linker::Writer& wr) const override;
+			void Dump(Dumper::Dumper& dump) const override;
 
 		protected:
 			Resource(const char type[4], uint16_t id, uint8_t attributes = 0)
@@ -276,7 +277,7 @@ namespace Apple
 			uint16_t name_offset = 0;
 			uint32_t data_offset = 0;
 
-			virtual offset_t GetLength() = 0;
+			offset_t ImageSize() const override = 0;
 		};
 
 		class GenericResource : public Resource
@@ -293,11 +294,11 @@ namespace Apple
 
 			void CalculateValues() override;
 
-			offset_t GetLength() override;
+			offset_t ImageSize() const override;
 
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) override;
-			void Dump(Dumper::Dumper& dump) override;
+			offset_t WriteFile(Linker::Writer& wr) const override;
+			void Dump(Dumper::Dumper& dump) const override;
 		};
 
 		class JumpTableCodeResource : public Resource
@@ -323,7 +324,7 @@ namespace Apple
 
 			void CalculateValues() override;
 
-			offset_t GetLength() override;
+			offset_t ImageSize() const override;
 
 			enum
 			{
@@ -332,8 +333,8 @@ namespace Apple
 			};
 
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) override;
-			void Dump(Dumper::Dumper& dump) override;
+			offset_t WriteFile(Linker::Writer& wr) const override;
+			void Dump(Dumper::Dumper& dump) const override;
 		};
 
 		class CodeResource : public Resource
@@ -369,15 +370,15 @@ namespace Apple
 
 			void CalculateValues() override;
 
-			offset_t GetLength() override;
+			offset_t ImageSize() const override;
 
-			uint32_t MeasureRelocations(std::set<uint32_t>& relocations);
+			uint32_t MeasureRelocations(std::set<uint32_t>& relocations) const;
 
-			void WriteRelocations(Linker::Writer& wr, std::set<uint32_t>& relocations);
+			void WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const;
 
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) override;
-			void Dump(Dumper::Dumper& dump) override;
+			offset_t WriteFile(Linker::Writer& wr) const override;
+			void Dump(Dumper::Dumper& dump) const override;
 		};
 
 		ResourceFork()
@@ -415,16 +416,16 @@ namespace Apple
 
 		void CalculateValues() override;
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) override;
+		std::string GetDefaultExtension(Linker::Module& module) const override;
 	};
 
 	class RealName : public AppleSingleDouble::Entry
@@ -437,11 +438,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class Comment : public AppleSingleDouble::Entry
@@ -506,11 +507,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class FileInfo::ProDOS : public FileInfo
@@ -531,11 +532,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class FileInfo::MSDOS : public FileInfo
@@ -550,11 +551,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class FileInfo::AUX : public FileInfo
@@ -571,11 +572,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/* Version 2 only */
@@ -597,11 +598,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class FinderInfo : public AppleSingleDouble::Entry
@@ -622,11 +623,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		void ProcessModule(Linker::Module& module) override;
 	};
@@ -641,11 +642,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/* Version 2 only */
@@ -663,11 +664,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/* Version 2 only */
@@ -681,11 +682,11 @@ namespace Apple
 		{
 		}
 
-		offset_t GetLength() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/* Version 2 only */
@@ -738,7 +739,7 @@ namespace Apple
 		version_t version, minimum_version;
 
 		uint16_t secondary_header_size = 0; /* TODO */
-		uint16_t crc = 0;
+		mutable uint16_t crc = 0;
 
 		std::string generated_file_name;
 
@@ -760,23 +761,23 @@ namespace Apple
 		/* CRC16-CCITT */
 		static uint16_t crc_step[256];
 
-		void CRC_Initialize();
+		void CRC_Initialize() const;
 
-		void CRC_Step(uint8_t byte = 0);
+		void CRC_Step(uint8_t byte = 0) const;
 
-		void Skip(Linker::Writer& wr, size_t count);
+		void Skip(Linker::Writer& wr, size_t count) const;
 
-		void WriteData(Linker::Writer& wr, size_t count, const void * data);
+		void WriteData(Linker::Writer& wr, size_t count, const void * data) const;
 
-		void WriteData(Linker::Writer& wr, size_t count, std::string text);
+		void WriteData(Linker::Writer& wr, size_t count, std::string text) const;
 
-		void WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value);
+		void WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const;
 
-		void WriteHeader(Linker::Writer& wr);
+		void WriteHeader(Linker::Writer& wr) const;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 	};
@@ -861,7 +862,7 @@ namespace Apple
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 	};
 }
 

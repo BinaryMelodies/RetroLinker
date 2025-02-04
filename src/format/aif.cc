@@ -107,12 +107,12 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 
 }
 
-offset_t AIFFormat::ImageSize()
+offset_t AIFFormat::ImageSize() const
 {
 	return file_size;
 }
 
-offset_t AIFFormat::WriteFile(Linker::Writer& wr)
+offset_t AIFFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = endiantype;
 	if(compressed)
@@ -168,7 +168,7 @@ offset_t AIFFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void AIFFormat::Dump(Dumper::Dumper& dump)
+void AIFFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -179,7 +179,7 @@ void AIFFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string AIFFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string AIFFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ",ff8";
 }

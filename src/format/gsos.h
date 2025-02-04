@@ -113,12 +113,12 @@ namespace Apple
 			/** @brief Reads a number the size of number_length */
 			offset_t ReadUnsigned(Linker::Reader& rd);
 			/** @brief Writes a string the size of number_length */
-			void WriteWord(Linker::Writer& wr, offset_t value);
+			void WriteWord(Linker::Writer& wr, offset_t value) const;
 
 			/** @brief Reads a string the size of label_length, or variable length if it is 0 */
 			std::string ReadLabel(Linker::Reader& rd);
 			/** @brief Writes a string the size of label_length, or variable length if it is 0 */
-			void WriteLabel(Linker::Writer& wr, std::string text);
+			void WriteLabel(Linker::Writer& wr, std::string text) const;
 
 			/** @brief Calculates the values needed to generate segment images
 			 *
@@ -128,16 +128,16 @@ namespace Apple
 			 */
 			offset_t CalculateValues(uint16_t segment_number, offset_t current_offset);
 			void ReadFile(Linker::Reader& rd);
-			void WriteFile(Linker::Writer& wr);
+			void WriteFile(Linker::Writer& wr) const;
 
 			class Expression
 			{
 			public:
 				/* TODO */
 				virtual ~Expression();
-				virtual offset_t GetLength(Segment& segment) = 0;
+				virtual offset_t GetLength(Segment& segment) const = 0;
 				virtual void ReadFile(Segment& segment, Linker::Reader& rd) = 0;
-				virtual void WriteFile(Segment& segment, Linker::Writer& wr) = 0;
+				virtual void WriteFile(Segment& segment, Linker::Writer& wr) const = 0;
 			};
 
 			class Record
@@ -181,9 +181,9 @@ namespace Apple
 				}
 
 				virtual ~Record();
-				virtual offset_t GetLength(Segment& segment);
+				virtual offset_t GetLength(Segment& segment) const;
 				virtual void ReadFile(Segment& segment, Linker::Reader& rd);
-				virtual void WriteFile(Segment& segment, Linker::Writer& wr);
+				virtual void WriteFile(Segment& segment, Linker::Writer& wr) const;
 			};
 
 			class DataRecord : public Record
@@ -206,9 +206,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class ValueRecord : public Record
@@ -221,9 +221,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class StringRecord : public Record
@@ -236,9 +236,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class RelocationRecord : public Record
@@ -259,9 +259,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class IntersegmentRelocationRecord : public RelocationRecord
@@ -280,9 +280,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class LabelRecord : public Record
@@ -308,9 +308,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class LabelExpressionRecord : public LabelRecord
@@ -328,9 +328,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class RangeRecord : public Record
@@ -349,9 +349,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class ExpressionRecord : public Record
@@ -370,9 +370,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class RelativeExpressionRecord : public ExpressionRecord
@@ -390,9 +390,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class EntryRecord : public Record
@@ -412,9 +412,9 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			};
 
 			class SuperCompactRecord : public Record
@@ -438,11 +438,11 @@ namespace Apple
 				{
 				}
 
-				offset_t GetLength(Segment& segment) override;
+				offset_t GetLength(Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(Segment& segment, Linker::Writer& wr) override;
+				void WriteFile(Segment& segment, Linker::Writer& wr) const override;
 			private:
-				void WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches);
+				void WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches) const;
 			};
 
 			std::unique_ptr<Expression> ReadExpression(Linker::Reader& rd);
@@ -499,8 +499,8 @@ namespace Apple
 		void CalculateValues() override;
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 	};
 }

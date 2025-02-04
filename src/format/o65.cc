@@ -150,7 +150,7 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void O65Format::Module::WriteFile(Linker::Writer& wr)
+void O65Format::Module::WriteFile(Linker::Writer& wr) const
 {
 	if(data_base == code_base + (code_image ? code_image->ImageSize() : 0)
 	&& bss_base  == data_base + (data_image ? data_image->ImageSize() : 0))
@@ -198,7 +198,7 @@ void O65Format::Module::WriteFile(Linker::Writer& wr)
 	if(data_image)
 		data_image->WriteFile(wr);
 
-	std::map<offset_t, relocation> * relocation_parts[2] = { &code_relocations, &data_relocations };
+	const std::map<offset_t, relocation> * relocation_parts[2] = { &code_relocations, &data_relocations };
 	for(int i = 0; i < 2; i++)
 	{
 		offset_t offset = -1;
@@ -387,7 +387,7 @@ void O65Format::ReadFile(Linker::Reader& rd)
 	} while(modules.back()->IsChained());
 }
 
-offset_t O65Format::WriteFile(Linker::Writer& wr)
+offset_t O65Format::WriteFile(Linker::Writer& wr) const
 {
 	for(auto& module : modules)
 	{
@@ -397,7 +397,7 @@ offset_t O65Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void O65Format::Dump(Dumper::Dumper& dump)
+void O65Format::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 

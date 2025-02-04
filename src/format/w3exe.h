@@ -35,8 +35,8 @@ namespace Microsoft
 //		void CalculateValues() override;
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 
 //		using Linker::OutputFormat::GetDefaultExtension;

@@ -11,14 +11,14 @@ void BOutFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-offset_t BOutFormat::WriteFile(Linker::Writer& wr)
+offset_t BOutFormat::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO */
 
 	return offset_t(-1);
 }
 
-void BOutFormat::Dump(Dumper::Dumper& dump)
+void BOutFormat::Dump(Dumper::Dumper& dump) const
 {
 	// TODO: set encoding to other for non-x86?
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
@@ -35,14 +35,14 @@ void XOutFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-offset_t XOutFormat::WriteFile(Linker::Writer& wr)
+offset_t XOutFormat::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO */
 
 	return offset_t(-1);
 }
 
-void XOutFormat::Dump(Dumper::Dumper& dump)
+void XOutFormat::Dump(Dumper::Dumper& dump) const
 {
 	// TODO: set encoding to other for non-x86?
 	dump.SetEncoding(Dumper::Block::encoding_cp437);

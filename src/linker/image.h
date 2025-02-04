@@ -20,25 +20,29 @@ namespace Linker
 		/**
 		 * @brief Retrieves size of stored data
 		 */
-		virtual offset_t ImageSize() = 0;
+		virtual offset_t ImageSize() const = 0;
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		virtual offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) = 0;
+		virtual offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const = 0;
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		virtual offset_t WriteFile(Writer& wr);
+		virtual offset_t WriteFile(Writer& wr) const;
 		/**
 		 * @brief Retrieves a randomly accessible image
 		 */
-		virtual std::shared_ptr<ActualImage> AsImage();
+		virtual std::shared_ptr<const ActualImage> AsImage() const;
+		/**
+		 * @brief Retrieves a randomly accessible image
+		 */
+		std::shared_ptr<ActualImage> AsImage();
 	};
 
 	class ActualImage : public Image, public std::enable_shared_from_this<ActualImage>
 	{
 	public:
-		std::shared_ptr<ActualImage> AsImage() override;
+		std::shared_ptr<const ActualImage> AsImage() const override;
 
 		/**
 		 * @brief Attempts to fill a buffer with data

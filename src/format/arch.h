@@ -62,9 +62,9 @@ namespace Archive
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		offset_t ImageSize() override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t ImageSize() const override;
+		void Dump(Dumper::Dumper& dump) const override;
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::ModuleCollector& linker, std::string file_name, bool is_library = false) const override;
 		void CalculateValues() override;

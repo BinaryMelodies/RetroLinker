@@ -347,12 +347,12 @@ offset_t CPM68KFormat::MeasureRelocations() const
 	}
 }
 
-offset_t CPM68KFormat::ImageSize()
+offset_t CPM68KFormat::ImageSize() const
 {
 	return file_size;
 }
 
-offset_t CPM68KFormat::WriteFile(Linker::Writer& wr)
+offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(2, signature);
@@ -456,7 +456,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr)
 	return ImageSize();
 }
 
-void CPM68KFormat::Dump(Dumper::Dumper& dump)
+void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 {
 	switch(system)
 	{
@@ -964,7 +964,7 @@ void CPM68KFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string CPM68KFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string CPM68KFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	switch(system)
 	{

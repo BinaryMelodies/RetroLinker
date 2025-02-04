@@ -37,7 +37,8 @@ namespace DOS16M
 				FLAG_EMPTY = 0x2000,
 				FLAG_TRANSPARENT = 0x8000,
 			};
-			flag_type flags;
+			// set to mutable because FLAG_EMPTY is set during creating output
+			mutable flag_type flags;
 
 			uint32_t address = 0;
 			uint32_t total_length;
@@ -62,16 +63,16 @@ namespace DOS16M
 			/**
 			 * @brief Retrieves size of segment. Some subclasses might calculate this dynamically
 			 */
-			virtual uint32_t GetSize(BWFormat& bw) = 0;
+			virtual uint32_t GetSize(const BWFormat& bw) const = 0;
 			/**
 			 * @brief Produces the binary contents of the segment
 			 */
-			virtual void WriteContent(Linker::Writer& wr, BWFormat& bw) = 0;
+			virtual void WriteContent(Linker::Writer& wr, const BWFormat& bw) const = 0;
 
 			/**
 			 * @brief Produces the GDT entry for the header
 			 */
-			void WriteHeader(Linker::Writer& wr, BWFormat& bw);
+			void WriteHeader(Linker::Writer& wr, const BWFormat& bw) const;
 		};
 
 		class Segment : public AbstractSegment
@@ -86,9 +87,9 @@ namespace DOS16M
 
 			void SetTotalSize(uint32_t new_value) override;
 
-			uint32_t GetSize(BWFormat& bw) override;
+			uint32_t GetSize(const BWFormat& bw) const override;
 
-			void WriteContent(Linker::Writer& wr, BWFormat& bw) override;
+			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
 		};
 
 		class DummySegment : public AbstractSegment
@@ -101,9 +102,9 @@ namespace DOS16M
 
 			void SetTotalSize(uint32_t new_value) override;
 
-			uint32_t GetSize(BWFormat& bw) override;
+			uint32_t GetSize(const BWFormat& bw) const override;
 
-			void WriteContent(Linker::Writer& wr, BWFormat& bw) override;
+			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
 		};
 
 		class RelocationSegment : public AbstractSegment
@@ -121,9 +122,9 @@ namespace DOS16M
 			 */
 			void SetTotalSize(uint32_t new_value) override;
 
-			uint32_t GetSize(BWFormat& bw) override;
+			uint32_t GetSize(const BWFormat& bw) const override;
 
-			void WriteContent(Linker::Writer& wr, BWFormat& bw) override;
+			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
 		};
 
 		/**
@@ -152,7 +153,7 @@ namespace DOS16M
 
 		std::map<uint16_t, std::set<uint16_t> > relocations;
 
-		offset_t MeasureRelocations();
+		offset_t MeasureRelocations() const;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
@@ -189,15 +190,15 @@ namespace DOS16M
 
 		void CalculateValues() override;
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 }
 

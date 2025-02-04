@@ -22,7 +22,7 @@ void W3Format::ReadFile(Linker::Reader& rd)
 	// TODO: read contents
 }
 
-offset_t W3Format::WriteFile(Linker::Writer& wr)
+offset_t W3Format::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.Seek(file_offset);
@@ -41,7 +41,7 @@ offset_t W3Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void W3Format::Dump(Dumper::Dumper& dump)
+void W3Format::Dump(Dumper::Dumper& dump) const
 {
 	// TODO: encoding
 	dump.SetEncoding(Dumper::Block::encoding_cp437);

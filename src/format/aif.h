@@ -68,14 +68,14 @@ namespace ARM
 		void Clear() override;
 		void CalculateValues() override;
 		void ReadFile(Linker::Reader& rd) override;
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 }
 

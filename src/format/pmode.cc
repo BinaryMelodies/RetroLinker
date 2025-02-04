@@ -60,7 +60,7 @@ void PMW1Format::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t PMW1Format::WriteFile(Linker::Writer& wr)
+offset_t PMW1Format::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.Seek(file_offset);
@@ -109,7 +109,7 @@ offset_t PMW1Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void PMW1Format::Dump(Dumper::Dumper& dump)
+void PMW1Format::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -171,7 +171,7 @@ void PMW1Format::CalculateValues()
 	// TODO
 }
 
-std::string PMW1Format::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string PMW1Format::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".exe";
 }

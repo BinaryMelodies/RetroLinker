@@ -11,14 +11,14 @@ void PEFFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-offset_t PEFFormat::WriteFile(Linker::Writer& wr)
+offset_t PEFFormat::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO */
 
 	return offset_t(-1);
 }
 
-void PEFFormat::Dump(Dumper::Dumper& dump)
+void PEFFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 

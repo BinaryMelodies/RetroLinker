@@ -60,7 +60,7 @@ void MZFormat::PIF::ReadFile(Linker::Reader& rd)
 	screen_usage = rd.ReadUnsigned(1);
 }
 
-void MZFormat::PIF::WriteFile(Linker::Writer& wr)
+void MZFormat::PIF::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, MAGIC_BEGIN, LittleEndian);
 
@@ -77,7 +77,7 @@ void MZFormat::PIF::WriteFile(Linker::Writer& wr)
 	wr.WriteWord(4, MAGIC_END, LittleEndian);
 }
 
-void MZFormat::PIF::Dump(Dumper::Dumper& dump, offset_t file_offset)
+void MZFormat::PIF::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	Dumper::Region pif_region("Program information", file_offset, SIZE, 5);
 
@@ -163,7 +163,7 @@ void MZFormat::SetFileSize(uint32_t size)
 	file_size_blocks = (size + 0x1FF) >> 9;
 }
 
-uint32_t MZFormat::GetHeaderSize()
+uint32_t MZFormat::GetHeaderSize() const
 {
 	return uint32_t(header_size_paras) << 4;
 }
@@ -233,7 +233,7 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 	buffer->ReadFile(rd, GetFileSize() - GetHeaderSize());
 }
 
-offset_t MZFormat::WriteFile(Linker::Writer& wr)
+offset_t MZFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteData(2, signature);
@@ -270,7 +270,7 @@ offset_t MZFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void MZFormat::Dump(Dumper::Dumper& dump)
+void MZFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -679,7 +679,7 @@ void MZFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string MZFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string MZFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + (GetSignature() != MAGIC_DL ? ".exe" : ".exm");
 }

@@ -36,7 +36,7 @@ void CPM86Format::Descriptor::ReadDescriptor(Linker::Reader& rd)
 	max_size_paras = rd.ReadUnsigned(2);
 }
 
-void CPM86Format::Descriptor::WriteDescriptor(Linker::Writer& wr, const CPM86Format& module)
+void CPM86Format::Descriptor::WriteDescriptor(Linker::Writer& wr, const CPM86Format& module) const
 {
 	if(type == ActualFixups)
 	{
@@ -49,7 +49,7 @@ void CPM86Format::Descriptor::WriteDescriptor(Linker::Writer& wr, const CPM86For
 	wr.WriteWord(2, max_size_paras);
 }
 
-void CPM86Format::Descriptor::WriteData(Linker::Writer& wr, const CPM86Format& module)
+void CPM86Format::Descriptor::WriteData(Linker::Writer& wr, const CPM86Format& module) const
 {
 	if(type == Undefined || type == ActualFixups || GetSizeParas(module) == 0)
 		return;
@@ -60,7 +60,7 @@ void CPM86Format::Descriptor::WriteData(Linker::Writer& wr, const CPM86Format& m
 	}
 }
 
-std::string CPM86Format::Descriptor::GetDefaultName()
+std::string CPM86Format::Descriptor::GetDefaultName() const
 {
 	switch(type & 0xF)
 	{
@@ -138,7 +138,7 @@ void CPM86Format::Relocation::Read(Linker::Reader& rd, CPM86Format& module, bool
 	return;
 }
 
-void CPM86Format::Relocation::Write(Linker::Writer& wr)
+void CPM86Format::Relocation::Write(Linker::Writer& wr) const
 {
 	wr.WriteWord(1, (source << 4) | target);
 	wr.WriteWord(2, paragraph);
@@ -175,14 +175,14 @@ void CPM86Format::rsx_record::ReadModule(Linker::Reader& rd)
 	contents = module;
 }
 
-void CPM86Format::rsx_record::Write(Linker::Writer& wr)
+void CPM86Format::rsx_record::Write(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, offset_record);
 	wr.WriteData(8, name, '\0');
 	wr.Skip(6);
 }
 
-void CPM86Format::rsx_record::WriteModule(Linker::Writer& wr)
+void CPM86Format::rsx_record::WriteModule(Linker::Writer& wr) const
 {
 	if(offset_record == RSX_TERMINATE || offset_record == RSX_DYNAMIC)
 		return;
@@ -205,7 +205,7 @@ void CPM86Format::rsx_record::SetOffset(offset_t new_offset)
 	}
 }
 
-void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump)
+void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump) const
 {
 	if(const std::shared_ptr<CPM86Format> module = std::dynamic_pointer_cast<CPM86Format>(contents))
 	{
@@ -219,7 +219,7 @@ void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump)
 	}
 }
 
-void CPM86Format::library_id::Write(Linker::Writer& wr)
+void CPM86Format::library_id::Write(Linker::Writer& wr) const
 {
 	wr.WriteData(8, name, '\0');
 	wr.WriteWord(2, major_version);
@@ -235,14 +235,14 @@ void CPM86Format::library_id::Read(Linker::Reader& rd)
 	flags = rd.ReadUnsigned(4);
 }
 
-void CPM86Format::library::Write(Linker::Writer& wr)
+void CPM86Format::library::Write(Linker::Writer& wr) const
 {
 	library_id::Write(wr);
 	//relocation_count = relocations.size(); // TODO: this should only happen as part of the code generation
 	wr.WriteWord(2, relocation_count);
 }
 
-void CPM86Format::library::WriteExtended(Linker::Writer& wr)
+void CPM86Format::library::WriteExtended(Linker::Writer& wr) const
 {
 	Write(wr);
 	wr.WriteWord(2, first_selector);
@@ -276,7 +276,7 @@ uint16_t CPM86Format::LibraryDescriptor::GetSizeParas(const CPM86Format& module)
 		return ::AlignTo(2 + 0x12 * libraries.size(), 0x10);
 }
 
-void CPM86Format::LibraryDescriptor::WriteData(Linker::Writer& wr, const CPM86Format& module)
+void CPM86Format::LibraryDescriptor::WriteData(Linker::Writer& wr, const CPM86Format& module) const
 {
 	if(type == Undefined)
 		return;
@@ -325,7 +325,7 @@ void CPM86Format::FastLoadDescriptor::ldt_descriptor::Read(Linker::Reader& rd)
 	reserved = rd.ReadUnsigned(2);
 }
 
-void CPM86Format::FastLoadDescriptor::ldt_descriptor::Write(Linker::Writer& wr)
+void CPM86Format::FastLoadDescriptor::ldt_descriptor::Write(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, limit);
 	wr.WriteWord(3, address);
@@ -344,7 +344,7 @@ uint16_t CPM86Format::FastLoadDescriptor::GetSizeParas(const CPM86Format& module
 	return ::AlignTo(8 + 8 * ldt.size(), 0x10);
 }
 
-void CPM86Format::FastLoadDescriptor::WriteData(Linker::Writer& wr, const CPM86Format& module)
+void CPM86Format::FastLoadDescriptor::WriteData(Linker::Writer& wr, const CPM86Format& module) const
 {
 	wr.WriteWord(2, maximum_entries);
 	wr.WriteWord(2, first_free_entry);
@@ -457,7 +457,7 @@ void CPM86Format::ReadRelocations(Linker::Reader& rd)
 	}
 }
 
-void CPM86Format::WriteRelocations(Linker::Writer& wr)
+void CPM86Format::WriteRelocations(Linker::Writer& wr) const
 {
 	wr.Seek(file_offset + relocations_offset);
 	for(auto rel : relocations)
@@ -574,12 +574,12 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t CPM86Format::ImageSize()
+offset_t CPM86Format::ImageSize() const
 {
 	return file_size;
 }
 
-offset_t CPM86Format::WriteFile(Linker::Writer& wr)
+offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.Seek(file_offset);
@@ -700,7 +700,7 @@ offset_t CPM86Format::GetFullFileSize() const
 	return file_size = image_size;
 }
 
-void CPM86Format::Dump(Dumper::Dumper& dump)
+void CPM86Format::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -1467,7 +1467,7 @@ void CPM86Format::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string CPM86Format::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string CPM86Format::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	/* TODO: other extensions are also possible, such as .rsx, .rsp, .mpm, .con, .ovr */
 	switch(format)

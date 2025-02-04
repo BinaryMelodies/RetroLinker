@@ -165,7 +165,7 @@ namespace Microsoft
 			std::map<uint16_t, Relocation> relocations_map;
 
 			void AddRelocation(const Relocation& rel);
-			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2);
+			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2) const;
 		};
 
 		/** @brief Represents a resource entry
@@ -226,7 +226,7 @@ namespace Microsoft
 			/** @brief Reserved field, named so in Microsoft documentation */
 			uint16_t usage = 0;
 
-			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2);
+			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2) const;
 		};
 
 		/** @brief Windows executables bundle their resources by resource type */
@@ -310,7 +310,7 @@ namespace Microsoft
 			/** @brief Reads an entry within a bundle */
 			static Entry ReadEntry(Linker::Reader& rd, uint8_t indicator_byte);
 			/** @brief Writes an entry within a bundle */
-			void WriteEntry(Linker::Writer& wr);
+			void WriteEntry(Linker::Writer& wr) const;
 		};
 
 		/** @brief Represents an imported module in the module reference table */
@@ -529,12 +529,12 @@ namespace Microsoft
 
 		void ReadFile(Linker::Reader& rd) override;
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		explicit NEFormat()
 		{
@@ -599,7 +599,7 @@ namespace Microsoft
 		std::string MakeProcedureName(std::string name);
 		uint16_t MakeEntry(Linker::Position value);
 		uint16_t MakeEntry(uint16_t ordinal, Linker::Position value);
-		uint8_t CountBundles(size_t entry_index);
+		uint8_t CountBundles(size_t entry_index) const;
 
 		void SetModel(std::string model) override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
@@ -610,7 +610,7 @@ namespace Microsoft
 		void CalculateValues() override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 }
 

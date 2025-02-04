@@ -281,7 +281,7 @@ namespace Microsoft
 
 				size_t GetSize() const;
 
-				void WriteFile(Linker::Writer& wr, compatibility_type compatibility);
+				void WriteFile(Linker::Writer& wr, compatibility_type compatibility) const;
 			};
 			std::map<uint16_t, Relocation> relocations;
 
@@ -356,9 +356,9 @@ namespace Microsoft
 
 			offset_t GetEntryBodySize() const;
 
-			void WriteEntryHead(Linker::Writer& wr);
+			void WriteEntryHead(Linker::Writer& wr) const;
 
-			void WriteEntryBody(Linker::Writer& wr);
+			void WriteEntryBody(Linker::Writer& wr) const;
 		};
 
 		static const uint32_t page_size = 0x1000;
@@ -380,7 +380,7 @@ namespace Microsoft
 		uint16_t FetchImportedProcedureName(std::string name);
 		uint16_t MakeEntry(Linker::Position value);
 		uint16_t MakeEntry(uint16_t index, Linker::Position value);
-		uint8_t CountBundles(size_t entry_index);
+		uint8_t CountBundles(size_t entry_index) const;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
@@ -389,11 +389,11 @@ namespace Microsoft
 		void ProcessModule(Linker::Module& module) override;
 		void CalculateValues() override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 
 	};
 

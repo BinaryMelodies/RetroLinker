@@ -56,9 +56,7 @@ namespace MINIX
 
 		static constexpr size_t PAGE_SIZE = 0x1000;
 
-		explicit MINIXFormat()
-		{
-		}
+		explicit MINIXFormat() = default;
 
 		MINIXFormat(format_type format, int version = -1)
 			: format(format), format_version(version)
@@ -103,8 +101,8 @@ namespace MINIX
 			uint16_t type; // not used by MINIX/ELKS
 
 			static Symbol Read(Linker::Reader& rd);
-			void Write(Linker::Writer& wr);
-			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset);
+			void Write(Linker::Writer& wr) const;
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const;
 		};
 		std::vector<Symbol> symbols;
 
@@ -136,8 +134,8 @@ namespace MINIX
 
 			static Relocation Read(Linker::Reader& rd);
 			void FetchSymbolName(std::vector<Symbol>& symbols);
-			void Write(Linker::Writer& wr);
-			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset);
+			void Write(Linker::Writer& wr) const;
+			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const;
 			size_t GetSize() const;
 		};
 		std::vector<Relocation> code_relocations, data_relocations, far_code_relocations;
@@ -162,15 +160,15 @@ namespace MINIX
 
 		void CalculateValues() override;
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) override;
+		std::string GetDefaultExtension(Linker::Module& module) const override;
 	};
 
 }

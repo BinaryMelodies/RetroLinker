@@ -11,14 +11,14 @@ void GeodeFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-offset_t GeodeFormat::WriteFile(Linker::Writer& wr)
+offset_t GeodeFormat::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO */
 
 	return offset_t(-1);
 }
 
-void GeodeFormat::Dump(Dumper::Dumper& dump)
+void GeodeFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -29,7 +29,7 @@ void GeodeFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string GeodeFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string GeodeFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".geo";
 }

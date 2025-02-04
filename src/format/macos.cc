@@ -24,18 +24,18 @@ void AppleSingleDouble::Entry::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-offset_t AppleSingleDouble::Entry::GetLength()
+offset_t AppleSingleDouble::Entry::ImageSize() const
 {
 	return 0;
 }
 
-offset_t AppleSingleDouble::Entry::WriteFile(Linker::Writer& out)
+offset_t AppleSingleDouble::Entry::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO */
 	return offset_t(-1);
 }
 
-void AppleSingleDouble::Entry::Dump(Dumper::Dumper& dump)
+void AppleSingleDouble::Entry::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
@@ -72,7 +72,7 @@ void AppleSingleDouble::SetLinkScript(std::string script_file, std::map<std::str
 	std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->SetLinkScript(script_file, options);
 }
 
-std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::FindEntry(uint32_t id)
+std::shared_ptr<const AppleSingleDouble::Entry> AppleSingleDouble::FindEntry(uint32_t id) const
 {
 	for(auto entry : entries)
 	{
@@ -80,6 +80,11 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::FindEntry(uint32_t 
 			return entry;
 	}
 	return nullptr;
+}
+
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::FindEntry(uint32_t id)
+{
+	return std::const_pointer_cast<AppleSingleDouble::Entry>(const_cast<const AppleSingleDouble *>(this)->FindEntry(id));
 }
 
 std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetFileDatesInfo()
@@ -455,15 +460,15 @@ void AppleSingleDouble::SetMacintoshAttributes(uint32_t Attributes)
 
 uint32_t AppleSingleDouble::GetMacintoshAttributes()
 {
-	std::shared_ptr<Entry> entry = GetMacintoshFileInfo();
+	std::shared_ptr<const Entry> entry = GetMacintoshFileInfo();
 	if(entry == nullptr)
 		return 0;
 	switch(version)
 	{
 	case 1:
-		return std::dynamic_pointer_cast<FileInfo::Macintosh>(entry)->Attributes;
+		return std::dynamic_pointer_cast<const FileInfo::Macintosh>(entry)->Attributes;
 	case 2:
-		return std::dynamic_pointer_cast<MacintoshFileInfo>(entry)->Attributes;
+		return std::dynamic_pointer_cast<const MacintoshFileInfo>(entry)->Attributes;
 	default:
 		return 0;
 	}
@@ -567,7 +572,7 @@ void AppleSingleDouble::CalculateValues()
 	}
 }
 
-offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr)
+offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	switch(type)
@@ -609,8 +614,8 @@ offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr)
 	{
 		wr.WriteWord(4, entry->id);
 		wr.WriteWord(4, entry_offset);
-		wr.WriteWord(4, entry->GetLength());
-		entry_offset += entry->GetLength();
+		wr.WriteWord(4, entry->ImageSize());
+		entry_offset += entry->ImageSize();
 	}
 	for(auto entry : entries)
 	{
@@ -620,7 +625,7 @@ offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void AppleSingleDouble::Dump(Dumper::Dumper& dump)
+void AppleSingleDouble::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -716,7 +721,7 @@ void AppleSingleDouble::GenerateFile(std::string filename, Linker::Module& modul
 	}
 }
 
-std::string AppleSingleDouble::GetDefaultExtension(Linker::Module& module)
+std::string AppleSingleDouble::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
 }
@@ -750,14 +755,14 @@ void ResourceFork::Resource::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-offset_t ResourceFork::Resource::WriteFile(Linker::Writer& wr)
+offset_t ResourceFork::Resource::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO */
 
 	return offset_t(-1);
 }
 
-void ResourceFork::Resource::Dump(Dumper::Dumper& dump)
+void ResourceFork::Resource::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
@@ -770,19 +775,19 @@ void ResourceFork::GenericResource::CalculateValues()
 {
 }
 
-offset_t ResourceFork::GenericResource::GetLength()
+offset_t ResourceFork::GenericResource::ImageSize() const
 {
 	return resource->data_size;
 }
 
-offset_t ResourceFork::GenericResource::WriteFile(Linker::Writer& wr)
+offset_t ResourceFork::GenericResource::WriteFile(Linker::Writer& wr) const
 {
 	resource->WriteFile(wr);
 
 	return offset_t(-1);
 }
 
-void ResourceFork::GenericResource::Dump(Dumper::Dumper& dump)
+void ResourceFork::GenericResource::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
@@ -803,7 +808,7 @@ void ResourceFork::JumpTableCodeResource::CalculateValues()
 	}
 }
 
-offset_t ResourceFork::JumpTableCodeResource::GetLength()
+offset_t ResourceFork::JumpTableCodeResource::ImageSize() const
 {
 	if(far_entries.size() == 0)
 	{
@@ -815,7 +820,7 @@ offset_t ResourceFork::JumpTableCodeResource::GetLength()
 	}
 }
 
-offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr)
+offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, above_a5);
 	wr.WriteWord(4, below_a5);
@@ -828,7 +833,7 @@ offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr)
 		wr.WriteWord(4, 8 + 8 * (near_entries.size() + far_entries.size()));
 	}
 	wr.WriteWord(4, 32);
-	for(Entry& entry : near_entries)
+	for(const Entry& entry : near_entries)
 	{
 		wr.WriteWord(2, entry.offset);
 		wr.WriteWord(2, MOVE_DATA_SP);
@@ -838,7 +843,7 @@ offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr)
 	if(far_entries.size() != 0)
 	{
 		wr.WriteData(8, "\0\0\xFF\xFF\0\0\0\0");
-		for(Entry& entry : far_entries)
+		for(const Entry& entry : far_entries)
 		{
 			wr.WriteWord(2, entry.segment);
 			wr.WriteWord(2, LOADSEG);
@@ -849,7 +854,7 @@ offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump)
+void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
@@ -868,7 +873,7 @@ void ResourceFork::CodeResource::CalculateValues()
 	}
 }
 
-offset_t ResourceFork::CodeResource::GetLength()
+offset_t ResourceFork::CodeResource::ImageSize() const
 {
 	if(!is_far)
 	{
@@ -881,7 +886,7 @@ offset_t ResourceFork::CodeResource::GetLength()
 	}
 }
 
-uint32_t ResourceFork::CodeResource::MeasureRelocations(std::set<uint32_t>& relocations)
+uint32_t ResourceFork::CodeResource::MeasureRelocations(std::set<uint32_t>& relocations) const
 {
 	uint32_t count = 2;
 	uint32_t last_relocation = 0;
@@ -905,7 +910,7 @@ uint32_t ResourceFork::CodeResource::MeasureRelocations(std::set<uint32_t>& relo
 	return count;
 }
 
-void ResourceFork::CodeResource::WriteRelocations(Linker::Writer& wr, std::set<uint32_t>& relocations)
+void ResourceFork::CodeResource::WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const
 {
 	/* TODO: test */
 	uint32_t last_relocation = 0;
@@ -930,7 +935,7 @@ void ResourceFork::CodeResource::WriteRelocations(Linker::Writer& wr, std::set<u
 	wr.WriteWord(2, 0);
 }
 
-offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr)
+offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
 {
 	if(!is_far)
 	{
@@ -959,7 +964,7 @@ offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump)
+void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
@@ -1193,7 +1198,7 @@ void ResourceFork::CalculateValues()
 			std::shared_ptr<Resource> resource = it2.second;
 			resource->data_offset = data_length;
 			resource->CalculateValues();
-			data_length += 4 + resource->GetLength();
+			data_length += 4 + resource->ImageSize();
 			if(resource->name)
 			{
 				resource->name_offset = name_list_length;
@@ -1212,12 +1217,12 @@ void ResourceFork::CalculateValues()
 	map_length = name_list_offset + name_list_length;
 }
 
-offset_t ResourceFork::GetLength()
+offset_t ResourceFork::ImageSize() const
 {
 	return map_offset + map_length;
 }
 
-offset_t ResourceFork::WriteFile(Linker::Writer& wr)
+offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
 	wr.WriteWord(4, data_offset);
@@ -1230,7 +1235,7 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr)
 		for(auto it2 : it.second)
 		{
 			std::shared_ptr<Resource> resource = it2.second;
-			wr.WriteWord(4, resource->GetLength());
+			wr.WriteWord(4, resource->ImageSize());
 			resource->WriteFile(wr);
 		}
 	}
@@ -1245,7 +1250,7 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr)
 	{
 		wr.WriteWord(4, it.first); /* resource type */
 		wr.WriteWord(2, it.second.size() - 1);
-		wr.WriteWord(2, reference_list_offsets[it.first]);
+		wr.WriteWord(2, reference_list_offsets.at(it.first));
 	}
 	/* reference list */
 	for(auto it : resources)
@@ -1276,7 +1281,7 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void ResourceFork::Dump(Dumper::Dumper& dump)
+void ResourceFork::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -1297,17 +1302,17 @@ void ResourceFork::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string ResourceFork::GetDefaultExtension(Linker::Module& module)
+std::string ResourceFork::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
 }
 
-offset_t RealName::GetLength()
+offset_t RealName::ImageSize() const
 {
 	return name.size();
 }
 
-offset_t RealName::WriteFile(Linker::Writer& wr)
+offset_t RealName::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(name.size(), name.c_str());
@@ -1315,17 +1320,17 @@ offset_t RealName::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void RealName::Dump(Dumper::Dumper& dump)
+void RealName::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-offset_t FileInfo::Macintosh::GetLength()
+offset_t FileInfo::Macintosh::ImageSize() const
 {
 	return 16;
 }
 
-offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr)
+offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, CreationDate);
@@ -1336,17 +1341,17 @@ offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void FileInfo::Macintosh::Dump(Dumper::Dumper& dump)
+void FileInfo::Macintosh::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-offset_t FileInfo::ProDOS::GetLength()
+offset_t FileInfo::ProDOS::ImageSize() const
 {
 	return 16;
 }
 
-offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr)
+offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, CreationDate);
@@ -1358,17 +1363,17 @@ offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void FileInfo::ProDOS::Dump(Dumper::Dumper& dump)
+void FileInfo::ProDOS::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-offset_t FileInfo::MSDOS::GetLength()
+offset_t FileInfo::MSDOS::ImageSize() const
 {
 	return 6;
 }
 
-offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr)
+offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, ModificationDate);
@@ -1377,17 +1382,17 @@ offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void FileInfo::MSDOS::Dump(Dumper::Dumper& dump)
+void FileInfo::MSDOS::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-offset_t FileInfo::AUX::GetLength()
+offset_t FileInfo::AUX::ImageSize() const
 {
 	return 12;
 }
 
-offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr)
+offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, CreationDate);
@@ -1397,17 +1402,17 @@ offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void FileInfo::AUX::Dump(Dumper::Dumper& dump)
+void FileInfo::AUX::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-offset_t FileDatesInfo::GetLength()
+offset_t FileDatesInfo::ImageSize() const
 {
 	return 16;
 }
 
-offset_t FileDatesInfo::WriteFile(Linker::Writer& wr)
+offset_t FileDatesInfo::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, CreationDate);
@@ -1418,17 +1423,17 @@ offset_t FileDatesInfo::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void FileDatesInfo::Dump(Dumper::Dumper& dump)
+void FileDatesInfo::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-offset_t FinderInfo::GetLength()
+offset_t FinderInfo::ImageSize() const
 {
 	return 32;
 }
 
-offset_t FinderInfo::WriteFile(Linker::Writer& wr)
+offset_t FinderInfo::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(4, Type);
@@ -1442,7 +1447,7 @@ offset_t FinderInfo::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void FinderInfo::Dump(Dumper::Dumper& dump)
+void FinderInfo::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
@@ -1453,12 +1458,12 @@ void FinderInfo::ProcessModule(Linker::Module& module)
 	memcpy(Creator, "????", 4);
 }
 
-offset_t MacintoshFileInfo::GetLength()
+offset_t MacintoshFileInfo::ImageSize() const
 {
 	return 4;
 }
 
-offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr)
+offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, Attributes);
@@ -1466,17 +1471,17 @@ offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void MacintoshFileInfo::Dump(Dumper::Dumper& dump)
+void MacintoshFileInfo::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-offset_t ProDOSFileInfo::GetLength()
+offset_t ProDOSFileInfo::ImageSize() const
 {
 	return 8;
 }
 
-offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr)
+offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(2, Access);
@@ -1486,17 +1491,17 @@ offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void ProDOSFileInfo::Dump(Dumper::Dumper& dump)
+void ProDOSFileInfo::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
-offset_t MSDOSFileInfo::GetLength()
+offset_t MSDOSFileInfo::ImageSize() const
 {
 	return 2;
 }
 
-offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr)
+offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(2, Attributes);
@@ -1504,14 +1509,14 @@ offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void MSDOSFileInfo::Dump(Dumper::Dumper& dump)
+void MSDOSFileInfo::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
 
 uint16_t MacBinary::crc_step[256];
 
-void MacBinary::CRC_Initialize()
+void MacBinary::CRC_Initialize() const
 {
 	crc = 0; // 0x1021;
 	for(int byte = 0; byte < 256; byte++)
@@ -1532,12 +1537,12 @@ void MacBinary::CRC_Initialize()
 	}
 }
 
-void MacBinary::CRC_Step(uint8_t byte)
+void MacBinary::CRC_Step(uint8_t byte) const
 {
 	crc = (crc << 8) ^ crc_step[(crc >> 8) ^ byte];
 }
 
-void MacBinary::Skip(Linker::Writer& wr, size_t count)
+void MacBinary::Skip(Linker::Writer& wr, size_t count) const
 {
 	for(size_t i = 0; i < count; i++)
 	{
@@ -1546,7 +1551,7 @@ void MacBinary::Skip(Linker::Writer& wr, size_t count)
 	wr.Skip(count);
 }
 
-void MacBinary::WriteData(Linker::Writer& wr, size_t count, const void * data)
+void MacBinary::WriteData(Linker::Writer& wr, size_t count, const void * data) const
 {
 	for(size_t i = 0; i < count; i++)
 	{
@@ -1555,7 +1560,7 @@ void MacBinary::WriteData(Linker::Writer& wr, size_t count, const void * data)
 	wr.WriteData(count, data);
 }
 
-void MacBinary::WriteData(Linker::Writer& wr, size_t count, std::string text)
+void MacBinary::WriteData(Linker::Writer& wr, size_t count, std::string text) const
 {
 	for(size_t i = 0; i < count; i++)
 	{
@@ -1564,20 +1569,20 @@ void MacBinary::WriteData(Linker::Writer& wr, size_t count, std::string text)
 	wr.WriteData(count, text);
 }
 
-void MacBinary::WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value)
+void MacBinary::WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const
 {
 	uint8_t data[bytes];
 	::WriteWord(bytes, bytes, data, value, EndianType::BigEndian);
 	WriteData(wr, bytes, data);
 }
 
-void MacBinary::WriteHeader(Linker::Writer& wr)
+void MacBinary::WriteHeader(Linker::Writer& wr) const
 {
 	CRC_Initialize();
 	WriteWord(wr, 1, 0);
 	if(auto entry = FindEntry(ID_RealName))
 	{
-		std::string& name = std::dynamic_pointer_cast<RealName>(entry)->name;
+		const std::string& name = std::dynamic_pointer_cast<const RealName>(entry)->name;
 		WriteWord(wr, 1, name.size() > 63 ? 63 : name.size());
 		WriteData(wr, 63, name);
 	}
@@ -1586,10 +1591,10 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 		WriteWord(wr, 1, generated_file_name.size() > 63 ? 63 : generated_file_name.size());
 		WriteData(wr, 63, generated_file_name);
 	}
-	std::shared_ptr<FinderInfo> info = nullptr;
+	std::shared_ptr<const FinderInfo> info = nullptr;
 	if(auto entry = FindEntry(ID_FinderInfo))
 	{
-		info = std::dynamic_pointer_cast<FinderInfo>(entry);
+		info = std::dynamic_pointer_cast<const FinderInfo>(entry);
 		WriteData(wr, 4, info->Type);
 		WriteData(wr, 4, info->Creator);
 		WriteWord(wr, 1, info->Flags >> 1);
@@ -1602,11 +1607,11 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 	{
 		WriteData(wr, 16, "");
 	}
-	WriteWord(wr, 1, GetMacintoshAttributes());
+	WriteWord(wr, 1, const_cast<MacBinary *>(this)->GetMacintoshAttributes()); // TODO: move this elsewhere
 	WriteWord(wr, 1, 0);
 	if(auto entry = FindEntry(ID_DataFork))
 	{
-		WriteWord(wr, 4, entry->GetLength());
+		WriteWord(wr, 4, entry->ImageSize());
 	}
 	else
 	{
@@ -1614,21 +1619,21 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 	}
 	if(auto entry = FindEntry(ID_ResourceFork))
 	{
-		WriteWord(wr, 4, entry->GetLength());
+		WriteWord(wr, 4, entry->ImageSize());
 	}
 	else
 	{
 		WriteWord(wr, 4, 0);
 	}
-	WriteWord(wr, 4, GetCreationDate());
-	WriteWord(wr, 4, GetModificationDate());
+	WriteWord(wr, 4, const_cast<MacBinary *>(this)->GetCreationDate()); // TODO: move this elsewhere
+	WriteWord(wr, 4, const_cast<MacBinary *>(this)->GetModificationDate()); // TODO: move this elsewhere
 	if(version < MACBIN1_GETINFO)
 	{
 		return;
 	}
 	if(auto entry = FindEntry(ID_Comment))
 	{
-		WriteWord(wr, 2, entry->GetLength());
+		WriteWord(wr, 2, entry->ImageSize());
 	}
 	else
 	{
@@ -1664,7 +1669,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr)
 	wr.WriteWord(2, crc);
 }
 
-offset_t MacBinary::WriteFile(Linker::Writer& wr)
+offset_t MacBinary::WriteFile(Linker::Writer& wr) const
 {
 	WriteHeader(wr);
 	wr.Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
@@ -1691,7 +1696,7 @@ offset_t MacBinary::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void MacBinary::Dump(Dumper::Dumper& dump)
+void MacBinary::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -1893,7 +1898,7 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 	Linker::FatalError("Fatal error: Reading the Apple output driver is not supported");
 }
 
-offset_t MacDriver::WriteFile(Linker::Writer& wr)
+offset_t MacDriver::WriteFile(Linker::Writer& wr) const
 {
 	Linker::FatalError("Fatal error: Writing the Apple output driver is not supported");
 }

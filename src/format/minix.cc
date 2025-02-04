@@ -25,14 +25,14 @@ void MINIXFormat::Relocation::FetchSymbolName(std::vector<Symbol>& symbols)
 	}
 }
 
-void MINIXFormat::Relocation::Write(Linker::Writer& wr)
+void MINIXFormat::Relocation::Write(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, address);
 	wr.WriteWord(2, symbol);
 	wr.WriteWord(2, type);
 }
 
-void MINIXFormat::Relocation::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset)
+void MINIXFormat::Relocation::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const
 {
 	Dumper::Entry relocation_entry("Relocation", index + 1, relocations_offset + index * 8, 8);
 	std::map<offset_t, std::string> relocation_descriptions;
@@ -111,7 +111,7 @@ MINIXFormat::Symbol MINIXFormat::Symbol::Read(Linker::Reader& rd)
 	return sym;
 }
 
-void MINIXFormat::Symbol::Write(Linker::Writer& wr)
+void MINIXFormat::Symbol::Write(Linker::Writer& wr) const
 {
 	wr.WriteData(8, name, '\0');
 	wr.WriteWord(4, value);
@@ -120,7 +120,7 @@ void MINIXFormat::Symbol::Write(Linker::Writer& wr)
 	wr.WriteWord(2, type);
 }
 
-void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset)
+void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const
 {
 	Dumper::Entry symbol_entry("Symbol", index, relocations_offset + index * 8, 8);
 	symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), name);
@@ -726,7 +726,7 @@ void MINIXFormat::CalculateValues()
 {
 }
 
-offset_t MINIXFormat::ImageSize()
+offset_t MINIXFormat::ImageSize() const
 {
 	return header_size
 		+ (code != nullptr ? code->ImageSize() : 0)
@@ -751,7 +751,7 @@ total_memory
 	heap_top_value
 */
 
-offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
+offset_t MINIXFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = GetEndianType();
 	wr.WriteData(2, "\x01\x03");
@@ -830,7 +830,7 @@ offset_t MINIXFormat::WriteFile(Linker::Writer& wr)
 	return ImageSize();
 }
 
-void MINIXFormat::Dump(Dumper::Dumper& dump)
+void MINIXFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -977,7 +977,7 @@ void MINIXFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string MINIXFormat::GetDefaultExtension(Linker::Module& module)
+std::string MINIXFormat::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
 }

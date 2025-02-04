@@ -31,13 +31,13 @@ namespace Linker
 			data.resize(size);
 		}
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 		void ReadFile(Reader& rd);
 		void ReadFile(Reader& rd, offset_t count);
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd);
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd, offset_t count);
 		using Image::WriteFile;
-		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) override;
+		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;
 		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
 		friend class Section;

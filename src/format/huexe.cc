@@ -155,7 +155,7 @@ void HUFormat::CalculateValues()
 	}
 }
 
-offset_t HUFormat::WriteFile(Linker::Writer& wr)
+offset_t HUFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(3, "HU\0");
@@ -196,7 +196,7 @@ offset_t HUFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void HUFormat::Dump(Dumper::Dumper& dump)
+void HUFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -217,7 +217,7 @@ void HUFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string HUFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string HUFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".x";
 }

@@ -256,7 +256,7 @@ AS86ObjFormat::segment_size_list& AS86ObjFormat::segment_size_list::operator =(u
 	return *this;
 }
 
-void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index)
+void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index) const
 {
 	Dumper::Region module_region("Module", file_offset, module_size, 8);
 	module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index + 1));
@@ -420,18 +420,18 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t AS86ObjFormat::ImageSize()
+offset_t AS86ObjFormat::ImageSize() const
 {
 	return file_size;
 }
 
-offset_t AS86ObjFormat::WriteFile(Linker::Writer& wr)
+offset_t AS86ObjFormat::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO */
 	return offset_t(-1);
 }
 
-void AS86ObjFormat::Dump(Dumper::Dumper& dump)
+void AS86ObjFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 

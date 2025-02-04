@@ -76,11 +76,11 @@ namespace Amiga
 
 			std::map<uint32_t, std::vector<uint32_t> > relocations;
 
-			uint32_t GetSizeField();
+			uint32_t GetSizeField() const;
 
-			bool RequiresAdditionalFlags();
+			bool RequiresAdditionalFlags() const;
 
-			uint32_t GetAdditionalFlags();
+			uint32_t GetAdditionalFlags() const;
 		};
 
 		std::vector<Hunk> hunks;
@@ -101,13 +101,13 @@ namespace Amiga
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) override;
+		std::string GetDefaultExtension(Linker::Module& module) const override;
 
 	};
 

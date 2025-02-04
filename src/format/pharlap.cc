@@ -152,12 +152,12 @@ void MPFormat::CalculateValues()
 	extra_pages = (image->optional_extra + 0x3FFF) >> 12; /* TODO */
 }
 
-offset_t MPFormat::WriteFile(Linker::Writer& wr)
+offset_t MPFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	if(stub_file != "")
 	{
-		WriteStubImage(wr);
+		const_cast<MPFormat *>(this)->WriteStubImage(wr); // TODO
 	}
 	wr.Seek(file_offset);
 	wr.WriteData(2, has_relocations ? "MQ" : "MP");
@@ -188,7 +188,7 @@ offset_t MPFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void MPFormat::Dump(Dumper::Dumper& dump)
+void MPFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -199,7 +199,7 @@ void MPFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	if(stub_file != "")
 	{
@@ -249,7 +249,7 @@ void P3Format::RunTimeParameterBlock::CalculateValues()
 	ring = 0;
 }
 
-void P3Format::RunTimeParameterBlock::WriteFile(Linker::Writer& wr)
+void P3Format::RunTimeParameterBlock::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, min_realmode_param);
 	wr.WriteWord(2, max_realmode_param);
@@ -268,7 +268,7 @@ void P3Format::SetOptions(std::map<std::string, std::string>& options)
 	stub_file = FetchOption(options, "stub", "");
 }
 
-std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	if(stub_file != "")
 	{
@@ -280,12 +280,12 @@ std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string fi
 	}
 }
 
-offset_t P3Format::WriteFile(Linker::Writer& wr)
+offset_t P3Format::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	if(stub_file != "")
 	{
-		WriteStubImage(wr);
+		const_cast<P3Format *>(this)->WriteStubImage(wr); // TODO
 	}
 	wr.Seek(file_offset);
 	wr.WriteData(2, is_32bit ? "P3" : "P2");
@@ -329,7 +329,7 @@ offset_t P3Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void P3Format::Dump(Dumper::Dumper& dump)
+void P3Format::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -498,7 +498,7 @@ void P3Format::Flat::CalculateValues()
 	symbol_table_size = 0;
 }
 
-offset_t P3Format::Flat::WriteFile(Linker::Writer& wr)
+offset_t P3Format::Flat::WriteFile(Linker::Writer& wr) const
 {
 	P3Format::WriteFile(wr);
 
@@ -511,7 +511,7 @@ offset_t P3Format::Flat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void P3Format::Flat::Dump(Dumper::Dumper& dump)
+void P3Format::Flat::Dump(Dumper::Dumper& dump) const
 {
 	P3Format::Dump(dump);
 	// TODO
@@ -540,7 +540,7 @@ void P3Format::MultiSegmented::Descriptor::CalculateValues()
 	base = segment ? segment->address : 0;
 }
 
-void P3Format::MultiSegmented::Descriptor::WriteEntry(Linker::Writer& wr)
+void P3Format::MultiSegmented::Descriptor::WriteEntry(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, limit & 0xFFFF);
 	wr.WriteWord(3, base & 0xFFFFFF);
@@ -548,17 +548,17 @@ void P3Format::MultiSegmented::Descriptor::WriteEntry(Linker::Writer& wr)
 	wr.WriteWord(1, base >> 24);
 }
 
-uint32_t P3Format::MultiSegmented::DescriptorTable::GetStoredSize()
+uint32_t P3Format::MultiSegmented::DescriptorTable::GetStoredSize() const
 {
 	return descriptors.size() * 8;
 }
 
-uint32_t P3Format::MultiSegmented::DescriptorTable::GetLoadedSize()
+uint32_t P3Format::MultiSegmented::DescriptorTable::GetLoadedSize() const
 {
 	return descriptors.size() * 8;
 }
 
-void P3Format::MultiSegmented::DescriptorTable::WriteFile(Linker::Writer& wr)
+void P3Format::MultiSegmented::DescriptorTable::WriteFile(Linker::Writer& wr) const
 {
 	for(auto& descriptor : descriptors)
 	{
@@ -574,17 +574,17 @@ void P3Format::MultiSegmented::DescriptorTable::CalculateValues()
 	}
 }
 
-uint32_t P3Format::MultiSegmented::TaskStateSegment::GetStoredSize()
+uint32_t P3Format::MultiSegmented::TaskStateSegment::GetStoredSize() const
 {
 	return is_32bit ? 0x68 : 0x2C;
 }
 
-uint32_t P3Format::MultiSegmented::TaskStateSegment::GetLoadedSize()
+uint32_t P3Format::MultiSegmented::TaskStateSegment::GetLoadedSize() const
 {
 	return is_32bit ? 0x68 : 0x2C;
 }
 
-void P3Format::MultiSegmented::TaskStateSegment::WriteFile(Linker::Writer& wr)
+void P3Format::MultiSegmented::TaskStateSegment::WriteFile(Linker::Writer& wr) const
 {
 	if(is_32bit)
 	{
@@ -642,17 +642,17 @@ void P3Format::MultiSegmented::TaskStateSegment::WriteFile(Linker::Writer& wr)
 	}
 }
 
-uint32_t P3Format::MultiSegmented::Segment::GetStoredSize()
+uint32_t P3Format::MultiSegmented::Segment::GetStoredSize() const
 {
 	return segment->data_size;
 }
 
-uint32_t P3Format::MultiSegmented::Segment::GetLoadedSize()
+uint32_t P3Format::MultiSegmented::Segment::GetLoadedSize() const
 {
 	return segment->data_size + segment->zero_fill;
 }
 
-void P3Format::MultiSegmented::Segment::WriteSITEntry(Linker::Writer& wr)
+void P3Format::MultiSegmented::Segment::WriteSITEntry(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, selector);
 	wr.WriteWord(2, flags);
@@ -660,7 +660,7 @@ void P3Format::MultiSegmented::Segment::WriteSITEntry(Linker::Writer& wr)
 	wr.WriteWord(4, segment->zero_fill);
 }
 
-void P3Format::MultiSegmented::Segment::WriteFile(Linker::Writer& wr)
+void P3Format::MultiSegmented::Segment::WriteFile(Linker::Writer& wr) const
 {
 	segment->WriteFile(wr);
 }
@@ -954,7 +954,7 @@ void P3Format::MultiSegmented::CalculateValues()
 	symbol_table_size = 0;
 }
 
-offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr)
+offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr) const
 {
 	P3Format::WriteFile(wr);
 
@@ -985,7 +985,7 @@ offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void P3Format::MultiSegmented::Dump(Dumper::Dumper& dump)
+void P3Format::MultiSegmented::Dump(Dumper::Dumper& dump) const
 {
 	P3Format::Dump(dump);
 	// TODO
@@ -1024,7 +1024,7 @@ void P3FormatContainer::SetOptions(std::map<std::string, std::string>& options)
 	Linker::FatalError("Internal error: P2/P3 file level not provided");
 }
 
-std::string P3FormatContainer::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string P3FormatContainer::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	Linker::FatalError("Internal error: P2/P3 file level not provided");
 }
@@ -1042,7 +1042,7 @@ void P3FormatContainer::CalculateValues()
 	}
 }
 
-offset_t P3FormatContainer::WriteFile(Linker::Writer& wr)
+offset_t P3FormatContainer::WriteFile(Linker::Writer& wr) const
 {
 	if(contents != nullptr)
 	{
@@ -1054,7 +1054,7 @@ offset_t P3FormatContainer::WriteFile(Linker::Writer& wr)
 	}
 }
 
-void P3FormatContainer::Dump(Dumper::Dumper& dump)
+void P3FormatContainer::Dump(Dumper::Dumper& dump) const
 {
 	if(contents != nullptr)
 	{

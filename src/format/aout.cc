@@ -344,16 +344,16 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	bss = std::make_shared<Linker::Section>(".bss");
 }
 
-offset_t AOutFormat::ImageSize()
+offset_t AOutFormat::ImageSize() const
 {
 	return 8 * word_size + code->ImageSize() + data->ImageSize() + code_relocations.size() * 8 + data_relocations.size() * 8;
 }
 
-offset_t AOutFormat::WriteFile(Linker::Writer& wr)
+offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 {
 	if(system == DJGPP1 && stub_file != "")
 	{
-		WriteStubImage(wr);
+		const_cast<AOutFormat *>(this)->WriteStubImage(wr);
 	}
 
 	wr.endiantype = endiantype;
@@ -386,7 +386,7 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr)
 }
 
 
-void AOutFormat::Dump(Dumper::Dumper& dump)
+void AOutFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -837,7 +837,7 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string AOutFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string AOutFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	switch(system)
 	{
@@ -851,7 +851,7 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	}
 }
 
-std::string AOutFormat::GetDefaultExtension(Linker::Module& module)
+std::string AOutFormat::GetDefaultExtension(Linker::Module& module) const
 {
 	switch(system)
 	{

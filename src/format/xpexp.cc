@@ -80,7 +80,7 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 	// TODO: relocations, format unknown
 }
 
-offset_t XPFormat::WriteFile(Linker::Writer& wr)
+offset_t XPFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.Seek(file_offset);
@@ -125,14 +125,14 @@ offset_t XPFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-offset_t XPFormat::ImageSize()
+offset_t XPFormat::ImageSize() const
 {
 	return std::max(
 		ldt_offset + 8 * ldt.size(),
 		image_offset + image->ImageSize());
 }
 
-void XPFormat::Dump(Dumper::Dumper& dump)
+void XPFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -171,7 +171,7 @@ void XPFormat::Dump(Dumper::Dumper& dump)
 	relocation_region.Display(dump);
 }
 
-std::string XPFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string XPFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	if(stub_file != "")
 	{

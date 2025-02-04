@@ -21,7 +21,7 @@ void AppleFormat::ReadFile(Linker::Reader& rd)
 	image = buffer;
 }
 
-offset_t AppleFormat::WriteFile(Linker::Writer& wr)
+offset_t AppleFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, base_address);
@@ -30,7 +30,7 @@ offset_t AppleFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void AppleFormat::Dump(Dumper::Dumper& dump)
+void AppleFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -120,7 +120,7 @@ void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 	}
 }
 
-void AtariFormat::Segment::WriteFile(Linker::Writer& wr)
+void AtariFormat::Segment::WriteFile(Linker::Writer& wr) const
 {
 	if(uint32_t(address) + GetSize() > 0x10000)
 	{
@@ -176,7 +176,7 @@ void AtariFormat::Segment::ReadRelocations(Linker::Reader& rd)
 	// TODO
 }
 
-void AtariFormat::Segment::WriteRelocations(Linker::Writer& wr)
+void AtariFormat::Segment::WriteRelocations(Linker::Writer& wr) const
 {
 	// TODO
 }
@@ -227,7 +227,7 @@ void AtariFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t AtariFormat::WriteFile(Linker::Writer& wr)
+offset_t AtariFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	for(auto& segment : segments)
@@ -237,7 +237,7 @@ offset_t AtariFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void AtariFormat::Dump(Dumper::Dumper& dump)
+void AtariFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -283,7 +283,7 @@ void CommodoreFormat::ProcessModule(Linker::Module& module)
 	SetupDefaultLoader(); /* TODO: if a separate loader is ready, use that instead */
 }
 
-offset_t CommodoreFormat::WriteFile(Linker::Writer& wr)
+offset_t CommodoreFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, loader->base_address);
@@ -292,7 +292,7 @@ offset_t CommodoreFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void CommodoreFormat::Dump(Dumper::Dumper& dump)
+void CommodoreFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -303,7 +303,7 @@ void CommodoreFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string CommodoreFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string CommodoreFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".prg";
 }
@@ -420,7 +420,7 @@ void CPM3Format::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t CPM3Format::WriteFile(Linker::Writer& wr)
+offset_t CPM3Format::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(1, 0xC9);
@@ -448,7 +448,7 @@ offset_t CPM3Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void CPM3Format::Dump(Dumper::Dumper& dump)
+void CPM3Format::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -472,7 +472,7 @@ void CPM3Format::CalculateValues()
 
 // FLEXFormat
 
-void FLEXFormat::Segment::WriteFile(Linker::Writer& wr)
+void FLEXFormat::Segment::WriteFile(Linker::Writer& wr) const
 {
 	for(uint16_t offset = 0; offset < image->ImageSize(); offset += 0xFF)
 	{
@@ -494,7 +494,7 @@ void FLEXFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	segments.push_back(std::move(flex_segment));
 }
 
-offset_t FLEXFormat::WriteFile(Linker::Writer& wr)
+offset_t FLEXFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
 	for(auto& segment : segments)
@@ -504,7 +504,7 @@ offset_t FLEXFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void FLEXFormat::Dump(Dumper::Dumper& dump)
+void FLEXFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -515,7 +515,7 @@ void FLEXFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	return filename + ".cmd";
 }
@@ -599,7 +599,7 @@ void PRLFormat::ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size)
 	}
 }
 
-offset_t PRLFormat::WriteFile(Linker::Writer& wr)
+offset_t PRLFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(1, 0);
@@ -615,7 +615,7 @@ offset_t PRLFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void PRLFormat::WriteWithoutHeader(Linker::Writer& wr)
+void PRLFormat::WriteWithoutHeader(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	image->WriteFile(wr);
@@ -638,7 +638,7 @@ void PRLFormat::WriteWithoutHeader(Linker::Writer& wr)
 	}
 }
 
-void PRLFormat::Dump(Dumper::Dumper& dump)
+void PRLFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -677,7 +677,7 @@ void UZIFormat::ProcessModule(Linker::Module& module)
 	entry = 0x0103; /* TODO: enable entry point */
 }
 
-offset_t UZIFormat::WriteFile(Linker::Writer& wr)
+offset_t UZIFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(1, 0xC3);
@@ -690,7 +690,7 @@ offset_t UZIFormat::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void UZIFormat::Dump(Dumper::Dumper& dump)
+void UZIFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -701,7 +701,7 @@ void UZIFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string UZIFormat::GetDefaultExtension(Linker::Module& module)
+std::string UZIFormat::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
 }
@@ -726,7 +726,7 @@ void UZI280Format::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 
 /* TODO: apparently both .code and .data are loaded at 0x0100 */
 
-offset_t UZI280Format::WriteFile(Linker::Writer& wr)
+offset_t UZI280Format::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, 0x00FF);
@@ -740,7 +740,7 @@ offset_t UZI280Format::WriteFile(Linker::Writer& wr)
 	return offset_t(-1);
 }
 
-void UZI280Format::Dump(Dumper::Dumper& dump)
+void UZI280Format::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
@@ -751,7 +751,7 @@ void UZI280Format::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string UZI280Format::GetDefaultExtension(Linker::Module& module)
+std::string UZI280Format::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
 }

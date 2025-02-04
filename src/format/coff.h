@@ -526,7 +526,7 @@ namespace COFF
 
 			void WriteSectionHeader(Linker::Writer& wr, COFFVariantType coff_variant);
 
-			uint32_t ImageSize();
+			uint32_t ImageSize() const;
 		};
 
 		/**
@@ -573,9 +573,9 @@ namespace COFF
 			/**
 			 * @brief Returns size of optional header
 			 */
-			virtual uint32_t GetSize() = 0;
+			virtual uint32_t GetSize() const = 0;
 			virtual void ReadFile(Linker::Reader& rd) = 0;
-			virtual void WriteFile(Linker::Writer& wr) = 0;
+			virtual void WriteFile(Linker::Writer& wr) const = 0;
 			/**
 			 * @brief Sets up fields to be consistent
 			 *
@@ -589,9 +589,9 @@ namespace COFF
 			/**
 			 * @brief Stores any additional data in the file corresponding to this type of optional header
 			 */
-			virtual void PostWriteFile(COFFFormat& coff, Linker::Writer& wr);
+			virtual void PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const;
 
-			virtual void Dump(COFFFormat& coff, Dumper::Dumper& dump);
+			virtual void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const;
 		};
 
 		/**
@@ -617,15 +617,15 @@ namespace COFF
 			{
 			}
 
-			uint32_t GetSize() override;
+			uint32_t GetSize() const override;
 
 			void ReadFile(Linker::Reader& rd) override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
-			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
+			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
 		};
 
 		/**
@@ -673,19 +673,19 @@ namespace COFF
 			{
 			}
 
-			uint32_t GetSize() override;
+			uint32_t GetSize() const override;
 
 			void ReadFile(Linker::Reader& rd) override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
 		protected:
-			virtual void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region);
+			virtual void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const;
 
 		public:
-			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
+			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
 		};
 
 		/**
@@ -706,20 +706,20 @@ namespace COFF
 
 			/* TODO: magic not needed for CDOS68K? */
 
-			uint32_t GetSize() override;
+			uint32_t GetSize() const override;
 
 			void ReadFile(Linker::Reader& rd) override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
 			void PostReadFile(COFFFormat& coff, Linker::Reader& rd) override;
 
-			void PostWriteFile(COFFFormat& coff, Linker::Writer& wr) override;
+			void PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const override;
 
 		protected:
-			void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) override;
+			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
 		};
 
 		/**
@@ -739,15 +739,15 @@ namespace COFF
 			uint32_t code_relocation_size = 0;
 			uint32_t data_relocation_size = 0;
 
-			uint32_t GetSize() override;
+			uint32_t GetSize() const override;
 
 			void ReadFile(Linker::Reader& wr) override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
-			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
+			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
 		};
 
 		/**
@@ -773,16 +773,16 @@ namespace COFF
 			{
 			}
 
-			uint32_t GetSize() override;
+			uint32_t GetSize() const override;
 
 			void ReadFile(Linker::Reader& rd) override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
 		protected:
-			void DumpFields(COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) override;
+			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
 		};
 
 		/**
@@ -850,15 +850,15 @@ namespace COFF
 			{
 			}
 
-			uint32_t GetSize() override;
+			uint32_t GetSize() const override;
 
 			void ReadFile(Linker::Reader& rd) override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
-			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
+			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
 		};
 
 		/**
@@ -1003,15 +1003,15 @@ namespace COFF
 			{
 			}
 
-			uint32_t GetSize() override;
+			uint32_t GetSize() const override;
 
 			void ReadFile(Linker::Reader& rd) override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
-			void Dump(COFFFormat& coff, Dumper::Dumper& dump) override;
+			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
 		};
 
 		void Clear() override;
@@ -1044,16 +1044,16 @@ namespace COFF
 		void ReadRestOfFile(Linker::Reader& rd);
 
 	public:
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
 	protected:
-		offset_t WriteFileContents(Linker::Writer& wr);
+		offset_t WriteFileContents(Linker::Writer& wr) const;
 
 	public:
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		/* * * Reader members * * */
 
@@ -1204,7 +1204,7 @@ namespace COFF
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 }

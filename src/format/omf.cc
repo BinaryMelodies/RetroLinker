@@ -10,14 +10,14 @@ void OMFFormat::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-offset_t OMFFormat::WriteFile(Linker::Writer& wr)
+offset_t OMFFormat::WriteFile(Linker::Writer& wr) const
 {
 	/* TODO */
 
 	return offset_t(-1);
 }
 
-void OMFFormat::Dump(Dumper::Dumper& dump)
+void OMFFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 

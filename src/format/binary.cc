@@ -26,18 +26,18 @@ void GenericBinaryFormat::ReadFile(Linker::Reader& rd)
 	image = buffer;
 }
 
-offset_t GenericBinaryFormat::ImageSize()
+offset_t GenericBinaryFormat::ImageSize() const
 {
 	return image->ImageSize();
 }
 
-offset_t GenericBinaryFormat::WriteFile(Linker::Writer& wr)
+offset_t GenericBinaryFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::EndianType(0); /* does not matter */
 	return image->WriteFile(wr);
 }
 
-void GenericBinaryFormat::Dump(Dumper::Dumper& dump)
+void GenericBinaryFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -181,7 +181,7 @@ void GenericBinaryFormat::GenerateFile(std::string filename, Linker::Module& mod
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string GenericBinaryFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string GenericBinaryFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	/* Note:
 	 * - CP/M-80, MS-DOS, DOS/65 etc. use .com
@@ -233,12 +233,12 @@ void BinaryFormat::ReadFile(Linker::Reader& rd)
 	image = buffer;
 }
 
-offset_t BinaryFormat::ImageSize()
+offset_t BinaryFormat::ImageSize() const
 {
 	return image->ImageSize() + (pif != nullptr ? 9 : 0);
 }
 
-offset_t BinaryFormat::WriteFile(Linker::Writer& wr)
+offset_t BinaryFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::EndianType(0); /* does not matter */
 	image->WriteFile(wr);
@@ -247,7 +247,7 @@ offset_t BinaryFormat::WriteFile(Linker::Writer& wr)
 	return ImageSize();
 }
 
-void BinaryFormat::Dump(Dumper::Dumper& dump)
+void BinaryFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 

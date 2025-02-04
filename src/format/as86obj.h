@@ -179,7 +179,7 @@ namespace AS86Obj
 			std::string module_name;
 			std::vector<std::unique_ptr<ByteCode>> data;
 
-			void Dump(Dumper::Dumper& dump, unsigned index);
+			void Dump(Dumper::Dumper& dump, unsigned index) const;
 		};
 
 		offset_t file_size = offset_t(-1);
@@ -197,12 +197,12 @@ namespace AS86Obj
 
 		void ReadFile(Linker::Reader& rd) override;
 
-		offset_t ImageSize() override;
+		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
 
-		void Dump(Dumper::Dumper& dump) override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 	protected:
 		static std::string GetDefaultSectionName(unsigned index);

@@ -53,7 +53,7 @@ void BWFormat::AbstractSegment::SetTotalSize(uint32_t new_value)
 	}
 }
 
-void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, BWFormat& bw)
+void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, const BWFormat& bw) const
 {
 	uint32_t size = GetSize(bw);
 	if(size == 0)
@@ -72,12 +72,12 @@ void BWFormat::Segment::SetTotalSize(uint32_t new_value)
 	image->SetEndAddress(GetTotalSize());
 }
 
-uint32_t BWFormat::Segment::GetSize(BWFormat& bw)
+uint32_t BWFormat::Segment::GetSize(const BWFormat& bw) const
 {
 	return image ? image->data_size : 0;
 }
 
-void BWFormat::Segment::WriteContent(Linker::Writer& wr, BWFormat& bw)
+void BWFormat::Segment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
 {
 	if(image)
 	{
@@ -90,12 +90,12 @@ void BWFormat::DummySegment::SetTotalSize(uint32_t new_value)
 	AbstractSegment::SetTotalSize(new_value);
 }
 
-uint32_t BWFormat::DummySegment::GetSize(BWFormat& bw)
+uint32_t BWFormat::DummySegment::GetSize(const BWFormat& bw) const
 {
 	return 0;
 }
 
-void BWFormat::DummySegment::WriteContent(Linker::Writer& wr, BWFormat& bw)
+void BWFormat::DummySegment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
 {
 }
 
@@ -104,7 +104,7 @@ void BWFormat::RelocationSegment::SetTotalSize(uint32_t new_value)
 	Linker::FatalError("Internal error: relocation segment's size is predetermined");
 }
 
-uint32_t BWFormat::RelocationSegment::GetSize(BWFormat& bw)
+uint32_t BWFormat::RelocationSegment::GetSize(const BWFormat& bw) const
 {
 	switch(bw.option_relocations)
 	{
@@ -125,7 +125,7 @@ uint32_t BWFormat::RelocationSegment::GetSize(BWFormat& bw)
 	}
 }
 
-void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, BWFormat& bw)
+void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
 {
 	switch(bw.option_relocations)
 	{
@@ -181,7 +181,7 @@ void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, BWFormat& bw)
 	}
 }
 
-offset_t BWFormat::MeasureRelocations()
+offset_t BWFormat::MeasureRelocations() const
 {
 	switch(option_relocations)
 	{
@@ -403,17 +403,17 @@ void BWFormat::CalculateValues()
 	}
 }
 
-offset_t BWFormat::ImageSize()
+offset_t BWFormat::ImageSize() const
 {
 	return file_size;
 }
 
-offset_t BWFormat::WriteFile(Linker::Writer& wr)
+offset_t BWFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	if(stub_file != "")
 	{
-		WriteStubImage(wr);
+		const_cast<BWFormat *>(this)->WriteStubImage(wr); // TODO
 	}
 	wr.Seek(file_offset);
 	wr.WriteData(2, "BW");
@@ -463,7 +463,7 @@ offset_t BWFormat::WriteFile(Linker::Writer& wr)
 	return ImageSize();
 }
 
-void BWFormat::Dump(Dumper::Dumper& dump)
+void BWFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
@@ -474,7 +474,7 @@ void BWFormat::Dump(Dumper::Dumper& dump)
 	// TODO
 }
 
-std::string BWFormat::GetDefaultExtension(Linker::Module& module, std::string filename)
+std::string BWFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	if(stub_file != "")
 	{

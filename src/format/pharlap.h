@@ -74,11 +74,11 @@ namespace PharLap
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 	/**
@@ -148,7 +148,7 @@ namespace PharLap
 
 			void CalculateValues();
 
-			void WriteFile(Linker::Writer& wr);
+			void WriteFile(Linker::Writer& wr) const;
 		};
 
 		RunTimeParameterBlock runtime_parameters;
@@ -156,11 +156,11 @@ namespace PharLap
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 
 		class Flat;
 		class MultiSegmented;
@@ -187,8 +187,8 @@ namespace PharLap
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class P3Format::MultiSegmented : public P3Format
@@ -199,9 +199,9 @@ namespace PharLap
 		public:
 			uint32_t address = 0;
 			virtual ~AbstractSegment();
-			virtual uint32_t GetStoredSize() = 0;
-			virtual uint32_t GetLoadedSize() = 0;
-			virtual void WriteFile(Linker::Writer& wr) = 0;
+			virtual uint32_t GetStoredSize() const = 0;
+			virtual uint32_t GetLoadedSize() const = 0;
+			virtual void WriteFile(Linker::Writer& wr) const = 0;
 		};
 
 		class Descriptor
@@ -233,7 +233,7 @@ namespace PharLap
 
 			void CalculateValues();
 
-			void WriteEntry(Linker::Writer& wr);
+			void WriteEntry(Linker::Writer& wr) const;
 		};
 
 		class DescriptorTable : public AbstractSegment
@@ -241,11 +241,11 @@ namespace PharLap
 		public:
 			std::vector<Descriptor> descriptors;
 
-			uint32_t GetStoredSize() override;
+			uint32_t GetStoredSize() const override;
 
-			uint32_t GetLoadedSize() override;
+			uint32_t GetLoadedSize() const override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 
 			void CalculateValues();
 		};
@@ -269,11 +269,11 @@ namespace PharLap
 			{
 			}
 
-			uint32_t GetStoredSize() override;
+			uint32_t GetStoredSize() const override;
 
-			uint32_t GetLoadedSize() override;
+			uint32_t GetLoadedSize() const override;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 		};
 
 		std::shared_ptr<TaskStateSegment> tss;
@@ -294,13 +294,13 @@ namespace PharLap
 			{
 			}
 
-			uint32_t GetStoredSize() override;
+			uint32_t GetStoredSize() const override;
 
-			uint32_t GetLoadedSize() override;
+			uint32_t GetLoadedSize() const override;
 
-			void WriteSITEntry(Linker::Writer& wr);
+			void WriteSITEntry(Linker::Writer& wr) const;
 
-			void WriteFile(Linker::Writer& wr) override;
+			void WriteFile(Linker::Writer& wr) const override;
 		};
 
 		MultiSegmented(bool is_32bit = true)
@@ -343,8 +343,8 @@ namespace PharLap
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/**
@@ -361,15 +361,15 @@ namespace PharLap
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 
 		void ProcessModule(Linker::Module& module) override;
 
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) override;
-		void Dump(Dumper::Dumper& dump) override;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 }
 

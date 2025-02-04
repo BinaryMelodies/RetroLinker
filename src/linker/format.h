@@ -44,14 +44,14 @@ namespace Linker
 		/**
 		 * @brief Stores data in memory to file
 		 */
-		offset_t WriteFile(Writer& wr) override = 0;
+		offset_t WriteFile(Writer& wr) const override = 0;
 		/**
 		 * @brief Display file contents in a nice manner
 		 */
-		virtual void Dump(Dumper::Dumper& dump);
+		virtual void Dump(Dumper::Dumper& dump) const;
 
-		offset_t ImageSize() override;
-		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) override;
+		offset_t ImageSize() const override;
+		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;
 	};
 
 	/**
@@ -111,13 +111,13 @@ namespace Linker
 		 * A typical behavior would be to append .exe at the end of the filename.
 		 * The default action is to leave it intact.
 		 */
-		virtual std::string GetDefaultExtension(Module& module, std::string filename);
+		virtual std::string GetDefaultExtension(Module& module, std::string filename) const;
 		/**
 		 * @brief Provides a default filename for the output file
 		 *
 		 * Typically a.out or some other extension, such as a.exe.
 		 */
-		virtual std::string GetDefaultExtension(Module& module);
+		virtual std::string GetDefaultExtension(Module& module) const;
 		/* x86 only */
 		/**
 		 * @brief Whether the format supports multiple segments

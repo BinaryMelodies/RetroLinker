@@ -6,7 +6,7 @@
 
 using namespace Linker;
 
-offset_t Buffer::ImageSize()
+offset_t Buffer::ImageSize() const
 {
 	return data.size();
 }
@@ -40,7 +40,7 @@ std::shared_ptr<Buffer> Buffer::ReadFromFile(Reader& rd, offset_t count)
 	return buffer;
 }
 
-offset_t Buffer::WriteFile(Writer& wr, offset_t count, offset_t offset)
+offset_t Buffer::WriteFile(Writer& wr, offset_t count, offset_t offset) const
 {
 	return wr.WriteData(count, data, offset);
 }

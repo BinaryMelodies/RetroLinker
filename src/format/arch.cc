@@ -153,7 +153,7 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t ArchiveFormat::WriteFile(Linker::Writer& wr)
+offset_t ArchiveFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::EndianType(0); // should not matter
 	wr.Seek(file_offset);
@@ -171,12 +171,12 @@ offset_t ArchiveFormat::WriteFile(Linker::Writer& wr)
 	return file_size; // TODO
 }
 
-offset_t ArchiveFormat::ImageSize()
+offset_t ArchiveFormat::ImageSize() const
 {
 	return file_size;
 }
 
-void ArchiveFormat::Dump(Dumper::Dumper& dump)
+void ArchiveFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
