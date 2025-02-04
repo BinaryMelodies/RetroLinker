@@ -418,7 +418,19 @@ std::shared_ptr<OutputFormat> FetchFormat(std::string text)
 
 static bool VerifyMacintoshResource(Reader& rd, format_description& description)
 {
-	/* TODO */
+	rd.SeekEnd();
+	offset_t size = rd.Tell() - description.offset;
+	if(size < 16)
+		return false;
+	rd.Seek(description.offset);
+	offset_t data_offset = rd.ReadUnsigned(4, ::BigEndian);
+	offset_t map_offset = rd.ReadUnsigned(4, ::BigEndian);
+	offset_t data_length = rd.ReadUnsigned(4, ::BigEndian);
+	offset_t map_length = rd.ReadUnsigned(4, ::BigEndian);
+	if(data_offset + data_length > map_offset)
+		return false;
+	if(map_offset + map_length > size)
+		return false;
 	return true;
 }
 
@@ -558,9 +570,9 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x00\x00\x03\xE7", 4), 0, FORMAT_HUNK,    "Amiga Hunk unit (object or library)" },
 	{ std::string("\x00\x00\x01\x00", 4), 0, FORMAT_RSRC,    "Macintosh resource fork", VerifyMacintoshResource },
 	{ std::string("\x00\x02", 2),         0, FORMAT_COFF,    "Microsoft COFF, Intel Itanium" },
-	{ std::string("\x00\x05", 2),         0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH big endian" },
 	{ std::string("\x00\x05\x16\x00", 4), 0, FORMAT_APPLE,   "Macintosh AppleSingle" },
 	{ std::string("\x00\x05\x16\x07", 4), 0, FORMAT_APPLE,   "Macintosh AppleDouble" },
+	{ std::string("\x00\x05", 2),         0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH big endian" },
 	{ std::string("\x00\x65", 2),         0, FORMAT_COFF,    "WDC65 COFF object file" },
 	{ std::string("\x00", 1),             0, FORMAT_PRL,     "MP/M-80 page relocatable executable (.prl)", VerifyDRPageRelocatable },
 	{ std::string("\x01\x00o65", 5),      0, FORMAT_O65,     "6502 binary relocation format (André Fachat, used by xa)" },
@@ -798,7 +810,18 @@ void DetermineFormatFor(const format_magic * format_magics, size_t format_magics
 	{
 		if(bytes_read < format_magics[i].offset + format_magics[i].magic.size())
 			continue;
-//Linker::Debug << "\"" << std::string(magic + format_magics[i].offset, format_magics[i].magic.size()) << "\"" << std::endl;
+#if 0
+Linker::Debug << "\"";
+for(unsigned j = 0; j < format_magics[i].magic.size(); j++)
+{
+	int c = magic[format_magics[i].offset + j];
+	if(' ' <= c && c <= '~')
+		Linker::Debug << char(c);
+	else
+		Linker::Debug << "\\x" << std::hex << std::setfill('0') << std::setw(2) << int(c);
+}
+Linker::Debug << "\"" << std::endl;
+#endif
 		if(std::string(magic + format_magics[i].offset, format_magics[i].magic.size()) == format_magics[i].magic)
 		{
 //Linker::Debug << format_magics[i].description << std::endl;
