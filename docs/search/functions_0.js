@@ -4,7 +4,7 @@ var searchData=
   ['addcommonsymbol_1',['AddCommonSymbol',['../classLinker_1_1Module.html#af0bbd55ec5d130aeabb5cff120735dde',1,'Linker::Module']]],
   ['addcurrentvalue_2',['AddCurrentValue',['../classLinker_1_1Relocation.html#a52614e87d0765b572eb7f171e3809253',1,'Linker::Relocation']]],
   ['addentrypoint_3',['AddEntryPoint',['../classBinary_1_1AtariFormat.html#a41f46b72e2253fcc381dce3c3c0bb5da',1,'Binary::AtariFormat']]],
-  ['addexportedsymbol_4',['AddExportedSymbol',['../classLinker_1_1Module.html#a333949c04bd348d6271c659fd0340c74',1,'Linker::Module']]],
+  ['addexportedsymbol_4',['AddExportedSymbol',['../classLinker_1_1Module.html#aa32478f94023f12b991872e55e1cfb58',1,'Linker::Module']]],
   ['addfields_5',['AddFields',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#a5db6faeaee938b72d61b46d409260e7f',1,'PCOS::CMDFormat::MemoryBlock::AddFields()'],['../classPCOS_1_1CMDFormat_1_1LoadBlock.html#ac88d37aedf8d140bbb1621ce56b254b2',1,'PCOS::CMDFormat::LoadBlock::AddFields()'],['../classPCOS_1_1CMDFormat_1_1RelocationBlock.html#a464bdf1f69f307d6047ffef7f65d94a5',1,'PCOS::CMDFormat::RelocationBlock::AddFields()']]],
   ['addglobalsymbol_6',['AddGlobalSymbol',['../classLinker_1_1Module.html#a153c3860821f263f6f465406d1605cba',1,'Linker::Module']]],
   ['addimportedsymbol_7',['AddImportedSymbol',['../classLinker_1_1Module.html#a71d051047356e374379eecc9d16aba55',1,'Linker::Module']]],
@@ -16,11 +16,12 @@ var searchData=
   ['addsupplementaryoutputformat_13',['AddSupplementaryOutputFormat',['../classApple_1_1MacDriver.html#adfe824eb865192caa12fc254b9631647',1,'Apple::MacDriver::AddSupplementaryOutputFormat()'],['../classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416',1,'Linker::OutputFormat::AddSupplementaryOutputFormat()']]],
   ['addundefinedsymbol_14',['AddUndefinedSymbol',['../classLinker_1_1Module.html#a134147c9f3b503231c0419d11a26ac2b',1,'Linker::Module']]],
   ['addweaksymbol_15',['AddWeakSymbol',['../classLinker_1_1Module.html#a6264c72abd6782363d1ae4e1387aa915',1,'Linker::Module']]],
-  ['aligncurrentaddress_16',['AlignCurrentAddress',['../classLinker_1_1LinkerManager.html#a0513ddb037fcae3aad5fdfa2b6425942',1,'Linker::LinkerManager']]],
+  ['aligncurrentaddress_16',['AlignCurrentAddress',['../classLinker_1_1SegmentManager.html#a43885827e6d478d3e92285911b7bbd06',1,'Linker::SegmentManager']]],
   ['alignendaddress_17',['AlignEndAddress',['../classLinker_1_1Segment.html#a32e5606ef13b215cd1b9c52830ce4bf3',1,'Linker::Segment']]],
   ['alignto_18',['AlignTo',['../classLinker_1_1Writer.html#ad8876e9da13272a4de20e8f8724e2a4d',1,'Linker::Writer']]],
   ['allocatesymbols_19',['AllocateSymbols',['../classLinker_1_1Module.html#a768bd7cc4e03bee3e7402374e6ef803e',1,'Linker::Module']]],
   ['append_20',['Append',['../classLinker_1_1Module.html#a2713075c75b65eaea333ff4ecb3c1a84',1,'Linker::Module::Append(std::shared_ptr&lt; Section &gt; dst, std::shared_ptr&lt; Section &gt; src)'],['../classLinker_1_1Module.html#a8e39ce2d456bae6b064d2dd9ffe0bb11',1,'Linker::Module::Append(Module &amp;other)'],['../classLinker_1_1Section.html#ab4d26d74a06752724795de2c9d526bf3',1,'Linker::Section::Append(const void *new_data, size_t length)'],['../classLinker_1_1Section.html#a80c8bcd695cb65929d1522e02cdb1343',1,'Linker::Section::Append(const char *new_data)'],['../classLinker_1_1Section.html#abfb2e69be54239f43a154a40e3cf42fb',1,'Linker::Section::Append(const Section &amp;other)'],['../classLinker_1_1Section.html#a69f9d69f290ee3cc59165e847588c277',1,'Linker::Section::Append(Buffer &amp;buffer)'],['../classLinker_1_1Segment.html#a1cdf976d8a00a0f99559347bed2f1a30',1,'Linker::Segment::Append()']]],
-  ['appendsection_21',['AppendSection',['../classLinker_1_1LinkerManager.html#aa04921cdb3d59ac9db4b993cb58c4214',1,'Linker::LinkerManager']]],
-  ['appendsegment_22',['AppendSegment',['../classLinker_1_1LinkerManager.html#a5980c7a81a7432f395cf8ace8b4d40b5',1,'Linker::LinkerManager']]]
+  ['appendsection_21',['AppendSection',['../classLinker_1_1SegmentManager.html#a5b4ee944d5e224257f1c87c567755f1b',1,'Linker::SegmentManager']]],
+  ['appendsegment_22',['AppendSegment',['../classLinker_1_1SegmentManager.html#a664739351641e13b754d1b84e35c5957',1,'Linker::SegmentManager']]],
+  ['asimage_23',['AsImage',['../classLinker_1_1Image.html#a252985c07abe8a9da6c9c40d11af7dfb',1,'Linker::Image::AsImage()'],['../classLinker_1_1ActualImage.html#aa7c946d8a6182ce93a8e7a744ac3f054',1,'Linker::ActualImage::AsImage()']]]
 ];

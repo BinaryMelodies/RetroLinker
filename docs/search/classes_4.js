@@ -7,7 +7,7 @@ var searchData=
   ['entryrecord_4',['EntryRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1EntryRecord.html',1,'Apple::OMFFormat::Segment']]],
   ['exception_5',['Exception',['../classLinker_1_1Exception.html',1,'Linker']]],
   ['exported_5fglobal_6',['exported_global',['../structO65_1_1O65Format_1_1Module_1_1exported__global.html',1,'O65::O65Format::Module']]],
-  ['exportedsymbol_7',['ExportedSymbol',['../classLinker_1_1ExportedSymbol.html',1,'Linker']]],
+  ['exportedsymbolname_7',['ExportedSymbolName',['../classLinker_1_1ExportedSymbolName.html',1,'Linker']]],
   ['expression_8',['Expression',['../classApple_1_1OMFFormat_1_1Segment_1_1Expression.html',1,'Apple::OMFFormat::Segment']]],
   ['expressionrecord_9',['ExpressionRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1ExpressionRecord.html',1,'Apple::OMFFormat::Segment']]]
 ];

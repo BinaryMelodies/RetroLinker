@@ -94,9 +94,8 @@ Inheritance diagram for Linker::Image:</div>
   <img src="classLinker_1_1Image.png" usemap="#Linker::Image_map" alt=""/>
   <map id="Linker::Image_map" name="Linker::Image_map">
 <area href="classELF_1_1ELFFormat_1_1SectionContents.html" alt="ELF::ELFFormat::SectionContents" shape="rect" coords="0,56,241,80"/>
-<area href="classLinker_1_1Buffer.html" title="A buffer that can be used to read and store data from a file." alt="Linker::Buffer" shape="rect" coords="502,56,743,80"/>
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="753,56,994,80"/>
-<area href="classLinker_1_1Segment.html" title="A class representing a sequence of sections that must be written to the output file as a group." alt="Linker::Segment" shape="rect" coords="1004,56,1245,80"/>
+<area href="classLinker_1_1ActualImage.html" alt="Linker::ActualImage" shape="rect" coords="502,56,743,80"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="1004,56,1245,80"/>
 <area href="classELF_1_1ELFFormat_1_1Array.html" alt="ELF::ELFFormat::Array" shape="rect" coords="251,112,492,136"/>
 <area href="classELF_1_1ELFFormat_1_1DynamicSection.html" alt="ELF::ELFFormat::DynamicSection" shape="rect" coords="251,168,492,192"/>
 <area href="classELF_1_1ELFFormat_1_1HashTable.html" alt="ELF::ELFFormat::HashTable" shape="rect" coords="251,224,492,248"/>
@@ -109,13 +108,14 @@ Inheritance diagram for Linker::Image:</div>
 <area href="classELF_1_1ELFFormat_1_1StringTable.html" alt="ELF::ELFFormat::StringTable" shape="rect" coords="251,616,492,640"/>
 <area href="classELF_1_1ELFFormat_1_1SymbolTable.html" alt="ELF::ELFFormat::SymbolTable" shape="rect" coords="251,672,492,696"/>
 <area href="classELF_1_1ELFFormat_1_1VersionRequirements.html" alt="ELF::ELFFormat::VersionRequirements" shape="rect" coords="251,728,492,752"/>
-<area href="classLinker_1_1Section.html" title="A section of data as read from an object file." alt="Linker::Section" shape="rect" coords="502,112,743,136"/>
-<area href="classApple_1_1AppleSingleDouble_1_1Entry.html" alt="Apple::AppleSingleDouble::Entry" shape="rect" coords="1004,112,1245,136"/>
-<area href="classBrocaD3X_1_1D3X1Format.html" title="Daniel Broca&#39;s D3X executable format." alt="BrocaD3X::D3X1Format" shape="rect" coords="1004,168,1245,192"/>
-<area href="classDX64_1_1LVFormat.html" title="CandyMan&#39;s DX64 &quot;Flat&quot; and &quot;LV&quot; executable formats." alt="DX64::LVFormat" shape="rect" coords="1004,224,1245,248"/>
-<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="1004,280,1245,304"/>
-<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="1004,336,1245,360"/>
-<area href="classSeychellDOS32_1_1AdamFormat.html" title="Adam Seychell&#39;s DOS32 &quot;Adam&quot; executable format." alt="SeychellDOS32::AdamFormat" shape="rect" coords="1004,392,1245,416"/>
+<area href="classLinker_1_1Buffer.html" title="A buffer that can be used to read and store data from a file." alt="Linker::Buffer" shape="rect" coords="753,112,994,136"/>
+<area href="classLinker_1_1Segment.html" title="A class representing a sequence of sections that must be written to the output file as a group." alt="Linker::Segment" shape="rect" coords="753,168,994,192"/>
+<area href="classApple_1_1AppleSingleDouble_1_1Entry.html" alt="Apple::AppleSingleDouble::Entry" shape="rect" coords="1255,112,1496,136"/>
+<area href="classBrocaD3X_1_1D3X1Format.html" title="Daniel Broca&#39;s D3X executable format." alt="BrocaD3X::D3X1Format" shape="rect" coords="1255,168,1496,192"/>
+<area href="classDX64_1_1LVFormat.html" title="CandyMan&#39;s DX64 &quot;Flat&quot; and &quot;LV&quot; executable formats." alt="DX64::LVFormat" shape="rect" coords="1255,224,1496,248"/>
+<area href="classLinker_1_1InputFormat.html" title="A class that provides a general interface to loading a module." alt="Linker::InputFormat" shape="rect" coords="1255,280,1496,304"/>
+<area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="1255,336,1496,360"/>
+<area href="classSeychellDOS32_1_1AdamFormat.html" title="Adam Seychell&#39;s DOS32 &quot;Adam&quot; executable format." alt="SeychellDOS32::AdamFormat" shape="rect" coords="1255,392,1496,416"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -130,15 +130,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aeca7376ed4f5a73c895179b024f4c2d8" id="r_aeca7376ed4f5a73c895179b024f4c2d8"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeca7376ed4f5a73c895179b024f4c2d8">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr)</td></tr>
 <tr class="memdesc:aeca7376ed4f5a73c895179b024f4c2d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:aeca7376ed4f5a73c895179b024f4c2d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ac42787d4887dc862d80a2ccd19e458" id="r_a0ac42787d4887dc862d80a2ccd19e458"><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ac42787d4887dc862d80a2ccd19e458">GetByte</a> (offset_t offset)</td></tr>
-<tr class="memdesc:a0ac42787d4887dc862d80a2ccd19e458"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined)  <br /></td></tr>
-<tr class="separator:a0ac42787d4887dc862d80a2ccd19e458"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a252985c07abe8a9da6c9c40d11af7dfb" id="r_a252985c07abe8a9da6c9c40d11af7dfb"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a252985c07abe8a9da6c9c40d11af7dfb">AsImage</a> ()</td></tr>
+<tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="separator:a252985c07abe8a9da6c9c40d11af7dfb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Represents an abstract data image whose data can be written to a file. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a0ac42787d4887dc862d80a2ccd19e458" name="a0ac42787d4887dc862d80a2ccd19e458"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0ac42787d4887dc862d80a2ccd19e458">&#9670;&#160;</a></span>GetByte()</h2>
+<a id="a252985c07abe8a9da6c9c40d11af7dfb" name="a252985c07abe8a9da6c9c40d11af7dfb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a252985c07abe8a9da6c9c40d11af7dfb">&#9670;&#160;</a></span>AsImage()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -147,9 +147,9 @@ Public Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">int Image::GetByte </td>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt; Image::AsImage </td>
           <td>(</td>
-          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>offset</em></span></td><td>)</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -160,9 +160,9 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Retrieve byte at a certain offset (optional, might not be defined) </p>
+<p>Retrieves a randomly accessible image. </p>
 
-<p>Reimplemented in <a class="el" href="classLinker_1_1Buffer.html#afa37ec81b00582464e8d65475582947a">Linker::Buffer</a>, <a class="el" href="classLinker_1_1Format.html#a12da087d78c8a1eba1e3076522b604c1">Linker::Format</a>, <a class="el" href="classLinker_1_1Section.html#aa5471535dccc7d3efc5839a70e7a4151">Linker::Section</a>, and <a class="el" href="classLinker_1_1Segment.html#acd14f099a6de3050add9c2d492aa7ac0">Linker::Segment</a>.</p>
+<p>Reimplemented in <a class="el" href="classLinker_1_1ActualImage.html#aa7c946d8a6182ce93a8e7a744ac3f054">Linker::ActualImage</a>.</p>
 
 </div>
 </div>

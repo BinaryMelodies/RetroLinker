@@ -157,10 +157,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddLocalCommonSymbol<
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddImportedSymbol</b> (<a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> name)</td></tr>
 <tr class="memdesc:a71d051047356e374379eecc9d16aba55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an imported symbol (Microsoft format: library name + symbol name + ordinal/hint) <br /></td></tr>
 <tr class="separator:a71d051047356e374379eecc9d16aba55"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a333949c04bd348d6271c659fd0340c74" id="r_a333949c04bd348d6271c659fd0340c74"><td class="memItemLeft" align="right" valign="top"><a id="a333949c04bd348d6271c659fd0340c74" name="a333949c04bd348d6271c659fd0340c74"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddExportedSymbol</b> (<a class="el" href="classLinker_1_1ExportedSymbol.html">ExportedSymbol</a> name, <a class="el" href="classLinker_1_1Location.html">Location</a> symbol)</td></tr>
-<tr class="memdesc:a333949c04bd348d6271c659fd0340c74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an exported symbol (Microsoft format: library name + symbol name + ordinal/hint) <br /></td></tr>
-<tr class="separator:a333949c04bd348d6271c659fd0340c74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa32478f94023f12b991872e55e1cfb58" id="r_aa32478f94023f12b991872e55e1cfb58"><td class="memItemLeft" align="right" valign="top"><a id="aa32478f94023f12b991872e55e1cfb58" name="aa32478f94023f12b991872e55e1cfb58"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddExportedSymbol</b> (<a class="el" href="classLinker_1_1ExportedSymbolName.html">ExportedSymbolName</a> name, <a class="el" href="classLinker_1_1Location.html">Location</a> symbol)</td></tr>
+<tr class="memdesc:aa32478f94023f12b991872e55e1cfb58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds an exported symbol (Microsoft format: library name + symbol name + ordinal/hint) <br /></td></tr>
+<tr class="separator:aa32478f94023f12b991872e55e1cfb58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a134147c9f3b503231c0419d11a26ac2b" id="r_a134147c9f3b503231c0419d11a26ac2b"><td class="memItemLeft" align="right" valign="top"><a id="a134147c9f3b503231c0419d11a26ac2b" name="a134147c9f3b503231c0419d11a26ac2b"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>AddUndefinedSymbol</b> (std::string symbol_name)</td></tr>
 <tr class="memdesc:a134147c9f3b503231c0419d11a26ac2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes undefined symbol for extended syntax. <br /></td></tr>
@@ -173,10 +173,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>AddRelocation</b> (<a
 const std::vector&lt; <a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetImportedSymbols</b> () const</td></tr>
 <tr class="memdesc:a0d4a9688ee77875de9961e868590e321"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves list of all imported symbols. <br /></td></tr>
 <tr class="separator:a0d4a9688ee77875de9961e868590e321"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc56c99c571d11400079fbdaab700cf8" id="r_adc56c99c571d11400079fbdaab700cf8"><td class="memItemLeft" align="right" valign="top"><a id="adc56c99c571d11400079fbdaab700cf8" name="adc56c99c571d11400079fbdaab700cf8"></a>
-const std::map&lt; <a class="el" href="classLinker_1_1ExportedSymbol.html">ExportedSymbol</a>, <a class="el" href="classLinker_1_1Location.html">Location</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetExportedSymbols</b> () const</td></tr>
-<tr class="memdesc:adc56c99c571d11400079fbdaab700cf8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves map of all exported symbols and their locations. <br /></td></tr>
-<tr class="separator:adc56c99c571d11400079fbdaab700cf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a35eacc4aa517711a81ccd10b3e167821" id="r_a35eacc4aa517711a81ccd10b3e167821"><td class="memItemLeft" align="right" valign="top"><a id="a35eacc4aa517711a81ccd10b3e167821" name="a35eacc4aa517711a81ccd10b3e167821"></a>
+const std::map&lt; <a class="el" href="classLinker_1_1ExportedSymbolName.html">ExportedSymbolName</a>, <a class="el" href="classLinker_1_1Location.html">Location</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetExportedSymbols</b> () const</td></tr>
+<tr class="memdesc:a35eacc4aa517711a81ccd10b3e167821"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves map of all exported symbols and their locations. <br /></td></tr>
+<tr class="separator:a35eacc4aa517711a81ccd10b3e167821"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a923aaeeedf3fcc23b0d5b72a6db7d638" id="r_a923aaeeedf3fcc23b0d5b72a6db7d638"><td class="memItemLeft" align="right" valign="top"><a id="a923aaeeedf3fcc23b0d5b72a6db7d638" name="a923aaeeedf3fcc23b0d5b72a6db7d638"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>FindLocalSymbol</b> (std::string name, <a class="el" href="classLinker_1_1Location.html">Location</a> &amp;location)</td></tr>
 <tr class="memdesc:a923aaeeedf3fcc23b0d5b72a6db7d638"><td class="mdescLeft">&#160;</td><td class="mdescRight">Searches for a local symbol. <br /></td></tr>

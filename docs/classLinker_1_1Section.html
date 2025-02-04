@@ -96,8 +96,9 @@ Inheritance diagram for Linker::Section:</div>
  <div class="center">
   <img src="classLinker_1_1Section.png" usemap="#Linker::Section_map" alt=""/>
   <map id="Linker::Section_map" name="Linker::Section_map">
-<area href="classLinker_1_1Buffer.html" title="A buffer that can be used to read and store data from a file." alt="Linker::Buffer" shape="rect" coords="0,56,95,80"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,95,24"/>
+<area href="classLinker_1_1Buffer.html" title="A buffer that can be used to read and store data from a file." alt="Linker::Buffer" shape="rect" coords="139,112,408,136"/>
+<area href="classLinker_1_1ActualImage.html" alt="Linker::ActualImage" shape="rect" coords="139,56,408,80"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,269,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -106,7 +107,7 @@ Public Types</h2></td></tr>
 <tr class="memitem:ac63d033d602ad0a9a0f82dddeaeb7d8f" id="r_ac63d033d602ad0a9a0f82dddeaeb7d8f"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8f">section_flags</a> { <br />
 &#160;&#160;<a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8fab550e096ede3ba6d373fdfebfa22225a">Readable</a> = 1 &lt;&lt; 0
 , <a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8fa4aa86e7d81f338cf0ecf056d84f62087">Writable</a> = 1 &lt;&lt; 1
-, <a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8fab2f97edc3c4aeecb00c40972d00fff99">Execable</a> = 1 &lt;&lt; 2
+, <a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8fa3c42a296351a4abc41a235945cf3b003">Executable</a> = 1 &lt;&lt; 2
 , <a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8fa3fb353ffb6ae08b085ad022b73fa7497">Mergeable</a> = 1 &lt;&lt; 3
 , <br />
 &#160;&#160;<a class="el" href="#ac63d033d602ad0a9a0f82dddeaeb7d8faba221e7755b96fb7e972459ef96b477e">ZeroFilled</a> = 1 &lt;&lt; 4
@@ -145,12 +146,12 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsWritable</b> () con
 <tr class="memitem:aaa337374f8ba2a312d76b86613620825" id="r_aaa337374f8ba2a312d76b86613620825"><td class="memItemLeft" align="right" valign="top"><a id="aaa337374f8ba2a312d76b86613620825" name="aaa337374f8ba2a312d76b86613620825"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetWritable</b> (bool state)</td></tr>
 <tr class="separator:aaa337374f8ba2a312d76b86613620825"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afb51e8b8f4f0cfde13640ff385bead14" id="r_afb51e8b8f4f0cfde13640ff385bead14"><td class="memItemLeft" align="right" valign="top"><a id="afb51e8b8f4f0cfde13640ff385bead14" name="afb51e8b8f4f0cfde13640ff385bead14"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsExecable</b> () const</td></tr>
-<tr class="separator:afb51e8b8f4f0cfde13640ff385bead14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac943ef179e22243108a5f05a32d399c0" id="r_ac943ef179e22243108a5f05a32d399c0"><td class="memItemLeft" align="right" valign="top"><a id="ac943ef179e22243108a5f05a32d399c0" name="ac943ef179e22243108a5f05a32d399c0"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetExecable</b> (bool state)</td></tr>
-<tr class="separator:ac943ef179e22243108a5f05a32d399c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4853be18c4f45d3635eaf989da6b7e9d" id="r_a4853be18c4f45d3635eaf989da6b7e9d"><td class="memItemLeft" align="right" valign="top"><a id="a4853be18c4f45d3635eaf989da6b7e9d" name="a4853be18c4f45d3635eaf989da6b7e9d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsExecutable</b> () const</td></tr>
+<tr class="separator:a4853be18c4f45d3635eaf989da6b7e9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa80b58ece234a920af8ec9b0de690d90" id="r_aa80b58ece234a920af8ec9b0de690d90"><td class="memItemLeft" align="right" valign="top"><a id="aa80b58ece234a920af8ec9b0de690d90" name="aa80b58ece234a920af8ec9b0de690d90"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetExecutable</b> (bool state)</td></tr>
+<tr class="separator:aa80b58ece234a920af8ec9b0de690d90"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4b84ed89bd92b2b000071bda64463c37" id="r_a4b84ed89bd92b2b000071bda64463c37"><td class="memItemLeft" align="right" valign="top"><a id="a4b84ed89bd92b2b000071bda64463c37" name="a4b84ed89bd92b2b000071bda64463c37"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsMergeable</b> () const</td></tr>
 <tr class="separator:a4b84ed89bd92b2b000071bda64463c37"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -192,21 +193,9 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Size</b> () const
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>RealignEnd</b> (offset_t align)</td></tr>
 <tr class="memdesc:aaa9b51eb318d9ede69c6cc8d76024e9a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expands the section to a size such that its end is at a specified alignment. <br /></td></tr>
 <tr class="separator:aaa9b51eb318d9ede69c6cc8d76024e9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa5471535dccc7d3efc5839a70e7a4151" id="r_aa5471535dccc7d3efc5839a70e7a4151"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa5471535dccc7d3efc5839a70e7a4151">GetByte</a> (offset_t offset) override</td></tr>
-<tr class="memdesc:aa5471535dccc7d3efc5839a70e7a4151"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined)  <br /></td></tr>
-<tr class="separator:aa5471535dccc7d3efc5839a70e7a4151"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5125a1092b46d3a25d0e44de9655b220" id="r_a5125a1092b46d3a25d0e44de9655b220"><td class="memItemLeft" align="right" valign="top"><a id="a5125a1092b46d3a25d0e44de9655b220" name="a5125a1092b46d3a25d0e44de9655b220"></a>
-uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadUnsigned</b> (size_t bytes, offset_t offset, EndianType endiantype) const</td></tr>
-<tr class="separator:a5125a1092b46d3a25d0e44de9655b220"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a42b8ac5f4b8bbe24d1cbd4fc03b5fb4e" id="r_a42b8ac5f4b8bbe24d1cbd4fc03b5fb4e"><td class="memItemLeft" align="right" valign="top"><a id="a42b8ac5f4b8bbe24d1cbd4fc03b5fb4e" name="a42b8ac5f4b8bbe24d1cbd4fc03b5fb4e"></a>
-uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadUnsigned</b> (size_t bytes, offset_t offset) const</td></tr>
-<tr class="separator:a42b8ac5f4b8bbe24d1cbd4fc03b5fb4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9c1677236b57c3aac5c31d60e4d4d1b1" id="r_a9c1677236b57c3aac5c31d60e4d4d1b1"><td class="memItemLeft" align="right" valign="top"><a id="a9c1677236b57c3aac5c31d60e4d4d1b1" name="a9c1677236b57c3aac5c31d60e4d4d1b1"></a>
-int64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSigned</b> (size_t bytes, offset_t offset, EndianType endiantype) const</td></tr>
-<tr class="separator:a9c1677236b57c3aac5c31d60e4d4d1b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a95743a48cbddfb380189a60b4fce4f9f" id="r_a95743a48cbddfb380189a60b4fce4f9f"><td class="memItemLeft" align="right" valign="top"><a id="a95743a48cbddfb380189a60b4fce4f9f" name="a95743a48cbddfb380189a60b4fce4f9f"></a>
-uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSigned</b> (size_t bytes, offset_t offset) const</td></tr>
-<tr class="separator:a95743a48cbddfb380189a60b4fce4f9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa60dafd42b9ce5098d4f47aa69b9d973" id="r_aa60dafd42b9ce5098d4f47aa69b9d973"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa60dafd42b9ce5098d4f47aa69b9d973">ReadData</a> (size_t bytes, offset_t offset, void *buffer) const override</td></tr>
+<tr class="memdesc:aa60dafd42b9ce5098d4f47aa69b9d973"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to fill a buffer with data.  <br /></td></tr>
+<tr class="separator:aa60dafd42b9ce5098d4f47aa69b9d973"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03944eb939c55cfac563b49823ebf9b0" id="r_a03944eb939c55cfac563b49823ebf9b0"><td class="memItemLeft" align="right" valign="top"><a id="a03944eb939c55cfac563b49823ebf9b0" name="a03944eb939c55cfac563b49823ebf9b0"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteWord</b> (size_t bytes, offset_t offset, uint64_t value, EndianType endiantype)</td></tr>
 <tr class="separator:a03944eb939c55cfac563b49823ebf9b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -260,6 +249,12 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (<a cl
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> ()</td></tr>
 <tr class="memdesc:a0a902380623f10988b63c3c709794cf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the section. <br /></td></tr>
 <tr class="separator:a0a902380623f10988b63c3c709794cf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5eca73e4abff5445c613cb45461e06a" id="r_af5eca73e4abff5445c613cb45461e06a"><td class="memItemLeft" align="right" valign="top"><a id="af5eca73e4abff5445c613cb45461e06a" name="af5eca73e4abff5445c613cb45461e06a"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="separator:af5eca73e4abff5445c613cb45461e06a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a79cb0b956bd95cc3922edd7298e27c38" id="r_a79cb0b956bd95cc3922edd7298e27c38"><td class="memItemLeft" align="right" valign="top"><a id="a79cb0b956bd95cc3922edd7298e27c38" name="a79cb0b956bd95cc3922edd7298e27c38"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, offset_t count)</td></tr>
+<tr class="separator:a79cb0b956bd95cc3922edd7298e27c38"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae13ce28cf7bc9f28e1ac1d57e409d312" id="r_ae13ce28cf7bc9f28e1ac1d57e409d312"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae13ce28cf7bc9f28e1ac1d57e409d312">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
 <tr class="memdesc:ae13ce28cf7bc9f28e1ac1d57e409d312"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:ae13ce28cf7bc9f28e1ac1d57e409d312"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -282,6 +277,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a clas
 <tr class="memitem:a79cb0b956bd95cc3922edd7298e27c38 inherit pub_methods_classLinker_1_1Buffer" id="r_a79cb0b956bd95cc3922edd7298e27c38"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, offset_t count)</td></tr>
 <tr class="separator:a79cb0b956bd95cc3922edd7298e27c38 inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classLinker_1_1ActualImage"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1ActualImage')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1ActualImage.html">Linker::ActualImage</a></td></tr>
+<tr class="memitem:aa7c946d8a6182ce93a8e7a744ac3f054 inherit pub_methods_classLinker_1_1ActualImage" id="r_aa7c946d8a6182ce93a8e7a744ac3f054"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1ActualImage.html#aa7c946d8a6182ce93a8e7a744ac3f054">AsImage</a> () override</td></tr>
+<tr class="memdesc:aa7c946d8a6182ce93a8e7a744ac3f054 inherit pub_methods_classLinker_1_1ActualImage"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="separator:aa7c946d8a6182ce93a8e7a744ac3f054 inherit pub_methods_classLinker_1_1ActualImage"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a708a53c3c8db5f17b6aaac37cb4bdea2 inherit pub_methods_classLinker_1_1ActualImage" id="r_a708a53c3c8db5f17b6aaac37cb4bdea2"><td class="memItemLeft" align="right" valign="top">
+uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadUnsigned</b> (size_t bytes, offset_t offset, EndianType endiantype) const</td></tr>
+<tr class="memdesc:a708a53c3c8db5f17b6aaac37cb4bdea2 inherit pub_methods_classLinker_1_1ActualImage"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads an unsigned number at a specific offset. <br /></td></tr>
+<tr class="separator:a708a53c3c8db5f17b6aaac37cb4bdea2 inherit pub_methods_classLinker_1_1ActualImage"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b59e3cc6342252ea737231c9f5dae12 inherit pub_methods_classLinker_1_1ActualImage" id="r_a6b59e3cc6342252ea737231c9f5dae12"><td class="memItemLeft" align="right" valign="top">
+uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadUnsigned</b> (size_t bytes, offset_t offset) const</td></tr>
+<tr class="memdesc:a6b59e3cc6342252ea737231c9f5dae12 inherit pub_methods_classLinker_1_1ActualImage"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads an unsigned number at a specific offset with the default endianness. <br /></td></tr>
+<tr class="separator:a6b59e3cc6342252ea737231c9f5dae12 inherit pub_methods_classLinker_1_1ActualImage"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a27c8b363c7421bc31c8e68844e2cb7c0 inherit pub_methods_classLinker_1_1ActualImage" id="r_a27c8b363c7421bc31c8e68844e2cb7c0"><td class="memItemLeft" align="right" valign="top">
+int64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSigned</b> (size_t bytes, offset_t offset, EndianType endiantype) const</td></tr>
+<tr class="memdesc:a27c8b363c7421bc31c8e68844e2cb7c0 inherit pub_methods_classLinker_1_1ActualImage"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a signed number at a specific offset. <br /></td></tr>
+<tr class="separator:a27c8b363c7421bc31c8e68844e2cb7c0 inherit pub_methods_classLinker_1_1ActualImage"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee47b5213615606c8240dfc120b3bc43 inherit pub_methods_classLinker_1_1ActualImage" id="r_aee47b5213615606c8240dfc120b3bc43"><td class="memItemLeft" align="right" valign="top">
+int64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSigned</b> (size_t bytes, offset_t offset) const</td></tr>
+<tr class="memdesc:aee47b5213615606c8240dfc120b3bc43 inherit pub_methods_classLinker_1_1ActualImage"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a signed number at a specific offset with the default endianness. <br /></td></tr>
+<tr class="separator:aee47b5213615606c8240dfc120b3bc43 inherit pub_methods_classLinker_1_1ActualImage"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7502321e62b5b6742444f502ca1ff453 inherit pub_methods_classLinker_1_1ActualImage" id="r_a7502321e62b5b6742444f502ca1ff453"><td class="memItemLeft" align="right" valign="top">
+int&#160;</td><td class="memItemRight" valign="bottom"><b>GetByte</b> (offset_t offset) const</td></tr>
+<tr class="memdesc:a7502321e62b5b6742444f502ca1ff453 inherit pub_methods_classLinker_1_1ActualImage"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined) <br /></td></tr>
+<tr class="separator:a7502321e62b5b6742444f502ca1ff453 inherit pub_methods_classLinker_1_1ActualImage"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -355,7 +374,7 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 </td></tr>
 <tr><td class="fieldname"><a id="ac63d033d602ad0a9a0f82dddeaeb7d8fa4aa86e7d81f338cf0ecf056d84f62087" name="ac63d033d602ad0a9a0f82dddeaeb7d8fa4aa86e7d81f338cf0ecf056d84f62087"></a>Writable&#160;</td><td class="fielddoc"><p>The section can be written to at runtime. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ac63d033d602ad0a9a0f82dddeaeb7d8fab2f97edc3c4aeecb00c40972d00fff99" name="ac63d033d602ad0a9a0f82dddeaeb7d8fab2f97edc3c4aeecb00c40972d00fff99"></a>Execable&#160;</td><td class="fielddoc"><p>The section data can be used as instruction. </p>
+<tr><td class="fieldname"><a id="ac63d033d602ad0a9a0f82dddeaeb7d8fa3c42a296351a4abc41a235945cf3b003" name="ac63d033d602ad0a9a0f82dddeaeb7d8fa3c42a296351a4abc41a235945cf3b003"></a>Executable&#160;</td><td class="fielddoc"><p>The section data can be used as instruction. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ac63d033d602ad0a9a0f82dddeaeb7d8fa3fb353ffb6ae08b085ad022b73fa7497" name="ac63d033d602ad0a9a0f82dddeaeb7d8fa3fb353ffb6ae08b085ad022b73fa7497"></a>Mergeable&#160;</td><td class="fielddoc"><p>Sections of the same name with this flag are overlayed instead of appended. </p>
 <p>When the sections are zero filled, merged sections will have a size that is the maximum of the merged sections instead of their sum.</p>
@@ -431,8 +450,8 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 
 </div>
 </div>
-<a id="aa5471535dccc7d3efc5839a70e7a4151" name="aa5471535dccc7d3efc5839a70e7a4151"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa5471535dccc7d3efc5839a70e7a4151">&#9670;&#160;</a></span>GetByte()</h2>
+<a id="aa60dafd42b9ce5098d4f47aa69b9d973" name="aa60dafd42b9ce5098d4f47aa69b9d973"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa60dafd42b9ce5098d4f47aa69b9d973">&#9670;&#160;</a></span>ReadData()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -441,10 +460,19 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">int Section::GetByte </td>
+          <td class="memname">size_t Section::ReadData </td>
           <td>(</td>
-          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>offset</em></span></td><td>)</td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>bytes</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>offset</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>buffer</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -454,9 +482,18 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 </table>
 </div><div class="memdoc">
 
-<p>Retrieve byte at a certain offset (optional, might not be defined) </p>
+<p>Attempts to fill a buffer with data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bytes</td><td>The (maximum) number of bytes to place in buffer </td></tr>
+    <tr><td class="paramname">offset</td><td>The offset in the image to start reading the data </td></tr>
+    <tr><td class="paramname">buffer</td><td>A byte buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Actual number of bytes copied into buffer </dd></dl>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1Buffer.html#afa37ec81b00582464e8d65475582947a">Linker::Buffer</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1Buffer.html#a76ab27b859ccb3392e290977a0884bac">Linker::Buffer</a>.</p>
 
 </div>
 </div>
