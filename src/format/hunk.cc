@@ -417,6 +417,11 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const HunkFormat& m
 
 // Hunk
 
+bool HunkFormat::Hunk::Relocation::operator <(const Relocation& other) const
+{
+	return offset < other.offset || (offset == other.offset && size < other.size);
+}
+
 void HunkFormat::Hunk::ProduceBlocks()
 {
 	/* Initial hunk block */
@@ -543,10 +548,10 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 		for(auto& data : dynamic_cast<RelocationBlock *>(block.get())->relocations)
 		{
 			if(relocations.find(data.hunk) == relocations.end())
-				relocations[data.hunk] = std::vector<Relocation>();
+				relocations[data.hunk] = std::set<Relocation>();
 			for(auto offset : data.offsets)
 			{
-				relocations[data.hunk].push_back(Relocation(4, offset));
+				relocations[data.hunk].insert(Relocation(4, offset));
 			}
 		}
 		break;
@@ -872,7 +877,7 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 			Linker::Position position = rel.source.GetPosition();
 			uint32_t source = segment_index[position.segment];
 			uint32_t target = segment_index[resolution.target];
-			hunks[source].relocations[target].push_back(Hunk::Relocation(rel.size, position.address));
+			hunks[source].relocations[target].insert(Hunk::Relocation(rel.size, position.address));
 		}
 	}
 

@@ -288,9 +288,10 @@ namespace Amiga
 					: size(size), offset(offset)
 				{
 				}
+				bool operator <(const Relocation& other) const;
 			};
 
-			std::map<uint32_t, std::vector<Relocation>> relocations;
+			std::map<uint32_t, std::set<Relocation>> relocations;
 
 			/** @brief Converts the data collected by the linker into hunk blocks */
 			void ProduceBlocks();
