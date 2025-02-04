@@ -98,15 +98,15 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a49824765b917258363e6be9b107de6af" id="r_a49824765b917258363e6be9b107de6af"><td class="memItemLeft" align="right" valign="top"><a id="a49824765b917258363e6be9b107de6af" name="a49824765b917258363e6be9b107de6af"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment, uint32_t access, uint16_t selector)</td></tr>
 <tr class="separator:a49824765b917258363e6be9b107de6af"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab715c0720efb4d2a084aff083777bba8" id="r_ab715c0720efb4d2a084aff083777bba8"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab715c0720efb4d2a084aff083777bba8">GetStoredSize</a> () override</td></tr>
-<tr class="separator:ab715c0720efb4d2a084aff083777bba8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acce4de6637fc4ab10056aa21c13012e3" id="r_acce4de6637fc4ab10056aa21c13012e3"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acce4de6637fc4ab10056aa21c13012e3">GetLoadedSize</a> () override</td></tr>
-<tr class="separator:acce4de6637fc4ab10056aa21c13012e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b2e626c0eb59b8bdcff2c6d89a6e8e2" id="r_a2b2e626c0eb59b8bdcff2c6d89a6e8e2"><td class="memItemLeft" align="right" valign="top"><a id="a2b2e626c0eb59b8bdcff2c6d89a6e8e2" name="a2b2e626c0eb59b8bdcff2c6d89a6e8e2"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSITEntry</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
-<tr class="separator:a2b2e626c0eb59b8bdcff2c6d89a6e8e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4d88aeb8adf1570d8819b45603ef4558" id="r_a4d88aeb8adf1570d8819b45603ef4558"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4d88aeb8adf1570d8819b45603ef4558">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="separator:a4d88aeb8adf1570d8819b45603ef4558"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8e8c1d5a9691cf4e766ae01f8705bb85" id="r_a8e8c1d5a9691cf4e766ae01f8705bb85"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8e8c1d5a9691cf4e766ae01f8705bb85">GetStoredSize</a> () const override</td></tr>
+<tr class="separator:a8e8c1d5a9691cf4e766ae01f8705bb85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaae7296bb7bb4c80d1cb4ba0849a948d" id="r_aaae7296bb7bb4c80d1cb4ba0849a948d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaae7296bb7bb4c80d1cb4ba0849a948d">GetLoadedSize</a> () const override</td></tr>
+<tr class="separator:aaae7296bb7bb4c80d1cb4ba0849a948d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a360831eb281e4634df3a14e1e4c82864" id="r_a360831eb281e4634df3a14e1e4c82864"><td class="memItemLeft" align="right" valign="top"><a id="a360831eb281e4634df3a14e1e4c82864" name="a360831eb281e4634df3a14e1e4c82864"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSITEntry</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="separator:a360831eb281e4634df3a14e1e4c82864"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa13c9580e782ee1714488c8d7888f411" id="r_aa13c9580e782ee1714488c8d7888f411"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa13c9580e782ee1714488c8d7888f411">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
+<tr class="separator:aa13c9580e782ee1714488c8d7888f411"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -131,8 +131,8 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</
 <tr class="separator:ab251ac72bd290001f7233eff9bf7642c inherit pub_attribs_classPharLap_1_1P3Format_1_1MultiSegmented_1_1AbstractSegment"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="acce4de6637fc4ab10056aa21c13012e3" name="acce4de6637fc4ab10056aa21c13012e3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acce4de6637fc4ab10056aa21c13012e3">&#9670;&#160;</a></span>GetLoadedSize()</h2>
+<a id="aaae7296bb7bb4c80d1cb4ba0849a948d" name="aaae7296bb7bb4c80d1cb4ba0849a948d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaae7296bb7bb4c80d1cb4ba0849a948d">&#9670;&#160;</a></span>GetLoadedSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -144,7 +144,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</
           <td class="memname">uint32_t P3Format::MultiSegmented::Segment::GetLoadedSize </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -158,8 +158,8 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</
 
 </div>
 </div>
-<a id="ab715c0720efb4d2a084aff083777bba8" name="ab715c0720efb4d2a084aff083777bba8"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab715c0720efb4d2a084aff083777bba8">&#9670;&#160;</a></span>GetStoredSize()</h2>
+<a id="a8e8c1d5a9691cf4e766ae01f8705bb85" name="a8e8c1d5a9691cf4e766ae01f8705bb85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8e8c1d5a9691cf4e766ae01f8705bb85">&#9670;&#160;</a></span>GetStoredSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -171,7 +171,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</
           <td class="memname">uint32_t P3Format::MultiSegmented::Segment::GetStoredSize </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -185,8 +185,8 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</
 
 </div>
 </div>
-<a id="a4d88aeb8adf1570d8819b45603ef4558" name="a4d88aeb8adf1570d8819b45603ef4558"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4d88aeb8adf1570d8819b45603ef4558">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="aa13c9580e782ee1714488c8d7888f411" name="aa13c9580e782ee1714488c8d7888f411"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa13c9580e782ee1714488c8d7888f411">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -198,7 +198,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</
           <td class="memname">void P3Format::MultiSegmented::Segment::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>

@@ -119,16 +119,20 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetTotalSize</b> 
 <tr class="memitem:a94c6ad316309d670fb66742823a6d209" id="r_a94c6ad316309d670fb66742823a6d209"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a94c6ad316309d670fb66742823a6d209">SetTotalSize</a> (uint32_t new_value)</td></tr>
 <tr class="memdesc:a94c6ad316309d670fb66742823a6d209"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies the total size of the segment, including the bss. Note that this is not guaranteed to work for all segment types.  <br /></td></tr>
 <tr class="separator:a94c6ad316309d670fb66742823a6d209"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af4d40b51cd1afbc86c2c101f75958230" id="r_af4d40b51cd1afbc86c2c101f75958230"><td class="memItemLeft" align="right" valign="top">virtual uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af4d40b51cd1afbc86c2c101f75958230">GetSize</a> (<a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw)=0</td></tr>
-<tr class="memdesc:af4d40b51cd1afbc86c2c101f75958230"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of segment. Some subclasses might calculate this dynamically.  <br /></td></tr>
-<tr class="separator:af4d40b51cd1afbc86c2c101f75958230"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acbf85df971dec72d0baad4c54744e1b9" id="r_acbf85df971dec72d0baad4c54744e1b9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acbf85df971dec72d0baad4c54744e1b9">WriteContent</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw)=0</td></tr>
-<tr class="memdesc:acbf85df971dec72d0baad4c54744e1b9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the binary contents of the segment.  <br /></td></tr>
-<tr class="separator:acbf85df971dec72d0baad4c54744e1b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af77010254b58e1b07a0575c5b5df5c7b" id="r_af77010254b58e1b07a0575c5b5df5c7b"><td class="memItemLeft" align="right" valign="top"><a id="af77010254b58e1b07a0575c5b5df5c7b" name="af77010254b58e1b07a0575c5b5df5c7b"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw)</td></tr>
-<tr class="memdesc:af77010254b58e1b07a0575c5b5df5c7b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the GDT entry for the header. <br /></td></tr>
-<tr class="separator:af77010254b58e1b07a0575c5b5df5c7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50d4726eed0b0050aac1638d7a825730" id="r_a50d4726eed0b0050aac1638d7a825730"><td class="memItemLeft" align="right" valign="top">virtual uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a50d4726eed0b0050aac1638d7a825730">GetSize</a> (const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw) const =0</td></tr>
+<tr class="memdesc:a50d4726eed0b0050aac1638d7a825730"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of segment. Some subclasses might calculate this dynamically.  <br /></td></tr>
+<tr class="separator:a50d4726eed0b0050aac1638d7a825730"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a039a9cd8714598219a33860b2159adb3" id="r_a039a9cd8714598219a33860b2159adb3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a039a9cd8714598219a33860b2159adb3">WriteContent</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw) const =0</td></tr>
+<tr class="memdesc:a039a9cd8714598219a33860b2159adb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the binary contents of the segment.  <br /></td></tr>
+<tr class="separator:a039a9cd8714598219a33860b2159adb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9cdf6b108fe61168047a4f7ac9c702b5" id="r_a9cdf6b108fe61168047a4f7ac9c702b5"><td class="memItemLeft" align="right" valign="top"><a id="a9cdf6b108fe61168047a4f7ac9c702b5" name="a9cdf6b108fe61168047a4f7ac9c702b5"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Prepare</b> (<a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw)</td></tr>
+<tr class="memdesc:a9cdf6b108fe61168047a4f7ac9c702b5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up any values before it can be written to file. <br /></td></tr>
+<tr class="separator:a9cdf6b108fe61168047a4f7ac9c702b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad3d1f7fda34baca2916063d95a824718" id="r_ad3d1f7fda34baca2916063d95a824718"><td class="memItemLeft" align="right" valign="top"><a id="ad3d1f7fda34baca2916063d95a824718" name="ad3d1f7fda34baca2916063d95a824718"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw) const</td></tr>
+<tr class="memdesc:ad3d1f7fda34baca2916063d95a824718"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the GDT entry for the header. <br /></td></tr>
+<tr class="separator:ad3d1f7fda34baca2916063d95a824718"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -146,8 +150,8 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_length</b><
 <tr class="separator:a4859a05c92e2104b489b2a570f6a92df"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="af4d40b51cd1afbc86c2c101f75958230" name="af4d40b51cd1afbc86c2c101f75958230"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af4d40b51cd1afbc86c2c101f75958230">&#9670;&#160;</a></span>GetSize()</h2>
+<a id="a50d4726eed0b0050aac1638d7a825730" name="a50d4726eed0b0050aac1638d7a825730"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50d4726eed0b0050aac1638d7a825730">&#9670;&#160;</a></span>GetSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -158,8 +162,8 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_length</b><
         <tr>
           <td class="memname">virtual uint32_t DOS16M::BWFormat::AbstractSegment::GetSize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>bw</em></span></td><td>)</td>
-          <td></td>
+          <td class="paramtype">const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>bw</em></span></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -171,7 +175,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_length</b><
 
 <p>Retrieves size of segment. Some subclasses might calculate this dynamically. </p>
 
-<p>Implemented in <a class="el" href="classDOS16M_1_1BWFormat_1_1Segment.html#a4b92103f4c80d80704f58db4eb433779">DOS16M::BWFormat::Segment</a>, <a class="el" href="classDOS16M_1_1BWFormat_1_1DummySegment.html#ab2caad812f69dd7ac0599750d1f006a6">DOS16M::BWFormat::DummySegment</a>, and <a class="el" href="classDOS16M_1_1BWFormat_1_1RelocationSegment.html#a85164df1174ea0f55a9fbb2cd8a8e6b4">DOS16M::BWFormat::RelocationSegment</a>.</p>
+<p>Implemented in <a class="el" href="classDOS16M_1_1BWFormat_1_1Segment.html#a53e3566d7b9ffa3176c0e65a9978a49e">DOS16M::BWFormat::Segment</a>, <a class="el" href="classDOS16M_1_1BWFormat_1_1DummySegment.html#a47c6b286544f2b0c79f89e0a42a0b350">DOS16M::BWFormat::DummySegment</a>, and <a class="el" href="classDOS16M_1_1BWFormat_1_1RelocationSegment.html#a398931069280a70f69e8aa094a50a0e4">DOS16M::BWFormat::RelocationSegment</a>.</p>
 
 </div>
 </div>
@@ -204,8 +208,8 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_length</b><
 
 </div>
 </div>
-<a id="acbf85df971dec72d0baad4c54744e1b9" name="acbf85df971dec72d0baad4c54744e1b9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#acbf85df971dec72d0baad4c54744e1b9">&#9670;&#160;</a></span>WriteContent()</h2>
+<a id="a039a9cd8714598219a33860b2159adb3" name="a039a9cd8714598219a33860b2159adb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a039a9cd8714598219a33860b2159adb3">&#9670;&#160;</a></span>WriteContent()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -221,7 +225,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_length</b><
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>bw</em></span>&#160;)</td>
+          <td class="paramtype">const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>bw</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -233,7 +237,7 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_length</b><
 
 <p>Produces the binary contents of the segment. </p>
 
-<p>Implemented in <a class="el" href="classDOS16M_1_1BWFormat_1_1Segment.html#a22e62682483f277842fb3d917db82ffa">DOS16M::BWFormat::Segment</a>, <a class="el" href="classDOS16M_1_1BWFormat_1_1DummySegment.html#adc877164ed8d1ca6fcc10cf11deb2013">DOS16M::BWFormat::DummySegment</a>, and <a class="el" href="classDOS16M_1_1BWFormat_1_1RelocationSegment.html#a7ab526b067acff5c444d42ab63658a7b">DOS16M::BWFormat::RelocationSegment</a>.</p>
+<p>Implemented in <a class="el" href="classDOS16M_1_1BWFormat_1_1Segment.html#a7ea98d9e65d45664e0150139bfef99e1">DOS16M::BWFormat::Segment</a>, <a class="el" href="classDOS16M_1_1BWFormat_1_1DummySegment.html#acca4e0ce7ede8d7bf167daa5ef43caa6">DOS16M::BWFormat::DummySegment</a>, and <a class="el" href="classDOS16M_1_1BWFormat_1_1RelocationSegment.html#aa1c5f9b655eb7247a6c79c45cb0852a0">DOS16M::BWFormat::RelocationSegment</a>.</p>
 
 </div>
 </div>

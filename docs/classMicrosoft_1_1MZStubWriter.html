@@ -83,28 +83,12 @@ $(function() {
   <div class="headertitle"><div class="title">Microsoft::MZStubWriter Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<div class="dynheader">
-Inheritance diagram for Microsoft::MZStubWriter:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="classMicrosoft_1_1MZStubWriter.png" usemap="#Microsoft::MZStubWriter_map" alt=""/>
-  <map id="Microsoft::MZStubWriter_map" name="Microsoft::MZStubWriter_map">
-<area href="classDOS16M_1_1BWFormat.html" title="Rational Systems DOS/16M &quot;BW&quot; .exp file." alt="DOS16M::BWFormat" shape="rect" coords="0,56,215,80"/>
-<area href="classMicrosoft_1_1LEFormat.html" title="LE/LX .EXE linear executable file format." alt="Microsoft::LEFormat" shape="rect" coords="225,56,440,80"/>
-<area href="classMicrosoft_1_1NEFormat.html" title="NE .EXE new executable file format." alt="Microsoft::NEFormat" shape="rect" coords="450,56,665,80"/>
-<area href="classMicrosoft_1_1PEFormat.html" title="Microsoft PE .EXE portable executable file format." alt="Microsoft::PEFormat" shape="rect" coords="675,56,890,80"/>
-<area href="classPharLap_1_1MPFormat.html" title="Phar Lap &quot;MP&quot; .exp and &quot;MQ&quot; .rex file." alt="PharLap::MPFormat" shape="rect" coords="900,56,1115,80"/>
-<area href="classPharLap_1_1P3Format.html" title="Phar Lap &quot;P2&quot;/&quot;P3&quot; .exp file." alt="PharLap::P3Format" shape="rect" coords="1125,56,1340,80"/>
-<area href="classPharLap_1_1P3Format_1_1Flat.html" alt="PharLap::P3Format::Flat" shape="rect" coords="1012,112,1227,136"/>
-<area href="classPharLap_1_1P3Format_1_1MultiSegmented.html" alt="PharLap::P3Format::MultiSegmented" shape="rect" coords="1237,112,1452,136"/>
-  </map>
-</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a90ee74984387b32b147aa946334ade7d" id="r_a90ee74984387b32b147aa946334ade7d"><td class="memItemLeft" align="right" valign="top"><a id="a90ee74984387b32b147aa946334ade7d" name="a90ee74984387b32b147aa946334ade7d"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MZStubWriter</b> (std::string stub_file=&quot;&quot;)</td></tr>
-<tr class="separator:a90ee74984387b32b147aa946334ade7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b5cf2f0b5db8566ce4f21cba1a1aed2" id="r_a6b5cf2f0b5db8566ce4f21cba1a1aed2"><td class="memItemLeft" align="right" valign="top"><a id="a6b5cf2f0b5db8566ce4f21cba1a1aed2" name="a6b5cf2f0b5db8566ce4f21cba1a1aed2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>MZStubWriter</b> (std::string filename=&quot;&quot;)</td></tr>
+<tr class="separator:a6b5cf2f0b5db8566ce4f21cba1a1aed2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a326eb3d7a2178f3eb41873e90b6a57bc" id="r_a326eb3d7a2178f3eb41873e90b6a57bc"><td class="memItemLeft" align="right" valign="top"><a id="a326eb3d7a2178f3eb41873e90b6a57bc" name="a326eb3d7a2178f3eb41873e90b6a57bc"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>OpenAndCheckValidFile</b> ()</td></tr>
 <tr class="separator:a326eb3d7a2178f3eb41873e90b6a57bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -120,15 +104,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteStubImage</b> (<
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:afe6810f1735d042a55c4bc0e00a9d9cb" id="r_afe6810f1735d042a55c4bc0e00a9d9cb"><td class="memItemLeft" align="right" valign="top"><a id="afe6810f1735d042a55c4bc0e00a9d9cb" name="afe6810f1735d042a55c4bc0e00a9d9cb"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file</b></td></tr>
-<tr class="separator:afe6810f1735d042a55c4bc0e00a9d9cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb69034fe2bb233cf123dc3eae65f338" id="r_adb69034fe2bb233cf123dc3eae65f338"><td class="memItemLeft" align="right" valign="top"><a id="adb69034fe2bb233cf123dc3eae65f338" name="adb69034fe2bb233cf123dc3eae65f338"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file_valid</b> = true</td></tr>
-<tr class="separator:adb69034fe2bb233cf123dc3eae65f338"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a352422ac4bcdb11f53a66429d7cc507d" id="r_a352422ac4bcdb11f53a66429d7cc507d"><td class="memItemLeft" align="right" valign="top"><a id="a352422ac4bcdb11f53a66429d7cc507d" name="a352422ac4bcdb11f53a66429d7cc507d"></a>
-std::ifstream&#160;</td><td class="memItemRight" valign="bottom"><b>stub</b></td></tr>
-<tr class="separator:a352422ac4bcdb11f53a66429d7cc507d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8960a553a8e23570b0060f9605b3596a" id="r_a8960a553a8e23570b0060f9605b3596a"><td class="memItemLeft" align="right" valign="top"><a id="a8960a553a8e23570b0060f9605b3596a" name="a8960a553a8e23570b0060f9605b3596a"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>filename</b></td></tr>
+<tr class="separator:a8960a553a8e23570b0060f9605b3596a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2dbb332ee29752239d1db9b0d7d54779" id="r_a2dbb332ee29752239d1db9b0d7d54779"><td class="memItemLeft" align="right" valign="top"><a id="a2dbb332ee29752239d1db9b0d7d54779" name="a2dbb332ee29752239d1db9b0d7d54779"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>valid</b> = true</td></tr>
+<tr class="separator:a2dbb332ee29752239d1db9b0d7d54779"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa07c0bbc7ebb63fd4a772418abef0a03" id="r_aa07c0bbc7ebb63fd4a772418abef0a03"><td class="memItemLeft" align="right" valign="top"><a id="aa07c0bbc7ebb63fd4a772418abef0a03" name="aa07c0bbc7ebb63fd4a772418abef0a03"></a>
+std::ifstream&#160;</td><td class="memItemRight" valign="bottom"><b>stream</b></td></tr>
+<tr class="separator:aa07c0bbc7ebb63fd4a772418abef0a03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9cbdee9fe61999e0ed8226d19cea99cc" id="r_a9cbdee9fe61999e0ed8226d19cea99cc"><td class="memItemLeft" align="right" valign="top"><a id="a9cbdee9fe61999e0ed8226d19cea99cc" name="a9cbdee9fe61999e0ed8226d19cea99cc"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_file_size</b> = -1</td></tr>
 <tr class="separator:a9cbdee9fe61999e0ed8226d19cea99cc"><td class="memSeparator" colspan="2">&#160;</td></tr>

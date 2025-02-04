@@ -97,7 +97,6 @@ Inheritance diagram for PharLap::MPFormat:</div>
   <img src="classPharLap_1_1MPFormat.png" usemap="#PharLap::MPFormat_map" alt=""/>
   <map id="PharLap::MPFormat_map" name="PharLap::MPFormat_map">
 <area href="classLinker_1_1SegmentManager.html" title="A helper class to collect sections into segments." alt="Linker::SegmentManager" shape="rect" coords="0,168,152,192"/>
-<area href="classMicrosoft_1_1MZStubWriter.html" alt="Microsoft::MZStubWriter" shape="rect" coords="162,168,314,192"/>
 <area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="0,112,152,136"/>
 <area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,152,80"/>
 <area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,152,24"/>
@@ -137,15 +136,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="e
 <tr class="memitem:a4f75a159485d47338053c820ba747807" id="r_a4f75a159485d47338053c820ba747807"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4f75a159485d47338053c820ba747807">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:a4f75a159485d47338053c820ba747807"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:a4f75a159485d47338053c820ba747807"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b1db00624dd3cbcbbf2901c1dac1fd5" id="r_a9b1db00624dd3cbcbbf2901c1dac1fd5"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9b1db00624dd3cbcbbf2901c1dac1fd5">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="memdesc:a9b1db00624dd3cbcbbf2901c1dac1fd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:a9b1db00624dd3cbcbbf2901c1dac1fd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a1cec828ca3c061f8f5ce9491efd088" id="r_a5a1cec828ca3c061f8f5ce9491efd088"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5a1cec828ca3c061f8f5ce9491efd088">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
-<tr class="memdesc:a5a1cec828ca3c061f8f5ce9491efd088"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
-<tr class="separator:a5a1cec828ca3c061f8f5ce9491efd088"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab713ade15c665377ce3e1e8688a17af6" id="r_ab713ade15c665377ce3e1e8688a17af6"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab713ade15c665377ce3e1e8688a17af6">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename) override</td></tr>
-<tr class="memdesc:ab713ade15c665377ce3e1e8688a17af6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
-<tr class="separator:ab713ade15c665377ce3e1e8688a17af6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab758d4cb4e65d671d0d51fbcb2b80905" id="r_ab758d4cb4e65d671d0d51fbcb2b80905"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab758d4cb4e65d671d0d51fbcb2b80905">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
+<tr class="memdesc:ab758d4cb4e65d671d0d51fbcb2b80905"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="separator:ab758d4cb4e65d671d0d51fbcb2b80905"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f8256f26b156c63f1c2f73116c195e7" id="r_a3f8256f26b156c63f1c2f73116c195e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3f8256f26b156c63f1c2f73116c195e7">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
+<tr class="memdesc:a3f8256f26b156c63f1c2f73116c195e7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
+<tr class="separator:a3f8256f26b156c63f1c2f73116c195e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9dc886216ff67eb631f4e22134efd3aa" id="r_a9dc886216ff67eb631f4e22134efd3aa"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9dc886216ff67eb631f4e22134efd3aa">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename) const override</td></tr>
+<tr class="memdesc:a9dc886216ff67eb631f4e22134efd3aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
+<tr class="separator:a9dc886216ff67eb631f4e22134efd3aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:abd3276c1dbf8fc2c2d7ba73b36562e17 inherit pub_methods_classLinker_1_1SegmentManager" id="r_abd3276c1dbf8fc2c2d7ba73b36562e17"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ClearSegmentManager</b> ()</td></tr>
@@ -229,9 +228,9 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a22e05e4807efbae279ab68dcab714a42 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a22e05e4807efbae279ab68dcab714a42"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a22e05e4807efbae279ab68dcab714a42">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a22e05e4807efbae279ab68dcab714a42 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:a22e05e4807efbae279ab68dcab714a42 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac0fdb1511a29e98bf0c311234be0c69a inherit pub_methods_classLinker_1_1OutputFormat" id="r_ac0fdb1511a29e98bf0c311234be0c69a"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ac0fdb1511a29e98bf0c311234be0c69a">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
-<tr class="memdesc:ac0fdb1511a29e98bf0c311234be0c69a inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a default filename for the output file.  <br /></td></tr>
-<tr class="separator:ac0fdb1511a29e98bf0c311234be0c69a inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a87f3689cc381422f4f10a9acdc92983e inherit pub_methods_classLinker_1_1OutputFormat" id="r_a87f3689cc381422f4f10a9acdc92983e"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a87f3689cc381422f4f10a9acdc92983e">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module) const</td></tr>
+<tr class="memdesc:a87f3689cc381422f4f10a9acdc92983e inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a default filename for the output file.  <br /></td></tr>
+<tr class="separator:a87f3689cc381422f4f10a9acdc92983e inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat" id="r_a0f64b63a2c6849c44a5642087698bfbf"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a0f64b63a2c6849c44a5642087698bfbf">FormatSupportsSegmentation</a> () const</td></tr>
 <tr class="memdesc:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports multiple segments.  <br /></td></tr>
 <tr class="separator:a0f64b63a2c6849c44a5642087698bfbf inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -254,15 +253,19 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format" id="r_af096ef1500e69a6b3112c7640b3748bd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Clear</a> ()</td></tr>
 <tr class="memdesc:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format" id="r_a8dbd43046eb76473ba4cce819239c113"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a8dbd43046eb76473ba4cce819239c113">ImageSize</a> () override</td></tr>
-<tr class="memdesc:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:a8dbd43046eb76473ba4cce819239c113 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format" id="r_a0d991adc5f7b285a3451306e2adb9787"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a0d991adc5f7b285a3451306e2adb9787">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) override</td></tr>
-<tr class="memdesc:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:a0d991adc5f7b285a3451306e2adb9787 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85d55c9bad57d0bca811c325ba3af25a inherit pub_methods_classLinker_1_1Format" id="r_a85d55c9bad57d0bca811c325ba3af25a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a85d55c9bad57d0bca811c325ba3af25a">ImageSize</a> () const override</td></tr>
+<tr class="memdesc:a85d55c9bad57d0bca811c325ba3af25a inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a85d55c9bad57d0bca811c325ba3af25a inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b945a05d9c620cc00682fca2f3fc255 inherit pub_methods_classLinker_1_1Format" id="r_a3b945a05d9c620cc00682fca2f3fc255"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a3b945a05d9c620cc00682fca2f3fc255">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) const override</td></tr>
+<tr class="memdesc:a3b945a05d9c620cc00682fca2f3fc255 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a3b945a05d9c620cc00682fca2f3fc255 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1Image"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Image')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Image.html">Linker::Image</a></td></tr>
-<tr class="memitem:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image" id="r_a252985c07abe8a9da6c9c40d11af7dfb"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#a252985c07abe8a9da6c9c40d11af7dfb">AsImage</a> ()</td></tr>
-<tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="memitem:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image" id="r_acaef1c478cfe2e33e41d9e1acd633be5"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; const <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#acaef1c478cfe2e33e41d9e1acd633be5">AsImage</a> () const</td></tr>
+<tr class="memdesc:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="separator:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image" id="r_a252985c07abe8a9da6c9c40d11af7dfb"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>AsImage</b> ()</td></tr>
+<tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
 <tr class="separator:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
@@ -270,9 +273,6 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a7d0b0d7a8a3daeeac2fc123e9a0a31eb" id="r_a7d0b0d7a8a3daeeac2fc123e9a0a31eb"><td class="memItemLeft" align="right" valign="top"><a id="a7d0b0d7a8a3daeeac2fc123e9a0a31eb" name="a7d0b0d7a8a3daeeac2fc123e9a0a31eb"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>has_relocations</b></td></tr>
 <tr class="separator:a7d0b0d7a8a3daeeac2fc123e9a0a31eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a02bbbbf473b00b967cff35d87f87bce0" id="r_a02bbbbf473b00b967cff35d87f87bce0"><td class="memItemLeft" align="right" valign="top"><a id="a02bbbbf473b00b967cff35d87f87bce0" name="a02bbbbf473b00b967cff35d87f87bce0"></a>
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file</b></td></tr>
-<tr class="separator:a02bbbbf473b00b967cff35d87f87bce0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0db22647c156f6994513ccbefb570d2a" id="r_a0db22647c156f6994513ccbefb570d2a"><td class="memItemLeft" align="right" valign="top"><a id="a0db22647c156f6994513ccbefb570d2a" name="a0db22647c156f6994513ccbefb570d2a"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
 <tr class="separator:a0db22647c156f6994513ccbefb570d2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -300,6 +300,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>eip</b> = 0</td><
 <tr class="memitem:a7821b64229db309e9c2622010fde35f2" id="r_a7821b64229db309e9c2622010fde35f2"><td class="memItemLeft" align="right" valign="top"><a id="a7821b64229db309e9c2622010fde35f2" name="a7821b64229db309e9c2622010fde35f2"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_offset</b> = 0</td></tr>
 <tr class="separator:a7821b64229db309e9c2622010fde35f2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5cbbd12c4fc45da3fba06fbaf5b175fb" id="r_a5cbbd12c4fc45da3fba06fbaf5b175fb"><td class="memItemLeft" align="right" valign="top"><a id="a5cbbd12c4fc45da3fba06fbaf5b175fb" name="a5cbbd12c4fc45da3fba06fbaf5b175fb"></a>
+<a class="el" href="classMicrosoft_1_1MZStubWriter.html">Microsoft::MZStubWriter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>stub</b></td></tr>
+<tr class="separator:a5cbbd12c4fc45da3fba06fbaf5b175fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:ae752ce750027654f07078e855335b92c inherit pub_attribs_classLinker_1_1SegmentManager" id="r_ae752ce750027654f07078e855335b92c"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1SegmentManager.html#ae752ce750027654f07078e855335b92c">current_base</a> = 0</td></tr>
 <tr class="memdesc:ae752ce750027654f07078e855335b92c inherit pub_attribs_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
@@ -337,22 +340,6 @@ static const uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>REL3
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pro_methods_classMicrosoft_1_1MZStubWriter"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_classMicrosoft_1_1MZStubWriter')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classMicrosoft_1_1MZStubWriter.html">Microsoft::MZStubWriter</a></td></tr>
-<tr class="memitem:a90ee74984387b32b147aa946334ade7d inherit pro_methods_classMicrosoft_1_1MZStubWriter" id="r_a90ee74984387b32b147aa946334ade7d"><td class="memItemLeft" align="right" valign="top">
-&#160;</td><td class="memItemRight" valign="bottom"><b>MZStubWriter</b> (std::string stub_file=&quot;&quot;)</td></tr>
-<tr class="separator:a90ee74984387b32b147aa946334ade7d inherit pro_methods_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a326eb3d7a2178f3eb41873e90b6a57bc inherit pro_methods_classMicrosoft_1_1MZStubWriter" id="r_a326eb3d7a2178f3eb41873e90b6a57bc"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>OpenAndCheckValidFile</b> ()</td></tr>
-<tr class="separator:a326eb3d7a2178f3eb41873e90b6a57bc inherit pro_methods_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65b51859bacaa915e4c9e56f257eea13 inherit pro_methods_classMicrosoft_1_1MZStubWriter" id="r_a65b51859bacaa915e4c9e56f257eea13"><td class="memItemLeft" align="right" valign="top">
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetStubImageSize</b> ()</td></tr>
-<tr class="separator:a65b51859bacaa915e4c9e56f257eea13 inherit pro_methods_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa806a19e797379c893c8ef59bac7ed9f inherit pro_methods_classMicrosoft_1_1MZStubWriter" id="r_aa806a19e797379c893c8ef59bac7ed9f"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteStubImage</b> (std::ostream &amp;out)</td></tr>
-<tr class="separator:aa806a19e797379c893c8ef59bac7ed9f inherit pro_methods_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aad02b0c964ff9a997dfdff7d800130ba inherit pro_methods_classMicrosoft_1_1MZStubWriter" id="r_aad02b0c964ff9a997dfdff7d800130ba"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteStubImage</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
-<tr class="separator:aad02b0c964ff9a997dfdff7d800130ba inherit pro_methods_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:aba19c02257c496c2f8a7ea8ebc40be3d inherit pro_attribs_classLinker_1_1SegmentManager" id="r_aba19c02257c496c2f8a7ea8ebc40be3d"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b> = 0</td></tr>
@@ -370,37 +357,6 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>template_counter<
 <tr class="memitem:a9f36cbb957623f1c1b64bea50752a480 inherit pro_attribs_classLinker_1_1SegmentManager" id="r_a9f36cbb957623f1c1b64bea50752a480"><td class="memItemLeft" align="right" valign="top">
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_template_name</b></td></tr>
 <tr class="separator:a9f36cbb957623f1c1b64bea50752a480 inherit pro_attribs_classLinker_1_1SegmentManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pro_attribs_classMicrosoft_1_1MZStubWriter"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classMicrosoft_1_1MZStubWriter')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classMicrosoft_1_1MZStubWriter.html">Microsoft::MZStubWriter</a></td></tr>
-<tr class="memitem:afe6810f1735d042a55c4bc0e00a9d9cb inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_afe6810f1735d042a55c4bc0e00a9d9cb"><td class="memItemLeft" align="right" valign="top">
-std::string&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file</b></td></tr>
-<tr class="separator:afe6810f1735d042a55c4bc0e00a9d9cb inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb69034fe2bb233cf123dc3eae65f338 inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_adb69034fe2bb233cf123dc3eae65f338"><td class="memItemLeft" align="right" valign="top">
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file_valid</b> = true</td></tr>
-<tr class="separator:adb69034fe2bb233cf123dc3eae65f338 inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a352422ac4bcdb11f53a66429d7cc507d inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_a352422ac4bcdb11f53a66429d7cc507d"><td class="memItemLeft" align="right" valign="top">
-std::ifstream&#160;</td><td class="memItemRight" valign="bottom"><b>stub</b></td></tr>
-<tr class="separator:a352422ac4bcdb11f53a66429d7cc507d inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9cbdee9fe61999e0ed8226d19cea99cc inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_a9cbdee9fe61999e0ed8226d19cea99cc"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_file_size</b> = -1</td></tr>
-<tr class="separator:a9cbdee9fe61999e0ed8226d19cea99cc inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeba6c22005f1c066a3dcd555eb8ea20b inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_aeba6c22005f1c066a3dcd555eb8ea20b"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_file_size</b> = 0</td></tr>
-<tr class="separator:aeba6c22005f1c066a3dcd555eb8ea20b inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad721aecfd8e318795e3e2a1eed6604e3 inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_ad721aecfd8e318795e3e2a1eed6604e3"><td class="memItemLeft" align="right" valign="top">
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_count</b> = 0</td></tr>
-<tr class="separator:ad721aecfd8e318795e3e2a1eed6604e3 inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adc57f3dc68261a7a867fe818083fe9f5 inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_adc57f3dc68261a7a867fe818083fe9f5"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_header_size</b> = 0</td></tr>
-<tr class="separator:adc57f3dc68261a7a867fe818083fe9f5 inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a020e72c98cbe1b3d74f1d661cc9775bd inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_a020e72c98cbe1b3d74f1d661cc9775bd"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_header_size</b> = 0</td></tr>
-<tr class="separator:a020e72c98cbe1b3d74f1d661cc9775bd inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac9f82c2062682681a6df361c940e3dcd inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_ac9f82c2062682681a6df361c940e3dcd"><td class="memItemLeft" align="right" valign="top">
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>original_reloc_offset</b> = 0</td></tr>
-<tr class="separator:ac9f82c2062682681a6df361c940e3dcd inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab59fc773fb75a0bf9d04c8da870d654e inherit pro_attribs_classMicrosoft_1_1MZStubWriter" id="r_ab59fc773fb75a0bf9d04c8da870d654e"><td class="memItemLeft" align="right" valign="top">
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset</b> = 0</td></tr>
-<tr class="separator:ab59fc773fb75a0bf9d04c8da870d654e inherit pro_attribs_classMicrosoft_1_1MZStubWriter"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Phar Lap "MP" .exp and "MQ" .rex file. </p>
@@ -434,8 +390,8 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 
 </div>
 </div>
-<a id="a5a1cec828ca3c061f8f5ce9491efd088" name="a5a1cec828ca3c061f8f5ce9491efd088"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a5a1cec828ca3c061f8f5ce9491efd088">&#9670;&#160;</a></span>Dump()</h2>
+<a id="a3f8256f26b156c63f1c2f73116c195e7" name="a3f8256f26b156c63f1c2f73116c195e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f8256f26b156c63f1c2f73116c195e7">&#9670;&#160;</a></span>Dump()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -447,7 +403,7 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
           <td class="memname">void MPFormat::Dump </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -459,7 +415,7 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 
 <p>Display file contents in a nice manner. </p>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#adda815844b654ffdd8f78e4828767702">Linker::Format</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a098d2d37cf55278aa98722b766d4fc38">Linker::Format</a>.</p>
 
 </div>
 </div>
@@ -490,8 +446,8 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 
 </div>
 </div>
-<a id="ab713ade15c665377ce3e1e8688a17af6" name="ab713ade15c665377ce3e1e8688a17af6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab713ade15c665377ce3e1e8688a17af6">&#9670;&#160;</a></span>GetDefaultExtension()</h2>
+<a id="a9dc886216ff67eb631f4e22134efd3aa" name="a9dc886216ff67eb631f4e22134efd3aa"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9dc886216ff67eb631f4e22134efd3aa">&#9670;&#160;</a></span>GetDefaultExtension()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -507,7 +463,7 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>filename</em></span>&#160;)</td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>filename</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -520,7 +476,7 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 <p>Appends a default extension to the filename. </p>
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
-<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#aa61623e060ec2757304d6862ec179d1c">Linker::OutputFormat</a>.</p>
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a43cd0c7fcb0fe1cf0ee919cb4c2cf1f0">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>
@@ -640,8 +596,8 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 
 </div>
 </div>
-<a id="a9b1db00624dd3cbcbbf2901c1dac1fd5" name="a9b1db00624dd3cbcbbf2901c1dac1fd5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9b1db00624dd3cbcbbf2901c1dac1fd5">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="ab758d4cb4e65d671d0d51fbcb2b80905" name="ab758d4cb4e65d671d0d51fbcb2b80905"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab758d4cb4e65d671d0d51fbcb2b80905">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -653,7 +609,7 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
           <td class="memname">offset_t MPFormat::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -665,7 +621,7 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>stub_reloc_offset
 
 <p>Stores data in memory to file. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Format.html#ab34d0b44ed4e540aaabb800273e56eaa">Linker::Format</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Format.html#a7355f6db61be5b563871ca6e2ceece82">Linker::Format</a>.</p>
 
 </div>
 </div>

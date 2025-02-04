@@ -99,24 +99,28 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab525bcf502a35c7e0543a3a5566dcc31" id="r_ab525bcf502a35c7e0543a3a5566dcc31"><td class="memItemLeft" align="right" valign="top"><a id="ab525bcf502a35c7e0543a3a5566dcc31" name="ab525bcf502a35c7e0543a3a5566dcc31"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Relocations</b> (size_t wordbytes, offset_t entsize)</td></tr>
 <tr class="separator:ab525bcf502a35c7e0543a3a5566dcc31"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7812250fe5170a96bd1899df6e0ffba4" id="r_a7812250fe5170a96bd1899df6e0ffba4"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7812250fe5170a96bd1899df6e0ffba4">ImageSize</a> () override</td></tr>
-<tr class="memdesc:a7812250fe5170a96bd1899df6e0ffba4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:a7812250fe5170a96bd1899df6e0ffba4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7ab85f5d3b2bca077da38d1c2bc7cdb0" id="r_a7ab85f5d3b2bca077da38d1c2bc7cdb0"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7ab85f5d3b2bca077da38d1c2bc7cdb0">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, offset_t count, offset_t offset) override</td></tr>
-<tr class="memdesc:a7ab85f5d3b2bca077da38d1c2bc7cdb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:a7ab85f5d3b2bca077da38d1c2bc7cdb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c92b822aec92913ef07c42fb00d3d9b" id="r_a2c92b822aec92913ef07c42fb00d3d9b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c92b822aec92913ef07c42fb00d3d9b">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classELF_1_1ELFFormat.html">ELFFormat</a> &amp;fmt, unsigned index) override</td></tr>
-<tr class="separator:a2c92b822aec92913ef07c42fb00d3d9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cc1282dead0c4ed1e263890f49f4587" id="r_a3cc1282dead0c4ed1e263890f49f4587"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3cc1282dead0c4ed1e263890f49f4587">ImageSize</a> () const override</td></tr>
+<tr class="memdesc:a3cc1282dead0c4ed1e263890f49f4587"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a3cc1282dead0c4ed1e263890f49f4587"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a30410bca6abf320c8e3cc4a4e6d59094" id="r_a30410bca6abf320c8e3cc4a4e6d59094"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a30410bca6abf320c8e3cc4a4e6d59094">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, offset_t count, offset_t offset) const override</td></tr>
+<tr class="memdesc:a30410bca6abf320c8e3cc4a4e6d59094"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a30410bca6abf320c8e3cc4a4e6d59094"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a842a8b75cc5827f8533dfdab94b4b56b" id="r_a842a8b75cc5827f8533dfdab94b4b56b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a842a8b75cc5827f8533dfdab94b4b56b">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classELF_1_1ELFFormat.html">ELFFormat</a> &amp;fmt, unsigned index) const override</td></tr>
+<tr class="separator:a842a8b75cc5827f8533dfdab94b4b56b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classELF_1_1ELFFormat_1_1SectionContents"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classELF_1_1ELFFormat_1_1SectionContents')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classELF_1_1ELFFormat_1_1SectionContents.html">ELF::ELFFormat::SectionContents</a></td></tr>
-<tr class="memitem:a8062ad50053272db0b66e5d117eed697 inherit pub_methods_classELF_1_1ELFFormat_1_1SectionContents" id="r_a8062ad50053272db0b66e5d117eed697"><td class="memItemLeft" align="right" valign="top">
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddDumperFields</b> (std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt; &amp;region, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classELF_1_1ELFFormat.html">ELFFormat</a> &amp;fmt, unsigned index)</td></tr>
-<tr class="separator:a8062ad50053272db0b66e5d117eed697 inherit pub_methods_classELF_1_1ELFFormat_1_1SectionContents"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01471ed107f7997d63f25b09624d9cbd inherit pub_methods_classELF_1_1ELFFormat_1_1SectionContents" id="r_a01471ed107f7997d63f25b09624d9cbd"><td class="memItemLeft" align="right" valign="top">
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddDumperFields</b> (std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt; &amp;region, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classELF_1_1ELFFormat.html">ELFFormat</a> &amp;fmt, unsigned index) const</td></tr>
+<tr class="separator:a01471ed107f7997d63f25b09624d9cbd inherit pub_methods_classELF_1_1ELFFormat_1_1SectionContents"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1Image"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Image')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Image.html">Linker::Image</a></td></tr>
-<tr class="memitem:aeca7376ed4f5a73c895179b024f4c2d8 inherit pub_methods_classLinker_1_1Image" id="r_aeca7376ed4f5a73c895179b024f4c2d8"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#aeca7376ed4f5a73c895179b024f4c2d8">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr)</td></tr>
-<tr class="memdesc:aeca7376ed4f5a73c895179b024f4c2d8 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:aeca7376ed4f5a73c895179b024f4c2d8 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image" id="r_a252985c07abe8a9da6c9c40d11af7dfb"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#a252985c07abe8a9da6c9c40d11af7dfb">AsImage</a> ()</td></tr>
-<tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="memitem:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image" id="r_a345910fe1b88a080b8c94e4de4386366"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#a345910fe1b88a080b8c94e4de4386366">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr) const</td></tr>
+<tr class="memdesc:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image" id="r_acaef1c478cfe2e33e41d9e1acd633be5"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; const <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#acaef1c478cfe2e33e41d9e1acd633be5">AsImage</a> () const</td></tr>
+<tr class="memdesc:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="separator:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image" id="r_a252985c07abe8a9da6c9c40d11af7dfb"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>AsImage</b> ()</td></tr>
+<tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
 <tr class="separator:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
@@ -132,8 +136,8 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocation.html">Re
 <tr class="separator:ae6054298c6c56b5096cd742c00a7beba"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
-<a id="a2c92b822aec92913ef07c42fb00d3d9b" name="a2c92b822aec92913ef07c42fb00d3d9b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2c92b822aec92913ef07c42fb00d3d9b">&#9670;&#160;</a></span>Dump()</h2>
+<a id="a842a8b75cc5827f8533dfdab94b4b56b" name="a842a8b75cc5827f8533dfdab94b4b56b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a842a8b75cc5827f8533dfdab94b4b56b">&#9670;&#160;</a></span>Dump()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -149,12 +153,12 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocation.html">Re
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classELF_1_1ELFFormat.html">ELFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>fmt</em>, </span></td>
+          <td class="paramtype">const <a class="el" href="classELF_1_1ELFFormat.html">ELFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>fmt</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">unsigned</td>          <td class="paramname"><span class="paramname"><em>index</em></span>&#160;)</td>
+          <td class="paramtype">unsigned</td>          <td class="paramname"><span class="paramname"><em>index</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -168,8 +172,8 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocation.html">Re
 
 </div>
 </div>
-<a id="a7812250fe5170a96bd1899df6e0ffba4" name="a7812250fe5170a96bd1899df6e0ffba4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7812250fe5170a96bd1899df6e0ffba4">&#9670;&#160;</a></span>ImageSize()</h2>
+<a id="a3cc1282dead0c4ed1e263890f49f4587" name="a3cc1282dead0c4ed1e263890f49f4587"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3cc1282dead0c4ed1e263890f49f4587">&#9670;&#160;</a></span>ImageSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -181,7 +185,7 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocation.html">Re
           <td class="memname">offset_t ELFFormat::Relocations::ImageSize </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -193,12 +197,12 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocation.html">Re
 
 <p>Retrieves size of stored data. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Image.html#a3147e4e24ae5395a566c345011263637">Linker::Image</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a94dfc8a1f78b22134c2bb82dbc554bb6">Linker::Image</a>.</p>
 
 </div>
 </div>
-<a id="a7ab85f5d3b2bca077da38d1c2bc7cdb0" name="a7ab85f5d3b2bca077da38d1c2bc7cdb0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7ab85f5d3b2bca077da38d1c2bc7cdb0">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="a30410bca6abf320c8e3cc4a4e6d59094" name="a30410bca6abf320c8e3cc4a4e6d59094"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a30410bca6abf320c8e3cc4a4e6d59094">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -219,7 +223,7 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocation.html">Re
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>offset</em></span>&#160;)</td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>offset</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -231,7 +235,7 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1Relocation.html">Re
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Image.html#a02b58d8155dbb1807ef955cd864fc67e">Linker::Image</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Image</a>.</p>
 
 </div>
 </div>

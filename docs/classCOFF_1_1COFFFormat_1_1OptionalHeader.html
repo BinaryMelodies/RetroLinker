@@ -106,27 +106,27 @@ Inheritance diagram for COFF::COFFFormat::OptionalHeader:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6c982db9de1f52cc87c2b0a1f51dc894" id="r_a6c982db9de1f52cc87c2b0a1f51dc894"><td class="memItemLeft" align="right" valign="top">virtual uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6c982db9de1f52cc87c2b0a1f51dc894">GetSize</a> ()=0</td></tr>
-<tr class="memdesc:a6c982db9de1f52cc87c2b0a1f51dc894"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns size of optional header.  <br /></td></tr>
-<tr class="separator:a6c982db9de1f52cc87c2b0a1f51dc894"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b8c424f72c38548afd35cc2e4fe908e" id="r_a0b8c424f72c38548afd35cc2e4fe908e"><td class="memItemLeft" align="right" valign="top">virtual uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0b8c424f72c38548afd35cc2e4fe908e">GetSize</a> () const =0</td></tr>
+<tr class="memdesc:a0b8c424f72c38548afd35cc2e4fe908e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns size of optional header.  <br /></td></tr>
+<tr class="separator:a0b8c424f72c38548afd35cc2e4fe908e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2bab269a3f3280259b7b5cd313dea7b" id="r_af2bab269a3f3280259b7b5cd313dea7b"><td class="memItemLeft" align="right" valign="top"><a id="af2bab269a3f3280259b7b5cd313dea7b" name="af2bab269a3f3280259b7b5cd313dea7b"></a>
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)=0</td></tr>
 <tr class="separator:af2bab269a3f3280259b7b5cd313dea7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e097f7d84a0b1fb7e234916adf916d4" id="r_a2e097f7d84a0b1fb7e234916adf916d4"><td class="memItemLeft" align="right" valign="top"><a id="a2e097f7d84a0b1fb7e234916adf916d4" name="a2e097f7d84a0b1fb7e234916adf916d4"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)=0</td></tr>
-<tr class="separator:a2e097f7d84a0b1fb7e234916adf916d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a29f1e8f3c7fa8ae57e78aeb57516ed" id="r_a7a29f1e8f3c7fa8ae57e78aeb57516ed"><td class="memItemLeft" align="right" valign="top"><a id="a7a29f1e8f3c7fa8ae57e78aeb57516ed" name="a7a29f1e8f3c7fa8ae57e78aeb57516ed"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const =0</td></tr>
+<tr class="separator:a7a29f1e8f3c7fa8ae57e78aeb57516ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8bfdea3b71c99cca046ad3a8f43949d5" id="r_a8bfdea3b71c99cca046ad3a8f43949d5"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8bfdea3b71c99cca046ad3a8f43949d5">CalculateValues</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff)=0</td></tr>
 <tr class="memdesc:a8bfdea3b71c99cca046ad3a8f43949d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up fields to be consistent.  <br /></td></tr>
 <tr class="separator:a8bfdea3b71c99cca046ad3a8f43949d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a62da5a8e339d05035eaf22d2296241" id="r_a9a62da5a8e339d05035eaf22d2296241"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9a62da5a8e339d05035eaf22d2296241">PostReadFile</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="memdesc:a9a62da5a8e339d05035eaf22d2296241"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves any additional data from the file corresponding to this type of optional header.  <br /></td></tr>
 <tr class="separator:a9a62da5a8e339d05035eaf22d2296241"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a299f440ad2bf55366dca6a25fc7450bc" id="r_a299f440ad2bf55366dca6a25fc7450bc"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a299f440ad2bf55366dca6a25fc7450bc">PostWriteFile</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
-<tr class="memdesc:a299f440ad2bf55366dca6a25fc7450bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores any additional data in the file corresponding to this type of optional header.  <br /></td></tr>
-<tr class="separator:a299f440ad2bf55366dca6a25fc7450bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abd9525b9efbcd7dc3b426a9878acd386" id="r_abd9525b9efbcd7dc3b426a9878acd386"><td class="memItemLeft" align="right" valign="top"><a id="abd9525b9efbcd7dc3b426a9878acd386" name="abd9525b9efbcd7dc3b426a9878acd386"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump)</td></tr>
-<tr class="separator:abd9525b9efbcd7dc3b426a9878acd386"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf14dde7e173101eb6a21fb2fb06b819" id="r_aaf14dde7e173101eb6a21fb2fb06b819"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaf14dde7e173101eb6a21fb2fb06b819">PostWriteFile</a> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="memdesc:aaf14dde7e173101eb6a21fb2fb06b819"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores any additional data in the file corresponding to this type of optional header.  <br /></td></tr>
+<tr class="separator:aaf14dde7e173101eb6a21fb2fb06b819"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c2640f590b9b1109f3d2005c6bc6aa3" id="r_a1c2640f590b9b1109f3d2005c6bc6aa3"><td class="memItemLeft" align="right" valign="top"><a id="a1c2640f590b9b1109f3d2005c6bc6aa3" name="a1c2640f590b9b1109f3d2005c6bc6aa3"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const</td></tr>
+<tr class="separator:a1c2640f590b9b1109f3d2005c6bc6aa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An abstract class to represent the optional header. </p>
@@ -161,8 +161,8 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a 
 
 </div>
 </div>
-<a id="a6c982db9de1f52cc87c2b0a1f51dc894" name="a6c982db9de1f52cc87c2b0a1f51dc894"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a6c982db9de1f52cc87c2b0a1f51dc894">&#9670;&#160;</a></span>GetSize()</h2>
+<a id="a0b8c424f72c38548afd35cc2e4fe908e" name="a0b8c424f72c38548afd35cc2e4fe908e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b8c424f72c38548afd35cc2e4fe908e">&#9670;&#160;</a></span>GetSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -174,7 +174,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a 
           <td class="memname">virtual uint32_t COFF::COFFFormat::OptionalHeader::GetSize </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -186,7 +186,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a 
 
 <p>Returns size of optional header. </p>
 
-<p>Implemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html#a4546ecab891b8d99ea33d2cc7e844ac3">COFF::COFFFormat::UnknownOptionalHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a8df0e070d04fcbe3f18282e24ac2b9e3">COFF::COFFFormat::AOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a4cd88c18fa8c0d2c82a7e8012888cb8c">COFF::COFFFormat::FlexOSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html#ae370975d784e4a4a0110583bb4d76572">COFF::COFFFormat::GNUAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html#a4e4ebbb21d07dae58b1a5650881ca833">COFF::COFFFormat::MIPSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html#a29beef551f753a0cb80d334369d58ef7">COFF::COFFFormat::ECOFFAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#ae8ac1cd67eaba525fe00fc545eafcf3a">COFF::COFFFormat::XCOFFAOutHeader</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#ab656865bb0b7a7bf4a819343b934f6df">Microsoft::PEFormat::PEOptionalHeader</a>.</p>
+<p>Implemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html#a7d7ba0e6f883549f73be2353b1439ff9">COFF::COFFFormat::UnknownOptionalHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#ad04e61abd4416355e54d139676544958">COFF::COFFFormat::AOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a63dc6232505cf94d688cd29838e724b0">COFF::COFFFormat::FlexOSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html#a3c86504735e986a4747f8add3c46e55c">COFF::COFFFormat::GNUAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html#a531d491e15c8176f996926359cfbe6c2">COFF::COFFFormat::MIPSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html#a462a6c35f9c1a486f242e3834f911f1d">COFF::COFFFormat::ECOFFAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#ad656a66f4c58694cba69fea809e479d1">COFF::COFFFormat::XCOFFAOutHeader</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#aee61920d352e0378a729d7cb2a66a432">Microsoft::PEFormat::PEOptionalHeader</a>.</p>
 
 </div>
 </div>
@@ -223,8 +223,8 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a 
 
 </div>
 </div>
-<a id="a299f440ad2bf55366dca6a25fc7450bc" name="a299f440ad2bf55366dca6a25fc7450bc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a299f440ad2bf55366dca6a25fc7450bc">&#9670;&#160;</a></span>PostWriteFile()</h2>
+<a id="aaf14dde7e173101eb6a21fb2fb06b819" name="aaf14dde7e173101eb6a21fb2fb06b819"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaf14dde7e173101eb6a21fb2fb06b819">&#9670;&#160;</a></span>PostWriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -235,12 +235,12 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a 
         <tr>
           <td class="memname">void COFFFormat::OptionalHeader::PostWriteFile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em>, </span></td>
+          <td class="paramtype">const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span>&#160;)</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -252,7 +252,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a 
 
 <p>Stores any additional data in the file corresponding to this type of optional header. </p>
 
-<p>Reimplemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a39185f6d2595df5c1ad0dc7e1a409493">COFF::COFFFormat::FlexOSAOutHeader</a>.</p>
+<p>Reimplemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a8193c6cab7f33c021ad73361df6b5390">COFF::COFFFormat::FlexOSAOutHeader</a>.</p>
 
 </div>
 </div>

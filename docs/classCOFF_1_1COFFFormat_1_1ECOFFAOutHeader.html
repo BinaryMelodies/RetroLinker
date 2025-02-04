@@ -104,25 +104,25 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:acddc417400df7db33727572d41f6a5b9" id="r_acddc417400df7db33727572d41f6a5b9"><td class="memItemLeft" align="right" valign="top"><a id="acddc417400df7db33727572d41f6a5b9" name="acddc417400df7db33727572d41f6a5b9"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>ECOFFAOutHeader</b> (uint16_t <a class="el" href="#a2d65a87fcb4df85feffa23f146e8586b">magic</a>=0)</td></tr>
 <tr class="separator:acddc417400df7db33727572d41f6a5b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29beef551f753a0cb80d334369d58ef7" id="r_a29beef551f753a0cb80d334369d58ef7"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a29beef551f753a0cb80d334369d58ef7">GetSize</a> () override</td></tr>
-<tr class="memdesc:a29beef551f753a0cb80d334369d58ef7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns size of optional header.  <br /></td></tr>
-<tr class="separator:a29beef551f753a0cb80d334369d58ef7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a462a6c35f9c1a486f242e3834f911f1d" id="r_a462a6c35f9c1a486f242e3834f911f1d"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a462a6c35f9c1a486f242e3834f911f1d">GetSize</a> () const override</td></tr>
+<tr class="memdesc:a462a6c35f9c1a486f242e3834f911f1d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns size of optional header.  <br /></td></tr>
+<tr class="separator:a462a6c35f9c1a486f242e3834f911f1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2cbdf9952e33c9e9a4c4409c9892d3a0" id="r_a2cbdf9952e33c9e9a4c4409c9892d3a0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2cbdf9952e33c9e9a4c4409c9892d3a0">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="separator:a2cbdf9952e33c9e9a4c4409c9892d3a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3bd9d1277db6eab8e34ec36faef5c28c" id="r_a3bd9d1277db6eab8e34ec36faef5c28c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3bd9d1277db6eab8e34ec36faef5c28c">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) override</td></tr>
-<tr class="separator:a3bd9d1277db6eab8e34ec36faef5c28c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a701ce4626b491ce60553f90fd221fb23" id="r_a701ce4626b491ce60553f90fd221fb23"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a701ce4626b491ce60553f90fd221fb23">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
+<tr class="separator:a701ce4626b491ce60553f90fd221fb23"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6ab6ee8a69473db345b41d6f5482cc1a" id="r_a6ab6ee8a69473db345b41d6f5482cc1a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6ab6ee8a69473db345b41d6f5482cc1a">CalculateValues</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff) override</td></tr>
 <tr class="memdesc:a6ab6ee8a69473db345b41d6f5482cc1a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up fields to be consistent.  <br /></td></tr>
 <tr class="separator:a6ab6ee8a69473db345b41d6f5482cc1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2c99af1549ae58ecee4511630fcefc05" id="r_a2c99af1549ae58ecee4511630fcefc05"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c99af1549ae58ecee4511630fcefc05">Dump</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) override</td></tr>
-<tr class="separator:a2c99af1549ae58ecee4511630fcefc05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a04245d3a611615a3415226617866cc97" id="r_a04245d3a611615a3415226617866cc97"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a04245d3a611615a3415226617866cc97">Dump</a> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
+<tr class="separator:a04245d3a611615a3415226617866cc97"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html">COFF::COFFFormat::OptionalHeader</a></td></tr>
 <tr class="memitem:a9a62da5a8e339d05035eaf22d2296241 inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader" id="r_a9a62da5a8e339d05035eaf22d2296241"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#a9a62da5a8e339d05035eaf22d2296241">PostReadFile</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="memdesc:a9a62da5a8e339d05035eaf22d2296241 inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves any additional data from the file corresponding to this type of optional header.  <br /></td></tr>
 <tr class="separator:a9a62da5a8e339d05035eaf22d2296241 inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a299f440ad2bf55366dca6a25fc7450bc inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader" id="r_a299f440ad2bf55366dca6a25fc7450bc"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#a299f440ad2bf55366dca6a25fc7450bc">PostWriteFile</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
-<tr class="memdesc:a299f440ad2bf55366dca6a25fc7450bc inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores any additional data in the file corresponding to this type of optional header.  <br /></td></tr>
-<tr class="separator:a299f440ad2bf55366dca6a25fc7450bc inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaf14dde7e173101eb6a21fb2fb06b819 inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader" id="r_aaf14dde7e173101eb6a21fb2fb06b819"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#aaf14dde7e173101eb6a21fb2fb06b819">PostWriteFile</a> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="memdesc:aaf14dde7e173101eb6a21fb2fb06b819 inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores any additional data in the file corresponding to this type of optional header.  <br /></td></tr>
+<tr class="separator:aaf14dde7e173101eb6a21fb2fb06b819 inherit pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -228,8 +228,8 @@ static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>
 
 </div>
 </div>
-<a id="a2c99af1549ae58ecee4511630fcefc05" name="a2c99af1549ae58ecee4511630fcefc05"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2c99af1549ae58ecee4511630fcefc05">&#9670;&#160;</a></span>Dump()</h2>
+<a id="a04245d3a611615a3415226617866cc97" name="a04245d3a611615a3415226617866cc97"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04245d3a611615a3415226617866cc97">&#9670;&#160;</a></span>Dump()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -240,12 +240,12 @@ static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>
         <tr>
           <td class="memname">void COFFFormat::ECOFFAOutHeader::Dump </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em>, </span></td>
+          <td class="paramtype">const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span>&#160;)</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -259,8 +259,8 @@ static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>
 
 </div>
 </div>
-<a id="a29beef551f753a0cb80d334369d58ef7" name="a29beef551f753a0cb80d334369d58ef7"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a29beef551f753a0cb80d334369d58ef7">&#9670;&#160;</a></span>GetSize()</h2>
+<a id="a462a6c35f9c1a486f242e3834f911f1d" name="a462a6c35f9c1a486f242e3834f911f1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a462a6c35f9c1a486f242e3834f911f1d">&#9670;&#160;</a></span>GetSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -272,7 +272,7 @@ static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>
           <td class="memname">uint32_t COFFFormat::ECOFFAOutHeader::GetSize </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>
@@ -284,7 +284,7 @@ static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>
 
 <p>Returns size of optional header. </p>
 
-<p>Implements <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#a6c982db9de1f52cc87c2b0a1f51dc894">COFF::COFFFormat::OptionalHeader</a>.</p>
+<p>Implements <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#a0b8c424f72c38548afd35cc2e4fe908e">COFF::COFFFormat::OptionalHeader</a>.</p>
 
 </div>
 </div>
@@ -315,8 +315,8 @@ static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>
 
 </div>
 </div>
-<a id="a3bd9d1277db6eab8e34ec36faef5c28c" name="a3bd9d1277db6eab8e34ec36faef5c28c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a3bd9d1277db6eab8e34ec36faef5c28c">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="a701ce4626b491ce60553f90fd221fb23" name="a701ce4626b491ce60553f90fd221fb23"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a701ce4626b491ce60553f90fd221fb23">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -328,7 +328,7 @@ static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>
           <td class="memname">void COFFFormat::ECOFFAOutHeader::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
   </td>

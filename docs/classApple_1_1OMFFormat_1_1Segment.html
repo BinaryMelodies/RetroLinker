@@ -146,27 +146,27 @@ Public Member Functions</h2></td></tr>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadUnsigned</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="memdesc:a8e71745b07f749dd8a4cf6e6147581ed"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a number the size of number_length. <br /></td></tr>
 <tr class="separator:a8e71745b07f749dd8a4cf6e6147581ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2e864de23eef9ed34a3b2011e92562ac" id="r_a2e864de23eef9ed34a3b2011e92562ac"><td class="memItemLeft" align="right" valign="top"><a id="a2e864de23eef9ed34a3b2011e92562ac" name="a2e864de23eef9ed34a3b2011e92562ac"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteWord</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, offset_t value)</td></tr>
-<tr class="memdesc:a2e864de23eef9ed34a3b2011e92562ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a string the size of number_length. <br /></td></tr>
-<tr class="separator:a2e864de23eef9ed34a3b2011e92562ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3591d5f922e7992bfa11b3c4e5da88fd" id="r_a3591d5f922e7992bfa11b3c4e5da88fd"><td class="memItemLeft" align="right" valign="top"><a id="a3591d5f922e7992bfa11b3c4e5da88fd" name="a3591d5f922e7992bfa11b3c4e5da88fd"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteWord</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, offset_t value) const</td></tr>
+<tr class="memdesc:a3591d5f922e7992bfa11b3c4e5da88fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a string the size of number_length. <br /></td></tr>
+<tr class="separator:a3591d5f922e7992bfa11b3c4e5da88fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2b8283707610564879a5084fc0b5f427" id="r_a2b8283707610564879a5084fc0b5f427"><td class="memItemLeft" align="right" valign="top"><a id="a2b8283707610564879a5084fc0b5f427" name="a2b8283707610564879a5084fc0b5f427"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>ReadLabel</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="memdesc:a2b8283707610564879a5084fc0b5f427"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a string the size of label_length, or variable length if it is 0. <br /></td></tr>
 <tr class="separator:a2b8283707610564879a5084fc0b5f427"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7d53725d59c00a48af56c0016b0b19da" id="r_a7d53725d59c00a48af56c0016b0b19da"><td class="memItemLeft" align="right" valign="top"><a id="a7d53725d59c00a48af56c0016b0b19da" name="a7d53725d59c00a48af56c0016b0b19da"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteLabel</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, std::string text)</td></tr>
-<tr class="memdesc:a7d53725d59c00a48af56c0016b0b19da"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a string the size of label_length, or variable length if it is 0. <br /></td></tr>
-<tr class="separator:a7d53725d59c00a48af56c0016b0b19da"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a294c60d3f7c130c8f9a3cfede99800be" id="r_a294c60d3f7c130c8f9a3cfede99800be"><td class="memItemLeft" align="right" valign="top"><a id="a294c60d3f7c130c8f9a3cfede99800be" name="a294c60d3f7c130c8f9a3cfede99800be"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteLabel</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, std::string text) const</td></tr>
+<tr class="memdesc:a294c60d3f7c130c8f9a3cfede99800be"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a string the size of label_length, or variable length if it is 0. <br /></td></tr>
+<tr class="separator:a294c60d3f7c130c8f9a3cfede99800be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a89fb36136b086325f7174536f9ac49d0" id="r_a89fb36136b086325f7174536f9ac49d0"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a89fb36136b086325f7174536f9ac49d0">CalculateValues</a> (uint16_t <a class="el" href="#aeb27c58ed69d56115063f4921040a4ef">segment_number</a>, offset_t current_offset)</td></tr>
 <tr class="memdesc:a89fb36136b086325f7174536f9ac49d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the values needed to generate segment images.  <br /></td></tr>
 <tr class="separator:a89fb36136b086325f7174536f9ac49d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aba237a40dca604edb9931f12868325c7" id="r_aba237a40dca604edb9931f12868325c7"><td class="memItemLeft" align="right" valign="top"><a id="aba237a40dca604edb9931f12868325c7" name="aba237a40dca604edb9931f12868325c7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="separator:aba237a40dca604edb9931f12868325c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a65cca013a1822249109842e772cb8f8e" id="r_a65cca013a1822249109842e772cb8f8e"><td class="memItemLeft" align="right" valign="top"><a id="a65cca013a1822249109842e772cb8f8e" name="a65cca013a1822249109842e772cb8f8e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr)</td></tr>
-<tr class="separator:a65cca013a1822249109842e772cb8f8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7386095e076ea38d3a4a38ba8d6ff46" id="r_ac7386095e076ea38d3a4a38ba8d6ff46"><td class="memItemLeft" align="right" valign="top"><a id="ac7386095e076ea38d3a4a38ba8d6ff46" name="ac7386095e076ea38d3a4a38ba8d6ff46"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="separator:ac7386095e076ea38d3a4a38ba8d6ff46"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6dd65a7d25f62fb37013c1e60201f1c8" id="r_a6dd65a7d25f62fb37013c1e60201f1c8"><td class="memItemLeft" align="right" valign="top"><a id="a6dd65a7d25f62fb37013c1e60201f1c8" name="a6dd65a7d25f62fb37013c1e60201f1c8"></a>
 std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ReadExpression</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="separator:a6dd65a7d25f62fb37013c1e60201f1c8"><td class="memSeparator" colspan="2">&#160;</td></tr>

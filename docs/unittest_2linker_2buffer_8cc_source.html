@@ -129,21 +129,21 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>        std::istringstream iss(input);</div>
 <div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>        <a class="code hl_class" href="classLinker_1_1Reader.html">Reader</a> rd(::LittleEndian, &amp;iss);</div>
 <div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>        buffer.ReadFile(rd);</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        CPPUNIT_ASSERT_EQUAL(offset_t(input.size()), buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a8e5604100c1ffdd84234821d5c37507b">ImageSize</a>());</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>        CPPUNIT_ASSERT_EQUAL(offset_t(input.size()), buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a317d6bc4516594dcc56a81788a48a5e2">ImageSize</a>());</div>
 <div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    }</div>
 <div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span> </div>
 <div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    {</div>
 <div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span>        std::istringstream iss(input);</div>
 <div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>        <a class="code hl_class" href="classLinker_1_1Reader.html">Reader</a> rd(::LittleEndian, &amp;iss);</div>
 <div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>        buffer.ReadFile(rd, 0);</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        CPPUNIT_ASSERT_EQUAL(offset_t(0), buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a8e5604100c1ffdd84234821d5c37507b">ImageSize</a>());</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        CPPUNIT_ASSERT_EQUAL(offset_t(0), buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a317d6bc4516594dcc56a81788a48a5e2">ImageSize</a>());</div>
 <div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>    }</div>
 <div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span> </div>
 <div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    {</div>
 <div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        std::istringstream iss(input);</div>
 <div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <a class="code hl_class" href="classLinker_1_1Reader.html">Reader</a> rd(::LittleEndian, &amp;iss);</div>
 <div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        buffer.ReadFile(rd, input.size() / 2);</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        CPPUNIT_ASSERT_EQUAL(offset_t(input.size() / 2), buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a8e5604100c1ffdd84234821d5c37507b">ImageSize</a>());</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>        CPPUNIT_ASSERT_EQUAL(offset_t(input.size() / 2), buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a317d6bc4516594dcc56a81788a48a5e2">ImageSize</a>());</div>
 <div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    }</div>
 <div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span> </div>
 <div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>    {</div>
@@ -151,7 +151,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        <a class="code hl_class" href="classLinker_1_1Reader.html">Reader</a> rd(::LittleEndian, &amp;iss);</div>
 <div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        buffer.ReadFile(rd);</div>
 <div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keywordtype">size_t</span> offset = input.size() / 2;</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        CPPUNIT_ASSERT_EQUAL(offset_t(input.size()), buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a8e5604100c1ffdd84234821d5c37507b">ImageSize</a>());</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        CPPUNIT_ASSERT_EQUAL(offset_t(input.size()), buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a317d6bc4516594dcc56a81788a48a5e2">ImageSize</a>());</div>
 <div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>        CPPUNIT_ASSERT_EQUAL(<span class="keywordtype">int</span>(input[offset]), buffer.<a class="code hl_function" href="classLinker_1_1ActualImage.html#a7502321e62b5b6742444f502ca1ff453">GetByte</a>(offset));</div>
 <div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>    }</div>
 <div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>}</div>
@@ -171,7 +171,7 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>    {</div>
 <div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        std::ostringstream oss;</div>
 <div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        <a class="code hl_class" href="classLinker_1_1Writer.html">Writer</a> wr(::LittleEndian, &amp;oss);</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#ae13ce28cf7bc9f28e1ac1d57e409d312">WriteFile</a>(wr);</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a8ebeff245404c6ed0833b2ce265c9fa2">WriteFile</a>(wr);</div>
 <div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        CPPUNIT_ASSERT_EQUAL(oss.str(), input);</div>
 <div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>    }</div>
 <div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span> </div>
@@ -180,17 +180,17 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        <a class="code hl_class" href="classLinker_1_1Writer.html">Writer</a> wr(::LittleEndian, &amp;oss);</div>
 <div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>        offset_t start = input.size() / 5;</div>
 <div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        offset_t length = input.size() / 3;</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#ae13ce28cf7bc9f28e1ac1d57e409d312">WriteFile</a>(wr, length, start);</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        buffer.<a class="code hl_function" href="classLinker_1_1Buffer.html#a8ebeff245404c6ed0833b2ce265c9fa2">WriteFile</a>(wr, length, start);</div>
 <div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        CPPUNIT_ASSERT_EQUAL(oss.str(), input.substr(start, length));</div>
 <div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>    }</div>
 <div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>}</div>
 <div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span> </div>
 <div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>}</div>
 <div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span> </div>
-<div class="ttc" id="aclassLinker_1_1ActualImage_html_a7502321e62b5b6742444f502ca1ff453"><div class="ttname"><a href="classLinker_1_1ActualImage.html#a7502321e62b5b6742444f502ca1ff453">Linker::ActualImage::GetByte</a></div><div class="ttdeci">int GetByte(offset_t offset) const</div><div class="ttdoc">Retrieve byte at a certain offset (optional, might not be defined)</div><div class="ttdef"><b>Definition</b> image.cc:57</div></div>
+<div class="ttc" id="aclassLinker_1_1ActualImage_html_a7502321e62b5b6742444f502ca1ff453"><div class="ttname"><a href="classLinker_1_1ActualImage.html#a7502321e62b5b6742444f502ca1ff453">Linker::ActualImage::GetByte</a></div><div class="ttdeci">int GetByte(offset_t offset) const</div><div class="ttdoc">Retrieve byte at a certain offset (optional, might not be defined)</div><div class="ttdef"><b>Definition</b> image.cc:62</div></div>
 <div class="ttc" id="aclassLinker_1_1Buffer_html"><div class="ttname"><a href="classLinker_1_1Buffer.html">Linker::Buffer</a></div><div class="ttdoc">A buffer that can be used to read and store data from a file.</div><div class="ttdef"><b>Definition</b> buffer.h:22</div></div>
-<div class="ttc" id="aclassLinker_1_1Buffer_html_a8e5604100c1ffdd84234821d5c37507b"><div class="ttname"><a href="classLinker_1_1Buffer.html#a8e5604100c1ffdd84234821d5c37507b">Linker::Buffer::ImageSize</a></div><div class="ttdeci">offset_t ImageSize() override</div><div class="ttdoc">Retrieves size of stored data.</div><div class="ttdef"><b>Definition</b> buffer.cc:9</div></div>
-<div class="ttc" id="aclassLinker_1_1Buffer_html_ae13ce28cf7bc9f28e1ac1d57e409d312"><div class="ttname"><a href="classLinker_1_1Buffer.html#ae13ce28cf7bc9f28e1ac1d57e409d312">Linker::Buffer::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Writer &amp;wr, offset_t count, offset_t offset=0) override</div><div class="ttdoc">Writes data of non-zero filled sections.</div><div class="ttdef"><b>Definition</b> buffer.cc:43</div></div>
+<div class="ttc" id="aclassLinker_1_1Buffer_html_a317d6bc4516594dcc56a81788a48a5e2"><div class="ttname"><a href="classLinker_1_1Buffer.html#a317d6bc4516594dcc56a81788a48a5e2">Linker::Buffer::ImageSize</a></div><div class="ttdeci">offset_t ImageSize() const override</div><div class="ttdoc">Retrieves size of stored data.</div><div class="ttdef"><b>Definition</b> buffer.cc:9</div></div>
+<div class="ttc" id="aclassLinker_1_1Buffer_html_a8ebeff245404c6ed0833b2ce265c9fa2"><div class="ttname"><a href="classLinker_1_1Buffer.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::Buffer::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Writer &amp;wr, offset_t count, offset_t offset=0) const override</div><div class="ttdoc">Writes data of non-zero filled sections.</div><div class="ttdef"><b>Definition</b> buffer.cc:43</div></div>
 <div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:16</div></div>
 <div class="ttc" id="aclassLinker_1_1Writer_html"><div class="ttname"><a href="classLinker_1_1Writer.html">Linker::Writer</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to export binary data.</div><div class="ttdef"><b>Definition</b> writer.h:15</div></div>
 <div class="ttc" id="aclassUnitTests_1_1TestBuffer_html"><div class="ttname"><a href="classUnitTests_1_1TestBuffer.html">UnitTests::TestBuffer</a></div><div class="ttdef"><b>Definition</b> buffer.cc:15</div></div>
