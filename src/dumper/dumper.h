@@ -147,14 +147,20 @@ class DecDisplay : public Display<offset_t>
 {
 public:
 	std::string suffix;
-	DecDisplay(std::string suffix)
-		: suffix(suffix)
+	bool enable_signed = false;
+	DecDisplay(std::string suffix, bool enable_signed)
+		: suffix(suffix), enable_signed(enable_signed)
 	{
 	}
 
-	static std::shared_ptr<DecDisplay> Make(std::string suffix = "")
+	static std::shared_ptr<DecDisplay> Make(bool enable_signed)
 	{
-		return std::make_shared<DecDisplay>(suffix);
+		return std::make_shared<DecDisplay>("", enable_signed);
+	}
+
+	static std::shared_ptr<DecDisplay> Make(std::string suffix = "", bool enable_signed = false)
+	{
+		return std::make_shared<DecDisplay>(suffix, enable_signed);
 	}
 
 	void DisplayValue(Dumper& dump, std::tuple<offset_t> values) override;
@@ -622,6 +628,14 @@ public:
 	 * @brief Displays a decimal value (default prefix is "#")
 	 */
 	void PrintDec(offset_t value, std::string prefix = "#")
+	{
+		out << prefix << std::dec << value;
+	}
+
+	/**
+	 * @brief Displays a decimal value (default prefix is "#")
+	 */
+	void PrintDecSigned(relative_offset_t value, std::string prefix = "#")
 	{
 		out << prefix << std::dec << value;
 	}

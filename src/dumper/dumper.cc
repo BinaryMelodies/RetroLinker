@@ -42,7 +42,10 @@ void HexDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)
 
 void DecDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)
 {
-	dump.PrintDec(std::get<0>(values));
+	if(enable_signed)
+		dump.PrintDecSigned(std::get<0>(values));
+	else
+		dump.PrintDec(std::get<0>(values));
 	dump.out << suffix;
 }
 
