@@ -1238,6 +1238,12 @@ void OMFFormat::Segment::RelativeExpressionRecord::WriteFile(const Segment& segm
 	expression->WriteFile(segment, wr);
 }
 
+void OMFFormat::Segment::RelativeExpressionRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	ExpressionRecord::AddFields(dump, region, omf, segment, index, file_offset, address);
+	region.AddField("Offset of origin", Dumper::HexDisplay::Make(8), offset_t(origin));
+}
+
 offset_t OMFFormat::Segment::EntryRecord::GetLength(const Segment& segment) const
 {
 	return 3 + segment.number_length + (segment.label_length == 0 ? 1 + name.size() : segment.label_length);
@@ -1256,6 +1262,12 @@ void OMFFormat::Segment::EntryRecord::WriteFile(const Segment& segment, Linker::
 	wr.WriteWord(2, segment_number);
 	segment.WriteWord(wr, location);
 	segment.WriteLabel(wr, name);
+}
+
+void OMFFormat::Segment::EntryRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	region.AddField("Segment name", Dumper::StringDisplay::Make(), name);
+	region.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(segment_number), offset_t(location));
 }
 
 offset_t OMFFormat::Segment::SuperCompactRecord::GetLength(const Segment& segment) const

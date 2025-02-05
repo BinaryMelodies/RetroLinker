@@ -573,6 +573,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			/** @brief Represents an ENTRY record */
@@ -596,6 +597,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			/** @brief Represents a SUPER record */
