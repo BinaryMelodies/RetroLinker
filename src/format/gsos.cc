@@ -121,7 +121,7 @@ void OMFFormat::Segment::ReadFile(Linker::Reader& rd)
 		rd.Skip(1);
 	}
 	label_length = rd.ReadUnsigned(1);
-	number_length = rd.ReadUnsigned(4);
+	number_length = rd.ReadUnsigned(1);
 	if(number_length != 4)
 	{
 		Linker::Error << "Invalid NUMLEN field " << number_length << ", only 4 is allowed" << std::endl;
@@ -182,7 +182,10 @@ void OMFFormat::Segment::ReadFile(Linker::Reader& rd)
 	segment_name = ReadLabel(rd);
 
 	rd.Seek(segment_offset + segment_data_offset);
-	/* TODO: read contents */
+	while(rd.Tell() < segment_offset + total_segment_size)
+	{
+		records.emplace_back(ReadRecord(rd));
+	}
 }
 
 void OMFFormat::Segment::WriteFile(Linker::Writer& wr) const
@@ -251,7 +254,85 @@ void OMFFormat::Segment::WriteFile(Linker::Writer& wr) const
 	WriteLabel(wr, segment_name);
 
 	wr.Seek(segment_offset + segment_data_offset);
-	// TODO: read contents
+	for(auto& record : records)
+	{
+		record->WriteFile(*this, wr);
+	}
+}
+
+void OMFFormat::Segment::Dump(Dumper::Dumper& dump, const OMFFormat& omf, unsigned segment_index) const
+{
+	Dumper::Region segment_region("Segment", segment_offset, total_segment_size, 8);
+	segment_region.AddField("Segment index", Dumper::DecDisplay::Make(), offset_t(segment_index + 1));
+	if(segment_index + 1 != segment_number)
+		segment_region.AddField("Segment number", Dumper::DecDisplay::Make(), offset_t(segment_number));
+	segment_region.AddField("Segment name", Dumper::StringDisplay::Make("\""), segment_name);
+	segment_region.AddField("Object name", Dumper::StringDisplay::Make("\""), linker_segment_name);
+	segment_region.AddField("Segment name offset", Dumper::HexDisplay::Make(8), segment_name_offset);
+	segment_region.AddField("OMF version", Dumper::VersionDisplay::Make(), offset_t(version >> 8), offset_t(version & 0xFF));
+	segment_region.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(total_size));
+	segment_region.AddField("Zero fill", Dumper::HexDisplay::Make(8), offset_t(bss_size));
+	segment_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(base_address));
+	segment_region.AddOptionalField("Virtual address", Dumper::HexDisplay::Make(8), offset_t(temp_org));
+	segment_region.AddField("Align", Dumper::HexDisplay::Make(8), offset_t(align));
+	std::map<offset_t, std::string> byte_order_descriptions;
+	byte_order_descriptions[0] = "little endian";
+	byte_order_descriptions[1] = "big endian";
+	segment_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(byte_order_descriptions), offset_t(endiantype));
+	segment_region.AddField("Number size", Dumper::DecDisplay::Make(), offset_t(number_length));
+	std::map<offset_t, std::string> kind_descriptions;
+	kind_descriptions[0x00] = "code segment";
+	kind_descriptions[0x01] = "data segment";
+	kind_descriptions[0x02] = "jump table segment";
+	kind_descriptions[0x04] = "pathname segment";
+	kind_descriptions[0x08] = "library dictionary segment";
+	kind_descriptions[0x10] = "initialization segment";
+	if(version < OMF_VERSION_2)
+		kind_descriptions[0x11] = "absolute bank segment";
+	kind_descriptions[0x12] = "direct page/stack segment";
+	segment_region.AddField("Kind", Dumper::ChoiceDisplay::Make(kind_descriptions, Dumper::HexDisplay::Make(2)), offset_t(kind));
+	if(version < OMF_VERSION_1)
+	{
+		segment_region.AddField("Flags",
+			Dumper::BitFieldDisplay::Make(2)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("position independent"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("private"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("dynamic", "static"), false),
+			offset_t(flags >> 8));
+	}
+	else
+	{
+		segment_region.AddField("Flags",
+			Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("bank relative"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("skip segment"), true)
+				->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("reload segment"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("absolute bank"), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("not special memory"), true)
+				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("position independent"), true)
+				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("private"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("dynamic", "static"), false),
+			offset_t(flags));
+	}
+	if(label_length == 0)
+		segment_region.AddField("Label size", Dumper::ChoiceDisplay::Make("variable"), offset_t(true));
+	else
+		segment_region.AddField("Label size", Dumper::DecDisplay::Make(), offset_t(label_length));
+	segment_region.AddField("Bank size", Dumper::HexDisplay::Make(8), offset_t(bank_size));
+	if(version < OMF_VERSION_2)
+	{
+		segment_region.AddOptionalField("Language card bank", Dumper::HexDisplay::Make(2), offset_t(language_card_bank));
+	}
+	segment_region.AddField("Entry", Dumper::HexDisplay::Make(8), offset_t(entry));
+	segment_region.Display(dump);
+
+	Dumper::Region records_region("Segment records", segment_offset + segment_data_offset, total_segment_size - segment_data_offset, 8);
+	records_region.Display(dump);
+
+	for(auto& record : records)
+	{
+//		record->WriteFile(*this, wr);
+	}
 }
 
 void OMFFormat::CalculateValues()
@@ -283,7 +364,14 @@ offset_t OMFFormat::WriteFile(Linker::Writer& wr) const
 		segment->WriteFile(wr);
 	}
 
-	return offset_t(-1);
+	return ImageSize();
+}
+
+offset_t OMFFormat::ImageSize() const
+{
+	if(segments.size() == 0)
+		return 0;
+	return segments.back()->segment_offset + segments.back()->total_segment_size;
 }
 
 void OMFFormat::Dump(Dumper::Dumper& dump) const
@@ -291,21 +379,22 @@ void OMFFormat::Dump(Dumper::Dumper& dump) const
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("GS/OS OMF format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
 	file_region.Display(dump);
 
-	// TODO
+	unsigned segment_index = 0;
+	for(auto& segment : segments)
+	{
+		segment->Dump(dump, *this, segment_index);
+		segment_index++;
+	}
 }
 
 OMFFormat::Segment::Expression::~Expression()
 {
 }
 
-OMFFormat::Segment::Record::~Record()
-{
-}
-
-offset_t OMFFormat::Segment::Record::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::Record::GetLength(const Segment& segment) const
 {
 	return 1;
 }
@@ -314,12 +403,17 @@ void OMFFormat::Segment::Record::ReadFile(Segment& segment, Linker::Reader& rd)
 {
 }
 
-void OMFFormat::Segment::Record::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::Record::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	wr.WriteWord(1, type);
 }
 
-offset_t OMFFormat::Segment::DataRecord::GetLength(Segment& segment) const
+void OMFFormat::Segment::Record::Dump(Dumper::Dumper& dumper, const OMFFormat& omf, unsigned index, offset_t file_offset) const
+{
+	// TODO
+}
+
+offset_t OMFFormat::Segment::DataRecord::GetLength(const Segment& segment) const
 {
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
@@ -344,7 +438,7 @@ void OMFFormat::Segment::DataRecord::ReadFile(Segment& segment, Linker::Reader& 
 	}
 }
 
-void OMFFormat::Segment::DataRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::DataRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
@@ -358,7 +452,7 @@ void OMFFormat::Segment::DataRecord::WriteFile(Segment& segment, Linker::Writer&
 	}
 }
 
-offset_t OMFFormat::Segment::ValueRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::ValueRecord::GetLength(const Segment& segment) const
 {
 	return 1 + segment.number_length;
 }
@@ -368,13 +462,13 @@ void OMFFormat::Segment::ValueRecord::ReadFile(Segment& segment, Linker::Reader&
 	value = segment.ReadUnsigned(rd);
 }
 
-void OMFFormat::Segment::ValueRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::ValueRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteWord(wr, value);
 }
 
-offset_t OMFFormat::Segment::StringRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::StringRecord::GetLength(const Segment& segment) const
 {
 	return 1 + (segment.label_length == 0 ? 1 + value.size() : segment.label_length);
 }
@@ -384,13 +478,13 @@ void OMFFormat::Segment::StringRecord::ReadFile(Segment& segment, Linker::Reader
 	value = segment.ReadLabel(rd);
 }
 
-void OMFFormat::Segment::StringRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::StringRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteLabel(wr, value);
 }
 
-offset_t OMFFormat::Segment::RelocationRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::RelocationRecord::GetLength(const Segment& segment) const
 {
 	if(type == OPC_RELOC)
 	{
@@ -418,7 +512,7 @@ void OMFFormat::Segment::RelocationRecord::ReadFile(Segment& segment, Linker::Re
 	}
 }
 
-void OMFFormat::Segment::RelocationRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::RelocationRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	wr.WriteWord(1, size);
@@ -435,7 +529,7 @@ void OMFFormat::Segment::RelocationRecord::WriteFile(Segment& segment, Linker::W
 	}
 }
 
-offset_t OMFFormat::Segment::IntersegmentRelocationRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::IntersegmentRelocationRecord::GetLength(const Segment& segment) const
 {
 	if(type == OPC_INTERSEG)
 	{
@@ -467,7 +561,7 @@ void OMFFormat::Segment::IntersegmentRelocationRecord::ReadFile(Segment& segment
 	}
 }
 
-void OMFFormat::Segment::IntersegmentRelocationRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::IntersegmentRelocationRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	wr.WriteWord(1, size);
@@ -487,7 +581,7 @@ void OMFFormat::Segment::IntersegmentRelocationRecord::WriteFile(Segment& segmen
 	}
 }
 
-offset_t OMFFormat::Segment::LabelRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::LabelRecord::GetLength(const Segment& segment) const
 {
 	return 5 + segment.number_length;
 }
@@ -500,7 +594,7 @@ void OMFFormat::Segment::LabelRecord::ReadFile(Segment& segment, Linker::Reader&
 	private_flag = rd.ReadUnsigned(1);
 }
 
-void OMFFormat::Segment::LabelRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::LabelRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteLabel(wr, name);
@@ -509,7 +603,7 @@ void OMFFormat::Segment::LabelRecord::WriteFile(Segment& segment, Linker::Writer
 	wr.WriteWord(1, private_flag);
 }
 
-offset_t OMFFormat::Segment::LabelExpressionRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::LabelExpressionRecord::GetLength(const Segment& segment) const
 {
 	return 5 + segment.number_length + expression->GetLength(segment);
 }
@@ -523,7 +617,7 @@ void OMFFormat::Segment::LabelExpressionRecord::ReadFile(Segment& segment, Linke
 	expression = segment.ReadExpression(rd);
 }
 
-void OMFFormat::Segment::LabelExpressionRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::LabelExpressionRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteLabel(wr, name);
@@ -533,7 +627,7 @@ void OMFFormat::Segment::LabelExpressionRecord::WriteFile(Segment& segment, Link
 	expression->WriteFile(segment, wr);
 }
 
-offset_t OMFFormat::Segment::RangeRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::RangeRecord::GetLength(const Segment& segment) const
 {
 	return 1 + 2 * segment.number_length;
 }
@@ -544,14 +638,14 @@ void OMFFormat::Segment::RangeRecord::ReadFile(Segment& segment, Linker::Reader&
 	end = segment.ReadUnsigned(rd);
 }
 
-void OMFFormat::Segment::RangeRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::RangeRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteWord(wr, start);
 	segment.WriteWord(wr, end);
 }
 
-offset_t OMFFormat::Segment::ExpressionRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::ExpressionRecord::GetLength(const Segment& segment) const
 {
 	return 2 + expression->GetLength(segment);
 }
@@ -562,14 +656,14 @@ void OMFFormat::Segment::ExpressionRecord::ReadFile(Segment& segment, Linker::Re
 	expression = segment.ReadExpression(rd);
 }
 
-void OMFFormat::Segment::ExpressionRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::ExpressionRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	wr.WriteWord(1, size);
 	expression->WriteFile(segment, wr);
 }
 
-offset_t OMFFormat::Segment::RelativeExpressionRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::RelativeExpressionRecord::GetLength(const Segment& segment) const
 {
 	return 2 + segment.number_length + expression->GetLength(segment);
 }
@@ -581,7 +675,7 @@ void OMFFormat::Segment::RelativeExpressionRecord::ReadFile(Segment& segment, Li
 	expression = segment.ReadExpression(rd);
 }
 
-void OMFFormat::Segment::RelativeExpressionRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::RelativeExpressionRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	wr.WriteWord(1, size);
@@ -589,7 +683,7 @@ void OMFFormat::Segment::RelativeExpressionRecord::WriteFile(Segment& segment, L
 	expression->WriteFile(segment, wr);
 }
 
-offset_t OMFFormat::Segment::EntryRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::EntryRecord::GetLength(const Segment& segment) const
 {
 	return 3 + segment.number_length + (segment.label_length == 0 ? 1 + name.size() : segment.label_length);
 }
@@ -601,7 +695,7 @@ void OMFFormat::Segment::EntryRecord::ReadFile(Segment& segment, Linker::Reader&
 	name = segment.ReadLabel(rd);
 }
 
-void OMFFormat::Segment::EntryRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::EntryRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	wr.WriteWord(2, segment_number);
@@ -609,7 +703,7 @@ void OMFFormat::Segment::EntryRecord::WriteFile(Segment& segment, Linker::Writer
 	segment.WriteLabel(wr, name);
 }
 
-offset_t OMFFormat::Segment::SuperCompactRecord::GetLength(Segment& segment) const
+offset_t OMFFormat::Segment::SuperCompactRecord::GetLength(const Segment& segment) const
 {
 	offset_t record_size = 1;
 	uint16_t current_page = 0;
@@ -664,7 +758,7 @@ void OMFFormat::Segment::SuperCompactRecord::ReadFile(Segment& segment, Linker::
 	}
 }
 
-void OMFFormat::Segment::SuperCompactRecord::WriteFile(Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::SuperCompactRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
 {
 	Record::WriteFile(segment, wr);
 	wr.WriteWord(4, GetLength(segment) - 5);
