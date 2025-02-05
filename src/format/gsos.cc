@@ -422,6 +422,13 @@ void OMFFormat::Segment::Expression::WriteFile(const Segment& segment, Linker::W
 		wr.WriteWord(1, operation);
 }
 
+std::string OMFFormat::Segment::Expression::GetStandardNotation() const
+{
+	std::ostringstream oss;
+	GetStandardNotation(oss, precedence::Or);
+	return oss.str();
+}
+
 void OMFFormat::Segment::Expression::PopElementsInto(size_t count, std::vector<std::unique_ptr<Expression>>& target)
 {
 	size_t actual_count = count;
@@ -498,6 +505,194 @@ uint8_t OMFFormat::Segment::Expression::ReadSingleOperation(Segment& segment, Li
 	operands.emplace_back(std::move(expression));
 
 	return next_operation;
+}
+
+void OMFFormat::Segment::Expression::GetStandardNotation(std::ostream& out, precedence_type precedence) const
+{
+	precedence_type required_precedence = precedence::Or;
+	switch(operation)
+	{
+	default:
+	case Negation:
+	case Not:
+	case BitNot:
+		required_precedence = precedence::Negation;
+		break;
+	case Multiplication:
+	case Division:
+	case IntegerRemainder:
+		required_precedence = precedence::Multiplication;
+		break;
+	case Addition:
+	case Subtraction:
+		required_precedence = precedence::Addition;
+		break;
+	case BitShift:
+		required_precedence = precedence::BitShift;
+		break;
+	case LessOrEqualTo:
+	case GreaterOrEqualTo:
+	case LessThan:
+	case GreaterThan:
+		required_precedence = precedence::LessThan;
+		break;
+	case NotEqual:
+	case EqualTo:
+		required_precedence = precedence::EqualTo;
+		break;
+	case BitAnd:
+		required_precedence = precedence::BitAnd;
+		break;
+	case BitEOr:
+		required_precedence = precedence::BitEOr;
+		break;
+	case BitOr:
+		required_precedence = precedence::BitOr;
+		break;
+	case And:
+		required_precedence = precedence::And;
+		break;
+	case EOr:
+		required_precedence = precedence::EOr;
+		break;
+	case Or:
+	case End:
+		required_precedence = precedence::Or;
+		break;
+	}
+	if(precedence > required_precedence)
+	{
+		out << "(";
+	}
+	switch(operation)
+	{
+	case End:
+		operands.back()->GetStandardNotation(out, required_precedence);
+		break;
+	case Addition:
+	case Subtraction:
+	case Multiplication:
+	case Division:
+	case IntegerRemainder:
+	case BitShift:
+	case And:
+	case Or:
+	case EOr:
+	case LessOrEqualTo:
+	case GreaterOrEqualTo:
+	case NotEqual:
+	case LessThan:
+	case GreaterThan:
+	case EqualTo:
+	case BitAnd:
+	case BitOr:
+	case BitEOr:
+		operands[0]->GetStandardNotation(out, precedence_type(required_precedence + 1));
+		switch(operation)
+		{
+		case Addition:
+			out << " + ";
+			break;
+		case Subtraction:
+			out << " - ";
+			break;
+		case Multiplication:
+			out << " * ";
+			break;
+		case Division:
+			out << " / ";
+			break;
+		case IntegerRemainder:
+			out << " % ";
+			break;
+		case BitShift:
+			out << " << ";
+			break;
+		case And:
+			out << " && ";
+			break;
+		case Or:
+			out << " || ";
+			break;
+		case EOr:
+			out << " ^^ ";
+			break;
+		case LessOrEqualTo:
+			out << " <= ";
+			break;
+		case GreaterOrEqualTo:
+			out << " >= ";
+			break;
+		case NotEqual:
+			out << " != ";
+			break;
+		case LessThan:
+			out << " < ";
+			break;
+		case GreaterThan:
+			out << " > ";
+			break;
+		case EqualTo:
+			out << " == ";
+			break;
+		case BitAnd:
+			out << " & ";
+			break;
+		case BitOr:
+			out << " | ";
+			break;
+		case BitEOr:
+			out << " ^ ";
+			break;
+		default:
+			assert(false);
+		}
+		operands[1]->GetStandardNotation(out, required_precedence);
+		break;
+	case Negation:
+		out << "-";
+		operands[0]->GetStandardNotation(out, required_precedence);
+		break;
+	case Not:
+		out << "!";
+		operands[0]->GetStandardNotation(out, required_precedence);
+		break;
+	case BitNot:
+		out << "~";
+		operands[0]->GetStandardNotation(out, required_precedence);
+		break;
+	case LocationCounterOperand:
+		out << ".";
+		break;
+	case ConstantOperand:
+		out << *std::get_if<offset_t>(&value.value());
+		break;
+	case WeakLabelReferenceOperand:
+		out << "weak " << *std::get_if<std::string>(&value.value());
+		break;
+	case LabelReferenceOperand:
+		out << *std::get_if<std::string>(&value.value());
+		break;
+	case LengthOfLabelReferenceOperand:
+		out << "length(" << *std::get_if<std::string>(&value.value()) << ")";
+		break;
+	case TypeOfLabelReferenceOperand:
+		out << "type(" << *std::get_if<std::string>(&value.value()) << ")";
+		break;
+	case CountOfLabelReferenceOperand:
+		out << "defined(" << *std::get_if<std::string>(&value.value()) << ")";
+		break;
+	case RelativeOffsetOperand:
+		out << "..";
+		break;
+	case StackUnderflow:
+		out << "?";
+		break;
+	}
+	if(precedence > required_precedence)
+	{
+		out << ")";
+	}
 }
 
 void OMFFormat::CalculateValues()
@@ -962,6 +1157,7 @@ void OMFFormat::Segment::LabelExpressionRecord::WriteFile(const Segment& segment
 void OMFFormat::Segment::LabelExpressionRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
 {
 	LabelRecord::AddFields(dump, region, omf, segment, index, file_offset, address);
+	region.AddField("Expression", Dumper::StringDisplay::Make(), expression->GetStandardNotation());
 }
 
 offset_t OMFFormat::Segment::RangeRecord::GetLength(const Segment& segment) const
@@ -1014,6 +1210,7 @@ void OMFFormat::Segment::ExpressionRecord::WriteFile(const Segment& segment, Lin
 void OMFFormat::Segment::ExpressionRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
 {
 	region.AddField("Size", Dumper::DecDisplay::Make(), offset_t(size));
+	region.AddField("Expression", Dumper::StringDisplay::Make(), expression->GetStandardNotation());
 }
 
 void OMFFormat::Segment::ExpressionRecord::ReadData(size_t bytes, offset_t offset, void * buffer) const

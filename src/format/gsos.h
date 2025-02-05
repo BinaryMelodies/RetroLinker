@@ -222,11 +222,34 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const;
 				void ReadFile(Segment& segment, Linker::Reader& rd);
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const;
+				/** @brief Converts expression into a C-like syntax */
+				std::string GetStandardNotation() const;
 			protected:
 				/** @brief Removes elements from the top of the operands stack and copies them into target. On stack underflow, the missing elements are replaced with StackUnderflow expressions. */
 				void PopElementsInto(size_t count, std::vector<std::unique_ptr<Expression>>& target);
 				/** @brief Reads a single byte of operation (plus optional number and label) and modifies the current list of operands as an operation acting on a stack */
 				uint8_t ReadSingleOperation(Segment& segment, Linker::Reader& rd);
+
+				struct precedence
+				{
+					enum precedence_type
+					{
+						Or,
+						EOr,
+						And,
+						LessThan,
+						EqualTo,
+						BitOr,
+						BitEOr,
+						BitAnd,
+						BitShift,
+						Addition,
+						Multiplication,
+						Negation,
+					};
+				};
+				typedef precedence::precedence_type precedence_type;
+				void GetStandardNotation(std::ostream& out, precedence_type precedence) const;
 			};
 
 			/** @brief A single record inside the segment body, also represents an END record */
