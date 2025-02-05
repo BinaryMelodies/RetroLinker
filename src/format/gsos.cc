@@ -5,6 +5,19 @@
 
 using namespace Apple;
 
+::EndianType OMFFormat::Segment::GetEndianType() const
+{
+	switch(endiantype)
+	{
+	case 0:
+		return ::LittleEndian;
+	case 1:
+		return ::BigEndian;
+	default:
+		return ::UndefinedEndian;
+	}
+}
+
 offset_t OMFFormat::Segment::ReadUnsigned(Linker::Reader& rd)
 {
 	return rd.ReadUnsigned(number_length);
@@ -84,15 +97,9 @@ void OMFFormat::Segment::ReadFile(Linker::Reader& rd)
 
 	rd.Skip(0x20);
 	endiantype = rd.ReadUnsigned(1);
-	switch(endiantype)
+	rd.endiantype = GetEndianType();
+	if(rd.endiantype == ::UndefinedEndian)
 	{
-	case 0:
-		rd.endiantype = ::LittleEndian;
-		break;
-	case 1:
-		rd.endiantype = ::BigEndian;
-		break;
-	default:
 		Linker::Error << "Invalid NUMSEX field: " << endiantype << ", expected 0 or 1" << std::endl;
 	}
 
@@ -342,6 +349,48 @@ void OMFFormat::Segment::Dump(Dumper::Dumper& dump, const OMFFormat& omf, unsign
 		current_address += record->GetMemoryLength(*this);
 		record_index++;
 	}
+}
+
+size_t OMFFormat::Segment::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+	offset_t current_offset = 0;
+	size_t count = 0;
+	for(auto& record : records)
+	{
+		offset_t length = record->GetMemoryLength(*this);
+		if(offset < current_offset + length)
+		{
+			size_t actual_bytes = std::min(bytes, current_offset + length - offset);
+			if(const DataRecord * data_record = dynamic_cast<const DataRecord *>(record.get()))
+			{
+				// CONST or LCONST
+				data_record->image->AsImage()->ReadData(actual_bytes, offset, buffer);
+			}
+			else
+			{
+				// likely DS
+				memset(buffer, 0, actual_bytes);
+			}
+			count += actual_bytes;
+			bytes -= actual_bytes;
+			buffer = reinterpret_cast<char *>(buffer) + actual_bytes;
+			if(bytes == 0)
+				return count;
+		}
+		current_offset += length;
+		if(offset < length)
+			offset = 0;
+		else
+			offset -= length;
+	}
+	return count;
+}
+
+offset_t OMFFormat::Segment::ReadUnsigned(size_t bytes, offset_t offset) const
+{
+	uint8_t buffer[bytes];
+	offset_t count = ReadData(bytes, offset, buffer);
+	return ::ReadUnsigned(bytes, count, buffer, GetEndianType());
 }
 
 void OMFFormat::CalculateValues()
@@ -929,7 +978,24 @@ void OMFFormat::Segment::SuperCompactRecord::WritePatchList(Linker::Writer& wr, 
 void OMFFormat::Segment::SuperCompactRecord::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
 {
 	Record::Dump(dump, omf, segment, index, file_offset, address);
-	// TODO: display relocations
+	IntersegmentRelocationRecord relocation;
+	for(uint32_t i = 0; ; i++)
+	{
+		if(!GetRelocation(relocation, i, segment))
+			break;
+		Dumper::Entry relocation_entry("Relocation", i + 1); /* TODO: offset */
+		relocation_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation.size));
+		relocation_entry.AddOptionalField("Shift (left)", Dumper::DecDisplay::Make(), offset_t(relocation.shift));
+		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(relocation.source));
+		if(super_type == SUPER_RELOC2 || super_type == SUPER_RELOC3)
+			relocation_entry.AddField("Target", Dumper::HexDisplay::Make(8), offset_t(relocation.target));
+		else if(relocation.file_number == 1)
+			relocation_entry.AddField("Target", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(relocation.segment_number), offset_t(relocation.target));
+		else
+			relocation_entry.AddField("Target", Dumper::SectionedDisplay<offset_t, offset_t>::Make(Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8))), offset_t(relocation.file_number), offset_t(relocation.segment_number), offset_t(relocation.target));
+		relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(relocation.size * 2), offset_t(segment.ReadUnsigned(relocation.size, relocation.source)));
+		relocation_entry.Display(dump);
+	}
 }
 
 void OMFFormat::Segment::SuperCompactRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
@@ -967,7 +1033,7 @@ bool OMFFormat::Segment::SuperCompactRecord::GetRelocation(IntersegmentRelocatio
 		relocation.size = 2;
 		relocation.shift = 0;
 		relocation.source = offsets[index];
-		relocation.target = 0; // TODO: needs to be read from data
+		relocation.target = 0; // needs to be read from data
 		relocation.file_number = 1;
 		relocation.segment_number = 0;
 		return true;
@@ -977,7 +1043,7 @@ bool OMFFormat::Segment::SuperCompactRecord::GetRelocation(IntersegmentRelocatio
 		relocation.size = 3;
 		relocation.shift = 0;
 		relocation.source = offsets[index];
-		relocation.target = 0; // TODO: needs to be read from data
+		relocation.target = 0; // needs to be read from data
 		relocation.file_number = 1;
 		relocation.segment_number = 0;
 		return true;
@@ -987,9 +1053,9 @@ bool OMFFormat::Segment::SuperCompactRecord::GetRelocation(IntersegmentRelocatio
 		relocation.size = 3;
 		relocation.shift = 0;
 		relocation.source = offsets[index];
-		relocation.target = 0; // TODO: needs to be read from data
+		relocation.target = 0; // needs to be read from data
 		relocation.file_number = super_type - SUPER_INTERSEG1 + 1;
-		relocation.segment_number = 0; // TODO: needs to be read from data
+		relocation.segment_number = 0; // needs to be read from data
 		return true;
 	}
 	else if(SUPER_INTERSEG13 <= super_type && super_type < SUPER_INTERSEG25)
@@ -997,7 +1063,7 @@ bool OMFFormat::Segment::SuperCompactRecord::GetRelocation(IntersegmentRelocatio
 		relocation.size = 2;
 		relocation.shift = 0;
 		relocation.source = offsets[index];
-		relocation.target = 0; // TODO: needs to be read from data
+		relocation.target = 0; // needs to be read from data
 		relocation.file_number = 1;
 		relocation.segment_number = super_type - SUPER_INTERSEG13 + 1;
 		return true;
@@ -1007,9 +1073,46 @@ bool OMFFormat::Segment::SuperCompactRecord::GetRelocation(IntersegmentRelocatio
 		relocation.size = 2;
 		relocation.shift = -16;
 		relocation.source = offsets[index];
-		relocation.target = 0; // TODO: needs to be read from data
+		relocation.target = 0; // needs to be read from data
 		relocation.file_number = 1;
 		relocation.segment_number = super_type - SUPER_INTERSEG25 + 1;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool OMFFormat::Segment::SuperCompactRecord::GetRelocation(IntersegmentRelocationRecord& relocation, unsigned index, const Segment& segment) const
+{
+	if(!GetRelocation(relocation, index))
+		return false;
+
+	if(super_type == SUPER_RELOC2)
+	{
+		relocation.target = segment.ReadUnsigned(2, relocation.source);
+		return true;
+	}
+	else if(super_type == SUPER_RELOC3)
+	{
+		relocation.target = segment.ReadUnsigned(2, relocation.source);
+		return true;
+	}
+	else if(SUPER_INTERSEG1 <= super_type && super_type < SUPER_INTERSEG13)
+	{
+		relocation.target = segment.ReadUnsigned(2, relocation.source);
+		relocation.segment_number = segment.ReadUnsigned(1, relocation.source + 2);
+		return true;
+	}
+	else if(SUPER_INTERSEG13 <= super_type && super_type < SUPER_INTERSEG25)
+	{
+		relocation.target = segment.ReadUnsigned(2, relocation.source);
+		return true;
+	}
+	else if(SUPER_INTERSEG25 <= super_type && super_type <= SUPER_INTERSEG36)
+	{
+		relocation.target = segment.ReadUnsigned(2, relocation.source);
 		return true;
 	}
 	else

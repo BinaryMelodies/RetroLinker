@@ -110,6 +110,8 @@ namespace Apple
 			/** @brief Segment flag: Dynamic */
 			static const uint16_t FLAG_DYNAMIC = 0x8000;
 
+			::EndianType GetEndianType() const;
+
 			/** @brief Reads a number the size of number_length */
 			offset_t ReadUnsigned(Linker::Reader& rd);
 			/** @brief Writes a string the size of number_length */
@@ -130,6 +132,9 @@ namespace Apple
 			void ReadFile(Linker::Reader& rd);
 			void WriteFile(Linker::Writer& wr) const;
 			void Dump(Dumper::Dumper& dump, const OMFFormat& omf, unsigned segment_index) const;
+
+			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const;
+			offset_t ReadUnsigned(size_t bytes, offset_t offset) const;
 
 			class Expression
 			{
@@ -484,6 +489,7 @@ namespace Apple
 				void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const override;
 
 				bool GetRelocation(IntersegmentRelocationRecord& relocation, unsigned index) const;
+				bool GetRelocation(IntersegmentRelocationRecord& relocation, unsigned index, const Segment& segment) const;
 			};
 
 			std::vector<std::unique_ptr<Record>> records;
