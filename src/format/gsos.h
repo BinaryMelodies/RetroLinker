@@ -182,26 +182,45 @@ namespace Apple
 				}
 
 				virtual ~Record() = default;
+				/** @brief Returns the size of the record, as stored in the file
+				 *
+				 * @param segment The segment the record is part of
+				 */
 				virtual offset_t GetLength(const Segment& segment) const;
+				/** @brief Returns the amount of memory the record occupies when loaded into memory. Most records have a length of 0
+				 *
+				 * @param segment The segment the record is part of
+				 */
+				virtual offset_t GetMemoryLength(const Segment& segment) const;
 				virtual void ReadFile(Segment& segment, Linker::Reader& rd);
 				virtual void WriteFile(const Segment& segment, Linker::Writer& wr) const;
-				virtual void Dump(Dumper::Dumper& dumper, const OMFFormat& omf, unsigned index, offset_t file_offset) const;
+				/** @brief Displays information pertaining to this record
+				 *
+				 * @param dump The dumper interface
+				 * @param omf The entire file
+				 * @param segment The segment the record is part of
+				 * @param index 0-based index of the record within the segment
+				 * @param file_offset Full file offset, including segment start offset, that this record starts at
+				 * @param address The current memory pointer when this record is interpreted
+				 */
+				virtual void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const;
+				/** @brief Adds any further fields to the file region that encompasses this record */
+				virtual void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const;
+				/** @brief If this is a relocation record, add the relocation signals to the block */
+				virtual void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const;
 			};
 
 			class DataRecord : public Record
 			{
 			public:
-				std::vector<uint8_t> data;
+				std::shared_ptr<Linker::Image> image;
 
+#if 0
 				DataRecord(record_type type, std::vector<uint8_t> data)
 					: Record(type), data(data)
 				{
 				}
-
-				DataRecord(record_type type, size_t length)
-					: Record(type), data(length, 0)
-				{
-				}
+#endif
 
 				DataRecord(record_type type)
 					: Record(type)
@@ -209,8 +228,10 @@ namespace Apple
 				}
 
 				offset_t GetLength(const Segment& segment) const override;
+				offset_t GetMemoryLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			class ValueRecord : public Record
@@ -224,8 +245,10 @@ namespace Apple
 				}
 
 				offset_t GetLength(const Segment& segment) const override;
+				offset_t GetMemoryLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			class StringRecord : public Record
@@ -247,7 +270,7 @@ namespace Apple
 			{
 			public:
 				uint8_t size = 0;
-				uint8_t shift = 0;
+				int8_t shift = 0;
 				offset_t source = 0;
 				offset_t target = 0;
 
@@ -256,7 +279,7 @@ namespace Apple
 				{
 				}
 
-				RelocationRecord(record_type type, uint8_t size, uint8_t shift, offset_t source, offset_t target)
+				RelocationRecord(record_type type, uint8_t size, int8_t shift, offset_t source, offset_t target)
 					: Record(type), size(size), shift(shift), source(source), target(target)
 				{
 				}
@@ -264,6 +287,8 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+				void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const override;
 			};
 
 			class IntersegmentRelocationRecord : public RelocationRecord
@@ -271,6 +296,11 @@ namespace Apple
 			public:
 				uint16_t file_number = 0;
 				uint16_t segment_number = 0;
+
+				explicit IntersegmentRelocationRecord()
+					: RelocationRecord(record_type(0))
+				{
+				}
 
 				IntersegmentRelocationRecord(record_type type)
 					: RelocationRecord(type)
@@ -285,6 +315,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			class LabelRecord : public Record
@@ -429,6 +460,7 @@ namespace Apple
 					SUPER_INTERSEG1,
 					SUPER_INTERSEG13 = SUPER_INTERSEG1 - 1 + 13,
 					SUPER_INTERSEG25 = SUPER_INTERSEG1 - 1 + 25,
+					SUPER_INTERSEG36 = SUPER_INTERSEG1 - 1 + 36,
 				};
 
 				super_record_type super_type = super_record_type(0);
@@ -445,6 +477,13 @@ namespace Apple
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 			private:
 				void WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches) const;
+
+			public:
+				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+				void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const override;
+
+				bool GetRelocation(IntersegmentRelocationRecord& relocation, unsigned index) const;
 			};
 
 			std::vector<std::unique_ptr<Record>> records;
@@ -454,8 +493,10 @@ namespace Apple
 			std::unique_ptr<Record> ReadRecord(Linker::Reader& rd);
 
 			std::unique_ptr<Record> makeEND();
+#if 0
 			std::unique_ptr<Record> makeCONST(std::vector<uint8_t> data);
 			std::unique_ptr<Record> makeCONST(std::vector<uint8_t> data, size_t length);
+#endif
 			std::unique_ptr<Record> makeCONST(size_t length);
 			std::unique_ptr<Record> makeALIGN(offset_t align = 0);
 			std::unique_ptr<Record> makeORG(offset_t value = 0);
@@ -485,8 +526,10 @@ namespace Apple
 			std::unique_ptr<Record> makeEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr<Expression> expression);
 			std::unique_ptr<Record> makeDS(offset_t count = 0);
 			std::unique_ptr<Record> makeLCONST();
+#if 0
 			std::unique_ptr<Record> makeLCONST(std::vector<uint8_t> data);
 			std::unique_ptr<Record> makeLCONST(std::vector<uint8_t> data, size_t length);
+#endif
 			std::unique_ptr<Record> makeLEXPR();
 			std::unique_ptr<Record> makeLEXPR(uint8_t size, std::unique_ptr<Expression> expression);
 			std::unique_ptr<Record> makeENTRY();

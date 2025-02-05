@@ -1,5 +1,6 @@
 
 #include "gsos.h"
+#include "../linker/buffer.h"
 #include "../linker/reader.h"
 
 using namespace Apple;
@@ -185,6 +186,8 @@ void OMFFormat::Segment::ReadFile(Linker::Reader& rd)
 	while(rd.Tell() < segment_offset + total_segment_size)
 	{
 		records.emplace_back(ReadRecord(rd));
+		if(records.back()->type == Record::OPC_END)
+			break;
 	}
 }
 
@@ -329,9 +332,15 @@ void OMFFormat::Segment::Dump(Dumper::Dumper& dump, const OMFFormat& omf, unsign
 	Dumper::Region records_region("Segment records", segment_offset + segment_data_offset, total_segment_size - segment_data_offset, 8);
 	records_region.Display(dump);
 
+	offset_t current_offset = segment_offset + segment_data_offset;
+	offset_t current_address = base_address;
+	unsigned record_index = 0;
 	for(auto& record : records)
 	{
-//		record->WriteFile(*this, wr);
+		record->Dump(dump, omf, *this, record_index, current_offset, current_address);
+		current_offset += record->GetLength(*this);
+		current_address += record->GetMemoryLength(*this);
+		record_index++;
 	}
 }
 
@@ -399,6 +408,11 @@ offset_t OMFFormat::Segment::Record::GetLength(const Segment& segment) const
 	return 1;
 }
 
+offset_t OMFFormat::Segment::Record::GetMemoryLength(const Segment& segment) const
+{
+	return 0;
+}
+
 void OMFFormat::Segment::Record::ReadFile(Segment& segment, Linker::Reader& rd)
 {
 }
@@ -408,33 +422,78 @@ void OMFFormat::Segment::Record::WriteFile(const Segment& segment, Linker::Write
 	wr.WriteWord(1, type);
 }
 
-void OMFFormat::Segment::Record::Dump(Dumper::Dumper& dumper, const OMFFormat& omf, unsigned index, offset_t file_offset) const
+void OMFFormat::Segment::Record::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
 {
-	// TODO
+	Dumper::Region record_region("Record", file_offset, GetLength(segment), 8);
+	record_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
+	std::map<offset_t, std::string> opcode_description;
+	opcode_description[OPC_END] = "END";
+	for(int opcode = OPC_CONST_FIRST; opcode <= OPC_CONST_LAST; opcode++)
+	{
+		opcode_description[opcode] = "CONST";
+	}
+	opcode_description[OPC_ALIGN] = "ALIGN";
+	opcode_description[OPC_ORG] = "ORG";
+	opcode_description[OPC_RELOC] = "RELOC";
+	opcode_description[OPC_INTERSEG] = "INTERSEG";
+	opcode_description[OPC_USING] = "USING";
+	opcode_description[OPC_STRONG] = "STRONG";
+	opcode_description[OPC_GLOBAL] = "GLOBAL";
+	opcode_description[OPC_GEQU] = "GEQU";
+	opcode_description[OPC_MEM] = "MEM";
+	opcode_description[OPC_EXPR] = "EXPR";
+	opcode_description[OPC_ZEXPR] = "ZEXPR";
+	opcode_description[OPC_BEXPR] = "BEXPR";
+	opcode_description[OPC_RELEXPR] = "RELEXPR";
+	opcode_description[OPC_LOCAL] = "LOCAL";
+	opcode_description[OPC_EQU] = "EQU";
+	opcode_description[OPC_DS] = "DS";
+	opcode_description[OPC_LCONST] = "LCONST";
+	opcode_description[OPC_LEXPR] = "LEXPR";
+	opcode_description[OPC_ENTRY] = "ENTRY";
+	opcode_description[OPC_C_RELOC] = "cRELOC";
+	opcode_description[OPC_C_INTERSEG] = "cINTERSEG";
+	opcode_description[OPC_SUPER] = "SUPER";
+	record_region.AddField("Record opcode", Dumper::ChoiceDisplay::Make(opcode_description, Dumper::HexDisplay::Make(2)), offset_t(type));
+	AddFields(dump, record_region, omf, segment, index, file_offset, address);
+	record_region.Display(dump);
+}
+
+void OMFFormat::Segment::Record::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+}
+
+void OMFFormat::Segment::Record::AddSignals(Dumper::Block& block, offset_t current_segment_offset) const
+{
 }
 
 offset_t OMFFormat::Segment::DataRecord::GetLength(const Segment& segment) const
 {
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
-		return 1 + data.size();
+		return 1 + image->ImageSize();
 	}
 	else
 	{
-		return 5 + data.size();
+		return 5 + image->ImageSize();
 	}
+}
+
+offset_t OMFFormat::Segment::DataRecord::GetMemoryLength(const Segment& segment) const
+{
+	return image->ImageSize();
 }
 
 void OMFFormat::Segment::DataRecord::ReadFile(Segment& segment, Linker::Reader& rd)
 {
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
-		rd.ReadData(data);
+		image = Linker::Buffer::ReadFromFile(rd, type - OPC_CONST_BASE);
 	}
 	else
 	{
 		size_t length = rd.ReadUnsigned(4);
-		rd.ReadData(length, data);
+		image = Linker::Buffer::ReadFromFile(rd, length);
 	}
 }
 
@@ -443,18 +502,36 @@ void OMFFormat::Segment::DataRecord::WriteFile(const Segment& segment, Linker::W
 	Record::WriteFile(segment, wr);
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
-		wr.WriteData(data);
+		image->WriteFile(wr);
 	}
 	else
 	{
-		wr.WriteWord(4, data.size());
-		wr.WriteData(data);
+		wr.WriteWord(4, image->ImageSize());
+		image->WriteFile(wr);
 	}
+}
+
+void OMFFormat::Segment::DataRecord::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	OMFFormat::Segment::Record::Dump(dump, omf, segment, index, file_offset, address);
+	
+	Dumper::Block data_block("Data", type == OPC_LCONST ? file_offset + 5 : file_offset + 1,
+		image->AsImage(), address, 8);
+	for(auto& record : segment.records)
+	{
+		record->AddSignals(data_block, address - segment.base_address);
+	}
+	data_block.Display(dump);
 }
 
 offset_t OMFFormat::Segment::ValueRecord::GetLength(const Segment& segment) const
 {
 	return 1 + segment.number_length;
+}
+
+offset_t OMFFormat::Segment::ValueRecord::GetMemoryLength(const Segment& segment) const
+{
+	return type == OPC_DS ? value : 0;
 }
 
 void OMFFormat::Segment::ValueRecord::ReadFile(Segment& segment, Linker::Reader& rd)
@@ -466,6 +543,19 @@ void OMFFormat::Segment::ValueRecord::WriteFile(const Segment& segment, Linker::
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteWord(wr, value);
+}
+
+void OMFFormat::Segment::ValueRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	if(type == OPC_DS)
+	{
+		region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(address));
+		region.AddField("Length", Dumper::HexDisplay::Make(8), offset_t(value));
+	}
+	else
+	{
+		region.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
+	}
 }
 
 offset_t OMFFormat::Segment::StringRecord::GetLength(const Segment& segment) const
@@ -499,7 +589,7 @@ offset_t OMFFormat::Segment::RelocationRecord::GetLength(const Segment& segment)
 void OMFFormat::Segment::RelocationRecord::ReadFile(Segment& segment, Linker::Reader& rd)
 {
 	size = rd.ReadUnsigned(1);
-	shift = rd.ReadUnsigned(1);
+	shift = rd.ReadSigned(1);
 	if(type == OPC_RELOC)
 	{
 		source = segment.ReadUnsigned(rd);
@@ -529,6 +619,22 @@ void OMFFormat::Segment::RelocationRecord::WriteFile(const Segment& segment, Lin
 	}
 }
 
+void OMFFormat::Segment::RelocationRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	region.AddField("Size", Dumper::DecDisplay::Make(), offset_t(size));
+	region.AddOptionalField("Shift (left)", Dumper::DecDisplay::Make(), offset_t(shift));
+	region.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(source));
+	region.AddField("Target", Dumper::HexDisplay::Make(8), offset_t(target));
+}
+
+void OMFFormat::Segment::RelocationRecord::AddSignals(Dumper::Block& block, offset_t current_segment_offset) const
+{
+	if(current_segment_offset <= source)
+	{
+		block.AddSignal(source - current_segment_offset, size);
+	}
+}
+
 offset_t OMFFormat::Segment::IntersegmentRelocationRecord::GetLength(const Segment& segment) const
 {
 	if(type == OPC_INTERSEG)
@@ -555,7 +661,7 @@ void OMFFormat::Segment::IntersegmentRelocationRecord::ReadFile(Segment& segment
 	else /*if(type == OPC_C_INTERSEG)*/
 	{
 		source = rd.ReadUnsigned(2);
-		file_number = 0;
+		file_number = 1;
 		segment_number = rd.ReadUnsigned(1);
 		target = rd.ReadUnsigned(2);
 	}
@@ -579,6 +685,17 @@ void OMFFormat::Segment::IntersegmentRelocationRecord::WriteFile(const Segment& 
 		wr.WriteWord(1, segment_number);
 		wr.WriteWord(2, target);
 	}
+}
+
+void OMFFormat::Segment::IntersegmentRelocationRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	region.AddField("Size", Dumper::DecDisplay::Make(), offset_t(size));
+	region.AddOptionalField("Shift (left)", Dumper::DecDisplay::Make(), offset_t(shift));
+	region.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(source));
+	if(file_number == 1)
+		region.AddField("Target", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(segment_number), offset_t(target));
+	else
+		region.AddField("Target", Dumper::SectionedDisplay<offset_t, offset_t>::Make(Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8))), offset_t(file_number), offset_t(segment_number), offset_t(target));
 }
 
 offset_t OMFFormat::Segment::LabelRecord::GetLength(const Segment& segment) const
@@ -809,6 +926,98 @@ void OMFFormat::Segment::SuperCompactRecord::WritePatchList(Linker::Writer& wr, 
 	}
 }
 
+void OMFFormat::Segment::SuperCompactRecord::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	Record::Dump(dump, omf, segment, index, file_offset, address);
+	// TODO: display relocations
+}
+
+void OMFFormat::Segment::SuperCompactRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	std::map<offset_t, std::string> type_descriptions;
+	type_descriptions[SUPER_RELOC2] = "SUPER RELOC2";
+	type_descriptions[SUPER_RELOC3] = "SUPER RELOC3";
+	for(unsigned i = SUPER_INTERSEG1; i <= SUPER_INTERSEG36; i++)
+	{
+		std::ostringstream oss;
+		oss << "SUPER INTERSEG" << (i - SUPER_INTERSEG1 + 1);
+		type_descriptions[i] = oss.str();
+	}
+	region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(super_type));
+}
+
+void OMFFormat::Segment::SuperCompactRecord::AddSignals(Dumper::Block& block, offset_t current_segment_offset) const
+{
+	for(unsigned index = 0; ; index++)
+	{
+		IntersegmentRelocationRecord relocation;
+		if(!GetRelocation(relocation, index))
+			break;
+		relocation.AddSignals(block, current_segment_offset);
+	}
+}
+
+bool OMFFormat::Segment::SuperCompactRecord::GetRelocation(IntersegmentRelocationRecord& relocation, unsigned index) const
+{
+	if(index >= offsets.size())
+		return false;
+
+	if(super_type == SUPER_RELOC2)
+	{
+		relocation.size = 2;
+		relocation.shift = 0;
+		relocation.source = offsets[index];
+		relocation.target = 0; // TODO: needs to be read from data
+		relocation.file_number = 1;
+		relocation.segment_number = 0;
+		return true;
+	}
+	else if(super_type == SUPER_RELOC3)
+	{
+		relocation.size = 3;
+		relocation.shift = 0;
+		relocation.source = offsets[index];
+		relocation.target = 0; // TODO: needs to be read from data
+		relocation.file_number = 1;
+		relocation.segment_number = 0;
+		return true;
+	}
+	else if(SUPER_INTERSEG1 <= super_type && super_type < SUPER_INTERSEG13)
+	{
+		relocation.size = 3;
+		relocation.shift = 0;
+		relocation.source = offsets[index];
+		relocation.target = 0; // TODO: needs to be read from data
+		relocation.file_number = super_type - SUPER_INTERSEG1 + 1;
+		relocation.segment_number = 0; // TODO: needs to be read from data
+		return true;
+	}
+	else if(SUPER_INTERSEG13 <= super_type && super_type < SUPER_INTERSEG25)
+	{
+		relocation.size = 2;
+		relocation.shift = 0;
+		relocation.source = offsets[index];
+		relocation.target = 0; // TODO: needs to be read from data
+		relocation.file_number = 1;
+		relocation.segment_number = super_type - SUPER_INTERSEG13 + 1;
+		return true;
+	}
+	else if(SUPER_INTERSEG25 <= super_type && super_type <= SUPER_INTERSEG36)
+	{
+		relocation.size = 2;
+		relocation.shift = -16;
+		relocation.source = offsets[index];
+		relocation.target = 0; // TODO: needs to be read from data
+		relocation.file_number = 1;
+		relocation.segment_number = super_type - SUPER_INTERSEG25 + 1;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 std::unique_ptr<OMFFormat::Segment::Expression> OMFFormat::Segment::ReadExpression(Linker::Reader& rd)
 {
 	// TODO
@@ -891,6 +1100,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::ReadRecord(Linke
 		if(version >= OMF_VERSION_2)
 		{
 			record = makeSUPER();
+			break;
 		}
 	default:
 		if(Record::OPC_CONST_FIRST <= type && type <= Record::OPC_CONST_LAST)
@@ -912,6 +1122,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeEND()
 	return std::make_unique<Record>(Record::OPC_END);
 }
 
+#if 0
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::vector<uint8_t> data)
 {
 	size_t length = data.size();
@@ -934,6 +1145,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::v
 	}
 	return std::make_unique<DataRecord>(Record::record_type(Record::OPC_CONST_BASE + length), std::vector<uint8_t>(data.begin(), data.begin() + length));
 }
+#endif
 
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(size_t length)
 {
@@ -941,7 +1153,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(size_t
 	{
 		length = Record::OPC_CONST_LAST;
 	}
-	return std::make_unique<DataRecord>(Record::record_type(Record::OPC_CONST_BASE - 1 + length), length);
+	return std::make_unique<DataRecord>(Record::record_type(Record::OPC_CONST_BASE - 1 + length));
 }
 
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeALIGN(offset_t align)
@@ -1079,6 +1291,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeDS(offset_t 
 	return std::make_unique<ValueRecord>(Record::OPC_DS, count);
 }
 
+#if 0
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::vector<uint8_t> data)
 {
 	return makeLCONST(data, data.size());
@@ -1092,6 +1305,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::
 	}
 	return std::make_unique<DataRecord>(Record::OPC_LCONST, std::vector<uint8_t>(data.begin(), data.begin() + length));
 }
+#endif
 
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST()
 {
@@ -1130,7 +1344,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makecRELOC()
 
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makecINTERSEG(uint8_t size, uint8_t shift, uint16_t source, uint16_t segment_number, uint16_t target)
 {
-	return std::make_unique<IntersegmentRelocationRecord>(Record::OPC_C_INTERSEG, size, shift, source, 0, segment_number, target);
+	return std::make_unique<IntersegmentRelocationRecord>(Record::OPC_C_INTERSEG, size, shift, source, 1, segment_number, target);
 }
 
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makecINTERSEG()
