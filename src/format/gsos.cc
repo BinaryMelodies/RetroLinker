@@ -18,7 +18,7 @@ using namespace Apple;
 	}
 }
 
-offset_t OMFFormat::Segment::ReadUnsigned(Linker::Reader& rd)
+offset_t OMFFormat::Segment::ReadUnsigned(Linker::Reader& rd) const
 {
 	return rd.ReadUnsigned(number_length);
 }
@@ -28,7 +28,7 @@ void OMFFormat::Segment::WriteWord(Linker::Writer& wr, offset_t value) const
 	wr.WriteWord(number_length, value);
 }
 
-std::string OMFFormat::Segment::ReadLabel(Linker::Reader& rd)
+std::string OMFFormat::Segment::ReadLabel(Linker::Reader& rd) const
 {
 	uint8_t length = label_length;
 	if(length == 0)
@@ -393,6 +393,122 @@ offset_t OMFFormat::Segment::ReadUnsigned(size_t bytes, offset_t offset) const
 	return ::ReadUnsigned(bytes, count, buffer, GetEndianType());
 }
 
+offset_t OMFFormat::Segment::Expression::GetLength(const Segment& segment) const
+{
+	offset_t length = 1;
+	for(auto& operand : operands)
+	{
+		length += operand->GetLength(segment);
+	}
+	return length;
+}
+
+void OMFFormat::Segment::Expression::ReadFile(Segment& segment, Linker::Reader& rd)
+{
+	while(ReadSingleOperation(segment, rd) != End)
+	{
+	}
+}
+
+void OMFFormat::Segment::Expression::WriteFile(const Segment& segment, Linker::Writer& wr) const
+{
+	for(auto& operand : operands)
+	{
+		operand->WriteFile(segment, wr);
+	}
+	if(value)
+	{
+		if(const offset_t * numberp = std::get_if<offset_t>(&value.value()))
+		{
+			segment.WriteWord(wr, *numberp);
+		}
+		else if(const std::string * labelp = std::get_if<std::string>(&value.value()))
+		{
+			segment.WriteLabel(wr, *labelp);
+		}
+	}
+	if(operation != StackUnderflow)
+		wr.WriteWord(1, operation);
+}
+
+void OMFFormat::Segment::Expression::PopElementsInto(size_t count, std::vector<std::unique_ptr<Expression>>& target)
+{
+	size_t actual_count = count;
+	if(actual_count > operands.size())
+	{
+		actual_count = operands.size();
+	}
+	for(size_t i = actual_count; i < count; i++)
+	{
+		target.emplace_back(std::make_unique<Expression>(StackUnderflow));
+	}
+	target.insert(target.end(), std::make_move_iterator(operands.end() - count), std::make_move_iterator(operands.end()));
+	operands.resize(operands.size() - count);
+}
+
+uint8_t OMFFormat::Segment::Expression::ReadSingleOperation(Segment& segment, Linker::Reader& rd)
+{
+	uint8_t next_operation = rd.ReadUnsigned(1);
+	if(next_operation == End)
+		return next_operation;
+
+	std::unique_ptr<Expression> expression = std::make_unique<Expression>(next_operation);
+	switch(next_operation)
+	{
+	case End:
+		assert(false);
+
+	case Negation:
+	case Not:
+		PopElementsInto(1, expression->operands);
+		break;
+
+	case Addition:
+	case Subtraction:
+	case Multiplication:
+	case Division:
+	case IntegerRemainder:
+	case BitShift:
+	case And:
+	case Or:
+	case EOr:
+	case LessOrEqualTo:
+	case GreaterOrEqualTo:
+	case NotEqual:
+	case LessThan:
+	case GreaterThan:
+	case EqualTo:
+	case BitAnd:
+	case BitOr:
+	case BitEOr:
+	case BitNot:
+		PopElementsInto(2, expression->operands);
+		break;
+
+	case LocationCounterOperand:
+		break;
+
+	case ConstantOperand:
+	case RelativeOffsetOperand:
+		value = segment.ReadUnsigned(rd);
+		break;
+
+	case WeakLabelReferenceOperand:
+	case LabelReferenceOperand:
+	case LengthOfLabelReferenceOperand:
+	case TypeOfLabelReferenceOperand:
+	case CountOfLabelReferenceOperand:
+		value = segment.ReadLabel(rd);
+		break;
+
+	default:
+		break;
+	}
+	operands.emplace_back(std::move(expression));
+
+	return next_operation;
+}
+
 void OMFFormat::CalculateValues()
 {
 	offset_t current_offset = 0;
@@ -446,10 +562,6 @@ void OMFFormat::Dump(Dumper::Dumper& dump) const
 		segment->Dump(dump, *this, segment_index);
 		segment_index++;
 	}
-}
-
-OMFFormat::Segment::Expression::~Expression()
-{
 }
 
 offset_t OMFFormat::Segment::Record::GetLength(const Segment& segment) const
@@ -1225,30 +1337,15 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeEND()
 	return std::make_unique<Record>(Record::OPC_END);
 }
 
-#if 0
-std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::vector<uint8_t> data)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::shared_ptr<Linker::Image> image)
 {
-	size_t length = data.size();
+	size_t length = image->ImageSize();
 	if(length >= Record::OPC_CONST_LAST)
 	{
-		length = Record::OPC_CONST_LAST;
+		return makeLCONST(image);
 	}
-	return makeCONST(data, length);
+	return makeCONST(image);
 }
-
-std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::vector<uint8_t> data, size_t length)
-{
-	if(length >= Record::OPC_CONST_LAST)
-	{
-		length = Record::OPC_CONST_LAST;
-	}
-	if(length > data.size())
-	{
-		length = data.size();
-	}
-	return std::make_unique<DataRecord>(Record::record_type(Record::OPC_CONST_BASE + length), std::vector<uint8_t>(data.begin(), data.begin() + length));
-}
-#endif
 
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(size_t length)
 {
@@ -1394,21 +1491,10 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeDS(offset_t 
 	return std::make_unique<ValueRecord>(Record::OPC_DS, count);
 }
 
-#if 0
-std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::vector<uint8_t> data)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::shared_ptr<Linker::Image> image)
 {
-	return makeLCONST(data, data.size());
+	return std::make_unique<DataRecord>(Record::OPC_LCONST, image);
 }
-
-std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::vector<uint8_t> data, size_t length)
-{
-	if(length > data.size())
-	{
-		length = data.size();
-	}
-	return std::make_unique<DataRecord>(Record::OPC_LCONST, std::vector<uint8_t>(data.begin(), data.begin() + length));
-}
-#endif
 
 std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST()
 {

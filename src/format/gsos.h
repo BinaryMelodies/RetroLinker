@@ -1,6 +1,8 @@
 #ifndef GSOS_H
 #define GSOS_H
 
+#include <optional>
+#include <variant>
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
@@ -113,12 +115,12 @@ namespace Apple
 			::EndianType GetEndianType() const;
 
 			/** @brief Reads a number the size of number_length */
-			offset_t ReadUnsigned(Linker::Reader& rd);
-			/** @brief Writes a string the size of number_length */
+			offset_t ReadUnsigned(Linker::Reader& rd) const;
+			/** @brief Writes a number the size of number_length */
 			void WriteWord(Linker::Writer& wr, offset_t value) const;
 
 			/** @brief Reads a string the size of label_length, or variable length if it is 0 */
-			std::string ReadLabel(Linker::Reader& rd);
+			std::string ReadLabel(Linker::Reader& rd) const;
 			/** @brief Writes a string the size of label_length, or variable length if it is 0 */
 			void WriteLabel(Linker::Writer& wr, std::string text) const;
 
@@ -139,13 +141,95 @@ namespace Apple
 			class Expression
 			{
 			public:
-				/* TODO */
-				virtual ~Expression();
-				virtual offset_t GetLength(const Segment& segment) const = 0;
-				virtual void ReadFile(Segment& segment, Linker::Reader& rd) = 0;
-				virtual void WriteFile(const Segment& segment, Linker::Writer& wr) const = 0;
+				// TODO: untested
+
+				/** @brief Represents an operation inside an expression in the object file
+				 *
+				 * The numerical values are identical to the opcode bytes in the binary file
+				 */
+				enum operation_type
+				{
+					End = 0x00,
+					Addition = 0x01,
+					Subtraction = 0x02,
+					Multiplication = 0x03,
+					Division = 0x04,
+					IntegerRemainder = 0x05,
+					Negation = 0x06,
+					BitShift = 0x07,
+					And = 0x08,
+					Or = 0x09,
+					EOr = 0x0A,
+					Not = 0x0B,
+					LessOrEqualTo = 0x0C,
+					GreaterOrEqualTo = 0x0D,
+					NotEqual = 0x0E,
+					LessThan = 0x0F,
+					GreaterThan = 0x10,
+					EqualTo = 0x11,
+					BitAnd = 0x12,
+					BitOr = 0x13,
+					BitEOr = 0x14,
+					BitNot = 0x15,
+					LocationCounterOperand = 0x80,
+					ConstantOperand = 0x81,
+					WeakLabelReferenceOperand = 0x82,
+					LabelReferenceOperand = 0x83,
+					LengthOfLabelReferenceOperand = 0x84,
+					TypeOfLabelReferenceOperand = 0x85,
+					CountOfLabelReferenceOperand = 0x86,
+					RelativeOffsetOperand = 0x87,
+
+					/** @brief A symbolic value to represent a stack underflow condition, it should not be printed back into a binary */
+					StackUnderflow = -1,
+				};
+
+				/** @brief The type of operation, End means that the result is the last operand */
+				operation_type operation = End;
+				/** @brief The operands the operation takes */
+				std::vector<std::unique_ptr<Expression>> operands;
+				/** @brief A value corresponding to an operation, such as an integer constant or a label name */
+				std::optional<std::variant<offset_t, std::string>> value;
+
+				Expression(int operation)
+					: operation(operation_type(operation))
+				{
+				}
+
+				Expression(int operation, std::unique_ptr<Expression>& operand)
+					: operation(operation_type(operation))
+				{
+					operands.emplace_back(std::move(operand));
+				}
+
+				Expression(int operation, std::unique_ptr<Expression>& operand1, std::unique_ptr<Expression>& operand2)
+					: operation(operation_type(operation))
+				{
+					operands.emplace_back(std::move(operand1));
+					operands.emplace_back(std::move(operand2));
+				}
+
+				Expression(int operation, offset_t value)
+					: operation(operation_type(operation)), value(value)
+				{
+				}
+
+				Expression(int operation, std::string value)
+					: operation(operation_type(operation)), value(value)
+				{
+				}
+
+				offset_t GetLength(const Segment& segment) const;
+				void ReadFile(Segment& segment, Linker::Reader& rd);
+				void WriteFile(const Segment& segment, Linker::Writer& wr) const;
+			protected:
+				/** @brief Removes elements from the top of the operands stack and copies them into target. On stack underflow, the missing elements are replaced with StackUnderflow expressions. */
+				void PopElementsInto(size_t count, std::vector<std::unique_ptr<Expression>>& target);
+				/** @brief Reads a single byte of operation (plus optional number and label) and modifies the current list of operands as an operation acting on a stack */
+				uint8_t ReadSingleOperation(Segment& segment, Linker::Reader& rd);
 			};
 
+			/** @brief A single record inside the segment body */
 			class Record
 			{
 			public:
@@ -215,17 +299,16 @@ namespace Apple
 				virtual void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const;
 			};
 
+			/** @brief Represents a CONST or LCONST record, containing a sequence of bytes */
 			class DataRecord : public Record
 			{
 			public:
 				std::shared_ptr<Linker::Image> image;
 
-#if 0
-				DataRecord(record_type type, std::vector<uint8_t> data)
-					: Record(type), data(data)
+				DataRecord(record_type type, std::shared_ptr<Linker::Image> image)
+					: Record(type), image(image)
 				{
 				}
-#endif
 
 				DataRecord(record_type type)
 					: Record(type)
@@ -239,6 +322,7 @@ namespace Apple
 				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
+			/** @brief Represents an ALIGN, ORG or DS record, containing an integer */
 			class ValueRecord : public Record
 			{
 			public:
@@ -256,6 +340,7 @@ namespace Apple
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
+			/** @brief Represents a USING or STRONG record, containing a string */
 			class StringRecord : public Record
 			{
 			public:
@@ -271,6 +356,7 @@ namespace Apple
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 			};
 
+			/** @brief Represents a RELOC or cRELOC record, containing an intrasegment relocation */
 			class RelocationRecord : public Record
 			{
 			public:
@@ -296,6 +382,7 @@ namespace Apple
 				void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const override;
 			};
 
+			/** @brief Represents an INTERSEG or cINTERSEG record, containing an intersegment relocation */
 			class IntersegmentRelocationRecord : public RelocationRecord
 			{
 			public:
@@ -323,6 +410,7 @@ namespace Apple
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
+			/** @brief Represents a LOCAL or GLOBAL record */
 			class LabelRecord : public Record
 			{
 			public:
@@ -331,7 +419,23 @@ namespace Apple
 				enum operation_type
 				{
 					OP_ADDRESS_DC = 'A',
-					// TODO: rest
+					OP_BOOL_DC = 'B',
+					OP_CHAR_DC = 'C',
+					OP_DOUBLE_DC = 'D',
+					OP_FLOAT_DC = 'E',
+					OP_EQU_GEQU = 'G',
+					OP_HEX_DC = 'H',
+					OP_INT_DC = 'I',
+					OP_REF_ADDRESS_DC = 'K',
+					OP_SOFT_REF_DC = 'L',
+					OP_INSTRUCTION = 'M',
+					OP_ASM_DIRECTIVE = 'N',
+					OP_ORG = 'O',
+					OP_ALIGN = 'P',
+					OP_DS = 'S',
+					OP_ARITHMETIC_SYMBOL = 'X',
+					OP_BOOL_SYMBOL = 'Y',
+					OP_CHAR_SYMBOL = 'Z'
 				};
 				operation_type operation = operation_type(0);
 				uint16_t private_flag = 0;
@@ -351,6 +455,7 @@ namespace Apple
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 			};
 
+			/** @brief Represents an EQU or GEQU record */
 			class LabelExpressionRecord : public LabelRecord
 			{
 			public:
@@ -371,6 +476,7 @@ namespace Apple
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 			};
 
+			/** @brief Represents a MEM record */
 			class RangeRecord : public Record
 			{
 			public:
@@ -392,6 +498,7 @@ namespace Apple
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 			};
 
+			/** @brief Represents an EXPR, ZEXPR, BEXPR or LEXPR record */
 			class ExpressionRecord : public Record
 			{
 			public:
@@ -413,6 +520,7 @@ namespace Apple
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 			};
 
+			/** @brief Represents a RELEXPR record */
 			class RelativeExpressionRecord : public ExpressionRecord
 			{
 			public:
@@ -433,6 +541,7 @@ namespace Apple
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 			};
 
+			/** @brief Represents an ENTRY record */
 			class EntryRecord : public Record
 			{
 			public:
@@ -455,6 +564,7 @@ namespace Apple
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 			};
 
+			/** @brief Represents a SUPER record */
 			class SuperCompactRecord : public Record
 			{
 			public:
@@ -488,7 +598,9 @@ namespace Apple
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 				void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const override;
 
+				/** @brief Expands the super compact relocation into a full relocation, without filling in the target fields */
 				bool GetRelocation(IntersegmentRelocationRecord& relocation, unsigned index) const;
+				/** @brief Expands the super compact relocation into a full relocation and fills in the target fields */
 				bool GetRelocation(IntersegmentRelocationRecord& relocation, unsigned index, const Segment& segment) const;
 			};
 
@@ -499,10 +611,7 @@ namespace Apple
 			std::unique_ptr<Record> ReadRecord(Linker::Reader& rd);
 
 			std::unique_ptr<Record> makeEND();
-#if 0
-			std::unique_ptr<Record> makeCONST(std::vector<uint8_t> data);
-			std::unique_ptr<Record> makeCONST(std::vector<uint8_t> data, size_t length);
-#endif
+			std::unique_ptr<Record> makeCONST(std::shared_ptr<Linker::Image> image);
 			std::unique_ptr<Record> makeCONST(size_t length);
 			std::unique_ptr<Record> makeALIGN(offset_t align = 0);
 			std::unique_ptr<Record> makeORG(offset_t value = 0);
@@ -532,10 +641,7 @@ namespace Apple
 			std::unique_ptr<Record> makeEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr<Expression> expression);
 			std::unique_ptr<Record> makeDS(offset_t count = 0);
 			std::unique_ptr<Record> makeLCONST();
-#if 0
-			std::unique_ptr<Record> makeLCONST(std::vector<uint8_t> data);
-			std::unique_ptr<Record> makeLCONST(std::vector<uint8_t> data, size_t length);
-#endif
+			std::unique_ptr<Record> makeLCONST(std::shared_ptr<Linker::Image> image);
 			std::unique_ptr<Record> makeLEXPR();
 			std::unique_ptr<Record> makeLEXPR(uint8_t size, std::unique_ptr<Expression> expression);
 			std::unique_ptr<Record> makeENTRY();
