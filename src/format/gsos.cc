@@ -929,27 +929,6 @@ void OMFFormat::Segment::ValueRecord::ReadData(size_t bytes, offset_t offset, vo
 	memset(buffer, 0, bytes);
 }
 
-offset_t OMFFormat::Segment::StringRecord::GetLength(const Segment& segment) const
-{
-	return 1 + (segment.label_length == 0 ? 1 + name.size() : segment.label_length);
-}
-
-void OMFFormat::Segment::StringRecord::ReadFile(Segment& segment, Linker::Reader& rd)
-{
-	name = segment.ReadLabel(rd);
-}
-
-void OMFFormat::Segment::StringRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
-{
-	Record::WriteFile(segment, wr);
-	segment.WriteLabel(wr, name);
-}
-
-void OMFFormat::Segment::StringRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
-{
-	region.AddField("Name", Dumper::StringDisplay::Make(), name);
-}
-
 offset_t OMFFormat::Segment::RelocationRecord::GetLength(const Segment& segment) const
 {
 	if(type == OPC_RELOC)
@@ -1072,6 +1051,27 @@ void OMFFormat::Segment::IntersegmentRelocationRecord::AddFields(Dumper::Dumper&
 		region.AddField("Target", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(segment_number), offset_t(target));
 	else
 		region.AddField("Target", Dumper::SectionedDisplay<offset_t, offset_t>::Make(Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8))), offset_t(file_number), offset_t(segment_number), offset_t(target));
+}
+
+offset_t OMFFormat::Segment::StringRecord::GetLength(const Segment& segment) const
+{
+	return 1 + (segment.label_length == 0 ? 1 + name.size() : segment.label_length);
+}
+
+void OMFFormat::Segment::StringRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+{
+	name = segment.ReadLabel(rd);
+}
+
+void OMFFormat::Segment::StringRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+{
+	Record::WriteFile(segment, wr);
+	segment.WriteLabel(wr, name);
+}
+
+void OMFFormat::Segment::StringRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+{
+	region.AddField("Name", Dumper::StringDisplay::Make(), name);
 }
 
 offset_t OMFFormat::Segment::LabelRecord::GetLength(const Segment& segment) const

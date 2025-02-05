@@ -367,23 +367,6 @@ namespace Apple
 				void ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			};
 
-			/** @brief Represents a USING or STRONG record, containing a string */
-			class StringRecord : public Record
-			{
-			public:
-				std::string name;
-
-				StringRecord(record_type type, std::string name)
-					: Record(type), name(name)
-				{
-				}
-
-				offset_t GetLength(const Segment& segment) const override;
-				void ReadFile(Segment& segment, Linker::Reader& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
-				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
-			};
-
 			/** @brief Represents a RELOC or cRELOC record, containing an intrasegment relocation */
 			class RelocationRecord : public Record
 			{
@@ -429,6 +412,23 @@ namespace Apple
 
 				IntersegmentRelocationRecord(record_type type, uint8_t size, uint8_t shift, offset_t source, uint16_t file_number, uint16_t segment_number, offset_t target)
 					: RelocationRecord(type, size, shift, source, target), file_number(file_number), segment_number(segment_number)
+				{
+				}
+
+				offset_t GetLength(const Segment& segment) const override;
+				void ReadFile(Segment& segment, Linker::Reader& rd) override;
+				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+			};
+
+			/** @brief Represents a USING or STRONG record, containing a string */
+			class StringRecord : public Record
+			{
+			public:
+				std::string name;
+
+				StringRecord(record_type type, std::string name)
+					: Record(type), name(name)
 				{
 				}
 
