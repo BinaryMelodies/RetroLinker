@@ -13,7 +13,7 @@ std::shared_ptr<const ActualImage> Image::AsImage() const
 	// TODO: find a more efficient way
 	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>();
 	std::ostringstream oss;
-	Writer wr(::EndianType(0), &oss);
+	Writer wr(::UndefinedEndian, &oss);
 	WriteFile(wr);
 	std::string data = oss.str();
 	buffer->data.assign(data.begin(), data.end());

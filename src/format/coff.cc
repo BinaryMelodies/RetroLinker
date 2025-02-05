@@ -13,8 +13,8 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x0088,    MachineType { CPU_M68K,  ::BigEndian }) },
 	{ std::make_pair(0x0089,    MachineType { CPU_M68K,  ::BigEndian }) },
 	{ std::make_pair(0x0093,    MachineType { CPU_M68K,  ::BigEndian }) },
-	{ std::make_pair(0x0140,    MachineType { CPU_MIPS,  ::Undefined }) }, // ECOFF
-	{ std::make_pair(0x0142,    MachineType { CPU_MIPS,  ::Undefined }) }, // ECOFF // TODO: also 8086
+	{ std::make_pair(0x0140,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0142,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF // TODO: also 8086
 	{ std::make_pair(0x0143,    MachineType { CPU_I86,   ::LittleEndian }) },
 	{ std::make_pair(0x0144,    MachineType { CPU_I86,   ::LittleEndian }) },
 	{ std::make_pair(0x0145,    MachineType { CPU_I86,   ::LittleEndian }) },
@@ -38,13 +38,13 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	// 0x015B -- I370
 	{ std::make_pair(0x015C,    MachineType { CPU_I370,  ::BigEndian }) }, // Amdahl
 	{ std::make_pair(0x015D,    MachineType { CPU_I370,  ::BigEndian }) },
-	{ std::make_pair(0x0160,    MachineType { CPU_MIPS,  ::Undefined }) }, // ECOFF but also COFF with MIPS optional header?
+	{ std::make_pair(0x0160,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF but also COFF with MIPS optional header?
 	// also OpenBSD i960
-	{ std::make_pair(0x0162,    MachineType { CPU_MIPS,  ::Undefined }) }, // ECOFF
-	{ std::make_pair(0x0163,    MachineType { CPU_MIPS,  ::Undefined }) }, // ECOFF
+	{ std::make_pair(0x0162,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0163,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
 	// 0x0164 -- Zilog
 	// 0x0165 -- Zilog
-	{ std::make_pair(0x0166,    MachineType { CPU_MIPS,  ::Undefined }) }, // ECOFF
+	{ std::make_pair(0x0166,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
 	{ std::make_pair(0x0168,    MachineType { CPU_WE32K, ::BigEndian }) }, // 3B20 // TODO: also NetBSD SH3
 	{ std::make_pair(0x0169,    MachineType { CPU_WE32K, ::BigEndian }) }, // 3B20
 	{ std::make_pair(0x016C,    MachineType { CPU_M68K,  ::BigEndian }) },
@@ -58,12 +58,12 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x017B,    MachineType { CPU_AM29K, ::LittleEndian }) },
 	{ std::make_pair(0x017D,    MachineType { CPU_VAX,   ::LittleEndian }) },
 	// TODO: 0x017F - CLIPPER (unknown endianness)
-	{ std::make_pair(0x0180,    MachineType { CPU_MIPS,  ::Undefined }) }, // ECOFF
-	{ std::make_pair(0x0182,    MachineType { CPU_MIPS,  ::Undefined }) }, // ECOFF
-	{ std::make_pair(0x0183,    MachineType { CPU_ALPHA, ::Undefined }) }, // ECOFF
-	{ std::make_pair(0x0185,    MachineType { CPU_ALPHA, ::Undefined }) }, // ECOFF
-	{ std::make_pair(0x0188,    MachineType { CPU_ALPHA, ::Undefined }) }, // ECOFF
-	{ std::make_pair(0x018F,    MachineType { CPU_ALPHA, ::Undefined }) }, // ECOFF
+	{ std::make_pair(0x0180,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0182,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0183,    MachineType { CPU_ALPHA, ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0185,    MachineType { CPU_ALPHA, ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0188,    MachineType { CPU_ALPHA, ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x018F,    MachineType { CPU_ALPHA, ::UndefinedEndian }) }, // ECOFF
 	{ std::make_pair(0x0194,    MachineType { CPU_M88K,  ::BigEndian }) },
 	{ std::make_pair(0x0197,    MachineType { CPU_M68K,  ::BigEndian }) },
 	{ std::make_pair(0x01DF,    MachineType { CPU_PPC,   ::BigEndian }) }, // XCOFF
@@ -1037,7 +1037,7 @@ bool COFFFormat::DetectCpuType(::EndianType expected)
 	if(it == MACHINE_TYPES.end())
 		return false;
 	::EndianType actual = it->second.endian;
-	if(actual == ::Undefined || actual == expected)
+	if(actual == ::UndefinedEndian || actual == expected)
 	{
 		cpu_type = it->second.actual_cpu;
 		endiantype = expected;

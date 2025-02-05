@@ -19,7 +19,7 @@ void GenericBinaryFormat::ReadFile(Linker::Reader& rd)
 {
 	Clear();
 
-	rd.endiantype = ::EndianType(0); /* does not matter */
+	rd.endiantype = ::UndefinedEndian; /* does not matter */
 
 	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
 	buffer->ReadFile(rd);
@@ -33,7 +33,7 @@ offset_t GenericBinaryFormat::ImageSize() const
 
 offset_t GenericBinaryFormat::WriteFile(Linker::Writer& wr) const
 {
-	wr.endiantype = ::EndianType(0); /* does not matter */
+	wr.endiantype = ::UndefinedEndian; /* does not matter */
 	return image->WriteFile(wr);
 }
 
@@ -206,7 +206,7 @@ void BinaryFormat::ReadFile(Linker::Reader& rd)
 {
 	Clear();
 
-	rd.endiantype = ::EndianType(0); /* does not matter */
+	rd.endiantype = ::UndefinedEndian; /* does not matter */
 
 	/* check for PIF structure at end */
 	/* this is only meaningful for MS-DOS x86 binaries, but the DR PIFED signature is expected to be sufficiently distinguished */
@@ -240,7 +240,7 @@ offset_t BinaryFormat::ImageSize() const
 
 offset_t BinaryFormat::WriteFile(Linker::Writer& wr) const
 {
-	wr.endiantype = ::EndianType(0); /* does not matter */
+	wr.endiantype = ::UndefinedEndian; /* does not matter */
 	image->WriteFile(wr);
 	if(pif)
 		pif->WriteFile(wr);

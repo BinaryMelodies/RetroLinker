@@ -66,7 +66,7 @@ ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Image> (* file_reader)(Link
 
 void ArchiveFormat::ReadFile(Linker::Reader& rd)
 {
-	rd.endiantype = ::EndianType(0); // should not matter
+	rd.endiantype = ::UndefinedEndian; // should not matter
 	file_offset = rd.Tell(); // !<arch>\n
 	if(file_size == offset_t(-1))
 	{
@@ -155,7 +155,7 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 
 offset_t ArchiveFormat::WriteFile(Linker::Writer& wr) const
 {
-	wr.endiantype = ::EndianType(0); // should not matter
+	wr.endiantype = ::UndefinedEndian; // should not matter
 	wr.Seek(file_offset);
 	wr.WriteData("!<arch>\n");
 	for(auto& entry : files)

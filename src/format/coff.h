@@ -1030,7 +1030,7 @@ namespace COFF
 		/**
 		 * @brief The byte order
 		 */
-		::EndianType endiantype = ::EndianType(0);
+		::EndianType endiantype = ::UndefinedEndian;
 
 		bool DetectCpuType(::EndianType expected);
 

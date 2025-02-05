@@ -15,7 +15,7 @@ typedef size_t number_t;
 
 enum EndianType
 {
-	Undefined,
+	UndefinedEndian,
 	LittleEndian,
 	BigEndian,
 	PDP11Endian, /* little endian within a 16-bit word, big endian between words */

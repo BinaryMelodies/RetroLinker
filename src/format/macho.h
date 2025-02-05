@@ -21,7 +21,7 @@ namespace MachO
 	class MachOFormat : public virtual Linker::SegmentManager
 	{
 	public:
-		::EndianType endiantype = ::EndianType(0);
+		::EndianType endiantype = ::UndefinedEndian;
 		size_t wordsize;
 		enum cpu_type
 		{

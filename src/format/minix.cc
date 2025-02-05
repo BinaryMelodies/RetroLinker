@@ -143,7 +143,7 @@ void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t re
 
 void MINIXFormat::ReadFile(Linker::Reader& rd)
 {
-	rd.endiantype = ::EndianType(0); // should not matter
+	rd.endiantype = ::UndefinedEndian; // should not matter
 	rd.Skip(2); // signature: \x01\x03
 	format = format_type(rd.ReadUnsigned(1));
 	cpu = cpu_type(rd.ReadUnsigned(1));
