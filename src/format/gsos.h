@@ -10,7 +10,7 @@
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
-/* TODO: untested */
+/* TODO: most of this code is not tested, it can parse and dump executable binaries */
 
 namespace Apple
 {
@@ -229,7 +229,7 @@ namespace Apple
 				uint8_t ReadSingleOperation(Segment& segment, Linker::Reader& rd);
 			};
 
-			/** @brief A single record inside the segment body */
+			/** @brief A single record inside the segment body, also represents an END record */
 			class Record
 			{
 			public:
@@ -297,6 +297,8 @@ namespace Apple
 				virtual void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const;
 				/** @brief If this is a relocation record, add the relocation signals to the block */
 				virtual void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const;
+				/** @brief Attempts to read data from the in-memory image, if possible, it can be assumed that offset + bytes <= GetMemoryLength() */
+				virtual void ReadData(size_t bytes, offset_t offset, void * buffer) const;
 			};
 
 			/** @brief Represents a CONST or LCONST record, containing a sequence of bytes */
@@ -320,6 +322,7 @@ namespace Apple
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+				void ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			};
 
 			/** @brief Represents an ALIGN, ORG or DS record, containing an integer */
@@ -338,6 +341,7 @@ namespace Apple
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+				void ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			};
 
 			/** @brief Represents a USING or STRONG record, containing a string */

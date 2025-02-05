@@ -361,16 +361,7 @@ size_t OMFFormat::Segment::ReadData(size_t bytes, offset_t offset, void * buffer
 		if(offset < current_offset + length)
 		{
 			size_t actual_bytes = std::min(bytes, current_offset + length - offset);
-			if(const DataRecord * data_record = dynamic_cast<const DataRecord *>(record.get()))
-			{
-				// CONST or LCONST
-				data_record->image->AsImage()->ReadData(actual_bytes, offset, buffer);
-			}
-			else
-			{
-				// likely DS
-				memset(buffer, 0, actual_bytes);
-			}
+			record->ReadData(actual_bytes, offset, buffer);
 			count += actual_bytes;
 			bytes -= actual_bytes;
 			buffer = reinterpret_cast<char *>(buffer) + actual_bytes;
@@ -628,6 +619,10 @@ void OMFFormat::Segment::Record::AddSignals(Dumper::Block& block, offset_t curre
 {
 }
 
+void OMFFormat::Segment::Record::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+}
+
 offset_t OMFFormat::Segment::DataRecord::GetLength(const Segment& segment) const
 {
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
@@ -685,6 +680,12 @@ void OMFFormat::Segment::DataRecord::Dump(Dumper::Dumper& dump, const OMFFormat&
 	data_block.Display(dump);
 }
 
+void OMFFormat::Segment::DataRecord::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+	// CONST or LCONST
+	image->AsImage()->ReadData(bytes, offset, buffer);
+}
+
 offset_t OMFFormat::Segment::ValueRecord::GetLength(const Segment& segment) const
 {
 	return 1 + segment.number_length;
@@ -716,6 +717,14 @@ void OMFFormat::Segment::ValueRecord::AddFields(Dumper::Dumper& dump, Dumper::Re
 	else
 	{
 		region.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
+	}
+}
+
+void OMFFormat::Segment::ValueRecord::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+	if(type == OPC_DS)
+	{
+		memset(buffer, 0, bytes);
 	}
 }
 
