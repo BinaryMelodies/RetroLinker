@@ -576,7 +576,11 @@ public:
 };
 
 /**
- * @brief A class to control the output of a file analysis
+ * @brief An abstract interface that separates structure and presentation of the data inside a file
+ *
+ * This class is responsible for actually displaying the contents set up using other classes inside the Dumper namespace.
+ * By separating structure and presentation, it is possible to create alternative displays, including machine readable ones, to replace the dumper class.
+ * Currently only the default Dumper class is available, but by modifying it here, presentation choices can be made in a single location.
  */
 class Dumper
 {
