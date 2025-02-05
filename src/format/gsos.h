@@ -280,7 +280,7 @@ namespace Apple
 				 *
 				 * @param segment The segment the record is part of
 				 */
-				virtual offset_t GetMemoryLength(const Segment& segment) const;
+				virtual offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const;
 				virtual void ReadFile(Segment& segment, Linker::Reader& rd);
 				virtual void WriteFile(const Segment& segment, Linker::Writer& wr) const;
 				/** @brief Displays information pertaining to this record
@@ -318,7 +318,7 @@ namespace Apple
 				}
 
 				offset_t GetLength(const Segment& segment) const override;
-				offset_t GetMemoryLength(const Segment& segment) const override;
+				offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
@@ -337,7 +337,7 @@ namespace Apple
 				}
 
 				offset_t GetLength(const Segment& segment) const override;
-				offset_t GetMemoryLength(const Segment& segment) const override;
+				offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
@@ -348,16 +348,17 @@ namespace Apple
 			class StringRecord : public Record
 			{
 			public:
-				std::string value;
+				std::string name;
 
-				StringRecord(record_type type, std::string value)
-					: Record(type), value(value)
+				StringRecord(record_type type, std::string name)
+					: Record(type), name(name)
 				{
 				}
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			/** @brief Represents a RELOC or cRELOC record, containing an intrasegment relocation */
@@ -457,6 +458,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			/** @brief Represents an EQU or GEQU record */
@@ -478,6 +480,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			/** @brief Represents a MEM record */
@@ -500,6 +503,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
 			/** @brief Represents an EXPR, ZEXPR, BEXPR or LEXPR record */
@@ -520,8 +524,11 @@ namespace Apple
 				}
 
 				offset_t GetLength(const Segment& segment) const override;
+				offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+				void ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			};
 
 			/** @brief Represents a RELEXPR record */
