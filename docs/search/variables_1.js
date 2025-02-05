@@ -6,7 +6,7 @@ var searchData=
   ['bias_3',['bias',['../classLinker_1_1Section.html#a9a471b95f8c6da2b82a7c48ce8399d26',1,'Linker::Section']]],
   ['block_5fid_4',['block_id',['../classPCOS_1_1CMDFormat_1_1LoadBlock.html#ab739cd7df8f2ce9186f3982340c9a593',1,'PCOS::CMDFormat::LoadBlock']]],
   ['block_5fnumber_5',['block_number',['../structBinary_1_1AtariFormat_1_1Segment.html#a8cea5ad1df71d03ac3439bb0cc1d3f05',1,'Binary::AtariFormat::Segment']]],
-  ['blocks_6',['blocks',['../classELF_1_1ELFFormat.html#ad1c406777ad6832b60e1fc5c6ceb1752',1,'ELF::ELFFormat::blocks'],['../classPCOS_1_1CMDFormat.html#a3d5dfc9c3655508a5d5f7f2907e1bbc3',1,'PCOS::CMDFormat::blocks']]],
+  ['blocks_6',['blocks',['../classELF_1_1ELFFormat.html#ad1c406777ad6832b60e1fc5c6ceb1752',1,'ELF::ELFFormat::blocks'],['../classAmiga_1_1HunkFormat_1_1Hunk.html#af89a82a2a9cf59c80e89c23c73e80b8c',1,'Amiga::HunkFormat::Hunk::blocks'],['../classPCOS_1_1CMDFormat.html#a3d5dfc9c3655508a5d5f7f2907e1bbc3',1,'PCOS::CMDFormat::blocks']]],
   ['bss_5faddress_7',['bss_address',['../classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html#a00a5b10aa7070d557d8ddd3dad464654',1,'COFF::COFFFormat::ECOFFAOutHeader::bss_address'],['../classDigitalResearch_1_1CPM68KFormat.html#a2dc31f3559026df0fbdebdfb409ae35f',1,'DigitalResearch::CPM68KFormat::bss_address']]],
   ['bss_5fbase_8',['bss_base',['../classO65_1_1O65Format_1_1Module.html#af2eec1e3cd75ca531bdf60b652c02f72',1,'O65::O65Format::Module']]],
   ['bss_5fsection_9',['bss_section',['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#adf76d1f930c0310a7d28f5b99ef2fae5',1,'COFF::COFFFormat::XCOFFAOutHeader']]],

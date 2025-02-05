@@ -84,20 +84,48 @@ $(function() {
   <div class="headertitle"><div class="title">Apple::OMFFormat::Segment::LabelRecord Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents a LOCAL or GLOBAL record.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="gsos_8h_source.html">gsos.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Apple::OMFFormat::Segment::LabelRecord:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classApple_1_1OMFFormat_1_1Segment_1_1LabelRecord.png" usemap="#Apple::OMFFormat::Segment::LabelRecord_map" alt=""/>
   <map id="Apple::OMFFormat::Segment::LabelRecord_map" name="Apple::OMFFormat::Segment::LabelRecord_map">
-<area href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html" alt="Apple::OMFFormat::Segment::Record" shape="rect" coords="0,0,313,24"/>
-<area href="classApple_1_1OMFFormat_1_1Segment_1_1LabelExpressionRecord.html" alt="Apple::OMFFormat::Segment::LabelExpressionRecord" shape="rect" coords="0,112,313,136"/>
+<area href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html" title="A single record inside the segment body, also represents an END record." alt="Apple::OMFFormat::Segment::Record" shape="rect" coords="0,0,313,24"/>
+<area href="classApple_1_1OMFFormat_1_1Segment_1_1LabelExpressionRecord.html" title="Represents an EQU or GEQU record." alt="Apple::OMFFormat::Segment::LabelExpressionRecord" shape="rect" coords="0,112,313,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a56327c49f7738c736f753f37920449de" id="r_a56327c49f7738c736f753f37920449de"><td class="memItemLeft" align="right" valign="top"><a id="a56327c49f7738c736f753f37920449de" name="a56327c49f7738c736f753f37920449de"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>operation_type</b> { <b>OP_ADDRESS_DC</b> = 'A'
+<tr class="memitem:a56327c49f7738c736f753f37920449de" id="r_a56327c49f7738c736f753f37920449de"><td class="memItemLeft" align="right" valign="top"><a id="a56327c49f7738c736f753f37920449de" name="a56327c49f7738c736f753f37920449de"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>operation_type</b> { <br />
+&#160;&#160;<b>OP_ADDRESS_DC</b> = 'A'
+, <b>OP_BOOL_DC</b> = 'B'
+, <b>OP_CHAR_DC</b> = 'C'
+, <b>OP_DOUBLE_DC</b> = 'D'
+, <br />
+&#160;&#160;<b>OP_FLOAT_DC</b> = 'E'
+, <b>OP_EQU_GEQU</b> = 'G'
+, <b>OP_HEX_DC</b> = 'H'
+, <b>OP_INT_DC</b> = 'I'
+, <br />
+&#160;&#160;<b>OP_REF_ADDRESS_DC</b> = 'K'
+, <b>OP_SOFT_REF_DC</b> = 'L'
+, <b>OP_INSTRUCTION</b> = 'M'
+, <b>OP_ASM_DIRECTIVE</b> = 'N'
+, <br />
+&#160;&#160;<b>OP_ORG</b> = 'O'
+, <b>OP_ALIGN</b> = 'P'
+, <b>OP_DS</b> = 'S'
+, <b>OP_ARITHMETIC_SYMBOL</b> = 'X'
+, <br />
+&#160;&#160;<b>OP_BOOL_SYMBOL</b> = 'Y'
+, <b>OP_CHAR_SYMBOL</b> = 'Z'
+<br />
  }</td></tr>
 <tr class="separator:a56327c49f7738c736f753f37920449de"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_types_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classApple_1_1OMFFormat_1_1Segment_1_1Record')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html">Apple::OMFFormat::Segment::Record</a></td></tr>
@@ -146,16 +174,32 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4ba798958a4599feeba1cd870b5f1296" id="r_a4ba798958a4599feeba1cd870b5f1296"><td class="memItemLeft" align="right" valign="top"><a id="a4ba798958a4599feeba1cd870b5f1296" name="a4ba798958a4599feeba1cd870b5f1296"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>LabelRecord</b> (record_type type, std::string name, uint16_t line_length, int operation, uint16_t private_flag)</td></tr>
 <tr class="separator:a4ba798958a4599feeba1cd870b5f1296"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a251cff1126bc8a029b2d56e2b27464e2" id="r_a251cff1126bc8a029b2d56e2b27464e2"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a251cff1126bc8a029b2d56e2b27464e2">GetLength</a> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment) const override</td></tr>
-<tr class="separator:a251cff1126bc8a029b2d56e2b27464e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aacb65c3480de3371c04b97fd6b51aa3a" id="r_aacb65c3480de3371c04b97fd6b51aa3a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aacb65c3480de3371c04b97fd6b51aa3a">GetLength</a> (const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment) const override</td></tr>
+<tr class="memdesc:aacb65c3480de3371c04b97fd6b51aa3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the record, as stored in the file.  <br /></td></tr>
+<tr class="separator:aacb65c3480de3371c04b97fd6b51aa3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ca3ba42697b3dfc7454f0f08c37f9e" id="r_ad5ca3ba42697b3dfc7454f0f08c37f9e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad5ca3ba42697b3dfc7454f0f08c37f9e">ReadFile</a> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="separator:ad5ca3ba42697b3dfc7454f0f08c37f9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab08d5c250d098eebae0edaf2b25d59f0" id="r_ab08d5c250d098eebae0edaf2b25d59f0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab08d5c250d098eebae0edaf2b25d59f0">WriteFile</a> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
-<tr class="separator:ab08d5c250d098eebae0edaf2b25d59f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa7d135057c8337c29b8663806681f9a" id="r_aaa7d135057c8337c29b8663806681f9a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaa7d135057c8337c29b8663806681f9a">WriteFile</a> (const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
+<tr class="separator:aaa7d135057c8337c29b8663806681f9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac34c651d9070ac618eaff991ee7acb48" id="r_ac34c651d9070ac618eaff991ee7acb48"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac34c651d9070ac618eaff991ee7acb48">AddFields</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, const <a class="el" href="classApple_1_1OMFFormat.html">OMFFormat</a> &amp;omf, const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, unsigned index, offset_t file_offset, offset_t address) const override</td></tr>
+<tr class="memdesc:ac34c651d9070ac618eaff991ee7acb48"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds any further fields to the file region that encompasses this record.  <br /></td></tr>
+<tr class="separator:ac34c651d9070ac618eaff991ee7acb48"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html">Apple::OMFFormat::Segment::Record</a></td></tr>
 <tr class="memitem:a48d4d0878a4fab3c67a7e28b215794d3 inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record" id="r_a48d4d0878a4fab3c67a7e28b215794d3"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Record</b> (record_type type)</td></tr>
 <tr class="separator:a48d4d0878a4fab3c67a7e28b215794d3 inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adbace0ece4b6cc9157c034aa54ffc24c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record" id="r_adbace0ece4b6cc9157c034aa54ffc24c"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html#adbace0ece4b6cc9157c034aa54ffc24c">GetMemoryLength</a> (const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, offset_t <a class="el" href="classLinker_1_1SegmentManager.html#aba19c02257c496c2f8a7ea8ebc40be3d">current_address</a>) const</td></tr>
+<tr class="memdesc:adbace0ece4b6cc9157c034aa54ffc24c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the amount of memory the record occupies when loaded into memory. Most records have a length of 0.  <br /></td></tr>
+<tr class="separator:adbace0ece4b6cc9157c034aa54ffc24c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26676b280531a67d336b29baeb3a9cc6 inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record" id="r_a26676b280531a67d336b29baeb3a9cc6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html#a26676b280531a67d336b29baeb3a9cc6">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classApple_1_1OMFFormat.html">OMFFormat</a> &amp;omf, const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, unsigned index, offset_t file_offset, offset_t address) const</td></tr>
+<tr class="memdesc:a26676b280531a67d336b29baeb3a9cc6 inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays information pertaining to this record.  <br /></td></tr>
+<tr class="separator:a26676b280531a67d336b29baeb3a9cc6 inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a533d38a87659f02ae569a434f7e6d72c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record" id="r_a533d38a87659f02ae569a434f7e6d72c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html#a533d38a87659f02ae569a434f7e6d72c">AddSignals</a> (<a class="el" href="classDumper_1_1Block.html">Dumper::Block</a> &amp;block, offset_t current_segment_offset) const</td></tr>
+<tr class="memdesc:a533d38a87659f02ae569a434f7e6d72c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="mdescLeft">&#160;</td><td class="mdescRight">If this is a relocation record, add the relocation signals to the block.  <br /></td></tr>
+<tr class="separator:a533d38a87659f02ae569a434f7e6d72c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56db1d6baf1e0fcdcc2423098211c81c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record" id="r_a56db1d6baf1e0fcdcc2423098211c81c"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html#a56db1d6baf1e0fcdcc2423098211c81c">ReadData</a> (size_t bytes, offset_t offset, void *buffer) const</td></tr>
+<tr class="memdesc:a56db1d6baf1e0fcdcc2423098211c81c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to read data from the in-memory image, if possible, it can be assumed that offset + bytes &lt;= <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html#adbace0ece4b6cc9157c034aa54ffc24c" title="Returns the amount of memory the record occupies when loaded into memory. Most records have a length ...">GetMemoryLength()</a>  <br /></td></tr>
+<tr class="separator:a56db1d6baf1e0fcdcc2423098211c81c inherit pub_methods_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -176,9 +220,69 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>private_flag</b> 
 record_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
 <tr class="separator:ad7982b0a2760aa2a84b2cb8f4d9fe9d7 inherit pub_attribs_classApple_1_1OMFFormat_1_1Segment_1_1Record"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a251cff1126bc8a029b2d56e2b27464e2" name="a251cff1126bc8a029b2d56e2b27464e2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a251cff1126bc8a029b2d56e2b27464e2">&#9670;&#160;</a></span>GetLength()</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents a LOCAL or GLOBAL record. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac34c651d9070ac618eaff991ee7acb48" name="ac34c651d9070ac618eaff991ee7acb48"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac34c651d9070ac618eaff991ee7acb48">&#9670;&#160;</a></span>AddFields()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void OMFFormat::Segment::LabelRecord::AddFields </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>region</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classApple_1_1OMFFormat.html">OMFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>omf</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>segment</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned</td>          <td class="paramname"><span class="paramname"><em>index</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>file_offset</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>address</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Adds any further fields to the file region that encompasses this record. </p>
+
+<p>Reimplemented from <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html#a46c22c733d9d996709b35abb1acb3f46">Apple::OMFFormat::Segment::Record</a>.</p>
+
+</div>
+</div>
+<a id="aacb65c3480de3371c04b97fd6b51aa3a" name="aacb65c3480de3371c04b97fd6b51aa3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aacb65c3480de3371c04b97fd6b51aa3a">&#9670;&#160;</a></span>GetLength()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -189,7 +293,7 @@ record_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td><
         <tr>
           <td class="memname">offset_t OMFFormat::Segment::LabelRecord::GetLength </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>segment</em></span></td><td>)</td>
+          <td class="paramtype">const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>segment</em></span></td><td>)</td>
           <td> const</td>
         </tr>
       </table>
@@ -200,7 +304,15 @@ record_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td><
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html">Apple::OMFFormat::Segment::Record</a>.</p>
+<p>Returns the size of the record, as stored in the file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">segment</td><td>The segment the record is part of </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented from <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Record.html#afd24692e7e8c6af4e2288a9096adb05f">Apple::OMFFormat::Segment::Record</a>.</p>
 
 </div>
 </div>
@@ -235,8 +347,8 @@ record_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td><
 
 </div>
 </div>
-<a id="ab08d5c250d098eebae0edaf2b25d59f0" name="ab08d5c250d098eebae0edaf2b25d59f0"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab08d5c250d098eebae0edaf2b25d59f0">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="aaa7d135057c8337c29b8663806681f9a" name="aaa7d135057c8337c29b8663806681f9a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa7d135057c8337c29b8663806681f9a">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -247,7 +359,7 @@ record_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td><
         <tr>
           <td class="memname">void OMFFormat::Segment::LabelRecord::WriteFile </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>segment</em>, </span></td>
+          <td class="paramtype">const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>segment</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>

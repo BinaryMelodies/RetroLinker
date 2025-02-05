@@ -101,9 +101,9 @@ Inheritance diagram for Dumper::DecDisplay:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac05e9c9085e47d4faf47b1723a927aaa" id="r_ac05e9c9085e47d4faf47b1723a927aaa"><td class="memItemLeft" align="right" valign="top"><a id="ac05e9c9085e47d4faf47b1723a927aaa" name="ac05e9c9085e47d4faf47b1723a927aaa"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>DecDisplay</b> (std::string suffix)</td></tr>
-<tr class="separator:ac05e9c9085e47d4faf47b1723a927aaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9187254b5b116401897660e38d1b0284" id="r_a9187254b5b116401897660e38d1b0284"><td class="memItemLeft" align="right" valign="top"><a id="a9187254b5b116401897660e38d1b0284" name="a9187254b5b116401897660e38d1b0284"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>DecDisplay</b> (std::string suffix, bool enable_signed)</td></tr>
+<tr class="separator:a9187254b5b116401897660e38d1b0284"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afed61aceb0c21cf573e4cdbe2c4c663a" id="r_afed61aceb0c21cf573e4cdbe2c4c663a"><td class="memItemLeft" align="right" valign="top"><a id="afed61aceb0c21cf573e4cdbe2c4c663a" name="afed61aceb0c21cf573e4cdbe2c4c663a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>DisplayValue</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;dump, std::tuple&lt; offset_t &gt; values) override</td></tr>
 <tr class="separator:afed61aceb0c21cf573e4cdbe2c4c663a"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -114,20 +114,26 @@ virtual bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsMissing</b>
 <tr class="separator:a86e7fa92f5200f65d9c56ff579ea9594 inherit pub_methods_classDumper_1_1Display"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9a91ab30a111e6fcdc129e0f164fa138 inherit pub_methods_classDumper_1_1Display" id="r_a9a91ab30a111e6fcdc129e0f164fa138"><td class="memItemLeft" align="right" valign="top">
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DisplayValue</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;dump, std::tuple&lt; Ts... &gt; values)=0</td></tr>
-<tr class="memdesc:a9a91ab30a111e6fcdc129e0f164fa138 inherit pub_methods_classDumper_1_1Display"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the value through the <a class="el" href="classDumper_1_1Dumper.html" title="A class to control the output of a file analysis.">Dumper</a>, different types of fields can be displayed in different ways. <br /></td></tr>
+<tr class="memdesc:a9a91ab30a111e6fcdc129e0f164fa138 inherit pub_methods_classDumper_1_1Display"><td class="mdescLeft">&#160;</td><td class="mdescRight">Prints the value through the <a class="el" href="classDumper_1_1Dumper.html" title="An abstract interface that separates structure and presentation of the data inside a file.">Dumper</a>, different types of fields can be displayed in different ways. <br /></td></tr>
 <tr class="separator:a9a91ab30a111e6fcdc129e0f164fa138 inherit pub_methods_classDumper_1_1Display"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:aadb027c74010485f276af976b70258a0" id="r_aadb027c74010485f276af976b70258a0"><td class="memItemLeft" align="right" valign="top"><a id="aadb027c74010485f276af976b70258a0" name="aadb027c74010485f276af976b70258a0"></a>
-static std::shared_ptr&lt; <a class="el" href="classDumper_1_1DecDisplay.html">DecDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (std::string suffix=&quot;&quot;)</td></tr>
-<tr class="separator:aadb027c74010485f276af976b70258a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8edcc5610b32bdcce6d6eb50ac89e1a5" id="r_a8edcc5610b32bdcce6d6eb50ac89e1a5"><td class="memItemLeft" align="right" valign="top"><a id="a8edcc5610b32bdcce6d6eb50ac89e1a5" name="a8edcc5610b32bdcce6d6eb50ac89e1a5"></a>
+static std::shared_ptr&lt; <a class="el" href="classDumper_1_1DecDisplay.html">DecDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (bool enable_signed)</td></tr>
+<tr class="separator:a8edcc5610b32bdcce6d6eb50ac89e1a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac19481730e065fc12df9bd75a03b10d7" id="r_ac19481730e065fc12df9bd75a03b10d7"><td class="memItemLeft" align="right" valign="top"><a id="ac19481730e065fc12df9bd75a03b10d7" name="ac19481730e065fc12df9bd75a03b10d7"></a>
+static std::shared_ptr&lt; <a class="el" href="classDumper_1_1DecDisplay.html">DecDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (std::string suffix=&quot;&quot;, bool enable_signed=false)</td></tr>
+<tr class="separator:ac19481730e065fc12df9bd75a03b10d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ad818d1ea50131763de67f3b10b20de8f" id="r_ad818d1ea50131763de67f3b10b20de8f"><td class="memItemLeft" align="right" valign="top"><a id="ad818d1ea50131763de67f3b10b20de8f" name="ad818d1ea50131763de67f3b10b20de8f"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>suffix</b></td></tr>
 <tr class="separator:ad818d1ea50131763de67f3b10b20de8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a440e5adb5e248ee13aca8141c94a550c" id="r_a440e5adb5e248ee13aca8141c94a550c"><td class="memItemLeft" align="right" valign="top"><a id="a440e5adb5e248ee13aca8141c94a550c" name="a440e5adb5e248ee13aca8141c94a550c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>enable_signed</b> = false</td></tr>
+<tr class="separator:a440e5adb5e248ee13aca8141c94a550c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Represents a field with a decimal display, usually indices into an array or similar, such as segment numbers. </p>

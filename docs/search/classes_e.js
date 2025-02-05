@@ -13,7 +13,8 @@ var searchData=
   ['pmw1format_10',['PMW1Format',['../classPMODE_1_1PMW1Format.html',1,'PMODE']]],
   ['point_11',['Point',['../structApple_1_1FinderInfo_1_1Point.html',1,'Apple::FinderInfo']]],
   ['position_12',['Position',['../classLinker_1_1Position.html',1,'Linker']]],
-  ['prlformat_13',['PRLFormat',['../classBinary_1_1PRLFormat.html',1,'Binary']]],
-  ['prodos_14',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
-  ['prodosfileinfo_15',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]]
+  ['precedence_13',['precedence',['../structApple_1_1OMFFormat_1_1Segment_1_1Expression_1_1precedence.html',1,'Apple::OMFFormat::Segment::Expression']]],
+  ['prlformat_14',['PRLFormat',['../classBinary_1_1PRLFormat.html',1,'Binary']]],
+  ['prodos_15',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
+  ['prodosfileinfo_16',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]]
 ];

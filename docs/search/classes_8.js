@@ -11,6 +11,7 @@ var searchData=
   ['iconcolor_8',['IconColor',['../classApple_1_1IconColor.html',1,'Apple']]],
   ['image_9',['Image',['../classLinker_1_1Image.html',1,'Linker']]],
   ['indexarray_10',['IndexArray',['../classELF_1_1ELFFormat_1_1IndexArray.html',1,'ELF::ELFFormat']]],
-  ['inputformat_11',['InputFormat',['../classLinker_1_1InputFormat.html',1,'Linker']]],
-  ['intersegmentrelocationrecord_12',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]]
+  ['initialhunkblock_11',['InitialHunkBlock',['../classAmiga_1_1HunkFormat_1_1InitialHunkBlock.html',1,'Amiga::HunkFormat']]],
+  ['inputformat_12',['InputFormat',['../classLinker_1_1InputFormat.html',1,'Linker']]],
+  ['intersegmentrelocationrecord_13',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]]
 ];

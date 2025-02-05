@@ -77,24 +77,156 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-types">Protected Types</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
 <a href="classApple_1_1OMFFormat_1_1Segment_1_1Expression-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">Apple::OMFFormat::Segment::Expression Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
+  <div class="headertitle"><div class="title">Apple::OMFFormat::Segment::Expression Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structApple_1_1OMFFormat_1_1Segment_1_1Expression_1_1precedence.html">precedence</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a95307fd0f6be86fb16a2cdffab7f74db" id="r_a95307fd0f6be86fb16a2cdffab7f74db"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a95307fd0f6be86fb16a2cdffab7f74db">operation_type</a> { <br />
+&#160;&#160;<b>End</b> = 0x00
+, <b>Addition</b> = 0x01
+, <b>Subtraction</b> = 0x02
+, <b>Multiplication</b> = 0x03
+, <br />
+&#160;&#160;<b>Division</b> = 0x04
+, <b>IntegerRemainder</b> = 0x05
+, <b>Negation</b> = 0x06
+, <b>BitShift</b> = 0x07
+, <br />
+&#160;&#160;<b>And</b> = 0x08
+, <b>Or</b> = 0x09
+, <b>EOr</b> = 0x0A
+, <b>Not</b> = 0x0B
+, <br />
+&#160;&#160;<b>LessOrEqualTo</b> = 0x0C
+, <b>GreaterOrEqualTo</b> = 0x0D
+, <b>NotEqual</b> = 0x0E
+, <b>LessThan</b> = 0x0F
+, <br />
+&#160;&#160;<b>GreaterThan</b> = 0x10
+, <b>EqualTo</b> = 0x11
+, <b>BitAnd</b> = 0x12
+, <b>BitOr</b> = 0x13
+, <br />
+&#160;&#160;<b>BitEOr</b> = 0x14
+, <b>BitNot</b> = 0x15
+, <b>LocationCounterOperand</b> = 0x80
+, <b>ConstantOperand</b> = 0x81
+, <br />
+&#160;&#160;<b>WeakLabelReferenceOperand</b> = 0x82
+, <b>LabelReferenceOperand</b> = 0x83
+, <b>LengthOfLabelReferenceOperand</b> = 0x84
+, <b>TypeOfLabelReferenceOperand</b> = 0x85
+, <br />
+&#160;&#160;<b>CountOfLabelReferenceOperand</b> = 0x86
+, <b>RelativeOffsetOperand</b> = 0x87
+, <a class="el" href="#a95307fd0f6be86fb16a2cdffab7f74dbaf42aa14f6921bae1cc9ec7b334a27723">StackUnderflow</a> = -1
+<br />
+ }</td></tr>
+<tr class="memdesc:a95307fd0f6be86fb16a2cdffab7f74db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents an operation inside an expression in the object file.  <a href="#a95307fd0f6be86fb16a2cdffab7f74db">More...</a><br /></td></tr>
+<tr class="separator:a95307fd0f6be86fb16a2cdffab7f74db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acd195e5c52cf5e95eaa4c62ffaddf1a8" id="r_acd195e5c52cf5e95eaa4c62ffaddf1a8"><td class="memItemLeft" align="right" valign="top"><a id="acd195e5c52cf5e95eaa4c62ffaddf1a8" name="acd195e5c52cf5e95eaa4c62ffaddf1a8"></a>
-virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetLength</b> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment) const =0</td></tr>
-<tr class="separator:acd195e5c52cf5e95eaa4c62ffaddf1a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a263f4cbffa2fe21304d13532ea06c864" id="r_a263f4cbffa2fe21304d13532ea06c864"><td class="memItemLeft" align="right" valign="top"><a id="a263f4cbffa2fe21304d13532ea06c864" name="a263f4cbffa2fe21304d13532ea06c864"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)=0</td></tr>
-<tr class="separator:a263f4cbffa2fe21304d13532ea06c864"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad0fad0e9a49fc15d8aad7eb2cfd03771" id="r_ad0fad0e9a49fc15d8aad7eb2cfd03771"><td class="memItemLeft" align="right" valign="top"><a id="ad0fad0e9a49fc15d8aad7eb2cfd03771" name="ad0fad0e9a49fc15d8aad7eb2cfd03771"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const =0</td></tr>
-<tr class="separator:ad0fad0e9a49fc15d8aad7eb2cfd03771"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bbefdf8b59e284e476ff7334633c0dd" id="r_a1bbefdf8b59e284e476ff7334633c0dd"><td class="memItemLeft" align="right" valign="top"><a id="a1bbefdf8b59e284e476ff7334633c0dd" name="a1bbefdf8b59e284e476ff7334633c0dd"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Expression</b> (int <a class="el" href="#addbad9c40a0bd28ca5d6287646e9b3d8">operation</a>)</td></tr>
+<tr class="separator:a1bbefdf8b59e284e476ff7334633c0dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a137010ab708629938637bc4fa96ff010" id="r_a137010ab708629938637bc4fa96ff010"><td class="memItemLeft" align="right" valign="top"><a id="a137010ab708629938637bc4fa96ff010" name="a137010ab708629938637bc4fa96ff010"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Expression</b> (int <a class="el" href="#addbad9c40a0bd28ca5d6287646e9b3d8">operation</a>, std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt; &amp;operand)</td></tr>
+<tr class="separator:a137010ab708629938637bc4fa96ff010"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7df8052e908b475eceba9de79f78ee57" id="r_a7df8052e908b475eceba9de79f78ee57"><td class="memItemLeft" align="right" valign="top"><a id="a7df8052e908b475eceba9de79f78ee57" name="a7df8052e908b475eceba9de79f78ee57"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Expression</b> (int <a class="el" href="#addbad9c40a0bd28ca5d6287646e9b3d8">operation</a>, std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt; &amp;operand1, std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt; &amp;operand2)</td></tr>
+<tr class="separator:a7df8052e908b475eceba9de79f78ee57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad16ed9c7e2bf8f88130d2b9bdf032089" id="r_ad16ed9c7e2bf8f88130d2b9bdf032089"><td class="memItemLeft" align="right" valign="top"><a id="ad16ed9c7e2bf8f88130d2b9bdf032089" name="ad16ed9c7e2bf8f88130d2b9bdf032089"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Expression</b> (int <a class="el" href="#addbad9c40a0bd28ca5d6287646e9b3d8">operation</a>, offset_t <a class="el" href="#a1021880e9e9ae340deecdaf3227285b2">value</a>)</td></tr>
+<tr class="separator:ad16ed9c7e2bf8f88130d2b9bdf032089"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adecff805185c9bb7f8f01d9ad5901c5d" id="r_adecff805185c9bb7f8f01d9ad5901c5d"><td class="memItemLeft" align="right" valign="top"><a id="adecff805185c9bb7f8f01d9ad5901c5d" name="adecff805185c9bb7f8f01d9ad5901c5d"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Expression</b> (int <a class="el" href="#addbad9c40a0bd28ca5d6287646e9b3d8">operation</a>, std::string <a class="el" href="#a1021880e9e9ae340deecdaf3227285b2">value</a>)</td></tr>
+<tr class="separator:adecff805185c9bb7f8f01d9ad5901c5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af23d1b10b3102be3600b83d051286d8a" id="r_af23d1b10b3102be3600b83d051286d8a"><td class="memItemLeft" align="right" valign="top"><a id="af23d1b10b3102be3600b83d051286d8a" name="af23d1b10b3102be3600b83d051286d8a"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetLength</b> (const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment) const</td></tr>
+<tr class="separator:af23d1b10b3102be3600b83d051286d8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aade4e84f43da3b0eef35dc7e3ce1d600" id="r_aade4e84f43da3b0eef35dc7e3ce1d600"><td class="memItemLeft" align="right" valign="top"><a id="aade4e84f43da3b0eef35dc7e3ce1d600" name="aade4e84f43da3b0eef35dc7e3ce1d600"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="separator:aade4e84f43da3b0eef35dc7e3ce1d600"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa968f086393177b8cfca5d1299ecaa11" id="r_aa968f086393177b8cfca5d1299ecaa11"><td class="memItemLeft" align="right" valign="top"><a id="aa968f086393177b8cfca5d1299ecaa11" name="aa968f086393177b8cfca5d1299ecaa11"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="separator:aa968f086393177b8cfca5d1299ecaa11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4561f6c7b315cc10f2f253da9d90a42" id="r_ad4561f6c7b315cc10f2f253da9d90a42"><td class="memItemLeft" align="right" valign="top"><a id="ad4561f6c7b315cc10f2f253da9d90a42" name="ad4561f6c7b315cc10f2f253da9d90a42"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>GetStandardNotation</b> () const</td></tr>
+<tr class="memdesc:ad4561f6c7b315cc10f2f253da9d90a42"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts expression into a C-like syntax. <br /></td></tr>
+<tr class="separator:ad4561f6c7b315cc10f2f253da9d90a42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:addbad9c40a0bd28ca5d6287646e9b3d8" id="r_addbad9c40a0bd28ca5d6287646e9b3d8"><td class="memItemLeft" align="right" valign="top"><a id="addbad9c40a0bd28ca5d6287646e9b3d8" name="addbad9c40a0bd28ca5d6287646e9b3d8"></a>
+<a class="el" href="#a95307fd0f6be86fb16a2cdffab7f74db">operation_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>operation</b> = End</td></tr>
+<tr class="memdesc:addbad9c40a0bd28ca5d6287646e9b3d8"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of operation, End means that the result is the last operand. <br /></td></tr>
+<tr class="separator:addbad9c40a0bd28ca5d6287646e9b3d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d09935b455c9aa2d5d42bea7ceea17e" id="r_a6d09935b455c9aa2d5d42bea7ceea17e"><td class="memItemLeft" align="right" valign="top"><a id="a6d09935b455c9aa2d5d42bea7ceea17e" name="a6d09935b455c9aa2d5d42bea7ceea17e"></a>
+std::vector&lt; std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>operands</b></td></tr>
+<tr class="memdesc:a6d09935b455c9aa2d5d42bea7ceea17e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The operands the operation takes. <br /></td></tr>
+<tr class="separator:a6d09935b455c9aa2d5d42bea7ceea17e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1021880e9e9ae340deecdaf3227285b2" id="r_a1021880e9e9ae340deecdaf3227285b2"><td class="memItemLeft" align="right" valign="top"><a id="a1021880e9e9ae340deecdaf3227285b2" name="a1021880e9e9ae340deecdaf3227285b2"></a>
+std::optional&lt; std::variant&lt; offset_t, std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>value</b></td></tr>
+<tr class="memdesc:a1021880e9e9ae340deecdaf3227285b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">A value corresponding to an operation, such as an integer constant or a label name. <br /></td></tr>
+<tr class="separator:a1021880e9e9ae340deecdaf3227285b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-types" name="pro-types"></a>
+Protected Types</h2></td></tr>
+<tr class="memitem:a3725f3ed1d3a040abbe41e22c61a0f20" id="r_a3725f3ed1d3a040abbe41e22c61a0f20"><td class="memItemLeft" align="right" valign="top"><a id="a3725f3ed1d3a040abbe41e22c61a0f20" name="a3725f3ed1d3a040abbe41e22c61a0f20"></a>
+typedef precedence::precedence_type&#160;</td><td class="memItemRight" valign="bottom"><b>precedence_type</b></td></tr>
+<tr class="separator:a3725f3ed1d3a040abbe41e22c61a0f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a86d9dbc7bf7fa16da0a28a9c7c59e82d" id="r_a86d9dbc7bf7fa16da0a28a9c7c59e82d"><td class="memItemLeft" align="right" valign="top"><a id="a86d9dbc7bf7fa16da0a28a9c7c59e82d" name="a86d9dbc7bf7fa16da0a28a9c7c59e82d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PopElementsInto</b> (size_t count, std::vector&lt; std::unique_ptr&lt; <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1Expression.html">Expression</a> &gt; &gt; &amp;target)</td></tr>
+<tr class="memdesc:a86d9dbc7bf7fa16da0a28a9c7c59e82d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes elements from the top of the operands stack and copies them into target. On stack underflow, the missing elements are replaced with StackUnderflow expressions. <br /></td></tr>
+<tr class="separator:a86d9dbc7bf7fa16da0a28a9c7c59e82d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ebe073cf727fed913f4d6f03036593d" id="r_a8ebe073cf727fed913f4d6f03036593d"><td class="memItemLeft" align="right" valign="top"><a id="a8ebe073cf727fed913f4d6f03036593d" name="a8ebe073cf727fed913f4d6f03036593d"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSingleOperation</b> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a8ebe073cf727fed913f4d6f03036593d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a single byte of operation (plus optional number and label) and modifies the current list of operands as an operation acting on a stack. <br /></td></tr>
+<tr class="separator:a8ebe073cf727fed913f4d6f03036593d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1be358abdb44245eb2ea3f663861b495" id="r_a1be358abdb44245eb2ea3f663861b495"><td class="memItemLeft" align="right" valign="top"><a id="a1be358abdb44245eb2ea3f663861b495" name="a1be358abdb44245eb2ea3f663861b495"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>GetStandardNotation</b> (std::ostream &amp;out, precedence_type <a class="el" href="structApple_1_1OMFFormat_1_1Segment_1_1Expression_1_1precedence.html">precedence</a>) const</td></tr>
+<tr class="separator:a1be358abdb44245eb2ea3f663861b495"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a95307fd0f6be86fb16a2cdffab7f74db" name="a95307fd0f6be86fb16a2cdffab7f74db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a95307fd0f6be86fb16a2cdffab7f74db">&#9670;&#160;</a></span>operation_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a95307fd0f6be86fb16a2cdffab7f74db">Apple::OMFFormat::Segment::Expression::operation_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Represents an operation inside an expression in the object file. </p>
+<p>The numerical values are identical to the opcode bytes in the binary file </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a95307fd0f6be86fb16a2cdffab7f74dbaf42aa14f6921bae1cc9ec7b334a27723" name="a95307fd0f6be86fb16a2cdffab7f74dbaf42aa14f6921bae1cc9ec7b334a27723"></a>StackUnderflow&#160;</td><td class="fielddoc"><p>A symbolic value to represent a stack underflow condition, it should not be printed back into a binary. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="gsos_8h_source.html">gsos.h</a></li>
 <li>src/format/<b>gsos.cc</b></li>

@@ -8,5 +8,6 @@ var searchData=
   ['testmzformat_5',['TestMZFormat',['../classUnitTests_1_1TestMZFormat.html',1,'UnitTests']]],
   ['testreader_6',['TestReader',['../classUnitTests_1_1TestReader.html',1,'UnitTests']]],
   ['testsection_7',['TestSection',['../classUnitTests_1_1TestSection.html',1,'UnitTests']]],
-  ['testsymbolname_8',['TestSymbolName',['../classUnitTests_1_1TestSymbolName.html',1,'UnitTests']]]
+  ['testsymbolname_8',['TestSymbolName',['../classUnitTests_1_1TestSymbolName.html',1,'UnitTests']]],
+  ['textblock_9',['TextBlock',['../classAmiga_1_1HunkFormat_1_1TextBlock.html',1,'Amiga::HunkFormat']]]
 ];

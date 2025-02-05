@@ -77,6 +77,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
@@ -84,56 +85,90 @@ $(function() {
   <div class="headertitle"><div class="title">Amiga::HunkFormat::Hunk Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>The smallest loadable unit of a <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html" title="The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other f...">Hunk</a> file is the hunk, it roughly corresponds to a segment in other file formats.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="hunk_8h_source.html">hunk.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structAmiga_1_1HunkFormat_1_1Hunk_1_1Relocation.html">Relocation</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a165803042b42fb5bc7b019153420cea9" id="r_a165803042b42fb5bc7b019153420cea9"><td class="memItemLeft" align="right" valign="top"><a id="a165803042b42fb5bc7b019153420cea9" name="a165803042b42fb5bc7b019153420cea9"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>flag_type</b> { <br />
-&#160;&#160;<b>LoadAny</b> = 0x00000000
-, <b>LoadPublic</b> = 0x00000001
-, <b>LoadChipMem</b> = 0x00000002
-, <b>LoadFastMem</b> = 0x00000004
+<tr class="memitem:a562526cd76f1f2001b397ceb4b3abac2" id="r_a562526cd76f1f2001b397ceb4b3abac2"><td class="memItemLeft" align="right" valign="top"><a id="a562526cd76f1f2001b397ceb4b3abac2" name="a562526cd76f1f2001b397ceb4b3abac2"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>hunk_type</b> : uint32_t { <br />
+&#160;&#160;<b>Undefined</b> = 0
+, <b>Invalid</b> = uint32_t(-1)
+, <b>Code</b> = Block::HUNK_CODE
+, <b>CodePPC</b> = Block::HUNK_PPC_CODE
 , <br />
-&#160;&#160;<b>LoadLocalMem</b> = 0x00000008
-, <b>Load24BitDma</b> = 0x00000010
-, <b>LoadClear</b> = 0x00010000
+&#160;&#160;<b>Data</b> = Block::HUNK_DATA
+, <b>Bss</b> = Block::HUNK_BSS
 <br />
  }</td></tr>
-<tr class="separator:a165803042b42fb5bc7b019153420cea9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a562526cd76f1f2001b397ceb4b3abac2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac273b99f007a61d82d5297af9ac4a3b1" id="r_ac273b99f007a61d82d5297af9ac4a3b1"><td class="memItemLeft" align="right" valign="top"><a id="ac273b99f007a61d82d5297af9ac4a3b1" name="ac273b99f007a61d82d5297af9ac4a3b1"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Hunk</b> (uint32_t hunk_type, std::string name=&quot;image&quot;, unsigned <a class="el" href="classAmiga_1_1HunkFormat.html#ad1b414fa36f950ce745b54450b2e179d">flags</a>=LoadAny)</td></tr>
-<tr class="separator:ac273b99f007a61d82d5297af9ac4a3b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abe8d954c69f68e21fa1f786ed2e16d47" id="r_abe8d954c69f68e21fa1f786ed2e16d47"><td class="memItemLeft" align="right" valign="top"><a id="abe8d954c69f68e21fa1f786ed2e16d47" name="abe8d954c69f68e21fa1f786ed2e16d47"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Hunk</b> (uint32_t hunk_type, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment, unsigned <a class="el" href="classAmiga_1_1HunkFormat.html#ad1b414fa36f950ce745b54450b2e179d">flags</a>=LoadAny)</td></tr>
-<tr class="separator:abe8d954c69f68e21fa1f786ed2e16d47"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:abb232492428307075d27b7dacf1e12a4" id="r_abb232492428307075d27b7dacf1e12a4"><td class="memItemLeft" align="right" valign="top"><a id="abb232492428307075d27b7dacf1e12a4" name="abb232492428307075d27b7dacf1e12a4"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSizeField</b> () const</td></tr>
-<tr class="separator:abb232492428307075d27b7dacf1e12a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:accaec36e03dcabc32010ea1aaddbe060" id="r_accaec36e03dcabc32010ea1aaddbe060"><td class="memItemLeft" align="right" valign="top"><a id="accaec36e03dcabc32010ea1aaddbe060" name="accaec36e03dcabc32010ea1aaddbe060"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>RequiresAdditionalFlags</b> () const</td></tr>
-<tr class="separator:accaec36e03dcabc32010ea1aaddbe060"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac66a6a2b0de43fbbb82427bc7e457240" id="r_ac66a6a2b0de43fbbb82427bc7e457240"><td class="memItemLeft" align="right" valign="top"><a id="ac66a6a2b0de43fbbb82427bc7e457240" name="ac66a6a2b0de43fbbb82427bc7e457240"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetAdditionalFlags</b> () const</td></tr>
-<tr class="separator:ac66a6a2b0de43fbbb82427bc7e457240"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1675963f83912b918e5bd6d6eb74d862" id="r_a1675963f83912b918e5bd6d6eb74d862"><td class="memItemLeft" align="right" valign="top"><a id="a1675963f83912b918e5bd6d6eb74d862" name="a1675963f83912b918e5bd6d6eb74d862"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Hunk</b> (hunk_type type, std::string name=&quot;image&quot;, unsigned <a class="el" href="classAmiga_1_1HunkFormat.html#ad1b414fa36f950ce745b54450b2e179d">flags</a>=LoadBlock::LoadAny)</td></tr>
+<tr class="separator:a1675963f83912b918e5bd6d6eb74d862"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac4c7f68ebe92d008c580bbbe27e532c3" id="r_ac4c7f68ebe92d008c580bbbe27e532c3"><td class="memItemLeft" align="right" valign="top"><a id="ac4c7f68ebe92d008c580bbbe27e532c3" name="ac4c7f68ebe92d008c580bbbe27e532c3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Hunk</b> (hunk_type type, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment, unsigned <a class="el" href="classAmiga_1_1HunkFormat.html#ad1b414fa36f950ce745b54450b2e179d">flags</a>=LoadBlock::LoadAny)</td></tr>
+<tr class="separator:ac4c7f68ebe92d008c580bbbe27e532c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf68431404cf4b15e37ce599b7de45e3" id="r_acf68431404cf4b15e37ce599b7de45e3"><td class="memItemLeft" align="right" valign="top"><a id="acf68431404cf4b15e37ce599b7de45e3" name="acf68431404cf4b15e37ce599b7de45e3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceBlocks</b> ()</td></tr>
+<tr class="memdesc:acf68431404cf4b15e37ce599b7de45e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the data collected by the linker into hunk blocks. <br /></td></tr>
+<tr class="separator:acf68431404cf4b15e37ce599b7de45e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4c35ea276ef8d700f20e4dc2905a851" id="r_ae4c35ea276ef8d700f20e4dc2905a851"><td class="memItemLeft" align="right" valign="top"><a id="ae4c35ea276ef8d700f20e4dc2905a851" name="ae4c35ea276ef8d700f20e4dc2905a851"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetMemorySize</b> () const</td></tr>
+<tr class="memdesc:ae4c35ea276ef8d700f20e4dc2905a851"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of memory this hunk will take up after loading. <br /></td></tr>
+<tr class="separator:ae4c35ea276ef8d700f20e4dc2905a851"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20cce10d26e4d864d4b921618e947ed1" id="r_a20cce10d26e4d864d4b921618e947ed1"><td class="memItemLeft" align="right" valign="top"><a id="a20cce10d26e4d864d4b921618e947ed1" name="a20cce10d26e4d864d4b921618e947ed1"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetFileSize</b> () const</td></tr>
+<tr class="memdesc:a20cce10d26e4d864d4b921618e947ed1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of bytes this hunk will take up in the file. <br /></td></tr>
+<tr class="separator:a20cce10d26e4d864d4b921618e947ed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afeaae007a0d06726f75d7a5593b4ed78" id="r_afeaae007a0d06726f75d7a5593b4ed78"><td class="memItemLeft" align="right" valign="top"><a id="afeaae007a0d06726f75d7a5593b4ed78" name="afeaae007a0d06726f75d7a5593b4ed78"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSizeField</b> ()</td></tr>
+<tr class="memdesc:afeaae007a0d06726f75d7a5593b4ed78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size field of the first block, to be stored in a header block. <br /></td></tr>
+<tr class="separator:afeaae007a0d06726f75d7a5593b4ed78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc34432ba2428736924d440e65857b34" id="r_adc34432ba2428736924d440e65857b34"><td class="memItemLeft" align="right" valign="top"><a id="adc34432ba2428736924d440e65857b34" name="adc34432ba2428736924d440e65857b34"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AppendBlock</b> (std::shared_ptr&lt; <a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html">Block</a> &gt; block)</td></tr>
+<tr class="memdesc:adc34432ba2428736924d440e65857b34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a new block to the block sequence and updates the internal structure of the hunk, used for reading. <br /></td></tr>
+<tr class="separator:adc34432ba2428736924d440e65857b34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:abe4127d2e935d8d0393709ba42fbc654" id="r_abe4127d2e935d8d0393709ba42fbc654"><td class="memItemLeft" align="right" valign="top"><a id="abe4127d2e935d8d0393709ba42fbc654" name="abe4127d2e935d8d0393709ba42fbc654"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>hunk_type</b></td></tr>
-<tr class="separator:abe4127d2e935d8d0393709ba42fbc654"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5a2def7632a172652f7bccf0a6d55eb8" id="r_a5a2def7632a172652f7bccf0a6d55eb8"><td class="memItemLeft" align="right" valign="top"><a id="a5a2def7632a172652f7bccf0a6d55eb8" name="a5a2def7632a172652f7bccf0a6d55eb8"></a>
-flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b></td></tr>
-<tr class="separator:a5a2def7632a172652f7bccf0a6d55eb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a268ac777ed7421bd4a3013688896879b" id="r_a268ac777ed7421bd4a3013688896879b"><td class="memItemLeft" align="right" valign="top"><a id="a268ac777ed7421bd4a3013688896879b" name="a268ac777ed7421bd4a3013688896879b"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="separator:a268ac777ed7421bd4a3013688896879b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad75108ebdd1eea65cf9a46bae5719b7b" id="r_ad75108ebdd1eea65cf9a46bae5719b7b"><td class="memItemLeft" align="right" valign="top"><a id="ad75108ebdd1eea65cf9a46bae5719b7b" name="ad75108ebdd1eea65cf9a46bae5719b7b"></a>
-std::map&lt; uint32_t, std::vector&lt; uint32_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
-<tr class="separator:ad75108ebdd1eea65cf9a46bae5719b7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af89a82a2a9cf59c80e89c23c73e80b8c" id="r_af89a82a2a9cf59c80e89c23c73e80b8c"><td class="memItemLeft" align="right" valign="top"><a id="af89a82a2a9cf59c80e89c23c73e80b8c" name="af89a82a2a9cf59c80e89c23c73e80b8c"></a>
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html">Block</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>blocks</b></td></tr>
+<tr class="memdesc:af89a82a2a9cf59c80e89c23c73e80b8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sequence of blocks the hunk is stored as. <br /></td></tr>
+<tr class="separator:af89a82a2a9cf59c80e89c23c73e80b8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7b4fdb6d9818efbd08c6b80a0cc62e67" id="r_a7b4fdb6d9818efbd08c6b80a0cc62e67"><td class="memItemLeft" align="right" valign="top"><a id="a7b4fdb6d9818efbd08c6b80a0cc62e67" name="a7b4fdb6d9818efbd08c6b80a0cc62e67"></a>
+hunk_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = Undefined</td></tr>
+<tr class="separator:a7b4fdb6d9818efbd08c6b80a0cc62e67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a033017fa8bfb93fc74abf639d71b0d31" id="r_a033017fa8bfb93fc74abf639d71b0d31"><td class="memItemLeft" align="right" valign="top"><a id="a033017fa8bfb93fc74abf639d71b0d31" name="a033017fa8bfb93fc74abf639d71b0d31"></a>
+LoadBlock::flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = LoadBlock::LoadPublic</td></tr>
+<tr class="separator:a033017fa8bfb93fc74abf639d71b0d31"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a648891ebed0ded3864c7ac53c47bba70" id="r_a648891ebed0ded3864c7ac53c47bba70"><td class="memItemLeft" align="right" valign="top"><a id="a648891ebed0ded3864c7ac53c47bba70" name="a648891ebed0ded3864c7ac53c47bba70"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="memdesc:a648891ebed0ded3864c7ac53c47bba70"><td class="mdescLeft">&#160;</td><td class="mdescRight">The memory image, if stored in a file (that is, a non-bss segment) <br /></td></tr>
+<tr class="separator:a648891ebed0ded3864c7ac53c47bba70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86447f9c4b34b2c171f42d3be2d56820" id="r_a86447f9c4b34b2c171f42d3be2d56820"><td class="memItemLeft" align="right" valign="top"><a id="a86447f9c4b34b2c171f42d3be2d56820" name="a86447f9c4b34b2c171f42d3be2d56820"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>image_size</b> = 0</td></tr>
+<tr class="memdesc:a86447f9c4b34b2c171f42d3be2d56820"><td class="mdescLeft">&#160;</td><td class="mdescRight">Size of the memory image, if it is a zero filled segment (bss) <br /></td></tr>
+<tr class="separator:a86447f9c4b34b2c171f42d3be2d56820"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ecbd29c5790ba6eda35be90b984d437" id="r_a8ecbd29c5790ba6eda35be90b984d437"><td class="memItemLeft" align="right" valign="top"><a id="a8ecbd29c5790ba6eda35be90b984d437" name="a8ecbd29c5790ba6eda35be90b984d437"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
+<tr class="separator:a8ecbd29c5790ba6eda35be90b984d437"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8677ed80dbfe6f0080527dc79ad080f" id="r_af8677ed80dbfe6f0080527dc79ad080f"><td class="memItemLeft" align="right" valign="top"><a id="af8677ed80dbfe6f0080527dc79ad080f" name="af8677ed80dbfe6f0080527dc79ad080f"></a>
+std::map&lt; uint32_t, std::set&lt; <a class="el" href="structAmiga_1_1HunkFormat_1_1Hunk_1_1Relocation.html">Relocation</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="separator:af8677ed80dbfe6f0080527dc79ad080f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The smallest loadable unit of a <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html" title="The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other f...">Hunk</a> file is the hunk, it roughly corresponds to a segment in other file formats. </p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="hunk_8h_source.html">hunk.h</a></li>
 <li>src/format/<b>hunk.cc</b></li>
 </ul>

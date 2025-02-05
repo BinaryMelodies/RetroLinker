@@ -84,7 +84,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>A class to control the output of a file analysis.  
+<p>An abstract interface that separates structure and presentation of the data inside a file.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="dumper_8h_source.html">dumper.h</a>&gt;</code></p>
@@ -108,6 +108,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>PrintHex</b> (offset_
 void&#160;</td><td class="memItemRight" valign="bottom"><b>PrintDec</b> (offset_t value, std::string prefix=&quot;#&quot;)</td></tr>
 <tr class="memdesc:a9127b08f323f8f942587f601f61b2ce6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays a decimal value (default prefix is "#") <br /></td></tr>
 <tr class="separator:a9127b08f323f8f942587f601f61b2ce6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a402a2e8e6335b57646cc31a1f86aa344" id="r_a402a2e8e6335b57646cc31a1f86aa344"><td class="memItemLeft" align="right" valign="top"><a id="a402a2e8e6335b57646cc31a1f86aa344" name="a402a2e8e6335b57646cc31a1f86aa344"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PrintDecSigned</b> (relative_offset_t value, std::string prefix=&quot;#&quot;)</td></tr>
+<tr class="memdesc:a402a2e8e6335b57646cc31a1f86aa344"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays a decimal value (default prefix is "#") <br /></td></tr>
+<tr class="separator:a402a2e8e6335b57646cc31a1f86aa344"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad70bd979bbe1b63554ddec79eb14d942" id="r_ad70bd979bbe1b63554ddec79eb14d942"><td class="memItemLeft" align="right" valign="top"><a id="ad70bd979bbe1b63554ddec79eb14d942" name="ad70bd979bbe1b63554ddec79eb14d942"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>PutChar</b> (char32_t c)</td></tr>
 <tr class="memdesc:ad70bd979bbe1b63554ddec79eb14d942"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays a Unicode character as a UTF-8 byte sequence. <br /></td></tr>
@@ -134,7 +138,8 @@ char32_t(*&#160;</td><td class="memItemRight" valign="bottom"><b>encoding</b> )[
 <tr class="separator:afce42c45a12a84d8a715652e3a8992b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A class to control the output of a file analysis. </p>
+<div class="textblock"><p>An abstract interface that separates structure and presentation of the data inside a file. </p>
+<p>This class is responsible for actually displaying the contents set up using other classes inside the <a class="el" href="classDumper_1_1Dumper.html" title="An abstract interface that separates structure and presentation of the data inside a file.">Dumper</a> namespace. By separating structure and presentation, it is possible to create alternative displays, including machine readable ones, to replace the dumper class. Currently only the default <a class="el" href="classDumper_1_1Dumper.html" title="An abstract interface that separates structure and presentation of the data inside a file.">Dumper</a> class is available, but by modifying it here, presentation choices can be made in a single location. </p>
 </div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>src/dumper/<a class="el" href="dumper_8h_source.html">dumper.h</a></li>
 </ul>
