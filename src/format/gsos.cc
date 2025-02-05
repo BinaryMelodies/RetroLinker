@@ -993,7 +993,7 @@ void OMFFormat::Segment::SuperCompactRecord::Dump(Dumper::Dumper& dump, const OM
 			relocation_entry.AddField("Target", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(relocation.segment_number), offset_t(relocation.target));
 		else
 			relocation_entry.AddField("Target", Dumper::SectionedDisplay<offset_t, offset_t>::Make(Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8))), offset_t(relocation.file_number), offset_t(relocation.segment_number), offset_t(relocation.target));
-		relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(relocation.size * 2), offset_t(segment.ReadUnsigned(relocation.size, relocation.source)));
+		relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(relocation.size * 2), offset_t(segment.ReadUnsigned(relocation.size, relocation.source)));
 		relocation_entry.Display(dump);
 	}
 }
