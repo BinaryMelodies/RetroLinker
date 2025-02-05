@@ -316,28 +316,28 @@ void Block::Display(Dumper& dump)
 			{
 				if(i == 8)
 				{
-					if(signal_ends.find(off + i - 1) == signal_ends.end())
+					if(signal_ends.find(off - image_offset + i - 1) == signal_ends.end())
 						dump.out << " ";
 					else
 						dump.out << "]";
 					dump.out << " ";
-					if(signal_starts.find(off + i) == signal_starts.end())
+					if(signal_starts.find(off - image_offset + i) == signal_starts.end())
 						dump.out << " ";
 					else
 						dump.out << "[";
 				}
 				else
 				{
-					if(signal_ends.find(off + i - 1) == signal_ends.end())
+					if(signal_ends.find(off - image_offset + i - 1) == signal_ends.end())
 					{
-						if(signal_starts.find(off + i) == signal_starts.end())
+						if(signal_starts.find(off - image_offset + i) == signal_starts.end())
 							dump.out << " ";
 						else
 							dump.out << "[";
 					}
 					else
 					{
-						if(signal_starts.find(off + i) == signal_starts.end())
+						if(signal_starts.find(off - image_offset + i) == signal_starts.end())
 							dump.out << "]";
 						else
 							dump.out << "I";
@@ -345,7 +345,7 @@ void Block::Display(Dumper& dump)
 				}
 			}
 
-			if(signal_starts.find(off + i) != signal_starts.end())
+			if(signal_starts.find(off - image_offset + i) != signal_starts.end())
 			{
 				dump.BeginUnderline();
 				current_underlined = true;
@@ -361,7 +361,7 @@ void Block::Display(Dumper& dump)
 			{
 				dump.out << "  ";
 			}
-			if(signal_ends.find(off + i) != signal_ends.end())
+			if(signal_ends.find(off - image_offset + i) != signal_ends.end())
 			{
 				dump.EndUnderline();
 				current_underlined = false;
@@ -377,7 +377,7 @@ void Block::Display(Dumper& dump)
 			int byte;
 			if(i == 8)
 				dump.out << " ";
-			if(signal_starts.find(off + i) != signal_starts.end())
+			if(signal_starts.find(off - image_offset + i) != signal_starts.end())
 			{
 				dump.BeginUnderline();
 				current_underlined = true;
@@ -392,7 +392,7 @@ void Block::Display(Dumper& dump)
 			{
 				dump.PutChar(' ');
 			}
-			if(signal_ends.find(off + i) != signal_ends.end())
+			if(signal_ends.find(off - image_offset + i) != signal_ends.end())
 			{
 				dump.EndUnderline();
 				current_underlined = false;
