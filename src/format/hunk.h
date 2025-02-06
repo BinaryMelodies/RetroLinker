@@ -241,6 +241,7 @@ namespace Amiga
 			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
+		/** @brief Represents a HUNK_EXT block */
 		class ExternalBlock : public Block
 		{
 		public:

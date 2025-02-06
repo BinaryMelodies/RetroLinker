@@ -484,7 +484,7 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const HunkFormat& m
 	}
 }
 
-// ExternalBlock
+// ExternalBlock::SymbolData
 
 std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock::SymbolData::ReadData(Linker::Reader& rd)
 {
@@ -500,6 +500,7 @@ std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock
 	std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> unit;
 	switch(type)
 	{
+	case EXT_SYMB:
 	case EXT_DEF:
 	case EXT_ABS:
 	case EXT_RES:
@@ -517,7 +518,6 @@ std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock
 		unit = std::make_unique<CommonReferences>(symbol_type(type), name);
 		break;
 
-	case EXT_SYMB:
 	case EXT_DREF32:
 	case EXT_DREF16:
 	case EXT_DREF8:
@@ -554,6 +554,8 @@ void HunkFormat::ExternalBlock::SymbolData::AddExtraFields(Dumper::Dumper& dump,
 {
 }
 
+// ExternalBlock::Definition
+
 void HunkFormat::ExternalBlock::Definition::Read(Linker::Reader& rd)
 {
 	value = rd.ReadUnsigned(4);
@@ -574,6 +576,8 @@ void HunkFormat::ExternalBlock::Definition::AddExtraFields(Dumper::Dumper& dump,
 {
 	entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
 }
+
+// ExternalBlock::References
 
 void HunkFormat::ExternalBlock::References::Read(Linker::Reader& rd)
 {
@@ -611,6 +615,8 @@ void HunkFormat::ExternalBlock::References::DumpContents(Dumper::Dumper& dump, c
 	}
 }
 
+// ExternalBlock::CommonReferences
+
 void HunkFormat::ExternalBlock::CommonReferences::Read(Linker::Reader& rd)
 {
 	size = rd.ReadUnsigned(4);
@@ -641,6 +647,8 @@ void HunkFormat::ExternalBlock::CommonReferences::AddExtraFields(Dumper::Dumper&
 {
 	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(size));
 }
+
+// ExternalBlock
 
 void HunkFormat::ExternalBlock::Read(Linker::Reader& rd)
 {
@@ -681,18 +689,18 @@ void HunkFormat::ExternalBlock::Dump(Dumper::Dumper& dump, const HunkFormat& mod
 	{
 		Dumper::Entry unit_entry("External", i, current_offset);
 		std::map<offset_t, std::string> type_descriptions;
-		type_descriptions[SymbolData::EXT_SYMB] = "EXT_SYMB";
-		type_descriptions[SymbolData::EXT_DEF] = "EXT_DEF";
-		type_descriptions[SymbolData::EXT_ABS] = "EXT_ABS";
-		type_descriptions[SymbolData::EXT_RES] = "EXT_RES";
-		type_descriptions[SymbolData::EXT_REF32] = "EXT_REF32";
-		type_descriptions[SymbolData::EXT_COMMON] = "EXT_COMMON";
-		type_descriptions[SymbolData::EXT_REF16] = "EXT_REF16";
-		type_descriptions[SymbolData::EXT_REF8] = "EXT_REF8";
-		type_descriptions[SymbolData::EXT_DREF32] = "EXT_DREF32";
-		type_descriptions[SymbolData::EXT_DREF16] = "EXT_DREF16";
-		type_descriptions[SymbolData::EXT_DREF8] = "EXT_DREF8";
-		type_descriptions[SymbolData::EXT_RELREF26] = "EXT_RELREF26";
+		type_descriptions[SymbolData::EXT_SYMB] = "EXT_SYMB - internal symbol definition";
+		type_descriptions[SymbolData::EXT_DEF] = "EXT_DEF - relocatable symbol definition";
+		type_descriptions[SymbolData::EXT_ABS] = "EXT_ABS - absolute symbol definition";
+		type_descriptions[SymbolData::EXT_RES] = "EXT_RES - resident library symbol definition";
+		type_descriptions[SymbolData::EXT_REF32] = "EXT_REF32 - 32-bit reference to symbol";
+		type_descriptions[SymbolData::EXT_COMMON] = "EXT_COMMON - 32-bit reference to common symbol";
+		type_descriptions[SymbolData::EXT_REF16] = "EXT_REF16 - 16-bit relative reference to symbol";
+		type_descriptions[SymbolData::EXT_REF8] = "EXT_REF8 - 8-bit relative reference to symbol";
+		type_descriptions[SymbolData::EXT_DREF32] = "EXT_DREF32 - 32-bit data relative reference to symbol";
+		type_descriptions[SymbolData::EXT_DREF16] = "EXT_DREF16 - 16-bit data relative reference to symbol";
+		type_descriptions[SymbolData::EXT_DREF8] = "EXT_DREF8 - 8-bit data relative reference to symbol";
+		type_descriptions[SymbolData::EXT_RELREF26] = "EXT_RELREF26 - 26-bit relative reference to symbol";
 
 		unit_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(unit->type));
 		unit_entry.AddField("Name", Dumper::StringDisplay::Make(), unit->name);
