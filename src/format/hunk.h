@@ -463,6 +463,25 @@ namespace Amiga
 			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
+		/** @brief Represents a HUNK_LIB block */
+		class LibraryBlock : public Block
+		{
+		public:
+			// TODO: not fully implemented
+			std::vector<Hunk> hunks;
+
+			LibraryBlock()
+				: Block(HUNK_LIB)
+			{
+			}
+
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
+			offset_t FileSize() const override;
+
+			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+		};
+
 		/** @brief The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other file formats */
 		class Hunk
 		{

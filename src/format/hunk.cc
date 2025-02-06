@@ -67,6 +67,8 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 		block = std::make_shared<OverlayBlock>();
 		break;
 	case HUNK_LIB:
+		block = std::make_shared<LibraryBlock>();
+		break;
 	case HUNK_INDEX:
 		// TODO
 	default:
@@ -848,6 +850,33 @@ offset_t HunkFormat::OverlayBlock::FileSize() const
 void HunkFormat::OverlayBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
+	// TODO
+}
+
+// LibraryBlock
+
+void HunkFormat::LibraryBlock::Read(Linker::Reader& rd)
+{
+	uint32_t longword_count = rd.ReadUnsigned(4);
+	(void) longword_count;
+	// TODO: read each hunk one after the other
+}
+
+void HunkFormat::LibraryBlock::Write(Linker::Writer& wr) const
+{
+	Block::Write(wr);
+	wr.WriteWord(4, (FileSize() - 4) / 4);
+	// TODO: write each hunk one after the other
+}
+
+offset_t HunkFormat::LibraryBlock::FileSize() const
+{
+	// TODO: add contents of all hunks
+	return offset_t(-1);
+}
+
+void HunkFormat::LibraryBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
 	// TODO
 }
 
