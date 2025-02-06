@@ -46,7 +46,7 @@ uint16_t FromBigEndian16(uint16_t value)
 	switch(std::endian::native)
 	{
 	case std::endian::big:
-		return Swap16(value);
+		return value;
 	case std::endian::little:
 	default: /* this assumes little by default */
 		return Swap16(value);
@@ -80,7 +80,7 @@ uint32_t FromBigEndian32(uint32_t value)
 	switch(std::endian::native)
 	{
 	case std::endian::big:
-		return Swap16(value);
+		return value;
 	case std::endian::little:
 	default: /* this assumes little by default */
 		return Swap32(value);
@@ -126,7 +126,7 @@ uint64_t FromBigEndian64(uint64_t value)
 	switch(std::endian::native)
 	{
 	case std::endian::big:
-		return Swap16(value);
+		return value;
 	case std::endian::little:
 	default: /* this assumes little by default */
 		return Swap64(value);
