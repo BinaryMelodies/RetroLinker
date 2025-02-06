@@ -61,6 +61,8 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 		block = std::make_shared<SymbolBlock>(block_type(type));
 		break;
 	case HUNK_DEBUG:
+		block = std::make_shared<DebugBlock>();
+		break;
 	case HUNK_OVERLAY:
 	case HUNK_LIB:
 	case HUNK_INDEX:
@@ -757,6 +759,36 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const HunkFormat& modul
 		current_offset += unit->FileSize();
 		i++;
 	}
+}
+
+// DebugBlock
+
+void HunkFormat::DebugBlock::Read(Linker::Reader& rd)
+{
+	uint32_t longword_count = rd.ReadUnsigned(4);
+	image = Linker::Buffer::ReadFromFile(rd, longword_count * 4);
+}
+
+void HunkFormat::DebugBlock::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(4, type);
+	wr.WriteWord(4, ::AlignTo(image->ImageSize(), 4) / 4);
+	image->WriteFile(wr);
+	if((image->ImageSize() & 3) != 0)
+		wr.Skip(-image->ImageSize() & 3);
+}
+
+offset_t HunkFormat::DebugBlock::FileSize() const
+{
+	return 8 + ::AlignTo(image->ImageSize(), 4);
+}
+
+void HunkFormat::DebugBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	Block::Dump(dump, module, hunk, index, current_offset);
+
+	Dumper::Block hunk_block("Data", current_offset + 8, image->AsImage(), 0, 8);
+	hunk_block.Display(dump);
 }
 
 // Hunk
