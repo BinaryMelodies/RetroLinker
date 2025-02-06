@@ -514,7 +514,8 @@ std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock
 		break;
 
 	case EXT_COMMON:
-		// TODO
+		unit = std::make_unique<CommonReferences>(symbol_type(type), name);
+		break;
 
 	case EXT_SYMB:
 	case EXT_DREF32:
@@ -608,6 +609,37 @@ void HunkFormat::ExternalBlock::References::DumpContents(Dumper::Dumper& dump, c
 		reference_entry.Display(dump);
 		current_offset += 4;
 	}
+}
+
+void HunkFormat::ExternalBlock::CommonReferences::Read(Linker::Reader& rd)
+{
+	size = rd.ReadUnsigned(4);
+	uint32_t reference_count = rd.ReadUnsigned(4);
+	for(uint32_t i = 0; i < reference_count; i++)
+	{
+		references.push_back(rd.ReadUnsigned(4));
+	}
+}
+
+void HunkFormat::ExternalBlock::CommonReferences::Write(Linker::Writer& wr) const
+{
+	SymbolData::Write(wr);
+	wr.WriteWord(4, size);
+	wr.WriteWord(4, references.size());
+	for(uint32_t reference : references)
+	{
+		wr.WriteWord(4, reference);
+	}
+}
+
+offset_t HunkFormat::ExternalBlock::CommonReferences::FileSize() const
+{
+	return SymbolData::FileSize() + 8 + 4 * references.size();
+}
+
+void HunkFormat::ExternalBlock::CommonReferences::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(size));
 }
 
 void HunkFormat::ExternalBlock::Read(Linker::Reader& rd)

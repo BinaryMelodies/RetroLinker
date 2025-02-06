@@ -321,6 +321,24 @@ namespace Amiga
 				void DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 			};
 
+			class CommonReferences : public References
+			{
+			public:
+				uint32_t size;
+
+				CommonReferences(symbol_type type, std::string name, uint32_t size = 0)
+					: References(type, name), size(size)
+				{
+				}
+
+				void Read(Linker::Reader& rd) override;
+				/** @brief Write entire unit */
+				void Write(Linker::Writer& wr) const override;
+				/** @brief Size of entire unit, including type and name fields */
+				offset_t FileSize() const override;
+				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			};
+
 			std::vector<std::unique_ptr<SymbolData>> symbols;
 
 			void Read(Linker::Reader& rd) override;
