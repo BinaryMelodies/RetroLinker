@@ -23,6 +23,30 @@ namespace Amiga
 
 		class Hunk;
 
+		struct Relocation
+		{
+			/** @brief Size of relocation in bytes */
+			size_t size;
+			enum relocation_type
+			{
+				/** @brief Relocation is an absolute reference */
+				Absolute,
+				/** @brief Relocation is PC-relative */
+				SelfRelative,
+				/** @brief Relocation relative to the data section */
+				DataRelative,
+				/** @brief Relocation is 26-bit PC-relative, for PowerPC */
+				SelfRelative26,
+			};
+			relocation_type type;
+			uint32_t offset;
+			Relocation(size_t size, relocation_type type, uint32_t offset)
+				: size(size), type(type), offset(offset)
+			{
+			}
+			bool operator <(const Relocation& other) const;
+		};
+
 		/**
 		 * @brief The smallest unit of a Hunk file, it starts with a type word
 		 */
@@ -76,15 +100,26 @@ namespace Amiga
 				/** @brief First block of a code segment (hunk) containing PowerPC instructions */
 				HUNK_PPC_CODE = 0x4E9,
 				HUNK_RELRELOC26 = 0x4EC,
+
+				/** @brief V37 Block containing 32-bit relocations in a compactified form, only found in executables */
+				HUNK_V37_RELOC32SHORT = 0x3F7,
 			};
 			block_type type;
-			Block(block_type type)
-				: type(type)
+			/** @brief Required because V37 executables define HUNK_DRELOC32 as HUNK_RELOC32SHORT, must block types ignore this field and it is not stored */
+			bool is_executable = false;
+			Block(block_type type, bool is_executable = false)
+				: type(type), is_executable(is_executable)
 			{
 			}
 			virtual ~Block() = default;
-			/** @brief Reads a single block from file */
-			static std::shared_ptr<Block> ReadBlock(Linker::Reader& rd);
+			/**
+			 * @brief Reads a single block from file
+			 *
+			 * @param rd The reader
+			 * @param is_executable If file is executable, false if object or not known
+			 * @return A parsed block, or nullptr if file ended
+			 */
+			static std::shared_ptr<Block> ReadBlock(Linker::Reader& rd, bool is_executable = false);
 			/** @brief Reads the rest of the block after the type word */
 			virtual void Read(Linker::Reader& rd);
 			/** @brief Writes the entire block into a file */
@@ -239,12 +274,17 @@ namespace Amiga
 			};
 			std::vector<RelocationData> relocations;
 
-			RelocationBlock(block_type type)
-				: Block(type)
+			RelocationBlock(block_type type, bool is_executable = false)
+				: Block(type, is_executable)
 			{
 			}
 
+			/** @brief Whether this is a HUNK_RELOC32SHORT block (needed because V37 gives it a different number) */
+			bool IsShortRelocationBlock() const;
+
 			size_t GetRelocationSize() const;
+
+			Relocation::relocation_type GetRelocationType() const;
 
 			void Read(Linker::Reader& rd) override;
 			void Write(Linker::Writer& wr) const override;
@@ -407,17 +447,6 @@ namespace Amiga
 			{
 			}
 
-			struct Relocation
-			{
-				size_t size;
-				uint32_t offset;
-				Relocation(size_t size, uint32_t offset)
-					: size(size), offset(offset)
-				{
-				}
-				bool operator <(const Relocation& other) const;
-			};
-
 			std::map<uint32_t, std::set<Relocation>> relocations;
 
 			/** @brief Converts the data collected by the linker into hunk blocks */
@@ -439,6 +468,8 @@ namespace Amiga
 		/** @brief Every file is supposed to start with either a HUNK_UNIT or a HUNK_BLOCK, which is stored here */
 		std::shared_ptr<Block> start_block;
 		std::vector<Hunk> hunks;
+
+		bool IsExecutable() const;
 
 		offset_t ImageSize() const override;
 

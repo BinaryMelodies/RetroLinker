@@ -6,9 +6,16 @@
 
 using namespace Amiga;
 
+// Relocation
+
+bool HunkFormat::Relocation::operator <(const Relocation& other) const
+{
+	return offset < other.offset || (offset == other.offset && (size < other.size || (size == other.size && type < other.type)));
+}
+
 // Block
 
-std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& rd)
+std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& rd, bool is_executable)
 {
 	offset_t current_offset = rd.Tell();
 	uint32_t type = rd.ReadUnsigned(4);
@@ -40,7 +47,7 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 	case HUNK_RELRELOC32:
 	case HUNK_ABSRELOC16:
 	case HUNK_RELRELOC26:
-		block = std::make_shared<RelocationBlock>(block_type(type));
+		block = std::make_shared<RelocationBlock>(block_type(type), is_executable);
 		break;
 	case HUNK_END:
 	case HUNK_BREAK:
@@ -110,7 +117,7 @@ void HunkFormat::Block::AddCommonFields(Dumper::Region& region, unsigned index) 
 	type_descriptions[HUNK_HEADER] = "HUNK_HEADER";
 	type_descriptions[HUNK_OVERLAY] = "HUNK_OVERLAY";
 	type_descriptions[HUNK_BREAK] = "HUNK_BREAK";
-	type_descriptions[HUNK_DRELOC32] = "HUNK_DRELOC32";
+	type_descriptions[HUNK_DRELOC32] = is_executable ? "HUNK_RELOC32SHORT (V37)" : "HUNK_DRELOC32";
 	type_descriptions[HUNK_DRELOC16] = "HUNK_DRELOC16";
 	type_descriptions[HUNK_DRELOC8] = "HUNK_DRELOC8";
 	type_descriptions[HUNK_LIB] = "HUNK_LIB";
@@ -371,6 +378,10 @@ void HunkFormat::BssBlock::AddExtraFields(Dumper::Region& region, const HunkForm
 
 // RelocationBlock
 
+bool HunkFormat::RelocationBlock::IsShortRelocationBlock() const
+{
+	return type == HUNK_RELOC32SHORT || (is_executable && type == HUNK_V37_RELOC32SHORT);
+}
 
 size_t HunkFormat::RelocationBlock::GetRelocationSize() const
 {
@@ -394,11 +405,37 @@ size_t HunkFormat::RelocationBlock::GetRelocationSize() const
 	}
 }
 
+HunkFormat::Relocation::relocation_type HunkFormat::RelocationBlock::GetRelocationType() const
+{
+	switch(type)
+	{
+	default:
+		assert(false);
+	case HUNK_ABSRELOC32:
+	case HUNK_RELOC32SHORT:
+	case HUNK_ABSRELOC16:
+		return Relocation::Absolute;
+	case HUNK_DRELOC32:
+		return is_executable
+			? Relocation::Absolute // V37 uses this type for RELOC32SHORT
+			: Relocation::DataRelative;
+	case HUNK_DRELOC16:
+	case HUNK_DRELOC8:
+		return Relocation::DataRelative;
+	case HUNK_RELRELOC16:
+	case HUNK_RELRELOC8:
+	case HUNK_RELRELOC32:
+		return Relocation::SelfRelative;
+	case HUNK_RELRELOC26:
+		return Relocation::SelfRelative26;
+	}
+}
+
 void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
 {
 	relocations.clear();
 
-	size_t wordread = type == HUNK_RELOC32SHORT ? 2 : 4;
+	size_t wordread = IsShortRelocationBlock() ? 2 : 4;
 
 	while(true)
 	{
@@ -422,7 +459,7 @@ void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
 
 void HunkFormat::RelocationBlock::Write(Linker::Writer& wr) const
 {
-	size_t wordwrite = type == HUNK_RELOC32SHORT ? 2 : 4;
+	size_t wordwrite = IsShortRelocationBlock() ? 2 : 4;
 
 	wr.WriteWord(4, type);
 	for(auto& data : relocations)
@@ -472,7 +509,13 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const HunkFormat& m
 			Dumper::Entry relocation_entry("Relocation", i + 1, current_offset);
 			relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
 			relocation_entry.AddField("Target hunk", Dumper::DecDisplay::Make(), offset_t(data.hunk)); // TODO: add first_hunk?
-			relocation_entry.AddField("Size", Dumper::HexDisplay::Make(8), offset_t(GetRelocationSize()));
+			relocation_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(GetRelocationSize()));
+			std::map<offset_t, std::string> relocation_type_descriptions;
+			relocation_type_descriptions[Relocation::Absolute] = "absolute";
+			relocation_type_descriptions[Relocation::SelfRelative] = "PC-relative";
+			relocation_type_descriptions[Relocation::DataRelative] = "data relative";
+			relocation_type_descriptions[Relocation::SelfRelative26] = "26-bit PC-relative";
+			relocation_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_descriptions), offset_t(GetRelocationType()));
 			if(hunk->image != nullptr)
 			{
 				relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(2 * GetRelocationSize()), offset_t(
@@ -718,11 +761,6 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const HunkFormat& modul
 
 // Hunk
 
-bool HunkFormat::Hunk::Relocation::operator <(const Relocation& other) const
-{
-	return offset < other.offset || (offset == other.offset && size < other.size);
-}
-
 void HunkFormat::Hunk::ProduceBlocks()
 {
 	/* Initial hunk block */
@@ -879,7 +917,7 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 				for(auto offset : data.offsets)
 				{
 					// TODO: more information needs to be stored
-					relocations[data.hunk].insert(Relocation(relocation_block->GetRelocationSize(), offset));
+					relocations[data.hunk].insert(Relocation(relocation_block->GetRelocationSize(), relocation_block->GetRelocationType(), offset));
 				}
 			}
 		}
@@ -905,6 +943,11 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 }
 
 // HunkFormat
+
+bool HunkFormat::IsExecutable() const
+{
+	return start_block != nullptr && start_block->type == Block::HUNK_HEADER;
+}
 
 offset_t HunkFormat::ImageSize() const
 {
@@ -940,14 +983,14 @@ void HunkFormat::ReadFile(Linker::Reader& rd)
 	if(block->type == Block::HUNK_UNIT || block->type == Block::HUNK_HEADER)
 	{
 		start_block = block;
-		block = Block::ReadBlock(rd);
+		block = Block::ReadBlock(rd, IsExecutable());
 	}
 
-	for(; rd.Tell() < end && block != nullptr; block = Block::ReadBlock(rd))
+	for(; rd.Tell() < end && block != nullptr; block = Block::ReadBlock(rd, IsExecutable()))
 	{
 		Hunk hunk;
 		hunk.AppendBlock(block);
-		for(block = Block::ReadBlock(rd); block != nullptr; block = Block::ReadBlock(rd))
+		for(block = Block::ReadBlock(rd, IsExecutable()); block != nullptr; block = Block::ReadBlock(rd, IsExecutable()))
 		{
 			hunk.AppendBlock(block);
 			if(block->type == Block::HUNK_END)
@@ -1241,7 +1284,7 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 			Linker::Position position = rel.source.GetPosition();
 			uint32_t source = segment_index[position.segment];
 			uint32_t target = segment_index[resolution.target];
-			hunks[source].relocations[target].insert(Hunk::Relocation(rel.size, position.address));
+			hunks[source].relocations[target].insert(Relocation(rel.size, Relocation::Absolute, position.address));
 		}
 	}
 
