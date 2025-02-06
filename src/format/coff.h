@@ -232,10 +232,13 @@ namespace COFF
 			PECOFF = 5,
 		};
 
+		static constexpr COFFVariantType AnyCOFFVariant = COFFVariantType(0);
+
 		struct MachineType
 		{
 			cpu actual_cpu;
 			::EndianType endian;
+			COFFVariantType coff_variant = AnyCOFFVariant;
 		};
 
 		static const std::map<uint32_t, MachineType> MACHINE_TYPES;

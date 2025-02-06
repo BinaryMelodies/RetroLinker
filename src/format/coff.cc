@@ -13,8 +13,8 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x0088,    MachineType { CPU_M68K,  ::BigEndian }) },
 	{ std::make_pair(0x0089,    MachineType { CPU_M68K,  ::BigEndian }) },
 	{ std::make_pair(0x0093,    MachineType { CPU_M68K,  ::BigEndian }) },
-	{ std::make_pair(0x0140,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
-	{ std::make_pair(0x0142,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF // TODO: also 8086
+	{ std::make_pair(0x0140,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0142,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
 	{ std::make_pair(0x0143,    MachineType { CPU_I86,   ::LittleEndian }) },
 	{ std::make_pair(0x0144,    MachineType { CPU_I86,   ::LittleEndian }) },
 	{ std::make_pair(0x0145,    MachineType { CPU_I86,   ::LittleEndian }) },
@@ -38,13 +38,13 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	// 0x015B -- I370
 	{ std::make_pair(0x015C,    MachineType { CPU_I370,  ::BigEndian }) }, // Amdahl
 	{ std::make_pair(0x015D,    MachineType { CPU_I370,  ::BigEndian }) },
-	{ std::make_pair(0x0160,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF but also COFF with MIPS optional header?
+	{ std::make_pair(0x0160,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) }, // ECOFF but also COFF with MIPS optional header?
 	// also OpenBSD i960
-	{ std::make_pair(0x0162,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
-	{ std::make_pair(0x0163,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0162,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0163,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
 	// 0x0164 -- Zilog
 	// 0x0165 -- Zilog
-	{ std::make_pair(0x0166,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0166,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
 	{ std::make_pair(0x0168,    MachineType { CPU_WE32K, ::BigEndian }) }, // 3B20 // TODO: also NetBSD SH3
 	{ std::make_pair(0x0169,    MachineType { CPU_WE32K, ::BigEndian }) }, // 3B20
 	{ std::make_pair(0x016C,    MachineType { CPU_M68K,  ::BigEndian }) },
@@ -58,62 +58,62 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x017B,    MachineType { CPU_AM29K, ::LittleEndian }) },
 	{ std::make_pair(0x017D,    MachineType { CPU_VAX,   ::LittleEndian }) },
 	// TODO: 0x017F - CLIPPER (unknown endianness)
-	{ std::make_pair(0x0180,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
-	{ std::make_pair(0x0182,    MachineType { CPU_MIPS,  ::UndefinedEndian }) }, // ECOFF
-	{ std::make_pair(0x0183,    MachineType { CPU_ALPHA, ::UndefinedEndian }) }, // ECOFF
-	{ std::make_pair(0x0185,    MachineType { CPU_ALPHA, ::UndefinedEndian }) }, // ECOFF
-	{ std::make_pair(0x0188,    MachineType { CPU_ALPHA, ::UndefinedEndian }) }, // ECOFF
-	{ std::make_pair(0x018F,    MachineType { CPU_ALPHA, ::UndefinedEndian }) }, // ECOFF
+	{ std::make_pair(0x0180,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0182,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0183,    MachineType { CPU_ALPHA, ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0185,    MachineType { CPU_ALPHA, ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0188,    MachineType { CPU_ALPHA, ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x018F,    MachineType { CPU_ALPHA, ::UndefinedEndian, ECOFF }) },
 	{ std::make_pair(0x0194,    MachineType { CPU_M88K,  ::BigEndian }) },
 	{ std::make_pair(0x0197,    MachineType { CPU_M68K,  ::BigEndian }) },
-	{ std::make_pair(0x01DF,    MachineType { CPU_PPC,   ::BigEndian }) }, // XCOFF
-	{ std::make_pair(0x01F7,    MachineType { CPU_PPC64, ::BigEndian }) }, // XCOFF
+	{ std::make_pair(0x01DF,    MachineType { CPU_PPC,   ::BigEndian, XCOFF32 }) },
+	{ std::make_pair(0x01F7,    MachineType { CPU_PPC64, ::BigEndian, XCOFF64 }) },
 	{ std::make_pair(0x1572,    MachineType { CPU_AM29K, ::BigEndian }) },
 	{ std::make_pair(0x521C,    MachineType { CPU_SHARC, ::LittleEndian }) },
 	{ std::make_pair(0x8000,    MachineType { CPU_Z8K,   ::BigEndian }) }, // GNU binutils
 	{ std::make_pair(0x805A,    MachineType { CPU_Z80,   ::LittleEndian }) }, // GNU binutils
 	{ std::make_pair(0x6500,    MachineType { CPU_W65,   ::LittleEndian }) }, // GNU binutils
 	/* Microsoft PE/COFF values, these entries are always stored in little endian order */
-	//{ std::make_pair(0x014C,    MachineType { CPU_I386,  ::LittleEndian }) }, // already defined
-	{ std::make_pair(0x014D,    MachineType { CPU_I860,  ::LittleEndian }) }, // also old value for Intel 486
-	{ std::make_pair(0x014E,    MachineType { CPU_I386,  ::LittleEndian }) }, // old value for Intel Pentium
-	//{ std::make_pair(0x0162,    MachineType { CPU_MIPS,  ::LittleEndian }) }, // already defined
-	//{ std::make_pair(0x0163,    MachineType { CPU_MIPS,  ::LittleEndian }) }, // already defined
-	//{ std::make_pair(0x0166,    MachineType { CPU_MIPS,  ::LittleEndian }) }, // already defined
-	{ std::make_pair(0x0168,    MachineType { CPU_MIPS,  ::LittleEndian }) },
-	{ std::make_pair(0x0169,    MachineType { CPU_MIPS,  ::LittleEndian }) },
-	//{ std::make_pair(0x0183,    MachineType { CPU_ALPHA, ::LittleEndian }) }, // already defined
-	{ std::make_pair(0x0184,    MachineType { CPU_ALPHA, ::LittleEndian }) },
-	{ std::make_pair(0x01A2,    MachineType { CPU_SH,    ::LittleEndian }) },
-	{ std::make_pair(0x01A3,    MachineType { CPU_SH,    ::LittleEndian }) },
-	{ std::make_pair(0x01A6,    MachineType { CPU_SH,    ::LittleEndian }) },
-	{ std::make_pair(0x01A8,    MachineType { CPU_SH,    ::LittleEndian }) },
-	{ std::make_pair(0x01C0,    MachineType { CPU_ARM,   ::LittleEndian }) },
-	{ std::make_pair(0x01C2,    MachineType { CPU_ARM,   ::LittleEndian }) },
-	{ std::make_pair(0x01C4,    MachineType { CPU_ARM,   ::LittleEndian }) },
-	{ std::make_pair(0x01D3,    MachineType { CPU_AM33,  ::LittleEndian }) },
-	{ std::make_pair(0x01F0,    MachineType { CPU_PPC,   ::LittleEndian }) },
-	{ std::make_pair(0x01F1,    MachineType { CPU_PPC,   ::LittleEndian }) },
-	{ std::make_pair(0x0200,    MachineType { CPU_IA64,  ::LittleEndian }) },
-	{ std::make_pair(0x0266,    MachineType { CPU_MIPS,  ::LittleEndian }) },
-	{ std::make_pair(0x0268,    MachineType { CPU_M68K,  ::LittleEndian }) },
-	{ std::make_pair(0x0284,    MachineType { CPU_ALPHA, ::LittleEndian }) },
-	{ std::make_pair(0x0290,    MachineType { CPU_HPPA,  ::LittleEndian }) },
-	{ std::make_pair(0x0366,    MachineType { CPU_MIPS,  ::LittleEndian }) },
-	{ std::make_pair(0x0466,    MachineType { CPU_MIPS,  ::LittleEndian }) },
-	{ std::make_pair(0x0500,    MachineType { CPU_SH,    ::LittleEndian }) },
-	{ std::make_pair(0x0550,    MachineType { CPU_SH,    ::LittleEndian }) },
-	{ std::make_pair(0x0601,    MachineType { CPU_PPC,   ::LittleEndian }) }, // (for Macintosh)
-	{ std::make_pair(0x0EBC,    MachineType { CPU_EFI,   ::LittleEndian }) },
-	{ std::make_pair(0x5032,    MachineType { CPU_RISCV32, ::LittleEndian }) },
-	{ std::make_pair(0x5064,    MachineType { CPU_RISCV64, ::LittleEndian }) },
-	{ std::make_pair(0x5128,    MachineType { CPU_RISCV128, ::LittleEndian }) },
-	{ std::make_pair(0x6232,    MachineType { CPU_MIPS,  ::LittleEndian }) }, // LoongArch
-	{ std::make_pair(0x6264,    MachineType { CPU_MIPS,  ::LittleEndian }) }, // LoongArch
-	{ std::make_pair(0x8664,    MachineType { CPU_AMD64, ::LittleEndian }) },
-	{ std::make_pair(0x9041,    MachineType { CPU_M32R,  ::LittleEndian }) },
-	{ std::make_pair(0xA641,    MachineType { CPU_ARM64, ::LittleEndian }) },
-	{ std::make_pair(0xAA64,    MachineType { CPU_ARM64, ::LittleEndian }) },
+	//{ std::make_pair(0x014C,    MachineType { CPU_I386,  ::LittleEndian, PECOFF }) }, // already defined
+	{ std::make_pair(0x014D,    MachineType { CPU_I860,  ::LittleEndian, PECOFF }) }, // also old value for Intel 486
+	{ std::make_pair(0x014E,    MachineType { CPU_I386,  ::LittleEndian, PECOFF }) }, // old value for Intel Pentium
+	//{ std::make_pair(0x0162,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) }, // already defined
+	//{ std::make_pair(0x0163,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) }, // already defined
+	//{ std::make_pair(0x0166,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) }, // already defined
+	{ std::make_pair(0x0168,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0169,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) },
+	//{ std::make_pair(0x0183,    MachineType { CPU_ALPHA, ::LittleEndian, PECOFF }) }, // already defined
+	{ std::make_pair(0x0184,    MachineType { CPU_ALPHA, ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01A2,    MachineType { CPU_SH,    ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01A3,    MachineType { CPU_SH,    ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01A6,    MachineType { CPU_SH,    ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01A8,    MachineType { CPU_SH,    ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01C0,    MachineType { CPU_ARM,   ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01C2,    MachineType { CPU_ARM,   ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01C4,    MachineType { CPU_ARM,   ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01D3,    MachineType { CPU_AM33,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01F0,    MachineType { CPU_PPC,   ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x01F1,    MachineType { CPU_PPC,   ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0200,    MachineType { CPU_IA64,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0266,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0268,    MachineType { CPU_M68K,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0284,    MachineType { CPU_ALPHA, ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0290,    MachineType { CPU_HPPA,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0366,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0466,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0500,    MachineType { CPU_SH,    ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0550,    MachineType { CPU_SH,    ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x0601,    MachineType { CPU_PPC,   ::LittleEndian, PECOFF }) }, // (for Macintosh)
+	{ std::make_pair(0x0EBC,    MachineType { CPU_EFI,   ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x5032,    MachineType { CPU_RISCV32, ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x5064,    MachineType { CPU_RISCV64, ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x5128,    MachineType { CPU_RISCV128, ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x6232,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) }, // LoongArch
+	{ std::make_pair(0x6264,    MachineType { CPU_MIPS,  ::LittleEndian, PECOFF }) }, // LoongArch
+	{ std::make_pair(0x8664,    MachineType { CPU_AMD64, ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0x9041,    MachineType { CPU_M32R,  ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0xA641,    MachineType { CPU_ARM64, ::LittleEndian, PECOFF }) },
+	{ std::make_pair(0xAA64,    MachineType { CPU_ARM64, ::LittleEndian, PECOFF }) },
 	// due to overloaded values, these require more than 16 bits and therefore cannot appear in files, included for endianness
 	// for now, there are no overloaded values
 };
@@ -1041,6 +1041,10 @@ bool COFFFormat::DetectCpuType(::EndianType expected)
 	{
 		cpu_type = it->second.actual_cpu;
 		endiantype = expected;
+		if(coff_variant == AnyCOFFVariant)
+		{
+			coff_variant = it->second.coff_variant;
+		}
 		return true;
 	}
 	else
@@ -1098,26 +1102,9 @@ void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
 	DetectCpuType();
 	rd.endiantype = endiantype;
 
-	if(coff_variant == COFFVariantType(0))
+	if(coff_variant == AnyCOFFVariant)
 	{
 		coff_variant = COFF;
-		// TODO: determine coff_variant
-#if 0
-		switch(uint8_t(signature[0]) | (uint8_t(signature[1]) << 8))
-		{
-		case 0x0183:
-		case 0x0188:
-		case 0x018F:
-			coff_variant = ECOFF;
-			break;
-		case 0xDF01:
-			coff_variant = XCOFF32;
-			break;
-		case 0xF701:
-			coff_variant = XCOFF64;
-			break;
-		}
-#endif
 	}
 
 	switch(coff_variant)
@@ -2184,6 +2171,11 @@ void COFFFormat::CalculateValues()
 	optional_header_size = optional_header->GetSize();
 
 	offset_t offset = 0;
+
+	if(coff_variant == AnyCOFFVariant)
+	{
+		coff_variant = COFF;
+	}
 
 	switch(coff_variant)
 	{
