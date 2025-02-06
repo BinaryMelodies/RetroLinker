@@ -142,8 +142,16 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) c
 					rel_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), relocation.import_name);
 					break;
 				case Relocation::OSFixup:
-					rel_entry.AddField("Fixup type", Dumper::HexDisplay::Make(4), offset_t(relocation.module));
-					// TODO: display strings
+					{
+						std::map<offset_t, std::string> fixup_descriptions;
+						fixup_descriptions[Relocation::FIARQQ] = "FIARQQ/FJARQQ (DS prefixed fp)";
+						fixup_descriptions[Relocation::FISRQQ] = "FISRQQ/FJSRQQ (SS prefixed fp)";
+						fixup_descriptions[Relocation::FICRQQ] = "FICRQQ/FJCRQQ (CS prefixed fp)";
+						fixup_descriptions[Relocation::FIERQQ] = "FIERQQ (ES prefixed fp)";
+						fixup_descriptions[Relocation::FIDRQQ] = "FIDRQQ (unprefixed fp)";
+						fixup_descriptions[Relocation::FIWRQQ] = "FIWRQQ (fp wait)";
+						rel_entry.AddField("Fixup type", Dumper::ChoiceDisplay::Make(fixup_descriptions, Dumper::HexDisplay::Make(4)), offset_t(relocation.module));
+					}
 					break;
 				}
 				if((relocation.flags & Relocation::Additive) != 0)
