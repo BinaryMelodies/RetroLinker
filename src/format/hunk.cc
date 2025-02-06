@@ -37,6 +37,9 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 	case HUNK_DRELOC16:
 	case HUNK_DRELOC8:
 	case HUNK_RELOC32SHORT:
+	case HUNK_RELRELOC32:
+	case HUNK_ABSRELOC16:
+	case HUNK_RELRELOC26:
 		block = std::make_shared<RelocationBlock>(block_type(type));
 		break;
 	case HUNK_END:
@@ -52,9 +55,6 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 	case HUNK_OVERLAY:
 	case HUNK_LIB:
 	case HUNK_INDEX:
-	case HUNK_RELRELOC32:
-	case HUNK_ABSRELOC16:
-	case HUNK_RELRELOC26:
 		// TODO
 	default:
 		Linker::Error << "Error: unrecognized block type " << std::hex << type << ", halting" << std::endl;
@@ -379,9 +379,12 @@ size_t HunkFormat::RelocationBlock::GetRelocationSize() const
 	case HUNK_RELOC32:
 	case HUNK_DRELOC32:
 	case HUNK_RELOC32SHORT:
+	case HUNK_RELRELOC32:
+	case HUNK_RELRELOC26:
 		return 4;
 	case HUNK_RELOC16:
 	case HUNK_DRELOC16:
+	case HUNK_ABSRELOC16:
 		return 2;
 	case HUNK_RELOC8:
 	case HUNK_DRELOC8:
@@ -393,22 +396,7 @@ void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
 {
 	relocations.clear();
 
-	size_t wordread = 4;
-	switch(type)
-	{
-	default:
-		assert(false);
-	case HUNK_RELOC32:
-	case HUNK_RELOC16:
-	case HUNK_RELOC8:
-	case HUNK_DRELOC32:
-	case HUNK_DRELOC16:
-	case HUNK_DRELOC8:
-		break;
-	case HUNK_RELOC32SHORT:
-		wordread = 2;
-		break;
-	}
+	size_t wordread = type == HUNK_RELOC32SHORT ? 2 : 4;
 
 	while(true)
 	{
@@ -432,22 +420,7 @@ void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
 
 void HunkFormat::RelocationBlock::Write(Linker::Writer& wr) const
 {
-	size_t wordwrite = 4;
-	switch(type)
-	{
-	default:
-		assert(false);
-	case HUNK_RELOC32:
-	case HUNK_RELOC16:
-	case HUNK_RELOC8:
-	case HUNK_DRELOC32:
-	case HUNK_DRELOC16:
-	case HUNK_DRELOC8:
-		break;
-	case HUNK_RELOC32SHORT:
-		wordwrite = 2;
-		break;
-	}
+	size_t wordwrite = type == HUNK_RELOC32SHORT ? 2 : 4;
 
 	wr.WriteWord(4, type);
 	for(auto& data : relocations)
@@ -662,6 +635,9 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 	case Block::HUNK_DRELOC16:
 	case Block::HUNK_DRELOC8:
 	case Block::HUNK_RELOC32SHORT:
+	case Block::HUNK_RELRELOC32:
+	case Block::HUNK_ABSRELOC16:
+	case Block::HUNK_RELRELOC26:
 		{
 			RelocationBlock * relocation_block = dynamic_cast<RelocationBlock *>(block.get());
 			for(auto& data : relocation_block->relocations)
@@ -670,6 +646,7 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 					relocations[data.hunk] = std::set<Relocation>();
 				for(auto offset : data.offsets)
 				{
+					// TODO: more information needs to be stored
 					relocations[data.hunk].insert(Relocation(relocation_block->GetRelocationSize(), offset));
 				}
 			}
@@ -685,9 +662,6 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 	case Block::HUNK_BREAK:
 	case Block::HUNK_LIB:
 	case Block::HUNK_INDEX:
-	case Block::HUNK_RELRELOC32:
-	case Block::HUNK_ABSRELOC16:
-	case Block::HUNK_RELRELOC26:
 		// TODO
 	default:
 		Linker::Error << "Error: invalid block in hunk" << std::endl;
