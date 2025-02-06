@@ -861,21 +861,22 @@ void HunkFormat::OverlayBlock::Dump(Dumper::Dumper& dump, const Module& module, 
 void HunkFormat::LibraryBlock::Read(Linker::Reader& rd)
 {
 	uint32_t longword_count = rd.ReadUnsigned(4);
-	(void) longword_count;
-	// TODO: read each hunk one after the other
+	offset_t end = rd.Tell() + 4 * longword_count;
+	std::shared_ptr<Block> next_block = rd.Tell() < end ? Block::ReadBlock(rd, false) : nullptr;
+	hunks = std::make_unique<Module>();
+	hunks->ReadFile(rd, next_block, end);
 }
 
 void HunkFormat::LibraryBlock::Write(Linker::Writer& wr) const
 {
 	Block::Write(wr);
 	wr.WriteWord(4, (FileSize() - 8) / 4);
-	// TODO: write each hunk one after the other
+	hunks->WriteFile(wr);
 }
 
 offset_t HunkFormat::LibraryBlock::FileSize() const
 {
-	// TODO: add contents of all hunks
-	return offset_t(-1);
+	return 8 + hunks->ImageSize();
 }
 
 void HunkFormat::LibraryBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
@@ -1252,7 +1253,7 @@ offset_t HunkFormat::Module::ImageSize() const
 	offset_t size = 0;
 	if(start_block != nullptr)
 	{
-		Linker::Debug << "Debug: size of " << std::hex << start_block->type << " is " << start_block->FileSize() << std::endl;
+//		Linker::Debug << "Debug: size of " << std::hex << start_block->type << " is " << start_block->FileSize() << std::endl;
 		size += start_block->FileSize();
 	}
 	for(auto& hunk : hunks)

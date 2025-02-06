@@ -137,7 +137,6 @@ namespace Amiga
 		class TextBlock : public Block
 		{
 		public:
-			// TODO: untested
 			std::string name;
 
 			TextBlock(block_type type, std::string name = "")
@@ -301,7 +300,6 @@ namespace Amiga
 		class SymbolBlock : public Block
 		{
 		public:
-			// TODO: untested
 			class Unit
 			{
 			public:
@@ -468,8 +466,9 @@ namespace Amiga
 		class LibraryBlock : public Block
 		{
 		public:
-			// TODO: not fully implemented
-			std::vector<Hunk> hunks;
+			// TODO: untested
+
+			std::unique_ptr<Module> hunks;
 
 			LibraryBlock()
 				: Block(HUNK_LIB)
@@ -486,7 +485,7 @@ namespace Amiga
 		class IndexBlock : public Block
 		{
 		public:
-			// TODO: not fully implemented
+			// TODO: untested
 
 			class Definition
 			{
