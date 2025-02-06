@@ -451,7 +451,7 @@ void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
 			break;
 
 		relocations.emplace_back(RelocationData());
-		relocations.back().hunk = rd.ReadUnsigned(4);
+		relocations.back().hunk = rd.ReadUnsigned(wordread);
 		for(uint32_t i = 0; i < relocation_count; i++)
 		{
 			relocations.back().offsets.push_back(rd.ReadUnsigned(wordread));
