@@ -645,6 +645,10 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 			rd.Seek(segment.data_offset);
 			segment.image = Linker::Buffer::ReadFromFile(rd, segment.image_size);
 		}
+		else
+		{
+			segment.image = std::make_shared<Linker::Buffer>();
+		}
 		if((segment.flags & Segment::Relocations) != 0)
 		{
 			segment.relocations.clear();
