@@ -175,7 +175,8 @@ namespace Amiga
 		public:
 			enum
 			{
-				FlagMask      = 0xC0000000,
+				FlagMask      = 0xE0000000,
+				BitAdvisory   = 0x20000000,
 				BitChipMem    = 0x40000000,
 				BitFastMem    = 0x80000000,
 				BitAdditional = 0xC0000000,

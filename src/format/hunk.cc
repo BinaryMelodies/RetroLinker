@@ -256,7 +256,7 @@ uint32_t HunkFormat::InitialHunkBlock::GetAdditionalFlags() const
 void HunkFormat::InitialHunkBlock::Read(Linker::Reader& rd)
 {
 	uint32_t longword_count = rd.ReadUnsigned(4);
-	if((longword_count & FlagMask) == BitAdditional)
+	if((longword_count & BitAdditional) == BitAdditional)
 	{
 		loaded_with_additional_flags = true;
 		flags = flag_type(rd.ReadUnsigned(4) | LoadPublic);
@@ -294,12 +294,13 @@ void HunkFormat::InitialHunkBlock::AddExtraFields(Dumper::Region& region, const 
 				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("local memory"), true) // TODO: meaning
 				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("24-bit DMA"), true) // TODO: meaning
 				->AddBitField(16, 1, Dumper::ChoiceDisplay::Make("clear"), true), // TODO: meaning
-			offset_t(flags) & FlagMask);
+			offset_t(flags));
 	}
 	else
 	{
 		region.AddOptionalField("Flags",
 			Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(29, 1, Dumper::ChoiceDisplay::Make("advisory, hunk can be ignored"), true)
 				->AddBitField(30, 1, Dumper::ChoiceDisplay::Make("chip memory"), true)
 				->AddBitField(31, 1, Dumper::ChoiceDisplay::Make("fast memory"), true),
 			offset_t(flags) & FlagMask);
