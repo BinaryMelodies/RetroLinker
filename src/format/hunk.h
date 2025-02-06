@@ -427,6 +427,38 @@ namespace Amiga
 			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
+		/** @brief Represents a HUNK_OVERLAY block */
+		class OverlayBlock : public Block
+		{
+		public:
+			// TODO: untested
+			uint32_t maximum_level = 2;
+
+			struct OverlaySymbol
+			{
+				uint32_t offset;
+				uint32_t res1, res2;
+				uint32_t level;
+				uint32_t ordinate;
+				uint32_t first_hunk;
+				uint32_t symbol_hunk;
+				uint32_t symbol_offset;
+			};
+
+			std::vector<OverlaySymbol> overlay_data_table;
+
+			OverlayBlock()
+				: Block(HUNK_OVERLAY)
+			{
+			}
+
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
+			offset_t FileSize() const override;
+
+			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+		};
+
 		/** @brief The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other file formats */
 		class Hunk
 		{

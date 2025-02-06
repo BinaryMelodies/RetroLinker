@@ -64,6 +64,8 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 		block = std::make_shared<DebugBlock>();
 		break;
 	case HUNK_OVERLAY:
+		block = std::make_shared<OverlayBlock>();
+		break;
 	case HUNK_LIB:
 	case HUNK_INDEX:
 		// TODO
@@ -790,6 +792,58 @@ void HunkFormat::DebugBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module
 
 	Dumper::Block hunk_block("Data", current_offset + 8, image->AsImage(), 0, 8);
 	hunk_block.Display(dump);
+}
+
+// OverlayBlock
+
+void HunkFormat::OverlayBlock::Read(Linker::Reader& rd)
+{
+	uint32_t longword_count = rd.ReadUnsigned(4);
+	maximum_level = rd.ReadUnsigned(4);
+	rd.Skip(4 * (maximum_level - 2));
+	for(uint32_t i = maximum_level; i < longword_count; i += 8)
+	{
+		OverlaySymbol symbol;
+		symbol.offset = rd.ReadUnsigned(4);
+		symbol.res1 = rd.ReadUnsigned(4);
+		symbol.res2 = rd.ReadUnsigned(4);
+		symbol.level = rd.ReadUnsigned(4);
+		symbol.ordinate = rd.ReadUnsigned(4);
+		symbol.first_hunk = rd.ReadUnsigned(4);
+		symbol.symbol_hunk = rd.ReadUnsigned(4);
+		symbol.symbol_offset = rd.ReadUnsigned(4);
+		overlay_data_table.emplace_back(symbol);
+	}
+}
+
+void HunkFormat::OverlayBlock::Write(Linker::Writer& wr) const
+{
+	Block::Write(wr);
+	wr.WriteWord(4, (FileSize() - 4) / 4);
+	wr.WriteWord(4, maximum_level);
+	wr.Skip(4 * (maximum_level - 2));
+	for(auto& symbol : overlay_data_table)
+	{
+		wr.WriteWord(4, symbol.offset);
+		wr.WriteWord(4, symbol.res1);
+		wr.WriteWord(4, symbol.res2);
+		wr.WriteWord(4, symbol.level);
+		wr.WriteWord(4, symbol.ordinate);
+		wr.WriteWord(4, symbol.first_hunk);
+		wr.WriteWord(4, symbol.symbol_hunk);
+		wr.WriteWord(4, symbol.symbol_offset);
+	}
+}
+
+offset_t HunkFormat::OverlayBlock::FileSize() const
+{
+	return 8 + 4 * maximum_level + 32 * overlay_data_table.size();
+}
+
+void HunkFormat::OverlayBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	Block::Dump(dump, module, hunk, index, current_offset);
+	// TODO
 }
 
 // Hunk
