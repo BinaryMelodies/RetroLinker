@@ -51,6 +51,8 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 		break;
 	case HUNK_EXT:
 	case HUNK_SYMBOL:
+		block = std::make_shared<SymbolBlock>(block_type(type));
+		break;
 	case HUNK_DEBUG:
 	case HUNK_OVERLAY:
 	case HUNK_LIB:
@@ -484,9 +486,9 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const HunkFormat& m
 	}
 }
 
-// ExternalBlock::SymbolData
+// SymbolBlock::Unit
 
-std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock::SymbolData::ReadData(Linker::Reader& rd)
+std::unique_ptr<HunkFormat::SymbolBlock::Unit> HunkFormat::SymbolBlock::Unit::ReadData(Linker::Reader& rd)
 {
 	uint32_t length = rd.ReadUnsigned(4);
 	if(length == 0)
@@ -497,7 +499,7 @@ std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock
 
 	std::string name = HunkFormat::ReadString(length, rd);
 
-	std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> unit;
+	std::unique_ptr<HunkFormat::SymbolBlock::Unit> unit;
 	switch(type)
 	{
 	case EXT_SYMB:
@@ -521,7 +523,7 @@ std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock
 	case EXT_DREF32:
 	case EXT_DREF16:
 	case EXT_DREF8:
-		unit = std::make_unique<SymbolData>(symbol_type(type), name);
+		unit = std::make_unique<Unit>(symbol_type(type), name);
 		break;
 
 	default:
@@ -531,55 +533,55 @@ std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock
 	return unit;
 }
 
-void HunkFormat::ExternalBlock::SymbolData::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::Unit::Read(Linker::Reader& rd)
 {
 }
 
-void HunkFormat::ExternalBlock::SymbolData::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::Unit::Write(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, (type << 24) | ((::AlignTo(name.length(), 4) / 4) & 0x00FFFFFF));
 	HunkFormat::WriteStringContents(wr, name);
 }
 
-offset_t HunkFormat::ExternalBlock::SymbolData::FileSize() const
+offset_t HunkFormat::SymbolBlock::Unit::FileSize() const
 {
 	return 4 + ::AlignTo(name.length(), 4);
 }
 
-void HunkFormat::ExternalBlock::SymbolData::DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::Unit::DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 }
 
-void HunkFormat::ExternalBlock::SymbolData::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::Unit::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 }
 
-// ExternalBlock::Definition
+// SymbolBlock::Definition
 
-void HunkFormat::ExternalBlock::Definition::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::Definition::Read(Linker::Reader& rd)
 {
 	value = rd.ReadUnsigned(4);
 }
 
-void HunkFormat::ExternalBlock::Definition::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::Definition::Write(Linker::Writer& wr) const
 {
-	SymbolData::Write(wr);
+	Unit::Write(wr);
 	wr.WriteWord(4, value);
 }
 
-offset_t HunkFormat::ExternalBlock::Definition::FileSize() const
+offset_t HunkFormat::SymbolBlock::Definition::FileSize() const
 {
-	return SymbolData::FileSize() + 4;
+	return Unit::FileSize() + 4;
 }
 
-void HunkFormat::ExternalBlock::Definition::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::Definition::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
 }
 
-// ExternalBlock::References
+// SymbolBlock::References
 
-void HunkFormat::ExternalBlock::References::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::References::Read(Linker::Reader& rd)
 {
 	uint32_t reference_count = rd.ReadUnsigned(4);
 	for(uint32_t i = 0; i < reference_count; i++)
@@ -588,9 +590,9 @@ void HunkFormat::ExternalBlock::References::Read(Linker::Reader& rd)
 	}
 }
 
-void HunkFormat::ExternalBlock::References::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::References::Write(Linker::Writer& wr) const
 {
-	SymbolData::Write(wr);
+	Unit::Write(wr);
 	wr.WriteWord(4, references.size());
 	for(uint32_t reference : references)
 	{
@@ -598,14 +600,14 @@ void HunkFormat::ExternalBlock::References::Write(Linker::Writer& wr) const
 	}
 }
 
-offset_t HunkFormat::ExternalBlock::References::FileSize() const
+offset_t HunkFormat::SymbolBlock::References::FileSize() const
 {
-	return SymbolData::FileSize() + 4 + 4 * references.size();
+	return Unit::FileSize() + 4 + 4 * references.size();
 }
 
-void HunkFormat::ExternalBlock::References::DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::References::DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
-	current_offset += SymbolData::FileSize() + 4;
+	current_offset += Unit::FileSize() + 4;
 	for(uint32_t reference : references)
 	{
 		Dumper::Entry reference_entry("Reference", current_offset);
@@ -615,9 +617,9 @@ void HunkFormat::ExternalBlock::References::DumpContents(Dumper::Dumper& dump, c
 	}
 }
 
-// ExternalBlock::CommonReferences
+// SymbolBlock::CommonReferences
 
-void HunkFormat::ExternalBlock::CommonReferences::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::CommonReferences::Read(Linker::Reader& rd)
 {
 	size = rd.ReadUnsigned(4);
 	uint32_t reference_count = rd.ReadUnsigned(4);
@@ -627,9 +629,9 @@ void HunkFormat::ExternalBlock::CommonReferences::Read(Linker::Reader& rd)
 	}
 }
 
-void HunkFormat::ExternalBlock::CommonReferences::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::CommonReferences::Write(Linker::Writer& wr) const
 {
-	SymbolData::Write(wr);
+	Unit::Write(wr);
 	wr.WriteWord(4, size);
 	wr.WriteWord(4, references.size());
 	for(uint32_t reference : references)
@@ -638,30 +640,30 @@ void HunkFormat::ExternalBlock::CommonReferences::Write(Linker::Writer& wr) cons
 	}
 }
 
-offset_t HunkFormat::ExternalBlock::CommonReferences::FileSize() const
+offset_t HunkFormat::SymbolBlock::CommonReferences::FileSize() const
 {
-	return SymbolData::FileSize() + 8 + 4 * references.size();
+	return Unit::FileSize() + 8 + 4 * references.size();
 }
 
-void HunkFormat::ExternalBlock::CommonReferences::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::CommonReferences::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(size));
 }
 
-// ExternalBlock
+// SymbolBlock
 
-void HunkFormat::ExternalBlock::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::Read(Linker::Reader& rd)
 {
 	while(true)
 	{
-		std::unique_ptr<SymbolData> unit = SymbolData::ReadData(rd);
+		std::unique_ptr<Unit> unit = Unit::ReadData(rd);
 		if(unit == nullptr)
 			break;
 		symbols.emplace_back(std::move(unit));
 	}
 }
 
-void HunkFormat::ExternalBlock::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::Write(Linker::Writer& wr) const
 {
 	for(auto& unit : symbols)
 	{
@@ -670,7 +672,7 @@ void HunkFormat::ExternalBlock::Write(Linker::Writer& wr) const
 	wr.WriteWord(4, 0);
 }
 
-offset_t HunkFormat::ExternalBlock::FileSize() const
+offset_t HunkFormat::SymbolBlock::FileSize() const
 {
 	// type longword and terminating longword
 	offset_t size = 8;
@@ -681,7 +683,7 @@ offset_t HunkFormat::ExternalBlock::FileSize() const
 	return size;
 }
 
-void HunkFormat::ExternalBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
 	unsigned i = 0;
@@ -689,18 +691,18 @@ void HunkFormat::ExternalBlock::Dump(Dumper::Dumper& dump, const HunkFormat& mod
 	{
 		Dumper::Entry unit_entry("External", i, current_offset);
 		std::map<offset_t, std::string> type_descriptions;
-		type_descriptions[SymbolData::EXT_SYMB] = "EXT_SYMB - internal symbol definition";
-		type_descriptions[SymbolData::EXT_DEF] = "EXT_DEF - relocatable symbol definition";
-		type_descriptions[SymbolData::EXT_ABS] = "EXT_ABS - absolute symbol definition";
-		type_descriptions[SymbolData::EXT_RES] = "EXT_RES - resident library symbol definition";
-		type_descriptions[SymbolData::EXT_REF32] = "EXT_REF32 - 32-bit reference to symbol";
-		type_descriptions[SymbolData::EXT_COMMON] = "EXT_COMMON - 32-bit reference to common symbol";
-		type_descriptions[SymbolData::EXT_REF16] = "EXT_REF16 - 16-bit relative reference to symbol";
-		type_descriptions[SymbolData::EXT_REF8] = "EXT_REF8 - 8-bit relative reference to symbol";
-		type_descriptions[SymbolData::EXT_DREF32] = "EXT_DREF32 - 32-bit data relative reference to symbol";
-		type_descriptions[SymbolData::EXT_DREF16] = "EXT_DREF16 - 16-bit data relative reference to symbol";
-		type_descriptions[SymbolData::EXT_DREF8] = "EXT_DREF8 - 8-bit data relative reference to symbol";
-		type_descriptions[SymbolData::EXT_RELREF26] = "EXT_RELREF26 - 26-bit relative reference to symbol";
+		type_descriptions[Unit::EXT_SYMB] = "EXT_SYMB - internal symbol definition";
+		type_descriptions[Unit::EXT_DEF] = "EXT_DEF - relocatable symbol definition";
+		type_descriptions[Unit::EXT_ABS] = "EXT_ABS - absolute symbol definition";
+		type_descriptions[Unit::EXT_RES] = "EXT_RES - resident library symbol definition";
+		type_descriptions[Unit::EXT_REF32] = "EXT_REF32 - 32-bit reference to symbol";
+		type_descriptions[Unit::EXT_COMMON] = "EXT_COMMON - 32-bit reference to common symbol";
+		type_descriptions[Unit::EXT_REF16] = "EXT_REF16 - 16-bit relative reference to symbol";
+		type_descriptions[Unit::EXT_REF8] = "EXT_REF8 - 8-bit relative reference to symbol";
+		type_descriptions[Unit::EXT_DREF32] = "EXT_DREF32 - 32-bit data relative reference to symbol";
+		type_descriptions[Unit::EXT_DREF16] = "EXT_DREF16 - 16-bit data relative reference to symbol";
+		type_descriptions[Unit::EXT_DREF8] = "EXT_DREF8 - 8-bit data relative reference to symbol";
+		type_descriptions[Unit::EXT_RELREF26] = "EXT_RELREF26 - 26-bit relative reference to symbol";
 
 		unit_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(unit->type));
 		unit_entry.AddField("Name", Dumper::StringDisplay::Make(), unit->name);
@@ -887,6 +889,8 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 		break;
 	case Block::HUNK_EXT:
 	case Block::HUNK_SYMBOL:
+		// TODO
+		break;
 	case Block::HUNK_DEBUG:
 	case Block::HUNK_OVERLAY:
 	case Block::HUNK_BREAK:

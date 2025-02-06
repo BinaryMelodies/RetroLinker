@@ -241,12 +241,12 @@ namespace Amiga
 			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
-		/** @brief Represents a HUNK_EXT block */
-		class ExternalBlock : public Block
+		/** @brief Represents a HUNK_EXT or HUNK_SYMBOL block */
+		class SymbolBlock : public Block
 		{
 		public:
 			// TODO: untested
-			class SymbolData
+			class Unit
 			{
 			public:
 				enum symbol_type
@@ -268,14 +268,14 @@ namespace Amiga
 				symbol_type type;
 				std::string name;
 
-				SymbolData(symbol_type type, std::string name)
+				Unit(symbol_type type, std::string name)
 					: type(type), name(name)
 				{
 				}
 
-				static std::unique_ptr<SymbolData> ReadData(Linker::Reader& rd);
+				static std::unique_ptr<Unit> ReadData(Linker::Reader& rd);
 
-				virtual ~SymbolData() = default;
+				virtual ~Unit() = default;
 				/** @brief Read data after type and name */
 				virtual void Read(Linker::Reader& rd);
 				/** @brief Write entire unit */
@@ -286,13 +286,13 @@ namespace Amiga
 				virtual void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
 			};
 
-			class Definition : public SymbolData
+			class Definition : public Unit
 			{
 			public:
 				uint32_t value;
 
 				Definition(symbol_type type, std::string name, uint32_t value = 0)
-					: SymbolData(type, name), value(value)
+					: Unit(type, name), value(value)
 				{
 				}
 
@@ -304,13 +304,13 @@ namespace Amiga
 				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 			};
 
-			class References : public SymbolData
+			class References : public Unit
 			{
 			public:
 				std::vector<uint32_t> references;
 
 				References(symbol_type type, std::string name)
-					: SymbolData(type, name)
+					: Unit(type, name)
 				{
 				}
 
@@ -340,7 +340,12 @@ namespace Amiga
 				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 			};
 
-			std::vector<std::unique_ptr<SymbolData>> symbols;
+			std::vector<std::unique_ptr<Unit>> symbols;
+
+			SymbolBlock(block_type type)
+				: Block(type)
+			{
+			}
 
 			void Read(Linker::Reader& rd) override;
 			void Write(Linker::Writer& wr) const override;
