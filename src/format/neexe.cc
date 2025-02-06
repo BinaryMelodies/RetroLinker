@@ -143,6 +143,7 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) c
 					break;
 				case Relocation::OSFixup:
 					rel_entry.AddField("Fixup type", Dumper::HexDisplay::Make(4), offset_t(relocation.module));
+					// TODO: display strings
 					break;
 				}
 				if((relocation.flags & Relocation::Additive) != 0)
@@ -168,9 +169,27 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 	if(isos2)
 	{
 		std::map<offset_t, std::string> resource_id_descriptions;
-		resource_id_descriptions[Resource::OS2_POINTER] = "POINTER";
-		resource_id_descriptions[Resource::OS2_BITMAP] = "BITMAP";
-		resource_id_descriptions[Resource::OS2_MENU] = "MENU";
+		resource_id_descriptions[OS2::RT_POINTER] = "RT_POINTER";
+		resource_id_descriptions[OS2::RT_BITMAP] = "RT_BITMAP";
+		resource_id_descriptions[OS2::RT_MENU] = "RT_MENU";
+		resource_id_descriptions[OS2::RT_DIALOG] = "RT_DIALOG";
+		resource_id_descriptions[OS2::RT_STRING] = "RT_STRING";
+		resource_id_descriptions[OS2::RT_FONTDIR] = "RT_FONTDIR";
+		resource_id_descriptions[OS2::RT_FONT] = "RT_FONT";
+		resource_id_descriptions[OS2::RT_ACCELERATOR] = "RT_ACCELERATOR";
+		resource_id_descriptions[OS2::RT_RCDATA] = "RT_RCDATA";
+		resource_id_descriptions[OS2::RT_MESSAGE] = "RT_MESSAGE";
+		resource_id_descriptions[OS2::RT_DLGINCLUDE] = "RT_DLGINCLUDE";
+		resource_id_descriptions[OS2::RT_VKEYTBL] = "RT_VKEYTBL";
+		resource_id_descriptions[OS2::RT_KEYTBL] = "RT_KEYTBL";
+		resource_id_descriptions[OS2::RT_CHARTBL] = "RT_CHARTBL";
+		resource_id_descriptions[OS2::RT_DISPLAYINFO] = "RT_DISPLAYINFO";
+		resource_id_descriptions[OS2::RT_FKASHORT] = "RT_FKASHORT";
+		resource_id_descriptions[OS2::RT_FKALONG] = "RT_FKALONG";
+		resource_id_descriptions[OS2::RT_HELPTABLE] = "RT_HELPTABLE";
+		resource_id_descriptions[OS2::RT_HELPSUBTABLE] = "RT_HELPSUBTABLE";
+		resource_id_descriptions[OS2::RT_FDDIR] = "RT_FDDIR";
+		resource_id_descriptions[OS2::RT_FD] = "RT_FD";
 
 		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
@@ -209,27 +228,27 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 	else
 	{
 		std::map<offset_t, std::string> resource_id_descriptions;
-		resource_id_descriptions[0x8000 | Resource::RT_CURSOR] = "RT_CURSOR";
-		resource_id_descriptions[0x8000 | Resource::RT_BITMAP] = "RT_BITMAP";
-		resource_id_descriptions[0x8000 | Resource::RT_ICON] = "RT_ICON";
-		resource_id_descriptions[0x8000 | Resource::RT_MENU] = "RT_MENU";
-		resource_id_descriptions[0x8000 | Resource::RT_DIALOG] = "RT_DIALOG";
-		resource_id_descriptions[0x8000 | Resource::RT_STRING] = "RT_STRING";
-		resource_id_descriptions[0x8000 | Resource::RT_FONTDIR] = "RT_FONTDIR";
-		resource_id_descriptions[0x8000 | Resource::RT_FONT] = "RT_FONT";
-		resource_id_descriptions[0x8000 | Resource::RT_ACCELERATOR] = "RT_ACCELERATOR";
-		resource_id_descriptions[0x8000 | Resource::RT_RCDATA] = "RT_RCDATA";
-		resource_id_descriptions[0x8000 | Resource::RT_MESSAGETABLE] = "RT_MESSAGETABLE";
-		resource_id_descriptions[0x8000 | Resource::RT_GROUP_CURSOR] = "RT_GROUP_CURSOR";
-		resource_id_descriptions[0x8000 | Resource::RT_GROUP_ICON] = "RT_GROUP_ICON";
-		resource_id_descriptions[0x8000 | Resource::RT_VERSION] = "RT_VERSION";
-		resource_id_descriptions[0x8000 | Resource::RT_DLGINCLUDE] = "RT_DLGINCLUDE";
-		resource_id_descriptions[0x8000 | Resource::RT_PLUGPLAY] = "RT_PLUGPLAY";
-		resource_id_descriptions[0x8000 | Resource::RT_VXD] = "RT_VXD";
-		resource_id_descriptions[0x8000 | Resource::RT_ANICURSOR] = "RT_ANICURSOR";
-		resource_id_descriptions[0x8000 | Resource::RT_ANIICON] = "RT_ANIICON";
-		resource_id_descriptions[0x8000 | Resource::RT_HTML] = "RT_HTML";
-		resource_id_descriptions[0x8000 | Resource::RT_MANIFEST] = "RT_MANIFEST";
+		resource_id_descriptions[0x8000 | Windows::RT_CURSOR] = "RT_CURSOR";
+		resource_id_descriptions[0x8000 | Windows::RT_BITMAP] = "RT_BITMAP";
+		resource_id_descriptions[0x8000 | Windows::RT_ICON] = "RT_ICON";
+		resource_id_descriptions[0x8000 | Windows::RT_MENU] = "RT_MENU";
+		resource_id_descriptions[0x8000 | Windows::RT_DIALOG] = "RT_DIALOG";
+		resource_id_descriptions[0x8000 | Windows::RT_STRING] = "RT_STRING";
+		resource_id_descriptions[0x8000 | Windows::RT_FONTDIR] = "RT_FONTDIR";
+		resource_id_descriptions[0x8000 | Windows::RT_FONT] = "RT_FONT";
+		resource_id_descriptions[0x8000 | Windows::RT_ACCELERATOR] = "RT_ACCELERATOR";
+		resource_id_descriptions[0x8000 | Windows::RT_RCDATA] = "RT_RCDATA";
+		resource_id_descriptions[0x8000 | Windows::RT_MESSAGETABLE] = "RT_MESSAGETABLE";
+		resource_id_descriptions[0x8000 | Windows::RT_GROUP_CURSOR] = "RT_GROUP_CURSOR";
+		resource_id_descriptions[0x8000 | Windows::RT_GROUP_ICON] = "RT_GROUP_ICON";
+		resource_id_descriptions[0x8000 | Windows::RT_VERSION] = "RT_VERSION";
+		resource_id_descriptions[0x8000 | Windows::RT_DLGINCLUDE] = "RT_DLGINCLUDE";
+		resource_id_descriptions[0x8000 | Windows::RT_PLUGPLAY] = "RT_PLUGPLAY";
+		resource_id_descriptions[0x8000 | Windows::RT_VXD] = "RT_VXD";
+		resource_id_descriptions[0x8000 | Windows::RT_ANICURSOR] = "RT_ANICURSOR";
+		resource_id_descriptions[0x8000 | Windows::RT_ANIICON] = "RT_ANIICON";
+		resource_id_descriptions[0x8000 | Windows::RT_HTML] = "RT_HTML";
+		resource_id_descriptions[0x8000 | Windows::RT_MANIFEST] = "RT_MANIFEST";
 
 		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
@@ -416,6 +435,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	/* Segment table */
 	rd.Seek(segment_table_offset);
 	segments.clear();
+	// under OS/2, we read the resource segments separately
 	uint16_t actual_segment_count = IsOS2() ? segment_count - resource_count : segment_count;
 	for(i = 0; i < actual_segment_count; i++)
 	{
@@ -437,6 +457,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 
 	if(IsOS2())
 	{
+		// resource information is also stored in the segment table
 		for(i = 0; i < resource_count; i++)
 		{
 			Resource resource;
@@ -1004,7 +1025,16 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddOptionalField("Minimal Windows version", Dumper::VersionDisplay::Make(), offset_t(windows_version.major), offset_t(windows_version.minor));
 	header_region.Display(dump);
 
-	Dumper::Region segment_table_region("Segment table", segment_table_offset, segments.size() * 8, 8);
+	offset_t segment_count = segments.size();
+	if(IsOS2())
+	{
+		segment_count += resources.size();
+	}
+	Dumper::Region segment_table_region("Segment table", segment_table_offset, segment_count * 8, 8);
+	if(IsOS2())
+	{
+		segment_table_region.AddField("Entry count", Dumper::DecDisplay::Make(), offset_t(segment_count));
+	}
 	segment_table_region.AddField("Segment count", Dumper::DecDisplay::Make(), offset_t(segments.size()));
 	segment_table_region.AddField("Sector shift count", Dumper::DecDisplay::Make(), offset_t(sector_shift));
 	segment_table_region.Display(dump);

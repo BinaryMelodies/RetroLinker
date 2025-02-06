@@ -12,6 +12,70 @@
 
 namespace Microsoft
 {
+	namespace Windows
+	{
+		/** @brief Windows resource types */
+		enum
+		{
+			RT_CURSOR = 0x0001,
+			RT_BITMAP = 0x0002,
+			RT_ICON = 0x0003,
+			RT_MENU = 0x0004,
+			RT_DIALOG = 0x0005,
+			RT_STRING = 0x0006,
+			RT_FONTDIR = 0x0007,
+			RT_FONT = 0x0008,
+			RT_ACCELERATOR = 0x0009,
+			RT_RCDATA = 0x000A,
+			RT_MESSAGETABLE = 0x000B,
+			RT_GROUP_CURSOR = 0x000C,
+			RT_GROUP_ICON = 0x000E,
+			RT_VERSION = 0x0010,
+			RT_DLGINCLUDE = 0x0011,
+			RT_PLUGPLAY = 0x0013,
+			RT_VXD = 0x0014,
+			RT_ANICURSOR = 0x0015,
+			RT_ANIICON = 0x0016,
+			RT_HTML = 0x0017,
+			RT_MANIFEST = 0x0018,
+		};
+	}
+
+	namespace OS2
+	{
+		// based on OpenWatcom sources
+
+		/** @brief OS/2 resource types */
+		enum
+		{
+			// cursor
+			RT_POINTER = 0x0001,
+			RT_BITMAP = 0x0002,
+			RT_MENU = 0x0003,
+			RT_DIALOG = 0x0004,
+			RT_STRING = 0x0005,
+			RT_FONTDIR = 0x0006,
+			RT_FONT = 0x0007,
+			RT_ACCELERATOR = 0x0008,
+			// binary data
+			RT_RCDATA = 0x0009,
+			// error message
+			RT_MESSAGE = 0x000A,
+			RT_DLGINCLUDE = 0x000B,
+			RT_VKEYTBL = 0x000C,
+			RT_KEYTBL = 0x000D,
+			RT_CHARTBL = 0x000E,
+			RT_DISPLAYINFO = 0x000F,
+			// function key area
+			RT_FKASHORT = 0x0010,
+			RT_FKALONG = 0x0011,
+			RT_HELPTABLE = 0x0012,
+			RT_HELPSUBTABLE = 0x0013,
+			RT_FDDIR = 0x0014,
+			RT_FD = 0x0015,
+		};
+	}
+
 	/**
 	 * @brief NE .EXE new executable file format
 	 *
@@ -175,38 +239,6 @@ namespace Microsoft
 		class Resource : public Segment
 		{
 		public:
-			enum
-			{
-				// Windows resource types
-				RT_CURSOR = 0x0001,
-				RT_BITMAP = 0x0002,
-				RT_ICON = 0x0003,
-				RT_MENU = 0x0004,
-				RT_DIALOG = 0x0005,
-				RT_STRING = 0x0006,
-				RT_FONTDIR = 0x0007,
-				RT_FONT = 0x0008,
-				RT_ACCELERATOR = 0x0009,
-				RT_RCDATA = 0x000A,
-				RT_MESSAGETABLE = 0x000B,
-				RT_GROUP_CURSOR = 0x000C,
-				RT_GROUP_ICON = 0x000E,
-				RT_VERSION = 0x0010,
-				RT_DLGINCLUDE = 0x0011,
-				RT_PLUGPLAY = 0x0013,
-				RT_VXD = 0x0014,
-				RT_ANICURSOR = 0x0015,
-				RT_ANIICON = 0x0016,
-				RT_HTML = 0x0017,
-				RT_MANIFEST = 0x0018,
-
-				// OS/2 resource types
-				OS2_POINTER = 1,
-				OS2_BITMAP = 2,
-				OS2_MENU = 3,
-				// TODO: other OS/2 resource types
-			};
-
 			/** @brief Type identifier, used by both Windows and OS/2
 			 *
 			 * Under Windows, if bit 15 is cleared, it references a string
