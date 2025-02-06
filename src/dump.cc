@@ -21,7 +21,7 @@ void usage(char * argv0)
 	std::cerr << "\t-F<format>" << std::endl << "\t\tSelect output format" << std::endl;
 
 	std::cerr << "List of supported formats:" << std::endl;
-	output_format_type * last = nullptr;
+	format_specification * last = nullptr;
 
 	size_t i = 0;
 	do
@@ -61,7 +61,7 @@ int main(int argc, char * argv[])
 			else if(argv[i][1] == 'F')
 			{
 				/* TODO: FetchFormat with another table for input formats, enable setting system type */
-				format = FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]);
+				format = std::dynamic_pointer_cast<InputFormat>(FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]));
 				/* TODO: enable selecting a format within the determined formats, or force parsing a format at a specified address */
 			}
 			/* TODO: select text encoding */

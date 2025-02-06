@@ -10,18 +10,18 @@
 namespace Linker
 {
 	class Image;
-	class OutputFormat;
+	class Format;
 	class Reader;
 }
 
-struct output_format_type
+struct format_specification
 {
 	std::string format;
-	std::shared_ptr<Linker::OutputFormat> (* produce)();
+	std::shared_ptr<Linker::Format> (* produce)();
 	std::string documentation;
 };
 
-extern output_format_type formats[];
+extern format_specification formats[];
 extern const size_t formats_size;
 
 /**
@@ -100,7 +100,7 @@ struct format_description
  *
  * Most formats are identified by an identifier, but some of them (such as the Classic Macintosh) support a <tt>+</tt> separated list of formats, the first of which is the main format, followed by supplementary formats.
  */
-std::shared_ptr<Linker::OutputFormat> FetchFormat(std::string text);
+std::shared_ptr<Linker::Format> FetchFormat(std::string text);
 
 /**
  * @brief Collects all the possible file formats, this includes skipping over MZ stubs for protected mode DOS or Windows 3.x executables

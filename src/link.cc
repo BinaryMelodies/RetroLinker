@@ -37,7 +37,7 @@ void usage(char * argv0)
 	std::cerr << "\t-$=<char>, -$ <char>" << std::endl << "\t\tSet special character (default: '$')" << std::endl;
 
 	std::cerr << "List of supported output formats:" << std::endl;
-	output_format_type * last = nullptr;
+	format_specification * last = nullptr;
 
 	size_t i = 0;
 	do
@@ -87,7 +87,11 @@ int main(int argc, char * argv[])
 			else if(argv[i][1] == 'F')
 			{
 				/* format type */
-				format = FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]);
+				format = std::dynamic_pointer_cast<OutputFormat>(FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]));
+				if(format == nullptr)
+				{
+					Linker::Error << "Error: Unknown output format " << (argv[i][2] ? &argv[i][2] : argv[++i]) << std::endl;
+				}
 			}
 			else if(argv[i][1] == 'o')
 			{
