@@ -2,6 +2,7 @@
 #include <cstring>
 #include "macos.h"
 #include "../linker/position.h"
+#include "../linker/reader.h"
 #include "../linker/resolution.h"
 #include "../linker/section.h"
 
@@ -12,27 +13,18 @@ using namespace Apple;
 void AppleSingleDouble::ReadFile(Linker::Reader& rd)
 {
 	/* TODO */
+	rd.endiantype = ::BigEndian;
+	type = format_type(rd.ReadUnsigned(4));
+	if(type != SINGLE && type != DOUBLE)
+	{
+		Linker::Error << "Error: invalid AppleSingle/AppleDouble type" << std::hex << type << std::endl;
+		type = format_type(0);
+	}
 }
 
 bool AppleSingleDouble::FormatSupportsResources() const
 {
 	return true;
-}
-
-void AppleSingleDouble::Entry::ReadFile(Linker::Reader& rd)
-{
-	/* TODO */
-}
-
-offset_t AppleSingleDouble::Entry::ImageSize() const
-{
-	return 0;
-}
-
-offset_t AppleSingleDouble::Entry::WriteFile(Linker::Writer& wr) const
-{
-	/* TODO */
-	return offset_t(-1);
 }
 
 void AppleSingleDouble::Entry::Dump(Dumper::Dumper& dump) const
@@ -575,17 +567,7 @@ void AppleSingleDouble::CalculateValues()
 offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
-	switch(type)
-	{
-	case SINGLE:
-		wr.WriteWord(4, 0x00051600);
-		break;
-	case DOUBLE:
-		wr.WriteWord(4, 0x00051607);
-		break;
-	default:
-		Linker::FatalError("Internal error: invalid AppleSingle/AppleDouble type");
-	}
+	wr.WriteWord(4, type);
 	wr.WriteWord(4, version << 16);
 	switch(home_file_system)
 	{
@@ -725,6 +707,31 @@ std::string AppleSingleDouble::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
 }
+
+// DataFork
+
+offset_t DataFork::ImageSize() const
+{
+	return offset_t(-1); // TODO
+}
+
+void DataFork::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t DataFork::WriteFile(Linker::Writer& out) const
+{
+	// TODO
+	return ImageSize();
+}
+
+void DataFork::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+}
+
+// ResourceFork
 
 void ResourceFork::SetOptions(std::map<std::string, std::string>& options)
 {
@@ -1222,6 +1229,11 @@ offset_t ResourceFork::ImageSize() const
 	return map_offset + map_length;
 }
 
+void ResourceFork::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
 offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
@@ -1307,9 +1319,16 @@ std::string ResourceFork::GetDefaultExtension(Linker::Module& module) const
 	return "a.out";
 }
 
+// RealName
+
 offset_t RealName::ImageSize() const
 {
 	return name.size();
+}
+
+void RealName::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t RealName::WriteFile(Linker::Writer& wr) const
@@ -1325,9 +1344,85 @@ void RealName::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// Comment
+
+offset_t Comment::ImageSize() const
+{
+	return offset_t(-1); // TODO
+}
+
+void Comment::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t Comment::WriteFile(Linker::Writer& out) const
+{
+	// TODO
+	return ImageSize();
+}
+
+void Comment::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+}
+
+// IconBW
+
+offset_t IconBW::ImageSize() const
+{
+	return offset_t(-1); // TODO
+}
+
+void IconBW::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t IconBW::WriteFile(Linker::Writer& out) const
+{
+	// TODO
+	return ImageSize();
+}
+
+void IconBW::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+}
+
+// IconColor
+
+offset_t IconColor::ImageSize() const
+{
+	return offset_t(-1); // TODO
+}
+
+void IconColor::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t IconColor::WriteFile(Linker::Writer& out) const
+{
+	// TODO
+	return ImageSize();
+}
+
+void IconColor::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+}
+
+// FileInfo::Macintosh
+
 offset_t FileInfo::Macintosh::ImageSize() const
 {
 	return 16;
+}
+
+void FileInfo::Macintosh::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr) const
@@ -1346,9 +1441,16 @@ void FileInfo::Macintosh::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// FileInfo::ProDOS
+
 offset_t FileInfo::ProDOS::ImageSize() const
 {
 	return 16;
+}
+
+void FileInfo::ProDOS::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr) const
@@ -1368,9 +1470,16 @@ void FileInfo::ProDOS::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// FileInfo::MSDOS
+
 offset_t FileInfo::MSDOS::ImageSize() const
 {
 	return 6;
+}
+
+void FileInfo::MSDOS::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr) const
@@ -1387,9 +1496,16 @@ void FileInfo::MSDOS::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// FileInfo::AUX
+
 offset_t FileInfo::AUX::ImageSize() const
 {
 	return 12;
+}
+
+void FileInfo::AUX::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr) const
@@ -1407,9 +1523,16 @@ void FileInfo::AUX::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// FileDatesInfo
+
 offset_t FileDatesInfo::ImageSize() const
 {
 	return 16;
+}
+
+void FileDatesInfo::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t FileDatesInfo::WriteFile(Linker::Writer& wr) const
@@ -1428,9 +1551,16 @@ void FileDatesInfo::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// FinderInfo
+
 offset_t FinderInfo::ImageSize() const
 {
 	return 32;
+}
+
+void FinderInfo::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t FinderInfo::WriteFile(Linker::Writer& wr) const
@@ -1458,9 +1588,16 @@ void FinderInfo::ProcessModule(Linker::Module& module)
 	memcpy(Creator, "????", 4);
 }
 
+// MacintoshFileInfo
+
 offset_t MacintoshFileInfo::ImageSize() const
 {
 	return 4;
+}
+
+void MacintoshFileInfo::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1476,9 +1613,16 @@ void MacintoshFileInfo::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// ProDOSFileInfo
+
 offset_t ProDOSFileInfo::ImageSize() const
 {
 	return 8;
+}
+
+void ProDOSFileInfo::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1496,9 +1640,16 @@ void ProDOSFileInfo::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// MSDOSFileInfo
+
 offset_t MSDOSFileInfo::ImageSize() const
 {
 	return 2;
+}
+
+void MSDOSFileInfo::ReadFile(Linker::Reader& rd)
+{
+	// TODO
 }
 
 offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1513,6 +1664,77 @@ void MSDOSFileInfo::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }
+
+// AFPShortName
+
+offset_t AFPShortName::ImageSize() const
+{
+	return offset_t(-1); // TODO
+}
+
+void AFPShortName::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t AFPShortName::WriteFile(Linker::Writer& out) const
+{
+	// TODO
+	return ImageSize();
+}
+
+void AFPShortName::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+}
+
+// AFPFileInfo
+
+offset_t AFPFileInfo::ImageSize() const
+{
+	return offset_t(-1); // TODO
+}
+
+void AFPFileInfo::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t AFPFileInfo::WriteFile(Linker::Writer& out) const
+{
+	// TODO
+	return ImageSize();
+}
+
+void AFPFileInfo::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+}
+
+// AFPDirectoryID
+
+offset_t AFPDirectoryID::ImageSize() const
+{
+	return offset_t(-1); // TODO
+}
+
+void AFPDirectoryID::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t AFPDirectoryID::WriteFile(Linker::Writer& out) const
+{
+	// TODO
+	return ImageSize();
+}
+
+void AFPDirectoryID::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+}
+
+// MacBinary
 
 uint16_t MacBinary::crc_step[256];
 

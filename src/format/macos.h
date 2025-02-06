@@ -39,8 +39,8 @@ namespace Apple
 
 		enum format_type
 		{
-			SINGLE,
-			DOUBLE,
+			SINGLE = 0x00051600,
+			DOUBLE = 0x00051607,
 		};
 		format_type type = DOUBLE;
 		unsigned version = 2;
@@ -66,11 +66,11 @@ namespace Apple
 			{
 			}
 		public:
-			offset_t ImageSize() const override;
-			void ReadFile(Linker::Reader& rd) override;
+			offset_t ImageSize() const override = 0;
+			void ReadFile(Linker::Reader& rd) override = 0;
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& out) const override;
-			void Dump(Dumper::Dumper& dump) const override;
+			offset_t WriteFile(Linker::Writer& out) const override = 0;
+			void Dump(Dumper::Dumper& dump) const override = 0;
 
 			virtual void ProcessModule(Linker::Module& module);
 			virtual void CalculateValues();
@@ -215,6 +215,15 @@ namespace Apple
 		{
 		}
 		/* TODO - this is a stub */
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& out) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/**
@@ -418,8 +427,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
@@ -440,8 +452,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -453,6 +468,15 @@ namespace Apple
 		{
 		}
 		/* TODO - this is a stub */
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& out) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class IconBW : public AppleSingleDouble::Entry
@@ -463,6 +487,15 @@ namespace Apple
 		{
 		}
 		/* TODO - this is a stub */
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
+
+		offset_t WriteFile(Linker::Writer& out) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class IconColor : public AppleSingleDouble::Entry
@@ -473,6 +506,15 @@ namespace Apple
 		{
 		}
 		/* TODO - this is a stub */
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
+
+		offset_t WriteFile(Linker::Writer& out) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/* Version 1 only */
@@ -509,8 +551,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -534,8 +579,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -553,8 +601,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -574,8 +625,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -600,8 +654,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -625,8 +682,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 
 		void ProcessModule(Linker::Module& module) override;
@@ -644,8 +704,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -666,8 +729,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -684,8 +750,11 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -698,6 +767,15 @@ namespace Apple
 		{
 		}
 		/* TODO - this is a stub */
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/* Version 2 only */
@@ -709,6 +787,15 @@ namespace Apple
 		{
 		}
 		/* TODO - this is a stub */
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/* Version 2 only */
@@ -720,6 +807,15 @@ namespace Apple
 		{
 		}
 		/* TODO - this is a stub */
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	/**
