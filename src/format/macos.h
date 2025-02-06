@@ -33,6 +33,7 @@ namespace Apple
 	class AppleSingleDouble : public Linker::OutputFormat
 	{
 	public:
+		offset_t ImageSize() const override;
 		void ReadFile(Linker::Reader& rd) override;
 
 		bool FormatSupportsResources() const override;
@@ -91,11 +92,12 @@ namespace Apple
 		class UnknownEntry : public Entry
 		{
 		public:
+			std::shared_ptr<Linker::Image> image;
+
 			UnknownEntry(uint32_t id)
 				: Entry(id)
 			{
 			}
-			/* TODO - this is a stub */
 
 			offset_t ImageSize() const override;
 
@@ -105,6 +107,8 @@ namespace Apple
 			offset_t WriteFile(Linker::Writer& out) const override;
 
 			void Dump(Dumper::Dumper& dump) const override;
+
+			void CalculateValues() override;
 		};
 
 	private:
@@ -117,6 +121,7 @@ namespace Apple
 
 	public:
 		std::vector<std::shared_ptr<Entry>> entries;
+		offset_t image_size = offset_t(-1);
 
 		enum
 		{
@@ -246,11 +251,12 @@ namespace Apple
 	class DataFork : public AppleSingleDouble::Entry
 	{
 	public:
+		std::shared_ptr<Linker::Image> image;
+
 		DataFork()
 			: Entry(AppleSingleDouble::ID_DataFork)
 		{
 		}
-		/* TODO - this is a stub */
 
 		offset_t ImageSize() const override;
 
@@ -260,6 +266,8 @@ namespace Apple
 		offset_t WriteFile(Linker::Writer& out) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
+
+		void CalculateValues() override;
 	};
 
 	/**
@@ -284,7 +292,6 @@ namespace Apple
 			MODEL_TINY,
 		};
 		memory_model_t memory_model = MODEL_DEFAULT;
-
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
@@ -440,6 +447,7 @@ namespace Apple
 
 		/* these will be calculated */
 		uint32_t data_offset = 0, data_length = 0, map_offset = 0, map_length = 0;
+		uint16_t resource_type_list_offset = 28;
 		uint16_t name_list_offset = 0;
 		std::map<uint32_t, uint16_t> reference_list_offsets;
 

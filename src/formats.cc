@@ -459,7 +459,7 @@ static bool VerifyMacintoshResource(Reader& rd, format_description& description)
 
 static bool VerifyDRPageRelocatable(Reader& rd, format_description& description)
 {
-	Linker::Debug << "Debug: Testing for .PRL" << std::endl;
+//	Linker::Debug << "Debug: Testing for .PRL" << std::endl;
 	rd.SeekEnd();
 	offset_t size = rd.Tell() - description.offset;
 	if(size < 256)
@@ -468,7 +468,7 @@ static bool VerifyDRPageRelocatable(Reader& rd, format_description& description)
 	uint16_t bytes = rd.ReadUnsigned(2, ::LittleEndian);
 	if(bytes == 0 || size < 256 + uint32_t(bytes))
 		return false;
-	Linker::Debug << "Debug: Looks like .PRL" << std::endl;
+//	Linker::Debug << "Debug: Looks like .PRL" << std::endl;
 	return true;
 }
 

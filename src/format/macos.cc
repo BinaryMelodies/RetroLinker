@@ -10,6 +10,11 @@ using namespace Apple;
 
 /* AppleSingle/AppleDouble */
 
+offset_t AppleSingleDouble::ImageSize() const
+{
+	return image_size;
+}
+
 AppleSingleDouble::hfs_type AppleSingleDouble::GetHomeFileSystem() const
 {
 	return home_file_system;
@@ -86,10 +91,12 @@ void AppleSingleDouble::ReadFile(Linker::Reader& rd)
 	{
 		entries.emplace_back(Entry::ReadEntry(rd, home_file_system));
 	}
+	image_size = rd.Tell();
 	for(auto entry : entries)
 	{
 		rd.Seek(entry->file_offset);
 		entry->ReadFile(rd);
+		image_size = std::max(image_size, entry->file_offset + entry->image_size);
 	}
 }
 
@@ -214,23 +221,36 @@ void AppleSingleDouble::Entry::CalculateValues()
 
 offset_t AppleSingleDouble::UnknownEntry::ImageSize() const
 {
-	return image_size;
+	return image->ImageSize();
 }
 
 void AppleSingleDouble::UnknownEntry::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	image = Linker::Buffer::ReadFromFile(rd, image_size);
 }
 
 offset_t AppleSingleDouble::UnknownEntry::WriteFile(Linker::Writer& out) const
 {
-	// TODO
-	return ImageSize();
+	if(image != nullptr)
+	{
+		image->WriteFile(out);
+		return image->ImageSize();
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void AppleSingleDouble::UnknownEntry::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Block block("Block", file_offset, image->AsImage(), 0, 8);
+	block.Display(dump);
+}
+
+void AppleSingleDouble::UnknownEntry::CalculateValues()
+{
+	image_size = image != nullptr ? image->ImageSize() : 0;
 }
 
 const char AppleSingleDouble::TXT_undefined[16] = "";
@@ -759,6 +779,7 @@ void AppleSingleDouble::CalculateValues()
 		entry->image_size = entry->ImageSize();
 		current_offset = entry->file_offset + entry->image_size;
 	}
+	image_size = current_offset;
 }
 
 offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr) const
@@ -892,23 +913,36 @@ std::string AppleSingleDouble::GetDefaultExtension(Linker::Module& module) const
 
 offset_t DataFork::ImageSize() const
 {
-	return offset_t(-1); // TODO
+	return image->ImageSize();
 }
 
 void DataFork::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	image = Linker::Buffer::ReadFromFile(rd, image_size);
 }
 
 offset_t DataFork::WriteFile(Linker::Writer& out) const
 {
-	// TODO
-	return ImageSize();
+	if(image != nullptr)
+	{
+		image->WriteFile(out);
+		return image->ImageSize();
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void DataFork::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Block block("Data fork", file_offset, image->AsImage(), 0, 8);
+	block.Display(dump);
+}
+
+void DataFork::CalculateValues()
+{
+	image_size = image != nullptr ? image->ImageSize() : 0;
 }
 
 // ResourceFork
@@ -1397,7 +1431,8 @@ void ResourceFork::CalculateValues()
 			}
 		}
 	}
-	name_list_offset = 28 + reference_list_offset;
+	resource_type_list_offset = 28;
+	name_list_offset = resource_type_list_offset + reference_list_offset;
 	if(data_offset < 16)
 		data_offset = 0x0100;
 	map_offset = data_offset + data_length;
@@ -1406,22 +1441,42 @@ void ResourceFork::CalculateValues()
 
 offset_t ResourceFork::ImageSize() const
 {
-	return map_offset + map_length;
+	return std::max(data_offset + data_length, map_offset + map_length);
 }
 
 void ResourceFork::ReadFile(Linker::Reader& rd)
 {
+	rd.endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
+	offset_t read_offset = rd.Tell();
+	data_offset = rd.ReadUnsigned(4);
+	map_offset = rd.ReadUnsigned(4);
+	data_length = rd.ReadUnsigned(4);
+	map_length = rd.ReadUnsigned(4);
+
+	rd.Seek(read_offset + map_offset + 22);
+	attributes = rd.ReadUnsigned(2);
+	resource_type_list_offset = rd.ReadUnsigned(2);
+	name_list_offset = rd.ReadUnsigned(2);
+
+	rd.Seek(read_offset + map_offset + resource_type_list_offset);
+	offset_t resource_count = offset_t(rd.ReadUnsigned(2)) + 1;
+	// TODO
+	for(offset_t i = 0; i < resource_count; i++)
+	{
+		// TODO
+	}
 	// TODO
 }
 
 offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
+	offset_t write_offset = wr.Tell();
 	wr.WriteWord(4, data_offset);
 	wr.WriteWord(4, map_offset);
 	wr.WriteWord(4, data_length);
 	wr.WriteWord(4, map_length);
-	wr.Skip(data_offset - 16);
+	wr.Seek(write_offset + data_offset);
 	for(auto it : resources)
 	{
 		for(auto it2 : it.second)
@@ -1432,10 +1487,11 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 		}
 	}
 	/* map start */
-	wr.Skip(22);
+	wr.Seek(write_offset + map_offset + 22);
 	wr.WriteWord(2, attributes);
-	wr.WriteWord(2, 28); /* offset of resource type list from map start */
+	wr.WriteWord(2, resource_type_list_offset);
 	wr.WriteWord(2, name_list_offset);
+	wr.Seek(write_offset + map_offset + resource_type_list_offset);
 	wr.WriteWord(2, resources.size() - 1);
 	/* type list */
 	for(auto it : resources)
@@ -1470,7 +1526,7 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 		}
 	}
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void ResourceFork::Dump(Dumper::Dumper& dump) const

@@ -105,6 +105,7 @@ int main(int argc, char * argv[])
 
 		for(auto& file_format : file_formats)
 		{
+			Linker::Debug << "Debug: Reading as " << file_format.magic.description << std::endl;
 			format = CreateFormat(rd, file_format);
 			if(!format)
 			{
