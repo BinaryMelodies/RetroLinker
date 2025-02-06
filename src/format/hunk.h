@@ -169,8 +169,8 @@ namespace Amiga
 			void AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
-		/** @brief Represents the initial block of a hunk (segment) */
-		class InitialHunkBlock : public Block
+		/** @brief Represents the block that gives the memory loaded contents of the hunk (segment) */
+		class RelocatableBlock : public Block
 		{
 		public:
 			enum
@@ -195,7 +195,7 @@ namespace Amiga
 			flag_type flags;
 			bool loaded_with_additional_flags = false;
 
-			InitialHunkBlock(block_type type, uint32_t flags = LoadAny)
+			RelocatableBlock(block_type type, uint32_t flags = LoadAny)
 				: Block(type), flags(flag_type(flags | LoadPublic))
 			{
 			}
@@ -224,14 +224,14 @@ namespace Amiga
 			virtual void WriteBody(Linker::Writer& wr) const;
 		};
 
-		/** @brief Represents the initial block of a non-bss segment (hunk), containing a memory image */
-		class LoadBlock : public InitialHunkBlock
+		/** @brief Represents the load block of a non-bss segment (hunk) HUNK_CODE/HUNK_DATA/HUNK_PPC_CODE, containing a memory image */
+		class LoadBlock : public RelocatableBlock
 		{
 		public:
 			std::shared_ptr<Linker::Image> image;
 
 			LoadBlock(block_type type, uint32_t flags = LoadAny)
-				: InitialHunkBlock(type, flags)
+				: RelocatableBlock(type, flags)
 			{
 			}
 
@@ -243,15 +243,15 @@ namespace Amiga
 			void WriteBody(Linker::Writer& wr) const override;
 		};
 
-		/** @brief Represents the initial block of a bss segment (hunk) that needs to be allocated and filled with zero at load time */
-		class BssBlock : public InitialHunkBlock
+		/** @brief Represents the declaration block of a HUNK_BSS segment (hunk) that needs to be allocated and filled with zero at load time */
+		class BssBlock : public RelocatableBlock
 		{
 		public:
 			/** @brief Size of memory in 4-byte longwords */
 			uint32_t size;
 
 			BssBlock(uint32_t size = 0, uint32_t flags = LoadAny)
-				: InitialHunkBlock(HUNK_BSS, flags), size(size)
+				: RelocatableBlock(HUNK_BSS, flags), size(size)
 			{
 			}
 

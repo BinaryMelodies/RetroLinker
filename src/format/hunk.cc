@@ -232,9 +232,9 @@ void HunkFormat::HeaderBlock::AddExtraFields(Dumper::Region& region, const HunkF
 	region.AddField("Last hunk", Dumper::HexDisplay::Make(8), offset_t(first_hunk + hunk_sizes.size() - 1));
 }
 
-// InitialHunkBlock
+// RelocatableBlock
 
-uint32_t HunkFormat::InitialHunkBlock::GetSizeField() const
+uint32_t HunkFormat::RelocatableBlock::GetSizeField() const
 {
 	uint32_t size = GetSize();
 	if(RequiresAdditionalFlags())
@@ -243,17 +243,17 @@ uint32_t HunkFormat::InitialHunkBlock::GetSizeField() const
 		return size | ((flags & ~LoadPublic) << 29);
 }
 
-bool HunkFormat::InitialHunkBlock::RequiresAdditionalFlags() const
+bool HunkFormat::RelocatableBlock::RequiresAdditionalFlags() const
 {
 	return loaded_with_additional_flags || (flags & ~(LoadChipMem | LoadFastMem | LoadPublic)) != 0;
 }
 
-uint32_t HunkFormat::InitialHunkBlock::GetAdditionalFlags() const
+uint32_t HunkFormat::RelocatableBlock::GetAdditionalFlags() const
 {
 	return flags & ~LoadPublic;
 }
 
-void HunkFormat::InitialHunkBlock::Read(Linker::Reader& rd)
+void HunkFormat::RelocatableBlock::Read(Linker::Reader& rd)
 {
 	uint32_t longword_count = rd.ReadUnsigned(4);
 	if((longword_count & BitAdditional) == BitAdditional)
@@ -268,7 +268,7 @@ void HunkFormat::InitialHunkBlock::Read(Linker::Reader& rd)
 	ReadBody(rd, longword_count & ~FlagMask);
 }
 
-void HunkFormat::InitialHunkBlock::Write(Linker::Writer& wr) const
+void HunkFormat::RelocatableBlock::Write(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, type);
 	wr.WriteWord(4, GetSizeField());
@@ -277,12 +277,12 @@ void HunkFormat::InitialHunkBlock::Write(Linker::Writer& wr) const
 	WriteBody(wr);
 }
 
-offset_t HunkFormat::InitialHunkBlock::FileSize() const
+offset_t HunkFormat::RelocatableBlock::FileSize() const
 {
 	return 8 + 4 * GetSize() + (RequiresAdditionalFlags() ? 4 : 0);
 }
 
-void HunkFormat::InitialHunkBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::RelocatableBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	if(RequiresAdditionalFlags())
 	{
@@ -307,11 +307,11 @@ void HunkFormat::InitialHunkBlock::AddExtraFields(Dumper::Region& region, const 
 	}
 }
 
-void HunkFormat::InitialHunkBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
+void HunkFormat::RelocatableBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
 {
 }
 
-void HunkFormat::InitialHunkBlock::WriteBody(Linker::Writer& wr) const
+void HunkFormat::RelocatableBlock::WriteBody(Linker::Writer& wr) const
 {
 }
 
@@ -375,7 +375,7 @@ void HunkFormat::BssBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
 
 void HunkFormat::BssBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
-	InitialHunkBlock::AddExtraFields(region, module, hunk, index, current_offset);
+	RelocatableBlock::AddExtraFields(region, module, hunk, index, current_offset);
 	region.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(size * 4));
 }
 
@@ -796,7 +796,11 @@ void HunkFormat::DebugBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module
 
 void HunkFormat::Hunk::ProduceBlocks()
 {
-	/* Initial hunk block */
+	if(name != "")
+	{
+		blocks.push_back(std::make_shared<TextBlock>(Block::HUNK_NAME, name));
+	}
+
 	if(type != Hunk::Bss)
 	{
 		std::shared_ptr<LoadBlock> load = std::make_shared<LoadBlock>(Block::block_type(type), flags);
@@ -807,11 +811,6 @@ void HunkFormat::Hunk::ProduceBlocks()
 	{
 		std::shared_ptr<BssBlock> bss = std::make_shared<BssBlock>((GetMemorySize() + 3) / 4, flags);
 		blocks.push_back(bss);
-	}
-
-	if(name != "")
-	{
-		blocks.push_back(std::make_shared<TextBlock>(Block::HUNK_NAME, name));
 	}
 
 	if(relocations.size() != 0)
@@ -885,22 +884,28 @@ uint32_t HunkFormat::Hunk::GetSizeField()
 			return 0;
 		}
 	}
-	if(InitialHunkBlock * block = dynamic_cast<InitialHunkBlock *>(blocks[0].get()))
+	if(RelocatableBlock * block = dynamic_cast<RelocatableBlock *>(blocks[0].get()))
 	{
 		return block->GetSizeField();
 	}
-	else
+
+	if(blocks[0]->type == Block::HUNK_NAME && blocks.size() >= 2)
 	{
-		Linker::Error << "Internal error: Hunk produced unexpected first block" << std::endl;
-		return 0;
+		if(RelocatableBlock * block = dynamic_cast<RelocatableBlock *>(blocks[1].get()))
+		{
+			return block->GetSizeField();
+		}
 	}
+
+	Linker::Error << "Internal error: Hunk produced unexpected first block" << std::endl;
+	return 0;
 }
 
 void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 {
 	if(blocks.size() == 0)
 	{
-		if(dynamic_cast<InitialHunkBlock *>(block.get()))
+		if(dynamic_cast<RelocatableBlock *>(block.get()))
 		{
 			type = hunk_type(block->type);
 		}
@@ -918,18 +923,24 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 	case Block::HUNK_CODE:
 	case Block::HUNK_DATA:
 	case Block::HUNK_PPC_CODE:
-		if(image == nullptr)
+		if(image == nullptr && image_size == 0)
 		{
 			image = dynamic_cast<LoadBlock *>(block.get())->image;
 		}
 		else
 		{
-			Linker::Error << "Error: duplicate code/data block in hunk" << std::endl;
+			Linker::Error << "Error: duplicate code/data/bss block in hunk" << std::endl;
 		}
 		break;
 	case Block::HUNK_BSS:
-		image = nullptr;
-		image_size = dynamic_cast<BssBlock *>(block.get())->size;
+		if(image == nullptr && image_size == 0)
+		{
+			image_size = dynamic_cast<BssBlock *>(block.get())->size;
+		}
+		else
+		{
+			Linker::Error << "Error: duplicate code/data/bss block in hunk" << std::endl;
+		}
 		break;
 	case Block::HUNK_ABSRELOC32:
 	case Block::HUNK_RELRELOC16:
