@@ -17,6 +17,7 @@
 #include "format/gsos.h" /* TODO: not yet finished or tested */
 #include "format/huexe.h" /* .x (Human68k "HU") */
 #include "format/hunk.h" /* AmigaOS */
+#include "format/java.h" /* Java class file */
 #include "format/leexe.h" /* .exe (OS/2 "LE" and "LX") */
 #include "format/macho.h" /* TODO: not implemented */
 #include "format/macos.h" /* Mac OS Classic for 68000 */
@@ -931,8 +932,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_HUNK:
 		return std::make_shared<HunkFormat>(); // TODO
 	case FORMAT_JAVA:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<Java::ClassFormat>();
 	case FORMAT_LE:
 		return std::make_shared<LEFormat>(); // TODO
 	case FORMAT_LV:
