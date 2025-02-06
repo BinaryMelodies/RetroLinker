@@ -22,6 +22,7 @@ namespace Amiga
 		/* * * General members * * */
 
 		class Hunk;
+		class Module;
 
 		struct Relocation
 		{
@@ -127,9 +128,9 @@ namespace Amiga
 			virtual void Write(Linker::Writer& wr) const;
 			/** @brief Returns the size of the block as stored inside a file */
 			virtual offset_t FileSize() const;
-			virtual void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
+			virtual void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
 			void AddCommonFields(Dumper::Region& region, unsigned index) const;
-			virtual void AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
+			virtual void AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
 		};
 
 		/** @brief Represents the first block inside of an object file or a hunk. This class is used for HUNK_UNIT and HUNK_NAME blocks. */
@@ -167,8 +168,8 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
-			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
-			void AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
 		/** @brief Represents the block that gives the memory loaded contents of the hunk (segment) */
@@ -215,7 +216,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
-			void AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 
 		protected:
 			/** @brief The actual size of the segment data, as a count of 32-bit longwords */
@@ -237,7 +238,7 @@ namespace Amiga
 			{
 			}
 
-			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 
 		protected:
 			uint32_t GetSize() const override;
@@ -259,7 +260,7 @@ namespace Amiga
 
 			offset_t FileSize() const override;
 
-			void AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 
 		protected:
 			uint32_t GetSize() const override;
@@ -293,7 +294,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
-			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
 		/** @brief Represents a HUNK_EXT or HUNK_SYMBOL block */
@@ -341,8 +342,8 @@ namespace Amiga
 				virtual void Write(Linker::Writer& wr) const;
 				/** @brief Size of entire unit, including type and name fields */
 				virtual offset_t FileSize() const;
-				virtual void DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
-				virtual void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
+				virtual void DumpContents(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
+				virtual void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
 			};
 
 			class Definition : public Unit
@@ -360,7 +361,7 @@ namespace Amiga
 				void Write(Linker::Writer& wr) const override;
 				/** @brief Size of entire unit, including type and name fields */
 				offset_t FileSize() const override;
-				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 			};
 
 			class References : public Unit
@@ -378,7 +379,7 @@ namespace Amiga
 				void Write(Linker::Writer& wr) const override;
 				/** @brief Size of entire unit, including type and name fields */
 				offset_t FileSize() const override;
-				void DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+				void DumpContents(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 			};
 
 			class CommonReferences : public References
@@ -396,7 +397,7 @@ namespace Amiga
 				void Write(Linker::Writer& wr) const override;
 				/** @brief Size of entire unit, including type and name fields */
 				offset_t FileSize() const override;
-				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 			};
 
 			std::vector<std::unique_ptr<Unit>> symbols;
@@ -409,7 +410,7 @@ namespace Amiga
 			void Read(Linker::Reader& rd) override;
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
-			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
 		/** @brief Represents a HUNK_DEBUG block */
@@ -428,7 +429,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
-			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
 		/** @brief Represents a HUNK_OVERLAY block */
@@ -460,7 +461,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
-			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
 		/** @brief Represents a HUNK_LIB block */
@@ -479,7 +480,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
-			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
 		class IndexBlock : public Block
@@ -538,7 +539,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
-			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
 		/** @brief The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other file formats */
@@ -603,9 +604,41 @@ namespace Amiga
 			void AppendBlock(std::shared_ptr<Block> block);
 		};
 
-		/** @brief Every file is supposed to start with either a HUNK_UNIT or a HUNK_BLOCK, which is stored here */
-		std::shared_ptr<Block> start_block;
-		std::vector<Hunk> hunks;
+		/** @brief Module is a program unit containing several hunks
+		 *
+		 * In this representation, a module will begin with a starting block, contain several hunks, and optionally be terminated by an ending block.
+		 * This permits storing object files, libraries and executable files with overlays in a similar structure.
+		 */
+		class Module
+		{
+		public:
+			/** @brief For an object unit, HUNK_UNIT, for an executable node, HUNK_HEADER, for a new type library, HUNK_LIB */
+			std::shared_ptr<Block> start_block;
+			/** @brief The hunks in this module. Hunks in a library are stored inside a HUNK_LIB */
+			std::vector<Hunk> hunks;
+			/** @brief A final block before the start of the next module
+			 *
+			 * An executable node can optionally be followed by a HUNK_OVERLAY.
+			 * Every overlay is stored as a separate module, and two overlays are terminated by a HUNK_BREAK.
+			 * A library must be terminated by a HUNK_INDEX.
+			 */
+			std::shared_ptr<Block> end_block;
+
+			bool IsExecutable() const;
+			offset_t ImageSize() const;
+			void ReadFile(Linker::Reader& rd, offset_t end);
+			void WriteFile(Linker::Writer& wr) const;
+			void Dump(Dumper::Dumper& dump, offset_t current_offset, unsigned index) const;
+
+			/** @brief If a header block is available, checks the associated hunk size in the header, returns 0 otherwise */
+			offset_t GetHunkSizeInHeader(uint32_t index) const;
+		};
+
+		/** @brief A collection of modules/program units
+		 *
+		 * For executable files, the first module is the main program, and further modules are overlays.
+		 */
+		std::vector<Module> modules;
 
 		bool IsExecutable() const;
 
@@ -616,9 +649,6 @@ namespace Amiga
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
-
-		/** @brief If a header block is available, checks the associated hunk size in the header, returns 0 otherwise */
-		offset_t GetHunkSizeInHeader(uint32_t index) const;
 
 		static std::string ReadString(uint32_t longword_count, Linker::Reader& rd);
 		static std::string ReadString(Linker::Reader& rd, uint32_t& longword_count);

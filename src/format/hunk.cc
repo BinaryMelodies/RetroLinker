@@ -96,7 +96,7 @@ offset_t HunkFormat::Block::FileSize() const
 	return 4;
 }
 
-void HunkFormat::Block::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::Block::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Dumper::Region block_region("Block", current_offset, FileSize(), 8);
 	AddCommonFields(block_region, index);
@@ -136,7 +136,7 @@ void HunkFormat::Block::AddCommonFields(Dumper::Region& region, unsigned index) 
 	region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(type));
 }
 
-void HunkFormat::Block::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::Block::AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 }
 
@@ -206,7 +206,7 @@ offset_t HunkFormat::HeaderBlock::FileSize() const
 	return size;
 }
 
-void HunkFormat::HeaderBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::HeaderBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
 	current_offset += 4;
@@ -229,7 +229,7 @@ void HunkFormat::HeaderBlock::Dump(Dumper::Dumper& dump, const HunkFormat& modul
 	}
 }
 
-void HunkFormat::HeaderBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::HeaderBlock::AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	region.AddField("Table size", Dumper::HexDisplay::Make(8), offset_t(table_size));
 	region.AddField("First hunk", Dumper::HexDisplay::Make(8), offset_t(first_hunk));
@@ -286,7 +286,7 @@ offset_t HunkFormat::RelocatableBlock::FileSize() const
 	return 8 + 4 * GetSize() + (RequiresAdditionalFlags() ? 4 : 0);
 }
 
-void HunkFormat::RelocatableBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::RelocatableBlock::AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	if(RequiresAdditionalFlags())
 	{
@@ -321,7 +321,7 @@ void HunkFormat::RelocatableBlock::WriteBody(Linker::Writer& wr) const
 
 // LoadBlock
 
-void HunkFormat::LoadBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::LoadBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
 
@@ -377,7 +377,7 @@ void HunkFormat::BssBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
 	size = longword_count;
 }
 
-void HunkFormat::BssBlock::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::BssBlock::AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	RelocatableBlock::AddExtraFields(region, module, hunk, index, current_offset);
 	region.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(size * 4));
@@ -504,7 +504,7 @@ offset_t HunkFormat::RelocationBlock::FileSize() const
 	return size;
 }
 
-void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
 	unsigned i = 0;
@@ -599,11 +599,11 @@ offset_t HunkFormat::SymbolBlock::Unit::FileSize() const
 	return 4 + ::AlignTo(name.length(), 4);
 }
 
-void HunkFormat::SymbolBlock::Unit::DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::Unit::DumpContents(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 }
 
-void HunkFormat::SymbolBlock::Unit::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::Unit::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 }
 
@@ -625,7 +625,7 @@ offset_t HunkFormat::SymbolBlock::Definition::FileSize() const
 	return Unit::FileSize() + 4;
 }
 
-void HunkFormat::SymbolBlock::Definition::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::Definition::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
 }
@@ -656,7 +656,7 @@ offset_t HunkFormat::SymbolBlock::References::FileSize() const
 	return Unit::FileSize() + 4 + 4 * references.size();
 }
 
-void HunkFormat::SymbolBlock::References::DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::References::DumpContents(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	current_offset += Unit::FileSize() + 4;
 	for(uint32_t reference : references)
@@ -696,7 +696,7 @@ offset_t HunkFormat::SymbolBlock::CommonReferences::FileSize() const
 	return Unit::FileSize() + 8 + 4 * references.size();
 }
 
-void HunkFormat::SymbolBlock::CommonReferences::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::CommonReferences::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(size));
 }
@@ -734,7 +734,7 @@ offset_t HunkFormat::SymbolBlock::FileSize() const
 	return size;
 }
 
-void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
 	unsigned i = 0;
@@ -793,7 +793,7 @@ offset_t HunkFormat::DebugBlock::FileSize() const
 	return 8 + ::AlignTo(image->ImageSize(), 4);
 }
 
-void HunkFormat::DebugBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::DebugBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
 
@@ -847,7 +847,7 @@ offset_t HunkFormat::OverlayBlock::FileSize() const
 	return 8 + 4 * maximum_level + 32 * overlay_data_table.size();
 }
 
-void HunkFormat::OverlayBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::OverlayBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
 	// TODO
@@ -875,7 +875,7 @@ offset_t HunkFormat::LibraryBlock::FileSize() const
 	return offset_t(-1);
 }
 
-void HunkFormat::LibraryBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::LibraryBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	// TODO
 }
@@ -1036,7 +1036,7 @@ offset_t HunkFormat::IndexBlock::FileSize() const
 	return ::AlignTo(total_size, 4);
 }
 
-void HunkFormat::IndexBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::IndexBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	// TODO
 }
@@ -1237,14 +1237,14 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 	blocks.emplace_back(block);
 }
 
-// HunkFormat
+// Module
 
-bool HunkFormat::IsExecutable() const
+bool HunkFormat::Module::IsExecutable() const
 {
 	return start_block != nullptr && start_block->type == Block::HUNK_HEADER;
 }
 
-offset_t HunkFormat::ImageSize() const
+offset_t HunkFormat::Module::ImageSize() const
 {
 	offset_t size = 0;
 	if(start_block != nullptr)
@@ -1259,17 +1259,14 @@ offset_t HunkFormat::ImageSize() const
 	return size;
 }
 
-void HunkFormat::ReadFile(Linker::Reader& rd)
+void HunkFormat::Module::ReadFile(Linker::Reader& rd, offset_t end)
 {
 	start_block = nullptr;
 	hunks.clear();
+	end_block = nullptr;
 
 	std::shared_ptr<Block> block;
 
-	rd.endiantype = ::BigEndian;
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(0);
 	block = Block::ReadBlock(rd);
 
 	if(block == nullptr)
@@ -1280,9 +1277,30 @@ void HunkFormat::ReadFile(Linker::Reader& rd)
 		start_block = block;
 		block = Block::ReadBlock(rd, IsExecutable());
 	}
+	else if(block->type == Block::HUNK_LIB)
+	{
+		start_block = block;
+		uint32_t next_block_type = rd.ReadUnsigned(4);
+		rd.Skip(-4);
+		if(next_block_type != Block::HUNK_INDEX)
+		{
+			Linker::Error << "Error: expected HUNK_INDEX" << std::endl;
+		}
+		else
+		{
+			end_block = Block::ReadBlock(rd, IsExecutable());
+		}
+		return;
+	}
 
 	for(; rd.Tell() < end && block != nullptr; block = Block::ReadBlock(rd, IsExecutable()))
 	{
+		if(block->type == Block::HUNK_OVERLAY || block->type == Block::HUNK_BREAK)
+		{
+			end_block = block;
+			return;
+		}
+
 		Hunk hunk;
 		hunk.AppendBlock(block);
 		for(block = Block::ReadBlock(rd, IsExecutable()); block != nullptr; block = Block::ReadBlock(rd, IsExecutable()))
@@ -1295,11 +1313,12 @@ void HunkFormat::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
+void HunkFormat::Module::WriteFile(Linker::Writer& wr) const
 {
-	wr.endiantype = ::BigEndian;
-
-	start_block->Write(wr);
+	if(start_block != nullptr)
+	{
+		start_block->Write(wr);
+	}
 
 	for(const Hunk& hunk : hunks)
 	{
@@ -1309,22 +1328,21 @@ offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
 		}
 	}
 
-	return offset_t(-1);
+	if(end_block != nullptr)
+	{
+		end_block->Write(wr);
+	}
 }
 
-void HunkFormat::Dump(Dumper::Dumper& dump) const
+void HunkFormat::Module::Dump(Dumper::Dumper& dump, offset_t current_offset, unsigned index) const
 {
-	dump.SetEncoding(Dumper::Block::encoding_default);
-
-	dump.SetTitle("Hunk format");
-	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
+	Dumper::Region file_region("Module", current_offset, ImageSize(), 8);
+	file_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
 	file_region.Display(dump);
-
-	offset_t current_offset = 0;
 
 	if(start_block == nullptr)
 	{
-		Dumper::Region header_region("Missing header", file_offset, 0, 8);
+		Dumper::Region header_region("Missing header", current_offset, 0, 8);
 		header_region.Display(dump);
 	}
 	else
@@ -1349,9 +1367,14 @@ void HunkFormat::Dump(Dumper::Dumper& dump) const
 		}
 		hunk_number += 1;
 	}
+
+	if(end_block != nullptr)
+	{
+		end_block->Dump(dump, *this, nullptr, current_block, current_offset);
+	}
 }
 
-offset_t HunkFormat::GetHunkSizeInHeader(uint32_t index) const
+offset_t HunkFormat::Module::GetHunkSizeInHeader(uint32_t index) const
 {
 	// TODO: untested
 	if(const HeaderBlock * header = dynamic_cast<const HeaderBlock *>(start_block.get()))
@@ -1362,6 +1385,69 @@ offset_t HunkFormat::GetHunkSizeInHeader(uint32_t index) const
 		}
 	}
 	return 0;
+}
+
+// HunkFormat
+
+bool HunkFormat::IsExecutable() const
+{
+	return modules.size() > 0 && modules[0].IsExecutable();
+}
+
+offset_t HunkFormat::ImageSize() const
+{
+	offset_t size = 0;
+	for(auto& module : modules)
+	{
+		size += module.ImageSize();
+	}
+	return size;
+}
+
+void HunkFormat::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = ::BigEndian;
+	rd.SeekEnd();
+	offset_t end = rd.Tell();
+	rd.Seek(0);
+
+	while(rd.Tell() < end)
+	{
+		Module module;
+		module.ReadFile(rd, end);
+		modules.emplace_back(module);
+	}
+}
+
+offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
+{
+	wr.endiantype = ::BigEndian;
+
+	for(const Module& module : modules)
+	{
+		module.WriteFile(wr);
+	}
+
+	return ImageSize();
+}
+
+void HunkFormat::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Hunk format");
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
+	file_region.Display(dump);
+
+	offset_t current_offset = 0;
+	unsigned module_number = 0;
+
+	for(auto& module : modules)
+	{
+		module.Dump(dump, current_offset, module_number);
+		current_offset += module.ImageSize();
+		module_number++;
+	}
 }
 
 std::string HunkFormat::ReadString(uint32_t longword_count, Linker::Reader& rd)
@@ -1427,8 +1513,8 @@ void HunkFormat::SetOptions(std::map<std::string, std::string>& options)
 
 void HunkFormat::AddHunk(const Hunk& hunk)
 {
-	hunks.push_back(hunk);
-	segment_index[std::dynamic_pointer_cast<Linker::Segment>(hunks.back().image)] = hunks.size() - 1;
+	modules[0].hunks.push_back(hunk);
+	segment_index[std::dynamic_pointer_cast<Linker::Segment>(modules[0].hunks.back().image)] = modules[0].hunks.size() - 1;
 }
 
 void HunkFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -1540,6 +1626,8 @@ void HunkFormat::Link(Linker::Module& module)
 
 void HunkFormat::ProcessModule(Linker::Module& module)
 {
+	modules.emplace_back(Module());
+
 	/* .code */
 	switch(module.cpu)
 	{
@@ -1579,18 +1667,18 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 			Linker::Position position = rel.source.GetPosition();
 			uint32_t source = segment_index[position.segment];
 			uint32_t target = segment_index[resolution.target];
-			hunks[source].relocations[target].insert(Relocation(rel.size, Relocation::Absolute, position.address));
+			modules[0].hunks[source].relocations[target].insert(Relocation(rel.size, Relocation::Absolute, position.address));
 		}
 	}
 
 	std::shared_ptr<HeaderBlock> header = std::make_shared<HeaderBlock>();
-	header->table_size = hunks.size();
+	header->table_size = modules[0].hunks.size();
 	header->first_hunk = 0;
-	for(Hunk& hunk : hunks)
+	for(Hunk& hunk : modules[0].hunks)
 	{
 		header->hunk_sizes.emplace_back(hunk.GetSizeField());
 	}
-	start_block = header;
+	modules[0].start_block = header;
 }
 
 void HunkFormat::CalculateValues()
