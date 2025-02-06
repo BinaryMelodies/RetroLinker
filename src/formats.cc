@@ -375,7 +375,7 @@ const size_t formats_size = sizeof(formats) / sizeof(formats[0]);
  */
 std::shared_ptr<OutputFormat> FetchMainFormat(std::string text)
 {
-	output_format_type * last_format;
+	output_format_type * last_format = nullptr;
 	for(size_t i = 0; i < sizeof(formats) / sizeof(formats[0]); i++)
 	{
 		if(formats[i].produce)
