@@ -170,14 +170,23 @@ format_specification formats[] =
 		"Human68k unrelocatable contiguous executable (.z)" },
 	/* COFF */
 	{ "cdos68k_coff",
-		[]() -> std::shared_ptr<Format> { return COFFFormat::CreateWriter(COFFFormat::CDOS68K); }, /* TODO: also 386 COFF writer */
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::CDOS68K); }, /* TODO: also 386 COFF writer */
 		"COFF (68000) executable for Concurrent DOS 68K (.68k) [untested]" },
 	{ "djgpp",
-		[]() -> std::shared_ptr<Format> { return COFFFormat::CreateWriter(COFFFormat::DJGPP); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::DJGPP); },
 		"COFF (80386) executable for DJGPP 1.11 and later (.exe)" },
 	{ "djgpp_coff" },
 	{ "djgppv2" }, /* technically, 1.11 */
 	{ "coff" },
+	{ "ecoff",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::GENERIC, COFFFormat::ECOFF); },
+		"ECOFF" },
+	{ "xcoff32",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::GENERIC, COFFFormat::XCOFF32); },
+		"XCOFF32" },
+	{ "xcoff64",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::GENERIC, COFFFormat::XCOFF64); },
+		"XCOFF64" },
 	/* a.out */
 	{ "aout",
 		[]() -> std::shared_ptr<Format> { return AOutFormat::CreateWriter(AOutFormat::DJGPP1); },
