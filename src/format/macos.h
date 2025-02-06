@@ -44,6 +44,7 @@ namespace Apple
 		};
 		format_type type = DOUBLE;
 		unsigned version = 2;
+
 		/* Only relevant for version 1 */
 		enum hfs_type
 		{
@@ -54,12 +55,20 @@ namespace Apple
 			HFS_UNIX,
 			HFS_VAX_VMS,
 		};
-		hfs_type home_file_system = HFS_UNDEFINED;
+	protected:
+		hfs_type home_file_system;
+	public:
+		hfs_type GetHomeFileSystem() const;
+		void SetHomeFileSystem(hfs_type type);
+
+		char home_file_system_string[16] = "";
 
 		class Entry : public virtual Linker::Format
 		{
 		public:
 			const uint32_t id;
+			offset_t file_offset = 0;
+			offset_t image_size = 0;
 		protected:
 			Entry(uint32_t id)
 				: id(id)
@@ -67,13 +76,35 @@ namespace Apple
 			}
 		public:
 			offset_t ImageSize() const override = 0;
+			static std::shared_ptr<Entry> ReadEntry(Linker::Reader& rd, hfs_type home_file_system);
 			void ReadFile(Linker::Reader& rd) override = 0;
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& out) const override = 0;
 			void Dump(Dumper::Dumper& dump) const override = 0;
 
+			void DumpEntry(Dumper::Dumper& dump, unsigned index) const;
+
 			virtual void ProcessModule(Linker::Module& module);
 			virtual void CalculateValues();
+		};
+
+		class UnknownEntry : public Entry
+		{
+		public:
+			UnknownEntry(uint32_t id)
+				: Entry(id)
+			{
+			}
+			/* TODO - this is a stub */
+
+			offset_t ImageSize() const override;
+
+			void ReadFile(Linker::Reader& rd) override;
+
+			using Linker::Format::WriteFile;
+			offset_t WriteFile(Linker::Writer& out) const override;
+
+			void Dump(Dumper::Dumper& dump) const override;
 		};
 
 	private:
@@ -108,30 +139,35 @@ namespace Apple
 
 		explicit AppleSingleDouble()
 		{
+			SetHomeFileSystem(HFS_UNDEFINED);
 		}
 
 		AppleSingleDouble(format_type type, unsigned version, hfs_type home_file_system)
-			: type(type), version(version), home_file_system(version == 1 ? home_file_system : HFS_UNDEFINED)
+			: type(type), version(version)
 		{
 			assert(type == SINGLE || type == DOUBLE);
+			SetHomeFileSystem(version == 1 ? home_file_system : HFS_UNDEFINED);
 		}
 
 		AppleSingleDouble(format_type type, hfs_type home_file_system)
 			: type(type), version(1), home_file_system(home_file_system)
 		{
 			assert(type == SINGLE || type == DOUBLE);
+			SetHomeFileSystem(home_file_system);
 		}
 
 		AppleSingleDouble(format_type type, unsigned version = 2)
 			: type(type), version(version), home_file_system(HFS_UNDEFINED)
 		{
 			assert(type == SINGLE || type == DOUBLE);
+			SetHomeFileSystem(HFS_UNDEFINED);
 		}
 
 		/* TODO: a destructor might remove the entries of the other object as well */
 		explicit AppleSingleDouble(AppleSingleDouble& other, format_type type)
 			: type(type), version(other.version), home_file_system(other.home_file_system)
 		{
+			SetHomeFileSystem(other.GetHomeFileSystem());
 			if(type == SINGLE && other.type == DOUBLE)
 			{
 				GetDataFork();
@@ -445,7 +481,7 @@ namespace Apple
 	public:
 		std::string name;
 
-		RealName(std::string name)
+		RealName(std::string name = "")
 			: Entry(AppleSingleDouble::ID_RealName), name(name)
 		{
 		}

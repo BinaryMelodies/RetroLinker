@@ -10,15 +10,86 @@ using namespace Apple;
 
 /* AppleSingle/AppleDouble */
 
+AppleSingleDouble::hfs_type AppleSingleDouble::GetHomeFileSystem() const
+{
+	return home_file_system;
+}
+
+void AppleSingleDouble::SetHomeFileSystem(hfs_type type)
+{
+	switch(home_file_system = type)
+	{
+	default:
+		Linker::Error << "Error: undefined home file system" << std::endl;
+	case HFS_UNDEFINED:
+		memcpy(home_file_system_string, TXT_undefined, 16);
+		break;
+	case HFS_Macintosh:
+		memcpy(home_file_system_string, TXT_Macintosh, 16);
+		break;
+	case HFS_ProDOS:
+		memcpy(home_file_system_string, TXT_ProDOS, 16);
+		break;
+	case HFS_MSDOS:
+		memcpy(home_file_system_string, TXT_MS_DOS, 16);
+		break;
+	case HFS_UNIX:
+		memcpy(home_file_system_string, TXT_UNIX, 16);
+		break;
+	case HFS_VAX_VMS:
+		memcpy(home_file_system_string, TXT_VAX_VMS, 16);
+		break;
+	}
+}
+
 void AppleSingleDouble::ReadFile(Linker::Reader& rd)
 {
-	/* TODO */
 	rd.endiantype = ::BigEndian;
 	type = format_type(rd.ReadUnsigned(4));
 	if(type != SINGLE && type != DOUBLE)
 	{
 		Linker::Error << "Error: invalid AppleSingle/AppleDouble type" << std::hex << type << std::endl;
 		type = format_type(0);
+	}
+	version = rd.ReadUnsigned(4) >> 16;
+	rd.ReadData(16, home_file_system_string);
+	if(memcmp(home_file_system_string, TXT_Macintosh, 16) == 0)
+	{
+		home_file_system = HFS_Macintosh;
+	}
+	else if(memcmp(home_file_system_string, TXT_ProDOS, 16) == 0)
+	{
+		home_file_system = HFS_ProDOS;
+	}
+	else if(memcmp(home_file_system_string, TXT_MS_DOS, 16) == 0)
+	{
+		home_file_system = HFS_ProDOS;
+	}
+	else if(memcmp(home_file_system_string, TXT_UNIX, 16) == 0)
+	{
+		home_file_system = HFS_UNIX;
+	}
+	else if(memcmp(home_file_system_string, TXT_VAX_VMS, 16) == 0)
+	{
+		home_file_system = HFS_VAX_VMS;
+	}
+	else
+	{
+		if(memcmp(home_file_system_string, TXT_undefined, 16) != 0)
+		{
+			Linker::Error << "Error: unidentified home file system" << std::endl;
+		}
+		home_file_system = HFS_UNDEFINED;
+	}
+	uint16_t entry_count = rd.ReadUnsigned(2);
+	for(uint16_t i = 0; i < entry_count; i++)
+	{
+		entries.emplace_back(Entry::ReadEntry(rd, home_file_system));
+	}
+	for(auto entry : entries)
+	{
+		rd.Seek(entry->file_offset);
+		entry->ReadFile(rd);
 	}
 }
 
@@ -27,9 +98,108 @@ bool AppleSingleDouble::FormatSupportsResources() const
 	return true;
 }
 
-void AppleSingleDouble::Entry::Dump(Dumper::Dumper& dump) const
+// Entry
+
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::Entry::ReadEntry(Linker::Reader& rd, hfs_type home_file_system)
 {
-	// TODO
+	std::shared_ptr<Entry> entry;
+
+	uint32_t id = rd.ReadUnsigned(4);
+	switch(id)
+	{
+	case ID_DataFork:
+		entry = std::make_shared<DataFork>();
+		break;
+	case ID_ResourceFork:
+		entry = std::make_shared<ResourceFork>();
+		break;
+	case ID_RealName:
+		entry = std::make_shared<RealName>();
+		break;
+	case ID_Comment:
+		entry = std::make_shared<Comment>();
+		break;
+	case ID_IconBW:
+		entry = std::make_shared<IconBW>();
+		break;
+	case ID_IconColor:
+		entry = std::make_shared<IconColor>();
+		break;
+	case ID_FileInfo: /* v1 only */
+		switch(home_file_system)
+		{
+		case HFS_Macintosh:
+			entry = std::make_shared<FileInfo::Macintosh>();
+			break;
+		case HFS_ProDOS:
+			entry = std::make_shared<FileInfo::ProDOS>();
+			break;
+		case HFS_MSDOS:
+			entry = std::make_shared<FileInfo::MSDOS>();
+			break;
+		case HFS_UNIX:
+			entry = std::make_shared<FileInfo::AUX>();
+			break;
+		default:
+			entry = std::make_shared<UnknownEntry>(id);
+			break;
+		}
+		break;
+	case ID_FileDatesInfo: /* v2 only */
+		entry = std::make_shared<FileDatesInfo>();
+		break;
+	case ID_FinderInfo:
+		entry = std::make_shared<FinderInfo>();
+		break;
+	case ID_MacintoshFileInfo: /* v2 only */
+		entry = std::make_shared<MacintoshFileInfo>();
+		break;
+	case ID_ProDOSFileInfo: /* v2 only */
+		entry = std::make_shared<ProDOSFileInfo>();
+		break;
+	case ID_MSDOSFileInfo: /* v2 only */
+		entry = std::make_shared<MSDOSFileInfo>();
+		break;
+	case ID_AFPShortName: /* v2 only */
+		entry = std::make_shared<AFPShortName>();
+		break;
+	case ID_AFPFileInfo: /* v2 only */
+		entry = std::make_shared<AFPFileInfo>();
+		break;
+	case ID_AFPDirectoryID: /* v2 only */
+		entry = std::make_shared<AFPDirectoryID>();
+		break;
+	default:
+		entry = std::make_shared<UnknownEntry>(id);
+		break;
+	}
+	entry->file_offset = rd.ReadUnsigned(4);
+	entry->image_size = rd.ReadUnsigned(4);
+	return entry;
+}
+
+void AppleSingleDouble::Entry::DumpEntry(Dumper::Dumper& dump, unsigned index) const
+{
+	Dumper::Region entry_region("Entry", file_offset, image_size, 8);
+	entry_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
+	std::map<offset_t, std::string> id_descriptions;
+	id_descriptions[ID_DataFork] = "data fork";
+	id_descriptions[ID_ResourceFork] = "resource fork";
+	id_descriptions[ID_RealName] = "real name";
+	id_descriptions[ID_Comment] = "comment";
+	id_descriptions[ID_IconBW] = "icon, black and white";
+	id_descriptions[ID_IconColor] = "icon, color";
+	id_descriptions[ID_FileInfo] = "file info (version 1 only)";
+	id_descriptions[ID_FileDatesInfo] = "file dates info (version 2 only)";
+	id_descriptions[ID_FinderInfo] = "finder info";
+	id_descriptions[ID_MacintoshFileInfo] = "Macintosh file info (version 2 only)";
+	id_descriptions[ID_ProDOSFileInfo] = "ProDOS file info (version 2 only)";
+	id_descriptions[ID_MSDOSFileInfo] = "MS-DOS file info (version 2 only)";
+	id_descriptions[ID_AFPShortName] = "AFP short name (version 2 only)";
+	id_descriptions[ID_AFPFileInfo] = "AFP file info (version 2 only)";
+	id_descriptions[ID_AFPDirectoryID] = "AFP directory ID (version 2 only)";
+	entry_region.AddField("Id", Dumper::ChoiceDisplay::Make(id_descriptions, Dumper::HexDisplay::Make(8)), offset_t(id));
+	entry_region.Display(dump);
 }
 
 void AppleSingleDouble::Entry::ProcessModule(Linker::Module& module)
@@ -38,6 +208,29 @@ void AppleSingleDouble::Entry::ProcessModule(Linker::Module& module)
 
 void AppleSingleDouble::Entry::CalculateValues()
 {
+}
+
+// UnknownEntry
+
+offset_t AppleSingleDouble::UnknownEntry::ImageSize() const
+{
+	return image_size;
+}
+
+void AppleSingleDouble::UnknownEntry::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t AppleSingleDouble::UnknownEntry::WriteFile(Linker::Writer& out) const
+{
+	// TODO
+	return ImageSize();
+}
+
+void AppleSingleDouble::UnknownEntry::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
 }
 
 const char AppleSingleDouble::TXT_undefined[16] = "";
@@ -558,9 +751,13 @@ void AppleSingleDouble::ProcessModule(Linker::Module& module)
 
 void AppleSingleDouble::CalculateValues()
 {
+	offset_t current_offset = 26 + 12 * entries.size();
 	for(auto entry : entries)
 	{
+		entry->file_offset = current_offset;
 		entry->CalculateValues();
+		entry->image_size = entry->ImageSize();
+		current_offset = entry->file_offset + entry->image_size;
 	}
 }
 
@@ -569,35 +766,13 @@ offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr) const
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(4, type);
 	wr.WriteWord(4, version << 16);
-	switch(home_file_system)
-	{
-	default:
-		wr.WriteData(16, TXT_undefined);
-		break;
-	case HFS_Macintosh:
-		wr.WriteData(16, TXT_Macintosh);
-		break;
-	case HFS_ProDOS:
-		wr.WriteData(16, TXT_ProDOS);
-		break;
-	case HFS_MSDOS:
-		wr.WriteData(16, TXT_MS_DOS);
-		break;
-	case HFS_UNIX:
-		wr.WriteData(16, TXT_UNIX);
-		break;
-	case HFS_VAX_VMS:
-		wr.WriteData(16, TXT_VAX_VMS);
-		break;
-	}
+	wr.WriteData(16, home_file_system_string);
 	wr.WriteWord(2, entries.size());
-	uint32_t entry_offset = 26 + 12 * entries.size();
 	for(auto entry : entries)
 	{
 		wr.WriteWord(4, entry->id);
-		wr.WriteWord(4, entry_offset);
-		wr.WriteWord(4, entry->ImageSize());
-		entry_offset += entry->ImageSize();
+		wr.WriteWord(4, entry->file_offset);
+		wr.WriteWord(4, entry->image_size);
 	}
 	for(auto entry : entries)
 	{
@@ -615,7 +790,12 @@ void AppleSingleDouble::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
 	file_region.Display(dump);
 
-	// TODO
+	unsigned i = 0;
+	for(auto& entry : entries)
+	{
+		entry->DumpEntry(dump, i);
+		i++;
+	}
 }
 
 std::string AppleSingleDouble::PrefixFilename(std::string prefix, std::string filename)
