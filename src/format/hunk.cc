@@ -545,7 +545,7 @@ std::unique_ptr<HunkFormat::SymbolBlock::Unit> HunkFormat::SymbolBlock::Unit::Re
 		return nullptr;
 
 	uint8_t type = length >> 24;
-	length = 0x00FFFFFF;
+	length &= 0x00FFFFFF;
 
 	std::string name = HunkFormat::ReadString(length, rd);
 
@@ -659,9 +659,10 @@ offset_t HunkFormat::SymbolBlock::References::FileSize() const
 void HunkFormat::SymbolBlock::References::DumpContents(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	current_offset += Unit::FileSize() + 4;
+	unsigned i = 0;
 	for(uint32_t reference : references)
 	{
-		Dumper::Entry reference_entry("Reference", current_offset);
+		Dumper::Entry reference_entry("Reference", i + 1, current_offset);
 		reference_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(reference));
 		reference_entry.Display(dump);
 		current_offset += 4;
@@ -740,7 +741,7 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const Module& module, c
 	unsigned i = 0;
 	for(auto& unit : symbols)
 	{
-		Dumper::Entry unit_entry("External", i, current_offset);
+		Dumper::Entry unit_entry("External", i + 1, current_offset);
 		std::map<offset_t, std::string> type_descriptions;
 		type_descriptions[Unit::EXT_SYMB] = "EXT_SYMB - internal symbol definition";
 		type_descriptions[Unit::EXT_DEF] = "EXT_DEF - relocatable symbol definition";
@@ -1231,7 +1232,7 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 	case Block::HUNK_INDEX:
 		// TODO
 	default:
-		Linker::Error << "Error: invalid block in hunk" << std::endl;
+		Linker::Error << "Error: invalid block " << std::hex << block->type << " in hunk" << std::endl;
 	}
 
 	blocks.emplace_back(block);
