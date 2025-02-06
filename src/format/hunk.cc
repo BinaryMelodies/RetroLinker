@@ -30,9 +30,9 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 	case HUNK_BSS:
 		block = std::make_shared<BssBlock>();
 		break;
-	case HUNK_RELOC32:
-	case HUNK_RELOC16:
-	case HUNK_RELOC8:
+	case HUNK_ABSRELOC32:
+	case HUNK_RELRELOC16:
+	case HUNK_RELRELOC8:
 	case HUNK_DRELOC32:
 	case HUNK_DRELOC16:
 	case HUNK_DRELOC8:
@@ -100,9 +100,9 @@ void HunkFormat::Block::AddCommonFields(Dumper::Region& region, unsigned index) 
 	type_descriptions[HUNK_CODE] = "HUNK_CODE";
 	type_descriptions[HUNK_DATA] = "HUNK_DATA";
 	type_descriptions[HUNK_BSS] = "HUNK_BSS";
-	type_descriptions[HUNK_RELOC32] = "HUNK_RELOC32";
-	type_descriptions[HUNK_RELOC16] = "HUNK_RELOC16";
-	type_descriptions[HUNK_RELOC8] = "HUNK_RELOC8";
+	type_descriptions[HUNK_ABSRELOC32] = "HUNK_RELOC32/HUNK_ABSRELOC32";
+	type_descriptions[HUNK_RELRELOC16] = "HUNK_RELOC16/HUNK_RELRELOC16";
+	type_descriptions[HUNK_RELRELOC8] = "HUNK_RELOC8/HUNK_RELRELOC16";
 	type_descriptions[HUNK_EXT] = "HUNK_EXT";
 	type_descriptions[HUNK_SYMBOL] = "HUNK_SYMBOL";
 	type_descriptions[HUNK_DEBUG] = "HUNK_DEBUG";
@@ -378,17 +378,17 @@ size_t HunkFormat::RelocationBlock::GetRelocationSize() const
 	{
 	default:
 		assert(false);
-	case HUNK_RELOC32:
+	case HUNK_ABSRELOC32:
 	case HUNK_DRELOC32:
 	case HUNK_RELOC32SHORT:
 	case HUNK_RELRELOC32:
 	case HUNK_RELRELOC26:
 		return 4;
-	case HUNK_RELOC16:
+	case HUNK_RELRELOC16:
 	case HUNK_DRELOC16:
 	case HUNK_ABSRELOC16:
 		return 2;
-	case HUNK_RELOC8:
+	case HUNK_RELRELOC8:
 	case HUNK_DRELOC8:
 		return 1;
 	}
@@ -509,9 +509,9 @@ std::unique_ptr<HunkFormat::SymbolBlock::Unit> HunkFormat::SymbolBlock::Unit::Re
 		unit = std::make_unique<Definition>(symbol_type(type), name);
 		break;
 
-	case EXT_REF32:
-	case EXT_REF16:
-	case EXT_REF8:
+	case EXT_ABSREF32:
+	case EXT_RELREF16:
+	case EXT_RELREF8:
 	case EXT_RELREF26:
 		unit = std::make_unique<References>(symbol_type(type), name);
 		break;
@@ -695,10 +695,10 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const HunkFormat& modul
 		type_descriptions[Unit::EXT_DEF] = "EXT_DEF - relocatable symbol definition";
 		type_descriptions[Unit::EXT_ABS] = "EXT_ABS - absolute symbol definition";
 		type_descriptions[Unit::EXT_RES] = "EXT_RES - resident library symbol definition";
-		type_descriptions[Unit::EXT_REF32] = "EXT_REF32 - 32-bit reference to symbol";
+		type_descriptions[Unit::EXT_ABSREF32] = "EXT_ABSREF32/EXT_REF32 - 32-bit reference to symbol";
 		type_descriptions[Unit::EXT_COMMON] = "EXT_COMMON - 32-bit reference to common symbol";
-		type_descriptions[Unit::EXT_REF16] = "EXT_REF16 - 16-bit relative reference to symbol";
-		type_descriptions[Unit::EXT_REF8] = "EXT_REF8 - 8-bit relative reference to symbol";
+		type_descriptions[Unit::EXT_RELREF16] = "EXT_RELREF16/EXT_REF16 - 16-bit relative reference to symbol";
+		type_descriptions[Unit::EXT_RELREF8] = "EXT_RELREF8/EXT_REF8 - 8-bit relative reference to symbol";
 		type_descriptions[Unit::EXT_DREF32] = "EXT_DREF32 - 32-bit data relative reference to symbol";
 		type_descriptions[Unit::EXT_DREF16] = "EXT_DREF16 - 16-bit data relative reference to symbol";
 		type_descriptions[Unit::EXT_DREF8] = "EXT_DREF8 - 8-bit data relative reference to symbol";
@@ -746,7 +746,7 @@ void HunkFormat::Hunk::ProduceBlocks()
 	if(relocations.size() != 0)
 	{
 		/* Relocation block */
-		std::shared_ptr<RelocationBlock> relocation = std::make_shared<RelocationBlock>(Block::HUNK_RELOC32);
+		std::shared_ptr<RelocationBlock> relocation = std::make_shared<RelocationBlock>(Block::HUNK_ABSRELOC32);
 		for(auto it : relocations)
 		{
 			relocation->relocations.emplace_back(RelocationBlock::RelocationData(it.first));
@@ -860,9 +860,9 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 		image = nullptr;
 		image_size = dynamic_cast<BssBlock *>(block.get())->size;
 		break;
-	case Block::HUNK_RELOC32:
-	case Block::HUNK_RELOC16:
-	case Block::HUNK_RELOC8:
+	case Block::HUNK_ABSRELOC32:
+	case Block::HUNK_RELRELOC16:
+	case Block::HUNK_RELRELOC8:
 	case Block::HUNK_DRELOC32:
 	case Block::HUNK_DRELOC16:
 	case Block::HUNK_DRELOC8:

@@ -33,6 +33,7 @@ namespace Amiga
 			{
 				/** @brief First block inside an object file */
 				HUNK_UNIT = 0x3E7,
+				/** @brief Name of hunk */
 				HUNK_NAME = 0x3E8,
 				/** @brief First block of a code segment (hunk) containing Motorola 68k instructions */
 				HUNK_CODE = 0x3E9,
@@ -40,12 +41,17 @@ namespace Amiga
 				HUNK_DATA = 0x3EA,
 				/** @brief First block of a bss segment (hunk) */
 				HUNK_BSS = 0x3EB,
-				/** @brief Block containing relocation */
-				HUNK_RELOC32 = 0x3EC,
-				HUNK_RELOC16 = 0x3ED,
-				HUNK_RELOC8 = 0x3EE,
+				/** @brief Block containing 32-bit relocations */
+				HUNK_ABSRELOC32 = 0x3EC,
+				/** @brief Block containing 16-bit PC-relative relocations */
+				HUNK_RELRELOC16 = 0x3ED,
+				/** @brief Block containing 8-bit PC-relative relocations */
+				HUNK_RELRELOC8 = 0x3EE,
+				/** @brief Block containing externally visible references */
 				HUNK_EXT = 0x3EF,
+				/** @brief Block containing a symbol table */
 				HUNK_SYMBOL = 0x3F0,
+				/** @brief Debug information */
 				HUNK_DEBUG = 0x3F1,
 				/** @brief Block terminates a hunk */
 				HUNK_END = 0x3F2,
@@ -53,13 +59,19 @@ namespace Amiga
 				HUNK_HEADER = 0x3F3,
 				HUNK_OVERLAY = 0x3F5,
 				HUNK_BREAK = 0x3F6,
+				/** @brief Block containing 32-bit data section relative relocations */
 				HUNK_DRELOC32 = 0x3F7,
+				/** @brief Block containing 16-bit data section relative relocations */
 				HUNK_DRELOC16 = 0x3F8,
+				/** @brief Block containing 8-bit data section relative relocations */
 				HUNK_DRELOC8 = 0x3F9,
 				HUNK_LIB = 0x3FA,
 				HUNK_INDEX = 0x3FB,
+				/** @brief Block containing 32-bit relocations in a compactified form */
 				HUNK_RELOC32SHORT = 0x3FC,
+				/** @brief Block containing 32-bit PC-relative relocations */
 				HUNK_RELRELOC32 = 0x3FD,
+				/** @brief Block containing 8-bit relocations */
 				HUNK_ABSRELOC16 = 0x3FE,
 				/** @brief First block of a code segment (hunk) containing PowerPC instructions */
 				HUNK_PPC_CODE = 0x4E9,
@@ -256,10 +268,10 @@ namespace Amiga
 					EXT_ABS = 2,
 					EXT_RES = 3,
 
-					EXT_REF32 = 129,
+					EXT_ABSREF32 = 129,
 					EXT_COMMON = 130,
-					EXT_REF16 = 131,
-					EXT_REF8 = 132,
+					EXT_RELREF16 = 131,
+					EXT_RELREF8 = 132,
 					EXT_DREF32 = 133,
 					EXT_DREF16 = 134,
 					EXT_DREF8 = 135,
