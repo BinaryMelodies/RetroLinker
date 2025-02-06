@@ -86,7 +86,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>The smallest unit of a <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html" title="The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other f...">Hunk</a> file, it starts with a type word.  
+<p>The smallest unit of a <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html" title="The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other f...">Hunk</a> file, it starts with a type word. A HUNK_END or HUNK_BREAK block is represented by this.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="hunk_8h_source.html">hunk.h</a>&gt;</code></p>
@@ -96,12 +96,15 @@ Inheritance diagram for Amiga::HunkFormat::Block:</div>
  <div class="center">
   <img src="classAmiga_1_1HunkFormat_1_1Block.png" usemap="#Amiga::HunkFormat::Block_map" alt=""/>
   <map id="Amiga::HunkFormat::Block_map" name="Amiga::HunkFormat::Block_map">
-<area href="classAmiga_1_1HunkFormat_1_1HeaderBlock.html" title="Represents the first block inside of an executable or library file." alt="Amiga::HunkFormat::HeaderBlock" shape="rect" coords="0,56,217,80"/>
-<area href="classAmiga_1_1HunkFormat_1_1InitialHunkBlock.html" title="Represents the initial block of a hunk (segment)" alt="Amiga::HunkFormat::InitialHunkBlock" shape="rect" coords="227,56,444,80"/>
-<area href="classAmiga_1_1HunkFormat_1_1RelocationBlock.html" title="Represents a block containing relocations." alt="Amiga::HunkFormat::RelocationBlock" shape="rect" coords="454,56,671,80"/>
-<area href="classAmiga_1_1HunkFormat_1_1TextBlock.html" title="Represents the first block inside of an object file." alt="Amiga::HunkFormat::TextBlock" shape="rect" coords="681,56,898,80"/>
-<area href="classAmiga_1_1HunkFormat_1_1BssBlock.html" title="Represents the initial block of a bss segment (hunk) that needs to be allocated and filled with zero ..." alt="Amiga::HunkFormat::BssBlock" shape="rect" coords="113,112,330,136"/>
-<area href="classAmiga_1_1HunkFormat_1_1LoadBlock.html" title="Represents the initial block of a non-bss segment (hunk), containing a memory image." alt="Amiga::HunkFormat::LoadBlock" shape="rect" coords="340,112,557,136"/>
+<area href="classAmiga_1_1HunkFormat_1_1DebugBlock.html" title="Represents a HUNK_DEBUG block." alt="Amiga::HunkFormat::DebugBlock" shape="rect" coords="234,56,458,80"/>
+<area href="classAmiga_1_1HunkFormat_1_1HeaderBlock.html" title="Represents the first block inside of an executable file, a HUNK_HEADER." alt="Amiga::HunkFormat::HeaderBlock" shape="rect" coords="234,112,458,136"/>
+<area href="classAmiga_1_1HunkFormat_1_1IndexBlock.html" alt="Amiga::HunkFormat::IndexBlock" shape="rect" coords="234,168,458,192"/>
+<area href="classAmiga_1_1HunkFormat_1_1LibraryBlock.html" title="Represents a HUNK_LIB block." alt="Amiga::HunkFormat::LibraryBlock" shape="rect" coords="234,224,458,248"/>
+<area href="classAmiga_1_1HunkFormat_1_1OverlayBlock.html" title="Represents a HUNK_OVERLAY block." alt="Amiga::HunkFormat::OverlayBlock" shape="rect" coords="234,280,458,304"/>
+<area href="classAmiga_1_1HunkFormat_1_1RelocatableBlock.html" title="Represents the block that gives the memory loaded contents of the hunk (segment)" alt="Amiga::HunkFormat::RelocatableBlock" shape="rect" coords="234,336,458,360"/>
+<area href="classAmiga_1_1HunkFormat_1_1RelocationBlock.html" title="Represents a block containing relocations." alt="Amiga::HunkFormat::RelocationBlock" shape="rect" coords="234,392,458,416"/>
+<area href="classAmiga_1_1HunkFormat_1_1SymbolBlock.html" title="Represents a HUNK_EXT or HUNK_SYMBOL block." alt="Amiga::HunkFormat::SymbolBlock" shape="rect" coords="234,448,458,472"/>
+<area href="classAmiga_1_1HunkFormat_1_1TextBlock.html" title="Represents the first block inside of an object file or a hunk. This class is used for HUNK_UNIT and H..." alt="Amiga::HunkFormat::TextBlock" shape="rect" coords="234,504,458,528"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -109,45 +112,46 @@ Inheritance diagram for Amiga::HunkFormat::Block:</div>
 Public Types</h2></td></tr>
 <tr class="memitem:ae7ae7a371859634c929e1e1a5ec74ee3" id="r_ae7ae7a371859634c929e1e1a5ec74ee3"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3">block_type</a> { <br />
 &#160;&#160;<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a08a6875650c0c6b464390c73d1c057d6">HUNK_UNIT</a> = 0x3E7
-, <b>HUNK_NAME</b> = 0x3E8
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3ad0f1819016e859f582afacaf9f294d78">HUNK_NAME</a> = 0x3E8
 , <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a5fb391739184e37e81fee279c16064e0">HUNK_CODE</a> = 0x3E9
 , <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a1d32bb2aedd72377453137309b92a9a1">HUNK_DATA</a> = 0x3EA
 , <br />
 &#160;&#160;<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a35e87d936313e27fcb35d033e1b1186f">HUNK_BSS</a> = 0x3EB
-, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a4432be2711e48f2732d7b16fe0b39adf">HUNK_RELOC32</a> = 0x3EC
-, <b>HUNK_RELOC16</b> = 0x3ED
-, <b>HUNK_RELOC8</b> = 0x3EE
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3abc665580ce835fbeff6844acdfe38e25">HUNK_ABSRELOC32</a> = 0x3EC
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a91dfa352ad735bcbbe684aa76192fece">HUNK_RELRELOC16</a> = 0x3ED
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a726a7a3345ac1c1e06fe1aa237e53c02">HUNK_RELRELOC8</a> = 0x3EE
 , <br />
-&#160;&#160;<b>HUNK_EXT</b> = 0x3EF
-, <b>HUNK_SYMBOL</b> = 0x3F0
-, <b>HUNK_DEBUG</b> = 0x3F1
+&#160;&#160;<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3afad216aaa83be6107503ec50ff3748ab">HUNK_EXT</a> = 0x3EF
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3ae2bc8dacdbbf420b4211974340f69edb">HUNK_SYMBOL</a> = 0x3F0
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a84514bc3284c6e2355b401f6869d5077">HUNK_DEBUG</a> = 0x3F1
 , <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a198eb1272645bc383571e443d17ce0d6">HUNK_END</a> = 0x3F2
 , <br />
 &#160;&#160;<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a82952843721cf8aee94c1dc1ac1c3e3b">HUNK_HEADER</a> = 0x3F3
 , <b>HUNK_OVERLAY</b> = 0x3F5
 , <b>HUNK_BREAK</b> = 0x3F6
-, <b>HUNK_DRELOC32</b> = 0x3F7
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a727c6afc629dcbcc28e9d7ebcbb7a8d3">HUNK_DRELOC32</a> = 0x3F7
 , <br />
-&#160;&#160;<b>HUNK_DRELOC16</b> = 0x3F8
-, <b>HUNK_DRELOC8</b> = 0x3F9
+&#160;&#160;<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3ad3499d4ee55d3f425e7ac4b28222ef82">HUNK_DRELOC16</a> = 0x3F8
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a58a16f77c2341483c298e17c42157a55">HUNK_DRELOC8</a> = 0x3F9
 , <b>HUNK_LIB</b> = 0x3FA
 , <b>HUNK_INDEX</b> = 0x3FB
 , <br />
-&#160;&#160;<b>HUNK_RELOC32SHORT</b> = 0x3FC
-, <b>HUNK_RELRELOC32</b> = 0x3FD
-, <b>HUNK_ABSRELOC16</b> = 0x3FE
+&#160;&#160;<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a8f872cfd61149d57aacfe74ea8d893b1">HUNK_RELOC32SHORT</a> = 0x3FC
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3a87a69d5af123d3a80a0d018cf9a0ef51">HUNK_RELRELOC32</a> = 0x3FD
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3ac89e9c3af3556ba083e82ef42968c3b3">HUNK_ABSRELOC16</a> = 0x3FE
 , <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3ac0cea41a10c338e99a66c324df558b52">HUNK_PPC_CODE</a> = 0x4E9
 , <br />
-&#160;&#160;<b>HUNK_RELRELOC26</b> = 0x4EC
+&#160;&#160;<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3ab5018b1d7d0080845047d138b2458b53">HUNK_RELRELOC26</a> = 0x4EC
+, <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3abd1f4d056ae2d870b0a360fcb1cf45f3">HUNK_V37_RELOC32SHORT</a> = 0x3F7
 <br />
  }</td></tr>
 <tr class="separator:ae7ae7a371859634c929e1e1a5ec74ee3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a59e61d9d53328514dafb896307c1a23f" id="r_a59e61d9d53328514dafb896307c1a23f"><td class="memItemLeft" align="right" valign="top"><a id="a59e61d9d53328514dafb896307c1a23f" name="a59e61d9d53328514dafb896307c1a23f"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Block</b> (<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3">block_type</a> type)</td></tr>
-<tr class="separator:a59e61d9d53328514dafb896307c1a23f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa5eee715de64f5a14fa77ffd5c070e53" id="r_aa5eee715de64f5a14fa77ffd5c070e53"><td class="memItemLeft" align="right" valign="top"><a id="aa5eee715de64f5a14fa77ffd5c070e53" name="aa5eee715de64f5a14fa77ffd5c070e53"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Block</b> (<a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3">block_type</a> type, bool <a class="el" href="#aaa2336488acb58f392ab0cda76efbebb">is_executable</a>=false)</td></tr>
+<tr class="separator:aa5eee715de64f5a14fa77ffd5c070e53"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a60ff4d42038d861dd45bb25c27344e65" id="r_a60ff4d42038d861dd45bb25c27344e65"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a60ff4d42038d861dd45bb25c27344e65">Read</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="memdesc:a60ff4d42038d861dd45bb25c27344e65"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the rest of the block after the type word.  <br /></td></tr>
 <tr class="separator:a60ff4d42038d861dd45bb25c27344e65"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -157,31 +161,34 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a81a01871a184e1d6874b0935b633f4c0" id="r_a81a01871a184e1d6874b0935b633f4c0"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a81a01871a184e1d6874b0935b633f4c0">FileSize</a> () const</td></tr>
 <tr class="memdesc:a81a01871a184e1d6874b0935b633f4c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the block as stored inside a file.  <br /></td></tr>
 <tr class="separator:a81a01871a184e1d6874b0935b633f4c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a403fb0ae7ac23dcb347bb88cdbc1ef2b" id="r_a403fb0ae7ac23dcb347bb88cdbc1ef2b"><td class="memItemLeft" align="right" valign="top"><a id="a403fb0ae7ac23dcb347bb88cdbc1ef2b" name="a403fb0ae7ac23dcb347bb88cdbc1ef2b"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classAmiga_1_1HunkFormat.html">HunkFormat</a> &amp;module, const <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html">Hunk</a> *hunk, unsigned index, offset_t current_offset) const</td></tr>
-<tr class="separator:a403fb0ae7ac23dcb347bb88cdbc1ef2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18b51284517ef145406d35924f5f3e1e" id="r_a18b51284517ef145406d35924f5f3e1e"><td class="memItemLeft" align="right" valign="top"><a id="a18b51284517ef145406d35924f5f3e1e" name="a18b51284517ef145406d35924f5f3e1e"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classAmiga_1_1HunkFormat_1_1Module.html">Module</a> &amp;module, const <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html">Hunk</a> *hunk, unsigned index, offset_t current_offset) const</td></tr>
+<tr class="separator:a18b51284517ef145406d35924f5f3e1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8c7cf1873efe1f689b8e61c67664b254" id="r_a8c7cf1873efe1f689b8e61c67664b254"><td class="memItemLeft" align="right" valign="top"><a id="a8c7cf1873efe1f689b8e61c67664b254" name="a8c7cf1873efe1f689b8e61c67664b254"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddCommonFields</b> (<a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, unsigned index) const</td></tr>
 <tr class="separator:a8c7cf1873efe1f689b8e61c67664b254"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4bbd3346e3942b929e63aec186ead4d0" id="r_a4bbd3346e3942b929e63aec186ead4d0"><td class="memItemLeft" align="right" valign="top"><a id="a4bbd3346e3942b929e63aec186ead4d0" name="a4bbd3346e3942b929e63aec186ead4d0"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddExtraFields</b> (<a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, const <a class="el" href="classAmiga_1_1HunkFormat.html">HunkFormat</a> &amp;module, const <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html">Hunk</a> *hunk, unsigned index, offset_t current_offset) const</td></tr>
-<tr class="separator:a4bbd3346e3942b929e63aec186ead4d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3541622bc47db0ea6e16d5383bb529c" id="r_af3541622bc47db0ea6e16d5383bb529c"><td class="memItemLeft" align="right" valign="top"><a id="af3541622bc47db0ea6e16d5383bb529c" name="af3541622bc47db0ea6e16d5383bb529c"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddExtraFields</b> (<a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, const <a class="el" href="classAmiga_1_1HunkFormat_1_1Module.html">Module</a> &amp;module, const <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html">Hunk</a> *hunk, unsigned index, offset_t current_offset) const</td></tr>
+<tr class="separator:af3541622bc47db0ea6e16d5383bb529c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a7d7045881cfc4b6a67284418f3c45962" id="r_a7d7045881cfc4b6a67284418f3c45962"><td class="memItemLeft" align="right" valign="top"><a id="a7d7045881cfc4b6a67284418f3c45962" name="a7d7045881cfc4b6a67284418f3c45962"></a>
-static std::shared_ptr&lt; <a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html">Block</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ReadBlock</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
-<tr class="memdesc:a7d7045881cfc4b6a67284418f3c45962"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a single block from file. <br /></td></tr>
-<tr class="separator:a7d7045881cfc4b6a67284418f3c45962"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4da4226e2e70d514cc6819960b0234ef" id="r_a4da4226e2e70d514cc6819960b0234ef"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html">Block</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4da4226e2e70d514cc6819960b0234ef">ReadBlock</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, bool <a class="el" href="#aaa2336488acb58f392ab0cda76efbebb">is_executable</a>=false)</td></tr>
+<tr class="memdesc:a4da4226e2e70d514cc6819960b0234ef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a single block from file.  <br /></td></tr>
+<tr class="separator:a4da4226e2e70d514cc6819960b0234ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a39e61928ade8d1bef6eee76c8d3c565b" id="r_a39e61928ade8d1bef6eee76c8d3c565b"><td class="memItemLeft" align="right" valign="top"><a id="a39e61928ade8d1bef6eee76c8d3c565b" name="a39e61928ade8d1bef6eee76c8d3c565b"></a>
 <a class="el" href="#ae7ae7a371859634c929e1e1a5ec74ee3">block_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
 <tr class="separator:a39e61928ade8d1bef6eee76c8d3c565b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa2336488acb58f392ab0cda76efbebb" id="r_aaa2336488acb58f392ab0cda76efbebb"><td class="memItemLeft" align="right" valign="top"><a id="aaa2336488acb58f392ab0cda76efbebb" name="aaa2336488acb58f392ab0cda76efbebb"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_executable</b> = false</td></tr>
+<tr class="memdesc:aaa2336488acb58f392ab0cda76efbebb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Required because V37 executables define HUNK_DRELOC32 as HUNK_RELOC32SHORT, must block types ignore this field and it is not stored. <br /></td></tr>
+<tr class="separator:aaa2336488acb58f392ab0cda76efbebb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>The smallest unit of a <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html" title="The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other f...">Hunk</a> file, it starts with a type word. </p>
+<div class="textblock"><p>The smallest unit of a <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html" title="The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other f...">Hunk</a> file, it starts with a type word. A HUNK_END or HUNK_BREAK block is represented by this. </p>
 </div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="ae7ae7a371859634c929e1e1a5ec74ee3" name="ae7ae7a371859634c929e1e1a5ec74ee3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ae7ae7a371859634c929e1e1a5ec74ee3">&#9670;&#160;</a></span>block_type</h2>
@@ -197,19 +204,47 @@ Public Attributes</h2></td></tr>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a08a6875650c0c6b464390c73d1c057d6" name="ae7ae7a371859634c929e1e1a5ec74ee3a08a6875650c0c6b464390c73d1c057d6"></a>HUNK_UNIT&#160;</td><td class="fielddoc"><p>First block inside an object file. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3ad0f1819016e859f582afacaf9f294d78" name="ae7ae7a371859634c929e1e1a5ec74ee3ad0f1819016e859f582afacaf9f294d78"></a>HUNK_NAME&#160;</td><td class="fielddoc"><p>Name of hunk. </p>
+</td></tr>
 <tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a5fb391739184e37e81fee279c16064e0" name="ae7ae7a371859634c929e1e1a5ec74ee3a5fb391739184e37e81fee279c16064e0"></a>HUNK_CODE&#160;</td><td class="fielddoc"><p>First block of a code segment (hunk) containing Motorola 68k instructions. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a1d32bb2aedd72377453137309b92a9a1" name="ae7ae7a371859634c929e1e1a5ec74ee3a1d32bb2aedd72377453137309b92a9a1"></a>HUNK_DATA&#160;</td><td class="fielddoc"><p>First block of a data segment (hunk) </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a35e87d936313e27fcb35d033e1b1186f" name="ae7ae7a371859634c929e1e1a5ec74ee3a35e87d936313e27fcb35d033e1b1186f"></a>HUNK_BSS&#160;</td><td class="fielddoc"><p>First block of a bss segment (hunk) </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a4432be2711e48f2732d7b16fe0b39adf" name="ae7ae7a371859634c929e1e1a5ec74ee3a4432be2711e48f2732d7b16fe0b39adf"></a>HUNK_RELOC32&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word.">Block</a> containing relocation. </p>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3abc665580ce835fbeff6844acdfe38e25" name="ae7ae7a371859634c929e1e1a5ec74ee3abc665580ce835fbeff6844acdfe38e25"></a>HUNK_ABSRELOC32&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 32-bit relocations. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a198eb1272645bc383571e443d17ce0d6" name="ae7ae7a371859634c929e1e1a5ec74ee3a198eb1272645bc383571e443d17ce0d6"></a>HUNK_END&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word.">Block</a> terminates a hunk. </p>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a91dfa352ad735bcbbe684aa76192fece" name="ae7ae7a371859634c929e1e1a5ec74ee3a91dfa352ad735bcbbe684aa76192fece"></a>HUNK_RELRELOC16&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 16-bit PC-relative relocations. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a726a7a3345ac1c1e06fe1aa237e53c02" name="ae7ae7a371859634c929e1e1a5ec74ee3a726a7a3345ac1c1e06fe1aa237e53c02"></a>HUNK_RELRELOC8&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 8-bit PC-relative relocations. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3afad216aaa83be6107503ec50ff3748ab" name="ae7ae7a371859634c929e1e1a5ec74ee3afad216aaa83be6107503ec50ff3748ab"></a>HUNK_EXT&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing externally visible references. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3ae2bc8dacdbbf420b4211974340f69edb" name="ae7ae7a371859634c929e1e1a5ec74ee3ae2bc8dacdbbf420b4211974340f69edb"></a>HUNK_SYMBOL&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing a symbol table. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a84514bc3284c6e2355b401f6869d5077" name="ae7ae7a371859634c929e1e1a5ec74ee3a84514bc3284c6e2355b401f6869d5077"></a>HUNK_DEBUG&#160;</td><td class="fielddoc"><p>Debug information. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a198eb1272645bc383571e443d17ce0d6" name="ae7ae7a371859634c929e1e1a5ec74ee3a198eb1272645bc383571e443d17ce0d6"></a>HUNK_END&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> terminates a hunk. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a82952843721cf8aee94c1dc1ac1c3e3b" name="ae7ae7a371859634c929e1e1a5ec74ee3a82952843721cf8aee94c1dc1ac1c3e3b"></a>HUNK_HEADER&#160;</td><td class="fielddoc"><p>First block inside an executable or library file. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a727c6afc629dcbcc28e9d7ebcbb7a8d3" name="ae7ae7a371859634c929e1e1a5ec74ee3a727c6afc629dcbcc28e9d7ebcbb7a8d3"></a>HUNK_DRELOC32&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 32-bit data section relative relocations. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3ad3499d4ee55d3f425e7ac4b28222ef82" name="ae7ae7a371859634c929e1e1a5ec74ee3ad3499d4ee55d3f425e7ac4b28222ef82"></a>HUNK_DRELOC16&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 16-bit data section relative relocations. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a58a16f77c2341483c298e17c42157a55" name="ae7ae7a371859634c929e1e1a5ec74ee3a58a16f77c2341483c298e17c42157a55"></a>HUNK_DRELOC8&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 8-bit data section relative relocations. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a8f872cfd61149d57aacfe74ea8d893b1" name="ae7ae7a371859634c929e1e1a5ec74ee3a8f872cfd61149d57aacfe74ea8d893b1"></a>HUNK_RELOC32SHORT&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 32-bit relocations in a compactified form. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3a87a69d5af123d3a80a0d018cf9a0ef51" name="ae7ae7a371859634c929e1e1a5ec74ee3a87a69d5af123d3a80a0d018cf9a0ef51"></a>HUNK_RELRELOC32&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 32-bit PC-relative relocations. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3ac89e9c3af3556ba083e82ef42968c3b3" name="ae7ae7a371859634c929e1e1a5ec74ee3ac89e9c3af3556ba083e82ef42968c3b3"></a>HUNK_ABSRELOC16&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 8-bit relocations. </p>
+</td></tr>
 <tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3ac0cea41a10c338e99a66c324df558b52" name="ae7ae7a371859634c929e1e1a5ec74ee3ac0cea41a10c338e99a66c324df558b52"></a>HUNK_PPC_CODE&#160;</td><td class="fielddoc"><p>First block of a code segment (hunk) containing PowerPC instructions. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3ab5018b1d7d0080845047d138b2458b53" name="ae7ae7a371859634c929e1e1a5ec74ee3ab5018b1d7d0080845047d138b2458b53"></a>HUNK_RELRELOC26&#160;</td><td class="fielddoc"><p><a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 26-bit PC-relative relocations inside 4-byte words. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae7ae7a371859634c929e1e1a5ec74ee3abd1f4d056ae2d870b0a360fcb1cf45f3" name="ae7ae7a371859634c929e1e1a5ec74ee3abd1f4d056ae2d870b0a360fcb1cf45f3"></a>HUNK_V37_RELOC32SHORT&#160;</td><td class="fielddoc"><p>V37 <a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html" title="The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is repre...">Block</a> containing 32-bit relocations in a compactified form, only found in executables. </p>
 </td></tr>
 </table>
 
@@ -241,7 +276,7 @@ Public Attributes</h2></td></tr>
 
 <p>Returns the size of the block as stored inside a file. </p>
 
-<p>Reimplemented in <a class="el" href="classAmiga_1_1HunkFormat_1_1TextBlock.html#ac5a8aa52366c1e97cca9db9eac13b378">Amiga::HunkFormat::TextBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1HeaderBlock.html#a5642dfb5f6935419d705a0769f42e90a">Amiga::HunkFormat::HeaderBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1InitialHunkBlock.html#acaaccb8fe6cd336a6db797bdeb75994d">Amiga::HunkFormat::InitialHunkBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1BssBlock.html#a49b50bc6c80f7f4b0111eeeb908eebe8">Amiga::HunkFormat::BssBlock</a>, and <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocationBlock.html#a63bdff87956ed6f6c53abab4ee56d061">Amiga::HunkFormat::RelocationBlock</a>.</p>
+<p>Reimplemented in <a class="el" href="classAmiga_1_1HunkFormat_1_1TextBlock.html#ac5a8aa52366c1e97cca9db9eac13b378">Amiga::HunkFormat::TextBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1HeaderBlock.html#a5642dfb5f6935419d705a0769f42e90a">Amiga::HunkFormat::HeaderBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocatableBlock.html#ab19bcdd91e03e49337935211d7e6758d">Amiga::HunkFormat::RelocatableBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1BssBlock.html#a49b50bc6c80f7f4b0111eeeb908eebe8">Amiga::HunkFormat::BssBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocationBlock.html#a63bdff87956ed6f6c53abab4ee56d061">Amiga::HunkFormat::RelocationBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1SymbolBlock.html#aeea7646dfce0ae3b3f8390826d658c6c">Amiga::HunkFormat::SymbolBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1DebugBlock.html#a83ef8dae32f0e9d5038bc11f93bdb461">Amiga::HunkFormat::DebugBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1OverlayBlock.html#a53bb9bfcca09a71310105f2c69114590">Amiga::HunkFormat::OverlayBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1LibraryBlock.html#a6bd279128ff22cfddd41862a2f2056fc">Amiga::HunkFormat::LibraryBlock</a>, and <a class="el" href="classAmiga_1_1HunkFormat_1_1IndexBlock.html#a827390631e1a12944844448876301730">Amiga::HunkFormat::IndexBlock</a>.</p>
 
 </div>
 </div>
@@ -270,7 +305,46 @@ Public Attributes</h2></td></tr>
 
 <p>Reads the rest of the block after the type word. </p>
 
-<p>Reimplemented in <a class="el" href="classAmiga_1_1HunkFormat_1_1TextBlock.html#ac34de926e7c32fc3fcb485d01885c77a">Amiga::HunkFormat::TextBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1HeaderBlock.html#a55b48027f7eb4e926afdc1fc9a722fac">Amiga::HunkFormat::HeaderBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1InitialHunkBlock.html#a6a7a292f82d21a927c04a80cf9e62e06">Amiga::HunkFormat::InitialHunkBlock</a>, and <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocationBlock.html#ae1ed7f74a9810b214fad5df4b0d64b31">Amiga::HunkFormat::RelocationBlock</a>.</p>
+<p>Reimplemented in <a class="el" href="classAmiga_1_1HunkFormat_1_1TextBlock.html#ac34de926e7c32fc3fcb485d01885c77a">Amiga::HunkFormat::TextBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1HeaderBlock.html#a55b48027f7eb4e926afdc1fc9a722fac">Amiga::HunkFormat::HeaderBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocatableBlock.html#a732baad78594888b671adb4efedb018c">Amiga::HunkFormat::RelocatableBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocationBlock.html#ae1ed7f74a9810b214fad5df4b0d64b31">Amiga::HunkFormat::RelocationBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1SymbolBlock.html#aca9665f4ad823117c6a2ccba8cafde30">Amiga::HunkFormat::SymbolBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1DebugBlock.html#a314842d6d6193073b850cd7256d215c9">Amiga::HunkFormat::DebugBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1OverlayBlock.html#a1de4539130bb1177d366fdadf38c4d63">Amiga::HunkFormat::OverlayBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1LibraryBlock.html#a1b70c356bba6d3213fbaeb48c7a56a6d">Amiga::HunkFormat::LibraryBlock</a>, and <a class="el" href="classAmiga_1_1HunkFormat_1_1IndexBlock.html#af48a144c7e4af2d5156b0099fe9ce407">Amiga::HunkFormat::IndexBlock</a>.</p>
+
+</div>
+</div>
+<a id="a4da4226e2e70d514cc6819960b0234ef" name="a4da4226e2e70d514cc6819960b0234ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4da4226e2e70d514cc6819960b0234ef">&#9670;&#160;</a></span>ReadBlock()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html">HunkFormat::Block</a> &gt; HunkFormat::Block::ReadBlock </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>is_executable</em><span class="paramdefsep"> = </span><span class="paramdefval">false</span></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reads a single block from file. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rd</td><td>The reader </td></tr>
+    <tr><td class="paramname">is_executable</td><td>If file is executable, false if object or not known </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A parsed block, or nullptr if file ended </dd></dl>
 
 </div>
 </div>
@@ -299,7 +373,7 @@ Public Attributes</h2></td></tr>
 
 <p>Writes the entire block into a file. </p>
 
-<p>Reimplemented in <a class="el" href="classAmiga_1_1HunkFormat_1_1TextBlock.html#a0849609aa6c6e94f5a482ae27d2fa628">Amiga::HunkFormat::TextBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1HeaderBlock.html#a70ac2a6974f19cf0360928f60b2422ed">Amiga::HunkFormat::HeaderBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1InitialHunkBlock.html#a13712b649d96f8d9534155311327019f">Amiga::HunkFormat::InitialHunkBlock</a>, and <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocationBlock.html#ad53bdcb648bb71d4b5f0674903a37636">Amiga::HunkFormat::RelocationBlock</a>.</p>
+<p>Reimplemented in <a class="el" href="classAmiga_1_1HunkFormat_1_1TextBlock.html#a0849609aa6c6e94f5a482ae27d2fa628">Amiga::HunkFormat::TextBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1HeaderBlock.html#a70ac2a6974f19cf0360928f60b2422ed">Amiga::HunkFormat::HeaderBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocatableBlock.html#a98614987306a735da7923cf472979f67">Amiga::HunkFormat::RelocatableBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1RelocationBlock.html#ad53bdcb648bb71d4b5f0674903a37636">Amiga::HunkFormat::RelocationBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1SymbolBlock.html#af6dc1acc950841160661b4a2c6803673">Amiga::HunkFormat::SymbolBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1DebugBlock.html#a1510faac9f5ffae4501ea77aa9d5b4ac">Amiga::HunkFormat::DebugBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1OverlayBlock.html#a5d5fa6547f40ca0c5c05be7c12e1efef">Amiga::HunkFormat::OverlayBlock</a>, <a class="el" href="classAmiga_1_1HunkFormat_1_1LibraryBlock.html#a5d33d7ae3eeca85f104b567a0369d8d7">Amiga::HunkFormat::LibraryBlock</a>, and <a class="el" href="classAmiga_1_1HunkFormat_1_1IndexBlock.html#a79c32556d9e69b5f8d9adb004b414056">Amiga::HunkFormat::IndexBlock</a>.</p>
 
 </div>
 </div>

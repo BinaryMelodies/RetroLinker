@@ -31,6 +31,7 @@ var searchData=
   ['module_5fname_28',['module_name',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#abc30481e1f42a5d754c4a2a8d8617031',1,'Microsoft::NEFormat::Segment::Relocation']]],
   ['module_5freference_5ftable_5foffset_29',['module_reference_table_offset',['../classMicrosoft_1_1NEFormat.html#afea0b76550ec39f03073e3f0b8834113',1,'Microsoft::NEFormat']]],
   ['module_5ftype_30',['module_type',['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#a9bfbb117d3ed3d429dc6d43fee90d54f',1,'COFF::COFFFormat::XCOFFAOutHeader']]],
-  ['movable_5fentry_5fcount_31',['movable_entry_count',['../classMicrosoft_1_1NEFormat.html#ac9269a247080cbd301cdd24f6d34c37f',1,'Microsoft::NEFormat']]],
-  ['movable_5fentry_5findex_32',['movable_entry_index',['../classMicrosoft_1_1NEFormat_1_1Segment.html#a55efab167d7ec74044bb0cf0baf566cc',1,'Microsoft::NEFormat::Segment']]]
+  ['modules_31',['modules',['../classAmiga_1_1HunkFormat.html#a5ae7336c210f151ab63a48c6243c3587',1,'Amiga::HunkFormat']]],
+  ['movable_5fentry_5fcount_32',['movable_entry_count',['../classMicrosoft_1_1NEFormat.html#ac9269a247080cbd301cdd24f6d34c37f',1,'Microsoft::NEFormat']]],
+  ['movable_5fentry_5findex_33',['movable_entry_index',['../classMicrosoft_1_1NEFormat_1_1Segment.html#a55efab167d7ec74044bb0cf0baf566cc',1,'Microsoft::NEFormat::Segment']]]
 ];

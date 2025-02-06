@@ -13,5 +13,6 @@ var searchData=
   ['internal_10',['internal',['../classDumper_1_1Field.html#ae646e571d652615bd52b7d661173d349',1,'Dumper::Field']]],
   ['ip_11',['ip',['../classMicrosoft_1_1MZFormat.html#ab0a4024c4273a2196086ac0ef4ca5022',1,'Microsoft::MZFormat']]],
   ['is64_12',['is64',['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#a0fe438897916d36390a428f63e29def2',1,'COFF::COFFFormat::XCOFFAOutHeader']]],
-  ['is_5fincluded_13',['is_included',['../classLinker_1_1Module.html#a29d32dcfb957951871fbd33afec7a34f',1,'Linker::Module']]]
+  ['is_5fexecutable_13',['is_executable',['../classAmiga_1_1HunkFormat_1_1Block.html#aaa2336488acb58f392ab0cda76efbebb',1,'Amiga::HunkFormat::Block']]],
+  ['is_5fincluded_14',['is_included',['../classLinker_1_1Module.html#a29d32dcfb957951871fbd33afec7a34f',1,'Linker::Module']]]
 ];

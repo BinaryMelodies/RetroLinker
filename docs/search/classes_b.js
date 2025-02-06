@@ -12,7 +12,7 @@ var searchData=
   ['minixaoutreader_9',['MINIXAOutReader',['../classdump_1_1MINIXAOutReader.html',1,'dump']]],
   ['minixformat_10',['MINIXFormat',['../classMINIX_1_1MINIXFormat.html',1,'MINIX']]],
   ['mipsaoutheader_11',['MIPSAOutHeader',['../classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html',1,'COFF::COFFFormat']]],
-  ['module_12',['Module',['../classAS86Obj_1_1AS86ObjFormat_1_1Module.html',1,'AS86Obj::AS86ObjFormat::Module'],['../classLinker_1_1Module.html',1,'Linker::Module'],['../classO65_1_1O65Format_1_1Module.html',1,'O65::O65Format::Module']]],
+  ['module_12',['Module',['../classAmiga_1_1HunkFormat_1_1Module.html',1,'Amiga::HunkFormat::Module'],['../classAS86Obj_1_1AS86ObjFormat_1_1Module.html',1,'AS86Obj::AS86ObjFormat::Module'],['../classLinker_1_1Module.html',1,'Linker::Module'],['../classO65_1_1O65Format_1_1Module.html',1,'O65::O65Format::Module']]],
   ['modulecollector_13',['ModuleCollector',['../classLinker_1_1ModuleCollector.html',1,'Linker']]],
   ['modulereference_14',['ModuleReference',['../classMicrosoft_1_1NEFormat_1_1ModuleReference.html',1,'Microsoft::NEFormat']]],
   ['mpformat_15',['MPFormat',['../classPharLap_1_1MPFormat.html',1,'PharLap']]],

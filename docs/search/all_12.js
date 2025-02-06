@@ -41,5 +41,6 @@ var searchData=
   ['producemodule_38',['ProduceModule',['../classLinker_1_1InputFormat.html#a9769ff8202117ab97d6045e4d70b55df',1,'Linker::InputFormat::ProduceModule(ModuleCollector &amp;linker, Reader &amp;rd, std::string file_name)'],['../classLinker_1_1InputFormat.html#a9e95887e38bd041def051b38d07df273',1,'Linker::InputFormat::ProduceModule(Module &amp;module, Reader &amp;rd)']]],
   ['program_5fflag_5ftype_39',['program_flag_type',['../classMicrosoft_1_1NEFormat.html#a45beeb2a4ab17368b6860673f05246fe',1,'Microsoft::NEFormat']]],
   ['program_5fflags_40',['program_flags',['../classDigitalResearch_1_1CPM68KFormat.html#a2afc0b8e6ac0aff40e946bea69166133',1,'DigitalResearch::CPM68KFormat::program_flags'],['../classMicrosoft_1_1NEFormat.html#a4bf95971b5f791863dcbe18430955a8c',1,'Microsoft::NEFormat::program_flags']]],
-  ['putchar_41',['PutChar',['../classDumper_1_1Dumper.html#ad70bd979bbe1b63554ddec79eb14d942',1,'Dumper::Dumper']]]
+  ['programunit_41',['ProgramUnit',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1ProgramUnit.html',1,'Amiga::HunkFormat::IndexBlock']]],
+  ['putchar_42',['PutChar',['../classDumper_1_1Dumper.html#ad70bd979bbe1b63554ddec79eb14d942',1,'Dumper::Dumper']]]
 ];

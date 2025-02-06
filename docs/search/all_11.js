@@ -43,5 +43,7 @@ var searchData=
   ['output_20formats_40',['Supported output formats',['../index.html#x_output_formats',1,'']]],
   ['output_5fformat_5ftype_41',['output_format_type',['../structoutput__format__type.html',1,'']]],
   ['outputformat_42',['OutputFormat',['../classLinker_1_1OutputFormat.html',1,'Linker']]],
-  ['overlay_5fnumber_43',['overlay_number',['../classMicrosoft_1_1MZFormat.html#ade87671fa31e8389cd28b8a8eddd59d3',1,'Microsoft::MZFormat']]]
+  ['overlay_5fnumber_43',['overlay_number',['../classMicrosoft_1_1MZFormat.html#ade87671fa31e8389cd28b8a8eddd59d3',1,'Microsoft::MZFormat']]],
+  ['overlayblock_44',['OverlayBlock',['../classAmiga_1_1HunkFormat_1_1OverlayBlock.html',1,'Amiga::HunkFormat']]],
+  ['overlaysymbol_45',['OverlaySymbol',['../structAmiga_1_1HunkFormat_1_1OverlayBlock_1_1OverlaySymbol.html',1,'Amiga::HunkFormat::OverlayBlock']]]
 ];

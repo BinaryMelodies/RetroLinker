@@ -16,8 +16,9 @@ var searchData=
   ['stringtable_13',['StringTable',['../classELF_1_1ELFFormat_1_1StringTable.html',1,'ELF::ELFFormat']]],
   ['supercompactrecord_14',['SuperCompactRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1SuperCompactRecord.html',1,'Apple::OMFFormat::Segment']]],
   ['symbol_15',['Symbol',['../classAOut_1_1AOutFormat_1_1Symbol.html',1,'AOut::AOutFormat::Symbol'],['../classAS86Obj_1_1AS86ObjFormat_1_1Symbol.html',1,'AS86Obj::AS86ObjFormat::Symbol'],['../classCOFF_1_1COFFFormat_1_1Symbol.html',1,'COFF::COFFFormat::Symbol'],['../structDigitalResearch_1_1CPM8KFormat_1_1Symbol.html',1,'DigitalResearch::CPM8KFormat::Symbol'],['../classELF_1_1ELFFormat_1_1Symbol.html',1,'ELF::ELFFormat::Symbol'],['../structMINIX_1_1MINIXFormat_1_1Symbol.html',1,'MINIX::MINIXFormat::Symbol']]],
-  ['symboldefinition_16',['SymbolDefinition',['../classLinker_1_1SymbolDefinition.html',1,'Linker']]],
-  ['symbolname_17',['SymbolName',['../classLinker_1_1SymbolName.html',1,'Linker']]],
-  ['symbolrelocator_18',['SymbolRelocator',['../classAS86Obj_1_1AS86ObjFormat_1_1SymbolRelocator.html',1,'AS86Obj::AS86ObjFormat']]],
-  ['symboltable_19',['SymbolTable',['../classELF_1_1ELFFormat_1_1SymbolTable.html',1,'ELF::ELFFormat']]]
+  ['symbolblock_16',['SymbolBlock',['../classAmiga_1_1HunkFormat_1_1SymbolBlock.html',1,'Amiga::HunkFormat']]],
+  ['symboldefinition_17',['SymbolDefinition',['../classLinker_1_1SymbolDefinition.html',1,'Linker']]],
+  ['symbolname_18',['SymbolName',['../classLinker_1_1SymbolName.html',1,'Linker']]],
+  ['symbolrelocator_19',['SymbolRelocator',['../classAS86Obj_1_1AS86ObjFormat_1_1SymbolRelocator.html',1,'AS86Obj::AS86ObjFormat']]],
+  ['symboltable_20',['SymbolTable',['../classELF_1_1ELFFormat_1_1SymbolTable.html',1,'ELF::ELFFormat']]]
 ];

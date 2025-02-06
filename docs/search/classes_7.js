@@ -7,7 +7,8 @@ var searchData=
   ['hobbitbeosresource_4',['HobbitBeOSResource',['../structELF_1_1ELFFormat_1_1HobbitBeOSResource.html',1,'ELF::ELFFormat']]],
   ['huformat_5',['HUFormat',['../classX68000_1_1HUFormat.html',1,'X68000']]],
   ['hunk_6',['Hunk',['../classAmiga_1_1HunkFormat_1_1Hunk.html',1,'Amiga::HunkFormat']]],
-  ['hunkformat_7',['HunkFormat',['../classAmiga_1_1HunkFormat.html',1,'Amiga']]],
-  ['hunkreader_8',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
-  ['hureader_9',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]
+  ['hunkentry_7',['HunkEntry',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1HunkEntry.html',1,'Amiga::HunkFormat::IndexBlock']]],
+  ['hunkformat_8',['HunkFormat',['../classAmiga_1_1HunkFormat.html',1,'Amiga']]],
+  ['hunkreader_9',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
+  ['hureader_10',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]
 ];

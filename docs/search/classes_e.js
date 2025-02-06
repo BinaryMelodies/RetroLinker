@@ -16,5 +16,6 @@ var searchData=
   ['precedence_13',['precedence',['../structApple_1_1OMFFormat_1_1Segment_1_1Expression_1_1precedence.html',1,'Apple::OMFFormat::Segment::Expression']]],
   ['prlformat_14',['PRLFormat',['../classBinary_1_1PRLFormat.html',1,'Binary']]],
   ['prodos_15',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
-  ['prodosfileinfo_16',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]]
+  ['prodosfileinfo_16',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]],
+  ['programunit_17',['ProgramUnit',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1ProgramUnit.html',1,'Amiga::HunkFormat::IndexBlock']]]
 ];
