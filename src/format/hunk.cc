@@ -560,18 +560,19 @@ std::unique_ptr<HunkFormat::SymbolBlock::Unit> HunkFormat::SymbolBlock::Unit::Re
 	case EXT_ABSREF32:
 	case EXT_RELREF16:
 	case EXT_RELREF8:
+	case EXT_DREF32: // TODO: guessing format
+	case EXT_DREF16: // TODO: guessing format
+	case EXT_DREF8: // TODO: guessing format
+	case EXT_RELREF32: // TODO: guessing format
+	case EXT_ABSREF16: // TODO: guessing format
+	case EXT_ABSREF8: // TODO: guessing format
 	case EXT_RELREF26:
 		unit = std::make_unique<References>(symbol_type(type), name);
 		break;
 
 	case EXT_COMMON:
+	case EXT_RELCOMMON: // TODO: guessing format
 		unit = std::make_unique<CommonReferences>(symbol_type(type), name);
-		break;
-
-	case EXT_DREF32:
-	case EXT_DREF16:
-	case EXT_DREF8:
-		unit = std::make_unique<Unit>(symbol_type(type), name);
 		break;
 
 	default:
@@ -743,14 +744,18 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const HunkFormat& modul
 		type_descriptions[Unit::EXT_DEF] = "EXT_DEF - relocatable symbol definition";
 		type_descriptions[Unit::EXT_ABS] = "EXT_ABS - absolute symbol definition";
 		type_descriptions[Unit::EXT_RES] = "EXT_RES - resident library symbol definition";
-		type_descriptions[Unit::EXT_ABSREF32] = "EXT_ABSREF32/EXT_REF32 - 32-bit reference to symbol";
-		type_descriptions[Unit::EXT_COMMON] = "EXT_COMMON - 32-bit reference to common symbol";
+		type_descriptions[Unit::EXT_ABSREF32] = "EXT_ABSREF32/EXT_REF32 - 32-bit absolute reference to symbol";
+		type_descriptions[Unit::EXT_COMMON] = "EXT_COMMON - 32-bit absolute reference to common symbol";
 		type_descriptions[Unit::EXT_RELREF16] = "EXT_RELREF16/EXT_REF16 - 16-bit relative reference to symbol";
 		type_descriptions[Unit::EXT_RELREF8] = "EXT_RELREF8/EXT_REF8 - 8-bit relative reference to symbol";
 		type_descriptions[Unit::EXT_DREF32] = "EXT_DREF32 - 32-bit data relative reference to symbol";
 		type_descriptions[Unit::EXT_DREF16] = "EXT_DREF16 - 16-bit data relative reference to symbol";
 		type_descriptions[Unit::EXT_DREF8] = "EXT_DREF8 - 8-bit data relative reference to symbol";
-		type_descriptions[Unit::EXT_RELREF26] = "EXT_RELREF26 - 26-bit relative reference to symbol";
+		type_descriptions[Unit::EXT_RELREF32] = "EXT_RELREF32 - 32-bit relative reference to symbol";
+		type_descriptions[Unit::EXT_RELCOMMON] = "EXT_RELCOMMON - 32-bit relative reference to common symbol";
+		type_descriptions[Unit::EXT_ABSREF16] = "EXT_ABSREF16 - 16-bit absolute reference to symbol";
+		type_descriptions[Unit::EXT_ABSREF8] = "EXT_ABSREF8 - 8-bit absolute reference to symbol";
+		type_descriptions[Unit::EXT_RELREF26] = "EXT_RELREF26 - 26-bit relative reference to symbol in 4-byte word";
 
 		unit_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(unit->type));
 		unit_entry.AddField("Name", Dumper::StringDisplay::Make(), unit->name);

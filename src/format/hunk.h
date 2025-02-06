@@ -318,6 +318,10 @@ namespace Amiga
 					EXT_DREF32 = 133,
 					EXT_DREF16 = 134,
 					EXT_DREF8 = 135,
+					EXT_RELREF32 = 136,
+					EXT_RELCOMMON = 137,
+					EXT_ABSREF16 = 138,
+					EXT_ABSREF8 = 139,
 					EXT_RELREF26 = 229,
 				};
 				symbol_type type;
