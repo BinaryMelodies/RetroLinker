@@ -1021,7 +1021,7 @@ namespace COFF
 
 		void AssignMagicValue();
 
-		COFFVariantType coff_variant = COFFVariantType(0);
+		COFFVariantType coff_variant = AnyCOFFVariant;
 
 		/**
 		 * @brief The CPU type, reflected by the first 16-bit word of a COFF file
@@ -1154,8 +1154,8 @@ namespace COFF
 		 */
 		uint32_t relocations_offset = 0;
 
-		COFFFormat(format_type type = GENERIC, COFFVariantType coff_variant = COFF)
-			: coff_variant(coff_variant), type(type)
+		COFFFormat(format_type type = GENERIC, COFFVariantType coff_variant = COFF, EndianType endiantype = ::UndefinedEndian)
+			: coff_variant(coff_variant), endiantype(endiantype), type(type)
 		{
 		}
 
@@ -1165,8 +1165,6 @@ namespace COFF
 		}
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
-
-		static std::shared_ptr<COFFFormat> CreateWriter(format_type type);
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

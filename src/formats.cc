@@ -178,6 +178,12 @@ format_specification formats[] =
 	{ "djgpp_coff" },
 	{ "djgppv2" }, /* technically, 1.11 */
 	{ "coff" },
+	{ "coffle",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::GENERIC, COFFFormat::COFF, ::LittleEndian); },
+		"little endian COFF" },
+	{ "coffbe",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::GENERIC, COFFFormat::COFF, ::BigEndian); },
+		"big endian COFF" },
 	{ "ecoff",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::GENERIC, COFFFormat::ECOFF); },
 		"ECOFF" },

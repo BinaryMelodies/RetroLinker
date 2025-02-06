@@ -1056,35 +1056,34 @@ bool COFFFormat::DetectCpuType(::EndianType expected)
 void COFFFormat::DetectCpuType()
 {
 	cpu_type = CPU_UNKNOWN;
-	if(DetectCpuType(::LittleEndian) || DetectCpuType(::BigEndian))
-		return;
-
-	/* heuristics to determine endianness */
-	if(signature[0] == 0x00 || signature[0] == 0x01)
+	if(endiantype != ::UndefinedEndian)
 	{
-		endiantype = BigEndian;
+		if(DetectCpuType(endiantype))
+			return;
 	}
-	else if(signature[1] == 0x00 || signature[1] == 0x01)
-	{
-		endiantype = LittleEndian;
-	}
-#if 0
-	else if(signature[0] == 0x15 && signature[1] == 0x72)
-	{
-		/* Am29K */
-		endiantype = BigEndian;
-	}
-	else if(signature[0] == 0x1C && signature[1] == 0x52)
-	{
-		/* DSP21k or SHARC */
-		endiantype = LittleEndian;
-	}
-#endif
 	else
 	{
-		Linker::FatalError("Fatal error: Unrecognized magic number, unable to determine endianness");
+		if(DetectCpuType(::LittleEndian) || DetectCpuType(::BigEndian))
+			return;
 	}
-	Linker::Error << "Error: Unrecognized magic number, assuming " << (endiantype == BigEndian ? "big endian" : "little endian") << std::endl;
+
+	if(endiantype == ::UndefinedEndian)
+	{
+		/* heuristics to determine endianness */
+		if(signature[0] == 0x00 || signature[0] == 0x01)
+		{
+			endiantype = BigEndian;
+		}
+		else if(signature[1] == 0x00 || signature[1] == 0x01)
+		{
+			endiantype = LittleEndian;
+		}
+		else
+		{
+			Linker::FatalError("Fatal error: Unrecognized magic number, unable to determine endianness");
+		}
+		Linker::Error << "Error: Unrecognized magic number, assuming " << (endiantype == BigEndian ? "big endian" : "little endian") << std::endl;
+	}
 }
 
 void COFFFormat::ReadFile(Linker::Reader& rd)
@@ -1876,11 +1875,6 @@ unsigned COFFFormat::FormatAdditionalSectionFlags(std::string section_name) cons
 	{
 		return 0;
 	}
-}
-
-std::shared_ptr<COFFFormat> COFFFormat::CreateWriter(format_type type)
-{
-	return std::make_shared<COFFFormat>(type);
 }
 
 void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
