@@ -503,7 +503,8 @@ std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock
 	case EXT_DEF:
 	case EXT_ABS:
 	case EXT_RES:
-		// TODO
+		unit = std::make_unique<Definition>(symbol_type(type), name);
+		break;
 
 	case EXT_REF32:
 	case EXT_REF16:
@@ -545,6 +546,27 @@ offset_t HunkFormat::ExternalBlock::SymbolData::FileSize() const
 
 void HunkFormat::ExternalBlock::SymbolData::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
+}
+
+void HunkFormat::ExternalBlock::Definition::Read(Linker::Reader& rd)
+{
+	value = rd.ReadUnsigned(4);
+}
+
+void HunkFormat::ExternalBlock::Definition::Write(Linker::Writer& wr) const
+{
+	SymbolData::Write(wr);
+	wr.WriteWord(4, value);
+}
+
+offset_t HunkFormat::ExternalBlock::Definition::FileSize() const
+{
+	return SymbolData::FileSize() + 4;
+}
+
+void HunkFormat::ExternalBlock::Definition::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
 }
 
 void HunkFormat::ExternalBlock::Read(Linker::Reader& rd)
