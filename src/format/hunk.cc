@@ -543,7 +543,7 @@ offset_t HunkFormat::ExternalBlock::SymbolData::FileSize() const
 	return 4 + ::AlignTo(name.length(), 4);
 }
 
-void HunkFormat::ExternalBlock::SymbolData::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+void HunkFormat::ExternalBlock::SymbolData::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 }
 
@@ -585,7 +585,23 @@ void HunkFormat::ExternalBlock::Dump(Dumper::Dumper& dump, const HunkFormat& mod
 	for(auto& unit : symbols)
 	{
 		Dumper::Entry unit_entry("External", i, current_offset);
-		// TODO
+		std::map<offset_t, std::string> type_descriptions;
+		type_descriptions[SymbolData::EXT_SYMB] = "EXT_SYMB";
+		type_descriptions[SymbolData::EXT_DEF] = "EXT_DEF";
+		type_descriptions[SymbolData::EXT_ABS] = "EXT_ABS";
+		type_descriptions[SymbolData::EXT_RES] = "EXT_RES";
+		type_descriptions[SymbolData::EXT_REF32] = "EXT_REF32";
+		type_descriptions[SymbolData::EXT_COMMON] = "EXT_COMMON";
+		type_descriptions[SymbolData::EXT_REF16] = "EXT_REF16";
+		type_descriptions[SymbolData::EXT_REF8] = "EXT_REF8";
+		type_descriptions[SymbolData::EXT_DREF32] = "EXT_DREF32";
+		type_descriptions[SymbolData::EXT_DREF16] = "EXT_DREF16";
+		type_descriptions[SymbolData::EXT_DREF8] = "EXT_DREF8";
+		type_descriptions[SymbolData::EXT_RELREF26] = "EXT_RELREF26";
+
+		unit_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(unit->type));
+		unit_entry.AddField("Name", Dumper::StringDisplay::Make(), unit->name);
+		unit->AddExtraFields(dump, unit_entry, module, hunk, i, current_offset);
 		unit_entry.Display(dump);
 		current_offset += unit->FileSize();
 		i++;

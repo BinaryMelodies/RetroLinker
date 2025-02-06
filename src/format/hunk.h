@@ -281,7 +281,7 @@ namespace Amiga
 				virtual void Write(Linker::Writer& wr) const;
 				/** @brief Size of entire unit, including type and name fields */
 				virtual offset_t FileSize() const;
-				virtual void AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
+				virtual void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
 			};
 			std::vector<std::unique_ptr<SymbolData>> symbols;
 
