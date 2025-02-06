@@ -826,7 +826,7 @@ void HunkFormat::OverlayBlock::Read(Linker::Reader& rd)
 void HunkFormat::OverlayBlock::Write(Linker::Writer& wr) const
 {
 	Block::Write(wr);
-	wr.WriteWord(4, (FileSize() - 4) / 4);
+	wr.WriteWord(4, (FileSize() - 8) / 4);
 	wr.WriteWord(4, maximum_level);
 	wr.Skip(4 * (maximum_level - 2));
 	for(auto& symbol : overlay_data_table)
@@ -865,7 +865,7 @@ void HunkFormat::LibraryBlock::Read(Linker::Reader& rd)
 void HunkFormat::LibraryBlock::Write(Linker::Writer& wr) const
 {
 	Block::Write(wr);
-	wr.WriteWord(4, (FileSize() - 4) / 4);
+	wr.WriteWord(4, (FileSize() - 8) / 4);
 	// TODO: write each hunk one after the other
 }
 
@@ -876,6 +876,167 @@ offset_t HunkFormat::LibraryBlock::FileSize() const
 }
 
 void HunkFormat::LibraryBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	// TODO
+}
+
+// IndexBlock
+
+HunkFormat::IndexBlock::Definition HunkFormat::IndexBlock::Definition::Read(Linker::Reader& rd)
+{
+	Definition def;
+	def.string_offset = rd.ReadUnsigned(2);
+	def.symbol_offset = rd.ReadUnsigned(2);
+	def.type = rd.ReadUnsigned(2);
+	return def;
+}
+
+void HunkFormat::IndexBlock::Definition::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(2, string_offset);
+	wr.WriteWord(2, symbol_offset);
+	wr.WriteWord(2, type);
+}
+
+HunkFormat::IndexBlock::HunkEntry HunkFormat::IndexBlock::HunkEntry::Read(Linker::Reader& rd)
+{
+	HunkEntry hunk;
+	hunk.string_offset = rd.ReadUnsigned(2);
+	hunk.hunk_size = rd.ReadUnsigned(2);
+	hunk.hunk_type = rd.ReadUnsigned(2); // highest 2 bits are Fast and Chip flags
+	uint16_t ref_count = rd.ReadUnsigned(2);
+	for(uint16_t i = 0; i < ref_count; i++)
+	{
+		hunk.references.push_back(rd.ReadUnsigned(2));
+	}
+	uint16_t def_count = rd.ReadUnsigned(2);
+	for(uint16_t i = 0; i < def_count; i++)
+	{
+		hunk.definitions.push_back(Definition::Read(rd));
+	}
+	return hunk;
+}
+
+void HunkFormat::IndexBlock::HunkEntry::Write(Linker::Writer& wr) const
+{
+	HunkEntry hunk;
+	wr.WriteWord(2, string_offset);
+	wr.WriteWord(2, hunk_size);
+	wr.WriteWord(2, hunk_type);
+	wr.WriteWord(2, references.size());
+	for(uint16_t ref : references)
+	{
+		wr.WriteWord(2, ref);
+	}
+	wr.WriteWord(2, definitions.size());
+	for(auto& def : definitions)
+	{
+		def.Write(wr);
+	}
+}
+
+offset_t HunkFormat::IndexBlock::HunkEntry::FileSize() const
+{
+	return 10 + 2 * references.size() + 6 * definitions.size();
+}
+
+HunkFormat::IndexBlock::ProgramUnit HunkFormat::IndexBlock::ProgramUnit::Read(Linker::Reader& rd)
+{
+	ProgramUnit unit;
+	unit.string_offset = rd.ReadSigned(2);
+	unit.first_hunk_offset = rd.ReadUnsigned(2);
+	uint16_t hunk_count = rd.ReadUnsigned(2);
+	for(uint16_t i = 0; i < hunk_count; i++)
+	{
+		unit.hunks.emplace_back(HunkEntry::Read(rd));
+	}
+	return unit;
+}
+
+void HunkFormat::IndexBlock::ProgramUnit::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(2, string_offset);
+	wr.WriteWord(2, first_hunk_offset);
+	wr.WriteWord(2, hunks.size());
+	for(auto& hunk : hunks)
+	{
+		hunk.Write(wr);
+	}
+}
+
+offset_t HunkFormat::IndexBlock::ProgramUnit::FileSize() const
+{
+	offset_t size = 6;
+	for(auto& hunk : hunks)
+	{
+		size += hunk.FileSize();
+	}
+	return size;
+}
+
+offset_t HunkFormat::IndexBlock::StringTableSize() const
+{
+	offset_t size = 0;
+	for(auto& string : strings)
+	{
+		size += string.size() + 1;
+	}
+	return size;
+}
+
+void HunkFormat::IndexBlock::Read(Linker::Reader& rd)
+{
+	// TODO: untested
+	uint32_t longword_count = rd.ReadUnsigned(4);
+	offset_t block_content_offset = rd.Tell();
+	uint16_t string_block_size = rd.ReadUnsigned(2);
+	offset_t string_block_start = rd.Tell();
+	strings.clear();
+	while(rd.Tell() < string_block_start + string_block_size)
+	{
+		strings.push_back(rd.ReadASCIIZ());
+	}
+	if((rd.Tell() & 1) != 0)
+		rd.Skip(1);
+	while(rd.Tell() < block_content_offset + longword_count * 4)
+	{
+		units.emplace_back(ProgramUnit::Read(rd));
+	}
+	if((rd.Tell() & 3) != 0)
+		rd.Skip(-rd.Tell() & 3);
+}
+
+void HunkFormat::IndexBlock::Write(Linker::Writer& wr) const
+{
+	Block::Write(wr);
+	wr.WriteWord(4, (FileSize() - 8) / 4);
+	wr.WriteWord(2, StringTableSize());
+	for(auto& string : strings)
+	{
+		wr.WriteData(string);
+		wr.WriteWord(1, 0);
+	}
+	if((wr.Tell() & 1) != 0)
+		wr.Skip(1);
+	for(auto& unit : units)
+	{
+		unit.Write(wr);
+	}
+	if((wr.Tell() & 3) != 0)
+		wr.Skip(-wr.Tell() & 3);
+}
+
+offset_t HunkFormat::IndexBlock::FileSize() const
+{
+	offset_t total_size = ::AlignTo(10 + StringTableSize(), 2);
+	for(auto& unit : units)
+	{
+		total_size += unit.FileSize();
+	}
+	return ::AlignTo(total_size, 4);
+}
+
+void HunkFormat::IndexBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	// TODO
 }

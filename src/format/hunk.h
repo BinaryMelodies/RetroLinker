@@ -482,6 +482,65 @@ namespace Amiga
 			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
+		class IndexBlock : public Block
+		{
+		public:
+			// TODO: not fully implemented
+
+			class Definition
+			{
+			public:
+				uint16_t string_offset = 0;
+				uint16_t symbol_offset = 0;
+				uint16_t type = 0;
+
+				static Definition Read(Linker::Reader& rd);
+				void Write(Linker::Writer& wr) const;
+			};
+
+			class HunkEntry
+			{
+			public:
+				uint16_t string_offset = 0;
+				uint16_t hunk_size = 0; // in longwords
+				uint16_t hunk_type = 0;
+				std::vector<uint16_t> references;
+				std::vector<Definition> definitions;
+
+				static HunkEntry Read(Linker::Reader& rd);
+				void Write(Linker::Writer& wr) const;
+				offset_t FileSize() const;
+			};
+
+			class ProgramUnit
+			{
+			public:
+				int16_t string_offset = 0;
+				uint16_t first_hunk_offset = 0; // in longwords
+				std::vector<HunkEntry> hunks;
+
+				static ProgramUnit Read(Linker::Reader& rd);
+				void Write(Linker::Writer& wr) const;
+				offset_t FileSize() const;
+			};
+
+			std::vector<std::string> strings;
+			std::vector<ProgramUnit> units;
+
+			IndexBlock()
+				: Block(HUNK_INDEX)
+			{
+			}
+
+			offset_t StringTableSize() const;
+
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
+			offset_t FileSize() const override;
+
+			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+		};
+
 		/** @brief The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other file formats */
 		class Hunk
 		{
