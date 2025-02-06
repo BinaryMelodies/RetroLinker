@@ -974,6 +974,8 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 		// TODO
 		break;
 	case Block::HUNK_DEBUG:
+		// TODO
+		break;
 	case Block::HUNK_OVERLAY:
 	case Block::HUNK_BREAK:
 	case Block::HUNK_LIB:

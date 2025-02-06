@@ -48,7 +48,7 @@ namespace Amiga
 		};
 
 		/**
-		 * @brief The smallest unit of a Hunk file, it starts with a type word
+		 * @brief The smallest unit of a Hunk file, it starts with a type word. A HUNK_END or HUNK_BREAK block is represented by this.
 		 */
 		class Block
 		{
@@ -99,6 +99,7 @@ namespace Amiga
 				HUNK_ABSRELOC16 = 0x3FE,
 				/** @brief First block of a code segment (hunk) containing PowerPC instructions */
 				HUNK_PPC_CODE = 0x4E9,
+				/** @brief Block containing 26-bit PC-relative relocations inside 4-byte words */
 				HUNK_RELRELOC26 = 0x4EC,
 
 				/** @brief V37 Block containing 32-bit relocations in a compactified form, only found in executables */
@@ -131,10 +132,11 @@ namespace Amiga
 			virtual void AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
 		};
 
-		/** @brief Represents the first block inside of an object file */
+		/** @brief Represents the first block inside of an object file or a hunk. This class is used for HUNK_UNIT and HUNK_NAME blocks. */
 		class TextBlock : public Block
 		{
 		public:
+			// TODO: untested
 			std::string name;
 
 			TextBlock(block_type type, std::string name = "")
@@ -147,7 +149,7 @@ namespace Amiga
 			offset_t FileSize() const override;
 		};
 
-		/** @brief Represents the first block inside of an executable or library file */
+		/** @brief Represents the first block inside of an executable file, a HUNK_HEADER */
 		class HeaderBlock : public Block
 		{
 		public:
@@ -410,6 +412,7 @@ namespace Amiga
 		class DebugBlock : public Block
 		{
 		public:
+			// TODO: untested
 			std::shared_ptr<Linker::Image> image;
 
 			DebugBlock()
@@ -442,6 +445,8 @@ namespace Amiga
 				Bss = Block::HUNK_BSS,
 			};
 			hunk_type type = Undefined;
+
+			// TODO: implement advisory flag
 
 			LoadBlock::flag_type flags = LoadBlock::LoadPublic;
 			/** @brief The memory image, if stored in a file (that is, a non-bss segment) */
