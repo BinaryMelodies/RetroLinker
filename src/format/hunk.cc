@@ -510,7 +510,8 @@ std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock
 	case EXT_REF16:
 	case EXT_REF8:
 	case EXT_RELREF26:
-		// TODO
+		unit = std::make_unique<References>(symbol_type(type), name);
+		break;
 
 	case EXT_COMMON:
 		// TODO
@@ -544,6 +545,10 @@ offset_t HunkFormat::ExternalBlock::SymbolData::FileSize() const
 	return 4 + ::AlignTo(name.length(), 4);
 }
 
+void HunkFormat::ExternalBlock::SymbolData::DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+}
+
 void HunkFormat::ExternalBlock::SymbolData::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 }
@@ -567,6 +572,42 @@ offset_t HunkFormat::ExternalBlock::Definition::FileSize() const
 void HunkFormat::ExternalBlock::Definition::AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
+}
+
+void HunkFormat::ExternalBlock::References::Read(Linker::Reader& rd)
+{
+	uint32_t reference_count = rd.ReadUnsigned(4);
+	for(uint32_t i = 0; i < reference_count; i++)
+	{
+		references.push_back(rd.ReadUnsigned(4));
+	}
+}
+
+void HunkFormat::ExternalBlock::References::Write(Linker::Writer& wr) const
+{
+	SymbolData::Write(wr);
+	wr.WriteWord(4, references.size());
+	for(uint32_t reference : references)
+	{
+		wr.WriteWord(4, reference);
+	}
+}
+
+offset_t HunkFormat::ExternalBlock::References::FileSize() const
+{
+	return SymbolData::FileSize() + 4 + 4 * references.size();
+}
+
+void HunkFormat::ExternalBlock::References::DumpContents(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	current_offset += SymbolData::FileSize() + 4;
+	for(uint32_t reference : references)
+	{
+		Dumper::Entry reference_entry("Reference", current_offset);
+		reference_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(reference));
+		reference_entry.Display(dump);
+		current_offset += 4;
+	}
 }
 
 void HunkFormat::ExternalBlock::Read(Linker::Reader& rd)
@@ -625,6 +666,9 @@ void HunkFormat::ExternalBlock::Dump(Dumper::Dumper& dump, const HunkFormat& mod
 		unit_entry.AddField("Name", Dumper::StringDisplay::Make(), unit->name);
 		unit->AddExtraFields(dump, unit_entry, module, hunk, i, current_offset);
 		unit_entry.Display(dump);
+
+		unit->DumpContents(dump, module, hunk, i, current_offset);
+
 		current_offset += unit->FileSize();
 		i++;
 	}
