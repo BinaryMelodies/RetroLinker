@@ -484,6 +484,114 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const HunkFormat& m
 	}
 }
 
+// ExternalBlock
+
+std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> HunkFormat::ExternalBlock::SymbolData::ReadData(Linker::Reader& rd)
+{
+	uint32_t length = rd.ReadUnsigned(4);
+	if(length == 0)
+		return nullptr;
+
+	uint8_t type = length >> 24;
+	length = 0x00FFFFFF;
+
+	std::string name = HunkFormat::ReadString(length, rd);
+
+	std::unique_ptr<HunkFormat::ExternalBlock::SymbolData> unit;
+	switch(type)
+	{
+	case EXT_DEF:
+	case EXT_ABS:
+	case EXT_RES:
+		// TODO
+
+	case EXT_REF32:
+	case EXT_REF16:
+	case EXT_REF8:
+	case EXT_RELREF26:
+		// TODO
+
+	case EXT_COMMON:
+		// TODO
+
+	case EXT_SYMB:
+	case EXT_DREF32:
+	case EXT_DREF16:
+	case EXT_DREF8:
+		unit = std::make_unique<SymbolData>(symbol_type(type), name);
+		break;
+
+	default:
+		Linker::FatalError("Fatal error: invalid symbol data unit type, unable to parse file");
+	}
+	unit->Read(rd);
+	return unit;
+}
+
+void HunkFormat::ExternalBlock::SymbolData::Read(Linker::Reader& rd)
+{
+}
+
+void HunkFormat::ExternalBlock::SymbolData::Write(Linker::Writer& wr) const
+{
+	wr.WriteWord(4, (type << 24) | ((::AlignTo(name.length(), 4) / 4) & 0x00FFFFFF));
+	HunkFormat::WriteStringContents(wr, name);
+}
+
+offset_t HunkFormat::ExternalBlock::SymbolData::FileSize() const
+{
+	return 4 + ::AlignTo(name.length(), 4);
+}
+
+void HunkFormat::ExternalBlock::SymbolData::AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+}
+
+void HunkFormat::ExternalBlock::Read(Linker::Reader& rd)
+{
+	while(true)
+	{
+		std::unique_ptr<SymbolData> unit = SymbolData::ReadData(rd);
+		if(unit == nullptr)
+			break;
+		symbols.emplace_back(std::move(unit));
+	}
+}
+
+void HunkFormat::ExternalBlock::Write(Linker::Writer& wr) const
+{
+	for(auto& unit : symbols)
+	{
+		unit->Write(wr);
+	}
+	wr.WriteWord(4, 0);
+}
+
+offset_t HunkFormat::ExternalBlock::FileSize() const
+{
+	// type longword and terminating longword
+	offset_t size = 8;
+	for(auto& unit : symbols)
+	{
+		size += unit->FileSize();
+	}
+	return size;
+}
+
+void HunkFormat::ExternalBlock::Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
+{
+	Block::Dump(dump, module, hunk, index, current_offset);
+	unsigned i = 0;
+	for(auto& unit : symbols)
+	{
+		Dumper::Entry unit_entry("External", i, current_offset);
+		// TODO
+		unit_entry.Display(dump);
+		current_offset += unit->FileSize();
+		i++;
+	}
+}
+
 // Hunk
 
 bool HunkFormat::Hunk::Relocation::operator <(const Relocation& other) const
@@ -792,16 +900,27 @@ offset_t HunkFormat::GetHunkSizeInHeader(uint32_t index) const
 	return 0;
 }
 
+std::string HunkFormat::ReadString(uint32_t longword_count, Linker::Reader& rd)
+{
+	return rd.ReadData(longword_count * 4, '\0');
+}
+
 std::string HunkFormat::ReadString(Linker::Reader& rd, uint32_t& longword_count)
 {
 	longword_count = rd.ReadUnsigned(4);
-	return rd.ReadData(longword_count * 4, '\0');
+	return ReadString(longword_count, rd);
 }
 
 std::string HunkFormat::ReadString(Linker::Reader& rd)
 {
 	uint32_t tmp;
 	return ReadString(rd, tmp);
+}
+
+void HunkFormat::WriteStringContents(Linker::Writer& wr, std::string name)
+{
+	offset_t size = ::AlignTo(name.size(), 4);
+	wr.WriteData(size, name, '\0');
 }
 
 void HunkFormat::WriteString(Linker::Writer& wr, std::string name)

@@ -241,6 +241,56 @@ namespace Amiga
 			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
+		class ExternalBlock : public Block
+		{
+		public:
+			// TODO: untested
+			class SymbolData
+			{
+			public:
+				enum symbol_type
+				{
+					EXT_SYMB = 0,
+					EXT_DEF = 1,
+					EXT_ABS = 2,
+					EXT_RES = 3,
+
+					EXT_REF32 = 129,
+					EXT_COMMON = 130,
+					EXT_REF16 = 131,
+					EXT_REF8 = 132,
+					EXT_DREF32 = 133,
+					EXT_DREF16 = 134,
+					EXT_DREF8 = 135,
+					EXT_RELREF26 = 229,
+				};
+				symbol_type type;
+				std::string name;
+
+				SymbolData(symbol_type type, std::string name)
+					: type(type), name(name)
+				{
+				}
+
+				static std::unique_ptr<SymbolData> ReadData(Linker::Reader& rd);
+
+				virtual ~SymbolData() = default;
+				/** @brief Read data after type and name */
+				virtual void Read(Linker::Reader& rd);
+				/** @brief Write entire unit */
+				virtual void Write(Linker::Writer& wr) const;
+				/** @brief Size of entire unit, including type and name fields */
+				virtual offset_t FileSize() const;
+				virtual void AddExtraFields(Dumper::Region& region, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
+			};
+			std::vector<std::unique_ptr<SymbolData>> symbols;
+
+			void Read(Linker::Reader& rd) override;
+			void Write(Linker::Writer& wr) const override;
+			offset_t FileSize() const override;
+			void Dump(Dumper::Dumper& dump, const HunkFormat& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
+		};
+
 		/** @brief The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other file formats */
 		class Hunk
 		{
@@ -327,8 +377,10 @@ namespace Amiga
 		/** @brief If a header block is available, checks the associated hunk size in the header, returns 0 otherwise */
 		offset_t GetHunkSizeInHeader(uint32_t index) const;
 
+		static std::string ReadString(uint32_t longword_count, Linker::Reader& rd);
 		static std::string ReadString(Linker::Reader& rd, uint32_t& longword_count);
 		static std::string ReadString(Linker::Reader& rd);
+		static void WriteStringContents(Linker::Writer& wr, std::string name);
 		static void WriteString(Linker::Writer& wr, std::string name);
 		static offset_t MeasureString(std::string name);
 
