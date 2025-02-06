@@ -1441,7 +1441,9 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 	cpu_descriptions[CPU_SHARC] = "SHARC";
 
 	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.AddField("CPU type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(cpu_type));
+	uint16_t signature_number = ::ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype);
+	file_region.AddField("Signature", Dumper::HexDisplay::Make(4), offset_t(signature_number));
+	file_region.AddField("CPU type", Dumper::ChoiceDisplay::Make(cpu_descriptions), offset_t(cpu_type));
 
 	std::map<offset_t, std::string> endian_descriptions;
 	endian_descriptions[::LittleEndian] = "little endian";
