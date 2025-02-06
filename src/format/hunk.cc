@@ -556,6 +556,7 @@ std::unique_ptr<HunkFormat::SymbolBlock::Unit> HunkFormat::SymbolBlock::Unit::Re
 	case EXT_DEF:
 	case EXT_ABS:
 	case EXT_RES:
+	case 0x21: // TODO: appears in library, not sure about meaning
 		unit = std::make_unique<Definition>(symbol_type(type), name);
 		break;
 
@@ -666,6 +667,7 @@ void HunkFormat::SymbolBlock::References::DumpContents(Dumper::Dumper& dump, con
 		reference_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(reference));
 		reference_entry.Display(dump);
 		current_offset += 4;
+		i++;
 	}
 }
 
@@ -1260,57 +1262,58 @@ offset_t HunkFormat::Module::ImageSize() const
 	return size;
 }
 
-void HunkFormat::Module::ReadFile(Linker::Reader& rd, offset_t end)
+void HunkFormat::Module::ReadFile(Linker::Reader& rd, std::shared_ptr<Block>& next_block, offset_t end)
 {
 	start_block = nullptr;
 	hunks.clear();
 	end_block = nullptr;
 
-	std::shared_ptr<Block> block;
-
-	block = Block::ReadBlock(rd);
-
-	if(block == nullptr)
-		return;
-
-	if(block->type == Block::HUNK_UNIT || block->type == Block::HUNK_HEADER)
+	if(next_block->type == Block::HUNK_UNIT || next_block->type == Block::HUNK_HEADER)
 	{
-		start_block = block;
-		block = Block::ReadBlock(rd, IsExecutable());
+		start_block = next_block;
+		next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 	}
-	else if(block->type == Block::HUNK_LIB)
+	else if(next_block->type == Block::HUNK_LIB)
 	{
-		start_block = block;
-		uint32_t next_block_type = rd.ReadUnsigned(4);
-		rd.Skip(-4);
-		if(next_block_type != Block::HUNK_INDEX)
+		start_block = next_block;
+		next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+		if(next_block->type != Block::HUNK_INDEX)
 		{
 			Linker::Error << "Error: expected HUNK_INDEX" << std::endl;
 		}
 		else
 		{
-			end_block = Block::ReadBlock(rd, IsExecutable());
+			end_block = next_block;
+			next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 		}
 		return;
 	}
 
-	for(; rd.Tell() < end && block != nullptr; block = Block::ReadBlock(rd, IsExecutable()))
+	while(next_block != nullptr)
 	{
-		if(block->type == Block::HUNK_OVERLAY || block->type == Block::HUNK_BREAK)
-		{
-			end_block = block;
-			return;
-		}
-
 		Hunk hunk;
-		hunk.AppendBlock(block);
-		for(block = Block::ReadBlock(rd, IsExecutable()); block != nullptr; block = Block::ReadBlock(rd, IsExecutable()))
+		while(next_block != nullptr)
 		{
-			hunk.AppendBlock(block);
-			if(block->type == Block::HUNK_END)
-				break;
+			if(next_block->type == Block::HUNK_OVERLAY || next_block->type == Block::HUNK_BREAK)
+			{
+				end_block = next_block;
+				next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+				return;
+			}
+			else if(next_block->type == Block::HUNK_UNIT || next_block->type == Block::HUNK_LIB)
+			{
+				return;
+			}
+			else
+			{
+				hunk.AppendBlock(next_block);
+				if(next_block->type == Block::HUNK_END)
+					break;
+				next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+			}
 		}
 		hunks.emplace_back(hunk);
+		next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 	}
 }
 
@@ -1412,10 +1415,12 @@ void HunkFormat::ReadFile(Linker::Reader& rd)
 	offset_t end = rd.Tell();
 	rd.Seek(0);
 
+	std::shared_ptr<Block> next_block = Block::ReadBlock(rd, IsExecutable());
+
 	while(rd.Tell() < end)
 	{
 		Module module;
-		module.ReadFile(rd, end);
+		module.ReadFile(rd, next_block, end);
 		modules.emplace_back(module);
 	}
 }

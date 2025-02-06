@@ -626,7 +626,7 @@ namespace Amiga
 
 			bool IsExecutable() const;
 			offset_t ImageSize() const;
-			void ReadFile(Linker::Reader& rd, offset_t end);
+			void ReadFile(Linker::Reader& rd, std::shared_ptr<Block>& next_block, offset_t end);
 			void WriteFile(Linker::Writer& wr) const;
 			void Dump(Dumper::Dumper& dump, offset_t current_offset, unsigned index) const;
 
