@@ -303,10 +303,11 @@ namespace Apple
 		class Resource : public Linker::OutputFormat
 		{
 		public:
-			void ReadFile(Linker::Reader& rd) override;
-			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) const override;
+			using Linker::Format::ReadFile;
+			virtual void ReadFile(Linker::Reader& rd, offset_t length) = 0;
 			void Dump(Dumper::Dumper& dump) const override;
+			virtual void Dump(Dumper::Dumper& dump, offset_t file_offset) const;
+			virtual std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const;
 
 		protected:
 			Resource(const char type[4], uint16_t id, uint8_t attributes = 0)
@@ -328,10 +329,6 @@ namespace Apple
 			std::optional<std::string> name;
 			uint8_t attributes;
 
-			/* calculated later */
-			uint16_t name_offset = 0;
-			uint32_t data_offset = 0;
-
 			offset_t ImageSize() const override = 0;
 		};
 
@@ -343,7 +340,7 @@ namespace Apple
 			{
 			}
 
-			std::shared_ptr<Linker::Segment> resource;
+			std::shared_ptr<Linker::Image> image;
 
 			void ProcessModule(Linker::Module& module) override;
 
@@ -351,9 +348,13 @@ namespace Apple
 
 			offset_t ImageSize() const override;
 
+			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(Linker::Reader& rd, offset_t length) override;
+
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) const override;
-			void Dump(Dumper::Dumper& dump) const override;
+			using Resource::Dump;
+			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
 		class JumpTableCodeResource : public Resource
@@ -387,9 +388,13 @@ namespace Apple
 				LOADSEG = 0xA9F0,
 			};
 
+			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(Linker::Reader& rd, offset_t length) override;
+
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) const override;
-			void Dump(Dumper::Dumper& dump) const override;
+			using Linker::Format::Dump;
+			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
 		};
 
 		class CodeResource : public Resource
@@ -427,13 +432,17 @@ namespace Apple
 
 			offset_t ImageSize() const override;
 
+			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(Linker::Reader& rd, offset_t length) override;
+
 			uint32_t MeasureRelocations(std::set<uint32_t>& relocations) const;
 
 			void WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const;
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) const override;
-			void Dump(Dumper::Dumper& dump) const override;
+			using Linker::Format::Dump;
+			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
 		};
 
 		ResourceFork()
@@ -441,29 +450,25 @@ namespace Apple
 		{
 		}
 
-		~ResourceFork()
-		{
-		}
-
 		struct ResourceReference
 		{
 			uint16_t id = 0;
-			uint16_t name_offset = 0;
+			uint16_t name_offset = 0xFFFF;
 			std::optional<std::string> name;
 			uint8_t attributes = 0;
 			uint32_t data_offset = 0;
 			std::shared_ptr<Resource> data;
-
-			std::shared_ptr<Resource> ReadResource(Linker::Reader& rd) const;
 		};
 
 		struct ResourceType
 		{
-			OSType type { };
+			OSType type { 0, 0, 0, 0 };
 			uint32_t count = 0;
 			uint16_t offset = 0;
 			std::vector<ResourceReference> references;
 		};
+
+		static std::shared_ptr<Resource> ReadResource(Linker::Reader& rd, const ResourceType& type, const ResourceReference& reference);
 
 		uint16_t attributes = 0; /* TODO: parametrize */
 		/** @brief A list of all resource types, as stored in the file */

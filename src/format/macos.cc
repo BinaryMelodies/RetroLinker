@@ -836,6 +836,11 @@ void AppleSingleDouble::Dump(Dumper::Dumper& dump) const
 		entry->DumpEntry(dump, i);
 		i++;
 	}
+
+	for(auto& entry : entries)
+	{
+		entry->Dump(dump);
+	}
 }
 
 std::string AppleSingleDouble::PrefixFilename(std::string prefix, std::string filename)
@@ -990,21 +995,25 @@ void ResourceFork::SetModel(std::string model)
 	}
 }
 
-void ResourceFork::Resource::ReadFile(Linker::Reader& rd)
-{
-	/* TODO */
-}
-
-offset_t ResourceFork::Resource::WriteFile(Linker::Writer& wr) const
-{
-	/* TODO */
-
-	return offset_t(-1);
-}
-
 void ResourceFork::Resource::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dump(dump, 0);
+}
+
+void ResourceFork::Resource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
+{
+	std::unique_ptr<Dumper::Region> resource_region = CreateRegion("Resource", file_offset, ImageSize(), 8);
+	resource_region->AddField("OSType", Dumper::StringDisplay::Make(4, "'"), std::string(type, 4));
+	resource_region->AddField("ID", Dumper::HexDisplay::Make(4), offset_t(id));
+	if(name)
+		resource_region->AddField("Name", Dumper::StringDisplay::Make("\""), *name);
+	resource_region->AddField("Attributes", Dumper::HexDisplay::Make(2), offset_t(attributes));
+	resource_region->Display(dump);
+}
+
+std::unique_ptr<Dumper::Region> ResourceFork::Resource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
+{
+	return std::make_unique<Dumper::Region>(name, offset, length, display_width);
 }
 
 void ResourceFork::GenericResource::ProcessModule(Linker::Module& module)
@@ -1017,19 +1026,27 @@ void ResourceFork::GenericResource::CalculateValues()
 
 offset_t ResourceFork::GenericResource::ImageSize() const
 {
-	return resource->data_size;
+	return image->ImageSize();
+}
+
+void ResourceFork::GenericResource::ReadFile(Linker::Reader& rd)
+{
+	image = Linker::Buffer::ReadFromFile(rd);
+}
+
+void ResourceFork::GenericResource::ReadFile(Linker::Reader& rd, offset_t length)
+{
+	image = Linker::Buffer::ReadFromFile(rd, length);
 }
 
 offset_t ResourceFork::GenericResource::WriteFile(Linker::Writer& wr) const
 {
-	resource->WriteFile(wr);
-
-	return offset_t(-1);
+	return image->WriteFile(wr);
 }
 
-void ResourceFork::GenericResource::Dump(Dumper::Dumper& dump) const
+std::unique_ptr<Dumper::Region> ResourceFork::GenericResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
 {
-	// TODO
+	return std::make_unique<Dumper::Block>(name, offset, image->AsImage(), 0, display_width);
 }
 
 void ResourceFork::JumpTableCodeResource::ProcessModule(Linker::Module& module)
@@ -1058,6 +1075,16 @@ offset_t ResourceFork::JumpTableCodeResource::ImageSize() const
 	{
 		return 24 + 8 * (near_entries.size() + far_entries.size());
 	}
+}
+
+void ResourceFork::JumpTableCodeResource::ReadFile(Linker::Reader& rd)
+{
+	/* TODO */
+}
+
+void ResourceFork::JumpTableCodeResource::ReadFile(Linker::Reader& rd, offset_t length)
+{
+	/* TODO */
 }
 
 offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr) const
@@ -1094,7 +1121,7 @@ offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr) cons
 	return offset_t(-1);
 }
 
-void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump) const
+void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	// TODO
 }
@@ -1175,6 +1202,16 @@ void ResourceFork::CodeResource::WriteRelocations(Linker::Writer& wr, const std:
 	wr.WriteWord(2, 0);
 }
 
+void ResourceFork::CodeResource::ReadFile(Linker::Reader& rd)
+{
+	/* TODO */
+}
+
+void ResourceFork::CodeResource::ReadFile(Linker::Reader& rd, offset_t length)
+{
+	/* TODO */
+}
+
 offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
 {
 	if(!is_far)
@@ -1204,7 +1241,7 @@ offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
 	return offset_t(-1);
 }
 
-void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump) const
+void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	// TODO
 }
@@ -1253,7 +1290,7 @@ void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		std::shared_ptr<GenericResource> rsrc = std::make_shared<GenericResource>(type->c_str(), *id);
 //		rsrc->resource = std::make_shared<Linker::Segment>(".rsrc");
 //		rsrc->resource->Append(section);
-		rsrc->resource = segment;
+		rsrc->image = segment;
 		AddResource(rsrc);
 	}
 }
@@ -1442,21 +1479,19 @@ void ResourceFork::CalculateValues()
 			reference.id = it2.first;
 			std::shared_ptr<Resource> resource = it2.second;
 			reference.data = resource;
-			resource->data_offset = data_length;
-			reference.data_offset = resource->data_offset;
+			reference.data_offset = data_length;
 			resource->CalculateValues();
 			data_length += 4 + resource->ImageSize();
 			if(resource->name)
 			{
 				resource_names.push_back(*resource->name);
-				resource->name_offset = name_list_length;
+				reference.name_offset = name_list_length;
 				name_list_length += 1 + resource->name->size();
 			}
 			else
 			{
-				resource->name_offset = 0xFFFF;
+				reference.name_offset = 0xFFFF;
 			}
-			reference.name_offset = resource->name_offset;
 			reference.attributes = resource->attributes;
 			type.references.push_back(reference);
 		}
@@ -1501,7 +1536,7 @@ void ResourceFork::ReadFile(Linker::Reader& rd)
 		rd.ReadData(4, type.type);
 		type.count = uint32_t(rd.ReadUnsigned(2)) + 1;
 		type.offset = rd.ReadUnsigned(2);
-		resource_types.emplace_back(type);
+		resource_types.push_back(type);
 	}
 
 	/* reference list */
@@ -1536,7 +1571,7 @@ void ResourceFork::ReadFile(Linker::Reader& rd)
 		{
 			// read resource data
 			rd.Seek(read_offset + data_offset + reference.data_offset);
-			reference.data = reference.ReadResource(rd);
+			reference.data = ReadResource(rd, type, reference);
 
 			// read resource name
 			if(reference.name_offset != 0xFFFF)
@@ -1547,7 +1582,7 @@ void ResourceFork::ReadFile(Linker::Reader& rd)
 			}
 
 			// register this resource for convenience
-//			AddResource(reference.data); // TODO
+			AddResource(reference.data);
 		}
 	}
 }
@@ -1676,6 +1711,14 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 		i++;
 	}
 
+	for(auto& type : resource_types)
+	{
+		for(auto& reference : type.references)
+		{
+			reference.data->Dump(dump, file_offset + data_offset + reference.data_offset);
+		}
+	}
+
 	// TODO: display all resource data
 }
 
@@ -1694,10 +1737,20 @@ std::string ResourceFork::GetDefaultExtension(Linker::Module& module) const
 	return "a.out";
 }
 
-std::shared_ptr<ResourceFork::Resource> ResourceFork::ResourceReference::ReadResource(Linker::Reader& rd) const
+std::shared_ptr<ResourceFork::Resource> ResourceFork::ReadResource(Linker::Reader& rd, const ResourceType& type, const ResourceReference& reference)
 {
+	std::shared_ptr<Resource> resource = nullptr;
+	uint32_t length = rd.ReadUnsigned(4);
+	switch(OSTypeToUInt32(type.type))
+	{
 	// TODO
-	return nullptr;
+	default:
+		resource = std::make_shared<GenericResource>(type.type, reference.id);
+		break;
+	}
+	resource->name = reference.name;
+	resource->ReadFile(rd, length);
+	return resource;
 }
 
 // RealName
