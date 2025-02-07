@@ -8,6 +8,23 @@
 
 using namespace Apple;
 
+uint32_t Apple::OSTypeToUInt32(const OSType& type)
+{
+	return
+		(uint32_t(uint8_t(type[0])) << 24)
+		| (uint32_t(uint8_t(type[1])) << 16)
+		| (uint32_t(uint8_t(type[2])) << 8)
+		| uint32_t(uint8_t(type[3]));
+}
+
+void Apple::UInt32ToOSType(OSType& type, uint32_t value)
+{
+	type[0] = value >> 24;
+	type[1] = value >> 16;
+	type[2] = value >> 8;
+	type[3] = value;
+}
+
 /* AppleSingle/AppleDouble */
 
 offset_t AppleSingleDouble::ImageSize() const
@@ -802,7 +819,7 @@ offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr) const
 		entry->WriteFile(wr);
 	}
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void AppleSingleDouble::Dump(Dumper::Dumper& dump) const
@@ -810,7 +827,7 @@ void AppleSingleDouble::Dump(Dumper::Dumper& dump) const
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("AppleSingle/AppleDouble format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
 	file_region.Display(dump);
 
 	unsigned i = 0;
@@ -1194,11 +1211,7 @@ void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump) const
 
 void ResourceFork::AddResource(std::shared_ptr<Resource> resource)
 {
-	uint32_t typeval =
-		(uint32_t(uint8_t(resource->type[0])) << 24)
-		| (uint32_t(uint8_t(resource->type[1])) << 16)
-		| (uint32_t(uint8_t(resource->type[2])) << 8)
-		| uint32_t(uint8_t(resource->type[3]));
+	uint32_t typeval = OSTypeToUInt32(resource->type);
 	resources[typeval][resource->id] = resource;
 }
 
@@ -1411,19 +1424,31 @@ void ResourceFork::CalculateValues()
 	data_length = 0;
 	uint32_t name_list_length = 0;
 	uint16_t reference_list_offset = 2 + resources.size() * 8;
+	resource_types.clear();
+	resource_names.clear();
 	for(auto it : resources)
 	{
-		reference_list_offsets[it.first] = reference_list_offset;
+		if(it.second.size() == 0)
+			continue;
+
+		ResourceType type;
+		UInt32ToOSType(type.type, it.first);
+		type.offset = reference_list_offset;
 		reference_list_offset += 12 * it.second.size();
 		name_list_offset += 12 * it.second.size();
 		for(auto it2 : it.second)
 		{
+			ResourceReference reference;
+			reference.id = it2.first;
 			std::shared_ptr<Resource> resource = it2.second;
+			reference.data = resource;
 			resource->data_offset = data_length;
+			reference.data_offset = resource->data_offset;
 			resource->CalculateValues();
 			data_length += 4 + resource->ImageSize();
 			if(resource->name)
 			{
+				resource_names.push_back(*resource->name);
 				resource->name_offset = name_list_length;
 				name_list_length += 1 + resource->name->size();
 			}
@@ -1431,8 +1456,14 @@ void ResourceFork::CalculateValues()
 			{
 				resource->name_offset = 0xFFFF;
 			}
+			reference.name_offset = resource->name_offset;
+			reference.attributes = resource->attributes;
+			type.references.push_back(reference);
 		}
+
+		resource_types.push_back(type);
 	}
+
 	resource_type_list_offset = 28;
 	name_list_offset = resource_type_list_offset + reference_list_offset;
 	if(data_offset < 16)
@@ -1462,12 +1493,63 @@ void ResourceFork::ReadFile(Linker::Reader& rd)
 
 	rd.Seek(read_offset + map_offset + resource_type_list_offset);
 	offset_t resource_count = offset_t(rd.ReadUnsigned(2)) + 1;
-	// TODO
+
+	/* type list */
 	for(offset_t i = 0; i < resource_count; i++)
 	{
-		// TODO
+		ResourceType type;
+		rd.ReadData(4, type.type);
+		type.count = uint32_t(rd.ReadUnsigned(2)) + 1;
+		type.offset = rd.ReadUnsigned(2);
+		resource_types.emplace_back(type);
 	}
-	// TODO
+
+	/* reference list */
+	for(auto& type : resource_types)
+	{
+		rd.Seek(read_offset + map_offset + resource_type_list_offset + type.offset);
+		for(offset_t i = 0; i < type.count; i++)
+		{
+			ResourceReference reference;
+			reference.id = rd.ReadUnsigned(2);
+			reference.name_offset = rd.ReadUnsigned(2);
+			reference.data_offset = rd.ReadUnsigned(4);
+			reference.attributes = reference.data_offset >> 24;
+			reference.data_offset &= 0x00FFFFFF;
+			rd.Skip(4);
+			type.references.push_back(reference);
+		}
+	}
+
+	/* name list */
+	rd.Seek(read_offset + map_offset + name_list_offset);
+	// first read all the names
+	while(rd.Tell() < read_offset + map_offset + map_length)
+	{
+		uint8_t size = rd.ReadUnsigned(1);
+		resource_names.push_back(rd.ReadData(size));
+	}
+
+	for(auto& type : resource_types)
+	{
+		for(auto& reference : type.references)
+		{
+			// read resource data
+			rd.Seek(read_offset + data_offset + reference.data_offset);
+			reference.data = reference.ReadResource(rd);
+
+			// read resource name
+			if(reference.name_offset != 0xFFFF)
+			{
+				rd.Seek(read_offset + map_offset + name_list_offset + reference.name_offset);
+				uint8_t size = rd.ReadUnsigned(1);
+				reference.name = rd.ReadData(size);
+			}
+
+			// register this resource for convenience
+//			AddResource(reference.data); // TODO
+		}
+	}
 }
 
 offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
@@ -1478,12 +1560,13 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(4, map_offset);
 	wr.WriteWord(4, data_length);
 	wr.WriteWord(4, map_length);
-	wr.Seek(write_offset + data_offset);
-	for(auto it : resources)
+	/* data start */
+	for(auto& type : resource_types)
 	{
-		for(auto it2 : it.second)
+		for(auto& reference : type.references)
 		{
-			std::shared_ptr<Resource> resource = it2.second;
+			std::shared_ptr<Resource> resource = reference.data;
+			wr.Seek(write_offset + data_offset + reference.data_offset);
 			wr.WriteWord(4, resource->ImageSize());
 			resource->WriteFile(wr);
 		}
@@ -1496,36 +1579,32 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 	wr.Seek(write_offset + map_offset + resource_type_list_offset);
 	wr.WriteWord(2, resources.size() - 1);
 	/* type list */
-	for(auto it : resources)
+	for(auto& type : resource_types)
 	{
-		wr.WriteWord(4, it.first); /* resource type */
-		wr.WriteWord(2, it.second.size() - 1);
-		wr.WriteWord(2, reference_list_offsets.at(it.first));
+		if(type.references.size() == 0)
+			continue;
+		wr.WriteData(4, type.type);
+		wr.WriteWord(2, type.references.size() - 1);
+		wr.WriteWord(2, type.offset);
 	}
 	/* reference list */
-	for(auto it : resources)
+	for(auto& type : resource_types)
 	{
-		for(auto it2 : it.second)
+		wr.Seek(write_offset + map_offset + resource_type_list_offset + type.offset);
+		for(auto& reference : type.references)
 		{
-			std::shared_ptr<Resource> resource = it2.second;
-			wr.WriteWord(2, it2.first);
-			wr.WriteWord(2, resource->name_offset);
-			wr.WriteWord(4, (resource->data_offset & 0x00FFFFFF) | (resource->attributes << 24));
+			wr.WriteWord(2, reference.id);
+			wr.WriteWord(2, reference.name_offset);
+			wr.WriteWord(4, (reference.data_offset & 0x00FFFFFF) | (reference.attributes << 24));
 			wr.Skip(4);
 		}
 	}
 	/* name list */
-	for(auto it : resources)
+	wr.Seek(write_offset + map_offset + name_list_offset);
+	for(auto& name : resource_names)
 	{
-		for(auto it2 : it.second)
-		{
-			std::shared_ptr<Resource> resource = it2.second;
-			if(resource->name)
-			{
-				wr.WriteWord(1, resource->name->size());
-				wr.WriteData(resource->name->size(), resource->name->c_str());
-			}
-		}
+		wr.WriteWord(1, name.size());
+		wr.WriteData(name);
 	}
 
 	return ImageSize();
@@ -1536,10 +1615,68 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("Macintosh resource fork format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
 	file_region.Display(dump);
 
-	// TODO
+	Dumper::Region data_region("Resource data", file_offset + data_offset, data_length, 8);
+	data_region.Display(dump);
+
+	Dumper::Region map_region("Resource map", file_offset + map_offset, map_length, 8);
+	map_region.AddField("Attributes", Dumper::HexDisplay::Make(4), offset_t(attributes));
+	map_region.Display(dump);
+
+	offset_t resource_type_list_size = 2 + resource_types.size() * 8;
+	for(auto& type : resource_types)
+	{
+		resource_type_list_size += type.references.size() * 12;
+	}
+	Dumper::Region resource_type_list_region("Resource type list", file_offset + map_offset + resource_type_list_offset, resource_type_list_size, 8);
+	resource_type_list_region.Display(dump);
+
+	unsigned i = 0;
+	for(auto& type : resource_types)
+	{
+		Dumper::Entry resource_type_entry("Resource type", i + 1, file_offset + map_offset + resource_type_list_offset + i * 8, 8);
+		resource_type_entry.AddField("OSType", Dumper::StringDisplay::Make(4, "'"), std::string(type.type, 4));
+		resource_type_entry.Display(dump);
+
+		unsigned j = 0;
+		for(auto& reference : type.references)
+		{
+			Dumper::Entry resource_reference_entry("Resource reference", j + 1, file_offset + map_offset + resource_type_list_offset + type.offset + j * 12, 8);
+			resource_reference_entry.AddField("OSType", Dumper::StringDisplay::Make(4, "'"), std::string(type.type, 4));
+			resource_reference_entry.AddField("ID", Dumper::HexDisplay::Make(4), offset_t(reference.id));
+			if(reference.name)
+				resource_reference_entry.AddField("Name", Dumper::StringDisplay::Make("\""), *reference.name);
+			resource_reference_entry.AddOptionalField("Name offset", Dumper::HexDisplay::Make(4), offset_t(reference.name_offset != 0xFFFF ? file_offset + map_offset + name_list_offset + reference.name_offset : 0));
+			resource_reference_entry.AddField("Attributes", Dumper::HexDisplay::Make(2), offset_t(reference.attributes));
+			resource_reference_entry.Display(dump);
+			j++;
+		}
+
+		i++;
+	}
+
+	offset_t resource_name_list_size = 0;
+	for(auto& name : resource_names)
+	{
+		resource_name_list_size += name.size() + 1;
+	}
+	Dumper::Region resource_name_list_region("Resource name list", file_offset + map_offset + name_list_offset, resource_type_list_size, 8);
+	resource_name_list_region.Display(dump);
+
+	offset_t current_offset = file_offset + map_offset + name_list_offset;
+	i = 0;
+	for(auto& name : resource_names)
+	{
+		Dumper::Entry name_entry("Name", i + 1, current_offset, 8);
+		name_entry.AddField("Value", Dumper::StringDisplay::Make("'"), name);
+		name_entry.Display(dump);
+		current_offset += name.size() + 1;
+		i++;
+	}
+
+	// TODO: display all resource data
 }
 
 void ResourceFork::GenerateFile(std::string filename, Linker::Module& module)
@@ -1555,6 +1692,12 @@ void ResourceFork::GenerateFile(std::string filename, Linker::Module& module)
 std::string ResourceFork::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
+}
+
+std::shared_ptr<ResourceFork::Resource> ResourceFork::ResourceReference::ReadResource(Linker::Reader& rd) const
+{
+	// TODO
+	return nullptr;
 }
 
 // RealName

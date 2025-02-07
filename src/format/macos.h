@@ -17,6 +17,9 @@ namespace Apple
 {
 	typedef char OSType[4];
 
+	uint32_t OSTypeToUInt32(const OSType& type);
+	void UInt32ToOSType(OSType& type, uint32_t value);
+
 	/* TODO: rework with Linker::Format */
 
 	/**
@@ -442,14 +445,39 @@ namespace Apple
 		{
 		}
 
+		struct ResourceReference
+		{
+			uint16_t id = 0;
+			uint16_t name_offset = 0;
+			std::optional<std::string> name;
+			uint8_t attributes = 0;
+			uint32_t data_offset = 0;
+			std::shared_ptr<Resource> data;
+
+			std::shared_ptr<Resource> ReadResource(Linker::Reader& rd) const;
+		};
+
+		struct ResourceType
+		{
+			OSType type { };
+			uint32_t count = 0;
+			uint16_t offset = 0;
+			std::vector<ResourceReference> references;
+		};
+
 		uint16_t attributes = 0; /* TODO: parametrize */
+		/** @brief A list of all resource types, as stored in the file */
+		std::vector<ResourceType> resource_types;
+		/** @brief A list of all resource names, as stored in the file */
+		std::vector<std::string> resource_names;
+
+		/** @brief A convenient collection of resources */
 		std::map<uint32_t, std::map<uint16_t, std::shared_ptr<Resource>>> resources;
 
 		/* these will be calculated */
 		uint32_t data_offset = 0, data_length = 0, map_offset = 0, map_length = 0;
 		uint16_t resource_type_list_offset = 28;
 		uint16_t name_list_offset = 0;
-		std::map<uint32_t, uint16_t> reference_list_offsets;
 
 		/* filled in during generation */
 		std::shared_ptr<JumpTableCodeResource> jump_table;
