@@ -13,6 +13,13 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x0088,    MachineType { CPU_M68K,  ::BigEndian }) },
 	{ std::make_pair(0x0089,    MachineType { CPU_M68K,  ::BigEndian }) },
 	{ std::make_pair(0x0093,    MachineType { CPU_M68K,  ::BigEndian }) },
+	{ std::make_pair(0x0097,    MachineType { CPU_ARM,   ::UndefinedEndian, TICOFF }) }, // TMS470
+	{ std::make_pair(0x0098,    MachineType { CPU_C5400, ::UndefinedEndian, TICOFF }) },
+	{ std::make_pair(0x0099,    MachineType { CPU_C6000, ::UndefinedEndian, TICOFF }) },
+	{ std::make_pair(0x009C,    MachineType { CPU_C5500, ::UndefinedEndian, TICOFF }) },
+	{ std::make_pair(0x009D,    MachineType { CPU_ARM,   ::UndefinedEndian, TICOFF }) }, // TMS320C2800
+	{ std::make_pair(0x00A0,    MachineType { CPU_MSP430,::UndefinedEndian, TICOFF }) },
+	{ std::make_pair(0x00A1,    MachineType { CPU_C5500, ::UndefinedEndian, TICOFF }) },
 	{ std::make_pair(0x0140,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
 	{ std::make_pair(0x0142,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
 	{ std::make_pair(0x0143,    MachineType { CPU_I86,   ::LittleEndian }) },
@@ -139,6 +146,23 @@ void COFFFormat::UNIXRelocation::Read(Linker::Reader& rd)
 		symbol_index = rd.ReadUnsigned(4);
 		type = rd.ReadUnsigned(2);
 		break;
+	case TICOFF:
+	case TICOFF1:
+		if(cpu_type == CPU_C5400 || cpu_type == CPU_C5500)
+		{
+			address = rd.ReadUnsigned(4);
+			symbol_index = rd.ReadUnsigned(4);
+			information = rd.ReadUnsigned(2); // extended address
+			type = rd.ReadUnsigned(2);
+		}
+		else
+		{
+			address = rd.ReadUnsigned(4);
+			symbol_index = rd.ReadUnsigned(2);
+			rd.Skip(2);
+			type = rd.ReadUnsigned(2);
+		}
+		break;
 	case ECOFF:
 		address = rd.ReadUnsigned(8);
 		symbol_index = rd.ReadUnsigned(4);
@@ -191,6 +215,9 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 		}
 	case PECOFF:
 		return 0; // TODO
+	case TICOFF:
+	case TICOFF1:
+		return 0; // TODO
 	case ECOFF:
 		return 0; // TODO
 	case XCOFF32:
@@ -208,6 +235,9 @@ offset_t COFFFormat::UNIXRelocation::GetEntrySize() const
 	case COFF:
 	case PECOFF:
 		return 10;
+	case TICOFF:
+	case TICOFF1:
+		return (cpu_type == CPU_C5400 || cpu_type == CPU_C5500) ? 12 : 10;
 	case ECOFF:
 		return 16;
 	case XCOFF32:
@@ -227,6 +257,23 @@ void COFFFormat::UNIXRelocation::WriteFile(Linker::Writer& wr) const
 		wr.WriteWord(4, address);
 		wr.WriteWord(4, symbol_index);
 		wr.WriteWord(2, type);
+		break;
+	case TICOFF:
+	case TICOFF1:
+		if(cpu_type == CPU_C5400 || cpu_type == CPU_C5500)
+		{
+			wr.WriteWord(4, address);
+			wr.WriteWord(4, symbol_index);
+			wr.WriteWord(2, information); // extended address
+			wr.WriteWord(2, type);
+		}
+		else
+		{
+			wr.WriteWord(4, address);
+			wr.WriteWord(2, symbol_index);
+			wr.Skip(2);
+			wr.WriteWord(2, type);
+		}
 		break;
 	case ECOFF:
 		wr.WriteWord(8, address);
@@ -437,7 +484,7 @@ void COFFFormat::Symbol::Read(Linker::Reader& rd)
 	type = rd.ReadUnsigned(2);
 	storage_class = rd.ReadUnsigned(1);
 	auxiliary_count = rd.ReadUnsigned(1);
-	rd.Skip(18 * auxiliary_count);
+	rd.Skip(18 * auxiliary_count); // TODO: parse
 }
 
 bool COFFFormat::Symbol::IsExternal() const
@@ -468,6 +515,34 @@ void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFVariantType 
 		relocation_count = rd.ReadUnsigned(2);
 		line_number_count = rd.ReadUnsigned(2);
 		flags = rd.ReadUnsigned(coff_variant == XCOFF32 ? 2 : 4);
+		break;
+	case TICOFF:
+		name = rd.ReadData(8, true);
+		physical_address = rd.ReadUnsigned(4);
+		address = rd.ReadUnsigned(4);
+		size = rd.ReadUnsigned(4);
+		section_pointer = rd.ReadUnsigned(4);
+		relocation_pointer = rd.ReadUnsigned(4);
+		line_number_pointer = rd.ReadUnsigned(4);
+		relocation_count = rd.ReadUnsigned(4);
+		line_number_count = rd.ReadUnsigned(4);
+		flags = rd.ReadUnsigned(4);
+		rd.Skip(2);
+		memory_page_number = rd.ReadUnsigned(2);
+		break;
+	case TICOFF1:
+		name = rd.ReadData(8, true);
+		physical_address = rd.ReadUnsigned(4);
+		address = rd.ReadUnsigned(4);
+		size = rd.ReadUnsigned(4);
+		section_pointer = rd.ReadUnsigned(4);
+		relocation_pointer = rd.ReadUnsigned(4);
+		line_number_pointer = rd.ReadUnsigned(4);
+		relocation_count = rd.ReadUnsigned(2);
+		line_number_count = rd.ReadUnsigned(2);
+		flags = rd.ReadUnsigned(2);
+		rd.Skip(1);
+		memory_page_number = rd.ReadUnsigned(1);
 		break;
 	case ECOFF:
 		name = rd.ReadData(8, true);
@@ -529,6 +604,34 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType
 		wr.WriteWord(2, relocation_count);
 		wr.WriteWord(2, line_number_count);
 		wr.WriteWord(coff_variant == XCOFF32 ? 2 : 4, flags);
+		break;
+	case TICOFF:
+		wr.WriteData(8, name);
+		wr.WriteWord(4, physical_address);
+		wr.WriteWord(4, address);
+		wr.WriteWord(4, size);
+		wr.WriteWord(4, section_pointer);
+		wr.WriteWord(4, relocation_pointer);
+		wr.WriteWord(4, line_number_pointer);
+		wr.WriteWord(4, relocation_count);
+		wr.WriteWord(4, line_number_count);
+		wr.WriteWord(4, flags);
+		wr.Skip(2);
+		wr.WriteWord(2, memory_page_number);
+		break;
+	case TICOFF1:
+		wr.WriteData(8, name);
+		wr.WriteWord(4, physical_address);
+		wr.WriteWord(4, address);
+		wr.WriteWord(4, size);
+		wr.WriteWord(4, section_pointer);
+		wr.WriteWord(4, relocation_pointer);
+		wr.WriteWord(4, line_number_pointer);
+		wr.WriteWord(2, relocation_count);
+		wr.WriteWord(2, line_number_count);
+		wr.WriteWord(2, flags);
+		wr.Skip(1);
+		wr.WriteWord(1, memory_page_number);
 		break;
 	case ECOFF:
 		wr.WriteData(8, name);
@@ -1133,12 +1236,18 @@ void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
 
 	case COFF:
 	case XCOFF32:
+	case TICOFF:
+	case TICOFF1:
 		section_count = rd.ReadUnsigned(2);
 		timestamp = rd.ReadUnsigned(4);
 		symbol_table_offset = rd.ReadUnsigned(4);
 		symbol_count = rd.ReadUnsigned(4);
 		optional_header_size = rd.ReadUnsigned(2);
 		flags = rd.ReadUnsigned(2);
+		if(coff_variant == TICOFF || coff_variant == TICOFF1)
+		{
+			target = rd.ReadUnsigned(2);
+		}
 		break;
 
 	case ECOFF:
@@ -1355,6 +1464,8 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 	case PECOFF:
 	case COFF:
 	case XCOFF32:
+	case TICOFF:
+	case TICOFF1:
 		wr.WriteData(2, signature);
 		wr.WriteWord(2, section_count);
 		wr.WriteWord(4, timestamp);
@@ -1362,6 +1473,10 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 		wr.WriteWord(4, symbol_count);
 		wr.WriteWord(2, optional_header_size);
 		wr.WriteWord(2, flags);
+		if(coff_variant == TICOFF || coff_variant == TICOFF1)
+		{
+			wr.WriteWord(2, target);
+		}
 		break;
 
 	case ECOFF:
@@ -1473,6 +1588,10 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 			->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("32-bit little endian"), true)
 			->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("32-bit big endian"), true),
 		offset_t(flags));
+	if(coff_variant == TICOFF || coff_variant == TICOFF1)
+	{
+		header_region.AddOptionalField("Target ID", Dumper::HexDisplay::Make(4), offset_t(target));
+	}
 	header_region.Display(dump);
 
 	if(optional_header)
@@ -1495,6 +1614,10 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
 				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
 			offset_t(section->flags));
+		if(coff_variant == TICOFF || coff_variant == TICOFF1)
+		{
+			block.AddOptionalField("Memory page number", Dumper::HexDisplay::Make(4), offset_t(section->memory_page_number));
+		}
 
 		Dumper::Region relocations("Section relocation", file_offset + section->relocation_pointer, 0, 8); /* TODO: size */
 		block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
@@ -2194,21 +2317,43 @@ void COFFFormat::CalculateValues()
 		coff_variant = COFF;
 	}
 
+	offset_t section_header_size = 0;
+
 	switch(coff_variant)
 	{
 	case PECOFF:
 	case COFF:
+		offset = 20;
+		section_header_size = 40;
+		break;
+
 	case XCOFF32:
 		offset = 20;
+		section_header_size = 38;
+		break;
+
+	case TICOFF:
+		offset = 22;
+		section_header_size = 48;
+		break;
+
+	case TICOFF1:
+		offset = 22;
+		section_header_size = 40;
 		break;
 
 	case ECOFF:
+		offset = 24;
+		section_header_size = 64;
+		break;
+
 	case XCOFF64:
 		offset = 24;
+		section_header_size = 68;
 		break;
 	}
 
-	offset += optional_header->GetSize() + sections.size() * 40;
+	offset += optional_header->GetSize() + sections.size() * section_header_size;
 
 	if(type == DJGPP)
 	{

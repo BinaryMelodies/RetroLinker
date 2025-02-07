@@ -139,6 +139,13 @@ namespace COFF
 			/** @brief SHARC from Analog Devices */
 			CPU_SHARC = 0x521C,
 
+			//// Texas Instruments values
+
+			CPU_C5400 = 0x0098,
+			CPU_C6000 = 0x0099,
+			CPU_C5500 = 0x009C,
+			CPU_MSP430 = 0x00A0,
+
 			//// Microsoft values
 
 			/** @brief Intel i860
@@ -223,13 +230,23 @@ namespace COFF
 			// for now, there are no overloaded values
 		};
 
+		/** @brief Variants of the COFF file format */
 		enum COFFVariantType
 		{
+			/** @brief Standard COFF variant */
 			COFF = 1,
+			/** @brief ECOFF 64-bit version */
 			ECOFF = 2,
+			/** @brief 32-bit XCOFF from IBM */
 			XCOFF32 = 3,
+			/** @brief 64-bit XCOFF from IBM */
 			XCOFF64 = 4,
+			/** @brief Microsoft PE/COFF variant */
 			PECOFF = 5,
+			/** @brief Texas Instruments COFF variant (COFF2) */
+			TICOFF = 6,
+			/** @brief Texas Instruments COFF variant (COFF1) */
+			TICOFF1 = 7,
 		};
 
 		static constexpr COFFVariantType AnyCOFFVariant = COFFVariantType(0);
@@ -491,6 +508,10 @@ namespace COFF
 			 * @brief COFF section flags, determines the type of the section (text, data, bss, etc.) (COFF name: s_flags)
 			 */
 			uint32_t flags = 0;
+			/**
+			 * @brief TICOFF specific field
+			 */
+			uint16_t memory_page_number = 0;
 
 			/**
 			 * @brief The stored image data
@@ -565,6 +586,10 @@ namespace COFF
 		 * @brief COFF flags, such as whether the file is executable (f_flags)
 		 */
 		uint16_t flags = 0;
+		/**
+		 * @brief TI system target ID
+		 */
+		uint16_t target = 0;
 
 		/**
 		 * @brief An abstract class to represent the optional header
