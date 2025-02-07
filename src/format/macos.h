@@ -17,6 +17,15 @@ namespace Apple
 {
 	typedef char OSType[4];
 
+	static constexpr uint32_t OSTypeToUInt32(char type0, char type1, char type2, char type3)
+	{
+		return
+			(uint32_t(uint8_t(type0)) << 24)
+			| (uint32_t(uint8_t(type1)) << 16)
+			| (uint32_t(uint8_t(type2)) << 8)
+			| uint32_t(uint8_t(type3));
+	}
+
 	uint32_t OSTypeToUInt32(const OSType& type);
 	void UInt32ToOSType(OSType& type, uint32_t value);
 
@@ -400,10 +409,13 @@ namespace Apple
 		class CodeResource : public Resource
 		{
 		public:
-			std::shared_ptr<JumpTableCodeResource> jump_table;
-			std::shared_ptr<Linker::Segment> image;
+			static constexpr uint32_t OSType = OSTypeToUInt32('C', 'O', 'D', 'E');
 
-			CodeResource(uint16_t id, std::shared_ptr<JumpTableCodeResource> jump_table)
+			std::shared_ptr<JumpTableCodeResource> jump_table;
+			std::shared_ptr<Linker::Image> image;
+			uint32_t zero_fill = 0; // used for code generation
+
+			CodeResource(uint16_t id, std::shared_ptr<JumpTableCodeResource> jump_table = nullptr)
 				: Resource("CODE", id), jump_table(jump_table)/*, image("code")*/
 			{
 			}
@@ -412,10 +424,10 @@ namespace Apple
 			uint32_t a5_address = 0; /* TODO: meaning */
 			uint32_t base_address = 0; /* TODO: meaning */
 
-//			std::vector<JumpTableCodeResource::Entry> near_entries;
-//			std::vector<JumpTableCodeResource::Entry> far_entries;
 			std::set<uint16_t> near_entries;
+			uint16_t near_entry_count = 0;
 			std::set<uint32_t> far_entries;
+			uint16_t far_entry_count = 0;
 			std::set<uint32_t> a5_relocations;
 			std::set<uint32_t> segment_relocations;
 
@@ -437,12 +449,14 @@ namespace Apple
 
 			uint32_t MeasureRelocations(std::set<uint32_t>& relocations) const;
 
+			void ReadRelocations(Linker::Reader& rd, std::set<uint32_t>& relocations) const;
 			void WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const;
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) const override;
 			using Linker::Format::Dump;
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
+			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
 		ResourceFork()

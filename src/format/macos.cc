@@ -1132,9 +1132,20 @@ void ResourceFork::CodeResource::ProcessModule(Linker::Module& module)
 
 void ResourceFork::CodeResource::CalculateValues()
 {
-	if(is_far)
+	if(Linker::Segment * segment = dynamic_cast<Linker::Segment *>(image.get()))
 	{
-		a5_relocation_offset = 0x28 + image->data_size;
+		zero_fill = segment->zero_fill;
+	}
+
+	near_entry_count = near_entries.size();
+	far_entry_count = far_entries.size();
+	if(!is_far)
+	{
+		resource_size = 4 + image->ImageSize() + zero_fill;
+	}
+	else
+	{
+		a5_relocation_offset = 0x28 + ImageSize() + zero_fill;
 		segment_relocation_offset = a5_relocation_offset + MeasureRelocations(a5_relocations);
 		resource_size = segment_relocation_offset + MeasureRelocations(segment_relocations);
 	}
@@ -1142,15 +1153,7 @@ void ResourceFork::CodeResource::CalculateValues()
 
 offset_t ResourceFork::CodeResource::ImageSize() const
 {
-	if(!is_far)
-	{
-//		return 4 + image->data_size;
-		return 4 + image->TotalSize();
-	}
-	else
-	{
-		return resource_size;
-	}
+	return resource_size;
 }
 
 uint32_t ResourceFork::CodeResource::MeasureRelocations(std::set<uint32_t>& relocations) const
@@ -1175,6 +1178,32 @@ uint32_t ResourceFork::CodeResource::MeasureRelocations(std::set<uint32_t>& relo
 		last_relocation = relocation;
 	}
 	return count;
+}
+
+void ResourceFork::CodeResource::ReadRelocations(Linker::Reader& rd, std::set<uint32_t>& relocations) const
+{
+	/* TODO: test */
+	uint32_t last_relocation = 0;
+	while(true)
+	{
+		uint32_t offset = rd.ReadUnsigned(1);
+		if(offset == 0)
+		{
+			if((rd.ReadUnsigned(1) & 0x80) == 0)
+			{
+				break;
+			}
+			rd.Skip(-1);
+			offset = rd.ReadUnsigned(4) & ~0x80000000;
+		}
+		else if((offset & 0x80) != 0)
+		{
+			rd.Skip(-1);
+			offset = rd.ReadUnsigned(2) & ~0x8000;
+		}
+		last_relocation += offset << 1;
+		relocations.insert(last_relocation);
+	}
 }
 
 void ResourceFork::CodeResource::WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const
@@ -1209,7 +1238,31 @@ void ResourceFork::CodeResource::ReadFile(Linker::Reader& rd)
 
 void ResourceFork::CodeResource::ReadFile(Linker::Reader& rd, offset_t length)
 {
-	/* TODO */
+	resource_size = length;
+	first_near_entry_offset = rd.ReadUnsigned(2);
+	near_entry_count = rd.ReadUnsigned(2);
+	if(first_near_entry_offset == 0xFFFF && near_entry_count == 0)
+	{
+		is_far = true;
+		first_near_entry_offset = rd.ReadUnsigned(4);
+		near_entry_count = rd.ReadUnsigned(4);
+		first_far_entry_offset = rd.ReadUnsigned(4);
+		far_entry_count = rd.ReadUnsigned(4);
+		a5_relocation_offset = rd.ReadUnsigned(4);
+		a5_address = rd.ReadUnsigned(4);
+		segment_relocation_offset = rd.ReadUnsigned(4);
+		base_address = rd.ReadUnsigned(4);
+		rd.Skip(4);
+		image = Linker::Buffer::ReadFromFile(rd, a5_relocation_offset - 0x28);
+		ReadRelocations(rd, a5_relocations);
+		ReadRelocations(rd, segment_relocations);
+	}
+	else
+	{
+		is_far = false;
+		image = Linker::Buffer::ReadFromFile(rd, length - 4);
+	}
+	// TODO: how do we set up the near_entries/far_entries fields?
 }
 
 offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
@@ -1217,17 +1270,17 @@ offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
 	if(!is_far)
 	{
 		wr.WriteWord(2, first_near_entry_offset);
-		wr.WriteWord(2, near_entries.size());
+		wr.WriteWord(2, near_entry_count);
 		image->WriteFile(wr);
-		wr.Skip(image->zero_fill);
+		wr.Skip(zero_fill);
 	}
 	else
 	{
 		wr.WriteData(4, "\xFF\xFF\0\0");
 		wr.WriteWord(4, first_near_entry_offset);
-		wr.WriteWord(4, near_entries.size());
+		wr.WriteWord(4, near_entry_count);
 		wr.WriteWord(4, first_far_entry_offset);
-		wr.WriteWord(4, far_entries.size());
+		wr.WriteWord(4, far_entry_count);
 		wr.WriteWord(4, a5_relocation_offset);
 		wr.WriteWord(4, a5_address);
 		wr.WriteWord(4, segment_relocation_offset);
@@ -1238,12 +1291,18 @@ offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
 		WriteRelocations(wr, segment_relocations);
 	}
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
-	// TODO
+	Resource::Dump(dump, file_offset);
+	// TODO: print other fields
+}
+
+std::unique_ptr<Dumper::Region> ResourceFork::CodeResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
+{
+	return std::make_unique<Dumper::Block>(name, offset + (is_far ? 0x28 : 4), image->AsImage(), base_address, display_width);
 }
 
 void ResourceFork::AddResource(std::shared_ptr<Resource> resource)
@@ -1267,7 +1326,7 @@ void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		std::shared_ptr<CodeResource> codeN = std::make_shared<CodeResource>(codes.size() + 1, jump_table);
 		codeN->image = segment;
 		codes.push_back(codeN);
-		segments[codeN->image] = codeN;
+		segments[segment] = codeN;
 		AddResource(codeN);
 	}
 	else
@@ -1685,6 +1744,8 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 				resource_reference_entry.AddField("Name", Dumper::StringDisplay::Make("\""), *reference.name);
 			resource_reference_entry.AddOptionalField("Name offset", Dumper::HexDisplay::Make(4), offset_t(reference.name_offset != 0xFFFF ? file_offset + map_offset + name_list_offset + reference.name_offset : 0));
 			resource_reference_entry.AddField("Attributes", Dumper::HexDisplay::Make(2), offset_t(reference.attributes));
+			resource_reference_entry.AddField("Data offset", Dumper::HexDisplay::Make(8), offset_t(reference.data_offset));
+			resource_reference_entry.AddField("Data length", Dumper::HexDisplay::Make(8), offset_t(reference.data->ImageSize()));
 			resource_reference_entry.Display(dump);
 			j++;
 		}
@@ -1743,7 +1804,9 @@ std::shared_ptr<ResourceFork::Resource> ResourceFork::ReadResource(Linker::Reade
 	uint32_t length = rd.ReadUnsigned(4);
 	switch(OSTypeToUInt32(type.type))
 	{
-	// TODO
+	case CodeResource::OSType:
+		resource = std::make_shared<CodeResource>(reference.id);
+		break;
 	default:
 		resource = std::make_shared<GenericResource>(type.type, reference.id);
 		break;
