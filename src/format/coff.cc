@@ -1604,12 +1604,18 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Block block("Section", file_offset + section->section_pointer, section->image->AsImage(), section->address, 8);
 		block.InsertField(0, "Name", Dumper::StringDisplay::Make(), section->name);
 		if((section->image != nullptr ? section->image->ImageSize() : 0) != section->size)
-			block.AddField("Size in memory", Dumper::HexDisplay::Make(), offset_t(section->size));
-		block.AddField("Physical address", Dumper::HexDisplay::Make(), offset_t(section->physical_address));
-		block.AddOptionalField("Line numbers", Dumper::HexDisplay::Make(), offset_t(section->line_number_pointer)); /* TODO */
+			block.AddField("Size in memory",
+				Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
+				offset_t(section->size));
+		block.AddField("Physical address",
+			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
+			offset_t(section->physical_address));
+		block.AddOptionalField("Line numbers",
+			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
+			offset_t(section->line_number_pointer != 0 ? file_offset + section->line_number_pointer : 0)); /* TODO */
 		block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count)); /* TODO */
 		block.AddOptionalField("Flags",
-			Dumper::BitFieldDisplay::Make()
+			Dumper::BitFieldDisplay::Make(coff_variant == XCOFF32 || coff_variant == TICOFF ? 4 : 8)
 				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
 				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
 				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
@@ -1619,9 +1625,12 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 			block.AddOptionalField("Memory page number", Dumper::HexDisplay::Make(4), offset_t(section->memory_page_number));
 		}
 
-		Dumper::Region relocations("Section relocation", file_offset + section->relocation_pointer, 0, 8); /* TODO: size */
-		block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
-		relocations.Display(dump);
+		if(section->relocation_count != 0)
+		{
+			Dumper::Region relocations("Section relocation", file_offset + section->relocation_pointer, 0, 8); /* TODO: size */
+			block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
+			relocations.Display(dump);
+		}
 
 		unsigned i = 0;
 		for(auto& relocation : section->relocations)
