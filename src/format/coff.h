@@ -1171,13 +1171,23 @@ namespace COFF
 		/** @brief COFF file header flags, most of these are obsolete, we only use them as precombined flag sets */
 		enum
 		{
+			/** @brief F_RELFLG */
 			FLAG_NO_RELOCATIONS = 0x0001,
+			/** @brief F_EXEC */
 			FLAG_EXECUTABLE = 0x0002,
+			/** @brief F_LNNO */
 			FLAG_NO_LINE_NUMBERS = 0x0004,
+			/** @brief F_LSYMS */
 			FLAG_NO_SYMBOLS = 0x0008,
+			/** @brief F_AR16WR */
+			FLAG_PDP11_ENDIAN = 0x0080,
+			/** @brief F_AR32WR */
 			FLAG_32BIT_LITTLE_ENDIAN = 0x0100,
+			/** @brief F_AR32W */
 			FLAG_32BIT_BIG_ENDIAN = 0x0200,
 
+			OMAGIC = 0x0107,
+			NMAGIC = 0x0108,
 			/**
 			 * @brief Stored as the magic of the a.out header
 			 */

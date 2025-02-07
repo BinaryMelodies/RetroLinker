@@ -66,11 +66,13 @@ void CMDFormat::MemoryBlock::DumpContents(Dumper::Dumper& dump, offset_t file_of
 void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset, const CMDFormat& module) const
 {
 	std::unique_ptr<Dumper::Region> region = MakeRegion("Block", file_offset, 6);
-	std::map<offset_t, std::string> type_descriptions;
-	type_descriptions[TYPE_LOAD] = "load block";
-	type_descriptions[TYPE_OFFSET_RELOCATION] = "offset relocations";
-	type_descriptions[TYPE_SEGMENT_RELOCATION] = "segment relocations";
-	type_descriptions[TYPE_END] = "end block";
+	static const std::map<offset_t, std::string> type_descriptions =
+	{
+		{ TYPE_LOAD, "load block" },
+		{ TYPE_OFFSET_RELOCATION, "offset relocations" },
+		{ TYPE_SEGMENT_RELOCATION, "segment relocations" },
+		{ TYPE_END, "end block" },
+	};
 	region->AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(type));
 	AddFields(*region, module);
 	region->Display(dump);
@@ -242,9 +244,11 @@ void CMDFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Header size", Dumper::HexDisplay::Make(4), offset_t(file_header_size));
 	file_region.AddField("Linker version", Dumper::StringDisplay::Make("'"), std::string(std::begin(linker_version), std::end(linker_version)));
 
-	std::map<offset_t, std::string> file_type_descriptions;
-	file_type_descriptions[TYPE_CMD] = "CMD file";
-	file_type_descriptions[TYPE_SAV] = "SAV file";
+	static const std::map<offset_t, std::string> file_type_descriptions =
+	{
+		{ TYPE_CMD, "CMD file" },
+		{ TYPE_SAV, "SAV file" },
+	};
 	file_region.AddField("Type", Dumper::ChoiceDisplay::Make(file_type_descriptions), offset_t(type));
 
 	file_region.AddField("Entry point", Dumper::HexDisplay::Make(6), offset_t(entry_point));

@@ -285,21 +285,31 @@ void OMFFormat::Segment::Dump(Dumper::Dumper& dump, const OMFFormat& omf, unsign
 	segment_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(base_address));
 	segment_region.AddOptionalField("Virtual address", Dumper::HexDisplay::Make(8), offset_t(temp_org));
 	segment_region.AddField("Align", Dumper::HexDisplay::Make(8), offset_t(align));
-	std::map<offset_t, std::string> byte_order_descriptions;
-	byte_order_descriptions[0] = "little endian";
-	byte_order_descriptions[1] = "big endian";
+	static const std::map<offset_t, std::string> byte_order_descriptions =
+	{
+		{ 0, "little endian" },
+		{ 1, "big endian" },
+	};
 	segment_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(byte_order_descriptions), offset_t(endiantype));
 	segment_region.AddField("Number size", Dumper::DecDisplay::Make(), offset_t(number_length));
-	std::map<offset_t, std::string> kind_descriptions;
-	kind_descriptions[0x00] = "code segment";
-	kind_descriptions[0x01] = "data segment";
-	kind_descriptions[0x02] = "jump table segment";
-	kind_descriptions[0x04] = "pathname segment";
-	kind_descriptions[0x08] = "library dictionary segment";
-	kind_descriptions[0x10] = "initialization segment";
+	static std::map<offset_t, std::string> kind_descriptions =
+	{
+		{ 0x00, "code segment" },
+		{ 0x01, "data segment" },
+		{ 0x02, "jump table segment" },
+		{ 0x04, "pathname segment" },
+		{ 0x08, "library dictionary segment" },
+		{ 0x10, "initialization segment" },
+		{ 0x12, "direct page/stack segment" },
+	};
 	if(version < OMF_VERSION_2)
+	{
 		kind_descriptions[0x11] = "absolute bank segment";
-	kind_descriptions[0x12] = "direct page/stack segment";
+	}
+	else
+	{
+		kind_descriptions.erase(0x11);
+	}
 	segment_region.AddField("Kind", Dumper::ChoiceDisplay::Make(kind_descriptions, Dumper::HexDisplay::Make(2)), offset_t(kind));
 	if(version < OMF_VERSION_1)
 	{
@@ -773,34 +783,39 @@ void OMFFormat::Segment::Record::Dump(Dumper::Dumper& dump, const OMFFormat& omf
 {
 	Dumper::Region record_region("Record", file_offset, GetLength(segment), 8);
 	record_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
-	std::map<offset_t, std::string> opcode_description;
-	opcode_description[OPC_END] = "END";
-	for(int opcode = OPC_CONST_FIRST; opcode <= OPC_CONST_LAST; opcode++)
+	static std::map<offset_t, std::string> opcode_description =
 	{
-		opcode_description[opcode] = "CONST";
+		{ OPC_END, "END" },
+		{ OPC_ALIGN, "ALIGN" },
+		{ OPC_ORG, "ORG" },
+		{ OPC_RELOC, "RELOC" },
+		{ OPC_INTERSEG, "INTERSEG" },
+		{ OPC_USING, "USING" },
+		{ OPC_STRONG, "STRONG" },
+		{ OPC_GLOBAL, "GLOBAL" },
+		{ OPC_GEQU, "GEQU" },
+		{ OPC_MEM, "MEM" },
+		{ OPC_EXPR, "EXPR" },
+		{ OPC_ZEXPR, "ZEXPR" },
+		{ OPC_BEXPR, "BEXPR" },
+		{ OPC_RELEXPR, "RELEXPR" },
+		{ OPC_LOCAL, "LOCAL" },
+		{ OPC_EQU, "EQU" },
+		{ OPC_DS, "DS" },
+		{ OPC_LCONST, "LCONST" },
+		{ OPC_LEXPR, "LEXPR" },
+		{ OPC_ENTRY, "ENTRY" },
+		{ OPC_C_RELOC, "cRELOC" },
+		{ OPC_C_INTERSEG, "cINTERSEG" },
+		{ OPC_SUPER, "SUPER" },
+	};
+	if(opcode_description.find(OPC_CONST_FIRST) == opcode_description.end())
+	{
+		for(int opcode = OPC_CONST_FIRST; opcode <= OPC_CONST_LAST; opcode++)
+		{
+			opcode_description[opcode] = "CONST";
+		}
 	}
-	opcode_description[OPC_ALIGN] = "ALIGN";
-	opcode_description[OPC_ORG] = "ORG";
-	opcode_description[OPC_RELOC] = "RELOC";
-	opcode_description[OPC_INTERSEG] = "INTERSEG";
-	opcode_description[OPC_USING] = "USING";
-	opcode_description[OPC_STRONG] = "STRONG";
-	opcode_description[OPC_GLOBAL] = "GLOBAL";
-	opcode_description[OPC_GEQU] = "GEQU";
-	opcode_description[OPC_MEM] = "MEM";
-	opcode_description[OPC_EXPR] = "EXPR";
-	opcode_description[OPC_ZEXPR] = "ZEXPR";
-	opcode_description[OPC_BEXPR] = "BEXPR";
-	opcode_description[OPC_RELEXPR] = "RELEXPR";
-	opcode_description[OPC_LOCAL] = "LOCAL";
-	opcode_description[OPC_EQU] = "EQU";
-	opcode_description[OPC_DS] = "DS";
-	opcode_description[OPC_LCONST] = "LCONST";
-	opcode_description[OPC_LEXPR] = "LEXPR";
-	opcode_description[OPC_ENTRY] = "ENTRY";
-	opcode_description[OPC_C_RELOC] = "cRELOC";
-	opcode_description[OPC_C_INTERSEG] = "cINTERSEG";
-	opcode_description[OPC_SUPER] = "SUPER";
 	record_region.AddField("Record opcode", Dumper::ChoiceDisplay::Make(opcode_description, Dumper::HexDisplay::Make(2)), offset_t(type));
 	AddFields(dump, record_region, omf, segment, index, file_offset, address);
 	record_region.Display(dump);
@@ -1104,29 +1119,33 @@ void OMFFormat::Segment::LabelRecord::AddFields(Dumper::Dumper& dump, Dumper::Re
 	else
 		region.AddField("Line length", Dumper::ChoiceDisplay::Make("longer or equal to 65535"), offset_t(true));
 
-	std::map<offset_t, std::string> operation_descriptions;
-	operation_descriptions[OP_ADDRESS_DC] = "address type DC statement";
-	operation_descriptions[OP_BOOL_DC] = "Boolean type DC statement";
-	operation_descriptions[OP_CHAR_DC] = "character type DC statement";
-	operation_descriptions[OP_DOUBLE_DC] = "double precision type DC statement";
-	operation_descriptions[OP_FLOAT_DC] = "floating point type DC statement";
-	operation_descriptions[OP_EQU_GEQU] = "EQU/GEQU statement";
-	operation_descriptions[OP_HEX_DC] = "hexadecimal type DC statement";
-	operation_descriptions[OP_INT_DC] = "integer type DC statement";
-	operation_descriptions[OP_REF_ADDRESS_DC] = "reference address type DC statement";
-	operation_descriptions[OP_SOFT_REF_DC] = "soft reference type DC statement";
-	operation_descriptions[OP_INSTRUCTION] = "instruction";
-	operation_descriptions[OP_ASM_DIRECTIVE] = "assembler directive";
-	operation_descriptions[OP_ORG] = "ORG statement";
-	operation_descriptions[OP_ALIGN] = "ALIGN statement";
-	operation_descriptions[OP_DS] = "DS statement";
-	operation_descriptions[OP_ARITHMETIC_SYMBOL] = "arithmetic symbol parameter";
-	operation_descriptions[OP_BOOL_SYMBOL] = "Boolean symbol parameter";
-	operation_descriptions[OP_CHAR_SYMBOL] = "character symbol parameter";
+	static const std::map<offset_t, std::string> operation_descriptions =
+	{
+		{ OP_ADDRESS_DC, "address type DC statement" },
+		{ OP_BOOL_DC, "Boolean type DC statement" },
+		{ OP_CHAR_DC, "character type DC statement" },
+		{ OP_DOUBLE_DC, "double precision type DC statement" },
+		{ OP_FLOAT_DC, "floating point type DC statement" },
+		{ OP_EQU_GEQU, "EQU/GEQU statement" },
+		{ OP_HEX_DC, "hexadecimal type DC statement" },
+		{ OP_INT_DC, "integer type DC statement" },
+		{ OP_REF_ADDRESS_DC, "reference address type DC statement" },
+		{ OP_SOFT_REF_DC, "soft reference type DC statement" },
+		{ OP_INSTRUCTION, "instruction" },
+		{ OP_ASM_DIRECTIVE, "assembler directive" },
+		{ OP_ORG, "ORG statement" },
+		{ OP_ALIGN, "ALIGN statement" },
+		{ OP_DS, "DS statement" },
+		{ OP_ARITHMETIC_SYMBOL, "arithmetic symbol parameter" },
+		{ OP_BOOL_SYMBOL, "Boolean symbol parameter" },
+		{ OP_CHAR_SYMBOL, "character symbol parameter" },
+	};
 	region.AddField("Operation type", Dumper::ChoiceDisplay::Make(operation_descriptions), offset_t(operation));
 
-	std::map<offset_t, std::string> private_description;
-	private_description[1] = "true";
+	static const std::map<offset_t, std::string> private_description =
+	{
+		{ 1, "true" },
+	};
 	region.AddOptionalField("Private", Dumper::ChoiceDisplay::Make(private_description), offset_t(private_flag));
 }
 
@@ -1401,14 +1420,19 @@ void OMFFormat::Segment::SuperCompactRecord::Dump(Dumper::Dumper& dump, const OM
 
 void OMFFormat::Segment::SuperCompactRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
 {
-	std::map<offset_t, std::string> type_descriptions;
-	type_descriptions[SUPER_RELOC2] = "SUPER RELOC2";
-	type_descriptions[SUPER_RELOC3] = "SUPER RELOC3";
-	for(unsigned i = SUPER_INTERSEG1; i <= SUPER_INTERSEG36; i++)
+	static std::map<offset_t, std::string> type_descriptions =
 	{
-		std::ostringstream oss;
-		oss << "SUPER INTERSEG" << (i - SUPER_INTERSEG1 + 1);
-		type_descriptions[i] = oss.str();
+		{ SUPER_RELOC2, "SUPER RELOC2" },
+		{ SUPER_RELOC3, "SUPER RELOC3" },
+	};
+	if(type_descriptions.find(SUPER_INTERSEG1) == type_descriptions.end())
+	{
+		for(unsigned i = SUPER_INTERSEG1; i <= SUPER_INTERSEG36; i++)
+		{
+			std::ostringstream oss;
+			oss << "SUPER INTERSEG" << (i - SUPER_INTERSEG1 + 1);
+			type_descriptions[i] = oss.str();
+		}
 	}
 	region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(super_type));
 }

@@ -107,32 +107,42 @@ void HunkFormat::Block::Dump(Dumper::Dumper& dump, const Module& module, const H
 void HunkFormat::Block::AddCommonFields(Dumper::Region& region, unsigned index) const
 {
 	region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
-	std::map<offset_t, std::string> type_descriptions;
-	type_descriptions[HUNK_UNIT] = "HUNK_UNIT";
-	type_descriptions[HUNK_NAME] = "HUNK_NAME";
-	type_descriptions[HUNK_CODE] = "HUNK_CODE";
-	type_descriptions[HUNK_DATA] = "HUNK_DATA";
-	type_descriptions[HUNK_BSS] = "HUNK_BSS";
-	type_descriptions[HUNK_ABSRELOC32] = "HUNK_RELOC32/HUNK_ABSRELOC32";
-	type_descriptions[HUNK_RELRELOC16] = "HUNK_RELOC16/HUNK_RELRELOC16";
-	type_descriptions[HUNK_RELRELOC8] = "HUNK_RELOC8/HUNK_RELRELOC16";
-	type_descriptions[HUNK_EXT] = "HUNK_EXT";
-	type_descriptions[HUNK_SYMBOL] = "HUNK_SYMBOL";
-	type_descriptions[HUNK_DEBUG] = "HUNK_DEBUG";
-	type_descriptions[HUNK_END] = "HUNK_END";
-	type_descriptions[HUNK_HEADER] = "HUNK_HEADER";
-	type_descriptions[HUNK_OVERLAY] = "HUNK_OVERLAY";
-	type_descriptions[HUNK_BREAK] = "HUNK_BREAK";
-	type_descriptions[HUNK_DRELOC32] = is_executable ? "HUNK_RELOC32SHORT (V37)" : "HUNK_DRELOC32";
-	type_descriptions[HUNK_DRELOC16] = "HUNK_DRELOC16";
-	type_descriptions[HUNK_DRELOC8] = "HUNK_DRELOC8";
-	type_descriptions[HUNK_LIB] = "HUNK_LIB";
-	type_descriptions[HUNK_INDEX] = "HUNK_INDEX";
-	type_descriptions[HUNK_RELOC32SHORT] = "HUNK_RELOC32SHORT";
-	type_descriptions[HUNK_RELRELOC32] = "HUNK_RELRELOC32";
-	type_descriptions[HUNK_ABSRELOC16] = "HUNK_ABSRELOC16";
-	type_descriptions[HUNK_PPC_CODE] = "HUNK_PPC_CODE";
-	type_descriptions[HUNK_RELRELOC26] = "HUNK_RELRELOC26";
+	static std::map<offset_t, std::string> type_descriptions =
+	{
+		{ HUNK_UNIT, "HUNK_UNIT" },
+		{ HUNK_NAME, "HUNK_NAME" },
+		{ HUNK_CODE, "HUNK_CODE" },
+		{ HUNK_DATA, "HUNK_DATA" },
+		{ HUNK_BSS, "HUNK_BSS" },
+		{ HUNK_ABSRELOC32, "HUNK_RELOC32/HUNK_ABSRELOC32" },
+		{ HUNK_RELRELOC16, "HUNK_RELOC16/HUNK_RELRELOC16" },
+		{ HUNK_RELRELOC8, "HUNK_RELOC8/HUNK_RELRELOC16" },
+		{ HUNK_EXT, "HUNK_EXT" },
+		{ HUNK_SYMBOL, "HUNK_SYMBOL" },
+		{ HUNK_DEBUG, "HUNK_DEBUG" },
+		{ HUNK_END, "HUNK_END" },
+		{ HUNK_HEADER, "HUNK_HEADER" },
+		{ HUNK_OVERLAY, "HUNK_OVERLAY" },
+		{ HUNK_BREAK, "HUNK_BREAK" },
+		{ HUNK_DRELOC32, "HUNK_DRELOC32" },
+		//{ HUNK_DRELOC16, "HUNK_DRELOC16" }, // also HUNK_V37_RELOC32SHORT
+		{ HUNK_DRELOC8, "HUNK_DRELOC8" },
+		{ HUNK_LIB, "HUNK_LIB" },
+		{ HUNK_INDEX, "HUNK_INDEX" },
+		{ HUNK_RELOC32SHORT, "HUNK_RELOC32SHORT" },
+		{ HUNK_RELRELOC32, "HUNK_RELRELOC32" },
+		{ HUNK_ABSRELOC16, "HUNK_ABSRELOC16" },
+		{ HUNK_PPC_CODE, "HUNK_PPC_CODE" },
+		{ HUNK_RELRELOC26, "HUNK_RELRELOC26" },
+	};
+	if(is_executable)
+	{
+		type_descriptions[HUNK_DRELOC32] = "HUNK_RELOC32SHORT (V37)";
+	}
+	else
+	{
+		type_descriptions[HUNK_DRELOC32] = "HUNK_DRELOC32";
+	}
 	region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(type));
 }
 
@@ -517,11 +527,13 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const Module& modul
 			relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
 			relocation_entry.AddField("Target hunk", Dumper::DecDisplay::Make(), offset_t(data.hunk)); // TODO: add first_hunk?
 			relocation_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(GetRelocationSize()));
-			std::map<offset_t, std::string> relocation_type_descriptions;
-			relocation_type_descriptions[Relocation::Absolute] = "absolute";
-			relocation_type_descriptions[Relocation::SelfRelative] = "PC-relative";
-			relocation_type_descriptions[Relocation::DataRelative] = "data relative";
-			relocation_type_descriptions[Relocation::SelfRelative26] = "26-bit PC-relative";
+			static const std::map<offset_t, std::string> relocation_type_descriptions =
+			{
+				{ Relocation::Absolute, "absolute" },
+				{ Relocation::SelfRelative, "PC-relative" },
+				{ Relocation::DataRelative, "data relative" },
+				{ Relocation::SelfRelative26, "26-bit PC-relative" },
+			};
 			relocation_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_descriptions), offset_t(GetRelocationType()));
 			if(hunk->image != nullptr)
 			{
@@ -744,23 +756,25 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const Module& module, c
 	for(auto& unit : symbols)
 	{
 		Dumper::Entry unit_entry("External", i + 1, current_offset);
-		std::map<offset_t, std::string> type_descriptions;
-		type_descriptions[Unit::EXT_SYMB] = "EXT_SYMB - internal symbol definition";
-		type_descriptions[Unit::EXT_DEF] = "EXT_DEF - relocatable symbol definition";
-		type_descriptions[Unit::EXT_ABS] = "EXT_ABS - absolute symbol definition";
-		type_descriptions[Unit::EXT_RES] = "EXT_RES - resident library symbol definition";
-		type_descriptions[Unit::EXT_ABSREF32] = "EXT_ABSREF32/EXT_REF32 - 32-bit absolute reference to symbol";
-		type_descriptions[Unit::EXT_COMMON] = "EXT_COMMON - 32-bit absolute reference to common symbol";
-		type_descriptions[Unit::EXT_RELREF16] = "EXT_RELREF16/EXT_REF16 - 16-bit relative reference to symbol";
-		type_descriptions[Unit::EXT_RELREF8] = "EXT_RELREF8/EXT_REF8 - 8-bit relative reference to symbol";
-		type_descriptions[Unit::EXT_DREF32] = "EXT_DREF32 - 32-bit data relative reference to symbol";
-		type_descriptions[Unit::EXT_DREF16] = "EXT_DREF16 - 16-bit data relative reference to symbol";
-		type_descriptions[Unit::EXT_DREF8] = "EXT_DREF8 - 8-bit data relative reference to symbol";
-		type_descriptions[Unit::EXT_RELREF32] = "EXT_RELREF32 - 32-bit relative reference to symbol";
-		type_descriptions[Unit::EXT_RELCOMMON] = "EXT_RELCOMMON - 32-bit relative reference to common symbol";
-		type_descriptions[Unit::EXT_ABSREF16] = "EXT_ABSREF16 - 16-bit absolute reference to symbol";
-		type_descriptions[Unit::EXT_ABSREF8] = "EXT_ABSREF8 - 8-bit absolute reference to symbol";
-		type_descriptions[Unit::EXT_RELREF26] = "EXT_RELREF26 - 26-bit relative reference to symbol in 4-byte word";
+		static const std::map<offset_t, std::string> type_descriptions =
+		{
+			{ Unit::EXT_SYMB, "EXT_SYMB - internal symbol definition" },
+			{ Unit::EXT_DEF, "EXT_DEF - relocatable symbol definition" },
+			{ Unit::EXT_ABS, "EXT_ABS - absolute symbol definition" },
+			{ Unit::EXT_RES, "EXT_RES - resident library symbol definition" },
+			{ Unit::EXT_ABSREF32, "EXT_ABSREF32/EXT_REF32 - 32-bit absolute reference to symbol" },
+			{ Unit::EXT_COMMON, "EXT_COMMON - 32-bit absolute reference to common symbol" },
+			{ Unit::EXT_RELREF16, "EXT_RELREF16/EXT_REF16 - 16-bit relative reference to symbol" },
+			{ Unit::EXT_RELREF8, "EXT_RELREF8/EXT_REF8 - 8-bit relative reference to symbol" },
+			{ Unit::EXT_DREF32, "EXT_DREF32 - 32-bit data relative reference to symbol" },
+			{ Unit::EXT_DREF16, "EXT_DREF16 - 16-bit data relative reference to symbol" },
+			{ Unit::EXT_DREF8, "EXT_DREF8 - 8-bit data relative reference to symbol" },
+			{ Unit::EXT_RELREF32, "EXT_RELREF32 - 32-bit relative reference to symbol" },
+			{ Unit::EXT_RELCOMMON, "EXT_RELCOMMON - 32-bit relative reference to common symbol" },
+			{ Unit::EXT_ABSREF16, "EXT_ABSREF16 - 16-bit absolute reference to symbol" },
+			{ Unit::EXT_ABSREF8, "EXT_ABSREF8 - 8-bit absolute reference to symbol" },
+			{ Unit::EXT_RELREF26, "EXT_RELREF26 - 26-bit relative reference to symbol in 4-byte word" },
+		};
 
 		unit_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(unit->type));
 		unit_entry.AddField("Name", Dumper::StringDisplay::Make(), unit->name);

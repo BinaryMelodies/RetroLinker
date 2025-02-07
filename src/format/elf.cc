@@ -75,29 +75,35 @@ void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, un
 			symbol.shndx == SHN_XINDEX ? "SHN_XINDEX" :
 			fmt.sections[symbol.shndx].name);
 
-		std::map<offset_t, std::string> binding_descriptions;
-		binding_descriptions[STB_LOCAL] = "STB_LOCAL";
-		binding_descriptions[STB_GLOBAL] = "STB_GLOBAL";
-		binding_descriptions[STB_WEAK] = "STB_WEAK";
-		binding_descriptions[STB_ENTRY] = "STB_ENTRY - (IBM OS/2)";
+		static const std::map<offset_t, std::string> binding_descriptions =
+		{
+			{ STB_LOCAL,  "STB_LOCAL" },
+			{ STB_GLOBAL, "STB_GLOBAL" },
+			{ STB_WEAK,   "STB_WEAK" },
+			{ STB_ENTRY,  "STB_ENTRY - (IBM OS/2)" },
+		};
 		symbol_entry.AddField("Binding", Dumper::ChoiceDisplay::Make(binding_descriptions, Dumper::HexDisplay::Make(1)), offset_t(symbol.bind));
 
-		std::map<offset_t, std::string> type_descriptions;
-		type_descriptions[STT_NOTYPE] = "STT_NOTYPE";
-		type_descriptions[STT_OBJECT] = "STT_OBJECT";
-		type_descriptions[STT_FUNC] = "STT_FUNC";
-		type_descriptions[STT_SECTION] = "STT_SECTION";
-		type_descriptions[STT_FILE] = "STT_FILE";
-		type_descriptions[STT_COMMON] = "STT_COMMON";
-		type_descriptions[STT_TLS] = "STT_TLS";
-		type_descriptions[STT_IMPORT] = "STT_IMPORT - (IBM OS/2)"; // TODO: st_value is offset of import table entry
+		static const std::map<offset_t, std::string> type_descriptions =
+		{
+			{ STT_NOTYPE,  "STT_NOTYPE" },
+			{ STT_OBJECT,  "STT_OBJECT" },
+			{ STT_FUNC,    "STT_FUNC" },
+			{ STT_SECTION, "STT_SECTION" },
+			{ STT_FILE,    "STT_FILE" },
+			{ STT_COMMON,  "STT_COMMON" },
+			{ STT_TLS,     "STT_TLS" },
+			{ STT_IMPORT,  "STT_IMPORT - (IBM OS/2)" }, // TODO: st_value is offset of import table entry
+		};
 		symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(1)), offset_t(symbol.type));
 
-		std::map<offset_t, std::string> visibility_descriptions;
-		visibility_descriptions[STV_DEFAULT] = "STV_DEFAULT";
-		visibility_descriptions[STV_INTERNAL] = "STV_INTERNAL";
-		visibility_descriptions[STV_HIDDEN] = "STV_HIDDEN";
-		visibility_descriptions[STV_PROTECTED] = "STV_PROTECTED";
+		static const std::map<offset_t, std::string> visibility_descriptions =
+		{
+			{ STV_DEFAULT,   "STV_DEFAULT" },
+			{ STV_INTERNAL,  "STV_INTERNAL" },
+			{ STV_HIDDEN,    "STV_HIDDEN" },
+			{ STV_PROTECTED, "STV_PROTECTED" },
+		};
 		symbol_entry.AddField("Visibility", Dumper::ChoiceDisplay::Make(visibility_descriptions, Dumper::DecDisplay::Make()), offset_t(symbol.other));
 
 		symbol_entry.Display(dump);
@@ -474,91 +480,93 @@ void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, const ELFFormat& fmt,
 	for(auto& dynobj : dynamic)
 	{
 		Dumper::Entry dynamic_entry("Object", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
-		std::map<offset_t, std::string> tag_descriptions;
-		tag_descriptions[DT_NULL] = "DT_NULL";
-		tag_descriptions[DT_NEEDED] = "DT_NEEDED";
-		tag_descriptions[DT_PLTRELSZ] = "DT_PLTRELSZ";
-		tag_descriptions[DT_PLTGOT] = "DT_PLTGOT";
-		tag_descriptions[DT_HASH] = "DT_HASH";
-		tag_descriptions[DT_STRTAB] = "DT_STRTAB";
-		tag_descriptions[DT_SYMTAB] = "DT_SYMTAB";
-		tag_descriptions[DT_RELA] = "DT_RELA";
-		tag_descriptions[DT_RELASZ] = "DT_RELASZ";
-		tag_descriptions[DT_RELAENT] = "DT_RELAENT";
-		tag_descriptions[DT_STRSZ] = "DT_STRSZ";
-		tag_descriptions[DT_SYMENT] = "DT_SYMENT";
-		tag_descriptions[DT_INIT] = "DT_INIT";
-		tag_descriptions[DT_FINI] = "DT_FINI";
-		tag_descriptions[DT_SONAME] = "DT_SONAME";
-		tag_descriptions[DT_RPATH] = "DT_RPATH";
-		tag_descriptions[DT_SYMBOLIC] = "DT_SYMBOLIC";
-		tag_descriptions[DT_REL] = "DT_REL";
-		tag_descriptions[DT_RELSZ] = "DT_RELSZ";
-		tag_descriptions[DT_RELENT] = "DT_RELENT";
-		tag_descriptions[DT_PLTREL] = "DT_PLTREL";
-		tag_descriptions[DT_DEBUG] = "DT_DEBUG";
-		tag_descriptions[DT_TEXTREL] = "DT_TEXTREL";
-		tag_descriptions[DT_JMPREL] = "DT_JMPREL";
-		tag_descriptions[DT_BIND_NOW] = "DT_BIND_NOW";
-		tag_descriptions[DT_INIT_ARRAY] = "DT_INIT_ARRAY";
-		tag_descriptions[DT_FINI_ARRAY] = "DT_FINI_ARRAY";
-		tag_descriptions[DT_INIT_ARRAYSZ] = "DT_INIT_ARRAYSZ";
-		tag_descriptions[DT_FINI_ARRAYSZ] = "DT_FINI_ARRAYSZ";
-		tag_descriptions[DT_RUNPATH] = "DT_RUNPATH";
-		tag_descriptions[DT_FLAGS] = "DT_FLAGS";
-		tag_descriptions[DT_ENCODING] = "DT_ENCODING";
-		tag_descriptions[DT_PREINIT_ARRAY] = "DT_PREINIT_ARRAY";
-		tag_descriptions[DT_PREINIT_ARRAYSZ] = "DT_PREINIT_ARRAYSZ";
-		tag_descriptions[DT_SYMTAB_SHNDX] = "DT_SYMTAB_SHNDX";
-		tag_descriptions[DT_RELRSZ] = "DT_RELRSZ";
-		tag_descriptions[DT_RELR] = "DT_RELR";
-		tag_descriptions[DT_RELRENT] = "DT_RELRENT";
-		/* IBM OS/2 specific */
-		tag_descriptions[DT_EXPORT] = "DT_EXPORT (IBM OS/2)";
-		tag_descriptions[DT_EXPORTSZ] = "DT_EXPORTSZ (IBM OS/2)";
-		tag_descriptions[DT_EXPENT] = "DT_EXPENT (IBM OS/2)";
-		tag_descriptions[DT_IMPORT] = "DT_IMPORT (IBM OS/2)";
-		tag_descriptions[DT_IMPORTSZ] = "DT_IMPORTSZ (IBM OS/2)";
-		tag_descriptions[DT_IMPENT] = "DT_IMPENT (IBM OS/2)";
-		tag_descriptions[DT_IT] = "DT_IT (IBM OS/2)";
-		tag_descriptions[DT_ITPRTY] = "DT_ITPRTY (IBM OS/2)";
-		tag_descriptions[DT_INITTERM] = "DT_INITTERM (IBM OS/2)";
-		tag_descriptions[DT_STACKSZ] = "DT_STACKSZ (IBM OS/2)";
-		/* GNU binutils */
-		tag_descriptions[DT_GNU_FLAGS1] = "DT_GNU_FLAGS1";
-		tag_descriptions[DT_GNU_PRELINKED] = "DT_GNU_PRELINKED";
-		tag_descriptions[DT_GNU_CONFLICTSZ] = "DT_GNU_CONFLICTSZ";
-		tag_descriptions[DT_GNU_LIBLISTSZ] = "DT_GNU_LIBLISTSZ";
-		tag_descriptions[DT_CHECKSUM] = "DT_CHECKSUM";
-		tag_descriptions[DT_PLTPADSZ] = "DT_PLTPADSZ";
-		tag_descriptions[DT_MOVEENT] = "DT_MOVEENT";
-		tag_descriptions[DT_MOVESZ] = "DT_MOVESZ";
-		tag_descriptions[DT_FEATURE] = "DT_FEATURE";
-		tag_descriptions[DT_POSTFLAG_1] = "DT_POSTFLAG_1";
-		tag_descriptions[DT_SYMINSZ] = "DT_SYMINSZ";
-		tag_descriptions[DT_SYMINENT] = "DT_SYMINENT";
-		tag_descriptions[DT_GNU_HASH] = "DT_GNU_HASH";
-		tag_descriptions[DT_TLSDESC_PLT] = "DT_TLSDESC_PLT";
-		tag_descriptions[DT_TLSDESC_GOT] = "DT_TLSDESC_GOT";
-		tag_descriptions[DT_GNU_CONFLICT] = "DT_GNU_CONFLICT";
-		tag_descriptions[DT_GNU_LIBLIST] = "DT_GNU_LIBLIST";
-		tag_descriptions[DT_CONFIG] = "DT_CONFIG";
-		tag_descriptions[DT_DEPAUDIT] = "DT_DEPAUDIT";
-		tag_descriptions[DT_AUDIT] = "DT_AUDIT";
-		tag_descriptions[DT_PLTPAD] = "DT_PLTPAD";
-		tag_descriptions[DT_MOVETAB] = "DT_MOVETAB";
-		tag_descriptions[DT_SYMINFO] = "DT_SYMINFO";
-		tag_descriptions[DT_VERSYM] = "DT_VERSYM";
-		tag_descriptions[DT_RELACOUNT] = "DT_RELACOUNT";
-		tag_descriptions[DT_RELCOUNT] = "DT_RELCOUNT";
-		tag_descriptions[DT_FLAGS_1] = "DT_FLAGS_1";
-		tag_descriptions[DT_VERDEF] = "DT_VERDEF";
-		tag_descriptions[DT_VERDEFNUM] = "DT_VERDEFNUM";
-		tag_descriptions[DT_VERNEED] = "DT_VERNEED";
-		tag_descriptions[DT_VERNEEDNUM] = "DT_VERNEEDNUM";
-		tag_descriptions[DT_AUXILIARY] = "DT_AUXILIARY";
-		tag_descriptions[DT_USED] = "DT_USED";
-		tag_descriptions[DT_FILTER] = "DT_FILTER";
+		static const std::map<offset_t, std::string> tag_descriptions =
+		{
+			{ DT_NULL, "DT_NULL" },
+			{ DT_NEEDED, "DT_NEEDED" },
+			{ DT_PLTRELSZ, "DT_PLTRELSZ" },
+			{ DT_PLTGOT, "DT_PLTGOT" },
+			{ DT_HASH, "DT_HASH" },
+			{ DT_STRTAB, "DT_STRTAB" },
+			{ DT_SYMTAB, "DT_SYMTAB" },
+			{ DT_RELA, "DT_RELA" },
+			{ DT_RELASZ, "DT_RELASZ" },
+			{ DT_RELAENT, "DT_RELAENT" },
+			{ DT_STRSZ, "DT_STRSZ" },
+			{ DT_SYMENT, "DT_SYMENT" },
+			{ DT_INIT, "DT_INIT" },
+			{ DT_FINI, "DT_FINI" },
+			{ DT_SONAME, "DT_SONAME" },
+			{ DT_RPATH, "DT_RPATH" },
+			{ DT_SYMBOLIC, "DT_SYMBOLIC" },
+			{ DT_REL, "DT_REL" },
+			{ DT_RELSZ, "DT_RELSZ" },
+			{ DT_RELENT, "DT_RELENT" },
+			{ DT_PLTREL, "DT_PLTREL" },
+			{ DT_DEBUG, "DT_DEBUG" },
+			{ DT_TEXTREL, "DT_TEXTREL" },
+			{ DT_JMPREL, "DT_JMPREL" },
+			{ DT_BIND_NOW, "DT_BIND_NOW" },
+			{ DT_INIT_ARRAY, "DT_INIT_ARRAY" },
+			{ DT_FINI_ARRAY, "DT_FINI_ARRAY" },
+			{ DT_INIT_ARRAYSZ, "DT_INIT_ARRAYSZ" },
+			{ DT_FINI_ARRAYSZ, "DT_FINI_ARRAYSZ" },
+			{ DT_RUNPATH, "DT_RUNPATH" },
+			{ DT_FLAGS, "DT_FLAGS" },
+			{ DT_ENCODING, "DT_ENCODING" },
+			{ DT_PREINIT_ARRAY, "DT_PREINIT_ARRAY" },
+			{ DT_PREINIT_ARRAYSZ, "DT_PREINIT_ARRAYSZ" },
+			{ DT_SYMTAB_SHNDX, "DT_SYMTAB_SHNDX" },
+			{ DT_RELRSZ, "DT_RELRSZ" },
+			{ DT_RELR, "DT_RELR" },
+			{ DT_RELRENT, "DT_RELRENT" },
+				/* IBM OS/2 specific */
+			{ DT_EXPORT, "DT_EXPORT (IBM OS/2)" },
+			{ DT_EXPORTSZ, "DT_EXPORTSZ (IBM OS/2)" },
+			{ DT_EXPENT, "DT_EXPENT (IBM OS/2)" },
+			{ DT_IMPORT, "DT_IMPORT (IBM OS/2)" },
+			{ DT_IMPORTSZ, "DT_IMPORTSZ (IBM OS/2)" },
+			{ DT_IMPENT, "DT_IMPENT (IBM OS/2)" },
+			{ DT_IT, "DT_IT (IBM OS/2)" },
+			{ DT_ITPRTY, "DT_ITPRTY (IBM OS/2)" },
+			{ DT_INITTERM, "DT_INITTERM (IBM OS/2)" },
+			{ DT_STACKSZ, "DT_STACKSZ (IBM OS/2)" },
+				/* GNU binutils */
+			{ DT_GNU_FLAGS1, "DT_GNU_FLAGS1" },
+			{ DT_GNU_PRELINKED, "DT_GNU_PRELINKED" },
+			{ DT_GNU_CONFLICTSZ, "DT_GNU_CONFLICTSZ" },
+			{ DT_GNU_LIBLISTSZ, "DT_GNU_LIBLISTSZ" },
+			{ DT_CHECKSUM, "DT_CHECKSUM" },
+			{ DT_PLTPADSZ, "DT_PLTPADSZ" },
+			{ DT_MOVEENT, "DT_MOVEENT" },
+			{ DT_MOVESZ, "DT_MOVESZ" },
+			{ DT_FEATURE, "DT_FEATURE" },
+			{ DT_POSTFLAG_1, "DT_POSTFLAG_1" },
+			{ DT_SYMINSZ, "DT_SYMINSZ" },
+			{ DT_SYMINENT, "DT_SYMINENT" },
+			{ DT_GNU_HASH, "DT_GNU_HASH" },
+			{ DT_TLSDESC_PLT, "DT_TLSDESC_PLT" },
+			{ DT_TLSDESC_GOT, "DT_TLSDESC_GOT" },
+			{ DT_GNU_CONFLICT, "DT_GNU_CONFLICT" },
+			{ DT_GNU_LIBLIST, "DT_GNU_LIBLIST" },
+			{ DT_CONFIG, "DT_CONFIG" },
+			{ DT_DEPAUDIT, "DT_DEPAUDIT" },
+			{ DT_AUDIT, "DT_AUDIT" },
+			{ DT_PLTPAD, "DT_PLTPAD" },
+			{ DT_MOVETAB, "DT_MOVETAB" },
+			{ DT_SYMINFO, "DT_SYMINFO" },
+			{ DT_VERSYM, "DT_VERSYM" },
+			{ DT_RELACOUNT, "DT_RELACOUNT" },
+			{ DT_RELCOUNT, "DT_RELCOUNT" },
+			{ DT_FLAGS_1, "DT_FLAGS_1" },
+			{ DT_VERDEF, "DT_VERDEF" },
+			{ DT_VERDEFNUM, "DT_VERDEFNUM" },
+			{ DT_VERNEED, "DT_VERNEED" },
+			{ DT_VERNEEDNUM, "DT_VERNEEDNUM" },
+			{ DT_AUXILIARY, "DT_AUXILIARY" },
+			{ DT_USED, "DT_USED" },
+			{ DT_FILTER, "DT_FILTER" },
+		};
 		dynamic_entry.AddField("Tag", Dumper::ChoiceDisplay::Make(tag_descriptions, Dumper::HexDisplay::Make(2 * fmt.wordbytes)), dynobj.tag);
 		if(dynobj.tag == DT_FLAGS)
 		{
@@ -754,22 +762,26 @@ offset_t ELFFormat::IBMSystemInfo::WriteFile(Linker::Writer& wr, offset_t count,
 
 void ELFFormat::IBMSystemInfo::AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const
 {
-	std::map<offset_t, std::string> operating_system_descriptions;
-	operating_system_descriptions[IBMSystemInfo::EOS_NONE] = "EOS_NONE - Unknown";
-	operating_system_descriptions[IBMSystemInfo::EOS_PN] = "EOS_PN - IBM Microkernel personality neutral";
-	operating_system_descriptions[IBMSystemInfo::EOS_SVR4] = "EOS_SVR4 - UNIX System V Release 4 operating system environment";
-	operating_system_descriptions[IBMSystemInfo::EOS_AIX] = "EOS_AIX - IBM AIX operating system environment";
-	operating_system_descriptions[IBMSystemInfo::EOS_OS2] = "EOS_OS2 - IBM OS/2 operating system, 32 bit environment";
+	static const std::map<offset_t, std::string> operating_system_descriptions =
+	{
+		{ IBMSystemInfo::EOS_NONE, "EOS_NONE - Unknown" },
+		{ IBMSystemInfo::EOS_PN,   "EOS_PN - IBM Microkernel personality neutral" },
+		{ IBMSystemInfo::EOS_SVR4, "EOS_SVR4 - UNIX System V Release 4 operating system environment" },
+		{ IBMSystemInfo::EOS_AIX,  "EOS_AIX - IBM AIX operating system environment" },
+		{ IBMSystemInfo::EOS_OS2,  "EOS_OS2 - IBM OS/2 operating system, 32 bit environment" },
+	};
 	region->AddField("OS type", Dumper::ChoiceDisplay::Make(operating_system_descriptions, Dumper::HexDisplay::Make(2)), offset_t(os_type));
 
 	region->AddField("System specific information", Dumper::HexDisplay::Make(8), offset_t(os_size));
 	if(IsOS2Specific())
 	{
-		std::map<offset_t, std::string> session_type_descriptions;
-		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_NONE] = "OS2_SES_NONE - None";
-		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_FS] = "OS2_SES_FS - Full Screen session";
-		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_PM] = "OS2_SES_PM - Presentation Manager session";
-		session_type_descriptions[IBMSystemInfo::os2_specific::OS2_SES_VIO] = "OS2_SES_VIO - Windowed (character-mode) session";
+		static const std::map<offset_t, std::string> session_type_descriptions =
+		{
+			{ IBMSystemInfo::os2_specific::OS2_SES_NONE, "OS2_SES_NONE - None" },
+			{ IBMSystemInfo::os2_specific::OS2_SES_FS,   "OS2_SES_FS - Full Screen session" },
+			{ IBMSystemInfo::os2_specific::OS2_SES_PM,   "OS2_SES_PM - Presentation Manager session" },
+			{ IBMSystemInfo::os2_specific::OS2_SES_VIO,  "OS2_SES_VIO - Windowed (character-mode) session" },
+		};
 		region->AddField("Session type", Dumper::ChoiceDisplay::Make(session_type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(os2.sessiontype));
 
 		region->AddField("Session flags", Dumper::HexDisplay::Make(8), offset_t(os2.sessionflags));
@@ -813,10 +825,12 @@ void ELFFormat::IBMImportTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt,
 		import_entry.AddOptionalField("Name offset", Dumper::HexDisplay::Make(8), offset_t(import.name_offset));
 		import_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), import.name);
 
-		std::map<offset_t, std::string> type_descriptions;
-		type_descriptions[IBMImportEntry::IMP_IGNORED] = "IMP_IGNORED - Ignored";
-		type_descriptions[IBMImportEntry::IMP_STR_IDX] = "IMP_STR_IDX - String table index";
-		type_descriptions[IBMImportEntry::IMP_DT_IDX] = "IMP_DT_IDX - Dynamic segment DT_NEEDED index";
+		static const std::map<offset_t, std::string> type_descriptions =
+		{
+			{ IBMImportEntry::IMP_IGNORED, "IMP_IGNORED - Ignored" },
+			{ IBMImportEntry::IMP_STR_IDX, "IMP_STR_IDX - String table index" },
+			{ IBMImportEntry::IMP_DT_IDX,  "IMP_DT_IDX - Dynamic segment DT_NEEDED index" },
+		};
 		import_entry.AddField("Load module type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(8)), offset_t(import.type));
 
 		import_entry.AddField("DLL value", Dumper::HexDisplay::Make(8), offset_t(import.dll));
@@ -1347,44 +1361,56 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsign
 	region->InsertField(1, "Name", Dumper::StringDisplay::Make(), name);
 	region->InsertField(2, "Name offset", Dumper::HexDisplay::Make(), offset_t(name_offset));
 
-	std::map<offset_t, std::string> type_descriptions;
-	type_descriptions[SHT_NULL] = "SHT_NULL - Inactive";
-	type_descriptions[SHT_PROGBITS] = "SHT_PROGBITS - Program data";
-	type_descriptions[SHT_SYMTAB] = "SHT_SYMTAB - Symbol table";
-	type_descriptions[SHT_STRTAB] = "SHT_STRTAB - String table";
-	type_descriptions[SHT_RELA] = "SHT_RELA - Relocations with explicit addends";
-	type_descriptions[SHT_HASH] = "SHT_HASH - Hash table";
-	type_descriptions[SHT_DYNAMIC] = "SHT_DYNAMIC - Dynamic linking information";
-	type_descriptions[SHT_NOTE] = "SHT_NOTE - File information";
-	type_descriptions[SHT_NOBITS] = "SHT_NOBITS - Zero filled section";
-	type_descriptions[SHT_REL] = "SHT_REL - Relocations without explicit addends";
-	type_descriptions[SHT_SHLIB] = "SHT_SHLIB - reserved";
-	type_descriptions[SHT_DYNSYM] = "SHT_DYNSYM - Dynamic linking symbol table";
-	type_descriptions[SHT_INIT_ARRAY] = "SHT_INIT_ARRAY - Array of initialization functions";
-	type_descriptions[SHT_FINI_ARRAY] = "SHT_FINI_ARRAY - Array of termination functions";
-	type_descriptions[SHT_PREINIT_ARRAY] = "SHT_PREINIT_ARRAY - Array of pre-initialization functions";
-	type_descriptions[SHT_GROUP] = "SHT_GROUP - Section group";
-	type_descriptions[SHT_SYMTAB_SHNDX] = "SHT_SYMTAB_SHNDX - Symbol table section indexes";
-		/* IBM OS/2 specific */
-	type_descriptions[SHT_OS] = "SHT_OS - (IBM OS/2) Target operating system identification";
-	type_descriptions[SHT_IMPORTS] = "SHT_IMPORTS - (IBM OS/2) External symbol references";
-	type_descriptions[SHT_EXPORTS] = "SHT_EXPORTS - (IBM OS/2) Exported symbols";
-	type_descriptions[SHT_RES] = "SHT_RES - (IBM OS/2) Resource data";
-	if(fmt.IsOldOS2Format())
+	static std::map<offset_t, std::string> type_descriptions =
 	{
-		type_descriptions[SHT_OLD_OS] = "SHT_OS - (IBM OS/2) Target operating system identification";
+		{ SHT_NULL,                   "SHT_NULL - Inactive" },
+		{ SHT_PROGBITS,               "SHT_PROGBITS - Program data" },
+		{ SHT_SYMTAB,                 "SHT_SYMTAB - Symbol table" },
+		{ SHT_STRTAB,                 "SHT_STRTAB - String table" },
+		{ SHT_RELA,                   "SHT_RELA - Relocations with explicit addends" },
+		{ SHT_HASH,                   "SHT_HASH - Hash table" },
+		{ SHT_DYNAMIC,                "SHT_DYNAMIC - Dynamic linking information" },
+		{ SHT_NOTE,                   "SHT_NOTE - File information" },
+		{ SHT_NOBITS,                 "SHT_NOBITS - Zero filled section" },
+		{ SHT_REL,                    "SHT_REL - Relocations without explicit addends" },
+		{ SHT_SHLIB,                  "SHT_SHLIB - reserved" },
+		{ SHT_DYNSYM,                 "SHT_DYNSYM - Dynamic linking symbol table" },
+		//{ SHT_INIT_ARRAY,             "SHT_INIT_ARRAY - Array of initialization functions" }, // overloaded by SHT_OLD_EXPORTS
+		//{ SHT_FINI_ARRAY,             "SHT_FINI_ARRAY - Array of termination functions" }, // overloaded by SHT_OLD_RES
+		{ SHT_PREINIT_ARRAY,          "SHT_PREINIT_ARRAY - Array of pre-initialization functions" },
+		{ SHT_GROUP,                  "SHT_GROUP - Section group" },
+		{ SHT_SYMTAB_SHNDX,           "SHT_SYMTAB_SHNDX - Symbol table section indexes" },
+			/* IBM OS/2 specific */
+		{ SHT_OS,                     "SHT_OS - (IBM OS/2) Target operating system identification" },
+		{ SHT_IMPORTS,                "SHT_IMPORTS - (IBM OS/2) External symbol references" },
+		{ SHT_EXPORTS,                "SHT_EXPORTS - (IBM OS/2) Exported symbols" },
+		{ SHT_RES,                    "SHT_RES - (IBM OS/2) Resource data" },
+			/* GNU extensions */
+		{ SHT_GNU_INCREMENTAL_INPUTS, "SHT_GNU_INCREMENTAL_INPUTS" },
+		{ SHT_GNU_ATTRIBUTES,         "SHT_GNU_ATTRIBUTES" },
+		{ SHT_GNU_HASH,               "SHT_GNU_HASH" },
+		{ SHT_GNU_LIBLIST,            "SHT_GNU_LIBLIST" },
+		{ SHT_SUNW_verdef,            "SHT_SUNW_verdef" },
+		{ SHT_SUNW_verneed,           "SHT_SUNW_verneed" },
+		{ SHT_SUNW_versym,            "SHT_SUNW_versym" },
+	};
+
+	if(!fmt.IsOldOS2Format())
+	{
+		type_descriptions.erase(SHT_OLD_OS);
+		type_descriptions.erase(SHT_OLD_IMPORTS);
+
+		type_descriptions[SHT_INIT_ARRAY]  = "SHT_INIT_ARRAY - Array of initialization functions";
+		type_descriptions[SHT_FINI_ARRAY]  = "SHT_FINI_ARRAY - Array of termination functions";
+	}
+	else
+	{
+		type_descriptions[SHT_OLD_OS]      = "SHT_OS - (IBM OS/2) Target operating system identification";
 		type_descriptions[SHT_OLD_IMPORTS] = "SHT_IMPORTS - (IBM OS/2) External symbol references";
 		type_descriptions[SHT_OLD_EXPORTS] = "SHT_EXPORTS - (IBM OS/2) Exported symbols";
-		type_descriptions[SHT_OLD_RES] = "SHT_RES - (IBM OS/2) Resource data";
+		type_descriptions[SHT_OLD_RES]     = "SHT_RES - (IBM OS/2) Resource data";
 	}
-		/* GNU extensions */
-	type_descriptions[SHT_GNU_INCREMENTAL_INPUTS] = "SHT_GNU_INCREMENTAL_INPUTS";
-	type_descriptions[SHT_GNU_ATTRIBUTES] = "SHT_GNU_ATTRIBUTES";
-	type_descriptions[SHT_GNU_HASH] = "SHT_GNU_HASH";
-	type_descriptions[SHT_GNU_LIBLIST] = "SHT_GNU_LIBLIST";
-	type_descriptions[SHT_SUNW_verdef] = "SHT_SUNW_verdef";
-	type_descriptions[SHT_SUNW_verneed] = "SHT_SUNW_verneed";
-	type_descriptions[SHT_SUNW_versym] = "SHT_SUNW_versym";
+
 	region->AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(8)), offset_t(type));
 
 	region->AddField("Flags",
@@ -2125,251 +2151,267 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 //	file_region.Display(dump);
 
 	Dumper::Region identification_region("ELF Identification", 0, 16, 2);
-	std::map<offset_t, std::string> class_descriptions;
-	class_descriptions[ELFCLASS32] = "32-bit";
-	class_descriptions[ELFCLASS64] = "64-bit";
+	static const std::map<offset_t, std::string> class_descriptions =
+	{
+		{ ELFCLASS32, "32-bit" },
+		{ ELFCLASS64, "64-bit" },
+	};
 	identification_region.AddField("File class", Dumper::ChoiceDisplay::Make(class_descriptions, Dumper::HexDisplay::Make(2)), offset_t(file_class));
-	std::map<offset_t, std::string> encoding_descriptions;
-	encoding_descriptions[ELFDATA2LSB] = "2's complement little endian";
-	encoding_descriptions[ELFDATA2MSB] = "2's complement big endian";
+	static const std::map<offset_t, std::string> encoding_descriptions =
+	{
+		{ ELFDATA2LSB, "2's complement little endian" },
+		{ ELFDATA2MSB, "2's complement big endian" },
+	};
 	identification_region.AddField("Data encoding", Dumper::ChoiceDisplay::Make(encoding_descriptions, Dumper::HexDisplay::Make(2)), offset_t(data_encoding));
 	identification_region.AddField("ELF header version", Dumper::DecDisplay::Make(), offset_t(header_version));
-	std::map<offset_t, std::string> osabi_descriptions;
-	osabi_descriptions[0] = "None";
-	osabi_descriptions[1] = "Hewlett-Packard HP-UX";
-	osabi_descriptions[2] = "NetBSD";
-	osabi_descriptions[3] = "GNU (Linux)";
-	osabi_descriptions[6] = "Sun Solaris";
-	osabi_descriptions[7] = "AIX";
-	osabi_descriptions[8] = "IRIX";
-	osabi_descriptions[9] = "FreeBSD";
-	osabi_descriptions[10] = "Compaq TRU64 UNIX";
-	osabi_descriptions[11] = "Novell Modesto";
-	osabi_descriptions[12] = "Open BSD";
-	osabi_descriptions[13] = "Open VMS";
-	osabi_descriptions[14] = "Hewlett-Packard Non-Stop Kernel";
-	osabi_descriptions[15] = "Amiga Research OS";
-	osabi_descriptions[16] = "The FenixOS highly scalable multi-core OS";
-	osabi_descriptions[17] = "Nuxi CloudABI";
-	osabi_descriptions[18] = "Stratus Technologies OpenVOS";
+	static const std::map<offset_t, std::string> osabi_descriptions =
+	{
+		{ 0,  "None" },
+		{ 1,  "Hewlett-Packard HP-UX" },
+		{ 2,  "NetBSD" },
+		{ 3,  "GNU (Linux)" },
+		{ 6,  "Sun Solaris" },
+		{ 7,  "AIX" },
+		{ 8,  "IRIX" },
+		{ 9,  "FreeBSD" },
+		{ 10, "Compaq TRU64 UNIX" },
+		{ 11, "Novell Modesto" },
+		{ 12, "Open BSD" },
+		{ 13, "Open VMS" },
+		{ 14, "Hewlett-Packard Non-Stop Kernel" },
+		{ 15, "Amiga Research OS" },
+		{ 16, "The FenixOS highly scalable multi-core OS" },
+		{ 17, "Nuxi CloudABI" },
+		{ 18, "Stratus Technologies OpenVOS" },
+	};
 	identification_region.AddField("OS/ABI extensions", Dumper::ChoiceDisplay::Make(osabi_descriptions, Dumper::HexDisplay::Make(2)), offset_t(osabi));
 	identification_region.AddField("ABI version", Dumper::DecDisplay::Make(), offset_t(abi_version));
 	identification_region.Display(dump);
 
 	Dumper::Region header_region("ELF Header", 0, elf_header_size, 2 * wordbytes);
-	std::map<offset_t, std::string> file_type_descriptions;
-	file_type_descriptions[ET_NONE] = "No file type";
-	file_type_descriptions[ET_REL] = "Relocatable file";
-	file_type_descriptions[ET_EXEC] = "Executable file";
-	file_type_descriptions[ET_DYN] = "Shared object file";
-	file_type_descriptions[ET_CORE] = "Core file";
+	static const std::map<offset_t, std::string> file_type_descriptions =
+	{
+		{ ET_NONE, "No file type" },
+		{ ET_REL,  "Relocatable file" },
+		{ ET_EXEC, "Executable file" },
+		{ ET_DYN,  "Shared object file" },
+		{ ET_CORE, "Core file" },
+	};
 	header_region.AddField("Object file type", Dumper::ChoiceDisplay::Make(file_type_descriptions, Dumper::HexDisplay::Make(8)), offset_t(object_file_type));
 
-	std::map<offset_t, std::string> cpu_descriptions;
-	// Most of these descriptions are from https://www.sco.com/developers/gabi/latest/ch4.eheader.html
-	// Some adjustments using https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
-	cpu_descriptions[EM_NONE] = "No machine";
-	cpu_descriptions[EM_M32] = "AT&T WE 32100";
-	cpu_descriptions[EM_SPARC] = "SUN SPARC";
-	cpu_descriptions[EM_386] = "Intel 80386 (also Intel 8086/80286)";
-	cpu_descriptions[EM_68K] = "Motorola 68000 (m68k family)";
-	cpu_descriptions[EM_88K] = "Motorola 88000 (m88k family)";
-	cpu_descriptions[EM_IAMCU] = "Intel MCU";
-	cpu_descriptions[EM_860] = "Intel 80860";
-	cpu_descriptions[EM_MIPS] = "MIPS I Architecture (MIPS R3000, big-endian only)";
-	cpu_descriptions[EM_S370] = "IBM System/370 Processor";
-	cpu_descriptions[EM_MIPS_RS3_LE] = "MIPS RS3000 Little-endian (deprecated)";
-	cpu_descriptions[EM_OLD_SPARCV9] = "Old version of Sparc v9 (deprecated)"; // https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
-	cpu_descriptions[EM_PARISC] = "Hewlett-Packard PA-RISC";
-	cpu_descriptions[EM_VPP500] = "Fujitsu VPP500";
-	cpu_descriptions[EM_SPARC32PLUS] = "Enhanced instruction set SPARC (\"v8plus\")";
-	cpu_descriptions[EM_960] = "Intel 80960";
-	cpu_descriptions[EM_PPC] = "PowerPC";
-	cpu_descriptions[EM_PPC64] = "64-bit PowerPC";
-	cpu_descriptions[EM_S390] = "IBM System/390 Processor";
-	cpu_descriptions[EM_SPU] = "Sony/Toshiba/IBM SPU/SPC";
-	cpu_descriptions[EM_V800] = "NEC V800 series";
-	cpu_descriptions[EM_FR20] = "Fujitsu FR20";
-	cpu_descriptions[EM_RH32] = "TRW RH-32";
-	cpu_descriptions[EM_MCORE] = "Motorola RCE (M*Core) or Fujitsu MMA";
-	cpu_descriptions[EM_ARM] = "ARM 32-bit architecture (AARCH32)";
-	cpu_descriptions[EM_ALPHA] = "Digital Alpha";
-	cpu_descriptions[EM_SH] = "Renesas (Hitachi) SuperH/SH";
-	cpu_descriptions[EM_SPARCV9] = "SPARC Version 9 (64-bit)";
-	cpu_descriptions[EM_TRICORE] = "Siemens TriCore embedded processor";
-	cpu_descriptions[EM_ARC] = "Argonaut RISC Core, Argonaut Technologies Inc.";
-	cpu_descriptions[EM_H8_300] = "Renesas (Hitachi) H8/300";
-	cpu_descriptions[EM_H8_300H] = "Renesas (Hitachi) H8/300H";
-	cpu_descriptions[EM_H8S] = "Renesas (Hitachi) H8S";
-	cpu_descriptions[EM_H8_500] = "Renesas (Hitachi) H8/500";
-	cpu_descriptions[EM_IA_64] = "Intel IA-64 processor architecture (Itanium)";
-	cpu_descriptions[EM_MIPS_X] = "Stanford MIPS-X";
-	cpu_descriptions[EM_COLDFIRE] = "Motorola ColdFire";
-	cpu_descriptions[EM_68HC12] = "Motorola M68HC12";
-	cpu_descriptions[EM_MMA] = "Fujitsu MMA Multimedia Accelerator";
-	cpu_descriptions[EM_PCP] = "Siemens PCP";
-	cpu_descriptions[EM_NCPU] = "Sony nCPU embedded RISC processor";
-	cpu_descriptions[EM_NDR1] = "Denso NDR1 microprocessor";
-	cpu_descriptions[EM_STARCORE] = "Motorola Star*Core processor";
-	cpu_descriptions[EM_ME16] = "Toyota ME16 processor";
-	cpu_descriptions[EM_ST100] = "STMicroelectronics ST100 processor";
-	cpu_descriptions[EM_TINYJ] = "Advanced Logic Corp. TinyJ embedded processor family";
-	cpu_descriptions[EM_X86_64] = "AMD x86-64 architecture";
-	cpu_descriptions[EM_PDSP] = "Sony DSP Processor";
-	cpu_descriptions[EM_PDP10] = "Digital Equipment Corp. PDP-10";
-	cpu_descriptions[EM_PDP11] = "Digital Equipment Corp. PDP-11";
-	cpu_descriptions[EM_FX66] = "Siemens FX66 microcontroller";
-	cpu_descriptions[EM_ST9PLUS] = "STMicroelectronics ST9+ 8/16 bit microcontroller";
-	cpu_descriptions[EM_ST7] = "STMicroelectronics ST7 8-bit microcontroller";
-	cpu_descriptions[EM_68HC16] = "Motorola MC68HC16 Microcontroller";
-	cpu_descriptions[EM_68HC11] = "Motorola MC68HC11 Microcontroller";
-	cpu_descriptions[EM_68HC08] = "Motorola MC68HC08 Microcontroller";
-	cpu_descriptions[EM_68HC05] = "Motorola MC68HC05 Microcontroller";
-	cpu_descriptions[EM_SVX] = "Silicon Graphics SVx";
-	cpu_descriptions[EM_ST19] = "STMicroelectronics ST19 8-bit microcontroller";
-	cpu_descriptions[EM_VAX] = "Digital VAX";
-	cpu_descriptions[EM_CRIS] = "Axis Communication 32-bit embedded processor";
-	cpu_descriptions[EM_JAVELIN] = "Infineon Technologies 32-bit embedded processor";
-	cpu_descriptions[EM_FIREPATH] = "Element 14 64-bit DSP Processor";
-	cpu_descriptions[EM_ZSP] = "LSI Logic 16-bit DSP Processor";
-	cpu_descriptions[EM_MMIX] = "Donald Knuth's educational 64-bit processor";
-	cpu_descriptions[EM_HUANY] = "Harvard University machine-independent object file";
-	cpu_descriptions[EM_PRISM] = "SiTera Prism";
-	cpu_descriptions[EM_AVR] = "Atmel AVR 8-bit microcontroller";
-	cpu_descriptions[EM_FR30] = "Fujitsu FR30";
-	cpu_descriptions[EM_D10V] = "Mitsubishi D10V";
-	cpu_descriptions[EM_D30V] = "Mitsubishi D30V";
-	cpu_descriptions[EM_V850] = "Renesas (NEC) v850";
-	cpu_descriptions[EM_M32R] = "Renesas (Mitsubishi) M32R";
-	cpu_descriptions[EM_MN10300] = "Matsushita MN10300";
-	cpu_descriptions[EM_MN10200] = "Matsushita MN10200";
-	cpu_descriptions[EM_PJ] = "picoJava";
-	cpu_descriptions[EM_OPENRISC] = "OpenRISC 1000 32-bit embedded processor";
-	cpu_descriptions[EM_ARC_COMPACT] = "ARC International ARCompact processor";
-	cpu_descriptions[EM_XTENSA] = "Tensilica Xtensa Architecture";
-	cpu_descriptions[EM_VIDEOCORE] = "Alphamosaic VideoCore processor/old Sunplus S+core7 backend magic number"; // https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
-	cpu_descriptions[EM_TMM_GPP] = "Thompson Multimedia General Purpose Processor";
-	cpu_descriptions[EM_NS32K] = "National Semiconductor 32000 series";
-	cpu_descriptions[EM_TPC] = "Tenor Network TPC processor";
-	cpu_descriptions[EM_SNP1K] = "Trebia SNP 1000 processor/old picoJava";
-	cpu_descriptions[EM_ST200] = "STMicroelectronics (www.st.com) ST200 microcontroller";
-	cpu_descriptions[EM_IP2K] = "Ubicom IP2022/IP2xxx microcontroller family";
-	cpu_descriptions[EM_MAX] = "MAX Processor";
-	cpu_descriptions[EM_CR] = "National Semiconductor CompactRISC microprocessor";
-	cpu_descriptions[EM_F2MC16] = "Fujitsu F2MC16";
-	cpu_descriptions[EM_MSP430] = "Texas Instruments embedded microcontroller msp430";
-	cpu_descriptions[EM_BLACKFIN] = "Analog Devices Blackfin (DSP) processor";
-	cpu_descriptions[EM_SE_C33] = "S1C33 Family of Seiko Epson processor";
-	cpu_descriptions[EM_SEP] = "Sharp embedded microprocessor";
-	cpu_descriptions[EM_ARCA] = "Arca RISC Microprocessor";
-	cpu_descriptions[EM_UNICORE] = "Microprocessor series from PKU-Unity Ltd. and MPRC of Peking University";
-	cpu_descriptions[EM_EXCESS] = "eXcess: 16/32/64-bit configurable embedded CPU";
-	cpu_descriptions[EM_DXP] = "Icera Semiconductor Inc. Deep Execution Processor";
-	cpu_descriptions[EM_ALTERA_NIOS32] = "Altera Nios II soft-core processor";
-	cpu_descriptions[EM_CRX] = "National Semiconductor CompactRISC CRX microprocessor";
-	cpu_descriptions[EM_XGATE] = "Motorola XGATE embedded processor/old National Semiconductor CompactRISC";
-	cpu_descriptions[EM_C166] = "Infineon C16x/XC16x processor";
-	cpu_descriptions[EM_M16C] = "Renesas M16C series microprocessors";
-	cpu_descriptions[EM_DSPIC30F] = "Microchip Technology dsPIC30F Digital Signal Controller";
-	cpu_descriptions[EM_CE] = "Freescale Communication Engine RISC core";
-	cpu_descriptions[EM_M32C] = "Renesas M32C series microprocessors";
-	cpu_descriptions[EM_TSK3000] = "Altium TSK3000 core";
-	cpu_descriptions[EM_RS08] = "Freescale RS08 embedded processor";
-	cpu_descriptions[EM_SHARC] = "Analog Devices SHARC family of 32-bit DSP processors";
-	cpu_descriptions[EM_ECOG2] = "Cyan Technology eCOG2 microprocessor";
-	cpu_descriptions[EM_SCORE7] = "Sunplus Score/Sunplus S+core7 RISC processor";
-	cpu_descriptions[EM_DSP24] = "New Japan Radio (NJR) 24-bit DSP Processor";
-	cpu_descriptions[EM_VIDEOCORE3] = "Broadcom Videocore III processor";
-	cpu_descriptions[EM_LATTICEMICO32] = "RISC processor for Lattice FPGA architecture";
-	cpu_descriptions[EM_SE_CE17] = "Seiko Epson C17 family";
-	cpu_descriptions[EM_TI_C6000] = "The Texas Instruments TMS320C6000 DSP family";
-	cpu_descriptions[EM_TI_C2000] = "The Texas Instruments TMS320C2000 DSP family";
-	cpu_descriptions[EM_TI_C5500] = "The Texas Instruments TMS320C55x DSP family";
-	cpu_descriptions[EM_TI_ARP32] = "Texas Instruments Application Specific RISC Processor, 32-bit fetch";
-	cpu_descriptions[EM_TI_PRU] = "Texas Instruments Programmable Realtime Unit";
-	cpu_descriptions[EM_MMDSP_PLUS] = "STMicroelectronics 64bit VLIW Data Signal Processor";
-	cpu_descriptions[EM_CYPRESS_M8C] = "Cypress M8C microprocessor";
-	cpu_descriptions[EM_R32C] = "Renesas R32C series microprocessors";
-	cpu_descriptions[EM_TRIMEDIA] = "NXP Semiconductors TriMedia architecture family";
-	cpu_descriptions[EM_QDSP6] = "QUALCOMM DSP6 Processor";
-	cpu_descriptions[EM_8051] = "Intel 8051 and variants";
-	cpu_descriptions[EM_STXP7X] = "STMicroelectronics STxP7x family of configurable and extensible RISC processors";
-	cpu_descriptions[EM_NDS32] = "Andes Technology compact code size embedded RISC processor family";
-	cpu_descriptions[EM_ECOG1] = "Cyan Technology eCOG1X family";
-	cpu_descriptions[EM_MAXQ30] = "Dallas Semiconductor MAXQ30 Core Micro-controllers";
-	cpu_descriptions[EM_XIMO16] = "New Japan Radio (NJR) 16-bit DSP Processor";
-	cpu_descriptions[EM_MANIK] = "M2000 Reconfigurable RISC Microprocessor";
-	cpu_descriptions[EM_CRAYNV2] = "Cray Inc. NV2 vector architecture";
-	cpu_descriptions[EM_RX] = "Renesas RX family";
-	cpu_descriptions[EM_METAG] = "Imagination Technologies META processor architecture";
-	cpu_descriptions[EM_MCST_ELBRUS] = "MCST Elbrus general purpose hardware architecture";
-	cpu_descriptions[EM_ECOG16] = "Cyan Technology eCOG16 family";
-	cpu_descriptions[EM_CR16] = "National Semiconductor CompactRISC CR16 16-bit microprocessor";
-	cpu_descriptions[EM_ETPU] = "Freescale Extended Time Processing Unit";
-	cpu_descriptions[EM_SLE9X] = "Infineon Technologies SLE9X core";
-	cpu_descriptions[EM_L10M] = "Intel L10M";
-	cpu_descriptions[EM_K10M] = "Intel K10M";
-	cpu_descriptions[EM_AARCH64] = "ARM 64-bit architecture (AARCH64)";
-	cpu_descriptions[EM_AVR32] = "Atmel Corporation 32-bit microprocessor family";
-	cpu_descriptions[EM_STM8] = "STMicroelectronics STM8 8-bit microcontroller";
-	cpu_descriptions[EM_TILE64] = "Tilera TILE64 multicore architecture family";
-	cpu_descriptions[EM_TILEPRO] = "Tilera TILEPRO multicore architecture family";
-	cpu_descriptions[EM_MICROBLAZE] = "Xilinx MicroBlaze 32-bit RISC soft processor core";
-	cpu_descriptions[EM_CUDA] = "NVIDIA CUDA architecture";
-	cpu_descriptions[EM_TILEGX] = "Tilera TILE-Gx multicore architecture family";
-	cpu_descriptions[EM_CLOUDSHIELD] = "CloudShield architecture family";
-	cpu_descriptions[EM_COREA_1ST] = "KIPO-KAIST Core-A 1st generation processor family";
-	cpu_descriptions[EM_COREA_2ND] = "KIPO-KAIST Core-A 2nd generation processor family";
-	cpu_descriptions[EM_ARC_COMPACT2] = "Synopsys ARCompact V2";
-	cpu_descriptions[EM_OPEN8] = "Open8 8-bit RISC soft processor core";
-	cpu_descriptions[EM_RL78] = "Renesas RL78 family";
-	cpu_descriptions[EM_VIDEOCORE5] = "Broadcom VideoCore V processor";
-	cpu_descriptions[EM_78KOR] = "Renesas 78KOR family";
-	cpu_descriptions[EM_56800EX] = "Freescale 56800EX Digital Signal Controller (DSC)";
-	cpu_descriptions[EM_BA1] = "Beyond BA1 CPU architecture";
-	cpu_descriptions[EM_BA2] = "Beyond BA2 CPU architecture";
-	cpu_descriptions[EM_XCORE] = "XMOS xCORE processor family";
-	cpu_descriptions[EM_MCHP_PIC] = "Microchip 8-bit PIC(r) family";
-	cpu_descriptions[EM_INTELGT] = "Intel Graphics Technology"; // https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
-	cpu_descriptions[EM_KM32] = "KM211 KM32 32-bit processor";
-	cpu_descriptions[EM_KMX32] = "KM211 KMX32 32-bit processor";
-	cpu_descriptions[EM_KMX16] = "KM211 KMX16 16-bit processor";
-	cpu_descriptions[EM_KMX8] = "KM211 KMX8 8-bit processor";
-	cpu_descriptions[EM_KVARC] = "KM211 KVARC processor";
-	cpu_descriptions[EM_CDP] = "Paneve CDP architecture family";
-	cpu_descriptions[EM_COGE] = "Cognitive Smart Memory Processor";
-	cpu_descriptions[EM_COOL] = "Bluechip Systems CoolEngine";
-	cpu_descriptions[EM_NORC] = "Nanoradio Optimized RISC";
-	cpu_descriptions[EM_CSR_KALIMBA] = "CSR Kalimba architecture family";
-	cpu_descriptions[EM_Z80] = "Zilog Z80";
-	cpu_descriptions[EM_VISIUM] = "Controls and Data Services VISIUMcore processor";
-	cpu_descriptions[EM_FT32] = "FTDI Chip FT32 high performance 32-bit RISC architecture";
-	cpu_descriptions[EM_MOXIE] = "Moxie processor family";
-	cpu_descriptions[EM_AMDGPU] = "AMD GPU architecture";
-	cpu_descriptions[EM_RISCV] = "RISC-V";
-	// https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
-	cpu_descriptions[EM_LANAI] = "Lanai 32-bit processor";
-	cpu_descriptions[EM_CEVA] = "CEVA Processor Architecture Family";
-	cpu_descriptions[EM_CEVA_X2] = "CEVA X2 Processor Family";
-	cpu_descriptions[EM_BPF] = "Linux BPF - in-kernel virtual machine";
-	cpu_descriptions[EM_GRAPHCORE_IPU] = "Graphcore Intelligent Processing Unit";
-	cpu_descriptions[EM_IMG1] = "Imagination Technologies";
-	cpu_descriptions[EM_NFP] = "Netronome Flow Processor";
-	cpu_descriptions[EM_VE] = "NEC Vector Engine";
-	cpu_descriptions[EM_CSKY] = "C-SKY processor family";
-	cpu_descriptions[EM_ARC_COMPACT3_64] = "Synopsys ARCv2.3 64-bit";
-	cpu_descriptions[EM_MCS6502] = "MOS Technology MCS 6502 processor";
-	cpu_descriptions[EM_ARC_COMPACT3] = "Synopsys ARCv2.3 32-bit";
-	cpu_descriptions[EM_KVX] = "Kalray VLIW core of the MPPA processor family";
-	cpu_descriptions[EM_65816] = "WDC 65816/65C816";
-	cpu_descriptions[EM_LOONGARCH] = "LoongArch";
-	cpu_descriptions[EM_KF32] = "ChipOn KungFu32";
-	cpu_descriptions[EM_U16_U8CORE] = "LAPIS nX-U16/U8";
-	cpu_descriptions[EM_TACHYUM] = "Tachyum";
-	cpu_descriptions[EM_56800EF] = "NXP 56800EF Digital Signal Controller (DSC) ";
-	cpu_descriptions[EM_HOBBIT] = "AT&T Hobbit";
-	cpu_descriptions[EM_MOS] = "MOS 6502 (llvm-mos ELF specification)";
-	if(IsOldOS2Format())
+	static std::map<offset_t, std::string> cpu_descriptions =
+	{
+		// Most of these descriptions are from https://www.sco.com/developers/gabi/latest/ch4.eheader.html
+		// Some adjustments using https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
+		{ EM_NONE, "No machine" },
+		{ EM_M32, "AT&T WE 32100" },
+		{ EM_SPARC, "SUN SPARC" },
+		{ EM_386, "Intel 80386 (also Intel 8086/80286)" },
+		{ EM_68K, "Motorola 68000 (m68k family)" },
+		{ EM_88K, "Motorola 88000 (m88k family)" },
+		{ EM_IAMCU, "Intel MCU" },
+		{ EM_860, "Intel 80860" },
+		{ EM_MIPS, "MIPS I Architecture (MIPS R3000, big-endian only)" },
+		{ EM_S370, "IBM System/370 Processor" },
+		{ EM_MIPS_RS3_LE, "MIPS RS3000 Little-endian (deprecated)" },
+		{ EM_OLD_SPARCV9, "Old version of Sparc v9 (deprecated)" }, // https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
+		{ EM_PARISC, "Hewlett-Packard PA-RISC" },
+		//{ EM_VPP500, "Fujitsu VPP500" }, // clashes with OS/2 PowerPC
+		{ EM_SPARC32PLUS, "Enhanced instruction set SPARC (\"v8plus\")" },
+		{ EM_960, "Intel 80960" },
+		{ EM_PPC, "PowerPC" },
+		{ EM_PPC64, "64-bit PowerPC" },
+		{ EM_S390, "IBM System/390 Processor" },
+		{ EM_SPU, "Sony/Toshiba/IBM SPU/SPC" },
+		{ EM_V800, "NEC V800 series" },
+		{ EM_FR20, "Fujitsu FR20" },
+		{ EM_RH32, "TRW RH-32" },
+		{ EM_MCORE, "Motorola RCE (M*Core) or Fujitsu MMA" },
+		{ EM_ARM, "ARM 32-bit architecture (AARCH32)" },
+		{ EM_ALPHA, "Digital Alpha" },
+		{ EM_SH, "Renesas (Hitachi) SuperH/SH" },
+		{ EM_SPARCV9, "SPARC Version 9 (64-bit)" },
+		{ EM_TRICORE, "Siemens TriCore embedded processor" },
+		{ EM_ARC, "Argonaut RISC Core, Argonaut Technologies Inc." },
+		{ EM_H8_300, "Renesas (Hitachi) H8/300" },
+		{ EM_H8_300H, "Renesas (Hitachi) H8/300H" },
+		{ EM_H8S, "Renesas (Hitachi) H8S" },
+		{ EM_H8_500, "Renesas (Hitachi) H8/500" },
+		{ EM_IA_64, "Intel IA-64 processor architecture (Itanium)" },
+		{ EM_MIPS_X, "Stanford MIPS-X" },
+		{ EM_COLDFIRE, "Motorola ColdFire" },
+		{ EM_68HC12, "Motorola M68HC12" },
+		{ EM_MMA, "Fujitsu MMA Multimedia Accelerator" },
+		{ EM_PCP, "Siemens PCP" },
+		{ EM_NCPU, "Sony nCPU embedded RISC processor" },
+		{ EM_NDR1, "Denso NDR1 microprocessor" },
+		{ EM_STARCORE, "Motorola Star*Core processor" },
+		{ EM_ME16, "Toyota ME16 processor" },
+		{ EM_ST100, "STMicroelectronics ST100 processor" },
+		{ EM_TINYJ, "Advanced Logic Corp. TinyJ embedded processor family" },
+		{ EM_X86_64, "AMD x86-64 architecture" },
+		{ EM_PDSP, "Sony DSP Processor" },
+		{ EM_PDP10, "Digital Equipment Corp. PDP-10" },
+		{ EM_PDP11, "Digital Equipment Corp. PDP-11" },
+		{ EM_FX66, "Siemens FX66 microcontroller" },
+		{ EM_ST9PLUS, "STMicroelectronics ST9+ 8/16 bit microcontroller" },
+		{ EM_ST7, "STMicroelectronics ST7 8-bit microcontroller" },
+		{ EM_68HC16, "Motorola MC68HC16 Microcontroller" },
+		{ EM_68HC11, "Motorola MC68HC11 Microcontroller" },
+		{ EM_68HC08, "Motorola MC68HC08 Microcontroller" },
+		{ EM_68HC05, "Motorola MC68HC05 Microcontroller" },
+		{ EM_SVX, "Silicon Graphics SVx" },
+		{ EM_ST19, "STMicroelectronics ST19 8-bit microcontroller" },
+		{ EM_VAX, "Digital VAX" },
+		{ EM_CRIS, "Axis Communication 32-bit embedded processor" },
+		{ EM_JAVELIN, "Infineon Technologies 32-bit embedded processor" },
+		{ EM_FIREPATH, "Element 14 64-bit DSP Processor" },
+		{ EM_ZSP, "LSI Logic 16-bit DSP Processor" },
+		{ EM_MMIX, "Donald Knuth's educational 64-bit processor" },
+		{ EM_HUANY, "Harvard University machine-independent object file" },
+		{ EM_PRISM, "SiTera Prism" },
+		{ EM_AVR, "Atmel AVR 8-bit microcontroller" },
+		{ EM_FR30, "Fujitsu FR30" },
+		{ EM_D10V, "Mitsubishi D10V" },
+		{ EM_D30V, "Mitsubishi D30V" },
+		{ EM_V850, "Renesas (NEC) v850" },
+		{ EM_M32R, "Renesas (Mitsubishi) M32R" },
+		{ EM_MN10300, "Matsushita MN10300" },
+		{ EM_MN10200, "Matsushita MN10200" },
+		{ EM_PJ, "picoJava" },
+		{ EM_OPENRISC, "OpenRISC 1000 32-bit embedded processor" },
+		{ EM_ARC_COMPACT, "ARC International ARCompact processor" },
+		{ EM_XTENSA, "Tensilica Xtensa Architecture" },
+		{ EM_VIDEOCORE, "Alphamosaic VideoCore processor/old Sunplus S+core7 backend magic number" }, // https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
+		{ EM_TMM_GPP, "Thompson Multimedia General Purpose Processor" },
+		{ EM_NS32K, "National Semiconductor 32000 series" },
+		{ EM_TPC, "Tenor Network TPC processor" },
+		{ EM_SNP1K, "Trebia SNP 1000 processor/old picoJava" },
+		{ EM_ST200, "STMicroelectronics (www.st.com) ST200 microcontroller" },
+		{ EM_IP2K, "Ubicom IP2022/IP2xxx microcontroller family" },
+		{ EM_MAX, "MAX Processor" },
+		{ EM_CR, "National Semiconductor CompactRISC microprocessor" },
+		{ EM_F2MC16, "Fujitsu F2MC16" },
+		{ EM_MSP430, "Texas Instruments embedded microcontroller msp430" },
+		{ EM_BLACKFIN, "Analog Devices Blackfin (DSP) processor" },
+		{ EM_SE_C33, "S1C33 Family of Seiko Epson processor" },
+		{ EM_SEP, "Sharp embedded microprocessor" },
+		{ EM_ARCA, "Arca RISC Microprocessor" },
+		{ EM_UNICORE, "Microprocessor series from PKU-Unity Ltd. and MPRC of Peking University" },
+		{ EM_EXCESS, "eXcess: 16/32/64-bit configurable embedded CPU" },
+		{ EM_DXP, "Icera Semiconductor Inc. Deep Execution Processor" },
+		{ EM_ALTERA_NIOS32, "Altera Nios II soft-core processor" },
+		{ EM_CRX, "National Semiconductor CompactRISC CRX microprocessor" },
+		{ EM_XGATE, "Motorola XGATE embedded processor/old National Semiconductor CompactRISC" },
+		{ EM_C166, "Infineon C16x/XC16x processor" },
+		{ EM_M16C, "Renesas M16C series microprocessors" },
+		{ EM_DSPIC30F, "Microchip Technology dsPIC30F Digital Signal Controller" },
+		{ EM_CE, "Freescale Communication Engine RISC core" },
+		{ EM_M32C, "Renesas M32C series microprocessors" },
+		{ EM_TSK3000, "Altium TSK3000 core" },
+		{ EM_RS08, "Freescale RS08 embedded processor" },
+		{ EM_SHARC, "Analog Devices SHARC family of 32-bit DSP processors" },
+		{ EM_ECOG2, "Cyan Technology eCOG2 microprocessor" },
+		{ EM_SCORE7, "Sunplus Score/Sunplus S+core7 RISC processor" },
+		{ EM_DSP24, "New Japan Radio (NJR) 24-bit DSP Processor" },
+		{ EM_VIDEOCORE3, "Broadcom Videocore III processor" },
+		{ EM_LATTICEMICO32, "RISC processor for Lattice FPGA architecture" },
+		{ EM_SE_CE17, "Seiko Epson C17 family" },
+		{ EM_TI_C6000, "The Texas Instruments TMS320C6000 DSP family" },
+		{ EM_TI_C2000, "The Texas Instruments TMS320C2000 DSP family" },
+		{ EM_TI_C5500, "The Texas Instruments TMS320C55x DSP family" },
+		{ EM_TI_ARP32, "Texas Instruments Application Specific RISC Processor, 32-bit fetch" },
+		{ EM_TI_PRU, "Texas Instruments Programmable Realtime Unit" },
+		{ EM_MMDSP_PLUS, "STMicroelectronics 64bit VLIW Data Signal Processor" },
+		{ EM_CYPRESS_M8C, "Cypress M8C microprocessor" },
+		{ EM_R32C, "Renesas R32C series microprocessors" },
+		{ EM_TRIMEDIA, "NXP Semiconductors TriMedia architecture family" },
+		{ EM_QDSP6, "QUALCOMM DSP6 Processor" },
+		{ EM_8051, "Intel 8051 and variants" },
+		{ EM_STXP7X, "STMicroelectronics STxP7x family of configurable and extensible RISC processors" },
+		{ EM_NDS32, "Andes Technology compact code size embedded RISC processor family" },
+		{ EM_ECOG1, "Cyan Technology eCOG1X family" },
+		{ EM_MAXQ30, "Dallas Semiconductor MAXQ30 Core Micro-controllers" },
+		{ EM_XIMO16, "New Japan Radio (NJR) 16-bit DSP Processor" },
+		{ EM_MANIK, "M2000 Reconfigurable RISC Microprocessor" },
+		{ EM_CRAYNV2, "Cray Inc. NV2 vector architecture" },
+		{ EM_RX, "Renesas RX family" },
+		{ EM_METAG, "Imagination Technologies META processor architecture" },
+		{ EM_MCST_ELBRUS, "MCST Elbrus general purpose hardware architecture" },
+		{ EM_ECOG16, "Cyan Technology eCOG16 family" },
+		{ EM_CR16, "National Semiconductor CompactRISC CR16 16-bit microprocessor" },
+		{ EM_ETPU, "Freescale Extended Time Processing Unit" },
+		{ EM_SLE9X, "Infineon Technologies SLE9X core" },
+		{ EM_L10M, "Intel L10M" },
+		{ EM_K10M, "Intel K10M" },
+		{ EM_AARCH64, "ARM 64-bit architecture (AARCH64)" },
+		{ EM_AVR32, "Atmel Corporation 32-bit microprocessor family" },
+		{ EM_STM8, "STMicroelectronics STM8 8-bit microcontroller" },
+		{ EM_TILE64, "Tilera TILE64 multicore architecture family" },
+		{ EM_TILEPRO, "Tilera TILEPRO multicore architecture family" },
+		{ EM_MICROBLAZE, "Xilinx MicroBlaze 32-bit RISC soft processor core" },
+		{ EM_CUDA, "NVIDIA CUDA architecture" },
+		{ EM_TILEGX, "Tilera TILE-Gx multicore architecture family" },
+		{ EM_CLOUDSHIELD, "CloudShield architecture family" },
+		{ EM_COREA_1ST, "KIPO-KAIST Core-A 1st generation processor family" },
+		{ EM_COREA_2ND, "KIPO-KAIST Core-A 2nd generation processor family" },
+		{ EM_ARC_COMPACT2, "Synopsys ARCompact V2" },
+		{ EM_OPEN8, "Open8 8-bit RISC soft processor core" },
+		{ EM_RL78, "Renesas RL78 family" },
+		{ EM_VIDEOCORE5, "Broadcom VideoCore V processor" },
+		{ EM_78KOR, "Renesas 78KOR family" },
+		{ EM_56800EX, "Freescale 56800EX Digital Signal Controller (DSC)" },
+		{ EM_BA1, "Beyond BA1 CPU architecture" },
+		{ EM_BA2, "Beyond BA2 CPU architecture" },
+		{ EM_XCORE, "XMOS xCORE processor family" },
+		{ EM_MCHP_PIC, "Microchip 8-bit PIC(r) family" },
+		{ EM_INTELGT, "Intel Graphics Technology" }, // https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
+		{ EM_KM32, "KM211 KM32 32-bit processor" },
+		{ EM_KMX32, "KM211 KMX32 32-bit processor" },
+		{ EM_KMX16, "KM211 KMX16 16-bit processor" },
+		{ EM_KMX8, "KM211 KMX8 8-bit processor" },
+		{ EM_KVARC, "KM211 KVARC processor" },
+		{ EM_CDP, "Paneve CDP architecture family" },
+		{ EM_COGE, "Cognitive Smart Memory Processor" },
+		{ EM_COOL, "Bluechip Systems CoolEngine" },
+		{ EM_NORC, "Nanoradio Optimized RISC" },
+		{ EM_CSR_KALIMBA, "CSR Kalimba architecture family" },
+		{ EM_Z80, "Zilog Z80" },
+		{ EM_VISIUM, "Controls and Data Services VISIUMcore processor" },
+		{ EM_FT32, "FTDI Chip FT32 high performance 32-bit RISC architecture" },
+		{ EM_MOXIE, "Moxie processor family" },
+		{ EM_AMDGPU, "AMD GPU architecture" },
+		{ EM_RISCV, "RISC-V" },
+		// https://github.com/bminor/binutils-gdb/blob/master/include/elf/common.h
+		{ EM_LANAI, "Lanai 32-bit processor" },
+		{ EM_CEVA, "CEVA Processor Architecture Family" },
+		{ EM_CEVA_X2, "CEVA X2 Processor Family" },
+		{ EM_BPF, "Linux BPF - in-kernel virtual machine" },
+		{ EM_GRAPHCORE_IPU, "Graphcore Intelligent Processing Unit" },
+		{ EM_IMG1, "Imagination Technologies" },
+		{ EM_NFP, "Netronome Flow Processor" },
+		{ EM_VE, "NEC Vector Engine" },
+		{ EM_CSKY, "C-SKY processor family" },
+		{ EM_ARC_COMPACT3_64, "Synopsys ARCv2.3 64-bit" },
+		{ EM_MCS6502, "MOS Technology MCS 6502 processor" },
+		{ EM_ARC_COMPACT3, "Synopsys ARCv2.3 32-bit" },
+		{ EM_KVX, "Kalray VLIW core of the MPPA processor family" },
+		{ EM_65816, "WDC 65816/65C816" },
+		{ EM_LOONGARCH, "LoongArch" },
+		{ EM_KF32, "ChipOn KungFu32" },
+		{ EM_U16_U8CORE, "LAPIS nX-U16/U8" },
+		{ EM_TACHYUM, "Tachyum" },
+		{ EM_56800EF, "NXP 56800EF Digital Signal Controller (DSC) " },
+		// others
+		{ EM_HOBBIT, "AT&T Hobbit" },
+		{ EM_MOS, "MOS 6502 (llvm-mos ELF specification)" },
+	};
+
+	if(!IsOldOS2Format())
+	{
+		cpu_descriptions[EM_VPP500] = "Fujitsu VPP500";
+	}
+	else
 	{
 		cpu_descriptions[EM_VPP500] = "PowerPC (beta OS/2)";
 	}
@@ -2404,34 +2446,40 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Region segment_region("Segment", segment.offset, segment.filesz, 2 * wordbytes);
 		segment_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i));
 
-		std::map<offset_t, std::string> type_descriptions;
-		type_descriptions[Segment::PT_NULL] = "PT_NULL - ignored";
-		type_descriptions[Segment::PT_LOAD] = "PT_LOAD - loadable segment";
-		type_descriptions[Segment::PT_DYNAMIC] = "PT_DYNAMIC - dynamic linking information";
-		type_descriptions[Segment::PT_INTERP] = "PT_INTERP - interpreter name";
-		type_descriptions[Segment::PT_NOTE] = "PT_NOTE - auxiliary information";
-		type_descriptions[Segment::PT_SHLIB] = "PT_SHLIB - reserved";
-		type_descriptions[Segment::PT_PHDR] = "PT_PHDR - program header table";
-		type_descriptions[Segment::PT_TLS] = "PT_TLS - thread-local storage";
-		type_descriptions[Segment::PT_OS] = "PT_OS - (IBM OS/2) target operating system identification";
-		type_descriptions[Segment::PT_RES] = "PT_RES - (IBM OS/2) read-only resource data";
-		if(IsOldOS2Format())
+		static std::map<offset_t, std::string> type_descriptions =
+		{
+			{ Segment::PT_NULL, "PT_NULL - ignored" },
+			{ Segment::PT_LOAD, "PT_LOAD - loadable segment" },
+			{ Segment::PT_DYNAMIC, "PT_DYNAMIC - dynamic linking information" },
+			{ Segment::PT_INTERP, "PT_INTERP - interpreter name" },
+			{ Segment::PT_NOTE, "PT_NOTE - auxiliary information" },
+			{ Segment::PT_SHLIB, "PT_SHLIB - reserved" },
+			{ Segment::PT_PHDR, "PT_PHDR - program header table" },
+			//{ Segment::PT_TLS, "PT_TLS - thread-local storage" }, // clashes with PT_OLD_OS
+			{ Segment::PT_OS, "PT_OS - (IBM OS/2) target operating system identification" },
+			{ Segment::PT_RES, "PT_RES - (IBM OS/2) read-only resource data" },
+			{ Segment::PT_SUNW_EH_FRAME, "PT_SUNW_EH_FRAME - frame unwind information" },
+			{ Segment::PT_GNU_STACK, "PT_GNU_STACK - stack flags" },
+			{ Segment::PT_GNU_RELRO, "PT_GNU_RELRO - read-only after relocation" },
+			{ Segment::PT_GNU_PROPERTY, "PT_GNU_PROPERTY - GNU property" },
+			{ Segment::PT_GNU_SFRAME, "PT_GNU_SFRAME - stack trace information" },
+			{ Segment::PT_OPENBSD_MUTABLE, "PT_OPENBSD_MUTABLE - mutable .bss" },
+			{ Segment::PT_OPENBSD_RANDOMIZE, "PT_OPENBSD_RANDOMIZE - fill with random data" },
+			{ Segment::PT_OPENBSD_WXNEEDED, "PT_OPENBSD_WXNEEDED - program does W^X violation" },
+			{ Segment::PT_OPENBSD_NOBTCFI, "PT_OPENBSD_NOBTCFI - no branch target CFI" },
+			{ Segment::PT_OPENBSD_BOOTDATA, "PT_OPENBSD_BOOTDATA - section for boot arguments" },
+		};
+		if(!IsOldOS2Format())
+		{
+			type_descriptions.erase(Segment::PT_OLD_RES);
+
+			type_descriptions[Segment::PT_TLS] = "PT_TLS - thread-local storage";
+		}
+		else
 		{
 			type_descriptions[Segment::PT_OLD_OS] = "PT_OS - (IBM OS/2) target operating system identification";
 			type_descriptions[Segment::PT_OLD_RES] = "PT_RES - (IBM OS/2) read-only resource data";
 		}
-		type_descriptions[Segment::PT_SUNW_EH_FRAME] = "PT_SUNW_EH_FRAME - frame unwind information";
-		type_descriptions[Segment::PT_GNU_STACK] = "PT_GNU_STACK - stack flags";
-		type_descriptions[Segment::PT_GNU_RELRO] = "PT_GNU_RELRO - read-only after relocation";
-		type_descriptions[Segment::PT_GNU_PROPERTY] = "PT_GNU_PROPERTY - GNU property";
-		type_descriptions[Segment::PT_GNU_SFRAME] = "PT_GNU_SFRAME - stack trace information";
-		//type_descriptions[Segment::PT_GNU_MBIND_LO] = "",
-		//type_descriptions[Segment::PT_GNU_MBIND_HI] = "",
-		type_descriptions[Segment::PT_OPENBSD_MUTABLE] = "PT_OPENBSD_MUTABLE - mutable .bss";
-		type_descriptions[Segment::PT_OPENBSD_RANDOMIZE] = "PT_OPENBSD_RANDOMIZE - fill with random data";
-		type_descriptions[Segment::PT_OPENBSD_WXNEEDED] = "PT_OPENBSD_WXNEEDED - program does W^X violation";
-		type_descriptions[Segment::PT_OPENBSD_NOBTCFI] = "PT_OPENBSD_NOBTCFI - no branch target CFI";
-		type_descriptions[Segment::PT_OPENBSD_BOOTDATA] = "PT_OPENBSD_BOOTDATA - section for boot arguments";
 		segment_region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(8)), offset_t(segment.type));
 
 		segment_region.AddField("Flags",

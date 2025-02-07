@@ -350,48 +350,64 @@ void COFFFormat::ZilogRelocation::WriteFile(Linker::Writer& wr) const
 
 void COFFFormat::ZilogRelocation::FillEntry(Dumper::Entry& entry) const
 {
-	std::map<offset_t, std::string> relocation_type_names;
+	static const std::map<offset_t, std::string> z80_relocation_type_names =
+	{
+		{ ZilogRelocation::R_Z80_IMM8,  "imm8" },
+		{ ZilogRelocation::R_Z80_IMM16, "imm16" },
+		{ ZilogRelocation::R_Z80_IMM24, "imm24" },
+		{ ZilogRelocation::R_Z80_IMM32, "imm32" },
+		{ ZilogRelocation::R_Z80_OFF8,  "off8" },
+		{ ZilogRelocation::R_Z80_JR,    "jr" },
+	};
+
+	static const std::map<offset_t, std::string> z8k_relocation_type_names =
+	{
+		{ ZilogRelocation::R_Z8K_IMM4L, "imm4l" },
+		{ ZilogRelocation::R_Z8K_IMM4H, "imm4h" },
+		{ ZilogRelocation::R_Z8K_DISP7, "disp7" },
+		{ ZilogRelocation::R_Z8K_IMM8,  "imm8" },
+		{ ZilogRelocation::R_Z8K_IMM16, "imm16" },
+		{ ZilogRelocation::R_Z8K_REL16, "rel16" },
+		{ ZilogRelocation::R_Z8K_IMM32, "imm32" },
+		{ ZilogRelocation::R_Z8K_JR,    "jr" },
+		{ ZilogRelocation::R_Z8K_CALLR, "callr" },
+	};
+
+	static const std::map<offset_t, std::string> w65_relocation_type_names =
+	{
+		{ ZilogRelocation::R_W65_ABS8,     "abs8" },
+		{ ZilogRelocation::R_W65_ABS16,    "abs16" },
+		{ ZilogRelocation::R_W65_ABS24,    "abs24" },
+		{ ZilogRelocation::R_W65_ABS8S8,   "abs8s8" },
+		{ ZilogRelocation::R_W65_ABS8S16,  "abs8s16" },
+		{ ZilogRelocation::R_W65_ABS16S8,  "abs16s8" },
+		{ ZilogRelocation::R_W65_ABS16S16, "abs16s16" },
+		{ ZilogRelocation::R_W65_PCR8,     "pcr8" },
+		{ ZilogRelocation::R_W65_PCR16,    "pcr16" },
+		{ ZilogRelocation::R_W65_DP,       "dp" },
+	};
+
+	const std::map<offset_t, std::string> * relocation_type_names = nullptr;
 	switch(cpu_type)
 	{
 	case CPU_Z80:
-		relocation_type_names[ZilogRelocation::R_Z80_IMM8]  = "imm8";
-		relocation_type_names[ZilogRelocation::R_Z80_IMM16] = "imm16";
-		relocation_type_names[ZilogRelocation::R_Z80_IMM24] = "imm24";
-		relocation_type_names[ZilogRelocation::R_Z80_IMM32] = "imm32";
-		relocation_type_names[ZilogRelocation::R_Z80_OFF8]  = "off8";
-		relocation_type_names[ZilogRelocation::R_Z80_JR]    = "jr";
+		relocation_type_names = &z80_relocation_type_names;
 		break;
 	case CPU_Z8K:
-		relocation_type_names[ZilogRelocation::R_Z8K_IMM4L] = "imm4l";
-		relocation_type_names[ZilogRelocation::R_Z8K_IMM4H] = "imm4h";
-		relocation_type_names[ZilogRelocation::R_Z8K_DISP7] = "disp7";
-		relocation_type_names[ZilogRelocation::R_Z8K_IMM8]  = "imm8";
-		relocation_type_names[ZilogRelocation::R_Z8K_IMM16] = "imm16";
-		relocation_type_names[ZilogRelocation::R_Z8K_REL16] = "rel16";
-		relocation_type_names[ZilogRelocation::R_Z8K_IMM32] = "imm32";
-		relocation_type_names[ZilogRelocation::R_Z8K_JR]    = "jr";
-		relocation_type_names[ZilogRelocation::R_Z8K_CALLR] = "callr";
+		relocation_type_names = &z8k_relocation_type_names;
 		break;
 	case CPU_W65:
-		relocation_type_names[ZilogRelocation::R_W65_ABS8]     = "abs8";
-		relocation_type_names[ZilogRelocation::R_W65_ABS16]    = "abs16";
-		relocation_type_names[ZilogRelocation::R_W65_ABS24]    = "abs24";
-		relocation_type_names[ZilogRelocation::R_W65_ABS8S8]   = "abs8s8";
-		relocation_type_names[ZilogRelocation::R_W65_ABS8S16]  = "abs8s16";
-		relocation_type_names[ZilogRelocation::R_W65_ABS16S8]  = "abs16s8";
-		relocation_type_names[ZilogRelocation::R_W65_ABS16S16] = "abs16s16";
-		relocation_type_names[ZilogRelocation::R_W65_PCR8]     = "pcr8";
-		relocation_type_names[ZilogRelocation::R_W65_PCR16]    = "pcr16";
-		relocation_type_names[ZilogRelocation::R_W65_DP]       = "dp";
+		relocation_type_names = &w65_relocation_type_names;
 		break;
 	default:
-		/* TODO */
+		Linker::Error << "Internal error: unknown CPU type" << std::endl;
 		break;
 	}
 
 	entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(address));
 	entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(GetSize()));
-	entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_names, Dumper::HexDisplay::Make(4)), offset_t(type));
+	if(relocation_type_names != nullptr)
+		entry.AddField("Type", Dumper::ChoiceDisplay::Make(*relocation_type_names, Dumper::HexDisplay::Make(4)), offset_t(type));
 	entry.AddOptionalField("Offset", Dumper::HexDisplay::Make(), offset_t(offset));
 	/* TODO */
 	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), offset_t(symbol_index));
@@ -630,8 +646,12 @@ offset_t COFFFormat::AOutHeader::CalculateValues(COFFFormat& coff)
 
 void COFFFormat::AOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
-	std::map<offset_t, std::string> magic_choice;
-	magic_choice[ZMAGIC] = "ZMAGIC";
+	static const std::map<offset_t, std::string> magic_choice =
+	{
+		{ OMAGIC, "OMAGIC - impure format (text segment is not write protected, text and data segment are contiguous)" },
+		{ NMAGIC, "NMAGIC - shared text (text segment is write protected, data segment follows on the next page)" },
+		{ ZMAGIC, "ZMAGIC - demand paged" },
+	};
 	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_choice, Dumper::HexDisplay::Make(4)), offset_t(magic));
 	header_region.AddOptionalField("Version stamp", Dumper::HexDisplay::Make(), offset_t(version_stamp));
 	header_region.AddField("Text size", Dumper::HexDisplay::Make(), offset_t(code_size));
@@ -1406,32 +1426,36 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("COFF format");
 
-	std::map<offset_t, std::string> cpu_descriptions;
-	cpu_descriptions[CPU_I386]  = "Intel 80386"; // (DJGPP or FlexOS 386)
-	cpu_descriptions[CPU_M68K]  = "Motorola 68000";
-	cpu_descriptions[CPU_Z80]   = "Zilog Z80";
-	cpu_descriptions[CPU_Z8K]   = "Zilog Z8000";
-	cpu_descriptions[CPU_W65]   = "WDC 6502/65C816";
+	static const std::map<offset_t, std::string> cpu_descriptions =
+	{
+		{ CPU_I386,  "Intel 80386" }, // (DJGPP or FlexOS 386)
+		{ CPU_M68K,  "Motorola 68000" },
+		{ CPU_Z80,   "Zilog Z80" },
+		{ CPU_Z8K,   "Zilog Z8000" },
+		{ CPU_W65,   "WDC 6502/65C816" },
 
-	cpu_descriptions[CPU_I86]   = "Intel 8086";
-	cpu_descriptions[CPU_NS32K] = "National Semiconductor NS32000",
-	cpu_descriptions[CPU_I370]  = "IBM System/370";
-	cpu_descriptions[CPU_MIPS]  = "MIPS";
-	cpu_descriptions[CPU_M88K]  = "Motorola 88000";
-	cpu_descriptions[CPU_WE32K] = "Western Electric 32000";
-	cpu_descriptions[CPU_VAX]   = "DEC VAX";
-	cpu_descriptions[CPU_AM29K] = "AMD 29000";
-	cpu_descriptions[CPU_ALPHA] = "DEC Alpha";
-	cpu_descriptions[CPU_PPC]   = "IBM POWER, 32-bit";
-	cpu_descriptions[CPU_PPC64] = "IBM POWER, 64-bit";
-	cpu_descriptions[CPU_SHARC] = "SHARC";
+		{ CPU_I86,   "Intel 8086" },
+		{ CPU_NS32K, "National Semiconductor NS32000" },
+		{ CPU_I370,  "IBM System/370" },
+		{ CPU_MIPS,  "MIPS" },
+		{ CPU_M88K,  "Motorola 88000" },
+		{ CPU_WE32K, "Western Electric 32000" },
+		{ CPU_VAX,   "DEC VAX" },
+		{ CPU_AM29K, "AMD 29000" },
+		{ CPU_ALPHA, "DEC Alpha" },
+		{ CPU_PPC,   "IBM POWER, 32-bit" },
+		{ CPU_PPC64, "IBM POWER, 64-bit" },
+		{ CPU_SHARC, "SHARC" },
+	};
 
 	Dumper::Region file_region("File", file_offset, file_size, 8);
 	file_region.AddField("CPU type", Dumper::ChoiceDisplay::Make(cpu_descriptions), offset_t(cpu_type));
 
-	std::map<offset_t, std::string> endian_descriptions;
-	endian_descriptions[::LittleEndian] = "little endian";
-	endian_descriptions[::BigEndian] = "big endian";
+	static const std::map<offset_t, std::string> endian_descriptions =
+	{
+		{ ::LittleEndian, "little endian" },
+		{ ::BigEndian,    "big endian" },
+	};
 	file_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(endian_descriptions), offset_t(endiantype));
 
 	file_region.Display(dump);
@@ -1445,6 +1469,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("executable"), true)
 			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("no line numbers"), true)
 			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("no symbols"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("16-bit little endian"), true)
 			->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("32-bit little endian"), true)
 			->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("32-bit big endian"), true),
 		offset_t(flags));

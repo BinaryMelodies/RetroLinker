@@ -35,17 +35,19 @@ void MINIXFormat::Relocation::Write(Linker::Writer& wr) const
 void MINIXFormat::Relocation::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const
 {
 	Dumper::Entry relocation_entry("Relocation", index + 1, relocations_offset + index * 8, 8);
-	std::map<offset_t, std::string> relocation_descriptions;
-	relocation_descriptions[R_ABBS] = "R_ABBS";
-	relocation_descriptions[R_RELLBYTE] = "R_RELLBYTE";
-	relocation_descriptions[R_PCRBYTE] = "R_PCRBYTE";
-	relocation_descriptions[R_RELWORD] = "R_RELWORD";
-	relocation_descriptions[R_PCRWORD] = "R_PCRWORD";
-	relocation_descriptions[R_RELLONG] = "R_RELLONG";
-	relocation_descriptions[R_PCRLONG] = "R_PCRLONG";
-	relocation_descriptions[R_REL3BYTE] = "R_REL3BYTE";
-	relocation_descriptions[R_KBRANCHE] = "R_KBRANCHE";
-	relocation_descriptions[R_SEGWORD] = "R_SEGWORD";
+	static const std::map<offset_t, std::string> relocation_descriptions =
+	{
+		{ R_ABBS, "R_ABBS" },
+		{ R_RELLBYTE, "R_RELLBYTE" },
+		{ R_PCRBYTE, "R_PCRBYTE" },
+		{ R_RELWORD, "R_RELWORD" },
+		{ R_PCRWORD, "R_PCRWORD" },
+		{ R_RELLONG, "R_RELLONG" },
+		{ R_PCRLONG, "R_PCRLONG" },
+		{ R_REL3BYTE, "R_REL3BYTE" },
+		{ R_KBRANCHE, "R_KBRANCHE" },
+		{ R_SEGWORD, "R_SEGWORD" },
+	};
 	relocation_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type));
 	relocation_entry.AddField("Symbol number", Dumper::DecDisplay::Make(), offset_t(symbol));
 	std::string name;
@@ -125,18 +127,22 @@ void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t re
 	Dumper::Entry symbol_entry("Symbol", index, relocations_offset + index * 8, 8);
 	symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), name);
 	symbol_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(value));
-	std::map<offset_t, std::string> section_descriptions;
-	section_descriptions[N_UNDF] = "undefined";
-	section_descriptions[N_ABS] = "absolute";
-	section_descriptions[N_TEXT] = "code";
-	section_descriptions[N_DATA] = "data";
-	section_descriptions[N_BSS] = "bss";
-	section_descriptions[N_COMM] = "common";
+	static const std::map<offset_t, std::string> section_descriptions =
+	{
+		{ N_UNDF, "undefined" },
+		{ N_ABS, "absolute" },
+		{ N_TEXT, "code" },
+		{ N_DATA, "data" },
+		{ N_BSS, "bss" },
+		{ N_COMM, "common" },
+	};
 	symbol_entry.AddField("Section", Dumper::ChoiceDisplay::Make(section_descriptions, Dumper::HexDisplay::Make(2)), offset_t(sclass & N_SECT));
-	std::map<offset_t, std::string> sclass_descriptions;
-	sclass_descriptions[S_NULL] = "none";
-	sclass_descriptions[S_EXT] = "external";
-	sclass_descriptions[S_STAT] = "static";
+	static const std::map<offset_t, std::string> sclass_descriptions =
+	{
+		{ S_NULL, "none" },
+		{ S_EXT, "external" },
+		{ S_STAT, "static" },
+	};
 	symbol_entry.AddField("Storage class", Dumper::ChoiceDisplay::Make(section_descriptions, Dumper::HexDisplay::Make(2)), offset_t(sclass & N_CLASS));
 	symbol_entry.Display(dump);
 }
@@ -847,18 +853,22 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("text overlay"), true),
 		offset_t(format));
 
-	std::map<offset_t, std::string> endian_descriptions;
-	endian_descriptions[0] = "little endian";
-	endian_descriptions[1] = "reversed PDP-11 endian";
-	endian_descriptions[2] = "PDP-11 endian";
-	endian_descriptions[3] = "big endian";
+	static const std::map<offset_t, std::string> endian_descriptions =
+	{
+		{ 0, "little endian" },
+		{ 1, "reversed PDP-11 endian" },
+		{ 2, "PDP-11 endian" },
+		{ 3, "big endian" },
+	};
 
-	std::map<offset_t, std::string> cpu_descriptions;
-	cpu_descriptions[I86 >> 2] = "Intel 8086";
-	cpu_descriptions[M68K >> 2] = "Motorola 680xx";
-	cpu_descriptions[NS16K >> 2] = "NS320xx";
-	cpu_descriptions[I386 >> 2] = "Intel 80386";
-	cpu_descriptions[SPARC >> 2] = "Sun SPARC";
+	static const std::map<offset_t, std::string> cpu_descriptions =
+	{
+		{ I86 >> 2, "Intel 8086" },
+		{ M68K >> 2, "Motorola 680xx" },
+		{ NS16K >> 2, "NS320xx" },
+		{ I386 >> 2, "Intel 80386" },
+		{ SPARC >> 2, "Sun SPARC" },
+	};
 
 	file_region.AddField("CPU",
 		Dumper::BitFieldDisplay::Make()

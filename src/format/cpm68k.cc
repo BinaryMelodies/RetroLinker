@@ -472,17 +472,21 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("68K format");
 
-	std::map<offset_t, std::string> system_descriptions;
-	system_descriptions[SYSTEM_CPM68K] = "CP/M-68K";
-	system_descriptions[SYSTEM_GEMDOS_EARLY] = "early GEMDOS";
-	system_descriptions[SYSTEM_GEMDOS] = "GEMDOS";
-	system_descriptions[SYSTEM_HUMAN68K] = "Human68k";
-	system_descriptions[SYSTEM_CDOS68K] = "Concurrent DOS 68K";
+	static const std::map<offset_t, std::string> system_descriptions =
+	{
+		{ SYSTEM_CPM68K,       "CP/M-68K" },
+		{ SYSTEM_GEMDOS_EARLY, "early GEMDOS" },
+		{ SYSTEM_GEMDOS,       "GEMDOS" },
+		{ SYSTEM_HUMAN68K,     "Human68k" },
+		{ SYSTEM_CDOS68K,      "Concurrent DOS 68K" },
+	};
 
-	std::map<offset_t, std::string> format_descriptions;
-	format_descriptions[MAGIC_CONTIGUOUS] = "contiguous (0x60 0x1A)";
-	format_descriptions[MAGIC_NONCONTIGUOUS] = "non-contiguous (0x60 0x1B)";
-	format_descriptions[MAGIC_CRUNCHED] = "crunched relocations (0x60 0x1C)";
+	static const std::map<offset_t, std::string> format_descriptions =
+	{
+		{ MAGIC_CONTIGUOUS,    "contiguous (0x60 0x1A)" },
+		{ MAGIC_NONCONTIGUOUS, "non-contiguous (0x60 0x1B)" },
+		{ MAGIC_CRUNCHED,      "crunched relocations (0x60 0x1C)" },
+	};
 
 	offset_t header_size = GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C;
 
@@ -506,11 +510,13 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddOptionalField("Stack size", Dumper::HexDisplay::Make(), offset_t(stack_size));
 	if(system == SYSTEM_GEMDOS)
 	{
-		std::map<offset_t, std::string> memory_protection;
-		memory_protection[0] = "private memory";
-		memory_protection[1] = "global memory";
-		memory_protection[2] = "supervisor global memory";
-		memory_protection[3] = "read only global memory";
+		static const std::map<offset_t, std::string> memory_protection =
+		{
+			{ 0, "private memory" },
+			{ 1, "global memory" },
+			{ 2, "supervisor global memory" },
+			{ 3, "read only global memory" },
+		};
 		header_region.AddField("Program flags",
 			Dumper::BitFieldDisplay::Make()
 				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("fastload (do not clear heap)"), true)
@@ -527,10 +533,12 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 
 //			Dumper::Region relocations_region("Relocations", file_offset + code_size + data_size + symbol_table_size, 0); /* TODO: unknown size */
 
-	std::map<offset_t, std::string> segment_names;
-	segment_names[1] = "Data";
-	segment_names[2] = "Text";
-	segment_names[3] = "Bss";
+	static const std::map<offset_t, std::string> segment_names =
+	{
+		{ 1, "Data" },
+		{ 2, "Text" },
+		{ 3, "Bss" },
+	};
 
 	size_t i = 0;
 	for(auto relocation : relocations)

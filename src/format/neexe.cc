@@ -88,18 +88,22 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) c
 	}
 	segment_block.Display(dump);
 	unsigned i = 0;
-	std::map<offset_t, std::string> type_descriptions;
-	type_descriptions[Relocation::Offset8] = "8-bit offset";
-	type_descriptions[Relocation::Selector16] = "16-bit selector";
-	type_descriptions[Relocation::Pointer32] = "16:16-bit pointer";
-	type_descriptions[Relocation::Offset16] = "16-bit offset";
-	type_descriptions[Relocation::Pointer48] = "16:32-bit pointer";
-	type_descriptions[Relocation::Offset32] = "32-bit offset";
-	std::map<offset_t, std::string> target_descriptions;
-	target_descriptions[Relocation::Internal] = "internal";
-	target_descriptions[Relocation::ImportOrdinal] = "import by ordinal";
-	target_descriptions[Relocation::ImportName] = "import by name";
-	target_descriptions[Relocation::OSFixup] = "operating system";
+	static const std::map<offset_t, std::string> type_descriptions =
+	{
+		{ Relocation::Offset8, "8-bit offset" },
+		{ Relocation::Selector16, "16-bit selector" },
+		{ Relocation::Pointer32, "16:16-bit pointer" },
+		{ Relocation::Offset16, "16-bit offset" },
+		{ Relocation::Pointer48, "16:32-bit pointer" },
+		{ Relocation::Offset32, "32-bit offset" },
+	};
+	static const std::map<offset_t, std::string> target_descriptions =
+	{
+		{ Relocation::Internal, "internal" },
+		{ Relocation::ImportOrdinal, "import by ordinal" },
+		{ Relocation::ImportName, "import by name" },
+		{ Relocation::OSFixup, "operating system" },
+	};
 	for(auto& relocation : relocations)
 	{
 		unsigned j = 0;
@@ -143,13 +147,15 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) c
 					break;
 				case Relocation::OSFixup:
 					{
-						std::map<offset_t, std::string> fixup_descriptions;
-						fixup_descriptions[Relocation::FIARQQ] = "FIARQQ/FJARQQ (DS prefixed fp)";
-						fixup_descriptions[Relocation::FISRQQ] = "FISRQQ/FJSRQQ (SS prefixed fp)";
-						fixup_descriptions[Relocation::FICRQQ] = "FICRQQ/FJCRQQ (CS prefixed fp)";
-						fixup_descriptions[Relocation::FIERQQ] = "FIERQQ (ES prefixed fp)";
-						fixup_descriptions[Relocation::FIDRQQ] = "FIDRQQ (unprefixed fp)";
-						fixup_descriptions[Relocation::FIWRQQ] = "FIWRQQ (fp wait)";
+						static const std::map<offset_t, std::string> fixup_descriptions =
+						{
+							{ Relocation::FIARQQ, "FIARQQ/FJARQQ (DS prefixed fp)" },
+							{ Relocation::FISRQQ, "FISRQQ/FJSRQQ (SS prefixed fp)" },
+							{ Relocation::FICRQQ, "FICRQQ/FJCRQQ (CS prefixed fp)" },
+							{ Relocation::FIERQQ, "FIERQQ (ES prefixed fp)" },
+							{ Relocation::FIDRQQ, "FIDRQQ (unprefixed fp)" },
+							{ Relocation::FIWRQQ, "FIWRQQ (fp wait)" },
+						};
 						rel_entry.AddField("Fixup type", Dumper::ChoiceDisplay::Make(fixup_descriptions, Dumper::HexDisplay::Make(4)), offset_t(relocation.module));
 					}
 					break;
@@ -176,28 +182,30 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 {
 	if(isos2)
 	{
-		std::map<offset_t, std::string> resource_id_descriptions;
-		resource_id_descriptions[OS2::RT_POINTER] = "RT_POINTER";
-		resource_id_descriptions[OS2::RT_BITMAP] = "RT_BITMAP";
-		resource_id_descriptions[OS2::RT_MENU] = "RT_MENU";
-		resource_id_descriptions[OS2::RT_DIALOG] = "RT_DIALOG";
-		resource_id_descriptions[OS2::RT_STRING] = "RT_STRING";
-		resource_id_descriptions[OS2::RT_FONTDIR] = "RT_FONTDIR";
-		resource_id_descriptions[OS2::RT_FONT] = "RT_FONT";
-		resource_id_descriptions[OS2::RT_ACCELERATOR] = "RT_ACCELERATOR";
-		resource_id_descriptions[OS2::RT_RCDATA] = "RT_RCDATA";
-		resource_id_descriptions[OS2::RT_MESSAGE] = "RT_MESSAGE";
-		resource_id_descriptions[OS2::RT_DLGINCLUDE] = "RT_DLGINCLUDE";
-		resource_id_descriptions[OS2::RT_VKEYTBL] = "RT_VKEYTBL";
-		resource_id_descriptions[OS2::RT_KEYTBL] = "RT_KEYTBL";
-		resource_id_descriptions[OS2::RT_CHARTBL] = "RT_CHARTBL";
-		resource_id_descriptions[OS2::RT_DISPLAYINFO] = "RT_DISPLAYINFO";
-		resource_id_descriptions[OS2::RT_FKASHORT] = "RT_FKASHORT";
-		resource_id_descriptions[OS2::RT_FKALONG] = "RT_FKALONG";
-		resource_id_descriptions[OS2::RT_HELPTABLE] = "RT_HELPTABLE";
-		resource_id_descriptions[OS2::RT_HELPSUBTABLE] = "RT_HELPSUBTABLE";
-		resource_id_descriptions[OS2::RT_FDDIR] = "RT_FDDIR";
-		resource_id_descriptions[OS2::RT_FD] = "RT_FD";
+		static const std::map<offset_t, std::string> resource_id_descriptions =
+		{
+			{ OS2::RT_POINTER, "RT_POINTER" },
+			{ OS2::RT_BITMAP, "RT_BITMAP" },
+			{ OS2::RT_MENU, "RT_MENU" },
+			{ OS2::RT_DIALOG, "RT_DIALOG" },
+			{ OS2::RT_STRING, "RT_STRING" },
+			{ OS2::RT_FONTDIR, "RT_FONTDIR" },
+			{ OS2::RT_FONT, "RT_FONT" },
+			{ OS2::RT_ACCELERATOR, "RT_ACCELERATOR" },
+			{ OS2::RT_RCDATA, "RT_RCDATA" },
+			{ OS2::RT_MESSAGE, "RT_MESSAGE" },
+			{ OS2::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
+			{ OS2::RT_VKEYTBL, "RT_VKEYTBL" },
+			{ OS2::RT_KEYTBL, "RT_KEYTBL" },
+			{ OS2::RT_CHARTBL, "RT_CHARTBL" },
+			{ OS2::RT_DISPLAYINFO, "RT_DISPLAYINFO" },
+			{ OS2::RT_FKASHORT, "RT_FKASHORT" },
+			{ OS2::RT_FKALONG, "RT_FKALONG" },
+			{ OS2::RT_HELPTABLE, "RT_HELPTABLE" },
+			{ OS2::RT_HELPSUBTABLE, "RT_HELPSUBTABLE" },
+			{ OS2::RT_FDDIR, "RT_FDDIR" },
+			{ OS2::RT_FD, "RT_FD" },
+		};
 
 		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
@@ -235,28 +243,30 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 	}
 	else
 	{
-		std::map<offset_t, std::string> resource_id_descriptions;
-		resource_id_descriptions[0x8000 | Windows::RT_CURSOR] = "RT_CURSOR";
-		resource_id_descriptions[0x8000 | Windows::RT_BITMAP] = "RT_BITMAP";
-		resource_id_descriptions[0x8000 | Windows::RT_ICON] = "RT_ICON";
-		resource_id_descriptions[0x8000 | Windows::RT_MENU] = "RT_MENU";
-		resource_id_descriptions[0x8000 | Windows::RT_DIALOG] = "RT_DIALOG";
-		resource_id_descriptions[0x8000 | Windows::RT_STRING] = "RT_STRING";
-		resource_id_descriptions[0x8000 | Windows::RT_FONTDIR] = "RT_FONTDIR";
-		resource_id_descriptions[0x8000 | Windows::RT_FONT] = "RT_FONT";
-		resource_id_descriptions[0x8000 | Windows::RT_ACCELERATOR] = "RT_ACCELERATOR";
-		resource_id_descriptions[0x8000 | Windows::RT_RCDATA] = "RT_RCDATA";
-		resource_id_descriptions[0x8000 | Windows::RT_MESSAGETABLE] = "RT_MESSAGETABLE";
-		resource_id_descriptions[0x8000 | Windows::RT_GROUP_CURSOR] = "RT_GROUP_CURSOR";
-		resource_id_descriptions[0x8000 | Windows::RT_GROUP_ICON] = "RT_GROUP_ICON";
-		resource_id_descriptions[0x8000 | Windows::RT_VERSION] = "RT_VERSION";
-		resource_id_descriptions[0x8000 | Windows::RT_DLGINCLUDE] = "RT_DLGINCLUDE";
-		resource_id_descriptions[0x8000 | Windows::RT_PLUGPLAY] = "RT_PLUGPLAY";
-		resource_id_descriptions[0x8000 | Windows::RT_VXD] = "RT_VXD";
-		resource_id_descriptions[0x8000 | Windows::RT_ANICURSOR] = "RT_ANICURSOR";
-		resource_id_descriptions[0x8000 | Windows::RT_ANIICON] = "RT_ANIICON";
-		resource_id_descriptions[0x8000 | Windows::RT_HTML] = "RT_HTML";
-		resource_id_descriptions[0x8000 | Windows::RT_MANIFEST] = "RT_MANIFEST";
+		static const std::map<offset_t, std::string> resource_id_descriptions =
+		{
+			{ 0x8000 | Windows::RT_CURSOR, "RT_CURSOR" },
+			{ 0x8000 | Windows::RT_BITMAP, "RT_BITMAP" },
+			{ 0x8000 | Windows::RT_ICON, "RT_ICON" },
+			{ 0x8000 | Windows::RT_MENU, "RT_MENU" },
+			{ 0x8000 | Windows::RT_DIALOG, "RT_DIALOG" },
+			{ 0x8000 | Windows::RT_STRING, "RT_STRING" },
+			{ 0x8000 | Windows::RT_FONTDIR, "RT_FONTDIR" },
+			{ 0x8000 | Windows::RT_FONT, "RT_FONT" },
+			{ 0x8000 | Windows::RT_ACCELERATOR, "RT_ACCELERATOR" },
+			{ 0x8000 | Windows::RT_RCDATA, "RT_RCDATA" },
+			{ 0x8000 | Windows::RT_MESSAGETABLE, "RT_MESSAGETABLE" },
+			{ 0x8000 | Windows::RT_GROUP_CURSOR, "RT_GROUP_CURSOR" },
+			{ 0x8000 | Windows::RT_GROUP_ICON, "RT_GROUP_ICON" },
+			{ 0x8000 | Windows::RT_VERSION, "RT_VERSION" },
+			{ 0x8000 | Windows::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
+			{ 0x8000 | Windows::RT_PLUGPLAY, "RT_PLUGPLAY" },
+			{ 0x8000 | Windows::RT_VXD, "RT_VXD" },
+			{ 0x8000 | Windows::RT_ANICURSOR, "RT_ANICURSOR" },
+			{ 0x8000 | Windows::RT_ANIICON, "RT_ANIICON" },
+			{ 0x8000 | Windows::RT_HTML, "RT_HTML" },
+			{ 0x8000 | Windows::RT_MANIFEST, "RT_MANIFEST" },
+		};
 
 		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
@@ -983,20 +993,24 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Entry point (CS:IP)", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(cs), offset_t(ip));
 	header_region.AddField("Initial stack (SS:SP)", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(ss), offset_t(sp));
 
-	std::map<offset_t, std::string> os_descriptions;
-	os_descriptions[OS2] = "Microsoft&IBM OS/2 1.0 - 1.3";
-	os_descriptions[Windows] = "Microsoft Windows 1.0 - 3.11";
-	os_descriptions[MSDOS4] = "Multitasking/\"European\" Microsoft MS-DOS 4.0";
-	os_descriptions[Windows386] = "Windows386";
-	os_descriptions[BorlandOSS] = "Borland Operating System Services";
-	os_descriptions[OS2 | PharLap] = "Pharlap 286|DOS-Extender, OS/2 simulation";
-	os_descriptions[Windows | PharLap] = "Pharlap 286|DOS-Extender, Windows simulation";
+	static const std::map<offset_t, std::string> os_descriptions =
+	{
+		{ OS2, "Microsoft&IBM OS/2 1.0 - 1.3" },
+		{ Windows, "Microsoft Windows 1.0 - 3.11" },
+		{ MSDOS4, "Multitasking/\"European\" Microsoft MS-DOS 4.0" },
+		{ Windows386, "Windows386" },
+		{ BorlandOSS, "Borland Operating System Services" },
+		{ OS2 | PharLap, "Pharlap 286|DOS-Extender, OS/2 simulation" },
+		{ Windows | PharLap, "Pharlap 286|DOS-Extender, Windows simulation" },
+	};
 	header_region.AddField("Operating system", Dumper::ChoiceDisplay::Make(os_descriptions), offset_t(system));
 
-	std::map<offset_t, std::string> data_count_descriptions;
-	data_count_descriptions[NODATA] = "NODATA - No automatic data segment";
-	data_count_descriptions[SINGLEDATA] = "SINGLEDATA - Single automatic data segment instance shared (DLLs)";
-	data_count_descriptions[MULTIPLEDATA] = "MULTIPLEDATA - Separate automatic data segment instances shared (EXEs)";
+	static const std::map<offset_t, std::string> data_count_descriptions =
+	{
+		{ NODATA, "NODATA - No automatic data segment" },
+		{ SINGLEDATA, "SINGLEDATA - Single automatic data segment instance shared (DLLs)" },
+		{ MULTIPLEDATA, "MULTIPLEDATA - Separate automatic data segment instances shared (EXEs)" },
+	};
 	header_region.AddField("Program flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(data_count_descriptions), false)
@@ -1011,10 +1025,12 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("(Windows) for DLLs, global memory above EMS line/(OS/2) requires 80386"), true)
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("requires 80x87"), true),
 		offset_t(program_flags));
-	std::map<offset_t, std::string> gui_descriptions;
-	gui_descriptions[FULLSCREEN] = "Fullscreen";
-	gui_descriptions[GUI_AWARE] = "GUI compatible";
-	gui_descriptions[GUI] = "GUI";
+	static const std::map<offset_t, std::string> gui_descriptions =
+	{
+		{ FULLSCREEN, "Fullscreen" },
+		{ GUI_AWARE, "GUI compatible" },
+		{ GUI, "GUI" },
+	};
 	header_region.AddField("Application flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(gui_descriptions), false)
@@ -1129,13 +1145,17 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 
 	i = 0;
 	current_offset = entry_table_offset;
-	std::map<offset_t, std::string> type_descriptions;
-	type_descriptions[Entry::Unused] = "Unused";
-	type_descriptions[Entry::Fixed] = "Fixed";
-	type_descriptions[Entry::Movable] = "Movable";
-	std::map<offset_t, std::string> export_descriptions;
-	export_descriptions[Entry::ExportByName] = "by name";
-	export_descriptions[Entry::ExportByOrdinal] = "by ordinal";
+	static const std::map<offset_t, std::string> type_descriptions =
+	{
+		{ Entry::Unused, "Unused" },
+		{ Entry::Fixed, "Fixed" },
+		{ Entry::Movable, "Movable" },
+	};
+	static const std::map<offset_t, std::string> export_descriptions =
+	{
+		{ Entry::ExportByName, "by name" },
+		{ Entry::ExportByOrdinal, "by ordinal" },
+	};
 
 	for(auto& entry : entries)
 	{

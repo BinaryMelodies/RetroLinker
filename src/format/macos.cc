@@ -189,22 +189,24 @@ void AppleSingleDouble::Entry::DumpEntry(Dumper::Dumper& dump, unsigned index) c
 {
 	Dumper::Region entry_region("Entry", file_offset, image_size, 8);
 	entry_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
-	std::map<offset_t, std::string> id_descriptions;
-	id_descriptions[ID_DataFork] = "data fork";
-	id_descriptions[ID_ResourceFork] = "resource fork";
-	id_descriptions[ID_RealName] = "real name";
-	id_descriptions[ID_Comment] = "comment";
-	id_descriptions[ID_IconBW] = "icon, black and white";
-	id_descriptions[ID_IconColor] = "icon, color";
-	id_descriptions[ID_FileInfo] = "file info (version 1 only)";
-	id_descriptions[ID_FileDatesInfo] = "file dates info (version 2 only)";
-	id_descriptions[ID_FinderInfo] = "finder info";
-	id_descriptions[ID_MacintoshFileInfo] = "Macintosh file info (version 2 only)";
-	id_descriptions[ID_ProDOSFileInfo] = "ProDOS file info (version 2 only)";
-	id_descriptions[ID_MSDOSFileInfo] = "MS-DOS file info (version 2 only)";
-	id_descriptions[ID_AFPShortName] = "AFP short name (version 2 only)";
-	id_descriptions[ID_AFPFileInfo] = "AFP file info (version 2 only)";
-	id_descriptions[ID_AFPDirectoryID] = "AFP directory ID (version 2 only)";
+	static const std::map<offset_t, std::string> id_descriptions =
+	{
+		{ ID_DataFork, "data fork" },
+		{ ID_ResourceFork, "resource fork" },
+		{ ID_RealName, "real name" },
+		{ ID_Comment, "comment" },
+		{ ID_IconBW, "icon, black and white" },
+		{ ID_IconColor, "icon, color" },
+		{ ID_FileInfo, "file info (version 1 only)" },
+		{ ID_FileDatesInfo, "file dates info (version 2 only)" },
+		{ ID_FinderInfo, "finder info" },
+		{ ID_MacintoshFileInfo, "Macintosh file info (version 2 only)" },
+		{ ID_ProDOSFileInfo, "ProDOS file info (version 2 only)" },
+		{ ID_MSDOSFileInfo, "MS-DOS file info (version 2 only)" },
+		{ ID_AFPShortName, "AFP short name (version 2 only)" },
+		{ ID_AFPFileInfo, "AFP file info (version 2 only)" },
+		{ ID_AFPDirectoryID, "AFP directory ID (version 2 only)" },
+	};
 	entry_region.AddField("Id", Dumper::ChoiceDisplay::Make(id_descriptions, Dumper::HexDisplay::Make(8)), offset_t(id));
 	entry_region.Display(dump);
 }

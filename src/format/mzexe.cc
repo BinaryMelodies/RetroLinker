@@ -276,10 +276,12 @@ void MZFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("MZ format");
 	offset_t magic_field = GetSignature();
-	std::map<offset_t, std::string> magic_field_descriptions;
-	magic_field_descriptions[MAGIC_MZ] = "executable";
-	magic_field_descriptions[MAGIC_ZM] = "old-style executable";
-	magic_field_descriptions[MAGIC_DL] = "HP 100LX/200LX System Manager compliant module";
+	static const std::map<offset_t, std::string> magic_field_descriptions =
+	{
+		{ MAGIC_MZ, "executable" },
+		{ MAGIC_ZM, "old-style executable" },
+		{ MAGIC_DL, "HP 100LX/200LX System Manager compliant module" }
+	};
 	Dumper::Region file_region("File", file_offset, GetFileSize(), 6);
 	file_region.AddField("Signature", Dumper::StringDisplay::Make(2, "'"), std::string(signature, 2));
 	file_region.AddField("Type", Dumper::ChoiceDisplay::Make(magic_field_descriptions), offset_t(magic_field));

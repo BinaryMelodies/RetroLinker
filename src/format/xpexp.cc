@@ -230,20 +230,22 @@ void XPFormat::Segment::Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned 
 	else
 	{
 		// note: these are included for completeness sake, it is unlikely they would be present
-		std::map<offset_t, std::string> type_descriptions;
-		type_descriptions[ACCESS_TYPE_EMPTY] = "empty";
-		type_descriptions[ACCESS_TYPE_TSS16_A] = "16-bit TSS (available)";
-		type_descriptions[ACCESS_TYPE_LDT] = "LDT";
-		type_descriptions[ACCESS_TYPE_TSS16_B] = "16-bit TSS (busy)";
-		type_descriptions[ACCESS_TYPE_CALLGATE16] = "16-bit call gate";
-		type_descriptions[ACCESS_TYPE_TASKGATE] = "task gate";
-		type_descriptions[ACCESS_TYPE_INTGATE16] = "16-bit interrupt gate";
-		type_descriptions[ACCESS_TYPE_TRAPGATE16] = "16-bit trap gate";
-		type_descriptions[ACCESS_TYPE_TSS32_A] = "32-bit TSS (available)";
-		type_descriptions[ACCESS_TYPE_TSS32_B] = "32-bit TSS (busy)";
-		type_descriptions[ACCESS_TYPE_CALLGATE32] = "32-bit call gate";
-		type_descriptions[ACCESS_TYPE_INTGATE32] = "32-bit interrupt gate";
-		type_descriptions[ACCESS_TYPE_TRAPGATE32] = "32-bit trap gate";
+		static const std::map<offset_t, std::string> type_descriptions =
+		{
+			{ ACCESS_TYPE_EMPTY, "empty" },
+			{ ACCESS_TYPE_TSS16_A, "16-bit TSS (available)" },
+			{ ACCESS_TYPE_LDT, "LDT" },
+			{ ACCESS_TYPE_TSS16_B, "16-bit TSS (busy)" },
+			{ ACCESS_TYPE_CALLGATE16, "16-bit call gate" },
+			{ ACCESS_TYPE_TASKGATE, "task gate" },
+			{ ACCESS_TYPE_INTGATE16, "16-bit interrupt gate" },
+			{ ACCESS_TYPE_TRAPGATE16, "16-bit trap gate" },
+			{ ACCESS_TYPE_TSS32_A, "32-bit TSS (available)" },
+			{ ACCESS_TYPE_TSS32_B, "32-bit TSS (busy)" },
+			{ ACCESS_TYPE_CALLGATE32, "32-bit call gate" },
+			{ ACCESS_TYPE_INTGATE32, "32-bit interrupt gate" },
+			{ ACCESS_TYPE_TRAPGATE32, "32-bit trap gate" },
+		};
 		descriptor_entry.AddField("Access bits",
 			Dumper::BitFieldDisplay::Make(2)
 				->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(type_descriptions), false)

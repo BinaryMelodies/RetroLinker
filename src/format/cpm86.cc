@@ -711,10 +711,12 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 	dump.SetTitle("CMD format");
 
 	Dumper::Region file_region("File", file_offset, GetFullFileSize(), 6);
-	std::map<offset_t, std::string> x87_values;
-	x87_values[1] = "8087 required";
-	x87_values[2] = "8087 optional";
-	x87_values[3] = "invalid 8087 requirement";
+	static const std::map<offset_t, std::string> x87_values =
+	{
+		{ 1, "8087 required" },
+		{ 2, "8087 optional" },
+		{ 3, "invalid 8087 requirement" },
+	};
 	file_region.AddField("Flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("fixups"), true)
@@ -729,18 +731,20 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 
 	file_region.Display(dump);
 
-	std::map<offset_t, std::string> group_types;
-	group_types[Descriptor::Code] = "Code group";
-	group_types[Descriptor::Data] = "Data group";
-	group_types[Descriptor::Extra] = "Extra group";
-	group_types[Descriptor::Stack] = "Stack group";
-	group_types[Descriptor::Auxiliary1] = "Auxiliary 1 group";
-	group_types[Descriptor::Auxiliary2] = "Auxiliary 2 group";
-	group_types[Descriptor::Auxiliary3] = "Auxiliary 3 group";
-	group_types[Descriptor::Auxiliary4] = "Auxiliary 4 or fixup group";
-	group_types[Descriptor::ActualFixups] = "Fixup group";
-	group_types[Descriptor::ActualAuxiliary4] = "Auxiliary 4 group";
-	group_types[Descriptor::SharedCode] = "Shared code group";
+	static const std::map<offset_t, std::string> group_types =
+	{
+		{ Descriptor::Code,             "Code group" },
+		{ Descriptor::Data,             "Data group" },
+		{ Descriptor::Extra,            "Extra group" },
+		{ Descriptor::Stack,            "Stack group" },
+		{ Descriptor::Auxiliary1,       "Auxiliary 1 group" },
+		{ Descriptor::Auxiliary2,       "Auxiliary 2 group" },
+		{ Descriptor::Auxiliary3,       "Auxiliary 3 group" },
+		{ Descriptor::Auxiliary4,       "Auxiliary 4 or fixup group" },
+		{ Descriptor::ActualFixups,     "Fixup group" },
+		{ Descriptor::ActualAuxiliary4, "Auxiliary 4 group" },
+		{ Descriptor::SharedCode,       "Shared code group" },
+	};
 
 	std::shared_ptr<Dumper::Region> fixups = nullptr;
 	std::vector<std::shared_ptr<Dumper::Region>> groups;
