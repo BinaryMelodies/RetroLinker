@@ -316,6 +316,7 @@ namespace Apple
 			virtual void ReadFile(Linker::Reader& rd, offset_t length) = 0;
 			void Dump(Dumper::Dumper& dump) const override;
 			virtual void Dump(Dumper::Dumper& dump, offset_t file_offset) const;
+			virtual void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const;
 			virtual std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const;
 
 		protected:
@@ -382,6 +383,7 @@ namespace Apple
 
 			uint32_t above_a5 = 0;
 			uint32_t below_a5 = 0;
+			uint32_t jump_table_offset = 32;
 			std::vector<Entry> near_entries;
 			std::vector<Entry> far_entries;
 
@@ -404,6 +406,7 @@ namespace Apple
 			offset_t WriteFile(Linker::Writer& wr) const override;
 			using Linker::Format::Dump;
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
+			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
 		};
 
 		class CodeResource : public Resource
@@ -424,8 +427,10 @@ namespace Apple
 			uint32_t a5_address = 0; /* TODO: meaning */
 			uint32_t base_address = 0; /* TODO: meaning */
 
+			// used for generation
 			std::set<uint16_t> near_entries;
 			uint16_t near_entry_count = 0;
+			// used for generation
 			std::set<uint32_t> far_entries;
 			uint16_t far_entry_count = 0;
 			std::set<uint32_t> a5_relocations;
@@ -456,6 +461,7 @@ namespace Apple
 			offset_t WriteFile(Linker::Writer& wr) const override;
 			using Linker::Format::Dump;
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
+			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
 			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 

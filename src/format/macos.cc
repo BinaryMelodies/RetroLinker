@@ -1008,7 +1008,12 @@ void ResourceFork::Resource::Dump(Dumper::Dumper& dump, offset_t file_offset) co
 	if(name)
 		resource_region->AddField("Name", Dumper::StringDisplay::Make("\""), *name);
 	resource_region->AddField("Attributes", Dumper::HexDisplay::Make(2), offset_t(attributes));
+	AddFields(dump, *resource_region, file_offset);
 	resource_region->Display(dump);
+}
+
+void ResourceFork::Resource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+{
 }
 
 std::unique_ptr<Dumper::Region> ResourceFork::Resource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
@@ -1055,6 +1060,7 @@ void ResourceFork::JumpTableCodeResource::ProcessModule(Linker::Module& module)
 
 void ResourceFork::JumpTableCodeResource::CalculateValues()
 {
+	jump_table_offset = 32;
 	if(far_entries.size() == 0)
 	{
 		above_a5 = 0x30 + 8 * near_entries.size();
@@ -1084,7 +1090,33 @@ void ResourceFork::JumpTableCodeResource::ReadFile(Linker::Reader& rd)
 
 void ResourceFork::JumpTableCodeResource::ReadFile(Linker::Reader& rd, offset_t length)
 {
-	/* TODO */
+	above_a5 = rd.ReadUnsigned(4);
+	below_a5 = rd.ReadUnsigned(4);
+	uint32_t total_entry_size = rd.ReadUnsigned(4);
+	jump_table_offset = rd.ReadUnsigned(4);
+	uint32_t i;
+	for(i = 0; i < total_entry_size; i += 8)
+	{
+		Entry entry;
+		entry.offset = rd.ReadUnsigned(2);
+		uint16_t _move_data_sp = rd.ReadUnsigned(2); // MOVE_DATA_SP
+		entry.segment = rd.ReadUnsigned(2);
+		uint16_t _loadseg = rd.ReadUnsigned(2); // LOADSEG
+		if(entry.offset == 0 && _move_data_sp == 0xFFFF && entry.segment == 0 && _loadseg == 0)
+		{
+			break;
+		}
+		near_entries.push_back(entry);
+	}
+
+	for(; i < total_entry_size; i += 8)
+	{
+		Entry entry;
+		entry.segment = rd.ReadUnsigned(2);
+		rd.Skip(2); // LOADSEG
+		entry.offset = rd.ReadUnsigned(4);
+		far_entries.push_back(entry);
+	}
 }
 
 offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr) const
@@ -1099,7 +1131,7 @@ offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr) cons
 	{
 		wr.WriteWord(4, 8 + 8 * (near_entries.size() + far_entries.size()));
 	}
-	wr.WriteWord(4, 32);
+	wr.WriteWord(4, jump_table_offset);
 	for(const Entry& entry : near_entries)
 	{
 		wr.WriteWord(2, entry.offset);
@@ -1118,12 +1150,51 @@ offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr) cons
 		}
 	}
 
-	return offset_t(-1);
+	return ImageSize();
+}
+
+void ResourceFork::JumpTableCodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+{
+	region.AddField("Above A5", Dumper::HexDisplay::Make(8), offset_t(above_a5));
+	region.AddField("Below A5", Dumper::HexDisplay::Make(8), offset_t(below_a5));
+	offset_t jump_table_size;
+	if(far_entries.size() == 0)
+	{
+		jump_table_size = 8 * near_entries.size();
+	}
+	else
+	{
+		jump_table_size = 8 + 8 * (near_entries.size() + far_entries.size());
+	}
+	region.AddField("Jump table size", Dumper::HexDisplay::Make(8), offset_t(jump_table_size));
+	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(32));
 }
 
 void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
-	// TODO
+	Resource::Dump(dump, file_offset);
+
+	unsigned i = 0;
+	for(auto& entry : near_entries)
+	{
+		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("near"), offset_t(true));
+		entry_entry.AddField("Value", Dumper::SegmentedDisplay::Make(4), offset_t(entry.segment), offset_t(entry.offset));
+		entry_entry.Display(dump);
+		i++;
+	}
+
+	// skip one value for separator
+	i++;
+
+	for(auto& entry : far_entries)
+	{
+		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("near"), offset_t(true));
+		entry_entry.AddField("Value", Dumper::SegmentedDisplay::Make(8), offset_t(entry.segment), offset_t(entry.offset));
+		entry_entry.Display(dump);
+		i++;
+	}
 }
 
 void ResourceFork::CodeResource::ProcessModule(Linker::Module& module)
@@ -1262,7 +1333,6 @@ void ResourceFork::CodeResource::ReadFile(Linker::Reader& rd, offset_t length)
 		is_far = false;
 		image = Linker::Buffer::ReadFromFile(rd, length - 4);
 	}
-	// TODO: how do we set up the near_entries/far_entries fields?
 }
 
 offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
@@ -1294,10 +1364,27 @@ offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
 	return ImageSize();
 }
 
+void ResourceFork::CodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+{
+	region.AddField("Type", Dumper::ChoiceDisplay::Make("far", "near"), offset_t(is_far));
+	region.AddField("Near entry count", Dumper::DecDisplay::Make(), offset_t(near_entry_count));
+	region.AddField("First near entry offset", Dumper::HexDisplay::Make(is_far ? 8 : 4), offset_t(first_near_entry_offset));
+	if(is_far)
+	{
+		region.AddField("Far entry count", Dumper::DecDisplay::Make(), offset_t(far_entry_count));
+		region.AddField("First far entry offset", Dumper::HexDisplay::Make(8), offset_t(first_far_entry_offset));
+		region.AddField("A5 relocation offset", Dumper::HexDisplay::Make(8), offset_t(a5_relocation_offset));
+		region.AddField("A5 value", Dumper::HexDisplay::Make(8), offset_t(a5_address));
+		region.AddField("Segment relocation offset", Dumper::HexDisplay::Make(8), offset_t(segment_relocation_offset));
+		region.AddField("Segment address", Dumper::HexDisplay::Make(8), offset_t(base_address));
+	}
+
+}
+
 void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	Resource::Dump(dump, file_offset);
-	// TODO: print other fields
+	// TODO: print relocations
 }
 
 std::unique_ptr<Dumper::Region> ResourceFork::CodeResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
@@ -1805,7 +1892,10 @@ std::shared_ptr<ResourceFork::Resource> ResourceFork::ReadResource(Linker::Reade
 	switch(OSTypeToUInt32(type.type))
 	{
 	case CodeResource::OSType:
-		resource = std::make_shared<CodeResource>(reference.id);
+		if(reference.id == 0)
+			resource = std::make_shared<JumpTableCodeResource>();
+		else
+			resource = std::make_shared<CodeResource>(reference.id);
 		break;
 	default:
 		resource = std::make_shared<GenericResource>(type.type, reference.id);
