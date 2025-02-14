@@ -21,7 +21,10 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 	uint32_t type = rd.ReadUnsigned(4);
 	if(rd.Tell() < current_offset + 4)
 		return nullptr;
-	Linker::Debug << "Debug: read " << std::hex << type << std::endl;
+	Linker::Debug << "Debug: read " << std::hex << type;
+	if(is_executable)
+		Linker::Debug << " in executable";
+	Linker::Debug << std::endl;
 	std::shared_ptr<Block> block = nullptr;
 	switch(type)
 	{
@@ -454,6 +457,8 @@ void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
 
 	size_t wordread = IsShortRelocationBlock() ? 2 : 4;
 
+	Linker::Debug << "Debug: word read is " << wordread << std::endl;
+
 	while(true)
 	{
 		uint32_t relocation_count = rd.ReadUnsigned(wordread);
@@ -503,13 +508,14 @@ void HunkFormat::RelocationBlock::Write(Linker::Writer& wr) const
 offset_t HunkFormat::RelocationBlock::FileSize() const
 {
 	offset_t size = 8;
+	size_t wordwrite = IsShortRelocationBlock() ? 2 : 4;
 	for(auto& data : relocations)
 	{
 		// to make sure to avoid accidentally closing the list prematurely
 		if(data.offsets.size() == 0)
 			continue;
 
-		size += 8 + 4 * data.offsets.size();
+		size += wordwrite * (2 + data.offsets.size());
 	}
 	return size;
 }
@@ -517,6 +523,7 @@ offset_t HunkFormat::RelocationBlock::FileSize() const
 void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
+	size_t wordread = IsShortRelocationBlock() ? 2 : 4;
 	unsigned i = 0;
 	current_offset += 12;
 	for(auto& data : relocations)
@@ -542,9 +549,9 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const Module& modul
 			}
 			relocation_entry.Display(dump);
 			i += 1;
-			current_offset += 4;
+			current_offset += wordread;
 		}
-		current_offset += 8;
+		current_offset += 2 * wordread;
 	}
 }
 
@@ -762,10 +769,10 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const Module& module, c
 			{ Unit::EXT_DEF, "EXT_DEF - relocatable symbol definition" },
 			{ Unit::EXT_ABS, "EXT_ABS - absolute symbol definition" },
 			{ Unit::EXT_RES, "EXT_RES - resident library symbol definition" },
-			{ Unit::EXT_ABSREF32, "EXT_ABSREF32/EXT_REF32 - 32-bit absolute reference to symbol" },
+			{ Unit::EXT_ABSREF32, "EXT_REF32/EXT_ABSREF32 - 32-bit absolute reference to symbol" },
 			{ Unit::EXT_COMMON, "EXT_COMMON - 32-bit absolute reference to common symbol" },
-			{ Unit::EXT_RELREF16, "EXT_RELREF16/EXT_REF16 - 16-bit relative reference to symbol" },
-			{ Unit::EXT_RELREF8, "EXT_RELREF8/EXT_REF8 - 8-bit relative reference to symbol" },
+			{ Unit::EXT_RELREF16, "EXT_REF16/EXT_RELREF16 - 16-bit relative reference to symbol" },
+			{ Unit::EXT_RELREF8, "EXT_REF8/EXT_RELREF8 - 8-bit relative reference to symbol" },
 			{ Unit::EXT_DREF32, "EXT_DREF32 - 32-bit data relative reference to symbol" },
 			{ Unit::EXT_DREF16, "EXT_DREF16 - 16-bit data relative reference to symbol" },
 			{ Unit::EXT_DREF8, "EXT_DREF8 - 8-bit data relative reference to symbol" },
@@ -1061,7 +1068,7 @@ void HunkFormat::IndexBlock::Dump(Dumper::Dumper& dump, const Module& module, co
 
 // Hunk
 
-void HunkFormat::Hunk::ProduceBlocks()
+void HunkFormat::Hunk::ProduceBlocks(HunkFormat& fmt, Module& module)
 {
 	if(name != "")
 	{
@@ -1083,13 +1090,32 @@ void HunkFormat::Hunk::ProduceBlocks()
 	if(relocations.size() != 0)
 	{
 		/* Relocation block */
-		std::shared_ptr<RelocationBlock> relocation = std::make_shared<RelocationBlock>(Block::HUNK_ABSRELOC32);
+		Block::block_type btype = Block::HUNK_ABSRELOC32;
+		if(module.IsExecutable())
+		{
+			switch(fmt.system)
+			{
+			case V1:
+				btype = Block::HUNK_ABSRELOC32;
+				break;
+			case V37:
+				// TODO: only if possible
+				btype = Block::HUNK_V37_RELOC32SHORT;
+				break;
+			case V38:
+			case V39:
+				btype = Block::HUNK_RELOC32SHORT;
+				break;
+			}
+		}
+
+		std::shared_ptr<RelocationBlock> relocation = std::make_shared<RelocationBlock>(btype, module.IsExecutable());
 		for(auto it : relocations)
 		{
 			relocation->relocations.emplace_back(RelocationBlock::RelocationData(it.first));
 			for(Relocation rel : it.second)
 			{
-				if(rel.size == 4)
+				if(rel.size == 4 && rel.type == Relocation::Absolute)
 				{
 					relocation->relocations.back().offsets.push_back(rel.offset);
 				}
@@ -1140,11 +1166,11 @@ uint32_t HunkFormat::Hunk::GetFileSize() const
 	return size;
 }
 
-uint32_t HunkFormat::Hunk::GetSizeField()
+uint32_t HunkFormat::Hunk::GetSizeField(HunkFormat& fmt, Module& module)
 {
 	if(blocks.size() == 0)
 	{
-		ProduceBlocks();
+		ProduceBlocks(fmt, module);
 		if(blocks.size() == 0)
 		{
 			Linker::Error << "Internal error: Hunk produced no blocks" << std::endl;
@@ -1526,6 +1552,35 @@ unsigned HunkFormat::FormatAdditionalSectionFlags(std::string section_name) cons
 
 void HunkFormat::SetOptions(std::map<std::string, std::string>& options)
 {
+	if(auto system_version = FetchOption(options, "system"))
+	{
+		if(*system_version == "v1")
+		{
+			Linker::Debug << "Debug: Generating for V1" << std::endl;
+			system = V1;
+		}
+		else if(*system_version == "v37")
+		{
+			Linker::Debug << "Debug: Generating for V37" << std::endl;
+			system = V37;
+		}
+		else if(*system_version == "v38")
+		{
+			Linker::Debug << "Debug: Generating for V38" << std::endl;
+			system = V38;
+		}
+		else if(*system_version == "v39")
+		{
+			Linker::Debug << "Debug: Generating for V39" << std::endl;
+			system = V39;
+		}
+		else
+		{
+			Linker::Error << "Error: Unexpected system version " << *system_version << ", expected v1, v37, v38, v39, using v1" << std::endl;
+			system = V1;
+		}
+	}
+
 	/* TODO */
 
 	linker_parameters["fast_memory_flag"] = FastMemory;
@@ -1693,13 +1748,13 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 	}
 
 	std::shared_ptr<HeaderBlock> header = std::make_shared<HeaderBlock>();
+	modules[0].start_block = header;
 	header->table_size = modules[0].hunks.size();
 	header->first_hunk = 0;
 	for(Hunk& hunk : modules[0].hunks)
 	{
-		header->hunk_sizes.emplace_back(hunk.GetSizeField());
+		header->hunk_sizes.emplace_back(hunk.GetSizeField(*this, modules[0]));
 	}
-	modules[0].start_block = header;
 }
 
 void HunkFormat::CalculateValues()

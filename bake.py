@@ -685,7 +685,13 @@ DefineTarget(
 
 DefineTarget(
 	CPU = "m68k",
-	System = "amiga")
+	System = "amiga",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["system=v1"]),
+		DefineVersion("v37", LinkerName = "", LinkerOptions = ["system=v37"]),
+		DefineVersion("v38", LinkerName = "", LinkerOptions = ["system=v38"]),
+		DefineVersion("v39", LinkerName = "", LinkerOptions = ["system=v39"]),
+	])
 
 DefineTarget(
 	CPU = "m68k",

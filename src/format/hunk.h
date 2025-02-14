@@ -588,7 +588,7 @@ namespace Amiga
 			std::map<uint32_t, std::set<Relocation>> relocations;
 
 			/** @brief Converts the data collected by the linker into hunk blocks */
-			void ProduceBlocks();
+			void ProduceBlocks(HunkFormat& fmt, Module& module);
 
 			/** @brief The amount of memory this hunk will take up after loading */
 			uint32_t GetMemorySize() const;
@@ -597,7 +597,7 @@ namespace Amiga
 			uint32_t GetFileSize() const;
 
 			/** @brief Retrieves the size field of the first block, to be stored in a header block */
-			uint32_t GetSizeField();
+			uint32_t GetSizeField(HunkFormat& fmt, Module& module);
 
 			/** @brief Appends a new block to the block sequence and updates the internal structure of the hunk, used for reading */
 			void AppendBlock(std::shared_ptr<Block> block);
@@ -664,6 +664,25 @@ namespace Amiga
 			CPU_PPC = Block::HUNK_PPC_CODE,
 		};
 		cpu_type cpu = CPU_PPC;
+
+		enum system_version
+		{
+			V1,
+			/** @brief generate HUNK_V37_RELOC32SHORT */
+			V37,
+			/** @brief generate HUNK_RELOC32SHORT instead of HUNK_V37_RELOC32SHORT */
+			V38, // TODO: not sure about name, so called because it is newer than V37 but older than V39
+			/** @brief generate HUNK_RELRELOC32 */
+			V39, // TODO: not yet implemented
+		};
+		system_version system = V1;
+
+		HunkFormat() = default;
+
+		HunkFormat(system_version system)
+			: system(system)
+		{
+		}
 
 		/* @brief Convenience map to make it easier to look up the indices of segments */
 		std::map<std::shared_ptr<Linker::Segment>, size_t> segment_index;
