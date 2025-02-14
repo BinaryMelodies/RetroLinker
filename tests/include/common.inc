@@ -124,7 +124,11 @@
 .ifndef TARGET_AMIGA
 .set TARGET_AMIGA, 0
 .else
+.ifndef MODEL_V39
 .set OPTION_NO_INTERSEG, 1
+.else
+.set OPTION_NO_INTERSEG, 0
+.endif
 .set OPTION_ONLY_LF, 1
 .endif
 

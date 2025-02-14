@@ -42,7 +42,11 @@ start:
 .endif
 
 .if !OPTION_NO_INTERSEG
+.if	TARGET_AMIGA
+	lea	(text_relative.l, pc), a0
+.else
 	lea	text_relative(pc), a0
+.endif
 	bsrw	PutString
 	bsrw	PutNewLine
 .endif

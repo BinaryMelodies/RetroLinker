@@ -401,6 +401,7 @@ void HunkFormat::BssBlock::AddExtraFields(Dumper::Region& region, const Module& 
 bool HunkFormat::RelocationBlock::IsShortRelocationBlock() const
 {
 	return type == HUNK_RELOC32SHORT || (is_executable && type == HUNK_V37_RELOC32SHORT);
+//		|| (is_executable && type == HUNK_RELRELOC32); // TODO: is this correct?
 }
 
 size_t HunkFormat::RelocationBlock::GetRelocationSize() const
@@ -1087,41 +1088,150 @@ void HunkFormat::Hunk::ProduceBlocks(HunkFormat& fmt, Module& module)
 		blocks.push_back(bss);
 	}
 
-	if(relocations.size() != 0)
+	/* Relocation blocks */
+	std::map<Block::block_type, std::shared_ptr<RelocationBlock>> relocation_blocks;
+
+	for(auto it : relocations)
 	{
-		/* Relocation block */
-		Block::block_type btype = Block::HUNK_ABSRELOC32;
-		if(module.IsExecutable())
+		for(Relocation rel : it.second)
 		{
-			switch(fmt.system)
+			Block::block_type btype = Block::block_type(0);
+			switch(rel.type)
 			{
-			case V1:
-				btype = Block::HUNK_ABSRELOC32;
+			case Relocation::Absolute:
+				switch(rel.size)
+				{
+				case 2:
+					if(fmt.system == V39)
+					{
+						btype = Block::HUNK_ABSRELOC16;
+					}
+					break;
+				case 4:
+					if(module.IsExecutable())
+					{
+						switch(fmt.system)
+						{
+						case V1:
+							btype = Block::HUNK_ABSRELOC32;
+							break;
+						case V37:
+							// TODO: only if possible to fit
+							btype = Block::HUNK_V37_RELOC32SHORT;
+							break;
+						case V38:
+						case V39:
+							btype = Block::HUNK_RELOC32SHORT;
+							break;
+						}
+					}
+					else
+					{
+						btype = Block::HUNK_ABSRELOC32;
+					}
+					break;
+				}
 				break;
-			case V37:
-				// TODO: only if possible
-				btype = Block::HUNK_V37_RELOC32SHORT;
+			case Relocation::SelfRelative:
+				switch(rel.size)
+				{
+				case 1:
+					btype = Block::HUNK_RELRELOC8;
+					break;
+				case 2:
+					btype = Block::HUNK_RELRELOC16;
+					break;
+				case 4:
+					if(fmt.system == V39)
+					{
+						btype = Block::HUNK_RELRELOC32;
+					}
+					break;
+				}
 				break;
-			case V38:
-			case V39:
-				btype = Block::HUNK_RELOC32SHORT;
+			case Relocation::DataRelative:
+				switch(rel.size)
+				{
+				case 1:
+					btype = Block::HUNK_DRELOC8;
+					break;
+				case 2:
+					btype = Block::HUNK_DRELOC16;
+					break;
+				case 4:
+					btype = Block::HUNK_DRELOC32;
+					break;
+				}
+				break;
+			case Relocation::SelfRelative26:
+				btype = Block::HUNK_RELRELOC26;
 				break;
 			}
-		}
 
-		std::shared_ptr<RelocationBlock> relocation = std::make_shared<RelocationBlock>(btype, module.IsExecutable());
-		for(auto it : relocations)
-		{
-			relocation->relocations.emplace_back(RelocationBlock::RelocationData(it.first));
-			for(Relocation rel : it.second)
+			if(module.IsExecutable())
 			{
-				if(rel.size == 4 && rel.type == Relocation::Absolute)
+				switch(btype)
 				{
-					relocation->relocations.back().offsets.push_back(rel.offset);
+				case Block::HUNK_ABSRELOC32:
+					break;
+				case Block::HUNK_V37_RELOC32SHORT:
+					if(fmt.system != V37)
+						btype = Block::block_type(0);
+					break;
+				case Block::HUNK_RELOC32SHORT:
+					if(fmt.system == V1)
+						btype = Block::block_type(0);
+					break;
+				case Block::HUNK_RELRELOC32:
+					if(fmt.system != V39)
+						btype = Block::block_type(0);
+					break;
+				default:
+					// invalid in executable
+					btype = Block::block_type(0);
+					break;
 				}
 			}
+
+			if(btype != Block::block_type(0))
+			{
+				if(relocation_blocks.find(btype) == relocation_blocks.end())
+				{
+					relocation_blocks[btype] = std::make_shared<RelocationBlock>(btype, module.IsExecutable());
+					relocation_blocks[btype]->relocations.emplace_back(RelocationBlock::RelocationData(it.first));
+				}
+				else if(relocation_blocks[btype]->relocations.back().hunk != it.first)
+				{
+					relocation_blocks[btype]->relocations.emplace_back(RelocationBlock::RelocationData(it.first));
+				}
+				relocation_blocks[btype]->relocations.back().offsets.push_back(rel.offset);
+			}
+			else
+			{
+				Linker::Warning << "Warning: generating relocation of size " << rel.size << " and type ";
+				switch(rel.type)
+				{
+				case Relocation::Absolute:
+					Linker::Warning << "absolute";
+					break;
+				case Relocation::SelfRelative:
+					Linker::Warning << "PC-relative";
+					break;
+				case Relocation::DataRelative:
+					Linker::Warning << "data section relative";
+					break;
+				case Relocation::SelfRelative26:
+					Linker::Warning << "26-bit PC-relative";
+					break;
+				}
+				Linker::Warning << " is not supported, ignoring" << std::endl;
+			}
 		}
-		blocks.push_back(relocation);
+	}
+
+	for(auto pair : relocation_blocks)
+	{
+		blocks.push_back(pair.second);
 	}
 
 	// TODO: external symbols
@@ -1636,49 +1746,43 @@ std::unique_ptr<Script::List> HunkFormat::GetScript(Linker::Module& module)
 {
 	all exec align 4; # TODO: are these needed?
 	all not write align 4;
-	align 4;
+	align 8; # This seems to be required for proper functioning for relative relocations
 };
 
 ".data"
 {
-	at 0;
 	all not zero and not customflag(?chip_memory_flag?) and not customflag(?fast_memory_flag?) align 4;
-	align 4;
+	align 8;
 };
 
 ".bss"
 {
-	at 0;
 	all not customflag(?chip_memory_flag?) and not customflag(?fast_memory_flag?) align 4;
-	align 4;
+	align 8;
 };
 
 ".fast.data"
 {
-	at 0;
 	all not zero and not customflag(?fast_memory_flag?) align 4;
-	align 4;
+	align 8;
 };
 
 ".fast.bss"
 {
-	at 0;
 	all not customflag(?fast_memory_flag?) align 4;
-	align 4;
+	align 8;
 };
 
 ".chip.data"
 {
-	at 0;
 	all not zero and not customflag(?chip_memory_flag?) align 4;
-	align 4;
+	align 8;
 };
 
 ".chip.bss"
 {
-	at 0;
 	all not customflag(?chip_memory_flag?) align 4;
-	align 4;
+	align 8;
 };
 )";
 
@@ -1726,14 +1830,12 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 		{
 			Linker::Error << "Error: Unable to resolve relocation: " << rel << std::endl;
 		}
-		rel.WriteWord(resolution.value);
-		if(resolution.target != nullptr)
+		if(resolution.target == nullptr)
 		{
-			if(resolution.reference != nullptr)
-			{
-				Linker::Error << "Error: intersegment differences not supported, ignoring" << std::endl;
-				continue;
-			}
+			rel.WriteWord(resolution.value);
+		}
+		else
+		{
 			if(rel.size != 4)
 			{
 				Linker::Error << "Error: only longword relocations are supported, ignoring" << std::endl;
@@ -1741,9 +1843,25 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 				continue;
 			}
 			Linker::Position position = rel.source.GetPosition();
+			Relocation::relocation_type type;
+			if(resolution.reference != nullptr)
+			{
+				if(system != V39 || resolution.reference != position.segment)
+				{
+					Linker::Error << "Error: intersegment differences not supported, ignoring" << std::endl;
+					continue;
+				}
+				type = Relocation::SelfRelative;
+				rel.WriteWord(resolution.value + 0x70); // TODO: what is this displacement
+			}
+			else
+			{
+				type = Relocation::Absolute;
+				rel.WriteWord(resolution.value - resolution.target->base_address);
+			}
 			uint32_t source = segment_index[position.segment];
 			uint32_t target = segment_index[resolution.target];
-			modules[0].hunks[source].relocations[target].insert(Relocation(rel.size, Relocation::Absolute, position.address));
+			modules[0].hunks[source].relocations[target].insert(Relocation(rel.size, type, position.address));
 		}
 	}
 

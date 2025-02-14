@@ -130,7 +130,7 @@ class RecipeStep:
 class Assemble(RecipeStep):
 	"""A step describing assembling, producing an object file."""
 	def __init__(self, Input, Output, Executable = (), Arguments = [], Dependency = []):
-		super(Assemble, self).__init__(Input = [Input] + Dependency, Output = Output, Arguments = ["{assembler}", Input, "-o", Output] + Arguments)
+		super(Assemble, self).__init__(Input = [Input] + Dependency, Output = Output, Arguments = ["{assembler} {assembler_flags}", Input, "-o", Output] + Arguments)
 		#super(Assemble, self).__init__(Input = [Input] + Dependency, Output = Executable, Arguments = ["{assembler}", Input, "-o", Output] + Arguments)
 
 class CompileC(RecipeStep):
@@ -241,7 +241,7 @@ EndFor = EndFor()
 
 class DefineVersion:
 	"""Provides variation in executable generation where the file format does not change significantly. Typically used for linking model or relocation suppression."""
-	def __init__(self, Id, ModelName = None, LinkerName = None, AssemblerOptions = (), LinkerOptions = (), LinkerParameters = ()):
+	def __init__(self, Id, ModelName = None, LinkerName = None, AssemblerOptions = (), LinkerOptions = (), LinkerParameters = (), AssemblerFlags = None):
 		"""
 			Id - version is identified by this
 			ModelName - passed to assembler as symbol MODEL_*
@@ -255,6 +255,7 @@ class DefineVersion:
 		self.assembler_options = tuple(AssemblerOptions)
 		self.linker_options = tuple(LinkerOptions)
 		self.linker_parameters = tuple(LinkerParameters)
+		self.assembler_flags = AssemblerFlags
 
 class DefineTarget:
 	"""Registers a new target, for CPU/OS/binary format. Instantiating this class automatically registers the target for compilation."""
@@ -303,6 +304,9 @@ class DefineTarget:
 			keywords['assembler_options'] = self.versions[version].assembler_options
 			keywords['linker_options'] = self.versions[version].linker_options
 			keywords['linker_parameters'] = self.versions[version].linker_parameters
+			if self.versions[version].assembler_flags is not None:
+				# override defaults
+				keywords['assembler_flags'] = self.versions[version].assembler_flags
 		return keywords
 
 def PostProcess(System, PostProcess):
@@ -324,39 +328,48 @@ class Target:
 CPUS = {
 	'z80': {
 		'assembler': 'z80-coff-as',
+		'assembler_flags': '',
 		'compiler': 'echo "Error: GCC does not support Z80" #',
 	},
 	'i86': {
 		'assembler': 'i686-elf-as -msyntax=intel -mnaked-reg',
+		'assembler_flags': '',
 		'compiler': 'ia16-elf-gcc',
 	},
 	'i386': {
 		'assembler': 'i686-elf-as -msyntax=intel -mnaked-reg',
+		'assembler_flags': '',
 		'compiler': 'i686-elf-gcc',
 	},
 	'm68k': {
-		'assembler': 'm68k-elf-as -m68000 --register-prefix-optional --bitwise-or',
+		'assembler': 'm68k-elf-as --register-prefix-optional --bitwise-or',
+		'assembler_flags': '-m68000',
 		'compiler': 'm68k-elf-gcc -m68000',
 	},
 	'arm': {
 		'assembler': 'arm-none-eabi-as',
+		'assembler_flags': '',
 		'compiler': 'arm-none-eabi-gcc -march=armv3',
 	},
 	'pdp11': {
 		'assembler': 'pdp11-aout-as',
+		'assembler_flags': '',
 		'compiler': 'pdp11-aout-gcc',
 	},
 	'z8k': {
 		'assembler': 'z8k-coff-as',
+		'assembler_flags': '',
 		'compiler': 'z8k-coff-gcc',
 	},
 	'mos6502': {
 		'assembler': 'xa -R -c',
+		'assembler_flags': '',
 		'compiler': 'echo "Error: GCC does not support 6502" #',
 	},
 	'w65': {
 		# also MOS 6502, but using old binutils
 		'assembler': 'w65-wdc-none-as',
+		'assembler_flags': '',
 		'compiler': 'echo "Error: GCC does not support 6502" #',
 	},
 }
@@ -690,7 +703,7 @@ DefineTarget(
 		DefineVersion("", LinkerOptions = ["system=v1"]),
 		DefineVersion("v37", LinkerName = "", LinkerOptions = ["system=v37"]),
 		DefineVersion("v38", LinkerName = "", LinkerOptions = ["system=v38"]),
-		DefineVersion("v39", LinkerName = "", LinkerOptions = ["system=v39"]),
+		DefineVersion("v39", ModelName = "v39", LinkerName = "", LinkerOptions = ["system=v39"], AssemblerFlags = "-m68020"),
 	])
 
 DefineTarget(

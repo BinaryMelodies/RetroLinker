@@ -152,10 +152,6 @@ Target(
 	Version = "v38",
 	output_file = "amiga.v38")
 Target(
-	System = "amiga",
-	Version = "v39",
-	output_file = "amiga.v39")
-Target(
 	System = "macos",
 	output_file = "macos")
 Target(
