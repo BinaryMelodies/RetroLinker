@@ -1843,6 +1843,8 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 				continue;
 			}
 			Linker::Position position = rel.source.GetPosition();
+			uint32_t source = segment_index[position.segment];
+			uint32_t target = segment_index[resolution.target];
 			Relocation::relocation_type type;
 			if(resolution.reference != nullptr)
 			{
@@ -1852,15 +1854,25 @@ void HunkFormat::ProcessModule(Linker::Module& module)
 					continue;
 				}
 				type = Relocation::SelfRelative;
-				rel.WriteWord(resolution.value + 0x70); // TODO: what is this displacement
+				rel.WriteWord(resolution.value + (target == 1 ? 0x70 : -0x20)); // TODO: what is this displacement
 			}
 			else
 			{
 				type = Relocation::Absolute;
 				rel.WriteWord(resolution.value - resolution.target->base_address);
 			}
-			uint32_t source = segment_index[position.segment];
-			uint32_t target = segment_index[resolution.target];
+			if(type == Relocation::SelfRelative)
+			{
+				Linker::Debug << "Debug: relative, target = " << target << std::endl;
+				Linker::Debug << rel << std::endl;
+				Linker::Debug << resolution << std::endl;
+			}
+			else if(type == Relocation::Absolute)
+			{
+				Linker::Debug << "Debug: absolute, target = " << target << std::endl;
+				Linker::Debug << rel << std::endl;
+				Linker::Debug << resolution << std::endl;
+			}
 			modules[0].hunks[source].relocations[target].insert(Relocation(rel.size, type, position.address));
 		}
 	}
