@@ -2486,6 +2486,11 @@ void MacBinary::CalculateValues()
 	AppleSingleDouble::CalculateValues();
 }
 
+void MacBinary::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
 offset_t MacBinary::WriteFile(Linker::Writer& wr) const
 {
 	WriteHeader(wr);
@@ -2568,6 +2573,60 @@ bool MacDriver::AddSupplementaryOutputFormat(std::string subformat)
 	return true;
 }
 
+std::shared_ptr<const ResourceFork> MacDriver::GetResourceFork() const
+{
+	if(auto pointer = std::get_if<std::shared_ptr<ResourceFork>>(&container))
+	{
+		return *pointer;
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+std::shared_ptr<ResourceFork> MacDriver::GetResourceFork()
+{
+	return std::const_pointer_cast<ResourceFork>(const_cast<const MacDriver *>(this)->GetResourceFork());
+}
+
+std::shared_ptr<const AppleSingleDouble> MacDriver::GetAppleSingleDouble() const
+{
+	if(auto pointer = std::get_if<std::shared_ptr<AppleSingleDouble>>(&container))
+	{
+		if(std::dynamic_pointer_cast<AppleSingleDouble>(*pointer) == nullptr)
+			return *pointer;
+		else
+			return nullptr; // this is actually a MacBinary
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+std::shared_ptr<AppleSingleDouble> MacDriver::GetAppleSingleDouble()
+{
+	return std::const_pointer_cast<AppleSingleDouble>(const_cast<const MacDriver *>(this)->GetAppleSingleDouble());
+}
+
+std::shared_ptr<const MacBinary> MacDriver::GetMacBinary() const
+{
+	if(auto pointer = std::get_if<std::shared_ptr<AppleSingleDouble>>(&container))
+	{
+		return std::dynamic_pointer_cast<MacBinary>(*pointer);
+	}
+	else
+	{
+		return nullptr;
+	}
+}
+
+std::shared_ptr<MacBinary> MacDriver::GetMacBinary()
+{
+	return std::const_pointer_cast<MacBinary>(const_cast<const MacDriver *>(this)->GetMacBinary());
+}
+
 void MacDriver::SetOptions(std::map<std::string, std::string>& options)
 {
 	this->options = options;
@@ -2591,7 +2650,8 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
 	}
 
-	container = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
+	std::shared_ptr<AppleSingleDouble> container;
+	this->container = container = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 		apple_single_double_version, home_file_system);
 
 	container->SetOptions(options);
@@ -2629,6 +2689,17 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
 		wr.out = &out;
 		WriteFile(wr);
+		out.close();
+		break;
+	case TARGET_MAC_BINARY:
+		// TODO: untested
+		out.open(filename, std::ios_base::out | std::ios_base::binary);
+		wr.out = &out;
+		{
+			MacBinary macbinary(*container, macbinary_version, macbinary_minimum_version);
+			macbinary.generated_file_name = filename;
+			macbinary.WriteFile(wr);
+		}
 		out.close();
 		break;
 	}
@@ -2712,11 +2783,95 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 
 void MacDriver::ReadFile(Linker::Reader& rd)
 {
-	Linker::FatalError("Fatal error: Reading the Apple output driver is not supported");
+	switch(target)
+	{
+	case TARGET_RESOURCE_FORK:
+		{
+			std::shared_ptr<ResourceFork> container;
+			this->container = container = std::make_shared<ResourceFork>();
+			container->ReadFile(rd);
+		}
+		break;
+	case TARGET_APPLE_SINGLE:
+		{
+			std::shared_ptr<AppleSingleDouble> container;
+			this->container = container = std::make_shared<AppleSingleDouble>();
+			container->ReadFile(rd);
+		}
+		break;
+	case TARGET_MAC_BINARY:
+		{
+			std::shared_ptr<MacBinary> container;
+			container = std::make_shared<MacBinary>();
+			this->container = std::static_pointer_cast<AppleSingleDouble>(container);
+			container->ReadFile(rd);
+		}
+		break;
+	default:
+		if((produce & PRODUCE_APPLE_DOUBLE))
+		{
+			std::shared_ptr<AppleSingleDouble> container;
+			this->container = container = std::make_shared<AppleSingleDouble>();
+			container->ReadFile(rd);
+		}
+		else if((produce & PRODUCE_RESOURCE_FORK))
+		{
+			std::shared_ptr<ResourceFork> container;
+			this->container = container = std::make_shared<ResourceFork>();
+			container->ReadFile(rd);
+		}
+		else if((produce & PRODUCE_MAC_BINARY))
+		{
+			std::shared_ptr<MacBinary> container;
+			container = std::make_shared<MacBinary>();
+			this->container = std::static_pointer_cast<AppleSingleDouble>(container);
+			container->ReadFile(rd);
+		}
+		else
+		{
+			Linker::FatalError("Fatal error: Reading the specified format is not supported");
+		}
+		break;
+	}
 }
 
 offset_t MacDriver::WriteFile(Linker::Writer& wr) const
 {
-	Linker::FatalError("Fatal error: Writing the Apple output driver is not supported");
+	if(auto resource_fork = GetResourceFork())
+	{
+		return resource_fork->WriteFile(wr);
+	}
+	else if(auto apple_single_double = GetAppleSingleDouble())
+	{
+		return apple_single_double->WriteFile(wr);
+	}
+	else if(auto mac_binary = GetMacBinary())
+	{
+		return mac_binary->WriteFile(wr);
+	}
+	else
+	{
+		Linker::FatalError("Internal error: file not loaded");
+	}
+}
+
+void MacDriver::Dump(Dumper::Dumper& dump) const
+{
+	if(auto resource_fork = GetResourceFork())
+	{
+		resource_fork->Dump(dump);
+	}
+	else if(auto apple_single_double = GetAppleSingleDouble())
+	{
+		apple_single_double->Dump(dump);
+	}
+	else if(auto mac_binary = GetMacBinary())
+	{
+		mac_binary->Dump(dump);
+	}
+	else
+	{
+		Linker::FatalError("Internal error: file not loaded");
+	}
 }
 

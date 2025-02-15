@@ -974,8 +974,11 @@ namespace Apple
 
 		void CalculateValues() override;
 
+		void ReadFile(Linker::Reader& rd) override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
 		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
@@ -998,6 +1001,7 @@ namespace Apple
 			TARGET_DATA_FORK, /* main file is a data fork, typically empty */
 			TARGET_RESOURCE_FORK, /* main file is a resource fork */
 			TARGET_APPLE_SINGLE, /* main file is an AppleSingle */
+			TARGET_MAC_BINARY, /* main file as a MacBinary */
 		};
 		target_format_t target;
 
@@ -1042,7 +1046,18 @@ namespace Apple
 		bool AddSupplementaryOutputFormat(std::string subformat) override;
 
 	private:
-		std::shared_ptr<AppleSingleDouble> container;
+		std::variant<
+			std::shared_ptr<ResourceFork>,
+			std::shared_ptr<AppleSingleDouble>
+			//std::shared_ptr<MacBinary> // stored as AppleSingleDouble
+		> container;
+
+		std::shared_ptr<const ResourceFork> GetResourceFork() const;
+		std::shared_ptr<ResourceFork> GetResourceFork();
+		std::shared_ptr<const AppleSingleDouble> GetAppleSingleDouble() const;
+		std::shared_ptr<AppleSingleDouble> GetAppleSingleDouble();
+		std::shared_ptr<const MacBinary> GetMacBinary() const;
+		std::shared_ptr<MacBinary> GetMacBinary();
 
 		std::map<std::string, std::string> options;
 		std::string model;
@@ -1062,6 +1077,8 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 }
 

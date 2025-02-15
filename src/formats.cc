@@ -233,6 +233,9 @@ format_specification formats[] =
 	{ "applesingle",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::MacDriver>(Apple::MacDriver::TARGET_APPLE_SINGLE); },
 		"Classic Macintosh 'CODE' resource executable, stored as AppleSingle format" },
+	{ "mbin",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::MacDriver>(Apple::MacDriver::TARGET_MAC_BINARY); },
+		"Classic Macintosh 'CODE' resource executable, stored as MacBinary format" },
 	/* Hunk */
 	{ "amiga",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<HunkFormat>(); },
