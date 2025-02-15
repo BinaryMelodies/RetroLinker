@@ -80,6 +80,13 @@ enum format_type
 
 struct format_description;
 
+enum format_priority
+{
+	PRIORITY_DEFAULT,
+	PRIORITY_LOW = -1,
+	PRIORITY_NONE = -2,
+};
+
 struct format_magic
 {
 	std::string magic;
@@ -87,6 +94,7 @@ struct format_magic
 	format_type type;
 	std::string description;
 	bool (* special_parse)(Linker::Reader& in, format_description& description);
+	format_priority priority;
 };
 
 struct format_description

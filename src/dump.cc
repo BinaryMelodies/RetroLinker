@@ -103,8 +103,19 @@ int main(int argc, char * argv[])
 			Linker::FatalError("Fatal error: Unable to determine file format");
 		}
 
+		format_priority highest_priority = PRIORITY_NONE;
+
 		for(auto& file_format : file_formats)
 		{
+			if(file_format.magic.priority > highest_priority)
+				highest_priority = file_format.magic.priority;
+		}
+
+		for(auto& file_format : file_formats)
+		{
+			if(file_format.magic.priority != highest_priority)
+				continue;
+
 			Linker::Debug << "Debug: Reading as " << file_format.magic.description << std::endl;
 			format = CreateFormat(rd, file_format);
 			if(!format)
@@ -114,9 +125,24 @@ int main(int argc, char * argv[])
 				continue;
 			}
 			rd.Seek(file_format.offset);
-			format->ReadFile(rd);
-			Dumper::Dumper dump(std::cout);
-			format->Dump(dump);
+
+			try
+			{
+				format->ReadFile(rd);
+				Dumper::Dumper dump(std::cout);
+				format->Dump(dump);
+			}
+			catch(Linker::Exception&)
+			{
+			}
+		}
+
+		for(auto& file_format : file_formats)
+		{
+			if(file_format.magic.priority == highest_priority)
+				continue;
+
+			Linker::Debug << "Debug: Other possible format: " << file_format.magic.description << std::endl;
 		}
 	}
 	else
