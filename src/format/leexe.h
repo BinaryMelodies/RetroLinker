@@ -157,7 +157,7 @@ namespace Microsoft
 				Relocation(unsigned type, unsigned flags, uint16_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0)
 					: Writer(::LittleEndian), type(source_type(type)), flags(flag_type(flags)), module(module), target(target), addition(addition)
 				{
-					sources.push_back(offset);
+					sources.push_back(Chained{offset});
 				}
 
 				static source_type GetType(Linker::Relocation& rel);
@@ -171,7 +171,19 @@ namespace Microsoft
 				size_t GetSourceSize() const;
 
 			private:
-				std::vector<uint16_t> sources;
+				struct Chain
+				{
+					uint32_t target = 0;
+					uint16_t source = 0;
+				};
+
+				struct Chained
+				{
+					uint16_t source = 0;
+					std::vector<Chain> chains;
+				};
+
+				std::vector<Chained> sources;
 
 			public:
 				/* do not call this */
@@ -185,12 +197,14 @@ namespace Microsoft
 				size_t GetModuleSize() const;
 				size_t GetOrdinalSize() const;
 
+				uint16_t GetFirstSource() const;
+
 				void CalculateSizes(compatibility_type compatibility);
 
 				size_t GetSize() const;
 
 				static Relocation ReadFile(Linker::Reader& rd);
-				void WriteFile(Linker::Writer& wr, compatibility_type compatibility) const;
+				void WriteFile(Linker::Writer& wr) const;
 			};
 			std::map<uint16_t, Relocation> relocations;
 			uint32_t checksum = 0;

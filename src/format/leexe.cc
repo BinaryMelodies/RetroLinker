@@ -83,7 +83,7 @@ size_t LEFormat::Page::Relocation::GetSourceSize() const
 void LEFormat::Page::Relocation::DecrementSingleSourceOffset(size_t amount)
 {
 	assert(sources.size() == 1);
-	sources[0] -= amount;
+	sources[0].source -= amount;
 }
 
 bool LEFormat::Page::Relocation::IsSelector() const
@@ -119,6 +119,11 @@ size_t LEFormat::Page::Relocation::GetModuleSize() const
 size_t LEFormat::Page::Relocation::GetOrdinalSize() const
 {
 	return flags & Ordinal8 ? 1 : GetTargetSize();
+}
+
+uint16_t LEFormat::Page::Relocation::GetFirstSource() const
+{
+	return sources[0].source;
 }
 
 void LEFormat::Page::Relocation::CalculateSizes(compatibility_type compatibility)
@@ -193,7 +198,60 @@ size_t LEFormat::Page::Relocation::GetSize() const
 	return size;
 }
 
-void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr, compatibility_type compatibility) const
+LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& rd)
+{
+	Relocation relocation;
+	relocation.type = source_type(rd.ReadUnsigned(1));
+	relocation.flags = flag_type(rd.ReadUnsigned(1));
+	uint8_t source_list_size;
+	relocation.sources.clear();
+	if(relocation.IsSourceList())
+	{
+		source_list_size = rd.ReadUnsigned(1);
+	}
+	else
+	{
+		source_list_size = 0;
+		uint16_t source = rd.ReadUnsigned(2);
+		relocation.sources.emplace_back(Chained{source});
+	}
+	switch(relocation.flags & FlagTypeMask)
+	{
+	case Internal:
+		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
+		if(!relocation.IsSelector())
+			relocation.target = rd.ReadUnsigned(relocation.GetTargetSize());
+		break;
+	case ImportOrdinal:
+		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
+		relocation.target = rd.ReadUnsigned(relocation.GetTargetSize());
+		if(relocation.IsAdditive())
+			relocation.addition = rd.ReadUnsigned(relocation.GetAdditiveSize());
+		break;
+	case ImportName:
+		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
+		relocation.target = rd.ReadUnsigned(relocation.GetOrdinalSize());
+		if(relocation.IsAdditive())
+			relocation.addition = rd.ReadUnsigned(relocation.GetAdditiveSize());
+		break;
+	case Entry:
+		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
+		if(relocation.IsAdditive())
+			relocation.addition = rd.ReadUnsigned(relocation.GetAdditiveSize());
+		break;
+	}
+	if(relocation.IsSourceList())
+	{
+		for(uint8_t i = 0; i < source_list_size; i++)
+		{
+			uint16_t source = rd.ReadUnsigned(2);
+			relocation.sources.emplace_back(Chained{source});
+		}
+	}
+	return relocation;
+}
+
+void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(1, type);
 	wr.WriteWord(1, flags);
@@ -204,7 +262,7 @@ void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr, compatibility_typ
 	else
 	{
 		assert(sources.size() == 1);
-		wr.WriteWord(2, sources[0]);
+		wr.WriteWord(2, sources[0].source);
 	}
 	switch(flags & FlagTypeMask)
 	{
@@ -233,8 +291,10 @@ void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr, compatibility_typ
 	}
 	if(IsSourceList())
 	{
-		for(uint16_t source : sources)
-			wr.WriteWord(2, source);
+		for(Chained source : sources)
+		{
+			wr.WriteWord(2, source.source);
+		}
 	}
 }
 
@@ -624,7 +684,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		if(length == 0)
 			break;
 		Name name;
-		name.name = rd.ReadData(length & 0x7F);
+		name.name = rd.ReadData(length);
 		name.ordinal = rd.ReadUnsigned(2);
 		resident_names.emplace_back(name);
 	}
@@ -684,6 +744,46 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		if(&page == &pages.front())
 			continue;
 		page.fixup_offset = rd.ReadUnsigned(4);
+	}
+
+	/* Fixup Record Table */
+//size_t _ = wr.Tell();
+	for(uint32_t i = 1; i < pages.size() - 1; i++)
+	{
+		Page& page = pages[i];
+		//if(&page == &pages.front() || &page == &pages.back())
+		//	continue;
+		rd.Seek(fixup_record_table_offset + page.fixup_offset);
+		offset_t end = fixup_record_table_offset + pages[i + 1].fixup_offset;
+		while(rd.Tell() < end)
+		{
+			Page::Relocation relocation = Page::Relocation::ReadFile(rd);
+			page.relocations[relocation.GetFirstSource()] = relocation;
+		}
+	}
+
+	/* Import Module Name Table */
+	rd.Seek(imported_module_table_offset);
+	while(rd.Tell() < imported_procedure_table_offset && imported_modules.size() < imported_module_count)
+	{
+		uint8_t length = rd.ReadUnsigned(1);
+		std::string name = rd.ReadData(length);
+		imported_modules.emplace_back(name);
+	}
+
+	/* Import Procedure Name Table */
+	rd.Seek(imported_procedure_table_offset);
+	offset_t imported_procedure_table_end;
+	if(!IsExtendedFormat() && per_page_checksum_offset != 0)
+		imported_procedure_table_end = per_page_checksum_offset;
+	else
+		imported_procedure_table_end = fixup_page_table_offset + fixup_section_size;
+	while(rd.Tell() < imported_procedure_table_end)
+	{
+		uint8_t length = rd.ReadUnsigned(1);
+		std::string name = rd.ReadData(length);
+		imported_procedures.emplace_back(name);
+	}
 
 	/* TODO */
 }
@@ -901,14 +1001,14 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		for(auto& it : page.relocations)
 		{
 			if(it.second.ComesBefore())
-				it.second.WriteFile(wr, compatibility);
+				it.second.WriteFile(wr);
 //Linker::Debug << "Debug: Receive " << wr.Tell() - _ << std::endl; _ = Tell();
 		}
 //Linker::Debug << "Debug: Receive page (after) " << page.relocations.size() << std::endl;
 		for(auto& it : page.relocations)
 		{
 			if(!it.second.ComesBefore())
-				it.second.WriteFile(wr, compatibility);
+				it.second.WriteFile(wr);
 //Linker::Debug << "Debug: Receive " << wr.Tell() - _ << std::endl; _ = Tell();
 		}
 	}
