@@ -59,10 +59,16 @@ namespace Microsoft
 				Conforming = 0x4000, /* x86 */
 				IOPrivilege = 0x8000, /* x86 */
 			};
-			flag_type flags;
+			uint32_t size = 0;
+			uint32_t address = 0;
+			flag_type flags = flag_type(0);
 			uint32_t page_table_index = 0;
 			uint32_t page_entry_count = 0;
 			uint32_t data_pages_offset = 0;
+
+			Object()
+			{
+			}
 
 			Object(std::shared_ptr<Linker::Segment> segment, unsigned flags)
 				: image(segment), flags(flag_type(flags))
@@ -183,9 +189,11 @@ namespace Microsoft
 
 				size_t GetSize() const;
 
+				static Relocation ReadFile(Linker::Reader& rd);
 				void WriteFile(Linker::Writer& wr, compatibility_type compatibility) const;
 			};
 			std::map<uint16_t, Relocation> relocations;
+			uint32_t checksum = 0;
 
 			Page()
 				: lx{0, 0, 0}
@@ -211,14 +219,18 @@ namespace Microsoft
 
 		class Resource
 		{
-			/* TODO */
+		public:
+			uint16_t type = 0, name = 0;
+			uint32_t size = 0;
+			uint16_t object = 0;
+			uint32_t offset = 0;
 		};
 
 		struct Name
 		{
 		public:
 			std::string name;
-			uint16_t ordinal;
+			uint16_t ordinal = 0;
 		};
 
 		class Entry : public Linker::Writer
@@ -252,11 +264,16 @@ namespace Microsoft
 			{
 			}
 
+			mutable bool same_bundle = false; // mutable because this isn't actually part of the entry state but the entire entry table
+
 			bool SameBundle(const Entry& other) const;
 
 			offset_t GetEntryHeadSize() const;
 
 			offset_t GetEntryBodySize() const;
+
+			static Entry ReadEntryHead(Linker::Reader& rd, uint8_t type);
+			static Entry ReadEntry(Linker::Reader& rd, uint8_t type, LEFormat::Entry& head);
 
 			void WriteEntryHead(Linker::Writer& wr) const;
 
@@ -265,7 +282,21 @@ namespace Microsoft
 
 		class ModuleDirective
 		{
-			// TODO
+		public:
+			enum directive_number : uint16_t
+			{
+				VerifyRecordDirective = 0x8001,
+				LanguageInformationDirective = 0x0002,
+				CoProcessorRequiredSupportTable = 0x0003,
+				ThreadStateInitializationDirective = 0x0004,
+				CSetBrowseInformation = 0x0005,
+			};
+			static constexpr uint16_t ResidentFlagMask = 0x8000;
+			directive_number directive = directive_number(0);
+			uint16_t length = 0;
+			offset_t offset = 0;
+
+			bool IsResident() const;
 		};
 
 		::EndianType endiantype = ::LittleEndian;
@@ -350,7 +381,7 @@ namespace Microsoft
 		std::vector<ModuleDirective> module_directives;
 
 		std::vector<Page> pages;
-		std::vector<Resource> resources;
+		std::map<uint16_t, std::map<uint16_t, Resource>> resources;
 		std::vector<Name> resident_names, nonresident_names;
 		std::vector<Entry> entries;
 		std::vector<std::string> imported_modules, imported_procedures;
@@ -404,6 +435,9 @@ namespace Microsoft
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
+		Resource& AddResource(Resource& resource);
+
+		void GetRelocationOffset(Object& object, size_t offset, size_t& page_index, uint16_t& page_offset);
 		void AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0);
 
 		std::shared_ptr<Linker::Segment> stack, heap;

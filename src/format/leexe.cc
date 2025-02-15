@@ -299,6 +299,57 @@ offset_t LEFormat::Entry::GetEntryBodySize() const
 	}
 }
 
+LEFormat::Entry LEFormat::Entry::ReadEntryHead(Linker::Reader& rd, uint8_t type)
+{
+	Entry entry;
+	switch(type)
+	{
+	case Unused:
+		break;
+	case Entry16:
+	case CallGate286:
+	case Entry32:
+		entry.object = rd.ReadUnsigned(2);
+		break;
+	case Forwarder:
+		rd.Skip(2); /* reserved */
+		break;
+	}
+	return entry;
+}
+
+LEFormat::Entry LEFormat::Entry::ReadEntry(Linker::Reader& rd, uint8_t type, LEFormat::Entry& head)
+{
+	Entry entry;
+	switch(type)
+	{
+	case Unused:
+		break;
+	case Entry16:
+		entry.object = head.object;
+		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
+		entry.offset = rd.ReadUnsigned(2);
+		break;
+	case CallGate286:
+		entry.object = head.object;
+		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
+		entry.offset = rd.ReadUnsigned(2);
+		rd.Skip(2); /* reserved - call gate */
+		break;
+	case Entry32:
+		entry.object = head.object;
+		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
+		entry.offset = rd.ReadUnsigned(4);
+		break;
+	case Forwarder:
+		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
+		entry.object = rd.ReadUnsigned(2); /* module */
+		entry.offset = rd.ReadUnsigned(4); /* ordinal or name */
+		break;
+	}
+	return entry;
+}
+
 void LEFormat::Entry::WriteEntryHead(Linker::Writer& wr) const
 {
 	wr.WriteWord(1, type);
@@ -342,6 +393,11 @@ void LEFormat::Entry::WriteEntryBody(Linker::Writer& wr) const
 		wr.WriteWord(4, offset); /* ordinal or name */
 		break;
 	}
+}
+
+bool LEFormat::ModuleDirective::IsResident() const
+{
+	return (directive & ResidentFlagMask) != 0;
 }
 
 bool LEFormat::IsExtendedFormat() const
@@ -464,7 +520,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	{
 		module_directives_offset += file_offset;
 	}
-	uint32_t module_directives_size = rd.ReadUnsigned(4);
+	uint32_t module_directives_count = rd.ReadUnsigned(4);
 	fixup_page_table_offset = rd.ReadUnsigned(4);
 	if(fixup_page_table_offset != 0)
 	{
@@ -506,9 +562,128 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	vxd_device_id = rd.ReadUnsigned(2);
 	vxd_ddk_version = rd.ReadUnsigned(2);
 
-	rd.Seek(file_offset + 0xC4);
-
 	/*** Loader Section ***/
+	/* Object Table */
+	rd.Seek(object_table_offset);
+	for(uint32_t i = 0; i < object_count; i++)
+	{
+		Object object;
+		object.size = rd.ReadUnsigned(4);
+		object.address = rd.ReadUnsigned(4);
+		object.flags = Object::flag_type(rd.ReadUnsigned(4));
+		object.page_table_index = rd.ReadUnsigned(4);
+		object.page_entry_count = rd.ReadUnsigned(4);
+		rd.Skip(4);
+		objects.emplace_back(object);
+	}
+
+	/* Object Page Table */
+	rd.Seek(object_page_table_offset);
+	pages.push_back(Page());
+	if(IsExtendedFormat())
+	{
+		for(uint32_t i = 0; i < page_count; i++)
+		{
+			Page page;
+			page.lx.offset = offset_t(rd.ReadUnsigned(4) << page_offset_shift);
+			page.lx.size = rd.ReadUnsigned(2);
+			page.lx.flags = rd.ReadUnsigned(2);
+			pages.push_back(page);
+		}
+	}
+	else
+	{
+		for(uint32_t i = 0; i < page_count; i++)
+		{
+			Page page;
+			page.le.fixup_table_index = rd.ReadUnsigned(3, ::BigEndian);
+			page.le.type = rd.ReadUnsigned(1);
+			pages.push_back(page);
+		}
+	}
+	pages.push_back(Page());
+
+	/* Resource Table */
+	rd.Seek(resource_table_offset);
+	for(uint32_t i = 0; i < resource_table_entry_count; i++)
+	{
+		Resource resource;
+		resource.type = rd.ReadUnsigned(2);
+		resource.name = rd.ReadUnsigned(2);
+		resource.size = rd.ReadUnsigned(4);
+		resource.object = rd.ReadUnsigned(2);
+		resource.offset = rd.ReadUnsigned(4);
+		AddResource(resource);
+	}
+
+	/* Resident Name Table */
+	rd.Seek(resident_name_table_offset);
+	while(true)
+	{
+		uint8_t length = rd.ReadUnsigned(1);
+		if(length == 0)
+			break;
+		Name name;
+		name.name = rd.ReadData(length & 0x7F);
+		name.ordinal = rd.ReadUnsigned(2);
+		resident_names.emplace_back(name);
+	}
+
+	/* Entry Table */
+	rd.Seek(entry_table_offset);
+	while(true)
+	{
+		uint8_t entry_count = rd.ReadUnsigned(1);
+		if(entry_count == 0)
+			break;
+		uint8_t type = rd.ReadUnsigned(1);
+		Entry head = Entry::ReadEntryHead(rd, type);
+		for(uint8_t i = 0; i < entry_count; i ++)
+		{
+			entries.emplace_back(Entry::ReadEntry(rd, type, head));
+			entries.back().same_bundle = i != 0;
+		}
+	}
+
+	/* Module Format Directives Table */
+	if(module_directives_count != 0)
+	{
+		rd.Seek(module_directives_offset);
+		for(uint32_t i = 0; i < module_directives_count; i++)
+		{
+			ModuleDirective directive;
+			directive.directive = ModuleDirective::directive_number(rd.ReadUnsigned(2));
+			directive.length = rd.ReadUnsigned(2);
+			directive.offset = rd.ReadUnsigned(4);
+			if(directive.IsResident())
+				directive.offset += file_offset;
+			module_directives.emplace_back(directive);
+		}
+	}
+
+	/* Resident Directives */
+	// TODO
+
+	/* Per-page Checksum */
+	if(per_page_checksum_offset != 0)
+	{
+		rd.Seek(per_page_checksum_offset);
+		for(Page& page : pages)
+		{
+			if(&page == &pages.front() || &page == &pages.back())
+				continue;
+			page.checksum = rd.ReadUnsigned(4);
+		}
+	}
+
+	/*** Fixup Section ***/
+	/* Fixup Page Table */
+	rd.Seek(fixup_page_table_offset);
+	for(Page& page : pages)
+	{
+		if(&page == &pages.front())
+			continue;
+		page.fixup_offset = rd.ReadUnsigned(4);
 
 	/* TODO */
 }
@@ -595,15 +770,16 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, vxd_device_id);
 	wr.WriteWord(2, vxd_ddk_version);
 
+	/*** Loader Section ***/
 	wr.Seek(file_offset + 0xC4);
 
-	/*** Loader Section ***/
 	/* Object Table */
 	assert(wr.Tell() == object_table_offset);
 	for(const Object& object : objects)
 	{
-		wr.WriteWord(4, object.image->TotalSize());
-		wr.WriteWord(4, object.image->base_address);
+		assert(object.size == object.image->TotalSize());
+		wr.WriteWord(4, object.size);
+		wr.WriteWord(4, object.address);
 		wr.WriteWord(4, object.flags);
 		wr.WriteWord(4, object.page_table_index);
 		wr.WriteWord(4, object.page_entry_count);
@@ -636,10 +812,18 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 
 	/* Resource Table */
 	assert(wr.Tell() == resource_table_offset);
-	/* TODO */
-
-	/* Resource Name Table */
-	/* TODO */
+	// TODO: untested
+	for(auto it1 : resources)
+	{
+		for(auto it2 : it1.second)
+		{
+			wr.WriteWord(2, it2.second.type);
+			wr.WriteWord(2, it2.second.name);
+			wr.WriteWord(4, it2.second.size);
+			wr.WriteWord(2, it2.second.object);
+			wr.WriteWord(4, it2.second.offset);
+		}
+	}
 
 	/* Resident Name Table */
 	assert(wr.Tell() == resident_name_table_offset);
@@ -669,8 +853,32 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(1, 0);
 
 	/* Module Format Directives Table */
-	/* Resident Directives Table */
+	if(module_directives.size() != 0)
+	{
+		// TODO: untested
+		assert(wr.Tell() == module_directives_offset);
+		for(const ModuleDirective& directive : module_directives)
+		{
+			wr.WriteWord(2, directive.directive);
+			wr.WriteWord(2, directive.length);
+			wr.WriteWord(4, directive.offset - (directive.IsResident() ? file_offset : 0));
+		}
+	}
+
+	/* Resident Directives */
+	// TODO
+
 	/* Per-page Checksum (LX) */
+	if(IsExtendedFormat() && per_page_checksum_offset != 0)
+	{
+		assert(wr.Tell() == per_page_checksum_offset);
+		for(const Page& page : pages)
+		{
+			if(&page == &pages.front() || &page == &pages.back())
+				continue;
+			wr.WriteWord(4, page.checksum);
+		}
+	}
 
 	/*** Fixup Section ***/
 	/* Fixup Page Table */
@@ -722,6 +930,16 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	}
 
 	/* Per-page Checksum (LE) */
+	if(!IsExtendedFormat() && per_page_checksum_offset != 0)
+	{
+		assert(wr.Tell() == per_page_checksum_offset);
+		for(const Page& page : pages)
+		{
+			if(&page == &pages.front() || &page == &pages.back())
+				continue;
+			wr.WriteWord(4, page.checksum);
+		}
+	}
 
 	/*** Segment Data ***/
 	for(const Object& object : objects)
@@ -746,6 +964,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		wr.WriteWord(2, name.ordinal);
 	}
 	wr.WriteWord(1, 0);
+	/* Non-Resident Directives */
 
 	return offset_t(-1);
 }
@@ -845,10 +1064,22 @@ unsigned LEFormat::FormatAdditionalSectionFlags(std::string section_name) const
 	}
 }
 
+LEFormat::Resource& LEFormat::AddResource(Resource& resource)
+{
+	return resources[resource.type][resource.name] = resource;
+}
+
+void LEFormat::GetRelocationOffset(Object& object, size_t offset, size_t& page_index, uint16_t& page_offset)
+{
+	page_index = object.page_table_index + (offset - object.image->base_address) / page_size;
+	page_offset = offset & (page_size - 1);
+}
+
 void LEFormat::AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target, uint32_t addition)
 {
-	size_t page_index = object.page_table_index + (offset - object.image->base_address) / page_size;
-	uint16_t page_offset = offset & (page_size - 1);
+	size_t page_index;
+	uint16_t page_offset;
+	GetRelocationOffset(object, offset, page_index, page_offset);
 	Page::Relocation rel = Page::Relocation(type, flags, page_offset, module, target, addition);
 #if 0
 	Linker::Debug << "Debug: PAGES[" << page_index << "] <- " << page_offset << std::endl;
@@ -1264,6 +1495,12 @@ void LEFormat::ProcessModule(Linker::Module& module)
 		/* top of automatic data segment */
 		esp_object = automatic_data;
 		esp_value = 0;
+	}
+
+	for(Object& object : objects)
+	{
+		object.size = object.image->TotalSize();
+		object.address = object.image->base_address;
 	}
 
 	Linker::Location entry;
