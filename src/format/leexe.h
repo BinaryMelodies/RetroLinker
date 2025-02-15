@@ -25,65 +25,7 @@ namespace Microsoft
 	class LEFormat : public virtual Linker::SegmentManager, public std::enable_shared_from_this<LEFormat>
 	{
 	public:
-		void ReadFile(Linker::Reader& rd) override;
-
-		bool FormatSupportsSegmentation() const override;
-
-		bool FormatSupportsLibraries() const override;
-
-		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
-
-		::EndianType endiantype = ::LittleEndian;
-
-		enum system_type
-		{
-			OS2 = 1, /* OS/2 2.0+ */
-			Windows, /* Windows 386 */
-			MSDOS4, /* ? */
-			Windows386, /* ? */
-
-			DOS4G = -1, /* not a real system type */
-		};
-		system_type system = system_type(0);
-
-		bool IsOS2() const;
-
-		enum
-		{
-			PreProcessInitialization = 0x00000004,
-			NoInternalFixup = 0x00000010,
-			NoExternalFixup = 0x00000020,
-			FullScreen = 0x00000100,
-			GUIAware = 0x00000200,
-			GUI = 0x00000300,
-			ErrorInImage = 0x00002000,
-			Library = 0x00008000,
-			ProtectedMemoryLibrary = 0x00018000,
-			PhysicalDriver = 0x00020000,
-			VirtualDriver = 0x00028000,
-			PerProcessTermination = 0x40000000,
-		};
-		uint32_t module_flags = 0;
-
-		bool IsLibrary() const;
-
-		bool IsDriver() const;
-
-		bool extended_format = false;
-
-		/* https://faydoc.tripod.com/formats/exe-LE.htm */
-		enum cpu_type
-		{
-			I286 = 0x01,
-			I386 = 0x02, /* only value used */
-			I486 = 0x03,
-			I860_N10 = 0x20,
-			I860_N11 = 0x21,
-			MIPS1 = 0x40,
-			MIPS2 = 0x41,
-			MIPS3 = 0x42,
-		};
-		cpu_type cpu = I386;
+		/* * * General members * * */
 
 		enum compatibility_type
 		{
@@ -92,45 +34,6 @@ namespace Microsoft
 			CompatibleMicrosoft, /* TODO??? */
 			CompatibleGNU, /* TODO: emx extender */
 		};
-		compatibility_type compatibility = CompatibleNone;
-
-		explicit LEFormat()
-			: last_page_size(0)
-		{
-		}
-
-	//protected:
-		LEFormat(unsigned system, unsigned module_flags, bool extended_format)
-			: system(system_type(system)), module_flags(module_flags), extended_format(extended_format), last_page_size(0)
-		{
-		}
-
-	public:
-		static std::shared_ptr<LEFormat> CreateConsoleApplication(system_type system = OS2);
-
-		static std::shared_ptr<LEFormat> CreateGUIApplication(system_type system = OS2);
-
-		static std::shared_ptr<LEFormat> CreateLibraryModule(system_type system = OS2);
-
-		std::shared_ptr<LEFormat> SimulateLinker(compatibility_type compatibility);
-
-		/*std::string stub_file;*/
-		std::string program_name, module_name;
-
-		uint32_t page_count = 0;
-		uint32_t eip_object = 0, eip_value = 0, esp_object = 0, esp_value = 0;
-		union
-		{
-			uint32_t last_page_size; /* LE */
-			uint32_t page_offset_shift; /* LX */
-		};
-		uint32_t fixup_section_size = 0, loader_section_size = 0;
-		uint32_t object_table_offset = 0, object_page_table_offset = 0, object_iterated_pages_offset = 0;
-		uint32_t resource_table_offset = 0, resource_table_entry_count = 0, resident_name_table_offset = 0;
-		uint32_t entry_table_offset = 0, fixup_page_table_offset = 0, fixup_record_table_offset = 0;
-		uint32_t imported_module_table_offset = 0, imported_procedure_table_offset = 0;
-		uint32_t data_pages_offset = 0, nonresident_name_table_offset = 0, nonresident_name_table_size = 0;
-		uint32_t automatic_data = 0, stack_size = 0, heap_size = 0;
 
 		class Object
 		{
@@ -165,8 +68,6 @@ namespace Microsoft
 			{
 			}
 		};
-
-		void AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0);
 
 		class Page
 		{
@@ -361,17 +262,128 @@ namespace Microsoft
 			void WriteEntryBody(Linker::Writer& wr) const;
 		};
 
-		mutable MZStubWriter stub;
-		static const uint32_t page_size = 0x1000;
+		::EndianType endiantype = ::LittleEndian;
 
-		std::shared_ptr<Linker::Segment> stack, heap;
+		enum system_type
+		{
+			OS2 = 1, /* OS/2 2.0+ */
+			Windows, /* Windows 386 */
+			MSDOS4, /* ? */
+			Windows386, /* ? */
+
+			DOS4G = -1, /* not a real system type */
+		};
+		system_type system = system_type(0);
+
+		enum
+		{
+			PreProcessInitialization = 0x00000004,
+			NoInternalFixup = 0x00000010,
+			NoExternalFixup = 0x00000020,
+			FullScreen = 0x00000100,
+			GUIAware = 0x00000200,
+			GUI = 0x00000300,
+			ErrorInImage = 0x00002000,
+			Library = 0x00008000,
+			ProtectedMemoryLibrary = 0x00018000,
+			PhysicalDriver = 0x00020000,
+			VirtualDriver = 0x00028000,
+			PerProcessTermination = 0x40000000,
+		};
+		uint32_t module_flags = 0;
+
+		bool extended_format = false;
+
+		/* https://faydoc.tripod.com/formats/exe-LE.htm */
+		enum cpu_type
+		{
+			I286 = 0x01,
+			I386 = 0x02, /* only value used */
+			I486 = 0x03,
+			I860_N10 = 0x20,
+			I860_N11 = 0x21,
+			MIPS1 = 0x40,
+			MIPS2 = 0x41,
+			MIPS3 = 0x42,
+		};
+		cpu_type cpu = I386;
+
+		uint32_t page_count = 0;
+		uint32_t eip_object = 0, eip_value = 0, esp_object = 0, esp_value = 0;
+		union
+		{
+			uint32_t last_page_size; /* LE */
+			uint32_t page_offset_shift; /* LX */
+		};
+		uint32_t fixup_section_size = 0, loader_section_size = 0;
+		uint32_t object_table_offset = 0, object_page_table_offset = 0, object_iterated_pages_offset = 0;
+		uint32_t resource_table_offset = 0, resource_table_entry_count = 0, resident_name_table_offset = 0;
+		uint32_t entry_table_offset = 0, fixup_page_table_offset = 0, fixup_record_table_offset = 0;
+		uint32_t imported_module_table_offset = 0, imported_procedure_table_offset = 0;
+		uint32_t data_pages_offset = 0, nonresident_name_table_offset = 0, nonresident_name_table_size = 0;
+		uint32_t automatic_data = 0, stack_size = 0, heap_size = 0;
+
 		std::vector<Object> objects;
-		std::map<std::shared_ptr<Linker::Segment>, size_t> object_index;
+
 		std::vector<Page> pages;
 		std::vector<Resource> resources;
 		std::vector<Name> resident_names, nonresident_names;
 		std::vector<Entry> entries;
 		std::vector<std::string> imported_modules, imported_procedures;
+
+		explicit LEFormat()
+			: last_page_size(0)
+		{
+		}
+
+		LEFormat(unsigned system, unsigned module_flags, bool extended_format)
+			: system(system_type(system)), module_flags(module_flags), extended_format(extended_format), last_page_size(0)
+		{
+		}
+
+		bool IsLibrary() const;
+
+		bool IsDriver() const;
+
+		bool IsOS2() const;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		offset_t ImageSize() const override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+
+		/* * * Writer members * * */
+
+		static std::shared_ptr<LEFormat> CreateConsoleApplication(system_type system = OS2);
+
+		static std::shared_ptr<LEFormat> CreateGUIApplication(system_type system = OS2);
+
+		static std::shared_ptr<LEFormat> CreateLibraryModule(system_type system = OS2);
+
+		std::shared_ptr<LEFormat> SimulateLinker(compatibility_type compatibility);
+
+		mutable MZStubWriter stub;
+
+		static constexpr uint32_t page_size = 0x1000;
+
+		compatibility_type compatibility = CompatibleNone;
+
+		/*std::string stub_file;*/
+		std::string program_name, module_name;
+
+		bool FormatSupportsSegmentation() const override;
+
+		bool FormatSupportsLibraries() const override;
+
+		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
+
+		void AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0);
+
+		std::shared_ptr<Linker::Segment> stack, heap;
+		std::map<std::shared_ptr<Linker::Segment>, size_t> object_index;
 		std::map<std::string, uint32_t> imported_procedure_name_offsets;
 		offset_t imported_procedure_names_length = 0;
 
@@ -389,9 +401,6 @@ namespace Microsoft
 		void Link(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;
 		void CalculateValues() override;
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;

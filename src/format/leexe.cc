@@ -7,131 +7,6 @@
 
 using namespace Microsoft;
 
-void LEFormat::ReadFile(Linker::Reader& rd)
-{
-	/* TODO */
-}
-
-bool LEFormat::FormatSupportsSegmentation() const
-{
-	return true;
-}
-
-bool LEFormat::FormatSupportsLibraries() const
-{
-	return true;
-}
-
-unsigned LEFormat::FormatAdditionalSectionFlags(std::string section_name) const
-{
-	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)
-	{
-		return Linker::Section::Stack;
-	}
-	else if(section_name == ".heap" || section_name.rfind(".heap.", 0) == 0)
-	{
-		return Linker::Section::Heap;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-bool LEFormat::IsOS2() const
-{
-	return extended_format;
-}
-
-bool LEFormat::IsLibrary() const
-{
-	return module_flags & Library;
-}
-
-bool LEFormat::IsDriver() const
-{
-	/* TODO: Windows only */
-	return system == Windows;
-}
-
-std::shared_ptr<LEFormat> LEFormat::CreateConsoleApplication(system_type system)
-{
-	switch(system)
-	{
-	case OS2:
-		return std::make_shared<LEFormat>(system, GUIAware, true);
-	case Windows386:
-		return std::make_shared<LEFormat>(system, Library | NoExternalFixup, false); /* TODO: actually, a driver */
-	case DOS4G: /* not an actual type */
-		return std::make_shared<LEFormat>(OS2, GUIAware, false);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
-}
-
-std::shared_ptr<LEFormat> LEFormat::CreateGUIApplication(system_type system)
-{
-	switch(system)
-	{
-	case OS2:
-		return std::make_shared<LEFormat>(system, GUI, true);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
-}
-
-std::shared_ptr<LEFormat> LEFormat::CreateLibraryModule(system_type system)
-{
-	switch(system)
-	{
-	case OS2:
-		return std::make_shared<LEFormat>(system, Library | NoInternalFixup, true);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
-}
-
-std::shared_ptr<LEFormat> LEFormat::SimulateLinker(compatibility_type compatibility)
-{
-	this->compatibility = compatibility;
-	switch(compatibility)
-	{
-	case CompatibleNone:
-		break;
-	case CompatibleWatcom:
-		break;
-	case CompatibleMicrosoft:
-		/* TODO */
-		break;
-	case CompatibleGNU:
-		/* TODO */
-		break;
-	/* TODO: others */
-	}
-	return shared_from_this();
-}
-
-void LEFormat::AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target, uint32_t addition)
-{
-	size_t page_index = object.page_table_index + (offset - object.image->base_address) / page_size;
-	uint16_t page_offset = offset & (page_size - 1);
-	Page::Relocation rel = Page::Relocation(type, flags, page_offset, module, target, addition);
-#if 0
-	Linker::Debug << "Debug: PAGES[" << page_index << "] <- " << page_offset << std::endl;
-	for(auto& it : pages[page_index].relocations)
-	{
-		Linker::Debug << "Debug:\t" << it.first << "!" << std::endl;
-	}
-#endif
-	pages[page_index].relocations[page_offset] = rel;
-	if(page_offset + rel.GetSourceSize() > page_size)
-	{
-		/* crosses page boundaries */
-		rel.DecrementSingleSourceOffset(page_size);
-		pages[page_index + 1].relocations[page_offset - page_size] = rel;
-	}
-}
-
 LEFormat::Page::Relocation::source_type LEFormat::Page::Relocation::GetType(Linker::Relocation& rel)
 {
 	if(rel.segment_of)
@@ -466,6 +341,379 @@ void LEFormat::Entry::WriteEntryBody(Linker::Writer& wr) const
 		wr.WriteWord(2, object); /* module */
 		wr.WriteWord(4, offset); /* ordinal or name */
 		break;
+	}
+}
+
+bool LEFormat::IsLibrary() const
+{
+	return module_flags & Library;
+}
+
+bool LEFormat::IsDriver() const
+{
+	/* TODO: Windows only */
+	return system == Windows;
+}
+
+bool LEFormat::IsOS2() const
+{
+	return extended_format;
+}
+
+void LEFormat::ReadFile(Linker::Reader& rd)
+{
+	/* TODO */
+}
+
+offset_t LEFormat::ImageSize() const
+{
+	/* TODO */
+	return offset_t(-1);
+}
+
+offset_t LEFormat::WriteFile(Linker::Writer& wr) const
+{
+	wr.endiantype = endiantype;
+	stub.WriteStubImage(wr);
+
+	/* new header */
+	wr.Seek(file_offset);
+	wr.WriteData(2, extended_format ? "LX" : "LE");
+	switch(endiantype)
+	{
+	case ::LittleEndian:
+		wr.WriteData(2, "\0\0");
+		break;
+	case ::BigEndian:
+		wr.WriteData(2, "\1\1");
+		break;
+	case ::PDP11Endian:
+		wr.WriteData(2, "\0\1");
+		break;
+	case ::AntiPDP11Endian:
+		wr.WriteData(2, "\1\0");
+		break;
+	default:
+		Linker::FatalError("Internal error: invalid endianness");
+	}
+	wr.WriteWord(4, 0); /* format level */
+	wr.WriteWord(2, cpu);
+	wr.WriteWord(2, system);
+	wr.WriteWord(4, 0); /* module version */
+	wr.WriteWord(4, module_flags);
+	wr.WriteWord(4, pages.size() - 2); /* page 0 is fake, final page is only used in the page table */
+	wr.WriteWord(4, eip_object);
+	wr.WriteWord(4, eip_value);
+	wr.WriteWord(4, esp_object);
+	wr.WriteWord(4, esp_value);
+	wr.WriteWord(4, page_size); /* page size */
+	wr.WriteWord(4, page_offset_shift); /* or size of last page */
+	wr.WriteWord(4, fixup_section_size);
+	wr.WriteWord(4, 0); /* fixup section checksum */
+	wr.WriteWord(4, loader_section_size);
+	wr.WriteWord(4, 0); /* loader section checksum */
+	wr.WriteWord(4, object_table_offset - file_offset);
+	wr.WriteWord(4, objects.size());
+	wr.WriteWord(4, object_page_table_offset - file_offset);
+	wr.WriteWord(4, object_iterated_pages_offset != 0 ? object_iterated_pages_offset - file_offset : 0);
+	wr.WriteWord(4, resource_table_offset - file_offset);
+	wr.WriteWord(4, resource_table_entry_count);
+	wr.WriteWord(4, resident_name_table_offset - file_offset);
+	wr.WriteWord(4, entry_table_offset - file_offset);
+	wr.WriteWord(4, 0); /* module directives offset */
+	wr.WriteWord(4, 0); /* module directives entries */
+	wr.WriteWord(4, fixup_page_table_offset - file_offset);
+	wr.WriteWord(4, fixup_record_table_offset - file_offset);
+	wr.WriteWord(4, imported_module_table_offset - file_offset);
+	wr.WriteWord(4, imported_modules.size());
+	wr.WriteWord(4, imported_procedure_table_offset - file_offset);
+	wr.WriteWord(4, 0); /* per-page checksum offset */
+	wr.WriteWord(4, data_pages_offset);
+	wr.WriteWord(4, 0); /* preload page count */
+	wr.WriteWord(4, nonresident_name_table_offset);
+	wr.WriteWord(4, nonresident_name_table_size);
+	wr.WriteWord(4, 0); /* non-resident name table checksum */
+	wr.WriteWord(4, automatic_data);
+	wr.WriteWord(4, 0); /* debug info offset */
+	wr.WriteWord(4, 0); /* debug info size */
+	wr.WriteWord(4, 0); /* instance preload page count */
+	wr.WriteWord(4, 0); /* instance demand page count */
+	wr.WriteWord(4, heap_size);
+	wr.WriteWord(4, stack_size);
+
+	if(system == Windows386 && compatibility == CompatibleWatcom)
+	{
+		wr.Seek(file_offset + 0xC0);
+		wr.WriteWord(4, 0x40000); /* TODO: Watcom? */
+	}
+	wr.Seek(file_offset + 0xC4);
+
+	/*** Loader Section ***/
+	/* Object Table */
+	assert(wr.Tell() == object_table_offset);
+	for(const Object& object : objects)
+	{
+		wr.WriteWord(4, object.image->TotalSize());
+		wr.WriteWord(4, object.image->base_address);
+		wr.WriteWord(4, object.flags);
+		wr.WriteWord(4, object.page_table_index);
+		wr.WriteWord(4, object.page_entry_count);
+		wr.WriteWord(4, 0);
+	}
+
+	/* Object Page Table */
+	assert(wr.Tell() == object_page_table_offset);
+	if(extended_format)
+	{
+		for(const Page& page : pages)
+		{
+			if(&page == &pages.front() || &page == &pages.back())
+				continue;
+			wr.WriteWord(4, page.lx.offset >> page_offset_shift);
+			wr.WriteWord(2, page.lx.size);
+			wr.WriteWord(2, page.lx.flags);
+		}
+	}
+	else
+	{
+		for(const Page& page : pages)
+		{
+			if(&page == &pages.front() || &page == &pages.back())
+				continue;
+			wr.WriteWord(3, page.le.fixup_table_index, ::BigEndian);
+			wr.WriteWord(1, page.le.type);
+		}
+	}
+
+	/* Resource Table */
+	assert(wr.Tell() == resource_table_offset);
+	/* TODO */
+
+	/* Resource Name Table */
+	/* TODO */
+
+	/* Resident Name Table */
+	assert(wr.Tell() == resident_name_table_offset);
+	for(const Name& name : resident_names)
+	{
+		wr.WriteWord(1, name.name.size());
+		wr.WriteData(name.name.size(), name.name);
+		wr.WriteWord(2, name.ordinal);
+	}
+	wr.WriteWord(1, 0);
+
+	/* Entry Table */
+	assert(wr.Tell() == entry_table_offset);
+//offset_t _ = wr.Tell();
+	for(size_t entry_index = 0; entry_index < entries.size();)
+	{
+		size_t entry_count = CountBundles(entry_index);
+		wr.WriteWord(1, entry_count);
+		entries[entry_index].WriteEntryHead(wr);
+		for(size_t entry_offset = 0; entry_offset < entry_count; entry_offset ++)
+		{
+			entries[entry_index + entry_offset].WriteEntryBody(wr);
+		}
+		entry_index += entry_count;
+//Linker::Debug << "Debug: Write " << wr.Tell() - _ << std::endl; _ = Tell();
+	}
+	wr.WriteWord(1, 0);
+
+	/* Module Format Directives Table */
+	/* Resident Directives Table */
+	/* Per-page Checksum (LX) */
+
+	/*** Fixup Section ***/
+	/* Fixup Page Table */
+	assert(wr.Tell() == fixup_page_table_offset);
+	for(const Page& page : pages)
+	{
+		if(&page == &pages.front())
+			continue;
+		wr.WriteWord(4, page.fixup_offset);
+	}
+
+	/* Fixup Record Table */
+	assert(wr.Tell() == fixup_record_table_offset);
+//size_t _ = wr.Tell();
+	for(const Page& page : pages)
+	{
+		if(&page == &pages.front() || &page == &pages.back())
+			continue;
+//Linker::Debug << "Debug: Receive page (before) " << page.relocations.size() << std::endl;
+		for(auto& it : page.relocations)
+		{
+			if(it.second.ComesBefore())
+				it.second.WriteFile(wr, compatibility);
+//Linker::Debug << "Debug: Receive " << wr.Tell() - _ << std::endl; _ = Tell();
+		}
+//Linker::Debug << "Debug: Receive page (after) " << page.relocations.size() << std::endl;
+		for(auto& it : page.relocations)
+		{
+			if(!it.second.ComesBefore())
+				it.second.WriteFile(wr, compatibility);
+//Linker::Debug << "Debug: Receive " << wr.Tell() - _ << std::endl; _ = Tell();
+		}
+	}
+
+	/* Import Module Name Table */
+	assert(wr.Tell() == imported_module_table_offset);
+	for(const std::string& name : imported_modules)
+	{
+		wr.WriteWord(1, name.size());
+		wr.WriteData(name.size(), name);
+	}
+
+	/* Import Procedure Name Table */
+	assert(wr.Tell() == imported_procedure_table_offset);
+	for(const std::string& name : imported_procedures)
+	{
+		wr.WriteWord(1, name.size());
+		wr.WriteData(name.size(), name);
+	}
+
+	/* Per-page Checksum (LE) */
+
+	/*** Segment Data ***/
+	for(const Object& object : objects)
+	{
+		wr.Seek(object.data_pages_offset);
+		object.image->WriteFile(wr);
+#if 0
+		/* TODO: is this still needed? */
+		if(!extended_format && &object != &objects.back())
+		{
+			/* TODO: fill in */
+		}
+#endif
+	}
+
+	/*** Non-Resident ***/
+	/* Non-Resident Name Table */
+	for(const Name& name : nonresident_names)
+	{
+		wr.WriteWord(1, name.name.size());
+		wr.WriteData(name.name.size(), name.name);
+		wr.WriteWord(2, name.ordinal);
+	}
+	wr.WriteWord(1, 0);
+
+	return offset_t(-1);
+}
+
+void LEFormat::Dump(Dumper::Dumper& dump) const
+{
+	// TODO: switch to different encoding for OS/2 (LX)
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("LE/LX format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
+std::shared_ptr<LEFormat> LEFormat::CreateConsoleApplication(system_type system)
+{
+	switch(system)
+	{
+	case OS2:
+		return std::make_shared<LEFormat>(system, GUIAware, true);
+	case Windows386:
+		return std::make_shared<LEFormat>(system, Library | NoExternalFixup, false); /* TODO: actually, a driver */
+	case DOS4G: /* not an actual type */
+		return std::make_shared<LEFormat>(OS2, GUIAware, false);
+	default:
+		Linker::FatalError("Internal error: invalid target system");
+	}
+}
+
+std::shared_ptr<LEFormat> LEFormat::CreateGUIApplication(system_type system)
+{
+	switch(system)
+	{
+	case OS2:
+		return std::make_shared<LEFormat>(system, GUI, true);
+	default:
+		Linker::FatalError("Internal error: invalid target system");
+	}
+}
+
+std::shared_ptr<LEFormat> LEFormat::CreateLibraryModule(system_type system)
+{
+	switch(system)
+	{
+	case OS2:
+		return std::make_shared<LEFormat>(system, Library | NoInternalFixup, true);
+	default:
+		Linker::FatalError("Internal error: invalid target system");
+	}
+}
+
+std::shared_ptr<LEFormat> LEFormat::SimulateLinker(compatibility_type compatibility)
+{
+	this->compatibility = compatibility;
+	switch(compatibility)
+	{
+	case CompatibleNone:
+		break;
+	case CompatibleWatcom:
+		break;
+	case CompatibleMicrosoft:
+		/* TODO */
+		break;
+	case CompatibleGNU:
+		/* TODO */
+		break;
+	/* TODO: others */
+	}
+	return shared_from_this();
+}
+
+bool LEFormat::FormatSupportsSegmentation() const
+{
+	return true;
+}
+
+bool LEFormat::FormatSupportsLibraries() const
+{
+	return true;
+}
+
+unsigned LEFormat::FormatAdditionalSectionFlags(std::string section_name) const
+{
+	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)
+	{
+		return Linker::Section::Stack;
+	}
+	else if(section_name == ".heap" || section_name.rfind(".heap.", 0) == 0)
+	{
+		return Linker::Section::Heap;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void LEFormat::AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target, uint32_t addition)
+{
+	size_t page_index = object.page_table_index + (offset - object.image->base_address) / page_size;
+	uint16_t page_offset = offset & (page_size - 1);
+	Page::Relocation rel = Page::Relocation(type, flags, page_offset, module, target, addition);
+#if 0
+	Linker::Debug << "Debug: PAGES[" << page_index << "] <- " << page_offset << std::endl;
+	for(auto& it : pages[page_index].relocations)
+	{
+		Linker::Debug << "Debug:\t" << it.first << "!" << std::endl;
+	}
+#endif
+	pages[page_index].relocations[page_offset] = rel;
+	if(page_offset + rel.GetSourceSize() > page_size)
+	{
+		/* crosses page boundaries */
+		rel.DecrementSingleSourceOffset(page_size);
+		pages[page_index + 1].relocations[page_offset - page_size] = rel;
 	}
 }
 
@@ -1028,248 +1276,6 @@ void LEFormat::CalculateValues()
 			nonresident_name_table_size += 3 + name.name.size();
 		}
 	}
-}
-
-offset_t LEFormat::WriteFile(Linker::Writer& wr) const
-{
-	wr.endiantype = endiantype;
-	stub.WriteStubImage(wr);
-
-	/* new header */
-	wr.Seek(file_offset);
-	wr.WriteData(2, extended_format ? "LX" : "LE");
-	switch(endiantype)
-	{
-	case ::LittleEndian:
-		wr.WriteData(2, "\0\0");
-		break;
-	case ::BigEndian:
-		wr.WriteData(2, "\1\1");
-		break;
-	case ::PDP11Endian:
-		wr.WriteData(2, "\0\1");
-		break;
-	case ::AntiPDP11Endian:
-		wr.WriteData(2, "\1\0");
-		break;
-	default:
-		Linker::FatalError("Internal error: invalid endianness");
-	}
-	wr.WriteWord(4, 0); /* format level */
-	wr.WriteWord(2, cpu);
-	wr.WriteWord(2, system);
-	wr.WriteWord(4, 0); /* module version */
-	wr.WriteWord(4, module_flags);
-	wr.WriteWord(4, pages.size() - 2); /* page 0 is fake, final page is only used in the page table */
-	wr.WriteWord(4, eip_object);
-	wr.WriteWord(4, eip_value);
-	wr.WriteWord(4, esp_object);
-	wr.WriteWord(4, esp_value);
-	wr.WriteWord(4, page_size); /* page size */
-	wr.WriteWord(4, page_offset_shift); /* or size of last page */
-	wr.WriteWord(4, fixup_section_size);
-	wr.WriteWord(4, 0); /* fixup section checksum */
-	wr.WriteWord(4, loader_section_size);
-	wr.WriteWord(4, 0); /* loader section checksum */
-	wr.WriteWord(4, object_table_offset - file_offset);
-	wr.WriteWord(4, objects.size());
-	wr.WriteWord(4, object_page_table_offset - file_offset);
-	wr.WriteWord(4, object_iterated_pages_offset != 0 ? object_iterated_pages_offset - file_offset : 0);
-	wr.WriteWord(4, resource_table_offset - file_offset);
-	wr.WriteWord(4, resource_table_entry_count);
-	wr.WriteWord(4, resident_name_table_offset - file_offset);
-	wr.WriteWord(4, entry_table_offset - file_offset);
-	wr.WriteWord(4, 0); /* module directives offset */
-	wr.WriteWord(4, 0); /* module directives entries */
-	wr.WriteWord(4, fixup_page_table_offset - file_offset);
-	wr.WriteWord(4, fixup_record_table_offset - file_offset);
-	wr.WriteWord(4, imported_module_table_offset - file_offset);
-	wr.WriteWord(4, imported_modules.size());
-	wr.WriteWord(4, imported_procedure_table_offset - file_offset);
-	wr.WriteWord(4, 0); /* per-page checksum offset */
-	wr.WriteWord(4, data_pages_offset);
-	wr.WriteWord(4, 0); /* preload page count */
-	wr.WriteWord(4, nonresident_name_table_offset);
-	wr.WriteWord(4, nonresident_name_table_size);
-	wr.WriteWord(4, 0); /* non-resident name table checksum */
-	wr.WriteWord(4, automatic_data);
-	wr.WriteWord(4, 0); /* debug info offset */
-	wr.WriteWord(4, 0); /* debug info size */
-	wr.WriteWord(4, 0); /* instance preload page count */
-	wr.WriteWord(4, 0); /* instance demand page count */
-	wr.WriteWord(4, heap_size);
-	wr.WriteWord(4, stack_size);
-
-	if(system == Windows386 && compatibility == CompatibleWatcom)
-	{
-		wr.Seek(file_offset + 0xC0);
-		wr.WriteWord(4, 0x40000); /* TODO: Watcom? */
-	}
-	wr.Seek(file_offset + 0xC4);
-
-	/*** Loader Section ***/
-	/* Object Table */
-	assert(wr.Tell() == object_table_offset);
-	for(const Object& object : objects)
-	{
-		wr.WriteWord(4, object.image->TotalSize());
-		wr.WriteWord(4, object.image->base_address);
-		wr.WriteWord(4, object.flags);
-		wr.WriteWord(4, object.page_table_index);
-		wr.WriteWord(4, object.page_entry_count);
-		wr.WriteWord(4, 0);
-	}
-
-	/* Object Page Table */
-	assert(wr.Tell() == object_page_table_offset);
-	if(extended_format)
-	{
-		for(const Page& page : pages)
-		{
-			if(&page == &pages.front() || &page == &pages.back())
-				continue;
-			wr.WriteWord(4, page.lx.offset >> page_offset_shift);
-			wr.WriteWord(2, page.lx.size);
-			wr.WriteWord(2, page.lx.flags);
-		}
-	}
-	else
-	{
-		for(const Page& page : pages)
-		{
-			if(&page == &pages.front() || &page == &pages.back())
-				continue;
-			wr.WriteWord(3, page.le.fixup_table_index, ::BigEndian);
-			wr.WriteWord(1, page.le.type);
-		}
-	}
-
-	/* Resource Table */
-	assert(wr.Tell() == resource_table_offset);
-	/* TODO */
-
-	/* Resource Name Table */
-	/* TODO */
-
-	/* Resident Name Table */
-	assert(wr.Tell() == resident_name_table_offset);
-	for(const Name& name : resident_names)
-	{
-		wr.WriteWord(1, name.name.size());
-		wr.WriteData(name.name.size(), name.name);
-		wr.WriteWord(2, name.ordinal);
-	}
-	wr.WriteWord(1, 0);
-
-	/* Entry Table */
-	assert(wr.Tell() == entry_table_offset);
-//offset_t _ = wr.Tell();
-	for(size_t entry_index = 0; entry_index < entries.size();)
-	{
-		size_t entry_count = CountBundles(entry_index);
-		wr.WriteWord(1, entry_count);
-		entries[entry_index].WriteEntryHead(wr);
-		for(size_t entry_offset = 0; entry_offset < entry_count; entry_offset ++)
-		{
-			entries[entry_index + entry_offset].WriteEntryBody(wr);
-		}
-		entry_index += entry_count;
-//Linker::Debug << "Debug: Write " << wr.Tell() - _ << std::endl; _ = Tell();
-	}
-	wr.WriteWord(1, 0);
-
-	/* Module Format Directives Table */
-	/* Resident Directives Table */
-	/* Per-page Checksum (LX) */
-
-	/*** Fixup Section ***/
-	/* Fixup Page Table */
-	assert(wr.Tell() == fixup_page_table_offset);
-	for(const Page& page : pages)
-	{
-		if(&page == &pages.front())
-			continue;
-		wr.WriteWord(4, page.fixup_offset);
-	}
-
-	/* Fixup Record Table */
-	assert(wr.Tell() == fixup_record_table_offset);
-//size_t _ = wr.Tell();
-	for(const Page& page : pages)
-	{
-		if(&page == &pages.front() || &page == &pages.back())
-			continue;
-//Linker::Debug << "Debug: Receive page (before) " << page.relocations.size() << std::endl;
-		for(auto& it : page.relocations)
-		{
-			if(it.second.ComesBefore())
-				it.second.WriteFile(wr, compatibility);
-//Linker::Debug << "Debug: Receive " << wr.Tell() - _ << std::endl; _ = Tell();
-		}
-//Linker::Debug << "Debug: Receive page (after) " << page.relocations.size() << std::endl;
-		for(auto& it : page.relocations)
-		{
-			if(!it.second.ComesBefore())
-				it.second.WriteFile(wr, compatibility);
-//Linker::Debug << "Debug: Receive " << wr.Tell() - _ << std::endl; _ = Tell();
-		}
-	}
-
-	/* Import Module Name Table */
-	assert(wr.Tell() == imported_module_table_offset);
-	for(const std::string& name : imported_modules)
-	{
-		wr.WriteWord(1, name.size());
-		wr.WriteData(name.size(), name);
-	}
-
-	/* Import Procedure Name Table */
-	assert(wr.Tell() == imported_procedure_table_offset);
-	for(const std::string& name : imported_procedures)
-	{
-		wr.WriteWord(1, name.size());
-		wr.WriteData(name.size(), name);
-	}
-
-	/* Per-page Checksum (LE) */
-
-	/*** Segment Data ***/
-	for(const Object& object : objects)
-	{
-		wr.Seek(object.data_pages_offset);
-		object.image->WriteFile(wr);
-#if 0
-		/* TODO: is this still needed? */
-		if(!extended_format && &object != &objects.back())
-		{
-			/* TODO: fill in */
-		}
-#endif
-	}
-
-	/*** Non-Resident ***/
-	/* Non-Resident Name Table */
-	for(const Name& name : nonresident_names)
-	{
-		wr.WriteWord(1, name.name.size());
-		wr.WriteData(name.name.size(), name.name);
-		wr.WriteWord(2, name.ordinal);
-	}
-	wr.WriteWord(1, 0);
-
-	return offset_t(-1);
-}
-
-void LEFormat::Dump(Dumper::Dumper& dump) const
-{
-	// TODO: switch to different encoding for OS/2 (LX)
-	dump.SetEncoding(Dumper::Block::encoding_cp437);
-
-	dump.SetTitle("LE/LX format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
-
-	// TODO
 }
 
 void LEFormat::GenerateFile(std::string filename, Linker::Module& module)
