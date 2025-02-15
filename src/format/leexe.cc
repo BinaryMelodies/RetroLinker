@@ -276,7 +276,7 @@ LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& 
 	{
 		source_list_size = 0;
 		uint16_t source = rd.ReadUnsigned(2);
-		relocation.sources.emplace_back(Chained{source});
+		relocation.sources.emplace_back(Chain{source});
 	}
 	switch(relocation.flags & FlagTypeMask)
 	{
@@ -308,7 +308,8 @@ LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& 
 		for(uint8_t i = 0; i < source_list_size; i++)
 		{
 			uint16_t source = rd.ReadUnsigned(2);
-			relocation.sources.emplace_back(Chained{source});
+			relocation.sources.emplace_back(Chain{source});
+			// TODO: read chain
 		}
 	}
 	return relocation;
@@ -354,9 +355,10 @@ void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr) const
 	}
 	if(IsSourceList())
 	{
-		for(Chained source : sources)
+		for(Chain source : sources)
 		{
 			wr.WriteWord(2, source.source);
+			// TODO: write chain
 		}
 	}
 }
@@ -685,6 +687,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	vxd_device_id = rd.ReadUnsigned(2);
 	vxd_ddk_version = rd.ReadUnsigned(2);
 
+	file_size = rd.Tell();
+
 	/*** Loader Section ***/
 	/* Object Table */
 	rd.Seek(object_table_offset);
@@ -700,6 +704,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		objects.emplace_back(object);
 	}
 
+	file_size = std::max(file_size, rd.Tell());
+
 	/* Object Page Table */
 	rd.Seek(object_page_table_offset);
 	pages.push_back(Page());
@@ -708,7 +714,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		for(uint32_t i = 0; i < page_count; i++)
 		{
 			Page page;
-			page.lx.offset = offset_t(rd.ReadUnsigned(4) << page_offset_shift);
+			page.lx.offset = offset_t(rd.ReadUnsigned(4)) << page_offset_shift;
 			page.lx.size = rd.ReadUnsigned(2);
 			page.lx.flags = rd.ReadUnsigned(2);
 			pages.push_back(page);
@@ -726,6 +732,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	}
 	pages.push_back(Page());
 
+	file_size = std::max(file_size, rd.Tell());
+
 	/* Resource Table */
 	rd.Seek(resource_table_offset);
 	for(uint32_t i = 0; i < resource_table_entry_count; i++)
@@ -739,6 +747,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		AddResource(resource);
 	}
 
+	file_size = std::max(file_size, rd.Tell());
+
 	/* Resident Name Table */
 	rd.Seek(resident_name_table_offset);
 	while(true)
@@ -751,6 +761,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		name.ordinal = rd.ReadUnsigned(2);
 		resident_names.emplace_back(name);
 	}
+
+	file_size = std::max(file_size, rd.Tell());
 
 	/* Entry Table */
 	rd.Seek(entry_table_offset);
@@ -768,6 +780,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
+	file_size = std::max(file_size, rd.Tell());
+
 	/* Module Format Directives Table */
 	if(module_directives_count != 0)
 	{
@@ -779,9 +793,10 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 			directive.length = rd.ReadUnsigned(2);
 			directive.offset = rd.ReadUnsigned(4);
 			if(directive.IsResident())
-				directive.offset += file_offset;
+				directive.offset += file_size;
 			module_directives.emplace_back(directive);
 		}
+		file_size = std::max(file_size, rd.Tell());
 	}
 
 	/* Resident Directives */
@@ -797,6 +812,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 				continue;
 			page.checksum = rd.ReadUnsigned(4);
 		}
+		file_size = std::max(file_size, rd.Tell());
 	}
 
 	/*** Fixup Section ***/
@@ -808,6 +824,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 			continue;
 		page.fixup_offset = rd.ReadUnsigned(4);
 	}
+
+	file_size = std::max(file_size, rd.Tell());
 
 	/* Fixup Record Table */
 	for(uint32_t i = 1; i < pages.size() - 1; i++)
@@ -824,6 +842,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
+	file_size = std::max(file_size, rd.Tell());
+
 	/* Import Module Name Table */
 	rd.Seek(imported_module_table_offset);
 	while(rd.Tell() < imported_procedure_table_offset && imported_modules.size() < imported_module_count)
@@ -832,6 +852,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		std::string name = rd.ReadData(length);
 		imported_modules.emplace_back(name);
 	}
+
+	file_size = std::max(file_size, rd.Tell());
 
 	/* Import Procedure Name Table */
 	rd.Seek(imported_procedure_table_offset);
@@ -847,17 +869,22 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		imported_procedures.emplace_back(name);
 	}
 
-	/*** Segment Data ***/
+	file_size = std::max(file_size, rd.Tell());
+
+	/*** Page Data ***/
 	if(!IsExtendedFormat())
 		rd.Seek(data_pages_offset);
-	for(uint32_t i = 1; i < page_count - 1; i++)
+	for(uint32_t i = 1; i <= page_count; i++)
 	{
 		Page& page = pages[i];
-		uint16_t size = IsExtendedFormat() ? page.lx.size : i == page_count - 2 ? last_page_size : page_size;
+		uint16_t size = GetPageSize(i);
 		if(IsExtendedFormat())
 			rd.Seek(data_pages_offset + page.lx.offset);
 		// TODO: other types than legal physical page
 		page.image = Linker::Buffer::ReadFromFile(rd, size);
+//		Linker::Debug << "Debug: page " << i << std::endl;
+//		assert(pages[i].image != nullptr);
+		file_size = std::max(file_size, rd.Tell());
 	}
 
 	for(auto& object : objects)
@@ -865,6 +892,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		std::shared_ptr<PageSet> image = std::make_shared<PageSet>();
 		for(uint32_t i = object.page_table_index; i < object.page_table_index + object.page_entry_count; i++)
 		{
+//			Linker::Debug << "Debug: page " << i << std::endl;
+			assert(pages[i].image != nullptr);
 			image->pages.push_back(pages[i].image);
 		}
 		object.image = image;
@@ -872,16 +901,21 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 
 	/*** Non-Resident ***/
 	/* Non-Resident Name Table */
-	rd.Seek(nonresident_name_table_offset);
-	while(true)
+	if(nonresident_name_table_offset != 0)
 	{
-		uint8_t length = rd.ReadUnsigned(1);
-		if(length == 0)
-			break;
-		Name name;
-		name.name = rd.ReadData(length);
-		name.ordinal = rd.ReadUnsigned(2);
-		nonresident_names.emplace_back(name);
+		rd.Seek(nonresident_name_table_offset);
+		while(true)
+		{
+			uint8_t length = rd.ReadUnsigned(1);
+			if(length == 0)
+				break;
+			Name name;
+			name.name = rd.ReadData(length);
+			name.ordinal = rd.ReadUnsigned(2);
+			nonresident_names.emplace_back(name);
+		}
+
+		file_size = std::max(file_size, rd.Tell());
 	}
 
 	/* TODO */
@@ -889,8 +923,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 
 offset_t LEFormat::ImageSize() const
 {
-	/* TODO */
-	return offset_t(-1);
+	return file_size;
 }
 
 offset_t LEFormat::WriteFile(Linker::Writer& wr) const
@@ -1141,7 +1174,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		}
 	}
 
-	/*** Segment Data ***/
+	/*** Page Data ***/
 	uint32_t data_offset = data_pages_offset;
 	for(const Object& object : objects)
 	{
@@ -1182,14 +1215,295 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 
 void LEFormat::Dump(Dumper::Dumper& dump) const
 {
-	// TODO: switch to different encoding for OS/2 (LX)
-	dump.SetEncoding(Dumper::Block::encoding_cp437);
+	dump.SetEncoding(Dumper::Block::encoding_windows1252);
 
 	dump.SetTitle("LE/LX format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, file_size, 8);
 	file_region.Display(dump);
 
+	static const std::map<offset_t, std::string> endian_descriptions =
+	{
+		{ ::LittleEndian, "little endian byte ordering, little endian word ordering" },
+		{ ::PDP11Endian, "little endian byte ordering, big endian word ordering" },
+		{ ::AntiPDP11Endian, "big endian byte ordering, little endian word ordering" },
+		{ ::BigEndian, "big endian byte ordering, big endian word ordering" },
+	};
+	Dumper::Region header_region("New header", file_offset, object_table_offset - file_offset, 8);
+	header_region.AddField("Signature", Dumper::StringDisplay::Make("'"), std::string(signature.data(), 2));
+	header_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(endian_descriptions), offset_t(endiantype));
+	header_region.AddField("Format level", Dumper::HexDisplay::Make(4), offset_t(format_level));
+	static const std::map<offset_t, std::string> cpu_descriptions =
+	{
+		{ I286, "Intel 80286" },
+		{ I386, "Intel 80386" },
+		{ I486, "Intel 80486" },
+		{ I586, "Intel Pentium (80586)" },
+		{ I860_N10, "Intel i860 (N10)" },
+		{ I860_N11, "Intel i860 (N11)" },
+		{ MIPS1, "MIPS Mark I (R2000, R3000)" },
+		{ MIPS2, "MIPS Mark II (R6000)" },
+		{ MIPS3, "MIPS Mark III (R4000)" },
+	};
+	header_region.AddField("CPU", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(cpu));
+	static const std::map<offset_t, std::string> system_descriptions =
+	{
+		{ OS2, "Microsoft/IBM OS/2" },
+		{ Windows, "Microsoft Windows" },
+		{ MSDOS4, "Multitasking/\"European\" Microsoft MS-DOS 4.0" },
+		{ Windows386, "Microsoft Windows 386" },
+	};
+	header_region.AddField("System", Dumper::ChoiceDisplay::Make(system_descriptions, Dumper::HexDisplay::Make(4)), offset_t(system));
+	header_region.AddField("Module version", Dumper::HexDisplay::Make(8), offset_t(module_version));
+	static const std::map<offset_t, std::string> gui_descriptions =
+	{
+		{ 1, "incompatible with GUI" },
+		{ 2, "compatible with GUI" },
+		{ 3, "uses GUI API" },
+	};
+	static const std::map<offset_t, std::string> module_type_descriptions =
+	{
+		{ 0, "program module" },
+		{ 1, "library module" },
+		{ 3, "protected memory library module" },
+		{ 4, "physical device driver module" },
+		{ 5, "virtual device driver module" },
+	};
+	header_region.AddField("Module flags",
+		Dumper::BitFieldDisplay::Make(8)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("per-process library initialization"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("internal fixups have been applied"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("external fixups have been applied"), true)
+			->AddBitField(8, 3, Dumper::ChoiceDisplay::Make(gui_descriptions), false)
+			->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("module not loadable"), true)
+			->AddBitField(15, 3, Dumper::ChoiceDisplay::Make(module_type_descriptions), "module type")
+			->AddBitField(19, 1, Dumper::ChoiceDisplay::Make("multi-processor unsafe"), true)
+			->AddBitField(30, 1, Dumper::ChoiceDisplay::Make("per-process library termination"), true),
+		offset_t(module_flags));
+	header_region.AddField("Automatic data object", Dumper::DecDisplay::Make(), offset_t(automatic_data));
+	header_region.AddField("Entry (EIP)", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(eip_object), offset_t(eip_value));
+	header_region.AddField("Stack top (ESP)", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(esp_object), offset_t(esp_value));
+	header_region.AddOptionalField("Heap size", Dumper::HexDisplay::Make(8), offset_t(heap_size));
+	header_region.AddOptionalField("Stack size", Dumper::HexDisplay::Make(8), offset_t(stack_size));
+	if(IsExtendedFormat())
+	{
+		header_region.AddField("Page offset shift", Dumper::HexDisplay::Make(8), offset_t(page_offset_shift));
+	}
+	else
+	{
+		header_region.AddField("Last page size", Dumper::HexDisplay::Make(8), offset_t(last_page_size));
+	}
+	header_region.AddOptionalField("VxD Device ID", Dumper::HexDisplay::Make(4), offset_t(vxd_device_id));
+	header_region.AddOptionalField("VxD DDK version", Dumper::HexDisplay::Make(4), offset_t(vxd_ddk_version));
+	header_region.Display(dump);
+	if(vxd_version_info_resource_length != 0)
+	{
+		Dumper::Region vxd_version_info_region("VxD version info resource", vxd_version_info_resource_offset, vxd_version_info_resource_length, 8);
+		vxd_version_info_region.Display(dump);
+	}
+
+	Dumper::Region loader_section_region("Loader section", object_table_offset, loader_section_size, 8);
+	loader_section_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(loader_section_checksum));
+	loader_section_region.Display(dump);
+
+	Dumper::Region object_table_region("Object table", object_table_offset, objects.size() * 24, 8);
+	object_table_region.Display(dump);
+
+	offset_t i = 0;
+	for(auto& object : objects)
+	{
+		Dumper::Region object_region("Object", object_table_offset + i * 24, 24, 8);
+		object_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
+		object_region.AddOptionalField("File size", Dumper::HexDisplay::Make(8), offset_t(object.image ? object.image->ImageSize() : 0));
+		object_region.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(object.size));
+		object_region.AddField("Base address", Dumper::HexDisplay::Make(8), offset_t(object.address));
+		static const std::map<offset_t, std::string> type_descriptions =
+		{
+			{ 1, "contains zero filled pages" },
+			{ 2, "resident" },
+			{ 3, "resident and contiguous" },
+		};
+		object_region.AddField("Flags",
+			Dumper::BitFieldDisplay::Make()
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("readable"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("writable"), true)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("executable"), true)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("resource"), true)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("shared"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("contains preload pages"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("contains invalid pages"), true)
+				->AddBitField(8, 2, Dumper::ChoiceDisplay::Make(type_descriptions), true)
+				->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("resident and long-lockable"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("IBM Microkernel extension"), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("16:16 alias required"), true)
+				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("big/default bit set"), true)
+				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("conforming code segment"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("I/O privilege level"), true),
+			offset_t(object.flags));
+		object_region.AddField("Page table index", Dumper::HexDisplay::Make(8), offset_t(object.page_table_index));
+		object_region.AddField("Page table entry count", Dumper::DecDisplay::Make(), offset_t(object.page_entry_count));
+		object_region.Display(dump);
+		i++;
+	}
+
+	Dumper::Region object_page_table_region("Object page table", object_page_table_offset, page_count * (IsExtendedFormat() ? 8 : 4), 8);
+	object_page_table_region.AddField("Page count", Dumper::HexDisplay::Make(8), offset_t(page_count));
+	object_page_table_region.AddField("Page size", Dumper::HexDisplay::Make(8), offset_t(page_size));
+	object_page_table_region.AddField("Iterated pages offset", Dumper::HexDisplay::Make(8), offset_t(object_iterated_pages_offset));
 	// TODO
+	object_page_table_region.Display(dump);
+
+	if(resource_table_entry_count != 0)
+	{
+		Dumper::Region resource_table_region("Resource table", resource_table_offset, resource_table_entry_count * 14, 8);
+		// TODO
+		resource_table_region.Display(dump);
+
+		// TODO: resources
+	}
+
+	Dumper::Region resident_name_table_region("Resident name table", resident_name_table_offset, entry_table_offset - resident_name_table_offset, 8);
+	// TODO
+	resident_name_table_region.Display(dump);
+
+	// TODO: resident_names
+
+	Dumper::Region entry_table_region("Entry table", entry_table_offset, 0 /* TODO */, 8);
+	// TODO
+	entry_table_region.Display(dump);
+
+	// TODO: entries
+
+	if(module_directives.size() != 0)
+	{
+		Dumper::Region module_directives_table_region("Module format directives table", module_directives_offset, module_directives.size() * 8, 8);
+		// TODO
+		module_directives_table_region.Display(dump);
+
+		// TODO: module_directives
+	}
+
+	if(per_page_checksum_offset != 0)
+	{
+		Dumper::Region perpage_checksum_table_region("Per-page checksum", per_page_checksum_offset, page_count * 4, 8);
+		// TODO
+		perpage_checksum_table_region.Display(dump);
+	}
+
+	Dumper::Region fixup_section_region("Fixup section", fixup_page_table_offset, fixup_section_size, 8);
+	fixup_section_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(fixup_section_checksum));
+	// TODO
+	fixup_section_region.Display(dump);
+
+	Dumper::Region fixup_page_table_region("Fixup page table", fixup_page_table_offset, (page_count + 1) * 4, 8);
+	// TODO
+	fixup_page_table_region.Display(dump);
+
+	Dumper::Region fixup_record_table_region("Fixup record table", fixup_record_table_offset, imported_module_table_offset - fixup_record_table_offset, 8);
+	// TODO
+	fixup_record_table_region.Display(dump);
+
+	Dumper::Region import_module_name_table_region("Import module name table", imported_module_table_offset, imported_procedure_table_offset - imported_module_table_offset, 8);
+	// TODO
+	import_module_name_table_region.Display(dump);
+
+	// TODO: imported_modules
+
+	offset_t imported_procedure_table_end;
+	if(!IsExtendedFormat() && per_page_checksum_offset != 0)
+		imported_procedure_table_end = per_page_checksum_offset;
+	else
+		imported_procedure_table_end = fixup_page_table_offset + fixup_section_size;
+	Dumper::Region import_procedure_name_table_region("Import procedure name table", imported_procedure_table_offset, imported_procedure_table_end - imported_procedure_table_offset, 8);
+	// TODO
+	import_procedure_name_table_region.Display(dump);
+
+	// TODO: imported_procedures
+
+	Dumper::Region page_data_region("Page data", data_pages_offset, 0 /* TODO */, 8);
+	page_data_region.AddField("Preload page count", Dumper::DecDisplay::Make(), offset_t(preload_page_count));
+	page_data_region.AddField("Instance preload page count", Dumper::DecDisplay::Make(), offset_t(instance_preload_page_count));
+	page_data_region.AddField("Instance demand page count", Dumper::DecDisplay::Make(), offset_t(instance_demand_page_count));
+	// TODO
+	page_data_region.Display(dump);
+
+	i = 1;
+	for(const Page& page : pages)
+	{
+		if(&page == &pages.front() || &page == &pages.back())
+			continue;
+
+		offset_t object_number = 0;
+		for(auto& object : objects)
+		{
+			if(object.page_table_index <= i && i < object.page_table_index + object.page_entry_count)
+				break;
+			object_number++;
+		}
+
+		Dumper::Block page_block("Page", GetPageOffset(i), page.image->AsImage(),
+			object_number < objects.size() ? objects[object_number].address + (i - objects[object_number].page_table_index) * page_size : 0,
+			8);
+		page_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
+		page_block.AddField("Object", Dumper::DecDisplay::Make(), offset_t(object_number + 1));
+		static const std::map<offset_t, std::string> flags_descriptions =
+		{
+			{ 0, "legal physical page" },
+			{ 1, "iterated page" },
+			{ 2, "illegal page" },
+			{ 3, "zero filled page" },
+			{ 4, "range of pages" },
+			{ 5, "compressed page" },
+		};
+		if(IsExtendedFormat())
+		{
+			page_block.AddField("Flags", Dumper::ChoiceDisplay::Make(flags_descriptions), offset_t(page.lx.flags));
+		}
+		else
+		{
+			// TODO: format unclear
+		}
+		page_block.AddField("Fixup offset", Dumper::HexDisplay::Make(8), offset_t(fixup_page_table_offset + page.fixup_offset));
+		// TODO: relocations
+		page_block.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(page.checksum));
+		page_block.Display(dump);
+		i++;
+	}
+
+	if(nonresident_name_table_size != 0)
+	{
+		Dumper::Region nonresident_name_table_region("Non-resident name table", nonresident_name_table_offset, nonresident_name_table_size, 8);
+		nonresident_name_table_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(nonresident_name_table_checksum));
+		// TODO
+		nonresident_name_table_region.Display(dump);
+
+		// TODO: nonresident_names
+	}
+
+	if(debug_info_size != 0)
+	{
+		Dumper::Region debug_info_region("Debug info", debug_info_offset, debug_info_size, 8);
+		// TODO
+		debug_info_region.Display(dump);
+	}
+}
+
+offset_t LEFormat::GetPageOffset(uint32_t index) const
+{
+	return
+		IsExtendedFormat()
+		? data_pages_offset + pages[index].lx.offset // TODO: iterated page offset
+		: data_pages_offset + page_size * (pages[index].le.fixup_table_index - 1);
+}
+
+offset_t LEFormat::GetPageSize(uint32_t index) const
+{
+	return
+		IsExtendedFormat()
+		? pages[index].lx.size
+		: index == page_count
+			? last_page_size
+			: page_size;
 }
 
 std::shared_ptr<LEFormat> LEFormat::CreateConsoleApplication(system_type system)
@@ -1886,6 +2200,8 @@ void LEFormat::CalculateValues()
 			nonresident_name_table_size += 3 + name.name.size();
 		}
 	}
+
+	file_size = pages_offset + nonresident_name_table_size;
 }
 
 void LEFormat::GenerateFile(std::string filename, Linker::Module& module)

@@ -2,6 +2,7 @@
 #define LEEXE_H
 
 #include <array>
+#include <vector>
 #include "mzexe.h"
 #include "../common.h"
 #include "../dumper/dumper.h"
@@ -106,6 +107,36 @@ namespace Microsoft
 			std::shared_ptr<const Linker::ActualImage> AsImage() const override;
 		};
 
+		class IteratedPage : public Linker::Image
+		{
+		public:
+			struct IterationRecord
+			{
+				uint16_t count = 0;
+				std::vector<uint8_t> data;
+			};
+			std::vector<IterationRecord> records;
+
+			offset_t ImageSize() const override;
+			using Linker::Image::WriteFile;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
+
+			class View : public Linker::Image
+			{
+			public:
+				IteratedPage& iterated_page;
+
+				View(IteratedPage& iterated_page)
+					: iterated_page(iterated_page)
+				{
+				}
+
+				offset_t ImageSize() const override;
+				using Linker::Image::WriteFile;
+				offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
+			};
+		};
+
 		class Page
 		{
 		public:
@@ -169,6 +200,7 @@ namespace Microsoft
 					FlagTypeMask = 3,
 
 					Additive = 4,
+					Chained = 8,
 					Target32 = 0x10,
 					Additive32 = 0x20,
 					Module16 = 0x40,
@@ -187,7 +219,7 @@ namespace Microsoft
 				Relocation(unsigned type, unsigned flags, uint16_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0)
 					: Writer(::LittleEndian), type(source_type(type)), flags(flag_type(flags)), module(module), target(target), addition(addition)
 				{
-					sources.push_back(Chained{offset});
+					sources.push_back(Chain{offset});
 				}
 
 				static source_type GetType(Linker::Relocation& rel);
@@ -201,19 +233,19 @@ namespace Microsoft
 				size_t GetSourceSize() const;
 
 			private:
-				struct Chain
+				struct ChainLink
 				{
 					uint32_t target = 0;
 					uint16_t source = 0;
 				};
 
-				struct Chained
+				struct Chain
 				{
 					uint16_t source = 0;
-					std::vector<Chain> chains;
+					std::vector<ChainLink> chains;
 				};
 
-				std::vector<Chained> sources;
+				std::vector<Chain> sources;
 
 			public:
 				/* do not call this */
@@ -359,6 +391,7 @@ namespace Microsoft
 			I286 = 0x01,
 			I386 = 0x02, /* only value used */
 			I486 = 0x03,
+			I586 = 0x04,
 			I860_N10 = 0x20,
 			I860_N11 = 0x21,
 			MIPS1 = 0x40,
@@ -431,6 +464,8 @@ namespace Microsoft
 		std::vector<Entry> entries;
 		std::vector<std::string> imported_modules, imported_procedures;
 
+		offset_t file_size = offset_t(-1);
+
 		explicit LEFormat()
 			: last_page_size(0)
 		{
@@ -456,6 +491,9 @@ namespace Microsoft
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
+
+		offset_t GetPageOffset(uint32_t index) const;
+		offset_t GetPageSize(uint32_t index) const;
 
 		/* * * Writer members * * */
 
