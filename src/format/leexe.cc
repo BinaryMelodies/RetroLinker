@@ -344,6 +344,11 @@ void LEFormat::Entry::WriteEntryBody(Linker::Writer& wr) const
 	}
 }
 
+bool LEFormat::IsExtendedFormat() const
+{
+	return signature[1] == 'X';
+}
+
 bool LEFormat::IsLibrary() const
 {
 	return module_flags & Library;
@@ -357,11 +362,149 @@ bool LEFormat::IsDriver() const
 
 bool LEFormat::IsOS2() const
 {
-	return extended_format;
+	return IsExtendedFormat();
 }
 
 void LEFormat::ReadFile(Linker::Reader& rd)
 {
+	/* new header */
+	file_offset = rd.Tell();
+	rd.ReadData(signature);
+	uint8_t byte_order = rd.ReadUnsigned(1);
+	if(byte_order != 0 && byte_order != 1)
+	{
+		Linker::FatalError("Internal error: invalid byte order");
+	}
+	uint8_t word_order = rd.ReadUnsigned(1);
+	if(word_order != 0 && word_order != 1)
+	{
+		Linker::FatalError("Internal error: invalid word order");
+	}
+	switch(byte_order)
+	{
+	case 0:
+		switch(word_order)
+		{
+		case 0:
+			endiantype = ::LittleEndian;
+			break;
+		case 1:
+			endiantype = ::PDP11Endian;
+			break;
+		}
+		break;
+	case 1:
+		switch(word_order)
+		{
+		case 0:
+			endiantype = ::AntiPDP11Endian;
+			break;
+		case 1:
+			endiantype = ::BigEndian;
+			break;
+		}
+		break;
+	}
+
+	format_level = rd.ReadUnsigned(4);
+	if(format_level != 0)
+	{
+		Linker::Error << "Error: unrecognized LE/LX format level " << format_level << ", ignoring" << std::endl;
+	}
+
+	cpu = cpu_type(rd.ReadUnsigned(2));
+	system = system_type(rd.ReadUnsigned(2));
+	module_version = rd.ReadUnsigned(4);
+	module_flags = rd.ReadUnsigned(4);
+	page_count = rd.ReadUnsigned(4);
+	eip_object = rd.ReadUnsigned(4);
+	eip_value = rd.ReadUnsigned(4);
+	esp_object = rd.ReadUnsigned(4);
+	esp_value = rd.ReadUnsigned(4);
+	page_size = rd.ReadUnsigned(4);
+	page_offset_shift = rd.ReadUnsigned(4); /* or size of last page */
+	fixup_section_size = rd.ReadUnsigned(4);
+	fixup_section_checksum = rd.ReadUnsigned(4);
+	loader_section_size = rd.ReadUnsigned(4);
+	loader_section_checksum = rd.ReadUnsigned(4);
+	object_table_offset = rd.ReadUnsigned(4);
+	if(object_table_offset != 0)
+	{
+		object_table_offset += file_offset;
+	}
+	uint32_t object_count = rd.ReadUnsigned(4);
+	object_page_table_offset = rd.ReadUnsigned(4);
+	if(object_page_table_offset != 0)
+	{
+		object_page_table_offset += file_offset;
+	}
+	object_iterated_pages_offset = rd.ReadUnsigned(4);
+	if(object_iterated_pages_offset != 0)
+	{
+		object_iterated_pages_offset += file_offset;
+	}
+	resource_table_offset = rd.ReadUnsigned(4);
+	if(resource_table_offset != 0)
+	{
+		resource_table_offset += file_offset;
+	}
+	resource_table_entry_count = rd.ReadUnsigned(4);
+	resident_name_table_offset = rd.ReadUnsigned(4);
+	if(resident_name_table_offset != 0)
+	{
+		resident_name_table_offset += file_offset;
+	}
+	entry_table_offset = rd.ReadUnsigned(4);
+	if(entry_table_offset != 0)
+	{
+		entry_table_offset += file_offset;
+	}
+	module_directives_offset = rd.ReadUnsigned(4);
+	if(module_directives_offset != 0)
+	{
+		module_directives_offset += file_offset;
+	}
+	uint32_t module_directives_size = rd.ReadUnsigned(4);
+	fixup_page_table_offset = rd.ReadUnsigned(4);
+	if(fixup_page_table_offset != 0)
+	{
+		fixup_page_table_offset += file_offset;
+	}
+	fixup_record_table_offset = rd.ReadUnsigned(4);
+	if(fixup_record_table_offset != 0)
+	{
+		fixup_record_table_offset += file_offset;
+	}
+	imported_module_table_offset = rd.ReadUnsigned(4);
+	if(imported_module_table_offset != 0)
+	{
+		imported_module_table_offset += file_offset;
+	}
+	uint32_t imported_module_count = rd.ReadUnsigned(4);
+	imported_procedure_table_offset = rd.ReadUnsigned(4);
+	if(imported_procedure_table_offset != 0)
+	{
+		imported_procedure_table_offset += file_offset;
+	}
+
+	per_page_checksum_offset = rd.ReadUnsigned(4);
+	data_pages_offset = rd.ReadUnsigned(4);
+	preload_page_count = rd.ReadUnsigned(4);
+	nonresident_name_table_offset = rd.ReadUnsigned(4);
+	nonresident_name_table_size = rd.ReadUnsigned(4);
+	nonresident_name_table_checksum = rd.ReadUnsigned(4);
+	automatic_data = rd.ReadUnsigned(4);
+	debug_info_offset = rd.ReadUnsigned(4);
+	debug_info_size = rd.ReadUnsigned(4);
+	instance_preload_page_count = rd.ReadUnsigned(4);
+	instance_demand_page_count = rd.ReadUnsigned(4);
+	heap_size = rd.ReadUnsigned(4);
+	stack_size = rd.ReadUnsigned(4);
+
+	rd.Seek(file_offset + 0xC4);
+
+	/*** Loader Section ***/
+
 	/* TODO */
 }
 
@@ -378,7 +521,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 
 	/* new header */
 	wr.Seek(file_offset);
-	wr.WriteData(2, extended_format ? "LX" : "LE");
+	wr.WriteData(signature);
 	switch(endiantype)
 	{
 	case ::LittleEndian:
@@ -396,12 +539,12 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	default:
 		Linker::FatalError("Internal error: invalid endianness");
 	}
-	wr.WriteWord(4, 0); /* format level */
+	wr.WriteWord(4, format_level);
 	wr.WriteWord(2, cpu);
 	wr.WriteWord(2, system);
-	wr.WriteWord(4, 0); /* module version */
+	wr.WriteWord(4, module_version);
 	wr.WriteWord(4, module_flags);
-	wr.WriteWord(4, pages.size() - 2); /* page 0 is fake, final page is only used in the page table */
+	wr.WriteWord(4, page_count); /* page 0 is fake, final page is only used in the page table */
 	wr.WriteWord(4, eip_object);
 	wr.WriteWord(4, eip_value);
 	wr.WriteWord(4, esp_object);
@@ -409,9 +552,9 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(4, page_size); /* page size */
 	wr.WriteWord(4, page_offset_shift); /* or size of last page */
 	wr.WriteWord(4, fixup_section_size);
-	wr.WriteWord(4, 0); /* fixup section checksum */
+	wr.WriteWord(4, fixup_section_checksum);
 	wr.WriteWord(4, loader_section_size);
-	wr.WriteWord(4, 0); /* loader section checksum */
+	wr.WriteWord(4, loader_section_checksum);
 	wr.WriteWord(4, object_table_offset - file_offset);
 	wr.WriteWord(4, objects.size());
 	wr.WriteWord(4, object_page_table_offset - file_offset);
@@ -420,24 +563,24 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(4, resource_table_entry_count);
 	wr.WriteWord(4, resident_name_table_offset - file_offset);
 	wr.WriteWord(4, entry_table_offset - file_offset);
-	wr.WriteWord(4, 0); /* module directives offset */
-	wr.WriteWord(4, 0); /* module directives entries */
+	wr.WriteWord(4, module_directives_offset != 0 ? module_directives_offset - file_offset : 0);
+	wr.WriteWord(4, module_directives.size());
 	wr.WriteWord(4, fixup_page_table_offset - file_offset);
 	wr.WriteWord(4, fixup_record_table_offset - file_offset);
 	wr.WriteWord(4, imported_module_table_offset - file_offset);
 	wr.WriteWord(4, imported_modules.size());
 	wr.WriteWord(4, imported_procedure_table_offset - file_offset);
-	wr.WriteWord(4, 0); /* per-page checksum offset */
+	wr.WriteWord(4, per_page_checksum_offset);
 	wr.WriteWord(4, data_pages_offset);
-	wr.WriteWord(4, 0); /* preload page count */
+	wr.WriteWord(4, preload_page_count);
 	wr.WriteWord(4, nonresident_name_table_offset);
 	wr.WriteWord(4, nonresident_name_table_size);
-	wr.WriteWord(4, 0); /* non-resident name table checksum */
+	wr.WriteWord(4, nonresident_name_table_checksum);
 	wr.WriteWord(4, automatic_data);
-	wr.WriteWord(4, 0); /* debug info offset */
-	wr.WriteWord(4, 0); /* debug info size */
-	wr.WriteWord(4, 0); /* instance preload page count */
-	wr.WriteWord(4, 0); /* instance demand page count */
+	wr.WriteWord(4, debug_info_offset);
+	wr.WriteWord(4, debug_info_size);
+	wr.WriteWord(4, instance_preload_page_count);
+	wr.WriteWord(4, instance_demand_page_count);
 	wr.WriteWord(4, heap_size);
 	wr.WriteWord(4, stack_size);
 
@@ -463,7 +606,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 
 	/* Object Page Table */
 	assert(wr.Tell() == object_page_table_offset);
-	if(extended_format)
+	if(IsExtendedFormat())
 	{
 		for(const Page& page : pages)
 		{
@@ -581,7 +724,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		object.image->WriteFile(wr);
 #if 0
 		/* TODO: is this still needed? */
-		if(!extended_format && &object != &objects.back())
+		if(!IsExtendedFormat() && &object != &objects.back())
 		{
 			/* TODO: fill in */
 		}
@@ -719,7 +862,7 @@ void LEFormat::AddRelocation(Object& object, unsigned type, unsigned flags, size
 
 unsigned LEFormat::GetDefaultObjectFlags() const
 {
-	if(extended_format)
+	if(IsExtendedFormat())
 		return 0;
 	else
 		return Object::PreloadPages;
@@ -921,7 +1064,7 @@ void LEFormat::ProcessModule(Linker::Module& module)
 
 		for(size_t i = 0; i < object.page_entry_count; i++)
 		{
-			if(extended_format)
+			if(IsExtendedFormat())
 			{
 				uint32_t current_page_size;
 				if(i == object.page_entry_count - 1)
@@ -1158,7 +1301,7 @@ void LEFormat::CalculateValues()
 
 	/* TODO */
 
-	if(extended_format)
+	if(IsExtendedFormat())
 	{
 		page_offset_shift = 0;
 	}
@@ -1180,7 +1323,7 @@ void LEFormat::CalculateValues()
 	object_page_table_offset = object_table_offset + 0x18 * objects.size();
 	object_iterated_pages_offset = 0;
 
-	resource_table_offset = object_page_table_offset + (extended_format ? 8 : 4) * (pages.size() - 2);
+	resource_table_offset = object_page_table_offset + (IsExtendedFormat() ? 8 : 4) * (pages.size() - 2);
 	resource_table_entry_count = 0; /* TODO: resources */
 	uint32_t resource_table_size = 0; /* TODO */
 	resident_name_table_offset = resource_table_offset + resource_table_size;
@@ -1204,6 +1347,7 @@ void LEFormat::CalculateValues()
 	fixup_record_table_offset = fixup_page_table_offset + 4 * (pages.size() - 1); /* including terminator entry (first entry fake because pages are 1 based) */
 
 	offset_t fixup_offset = 0;
+	page_count = pages.size() - 2;
 	for(Page& page : pages)
 	{
 		if(&page == &pages.front())
@@ -1242,11 +1386,11 @@ void LEFormat::CalculateValues()
 	fixup_section_size = imported_procedure_table_end - fixup_page_table_offset;
 
 	data_pages_offset = imported_procedure_table_end;
-	if(compatibility == CompatibleWatcom && (page_offset_shift < 2 || !extended_format))
+	if(compatibility == CompatibleWatcom && (page_offset_shift < 2 || !IsExtendedFormat()))
 	{
 		data_pages_offset = ::AlignTo(data_pages_offset, 4); /* TODO: Watcom? */
 	}
-	else if(extended_format)
+	else if(IsExtendedFormat())
 	{
 		data_pages_offset = ::AlignTo(data_pages_offset, 1 << page_offset_shift);
 	}
@@ -1254,7 +1398,7 @@ void LEFormat::CalculateValues()
 	uint32_t pages_offset = data_pages_offset;
 	for(Object& object : objects)
 	{
-		if(!extended_format)
+		if(!IsExtendedFormat())
 		{
 			pages_offset = ::AlignTo(pages_offset - data_pages_offset, page_size) + data_pages_offset;
 		}

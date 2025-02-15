@@ -1,6 +1,7 @@
 #ifndef LEEXE_H
 #define LEEXE_H
 
+#include <array>
 #include "mzexe.h"
 #include "../common.h"
 #include "../dumper/dumper.h"
@@ -262,7 +263,33 @@ namespace Microsoft
 			void WriteEntryBody(Linker::Writer& wr) const;
 		};
 
+		class ModuleDirective
+		{
+			// TODO
+		};
+
 		::EndianType endiantype = ::LittleEndian;
+
+		/** @brief The signature, almost always "LE" or "LX" */
+		std::array<char, 2> signature{'L', 'E'};
+
+		bool IsExtendedFormat() const;
+
+		uint32_t format_level = 0;
+
+		/* https://faydoc.tripod.com/formats/exe-LE.htm */
+		enum cpu_type
+		{
+			I286 = 0x01,
+			I386 = 0x02, /* only value used */
+			I486 = 0x03,
+			I860_N10 = 0x20,
+			I860_N11 = 0x21,
+			MIPS1 = 0x40,
+			MIPS2 = 0x41,
+			MIPS3 = 0x42,
+		};
+		cpu_type cpu = I386;
 
 		enum system_type
 		{
@@ -274,6 +301,8 @@ namespace Microsoft
 			DOS4G = -1, /* not a real system type */
 		};
 		system_type system = system_type(0);
+
+		uint32_t module_version = 0;
 
 		enum
 		{
@@ -292,38 +321,28 @@ namespace Microsoft
 		};
 		uint32_t module_flags = 0;
 
-		bool extended_format = false;
-
-		/* https://faydoc.tripod.com/formats/exe-LE.htm */
-		enum cpu_type
-		{
-			I286 = 0x01,
-			I386 = 0x02, /* only value used */
-			I486 = 0x03,
-			I860_N10 = 0x20,
-			I860_N11 = 0x21,
-			MIPS1 = 0x40,
-			MIPS2 = 0x41,
-			MIPS3 = 0x42,
-		};
-		cpu_type cpu = I386;
-
-		uint32_t page_count = 0;
+		uint32_t page_count = 0, page_size = 0x1000;
 		uint32_t eip_object = 0, eip_value = 0, esp_object = 0, esp_value = 0;
 		union
 		{
 			uint32_t last_page_size; /* LE */
 			uint32_t page_offset_shift; /* LX */
 		};
-		uint32_t fixup_section_size = 0, loader_section_size = 0;
+		uint32_t fixup_section_size = 0, fixup_section_checksum = 0;
+		uint32_t loader_section_size = 0, loader_section_checksum = 0;
 		uint32_t object_table_offset = 0, object_page_table_offset = 0, object_iterated_pages_offset = 0;
 		uint32_t resource_table_offset = 0, resource_table_entry_count = 0, resident_name_table_offset = 0;
-		uint32_t entry_table_offset = 0, fixup_page_table_offset = 0, fixup_record_table_offset = 0;
+		uint32_t entry_table_offset = 0, module_directives_offset = 0, fixup_page_table_offset = 0, fixup_record_table_offset = 0;
 		uint32_t imported_module_table_offset = 0, imported_procedure_table_offset = 0;
-		uint32_t data_pages_offset = 0, nonresident_name_table_offset = 0, nonresident_name_table_size = 0;
-		uint32_t automatic_data = 0, stack_size = 0, heap_size = 0;
+		uint32_t per_page_checksum_offset = 0;
+		uint32_t data_pages_offset = 0, preload_page_count = 0;
+		uint32_t nonresident_name_table_offset = 0, nonresident_name_table_size = 0, nonresident_name_table_checksum = 0;
+		uint32_t automatic_data = 0;
+		uint32_t debug_info_offset = 0, debug_info_size = 0, instance_preload_page_count = 0, instance_demand_page_count = 0;
+		uint32_t stack_size = 0, heap_size = 0;
 
 		std::vector<Object> objects;
+		std::vector<ModuleDirective> module_directives;
 
 		std::vector<Page> pages;
 		std::vector<Resource> resources;
@@ -337,8 +356,10 @@ namespace Microsoft
 		}
 
 		LEFormat(unsigned system, unsigned module_flags, bool extended_format)
-			: system(system_type(system)), module_flags(module_flags), extended_format(extended_format), last_page_size(0)
+			: system(system_type(system)), module_flags(module_flags), last_page_size(0)
 		{
+			if(extended_format)
+				signature[1] = 'X';
 		}
 
 		bool IsLibrary() const;
@@ -366,8 +387,6 @@ namespace Microsoft
 		std::shared_ptr<LEFormat> SimulateLinker(compatibility_type compatibility);
 
 		mutable MZStubWriter stub;
-
-		static constexpr uint32_t page_size = 0x1000;
 
 		compatibility_type compatibility = CompatibleNone;
 
