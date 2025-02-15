@@ -76,6 +76,7 @@ namespace Microsoft
 			}
 		};
 
+		/** @brief An image instance that is a collection of other images, conceptually pages */
 		class PageSet : public Linker::Image
 		{
 		public:
@@ -86,6 +87,7 @@ namespace Microsoft
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 		};
 
+		/** @brief An image instance for a single page within a complete object image */
 		class SegmentPage : public Linker::Image
 		{
 		public:
