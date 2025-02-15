@@ -7,6 +7,37 @@
 
 using namespace Microsoft;
 
+offset_t LEFormat::SegmentPage::ImageSize() const
+{
+	return size;
+}
+
+offset_t LEFormat::SegmentPage::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+{
+	if(offset >= this->size)
+		return 0;
+	if(offset + count > this->size)
+		count = this->size - offset;
+	offset_t actual_count = image->WriteFile(wr, count, this->offset + offset);
+	if(actual_count < count)
+	{
+		wr.Skip(count - actual_count);
+	}
+	return count;
+}
+
+std::shared_ptr<const Linker::ActualImage> LEFormat::SegmentPage::AsImage() const
+{
+	if(offset == 0 && size == image->ImageSize())
+	{
+		return image->AsImage();
+	}
+	else
+	{
+		return Image::AsImage();
+	}
+}
+
 LEFormat::Page::Relocation::source_type LEFormat::Page::Relocation::GetType(Linker::Relocation& rel)
 {
 	if(rel.segment_of)
@@ -785,6 +816,33 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		imported_procedures.emplace_back(name);
 	}
 
+	/*** Segment Data ***/
+	if(!IsExtendedFormat())
+		rd.Seek(data_pages_offset);
+	for(uint32_t i = 1; i < page_count - 1; i++)
+	{
+		Page& page = pages[i];
+		uint16_t size = IsExtendedFormat() ? page.lx.size : i == page_count - 2 ? last_page_size : page_size;
+		if(IsExtendedFormat())
+			rd.Seek(data_pages_offset + page.lx.offset);
+		// TODO: other types than legal physical page
+		page.image = Linker::Buffer::ReadFromFile(rd, size);
+	}
+
+	/*** Non-Resident ***/
+	/* Non-Resident Name Table */
+	rd.Seek(nonresident_name_table_offset);
+	while(true)
+	{
+		uint8_t length = rd.ReadUnsigned(1);
+		if(length == 0)
+			break;
+		Name name;
+		name.name = rd.ReadData(length);
+		name.ordinal = rd.ReadUnsigned(2);
+		nonresident_names.emplace_back(name);
+	}
+
 	/* TODO */
 }
 
@@ -1042,10 +1100,21 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	}
 
 	/*** Segment Data ***/
+	uint32_t data_offset = data_pages_offset;
 	for(const Object& object : objects)
 	{
-		wr.Seek(object.data_pages_offset);
-		object.image->WriteFile(wr);
+		if(!IsExtendedFormat())
+		{
+			wr.Seek(data_offset);
+			data_offset += object.page_entry_count * page_size;
+		}
+		for(uint32_t page_index = object.page_table_index; page_index < object.page_table_index + object.page_entry_count; page_index++)
+		{
+			const Page& page = pages[page_index];
+			if(IsExtendedFormat())
+				wr.Seek(data_pages_offset + page.lx.offset);
+			page.image->WriteFile(wr);
+		}
 #if 0
 		/* TODO: is this still needed? */
 		if(!IsExtendedFormat() && &object != &objects.back())
@@ -1395,6 +1464,7 @@ void LEFormat::ProcessModule(Linker::Module& module)
 	pages.push_back(Page());
 	for(Object& object : objects)
 	{
+		offset_t object_offset = 0;
 		object.page_table_index = pages.size();
 //		Linker::Debug << "Debug: " << object.image->data_size << " / " << page_size << std::endl;
 		object.page_entry_count = ::AlignTo(object.image->data_size, page_size) / page_size;
@@ -1415,12 +1485,16 @@ void LEFormat::ProcessModule(Linker::Module& module)
 					current_page_size = page_size;
 				}
 				pages.push_back(Page::LXPage(page_offset, current_page_size, Page::Preload));
+				pages.back().image = std::make_shared<SegmentPage>(object.image, object_offset, current_page_size);
 				page_offset += current_page_size;
+				object_offset += current_page_size;
 			}
 			else
 			{
 				uint32_t fixup_table_index = pages.size();
 				pages.push_back(Page::LEPage(fixup_table_index, 0)); //Page::Relocations));
+				pages.back().image = std::make_shared<SegmentPage>(object.image, page_size * (fixup_table_index - object.page_table_index),
+					&object == &objects.back() && i == object.page_entry_count - 1 ? object.image->data_size & (page_size - 1) : page_size);
 				/* TODO: change fixup_table_index to 0 unless a relocation is present */
 				/* Idea: set fixup_table_index after going through all relocations */
 			}

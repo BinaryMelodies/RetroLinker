@@ -76,6 +76,24 @@ namespace Microsoft
 			}
 		};
 
+		class SegmentPage : public Linker::Image
+		{
+		public:
+			std::shared_ptr<Linker::Image> image;
+			offset_t offset = 0;
+			offset_t size = 0;
+
+			SegmentPage(std::shared_ptr<Linker::Image> image, offset_t offset, offset_t size)
+				: image(image), offset(offset), size(size)
+			{
+			}
+
+			offset_t ImageSize() const override;
+			using Linker::Image::WriteFile;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
+			std::shared_ptr<const Linker::ActualImage> AsImage() const override;
+		};
+
 		class Page
 		{
 		public:
@@ -208,6 +226,7 @@ namespace Microsoft
 			};
 			std::map<uint16_t, Relocation> relocations;
 			uint32_t checksum = 0;
+			std::shared_ptr<Linker::Image> image;
 
 			Page()
 				: lx{0, 0, 0}
