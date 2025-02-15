@@ -39,7 +39,7 @@ namespace Microsoft
 		class Object
 		{
 		public:
-			std::shared_ptr<Linker::Segment> image;
+			std::shared_ptr<Linker::Image> image;
 			enum flag_type
 			{
 				Readable = 0x0001,
@@ -74,6 +74,16 @@ namespace Microsoft
 				: image(segment), flags(flag_type(flags))
 			{
 			}
+		};
+
+		class PageSet : public Linker::Image
+		{
+		public:
+			std::vector<std::shared_ptr<Linker::Image>> pages;
+
+			offset_t ImageSize() const override;
+			using Linker::Image::WriteFile;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 		};
 
 		class SegmentPage : public Linker::Image

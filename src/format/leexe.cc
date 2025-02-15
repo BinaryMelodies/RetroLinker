@@ -7,6 +7,38 @@
 
 using namespace Microsoft;
 
+offset_t LEFormat::PageSet::ImageSize() const
+{
+	offset_t size = 0;
+	for(auto& page : pages)
+	{
+		size += page->ImageSize();
+	}
+	return size;
+}
+
+offset_t LEFormat::PageSet::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+{
+	offset_t total_count = 0;
+	for(auto& page : pages)
+	{
+		if(offset >= page->ImageSize())
+		{
+			offset -= page->ImageSize();
+		}
+		else
+		{
+			offset_t actual_count = page->WriteFile(wr, count);
+			total_count += actual_count;
+			if(actual_count >= count)
+				break;
+			count -= actual_count;
+			offset = 0;
+		}
+	}
+	return total_count;
+}
+
 offset_t LEFormat::SegmentPage::ImageSize() const
 {
 	return size;
@@ -778,7 +810,6 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	}
 
 	/* Fixup Record Table */
-//size_t _ = wr.Tell();
 	for(uint32_t i = 1; i < pages.size() - 1; i++)
 	{
 		Page& page = pages[i];
@@ -827,6 +858,16 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 			rd.Seek(data_pages_offset + page.lx.offset);
 		// TODO: other types than legal physical page
 		page.image = Linker::Buffer::ReadFromFile(rd, size);
+	}
+
+	for(auto& object : objects)
+	{
+		std::shared_ptr<PageSet> image = std::make_shared<PageSet>();
+		for(uint32_t i = object.page_table_index; i < object.page_table_index + object.page_entry_count; i++)
+		{
+			image->pages.push_back(pages[i].image);
+		}
+		object.image = image;
 	}
 
 	/*** Non-Resident ***/
@@ -935,7 +976,8 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	assert(wr.Tell() == object_table_offset);
 	for(const Object& object : objects)
 	{
-		assert(object.size == object.image->TotalSize());
+		if(auto pointer = dynamic_cast<Linker::Segment *>(object.image.get()))
+			assert(object.size == pointer->TotalSize());
 		wr.WriteWord(4, object.size);
 		wr.WriteWord(4, object.address);
 		wr.WriteWord(4, object.flags);
@@ -1240,7 +1282,7 @@ LEFormat::Resource& LEFormat::AddResource(Resource& resource)
 
 void LEFormat::GetRelocationOffset(Object& object, size_t offset, size_t& page_index, uint16_t& page_offset)
 {
-	page_index = object.page_table_index + (offset - object.image->base_address) / page_size;
+	page_index = object.page_table_index + (offset - object.address) / page_size;
 	page_offset = offset & (page_size - 1);
 }
 
@@ -1277,7 +1319,10 @@ unsigned LEFormat::GetDefaultObjectFlags() const
 void LEFormat::AddObject(const Object& object)
 {
 	objects.push_back(object);
-	object_index[objects.back().image] = objects.size() - 1;
+	std::shared_ptr<Linker::Segment> image = std::dynamic_pointer_cast<Linker::Segment>(object.image);
+	object_index[image] = objects.size() - 1;
+	objects.back().size = image->TotalSize();
+	objects.back().address = image->base_address;
 }
 
 uint16_t LEFormat::FetchImportedModuleName(std::string name)
@@ -1467,7 +1512,8 @@ void LEFormat::ProcessModule(Linker::Module& module)
 		offset_t object_offset = 0;
 		object.page_table_index = pages.size();
 //		Linker::Debug << "Debug: " << object.image->data_size << " / " << page_size << std::endl;
-		object.page_entry_count = ::AlignTo(object.image->data_size, page_size) / page_size;
+		offset_t object_size = object.image->ImageSize();
+		object.page_entry_count = ::AlignTo(object_size, page_size) / page_size;
 
 		for(size_t i = 0; i < object.page_entry_count; i++)
 		{
@@ -1476,7 +1522,7 @@ void LEFormat::ProcessModule(Linker::Module& module)
 				uint32_t current_page_size;
 				if(i == object.page_entry_count - 1)
 				{
-					current_page_size = object.image->data_size & (page_size - 1);
+					current_page_size = object_size & (page_size - 1);
 					if(current_page_size == 0)
 						current_page_size = page_size;
 				}
@@ -1494,7 +1540,7 @@ void LEFormat::ProcessModule(Linker::Module& module)
 				uint32_t fixup_table_index = pages.size();
 				pages.push_back(Page::LEPage(fixup_table_index, 0)); //Page::Relocations));
 				pages.back().image = std::make_shared<SegmentPage>(object.image, page_size * (fixup_table_index - object.page_table_index),
-					&object == &objects.back() && i == object.page_entry_count - 1 ? object.image->data_size & (page_size - 1) : page_size);
+					&object == &objects.back() && i == object.page_entry_count - 1 ? object_size & (page_size - 1) : page_size);
 				/* TODO: change fixup_table_index to 0 unless a relocation is present */
 				/* Idea: set fixup_table_index after going through all relocations */
 			}
@@ -1655,26 +1701,24 @@ void LEFormat::ProcessModule(Linker::Module& module)
 	else if(automatic_data != 0 && module.FindSection(".stack") != nullptr && module.FindSection(".stack")->Size() != 0)
 	{
 		esp_object = automatic_data;
-		esp_value = objects[automatic_data - 1].image->TotalSize();
+		esp_value = objects[automatic_data - 1].size;
 	}
 	else if(automatic_data != 0 && system == OS2 && !IsLibrary())
 	{
 		if(system == OS2 && !IsLibrary())
-			objects[automatic_data - 1].image->zero_fill += 0x1000; /* TODO: make into a parameter */
+		{
+			offset_t stack_size = 0x1000; /* TODO: make into a parameter */
+			std::dynamic_pointer_cast<Linker::Segment>(objects[automatic_data - 1].image)->zero_fill += stack_size; // not important, just for consistency
+			objects[automatic_data - 1].size += stack_size;
+		}
 		esp_object = automatic_data;
-		esp_value = objects[automatic_data - 1].image->TotalSize();
+		esp_value = objects[automatic_data - 1].size;
 	}
 	else
 	{
 		/* top of automatic data segment */
 		esp_object = automatic_data;
 		esp_value = 0;
-	}
-
-	for(Object& object : objects)
-	{
-		object.size = object.image->TotalSize();
-		object.address = object.image->base_address;
 	}
 
 	Linker::Location entry;
@@ -1729,7 +1773,7 @@ void LEFormat::CalculateValues()
 	}
 	else
 	{
-		last_page_size = objects.back().image->data_size & (page_size - 1);
+		last_page_size = objects.back().image->ImageSize() & (page_size - 1);
 #if 0
 		for(Object& object : objects)
 		{
@@ -1825,7 +1869,7 @@ void LEFormat::CalculateValues()
 			pages_offset = ::AlignTo(pages_offset - data_pages_offset, page_size) + data_pages_offset;
 		}
 		object.data_pages_offset = pages_offset;
-		pages_offset += object.image->data_size;
+		pages_offset += object.image->ImageSize();
 	}
 
 	if(nonresident_names.size() == 0)
