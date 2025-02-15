@@ -500,6 +500,11 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	instance_demand_page_count = rd.ReadUnsigned(4);
 	heap_size = rd.ReadUnsigned(4);
 	stack_size = rd.ReadUnsigned(4);
+	rd.Skip(8);
+	vxd_version_info_resource_offset = rd.ReadUnsigned(4);
+	vxd_version_info_resource_length = rd.ReadUnsigned(4);
+	vxd_device_id = rd.ReadUnsigned(2);
+	vxd_ddk_version = rd.ReadUnsigned(2);
 
 	rd.Seek(file_offset + 0xC4);
 
@@ -584,11 +589,12 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(4, heap_size);
 	wr.WriteWord(4, stack_size);
 
-	if(system == Windows386 && compatibility == CompatibleWatcom)
-	{
-		wr.Seek(file_offset + 0xC0);
-		wr.WriteWord(4, 0x40000); /* TODO: Watcom? */
-	}
+	wr.Skip(8);
+	wr.WriteWord(4, vxd_version_info_resource_offset);
+	wr.WriteWord(4, vxd_version_info_resource_length);
+	wr.WriteWord(2, vxd_device_id);
+	wr.WriteWord(2, vxd_ddk_version);
+
 	wr.Seek(file_offset + 0xC4);
 
 	/*** Loader Section ***/
@@ -1298,6 +1304,11 @@ void LEFormat::CalculateValues()
 
 	if(IsLibrary() || IsDriver())
 		stack_size = esp_object = esp_value = 0;
+
+	if(system == Windows386 && compatibility == CompatibleWatcom)
+	{
+		vxd_ddk_version = 0x4; /* TODO: Watcom? */
+	}
 
 	/* TODO */
 

@@ -341,6 +341,11 @@ namespace Microsoft
 		uint32_t debug_info_offset = 0, debug_info_size = 0, instance_preload_page_count = 0, instance_demand_page_count = 0;
 		uint32_t stack_size = 0, heap_size = 0;
 
+		uint32_t vxd_version_info_resource_offset = 0;
+		uint32_t vxd_version_info_resource_length = 0;
+		uint16_t vxd_device_id = 0;
+		uint16_t vxd_ddk_version = 0;
+
 		std::vector<Object> objects;
 		std::vector<ModuleDirective> module_directives;
 
