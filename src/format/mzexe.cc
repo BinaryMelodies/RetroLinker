@@ -7,9 +7,9 @@ using namespace Microsoft;
 
 // MZFormat
 
-uint32_t MZFormat::GetFileSize() const
+offset_t MZFormat::ImageSize() const
 {
-	return (uint32_t(file_size_blocks) << 9) - (-uint32_t(last_block_size) & 0x1FF);
+	return (offset_t(file_size_blocks) << 9) - (-offset_t(last_block_size) & 0x1FF);
 }
 
 MZFormat::Relocation MZFormat::Relocation::FromLinear(uint32_t address)
@@ -239,7 +239,7 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 	rd.Seek(uint32_t(header_size_paras) << 4);
 	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(".text");
 	image = buffer;
-	buffer->ReadFile(rd, GetFileSize() - GetHeaderSize());
+	buffer->ReadFile(rd, ImageSize() - GetHeaderSize());
 }
 
 offset_t MZFormat::WriteFile(Linker::Writer& wr) const
@@ -274,9 +274,9 @@ offset_t MZFormat::WriteFile(Linker::Writer& wr) const
 	if(image)
 		image->WriteFile(wr);
 
-	wr.FillTo(GetFileSize());
+	wr.FillTo(ImageSize());
 
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void MZFormat::Dump(Dumper::Dumper& dump) const
@@ -291,7 +291,7 @@ void MZFormat::Dump(Dumper::Dumper& dump) const
 		{ MAGIC_ZM, "old-style executable" },
 		{ MAGIC_DL, "HP 100LX/200LX System Manager compliant module" }
 	};
-	Dumper::Region file_region("File", file_offset, GetFileSize(), 6);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 6);
 	file_region.AddField("Signature", Dumper::StringDisplay::Make(2, "'"), std::string(signature, 2));
 	file_region.AddField("Type", Dumper::ChoiceDisplay::Make(magic_field_descriptions), offset_t(magic_field));
 	file_region.AddOptionalField("Overlay", Dumper::DecDisplay::Make(), magic_field != MAGIC_DL ? overlay_number : offset_t(0));
@@ -301,8 +301,8 @@ void MZFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Region header_region("Header", file_offset, GetHeaderSize(), 6);
 	header_region.AddField("SS:SP", Dumper::SegmentedDisplay::Make(), offset_t(ss), offset_t(sp));
 	header_region.AddField("CS:IP", Dumper::SegmentedDisplay::Make(), offset_t(cs), offset_t(ip));
-	header_region.AddField("Minimum", Dumper::HexDisplay::Make(), offset_t(GetFileSize() - GetHeaderSize() + (uint32_t(min_extra_paras) << 4)));
-	header_region.AddField("Maximum", Dumper::HexDisplay::Make(), offset_t(GetFileSize() - GetHeaderSize() + (uint32_t(max_extra_paras) << 4)));
+	header_region.AddField("Minimum", Dumper::HexDisplay::Make(), offset_t(ImageSize() - GetHeaderSize() + (uint32_t(min_extra_paras) << 4)));
+	header_region.AddField("Maximum", Dumper::HexDisplay::Make(), offset_t(ImageSize() - GetHeaderSize() + (uint32_t(max_extra_paras) << 4)));
 	header_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(4), offset_t(checksum));
 	header_region.Display(dump);
 

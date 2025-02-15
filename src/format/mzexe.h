@@ -55,7 +55,7 @@ namespace Microsoft
 		/** @brief Size of MZ image in 512 blocks, rounded up. Set by CalculateValues */
 		uint16_t file_size_blocks = 0; /* TODO: consider making file size a parameter */
 
-		uint32_t GetFileSize() const;
+		offset_t ImageSize() const override;
 
 		/** @brief Number of relocations. Updated by CalculateValues */
 		uint16_t relocation_count = 0;
