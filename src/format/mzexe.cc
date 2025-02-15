@@ -177,7 +177,13 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 {
 	Clear();
 
+	offset_t file_offset = rd.Tell();
+	rd.SeekEnd();
+	offset_t file_end = rd.Tell();
+	rd.Seek(file_offset);
+
 	rd.endiantype = ::LittleEndian;
+
 	rd.ReadData(2, signature);
 	if(GetSignature() == magic_type(0))
 	{
@@ -216,15 +222,18 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 			relocations.push_back(Relocation(segment, offset));
 		}
 	}
-	rd.Seek(GetPifOffset());
-	if(rd.ReadUnsigned(4) == PIF::MAGIC_BEGIN)
+	if(GetPifOffset() + 19 <= file_end)
 	{
-		pif = std::make_unique<PIF>();
-		pif->ReadFile(rd);
-		if(rd.ReadUnsigned(4) != PIF::MAGIC_END)
+		rd.Seek(GetPifOffset());
+		if(rd.ReadUnsigned(4) == PIF::MAGIC_BEGIN)
 		{
-			/* failed */
-			pif = nullptr;
+			pif = std::make_unique<PIF>();
+			pif->ReadFile(rd);
+			if(rd.ReadUnsigned(4) != PIF::MAGIC_END)
+			{
+				/* failed */
+				pif = nullptr;
+			}
 		}
 	}
 	rd.Seek(uint32_t(header_size_paras) << 4);
