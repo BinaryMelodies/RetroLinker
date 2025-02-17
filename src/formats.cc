@@ -13,6 +13,7 @@
 #include "format/cpm8k.h" /* .z8k (CP/M-8000) */
 #include "format/dosexe.h" /* TODO: not yet finished or tested */
 #include "format/elf.h"
+#include "format/epoc.h" /* EPOC/Symbian formats, TODO: not yet finished or tested */
 #include "format/geos.h" /* TODO: not implemented */
 #include "format/gsos.h" /* TODO: not yet finished or tested */
 #include "format/huexe.h" /* .x (Human68k "HU") */
