@@ -382,7 +382,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 	case SYSTEM_CPM68K:
 		if(relocations_suppressed == 0)
 		{
-			for(size_t i = 0; i < code->ImageSize(); i++)
+			for(size_t i = 0; i < code->ImageSize(); i += 2)
 			{
 				auto it = relocations.find(code_address + i);
 				if(it == relocations.end())
@@ -399,7 +399,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 					wr.WriteWord(2, it->second.segment);
 				}
 			}
-			for(size_t i = 0; i < data->ImageSize(); i++)
+			for(size_t i = 0; i < data->ImageSize(); i += 2)
 			{
 				auto it = relocations.find(data_address + i);
 				if(it == relocations.end())
