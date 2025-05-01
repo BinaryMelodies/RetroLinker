@@ -394,7 +394,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 					if(it->second.size == 4)
 					{
 						wr.WriteWord(2, 5);
-						i++;
+						i += 2;
 					}
 					wr.WriteWord(2, it->second.segment);
 				}
@@ -411,7 +411,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 					if(it->second.size == 4)
 					{
 						wr.WriteWord(2, 5);
-						i++;
+						i += 2;
 					}
 					wr.WriteWord(2, it->second.segment);
 				}
