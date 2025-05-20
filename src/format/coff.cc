@@ -228,7 +228,7 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 	assert(false);
 }
 
-offset_t COFFFormat::UNIXRelocation::GetEntrySize() const
+size_t COFFFormat::UNIXRelocation::GetEntrySize() const
 {
 	switch(coff_variant)
 	{
