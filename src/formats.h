@@ -38,6 +38,7 @@ enum format_type
 	FORMAT_AR, // UNIX archive files
 	FORMAT_AS86, // Introl object file
 	FORMAT_ATARI, // Atari 8-bit binary format
+	FORMAT_BFLT, // BFLT
 	FORMAT_BW, // DOS/16M .exp file
 	FORMAT_COFF, // UNIX COFF
 	FORMAT_CMD, // CP/M-86

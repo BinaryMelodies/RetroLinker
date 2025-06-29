@@ -6,6 +6,7 @@
 #include "format/arch.h" /* UNIX archive format */
 #include "format/as86obj.h" /* Introl object format (used by as86) */
 #include "format/binary.h" /* .com, .r (Human68k) */
+#include "format/bflt.h"
 #include "format/bwexp.h" /* .exp (DOS/16M) */
 #include "format/coff.h" /* COFF format (DJGPP, Concurrend DOS 68K) */
 #include "format/cpm68k.h" /* .68k (CP/M-68K), .prg (GEMDOS), .z (Human68k) */
@@ -385,6 +386,9 @@ format_specification formats[] =
 	{ "apple-bin", // TODO: testing
 		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleFormat>(); },
 		"Apple 8-bit file format" },
+	/* BFLT */
+	{ "bflt", []() -> std::shared_ptr<Format> { return std::make_shared<BFLT::BFLTFormat>(); },
+		"BFLT Binary Flat Format for uCLinux" },
 };
 
 const size_t formats_size = sizeof(formats) / sizeof(formats[0]);
@@ -662,6 +666,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("`\x1B"),               0, FORMAT_68K,     "CP/M-68K non-contiguous executable (.68k)" },
 	{ std::string("`\x1C"),               0, FORMAT_68K,     "Concurrent DOS 68K contiguous executable with crunched relocations (.68k)" },
 	{ std::string("b\x01"),               0, FORMAT_COFF,    "Microsoft COFF, MIPS Mark 1: R2000, R3000" },
+	{ std::string("bFLT"),                0, FORMAT_BFLT,    "BFLT Binary Flat Format for uCLinux" },
 	{ std::string("c\x01"),               0, FORMAT_COFF,    "Microsoft COFF, MIPS Mark 2: R6000" },
 	{ std::string("dP"),                  0, FORMAT_COFF,    "Microsoft COFF, RISC-V 64-bit" },
 	{ std::string("d\x86"),               0, FORMAT_COFF,    "Microsoft COFF, AMD64" },
@@ -931,6 +936,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<AS86ObjFormat>(); // TODO: test
 	case FORMAT_ATARI:
 		return std::make_shared<AtariFormat>(); // TODO: test
+	case FORMAT_BFLT:
+		return std::make_shared<BFLT::BFLTFormat>(); // TODO: test
 	case FORMAT_BW:
 		return std::make_shared<BWFormat>(); // TODO: test dumper
 	case FORMAT_COFF:
