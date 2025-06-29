@@ -23,8 +23,10 @@ namespace BFLT
 
 		::EndianType endian_type = ::UndefinedEndian;
 		uint32_t format_version = 4;
-		uint32_t image_offset = 0;
-		uint32_t bss_size = 0;
+		uint32_t entry = 0;
+		uint32_t data_offset = 0;
+		uint32_t bss_offset = 0;
+		uint32_t bss_end_offset = 0;
 		uint32_t stack_size = 0;
 		uint32_t relocation_offset = 0;
 
@@ -40,7 +42,9 @@ namespace BFLT
 				Text = 0,
 				Data = 1,
 				Bss = 2,
-			} type;
+			}
+			/** @brief Whether the <i>target</i> references the text, data or bss segment, only relevant up to and including version 2 */
+			type;
 			offset_t offset;
 		};
 
@@ -75,18 +79,22 @@ namespace BFLT
 
 		std::shared_ptr<Linker::Segment> bss, stack;
 
-		void SetModel(std::string model) override;
-
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
+
+		void CreateDefaultSegments();
+
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
+
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 
 		void ProcessModule(Linker::Module& module) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
+		std::string GetDefaultExtension(Linker::Module& module) const override;
 	};
 }
 
