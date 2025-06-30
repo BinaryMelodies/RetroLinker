@@ -1672,6 +1672,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> HunkFormat::GetOptions()
+{
+	return std::make_shared<HunkOptionCollector>();
+}
+
 void HunkFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	HunkOptionCollector collector;

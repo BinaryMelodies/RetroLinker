@@ -637,6 +637,7 @@ namespace Microsoft
 		uint8_t CountBundles(size_t entry_index) const;
 
 		void SetModel(std::string model) override;
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);

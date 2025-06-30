@@ -147,6 +147,8 @@ namespace MINIX
 		std::shared_ptr<Linker::Segment> bss, heap, stack;
 		uint32_t entry_address = 0;
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;

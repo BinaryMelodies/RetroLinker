@@ -2,6 +2,7 @@
 #include <fstream>
 #include "format.h"
 #include "module_collector.h"
+#include "options.h"
 #include "writer.h"
 
 using namespace Linker;
@@ -33,6 +34,11 @@ offset_t Format::WriteFile(Writer& wr, offset_t count, offset_t offset) const
 bool OutputFormat::AddSupplementaryOutputFormat(std::string subformat)
 {
 	return false;
+}
+
+std::shared_ptr<OptionCollector> OutputFormat::GetOptions()
+{
+	return std::make_shared<OptionCollector>();
 }
 
 void OutputFormat::SetOptions(std::map<std::string, std::string>& options)

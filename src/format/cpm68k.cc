@@ -632,6 +632,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> CPM68KFormat::GetOptions()
+{
+	return std::make_shared<CPM68KOptionCollector>();
+}
+
 void CPM68KFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	CPM68KOptionCollector collector;

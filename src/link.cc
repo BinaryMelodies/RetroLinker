@@ -15,6 +15,7 @@
 #include "linker/format.h"
 #include "linker/module.h"
 #include "linker/module_collector.h"
+#include "linker/options.h"
 #include "linker/reader.h"
 #include "linker/reference.h"
 #include "format/binary.h"
@@ -22,6 +23,17 @@
 using namespace Linker;
 
 using namespace Binary;
+
+static void usage_format(format_specification * fmtspec)
+{
+	std::cerr <<"\t\t" << fmtspec->documentation << std::endl;
+	std::shared_ptr<Linker::OutputFormat> fmt = std::dynamic_pointer_cast<Linker::OutputFormat>(fmtspec->produce());
+	std::shared_ptr<Linker::OptionCollector> opts = fmt->GetOptions();
+	for(auto option : opts->option_list)
+	{
+		std::cerr << "\t\t\t-S" << option->name << "=<" << option->type_name() << ">\t" << option->description << std::endl;
+	}
+}
 
 void usage(char * argv0)
 {
@@ -48,7 +60,8 @@ void usage(char * argv0)
 		{
 			if(last != nullptr)
 			{
-				std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
+				std::cerr << std::endl;
+				usage_format(last);
 			}
 			last = &formats[i];
 		}
@@ -56,7 +69,8 @@ void usage(char * argv0)
 		i += 1;
 	}
 	while(i < formats_size);
-	std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
+	std::cerr << std::endl;
+	usage_format(last);
 }
 
 class null_buffer : public std::streambuf

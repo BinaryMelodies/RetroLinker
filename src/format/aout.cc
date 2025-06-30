@@ -616,6 +616,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> AOutFormat::GetOptions()
+{
+	return std::make_shared<AOutOptionCollector>();
+}
+
 void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	AOutOptionCollector collector;

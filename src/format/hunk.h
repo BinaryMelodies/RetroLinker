@@ -701,6 +701,8 @@ namespace Amiga
 			ChipMemory = Linker::Section::CustomFlag << 1,
 		};
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void AddHunk(const Hunk& hunk);

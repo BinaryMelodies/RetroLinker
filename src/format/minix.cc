@@ -312,6 +312,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> MINIXFormat::GetOptions()
+{
+	return std::make_shared<MINIXOptionCollector>();
+}
+
 void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	MINIXOptionCollector collector;

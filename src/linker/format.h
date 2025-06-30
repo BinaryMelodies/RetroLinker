@@ -16,6 +16,7 @@ namespace Linker
 {
 	class Module;
 	class ModuleCollector;
+	class OptionCollector;
 	class Reader;
 	class Writer;
 
@@ -64,6 +65,10 @@ namespace Linker
 		 * @brief If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown
 		 */
 		virtual bool AddSupplementaryOutputFormat(std::string subformat);
+		/**
+		 * @brief Returns object containing a sequence of option fields provided with the -S command line flag
+		 */
+		virtual std::shared_ptr<OptionCollector> GetOptions();
 		/**
 		 * @brief Passes command line parameters as settings over to format object
 		 */

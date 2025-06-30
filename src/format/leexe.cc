@@ -1729,6 +1729,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> LEFormat::GetOptions()
+{
+	return std::make_shared<LEOptionCollector>();
+}
+
 void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	LEOptionCollector collector;

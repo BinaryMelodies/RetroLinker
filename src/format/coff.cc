@@ -2044,6 +2044,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> COFFFormat::GetOptions()
+{
+	return std::make_shared<COFFOptionCollector>();
+}
+
 void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	COFFOptionCollector collector;

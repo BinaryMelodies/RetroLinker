@@ -96,6 +96,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> BFLTFormat::GetOptions()
+{
+	return std::make_shared<BFLTOptionCollector>();
+}
+
 void BFLTFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	BFLTOptionCollector collector;

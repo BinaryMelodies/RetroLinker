@@ -1084,6 +1084,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> CPM86Format::GetOptions()
+{
+	return std::make_shared<CPM86OptionCollector>();
+}
+
 void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 {
 	CPM86OptionCollector collector;

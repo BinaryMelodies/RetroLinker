@@ -1474,6 +1474,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> NEFormat::GetOptions()
+{
+	return std::make_shared<NEOptionCollector>();
+}
+
 void NEFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	NEOptionCollector collector;

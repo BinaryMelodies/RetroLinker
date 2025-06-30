@@ -61,6 +61,8 @@ namespace PharLap
 		{
 		}
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
@@ -157,6 +159,8 @@ namespace PharLap
 		};
 
 		RunTimeParameterBlock runtime_parameters;
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

@@ -1191,6 +1191,8 @@ namespace COFF
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		/** @brief COFF file header flags, most of these are obsolete, we only use them as precombined flag sets */

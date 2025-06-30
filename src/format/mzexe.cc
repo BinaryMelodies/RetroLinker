@@ -459,6 +459,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> MZFormat::GetOptions()
+{
+	return std::make_shared<MZOptionCollector>();
+}
+
 void MZFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	MZOptionCollector collector;

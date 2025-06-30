@@ -270,6 +270,8 @@ namespace DigitalResearch
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;

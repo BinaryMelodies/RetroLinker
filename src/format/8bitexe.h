@@ -277,6 +277,8 @@ namespace Binary
 			Clear();
 		}
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void ReadFile(Linker::Reader& rd) override;

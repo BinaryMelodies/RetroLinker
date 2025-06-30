@@ -46,6 +46,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> MPFormat::GetOptions()
+{
+	return std::make_shared<MPOptionCollector>();
+}
+
 void MPFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	MPOptionCollector collector;
@@ -303,6 +308,11 @@ public:
 		InitializeFields(stub);
 	}
 };
+
+std::shared_ptr<Linker::OptionCollector> P3Format::GetOptions()
+{
+	return std::make_shared<P3OptionCollector>();
+}
 
 void P3Format::SetOptions(std::map<std::string, std::string>& options)
 {

@@ -545,6 +545,8 @@ namespace DigitalResearch
 
 		void SetModel(std::string model) override;
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);

@@ -161,6 +161,8 @@ namespace DOS16M
 
 		offset_t MeasureRelocations() const;
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		offset_t file_size = 0;

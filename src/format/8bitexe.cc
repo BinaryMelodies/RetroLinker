@@ -361,6 +361,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> CPM3Format::GetOptions()
+{
+	return std::make_shared<CPM3OptionCollector>();
+}
+
 void CPM3Format::SetOptions(std::map<std::string, std::string>& options)
 {
 	CPM3OptionCollector collector;

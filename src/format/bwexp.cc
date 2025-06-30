@@ -232,6 +232,11 @@ public:
 	}
 };
 
+std::shared_ptr<Linker::OptionCollector> BWFormat::GetOptions()
+{
+	return std::make_shared<BWOptionCollector>();
+}
+
 void BWFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	BWOptionCollector collector;

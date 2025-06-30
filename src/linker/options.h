@@ -1,28 +1,35 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+#include <sstream>
+
 namespace Linker
 {
 	template <typename T>
-		struct structParseValue;
+		struct TypeData;
 
 	template <typename T>
 		T ParseValue(std::string value)
 	{
-		return structParseValue<T>::ParseValue(value);
+		return TypeData<T>::ParseValue(value);
 	}
 
 	template <>
-		struct structParseValue<std::string>
+		struct TypeData<std::string>
 	{
 		static std::string ParseValue(std::string value)
 		{
 			return value;
 		}
+
+		static std::string GetTypeName()
+		{
+			return "string";
+		}
 	};
 
 	template <>
-		struct structParseValue<offset_t>
+		struct TypeData<offset_t>
 	{
 		static offset_t ParseValue(std::string value)
 		{
@@ -36,19 +43,29 @@ namespace Linker
 				return 0;
 			}
 		}
+
+		static std::string GetTypeName()
+		{
+			return "integer";
+		}
 	};
 
 	template <>
-		struct structParseValue<bool>
+		struct TypeData<bool>
 	{
 		static bool ParseValue(std::string value)
 		{
 			return value != "0" && value != "false" && value != "no" && value == "off";
 		}
+
+		static std::string GetTypeName()
+		{
+			return "logical";
+		}
 	};
 
 	template <typename T>
-		struct structParseValue<std::vector<T>>
+		struct TypeData<std::vector<T>>
 	{
 		static std::vector<T> ParseValue(std::string value)
 		{
@@ -63,14 +80,28 @@ namespace Linker
 			result.push_back(Linker::ParseValue<T>(value.substr(string_offset)));
 			return result;
 		}
+
+		static std::string GetTypeName()
+		{
+			std::ostringstream oss;
+			oss << "list of " << TypeData<T>::GetTypeName() << "s";
+			return oss.str();
+		}
 	};
 
 	template <typename T>
-		struct structParseValue<std::optional<T>>
+		struct TypeData<std::optional<T>>
 	{
 		static std::optional<T> ParseValue(std::string value)
 		{
 			return std::optional<T>(Linker::ParseValue<T>(value));
+		}
+
+		static std::string GetTypeName()
+		{
+			std::ostringstream oss;
+			oss << "optional " << TypeData<T>::GetTypeName();
+			return oss.str();
 		}
 	};
 
@@ -90,6 +121,10 @@ namespace Linker
 			: name(name), description(description)
 		{
 		}
+
+		virtual std::string type_name() = 0;
+
+		virtual ~Option() = default;
 	};
 
 	template <typename T>
@@ -101,6 +136,11 @@ namespace Linker
 		Option(std::string name, std::string description, T default_value = T())
 			: Option<void>(name, description), default_value(default_value)
 		{
+		}
+
+		std::string type_name() override
+		{
+			return TypeData<T>::GetTypeName();
 		}
 
 		T operator()()
@@ -126,6 +166,11 @@ namespace Linker
 		{
 		}
 
+		std::string type_name() override
+		{
+			return TypeData<bool>::GetTypeName();
+		}
+
 		bool operator()()
 		{
 			return options->find(name) != options->end();
@@ -139,6 +184,11 @@ namespace Linker
 		Option(std::string name, std::string description)
 			: Option<void>(name, description)
 		{
+		}
+
+		std::string type_name() override
+		{
+			return TypeData<std::vector<T>>::GetTypeName();
 		}
 
 		std::vector<T> operator()()
@@ -162,6 +212,11 @@ namespace Linker
 		{
 		}
 
+		std::string type_name() override
+		{
+			return TypeData<std::optional<T>>::GetTypeName();
+		}
+
 		std::optional<T> operator()()
 		{
 			auto option = options->find(name);
@@ -180,6 +235,8 @@ namespace Linker
 	{
 	public:
 		std::vector<Option<void> *> option_list;
+
+		virtual ~OptionCollector() = default;
 
 	protected:
 		void InitializeFields()
