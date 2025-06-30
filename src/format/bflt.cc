@@ -2,6 +2,7 @@
 #include "bflt.h"
 #include "../linker/location.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/relocation.h"
 #include "../linker/resolution.h"
@@ -82,14 +83,30 @@ void BFLTFormat::CalculateValues()
 
 /* * * Writer members * * */
 
+class BFLTOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<bool> ram{"ram", "File should be fully loaded into RAM"};
+	Linker::Option<bool> got{"got", "Program is position independent and has GOT"};
+
+	BFLTOptionCollector()
+	{
+		InitializeFields(ram);
+		InitializeFields(got);
+	}
+};
+
 void BFLTFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	if(options.find("ram") != options.end())
+	BFLTOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	if(collector.ram())
 	{
 		flags |= FLAG_RAM;
 	}
 
-	if(options.find("got") != options.end())
+	if(collector.got())
 	{
 		flags |= FLAG_GOTPIC;
 		// TODO: not yet supported

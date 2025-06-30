@@ -2,6 +2,7 @@
 #include <sstream>
 #include "minix.h"
 #include "../linker/buffer.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 #include "../linker/reader.h"
@@ -296,9 +297,27 @@ bool MINIXFormat::FormatIsProtectedMode() const
 	return GetEndianType(cpu);
 }
 
+class MINIXOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::optional<offset_t>> total_memory{"total_memory", "Total memory for executable, including stack and heap, only for version 0"};
+	Linker::Option<std::optional<offset_t>> stack_size{"stack_size", "Size of stack, only for version 1"};
+	Linker::Option<std::optional<offset_t>> heap_size{"heap_size", "Size of heap, only for version 1"};
+
+	MINIXOptionCollector()
+	{
+		InitializeFields(total_memory);
+		InitializeFields(stack_size);
+		InitializeFields(heap_size);
+	}
+};
+
 void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	if(auto total_memory_option = FetchIntegerOption(options, "total_memory"))
+	MINIXOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	if(auto total_memory_option = collector.total_memory())
 	{
 		if(format_version == uint16_t(-1))
 		{
@@ -315,7 +334,7 @@ void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 		}
 	}
 
-	if(auto stack_size_option = FetchIntegerOption(options, "stack_size"))
+	if(auto stack_size_option = collector.stack_size())
 	{
 		if(format_version == uint16_t(-1))
 		{
@@ -332,7 +351,7 @@ void MINIXFormat::SetOptions(std::map<std::string, std::string>& options)
 		}
 	}
 
-	if(auto heap_size_option = FetchIntegerOption(options, "heap_size"))
+	if(auto heap_size_option = collector.heap_size())
 	{
 		if(format_version == uint16_t(-1))
 		{

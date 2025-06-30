@@ -1,5 +1,6 @@
 
 #include "pharlap.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -34,9 +35,22 @@ bool MPFormat::Relocation::operator <(const Relocation& other) const
 	return offset < other.offset || (offset == other.offset && rel32 < other.rel32);
 }
 
+class MPOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+	MPOptionCollector()
+	{
+		InitializeFields(stub);
+	}
+};
+
 void MPFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub.filename = FetchOption(options, "stub", "");
+	MPOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
 }
 
 void MPFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -279,9 +293,22 @@ void P3Format::RunTimeParameterBlock::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, ring);
 }
 
+class P3OptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+	P3OptionCollector()
+	{
+		InitializeFields(stub);
+	}
+};
+
 void P3Format::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub.filename = FetchOption(options, "stub", "");
+	P3OptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
 }
 
 std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string filename) const

@@ -1,5 +1,6 @@
 
 #include "bwexp.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -220,9 +221,22 @@ offset_t BWFormat::MeasureRelocations() const
 	}
 }
 
+class BWOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+	BWOptionCollector()
+	{
+		InitializeFields(stub);
+	}
+};
+
 void BWFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub.filename = FetchOption(options, "stub", "");
+	BWOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
 }
 
 void BWFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)

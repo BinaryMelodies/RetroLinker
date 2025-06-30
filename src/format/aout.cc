@@ -1,5 +1,6 @@
 
 #include "aout.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -604,9 +605,22 @@ AOutFormat::magic_type AOutFormat::GetDefaultMagic(system_type system)
 	}
 }
 
+class AOutOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+	AOutOptionCollector()
+	{
+		InitializeFields(stub);
+	}
+};
+
 void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub.filename = FetchOption(options, "stub", "");
+	AOutOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
 
 	/* TODO: other parameters */
 }

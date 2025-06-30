@@ -1,5 +1,6 @@
 
 #include "hunk.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
 #include "../linker/resolution.h"
@@ -1660,9 +1661,22 @@ unsigned HunkFormat::FormatAdditionalSectionFlags(std::string section_name) cons
 	}
 }
 
+class HunkOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::optional<std::string>> system{"system", "Target system version, determines generated hunk types, permitted options: v1, v37, v38, v39"};
+
+	HunkOptionCollector()
+	{
+		InitializeFields(system);
+	}
+};
+
 void HunkFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	if(auto system_version = FetchOption(options, "system"))
+	HunkOptionCollector collector;
+	collector.ConsiderOptions(options);
+	if(auto system_version = collector.system())
 	{
 		if(*system_version == "v1")
 		{

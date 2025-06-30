@@ -1,9 +1,10 @@
 
 #include "coff.h"
 #include "../linker/location.h"
-#include "../linker/section.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
+#include "../linker/section.h"
 #include "../linker/symbol_name.h"
 
 using namespace COFF;
@@ -2032,9 +2033,22 @@ unsigned COFFFormat::FormatAdditionalSectionFlags(std::string section_name) cons
 	}
 }
 
+class COFFOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+	COFFOptionCollector()
+	{
+		InitializeFields(stub);
+	}
+};
+
 void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub.filename = FetchOption(options, "stub", "");
+	COFFOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
 
 	/* TODO */
 	option_no_relocation = false;

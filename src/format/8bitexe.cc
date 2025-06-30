@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <sstream>
 #include "8bitexe.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -349,21 +350,29 @@ void CPM3Format::Clear()
 	rsx_table.clear();
 }
 
+class CPM3OptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions"};
+
+	CPM3OptionCollector()
+	{
+		InitializeFields(rsx_file_names);
+	}
+};
+
 void CPM3Format::SetOptions(std::map<std::string, std::string>& options)
 {
-	if(auto rsx_file_names_option = FetchOption(options, "rsx"))
+	CPM3OptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	if(auto rsx_file_names = collector.rsx_file_names())
 	{
-		std::string rsx_file_names = rsx_file_names_option.value();
-		size_t string_offset = 0;
-		size_t comma;
-		while((comma = rsx_file_names.find(',', string_offset)) != std::string::npos)
+		for(auto rsx_file_name : rsx_file_names.value())
 		{
 			rsx_table.push_back(rsx_record());
-			rsx_table.back().rsx_file_name = rsx_file_names.substr(string_offset, comma - string_offset);
-			string_offset = comma + 1;
+			rsx_table.back().rsx_file_name = rsx_file_name;
 		}
-		rsx_table.push_back(rsx_record());
-		rsx_table.back().rsx_file_name = rsx_file_names.substr(string_offset);
 	}
 
 	for(auto& rsx : rsx_table)

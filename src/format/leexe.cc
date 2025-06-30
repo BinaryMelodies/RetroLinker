@@ -2,6 +2,7 @@
 #include <sstream>
 #include "leexe.h"
 #include "mzexe.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -1717,9 +1718,22 @@ uint8_t LEFormat::CountBundles(size_t entry_index) const
 	return entry_count;
 }
 
+class LEOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+	LEOptionCollector()
+	{
+		InitializeFields(stub);
+	}
+};
+
 void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	stub.filename = FetchOption(options, "stub", "");
+	LEOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
 	/* TODO */
 }
 

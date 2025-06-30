@@ -4,6 +4,7 @@
 #include "cpm86.h"
 #include "../linker/buffer.h"
 #include "../linker/section.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
 #include "../linker/resolution.h"
@@ -1070,31 +1071,37 @@ void CPM86Format::SetModel(std::string model)
 	}
 }
 
+class CPM86OptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
+	Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions"};
+
+	CPM86OptionCollector()
+	{
+		InitializeFields(noreloc);
+		InitializeFields(rsx_file_names);
+	}
+};
+
 void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 {
-	option_no_relocation = options.find("noreloc") != options.end();
+	CPM86OptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	option_no_relocation = collector.noreloc();
 
 	unsigned rsx_count = 0;
-	if(auto rsx_file_names_option = FetchOption(options, "rsx"))
+	if(auto rsx_file_names = collector.rsx_file_names())
 	{
-		std::string rsx_file_names = rsx_file_names_option.value();
-		size_t string_offset = 0;
-		size_t comma;
-		while((comma = rsx_file_names.find(',', string_offset)) != std::string::npos)
+		for(auto& rsx_file_name : rsx_file_names.value())
 		{
 			if(rsx_count < 7)
 			{
-				rsx_table[rsx_count].rsx_file_name = rsx_file_names.substr(string_offset, comma - string_offset);
+				rsx_table[rsx_count].rsx_file_name = rsx_file_name;
 //				Linker::Debug << "Debug: Adding RSX #" << rsx_count + 1 << " as " << rsx_table[rsx_count].rsx_file_name << std::endl;
 				rsx_count ++;
 			}
-			string_offset = comma + 1;
-		}
-		if(rsx_count < 7)
-		{
-			rsx_table[rsx_count].rsx_file_name = rsx_file_names.substr(string_offset);
-//			Linker::Debug << "Debug: Adding RSX #" << rsx_count + 1 << " as " << rsx_table[rsx_count].rsx_file_name << std::endl;
-			rsx_count ++;
 		}
 	}
 

@@ -1,6 +1,7 @@
 
 #include "cpm68k.h"
 #include "../linker/buffer.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
 #include "../linker/resolution.h"
@@ -618,10 +619,26 @@ unsigned CPM68KFormat::FormatAdditionalSectionFlags(std::string section_name) co
 	}
 }
 
+class CPM68KOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
+	Linker::Option<bool> reloc{"reloc", "Force relocation generation"};
+
+	CPM68KOptionCollector()
+	{
+		InitializeFields(noreloc);
+		InitializeFields(reloc);
+	}
+};
+
 void CPM68KFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	option_no_relocation = options.find("noreloc") != options.end();
-	relocations_suppressed = options.find("reloc") != options.end() ? 0 : 1;
+	CPM68KOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	option_no_relocation = collector.noreloc();
+	relocations_suppressed = !collector.reloc();
 	if(option_no_relocation && relocations_suppressed == 0)
 	{
 		Linker::FatalError("Fatal error: inconsistent expectations for relocations, aborting");
