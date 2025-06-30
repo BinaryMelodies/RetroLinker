@@ -1514,10 +1514,8 @@ for any
 		{
 		case MODEL_DEFAULT:
 		default:
-std::cout << SimpleScript << std::endl;
 			return Script::parse_string(SimpleScript);
 		case MODEL_TINY:
-std::cout << TinyScript << std::endl;
 			return Script::parse_string(TinyScript);
 		}
 	}

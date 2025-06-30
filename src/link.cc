@@ -35,6 +35,8 @@ void usage(char * argv0)
 	std::cerr << "\t-S<setting>, -S<setting>=<value>" << std::endl << "\t\tSet parameter, format dependent" << std::endl;
 	std::cerr << "\t-d<symbol>, -d<symbol>=<value> -d<symbol>=<segment>:<offset>" << std::endl << "\t\tDefine symbol, including special names such as .entry" << std::endl;
 	std::cerr << "\t-$=<char>, -$ <char>" << std::endl << "\t\tSet special character (default: '$')" << std::endl;
+	std::cerr << "\t--display-debug-messages" << std::endl << "\t\tPrint information only relevant for linker development" << std::endl;
+	std::cerr << "\t--suppress-warnings" << std::endl << "\t\tSuppress printing warnings" << std::endl;
 
 	std::cerr << "List of supported output formats:" << std::endl;
 	format_specification * last = nullptr;
@@ -57,6 +59,16 @@ void usage(char * argv0)
 	std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
 }
 
+class null_buffer : public std::streambuf
+{
+protected:
+	int overflow(int ch = EOF) override { return ch; }
+public:
+	static null_buffer the_null_buffer;
+};
+
+null_buffer null_buffer::the_null_buffer;
+
 /**
  * @brief The main entry to the linker
  */
@@ -64,6 +76,8 @@ int main(int argc, char * argv[])
 {
 	Module module;
 	std::shared_ptr<OutputFormat> format = nullptr;
+	bool display_debug_messages = false;
+	bool suppress_warnings = false;
 
 	std::vector<std::string> inputs;
 	std::string output;
@@ -185,6 +199,14 @@ int main(int argc, char * argv[])
 				/* assembler escape symbol, to extend input object file feature set (for example, segmentation or automatic imports) */
 				special_char = argv[i][2] == '=' ? argv[i][3] : argv[i++][0];
 			}
+			else if(strcmp(argv[i], "--display-debug-messages") == 0)
+			{
+				display_debug_messages = true;
+			}
+			else if(strcmp(argv[i], "--suppress-warnings") == 0)
+			{
+				suppress_warnings = true;
+			}
 			else
 			{
 				std::ostringstream message;
@@ -197,6 +219,16 @@ int main(int argc, char * argv[])
 		{
 			inputs.push_back(argv[i]);
 		}
+	}
+
+	if(!display_debug_messages)
+	{
+		Linker::Debug.rdbuf(&null_buffer::the_null_buffer);
+	}
+
+	if(suppress_warnings)
+	{
+		Linker::Warning.rdbuf(&null_buffer::the_null_buffer);
 	}
 
 	if(inputs.size() == 0)
