@@ -157,6 +157,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac19df398e1ce502b04ae10cbcdf8c3db" id="r_ac19df398e1ce502b04ae10cbcdf8c3db"><td class="memItemLeft" align="right" valign="top"><a id="ac19df398e1ce502b04ae10cbcdf8c3db" name="ac19df398e1ce502b04ae10cbcdf8c3db"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>MINIXFormat</b> (format_type format, cpu_type cpu, int version=-1)</td></tr>
 <tr class="separator:ac19df398e1ce502b04ae10cbcdf8c3db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a487e5b8f08f570e06a59823fcbf4088d" id="r_a487e5b8f08f570e06a59823fcbf4088d"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a487e5b8f08f570e06a59823fcbf4088d">GetOptions</a> () override</td></tr>
+<tr class="memdesc:a487e5b8f08f570e06a59823fcbf4088d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
+<tr class="separator:a487e5b8f08f570e06a59823fcbf4088d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07cb6ce4902dd5e62f62ffaad7b3bd0d" id="r_a07cb6ce4902dd5e62f62ffaad7b3bd0d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a07cb6ce4902dd5e62f62ffaad7b3bd0d">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
 <tr class="memdesc:a07cb6ce4902dd5e62f62ffaad7b3bd0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
 <tr class="separator:a07cb6ce4902dd5e62f62ffaad7b3bd0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -628,6 +631,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Typically a.out or some other extension, such as a.exe. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a87f3689cc381422f4f10a9acdc92983e">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a487e5b8f08f570e06a59823fcbf4088d" name="a487e5b8f08f570e06a59823fcbf4088d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a487e5b8f08f570e06a59823fcbf4088d">&#9670;&#160;</a></span>GetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt; MINIXFormat::GetOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns object containing a sequence of option fields provided with the -S command line flag. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a6d92eec936815a0d2aa93ca2312b4045">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

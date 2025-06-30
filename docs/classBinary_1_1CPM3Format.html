@@ -114,6 +114,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ae040dd0d1749353e2882e753c5ef7ca9" id="r_ae040dd0d1749353e2882e753c5ef7ca9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae040dd0d1749353e2882e753c5ef7ca9">Clear</a> () override</td></tr>
 <tr class="memdesc:ae040dd0d1749353e2882e753c5ef7ca9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:ae040dd0d1749353e2882e753c5ef7ca9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac25186d716d30ba1fa59c56934a21919" id="r_ac25186d716d30ba1fa59c56934a21919"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac25186d716d30ba1fa59c56934a21919">GetOptions</a> () override</td></tr>
+<tr class="memdesc:ac25186d716d30ba1fa59c56934a21919"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
+<tr class="separator:ac25186d716d30ba1fa59c56934a21919"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa0589c8ad608572f71e520a9e4ce5f20" id="r_aa0589c8ad608572f71e520a9e4ce5f20"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa0589c8ad608572f71e520a9e4ce5f20">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
 <tr class="memdesc:aa0589c8ad608572f71e520a9e4ce5f20"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
 <tr class="separator:aa0589c8ad608572f71e520a9e4ce5f20"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -465,6 +468,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Display file contents in a nice manner. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a098d2d37cf55278aa98722b766d4fc38">Linker::Format</a>.</p>
+
+</div>
+</div>
+<a id="ac25186d716d30ba1fa59c56934a21919" name="ac25186d716d30ba1fa59c56934a21919"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac25186d716d30ba1fa59c56934a21919">&#9670;&#160;</a></span>GetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt; CPM3Format::GetOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns object containing a sequence of option fields provided with the -S command line flag. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a6d92eec936815a0d2aa93ca2312b4045">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

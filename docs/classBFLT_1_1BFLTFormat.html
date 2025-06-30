@@ -129,6 +129,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abf9ab7906b139db32b818e8b7290ad93" id="r_abf9ab7906b139db32b818e8b7290ad93"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abf9ab7906b139db32b818e8b7290ad93">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:abf9ab7906b139db32b818e8b7290ad93"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:abf9ab7906b139db32b818e8b7290ad93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a76e7ba92f8e96f4518338d058a0fc1e3" id="r_a76e7ba92f8e96f4518338d058a0fc1e3"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a76e7ba92f8e96f4518338d058a0fc1e3">GetOptions</a> () override</td></tr>
+<tr class="memdesc:a76e7ba92f8e96f4518338d058a0fc1e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
+<tr class="separator:a76e7ba92f8e96f4518338d058a0fc1e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaa3e7da9601944bee9b783ee8551c7d0" id="r_aaa3e7da9601944bee9b783ee8551c7d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaa3e7da9601944bee9b783ee8551c7d0">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
 <tr class="memdesc:aaa3e7da9601944bee9b783ee8551c7d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
 <tr class="separator:aaa3e7da9601944bee9b783ee8551c7d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -532,6 +535,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Typically a.out or some other extension, such as a.exe. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a87f3689cc381422f4f10a9acdc92983e">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a76e7ba92f8e96f4518338d058a0fc1e3" name="a76e7ba92f8e96f4518338d058a0fc1e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a76e7ba92f8e96f4518338d058a0fc1e3">&#9670;&#160;</a></span>GetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt; BFLTFormat::GetOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns object containing a sequence of option fields provided with the -S command line flag. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a6d92eec936815a0d2aa93ca2312b4045">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

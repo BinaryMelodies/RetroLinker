@@ -113,6 +113,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
 <tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
 <tr class="separator:aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d92eec936815a0d2aa93ca2312b4045" id="r_a6d92eec936815a0d2aa93ca2312b4045"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6d92eec936815a0d2aa93ca2312b4045">GetOptions</a> ()</td></tr>
+<tr class="memdesc:a6d92eec936815a0d2aa93ca2312b4045"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
+<tr class="separator:a6d92eec936815a0d2aa93ca2312b4045"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aabb33f0f671aa3eaeb66d64b2ca4664b" id="r_aabb33f0f671aa3eaeb66d64b2ca4664b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aabb33f0f671aa3eaeb66d64b2ca4664b">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options)</td></tr>
 <tr class="memdesc:aabb33f0f671aa3eaeb66d64b2ca4664b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
 <tr class="separator:aabb33f0f671aa3eaeb66d64b2ca4664b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -547,6 +550,35 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 <p>A typical behavior would be to append .exe at the end of the filename. The default action is to leave it intact. </p>
 
 <p>Reimplemented in <a class="el" href="classBinary_1_1CommodoreFormat.html#aecf1f80471f2a29055c811a2e73a6080">Binary::CommodoreFormat</a>, <a class="el" href="classBinary_1_1FLEXFormat.html#a1db9cfc8fc97a089535ee98bad915b8a">Binary::FLEXFormat</a>, <a class="el" href="classARM_1_1AIFFormat.html#a1191a3905c5309aaef2a6c8c2aa93b6f">ARM::AIFFormat</a>, <a class="el" href="classAOut_1_1AOutFormat.html#ae9fb89c1786b0292cb4e8f93aaae3674">AOut::AOutFormat</a>, <a class="el" href="classBinary_1_1GenericBinaryFormat.html#a5e42cc9d385c11391bbcd166818f3e9f">Binary::GenericBinaryFormat</a>, <a class="el" href="classDOS16M_1_1BWFormat.html#a0acbe57439fa19727c621f1f4ae3d3b4">DOS16M::BWFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#aed9413a8b41325d2023a2830290e7e4e">COFF::COFFFormat</a>, <a class="el" href="classDigitalResearch_1_1CPM68KFormat.html#a15a62760234bda7c293ff490857692a6">DigitalResearch::CPM68KFormat</a>, <a class="el" href="classDigitalResearch_1_1CPM86Format.html#ae4eea0cde1eae9e6abc8a9bb678674a6">DigitalResearch::CPM86Format</a>, <a class="el" href="classDigitalResearch_1_1CPM8KFormat.html#a52a0960faa7d1943d5d5156592c188c2">DigitalResearch::CPM8KFormat</a>, <a class="el" href="classGEOS_1_1GeodeFormat.html#ac7c2641c39b4adcb37592cb9adfba06e">GEOS::GeodeFormat</a>, <a class="el" href="classX68000_1_1HUFormat.html#a77234d2c8c2b0f399379dee7808e967d">X68000::HUFormat</a>, <a class="el" href="classMicrosoft_1_1LEFormat.html#a5a1a59ab7d5b87c201b835096e4b0497">Microsoft::LEFormat</a>, <a class="el" href="classMicrosoft_1_1MZFormat.html#ad4191b1f0f1f875a4272a2279b78093f">Microsoft::MZFormat</a>, <a class="el" href="classMicrosoft_1_1NEFormat.html#a7a526279613bed7aa55e1ff38642f86a">Microsoft::NEFormat</a>, <a class="el" href="classPCOS_1_1CMDFormat.html#abb38955e5d694eb90d33ab3cd7ac4be6">PCOS::CMDFormat</a>, <a class="el" href="classMicrosoft_1_1PEFormat.html#a8951f814699d84dbcf2c951b5e9f429e">Microsoft::PEFormat</a>, <a class="el" href="classPharLap_1_1MPFormat.html#a9dc886216ff67eb631f4e22134efd3aa">PharLap::MPFormat</a>, <a class="el" href="classPharLap_1_1P3Format.html#a28001d171bffcd9b9d6634e8fe08ad6d">PharLap::P3Format</a>, <a class="el" href="classPharLap_1_1P3FormatContainer.html#a959d07e4488100c05c3cc7d62f27df0f">PharLap::P3FormatContainer</a>, <a class="el" href="classPMODE_1_1PMW1Format.html#a7e2f034db4051d2c77e0a3bd6292dc9d">PMODE::PMW1Format</a>, and <a class="el" href="classErgo_1_1XPFormat.html#a739c2b9a2d08b6e1fd840efd42e24f80">Ergo::XPFormat</a>.</p>
+
+</div>
+</div>
+<a id="a6d92eec936815a0d2aa93ca2312b4045" name="a6d92eec936815a0d2aa93ca2312b4045"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d92eec936815a0d2aa93ca2312b4045">&#9670;&#160;</a></span>GetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">OptionCollector</a> &gt; OutputFormat::GetOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns object containing a sequence of option fields provided with the -S command line flag. </p>
+
+<p>Reimplemented in <a class="el" href="classBinary_1_1CPM3Format.html#ac25186d716d30ba1fa59c56934a21919">Binary::CPM3Format</a>, <a class="el" href="classAOut_1_1AOutFormat.html#aba7121d9c2cfb5d38c874bcbbde40467">AOut::AOutFormat</a>, <a class="el" href="classBFLT_1_1BFLTFormat.html#a76e7ba92f8e96f4518338d058a0fc1e3">BFLT::BFLTFormat</a>, <a class="el" href="classDOS16M_1_1BWFormat.html#a1746958df2b5399ef22da75938456877">DOS16M::BWFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a477369394c3ee2b118e44102dcafc8ad">COFF::COFFFormat</a>, <a class="el" href="classDigitalResearch_1_1CPM68KFormat.html#a08863cca8b66328ed6435253d018ee77">DigitalResearch::CPM68KFormat</a>, <a class="el" href="classDigitalResearch_1_1CPM86Format.html#a23f76fc989b59eba09e2de69c8dec795">DigitalResearch::CPM86Format</a>, <a class="el" href="classAmiga_1_1HunkFormat.html#a841d404025af83f7b8ed12b8c24759a2">Amiga::HunkFormat</a>, <a class="el" href="classMicrosoft_1_1LEFormat.html#a3da113f38c3a5f62e0c596022db9bfa0">Microsoft::LEFormat</a>, <a class="el" href="classMINIX_1_1MINIXFormat.html#a487e5b8f08f570e06a59823fcbf4088d">MINIX::MINIXFormat</a>, <a class="el" href="classMicrosoft_1_1MZFormat.html#a40181f3fa3fda08fe49ca01cd348f02e">Microsoft::MZFormat</a>, <a class="el" href="classMicrosoft_1_1NEFormat.html#a711209b2ad8e23ed1ab60d6975b55a87">Microsoft::NEFormat</a>, <a class="el" href="classPharLap_1_1MPFormat.html#a62ae46499ed1bcc425de3ba24276dd2e">PharLap::MPFormat</a>, and <a class="el" href="classPharLap_1_1P3Format.html#aed911c96e343451c0bfbae3f806dd904">PharLap::P3Format</a>.</p>
 
 </div>
 </div>

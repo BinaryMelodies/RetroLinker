@@ -15,6 +15,7 @@ var searchData=
   ['note_12',['Note',['../classELF_1_1ELFFormat_1_1Note.html',1,'ELF::ELFFormat']]],
   ['notessection_13',['NotesSection',['../classELF_1_1ELFFormat_1_1NotesSection.html',1,'ELF::ELFFormat']]],
   ['notexported_14',['NotExported',['../classMicrosoft_1_1NEFormat_1_1Entry.html#aa5c3a5bfb01a0bf54de4138ab43528cca6a3a56f817fe2f7ce70c8879d869618e',1,'Microsoft::NEFormat::Entry']]],
-  ['number_15',['number',['../classDigitalResearch_1_1CPM8KFormat_1_1Segment.html#aeea5863618ce8e18802109325a68a7c5',1,'DigitalResearch::CPM8KFormat::Segment']]],
-  ['number_5flength_16',['number_length',['../classApple_1_1OMFFormat_1_1Segment.html#a40587512c8490b880dd35a3973b6539f',1,'Apple::OMFFormat::Segment']]]
+  ['null_5fbuffer_15',['null_buffer',['../classnull__buffer.html',1,'']]],
+  ['number_16',['number',['../classDigitalResearch_1_1CPM8KFormat_1_1Segment.html#aeea5863618ce8e18802109325a68a7c5',1,'DigitalResearch::CPM8KFormat::Segment']]],
+  ['number_5flength_17',['number_length',['../classApple_1_1OMFFormat_1_1Segment.html#a40587512c8490b880dd35a3973b6539f',1,'Apple::OMFFormat::Segment']]]
 ];

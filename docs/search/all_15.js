@@ -43,5 +43,11 @@ var searchData=
   ['type_5fsav_40',['TYPE_SAV',['../classPCOS_1_1CMDFormat.html#a758f992ed1c64ca88e64f243ae71c8c3a45becd7ee74f562e1cf733bfdf051210',1,'PCOS::CMDFormat']]],
   ['type_5fsegment_41',['type_segment',['../structO65_1_1O65Format_1_1Module_1_1relocation.html#ac9e4ff5b435da703c27aef71ab9fd2c6',1,'O65::O65Format::Module::relocation']]],
   ['type_5fsegment_5frelocation_42',['TYPE_SEGMENT_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a18a19e367bda74cec4f4d4da412b3332',1,'PCOS::CMDFormat::MemoryBlock']]],
-  ['type_5fsystem_43',['TYPE_SYSTEM',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a36646fda560ed168b68456b4d6e0ecc5',1,'O65::O65Format::Module::header_option']]]
+  ['type_5fsystem_43',['TYPE_SYSTEM',['../structO65_1_1O65Format_1_1Module_1_1header__option.html#a36646fda560ed168b68456b4d6e0ecc5',1,'O65::O65Format::Module::header_option']]],
+  ['typedata_44',['TypeData',['../structLinker_1_1TypeData.html',1,'Linker']]],
+  ['typedata_3c_20bool_20_3e_45',['TypeData&lt; bool &gt;',['../structLinker_1_1TypeData_3_01bool_01_4.html',1,'Linker']]],
+  ['typedata_3c_20offset_5ft_20_3e_46',['TypeData&lt; offset_t &gt;',['../structLinker_1_1TypeData_3_01offset__t_01_4.html',1,'Linker']]],
+  ['typedata_3c_20std_3a_3aoptional_3c_20t_20_3e_20_3e_47',['TypeData&lt; std::optional&lt; T &gt; &gt;',['../structLinker_1_1TypeData_3_01std_1_1optional_3_01T_01_4_01_4.html',1,'Linker']]],
+  ['typedata_3c_20std_3a_3astring_20_3e_48',['TypeData&lt; std::string &gt;',['../structLinker_1_1TypeData_3_01std_1_1string_01_4.html',1,'Linker']]],
+  ['typedata_3c_20std_3a_3avector_3c_20t_20_3e_20_3e_49',['TypeData&lt; std::vector&lt; T &gt; &gt;',['../structLinker_1_1TypeData_3_01std_1_1vector_3_01T_01_4_01_4.html',1,'Linker']]]
 ];

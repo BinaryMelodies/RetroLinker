@@ -6,5 +6,6 @@ var searchData=
   ['nereader_3',['NEReader',['../classdump_1_1NEReader.html',1,'dump']]],
   ['node_4',['Node',['../classScript_1_1Node.html',1,'Script']]],
   ['note_5',['Note',['../classELF_1_1ELFFormat_1_1Note.html',1,'ELF::ELFFormat']]],
-  ['notessection_6',['NotesSection',['../classELF_1_1ELFFormat_1_1NotesSection.html',1,'ELF::ELFFormat']]]
+  ['notessection_6',['NotesSection',['../classELF_1_1ELFFormat_1_1NotesSection.html',1,'ELF::ELFFormat']]],
+  ['null_5fbuffer_7',['null_buffer',['../classnull__buffer.html',1,'']]]
 ];
