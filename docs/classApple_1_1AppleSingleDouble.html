@@ -82,6 +82,7 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pro-attribs">Protected Attributes</a> &#124;
 <a href="classApple_1_1AppleSingleDouble-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Apple::AppleSingleDouble Class Reference</div></div>
 </div><!--header-->
@@ -108,11 +109,13 @@ Inheritance diagram for Apple::AppleSingleDouble:</div>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry.html">Entry</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1AppleSingleDouble_1_1UnknownEntry.html">UnknownEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a59236b847986a081454dfa1fe3f00372" id="r_a59236b847986a081454dfa1fe3f00372"><td class="memItemLeft" align="right" valign="top"><a id="a59236b847986a081454dfa1fe3f00372" name="a59236b847986a081454dfa1fe3f00372"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>format_type</b> { <b>SINGLE</b>
-, <b>DOUBLE</b>
+<tr class="memitem:a59236b847986a081454dfa1fe3f00372" id="r_a59236b847986a081454dfa1fe3f00372"><td class="memItemLeft" align="right" valign="top"><a id="a59236b847986a081454dfa1fe3f00372" name="a59236b847986a081454dfa1fe3f00372"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>format_type</b> { <b>SINGLE</b> = 0x00051600
+, <b>DOUBLE</b> = 0x00051607
  }</td></tr>
 <tr class="separator:a59236b847986a081454dfa1fe3f00372"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aef66c3f9407e833fb75110340b6917b3" id="r_aef66c3f9407e833fb75110340b6917b3"><td class="memItemLeft" align="right" valign="top"><a id="aef66c3f9407e833fb75110340b6917b3" name="aef66c3f9407e833fb75110340b6917b3"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>hfs_type</b> { <br />
@@ -126,7 +129,7 @@ Public Types</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:aef66c3f9407e833fb75110340b6917b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4c902e202f671f7a735e0016dbd9115c" id="r_a4c902e202f671f7a735e0016dbd9115c"><td class="memItemLeft" align="right" valign="top"><a id="a4c902e202f671f7a735e0016dbd9115c" name="a4c902e202f671f7a735e0016dbd9115c"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+<tr class="memitem:a4fe9aecc17034656839f6990d62d9249" id="r_a4fe9aecc17034656839f6990d62d9249"><td class="memItemLeft" align="right" valign="top"><a id="a4fe9aecc17034656839f6990d62d9249" name="a4fe9aecc17034656839f6990d62d9249"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
 &#160;&#160;<b>ID_DataFork</b> = 1
 , <b>ID_ResourceFork</b>
 , <b>ID_RealName</b>
@@ -147,16 +150,25 @@ Public Types</h2></td></tr>
 , <b>ID_AFPDirectoryID</b>
 <br />
  }</td></tr>
-<tr class="separator:a4c902e202f671f7a735e0016dbd9115c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a4fe9aecc17034656839f6990d62d9249"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a816d79483e7ebf008a66606a021a1b4e" id="r_a816d79483e7ebf008a66606a021a1b4e"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a816d79483e7ebf008a66606a021a1b4e">ImageSize</a> () const override</td></tr>
+<tr class="memdesc:a816d79483e7ebf008a66606a021a1b4e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:a816d79483e7ebf008a66606a021a1b4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25c0ab4dd291319937018d3ce84421db" id="r_a25c0ab4dd291319937018d3ce84421db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25c0ab4dd291319937018d3ce84421db">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a25c0ab4dd291319937018d3ce84421db"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a25c0ab4dd291319937018d3ce84421db"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1511e96742a27fbdcb6b0a554628a91b" id="r_a1511e96742a27fbdcb6b0a554628a91b"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1511e96742a27fbdcb6b0a554628a91b">FormatSupportsResources</a> () const override</td></tr>
 <tr class="memdesc:a1511e96742a27fbdcb6b0a554628a91b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports resources.  <br /></td></tr>
 <tr class="separator:a1511e96742a27fbdcb6b0a554628a91b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abe257fb0b1637504b11727923165caa9" id="r_abe257fb0b1637504b11727923165caa9"><td class="memItemLeft" align="right" valign="top"><a id="abe257fb0b1637504b11727923165caa9" name="abe257fb0b1637504b11727923165caa9"></a>
+hfs_type&#160;</td><td class="memItemRight" valign="bottom"><b>GetHomeFileSystem</b> () const</td></tr>
+<tr class="separator:abe257fb0b1637504b11727923165caa9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad35b76b9a94631863acb76a94cb221c6" id="r_ad35b76b9a94631863acb76a94cb221c6"><td class="memItemLeft" align="right" valign="top"><a id="ad35b76b9a94631863acb76a94cb221c6" name="ad35b76b9a94631863acb76a94cb221c6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetHomeFileSystem</b> (hfs_type type)</td></tr>
+<tr class="separator:ad35b76b9a94631863acb76a94cb221c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a95fa46d23868e708f76eb2ab2882cf32" id="r_a95fa46d23868e708f76eb2ab2882cf32"><td class="memItemLeft" align="right" valign="top"><a id="a95fa46d23868e708f76eb2ab2882cf32" name="a95fa46d23868e708f76eb2ab2882cf32"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>AppleSingleDouble</b> (format_type type, unsigned version, hfs_type home_file_system)</td></tr>
 <tr class="separator:a95fa46d23868e708f76eb2ab2882cf32"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -287,6 +299,9 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a8e6cfc4a9c2434536ab1b31e54f2c6f7"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">FormatIs16bit</a> () const</td></tr>
 <tr class="memdesc:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
 <tr class="separator:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat" id="r_ae1b8dc628a23f01b855832d6e70ec1df"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ae1b8dc628a23f01b855832d6e70ec1df">FormatIsProtectedMode</a> () const</td></tr>
+<tr class="memdesc:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is in protected mode or not (x86 only)  <br /></td></tr>
+<tr class="separator:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat" id="r_a71bf1175595e1a2ab076f3e92d5233fb"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a71bf1175595e1a2ab076f3e92d5233fb">FormatIsLinear</a> () const</td></tr>
 <tr class="memdesc:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the address space is linear or segmented.  <br /></td></tr>
 <tr class="separator:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -326,12 +341,15 @@ format_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = DOU
 <tr class="memitem:a4c0648e8aa415ca8e9fbbd8ef03ceb40" id="r_a4c0648e8aa415ca8e9fbbd8ef03ceb40"><td class="memItemLeft" align="right" valign="top"><a id="a4c0648e8aa415ca8e9fbbd8ef03ceb40" name="a4c0648e8aa415ca8e9fbbd8ef03ceb40"></a>
 unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> = 2</td></tr>
 <tr class="separator:a4c0648e8aa415ca8e9fbbd8ef03ceb40"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa4c510b865a16590d3b62f8abe471ae4" id="r_aa4c510b865a16590d3b62f8abe471ae4"><td class="memItemLeft" align="right" valign="top"><a id="aa4c510b865a16590d3b62f8abe471ae4" name="aa4c510b865a16590d3b62f8abe471ae4"></a>
-hfs_type&#160;</td><td class="memItemRight" valign="bottom"><b>home_file_system</b> = HFS_UNDEFINED</td></tr>
-<tr class="separator:aa4c510b865a16590d3b62f8abe471ae4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2c3bc6ca4d04988e747e93722c0b915e" id="r_a2c3bc6ca4d04988e747e93722c0b915e"><td class="memItemLeft" align="right" valign="top"><a id="a2c3bc6ca4d04988e747e93722c0b915e" name="a2c3bc6ca4d04988e747e93722c0b915e"></a>
+char&#160;</td><td class="memItemRight" valign="bottom"><b>home_file_system_string</b> [16] = &quot;&quot;</td></tr>
+<tr class="separator:a2c3bc6ca4d04988e747e93722c0b915e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa453fed222bb256c18d842b370c88bce" id="r_aa453fed222bb256c18d842b370c88bce"><td class="memItemLeft" align="right" valign="top"><a id="aa453fed222bb256c18d842b370c88bce" name="aa453fed222bb256c18d842b370c88bce"></a>
 std::vector&lt; std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry.html">Entry</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>entries</b></td></tr>
 <tr class="separator:aa453fed222bb256c18d842b370c88bce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6bdaab98e2a042e5fabcc8927e8d806" id="r_ad6bdaab98e2a042e5fabcc8927e8d806"><td class="memItemLeft" align="right" valign="top"><a id="ad6bdaab98e2a042e5fabcc8927e8d806" name="ad6bdaab98e2a042e5fabcc8927e8d806"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>image_size</b> = offset_t(-1)</td></tr>
+<tr class="separator:ad6bdaab98e2a042e5fabcc8927e8d806"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
@@ -363,6 +381,12 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
 <tr class="memitem:ad2580fde3aa0939349aa6298189f4ffa" id="r_ad2580fde3aa0939349aa6298189f4ffa"><td class="memItemLeft" align="right" valign="top"><a id="ad2580fde3aa0939349aa6298189f4ffa" name="ad2580fde3aa0939349aa6298189f4ffa"></a>
 std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry.html">Entry</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetFinderInfo</b> ()</td></tr>
 <tr class="separator:ad2580fde3aa0939349aa6298189f4ffa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-attribs" name="pro-attribs"></a>
+Protected Attributes</h2></td></tr>
+<tr class="memitem:aa4c510b865a16590d3b62f8abe471ae4" id="r_aa4c510b865a16590d3b62f8abe471ae4"><td class="memItemLeft" align="right" valign="top"><a id="aa4c510b865a16590d3b62f8abe471ae4" name="aa4c510b865a16590d3b62f8abe471ae4"></a>
+hfs_type&#160;</td><td class="memItemRight" valign="bottom"><b>home_file_system</b></td></tr>
+<tr class="separator:aa4c510b865a16590d3b62f8abe471ae4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>AppleSingle &amp; AppleDouble. </p>
@@ -526,6 +550,35 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
 
 </div>
 </div>
+<a id="a816d79483e7ebf008a66606a021a1b4e" name="a816d79483e7ebf008a66606a021a1b4e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a816d79483e7ebf008a66606a021a1b4e">&#9670;&#160;</a></span>ImageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t AppleSingleDouble::ImageSize </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Retrieves size of stored data. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#a94dfc8a1f78b22134c2bb82dbc554bb6">Linker::Image</a>.</p>
+
+</div>
+</div>
 <a id="a5ff371b8a4200b5a3511b49310f17c4a" name="a5ff371b8a4200b5a3511b49310f17c4a"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5ff371b8a4200b5a3511b49310f17c4a">&#9670;&#160;</a></span>ProcessModule()</h2>
 
@@ -581,6 +634,8 @@ std::shared_ptr&lt; <a class="el" href="classApple_1_1AppleSingleDouble_1_1Entry
 <p>Loads file into memory. </p>
 
 <p>Implements <a class="el" href="classLinker_1_1Format.html#a2c868606ec11583e57a3d5b474035c42">Linker::Format</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classApple_1_1MacBinary.html#ac26412c73c7defab6b400769b04708f2">Apple::MacBinary</a>.</p>
 
 </div>
 </div>

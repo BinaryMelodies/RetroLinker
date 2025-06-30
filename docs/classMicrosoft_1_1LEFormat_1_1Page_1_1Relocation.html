@@ -121,10 +121,11 @@ Public Types</h2></td></tr>
 , <br />
 &#160;&#160;<b>FlagTypeMask</b> = 3
 , <b>Additive</b> = 4
+, <b>Chained</b> = 8
 , <b>Target32</b> = 0x10
-, <b>Additive32</b> = 0x20
 , <br />
-&#160;&#160;<b>Module16</b> = 0x40
+&#160;&#160;<b>Additive32</b> = 0x20
+, <b>Module16</b> = 0x40
 , <b>Ordinal8</b> = 0x80
 <br />
  }</td></tr>
@@ -171,15 +172,18 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetModuleSize</b> (
 <tr class="memitem:a2020b42584fb376755aca2e8bcbd9b1a" id="r_a2020b42584fb376755aca2e8bcbd9b1a"><td class="memItemLeft" align="right" valign="top"><a id="a2020b42584fb376755aca2e8bcbd9b1a" name="a2020b42584fb376755aca2e8bcbd9b1a"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetOrdinalSize</b> () const</td></tr>
 <tr class="separator:a2020b42584fb376755aca2e8bcbd9b1a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a51dd98f82d5210c4e39f3dc5920aa0e3" id="r_a51dd98f82d5210c4e39f3dc5920aa0e3"><td class="memItemLeft" align="right" valign="top"><a id="a51dd98f82d5210c4e39f3dc5920aa0e3" name="a51dd98f82d5210c4e39f3dc5920aa0e3"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetFirstSource</b> () const</td></tr>
+<tr class="separator:a51dd98f82d5210c4e39f3dc5920aa0e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab979c657e306e50842929fc79efa77d3" id="r_ab979c657e306e50842929fc79efa77d3"><td class="memItemLeft" align="right" valign="top"><a id="ab979c657e306e50842929fc79efa77d3" name="ab979c657e306e50842929fc79efa77d3"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateSizes</b> (compatibility_type compatibility)</td></tr>
 <tr class="separator:ab979c657e306e50842929fc79efa77d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af83183f69881c25435aa68e4a38e6a7c" id="r_af83183f69881c25435aa68e4a38e6a7c"><td class="memItemLeft" align="right" valign="top"><a id="af83183f69881c25435aa68e4a38e6a7c" name="af83183f69881c25435aa68e4a38e6a7c"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> () const</td></tr>
 <tr class="separator:af83183f69881c25435aa68e4a38e6a7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6e943d7a47c8c4d1c75c4361189c613e" id="r_a6e943d7a47c8c4d1c75c4361189c613e"><td class="memItemLeft" align="right" valign="top"><a id="a6e943d7a47c8c4d1c75c4361189c613e" name="a6e943d7a47c8c4d1c75c4361189c613e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, compatibility_type compatibility) const</td></tr>
-<tr class="separator:a6e943d7a47c8c4d1c75c4361189c613e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7706439efd2099a9de9fff7e4d79542e" id="r_a7706439efd2099a9de9fff7e4d79542e"><td class="memItemLeft" align="right" valign="top"><a id="a7706439efd2099a9de9fff7e4d79542e" name="a7706439efd2099a9de9fff7e4d79542e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="separator:a7706439efd2099a9de9fff7e4d79542e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1Writer"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Writer')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a></td></tr>
 <tr class="memitem:a84368819eed25fcaaef923edf84bf811 inherit pub_methods_classLinker_1_1Writer" id="r_a84368819eed25fcaaef923edf84bf811"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Writer</b> (EndianType <a class="el" href="classLinker_1_1Writer.html#a7c915c00aec7552e12a0f5e549632ec0">endiantype</a>, std::ostream *<a class="el" href="classLinker_1_1Writer.html#ad96e63b6bb67ab5b2647ed531a805f89">out</a>=nullptr)</td></tr>
@@ -251,6 +255,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aad9b0e32e6efaccc63169d416b7289ff" id="r_aad9b0e32e6efaccc63169d416b7289ff"><td class="memItemLeft" align="right" valign="top"><a id="aad9b0e32e6efaccc63169d416b7289ff" name="aad9b0e32e6efaccc63169d416b7289ff"></a>
 static source_type&#160;</td><td class="memItemRight" valign="bottom"><b>GetType</b> (<a class="el" href="classLinker_1_1Relocation.html">Linker::Relocation</a> &amp;rel)</td></tr>
 <tr class="separator:aad9b0e32e6efaccc63169d416b7289ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f1e2e0190f563c482cebc783a073979" id="r_a3f1e2e0190f563c482cebc783a073979"><td class="memItemLeft" align="right" valign="top"><a id="a3f1e2e0190f563c482cebc783a073979" name="a3f1e2e0190f563c482cebc783a073979"></a>
+static <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page_1_1Relocation.html">Relocation</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="separator:a3f1e2e0190f563c482cebc783a073979"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>

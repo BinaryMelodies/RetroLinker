@@ -77,6 +77,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
@@ -90,11 +91,26 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="relocation_8h_source.html">relocation.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a53b13249581f7975adc1c5836a48efd9" id="r_a53b13249581f7975adc1c5836a48efd9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a53b13249581f7975adc1c5836a48efd9">reference_kind</a> { <br />
+&#160;&#160;<a class="el" href="#a53b13249581f7975adc1c5836a48efd9abc98d476e839fb1966eb4fd1310f3e9a">Direct</a>
+, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9ac4e2462c0df82e507a7f0a74b69b762d">SegmentAddress</a>
+, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9a47e5e7df75146426561e990a318bcd2f">SegmentIndex</a>
+, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9aaf40db449c2967700c44dd821b7d1970">SelectorIndex</a>
+, <br />
+&#160;&#160;<a class="el" href="#a53b13249581f7975adc1c5836a48efd9ad563597dd54cfd9b1daea8e6f427cb2e">GOTOffset</a>
+, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9aa4124e7039068ea617ff1c00123890a4">PLTOffset</a>
+, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9acd711d928aacb97cdcbf8201b6ec1b0a">SizeOf</a>
+<br />
+ }</td></tr>
+<tr class="separator:a53b13249581f7975adc1c5836a48efd9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a6789daf1b4acf620418d7b1742f9426a" id="r_a6789daf1b4acf620418d7b1742f9426a"><td class="memItemLeft" align="right" valign="top"><a id="a6789daf1b4acf620418d7b1742f9426a" name="a6789daf1b4acf620418d7b1742f9426a"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Relocation</b> (bool <a class="el" href="#a2c9053220b93a8af26681e083e2712cf">segment_of</a>, size_t <a class="el" href="#af2a30c1a7122c077022743f5c8038fc1">size</a>, <a class="el" href="classLinker_1_1Location.html">Location</a> <a class="el" href="#a1ab2e4f3a22f832f343c43390f068291">source</a>, <a class="el" href="classLinker_1_1Target.html">Target</a> <a class="el" href="#a61c8c836e4c421b493f2f3feabc786ef">target</a>, <a class="el" href="classLinker_1_1Target.html">Target</a> <a class="el" href="#a739aa949dbf213a3fc8745cb2e71ca6b">reference</a>, uint64_t <a class="el" href="#a704913c035e4f01e2353030a3012cfb6">addend</a>, EndianType <a class="el" href="#a5bf2b394eafd1b1cb3506d294398cb42">endiantype</a>)</td></tr>
-<tr class="separator:a6789daf1b4acf620418d7b1742f9426a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a5ff5ba1e75d35323a105136aa212c2" id="r_a9a5ff5ba1e75d35323a105136aa212c2"><td class="memItemLeft" align="right" valign="top"><a id="a9a5ff5ba1e75d35323a105136aa212c2" name="a9a5ff5ba1e75d35323a105136aa212c2"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Relocation</b> (<a class="el" href="#a53b13249581f7975adc1c5836a48efd9">reference_kind</a> <a class="el" href="#a466ec8cb18da53195608156cfe219f62">kind</a>, size_t <a class="el" href="#af2a30c1a7122c077022743f5c8038fc1">size</a>, <a class="el" href="classLinker_1_1Location.html">Location</a> <a class="el" href="#a1ab2e4f3a22f832f343c43390f068291">source</a>, <a class="el" href="classLinker_1_1Target.html">Target</a> <a class="el" href="#a61c8c836e4c421b493f2f3feabc786ef">target</a>, <a class="el" href="classLinker_1_1Target.html">Target</a> <a class="el" href="#a739aa949dbf213a3fc8745cb2e71ca6b">reference</a>, uint64_t <a class="el" href="#a704913c035e4f01e2353030a3012cfb6">addend</a>, EndianType <a class="el" href="#a5bf2b394eafd1b1cb3506d294398cb42">endiantype</a>)</td></tr>
+<tr class="separator:a9a5ff5ba1e75d35323a105136aa212c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6f622a8c2deab8d83658b56a122d4cbf" id="r_a6f622a8c2deab8d83658b56a122d4cbf"><td class="memItemLeft" align="right" valign="top"><a id="a6f622a8c2deab8d83658b56a122d4cbf" name="a6f622a8c2deab8d83658b56a122d4cbf"></a>
 <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>SetMask</b> (uint64_t new_mask)</td></tr>
 <tr class="memdesc:a6f622a8c2deab8d83658b56a122d4cbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instead of the full word, only modify the following bits. <br /></td></tr>
@@ -189,9 +205,10 @@ static <a class="el" href="classLinker_1_1Relocation.html">Relocation</a>&#160;<
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a2c9053220b93a8af26681e083e2712cf" id="r_a2c9053220b93a8af26681e083e2712cf"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2c9053220b93a8af26681e083e2712cf">segment_of</a></td></tr>
-<tr class="memdesc:a2c9053220b93a8af26681e083e2712cf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set when the value to be stored is the segment selector instead of the segment start (Intel 8086 specific)  <br /></td></tr>
-<tr class="separator:a2c9053220b93a8af26681e083e2712cf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a466ec8cb18da53195608156cfe219f62" id="r_a466ec8cb18da53195608156cfe219f62"><td class="memItemLeft" align="right" valign="top"><a id="a466ec8cb18da53195608156cfe219f62" name="a466ec8cb18da53195608156cfe219f62"></a>
+enum <a class="el" href="#a53b13249581f7975adc1c5836a48efd9">Linker::Relocation::reference_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kind</b></td></tr>
+<tr class="memdesc:a466ec8cb18da53195608156cfe219f62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the way the target is used to derive the resolve value, typically Direct. <br /></td></tr>
+<tr class="separator:a466ec8cb18da53195608156cfe219f62"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2a30c1a7122c077022743f5c8038fc1" id="r_af2a30c1a7122c077022743f5c8038fc1"><td class="memItemLeft" align="right" valign="top"><a id="af2a30c1a7122c077022743f5c8038fc1" name="af2a30c1a7122c077022743f5c8038fc1"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b></td></tr>
 <tr class="memdesc:af2a30c1a7122c077022743f5c8038fc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the value when stored at the source, in bytes (for example, 2 for 16-bit, 4 for 32-bit) <br /></td></tr>
@@ -233,7 +250,41 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>subtract</b></td></tr
 <div class="textblock"><p>A representation of a value within some binary data that has to be fixed up once the exact position of certain symbols within memory is known. </p>
 <p>One of the tasks of a linker is to associate symbols in different object files and replace references to them with their values. These references to outside symbols are called relocations or fix-ups. When a linker is unable to resolve a relocation that has to be deferred to run time, such relocations must be stored in the resulting executable file. Different executable file formats have differring levels of support for relocations.</p>
 <p>Since RetroLinker supports many very different targets, the <a class="el" href="classLinker_1_1Relocation.html" title="A representation of a value within some binary data that has to be fixed up once the exact position o...">Relocation</a> class is designed to be as general as possible. At its most basic, a relocation must store the symbol referenced, the <em>reference</em>, and the location where it is to be stored, the <em>source</em>. The <a class="el" href="classLinker_1_1Relocation.html" title="A representation of a value within some binary data that has to be fixed up once the exact position o...">Relocation</a> class also stores the size in bytes of the value expected, a value that needs to be added to the resolved value, and the endianness of the stored value. Relative values can also be represented, which are often used for relative branches. To support Intel 8086 segmentation, the value of the segment selector corresponding to the segment of a symbol may also be used, and resolutions can be made with respect to another reference, usually the start of a segment. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a53b13249581f7975adc1c5836a48efd9" name="a53b13249581f7975adc1c5836a48efd9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53b13249581f7975adc1c5836a48efd9">&#9670;&#160;</a></span>reference_kind</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a53b13249581f7975adc1c5836a48efd9">Linker::Relocation::reference_kind</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9abc98d476e839fb1966eb4fd1310f3e9a" name="a53b13249581f7975adc1c5836a48efd9abc98d476e839fb1966eb4fd1310f3e9a"></a>Direct&#160;</td><td class="fielddoc"><p>The value of the target is used. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9ac4e2462c0df82e507a7f0a74b69b762d" name="a53b13249581f7975adc1c5836a48efd9ac4e2462c0df82e507a7f0a74b69b762d"></a>SegmentAddress&#160;</td><td class="fielddoc"><p>The paragraph of value is used, obtained via shifting it by 4 to the right. </p>
+<p>This is intended for real mode x86 platforms. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9a47e5e7df75146426561e990a318bcd2f" name="a53b13249581f7975adc1c5836a48efd9a47e5e7df75146426561e990a318bcd2f"></a>SegmentIndex&#160;</td><td class="fielddoc"><p>The 8-bit segment of value is used, obtained via shifting it by 16 to the right. </p>
+<p>This is intended for segmented Z8000 platforms. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9aaf40db449c2967700c44dd821b7d1970" name="a53b13249581f7975adc1c5836a48efd9aaf40db449c2967700c44dd821b7d1970"></a>SelectorIndex&#160;</td><td class="fielddoc"><p>A selector index is used to reference this target. </p>
+<p>This is intended for protected mode x86 platforms. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9ad563597dd54cfd9b1daea8e6f427cb2e" name="a53b13249581f7975adc1c5836a48efd9ad563597dd54cfd9b1daea8e6f427cb2e"></a>GOTOffset&#160;</td><td class="fielddoc"><p>An offset within the Global Offset Table is used instead of the actual value. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9aa4124e7039068ea617ff1c00123890a4" name="a53b13249581f7975adc1c5836a48efd9aa4124e7039068ea617ff1c00123890a4"></a>PLTOffset&#160;</td><td class="fielddoc"><p>An offset within the Procedure Linkage Table is used instead of the actual value. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9acd711d928aacb97cdcbf8201b6ec1b0a" name="a53b13249581f7975adc1c5836a48efd9acd711d928aacb97cdcbf8201b6ec1b0a"></a>SizeOf&#160;</td><td class="fielddoc"><p>Size of the target. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a52614e87d0765b572eb7f171e3809253" name="a52614e87d0765b572eb7f171e3809253"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a52614e87d0765b572eb7f171e3809253">&#9670;&#160;</a></span>AddCurrentValue()</h2>
 
@@ -341,24 +392,6 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>subtract</b></td></tr
 
 <p>Creates a relocation that stores the 16-bit paragraph difference (shifted right by 4) between the target and the reference (Intel 8086 specific) </p>
 <p>This relocation is needed on platforms with no segment relocations to set up the segments as part of an initializing routine by adding the offset between segments to the initial value of one of the segment registers. For example, ELKS needs it. </p>
-
-</div>
-</div>
-<h2 class="groupheader">Member Data Documentation</h2>
-<a id="a2c9053220b93a8af26681e083e2712cf" name="a2c9053220b93a8af26681e083e2712cf"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2c9053220b93a8af26681e083e2712cf">&#9670;&#160;</a></span>segment_of</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Linker::Relocation::segment_of</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Set when the value to be stored is the segment selector instead of the segment start (Intel 8086 specific) </p>
-<p>For real mode targets, this is the value shifted 4 to the right. Protected mode targets might use a more involved method of storing the value. </p>
 
 </div>
 </div>

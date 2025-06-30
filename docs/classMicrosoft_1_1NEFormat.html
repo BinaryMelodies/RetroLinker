@@ -213,6 +213,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsOS2</b> () const</t
 <tr class="memitem:aa1cce598aeec7f574b6d82df75562749" id="r_aa1cce598aeec7f574b6d82df75562749"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa1cce598aeec7f574b6d82df75562749">FormatIs16bit</a> () const override</td></tr>
 <tr class="memdesc:aa1cce598aeec7f574b6d82df75562749"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
 <tr class="separator:aa1cce598aeec7f574b6d82df75562749"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1eba81d6c72fa1d74192bce5477d87d" id="r_aa1eba81d6c72fa1d74192bce5477d87d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa1eba81d6c72fa1d74192bce5477d87d">FormatIsProtectedMode</a> () const override</td></tr>
+<tr class="memdesc:aa1eba81d6c72fa1d74192bce5477d87d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is in protected mode or not (x86 only)  <br /></td></tr>
+<tr class="separator:aa1eba81d6c72fa1d74192bce5477d87d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:addafeb4098ab2b0dc9b9b72ee2a1b7b7" id="r_addafeb4098ab2b0dc9b9b72ee2a1b7b7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#addafeb4098ab2b0dc9b9b72ee2a1b7b7">FormatSupportsLibraries</a> () const override</td></tr>
 <tr class="memdesc:addafeb4098ab2b0dc9b9b72ee2a1b7b7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
 <tr class="separator:addafeb4098ab2b0dc9b9b72ee2a1b7b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -519,28 +522,28 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>sector_shift</b> 
 <tr class="memitem:a4d909ae9a13398c8a7d84921930f64eb" id="r_a4d909ae9a13398c8a7d84921930f64eb"><td class="memItemLeft" align="right" valign="top"><a id="a4d909ae9a13398c8a7d84921930f64eb" name="a4d909ae9a13398c8a7d84921930f64eb"></a>
 additional_flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>additional_flags</b> = additional_flag_type(0)</td></tr>
 <tr class="separator:a4d909ae9a13398c8a7d84921930f64eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b6addbbac3eef810ab50ae45eaa3759" id="r_a0b6addbbac3eef810ab50ae45eaa3759"><td class="memItemLeft" ><a id="a0b6addbbac3eef810ab50ae45eaa3759" name="a0b6addbbac3eef810ab50ae45eaa3759"></a>
+<tr class="memitem:af9f3ae3bcb6360bc6d6a654323fbd39d" id="r_af9f3ae3bcb6360bc6d6a654323fbd39d"><td class="memItemLeft" ><a id="af9f3ae3bcb6360bc6d6a654323fbd39d" name="af9f3ae3bcb6360bc6d6a654323fbd39d"></a>
 union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a844b076f71af0f9084a4158740746ed8" id="r_a844b076f71af0f9084a4158740746ed8"><td class="memItemLeft" >
+<tr class="memitem:ab2f828cb6ce25be5da56bfab69b45cb7" id="r_ab2f828cb6ce25be5da56bfab69b45cb7"><td class="memItemLeft" >
 &#160;&#160;&#160;uint16_t&#160;&#160;&#160;<b>fast_load_area_offset</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a844b076f71af0f9084a4158740746ed8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab796fa7c29b89670ddbc32b14f38fe21" id="r_ab796fa7c29b89670ddbc32b14f38fe21"><td class="memItemLeft" >
+<tr class="separator:ab2f828cb6ce25be5da56bfab69b45cb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adafd732dbb530162c2b44452e866f3fc" id="r_adafd732dbb530162c2b44452e866f3fc"><td class="memItemLeft" >
 &#160;&#160;&#160;uint16_t&#160;&#160;&#160;<b>return_thunks_offset</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:ab796fa7c29b89670ddbc32b14f38fe21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b6addbbac3eef810ab50ae45eaa3759" id="r_a0b6addbbac3eef810ab50ae45eaa3759"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom">&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a0b6addbbac3eef810ab50ae45eaa3759"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e809ca36761e707f3b26ba8efe720db" id="r_a1e809ca36761e707f3b26ba8efe720db"><td class="memItemLeft" ><a id="a1e809ca36761e707f3b26ba8efe720db" name="a1e809ca36761e707f3b26ba8efe720db"></a>
+<tr class="separator:adafd732dbb530162c2b44452e866f3fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9f3ae3bcb6360bc6d6a654323fbd39d" id="r_af9f3ae3bcb6360bc6d6a654323fbd39d"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom">&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:af9f3ae3bcb6360bc6d6a654323fbd39d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a868e54bd1170e16c45a6f6af7e6f7863" id="r_a868e54bd1170e16c45a6f6af7e6f7863"><td class="memItemLeft" ><a id="a868e54bd1170e16c45a6f6af7e6f7863" name="a868e54bd1170e16c45a6f6af7e6f7863"></a>
 union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5662b8dbba1ddb4e6065c63e103d67fc" id="r_a5662b8dbba1ddb4e6065c63e103d67fc"><td class="memItemLeft" >
+<tr class="memitem:a3882706be35b20d15c835877e6b4a67e" id="r_a3882706be35b20d15c835877e6b4a67e"><td class="memItemLeft" >
 &#160;&#160;&#160;uint16_t&#160;&#160;&#160;<b>fast_load_area_length</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a5662b8dbba1ddb4e6065c63e103d67fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a85ddc066cf4c1e06ffd3ee9a0b7febc3" id="r_a85ddc066cf4c1e06ffd3ee9a0b7febc3"><td class="memItemLeft" >
+<tr class="separator:a3882706be35b20d15c835877e6b4a67e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9424a6e260a8510c3c3a60786d0e5aba" id="r_a9424a6e260a8510c3c3a60786d0e5aba"><td class="memItemLeft" >
 &#160;&#160;&#160;uint16_t&#160;&#160;&#160;<b>segment_reference_thunks_offset</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a85ddc066cf4c1e06ffd3ee9a0b7febc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1e809ca36761e707f3b26ba8efe720db" id="r_a1e809ca36761e707f3b26ba8efe720db"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom">&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a1e809ca36761e707f3b26ba8efe720db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a9424a6e260a8510c3c3a60786d0e5aba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a868e54bd1170e16c45a6f6af7e6f7863" id="r_a868e54bd1170e16c45a6f6af7e6f7863"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom">&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
+<tr class="separator:a868e54bd1170e16c45a6f6af7e6f7863"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af6a020942c3e77cb7c61500ad568f416" id="r_af6a020942c3e77cb7c61500ad568f416"><td class="memItemLeft" align="right" valign="top"><a id="af6a020942c3e77cb7c61500ad568f416" name="af6a020942c3e77cb7c61500ad568f416"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_swap_area_length</b> = 0</td></tr>
 <tr class="separator:af6a020942c3e77cb7c61500ad568f416"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -828,6 +831,37 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>This is needed for the ELF parser which can not distinguish between the 8086 and 80386 backends. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="aa1eba81d6c72fa1d74192bce5477d87d" name="aa1eba81d6c72fa1d74192bce5477d87d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1eba81d6c72fa1d74192bce5477d87d">&#9670;&#160;</a></span>FormatIsProtectedMode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool NEFormat::FormatIsProtectedMode </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether the format is in protected mode or not (x86 only) </p>
+<p>This is needed for the ELF parser to determine whether segment references are paragraph offsets (16-byte units) or selector indexes.</p>
+<p>For non-x86 targets, the result is meaningless. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae1b8dc628a23f01b855832d6e70ec1df">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

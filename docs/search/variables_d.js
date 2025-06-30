@@ -9,11 +9,12 @@ var searchData=
   ['option_5ffile_5falign_6',['option_file_align',['../classMicrosoft_1_1MZFormat.html#a78a0b07fae7be7e2c36520f8b75f21d7',1,'Microsoft::MZFormat']]],
   ['option_5fheader_5falign_7',['option_header_align',['../classMicrosoft_1_1MZFormat.html#ac56229a9b8924e82296f7d8fceb3c97f',1,'Microsoft::MZFormat']]],
   ['option_5fno_5frelocation_8',['option_no_relocation',['../classCOFF_1_1COFFFormat.html#a97f961f381b5c5fa26b60aa6572d0f21',1,'COFF::COFFFormat::option_no_relocation'],['../classDigitalResearch_1_1CPM68KFormat.html#a4112088df9ee7c9b88ce2e74982ed530',1,'DigitalResearch::CPM68KFormat::option_no_relocation'],['../classDigitalResearch_1_1CPM86Format.html#a3f18716204de64f834a4c3a600f01015',1,'DigitalResearch::CPM86Format::option_no_relocation']]],
-  ['optional_5fextra_9',['optional_extra',['../classLinker_1_1Segment.html#a8d1a62222394361fe319e6037c31ce7e',1,'Linker::Segment']]],
-  ['optional_5ffield_10',['optional_field',['../classDumper_1_1Field.html#af1d0e831e904f722419f9071b614165d',1,'Dumper::Field']]],
-  ['optional_5fheader_11',['optional_header',['../classCOFF_1_1COFFFormat.html#af4a1f9294249418e6024b641dd660b7a',1,'COFF::COFFFormat']]],
-  ['optional_5fheader_5fsize_12',['optional_header_size',['../classCOFF_1_1COFFFormat.html#a2221ccffecbd782ee7856d888559cf9d',1,'COFF::COFFFormat']]],
-  ['os_5fversion_13',['os_version',['../classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#a24329ffd631ce4591a4505c54ac4d470',1,'Microsoft::PEFormat::PEOptionalHeader']]],
-  ['out_14',['out',['../classLinker_1_1Writer.html#ad96e63b6bb67ab5b2647ed531a805f89',1,'Linker::Writer']]],
-  ['overlay_5fnumber_15',['overlay_number',['../classMicrosoft_1_1MZFormat.html#ade87671fa31e8389cd28b8a8eddd59d3',1,'Microsoft::MZFormat']]]
+  ['option_5fpmode_9',['option_pmode',['../classELF_1_1ELFFormat.html#abefb03ebcd1592b223202909bb3a62e0',1,'ELF::ELFFormat']]],
+  ['optional_5fextra_10',['optional_extra',['../classLinker_1_1Segment.html#a8d1a62222394361fe319e6037c31ce7e',1,'Linker::Segment']]],
+  ['optional_5ffield_11',['optional_field',['../classDumper_1_1Field.html#af1d0e831e904f722419f9071b614165d',1,'Dumper::Field']]],
+  ['optional_5fheader_12',['optional_header',['../classCOFF_1_1COFFFormat.html#af4a1f9294249418e6024b641dd660b7a',1,'COFF::COFFFormat']]],
+  ['optional_5fheader_5fsize_13',['optional_header_size',['../classCOFF_1_1COFFFormat.html#a2221ccffecbd782ee7856d888559cf9d',1,'COFF::COFFFormat']]],
+  ['os_5fversion_14',['os_version',['../classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#a24329ffd631ce4591a4505c54ac4d470',1,'Microsoft::PEFormat::PEOptionalHeader']]],
+  ['out_15',['out',['../classLinker_1_1Writer.html#ad96e63b6bb67ab5b2647ed531a805f89',1,'Linker::Writer']]],
+  ['overlay_5fnumber_16',['overlay_number',['../classMicrosoft_1_1MZFormat.html#ade87671fa31e8389cd28b8a8eddd59d3',1,'Microsoft::MZFormat']]]
 ];

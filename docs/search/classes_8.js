@@ -10,8 +10,11 @@ var searchData=
   ['iconbw_7',['IconBW',['../classApple_1_1IconBW.html',1,'Apple']]],
   ['iconcolor_8',['IconColor',['../classApple_1_1IconColor.html',1,'Apple']]],
   ['image_9',['Image',['../classLinker_1_1Image.html',1,'Linker']]],
-  ['indexarray_10',['IndexArray',['../classELF_1_1ELFFormat_1_1IndexArray.html',1,'ELF::ELFFormat']]],
-  ['indexblock_11',['IndexBlock',['../classAmiga_1_1HunkFormat_1_1IndexBlock.html',1,'Amiga::HunkFormat']]],
-  ['inputformat_12',['InputFormat',['../classLinker_1_1InputFormat.html',1,'Linker']]],
-  ['intersegmentrelocationrecord_13',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]]
+  ['importblock_10',['ImportBlock',['../structEPOC_1_1SymbianFormat_1_1ImportBlock.html',1,'EPOC::SymbianFormat']]],
+  ['indexarray_11',['IndexArray',['../classELF_1_1ELFFormat_1_1IndexArray.html',1,'ELF::ELFFormat']]],
+  ['indexblock_12',['IndexBlock',['../classAmiga_1_1HunkFormat_1_1IndexBlock.html',1,'Amiga::HunkFormat']]],
+  ['inputformat_13',['InputFormat',['../classLinker_1_1InputFormat.html',1,'Linker']]],
+  ['intersegmentrelocationrecord_14',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]],
+  ['iteratedpage_15',['IteratedPage',['../classMicrosoft_1_1LEFormat_1_1IteratedPage.html',1,'Microsoft::LEFormat']]],
+  ['iterationrecord_16',['IterationRecord',['../structMicrosoft_1_1LEFormat_1_1IteratedPage_1_1IterationRecord.html',1,'Microsoft::LEFormat::IteratedPage']]]
 ];

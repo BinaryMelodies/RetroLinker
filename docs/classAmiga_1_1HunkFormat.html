@@ -156,6 +156,12 @@ Public Types</h2></td></tr>
 , <b>CPU_PPC</b> = Block::HUNK_PPC_CODE
  }</td></tr>
 <tr class="separator:aad9a638ee46e631e7948b01994a4fead"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a511b431d1f5e11b90285235c54ef8742" id="r_a511b431d1f5e11b90285235c54ef8742"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a511b431d1f5e11b90285235c54ef8742">system_version</a> { <b>V1</b>
+, <a class="el" href="#a511b431d1f5e11b90285235c54ef8742ae36caacf3b3f357344a7161f526154d2">V37</a>
+, <a class="el" href="#a511b431d1f5e11b90285235c54ef8742a0b4870ea17cd51791818cd3e91cf7e8f">V38</a>
+, <a class="el" href="#a511b431d1f5e11b90285235c54ef8742abef798e5c579fceb66dff53aeffec135">V39</a>
+ }</td></tr>
+<tr class="separator:a511b431d1f5e11b90285235c54ef8742"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1b414fa36f950ce745b54450b2e179d" id="r_ad1b414fa36f950ce745b54450b2e179d"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad1b414fa36f950ce745b54450b2e179d">flags</a> { <a class="el" href="#ad1b414fa36f950ce745b54450b2e179da544a0f3763a858994ab32233a34d953a">FastMemory</a> = Linker::Section::CustomFlag
 , <a class="el" href="#ad1b414fa36f950ce745b54450b2e179da535f8a152f6d70793b9172cde60ab1c2">ChipMemory</a> = Linker::Section::CustomFlag &lt;&lt; 1
  }</td></tr>
@@ -178,6 +184,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsExecutable</b> () c
 <tr class="memitem:a2e5b39081ce99d94f5b7288445b5a040" id="r_a2e5b39081ce99d94f5b7288445b5a040"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2e5b39081ce99d94f5b7288445b5a040">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
 <tr class="memdesc:a2e5b39081ce99d94f5b7288445b5a040"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:a2e5b39081ce99d94f5b7288445b5a040"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a042bbb2f8aef84fc15b537739048a0b1" id="r_a042bbb2f8aef84fc15b537739048a0b1"><td class="memItemLeft" align="right" valign="top"><a id="a042bbb2f8aef84fc15b537739048a0b1" name="a042bbb2f8aef84fc15b537739048a0b1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>HunkFormat</b> (<a class="el" href="#a511b431d1f5e11b90285235c54ef8742">system_version</a> system)</td></tr>
+<tr class="separator:a042bbb2f8aef84fc15b537739048a0b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee28e15ca5ab04b57a866c694f5efee1" id="r_aee28e15ca5ab04b57a866c694f5efee1"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aee28e15ca5ab04b57a866c694f5efee1">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
 <tr class="separator:aee28e15ca5ab04b57a866c694f5efee1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07a6b84eab671da4d38c079f385f85e6" id="r_a07a6b84eab671da4d38c079f385f85e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a07a6b84eab671da4d38c079f385f85e6">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
@@ -296,6 +305,9 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a8e6cfc4a9c2434536ab1b31e54f2c6f7"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">FormatIs16bit</a> () const</td></tr>
 <tr class="memdesc:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
 <tr class="separator:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat" id="r_ae1b8dc628a23f01b855832d6e70ec1df"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ae1b8dc628a23f01b855832d6e70ec1df">FormatIsProtectedMode</a> () const</td></tr>
+<tr class="memdesc:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is in protected mode or not (x86 only)  <br /></td></tr>
+<tr class="separator:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat" id="r_a71bf1175595e1a2ab076f3e92d5233fb"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a71bf1175595e1a2ab076f3e92d5233fb">FormatIsLinear</a> () const</td></tr>
 <tr class="memdesc:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the address space is linear or segmented.  <br /></td></tr>
 <tr class="separator:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -353,6 +365,9 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a649e9caa177ab63b2f006cfbf1c8edcf" id="r_a649e9caa177ab63b2f006cfbf1c8edcf"><td class="memItemLeft" align="right" valign="top"><a id="a649e9caa177ab63b2f006cfbf1c8edcf" name="a649e9caa177ab63b2f006cfbf1c8edcf"></a>
 cpu_type&#160;</td><td class="memItemRight" valign="bottom"><b>cpu</b> = CPU_PPC</td></tr>
 <tr class="separator:a649e9caa177ab63b2f006cfbf1c8edcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9df87f177c7ab6ced389a7ace60db8c" id="r_aa9df87f177c7ab6ced389a7ace60db8c"><td class="memItemLeft" align="right" valign="top"><a id="aa9df87f177c7ab6ced389a7ace60db8c" name="aa9df87f177c7ab6ced389a7ace60db8c"></a>
+<a class="el" href="#a511b431d1f5e11b90285235c54ef8742">system_version</a>&#160;</td><td class="memItemRight" valign="bottom"><b>system</b> = V1</td></tr>
+<tr class="separator:aa9df87f177c7ab6ced389a7ace60db8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed3f73a958ddab6fdab175f3879c9349" id="r_aed3f73a958ddab6fdab175f3879c9349"><td class="memItemLeft" align="right" valign="top"><a id="aed3f73a958ddab6fdab175f3879c9349" name="aed3f73a958ddab6fdab175f3879c9349"></a>
 std::map&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;, size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_index</b></td></tr>
 <tr class="separator:aed3f73a958ddab6fdab175f3879c9349"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -424,6 +439,28 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ad1b414fa36f950ce745b54450b2e179da544a0f3763a858994ab32233a34d953a" name="ad1b414fa36f950ce745b54450b2e179da544a0f3763a858994ab32233a34d953a"></a>FastMemory&#160;</td><td class="fielddoc"><p>Section to be stored in fast memory. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ad1b414fa36f950ce745b54450b2e179da535f8a152f6d70793b9172cde60ab1c2" name="ad1b414fa36f950ce745b54450b2e179da535f8a152f6d70793b9172cde60ab1c2"></a>ChipMemory&#160;</td><td class="fielddoc"><p>Section to be stored in chip memory. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a511b431d1f5e11b90285235c54ef8742" name="a511b431d1f5e11b90285235c54ef8742"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a511b431d1f5e11b90285235c54ef8742">&#9670;&#160;</a></span>system_version</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a511b431d1f5e11b90285235c54ef8742">Amiga::HunkFormat::system_version</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a511b431d1f5e11b90285235c54ef8742ae36caacf3b3f357344a7161f526154d2" name="a511b431d1f5e11b90285235c54ef8742ae36caacf3b3f357344a7161f526154d2"></a>V37&#160;</td><td class="fielddoc"><p>generate HUNK_V37_RELOC32SHORT </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a511b431d1f5e11b90285235c54ef8742a0b4870ea17cd51791818cd3e91cf7e8f" name="a511b431d1f5e11b90285235c54ef8742a0b4870ea17cd51791818cd3e91cf7e8f"></a>V38&#160;</td><td class="fielddoc"><p>generate HUNK_RELOC32SHORT instead of HUNK_V37_RELOC32SHORT </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a511b431d1f5e11b90285235c54ef8742abef798e5c579fceb66dff53aeffec135" name="a511b431d1f5e11b90285235c54ef8742abef798e5c579fceb66dff53aeffec135"></a>V39&#160;</td><td class="fielddoc"><p>generate HUNK_RELRELOC32 </p>
 </td></tr>
 </table>
 

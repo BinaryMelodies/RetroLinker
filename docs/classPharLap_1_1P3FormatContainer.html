@@ -108,6 +108,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abd0413b2f495e653086d80c0b51e1d0d" id="r_abd0413b2f495e653086d80c0b51e1d0d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abd0413b2f495e653086d80c0b51e1d0d">FormatSupportsSegmentation</a> () const override</td></tr>
 <tr class="memdesc:abd0413b2f495e653086d80c0b51e1d0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports multiple segments.  <br /></td></tr>
 <tr class="separator:abd0413b2f495e653086d80c0b51e1d0d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16393e6dcfafbe78e3d3dd892a995ff7" id="r_a16393e6dcfafbe78e3d3dd892a995ff7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a16393e6dcfafbe78e3d3dd892a995ff7">FormatIs16bit</a> () const override</td></tr>
+<tr class="memdesc:a16393e6dcfafbe78e3d3dd892a995ff7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
+<tr class="separator:a16393e6dcfafbe78e3d3dd892a995ff7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d5d7885fdae018c0c5b7355dc642bc3" id="r_a1d5d7885fdae018c0c5b7355dc642bc3"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1d5d7885fdae018c0c5b7355dc642bc3">FormatIsProtectedMode</a> () const override</td></tr>
+<tr class="memdesc:a1d5d7885fdae018c0c5b7355dc642bc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is in protected mode or not (x86 only)  <br /></td></tr>
+<tr class="separator:a1d5d7885fdae018c0c5b7355dc642bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a73db6bca7e3af323a68c15cff7202f11" id="r_a73db6bca7e3af323a68c15cff7202f11"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a73db6bca7e3af323a68c15cff7202f11">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
 <tr class="memdesc:a73db6bca7e3af323a68c15cff7202f11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
 <tr class="separator:a73db6bca7e3af323a68c15cff7202f11"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -154,9 +160,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a87f3689cc381422f4f10a9acdc92983e inherit pub_methods_classLinker_1_1OutputFormat" id="r_a87f3689cc381422f4f10a9acdc92983e"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a87f3689cc381422f4f10a9acdc92983e">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module) const</td></tr>
 <tr class="memdesc:a87f3689cc381422f4f10a9acdc92983e inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Provides a default filename for the output file.  <br /></td></tr>
 <tr class="separator:a87f3689cc381422f4f10a9acdc92983e inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a8e6cfc4a9c2434536ab1b31e54f2c6f7"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">FormatIs16bit</a> () const</td></tr>
-<tr class="memdesc:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
-<tr class="separator:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat" id="r_a71bf1175595e1a2ab076f3e92d5233fb"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a71bf1175595e1a2ab076f3e92d5233fb">FormatIsLinear</a> () const</td></tr>
 <tr class="memdesc:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the address space is linear or segmented.  <br /></td></tr>
 <tr class="separator:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -259,6 +262,67 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 <p>Display file contents in a nice manner. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a098d2d37cf55278aa98722b766d4fc38">Linker::Format</a>.</p>
+
+</div>
+</div>
+<a id="a16393e6dcfafbe78e3d3dd892a995ff7" name="a16393e6dcfafbe78e3d3dd892a995ff7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16393e6dcfafbe78e3d3dd892a995ff7">&#9670;&#160;</a></span>FormatIs16bit()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool P3FormatContainer::FormatIs16bit </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether the format is 16-bit or not. </p>
+<p>This is needed for the ELF parser which can not distinguish between the 8086 and 80386 backends. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a1d5d7885fdae018c0c5b7355dc642bc3" name="a1d5d7885fdae018c0c5b7355dc642bc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d5d7885fdae018c0c5b7355dc642bc3">&#9670;&#160;</a></span>FormatIsProtectedMode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool P3FormatContainer::FormatIsProtectedMode </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether the format is in protected mode or not (x86 only) </p>
+<p>This is needed for the ELF parser to determine whether segment references are paragraph offsets (16-byte units) or selector indexes.</p>
+<p>For non-x86 targets, the result is meaningless. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae1b8dc628a23f01b855832d6e70ec1df">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

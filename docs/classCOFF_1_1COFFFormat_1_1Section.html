@@ -108,10 +108,10 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr
 &#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt; <a class="el" href="#ae9cd2bb74e3a12cec1fdc82409225666">image</a>=nullptr)</td></tr>
 <tr class="separator:af91a6ab97c922d4f8bf420520c126954"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b367685fd7160ba5beab5f2d98cac55" id="r_a9b367685fd7160ba5beab5f2d98cac55"><td class="memItemLeft" align="right" valign="top"><a id="a9b367685fd7160ba5beab5f2d98cac55" name="a9b367685fd7160ba5beab5f2d98cac55"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, COFFVariantType coff_variant)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant)</td></tr>
 <tr class="separator:a9b367685fd7160ba5beab5f2d98cac55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55970230d2b72e76b5bb1c57bcc7e00e" id="r_a55970230d2b72e76b5bb1c57bcc7e00e"><td class="memItemLeft" align="right" valign="top"><a id="a55970230d2b72e76b5bb1c57bcc7e00e" name="a55970230d2b72e76b5bb1c57bcc7e00e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, COFFVariantType coff_variant)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant)</td></tr>
 <tr class="separator:a55970230d2b72e76b5bb1c57bcc7e00e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a265bb3eca9856fbdb5f602f969b61248" id="r_a265bb3eca9856fbdb5f602f969b61248"><td class="memItemLeft" align="right" valign="top"><a id="a265bb3eca9856fbdb5f602f969b61248" name="a265bb3eca9856fbdb5f602f969b61248"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ImageSize</b> () const</td></tr>
@@ -158,6 +158,10 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>line_number_count
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
 <tr class="memdesc:af8f29d90638046cbb99f74fb6e1f1edc"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flags, determines the type of the section (text, data, bss, etc.) (COFF name: s_flags) <br /></td></tr>
 <tr class="separator:af8f29d90638046cbb99f74fb6e1f1edc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d6a4def9c49227d2b7c10f31d9c16fc" id="r_a7d6a4def9c49227d2b7c10f31d9c16fc"><td class="memItemLeft" align="right" valign="top"><a id="a7d6a4def9c49227d2b7c10f31d9c16fc" name="a7d6a4def9c49227d2b7c10f31d9c16fc"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>memory_page_number</b> = 0</td></tr>
+<tr class="memdesc:a7d6a4def9c49227d2b7c10f31d9c16fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">TICOFF specific field. <br /></td></tr>
+<tr class="separator:a7d6a4def9c49227d2b7c10f31d9c16fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9cd2bb74e3a12cec1fdc82409225666" id="r_ae9cd2bb74e3a12cec1fdc82409225666"><td class="memItemLeft" align="right" valign="top"><a id="ae9cd2bb74e3a12cec1fdc82409225666" name="ae9cd2bb74e3a12cec1fdc82409225666"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
 <tr class="memdesc:ae9cd2bb74e3a12cec1fdc82409225666"><td class="mdescLeft">&#160;</td><td class="mdescRight">The stored image data. <br /></td></tr>

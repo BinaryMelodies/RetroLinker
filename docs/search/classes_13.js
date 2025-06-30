@@ -7,5 +7,6 @@ var searchData=
   ['version_5ftype_4',['version_type',['../structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1version__type.html',1,'Microsoft::PEFormat::PEOptionalHeader::version_type'],['../structPMODE_1_1PMW1Format_1_1version__type.html',1,'PMODE::PMW1Format::version_type']]],
   ['versiondisplay_5',['VersionDisplay',['../classDumper_1_1VersionDisplay.html',1,'Dumper']]],
   ['versionrequirement_6',['VersionRequirement',['../classELF_1_1ELFFormat_1_1VersionRequirement.html',1,'ELF::ELFFormat']]],
-  ['versionrequirements_7',['VersionRequirements',['../classELF_1_1ELFFormat_1_1VersionRequirements.html',1,'ELF::ELFFormat']]]
+  ['versionrequirements_7',['VersionRequirements',['../classELF_1_1ELFFormat_1_1VersionRequirements.html',1,'ELF::ELFFormat']]],
+  ['view_8',['View',['../classMicrosoft_1_1LEFormat_1_1IteratedPage_1_1View.html',1,'Microsoft::LEFormat::IteratedPage']]]
 ];

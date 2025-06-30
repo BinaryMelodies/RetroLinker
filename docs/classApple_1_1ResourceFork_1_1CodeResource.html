@@ -79,6 +79,7 @@ $(function() {
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classApple_1_1ResourceFork_1_1CodeResource-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Apple::ResourceFork::CodeResource Class Reference</div></div>
 </div><!--header-->
@@ -98,9 +99,9 @@ Inheritance diagram for Apple::ResourceFork::CodeResource:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a71b812813b4d7946dc47ac926d614d1b" id="r_a71b812813b4d7946dc47ac926d614d1b"><td class="memItemLeft" align="right" valign="top"><a id="a71b812813b4d7946dc47ac926d614d1b" name="a71b812813b4d7946dc47ac926d614d1b"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CodeResource</b> (uint16_t id, std::shared_ptr&lt; <a class="el" href="classApple_1_1ResourceFork_1_1JumpTableCodeResource.html">JumpTableCodeResource</a> &gt; jump_table)</td></tr>
-<tr class="separator:a71b812813b4d7946dc47ac926d614d1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6a48c156073bce3c1aaaeb69e5be8d0" id="r_ae6a48c156073bce3c1aaaeb69e5be8d0"><td class="memItemLeft" align="right" valign="top"><a id="ae6a48c156073bce3c1aaaeb69e5be8d0" name="ae6a48c156073bce3c1aaaeb69e5be8d0"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CodeResource</b> (uint16_t id, std::shared_ptr&lt; <a class="el" href="classApple_1_1ResourceFork_1_1JumpTableCodeResource.html">JumpTableCodeResource</a> &gt; jump_table=nullptr)</td></tr>
+<tr class="separator:ae6a48c156073bce3c1aaaeb69e5be8d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1ec4dfd31e760718d3a7490bc9dcb221" id="r_a1ec4dfd31e760718d3a7490bc9dcb221"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1ec4dfd31e760718d3a7490bc9dcb221">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
 <tr class="memdesc:a1ec4dfd31e760718d3a7490bc9dcb221"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
 <tr class="separator:a1ec4dfd31e760718d3a7490bc9dcb221"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -110,25 +111,30 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a777c1084d55a57ae927dca2344a63b40" id="r_a777c1084d55a57ae927dca2344a63b40"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a777c1084d55a57ae927dca2344a63b40">ImageSize</a> () const override</td></tr>
 <tr class="memdesc:a777c1084d55a57ae927dca2344a63b40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
 <tr class="separator:a777c1084d55a57ae927dca2344a63b40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c3d5e64d1461e5e2cd5869f834a449e" id="r_a6c3d5e64d1461e5e2cd5869f834a449e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6c3d5e64d1461e5e2cd5869f834a449e">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
+<tr class="memdesc:a6c3d5e64d1461e5e2cd5869f834a449e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
+<tr class="separator:a6c3d5e64d1461e5e2cd5869f834a449e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab24998a148d70c219c381e1436892347" id="r_ab24998a148d70c219c381e1436892347"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab24998a148d70c219c381e1436892347">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, offset_t length) override</td></tr>
+<tr class="separator:ab24998a148d70c219c381e1436892347"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:accdc74835131f62729d4202118442db2" id="r_accdc74835131f62729d4202118442db2"><td class="memItemLeft" align="right" valign="top"><a id="accdc74835131f62729d4202118442db2" name="accdc74835131f62729d4202118442db2"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>MeasureRelocations</b> (std::set&lt; uint32_t &gt; &amp;relocations) const</td></tr>
 <tr class="separator:accdc74835131f62729d4202118442db2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a814dfd87b1b755bd2a9109ce728026b0" id="r_a814dfd87b1b755bd2a9109ce728026b0"><td class="memItemLeft" align="right" valign="top"><a id="a814dfd87b1b755bd2a9109ce728026b0" name="a814dfd87b1b755bd2a9109ce728026b0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadRelocations</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, std::set&lt; uint32_t &gt; &amp;relocations) const</td></tr>
+<tr class="separator:a814dfd87b1b755bd2a9109ce728026b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa605038c27447eb5c6ddb6dd57f7e9a6" id="r_aa605038c27447eb5c6ddb6dd57f7e9a6"><td class="memItemLeft" align="right" valign="top"><a id="aa605038c27447eb5c6ddb6dd57f7e9a6" name="aa605038c27447eb5c6ddb6dd57f7e9a6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteRelocations</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const std::set&lt; uint32_t &gt; &amp;relocations) const</td></tr>
 <tr class="separator:aa605038c27447eb5c6ddb6dd57f7e9a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a07aaedea2ad50f18d20b693cfaff3e14" id="r_a07aaedea2ad50f18d20b693cfaff3e14"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a07aaedea2ad50f18d20b693cfaff3e14">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
 <tr class="memdesc:a07aaedea2ad50f18d20b693cfaff3e14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a07aaedea2ad50f18d20b693cfaff3e14"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7961d8af0268aae64119e12a54167a5a" id="r_a7961d8af0268aae64119e12a54167a5a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7961d8af0268aae64119e12a54167a5a">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
-<tr class="memdesc:a7961d8af0268aae64119e12a54167a5a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
-<tr class="separator:a7961d8af0268aae64119e12a54167a5a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad28e5f379f3807145ccbb2479d899a06" id="r_ad28e5f379f3807145ccbb2479d899a06"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad28e5f379f3807145ccbb2479d899a06">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, offset_t file_offset) const override</td></tr>
+<tr class="separator:ad28e5f379f3807145ccbb2479d899a06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75dfefff8dffeee7648ec2210f81f2be" id="r_a75dfefff8dffeee7648ec2210f81f2be"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a75dfefff8dffeee7648ec2210f81f2be">AddFields</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, offset_t file_offset) const override</td></tr>
+<tr class="separator:a75dfefff8dffeee7648ec2210f81f2be"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0fce41553531f5856d4e239adbf600a" id="r_af0fce41553531f5856d4e239adbf600a"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af0fce41553531f5856d4e239adbf600a">CreateRegion</a> (std::string name, offset_t offset, offset_t length, unsigned display_width) const override</td></tr>
+<tr class="separator:af0fce41553531f5856d4e239adbf600a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classApple_1_1ResourceFork_1_1Resource"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classApple_1_1ResourceFork_1_1Resource')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classApple_1_1ResourceFork_1_1Resource.html">Apple::ResourceFork::Resource</a></td></tr>
-<tr class="memitem:a789efe3d7cbc573f048cfebf302923e0 inherit pub_methods_classApple_1_1ResourceFork_1_1Resource" id="r_a789efe3d7cbc573f048cfebf302923e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1ResourceFork_1_1Resource.html#a789efe3d7cbc573f048cfebf302923e0">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
-<tr class="memdesc:a789efe3d7cbc573f048cfebf302923e0 inherit pub_methods_classApple_1_1ResourceFork_1_1Resource"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
-<tr class="separator:a789efe3d7cbc573f048cfebf302923e0 inherit pub_methods_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a96f01c5941913c4b3b455705ef30c144 inherit pub_methods_classApple_1_1ResourceFork_1_1Resource" id="r_a96f01c5941913c4b3b455705ef30c144"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1ResourceFork_1_1Resource.html#a96f01c5941913c4b3b455705ef30c144">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
-<tr class="memdesc:a96f01c5941913c4b3b455705ef30c144 inherit pub_methods_classApple_1_1ResourceFork_1_1Resource"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
-<tr class="separator:a96f01c5941913c4b3b455705ef30c144 inherit pub_methods_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed6c2aab9fade44e1273e11bfdc68a7c inherit pub_methods_classApple_1_1ResourceFork_1_1Resource" id="r_aed6c2aab9fade44e1273e11bfdc68a7c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classApple_1_1ResourceFork_1_1Resource.html#aed6c2aab9fade44e1273e11bfdc68a7c">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
 <tr class="memdesc:aed6c2aab9fade44e1273e11bfdc68a7c inherit pub_methods_classApple_1_1ResourceFork_1_1Resource"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:aed6c2aab9fade44e1273e11bfdc68a7c inherit pub_methods_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -172,6 +178,9 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a8e6cfc4a9c2434536ab1b31e54f2c6f7"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">FormatIs16bit</a> () const</td></tr>
 <tr class="memdesc:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
 <tr class="separator:a8e6cfc4a9c2434536ab1b31e54f2c6f7 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat" id="r_ae1b8dc628a23f01b855832d6e70ec1df"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ae1b8dc628a23f01b855832d6e70ec1df">FormatIsProtectedMode</a> () const</td></tr>
+<tr class="memdesc:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is in protected mode or not (x86 only)  <br /></td></tr>
+<tr class="separator:ae1b8dc628a23f01b855832d6e70ec1df inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat" id="r_a71bf1175595e1a2ab076f3e92d5233fb"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a71bf1175595e1a2ab076f3e92d5233fb">FormatIsLinear</a> () const</td></tr>
 <tr class="memdesc:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the address space is linear or segmented.  <br /></td></tr>
 <tr class="separator:a71bf1175595e1a2ab076f3e92d5233fb inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -208,9 +217,12 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a120e40c114e55739a4485e90f1514435" id="r_a120e40c114e55739a4485e90f1514435"><td class="memItemLeft" align="right" valign="top"><a id="a120e40c114e55739a4485e90f1514435" name="a120e40c114e55739a4485e90f1514435"></a>
 std::shared_ptr&lt; <a class="el" href="classApple_1_1ResourceFork_1_1JumpTableCodeResource.html">JumpTableCodeResource</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>jump_table</b></td></tr>
 <tr class="separator:a120e40c114e55739a4485e90f1514435"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af417ea0aef634d6b61192be262a6333c" id="r_af417ea0aef634d6b61192be262a6333c"><td class="memItemLeft" align="right" valign="top"><a id="af417ea0aef634d6b61192be262a6333c" name="af417ea0aef634d6b61192be262a6333c"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="separator:af417ea0aef634d6b61192be262a6333c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f0928ac6a3b2503d183912e1f2df09a" id="r_a0f0928ac6a3b2503d183912e1f2df09a"><td class="memItemLeft" align="right" valign="top"><a id="a0f0928ac6a3b2503d183912e1f2df09a" name="a0f0928ac6a3b2503d183912e1f2df09a"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:a0f0928ac6a3b2503d183912e1f2df09a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4833dcd41c7d11f211df2df832f191a1" id="r_a4833dcd41c7d11f211df2df832f191a1"><td class="memItemLeft" align="right" valign="top"><a id="a4833dcd41c7d11f211df2df832f191a1" name="a4833dcd41c7d11f211df2df832f191a1"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>zero_fill</b> = 0</td></tr>
+<tr class="separator:a4833dcd41c7d11f211df2df832f191a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a96f877fb18090a8d86d035d3848ef0dc" id="r_a96f877fb18090a8d86d035d3848ef0dc"><td class="memItemLeft" align="right" valign="top"><a id="a96f877fb18090a8d86d035d3848ef0dc" name="a96f877fb18090a8d86d035d3848ef0dc"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_far</b> = false</td></tr>
 <tr class="separator:a96f877fb18090a8d86d035d3848ef0dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -223,9 +235,15 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>base_address</b> 
 <tr class="memitem:a46339b69e79decf11cff7689d23c726b" id="r_a46339b69e79decf11cff7689d23c726b"><td class="memItemLeft" align="right" valign="top"><a id="a46339b69e79decf11cff7689d23c726b" name="a46339b69e79decf11cff7689d23c726b"></a>
 std::set&lt; uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>near_entries</b></td></tr>
 <tr class="separator:a46339b69e79decf11cff7689d23c726b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae8cd2802df618bc220df9a1f21b0af68" id="r_ae8cd2802df618bc220df9a1f21b0af68"><td class="memItemLeft" align="right" valign="top"><a id="ae8cd2802df618bc220df9a1f21b0af68" name="ae8cd2802df618bc220df9a1f21b0af68"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>near_entry_count</b> = 0</td></tr>
+<tr class="separator:ae8cd2802df618bc220df9a1f21b0af68"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8ebf6a7a8ea3959455bf6251217efb4e" id="r_a8ebf6a7a8ea3959455bf6251217efb4e"><td class="memItemLeft" align="right" valign="top"><a id="a8ebf6a7a8ea3959455bf6251217efb4e" name="a8ebf6a7a8ea3959455bf6251217efb4e"></a>
 std::set&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>far_entries</b></td></tr>
 <tr class="separator:a8ebf6a7a8ea3959455bf6251217efb4e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13ea3ddf47f13a66f3e950081988c977" id="r_a13ea3ddf47f13a66f3e950081988c977"><td class="memItemLeft" align="right" valign="top"><a id="a13ea3ddf47f13a66f3e950081988c977" name="a13ea3ddf47f13a66f3e950081988c977"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>far_entry_count</b> = 0</td></tr>
+<tr class="separator:a13ea3ddf47f13a66f3e950081988c977"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afdedece0b91ca6b0dcd58ae04a355394" id="r_afdedece0b91ca6b0dcd58ae04a355394"><td class="memItemLeft" align="right" valign="top"><a id="afdedece0b91ca6b0dcd58ae04a355394" name="afdedece0b91ca6b0dcd58ae04a355394"></a>
 std::set&lt; uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>a5_relocations</b></td></tr>
 <tr class="separator:afdedece0b91ca6b0dcd58ae04a355394"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -260,16 +278,16 @@ std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bo
 <tr class="memitem:a9cef2b934e3fa948517b8e7cfae35702 inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource" id="r_a9cef2b934e3fa948517b8e7cfae35702"><td class="memItemLeft" align="right" valign="top">
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>attributes</b></td></tr>
 <tr class="separator:a9cef2b934e3fa948517b8e7cfae35702 inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a56c8c9b4651902519ea653b1c027497c inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource" id="r_a56c8c9b4651902519ea653b1c027497c"><td class="memItemLeft" align="right" valign="top">
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>name_offset</b> = 0</td></tr>
-<tr class="separator:a56c8c9b4651902519ea653b1c027497c inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa9c727f2f443217cf48cb96836361da7 inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource" id="r_aa9c727f2f443217cf48cb96836361da7"><td class="memItemLeft" align="right" valign="top">
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_offset</b> = 0</td></tr>
-<tr class="separator:aa9c727f2f443217cf48cb96836361da7 inherit pub_attribs_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
 <tr class="separator:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:aa3812bd0c6585ec2d90a1d5d4a7eee7c" id="r_aa3812bd0c6585ec2d90a1d5d4a7eee7c"><td class="memItemLeft" align="right" valign="top"><a id="aa3812bd0c6585ec2d90a1d5d4a7eee7c" name="aa3812bd0c6585ec2d90a1d5d4a7eee7c"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>OSType</b> = OSTypeToUInt32('C', 'O', 'D', 'E')</td></tr>
+<tr class="separator:aa3812bd0c6585ec2d90a1d5d4a7eee7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -282,6 +300,42 @@ Additional Inherited Members</h2></td></tr>
 <tr class="separator:a2a7d05de54dbbd14a6d259b460d22ee5 inherit pro_methods_classApple_1_1ResourceFork_1_1Resource"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
+<a id="a75dfefff8dffeee7648ec2210f81f2be" name="a75dfefff8dffeee7648ec2210f81f2be"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75dfefff8dffeee7648ec2210f81f2be">&#9670;&#160;</a></span>AddFields()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ResourceFork::CodeResource::AddFields </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>region</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>file_offset</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classApple_1_1ResourceFork_1_1Resource.html">Apple::ResourceFork::Resource</a>.</p>
+
+</div>
+</div>
 <a id="a4dc00dbdc9ef73d5af451461894dcfe0" name="a4dc00dbdc9ef73d5af451461894dcfe0"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4dc00dbdc9ef73d5af451461894dcfe0">&#9670;&#160;</a></span>CalculateValues()</h2>
 
@@ -311,8 +365,49 @@ Additional Inherited Members</h2></td></tr>
 
 </div>
 </div>
-<a id="a7961d8af0268aae64119e12a54167a5a" name="a7961d8af0268aae64119e12a54167a5a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a7961d8af0268aae64119e12a54167a5a">&#9670;&#160;</a></span>Dump()</h2>
+<a id="af0fce41553531f5856d4e239adbf600a" name="af0fce41553531f5856d4e239adbf600a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0fce41553531f5856d4e239adbf600a">&#9670;&#160;</a></span>CreateRegion()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt; ResourceFork::CodeResource::CreateRegion </td>
+          <td>(</td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>name</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>offset</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>length</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned</td>          <td class="paramname"><span class="paramname"><em>display_width</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classApple_1_1ResourceFork_1_1Resource.html">Apple::ResourceFork::Resource</a>.</p>
+
+</div>
+</div>
+<a id="ad28e5f379f3807145ccbb2479d899a06" name="ad28e5f379f3807145ccbb2479d899a06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad28e5f379f3807145ccbb2479d899a06">&#9670;&#160;</a></span>Dump()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -323,8 +418,12 @@ Additional Inherited Members</h2></td></tr>
         <tr>
           <td class="memname">void ResourceFork::CodeResource::Dump </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>file_offset</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -334,9 +433,7 @@ Additional Inherited Members</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Display file contents in a nice manner. </p>
-
-<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a098d2d37cf55278aa98722b766d4fc38">Linker::Format</a>.</p>
+<p>Reimplemented from <a class="el" href="classApple_1_1ResourceFork_1_1Resource.html">Apple::ResourceFork::Resource</a>.</p>
 
 </div>
 </div>
@@ -395,6 +492,66 @@ Additional Inherited Members</h2></td></tr>
 <p>Processes the module object and initializes format fields. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a35dab761c545930c266365344057a665">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a6c3d5e64d1461e5e2cd5869f834a449e" name="a6c3d5e64d1461e5e2cd5869f834a449e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c3d5e64d1461e5e2cd5869f834a449e">&#9670;&#160;</a></span>ReadFile() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ResourceFork::CodeResource::ReadFile </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Loads file into memory. </p>
+
+<p>Implements <a class="el" href="classLinker_1_1Format.html#a2c868606ec11583e57a3d5b474035c42">Linker::Format</a>.</p>
+
+</div>
+</div>
+<a id="ab24998a148d70c219c381e1436892347" name="ab24998a148d70c219c381e1436892347"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab24998a148d70c219c381e1436892347">&#9670;&#160;</a></span>ReadFile() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ResourceFork::CodeResource::ReadFile </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>length</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Implements <a class="el" href="classApple_1_1ResourceFork_1_1Resource.html">Apple::ResourceFork::Resource</a>.</p>
 
 </div>
 </div>

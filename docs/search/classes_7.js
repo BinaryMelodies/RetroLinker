@@ -9,6 +9,7 @@ var searchData=
   ['hunk_6',['Hunk',['../classAmiga_1_1HunkFormat_1_1Hunk.html',1,'Amiga::HunkFormat']]],
   ['hunkentry_7',['HunkEntry',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1HunkEntry.html',1,'Amiga::HunkFormat::IndexBlock']]],
   ['hunkformat_8',['HunkFormat',['../classAmiga_1_1HunkFormat.html',1,'Amiga']]],
-  ['hunkreader_9',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
-  ['hureader_10',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]
+  ['hunkoptioncollector_9',['HunkOptionCollector',['../classHunkOptionCollector.html',1,'']]],
+  ['hunkreader_10',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
+  ['hureader_11',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]
 ];

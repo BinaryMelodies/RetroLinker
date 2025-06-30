@@ -222,6 +222,9 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetFullFileSize</
 <tr class="memitem:a791c5babfe42adf6d44e55258c79bcb7" id="r_a791c5babfe42adf6d44e55258c79bcb7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a791c5babfe42adf6d44e55258c79bcb7">FormatIs16bit</a> () const override</td></tr>
 <tr class="memdesc:a791c5babfe42adf6d44e55258c79bcb7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is 16-bit or not.  <br /></td></tr>
 <tr class="separator:a791c5babfe42adf6d44e55258c79bcb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb320450364fc5b2404d0b34b185b6fc" id="r_afb320450364fc5b2404d0b34b185b6fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb320450364fc5b2404d0b34b185b6fc">FormatIsProtectedMode</a> () const override</td></tr>
+<tr class="memdesc:afb320450364fc5b2404d0b34b185b6fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is in protected mode or not (x86 only)  <br /></td></tr>
+<tr class="separator:afb320450364fc5b2404d0b34b185b6fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad37831861bc494f0084e9026015b85b" id="r_aad37831861bc494f0084e9026015b85b"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad37831861bc494f0084e9026015b85b">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
 <tr class="separator:aad37831861bc494f0084e9026015b85b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeed8d9f7d23ffbca9058e22df1b70d0e" id="r_aeed8d9f7d23ffbca9058e22df1b70d0e"><td class="memItemLeft" align="right" valign="top"><a id="aeed8d9f7d23ffbca9058e22df1b70d0e" name="aeed8d9f7d23ffbca9058e22df1b70d0e"></a>
@@ -729,6 +732,37 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>This is needed for the ELF parser which can not distinguish between the 8086 and 80386 backends. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a8e6cfc4a9c2434536ab1b31e54f2c6f7">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="afb320450364fc5b2404d0b34b185b6fc" name="afb320450364fc5b2404d0b34b185b6fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb320450364fc5b2404d0b34b185b6fc">&#9670;&#160;</a></span>FormatIsProtectedMode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CPM86Format::FormatIsProtectedMode </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether the format is in protected mode or not (x86 only) </p>
+<p>This is needed for the ELF parser to determine whether segment references are paragraph offsets (16-byte units) or selector indexes.</p>
+<p>For non-x86 targets, the result is meaningless. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae1b8dc628a23f01b855832d6e70ec1df">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>

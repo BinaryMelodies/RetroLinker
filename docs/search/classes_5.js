@@ -17,5 +17,6 @@ var searchData=
   ['flexosaoutheader_14',['FlexOSAOutHeader',['../classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html',1,'COFF::COFFFormat']]],
   ['format_15',['Format',['../classLinker_1_1Format.html',1,'Linker']]],
   ['format_5fdescription_16',['format_description',['../structformat__description.html',1,'']]],
-  ['format_5fmagic_17',['format_magic',['../structformat__magic.html',1,'']]]
+  ['format_5fmagic_17',['format_magic',['../structformat__magic.html',1,'']]],
+  ['format_5fspecification_18',['format_specification',['../structformat__specification.html',1,'']]]
 ];

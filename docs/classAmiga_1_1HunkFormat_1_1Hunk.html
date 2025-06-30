@@ -112,10 +112,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ac4c7f68ebe92d008c580bbbe27e532c3" id="r_ac4c7f68ebe92d008c580bbbe27e532c3"><td class="memItemLeft" align="right" valign="top"><a id="ac4c7f68ebe92d008c580bbbe27e532c3" name="ac4c7f68ebe92d008c580bbbe27e532c3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Hunk</b> (hunk_type type, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment, unsigned <a class="el" href="classAmiga_1_1HunkFormat.html#ad1b414fa36f950ce745b54450b2e179d">flags</a>=LoadBlock::LoadAny)</td></tr>
 <tr class="separator:ac4c7f68ebe92d008c580bbbe27e532c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acf68431404cf4b15e37ce599b7de45e3" id="r_acf68431404cf4b15e37ce599b7de45e3"><td class="memItemLeft" align="right" valign="top"><a id="acf68431404cf4b15e37ce599b7de45e3" name="acf68431404cf4b15e37ce599b7de45e3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceBlocks</b> ()</td></tr>
-<tr class="memdesc:acf68431404cf4b15e37ce599b7de45e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the data collected by the linker into hunk blocks. <br /></td></tr>
-<tr class="separator:acf68431404cf4b15e37ce599b7de45e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f0fc567f27d4602af2e1507e2c49b22" id="r_a1f0fc567f27d4602af2e1507e2c49b22"><td class="memItemLeft" align="right" valign="top"><a id="a1f0fc567f27d4602af2e1507e2c49b22" name="a1f0fc567f27d4602af2e1507e2c49b22"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceBlocks</b> (<a class="el" href="classAmiga_1_1HunkFormat.html">HunkFormat</a> &amp;fmt, <a class="el" href="classAmiga_1_1HunkFormat_1_1Module.html">Module</a> &amp;module)</td></tr>
+<tr class="memdesc:a1f0fc567f27d4602af2e1507e2c49b22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts the data collected by the linker into hunk blocks. <br /></td></tr>
+<tr class="separator:a1f0fc567f27d4602af2e1507e2c49b22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae4c35ea276ef8d700f20e4dc2905a851" id="r_ae4c35ea276ef8d700f20e4dc2905a851"><td class="memItemLeft" align="right" valign="top"><a id="ae4c35ea276ef8d700f20e4dc2905a851" name="ae4c35ea276ef8d700f20e4dc2905a851"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetMemorySize</b> () const</td></tr>
 <tr class="memdesc:ae4c35ea276ef8d700f20e4dc2905a851"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of memory this hunk will take up after loading. <br /></td></tr>
@@ -124,10 +124,10 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetMemorySize</b>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetFileSize</b> () const</td></tr>
 <tr class="memdesc:a20cce10d26e4d864d4b921618e947ed1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of bytes this hunk will take up in the file. <br /></td></tr>
 <tr class="separator:a20cce10d26e4d864d4b921618e947ed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afeaae007a0d06726f75d7a5593b4ed78" id="r_afeaae007a0d06726f75d7a5593b4ed78"><td class="memItemLeft" align="right" valign="top"><a id="afeaae007a0d06726f75d7a5593b4ed78" name="afeaae007a0d06726f75d7a5593b4ed78"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSizeField</b> ()</td></tr>
-<tr class="memdesc:afeaae007a0d06726f75d7a5593b4ed78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size field of the first block, to be stored in a header block. <br /></td></tr>
-<tr class="separator:afeaae007a0d06726f75d7a5593b4ed78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88d98de303428be833793a1cc1583b13" id="r_a88d98de303428be833793a1cc1583b13"><td class="memItemLeft" align="right" valign="top"><a id="a88d98de303428be833793a1cc1583b13" name="a88d98de303428be833793a1cc1583b13"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSizeField</b> (<a class="el" href="classAmiga_1_1HunkFormat.html">HunkFormat</a> &amp;fmt, <a class="el" href="classAmiga_1_1HunkFormat_1_1Module.html">Module</a> &amp;module)</td></tr>
+<tr class="memdesc:a88d98de303428be833793a1cc1583b13"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size field of the first block, to be stored in a header block. <br /></td></tr>
+<tr class="separator:a88d98de303428be833793a1cc1583b13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adc34432ba2428736924d440e65857b34" id="r_adc34432ba2428736924d440e65857b34"><td class="memItemLeft" align="right" valign="top"><a id="adc34432ba2428736924d440e65857b34" name="adc34432ba2428736924d440e65857b34"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AppendBlock</b> (std::shared_ptr&lt; <a class="el" href="classAmiga_1_1HunkFormat_1_1Block.html">Block</a> &gt; block)</td></tr>
 <tr class="memdesc:adc34432ba2428736924d440e65857b34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a new block to the block sequence and updates the internal structure of the hunk, used for reading. <br /></td></tr>

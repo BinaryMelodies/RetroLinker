@@ -42,13 +42,14 @@ var searchData=
   ['reserved_5fheap_5fsize_39',['reserved_heap_size',['../classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#ad6b4ad9ab8c88bd6b50bc98f5524a7b3',1,'Microsoft::PEFormat::PEOptionalHeader']]],
   ['reserved_5fstack_5fsize_40',['reserved_stack_size',['../classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#aa0e7589623ff1980508bdb9b19b9d9c3',1,'Microsoft::PEFormat::PEOptionalHeader']]],
   ['resident_5fname_5ftable_5foffset_41',['resident_name_table_offset',['../classMicrosoft_1_1NEFormat.html#a41f7f1c074989b1b31b73a2055df1b3c',1,'Microsoft::NEFormat']]],
-  ['resource_5fshift_42',['resource_shift',['../classMicrosoft_1_1NEFormat.html#a68ce3589017c61c815e9b72d5c1734f4',1,'Microsoft::NEFormat']]],
-  ['resource_5fstrings_43',['resource_strings',['../classMicrosoft_1_1NEFormat.html#ae16fae6249b87f5515f18f32a8ca8fc2',1,'Microsoft::NEFormat']]],
-  ['resource_5ftable_5foffset_44',['resource_table_offset',['../classMicrosoft_1_1NEFormat.html#a687335d9cfac43b36068046b845e9a85',1,'Microsoft::NEFormat']]],
-  ['resource_5ftype_45',['resource_type',['../classLinker_1_1Section.html#ade1c6e12c76068a4c3173df0bf0959ba',1,'Linker::Section']]],
-  ['resource_5ftypes_46',['resource_types',['../classMicrosoft_1_1NEFormat.html#a1d4d17168622370e1cf7d8571419181e',1,'Microsoft::NEFormat']]],
-  ['resources_47',['resources',['../classMicrosoft_1_1NEFormat.html#afdee14d08ec666866b95ed82edc24d45',1,'Microsoft::NEFormat']]],
-  ['rsx_5ffile_5fname_48',['rsx_file_name',['../structBinary_1_1CPM3Format_1_1rsx__record.html#a44a736227d9fc9eefd75d86582e4d991',1,'Binary::CPM3Format::rsx_record::rsx_file_name'],['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html#ad5c8ca8c009a75c605d58e427aa425b3',1,'DigitalResearch::CPM86Format::rsx_record::rsx_file_name']]],
-  ['rsx_5ftable_49',['rsx_table',['../classBinary_1_1CPM3Format.html#af4d55a4750096a5ec37002cf092af030',1,'Binary::CPM3Format::rsx_table'],['../classDigitalResearch_1_1CPM86Format.html#a4497962cd6db1ae8f95f050b0bad8935',1,'DigitalResearch::CPM86Format::rsx_table']]],
-  ['rsx_5ftable_5foffset_50',['rsx_table_offset',['../classDigitalResearch_1_1CPM86Format.html#a0c9c811ec1b089312dc7ec8479c1df4f',1,'DigitalResearch::CPM86Format']]]
+  ['resource_5fnames_42',['resource_names',['../classApple_1_1ResourceFork.html#ac2b18fb00af9a6361216ff601a80f09b',1,'Apple::ResourceFork']]],
+  ['resource_5fshift_43',['resource_shift',['../classMicrosoft_1_1NEFormat.html#a68ce3589017c61c815e9b72d5c1734f4',1,'Microsoft::NEFormat']]],
+  ['resource_5fstrings_44',['resource_strings',['../classMicrosoft_1_1NEFormat.html#ae16fae6249b87f5515f18f32a8ca8fc2',1,'Microsoft::NEFormat']]],
+  ['resource_5ftable_5foffset_45',['resource_table_offset',['../classMicrosoft_1_1NEFormat.html#a687335d9cfac43b36068046b845e9a85',1,'Microsoft::NEFormat']]],
+  ['resource_5ftype_46',['resource_type',['../classLinker_1_1Section.html#ade1c6e12c76068a4c3173df0bf0959ba',1,'Linker::Section']]],
+  ['resource_5ftypes_47',['resource_types',['../classApple_1_1ResourceFork.html#ad1e05ef48c8aea9fe6d5625f36664f21',1,'Apple::ResourceFork::resource_types'],['../classMicrosoft_1_1NEFormat.html#a1d4d17168622370e1cf7d8571419181e',1,'Microsoft::NEFormat::resource_types']]],
+  ['resources_48',['resources',['../classApple_1_1ResourceFork.html#a0ac9e2b35d09834b47e61ab447655cb4',1,'Apple::ResourceFork::resources'],['../classMicrosoft_1_1NEFormat.html#afdee14d08ec666866b95ed82edc24d45',1,'Microsoft::NEFormat::resources']]],
+  ['rsx_5ffile_5fname_49',['rsx_file_name',['../structBinary_1_1CPM3Format_1_1rsx__record.html#a44a736227d9fc9eefd75d86582e4d991',1,'Binary::CPM3Format::rsx_record::rsx_file_name'],['../structDigitalResearch_1_1CPM86Format_1_1rsx__record.html#ad5c8ca8c009a75c605d58e427aa425b3',1,'DigitalResearch::CPM86Format::rsx_record::rsx_file_name']]],
+  ['rsx_5ftable_50',['rsx_table',['../classBinary_1_1CPM3Format.html#af4d55a4750096a5ec37002cf092af030',1,'Binary::CPM3Format::rsx_table'],['../classDigitalResearch_1_1CPM86Format.html#a4497962cd6db1ae8f95f050b0bad8935',1,'DigitalResearch::CPM86Format::rsx_table']]],
+  ['rsx_5ftable_5foffset_51',['rsx_table_offset',['../classDigitalResearch_1_1CPM86Format.html#a0c9c811ec1b089312dc7ec8479c1df4f',1,'DigitalResearch::CPM86Format']]]
 ];
