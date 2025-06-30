@@ -134,6 +134,13 @@ bool OutputFormat::FormatIs16bit() const
 	return false;
 }
 
+bool OutputFormat::FormatIsProtectedMode() const
+{
+	// most 16-bit x86 formats are for real mode, so this default makes sense
+	// 32-bit x86 must return true
+	return !FormatIs16bit();
+}
+
 bool OutputFormat::FormatIsLinear() const
 {
 	return !FormatIs16bit();

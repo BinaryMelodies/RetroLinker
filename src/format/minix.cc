@@ -268,6 +268,12 @@ bool MINIXFormat::FormatIs16bit() const
 	return true;
 }
 
+bool MINIXFormat::FormatIsProtectedMode() const
+{
+	/* MINIX can run in real as well as protected mode, so we must assume there are no paragraph references */
+	return true;
+}
+
 ::EndianType MINIXFormat::GetEndianType(cpu_type cpu)
 {
 	switch(cpu & 3)
@@ -542,8 +548,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 		}
 		else if(enable_relocations)
 		{
-			if(rel.kind == Linker::Relocation::SegmentAddress
-			|| rel.kind == Linker::Relocation::SelectorIndex)
+			if(rel.kind == Linker::Relocation::SelectorIndex)
 			{
 				if(resolution.target != nullptr)
 				{

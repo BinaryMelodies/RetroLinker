@@ -135,7 +135,7 @@ void MPFormat::ProcessModule(Linker::Module& module)
 					relocations.insert(Relocation(source.address, 0));
 			}
 		}
-		else if(rel.kind == Linker::Relocation::SegmentAddress || rel.kind == Linker::Relocation::SelectorIndex)
+		else if(rel.kind == Linker::Relocation::SelectorIndex)
 		{
 			Linker::Error << "Error: segment relocations impossible in flat memory model, ignoring" << std::endl;
 			continue;
@@ -231,6 +231,16 @@ void P3Format::ReadFile(Linker::Reader& rd)
 bool P3Format::FormatSupportsSegmentation() const
 {
 	return is_multisegmented; /* TODO: this probably does not actually support this? */
+}
+
+bool P3Format::FormatIs16bit() const
+{
+	return !is_32bit;
+}
+
+bool P3Format::FormatIsProtectedMode() const
+{
+	return true;
 }
 
 #if 0
@@ -453,7 +463,7 @@ void P3Format::Flat::ProcessModule(Linker::Module& module)
 		{
 			rel.WriteWord(resolution.value);
 		}
-		else if(rel.kind == Linker::Relocation::SegmentAddress || rel.kind == Linker::Relocation::SelectorIndex)
+		else if(rel.kind == Linker::Relocation::SelectorIndex)
 		{
 			Linker::Error << "Error: segment relocations impossible in flat memory model, ignoring" << std::endl;
 			continue;
@@ -876,7 +886,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 		{
 			rel.WriteWord(resolution.value);
 		}
-		else if(rel.kind == Linker::Relocation::SegmentAddress || rel.kind == Linker::Relocation::SelectorIndex)
+		else if(rel.kind == Linker::Relocation::SelectorIndex)
 		{
 			if(resolution.target == nullptr || resolution.reference != nullptr || resolution.value != 0)
 			{
@@ -1035,6 +1045,16 @@ void P3FormatContainer::ReadFile(Linker::Reader& rd)
 bool P3FormatContainer::FormatSupportsSegmentation() const
 {
 	return contents ? contents->FormatSupportsSegmentation() : true;
+}
+
+bool P3FormatContainer::FormatIs16bit() const
+{
+	return contents ? contents->FormatIs16bit() : true;
+}
+
+bool P3FormatContainer::FormatIsProtectedMode() const
+{
+	return true;
 }
 
 void P3FormatContainer::SetOptions(std::map<std::string, std::string>& options)

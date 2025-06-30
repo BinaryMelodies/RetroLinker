@@ -24,6 +24,8 @@ namespace MINIX
 
 		bool FormatIs16bit() const override;
 
+		bool FormatIsProtectedMode() const override;
+
 		enum format_type
 		{
 			UnmappedZeroPage = 0x01,

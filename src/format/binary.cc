@@ -276,6 +276,12 @@ bool BinaryFormat::FormatIs16bit() const
 	return true;
 }
 
+bool BinaryFormat::FormatIsProtectedMode() const
+{
+	/* only x86 */
+	return false;
+}
+
 unsigned BinaryFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)

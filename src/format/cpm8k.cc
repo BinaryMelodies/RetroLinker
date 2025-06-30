@@ -418,8 +418,7 @@ void CPM8KFormat::ProcessModule(Linker::Module& module)
 			continue;
 		}
 
-		if(rel.kind == Linker::Relocation::SegmentAddress // TODO: only SegmentIndex should be checked
-		|| rel.kind == Linker::Relocation::SegmentIndex)
+		if(rel.kind == Linker::Relocation::SegmentIndex)
 		{
 			if(resolution.reference != nullptr)
 			{

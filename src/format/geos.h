@@ -23,6 +23,12 @@ namespace GEOS
 		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 
+		bool FormatSupportsSegmentation() const override;
+
+		bool FormatIs16bit() const override;
+
+		bool FormatIsProtectedMode() const override;
+
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};

@@ -91,6 +91,10 @@ namespace PharLap
 
 		bool FormatSupportsSegmentation() const override;
 
+		bool FormatIs16bit() const override;
+
+		bool FormatIsProtectedMode() const override;
+
 #if 0
 		bool FormatSupportsStackSection() const override;
 #endif
@@ -357,7 +361,12 @@ namespace PharLap
 		std::unique_ptr<P3Format> contents;
 
 		void ReadFile(Linker::Reader& rd) override;
+
 		bool FormatSupportsSegmentation() const override;
+
+		bool FormatIs16bit() const override;
+
+		bool FormatIsProtectedMode() const override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 

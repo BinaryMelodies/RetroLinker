@@ -994,6 +994,11 @@ bool CPM86Format::FormatIs16bit() const
 	return true;
 }
 
+bool CPM86Format::FormatIsProtectedMode() const
+{
+	return format == FORMAT_FLEXOS;
+}
+
 unsigned CPM86Format::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	unsigned flags;
@@ -1383,8 +1388,8 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 		{
 			rel.WriteWord(resolution.value);
 		}
-		else if(rel.kind == Linker::Relocation::SegmentAddress
-		|| rel.kind == Linker::Relocation::SelectorIndex)
+		else if(rel.kind == Linker::Relocation::SegmentAddress // CP/M-86
+		|| rel.kind == Linker::Relocation::SelectorIndex) // FlexOS 286 (TODO: not yet implemented)
 		{
 			if(resolution.target != nullptr)
 			{

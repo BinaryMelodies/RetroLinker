@@ -535,6 +535,8 @@ namespace DigitalResearch
 
 		bool FormatIs16bit() const override;
 
+		bool FormatIsProtectedMode() const override;
+
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
 		std::vector<std::shared_ptr<Linker::Segment>>& Segments();

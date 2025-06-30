@@ -20,6 +20,8 @@ namespace DOS16M
 
 		bool FormatIs16bit() const override;
 
+		bool FormatIsProtectedMode() const override;
+
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
 		class AbstractSegment

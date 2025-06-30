@@ -2614,6 +2614,7 @@ void ELFFormat::SetupOptions(std::shared_ptr<Linker::OutputFormat> format)
 {
 	option_16bit = format->FormatIs16bit();
 	option_linear = format->FormatIsLinear();
+	option_pmode = format->FormatIsProtectedMode();
 }
 
 void ELFFormat::GenerateModule(Linker::Module& module) const
@@ -2760,7 +2761,10 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 						break;
 					case R_386_SEG16:
 						// TODO: untested
-						obj_rel = Linker::Relocation::Paragraph(rel_source, rel_target, rel.addend);
+						obj_rel =
+							option_pmode
+							? Linker::Relocation::Selector(rel_source, rel_target, rel.addend)
+							: Linker::Relocation::Paragraph(rel_source, rel_target, rel.addend);
 						break;
 					case R_386_SEGRELATIVE:
 						// TODO

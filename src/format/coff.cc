@@ -2249,8 +2249,7 @@ void COFFFormat::ProcessModule(Linker::Module& module)
 		{
 			if(type == DJGPP)
 			{
-				if(rel.kind == Linker::Relocation::SegmentAddress
-				|| rel.kind == Linker::Relocation::SelectorIndex)
+				if(rel.kind == Linker::Relocation::SelectorIndex)
 				{
 					Linker::Error << "Error: segment relocations not supported, ignoring" << std::endl;
 				}

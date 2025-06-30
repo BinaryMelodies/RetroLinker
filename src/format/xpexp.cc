@@ -7,6 +7,21 @@
 
 using namespace Ergo;
 
+bool XPFormat::FormatSupportsSegmentation() const
+{
+	return true; // TODO: is this the case?
+}
+
+bool XPFormat::FormatIs16bit() const
+{
+	return false; // TODO
+}
+
+bool XPFormat::FormatIsProtectedMode() const
+{
+	return true;
+}
+
 void XPFormat::CalculateValues()
 {
 	file_offset = 0; // TODO: if stub is available, later

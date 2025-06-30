@@ -1091,6 +1091,10 @@ namespace ELF
 
 		bool option_16bit = true;
 		bool option_linear = false;
+		/**
+		 * @brief Set when the generated format runs in protected mode
+		 */
+		bool option_pmode = false;
 
 		void SetupOptions(std::shared_ptr<Linker::OutputFormat> format) override;
 

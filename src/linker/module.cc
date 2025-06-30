@@ -619,20 +619,29 @@ void Module::AddRelocation(Relocation relocation)
 					}
 					else
 					{
-						relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend);
+						relocation =
+							output_format->FormatIsProtectedMode()
+							? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend)
+							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend);
 					}
 				}
 				else if(unparsed_name.rfind(segment_of_prefix(), 0) == 0 && relocation.size == 2)
 				{
 					/* $$SEGOF$<symbol name> */
 					std::string symbol_name = unparsed_name.substr(segment_of_prefix().size());
-					relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend);
+					relocation =
+						output_format->FormatIsProtectedMode()
+						? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend)
+						: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend);
 				}
 				else if(unparsed_name.rfind(segment_at_prefix(), 0) == 0 && relocation.size == 2)
 				{
 					/* $$SEGAT$<symbol name> */
 					std::string symbol_name = unparsed_name.substr(segment_of_prefix().size());
-					relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend);
+					relocation =
+						output_format->FormatIsProtectedMode()
+						? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend)
+						: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend);
 				}
 				else if(unparsed_name.rfind(with_respect_to_segment_prefix(), 0) == 0)
 				{
@@ -707,7 +716,10 @@ void Module::AddRelocation(Relocation relocation)
 					Linker::SymbolName symbol("");
 					if(parse_imported_name(reference_name, symbol))
 					{
-						relocation = Linker::Relocation::Paragraph(relocation.source, Linker::Target(symbol), relocation.addend);
+						relocation =
+							output_format->FormatIsProtectedMode()
+							? Linker::Relocation::Selector(relocation.source, Linker::Target(symbol), relocation.addend)
+							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(symbol), relocation.addend);
 					}
 					else
 					{

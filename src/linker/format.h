@@ -138,6 +138,14 @@ namespace Linker
 		 */
 		virtual bool FormatIs16bit() const;
 		/**
+		 * @brief Whether the format is in protected mode or not (x86 only)
+		 *
+		 * This is needed for the ELF parser to determine whether segment references are paragraph offsets (16-byte units) or selector indexes.
+		 *
+		 * For non-x86 targets, the result is meaningless.
+		 */
+		virtual bool FormatIsProtectedMode() const;
+		/**
 		 * @brief Whether the address space is linear or segmented
 		 *
 		 * This is needed to determine whether symbol relocations are absolute addresses or offsets within their own segments.

@@ -393,6 +393,11 @@ bool MZFormat::FormatIs16bit() const
 	return true;
 }
 
+bool MZFormat::FormatIsProtectedMode() const
+{
+	return false;
+}
+
 unsigned MZFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	unsigned flags;

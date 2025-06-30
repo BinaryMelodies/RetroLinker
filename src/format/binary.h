@@ -133,6 +133,8 @@ namespace Binary
 
 		bool FormatIs16bit() const override;
 
+		bool FormatIsProtectedMode() const override;
+
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
 		/** @brief (x86 only) Represents the memory model of the running executable, which is the way in which the segments are set up during execution */

@@ -6,6 +6,22 @@
 
 using namespace GEOS;
 
+bool GeodeFormat::FormatSupportsSegmentation() const
+{
+	/* TODO */
+	return true;
+}
+
+bool GeodeFormat::FormatIs16bit() const
+{
+	return true;
+}
+
+bool GeodeFormat::FormatIsProtectedMode() const
+{
+	return false;
+}
+
 void GeodeFormat::ReadFile(Linker::Reader& rd)
 {
 	/* TODO */

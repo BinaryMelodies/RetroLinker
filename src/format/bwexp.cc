@@ -20,6 +20,11 @@ bool BWFormat::FormatIs16bit() const
 	return true;
 }
 
+bool BWFormat::FormatIsProtectedMode() const
+{
+	return true;
+}
+
 unsigned BWFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)
@@ -348,8 +353,7 @@ void BWFormat::ProcessModule(Linker::Module& module)
 			}
 			rel.WriteWord(resolution.value);
 		}
-		else if(rel.kind == Linker::Relocation::SegmentAddress // TODO: only SelectorIndex should be checked
-		|| rel.kind == Linker::Relocation::SelectorIndex)
+		else if(rel.kind == Linker::Relocation::SelectorIndex)
 		{
 			if(resolution.target == nullptr || resolution.reference != nullptr || resolution.value != 0)
 			{

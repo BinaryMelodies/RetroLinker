@@ -8,7 +8,7 @@ using namespace Microsoft;
 
 NEFormat::Segment::Relocation::source_type NEFormat::Segment::Relocation::GetType(Linker::Relocation& rel)
 {
-	if(rel.kind == Linker::Relocation::SegmentAddress || rel.kind == Linker::Relocation::SelectorIndex)
+	if(rel.kind == Linker::Relocation::SelectorIndex)
 	{
 		return Selector16;
 	}
@@ -1237,6 +1237,12 @@ bool NEFormat::FormatIs16bit() const
 	return true;
 }
 
+bool NEFormat::FormatIsProtectedMode() const
+{
+	/* Some operating systems supporting NE can run in real as well as protected mode, so we must assume there are no paragraph references */
+	return true;
+}
+
 bool NEFormat::FormatSupportsLibraries() const
 {
 	return true;
@@ -1698,6 +1704,8 @@ void NEFormat::ProcessModule(Linker::Module& module)
 				else
 				{
 					//assert(resolution.value == 0); /* TODO: target != 0 ? */
+					if(rel.kind == Linker::Relocation::SelectorIndex)
+						resolution.value >>= 4; // TODO: ugly hack in case the program is executed in real mode (should we change FormatIsProtectedMode?)
 					source_segment.AddRelocation(
 						Segment::Relocation(type, Segment::Relocation::Internal,
 							position.address, target_segment, resolution.value)
