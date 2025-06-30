@@ -162,7 +162,7 @@ namespace Linker
 		static Relocation Paragraph(Location source, Target target, uint64_t addend = 0);
 
 		/**
-		 * @brief Creates a relocation that stores the 16-bit paragraph (shifted right by 4) of the target (Intel 8086 specific)
+		 * @brief Creates a relocation that stores a 16-bit selector value referencing the target (Intel 8086 specific)
 		 */
 		static Relocation Selector(Location source, Target target, uint64_t addend = 0);
 
