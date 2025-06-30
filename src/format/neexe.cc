@@ -8,7 +8,7 @@ using namespace Microsoft;
 
 NEFormat::Segment::Relocation::source_type NEFormat::Segment::Relocation::GetType(Linker::Relocation& rel)
 {
-	if(rel.segment_of)
+	if(rel.kind == Linker::Relocation::SegmentAddress || rel.kind == Linker::Relocation::SelectorIndex)
 	{
 		return Selector16;
 	}

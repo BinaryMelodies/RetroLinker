@@ -610,10 +610,23 @@ void MZFormat::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 			continue;
 		}
-		rel.WriteWord(resolution.value);
-		if(rel.segment_of && resolution.target != nullptr)
+
+		if(rel.kind == Linker::Relocation::Direct)
 		{
-			relocation_offsets.insert(rel.source.GetPosition().address);
+			rel.WriteWord(resolution.value);
+		}
+		else if(rel.kind == Linker::Relocation::SegmentAddress)
+		{
+			if(resolution.target != nullptr)
+			{
+				relocation_offsets.insert(rel.source.GetPosition().address);
+			}
+			rel.WriteWord(resolution.value);
+		}
+		else
+		{
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
 		}
 	}
 

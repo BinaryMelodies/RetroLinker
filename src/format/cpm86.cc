@@ -1378,20 +1378,34 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: Format does not support inter-segment distances: " << rel << ", ignoring" << std::endl;
 			continue;
 		}
-		rel.WriteWord(resolution.value);
-		if(rel.segment_of && resolution.target != nullptr)
+
+		if(rel.kind == Linker::Relocation::Direct)
 		{
-			if(option_no_relocation)
+			rel.WriteWord(resolution.value);
+		}
+		else if(rel.kind == Linker::Relocation::SegmentAddress
+		|| rel.kind == Linker::Relocation::SelectorIndex)
+		{
+			if(resolution.target != nullptr)
 			{
-				Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
+				if(option_no_relocation)
+				{
+					Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
+				}
+				else
+				{
+					Linker::Position source = rel.source.GetPosition();
+					unsigned src_segment = GetSegmentNumber(source.segment);
+					relocation_targets[relocation_source { src_segment, source.address }] = GetSegmentNumber(resolution.target);
+					flags |= FLAG_FIXUPS;
+				}
 			}
-			else
-			{
-				Linker::Position source = rel.source.GetPosition();
-				unsigned src_segment = GetSegmentNumber(source.segment);
-				relocation_targets[relocation_source { src_segment, source.address }] = GetSegmentNumber(resolution.target);
-				flags |= FLAG_FIXUPS;
-			}
+			rel.WriteWord(resolution.value);
+		}
+		else
+		{
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
 		}
 		/* TODO: add libraries */
 	}

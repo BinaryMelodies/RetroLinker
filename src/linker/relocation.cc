@@ -8,12 +8,12 @@ using namespace Linker;
 
 Relocation Relocation::Empty()
 {
-	return Relocation(false, 0, Location(), Target(), Target(), 0, ::DefaultEndianType);
+	return Relocation(Direct, 0, Location(), Target(), Target(), 0, ::DefaultEndianType);
 }
 
 Relocation Relocation::Absolute(size_t size, Location source, Target target, uint64_t addend, EndianType endiantype)
 {
-	return Relocation(false, size, source, target, Target(), addend, endiantype);
+	return Relocation(Direct, size, source, target, Target(), addend, endiantype);
 }
 
 Relocation Relocation::Absolute(size_t size, Location source, Target target, uint64_t addend)
@@ -24,7 +24,7 @@ Relocation Relocation::Absolute(size_t size, Location source, Target target, uin
 Relocation Relocation::Offset(size_t size, Location source, Target target, uint64_t addend, EndianType endiantype)
 {
 	/* Intel 8086 specific */
-	return Relocation(false, size, source, target, target.GetSegment(), addend, endiantype);
+	return Relocation(Direct, size, source, target, target.GetSegment(), addend, endiantype);
 }
 
 Relocation Relocation::Offset(size_t size, Location source, Target target, uint64_t addend)
@@ -35,7 +35,7 @@ Relocation Relocation::Offset(size_t size, Location source, Target target, uint6
 
 Relocation Relocation::OffsetFrom(size_t size, Location source, Target target, Target reference, uint64_t addend, EndianType endiantype)
 {
-	return Relocation(false, size, source, target, reference, addend, endiantype);
+	return Relocation(Direct, size, source, target, reference, addend, endiantype);
 }
 
 Relocation Relocation::OffsetFrom(size_t size, Location source, Target target, Target reference, uint64_t addend)
@@ -45,7 +45,7 @@ Relocation Relocation::OffsetFrom(size_t size, Location source, Target target, T
 
 Relocation Relocation::Relative(size_t size, Location source, Target target, uint64_t addend, EndianType endiantype)
 {
-	return Relocation(false, size, source, target, Target(source), addend, endiantype);
+	return Relocation(Direct, size, source, target, Target(source), addend, endiantype);
 }
 
 Relocation Relocation::Relative(size_t size, Location source, Target target, uint64_t addend)
@@ -55,26 +55,26 @@ Relocation Relocation::Relative(size_t size, Location source, Target target, uin
 
 Relocation Relocation::Paragraph(Location source, Target target, uint64_t addend)
 {
-	/* Intel 8086 specific */
-	return Relocation(true, 2, source, target, Target(), addend, ::LittleEndian);
+	/* Intel x86 specific */
+	return Relocation(SegmentAddress, 2, source, target, Target(), addend, ::LittleEndian);
 }
 
 Relocation Relocation::Selector(Location source, Target target, uint64_t addend)
 {
-	/* Intel 8086 specific */
-	return Relocation(true, 2, source, target, Target(), addend, ::LittleEndian);
+	/* Intel x86 specific */
+	return Relocation(SelectorIndex, 2, source, target, Target(), addend, ::LittleEndian);
 }
 
 Relocation Relocation::Segment(size_t size, Location source, Target target, uint64_t addend)
 {
 	/* Zilog Z8000 specific */
-	return Relocation(true, size, source, target, Target(), addend, ::BigEndian);
+	return Relocation(SegmentIndex, size, source, target, Target(), addend, ::BigEndian);
 }
 
 Relocation Relocation::ParagraphDifference(Location source, Target target, Target reference, uint64_t addend)
 {
-	/* Intel 8086 specific */
-	return Relocation(true, 2, source, target, reference, addend, ::LittleEndian);
+	/* Intel x86 specific */
+	return Relocation(SegmentAddress, 2, source, target, reference, addend, ::LittleEndian);
 }
 
 Relocation& Relocation::SetMask(uint64_t new_mask)
@@ -117,21 +117,36 @@ bool Relocation::Resolve(Module& object, Resolution& resolution)
 	offset_t value = target_position.address - reference_position.address;
 	if(subtract)
 		value = -value;
-	if(segment_of)
+	switch(kind)
 	{
+	case Direct:
+		resolution = Resolution(addend + value,
+			target_position.segment,
+			reference_position.segment);
+		return true;
+	case SegmentAddress:
 		/* TODO: signal appropriate error if "target_position.address - reference_position.address" != 0 in protected mode */
 		resolution = Resolution(addend + (value >> 4),
 			target_position.segment,
 			reference_position.segment);
 		return true;
-	}
-	else
-	{
+	case SegmentIndex:
+		resolution = Resolution(addend + (value >> 16),
+			target_position.segment,
+			reference_position.segment);
+		return true;
+	case SelectorIndex:
+	case GOTOffset:
+	case PLTOffset:
 		resolution = Resolution(addend + value,
 			target_position.segment,
 			reference_position.segment);
 		return true;
+	case SizeOf:
+		// TODO
+		return false;
 	}
+	return false;
 }
 
 uint64_t Relocation::ReadUnsigned()
@@ -192,9 +207,26 @@ std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation
 	{
 		out << "negated ";
 	}
-	if(relocation.segment_of)
+	switch(relocation.kind)
 	{
+	case Relocation::Direct:
+		break;
+	case Relocation::SegmentAddress:
+	case Relocation::SegmentIndex:
 		out << "segment of ";
+		break;
+	case Relocation::SelectorIndex:
+		out << "selector of ";
+		break;
+	case Relocation::GOTOffset:
+		out << "GOT offset of ";
+		break;
+	case Relocation::PLTOffset:
+		out << "PLT offset of ";
+		break;
+	case Relocation::SizeOf:
+		out << "size of ";
+		break;
 	}
 	out << relocation.target;
 	out << " relative to " << relocation.reference;

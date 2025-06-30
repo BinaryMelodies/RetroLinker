@@ -122,12 +122,8 @@ void MPFormat::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 			continue;
 		}
-		if(rel.segment_of)
-		{
-			Linker::Error << "Error: segment relocations impossible in flat memory model, ignoring" << std::endl;
-			continue;
-		}
-		else
+
+		if(rel.kind == Linker::Relocation::Direct)
 		{
 			rel.WriteWord(resolution.value);
 			if(resolution.target != nullptr && resolution.reference == nullptr)
@@ -138,6 +134,16 @@ void MPFormat::ProcessModule(Linker::Module& module)
 				else
 					relocations.insert(Relocation(source.address, 0));
 			}
+		}
+		else if(rel.kind == Linker::Relocation::SegmentAddress || rel.kind == Linker::Relocation::SelectorIndex)
+		{
+			Linker::Error << "Error: segment relocations impossible in flat memory model, ignoring" << std::endl;
+			continue;
+		}
+		else
+		{
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
 		}
 	}
 }
@@ -442,14 +448,20 @@ void P3Format::Flat::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 			continue;
 		}
-		if(rel.segment_of)
+
+		if(rel.kind == Linker::Relocation::Direct)
+		{
+			rel.WriteWord(resolution.value);
+		}
+		else if(rel.kind == Linker::Relocation::SegmentAddress || rel.kind == Linker::Relocation::SelectorIndex)
 		{
 			Linker::Error << "Error: segment relocations impossible in flat memory model, ignoring" << std::endl;
 			continue;
 		}
 		else
 		{
-			rel.WriteWord(resolution.value);
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
 		}
 	}
 }
@@ -859,7 +871,12 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 			continue;
 		}
-		if(rel.segment_of)
+
+		if(rel.kind == Linker::Relocation::Direct)
+		{
+			rel.WriteWord(resolution.value);
+		}
+		else if(rel.kind == Linker::Relocation::SegmentAddress || rel.kind == Linker::Relocation::SelectorIndex)
 		{
 			if(resolution.target == nullptr || resolution.reference != nullptr || resolution.value != 0)
 			{
@@ -871,7 +888,8 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 		}
 		else
 		{
-			rel.WriteWord(resolution.value);
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
 		}
 	}
 }

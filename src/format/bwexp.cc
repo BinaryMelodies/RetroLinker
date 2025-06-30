@@ -338,7 +338,18 @@ void BWFormat::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 			continue;
 		}
-		if(rel.segment_of)
+
+		if(rel.kind == Linker::Relocation::Direct)
+		{
+			if(resolution.target != resolution.reference)
+			{
+				Linker::Error << "Error: intersegment differences impossible in protected mode, ignoring" << std::endl;
+				continue;
+			}
+			rel.WriteWord(resolution.value);
+		}
+		else if(rel.kind == Linker::Relocation::SegmentAddress // TODO: only SelectorIndex should be checked
+		|| rel.kind == Linker::Relocation::SelectorIndex)
 		{
 			if(resolution.target == nullptr || resolution.reference != nullptr || resolution.value != 0)
 			{
@@ -358,12 +369,8 @@ void BWFormat::ProcessModule(Linker::Module& module)
 		}
 		else
 		{
-			if(resolution.target != resolution.reference)
-			{
-				Linker::Error << "Error: intersegment differences impossible in protected mode, ignoring" << std::endl;
-				continue;
-			}
-			rel.WriteWord(resolution.value);
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
 		}
 	}
 }

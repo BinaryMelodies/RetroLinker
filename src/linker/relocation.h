@@ -26,13 +26,45 @@ namespace Linker
 	class Relocation
 	{
 	public:
+		enum reference_kind
+		{
+			/** @brief The value of the target is used */
+			Direct,
+			/**
+			 * @brief The paragraph of value is used, obtained via shifting it by 4 to the right
+			 *
+			 * This is intended for real mode x86 platforms.
+			 */
+			SegmentAddress,
+			/**
+			 * @brief The 8-bit segment of value is used, obtained via shifting it by 16 to the right
+			 *
+			 * This is intended for segmented Z8000 platforms.
+			 */
+			SegmentIndex,
+			/**
+			 * @brief A selector index is used to reference this target
+			 *
+			 * This is intended for protected mode x86 platforms.
+			 */
+			SelectorIndex, // TODO: unimplemented
+			/**
+			 * @brief An offset within the Global Offset Table is used instead of the actual value
+			 */
+			GOTOffset, // TODO: unimplemented
+			/**
+			 * @brief An offset within the Procedure Linkage Table is used instead of the actual value
+			 */
+			PLTOffset, // TODO: unimplemented
+			/**
+			 * @brief Size of the target
+			 */
+			SizeOf, // TODO: unimplemented
+		}
 		/**
-		 * @brief Set when the value to be stored is the segment selector instead of the segment start (Intel 8086 specific)
-		 *
-		 * For real mode targets, this is the value shifted 4 to the right.
-		 * Protected mode targets might use a more involved method of storing the value.
+		 * @brief Specifies the way the target is used to derive the resolve value, typically Direct
 		 */
-		bool segment_of;
+		kind;
 		/**
 		 * @brief The size of the value when stored at the source, in bytes (for example, 2 for 16-bit, 4 for 32-bit)
 		 */
@@ -70,8 +102,8 @@ namespace Linker
 		 */
 		bool subtract;
 
-		Relocation(bool segment_of, size_t size, Location source, Target target, Target reference, uint64_t addend, EndianType endiantype)
-			: segment_of(segment_of), size(size), source(source), target(target), reference(reference), addend(addend), endiantype(endiantype),
+		Relocation(reference_kind kind, size_t size, Location source, Target target, Target reference, uint64_t addend, EndianType endiantype)
+			: kind(kind), size(size), source(source), target(target), reference(reference), addend(addend), endiantype(endiantype),
 				shift(0), mask(-1), subtract(false)
 		{
 		}

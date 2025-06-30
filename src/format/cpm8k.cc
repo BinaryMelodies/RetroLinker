@@ -417,7 +417,9 @@ void CPM8KFormat::ProcessModule(Linker::Module& module)
 			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 			continue;
 		}
-		if(rel.segment_of)
+
+		if(rel.kind == Linker::Relocation::SegmentAddress // TODO: only SegmentIndex should be checked
+		|| rel.kind == Linker::Relocation::SegmentIndex)
 		{
 			if(resolution.reference != nullptr)
 			{
@@ -428,9 +430,19 @@ void CPM8KFormat::ProcessModule(Linker::Module& module)
 			{
 				Linker::Error << "Error: Invalid segment, ignoring" << std::endl;
 			}
-			resolution.value = number;
+			rel.WriteWord(number);
 		}
-		rel.WriteWord(resolution.value);
+		else if(rel.kind == Linker::Relocation::Direct)
+		{
+			rel.WriteWord(resolution.value);
+		}
+		else
+		{
+			rel.WriteWord(resolution.value); // TODO
+
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
+		}
 	}
 	// TODO: generate relocations?
 

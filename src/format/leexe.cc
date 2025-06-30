@@ -72,7 +72,8 @@ std::shared_ptr<const Linker::ActualImage> LEFormat::SegmentPage::AsImage() cons
 
 LEFormat::Page::Relocation::source_type LEFormat::Page::Relocation::GetType(Linker::Relocation& rel)
 {
-	if(rel.segment_of)
+	if(rel.kind == Linker::Relocation::SegmentAddress
+	|| rel.kind == Linker::Relocation::SelectorIndex)
 	{
 		return Selector16;
 	}

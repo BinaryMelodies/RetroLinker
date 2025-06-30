@@ -540,35 +540,47 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 		{
 			Linker::Error << "Error: inter-segment differences are not supported, generating image anyway (generate with relocations disable)" << std::endl;
 		}
-		else if(enable_relocations && rel.segment_of && resolution.target != nullptr)
+		else if(enable_relocations)
 		{
-			Relocation exe_rel;
-			exe_rel.type = Relocation::R_SEGWORD;
+			if(rel.kind == Linker::Relocation::SegmentAddress
+			|| rel.kind == Linker::Relocation::SelectorIndex)
+			{
+				if(resolution.target != nullptr)
+				{
+					Relocation exe_rel;
+					exe_rel.type = Relocation::R_SEGWORD;
 
-			if(resolution.target == code)
-				exe_rel.symbol = Relocation::S_TEXT;
-			else if(resolution.target == far_code)
-				exe_rel.symbol = Relocation::S_FTEXT;
-			else // data, bss, etc.
-				exe_rel.symbol = Relocation::S_DATA;
+					if(resolution.target == code)
+						exe_rel.symbol = Relocation::S_TEXT;
+					else if(resolution.target == far_code)
+						exe_rel.symbol = Relocation::S_FTEXT;
+					else // data, bss, etc.
+						exe_rel.symbol = Relocation::S_DATA;
 
-			Linker::Position source = rel.source.GetPosition();
-			auto& segment = source.segment;
-			exe_rel.address = source.address;
-			if(segment == code)
-			{
-				exe_rel.address -= dynamic_cast<Linker::Segment *>(code.get())->GetStartAddress();
-				code_relocations.emplace_back(exe_rel);
+					Linker::Position source = rel.source.GetPosition();
+					auto& segment = source.segment;
+					exe_rel.address = source.address;
+					if(segment == code)
+					{
+						exe_rel.address -= dynamic_cast<Linker::Segment *>(code.get())->GetStartAddress();
+						code_relocations.emplace_back(exe_rel);
+					}
+					else if(segment == far_code)
+					{
+						exe_rel.address -= dynamic_cast<Linker::Segment *>(far_code.get())->GetStartAddress();
+						far_code_relocations.emplace_back(exe_rel);
+					}
+					else // data, bss, etc.
+					{
+						exe_rel.address -= dynamic_cast<Linker::Segment *>(data.get())->GetStartAddress();
+						data_relocations.emplace_back(exe_rel);
+					}
+				}
 			}
-			else if(segment == far_code)
+			else if(rel.kind != Linker::Relocation::Direct)
 			{
-				exe_rel.address -= dynamic_cast<Linker::Segment *>(far_code.get())->GetStartAddress();
-				far_code_relocations.emplace_back(exe_rel);
-			}
-			else // data, bss, etc.
-			{
-				exe_rel.address -= dynamic_cast<Linker::Segment *>(data.get())->GetStartAddress();
-				data_relocations.emplace_back(exe_rel);
+				Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+				continue;
 			}
 		}
 	}
