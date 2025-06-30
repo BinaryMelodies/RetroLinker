@@ -62,7 +62,7 @@ namespace Linker
 			SizeOf, // TODO: unimplemented
 		}
 		/**
-		 * @brief Specifies the way the target is used to derive the resolve value, typically Direct
+		 * @brief Specifies the way the target is used to derive the resolved value, typically Direct
 		 */
 		kind;
 		/**
