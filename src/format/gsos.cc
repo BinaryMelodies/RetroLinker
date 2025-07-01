@@ -1,4 +1,5 @@
 
+#include <sstream>
 #include "gsos.h"
 #include "../linker/buffer.h"
 #include "../linker/reader.h"
@@ -370,7 +371,7 @@ size_t OMFFormat::Segment::ReadData(size_t bytes, offset_t offset, void * buffer
 		offset_t length = record->GetMemoryLength(*this, base_address + current_offset);
 		if(offset < current_offset + length)
 		{
-			size_t actual_bytes = std::min(bytes, current_offset + length - offset);
+			size_t actual_bytes = std::min(offset_t(bytes), current_offset + length - offset);
 			record->ReadData(actual_bytes, offset, buffer);
 			count += actual_bytes;
 			bytes -= actual_bytes;

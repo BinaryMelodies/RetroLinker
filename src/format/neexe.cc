@@ -29,8 +29,7 @@ NEFormat::Segment::Relocation::source_type NEFormat::Segment::Relocation::GetTyp
 	}
 }
 
-
-offset_t NEFormat::Segment::Relocation::GetSize() const
+size_t NEFormat::Segment::Relocation::GetSize() const
 {
 	switch(type)
 	{

@@ -143,7 +143,7 @@ offset_t XPFormat::WriteFile(Linker::Writer& wr) const
 offset_t XPFormat::ImageSize() const
 {
 	return std::max(
-		ldt_offset + 8 * ldt.size(),
+		offset_t(ldt_offset + 8 * ldt.size()),
 		image_offset + image->ImageSize());
 }
 
