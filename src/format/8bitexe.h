@@ -329,18 +329,55 @@ namespace Binary
 		/** @brief Additional memory to allocate, similar to .bss */
 		uint16_t zero_fill = 0;
 		/** @brief Address to be loaded at, only used for .OVL files */
-		uint16_t load_address = 0;
-		/** @brief BIOS link */
-		uint16_t csbase = 0;
+		uint16_t load_address = 0; // TODO: implement
+		/** @brief Code segment length, only used for .SPR files in banked systems */
+		uint16_t cslen = 0; // TODO: implement
 
 		/** @brief Do not include relocations, only used for .OVL files */
-		bool suppress_relocations = false;
+		bool suppress_relocations;
+
+		/** @brief On a banked BIOS, align the data segment of the .SPR on a page boundary and store the length of the code segment in the header */
+		bool option_banked_bios = false; // TODO: make flag, implement behavior
 
 		/** @brief Offsets to bytes referencing pages that must be relocated */
 		std::set<uint16_t> relocations;
 
-		PRLFormat(uint64_t default_base_address = 0, std::string default_extension = ".prl")
-			: GenericBinaryFormat(default_base_address, default_extension)
+		/**
+		 * @brief The format of the generated binary
+		 *
+		 * This controls the difference between the layout of the generated binary, as well as defaults such as base address and file extension.
+		 * The only ones that actually require special treatment are SPR and OVL files, the other file types are included for convenience.
+		 */
+		enum application_type
+		{
+			/** @brief Unspecified */
+			APPL_UNKNOWN,
+			/** @brief MP/M-80 .prl executable file */
+			APPL_PRL,
+			/** @brief CP/M-80 Plus .rsx resident system extension file (unsupported) */
+			APPL_RSX,
+			/** @brief CP/M-80 2 .rsm resident system extension file (unsupported) */
+			APPL_RSM,
+			/** @brief MP/M-80 .rsp resident system process file (unsupported) */
+			APPL_RSP,
+			/** @brief MP/M-80 .brs banked resident system process file (unsupported) */
+			APPL_BRS,
+			/** @brief MP/M-80 .spr system module file (unsupported) */
+			APPL_SPR,
+			/** @brief CP/M-80 .ovl overlay (unsupported) */
+			APPL_OVL,
+		};
+		/** @brief Target application type */
+		application_type application;
+
+		static uint16_t GetDefaultBaseAddress(application_type application);
+		static std::string GetDefaultApplicationExtension(application_type application);
+
+		PRLFormat(application_type application = APPL_PRL)
+			:
+				GenericBinaryFormat(GetDefaultBaseAddress(application), GetDefaultApplicationExtension(application)),
+				suppress_relocations(application == APPL_OVL),
+				application(application)
 		{
 		}
 

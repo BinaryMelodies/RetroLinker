@@ -597,21 +597,21 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
-//		assert(format == FORMAT_FLEXOS);
+//		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
 		wr.Seek(file_offset + 0x48);
 		library_descriptor.WriteDescriptor(wr, *this);
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
-//		assert(format == FORMAT_FLEXOS);
+//		assert(format == FORMAT_FASTLOAD);
 		wr.Seek(file_offset + 0x51);
 		fastload_descriptor.WriteDescriptor(wr, *this);
 	}
 	if(lib_id.name != "")
 	{
 		/* TODO: untested */
-//		assert(format == FORMAT_FLEXOS);
+//		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
 		wr.Seek(file_offset + 0x60);
 		lib_id.Write(wr);
 	}
@@ -627,13 +627,13 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
-//		assert(format == FORMAT_FLEXOS);
+//		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
 		library_descriptor.WriteData(wr, *this);
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
-//		assert(format == FORMAT_FLEXOS);
+//		assert(format == FORMAT_FASTLOAD);
 		fastload_descriptor.WriteData(wr, *this);
 	}
 	for(size_t i = 0; i < 8; i++)
@@ -997,7 +997,7 @@ bool CPM86Format::FormatIs16bit() const
 
 bool CPM86Format::FormatIsProtectedMode() const
 {
-	return format == FORMAT_FLEXOS;
+	return format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD;
 }
 
 unsigned CPM86Format::FormatAdditionalSectionFlags(std::string section_name) const
@@ -1345,6 +1345,7 @@ for any
 			}
 			break;
 		case FORMAT_FLEXOS:
+		case FORMAT_FASTLOAD:
 			switch(memory_model)
 			{
 			default:
@@ -1492,7 +1493,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 	if(library_descriptor.libraries.size() > 0)
 	{
 		/* TODO: untested */
-		assert(format == FORMAT_FLEXOS);
+		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
 		library_descriptor.type = Descriptor::Libraries;
 		library_descriptor.size_paras =
 			library_descriptor.min_size_paras =
@@ -1503,7 +1504,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 	if(false) /* TODO */
 	{
 		/* TODO: untested */
-		assert(format == FORMAT_FLEXOS);
+		assert(format == FORMAT_FASTLOAD);
 		fastload_descriptor.type = Descriptor::FastLoad;
 		fastload_descriptor.size_paras =
 			fastload_descriptor.min_size_paras =
@@ -1523,17 +1524,37 @@ void CPM86Format::GenerateFile(std::string filename, Linker::Module& module)
 
 std::string CPM86Format::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	/* TODO: other extensions are also possible, such as .rsx, .rsp, .mpm, .con, .ovr */
-	switch(format)
+	switch(application)
 	{
-	case FORMAT_8080:
-	case FORMAT_SMALL:
-	case FORMAT_COMPACT:
-		return filename + ".cmd";
-	case FORMAT_FLEXOS:
-		return filename + ".286";
+	case APPL_UNKNOWN:
 	default:
-		Linker::FatalError("Internal error: invalid memory model");
+		switch(format)
+		{
+		case FORMAT_8080:
+		case FORMAT_SMALL:
+		case FORMAT_COMPACT:
+			return filename + ".cmd";
+		case FORMAT_FLEXOS:
+		case FORMAT_FASTLOAD:
+			return filename + ".286";
+		default:
+			Linker::FatalError("Internal error: invalid memory model");
+		}
+		break;
+	case APPL_CMD:
+		return filename + ".cmd";
+	case APPL_RSX:
+		return filename + ".rsx";
+	case APPL_RSP:
+		return filename + ".rsp";
+	case APPL_MPM:
+		return filename + ".mpm";
+	case APPL_CON:
+		return filename + ".con";
+	case APPL_OVR:
+		return filename + ".ovr";
+	case APPL_286:
+		return filename + ".286";
 	}
 }
 

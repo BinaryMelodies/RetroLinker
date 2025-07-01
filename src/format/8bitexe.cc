@@ -320,7 +320,7 @@ void CPM3Format::rsx_record::OpenAndPrepare()
 		if(rsx_file.is_open())
 		{
 			Linker::Reader rd(::LittleEndian, &rsx_file);
-			module = std::make_shared<PRLFormat>();
+			module = std::make_shared<PRLFormat>(PRLFormat::APPL_RSX);
 			module->ReadFile(rd);
 			rsx_file.close();
 
@@ -536,8 +536,48 @@ std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string 
 
 // PRLFormat
 
-/* TODO: prepare relocations offsets */
-/* TODO: SPR files start at 0, OVL files start at a specified address */
+uint16_t PRLFormat::GetDefaultBaseAddress(application_type application)
+{
+	switch(application)
+	{
+	case APPL_UNKNOWN:
+	case APPL_PRL:
+	case APPL_RSX:
+	case APPL_RSM:
+	case APPL_RSP:
+	case APPL_BRS:
+	default:
+		return 0x0100;
+	case APPL_SPR:
+		return 0x0000;
+	case APPL_OVL:
+		// overlays do not have a default base address
+		return 0x0000;
+	}
+}
+
+std::string PRLFormat::GetDefaultApplicationExtension(application_type application)
+{
+	switch(application)
+	{
+	case APPL_UNKNOWN:
+	case APPL_PRL:
+	default:
+		return ".prl";
+	case APPL_RSX:
+		return ".rsx";
+	case APPL_RSM:
+		return ".rsm";
+	case APPL_RSP:
+		return ".rsp";
+	case APPL_BRS:
+		return ".brs";
+	case APPL_SPR:
+		return ".spr";
+	case APPL_OVL:
+		return ".ovl";
+	}
+}
 
 void PRLFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
@@ -575,7 +615,7 @@ void PRLFormat::ReadFile(Linker::Reader& rd)
 	rd.Skip(1);
 	load_address = rd.ReadUnsigned(2);
 	rd.Skip(1);
-	csbase = rd.ReadUnsigned(2);
+	cslen = rd.ReadUnsigned(2);
 	rd.Seek(0x0100);
 	ReadWithoutHeader(rd, image_size);
 }
@@ -623,7 +663,7 @@ offset_t PRLFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(1, 0);
 	wr.WriteWord(2, load_address); /* load address, non-zero only for OVL files */
 	wr.WriteWord(1, 0);
-	wr.WriteWord(2, csbase); /* base address of code group, usually zero */
+	wr.WriteWord(2, cslen); /* length of code group, usually left zero, unless .SPR file on a banked system */
 	wr.Seek(0x0100);
 	WriteWithoutHeader(wr);
 	return offset_t(-1);
@@ -660,11 +700,14 @@ void PRLFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", 0, offset_t(0x0100) + image->ImageSize() + (suppress_relocations ? 0 : (image->ImageSize() + 7) >> 3), 4);
 	file_region.AddField("Zero fill", Dumper::HexDisplay::Make(4), offset_t(zero_fill));
 	file_region.AddOptionalField("Load address", Dumper::HexDisplay::Make(4), offset_t(load_address));
-	file_region.AddOptionalField("BIOS link", Dumper::HexDisplay::Make(4), offset_t(csbase));
+	file_region.AddOptionalField("Code segment length", Dumper::HexDisplay::Make(4), offset_t(cslen));
 	file_region.AddField("Relocations", Dumper::ChoiceDisplay::Make("present", "missing"), offset_t(!suppress_relocations));
 	file_region.Display(dump);
 
-	Dumper::Block image_block("Image", 0x0100, image->AsImage(), 0x0100, 4); // TODO: .SPR files
+	// TODO: determine application type from file extension?
+	Dumper::Block image_block("Image", 0x0100, image->AsImage(),
+		load_address != 0 ? load_address : application == APPL_SPR ? 0x0000 : 0x0100,
+		4);
 	for(auto relocation : relocations)
 	{
 		image_block.AddSignal(relocation, 1);
