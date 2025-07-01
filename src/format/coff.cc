@@ -2033,6 +2033,22 @@ unsigned COFFFormat::FormatAdditionalSectionFlags(std::string section_name) cons
 	}
 }
 
+static Linker::OptionDescription<offset_t> p_code_base_address("code_base_address", "Starting address of code section");
+static Linker::OptionDescription<offset_t> p_data_base_address("data_base_address", "Starting address of data section");
+static Linker::OptionDescription<offset_t> p_bss_base_address("bss_base_address", "Starting address of bss section");
+
+std::vector<Linker::OptionDescription<void> *> COFFFormat::ParameterNames =
+{
+	&p_code_base_address,
+	&p_data_base_address,
+	&p_bss_base_address,
+};
+
+std::vector<Linker::OptionDescription<void> *> COFFFormat::GetLinkerScriptParameterNames()
+{
+	return ParameterNames;
+}
+
 class COFFOptionCollector : public Linker::OptionCollector
 {
 public:

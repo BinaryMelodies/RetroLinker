@@ -417,6 +417,19 @@ unsigned MZFormat::FormatAdditionalSectionFlags(std::string section_name) const
 	return flags;
 }
 
+std::vector<Linker::OptionDescription<void>> MZFormat::MemoryModelNames =
+{
+	Linker::OptionDescription<void>("default/tiny", "Tiny model, all symbols have the same preferred segment"),
+	Linker::OptionDescription<void>("small", "Small model, symbols in .code have a separate preferred segment"),
+	Linker::OptionDescription<void>("compact", "Compact model, symbols in .data, .bss and .comm have a common preferred segment, all other sections are treated as separate segments"),
+//	Linker::OptionDescription<void>("large", "Large model, ???"), // TODO
+};
+
+std::vector<Linker::OptionDescription<void>> MZFormat::GetMemoryModelNames()
+{
+	return MemoryModelNames;
+}
+
 void MZFormat::SetModel(std::string model)
 {
 	if(model == "")
@@ -454,8 +467,7 @@ public:
 
 	MZOptionCollector()
 	{
-		InitializeFields(header_align);
-		InitializeFields(file_align);
+		InitializeFields(header_align, file_align);
 	}
 };
 

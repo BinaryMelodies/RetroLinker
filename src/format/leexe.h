@@ -536,6 +536,8 @@ namespace Microsoft
 		uint16_t MakeEntry(uint16_t index, Linker::Position value);
 		uint8_t CountBundles(size_t entry_index) const;
 
+		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
+		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;
 		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;

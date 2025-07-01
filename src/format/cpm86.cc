@@ -1038,6 +1038,19 @@ unsigned CPM86Format::GetSegmentNumber(std::shared_ptr<Linker::Segment> segment)
 	return 0;
 }
 
+std::vector<Linker::OptionDescription<void>> CPM86Format::MemoryModelNames =
+{
+	Linker::OptionDescription<void>("default", "Depends on format: tiny for 8080 format, small for small format or FlexOS, compact for compact format"),
+	Linker::OptionDescription<void>("tiny", "Tiny model, all symbols have the same preferred segment, 8080 format only"),
+	Linker::OptionDescription<void>("small", "Small model, symbols in .code have a separate preferred segment, not supported on compact format"),
+	Linker::OptionDescription<void>("compact", "Compact model, symbols in .data, .bss and .comm have a common preferred segment, all other sections are treated as separate segments"),
+};
+
+std::vector<Linker::OptionDescription<void>> CPM86Format::GetMemoryModelNames()
+{
+	return MemoryModelNames;
+}
+
 void CPM86Format::SetModel(std::string model)
 {
 	if(model == "")
@@ -1079,8 +1092,7 @@ public:
 
 	CPM86OptionCollector()
 	{
-		InitializeFields(noreloc);
-		InitializeFields(rsx_file_names);
+		InitializeFields(noreloc, rsx_file_names);
 	}
 };
 

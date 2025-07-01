@@ -1,6 +1,7 @@
 
 #include <cstring>
 #include "macos.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
 #include "../linker/resolution.h"
@@ -284,6 +285,11 @@ void AppleSingleDouble::SetOptions(std::map<std::string, std::string>& options)
 	/* TODO */
 
 	std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->SetOptions(options);
+}
+
+std::vector<Linker::OptionDescription<void>> AppleSingleDouble::GetMemoryModelNames()
+{
+	return std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->GetMemoryModelNames();
 }
 
 void AppleSingleDouble::SetModel(std::string model)
@@ -974,6 +980,17 @@ void DataFork::CalculateValues()
 void ResourceFork::SetOptions(std::map<std::string, std::string>& options)
 {
 	/* TODO */
+}
+
+std::vector<Linker::OptionDescription<void>> ResourceFork::MemoryModelNames =
+{
+	Linker::OptionDescription<void>("default", "Normal model, symbols in zero-filled sectioned must be accessed as A5 relative addresses (\"A5 world\")"),
+	Linker::OptionDescription<void>("tiny", "Tiny model, symbols in zero-filled sections are placed in the CODE segment"),
+};
+
+std::vector<Linker::OptionDescription<void>> ResourceFork::GetMemoryModelNames()
+{
+	return MemoryModelNames;
 }
 
 void ResourceFork::SetModel(std::string model)
@@ -2628,6 +2645,12 @@ std::shared_ptr<MacBinary> MacDriver::GetMacBinary()
 void MacDriver::SetOptions(std::map<std::string, std::string>& options)
 {
 	this->options = options;
+}
+
+std::vector<Linker::OptionDescription<void>> MacDriver::GetMemoryModelNames()
+{
+	ResourceFork tmp;
+	return tmp.GetMemoryModelNames();
 }
 
 void MacDriver::SetModel(std::string model)

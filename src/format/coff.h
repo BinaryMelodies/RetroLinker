@@ -1191,6 +1191,9 @@ namespace COFF
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
+		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
+		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;
+
 		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;

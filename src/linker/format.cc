@@ -36,6 +36,28 @@ bool OutputFormat::AddSupplementaryOutputFormat(std::string subformat)
 	return false;
 }
 
+std::vector<OptionDescription<void>> OutputFormat::GetMemoryModelNames()
+{
+	return std::vector<OptionDescription<void>>();
+}
+
+std::vector<OptionDescription<void> *> OutputFormat::GetLinkerScriptParameterNames()
+{
+	return std::vector<OptionDescription<void> *>();
+}
+
+static std::vector<OptionDescription<void>> SpecialSymbolNames =
+{
+	OptionDescription<void>(".entry", "The location where execution is expected to start (PC, CS:IP, CS:EIP, RIP)"),
+	OptionDescription<void>(".stack_top", "The location where the stack should start being pushed to (SP, SS:SP, SS:ESP, RSP, S)"),
+};
+
+std::vector<OptionDescription<void>> OutputFormat::GetSpecialSymbolNames()
+{
+	//return std::vector<OptionDescription<void>>();
+	return SpecialSymbolNames;
+}
+
 std::shared_ptr<OptionCollector> OutputFormat::GetOptions()
 {
 	return std::make_shared<OptionCollector>();

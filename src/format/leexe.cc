@@ -1718,6 +1718,20 @@ uint8_t LEFormat::CountBundles(size_t entry_index) const
 	return entry_count;
 }
 
+static Linker::OptionDescription<offset_t> p_base_address("base_address", "Starting address of binary image");
+static Linker::OptionDescription<offset_t> p_align("align", "Alignment of memory objects");
+
+std::vector<Linker::OptionDescription<void> *> LEFormat::ParameterNames =
+{
+	&p_base_address,
+	&p_align,
+};
+
+std::vector<Linker::OptionDescription<void> *> LEFormat::GetLinkerScriptParameterNames()
+{
+	return ParameterNames;
+}
+
 class LEOptionCollector : public Linker::OptionCollector
 {
 public:

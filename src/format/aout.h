@@ -147,6 +147,9 @@ namespace AOut
 		 */
 		static magic_type GetDefaultMagic(system_type system);
 
+		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
+		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;
+
 		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 
 		void SetOptions(std::map<std::string, std::string>& options) override;

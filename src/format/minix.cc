@@ -297,6 +297,20 @@ bool MINIXFormat::FormatIsProtectedMode() const
 	return GetEndianType(cpu);
 }
 
+static Linker::OptionDescription<offset_t> p_code_base_address("code_base_address", "Starting address of code section");
+static Linker::OptionDescription<offset_t> p_data_base_address("data_base_address", "Starting address of data section (for split binary)");
+
+std::vector<Linker::OptionDescription<void> *> MINIXFormat::ParameterNames =
+{
+	&p_code_base_address,
+	&p_data_base_address,
+};
+
+std::vector<Linker::OptionDescription<void> *> MINIXFormat::GetLinkerScriptParameterNames()
+{
+	return ParameterNames;
+}
+
 class MINIXOptionCollector : public Linker::OptionCollector
 {
 public:
@@ -306,9 +320,7 @@ public:
 
 	MINIXOptionCollector()
 	{
-		InitializeFields(total_memory);
-		InitializeFields(stack_size);
-		InitializeFields(heap_size);
+		InitializeFields(total_memory, stack_size, heap_size);
 	}
 };
 

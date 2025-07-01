@@ -59,6 +59,9 @@ namespace Binary
 		/** @brief Default filename extension for executables (such as .com for MS-DOS, .r for Human68k) */
 		std::string extension;
 
+		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
+		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;
+
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();
@@ -153,6 +156,12 @@ namespace Binary
 		};
 		/** @brief Memory model of generated executable, must be MODEL_DEFAULT for all non-x86 platforms */
 		memory_model_t memory_model = MODEL_DEFAULT;
+
+		static std::vector<Linker::OptionDescription<void>> MemoryModelNames;
+		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
+		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
+		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;
+		//std::vector<Linker::OptionDescription<void>> GetSpecialSymbolNames() override;
 
 		void SetModel(std::string model) override;
 

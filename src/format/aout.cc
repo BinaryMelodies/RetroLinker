@@ -605,6 +605,22 @@ AOutFormat::magic_type AOutFormat::GetDefaultMagic(system_type system)
 	}
 }
 
+static Linker::OptionDescription<offset_t> p_code_base_address("code_base_address", "Starting address of code section");
+static Linker::OptionDescription<offset_t> p_data_align("data_align", "Alignment of data section");
+static Linker::OptionDescription<offset_t> p_align("align", "Alignment of segments");
+
+std::vector<Linker::OptionDescription<void> *> AOutFormat::ParameterNames =
+{
+	&p_code_base_address,
+	&p_data_align,
+	&p_align,
+};
+
+std::vector<Linker::OptionDescription<void> *> AOutFormat::GetLinkerScriptParameterNames()
+{
+	return ParameterNames;
+}
+
 class AOutOptionCollector : public Linker::OptionCollector
 {
 public:

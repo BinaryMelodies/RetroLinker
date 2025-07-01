@@ -33,6 +33,9 @@ namespace X68000
 		uint32_t relocation_size = 0;
 		std::map<uint32_t, unsigned char> relocations;
 
+		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
+		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;
+
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		void CreateDefaultSegments();

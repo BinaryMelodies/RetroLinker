@@ -106,35 +106,66 @@ namespace Linker
 	};
 
 	template <typename T>
-		class Option;
+		class OptionDescription;
 
 	template <>
-		class Option<void>
+		class OptionDescription<void>
 	{
 	public:
-		std::map<std::string, std::string> * options;
-
 		std::string name;
 		std::string description;
 
-		Option(std::string name, std::string description)
+		OptionDescription(std::string name, std::string description)
 			: name(name), description(description)
 		{
 		}
 
-		virtual std::string type_name() = 0;
+		virtual ~OptionDescription() = default;
 
-		virtual ~Option() = default;
+		virtual std::string type_name()
+		{
+			return ""; // TODO: this should be a purely virtual function, but untyped option descriptions should be possible to instantiate
+		}
 	};
 
 	template <typename T>
-		class Option : public Option<void>
+		class OptionDescription : public virtual OptionDescription<void>
+	{
+	public:
+		OptionDescription(std::string name, std::string description)
+			: OptionDescription<void>(name, description)
+		{
+		}
+
+		std::string type_name() override
+		{
+			return TypeData<T>::GetTypeName();
+		}
+	};
+
+	template <typename T>
+		class Option;
+
+	template <>
+		class Option<void> : public virtual OptionDescription<void>
+	{
+	public:
+		std::map<std::string, std::string> * options;
+
+		Option(std::string name, std::string description)
+			: OptionDescription<void>(name, description)
+		{
+		}
+	};
+
+	template <typename T>
+		class Option : public virtual OptionDescription<T>, public virtual Option<void>
 	{
 	public:
 		T default_value;
 
 		Option(std::string name, std::string description, T default_value = T())
-			: Option<void>(name, description), default_value(default_value)
+			: OptionDescription<void>(name, description), OptionDescription<T>(name, description), Option<void>(name, description), default_value(default_value)
 		{
 		}
 
@@ -158,11 +189,11 @@ namespace Linker
 	};
 
 	template <>
-		class Option<bool> : public Option<void>
+		class Option<bool> : public virtual OptionDescription<bool>, public virtual Option<void>
 	{
 	public:
 		Option(std::string name, std::string description)
-			: Option<void>(name, description)
+			: OptionDescription<void>(name, description), OptionDescription<bool>(name, description), Option<void>(name, description)
 		{
 		}
 
@@ -178,11 +209,11 @@ namespace Linker
 	};
 
 	template <typename T>
-		class Option<std::vector<T>> : public Option<void>
+		class Option<std::vector<T>> : public virtual OptionDescription<std::vector<T>>, public virtual Option<void>
 	{
 	public:
 		Option(std::string name, std::string description)
-			: Option<void>(name, description)
+			: OptionDescription<void>(name, description), OptionDescription<std::vector<T>>(name, description), Option<void>(name, description)
 		{
 		}
 
@@ -204,11 +235,11 @@ namespace Linker
 	};
 
 	template <typename T>
-		class Option<std::optional<T>> : public Option<void>
+		class Option<std::optional<T>> : public virtual OptionDescription<std::optional<T>>, public virtual Option<void>
 	{
 	public:
 		Option(std::string name, std::string description)
-			: Option<void>(name, description)
+			: OptionDescription<void>(name, description), OptionDescription<std::optional<T>>(name, description), Option<void>(name, description)
 		{
 		}
 
@@ -244,7 +275,7 @@ namespace Linker
 		}
 
 		template <typename ... Args>
-			void InitializeFields(Option<void>& option, Args ... args)
+			void InitializeFields(Option<void>& option, Args& ... args)
 		{
 			option_list.push_back(&option);
 			InitializeFields(args...);

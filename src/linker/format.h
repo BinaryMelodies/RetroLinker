@@ -17,6 +17,8 @@ namespace Linker
 	class Module;
 	class ModuleCollector;
 	class OptionCollector;
+	template <typename T>
+		class OptionDescription;
 	class Reader;
 	class Writer;
 
@@ -65,6 +67,18 @@ namespace Linker
 		 * @brief If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown
 		 */
 		virtual bool AddSupplementaryOutputFormat(std::string subformat);
+		/**
+		 * @brief Returns a list of the supported memory models, used for documentation
+		 */
+		virtual std::vector<OptionDescription<void>> GetMemoryModelNames();
+		/**
+		 * @brief Returns a list of the parameters used in the linker scripts, used for documentation
+		 */
+		virtual std::vector<OptionDescription<void> *> GetLinkerScriptParameterNames();
+		/**
+		 * @brief Returns a list of special symbol names recognized by the format, used for documentation
+		 */
+		virtual std::vector<OptionDescription<void>> GetSpecialSymbolNames();
 		/**
 		 * @brief Returns object containing a sequence of option fields provided with the -S command line flag
 		 */

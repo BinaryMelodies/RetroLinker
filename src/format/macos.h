@@ -207,6 +207,7 @@ namespace Apple
 		}
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
+		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
 		void SetModel(std::string model) override;
 		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
@@ -307,6 +308,8 @@ namespace Apple
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
+		static std::vector<Linker::OptionDescription<void>> MemoryModelNames;
+		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
 		void SetModel(std::string model) override;
 
 		class Resource : public Linker::OutputFormat
@@ -1067,6 +1070,7 @@ namespace Apple
 	public:
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
+		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
 		void SetModel(std::string model) override;
 
 		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;

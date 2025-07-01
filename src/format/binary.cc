@@ -1,5 +1,6 @@
 
 #include "binary.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -49,6 +50,21 @@ void GenericBinaryFormat::Dump(Dumper::Dumper& dump) const
 }
 
 /* * * Writer members * * */
+static Linker::OptionDescription<offset_t> p_base_address("base_address", "Starting address of binary image (non-x86 targets)");
+static Linker::OptionDescription<offset_t> p_section_align("section_align", "Default alignment for sections (non-x86 targets)");
+static Linker::OptionDescription<offset_t> p_segment_bias("segment_bias", "Starting offset of first byte in binary image (x86 only)");
+
+std::vector<Linker::OptionDescription<void> *> GenericBinaryFormat::ParameterNames =
+{
+	&p_base_address,
+	&p_section_align,
+};
+
+std::vector<Linker::OptionDescription<void> *> GenericBinaryFormat::GetLinkerScriptParameterNames()
+{
+	return ParameterNames;
+}
+
 void GenericBinaryFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".code")
@@ -293,6 +309,36 @@ unsigned BinaryFormat::FormatAdditionalSectionFlags(std::string section_name) co
 		return 0;
 	}
 }
+
+std::vector<Linker::OptionDescription<void>> BinaryFormat::MemoryModelNames =
+{
+	Linker::OptionDescription<void>("default", "Used for non-x86 targets, defaults to tiny on x86"),
+	Linker::OptionDescription<void>("tiny", "Tiny model, all symbols have the same preferred segment (x86 only)"),
+	Linker::OptionDescription<void>("small", "Small model, symbols in .code have a separate preferred segment (x86 only)"),
+	Linker::OptionDescription<void>("compact", "Compact model, symbols in .data, .bss and .comm have a common preferred segment, all other sections are treated as separate segments (x86 only)"),
+//	Linker::OptionDescription<void>("large", "Large model, ??? (x86 only)"), // TODO
+};
+
+std::vector<Linker::OptionDescription<void>> BinaryFormat::GetMemoryModelNames()
+{
+	return MemoryModelNames;
+}
+
+std::vector<Linker::OptionDescription<void> *> BinaryFormat::ParameterNames =
+{
+	&p_base_address,
+	&p_section_align,
+	&p_segment_bias,
+};
+
+std::vector<Linker::OptionDescription<void> *> BinaryFormat::GetLinkerScriptParameterNames()
+{
+	return ParameterNames;
+}
+
+/*std::vector<Linker::OptionDescription<void>> BinaryFormat::GetSpecialSymbolNames()
+{
+}*/
 
 void BinaryFormat::SetModel(std::string model)
 {

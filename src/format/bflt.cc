@@ -91,8 +91,7 @@ public:
 
 	BFLTOptionCollector()
 	{
-		InitializeFields(ram);
-		InitializeFields(got);
+		InitializeFields(ram, got);
 	}
 };
 

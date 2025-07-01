@@ -1,5 +1,6 @@
 
 #include "huexe.h"
+#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -8,6 +9,18 @@ using namespace X68000;
 void HUFormat::ReadFile(Linker::Reader& rd)
 {
 	/* TODO */
+}
+
+static Linker::OptionDescription<offset_t> p_base_address("base_address", "Starting address of binary image");
+
+std::vector<Linker::OptionDescription<void> *> HUFormat::ParameterNames =
+{
+	&p_base_address,
+};
+
+std::vector<Linker::OptionDescription<void> *> HUFormat::GetLinkerScriptParameterNames()
+{
+	return ParameterNames;
 }
 
 void HUFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)

@@ -210,6 +210,10 @@ namespace Microsoft
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
+		static std::vector<Linker::OptionDescription<void>> MemoryModelNames;
+
+		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
+
 		void SetModel(std::string model) override;
 
 		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
