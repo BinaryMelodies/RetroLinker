@@ -536,6 +536,56 @@ std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string 
 
 // PRLFormat
 
+class PRLOptionCollector : public Linker::OptionCollector
+{
+public:
+	Linker::Option<bool> banked{"banked", "Generated .SPR file for banked CP/M 3"};
+
+	PRLOptionCollector()
+	{
+		InitializeFields(banked);
+	}
+};
+
+std::shared_ptr<Linker::OptionCollector> PRLFormat::GetOptions()
+{
+	return std::make_shared<PRLOptionCollector>();
+}
+
+void PRLFormat::SetOptions(std::map<std::string, std::string>& options)
+{
+	PRLOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	option_banked_bios = collector.banked();
+}
+
+std::unique_ptr<Script::List> PRLFormat::GetScript(Linker::Module& module)
+{
+	if(option_banked_bios)
+	{
+		// separates code and data segments, align data on next 0x100 byte page
+
+		static const char * SplitScript = R"(
+".code"
+{
+	at ?base_address?;
+	all exec;
+	align 0x100; // TODO: this also expands the code segment size
+	all not zero align ?section_align?;
+	all not ".stack" align ?section_align?;
+	all align ?section_align?;
+};
+)";
+
+		return Script::parse_string(SplitScript);
+	}
+	else
+	{
+		return GenericBinaryFormat::GetScript(module);
+	}
+}
+
 uint16_t PRLFormat::GetDefaultBaseAddress(application_type application)
 {
 	switch(application)
@@ -603,6 +653,23 @@ bool PRLFormat::ProcessRelocation(Linker::Module& module, Linker::Relocation& re
 		}
 	}
 	return true;
+}
+
+void PRLFormat::ProcessModule(Linker::Module& module)
+{
+	GenericBinaryFormat::ProcessModule(module);
+
+	if(option_banked_bios)
+	{
+		cslen = 0;
+		for(auto& section : std::dynamic_pointer_cast<Linker::Segment>(image)->sections)
+		{
+			if(!section->IsExecutable())
+				break;
+			assert(section->GetStartAddress() == cslen); // note: this will fail unless the base_address is 0
+			cslen += section->Size();
+		}
+	}
 }
 
 void PRLFormat::ReadFile(Linker::Reader& rd)

@@ -381,9 +381,16 @@ namespace Binary
 		{
 		}
 
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module) override;
+
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		bool ProcessRelocation(Linker::Module& module, Linker::Relocation& rel, Linker::Resolution resolution) override;
+
+		void ProcessModule(Linker::Module& module) override;
 
 		void ReadFile(Linker::Reader& rd) override;
 
