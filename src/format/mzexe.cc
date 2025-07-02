@@ -653,7 +653,7 @@ void MZFormat::ProcessModule(Linker::Module& module)
 		{
 			rel.WriteWord(resolution.value);
 		}
-		else if(rel.kind == Linker::Relocation::SegmentAddress)
+		else if(rel.kind == Linker::Relocation::ParagraphAddress)
 		{
 			if(resolution.target != nullptr)
 			{

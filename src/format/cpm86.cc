@@ -1413,7 +1413,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 		{
 			rel.WriteWord(resolution.value);
 		}
-		else if(rel.kind == Linker::Relocation::SegmentAddress // CP/M-86
+		else if(rel.kind == Linker::Relocation::ParagraphAddress // CP/M-86
 		|| rel.kind == Linker::Relocation::SelectorIndex) // FlexOS 286 (TODO: not yet implemented)
 		{
 			if(resolution.target != nullptr)

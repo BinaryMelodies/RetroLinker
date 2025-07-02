@@ -35,7 +35,7 @@ namespace Linker
 			 *
 			 * This is intended for real mode x86 platforms.
 			 */
-			SegmentAddress,
+			ParagraphAddress,
 			/**
 			 * @brief The 8-bit segment of value is used, obtained via shifting it by 16 to the right
 			 *

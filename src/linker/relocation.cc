@@ -56,7 +56,7 @@ Relocation Relocation::Relative(size_t size, Location source, Target target, uin
 Relocation Relocation::Paragraph(Location source, Target target, uint64_t addend)
 {
 	/* Intel x86 specific */
-	return Relocation(SegmentAddress, 2, source, target, Target(), addend, ::LittleEndian);
+	return Relocation(ParagraphAddress, 2, source, target, Target(), addend, ::LittleEndian);
 }
 
 Relocation Relocation::Selector(Location source, Target target, uint64_t addend)
@@ -74,7 +74,7 @@ Relocation Relocation::Segment(size_t size, Location source, Target target, uint
 Relocation Relocation::ParagraphDifference(Location source, Target target, Target reference, uint64_t addend)
 {
 	/* Intel x86 specific */
-	return Relocation(SegmentAddress, 2, source, target, reference, addend, ::LittleEndian);
+	return Relocation(ParagraphAddress, 2, source, target, reference, addend, ::LittleEndian);
 }
 
 Relocation& Relocation::SetMask(uint64_t new_mask)
@@ -124,7 +124,7 @@ bool Relocation::Resolve(Module& object, Resolution& resolution)
 			target_position.segment,
 			reference_position.segment);
 		return true;
-	case SegmentAddress:
+	case ParagraphAddress:
 		/* TODO: signal appropriate error if "target_position.address - reference_position.address" != 0 in protected mode */
 		resolution = Resolution(addend + (value >> 4),
 			target_position.segment,
@@ -211,7 +211,7 @@ std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation
 	{
 	case Relocation::Direct:
 		break;
-	case Relocation::SegmentAddress:
+	case Relocation::ParagraphAddress:
 	case Relocation::SegmentIndex:
 		out << "segment of ";
 		break;
