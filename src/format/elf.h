@@ -91,6 +91,10 @@ namespace ELF
 		static constexpr offset_t R_386_PC16 = 21;
 		static constexpr offset_t R_386_32 = 1;
 		static constexpr offset_t R_386_PC32 = 2;
+		static constexpr offset_t R_386_GOT32 = 3;
+		static constexpr offset_t R_386_GOTPC = 10;
+		static constexpr offset_t R_386_GOTOFF = 9;
+		static constexpr offset_t R_386_PLT32 = 4;
 		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md (not yet implemented) */
 		static constexpr offset_t R_386_SEG16 = 45;
 		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md (not yet implemented) */
@@ -110,6 +114,18 @@ namespace ELF
 		static constexpr offset_t R_68K_PC16 = 5;
 		static constexpr offset_t R_68K_32 = 1;
 		static constexpr offset_t R_68K_PC32 = 4;
+		static constexpr offset_t R_68K_GOT8 = 9;
+		static constexpr offset_t R_68K_GOT8O = 12;
+		static constexpr offset_t R_68K_GOT16 = 8;
+		static constexpr offset_t R_68K_GOT16O = 11;
+		static constexpr offset_t R_68K_GOT32 = 7;
+		static constexpr offset_t R_68K_GOT32O = 10;
+		static constexpr offset_t R_68K_PLT8 = 15;
+		static constexpr offset_t R_68K_PLT8O = 18;
+		static constexpr offset_t R_68K_PLT16 = 14;
+		static constexpr offset_t R_68K_PLT16O = 17;
+		static constexpr offset_t R_68K_PLT32 = 13;
+		static constexpr offset_t R_68K_PLT32O = 16;
 
 		static constexpr offset_t R_ARM_ABS8 = 8;
 		static constexpr offset_t R_ARM_ABS16 = 16;

@@ -49,13 +49,13 @@ namespace Linker
 			 */
 			SelectorIndex, // TODO: unimplemented
 			/**
-			 * @brief An offset within the Global Offset Table is used instead of the actual value
+			 * @brief An entry in the Global Offset Table is used instead of the actual value
 			 */
-			GOTOffset, // TODO: unimplemented
+			GOTEntry,
 			/**
-			 * @brief An offset within the Procedure Linkage Table is used instead of the actual value
+			 * @brief An entry in the Procedure Linkage Table is used instead of the actual value
 			 */
-			PLTOffset, // TODO: unimplemented
+			PLTEntry, // TODO: unimplemented
 			/**
 			 * @brief Size of the target
 			 */
@@ -178,6 +178,21 @@ namespace Linker
 		 * For example, ELKS needs it.
 		 */
 		static Relocation ParagraphDifference(Location source, Target target, Target reference, uint64_t addend = 0);
+
+		/**
+		 * @brief Creates a relocation referencing the absolute address of a GOT entry
+		 */
+		static Relocation GOTEntryAbsolute(size_t size, Location source, SymbolName target, uint64_t addend, EndianType endiantype);
+
+		/**
+		 * @brief Creates a relocation that references the offset of a GOT entry from the source
+		 */
+		static Relocation GOTEntryRelative(size_t size, Location source, SymbolName target, uint64_t addend, EndianType endiantype);
+
+		/**
+		 * @brief Creates a relocation that references the offset of a GOT entry from the start of the GOT
+		 */
+		static Relocation GOTEntryOffset(size_t size, Location source, SymbolName target, uint64_t addend, EndianType endiantype);
 
 		/**
 		 * @brief Instead of the full word, only modify the following bits

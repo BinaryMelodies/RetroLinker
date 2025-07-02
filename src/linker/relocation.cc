@@ -77,6 +77,21 @@ Relocation Relocation::ParagraphDifference(Location source, Target target, Targe
 	return Relocation(ParagraphAddress, 2, source, target, reference, addend, ::LittleEndian);
 }
 
+Relocation Relocation::GOTEntryAbsolute(size_t size, Location source, SymbolName target, uint64_t addend, EndianType endiantype)
+{
+	return Relocation(GOTEntry, size, source, target, Target(), addend, endiantype);
+}
+
+Relocation Relocation::GOTEntryRelative(size_t size, Location source, SymbolName target, uint64_t addend, EndianType endiantype)
+{
+	return Relocation(GOTEntry, size, source, target, Target(source), addend, endiantype);
+}
+
+Relocation Relocation::GOTEntryOffset(size_t size, Location source, SymbolName target, uint64_t addend, EndianType endiantype)
+{
+	return Relocation(GOTEntry, size, source, target, Target(SymbolName::GOT), addend, endiantype);
+}
+
 Relocation& Relocation::SetMask(uint64_t new_mask)
 {
 	mask = new_mask;
@@ -136,8 +151,8 @@ bool Relocation::Resolve(Module& object, Resolution& resolution)
 			reference_position.segment);
 		return true;
 	case SelectorIndex:
-	case GOTOffset:
-	case PLTOffset:
+	case GOTEntry:
+	case PLTEntry:
 		resolution = Resolution(addend + value,
 			target_position.segment,
 			reference_position.segment);
@@ -218,11 +233,11 @@ std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation
 	case Relocation::SelectorIndex:
 		out << "selector of ";
 		break;
-	case Relocation::GOTOffset:
-		out << "GOT offset of ";
+	case Relocation::GOTEntry:
+		out << "GOT entry of ";
 		break;
-	case Relocation::PLTOffset:
-		out << "PLT offset of ";
+	case Relocation::PLTEntry:
+		out << "PLT entry of ";
 		break;
 	case Relocation::SizeOf:
 		out << "size of ";

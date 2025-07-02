@@ -105,6 +105,11 @@ namespace Linker
 		 * @brief Compares two symbols for inequality
 		 */
 		bool operator !=(const SymbolName& other) const;
+
+		/**
+		 * @brief Symbol representing the global offset table
+		 */
+		static SymbolName GOT;
 	};
 
 	/**

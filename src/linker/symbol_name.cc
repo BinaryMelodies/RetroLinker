@@ -114,6 +114,8 @@ bool SymbolName::operator !=(const SymbolName& other) const
 	return !(*this == other);
 }
 
+SymbolName SymbolName::GOT("_GLOBAL_OFFSET_TABLE_");
+
 std::ostream& Linker::operator<<(std::ostream& out, const SymbolName& symbol)
 {
 	std::string name, library;

@@ -276,6 +276,10 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 		case R_386_32:
 		case R_386_PC32:
 		case R_386_SUB32:
+		case R_386_GOT32:
+		case R_386_GOTPC:
+		case R_386_GOTOFF:
+		case R_386_PLT32:
 			return 4;
 		}
 	case EM_68K:
@@ -285,12 +289,24 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 			return 0;
 		case R_68K_8:
 		case R_68K_PC8:
+		case R_68K_GOT8:
+		case R_68K_GOT8O:
+		case R_68K_PLT8:
+		case R_68K_PLT8O:
 			return 1;
 		case R_68K_16:
 		case R_68K_PC16:
+		case R_68K_GOT16:
+		case R_68K_GOT16O:
+		case R_68K_PLT16:
+		case R_68K_PLT16O:
 			return 2;
 		case R_68K_32:
 		case R_68K_PC32:
+		case R_68K_GOT32:
+		case R_68K_GOT32O:
+		case R_68K_PLT32:
+		case R_68K_PLT32O:
 			return 4;
 		}
 	case EM_ARM:
@@ -317,6 +333,7 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 
 std::string ELFFormat::Relocation::GetName(cpu_type cpu) const
 {
+	// TODO: this could be handled by arrays
 	switch(cpu)
 	{
 	case EM_386:
@@ -348,6 +365,14 @@ std::string ELFFormat::Relocation::GetName(cpu_type cpu) const
 			return "R_386_PC32";
 		case R_386_SUB32:
 			return "R_386_SUB32";
+		case R_386_GOT32:
+			return "R_386_GOT32";
+		case R_386_GOTPC:
+			return "R_386_GOTPC";
+		case R_386_GOTOFF:
+			return "R_386_GOTOFF";
+		case R_386_PLT32:
+			return "R_386_PLT32";
 		}
 	case EM_68K:
 		switch(type)
@@ -366,6 +391,30 @@ std::string ELFFormat::Relocation::GetName(cpu_type cpu) const
 			return "R_68K_32";
 		case R_68K_PC32:
 			return "R_68K_PC32";
+		case R_68K_GOT8:
+			return "R_68K_GOT8";
+		case R_68K_GOT8O:
+			return "R_68K_GOT8O";
+		case R_68K_PLT8:
+			return "R_68K_PLT8";
+		case R_68K_PLT8O:
+			return "R_68K_PLT8O";
+		case R_68K_GOT16:
+			return "R_68K_GOT16";
+		case R_68K_GOT16O:
+			return "R_68K_GOT16O";
+		case R_68K_PLT16:
+			return "R_68K_PLT16";
+		case R_68K_PLT16O:
+			return "R_68K_PLT16O";
+		case R_68K_GOT32:
+			return "R_68K_GOT32";
+		case R_68K_GOT32O:
+			return "R_68K_GOT32O";
+		case R_68K_PLT32:
+			return "R_68K_PLT32";
+		case R_68K_PLT32O:
+			return "R_68K_PLT32O";
 		}
 	case EM_ARM:
 		switch(type)
@@ -2707,35 +2756,16 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 			{
 				Linker::Location rel_source = Linker::Location(sections[rel.sh_info].GetSection(), rel.offset);
 				const Symbol& sym_target = sections[rel.sh_link].GetSymbolTable()->symbols[rel.symbol];
-				Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(Linker::SymbolName(sym_target.name));
+				Linker::SymbolName sym_name = Linker::SymbolName(sym_target.name);
+				Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(sym_name);
 				Linker::Relocation obj_rel = Linker::Relocation::Empty();
 				size_t rel_size;
 				switch(cpu)
 				{
 				case EM_386:
-					switch(rel.type)
-					{
-					case R_386_8:
-					case R_386_PC8:
-						rel_size = 1;
-						break;
-					case R_386_16:
-					case R_386_PC16:
-					case R_386_SEG16:
-					case R_386_SUB16:
-					case R_386_SEGRELATIVE:
-					case R_386_OZSEG16:
-					case R_386_OZRELSEG16:
-						rel_size = 2;
-						break;
-					case R_386_32:
-					case R_386_PC32:
-					case R_386_SUB32:
-						rel_size = 4;
-						break;
-					default:
+					rel_size = rel.GetSize(cpu);
+					if(rel_size == 0)
 						continue;
-					}
 
 					switch(rel.type)
 					{
@@ -2775,27 +2805,26 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					case R_386_OZRELSEG16:
 						// TODO
 						break;
+					case R_386_GOT32:
+						obj_rel = Linker::Relocation::GOTEntryAbsolute(rel_size, rel_source, sym_name, rel.addend, ::LittleEndian);
+						// TODO: for PIC, use GOTEntryOffset instead
+						break;
+					case R_386_GOTPC:
+						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, Linker::SymbolName::GOT, rel.addend, ::LittleEndian);
+						break;
+					case R_386_GOTOFF:
+						obj_rel = Linker::Relocation::OffsetFrom(rel_size, rel_source, rel_target, Linker::Target(Linker::SymbolName::GOT), rel.addend, ::LittleEndian);
+						break;
+					case R_386_PLT32:
+						// TODO
+						break;
 					}
 					break;
 
 				case EM_68K:
-					switch(rel.type)
-					{
-					case R_68K_8:
-					case R_68K_PC8:
-						rel_size = 1;
-						break;
-					case R_68K_16:
-					case R_68K_PC16:
-						rel_size = 2;
-						break;
-					case R_68K_32:
-					case R_68K_PC32:
-						rel_size = 4;
-						break;
-					default:
+					rel_size = rel.GetSize(cpu);
+					if(rel_size == 0)
 						continue;
-					}
 
 					switch(rel.type)
 					{
@@ -2808,6 +2837,26 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					case R_68K_PC16:
 					case R_68K_PC32:
 						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::BigEndian);
+						break;
+					case R_68K_GOT8:
+					case R_68K_GOT16:
+					case R_68K_GOT32:
+						obj_rel = Linker::Relocation::GOTEntryAbsolute(rel_size, rel_source, sym_name, rel.addend, ::BigEndian);
+						break;
+					case R_68K_GOT8O:
+					case R_68K_GOT16O:
+					case R_68K_GOT32O:
+						obj_rel = Linker::Relocation::GOTEntryRelative(rel_size, rel_source, sym_name, rel.addend, ::BigEndian);
+						break;
+					case R_68K_PLT8:
+					case R_68K_PLT16:
+					case R_68K_PLT32:
+						// TODO
+						break;
+					case R_68K_PLT8O:
+					case R_68K_PLT16O:
+					case R_68K_PLT32O:
+						// TODO
 						break;
 					}
 					break;
