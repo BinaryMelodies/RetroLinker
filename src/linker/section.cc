@@ -187,8 +187,10 @@ offset_t Section::Expand(offset_t new_size)
 	}
 	else
 	{
-		offset_t extra = new_size - data.size();
-		data.resize(new_size);
+		offset_t extra = new_size - Size();
+		// normally, the size of a non-zero filled section is data.size(), but subclasses might contain additional data stored in other structures
+		offset_t new_data_size = new_size - (Size() - data.size());
+		data.resize(new_data_size);
 		return extra;
 	}
 }
@@ -219,17 +221,23 @@ size_t Section::ReadData(size_t bytes, offset_t offset, void * buffer) const
 	}
 	else
 	{
-		return Buffer::ReadData(bytes, offset, buffer);
+		// make sure the offset is within the stored data range, this is only required for subclasses of Section
+		assert(offset >= Size() - data.size());
+		offset_t actual_offset = offset - (Size() - data.size());
+		return Buffer::ReadData(bytes, actual_offset, buffer);
 	}
 }
 
 void Section::WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype)
 {
-	if(value == 0 && (offset > data.size() || IsZeroFilled()))
+	if(value == 0 && (offset > Size() || IsZeroFilled()))
 		return;
 	assert(!IsZeroFilled());
 	Expand(offset + bytes);
-	::WriteWord(bytes, bytes, data.data() + offset, value, endiantype);
+	// make sure the offset is within the stored data range, this is only required for subclasses of Section
+	assert(offset >= Size() - data.size());
+	offset_t actual_offset = offset - (Size() - data.size());
+	::WriteWord(bytes, bytes, data.data() + actual_offset, value, endiantype);
 }
 
 void Section::WriteWord(size_t bytes, offset_t offset, uint64_t value)
@@ -239,7 +247,7 @@ void Section::WriteWord(size_t bytes, offset_t offset, uint64_t value)
 
 void Section::WriteWord(size_t bytes, uint64_t value, EndianType endiantype)
 {
-	WriteWord(bytes, data.size(), value, endiantype);
+	WriteWord(bytes, Size(), value, endiantype);
 }
 
 void Section::WriteWord(size_t bytes, uint64_t value)
@@ -291,6 +299,8 @@ offset_t Section::Append(const Section& other)
 		}
 		else
 		{
+			// This only works if other is an instance of Section and not of a subclass
+			assert(typeid(other) == typeid(Section));
 			data.insert(data.end(), other.data.begin(), other.data.end());
 		}
 	}
@@ -299,6 +309,8 @@ offset_t Section::Append(const Section& other)
 
 offset_t Section::Append(Buffer& buffer)
 {
+	// this separation is required because a Section contains additional information that needs to be respected
+	// TODO: this looks like a likely anti-pattern, it should probably be redesigned
 	if(Section * section = dynamic_cast<Section *>(&buffer))
 	{
 		return Append(*section);
@@ -335,18 +347,18 @@ void Section::ReadFile(Reader& rd)
 	rd.ReadData(data.size(), reinterpret_cast<char *>(data.data()));
 }
 
-offset_t Section::WriteFile(std::ostream& out, offset_t size, offset_t offset) const
+offset_t Section::WriteFile(std::ostream& out, offset_t bytes, offset_t offset) const
 {
-	if(offset >= data.size())
+	if(offset >= Size())
 		return 0;
-	size = std::min(size + offset, offset_t(data.size())) - offset;
-	out.write(reinterpret_cast<const char *>(data.data()) + offset, size);
-	return size;
+	bytes = std::min(bytes + offset, offset_t(Size())) - offset;
+	out.write(reinterpret_cast<const char *>(data.data()) + offset, bytes);
+	return bytes;
 }
 
 offset_t Section::WriteFile(std::ostream& out) const
 {
-	return WriteFile(out, data.size());
+	return WriteFile(out, Size());
 }
 
 void Section::Reset()

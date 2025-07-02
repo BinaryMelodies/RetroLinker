@@ -187,7 +187,7 @@ namespace Linker
 
 		bool IsZeroFilled() const;
 
-		offset_t SetZeroFilled(bool is_zero_filled);
+		virtual offset_t SetZeroFilled(bool is_zero_filled);
 
 		offset_t GetAlign() const;
 
@@ -211,7 +211,7 @@ namespace Linker
 		 */
 		void ResetAddress(offset_t new_address);
 
-		offset_t Size() const;
+		virtual offset_t Size() const;
 
 		/**
 		 * @brief Increases the size of the section by the specified amount
@@ -280,14 +280,14 @@ namespace Linker
 		 *
 		 * Note that only as many bytes are read in as the size of the section.
 		 */
-		void ReadFile(std::istream& in);
+		virtual void ReadFile(std::istream& in);
 
 		/**
 		 * @brief Overwrites section data with contents of input stream
 		 *
 		 * Note that only as many bytes are read in as the size of the section.
 		 */
-		void ReadFile(Reader& rd);
+		void ReadFile(Reader& rd) override;
 
 		using Buffer::WriteFile;
 
@@ -297,10 +297,10 @@ namespace Linker
 		 * Note that zero filled sections do not write anything.
 		 *
 		 * @param out Output stream
-		 * @param size Maximum number of bytes to write
+		 * @param bytes Maximum number of bytes to write
 		 * @return Count of actual number of bytes written
 		 */
-		offset_t WriteFile(std::ostream& out, offset_t size, offset_t offset = 0) const;
+		virtual offset_t WriteFile(std::ostream& out, offset_t bytes, offset_t offset = 0) const;
 
 		/**
 		 * @brief Writes data into file
@@ -315,7 +315,7 @@ namespace Linker
 		/**
 		 * @brief Clear the section
 		 */
-		void Reset();
+		virtual void Reset();
 	};
 
 	std::ostream& operator<<(std::ostream& out, const Section& section);

@@ -32,7 +32,7 @@ namespace Linker
 		}
 
 		offset_t ImageSize() const override;
-		void ReadFile(Reader& rd);
+		virtual void ReadFile(Reader& rd);
 		void ReadFile(Reader& rd, offset_t count);
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd);
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd, offset_t count);
