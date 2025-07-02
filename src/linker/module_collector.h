@@ -14,7 +14,11 @@ namespace Linker
 	class InputFormat;
 	class OutputFormat;
 
-	/** @brief Helper class that collects object files and libraries, and includes library objects for required symbols */
+	/**
+	 * @brief Helper class that collects object files and libraries, and includes library objects for required symbols
+	 *
+	 * Object and library modules can both be added to the collector, which determines which ones need to be part of the final binary object.
+	 */
 	class ModuleCollector
 	{
 	public:
@@ -32,17 +36,42 @@ namespace Linker
 		std::weak_ptr<OutputFormat> output_format;
 
 	public:
+		/** @brief Description of a symbol definition in some module */
 		struct definition
 		{
+			/** @brief The binding type of the symbol where it is defined */
 			SymbolDefinition::binding_type binding;
+			/** @brief The module where a symbol is defined */
 			std::weak_ptr<Module> module;
 		};
+		/** @brief A list of all modules to be considered, not all of which will be included in the final generated binary */
 		std::vector<std::shared_ptr<Module>> modules;
+		/**
+		 * @brief Symbols that are referenced but have not yet been defined among the included modules
+		 *
+		 * When a symbol that appears in this collection is defined in a module, that modules gets included automatically.
+		 */
 		std::set<std::string> required_symbols;
+		/**
+		 * @brief Collection of symbols defined thus far
+		 *
+		 * When a module gets added to the collector, its definition is stored in this collection.
+		 */
 		std::map<std::string, definition> symbol_definitions;
 
+		/**
+		 * @brief Adds a module to the modules vector, also registers all the non-local symbols, and determines if any additional modules need to be included
+		 *
+		 * Non-library modules are automatically included in the final binary, library modules are only included on demand.
+		 */
 		void AddModule(std::shared_ptr<Module> module, bool is_library = false);
+		/**
+		 * @brief Convenience method to add a library
+		 */
 		void AddLibraryModule(std::shared_ptr<Module> module);
+		/**
+		 * @brief Appends all the modules that have been determined to be included, into a resulting object
+		 */
 		void CombineModulesInto(Module& output_module);
 
 	private:
