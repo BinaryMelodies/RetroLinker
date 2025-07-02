@@ -2751,14 +2751,15 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 
 	for(const Section& section : sections)
 	{
-		if(section.type != Section::SHT_PROGBITS && section.type != Section::SHT_NOBITS)
-			continue;
-
 		if(auto relocations = section.GetRelocations())
 		{
 			for(Relocation rel : relocations->relocations)
 			{
-				Linker::Location rel_source = Linker::Location(sections[rel.sh_info].GetSection(), rel.offset);
+				const Section& src_section = sections[rel.sh_info];
+				if(src_section.type != Section::SHT_PROGBITS && src_section.type != Section::SHT_NOBITS)
+					continue;
+
+				Linker::Location rel_source = Linker::Location(src_section.GetSection(), rel.offset);
 				const Symbol& sym_target = sections[rel.sh_link].GetSymbolTable()->symbols[rel.symbol];
 				Linker::SymbolName sym_name = Linker::SymbolName(sym_target.name);
 				Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(sym_name);
