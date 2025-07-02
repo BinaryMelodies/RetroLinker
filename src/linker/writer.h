@@ -19,7 +19,7 @@ namespace Linker
 		 */
 		EndianType endiantype;
 		/**
-		 * @brief The input stream
+		 * @brief The output stream
 		 */
 		std::ostream * out;
 
