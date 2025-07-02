@@ -86,6 +86,28 @@ void ModuleCollector::CombineModulesInto(Module& output_module)
 		if(module->is_included)
 		{
 			output_module.Append(*module);
+			output_module.endiantype = module->endiantype; // TODO: verify all endian types are the same
+		}
+	}
+
+	if(generate_got)
+	{
+		Linker::Debug << "Debug: Generating GOT section" << std::endl;
+		std::shared_ptr<GlobalOffsetTable> got = std::make_shared<GlobalOffsetTable>(output_module.endiantype, ".got");
+		output_module.AddSection(got);
+		for(auto& module : modules)
+		{
+			if(!module->is_included)
+				continue;
+
+			for(auto& relocation : module->relocations)
+			{
+				if(relocation.kind != Linker::Relocation::GOTEntry)
+					continue;
+
+				Linker::Debug << "Debug: Module " << module->file_name << " has " << relocation << std::endl;
+				got->AddEntry(GOTEntry(relocation.target));
+			}
 		}
 	}
 
@@ -123,9 +145,55 @@ void ModuleCollector::IncludeModule(std::shared_ptr<Module> module)
 		/* look for missing relocation targets */
 
 		Linker::Debug << "Debug: Module " << module->file_name << " has " << relocation << std::endl;
+
+		if(relocation.kind == Linker::Relocation::GOTEntry)
+		{
+			if(!generate_got)
+				Linker::Debug << "Debug: GOT entry relocation" << std::endl;
+			generate_got = true;
+		}
+
 		if(Linker::SymbolName * symbolp = std::get_if<Linker::SymbolName>(&relocation.target.target))
 		{
 			/* only check symbol names, not specific locations */
+
+			if(*symbolp == Linker::SymbolName::GOT)
+			{
+				if(!generate_got)
+					Linker::Debug << "Debug: target is GOT" << std::endl;
+				generate_got = true;
+			}
+
+			std::string symbol_name;
+			if(symbolp->GetLocalName(symbol_name))
+			{
+				/* symbol is an actual identifier, not a library load (used for Microsoft) */
+
+				if(symbol_definitions.find(symbol_name) != symbol_definitions.end())
+				{
+					IncludeModule(symbol_definitions[symbol_name].module.lock());
+				}
+				else
+				{
+					if(required_symbols.find(symbol_name) == required_symbols.end())
+						Linker::Debug << "Debug: New required symbol " << symbol_name << std::endl;
+					else
+						Linker::Debug << "Debug: Required symbol " << symbol_name << std::endl;
+					required_symbols.insert(symbol_name);
+				}
+			}
+		}
+
+		if(Linker::SymbolName * symbolp = std::get_if<Linker::SymbolName>(&relocation.reference.target))
+		{
+			/* only check symbol names, not specific locations */
+
+			if(*symbolp == Linker::SymbolName::GOT)
+			{
+				if(!generate_got)
+					Linker::Debug << "Debug: reference is GOT" << std::endl;
+				generate_got = true;
+			}
 
 			std::string symbol_name;
 			if(symbolp->GetLocalName(symbol_name))

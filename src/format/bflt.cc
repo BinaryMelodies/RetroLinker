@@ -18,6 +18,7 @@ void BFLTFormat::Clear()
 	/* writer fields */
 	bss = nullptr;
 	stack = nullptr;
+	got = nullptr;
 	ClearSegmentManager();
 }
 
@@ -181,7 +182,7 @@ std::unique_ptr<Script::List> BFLTFormat::GetScript(Linker::Module& module)
 ".data"
 {
 	at max(here, ?data_base_address?);
-	base here;
+	all ".got";
 	all not zero align 4;
 };
 
@@ -209,45 +210,77 @@ std::unique_ptr<Script::List> BFLTFormat::GetScript(Linker::Module& module)
 
 void BFLTFormat::ProcessModule(Linker::Module& module)
 {
+	if(auto got_section = module.FindSection(".got"))
+	{
+		if(auto got_ptr = std::dynamic_pointer_cast<Linker::GlobalOffsetTable>(got_section))
+		{
+			got = got_ptr;
+			// TODO: depends on ISA, m68k takes 3 reserved entries
+			got->entries.insert(got->entries.begin(), Linker::GOTEntry());
+			got->entries.insert(got->entries.begin(), Linker::GOTEntry());
+			got->entries.insert(got->entries.begin(), Linker::GOTEntry());
+			got->entries.push_back(Linker::GOTEntry(Linker::Location(-1)));
+		}
+	}
+
+	endian_type = module.endiantype;
+
 	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 
 	CreateDefaultSegments();
 
-	for(Linker::Relocation& rel : module.relocations)
+	// TODO: calculate GOT entries
+
+	for(Linker::Relocation rel : module.relocations)
 	{
 		Linker::Resolution resolution;
+		if(rel.kind == Linker::Relocation::GOTEntry)
+		{
+			auto it = std::find(got->entries.begin(), got->entries.end(), rel.target);
+			assert(it != got->entries.end());
+			rel.kind = Linker::Relocation::Direct;
+			rel.target = Linker::Location(got, (it - got->entries.begin()) * Linker::GOTEntry::EntrySize);
+		}
 		if(!rel.Resolve(module, resolution))
 		{
 			Linker::Error << "Error: Unable to resolve relocation: " << rel << std::endl;
 		}
-		if(resolution.target != nullptr)
+		switch(rel.kind)
 		{
-			if(resolution.reference != nullptr)
+		case Linker::Relocation::Direct:
+			if(resolution.target != nullptr && resolution.reference == nullptr)
 			{
-				Linker::Error << "Error: inter-segment differences are not supported, generating image anyway (generate with relocations disable)" << std::endl;
+				/*if(resolution.reference != nullptr)
+				{
+					Linker::Error << "Error: inter-segment differences are not supported, generating image anyway (generate with relocations disable)" << std::endl;
+				}*/
+				Relocation::relocation_type segment_num = Relocation::relocation_type(-1);
+				if(resolution.target == code)
+					segment_num = Relocation::Text;
+				else if(resolution.target == data)
+					segment_num = Relocation::Data;
+				else if(resolution.target == bss)
+					segment_num = Relocation::Bss;
+				assert(segment_num != Relocation::relocation_type(-1));
+				if(rel.size != 4)
+				{
+					Linker::Error << "Error: Format only supports 32-bit relocations: " << rel << ", ignoring" << std::endl;
+				}
+				else
+				{
+					relocations.push_back(Relocation { segment_num, rel.source.GetPosition().address });
+					if(format_version <= 2)
+						resolution.value -= resolution.target->base_address;
+				}
 			}
-			Relocation::relocation_type segment_num = Relocation::relocation_type(-1);
-			if(resolution.target == code)
-				segment_num = Relocation::Text;
-			else if(resolution.target == data)
-				segment_num = Relocation::Data;
-			else if(resolution.target == bss)
-				segment_num = Relocation::Bss;
-			assert(segment_num != Relocation::relocation_type(-1));
-			if(rel.size != 4)
-			{
-				Linker::Error << "Error: Format only supports 32-bit relocations: " << rel << ", ignoring" << std::endl;
-			}
-			else
-			{
-				relocations.push_back(Relocation { segment_num, rel.source.GetPosition().address });
-				if(format_version <= 2)
-					resolution.value -= resolution.target->base_address;
-			}
+			rel.WriteWord(resolution.value);
+			break;
+		default:
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
 		}
-		rel.WriteWord(resolution.value);
 	}
 
 	Linker::Location stack_top;

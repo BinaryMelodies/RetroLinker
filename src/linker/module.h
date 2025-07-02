@@ -61,6 +61,7 @@ namespace Linker
 		 * @brief Encodes the CPU for the target
 		 */
 		cpu_type cpu = NONE;
+		::EndianType endiantype = ::UndefinedEndian;
 		/** @brief Sorted collection of all symbols appearing in the module, duplicates removed */
 		std::vector<SymbolDefinition> symbol_sequence;
 	private:

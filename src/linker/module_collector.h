@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 #include "symbol_definition.h"
+#include "table_section.h"
+#include "target.h"
 
 namespace Linker
 {
@@ -29,6 +31,8 @@ namespace Linker
 		 */
 		void SetupOptions(char special_char, std::shared_ptr<OutputFormat> output_format);
 
+		/** @brief Set to true when Global Offset Table generation is requested */
+		bool generate_got = false;
 		std::shared_ptr<Module> CreateModule(std::shared_ptr<const InputFormat> input_format, std::string file_name = "");
 	private:
 		/* GNU assembler can use '$', NASM must use '?' */
@@ -79,6 +83,50 @@ namespace Linker
 		 * @brief Makes a module included in the linking process. The module must have already been added to the modules vector
 		 */
 		void IncludeModule(std::shared_ptr<Module> module);
+	};
+
+	// TODO: uint64_t
+	class GOTEntry : public Word<uint32_t>
+	{
+	public:
+		std::optional<Target> target;
+
+		GOTEntry()
+			: target()
+		{
+		}
+
+		GOTEntry(Target target)
+			: target(target)
+		{
+		}
+
+		bool operator ==(const GOTEntry& other) const
+		{
+			return target == other.target;
+		}
+	};
+
+	class GlobalOffsetTable : public TableSection<GOTEntry>
+	{
+	public:
+		GlobalOffsetTable(::EndianType endian_type, std::string name, int flags = Readable)
+			: TableSection<GOTEntry>(endian_type, name, flags)
+		{
+		}
+
+		GlobalOffsetTable(std::string name, int flags = Readable)
+			: TableSection<GOTEntry>(name, flags)
+		{
+		}
+
+		void AddEntry(GOTEntry entry)
+		{
+			if(std::find(entries.begin(), entries.end(), entry) == entries.end())
+			{
+				entries.push_back(entry);
+			}
+		}
 	};
 }
 

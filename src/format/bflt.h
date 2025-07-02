@@ -4,6 +4,7 @@
 #include <vector>
 #include "../common.h"
 #include "../dumper/dumper.h"
+#include "../linker/module_collector.h"
 #include "../linker/reader.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
@@ -78,6 +79,7 @@ namespace BFLT
 		/* * * Writer members * * */
 
 		std::shared_ptr<Linker::Segment> bss, stack;
+		std::shared_ptr<Linker::GlobalOffsetTable> got;
 
 		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 

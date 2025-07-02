@@ -2686,6 +2686,7 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 			Linker::FatalError(message.str());
 		}
 	}
+	module.endiantype = endiantype;
 
 	for(const Section& section : sections)
 	{
@@ -2750,6 +2751,9 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 
 	for(const Section& section : sections)
 	{
+		if(section.type != Section::SHT_PROGBITS && section.type != Section::SHT_NOBITS)
+			continue;
+
 		if(auto relocations = section.GetRelocations())
 		{
 			for(Relocation rel : relocations->relocations)
