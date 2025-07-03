@@ -5,6 +5,7 @@
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module_collector.h"
+#include "../linker/options.h"
 #include "../linker/reader.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
@@ -77,6 +78,18 @@ namespace BFLT
 		void CalculateValues() override;
 
 		/* * * Writer members * * */
+
+		class BFLTOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<bool> ram{"ram", "File should be fully loaded into RAM"};
+			Linker::Option<bool> got{"got", "Program is position independent and has GOT"};
+
+			BFLTOptionCollector()
+			{
+				InitializeFields(ram, got);
+			}
+		};
 
 		std::shared_ptr<Linker::Segment> bss, stack;
 		std::shared_ptr<Linker::GlobalOffsetTable> got;

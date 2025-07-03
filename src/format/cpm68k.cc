@@ -1,7 +1,6 @@
 
 #include "cpm68k.h"
 #include "../linker/buffer.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
 #include "../linker/resolution.h"
@@ -634,18 +633,6 @@ std::vector<Linker::OptionDescription<void> *> CPM68KFormat::GetLinkerScriptPara
 {
 	return ParameterNames;
 }
-
-class CPM68KOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
-	Linker::Option<bool> reloc{"reloc", "Force relocation generation"};
-
-	CPM68KOptionCollector()
-	{
-		InitializeFields(noreloc, reloc);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> CPM68KFormat::GetOptions()
 {

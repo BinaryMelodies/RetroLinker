@@ -7,6 +7,7 @@
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
@@ -496,6 +497,17 @@ namespace Microsoft
 		offset_t GetPageSize(uint32_t index) const;
 
 		/* * * Writer members * * */
+
+		class LEOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+			LEOptionCollector()
+			{
+				InitializeFields(stub);
+			}
+		};
 
 		static std::shared_ptr<LEFormat> CreateConsoleApplication(system_type system = OS2);
 

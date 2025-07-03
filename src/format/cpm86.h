@@ -7,6 +7,7 @@
 #include <vector>
 #include "../common.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
@@ -525,6 +526,17 @@ namespace DigitalResearch
 
 		/* * * Writer members * * */
 
+		class CPM86OptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
+			Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions"};
+
+			CPM86OptionCollector()
+			{
+				InitializeFields(noreloc, rsx_file_names);
+			}
+		};
 
 		/** @brief Flag indicating that the code group is shared, not possible in 8080 format */
 		bool shared_code = false; /* TODO: make parameter */

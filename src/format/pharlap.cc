@@ -1,6 +1,5 @@
 
 #include "pharlap.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -34,17 +33,6 @@ bool MPFormat::Relocation::operator <(const Relocation& other) const
 {
 	return offset < other.offset || (offset == other.offset && rel32 < other.rel32);
 }
-
-class MPOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
-
-	MPOptionCollector()
-	{
-		InitializeFields(stub);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> MPFormat::GetOptions()
 {
@@ -297,17 +285,6 @@ void P3Format::RunTimeParameterBlock::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, flags);
 	wr.WriteWord(2, ring);
 }
-
-class P3OptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
-
-	P3OptionCollector()
-	{
-		InitializeFields(stub);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> P3Format::GetOptions()
 {

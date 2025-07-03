@@ -2,7 +2,6 @@
 #include <sstream>
 #include "leexe.h"
 #include "mzexe.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -1731,17 +1730,6 @@ std::vector<Linker::OptionDescription<void> *> LEFormat::GetLinkerScriptParamete
 {
 	return ParameterNames;
 }
-
-class LEOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
-
-	LEOptionCollector()
-	{
-		InitializeFields(stub);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> LEFormat::GetOptions()
 {

@@ -1,7 +1,6 @@
 
 #include "coff.h"
 #include "../linker/location.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 #include "../linker/section.h"
@@ -2048,17 +2047,6 @@ std::vector<Linker::OptionDescription<void> *> COFFFormat::GetLinkerScriptParame
 {
 	return ParameterNames;
 }
-
-class COFFOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
-
-	COFFOptionCollector()
-	{
-		InitializeFields(stub);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> COFFFormat::GetOptions()
 {

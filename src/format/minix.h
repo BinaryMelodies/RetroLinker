@@ -4,6 +4,7 @@
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
@@ -19,6 +20,19 @@ namespace MINIX
 	{
 	public:
 		/* TODO: incorporate relocations and far code segment from around ELKS 0.8.0 */
+
+		class MINIXOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::optional<offset_t>> total_memory{"total_memory", "Total memory for executable, including stack and heap, only for version 0"};
+			Linker::Option<std::optional<offset_t>> stack_size{"stack_size", "Size of stack, only for version 1"};
+			Linker::Option<std::optional<offset_t>> heap_size{"heap_size", "Size of heap, only for version 1"};
+
+			MINIXOptionCollector()
+			{
+				InitializeFields(total_memory, stack_size, heap_size);
+			}
+		};
 
 		void ReadFile(Linker::Reader& rd) override;
 

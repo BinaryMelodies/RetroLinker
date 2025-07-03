@@ -6,6 +6,7 @@
 #include "mzexe.h"
 #include "../common.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
@@ -1125,6 +1126,17 @@ namespace COFF
 		void GenerateModule(Linker::Module& module) const override;
 
 		/* * * Writer members * * */
+
+		class COFFOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+			COFFOptionCollector()
+			{
+				InitializeFields(stub);
+			}
+		};
 
 		// for DJGPP binaries
 		mutable Microsoft::MZSimpleStubWriter stub;

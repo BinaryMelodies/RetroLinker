@@ -6,6 +6,7 @@
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/reader.h"
 #include "../linker/segment.h"
 #include "../linker/writer.h"
@@ -239,6 +240,17 @@ namespace Binary
 	class CPM3Format : public GenericBinaryFormat
 	{
 	public:
+		class CPM3OptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions"};
+
+			CPM3OptionCollector()
+			{
+				InitializeFields(rsx_file_names);
+			}
+		};
+
 		/** @brief Pre-initialization code to be executed before fully loading program */
 		uint8_t preinit_code[10] = { 0xC9 }; /* z80 return instruction */
 		/** @brief Whether loader should be active, even if no RSXs are attached */
@@ -326,6 +338,17 @@ namespace Binary
 	class PRLFormat : public GenericBinaryFormat
 	{
 	public:
+		class PRLOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<bool> banked{"banked", "Generated .SPR file for banked CP/M 3"};
+
+			PRLOptionCollector()
+			{
+				InitializeFields(banked);
+			}
+		};
+
 		/** @brief Additional memory to allocate, similar to .bss */
 		uint16_t zero_fill = 0;
 		/** @brief Address to be loaded at, only used for .OVL files */

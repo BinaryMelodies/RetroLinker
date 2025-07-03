@@ -3,6 +3,7 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
+#include "../linker/options.h"
 #include "../linker/segment_manager.h"
 #include "mzexe.h"
 
@@ -14,6 +15,17 @@ namespace DOS16M
 	class BWFormat : public virtual Linker::SegmentManager
 	{
 	public:
+		class BWOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+			BWOptionCollector()
+			{
+				InitializeFields(stub);
+			}
+		};
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		bool FormatSupportsSegmentation() const override;

@@ -3,6 +3,7 @@
 
 #include "../common.h"
 #include "../dumper/dumper.h"
+#include "../linker/options.h"
 #include "../linker/segment_manager.h"
 #include "mzexe.h"
 
@@ -14,6 +15,17 @@ namespace PharLap
 	class MPFormat : public virtual Linker::SegmentManager
 	{
 	public:
+		class MPOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+			MPOptionCollector()
+			{
+				InitializeFields(stub);
+			}
+		};
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
@@ -89,6 +101,17 @@ namespace PharLap
 	class P3Format : public virtual Linker::SegmentManager
 	{
 	public:
+		class P3OptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+			P3OptionCollector()
+			{
+				InitializeFields(stub);
+			}
+		};
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		bool FormatSupportsSegmentation() const override;

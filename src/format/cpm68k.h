@@ -6,6 +6,7 @@
 #include <string>
 #include "../common.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
@@ -251,6 +252,18 @@ namespace DigitalResearch
 		void CalculateValues() override;
 
 		/* * * Writer members * * */
+
+		class CPM68KOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
+			Linker::Option<bool> reloc{"reloc", "Force relocation generation"};
+
+			CPM68KOptionCollector()
+			{
+				InitializeFields(noreloc, reloc);
+			}
+		};
 
 		/**
 		 * @brief Makes sure no relocations are placed into the output file

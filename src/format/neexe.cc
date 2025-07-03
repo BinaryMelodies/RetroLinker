@@ -1,7 +1,6 @@
 
 #include "neexe.h"
 #include "mzexe.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -1461,17 +1460,6 @@ uint8_t NEFormat::CountBundles(size_t entry_index) const
 	entries[entry_index + entry_count].same_bundle = false;
 	return entry_count;
 }
-
-class NEOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
-
-	NEOptionCollector()
-	{
-		InitializeFields(stub);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> NEFormat::GetOptions()
 {

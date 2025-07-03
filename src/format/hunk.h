@@ -4,6 +4,7 @@
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/section.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
@@ -657,6 +658,17 @@ namespace Amiga
 		static offset_t MeasureString(std::string name);
 
 		/* * * Writer members * * */
+
+		class HunkOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::optional<std::string>> system{"system", "Target system version, determines generated hunk types, permitted options: v1, v37, v38, v39"};
+
+			HunkOptionCollector()
+			{
+				InitializeFields(system);
+			}
+		};
 
 		enum cpu_type
 		{

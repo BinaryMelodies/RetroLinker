@@ -1,6 +1,5 @@
 
 #include "aout.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -620,17 +619,6 @@ std::vector<Linker::OptionDescription<void> *> AOutFormat::GetLinkerScriptParame
 {
 	return ParameterNames;
 }
-
-class AOutOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
-
-	AOutOptionCollector()
-	{
-		InitializeFields(stub);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> AOutFormat::GetOptions()
 {

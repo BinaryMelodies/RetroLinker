@@ -1,6 +1,5 @@
 
 #include "mzexe.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -458,18 +457,6 @@ void MZFormat::SetModel(std::string model)
 		memory_model = MODEL_SMALL;
 	}
 }
-
-class MZOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::optional<offset_t>> header_align{"header_align", "Aligns the end of the header to a specific boundary, must be power of 2"};
-	Linker::Option<std::optional<offset_t>> file_align{"file_align", "Aligns the end of the file to a specific boundary, must be power of 2"};
-
-	MZOptionCollector()
-	{
-		InitializeFields(header_align, file_align);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> MZFormat::GetOptions()
 {

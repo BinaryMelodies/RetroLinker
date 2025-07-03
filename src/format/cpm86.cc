@@ -4,7 +4,6 @@
 #include "cpm86.h"
 #include "../linker/buffer.h"
 #include "../linker/section.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
 #include "../linker/resolution.h"
@@ -1083,18 +1082,6 @@ void CPM86Format::SetModel(std::string model)
 		memory_model = MODEL_DEFAULT;
 	}
 }
-
-class CPM86OptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
-	Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions"};
-
-	CPM86OptionCollector()
-	{
-		InitializeFields(noreloc, rsx_file_names);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> CPM86Format::GetOptions()
 {

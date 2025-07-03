@@ -1,6 +1,5 @@
 
 #include "bwexp.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -220,17 +219,6 @@ offset_t BWFormat::MeasureRelocations() const
 		Linker::FatalError("Internal error: Impossible relocation type");
 	}
 }
-
-class BWOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
-
-	BWOptionCollector()
-	{
-		InitializeFields(stub);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> BWFormat::GetOptions()
 {

@@ -6,6 +6,7 @@
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
@@ -579,6 +580,17 @@ namespace Microsoft
 		}
 
 		/* * * Writer members * * */
+
+		class NEOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+			NEOptionCollector()
+			{
+				InitializeFields(stub);
+			}
+		};
 
 		mutable MZStubWriter stub;
 		std::shared_ptr<Linker::Segment> stack, heap;

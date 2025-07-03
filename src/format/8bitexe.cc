@@ -2,7 +2,6 @@
 #include <filesystem>
 #include <sstream>
 #include "8bitexe.h"
-#include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -350,17 +349,6 @@ void CPM3Format::Clear()
 	rsx_table.clear();
 }
 
-class CPM3OptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions"};
-
-	CPM3OptionCollector()
-	{
-		InitializeFields(rsx_file_names);
-	}
-};
-
 std::shared_ptr<Linker::OptionCollector> CPM3Format::GetOptions()
 {
 	return std::make_shared<CPM3OptionCollector>();
@@ -535,17 +523,6 @@ std::string FLEXFormat::GetDefaultExtension(Linker::Module& module, std::string 
 }
 
 // PRLFormat
-
-class PRLOptionCollector : public Linker::OptionCollector
-{
-public:
-	Linker::Option<bool> banked{"banked", "Generated .SPR file for banked CP/M 3"};
-
-	PRLOptionCollector()
-	{
-		InitializeFields(banked);
-	}
-};
 
 std::shared_ptr<Linker::OptionCollector> PRLFormat::GetOptions()
 {
