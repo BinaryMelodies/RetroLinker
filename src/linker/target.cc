@@ -29,6 +29,7 @@ bool Target::ResolveLocals(Module& object)
 			Location location;
 			if(!object.FindLocalSymbol(symbol_name, location))
 				return false;
+			location.offset += symbolp->addend;
 			Linker::Debug << "Debug: Resolved " << target << " to " << location << std::endl;
 			target = location;
 			return true;
@@ -56,6 +57,7 @@ bool Target::Lookup(Module& object, Position& position)
 			Location location;
 			if(!object.FindGlobalSymbol(symbol_name, location))
 				return false;
+			location.offset += symbolp->addend;
 			position = location.GetPosition(segment_of);
 //			Linker::Debug << "Look up " << *symbolp << ", get " << location << " which is " << position << std::endl;
 			return true;

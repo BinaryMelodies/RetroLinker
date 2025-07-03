@@ -106,7 +106,7 @@ bool SymbolName::GetImportedOrdinal(std::string& result_library, uint16_t& resul
 
 bool SymbolName::operator ==(const SymbolName& other) const
 {
-	return library == other.library && name == other.name && hint == other.hint;
+	return library == other.library && name == other.name && hint == other.hint && addend == other.addend;
 }
 
 bool SymbolName::operator !=(const SymbolName& other) const
@@ -138,6 +138,10 @@ std::ostream& Linker::operator<<(std::ostream& out, const SymbolName& symbol)
 	else
 	{
 		Linker::FatalError("Internal error: invalid symbol type");
+	}
+	if(symbol.addend != 0)
+	{
+		out << " + " << symbol.addend;
 	}
 	return out;
 }

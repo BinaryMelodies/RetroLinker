@@ -25,6 +25,9 @@ namespace Linker
 			/* symbols imported not by ordinal: empty (NE, LE), except PE where it is a hint, other symbols: ordinal */
 
 	public:
+		/** @brief Optional value to be added to the symbol location (TODO: not yet fully implemented) */
+		offset_t addend = 0;
+
 		/**
 		 * @brief Creates an internal symbol with a name
 		 */

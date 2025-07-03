@@ -1457,7 +1457,8 @@ uint8_t NEFormat::CountBundles(size_t entry_index) const
 		}
 		entries[entry_index + entry_count].same_bundle = true;
 	}
-	entries[entry_index + entry_count].same_bundle = false;
+	if(entry_index + entry_count < entries.size())
+		entries[entry_index + entry_count].same_bundle = false;
 	return entry_count;
 }
 
