@@ -84,50 +84,6 @@ namespace Linker
 		 */
 		void IncludeModule(std::shared_ptr<Module> module);
 	};
-
-	// TODO: uint64_t
-	class GOTEntry : public Word<uint32_t>
-	{
-	public:
-		std::optional<Target> target;
-
-		GOTEntry()
-			: target()
-		{
-		}
-
-		GOTEntry(Target target)
-			: target(target)
-		{
-		}
-
-		bool operator ==(const GOTEntry& other) const
-		{
-			return target == other.target;
-		}
-	};
-
-	class GlobalOffsetTable : public TableSection<GOTEntry>
-	{
-	public:
-		GlobalOffsetTable(::EndianType endian_type, std::string name, int flags = Readable)
-			: TableSection<GOTEntry>(endian_type, name, flags)
-		{
-		}
-
-		GlobalOffsetTable(std::string name, int flags = Readable)
-			: TableSection<GOTEntry>(name, flags)
-		{
-		}
-
-		void AddEntry(GOTEntry entry)
-		{
-			if(std::find(entries.begin(), entries.end(), entry) == entries.end())
-			{
-				entries.push_back(entry);
-			}
-		}
-	};
 }
 
 #endif /* MODULE_COLLECTOR_H */

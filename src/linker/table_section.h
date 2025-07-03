@@ -4,15 +4,23 @@
 #include "../common.h"
 #include "reader.h"
 #include "section.h"
+#include "target.h"
 #include "writer.h"
 
 namespace Linker
 {
+	/**
+	 * @brief An automatically generated section that stores a table of equally sized entries
+	 *
+	 * To permit zero padding the end, the data from the base class is appended to the end of the table.
+	 */
 	template <typename TableEntryType>
 		class TableSection : public Section
 	{
 	public:
+		/** @brief Endianness of table entries */
 		::EndianType endian_type = ::UndefinedEndian;
+		/** @brief List of entries to be stored in the table */
 		std::vector<TableEntryType> entries;
 
 		TableSection(::EndianType endian_type, std::string name, int flags = Readable)
@@ -56,6 +64,7 @@ namespace Linker
 			Section::ReadFile(rd);
 		}
 
+		/** @brief Generic function to handle writing entries */
 		template <typename OutputType>
 			offset_t WriteTable(OutputType& out, offset_t bytes, offset_t offset) const
 		{
@@ -139,6 +148,7 @@ namespace Linker
 		}
 	};
 
+	/** @brief Generic template to be used as table entries */
 	template <typename Int>
 		struct Word
 	{
@@ -172,7 +182,54 @@ namespace Linker
 			wr.WriteWord(EntrySize, word.value);
 		}
 
+		/** @brief The value to be stored */
 		Int value;
+	};
+
+	// TODO: uint64_t
+	/** @brief An entry in the Global Offset Table */
+	class GOTEntry : public Word<uint32_t>
+	{
+	public:
+		std::optional<Target> target;
+
+		GOTEntry()
+			: target()
+		{
+		}
+
+		GOTEntry(Target target)
+			: target(target)
+		{
+		}
+
+		bool operator ==(const GOTEntry& other) const
+		{
+			return target == other.target;
+		}
+	};
+
+	/** @brief A generated Global Offset Table */
+	class GlobalOffsetTable : public TableSection<GOTEntry>
+	{
+	public:
+		GlobalOffsetTable(::EndianType endian_type, std::string name, int flags = Readable)
+			: TableSection<GOTEntry>(endian_type, name, flags)
+		{
+		}
+
+		GlobalOffsetTable(std::string name, int flags = Readable)
+			: TableSection<GOTEntry>(name, flags)
+		{
+		}
+
+		void AddEntry(GOTEntry entry)
+		{
+			if(std::find(entries.begin(), entries.end(), entry) == entries.end())
+			{
+				entries.push_back(entry);
+			}
+		}
 	};
 }
 
