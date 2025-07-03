@@ -212,7 +212,7 @@ int main(int argc, char * argv[])
 							ref.offset = value;
 						}
 					}
-					Linker::Debug << "Debug: Define " << name << " as " << ref << std::endl;
+//					Linker::Debug << "Debug: Define " << name << " as " << ref << std::endl;
 					defines[name] = ref;
 				}
 				catch(std::invalid_argument& a)
