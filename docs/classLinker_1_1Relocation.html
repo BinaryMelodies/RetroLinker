@@ -95,12 +95,12 @@ $(function() {
 Public Types</h2></td></tr>
 <tr class="memitem:a53b13249581f7975adc1c5836a48efd9" id="r_a53b13249581f7975adc1c5836a48efd9"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a53b13249581f7975adc1c5836a48efd9">reference_kind</a> { <br />
 &#160;&#160;<a class="el" href="#a53b13249581f7975adc1c5836a48efd9abc98d476e839fb1966eb4fd1310f3e9a">Direct</a>
-, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9ac4e2462c0df82e507a7f0a74b69b762d">SegmentAddress</a>
+, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9aaadf127e3ce6ffad939ddae12d678056">ParagraphAddress</a>
 , <a class="el" href="#a53b13249581f7975adc1c5836a48efd9a47e5e7df75146426561e990a318bcd2f">SegmentIndex</a>
 , <a class="el" href="#a53b13249581f7975adc1c5836a48efd9aaf40db449c2967700c44dd821b7d1970">SelectorIndex</a>
 , <br />
-&#160;&#160;<a class="el" href="#a53b13249581f7975adc1c5836a48efd9ad563597dd54cfd9b1daea8e6f427cb2e">GOTOffset</a>
-, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9aa4124e7039068ea617ff1c00123890a4">PLTOffset</a>
+&#160;&#160;<a class="el" href="#a53b13249581f7975adc1c5836a48efd9a5830082615ece7a8ae18305ebfa1ed51">GOTEntry</a>
+, <a class="el" href="#a53b13249581f7975adc1c5836a48efd9ab5163d614b4b99b771c6f2dcb3060e7b">PLTEntry</a>
 , <a class="el" href="#a53b13249581f7975adc1c5836a48efd9acd711d928aacb97cdcbf8201b6ec1b0a">SizeOf</a>
 <br />
  }</td></tr>
@@ -202,12 +202,24 @@ static <a class="el" href="classLinker_1_1Relocation.html">Relocation</a>&#160;<
 <tr class="memitem:a6462f258ad6f126bc1e0397ff2f82d27" id="r_a6462f258ad6f126bc1e0397ff2f82d27"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="classLinker_1_1Relocation.html">Relocation</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6462f258ad6f126bc1e0397ff2f82d27">ParagraphDifference</a> (<a class="el" href="classLinker_1_1Location.html">Location</a> <a class="el" href="#a1ab2e4f3a22f832f343c43390f068291">source</a>, <a class="el" href="classLinker_1_1Target.html">Target</a> <a class="el" href="#a61c8c836e4c421b493f2f3feabc786ef">target</a>, <a class="el" href="classLinker_1_1Target.html">Target</a> <a class="el" href="#a739aa949dbf213a3fc8745cb2e71ca6b">reference</a>, uint64_t <a class="el" href="#a704913c035e4f01e2353030a3012cfb6">addend</a>=0)</td></tr>
 <tr class="memdesc:a6462f258ad6f126bc1e0397ff2f82d27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a relocation that stores the 16-bit paragraph difference (shifted right by 4) between the target and the reference (Intel 8086 specific)  <br /></td></tr>
 <tr class="separator:a6462f258ad6f126bc1e0397ff2f82d27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7cff4d1ee0f2fefcd3a458acb22f018c" id="r_a7cff4d1ee0f2fefcd3a458acb22f018c"><td class="memItemLeft" align="right" valign="top"><a id="a7cff4d1ee0f2fefcd3a458acb22f018c" name="a7cff4d1ee0f2fefcd3a458acb22f018c"></a>
+static <a class="el" href="classLinker_1_1Relocation.html">Relocation</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GOTEntryAbsolute</b> (size_t <a class="el" href="#af2a30c1a7122c077022743f5c8038fc1">size</a>, <a class="el" href="classLinker_1_1Location.html">Location</a> <a class="el" href="#a1ab2e4f3a22f832f343c43390f068291">source</a>, <a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> <a class="el" href="#a61c8c836e4c421b493f2f3feabc786ef">target</a>, uint64_t <a class="el" href="#a704913c035e4f01e2353030a3012cfb6">addend</a>, EndianType <a class="el" href="#a5bf2b394eafd1b1cb3506d294398cb42">endiantype</a>)</td></tr>
+<tr class="memdesc:a7cff4d1ee0f2fefcd3a458acb22f018c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a relocation referencing the absolute address of a GOT entry. <br /></td></tr>
+<tr class="separator:a7cff4d1ee0f2fefcd3a458acb22f018c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a696d504b2cc468edcc6b0cbc565cf9af" id="r_a696d504b2cc468edcc6b0cbc565cf9af"><td class="memItemLeft" align="right" valign="top"><a id="a696d504b2cc468edcc6b0cbc565cf9af" name="a696d504b2cc468edcc6b0cbc565cf9af"></a>
+static <a class="el" href="classLinker_1_1Relocation.html">Relocation</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GOTEntryRelative</b> (size_t <a class="el" href="#af2a30c1a7122c077022743f5c8038fc1">size</a>, <a class="el" href="classLinker_1_1Location.html">Location</a> <a class="el" href="#a1ab2e4f3a22f832f343c43390f068291">source</a>, <a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> <a class="el" href="#a61c8c836e4c421b493f2f3feabc786ef">target</a>, uint64_t <a class="el" href="#a704913c035e4f01e2353030a3012cfb6">addend</a>, EndianType <a class="el" href="#a5bf2b394eafd1b1cb3506d294398cb42">endiantype</a>)</td></tr>
+<tr class="memdesc:a696d504b2cc468edcc6b0cbc565cf9af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a relocation that references the offset of a GOT entry from the source. <br /></td></tr>
+<tr class="separator:a696d504b2cc468edcc6b0cbc565cf9af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1257c15055df7e33ac8412316efd7c09" id="r_a1257c15055df7e33ac8412316efd7c09"><td class="memItemLeft" align="right" valign="top"><a id="a1257c15055df7e33ac8412316efd7c09" name="a1257c15055df7e33ac8412316efd7c09"></a>
+static <a class="el" href="classLinker_1_1Relocation.html">Relocation</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GOTEntryOffset</b> (size_t <a class="el" href="#af2a30c1a7122c077022743f5c8038fc1">size</a>, <a class="el" href="classLinker_1_1Location.html">Location</a> <a class="el" href="#a1ab2e4f3a22f832f343c43390f068291">source</a>, <a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> <a class="el" href="#a61c8c836e4c421b493f2f3feabc786ef">target</a>, uint64_t <a class="el" href="#a704913c035e4f01e2353030a3012cfb6">addend</a>, EndianType <a class="el" href="#a5bf2b394eafd1b1cb3506d294398cb42">endiantype</a>)</td></tr>
+<tr class="memdesc:a1257c15055df7e33ac8412316efd7c09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a relocation that references the offset of a GOT entry from the start of the GOT. <br /></td></tr>
+<tr class="separator:a1257c15055df7e33ac8412316efd7c09"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a466ec8cb18da53195608156cfe219f62" id="r_a466ec8cb18da53195608156cfe219f62"><td class="memItemLeft" align="right" valign="top"><a id="a466ec8cb18da53195608156cfe219f62" name="a466ec8cb18da53195608156cfe219f62"></a>
 enum <a class="el" href="#a53b13249581f7975adc1c5836a48efd9">Linker::Relocation::reference_kind</a>&#160;</td><td class="memItemRight" valign="bottom"><b>kind</b></td></tr>
-<tr class="memdesc:a466ec8cb18da53195608156cfe219f62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the way the target is used to derive the resolve value, typically Direct. <br /></td></tr>
+<tr class="memdesc:a466ec8cb18da53195608156cfe219f62"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specifies the way the target is used to derive the resolved value, typically Direct. <br /></td></tr>
 <tr class="separator:a466ec8cb18da53195608156cfe219f62"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2a30c1a7122c077022743f5c8038fc1" id="r_af2a30c1a7122c077022743f5c8038fc1"><td class="memItemLeft" align="right" valign="top"><a id="af2a30c1a7122c077022743f5c8038fc1" name="af2a30c1a7122c077022743f5c8038fc1"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b></td></tr>
@@ -265,7 +277,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>subtract</b></td></tr
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9abc98d476e839fb1966eb4fd1310f3e9a" name="a53b13249581f7975adc1c5836a48efd9abc98d476e839fb1966eb4fd1310f3e9a"></a>Direct&#160;</td><td class="fielddoc"><p>The value of the target is used. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9ac4e2462c0df82e507a7f0a74b69b762d" name="a53b13249581f7975adc1c5836a48efd9ac4e2462c0df82e507a7f0a74b69b762d"></a>SegmentAddress&#160;</td><td class="fielddoc"><p>The paragraph of value is used, obtained via shifting it by 4 to the right. </p>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9aaadf127e3ce6ffad939ddae12d678056" name="a53b13249581f7975adc1c5836a48efd9aaadf127e3ce6ffad939ddae12d678056"></a>ParagraphAddress&#160;</td><td class="fielddoc"><p>The paragraph of value is used, obtained via shifting it by 4 to the right. </p>
 <p>This is intended for real mode x86 platforms. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9a47e5e7df75146426561e990a318bcd2f" name="a53b13249581f7975adc1c5836a48efd9a47e5e7df75146426561e990a318bcd2f"></a>SegmentIndex&#160;</td><td class="fielddoc"><p>The 8-bit segment of value is used, obtained via shifting it by 16 to the right. </p>
@@ -274,9 +286,9 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>subtract</b></td></tr
 <tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9aaf40db449c2967700c44dd821b7d1970" name="a53b13249581f7975adc1c5836a48efd9aaf40db449c2967700c44dd821b7d1970"></a>SelectorIndex&#160;</td><td class="fielddoc"><p>A selector index is used to reference this target. </p>
 <p>This is intended for protected mode x86 platforms. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9ad563597dd54cfd9b1daea8e6f427cb2e" name="a53b13249581f7975adc1c5836a48efd9ad563597dd54cfd9b1daea8e6f427cb2e"></a>GOTOffset&#160;</td><td class="fielddoc"><p>An offset within the Global Offset Table is used instead of the actual value. </p>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9a5830082615ece7a8ae18305ebfa1ed51" name="a53b13249581f7975adc1c5836a48efd9a5830082615ece7a8ae18305ebfa1ed51"></a>GOTEntry&#160;</td><td class="fielddoc"><p>An entry in the Global Offset Table is used instead of the actual value. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9aa4124e7039068ea617ff1c00123890a4" name="a53b13249581f7975adc1c5836a48efd9aa4124e7039068ea617ff1c00123890a4"></a>PLTOffset&#160;</td><td class="fielddoc"><p>An offset within the Procedure Linkage Table is used instead of the actual value. </p>
+<tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9ab5163d614b4b99b771c6f2dcb3060e7b" name="a53b13249581f7975adc1c5836a48efd9ab5163d614b4b99b771c6f2dcb3060e7b"></a>PLTEntry&#160;</td><td class="fielddoc"><p>An entry in the Procedure Linkage Table is used instead of the actual value. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a53b13249581f7975adc1c5836a48efd9acd711d928aacb97cdcbf8201b6ec1b0a" name="a53b13249581f7975adc1c5836a48efd9acd711d928aacb97cdcbf8201b6ec1b0a"></a>SizeOf&#160;</td><td class="fielddoc"><p>Size of the target. </p>
 </td></tr>

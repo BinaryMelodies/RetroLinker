@@ -80,43 +80,59 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classLinker_1_1Option_3_01void_01_4-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">Linker::Option&lt; void &gt; Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
+  <div class="headertitle"><div class="title">Linker::Option&lt; void &gt; Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Base class for documenting and handling command line options.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="options_8h_source.html">options.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Linker::Option&lt; void &gt;:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classLinker_1_1Option_3_01void_01_4.png" usemap="#Linker::Option_3C_20void_20_3E_map" alt=""/>
   <map id="Linker::Option_3C_20void_20_3E_map" name="Linker::Option_3C_20void_20_3E_map">
-<area href="classLinker_1_1Option_3_01bool_01_4.html" alt="Linker::Option&lt; bool &gt;" shape="rect" coords="0,56,211,80"/>
-<area href="classLinker_1_1Option_3_01std_1_1optional_3_01T_01_4_01_4.html" alt="Linker::Option&lt; std::optional&lt; T &gt; &gt;" shape="rect" coords="221,56,432,80"/>
-<area href="classLinker_1_1Option_3_01std_1_1vector_3_01T_01_4_01_4.html" alt="Linker::Option&lt; std::vector&lt; T &gt; &gt;" shape="rect" coords="442,56,653,80"/>
+<area href="classLinker_1_1OptionDescription_3_01void_01_4.html" title="A typeless option description, used as a base class for documenting typed options,..." alt="Linker::OptionDescription&lt; void &gt;" shape="rect" coords="221,0,432,24"/>
+<area href="classLinker_1_1Option_3_01bool_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; bool &gt;" shape="rect" coords="0,112,211,136"/>
+<area href="classLinker_1_1Option_3_01std_1_1optional_3_01T_01_4_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; std::optional&lt; T &gt; &gt;" shape="rect" coords="221,112,432,136"/>
+<area href="classLinker_1_1Option_3_01std_1_1vector_3_01T_01_4_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; std::vector&lt; T &gt; &gt;" shape="rect" coords="442,112,653,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:aeb5242d6fc3cfe70e1276f626a8d77e7" id="r_aeb5242d6fc3cfe70e1276f626a8d77e7"><td class="memItemLeft" align="right" valign="top"><a id="aeb5242d6fc3cfe70e1276f626a8d77e7" name="aeb5242d6fc3cfe70e1276f626a8d77e7"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Option</b> (std::string name, std::string description)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Option</b> (std::string <a class="el" href="classLinker_1_1OptionDescription_3_01void_01_4.html#a00b52e47d00d7a0cba7fca8ebff358f0">name</a>, std::string <a class="el" href="classLinker_1_1OptionDescription_3_01void_01_4.html#a9507f74f64de02ee3b5f1c86d4fc2ccd">description</a>)</td></tr>
 <tr class="separator:aeb5242d6fc3cfe70e1276f626a8d77e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a100b59a998c676eb8afa28cfa97798d9" id="r_a100b59a998c676eb8afa28cfa97798d9"><td class="memItemLeft" align="right" valign="top"><a id="a100b59a998c676eb8afa28cfa97798d9" name="a100b59a998c676eb8afa28cfa97798d9"></a>
-virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><b>type_name</b> ()=0</td></tr>
-<tr class="separator:a100b59a998c676eb8afa28cfa97798d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classLinker_1_1OptionDescription_3_01void_01_4"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1OptionDescription_3_01void_01_4')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1OptionDescription_3_01void_01_4.html">Linker::OptionDescription&lt; void &gt;</a></td></tr>
+<tr class="memitem:a40ef0f236e22f55174c45c42e5f66dc2 inherit pub_methods_classLinker_1_1OptionDescription_3_01void_01_4" id="r_a40ef0f236e22f55174c45c42e5f66dc2"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>OptionDescription</b> (std::string <a class="el" href="classLinker_1_1OptionDescription_3_01void_01_4.html#a00b52e47d00d7a0cba7fca8ebff358f0">name</a>, std::string <a class="el" href="classLinker_1_1OptionDescription_3_01void_01_4.html#a9507f74f64de02ee3b5f1c86d4fc2ccd">description</a>)</td></tr>
+<tr class="separator:a40ef0f236e22f55174c45c42e5f66dc2 inherit pub_methods_classLinker_1_1OptionDescription_3_01void_01_4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a634d874a7ecfc7236dca43b04423c001 inherit pub_methods_classLinker_1_1OptionDescription_3_01void_01_4" id="r_a634d874a7ecfc7236dca43b04423c001"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OptionDescription_3_01void_01_4.html#a634d874a7ecfc7236dca43b04423c001">type_name</a> ()</td></tr>
+<tr class="memdesc:a634d874a7ecfc7236dca43b04423c001 inherit pub_methods_classLinker_1_1OptionDescription_3_01void_01_4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a textual representation of the type, to be displayed to the user.  <br /></td></tr>
+<tr class="separator:a634d874a7ecfc7236dca43b04423c001 inherit pub_methods_classLinker_1_1OptionDescription_3_01void_01_4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:a0b339077f5a0ba0bf50c634c60b32494" id="r_a0b339077f5a0ba0bf50c634c60b32494"><td class="memItemLeft" align="right" valign="top"><a id="a0b339077f5a0ba0bf50c634c60b32494" name="a0b339077f5a0ba0bf50c634c60b32494"></a>
 std::map&lt; std::string, std::string &gt; *&#160;</td><td class="memItemRight" valign="bottom"><b>options</b></td></tr>
+<tr class="memdesc:a0b339077f5a0ba0bf50c634c60b32494"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classLinker_1_1Reference.html" title="Represents a reference stored in a linker script.">Reference</a> to the collection of command line options, to be accessed by the <a class="el" href="classLinker_1_1Option.html" title="Documents and handles command line options.">Option</a> instance. <br /></td></tr>
 <tr class="separator:a0b339077f5a0ba0bf50c634c60b32494"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad06b30db3738934a123896bacd3c50ab" id="r_ad06b30db3738934a123896bacd3c50ab"><td class="memItemLeft" align="right" valign="top"><a id="ad06b30db3738934a123896bacd3c50ab" name="ad06b30db3738934a123896bacd3c50ab"></a>
+<tr class="inherit_header pub_attribs_classLinker_1_1OptionDescription_3_01void_01_4"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1OptionDescription_3_01void_01_4')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1OptionDescription_3_01void_01_4.html">Linker::OptionDescription&lt; void &gt;</a></td></tr>
+<tr class="memitem:a00b52e47d00d7a0cba7fca8ebff358f0 inherit pub_attribs_classLinker_1_1OptionDescription_3_01void_01_4" id="r_a00b52e47d00d7a0cba7fca8ebff358f0"><td class="memItemLeft" align="right" valign="top">
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
-<tr class="separator:ad06b30db3738934a123896bacd3c50ab"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac31b03044ae2cb1ddf1d55204a2f594f" id="r_ac31b03044ae2cb1ddf1d55204a2f594f"><td class="memItemLeft" align="right" valign="top"><a id="ac31b03044ae2cb1ddf1d55204a2f594f" name="ac31b03044ae2cb1ddf1d55204a2f594f"></a>
+<tr class="memdesc:a00b52e47d00d7a0cba7fca8ebff358f0 inherit pub_attribs_classLinker_1_1OptionDescription_3_01void_01_4"><td class="mdescLeft">&#160;</td><td class="mdescRight">The name of a command line option, as provided on the command line. <br /></td></tr>
+<tr class="separator:a00b52e47d00d7a0cba7fca8ebff358f0 inherit pub_attribs_classLinker_1_1OptionDescription_3_01void_01_4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9507f74f64de02ee3b5f1c86d4fc2ccd inherit pub_attribs_classLinker_1_1OptionDescription_3_01void_01_4" id="r_a9507f74f64de02ee3b5f1c86d4fc2ccd"><td class="memItemLeft" align="right" valign="top">
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>description</b></td></tr>
-<tr class="separator:ac31b03044ae2cb1ddf1d55204a2f594f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:a9507f74f64de02ee3b5f1c86d4fc2ccd inherit pub_attribs_classLinker_1_1OptionDescription_3_01void_01_4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Description printed when -h is issued. <br /></td></tr>
+<tr class="separator:a9507f74f64de02ee3b5f1c86d4fc2ccd inherit pub_attribs_classLinker_1_1OptionDescription_3_01void_01_4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Base class for documenting and handling command line options. </p>
+</div><hr/>The documentation for this class was generated from the following file:<ul>
 <li>src/linker/<a class="el" href="options_8h_source.html">options.h</a></li>
 </ul>
 </div><!-- contents -->

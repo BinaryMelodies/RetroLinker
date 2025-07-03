@@ -91,180 +91,201 @@ $(function() { codefold.init(0); });
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &quot;../common.h&quot;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &quot;../dumper/dumper.h&quot;</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &quot;../linker/module.h&quot;</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;../linker/segment.h&quot;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;../linker/segment_manager.h&quot;</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;../linker/writer.h&quot;</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="comment">/* TODO: UNIX v1 a.out</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">    magic</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">    header_size + text_size + data_size</span></div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">    symtab_size</span></div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">    relocations_size</span></div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">    bss_size</span></div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">    0</span></div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment"></span> </div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment">TODO: PDP-11 a.out</span></div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">*/</span></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span> </div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">namespace </span>AOut</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>{</div>
-<div class="foldopen" id="foldopen00048" data-start="{" data-end="};">
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="classAOut_1_1AOutFormat.html">   48</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classAOut_1_1AOutFormat.html">AOutFormat</a> : <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1InputFormat.html">Linker::InputFormat</a>, <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span>    {</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>        <span class="comment">/* * * General members * * */</span></div>
-<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        ::EndianType endiantype;</div>
-<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        <span class="keywordtype">unsigned</span> word_size;</div>
-<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span> </div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>        <span class="keyword">enum</span> magic_type</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        {</div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>            OMAGIC = 0x0107,</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>            NMAGIC = 0x0108,</div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>            ZMAGIC = 0x010B,</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            QMAGIC = 0x00CC,</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>        };</div>
-<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        magic_type magic = magic_type(0);</div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span>        <span class="keyword">enum</span> cpu_type</div>
-<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        {</div>
-<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>            UNKNOWN = 0x00,</div>
-<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>            M68010  = 0x01,</div>
-<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>            M68020  = 0x02,</div>
-<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>            SPARC   = 0x03,</div>
-<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>            I80386  = 0x64,</div>
-<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>            ARM     = 0x67, <span class="comment">/* according to BFD */</span></div>
-<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>            MIPS1   = 0x97,</div>
-<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>            MIPS2   = 0x98,</div>
-<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>            PDP11   = 0xFF, <span class="comment">/* not a real magic number */</span></div>
-<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>        };</div>
-<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        cpu_type cpu = UNKNOWN;</div>
-<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span> </div>
-<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span>        ::EndianType GetEndianType() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span> </div>
-<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span>        <span class="keywordtype">unsigned</span> GetWordSize() <span class="keyword">const</span>;</div>
-<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span> </div>
-<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span>        uint32_t code_size = 0;</div>
-<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        uint32_t data_size = 0;</div>
-<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        uint32_t bss_size = 0;</div>
-<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        uint32_t symbol_table_size = 0;</div>
-<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        uint32_t entry_address = 0;</div>
-<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        uint32_t code_relocation_size = 0;</div>
-<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        uint32_t data_relocation_size = 0;</div>
-<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        std::map&lt;uint32_t, uint32_t&gt; code_relocations, data_relocations; <span class="comment">/* only used by PDOS386 OMAGIC */</span></div>
-<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span> </div>
-<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span>        std::shared_ptr&lt;Linker::Image&gt; code, data, bss;</div>
-<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span> </div>
-<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span>    <span class="keyword">private</span>:</div>
-<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>        <span class="keywordtype">bool</span> AttemptFetchMagic(uint8_t signature[4]);</div>
-<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span> </div>
-<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span>        <span class="keywordtype">bool</span> AttemptReadFile(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd, uint8_t signature[4], offset_t image_size);</div>
-<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span> </div>
-<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span>    <span class="keyword">public</span>:</div>
-<div class="foldopen" id="foldopen00099" data-start="{" data-end="};">
-<div class="line"><a id="l00099" name="l00099"></a><span class="lineno"><a class="line" href="classAOut_1_1AOutFormat_1_1Symbol.html">   99</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classAOut_1_1AOutFormat_1_1Symbol.html">Symbol</a></div>
-<div class="line"><a id="l00100" name="l00100"></a><span class="lineno">  100</span>        {</div>
-<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        <span class="keyword">public</span>:</div>
-<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>            std::string name;</div>
-<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>            uint16_t unknown = 0;</div>
-<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>            uint16_t name_offset = 0;</div>
-<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            uint16_t type = 0;</div>
-<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>            uint16_t value = 0;</div>
-<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>        };</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &quot;../linker/options.h&quot;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &quot;../linker/segment.h&quot;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;../linker/segment_manager.h&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;../linker/writer.h&quot;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="comment">/* TODO: UNIX v1 a.out</span></div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="comment">    magic</span></div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="comment">    header_size + text_size + data_size</span></div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="comment">    symtab_size</span></div>
+<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span><span class="comment">    relocations_size</span></div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span><span class="comment">    bss_size</span></div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span><span class="comment">    0</span></div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span><span class="comment"></span> </div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span><span class="comment">TODO: PDP-11 a.out</span></div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="comment">*/</span></div>
+<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span> </div>
+<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span><span class="keyword">namespace </span>AOut</div>
+<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>{</div>
+<div class="foldopen" id="foldopen00049" data-start="{" data-end="};">
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="classAOut_1_1AOutFormat.html">   49</a></span>    <span class="keyword">class </span><a class="code hl_class" href="classAOut_1_1AOutFormat.html">AOutFormat</a> : <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1InputFormat.html">Linker::InputFormat</a>, <span class="keyword">public</span> <span class="keyword">virtual</span> <a class="code hl_class" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></div>
+<div class="line"><a id="l00050" name="l00050"></a><span class="lineno">   50</span>    {</div>
+<div class="line"><a id="l00051" name="l00051"></a><span class="lineno">   51</span>    <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00052" name="l00052"></a><span class="lineno">   52</span>        <span class="comment">/* * * General members * * */</span></div>
+<div class="line"><a id="l00053" name="l00053"></a><span class="lineno">   53</span>        ::EndianType endiantype;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>        <span class="keywordtype">unsigned</span> word_size;</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span>        <span class="keyword">enum</span> magic_type</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span>        {</div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>            OMAGIC = 0x0107,</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>            NMAGIC = 0x0108,</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>            ZMAGIC = 0x010B,</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>            QMAGIC = 0x00CC,</div>
+<div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span>        };</div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span>        magic_type magic = magic_type(0);</div>
+<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span> </div>
+<div class="line"><a id="l00065" name="l00065"></a><span class="lineno">   65</span>        <span class="keyword">enum</span> cpu_type</div>
+<div class="line"><a id="l00066" name="l00066"></a><span class="lineno">   66</span>        {</div>
+<div class="line"><a id="l00067" name="l00067"></a><span class="lineno">   67</span>            UNKNOWN = 0x00,</div>
+<div class="line"><a id="l00068" name="l00068"></a><span class="lineno">   68</span>            M68010  = 0x01,</div>
+<div class="line"><a id="l00069" name="l00069"></a><span class="lineno">   69</span>            M68020  = 0x02,</div>
+<div class="line"><a id="l00070" name="l00070"></a><span class="lineno">   70</span>            SPARC   = 0x03,</div>
+<div class="line"><a id="l00071" name="l00071"></a><span class="lineno">   71</span>            I80386  = 0x64,</div>
+<div class="line"><a id="l00072" name="l00072"></a><span class="lineno">   72</span>            ARM     = 0x67, <span class="comment">/* according to BFD */</span></div>
+<div class="line"><a id="l00073" name="l00073"></a><span class="lineno">   73</span>            MIPS1   = 0x97,</div>
+<div class="line"><a id="l00074" name="l00074"></a><span class="lineno">   74</span>            MIPS2   = 0x98,</div>
+<div class="line"><a id="l00075" name="l00075"></a><span class="lineno">   75</span>            PDP11   = 0xFF, <span class="comment">/* not a real magic number */</span></div>
+<div class="line"><a id="l00076" name="l00076"></a><span class="lineno">   76</span>        };</div>
+<div class="line"><a id="l00077" name="l00077"></a><span class="lineno">   77</span>        cpu_type cpu = UNKNOWN;</div>
+<div class="line"><a id="l00078" name="l00078"></a><span class="lineno">   78</span> </div>
+<div class="line"><a id="l00079" name="l00079"></a><span class="lineno">   79</span>        ::EndianType GetEndianType() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00080" name="l00080"></a><span class="lineno">   80</span> </div>
+<div class="line"><a id="l00081" name="l00081"></a><span class="lineno">   81</span>        <span class="keywordtype">unsigned</span> GetWordSize() <span class="keyword">const</span>;</div>
+<div class="line"><a id="l00082" name="l00082"></a><span class="lineno">   82</span> </div>
+<div class="line"><a id="l00083" name="l00083"></a><span class="lineno">   83</span>        uint32_t code_size = 0;</div>
+<div class="line"><a id="l00084" name="l00084"></a><span class="lineno">   84</span>        uint32_t data_size = 0;</div>
+<div class="line"><a id="l00085" name="l00085"></a><span class="lineno">   85</span>        uint32_t bss_size = 0;</div>
+<div class="line"><a id="l00086" name="l00086"></a><span class="lineno">   86</span>        uint32_t symbol_table_size = 0;</div>
+<div class="line"><a id="l00087" name="l00087"></a><span class="lineno">   87</span>        uint32_t entry_address = 0;</div>
+<div class="line"><a id="l00088" name="l00088"></a><span class="lineno">   88</span>        uint32_t code_relocation_size = 0;</div>
+<div class="line"><a id="l00089" name="l00089"></a><span class="lineno">   89</span>        uint32_t data_relocation_size = 0;</div>
+<div class="line"><a id="l00090" name="l00090"></a><span class="lineno">   90</span>        std::map&lt;uint32_t, uint32_t&gt; code_relocations, data_relocations; <span class="comment">/* only used by PDOS386 OMAGIC */</span></div>
+<div class="line"><a id="l00091" name="l00091"></a><span class="lineno">   91</span> </div>
+<div class="line"><a id="l00092" name="l00092"></a><span class="lineno">   92</span>        std::shared_ptr&lt;Linker::Image&gt; code, data, bss;</div>
+<div class="line"><a id="l00093" name="l00093"></a><span class="lineno">   93</span> </div>
+<div class="line"><a id="l00094" name="l00094"></a><span class="lineno">   94</span>    <span class="keyword">private</span>:</div>
+<div class="line"><a id="l00095" name="l00095"></a><span class="lineno">   95</span>        <span class="keywordtype">bool</span> AttemptFetchMagic(uint8_t signature[4]);</div>
+<div class="line"><a id="l00096" name="l00096"></a><span class="lineno">   96</span> </div>
+<div class="line"><a id="l00097" name="l00097"></a><span class="lineno">   97</span>        <span class="keywordtype">bool</span> AttemptReadFile(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd, uint8_t signature[4], offset_t image_size);</div>
+<div class="line"><a id="l00098" name="l00098"></a><span class="lineno">   98</span> </div>
+<div class="line"><a id="l00099" name="l00099"></a><span class="lineno">   99</span>    <span class="keyword">public</span>:</div>
+<div class="foldopen" id="foldopen00100" data-start="{" data-end="};">
+<div class="line"><a id="l00100" name="l00100"></a><span class="lineno"><a class="line" href="classAOut_1_1AOutFormat_1_1Symbol.html">  100</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classAOut_1_1AOutFormat_1_1Symbol.html">Symbol</a></div>
+<div class="line"><a id="l00101" name="l00101"></a><span class="lineno">  101</span>        {</div>
+<div class="line"><a id="l00102" name="l00102"></a><span class="lineno">  102</span>        <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00103" name="l00103"></a><span class="lineno">  103</span>            std::string name;</div>
+<div class="line"><a id="l00104" name="l00104"></a><span class="lineno">  104</span>            uint16_t unknown = 0;</div>
+<div class="line"><a id="l00105" name="l00105"></a><span class="lineno">  105</span>            uint16_t name_offset = 0;</div>
+<div class="line"><a id="l00106" name="l00106"></a><span class="lineno">  106</span>            uint16_t type = 0;</div>
+<div class="line"><a id="l00107" name="l00107"></a><span class="lineno">  107</span>            uint16_t value = 0;</div>
+<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span>        };</div>
 </div>
-<div class="line"><a id="l00108" name="l00108"></a><span class="lineno">  108</span> </div>
-<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span>        std::vector&lt;Symbol&gt; symbols;</div>
-<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span> </div>
-<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aeaf8a3d71f995d4c83b6451d234628c1">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span> </div>
-<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span>        offset_t <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aee13bd596046ef81096952f405c9a515">ImageSize</a>() <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span> </div>
-<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1Format.html#a7355f6db61be5b563871ca6e2ceece82">Linker::Format::WriteFile</a>;</div>
-<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        offset_t <a class="code hl_function" href="classAOut_1_1AOutFormat.html#a3b87e0127842541799df05fe92a1be9f">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span> </div>
-<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ab356d88a689ab74280a07ccb703986ea">Dump</a>(<a class="code hl_class" href="classDumper_1_1Dumper.html">Dumper::Dumper</a>&amp; dump) <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span> </div>
-<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span>        <span class="comment">/* * * Reader * * */</span></div>
-<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span> </div>
-<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1InputFormat.html#a4f878066b29cd9aa752b80c68b3ed1be">Linker::InputFormat::GenerateModule</a>;</div>
-<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">GenerateModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span> </div>
-<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span>        <span class="comment">/* * * Writer * * */</span></div>
-<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span> </div>
-<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span>        <span class="comment">// for old DJGPP executables</span></div>
-<div class="line"><a id="l00128" name="l00128"></a><span class="lineno">  128</span>        <span class="keyword">mutable</span> <a class="code hl_class" href="classMicrosoft_1_1MZSimpleStubWriter.html">Microsoft::MZSimpleStubWriter</a> stub;</div>
-<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span> </div>
-<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        <span class="keyword">enum</span> system_type</div>
-<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>        {</div>
-<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span>            UNIX, <span class="comment">/* also Linux */</span> <span class="comment">/* TODO */</span></div>
-<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>            DJGPP1, <span class="comment">/* early DJGPP */</span></div>
-<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>            PDOS386, <span class="comment">/* http://pdos.sourceforge.net/ */</span></div>
-<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>        };</div>
-<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>        system_type system = system_type(0);</div>
-<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span> </div>
-<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span>        <span class="keyword">static</span> std::shared_ptr&lt;AOutFormat&gt; CreateWriter(system_type system, magic_type magic);</div>
-<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span> </div>
-<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>        <span class="keyword">static</span> std::shared_ptr&lt;AOutFormat&gt; CreateWriter(system_type system);</div>
+<div class="line"><a id="l00109" name="l00109"></a><span class="lineno">  109</span> </div>
+<div class="line"><a id="l00110" name="l00110"></a><span class="lineno">  110</span>        std::vector&lt;Symbol&gt; symbols;</div>
+<div class="line"><a id="l00111" name="l00111"></a><span class="lineno">  111</span> </div>
+<div class="line"><a id="l00112" name="l00112"></a><span class="lineno">  112</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aeaf8a3d71f995d4c83b6451d234628c1">ReadFile</a>(<a class="code hl_class" href="classLinker_1_1Reader.html">Linker::Reader</a>&amp; rd) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00113" name="l00113"></a><span class="lineno">  113</span> </div>
+<div class="line"><a id="l00114" name="l00114"></a><span class="lineno">  114</span>        offset_t <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aee13bd596046ef81096952f405c9a515">ImageSize</a>() <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00115" name="l00115"></a><span class="lineno">  115</span> </div>
+<div class="line"><a id="l00116" name="l00116"></a><span class="lineno">  116</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1Format.html#a7355f6db61be5b563871ca6e2ceece82">Linker::Format::WriteFile</a>;</div>
+<div class="line"><a id="l00117" name="l00117"></a><span class="lineno">  117</span>        offset_t <a class="code hl_function" href="classAOut_1_1AOutFormat.html#a3b87e0127842541799df05fe92a1be9f">WriteFile</a>(<a class="code hl_class" href="classLinker_1_1Writer.html">Linker::Writer</a>&amp; wr) <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00118" name="l00118"></a><span class="lineno">  118</span> </div>
+<div class="line"><a id="l00119" name="l00119"></a><span class="lineno">  119</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ab356d88a689ab74280a07ccb703986ea">Dump</a>(<a class="code hl_class" href="classDumper_1_1Dumper.html">Dumper::Dumper</a>&amp; dump) <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00120" name="l00120"></a><span class="lineno">  120</span> </div>
+<div class="line"><a id="l00121" name="l00121"></a><span class="lineno">  121</span>        <span class="comment">/* * * Reader members * * */</span></div>
+<div class="line"><a id="l00122" name="l00122"></a><span class="lineno">  122</span> </div>
+<div class="line"><a id="l00123" name="l00123"></a><span class="lineno">  123</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1InputFormat.html#a4f878066b29cd9aa752b80c68b3ed1be">Linker::InputFormat::GenerateModule</a>;</div>
+<div class="line"><a id="l00124" name="l00124"></a><span class="lineno">  124</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">GenerateModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00125" name="l00125"></a><span class="lineno">  125</span> </div>
+<div class="line"><a id="l00126" name="l00126"></a><span class="lineno">  126</span>        <span class="comment">/* * * Writer members * * */</span></div>
+<div class="line"><a id="l00127" name="l00127"></a><span class="lineno">  127</span> </div>
+<div class="foldopen" id="foldopen00128" data-start="{" data-end="};">
+<div class="line"><a id="l00128" name="l00128"></a><span class="lineno"><a class="line" href="classAOut_1_1AOutFormat_1_1AOutOptionCollector.html">  128</a></span>        <span class="keyword">class </span><a class="code hl_class" href="classAOut_1_1AOutFormat_1_1AOutOptionCollector.html">AOutOptionCollector</a> : <span class="keyword">public</span> <a class="code hl_class" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a></div>
+<div class="line"><a id="l00129" name="l00129"></a><span class="lineno">  129</span>        {</div>
+<div class="line"><a id="l00130" name="l00130"></a><span class="lineno">  130</span>        <span class="keyword">public</span>:</div>
+<div class="line"><a id="l00131" name="l00131"></a><span class="lineno">  131</span>            <a class="code hl_class" href="classLinker_1_1Option.html">Linker::Option&lt;std::string&gt;</a> stub{<span class="stringliteral">&quot;stub&quot;</span>, <span class="stringliteral">&quot;Filename for stub that gets prepended to executable&quot;</span>};</div>
+<div class="line"><a id="l00132" name="l00132"></a><span class="lineno">  132</span> </div>
+<div class="line"><a id="l00133" name="l00133"></a><span class="lineno">  133</span>            <a class="code hl_class" href="classAOut_1_1AOutFormat_1_1AOutOptionCollector.html">AOutOptionCollector</a>()</div>
+<div class="line"><a id="l00134" name="l00134"></a><span class="lineno">  134</span>            {</div>
+<div class="line"><a id="l00135" name="l00135"></a><span class="lineno">  135</span>                InitializeFields(stub);</div>
+<div class="line"><a id="l00136" name="l00136"></a><span class="lineno">  136</span>            }</div>
+<div class="line"><a id="l00137" name="l00137"></a><span class="lineno">  137</span>        };</div>
+</div>
+<div class="line"><a id="l00138" name="l00138"></a><span class="lineno">  138</span> </div>
+<div class="line"><a id="l00139" name="l00139"></a><span class="lineno">  139</span>        <span class="comment">// for old DJGPP executables</span></div>
+<div class="line"><a id="l00140" name="l00140"></a><span class="lineno">  140</span>        <span class="keyword">mutable</span> <a class="code hl_class" href="classMicrosoft_1_1MZSimpleStubWriter.html">Microsoft::MZSimpleStubWriter</a> stub;</div>
 <div class="line"><a id="l00141" name="l00141"></a><span class="lineno">  141</span> </div>
-<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        <span class="keyword">static</span> magic_type <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ab38bee6d4299b0005cad181172ede2c3">GetDefaultMagic</a>(system_type system);</div>
+<div class="line"><a id="l00142" name="l00142"></a><span class="lineno">  142</span>        <span class="keyword">enum</span> system_type</div>
+<div class="line"><a id="l00143" name="l00143"></a><span class="lineno">  143</span>        {</div>
+<div class="line"><a id="l00144" name="l00144"></a><span class="lineno">  144</span>            UNIX, <span class="comment">/* also Linux */</span> <span class="comment">/* TODO */</span></div>
+<div class="line"><a id="l00145" name="l00145"></a><span class="lineno">  145</span>            DJGPP1, <span class="comment">/* early DJGPP */</span></div>
+<div class="line"><a id="l00146" name="l00146"></a><span class="lineno">  146</span>            PDOS386, <span class="comment">/* http://pdos.sourceforge.net/ */</span></div>
+<div class="line"><a id="l00147" name="l00147"></a><span class="lineno">  147</span>        };</div>
+<div class="line"><a id="l00148" name="l00148"></a><span class="lineno">  148</span>        system_type system = system_type(0);</div>
 <div class="line"><a id="l00149" name="l00149"></a><span class="lineno">  149</span> </div>
-<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>        std::shared_ptr&lt;Linker::OptionCollector&gt; <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aba7121d9c2cfb5d38c874bcbbde40467">GetOptions</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00150" name="l00150"></a><span class="lineno">  150</span>        <span class="keyword">static</span> std::shared_ptr&lt;AOutFormat&gt; CreateWriter(system_type system, magic_type magic);</div>
 <div class="line"><a id="l00151" name="l00151"></a><span class="lineno">  151</span> </div>
-<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aba95a501b20d3244db008021ac058944">SetOptions</a>(std::map&lt;std::string, std::string&gt;&amp; options) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00152" name="l00152"></a><span class="lineno">  152</span>        <span class="keyword">static</span> std::shared_ptr&lt;AOutFormat&gt; CreateWriter(system_type system);</div>
 <div class="line"><a id="l00153" name="l00153"></a><span class="lineno">  153</span> </div>
-<div class="line"><a id="l00154" name="l00154"></a><span class="lineno">  154</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aeb1902b83159431a886aeee6fbb6fc18">OnNewSegment</a>(std::shared_ptr&lt;Linker::Segment&gt; segment) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00155" name="l00155"></a><span class="lineno">  155</span> </div>
-<div class="line"><a id="l00156" name="l00156"></a><span class="lineno">  156</span>        <span class="keywordtype">void</span> CreateDefaultSegments();</div>
-<div class="line"><a id="l00157" name="l00157"></a><span class="lineno">  157</span> </div>
-<div class="line"><a id="l00158" name="l00158"></a><span class="lineno">  158</span>        std::unique_ptr&lt;Script::List&gt; GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
-<div class="line"><a id="l00159" name="l00159"></a><span class="lineno">  159</span> </div>
-<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>        <span class="keywordtype">void</span> Link(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00160" name="l00160"></a><span class="lineno">  160</span>        <span class="keyword">static</span> magic_type <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ab38bee6d4299b0005cad181172ede2c3">GetDefaultMagic</a>(system_type system);</div>
 <div class="line"><a id="l00161" name="l00161"></a><span class="lineno">  161</span> </div>
-<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        std::shared_ptr&lt;Linker::Segment&gt; GetCodeSegment();</div>
-<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span> </div>
-<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span>        std::shared_ptr&lt;Linker::Segment&gt; GetDataSegment();</div>
-<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span> </div>
-<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span>        std::shared_ptr&lt;Linker::Segment&gt; GetBssSegment();</div>
-<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span> </div>
-<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ab5bea1d84db8cfeebad9fbfb807f6af7">ProcessModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span> </div>
-<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ac63886fecdf1c9adf140a637fea08e47">CalculateValues</a>() <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span> </div>
-<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aeb2dca4af06fc91eee3b0ec541a7c2e9">GenerateFile</a>(std::string filename, <a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
-<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span> </div>
-<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1OutputFormat.html#a43cd0c7fcb0fe1cf0ee919cb4c2cf1f0">Linker::OutputFormat::GetDefaultExtension</a>;</div>
-<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>        std::string <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ae9fb89c1786b0292cb4e8f93aaae3674">GetDefaultExtension</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module, std::string filename) <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span>        std::string <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ae9fb89c1786b0292cb4e8f93aaae3674">GetDefaultExtension</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">const override</span>;</div>
-<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>    };</div>
-</div>
+<div class="line"><a id="l00162" name="l00162"></a><span class="lineno">  162</span>        <span class="keyword">static</span> std::vector&lt;Linker::OptionDescription&lt;void&gt; *&gt; ParameterNames;</div>
+<div class="line"><a id="l00163" name="l00163"></a><span class="lineno">  163</span>        std::vector&lt;Linker::OptionDescription&lt;void&gt; *&gt; <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aa07566d4bfde04b7ec825e0f0c03bab7">GetLinkerScriptParameterNames</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00164" name="l00164"></a><span class="lineno">  164</span> </div>
+<div class="line"><a id="l00165" name="l00165"></a><span class="lineno">  165</span>        std::shared_ptr&lt;Linker::OptionCollector&gt; <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aba7121d9c2cfb5d38c874bcbbde40467">GetOptions</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00166" name="l00166"></a><span class="lineno">  166</span> </div>
+<div class="line"><a id="l00167" name="l00167"></a><span class="lineno">  167</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aba95a501b20d3244db008021ac058944">SetOptions</a>(std::map&lt;std::string, std::string&gt;&amp; options) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00168" name="l00168"></a><span class="lineno">  168</span> </div>
+<div class="line"><a id="l00169" name="l00169"></a><span class="lineno">  169</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aeb1902b83159431a886aeee6fbb6fc18">OnNewSegment</a>(std::shared_ptr&lt;Linker::Segment&gt; segment) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00170" name="l00170"></a><span class="lineno">  170</span> </div>
+<div class="line"><a id="l00171" name="l00171"></a><span class="lineno">  171</span>        <span class="keywordtype">void</span> CreateDefaultSegments();</div>
+<div class="line"><a id="l00172" name="l00172"></a><span class="lineno">  172</span> </div>
+<div class="line"><a id="l00173" name="l00173"></a><span class="lineno">  173</span>        std::unique_ptr&lt;Script::List&gt; GetScript(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00174" name="l00174"></a><span class="lineno">  174</span> </div>
+<div class="line"><a id="l00175" name="l00175"></a><span class="lineno">  175</span>        <span class="keywordtype">void</span> Link(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module);</div>
+<div class="line"><a id="l00176" name="l00176"></a><span class="lineno">  176</span> </div>
+<div class="line"><a id="l00177" name="l00177"></a><span class="lineno">  177</span>        std::shared_ptr&lt;Linker::Segment&gt; GetCodeSegment();</div>
 <div class="line"><a id="l00178" name="l00178"></a><span class="lineno">  178</span> </div>
-<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>}</div>
+<div class="line"><a id="l00179" name="l00179"></a><span class="lineno">  179</span>        std::shared_ptr&lt;Linker::Segment&gt; GetDataSegment();</div>
 <div class="line"><a id="l00180" name="l00180"></a><span class="lineno">  180</span> </div>
-<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span><span class="preprocessor">#endif </span><span class="comment">/* AOUT_H */</span><span class="preprocessor"></span></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_1_1Symbol_html"><div class="ttname"><a href="classAOut_1_1AOutFormat_1_1Symbol.html">AOut::AOutFormat::Symbol</a></div><div class="ttdef"><b>Definition</b> aout.h:100</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html"><div class="ttname"><a href="classAOut_1_1AOutFormat.html">AOut::AOutFormat</a></div><div class="ttdoc">UNIX/Linux a.out binary file format.</div><div class="ttdef"><b>Definition</b> aout.h:49</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_a3b87e0127842541799df05fe92a1be9f"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#a3b87e0127842541799df05fe92a1be9f">AOut::AOutFormat::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Linker::Writer &amp;wr) const override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> aout.cc:353</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_a6a7d91a754d98b715fd1a1cb5e6cd26f"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">AOut::AOutFormat::GenerateModule</a></div><div class="ttdeci">void GenerateModule(Linker::Module &amp;module) const override</div><div class="ttdoc">Loads the information into a module object, a convenience method when there is a single module genera...</div><div class="ttdef"><b>Definition</b> aout.cc:403</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ab356d88a689ab74280a07ccb703986ea"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ab356d88a689ab74280a07ccb703986ea">AOut::AOutFormat::Dump</a></div><div class="ttdeci">void Dump(Dumper::Dumper &amp;dump) const override</div><div class="ttdoc">Display file contents in a nice manner.</div><div class="ttdef"><b>Definition</b> aout.cc:390</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ab38bee6d4299b0005cad181172ede2c3"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ab38bee6d4299b0005cad181172ede2c3">AOut::AOutFormat::GetDefaultMagic</a></div><div class="ttdeci">static magic_type GetDefaultMagic(system_type system)</div><div class="ttdoc">Default magic number associated with the system.</div><div class="ttdef"><b>Definition</b> aout.cc:596</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ab5bea1d84db8cfeebad9fbfb807f6af7"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ab5bea1d84db8cfeebad9fbfb807f6af7">AOut::AOutFormat::ProcessModule</a></div><div class="ttdeci">void ProcessModule(Linker::Module &amp;module) override</div><div class="ttdoc">Processes the module object and initializes format fields.</div><div class="ttdef"><b>Definition</b> aout.cc:727</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aba7121d9c2cfb5d38c874bcbbde40467"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aba7121d9c2cfb5d38c874bcbbde40467">AOut::AOutFormat::GetOptions</a></div><div class="ttdeci">std::shared_ptr&lt; Linker::OptionCollector &gt; GetOptions() override</div><div class="ttdoc">Returns object containing a sequence of option fields provided with the -S command line flag.</div><div class="ttdef"><b>Definition</b> aout.cc:619</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aba95a501b20d3244db008021ac058944"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aba95a501b20d3244db008021ac058944">AOut::AOutFormat::SetOptions</a></div><div class="ttdeci">void SetOptions(std::map&lt; std::string, std::string &gt; &amp;options) override</div><div class="ttdoc">Passes command line parameters as settings over to format object.</div><div class="ttdef"><b>Definition</b> aout.cc:624</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ac63886fecdf1c9adf140a637fea08e47"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ac63886fecdf1c9adf140a637fea08e47">AOut::AOutFormat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> aout.cc:830</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ae9fb89c1786b0292cb4e8f93aaae3674"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ae9fb89c1786b0292cb4e8f93aaae3674">AOut::AOutFormat::GetDefaultExtension</a></div><div class="ttdeci">std::string GetDefaultExtension(Linker::Module &amp;module, std::string filename) const override</div><div class="ttdoc">Appends a default extension to the filename.</div><div class="ttdef"><b>Definition</b> aout.cc:864</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aeaf8a3d71f995d4c83b6451d234628c1"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aeaf8a3d71f995d4c83b6451d234628c1">AOut::AOutFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> aout.cc:148</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aeb1902b83159431a886aeee6fbb6fc18"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aeb1902b83159431a886aeee6fbb6fc18">AOut::AOutFormat::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(std::shared_ptr&lt; Linker::Segment &gt; segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> aout.cc:633</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aeb2dca4af06fc91eee3b0ec541a7c2e9"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aeb2dca4af06fc91eee3b0ec541a7c2e9">AOut::AOutFormat::GenerateFile</a></div><div class="ttdeci">void GenerateFile(std::string filename, Linker::Module &amp;module) override</div><div class="ttdoc">The main function that handles processing, calculating and generating the final image.</div><div class="ttdef"><b>Definition</b> aout.cc:847</div></div>
-<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aee13bd596046ef81096952f405c9a515"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aee13bd596046ef81096952f405c9a515">AOut::AOutFormat::ImageSize</a></div><div class="ttdeci">offset_t ImageSize() const override</div><div class="ttdoc">Retrieves size of stored data.</div><div class="ttdef"><b>Definition</b> aout.cc:348</div></div>
+<div class="line"><a id="l00181" name="l00181"></a><span class="lineno">  181</span>        std::shared_ptr&lt;Linker::Segment&gt; GetBssSegment();</div>
+<div class="line"><a id="l00182" name="l00182"></a><span class="lineno">  182</span> </div>
+<div class="line"><a id="l00183" name="l00183"></a><span class="lineno">  183</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ab5bea1d84db8cfeebad9fbfb807f6af7">ProcessModule</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00184" name="l00184"></a><span class="lineno">  184</span> </div>
+<div class="line"><a id="l00185" name="l00185"></a><span class="lineno">  185</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ac63886fecdf1c9adf140a637fea08e47">CalculateValues</a>() <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00186" name="l00186"></a><span class="lineno">  186</span> </div>
+<div class="line"><a id="l00187" name="l00187"></a><span class="lineno">  187</span>        <span class="keywordtype">void</span> <a class="code hl_function" href="classAOut_1_1AOutFormat.html#aeb2dca4af06fc91eee3b0ec541a7c2e9">GenerateFile</a>(std::string filename, <a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">override</span>;</div>
+<div class="line"><a id="l00188" name="l00188"></a><span class="lineno">  188</span> </div>
+<div class="line"><a id="l00189" name="l00189"></a><span class="lineno">  189</span>        <span class="keyword">using </span><a class="code hl_function" href="classLinker_1_1OutputFormat.html#a43cd0c7fcb0fe1cf0ee919cb4c2cf1f0">Linker::OutputFormat::GetDefaultExtension</a>;</div>
+<div class="line"><a id="l00190" name="l00190"></a><span class="lineno">  190</span>        std::string <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ae9fb89c1786b0292cb4e8f93aaae3674">GetDefaultExtension</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module, std::string filename) <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00191" name="l00191"></a><span class="lineno">  191</span>        std::string <a class="code hl_function" href="classAOut_1_1AOutFormat.html#ae9fb89c1786b0292cb4e8f93aaae3674">GetDefaultExtension</a>(<a class="code hl_class" href="classLinker_1_1Module.html">Linker::Module</a>&amp; module) <span class="keyword">const override</span>;</div>
+<div class="line"><a id="l00192" name="l00192"></a><span class="lineno">  192</span>    };</div>
+</div>
+<div class="line"><a id="l00193" name="l00193"></a><span class="lineno">  193</span> </div>
+<div class="line"><a id="l00194" name="l00194"></a><span class="lineno">  194</span>}</div>
+<div class="line"><a id="l00195" name="l00195"></a><span class="lineno">  195</span> </div>
+<div class="line"><a id="l00196" name="l00196"></a><span class="lineno">  196</span><span class="preprocessor">#endif </span><span class="comment">/* AOUT_H */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_1_1AOutOptionCollector_html"><div class="ttname"><a href="classAOut_1_1AOutFormat_1_1AOutOptionCollector.html">AOut::AOutFormat::AOutOptionCollector</a></div><div class="ttdef"><b>Definition</b> aout.h:129</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_1_1Symbol_html"><div class="ttname"><a href="classAOut_1_1AOutFormat_1_1Symbol.html">AOut::AOutFormat::Symbol</a></div><div class="ttdef"><b>Definition</b> aout.h:101</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html"><div class="ttname"><a href="classAOut_1_1AOutFormat.html">AOut::AOutFormat</a></div><div class="ttdoc">UNIX/Linux a.out binary file format.</div><div class="ttdef"><b>Definition</b> aout.h:50</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_a3b87e0127842541799df05fe92a1be9f"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#a3b87e0127842541799df05fe92a1be9f">AOut::AOutFormat::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Linker::Writer &amp;wr) const override</div><div class="ttdoc">Stores data in memory to file.</div><div class="ttdef"><b>Definition</b> aout.cc:352</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_a6a7d91a754d98b715fd1a1cb5e6cd26f"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">AOut::AOutFormat::GenerateModule</a></div><div class="ttdeci">void GenerateModule(Linker::Module &amp;module) const override</div><div class="ttdoc">Loads the information into a module object, a convenience method when there is a single module genera...</div><div class="ttdef"><b>Definition</b> aout.cc:402</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aa07566d4bfde04b7ec825e0f0c03bab7"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aa07566d4bfde04b7ec825e0f0c03bab7">AOut::AOutFormat::GetLinkerScriptParameterNames</a></div><div class="ttdeci">std::vector&lt; Linker::OptionDescription&lt; void &gt; * &gt; GetLinkerScriptParameterNames() override</div><div class="ttdoc">Returns a list of the parameters used in the linker scripts, used for documentation.</div><div class="ttdef"><b>Definition</b> aout.cc:618</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ab356d88a689ab74280a07ccb703986ea"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ab356d88a689ab74280a07ccb703986ea">AOut::AOutFormat::Dump</a></div><div class="ttdeci">void Dump(Dumper::Dumper &amp;dump) const override</div><div class="ttdoc">Display file contents in a nice manner.</div><div class="ttdef"><b>Definition</b> aout.cc:389</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ab38bee6d4299b0005cad181172ede2c3"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ab38bee6d4299b0005cad181172ede2c3">AOut::AOutFormat::GetDefaultMagic</a></div><div class="ttdeci">static magic_type GetDefaultMagic(system_type system)</div><div class="ttdoc">Default magic number associated with the system.</div><div class="ttdef"><b>Definition</b> aout.cc:595</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ab5bea1d84db8cfeebad9fbfb807f6af7"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ab5bea1d84db8cfeebad9fbfb807f6af7">AOut::AOutFormat::ProcessModule</a></div><div class="ttdeci">void ProcessModule(Linker::Module &amp;module) override</div><div class="ttdoc">Processes the module object and initializes format fields.</div><div class="ttdef"><b>Definition</b> aout.cc:731</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aba7121d9c2cfb5d38c874bcbbde40467"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aba7121d9c2cfb5d38c874bcbbde40467">AOut::AOutFormat::GetOptions</a></div><div class="ttdeci">std::shared_ptr&lt; Linker::OptionCollector &gt; GetOptions() override</div><div class="ttdoc">Returns object containing a sequence of option fields provided with the -S command line flag.</div><div class="ttdef"><b>Definition</b> aout.cc:623</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aba95a501b20d3244db008021ac058944"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aba95a501b20d3244db008021ac058944">AOut::AOutFormat::SetOptions</a></div><div class="ttdeci">void SetOptions(std::map&lt; std::string, std::string &gt; &amp;options) override</div><div class="ttdoc">Passes command line parameters as settings over to format object.</div><div class="ttdef"><b>Definition</b> aout.cc:628</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ac63886fecdf1c9adf140a637fea08e47"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ac63886fecdf1c9adf140a637fea08e47">AOut::AOutFormat::CalculateValues</a></div><div class="ttdeci">void CalculateValues() override</div><div class="ttdoc">Intermediate step between processing module and generating output file to set up headers and manageme...</div><div class="ttdef"><b>Definition</b> aout.cc:834</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_ae9fb89c1786b0292cb4e8f93aaae3674"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#ae9fb89c1786b0292cb4e8f93aaae3674">AOut::AOutFormat::GetDefaultExtension</a></div><div class="ttdeci">std::string GetDefaultExtension(Linker::Module &amp;module, std::string filename) const override</div><div class="ttdoc">Appends a default extension to the filename.</div><div class="ttdef"><b>Definition</b> aout.cc:868</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aeaf8a3d71f995d4c83b6451d234628c1"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aeaf8a3d71f995d4c83b6451d234628c1">AOut::AOutFormat::ReadFile</a></div><div class="ttdeci">void ReadFile(Linker::Reader &amp;rd) override</div><div class="ttdoc">Loads file into memory.</div><div class="ttdef"><b>Definition</b> aout.cc:147</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aeb1902b83159431a886aeee6fbb6fc18"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aeb1902b83159431a886aeee6fbb6fc18">AOut::AOutFormat::OnNewSegment</a></div><div class="ttdeci">void OnNewSegment(std::shared_ptr&lt; Linker::Segment &gt; segment) override</div><div class="ttdoc">Callback function when allocating a new segment When the linker script runs, it creates segments cons...</div><div class="ttdef"><b>Definition</b> aout.cc:637</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aeb2dca4af06fc91eee3b0ec541a7c2e9"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aeb2dca4af06fc91eee3b0ec541a7c2e9">AOut::AOutFormat::GenerateFile</a></div><div class="ttdeci">void GenerateFile(std::string filename, Linker::Module &amp;module) override</div><div class="ttdoc">The main function that handles processing, calculating and generating the final image.</div><div class="ttdef"><b>Definition</b> aout.cc:851</div></div>
+<div class="ttc" id="aclassAOut_1_1AOutFormat_html_aee13bd596046ef81096952f405c9a515"><div class="ttname"><a href="classAOut_1_1AOutFormat.html#aee13bd596046ef81096952f405c9a515">AOut::AOutFormat::ImageSize</a></div><div class="ttdeci">offset_t ImageSize() const override</div><div class="ttdoc">Retrieves size of stored data.</div><div class="ttdef"><b>Definition</b> aout.cc:347</div></div>
 <div class="ttc" id="aclassDumper_1_1Dumper_html"><div class="ttname"><a href="classDumper_1_1Dumper.html">Dumper::Dumper</a></div><div class="ttdoc">An abstract interface that separates structure and presentation of the data inside a file.</div><div class="ttdef"><b>Definition</b> dumper.h:586</div></div>
 <div class="ttc" id="aclassLinker_1_1Format_html_a7355f6db61be5b563871ca6e2ceece82"><div class="ttname"><a href="classLinker_1_1Format.html#a7355f6db61be5b563871ca6e2ceece82">Linker::Format::WriteFile</a></div><div class="ttdeci">offset_t WriteFile(Writer &amp;wr) const override=0</div><div class="ttdoc">Stores data in memory to file.</div></div>
-<div class="ttc" id="aclassLinker_1_1InputFormat_html"><div class="ttname"><a href="classLinker_1_1InputFormat.html">Linker::InputFormat</a></div><div class="ttdoc">A class that provides a general interface to loading a module.</div><div class="ttdef"><b>Definition</b> format.h:179</div></div>
-<div class="ttc" id="aclassLinker_1_1InputFormat_html_a4f878066b29cd9aa752b80c68b3ed1be"><div class="ttname"><a href="classLinker_1_1InputFormat.html#a4f878066b29cd9aa752b80c68b3ed1be">Linker::InputFormat::GenerateModule</a></div><div class="ttdeci">virtual void GenerateModule(ModuleCollector &amp;linker, std::string file_name, bool is_library=false) const</div><div class="ttdoc">Loads the information into a module object.</div><div class="ttdef"><b>Definition</b> format.cc:193</div></div>
+<div class="ttc" id="aclassLinker_1_1InputFormat_html"><div class="ttname"><a href="classLinker_1_1InputFormat.html">Linker::InputFormat</a></div><div class="ttdoc">A class that provides a general interface to loading a module.</div><div class="ttdef"><b>Definition</b> format.h:193</div></div>
+<div class="ttc" id="aclassLinker_1_1InputFormat_html_a4f878066b29cd9aa752b80c68b3ed1be"><div class="ttname"><a href="classLinker_1_1InputFormat.html#a4f878066b29cd9aa752b80c68b3ed1be">Linker::InputFormat::GenerateModule</a></div><div class="ttdeci">virtual void GenerateModule(ModuleCollector &amp;linker, std::string file_name, bool is_library=false) const</div><div class="ttdoc">Loads the information into a module object.</div><div class="ttdef"><b>Definition</b> format.cc:215</div></div>
 <div class="ttc" id="aclassLinker_1_1Module_html"><div class="ttname"><a href="classLinker_1_1Module.html">Linker::Module</a></div><div class="ttdoc">Encodes an object module file as a collection of sections, symbols and relocations.</div><div class="ttdef"><b>Definition</b> module.h:24</div></div>
+<div class="ttc" id="aclassLinker_1_1OptionCollector_html"><div class="ttname"><a href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a></div><div class="ttdoc">Helper class that contains the options interpreted by the format.</div><div class="ttdef"><b>Definition</b> options.h:308</div></div>
+<div class="ttc" id="aclassLinker_1_1Option_html"><div class="ttname"><a href="classLinker_1_1Option.html">Linker::Option</a></div><div class="ttdoc">Documents and handles command line options.</div><div class="ttdef"><b>Definition</b> options.h:196</div></div>
 <div class="ttc" id="aclassLinker_1_1OutputFormat_html_a43cd0c7fcb0fe1cf0ee919cb4c2cf1f0"><div class="ttname"><a href="classLinker_1_1OutputFormat.html#a43cd0c7fcb0fe1cf0ee919cb4c2cf1f0">Linker::OutputFormat::GetDefaultExtension</a></div><div class="ttdeci">virtual std::string GetDefaultExtension(Module &amp;module, std::string filename) const</div><div class="ttdoc">Appends a default extension to the filename.</div></div>
 <div class="ttc" id="aclassLinker_1_1Reader_html"><div class="ttname"><a href="classLinker_1_1Reader.html">Linker::Reader</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to import binary data.</div><div class="ttdef"><b>Definition</b> reader.h:16</div></div>
 <div class="ttc" id="aclassLinker_1_1SegmentManager_html"><div class="ttname"><a href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></div><div class="ttdoc">A helper class to collect sections into segments.</div><div class="ttdef"><b>Definition</b> segment_manager.h:32</div></div>
 <div class="ttc" id="aclassLinker_1_1Writer_html"><div class="ttname"><a href="classLinker_1_1Writer.html">Linker::Writer</a></div><div class="ttdoc">A helper class, encapsulating functionality needed to export binary data.</div><div class="ttdef"><b>Definition</b> writer.h:15</div></div>
-<div class="ttc" id="aclassMicrosoft_1_1MZSimpleStubWriter_html"><div class="ttname"><a href="classMicrosoft_1_1MZSimpleStubWriter.html">Microsoft::MZSimpleStubWriter</a></div><div class="ttdef"><b>Definition</b> mzexe.h:252</div></div>
+<div class="ttc" id="aclassMicrosoft_1_1MZSimpleStubWriter_html"><div class="ttname"><a href="classMicrosoft_1_1MZSimpleStubWriter.html">Microsoft::MZSimpleStubWriter</a></div><div class="ttdef"><b>Definition</b> mzexe.h:269</div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

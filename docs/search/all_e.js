@@ -10,7 +10,7 @@ var searchData=
   ['ldt_5fdescriptor_7',['ldt_descriptor',['../structDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor_1_1ldt__descriptor.html',1,'DigitalResearch::CPM86Format::FastLoadDescriptor']]],
   ['leformat_8',['LEFormat',['../classMicrosoft_1_1LEFormat.html',1,'Microsoft']]],
   ['length_9',['length',['../structBinary_1_1CPM3Format_1_1rsx__record.html#a4716c446f53ef92490dedd444f880682',1,'Binary::CPM3Format::rsx_record::length'],['../classDigitalResearch_1_1CPM8KFormat_1_1Segment.html#afdcc145959d36ab0c7b770e741ab446b',1,'DigitalResearch::CPM8KFormat::Segment::length']]],
-  ['leoptioncollector_10',['LEOptionCollector',['../classLEOptionCollector.html',1,'']]],
+  ['leoptioncollector_10',['LEOptionCollector',['../classMicrosoft_1_1LEFormat_1_1LEOptionCollector.html',1,'Microsoft::LEFormat']]],
   ['lereader_11',['LEReader',['../classdump_1_1LEReader.html',1,'dump']]],
   ['lib_5fid_12',['lib_id',['../classDigitalResearch_1_1CPM86Format.html#a8fb8dd133fb30ecf60aca575d0c45104',1,'DigitalResearch::CPM86Format']]],
   ['libraries_13',['libraries',['../classDigitalResearch_1_1CPM86Format_1_1LibraryDescriptor.html#abf33ad6814f77461ed94fbc94109d2cd',1,'DigitalResearch::CPM86Format::LibraryDescriptor']]],

@@ -99,6 +99,9 @@ Inheritance diagram for Linker::Buffer:</div>
 <area href="classLinker_1_1ActualImage.html" alt="Linker::ActualImage" shape="rect" coords="139,56,408,80"/>
 <area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,269,24"/>
 <area href="classLinker_1_1Section.html" title="A section of data as read from an object file." alt="Linker::Section" shape="rect" coords="139,168,408,192"/>
+<area href="classLinker_1_1TableSection.html" alt="Linker::TableSection&lt; GOTEntry &gt;" shape="rect" coords="0,224,269,248"/>
+<area href="classLinker_1_1TableSection.html" title="An automatically generated section that stores a table of equally sized entries." alt="Linker::TableSection&lt; TableEntryType &gt;" shape="rect" coords="279,224,548,248"/>
+<area href="classLinker_1_1GlobalOffsetTable.html" title="A generated Global Offset Table." alt="Linker::GlobalOffsetTable" shape="rect" coords="0,280,269,304"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -110,8 +113,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a317d6bc4516594dcc56a81788a48a5e2" id="r_a317d6bc4516594dcc56a81788a48a5e2"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a317d6bc4516594dcc56a81788a48a5e2">ImageSize</a> () const override</td></tr>
 <tr class="memdesc:a317d6bc4516594dcc56a81788a48a5e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
 <tr class="separator:a317d6bc4516594dcc56a81788a48a5e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5eca73e4abff5445c613cb45461e06a" id="r_af5eca73e4abff5445c613cb45461e06a"><td class="memItemLeft" align="right" valign="top"><a id="af5eca73e4abff5445c613cb45461e06a" name="af5eca73e4abff5445c613cb45461e06a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="memitem:af5eca73e4abff5445c613cb45461e06a" id="r_af5eca73e4abff5445c613cb45461e06a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af5eca73e4abff5445c613cb45461e06a">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
 <tr class="separator:af5eca73e4abff5445c613cb45461e06a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79cb0b956bd95cc3922edd7298e27c38" id="r_a79cb0b956bd95cc3922edd7298e27c38"><td class="memItemLeft" align="right" valign="top"><a id="a79cb0b956bd95cc3922edd7298e27c38" name="a79cb0b956bd95cc3922edd7298e27c38"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, offset_t count)</td></tr>
@@ -263,6 +265,33 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Image</b></td></tr>
 
 </div>
 </div>
+<a id="af5eca73e4abff5445c613cb45461e06a" name="af5eca73e4abff5445c613cb45461e06a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5eca73e4abff5445c613cb45461e06a">&#9670;&#160;</a></span>ReadFile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Buffer::ReadFile </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented in <a class="el" href="classLinker_1_1Section.html#a5c20c7c45911564567661e3c9961409e">Linker::Section</a>, <a class="el" href="classLinker_1_1TableSection.html#ae477b715f901e4bc21c6016c641bb378">Linker::TableSection&lt; TableEntryType &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#ae477b715f901e4bc21c6016c641bb378">Linker::TableSection&lt; GOTEntry &gt;</a>.</p>
+
+</div>
+</div>
 <a id="a345910fe1b88a080b8c94e4de4386366" name="a345910fe1b88a080b8c94e4de4386366"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a345910fe1b88a080b8c94e4de4386366">&#9670;&#160;</a></span>WriteFile() <span class="overload">[1/3]</span></h2>
 
@@ -290,7 +319,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Image</b></td></tr>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Image.html#a345910fe1b88a080b8c94e4de4386366">Linker::Image</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classLinker_1_1Section.html#a345910fe1b88a080b8c94e4de4386366">Linker::Section</a>.</p>
+<p>Reimplemented in <a class="el" href="classLinker_1_1Section.html#a345910fe1b88a080b8c94e4de4386366">Linker::Section</a>, <a class="el" href="classLinker_1_1TableSection.html#a345910fe1b88a080b8c94e4de4386366">Linker::TableSection&lt; TableEntryType &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#a345910fe1b88a080b8c94e4de4386366">Linker::TableSection&lt; GOTEntry &gt;</a>.</p>
 
 </div>
 </div>
@@ -330,7 +359,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Image</b></td></tr>
 
 <p>Implements <a class="el" href="classLinker_1_1Image.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Image</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classLinker_1_1Section.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Section</a>, and <a class="el" href="classLinker_1_1Section.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::Section</a>.</p>
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#a43c03e87849dfb6ddcf6c2b2854a544a">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a43c03e87849dfb6ddcf6c2b2854a544a">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1Section.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Section</a>, <a class="el" href="classLinker_1_1TableSection.html#a85902bc759e19ee25fd6c63365d463ca">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1Section.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::Section</a>, <a class="el" href="classLinker_1_1TableSection.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::TableSection&lt; GOTEntry &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#a85902bc759e19ee25fd6c63365d463ca">Linker::TableSection&lt; TableEntryType &gt;</a>.</p>
 
 </div>
 </div>
@@ -370,7 +399,7 @@ class&#160;</td><td class="memItemRight" valign="bottom"><b>Image</b></td></tr>
 
 <p>Implements <a class="el" href="classLinker_1_1Image.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Image</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classLinker_1_1Section.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Section</a>, and <a class="el" href="classLinker_1_1Section.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::Section</a>.</p>
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#a43c03e87849dfb6ddcf6c2b2854a544a">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a43c03e87849dfb6ddcf6c2b2854a544a">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1Section.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Section</a>, <a class="el" href="classLinker_1_1TableSection.html#a85902bc759e19ee25fd6c63365d463ca">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1Section.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::Section</a>, <a class="el" href="classLinker_1_1TableSection.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::TableSection&lt; GOTEntry &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#a85902bc759e19ee25fd6c63365d463ca">Linker::TableSection&lt; TableEntryType &gt;</a>.</p>
 
 </div>
 </div>

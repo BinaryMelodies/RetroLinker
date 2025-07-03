@@ -2,7 +2,7 @@ var searchData=
 [
   ['p3format_0',['P3Format',['../classPharLap_1_1P3Format.html',1,'PharLap']]],
   ['p3formatcontainer_1',['P3FormatContainer',['../classPharLap_1_1P3FormatContainer.html',1,'PharLap']]],
-  ['p3optioncollector_2',['P3OptionCollector',['../classP3OptionCollector.html',1,'']]],
+  ['p3optioncollector_2',['P3OptionCollector',['../classPharLap_1_1P3Format_1_1P3OptionCollector.html',1,'PharLap::P3Format']]],
   ['page_3',['Page',['../classMicrosoft_1_1LEFormat_1_1Page.html',1,'Microsoft::LEFormat']]],
   ['pageset_4',['PageSet',['../classMicrosoft_1_1LEFormat_1_1PageSet.html',1,'Microsoft::LEFormat']]],
   ['part_5',['Part',['../structELF_1_1ELFFormat_1_1Segment_1_1Part.html',1,'ELF::ELFFormat::Segment']]],
@@ -17,7 +17,8 @@ var searchData=
   ['position_14',['Position',['../classLinker_1_1Position.html',1,'Linker']]],
   ['precedence_15',['precedence',['../structApple_1_1OMFFormat_1_1Segment_1_1Expression_1_1precedence.html',1,'Apple::OMFFormat::Segment::Expression']]],
   ['prlformat_16',['PRLFormat',['../classBinary_1_1PRLFormat.html',1,'Binary']]],
-  ['prodos_17',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
-  ['prodosfileinfo_18',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]],
-  ['programunit_19',['ProgramUnit',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1ProgramUnit.html',1,'Amiga::HunkFormat::IndexBlock']]]
+  ['prloptioncollector_17',['PRLOptionCollector',['../classBinary_1_1PRLFormat_1_1PRLOptionCollector.html',1,'Binary::PRLFormat']]],
+  ['prodos_18',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
+  ['prodosfileinfo_19',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]],
+  ['programunit_20',['ProgramUnit',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1ProgramUnit.html',1,'Amiga::HunkFormat::IndexBlock']]]
 ];

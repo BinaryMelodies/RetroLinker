@@ -18,8 +18,9 @@ var searchData=
   ['flag_5frsx_15',['FLAG_RSX',['../classDigitalResearch_1_1CPM86Format.html#a4806b038ebd284bb2a44b5edb8e26751a3c6f7fe26e8b845c181df1a8056c5523',1,'DigitalResearch::CPM86Format']]],
   ['format_5f8080_16',['FORMAT_8080',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3ebaa232eed41fbad678e1998318314c42ae',1,'DigitalResearch::CPM86Format']]],
   ['format_5fcompact_17',['FORMAT_COMPACT',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3eba6b9d972314f61bacc116901a621b7a63',1,'DigitalResearch::CPM86Format']]],
-  ['format_5fflexos_18',['FORMAT_FLEXOS',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0',1,'DigitalResearch::CPM86Format']]],
-  ['format_5fsmall_19',['FORMAT_SMALL',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8',1,'DigitalResearch::CPM86Format']]],
-  ['format_5funknown_20',['FORMAT_UNKNOWN',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e',1,'DigitalResearch::CPM86Format']]],
-  ['fullscreen_21',['FULLSCREEN',['../classMicrosoft_1_1NEFormat.html#a541d9228cf3e81eb203ca4f7af53868caf23b1db91e0b6ca1efd038803b3da117',1,'Microsoft::NEFormat']]]
+  ['format_5ffastload_18',['FORMAT_FASTLOAD',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3eba4f8ef60d461db0f6bf833a46629ffb23',1,'DigitalResearch::CPM86Format']]],
+  ['format_5fflexos_19',['FORMAT_FLEXOS',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0',1,'DigitalResearch::CPM86Format']]],
+  ['format_5fsmall_20',['FORMAT_SMALL',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8',1,'DigitalResearch::CPM86Format']]],
+  ['format_5funknown_21',['FORMAT_UNKNOWN',['../classDigitalResearch_1_1CPM86Format.html#a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e',1,'DigitalResearch::CPM86Format']]],
+  ['fullscreen_22',['FULLSCREEN',['../classMicrosoft_1_1NEFormat.html#a541d9228cf3e81eb203ca4f7af53868caf23b1db91e0b6ca1efd038803b3da117',1,'Microsoft::NEFormat']]]
 ];

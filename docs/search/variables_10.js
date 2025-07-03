@@ -42,11 +42,12 @@ var searchData=
   ['subtract_39',['subtract',['../classLinker_1_1Relocation.html#ab266a969342ef2f25aa2aa6263c0f8b9',1,'Linker::Relocation']]],
   ['suppress_5frelocations_40',['suppress_relocations',['../classBinary_1_1PRLFormat.html#a37e081d58a739c86775220ef05b292c1',1,'Binary::PRLFormat']]],
   ['symbol_5fcount_41',['symbol_count',['../classCOFF_1_1COFFFormat.html#acdbe8a8b81b3acc58972e7c4f0c86565',1,'COFF::COFFFormat']]],
-  ['symbol_5findex_42',['symbol_index',['../classCOFF_1_1COFFFormat_1_1ZilogRelocation.html#a2ec67dfacd98925f1192cb84781cfaa1',1,'COFF::COFFFormat::ZilogRelocation::symbol_index'],['../structO65_1_1O65Format_1_1Module_1_1relocation.html#a182b233cfe2df0826c32fce8ff2a9bbf',1,'O65::O65Format::Module::relocation::symbol_index']]],
-  ['symbol_5fname_43',['symbol_name',['../structBinary_1_1AtariFormat_1_1Segment.html#a8d8c6213d2dff8e6d83e195e19e9d710',1,'Binary::AtariFormat::Segment']]],
-  ['symbol_5fsequence_44',['symbol_sequence',['../classLinker_1_1Module.html#a24f93938d68f7237fd017c313aee8431',1,'Linker::Module']]],
-  ['symbol_5ftable_5foffset_45',['symbol_table_offset',['../classCOFF_1_1COFFFormat.html#ae1baa4eeea0efa38a2ffd83bfb09afe2',1,'COFF::COFFFormat']]],
-  ['symbol_5ftable_5fsize_46',['symbol_table_size',['../classDigitalResearch_1_1CPM68KFormat.html#aecc60eb106b726bf3c1c9218c5bb8ef4',1,'DigitalResearch::CPM68KFormat::symbol_table_size'],['../classDigitalResearch_1_1CPM8KFormat.html#a7066939e38e13b37e6766311b797fd2e',1,'DigitalResearch::CPM8KFormat::symbol_table_size']]],
-  ['symbols_47',['symbols',['../classCOFF_1_1COFFFormat.html#a7a4cc09cb9713dfbe6e0c6dba1098178',1,'COFF::COFFFormat']]],
-  ['system_48',['system',['../classDigitalResearch_1_1CPM68KFormat.html#a79fe95c3999d21427c746657b5d75ea2',1,'DigitalResearch::CPM68KFormat']]]
+  ['symbol_5fdefinitions_42',['symbol_definitions',['../classLinker_1_1ModuleCollector.html#aff73eb0303ffd96b33f81d945bc3a221',1,'Linker::ModuleCollector']]],
+  ['symbol_5findex_43',['symbol_index',['../classCOFF_1_1COFFFormat_1_1ZilogRelocation.html#a2ec67dfacd98925f1192cb84781cfaa1',1,'COFF::COFFFormat::ZilogRelocation::symbol_index'],['../structO65_1_1O65Format_1_1Module_1_1relocation.html#a182b233cfe2df0826c32fce8ff2a9bbf',1,'O65::O65Format::Module::relocation::symbol_index']]],
+  ['symbol_5fname_44',['symbol_name',['../structBinary_1_1AtariFormat_1_1Segment.html#a8d8c6213d2dff8e6d83e195e19e9d710',1,'Binary::AtariFormat::Segment']]],
+  ['symbol_5fsequence_45',['symbol_sequence',['../classLinker_1_1Module.html#a24f93938d68f7237fd017c313aee8431',1,'Linker::Module']]],
+  ['symbol_5ftable_5foffset_46',['symbol_table_offset',['../classCOFF_1_1COFFFormat.html#ae1baa4eeea0efa38a2ffd83bfb09afe2',1,'COFF::COFFFormat']]],
+  ['symbol_5ftable_5fsize_47',['symbol_table_size',['../classDigitalResearch_1_1CPM68KFormat.html#aecc60eb106b726bf3c1c9218c5bb8ef4',1,'DigitalResearch::CPM68KFormat::symbol_table_size'],['../classDigitalResearch_1_1CPM8KFormat.html#a7066939e38e13b37e6766311b797fd2e',1,'DigitalResearch::CPM8KFormat::symbol_table_size']]],
+  ['symbols_48',['symbols',['../classCOFF_1_1COFFFormat.html#a7a4cc09cb9713dfbe6e0c6dba1098178',1,'COFF::COFFFormat']]],
+  ['system_49',['system',['../classDigitalResearch_1_1CPM68KFormat.html#a79fe95c3999d21427c746657b5d75ea2',1,'DigitalResearch::CPM68KFormat']]]
 ];

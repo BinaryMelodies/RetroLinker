@@ -4,7 +4,7 @@ var searchData=
   ['labelrecord_1',['LabelRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1LabelRecord.html',1,'Apple::OMFFormat::Segment']]],
   ['ldt_5fdescriptor_2',['ldt_descriptor',['../structDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor_1_1ldt__descriptor.html',1,'DigitalResearch::CPM86Format::FastLoadDescriptor']]],
   ['leformat_3',['LEFormat',['../classMicrosoft_1_1LEFormat.html',1,'Microsoft']]],
-  ['leoptioncollector_4',['LEOptionCollector',['../classLEOptionCollector.html',1,'']]],
+  ['leoptioncollector_4',['LEOptionCollector',['../classMicrosoft_1_1LEFormat_1_1LEOptionCollector.html',1,'Microsoft::LEFormat']]],
   ['lereader_5',['LEReader',['../classdump_1_1LEReader.html',1,'dump']]],
   ['library_6',['library',['../structDigitalResearch_1_1CPM86Format_1_1library.html',1,'DigitalResearch::CPM86Format']]],
   ['library_5fid_7',['library_id',['../structDigitalResearch_1_1CPM86Format_1_1library__id.html',1,'DigitalResearch::CPM86Format']]],

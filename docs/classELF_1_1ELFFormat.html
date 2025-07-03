@@ -584,6 +584,16 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpressio
 <tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
 <tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
 <tr class="separator:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a5811b8431e63fb88c246caa433c57d85"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a5811b8431e63fb88c246caa433c57d85">GetMemoryModelNames</a> ()</td></tr>
+<tr class="memdesc:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the supported memory models, used for documentation.  <br /></td></tr>
+<tr class="separator:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5547ffeff38e88c78ea3a077d93944d4 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a5547ffeff38e88c78ea3a077d93944d4"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a5547ffeff38e88c78ea3a077d93944d4">GetLinkerScriptParameterNames</a> ()</td></tr>
+<tr class="memdesc:a5547ffeff38e88c78ea3a077d93944d4 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the parameters used in the linker scripts, used for documentation.  <br /></td></tr>
+<tr class="separator:a5547ffeff38e88c78ea3a077d93944d4 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat" id="r_a99f454ca9bfab304f748f4286c08584a"><td class="memItemLeft" align="right" valign="top">
+virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSpecialSymbolNames</b> ()</td></tr>
+<tr class="memdesc:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of special symbol names recognized by the format, used for documentation. <br /></td></tr>
+<tr class="separator:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a6d92eec936815a0d2aa93ca2312b4045"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a6d92eec936815a0d2aa93ca2312b4045">GetOptions</a> ()</td></tr>
 <tr class="memdesc:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
 <tr class="separator:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -923,6 +933,18 @@ static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>
 <tr class="memitem:ae59e87743a142b8128f9d3cb6edec4c4" id="r_ae59e87743a142b8128f9d3cb6edec4c4"><td class="memItemLeft" align="right" valign="top"><a id="ae59e87743a142b8128f9d3cb6edec4c4" name="ae59e87743a142b8128f9d3cb6edec4c4"></a>
 static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_386_PC32</b> = 2</td></tr>
 <tr class="separator:ae59e87743a142b8128f9d3cb6edec4c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a622e48471eaaa1b2bfc2e5422a6e883a" id="r_a622e48471eaaa1b2bfc2e5422a6e883a"><td class="memItemLeft" align="right" valign="top"><a id="a622e48471eaaa1b2bfc2e5422a6e883a" name="a622e48471eaaa1b2bfc2e5422a6e883a"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_386_GOT32</b> = 3</td></tr>
+<tr class="separator:a622e48471eaaa1b2bfc2e5422a6e883a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93eda1ccccc8af119549b55f6838c754" id="r_a93eda1ccccc8af119549b55f6838c754"><td class="memItemLeft" align="right" valign="top"><a id="a93eda1ccccc8af119549b55f6838c754" name="a93eda1ccccc8af119549b55f6838c754"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_386_GOTPC</b> = 10</td></tr>
+<tr class="separator:a93eda1ccccc8af119549b55f6838c754"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a25a7ff11a6de36e0858c1a2016e0f9" id="r_a5a25a7ff11a6de36e0858c1a2016e0f9"><td class="memItemLeft" align="right" valign="top"><a id="a5a25a7ff11a6de36e0858c1a2016e0f9" name="a5a25a7ff11a6de36e0858c1a2016e0f9"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_386_GOTOFF</b> = 9</td></tr>
+<tr class="separator:a5a25a7ff11a6de36e0858c1a2016e0f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a28535a8e5c5030fb92fef7c4b6335f17" id="r_a28535a8e5c5030fb92fef7c4b6335f17"><td class="memItemLeft" align="right" valign="top"><a id="a28535a8e5c5030fb92fef7c4b6335f17" name="a28535a8e5c5030fb92fef7c4b6335f17"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_386_PLT32</b> = 4</td></tr>
+<tr class="separator:a28535a8e5c5030fb92fef7c4b6335f17"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af98da6ca87da60a51867456fe97f5d73" id="r_af98da6ca87da60a51867456fe97f5d73"><td class="memItemLeft" align="right" valign="top"><a id="af98da6ca87da60a51867456fe97f5d73" name="af98da6ca87da60a51867456fe97f5d73"></a>
 static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_386_SEG16</b> = 45</td></tr>
 <tr class="memdesc:af98da6ca87da60a51867456fe97f5d73"><td class="mdescLeft">&#160;</td><td class="mdescRight">Extension, see here: <a href="https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md">https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md</a> (not yet implemented) <br /></td></tr>
@@ -965,6 +987,42 @@ static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>
 <tr class="memitem:afaf4846d7ff9b99e5f20ab2b37f51515" id="r_afaf4846d7ff9b99e5f20ab2b37f51515"><td class="memItemLeft" align="right" valign="top"><a id="afaf4846d7ff9b99e5f20ab2b37f51515" name="afaf4846d7ff9b99e5f20ab2b37f51515"></a>
 static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_PC32</b> = 4</td></tr>
 <tr class="separator:afaf4846d7ff9b99e5f20ab2b37f51515"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aadf9956a1840d18fad01f2890018db1e" id="r_aadf9956a1840d18fad01f2890018db1e"><td class="memItemLeft" align="right" valign="top"><a id="aadf9956a1840d18fad01f2890018db1e" name="aadf9956a1840d18fad01f2890018db1e"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_GOT8</b> = 9</td></tr>
+<tr class="separator:aadf9956a1840d18fad01f2890018db1e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94b09f8bdb876023e328d07b5773dcc4" id="r_a94b09f8bdb876023e328d07b5773dcc4"><td class="memItemLeft" align="right" valign="top"><a id="a94b09f8bdb876023e328d07b5773dcc4" name="a94b09f8bdb876023e328d07b5773dcc4"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_GOT8O</b> = 12</td></tr>
+<tr class="separator:a94b09f8bdb876023e328d07b5773dcc4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b5f0c6b6d134c2c9b27be3a54c8ca73" id="r_a8b5f0c6b6d134c2c9b27be3a54c8ca73"><td class="memItemLeft" align="right" valign="top"><a id="a8b5f0c6b6d134c2c9b27be3a54c8ca73" name="a8b5f0c6b6d134c2c9b27be3a54c8ca73"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_GOT16</b> = 8</td></tr>
+<tr class="separator:a8b5f0c6b6d134c2c9b27be3a54c8ca73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a497dd6de89a9b5da4b3bc05906f1a3f7" id="r_a497dd6de89a9b5da4b3bc05906f1a3f7"><td class="memItemLeft" align="right" valign="top"><a id="a497dd6de89a9b5da4b3bc05906f1a3f7" name="a497dd6de89a9b5da4b3bc05906f1a3f7"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_GOT16O</b> = 11</td></tr>
+<tr class="separator:a497dd6de89a9b5da4b3bc05906f1a3f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afaa97ed5d6eea754748b502b4733370f" id="r_afaa97ed5d6eea754748b502b4733370f"><td class="memItemLeft" align="right" valign="top"><a id="afaa97ed5d6eea754748b502b4733370f" name="afaa97ed5d6eea754748b502b4733370f"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_GOT32</b> = 7</td></tr>
+<tr class="separator:afaa97ed5d6eea754748b502b4733370f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb2ac1065f00adea2069c3f75b794e4a" id="r_acb2ac1065f00adea2069c3f75b794e4a"><td class="memItemLeft" align="right" valign="top"><a id="acb2ac1065f00adea2069c3f75b794e4a" name="acb2ac1065f00adea2069c3f75b794e4a"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_GOT32O</b> = 10</td></tr>
+<tr class="separator:acb2ac1065f00adea2069c3f75b794e4a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae974de239eb920e0e03e7046b39d1b1d" id="r_ae974de239eb920e0e03e7046b39d1b1d"><td class="memItemLeft" align="right" valign="top"><a id="ae974de239eb920e0e03e7046b39d1b1d" name="ae974de239eb920e0e03e7046b39d1b1d"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_PLT8</b> = 15</td></tr>
+<tr class="separator:ae974de239eb920e0e03e7046b39d1b1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a586a0ad7668a429a8211d20ab1829c3a" id="r_a586a0ad7668a429a8211d20ab1829c3a"><td class="memItemLeft" align="right" valign="top"><a id="a586a0ad7668a429a8211d20ab1829c3a" name="a586a0ad7668a429a8211d20ab1829c3a"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_PLT8O</b> = 18</td></tr>
+<tr class="separator:a586a0ad7668a429a8211d20ab1829c3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1bf9254f6a7bb8e9553325f37827bc3" id="r_ab1bf9254f6a7bb8e9553325f37827bc3"><td class="memItemLeft" align="right" valign="top"><a id="ab1bf9254f6a7bb8e9553325f37827bc3" name="ab1bf9254f6a7bb8e9553325f37827bc3"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_PLT16</b> = 14</td></tr>
+<tr class="separator:ab1bf9254f6a7bb8e9553325f37827bc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a438460c8c0833efe5994b569c7ff504f" id="r_a438460c8c0833efe5994b569c7ff504f"><td class="memItemLeft" align="right" valign="top"><a id="a438460c8c0833efe5994b569c7ff504f" name="a438460c8c0833efe5994b569c7ff504f"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_PLT16O</b> = 17</td></tr>
+<tr class="separator:a438460c8c0833efe5994b569c7ff504f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa65c40a1583f5c5f650e1b61a1b93cb6" id="r_aa65c40a1583f5c5f650e1b61a1b93cb6"><td class="memItemLeft" align="right" valign="top"><a id="aa65c40a1583f5c5f650e1b61a1b93cb6" name="aa65c40a1583f5c5f650e1b61a1b93cb6"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_PLT32</b> = 13</td></tr>
+<tr class="separator:aa65c40a1583f5c5f650e1b61a1b93cb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93997497c880341e3403ab50a8a47c21" id="r_a93997497c880341e3403ab50a8a47c21"><td class="memItemLeft" align="right" valign="top"><a id="a93997497c880341e3403ab50a8a47c21" name="a93997497c880341e3403ab50a8a47c21"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_68K_PLT32O</b> = 16</td></tr>
+<tr class="separator:a93997497c880341e3403ab50a8a47c21"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7a0b34e80dbb4e3ec014a138a878eead" id="r_a7a0b34e80dbb4e3ec014a138a878eead"><td class="memItemLeft" align="right" valign="top"><a id="a7a0b34e80dbb4e3ec014a138a878eead" name="a7a0b34e80dbb4e3ec014a138a878eead"></a>
 static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>R_ARM_ABS8</b> = 8</td></tr>
 <tr class="separator:a7a0b34e80dbb4e3ec014a138a878eead"><td class="memSeparator" colspan="2">&#160;</td></tr>

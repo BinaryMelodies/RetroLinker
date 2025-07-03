@@ -80,6 +80,7 @@ $(function() {
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classBinary_1_1BinaryFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Binary::BinaryFormat Class Reference</div></div>
 </div><!--header-->
@@ -151,6 +152,12 @@ Public Member Functions</h2></td></tr>
 <tr class="separator:ac9baefa0ed49963faccf549d5ccb7e9a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeaa569ae584f8c39209767cc3587f680" id="r_aeaa569ae584f8c39209767cc3587f680"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeaa569ae584f8c39209767cc3587f680">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
 <tr class="separator:aeaa569ae584f8c39209767cc3587f680"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeac431d902a59f6a9b5344c835fda7af" id="r_aeac431d902a59f6a9b5344c835fda7af"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeac431d902a59f6a9b5344c835fda7af">GetMemoryModelNames</a> () override</td></tr>
+<tr class="memdesc:aeac431d902a59f6a9b5344c835fda7af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the supported memory models, used for documentation.  <br /></td></tr>
+<tr class="separator:aeac431d902a59f6a9b5344c835fda7af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36709273f1e0d4a38cff38879c2efcef" id="r_a36709273f1e0d4a38cff38879c2efcef"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a36709273f1e0d4a38cff38879c2efcef">GetLinkerScriptParameterNames</a> () override</td></tr>
+<tr class="memdesc:a36709273f1e0d4a38cff38879c2efcef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the parameters used in the linker scripts, used for documentation.  <br /></td></tr>
+<tr class="separator:a36709273f1e0d4a38cff38879c2efcef"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2572e5127ddcc994337e0a3701b1ec0b" id="r_a2572e5127ddcc994337e0a3701b1ec0b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2572e5127ddcc994337e0a3701b1ec0b">SetModel</a> (std::string model) override</td></tr>
 <tr class="memdesc:a2572e5127ddcc994337e0a3701b1ec0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
 <tr class="separator:a2572e5127ddcc994337e0a3701b1ec0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -181,6 +188,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a212fb8df5d385b879e61afd77267945f inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a212fb8df5d385b879e61afd77267945f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a212fb8df5d385b879e61afd77267945f">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
 <tr class="memdesc:a212fb8df5d385b879e61afd77267945f inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:a212fb8df5d385b879e61afd77267945f inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b442d29160342ed10b54068763202e4 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a3b442d29160342ed10b54068763202e4"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a3b442d29160342ed10b54068763202e4">GetLinkerScriptParameterNames</a> () override</td></tr>
+<tr class="memdesc:a3b442d29160342ed10b54068763202e4 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the parameters used in the linker scripts, used for documentation.  <br /></td></tr>
+<tr class="separator:a3b442d29160342ed10b54068763202e4 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae9e3f08387655a5d661a427a4df46d63 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_ae9e3f08387655a5d661a427a4df46d63"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#ae9e3f08387655a5d661a427a4df46d63">OnNewSegment</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment) override</td></tr>
 <tr class="memdesc:ae9e3f08387655a5d661a427a4df46d63 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
 <tr class="separator:ae9e3f08387655a5d661a427a4df46d63 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -270,6 +280,10 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpressio
 <tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
 <tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
 <tr class="separator:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat" id="r_a99f454ca9bfab304f748f4286c08584a"><td class="memItemLeft" align="right" valign="top">
+virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSpecialSymbolNames</b> ()</td></tr>
+<tr class="memdesc:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of special symbol names recognized by the format, used for documentation. <br /></td></tr>
+<tr class="separator:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a6d92eec936815a0d2aa93ca2312b4045"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a6d92eec936815a0d2aa93ca2312b4045">GetOptions</a> ()</td></tr>
 <tr class="memdesc:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
 <tr class="separator:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -371,6 +385,16 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script<
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
 <tr class="separator:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:af60b4fc76056c71c3f241fe94710e2ca" id="r_af60b4fc76056c71c3f241fe94710e2ca"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af60b4fc76056c71c3f241fe94710e2ca">MemoryModelNames</a></td></tr>
+<tr class="separator:af60b4fc76056c71c3f241fe94710e2ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f8eb1cf6065587bb58208999867988e" id="r_a7f8eb1cf6065587bb58208999867988e"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7f8eb1cf6065587bb58208999867988e">ParameterNames</a></td></tr>
+<tr class="separator:a7f8eb1cf6065587bb58208999867988e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_attribs_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_attribs_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
+<tr class="memitem:a3b06c2ed0fb2ad22e4a2eeec713a7644 inherit pub_static_attribs_classBinary_1_1GenericBinaryFormat" id="r_a3b06c2ed0fb2ad22e4a2eeec713a7644"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a3b06c2ed0fb2ad22e4a2eeec713a7644">ParameterNames</a></td></tr>
+<tr class="separator:a3b06c2ed0fb2ad22e4a2eeec713a7644 inherit pub_static_attribs_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -614,6 +638,64 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
+<a id="a36709273f1e0d4a38cff38879c2efcef" name="a36709273f1e0d4a38cff38879c2efcef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36709273f1e0d4a38cff38879c2efcef">&#9670;&#160;</a></span>GetLinkerScriptParameterNames()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt; BinaryFormat::GetLinkerScriptParameterNames </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns a list of the parameters used in the linker scripts, used for documentation. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a5547ffeff38e88c78ea3a077d93944d4">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="aeac431d902a59f6a9b5344c835fda7af" name="aeac431d902a59f6a9b5344c835fda7af"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeac431d902a59f6a9b5344c835fda7af">&#9670;&#160;</a></span>GetMemoryModelNames()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; &gt; BinaryFormat::GetMemoryModelNames </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns a list of the supported memory models, used for documentation. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a5811b8431e63fb88c246caa433c57d85">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
 <a id="a679aa4612952b31f37bea8305f23f7c8" name="a679aa4612952b31f37bea8305f23f7c8"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a679aa4612952b31f37bea8305f23f7c8">&#9670;&#160;</a></span>GetScript()</h2>
 
@@ -784,6 +866,66 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Implements <a class="el" href="classLinker_1_1Format.html#a7355f6db61be5b563871ca6e2ceece82">Linker::Format</a>.</p>
 
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="af60b4fc76056c71c3f241fe94710e2ca" name="af60b4fc76056c71c3f241fe94710e2ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af60b4fc76056c71c3f241fe94710e2ca">&#9670;&#160;</a></span>MemoryModelNames</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; &gt; BinaryFormat::MemoryModelNames</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">{</div>
+<div class="line">    <a class="code hl_class" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription&lt;void&gt;</a>(<span class="stringliteral">&quot;default&quot;</span>, <span class="stringliteral">&quot;Used for non-x86 targets, defaults to tiny on x86&quot;</span>),</div>
+<div class="line">    <a class="code hl_class" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription&lt;void&gt;</a>(<span class="stringliteral">&quot;tiny&quot;</span>, <span class="stringliteral">&quot;Tiny model, all symbols have the same preferred segment (x86 only)&quot;</span>),</div>
+<div class="line">    <a class="code hl_class" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription&lt;void&gt;</a>(<span class="stringliteral">&quot;small&quot;</span>, <span class="stringliteral">&quot;Small model, symbols in .code have a separate preferred segment (x86 only)&quot;</span>),</div>
+<div class="line">    <a class="code hl_class" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription&lt;void&gt;</a>(<span class="stringliteral">&quot;compact&quot;</span>, <span class="stringliteral">&quot;Compact model, symbols in .data, .bss and .comm have a common preferred segment, all other sections are treated as separate segments (x86 only)&quot;</span>),</div>
+<div class="line"> </div>
+<div class="line">}</div>
+<div class="ttc" id="aclassLinker_1_1OptionDescription_html"><div class="ttname"><a href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a></div><div class="ttdoc">A typed option description, used for documenting options.</div><div class="ttdef"><b>Definition</b> options.h:163</div></div>
+</div><!-- fragment -->
+</div>
+</div>
+<a id="a7f8eb1cf6065587bb58208999867988e" name="a7f8eb1cf6065587bb58208999867988e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f8eb1cf6065587bb58208999867988e">&#9670;&#160;</a></span>ParameterNames</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt; BinaryFormat::ParameterNames</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">{</div>
+<div class="line">    &amp;p_base_address,</div>
+<div class="line">    &amp;p_section_align,</div>
+<div class="line">    &amp;p_segment_bias,</div>
+<div class="line">}</div>
+</div><!-- fragment -->
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>

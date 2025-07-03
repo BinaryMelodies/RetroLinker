@@ -99,6 +99,9 @@ Inheritance diagram for Linker::Section:</div>
 <area href="classLinker_1_1Buffer.html" title="A buffer that can be used to read and store data from a file." alt="Linker::Buffer" shape="rect" coords="139,112,408,136"/>
 <area href="classLinker_1_1ActualImage.html" alt="Linker::ActualImage" shape="rect" coords="139,56,408,80"/>
 <area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,269,24"/>
+<area href="classLinker_1_1TableSection.html" alt="Linker::TableSection&lt; GOTEntry &gt;" shape="rect" coords="0,224,269,248"/>
+<area href="classLinker_1_1TableSection.html" title="An automatically generated section that stores a table of equally sized entries." alt="Linker::TableSection&lt; TableEntryType &gt;" shape="rect" coords="279,224,548,248"/>
+<area href="classLinker_1_1GlobalOffsetTable.html" title="A generated Global Offset Table." alt="Linker::GlobalOffsetTable" shape="rect" coords="0,280,269,304"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -165,7 +168,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsFixed</b> () const<
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsZeroFilled</b> () const</td></tr>
 <tr class="separator:a767eb28173f80e6759ddc7f4ad7627cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae983e5cd138df768cd769813d0ca01b2" id="r_ae983e5cd138df768cd769813d0ca01b2"><td class="memItemLeft" align="right" valign="top"><a id="ae983e5cd138df768cd769813d0ca01b2" name="ae983e5cd138df768cd769813d0ca01b2"></a>
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>SetZeroFilled</b> (bool is_zero_filled)</td></tr>
+virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>SetZeroFilled</b> (bool is_zero_filled)</td></tr>
 <tr class="separator:ae983e5cd138df768cd769813d0ca01b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a741654d6d62595f451271a921a52483e" id="r_a741654d6d62595f451271a921a52483e"><td class="memItemLeft" align="right" valign="top"><a id="a741654d6d62595f451271a921a52483e" name="a741654d6d62595f451271a921a52483e"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetAlign</b> () const</td></tr>
@@ -184,7 +187,7 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ResetAddress</b> (off
 <tr class="memdesc:a421d65927c27ef21fa0616b5bf385873"><td class="mdescLeft">&#160;</td><td class="mdescRight">Forcibly alters the starting address. <br /></td></tr>
 <tr class="separator:a421d65927c27ef21fa0616b5bf385873"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a617e26fd849409d4fa9ea3cbcd337f3e" id="r_a617e26fd849409d4fa9ea3cbcd337f3e"><td class="memItemLeft" align="right" valign="top"><a id="a617e26fd849409d4fa9ea3cbcd337f3e" name="a617e26fd849409d4fa9ea3cbcd337f3e"></a>
-offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Size</b> () const</td></tr>
+virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Size</b> () const</td></tr>
 <tr class="separator:a617e26fd849409d4fa9ea3cbcd337f3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3339e1b63c42c3c4d710001e63ce216e" id="r_a3339e1b63c42c3c4d710001e63ce216e"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3339e1b63c42c3c4d710001e63ce216e">Expand</a> (offset_t new_size)</td></tr>
 <tr class="memdesc:a3339e1b63c42c3c4d710001e63ce216e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Increases the size of the section by the specified amount.  <br /></td></tr>
@@ -233,24 +236,22 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (<a cl
 <tr class="memitem:a242f928451cdd3b741c6d4cd4efcb6a1" id="r_a242f928451cdd3b741c6d4cd4efcb6a1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLinker_1_1Position.html">Position</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a242f928451cdd3b741c6d4cd4efcb6a1">Base</a> () const</td></tr>
 <tr class="memdesc:a242f928451cdd3b741c6d4cd4efcb6a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the address of the start of the segment of the section.  <br /></td></tr>
 <tr class="separator:a242f928451cdd3b741c6d4cd4efcb6a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2a9af840b8126ed8e25c148482f5ea72" id="r_a2a9af840b8126ed8e25c148482f5ea72"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a9af840b8126ed8e25c148482f5ea72">ReadFile</a> (std::istream &amp;in)</td></tr>
+<tr class="memitem:a2a9af840b8126ed8e25c148482f5ea72" id="r_a2a9af840b8126ed8e25c148482f5ea72"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2a9af840b8126ed8e25c148482f5ea72">ReadFile</a> (std::istream &amp;in)</td></tr>
 <tr class="memdesc:a2a9af840b8126ed8e25c148482f5ea72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overwrites section data with contents of input stream.  <br /></td></tr>
 <tr class="separator:a2a9af840b8126ed8e25c148482f5ea72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0cc1af543f1467e6d1f3aa079092abf6" id="r_a0cc1af543f1467e6d1f3aa079092abf6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0cc1af543f1467e6d1f3aa079092abf6">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
-<tr class="memdesc:a0cc1af543f1467e6d1f3aa079092abf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overwrites section data with contents of input stream.  <br /></td></tr>
-<tr class="separator:a0cc1af543f1467e6d1f3aa079092abf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afa284d747c352a450242854c6e33e62b" id="r_afa284d747c352a450242854c6e33e62b"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afa284d747c352a450242854c6e33e62b">WriteFile</a> (std::ostream &amp;out, offset_t size, offset_t offset=0) const</td></tr>
-<tr class="memdesc:afa284d747c352a450242854c6e33e62b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data into file.  <br /></td></tr>
-<tr class="separator:afa284d747c352a450242854c6e33e62b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c20c7c45911564567661e3c9961409e" id="r_a5c20c7c45911564567661e3c9961409e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5c20c7c45911564567661e3c9961409e">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd) override</td></tr>
+<tr class="memdesc:a5c20c7c45911564567661e3c9961409e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Overwrites section data with contents of input stream.  <br /></td></tr>
+<tr class="separator:a5c20c7c45911564567661e3c9961409e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0aa5b153f5cd3a792acdd1efedb176ca" id="r_a0aa5b153f5cd3a792acdd1efedb176ca"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0aa5b153f5cd3a792acdd1efedb176ca">WriteFile</a> (std::ostream &amp;out, offset_t bytes, offset_t offset=0) const</td></tr>
+<tr class="memdesc:a0aa5b153f5cd3a792acdd1efedb176ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data into file.  <br /></td></tr>
+<tr class="separator:a0aa5b153f5cd3a792acdd1efedb176ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab5f090fdfb2d83a8ee5b6c23870c2f3f" id="r_ab5f090fdfb2d83a8ee5b6c23870c2f3f"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab5f090fdfb2d83a8ee5b6c23870c2f3f">WriteFile</a> (std::ostream &amp;out) const</td></tr>
 <tr class="memdesc:ab5f090fdfb2d83a8ee5b6c23870c2f3f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data into file.  <br /></td></tr>
 <tr class="separator:ab5f090fdfb2d83a8ee5b6c23870c2f3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0a902380623f10988b63c3c709794cf6" id="r_a0a902380623f10988b63c3c709794cf6"><td class="memItemLeft" align="right" valign="top"><a id="a0a902380623f10988b63c3c709794cf6" name="a0a902380623f10988b63c3c709794cf6"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>Reset</b> ()</td></tr>
-<tr class="memdesc:a0a902380623f10988b63c3c709794cf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the section. <br /></td></tr>
+<tr class="memitem:a0a902380623f10988b63c3c709794cf6" id="r_a0a902380623f10988b63c3c709794cf6"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0a902380623f10988b63c3c709794cf6">Reset</a> ()</td></tr>
+<tr class="memdesc:a0a902380623f10988b63c3c709794cf6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear the section.  <br /></td></tr>
 <tr class="separator:a0a902380623f10988b63c3c709794cf6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5eca73e4abff5445c613cb45461e06a" id="r_af5eca73e4abff5445c613cb45461e06a"><td class="memItemLeft" align="right" valign="top"><a id="af5eca73e4abff5445c613cb45461e06a" name="af5eca73e4abff5445c613cb45461e06a"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
+<tr class="memitem:af5eca73e4abff5445c613cb45461e06a" id="r_af5eca73e4abff5445c613cb45461e06a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af5eca73e4abff5445c613cb45461e06a">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
 <tr class="separator:af5eca73e4abff5445c613cb45461e06a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79cb0b956bd95cc3922edd7298e27c38" id="r_a79cb0b956bd95cc3922edd7298e27c38"><td class="memItemLeft" align="right" valign="top"><a id="a79cb0b956bd95cc3922edd7298e27c38" name="a79cb0b956bd95cc3922edd7298e27c38"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, offset_t count)</td></tr>
@@ -271,9 +272,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a clas
 <tr class="memitem:a317d6bc4516594dcc56a81788a48a5e2 inherit pub_methods_classLinker_1_1Buffer" id="r_a317d6bc4516594dcc56a81788a48a5e2"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Buffer.html#a317d6bc4516594dcc56a81788a48a5e2">ImageSize</a> () const override</td></tr>
 <tr class="memdesc:a317d6bc4516594dcc56a81788a48a5e2 inherit pub_methods_classLinker_1_1Buffer"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
 <tr class="separator:a317d6bc4516594dcc56a81788a48a5e2 inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af5eca73e4abff5445c613cb45461e06a inherit pub_methods_classLinker_1_1Buffer" id="r_af5eca73e4abff5445c613cb45461e06a"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd)</td></tr>
-<tr class="separator:af5eca73e4abff5445c613cb45461e06a inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a79cb0b956bd95cc3922edd7298e27c38 inherit pub_methods_classLinker_1_1Buffer" id="r_a79cb0b956bd95cc3922edd7298e27c38"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, offset_t count)</td></tr>
 <tr class="separator:a79cb0b956bd95cc3922edd7298e27c38 inherit pub_methods_classLinker_1_1Buffer"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -502,11 +500,43 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 
 </div>
 </div>
-<a id="a0cc1af543f1467e6d1f3aa079092abf6" name="a0cc1af543f1467e6d1f3aa079092abf6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0cc1af543f1467e6d1f3aa079092abf6">&#9670;&#160;</a></span>ReadFile() <span class="overload">[1/2]</span></h2>
+<a id="af5eca73e4abff5445c613cb45461e06a" name="af5eca73e4abff5445c613cb45461e06a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af5eca73e4abff5445c613cb45461e06a">&#9670;&#160;</a></span>ReadFile() <span class="overload">[1/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Buffer::ReadFile </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1Buffer.html">Linker::Buffer</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#ae477b715f901e4bc21c6016c641bb378">Linker::TableSection&lt; TableEntryType &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#ae477b715f901e4bc21c6016c641bb378">Linker::TableSection&lt; GOTEntry &gt;</a>.</p>
+
+</div>
+</div>
+<a id="a5c20c7c45911564567661e3c9961409e" name="a5c20c7c45911564567661e3c9961409e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c20c7c45911564567661e3c9961409e">&#9670;&#160;</a></span>ReadFile() <span class="overload">[2/3]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void Section::ReadFile </td>
@@ -515,18 +545,30 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Overwrites section data with contents of input stream. </p>
 <p>Note that only as many bytes are read in as the size of the section. </p>
 
+<p>Reimplemented from <a class="el" href="classLinker_1_1Buffer.html">Linker::Buffer</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#ae477b715f901e4bc21c6016c641bb378">Linker::TableSection&lt; TableEntryType &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#ae477b715f901e4bc21c6016c641bb378">Linker::TableSection&lt; GOTEntry &gt;</a>.</p>
+
 </div>
 </div>
 <a id="a2a9af840b8126ed8e25c148482f5ea72" name="a2a9af840b8126ed8e25c148482f5ea72"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2a9af840b8126ed8e25c148482f5ea72">&#9670;&#160;</a></span>ReadFile() <span class="overload">[2/2]</span></h2>
+<h2 class="memtitle"><span class="permalink"><a href="#a2a9af840b8126ed8e25c148482f5ea72">&#9670;&#160;</a></span>ReadFile() <span class="overload">[3/3]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">void Section::ReadFile </td>
@@ -535,10 +577,46 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
           <td></td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Overwrites section data with contents of input stream. </p>
 <p>Note that only as many bytes are read in as the size of the section. </p>
+
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#afc59dceffe71975c6cfa7b64ff6a5be8">Linker::TableSection&lt; TableEntryType &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#afc59dceffe71975c6cfa7b64ff6a5be8">Linker::TableSection&lt; GOTEntry &gt;</a>.</p>
+
+</div>
+</div>
+<a id="a0a902380623f10988b63c3c709794cf6" name="a0a902380623f10988b63c3c709794cf6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a902380623f10988b63c3c709794cf6">&#9670;&#160;</a></span>Reset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Section::Reset </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Clear the section. </p>
+
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#a1703248b343e674fdbda74aae22a9419">Linker::TableSection&lt; TableEntryType &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#a1703248b343e674fdbda74aae22a9419">Linker::TableSection&lt; GOTEntry &gt;</a>.</p>
 
 </div>
 </div>
@@ -616,11 +694,14 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 
 </div>
 </div>
-<a id="afa284d747c352a450242854c6e33e62b" name="afa284d747c352a450242854c6e33e62b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afa284d747c352a450242854c6e33e62b">&#9670;&#160;</a></span>WriteFile() <span class="overload">[2/5]</span></h2>
+<a id="a0aa5b153f5cd3a792acdd1efedb176ca" name="a0aa5b153f5cd3a792acdd1efedb176ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0aa5b153f5cd3a792acdd1efedb176ca">&#9670;&#160;</a></span>WriteFile() <span class="overload">[2/5]</span></h2>
 
 <div class="memitem">
 <div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
       <table class="memname">
         <tr>
           <td class="memname">offset_t Section::WriteFile </td>
@@ -630,7 +711,7 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>size</em>, </span></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>bytes</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -638,6 +719,11 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
           <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>offset</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span></span>&#160;) const</td>
         </tr>
       </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
 </div><div class="memdoc">
 
 <p>Writes data into file. </p>
@@ -645,11 +731,13 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">out</td><td>Output stream </td></tr>
-    <tr><td class="paramname">size</td><td>Maximum number of bytes to write </td></tr>
+    <tr><td class="paramname">bytes</td><td>Maximum number of bytes to write </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Count of actual number of bytes written </dd></dl>
+
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#a0aa5b153f5cd3a792acdd1efedb176ca">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a0aa5b153f5cd3a792acdd1efedb176ca">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a15cc086fb10b9e35c6440b9e15960efd">Linker::TableSection&lt; TableEntryType &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#a15cc086fb10b9e35c6440b9e15960efd">Linker::TableSection&lt; GOTEntry &gt;</a>.</p>
 
 </div>
 </div>
@@ -679,6 +767,8 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 <p>Writes data of non-zero filled sections. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Buffer.html#a345910fe1b88a080b8c94e4de4386366">Linker::Buffer</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#a345910fe1b88a080b8c94e4de4386366">Linker::TableSection&lt; TableEntryType &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#a345910fe1b88a080b8c94e4de4386366">Linker::TableSection&lt; GOTEntry &gt;</a>.</p>
 
 </div>
 </div>
@@ -718,6 +808,8 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Buffer.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::Buffer</a>.</p>
 
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#a43c03e87849dfb6ddcf6c2b2854a544a">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a43c03e87849dfb6ddcf6c2b2854a544a">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a85902bc759e19ee25fd6c63365d463ca">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::TableSection&lt; GOTEntry &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#a85902bc759e19ee25fd6c63365d463ca">Linker::TableSection&lt; TableEntryType &gt;</a>.</p>
+
 </div>
 </div>
 <a id="a8ebeff245404c6ed0833b2ce265c9fa2" name="a8ebeff245404c6ed0833b2ce265c9fa2"></a>
@@ -755,6 +847,8 @@ std::vector&lt; uint8_t &gt;&#160;</td><td class="memItemRight" valign="bottom">
 <p>Writes data of non-zero filled sections. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1Buffer.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::Buffer</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classLinker_1_1TableSection.html#a43c03e87849dfb6ddcf6c2b2854a544a">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a43c03e87849dfb6ddcf6c2b2854a544a">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a85902bc759e19ee25fd6c63365d463ca">Linker::TableSection&lt; GOTEntry &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::TableSection&lt; TableEntryType &gt;</a>, <a class="el" href="classLinker_1_1TableSection.html#a8ebeff245404c6ed0833b2ce265c9fa2">Linker::TableSection&lt; GOTEntry &gt;</a>, and <a class="el" href="classLinker_1_1TableSection.html#a85902bc759e19ee25fd6c63365d463ca">Linker::TableSection&lt; TableEntryType &gt;</a>.</p>
 
 </div>
 </div>

@@ -39,7 +39,7 @@ var searchData=
   ['hunk_5fv37_5freloc32short_36',['HUNK_V37_RELOC32SHORT',['../classAmiga_1_1HunkFormat_1_1Block.html#ae7ae7a371859634c929e1e1a5ec74ee3abd1f4d056ae2d870b0a360fcb1cf45f3',1,'Amiga::HunkFormat::Block']]],
   ['hunkentry_37',['HunkEntry',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1HunkEntry.html',1,'Amiga::HunkFormat::IndexBlock']]],
   ['hunkformat_38',['HunkFormat',['../classAmiga_1_1HunkFormat.html',1,'Amiga']]],
-  ['hunkoptioncollector_39',['HunkOptionCollector',['../classHunkOptionCollector.html',1,'']]],
+  ['hunkoptioncollector_39',['HunkOptionCollector',['../classAmiga_1_1HunkFormat_1_1HunkOptionCollector.html',1,'Amiga::HunkFormat']]],
   ['hunkreader_40',['HunkReader',['../classdump_1_1HunkReader.html',1,'dump']]],
   ['hunks_41',['hunks',['../classAmiga_1_1HunkFormat_1_1Module.html#a2c59e8215ff7db35a13839e9e49c9939',1,'Amiga::HunkFormat::Module']]],
   ['hureader_42',['HUReader',['../classdump_1_1HUReader.html',1,'dump']]]

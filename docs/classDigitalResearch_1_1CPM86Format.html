@@ -81,6 +81,7 @@ $(function() {
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classDigitalResearch_1_1CPM86Format-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">DigitalResearch::CPM86Format Class Reference</div></div>
 </div><!--header-->
@@ -105,6 +106,8 @@ Inheritance diagram for DigitalResearch::CPM86Format:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDigitalResearch_1_1CPM86Format_1_1CPM86OptionCollector.html">CPM86OptionCollector</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDigitalResearch_1_1CPM86Format_1_1Descriptor.html">Descriptor</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A representation of segment group within the executable.  <a href="classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -149,13 +152,22 @@ Public Types</h2></td></tr>
 , <a class="el" href="#a62e99897dc1820e925180333ade1a3eba6b9d972314f61bacc116901a621b7a63">FORMAT_COMPACT</a>
 , <br />
 &#160;&#160;<a class="el" href="#a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0">FORMAT_FLEXOS</a>
+, <a class="el" href="#a62e99897dc1820e925180333ade1a3eba4f8ef60d461db0f6bf833a46629ffb23">FORMAT_FASTLOAD</a>
 <br />
  }</td></tr>
-<tr class="memdesc:a62e99897dc1820e925180333ade1a3eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes the number and type of segment groups.  <a href="#a62e99897dc1820e925180333ade1a3eb">More...</a><br /></td></tr>
+<tr class="memdesc:a62e99897dc1820e925180333ade1a3eb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Describes the number and type of segment groups, as well as the target operating system.  <a href="#a62e99897dc1820e925180333ade1a3eb">More...</a><br /></td></tr>
 <tr class="separator:a62e99897dc1820e925180333ade1a3eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a75362ea0346d2253fe1f1d28ed260c07" id="r_a75362ea0346d2253fe1f1d28ed260c07"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07">application_type</a> { <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a9f4ab0d784a73e2679da3b3a4adb817f">APPL_CMD</a>
+<tr class="memitem:a75362ea0346d2253fe1f1d28ed260c07" id="r_a75362ea0346d2253fe1f1d28ed260c07"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07">application_type</a> { <br />
+&#160;&#160;<a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a77619a0bbf2c9b46a857d9252b81abd7">APPL_UNKNOWN</a>
+, <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a9f4ab0d784a73e2679da3b3a4adb817f">APPL_CMD</a>
 , <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a00c160040fc30a3ae3c87d3f9053e370">APPL_RSX</a>
+, <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a2d6e3f3bf91cef8ab2a6d1abecccb85d">APPL_RSP</a>
+, <br />
+&#160;&#160;<a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a6d614a55c13184c2fbb16dcea72a64e9">APPL_MPM</a>
+, <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07af6264cbbe89795b043154b8aab852afd">APPL_CON</a>
+, <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a2a935642d95708d19aed19fb8dd9ec79">APPL_OVR</a>
 , <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad">APPL_286</a>
+<br />
  }</td></tr>
 <tr class="separator:a75362ea0346d2253fe1f1d28ed260c07"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6503f9e1d16bfba45df9a4acb402d05f" id="r_a6503f9e1d16bfba45df9a4acb402d05f"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6503f9e1d16bfba45df9a4acb402d05f">memory_model_t</a> { <b>MODEL_DEFAULT</b>
@@ -171,9 +183,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a9afc148e9cd3946c6a3902adaf7510ad" id="r_a9afc148e9cd3946c6a3902adaf7510ad"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9afc148e9cd3946c6a3902adaf7510ad">Clear</a> () override</td></tr>
 <tr class="memdesc:a9afc148e9cd3946c6a3902adaf7510ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:a9afc148e9cd3946c6a3902adaf7510ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a59b04b1a6bdb50bbd32f8317fc94d073" id="r_a59b04b1a6bdb50bbd32f8317fc94d073"><td class="memItemLeft" align="right" valign="top"><a id="a59b04b1a6bdb50bbd32f8317fc94d073" name="a59b04b1a6bdb50bbd32f8317fc94d073"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>CPM86Format</b> (<a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a> <a class="el" href="#ad56598e239747fb712d353065a281145">format</a>=<a class="el" href="#a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e">FORMAT_UNKNOWN</a>, <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07">application_type</a> <a class="el" href="#a420b1262e477cc7ce0371b6a57eb45dd">application</a>=<a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a9f4ab0d784a73e2679da3b3a4adb817f">APPL_CMD</a>)</td></tr>
-<tr class="separator:a59b04b1a6bdb50bbd32f8317fc94d073"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8954f16e70bbcbae9931cae6b5c8492" id="r_ac8954f16e70bbcbae9931cae6b5c8492"><td class="memItemLeft" align="right" valign="top"><a id="ac8954f16e70bbcbae9931cae6b5c8492" name="ac8954f16e70bbcbae9931cae6b5c8492"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>CPM86Format</b> (<a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a> <a class="el" href="#ad56598e239747fb712d353065a281145">format</a>=<a class="el" href="#a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e">FORMAT_UNKNOWN</a>, <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07">application_type</a> <a class="el" href="#a420b1262e477cc7ce0371b6a57eb45dd">application</a>=<a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a77619a0bbf2c9b46a857d9252b81abd7">APPL_UNKNOWN</a>)</td></tr>
+<tr class="separator:ac8954f16e70bbcbae9931cae6b5c8492"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a70a7d6dba52fc6fb8614b36d4ada0bb7" id="r_a70a7d6dba52fc6fb8614b36d4ada0bb7"><td class="memItemLeft" align="right" valign="top"><a id="a70a7d6dba52fc6fb8614b36d4ada0bb7" name="a70a7d6dba52fc6fb8614b36d4ada0bb7"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetRelocationSizeParas</b> () const</td></tr>
 <tr class="separator:a70a7d6dba52fc6fb8614b36d4ada0bb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -233,6 +245,9 @@ std::vector&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.h
 <tr class="memitem:a86699509024b7aa6709347876048e031" id="r_a86699509024b7aa6709347876048e031"><td class="memItemLeft" align="right" valign="top"><a id="a86699509024b7aa6709347876048e031" name="a86699509024b7aa6709347876048e031"></a>
 unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>GetSegmentNumber</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment)</td></tr>
 <tr class="separator:a86699509024b7aa6709347876048e031"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a890063cf9da46ccb0abaa7cdac89cf00" id="r_a890063cf9da46ccb0abaa7cdac89cf00"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a890063cf9da46ccb0abaa7cdac89cf00">GetMemoryModelNames</a> () override</td></tr>
+<tr class="memdesc:a890063cf9da46ccb0abaa7cdac89cf00"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the supported memory models, used for documentation.  <br /></td></tr>
+<tr class="separator:a890063cf9da46ccb0abaa7cdac89cf00"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a845fc53264a046ccd553ae803037f471" id="r_a845fc53264a046ccd553ae803037f471"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a845fc53264a046ccd553ae803037f471">SetModel</a> (std::string model) override</td></tr>
 <tr class="memdesc:a845fc53264a046ccd553ae803037f471"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
 <tr class="separator:a845fc53264a046ccd553ae803037f471"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -325,6 +340,13 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpressio
 <tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
 <tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
 <tr class="separator:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5547ffeff38e88c78ea3a077d93944d4 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a5547ffeff38e88c78ea3a077d93944d4"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a5547ffeff38e88c78ea3a077d93944d4">GetLinkerScriptParameterNames</a> ()</td></tr>
+<tr class="memdesc:a5547ffeff38e88c78ea3a077d93944d4 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the parameters used in the linker scripts, used for documentation.  <br /></td></tr>
+<tr class="separator:a5547ffeff38e88c78ea3a077d93944d4 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat" id="r_a99f454ca9bfab304f748f4286c08584a"><td class="memItemLeft" align="right" valign="top">
+virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSpecialSymbolNames</b> ()</td></tr>
+<tr class="memdesc:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of special symbol names recognized by the format, used for documentation. <br /></td></tr>
+<tr class="separator:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ad1ac5336a836f4bdddd593b6430261c8"><td class="memItemLeft" align="right" valign="top">
 std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name)</td></tr>
 <tr class="memdesc:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name. <br /></td></tr>
@@ -415,11 +437,11 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = o
 <tr class="memdesc:a18978e46a4ee03cab19be5d548160efa"><td class="mdescLeft">&#160;</td><td class="mdescRight">The full size of the image. <br /></td></tr>
 <tr class="separator:a18978e46a4ee03cab19be5d548160efa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad56598e239747fb712d353065a281145" id="r_ad56598e239747fb712d353065a281145"><td class="memItemLeft" align="right" valign="top"><a id="ad56598e239747fb712d353065a281145" name="ad56598e239747fb712d353065a281145"></a>
-<a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>format</b> = <a class="el" href="#a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8">FORMAT_SMALL</a></td></tr>
+<a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>format</b></td></tr>
 <tr class="memdesc:ad56598e239747fb712d353065a281145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Format of file to generate. <br /></td></tr>
 <tr class="separator:ad56598e239747fb712d353065a281145"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a420b1262e477cc7ce0371b6a57eb45dd" id="r_a420b1262e477cc7ce0371b6a57eb45dd"><td class="memItemLeft" align="right" valign="top"><a id="a420b1262e477cc7ce0371b6a57eb45dd" name="a420b1262e477cc7ce0371b6a57eb45dd"></a>
-<a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07">application_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>application</b> = <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a9f4ab0d784a73e2679da3b3a4adb817f">APPL_CMD</a></td></tr>
+<a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07">application_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>application</b></td></tr>
 <tr class="memdesc:a420b1262e477cc7ce0371b6a57eb45dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Target application type. <br /></td></tr>
 <tr class="separator:a420b1262e477cc7ce0371b6a57eb45dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a59517f61eb2d955b0ae5930741d06346" id="r_a59517f61eb2d955b0ae5930741d06346"><td class="memItemLeft" align="right" valign="top"><a id="a59517f61eb2d955b0ae5930741d06346" name="a59517f61eb2d955b0ae5930741d06346"></a>
@@ -462,6 +484,11 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script<
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
 <tr class="separator:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:ae1ae33304365b05e06dad77a38c76c7a" id="r_ae1ae33304365b05e06dad77a38c76c7a"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae1ae33304365b05e06dad77a38c76c7a">MemoryModelNames</a></td></tr>
+<tr class="separator:ae1ae33304365b05e06dad77a38c76c7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
@@ -531,11 +558,21 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
       </table>
 </div><div class="memdoc">
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a9f4ab0d784a73e2679da3b3a4adb817f" name="a75362ea0346d2253fe1f1d28ed260c07a9f4ab0d784a73e2679da3b3a4adb817f"></a>APPL_CMD&#160;</td><td class="fielddoc"><p>CP/M-86 .cmd file. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a77619a0bbf2c9b46a857d9252b81abd7" name="a75362ea0346d2253fe1f1d28ed260c07a77619a0bbf2c9b46a857d9252b81abd7"></a>APPL_UNKNOWN&#160;</td><td class="fielddoc"><p>Unspecified. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a00c160040fc30a3ae3c87d3f9053e370" name="a75362ea0346d2253fe1f1d28ed260c07a00c160040fc30a3ae3c87d3f9053e370"></a>APPL_RSX&#160;</td><td class="fielddoc"><p>CP/M-86 .rsx file. </p>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a9f4ab0d784a73e2679da3b3a4adb817f" name="a75362ea0346d2253fe1f1d28ed260c07a9f4ab0d784a73e2679da3b3a4adb817f"></a>APPL_CMD&#160;</td><td class="fielddoc"><p>CP/M-86 .cmd executable file. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad" name="a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad"></a>APPL_286&#160;</td><td class="fielddoc"><p>FlexOS 86 .286 file. </p>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a00c160040fc30a3ae3c87d3f9053e370" name="a75362ea0346d2253fe1f1d28ed260c07a00c160040fc30a3ae3c87d3f9053e370"></a>APPL_RSX&#160;</td><td class="fielddoc"><p>CP/M-86 .rsx resident system extension file. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a2d6e3f3bf91cef8ab2a6d1abecccb85d" name="a75362ea0346d2253fe1f1d28ed260c07a2d6e3f3bf91cef8ab2a6d1abecccb85d"></a>APPL_RSP&#160;</td><td class="fielddoc"><p>MP/M-86 or Concurrent CP/M-86 .rsp resident system process file (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a6d614a55c13184c2fbb16dcea72a64e9" name="a75362ea0346d2253fe1f1d28ed260c07a6d614a55c13184c2fbb16dcea72a64e9"></a>APPL_MPM&#160;</td><td class="fielddoc"><p>MP/M-86 .mpm system module file (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07af6264cbbe89795b043154b8aab852afd" name="a75362ea0346d2253fe1f1d28ed260c07af6264cbbe89795b043154b8aab852afd"></a>APPL_CON&#160;</td><td class="fielddoc"><p>Concurrent CP/M-86 .con system module file (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a2a935642d95708d19aed19fb8dd9ec79" name="a75362ea0346d2253fe1f1d28ed260c07a2a935642d95708d19aed19fb8dd9ec79"></a>APPL_OVR&#160;</td><td class="fielddoc"><p>CP/M-86 .ovr overlay (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad" name="a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad"></a>APPL_286&#160;</td><td class="fielddoc"><p>FlexOS 86 .286 executable file (limited support) </p>
 </td></tr>
 </table>
 
@@ -553,17 +590,19 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
       </table>
 </div><div class="memdoc">
 
-<p>Describes the number and type of segment groups. </p>
+<p>Describes the number and type of segment groups, as well as the target operating system. </p>
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e" name="a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e"></a>FORMAT_UNKNOWN&#160;</td><td class="fielddoc"><p>Unspecified. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3ebaa232eed41fbad678e1998318314c42ae" name="a62e99897dc1820e925180333ade1a3ebaa232eed41fbad678e1998318314c42ae"></a>FORMAT_8080&#160;</td><td class="fielddoc"><p>Only a single non-shared code group is present. </p>
+<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3ebaa232eed41fbad678e1998318314c42ae" name="a62e99897dc1820e925180333ade1a3ebaa232eed41fbad678e1998318314c42ae"></a>FORMAT_8080&#160;</td><td class="fielddoc"><p>CP/M-86 format, only a single non-shared code group is present, with optional relocations and attached RSX system extensions. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8" name="a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8"></a>FORMAT_SMALL&#160;</td><td class="fielddoc"><p>Only code (possibly shared) and a separate data group is present. </p>
+<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8" name="a62e99897dc1820e925180333ade1a3ebadc1fb4be46190e214cbd76178992a4d8"></a>FORMAT_SMALL&#160;</td><td class="fielddoc"><p>CP/M-86 format, only code (possibly shared) and a separate data group is present, also used for medium model. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba6b9d972314f61bacc116901a621b7a63" name="a62e99897dc1820e925180333ade1a3eba6b9d972314f61bacc116901a621b7a63"></a>FORMAT_COMPACT&#160;</td><td class="fielddoc"><p>Each non-executable section will have its own group, including stack and up to 4 auxiliary groups. </p>
+<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba6b9d972314f61bacc116901a621b7a63" name="a62e99897dc1820e925180333ade1a3eba6b9d972314f61bacc116901a621b7a63"></a>FORMAT_COMPACT&#160;</td><td class="fielddoc"><p>CP/M-86 format, each non-executable section will have its own group, including stack and up to 4 auxiliary groups, also used for large model. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0" name="a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0"></a>FORMAT_FLEXOS&#160;</td><td class="fielddoc"><p>Only code (possibly shared), data and a stack segment is present, with postlink or SRTL (unfinished) </p>
+<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0" name="a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0"></a>FORMAT_FLEXOS&#160;</td><td class="fielddoc"><p>FlexOS 286 format, running in protected mode, possible SRTL shared libraries (unfinished) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba4f8ef60d461db0f6bf833a46629ffb23" name="a62e99897dc1820e925180333ade1a3eba4f8ef60d461db0f6bf833a46629ffb23"></a>FORMAT_FASTLOAD&#160;</td><td class="fielddoc"><p>FlexOS 286 fastload format as generated by postlink, with an LDT image in file (unfinished) </p>
 </td></tr>
 </table>
 
@@ -872,6 +911,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
+<a id="a890063cf9da46ccb0abaa7cdac89cf00" name="a890063cf9da46ccb0abaa7cdac89cf00"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a890063cf9da46ccb0abaa7cdac89cf00">&#9670;&#160;</a></span>GetMemoryModelNames()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; &gt; CPM86Format::GetMemoryModelNames </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns a list of the supported memory models, used for documentation. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a5811b8431e63fb88c246caa433c57d85">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
 <a id="a23f76fc989b59eba09e2de69c8dec795" name="a23f76fc989b59eba09e2de69c8dec795"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a23f76fc989b59eba09e2de69c8dec795">&#9670;&#160;</a></span>GetOptions()</h2>
 
@@ -1073,6 +1141,37 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Implements <a class="el" href="classLinker_1_1Format.html#a7355f6db61be5b563871ca6e2ceece82">Linker::Format</a>.</p>
 
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="ae1ae33304365b05e06dad77a38c76c7a" name="ae1ae33304365b05e06dad77a38c76c7a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1ae33304365b05e06dad77a38c76c7a">&#9670;&#160;</a></span>MemoryModelNames</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; &gt; CPM86Format::MemoryModelNames</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">{</div>
+<div class="line">    <a class="code hl_class" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription&lt;void&gt;</a>(<span class="stringliteral">&quot;default&quot;</span>, <span class="stringliteral">&quot;Depends on format: tiny for 8080 format, small for small format or FlexOS, compact for compact format&quot;</span>),</div>
+<div class="line">    <a class="code hl_class" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription&lt;void&gt;</a>(<span class="stringliteral">&quot;tiny&quot;</span>, <span class="stringliteral">&quot;Tiny model, all symbols have the same preferred segment, 8080 format only&quot;</span>),</div>
+<div class="line">    <a class="code hl_class" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription&lt;void&gt;</a>(<span class="stringliteral">&quot;small&quot;</span>, <span class="stringliteral">&quot;Small model, symbols in .code have a separate preferred segment, not supported on compact format&quot;</span>),</div>
+<div class="line">    <a class="code hl_class" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription&lt;void&gt;</a>(<span class="stringliteral">&quot;compact&quot;</span>, <span class="stringliteral">&quot;Compact model, symbols in .data, .bss and .comm have a common preferred segment, all other sections are treated as separate segments&quot;</span>),</div>
+<div class="line">}</div>
+<div class="ttc" id="aclassLinker_1_1OptionDescription_html"><div class="ttname"><a href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a></div><div class="ttdoc">A typed option description, used for documenting options.</div><div class="ttdef"><b>Definition</b> options.h:163</div></div>
+</div><!-- fragment -->
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>

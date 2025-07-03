@@ -15,8 +15,17 @@ var searchData=
   ['option_3c_20void_20_3e_12',['Option&lt; void &gt;',['../classLinker_1_1Option_3_01void_01_4.html',1,'Linker']]],
   ['optionalheader_13',['OptionalHeader',['../classCOFF_1_1COFFFormat_1_1OptionalHeader.html',1,'COFF::COFFFormat']]],
   ['optioncollector_14',['OptionCollector',['../classLinker_1_1OptionCollector.html',1,'Linker']]],
-  ['os2_5fspecific_15',['os2_specific',['../structELF_1_1ELFFormat_1_1IBMSystemInfo_1_1os2__specific.html',1,'ELF::ELFFormat::IBMSystemInfo']]],
-  ['outputformat_16',['OutputFormat',['../classLinker_1_1OutputFormat.html',1,'Linker']]],
-  ['overlayblock_17',['OverlayBlock',['../classAmiga_1_1HunkFormat_1_1OverlayBlock.html',1,'Amiga::HunkFormat']]],
-  ['overlaysymbol_18',['OverlaySymbol',['../structAmiga_1_1HunkFormat_1_1OverlayBlock_1_1OverlaySymbol.html',1,'Amiga::HunkFormat::OverlayBlock']]]
+  ['optiondescription_15',['OptionDescription',['../classLinker_1_1OptionDescription.html',1,'Linker']]],
+  ['optiondescription_3c_20bool_20_3e_16',['OptionDescription&lt; bool &gt;',['../classLinker_1_1OptionDescription.html',1,'Linker']]],
+  ['optiondescription_3c_20std_3a_3aoptional_3c_20offset_5ft_20_3e_20_3e_17',['OptionDescription&lt; std::optional&lt; offset_t &gt; &gt;',['../classLinker_1_1OptionDescription.html',1,'Linker']]],
+  ['optiondescription_3c_20std_3a_3aoptional_3c_20std_3a_3astring_20_3e_20_3e_18',['OptionDescription&lt; std::optional&lt; std::string &gt; &gt;',['../classLinker_1_1OptionDescription.html',1,'Linker']]],
+  ['optiondescription_3c_20std_3a_3aoptional_3c_20std_3a_3avector_3c_20std_3a_3astring_20_3e_20_3e_20_3e_19',['OptionDescription&lt; std::optional&lt; std::vector&lt; std::string &gt; &gt; &gt;',['../classLinker_1_1OptionDescription.html',1,'Linker']]],
+  ['optiondescription_3c_20std_3a_3aoptional_3c_20t_20_3e_20_3e_20',['OptionDescription&lt; std::optional&lt; T &gt; &gt;',['../classLinker_1_1OptionDescription.html',1,'Linker']]],
+  ['optiondescription_3c_20std_3a_3astring_20_3e_21',['OptionDescription&lt; std::string &gt;',['../classLinker_1_1OptionDescription.html',1,'Linker']]],
+  ['optiondescription_3c_20std_3a_3avector_3c_20t_20_3e_20_3e_22',['OptionDescription&lt; std::vector&lt; T &gt; &gt;',['../classLinker_1_1OptionDescription.html',1,'Linker']]],
+  ['optiondescription_3c_20void_20_3e_23',['OptionDescription&lt; void &gt;',['../classLinker_1_1OptionDescription_3_01void_01_4.html',1,'Linker']]],
+  ['os2_5fspecific_24',['os2_specific',['../structELF_1_1ELFFormat_1_1IBMSystemInfo_1_1os2__specific.html',1,'ELF::ELFFormat::IBMSystemInfo']]],
+  ['outputformat_25',['OutputFormat',['../classLinker_1_1OutputFormat.html',1,'Linker']]],
+  ['overlayblock_26',['OverlayBlock',['../classAmiga_1_1HunkFormat_1_1OverlayBlock.html',1,'Amiga::HunkFormat']]],
+  ['overlaysymbol_27',['OverlaySymbol',['../structAmiga_1_1HunkFormat_1_1OverlayBlock_1_1OverlaySymbol.html',1,'Amiga::HunkFormat::OverlayBlock']]]
 ];

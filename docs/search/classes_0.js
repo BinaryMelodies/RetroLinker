@@ -9,7 +9,7 @@ var searchData=
   ['aifformat_6',['AIFFormat',['../classARM_1_1AIFFormat.html',1,'ARM']]],
   ['aoutformat_7',['AOutFormat',['../classAOut_1_1AOutFormat.html',1,'AOut']]],
   ['aoutheader_8',['AOutHeader',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html',1,'COFF::COFFFormat']]],
-  ['aoutoptioncollector_9',['AOutOptionCollector',['../classAOutOptionCollector.html',1,'']]],
+  ['aoutoptioncollector_9',['AOutOptionCollector',['../classAOut_1_1AOutFormat_1_1AOutOptionCollector.html',1,'AOut::AOutFormat']]],
   ['aoutreader_10',['AOutReader',['../classdump_1_1AOutReader.html',1,'dump']]],
   ['appleformat_11',['AppleFormat',['../classBinary_1_1AppleFormat.html',1,'Binary']]],
   ['applereader_12',['AppleReader',['../classdump_1_1AppleReader.html',1,'dump']]],

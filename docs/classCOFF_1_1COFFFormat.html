@@ -114,6 +114,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html">AOutHeader</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A standard 28 byte a.out optional header, used by DJGPP.  <a href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1COFFOptionCollector.html">COFFOptionCollector</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html">ECOFFAOutHeader</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">ECOFF optional header.  <a href="classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -285,6 +287,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DetectCpuType</b> ()<
 <tr class="separator:a1d13873cd2addfd2a87a4249c51fe483"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea56aaf8438bb91e3dbe83ec523b1fef" id="r_aea56aaf8438bb91e3dbe83ec523b1fef"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aea56aaf8438bb91e3dbe83ec523b1fef">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
 <tr class="separator:aea56aaf8438bb91e3dbe83ec523b1fef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a53369b26500357f3f380471e43803a3a" id="r_a53369b26500357f3f380471e43803a3a"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a53369b26500357f3f380471e43803a3a">GetLinkerScriptParameterNames</a> () override</td></tr>
+<tr class="memdesc:a53369b26500357f3f380471e43803a3a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the parameters used in the linker scripts, used for documentation.  <br /></td></tr>
+<tr class="separator:a53369b26500357f3f380471e43803a3a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a477369394c3ee2b118e44102dcafc8ad" id="r_a477369394c3ee2b118e44102dcafc8ad"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a477369394c3ee2b118e44102dcafc8ad">GetOptions</a> () override</td></tr>
 <tr class="memdesc:a477369394c3ee2b118e44102dcafc8ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
 <tr class="separator:a477369394c3ee2b118e44102dcafc8ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -433,6 +438,13 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpressio
 <tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
 <tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
 <tr class="separator:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a5811b8431e63fb88c246caa433c57d85"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a5811b8431e63fb88c246caa433c57d85">GetMemoryModelNames</a> ()</td></tr>
+<tr class="memdesc:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the supported memory models, used for documentation.  <br /></td></tr>
+<tr class="separator:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat" id="r_a99f454ca9bfab304f748f4286c08584a"><td class="memItemLeft" align="right" valign="top">
+virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSpecialSymbolNames</b> ()</td></tr>
+<tr class="memdesc:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of special symbol names recognized by the format, used for documentation. <br /></td></tr>
+<tr class="separator:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ad1ac5336a836f4bdddd593b6430261c8"><td class="memItemLeft" align="right" valign="top">
 std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name)</td></tr>
 <tr class="memdesc:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name. <br /></td></tr>
@@ -600,6 +612,8 @@ static constexpr <a class="el" href="#a07b40a36f51ffa98f39b074237c9c997">COFFVar
 <tr class="memitem:a4ca14354930d750a5edd569e80cad5d0" id="r_a4ca14354930d750a5edd569e80cad5d0"><td class="memItemLeft" align="right" valign="top"><a id="a4ca14354930d750a5edd569e80cad5d0" name="a4ca14354930d750a5edd569e80cad5d0"></a>
 static const std::map&lt; uint32_t, <a class="el" href="structCOFF_1_1COFFFormat_1_1MachineType.html">MachineType</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>MACHINE_TYPES</b></td></tr>
 <tr class="separator:a4ca14354930d750a5edd569e80cad5d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af807e9aa8f9230096f063b18a67071ed" id="r_af807e9aa8f9230096f063b18a67071ed"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af807e9aa8f9230096f063b18a67071ed">ParameterNames</a></td></tr>
+<tr class="separator:af807e9aa8f9230096f063b18a67071ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -1089,6 +1103,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
+<a id="a53369b26500357f3f380471e43803a3a" name="a53369b26500357f3f380471e43803a3a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a53369b26500357f3f380471e43803a3a">&#9670;&#160;</a></span>GetLinkerScriptParameterNames()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt; COFFFormat::GetLinkerScriptParameterNames </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns a list of the parameters used in the linker scripts, used for documentation. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a5547ffeff38e88c78ea3a077d93944d4">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
 <a id="a477369394c3ee2b118e44102dcafc8ad" name="a477369394c3ee2b118e44102dcafc8ad"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a477369394c3ee2b118e44102dcafc8ad">&#9670;&#160;</a></span>GetOptions()</h2>
 
@@ -1347,6 +1390,34 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>The CPU type, reflected by the first 16-bit word of a COFF file. </p>
 <p>The byte order has to be determined heuristically. </p>
 
+</div>
+</div>
+<a id="af807e9aa8f9230096f063b18a67071ed" name="af807e9aa8f9230096f063b18a67071ed"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af807e9aa8f9230096f063b18a67071ed">&#9670;&#160;</a></span>ParameterNames</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt; COFFFormat::ParameterNames</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">{</div>
+<div class="line">    &amp;p_code_base_address,</div>
+<div class="line">    &amp;p_data_base_address,</div>
+<div class="line">    &amp;p_bss_base_address,</div>
+<div class="line">}</div>
+</div><!-- fragment -->
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>

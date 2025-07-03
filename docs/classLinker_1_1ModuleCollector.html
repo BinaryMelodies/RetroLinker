@@ -93,6 +93,7 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structLinker_1_1ModuleCollector_1_1definition.html">definition</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Description of a symbol definition in some module.  <a href="structLinker_1_1ModuleCollector_1_1definition.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
@@ -103,31 +104,63 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a2ade3ccf17a9be79c726046a03f88746" id="r_a2ade3ccf17a9be79c726046a03f88746"><td class="memItemLeft" align="right" valign="top"><a id="a2ade3ccf17a9be79c726046a03f88746" name="a2ade3ccf17a9be79c726046a03f88746"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Module.html">Module</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateModule</b> (std::shared_ptr&lt; const <a class="el" href="classLinker_1_1InputFormat.html">InputFormat</a> &gt; input_format, std::string file_name=&quot;&quot;)</td></tr>
 <tr class="separator:a2ade3ccf17a9be79c726046a03f88746"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adf7b0fb370a94469c8cb41ff0aa58447" id="r_adf7b0fb370a94469c8cb41ff0aa58447"><td class="memItemLeft" align="right" valign="top"><a id="adf7b0fb370a94469c8cb41ff0aa58447" name="adf7b0fb370a94469c8cb41ff0aa58447"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AddModule</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Module.html">Module</a> &gt; module, bool is_library=false)</td></tr>
+<tr class="memitem:adf7b0fb370a94469c8cb41ff0aa58447" id="r_adf7b0fb370a94469c8cb41ff0aa58447"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adf7b0fb370a94469c8cb41ff0aa58447">AddModule</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Module.html">Module</a> &gt; module, bool is_library=false)</td></tr>
+<tr class="memdesc:adf7b0fb370a94469c8cb41ff0aa58447"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a module to the modules vector, also registers all the non-local symbols, and determines if any additional modules need to be included.  <br /></td></tr>
 <tr class="separator:adf7b0fb370a94469c8cb41ff0aa58447"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae44d29b9873568f16a82ed0a2620c9ae" id="r_ae44d29b9873568f16a82ed0a2620c9ae"><td class="memItemLeft" align="right" valign="top"><a id="ae44d29b9873568f16a82ed0a2620c9ae" name="ae44d29b9873568f16a82ed0a2620c9ae"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AddLibraryModule</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Module.html">Module</a> &gt; module)</td></tr>
+<tr class="memdesc:ae44d29b9873568f16a82ed0a2620c9ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to add a library. <br /></td></tr>
 <tr class="separator:ae44d29b9873568f16a82ed0a2620c9ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a389ed053c70bd0da76912cd965d0f4a4" id="r_a389ed053c70bd0da76912cd965d0f4a4"><td class="memItemLeft" align="right" valign="top"><a id="a389ed053c70bd0da76912cd965d0f4a4" name="a389ed053c70bd0da76912cd965d0f4a4"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CombineModulesInto</b> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;output_module)</td></tr>
+<tr class="memdesc:a389ed053c70bd0da76912cd965d0f4a4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends all the modules that have been determined to be included, into a resulting object. <br /></td></tr>
 <tr class="separator:a389ed053c70bd0da76912cd965d0f4a4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:ac0582dea68e2a5b8299bdd355ed7568f" id="r_ac0582dea68e2a5b8299bdd355ed7568f"><td class="memItemLeft" align="right" valign="top"><a id="ac0582dea68e2a5b8299bdd355ed7568f" name="ac0582dea68e2a5b8299bdd355ed7568f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>generate_got</b> = false</td></tr>
+<tr class="memdesc:ac0582dea68e2a5b8299bdd355ed7568f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set to true when Global Offset Table generation is requested. <br /></td></tr>
+<tr class="separator:ac0582dea68e2a5b8299bdd355ed7568f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2a8aa4efbffe324c0a366ac10af4607c" id="r_a2a8aa4efbffe324c0a366ac10af4607c"><td class="memItemLeft" align="right" valign="top"><a id="a2a8aa4efbffe324c0a366ac10af4607c" name="a2a8aa4efbffe324c0a366ac10af4607c"></a>
 std::vector&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Module.html">Module</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>modules</b></td></tr>
+<tr class="memdesc:a2a8aa4efbffe324c0a366ac10af4607c"><td class="mdescLeft">&#160;</td><td class="mdescRight">A list of all modules to be considered, not all of which will be included in the final generated binary. <br /></td></tr>
 <tr class="separator:a2a8aa4efbffe324c0a366ac10af4607c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a34f3120d69cb63dc64aeedfde6a67592" id="r_a34f3120d69cb63dc64aeedfde6a67592"><td class="memItemLeft" align="right" valign="top"><a id="a34f3120d69cb63dc64aeedfde6a67592" name="a34f3120d69cb63dc64aeedfde6a67592"></a>
-std::set&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>required_symbols</b></td></tr>
+<tr class="memitem:a34f3120d69cb63dc64aeedfde6a67592" id="r_a34f3120d69cb63dc64aeedfde6a67592"><td class="memItemLeft" align="right" valign="top">std::set&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a34f3120d69cb63dc64aeedfde6a67592">required_symbols</a></td></tr>
+<tr class="memdesc:a34f3120d69cb63dc64aeedfde6a67592"><td class="mdescLeft">&#160;</td><td class="mdescRight">Symbols that are referenced but have not yet been defined among the included modules.  <br /></td></tr>
 <tr class="separator:a34f3120d69cb63dc64aeedfde6a67592"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aff73eb0303ffd96b33f81d945bc3a221" id="r_aff73eb0303ffd96b33f81d945bc3a221"><td class="memItemLeft" align="right" valign="top"><a id="aff73eb0303ffd96b33f81d945bc3a221" name="aff73eb0303ffd96b33f81d945bc3a221"></a>
-std::map&lt; std::string, <a class="el" href="structLinker_1_1ModuleCollector_1_1definition.html">definition</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_definitions</b></td></tr>
+<tr class="memitem:aff73eb0303ffd96b33f81d945bc3a221" id="r_aff73eb0303ffd96b33f81d945bc3a221"><td class="memItemLeft" align="right" valign="top">std::map&lt; std::string, <a class="el" href="structLinker_1_1ModuleCollector_1_1definition.html">definition</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aff73eb0303ffd96b33f81d945bc3a221">symbol_definitions</a></td></tr>
+<tr class="memdesc:aff73eb0303ffd96b33f81d945bc3a221"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of symbols defined thus far.  <br /></td></tr>
 <tr class="separator:aff73eb0303ffd96b33f81d945bc3a221"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Helper class that collects object files and libraries, and includes library objects for required symbols. </p>
+<p>Object and library modules can both be added to the collector, which determines which ones need to be part of the final binary object. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="adf7b0fb370a94469c8cb41ff0aa58447" name="adf7b0fb370a94469c8cb41ff0aa58447"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf7b0fb370a94469c8cb41ff0aa58447">&#9670;&#160;</a></span>AddModule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void ModuleCollector::AddModule </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classLinker_1_1Module.html">Module</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>module</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool</td>          <td class="paramname"><span class="paramname"><em>is_library</em><span class="paramdefsep"> = </span><span class="paramdefval">false</span></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds a module to the modules vector, also registers all the non-local symbols, and determines if any additional modules need to be included. </p>
+<p>Non-library modules are automatically included in the final binary, library modules are only included on demand. </p>
+
+</div>
+</div>
 <a id="a6f2f51193d7b67893c5763fb46c21010" name="a6f2f51193d7b67893c5763fb46c21010"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a6f2f51193d7b67893c5763fb46c21010">&#9670;&#160;</a></span>SetupOptions()</h2>
 
@@ -155,6 +188,41 @@ std::map&lt; std::string, <a class="el" href="structLinker_1_1ModuleCollector_1_
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a34f3120d69cb63dc64aeedfde6a67592" name="a34f3120d69cb63dc64aeedfde6a67592"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a34f3120d69cb63dc64aeedfde6a67592">&#9670;&#160;</a></span>required_symbols</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::set&lt;std::string&gt; Linker::ModuleCollector::required_symbols</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Symbols that are referenced but have not yet been defined among the included modules. </p>
+<p>When a symbol that appears in this collection is defined in a module, that modules gets included automatically. </p>
+
+</div>
+</div>
+<a id="aff73eb0303ffd96b33f81d945bc3a221" name="aff73eb0303ffd96b33f81d945bc3a221"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aff73eb0303ffd96b33f81d945bc3a221">&#9670;&#160;</a></span>symbol_definitions</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::map&lt;std::string, <a class="el" href="structLinker_1_1ModuleCollector_1_1definition.html">definition</a>&gt; Linker::ModuleCollector::symbol_definitions</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Collection of symbols defined thus far. </p>
+<p>When a module gets added to the collector, its definition is stored in this collection. </p>
 
 </div>
 </div>

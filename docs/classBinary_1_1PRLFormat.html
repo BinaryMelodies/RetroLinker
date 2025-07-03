@@ -77,7 +77,10 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classBinary_1_1PRLFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Binary::PRLFormat Class Reference</div></div>
@@ -102,17 +105,50 @@ Inheritance diagram for Binary::PRLFormat:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1PRLFormat_1_1PRLOptionCollector.html">PRLOptionCollector</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a77eef00f6d7777bad0e73a098abc94e1" id="r_a77eef00f6d7777bad0e73a098abc94e1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1">application_type</a> { <br />
+&#160;&#160;<a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1a96e377f12e190837b14d6490492fe6ee">APPL_UNKNOWN</a>
+, <a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1aec59a68fb56dbf2f544880d4acdac682">APPL_PRL</a>
+, <a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1a4777f1ccd3551d809da07bfc0f93ccc3">APPL_RSX</a>
+, <a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1a6acaf6ce8bef42e21e6a39ab77d11d51">APPL_RSM</a>
+, <br />
+&#160;&#160;<a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1a56e3b83c3e42199244e1faf32b13454b">APPL_RSP</a>
+, <a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1a8f8aeff9d05656c4590f3cab657a0910">APPL_BRS</a>
+, <a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1a0bd13daa81b5f68855e8394a76b6d10e">APPL_SPR</a>
+, <a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1a07178091c014472b148f4f7f83e6ff9c">APPL_OVL</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:a77eef00f6d7777bad0e73a098abc94e1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The format of the generated binary.  <a href="#a77eef00f6d7777bad0e73a098abc94e1">More...</a><br /></td></tr>
+<tr class="separator:a77eef00f6d7777bad0e73a098abc94e1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a611791228585417d85087806084b37c2" id="r_a611791228585417d85087806084b37c2"><td class="memItemLeft" align="right" valign="top"><a id="a611791228585417d85087806084b37c2" name="a611791228585417d85087806084b37c2"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>PRLFormat</b> (uint64_t default_base_address=0, std::string default_extension=&quot;.prl&quot;)</td></tr>
-<tr class="separator:a611791228585417d85087806084b37c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab7f712182f3e489432d255bf31bf194b" id="r_ab7f712182f3e489432d255bf31bf194b"><td class="memItemLeft" align="right" valign="top"><a id="ab7f712182f3e489432d255bf31bf194b" name="ab7f712182f3e489432d255bf31bf194b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>PRLFormat</b> (<a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1">application_type</a> <a class="el" href="#ae7fbf308ecd812efe01e6b886ee61c1b">application</a>=<a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1aec59a68fb56dbf2f544880d4acdac682">APPL_PRL</a>)</td></tr>
+<tr class="separator:ab7f712182f3e489432d255bf31bf194b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f34856bfe63ae7be821dfc31cdc5bf5" id="r_a6f34856bfe63ae7be821dfc31cdc5bf5"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6f34856bfe63ae7be821dfc31cdc5bf5">GetOptions</a> () override</td></tr>
+<tr class="memdesc:a6f34856bfe63ae7be821dfc31cdc5bf5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
+<tr class="separator:a6f34856bfe63ae7be821dfc31cdc5bf5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9ff7bde771219c49f3506b017738d25b" id="r_a9ff7bde771219c49f3506b017738d25b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9ff7bde771219c49f3506b017738d25b">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
+<tr class="memdesc:a9ff7bde771219c49f3506b017738d25b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
+<tr class="separator:a9ff7bde771219c49f3506b017738d25b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a600ec6f7a8b62221164cffa6c3ca3b12" id="r_a600ec6f7a8b62221164cffa6c3ca3b12"><td class="memItemLeft" align="right" valign="top">std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a600ec6f7a8b62221164cffa6c3ca3b12">GetScript</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
+<tr class="separator:a600ec6f7a8b62221164cffa6c3ca3b12"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a673dc16c6b827459fa7c9bcc08d95774" id="r_a673dc16c6b827459fa7c9bcc08d95774"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a673dc16c6b827459fa7c9bcc08d95774">OnNewSegment</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment) override</td></tr>
 <tr class="memdesc:a673dc16c6b827459fa7c9bcc08d95774"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
 <tr class="separator:a673dc16c6b827459fa7c9bcc08d95774"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6cf83f27a7a7f2cc67a935a010be86cc" id="r_a6cf83f27a7a7f2cc67a935a010be86cc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6cf83f27a7a7f2cc67a935a010be86cc">ProcessRelocation</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, <a class="el" href="classLinker_1_1Relocation.html">Linker::Relocation</a> &amp;rel, <a class="el" href="classLinker_1_1Resolution.html">Linker::Resolution</a> resolution) override</td></tr>
 <tr class="memdesc:a6cf83f27a7a7f2cc67a935a010be86cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function to process relocations.  <br /></td></tr>
 <tr class="separator:a6cf83f27a7a7f2cc67a935a010be86cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a954d9e265de3a10518a8c47971531778" id="r_a954d9e265de3a10518a8c47971531778"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a954d9e265de3a10518a8c47971531778">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
+<tr class="memdesc:a954d9e265de3a10518a8c47971531778"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
+<tr class="separator:a954d9e265de3a10518a8c47971531778"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a365bd36088fcb70b0925f5465fcfc755" id="r_a365bd36088fcb70b0925f5465fcfc755"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a365bd36088fcb70b0925f5465fcfc755">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a365bd36088fcb70b0925f5465fcfc755"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a365bd36088fcb70b0925f5465fcfc755"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,18 +179,15 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteWithoutHeader</b
 <tr class="memitem:a230f4adc9abe07ef55499b6c029f9dbe inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a230f4adc9abe07ef55499b6c029f9dbe"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a230f4adc9abe07ef55499b6c029f9dbe">ImageSize</a> () const override</td></tr>
 <tr class="memdesc:a230f4adc9abe07ef55499b6c029f9dbe inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
 <tr class="separator:a230f4adc9abe07ef55499b6c029f9dbe inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3b442d29160342ed10b54068763202e4 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a3b442d29160342ed10b54068763202e4"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a3b442d29160342ed10b54068763202e4">GetLinkerScriptParameterNames</a> () override</td></tr>
+<tr class="memdesc:a3b442d29160342ed10b54068763202e4 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the parameters used in the linker scripts, used for documentation.  <br /></td></tr>
+<tr class="separator:a3b442d29160342ed10b54068763202e4 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a40f9ba523b6f8a65634b494bfeb9b37d inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a40f9ba523b6f8a65634b494bfeb9b37d"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CreateDefaultSegments</b> ()</td></tr>
 <tr class="separator:a40f9ba523b6f8a65634b494bfeb9b37d inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a553f1011c0aaef037f3fb71ed2314096 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a553f1011c0aaef037f3fb71ed2314096"><td class="memItemLeft" align="right" valign="top">
-virtual std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
-<tr class="separator:a553f1011c0aaef037f3fb71ed2314096 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af1b64dc77bb15d67eb96a7c5be109862 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_af1b64dc77bb15d67eb96a7c5be109862"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="separator:af1b64dc77bb15d67eb96a7c5be109862 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a591047f12e684e372a8ab10cc83786d3 inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_a591047f12e684e372a8ab10cc83786d3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a591047f12e684e372a8ab10cc83786d3">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
-<tr class="memdesc:a591047f12e684e372a8ab10cc83786d3 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
-<tr class="separator:a591047f12e684e372a8ab10cc83786d3 inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad5ddc51a7c269b41396a3cb58d7b0a1f inherit pub_methods_classBinary_1_1GenericBinaryFormat" id="r_ad5ddc51a7c269b41396a3cb58d7b0a1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#ad5ddc51a7c269b41396a3cb58d7b0a1f">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:ad5ddc51a7c269b41396a3cb58d7b0a1f inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:ad5ddc51a7c269b41396a3cb58d7b0a1f inherit pub_methods_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -229,12 +262,13 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>EvaluateExpressio
 <tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
 <tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
 <tr class="separator:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a6d92eec936815a0d2aa93ca2312b4045"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a6d92eec936815a0d2aa93ca2312b4045">GetOptions</a> ()</td></tr>
-<tr class="memdesc:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
-<tr class="separator:a6d92eec936815a0d2aa93ca2312b4045 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aabb33f0f671aa3eaeb66d64b2ca4664b inherit pub_methods_classLinker_1_1OutputFormat" id="r_aabb33f0f671aa3eaeb66d64b2ca4664b"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aabb33f0f671aa3eaeb66d64b2ca4664b">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options)</td></tr>
-<tr class="memdesc:aabb33f0f671aa3eaeb66d64b2ca4664b inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
-<tr class="separator:aabb33f0f671aa3eaeb66d64b2ca4664b inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a5811b8431e63fb88c246caa433c57d85"><td class="memItemLeft" align="right" valign="top">virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a5811b8431e63fb88c246caa433c57d85">GetMemoryModelNames</a> ()</td></tr>
+<tr class="memdesc:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the supported memory models, used for documentation.  <br /></td></tr>
+<tr class="separator:a5811b8431e63fb88c246caa433c57d85 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat" id="r_a99f454ca9bfab304f748f4286c08584a"><td class="memItemLeft" align="right" valign="top">
+virtual std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">OptionDescription</a>&lt; void &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSpecialSymbolNames</b> ()</td></tr>
+<tr class="memdesc:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of special symbol names recognized by the format, used for documentation. <br /></td></tr>
+<tr class="separator:a99f454ca9bfab304f748f4286c08584a inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ad1ac5336a836f4bdddd593b6430261c8"><td class="memItemLeft" align="right" valign="top">
 std::optional&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchOption</b> (std::map&lt; std::string, std::string &gt; &amp;options, std::string name)</td></tr>
 <tr class="memdesc:ad1ac5336a836f4bdddd593b6430261c8 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience method to look up option by name. <br /></td></tr>
@@ -290,6 +324,15 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualI
 <tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
 <tr class="separator:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a64c01c5973e46925e9017fd3f4be6d10" id="r_a64c01c5973e46925e9017fd3f4be6d10"><td class="memItemLeft" align="right" valign="top"><a id="a64c01c5973e46925e9017fd3f4be6d10" name="a64c01c5973e46925e9017fd3f4be6d10"></a>
+static uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetDefaultBaseAddress</b> (<a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1">application_type</a> <a class="el" href="#ae7fbf308ecd812efe01e6b886ee61c1b">application</a>)</td></tr>
+<tr class="separator:a64c01c5973e46925e9017fd3f4be6d10"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a458857d3272da502c796a6774c8f58ce" id="r_a458857d3272da502c796a6774c8f58ce"><td class="memItemLeft" align="right" valign="top"><a id="a458857d3272da502c796a6774c8f58ce" name="a458857d3272da502c796a6774c8f58ce"></a>
+static std::string&#160;</td><td class="memItemRight" valign="bottom"><b>GetDefaultApplicationExtension</b> (<a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1">application_type</a> <a class="el" href="#ae7fbf308ecd812efe01e6b886ee61c1b">application</a>)</td></tr>
+<tr class="separator:a458857d3272da502c796a6774c8f58ce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:aad8f88def74c7d9240264e8bfcd1eff9" id="r_aad8f88def74c7d9240264e8bfcd1eff9"><td class="memItemLeft" align="right" valign="top"><a id="aad8f88def74c7d9240264e8bfcd1eff9" name="aad8f88def74c7d9240264e8bfcd1eff9"></a>
@@ -300,18 +343,26 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>zero_fill</b> = 0
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>load_address</b> = 0</td></tr>
 <tr class="memdesc:a3fef930278e4cb4e81c6ec965dd8f1f5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address to be loaded at, only used for .OVL files. <br /></td></tr>
 <tr class="separator:a3fef930278e4cb4e81c6ec965dd8f1f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af756772dedcdd34960bdebe622009a9d" id="r_af756772dedcdd34960bdebe622009a9d"><td class="memItemLeft" align="right" valign="top"><a id="af756772dedcdd34960bdebe622009a9d" name="af756772dedcdd34960bdebe622009a9d"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>csbase</b> = 0</td></tr>
-<tr class="memdesc:af756772dedcdd34960bdebe622009a9d"><td class="mdescLeft">&#160;</td><td class="mdescRight">BIOS link. <br /></td></tr>
-<tr class="separator:af756772dedcdd34960bdebe622009a9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4fcbdd2aa238927e3cb626d212bd7145" id="r_a4fcbdd2aa238927e3cb626d212bd7145"><td class="memItemLeft" align="right" valign="top"><a id="a4fcbdd2aa238927e3cb626d212bd7145" name="a4fcbdd2aa238927e3cb626d212bd7145"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>cslen</b> = 0</td></tr>
+<tr class="memdesc:a4fcbdd2aa238927e3cb626d212bd7145"><td class="mdescLeft">&#160;</td><td class="mdescRight">Code segment length, only used for .SPR files in banked systems. <br /></td></tr>
+<tr class="separator:a4fcbdd2aa238927e3cb626d212bd7145"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a37e081d58a739c86775220ef05b292c1" id="r_a37e081d58a739c86775220ef05b292c1"><td class="memItemLeft" align="right" valign="top"><a id="a37e081d58a739c86775220ef05b292c1" name="a37e081d58a739c86775220ef05b292c1"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>suppress_relocations</b> = false</td></tr>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>suppress_relocations</b></td></tr>
 <tr class="memdesc:a37e081d58a739c86775220ef05b292c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Do not include relocations, only used for .OVL files. <br /></td></tr>
 <tr class="separator:a37e081d58a739c86775220ef05b292c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abeae1ed3a9bb108405bdf1c7631678f4" id="r_abeae1ed3a9bb108405bdf1c7631678f4"><td class="memItemLeft" align="right" valign="top"><a id="abeae1ed3a9bb108405bdf1c7631678f4" name="abeae1ed3a9bb108405bdf1c7631678f4"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_banked_bios</b> = false</td></tr>
+<tr class="memdesc:abeae1ed3a9bb108405bdf1c7631678f4"><td class="mdescLeft">&#160;</td><td class="mdescRight">On a banked BIOS, align the data segment of the .SPR on a page boundary and store the length of the code segment in the header. <br /></td></tr>
+<tr class="separator:abeae1ed3a9bb108405bdf1c7631678f4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a089dcef558f74b7962d888fdd47d4125" id="r_a089dcef558f74b7962d888fdd47d4125"><td class="memItemLeft" align="right" valign="top"><a id="a089dcef558f74b7962d888fdd47d4125" name="a089dcef558f74b7962d888fdd47d4125"></a>
 std::set&lt; uint16_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="memdesc:a089dcef558f74b7962d888fdd47d4125"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offsets to bytes referencing pages that must be relocated. <br /></td></tr>
 <tr class="separator:a089dcef558f74b7962d888fdd47d4125"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7fbf308ecd812efe01e6b886ee61c1b" id="r_ae7fbf308ecd812efe01e6b886ee61c1b"><td class="memItemLeft" align="right" valign="top"><a id="ae7fbf308ecd812efe01e6b886ee61c1b" name="ae7fbf308ecd812efe01e6b886ee61c1b"></a>
+<a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1">application_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>application</b></td></tr>
+<tr class="memdesc:ae7fbf308ecd812efe01e6b886ee61c1b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Target application type. <br /></td></tr>
+<tr class="separator:ae7fbf308ecd812efe01e6b886ee61c1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
 <tr class="memitem:a3af29abaad7f5150359401fd51a2b27c inherit pub_attribs_classBinary_1_1GenericBinaryFormat" id="r_a3af29abaad7f5150359401fd51a2b27c"><td class="memItemLeft" align="right" valign="top">
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b> = nullptr</td></tr>
@@ -360,6 +411,9 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
 Additional Inherited Members</h2></td></tr>
+<tr class="inherit_header pub_static_attribs_classBinary_1_1GenericBinaryFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_attribs_classBinary_1_1GenericBinaryFormat')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a></td></tr>
+<tr class="memitem:a3b06c2ed0fb2ad22e4a2eeec713a7644 inherit pub_static_attribs_classBinary_1_1GenericBinaryFormat" id="r_a3b06c2ed0fb2ad22e4a2eeec713a7644"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classBinary_1_1GenericBinaryFormat.html#a3b06c2ed0fb2ad22e4a2eeec713a7644">ParameterNames</a></td></tr>
+<tr class="separator:a3b06c2ed0fb2ad22e4a2eeec713a7644 inherit pub_static_attribs_classBinary_1_1GenericBinaryFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:aba19c02257c496c2f8a7ea8ebc40be3d inherit pro_attribs_classLinker_1_1SegmentManager" id="r_aba19c02257c496c2f8a7ea8ebc40be3d"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b> = 0</td></tr>
@@ -380,7 +434,43 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>MP/M .prl file format. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a77eef00f6d7777bad0e73a098abc94e1" name="a77eef00f6d7777bad0e73a098abc94e1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a77eef00f6d7777bad0e73a098abc94e1">&#9670;&#160;</a></span>application_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a77eef00f6d7777bad0e73a098abc94e1">Binary::PRLFormat::application_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The format of the generated binary. </p>
+<p>This controls the difference between the layout of the generated binary, as well as defaults such as base address and file extension. The only ones that actually require special treatment are SPR and OVL files, the other file types are included for convenience. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a77eef00f6d7777bad0e73a098abc94e1a96e377f12e190837b14d6490492fe6ee" name="a77eef00f6d7777bad0e73a098abc94e1a96e377f12e190837b14d6490492fe6ee"></a>APPL_UNKNOWN&#160;</td><td class="fielddoc"><p>Unspecified. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a77eef00f6d7777bad0e73a098abc94e1aec59a68fb56dbf2f544880d4acdac682" name="a77eef00f6d7777bad0e73a098abc94e1aec59a68fb56dbf2f544880d4acdac682"></a>APPL_PRL&#160;</td><td class="fielddoc"><p>MP/M-80 .prl executable file. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a77eef00f6d7777bad0e73a098abc94e1a4777f1ccd3551d809da07bfc0f93ccc3" name="a77eef00f6d7777bad0e73a098abc94e1a4777f1ccd3551d809da07bfc0f93ccc3"></a>APPL_RSX&#160;</td><td class="fielddoc"><p>CP/M-80 Plus .rsx resident system extension file (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a77eef00f6d7777bad0e73a098abc94e1a6acaf6ce8bef42e21e6a39ab77d11d51" name="a77eef00f6d7777bad0e73a098abc94e1a6acaf6ce8bef42e21e6a39ab77d11d51"></a>APPL_RSM&#160;</td><td class="fielddoc"><p>CP/M-80 2 .rsm resident system extension file (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a77eef00f6d7777bad0e73a098abc94e1a56e3b83c3e42199244e1faf32b13454b" name="a77eef00f6d7777bad0e73a098abc94e1a56e3b83c3e42199244e1faf32b13454b"></a>APPL_RSP&#160;</td><td class="fielddoc"><p>MP/M-80 .rsp resident system process file (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a77eef00f6d7777bad0e73a098abc94e1a8f8aeff9d05656c4590f3cab657a0910" name="a77eef00f6d7777bad0e73a098abc94e1a8f8aeff9d05656c4590f3cab657a0910"></a>APPL_BRS&#160;</td><td class="fielddoc"><p>MP/M-80 .brs banked resident system process file (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a77eef00f6d7777bad0e73a098abc94e1a0bd13daa81b5f68855e8394a76b6d10e" name="a77eef00f6d7777bad0e73a098abc94e1a0bd13daa81b5f68855e8394a76b6d10e"></a>APPL_SPR&#160;</td><td class="fielddoc"><p>MP/M-80 .spr system module file (unsupported) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a77eef00f6d7777bad0e73a098abc94e1a07178091c014472b148f4f7f83e6ff9c" name="a77eef00f6d7777bad0e73a098abc94e1a07178091c014472b148f4f7f83e6ff9c"></a>APPL_OVL&#160;</td><td class="fielddoc"><p>CP/M-80 .ovl overlay (unsupported) </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
 <a id="a8331cf7f44263bf5e3740134e65a3526" name="a8331cf7f44263bf5e3740134e65a3526"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8331cf7f44263bf5e3740134e65a3526">&#9670;&#160;</a></span>Dump()</h2>
 
@@ -410,6 +500,62 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
+<a id="a6f34856bfe63ae7be821dfc31cdc5bf5" name="a6f34856bfe63ae7be821dfc31cdc5bf5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f34856bfe63ae7be821dfc31cdc5bf5">&#9670;&#160;</a></span>GetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt; PRLFormat::GetOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns object containing a sequence of option fields provided with the -S command line flag. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a6d92eec936815a0d2aa93ca2312b4045">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a600ec6f7a8b62221164cffa6c3ca3b12" name="a600ec6f7a8b62221164cffa6c3ca3b12"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a600ec6f7a8b62221164cffa6c3ca3b12">&#9670;&#160;</a></span>GetScript()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt; PRLFormat::GetScript </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classBinary_1_1GenericBinaryFormat.html">Binary::GenericBinaryFormat</a>.</p>
+
+</div>
+</div>
 <a id="a673dc16c6b827459fa7c9bcc08d95774" name="a673dc16c6b827459fa7c9bcc08d95774"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a673dc16c6b827459fa7c9bcc08d95774">&#9670;&#160;</a></span>OnNewSegment()</h2>
 
@@ -436,6 +582,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment. </p>
 
 <p>Reimplemented from <a class="el" href="classBinary_1_1GenericBinaryFormat.html#ae9e3f08387655a5d661a427a4df46d63">Binary::GenericBinaryFormat</a>.</p>
+
+</div>
+</div>
+<a id="a954d9e265de3a10518a8c47971531778" name="a954d9e265de3a10518a8c47971531778"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a954d9e265de3a10518a8c47971531778">&#9670;&#160;</a></span>ProcessModule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PRLFormat::ProcessModule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>object</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Processes the module object and initializes format fields. </p>
+
+<p>Reimplemented from <a class="el" href="classBinary_1_1GenericBinaryFormat.html#a591047f12e684e372a8ab10cc83786d3">Binary::GenericBinaryFormat</a>.</p>
 
 </div>
 </div>
@@ -503,6 +678,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Loads file into memory. </p>
 
 <p>Reimplemented from <a class="el" href="classBinary_1_1GenericBinaryFormat.html#a6a6dda10611ff89870889f17635e1b9e">Binary::GenericBinaryFormat</a>.</p>
+
+</div>
+</div>
+<a id="a9ff7bde771219c49f3506b017738d25b" name="a9ff7bde771219c49f3506b017738d25b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9ff7bde771219c49f3506b017738d25b">&#9670;&#160;</a></span>SetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PRLFormat::SetOptions </td>
+          <td>(</td>
+          <td class="paramtype">std::map&lt; std::string, std::string &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>options</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Passes command line parameters as settings over to format object. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#aabb33f0f671aa3eaeb66d64b2ca4664b">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>
