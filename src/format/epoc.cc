@@ -38,6 +38,7 @@ void SymbianFormat::RelocationSection::ReadFile(Linker::Reader& rd)
 	uint32_t size = rd.ReadUnsigned(4);
 	offset_t section_end = section_start + size;
 	uint32_t count = rd.ReadUnsigned(4);
+	(void) count; // TODO
 	while(rd.Tell() < section_end)
 	{
 		RelocationBlock block;
@@ -76,6 +77,7 @@ void SymbianFormat::ReadFile(Linker::Reader& rd)
 	timestamp = rd.ReadUnsigned(8);
 	flags = flags_type(rd.ReadUnsigned(4));
 	uint32_t code_size = rd.ReadUnsigned(4);
+	(void) code_size; // TODO
 	uint32_t data_size = rd.ReadUnsigned(4);
 	heap_size_min = rd.ReadUnsigned(4);
 	heap_size_max = rd.ReadUnsigned(4);
@@ -87,6 +89,7 @@ void SymbianFormat::ReadFile(Linker::Reader& rd)
 	uint32_t dll_ref_table_count = rd.ReadUnsigned(4);
 	export_table_offset = rd.ReadUnsigned(4);
 	uint32_t export_dir_count = rd.ReadUnsigned(4);
+	(void) export_dir_count; // TODO
 	import_table_offset = rd.ReadUnsigned(4);
 	code_offset = rd.ReadUnsigned(4);
 	data_offset = rd.ReadUnsigned(4);
@@ -136,6 +139,7 @@ void SymbianFormat::ReadFile(Linker::Reader& rd)
 	// Import table
 	rd.Seek(import_offset);
 	uint32_t import_table_size = rd.ReadUnsigned(4);
+	(void) import_table_size; // TODO
 	for(uint32_t i = 0; i < dll_ref_table_count; i++)
 	{
 		ImportBlock block;
