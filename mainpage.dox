@@ -87,6 +87,12 @@
  * </tr>
  *
  * <tr>
+ * <td colspan='2'><a href="classGEOS_1_1GeodeFormat.html">Geode format</a></td>
+ * <td>Intel 8086</td>
+ * <td>GEOS (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
  * <td colspan='2'><a href="classDOS16M_1_1BWFormat.html"><tt>BW</tt> (<tt>.exp</tt>, <tt>.exe</tt>)</a></td>
  * <td>Intel 8086</td>
  * <td>DOS/16M extender</td>
@@ -211,6 +217,12 @@
  * </tr>
  *
  * <tr>
+ * <td colspan='2'><a href="classARM_1_1AIFFormat.html">AIF executable</a></td>
+ * <td>ARM</td>
+ * <td>RISC OS (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
  * <td colspan='2'><a href="classApple_1_1OMFFormat.html">OMF executable</a></td>
  * <td>WDC65C816</td>
  * <td>GS/OS (unimplemented)</td>
@@ -235,9 +247,15 @@
  * </tr>
  *
  * <tr>
- * <td colspan='2'><a href="classELF_1_1ELFFormat.html">ELF</a></td>
+ * <td colspan='2'><a href="classELF_1_1ELFFormat.html">ELF</a><br><a href="classELF_1_1FatELFFormat.html">FatELF</a></td>
  * <td>Intel 80386<br>etc.</td>
  * <td>Linux<br>etc. (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classBFLT_1_1BFLTFormat.html">BFLT</a></td>
+ * <td>Intel 80386<br>etc.</td>
+ * <td>&mu;Clinux<br>etc. (unimplemented)</td>
  * </tr>
  *
  * <tr>
@@ -370,6 +388,12 @@
  * <td><a href="classOMF_1_1OMFFormat.html">Intel Relocatable Object Module</a></td>
  * <td>Intel 8086<br>Intel 80386</td>
  * <td>16-bit Microsoft<br>Borland<br>Watcom (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classArchive_1_1ArchiveFormat.html">Archive format</a></td>
+ * <td>independent</td>
+ * <td>UNIX linkers</td>
  * </tr>
  *
  * </table>
