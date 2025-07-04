@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['d3x1format_0',['D3X1Format',['../classBrocaD3X_1_1D3X1Format.html',1,'BrocaD3X']]],
+  ['d3x1format_0',['D3X1Format',['../classBorcaD3X_1_1D3X1Format.html',1,'BorcaD3X']]],
   ['datadirectory_1',['DataDirectory',['../structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1DataDirectory.html',1,'Microsoft::PEFormat::PEOptionalHeader']]],
   ['datafork_2',['DataFork',['../classApple_1_1DataFork.html',1,'Apple']]],
   ['datarecord_3',['DataRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1DataRecord.html',1,'Apple::OMFFormat::Segment']]],

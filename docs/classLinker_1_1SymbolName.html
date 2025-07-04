@@ -77,6 +77,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
@@ -91,6 +92,11 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="symbol__name_8h_source.html">symbol_name.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structLinker_1_1SymbolName_1_1LibraryMark.html">LibraryMark</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a41afe7820806a0a3487be9a042ed3f6e" id="r_a41afe7820806a0a3487be9a042ed3f6e"><td class="memItemLeft" align="right" valign="top"><a id="a41afe7820806a0a3487be9a042ed3f6e" name="a41afe7820806a0a3487be9a042ed3f6e"></a>
@@ -107,6 +113,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a31e8133552a79e43242ac92d733a1ef7" id="r_a31e8133552a79e43242ac92d733a1ef7"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a31e8133552a79e43242ac92d733a1ef7">SymbolName</a> (std::string library, uint16_t ordinal)</td></tr>
 <tr class="memdesc:a31e8133552a79e43242ac92d733a1ef7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a symbol imported via ordinal, from a library.  <br /></td></tr>
 <tr class="separator:a31e8133552a79e43242ac92d733a1ef7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59d58f01e75dc45e965871c5e964f6f3" id="r_a59d58f01e75dc45e965871c5e964f6f3"><td class="memItemLeft" align="right" valign="top"><a id="a59d58f01e75dc45e965871c5e964f6f3" name="a59d58f01e75dc45e965871c5e964f6f3"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>SymbolName</b> (std::string library, <a class="el" href="structLinker_1_1SymbolName_1_1LibraryMark.html">LibraryMark</a> is_library)</td></tr>
+<tr class="memdesc:a59d58f01e75dc45e965871c5e964f6f3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a symbol referencing the base of an imported library. <br /></td></tr>
+<tr class="separator:a59d58f01e75dc45e965871c5e964f6f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5d843b215931ce91d0b058407cd829ae" id="r_a5d843b215931ce91d0b058407cd829ae"><td class="memItemLeft" align="right" valign="top"><a id="a5d843b215931ce91d0b058407cd829ae" name="a5d843b215931ce91d0b058407cd829ae"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>LoadName</b> (std::string &amp;result) const</td></tr>
 <tr class="memdesc:a5d843b215931ce91d0b058407cd829ae"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the name of the symbol, if it has one. <br /></td></tr>
@@ -135,6 +145,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetImportedName</b> (
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetImportedOrdinal</b> (std::string &amp;result_library, uint16_t &amp;result_ordinal) const</td></tr>
 <tr class="memdesc:a08e3e260a9eaa29833cd1c9989a5617d"><td class="mdescLeft">&#160;</td><td class="mdescRight">For symbols imported by ordinal, returns the library and ordinal. <br /></td></tr>
 <tr class="separator:a08e3e260a9eaa29833cd1c9989a5617d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6a5fc07cde6ca9da5ccc2dbb815cfc0" id="r_af6a5fc07cde6ca9da5ccc2dbb815cfc0"><td class="memItemLeft" align="right" valign="top"><a id="af6a5fc07cde6ca9da5ccc2dbb815cfc0" name="af6a5fc07cde6ca9da5ccc2dbb815cfc0"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>GetImportedLibrary</b> (std::string &amp;result_library) const</td></tr>
+<tr class="memdesc:af6a5fc07cde6ca9da5ccc2dbb815cfc0"><td class="mdescLeft">&#160;</td><td class="mdescRight">For symbols that are identified by the library name and the offset, stored in the addend. <br /></td></tr>
+<tr class="separator:af6a5fc07cde6ca9da5ccc2dbb815cfc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afee6804e76ddec4fa10646c1d963b174" id="r_afee6804e76ddec4fa10646c1d963b174"><td class="memItemLeft" align="right" valign="top"><a id="afee6804e76ddec4fa10646c1d963b174" name="afee6804e76ddec4fa10646c1d963b174"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator==</b> (const <a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> &amp;other) const</td></tr>
 <tr class="memdesc:afee6804e76ddec4fa10646c1d963b174"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compares two symbols for equality. <br /></td></tr>
@@ -153,6 +167,9 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>addend</b> = 0</t
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
+<tr class="memitem:a865a6031a6936853126a7914b77b13e9" id="r_a865a6031a6936853126a7914b77b13e9"><td class="memItemLeft" align="right" valign="top"><a id="a865a6031a6936853126a7914b77b13e9" name="a865a6031a6936853126a7914b77b13e9"></a>
+static <a class="el" href="structLinker_1_1SymbolName_1_1LibraryMark.html">LibraryMark</a>&#160;</td><td class="memItemRight" valign="bottom"><b>IsLibrary</b></td></tr>
+<tr class="separator:a865a6031a6936853126a7914b77b13e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad7741d695ea173879c1f409036497a61" id="r_ad7741d695ea173879c1f409036497a61"><td class="memItemLeft" align="right" valign="top"><a id="ad7741d695ea173879c1f409036497a61" name="ad7741d695ea173879c1f409036497a61"></a>
 static <a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GOT</b></td></tr>
 <tr class="memdesc:ad7741d695ea173879c1f409036497a61"><td class="mdescLeft">&#160;</td><td class="mdescRight">Symbol representing the global offset table. <br /></td></tr>

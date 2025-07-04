@@ -237,6 +237,9 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetFullFileSize</
 <tr class="memitem:afb320450364fc5b2404d0b34b185b6fc" id="r_afb320450364fc5b2404d0b34b185b6fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb320450364fc5b2404d0b34b185b6fc">FormatIsProtectedMode</a> () const override</td></tr>
 <tr class="memdesc:afb320450364fc5b2404d0b34b185b6fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is in protected mode or not (x86 only)  <br /></td></tr>
 <tr class="separator:afb320450364fc5b2404d0b34b185b6fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a71350b3419221cc64d9851bfafddc3b1" id="r_a71350b3419221cc64d9851bfafddc3b1"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a71350b3419221cc64d9851bfafddc3b1">FormatSupportsLibraries</a> () const override</td></tr>
+<tr class="memdesc:a71350b3419221cc64d9851bfafddc3b1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
+<tr class="separator:a71350b3419221cc64d9851bfafddc3b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aad37831861bc494f0084e9026015b85b" id="r_aad37831861bc494f0084e9026015b85b"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aad37831861bc494f0084e9026015b85b">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
 <tr class="separator:aad37831861bc494f0084e9026015b85b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aeed8d9f7d23ffbca9058e22df1b70d0e" id="r_aeed8d9f7d23ffbca9058e22df1b70d0e"><td class="memItemLeft" align="right" valign="top"><a id="aeed8d9f7d23ffbca9058e22df1b70d0e" name="aeed8d9f7d23ffbca9058e22df1b70d0e"></a>
@@ -368,9 +371,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat" id="r_afd51a2eb946dc0ed9b9750e840bcd247"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#afd51a2eb946dc0ed9b9750e840bcd247">FormatSupportsResources</a> () const</td></tr>
 <tr class="memdesc:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports resources.  <br /></td></tr>
 <tr class="separator:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a35ff0e5cd89f53d03a15e9e9c3260ad6"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a35ff0e5cd89f53d03a15e9e9c3260ad6">FormatSupportsLibraries</a> () const</td></tr>
-<tr class="memdesc:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
-<tr class="separator:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format" id="r_a10296b22383c5b8d061308d1f0cee6a8"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Format</b> (offset_t file_offset=0)</td></tr>
@@ -452,6 +452,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>shared_code</b> = fal
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_no_relocation</b> = false</td></tr>
 <tr class="memdesc:a3f18716204de64f834a4c3a600f01015"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag to indicate that relocations must be suppressed. <br /></td></tr>
 <tr class="separator:a3f18716204de64f834a4c3a600f01015"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affa40c62975dde0c4be80e34dc5d3123" id="r_affa40c62975dde0c4be80e34dc5d3123"><td class="memItemLeft" align="right" valign="top"><a id="affa40c62975dde0c4be80e34dc5d3123" name="affa40c62975dde0c4be80e34dc5d3123"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_generate_fixup_group</b> = false</td></tr>
+<tr class="memdesc:affa40c62975dde0c4be80e34dc5d3123"><td class="mdescLeft">&#160;</td><td class="mdescRight">On FlexOS, relocations can be part of its own group. <br /></td></tr>
+<tr class="separator:affa40c62975dde0c4be80e34dc5d3123"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a63d5401c8bc020f50d3affb431aed1fd" id="r_a63d5401c8bc020f50d3affb431aed1fd"><td class="memItemLeft" align="right" valign="top"><a id="a63d5401c8bc020f50d3affb431aed1fd" name="a63d5401c8bc020f50d3affb431aed1fd"></a>
 <a class="el" href="#a6503f9e1d16bfba45df9a4acb402d05f">memory_model_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>memory_model</b> = <a class="el" href="#a6503f9e1d16bfba45df9a4acb402d05fa6b5aba4c3ceb556d8b9b0775cc81a45a">MODEL_SMALL</a></td></tr>
 <tr class="memdesc:a63d5401c8bc020f50d3affb431aed1fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memory model of generated code, determines how the offsets are calculated within a segment group. <br /></td></tr>
@@ -805,6 +809,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>For non-x86 targets, the result is meaningless. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae1b8dc628a23f01b855832d6e70ec1df">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a71350b3419221cc64d9851bfafddc3b1" name="a71350b3419221cc64d9851bfafddc3b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a71350b3419221cc64d9851bfafddc3b1">&#9670;&#160;</a></span>FormatSupportsLibraries()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool CPM86Format::FormatSupportsLibraries </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether the format supports libraries. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a35ff0e5cd89f53d03a15e9e9c3260ad6">Linker::OutputFormat</a>.</p>
 
 </div>
 </div>
