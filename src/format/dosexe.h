@@ -58,10 +58,10 @@ namespace SeychellDOS32
 	};
 };
 
-namespace BrocaD3X
+namespace BorcaD3X
 {
 	/**
-	 * @brief Daniel Broca's D3X executable format
+	 * @brief Daniel Borca's D3X executable format
 	 */
 	class D3X1Format : public virtual Linker::Format
 	{

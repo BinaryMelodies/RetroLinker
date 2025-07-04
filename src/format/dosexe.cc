@@ -140,7 +140,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
-void BrocaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
+void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
 	rd.Skip(4); /* signature */
@@ -152,7 +152,7 @@ void BrocaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
 	/* TODO */
 }
 
-offset_t BrocaD3X::D3X1Format::WriteFile(Linker::Writer& wr) const
+offset_t BorcaD3X::D3X1Format::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteData(4, "D3X1");
@@ -165,7 +165,7 @@ offset_t BrocaD3X::D3X1Format::WriteFile(Linker::Writer& wr) const
 	return offset_t(-1);
 }
 
-void BrocaD3X::D3X1Format::Dump(Dumper::Dumper& dump) const
+void BorcaD3X::D3X1Format::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 

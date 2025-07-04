@@ -43,7 +43,7 @@ enum format_type
 	FORMAT_COFF, // UNIX COFF
 	FORMAT_CMD, // CP/M-86
 	FORMAT_CPM3, // CP/M-80 Plus format
-	FORMAT_D3X, // Daniel Broca's D3X DOS extender
+	FORMAT_D3X, // Daniel Borca's D3X DOS extender
 	FORMAT_ELF, // UNIX ELF
 	FORMAT_ELF_MULTIPLE, // FatELF for multiple ELF binaries
 	FORMAT_FLAT, // flat unstructured file

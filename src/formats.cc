@@ -679,7 +679,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("A\x90"),               0, FORMAT_COFF,    "Microsoft COFF, Mitsubishi M32R" },
 	{ std::string("A\xA6"),               0, FORMAT_COFF,    "Microsoft COFF, ARM64EC" },
 	{ std::string("BW"),                  0, FORMAT_BW,      "Rational Systems/Tenberry Software DOS/16M 16-bit protected mode \"BW\" executable (.exp)" },
-	{ std::string("D3X1"),                0, FORMAT_D3X,     "Daniel Broca's D3X DOS Extender format \"D3X1\" executable" },
+	{ std::string("D3X1"),                0, FORMAT_D3X,     "Daniel Borca's D3X DOS Extender format \"D3X1\" executable" },
 	{ std::string("DLL "),                0, FORMAT_ADAM,    "Adam Seychell's DOS32 DOS Extender format \"DLL \" dynamic library" },
 	{ std::string("DL"),                  0, FORMAT_MZ,      "HP 100LX/200LX System Manager compliant executable (\"DL\") format (.exm), MZ variant", VerifyHPSystemManager },
 	{ std::string("DX"),                  0, FORMAT_NE,      "Microsoft 16-bit new executable (\"NE\") for Windows, OS/2 (Rational Systems modification)" },
@@ -994,7 +994,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_CPM3:
 		return std::make_shared<CPM3Format>(); // TODO: test
 	case FORMAT_D3X:
-		return std::make_shared<BrocaD3X::D3X1Format>(); // TODO: test
+		return std::make_shared<BorcaD3X::D3X1Format>(); // TODO: test
 	case FORMAT_ELF:
 		return std::make_shared<ELFFormat>(); // TODO: test dumper
 	case FORMAT_ELF_MULTIPLE:
