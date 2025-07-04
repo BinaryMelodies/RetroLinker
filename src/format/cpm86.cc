@@ -1006,17 +1006,43 @@ void CPM86Format::CalculateValues()
 		offset += uint32_t(fastload_descriptor.GetSizeParas(*this)) << 4;
 	}
 
+	uint32_t group8_index = 0;
+
 	for(size_t i = 0; i < 8; i++)
 	{
 		if(descriptors[i].type == Descriptor::Undefined)
 			continue;
+		if(descriptors[i].type == Descriptor::ActualFixups)
+			group8_index = i + 1;
 		descriptors[i].offset = offset;
 		offset += uint32_t(descriptors[i].GetSizeParas(*this)) << 4;
 	}
 
 	if((flags & FLAG_FIXUPS))
 	{
-		relocations_offset = ::AlignTo(offset, 0x80);
+		if(group8_index != 0)
+		{
+			// we must also update the group descriptor
+			relocations_offset = std::max(offset, descriptors[group8_index - 1].offset);
+			relocations_offset = ::AlignTo(relocations_offset, 0x80);
+			if(relocations_offset > descriptors[group8_index - 1].offset)
+			{
+				// increase size of previous segment group
+				uint32_t increment = relocations_offset - descriptors[group8_index - 1].offset;
+				descriptors[group8_index - 2].size_paras += increment >> 4;
+				if(descriptors[group8_index - 2].min_size_paras != 0)
+					descriptors[group8_index - 2].min_size_paras = std::max(descriptors[group8_index - 2].min_size_paras, descriptors[group8_index - 2].size_paras);
+				if(descriptors[group8_index - 2].max_size_paras != 0)
+					descriptors[group8_index - 2].max_size_paras = std::max(descriptors[group8_index - 2].max_size_paras, descriptors[group8_index - 2].size_paras);
+
+				// move current group
+				descriptors[group8_index - 1].offset = relocations_offset;
+			}
+		}
+		else
+		{
+			relocations_offset = ::AlignTo(offset, 0x80);
+		}
 		offset = relocations_offset + MeasureRelocations();
 	}
 
@@ -1176,6 +1202,8 @@ void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 	collector.ConsiderOptions(options);
 
 	option_no_relocation = collector.noreloc();
+
+	option_generate_fixup_group = collector.fixupgroup();
 
 	unsigned rsx_count = 0;
 	if(auto rsx_file_names = collector.rsx_file_names())
@@ -1645,11 +1673,13 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 			type = Descriptor::group_type(type_val);
 		}
 		groups |= 1 << (type - 1);
+		if(type == Descriptor::Auxiliary4)
+			type = Descriptor::ActualAuxiliary4;
 		descriptors[j].type = type;
 		bool is_zero_page = (format != FORMAT_FLEXOS && format != FORMAT_FASTLOAD) && (format == FORMAT_8080 ? i == 0 : i == 1);
 		descriptors[j].attach_zero_page = is_zero_page;
 		descriptors[j].image = Segments()[i];
-		descriptors[j].size_paras = descriptors[i].GetSizeParas(*this);
+		descriptors[j].size_paras = descriptors[j].GetSizeParas(*this);
 		descriptors[j].load_segment = 0;
 		descriptors[j].min_size_paras = ((Segments()[i]->TotalSize() + 0xF) >> 4) + (is_zero_page ? 0x10 : 0);
 		descriptors[j].max_size_paras =
@@ -1657,6 +1687,19 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 				? 0
 				: ((Segments()[i]->TotalSize() + Segments()[i]->optional_extra + 0xF) >> 4) + (is_zero_page ? 0x10 : 0);
 		/* TODO: optional extra */
+		j++;
+	}
+
+	if(option_generate_fixup_group)
+	{
+		assert(j < 8);
+		descriptors[j].type = Descriptor::ActualFixups;
+		descriptors[j].attach_zero_page = false;
+		descriptors[j].image = nullptr;
+		descriptors[j].size_paras = descriptors[j].GetSizeParas(*this);
+		descriptors[j].load_segment = 0;
+		descriptors[j].min_size_paras = descriptors[j].size_paras;
+		descriptors[j].max_size_paras = 0;
 		j++;
 	}
 

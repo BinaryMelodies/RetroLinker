@@ -556,11 +556,12 @@ namespace DigitalResearch
 		{
 		public:
 			Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
-			Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions"};
+			Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions (CP/M)"};
+			Linker::Option<bool> fixupgroup{"fixupgroup", "Generates group descriptor for fixups (FlexOS)"};
 
 			CPM86OptionCollector()
 			{
-				InitializeFields(noreloc, rsx_file_names);
+				InitializeFields(noreloc, rsx_file_names, fixupgroup);
 			}
 		};
 
@@ -568,6 +569,8 @@ namespace DigitalResearch
 		bool shared_code = false; /* TODO: make parameter */
 		/** @brief Flag to indicate that relocations must be suppressed */
 		bool option_no_relocation = false;
+		/** @brief On FlexOS, relocations can be part of its own group */
+		bool option_generate_fixup_group = false;
 
 		/** @brief Represents the memory model of the running executable, which is the way in which the segments are set up during execution */
 		enum memory_model_t
