@@ -22,7 +22,7 @@ namespace Ergo
 		struct Segment
 		{
 		public:
-			uint16_t limit;
+			uint32_t limit;
 			uint32_t base;
 			enum
 			{
@@ -69,6 +69,13 @@ namespace Ergo
 			void Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned index) const;
 		};
 
+		enum Wordsize
+		{
+			Unknown = 0,
+			Word = 2,
+			DWord = 4,
+		};
+		Wordsize wordsize = Unknown;
 		uint32_t ldt_offset = 0;
 		uint32_t image_offset = 0;
 		uint32_t relocation_offset = 0; // TODO: unsure

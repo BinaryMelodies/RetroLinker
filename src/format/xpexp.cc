@@ -14,7 +14,7 @@ bool XPFormat::FormatSupportsSegmentation() const
 
 bool XPFormat::FormatIs16bit() const
 {
-	return false; // TODO
+	return wordsize != DWord;
 }
 
 bool XPFormat::FormatIsProtectedMode() const
@@ -47,6 +47,7 @@ void XPFormat::Clear()
 	maximum_extent = 0;
 	unknown_field = 0;
 	gs = fs = ds = ss = cs = es = edi = esi = ebp = esp = ebx = edx = ecx = eax = eflags = eip = 0;
+	wordsize = Unknown;
 	ldt.clear();
 	image = nullptr;
 }
@@ -87,6 +88,11 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 	for(uint32_t i = 0; i < ldt_count; i++)
 	{
 		ldt.push_back(Segment::ReadFile(rd));
+	}
+
+	if((cs >> 3) < ldt.size())
+	{
+		wordsize = ldt[cs >> 3].flags & Segment::FLAG_32BIT ? DWord : Word;
 	}
 
 	rd.Seek(image_offset);
@@ -153,6 +159,14 @@ void XPFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("XP format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
+
+	static const std::map<offset_t, std::string> wordsize_description =
+	{
+		{ Unknown, "unable to determine" },
+		{ Word, "16-bit, for OS/286" },
+		{ DWord, "32-bit, for OS/386" },
+	};
+	file_region.AddField("CPU mode", Dumper::ChoiceDisplay::Make(wordsize_description), offset_t(wordsize));
 	file_region.AddField("Minimum extents", Dumper::HexDisplay::Make(8), offset_t(minimum_extent)); // TODO: meaning and unit unknown
 	file_region.AddField("Maximum extents", Dumper::HexDisplay::Make(8), offset_t(maximum_extent)); // TODO: meaning and unit unknown
 	file_region.AddField("Entry (CS:EIP)", Dumper::SegmentedDisplay::Make(8), offset_t(cs), offset_t(eip));
@@ -225,6 +239,7 @@ void XPFormat::Segment::WriteFile(Linker::Writer& wr) const
 void XPFormat::Segment::Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned index) const
 {
 	Dumper::Entry descriptor_entry("Descriptor", index + 1, xp.ldt_offset + index * 8);
+	descriptor_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(index * 8 + 7));
 	descriptor_entry.AddField("Base", Dumper::HexDisplay::Make(8), offset_t(base));
 	descriptor_entry.AddField((flags & FLAG_PAGES) != 0 ? "Limit (in 4096 byte pages)" : "Limit (in bytes)", Dumper::HexDisplay::Make(5), offset_t(limit));
 	if((access & ACCESS_S) != 0)
