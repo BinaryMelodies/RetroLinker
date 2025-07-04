@@ -13,11 +13,13 @@ using namespace Ergo;
 
 void XPFormat::CalculateValues()
 {
-	file_offset = 0; // TODO: if stub is available, later
+	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
+
 	if(ldt_offset < 0x68)
 	{
 		ldt_offset = 0x68;
 	}
+
 	offset_t minimum_image_offset = ldt_offset + 8 * ldt.size();
 	if(image_offset < minimum_image_offset)
 	{
@@ -95,6 +97,10 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 offset_t XPFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
+	if(stub.filename != "")
+	{
+		stub.WriteStubImage(wr);
+	}
 	wr.Seek(file_offset);
 	wr.WriteData(4, "XP\1\0");
 	wr.WriteWord(4, ldt_offset);
@@ -311,6 +317,7 @@ void XPFormat::SetOptions(std::map<std::string, std::string>& options)
 	XPOptionCollector collector;
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
+	option_create_selector_pairs = collector.dual_selector();
 }
 
 std::vector<Linker::OptionDescription<void>> XPFormat::MemoryModelNames =

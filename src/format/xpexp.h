@@ -112,10 +112,11 @@ namespace Ergo
 		{
 		public:
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			Linker::Option<bool> dual_selector{"dual-selector", "Always generate pairs of code/data selectors"};
 
 			XPOptionCollector()
 			{
-				InitializeFields(stub);
+				InitializeFields(stub, dual_selector);
 			}
 		};
 
