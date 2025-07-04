@@ -107,9 +107,11 @@ namespace Linker
 		std::weak_ptr<const InputFormat> input_format;
 
 		/* symbols */
+		std::string section_prefix();
 		std::string segment_prefix();
 		std::string segment_of_prefix();
 		std::string segment_at_prefix();
+		std::string segment_at_section_prefix();
 		std::string with_respect_to_segment_prefix();
 		std::string segment_difference_prefix();
 		std::string import_prefix();

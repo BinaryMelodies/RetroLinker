@@ -83,6 +83,13 @@ std::string Module::segment_prefix()
 	return oss.str();
 }
 
+std::string Module::section_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "SECTION" << special_prefix_char;
+	return oss.str();
+}
+
 std::string Module::segment_of_prefix()
 {
 	std::ostringstream oss;
@@ -94,6 +101,13 @@ std::string Module::segment_at_prefix()
 {
 	std::ostringstream oss;
 	oss << special_prefix_char << special_prefix_char << "SEGAT" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::segment_at_section_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "SECTSEG" << special_prefix_char;
 	return oss.str();
 }
 
@@ -509,9 +523,11 @@ bool Module::AddUndefinedSymbol(std::string symbol_name)
 	if(output_format != nullptr && output_format->FormatSupportsSegmentation()
 	&& input_format != nullptr && !input_format->FormatProvidesSegmentation())
 	{
-		if(symbol_name.rfind(segment_prefix(), 0) == 0
+		if(symbol_name.rfind(section_prefix(), 0) == 0
+		|| symbol_name.rfind(segment_prefix(), 0) == 0
 		|| symbol_name.rfind(segment_of_prefix(), 0) == 0
 		|| symbol_name.rfind(segment_at_prefix(), 0) == 0
+		|| symbol_name.rfind(segment_at_section_prefix(), 0) == 0
 		|| symbol_name.rfind(with_respect_to_segment_prefix(), 0) == 0
 		|| symbol_name.rfind(segment_difference_prefix(), 0) == 0)
 		{
@@ -607,7 +623,25 @@ void Module::AddRelocation(Relocation relocation)
 			*/
 			if(output_format->FormatSupportsSegmentation() && !input_format->FormatProvidesSegmentation())
 			{
-				if(unparsed_name.rfind(segment_prefix(), 0) == 0 && relocation.size == 2)
+				if(unparsed_name.rfind(section_prefix(), 0) == 0 && relocation.size == 2)
+				{
+					/* $$SECT$<section name> */
+					/* Note: can only refer to a currently present section */
+					std::string section_name = unparsed_name.substr(section_prefix().size());
+					std::shared_ptr<Section> section = FindSection(section_name);
+					if(section == nullptr)
+					{
+						Linker::Error << "Error: invalid section in extended relocation `" << section_name << "'" << std::endl;
+					}
+					else
+					{
+						relocation =
+							output_format->FormatIsProtectedMode()
+							? Linker::Relocation::Absolute(relocation.size, relocation.source, Linker::Target(Linker::Location(section)), relocation.addend)
+							: Linker::Relocation::Offset(relocation.size, relocation.source, Linker::Target(Linker::Location(section)), relocation.addend);
+					}
+				}
+				else if(unparsed_name.rfind(segment_prefix(), 0) == 0 && relocation.size == 2)
 				{
 					/* $$SEG$<section name> */
 					/* Note: can only refer to a currently present section */
@@ -642,6 +676,23 @@ void Module::AddRelocation(Relocation relocation)
 						output_format->FormatIsProtectedMode()
 						? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend)
 						: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend);
+				}
+				else if(unparsed_name.rfind(segment_at_section_prefix(), 0) == 0 && relocation.size == 2)
+				{
+					/* $$SECTSEG$<symbol name> */
+					std::string section_name = unparsed_name.substr(segment_at_section_prefix().size());
+					std::shared_ptr<Section> section = FindSection(section_name);
+					if(section == nullptr)
+					{
+						Linker::Error << "Error: invalid section in extended relocation `" << section_name << "'" << std::endl;
+					}
+					else
+					{
+						relocation =
+							output_format->FormatIsProtectedMode()
+							? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::Location(section)), relocation.addend)
+							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::Location(section)), relocation.addend);
+					}
 				}
 				else if(unparsed_name.rfind(with_respect_to_segment_prefix(), 0) == 0)
 				{
