@@ -380,6 +380,13 @@ format_specification formats[] =
 		"Phar Lap 386|DOS-Extender segmented \"P2\" executable (.exp) [untested]" },
 	{ "pharlap16_seg" },
 	{ "p2_seg" },
+	/* BW */
+	{ "ergo",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Ergo::XPFormat>(); },
+		"Ergo OS/286, OS/386 \"XP\" executable (.exp)" },
+	{ "xp" },
+	{ "os286" },
+	{ "os386" },
 	/* Z8K */
 	{ "cpm8k",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<CPM8KFormat>(CPM8KFormat::MAGIC_NONSHARED); },

@@ -2,25 +2,14 @@
 #include "xpexp.h"
 #include "../linker/buffer.h"
 #include "../linker/location.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 /* TODO: untested */
 
 using namespace Ergo;
 
-bool XPFormat::FormatSupportsSegmentation() const
-{
-	return true; // TODO: is this the case?
-}
-
-bool XPFormat::FormatIs16bit() const
-{
-	return wordsize != DWord;
-}
-
-bool XPFormat::FormatIsProtectedMode() const
-{
-	return true;
-}
+/* * * General members * * */
 
 void XPFormat::CalculateValues()
 {
@@ -47,9 +36,11 @@ void XPFormat::Clear()
 	maximum_extent = 0;
 	unknown_field = 0;
 	gs = fs = ds = ss = cs = es = edi = esi = ebp = esp = ebx = edx = ecx = eax = eflags = eip = 0;
-	wordsize = Unknown;
 	ldt.clear();
 	image = nullptr;
+	/* * * Writer members * * */
+	wordsize = Unknown;
+	section_groups.clear();
 }
 
 void XPFormat::ReadFile(Linker::Reader& rd)
@@ -200,18 +191,6 @@ void XPFormat::Dump(Dumper::Dumper& dump) const
 	relocation_region.Display(dump);
 }
 
-std::string XPFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
-{
-	if(stub_file != "")
-	{
-		return filename + ".exe";
-	}
-	else
-	{
-		return filename + ".exp";
-	}
-}
-
 XPFormat::Segment XPFormat::Segment::ReadFile(Linker::Reader& rd)
 {
 	Segment segment;
@@ -248,9 +227,9 @@ void XPFormat::Segment::Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned 
 			Dumper::BitFieldDisplay::Make(2)
 				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("accessed"), true)
 				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make(
-					(access & ACCESS_E) != 0 ? "readable" : "writable",
-					(access & ACCESS_E) != 0 ? "execute-only" : "read-only"), false)
-				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make((access & ACCESS_E) != 0 ? "conforming" : "grow down"), true)
+					(access & ACCESS_X) != 0 ? "readable" : "writable",
+					(access & ACCESS_X) != 0 ? "execute-only" : "read-only"), false)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make((access & ACCESS_X) != 0 ? "conforming" : "grow down"), true)
 					// conforming: can be jumped to from lower privilege level
 				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("code", "data"), false)
 				->AddBitField(5, 2, Dumper::DecDisplay::Make(), "privilege level")
@@ -291,5 +270,342 @@ void XPFormat::Segment::Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned 
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("limit in pages", "limit in bytes"), false),
 			offset_t(flags & 0xF0));
 	descriptor_entry.Display(dump);
+}
+
+/* * * Writer members * * */
+
+bool XPFormat::FormatSupportsSegmentation() const
+{
+	return true;
+}
+
+bool XPFormat::FormatIs16bit() const
+{
+	return wordsize != DWord;
+}
+
+bool XPFormat::FormatIsProtectedMode() const
+{
+	return true;
+}
+
+std::string XPFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
+{
+	if(stub.filename != "")
+	{
+		return filename + ".exe";
+	}
+	else
+	{
+		return filename + ".exp";
+	}
+}
+
+std::shared_ptr<Linker::OptionCollector> XPFormat::GetOptions()
+{
+	return std::make_shared<XPOptionCollector>();
+}
+
+void XPFormat::SetOptions(std::map<std::string, std::string>& options)
+{
+	XPOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
+}
+
+std::vector<Linker::OptionDescription<void>> XPFormat::MemoryModelNames =
+{
+	Linker::OptionDescription<void>("default/small", "Small model, symbols in .code have a separate preferred segment"),
+	Linker::OptionDescription<void>("compact", "Compact model, symbols in .data, .bss and .comm have a common preferred segment, all other sections are treated as separate segments"),
+};
+
+std::vector<Linker::OptionDescription<void>> XPFormat::GetMemoryModelNames()
+{
+	return MemoryModelNames;
+}
+
+void XPFormat::SetModel(std::string model)
+{
+	if(model == "")
+	{
+		memory_model = MODEL_DEFAULT;
+	}
+	else if(model == "small")
+	{
+		memory_model = MODEL_SMALL;
+	}
+	else if(model == "compact")
+	{
+		memory_model = MODEL_COMPACT;
+	}
+	else
+	{
+		Linker::Error << "Error: unsupported memory model" << std::endl;
+		memory_model = MODEL_SMALL;
+	}
+}
+
+void XPFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
+{
+	if(segment->name == ".code")
+	{
+		if(image != nullptr)
+		{
+			Linker::Error << "Error: duplicate `.code` segment, ignoring" << std::endl;
+			return;
+		}
+		image = segment;
+	}
+	else
+	{
+		Linker::Error << "Error: unknown segment `" << segment->name << "` for format, expected `.code`, ignoring" << std::endl;
+	}
+}
+
+void XPFormat::CreateDefaultSegments()
+{
+	if(image == nullptr)
+	{
+		image = std::make_shared<Linker::Segment>(".code");
+	}
+}
+
+std::unique_ptr<Script::List> XPFormat::GetScript(Linker::Module& module)
+{
+	static const char * SmallScript = R"(
+".code"
+{
+	all exec;
+	align 16;
+	base here;
+	all not zero;
+	all not ".stack";
+	align 16;
+	all;
+	align 16;
+};
+)";
+
+	static const char * CompactScript = R"(
+".code"
+{
+	all exec;
+	all not zero and not ".data" and not ".rodata"
+		align 16 base here;
+	align 16;
+	base here;
+	all ".data" or ".rodata";
+	align 16;
+	all ".bss" or ".comm";
+	all not ".stack" align 16 base here;
+	all base here;
+};
+)";
+
+	if(linker_script != "")
+	{
+		if(memory_model != MODEL_DEFAULT)
+		{
+			Linker::Warning << "Warning: linker script provided, overriding memory model" << std::endl;
+		}
+		return SegmentManager::GetScript(module);
+	}
+	else
+	{
+		switch(memory_model)
+		{
+		case MODEL_DEFAULT:
+		case MODEL_SMALL:
+			/* separate segment/address space for code and data, one for each */
+			return Script::parse_string(SmallScript);
+		case MODEL_COMPACT:
+			/* separate address space for a single code segment and multiple data segments */
+			return Script::parse_string(CompactScript);
+		default:
+			Linker::FatalError("Internal error: invalid memory model");
+		}
+	}
+}
+
+void XPFormat::Link(Linker::Module& module)
+{
+	std::unique_ptr<Script::List> script = GetScript(module);
+
+	ProcessScript(script, module);
+
+	CreateDefaultSegments();
+}
+
+void XPFormat::ProcessModule(Linker::Module& module)
+{
+	// simulating EXPRESS behavior by generating binary according to MZ format
+
+	Link(module);
+
+	std::shared_ptr<Linker::Segment> image_segment = GetImageSegment();
+
+	// TODO: create groups
+
+	// zero filled sections should also be written to disk
+	image_segment->Fill();
+
+	offset_t full_image_size = image_segment->TotalSize();
+
+	std::shared_ptr<Linker::Section> ss_section = nullptr;
+	std::shared_ptr<Linker::Section> cs_section = nullptr;
+
+	Linker::Location stack_top;
+	if(module.FindGlobalSymbol(".stack_top", stack_top))
+	{
+		ss_section = stack_top.section;
+		esp = stack_top.GetPosition().address - (ss_section != nullptr ? ss_section->GetStartAddress() : 0);
+	}
+	else
+	{
+		// use last section for stack, as for MZ
+		ss_section = module.Sections().back();
+		esp = ss_section->Size();
+//		Linker::Debug << "Debug: End of memory: " << sp << std::endl;
+//		Linker::Debug << "Debug: Total size: " << (image->ImageSize() + zero_fill) << std::endl;
+//		Linker::Debug << "Debug: Stack base: " << ss << std::endl;
+	}
+
+	Linker::Location entry;
+	if(module.FindGlobalSymbol(".entry", entry))
+	{
+		cs_section = entry.section;
+		eip = entry.GetPosition().address - (cs_section != nullptr ? cs_section->GetStartAddress() : 0);
+	}
+	else
+	{
+		// use first section for stack, as for MZ
+		cs_section = module.Sections().front();
+		eip = 0;
+		Linker::Warning << "Warning: no entry point specified, using beginning of .code segment" << std::endl;
+	}
+
+	std::map<std::shared_ptr<Linker::Section>, uint16_t> section_selectors;
+	std::map<uint16_t, uint16_t> paragraph_selectors;
+
+	// PSP
+	ldt.push_back(Segment(0x0100, full_image_size - 1, Segment::ACCESS_DATA, 0));
+	ldt.push_back(Segment(0x0100, full_image_size - 1, Segment::ACCESS_CODE, Segment::FLAG_ALIAS));
+
+	for(auto section : image_segment->sections)
+	{
+		if(section->IsExecutable() || section == cs_section)
+		{
+			offset_t start_address = section->GetStartAddress();
+			uint16_t selector = (ldt.size() + 1) * 8 + 7;
+			section_selectors[section] = selector;
+			paragraph_selectors[start_address >> 4] = selector;
+
+			ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), full_image_size - start_address - 1), Segment::ACCESS_DATA, Segment::FLAG_WINDOW));
+			ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), full_image_size - start_address - 1), Segment::ACCESS_CODE, Segment::FLAG_WINDOW));
+		}
+	}
+
+	for(auto section : image_segment->sections)
+	{
+		// TODO: generate stack attribute for sections
+		if((section->GetFlags() & Linker::Section::Stack) != 0 || section == ss_section)
+		{
+			offset_t start_address = section->GetStartAddress();
+			uint16_t selector = ldt.size() * 8 + 7;
+			section_selectors[section] = selector;
+			paragraph_selectors[start_address >> 4] = selector;
+
+			ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), full_image_size - start_address - 1), Segment::ACCESS_DATA, Segment::FLAG_WINDOW));
+			ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), full_image_size - start_address - 1), Segment::ACCESS_CODE, Segment::FLAG_WINDOW));
+		}
+	}
+
+	for(auto& group : section_groups)
+	{
+		// TODO: when does a group become a default selector?
+		offset_t start_address = group.GetStartAddress(this);
+		offset_t group_length = group.GetLength(this);
+		ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), group_length - 1), Segment::ACCESS_DATA, Segment::FLAG_WINDOW));
+		ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), group_length - 1), Segment::ACCESS_CODE, Segment::FLAG_WINDOW));
+	}
+
+	for(auto section : image_segment->sections)
+	{
+		if(section_selectors.find(section) != section_selectors.end())
+			continue;
+
+		offset_t start_address = section->GetStartAddress();
+		uint16_t selector = ldt.size() * 8 + 7;
+		section_selectors[section] = selector;
+		paragraph_selectors[start_address >> 4] = selector;
+
+		ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), full_image_size - start_address - 1), Segment::ACCESS_DATA, Segment::FLAG_WINDOW));
+		if(option_create_selector_pairs)
+			ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), full_image_size - start_address - 1), Segment::ACCESS_CODE, Segment::FLAG_WINDOW));
+	}
+
+	cs = section_selectors[cs_section];
+	ss = section_selectors[ss_section];
+
+	std::set<uint32_t> relocation_offsets;
+	for(Linker::Relocation& rel : module.relocations)
+	{
+		Linker::Resolution resolution;
+		if(!rel.Resolve(module, resolution))
+		{
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			continue;
+		}
+
+		switch(rel.kind)
+		{
+		case Linker::Relocation::Direct:
+			rel.WriteWord(resolution.value);
+			break;
+		case Linker::Relocation::SelectorIndex:
+			if(resolution.reference != nullptr)
+			{
+				Linker::Error << "Error: intersegment differences impossible in protected mode, ignoring" << std::endl;
+				continue;
+			}
+
+Linker::Debug << "Selector index for value " << std::hex << resolution.value << std::endl;
+			{
+				auto selector_pair = paragraph_selectors.find(resolution.value >> 4);
+				if(selector_pair == paragraph_selectors.end())
+				{
+					Linker::Error << "Error: no selector allocated for paragraph, ignoring" << std::endl;
+					continue;
+				}
+				rel.WriteWord(selector_pair->second);
+			}
+			break;
+		default:
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
+		}
+	}
+
+	ds = es = 0x07; // PSP
+	eflags = 0x3242; // IOPL 3, interrupts enabled, zero flags on
+	ecx = full_image_size;
+}
+
+std::shared_ptr<Linker::Segment> XPFormat::GetImageSegment()
+{
+	return std::dynamic_pointer_cast<Linker::Segment>(image);
+}
+
+offset_t XPFormat::Group::GetStartAddress(XPFormat * format) const
+{
+	// group selectors begin at the second section
+	return format->GetImageSegment()->sections[first_section + 1]->GetStartAddress();
+}
+
+offset_t XPFormat::Group::GetLength(XPFormat * format) const
+{
+	// group length encompasses the entire group
+	return format->GetImageSegment()->sections[first_section + section_count - 1]->GetEndAddress()
+		- format->GetImageSegment()->sections[first_section]->GetStartAddress();
 }
 

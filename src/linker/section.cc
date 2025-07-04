@@ -141,6 +141,11 @@ offset_t Section::GetStartAddress() const
 	return IsFixed() ? address : 0;
 }
 
+offset_t Section::GetEndAddress() const
+{
+	return GetStartAddress() + Size();
+}
+
 offset_t Section::SetAddress(offset_t new_address)
 {
 	if(IsFixed())

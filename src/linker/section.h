@@ -196,6 +196,11 @@ namespace Linker
 		offset_t GetStartAddress() const;
 
 		/**
+		 * @brief Returns end address (GetStartAddress() + Size())
+		 */
+		offset_t GetEndAddress() const;
+
+		/**
 		 * @brief For non-fixed segments, sets the starting address and makes the fixed
 		 *
 		 * If the segment is already fixed, the address is not changed.
