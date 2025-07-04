@@ -318,6 +318,7 @@ void XPFormat::SetOptions(std::map<std::string, std::string>& options)
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
 	option_create_selector_pairs = collector.dual_selector();
+	option_no_intermediate_selectors = collector.no_intermediate_selector();
 }
 
 std::vector<Linker::OptionDescription<void>> XPFormat::MemoryModelNames =
@@ -529,11 +530,23 @@ void XPFormat::ProcessModule(Linker::Module& module)
 
 	for(auto& group : section_groups)
 	{
-		// TODO: when does a group become a default selector?
+		// TODO: none of this is tested, the linker needs support for groups
+		uint16_t selector = ldt.size() * 8 + 7;
 		offset_t start_address = group.GetStartAddress(this);
 		offset_t group_length = group.GetLength(this);
 		ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), group_length - 1), Segment::ACCESS_DATA, Segment::FLAG_WINDOW));
 		ldt.push_back(Segment(0x0100 + start_address, std::min(offset_t(0xFFFF), group_length - 1), Segment::ACCESS_CODE, Segment::FLAG_WINDOW));
+
+		if(option_no_intermediate_selectors)
+		{
+			for(size_t selector_index = group.first_section + 1; selector_index < group.first_section + group.section_count; selector_index++)
+			{
+				auto section = image_segment->sections[selector_index];
+				offset_t start_address = section->GetStartAddress();
+				section_selectors[section] = selector;
+				paragraph_selectors[start_address >> 4] = selector;
+			}
+		}
 	}
 
 	for(auto section : image_segment->sections)

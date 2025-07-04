@@ -112,11 +112,12 @@ namespace Ergo
 		{
 		public:
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
-			Linker::Option<bool> dual_selector{"dual-selector", "Always generate pairs of code/data selectors"};
+			Linker::Option<bool> dual_selector{"dualsel", "Always generate pairs of code/data selectors"};
+			Linker::Option<bool> no_intermediate_selector{"nointer", "Do not generate selectors for segments inside groups"};
 
 			XPOptionCollector()
 			{
-				InitializeFields(stub, dual_selector);
+				InitializeFields(stub, dual_selector, no_intermediate_selector);
 			}
 		};
 
@@ -130,7 +131,17 @@ namespace Ergo
 		};
 		Wordsize wordsize = Unknown;
 
-		bool option_create_selector_pairs = false; // TODO
+		/**
+		 * @brief Generate code/data selector pairs for all segments
+		 *
+		 * Normally, only certain segments get both selectors generated.
+		 * This flag makes all segments appear twice, once as code and once as data.
+		 */
+		bool option_create_selector_pairs = false;
+		/**
+		 * @brief No selectors are generated for segments in groups.
+		 */
+		bool option_no_intermediate_selectors = false; // TODO: groups are not yet implemented
 
 		/** @brief Represents the memory model of the running executable, which is the way in which the segments are set up during execution */
 		enum memory_model_t
