@@ -89,32 +89,39 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:ab0dfc8755113fd4fbfb0e06e1d556a93" id="r_ab0dfc8755113fd4fbfb0e06e1d556a93"><td class="memItemLeft" align="right" valign="top"><a id="ab0dfc8755113fd4fbfb0e06e1d556a93" name="ab0dfc8755113fd4fbfb0e06e1d556a93"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
-&#160;&#160;<b>ACCESS_DATA</b> = 0x92
-, <b>ACCESS_CODE</b> = 0x9A
-, <b>ACCESS_E</b> = 0x08
-, <b>ACCESS_S</b> = 0x10
+&#160;&#160;<b>ACCESS_DATA</b> = 0xF2
+, <b>ACCESS_CODE</b> = 0xFA
+, <b>ACCESS_A</b> = 0x01
+, <b>ACCESS_W</b> = 0x02
 , <br />
-&#160;&#160;<b>ACCESS_CPL0</b> = 0x00
+&#160;&#160;<b>ACCESS_R</b> = 0x02
+, <b>ACCESS_E</b> = 0x04
+, <b>ACCESS_C</b> = 0x04
+, <b>ACCESS_X</b> = 0x08
+, <br />
+&#160;&#160;<b>ACCESS_S</b> = 0x10
+, <b>ACCESS_CPL0</b> = 0x00
 , <b>ACCESS_CPL1</b> = 0x20
 , <b>ACCESS_CPL2</b> = 0x40
-, <b>ACCESS_CPL3</b> = 0x60
 , <br />
-&#160;&#160;<b>ACCESS_TYPE_EMPTY</b> = 0x00
+&#160;&#160;<b>ACCESS_CPL3</b> = 0x60
+, <b>ACCESS_P</b> = 0x80
+, <b>ACCESS_TYPE_EMPTY</b> = 0x00
 , <b>ACCESS_TYPE_TSS16_A</b> = 0x01
-, <b>ACCESS_TYPE_LDT</b> = 0x02
+, <br />
+&#160;&#160;<b>ACCESS_TYPE_LDT</b> = 0x02
 , <b>ACCESS_TYPE_TSS16_B</b> = 0x03
-, <br />
-&#160;&#160;<b>ACCESS_TYPE_CALLGATE16</b> = 0x04
+, <b>ACCESS_TYPE_CALLGATE16</b> = 0x04
 , <b>ACCESS_TYPE_TASKGATE</b> = 0x05
-, <b>ACCESS_TYPE_INTGATE16</b> = 0x06
+, <br />
+&#160;&#160;<b>ACCESS_TYPE_INTGATE16</b> = 0x06
 , <b>ACCESS_TYPE_TRAPGATE16</b> = 0x07
-, <br />
-&#160;&#160;<b>ACCESS_TYPE_TSS32_A</b> = 0x09
+, <b>ACCESS_TYPE_TSS32_A</b> = 0x09
 , <b>ACCESS_TYPE_TSS32_B</b> = 0x0B
-, <b>ACCESS_TYPE_CALLGATE32</b> = 0x0C
-, <b>ACCESS_TYPE_INTGATE32</b> = 0x0E
 , <br />
-&#160;&#160;<b>ACCESS_TYPE_TRAPGATE32</b> = 0x0F
+&#160;&#160;<b>ACCESS_TYPE_CALLGATE32</b> = 0x0C
+, <b>ACCESS_TYPE_INTGATE32</b> = 0x0E
+, <b>ACCESS_TYPE_TRAPGATE32</b> = 0x0F
 <br />
  }</td></tr>
 <tr class="separator:ab0dfc8755113fd4fbfb0e06e1d556a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -127,6 +134,9 @@ Public Types</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a6b630226bf12a414d352e4c64f82f1d4" id="r_a6b630226bf12a414d352e4c64f82f1d4"><td class="memItemLeft" align="right" valign="top"><a id="a6b630226bf12a414d352e4c64f82f1d4" name="a6b630226bf12a414d352e4c64f82f1d4"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Segment</b> (uint32_t base, uint32_t limit, uint8_t access, uint8_t flags)</td></tr>
+<tr class="separator:a6b630226bf12a414d352e4c64f82f1d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac25763a66e355dceea0adfc9d4382794" id="r_ac25763a66e355dceea0adfc9d4382794"><td class="memItemLeft" align="right" valign="top"><a id="ac25763a66e355dceea0adfc9d4382794" name="ac25763a66e355dceea0adfc9d4382794"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
 <tr class="separator:ac25763a66e355dceea0adfc9d4382794"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -142,17 +152,17 @@ static <a class="el" href="structErgo_1_1XPFormat_1_1Segment.html">Segment</a>&#
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a7c2031ed5465b686e7327742c33feb22" id="r_a7c2031ed5465b686e7327742c33feb22"><td class="memItemLeft" align="right" valign="top"><a id="a7c2031ed5465b686e7327742c33feb22" name="a7c2031ed5465b686e7327742c33feb22"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>limit</b></td></tr>
-<tr class="separator:a7c2031ed5465b686e7327742c33feb22"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae00cc8e20fe57fe0abfa8a905eb19c95" id="r_ae00cc8e20fe57fe0abfa8a905eb19c95"><td class="memItemLeft" align="right" valign="top"><a id="ae00cc8e20fe57fe0abfa8a905eb19c95" name="ae00cc8e20fe57fe0abfa8a905eb19c95"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>base</b></td></tr>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>base</b> = 0</td></tr>
 <tr class="separator:ae00cc8e20fe57fe0abfa8a905eb19c95"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab99d959fcd9672da97599ed0bc6ba268" id="r_ab99d959fcd9672da97599ed0bc6ba268"><td class="memItemLeft" align="right" valign="top"><a id="ab99d959fcd9672da97599ed0bc6ba268" name="ab99d959fcd9672da97599ed0bc6ba268"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>limit</b> = 0</td></tr>
+<tr class="separator:ab99d959fcd9672da97599ed0bc6ba268"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9794691d1821eae2ef275fd24bd8cade" id="r_a9794691d1821eae2ef275fd24bd8cade"><td class="memItemLeft" align="right" valign="top"><a id="a9794691d1821eae2ef275fd24bd8cade" name="a9794691d1821eae2ef275fd24bd8cade"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>access</b></td></tr>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>access</b> = 0</td></tr>
 <tr class="separator:a9794691d1821eae2ef275fd24bd8cade"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afc4f11b708e32875a8813cd15cfc5fd5" id="r_afc4f11b708e32875a8813cd15cfc5fd5"><td class="memItemLeft" align="right" valign="top"><a id="afc4f11b708e32875a8813cd15cfc5fd5" name="afc4f11b708e32875a8813cd15cfc5fd5"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b></td></tr>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
 <tr class="separator:afc4f11b708e32875a8813cd15cfc5fd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <hr/>The documentation for this struct was generated from the following files:<ul>
