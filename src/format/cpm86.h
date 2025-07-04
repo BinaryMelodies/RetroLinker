@@ -183,7 +183,7 @@ namespace DigitalResearch
 			{
 			}
 
-			Relocation(relocation_source source, uint8_t target)
+			Relocation(relocation_source source, uint8_t target = 0)
 				: source(source.segment), paragraph(source.offset >> 4), offset(source.offset & 0xF), target(target)
 			{
 			}
@@ -267,6 +267,13 @@ namespace DigitalResearch
 			{
 			}
 
+			library_id(const library_id& lib) = default;
+
+			/** @brief Converts a string in the format "FILENAME.MAJ.MIN.FLAGS" to an identifier */
+			static library_id ParseNameAndVersion(std::string name_and_version);
+
+			bool operator ==(const library_id& other) const;
+
 			void Write(Linker::Writer& wr) const;
 
 			void Read(Linker::Reader& rd);
@@ -290,6 +297,9 @@ namespace DigitalResearch
 			/** @brief (FASTLOAD only) Unknown */
 			uint16_t unknown = 1;
 
+			/** @brief Unordered relocations, only used during binary generation */
+			std::set<relocation_source> relocation_targets;
+
 			library()
 			{
 			}
@@ -301,6 +311,11 @@ namespace DigitalResearch
 
 			library(std::string name, uint16_t major_version, uint16_t minor_version, uint32_t flags)
 				: library_id(name, major_version, minor_version, flags)
+			{
+			}
+
+			library(const library_id& lib)
+				: library_id(lib)
 			{
 			}
 
@@ -323,9 +338,20 @@ namespace DigitalResearch
 			void Clear() override;
 
 			/**
+			 * @brief Sets up any values before it can be written to file
+			 */
+			void Prepare(CPM86Format& module);
+
+#if 0
+			/**
 			 * @brief Support the newer POSTLINK format
 			 */
 			bool IsFastLoadFormat() const;
+#endif
+
+			library& FetchImportedLibrary(std::string name_dot_version);
+
+			library& FetchImportedLibrary(library_id id);
 
 			uint16_t GetSizeParas(const CPM86Format& module) const override;
 
@@ -563,6 +589,8 @@ namespace DigitalResearch
 		bool FormatIs16bit() const override;
 
 		bool FormatIsProtectedMode() const override;
+
+		bool FormatSupportsLibraries() const override;
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 

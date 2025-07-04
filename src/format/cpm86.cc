@@ -223,6 +223,57 @@ void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump) const
 	}
 }
 
+CPM86Format::library_id CPM86Format::library_id::ParseNameAndVersion(std::string name_and_version)
+{
+	// FILENAME[.MAJ[.MIN]]
+	// FILENAME.MAJ.MIN.FLAGS
+
+	std::string filename;
+	uint16_t major_version = 0;
+	uint16_t minor_version = 0;
+
+	size_t dot1 = name_and_version.find('.');
+	if(dot1 == std::string::npos)
+	{
+		filename = name_and_version;
+	}
+	else
+	{
+		filename = name_and_version.substr(0, dot1);
+
+		dot1++;
+		size_t dot2 = name_and_version.find('.', dot1);
+		if(dot2 == std::string::npos)
+		{
+			major_version = stoll(name_and_version.substr(dot1), nullptr, 10);
+		}
+		else
+		{
+			major_version = stoll(name_and_version.substr(dot1, dot2 - dot1), nullptr, 10);
+
+			dot2++;
+			size_t dot3 = name_and_version.find('.', dot2);
+			if(dot3 != std::string::npos)
+			{
+				minor_version = stoll(name_and_version.substr(dot2, dot3 - dot2), nullptr, 10);
+				uint32_t flags = stoll(name_and_version.substr(dot3 + 1), nullptr, 16);
+				return library_id(filename, major_version, minor_version, flags);
+			}
+			else
+			{
+				minor_version = stoll(name_and_version.substr(dot2), nullptr, 10);
+			}
+		}
+	}
+
+	return library_id(filename, major_version, minor_version);
+}
+
+bool CPM86Format::library_id::operator ==(const library_id& other) const
+{
+	return name == other.name && major_version == other.major_version && minor_version == other.minor_version && flags == other.flags;
+}
+
 void CPM86Format::library_id::Write(Linker::Writer& wr) const
 {
 	wr.WriteData(8, name, '\0');
@@ -242,7 +293,6 @@ void CPM86Format::library_id::Read(Linker::Reader& rd)
 void CPM86Format::library::Write(Linker::Writer& wr) const
 {
 	library_id::Write(wr);
-	//relocation_count = relocations.size(); // TODO: this should only happen as part of the code generation
 	wr.WriteWord(2, relocation_count);
 }
 
@@ -272,12 +322,39 @@ void CPM86Format::LibraryDescriptor::Clear()
 	libraries.clear();
 }
 
+void CPM86Format::LibraryDescriptor::Prepare(CPM86Format& module)
+{
+	for(auto& lib : libraries)
+	{
+		lib.relocation_count = lib.relocations.size();
+	}
+}
+
+CPM86Format::library& CPM86Format::LibraryDescriptor::FetchImportedLibrary(std::string name_dot_version)
+{
+	return FetchImportedLibrary(library_id::ParseNameAndVersion(name_dot_version));
+}
+
+CPM86Format::library& CPM86Format::LibraryDescriptor::FetchImportedLibrary(library_id id)
+{
+	auto lib = std::find(libraries.begin(), libraries.end(), id);
+	if(lib == libraries.end())
+	{
+		libraries.push_back(library(id));
+		return libraries.back();
+	}
+	else
+	{
+		return *lib;
+	}
+}
+
 uint16_t CPM86Format::LibraryDescriptor::GetSizeParas(const CPM86Format& module) const
 {
 	if(module.IsFastLoadFormat())
-		return ::AlignTo(2 + 0x16 * libraries.size(), 0x10);
+		return ::AlignTo(2 + 0x16 * libraries.size(), 0x10) >> 4;
 	else
-		return ::AlignTo(2 + 0x12 * libraries.size(), 0x10);
+		return ::AlignTo(2 + 0x12 * libraries.size(), 0x10) >> 4;
 }
 
 void CPM86Format::LibraryDescriptor::WriteData(Linker::Writer& wr, const CPM86Format& module) const
@@ -756,7 +833,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 		if(descriptors[i].type == Descriptor::ActualFixups)
 			group = fixups = Dumper::Region::Make("Group", descriptors[i].offset, uint32_t(descriptors[i].size_paras) << 4, 5);
 		else
-			group = Dumper::Block::Make("Group", descriptors[i].offset, descriptors[i].image->AsImage(), uint32_t(descriptors[i].load_segment) << 4, 5);
+			group = Dumper::Block::Make("Group", descriptors[i].offset, descriptors[i].image ? descriptors[i].image->AsImage() : nullptr, uint32_t(descriptors[i].load_segment) << 4, 5);
 		group->InsertField(0, "Type", Dumper::ChoiceDisplay::Make(group_types), offset_t(descriptors[i].type));
 		group->AddField("Minimum", Dumper::HexDisplay::Make(5), offset_t(uint32_t(descriptors[i].min_size_paras) << 4));
 		group->AddField("Maximum", Dumper::HexDisplay::Make(5), offset_t(uint32_t(descriptors[i].max_size_paras) << 4));
@@ -999,6 +1076,11 @@ bool CPM86Format::FormatIsProtectedMode() const
 	return format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD;
 }
 
+bool CPM86Format::FormatSupportsLibraries() const
+{
+	return format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD;
+}
+
 unsigned CPM86Format::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	unsigned flags;
@@ -1198,7 +1280,33 @@ std::unique_ptr<Script::List> CPM86Format::GetScript(Linker::Module& module)
 	align 16;
 	all;
 	align 16;
-	# TODO: FlexOS, separate stack
+};
+)";
+
+	static const char * SmallScript_FlexOS = R"(
+".code"
+{
+	all exec align 16; # TODO: why align here?
+	align 16;
+};
+
+".data"
+{
+	at 0;
+	base here;
+	all not zero align 16; # TODO: why align here?
+	align 16;
+	all not ".stack" align 16; # TODO: why align here?
+	align 16;
+};
+
+".stack"
+{
+	at 0;
+	base here;
+	all ".stack.data" align 16;
+	all ".stack" or ".stack.bss" align 16;
+	align 16;
 };
 )";
 
@@ -1240,6 +1348,36 @@ std::unique_ptr<Script::List> CPM86Format::GetScript(Linker::Module& module)
 	all ".bss" or ".comm" align 16; # TODO: why align here?
 	all not ".stack" align 16 base here;
 	all base here;
+};
+)";
+
+	static const char * CompactScript_FlexOS = R"(
+".code"
+{
+	base here - 0x100;
+	all exec align 16; # TODO: why align here?
+	align 16;
+};
+
+".data"
+{
+	at 0;
+	all not zero and not ".data" and not ".rodata"
+		align 16 base here;
+	base 0;
+	all ".data" or ".rodata" align 16; # TODO: why align here?
+	align 16;
+	all ".bss" or ".comm" align 16; # TODO: why align here?
+	all not ".stack" align 16 base here;
+};
+
+".stack"
+{
+	at 0;
+	base here;
+	all ".stack.data" align 16;
+	all ".stack" or ".stack.bss" align 16;
+	align 16;
 };
 )";
 
@@ -1351,11 +1489,9 @@ for any
 				Linker::FatalError("Internal error: invalid memory model");
 			case MODEL_DEFAULT:
 			case MODEL_SMALL:
-				/* TODO */
-				return Script::parse_string(SmallScript);
+				return Script::parse_string(SmallScript_FlexOS);
 			case MODEL_COMPACT:
-				/* TODO */
-				return Script::parse_string(CompactScript_Small);
+				return Script::parse_string(CompactScript_FlexOS);
 			}
 			break;
 		case FORMAT_COMPACT:
@@ -1385,51 +1521,75 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 	for(Linker::Relocation& rel : module.relocations)
 	{
 		Linker::Resolution resolution;
-		if(!rel.Resolve(module, resolution))
+		if(rel.Resolve(module, resolution))
 		{
-			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
-			continue;
-		}
-		if(resolution.reference != nullptr)
-		{
-			Linker::Error << "Error: Format does not support inter-segment distances: " << rel << ", ignoring" << std::endl;
-			continue;
-		}
-
-		if(rel.kind == Linker::Relocation::Direct)
-		{
-			rel.WriteWord(resolution.value);
-		}
-		else if(rel.kind == Linker::Relocation::ParagraphAddress // CP/M-86
-		|| rel.kind == Linker::Relocation::SelectorIndex) // FlexOS 286 (TODO: not yet implemented)
-		{
-			if(resolution.target != nullptr)
+			if(resolution.reference != nullptr)
 			{
-				if(option_no_relocation)
+				Linker::Error << "Error: Format does not support inter-segment distances: " << rel << ", ignoring" << std::endl;
+				continue;
+			}
+
+			switch(rel.kind)
+			{
+			case Linker::Relocation::Direct:
+				rel.WriteWord(resolution.value);
+				break;
+			case Linker::Relocation::SelectorIndex: // FlexOS 286 (TODO: not yet implemented)
+				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO
+			case Linker::Relocation::ParagraphAddress: // CP/M-86
+				if(resolution.target != nullptr)
 				{
-					Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
+					if(option_no_relocation)
+					{
+						Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
+					}
+					else
+					{
+						Linker::Position source = rel.source.GetPosition();
+						unsigned src_segment = GetSegmentNumber(source.segment);
+						relocation_targets[relocation_source { src_segment, source.address }] = GetSegmentNumber(resolution.target);
+						flags |= FLAG_FIXUPS;
+					}
 				}
-				else
+				rel.WriteWord(resolution.value);
+				break;
+			default:
+				Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+				continue;
+			}
+		}
+		else if(FormatSupportsLibraries())
+		{
+			if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
+			{
+				std::string library;
+				if(symbol->GetImportedLibrary(library))
 				{
 					Linker::Position source = rel.source.GetPosition();
 					unsigned src_segment = GetSegmentNumber(source.segment);
-					relocation_targets[relocation_source { src_segment, source.address }] = GetSegmentNumber(resolution.target);
+					library_descriptor.FetchImportedLibrary(library).relocation_targets.insert(relocation_source { src_segment, source.address });
+					rel.WriteWord(symbol->addend + rel.addend);
 					flags |= FLAG_FIXUPS;
+					continue;
 				}
 			}
-			rel.WriteWord(resolution.value);
-		}
-		else
-		{
-			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 			continue;
 		}
-		/* TODO: add libraries */
 	}
 
 	for(auto rel : relocation_targets)
 	{
 		relocations.push_back(Relocation(rel.first, rel.second));
+	}
+
+	for(auto& lib : library_descriptor.libraries)
+	{
+		for(auto rel : lib.relocation_targets)
+		{
+			lib.relocations.push_back(Relocation(rel));
+		}
 	}
 
 	Linker::Location stack_top;
@@ -1449,12 +1609,44 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 	}
 
 	size_t j = 0;
+	uint8_t groups = 0;
 	for(size_t i = 0; i < Segments().size(); i++)
 	{
 		if(Segments()[i]->IsMissing() && i != 0 && i != 1)
 			continue;
-		descriptors[j].type = i == 0 && shared_code ? Descriptor::SharedCode : Descriptor::group_type(i + 1);
-		bool is_zero_page = format == FORMAT_8080 ? i == 0 : i == 1;
+		Descriptor::group_type type;
+		if(Segments()[i]->name == ".code")
+		{
+			if(shared_code)
+				type = Descriptor::SharedCode;
+			else
+				type = Descriptor::Code;
+		}
+		else if(Segments()[i]->name == ".data")
+		{
+			type = Descriptor::Data;
+		}
+		else if(Segments()[i]->name == ".stack")
+		{
+			type = Descriptor::Stack;
+		}
+		else
+		{
+			int type_val;
+			for(type_val = 1; type_val < 9; type_val++)
+			{
+				if((groups & (1 << (type_val - 1))) == 0)
+					break;
+			}
+			if(type_val >= 9)
+			{
+				Linker::FatalError("Too many segments");
+			}
+			type = Descriptor::group_type(type_val);
+		}
+		groups |= 1 << (type - 1);
+		descriptors[j].type = type;
+		bool is_zero_page = (format != FORMAT_FLEXOS && format != FORMAT_FASTLOAD) && (format == FORMAT_8080 ? i == 0 : i == 1);
 		descriptors[j].attach_zero_page = is_zero_page;
 		descriptors[j].image = Segments()[i];
 		descriptors[j].size_paras = descriptors[i].GetSizeParas(*this);

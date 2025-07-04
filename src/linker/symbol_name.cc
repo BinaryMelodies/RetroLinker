@@ -91,11 +91,23 @@ bool SymbolName::GetImportedName(std::string& result_library, std::string& resul
 
 bool SymbolName::GetImportedOrdinal(std::string& result_library, uint16_t& result_ordinal) const
 {
-	if(library && !name)
+	if(library && !name && hint)
 	{
-		assert(hint);
 		result_library = *library;
 		result_ordinal = *hint;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool SymbolName::GetImportedLibrary(std::string& result_library) const
+{
+	if(library && !name && !hint)
+	{
+		result_library = *library;
 		return true;
 	}
 	else
@@ -134,6 +146,10 @@ std::ostream& Linker::operator<<(std::ostream& out, const SymbolName& symbol)
 	else if(symbol.GetImportedOrdinal(library, hint))
 	{
 		out << "symbol(library " << library << " ordinal " << hint << ")";
+	}
+	else if(symbol.GetImportedLibrary(library))
+	{
+		out << "symbol(library " << library << " base)";
 	}
 	else
 	{

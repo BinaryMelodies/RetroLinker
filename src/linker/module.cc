@@ -164,19 +164,27 @@ bool Module::parse_imported_name(std::string reference_name, Linker::SymbolName&
 {
 	try
 	{
+		/* <library name> */
 		/* <library name>$<ordinal> */
 		/* <library name>$_<name> */
 //		Linker::Debug << "Debug: Reference name " << reference_name << std::endl;
 		size_t ix = reference_name.find(special_prefix_char);
-		std::string library_name = reference_name.substr(0, ix);
-		if(reference_name[ix + 1] == '_')
+		if(ix == std::string::npos)
 		{
-			symbol = Linker::SymbolName(library_name, reference_name.substr(ix + 2));
+			symbol = Linker::SymbolName(reference_name, Linker::SymbolName::IsLibrary);
 		}
 		else
 		{
-//			Linker::Debug << "Debug: Attempt parsing " << reference_name.substr(ix + 1) << std::endl;
-			symbol = Linker::SymbolName(library_name, stoll(reference_name.substr(ix + 1), nullptr, 16));
+			std::string library_name = reference_name.substr(0, ix);
+			if(reference_name[ix + 1] == '_')
+			{
+				symbol = Linker::SymbolName(library_name, reference_name.substr(ix + 2));
+			}
+			else
+			{
+//				Linker::Debug << "Debug: Attempt parsing " << reference_name.substr(ix + 1) << std::endl;
+				symbol = Linker::SymbolName(library_name, stoll(reference_name.substr(ix + 1), nullptr, 16));
+			}
 		}
 		return true;
 	}

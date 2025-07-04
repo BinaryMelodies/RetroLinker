@@ -64,6 +64,18 @@ namespace Linker
 		{
 		}
 
+		struct LibraryMark { };
+		static LibraryMark IsLibrary;
+
+		/**
+		 * @brief Creates a symbol referencing the base of an imported library
+		 */
+		SymbolName(std::string library, LibraryMark is_library)
+			: library(library)
+		{
+			(void) is_library;
+		}
+
 		/**
 		 * @brief Retrieves the name of the symbol, if it has one
 		 */
@@ -98,6 +110,11 @@ namespace Linker
 		 * @brief For symbols imported by ordinal, returns the library and ordinal
 		 */
 		bool GetImportedOrdinal(std::string& result_library, uint16_t& result_ordinal) const;
+
+		/**
+		 * @brief For symbols that are identified by the library name and the offset, stored in the addend
+		 */
+		bool GetImportedLibrary(std::string& result_library) const;
 
 		/**
 		 * @brief Compares two symbols for equality
