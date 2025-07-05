@@ -113,6 +113,11 @@ void CPM86Format::Descriptor::ReadData(Linker::Reader& rd, const CPM86Format& mo
 	buffer->ReadFile(rd, uint32_t(size_paras) << 4);
 }
 
+bool CPM86Format::relocation_source::operator==(const relocation_source& other) const
+{
+	return segment == other.segment && offset < other.offset;
+}
+
 bool CPM86Format::relocation_source::operator<(const relocation_source& other) const
 {
 	return segment < other.segment || (segment == other.segment && offset < other.offset);
@@ -168,7 +173,6 @@ void CPM86Format::rsx_record::Read(Linker::Reader& rd)
 
 void CPM86Format::rsx_record::ReadModule(Linker::Reader& rd)
 {
-	/* TODO: untested */
 	if(offset_record == RSX_TERMINATE || offset_record == RSX_DYNAMIC)
 		return;
 
@@ -190,7 +194,6 @@ void CPM86Format::rsx_record::WriteModule(Linker::Writer& wr) const
 {
 	if(offset_record == RSX_TERMINATE || offset_record == RSX_DYNAMIC)
 		return;
-	/* TODO: untested for CP/M-86 modules */
 	wr.Seek(offset_record << 7);
 	contents->WriteFile(wr);
 }
@@ -422,7 +425,7 @@ void CPM86Format::FastLoadDescriptor::Clear()
 
 uint16_t CPM86Format::FastLoadDescriptor::GetSizeParas(const CPM86Format& module) const
 {
-	return ::AlignTo(8 + 8 * ldt.size(), 0x10);
+	return ::AlignTo(8 + 8 * ldt.size(), 0x10) >> 4;
 }
 
 void CPM86Format::FastLoadDescriptor::WriteData(Linker::Writer& wr, const CPM86Format& module) const
@@ -465,6 +468,8 @@ void CPM86Format::Clear()
 	{
 		rsx_table[i].Clear();
 	}
+	/* writer fields */
+	segment_types.clear();
 }
 
 uint16_t CPM86Format::GetRelocationSizeParas() const
@@ -672,22 +677,21 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 	}
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
-		/* TODO: untested */
-//		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
+		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
 		wr.Seek(file_offset + 0x48);
 		library_descriptor.WriteDescriptor(wr, *this);
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
-//		assert(format == FORMAT_FASTLOAD);
+		assert(format == FORMAT_FASTLOAD);
 		wr.Seek(file_offset + 0x51);
 		fastload_descriptor.WriteDescriptor(wr, *this);
 	}
 	if(lib_id.name != "")
 	{
 		/* TODO: untested */
-//		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
+		assert(format == FORMAT_XSRTL);
 		wr.Seek(file_offset + 0x60);
 		lib_id.Write(wr);
 	}
@@ -702,14 +706,13 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(1, flags);
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
-		/* TODO: untested */
-//		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
+		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
 		library_descriptor.WriteData(wr, *this);
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
 		/* TODO: untested */
-//		assert(format == FORMAT_FASTLOAD);
+		assert(format == FORMAT_FASTLOAD);
 		fastload_descriptor.WriteData(wr, *this);
 	}
 	for(size_t i = 0; i < 8; i++)
@@ -932,14 +935,16 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 		{
 			auto selector_it = first_selectors.find(i);
 			if(selector_it != first_selectors.end())
-				current_library = selector_it->second;
+				current_library = selector_it->second; // following selectors correspond to library
 
 			if(i >= fastload_descriptor.first_free_entry)
 				break;
 			if(i >= fastload_descriptor.first_used_index)
 			{
+				if(desc.limit != 0)
+					current_library.name = ""; // back to non-library selectors
 				Dumper::Entry descriptor_entry("Descriptor", i, fastload_descriptor.offset + 8 + 8 * i, 4);
-				descriptor_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(i << 3));
+				descriptor_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(i * 8 + 7));
 				descriptor_entry.AddField("Limit", Dumper::HexDisplay::Make(4), offset_t(desc.limit));
 				descriptor_entry.AddField("Address", Dumper::HexDisplay::Make(6), offset_t(desc.address));
 				descriptor_entry.AddField("Group", Dumper::HexDisplay::Make(2), offset_t(desc.group));
@@ -1099,12 +1104,12 @@ bool CPM86Format::FormatIs16bit() const
 
 bool CPM86Format::FormatIsProtectedMode() const
 {
-	return format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD;
+	return format == FORMAT_FLEXOS || format == FORMAT_XSRTL || format == FORMAT_FASTLOAD;
 }
 
 bool CPM86Format::FormatSupportsLibraries() const
 {
-	return format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD;
+	return format == FORMAT_FLEXOS || format == FORMAT_XSRTL || format == FORMAT_FASTLOAD;
 }
 
 unsigned CPM86Format::FormatAdditionalSectionFlags(std::string section_name) const
@@ -1130,19 +1135,99 @@ std::vector<std::shared_ptr<Linker::Segment>>& CPM86Format::Segments()
 	return segment_vector;
 }
 
-unsigned CPM86Format::GetSegmentNumber(std::shared_ptr<Linker::Segment> segment)
+void CPM86Format::AssignSegmentTypes()
 {
-	/* Note: this only works because segments get consecutive types */
-	unsigned count = 0;
+	// bitfield for segment types already assigned
+	// possible segment types are 1/9 (either 1 for code or 9 for shared code may appear) and 2 to 8
+	// using the formula (type - 1) & 7, we will assign bit offsets 0 to 7 to each of these, with 1 and 9 sharing the same bit
+	uint8_t groups = 0;
+
+	segment_types.clear();
 	for(size_t i = 0; i < Segments().size(); i++)
 	{
-		if(Segments()[i]->IsMissing() && i != 0 && i != 1)
+		auto segment = Segments()[i];
+		if(segment->IsMissing() && i != 0 && i != 1) // TODO: make a more sophisticated check (first .code and .data segment must be registered, even if it's missing)
 			continue;
-		count ++;
-		if(Segments()[i] == segment)
-			return count;
+		Descriptor::group_type type = Descriptor::Undefined;
+		if(segment->name == ".code")
+		{
+			if(option_shared_code)
+				type = Descriptor::SharedCode;
+			else
+				type = Descriptor::Code;
+		}
+		else if(segment->name == ".data")
+		{
+			type = Descriptor::Data;
+		}
+		else if(segment->name == ".extra")
+		{
+			type = Descriptor::Extra;
+		}
+		else if(segment->name == ".stack")
+		{
+			type = Descriptor::Stack;
+		}
+		else if(segment->name == ".aux1")
+		{
+			type = Descriptor::Auxiliary1;
+		}
+		else if(segment->name == ".aux2")
+		{
+			type = Descriptor::Auxiliary2;
+		}
+		else if(segment->name == ".aux3")
+		{
+			type = Descriptor::Auxiliary3;
+		}
+		else if(segment->name == ".aux4")
+		{
+			type = Descriptor::ActualAuxiliary4;
+		}
+
+		if(type != Descriptor::Undefined)
+		{
+			if((groups & (1 << ((type - 1) & 7))) != 0)
+			{
+				Linker::FatalError("Duplicate segment type");
+			}
+			segment_types[segment] = Descriptor::group_type(type);
+			groups |= 1 << (type - 1);
+		}
 	}
-	return 0;
+
+	for(size_t i = 0; i < Segments().size(); i++)
+	{
+		auto segment = Segments()[i];
+		if(segment->IsMissing() && i != 0 && i != 1)
+			continue;
+		if(segment_types.find(segment) != segment_types.end())
+			continue;
+		int type;
+		for(type = 1; type < 9; type++)
+		{
+			if((groups & (1 << (type - 1))) == 0)
+				break;
+		}
+		if(type >= 9)
+		{
+			Linker::FatalError("Too many segments");
+		}
+		segment_types[segment] = Descriptor::group_type(type);
+		groups |= 1 << (type - 1);
+	}
+
+	for(size_t i = 0; i < Segments().size(); i++)
+	{
+		Linker::Debug << "Debug: segment " << Segments()[i]->name << " assigned " << segment_types[Segments()[i]] << std::endl;
+	}
+}
+
+unsigned CPM86Format::GetSegmentNumber(std::shared_ptr<Linker::Segment> segment)
+{
+	unsigned number = segment_types[segment];
+	// in fixups (relocations), shared code and code both have value 1
+	return number == Descriptor::SharedCode ? Descriptor::Code : number;
 }
 
 std::vector<Linker::OptionDescription<void>> CPM86Format::MemoryModelNames =
@@ -1202,7 +1287,7 @@ void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 	collector.ConsiderOptions(options);
 
 	option_no_relocation = collector.noreloc();
-
+	option_shared_code = collector.sharedcode();
 	option_generate_fixup_group = collector.fixupgroup();
 
 	unsigned rsx_count = 0;
@@ -1510,6 +1595,7 @@ for any
 			}
 			break;
 		case FORMAT_FLEXOS:
+		case FORMAT_XSRTL:
 		case FORMAT_FASTLOAD:
 			switch(memory_model)
 			{
@@ -1536,6 +1622,164 @@ void CPM86Format::Link(Linker::Module& module)
 	ProcessScript(script, module);
 }
 
+void CPM86Format::BuildLDTImage(Linker::Module& module)
+{
+	std::array<std::set<uint32_t>, 8> segment_boundaries;
+
+	// divide the groups into segments
+	// also collect libraries
+	for(Linker::Relocation& rel : module.relocations)
+	{
+		Linker::Resolution resolution;
+		if(rel.kind != Linker::Relocation::SelectorIndex && rel.Resolve(module, resolution))
+		{
+			if(resolution.reference == nullptr)
+			{
+				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO
+				uint32_t offset = uint32_t(resolution.value) << 4;
+				unsigned dst_segment = GetSegmentNumber(resolution.target);
+				segment_boundaries[dst_segment - 1].insert(offset);
+			}
+		}
+		else if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
+		{
+			std::string library;
+			if(symbol->GetImportedLibrary(library))
+			{
+				Linker::Debug << "Debug: reference library " << library << std::endl;
+				library_descriptor.FetchImportedLibrary(library);
+			}
+		}
+	}
+
+	// calculate segment limits for each segment in each group
+	std::array<std::map<uint32_t, uint32_t>, 8> segment_limits;
+
+	for(size_t i = 0; i < Segments().size(); i++)
+	{
+		auto segment = Segments()[i];
+		if(segment_types.find(segment) == segment_types.end())
+			continue;
+		unsigned segment_number = GetSegmentNumber(segment);
+		uint32_t segment_start = 0;
+		for(auto offset : segment_boundaries[segment_number - 1])
+		{
+			if(offset == 0)
+				continue;
+			segment_limits[segment_number - 1][segment_start] = std::min(0xFFFFU, offset - segment_start - 1);
+			segment_start = offset;
+		}
+		segment_limits[segment_number - 1][segment_start] =
+			segment->ImageSize() == segment_start
+				? 0
+				: std::min(offset_t(0xFFFF), segment->ImageSize() - segment_start - 1);
+	}
+
+	// create the LDT image
+	fastload_descriptor.Clear();
+
+	// imitating POSTLINK behavior
+	fastload_descriptor.ldt.resize(0xC9);
+	fastload_descriptor.index_base = 0x000C;
+	fastload_descriptor.first_used_index = 0x000C;
+	fastload_descriptor.first_free_entry = fastload_descriptor.first_used_index;
+
+	// allocate internal selectors for each relocation
+	std::map<relocation_target, uint16_t> selectors;
+
+	for(Linker::Relocation& rel : module.relocations)
+	{
+		Linker::Resolution resolution;
+		if(rel.kind == Linker::Relocation::SelectorIndex && rel.Resolve(module, resolution) && resolution.reference == nullptr)
+		{
+			resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO
+			unsigned dst_segment = GetSegmentNumber(resolution.target);
+			relocation_target target { dst_segment, resolution.value };
+			uint16_t selector;
+			if(selectors.find(target) == selectors.end())
+			{
+				size_t index = fastload_descriptor.first_free_entry++;
+				selector = index * 8 + 7;
+				fastload_descriptor.ldt[index].limit = segment_limits[dst_segment - 1][resolution.value << 4];
+				fastload_descriptor.ldt[index].address = resolution.value << 4;
+				fastload_descriptor.ldt[index].group = dst_segment;
+				selectors[target] = selector;
+			}
+			else
+			{
+				selector = selectors[target];
+			}
+			rel.WriteWord(selector);
+		}
+	}
+
+	// allocate external selectors
+	for(auto& library : library_descriptor.libraries)
+	{
+		for(Linker::Relocation& rel : module.relocations)
+		{
+			Linker::Resolution resolution;
+			if(rel.Resolve(module, resolution))
+				continue;
+
+			Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target);
+			if(!symbol)
+				continue;
+
+			std::string library_name;
+			if(!symbol->GetImportedLibrary(library_name))
+				continue;
+
+			Linker::Debug << "Debug: reference library " << library_name << std::endl;
+
+			if(&library_descriptor.FetchImportedLibrary(library_name) != &library)
+				continue;
+
+			Linker::Debug << "Debug: reference library " << library.name << " offset " << std::hex << (uint32_t(symbol->addend + rel.addend) << 4) << " in group " << std::hex << GetSegmentNumber(rel.source.GetPosition().segment) << " offset " << std::hex << rel.source.GetPosition().address << std::endl;
+
+			size_t index = fastload_descriptor.first_free_entry++;
+			uint16_t selector = index * 8 + 7;
+			if(library.first_selector == 0)
+				library.first_selector = index;
+			fastload_descriptor.ldt[index].limit = 0;
+			fastload_descriptor.ldt[index].address = uint32_t(symbol->addend + rel.addend) << 4;
+			fastload_descriptor.ldt[index].group = 1;
+			rel.WriteWord(selector);
+		}
+	}
+
+	// allocate remaining internal selectors
+	for(size_t i = 0; i < Segments().size(); i++)
+	{
+		auto segment = Segments()[i];
+		if(segment_types.find(segment) == segment_types.end())
+			continue;
+		unsigned segment_number = GetSegmentNumber(segment);
+
+		relocation_target target { segment_number, 0 };
+		if(selectors.find(target) != selectors.end())
+			continue;
+
+		Linker::Debug << "Debug: segment " << segment->name << " has segment number " << segment_number << std::endl;
+		size_t index = fastload_descriptor.first_free_entry++;
+		fastload_descriptor.ldt[index].limit = std::min(0xFFFFU, segment_limits[segment_number - 1][0]);
+		fastload_descriptor.ldt[index].address = 0;
+		fastload_descriptor.ldt[index].group = segment_number;
+	}
+
+	fastload_descriptor.maximum_entries = fastload_descriptor.first_free_entry + 2;
+
+	fastload_descriptor.type = Descriptor::FastLoad;
+	fastload_descriptor.size_paras =
+		fastload_descriptor.min_size_paras = fastload_descriptor.GetSizeParas(*this);
+	fastload_descriptor.max_size_paras = 0;
+
+	for(auto& library : library_descriptor.libraries)
+	{
+		library.flags |= 0x00800000; // POSTLINK behavior
+	}
+}
+
 void CPM86Format::ProcessModule(Linker::Module& module)
 {
 	Link(module);
@@ -1543,6 +1787,13 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 	if(application == APPL_RSX)
 	{
 		flags |= FLAG_RSX;
+	}
+
+	AssignSegmentTypes();
+
+	if(format == FORMAT_FASTLOAD)
+	{
+		BuildLDTImage(module);
 	}
 
 	std::map<relocation_source, size_t> relocation_targets;
@@ -1562,9 +1813,11 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 			case Linker::Relocation::Direct:
 				rel.WriteWord(resolution.value);
 				break;
-			case Linker::Relocation::SelectorIndex: // FlexOS 286 (TODO: not yet implemented)
+			case Linker::Relocation::SelectorIndex: // FlexOS 286
 				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO
 			case Linker::Relocation::ParagraphAddress: // CP/M-86
+				if(format == FORMAT_FASTLOAD)
+					continue; // already relocated
 				if(resolution.target != nullptr)
 				{
 					if(option_no_relocation)
@@ -1593,6 +1846,8 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 				std::string library;
 				if(symbol->GetImportedLibrary(library))
 				{
+					if(format == FORMAT_FASTLOAD)
+						continue; // already relocated
 					Linker::Position source = rel.source.GetPosition();
 					unsigned src_segment = GetSegmentNumber(source.segment);
 					library_descriptor.FetchImportedLibrary(library).relocation_targets.insert(relocation_source { src_segment, source.address });
@@ -1637,46 +1892,12 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 	}
 
 	size_t j = 0;
-	uint8_t groups = 0;
 	for(size_t i = 0; i < Segments().size(); i++)
 	{
 		if(Segments()[i]->IsMissing() && i != 0 && i != 1)
 			continue;
-		Descriptor::group_type type;
-		if(Segments()[i]->name == ".code")
-		{
-			if(shared_code)
-				type = Descriptor::SharedCode;
-			else
-				type = Descriptor::Code;
-		}
-		else if(Segments()[i]->name == ".data")
-		{
-			type = Descriptor::Data;
-		}
-		else if(Segments()[i]->name == ".stack")
-		{
-			type = Descriptor::Stack;
-		}
-		else
-		{
-			int type_val;
-			for(type_val = 1; type_val < 9; type_val++)
-			{
-				if((groups & (1 << (type_val - 1))) == 0)
-					break;
-			}
-			if(type_val >= 9)
-			{
-				Linker::FatalError("Too many segments");
-			}
-			type = Descriptor::group_type(type_val);
-		}
-		groups |= 1 << (type - 1);
-		if(type == Descriptor::Auxiliary4)
-			type = Descriptor::ActualAuxiliary4;
-		descriptors[j].type = type;
-		bool is_zero_page = (format != FORMAT_FLEXOS && format != FORMAT_FASTLOAD) && (format == FORMAT_8080 ? i == 0 : i == 1);
+		descriptors[j].type = segment_types[Segments()[i]];
+		bool is_zero_page = (format != FORMAT_FLEXOS && format != FORMAT_XSRTL && format != FORMAT_FASTLOAD) && (format == FORMAT_8080 ? i == 0 : i == 1);
 		descriptors[j].attach_zero_page = is_zero_page;
 		descriptors[j].image = Segments()[i];
 		descriptors[j].size_paras = descriptors[j].GetSizeParas(*this);
@@ -1726,23 +1947,11 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 
 	if(library_descriptor.libraries.size() > 0)
 	{
-		/* TODO: untested */
-		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
+		assert(format == FORMAT_FLEXOS || format == FORMAT_XSRTL || format == FORMAT_FASTLOAD);
 		library_descriptor.type = Descriptor::Libraries;
 		library_descriptor.size_paras =
 			library_descriptor.min_size_paras =
 			library_descriptor.max_size_paras = library_descriptor.GetSizeParas(*this);
-	}
-
-	fastload_descriptor.Clear();
-	if(false) /* TODO */
-	{
-		/* TODO: untested */
-		assert(format == FORMAT_FASTLOAD);
-		fastload_descriptor.type = Descriptor::FastLoad;
-		fastload_descriptor.size_paras =
-			fastload_descriptor.min_size_paras =
-			fastload_descriptor.max_size_paras = fastload_descriptor.GetSizeParas(*this);
 	}
 }
 
@@ -1771,6 +1980,8 @@ std::string CPM86Format::GetDefaultExtension(Linker::Module& module, std::string
 		case FORMAT_FLEXOS:
 		case FORMAT_FASTLOAD:
 			return filename + ".286";
+		case FORMAT_XSRTL:
+			return filename + ".srl";
 		default:
 			Linker::FatalError("Internal error: invalid memory model");
 		}
@@ -1789,6 +2000,8 @@ std::string CPM86Format::GetDefaultExtension(Linker::Module& module, std::string
 		return filename + ".ovr";
 	case APPL_286:
 		return filename + ".286";
+	case APPL_SRL:
+		return filename + ".srl";
 	}
 }
 
