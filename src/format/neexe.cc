@@ -1712,7 +1712,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 				{
 					//assert(resolution.value == 0); /* TODO: target != 0 ? */
 					if(rel.kind == Linker::Relocation::SelectorIndex)
-						resolution.value >>= 4; // TODO: ugly hack in case the program is executed in real mode (should we change FormatIsProtectedMode?)
+						resolution.value = (resolution.value >> 4) + rel.addend; // TODO: ugly hack in case the program is executed in real mode (should we change FormatIsProtectedMode?)
 					source_segment.AddRelocation(
 						Segment::Relocation(type, Segment::Relocation::Internal,
 							position.address, target_segment, resolution.value)

@@ -902,7 +902,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 		}
 		else if(rel.kind == Linker::Relocation::SelectorIndex)
 		{
-			if(resolution.target == nullptr || resolution.reference != nullptr || resolution.value != 0)
+			if(resolution.target == nullptr || resolution.reference != nullptr || resolution.value != 0 || rel.addend != 0)
 			{
 				Linker::Error << "Error: intersegment differences impossible in protected mode, ignoring" << std::endl;
 				continue;

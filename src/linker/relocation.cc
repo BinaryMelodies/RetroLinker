@@ -140,7 +140,6 @@ bool Relocation::Resolve(Module& object, Resolution& resolution)
 			reference_position.segment);
 		return true;
 	case ParagraphAddress:
-		/* TODO: signal appropriate error if "target_position.address - reference_position.address" != 0 in protected mode */
 		resolution = Resolution(addend + (value >> 4),
 			target_position.segment,
 			reference_position.segment);
@@ -153,7 +152,7 @@ bool Relocation::Resolve(Module& object, Resolution& resolution)
 	case SelectorIndex:
 	case GOTEntry:
 	case PLTEntry:
-		resolution = Resolution(addend + value,
+		resolution = Resolution(value,
 			target_position.segment,
 			reference_position.segment);
 		return true;

@@ -1701,7 +1701,7 @@ void CPM86Format::BuildLDTImage(Linker::Module& module)
 		{
 			if(resolution.reference == nullptr)
 			{
-				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO: too complex code
+				resolution.value = (resolution.value >> 4) + rel.addend;
 				uint32_t offset = uint32_t(resolution.value) << 4;
 				unsigned dst_segment = GetSegmentNumber(resolution.target);
 				segment_boundaries[dst_segment - 1].insert(offset);
@@ -1758,7 +1758,7 @@ void CPM86Format::BuildLDTImage(Linker::Module& module)
 		Linker::Resolution resolution;
 		if(rel.kind == Linker::Relocation::SelectorIndex && rel.Resolve(module, resolution) && resolution.reference == nullptr)
 		{
-			resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO: too complex code
+			resolution.value = (resolution.value >> 4) + rel.addend;
 			unsigned dst_segment = GetSegmentNumber(resolution.target);
 			relocation_target target { dst_segment, resolution.value };
 			uint16_t selector;
@@ -1880,7 +1880,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 				rel.WriteWord(resolution.value);
 				break;
 			case Linker::Relocation::SelectorIndex: // FlexOS 286
-				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO: too complex code
+				resolution.value = (resolution.value >> 4) + rel.addend;
 			case Linker::Relocation::ParagraphAddress: // CP/M-86
 				if(format == FORMAT_FASTLOAD)
 					continue; // already relocated

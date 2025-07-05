@@ -589,9 +589,9 @@ void XPFormat::ProcessModule(Linker::Module& module)
 				continue;
 			}
 
-Linker::Debug << "Selector index for value " << std::hex << resolution.value << std::endl;
+Linker::Debug << "Selector index for value " << std::hex << resolution.value + (rel.addend << 4) << std::endl;
 			{
-				auto selector_pair = paragraph_selectors.find(resolution.value >> 4);
+				auto selector_pair = paragraph_selectors.find((resolution.value >> 4) + rel.addend);
 				if(selector_pair == paragraph_selectors.end())
 				{
 					Linker::Error << "Error: no selector allocated for paragraph, ignoring" << std::endl;

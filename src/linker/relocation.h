@@ -47,7 +47,7 @@ namespace Linker
 			 *
 			 * This is intended for protected mode x86 platforms.
 			 */
-			SelectorIndex, // TODO: unimplemented
+			SelectorIndex,
 			/**
 			 * @brief An entry in the Global Offset Table is used instead of the actual value
 			 */
