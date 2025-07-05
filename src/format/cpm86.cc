@@ -516,6 +516,11 @@ bool CPM86Format::IsFastLoadFormat() const
 	return fastload_descriptor.type == Descriptor::FastLoad;
 }
 
+bool CPM86Format::IsSharedRunTimeLibrary() const
+{
+	return lib_id.name != "";
+}
+
 void CPM86Format::ReadRelocations(Linker::Reader& rd)
 {
 	rd.Seek(file_offset + relocations_offset);
@@ -689,8 +694,7 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 	}
 	if(lib_id.name != "")
 	{
-		/* TODO: untested */
-		assert(format == FORMAT_XSRTL);
+		assert(format == FORMAT_FLEXOS);
 		wr.Seek(file_offset + 0x60);
 		lib_id.Write(wr);
 	}
@@ -1113,12 +1117,12 @@ bool CPM86Format::FormatIs16bit() const
 
 bool CPM86Format::FormatIsProtectedMode() const
 {
-	return format == FORMAT_FLEXOS || format == FORMAT_XSRTL || format == FORMAT_FASTLOAD;
+	return format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD;
 }
 
 bool CPM86Format::FormatSupportsLibraries() const
 {
-	return format == FORMAT_FLEXOS || format == FORMAT_XSRTL || format == FORMAT_FASTLOAD;
+	return format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD;
 }
 
 unsigned CPM86Format::FormatAdditionalSectionFlags(std::string section_name) const
@@ -1155,8 +1159,6 @@ void CPM86Format::AssignSegmentTypes()
 	for(size_t i = 0; i < Segments().size(); i++)
 	{
 		auto segment = Segments()[i];
-		if(segment->IsMissing() && i != 0 && i != 1) // TODO: make a more sophisticated check (first .code and .data segment must be registered, even if it's missing)
-			continue;
 		Descriptor::group_type type = Descriptor::Undefined;
 		if(segment->name == ".code")
 		{
@@ -1192,6 +1194,14 @@ void CPM86Format::AssignSegmentTypes()
 		else if(segment->name == ".aux4")
 		{
 			type = Descriptor::ActualAuxiliary4;
+		}
+
+		// the first .code or .data segment must be included, even if it is empty, the others can be excluded
+		if(segment->IsMissing()
+		&& !(segment->name == ".code" && (groups & 1) == 0)
+		&& !(segment->name == ".data" && (groups & 2) == 0))
+		{
+			continue;
 		}
 
 		if(type != Descriptor::Undefined)
@@ -1340,6 +1350,11 @@ void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 	if(collector.f4())
 	{
 		cpm_flags |= CPM_FLAG_F4;
+	}
+
+	if(collector.srtl())
+	{
+		lib_id = library_id::ParseNameAndVersion(collector.srtl().value());
 	}
 
 	unsigned rsx_count = 0;
@@ -1647,7 +1662,6 @@ for any
 			}
 			break;
 		case FORMAT_FLEXOS:
-		case FORMAT_XSRTL:
 		case FORMAT_FASTLOAD:
 			switch(memory_model)
 			{
@@ -1946,10 +1960,13 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 	size_t j = 0;
 	for(size_t i = 0; i < Segments().size(); i++)
 	{
-		if(Segments()[i]->IsMissing() && i != 0 && i != 1)
+		if(segment_types.find(Segments()[i]) == segment_types.end())
 			continue;
-		descriptors[j].type = segment_types[Segments()[i]];
-		bool is_zero_page = (format != FORMAT_FLEXOS && format != FORMAT_XSRTL && format != FORMAT_FASTLOAD) && (format == FORMAT_8080 ? i == 0 : i == 1);
+		Descriptor::group_type type = segment_types[Segments()[i]];
+		if(IsSharedRunTimeLibrary() && type != Descriptor::Code && type != Descriptor::SharedCode)
+			continue; // shared run-time libraries only include the code segment
+		descriptors[j].type = type;
+		bool is_zero_page = (format != FORMAT_FLEXOS && format != FORMAT_FASTLOAD) && (format == FORMAT_8080 ? i == 0 : i == 1);
 		descriptors[j].attach_zero_page = is_zero_page;
 		descriptors[j].image = Segments()[i];
 		descriptors[j].size_paras = descriptors[j].GetSizeParas(*this);
@@ -1999,7 +2016,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 
 	if(library_descriptor.libraries.size() > 0)
 	{
-		assert(format == FORMAT_FLEXOS || format == FORMAT_XSRTL || format == FORMAT_FASTLOAD);
+		assert(format == FORMAT_FLEXOS || format == FORMAT_FASTLOAD);
 		library_descriptor.type = Descriptor::Libraries;
 		library_descriptor.size_paras =
 			library_descriptor.min_size_paras =
@@ -2030,10 +2047,10 @@ std::string CPM86Format::GetDefaultExtension(Linker::Module& module, std::string
 		case FORMAT_COMPACT:
 			return filename + ".cmd";
 		case FORMAT_FLEXOS:
+			if(IsSharedRunTimeLibrary())
+				return filename + ".srl";
 		case FORMAT_FASTLOAD:
 			return filename + ".286";
-		case FORMAT_XSRTL:
-			return filename + ".srl";
 		default:
 			Linker::FatalError("Internal error: invalid memory model");
 		}
