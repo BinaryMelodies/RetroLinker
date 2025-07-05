@@ -216,7 +216,6 @@ void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump) const
 {
 	if(const std::shared_ptr<CPM86Format> module = std::dynamic_pointer_cast<CPM86Format>(contents))
 	{
-		// TODO: untested
 		module->Dump(dump);
 	}
 	else
@@ -446,7 +445,7 @@ void CPM86Format::FastLoadDescriptor::ReadData(Linker::Reader& rd, const CPM86Fo
 	index_base = rd.ReadUnsigned(2);
 	first_used_index = rd.ReadUnsigned(2);
 
-	for(size_t i = 8; i < uint32_t(size_paras) << 4; i += 8) /* TODO: check if this is the actual limit */
+	for(size_t i = 8; i < uint32_t(size_paras) << 4; i += 8)
 	{
 		ldt_descriptor desc;
 		desc.Read(rd);
@@ -601,7 +600,8 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 	rd.Seek(file_offset + 0x60);
 	lib_id.Read(rd);
 
-	rd.Seek(file_offset + 0x7B);
+	rd.Seek(file_offset + 0x7A);
+	cpm_flags = rd.ReadUnsigned(1);
 	rsx_table_offset = rd.ReadUnsigned(2) << 7;
 	relocations_offset = rd.ReadUnsigned(2) << 7;
 	flags = rd.ReadUnsigned(1);
@@ -683,7 +683,6 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
-		/* TODO: untested */
 		assert(format == FORMAT_FASTLOAD);
 		wr.Seek(file_offset + 0x51);
 		fastload_descriptor.WriteDescriptor(wr, *this);
@@ -695,7 +694,8 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 		wr.Seek(file_offset + 0x60);
 		lib_id.Write(wr);
 	}
-	wr.Seek(file_offset + 0x7B);
+	wr.Seek(file_offset + 0x7A);
+	wr.WriteWord(1, cpm_flags);
 	wr.WriteWord(2, rsx_table_offset >> 7);
 	if((flags & FLAG_FIXUPS))
 	{
@@ -711,7 +711,6 @@ offset_t CPM86Format::WriteFile(Linker::Writer& wr) const
 	}
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
-		/* TODO: untested */
 		assert(format == FORMAT_FASTLOAD);
 		fastload_descriptor.WriteData(wr, *this);
 	}
@@ -802,8 +801,18 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("fixups"), true)
 			->AddBitField(5, 2, Dumper::ChoiceDisplay::Make(x87_values), true)
 			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("RSX"), true)
-			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("direct video access"), true),
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("direct video access"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("MP/M style record lock access"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("cannot run in banked memory"), true),
 		offset_t(flags));
+
+	file_region.AddOptionalField("CP/M flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("F4"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("F3"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("F2"), true)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("F1"), true),
+		offset_t(cpm_flags));
 
 	file_region.AddOptionalField("Library name", Dumper::StringDisplay::Make(8, "\"", "\""), lib_id.name);
 	file_region.AddOptionalField("Library version", Dumper::VersionDisplay::Make(), offset_t(lib_id.major_version), offset_t(lib_id.minor_version));
@@ -1290,6 +1299,49 @@ void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 	option_shared_code = collector.sharedcode();
 	option_generate_fixup_group = collector.fixupgroup();
 
+	if(collector.x87() == "on")
+	{
+		flags |= FLAG_REQUIRED_8087;
+	}
+	else if(collector.x87() == "auto")
+	{
+		flags |= FLAG_OPTIONAL_8087;
+	}
+	else if(collector.x87() != "off")
+	{
+		Linker::Error << "Error: Unknown option for 8087: " << collector.x87() << std::endl;
+	}
+
+	if(collector.directvideo())
+	{
+		flags |= FLAG_DIRECT_VIDEO;
+	}
+	if(collector.mpmlock())
+	{
+		flags |= FLAG_MPMLOCK;
+	}
+	if(collector.nobank())
+	{
+		flags |= FLAG_NO_BANKING;
+	}
+
+	if(collector.f1())
+	{
+		cpm_flags |= CPM_FLAG_F1;
+	}
+	if(collector.f2())
+	{
+		cpm_flags |= CPM_FLAG_F2;
+	}
+	if(collector.f3())
+	{
+		cpm_flags |= CPM_FLAG_F3;
+	}
+	if(collector.f4())
+	{
+		cpm_flags |= CPM_FLAG_F4;
+	}
+
 	unsigned rsx_count = 0;
 	if(auto rsx_file_names = collector.rsx_file_names())
 	{
@@ -1635,7 +1687,7 @@ void CPM86Format::BuildLDTImage(Linker::Module& module)
 		{
 			if(resolution.reference == nullptr)
 			{
-				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO
+				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO: too complex code
 				uint32_t offset = uint32_t(resolution.value) << 4;
 				unsigned dst_segment = GetSegmentNumber(resolution.target);
 				segment_boundaries[dst_segment - 1].insert(offset);
@@ -1692,7 +1744,7 @@ void CPM86Format::BuildLDTImage(Linker::Module& module)
 		Linker::Resolution resolution;
 		if(rel.kind == Linker::Relocation::SelectorIndex && rel.Resolve(module, resolution) && resolution.reference == nullptr)
 		{
-			resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO
+			resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO: too complex code
 			unsigned dst_segment = GetSegmentNumber(resolution.target);
 			relocation_target target { dst_segment, resolution.value };
 			uint16_t selector;
@@ -1814,7 +1866,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 				rel.WriteWord(resolution.value);
 				break;
 			case Linker::Relocation::SelectorIndex: // FlexOS 286
-				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO
+				resolution.value = ((resolution.value - rel.addend) >> 4) + rel.addend; // TODO: too complex code
 			case Linker::Relocation::ParagraphAddress: // CP/M-86
 				if(format == FORMAT_FASTLOAD)
 					continue; // already relocated

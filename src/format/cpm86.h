@@ -82,9 +82,9 @@ namespace DigitalResearch
 				/** @brief (FlexOS 286 only) The group containing the relocations. Not required, since the offset to the relocations is also stored at offset 0x7D in the header, in 128-byte units */
 				Fixups = Auxiliary4, /* FlexOS 286 only */
 				/** @brief (FlexOS 286 only) The fast load group descriptor is stored at offset 0x51 in the header, and the group data appears before the other groups. Not implemented, no documentation */
-				FastLoad = 0xFE, /* TODO */
+				FastLoad = 0xFE,
 				/** @brief (FlexOS 286 only) The shared runtime library group descriptor is stored at offset 0x48 in the header, and the group data appears before the other groups. Not tested */
-				Libraries = 0xFF, /* TODO */
+				Libraries = 0xFF,
 
 				/** @brief A group containing data, used when it is clear this is an auxiliary group */
 				ActualAuxiliary4 = 0x100 | Auxiliary4,
@@ -437,7 +437,12 @@ namespace DigitalResearch
 		/**
 		 * @brief Execution flags, stored at offset 0x7F
 		 */
-		uint8_t flags = 0; /* TODO: make parameter */
+		uint8_t flags = 0;
+		/**
+		 * @brief CP/M specific flags used by Concurrent DOS, stored at offset 0x7A
+		 */
+		uint8_t cpm_flags = 0;
+
 		/**
 		 * @brief The start of the image within the file, typically 0 except for embedded modules, usually for embedded RSX files
 		 */
@@ -456,7 +461,19 @@ namespace DigitalResearch
 			/** @brief Set for residential system extensions (RSX files) */
 			FLAG_RSX = 0x10,
 			/** @brief Set when the program uses direct video access. Such programs cannot execute in the background */
-			FLAG_DIRECT_VIDEO = 0x08
+			FLAG_DIRECT_VIDEO = 0x08,
+			/** @brief Program uses record locking functions of MP/M-86 instead of those of Concurrent CP/M-86 or Concurrent DOS */
+			FLAG_MPMLOCK = 0x04,
+			/** @brief Set when the program cannot run in banked memory */
+			FLAG_NO_BANKING = 0x02,
+		};
+
+		enum
+		{
+			CPM_FLAG_F1 = 0x01,
+			CPM_FLAG_F2 = 0x02,
+			CPM_FLAG_F3 = 0x03,
+			CPM_FLAG_F4 = 0x04,
 		};
 
 		void Clear() override;
@@ -568,10 +585,18 @@ namespace DigitalResearch
 			Linker::Option<bool> sharedcode{"sharedcode", "Make the code segment shared (descriptor type 9)"};
 			Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions (CP/M)"};
 			Linker::Option<bool> fixupgroup{"fixupgroup", "Generates group descriptor for fixups (FlexOS)"};
+			Linker::Option<std::string> x87{"8087", "Sets 8087 usage, valid values: off/on/auto", "off"};
+			Linker::Option<bool> directvideo{"directvideo", "Direct video access"};
+			Linker::Option<bool> mpmlock{"mpmlock", "MP/M-style record handling (Concurrent DOS)"};
+			Linker::Option<bool> nobank{"nobank", "Cannot run in banked memory"};
+			Linker::Option<bool> f1{"f1", "CP/M F1 flag (Concurrent DOS)"};
+			Linker::Option<bool> f2{"f2", "CP/M F2 flag (Concurrent DOS)"};
+			Linker::Option<bool> f3{"f3", "CP/M F3 flag (Concurrent DOS)"};
+			Linker::Option<bool> f4{"f4", "CP/M F4 flag (Concurrent DOS)"};
 
 			CPM86OptionCollector()
 			{
-				InitializeFields(noreloc, sharedcode, rsx_file_names, fixupgroup);
+				InitializeFields(noreloc, sharedcode, rsx_file_names, fixupgroup, x87, directvideo, mpmlock, nobank, f1, f2, f3, f4);
 			}
 		};
 
