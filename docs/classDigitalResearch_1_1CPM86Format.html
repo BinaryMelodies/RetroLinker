@@ -142,9 +142,17 @@ Public Types</h2></td></tr>
 , <a class="el" href="#a4806b038ebd284bb2a44b5edb8e26751a3c6f7fe26e8b845c181df1a8056c5523">FLAG_RSX</a> = 0x10
 , <br />
 &#160;&#160;<a class="el" href="#a4806b038ebd284bb2a44b5edb8e26751a050aca90f2650e7187228f90fae63f2c">FLAG_DIRECT_VIDEO</a> = 0x08
+, <a class="el" href="#a4806b038ebd284bb2a44b5edb8e26751ac3213eff5c27eb4b90f95525bf7bdfbe">FLAG_MPMLOCK</a> = 0x04
+, <a class="el" href="#a4806b038ebd284bb2a44b5edb8e26751ac8945cffa16c19058a1bec7ed04204d3">FLAG_NO_BANKING</a> = 0x02
 <br />
  }</td></tr>
 <tr class="separator:a4806b038ebd284bb2a44b5edb8e26751"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7a43680b0e2f90297aa36cad3e49400" id="r_ae7a43680b0e2f90297aa36cad3e49400"><td class="memItemLeft" align="right" valign="top"><a id="ae7a43680b0e2f90297aa36cad3e49400" name="ae7a43680b0e2f90297aa36cad3e49400"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>CPM_FLAG_F1</b> = 0x01
+, <b>CPM_FLAG_F2</b> = 0x02
+, <b>CPM_FLAG_F3</b> = 0x03
+, <b>CPM_FLAG_F4</b> = 0x04
+ }</td></tr>
+<tr class="separator:ae7a43680b0e2f90297aa36cad3e49400"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a62e99897dc1820e925180333ade1a3eb" id="r_a62e99897dc1820e925180333ade1a3eb"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a62e99897dc1820e925180333ade1a3eb">format_type</a> { <br />
 &#160;&#160;<a class="el" href="#a62e99897dc1820e925180333ade1a3ebaa2c35c19da1681b1a8daba3bbbde7a8e">FORMAT_UNKNOWN</a>
 , <a class="el" href="#a62e99897dc1820e925180333ade1a3ebaa232eed41fbad678e1998318314c42ae">FORMAT_8080</a>
@@ -167,6 +175,8 @@ Public Types</h2></td></tr>
 , <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07af6264cbbe89795b043154b8aab852afd">APPL_CON</a>
 , <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a2a935642d95708d19aed19fb8dd9ec79">APPL_OVR</a>
 , <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad">APPL_286</a>
+, <br />
+&#160;&#160;<a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07a49648f6f499cb0a9d4c6b708ca2fca33">APPL_SRL</a>
 <br />
  }</td></tr>
 <tr class="separator:a75362ea0346d2253fe1f1d28ed260c07"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -177,6 +187,9 @@ Public Types</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a6503f9e1d16bfba45df9a4acb402d05f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the memory model of the running executable, which is the way in which the segments are set up during execution.  <a href="#a6503f9e1d16bfba45df9a4acb402d05f">More...</a><br /></td></tr>
 <tr class="separator:a6503f9e1d16bfba45df9a4acb402d05f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b8960d6d16db86822c37149f6d20766" id="r_a2b8960d6d16db86822c37149f6d20766"><td class="memItemLeft" align="right" valign="top"><a id="a2b8960d6d16db86822c37149f6d20766" name="a2b8960d6d16db86822c37149f6d20766"></a>
+typedef <a class="el" href="structDigitalResearch_1_1CPM86Format_1_1relocation__source.html">relocation_source</a>&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_target</b></td></tr>
+<tr class="separator:a2b8960d6d16db86822c37149f6d20766"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -201,6 +214,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>CheckValidSegmentGrou
 <tr class="memitem:aa2dee50d3a9cfc985ed99a1c37c1d8ae" id="r_aa2dee50d3a9cfc985ed99a1c37c1d8ae"><td class="memItemLeft" align="right" valign="top"><a id="aa2dee50d3a9cfc985ed99a1c37c1d8ae" name="aa2dee50d3a9cfc985ed99a1c37c1d8ae"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsFastLoadFormat</b> () const</td></tr>
 <tr class="separator:aa2dee50d3a9cfc985ed99a1c37c1d8ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7445526bad83bcde0bde0f13c102591f" id="r_a7445526bad83bcde0bde0f13c102591f"><td class="memItemLeft" align="right" valign="top"><a id="a7445526bad83bcde0bde0f13c102591f" name="a7445526bad83bcde0bde0f13c102591f"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsSharedRunTimeLibrary</b> () const</td></tr>
+<tr class="separator:a7445526bad83bcde0bde0f13c102591f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad509edff26760db75a1b48d4f7d44662" id="r_ad509edff26760db75a1b48d4f7d44662"><td class="memItemLeft" align="right" valign="top"><a id="ad509edff26760db75a1b48d4f7d44662" name="ad509edff26760db75a1b48d4f7d44662"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadRelocations</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="separator:ad509edff26760db75a1b48d4f7d44662"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -245,6 +261,10 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetFullFileSize</
 <tr class="memitem:aeed8d9f7d23ffbca9058e22df1b70d0e" id="r_aeed8d9f7d23ffbca9058e22df1b70d0e"><td class="memItemLeft" align="right" valign="top"><a id="aeed8d9f7d23ffbca9058e22df1b70d0e" name="aeed8d9f7d23ffbca9058e22df1b70d0e"></a>
 std::vector&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>Segments</b> ()</td></tr>
 <tr class="separator:aeed8d9f7d23ffbca9058e22df1b70d0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab0fbd703f5c769a67ecccf54e1b90b40" id="r_ab0fbd703f5c769a67ecccf54e1b90b40"><td class="memItemLeft" align="right" valign="top"><a id="ab0fbd703f5c769a67ecccf54e1b90b40" name="ab0fbd703f5c769a67ecccf54e1b90b40"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AssignSegmentTypes</b> ()</td></tr>
+<tr class="memdesc:ab0fbd703f5c769a67ecccf54e1b90b40"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determine the segment group type number, must be called before accessing segment_types. <br /></td></tr>
+<tr class="separator:ab0fbd703f5c769a67ecccf54e1b90b40"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a86699509024b7aa6709347876048e031" id="r_a86699509024b7aa6709347876048e031"><td class="memItemLeft" align="right" valign="top"><a id="a86699509024b7aa6709347876048e031" name="a86699509024b7aa6709347876048e031"></a>
 unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>GetSegmentNumber</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment)</td></tr>
 <tr class="separator:a86699509024b7aa6709347876048e031"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -266,6 +286,10 @@ std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</
 <tr class="memitem:a764fe3a50e4567ccc8c876ecae531fd3" id="r_a764fe3a50e4567ccc8c876ecae531fd3"><td class="memItemLeft" align="right" valign="top"><a id="a764fe3a50e4567ccc8c876ecae531fd3" name="a764fe3a50e4567ccc8c876ecae531fd3"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="separator:a764fe3a50e4567ccc8c876ecae531fd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3493c4cc7245246b77ae01dd9973f478" id="r_a3493c4cc7245246b77ae01dd9973f478"><td class="memItemLeft" align="right" valign="top"><a id="a3493c4cc7245246b77ae01dd9973f478" name="a3493c4cc7245246b77ae01dd9973f478"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>BuildLDTImage</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
+<tr class="memdesc:a3493c4cc7245246b77ae01dd9973f478"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates the LDT image for a fastload FlexOS binary. <br /></td></tr>
+<tr class="separator:a3493c4cc7245246b77ae01dd9973f478"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a25c41738814b891d57274f5371b25c4f" id="r_a25c41738814b891d57274f5371b25c4f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a25c41738814b891d57274f5371b25c4f">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
 <tr class="memdesc:a25c41738814b891d57274f5371b25c4f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
 <tr class="separator:a25c41738814b891d57274f5371b25c4f"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -428,6 +452,10 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>rsx_table_offset<
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td></tr>
 <tr class="memdesc:a7d98daa7501c98a678dc3c96c9ef8117"><td class="mdescLeft">&#160;</td><td class="mdescRight">Execution flags, stored at offset 0x7F. <br /></td></tr>
 <tr class="separator:a7d98daa7501c98a678dc3c96c9ef8117"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01de5f4a136a14ac156a27fea0e2c70e" id="r_a01de5f4a136a14ac156a27fea0e2c70e"><td class="memItemLeft" align="right" valign="top"><a id="a01de5f4a136a14ac156a27fea0e2c70e" name="a01de5f4a136a14ac156a27fea0e2c70e"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>cpm_flags</b> = 0</td></tr>
+<tr class="memdesc:a01de5f4a136a14ac156a27fea0e2c70e"><td class="mdescLeft">&#160;</td><td class="mdescRight">CP/M specific flags used by Concurrent DOS, stored at offset 0x7A. <br /></td></tr>
+<tr class="separator:a01de5f4a136a14ac156a27fea0e2c70e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae7ee8da3bfc85a0bbf7410f6e046ffc1" id="r_ae7ee8da3bfc85a0bbf7410f6e046ffc1"><td class="memItemLeft" align="right" valign="top"><a id="ae7ee8da3bfc85a0bbf7410f6e046ffc1" name="ae7ee8da3bfc85a0bbf7410f6e046ffc1"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b> = 0</td></tr>
 <tr class="memdesc:ae7ee8da3bfc85a0bbf7410f6e046ffc1"><td class="mdescLeft">&#160;</td><td class="mdescRight">The start of the image within the file, typically 0 except for embedded modules, usually for embedded RSX files. <br /></td></tr>
@@ -444,10 +472,10 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = o
 <a class="el" href="#a75362ea0346d2253fe1f1d28ed260c07">application_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>application</b></td></tr>
 <tr class="memdesc:a420b1262e477cc7ce0371b6a57eb45dd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Target application type. <br /></td></tr>
 <tr class="separator:a420b1262e477cc7ce0371b6a57eb45dd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a59517f61eb2d955b0ae5930741d06346" id="r_a59517f61eb2d955b0ae5930741d06346"><td class="memItemLeft" align="right" valign="top"><a id="a59517f61eb2d955b0ae5930741d06346" name="a59517f61eb2d955b0ae5930741d06346"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>shared_code</b> = false</td></tr>
-<tr class="memdesc:a59517f61eb2d955b0ae5930741d06346"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating that the code group is shared, not possible in 8080 format. <br /></td></tr>
-<tr class="separator:a59517f61eb2d955b0ae5930741d06346"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86a26eae2aebb9b7ce6ccecca8796553" id="r_a86a26eae2aebb9b7ce6ccecca8796553"><td class="memItemLeft" align="right" valign="top"><a id="a86a26eae2aebb9b7ce6ccecca8796553" name="a86a26eae2aebb9b7ce6ccecca8796553"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_shared_code</b> = false</td></tr>
+<tr class="memdesc:a86a26eae2aebb9b7ce6ccecca8796553"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag indicating that the code group is shared, not possible in 8080 format. <br /></td></tr>
+<tr class="separator:a86a26eae2aebb9b7ce6ccecca8796553"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f18716204de64f834a4c3a600f01015" id="r_a3f18716204de64f834a4c3a600f01015"><td class="memItemLeft" align="right" valign="top"><a id="a3f18716204de64f834a4c3a600f01015" name="a3f18716204de64f834a4c3a600f01015"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_no_relocation</b> = false</td></tr>
 <tr class="memdesc:a3f18716204de64f834a4c3a600f01015"><td class="mdescLeft">&#160;</td><td class="mdescRight">Flag to indicate that relocations must be suppressed. <br /></td></tr>
@@ -460,6 +488,10 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_generate_fixup
 <a class="el" href="#a6503f9e1d16bfba45df9a4acb402d05f">memory_model_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>memory_model</b> = <a class="el" href="#a6503f9e1d16bfba45df9a4acb402d05fa6b5aba4c3ceb556d8b9b0775cc81a45a">MODEL_SMALL</a></td></tr>
 <tr class="memdesc:a63d5401c8bc020f50d3affb431aed1fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Memory model of generated code, determines how the offsets are calculated within a segment group. <br /></td></tr>
 <tr class="separator:a63d5401c8bc020f50d3affb431aed1fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ad42bb39ad4010fc981d9e45a65afd7" id="r_a7ad42bb39ad4010fc981d9e45a65afd7"><td class="memItemLeft" align="right" valign="top"><a id="a7ad42bb39ad4010fc981d9e45a65afd7" name="a7ad42bb39ad4010fc981d9e45a65afd7"></a>
+std::map&lt; std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;, <a class="el" href="classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bc">Descriptor::group_type</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segment_types</b></td></tr>
+<tr class="memdesc:a7ad42bb39ad4010fc981d9e45a65afd7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assignment from each segment to the segment group type number (1: code, 2: data, etc.) <br /></td></tr>
+<tr class="separator:a7ad42bb39ad4010fc981d9e45a65afd7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:ae752ce750027654f07078e855335b92c inherit pub_attribs_classLinker_1_1SegmentManager" id="r_ae752ce750027654f07078e855335b92c"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1SegmentManager.html#ae752ce750027654f07078e855335b92c">current_base</a> = 0</td></tr>
 <tr class="memdesc:ae752ce750027654f07078e855335b92c inherit pub_attribs_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
@@ -546,6 +578,10 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </td></tr>
 <tr><td class="fieldname"><a id="a4806b038ebd284bb2a44b5edb8e26751a050aca90f2650e7187228f90fae63f2c" name="a4806b038ebd284bb2a44b5edb8e26751a050aca90f2650e7187228f90fae63f2c"></a>FLAG_DIRECT_VIDEO&#160;</td><td class="fielddoc"><p>Set when the program uses direct video access. Such programs cannot execute in the background. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="a4806b038ebd284bb2a44b5edb8e26751ac3213eff5c27eb4b90f95525bf7bdfbe" name="a4806b038ebd284bb2a44b5edb8e26751ac3213eff5c27eb4b90f95525bf7bdfbe"></a>FLAG_MPMLOCK&#160;</td><td class="fielddoc"><p>Program uses record locking functions of MP/M-86 instead of those of Concurrent CP/M-86 or Concurrent DOS. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a4806b038ebd284bb2a44b5edb8e26751ac8945cffa16c19058a1bec7ed04204d3" name="a4806b038ebd284bb2a44b5edb8e26751ac8945cffa16c19058a1bec7ed04204d3"></a>FLAG_NO_BANKING&#160;</td><td class="fielddoc"><p>Set when the program cannot run in banked memory. </p>
+</td></tr>
 </table>
 
 </div>
@@ -576,7 +612,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </td></tr>
 <tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a2a935642d95708d19aed19fb8dd9ec79" name="a75362ea0346d2253fe1f1d28ed260c07a2a935642d95708d19aed19fb8dd9ec79"></a>APPL_OVR&#160;</td><td class="fielddoc"><p>CP/M-86 .ovr overlay (unsupported) </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad" name="a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad"></a>APPL_286&#160;</td><td class="fielddoc"><p>FlexOS 86 .286 executable file (limited support) </p>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad" name="a75362ea0346d2253fe1f1d28ed260c07a35b2c07b4df5ee270b27e6b0a72696ad"></a>APPL_286&#160;</td><td class="fielddoc"><p>FlexOS 286 .286 executable file (limited support) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a75362ea0346d2253fe1f1d28ed260c07a49648f6f499cb0a9d4c6b708ca2fca33" name="a75362ea0346d2253fe1f1d28ed260c07a49648f6f499cb0a9d4c6b708ca2fca33"></a>APPL_SRL&#160;</td><td class="fielddoc"><p>FlexOS 286 .SRL shared runtime library (limited support) </p>
 </td></tr>
 </table>
 
@@ -604,7 +642,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </td></tr>
 <tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba6b9d972314f61bacc116901a621b7a63" name="a62e99897dc1820e925180333ade1a3eba6b9d972314f61bacc116901a621b7a63"></a>FORMAT_COMPACT&#160;</td><td class="fielddoc"><p>CP/M-86 format, each non-executable section will have its own group, including stack and up to 4 auxiliary groups, also used for large model. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0" name="a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0"></a>FORMAT_FLEXOS&#160;</td><td class="fielddoc"><p>FlexOS 286 format, running in protected mode, possible SRTL shared libraries (unfinished) </p>
+<tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0" name="a62e99897dc1820e925180333ade1a3eba640e7402848b89e6fd60f88909a334c0"></a>FORMAT_FLEXOS&#160;</td><td class="fielddoc"><p>FlexOS 286 format, running in protected mode, possible SRTL shared libraries (untested) </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a62e99897dc1820e925180333ade1a3eba4f8ef60d461db0f6bf833a46629ffb23" name="a62e99897dc1820e925180333ade1a3eba4f8ef60d461db0f6bf833a46629ffb23"></a>FORMAT_FASTLOAD&#160;</td><td class="fielddoc"><p>FlexOS 286 fastload format as generated by postlink, with an LDT image in file (unfinished) </p>
 </td></tr>

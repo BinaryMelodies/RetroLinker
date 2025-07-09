@@ -9,8 +9,13 @@ var searchData=
   ['unknownblock_6',['UnknownBlock',['../classPCOS_1_1CMDFormat_1_1UnknownBlock.html',1,'PCOS::CMDFormat']]],
   ['unknownentry_7',['UnknownEntry',['../classApple_1_1AppleSingleDouble_1_1UnknownEntry.html',1,'Apple::AppleSingleDouble']]],
   ['unknownoptionalheader_8',['UnknownOptionalHeader',['../classCOFF_1_1COFFFormat_1_1UnknownOptionalHeader.html',1,'COFF::COFFFormat']]],
-  ['unused_9',['Unused',['../classMicrosoft_1_1NEFormat_1_1Entry.html#adc00fcef26d344e30fa3a6ddd737a9b2a50aa81788194c2d8e0c89a0303c0bf4a',1,'Microsoft::NEFormat::Entry']]],
-  ['usage_10',['usage',['../classMicrosoft_1_1NEFormat_1_1Resource.html#a4c5f0d2dc8eafbf612a67e39b3530792',1,'Microsoft::NEFormat::Resource']]],
-  ['uzi280format_11',['UZI280Format',['../classBinary_1_1UZI280Format.html',1,'Binary']]],
-  ['uziformat_12',['UZIFormat',['../classBinary_1_1UZIFormat.html',1,'Binary']]]
+  ['unknownrecord_9',['UnknownRecord',['../classOMF_1_1OMFFormat_1_1UnknownRecord.html',1,'OMF::OMFFormat']]],
+  ['unused_10',['Unused',['../classMicrosoft_1_1NEFormat_1_1Entry.html#adc00fcef26d344e30fa3a6ddd737a9b2a50aa81788194c2d8e0c89a0303c0bf4a',1,'Microsoft::NEFormat::Entry']]],
+  ['usage_11',['usage',['../classMicrosoft_1_1NEFormat_1_1Resource.html#a4c5f0d2dc8eafbf612a67e39b3530792',1,'Microsoft::NEFormat::Resource']]],
+  ['use32_12',['use32',['../classOMF_1_1OMF86Format_1_1SegmentDefinitionRecord.html#a3099a81d8c47f8b649a15f72db46e47a',1,'OMF::OMF86Format::SegmentDefinitionRecord']]],
+  ['usesabsolute_13',['UsesAbsolute',['../structOMF_1_1OMF86Format_1_1UsesAbsolute.html',1,'OMF::OMF86Format']]],
+  ['usessource_14',['UsesSource',['../structOMF_1_1OMF86Format_1_1UsesSource.html',1,'OMF::OMF86Format']]],
+  ['usestarget_15',['UsesTarget',['../structOMF_1_1OMF86Format_1_1UsesTarget.html',1,'OMF::OMF86Format']]],
+  ['uzi280format_16',['UZI280Format',['../classBinary_1_1UZI280Format.html',1,'Binary']]],
+  ['uziformat_17',['UZIFormat',['../classBinary_1_1UZIFormat.html',1,'Binary']]]
 ];

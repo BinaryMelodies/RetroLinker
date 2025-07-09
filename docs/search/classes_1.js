@@ -1,15 +1,19 @@
 var searchData=
 [
-  ['bfltformat_0',['BFLTFormat',['../classBFLT_1_1BFLTFormat.html',1,'BFLT']]],
-  ['bfltoptioncollector_1',['BFLTOptionCollector',['../classBFLT_1_1BFLTFormat_1_1BFLTOptionCollector.html',1,'BFLT::BFLTFormat']]],
-  ['binaryformat_2',['BinaryFormat',['../classBinary_1_1BinaryFormat.html',1,'Binary']]],
-  ['bitfield_3',['BitField',['../classDumper_1_1BitFieldDisplay_1_1BitField.html',1,'Dumper::BitFieldDisplay']]],
-  ['bitfielddisplay_4',['BitFieldDisplay',['../classDumper_1_1BitFieldDisplay.html',1,'Dumper']]],
-  ['block_5',['Block',['../classAmiga_1_1HunkFormat_1_1Block.html',1,'Amiga::HunkFormat::Block'],['../classDumper_1_1Block.html',1,'Dumper::Block'],['../classELF_1_1ELFFormat_1_1Block.html',1,'ELF::ELFFormat::Block']]],
-  ['boutformat_6',['BOutFormat',['../classXenix_1_1BOutFormat.html',1,'Xenix']]],
-  ['bssblock_7',['BssBlock',['../classAmiga_1_1HunkFormat_1_1BssBlock.html',1,'Amiga::HunkFormat']]],
-  ['buffer_8',['Buffer',['../classLinker_1_1Buffer.html',1,'Linker']]],
-  ['bwformat_9',['BWFormat',['../classDOS16M_1_1BWFormat.html',1,'DOS16M']]],
-  ['bwoptioncollector_10',['BWOptionCollector',['../classDOS16M_1_1BWFormat_1_1BWOptionCollector.html',1,'DOS16M::BWFormat']]],
-  ['bytecode_11',['ByteCode',['../classAS86Obj_1_1AS86ObjFormat_1_1ByteCode.html',1,'AS86Obj::AS86ObjFormat']]]
+  ['backpatchrecord_0',['BackpatchRecord',['../classOMF_1_1OMF86Format_1_1BackpatchRecord.html',1,'OMF::OMF86Format']]],
+  ['basespecification_1',['BaseSpecification',['../classOMF_1_1OMF86Format_1_1BaseSpecification.html',1,'OMF::OMF86Format']]],
+  ['bfltformat_2',['BFLTFormat',['../classBFLT_1_1BFLTFormat.html',1,'BFLT']]],
+  ['bfltoptioncollector_3',['BFLTOptionCollector',['../classBFLT_1_1BFLTFormat_1_1BFLTOptionCollector.html',1,'BFLT::BFLTFormat']]],
+  ['binaryformat_4',['BinaryFormat',['../classBinary_1_1BinaryFormat.html',1,'Binary']]],
+  ['bitfield_5',['BitField',['../classDumper_1_1BitFieldDisplay_1_1BitField.html',1,'Dumper::BitFieldDisplay']]],
+  ['bitfielddisplay_6',['BitFieldDisplay',['../classDumper_1_1BitFieldDisplay.html',1,'Dumper']]],
+  ['block_7',['Block',['../classAmiga_1_1HunkFormat_1_1Block.html',1,'Amiga::HunkFormat::Block'],['../classDumper_1_1Block.html',1,'Dumper::Block'],['../classELF_1_1ELFFormat_1_1Block.html',1,'ELF::ELFFormat::Block']]],
+  ['blockdefinitionrecord_8',['BlockDefinitionRecord',['../classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html',1,'OMF::OMF86Format']]],
+  ['blockindex_9',['BlockIndex',['../classOMF_1_1OMF86Format_1_1BlockIndex.html',1,'OMF::OMF86Format']]],
+  ['boutformat_10',['BOutFormat',['../classXenix_1_1BOutFormat.html',1,'Xenix']]],
+  ['bssblock_11',['BssBlock',['../classAmiga_1_1HunkFormat_1_1BssBlock.html',1,'Amiga::HunkFormat']]],
+  ['buffer_12',['Buffer',['../classLinker_1_1Buffer.html',1,'Linker']]],
+  ['bwformat_13',['BWFormat',['../classDOS16M_1_1BWFormat.html',1,'DOS16M']]],
+  ['bwoptioncollector_14',['BWOptionCollector',['../classDOS16M_1_1BWFormat_1_1BWOptionCollector.html',1,'DOS16M::BWFormat']]],
+  ['bytecode_15',['ByteCode',['../classAS86Obj_1_1AS86ObjFormat_1_1ByteCode.html',1,'AS86Obj::AS86ObjFormat']]]
 ];

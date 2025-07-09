@@ -27,5 +27,6 @@ var searchData=
   ['appendblock_24',['AppendBlock',['../classAmiga_1_1HunkFormat_1_1Hunk.html#adc34432ba2428736924d440e65857b34',1,'Amiga::HunkFormat::Hunk']]],
   ['appendsection_25',['AppendSection',['../classLinker_1_1SegmentManager.html#a5b4ee944d5e224257f1c87c567755f1b',1,'Linker::SegmentManager']]],
   ['appendsegment_26',['AppendSegment',['../classLinker_1_1SegmentManager.html#a664739351641e13b754d1b84e35c5957',1,'Linker::SegmentManager']]],
-  ['asimage_27',['AsImage',['../classMicrosoft_1_1LEFormat_1_1SegmentPage.html#ac6e396d28d89fb23b1db8bf3800f3f0e',1,'Microsoft::LEFormat::SegmentPage::AsImage()'],['../classLinker_1_1Image.html#acaef1c478cfe2e33e41d9e1acd633be5',1,'Linker::Image::AsImage() const'],['../classLinker_1_1Image.html#a252985c07abe8a9da6c9c40d11af7dfb',1,'Linker::Image::AsImage()'],['../classLinker_1_1ActualImage.html#a49ffa40fd03cb77da67b1176b9949ddb',1,'Linker::ActualImage::AsImage()']]]
+  ['asimage_27',['AsImage',['../classMicrosoft_1_1LEFormat_1_1SegmentPage.html#ac6e396d28d89fb23b1db8bf3800f3f0e',1,'Microsoft::LEFormat::SegmentPage::AsImage()'],['../classLinker_1_1Image.html#acaef1c478cfe2e33e41d9e1acd633be5',1,'Linker::Image::AsImage() const'],['../classLinker_1_1Image.html#a252985c07abe8a9da6c9c40d11af7dfb',1,'Linker::Image::AsImage()'],['../classLinker_1_1ActualImage.html#a49ffa40fd03cb77da67b1176b9949ddb',1,'Linker::ActualImage::AsImage()']]],
+  ['assignsegmenttypes_28',['AssignSegmentTypes',['../classDigitalResearch_1_1CPM86Format.html#ab0fbd703f5c769a67ecccf54e1b90b40',1,'DigitalResearch::CPM86Format']]]
 ];
