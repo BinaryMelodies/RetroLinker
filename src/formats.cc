@@ -1032,7 +1032,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_O65:
 		return std::make_shared<O65::O65Format>(); // TODO
 	case FORMAT_OMF:
-		return std::make_shared<OMF::OMFFormat>(); // TODO
+		return std::make_shared<OMF::OMF86Format>(); // TODO
 	case FORMAT_P3:
 		return std::make_shared<P3FormatContainer>(); // TODO
 	case FORMAT_PCOS:
