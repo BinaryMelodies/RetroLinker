@@ -126,7 +126,9 @@ namespace OMF
 			/** @brief Updates all fields that will be used for writing an OMF module, should be called before output */
 			virtual void CalculateValues(FormatType * omf, ModuleType * mod)
 			{
-				// TODO: set record_offset and record_lengt
+				record_offset = omf->file_size;
+				record_length = GetRecordSize(omf, mod);
+				record_offset += record_length;
 			}
 
 			/** @brief Resolves any fields read from an OMF module, should be called after inpnut */
@@ -356,6 +358,9 @@ namespace OMF
 
 		/** @brief Attempts to parse an OMF file, whether OMF80, OMF86, OMF51 or OMF96 */
 		static std::shared_ptr<OMFFormat> ReadOMFFile(Linker::Reader& rd);
+
+		/** @brief Used to calculate record offsets when generating OMF file */
+		offset_t file_size = 0;
 	};
 
 	/**

@@ -1199,6 +1199,7 @@ void OMF86Format::ListOfNamesRecord::WriteRecordContents(OMF86Format * omf, Modu
 
 void OMF86Format::ListOfNamesRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	// TODO
 }
 
@@ -1451,6 +1452,7 @@ void OMF86Format::SegmentDefinitionRecord::WriteRecordContents(OMF86Format * omf
 
 void OMF86Format::SegmentDefinitionRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	if(alignment != AlignUnnamed)
 	{
 		segment_name.CalculateValues(omf, mod);
@@ -1653,6 +1655,7 @@ void OMF86Format::GroupDefinitionRecord::WriteRecordContents(OMF86Format * omf, 
 
 void OMF86Format::GroupDefinitionRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	for(auto& component : components)
 	{
 		component.CalculateValues(omf, mod);
@@ -1902,6 +1905,7 @@ void OMF86Format::TypeDefinitionRecord::WriteRecordContents(OMF86Format * omf, M
 
 void OMF86Format::TypeDefinitionRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	for(auto& leaf : leafs)
 	{
 		leaf.CalculateValues(omf, mod);
@@ -1951,6 +1955,7 @@ void OMF86Format::SymbolsDefinitionRecord::WriteRecordContents(OMF86Format * omf
 
 void OMF86Format::SymbolsDefinitionRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	for(auto& symbol : symbols)
 	{
 		symbol.CalculateValues(omf, mod);
@@ -2003,6 +2008,7 @@ void OMF86Format::ExternalNamesDefinitionRecord::WriteRecordContents(OMF86Format
 
 void OMF86Format::ExternalNamesDefinitionRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	for(uint16_t extdef_index = first_extdef.index; extdef_index < first_extdef.index + extdef_count; extdef_index++)
 	{
 		mod->extdefs[extdef_index].CalculateValues(omf, mod);
@@ -2049,6 +2055,7 @@ void OMF86Format::LineNumbersRecord::WriteRecordContents(OMF86Format * omf, Modu
 
 void OMF86Format::LineNumbersRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	base.CalculateValues(omf, mod);
 }
 
@@ -2101,6 +2108,7 @@ void OMF86Format::BlockDefinitionRecord::WriteRecordContents(OMF86Format * omf, 
 
 void OMF86Format::BlockDefinitionRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	type.CalculateValues(omf, mod);
 }
 
@@ -2200,6 +2208,7 @@ void OMF86Format::DebugSymbolsRecord::WriteRecordContents(OMF86Format * omf, Mod
 
 void OMF86Format::DebugSymbolsRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	if(auto spec = std::get_if<BaseSpecification>(&base))
 	{
 		spec->CalculateValues(omf, mod);
@@ -2264,6 +2273,7 @@ void OMF86Format::RelocatableDataRecord::WriteRecordContents(OMF86Format * omf, 
 
 void OMF86Format::RelocatableDataRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	base.CalculateValues(omf, mod);
 }
 
@@ -2344,6 +2354,7 @@ void OMF86Format::LogicalDataRecord::WriteRecordContents(OMF86Format * omf, Modu
 
 void OMF86Format::LogicalDataRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	segment.CalculateValues(omf, mod);
 }
 
@@ -2621,6 +2632,7 @@ void OMF86Format::FixupRecord::WriteRecordContents(OMF86Format * omf, Module * m
 
 void OMF86Format::FixupRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	for(auto& data : fixup_data)
 	{
 		if(auto * thread = std::get_if<Thread>(&data))
@@ -2707,6 +2719,7 @@ void OMF86Format::OverlayDefinitionRecord::WriteRecordContents(OMF86Format * omf
 
 void OMF86Format::OverlayDefinitionRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	if(shared_overlay)
 	{
 		shared_overlay.value().CalculateValues(omf, mod);
@@ -2889,6 +2902,7 @@ void OMF86Format::RegisterInitializationRecord::WriteRecordContents(OMF86Format 
 
 void OMF86Format::RegisterInitializationRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	for(auto& reg : registers)
 	{
 		reg.CalculateValues(omf, mod);
@@ -3014,6 +3028,7 @@ void OMF86Format::BackpatchRecord::WriteRecordContents(OMF86Format * omf, Module
 
 void OMF86Format::BackpatchRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	segment.CalculateValues(omf, mod);
 }
 
@@ -3094,6 +3109,7 @@ void OMF86Format::NamedBackpatchRecord::WriteRecordContents(OMF86Format * omf, M
 
 void OMF86Format::NamedBackpatchRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	if(omf->omf_version == OMF_VERSION_MICROSOFT)
 	{
 		name.CalculateValues(omf, mod);
@@ -3214,6 +3230,7 @@ void OMF86Format::InitializedCommunalDataRecord::WriteRecordContents(OMF86Format
 
 void OMF86Format::InitializedCommunalDataRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	type.CalculateValues(omf, mod);
 	base.CalculateValues(omf, mod);
 	if(omf->omf_version == OMF_VERSION_MICROSOFT)
@@ -3299,6 +3316,7 @@ void OMF86Format::SymbolLineNumbersRecord::WriteRecordContents(OMF86Format * omf
 
 void OMF86Format::SymbolLineNumbersRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	if(omf->omf_version == OMF_VERSION_MICROSOFT)
 	{
 		name.CalculateValues(omf, mod);
@@ -3600,6 +3618,7 @@ void OMF86Format::NoSegmentPaddingRecord::WriteComment(OMF86Format * omf, Module
 
 void OMF86Format::NoSegmentPaddingRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 }
 
 void OMF86Format::NoSegmentPaddingRecord::ResolveReferences(OMF86Format * omf, Module * mod)
@@ -3669,6 +3688,7 @@ void OMF86Format::ExternalAssociationRecord::WriteComment(OMF86Format * omf, Mod
 
 void OMF86Format::ExternalAssociationRecord::CalculateValues(OMF86Format * omf, Module * mod)
 {
+	Record::CalculateValues(omf, mod);
 	for(auto& association : associations)
 	{
 		association.CalculateValues(omf, mod);
