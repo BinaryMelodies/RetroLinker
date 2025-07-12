@@ -2575,6 +2575,30 @@ namespace OMF
 		/** @brief Parses and returns an instance of the next record */
 		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
 
+		// TODO: document record types
+
+		class ModuleHeaderRecord : public Record
+		{
+		public:
+			std::string name;
+			enum translator_id_t : uint8_t
+			{
+				Assembler = 0xFD,
+				PLMCompiler = 0xFE,
+				Linker = 0xFF,
+			};
+			translator_id_t translator_id;
+
+			ModuleHeaderRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
+		};
+
 		class Module
 		{
 			// TODO

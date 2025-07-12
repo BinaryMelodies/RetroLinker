@@ -4751,12 +4751,77 @@ void OMF80Format::GenerateModule(Linker::Module& module) const
 	/* TODO */
 }
 
+//// OMF51Format::ModuleHeaderRecord
+
+void OMF51Format::ModuleHeaderRecord::ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd)
+{
+	name = ReadString(rd);
+	translator_id = translator_id_t(rd.ReadUnsigned(1));
+	rd.Skip(1);
+	omf->modules.push_back(Module());
+}
+
+uint16_t OMF51Format::ModuleHeaderRecord::GetRecordSize(OMF51Format * omf, Module * mod) const
+{
+	return 4 + name.size();
+}
+
+void OMF51Format::ModuleHeaderRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	WriteString(wr, name);
+	wr.WriteWord(1, translator_id);
+	wr.WriteWord(1, 0); // reserved
+}
+
 //// OMF51Format
 
 std::shared_ptr<OMF51Format::Record> OMF51Format::ReadRecord(Linker::Reader& rd)
 {
-	// TODO
-	return nullptr;
+	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
+	offset_t record_offset = rd.Tell();
+	uint8_t record_type = rd.ReadUnsigned(1);
+	uint16_t record_length = rd.ReadUnsigned(2);
+	std::shared_ptr<Record> record;
+	switch(record_type)
+	{
+	case ModuleHeader:
+		record = std::make_shared<ModuleHeaderRecord>(record_type_t(record_type));
+		break;
+#if 0
+	case ModuleEnd:
+#endif
+	case Content:
+		record = std::make_shared<ContentRecord>(record_type_t(record_type));
+		break;
+#if 0
+	case Fixups:
+	case SegmentDefinitions:
+	case ScopeDefinition:
+	case DebugItems:
+	case PublicDefinitions:
+	case ExternalDefinitions:
+#endif
+	case LibraryModuleLocations:
+		record = std::make_shared<LibraryModuleLocationsRecord>(record_type_t(record_type));
+		break;
+	case LibraryModuleNames:
+		record = std::make_shared<LibraryModuleNamesRecord>(record_type_t(record_type));
+		break;
+	case LibraryDictionary:
+		record = std::make_shared<LibraryDictionaryRecord>(record_type_t(record_type));
+		break;
+	case LibraryHeader:
+		record = std::make_shared<LibraryHeaderRecord>(record_type_t(record_type));
+		break;
+	default:
+		record = std::make_shared<UnknownRecord>(record_type_t(record_type));
+	}
+	record->record_offset = record_offset;
+	record->record_length = record_length;
+	record->ReadRecordContents(this, mod, rd);
+	rd.ReadUnsigned(1); // checksum
+	records.push_back(record);
+	return record;
 }
 
 std::shared_ptr<OMF51Format> OMF51Format::ReadOMFFile(Linker::Reader& rd)
@@ -4806,8 +4871,56 @@ void OMF51Format::GenerateModule(Linker::Module& module) const
 
 std::shared_ptr<OMF96Format::Record> OMF96Format::ReadRecord(Linker::Reader& rd)
 {
-	// TODO
-	return nullptr;
+	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
+	offset_t record_offset = rd.Tell();
+	uint8_t record_type = rd.ReadUnsigned(1);
+	uint16_t record_length = rd.ReadUnsigned(2);
+	std::shared_ptr<Record> record;
+	switch(record_type)
+	{
+#if 0
+	case ModuleHeader:
+	case ModuleEnd:
+#endif
+	case Content:
+		record = std::make_shared<ContentRecord>(record_type_t(record_type));
+		break;
+	case LineNumbers:
+		record = std::make_shared<LineNumbersRecord>(record_type_t(record_type));
+		break;
+#if 0
+	case BlockDefinition:
+	case BlockEnd:
+	case EndOfFile:
+	case ModuleAncestor:
+	case LocalSymbols:
+	case TypeDefinitions:
+	case PublicDefinitions:
+	case ExternalDefinitions:
+	case SegmentDefinitions:
+	case Relocations:
+#endif
+	case LibraryModuleLocations:
+		record = std::make_shared<LibraryModuleLocationsRecord>(record_type_t(record_type));
+		break;
+	case LibraryModuleNames:
+		record = std::make_shared<LibraryModuleNamesRecord>(record_type_t(record_type));
+		break;
+	case LibraryDictionary:
+		record = std::make_shared<LibraryDictionaryRecord>(record_type_t(record_type));
+		break;
+	case LibraryHeader:
+		record = std::make_shared<LibraryHeaderRecord>(record_type_t(record_type));
+		break;
+	default:
+		record = std::make_shared<UnknownRecord>(record_type_t(record_type));
+	}
+	record->record_offset = record_offset;
+	record->record_length = record_length;
+	record->ReadRecordContents(this, mod, rd);
+	rd.ReadUnsigned(1); // checksum
+	records.push_back(record);
+	return record;
 }
 
 std::shared_ptr<OMF96Format> OMF96Format::ReadOMFFile(Linker::Reader& rd)
