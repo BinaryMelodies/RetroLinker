@@ -91,6 +91,244 @@ std::shared_ptr<OMFFormat> OMFFormat::ReadOMFFile(Linker::Reader& rd)
 	}
 }
 
+//// OMFFormat::ContentRecord
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::ContentRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
+{
+	segment_id = rd.ReadUnsigned(1);
+	offset = rd.ReadUnsigned(2);
+	data.resize(Record<RecordTypeByte, FormatType, ModuleType>::record_length - 4);
+	rd.ReadData(data);
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	uint16_t OMFFormat::ContentRecord<RecordTypeByte, FormatType, ModuleType>::GetRecordSize(FormatType * omf, ModuleType * mod) const
+{
+	return 4 + data.size();
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::ContentRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, segment_id);
+	wr.WriteWord(2, offset);
+	wr.WriteData(data);
+}
+
+//// OMFFormat::LineNumber
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber::ReadLineNumber(FormatType * omf, Linker::Reader& rd)
+{
+	LineNumber line_number;
+	line_number.line_number = rd.ReadUnsigned(2);
+	line_number.offset = rd.ReadUnsigned(2);
+	return line_number;
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber::WriteLineNumber(FormatType * omf, ChecksumWriter& wr) const
+{
+	wr.WriteWord(2, line_number);
+	wr.WriteWord(2, offset);
+}
+
+//// OMFFormat::LineNumbersRecord
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
+{
+	segment_id = rd.ReadUnsigned(1);
+	while(rd.Tell() < LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::record_offset + LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::record_length)
+	{
+		line_numbers.push_back(LineNumber::ReadLineNumber(omf, rd));
+	}
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	uint16_t OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::GetRecordSize(FormatType * omf, ModuleType * mod) const
+{
+	return 1 + 4 * line_numbers.size();
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, segment_id);
+	for(auto& line_number : line_numbers)
+	{
+		line_number.WriteLineNumber(omf, wr);
+	}
+}
+
+//// OMFFormat::LibraryHeaderRecord
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryHeaderRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
+{
+	module_count = rd.ReadUnsigned(2);
+	block_number = rd.ReadUnsigned(2);
+	byte_number = rd.ReadUnsigned(2);
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	uint16_t OMFFormat::LibraryHeaderRecord<RecordTypeByte, FormatType, ModuleType>::GetRecordSize(FormatType * omf, ModuleType * mod) const
+{
+	return 7;
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryHeaderRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(2, module_count);
+	wr.WriteWord(2, block_number);
+	wr.WriteWord(2, byte_number);
+}
+
+//// OMFFormat::LibraryModuleNamesRecord
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
+{
+	offset_t record_end = rd.Tell() + LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::record_length -  1;
+	while(rd.Tell() < record_end)
+	{
+		names.push_back(ReadString(rd));
+	}
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	uint16_t OMFFormat::LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::GetRecordSize(FormatType * omf, ModuleType * mod) const
+{
+	uint16_t bytes = 1;
+	for(auto& name : names)
+	{
+		bytes += name.size() + 1;
+	}
+	return bytes;
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+{
+	for(auto& name : names)
+	{
+		WriteString(wr, name);
+	}
+}
+
+//// OMFFormat::LibraryModuleLocationsRecord::Location
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location::ReadLocation(Linker::Reader& rd)
+{
+	Location location;
+	location.block_number = rd.ReadUnsigned(2);
+	location.byte_number = rd.ReadUnsigned(2);
+	return location;
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location::WriteLocation(ChecksumWriter& wr) const
+{
+	wr.WriteWord(2, block_number);
+	wr.WriteWord(2, byte_number);
+}
+
+//// OMFFormat::LibraryModuleLocationsRecord
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
+{
+	offset_t record_end = rd.Tell() + LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::record_length -  1;
+	while(rd.Tell() < record_end)
+	{
+		locations.push_back(Location::ReadLocation(rd));
+	}
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	uint16_t OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::GetRecordSize(FormatType * omf, ModuleType * mod) const
+{
+	return 1 + 4 * locations.size();
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+{
+	for(auto& location : locations)
+	{
+		location.WriteLocation(wr);
+	}
+}
+
+//// OMFFormat::LibraryDictionaryRecord
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::ReadGroup(Linker::Reader& rd)
+{
+	while(true)
+	{
+		std::string name = ReadString(rd);
+		if(name == "")
+			break;
+		names.push_back(name);
+	}
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	uint16_t OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::GetGroupSize() const
+{
+	uint16_t bytes = 1;
+	for(auto& name : names)
+	{
+		bytes += 1 + name.size();
+	}
+	return bytes;
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::WriteGroup(ChecksumWriter& wr) const
+{
+	for(auto& name : names)
+	{
+		WriteString(wr, name);
+	}
+	WriteString(wr, "");
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
+{
+	offset_t record_end = rd.Tell() + LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::record_length -  1;
+	while(rd.Tell() < record_end)
+	{
+		groups.push_back(Group());
+		groups.back().ReadGroup(rd);
+	}
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	uint16_t OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::GetRecordSize(FormatType * omf, ModuleType * mod) const
+{
+	uint16_t bytes = 1;
+	for(auto& group : groups)
+	{
+		bytes += group.GetGroupSize();
+	}
+	return bytes;
+}
+
+template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+{
+	for(auto& group : groups)
+	{
+		group.WriteGroup(wr);
+	}
+}
+
 //// OMF86Format::NameIndex
 
 void OMF86Format::NameIndex::CalculateValues(OMF86Format * omf, Module * mod)
@@ -2760,156 +2998,6 @@ void OMF86Format::ModuleEndRecord::WriteRecordContents(OMF86Format * omf, Module
 	}
 }
 
-//// OMF86Format::IntelLibraryHeaderRecord
-
-void OMF86Format::IntelLibraryHeaderRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
-{
-	module_count = rd.ReadUnsigned(2);
-	block_number = rd.ReadUnsigned(2);
-	byte_number = rd.ReadUnsigned(2);
-}
-
-uint16_t OMF86Format::IntelLibraryHeaderRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
-{
-	return 7;
-}
-
-void OMF86Format::IntelLibraryHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
-{
-	wr.WriteWord(2, module_count);
-	wr.WriteWord(2, block_number);
-	wr.WriteWord(2, byte_number);
-}
-
-//// OMF86Format::IntelLibraryModuleNamesRecord
-
-void OMF86Format::IntelLibraryModuleNamesRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
-{
-	offset_t record_end = rd.Tell() + record_length -  1;
-	while(rd.Tell() < record_end)
-	{
-		names.push_back(ReadString(rd));
-	}
-}
-
-uint16_t OMF86Format::IntelLibraryModuleNamesRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
-{
-	uint16_t bytes = 1;
-	for(auto& name : names)
-	{
-		bytes += name.size() + 1;
-	}
-	return bytes;
-}
-
-void OMF86Format::IntelLibraryModuleNamesRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
-{
-	for(auto& name : names)
-	{
-		WriteString(wr, name);
-	}
-}
-
-//// OMF86Format::IntelLibraryModuleLocationsRecord::Location
-
-OMF86Format::IntelLibraryModuleLocationsRecord::Location OMF86Format::IntelLibraryModuleLocationsRecord::Location::ReadLocation(Linker::Reader& rd)
-{
-	Location location;
-	location.block_number = rd.ReadUnsigned(2);
-	location.byte_number = rd.ReadUnsigned(2);
-	return location;
-}
-
-void OMF86Format::IntelLibraryModuleLocationsRecord::Location::WriteLocation(ChecksumWriter& wr) const
-{
-	wr.WriteWord(2, block_number);
-	wr.WriteWord(2, byte_number);
-}
-
-//// OMF86Format::IntelLibraryModuleLocationsRecord
-
-void OMF86Format::IntelLibraryModuleLocationsRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
-{
-	offset_t record_end = rd.Tell() + record_length -  1;
-	while(rd.Tell() < record_end)
-	{
-		locations.push_back(Location::ReadLocation(rd));
-	}
-}
-
-uint16_t OMF86Format::IntelLibraryModuleLocationsRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
-{
-	return 1 + 4 * locations.size();
-}
-
-void OMF86Format::IntelLibraryModuleLocationsRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
-{
-	for(auto& location : locations)
-	{
-		location.WriteLocation(wr);
-	}
-}
-
-//// OMF86Format::IntelLibraryDictionaryRecord
-
-void OMF86Format::IntelLibraryDictionaryRecord::Group::ReadGroup(Linker::Reader& rd)
-{
-	while(true)
-	{
-		std::string name = ReadString(rd);
-		if(name == "")
-			break;
-		names.push_back(name);
-	}
-}
-
-uint16_t OMF86Format::IntelLibraryDictionaryRecord::Group::GetGroupSize() const
-{
-	uint16_t bytes = 1;
-	for(auto& name : names)
-	{
-		bytes += 1 + name.size();
-	}
-	return bytes;
-}
-
-void OMF86Format::IntelLibraryDictionaryRecord::Group::WriteGroup(ChecksumWriter& wr) const
-{
-	for(auto& name : names)
-	{
-		WriteString(wr, name);
-	}
-	WriteString(wr, "");
-}
-
-void OMF86Format::IntelLibraryDictionaryRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
-{
-	offset_t record_end = rd.Tell() + record_length -  1;
-	while(rd.Tell() < record_end)
-	{
-		groups.push_back(Group());
-		groups.back().ReadGroup(rd);
-	}
-}
-
-uint16_t OMF86Format::IntelLibraryDictionaryRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
-{
-	uint16_t bytes = 1;
-	for(auto& group : groups)
-	{
-		bytes += group.GetGroupSize();
-	}
-	return bytes;
-}
-
-void OMF86Format::IntelLibraryDictionaryRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
-{
-	for(auto& group : groups)
-	{
-		group.WriteGroup(wr);
-	}
-}
-
 //// OMF86Format::BackpatchRecord
 
 void OMF86Format::BackpatchRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
@@ -3828,9 +3916,9 @@ void OMF86Format::LinkerDirectivesRecord::WriteComment(OMF86Format * omf, Module
 	wr.WriteWord(1, codeview_version);
 }
 
-//// OMF86Format::LibraryHeaderRecord
+//// OMF86Format::TISLibraryHeaderRecord
 
-void OMF86Format::LibraryHeaderRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
+void OMF86Format::TISLibraryHeaderRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
 	omf->page_size = record_length + 3;
 	dictionary_offset = rd.ReadUnsigned(4);
@@ -3841,17 +3929,17 @@ void OMF86Format::LibraryHeaderRecord::ReadRecordContents(OMF86Format * omf, Mod
 	rd.Skip(omf->page_size - 10);
 }
 
-uint16_t OMF86Format::LibraryHeaderRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
+uint16_t OMF86Format::TISLibraryHeaderRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
 {
 	return omf->page_size - 3;
 }
 
-void OMF86Format::LibraryHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::TISLibraryHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	assert(false);
 }
 
-void OMF86Format::LibraryHeaderRecord::WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const
+void OMF86Format::TISLibraryHeaderRecord::WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const
 {
 	uint16_t page_size = dynamic_cast<OMF86Format *>(omf)->page_size;
 	wr.WriteWord(1, record_type);
@@ -3865,24 +3953,24 @@ void OMF86Format::LibraryHeaderRecord::WriteRecord(OMF86Format * omf, Module * m
 	wr.Skip(page_size - 10);
 }
 
-//// OMF86Format::LibraryEndRecord
+//// OMF86Format::TISLibraryEndRecord
 
-void OMF86Format::LibraryEndRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
+void OMF86Format::TISLibraryEndRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
 	rd.Skip(omf->page_size - 3);
 }
 
-uint16_t OMF86Format::LibraryEndRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
+uint16_t OMF86Format::TISLibraryEndRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
 {
 	return omf->page_size - 3;
 }
 
-void OMF86Format::LibraryEndRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::TISLibraryEndRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	assert(false);
 }
 
-void OMF86Format::LibraryEndRecord::WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const
+void OMF86Format::TISLibraryEndRecord::WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const
 {
 	uint16_t page_size = dynamic_cast<OMF86Format *>(omf)->page_size;
 	wr.WriteWord(1, record_type);
@@ -4009,16 +4097,16 @@ std::shared_ptr<OMF86Format::Record> OMF86Format::ReadRecord(Linker::Reader& rd)
 		record = std::make_shared<LogicalDataRecord>(record_type_t(record_type));
 		break;
 	case LIBHED:
-		record = std::make_shared<IntelLibraryHeaderRecord>(record_type_t(record_type));
+		record = std::make_shared<LibraryHeaderRecord>(record_type_t(record_type));
 		break;
 	case LIBNAM:
-		record = std::make_shared<IntelLibraryModuleNamesRecord>(record_type_t(record_type));
+		record = std::make_shared<LibraryModuleNamesRecord>(record_type_t(record_type));
 		break;
 	case LIBLOC:
-		record = std::make_shared<IntelLibraryModuleLocationsRecord>(record_type_t(record_type));
+		record = std::make_shared<LibraryModuleLocationsRecord>(record_type_t(record_type));
 		break;
 	case LIBDIC:
-		record = std::make_shared<IntelLibraryDictionaryRecord>(record_type_t(record_type));
+		record = std::make_shared<LibraryDictionaryRecord>(record_type_t(record_type));
 		break;
 	case COMDEF:
 		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
@@ -4064,13 +4152,13 @@ std::shared_ptr<OMF86Format::Record> OMF86Format::ReadRecord(Linker::Reader& rd)
 		record = std::make_shared<VendorExtensionRecord>(record_type_t(record_type));
 		break;
 	case LibraryHeader:
-		record = std::make_shared<LibraryHeaderRecord>(record_type_t(record_type));
+		record = std::make_shared<TISLibraryHeaderRecord>(record_type_t(record_type));
 		record->record_offset = record_offset;
 		record->record_length = record_length;
 		record->ReadRecordContents(this, mod, rd);
 		return record;
 	case LibraryEnd:
-		record = std::make_shared<LibraryEndRecord>(record_type_t(record_type));
+		record = std::make_shared<TISLibraryEndRecord>(record_type_t(record_type));
 		record->record_offset = record_offset;
 		record->record_length = record_length;
 		record->ReadRecordContents(this, mod, rd);

@@ -196,6 +196,159 @@ namespace OMF
 			}
 		};
 
+		/** @brief A record representing data to be loaded into a segment
+		 *
+		 * This layout is shared by OMF80, OMF51 and OMF96.
+		 */
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+			class ContentRecord : public Record<RecordTypeByte, FormatType, ModuleType>
+		{
+		public:
+			uint8_t segment_id = 0;
+			uint16_t offset = 0;
+			std::vector<uint8_t> data;
+
+			ContentRecord(RecordTypeByte record_type = RecordTypeByte(0))
+				: Record<RecordTypeByte, FormatType, ModuleType>(record_type)
+			{
+			}
+
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
+			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
+		};
+
+		/** @brief A record representing line number information
+		 *
+		 * This layout is shared by OMF80 and OMF96.
+		 * OMF86 has a similar format but with a 32-bit extension.
+		 */
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+			class LineNumbersRecord : public Record<RecordTypeByte, FormatType, ModuleType>
+		{
+		public:
+			class LineNumber
+			{
+			public:
+				uint16_t line_number = 0;
+				uint16_t offset = 0;
+
+				static LineNumber ReadLineNumber(FormatType * omf, Linker::Reader& rd);
+				void WriteLineNumber(FormatType * omf, ChecksumWriter& wr) const;
+			};
+
+			uint8_t segment_id = 0;
+			std::vector<LineNumber> line_numbers;
+
+			LineNumbersRecord(RecordTypeByte record_type = RecordTypeByte(0))
+				: Record<RecordTypeByte, FormatType, ModuleType>(record_type)
+			{
+			}
+
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
+			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
+		};
+
+		/** @brief Library header record, used for LIBHED */
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+			class LibraryHeaderRecord : public Record<RecordTypeByte, FormatType, ModuleType>
+		{
+		public:
+			/** @brief Number of modules contained */
+			uint16_t module_count;
+			/** @brief Offset to the first byte of the library module, as a block:byte pair */
+			uint16_t block_number;
+			/** @brief Offset to the first byte of the library module, as a block:byte pair */
+			uint16_t byte_number;
+
+			LibraryHeaderRecord(RecordTypeByte record_type = RecordTypeByte(0))
+				: Record<RecordTypeByte, FormatType, ModuleType>(record_type)
+			{
+			}
+
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
+			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
+		};
+
+		/** @brief Library module names, used for LIBNAM */
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+			class LibraryModuleNamesRecord : public Record<RecordTypeByte, FormatType, ModuleType>
+		{
+		public:
+			/** @brief List of module names */
+			std::vector<std::string> names;
+
+			LibraryModuleNamesRecord(RecordTypeByte record_type = RecordTypeByte(0))
+				: Record<RecordTypeByte, FormatType, ModuleType>(record_type)
+			{
+			}
+
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
+			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
+		};
+
+		/** @brief Library module offsets, used for LIBLOC */
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+			class LibraryModuleLocationsRecord : public Record<RecordTypeByte, FormatType, ModuleType>
+		{
+		public:
+			struct Location
+			{
+			public:
+				/** @brief Offset to the first byte of the library module, as a block:byte pair */
+				uint16_t block_number;
+				/** @brief Offset to the first byte of the library module, as a block:byte pair */
+				uint16_t byte_number;
+
+				static Location ReadLocation(Linker::Reader& rd);
+				void WriteLocation(ChecksumWriter& wr) const;
+			};
+
+			/** @brief List of starting locations, one for each library module */
+			std::vector<Location> locations;
+
+			LibraryModuleLocationsRecord(RecordTypeByte record_type = RecordTypeByte(0))
+				: Record<RecordTypeByte, FormatType, ModuleType>(record_type)
+			{
+			}
+
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
+			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
+		};
+
+		/** @brief All public symbols of all modules, used for LIBDIC */
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+			class LibraryDictionaryRecord : public Record<RecordTypeByte, FormatType, ModuleType>
+		{
+		public:
+			class Group
+			{
+			public:
+				/** @brief List of public symbols for one library module */
+				std::vector<std::string> names;
+
+				void ReadGroup(Linker::Reader& rd);
+				uint16_t GetGroupSize() const;
+				void WriteGroup(ChecksumWriter& wr) const;
+			};
+
+			/** @brief List of public symbols, grouped by library modules */
+			std::vector<Group> groups;
+
+			LibraryDictionaryRecord(RecordTypeByte record_type = RecordTypeByte(0))
+				: Record<RecordTypeByte, FormatType, ModuleType>(record_type)
+			{
+			}
+
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
+			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
+		};
+
 		/** @brief Attempts to parse an OMF file, whether OMF80, OMF86, OMF51 or OMF96 */
 		static std::shared_ptr<OMFFormat> ReadOMFFile(Linker::Reader& rd);
 	};
@@ -656,6 +809,10 @@ namespace OMF
 		using Record = OMFFormat::Record<record_type_t, OMF86Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF86Format, Module>;
 		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF86Format, Module>;
+		using LibraryHeaderRecord = OMFFormat::LibraryHeaderRecord<record_type_t, OMF86Format, Module>;
+		using LibraryModuleNamesRecord = OMFFormat::LibraryModuleNamesRecord<record_type_t, OMF86Format, Module>;
+		using LibraryModuleLocationsRecord = OMFFormat::LibraryModuleLocationsRecord<record_type_t, OMF86Format, Module>;
+		using LibraryDictionaryRecord = OMFFormat::LibraryDictionaryRecord<record_type_t, OMF86Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
 		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
@@ -1466,101 +1623,6 @@ namespace OMF
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
-		/** @brief Library header record, used for LIBHED (Intel only) */
-		class IntelLibraryHeaderRecord : public Record
-		{
-		public:
-			/** @brief Number of modules contained */
-			uint16_t module_count;
-			/** @brief Offset to the first byte of the library module, as a block:byte pair */
-			uint16_t block_number;
-			/** @brief Offset to the first byte of the library module, as a block:byte pair */
-			uint16_t byte_number;
-
-			IntelLibraryHeaderRecord(record_type_t record_type = record_type_t(0))
-				: Record(record_type)
-			{
-			}
-
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
-
-		/** @brief Library module names, used for LIBNAM (Intel only) */
-		class IntelLibraryModuleNamesRecord : public Record
-		{
-		public:
-			/** @brief List of module names */
-			std::vector<std::string> names;
-
-			IntelLibraryModuleNamesRecord(record_type_t record_type = record_type_t(0))
-				: Record(record_type)
-			{
-			}
-
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
-
-		/** @brief Library module offsets, used for LIBLOC (Intel only) */
-		class IntelLibraryModuleLocationsRecord : public Record
-		{
-		public:
-			struct Location
-			{
-			public:
-				/** @brief Offset to the first byte of the library module, as a block:byte pair */
-				uint16_t block_number;
-				/** @brief Offset to the first byte of the library module, as a block:byte pair */
-				uint16_t byte_number;
-
-				static Location ReadLocation(Linker::Reader& rd);
-				void WriteLocation(ChecksumWriter& wr) const;
-			};
-
-			/** @brief List of starting locations, one for each library module */
-			std::vector<Location> locations;
-
-			IntelLibraryModuleLocationsRecord(record_type_t record_type = record_type_t(0))
-				: Record(record_type)
-			{
-			}
-
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
-
-		/** @brief All public symbols of all modules, used for LIBDIC (Intel only) */
-		class IntelLibraryDictionaryRecord : public Record
-		{
-		public:
-			class Group
-			{
-			public:
-				/** @brief List of public symbols for one library module */
-				std::vector<std::string> names;
-
-				void ReadGroup(Linker::Reader& rd);
-				uint16_t GetGroupSize() const;
-				void WriteGroup(ChecksumWriter& wr) const;
-			};
-
-			/** @brief List of public symbols, grouped by library modules */
-			std::vector<Group> groups;
-
-			IntelLibraryDictionaryRecord(record_type_t record_type = record_type_t(0))
-				: Record(record_type)
-			{
-			}
-
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
-
 		// TODO: document
 		class BackpatchRecord : public Record
 		{
@@ -2036,14 +2098,14 @@ namespace OMF
 			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
-		class LibraryHeaderRecord : public Record
+		class TISLibraryHeaderRecord : public Record
 		{
 		public:
 			uint32_t dictionary_offset;
 			uint16_t dictionary_size;
 			bool case_sensitive;
 
-			LibraryHeaderRecord(record_type_t record_type = record_type_t(0))
+			TISLibraryHeaderRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
@@ -2055,10 +2117,10 @@ namespace OMF
 			void WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const override;
 		};
 
-		class LibraryEndRecord : public Record
+		class TISLibraryEndRecord : public Record
 		{
 		public:
-			LibraryEndRecord(record_type_t record_type = record_type_t(0))
+			TISLibraryEndRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
@@ -2146,6 +2208,10 @@ namespace OMF
 		using Record = OMFFormat::Record<record_type_t, OMF80Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF80Format, Module>;
 		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF80Format, Module>;
+		using LibraryHeaderRecord = OMFFormat::LibraryHeaderRecord<record_type_t, OMF80Format, Module>;
+		using LibraryModuleNamesRecord = OMFFormat::LibraryModuleNamesRecord<record_type_t, OMF80Format, Module>;
+		using LibraryModuleLocationsRecord = OMFFormat::LibraryModuleLocationsRecord<record_type_t, OMF80Format, Module>;
+		using LibraryDictionaryRecord = OMFFormat::LibraryDictionaryRecord<record_type_t, OMF80Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
 		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
@@ -2194,6 +2260,10 @@ namespace OMF
 		using Record = OMFFormat::Record<record_type_t, OMF51Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF51Format, Module>;
 		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF51Format, Module>;
+		using LibraryHeaderRecord = OMFFormat::LibraryHeaderRecord<record_type_t, OMF51Format, Module>;
+		using LibraryModuleNamesRecord = OMFFormat::LibraryModuleNamesRecord<record_type_t, OMF51Format, Module>;
+		using LibraryModuleLocationsRecord = OMFFormat::LibraryModuleLocationsRecord<record_type_t, OMF51Format, Module>;
+		using LibraryDictionaryRecord = OMFFormat::LibraryDictionaryRecord<record_type_t, OMF51Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
 		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
@@ -2247,6 +2317,10 @@ namespace OMF
 		using Record = OMFFormat::Record<record_type_t, OMF96Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF96Format, Module>;
 		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF96Format, Module>;
+		using LibraryHeaderRecord = OMFFormat::LibraryHeaderRecord<record_type_t, OMF96Format, Module>;
+		using LibraryModuleNamesRecord = OMFFormat::LibraryModuleNamesRecord<record_type_t, OMF96Format, Module>;
+		using LibraryModuleLocationsRecord = OMFFormat::LibraryModuleLocationsRecord<record_type_t, OMF96Format, Module>;
+		using LibraryDictionaryRecord = OMFFormat::LibraryDictionaryRecord<record_type_t, OMF96Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
 		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
