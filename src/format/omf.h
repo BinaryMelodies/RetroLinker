@@ -732,8 +732,6 @@ namespace OMF
 		class ListOfNamesRecord : public Record
 		{
 		public:
-			/** @brief The module object this record appears in */
-			Module * module;
 			/** @brief List of names (only needed for genering OMF files */
 			std::vector<std::string> names;
 			/** @brief Index of the first name in the module */
@@ -1069,8 +1067,6 @@ namespace OMF
 		class ExternalNamesDefinitionRecord : public Record
 		{
 		public:
-			/** @brief The module object this record appears in */
-			Module * module;
 			/** @brief Index of first external or common symbol in module */
 			ExternalIndex first_extdef;
 			/** @brief Number of external or common symbols defined in this record */

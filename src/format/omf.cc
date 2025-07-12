@@ -943,7 +943,6 @@ void OMF86Format::ListOfNamesRecord::ReadRecordContents(OMF86Format * omf, Modul
 		names.push_back(name);
 		lname_count++;
 	}
-	module = &omf->modules.back();
 }
 
 uint16_t OMF86Format::ListOfNamesRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
@@ -951,7 +950,7 @@ uint16_t OMF86Format::ListOfNamesRecord::GetRecordSize(OMF86Format * omf, Module
 	uint16_t bytes = 1;
 	for(uint16_t lname_index = first_lname; lname_index < first_lname + lname_count; lname_index++)
 	{
-		bytes += module->lnames[lname_index].size() + 1;
+		bytes += mod->lnames[lname_index].size() + 1;
 	}
 	return bytes;
 }
@@ -960,7 +959,7 @@ void OMF86Format::ListOfNamesRecord::WriteRecordContents(OMF86Format * omf, Modu
 {
 	for(uint16_t lname_index = first_lname; lname_index < first_lname + lname_count; lname_index++)
 	{
-		OMF86Format::WriteString(wr, module->lnames[lname_index]);
+		OMF86Format::WriteString(wr, mod->lnames[lname_index]);
 	}
 }
 
@@ -1753,7 +1752,6 @@ void OMF86Format::ExternalNamesDefinitionRecord::ReadRecordContents(OMF86Format 
 			omf->modules.back().extdefs.push_back(ExternalName::ReadExternalName(omf, rd, local));
 		extdef_count++;
 	}
-	module = &omf->modules.back();
 }
 
 uint16_t OMF86Format::ExternalNamesDefinitionRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
@@ -1761,7 +1759,7 @@ uint16_t OMF86Format::ExternalNamesDefinitionRecord::GetRecordSize(OMF86Format *
 	uint16_t bytes = 1;
 	for(uint16_t extdef_index = first_extdef.index; extdef_index < first_extdef.index + extdef_count; extdef_index++)
 	{
-		bytes += module->extdefs[extdef_index].GetExternalNameSize(omf);
+		bytes += mod->extdefs[extdef_index].GetExternalNameSize(omf);
 	}
 	return bytes;
 }
@@ -1770,7 +1768,7 @@ void OMF86Format::ExternalNamesDefinitionRecord::WriteRecordContents(OMF86Format
 {
 	for(uint16_t extdef_index = first_extdef.index; extdef_index < first_extdef.index + extdef_count; extdef_index++)
 	{
-		module->extdefs[extdef_index].WriteExternalName(omf, wr);
+		mod->extdefs[extdef_index].WriteExternalName(omf, wr);
 	}
 }
 
