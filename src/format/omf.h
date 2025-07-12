@@ -171,6 +171,30 @@ namespace OMF
 				wr.WriteData(data);
 			}
 		};
+
+		/** @brief A record type that has no contents, aside from the type, length and checksum, used for BLKEND */
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+			class EmptyRecord : public Record<RecordTypeByte, FormatType, ModuleType>
+		{
+		public:
+			EmptyRecord(RecordTypeByte record_type = RecordTypeByte(0))
+				: Record<RecordTypeByte, FormatType, ModuleType>(record_type)
+			{
+			}
+
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override
+			{
+			}
+
+			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override
+			{
+				return 1;
+			}
+
+			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override
+			{
+			}
+		};
 	};
 
 	/**
@@ -628,31 +652,10 @@ namespace OMF
 
 		using Record = OMFFormat::Record<record_type_t, OMF86Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF86Format, Module>;
+		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF86Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
 		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
-
-		/** @brief A record type that has no contents, aside from the type, length and checksum, used for BLKEND */
-		class EmptyRecord : public Record
-		{
-		public:
-			EmptyRecord()
-				: Record()
-			{
-			}
-
-			EmptyRecord(record_type_t record_type)
-				: Record(record_type)
-			{
-			}
-
-			using Record::ReadRecordContents;
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
-			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
-			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
 
 		/** @brief A header record, used for THEADR and LHEADR */
 		class ModuleHeaderRecord : public Record
@@ -661,21 +664,13 @@ namespace OMF
 			/** @brief The name of the record */
 			std::string name;
 
-			ModuleHeaderRecord()
-				: Record()
-			{
-			}
-
-			ModuleHeaderRecord(record_type_t record_type)
+			ModuleHeaderRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -720,16 +715,13 @@ namespace OMF
 			{
 			}
 
-			RModuleHeaderRecord(record_type_t record_type)
+			RModuleHeaderRecord(record_type_t record_type = record_type_t(0))
 				: ModuleHeaderRecord(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -746,21 +738,13 @@ namespace OMF
 			/** @brief Number of names appearing in this record */
 			uint16_t lname_count = 0;
 
-			ListOfNamesRecord()
-				: Record()
-			{
-			}
-
-			ListOfNamesRecord(record_type_t record_type)
+			ListOfNamesRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -872,21 +856,13 @@ namespace OMF
 			/** @brief Represents the value of a Phar Lap specific extension word */
 			std::optional<access_t> access;
 
-			SegmentDefinitionRecord()
-				: Record()
-			{
-			}
-
-			SegmentDefinitionRecord(record_type_t record_type)
+			SegmentDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -948,21 +924,13 @@ namespace OMF
 			/** @brief The components of the group, such as member segments or load address */
 			std::vector<Component> components;
 
-			GroupDefinitionRecord()
-				: Record()
-			{
-			}
-
-			GroupDefinitionRecord(record_type_t record_type)
+			GroupDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1058,21 +1026,13 @@ namespace OMF
 				List = 0x7F, // List(...)
 			};
 
-			TypeDefinitionRecord()
-				: Record()
-			{
-			}
-
-			TypeDefinitionRecord(record_type_t record_type)
+			TypeDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1089,21 +1049,13 @@ namespace OMF
 			/** @brief A list of symbols */
 			std::vector<SymbolDefinition> symbols;
 
-			SymbolsDefinitionRecord()
-				: Record()
-			{
-			}
-
-			SymbolsDefinitionRecord(record_type_t record_type)
+			SymbolsDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1121,21 +1073,13 @@ namespace OMF
 			/** @brief Number of external or common symbols defined in this record */
 			uint16_t extdef_count = 0;
 
-			ExternalNamesDefinitionRecord()
-				: Record()
-			{
-			}
-
-			ExternalNamesDefinitionRecord(record_type_t record_type)
+			ExternalNamesDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1152,21 +1096,13 @@ namespace OMF
 			/** @brief List of lines */
 			std::vector<LineNumber> lines;
 
-			LineNumbersRecord()
-				: Record()
-			{
-			}
-
-			LineNumbersRecord(record_type_t record_type)
+			LineNumbersRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1202,21 +1138,13 @@ namespace OMF
 			/** @brief Type of block or procedure, only used if name != "" */
 			TypeIndex type;
 
-			BlockDefinitionRecord()
-				: Record()
-			{
-			}
-
-			BlockDefinitionRecord(record_type_t record_type)
+			BlockDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1243,21 +1171,13 @@ namespace OMF
 
 			std::vector<SymbolDefinition> names;
 
-			DebugSymbolsRecord()
-				: Record()
-			{
-			}
-
-			DebugSymbolsRecord(record_type_t record_type)
+			DebugSymbolsRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1275,21 +1195,13 @@ namespace OMF
 			/** @brief The data contents */
 			std::shared_ptr<DataBlock> data;
 
-			RelocatableDataRecord()
-				: Record()
-			{
-			}
-
-			RelocatableDataRecord(record_type_t record_type)
+			RelocatableDataRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1305,21 +1217,13 @@ namespace OMF
 			/** @brief The data contents */
 			std::shared_ptr<DataBlock> data;
 
-			PhysicalDataRecord()
-				: Record()
-			{
-			}
-
-			PhysicalDataRecord(record_type_t record_type)
+			PhysicalDataRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1334,21 +1238,13 @@ namespace OMF
 			/** @brief The data contents */
 			std::shared_ptr<DataBlock> data;
 
-			LogicalDataRecord()
-				: Record()
-			{
-			}
-
-			LogicalDataRecord(record_type_t record_type)
+			LogicalDataRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1429,21 +1325,13 @@ namespace OMF
 			/** @brief Sequence of thread assignments and relocations */
 			std::vector<std::variant<Thread, Fixup>> fixup_data;
 
-			FixupRecord()
-				: Record()
-			{
-			}
-
-			FixupRecord(record_type_t record_type)
+			FixupRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1465,21 +1353,13 @@ namespace OMF
 			/** @brief Must be loaded adjacent to the adjacent overlay */
 			std::optional<OverlayIndex> adjacent_overlay;
 
-			OverlayDefinitionRecord()
-				: Record()
-			{
-			}
-
-			OverlayDefinitionRecord(record_type_t record_type)
+			OverlayDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1499,21 +1379,13 @@ namespace OMF
 			/** @brief Type of block this record terminates */
 			block_type_t block_type;
 
-			EndRecord()
-				: Record()
-			{
-			}
-
-			EndRecord(record_type_t record_type)
+			EndRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1563,21 +1435,13 @@ namespace OMF
 			/** @brief List of registers to be initialized */
 			std::vector<Register> registers;
 
-			RegisterInitializationRecord()
-				: Record()
-			{
-			}
-
-			RegisterInitializationRecord(record_type_t record_type)
+			RegisterInitializationRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1593,21 +1457,13 @@ namespace OMF
 			/** @brief Optional starting address, either a reference, or a segment:offset pair */
 			std::optional<std::variant<Reference, std::tuple<uint16_t, uint16_t>>> start_address;
 
-			ModuleEndRecord()
-				: Record()
-			{
-			}
-
-			ModuleEndRecord(record_type_t record_type)
+			ModuleEndRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1622,21 +1478,13 @@ namespace OMF
 			/** @brief Offset to the first byte of the library module, as a block:byte pair */
 			uint16_t byte_number;
 
-			IntelLibraryHeaderRecord()
-				: Record()
-			{
-			}
-
-			IntelLibraryHeaderRecord(record_type_t record_type)
+			IntelLibraryHeaderRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1647,21 +1495,13 @@ namespace OMF
 			/** @brief List of module names */
 			std::vector<std::string> names;
 
-			IntelLibraryModuleNamesRecord()
-				: Record()
-			{
-			}
-
-			IntelLibraryModuleNamesRecord(record_type_t record_type)
+			IntelLibraryModuleNamesRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1684,21 +1524,13 @@ namespace OMF
 			/** @brief List of starting locations, one for each library module */
 			std::vector<Location> locations;
 
-			IntelLibraryModuleLocationsRecord()
-				: Record()
-			{
-			}
-
-			IntelLibraryModuleLocationsRecord(record_type_t record_type)
+			IntelLibraryModuleLocationsRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1720,21 +1552,13 @@ namespace OMF
 			/** @brief List of public symbols, grouped by library modules */
 			std::vector<Group> groups;
 
-			IntelLibraryDictionaryRecord()
-				: Record()
-			{
-			}
-
-			IntelLibraryDictionaryRecord(record_type_t record_type)
+			IntelLibraryDictionaryRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1760,21 +1584,13 @@ namespace OMF
 			uint8_t type;
 			std::vector<OffsetValuePair> offset_value_pairs;
 
-			BackpatchRecord()
-				: Record()
-			{
-			}
-
-			BackpatchRecord(record_type_t record_type)
+			BackpatchRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1802,21 +1618,13 @@ namespace OMF
 			NameIndex name;
 			std::vector<OffsetValuePair> offset_value_pairs;
 
-			NamedBackpatchRecord()
-				: Record()
-			{
-			}
-
-			NamedBackpatchRecord(record_type_t record_type)
+			NamedBackpatchRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1861,21 +1669,13 @@ namespace OMF
 			NameIndex name;
 			std::shared_ptr<DataBlock> data;
 
-			InitializedCommunalDataRecord()
-				: Record()
-			{
-			}
-
-			InitializedCommunalDataRecord(record_type_t record_type)
+			InitializedCommunalDataRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1889,21 +1689,13 @@ namespace OMF
 			NameIndex name;
 			std::vector<LineNumber> line_numbers;
 
-			SymbolLineNumbersRecord()
-				: Record()
-			{
-			}
-
-			SymbolLineNumbersRecord(record_type_t record_type)
+			SymbolLineNumbersRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
@@ -1925,21 +1717,13 @@ namespace OMF
 			};
 			std::vector<AliasDefinition> alias_definitions;
 
-			AliasDefinitionRecord()
-				: Record()
-			{
-			}
-
-			AliasDefinitionRecord(record_type_t record_type)
+			AliasDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1948,21 +1732,13 @@ namespace OMF
 		public:
 			std::string version;
 
-			OMFVersionNumberRecord()
-				: Record()
-			{
-			}
-
-			OMFVersionNumberRecord(record_type_t record_type)
+			OMFVersionNumberRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -1972,21 +1748,13 @@ namespace OMF
 			uint16_t vendor_number;
 			std::string extension;
 
-			VendorExtensionRecord()
-				: Record()
-			{
-			}
-
-			VendorExtensionRecord(record_type_t record_type)
+			VendorExtensionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
@@ -2038,11 +1806,8 @@ namespace OMF
 			virtual void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const = 0;
 
 			static std::shared_ptr<CommentRecord> ReadCommentRecord(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t record_length);
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			class GenericCommentRecord;
@@ -2279,21 +2044,13 @@ namespace OMF
 			uint16_t dictionary_size;
 			bool case_sensitive;
 
-			LibraryHeaderRecord()
-				: Record()
-			{
-			}
-
-			LibraryHeaderRecord(record_type_t record_type)
+			LibraryHeaderRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const override;
@@ -2302,21 +2059,13 @@ namespace OMF
 		class LibraryEndRecord : public Record
 		{
 		public:
-			LibraryEndRecord()
-				: Record()
-			{
-			}
-
-			LibraryEndRecord(record_type_t record_type)
+			LibraryEndRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{
 			}
 
-			using Record::ReadRecordContents;
 			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
-			using Record::GetRecordSize;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
-			using Record::WriteRecordContents;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
 			void WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const override;

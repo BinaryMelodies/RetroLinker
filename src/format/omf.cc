@@ -800,21 +800,6 @@ void OMF86Format::Reference::ResolveReferences(OMF86Format * omf, Module * mod)
 	}
 }
 
-//// OMF86Format::EmptyRecord
-
-void OMF86Format::EmptyRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
-{
-}
-
-uint16_t OMF86Format::EmptyRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
-{
-	return 1;
-}
-
-void OMF86Format::EmptyRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
-{
-}
-
 //// OMF86Format::ModuleHeaderRecord
 
 void OMF86Format::ModuleHeaderRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
