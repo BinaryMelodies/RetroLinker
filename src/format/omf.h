@@ -2189,6 +2189,9 @@ namespace OMF
 		/* TODO */
 	};
 
+	/**
+	 * @brief Intel Relocatable Object Module for the Intel 8080
+	 */
 	class OMF80Format : public virtual OMFFormat, public virtual Linker::InputFormat
 	{
 	public:
@@ -2218,6 +2221,8 @@ namespace OMF
 		using Record = OMFFormat::Record<record_type_t, OMF80Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF80Format, Module>;
 		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF80Format, Module>;
+		using ContentRecord = OMFFormat::ContentRecord<record_type_t, OMF80Format, Module>;
+		using LineNumbersRecord = OMFFormat::LineNumbersRecord<record_type_t, OMF80Format, Module>;
 		using LibraryHeaderRecord = OMFFormat::LibraryHeaderRecord<record_type_t, OMF80Format, Module>;
 		using LibraryModuleNamesRecord = OMFFormat::LibraryModuleNamesRecord<record_type_t, OMF80Format, Module>;
 		using LibraryModuleLocationsRecord = OMFFormat::LibraryModuleLocationsRecord<record_type_t, OMF80Format, Module>;
@@ -2226,12 +2231,300 @@ namespace OMF
 		/** @brief Parses and returns an instance of the next record */
 		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
 
-		class Module
+		/**
+		 * @brief Represents one of the 256 segments
+		 *
+		 * Segment number 5 is reserved by Intel, 6 to 255 are common segments
+		 */
+		typedef uint8_t segment_id_t;
+
+		/** @brief The absolute segment, all offsets are absolute memory locations */
+		static constexpr segment_id_t AbsoluteSegment = 0;
+		/** @brief Used for instructions and generally anything loaded into the ROM */
+		static constexpr segment_id_t CodeSegment = 1;
+		/** @brief Used for data and generally anything loaded into the RAM */
+		static constexpr segment_id_t DataSegment = 2;
+		/** @brief Used to specify size of segment */
+		static constexpr segment_id_t StackSegment = 3;
+		/** @brief Used to specify the highest memory address available */
+		static constexpr segment_id_t MemorySegment = 4;
+		/** @brief The first segment number corresponding to a named common segment */
+		static constexpr segment_id_t FirstNamedCommonSegment = 6;
+		/** @brief The last segment number corresponding to a named common segment */
+		static constexpr segment_id_t LastNamedCommonSegment = 254;
+		/** @brief The unnamed common segment */
+		static constexpr segment_id_t UnnamedCommonSegment = 255;
+
+		// TODO: document
+
+		enum alignment_t : uint8_t
 		{
-			// TODO
+			// page is 256 bytes
+			AlignFitsPage = 1,
+			AlignPage = 2,
+			AlignByte = 3,
 		};
 
-		std::vector<std::shared_ptr<Module>> modules;
+		class ExternalNameIndex
+		{
+		public:
+			uint16_t index;
+			std::string external_name;
+
+			void CalculateValues(OMF80Format * omf, Module * mod);
+			void ResolveReferences(OMF80Format * omf, Module * mod);
+		};
+
+		class ModuleHeaderRecord : public Record
+		{
+		public:
+			class SegmentDefinition
+			{
+			public:
+				segment_id_t segment_id = 0;
+				uint16_t length = 0;
+				alignment_t alignment = AlignByte;
+
+				static SegmentDefinition ReadSegmentDefinition(OMF80Format * omf, Linker::Reader& rd);
+				void WriteSegmentDefinition(OMF80Format * omf, ChecksumWriter& wr) const;
+			};
+
+			std::string name;
+			std::vector<SegmentDefinition> segment_definitions;
+
+			ModuleHeaderRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		class ModuleEndRecord : public Record
+		{
+		public:
+			bool main;
+			segment_id_t start_segment_id;
+			uint16_t start_offset;
+			std::vector<uint8_t> info;
+
+			ModuleEndRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		class NamedCommonDefinitionsRecord : public Record
+		{
+		public:
+			class NamedCommonDefinition
+			{
+			public:
+				segment_id_t segment_id;
+				std::string common_name;
+
+				static NamedCommonDefinition ReadNamedCommonDefinition(OMF80Format * omf, Linker::Reader& rd);
+				uint16_t GetNamedCommonDefinitionSize(OMF80Format * omf) const;
+				void WriteNamedCommonDefinition(OMF80Format * omf, ChecksumWriter& wr) const;
+			};
+
+			std::vector<NamedCommonDefinition> named_common_definitions;
+
+			NamedCommonDefinitionsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		class ExternalDefinitionsRecord : public Record
+		{
+		public:
+			Module * mod;
+
+			std::vector<std::string> external_names; // only used for generation
+			uint16_t first_external_name;
+			uint16_t external_name_count;
+
+			ExternalDefinitionsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		class SymbolDefinitionsRecord : public Record
+		{
+		public:
+			class SymbolDefinition
+			{
+			public:
+				uint16_t offset;
+				std::string name;
+
+				static SymbolDefinition ReadSymbolDefinition(OMF80Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t GetSymbolDefinitionSize(OMF80Format * omf, Module * mod) const;
+				void WriteSymbolDefinition(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const;
+			};
+
+			uint8_t segment_id;
+			std::vector<SymbolDefinition> public_definitions;
+
+			SymbolDefinitionsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		enum relocation_type_t : uint8_t
+		{
+			RelocationLowByte = 1,
+			RelocationHighByte = 2,
+			RelocationWord = 3,
+		};
+
+		class RelocationsRecord : public Record
+		{
+		public:
+			relocation_type_t relocation_type;
+			std::vector<uint16_t> offsets;
+
+			RelocationsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		class InterSegmentReferencesRecord : public RelocationsRecord
+		{
+		public:
+			segment_id_t segment_id;
+
+			InterSegmentReferencesRecord(record_type_t record_type = record_type_t(0))
+				: RelocationsRecord(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		class ExternalReferencesRecord : public Record
+		{
+		public:
+			class ExternalReference
+			{
+			public:
+				ExternalNameIndex name_index;
+				uint16_t offset;
+			};
+
+			relocation_type_t relocation_type;
+			std::vector<ExternalReference> external_references;
+
+			ExternalReferencesRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		class ModuleAncestorRecord : public Record
+		{
+		public:
+			std::string name;
+
+			ModuleAncestorRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF80Format * omf, Module * mod) override;
+			void ResolveReferences(OMF80Format * omf, Module * mod) override;
+		};
+
+		class SegmentDefinition : public ModuleHeaderRecord::SegmentDefinition
+		{
+		public:
+			segment_id_t segment_id = 0;
+			uint16_t length = 0;
+			alignment_t alignment = AlignByte;
+			std::string common_name;
+
+			SegmentDefinition()
+			{
+			}
+
+			SegmentDefinition(const ModuleHeaderRecord::SegmentDefinition& segment_definition)
+				: segment_id(segment_definition.segment_id), length(segment_definition.length), alignment(segment_definition.alignment)
+			{
+			}
+		};
+
+		class Module
+		{
+		public:
+			std::map<segment_id_t, SegmentDefinition> segment_definitions;
+			std::vector<std::string> external_names;
+		};
+
+		/** @brief The ordered collection of records contained in the file */
+		std::vector<std::shared_ptr<Record>> records;
+
+		/** @brief List of modules appearing in an OMF file, typically only one for an object file */
+		std::vector<Module> modules;
 
 		/** @brief Parses an OMF80 file */
 		static std::shared_ptr<OMF80Format> ReadOMFFile(Linker::Reader& rd);
@@ -2245,6 +2538,9 @@ namespace OMF
 		/* TODO */
 	};
 
+	/**
+	 * @brief Intel Relocatable Object Module for the Intel MCS-51
+	 */
 	class OMF51Format : public virtual OMFFormat, public virtual Linker::InputFormat
 	{
 	public:
@@ -2270,6 +2566,7 @@ namespace OMF
 		using Record = OMFFormat::Record<record_type_t, OMF51Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF51Format, Module>;
 		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF51Format, Module>;
+		using ContentRecord = OMFFormat::ContentRecord<record_type_t, OMF51Format, Module>;
 		using LibraryHeaderRecord = OMFFormat::LibraryHeaderRecord<record_type_t, OMF51Format, Module>;
 		using LibraryModuleNamesRecord = OMFFormat::LibraryModuleNamesRecord<record_type_t, OMF51Format, Module>;
 		using LibraryModuleLocationsRecord = OMFFormat::LibraryModuleLocationsRecord<record_type_t, OMF51Format, Module>;
@@ -2283,7 +2580,11 @@ namespace OMF
 			// TODO
 		};
 
-		std::vector<std::shared_ptr<Module>> modules;
+		/** @brief The ordered collection of records contained in the file */
+		std::vector<std::shared_ptr<Record>> records;
+
+		/** @brief List of modules appearing in an OMF file, typically only one for an object file */
+		std::vector<Module> modules;
 
 		/** @brief Parses an OMF51 file */
 		static std::shared_ptr<OMF51Format> ReadOMFFile(Linker::Reader& rd);
@@ -2297,6 +2598,9 @@ namespace OMF
 		/* TODO */
 	};
 
+	/**
+	 * @brief Intel Relocatable Object Module for the Intel MCS-96
+	 */
 	class OMF96Format : public virtual OMFFormat, public virtual Linker::InputFormat
 	{
 	public:
@@ -2327,6 +2631,8 @@ namespace OMF
 		using Record = OMFFormat::Record<record_type_t, OMF96Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF96Format, Module>;
 		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF96Format, Module>;
+		using ContentRecord = OMFFormat::ContentRecord<record_type_t, OMF96Format, Module>;
+		using LineNumbersRecord = OMFFormat::LineNumbersRecord<record_type_t, OMF96Format, Module>;
 		using LibraryHeaderRecord = OMFFormat::LibraryHeaderRecord<record_type_t, OMF96Format, Module>;
 		using LibraryModuleNamesRecord = OMFFormat::LibraryModuleNamesRecord<record_type_t, OMF96Format, Module>;
 		using LibraryModuleLocationsRecord = OMFFormat::LibraryModuleLocationsRecord<record_type_t, OMF96Format, Module>;
@@ -2340,7 +2646,11 @@ namespace OMF
 			// TODO
 		};
 
-		std::vector<std::shared_ptr<Module>> modules;
+		/** @brief The ordered collection of records contained in the file */
+		std::vector<std::shared_ptr<Record>> records;
+
+		/** @brief List of modules appearing in an OMF file, typically only one for an object file */
+		std::vector<Module> modules;
 
 		/** @brief Parses an OMF96 file */
 		static std::shared_ptr<OMF96Format> ReadOMFFile(Linker::Reader& rd);

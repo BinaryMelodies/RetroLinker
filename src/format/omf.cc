@@ -4215,12 +4215,497 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 	/* TODO */
 }
 
+//// OMF80Format::ExternalNameIndex
+
+void OMF80Format::ExternalNameIndex::CalculateValues(OMF80Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF80Format::ExternalNameIndex::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+	external_name = mod->external_names[index];
+}
+
+//// OMF80Format::ModuleHeaderRecord::SegmentDefinition
+
+OMF80Format::ModuleHeaderRecord::SegmentDefinition OMF80Format::ModuleHeaderRecord::SegmentDefinition::ReadSegmentDefinition(OMF80Format * omf, Linker::Reader& rd)
+{
+	OMF80Format::ModuleHeaderRecord::SegmentDefinition segment_definition;
+	segment_definition.segment_id = rd.ReadUnsigned(1);
+	segment_definition.length = rd.ReadUnsigned(2);
+	segment_definition.alignment = alignment_t(rd.ReadUnsigned(1));
+	return segment_definition;
+}
+
+void OMF80Format::ModuleHeaderRecord::SegmentDefinition::WriteSegmentDefinition(OMF80Format * omf, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, segment_id);
+	wr.WriteWord(2, length);
+	wr.WriteWord(1, alignment);
+}
+
+//// OMF80Format::ModuleHeaderRecord
+
+void OMF80Format::ModuleHeaderRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	offset_t record_end = record_offset + record_length + 2;
+	name = ReadString(rd);
+	rd.Skip(2);
+	while(rd.Tell() < record_end)
+	{
+		SegmentDefinition segment_definition = SegmentDefinition::ReadSegmentDefinition(omf, rd);
+		segment_definitions.push_back(segment_definition);
+	}
+	omf->modules.push_back(Module());
+}
+
+uint16_t OMF80Format::ModuleHeaderRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	return 3 + name.size() + 4 * segment_definitions.size();
+}
+
+void OMF80Format::ModuleHeaderRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	WriteString(wr, name);
+	wr.WriteWord(2, 0); // reserved
+	for(auto& segment_definition : segment_definitions)
+	{
+		segment_definition.WriteSegmentDefinition(omf, wr);
+	}
+}
+
+void OMF80Format::ModuleHeaderRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+	segment_definitions.clear();
+	for(auto& segment_entry : omf->modules.back().segment_definitions)
+	{
+		segment_definitions.push_back(segment_entry.second);
+	}
+}
+
+void OMF80Format::ModuleHeaderRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+	omf->modules.back().segment_definitions.clear();
+	for(auto& segment_definition : segment_definitions)
+	{
+		omf->modules.back().segment_definitions[segment_definition.segment_id] = OMF80Format::SegmentDefinition(segment_definition); // TODO: check it is not duplicated
+	}
+}
+
+//// OMF80Format::ModuleEndRecord
+
+void OMF80Format::ModuleEndRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	main = rd.ReadUnsigned(1) != 0;
+	start_segment_id = rd.ReadUnsigned(1);
+	start_offset = rd.ReadUnsigned(2);
+	if(record_length > 5)
+	{
+		info.resize(record_length - 5);
+		rd.ReadData(info);
+	}
+	else
+	{
+		info.clear();
+	}
+}
+
+uint16_t OMF80Format::ModuleEndRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	return 5 + info.size();
+}
+
+void OMF80Format::ModuleEndRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, main ? 1 : 0);
+	wr.WriteWord(1, start_segment_id);
+	wr.WriteWord(2, start_offset);
+	wr.WriteData(info);
+}
+
+void OMF80Format::ModuleEndRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+}
+
+void OMF80Format::ModuleEndRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+}
+
+//// OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition
+
+OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition::ReadNamedCommonDefinition(OMF80Format * omf, Linker::Reader& rd)
+{
+	OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition named_common_definition;
+	named_common_definition.segment_id = rd.ReadUnsigned(1);
+	named_common_definition.common_name = ReadString(rd);
+	return named_common_definition;
+}
+
+uint16_t OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition::GetNamedCommonDefinitionSize(OMF80Format * omf) const
+{
+	return 2 + common_name.size();
+}
+
+void OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition::WriteNamedCommonDefinition(OMF80Format * omf, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, segment_id);
+	WriteString(wr, common_name);
+}
+
+//// OMF80Format::NamedCommonDefinitionsRecord
+
+void OMF80Format::NamedCommonDefinitionsRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	offset_t record_end = record_offset + record_length + 2;
+	while(rd.Tell() < record_end)
+	{
+		NamedCommonDefinition named_common_definition = NamedCommonDefinition::ReadNamedCommonDefinition(omf, rd);
+		named_common_definitions.push_back(named_common_definition);
+	}
+}
+
+uint16_t OMF80Format::NamedCommonDefinitionsRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	uint16_t bytes = 1;
+	for(auto& named_common_definition : named_common_definitions)
+	{
+		bytes += 1 + named_common_definition.GetNamedCommonDefinitionSize(omf);
+	}
+	return bytes;
+}
+
+void OMF80Format::NamedCommonDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	for(auto& named_common_definition : named_common_definitions)
+	{
+		named_common_definition.WriteNamedCommonDefinition(omf, wr);
+	}
+}
+
+void OMF80Format::NamedCommonDefinitionsRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+	named_common_definitions.clear();
+	for(auto& segment_entry : omf->modules.back().segment_definitions)
+	{
+		named_common_definitions.push_back(NamedCommonDefinition { segment_entry.second.segment_id, segment_entry.second.common_name });
+	}
+}
+
+void OMF80Format::NamedCommonDefinitionsRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+	omf->modules.back().segment_definitions.clear();
+	for(auto& named_common_definition : named_common_definitions)
+	{
+		omf->modules.back().segment_definitions[named_common_definition.segment_id].common_name = named_common_definition.common_name; // TODO: check it is present and not duplicated
+	}
+}
+
+//// OMF80Format::ExternalDefinitionsRecord
+
+void OMF80Format::ExternalDefinitionsRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	first_external_name = mod->external_names.size();
+	while(rd.Tell() < record_offset + record_length)
+	{
+		mod->external_names.push_back(ReadString(rd));
+		rd.Skip(1);
+	}
+	external_name_count = external_names.size();
+}
+
+uint16_t OMF80Format::ExternalDefinitionsRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	uint16_t bytes = 1;
+	for(uint16_t external_name_index = first_external_name; external_name_index < first_external_name + external_name_count; external_name_index++)
+	{
+		bytes += 2 + mod->external_names[external_name_index].size();
+	}
+	return bytes;
+}
+
+void OMF80Format::ExternalDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	for(uint16_t external_name_index = first_external_name; external_name_index < first_external_name + external_name_count; external_name_index++)
+	{
+		WriteString(wr, mod->external_names[external_name_index]);
+		wr.Skip(1);
+	}
+}
+
+void OMF80Format::ExternalDefinitionsRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+	assert(mod == this->mod);
+	first_external_name = mod->external_names.size();
+	for(auto& external_name : external_names)
+	{
+		mod->external_names.push_back(external_name);
+	}
+	external_name_count = external_names.size();
+}
+
+void OMF80Format::ExternalDefinitionsRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+	assert(mod == this->mod);
+}
+
+//// OMF80Format::SymbolDefinitionsRecord::SymbolDefinition
+
+OMF80Format::SymbolDefinitionsRecord::SymbolDefinition OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::ReadSymbolDefinition(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	SymbolDefinition public_definition;
+	public_definition.offset = rd.ReadUnsigned(2);
+	public_definition.name = ReadString(rd);
+	rd.Skip(1);
+	return public_definition;
+}
+
+uint16_t OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::GetSymbolDefinitionSize(OMF80Format * omf, Module * mod) const
+{
+	return 4 + name.size();
+}
+
+void OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::WriteSymbolDefinition(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(2, offset);
+	WriteString(wr, name);
+	wr.Skip(1);
+}
+
+//// OMF80Format::SymbolDefinitionsRecord
+
+void OMF80Format::SymbolDefinitionsRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	segment_id = rd.ReadUnsigned(1);
+	while(rd.Tell() < record_offset + record_length)
+	{
+		public_definitions.push_back(SymbolDefinition::ReadSymbolDefinition(omf, mod, rd));
+	}
+}
+
+uint16_t OMF80Format::SymbolDefinitionsRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	uint16_t bytes = 2;
+	for(auto& public_definition : public_definitions)
+	{
+		bytes += public_definition.GetSymbolDefinitionSize(omf, mod);
+	}
+	return bytes;
+}
+
+void OMF80Format::SymbolDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, segment_id);
+	for(auto& public_definition : public_definitions)
+	{
+		public_definition.WriteSymbolDefinition(omf, mod, wr);
+	}
+}
+
+void OMF80Format::SymbolDefinitionsRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+}
+
+void OMF80Format::SymbolDefinitionsRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+}
+
+//// OMF80Format::RelocationsRecord
+
+void OMF80Format::RelocationsRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	relocation_type = relocation_type_t(rd.ReadUnsigned(1));
+	while(rd.Tell() < record_offset + record_length)
+	{
+		offsets.push_back(rd.ReadUnsigned(2));
+	}
+}
+
+uint16_t OMF80Format::RelocationsRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	return 2 + 2 * offsets.size();
+}
+
+void OMF80Format::RelocationsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, relocation_type);
+	for(auto offset : offsets)
+	{
+		wr.WriteWord(2, offset);
+	}
+}
+
+void OMF80Format::RelocationsRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+}
+
+void OMF80Format::RelocationsRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+}
+
+//// OMF80Format::InterSegmentReferencesRecord
+
+void OMF80Format::InterSegmentReferencesRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	segment_id = rd.ReadUnsigned(1);
+	RelocationsRecord::ReadRecordContents(omf, mod, rd);
+}
+
+uint16_t OMF80Format::InterSegmentReferencesRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	return 1 + RelocationsRecord::GetRecordSize(omf, mod);
+}
+
+void OMF80Format::InterSegmentReferencesRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, segment_id);
+	RelocationsRecord::WriteRecordContents(omf, mod, wr);
+}
+
+void OMF80Format::InterSegmentReferencesRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+}
+
+void OMF80Format::InterSegmentReferencesRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+}
+
+//// OMF80Format::ExternalReferencesRecord
+
+void OMF80Format::ExternalReferencesRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	relocation_type = relocation_type_t(rd.ReadUnsigned(1));
+	while(rd.Tell() < record_offset + record_length)
+	{
+		ExternalReference external_reference;
+		external_reference.name_index.index = rd.ReadUnsigned(2);
+		external_reference.offset = rd.ReadUnsigned(2);
+		external_references.push_back(external_reference);
+	}
+}
+
+uint16_t OMF80Format::ExternalReferencesRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	return 2 + 4 * external_references.size();
+}
+
+void OMF80Format::ExternalReferencesRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, relocation_type);
+	for(auto& external_reference : external_references)
+	{
+		wr.WriteWord(2, external_reference.name_index.index);
+		wr.WriteWord(2, external_reference.offset);
+	}
+}
+
+void OMF80Format::ExternalReferencesRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF80Format::ExternalReferencesRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+	for(auto& external_reference : external_references)
+	{
+		external_reference.name_index.ResolveReferences(omf, mod);
+	}
+}
+
+//// OMF80Format::ModuleAncestorRecord
+
+void OMF80Format::ModuleAncestorRecord::ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+{
+	name = rd.ReadData(record_length - 1);
+}
+
+uint16_t OMF80Format::ModuleAncestorRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
+{
+	return name.size() + 1;
+}
+
+void OMF80Format::ModuleAncestorRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteData(name);
+}
+
+void OMF80Format::ModuleAncestorRecord::CalculateValues(OMF80Format * omf, Module * mod)
+{
+}
+
+void OMF80Format::ModuleAncestorRecord::ResolveReferences(OMF80Format * omf, Module * mod)
+{
+}
+
 //// OMF80Format
 
 std::shared_ptr<OMF80Format::Record> OMF80Format::ReadRecord(Linker::Reader& rd)
 {
-	// TODO
-	return nullptr;
+	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
+	offset_t record_offset = rd.Tell();
+	uint8_t record_type = rd.ReadUnsigned(1);
+	uint16_t record_length = rd.ReadUnsigned(2);
+	std::shared_ptr<Record> record;
+	switch(record_type)
+	{
+	case ModuleHeader:
+		record = std::make_shared<ModuleHeaderRecord>(record_type_t(record_type));
+		break;
+	case ModuleEnd:
+		record = std::make_shared<ModuleEndRecord>(record_type_t(record_type));
+		break;
+	case Content:
+		record = std::make_shared<ContentRecord>(record_type_t(record_type));
+		break;
+	case LineNumbers:
+		record = std::make_shared<LineNumbersRecord>(record_type_t(record_type));
+		break;
+	case EndOfFile:
+		record = std::make_shared<EmptyRecord>(record_type_t(record_type));
+		break;
+	case ModuleAncestor:
+		record = std::make_shared<ModuleAncestorRecord>(record_type_t(record_type));
+		break;
+	case LocalSymbols:
+	case PublicDefinitions:
+		record = std::make_shared<SymbolDefinitionsRecord>(record_type_t(record_type));
+		break;
+	case ExternalDefinitions:
+		record = std::make_shared<ExternalDefinitionsRecord>(record_type_t(record_type));
+		break;
+	case ExternalReferences:
+		record = std::make_shared<ExternalReferencesRecord>(record_type_t(record_type));
+		break;
+	case Relocations:
+		record = std::make_shared<RelocationsRecord>(record_type_t(record_type));
+		break;
+	case InterSegmentReferences:
+		record = std::make_shared<InterSegmentReferencesRecord>(record_type_t(record_type));
+		break;
+	case LibraryModuleLocations:
+		record = std::make_shared<LibraryModuleLocationsRecord>(record_type_t(record_type));
+		break;
+	case LibraryModuleNames:
+		record = std::make_shared<LibraryModuleNamesRecord>(record_type_t(record_type));
+		break;
+	case LibraryDictionary:
+		record = std::make_shared<LibraryDictionaryRecord>(record_type_t(record_type));
+		break;
+	case LibraryHeader:
+		record = std::make_shared<LibraryHeaderRecord>(record_type_t(record_type));
+		break;
+	case NamedCommonDefinitions:
+		record = std::make_shared<NamedCommonDefinitionsRecord>(record_type_t(record_type));
+		break;
+	default:
+		record = std::make_shared<UnknownRecord>(record_type_t(record_type));
+	}
+	record->record_offset = record_offset;
+	record->record_length = record_length;
+	record->ReadRecordContents(this, mod, rd);
+	rd.ReadUnsigned(1); // checksum
+	records.push_back(record);
+	return record;
 }
 
 std::shared_ptr<OMF80Format> OMF80Format::ReadOMFFile(Linker::Reader& rd)
