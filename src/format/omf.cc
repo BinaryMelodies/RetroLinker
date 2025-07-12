@@ -20,6 +20,77 @@ void OMFFormat::WriteString(ChecksumWriter& wr, std::string text)
 	wr.WriteData(text);
 }
 
+std::shared_ptr<OMFFormat> OMFFormat::ReadOMFFile(Linker::Reader& rd)
+{
+	rd.endiantype = LittleEndian;
+
+	/* Attempts to read the first record. */
+
+	uint8_t record_type = rd.ReadUnsigned(1);
+	uint16_t record_length;
+	uint8_t name_length;
+	uint8_t version;
+
+	switch(record_type)
+	{
+	case OMF80Format::LibraryHeader:
+		/* Libraries start with a Library Header Record, optionally
+		 * followed by a Module Header Record. We seek to the next
+		 * record and use that to determine the file type. */
+		record_length = rd.ReadUnsigned(2);
+		rd.Skip(record_length);
+		record_type = rd.ReadUnsigned(1);
+		if(record_type != OMF80Format::ModuleHeader)
+		{
+			// unknown, give up and try to read it as OMF80
+			rd.Seek(0);
+			return OMF80Format::ReadOMFFile(rd);
+		}
+		// continue to next field
+
+	case OMF80Format::ModuleHeader:
+		/* The OMF80, OMF51 and OMF96 module header formats are very
+		 * similar, the value of the byte after the module name string
+		 * can be used to distinguish between them. */
+		rd.ReadUnsigned(2);
+		name_length = rd.ReadUnsigned(1);
+		rd.Skip(name_length);
+		version = rd.ReadUnsigned(1);
+		switch(version & 0xF0)
+		{
+		default:
+			rd.Seek(0);
+			return OMF80Format::ReadOMFFile(rd);
+		case 0xE0:
+			rd.Seek(0);
+			return OMF96Format::ReadOMFFile(rd);
+		case 0xF0:
+			rd.Seek(0);
+			return OMF51Format::ReadOMFFile(rd);
+		}
+
+	case OMF86Format::RHEADR:
+	case OMF86Format::THEADR:
+	case OMF86Format::LHEADR:
+	case OMF86Format::LIBHED:
+	case OMF86Format::LibraryHeader:
+		rd.Seek(0);
+		return OMF86Format::ReadOMFFile(rd);
+
+	default:
+		// make a wild guess, based on the type of the first record
+		rd.Seek(0);
+		if(record_type < 0x6E)
+		{
+			return OMF80Format::ReadOMFFile(rd);
+		}
+		else
+		{
+			return OMF86Format::ReadOMFFile(rd);
+		}
+	}
+}
+
 //// OMF86Format::NameIndex
 
 void OMF86Format::NameIndex::CalculateValues(OMF86Format * omf, Module * mod)
@@ -4017,9 +4088,24 @@ std::shared_ptr<OMF86Format::Record> OMF86Format::ReadRecord(Linker::Reader& rd)
 	return record;
 }
 
+std::shared_ptr<OMF86Format> OMF86Format::ReadOMFFile(Linker::Reader& rd)
+{
+	std::shared_ptr<OMF86Format> omf = std::make_shared<OMF86Format>();
+	omf->ReadFile(rd);
+	return omf;
+}
+
 void OMF86Format::ReadFile(Linker::Reader& rd)
 {
-	/* TODO */
+	rd.endiantype = LittleEndian;
+	rd.SeekEnd();
+	offset_t end = rd.Tell();
+	rd.Seek(0);
+
+	while(rd.Tell() < end)
+	{
+		ReadRecord(rd);
+	}
 }
 
 offset_t OMF86Format::WriteFile(Linker::Writer& wr) const
@@ -4041,6 +4127,159 @@ void OMF86Format::Dump(Dumper::Dumper& dump) const
 }
 
 void OMF86Format::GenerateModule(Linker::Module& module) const
+{
+	/* TODO */
+}
+
+//// OMF80Format
+
+std::shared_ptr<OMF80Format::Record> OMF80Format::ReadRecord(Linker::Reader& rd)
+{
+	// TODO
+	return nullptr;
+}
+
+std::shared_ptr<OMF80Format> OMF80Format::ReadOMFFile(Linker::Reader& rd)
+{
+	std::shared_ptr<OMF80Format> omf = std::make_shared<OMF80Format>();
+	omf->ReadFile(rd);
+	return omf;
+}
+
+void OMF80Format::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = LittleEndian;
+	rd.SeekEnd();
+	offset_t end = rd.Tell();
+	rd.Seek(0);
+
+	while(rd.Tell() < end)
+	{
+		ReadRecord(rd);
+	}
+}
+
+offset_t OMF80Format::WriteFile(Linker::Writer& wr) const
+{
+	/* TODO */
+
+	return offset_t(-1);
+}
+
+void OMF80Format::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Intel OMF format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
+void OMF80Format::GenerateModule(Linker::Module& module) const
+{
+	/* TODO */
+}
+
+//// OMF51Format
+
+std::shared_ptr<OMF51Format::Record> OMF51Format::ReadRecord(Linker::Reader& rd)
+{
+	// TODO
+	return nullptr;
+}
+
+std::shared_ptr<OMF51Format> OMF51Format::ReadOMFFile(Linker::Reader& rd)
+{
+	std::shared_ptr<OMF51Format> omf = std::make_shared<OMF51Format>();
+	omf->ReadFile(rd);
+	return omf;
+}
+
+void OMF51Format::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = LittleEndian;
+	rd.SeekEnd();
+	offset_t end = rd.Tell();
+	rd.Seek(0);
+
+	while(rd.Tell() < end)
+	{
+		ReadRecord(rd);
+	}
+}
+
+offset_t OMF51Format::WriteFile(Linker::Writer& wr) const
+{
+	/* TODO */
+
+	return offset_t(-1);
+}
+
+void OMF51Format::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Intel OMF format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
+void OMF51Format::GenerateModule(Linker::Module& module) const
+{
+	/* TODO */
+}
+
+//// OMF96Format
+
+std::shared_ptr<OMF96Format::Record> OMF96Format::ReadRecord(Linker::Reader& rd)
+{
+	// TODO
+	return nullptr;
+}
+
+std::shared_ptr<OMF96Format> OMF96Format::ReadOMFFile(Linker::Reader& rd)
+{
+	std::shared_ptr<OMF96Format> omf = std::make_shared<OMF96Format>();
+	omf->ReadFile(rd);
+	return omf;
+}
+
+void OMF96Format::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = LittleEndian;
+	rd.SeekEnd();
+	offset_t end = rd.Tell();
+	rd.Seek(0);
+
+	while(rd.Tell() < end)
+	{
+		ReadRecord(rd);
+	}
+}
+
+offset_t OMF96Format::WriteFile(Linker::Writer& wr) const
+{
+	/* TODO */
+
+	return offset_t(-1);
+}
+
+void OMF96Format::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Intel OMF format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump);
+
+	// TODO
+}
+
+void OMF96Format::GenerateModule(Linker::Module& module) const
 {
 	/* TODO */
 }

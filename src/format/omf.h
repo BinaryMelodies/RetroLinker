@@ -195,6 +195,9 @@ namespace OMF
 			{
 			}
 		};
+
+		/** @brief Attempts to parse an OMF file, whether OMF80, OMF86, OMF51 or OMF96 */
+		static std::shared_ptr<OMFFormat> ReadOMFFile(Linker::Reader& rd);
 	};
 
 	/**
@@ -579,7 +582,7 @@ namespace OMF
 		};
 
 		/** @brief The recognized record types in an OMF86 file */
-		enum record_type_t
+		enum record_type_t : uint8_t
 		{
 			RHEADR = 0x6E, // Intel 4.0
 			REGINT = 0x70, // Intel 4.0
@@ -2105,6 +2108,162 @@ namespace OMF
 
 		// TIS library fields
 		uint16_t page_size;
+
+		/** @brief Parses an OMF86 file */
+		static std::shared_ptr<OMF86Format> ReadOMFFile(Linker::Reader& rd);
+
+		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+		using Linker::InputFormat::GenerateModule;
+		void GenerateModule(Linker::Module& module) const override;
+		/* TODO */
+	};
+
+	class OMF80Format : public virtual OMFFormat, public virtual Linker::InputFormat
+	{
+	public:
+		class Module;
+
+		enum record_type_t : uint8_t
+		{
+			ModuleHeader = 0x02,
+			ModuleEnd = 0x04,
+			Content = 0x06,
+			LineNumbers = 0x08,
+			EndOfFile = 0x0E,
+			ModuleAncestor = 0x10,
+			LocalSymbols = 0x12,
+			PublicDefinitions = 0x16,
+			ExternalDefinitions = 0x18,
+			ExternalReferences = 0x20,
+			Relocations = 0x22,
+			InterSegmentReferences = 0x24,
+			LibraryModuleLocations = 0x26,
+			LibraryModuleNames = 0x28,
+			LibraryDictionary = 0x2A,
+			LibraryHeader = 0x2C,
+			NamedCommonDefinitions = 0x2E,
+		};
+
+		using Record = OMFFormat::Record<record_type_t, OMF80Format, Module>;
+		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF80Format, Module>;
+		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF80Format, Module>;
+
+		/** @brief Parses and returns an instance of the next record */
+		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
+
+		class Module
+		{
+			// TODO
+		};
+
+		std::vector<std::shared_ptr<Module>> modules;
+
+		/** @brief Parses an OMF80 file */
+		static std::shared_ptr<OMF80Format> ReadOMFFile(Linker::Reader& rd);
+
+		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+		using Linker::InputFormat::GenerateModule;
+		void GenerateModule(Linker::Module& module) const override;
+		/* TODO */
+	};
+
+	class OMF51Format : public virtual OMFFormat, public virtual Linker::InputFormat
+	{
+	public:
+		class Module;
+
+		enum record_type_t : uint8_t
+		{
+			ModuleHeader = OMF80Format::ModuleHeader,
+			ModuleEnd = OMF80Format::ModuleEnd,
+			Content = OMF80Format::Content,
+			Fixups = 0x08,
+			SegmentDefinitions = 0x0E,
+			ScopeDefinition = 0x10,
+			DebugItems = 0x12,
+			PublicDefinitions = OMF80Format::PublicDefinitions,
+			ExternalDefinitions = OMF80Format::ExternalDefinitions,
+			LibraryModuleLocations = OMF80Format::LibraryModuleLocations,
+			LibraryModuleNames = OMF80Format::LibraryModuleNames,
+			LibraryDictionary = OMF80Format::LibraryDictionary,
+			LibraryHeader = OMF80Format::LibraryHeader,
+		};
+
+		using Record = OMFFormat::Record<record_type_t, OMF51Format, Module>;
+		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF51Format, Module>;
+		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF51Format, Module>;
+
+		/** @brief Parses and returns an instance of the next record */
+		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
+
+		class Module
+		{
+			// TODO
+		};
+
+		std::vector<std::shared_ptr<Module>> modules;
+
+		/** @brief Parses an OMF51 file */
+		static std::shared_ptr<OMF51Format> ReadOMFFile(Linker::Reader& rd);
+
+		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+		using Linker::InputFormat::GenerateModule;
+		void GenerateModule(Linker::Module& module) const override;
+		/* TODO */
+	};
+
+	class OMF96Format : public virtual OMFFormat, public virtual Linker::InputFormat
+	{
+	public:
+		class Module;
+
+		enum record_type_t : uint8_t
+		{
+			ModuleHeader = OMF80Format::ModuleHeader,
+			ModuleEnd = OMF80Format::ModuleEnd,
+			Content = OMF80Format::Content,
+			LineNumbers = OMF80Format::LineNumbers,
+			BlockDefinition = 0x0A,
+			BlockEnd = 0x0C,
+			EndOfFile = OMF80Format::EndOfFile,
+			ModuleAncestor = OMF80Format::ModuleAncestor,
+			LocalSymbols = OMF80Format::LocalSymbols,
+			TypeDefintions = 0x14,
+			PublicDefinitions = OMF80Format::PublicDefinitions,
+			ExternalDefinitions = OMF80Format::ExternalDefinitions,
+			SegmentDefinitions = 0x20, // different from OMF51 number
+			Relocations = OMF80Format::Relocations,
+			LibraryModuleLocations = OMF80Format::LibraryModuleLocations,
+			LibraryModuleNames = OMF80Format::LibraryModuleNames,
+			LibraryDictionary = OMF80Format::LibraryDictionary,
+			LibraryHeader = OMF80Format::LibraryHeader,
+		};
+
+		using Record = OMFFormat::Record<record_type_t, OMF96Format, Module>;
+		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF96Format, Module>;
+		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF96Format, Module>;
+
+		/** @brief Parses and returns an instance of the next record */
+		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
+
+		class Module
+		{
+			// TODO
+		};
+
+		std::vector<std::shared_ptr<Module>> modules;
+
+		/** @brief Parses an OMF96 file */
+		static std::shared_ptr<OMF96Format> ReadOMFFile(Linker::Reader& rd);
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
