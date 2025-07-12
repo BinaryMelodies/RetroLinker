@@ -140,7 +140,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
 {
 	segment_id = rd.ReadUnsigned(1);
-	while(rd.Tell() < LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::record_offset + LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::record_length)
+	while(rd.Tell() < LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::RecordEnd())
 	{
 		line_numbers.push_back(LineNumber::ReadLineNumber(omf, rd));
 	}
@@ -191,8 +191,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 	void OMFFormat::LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::record_length -  1;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::RecordEnd())
 	{
 		names.push_back(ReadString(rd));
 	}
@@ -241,8 +240,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::record_length -  1;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::RecordEnd())
 	{
 		locations.push_back(Location::ReadLocation(rd));
 	}
@@ -301,8 +299,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::record_length -  1;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::RecordEnd())
 	{
 		groups.push_back(Group());
 		groups.back().ReadGroup(rd);
@@ -1171,12 +1168,11 @@ void OMF86Format::RModuleHeaderRecord::WriteRecordContents(OMF86Format * omf, Mo
 
 void OMF86Format::ListOfNamesRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	first_lname = omf->modules.back().lnames.size();
 	lname_count = 0;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
-		std::string name = OMF86Format::ReadString(rd, record_end - 1 - rd.Tell());
+		std::string name = OMF86Format::ReadString(rd);
 		omf->modules.back().lnames.push_back(name);
 		names.push_back(name);
 		lname_count++;
@@ -1215,7 +1211,6 @@ void OMF86Format::ListOfNamesRecord::ResolveReferences(OMF86Format * omf, Module
 
 void OMF86Format::SegmentDefinitionRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	uint8_t attributes = rd.ReadUnsigned(1);
 
 	alignment = alignment_t(attributes >> 5);
@@ -1355,7 +1350,7 @@ void OMF86Format::SegmentDefinitionRecord::ReadRecordContents(OMF86Format * omf,
 		overlay_name.index = ReadIndex(rd);
 	}
 
-	if(rd.Tell() < record_end && omf->omf_version == OMF_VERSION_PHARLAP)
+	if(rd.Tell() < RecordEnd() && omf->omf_version == OMF_VERSION_PHARLAP)
 	{
 		uint8_t bits = rd.ReadUnsigned(1);
 		access = access_t(bits & 0x03);
@@ -1628,9 +1623,8 @@ void OMF86Format::GroupDefinitionRecord::Component::ResolveReferences(OMF86Forma
 
 void OMF86Format::GroupDefinitionRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	name.index = ReadIndex(rd);
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		components.push_back(Component::ReadComponent(omf, mod, rd));
 	}
@@ -1862,12 +1856,11 @@ void OMF86Format::TypeDefinitionRecord::LeafDescriptor::ResolveReferences(OMF86F
 
 void OMF86Format::TypeDefinitionRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	name = ReadString(rd);
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		uint8_t nice_bits = rd.ReadUnsigned(1);
-		for(int leaf_number = 0; leaf_number < 8 && rd.Tell() + 1 < record_end; leaf_number++)
+		for(int leaf_number = 0; leaf_number < 8 && rd.Tell() + 1 < RecordEnd(); leaf_number++)
 		{
 			leafs.push_back(LeafDescriptor::ReadLeaf(omf, mod, rd));
 			leafs.back().nice = (nice_bits >> leaf_number) & 1;
@@ -1927,10 +1920,9 @@ void OMF86Format::TypeDefinitionRecord::ResolveReferences(OMF86Format * omf, Mod
 
 void OMF86Format::SymbolsDefinitionRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	bool local = record_type == LPUBDEF16 || record_type == LPUBDEF32;
 	base.Read(omf, rd);
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		symbols.push_back(SymbolDefinition::ReadSymbol(omf, rd, local, Is32Bit(omf)));
 	}
@@ -1977,12 +1969,11 @@ void OMF86Format::SymbolsDefinitionRecord::ResolveReferences(OMF86Format * omf, 
 
 void OMF86Format::ExternalNamesDefinitionRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	bool local = record_type != EXTDEF && record_type != COMDEF && record_type != CEXTDEF;
 	bool common = record_type == COMDEF || record_type == LCOMDEF;
 	first_extdef.index = omf->modules.back().extdefs.size();
 	extdef_count = 0;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		if(common)
 			omf->modules.back().extdefs.push_back(ExternalName::ReadCommonName(omf, rd, local));
@@ -2032,9 +2023,8 @@ void OMF86Format::ExternalNamesDefinitionRecord::ResolveReferences(OMF86Format *
 
 void OMF86Format::LineNumbersRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	base.Read(omf, rd);
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		lines.push_back(LineNumber::ReadLineNumber(omf, rd, Is32Bit(omf)));
 	}
@@ -2123,7 +2113,6 @@ void OMF86Format::BlockDefinitionRecord::ResolveReferences(OMF86Format * omf, Mo
 
 void OMF86Format::DebugSymbolsRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	uint8_t frame_info = rd.ReadUnsigned(1);
 	frame_type = frame_type_t(frame_info & 0xC0);
 	uint8_t method_type = frame_info & 0x07;
@@ -2147,7 +2136,7 @@ void OMF86Format::DebugSymbolsRecord::ReadRecordContents(OMF86Format * omf, Modu
 		break;
 	}
 
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		names.push_back(SymbolDefinition::ReadSymbol(omf, rd, true, false));
 	}
@@ -2245,13 +2234,12 @@ void OMF86Format::DebugSymbolsRecord::ResolveReferences(OMF86Format * omf, Modul
 
 void OMF86Format::RelocatableDataRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	base.Read(omf, rd);
 	offset = rd.ReadUnsigned(2);
 	if(record_type == RIDATA)
 		data = DataBlock::ReadIteratedDataBlock(omf, rd, false);
 	else
-		data = DataBlock::ReadEnumeratedDataBlock(omf, rd, record_end - rd.Tell());
+		data = DataBlock::ReadEnumeratedDataBlock(omf, rd, RecordEnd() - rd.Tell());
 }
 
 uint16_t OMF86Format::RelocatableDataRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
@@ -2288,13 +2276,12 @@ void OMF86Format::RelocatableDataRecord::ResolveReferences(OMF86Format * omf, Mo
 
 void OMF86Format::PhysicalDataRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	address = uint32_t(rd.ReadUnsigned(2)) << 4;
 	address += rd.ReadUnsigned(1);
 	if(record_type == PIDATA)
 		data = DataBlock::ReadIteratedDataBlock(omf, rd, false);
 	else
-		data = DataBlock::ReadEnumeratedDataBlock(omf, rd, record_end - rd.Tell());
+		data = DataBlock::ReadEnumeratedDataBlock(omf, rd, RecordEnd() - rd.Tell());
 }
 
 uint16_t OMF86Format::PhysicalDataRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
@@ -2321,7 +2308,6 @@ void OMF86Format::PhysicalDataRecord::WriteRecordContents(OMF86Format * omf, Mod
 
 void OMF86Format::LogicalDataRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	segment.index = ReadIndex(rd);
 	offset = rd.ReadUnsigned(GetOffsetSize(omf));
 	if(record_type == LIDATA16)
@@ -2329,7 +2315,7 @@ void OMF86Format::LogicalDataRecord::ReadRecordContents(OMF86Format * omf, Modul
 	else if(record_type == LIDATA32)
 		data = DataBlock::ReadIteratedDataBlock(omf, rd, true);
 	else
-		data = DataBlock::ReadEnumeratedDataBlock(omf, rd, record_end - rd.Tell());
+		data = DataBlock::ReadEnumeratedDataBlock(omf, rd, RecordEnd() - rd.Tell());
 }
 
 uint16_t OMF86Format::LogicalDataRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
@@ -2579,8 +2565,7 @@ void OMF86Format::FixupRecord::Fixup::ResolveReferences(OMF86Format * omf, Modul
 
 void OMF86Format::FixupRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		uint8_t leading_data_byte = rd.ReadUnsigned(1);
 		if((leading_data_byte & 0x80))
@@ -2878,8 +2863,7 @@ void OMF86Format::RegisterInitializationRecord::Register::ResolveReferences(OMF8
 
 void OMF86Format::RegisterInitializationRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		registers.push_back(Register::ReadRegister(omf, mod, rd));
 	}
@@ -3002,10 +2986,9 @@ void OMF86Format::ModuleEndRecord::WriteRecordContents(OMF86Format * omf, Module
 
 void OMF86Format::BackpatchRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	segment = SegmentIndex(ReadIndex(rd));
 	type = rd.ReadUnsigned(1);
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		uint32_t offset = rd.ReadUnsigned(GetOffsetSize(omf));
 		uint32_t value = rd.ReadUnsigned(GetOffsetSize(omf));
@@ -3043,7 +3026,6 @@ void OMF86Format::BackpatchRecord::ResolveReferences(OMF86Format * omf, Module *
 
 void OMF86Format::NamedBackpatchRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	type = rd.ReadUnsigned(1);
 	switch(omf->omf_version)
 	{
@@ -3057,7 +3039,8 @@ void OMF86Format::NamedBackpatchRecord::ReadRecordContents(OMF86Format * omf, Mo
 		// unable to parse
 		assert(false); // TODO
 	}
-	while(rd.Tell() < record_end)
+
+	while(rd.Tell() < RecordEnd())
 	{
 		uint32_t offset = rd.ReadUnsigned(GetOffsetSize(omf));
 		uint32_t value = rd.ReadUnsigned(GetOffsetSize(omf));
@@ -3129,8 +3112,6 @@ void OMF86Format::NamedBackpatchRecord::ResolveReferences(OMF86Format * omf, Mod
 
 void OMF86Format::InitializedCommunalDataRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
-
 	uint8_t flags = rd.ReadUnsigned(1);
 	continued = (flags & 0x01) != 0;
 	iterated = (flags & 0x02) != 0;
@@ -3165,7 +3146,7 @@ void OMF86Format::InitializedCommunalDataRecord::ReadRecordContents(OMF86Format 
 	if(iterated)
 		data = DataBlock::ReadIteratedDataBlock(omf, rd, Is32Bit(omf));
 	else
-		data = DataBlock::ReadEnumeratedDataBlock(omf, rd, record_end - rd.Tell());
+		data = DataBlock::ReadEnumeratedDataBlock(omf, rd, RecordEnd() - rd.Tell());
 }
 
 uint16_t OMF86Format::InitializedCommunalDataRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
@@ -3255,7 +3236,6 @@ void OMF86Format::InitializedCommunalDataRecord::ResolveReferences(OMF86Format *
 
 void OMF86Format::SymbolLineNumbersRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
 	uint8_t flags = rd.ReadUnsigned(1);
 	continued = (flags & 0x01) != 0;
 	switch(omf->omf_version)
@@ -3270,7 +3250,8 @@ void OMF86Format::SymbolLineNumbersRecord::ReadRecordContents(OMF86Format * omf,
 		// unable to parse
 		assert(false); // TODO
 	}
-	while(rd.Tell() < record_end)
+
+	while(rd.Tell() < RecordEnd())
 	{
 		line_numbers.push_back(LineNumber::ReadLineNumber(omf, rd, Is32Bit(omf)));
 	}
@@ -3357,10 +3338,9 @@ void OMF86Format::AliasDefinitionRecord::AliasDefinition::WriteAliasDefinition(O
 
 void OMF86Format::AliasDefinitionRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
-	alias_definitions.push_back(AliasDefinition::ReadAliasDefinition(omf, mod, rd));
+		alias_definitions.push_back(AliasDefinition::ReadAliasDefinition(omf, mod, rd));
 	}
 }
 
@@ -3593,8 +3573,7 @@ void OMF86Format::CommentRecord::TextCommentRecord::WriteComment(OMF86Format * o
 
 void OMF86Format::NoSegmentPaddingRecord::ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		segments.push_back(SegmentIndex(ReadIndex(rd)));
 	}
@@ -3664,8 +3643,7 @@ void OMF86Format::ExternalAssociationRecord::ExternalAssociation::ResolveReferen
 
 void OMF86Format::ExternalAssociationRecord::ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length)
 {
-	offset_t record_end = rd.Tell() + record_length -  1;
-	while(rd.Tell() < record_end)
+	while(rd.Tell() < RecordEnd())
 	{
 		associations.push_back(ExternalAssociation::ReadAssociation(omf, mod, rd));
 	}

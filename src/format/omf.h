@@ -99,6 +99,11 @@ namespace OMF
 
 			virtual ~Record() = default;
 
+			offset_t RecordEnd() const
+			{
+				return record_offset + record_length + 2;
+			}
+
 			/** @brief Reads the record contents, except for the type, length and checksum */
 			virtual void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) = 0;
 
