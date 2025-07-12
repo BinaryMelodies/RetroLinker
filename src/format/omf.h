@@ -81,7 +81,7 @@ namespace OMF
 		 * Any record type is expected to extend this class.
 		 * If several record types have the same or similar layout, they can share the same class, since the record type can be determined using the record_type field.
 		 */
-		template <typename FormatType, typename ModuleType>
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 			class Record
 		{
 		public:
@@ -90,9 +90,9 @@ namespace OMF
 			/** @brief Length of record body file, excluding the type byte and 2-byte length field */
 			uint16_t record_length;
 			/** @brief A byte value identifying the type of record */
-			uint8_t record_type;
+			RecordTypeByte record_type;
 
-			Record(uint8_t record_type = 0)
+			Record(RecordTypeByte record_type = RecordTypeByte(0))
 				: record_type(record_type)
 			{
 			}
@@ -117,24 +117,47 @@ namespace OMF
 				WriteRecordContents(omf, mod, ckswr);
 				wr.WriteWord(1, ckswr.checksum);
 			}
+
+			/** @brief Updates all fields that will be used for writing an OMF module, should be called before output */
+			virtual void CalculateValues(FormatType * omf, ModuleType * mod)
+			{
+				// TODO: set record_offset and record_lengt
+			}
+
+			/** @brief Resolves any fields read from an OMF module, should be called after inpnut */
+			virtual void ResolveReferences(FormatType * omf, ModuleType * mod)
+			{
+			}
+
+			/** @brief Records are 32-bit if the least significant bit of their record type is set (only meaningful for OMF86Format) */
+			bool Is32Bit(FormatType * omf) const
+			{
+				return (record_type & 1) != 0;
+			}
+
+			/** @brief The number of bytes in an offset appearing inside the record, 2 for 16-bit records, 4 for 32-bit records (only meaningful for OMF86Format) */
+			size_t GetOffsetSize(FormatType * omf) const
+			{
+				return Is32Bit(omf) ? 4 : 2;
+			}
 		};
 
 		/** @brief An unparsed record type, if the format is not recognized */
-		template <typename FormatType, typename ModuleType>
-			class UnknownRecord : public Record<FormatType, ModuleType>
+		template <typename RecordTypeByte, typename FormatType, typename ModuleType>
+			class UnknownRecord : public Record<RecordTypeByte, FormatType, ModuleType>
 		{
 		public:
 			/** @brief Contents of the record, without the type, length and checksum */
 			std::vector<uint8_t> data;
 
-			UnknownRecord(uint8_t record_type = 0)
-				: Record<FormatType, ModuleType>(record_type)
+			UnknownRecord(RecordTypeByte record_type = RecordTypeByte(0))
+				: Record<RecordTypeByte, FormatType, ModuleType>(record_type)
 			{
 			}
 
 			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override
 			{
-				data.resize(Record<FormatType, ModuleType>::record_length - 1);
+				data.resize(Record<RecordTypeByte, FormatType, ModuleType>::record_length - 1);
 				rd.ReadData(data);
 			}
 
@@ -531,114 +554,83 @@ namespace OMF
 			void ResolveReferences(OMF86Format * omf, Module * mod);
 		};
 
-		/** @brief Record type appearing specifically in an OMF86 file */
-		class Record : public OMFFormat::Record<OMF86Format, Module>
+		/** @brief The recognized record types in an OMF86 file */
+		enum record_type_t
 		{
-		public:
-			/** @brief The recognized record types in an OMF86 file */
-			enum record_type_t
-			{
-				RHEADR = 0x6E, // Intel 4.0
-				REGINT = 0x70, // Intel 4.0
-				REDATA = 0x72, // Intel 4.0
-				RIDATA = 0x74, // Intel 4.0
-				OVLDEF = 0x76, // Intel 4.0
-				ENDREC = 0x78, // Intel 4.0
-				BLKDEF = 0x7A, // Intel 4.0
-				BLKEND = 0x7C, // Intel 4.0
-				DEBSYM = 0x7E, // Intel 4.0
-				THEADR = 0x80,
-				LHEADR = 0x82,
-				PEDATA = 0x84, // Intel 4.0
-				PIDATA = 0x86, // Intel 4.0
-				COMENT = 0x88,
-				MODEND16 = 0x8A,
-				MODEND = 0x8A,
-				MODEND32 = 0x8B, // TIS 1.1
-				EXTDEF = 0x8C,
-				TYPDEF = 0x8E, // Intel 4.0
-				PUBDEF16 = 0x90,
-				PUBDEF = 0x90,
-				PUBDEF32 = 0x91, // TIS 1.1
-				LOCSYM = 0x92, // Intel 4.0
-				LINNUM = 0x94, // Intel 4.0
-				LNAMES = 0x96,
-				SEGDEF = 0x98, // Intel 4.0
-				GRPDEF = 0x9A, // Intel 4.0
-				FIXUPP16 = 0x9C,
-				FIXUPP = 0x9C,
-				FIXUPP32 = 0x9D, // TIS 1.1
-				LEDATA16 = 0xA0,
-				LEDATA = 0xA0,
-				LEDATA32 = 0xA1, // TIS 1.1
-				LIDATA16 = 0xA2,
-				LIDATA = 0xA2,
-				LIDATA32 = 0xA3, // TIS 1.1
-				LIBHED = 0xA4, // Intel 4.0
-				LIBNAM = 0xA6, // Intel 4.0
-				LIBLOC = 0xA8, // Intel 4.0
-				LIBDIC = 0xAA, // Intel 4.0
-				COMDEF = 0xB0, // TIS 1.1, since Microsoft LINK 3.5
-				BAKPAT16 = 0xB2, // TIS 1.1, since Microsoft QuickC 1.0
-				BAKPAT = 0xB2, // TIS 1.1
-				BAKPAT32 = 0xB3, // TIS 1.1
-				LEXTDEF16 = 0xB4, // TIS 1.1, since Microsoft C 5.0
-				LEXTDEF = 0xB4, // TIS 1.1
-				LEXTDEF32 = 0xB5, // TIS 1.1
-				LPUBDEF16 = 0xB6, // TIS 1.1, since Microsoft C 5.0
-				LPUBDEF = 0xB6, // TIS 1.1
-				LPUBDEF32 = 0xB7, // TIS 1.1
-				LCOMDEF = 0xB8, // TIS 1.1, since Microsoft C 5.0
-				CEXTDEF = 0xBC, // TIS 1.1, since Microsoft C 7.0
-				COMDAT16 = 0xC2, // TIS 1.1, since Microsoft C 7.0
-				COMDAT = 0xC2, // TIS 1.1
-				COMDAT32 = 0xC3, // TIS 1.1
-				LINSYM16 = 0xC4, // TIS 1.1, since Microsoft C 7.0
-				LINSYM = 0xC4, // TIS 1.1
-				LINSYM32 = 0xC5, // TIS 1.1
-				ALIAS = 0xC6, // TIS 1.1, since Microsoft LINK 5.13
-				NBKPAT16 = 0xC8, // TIS 1.1, since Microsoft C 7.0
-				NBKPAT = 0xC8, // TIS 1.1
-				NBKPAT32 = 0xC9, // TIS 1.1
-				LLNAMES = 0xCA, // TIS 1.1, since Microsoft C 7.0
-				VERNUM = 0xCC, // TIS 1.1
-				VENDEXT = 0xCE, // TIS 1.1
-				LibraryHeader = 0xF0, // TIS 1.1
-				LibraryEnd = 0xF1, // TIS 1.1
-			};
-
-			Record()
-			{
-			}
-
-			Record(record_type_t record_type)
-				: OMFFormat::Record<OMF86Format, Module>(record_type)
-			{
-			}
-
-			/** @brief Reads the record contents, except for the type, length and checksum */
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override = 0;
-			/** @brief Calculates the required bytes to write the record, might be less than record_length */
-			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override = 0;
-			/** @brief Writes the record contents, except for the type, length and checksum */
-			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override = 0;
-
-			/** @brief Updates all fields that will be used for writing an OMF module, should be called before output */
-			virtual void CalculateValues(OMF86Format * omf, Module * mod);
-			/** @brief Resolves any fields read from an OMF module, should be called after inpnut */
-			virtual void ResolveReferences(OMF86Format * omf, Module * mod);
-
-			/** @brief Records are 32-bit if the least significant bit of their record type is set */
-			bool Is32Bit(OMF86Format * omf) const;
-
-			/** @brief The number of bytes in an offset appearing inside the record, 2 for 16-bit records, 4 for 32-bit records */
-			size_t GetOffsetSize(OMF86Format * omf) const;
-
-			/** @brief Parses and returns an instance of the next record */
-			static std::shared_ptr<OMFFormat::Record<OMF86Format, Module>> ReadRecord(OMF86Format * omf, Linker::Reader& rd);
+			RHEADR = 0x6E, // Intel 4.0
+			REGINT = 0x70, // Intel 4.0
+			REDATA = 0x72, // Intel 4.0
+			RIDATA = 0x74, // Intel 4.0
+			OVLDEF = 0x76, // Intel 4.0
+			ENDREC = 0x78, // Intel 4.0
+			BLKDEF = 0x7A, // Intel 4.0
+			BLKEND = 0x7C, // Intel 4.0
+			DEBSYM = 0x7E, // Intel 4.0
+			THEADR = 0x80,
+			LHEADR = 0x82,
+			PEDATA = 0x84, // Intel 4.0
+			PIDATA = 0x86, // Intel 4.0
+			COMENT = 0x88,
+			MODEND16 = 0x8A,
+			MODEND = 0x8A,
+			MODEND32 = 0x8B, // TIS 1.1
+			EXTDEF = 0x8C,
+			TYPDEF = 0x8E, // Intel 4.0
+			PUBDEF16 = 0x90,
+			PUBDEF = 0x90,
+			PUBDEF32 = 0x91, // TIS 1.1
+			LOCSYM = 0x92, // Intel 4.0
+			LINNUM = 0x94, // Intel 4.0
+			LNAMES = 0x96,
+			SEGDEF = 0x98, // Intel 4.0
+			GRPDEF = 0x9A, // Intel 4.0
+			FIXUPP16 = 0x9C,
+			FIXUPP = 0x9C,
+			FIXUPP32 = 0x9D, // TIS 1.1
+			LEDATA16 = 0xA0,
+			LEDATA = 0xA0,
+			LEDATA32 = 0xA1, // TIS 1.1
+			LIDATA16 = 0xA2,
+			LIDATA = 0xA2,
+			LIDATA32 = 0xA3, // TIS 1.1
+			LIBHED = 0xA4, // Intel 4.0
+			LIBNAM = 0xA6, // Intel 4.0
+			LIBLOC = 0xA8, // Intel 4.0
+			LIBDIC = 0xAA, // Intel 4.0
+			COMDEF = 0xB0, // TIS 1.1, since Microsoft LINK 3.5
+			BAKPAT16 = 0xB2, // TIS 1.1, since Microsoft QuickC 1.0
+			BAKPAT = 0xB2, // TIS 1.1
+			BAKPAT32 = 0xB3, // TIS 1.1
+			LEXTDEF16 = 0xB4, // TIS 1.1, since Microsoft C 5.0
+			LEXTDEF = 0xB4, // TIS 1.1
+			LEXTDEF32 = 0xB5, // TIS 1.1
+			LPUBDEF16 = 0xB6, // TIS 1.1, since Microsoft C 5.0
+			LPUBDEF = 0xB6, // TIS 1.1
+			LPUBDEF32 = 0xB7, // TIS 1.1
+			LCOMDEF = 0xB8, // TIS 1.1, since Microsoft C 5.0
+			CEXTDEF = 0xBC, // TIS 1.1, since Microsoft C 7.0
+			COMDAT16 = 0xC2, // TIS 1.1, since Microsoft C 7.0
+			COMDAT = 0xC2, // TIS 1.1
+			COMDAT32 = 0xC3, // TIS 1.1
+			LINSYM16 = 0xC4, // TIS 1.1, since Microsoft C 7.0
+			LINSYM = 0xC4, // TIS 1.1
+			LINSYM32 = 0xC5, // TIS 1.1
+			ALIAS = 0xC6, // TIS 1.1, since Microsoft LINK 5.13
+			NBKPAT16 = 0xC8, // TIS 1.1, since Microsoft C 7.0
+			NBKPAT = 0xC8, // TIS 1.1
+			NBKPAT32 = 0xC9, // TIS 1.1
+			LLNAMES = 0xCA, // TIS 1.1, since Microsoft C 7.0
+			VERNUM = 0xCC, // TIS 1.1
+			VENDEXT = 0xCE, // TIS 1.1
+			LibraryHeader = 0xF0, // TIS 1.1
+			LibraryEnd = 0xF1, // TIS 1.1
 		};
 
-		using UnknownRecord = OMFFormat::UnknownRecord<OMF86Format, Module>;
+		using Record = OMFFormat::Record<record_type_t, OMF86Format, Module>;
+		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF86Format, Module>;
+
+		/** @brief Parses and returns an instance of the next record */
+		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
 
 		/** @brief A record type that has no contents, aside from the type, length and checksum, used for BLKEND */
 		class EmptyRecord : public Record
@@ -2357,7 +2349,7 @@ namespace OMF
 		};
 
 		/** @brief The ordered collection of records contained in the file */
-		std::vector<std::shared_ptr<OMFFormat::Record<OMF86Format, Module>>> records;
+		std::vector<std::shared_ptr<Record>> records;
 
 		/** @brief List of modules appearing in an OMF file, typically only one for an object file */
 		std::vector<Module> modules;

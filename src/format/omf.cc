@@ -800,185 +800,6 @@ void OMF86Format::Reference::ResolveReferences(OMF86Format * omf, Module * mod)
 	}
 }
 
-//// OMF86Format::Record
-
-bool OMF86Format::Record::Is32Bit(OMF86Format * omf) const
-{
-	return (record_type & 1) != 0;
-}
-
-size_t OMF86Format::Record::GetOffsetSize(OMF86Format * omf) const
-{
-	return Is32Bit(omf) ? 4 : 2;
-}
-
-void OMF86Format::Record::CalculateValues(OMF86Format * omf, Module * mod)
-{
-}
-
-void OMF86Format::Record::ResolveReferences(OMF86Format * omf, Module * mod)
-{
-}
-
-std::shared_ptr<OMFFormat::Record<OMF86Format, OMF86Format::Module>> OMF86Format::Record::ReadRecord(OMF86Format * omf, Linker::Reader& rd)
-{
-	Module * mod = omf->modules.size() > 0 ? &omf->modules.back() : nullptr;
-	offset_t record_offset = rd.Tell();
-	uint8_t record_type = rd.ReadUnsigned(1);
-	uint16_t record_length = rd.ReadUnsigned(2);
-	std::shared_ptr<OMFFormat::Record<OMF86Format, Module>> record;
-	switch(record_type)
-	{
-	case RHEADR:
-		record = std::make_shared<RModuleHeaderRecord>(record_type_t(record_type));
-		break;
-	case REGINT:
-		record = std::make_shared<RegisterInitializationRecord>(record_type_t(record_type));
-		break;
-	case REDATA:
-	case RIDATA:
-		record = std::make_shared<RelocatableDataRecord>(record_type_t(record_type));
-		break;
-	case OVLDEF:
-		record = std::make_shared<OverlayDefinitionRecord>(record_type_t(record_type));
-		break;
-	case ENDREC:
-		record = std::make_shared<EndRecord>(record_type_t(record_type));
-		break;
-	case BLKDEF:
-		record = std::make_shared<BlockDefinitionRecord>(record_type_t(record_type));
-		break;
-	case BLKEND:
-		record = std::make_shared<EmptyRecord>(record_type_t(record_type));
-		break;
-	case DEBSYM:
-		record = std::make_shared<DebugSymbolsRecord>(record_type_t(record_type));
-		break;
-	case THEADR:
-	case LHEADR:
-		record = std::make_shared<ModuleHeaderRecord>(record_type_t(record_type));
-		break;
-	case PEDATA:
-	case PIDATA:
-		record = std::make_shared<PhysicalDataRecord>(record_type_t(record_type));
-		break;
-	case COMENT:
-		return CommentRecord::ReadCommentRecord(omf, mod, rd, record_length);
-	case MODEND16:
-	case MODEND32:
-		record = std::make_shared<ModuleEndRecord>(record_type_t(record_type));
-		break;
-	case EXTDEF:
-		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
-		break;
-	case TYPDEF:
-		record = std::make_shared<TypeDefinitionRecord>(record_type_t(record_type));
-		break;
-	case PUBDEF16:
-	case PUBDEF32:
-	case LOCSYM:
-		record = std::make_shared<SymbolsDefinitionRecord>(record_type_t(record_type));
-		break;
-	case LINNUM:
-		record = std::make_shared<LineNumbersRecord>(record_type_t(record_type));
-		break;
-	case LNAMES:
-		record = std::make_shared<ListOfNamesRecord>(record_type_t(record_type));
-		break;
-	case SEGDEF:
-		record = std::make_shared<SegmentDefinitionRecord>(record_type_t(record_type));
-		break;
-	case GRPDEF:
-		record = std::make_shared<GroupDefinitionRecord>(record_type_t(record_type));
-		break;
-	case FIXUPP16:
-	case FIXUPP32:
-		record = std::make_shared<FixupRecord>(record_type_t(record_type));
-		break;
-	case LEDATA16:
-	case LEDATA32:
-	case LIDATA16:
-	case LIDATA32:
-		record = std::make_shared<LogicalDataRecord>(record_type_t(record_type));
-		break;
-	case LIBHED:
-		record = std::make_shared<IntelLibraryHeaderRecord>(record_type_t(record_type));
-		break;
-	case LIBNAM:
-		record = std::make_shared<IntelLibraryModuleNamesRecord>(record_type_t(record_type));
-		break;
-	case LIBLOC:
-		record = std::make_shared<IntelLibraryModuleLocationsRecord>(record_type_t(record_type));
-		break;
-	case LIBDIC:
-		record = std::make_shared<IntelLibraryDictionaryRecord>(record_type_t(record_type));
-		break;
-	case COMDEF:
-		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
-		break;
-	case BAKPAT16:
-	case BAKPAT32:
-		record = std::make_shared<BackpatchRecord>(record_type_t(record_type));
-		break;
-	case LEXTDEF16:
-	case LEXTDEF32:
-		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
-		break;
-	case LPUBDEF16:
-	case LPUBDEF32:
-		record = std::make_shared<SymbolsDefinitionRecord>(record_type_t(record_type));
-		break;
-	case LCOMDEF:
-	case CEXTDEF:
-		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
-		break;
-	case COMDAT16:
-	case COMDAT32:
-		record = std::make_shared<InitializedCommunalDataRecord>(record_type_t(record_type));
-		break;
-	case LINSYM16:
-	case LINSYM32:
-		record = std::make_shared<SymbolLineNumbersRecord>(record_type_t(record_type));
-		break;
-	case ALIAS:
-		record = std::make_shared<AliasDefinitionRecord>(record_type_t(record_type));
-		break;
-	case NBKPAT16:
-	case NBKPAT32:
-		record = std::make_shared<NamedBackpatchRecord>(record_type_t(record_type));
-		break;
-	case LLNAMES:
-		record = std::make_shared<ListOfNamesRecord>(record_type_t(record_type));
-		break;
-	case VERNUM:
-		record = std::make_shared<OMFVersionNumberRecord>(record_type_t(record_type));
-		break;
-	case VENDEXT:
-		record = std::make_shared<VendorExtensionRecord>(record_type_t(record_type));
-		break;
-	case LibraryHeader:
-		record = std::make_shared<LibraryHeaderRecord>(record_type_t(record_type));
-		record->record_offset = record_offset;
-		record->record_length = record_length;
-		record->ReadRecordContents(omf, mod, rd);
-		return record;
-	case LibraryEnd:
-		record = std::make_shared<LibraryEndRecord>(record_type_t(record_type));
-		record->record_offset = record_offset;
-		record->record_length = record_length;
-		record->ReadRecordContents(omf, mod, rd);
-		return record;
-	default:
-		record = std::make_shared<UnknownRecord>(record_type_t(record_type));
-	}
-	record->record_offset = record_offset;
-	record->record_length = record_length;
-	record->ReadRecordContents(omf, mod, rd);
-	rd.ReadUnsigned(1); // checksum
-	omf->records.push_back(record);
-	return record;
-}
-
 //// OMF86Format::EmptyRecord
 
 void OMF86Format::EmptyRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
@@ -4050,6 +3871,165 @@ size_t OMF86Format::IndexSize(index_t index)
 	{
 		return 2;
 	}
+}
+
+std::shared_ptr<OMF86Format::Record> OMF86Format::ReadRecord(Linker::Reader& rd)
+{
+	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
+	offset_t record_offset = rd.Tell();
+	uint8_t record_type = rd.ReadUnsigned(1);
+	uint16_t record_length = rd.ReadUnsigned(2);
+	std::shared_ptr<Record> record;
+	switch(record_type)
+	{
+	case RHEADR:
+		record = std::make_shared<RModuleHeaderRecord>(record_type_t(record_type));
+		break;
+	case REGINT:
+		record = std::make_shared<RegisterInitializationRecord>(record_type_t(record_type));
+		break;
+	case REDATA:
+	case RIDATA:
+		record = std::make_shared<RelocatableDataRecord>(record_type_t(record_type));
+		break;
+	case OVLDEF:
+		record = std::make_shared<OverlayDefinitionRecord>(record_type_t(record_type));
+		break;
+	case ENDREC:
+		record = std::make_shared<EndRecord>(record_type_t(record_type));
+		break;
+	case BLKDEF:
+		record = std::make_shared<BlockDefinitionRecord>(record_type_t(record_type));
+		break;
+	case BLKEND:
+		record = std::make_shared<EmptyRecord>(record_type_t(record_type));
+		break;
+	case DEBSYM:
+		record = std::make_shared<DebugSymbolsRecord>(record_type_t(record_type));
+		break;
+	case THEADR:
+	case LHEADR:
+		record = std::make_shared<ModuleHeaderRecord>(record_type_t(record_type));
+		break;
+	case PEDATA:
+	case PIDATA:
+		record = std::make_shared<PhysicalDataRecord>(record_type_t(record_type));
+		break;
+	case COMENT:
+		return CommentRecord::ReadCommentRecord(this, mod, rd, record_length);
+	case MODEND16:
+	case MODEND32:
+		record = std::make_shared<ModuleEndRecord>(record_type_t(record_type));
+		break;
+	case EXTDEF:
+		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
+		break;
+	case TYPDEF:
+		record = std::make_shared<TypeDefinitionRecord>(record_type_t(record_type));
+		break;
+	case PUBDEF16:
+	case PUBDEF32:
+	case LOCSYM:
+		record = std::make_shared<SymbolsDefinitionRecord>(record_type_t(record_type));
+		break;
+	case LINNUM:
+		record = std::make_shared<LineNumbersRecord>(record_type_t(record_type));
+		break;
+	case LNAMES:
+		record = std::make_shared<ListOfNamesRecord>(record_type_t(record_type));
+		break;
+	case SEGDEF:
+		record = std::make_shared<SegmentDefinitionRecord>(record_type_t(record_type));
+		break;
+	case GRPDEF:
+		record = std::make_shared<GroupDefinitionRecord>(record_type_t(record_type));
+		break;
+	case FIXUPP16:
+	case FIXUPP32:
+		record = std::make_shared<FixupRecord>(record_type_t(record_type));
+		break;
+	case LEDATA16:
+	case LEDATA32:
+	case LIDATA16:
+	case LIDATA32:
+		record = std::make_shared<LogicalDataRecord>(record_type_t(record_type));
+		break;
+	case LIBHED:
+		record = std::make_shared<IntelLibraryHeaderRecord>(record_type_t(record_type));
+		break;
+	case LIBNAM:
+		record = std::make_shared<IntelLibraryModuleNamesRecord>(record_type_t(record_type));
+		break;
+	case LIBLOC:
+		record = std::make_shared<IntelLibraryModuleLocationsRecord>(record_type_t(record_type));
+		break;
+	case LIBDIC:
+		record = std::make_shared<IntelLibraryDictionaryRecord>(record_type_t(record_type));
+		break;
+	case COMDEF:
+		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
+		break;
+	case BAKPAT16:
+	case BAKPAT32:
+		record = std::make_shared<BackpatchRecord>(record_type_t(record_type));
+		break;
+	case LEXTDEF16:
+	case LEXTDEF32:
+		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
+		break;
+	case LPUBDEF16:
+	case LPUBDEF32:
+		record = std::make_shared<SymbolsDefinitionRecord>(record_type_t(record_type));
+		break;
+	case LCOMDEF:
+	case CEXTDEF:
+		record = std::make_shared<ExternalNamesDefinitionRecord>(record_type_t(record_type));
+		break;
+	case COMDAT16:
+	case COMDAT32:
+		record = std::make_shared<InitializedCommunalDataRecord>(record_type_t(record_type));
+		break;
+	case LINSYM16:
+	case LINSYM32:
+		record = std::make_shared<SymbolLineNumbersRecord>(record_type_t(record_type));
+		break;
+	case ALIAS:
+		record = std::make_shared<AliasDefinitionRecord>(record_type_t(record_type));
+		break;
+	case NBKPAT16:
+	case NBKPAT32:
+		record = std::make_shared<NamedBackpatchRecord>(record_type_t(record_type));
+		break;
+	case LLNAMES:
+		record = std::make_shared<ListOfNamesRecord>(record_type_t(record_type));
+		break;
+	case VERNUM:
+		record = std::make_shared<OMFVersionNumberRecord>(record_type_t(record_type));
+		break;
+	case VENDEXT:
+		record = std::make_shared<VendorExtensionRecord>(record_type_t(record_type));
+		break;
+	case LibraryHeader:
+		record = std::make_shared<LibraryHeaderRecord>(record_type_t(record_type));
+		record->record_offset = record_offset;
+		record->record_length = record_length;
+		record->ReadRecordContents(this, mod, rd);
+		return record;
+	case LibraryEnd:
+		record = std::make_shared<LibraryEndRecord>(record_type_t(record_type));
+		record->record_offset = record_offset;
+		record->record_length = record_length;
+		record->ReadRecordContents(this, mod, rd);
+		return record;
+	default:
+		record = std::make_shared<UnknownRecord>(record_type_t(record_type));
+	}
+	record->record_offset = record_offset;
+	record->record_length = record_length;
+	record->ReadRecordContents(this, mod, rd);
+	rd.ReadUnsigned(1); // checksum
+	records.push_back(record);
+	return record;
 }
 
 void OMF86Format::ReadFile(Linker::Reader& rd)
