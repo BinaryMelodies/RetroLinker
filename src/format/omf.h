@@ -1,6 +1,7 @@
 #ifndef OMF_H
 #define OMF_H
 
+#include <array>
 #include <variant>
 #include "../common.h"
 #include "../dumper/dumper.h"
@@ -8,7 +9,7 @@
 #include "../linker/reader.h"
 #include "../linker/writer.h"
 
-/* TODO: unimplemented */
+/* TODO: incomplete */
 
 /* Intel Object Module format (input only) */
 
@@ -548,7 +549,7 @@ namespace OMF
 		{
 		public:
 			/** @brief Type of a common symbol */
-			enum common_type_t
+			enum common_type_t : uint8_t
 			{
 				/** @brief Not a common symbol, appears in an EXTDEF, LEXTDEF or CEXTDEF record */
 				External,
@@ -1013,7 +1014,7 @@ namespace OMF
 			NameIndex overlay_name;
 
 			/** @brief Represents an additional field used by Phar Lap */
-			enum access_t
+			enum access_t : uint8_t
 			{
 				AccessReadOnly = 0,
 				AccessExecuteOnly = 1,
@@ -1288,7 +1289,7 @@ namespace OMF
 			/** @brief Length of the block */
 			uint16_t length;
 			/** @brief Type of the block, if it is a procedure */
-			enum block_type_t
+			enum block_type_t : uint8_t
 			{
 				/** @brief Block is not a procedure */
 				NotProcedure = 0x00,
@@ -1564,7 +1565,7 @@ namespace OMF
 			{
 			public:
 				/** @brief Register type that can be initialized */
-				enum register_t
+				enum register_t : uint8_t
 				{
 					/** @brief The CS and IP register pair, it signifies the starting address as a far pointer */
 					CS_IP,
@@ -1633,18 +1634,23 @@ namespace OMF
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
-		// TODO: document
+		/** @brief A specialized relocation, used for BAKPAT (included in TIS) */
 		class BackpatchRecord : public Record
 		{
 		public:
+			/** @brief Represents a single fixup */
 			class OffsetValuePair
 			{
 			public:
+				/** @brief The offset at which the fixup should happen */
 				uint32_t offset;
+				/** @brief The value to be added to the fixup location */
 				uint32_t value;
 			};
 
+			/** @brief Segment to which the relocations belong */
 			SegmentIndex segment;
+			/** @brief Relocation type */
 			enum location_type_t : uint8_t
 			{
 				Location8bit = 0,
@@ -1652,7 +1658,9 @@ namespace OMF
 				Location32bit = 2,
 				Location32bit_IBM = 9,
 			};
+			/** @brief The type of the relocations */
 			uint8_t type;
+			/** @brief The data for the relocations */
 			std::vector<OffsetValuePair> offset_value_pairs;
 
 			BackpatchRecord(record_type_t record_type = record_type_t(0))
@@ -1668,24 +1676,16 @@ namespace OMF
 			void ResolveReferences(OMF86Format * omf, Module * mod) override;
 		};
 
+		/** @brief A specialized relocation for named common segments, used for NBKPAT (included in TIS) */
 		class NamedBackpatchRecord : public Record
 		{
 		public:
-			class OffsetValuePair
-			{
-			public:
-				uint32_t offset;
-				uint32_t value;
-			};
+			using OffsetValuePair = BackpatchRecord::OffsetValuePair;
+			using location_type_t = BackpatchRecord::location_type_t;
 
-			enum location_type_t : uint8_t
-			{
-				Location8bit = 0,
-				Location16bit = 1,
-				Location32bit = 2,
-				Location32bit_IBM = 9,
-			};
+			/** @brief The type of the relocations */
 			uint8_t type;
+			/** @brief The name of the common segment to which the relocations belong to */
 			NameIndex name;
 			std::vector<OffsetValuePair> offset_value_pairs;
 
@@ -1702,13 +1702,20 @@ namespace OMF
 			void ResolveReferences(OMF86Format * omf, Module * mod) override;
 		};
 
+		/** @brief Initialization data for common segments, used for COMDAT (included in TIS) */
 		class InitializedCommunalDataRecord : public Record
 		{
 		public:
+			/** @brief Set if this record is the continuation of a previous record, cleared if it is a new record */
 			bool continued;
+			/** @brief Set if the format of the data is iterated, cleared for enumerated */
 			bool iterated;
+			/** @brief Local common segment */
 			bool local;
+			/** @brief Set if the data is to be placed in a code segment */
 			bool code_segment;
+
+			// TODO: document further
 
 			enum selection_criterion_t : uint8_t
 			{
@@ -1736,7 +1743,7 @@ namespace OMF
 
 			uint32_t offset;
 			TypeIndex type;
-			BaseSpecification base; // unclear
+			BaseSpecification base;
 			NameIndex name;
 			std::shared_ptr<DataBlock> data;
 
@@ -1753,11 +1760,15 @@ namespace OMF
 			void ResolveReferences(OMF86Format * omf, Module * mod) override;
 		};
 
+		/** @brief Line numbers for common segments, used by LINSYM (included in TIS) */
 		class SymbolLineNumbersRecord : public Record
 		{
 		public:
+			/** @brief Set if this record is the continuation of a previous record, cleared if it is a new record */
 			bool continued;
+			/** @brief The name of the common segment to which the line numbers belong to */
 			NameIndex name;
+			/** @brief The line numbers */
 			std::vector<LineNumber> line_numbers;
 
 			SymbolLineNumbersRecord(record_type_t record_type = record_type_t(0))
@@ -1773,19 +1784,24 @@ namespace OMF
 			void ResolveReferences(OMF86Format * omf, Module * mod) override;
 		};
 
+		/** @brief Record defining a replacement name for symbols, used for ALIAS (included in TIS) */
 		class AliasDefinitionRecord : public Record
 		{
 		public:
+			/** @brief Represents a single substitution */
 			class AliasDefinition
 			{
 			public:
+				/** @brief Name used in references */
 				std::string alias_name;
+				/** @brief Name it should be substituted with */
 				std::string substitute_name;
 
 				static AliasDefinition ReadAliasDefinition(OMF86Format * omf, Module * mod, Linker::Reader& rd);
 				uint16_t GetAliasDefinitionSize(OMF86Format * omf, Module * mod) const;
 				void WriteAliasDefinition(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
+			/** @brief List of replacements */
 			std::vector<AliasDefinition> alias_definitions;
 
 			AliasDefinitionRecord(record_type_t record_type = record_type_t(0))
@@ -1798,9 +1814,11 @@ namespace OMF
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
+		/** @brief The version of the OMF format, used for VERNUM (included in TIS) */
 		class OMFVersionNumberRecord : public Record
 		{
 		public:
+			/** @brief Textual representation of the version number */
 			std::string version;
 
 			OMFVersionNumberRecord(record_type_t record_type = record_type_t(0))
@@ -1813,11 +1831,14 @@ namespace OMF
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
+		/** @brief Vendor specific extension to the OMF format, used for VENDEXT (included in TIS) */
 		class VendorExtensionRecord : public Record
 		{
 		public:
+			/** @brief Assigned vendor identifier */
 			uint16_t vendor_number;
-			std::string extension;
+			/** @brief Extension data */
+			std::vector<uint8_t> extension;
 
 			VendorExtensionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
@@ -1828,6 +1849,8 @@ namespace OMF
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
+
+		// TODO: document
 
 		class CommentRecord : public Record
 		{
@@ -2577,6 +2600,117 @@ namespace OMF
 
 		// TODO: document record types
 
+		static constexpr uint8_t SegmentAbsolute = 0;
+
+		enum segment_type_t : uint8_t
+		{
+			/** @brief 64 KiB read-only memory */
+			SegmentCode = 0,
+			/** @brief 64 KiB read-write memory */
+			SegmentXData = 1,
+			/** @brief 256 B internal RAM that is accessible via direct addressing, first 128 B shared with SegmentIData */
+			SegmentData = 2,
+			/** @brief 256 B internal RAM that is accessible via indirect addressing, first 128 B shared with SegmentData */
+			SegmentIData = 3,
+			/** @brief 256 bit address space, part of SegmentData */
+			SegmentBit = 4,
+			/** @brief Not a segment, but a symbol with this segment type is treated as a value */
+			SegmentNone = 5,
+		};
+
+		enum alignment_t : uint8_t
+		{
+			/** @brief Non-relocatable */
+			AlignAbsolute = 0,
+			/** @brief Byte or bit alignment for SegmentBit segments */
+			AlignUnit = 1,
+			/** @brief Must be allocated within the bit addressable part of SegmentData */
+			AlignBitAddressable = 2,
+			/** @brief Must fit a 256 byte page */
+			AlignFitsPage = 3,
+			/** @brief Must fit a 256 byte block */
+			AlignFitsBlock = 4,
+			/** @brief Align to a 256 byte page boundary */
+			AlignPage = 5,
+		};
+
+		class SegmentInfo
+		{
+		public:
+			bool overlayable;
+			uint8_t register_bank;
+			segment_type_t segment_type;
+
+			static constexpr uint8_t MaskSegmentType = 0x07;
+			static constexpr uint8_t MaskRegisterBank = 0x18;
+			static constexpr uint8_t ShiftRegisterBank = 3;
+			static constexpr uint8_t FlagOverlayable = 0x20;
+			static constexpr uint8_t FlagSegmentEmpty = 0x80;
+
+			void ReadSegmentInfo(OMF51Format * omf, Module * mod, uint8_t segment_info);
+			uint8_t WriteSegmentInfo(OMF51Format * omf, Module * mod) const;
+		};
+
+		class SegmentDefinition
+		{
+		public:
+			uint8_t segment_id;
+			SegmentInfo info;
+			alignment_t alignment;
+			uint16_t base;
+			uint32_t size;
+			std::string name;
+
+			static SegmentDefinition ReadSegmentDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t GetSegmentDefinitionSize(OMF51Format * omf, Module * mod) const;
+			void WriteSegmentDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+		};
+
+		class SymbolInfo
+		{
+		public:
+			bool indirectly_callable;
+			bool variable;
+			std::optional<unsigned> register_bank;
+			segment_type_t usage;
+
+			static constexpr uint8_t MaskSegmentType = 0x07;
+			static constexpr uint8_t MaskRegisterBank = 0x18;
+			static constexpr uint8_t ShiftRegisterBank = 3;
+			static constexpr uint8_t FlagRegisterBank = 0x20;
+			static constexpr uint8_t FlagVariable = 0x40;
+			static constexpr uint8_t FlagIndirectlyCallable = 0x80;
+
+			void ReadSymbolInfo(OMF51Format * omf, Module * mod, uint8_t segment_info);
+			uint8_t WriteSymbolInfo(OMF51Format * omf, Module * mod) const;
+		};
+
+		class SymbolDefinition
+		{
+		public:
+			uint8_t segment_id;
+			SymbolInfo info;
+			uint16_t offset;
+			std::string name;
+
+			static SymbolDefinition ReadSymbolDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t GetSymbolDefinitionSize(OMF51Format * omf, Module * mod) const;
+			void WriteSymbolDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+		};
+
+		class ExternalDefinition
+		{
+		public:
+			uint8_t block_id;
+			uint8_t external_id;
+			SymbolInfo info;
+			std::string name;
+
+			static ExternalDefinition ReadExternalDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t GetExternalDefinitionSize(OMF51Format * omf, Module * mod) const;
+			void WriteExternalDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+		};
+
 		class ModuleHeaderRecord : public Record
 		{
 		public:
@@ -2599,8 +2733,246 @@ namespace OMF
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
+		class ModuleEndRecord : public Record
+		{
+		public:
+			std::string name;
+			std::array<bool, 4> banks;
+
+			ModuleEndRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
+		};
+
+		class SegmentDefinitionsRecord : public Record
+		{
+		public:
+			std::vector<SegmentDefinition> segment_definitions;
+
+			SegmentDefinitionsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF51Format * omf, Module * mod) override;
+			void ResolveReferences(OMF51Format * omf, Module * mod) override;
+		};
+
+		class PublicSymbolsRecord : public Record
+		{
+		public:
+			std::vector<SymbolDefinition> symbol_definitions;
+
+			PublicSymbolsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF51Format * omf, Module * mod) override;
+			void ResolveReferences(OMF51Format * omf, Module * mod) override;
+		};
+
+		class ExternalDefinitionsRecord : public Record
+		{
+		public:
+			std::vector<ExternalDefinition> external_definitions;
+
+			ExternalDefinitionsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF51Format * omf, Module * mod) override;
+			void ResolveReferences(OMF51Format * omf, Module * mod) override;
+		};
+
+		class ScopeDefinitionRecord : public Record
+		{
+		public:
+			enum block_type_t : uint8_t
+			{
+				ModuleBlock = 0,
+				DoBlock = 1,
+				ProcedureBlock = 2,
+				EndModuleBlock = 3,
+				EndDoBlock = 4,
+				EndProcedureBlock = 5,
+			};
+
+			block_type_t block_type;
+			std::string name;
+
+			ScopeDefinitionRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF51Format * omf, Module * mod) override;
+			void ResolveReferences(OMF51Format * omf, Module * mod) override;
+		};
+
+		class DebugItemsRecord : public Record
+		{
+		public:
+			class Symbol
+			{
+			public:
+				uint8_t segment_id;
+				SymbolInfo info;
+				uint16_t offset;
+				std::string name;
+
+				static Symbol ReadSymbol(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t GetSymbolSize(OMF51Format * omf, Module * mod) const;
+				void WriteSymbol(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+			};
+
+			class LocalSymbols
+			{
+			public:
+				std::vector<Symbol> symbols;
+			};
+
+			class PublicSymbols
+			{
+			public:
+				std::vector<Symbol> symbols;
+			};
+
+			class SegmentSymbol
+			{
+			public:
+				uint8_t segment_id;
+				SegmentInfo info;
+				uint16_t offset;
+				std::string name;
+
+				static SegmentSymbol ReadSegmentSymbol(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t GetSegmentSymbolSize(OMF51Format * omf, Module * mod) const;
+				void WriteSegmentSymbol(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+			};
+
+			class SegmentSymbols
+			{
+			public:
+				std::vector<SegmentSymbol> symbols;
+			};
+
+			class LineNumber
+			{
+			public:
+				uint8_t segment_id;
+				uint16_t offset;
+				uint16_t line_number;
+
+				static LineNumber ReadLineNumber(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				void WriteLineNumber(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+			};
+
+			class LineNumbers
+			{
+			public:
+				std::vector<LineNumber> symbols;
+			};
+
+			static constexpr uint8_t Type_LocalSymbols = 0;
+			static constexpr uint8_t Type_PublicSymbols = 1;
+			static constexpr uint8_t Type_SegmentSymbols = 2;
+			static constexpr uint8_t Type_LineNumbers = 3;
+
+			std::variant<LocalSymbols, PublicSymbols, SegmentSymbols, LineNumbers> contents;
+
+			DebugItemsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF51Format * omf, Module * mod) override;
+			void ResolveReferences(OMF51Format * omf, Module * mod) override;
+		};
+
+		class FixupRecord : public Record
+		{
+		public:
+			enum relocation_type_t : uint8_t
+			{
+				RelocationLow8 = 0,
+				RelocationByte8 = 1,
+				RelocationRelative8 = 2,
+				RelocationHigh8 = 3,
+				RelocationWord16 = 4,
+				RelocationAbsolute11 = 5,
+				RelocationBit7 = 6,
+				RelocationConv7 = 7,
+			};
+
+			enum reference_type_t : uint8_t
+			{
+				/** @brief The starting address of the segment */
+				ReferenceSegmentBase = 0,
+				/** @brief The starting address of the portion of the segment in the file */
+				ReferenceSegmentStart = 1,
+				/** @brief An external reference */
+				ReferenceExternal = 2,
+			};
+
+			class Fixup
+			{
+			public:
+				uint16_t location;
+				relocation_type_t relocation;
+				reference_type_t reference;
+				uint8_t id;
+				uint16_t offset;
+
+				static Fixup ReadFixup(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				void WriteFixup(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+			};
+
+			std::vector<Fixup> fixups;
+
+			FixupRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF51Format * omf, Module * mod) override;
+			void ResolveReferences(OMF51Format * omf, Module * mod) override;
+		};
+
 		class Module
 		{
+		public:
+			std::map<uint8_t, SegmentDefinition> segment_definitions;
 			// TODO
 		};
 
