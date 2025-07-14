@@ -404,7 +404,12 @@ namespace OMF
 		};
 
 		/** @brief The variant of the OMF format, needed to handle certain fields */
-		omf_version_t omf_version = OMF_VERSION_TIS_11;
+		omf_version_t omf_version;
+
+		OMF86Format(omf_version_t omf_version = OMF_VERSION_MICROSOFT)
+			: omf_version(omf_version)
+		{
+		}
 
 		/** @brief Flag binary or'ed to certain values to mark Intel interpretation */
 		static constexpr unsigned int FlagIntel = 0x10;
@@ -3450,6 +3455,24 @@ namespace OMF
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 		/* TODO */
+	};
+
+	class OMFFormatContainer : public virtual Linker::InputFormat
+	{
+	public:
+		std::shared_ptr<OMFFormat> contents;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::InputFormat::GenerateModule;
+		void GenerateModule(Linker::Module& module) const override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		offset_t ImageSize() const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 }
 

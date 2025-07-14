@@ -2958,9 +2958,9 @@ void OMF86Format::ModuleEndRecord::ReadRecordContents(OMF86Format * omf, Module 
 {
 	uint8_t module_type = rd.ReadUnsigned(1);
 	main_module = (module_type & 0x80) != 0;
-	if((main_module & 0x40))
+	if((module_type & 0x40))
 	{
-		if((main_module & 0x01))
+		if((module_type & 0x01))
 		{
 			Reference ref;
 			ref.Read(omf, rd, GetOffsetSize(omf));
@@ -3547,7 +3547,8 @@ std::shared_ptr<OMF86Format::CommentRecord> OMF86Format::CommentRecord::ReadComm
 
 	record->no_purge = (comment_type & 0x80) != 0;
 	record->no_list = (comment_type & 0x40) != 0;
-	record->ReadComment(omf, mod, rd, record_length - 2);
+	record->ReadComment(omf, mod, rd, record_length - 3);
+	rd.ReadUnsigned(1); // checksum
 	return record;
 }
 
@@ -4021,6 +4022,7 @@ std::shared_ptr<OMF86Format::Record> OMF86Format::ReadRecord(Linker::Reader& rd)
 	uint8_t record_type = rd.ReadUnsigned(1);
 	uint16_t record_length = rd.ReadUnsigned(2);
 	std::shared_ptr<Record> record;
+Linker::Debug << "Debug: record 0x" << std::hex << int(record_type) << " at offset 0x" << std::hex << record_offset << std::endl;
 	switch(record_type)
 	{
 	case RHEADR:
@@ -6276,5 +6278,36 @@ void OMF96Format::Dump(Dumper::Dumper& dump) const
 void OMF96Format::GenerateModule(Linker::Module& module) const
 {
 	/* TODO */
+}
+
+//// OMFFormatContainer
+
+void OMFFormatContainer::ReadFile(Linker::Reader& rd)
+{
+	contents = OMFFormat::ReadOMFFile(rd);
+}
+
+void OMFFormatContainer::GenerateModule(Linker::Module& module) const
+{
+	if(auto input_format = std::dynamic_pointer_cast<Linker::InputFormat>(contents))
+	{
+		input_format->GenerateModule(module);
+	}
+	// TODO: otherwise, issue error
+}
+
+offset_t OMFFormatContainer::WriteFile(Linker::Writer& wr) const
+{
+	return contents->WriteFile(wr);
+}
+
+offset_t OMFFormatContainer::ImageSize() const
+{
+	return contents->ImageSize();
+}
+
+void OMFFormatContainer::Dump(Dumper::Dumper& dump) const
+{
+	contents->Dump(dump);
 }
 

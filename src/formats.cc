@@ -415,6 +415,38 @@ format_specification formats[] =
 	{ "z8k_segmented" },
 	{ "z8k_sg" },
 	{ "ee01" },
+	/* Intel OMF */
+	{ "omf80",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF80Format>(); },
+		"Intel Object Module Format for the 8080" },
+	{ "omf51",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF51Format>(); },
+		"Intel Object Module Format for the 8051" },
+	{ "omf96",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF96Format>(); },
+		"Intel Object Module Format for the 8096" },
+	{ "omf86",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF86Format>(); },
+		"Intel Object Module Format for the 8086/386" },
+	{ "omf" },
+	{ "omf86_ms",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF86Format>(OMF::OMF86Format::OMF_VERSION_MICROSOFT); },
+		"Intel Object Module Format for the 8086/386 (Microsoft extensions)" },
+	{ "omf86_intel",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF86Format>(OMF::OMF86Format::OMF_VERSION_INTEL_40); },
+		"Intel Object Module Format for the 8086 (original Intel version)" },
+	{ "omf86_pharlap",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF86Format>(OMF::OMF86Format::OMF_VERSION_PHARLAP); },
+		"Intel Object Module Format for the 8086/386 (Phar Lap extensions)" },
+	{ "omf86_ibm",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF86Format>(OMF::OMF86Format::OMF_VERSION_IBM); },
+		"Intel Object Module Format for the 8086/386 (IBM extensions)" },
+	{ "omf86_tis",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF86Format>(OMF::OMF86Format::OMF_VERSION_TIS_11); },
+		"Intel Object Module Format for the 8086/386 (Tool Interface Standard version)" },
+	{ "omf_any",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMFFormatContainer>(); },
+		"Intel Object Module Format for either the 8080, 8086, 8051, 8096" },
 	/* PCOS */
 	{ "pcos",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<PCOS::CMDFormat>(); },
@@ -660,6 +692,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x01P"),               0, FORMAT_COFF,    "Motorola 68000 COFF executable (Concurrent DOS 68K)" },
 	{ std::string("\x02\x06"),            0, FORMAT_XENIX,   "Big endian x.out (Xenix)" },
 	{ std::string("\x02"),                0, FORMAT_FLEX,    "FLEX command file", VerifyFLEX },
+	{ std::string("\x02"),                0, FORMAT_OMF,     "Intel Object Module Format, 8080/8051/8096" }, // TODO: conflicts with FLEX command file
 	{ std::string("\x05\x01"),            0, FORMAT_AOUT,    "Little endian a.out, UNIX version 1 or overlay" },
 	{ std::string("\x06\x02"),            0, FORMAT_XENIX,   "Little endian x.out (Xenix)" },
 	{ std::string("\x07\x01"),            0, FORMAT_AOUT,    "Little endian OMAGIC a.out, combined code/data (old PDOS/386)" },
@@ -674,6 +707,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x1F\x01"),            0, FORMAT_AOUT,    "Little endian a.out, System V overlay, separate code/data" },
 	{ std::string("!<arch>\n"),           0, FORMAT_AR,      "UNIX archive" },
 	{ std::string("(Q"),                  0, FORMAT_COFF,    "Microsoft COFF, RISC-V 128-bit" },
+	{ std::string(","),                   0, FORMAT_OMF,     "Intel Object Module Format library, 8080/8051/8096" },
 	{ std::string("2P"),                  0, FORMAT_COFF,    "Microsoft COFF, RISC-V 32-bit" },
 	{ std::string("Adam"),                0, FORMAT_ADAM,    "Adam Seychell's DOS32 DOS Extender format \"Adam\" executable" },
 	{ std::string("A\x90"),               0, FORMAT_COFF,    "Microsoft COFF, Mitsubishi M32R" },
@@ -725,9 +759,11 @@ static const struct format_magic format_magics[] =
 	{ std::string("h\x01"),               0, FORMAT_COFF,    "Microsoft COFF, MIPS R10000" },
 	{ std::string("h\x02"),               0, FORMAT_COFF,    "Microsoft COFF, Motorola 68000" },
 	{ std::string("i\x01"),               0, FORMAT_COFF,    "Microsoft COFF, MIPS WCE v2 little endian" },
+	{ std::string("n"),                   0, FORMAT_OMF86,   "Intel Object Module Format for 8086, R-Module format" },
 	{ std::string("\x7F" "ELF"),          0, FORMAT_ELF,     "UNIX/Linux ELF file format" },
 	{ std::string("\x80\x00", 2),         0, FORMAT_COFF,    "Zilog Z8000 COFF object file (GNU binutils)" },
-	{ std::string("\x80"),                0, FORMAT_OMF,     "Intel Object Module Format object file" },
+	{ std::string("\x80"),                0, FORMAT_OMF86,   "Intel Object Module Format object file for 8086 and later (T-Module format)" },
+	{ std::string("\x82"),                0, FORMAT_OMF86,   "Intel Object Module Format for 8086, L-Module format" },
 	{ std::string("\x83\x01"),            0, FORMAT_COFF,    "Microsoft COFF, DEC Alpha AXP" },
 	{ std::string("\x84\x01"),            0, FORMAT_COFF,    "Microsoft COFF, DEC Alpha AXP" },
 	{ std::string("\x84\x02"),            0, FORMAT_COFF,    "Microsoft COFF, DEC Alpha AXP 64-bit" },
@@ -735,6 +771,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\xA2\x01"),            0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH3" },
 	{ std::string("\xA3\x01"),            0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH3 DSP" },
 	{ std::string("\xA3\x86"),            0, FORMAT_AS86,    "Introl object format (x86)" },
+	{ std::string("\xA4"),                0, FORMAT_OMF86,   "Intel Object Module Format for 8086, library (Intel style)" },
 	{ std::string("\xA6\x01"),            0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH4" },
 	{ std::string("\xA8\x01"),            0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH5" },
 	{ std::string("\xBC\x0E"),            0, FORMAT_COFF,    "Microsoft COFF, EFI byte code" },
@@ -758,7 +795,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\xEE\x0A"),            0, FORMAT_Z8K,     "CP/M-8000 object file, non-segmented, split code/data" }, /* undocumented */
 	{ std::string("\xEE\x0B"),            0, FORMAT_Z8K,     "CP/M-8000 executable file, non-segmented, split code/data" },
 	{ std::string("\xF0\x01"),            0, FORMAT_COFF,    "Microsoft COFF, PowerPC little endian" },
-	{ std::string("\xF0"),                0, FORMAT_OMF,     "Intel Object Module Format, library" },
+	{ std::string("\xF0"),                0, FORMAT_OMF86,   "Intel Object Module Format for 8086 and later, library" },
 	{ std::string("\xF1\x01"),            0, FORMAT_COFF,    "Microsoft COFF, PowerPC with floating point", VerifyIntelOMF },
 	{ std::string("\xFA\x70\x0E\x1F"),    0, FORMAT_ELF_MULTIPLE, "FatELF" },
 	{ std::string("\xFE\xED\xFA\xCE"),    0, FORMAT_MACHO,   "32-bit big endian Mach-O format" },
@@ -1032,6 +1069,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_O65:
 		return std::make_shared<O65::O65Format>(); // TODO
 	case FORMAT_OMF:
+		return std::make_shared<OMF::OMFFormatContainer>(); // TODO
+	case FORMAT_OMF86:
 		return std::make_shared<OMF::OMF86Format>(); // TODO
 	case FORMAT_P3:
 		return std::make_shared<P3FormatContainer>(); // TODO

@@ -62,7 +62,8 @@ enum format_type
 	FORMAT_MZ, // MS-DOS .exe
 	FORMAT_NE, // 16-bit Windows .exe
 	FORMAT_O65, // 6502 binary relocation format
-	FORMAT_OMF, // Intel Object file
+	FORMAT_OMF, // (old) Intel Object file, for 8080, 8051, 8096
+	FORMAT_OMF86, // Intel Object file, for 8086 and derivatives
 	FORMAT_P3, // Phar Lap new executable .exp
 	FORMAT_PCOS, // Olivetti M20 PCOS .cmd/.sav files
 	FORMAT_PE, // 32-bit Windows .exe
