@@ -154,7 +154,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 //// OMFFormat::LineNumber
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber::ReadLineNumber(FormatType * omf, Linker::Reader& rd)
+	OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber::Read(FormatType * omf, Linker::Reader& rd)
 {
 	LineNumber line_number;
 	line_number.line_number = rd.ReadUnsigned(2);
@@ -163,7 +163,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber::WriteLineNumber(FormatType * omf, ChecksumWriter& wr) const
+	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber::Write(FormatType * omf, ChecksumWriter& wr) const
 {
 	wr.WriteWord(2, line_number);
 	wr.WriteWord(2, offset);
@@ -177,7 +177,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 	segment_id = rd.ReadUnsigned(1);
 	while(rd.Tell() < LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::RecordEnd())
 	{
-		line_numbers.push_back(LineNumber::ReadLineNumber(omf, rd));
+		line_numbers.push_back(LineNumber::Read(omf, rd));
 	}
 }
 
@@ -193,7 +193,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 	wr.WriteWord(1, segment_id);
 	for(auto& line_number : line_numbers)
 	{
-		line_number.WriteLineNumber(omf, wr);
+		line_number.Write(omf, wr);
 	}
 }
 
@@ -255,7 +255,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 //// OMFFormat::LibraryModuleLocationsRecord::Location
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location::ReadLocation(Linker::Reader& rd)
+	OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location::Read(Linker::Reader& rd)
 {
 	Location location;
 	location.block_number = rd.ReadUnsigned(2);
@@ -264,7 +264,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location::WriteLocation(ChecksumWriter& wr) const
+	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location::Write(ChecksumWriter& wr) const
 {
 	wr.WriteWord(2, block_number);
 	wr.WriteWord(2, byte_number);
@@ -277,7 +277,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 {
 	while(rd.Tell() < LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::RecordEnd())
 	{
-		locations.push_back(Location::ReadLocation(rd));
+		locations.push_back(Location::Read(rd));
 	}
 }
 
@@ -292,14 +292,14 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 {
 	for(auto& location : locations)
 	{
-		location.WriteLocation(wr);
+		location.Write(wr);
 	}
 }
 
 //// OMFFormat::LibraryDictionaryRecord
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::ReadGroup(Linker::Reader& rd)
+	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::Read(Linker::Reader& rd)
 {
 	while(true)
 	{
@@ -311,7 +311,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	uint16_t OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::GetGroupSize() const
+	uint16_t OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::Size() const
 {
 	uint16_t bytes = 1;
 	for(auto& name : names)
@@ -322,7 +322,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::WriteGroup(ChecksumWriter& wr) const
+	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::Write(ChecksumWriter& wr) const
 {
 	for(auto& name : names)
 	{
@@ -337,7 +337,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 	while(rd.Tell() < LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::RecordEnd())
 	{
 		groups.push_back(Group());
-		groups.back().ReadGroup(rd);
+		groups.back().Read(rd);
 	}
 }
 
@@ -347,7 +347,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 	uint16_t bytes = 1;
 	for(auto& group : groups)
 	{
-		bytes += group.GetGroupSize();
+		bytes += group.Size();
 	}
 	return bytes;
 }
@@ -357,7 +357,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 {
 	for(auto& group : groups)
 	{
-		group.WriteGroup(wr);
+		group.Write(wr);
 	}
 }
 
@@ -458,7 +458,7 @@ void OMF86Format::ExternalIndex::ResolveReferences(OMF86Format * omf, Module * m
 
 //// OMF86Format::ExternalName
 
-uint32_t OMF86Format::ExternalName::ReadLength(OMF86Format * omf, Linker::Reader& rd)
+uint32_t OMF86Format::ExternalName::ReadValue(OMF86Format * omf, Linker::Reader& rd)
 {
 	uint8_t value = rd.ReadUnsigned(1);
 	switch(value)
@@ -477,7 +477,7 @@ uint32_t OMF86Format::ExternalName::ReadLength(OMF86Format * omf, Linker::Reader
 	return 0;
 }
 
-uint32_t OMF86Format::ExternalName::GetLengthSize(OMF86Format * omf, uint32_t length)
+uint32_t OMF86Format::ExternalName::ValueSize(OMF86Format * omf, uint32_t length)
 {
 	if(length <= 0x80)
 		return 1;
@@ -489,7 +489,7 @@ uint32_t OMF86Format::ExternalName::GetLengthSize(OMF86Format * omf, uint32_t le
 		return 5;
 }
 
-void OMF86Format::ExternalName::WriteLength(OMF86Format * omf, ChecksumWriter& wr, uint32_t length)
+void OMF86Format::ExternalName::WriteValue(OMF86Format * omf, ChecksumWriter& wr, uint32_t length)
 {
 	if(length <= 0x80)
 	{
@@ -535,12 +535,12 @@ OMF86Format::ExternalName OMF86Format::ExternalName::ReadCommonName(OMF86Format 
 	{
 	case FarCommon:
 		extname.common_type = FarCommon;
-		extname.value.far.number = ReadLength(omf, rd);
-		extname.value.far.element_size = ReadLength(omf, rd);
+		extname.value.far.number = ReadValue(omf, rd);
+		extname.value.far.element_size = ReadValue(omf, rd);
 		break;
 	case NearCommon:
 		extname.common_type = NearCommon;
-		extname.value.near.length = ReadLength(omf, rd);
+		extname.value.near.length = ReadValue(omf, rd);
 		break;
 	default:
 		if(1 <= data_type && data_type <= 0x5F)
@@ -584,10 +584,10 @@ uint16_t OMF86Format::ExternalName::GetExternalNameSize(OMF86Format * omf) const
 		bytes += 1;
 		break;
 	case FarCommon:
-		bytes += 1 + GetLengthSize(omf, value.far.number) + GetLengthSize(omf, value.far.element_size);
+		bytes += 1 + ValueSize(omf, value.far.number) + ValueSize(omf, value.far.element_size);
 		break;
 	case NearCommon:
-		bytes += 1 + GetLengthSize(omf, value.near.length);
+		bytes += 1 + ValueSize(omf, value.near.length);
 		break;
 	}
 	return bytes;
@@ -613,12 +613,12 @@ void OMF86Format::ExternalName::WriteExternalName(OMF86Format * omf, ChecksumWri
 		break;
 	case FarCommon:
 		wr.WriteWord(1, common_type);
-		WriteLength(omf, wr, value.far.number);
-		WriteLength(omf, wr, value.far.element_size);
+		WriteValue(omf, wr, value.far.number);
+		WriteValue(omf, wr, value.far.element_size);
 		break;
 	case NearCommon:
 		wr.WriteWord(1, common_type);
-		WriteLength(omf, wr, value.near.length);
+		WriteValue(omf, wr, value.near.length);
 		break;
 	}
 }
@@ -655,7 +655,7 @@ void OMF86Format::BaseSpecification::Read(OMF86Format * omf, Linker::Reader& rd)
 	}
 }
 
-uint16_t OMF86Format::BaseSpecification::GetSize(OMF86Format * omf) const
+uint16_t OMF86Format::BaseSpecification::Size(OMF86Format * omf) const
 {
 	if(std::get_if<FrameNumber>(&location))
 	{
@@ -710,7 +710,7 @@ void OMF86Format::BaseSpecification::ResolveReferences(OMF86Format * omf, Module
 
 //// OMF86Format::SymbolDefinition
 
-OMF86Format::SymbolDefinition OMF86Format::SymbolDefinition::ReadSymbol(OMF86Format * omf, Linker::Reader& rd, bool local, bool is32bit)
+OMF86Format::SymbolDefinition OMF86Format::SymbolDefinition::Read(OMF86Format * omf, Linker::Reader& rd, bool local, bool is32bit)
 {
 	SymbolDefinition name_definition;
 	name_definition.name = ReadString(rd);
@@ -720,12 +720,12 @@ OMF86Format::SymbolDefinition OMF86Format::SymbolDefinition::ReadSymbol(OMF86For
 	return name_definition;
 }
 
-uint16_t OMF86Format::SymbolDefinition::GetSymbolSize(OMF86Format * omf, bool is32bit) const
+uint16_t OMF86Format::SymbolDefinition::Size(OMF86Format * omf, bool is32bit) const
 {
 	return name.size() + IndexSize(type.index) + (is32bit ? 5 : 3);
 }
 
-void OMF86Format::SymbolDefinition::WriteSymbol(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const
+void OMF86Format::SymbolDefinition::Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const
 {
 	WriteString(wr, name);
 	wr.WriteWord(is32bit ? 4 : 2, offset);
@@ -744,7 +744,7 @@ void OMF86Format::SymbolDefinition::ResolveReferences(OMF86Format * omf, Module 
 
 //// OMF86Format::LineNumber
 
-OMF86Format::LineNumber OMF86Format::LineNumber::ReadLineNumber(OMF86Format * omf, Linker::Reader& rd, bool is32bit)
+OMF86Format::LineNumber OMF86Format::LineNumber::Read(OMF86Format * omf, Linker::Reader& rd, bool is32bit)
 {
 	LineNumber line_number;
 	line_number.number = rd.ReadUnsigned(2);
@@ -752,7 +752,7 @@ OMF86Format::LineNumber OMF86Format::LineNumber::ReadLineNumber(OMF86Format * om
 	return line_number;
 }
 
-void OMF86Format::LineNumber::WriteLineNumber(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const
+void OMF86Format::LineNumber::Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const
 {
 	wr.WriteWord(2, number);
 	wr.WriteWord(is32bit ? 4 : 2, offset);
@@ -908,7 +908,7 @@ void OMF86Format::Reference::Read(OMF86Format * omf, Linker::Reader& rd, size_t 
 	}
 }
 
-uint16_t OMF86Format::Reference::GetSize(OMF86Format * omf, bool is32bit) const
+uint16_t OMF86Format::Reference::Size(OMF86Format * omf, bool is32bit) const
 {
 	uint16_t bytes = 1;
 
@@ -1508,7 +1508,7 @@ void OMF86Format::SegmentDefinitionRecord::ResolveReferences(OMF86Format * omf, 
 
 //// OMF86Format::GroupDefinitionRecord::Component
 
-OMF86Format::GroupDefinitionRecord::Component OMF86Format::GroupDefinitionRecord::Component::ReadComponent(OMF86Format * omf, Module * mod, Linker::Reader& rd)
+OMF86Format::GroupDefinitionRecord::Component OMF86Format::GroupDefinitionRecord::Component::Read(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
 	Component component;
 	uint8_t component_type = rd.ReadUnsigned(1);
@@ -1549,7 +1549,7 @@ OMF86Format::GroupDefinitionRecord::Component OMF86Format::GroupDefinitionRecord
 	return component;
 }
 
-uint16_t OMF86Format::GroupDefinitionRecord::Component::GetComponentSize(OMF86Format * omf, Module * mod) const
+uint16_t OMF86Format::GroupDefinitionRecord::Component::Size(OMF86Format * omf, Module * mod) const
 {
 	if(std::get_if<Absolute>(&component))
 	{
@@ -1577,7 +1577,7 @@ uint16_t OMF86Format::GroupDefinitionRecord::Component::GetComponentSize(OMF86Fo
 	}
 }
 
-void OMF86Format::GroupDefinitionRecord::Component::WriteComponent(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::GroupDefinitionRecord::Component::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	if(auto absolute = std::get_if<Absolute>(&component))
 	{
@@ -1663,7 +1663,7 @@ void OMF86Format::GroupDefinitionRecord::ReadRecordContents(OMF86Format * omf, M
 	name.index = ReadIndex(rd);
 	while(rd.Tell() < RecordEnd())
 	{
-		components.push_back(Component::ReadComponent(omf, mod, rd));
+		components.push_back(Component::Read(omf, mod, rd));
 	}
 	omf->modules.back().grpdefs.push_back(shared_from_this());
 }
@@ -1674,7 +1674,7 @@ uint16_t OMF86Format::GroupDefinitionRecord::GetRecordSize(OMF86Format * omf, Mo
 	bytes += IndexSize(name.index);
 	for(auto& component : components)
 	{
-		bytes += component.GetComponentSize(omf, mod);
+		bytes += component.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -1684,7 +1684,7 @@ void OMF86Format::GroupDefinitionRecord::WriteRecordContents(OMF86Format * omf, 
 	WriteIndex(wr, name.index);
 	for(auto& component : components)
 	{
-		component.WriteComponent(omf, mod, wr);
+		component.Write(omf, mod, wr);
 	}
 }
 
@@ -1707,7 +1707,7 @@ void OMF86Format::GroupDefinitionRecord::ResolveReferences(OMF86Format * omf, Mo
 
 //// OMF86Format::TypeDefinitionRecord::LeafDescriptor
 
-OMF86Format::TypeDefinitionRecord::LeafDescriptor OMF86Format::TypeDefinitionRecord::LeafDescriptor::ReadLeaf(OMF86Format * omf, Module * mod, Linker::Reader& rd)
+OMF86Format::TypeDefinitionRecord::LeafDescriptor OMF86Format::TypeDefinitionRecord::LeafDescriptor::Read(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
 	LeafDescriptor leaf;
 	uint8_t type = rd.ReadUnsigned(1);
@@ -1750,7 +1750,7 @@ OMF86Format::TypeDefinitionRecord::LeafDescriptor OMF86Format::TypeDefinitionRec
 	return leaf;
 }
 
-uint16_t OMF86Format::TypeDefinitionRecord::LeafDescriptor::GetLeafSize(OMF86Format * omf, Module * mod) const
+uint16_t OMF86Format::TypeDefinitionRecord::LeafDescriptor::Size(OMF86Format * omf, Module * mod) const
 {
 	if(std::get_if<Null>(&leaf))
 	{
@@ -1808,7 +1808,7 @@ uint16_t OMF86Format::TypeDefinitionRecord::LeafDescriptor::GetLeafSize(OMF86For
 	}
 }
 
-void OMF86Format::TypeDefinitionRecord::LeafDescriptor::WriteLeaf(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::TypeDefinitionRecord::LeafDescriptor::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	if(std::get_if<Null>(&leaf))
 	{
@@ -1900,7 +1900,7 @@ void OMF86Format::TypeDefinitionRecord::ReadRecordContents(OMF86Format * omf, Mo
 		uint8_t nice_bits = rd.ReadUnsigned(1);
 		for(int leaf_number = 0; leaf_number < 8 && rd.Tell() + 1 < RecordEnd(); leaf_number++)
 		{
-			leafs.push_back(LeafDescriptor::ReadLeaf(omf, mod, rd));
+			leafs.push_back(LeafDescriptor::Read(omf, mod, rd));
 			leafs.back().nice = (nice_bits >> leaf_number) & 1;
 		}
 	}
@@ -1914,7 +1914,7 @@ uint16_t OMF86Format::TypeDefinitionRecord::GetRecordSize(OMF86Format * omf, Mod
 	{
 		if(leaf_number % 8 == 0)
 			bytes += 1;
-		bytes += leafs[leaf_number].GetLeafSize(omf, mod);
+		bytes += leafs[leaf_number].Size(omf, mod);
 	}
 	return bytes;
 }
@@ -1933,7 +1933,7 @@ void OMF86Format::TypeDefinitionRecord::WriteRecordContents(OMF86Format * omf, M
 		wr.WriteWord(1, nice_bits);
 		for(size_t leaf_number = 0; leaf_number < 8 && leaf_group_number + leaf_number < leafs.size(); leaf_number++)
 		{
-			leafs[leaf_group_number + leaf_number].WriteLeaf(omf, mod, wr);
+			leafs[leaf_group_number + leaf_number].Write(omf, mod, wr);
 		}
 	}
 }
@@ -1963,17 +1963,17 @@ void OMF86Format::SymbolsDefinitionRecord::ReadRecordContents(OMF86Format * omf,
 	base.Read(omf, rd);
 	while(rd.Tell() < RecordEnd())
 	{
-		symbols.push_back(SymbolDefinition::ReadSymbol(omf, rd, local, Is32Bit(omf)));
+		symbols.push_back(SymbolDefinition::Read(omf, rd, local, Is32Bit(omf)));
 	}
 }
 
 uint16_t OMF86Format::SymbolsDefinitionRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
 {
 	bool is32bit = Is32Bit(omf);
-	uint16_t bytes = 1 + base.GetSize(omf);
+	uint16_t bytes = 1 + base.Size(omf);
 	for(auto& symbol : symbols)
 	{
-		bytes += symbol.GetSymbolSize(omf, is32bit);
+		bytes += symbol.Size(omf, is32bit);
 	}
 	return bytes;
 }
@@ -1984,7 +1984,7 @@ void OMF86Format::SymbolsDefinitionRecord::WriteRecordContents(OMF86Format * omf
 	base.Write(omf, wr);
 	for(auto& symbol : symbols)
 	{
-		symbol.WriteSymbol(omf, wr, is32bit);
+		symbol.Write(omf, wr, is32bit);
 	}
 }
 
@@ -2067,13 +2067,13 @@ void OMF86Format::LineNumbersRecord::ReadRecordContents(OMF86Format * omf, Modul
 	base.Read(omf, rd);
 	while(rd.Tell() < RecordEnd())
 	{
-		lines.push_back(LineNumber::ReadLineNumber(omf, rd, Is32Bit(omf)));
+		lines.push_back(LineNumber::Read(omf, rd, Is32Bit(omf)));
 	}
 }
 
 uint16_t OMF86Format::LineNumbersRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
 {
-	uint16_t bytes = 1 + base.GetSize(omf);
+	uint16_t bytes = 1 + base.Size(omf);
 	bytes += lines.size() * (2 + GetOffsetSize(omf));
 	return bytes;
 }
@@ -2084,7 +2084,7 @@ void OMF86Format::LineNumbersRecord::WriteRecordContents(OMF86Format * omf, Modu
 	base.Write(omf, wr);
 	for(auto& line : lines)
 	{
-		line.WriteLineNumber(omf, wr, is32bit);
+		line.Write(omf, wr, is32bit);
 	}
 }
 
@@ -2121,7 +2121,7 @@ void OMF86Format::BlockDefinitionRecord::ReadRecordContents(OMF86Format * omf, M
 
 uint16_t OMF86Format::BlockDefinitionRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
 {
-	return 7 + base.GetSize(omf) + name.size() + ((procedure & 0x80) ? 2 : 0) + (name != "" ? IndexSize(type.index) : 0);
+	return 7 + base.Size(omf) + name.size() + ((procedure & 0x80) ? 2 : 0) + (name != "" ? IndexSize(type.index) : 0);
 }
 
 void OMF86Format::BlockDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
@@ -2181,7 +2181,7 @@ void OMF86Format::DebugSymbolsRecord::ReadRecordContents(OMF86Format * omf, Modu
 
 	while(rd.Tell() < RecordEnd())
 	{
-		names.push_back(SymbolDefinition::ReadSymbol(omf, rd, true, false));
+		names.push_back(SymbolDefinition::Read(omf, rd, true, false));
 	}
 }
 
@@ -2190,7 +2190,7 @@ uint16_t OMF86Format::DebugSymbolsRecord::GetRecordSize(OMF86Format * omf, Modul
 	uint16_t bytes = 2;
 	if(auto spec = std::get_if<BaseSpecification>(&base))
 	{
-		bytes += spec->GetSize(omf);
+		bytes += spec->Size(omf);
 	}
 	else if(auto external = std::get_if<ExternalIndex>(&base))
 	{
@@ -2207,7 +2207,7 @@ uint16_t OMF86Format::DebugSymbolsRecord::GetRecordSize(OMF86Format * omf, Modul
 
 	for(auto& name : names)
 	{
-		bytes += name.GetSymbolSize(omf, false);
+		bytes += name.Size(omf, false);
 	}
 
 	return bytes;
@@ -2237,7 +2237,7 @@ void OMF86Format::DebugSymbolsRecord::WriteRecordContents(OMF86Format * omf, Mod
 
 	for(auto& name : names)
 	{
-		name.WriteSymbol(omf, wr, false);
+		name.Write(omf, wr, false);
 	}
 }
 
@@ -2288,7 +2288,7 @@ void OMF86Format::RelocatableDataRecord::ReadRecordContents(OMF86Format * omf, M
 
 uint16_t OMF86Format::RelocatableDataRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
 {
-	uint16_t bytes = 3 + base.GetSize(omf);
+	uint16_t bytes = 3 + base.Size(omf);
 	if(record_type == RIDATA)
 		bytes += data->GetIteratedDataBlockSize(omf, false);
 	else
@@ -2432,7 +2432,7 @@ OMF86Format::FixupRecord::Thread OMF86Format::FixupRecord::Thread::Read(OMF86For
 	return thread;
 }
 
-uint16_t OMF86Format::FixupRecord::Thread::GetSize(OMF86Format * omf, Module * mod) const
+uint16_t OMF86Format::FixupRecord::Thread::Size(OMF86Format * omf, Module * mod) const
 {
 	size_t bytes = 1;
 
@@ -2572,9 +2572,9 @@ OMF86Format::FixupRecord::Fixup OMF86Format::FixupRecord::Fixup::Read(OMF86Forma
 	return fixup;
 }
 
-uint16_t OMF86Format::FixupRecord::Fixup::GetSize(OMF86Format * omf, Module * mod, bool is32bit) const
+uint16_t OMF86Format::FixupRecord::Fixup::Size(OMF86Format * omf, Module * mod, bool is32bit) const
 {
-	return 2 + ref.GetSize(omf, is32bit);
+	return 2 + ref.Size(omf, is32bit);
 }
 
 void OMF86Format::FixupRecord::Fixup::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr, bool is32bit) const
@@ -2632,11 +2632,11 @@ uint16_t OMF86Format::FixupRecord::GetRecordSize(OMF86Format * omf, Module * mod
 	{
 		if(auto * thread = std::get_if<Thread>(&data))
 		{
-			bytes += thread->GetSize(omf, mod);
+			bytes += thread->Size(omf, mod);
 		}
 		else if(auto * fixup = std::get_if<Fixup>(&data))
 		{
-			bytes += fixup->GetSize(omf, mod, Is32Bit(omf));
+			bytes += fixup->Size(omf, mod, Is32Bit(omf));
 		}
 		else
 		{
@@ -2796,7 +2796,7 @@ void OMF86Format::EndRecord::WriteRecordContents(OMF86Format * omf, Module * mod
 
 //// OMF86Format::RegisterInitializationRecord::Register
 
-OMF86Format::RegisterInitializationRecord::Register OMF86Format::RegisterInitializationRecord::Register::ReadRegister(OMF86Format * omf, Module * mod, Linker::Reader& rd)
+OMF86Format::RegisterInitializationRecord::Register OMF86Format::RegisterInitializationRecord::Register::Read(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
 	Register reg;
 	uint8_t regtype = rd.ReadUnsigned(1);
@@ -2826,15 +2826,15 @@ OMF86Format::RegisterInitializationRecord::Register OMF86Format::RegisterInitial
 	return reg;
 }
 
-uint16_t OMF86Format::RegisterInitializationRecord::Register::GetRegisterSize(OMF86Format * omf, Module * mod) const
+uint16_t OMF86Format::RegisterInitializationRecord::Register::Size(OMF86Format * omf, Module * mod) const
 {
 	if(auto * ref = std::get_if<Reference>(&value))
 	{
-		return 1 + ref->GetSize(omf, false);
+		return 1 + ref->Size(omf, false);
 	}
 	else if(auto * init = std::get_if<InitialValue>(&value))
 	{
-		uint16_t bytes = 1 + init->base.GetSize(omf);
+		uint16_t bytes = 1 + init->base.Size(omf);
 		switch(reg_id)
 		{
 		case CS_IP:
@@ -2853,7 +2853,7 @@ uint16_t OMF86Format::RegisterInitializationRecord::Register::GetRegisterSize(OM
 	}
 }
 
-void OMF86Format::RegisterInitializationRecord::Register::WriteRegister(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::RegisterInitializationRecord::Register::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	uint8_t regtype = reg_id << 6;
 	if(auto * ref = std::get_if<Reference>(&value))
@@ -2913,7 +2913,7 @@ void OMF86Format::RegisterInitializationRecord::ReadRecordContents(OMF86Format *
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		registers.push_back(Register::ReadRegister(omf, mod, rd));
+		registers.push_back(Register::Read(omf, mod, rd));
 	}
 }
 
@@ -2922,7 +2922,7 @@ uint16_t OMF86Format::RegisterInitializationRecord::GetRecordSize(OMF86Format * 
 	uint16_t bytes = 1;
 	for(auto& reg : registers)
 	{
-		bytes += reg.GetRegisterSize(omf, mod);
+		bytes += reg.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -2931,7 +2931,7 @@ void OMF86Format::RegisterInitializationRecord::WriteRecordContents(OMF86Format 
 {
 	for(auto& reg : registers)
 	{
-		reg.WriteRegister(omf, mod, wr);
+		reg.Write(omf, mod, wr);
 	}
 }
 
@@ -2984,7 +2984,7 @@ uint16_t OMF86Format::ModuleEndRecord::GetRecordSize(OMF86Format * omf, Module *
 	{
 		if(auto * ref = std::get_if<Reference>(&start_address.value()))
 		{
-			bytes += ref->GetSize(omf, Is32Bit(omf));
+			bytes += ref->Size(omf, Is32Bit(omf));
 		}
 		else if(std::get_if<std::tuple<uint16_t, uint16_t>>(&start_address.value()))
 		{
@@ -3202,7 +3202,7 @@ void OMF86Format::InitializedCommunalDataRecord::ReadRecordContents(OMF86Format 
 
 uint16_t OMF86Format::InitializedCommunalDataRecord::GetRecordSize(OMF86Format * omf, Module * mod) const
 {
-	size_t bytes = 4 + GetOffsetSize(omf) + IndexSize(type.index) + base.GetSize(omf);
+	size_t bytes = 4 + GetOffsetSize(omf) + IndexSize(type.index) + base.Size(omf);
 
 	switch(omf->omf_version)
 	{
@@ -3305,7 +3305,7 @@ void OMF86Format::SymbolLineNumbersRecord::ReadRecordContents(OMF86Format * omf,
 
 	while(rd.Tell() < RecordEnd())
 	{
-		line_numbers.push_back(LineNumber::ReadLineNumber(omf, rd, Is32Bit(omf)));
+		line_numbers.push_back(LineNumber::Read(omf, rd, Is32Bit(omf)));
 	}
 }
 
@@ -3345,7 +3345,7 @@ void OMF86Format::SymbolLineNumbersRecord::WriteRecordContents(OMF86Format * omf
 	}
 	for(auto& line_number : line_numbers)
 	{
-		line_number.WriteLineNumber(omf, wr, Is32Bit(omf));
+		line_number.Write(omf, wr, Is32Bit(omf));
 	}
 }
 
@@ -3368,7 +3368,7 @@ void OMF86Format::SymbolLineNumbersRecord::ResolveReferences(OMF86Format * omf, 
 
 //// OMF86Format::AliasDefinitionRecord::AliasDefinition
 
-OMF86Format::AliasDefinitionRecord::AliasDefinition OMF86Format::AliasDefinitionRecord::AliasDefinition::ReadAliasDefinition(OMF86Format * omf, Module * mod, Linker::Reader& rd)
+OMF86Format::AliasDefinitionRecord::AliasDefinition OMF86Format::AliasDefinitionRecord::AliasDefinition::Read(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
 	AliasDefinition alias;
 	alias.alias_name = ReadString(rd);
@@ -3376,12 +3376,12 @@ OMF86Format::AliasDefinitionRecord::AliasDefinition OMF86Format::AliasDefinition
 	return alias;
 }
 
-uint16_t OMF86Format::AliasDefinitionRecord::AliasDefinition::GetAliasDefinitionSize(OMF86Format * omf, Module * mod) const
+uint16_t OMF86Format::AliasDefinitionRecord::AliasDefinition::Size(OMF86Format * omf, Module * mod) const
 {
 	return 2 + alias_name.size() + substitute_name.size();
 }
 
-void OMF86Format::AliasDefinitionRecord::AliasDefinition::WriteAliasDefinition(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::AliasDefinitionRecord::AliasDefinition::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	WriteString(wr, alias_name);
 	WriteString(wr, substitute_name);
@@ -3393,7 +3393,7 @@ void OMF86Format::AliasDefinitionRecord::ReadRecordContents(OMF86Format * omf, M
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		alias_definitions.push_back(AliasDefinition::ReadAliasDefinition(omf, mod, rd));
+		alias_definitions.push_back(AliasDefinition::Read(omf, mod, rd));
 	}
 }
 
@@ -3402,7 +3402,7 @@ uint16_t OMF86Format::AliasDefinitionRecord::GetRecordSize(OMF86Format * omf, Mo
 	uint16_t bytes = 1;
 	for(auto& alias_definition : alias_definitions)
 	{
-		bytes += alias_definition.GetAliasDefinitionSize(omf, mod);
+		bytes += alias_definition.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -3411,7 +3411,7 @@ void OMF86Format::AliasDefinitionRecord::WriteRecordContents(OMF86Format * omf, 
 {
 	for(auto& alias_definition : alias_definitions)
 	{
-		alias_definition.WriteAliasDefinition(omf, mod, wr);
+		alias_definition.Write(omf, mod, wr);
 	}
 }
 
@@ -3663,7 +3663,7 @@ void OMF86Format::NoSegmentPaddingRecord::ResolveReferences(OMF86Format * omf, M
 
 //// OMF86Format::ExternalAssociationRecord::ExternalAssociation
 
-OMF86Format::ExternalAssociationRecord::ExternalAssociation OMF86Format::ExternalAssociationRecord::ExternalAssociation::ReadAssociation(OMF86Format * omf, Module * mod, Linker::Reader& rd)
+OMF86Format::ExternalAssociationRecord::ExternalAssociation OMF86Format::ExternalAssociationRecord::ExternalAssociation::Read(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
 	ExternalAssociation association;
 	association.definition = ExternalIndex(ReadIndex(rd));
@@ -3671,12 +3671,12 @@ OMF86Format::ExternalAssociationRecord::ExternalAssociation OMF86Format::Externa
 	return association;
 }
 
-uint16_t OMF86Format::ExternalAssociationRecord::ExternalAssociation::GetAssociationSize(OMF86Format * omf, Module * mod) const
+uint16_t OMF86Format::ExternalAssociationRecord::ExternalAssociation::Size(OMF86Format * omf, Module * mod) const
 {
 	return IndexSize(definition.index) + IndexSize(default_resolution.index);
 }
 
-void OMF86Format::ExternalAssociationRecord::ExternalAssociation::WriteAssociation(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ExternalAssociationRecord::ExternalAssociation::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	WriteIndex(wr, definition.index);
 	WriteIndex(wr, default_resolution.index);
@@ -3700,7 +3700,7 @@ void OMF86Format::ExternalAssociationRecord::ReadComment(OMF86Format * omf, Modu
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		associations.push_back(ExternalAssociation::ReadAssociation(omf, mod, rd));
+		associations.push_back(ExternalAssociation::Read(omf, mod, rd));
 	}
 }
 
@@ -3709,7 +3709,7 @@ uint16_t OMF86Format::ExternalAssociationRecord::GetCommentSize(OMF86Format * om
 	uint16_t bytes = 0;
 	for(auto& association : associations)
 	{
-		bytes += association.GetAssociationSize(omf, mod);
+		bytes += association.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -3718,7 +3718,7 @@ void OMF86Format::ExternalAssociationRecord::WriteComment(OMF86Format * omf, Mod
 {
 	for(auto& association : associations)
 	{
-		association.WriteAssociation(omf, mod, wr);
+		association.Write(omf, mod, wr);
 	}
 }
 
@@ -4230,7 +4230,7 @@ void OMF80Format::ExternalNameIndex::ResolveReferences(OMF80Format * omf, Module
 
 //// OMF80Format::ModuleHeaderRecord::SegmentDefinition
 
-OMF80Format::ModuleHeaderRecord::SegmentDefinition OMF80Format::ModuleHeaderRecord::SegmentDefinition::ReadSegmentDefinition(OMF80Format * omf, Linker::Reader& rd)
+OMF80Format::ModuleHeaderRecord::SegmentDefinition OMF80Format::ModuleHeaderRecord::SegmentDefinition::Read(OMF80Format * omf, Linker::Reader& rd)
 {
 	OMF80Format::ModuleHeaderRecord::SegmentDefinition segment_definition;
 	segment_definition.segment_id = rd.ReadUnsigned(1);
@@ -4239,7 +4239,7 @@ OMF80Format::ModuleHeaderRecord::SegmentDefinition OMF80Format::ModuleHeaderReco
 	return segment_definition;
 }
 
-void OMF80Format::ModuleHeaderRecord::SegmentDefinition::WriteSegmentDefinition(OMF80Format * omf, ChecksumWriter& wr) const
+void OMF80Format::ModuleHeaderRecord::SegmentDefinition::Write(OMF80Format * omf, ChecksumWriter& wr) const
 {
 	wr.WriteWord(1, segment_id);
 	wr.WriteWord(2, length);
@@ -4255,7 +4255,7 @@ void OMF80Format::ModuleHeaderRecord::ReadRecordContents(OMF80Format * omf, Modu
 	rd.Skip(2);
 	while(rd.Tell() < record_end)
 	{
-		SegmentDefinition segment_definition = SegmentDefinition::ReadSegmentDefinition(omf, rd);
+		SegmentDefinition segment_definition = SegmentDefinition::Read(omf, rd);
 		segment_definitions.push_back(segment_definition);
 	}
 	omf->modules.push_back(Module());
@@ -4272,7 +4272,7 @@ void OMF80Format::ModuleHeaderRecord::WriteRecordContents(OMF80Format * omf, Mod
 	wr.WriteWord(2, 0); // reserved
 	for(auto& segment_definition : segment_definitions)
 	{
-		segment_definition.WriteSegmentDefinition(omf, wr);
+		segment_definition.Write(omf, wr);
 	}
 }
 
@@ -4452,7 +4452,7 @@ void OMF80Format::ExternalDefinitionsRecord::ResolveReferences(OMF80Format * omf
 
 //// OMF80Format::SymbolDefinitionsRecord::SymbolDefinition
 
-OMF80Format::SymbolDefinitionsRecord::SymbolDefinition OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::ReadSymbolDefinition(OMF80Format * omf, Module * mod, Linker::Reader& rd)
+OMF80Format::SymbolDefinitionsRecord::SymbolDefinition OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::Read(OMF80Format * omf, Module * mod, Linker::Reader& rd)
 {
 	SymbolDefinition public_definition;
 	public_definition.offset = rd.ReadUnsigned(2);
@@ -4461,12 +4461,12 @@ OMF80Format::SymbolDefinitionsRecord::SymbolDefinition OMF80Format::SymbolDefini
 	return public_definition;
 }
 
-uint16_t OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::GetSymbolDefinitionSize(OMF80Format * omf, Module * mod) const
+uint16_t OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::Size(OMF80Format * omf, Module * mod) const
 {
 	return 4 + name.size();
 }
 
-void OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::WriteSymbolDefinition(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::Write(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(2, offset);
 	WriteString(wr, name);
@@ -4480,7 +4480,7 @@ void OMF80Format::SymbolDefinitionsRecord::ReadRecordContents(OMF80Format * omf,
 	segment_id = rd.ReadUnsigned(1);
 	while(rd.Tell() < record_offset + record_length)
 	{
-		public_definitions.push_back(SymbolDefinition::ReadSymbolDefinition(omf, mod, rd));
+		public_definitions.push_back(SymbolDefinition::Read(omf, mod, rd));
 	}
 }
 
@@ -4489,7 +4489,7 @@ uint16_t OMF80Format::SymbolDefinitionsRecord::GetRecordSize(OMF80Format * omf, 
 	uint16_t bytes = 2;
 	for(auto& public_definition : public_definitions)
 	{
-		bytes += public_definition.GetSymbolDefinitionSize(omf, mod);
+		bytes += public_definition.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -4499,7 +4499,7 @@ void OMF80Format::SymbolDefinitionsRecord::WriteRecordContents(OMF80Format * omf
 	wr.WriteWord(1, segment_id);
 	for(auto& public_definition : public_definitions)
 	{
-		public_definition.WriteSymbolDefinition(omf, mod, wr);
+		public_definition.Write(omf, mod, wr);
 	}
 }
 
@@ -4771,7 +4771,7 @@ uint8_t OMF51Format::SegmentInfo::WriteSegmentInfo(OMF51Format * omf, Module * m
 
 //// OMF51Format::SegmentDefinition
 
-OMF51Format::SegmentDefinition OMF51Format::SegmentDefinition::ReadSegmentDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd)
+OMF51Format::SegmentDefinition OMF51Format::SegmentDefinition::Read(OMF51Format * omf, Module * mod, Linker::Reader& rd)
 {
 	SegmentDefinition segment_definition;
 
@@ -4800,12 +4800,12 @@ OMF51Format::SegmentDefinition OMF51Format::SegmentDefinition::ReadSegmentDefini
 	return segment_definition;
 }
 
-uint16_t OMF51Format::SegmentDefinition::GetSegmentDefinitionSize(OMF51Format * omf, Module * mod) const
+uint16_t OMF51Format::SegmentDefinition::Size(OMF51Format * omf, Module * mod) const
 {
 	return 9 + name.size();
 }
 
-void OMF51Format::SegmentDefinition::WriteSegmentDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::SegmentDefinition::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(1, segment_id);
 
@@ -4822,7 +4822,7 @@ void OMF51Format::SegmentDefinition::WriteSegmentDefinition(OMF51Format * omf, M
 
 //// OMF51Format::SymbolInfo
 
-void OMF51Format::SymbolInfo::ReadSymbolInfo(OMF51Format * omf, Module * mod, uint8_t symbol_info)
+void OMF51Format::SymbolInfo::Read(OMF51Format * omf, Module * mod, uint8_t symbol_info)
 {
 	indirectly_callable = (symbol_info & FlagIndirectlyCallable) != 0;
 	variable = (symbol_info & FlagVariable) != 0;
@@ -4831,7 +4831,7 @@ void OMF51Format::SymbolInfo::ReadSymbolInfo(OMF51Format * omf, Module * mod, ui
 	usage = segment_type_t(symbol_info & MaskSegmentType);
 }
 
-uint8_t OMF51Format::SymbolInfo::WriteSymbolInfo(OMF51Format * omf, Module * mod) const
+uint8_t OMF51Format::SymbolInfo::Write(OMF51Format * omf, Module * mod) const
 {
 	uint8_t symbol_info = usage;
 	if(indirectly_callable)
@@ -4845,25 +4845,25 @@ uint8_t OMF51Format::SymbolInfo::WriteSymbolInfo(OMF51Format * omf, Module * mod
 
 //// OMF51Format::SymbolDefinition
 
-OMF51Format::SymbolDefinition OMF51Format::SymbolDefinition::ReadSymbolDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd)
+OMF51Format::SymbolDefinition OMF51Format::SymbolDefinition::Read(OMF51Format * omf, Module * mod, Linker::Reader& rd)
 {
 	SymbolDefinition symbol_definition;
 	symbol_definition.segment_id = rd.ReadUnsigned(1);
-	symbol_definition.info.ReadSymbolInfo(omf, mod, rd.ReadUnsigned(1));
+	symbol_definition.info.Read(omf, mod, rd.ReadUnsigned(1));
 	rd.Skip(1);
 	symbol_definition.name = ReadString(rd);
 	return symbol_definition;
 }
 
-uint16_t OMF51Format::SymbolDefinition::GetSymbolDefinitionSize(OMF51Format * omf, Module * mod) const
+uint16_t OMF51Format::SymbolDefinition::Size(OMF51Format * omf, Module * mod) const
 {
 	return 6 + name.size();
 }
 
-void OMF51Format::SymbolDefinition::WriteSymbolDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::SymbolDefinition::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(1, segment_id);
-	wr.WriteWord(1, info.WriteSymbolInfo(omf, mod));
+	wr.WriteWord(1, info.Write(omf, mod));
 	wr.WriteWord(2, offset);
 	wr.WriteWord(1, 0); // reserved
 	WriteString(wr, name);
@@ -4871,27 +4871,27 @@ void OMF51Format::SymbolDefinition::WriteSymbolDefinition(OMF51Format * omf, Mod
 
 //// OMF51Format::ExternalDefinition
 
-OMF51Format::ExternalDefinition OMF51Format::ExternalDefinition::ReadExternalDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd)
+OMF51Format::ExternalDefinition OMF51Format::ExternalDefinition::Read(OMF51Format * omf, Module * mod, Linker::Reader& rd)
 {
 	ExternalDefinition external_definition;
 	external_definition.block_id = rd.ReadUnsigned(1);
 	external_definition.external_id = rd.ReadUnsigned(1);
-	external_definition.info.ReadSymbolInfo(omf, mod, rd.ReadUnsigned(1));
+	external_definition.info.Read(omf, mod, rd.ReadUnsigned(1));
 	rd.Skip(1);
 	external_definition.name = ReadString(rd);
 	return external_definition;
 }
 
-uint16_t OMF51Format::ExternalDefinition::GetExternalDefinitionSize(OMF51Format * omf, Module * mod) const
+uint16_t OMF51Format::ExternalDefinition::Size(OMF51Format * omf, Module * mod) const
 {
 	return 5 + name.size();
 }
 
-void OMF51Format::ExternalDefinition::WriteExternalDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::ExternalDefinition::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(1, block_id);
 	wr.WriteWord(1, external_id);
-	wr.WriteWord(1, info.WriteSymbolInfo(omf, mod));
+	wr.WriteWord(1, info.Write(omf, mod));
 	wr.WriteWord(1, 0); // reserved
 	WriteString(wr, name);
 }
@@ -4953,7 +4953,7 @@ void OMF51Format::SegmentDefinitionsRecord::ReadRecordContents(OMF51Format * omf
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		segment_definitions.push_back(SegmentDefinition::ReadSegmentDefinition(omf, mod, rd));
+		segment_definitions.push_back(SegmentDefinition::Read(omf, mod, rd));
 		auto& segment_definition = segment_definitions.back();
 		mod->segment_definitions[segment_definition.segment_id] = segment_definition; // TODO: check it is not duplicated
 	}
@@ -4964,7 +4964,7 @@ uint16_t OMF51Format::SegmentDefinitionsRecord::GetRecordSize(OMF51Format * omf,
 	uint16_t bytes = 1;
 	for(auto& segment_definition : segment_definitions)
 	{
-		bytes += segment_definition.GetSegmentDefinitionSize(omf, mod);
+		bytes += segment_definition.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -4973,7 +4973,7 @@ void OMF51Format::SegmentDefinitionsRecord::WriteRecordContents(OMF51Format * om
 {
 	for(auto& segment_definition : segment_definitions)
 	{
-		segment_definition.WriteSegmentDefinition(omf, mod, wr);
+		segment_definition.Write(omf, mod, wr);
 	}
 }
 
@@ -4993,7 +4993,7 @@ void OMF51Format::PublicSymbolsRecord::ReadRecordContents(OMF51Format * omf, Mod
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		symbol_definitions.push_back(SymbolDefinition::ReadSymbolDefinition(omf, mod, rd));
+		symbol_definitions.push_back(SymbolDefinition::Read(omf, mod, rd));
 		// TODO: record segment definitions in module
 	}
 }
@@ -5003,7 +5003,7 @@ uint16_t OMF51Format::PublicSymbolsRecord::GetRecordSize(OMF51Format * omf, Modu
 	uint16_t bytes = 1;
 	for(auto& symbol_definition : symbol_definitions)
 	{
-		bytes += symbol_definition.GetSymbolDefinitionSize(omf, mod);
+		bytes += symbol_definition.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -5012,7 +5012,7 @@ void OMF51Format::PublicSymbolsRecord::WriteRecordContents(OMF51Format * omf, Mo
 {
 	for(auto& symbol_definition : symbol_definitions)
 	{
-		symbol_definition.WriteSymbolDefinition(omf, mod, wr);
+		symbol_definition.Write(omf, mod, wr);
 	}
 }
 
@@ -5032,7 +5032,7 @@ void OMF51Format::ExternalDefinitionsRecord::ReadRecordContents(OMF51Format * om
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		external_definitions.push_back(ExternalDefinition::ReadExternalDefinition(omf, mod, rd));
+		external_definitions.push_back(ExternalDefinition::Read(omf, mod, rd));
 		auto& external_definition = external_definitions.back();
 		mod->external_definitions[external_definition.external_id] = external_definition; // TODO: check it is not duplicated
 	}
@@ -5043,7 +5043,7 @@ uint16_t OMF51Format::ExternalDefinitionsRecord::GetRecordSize(OMF51Format * omf
 	uint16_t bytes = 1;
 	for(auto& external_definition : external_definitions)
 	{
-		bytes += external_definition.GetExternalDefinitionSize(omf, mod);
+		bytes += external_definition.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -5052,7 +5052,7 @@ void OMF51Format::ExternalDefinitionsRecord::WriteRecordContents(OMF51Format * o
 {
 	for(auto& external_definition : external_definitions)
 	{
-		external_definition.WriteExternalDefinition(omf, mod, wr);
+		external_definition.Write(omf, mod, wr);
 	}
 }
 
@@ -5097,26 +5097,26 @@ void OMF51Format::ScopeDefinitionRecord::ResolveReferences(OMF51Format * omf, Mo
 
 //// OMF51Format::DebugItemsRecord::Symbol
 
-OMF51Format::DebugItemsRecord::Symbol OMF51Format::DebugItemsRecord::Symbol::ReadSymbol(OMF51Format * omf, Module * mod, Linker::Reader& rd)
+OMF51Format::DebugItemsRecord::Symbol OMF51Format::DebugItemsRecord::Symbol::Read(OMF51Format * omf, Module * mod, Linker::Reader& rd)
 {
 	Symbol symbol;
 	symbol.segment_id = rd.ReadUnsigned(1);
-	symbol.info.ReadSymbolInfo(omf, mod, rd.ReadUnsigned(1));
+	symbol.info.Read(omf, mod, rd.ReadUnsigned(1));
 	symbol.offset = rd.ReadUnsigned(2);
 	rd.Skip(1);
 	symbol.name = ReadString(rd);
 	return symbol;
 }
 
-uint16_t OMF51Format::DebugItemsRecord::Symbol::GetSymbolSize(OMF51Format * omf, Module * mod) const
+uint16_t OMF51Format::DebugItemsRecord::Symbol::Size(OMF51Format * omf, Module * mod) const
 {
 	return 6 + name.size();
 }
 
-void OMF51Format::DebugItemsRecord::Symbol::WriteSymbol(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::DebugItemsRecord::Symbol::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(1, segment_id);
-	wr.WriteWord(1, info.WriteSymbolInfo(omf, mod));
+	wr.WriteWord(1, info.Write(omf, mod));
 	wr.WriteWord(2, offset);
 	wr.WriteWord(1, 0); // reserved
 	WriteString(wr, name);
@@ -5124,7 +5124,7 @@ void OMF51Format::DebugItemsRecord::Symbol::WriteSymbol(OMF51Format * omf, Modul
 
 //// OMF51Format::DebugItemsRecord::SegmentSymbol
 
-OMF51Format::DebugItemsRecord::SegmentSymbol OMF51Format::DebugItemsRecord::SegmentSymbol::ReadSegmentSymbol(OMF51Format * omf, Module * mod, Linker::Reader& rd)
+OMF51Format::DebugItemsRecord::SegmentSymbol OMF51Format::DebugItemsRecord::SegmentSymbol::Read(OMF51Format * omf, Module * mod, Linker::Reader& rd)
 {
 	SegmentSymbol symbol;
 	symbol.segment_id = rd.ReadUnsigned(1);
@@ -5135,12 +5135,12 @@ OMF51Format::DebugItemsRecord::SegmentSymbol OMF51Format::DebugItemsRecord::Segm
 	return symbol;
 }
 
-uint16_t OMF51Format::DebugItemsRecord::SegmentSymbol::GetSegmentSymbolSize(OMF51Format * omf, Module * mod) const
+uint16_t OMF51Format::DebugItemsRecord::SegmentSymbol::Size(OMF51Format * omf, Module * mod) const
 {
 	return 6 + name.size();
 }
 
-void OMF51Format::DebugItemsRecord::SegmentSymbol::WriteSegmentSymbol(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::DebugItemsRecord::SegmentSymbol::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(1, segment_id);
 	wr.WriteWord(1, info.WriteSegmentInfo(omf, mod));
@@ -5151,7 +5151,7 @@ void OMF51Format::DebugItemsRecord::SegmentSymbol::WriteSegmentSymbol(OMF51Forma
 
 //// OMF51Format::DebugItemsRecord::LineNumber
 
-OMF51Format::DebugItemsRecord::LineNumber OMF51Format::DebugItemsRecord::LineNumber::ReadLineNumber(OMF51Format * omf, Module * mod, Linker::Reader& rd)
+OMF51Format::DebugItemsRecord::LineNumber OMF51Format::DebugItemsRecord::LineNumber::Read(OMF51Format * omf, Module * mod, Linker::Reader& rd)
 {
 	LineNumber line_number;
 	line_number.segment_id = rd.ReadUnsigned(1);
@@ -5160,7 +5160,7 @@ OMF51Format::DebugItemsRecord::LineNumber OMF51Format::DebugItemsRecord::LineNum
 	return line_number;
 }
 
-void OMF51Format::DebugItemsRecord::LineNumber::WriteLineNumber(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::DebugItemsRecord::LineNumber::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 }
 
@@ -5176,7 +5176,7 @@ void OMF51Format::DebugItemsRecord::ReadRecordContents(OMF51Format * omf, Module
 			LocalSymbols& local_symbols = std::get<LocalSymbols>(contents);
 			while(rd.Tell() < RecordEnd())
 			{
-				local_symbols.symbols.push_back(Symbol::ReadSymbol(omf, mod, rd));
+				local_symbols.symbols.push_back(Symbol::Read(omf, mod, rd));
 			}
 		}
 		break;
@@ -5186,7 +5186,7 @@ void OMF51Format::DebugItemsRecord::ReadRecordContents(OMF51Format * omf, Module
 			PublicSymbols& public_symbols = std::get<PublicSymbols>(contents);
 			while(rd.Tell() < RecordEnd())
 			{
-				public_symbols.symbols.push_back(Symbol::ReadSymbol(omf, mod, rd));
+				public_symbols.symbols.push_back(Symbol::Read(omf, mod, rd));
 			}
 		}
 		break;
@@ -5196,7 +5196,7 @@ void OMF51Format::DebugItemsRecord::ReadRecordContents(OMF51Format * omf, Module
 			SegmentSymbols& segment_symbols = std::get<SegmentSymbols>(contents);
 			while(rd.Tell() < RecordEnd())
 			{
-				segment_symbols.symbols.push_back(SegmentSymbol::ReadSegmentSymbol(omf, mod, rd));
+				segment_symbols.symbols.push_back(SegmentSymbol::Read(omf, mod, rd));
 			}
 		}
 		break;
@@ -5206,7 +5206,7 @@ void OMF51Format::DebugItemsRecord::ReadRecordContents(OMF51Format * omf, Module
 			LineNumbers& line_numbers = std::get<LineNumbers>(contents);
 			while(rd.Tell() < RecordEnd())
 			{
-				line_numbers.symbols.push_back(LineNumber::ReadLineNumber(omf, mod, rd));
+				line_numbers.symbols.push_back(LineNumber::Read(omf, mod, rd));
 			}
 		}
 		break;
@@ -5223,21 +5223,21 @@ uint16_t OMF51Format::DebugItemsRecord::GetRecordSize(OMF51Format * omf, Module 
 	{
 		for(auto& symbol : local_symbols->symbols)
 		{
-			bytes += symbol.GetSymbolSize(omf, mod);
+			bytes += symbol.Size(omf, mod);
 		}
 	}
 	else if(auto * public_symbols = std::get_if<Type_PublicSymbols>(&contents))
 	{
 		for(auto& symbol : public_symbols->symbols)
 		{
-			bytes += symbol.GetSymbolSize(omf, mod);
+			bytes += symbol.Size(omf, mod);
 		}
 	}
 	else if(auto * segment_symbols = std::get_if<SegmentSymbols>(&contents))
 	{
 		for(auto& symbol : segment_symbols->symbols)
 		{
-			bytes += symbol.GetSegmentSymbolSize(omf, mod);
+			bytes += symbol.Size(omf, mod);
 		}
 	}
 	else if(auto * line_numbers = std::get_if<LineNumbers>(&contents))
@@ -5258,7 +5258,7 @@ void OMF51Format::DebugItemsRecord::WriteRecordContents(OMF51Format * omf, Modul
 		wr.WriteWord(1, Type_LocalSymbols);
 		for(auto& symbol : local_symbols->symbols)
 		{
-			symbol.WriteSymbol(omf, mod, wr);
+			symbol.Write(omf, mod, wr);
 		}
 	}
 	else if(auto * public_symbols = std::get_if<Type_PublicSymbols>(&contents))
@@ -5266,7 +5266,7 @@ void OMF51Format::DebugItemsRecord::WriteRecordContents(OMF51Format * omf, Modul
 		wr.WriteWord(1, Type_PublicSymbols);
 		for(auto& symbol : public_symbols->symbols)
 		{
-			symbol.WriteSymbol(omf, mod, wr);
+			symbol.Write(omf, mod, wr);
 		}
 	}
 	else if(auto * segment_symbols = std::get_if<SegmentSymbols>(&contents))
@@ -5274,15 +5274,15 @@ void OMF51Format::DebugItemsRecord::WriteRecordContents(OMF51Format * omf, Modul
 		wr.WriteWord(1, Type_SegmentSymbols);
 		for(auto& symbol : segment_symbols->symbols)
 		{
-			symbol.WriteSegmentSymbol(omf, mod, wr);
+			symbol.Write(omf, mod, wr);
 		}
 	}
 	else if(auto * line_numbers = std::get_if<LineNumbers>(&contents))
 	{
 		wr.WriteWord(1, Type_LineNumbers);
-		for(auto& symbol : line_numbers->symbols)
+		for(auto& line_number : line_numbers->symbols)
 		{
-			symbol.WriteLineNumber(omf, mod, wr);
+			line_number.Write(omf, mod, wr);
 		}
 	}
 	else
@@ -5303,7 +5303,7 @@ void OMF51Format::DebugItemsRecord::ResolveReferences(OMF51Format * omf, Module 
 
 ////
 
-OMF51Format::FixupRecord::Fixup OMF51Format::FixupRecord::Fixup::ReadFixup(OMF51Format * omf, Module * mod, Linker::Reader& rd)
+OMF51Format::FixupRecord::Fixup OMF51Format::FixupRecord::Fixup::Read(OMF51Format * omf, Module * mod, Linker::Reader& rd)
 {
 	Fixup fixup;
 	fixup.location = rd.ReadUnsigned(2);
@@ -5314,7 +5314,7 @@ OMF51Format::FixupRecord::Fixup OMF51Format::FixupRecord::Fixup::ReadFixup(OMF51
 	return fixup;
 }
 
-void OMF51Format::FixupRecord::Fixup::WriteFixup(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::FixupRecord::Fixup::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(2, location);
 	wr.WriteWord(1, relocation);
@@ -5329,7 +5329,7 @@ void OMF51Format::FixupRecord::ReadRecordContents(OMF51Format * omf, Module * mo
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		fixups.push_back(Fixup::ReadFixup(omf, mod, rd));
+		fixups.push_back(Fixup::Read(omf, mod, rd));
 	}
 }
 
@@ -5342,7 +5342,7 @@ void OMF51Format::FixupRecord::WriteRecordContents(OMF51Format * omf, Module * m
 {
 	for(auto& fixup : fixups)
 	{
-		fixup.WriteFixup(omf, mod, wr);
+		fixup.Write(omf, mod, wr);
 	}
 }
 
@@ -5462,7 +5462,7 @@ void OMF51Format::GenerateModule(Linker::Module& module) const
 
 //// OMF96Format::SegmentDefinition
 
-OMF96Format::SegmentDefinition OMF96Format::SegmentDefinition::ReadSegmentDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+OMF96Format::SegmentDefinition OMF96Format::SegmentDefinition::Read(OMF96Format * omf, Module * mod, Linker::Reader& rd)
 {
 	SegmentDefinition segment_definition;
 	segment_definition.segment_id = rd.ReadUnsigned(1);
@@ -5478,12 +5478,12 @@ OMF96Format::SegmentDefinition OMF96Format::SegmentDefinition::ReadSegmentDefini
 	return segment_definition;
 }
 
-uint16_t OMF96Format::SegmentDefinition::GetSegmentDefinitionSize(OMF96Format * omf, Module * mod) const
+uint16_t OMF96Format::SegmentDefinition::Size(OMF96Format * omf, Module * mod) const
 {
 	return IsRelocatable() ? 4 : 5;
 }
 
-void OMF96Format::SegmentDefinition::WriteSegmentDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::SegmentDefinition::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(1, segment_id);
 	if(IsRelocatable())
@@ -5499,7 +5499,7 @@ void OMF96Format::SegmentDefinition::WriteSegmentDefinition(OMF96Format * omf, M
 
 //// OMF96Format::ExternalDefinition
 
-OMF96Format::ExternalDefinition OMF96Format::ExternalDefinition::ReadExternalDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+OMF96Format::ExternalDefinition OMF96Format::ExternalDefinition::Read(OMF96Format * omf, Module * mod, Linker::Reader& rd)
 {
 	ExternalDefinition external_definition;
 	external_definition.name = ReadString(rd);
@@ -5507,12 +5507,12 @@ OMF96Format::ExternalDefinition OMF96Format::ExternalDefinition::ReadExternalDef
 	return external_definition;
 }
 
-uint16_t OMF96Format::ExternalDefinition::GetExternalDefinitionSize(OMF96Format * omf, Module * mod) const
+uint16_t OMF96Format::ExternalDefinition::Size(OMF96Format * omf, Module * mod) const
 {
 	return 1 + name.size() + IndexSize(type.index);
 }
 
-void OMF96Format::ExternalDefinition::WriteExternalDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::ExternalDefinition::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	WriteString(wr, name);
 	WriteIndex(wr, type.index);
@@ -5530,7 +5530,7 @@ void OMF96Format::ExternalDefinition::ResolveReferences(OMF96Format * omf, Modul
 
 //// OMF96Format::SymbolDefinition
 
-OMF96Format::SymbolDefinition OMF96Format::SymbolDefinition::ReadSymbolDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+OMF96Format::SymbolDefinition OMF96Format::SymbolDefinition::Read(OMF96Format * omf, Module * mod, Linker::Reader& rd)
 {
 	SymbolDefinition symbol_definition;
 	symbol_definition.offset = rd.ReadUnsigned(2);
@@ -5539,12 +5539,12 @@ OMF96Format::SymbolDefinition OMF96Format::SymbolDefinition::ReadSymbolDefinitio
 	return symbol_definition;
 }
 
-uint16_t OMF96Format::SymbolDefinition::GetSymbolDefinitionSize(OMF96Format * omf, Module * mod) const
+uint16_t OMF96Format::SymbolDefinition::Size(OMF96Format * omf, Module * mod) const
 {
 	return 3 + name.size() + IndexSize(type.index);
 }
 
-void OMF96Format::SymbolDefinition::WriteSymbolDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::SymbolDefinition::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(2, offset);
 	WriteString(wr, name);
@@ -5607,7 +5607,7 @@ void OMF96Format::SegmentDefinitionsRecord::ReadRecordContents(OMF96Format * omf
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		segment_definitions.push_back(SegmentDefinition::ReadSegmentDefinition(omf, mod, rd));
+		segment_definitions.push_back(SegmentDefinition::Read(omf, mod, rd));
 		auto& segment_definition = segment_definitions.back();
 		mod->segment_definitions[segment_definition.segment_id] = segment_definition; // TODO: check it is not duplicated
 	}
@@ -5618,7 +5618,7 @@ uint16_t OMF96Format::SegmentDefinitionsRecord::GetRecordSize(OMF96Format * omf,
 	uint16_t bytes = 1;
 	for(auto& segment_definition : segment_definitions)
 	{
-		bytes += segment_definition.GetSegmentDefinitionSize(omf, mod);
+		bytes += segment_definition.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -5627,7 +5627,7 @@ void OMF96Format::SegmentDefinitionsRecord::WriteRecordContents(OMF96Format * om
 {
 	for(auto& segment_definition : segment_definitions)
 	{
-		segment_definition.WriteSegmentDefinition(omf, mod, wr);
+		segment_definition.Write(omf, mod, wr);
 	}
 }
 
@@ -5643,7 +5643,7 @@ void OMF96Format::SegmentDefinitionsRecord::ResolveReferences(OMF96Format * omf,
 
 //// OMF96Format::TypeDefinitionRecord::LeafDescriptor
 
-OMF96Format::TypeDefinitionRecord::LeafDescriptor OMF96Format::TypeDefinitionRecord::LeafDescriptor::ReadLeaf(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+OMF96Format::TypeDefinitionRecord::LeafDescriptor OMF96Format::TypeDefinitionRecord::LeafDescriptor::Read(OMF96Format * omf, Module * mod, Linker::Reader& rd)
 {
 	LeafDescriptor leaf_descriptor;
 	uint8_t leaf_type = rd.ReadUnsigned(1);
@@ -5682,7 +5682,7 @@ OMF96Format::TypeDefinitionRecord::LeafDescriptor OMF96Format::TypeDefinitionRec
 	return leaf_descriptor;
 }
 
-uint16_t OMF96Format::TypeDefinitionRecord::LeafDescriptor::GetLeafSize(OMF96Format * omf, Module * mod) const
+uint16_t OMF96Format::TypeDefinitionRecord::LeafDescriptor::Size(OMF96Format * omf, Module * mod) const
 {
 	if(std::get_if<Null>(&leaf))
 	{
@@ -5725,7 +5725,7 @@ uint16_t OMF96Format::TypeDefinitionRecord::LeafDescriptor::GetLeafSize(OMF96For
 	}
 }
 
-void OMF96Format::TypeDefinitionRecord::LeafDescriptor::WriteLeaf(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::TypeDefinitionRecord::LeafDescriptor::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	uint8_t leaf_type = nice ? 0x80 : 0;
 	if(std::get_if<Null>(&leaf))
@@ -5789,7 +5789,7 @@ void OMF96Format::TypeDefinitionRecord::ReadRecordContents(OMF96Format * omf, Mo
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		leafs.push_back(LeafDescriptor::ReadLeaf(omf, mod, rd));
+		leafs.push_back(LeafDescriptor::Read(omf, mod, rd));
 	}
 	mod->type_definitions.push_back(shared_from_this());
 }
@@ -5799,7 +5799,7 @@ uint16_t OMF96Format::TypeDefinitionRecord::GetRecordSize(OMF96Format * omf, Mod
 	uint16_t bytes = 1;
 	for(auto& leaf : leafs)
 	{
-		bytes += leaf.GetLeafSize(omf, mod);
+		bytes += leaf.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -5808,7 +5808,7 @@ void OMF96Format::TypeDefinitionRecord::WriteRecordContents(OMF96Format * omf, M
 {
 	for(auto& leaf : leafs)
 	{
-		leaf.WriteLeaf(omf, mod, wr);
+		leaf.Write(omf, mod, wr);
 	}
 }
 
@@ -5829,7 +5829,7 @@ void OMF96Format::SymbolDefinitionsRecord::ReadRecordContents(OMF96Format * omf,
 	segment_id = rd.ReadUnsigned(1);
 	while(rd.Tell() < RecordEnd())
 	{
-		symbol_definitions.push_back(SymbolDefinition::ReadSymbolDefinition(omf, mod, rd));
+		symbol_definitions.push_back(SymbolDefinition::Read(omf, mod, rd));
 	}
 }
 
@@ -5838,7 +5838,7 @@ uint16_t OMF96Format::SymbolDefinitionsRecord::GetRecordSize(OMF96Format * omf, 
 	uint16_t bytes = 2;
 	for(auto& symbol_definition : symbol_definitions)
 	{
-		bytes += symbol_definition.GetSymbolDefinitionSize(omf, mod);
+		bytes += symbol_definition.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -5847,7 +5847,7 @@ void OMF96Format::SymbolDefinitionsRecord::WriteRecordContents(OMF96Format * omf
 {
 	for(auto& symbol_definition : symbol_definitions)
 	{
-		symbol_definition.WriteSymbolDefinition(omf, mod, wr);
+		symbol_definition.Write(omf, mod, wr);
 	}
 }
 
@@ -5868,7 +5868,7 @@ void OMF96Format::ExternalDefinitionsRecord::ReadRecordContents(OMF96Format * om
 	segment_id = rd.ReadUnsigned(1);
 	while(rd.Tell() < RecordEnd())
 	{
-		external_definitions.push_back(ExternalDefinition::ReadExternalDefinition(omf, mod, rd));
+		external_definitions.push_back(ExternalDefinition::Read(omf, mod, rd));
 	}
 }
 
@@ -5877,7 +5877,7 @@ uint16_t OMF96Format::ExternalDefinitionsRecord::GetRecordSize(OMF96Format * omf
 	uint16_t bytes = 2;
 	for(auto& external_definition : external_definitions)
 	{
-		bytes += external_definition.GetExternalDefinitionSize(omf, mod);
+		bytes += external_definition.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -5886,7 +5886,7 @@ void OMF96Format::ExternalDefinitionsRecord::WriteRecordContents(OMF96Format * o
 {
 	for(auto& external_definition : external_definitions)
 	{
-		external_definition.WriteExternalDefinition(omf, mod, wr);
+		external_definition.Write(omf, mod, wr);
 	}
 }
 
@@ -5902,7 +5902,7 @@ void OMF96Format::ExternalDefinitionsRecord::ResolveReferences(OMF96Format * omf
 
 //// OMF96Format::RelocationRecord::Relocation
 
-OMF96Format::RelocationRecord::Relocation OMF96Format::RelocationRecord::Relocation::ReadRelocation(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+OMF96Format::RelocationRecord::Relocation OMF96Format::RelocationRecord::Relocation::Read(OMF96Format * omf, Module * mod, Linker::Reader& rd)
 {
 	Relocation relocation;
 	uint8_t relocation_type = rd.ReadUnsigned(1);
@@ -5924,7 +5924,7 @@ OMF96Format::RelocationRecord::Relocation OMF96Format::RelocationRecord::Relocat
 	return relocation;
 }
 
-uint16_t OMF96Format::RelocationRecord::Relocation::GetRelocationSize(OMF96Format * omf, Module * mod) const
+uint16_t OMF96Format::RelocationRecord::Relocation::Size(OMF96Format * omf, Module * mod) const
 {
 	uint8_t bytes = 4;
 	if(std::get_if<ExternalReference>(&reference))
@@ -5946,7 +5946,7 @@ uint16_t OMF96Format::RelocationRecord::Relocation::GetRelocationSize(OMF96Forma
 	return bytes;
 }
 
-void OMF96Format::RelocationRecord::Relocation::WriteRelocation(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::RelocationRecord::Relocation::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	uint8_t relocation_type = (reference_type << 2) | alignment;
 	if(std::get_if<ExternalReference>(&reference))
@@ -5983,7 +5983,7 @@ void OMF96Format::RelocationRecord::ReadRecordContents(OMF96Format * omf, Module
 {
 	while(rd.Tell() < RecordEnd())
 	{
-		relocations.push_back(Relocation::ReadRelocation(omf, mod, rd));
+		relocations.push_back(Relocation::Read(omf, mod, rd));
 	}
 }
 
@@ -5992,7 +5992,7 @@ uint16_t OMF96Format::RelocationRecord::GetRecordSize(OMF96Format * omf, Module 
 	uint16_t bytes = 2;
 	for(auto& relocation : relocations)
 	{
-		bytes += relocation.GetRelocationSize(omf, mod);
+		bytes += relocation.Size(omf, mod);
 	}
 	return bytes;
 }
@@ -6001,7 +6001,7 @@ void OMF96Format::RelocationRecord::WriteRecordContents(OMF96Format * omf, Modul
 {
 	for(auto& relocation : relocations)
 	{
-		relocation.WriteRelocation(omf, mod, wr);
+		relocation.Write(omf, mod, wr);
 	}
 }
 
@@ -6022,13 +6022,13 @@ void OMF96Format::ModuleAncestorRecord::ReadRecordContents(OMF96Format * omf, Mo
 	name = ReadString(rd);
 	if(rd.Tell() < RecordEnd())
 	{
-		segment_definition = SegmentDefinition::ReadSegmentDefinition(omf, mod, rd);
+		segment_definition = SegmentDefinition::Read(omf, mod, rd);
 	}
 }
 
 uint16_t OMF96Format::ModuleAncestorRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
 {
-	return 2 + name.size() + (segment_definition ? segment_definition.value().GetSegmentDefinitionSize(omf, mod) : 0);
+	return 2 + name.size() + (segment_definition ? segment_definition.value().Size(omf, mod) : 0);
 }
 
 void OMF96Format::ModuleAncestorRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
@@ -6036,7 +6036,7 @@ void OMF96Format::ModuleAncestorRecord::WriteRecordContents(OMF96Format * omf, M
 	WriteString(wr, name);
 	if(segment_definition)
 	{
-		segment_definition.value().WriteSegmentDefinition(omf, mod, wr);
+		segment_definition.value().Write(omf, mod, wr);
 	}
 }
 

@@ -253,8 +253,8 @@ namespace OMF
 				uint16_t line_number = 0;
 				uint16_t offset = 0;
 
-				static LineNumber ReadLineNumber(FormatType * omf, Linker::Reader& rd);
-				void WriteLineNumber(FormatType * omf, ChecksumWriter& wr) const;
+				static LineNumber Read(FormatType * omf, Linker::Reader& rd);
+				void Write(FormatType * omf, ChecksumWriter& wr) const;
 			};
 
 			uint8_t segment_id = 0;
@@ -323,8 +323,8 @@ namespace OMF
 				/** @brief Offset to the first byte of the library module, as a block:byte pair */
 				uint16_t byte_number;
 
-				static Location ReadLocation(Linker::Reader& rd);
-				void WriteLocation(ChecksumWriter& wr) const;
+				static Location Read(Linker::Reader& rd);
+				void Write(ChecksumWriter& wr) const;
 			};
 
 			/** @brief List of starting locations, one for each library module */
@@ -351,9 +351,9 @@ namespace OMF
 				/** @brief List of public symbols for one library module */
 				std::vector<std::string> names;
 
-				void ReadGroup(Linker::Reader& rd);
-				uint16_t GetGroupSize() const;
-				void WriteGroup(ChecksumWriter& wr) const;
+				void Read(Linker::Reader& rd);
+				uint16_t Size() const;
+				void Write(ChecksumWriter& wr) const;
 			};
 
 			/** @brief List of public symbols, grouped by library modules */
@@ -593,11 +593,11 @@ namespace OMF
 			}
 
 			/** @brief Read a length value, for near or far elements */
-			static uint32_t ReadLength(OMF86Format * omf, Linker::Reader& rd);
+			static uint32_t ReadValue(OMF86Format * omf, Linker::Reader& rd);
 			/** @brief Determines the number of bytes needed for a length value, for near or far elements */
-			static uint32_t GetLengthSize(OMF86Format * omf, uint32_t length);
+			static uint32_t ValueSize(OMF86Format * omf, uint32_t length);
 			/** @brief Writes a length value, for near or far elements */
-			static void WriteLength(OMF86Format * omf, ChecksumWriter& wr, uint32_t length);
+			static void WriteValue(OMF86Format * omf, ChecksumWriter& wr, uint32_t length);
 
 			/** @brief Parse an EXTDEF or LEXTDEF entry */
 			static ExternalName ReadExternalName(OMF86Format * omf, Linker::Reader& rd, bool local);
@@ -646,7 +646,7 @@ namespace OMF
 			std::variant<Location, FrameNumber> location;
 
 			void Read(OMF86Format * omf, Linker::Reader& rd);
-			uint16_t GetSize(OMF86Format * omf) const;
+			uint16_t Size(OMF86Format * omf) const;
 			void Write(OMF86Format * omf, ChecksumWriter& wr) const;
 
 			void CalculateValues(OMF86Format * omf, Module * mod);
@@ -666,9 +666,9 @@ namespace OMF
 			/** @brief The type of the symbol, or 0 */
 			TypeIndex type;
 
-			static SymbolDefinition ReadSymbol(OMF86Format * omf, Linker::Reader& rd, bool local, bool is32bit);
-			uint16_t GetSymbolSize(OMF86Format * omf, bool is32bit) const;
-			void WriteSymbol(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const;
+			static SymbolDefinition Read(OMF86Format * omf, Linker::Reader& rd, bool local, bool is32bit);
+			uint16_t Size(OMF86Format * omf, bool is32bit) const;
+			void Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const;
 
 			void CalculateValues(OMF86Format * omf, Module * mod);
 			void ResolveReferences(OMF86Format * omf, Module * mod);
@@ -683,8 +683,8 @@ namespace OMF
 			/** @brief The offset in memory where the line starts */
 			uint32_t offset;
 
-			static LineNumber ReadLineNumber(OMF86Format * omf, Linker::Reader& rd, bool is32bit);
-			void WriteLineNumber(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const;
+			static LineNumber Read(OMF86Format * omf, Linker::Reader& rd, bool is32bit);
+			void Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const;
 		};
 
 		/**
@@ -738,7 +738,7 @@ namespace OMF
 			uint32_t displacement;
 
 			void Read(OMF86Format * omf, Linker::Reader& rd, size_t displacement_size);
-			uint16_t GetSize(OMF86Format * omf, bool is32bit) const;
+			uint16_t Size(OMF86Format * omf, bool is32bit) const;
 			void Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const;
 
 			void CalculateValues(OMF86Format * omf, Module * mod);
@@ -1080,9 +1080,9 @@ namespace OMF
 				/** @brief The contents of the component */
 				std::variant<ExternalIndex, SegmentIndex, SegmentClassOverlayNames, LoadTimeLocatable, Absolute> component = ExternalIndex();
 
-				static Component ReadComponent(OMF86Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetComponentSize(OMF86Format * omf, Module * mod) const;
-				void WriteComponent(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static Component Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF86Format * omf, Module * mod) const;
+				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
 				void CalculateValues(OMF86Format * omf, Module * mod);
 				void ResolveReferences(OMF86Format * omf, Module * mod);
@@ -1150,9 +1150,9 @@ namespace OMF
 				/** @brief Type byte for an signed 32-bit leaf */
 				static constexpr uint8_t SignedNumericLeaf32 = 0x88;
 
-				static LeafDescriptor ReadLeaf(OMF86Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetLeafSize(OMF86Format * omf, Module * mod) const;
-				void WriteLeaf(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static LeafDescriptor Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF86Format * omf, Module * mod) const;
+				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
 				void CalculateValues(OMF86Format * omf, Module * mod);
 				void ResolveReferences(OMF86Format * omf, Module * mod);
@@ -1434,7 +1434,7 @@ namespace OMF
 				std::variant<SegmentIndex, GroupIndex, ExternalIndex, FrameNumber, UsesSource, UsesTarget, UsesAbsolute> reference = FrameNumber(0);
 
 				static Thread Read(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint8_t leading_data_byte);
-				uint16_t GetSize(OMF86Format * omf, Module * mod) const;
+				uint16_t Size(OMF86Format * omf, Module * mod) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
 				void CalculateValues(OMF86Format * omf, Module * mod);
@@ -1482,7 +1482,7 @@ namespace OMF
 				Reference ref;
 
 				static Fixup Read(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint8_t leading_data_byte, bool is32bit);
-				uint16_t GetSize(OMF86Format * omf, Module * mod, bool is32bit) const;
+				uint16_t Size(OMF86Format * omf, Module * mod, bool is32bit) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr, bool is32bit) const;
 
 				void CalculateValues(OMF86Format * omf, Module * mod);
@@ -1591,9 +1591,9 @@ namespace OMF
 				/** @brief The initial value of the register */
 				std::variant<Reference, InitialValue> value = Reference();
 
-				static Register ReadRegister(OMF86Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetRegisterSize(OMF86Format * omf, Module * mod) const;
-				void WriteRegister(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static Register Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF86Format * omf, Module * mod) const;
+				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
 				void CalculateValues(OMF86Format * omf, Module * mod);
 				void ResolveReferences(OMF86Format * omf, Module * mod);
@@ -1797,9 +1797,9 @@ namespace OMF
 				/** @brief Name it should be substituted with */
 				std::string substitute_name;
 
-				static AliasDefinition ReadAliasDefinition(OMF86Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetAliasDefinitionSize(OMF86Format * omf, Module * mod) const;
-				void WriteAliasDefinition(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static AliasDefinition Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF86Format * omf, Module * mod) const;
+				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 			/** @brief List of replacements */
 			std::vector<AliasDefinition> alias_definitions;
@@ -1979,9 +1979,9 @@ namespace OMF
 				ExternalIndex definition;
 				ExternalIndex default_resolution;
 
-				static ExternalAssociation ReadAssociation(OMF86Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetAssociationSize(OMF86Format * omf, Module * mod) const;
-				void WriteAssociation(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static ExternalAssociation Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF86Format * omf, Module * mod) const;
+				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
 				void CalculateValues(OMF86Format * omf, Module * mod);
 				void ResolveReferences(OMF86Format * omf, Module * mod);
@@ -2308,8 +2308,8 @@ namespace OMF
 				uint16_t length = 0;
 				alignment_t alignment = AlignByte;
 
-				static SegmentDefinition ReadSegmentDefinition(OMF80Format * omf, Linker::Reader& rd);
-				void WriteSegmentDefinition(OMF80Format * omf, ChecksumWriter& wr) const;
+				static SegmentDefinition Read(OMF80Format * omf, Linker::Reader& rd);
+				void Write(OMF80Format * omf, ChecksumWriter& wr) const;
 			};
 
 			std::string name;
@@ -2409,9 +2409,9 @@ namespace OMF
 				uint16_t offset;
 				std::string name;
 
-				static SymbolDefinition ReadSymbolDefinition(OMF80Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetSymbolDefinitionSize(OMF80Format * omf, Module * mod) const;
-				void WriteSymbolDefinition(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static SymbolDefinition Read(OMF80Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF80Format * omf, Module * mod) const;
+				void Write(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 
 			uint8_t segment_id;
@@ -2661,9 +2661,9 @@ namespace OMF
 			uint32_t size;
 			std::string name;
 
-			static SegmentDefinition ReadSegmentDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd);
-			uint16_t GetSegmentDefinitionSize(OMF51Format * omf, Module * mod) const;
-			void WriteSegmentDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+			static SegmentDefinition Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t Size(OMF51Format * omf, Module * mod) const;
+			void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 		};
 
 		class SymbolInfo
@@ -2681,8 +2681,8 @@ namespace OMF
 			static constexpr uint8_t FlagVariable = 0x40;
 			static constexpr uint8_t FlagIndirectlyCallable = 0x80;
 
-			void ReadSymbolInfo(OMF51Format * omf, Module * mod, uint8_t segment_info);
-			uint8_t WriteSymbolInfo(OMF51Format * omf, Module * mod) const;
+			void Read(OMF51Format * omf, Module * mod, uint8_t segment_info);
+			uint8_t Write(OMF51Format * omf, Module * mod) const;
 		};
 
 		class SymbolDefinition
@@ -2693,9 +2693,9 @@ namespace OMF
 			uint16_t offset;
 			std::string name;
 
-			static SymbolDefinition ReadSymbolDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd);
-			uint16_t GetSymbolDefinitionSize(OMF51Format * omf, Module * mod) const;
-			void WriteSymbolDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+			static SymbolDefinition Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t Size(OMF51Format * omf, Module * mod) const;
+			void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 		};
 
 		class ExternalDefinition
@@ -2706,9 +2706,9 @@ namespace OMF
 			SymbolInfo info;
 			std::string name;
 
-			static ExternalDefinition ReadExternalDefinition(OMF51Format * omf, Module * mod, Linker::Reader& rd);
-			uint16_t GetExternalDefinitionSize(OMF51Format * omf, Module * mod) const;
-			void WriteExternalDefinition(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+			static ExternalDefinition Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t Size(OMF51Format * omf, Module * mod) const;
+			void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 		};
 
 		class ModuleHeaderRecord : public Record
@@ -2843,9 +2843,9 @@ namespace OMF
 				uint16_t offset;
 				std::string name;
 
-				static Symbol ReadSymbol(OMF51Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetSymbolSize(OMF51Format * omf, Module * mod) const;
-				void WriteSymbol(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static Symbol Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF51Format * omf, Module * mod) const;
+				void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 
 			class LocalSymbols
@@ -2868,9 +2868,9 @@ namespace OMF
 				uint16_t offset;
 				std::string name;
 
-				static SegmentSymbol ReadSegmentSymbol(OMF51Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetSegmentSymbolSize(OMF51Format * omf, Module * mod) const;
-				void WriteSegmentSymbol(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static SegmentSymbol Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF51Format * omf, Module * mod) const;
+				void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 
 			class SegmentSymbols
@@ -2886,8 +2886,8 @@ namespace OMF
 				uint16_t offset;
 				uint16_t line_number;
 
-				static LineNumber ReadLineNumber(OMF51Format * omf, Module * mod, Linker::Reader& rd);
-				void WriteLineNumber(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static LineNumber Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 
 			class LineNumbers
@@ -2950,8 +2950,8 @@ namespace OMF
 				uint8_t id;
 				uint16_t offset;
 
-				static Fixup ReadFixup(OMF51Format * omf, Module * mod, Linker::Reader& rd);
-				void WriteFixup(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static Fixup Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 
 			std::vector<Fixup> fixups;
@@ -3106,9 +3106,9 @@ namespace OMF
 				base_address = address;
 			}
 
-			static SegmentDefinition ReadSegmentDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd);
-			uint16_t GetSegmentDefinitionSize(OMF96Format * omf, Module * mod) const;
-			void WriteSegmentDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+			static SegmentDefinition Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t Size(OMF96Format * omf, Module * mod) const;
+			void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 		};
 
 		class TypeDefinitionRecord;
@@ -3134,9 +3134,9 @@ namespace OMF
 			std::string name;
 			TypeIndex type;
 
-			static ExternalDefinition ReadExternalDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd);
-			uint16_t GetExternalDefinitionSize(OMF96Format * omf, Module * mod) const;
-			void WriteExternalDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+			static ExternalDefinition Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t Size(OMF96Format * omf, Module * mod) const;
+			void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 
 			void CalculateValues(OMF96Format * omf, Module * mod);
 			void ResolveReferences(OMF96Format * omf, Module * mod);
@@ -3149,9 +3149,9 @@ namespace OMF
 			std::string name;
 			TypeIndex type;
 
-			static SymbolDefinition ReadSymbolDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd);
-			uint16_t GetSymbolDefinitionSize(OMF96Format * omf, Module * mod) const;
-			void WriteSymbolDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+			static SymbolDefinition Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t Size(OMF96Format * omf, Module * mod) const;
+			void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 
 			void CalculateValues(OMF96Format * omf, Module * mod);
 			void ResolveReferences(OMF96Format * omf, Module * mod);
@@ -3251,9 +3251,9 @@ namespace OMF
 				/** @brief Type byte for an end of branch leaf */
 				static constexpr uint8_t EndOfBranchLeaf = 0x6A;
 
-				static LeafDescriptor ReadLeaf(OMF96Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetLeafSize(OMF96Format * omf, Module * mod) const;
-				void WriteLeaf(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static LeafDescriptor Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF96Format * omf, Module * mod) const;
+				void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 
 				void CalculateValues(OMF96Format * omf, Module * mod);
 				void ResolveReferences(OMF96Format * omf, Module * mod);
@@ -3345,9 +3345,9 @@ namespace OMF
 				reference_type_t reference_type;
 				alignment_t alignment;
 
-				static Relocation ReadRelocation(OMF96Format * omf, Module * mod, Linker::Reader& rd);
-				uint16_t GetRelocationSize(OMF96Format * omf, Module * mod) const;
-				void WriteRelocation(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+				static Relocation Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t Size(OMF96Format * omf, Module * mod) const;
+				void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 
 			std::vector<Relocation> relocations;
