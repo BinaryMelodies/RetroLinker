@@ -68,6 +68,9 @@ std::shared_ptr<OMFFormat> OMFFormat::ReadOMFFile(Linker::Reader& rd)
 
 	switch(record_type)
 	{
+	case OMF96Format::LibraryHeader:
+		return OMF96Format::ReadOMFFile(rd);
+
 	case OMF80Format::LibraryHeader:
 		/* Libraries start with a Library Header Record, optionally
 		 * followed by a Module Header Record. We seek to the next
@@ -1165,7 +1168,7 @@ void OMF86Format::ModuleHeaderRecord::WriteRecordContents(OMF86Format * omf, Mod
 
 void OMF86Format::RModuleHeaderRecord::ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd)
 {
-	name = rd.ReadData(record_length - 27);
+	name = ReadString(rd);
 	module_type = module_type_t(rd.ReadUnsigned(1) & 3);
 	segment_record_count = rd.ReadUnsigned(2);
 	group_record_count = rd.ReadUnsigned(2);
@@ -4232,6 +4235,7 @@ Linker::Debug << "Debug: record 0x" << std::hex << int(record_type) << " at offs
 	record->ReadRecordContents(this, mod, rd);
 	rd.ReadUnsigned(1); // checksum
 	records.push_back(record);
+	assert(rd.Tell() == record->record_offset + record->record_length + 3);
 	return record;
 }
 
@@ -4343,6 +4347,7 @@ void OMF80Format::ModuleHeaderRecord::ReadRecordContents(OMF80Format * omf, Modu
 		segment_definitions.push_back(segment_definition);
 	}
 	omf->modules.push_back(Module());
+	omf->modules.back().first_record = omf->records.size();
 }
 
 uint16_t OMF80Format::ModuleHeaderRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
@@ -4394,6 +4399,7 @@ void OMF80Format::ModuleEndRecord::ReadRecordContents(OMF80Format * omf, Module 
 	{
 		info.clear();
 	}
+	omf->modules.back().record_count = omf->records.size() - omf->modules.back().first_record + 1; // including the current one
 }
 
 uint16_t OMF80Format::ModuleEndRecord::GetRecordSize(OMF80Format * omf, Module * mod) const
@@ -4724,6 +4730,27 @@ void OMF80Format::ModuleAncestorRecord::ResolveReferences(OMF80Format * omf, Mod
 
 //// OMF80Format
 
+const std::map<offset_t, std::string> OMF80Format::RecordTypeNames =
+{
+	{ OMF80Format::ModuleHeader, "Module header record" },
+	{ OMF80Format::ModuleEnd, "Module end record" },
+	{ OMF80Format::Content, "Content record" },
+	{ OMF80Format::LineNumbers, "Line numbers record" },
+	{ OMF80Format::EndOfFile, "End of file record" },
+	{ OMF80Format::ModuleAncestor, "Module ancestor record" },
+	{ OMF80Format::LocalSymbols, "Local symbols record" },
+	{ OMF80Format::PublicDefinitions, "Public declarations record" },
+	{ OMF80Format::ExternalDefinitions, "External names record" },
+	{ OMF80Format::ExternalReferences, "External references record" },
+	{ OMF80Format::Relocations, "Relocation record" },
+	{ OMF80Format::InterSegmentReferences, "Inter-segment references record" },
+	{ OMF80Format::LibraryModuleLocations, "Library module locations record" },
+	{ OMF80Format::LibraryModuleNames, "Library module names record" },
+	{ OMF80Format::LibraryDictionary, "Library dictionary record" },
+	{ OMF80Format::LibraryHeader, "Library header record" },
+	{ OMF80Format::NamedCommonDefinitions, "Named common definitions record" },
+};
+
 std::shared_ptr<OMF80Format::Record> OMF80Format::ReadRecord(Linker::Reader& rd)
 {
 	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
@@ -4731,6 +4758,7 @@ std::shared_ptr<OMF80Format::Record> OMF80Format::ReadRecord(Linker::Reader& rd)
 	uint8_t record_type = rd.ReadUnsigned(1);
 	uint16_t record_length = rd.ReadUnsigned(2);
 	std::shared_ptr<Record> record;
+Linker::Debug << "Debug: record 0x" << std::hex << int(record_type) << " at offset 0x" << std::hex << record_offset << std::endl;
 	switch(record_type)
 	{
 	case ModuleHeader:
@@ -4802,7 +4830,7 @@ std::shared_ptr<OMF80Format> OMF80Format::ReadOMFFile(Linker::Reader& rd)
 
 void OMF80Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF80Format * omf, const Module * mod, size_t record_index)
 {
-	// TODO
+	region.AddField("Record name", Dumper::ChoiceDisplay::Make(RecordTypeNames, "unknown"), offset_t(record->record_type));
 }
 
 void OMF80Format::ReadFile(Linker::Reader& rd)
@@ -4835,7 +4863,22 @@ void OMF80Format::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
 	file_region.Display(dump);
 
-	// TODO
+	size_t record_index = 0;
+	ssize_t module_index = -1;
+	for(auto record : records)
+	{
+		if(size_t(module_index + 1) < modules.size() && modules[module_index + 1].first_record == record_index)
+		{
+			module_index ++;
+
+			Dumper::Region module_region("Module", record->record_offset, records[record_index + modules[module_index].record_count - 1]->RecordEnd() + 1 - record->record_offset, 8);
+			module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(module_index + 1));
+			module_region.Display(dump);
+		}
+
+		record->Dump(dump, this, module_index >= 0 ? &modules[module_index] : nullptr, record_index);
+		record_index++;
+	}
 }
 
 void OMF80Format::GenerateModule(Linker::Module& module) const
@@ -4995,6 +5038,7 @@ void OMF51Format::ModuleHeaderRecord::ReadRecordContents(OMF51Format * omf, Modu
 	translator_id = translator_id_t(rd.ReadUnsigned(1));
 	rd.Skip(1);
 	omf->modules.push_back(Module());
+	omf->modules.back().first_record = omf->records.size();
 }
 
 uint16_t OMF51Format::ModuleHeaderRecord::GetRecordSize(OMF51Format * omf, Module * mod) const
@@ -5019,6 +5063,7 @@ void OMF51Format::ModuleEndRecord::ReadRecordContents(OMF51Format * omf, Module 
 	for(int bank = 0; bank < 4; bank++)
 		banks[bank] = ((register_mask >> bank) & 1) != 0;
 	rd.Skip(1);
+	omf->modules.back().record_count = omf->records.size() - omf->modules.back().first_record + 1; // including the current one
 }
 
 uint16_t OMF51Format::ModuleEndRecord::GetRecordSize(OMF51Format * omf, Module * mod) const
@@ -5449,6 +5494,11 @@ void OMF51Format::FixupRecord::ResolveReferences(OMF51Format * omf, Module * mod
 
 //// OMF51Format
 
+const std::map<offset_t, std::string> OMF51Format::RecordTypeNames =
+{
+	// TODO
+};
+
 std::shared_ptr<OMF51Format::Record> OMF51Format::ReadRecord(Linker::Reader& rd)
 {
 	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
@@ -5456,6 +5506,7 @@ std::shared_ptr<OMF51Format::Record> OMF51Format::ReadRecord(Linker::Reader& rd)
 	uint8_t record_type = rd.ReadUnsigned(1);
 	uint16_t record_length = rd.ReadUnsigned(2);
 	std::shared_ptr<Record> record;
+Linker::Debug << "Debug: record 0x" << std::hex << int(record_type) << " at offset 0x" << std::hex << record_offset << std::endl;
 	switch(record_type)
 	{
 	case ModuleHeader:
@@ -5517,7 +5568,7 @@ std::shared_ptr<OMF51Format> OMF51Format::ReadOMFFile(Linker::Reader& rd)
 
 void OMF51Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF51Format * omf, const Module * mod, size_t record_index)
 {
-	// TODO
+	region.AddField("Record name", Dumper::ChoiceDisplay::Make(RecordTypeNames, "unknown"), offset_t(record->record_type));
 }
 
 void OMF51Format::ReadFile(Linker::Reader& rd)
@@ -5550,7 +5601,22 @@ void OMF51Format::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
 	file_region.Display(dump);
 
-	// TODO
+	size_t record_index = 0;
+	ssize_t module_index = -1;
+	for(auto record : records)
+	{
+		if(size_t(module_index + 1) < modules.size() && modules[module_index + 1].first_record == record_index)
+		{
+			module_index ++;
+
+			Dumper::Region module_region("Module", record->record_offset, records[record_index + modules[module_index].record_count - 1]->RecordEnd() + 1 - record->record_offset, 8);
+			module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(module_index + 1));
+			module_region.Display(dump);
+		}
+
+		record->Dump(dump, this, module_index >= 0 ? &modules[module_index] : nullptr, record_index);
+		record_index++;
+	}
 }
 
 void OMF51Format::GenerateModule(Linker::Module& module) const
@@ -5666,6 +5732,8 @@ void OMF96Format::ModuleHeaderRecord::ReadRecordContents(OMF96Format * omf, Modu
 	name = ReadString(rd);
 	translator_id = rd.ReadUnsigned(1);
 	date_time = ReadString(rd);
+	omf->modules.push_back(Module());
+	omf->modules.back().first_record = omf->records.size();
 }
 
 uint16_t OMF96Format::ModuleHeaderRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
@@ -5686,6 +5754,7 @@ void OMF96Format::ModuleEndRecord::ReadRecordContents(OMF96Format * omf, Module 
 {
 	main = rd.ReadUnsigned(1) == MainModule;
 	valid = rd.ReadUnsigned(1) == ValidModule;
+	omf->modules.back().record_count = omf->records.size() - omf->modules.back().first_record + 1; // including the current one
 }
 
 uint16_t OMF96Format::ModuleEndRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
@@ -6259,6 +6328,28 @@ void OMF96Format::BlockDefinitionRecord::ResolveReferences(OMF96Format * omf, Mo
 
 //// OMF96Format
 
+const std::map<offset_t, std::string> OMF96Format::RecordTypeNames =
+{
+	{ OMF96Format::ModuleHeader, "Module header record" },
+	{ OMF96Format::ModuleEnd, "Module end record" },
+	{ OMF96Format::Content, "Content record" },
+	{ OMF96Format::LineNumbers, "Line numbers record" },
+	{ OMF96Format::BlockDefinition, "Block definition record" },
+	{ OMF96Format::BlockEnd, "Block end record" },
+	{ OMF96Format::EndOfFile, "End of file record" },
+	{ OMF96Format::ModuleAncestor, "Module ancestor record" },
+	{ OMF96Format::LocalSymbols, "Local symbols record" },
+	{ OMF96Format::TypeDefinition, "Type definition record" },
+	{ OMF96Format::PublicDefinitions, "Public definitions record" },
+	{ OMF96Format::ExternalDefinitions, "External definitions record" },
+	{ OMF96Format::SegmentDefinitions, "Segment definitions record" },
+	{ OMF96Format::Relocations, "Fixup record" },
+	{ OMF96Format::LibraryModuleLocations, "Library module locations record" },
+	{ OMF96Format::LibraryModuleNames, "Library module names record" },
+	{ OMF96Format::LibraryDictionary, "Library dictionary record" },
+	{ OMF96Format::LibraryHeader, "Library header record" },
+};
+
 std::shared_ptr<OMF96Format::Record> OMF96Format::ReadRecord(Linker::Reader& rd)
 {
 	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
@@ -6266,6 +6357,7 @@ std::shared_ptr<OMF96Format::Record> OMF96Format::ReadRecord(Linker::Reader& rd)
 	uint8_t record_type = rd.ReadUnsigned(1);
 	uint16_t record_length = rd.ReadUnsigned(2);
 	std::shared_ptr<Record> record;
+Linker::Debug << "Debug: record 0x" << std::hex << int(record_type) << " at offset 0x" << std::hex << record_offset << std::endl;
 	switch(record_type)
 	{
 	case ModuleHeader:
@@ -6342,7 +6434,7 @@ std::shared_ptr<OMF96Format> OMF96Format::ReadOMFFile(Linker::Reader& rd)
 
 void OMF96Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF96Format * omf, const Module * mod, size_t record_index)
 {
-	// TODO
+	region.AddField("Record name", Dumper::ChoiceDisplay::Make(RecordTypeNames, "unknown"), offset_t(record->record_type));
 }
 
 void OMF96Format::ReadFile(Linker::Reader& rd)
@@ -6375,7 +6467,22 @@ void OMF96Format::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
 	file_region.Display(dump);
 
-	// TODO
+	size_t record_index = 0;
+	ssize_t module_index = -1;
+	for(auto record : records)
+	{
+		if(size_t(module_index + 1) < modules.size() && modules[module_index + 1].first_record == record_index)
+		{
+			module_index ++;
+
+			Dumper::Region module_region("Module", record->record_offset, records[record_index + modules[module_index].record_count - 1]->RecordEnd() + 1 - record->record_offset, 8);
+			module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(module_index + 1));
+			module_region.Display(dump);
+		}
+
+		record->Dump(dump, this, module_index >= 0 ? &modules[module_index] : nullptr, record_index);
+		record_index++;
+	}
 }
 
 void OMF96Format::GenerateModule(Linker::Module& module) const

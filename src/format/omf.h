@@ -2264,6 +2264,8 @@ namespace OMF
 			NamedCommonDefinitions = 0x2E,
 		};
 
+		static const std::map<offset_t, std::string> RecordTypeNames;
+
 		using Record = OMFFormat::Record<record_type_t, OMF80Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF80Format, Module>;
 		using EmptyRecord = OMFFormat::EmptyRecord<record_type_t, OMF80Format, Module>;
@@ -2562,6 +2564,11 @@ namespace OMF
 		class Module
 		{
 		public:
+			/** @brief The index of the first record inside the file, stored in the OMF86Format objects */
+			size_t first_record = 0;
+			/** @brief The number of records belonging to this module */
+			size_t record_count = 0;
+
 			std::map<segment_id_t, SegmentDefinition> segment_definitions;
 			std::vector<std::string> external_names;
 		};
@@ -2610,6 +2617,8 @@ namespace OMF
 			LibraryDictionary = OMF80Format::LibraryDictionary,
 			LibraryHeader = OMF80Format::LibraryHeader,
 		};
+
+		static const std::map<offset_t, std::string> RecordTypeNames;
 
 		using Record = OMFFormat::Record<record_type_t, OMF51Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF51Format, Module>;
@@ -2997,6 +3006,11 @@ namespace OMF
 		class Module
 		{
 		public:
+			/** @brief The index of the first record inside the file, stored in the OMF86Format objects */
+			size_t first_record = 0;
+			/** @brief The number of records belonging to this module */
+			size_t record_count = 0;
+
 			std::map<uint8_t, SegmentDefinition> segment_definitions;
 			std::map<uint8_t, ExternalDefinition> external_definitions;
 		};
@@ -3050,8 +3064,10 @@ namespace OMF
 			LibraryModuleLocations = OMF80Format::LibraryModuleLocations,
 			LibraryModuleNames = OMF80Format::LibraryModuleNames,
 			LibraryDictionary = OMF80Format::LibraryDictionary,
-			LibraryHeader = OMF80Format::LibraryHeader,
+			LibraryHeader = 0x2E, // different from OMF80 number
 		};
+
+		static const std::map<offset_t, std::string> RecordTypeNames;
 
 		using Record = OMFFormat::Record<record_type_t, OMF96Format, Module>;
 		using UnknownRecord = OMFFormat::UnknownRecord<record_type_t, OMF96Format, Module>;
@@ -3457,6 +3473,11 @@ namespace OMF
 		class Module
 		{
 		public:
+			/** @brief The index of the first record inside the file, stored in the OMF86Format objects */
+			size_t first_record = 0;
+			/** @brief The number of records belonging to this module */
+			size_t record_count = 0;
+
 			std::map<segment_id_t, SegmentDefinition> segment_definitions;
 			std::vector<std::shared_ptr<TypeDefinitionRecord>> type_definitions;
 		};
