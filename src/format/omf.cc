@@ -5460,6 +5460,705 @@ void OMF51Format::GenerateModule(Linker::Module& module) const
 	/* TODO */
 }
 
+//// OMF96Format::SegmentDefinition
+
+OMF96Format::SegmentDefinition OMF96Format::SegmentDefinition::ReadSegmentDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	SegmentDefinition segment_definition;
+	segment_definition.segment_id = rd.ReadUnsigned(1);
+	if(segment_definition.IsRelocatable())
+	{
+		segment_definition.MakeRelocatable(alignment_t(rd.ReadUnsigned(1)));
+	}
+	else
+	{
+		segment_definition.MakeAbsolute(rd.ReadUnsigned(2));
+	}
+	segment_definition.size = rd.ReadUnsigned(2);
+	return segment_definition;
+}
+
+uint16_t OMF96Format::SegmentDefinition::GetSegmentDefinitionSize(OMF96Format * omf, Module * mod) const
+{
+	return IsRelocatable() ? 4 : 5;
+}
+
+void OMF96Format::SegmentDefinition::WriteSegmentDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, segment_id);
+	if(IsRelocatable())
+	{
+		wr.WriteWord(1, GetAlignment());
+	}
+	else
+	{
+		wr.WriteWord(2, GetBaseAddress());
+	}
+	wr.WriteWord(2, size);
+}
+
+//// OMF96Format::ExternalDefinition
+
+OMF96Format::ExternalDefinition OMF96Format::ExternalDefinition::ReadExternalDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	ExternalDefinition external_definition;
+	external_definition.name = ReadString(rd);
+	external_definition.type.index = OMF86Format::ReadIndex(rd);
+	return external_definition;
+}
+
+uint16_t OMF96Format::ExternalDefinition::GetExternalDefinitionSize(OMF96Format * omf, Module * mod) const
+{
+	return 1 + name.size() + OMF86Format::IndexSize(type.index);
+}
+
+void OMF96Format::ExternalDefinition::WriteExternalDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	WriteString(wr, name);
+	OMF86Format::WriteIndex(wr, type.index);
+}
+
+void OMF96Format::ExternalDefinition::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::ExternalDefinition::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::SymbolDefinition
+
+OMF96Format::SymbolDefinition OMF96Format::SymbolDefinition::ReadSymbolDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	SymbolDefinition symbol_definition;
+	symbol_definition.offset = rd.ReadUnsigned(2);
+	symbol_definition.name = ReadString(rd);
+	symbol_definition.type.index = OMF86Format::ReadIndex(rd);
+	return symbol_definition;
+}
+
+uint16_t OMF96Format::SymbolDefinition::GetSymbolDefinitionSize(OMF96Format * omf, Module * mod) const
+{
+	return 3 + name.size() + OMF86Format::IndexSize(type.index);
+}
+
+void OMF96Format::SymbolDefinition::WriteSymbolDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(2, offset);
+	WriteString(wr, name);
+	OMF86Format::WriteIndex(wr, type.index);
+}
+
+void OMF96Format::SymbolDefinition::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::SymbolDefinition::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::ModuleHeaderRecord
+
+void OMF96Format::ModuleHeaderRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	name = ReadString(rd);
+	translator_id = rd.ReadUnsigned(1);
+	date_time = ReadString(rd);
+}
+
+uint16_t OMF96Format::ModuleHeaderRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	return 4 + name.size() + date_time.size();
+}
+
+void OMF96Format::ModuleHeaderRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	WriteString(wr, name);
+	wr.WriteWord(1, translator_id);
+	WriteString(wr, date_time);
+}
+
+//// OMF96Format::ModuleEndRecord
+
+void OMF96Format::ModuleEndRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	main = rd.ReadUnsigned(1) == MainModule;
+	valid = rd.ReadUnsigned(1) == ValidModule;
+}
+
+uint16_t OMF96Format::ModuleEndRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	return 3;
+}
+
+void OMF96Format::ModuleEndRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	wr.WriteWord(1, main ? MainModule : OtherModule);
+	wr.WriteWord(1, valid ? ValidModule : ErroneousModule);
+}
+
+//// OMF96Format::SegmentDefinitionsRecord
+
+void OMF96Format::SegmentDefinitionsRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	while(rd.Tell() < RecordEnd())
+	{
+		segment_definitions.push_back(SegmentDefinition::ReadSegmentDefinition(omf, mod, rd));
+		auto& segment_definition = segment_definitions.back();
+		mod->segment_definitions[segment_definition.segment_id] = segment_definition; // TODO: check it is not duplicated
+	}
+}
+
+uint16_t OMF96Format::SegmentDefinitionsRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	uint16_t bytes = 1;
+	for(auto& segment_definition : segment_definitions)
+	{
+		bytes += segment_definition.GetSegmentDefinitionSize(omf, mod);
+	}
+	return bytes;
+}
+
+void OMF96Format::SegmentDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	for(auto& segment_definition : segment_definitions)
+	{
+		segment_definition.WriteSegmentDefinition(omf, mod, wr);
+	}
+}
+
+void OMF96Format::SegmentDefinitionsRecord::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::SegmentDefinitionsRecord::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::TypeDefinitionRecord::LeafDescriptor
+
+OMF96Format::TypeDefinitionRecord::LeafDescriptor OMF96Format::TypeDefinitionRecord::LeafDescriptor::ReadLeaf(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	LeafDescriptor leaf_descriptor;
+	uint8_t leaf_type = rd.ReadUnsigned(1);
+	leaf_descriptor.nice = leaf_type & 0x80;
+	switch(leaf_type & 0x7F)
+	{
+	case NullLeaf:
+		leaf_descriptor.leaf = Null();
+		break;
+	case SignedNumericLeaf16:
+		leaf_descriptor.leaf = int32_t(rd.ReadSigned(2));
+		break;
+	case SignedNumericLeaf32:
+		leaf_descriptor.leaf = int32_t(rd.ReadSigned(4));
+		break;
+	case StringLeaf:
+		leaf_descriptor.leaf = ReadString(rd);
+		break;
+	case IndexLeaf:
+		leaf_descriptor.leaf = TypeIndex(OMF86Format::ReadIndex(rd));
+		break;
+	case RepeatLeaf:
+		leaf_descriptor.leaf = Repeat();
+		break;
+	case EndOfBranchLeaf:
+		leaf_descriptor.leaf = EndOfBranch();
+		break;
+	default:
+		if((leaf_type & 0x7F) < 0x64)
+		{
+			leaf_descriptor.leaf = int32_t(leaf_type & 0x7F);
+		}
+		// TODO: otherwise, error
+		break;
+	}
+	return leaf_descriptor;
+}
+
+uint16_t OMF96Format::TypeDefinitionRecord::LeafDescriptor::GetLeafSize(OMF96Format * omf, Module * mod) const
+{
+	if(std::get_if<Null>(&leaf))
+	{
+		return 1;
+	}
+	else if(auto numericp = std::get_if<int32_t>(&leaf))
+	{
+		if(0 <= *numericp && *numericp < 0x64)
+		{
+			return 1;
+		}
+		else if(-0x8000 <= *numericp && *numericp < 0x8000)
+		{
+			return 3;
+		}
+		else
+		{
+			return 5;
+		}
+	}
+	else if(auto stringp = std::get_if<std::string>(&leaf))
+	{
+		return 2 + stringp->size();
+	}
+	else if(auto indexp = std::get_if<TypeIndex>(&leaf))
+	{
+		return 1 + OMF86Format::IndexSize(indexp->index);
+	}
+	else if(std::get_if<Repeat>(&leaf))
+	{
+		return 2;
+	}
+	else if(std::get_if<EndOfBranch>(&leaf))
+	{
+		return 2;
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+void OMF96Format::TypeDefinitionRecord::LeafDescriptor::WriteLeaf(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	uint8_t leaf_type = nice ? 0x80 : 0;
+	if(std::get_if<Null>(&leaf))
+	{
+		wr.WriteWord(1, leaf_type | NullLeaf);
+	}
+	else if(auto numericp = std::get_if<int32_t>(&leaf))
+	{
+		if(0 <= *numericp && *numericp < 0x64)
+		{
+			wr.WriteWord(1, leaf_type | *numericp);
+		}
+		else if(-0x8000 <= *numericp && *numericp < 0x8000)
+		{
+			wr.WriteWord(1, leaf_type | SignedNumericLeaf16);
+			wr.WriteWord(2, *numericp);
+		}
+		else
+		{
+			wr.WriteWord(1, leaf_type | SignedNumericLeaf32);
+			wr.WriteWord(4, *numericp);
+		}
+	}
+	else if(auto stringp = std::get_if<std::string>(&leaf))
+	{
+		wr.WriteWord(1, leaf_type | StringLeaf);
+		WriteString(wr, *stringp);
+	}
+	else if(auto indexp = std::get_if<TypeIndex>(&leaf))
+	{
+		wr.WriteWord(1, leaf_type | IndexLeaf);
+		OMF86Format::WriteIndex(wr, indexp->index);
+	}
+	else if(std::get_if<Repeat>(&leaf))
+	{
+		wr.WriteWord(1, leaf_type | RepeatLeaf);
+	}
+	else if(std::get_if<EndOfBranch>(&leaf))
+	{
+		wr.WriteWord(1, leaf_type | EndOfBranchLeaf);
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+void OMF96Format::TypeDefinitionRecord::LeafDescriptor::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::TypeDefinitionRecord::LeafDescriptor::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::TypeDefinitionRecord
+
+void OMF96Format::TypeDefinitionRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	while(rd.Tell() < RecordEnd())
+	{
+		leafs.push_back(LeafDescriptor::ReadLeaf(omf, mod, rd));
+	}
+	mod->type_definitions.push_back(shared_from_this());
+}
+
+uint16_t OMF96Format::TypeDefinitionRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	uint16_t bytes = 1;
+	for(auto& leaf : leafs)
+	{
+		bytes += leaf.GetLeafSize(omf, mod);
+	}
+	return bytes;
+}
+
+void OMF96Format::TypeDefinitionRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	for(auto& leaf : leafs)
+	{
+		leaf.WriteLeaf(omf, mod, wr);
+	}
+}
+
+void OMF96Format::TypeDefinitionRecord::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::TypeDefinitionRecord::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::SymbolDefinitionsRecord
+
+void OMF96Format::SymbolDefinitionsRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	segment_id = rd.ReadUnsigned(1);
+	while(rd.Tell() < RecordEnd())
+	{
+		symbol_definitions.push_back(SymbolDefinition::ReadSymbolDefinition(omf, mod, rd));
+	}
+}
+
+uint16_t OMF96Format::SymbolDefinitionsRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	uint16_t bytes = 2;
+	for(auto& symbol_definition : symbol_definitions)
+	{
+		bytes += symbol_definition.GetSymbolDefinitionSize(omf, mod);
+	}
+	return bytes;
+}
+
+void OMF96Format::SymbolDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	for(auto& symbol_definition : symbol_definitions)
+	{
+		symbol_definition.WriteSymbolDefinition(omf, mod, wr);
+	}
+}
+
+void OMF96Format::SymbolDefinitionsRecord::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::SymbolDefinitionsRecord::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::ExternalDefinitionsRecord
+
+void OMF96Format::ExternalDefinitionsRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	segment_id = rd.ReadUnsigned(1);
+	while(rd.Tell() < RecordEnd())
+	{
+		external_definitions.push_back(ExternalDefinition::ReadExternalDefinition(omf, mod, rd));
+	}
+}
+
+uint16_t OMF96Format::ExternalDefinitionsRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	uint16_t bytes = 2;
+	for(auto& external_definition : external_definitions)
+	{
+		bytes += external_definition.GetExternalDefinitionSize(omf, mod);
+	}
+	return bytes;
+}
+
+void OMF96Format::ExternalDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	for(auto& external_definition : external_definitions)
+	{
+		external_definition.WriteExternalDefinition(omf, mod, wr);
+	}
+}
+
+void OMF96Format::ExternalDefinitionsRecord::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::ExternalDefinitionsRecord::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::RelocationRecord::Relocation
+
+OMF96Format::RelocationRecord::Relocation OMF96Format::RelocationRecord::Relocation::ReadRelocation(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	Relocation relocation;
+	uint8_t relocation_type = rd.ReadUnsigned(1);
+	relocation.offset = rd.ReadUnsigned(2);
+	relocation.reference_type = reference_type_t((relocation_type >> 2) & 0xF);
+	relocation.alignment = alignment_t(relocation_type & 3);
+	if((relocation_type & FlagExternal))
+	{
+		relocation.reference = ExternalReference(rd.ReadUnsigned(2));
+	}
+	else
+	{
+		relocation.reference = LocalReference(rd.ReadUnsigned(1));
+	}
+	if(!(relocation_type & FlagAddendInCode))
+	{
+		relocation.addend = rd.ReadUnsigned(2);
+	}
+	return relocation;
+}
+
+uint16_t OMF96Format::RelocationRecord::Relocation::GetRelocationSize(OMF96Format * omf, Module * mod) const
+{
+	uint8_t bytes = 4;
+	if(std::get_if<ExternalReference>(&reference))
+	{
+		bytes += 2;
+	}
+	else if(std::get_if<LocalReference>(&reference))
+	{
+		bytes += 1;
+	}
+	else
+	{
+		assert(false);
+	}
+	if(addend)
+	{
+		bytes += 2;
+	}
+	return bytes;
+}
+
+void OMF96Format::RelocationRecord::Relocation::WriteRelocation(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	uint8_t relocation_type = (reference_type << 2) | alignment;
+	if(std::get_if<ExternalReference>(&reference))
+	{
+		relocation_type |= FlagExternal;
+	}
+	if(!addend)
+	{
+		relocation_type |= FlagAddendInCode;
+	}
+	wr.WriteWord(1, relocation_type);
+	wr.WriteWord(2, offset);
+	if(auto valuep = std::get_if<ExternalReference>(&reference))
+	{
+		wr.WriteWord(2, *valuep);
+	}
+	else if(auto valuep = std::get_if<LocalReference>(&reference))
+	{
+		wr.WriteWord(1, *valuep);
+	}
+	else
+	{
+		assert(false);
+	}
+	if(addend)
+	{
+		wr.WriteWord(2, addend.value());
+	}
+}
+
+//// OMF96Format::RelocationRecord
+
+void OMF96Format::RelocationRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	while(rd.Tell() < RecordEnd())
+	{
+		relocations.push_back(Relocation::ReadRelocation(omf, mod, rd));
+	}
+}
+
+uint16_t OMF96Format::RelocationRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	uint16_t bytes = 2;
+	for(auto& relocation : relocations)
+	{
+		bytes += relocation.GetRelocationSize(omf, mod);
+	}
+	return bytes;
+}
+
+void OMF96Format::RelocationRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	for(auto& relocation : relocations)
+	{
+		relocation.WriteRelocation(omf, mod, wr);
+	}
+}
+
+void OMF96Format::RelocationRecord::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::RelocationRecord::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::ModuleAncestorRecord
+
+void OMF96Format::ModuleAncestorRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	name = ReadString(rd);
+	if(rd.Tell() < RecordEnd())
+	{
+		segment_definition = SegmentDefinition::ReadSegmentDefinition(omf, mod, rd);
+	}
+}
+
+uint16_t OMF96Format::ModuleAncestorRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	return 2 + name.size() + (segment_definition ? segment_definition.value().GetSegmentDefinitionSize(omf, mod) : 0);
+}
+
+void OMF96Format::ModuleAncestorRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	WriteString(wr, name);
+	if(segment_definition)
+	{
+		segment_definition.value().WriteSegmentDefinition(omf, mod, wr);
+	}
+}
+
+void OMF96Format::ModuleAncestorRecord::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::ModuleAncestorRecord::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+//// OMF96Format::BlockDefinitionRecord
+
+void OMF96Format::BlockDefinitionRecord::ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd)
+{
+	std::string name = ReadString(rd);
+	segment_id = rd.ReadUnsigned(1);
+	offset = rd.ReadUnsigned(2);
+	size = rd.ReadUnsigned(2);
+	uint8_t flags = rd.ReadUnsigned(1);
+	bool is_proc = flags & FlagProcedure;
+	if(!(!is_proc && name == ""))
+	{
+		name_and_type = BlockNameAndType { .name = name, .type = TypeIndex(OMF86Format::ReadIndex(rd)) };
+	}
+	if(is_proc)
+	{
+		ProcedureInformation info;
+		if((flags & FlagExternal))
+		{
+			info.frame_pointer = ExternalReference(rd.ReadUnsigned(2));
+		}
+		else
+		{
+			info.frame_pointer = LocalReference(rd.ReadUnsigned(1));
+		}
+		info.return_offset = rd.ReadUnsigned(2);
+		info.prologue_size = rd.ReadUnsigned(1);
+		procedure_info = info;
+	}
+}
+
+uint16_t OMF96Format::BlockDefinitionRecord::GetRecordSize(OMF96Format * omf, Module * mod) const
+{
+	uint16_t bytes = 8;
+	if(name_and_type)
+	{
+		bytes += name_and_type.value().name.size();
+	}
+	if(name_and_type)
+	{
+		bytes += OMF86Format::IndexSize(name_and_type.value().type.index);
+	}
+	if(procedure_info)
+	{
+		if(std::get_if<ExternalReference>(&procedure_info.value().frame_pointer))
+		{
+			bytes += 2;
+		}
+		else if(std::get_if<LocalReference>(&procedure_info.value().frame_pointer))
+		{
+			bytes += 1;
+		}
+		bytes += 3;
+	}
+	return bytes;
+}
+
+void OMF96Format::BlockDefinitionRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+{
+	if(name_and_type)
+	{
+		WriteString(wr, name_and_type.value().name);
+	}
+	else
+	{
+		WriteString(wr, "");
+	}
+	wr.WriteWord(1, segment_id);
+	wr.WriteWord(2, offset);
+	wr.WriteWord(2, size);
+	uint8_t flags = 0;
+	if(procedure_info)
+	{
+		flags |= FlagProcedure;
+		if(std::get_if<ExternalReference>(&procedure_info.value().frame_pointer))
+		{
+			flags |= FlagExternal;
+		}
+	}
+	wr.WriteWord(1, flags);
+	if(name_and_type)
+	{
+		OMF86Format::WriteIndex(wr, name_and_type.value().type.index);
+	}
+	if(procedure_info)
+	{
+		if(auto * reference = std::get_if<ExternalReference>(&procedure_info.value().frame_pointer))
+		{
+			wr.WriteWord(2, *reference);
+		}
+		else if(auto * reference = std::get_if<LocalReference>(&procedure_info.value().frame_pointer))
+		{
+			wr.WriteWord(1, *reference);
+		}
+		wr.WriteWord(2, procedure_info.value().return_offset);
+		wr.WriteWord(1, procedure_info.value().prologue_size);
+	}
+}
+
+void OMF96Format::BlockDefinitionRecord::CalculateValues(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
+void OMF96Format::BlockDefinitionRecord::ResolveReferences(OMF96Format * omf, Module * mod)
+{
+	// TODO
+}
+
 //// OMF96Format
 
 std::shared_ptr<OMF96Format::Record> OMF96Format::ReadRecord(Linker::Reader& rd)
@@ -5471,28 +6170,48 @@ std::shared_ptr<OMF96Format::Record> OMF96Format::ReadRecord(Linker::Reader& rd)
 	std::shared_ptr<Record> record;
 	switch(record_type)
 	{
-#if 0
 	case ModuleHeader:
+		record = std::make_shared<ModuleHeaderRecord>(record_type_t(record_type));
+		break;
 	case ModuleEnd:
-#endif
+		record = std::make_shared<ModuleEndRecord>(record_type_t(record_type));
+		break;
 	case Content:
 		record = std::make_shared<ContentRecord>(record_type_t(record_type));
 		break;
 	case LineNumbers:
 		record = std::make_shared<LineNumbersRecord>(record_type_t(record_type));
 		break;
-#if 0
 	case BlockDefinition:
+		record = std::make_shared<BlockDefinitionRecord>(record_type_t(record_type));
+		break;
 	case BlockEnd:
+		record = std::make_shared<EmptyRecord>(record_type_t(record_type));
+		break;
 	case EndOfFile:
+		record = std::make_shared<EmptyRecord>(record_type_t(record_type));
+		break;
 	case ModuleAncestor:
+		record = std::make_shared<ModuleAncestorRecord>(record_type_t(record_type));
+		break;
 	case LocalSymbols:
-	case TypeDefinitions:
+		record = std::make_shared<SymbolDefinitionsRecord>(record_type_t(record_type));
+		break;
+	case TypeDefinition:
+		record = std::make_shared<TypeDefinitionRecord>(record_type_t(record_type));
+		break;
 	case PublicDefinitions:
+		record = std::make_shared<SymbolDefinitionsRecord>(record_type_t(record_type));
+		break;
 	case ExternalDefinitions:
+		record = std::make_shared<ExternalDefinitionsRecord>(record_type_t(record_type));
+		break;
 	case SegmentDefinitions:
+		record = std::make_shared<SegmentDefinitionsRecord>(record_type_t(record_type));
+		break;
 	case Relocations:
-#endif
+		record = std::make_shared<RelocationRecord>(record_type_t(record_type));
+		break;
 	case LibraryModuleLocations:
 		record = std::make_shared<LibraryModuleLocationsRecord>(record_type_t(record_type));
 		break;

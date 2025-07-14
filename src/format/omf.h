@@ -3002,6 +3002,8 @@ namespace OMF
 	public:
 		class Module;
 
+		typedef uint16_t index_t;
+
 		enum record_type_t : uint8_t
 		{
 			ModuleHeader = OMF80Format::ModuleHeader,
@@ -3013,7 +3015,7 @@ namespace OMF
 			EndOfFile = OMF80Format::EndOfFile,
 			ModuleAncestor = OMF80Format::ModuleAncestor,
 			LocalSymbols = OMF80Format::LocalSymbols,
-			TypeDefintions = 0x14,
+			TypeDefinition = 0x14,
 			PublicDefinitions = OMF80Format::PublicDefinitions,
 			ExternalDefinitions = OMF80Format::ExternalDefinitions,
 			SegmentDefinitions = 0x20, // different from OMF51 number
@@ -3037,9 +3039,399 @@ namespace OMF
 		/** @brief Parses and returns an instance of the next record */
 		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
 
+		typedef uint8_t segment_id_t;
+
+		static constexpr segment_id_t CodeSegment = 0;
+		static constexpr segment_id_t DataSegment = 1;
+		static constexpr segment_id_t RegisterSegment = 2;
+		static constexpr segment_id_t OverlaySegment = 3;
+		static constexpr segment_id_t StackSegment = 4;
+		static constexpr segment_id_t DynamicSymbol = 5;
+		static constexpr segment_id_t NullSegment = 6;
+		static constexpr segment_id_t SegmentTypeMask = 7;
+
+		static constexpr segment_id_t FlagBasedVariable = 0x40;
+
+		static constexpr segment_id_t FlagRelocatableSegment = 0x80;
+
+		enum alignment_t
+		{
+			AlignByte = 0,
+			AlignWord = 1,
+			AlignLong = 2,
+		};
+
+		class SegmentDefinition
+		{
+		public:
+			segment_id_t segment_id;
+		private:
+			union
+			{
+				alignment_t alignment; // for RelocatableSegment
+				uint16_t base_address;
+			};
+		public:
+			uint16_t size;
+
+			bool IsRelocatable() const
+			{
+				return segment_id & FlagRelocatableSegment;
+			}
+
+			bool IsAbsolute() const
+			{
+				return !IsRelocatable();
+			}
+
+			alignment_t GetAlignment() const
+			{
+				return IsRelocatable() ? alignment : alignment_t(-1);
+			}
+
+			uint16_t GetBaseAddress() const
+			{
+				return IsAbsolute() ? base_address : 0;
+			}
+
+			void MakeRelocatable(alignment_t rel_alignment)
+			{
+				segment_id |= FlagRelocatableSegment;
+				alignment = rel_alignment;
+			}
+
+			void MakeAbsolute(uint16_t address)
+			{
+				segment_id &= ~FlagRelocatableSegment;
+				base_address = address;
+			}
+
+			static SegmentDefinition ReadSegmentDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t GetSegmentDefinitionSize(OMF96Format * omf, Module * mod) const;
+			void WriteSegmentDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+		};
+
+		class TypeDefinitionRecord;
+
+		class TypeIndex
+		{
+		public:
+			index_t index;
+			std::shared_ptr<TypeDefinitionRecord> record;
+
+			TypeIndex(index_t index = 0)
+				: index(index)
+			{
+			}
+
+			void CalculateValues(OMF86Format * omf, Module * mod);
+			void ResolveReferences(OMF86Format * omf, Module * mod);
+		};
+
+		class ExternalDefinition
+		{
+		public:
+			std::string name;
+			TypeIndex type;
+
+			static ExternalDefinition ReadExternalDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t GetExternalDefinitionSize(OMF96Format * omf, Module * mod) const;
+			void WriteExternalDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+
+			void CalculateValues(OMF96Format * omf, Module * mod);
+			void ResolveReferences(OMF96Format * omf, Module * mod);
+		};
+
+		class SymbolDefinition
+		{
+		public:
+			uint16_t offset;
+			std::string name;
+			TypeIndex type;
+
+			static SymbolDefinition ReadSymbolDefinition(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			uint16_t GetSymbolDefinitionSize(OMF96Format * omf, Module * mod) const;
+			void WriteSymbolDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+
+			void CalculateValues(OMF96Format * omf, Module * mod);
+			void ResolveReferences(OMF96Format * omf, Module * mod);
+		};
+
+		class ModuleHeaderRecord : public Record
+		{
+		public:
+			std::string name;
+			uint8_t translator_id;
+			std::string date_time;
+
+			static constexpr uint8_t Version14 = 0xE0;
+			static constexpr uint8_t Version20 = 0xE4;
+			static constexpr uint8_t Translator = 0x00;
+			static constexpr uint8_t Linker = 0x01;
+
+			ModuleHeaderRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+		};
+
+		class ModuleEndRecord : public Record
+		{
+		public:
+			bool main;
+			bool valid;
+
+			static constexpr uint8_t MainModule = 0x01;
+			static constexpr uint8_t OtherModule = 0x00;
+
+			static constexpr uint8_t ValidModule = 0x00;
+			static constexpr uint8_t ErroneousModule = 0x01;
+
+			ModuleEndRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+		};
+
+		class SegmentDefinitionsRecord : public Record
+		{
+		public:
+			std::vector<SegmentDefinition> segment_definitions;
+
+			SegmentDefinitionsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF96Format * omf, Module * mod) override;
+			void ResolveReferences(OMF96Format * omf, Module * mod) override;
+		};
+
+		class TypeDefinitionRecord : public Record, public std::enable_shared_from_this<TypeDefinitionRecord>
+		{
+		public:
+			class LeafDescriptor
+			{
+			public:
+				bool nice; // easy if false
+
+				/** @brief Represents a null leaf */
+				struct Null { };
+				/** @brief Represents a final repeat leaf, meaning that the data in this type should be repeated indefinitely */
+				struct Repeat { };
+				// TODO: document
+				struct EndOfBranch { };
+
+				std::variant<Null, int32_t, std::string, TypeIndex, Repeat, EndOfBranch> leaf = Null();
+
+				/** @brief Type byte for a null leaf */
+				static constexpr uint8_t NullLeaf = 0x64;
+				/** @brief Type byte for an signed 16-bit leaf */
+				static constexpr uint8_t SignedNumericLeaf16 = 0x65;
+				/** @brief Type byte for an signed 32-bit leaf */
+				static constexpr uint8_t SignedNumericLeaf32 = 0x66;
+				/** @brief Type byte for a string leaf */
+				static constexpr uint8_t StringLeaf = 0x67;
+				/** @brief Type byte for an index leaf, usually a type index */
+				static constexpr uint8_t IndexLeaf = 0x68;
+				/** @brief Type byte for a repeat leaf leaf */
+				static constexpr uint8_t RepeatLeaf = 0x69;
+				/** @brief Type byte for an end of branch leaf */
+				static constexpr uint8_t EndOfBranchLeaf = 0x6A;
+
+				static LeafDescriptor ReadLeaf(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t GetLeafSize(OMF96Format * omf, Module * mod) const;
+				void WriteLeaf(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+
+				void CalculateValues(OMF96Format * omf, Module * mod);
+				void ResolveReferences(OMF96Format * omf, Module * mod);
+			};
+
+			/** @brief The parameters of this type */
+			std::vector<LeafDescriptor> leafs;
+
+			TypeDefinitionRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF96Format * omf, Module * mod) override;
+			void ResolveReferences(OMF96Format * omf, Module * mod) override;
+		};
+
+		class SymbolDefinitionsRecord : public Record
+		{
+		public:
+			segment_id_t segment_id;
+			std::vector<SymbolDefinition> symbol_definitions;
+
+			SymbolDefinitionsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF96Format * omf, Module * mod) override;
+			void ResolveReferences(OMF96Format * omf, Module * mod) override;
+		};
+
+		class ExternalDefinitionsRecord : public Record
+		{
+		public:
+			segment_id_t segment_id;
+			std::vector<ExternalDefinition> external_definitions;
+
+			ExternalDefinitionsRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF96Format * omf, Module * mod) override;
+			void ResolveReferences(OMF96Format * omf, Module * mod) override;
+		};
+
+		class RelocationRecord : public Record
+		{
+		public:
+			class Relocation
+			{
+			public:
+				typedef segment_id_t LocalReference;
+				typedef uint16_t ExternalReference;
+
+				enum reference_type_t
+				{
+					RegisterSimple = 0,
+					RegisterAutoIncrement = 1,
+					ShiftCountImmediate = 2,
+					ShiftCountRegister = 3,
+					ByteConstant = 4,
+					ShortJump = 6,
+					MediumJump = 7,
+					MediumCall = 8,
+					LongJumpCall = 9,
+					LongDirect = 10,
+				};
+
+				static constexpr uint8_t FlagAddendInCode = 0x40;
+				static constexpr uint8_t FlagExternal = 0x80;
+
+				uint16_t offset;
+				std::variant<LocalReference, ExternalReference> reference = LocalReference(0);
+				std::optional<uint16_t> addend;
+				reference_type_t reference_type;
+				alignment_t alignment;
+
+				static Relocation ReadRelocation(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+				uint16_t GetRelocationSize(OMF96Format * omf, Module * mod) const;
+				void WriteRelocation(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
+			};
+
+			std::vector<Relocation> relocations;
+
+			RelocationRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF96Format * omf, Module * mod) override;
+			void ResolveReferences(OMF96Format * omf, Module * mod) override;
+		};
+
+		class ModuleAncestorRecord : public Record
+		{
+		public:
+			std::string name;
+			std::optional<SegmentDefinition> segment_definition;
+
+			ModuleAncestorRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF96Format * omf, Module * mod) override;
+			void ResolveReferences(OMF96Format * omf, Module * mod) override;
+		};
+
+		class BlockDefinitionRecord : public Record
+		{
+		public:
+			class BlockNameAndType
+			{
+			public:
+				std::string name;
+				TypeIndex type;
+			};
+
+			typedef segment_id_t LocalReference;
+			typedef uint16_t ExternalReference;
+
+			class ProcedureInformation
+			{
+			public:
+				std::variant<LocalReference, ExternalReference> frame_pointer = LocalReference(0);
+				uint16_t return_offset;
+				uint8_t prologue_size;
+			};
+
+			segment_id_t segment_id;
+			uint16_t offset;
+			uint16_t size;
+			std::optional<BlockNameAndType> name_and_type;
+			std::optional<ProcedureInformation> procedure_info;
+
+			BlockDefinitionRecord(record_type_t record_type = record_type_t(0))
+				: Record(record_type)
+			{
+			}
+
+			static constexpr uint8_t FlagProcedure = 0x40;
+			static constexpr uint8_t FlagExternal = 0x80;
+
+			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
+			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
+
+			void CalculateValues(OMF96Format * omf, Module * mod) override;
+			void ResolveReferences(OMF96Format * omf, Module * mod) override;
+		};
+
 		class Module
 		{
-			// TODO
+		public:
+			std::map<segment_id_t, SegmentDefinition> segment_definitions;
+			std::vector<std::shared_ptr<TypeDefinitionRecord>> type_definitions;
 		};
 
 		/** @brief The ordered collection of records contained in the file */
