@@ -4193,6 +4193,8 @@ void OMF86Format::ReadFile(Linker::Reader& rd)
 	{
 		ReadRecord(rd);
 	}
+
+	file_size = rd.Tell();
 }
 
 offset_t OMF86Format::WriteFile(Linker::Writer& wr) const
@@ -4207,10 +4209,25 @@ void OMF86Format::Dump(Dumper::Dumper& dump) const
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("Intel OMF-86 format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, file_size, 8);
 	file_region.Display(dump);
 
-	// TODO
+	size_t record_index = 0;
+	ssize_t module_index = -1;
+	for(auto record : records)
+	{
+		if(size_t(module_index + 1) < modules.size() && modules[module_index + 1].first_record == record_index)
+		{
+			module_index ++;
+
+			Dumper::Region module_region("Module", record->record_offset, records[record_index + modules[module_index].record_count - 1]->RecordEnd() + 1 - record->record_offset, 8);
+			module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(module_index + 1));
+			module_region.Display(dump);
+		}
+
+		record->Dump(dump, this, module_index >= 0 ? &modules[module_index] : nullptr, record_index);
+		record_index++;
+	}
 }
 
 void OMF86Format::GenerateModule(Linker::Module& module) const
@@ -4729,6 +4746,8 @@ void OMF80Format::ReadFile(Linker::Reader& rd)
 	{
 		ReadRecord(rd);
 	}
+
+	file_size = rd.Tell();
 }
 
 offset_t OMF80Format::WriteFile(Linker::Writer& wr) const
@@ -5437,6 +5456,8 @@ void OMF51Format::ReadFile(Linker::Reader& rd)
 	{
 		ReadRecord(rd);
 	}
+
+	file_size = rd.Tell();
 }
 
 offset_t OMF51Format::WriteFile(Linker::Writer& wr) const
@@ -6255,6 +6276,8 @@ void OMF96Format::ReadFile(Linker::Reader& rd)
 	{
 		ReadRecord(rd);
 	}
+
+	file_size = rd.Tell();
 }
 
 offset_t OMF96Format::WriteFile(Linker::Writer& wr) const

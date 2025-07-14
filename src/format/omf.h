@@ -149,6 +149,16 @@ namespace OMF
 			{
 			}
 
+			virtual void Dump(Dumper::Dumper& dump, const FormatType * omf, const ModuleType * mod, size_t record_index) const
+			{
+				// TODO: might be Dumper::Block
+				Dumper::Region record_region("Record", record_offset, RecordEnd() + 1 - record_offset, 8);
+				record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+				record_region.AddField("Record type", Dumper::HexDisplay::Make(2), offset_t(record_type));
+				// TODO: additional fields
+				record_region.Display(dump);
+			}
+
 			/** @brief Records are 32-bit if the least significant bit of their record type is set (only meaningful for OMF86Format) */
 			bool Is32Bit(FormatType * omf) const
 			{
