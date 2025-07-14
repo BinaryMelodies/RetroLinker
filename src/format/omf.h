@@ -76,6 +76,18 @@ namespace OMF
 		/** @brief Writes a string prefixed with a length byte */
 		static void WriteString(ChecksumWriter& wr, std::string text);
 
+		/** @brief An index referring to an element or definition in the file, typically stored as 1 or 2 bytes, used for OMF86 and OMF96 */
+		typedef uint16_t index_t;
+
+		/** @brief Parses a 1 or 2 byte index value */
+		static index_t ReadIndex(Linker::Reader& rd);
+
+		/** @brief Produces a 1 or 2 byte index value */
+		static void WriteIndex(ChecksumWriter& wr, index_t index);
+
+		/** @brief Determines if the index value requires 1 or 2 bytes to store */
+		static size_t IndexSize(index_t index);
+
 		/**
 		 * @brief Base class representing OMF record types
 		 *
@@ -400,18 +412,6 @@ namespace OMF
 		static constexpr unsigned int FlagPharLap = 0x20;
 		/** @brief Flag binary or'ed to certain values to mark TIS interpretation */
 		static constexpr unsigned int FlagTIS = 0x30;
-
-		/** @brief An index referring to an element or definition in the file, typically stored as 1 or 2 bytes */
-		typedef uint16_t index_t;
-
-		/** @brief Parses a 1 or 2 byte index value */
-		static index_t ReadIndex(Linker::Reader& rd);
-
-		/** @brief Produces a 1 or 2 byte index value */
-		static void WriteIndex(ChecksumWriter& wr, index_t index);
-
-		/** @brief Determines if the index value requires 1 or 2 bytes to store */
-		static size_t IndexSize(index_t index);
 
 		/** @brief Reference types for relocations, for targets and frames */
 		enum

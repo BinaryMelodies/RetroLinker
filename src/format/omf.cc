@@ -20,6 +20,41 @@ void OMFFormat::WriteString(ChecksumWriter& wr, std::string text)
 	wr.WriteData(text);
 }
 
+OMFFormat::index_t OMFFormat::ReadIndex(Linker::Reader& rd)
+{
+	index_t index = rd.ReadUnsigned(1);
+	if((index & 0x80))
+	{
+		index = ((index & 0x7F) << 8) | rd.ReadUnsigned(1);
+	}
+	return index;
+}
+
+void OMFFormat::WriteIndex(ChecksumWriter& wr, index_t index)
+{
+	if(index < 0x80)
+	{
+		wr.WriteWord(1, index);
+	}
+	else
+	{
+		wr.WriteWord(1, (index >> 8) | 0x80);
+		wr.WriteWord(1, index);
+	}
+}
+
+size_t OMFFormat::IndexSize(index_t index)
+{
+	if(index < 0x80)
+	{
+		return 1;
+	}
+	else
+	{
+		return 2;
+	}
+}
+
 std::shared_ptr<OMFFormat> OMFFormat::ReadOMFFile(Linker::Reader& rd)
 {
 	rd.endiantype = LittleEndian;
@@ -3979,41 +4014,6 @@ void OMF86Format::TISLibraryEndRecord::WriteRecord(OMF86Format * omf, Module * m
 
 //// OMF86Format
 
-OMF86Format::index_t OMF86Format::ReadIndex(Linker::Reader& rd)
-{
-	index_t index = rd.ReadUnsigned(1);
-	if((index & 0x80))
-	{
-		index = ((index & 0x7F) << 8) | rd.ReadUnsigned(1);
-	}
-	return index;
-}
-
-void OMF86Format::WriteIndex(ChecksumWriter& wr, index_t index)
-{
-	if(index < 0x80)
-	{
-		wr.WriteWord(1, index);
-	}
-	else
-	{
-		wr.WriteWord(1, (index >> 8) | 0x80);
-		wr.WriteWord(1, index);
-	}
-}
-
-size_t OMF86Format::IndexSize(index_t index)
-{
-	if(index < 0x80)
-	{
-		return 1;
-	}
-	else
-	{
-		return 2;
-	}
-}
-
 std::shared_ptr<OMF86Format::Record> OMF86Format::ReadRecord(Linker::Reader& rd)
 {
 	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
@@ -5503,19 +5503,19 @@ OMF96Format::ExternalDefinition OMF96Format::ExternalDefinition::ReadExternalDef
 {
 	ExternalDefinition external_definition;
 	external_definition.name = ReadString(rd);
-	external_definition.type.index = OMF86Format::ReadIndex(rd);
+	external_definition.type.index = ReadIndex(rd);
 	return external_definition;
 }
 
 uint16_t OMF96Format::ExternalDefinition::GetExternalDefinitionSize(OMF96Format * omf, Module * mod) const
 {
-	return 1 + name.size() + OMF86Format::IndexSize(type.index);
+	return 1 + name.size() + IndexSize(type.index);
 }
 
 void OMF96Format::ExternalDefinition::WriteExternalDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	WriteString(wr, name);
-	OMF86Format::WriteIndex(wr, type.index);
+	WriteIndex(wr, type.index);
 }
 
 void OMF96Format::ExternalDefinition::CalculateValues(OMF96Format * omf, Module * mod)
@@ -5535,20 +5535,20 @@ OMF96Format::SymbolDefinition OMF96Format::SymbolDefinition::ReadSymbolDefinitio
 	SymbolDefinition symbol_definition;
 	symbol_definition.offset = rd.ReadUnsigned(2);
 	symbol_definition.name = ReadString(rd);
-	symbol_definition.type.index = OMF86Format::ReadIndex(rd);
+	symbol_definition.type.index = ReadIndex(rd);
 	return symbol_definition;
 }
 
 uint16_t OMF96Format::SymbolDefinition::GetSymbolDefinitionSize(OMF96Format * omf, Module * mod) const
 {
-	return 3 + name.size() + OMF86Format::IndexSize(type.index);
+	return 3 + name.size() + IndexSize(type.index);
 }
 
 void OMF96Format::SymbolDefinition::WriteSymbolDefinition(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
 {
 	wr.WriteWord(2, offset);
 	WriteString(wr, name);
-	OMF86Format::WriteIndex(wr, type.index);
+	WriteIndex(wr, type.index);
 }
 
 void OMF96Format::SymbolDefinition::CalculateValues(OMF96Format * omf, Module * mod)
@@ -5663,7 +5663,7 @@ OMF96Format::TypeDefinitionRecord::LeafDescriptor OMF96Format::TypeDefinitionRec
 		leaf_descriptor.leaf = ReadString(rd);
 		break;
 	case IndexLeaf:
-		leaf_descriptor.leaf = TypeIndex(OMF86Format::ReadIndex(rd));
+		leaf_descriptor.leaf = TypeIndex(ReadIndex(rd));
 		break;
 	case RepeatLeaf:
 		leaf_descriptor.leaf = Repeat();
@@ -5709,7 +5709,7 @@ uint16_t OMF96Format::TypeDefinitionRecord::LeafDescriptor::GetLeafSize(OMF96For
 	}
 	else if(auto indexp = std::get_if<TypeIndex>(&leaf))
 	{
-		return 1 + OMF86Format::IndexSize(indexp->index);
+		return 1 + IndexSize(indexp->index);
 	}
 	else if(std::get_if<Repeat>(&leaf))
 	{
@@ -5757,7 +5757,7 @@ void OMF96Format::TypeDefinitionRecord::LeafDescriptor::WriteLeaf(OMF96Format * 
 	else if(auto indexp = std::get_if<TypeIndex>(&leaf))
 	{
 		wr.WriteWord(1, leaf_type | IndexLeaf);
-		OMF86Format::WriteIndex(wr, indexp->index);
+		WriteIndex(wr, indexp->index);
 	}
 	else if(std::get_if<Repeat>(&leaf))
 	{
@@ -6062,7 +6062,7 @@ void OMF96Format::BlockDefinitionRecord::ReadRecordContents(OMF96Format * omf, M
 	bool is_proc = flags & FlagProcedure;
 	if(!(!is_proc && name == ""))
 	{
-		name_and_type = BlockNameAndType { .name = name, .type = TypeIndex(OMF86Format::ReadIndex(rd)) };
+		name_and_type = BlockNameAndType { .name = name, .type = TypeIndex(ReadIndex(rd)) };
 	}
 	if(is_proc)
 	{
@@ -6090,7 +6090,7 @@ uint16_t OMF96Format::BlockDefinitionRecord::GetRecordSize(OMF96Format * omf, Mo
 	}
 	if(name_and_type)
 	{
-		bytes += OMF86Format::IndexSize(name_and_type.value().type.index);
+		bytes += IndexSize(name_and_type.value().type.index);
 	}
 	if(procedure_info)
 	{
@@ -6132,7 +6132,7 @@ void OMF96Format::BlockDefinitionRecord::WriteRecordContents(OMF96Format * omf, 
 	wr.WriteWord(1, flags);
 	if(name_and_type)
 	{
-		OMF86Format::WriteIndex(wr, name_and_type.value().type.index);
+		WriteIndex(wr, name_and_type.value().type.index);
 	}
 	if(procedure_info)
 	{
