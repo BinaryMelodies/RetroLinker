@@ -2701,7 +2701,7 @@ namespace OMF
 		class ExternalDefinition
 		{
 		public:
-			uint8_t block_id;
+			uint8_t block_id = 2;
 			uint8_t external_id;
 			SymbolInfo info;
 			std::string name;
@@ -2973,7 +2973,7 @@ namespace OMF
 		{
 		public:
 			std::map<uint8_t, SegmentDefinition> segment_definitions;
-			// TODO
+			std::map<uint8_t, ExternalDefinition> external_definitions;
 		};
 
 		/** @brief The ordered collection of records contained in the file */

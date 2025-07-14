@@ -4954,7 +4954,8 @@ void OMF51Format::SegmentDefinitionsRecord::ReadRecordContents(OMF51Format * omf
 	while(rd.Tell() < RecordEnd())
 	{
 		segment_definitions.push_back(SegmentDefinition::ReadSegmentDefinition(omf, mod, rd));
-		// TODO: record segment definitions in module
+		auto& segment_definition = segment_definitions.back();
+		mod->segment_definitions[segment_definition.segment_id] = segment_definition; // TODO: check it is not duplicated
 	}
 }
 
@@ -5032,7 +5033,8 @@ void OMF51Format::ExternalDefinitionsRecord::ReadRecordContents(OMF51Format * om
 	while(rd.Tell() < RecordEnd())
 	{
 		external_definitions.push_back(ExternalDefinition::ReadExternalDefinition(omf, mod, rd));
-		// TODO: record external definitions in module
+		auto& external_definition = external_definitions.back();
+		mod->external_definitions[external_definition.external_id] = external_definition; // TODO: check it is not duplicated
 	}
 }
 
