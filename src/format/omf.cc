@@ -4015,6 +4015,66 @@ void OMF86Format::TISLibraryEndRecord::WriteRecord(OMF86Format * omf, Module * m
 
 //// OMF86Format
 
+const std::map<offset_t, std::string> OMF86Format::RecordTypeNames =
+{
+	{ OMF86Format::RHEADR, "RHEADR - R-Module header record" },
+	{ OMF86Format::REGINT, "REGINT - Register initialization record" },
+	{ OMF86Format::REDATA, "REDATA - Relocatable enumerated data record" },
+	{ OMF86Format::RIDATA, "RIDATA - Relocatable iterated data record" },
+	{ OMF86Format::OVLDEF, "OVLDEF - Overlay definition record" },
+	{ OMF86Format::ENDREC, "ENDREC - End record" },
+	{ OMF86Format::BLKDEF, "BLKDEF - Block definition record" },
+	{ OMF86Format::BLKEND, "BLKEND - Block end record" },
+	{ OMF86Format::DEBSYM, "DEBSYM - Debug symbols record" },
+	{ OMF86Format::THEADR, "THEADR - Translator module header record" },
+	{ OMF86Format::LHEADR, "LHEADR - Library module header record" },
+	{ OMF86Format::PEDATA, "PEDATA - Physical enumerated data record" },
+	{ OMF86Format::PIDATA, "PIDATA - Physical iterated data record" },
+	{ OMF86Format::COMENT, "COMENT - Comment record" },
+	{ OMF86Format::MODEND16, "MODEND - Module end record" },
+	{ OMF86Format::MODEND32, "MODEND - Module end record" },
+	{ OMF86Format::EXTDEF, "EXTDEF - External names definition record" },
+	{ OMF86Format::TYPDEF, "TYPDEF - Type definition record" },
+	{ OMF86Format::PUBDEF16, "PUBDEF - Public names definition record" },
+	{ OMF86Format::PUBDEF32, "PUBDEF - Public names definition record" },
+	{ OMF86Format::LOCSYM, "LOCSYM - Local symbols record" },
+	{ OMF86Format::LINNUM, "LINNUM - Line numbers record" },
+	{ OMF86Format::LNAMES, "LNAMES - List of names record" },
+	{ OMF86Format::SEGDEF, "SEGDEF - Segment definition record" },
+	{ OMF86Format::GRPDEF, "GRPDEF - Group definition record" },
+	{ OMF86Format::FIXUPP16, "FIXUPP - Fixup record" },
+	{ OMF86Format::FIXUPP32, "FIXUPP - Fixup record" },
+	{ OMF86Format::LEDATA16, "LEDATA - Logical enumerated data record" },
+	{ OMF86Format::LEDATA32, "LEDATA - Logical enumerated data record" },
+	{ OMF86Format::LIDATA16, "LIDATA - Logical iterated data record" },
+	{ OMF86Format::LIDATA32, "LIDATA - Logical iterated data record" },
+	{ OMF86Format::LIBHED, "LIBHED - Library header record (Intel)" },
+	{ OMF86Format::LIBNAM, "LIBNAM - Library module names record (Intel)" },
+	{ OMF86Format::LIBLOC, "LIBLOC - Library module locations record (Intel)" },
+	{ OMF86Format::LIBDIC, "LIBDIC - Library dictionary record (Intel)" },
+	{ OMF86Format::COMDEF, "COMDEF - Communal names definintion record" },
+	{ OMF86Format::BAKPAT16, "BAKPAT - Backpatch record" },
+	{ OMF86Format::BAKPAT32, "BAKPAT - Backpatch record" },
+	{ OMF86Format::LEXTDEF16, "LEXTDEF - Local external names definition record" },
+	{ OMF86Format::LEXTDEF32, "LEXTDEF - Local external names definition record" },
+	{ OMF86Format::LPUBDEF16, "LPUBDEF - Local public names definition record" },
+	{ OMF86Format::LPUBDEF32, "LPUBDEF - Local public names definition record" },
+	{ OMF86Format::LCOMDEF, "LCOMDEF - Local communal names definition record" },
+	{ OMF86Format::CEXTDEF, "CEXTDEF - COMDAT external names definition record" },
+	{ OMF86Format::COMDAT16, "COMDAT - Initialized communal data record" },
+	{ OMF86Format::COMDAT32, "COMDAT - Initialized communal data record" },
+	{ OMF86Format::LINSYM16, "LINSYM - Symbol line numbers record" },
+	{ OMF86Format::LINSYM32, "LINSYM - Symbol line numbers record" },
+	{ OMF86Format::ALIAS, "ALIAS - Alias definition record" },
+	{ OMF86Format::NBKPAT16, "NBKPAT - Named backpatch record" },
+	{ OMF86Format::NBKPAT32, "NBKPAT - Named backpatch record" },
+	{ OMF86Format::LLNAMES, "LLNAMES - Local logical names definition record" },
+	{ OMF86Format::VERNUM, "VERNUM - OMF version number record" },
+	{ OMF86Format::VENDEXT, "VENDEXT - Vendor-specific OMF extension record" },
+	{ OMF86Format::LibraryHeader, "Library header record (TIS)" },
+	{ OMF86Format::LibraryEnd, "Library end record (TIS)" },
+};
+
 std::shared_ptr<OMF86Format::Record> OMF86Format::ReadRecord(Linker::Reader& rd)
 {
 	Module * mod = modules.size() > 0 ? &modules.back() : nullptr;
@@ -4180,6 +4240,11 @@ std::shared_ptr<OMF86Format> OMF86Format::ReadOMFFile(Linker::Reader& rd)
 	std::shared_ptr<OMF86Format> omf = std::make_shared<OMF86Format>();
 	omf->ReadFile(rd);
 	return omf;
+}
+
+void OMF86Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF86Format * omf, const Module * mod, size_t record_index)
+{
+	region.AddField("Record name", Dumper::ChoiceDisplay::Make(RecordTypeNames, "unknown"), offset_t(record->record_type));
 }
 
 void OMF86Format::ReadFile(Linker::Reader& rd)
@@ -4733,6 +4798,11 @@ std::shared_ptr<OMF80Format> OMF80Format::ReadOMFFile(Linker::Reader& rd)
 	std::shared_ptr<OMF80Format> omf = std::make_shared<OMF80Format>();
 	omf->ReadFile(rd);
 	return omf;
+}
+
+void OMF80Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF80Format * omf, const Module * mod, size_t record_index)
+{
+	// TODO
 }
 
 void OMF80Format::ReadFile(Linker::Reader& rd)
@@ -5443,6 +5513,11 @@ std::shared_ptr<OMF51Format> OMF51Format::ReadOMFFile(Linker::Reader& rd)
 	std::shared_ptr<OMF51Format> omf = std::make_shared<OMF51Format>();
 	omf->ReadFile(rd);
 	return omf;
+}
+
+void OMF51Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF51Format * omf, const Module * mod, size_t record_index)
+{
+	// TODO
 }
 
 void OMF51Format::ReadFile(Linker::Reader& rd)
@@ -6263,6 +6338,11 @@ std::shared_ptr<OMF96Format> OMF96Format::ReadOMFFile(Linker::Reader& rd)
 	std::shared_ptr<OMF96Format> omf = std::make_shared<OMF96Format>();
 	omf->ReadFile(rd);
 	return omf;
+}
+
+void OMF96Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF96Format * omf, const Module * mod, size_t record_index)
+{
+	// TODO
 }
 
 void OMF96Format::ReadFile(Linker::Reader& rd)
