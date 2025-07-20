@@ -3,6 +3,6 @@
 
 using namespace Linker;
 
-template class TableSection<Word<uint32_t>>;
-template class TableSection<Word<uint64_t>>;
+template class Linker::TableSection<Word<uint32_t>>;
+template class Linker::TableSection<Word<uint64_t>>;
 
