@@ -2395,9 +2395,9 @@ void MacBinary::WriteData(Linker::Writer& wr, size_t count, std::string text) co
 
 void MacBinary::WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const
 {
-	uint8_t data[bytes];
-	::WriteWord(bytes, bytes, data, value, EndianType::BigEndian);
-	WriteData(wr, bytes, data);
+	std::vector<uint8_t> data(bytes);
+	::WriteWord(bytes, bytes, data.data(), value, EndianType::BigEndian);
+	WriteData(wr, bytes, data.data());
 }
 
 void MacBinary::WriteHeader(Linker::Writer& wr) const

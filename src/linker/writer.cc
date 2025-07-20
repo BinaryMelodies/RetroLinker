@@ -29,17 +29,17 @@ size_t Writer::WriteData(const std::vector<uint8_t>& data, size_t offset)
 
 void Writer::WriteData(size_t count, std::string text, char padding)
 {
-	char data[count];
-	if(text.size() < sizeof data)
+	std::vector<char> data(count);
+	if(text.size() < count)
 	{
-		memcpy(data, text.c_str(), text.size());
-		memset(data + text.size(), padding, sizeof data - text.size());
+		memcpy(data.data(), text.c_str(), text.size());
+		memset(data.data() + text.size(), padding, count - text.size());
 	}
 	else
 	{
-		memcpy(data, text.c_str(), sizeof data);
+		memcpy(data.data(), text.c_str(), count);
 	}
-	out->write(data, count);
+	out->write(data.data(), count);
 }
 
 void Writer::WriteData(std::string text)
@@ -49,25 +49,26 @@ void Writer::WriteData(std::string text)
 
 void Writer::WriteData(size_t count, std::istream& in)
 {
-	char buffer[count < 4096 ? count : 4096];
+	const size_t buffer_size = std::min(count, size_t(4096));
+	std::vector<char> buffer(buffer_size);
 //Linker::Debug << "Write total " << count << std::endl;
 	while(count > 0)
 	{
-		offset_t byte_count = sizeof buffer;
+		offset_t byte_count = buffer_size;
 		if(byte_count > count)
 			byte_count = count;
 //Linker::Debug << "Write " << byte_count << " for total " << count << std::endl;
-		in.read(buffer, byte_count);
-		out->write(buffer, byte_count);
+		in.read(buffer.data(), byte_count);
+		out->write(buffer.data(), byte_count);
 		count -= byte_count;
 	}
 }
 
 void Writer::WriteWord(size_t bytes, uint64_t value, EndianType endiantype)
 {
-	uint8_t data[bytes];
-	::WriteWord(bytes, bytes, data, value, endiantype);
-	WriteData(bytes, data);
+	std::vector<uint8_t> data(bytes);
+	::WriteWord(bytes, bytes, data.data(), value, endiantype);
+	WriteData(bytes, data.data());
 }
 
 void Writer::WriteWord(size_t bytes, uint64_t value)

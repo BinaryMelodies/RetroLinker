@@ -390,9 +390,9 @@ size_t OMFFormat::Segment::ReadData(size_t bytes, offset_t offset, void * buffer
 
 offset_t OMFFormat::Segment::ReadUnsigned(size_t bytes, offset_t offset) const
 {
-	uint8_t buffer[bytes];
-	offset_t count = ReadData(bytes, offset, buffer);
-	return ::ReadUnsigned(bytes, count, buffer, GetEndianType());
+	std::vector<uint8_t> buffer(bytes);
+	offset_t count = ReadData(bytes, offset, buffer.data());
+	return ::ReadUnsigned(bytes, count, buffer.data(), GetEndianType());
 }
 
 offset_t OMFFormat::Segment::Expression::GetLength(const Segment& segment) const

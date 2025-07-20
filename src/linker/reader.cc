@@ -58,13 +58,13 @@ void Reader::ReadData(std::vector<uint8_t>& data, size_t offset)
 
 std::string Reader::ReadData(size_t count, bool terminate_at_null)
 {
-	char data[count];
-	ReadData(count, data);
+	std::vector<char> data(count);
+	ReadData(count, data.data());
 	if(terminate_at_null)
 	{
-		count = strnlen(data, count);
+		count = strnlen(data.data(), count);
 	}
-	return std::string(data, count);
+	return std::string(data.data(), count);
 }
 
 std::string Reader::ReadASCII(char terminator, size_t maximum)
@@ -85,9 +85,9 @@ std::string Reader::ReadASCIIZ(size_t maximum)
 
 uint64_t Reader::ReadUnsigned(size_t bytes, EndianType endiantype)
 {
-	uint8_t data[bytes];
-	ReadData(bytes, data);
-	return ::ReadUnsigned(bytes, bytes, data, endiantype);
+	std::vector<uint8_t> data(bytes);
+	ReadData(bytes, data.data());
+	return ::ReadUnsigned(bytes, bytes, data.data(), endiantype);
 }
 
 uint64_t Reader::ReadUnsigned(size_t bytes)
@@ -97,9 +97,9 @@ uint64_t Reader::ReadUnsigned(size_t bytes)
 
 uint64_t Reader::ReadSigned(size_t bytes, EndianType endiantype)
 {
-	uint8_t data[bytes];
-	ReadData(bytes, data);
-	return ::ReadSigned(bytes, bytes, data, endiantype);
+	std::vector<uint8_t> data(bytes);
+	ReadData(bytes, data.data());
+	return ::ReadSigned(bytes, bytes, data.data(), endiantype);
 }
 
 uint64_t Reader::ReadSigned(size_t bytes)
