@@ -1930,49 +1930,6 @@ namespace OMF
 			class TextCommentRecord;
 		};
 
-		class CommentRecord::GenericCommentRecord : public CommentRecord
-		{
-		public:
-			std::vector<uint8_t> data;
-
-			GenericCommentRecord(comment_class_t comment_class = comment_class_t(0))
-				: CommentRecord(comment_class)
-			{
-			}
-
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
-			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
-			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
-
-		class CommentRecord::EmptyCommentRecord : public CommentRecord
-		{
-		public:
-			EmptyCommentRecord(comment_class_t comment_class = comment_class_t(0))
-				: CommentRecord(comment_class)
-			{
-			}
-
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
-			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
-			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
-
-		class CommentRecord::TextCommentRecord : public CommentRecord
-		{
-		public:
-			std::string name;
-
-			TextCommentRecord(comment_class_t comment_class = comment_class_t(0))
-				: CommentRecord(comment_class)
-			{
-			}
-
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
-			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
-			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
-
 		class NoSegmentPaddingRecord : public CommentRecord
 		{
 		public:
@@ -2045,34 +2002,6 @@ namespace OMF
 
 			class GenericOMFExtensionRecord;
 			class EmptyOMFExtensionRecord;
-		};
-
-		class OMFExtensionRecord::GenericOMFExtensionRecord : public OMFExtensionRecord
-		{
-		public:
-			std::vector<uint8_t> data;
-
-			GenericOMFExtensionRecord(extension_type_t extension_type = extension_type_t(0))
-				: OMFExtensionRecord(extension_type)
-			{
-			}
-
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
-			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
-			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
-		};
-
-		class OMFExtensionRecord::EmptyOMFExtensionRecord : public OMFExtensionRecord
-		{
-		public:
-			EmptyOMFExtensionRecord(extension_type_t extension_type = extension_type_t(0))
-				: OMFExtensionRecord(extension_type)
-			{
-			}
-
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
-			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
-			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
 
 		class ImportDefinitionRecord : public OMFExtensionRecord
@@ -2233,6 +2162,77 @@ namespace OMF
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 		/* TODO */
+	};
+
+	class OMF86Format::CommentRecord::GenericCommentRecord : public CommentRecord
+	{
+	public:
+		std::vector<uint8_t> data;
+
+		GenericCommentRecord(comment_class_t comment_class = comment_class_t(0))
+			: CommentRecord(comment_class)
+		{
+		}
+
+		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
+		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
+	};
+
+	class OMF86Format::CommentRecord::EmptyCommentRecord : public CommentRecord
+	{
+	public:
+		EmptyCommentRecord(comment_class_t comment_class = comment_class_t(0))
+			: CommentRecord(comment_class)
+		{
+		}
+
+		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
+		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
+	};
+
+	class OMF86Format::CommentRecord::TextCommentRecord : public CommentRecord
+	{
+	public:
+		std::string name;
+
+		TextCommentRecord(comment_class_t comment_class = comment_class_t(0))
+			: CommentRecord(comment_class)
+		{
+		}
+
+		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
+		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
+	};
+
+	class OMF86Format::OMFExtensionRecord::GenericOMFExtensionRecord : public OMFExtensionRecord
+	{
+	public:
+		std::vector<uint8_t> data;
+
+		GenericOMFExtensionRecord(extension_type_t extension_type = extension_type_t(0))
+			: OMFExtensionRecord(extension_type)
+		{
+		}
+
+		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
+		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
+	};
+
+	class OMF86Format::OMFExtensionRecord::EmptyOMFExtensionRecord : public OMFExtensionRecord
+	{
+	public:
+		EmptyOMFExtensionRecord(extension_type_t extension_type = extension_type_t(0))
+			: OMFExtensionRecord(extension_type)
+		{
+		}
+
+		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
+		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 	};
 
 	/**
