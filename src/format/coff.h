@@ -724,6 +724,11 @@ namespace COFF
 		class FlexOSAOutHeader : public AOutHeader
 		{
 		public:
+			FlexOSAOutHeader(uint16_t magic = 0)
+				: AOutHeader(magic)
+			{
+			}
+
 			/**
 			 * @brief The offset to the crunched relocation data within the file
 			 */
@@ -1234,6 +1239,10 @@ namespace COFF
 			 * @brief Stored as the magic of the a.out header
 			 */
 			ZMAGIC = 0x010B,
+			/**
+			 * @brief Magic number required by FlexOS 386
+			 */
+			MAGIC_FLEXOS386 = 0x01C0,
 		};
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;

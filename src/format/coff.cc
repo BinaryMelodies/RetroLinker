@@ -1286,7 +1286,7 @@ void COFFFormat::ReadOptionalHeader(Linker::Reader& rd)
 		}
 		break;
 	case 36:
-		/* CDOS68K */
+		/* CDOS68K and CDOS386 (FlexOS) */
 		if(cpu_type == CPU_M68K || cpu_type == CPU_I386)
 		{
 			optional_header = std::make_unique<FlexOSAOutHeader>();
@@ -2024,6 +2024,7 @@ unsigned COFFFormat::FormatAdditionalSectionFlags(std::string section_name) cons
 {
 	if((type == CDOS68K || type == CDOS386) && (section_name == ".stack" || section_name.rfind(".stack.", 0) == 0))
 	{
+		// FlexOS
 		return Linker::Section::Stack;
 	}
 	else
@@ -2106,6 +2107,7 @@ void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else if((type == CDOS68K || type == CDOS386) && segment->name == ".stack")
 	{
+		// FlexOS
 		if(stack != nullptr)
 		{
 			Linker::Error << "Error: Duplicate `.stack` segment, ignoring" << std::endl;
@@ -2135,6 +2137,7 @@ void COFFFormat::CreateDefaultSegments()
 	}
 	if((type == CDOS68K || type == CDOS386) && stack == nullptr)
 	{
+		// FlexOS
 		stack = std::make_shared<Linker::Segment>(".stack");
 	}
 }
@@ -2194,18 +2197,48 @@ std::unique_ptr<Script::List> COFFFormat::GetScript(Linker::Module& module)
 };
 )";
 
+	static const char * SimpleScript_cdos386 = R"(
+".code"
+{
+	at 0x1000;
+	all not write align 4;
+	align 4;
+};
+
+".stack"
+{
+	at align(here, 4);
+	all ".stack" align 4;
+	align 4;
+};
+
+".data"
+{
+	at align(here, 0x1000);
+	all not zero align 4;
+	align 4;
+};
+
+".bss"
+{
+	all align 4;
+	align 4;
+};
+)";
+
 	if(linker_script != "")
 	{
 		return SegmentManager::GetScript(module);
 	}
 	else
 	{
-		if(type == CDOS68K || type == CDOS386)
+		switch(type)
 		{
+		case CDOS68K:
 			return Script::parse_string(SimpleScript_cdos68k);
-		}
-		else
-		{
+		case CDOS386:
+			return Script::parse_string(SimpleScript_cdos386);
+		default:
 			return Script::parse_string(SimpleScript);
 		}
 	}
@@ -2270,7 +2303,7 @@ void COFFFormat::ProcessModule(Linker::Module& module)
 		rel.WriteWord(resolution.value);
 		if(resolution.target != nullptr && resolution.reference == nullptr)
 		{
-			if(type == DJGPP)
+			if(type == DJGPP || type == CDOS386)
 			{
 				if(rel.kind == Linker::Relocation::SelectorIndex)
 				{
@@ -2281,7 +2314,7 @@ void COFFFormat::ProcessModule(Linker::Module& module)
 					Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
 				}
 			}
-			else if(option_no_relocation || type == CDOS386)
+			else if(option_no_relocation)
 			{
 				Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
 			}
@@ -2329,10 +2362,9 @@ void COFFFormat::CalculateValues()
 		optional_header = std::make_unique<AOutHeader>(ZMAGIC);
 		break;
 	case CDOS386:
-		/* TODO */
 		cpu_type = CPU_I386;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
-		optional_header = std::make_unique<FlexOSAOutHeader>();
+		optional_header = std::make_unique<FlexOSAOutHeader>(MAGIC_FLEXOS386);
 		break;
 	case CDOS68K:
 		cpu_type = CPU_M68K;
@@ -2404,7 +2436,7 @@ void COFFFormat::CalculateValues()
 		section->section_pointer = offset;
 		offset += image->data_size;
 	}
-	if(type == CDOS68K || type == CDOS386)
+	if(type == CDOS68K)
 	{
 		relocations_offset = offset;
 	}
@@ -2446,11 +2478,15 @@ void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
 		{
 			linker_parameters["code_base_address"] = Linker::Location(0x1000);
 		}
-		else
+		else if(type != CDOS386)
 		{
 			Linker::Warning << "Warning: no base address specified for .code, setting to 0" << std::endl;
 			linker_parameters["code_base_address"] = Linker::Location();
 		}
+	}
+	else if(type == CDOS386 && linker_parameters["code_base_address"] != 0x1000)
+	{
+		Linker::Warning << "Warning: base address ignored for .code, setting to 0x1000" << std::endl;
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);

@@ -211,8 +211,13 @@ format_specification formats[] =
 		[]() -> std::shared_ptr<Format> { return std::make_shared<CPM68KFormat>(CPM68KFormat::SYSTEM_HUMAN68K); },
 		"Human68k unrelocatable contiguous executable (.z)" },
 	/* COFF */
+	{ "cdos386",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::CDOS386); },
+		"COFF (80386) executable for FlexOS 386 (.386) [untested]" },
+	{ "cdos386_coff" },
+	{ "flexos386" },
 	{ "cdos68k_coff",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::CDOS68K); }, /* TODO: also 386 COFF writer */
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::CDOS68K); },
 		"COFF (68000) executable for Concurrent DOS 68K (.68k) [untested]" },
 	{ "djgpp",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::DJGPP); },
