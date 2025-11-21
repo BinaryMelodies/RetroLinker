@@ -28,22 +28,25 @@ static void usage_format(format_specification * fmtspec)
 {
 	std::cerr <<"\t\t" << fmtspec->documentation << std::endl;
 	std::shared_ptr<Linker::OutputFormat> fmt = std::dynamic_pointer_cast<Linker::OutputFormat>(fmtspec->produce());
-	std::shared_ptr<Linker::OptionCollector> opts = fmt->GetOptions();
-	for(auto option : opts->option_list)
+	if(fmt)
 	{
-		std::cerr << "\t\t\t-S" << option->name << "=<" << option->type_name() << ">\t" << option->description << std::endl;
-	}
-	for(auto& model : fmt->GetMemoryModelNames())
-	{
-		std::cerr << "\t\t\t-M" << model.name << "\t" << model.description << std::endl;
-	}
-	for(auto parameter : fmt->GetLinkerScriptParameterNames())
-	{
-		std::cerr << "\t\t\t-P" << parameter->name << "=<" << parameter->type_name() << ">\t" << parameter->description << std::endl;
-	}
-	for(auto& symbol : fmt->GetSpecialSymbolNames())
-	{
-		std::cerr << "\t\t\t-d" << symbol.name << "\t" << symbol.description << std::endl;
+		std::shared_ptr<Linker::OptionCollector> opts = fmt->GetOptions();
+		for(auto option : opts->option_list)
+		{
+			std::cerr << "\t\t\t-S" << option->name << "=<" << option->type_name() << ">\t" << option->description << std::endl;
+		}
+		for(auto& model : fmt->GetMemoryModelNames())
+		{
+			std::cerr << "\t\t\t-M" << model.name << "\t" << model.description << std::endl;
+		}
+		for(auto parameter : fmt->GetLinkerScriptParameterNames())
+		{
+			std::cerr << "\t\t\t-P" << parameter->name << "=<" << parameter->type_name() << ">\t" << parameter->description << std::endl;
+		}
+		for(auto& symbol : fmt->GetSpecialSymbolNames())
+		{
+			std::cerr << "\t\t\t-d" << symbol.name << "\t" << symbol.description << std::endl;
+		}
 	}
 }
 
