@@ -178,7 +178,7 @@ namespace AOut
 		static constexpr uint16_t MID_HPUX = 0x20C; // mentioned for FreeBSD and NetBSD
 
 		// according to a.out.h
-		static constexpr uint16_t MID_LINUX_SUN2 = 0x000;
+		static constexpr uint16_t MID_LINUX_OLDSUN2 = 0x000;
 		static constexpr uint16_t MID_LINUX_SPARC = 0x003;
 
 		// according to imgact_aout.h
@@ -321,10 +321,6 @@ namespace AOut
 
 		// for old DJGPP executables
 		mutable Microsoft::MZSimpleStubWriter stub;
-
-		static std::shared_ptr<AOutFormat> CreateWriter(system_type system, magic_type magic);
-
-		static std::shared_ptr<AOutFormat> CreateWriter(system_type system);
 
 		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
 		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;

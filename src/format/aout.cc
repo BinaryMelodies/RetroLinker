@@ -382,11 +382,45 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 
 void AOutFormat::ReadFile(Linker::Reader& rd)
 {
+	// note: bound EMX executables are not parsed here
+
 	uint8_t signature[4];
+
+	file_offset = rd.Tell();
+
+	if(file_offset != 0 && system == UNSPECIFIED)
+	{
+		// probably a DJGPP executable
+		system = DJGPP1;
+	}
+
 	rd.SeekEnd();
 	offset_t file_end = rd.Tell();
 	rd.Seek(file_offset);
 	rd.ReadData(sizeof(signature), signature);
+
+	if(file_offset == 0 && (system == UNSPECIFIED || system == DJGPP1)
+	&& ((signature[0] == 'M' && signature[1] == 'Z')
+		|| (signature[0] == 'Z' && signature[1] == 'M')))
+	{
+		// we were given a stubbed executable, attempt to find the actual a.out entry
+		rd.endiantype = ::LittleEndian;
+
+		rd.Seek(2);
+		uint32_t stub_size = rd.ReadUnsigned(2);
+		stub_size = (uint32_t(rd.ReadUnsigned(2)) << 9) - (-stub_size & 0x1FF);
+
+		if(stub_size < file_end)
+		{
+			// attempt to read as DJGPP executable
+			file_offset = stub_size;
+			system = DJGPP1;
+
+			rd.Seek(file_offset);
+			rd.ReadData(sizeof(signature), signature);
+		}
+	}
+
 	word_size = 4;
 
 	switch(system)
@@ -416,12 +450,13 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		{
 			/* could be multiple formats, make multiple attempts */
 			endiantype = midmag_endiantype = ::LittleEndian;
-			word_size = 2;
-			/* first attempt 16-bit little endian (PDP-11, most likely input format) */
+
+			word_size = file_offset ? 4 : 2;
+			/* if at beginning of file, first attempt 16-bit little endian (PDP-11, most likely input format) */
 			if(!AttemptReadFile(rd, signature, file_end - file_offset))
 			{
 				endiantype = midmag_endiantype = ::LittleEndian;
-				word_size = 4;
+				word_size = file_offset ? 2 : 4;
 				/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
 				if(!AttemptReadFile(rd, signature, file_end - file_offset))
 				{
@@ -858,13 +893,111 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 
 void AOutFormat::Dump(Dumper::Dumper& dump) const
 {
-	dump.SetEncoding(Dumper::Block::encoding_default);
+	switch(system)
+	{
+	default:
+	case UNSPECIFIED:
+	case LINUX:
+	case FREEBSD:
+	case NETBSD:
+		dump.SetEncoding(Dumper::Block::encoding_default);
+		break;
+	case DJGPP1:
+	case EMX:
+	case PDOS386:
+		dump.SetEncoding(Dumper::Block::encoding_cp437);
+		break;
+	}
 
 	dump.SetTitle("UNIX a.out format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 2 * word_size);
+
+	static const std::map<offset_t, std::string> system_descriptions =
+	{
+		{ LINUX, "Linux (pre-1.2)" },
+		{ FREEBSD, "FreeBSD (pre-3.0)" },
+		{ NETBSD, "NetBSD (pre-1.5)" },
+		{ DJGPP1, "DJGPP (pre-1.11)" },
+		{ PDOS386, "PDOS386" },
+		{ EMX, "EMX" },
+	};
+	file_region.AddOptionalField("Parsing as", Dumper::ChoiceDisplay::Make(system_descriptions), offset_t(system));
+	static const std::map<offset_t, std::string> wordsize_descriptions =
+	{
+		{ 2, "16-bit" },
+		{ 4, "32-bit" },
+	};
+	file_region.AddField("Word size", Dumper::ChoiceDisplay::Make(wordsize_descriptions), offset_t(word_size));
+	static const std::map<offset_t, std::string> endiantype_descriptions =
+	{
+		{ ::LittleEndian, "little endian" },
+		{ ::BigEndian, "big endian" },
+	};
+	file_region.AddField("Endianness", Dumper::ChoiceDisplay::Make(endiantype_descriptions), offset_t(endiantype));
 	file_region.Display(dump);
 
-	// TODO
+	Dumper::Region header_region("Header", file_offset, GetHeaderSize(), 2 * word_size);
+	static const std::map<offset_t, std::string> magic_descriptions =
+	{
+		{ OMAGIC, "\"OMAGIC\"" },
+		{ NMAGIC, "\"NMAGIC\"" },
+		{ ZMAGIC, "\"ZMAGIC\"" },
+		{ QMAGIC, "\"QMAGIC\"" },
+	};
+	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_descriptions, Dumper::HexDisplay::Make(4)), offset_t(magic));
+	if(word_size == 4)
+	{
+		static const std::map<offset_t, std::string> linux_midmag_descriptions =
+		{
+			{ MID_LINUX_OLDSUN2, "Old SUN2" },
+			{ MID_68010, "68010" },
+			{ MID_68020, "68020" },
+			{ MID_LINUX_SPARC, "SPARC" },
+			{ MID_PC386, "386" },
+			{ MID_MIPS1, "MIPS1" },
+			{ MID_MIPS2, "MIPS2" },
+		};
+
+		switch(system)
+		{
+		case DJGPP1:
+		case EMX:
+		case PDOS386:
+			break;
+		case UNSPECIFIED:
+			// TODO
+			break;
+		case LINUX:
+			header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(linux_midmag_descriptions, Dumper::HexDisplay::Make(2)), offset_t(mid_value & 0xFF));
+			header_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(2), offset_t(flags & 0xFF));
+			break;
+		case FREEBSD:
+			// TODO
+			header_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(2), offset_t(flags & 0xFC));
+			break;
+		case NETBSD:
+			// TODO
+			header_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(2), offset_t(flags & 0xFC));
+			break;
+		}
+	}
+	header_region.AddField("Entry", Dumper::HexDisplay::Make(2 * word_size), offset_t(entry_address));
+	header_region.Display(dump);
+
+	// TODO: print symbols, strings, relocations
+
+	Dumper::Block text_block("Text", GetTextOffset(), code->AsImage(), GetTextAddress(), 2 * word_size, 2 * word_size);
+	text_block.Display(dump);
+
+	uint32_t data_offset = AlignTo(GetTextOffset() + code->ImageSize(), GetDataOffsetAlign());
+	uint32_t data_address = AlignTo(GetTextAddress() + code->ImageSize(), GetDataAddressAlign());
+
+	Dumper::Block data_block("Data", data_offset, data->AsImage(), data_address, 2 * word_size, 2 * word_size);
+	data_block.Display(dump);
+
+	Dumper::Region bss_region("BSS", data_offset + data->ImageSize(), bss_size, 2 * word_size);
+	bss_region.AddField("Address", Dumper::HexDisplay::Make(2 * word_size), data_address + data->ImageSize());
+	bss_region.Display(dump);
 }
 
 /* * * Reader * * */
@@ -1046,16 +1179,6 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 }
 
 /* * * Writer * * */
-
-std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system, magic_type magic)
-{
-	return std::make_shared<AOutFormat>(system, magic);
-}
-
-std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system)
-{
-	return std::make_shared<AOutFormat>(system);
-}
 
 static Linker::OptionDescription<offset_t> p_code_base_address("code_base_address", "Starting address of code section");
 static Linker::OptionDescription<offset_t> p_data_align("data_align", "Alignment of data section");
