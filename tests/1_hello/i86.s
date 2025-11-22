@@ -88,9 +88,7 @@ message:
 	_SysVars
 
 .if OPTION_EXPLICIT_STACK
-.if OPTION_SEPARATE_STACK
 	.section	.stack, "aw", @nobits
-.endif
 	.fill	0x100
 .endif
 
