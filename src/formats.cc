@@ -970,20 +970,33 @@ Linker::Debug << "\"" << std::endl;
 				{
 					rd.SeekEnd();
 					uint32_t file_size = rd.Tell();
-					rd.Seek(2);
-					uint32_t image_size = rd.ReadUnsigned(2, LittleEndian);
-					image_size = (rd.ReadUnsigned(2, LittleEndian) << 9) - (-image_size & 0x1FF);
-					rd.Seek(0x3C);
-					uint32_t new_header = rd.ReadUnsigned(4, LittleEndian);
-					if(0 < new_header && new_header < file_size)
-						DetermineFormat(descriptions, rd, new_header);
-					if(0 < image_size && image_size < file_size && image_size != new_header)
-						DetermineFormat(descriptions, rd, image_size);
-					/* Watcom Win386 extender stores an MP executable here */
-					rd.Seek(0x38);
-					new_header = rd.ReadUnsigned(4, LittleEndian);
-					if(0 < new_header && new_header < file_size)
-						DetermineFormat(descriptions, rd, new_header);
+					if(file_size >= 0x06)
+					{
+						rd.Seek(2);
+						uint32_t image_size = rd.ReadUnsigned(2, LittleEndian);
+						image_size = (rd.ReadUnsigned(2, LittleEndian) << 9) - (-image_size & 0x1FF);
+						uint32_t new_header = 0;
+
+						if(file_size >= 0x40)
+						{
+							rd.Seek(0x3C);
+							uint32_t new_header = rd.ReadUnsigned(4, LittleEndian);
+							if(0 < new_header && new_header < file_size)
+								DetermineFormat(descriptions, rd, new_header);
+						}
+
+						if(0 < image_size && image_size < file_size && image_size != new_header)
+							DetermineFormat(descriptions, rd, image_size);
+
+						if(file_size >= 0x40)
+						{
+							/* Watcom Win386 extender stores an MQ executable here */
+							rd.Seek(0x38);
+							new_header = rd.ReadUnsigned(4, LittleEndian);
+							if(0 < new_header && new_header < file_size)
+								DetermineFormat(descriptions, rd, new_header);
+						}
+					}
 				}
 				break;
 			case FORMAT_APPLE:
