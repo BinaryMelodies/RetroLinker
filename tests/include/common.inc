@@ -56,6 +56,7 @@
 .ifndef TARGET_WIN16
 .set TARGET_WIN16, 0
 .else
+.set TARGET_WINDOWS, 1
 .set OPTION_NO_INTERSEG, 1
 .set OPTION_NO_DIFF_INTERSEG, 1
 .endif
@@ -181,6 +182,11 @@
 # either 8086/80386
 .ifndef TARGET_OS2
 .set TARGET_OS2, 0
+.endif
+
+# either 8086/80386/AMD64
+.ifndef TARGET_WINDOWS
+.set TARGET_WINDOWS, 0
 .endif
 
 #### MS-DOS formats
@@ -403,8 +409,8 @@
 .include "../include/elks.inc"
 .endif
 
-.if TARGET_WIN16
-.include "../include/win16.inc"
+.if TARGET_WINDOWS
+.include "../include/windows.inc"
 .endif
 
 .if TARGET_OS2
