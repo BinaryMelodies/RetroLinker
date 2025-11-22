@@ -664,14 +664,16 @@ void MZFormat::ProcessModule(Linker::Module& module)
 	Linker::Location stack_top;
 	if(module.FindGlobalSymbol(".stack_top", stack_top))
 	{
+		Linker::Debug << "Debug: " << stack_top << std::endl;
 		ss = stack_top.GetPosition(true).address >> 4;
 		sp = stack_top.GetPosition().address - (uint32_t(ss) << 4);
 	}
 	else
 	{
-		std::shared_ptr<Linker::Section> stack = module.Sections().back();
-		sp = stack->Size();
+		std::shared_ptr<Linker::Segment> image_segment = std::dynamic_pointer_cast<Linker::Segment>(image);
+		std::shared_ptr<Linker::Section> stack = image_segment->sections.back();
 		ss = stack->Base().address >> 4;
+		sp = image_segment->TotalSize() - (uint32_t(ss) << 4);
 		Linker::Debug << "Debug: End of memory: " << sp << std::endl;
 		Linker::Debug << "Debug: Total size: " << (image->ImageSize() + zero_fill) << std::endl;
 		Linker::Debug << "Debug: Stack base: " << ss << std::endl;
