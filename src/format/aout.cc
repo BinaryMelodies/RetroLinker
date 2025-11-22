@@ -9,14 +9,12 @@ using namespace AOut;
 {
 	switch(cpu)
 	{
-	case M68010:
-	case M68020:
+	case M68K:
 	case SPARC:
 		return ::BigEndian;
-	case I80386:
+	case I386:
 	case ARM: /* TODO: check */
-	case MIPS1: /* TODO: check */
-	case MIPS2: /* TODO: check */
+	case MIPS: /* TODO: check */
 	case PDP11:
 		return ::LittleEndian; /* Note: actually, PDP-11 endian */
 	default:
@@ -28,13 +26,11 @@ unsigned AOutFormat::GetWordSize() const
 {
 	switch(cpu)
 	{
-	case M68010:
-	case M68020:
+	case M68K:
 	case SPARC:
-	case I80386:
+	case I386:
 	case ARM:
-	case MIPS1:
-	case MIPS2:
+	case MIPS:
 		return 4;
 	case PDP11:
 		return 2;
@@ -47,7 +43,7 @@ bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
 {
 	/* Check valid magic number */
 	uint16_t attempted_magic;
-	switch(endiantype)
+	switch(midmag_endiantype)
 	{
 	case ::LittleEndian:
 	case ::PDP11Endian:
@@ -66,64 +62,8 @@ bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
 	return true;
 }
 
-bool AOutFormat::AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size)
+bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 {
-	if(!AttemptFetchMagic(signature))
-		return false;
-
-	/* Check valid CPU type (32-bit only) */
-	if(word_size == 4)
-	{
-		switch(endiantype)
-		{
-		case ::LittleEndian:
-			switch(signature[2])
-			{
-			case 0x64:
-				cpu = I80386;
-				break;
-			case 0x67:
-				cpu = ARM;
-				break;
-			case 0x97:
-				cpu = MIPS1;
-				break;
-			case 0x98:
-				cpu = MIPS2;
-				break;
-			case 0:
-				/* probably VAX */
-				cpu = UNKNOWN;
-				break;
-			default:
-				return false;
-			}
-			break;
-		case ::BigEndian:
-			switch(signature[1])
-			{
-			case 0x01:
-				cpu = M68010;
-				break;
-			case 0x02:
-				cpu = M68020;
-				break;
-			case 0x03:
-				cpu = SPARC;
-				break;
-			case 0:
-				/* probably 68000, "old Sun" */
-				cpu = UNKNOWN;
-				break;
-			default:
-				return false;
-			}
-			break;
-		default:
-			return false;
-		}
-	}
-
 	/* Check if all sizes fit within the image */
 	rd.Seek(file_offset + word_size);
 	uint32_t full_size = 0;
@@ -144,13 +84,288 @@ bool AOutFormat::AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offse
 	return true;
 }
 
+bool AOutFormat::AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size)
+{
+	if(!AttemptFetchMagic(signature))
+		return false;
+
+	/* Check valid CPU type (32-bit only) */
+	if(word_size == 4)
+	{
+		switch(endiantype)
+		{
+		case ::LittleEndian:
+			switch(signature[2])
+			{
+			case MID_PC386:
+				cpu = I386;
+				break;
+			case MID_BFD_ARM:
+				cpu = ARM;
+				break;
+			case MID_MIPS1:
+			case MID_MIPS2:
+				cpu = MIPS;
+				break;
+			case 0:
+				/* probably VAX */
+				cpu = UNKNOWN;
+				break;
+			default:
+				return false;
+			}
+			break;
+		case ::BigEndian:
+			switch(signature[1])
+			{
+			case MID_68010:
+			case MID_68020:
+				cpu = M68K;
+				break;
+			case MID_LINUX_SPARC:
+				cpu = SPARC;
+				break;
+			case MID_UNKNOWN:
+				/* probably 68000, "old Sun" */
+				cpu = UNKNOWN;
+				break;
+			default:
+				return false;
+			}
+			break;
+		default:
+			return false;
+		}
+	}
+
+	return CheckFileSizes(rd, image_size);
+}
+
+uint32_t AOutFormat::GetPageSize() const
+{
+	switch(system)
+	{
+	case UNSPECIFIED:
+		return 0x00000400;
+	case LINUX:
+		return 0x00000400;
+	case FREEBSD:
+		return 0x00001000;
+	case NETBSD:
+		if(page_size != 0)
+			return page_size;
+
+		switch(cpu)
+		{
+		// TODO: other CPUs
+		case I386: case AMD64:
+		case ARM: case AARCH64:
+		case PPC: case PPC64:
+		case SUPERH: case SUPERH64:
+		case PARISC:
+		case OR1K:
+		case RISCV:
+		case VAX:
+		default:
+			return page_size = 0x00001000;
+		case ALPHA:
+		case M68K:
+		case SPARC: case SPARC64:
+			return page_size = 0x00002000;
+		case IA64:
+			return page_size = 0x00004000;
+		}
+		break;
+	case DJGPP1:
+		return 0x00400000;
+	case PDOS386:
+	case EMX:
+		return 0x00010000;
+	}
+}
+
+uint32_t AOutFormat::GetTextOffset() const
+{
+	switch(system)
+	{
+	case UNSPECIFIED:
+	case LINUX:
+		switch(magic)
+		{
+		case QMAGIC:
+			return 0;
+		case ZMAGIC:
+			return GetPageSize();
+		default:
+			return HEADER_SIZE;
+		}
+		break;
+	case FREEBSD:
+		if(midmag_endiantype == ::BigEndian)
+		{
+			// Network order
+			switch(magic)
+			{
+			case ZMAGIC:
+				return 0;
+			default:
+				return HEADER_SIZE;
+			}
+		}
+		else
+		{
+			switch(magic)
+			{
+			case QMAGIC:
+				return 0;
+			case ZMAGIC:
+				return GetPageSize();
+			default:
+				return HEADER_SIZE;
+			}
+		}
+		break;
+	case NETBSD:
+		if(cpu == UNKNOWN)
+		{
+			// legacy midmag
+			switch(magic)
+			{
+			case QMAGIC:
+				return 0;
+			case ZMAGIC:
+				return GetPageSize();
+			default:
+				return HEADER_SIZE;
+			}
+		}
+		else
+		{
+			switch(magic)
+			{
+			case ZMAGIC:
+				return 0;
+			default:
+				return HEADER_SIZE;
+			}
+		}
+		break;
+	case DJGPP1:
+		return HEADER_SIZE;
+	case PDOS386:
+		return HEADER_SIZE;
+		// TODO: actual value
+		//return 0x00000400;
+	case EMX:
+		return GetPageSize();
+	}
+}
+
+uint32_t AOutFormat::GetTextAddress() const
+{
+	switch(system)
+	{
+	case UNSPECIFIED:
+	case LINUX:
+		switch(magic)
+		{
+		case QMAGIC:
+			return GetPageSize();
+		default:
+			return 0;
+		}
+		break;
+	case FREEBSD:
+		if(midmag_endiantype == ::BigEndian)
+		{
+			return GetPageSize();
+		}
+		else
+		{
+			switch(magic)
+			{
+			case QMAGIC:
+				return GetPageSize();
+			default:
+				// TODO: depends on the entry
+				return 0;
+			}
+		}
+		break;
+	case NETBSD:
+		if(cpu == UNKNOWN && magic == ZMAGIC)
+		{
+			return 0;
+		}
+		else
+		{
+			return GetPageSize();
+		}
+		break;
+	case DJGPP1:
+		return 0x00001000 + HEADER_SIZE;
+	case PDOS386:
+		switch(magic)
+		{
+		case ZMAGIC:
+			return HEADER_SIZE;
+		default:
+			return 0;
+			// TODO: actual value?
+			//return GetPageSize();
+		}
+	case EMX:
+		return GetPageSize();
+	}
+}
+
+uint32_t AOutFormat::GetDataOffsetAlign() const
+{
+	switch(system)
+	{
+	case UNSPECIFIED:
+	case LINUX:
+		return 1;
+	case FREEBSD:
+		return GetPageSize();
+	case NETBSD:
+		return GetPageSize();
+	case DJGPP1:
+		return 1;
+	case PDOS386:
+		return 1;
+	case EMX:
+		return 1;
+	}
+}
+
+uint32_t AOutFormat::GetDataAddressAlign() const
+{
+	switch(system)
+	{
+	case UNSPECIFIED:
+	case LINUX:
+	case DJGPP1:
+	case EMX:
+		if(magic == OMAGIC)
+			return 1;
+		else
+			return GetPageSize();
+	case FREEBSD:
+	case NETBSD:
+		if(magic == ZMAGIC || magic == QMAGIC)
+			return GetPageSize();
+		else
+			return 1;
+	case PDOS386:
+		return 4;
+		// TODO: actual value?
+		//return GetPageSize();
+	}
+}
+
 void AOutFormat::ReadFile(Linker::Reader& rd)
 {
-	// TODO: this can probably be simplified
-	// suggested algorithm:
-	// if first two bytes are not a valid magic number, it is big endian (and thus 32-bit), otherwise little endian
-	// if little endian, assume 32-bit and check file size, if too big, must be 16-bit
-	// finally, mask out 0x03FF0000 (BSD) to get machine type, or 0x00FF0000 (Linux) if that fails, fallback to VAX
 	uint8_t signature[4];
 	rd.SeekEnd();
 	offset_t file_end = rd.Tell();
@@ -158,90 +373,334 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	rd.ReadData(sizeof(signature), signature);
 	word_size = 4;
 
-	// Big endian:
-	// .. 01 .. ..
-	// .. 02 .. ..
-	// .. 03 .. ..
-	// byte 2 must be 00 (QMAGIC) or 01
-
-	// Little endian:
-	// .. .. 64 ..
-	// .. .. 67 ..
-	// .. .. 97 ..
-	// .. .. 98 ..
-	// byte 1 must be 00 (QMAGIC) or 01
-
-	if(signature[1] == 0x00 || signature[1] == 0x01)
+	switch(system)
 	{
-		/* could be multiple formats, make multiple attempts */
-		endiantype = ::LittleEndian;
-		word_size = 2;
-		/* first attempt 16-bit little endian (PDP-11, most likely input format) */
-		if(!AttemptReadFile(rd, signature, file_end - file_offset))
+	case UNSPECIFIED:
+	case LINUX:
+		// TODO: this can probably be simplified
+		// suggested algorithm:
+		// if first two bytes are not a valid magic number, it is big endian (and thus 32-bit), otherwise little endian
+		// if little endian, assume 32-bit and check file size, if too big, must be 16-bit
+		// finally, mask out 0x03FF0000 (BSD) to get machine type, or 0x00FF0000 (Linux) if that fails, fallback to VAX
+
+		// Big endian:
+		// .. 01 .. ..
+		// .. 02 .. ..
+		// .. 03 .. ..
+		// byte 2 must be 00 (QMAGIC) or 01
+
+		// Little endian:
+		// .. .. 64 ..
+		// .. .. 67 ..
+		// .. .. 97 ..
+		// .. .. 98 ..
+		// byte 1 must be 00 (QMAGIC) or 01
+
+		if(signature[1] == 0x00 || signature[1] == 0x01)
 		{
-			endiantype = ::LittleEndian;
-			word_size = 4;
-			/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
+			/* could be multiple formats, make multiple attempts */
+			endiantype = midmag_endiantype = ::LittleEndian;
+			word_size = 2;
+			/* first attempt 16-bit little endian (PDP-11, most likely input format) */
 			if(!AttemptReadFile(rd, signature, file_end - file_offset))
 			{
-				endiantype = ::BigEndian;
+				endiantype = midmag_endiantype = ::LittleEndian;
 				word_size = 4;
-				/* then attempt 32-bit big endian (Motorola 68000, most likely format if not little endian) */
+				/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
 				if(!AttemptReadFile(rd, signature, file_end - file_offset))
 				{
-					endiantype = ::BigEndian;
-					word_size = 2;
-					/* finally, attempt 16-bit big endian (unsure if any ever supported UNIX with a.out) */
+					endiantype = midmag_endiantype = ::BigEndian;
+					word_size = 4;
+					/* then attempt 32-bit big endian (Motorola 68000, most likely format if not little endian) */
 					if(!AttemptReadFile(rd, signature, file_end - file_offset))
 					{
-						Linker::FatalError("Fatal error: Unable to determine file format");
+						endiantype = midmag_endiantype = ::BigEndian;
+						word_size = 2;
+						/* finally, attempt 16-bit big endian (unsure if any ever supported UNIX with a.out) */
+						if(!AttemptReadFile(rd, signature, file_end - file_offset))
+						{
+							Linker::FatalError("Fatal error: Unable to determine file format");
+						}
 					}
 				}
 			}
 		}
-	}
-	else
-	{
-		switch(signature[1])
+		else
 		{
-		case 0x02:
-			endiantype = ::BigEndian;
-			cpu = M68020;
-			break;
-		case 0x03:
-			endiantype = ::BigEndian;
-			cpu = SPARC;
-			break;
-		default:
-			switch(signature[2])
+			/* magic value is unrecognizable, attempting to read a couple of common CPU types */
+			switch(signature[1])
 			{
-			case 0x00:
-				endiantype = ::LittleEndian;
-				cpu = UNKNOWN;
+			case MID_68010:
+			case MID_68020:
+				midmag_endiantype = ::BigEndian;
+				cpu = M68K;
 				break;
-			case 0x64:
-				endiantype = ::LittleEndian;
-				cpu = I80386;
+			case MID_LINUX_SPARC:
+				midmag_endiantype = ::BigEndian;
+				cpu = SPARC;
 				break;
-			case 0x67:
-				endiantype = ::LittleEndian;
-				cpu = ARM;
-				break;
-			case 0x97:
-				endiantype = ::LittleEndian;
-				cpu = MIPS1;
-				break;
-			case 0x98:
-				endiantype = ::LittleEndian;
-				cpu = MIPS2;
+			default:
+				switch(signature[2])
+				{
+				case MID_UNKNOWN:
+					midmag_endiantype = ::LittleEndian;
+					cpu = UNKNOWN;
+					break;
+				case MID_PC386:
+					midmag_endiantype = ::LittleEndian;
+					cpu = I386;
+					break;
+				case MID_BFD_ARM:
+					midmag_endiantype = ::LittleEndian;
+					cpu = ARM;
+					break;
+				case MID_MIPS1:
+				case MID_MIPS2:
+					midmag_endiantype = ::LittleEndian;
+					cpu = MIPS;
+					break;
+				}
 				break;
 			}
-			break;
+
+			if(!AttemptFetchMagic(signature))
+			{
+				Linker::FatalError("Fatal error: Unable to determine file format");
+			}
 		}
-		if(!AttemptFetchMagic(signature))
+
+		endiantype = midmag_endiantype;
+		break;
+
+	case FREEBSD:
 		{
-			Linker::FatalError("Fatal error: Unable to determine file format");
+			/* attempt little endian */
+			uint16_t attempted_magic = signature[0] | (signature[1] << 8);
+			if(attempted_magic != OMAGIC && attempted_magic != NMAGIC && attempted_magic != ZMAGIC && attempted_magic != QMAGIC)
+			{
+				attempted_magic = signature[3] | (signature[2] << 8);
+				if(attempted_magic != OMAGIC && attempted_magic != NMAGIC && attempted_magic != ZMAGIC && attempted_magic != QMAGIC)
+				{
+					Linker::FatalError("Fatal error: Unable to determine file format");
+				}
+				else
+				{
+					midmag_endiantype = ::BigEndian;
+					flags = signature[0];
+					mid_value = signature[1] | (signature[0] << 8);
+				}
+			}
+			else
+			{
+				midmag_endiantype = ::LittleEndian;
+				flags = signature[3];
+				mid_value = signature[2] | (signature[3] << 8);
+			}
+			magic = magic_type(attempted_magic);
+			flags &= 0xFC;
+			mid_value &= 0x03FF;
+			switch(mid_value)
+			{
+			case MID_UNKNOWN:
+			default:
+				cpu = UNKNOWN;
+				break;
+			case MID_68010:
+			case MID_68020:
+			case MID_HP200:
+			case MID_HP300:
+			case MID_HPUX:
+				cpu = M68K;
+				break;
+			case MID_I386:
+				cpu = I386;
+				break;
+			case MID_FREEBSD_SPARC:
+				cpu = SPARC;
+				break;
+			case MID_ARM6:
+				cpu = ARM;
+				break;
+			case MID_HPUX800:
+				cpu = PARISC;
+				break;
+			}
 		}
+		break;
+
+	case NETBSD:
+		{
+			/* attempt big endian */
+			uint16_t attempted_magic = signature[3] | (signature[2] << 8);
+			if(attempted_magic != OMAGIC && attempted_magic != NMAGIC && attempted_magic != ZMAGIC && attempted_magic != QMAGIC)
+			{
+				attempted_magic = signature[0] | (signature[1] << 8);
+				if(attempted_magic != OMAGIC && attempted_magic != NMAGIC && attempted_magic != ZMAGIC && attempted_magic != QMAGIC)
+				{
+					Linker::FatalError("Fatal error: Unable to determine file format");
+				}
+				else
+				{
+					midmag_endiantype = ::LittleEndian;
+					flags = signature[3];
+					mid_value = signature[2] | (signature[3] << 8);
+				}
+			}
+			else
+			{
+				midmag_endiantype = ::BigEndian;
+				flags = signature[0];
+				mid_value = signature[1] | (signature[0] << 8);
+			}
+			magic = magic_type(attempted_magic);
+			flags &= 0xFC;
+			mid_value &= 0x03FF;
+
+			page_size = 0;
+			switch(mid_value)
+			{
+			case MID_UNKNOWN:
+				cpu = UNKNOWN;
+				endiantype = midmag_endiantype;
+				break;
+			default:
+				cpu = UNKNOWN;
+				// TODO: endianness
+				break;
+			case MID_68010:
+			case MID_68020:
+			case MID_HP200:
+			case MID_HP300:
+			case MID_HPUX:
+				cpu = M68K;
+				endiantype = ::BigEndian;
+				break;
+			case MID_NETBSD_M680002K:
+				cpu = M68K;
+				endiantype = ::BigEndian;
+				page_size = 2 * 1000;
+				break;
+			case MID_NETBSD_M68K4K:
+				cpu = M68K;
+				endiantype = ::BigEndian;
+				page_size = 4 * 1000;
+				break;
+			case MID_NETBSD_M68K:
+				cpu = M68K;
+				endiantype = ::BigEndian;
+				page_size = 8 * 1000;
+				break;
+			case MID_PC386:
+			case MID_I386:
+				cpu = I386;
+				endiantype = ::LittleEndian;
+				break;
+			case MID_NETBSD_NS32532K:
+				cpu = NS32K;
+				endiantype = ::LittleEndian;
+				break;
+			case MID_NETBSD_SPARC:
+				cpu = SPARC;
+				endiantype = ::BigEndian;
+				break;
+			case MID_NETBSD_PMAX:
+				cpu = MIPS;
+				// TODO: endianness
+				break;
+			case MID_NETBSD_VAX:
+				cpu = VAX;
+				endiantype = ::LittleEndian;
+				break;
+			case MID_NETBSD_VAX1K:
+				cpu = VAX;
+				endiantype = ::LittleEndian;
+				page_size = 1 * 1000;
+				break;
+			case MID_NETBSD_ALPHA:
+				cpu = ALPHA;
+				// TODO: endianness
+				break;
+			case MID_NETBSD_MIPS:
+				cpu = MIPS;
+				endiantype = ::BigEndian;
+				break;
+			case MID_ARM6:
+				cpu = ARM;
+				endiantype = ::LittleEndian;
+				break;
+			case MID_NETBSD_SH3:
+				cpu = SUPERH;
+				// TODO: endianness
+				break;
+			case MID_NETBSD_POWERPC64:
+				cpu = PPC64;
+				endiantype = ::BigEndian;
+				break;
+			case MID_NETBSD_POWERPC:
+				cpu = PPC;
+				endiantype = ::BigEndian;
+				break;
+			case MID_MIPS1:
+			case MID_MIPS2:
+				cpu = MIPS;
+				// TODO: endianness
+				break;
+			case MID_NETBSD_M88K:
+				cpu = M88K;
+				endiantype = ::BigEndian;
+				break;
+			case MID_NETBSD_HPPA:
+			case MID_HPUX800:
+				cpu = PARISC;
+				endiantype = ::BigEndian;
+				break;
+			case MID_NETBSD_SH5_64:
+				cpu = SUPERH64;
+				// TODO: endianness
+				break;
+			case MID_NETBSD_SPARC64:
+				cpu = SPARC64;
+				endiantype = ::BigEndian;
+				break;
+			case MID_NETBSD_X86_64:
+				cpu = AMD64;
+				endiantype = ::LittleEndian;
+				break;
+			case MID_NETBSD_SH5_32:
+				cpu = SUPERH;
+				// TODO: endianness
+				break;
+			case MID_NETBSD_IA64:
+				cpu = IA64;
+				// TODO: endianness
+				break;
+			case MID_NETBSD_AARCH64:
+				cpu = AARCH64;
+				endiantype = ::LittleEndian;
+				break;
+			case MID_NETBSD_OR1K:
+				cpu = OR1K;
+				// TODO: endianness
+				break;
+			case MID_NETBSD_RISCV:
+				cpu = RISCV;
+				// TODO: endianness
+				break;
+			}
+			GetPageSize();
+		}
+		break;
+
+	case DJGPP1:
+	case PDOS386:
+	case EMX:
+		endiantype = midmag_endiantype = ::LittleEndian;
+		cpu = I386;
+
+		magic = magic_type(signature[0] | (signature[1] << 8));
+		mid_value = signature[2];
+		flags = signature[3];
+		break;
 	}
 
 	Linker::Debug << "Debug: a.out endian type: " << endiantype << ", CPU type: " << cpu << ", magic value: " << magic << ", word size: " << word_size << std::endl;
@@ -358,7 +817,7 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 
 	wr.endiantype = endiantype;
 
-	wr.WriteWord(word_size, magic | (cpu << 16));
+	wr.WriteWord(word_size, magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
 	wr.WriteWord(word_size, code_size);
 	wr.WriteWord(word_size, data_size);
 	wr.WriteWord(word_size, bss_size);
@@ -367,7 +826,16 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(word_size, code_relocation_size);
 	wr.WriteWord(word_size, data_relocation_size);
 
+	uint32_t text_offset = GetTextOffset();
+	if(text_offset < HEADER_SIZE)
+		text_offset = HEADER_SIZE;
+	wr.Seek(file_offset + text_offset);
+
 	code->WriteFile(wr);
+
+	uint32_t data_offset = AlignTo(text_offset + code_size, GetDataOffsetAlign());
+	wr.Seek(file_offset + data_offset);
+
 	data->WriteFile(wr);
 
 	for(auto it : code_relocations)
@@ -403,11 +871,10 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 {
 	switch(cpu)
 	{
-	case M68010:
-	case M68020:
+	case M68K:
 		module.cpu = Linker::Module::M68K;
 		break;
-	case I80386:
+	case I386:
 		module.cpu = /*option_16bit ? Linker::Module::I86 :*/ Linker::Module::I386; /* TODO */
 		break;
 	case SPARC:
@@ -416,8 +883,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 	case ARM:
 		module.cpu = Linker::Module::ARM;
 		break;
-	case MIPS1:
-	case MIPS2:
+	case MIPS:
 		module.cpu = Linker::Module::MIPS;
 		break;
 	case UNKNOWN:
@@ -581,8 +1047,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 
 std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system, magic_type magic)
 {
-	std::shared_ptr<AOutFormat> format = std::make_shared<AOutFormat>();
-	format->system = system;
+	std::shared_ptr<AOutFormat> format = std::make_shared<AOutFormat>(system);
 	format->magic = magic;
 	return format;
 }
@@ -730,21 +1195,22 @@ std::shared_ptr<Linker::Segment> AOutFormat::GetBssSegment()
 
 void AOutFormat::ProcessModule(Linker::Module& module)
 {
+	uint32_t text_address = GetTextAddress();
+	if(GetTextOffset() < HEADER_SIZE)
+		text_address += HEADER_SIZE - GetTextOffset();
+
+	linker_parameters["code_base_address"] = Linker::Location(text_address);
 	switch(system)
 	{
 	case DJGPP1:
-		linker_parameters["code_base_address"] = Linker::Location(0x1020);
 		linker_parameters["align"] = Linker::Location(0x1000);
-		linker_parameters["data_align"] = Linker::Location(0x400000);
 		break;
 	case PDOS386:
-		linker_parameters["code_base_address"] = Linker::Location();
-		linker_parameters["align"] = Linker::Location(4); /* TODO: is this needed? */
-		linker_parameters["data_align"] = Linker::Location(4); /* TODO: is this needed? */
-		break;
 	default:
-		Linker::FatalError("Internal error: invalid target system");
+		linker_parameters["align"] = Linker::Location(4); /* TODO: is this needed? */
+		break;
 	}
+	linker_parameters["data_align"] = Linker::Location(GetDataAddressAlign());
 
 	Link(module);
 
@@ -853,10 +1319,14 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 	switch(module.cpu)
 	{
 	case Linker::Module::I386:
-		cpu = I80386;
+		cpu = I386;
+		mid_value = MID_PC386; // TODO
+		flags = 0;
 		break;
 	case Linker::Module::M68K:
-		cpu = M68020; /* TODO: maybe M68010 is enough? */
+		cpu = M68K;
+		mid_value = MID_68020; /* TODO: maybe M68010 is enough? */
+		flags = 0;
 		break;
 	default:
 		Linker::Error << "Error: Format only supports Intel 80386 and Motorola 68000 binaries" << std::endl;
@@ -872,7 +1342,9 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	case DJGPP1:
 	case PDOS386:
 		return filename + ".exe";
-	case UNIX:
+	case LINUX:
+	case FREEBSD:
+	case NETBSD:
 		return filename;
 	default:
 		Linker::FatalError("Internal error: invalid target system");
@@ -886,7 +1358,9 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module) const
 	case DJGPP1:
 	case PDOS386:
 		return "a.exe";
-	case UNIX:
+	case LINUX:
+	case FREEBSD:
+	case NETBSD:
 		return "a.out";
 	default:
 		Linker::FatalError("Internal error: invalid target system");

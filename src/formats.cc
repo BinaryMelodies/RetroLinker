@@ -35,7 +35,7 @@
 #include "format/pmode.h" /* TODO: not implemented */
 #include "format/w3exe.h" /* TODO: not implemented */
 #include "format/xenix.h" /* TODO: not implemented */
-#include "format/xpexp.h" /* TODO: not implemented */
+#include "format/xpexp.h" /* TODO: not tested */
 
 using namespace Linker;
 
