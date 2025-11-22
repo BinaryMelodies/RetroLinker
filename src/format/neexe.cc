@@ -1522,6 +1522,7 @@ std::unique_ptr<Script::List> NEFormat::GetScript(Linker::Module& module)
 ".data"
 {
 	at 0;
+	all ".beg.data"; # for Win16, must come before everything
 	all not zero;
 	all not ".stack";
 };

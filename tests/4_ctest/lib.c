@@ -3,6 +3,7 @@
 #define FP_SEG(value) ((unsigned short)((unsigned long)(value) >> 16))
 #define FP_OFF(value) ((unsigned short)((unsigned long)(value) & 0xFFFF))
 asm(
+	".section\t.text\n\t"
 #if FORMAT_COM
 	"movw\t$AppStackTop, %sp\n\t"
 #elif FORMAT_MZ || FORMAT_BW
@@ -12,6 +13,31 @@ asm(
 	"movw\t%ds, %ax\n\t"
 	"movw\t%ax, %ss\n\t"
 	"movw\t$AppStackTop, %sp\n\t"
+#elif TARGET_WIN16
+	// InitTask
+	".extern\t$$IMPORT$KERNEL$005B, $$IMPSEG$KERNEL$005B\n\t"
+	".byte\t0x9A\n\t"
+	".word\t$$IMPORT$KERNEL$005B\n\t"
+	".word\t$$IMPSEG$KERNEL$005B\n\t"
+	"testw\t%ax, %ax\n\t"
+	"jnz\t1f\n\t"
+	"movw\t$0x4C01, %ax\n\t"
+	"int\t$0x21\n"
+	"1:\n\t"
+	// hInstance, used by InitApp
+	"pushw\t%di\n\t"
+	"movw\t$0, %ax\n\t"
+	"pushw\t%ax\n\t"
+	// WaitEvent
+	".extern\t$$IMPORT$KERNEL$001E, $$IMPSEG$KERNEL$001E\n\t"
+	".byte\t0x9A\n\t"
+	".word\t$$IMPORT$KERNEL$001E\n\t"
+	".word\t$$IMPSEG$KERNEL$001E\n\t"
+	// InitApp
+	".extern\t$$IMPORT$USER$0005, $$IMPSEG$USER$0005\n\t"
+	".byte\t0x9A\n\t"
+	".word\t$$IMPORT$USER$0005\n\t"
+	".word\t$$IMPSEG$USER$0005\n\t"
 #endif
 	"call\tAppMain\n\t"
 	"call\tLibExit"
@@ -60,6 +86,11 @@ asm(
 );
 #else
 #error Unknown architecture
+#endif
+
+#if TARGET_WIN16
+// must appear first in data segment
+static char _instance_data[16] = { 1 };
 #endif
 
 #if TARGET_OS2V1
@@ -436,7 +467,7 @@ void LibPutChar(char c)
 
 void LibWaitForKey(void)
 {
-#if TARGET_MSDOS || TARGET_WIN16 || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP
+#if TARGET_MSDOS || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP
 	asm(
 		"mov\t$0x01, %ah\n\t"
 		"int\t$0x21");
@@ -451,6 +482,11 @@ void LibWaitForKey(void)
 		"movw\t$1, %%bx\n\t"
 		"movw\t$1, %%dx\n\t"
 		"int\t$0x80" : : "c"(&tmp));
+#elif TARGET_WIN16
+	/* TODO */
+	/*asm(
+		"mov\t$0x01, %ah\n\t"
+		"int\t$0x21");*/
 #elif TARGET_OS2V1 || TARGET_OS2V2
 	/* TODO */
 #elif TARGET_CPM68K

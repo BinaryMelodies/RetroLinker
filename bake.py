@@ -528,6 +528,7 @@ DefineTarget(
 DefineTarget(
 	CPU = "i86",
 	System = "win16",
+	IncludeName = "windows",
 	c_target_options2 = "-mcmodel=small -mprotected-mode",
 	custom_entry = True,
 	extension = ".exe")

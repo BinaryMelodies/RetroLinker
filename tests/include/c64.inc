@@ -27,6 +27,7 @@
 .endm
 
 .macro	_SysVars
+	.data
 ExitStack:
 	.byte	0
 .endm

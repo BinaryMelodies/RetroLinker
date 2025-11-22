@@ -66,6 +66,7 @@ FlushBuffer:
 .endm
 
 .macro	_SysVars
+	.data
 InputBuffer:
 	.byte	0
 

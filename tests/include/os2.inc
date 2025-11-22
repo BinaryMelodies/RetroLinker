@@ -69,6 +69,7 @@
 .endm
 
 .macro	_SysVars
+	.section	.bss
 PutChar_char:
 	.byte	0
 .endm

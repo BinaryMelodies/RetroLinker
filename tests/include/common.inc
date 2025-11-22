@@ -96,6 +96,12 @@
 .set TARGET_MSDOS, 1
 .endif
 
+.ifndef TARGET_WIN32
+.set TARGET_WIN32, 0
+.else
+.set TARGET_WINDOWS, 1
+.endif
+
 .ifndef TARGET_OS2V2
 .set TARGET_OS2V2, 0
 .else
@@ -106,6 +112,14 @@
 .set TARGET_PDOS386, 0
 .else
 .set TARGET_MSDOS, 1 # Note: uses a 32-bit API
+.endif
+
+#### AMD64 targets
+
+.ifndef TARGET_WIN64
+.set TARGET_WIN64, 0
+.else
+.set TARGET_WINDOWS, 1
 .endif
 
 #### 68000 targets
