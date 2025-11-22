@@ -380,6 +380,17 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 	Linker::FatalError("Internal error: invalid system type");
 }
 
+void AOutFormat::ReadHeader(Linker::Reader& rd)
+{
+	code_size = rd.ReadUnsigned(word_size);
+	data_size = rd.ReadUnsigned(word_size);
+	bss_size = rd.ReadUnsigned(word_size);
+	symbol_table_size = rd.ReadUnsigned(word_size);
+	entry_address = rd.ReadUnsigned(word_size);
+	code_relocation_size = rd.ReadUnsigned(word_size);
+	data_relocation_size = rd.ReadUnsigned(word_size);
+}
+
 void AOutFormat::ReadFile(Linker::Reader& rd)
 {
 	// note: bound EMX executables are not parsed here
@@ -746,13 +757,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 	rd.Seek(file_offset + word_size);
 
-	code_size = rd.ReadUnsigned(word_size);
-	data_size = rd.ReadUnsigned(word_size);
-	bss_size = rd.ReadUnsigned(word_size);
-	symbol_table_size = rd.ReadUnsigned(word_size);
-	entry_address = rd.ReadUnsigned(word_size);
-	code_relocation_size = rd.ReadUnsigned(word_size);
-	data_relocation_size = rd.ReadUnsigned(word_size);
+	ReadHeader(rd);
 
 	code = Linker::Section::ReadFromFile(rd, code_size, ".text");
 	data = Linker::Section::ReadFromFile(rd, data_size, ".data");
@@ -845,6 +850,18 @@ offset_t AOutFormat::ImageSize() const
 	return 8 * word_size + code->ImageSize() + data->ImageSize() + code_relocations.size() * 8 + data_relocations.size() * 8;
 }
 
+void AOutFormat::WriteHeader(Linker::Writer& wr) const
+{
+	wr.WriteWord(word_size, magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
+	wr.WriteWord(word_size, code_size);
+	wr.WriteWord(word_size, data_size);
+	wr.WriteWord(word_size, bss_size);
+	wr.WriteWord(word_size, symbol_table_size);
+	wr.WriteWord(word_size, entry_address);
+	wr.WriteWord(word_size, code_relocation_size);
+	wr.WriteWord(word_size, data_relocation_size);
+}
+
 offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 {
 	if(system == DJGPP1 && stub.filename != "")
@@ -854,14 +871,7 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 
 	wr.endiantype = endiantype;
 
-	wr.WriteWord(word_size, magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
-	wr.WriteWord(word_size, code_size);
-	wr.WriteWord(word_size, data_size);
-	wr.WriteWord(word_size, bss_size);
-	wr.WriteWord(word_size, symbol_table_size);
-	wr.WriteWord(word_size, entry_address);
-	wr.WriteWord(word_size, code_relocation_size);
-	wr.WriteWord(word_size, data_relocation_size);
+	WriteHeader(wr);
 
 	uint32_t text_offset = GetTextOffset();
 	if(text_offset < GetHeaderSize())

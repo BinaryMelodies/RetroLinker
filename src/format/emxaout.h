@@ -22,6 +22,25 @@ namespace EMX
 		{
 		}
 
+		uint32_t aout_header_offset = 0;
+		std::array<char, 64> dos_options;
+		/* patch area inside the LX data object */
+		uint32_t text_base = 0;
+		uint32_t text_end = 0;
+		uint32_t data_base = 0;
+		uint32_t data_end = 0;
+		uint32_t bss_base = 0;
+		uint32_t bss_end = 0;
+		uint32_t heap_base = 0;
+		uint32_t heap_end = 0;
+		uint32_t heap_brk = 0;
+		uint32_t heap_off = 0;
+		uint32_t os2_dll = 0;
+		uint32_t stack_base = 0;
+		uint32_t stack_end = 0;
+		uint32_t flags = 0;
+		std::array<char, 64> os2_options;
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		offset_t ImageSize() const override;

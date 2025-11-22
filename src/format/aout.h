@@ -292,10 +292,13 @@ namespace AOut
 		uint32_t GetDataOffsetAlign() const;
 		uint32_t GetDataAddressAlign() const;
 
+		void ReadHeader(Linker::Reader& rd);
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		offset_t ImageSize() const override;
 
+		void WriteHeader(Linker::Writer& wr) const;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 

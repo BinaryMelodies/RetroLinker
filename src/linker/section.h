@@ -233,6 +233,8 @@ namespace Linker
 
 		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
+		void WriteData(size_t bytes, offset_t offset, const void * buffer);
+
 		void WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype);
 
 		void WriteWord(size_t bytes, offset_t offset, uint64_t value);

@@ -233,6 +233,16 @@ size_t Section::ReadData(size_t bytes, offset_t offset, void * buffer) const
 	}
 }
 
+void Section::WriteData(size_t bytes, offset_t offset, const void * buffer)
+{
+	assert(!IsZeroFilled());
+	Expand(offset + bytes);
+	// make sure the offset is within the stored data range, this is only required for subclasses of Section
+	assert(offset >= Size() - data.size());
+	offset_t actual_offset = offset - (Size() - data.size());
+	std::copy(reinterpret_cast<const uint8_t *>(buffer), reinterpret_cast<const uint8_t *>(buffer) + bytes, data.data() + actual_offset);
+}
+
 void Section::WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype)
 {
 	if(value == 0 && (offset > Size() || IsZeroFilled()))
