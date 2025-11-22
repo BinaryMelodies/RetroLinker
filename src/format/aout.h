@@ -52,71 +52,117 @@ namespace AOut
 		/* * * General members * * */
 		::EndianType endiantype;
 
-		static constexpr uint32_t HEADER_SIZE = 0x00000020;
-
+		/**
+		 * @brief The target operating system type for parsing or generating binaries
+		 */
 		enum system_type
 		{
+			/** @brief Treat it as undetermined, intended for object files and early UNIX binaries */
 			UNSPECIFIED,
-			LINUX, /* TODO */
+			/**
+			 * @brief Treat it as a Linux a.out binary, used before kernel 5.19 (Linux switched to ELF in 1.2)
+			 *
+			 * Linux supported OMAGIC, NMAGIC, ZMAGIC, QMAGIC binaries, the midmag field is in the native byte order and the machine type is stored in bits 16 to 23 of midmag
+			 */
+			LINUX, /* TODO: not fully supported */
+			/**
+			 * @brief Treat it as a FreeBSD a.out binary, used before 3.0
+			 *
+			 * FreeBSD supported OMAGIC, NMAGIC, ZMAGIC, QMAGIC binaries, the midmag field is preferred to be in the little endian byte order and the machine type is stored in bits 16 to 25 of midmag
+			 */
 			FREEBSD, /* TODO */
+			/**
+			 * @brief Treat it as a NetBSD a.out binary, used before 1.5
+			 *
+			 * FreeBSD supported OMAGIC, NMAGIC, ZMAGIC, QMAGIC binaries, the midmag field is preferred to be in the big endian byte order and the machine type is stored in bits 16 to 25 of midmag
+			 */
 			NETBSD, /* TODO */
-			DJGPP1, /* early DJGPP */
-			PDOS386, /* http://pdos.sourceforge.net/ */
-			EMX, /* EMX a.out, should only be used with EMXAOutFormat */
+			/**
+			 * @brief Treat it as a DJGPP a.out binary, used before DJGPP 1.11
+			 *
+			 * Similar to Linux
+			 */
+			DJGPP1,
+			/**
+			 * @brief Treat it as a Public Domain OS a.out, a 32-bit DOS-like operating system (http://pdos.sourceforge.net/)
+			 *
+			 * PDOS only supports OMAGIC binaries
+			 */
+			PDOS386,
+			/**
+			 * @brief Treat it as an EMX a.out binary, should only be used with EMXAOutFormat
+			 */
+			EMX,
 		};
+
+		/**
+		 * @brief The target operating system, it influences section offset and address choices
+		 */
 		system_type system;
 
 		/**
-		 * All fields in the header must appear in native byte order, except for FreeBSD and NetBSD where:
+		 * @brief The low 16 bits of the midmag field, it determines how sections should be loaded into memory, in a system dependent way
+		 */
+		enum magic_type
+		{
+			/** @brief Object file or impure executable: The text, data and bss sections are loaded contiguously */
+			OMAGIC = 0x0107,
+			/** @brief Pure executable: The data section starts on a page boundary, making it possible to have a write protected text section */
+			NMAGIC = 0x0108,
+			/** @brief Demand paged executable: Like NMAGIC, the data section starts on a page boundary, but the text section also starts on a page boundary */
+			ZMAGIC = 0x010B,
+			/** @brief The header is included in the text segment, but the first page is unmapped */
+			QMAGIC = 0x00CC,
+		};
+		/**
+		 * @brief The low 16 bits of the midmag field
+		 */
+		magic_type magic;
+
+		/**
+		 * @brief Default magic number associated with the system
+		 *
+		 * This information is based on studying the executables included with that software.
+		 * PDOS/386 uses OMAGIC, whereas DJGPP uses ZMAGIC.
+		 */
+		static constexpr magic_type GetDefaultMagic(system_type system)
+		{
+			switch(system)
+			{
+			default:
+			case DJGPP1:
+				return ZMAGIC;
+			case PDOS386:
+				return OMAGIC;
+			}
+		}
+
+		/**
+		 * @brief All fields in the header must appear in native byte order, except for FreeBSD and NetBSD where:
 		 * - Under FreeBSD, the midmag field is expected to be in little endian byte order, but it recognizes NetBSD headers with a big endian midmag field
 		 * - Under NetBSD, the midmag field is expected to be in big endian byte order, but if the CPU field is missing, it can be read in little endian byte order */
 		::EndianType midmag_endiantype;
 
-		AOutFormat(system_type system = UNSPECIFIED)
-			: system(system)
+		AOutFormat(system_type system, magic_type magic)
+			: system(system), magic(magic)
 		{
 		}
 
-		unsigned word_size;
-
-		enum magic_type
+		AOutFormat(system_type system)
+			: system(system), magic(GetDefaultMagic(system))
 		{
-			OMAGIC = 0x0107,
-			NMAGIC = 0x0108,
-			ZMAGIC = 0x010B,
-			QMAGIC = 0x00CC,
-		};
-		magic_type magic = magic_type(0);
+		}
 
-		enum cpu_type
+		AOutFormat()
+			: system(UNSPECIFIED), magic(magic_type(0))
 		{
-			UNKNOWN,
-			M68K,
-			SPARC,
-			SPARC64,
-			I386,
-			AMD64,
-			ARM,
-			AARCH64,
-			MIPS,
-			PARISC,
-			PDP11,
-			NS32K,
-			VAX,
-			ALPHA,
-			SUPERH,
-			SUPERH64,
-			PPC,
-			PPC64,
-			M88K,
-			IA64,
-			OR1K,
-			RISCV,
-		};
-		cpu_type cpu = UNKNOWN;
+		}
 
 		/** Represents a CPU/Machine type field, typically 8 to 10 bits wide */
 		uint16_t mid_value = 0;
+
+		/** Represents the high 8 bits of the midmag field, typically 6 to 8 bits wide */
+		uint8_t flags = 0;
 
 		static constexpr uint16_t MID_UNKNOWN = 0x000;
 		static constexpr uint16_t MID_68010 = 0x001;
@@ -165,11 +211,46 @@ namespace AOut
 
 		static constexpr uint16_t MID_BFD_ARM = 0x067;
 
-		/** Represents the high 8 bits of the midmag field, typically 6 to 8 bits wide */
-		uint8_t flags = 0;
+		/** @brief Number of bytes in a machine word (2 or 4), typically also determines the size of the header (16 or 32 bytes) */
+		unsigned word_size;
 
+		/** @brief Retrieves the size of the header for the current settings */
+		constexpr uint32_t GetHeaderSize() const
+		{
+			return word_size * 8;
+		}
+
+		enum cpu_type
+		{
+			UNKNOWN,
+			M68K,
+			SPARC,
+			SPARC64,
+			I386,
+			AMD64,
+			ARM,
+			AARCH64,
+			MIPS,
+			PARISC,
+			PDP11,
+			NS32K,
+			VAX,
+			ALPHA,
+			SUPERH,
+			SUPERH64,
+			PPC,
+			PPC64,
+			M88K,
+			IA64,
+			OR1K,
+			RISCV,
+		};
+		cpu_type cpu = UNKNOWN;
+
+		/** @brief Returns the default endian type for the currently set CPU */
 		::EndianType GetEndianType() const;
 
+		/** @brief Returns the expected word size for the currently set CPU */
 		unsigned GetWordSize() const;
 
 		uint32_t code_size = 0;
@@ -203,7 +284,7 @@ namespace AOut
 
 		std::vector<Symbol> symbols;
 
-		mutable uint32_t page_size = 0;
+		mutable uint32_t page_size = 0; // GetPageSize will set this if it is 0, and so it needs to be declared mutable
 
 		uint32_t GetPageSize() const;
 		uint32_t GetTextOffset() const;
@@ -244,14 +325,6 @@ namespace AOut
 		static std::shared_ptr<AOutFormat> CreateWriter(system_type system, magic_type magic);
 
 		static std::shared_ptr<AOutFormat> CreateWriter(system_type system);
-
-		/**
-		 * @brief Default magic number associated with the system
-		 *
-		 * This information is based on studying the executables included with that software.
-		 * PDOS/386 uses OMAGIC, whereas DJGPP uses ZMAGIC.
-		 */
-		static magic_type GetDefaultMagic(system_type system);
 
 		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
 		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;

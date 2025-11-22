@@ -10,13 +10,26 @@ using namespace AOut;
 	switch(cpu)
 	{
 	case M68K:
-	case SPARC:
+	case SPARC: case SPARC64:
+	case PPC: case PPC64:
+	case M88K:
+	case PARISC:
 		return ::BigEndian;
-	case I386:
-	case ARM: /* TODO: check */
+	case I386: case AMD64:
+	case ARM: case AARCH64:
 	case MIPS: /* TODO: check */
 	case PDP11:
+	case NS32K:
+	case VAX:
 		return ::LittleEndian; /* Note: actually, PDP-11 endian */
+	case UNKNOWN:
+	case ALPHA:
+	case SUPERH: case SUPERH64:
+	case IA64:
+	case OR1K:
+	case RISCV:
+		// TODO
+		return ::UndefinedEndian;
 	default:
 		Linker::FatalError("Internal error: invalid CPU type");
 	}
@@ -182,6 +195,7 @@ uint32_t AOutFormat::GetPageSize() const
 	case EMX:
 		return 0x00010000;
 	}
+	Linker::FatalError("Internal error: invalid system type");
 }
 
 uint32_t AOutFormat::GetTextOffset() const
@@ -197,7 +211,7 @@ uint32_t AOutFormat::GetTextOffset() const
 		case ZMAGIC:
 			return GetPageSize();
 		default:
-			return HEADER_SIZE;
+			return GetHeaderSize();
 		}
 		break;
 	case FREEBSD:
@@ -209,7 +223,7 @@ uint32_t AOutFormat::GetTextOffset() const
 			case ZMAGIC:
 				return 0;
 			default:
-				return HEADER_SIZE;
+				return GetHeaderSize();
 			}
 		}
 		else
@@ -221,7 +235,7 @@ uint32_t AOutFormat::GetTextOffset() const
 			case ZMAGIC:
 				return GetPageSize();
 			default:
-				return HEADER_SIZE;
+				return GetHeaderSize();
 			}
 		}
 		break;
@@ -236,7 +250,7 @@ uint32_t AOutFormat::GetTextOffset() const
 			case ZMAGIC:
 				return GetPageSize();
 			default:
-				return HEADER_SIZE;
+				return GetHeaderSize();
 			}
 		}
 		else
@@ -246,19 +260,18 @@ uint32_t AOutFormat::GetTextOffset() const
 			case ZMAGIC:
 				return 0;
 			default:
-				return HEADER_SIZE;
+				return GetHeaderSize();
 			}
 		}
 		break;
 	case DJGPP1:
-		return HEADER_SIZE;
+		return GetHeaderSize();
 	case PDOS386:
-		return HEADER_SIZE;
-		// TODO: actual value
-		//return 0x00000400;
+		return GetHeaderSize();
 	case EMX:
 		return GetPageSize();
 	}
+	Linker::FatalError("Internal error: invalid system type");
 }
 
 uint32_t AOutFormat::GetTextAddress() const
@@ -303,20 +316,17 @@ uint32_t AOutFormat::GetTextAddress() const
 		}
 		break;
 	case DJGPP1:
-		return 0x00001000 + HEADER_SIZE;
+		return 0x00001000 + GetHeaderSize();
 	case PDOS386:
-		switch(magic)
-		{
-		case ZMAGIC:
-			return HEADER_SIZE;
-		default:
+		if(magic == ZMAGIC || magic == QMAGIC)
+			// as per PDOS sources, not supported by the kernel
+			return GetPageSize();
+		else
 			return 0;
-			// TODO: actual value?
-			//return GetPageSize();
-		}
 	case EMX:
 		return GetPageSize();
 	}
+	Linker::FatalError("Internal error: invalid system type");
 }
 
 uint32_t AOutFormat::GetDataOffsetAlign() const
@@ -337,6 +347,7 @@ uint32_t AOutFormat::GetDataOffsetAlign() const
 	case EMX:
 		return 1;
 	}
+	Linker::FatalError("Internal error: invalid system type");
 }
 
 uint32_t AOutFormat::GetDataAddressAlign() const
@@ -358,10 +369,13 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 		else
 			return 1;
 	case PDOS386:
-		return 4;
-		// TODO: actual value?
-		//return GetPageSize();
+		if(magic == ZMAGIC || magic == QMAGIC)
+			// as per PDOS sources, not supported by the kernel
+			return GetPageSize();
+		else
+			return 1;
 	}
+	Linker::FatalError("Internal error: invalid system type");
 }
 
 void AOutFormat::ReadFile(Linker::Reader& rd)
@@ -557,6 +571,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			mid_value &= 0x03FF;
 
 			page_size = 0;
+			endiantype = ::UndefinedEndian;
 			switch(mid_value)
 			{
 			case MID_UNKNOWN:
@@ -573,35 +588,28 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			case MID_HP300:
 			case MID_HPUX:
 				cpu = M68K;
-				endiantype = ::BigEndian;
 				break;
 			case MID_NETBSD_M680002K:
 				cpu = M68K;
-				endiantype = ::BigEndian;
 				page_size = 2 * 1000;
 				break;
 			case MID_NETBSD_M68K4K:
 				cpu = M68K;
-				endiantype = ::BigEndian;
 				page_size = 4 * 1000;
 				break;
 			case MID_NETBSD_M68K:
 				cpu = M68K;
-				endiantype = ::BigEndian;
 				page_size = 8 * 1000;
 				break;
 			case MID_PC386:
 			case MID_I386:
 				cpu = I386;
-				endiantype = ::LittleEndian;
 				break;
 			case MID_NETBSD_NS32532K:
 				cpu = NS32K;
-				endiantype = ::LittleEndian;
 				break;
 			case MID_NETBSD_SPARC:
 				cpu = SPARC;
-				endiantype = ::BigEndian;
 				break;
 			case MID_NETBSD_PMAX:
 				cpu = MIPS;
@@ -609,11 +617,9 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				break;
 			case MID_NETBSD_VAX:
 				cpu = VAX;
-				endiantype = ::LittleEndian;
 				break;
 			case MID_NETBSD_VAX1K:
 				cpu = VAX;
-				endiantype = ::LittleEndian;
 				page_size = 1 * 1000;
 				break;
 			case MID_NETBSD_ALPHA:
@@ -626,33 +632,26 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				break;
 			case MID_ARM6:
 				cpu = ARM;
-				endiantype = ::LittleEndian;
 				break;
 			case MID_NETBSD_SH3:
 				cpu = SUPERH;
-				// TODO: endianness
 				break;
 			case MID_NETBSD_POWERPC64:
 				cpu = PPC64;
-				endiantype = ::BigEndian;
 				break;
 			case MID_NETBSD_POWERPC:
 				cpu = PPC;
-				endiantype = ::BigEndian;
 				break;
 			case MID_MIPS1:
 			case MID_MIPS2:
 				cpu = MIPS;
-				// TODO: endianness
 				break;
 			case MID_NETBSD_M88K:
 				cpu = M88K;
-				endiantype = ::BigEndian;
 				break;
 			case MID_NETBSD_HPPA:
 			case MID_HPUX800:
 				cpu = PARISC;
-				endiantype = ::BigEndian;
 				break;
 			case MID_NETBSD_SH5_64:
 				cpu = SUPERH64;
@@ -660,11 +659,9 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				break;
 			case MID_NETBSD_SPARC64:
 				cpu = SPARC64;
-				endiantype = ::BigEndian;
 				break;
 			case MID_NETBSD_X86_64:
 				cpu = AMD64;
-				endiantype = ::LittleEndian;
 				break;
 			case MID_NETBSD_SH5_32:
 				cpu = SUPERH;
@@ -676,7 +673,6 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				break;
 			case MID_NETBSD_AARCH64:
 				cpu = AARCH64;
-				endiantype = ::LittleEndian;
 				break;
 			case MID_NETBSD_OR1K:
 				cpu = OR1K;
@@ -687,6 +683,10 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				// TODO: endianness
 				break;
 			}
+
+			if(endiantype == ::UndefinedEndian)
+				endiantype = GetEndianType();
+
 			GetPageSize();
 		}
 		break;
@@ -827,8 +827,8 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(word_size, data_relocation_size);
 
 	uint32_t text_offset = GetTextOffset();
-	if(text_offset < HEADER_SIZE)
-		text_offset = HEADER_SIZE;
+	if(text_offset < GetHeaderSize())
+		text_offset = GetHeaderSize();
 	wr.Seek(file_offset + text_offset);
 
 	code->WriteFile(wr);
@@ -1047,26 +1047,12 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 
 std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system, magic_type magic)
 {
-	std::shared_ptr<AOutFormat> format = std::make_shared<AOutFormat>(system);
-	format->magic = magic;
-	return format;
+	return std::make_shared<AOutFormat>(system, magic);
 }
 
 std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system)
 {
-	return CreateWriter(system, GetDefaultMagic(system));
-}
-
-AOutFormat::magic_type AOutFormat::GetDefaultMagic(system_type system)
-{
-	switch(system)
-	{
-	default:
-	case DJGPP1:
-		return ZMAGIC;
-	case PDOS386:
-		return OMAGIC;
-	}
+	return std::make_shared<AOutFormat>(system);
 }
 
 static Linker::OptionDescription<offset_t> p_code_base_address("code_base_address", "Starting address of code section");
@@ -1196,8 +1182,8 @@ std::shared_ptr<Linker::Segment> AOutFormat::GetBssSegment()
 void AOutFormat::ProcessModule(Linker::Module& module)
 {
 	uint32_t text_address = GetTextAddress();
-	if(GetTextOffset() < HEADER_SIZE)
-		text_address += HEADER_SIZE - GetTextOffset();
+	if(GetTextOffset() < GetHeaderSize())
+		text_address += GetHeaderSize() - GetTextOffset();
 
 	linker_parameters["code_base_address"] = Linker::Location(text_address);
 	switch(system)
@@ -1332,6 +1318,7 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		Linker::Error << "Error: Format only supports Intel 80386 and Motorola 68000 binaries" << std::endl;
 	}
 
+	word_size = GetWordSize();
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
