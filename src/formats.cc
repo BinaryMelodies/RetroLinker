@@ -14,6 +14,7 @@
 #include "format/cpm8k.h" /* .z8k (CP/M-8000) */
 #include "format/dosexe.h" /* TODO: not yet finished or tested */
 #include "format/elf.h"
+#include "format/emxaout.h" /* TODO: not implemented */
 #include "format/epoc.h" /* EPOC/Symbian formats, TODO: not yet finished or tested */
 #include "format/geos.h" /* TODO: not implemented */
 #include "format/gsos.h" /* TODO: not yet finished or tested */
@@ -255,6 +256,10 @@ format_specification formats[] =
 		"32-bit a.out executable (80386) with OMAGIC for PDOS/386 (.exe) (obsolete)" },
 	{ "pdos386" },
 	{ "omagic" },
+	{ "emx",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<EMX::EMXAOutFormat>(); },
+		"32-bit a.out executable (80386) with ZMAGIC for EMX" },
+	{ "emxaout" },
 	/* HU */
 	{ "xfile",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<HUFormat>(); },

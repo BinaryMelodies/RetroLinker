@@ -198,7 +198,10 @@ void Segment::SetEndAddress(offset_t address)
 	}
 	else if(sections.back()->IsZeroFilled())
 	{
-		zero_fill += address - current_address;
+		offset_t extra = address - current_address;
+		sections.back()->Expand(sections.back()->Size() + extra);
+		zero_fill += extra;
+		Linker::Debug << "Debug: extended zero filled segment from " << (sections.back()->Size() - extra) << " to " << sections.back()->Size() << std::endl;
 //		Linker::Warning << "Internal error: attempting to increase segment size with zero-fill, ignoring" << std::endl;
 //		return;
 	}
@@ -234,6 +237,19 @@ void Segment::ShiftAddress(int64_t amount)
 void Segment::SetStartAddress(offset_t address)
 {
 	ShiftAddress(address - base_address);
+}
+
+void Segment::DropInitialZeroes(offset_t count)
+{
+	while(count > 0 && sections.size() > 0)
+	{
+		offset_t removed_bytes = sections[0]->DropInitialZeroes(count);
+		count -= removed_bytes;
+		zero_fill -= removed_bytes;
+		base_address += removed_bytes;
+		if(sections[0]->Size() == 0)
+			sections.erase(sections.begin());
+	}
 }
 
 std::shared_ptr<Segment> Segment::shared_from_this()

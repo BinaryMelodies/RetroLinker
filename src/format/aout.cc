@@ -269,7 +269,9 @@ uint32_t AOutFormat::GetTextOffset() const
 	case PDOS386:
 		return GetHeaderSize();
 	case EMX:
-		return GetPageSize();
+		return 0x00000400;
+		// TODO
+		//return GetPageSize();
 	}
 	Linker::FatalError("Internal error: invalid system type");
 }
@@ -1057,13 +1059,17 @@ std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system)
 
 static Linker::OptionDescription<offset_t> p_code_base_address("code_base_address", "Starting address of code section");
 static Linker::OptionDescription<offset_t> p_data_align("data_align", "Alignment of data section");
-static Linker::OptionDescription<offset_t> p_align("align", "Alignment of segments");
+static Linker::OptionDescription<offset_t> p_code_end_align("code_end_align", "Alignment of end of code section");
+static Linker::OptionDescription<offset_t> p_data_end_align("data_end_align", "Alignment of end of data section");
+static Linker::OptionDescription<offset_t> p_bss_end_align("bss_end_align", "Alignment of end of bss section");
 
 std::vector<Linker::OptionDescription<void> *> AOutFormat::ParameterNames =
 {
 	&p_code_base_address,
 	&p_data_align,
-	&p_align,
+	&p_code_end_align,
+	&p_data_end_align,
+	&p_bss_end_align,
 };
 
 std::vector<Linker::OptionDescription<void> *> AOutFormat::GetLinkerScriptParameterNames()
@@ -1127,21 +1133,21 @@ std::unique_ptr<Script::List> AOutFormat::GetScript(Linker::Module& module)
 ".code"
 {
 	at ?code_base_address?;
-	all not write align 4;
-	align ?align?;
+	all not write align ?align?;
+	align ?code_end_align?;
 };
 
 ".data"
 {
 	at align(here, ?data_align?);
-	all not zero align 4;
-	align ?align?; # TODO: not needed?
+	all not zero align ?align?;
+	align ?data_end_align?;
 };
 
 ".bss"
 {
-	all align 4;
-	align ?align?;
+	all align ?align?;
+	align ?bss_end_align?;
 };
 )";
 
@@ -1189,16 +1195,45 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 	switch(system)
 	{
 	case DJGPP1:
-		linker_parameters["align"] = Linker::Location(0x1000);
+		linker_parameters["code_end_align"] = Linker::Location(0x1000);
+		linker_parameters["data_end_align"] = Linker::Location(0x1000);
+		linker_parameters["bss_end_align"] = Linker::Location(0x1000);
+		linker_parameters["align"] = Linker::Location(4); // TODO
+		break;
+	case EMX:
+		linker_parameters["code_end_align"] = Linker::Location(0x1000);
+		linker_parameters["data_end_align"] = Linker::Location(1);
+		linker_parameters["bss_end_align"] = Linker::Location(1);
+		linker_parameters["align"] = Linker::Location(1);
 		break;
 	case PDOS386:
 	default:
+		linker_parameters["code_end_align"] = Linker::Location(4); /* TODO: is this needed? */
+		linker_parameters["data_end_align"] = Linker::Location(4); /* TODO: is this needed? */
+		linker_parameters["bss_end_align"] = Linker::Location(4); /* TODO: is this needed? */
 		linker_parameters["align"] = Linker::Location(4); /* TODO: is this needed? */
 		break;
 	}
 	linker_parameters["data_align"] = Linker::Location(GetDataAddressAlign());
 
 	Link(module);
+
+	if(system == EMX)
+	{
+		std::shared_ptr<Linker::Segment> data_segment = std::dynamic_pointer_cast<Linker::Segment>(data);
+		offset_t actual_data_size = data_segment->TotalSize();
+		data_segment->RealignEnd(0x1000);
+		offset_t extra_data_size = data_segment->TotalSize() - actual_data_size;
+
+		std::shared_ptr<Linker::Segment> bss_segment = std::dynamic_pointer_cast<Linker::Segment>(bss);
+
+		if(extra_data_size > 0)
+		{
+			bss_segment->DropInitialZeroes(extra_data_size);
+		}
+
+		bss_segment->RealignEnd(8);
+	}
 
 	for(Linker::Relocation& rel : module.relocations)
 	{
@@ -1306,7 +1341,22 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 	{
 	case Linker::Module::I386:
 		cpu = I386;
-		mid_value = MID_PC386; // TODO
+		switch(system)
+		{
+		default:
+		case LINUX:
+		case EMX:
+		case PDOS386:
+			mid_value = MID_PC386;
+			break;
+		case NETBSD:
+		case FREEBSD:
+			mid_value = MID_I386;
+			break;
+		case DJGPP1:
+			mid_value = 0;
+			break;
+		}
 		flags = 0;
 		break;
 	case Linker::Module::M68K:

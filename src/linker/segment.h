@@ -137,6 +137,13 @@ namespace Linker
 		 * @brief Forcibly resets starting address of segment
 		 */
 		void SetStartAddress(offset_t address);
+
+		/**
+		 * @brief Assuming all sections are zero filled, it deletes up to count bytes from the beginning, as much as available
+		 *
+		 * @param count Number of bytes to delete
+		 */
+		void DropInitialZeroes(offset_t count);
 	protected:
 		std::shared_ptr<Segment> shared_from_this();
 	};

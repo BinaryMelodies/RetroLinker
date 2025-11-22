@@ -318,6 +318,14 @@ namespace Linker
 		offset_t WriteFile(std::ostream& out) const;
 
 		/**
+		 * @brief Assuming the section is zero filled, it deletes up to count bytes from the beginning, as much as available
+		 *
+		 * @param count Number of bytes to delete
+		 * @return Count of actual number of bytes deleted
+		 */
+		offset_t DropInitialZeroes(offset_t count);
+
+		/**
 		 * @brief Clear the section
 		 */
 		virtual void Reset();
