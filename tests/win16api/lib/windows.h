@@ -13,6 +13,7 @@
 #define WINAPI __far __pascal
 
 typedef int BOOL;
+typedef uint8_t BYTE;
 typedef uint16_t HANDLE;
 typedef uint16_t UINT;
 typedef char FAR * LPSTR;
@@ -33,6 +34,7 @@ typedef uint32_t DWORD;
 typedef HANDLE HMENU;
 typedef void FAR * LPVOID;
 typedef int32_t LONG;
+typedef HANDLE HDC;
 
 typedef LRESULT FAR (__pascal * WNDPROC)(HWND, UINT, WPARAM, LPARAM);
 
@@ -66,8 +68,26 @@ typedef struct
 	POINT pt;
 	DWORD lPrivate;
 } MSG;
-
 typedef MSG FAR * LPMSG;
+
+typedef struct
+{
+	LONG left;
+	LONG top;
+	LONG right;
+	LONG bottom;
+} RECT;
+
+typedef struct
+{
+	HDC hdc;
+	BOOL fErase;
+	RECT rcPaint;
+	BOOL fRestore;
+	BOOL fIncUpdate;
+	BYTE rgbReserved[16];
+} PAINTSTRUCT;
+typedef PAINTSTRUCT FAR * LPPAINTSTRUCT;
 
 #define WS_OVERLAPPED  0x00000000L
 #define WS_MAXIMIZEBOX 0x00010000L
@@ -79,8 +99,22 @@ typedef MSG FAR * LPMSG;
 
 #define CW_USEDEFAULT 0x8000U
 
+#define WM_DESTROY 0x0002
+#define WM_PAINT 0x000F
+
+#define COLOR_WINDOW 5
+
 #define MessageBox $$IMPORT$USER$0001
 extern int WINAPI MessageBox(HWND hwnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType);
+
+#define PostQuitMessage $$IMPORT$USER$0006
+extern void WINAPI PostQuitMessage(int nExitCode);
+
+#define BeginPaint $$IMPORT$USER$0027
+extern HDC WINAPI BeginPaint(HWND hWnd, LPPAINTSTRUCT lpPaint);
+
+#define EndPaint $$IMPORT$USER$0028
+extern void WINAPI EndPaint(HWND hWnd, const PAINTSTRUCT FAR * lpPaint);
 
 #define CreateWindow $$IMPORT$USER$0029
 extern HWND WINAPI CreateWindow(LPCSTR lpClassName, LPCSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam);
@@ -90,6 +124,9 @@ extern BOOL WINAPI ShowWindow(HWND hWnd, int nCmdShow);
 
 #define RegisterClass $$IMPORT$USER$0039
 extern ATOM WINAPI RegisterClass(const WNDCLASS FAR * lpWndClass);
+
+#define FillRect $$IMPORT$USER$0051
+extern int WINAPI FillRect(HDC hdc, const RECT FAR * lprc, HBRUSH hbr);
 
 #define DefWindowProc $$IMPORT$USER$006B
 extern LRESULT WINAPI DefWindowProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

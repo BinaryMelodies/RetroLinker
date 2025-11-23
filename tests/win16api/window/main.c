@@ -5,6 +5,23 @@
 
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	switch(msg)
+	{
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		return 0;
+#if 0
+	case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hWnd, &ps);
+			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+			EndPaint(hWnd, &ps);
+		}
+		return 0;
+#endif
+	}
+
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
@@ -16,6 +33,7 @@ int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		WNDCLASS wc = { 0 };
 		wc.lpfnWndProc = MainWndProc;
 		wc.hInstance = hInstance;
+		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wc.lpszClassName = CLASS_NAME;
 		RegisterClass(&wc);
 	}
