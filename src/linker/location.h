@@ -61,6 +61,7 @@ namespace Linker
 		Position GetPosition(bool segment_of = false) const;
 
 		bool operator==(const Location& other) const;
+		bool operator<(const Location& other) const;
 
 		Location& operator+=(offset_t value);
 

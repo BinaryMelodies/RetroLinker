@@ -2749,6 +2749,35 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 		}
 	}
 
+	bool option_absolute_symbols = false;
+
+	if(cpu == EM_386)
+	{
+		for(const Section& section : sections)
+		{
+			if(auto relocations = section.GetRelocations())
+			{
+				for(Relocation rel : relocations->relocations)
+				{
+					switch(rel.type)
+					{
+					case R_386_SUB16:
+					case R_386_SUB32:
+					case R_386_SEG16:
+					case R_386_SEGRELATIVE:
+						Linker::Debug << "Debug: enabling segelf" << std::endl;
+						option_absolute_symbols = true;
+						break;
+					}
+					if(option_absolute_symbols)
+						break;
+				}
+			}
+			if(option_absolute_symbols)
+				break;
+		}
+	}
+
 	for(const Section& section : sections)
 	{
 		if(auto relocations = section.GetRelocations())
@@ -2761,8 +2790,30 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 
 				Linker::Location rel_source = Linker::Location(src_section.GetSection(), rel.offset);
 				const Symbol& sym_target = sections[rel.sh_link].GetSymbolTable()->symbols[rel.symbol];
-				Linker::SymbolName sym_name = Linker::SymbolName(sym_target.name);
-				Linker::Target rel_target = sym_target.defined ? Linker::Target(sym_target.location) : Linker::Target(sym_name);
+
+				std::string symbol_name_string = sym_target.name;
+				Linker::Location target_location = sym_target.location;
+				bool is_segment_name = false;
+
+				if(option_absolute_symbols && Linker::ends_with(symbol_name_string, "!"))
+				{
+					// in the segelf relocation scheme, this symbol refers to the beginning of the preferred segment of the actual symbol
+					is_segment_name = true;
+
+					// remove '!' symbol
+					symbol_name_string = symbol_name_string.substr(0, symbol_name_string.length() - 1);
+
+					// remove '!' symbol from section name as well
+					if(target_location.section != nullptr)
+						target_location = Linker::Location(module.FindSection(target_location.section->name.substr(0, target_location.section->name.length() - 1)), 0);
+				}
+
+				Linker::SymbolName sym_name = Linker::SymbolName(symbol_name_string);
+				Linker::Target rel_target = sym_target.defined ? Linker::Target(target_location) : Linker::Target(sym_name);
+
+				if(is_segment_name)
+					rel_target = rel_target.GetSegment();
+
 				Linker::Relocation obj_rel = Linker::Relocation::Empty();
 				size_t rel_size;
 				switch(cpu)
@@ -2778,7 +2829,7 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					case R_386_16:
 					case R_386_32:
 						obj_rel =
-							option_linear
+							option_linear || option_absolute_symbols
 							? Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian)
 							: Linker::Relocation::Offset(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
 						break;
@@ -2789,13 +2840,11 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 						break;
 					case R_386_SUB16:
 					case R_386_SUB32:
-						// TODO: untested
 						obj_rel =
 							Linker::Relocation::OffsetFrom(rel_size, rel_source, Linker::Target(Linker::Location()),
 								rel_target, rel.addend, ::LittleEndian);
 						break;
 					case R_386_SEG16:
-						// TODO: untested
 						obj_rel =
 							option_pmode
 							? Linker::Relocation::Selector(rel_source, rel_target, rel.addend)

@@ -90,6 +90,14 @@ namespace Linker
 		 */
 		std::vector<Relocation> relocations;
 
+		/**
+		 * @brief Map from source to the latest indices in the relocations vector
+		 *
+		 * This makes it possible to combine different relocations corresponding to the same source.
+		 * Note: if relocations get displaced, this structure will get invalidated.
+		 */
+		std::map<Location, size_t> relocation_indexes;
+
 	public:
 		/**
 		 * @brief Returns all the relocations within the module

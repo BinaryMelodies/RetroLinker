@@ -611,6 +611,7 @@ void Module::AddRelocation(Relocation relocation)
 	std::shared_ptr<Linker::OutputFormat> output_format = this->output_format.lock();
 	std::shared_ptr<const Linker::InputFormat> input_format = this->input_format.lock();
 
+	/* Attempt to parse extended relocation syntax */
 	if(SymbolName * symbolp = std::get_if<SymbolName>(&relocation.target.target))
 	{
 		/* undefined symbol */
@@ -763,6 +764,7 @@ void Module::AddRelocation(Relocation relocation)
 						relocation =
 							relocation.IsRelative()
 							? Linker::Relocation::Relative(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend)
+							// TODO: check if the relocation is absolute, offset, selector or paragraph
 							: output_format->FormatIsLinear()
 								? Linker::Relocation::Absolute(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend)
 								: Linker::Relocation::Offset(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend);
@@ -794,6 +796,23 @@ void Module::AddRelocation(Relocation relocation)
 		}
 	}
 
+	/* Check if two relocations can be combined */
+	auto index_it = relocation_indexes.find(relocation.source);
+	if(index_it != relocation_indexes.end())
+	{
+		if(relocations[index_it->second].Combine(relocation))
+		{
+			// the two relocations were successfully combined
+			Linker::Debug << "Debug: Relocations combined" << std::endl;
+			return;
+		}
+		else
+		{
+			Linker::Warning << "Warning: Two relocations for the same source location could not be combined" << std::endl;
+		}
+	}
+
+	relocation_indexes[relocation.source] = relocations.size();
 	relocations.push_back(relocation);
 }
 

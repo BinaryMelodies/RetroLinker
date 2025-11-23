@@ -70,6 +70,17 @@ bool Target::Lookup(Module& object, Position& position)
 	Linker::FatalError("Internal error: invalid target type");
 }
 
+bool Target::IsZero() const
+{
+	if(segment_of)
+		return false;
+
+	if(const Location * locationp = std::get_if<Location>(&target))
+		return *locationp == Location();
+
+	return false;
+}
+
 bool Linker::operator==(const Target& a, const Target& b)
 {
 	return a.target == b.target && a.segment_of == b.segment_of;

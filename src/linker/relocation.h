@@ -250,6 +250,13 @@ namespace Linker
 		 * For some output formats, it is important to tell whether a relocation is self-relative.
 		 */
 		bool IsRelative() const;
+
+		/**
+		 * @brief Attempts to combine two relocations.
+		 *
+		 * The types of combinations implemented is very limited, mostly intended to support the x86-16 segelf relocation method
+		 */
+		bool Combine(const Relocation& other);
 	};
 
 	std::ostream& operator<<(std::ostream& out, const Relocation& relocation);

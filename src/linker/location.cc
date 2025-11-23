@@ -38,6 +38,11 @@ bool Location::operator==(const Location& other) const
 	return section == other.section && offset == other.offset;
 }
 
+bool Location::operator<(const Location& other) const
+{
+	return section < other.section || (section == other.section && offset < other.offset);
+}
+
 Location& Location::operator+=(offset_t value)
 {
 	offset += value;

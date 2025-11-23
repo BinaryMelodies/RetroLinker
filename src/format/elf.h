@@ -1111,6 +1111,12 @@ namespace ELF
 		 * @brief Set when the generated format runs in protected mode
 		 */
 		bool option_pmode = false;
+#if 0
+		/**
+		 * @brief When set, symbols are treated as their absolute values instead of their offsets within their preferred segments, used for the segelf relocation scheme
+		 */
+		bool option_absolute_symbols = false;
+#endif
 
 		void SetupOptions(std::shared_ptr<Linker::OutputFormat> format) override;
 

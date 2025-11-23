@@ -78,6 +78,11 @@ namespace Linker
 		 * @return True if lookup succeeded. Targets with undefined symbols return false.
 		 */
 		bool Lookup(Module& object, Position& position);
+
+		/**
+		 * @brief Checks if the target is the absolute 0 reference
+		 */
+		bool IsZero() const;
 	};
 
 	bool operator==(const Target& a, const Target& b);

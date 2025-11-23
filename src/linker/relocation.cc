@@ -214,6 +214,31 @@ bool Relocation::IsRelative() const
 	return false;
 }
 
+bool Relocation::Combine(const Relocation& other)
+{
+	if(source != other.source
+	|| kind != other.kind
+	|| size != other.size
+	|| endiantype != other.endiantype
+	|| shift != other.shift
+	|| mask != other.mask
+	|| subtract != other.subtract)
+		return false;
+
+	if((target.IsZero() || other.target.IsZero())
+	&& (reference.IsZero() || other.reference.IsZero()))
+	{
+		if(!other.target.IsZero())
+			target = other.target;
+		if(!other.reference.IsZero())
+			reference = other.reference;
+		addend += other.addend;
+		return true;
+	}
+
+	return false;
+}
+
 std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation)
 {
 	out << relocation.size << " byte relocation(at " << relocation.source << " to ";
