@@ -22,6 +22,7 @@ namespace EMX
 		{
 		}
 
+		bool bound_image = false;
 		uint32_t aout_header_offset = 0;
 		std::array<char, 64> dos_options;
 		/* patch area inside the LX data object */

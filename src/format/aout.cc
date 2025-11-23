@@ -759,7 +759,13 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 	ReadHeader(rd);
 
-	code = Linker::Section::ReadFromFile(rd, code_size, ".text");
+	// we will skip the header, even if it is included in the text section
+	uint32_t text_offset = std::max(GetHeaderSize(), GetTextOffset());
+	rd.Seek(file_offset + text_offset);
+	code = Linker::Section::ReadFromFile(rd, code_size + (text_offset - GetTextOffset()), ".text");
+
+	uint32_t data_offset = AlignTo(GetTextOffset() + code_size, GetDataOffsetAlign());
+	rd.Seek(file_offset + data_offset);
 	data = Linker::Section::ReadFromFile(rd, data_size, ".data");
 
 	if(word_size == 2)
@@ -873,14 +879,13 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 
 	WriteHeader(wr);
 
-	uint32_t text_offset = GetTextOffset();
-	if(text_offset < GetHeaderSize())
-		text_offset = GetHeaderSize();
+	// we will skip the header, even if it is included in the text section
+	uint32_t text_offset = std::max(GetHeaderSize(), GetTextOffset());
 	wr.Seek(file_offset + text_offset);
 
 	code->WriteFile(wr);
 
-	uint32_t data_offset = AlignTo(text_offset + code_size, GetDataOffsetAlign());
+	uint32_t data_offset = AlignTo(GetTextOffset() + code_size, GetDataOffsetAlign());
 	wr.Seek(file_offset + data_offset);
 
 	data->WriteFile(wr);
@@ -1444,6 +1449,12 @@ void AOutFormat::CalculateValues()
 	endiantype = GetEndianType();
 	word_size = GetWordSize();
 	code_size = GetCodeSegment()->data_size;
+	if(GetTextOffset() < GetHeaderSize())
+	{
+		// include header in code size as well
+		code_size += GetHeaderSize() - GetTextOffset();
+	}
+
 	if(system != EMX)
 	{
 		data_size = GetDataSegment()->data_size;

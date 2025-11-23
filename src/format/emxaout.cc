@@ -11,6 +11,8 @@ void EMXAOutFormat::ReadFile(Linker::Reader& rd)
 	if(signature[0] == 'M' && signature[0] == 'Z')
 	{
 		/* read it as a bound executable */
+		bound_image = true;
+
 		LEFormat::ReadFile(rd);
 
 		rd.endiantype = ::LittleEndian;
@@ -29,6 +31,8 @@ void EMXAOutFormat::ReadFile(Linker::Reader& rd)
 	else
 	{
 		/* read it as an unbound executable */
+		bound_image = false;
+		rd.Seek(0);
 		AOutFormat::ReadFile(rd);
 	}
 
@@ -48,6 +52,8 @@ void EMXAOutFormat::ReadFile(Linker::Reader& rd)
 	stack_end  = data_image->ReadUnsigned(4, 48, ::LittleEndian);
 	flags      = data_image->ReadUnsigned(4, 52, ::LittleEndian);
 	data_image->ReadData(64, 60, os2_options.data());
+
+	// TODO: resize data and bss to actual values for a.out images?
 }
 
 offset_t EMXAOutFormat::ImageSize() const
@@ -94,8 +100,16 @@ void EMXAOutFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
 	file_region.Display(dump);
 
-	// TODO
-	LEFormat::Dump(dump);
+	if(bound_image)
+	{
+		// TODO
+		LEFormat::Dump(dump);
+	}
+	else
+	{
+		// TODO
+		AOutFormat::Dump(dump);
+	}
 }
 
 /* * * Reader members * * */
@@ -176,7 +190,7 @@ void EMXAOutFormat::CalculateValues()
 	data_section->WriteWord(4, 52, flags, ::LittleEndian);
 	data_section->WriteData(64, 60, os2_options.data());
 
-	if(stub.filename != "")
+	if(stub.filename != "" || bound_image)
 	{
 		// TODO: fill in LX fields
 
@@ -192,6 +206,8 @@ void EMXAOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 	{
 		Linker::FatalError("Fatal error: Format only supports Intel 80386 binaries");
 	}
+
+	bound_image = stub.filename != "";
 
 	// a.out fields
 	AOutFormat::cpu = AOutFormat::I386;
@@ -212,7 +228,7 @@ void EMXAOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 
 std::string EMXAOutFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	if(stub.filename == "")
+	if(stub.filename == "" || bound_image)
 		return filename;
 	else
 		return filename + ".exe";
@@ -220,7 +236,7 @@ std::string EMXAOutFormat::GetDefaultExtension(Linker::Module& module, std::stri
 
 std::string EMXAOutFormat::GetDefaultExtension(Linker::Module& module) const
 {
-	if(stub.filename == "")
+	if(stub.filename == "" || bound_image)
 		return "a.out";
 	else
 		return "a.exe";
