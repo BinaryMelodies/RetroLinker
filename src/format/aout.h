@@ -208,8 +208,14 @@ namespace AOut
 
 		static constexpr uint16_t MID_BFD_ARM = 0x067;
 
+		enum word_size_t
+		{
+			WordSize16 = 2,
+			WordSize32 = 4,
+		};
+
 		/** @brief Number of bytes in a machine word (2 or 4), typically also determines the size of the header (16 or 32 bytes) */
-		unsigned word_size = 0;
+		word_size_t word_size = word_size_t(0);
 
 		/** @brief Retrieves the size of the header for the current settings */
 		constexpr uint32_t GetHeaderSize() const
@@ -248,7 +254,7 @@ namespace AOut
 		::EndianType GetEndianType() const;
 
 		/** @brief Returns the expected word size for the currently set CPU */
-		unsigned GetWordSize() const;
+		word_size_t GetWordSize() const;
 
 		uint32_t code_size = 0;
 		uint32_t data_size = 0;
@@ -303,7 +309,7 @@ namespace AOut
 
 		/* * * Reader members * * */
 
-		static std::shared_ptr<AOutFormat> CreateReader(unsigned word_size, ::EndianType endiantype, system_type system = UNSPECIFIED);
+		static std::shared_ptr<AOutFormat> CreateReader(word_size_t word_size, ::EndianType endiantype, system_type system = UNSPECIFIED);
 
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;

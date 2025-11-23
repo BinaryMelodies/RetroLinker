@@ -35,7 +35,7 @@ using namespace AOut;
 	}
 }
 
-unsigned AOutFormat::GetWordSize() const
+AOutFormat::word_size_t AOutFormat::GetWordSize() const
 {
 	switch(cpu)
 	{
@@ -44,9 +44,9 @@ unsigned AOutFormat::GetWordSize() const
 	case I386:
 	case ARM:
 	case MIPS:
-		return 4;
+		return WordSize32;
 	case PDP11:
-		return 2;
+		return WordSize16;
 	default:
 		Linker::FatalError("Internal error: invalid CPU type");
 	}
@@ -103,7 +103,7 @@ bool AOutFormat::AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offse
 		return false;
 
 	/* Check valid CPU type (32-bit only) */
-	if(word_size == 4)
+	if(word_size == WordSize32)
 	{
 		switch(endiantype)
 		{
@@ -471,22 +471,22 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				/* could be multiple formats, make multiple attempts */
 				endiantype = midmag_endiantype = ::LittleEndian;
 
-				word_size = file_offset ? 4 : 2;
+				word_size = file_offset ? WordSize32 : WordSize16;
 				/* if at beginning of file, first attempt 16-bit little endian (PDP-11, most likely input format) */
 				if(!AttemptReadFile(rd, signature, file_end - file_offset))
 				{
 					endiantype = midmag_endiantype = ::LittleEndian;
-					word_size = file_offset ? 2 : 4;
+					word_size = file_offset ? WordSize16 : WordSize32;
 					/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
 					if(!AttemptReadFile(rd, signature, file_end - file_offset))
 					{
 						endiantype = midmag_endiantype = ::BigEndian;
-						word_size = 4;
+						word_size = WordSize32;
 						/* then attempt 32-bit big endian (Motorola 68000, most likely format if not little endian) */
 						if(!AttemptReadFile(rd, signature, file_end - file_offset))
 						{
 							endiantype = midmag_endiantype = ::BigEndian;
-							word_size = 2;
+							word_size = WordSize16;
 							/* finally, attempt 16-bit big endian (unsure if any ever supported UNIX with a.out) */
 							if(!AttemptReadFile(rd, signature, file_end - file_offset))
 							{
@@ -498,7 +498,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			}
 			else
 			{
-				word_size = 4;
+				word_size = WordSize32;
 
 				/* magic value is unrecognizable, attempting to read a couple of common CPU types */
 				switch(signature[1])
@@ -559,7 +559,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		else
 		{
 			/* attempt little endian */
-			word_size = 4;
+			word_size = WordSize32;
 			endiantype = ::UndefinedEndian;
 
 			uint16_t attempted_magic = signature[0] | (signature[1] << 8);
@@ -632,7 +632,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		}
 		else
 		{
-			word_size = 4;
+			word_size = WordSize32;
 			endiantype = ::UndefinedEndian;
 
 			/* attempt big endian */
@@ -786,7 +786,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	case DJGPP1:
 	case PDOS386:
 	case EMX:
-		word_size = 4;
+		word_size = WordSize32;
 		endiantype = midmag_endiantype = ::LittleEndian;
 		cpu = I386;
 
@@ -813,7 +813,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	rd.Seek(file_offset + data_offset);
 	data = Linker::Section::ReadFromFile(rd, data_size, ".data");
 
-	if(word_size == 2)
+	if(word_size == WordSize16)
 	{
 		/* TODO: this is only for PDP-11 */
 		if(data_relocation_size == 0)
@@ -1005,7 +1005,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		{ QMAGIC, "\"QMAGIC\"" },
 	};
 	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_descriptions, Dumper::HexDisplay::Make(4)), offset_t(magic));
-	if(word_size == 4)
+	if(word_size == WordSize32)
 	{
 		static const std::map<offset_t, std::string> freebsd_midmag_descriptions =
 		{
@@ -1091,8 +1091,6 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		case PDOS386:
 			break;
 		case UNSPECIFIED:
-			if(word_size == 2)
-				break;
 		case LINUX:
 			header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(linux_mid_descriptions, Dumper::HexDisplay::Make(2)), offset_t(mid_value & 0xFF));
 			header_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(2), offset_t(flags & 0xFF));
@@ -1132,7 +1130,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 
 /* * * Reader * * */
 
-std::shared_ptr<AOutFormat> AOutFormat::CreateReader(unsigned word_size, ::EndianType endiantype, system_type system)
+std::shared_ptr<AOutFormat> AOutFormat::CreateReader(word_size_t word_size, ::EndianType endiantype, system_type system)
 {
 	std::shared_ptr<AOutFormat> reader = std::make_shared<AOutFormat>();
 	reader->word_size = word_size;
@@ -1161,7 +1159,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 		module.cpu = Linker::Module::MIPS;
 		break;
 	case UNKNOWN:
-		if(word_size == 2)
+		if(word_size == WordSize16)
 		{
 			if(endiantype == ::LittleEndian || endiantype == ::PDP11Endian)
 			{
