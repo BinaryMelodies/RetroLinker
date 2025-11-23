@@ -1351,23 +1351,6 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 
 	Link(module);
 
-	if(system == EMX)
-	{
-		std::shared_ptr<Linker::Segment> data_segment = std::dynamic_pointer_cast<Linker::Segment>(data);
-		offset_t actual_data_size = data_segment->TotalSize();
-		data_segment->RealignEnd(0x1000);
-		offset_t extra_data_size = data_segment->TotalSize() - actual_data_size;
-
-		std::shared_ptr<Linker::Segment> bss_segment = std::dynamic_pointer_cast<Linker::Segment>(bss);
-
-		if(extra_data_size > 0)
-		{
-			bss_segment->DropInitialZeroes(extra_data_size);
-		}
-
-		bss_segment->RealignEnd(8);
-	}
-
 	for(Linker::Relocation& rel : module.relocations)
 	{
 		Linker::Resolution resolution;
@@ -1461,8 +1444,19 @@ void AOutFormat::CalculateValues()
 	endiantype = GetEndianType();
 	word_size = GetWordSize();
 	code_size = GetCodeSegment()->data_size;
-	data_size = GetDataSegment()->data_size;
-	bss_size  = GetBssSegment()->zero_fill;
+	if(system != EMX)
+	{
+		data_size = GetDataSegment()->data_size;
+		bss_size  = GetBssSegment()->zero_fill;
+	}
+	else
+	{
+		// align end of data section
+		data_size = AlignTo(GetDataSegment()->data_size, 0x1000);
+		// bss must follow the data immediately, fit as much of bss into the data section as we can
+		offset_t data_size_extra = data_size - GetDataSegment()->data_size;
+		bss_size = AlignTo(std::max(GetBssSegment()->zero_fill, data_size_extra) - data_size_extra, 8);
+	}
 	symbol_table_size = 0;
 	code_relocation_size = code_relocations.size() * 8;
 	data_relocation_size = data_relocations.size() * 8;

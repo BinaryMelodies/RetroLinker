@@ -239,19 +239,6 @@ void Segment::SetStartAddress(offset_t address)
 	ShiftAddress(address - base_address);
 }
 
-void Segment::DropInitialZeroes(offset_t count)
-{
-	while(count > 0 && sections.size() > 0)
-	{
-		offset_t removed_bytes = sections[0]->DropInitialZeroes(count);
-		count -= removed_bytes;
-		zero_fill -= removed_bytes;
-		base_address += removed_bytes;
-		if(sections[0]->Size() == 0)
-			sections.erase(sections.begin());
-	}
-}
-
 std::shared_ptr<Segment> Segment::shared_from_this()
 {
 	return std::static_pointer_cast<Segment>(ActualImage::shared_from_this());

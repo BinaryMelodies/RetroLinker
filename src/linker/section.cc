@@ -376,16 +376,6 @@ offset_t Section::WriteFile(std::ostream& out) const
 	return WriteFile(out, Size());
 }
 
-offset_t Section::DropInitialZeroes(offset_t count)
-{
-	assert(IsZeroFilled());
-	if(size < count)
-		count = size;
-	ResetAddress(address + count);
-	size -= count;
-	return count;
-}
-
 void Section::Reset()
 {
 	data.clear();

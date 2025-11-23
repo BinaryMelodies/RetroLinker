@@ -153,11 +153,11 @@ void EMXAOutFormat::CalculateValues()
 
 	// calculate the patch area entries
 	text_base = AOutFormat::GetTextAddress();
-	text_end = text_base + GetCodeSegment()->TotalSize();
-	data_base = AlignTo(text_base, AOutFormat::GetDataAddressAlign());
-	data_end = data_base + GetDataSegment()->TotalSize();
+	text_end = text_base + GetCodeSegment()->data_size;
+	data_base = AlignTo(text_end, AOutFormat::GetDataAddressAlign());
+	data_end = data_base + GetDataSegment()->data_size;
 	bss_base = data_end;
-	bss_end = bss_base + GetBssSegment()->TotalSize();
+	bss_end = bss_base + GetBssSegment()->zero_fill;
 	// TODO: calculate the remaining values
 
 	data_section->WriteWord(4, 0, text_base, ::LittleEndian);
