@@ -224,6 +224,35 @@ bool Relocation::IsOffset() const
 	return reference == target.GetSegment();
 }
 
+void Relocation::ReplaceTarget(Target new_target)
+{
+	bool is_offset = IsOffset();
+	target = new_target;
+	if(is_offset)
+		reference = new_target.GetSegment();
+}
+
+void Relocation::ReplaceTarget(Target new_target, Target new_reference)
+{
+	target = new_target;
+	reference = new_reference;
+}
+
+void Relocation::ConvertToSegment(bool protected_mode, Target segment_target)
+{
+	kind = protected_mode ? SelectorIndex : ParagraphAddress;
+	target = segment_target;
+	// in case this was originally an Offset() relocation
+	reference = Target();
+}
+
+void Relocation::ConvertToParagraphDifference(Target new_target, Target new_reference)
+{
+	kind = Linker::Relocation::ParagraphAddress;
+	target = new_target;
+	reference = new_reference;
+}
+
 bool Relocation::Combine(const Relocation& other)
 {
 	if(source != other.source

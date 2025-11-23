@@ -655,10 +655,13 @@ void Module::AddRelocation(Relocation relocation)
 							? Linker::Relocation::Absolute(relocation.size, relocation.source, Linker::Target(Linker::Location(section)), relocation.addend)
 							: Linker::Relocation::Offset(relocation.size, relocation.source, Linker::Target(Linker::Location(section)), relocation.addend);
 #endif
+#if 0
 						bool is_offset = relocation.IsOffset();
 						relocation.target = Linker::Target(Linker::Location(section));
 						if(is_offset)
 							relocation.reference = Linker::Target(Linker::Location(section)).GetSegment();
+#endif
+						relocation.ReplaceTarget(Linker::Target(Linker::Location(section)));
 					}
 				}
 				else if(unparsed_name.rfind(segment_prefix(), 0) == 0 && relocation.size == 2)
@@ -679,10 +682,13 @@ void Module::AddRelocation(Relocation relocation)
 							? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend)
 							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend);
 #endif
+#if 0
 						relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
 						relocation.target = Linker::Target(Linker::Location(section)).GetSegment();
 						// in case this was originally an Offset() relocation
 						relocation.reference = Target();
+#endif
+						relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(Linker::Location(section)).GetSegment());
 					}
 				}
 				else if(unparsed_name.rfind(segment_of_prefix(), 0) == 0 && relocation.size == 2)
@@ -695,10 +701,13 @@ void Module::AddRelocation(Relocation relocation)
 						? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend)
 						: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend);
 #endif
+#if 0
 					relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
 					relocation.target = Linker::Target(Linker::SymbolName(symbol_name)).GetSegment();
 					// in case this was originally an Offset() relocation
 					relocation.reference = Target();
+#endif
+					relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(Linker::SymbolName(symbol_name)).GetSegment());
 				}
 				else if(unparsed_name.rfind(segment_at_prefix(), 0) == 0 && relocation.size == 2)
 				{
@@ -710,10 +719,13 @@ void Module::AddRelocation(Relocation relocation)
 						? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend)
 						: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend);
 #endif
+#if 0
 					relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
 					relocation.target = Linker::Target(Linker::SymbolName(symbol_name));
 					// in case this was originally an Offset() relocation
 					relocation.reference = Target();
+#endif
+					relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(Linker::SymbolName(symbol_name)));
 				}
 				else if(unparsed_name.rfind(segment_at_section_prefix(), 0) == 0 && relocation.size == 2)
 				{
@@ -732,10 +744,13 @@ void Module::AddRelocation(Relocation relocation)
 							? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::Location(section)), relocation.addend)
 							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::Location(section)), relocation.addend);
 #endif
+#if 0
 						relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
 						relocation.target = Linker::Target(Linker::Location(section));
 						// in case this was originally an Offset() relocation
 						relocation.reference = Target();
+#endif
+						relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(Linker::Location(section)));
 					}
 				}
 				else if(unparsed_name.rfind(with_respect_to_segment_prefix(), 0) == 0)
@@ -757,8 +772,11 @@ void Module::AddRelocation(Relocation relocation)
 						relocation = Linker::Relocation::OffsetFrom(relocation.size, relocation.source,
 							Linker::Target(Linker::SymbolName(symbol_name)), Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend, ::LittleEndian);
 #endif
+#if 0
 						relocation.target = Linker::Target(Linker::SymbolName(symbol_name));
 						relocation.reference = Linker::Target(Linker::Location(section)).GetSegment();
+#endif
+						relocation.ReplaceTarget(Linker::Target(Linker::SymbolName(symbol_name)), Linker::Target(Linker::Location(section)).GetSegment());
 					}
 				}
 				else if(unparsed_name.rfind(segment_difference_prefix(), 0) == 0 && relocation.size == 2)
@@ -784,9 +802,12 @@ void Module::AddRelocation(Relocation relocation)
 						relocation = Linker::Relocation::ParagraphDifference(relocation.source,
 							Linker::Target(Linker::Location(section1)).GetSegment(), Linker::Target(Linker::Location(section2)).GetSegment(), relocation.addend);
 #endif
+#if 0
 						relocation.kind = Linker::Relocation::ParagraphAddress;
 						relocation.target = Linker::Target(Linker::Location(section1)).GetSegment();
 						relocation.reference = Linker::Target(Linker::Location(section2)).GetSegment();
+#endif
+						relocation.ConvertToParagraphDifference(Linker::Target(Linker::Location(section1)).GetSegment(), Linker::Target(Linker::Location(section2)).GetSegment());
 					}
 				}
 			}
@@ -808,10 +829,13 @@ void Module::AddRelocation(Relocation relocation)
 								? Linker::Relocation::Absolute(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend)
 								: Linker::Relocation::Offset(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend);
 #endif
+#if 0
 						bool is_offset = relocation.IsOffset();
 						relocation.target = Linker::Target(symbol);
 						if(is_offset)
 							relocation.reference = Linker::Target(symbol).GetSegment();
+#endif
+						relocation.ReplaceTarget(Linker::Target(symbol));
 					}
 					else
 					{
@@ -832,10 +856,13 @@ void Module::AddRelocation(Relocation relocation)
 							? Linker::Relocation::Selector(relocation.source, Linker::Target(symbol), relocation.addend)
 							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(symbol), relocation.addend);
 #endif
+#if 0
 						relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
 						relocation.target = Linker::Target(symbol);
 						// in case this was originally an Offset() relocation
 						relocation.reference = Target();
+#endif
+						relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(symbol));
 					}
 					else
 					{

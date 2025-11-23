@@ -266,6 +266,29 @@ namespace Linker
 		bool IsOffset() const;
 
 		/**
+		 * @brief Modifies the relocation to have a different target
+		 *
+		 * This method assumes that the original relocation was created by calling Absolute, Offset or Relative.
+		 * If it is determined to have been created by calling Offset, it will also update its reference field.
+		 */
+		void ReplaceTarget(Target new_target);
+
+		/**
+		 * @brief Modifies the relocation to have a different target and reference
+		 */
+		void ReplaceTarget(Target new_target, Target new_reference);
+
+		/**
+		 * @brief Modifies the relocation to be a reference to a paragraph address or selector index (x86)
+		 */
+		void ConvertToSegment(bool protected_mode, Target segment_target);
+
+		/**
+		 * @brief Modifies the relocation to be a paragraph difference between new_target and new_reference
+		 */
+		void ConvertToParagraphDifference(Target new_target, Target new_reference);
+
+		/**
 		 * @brief Attempts to combine two relocations.
 		 *
 		 * The types of combinations implemented is very limited, mostly intended to support the x86-16 segelf relocation method
