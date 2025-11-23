@@ -1001,6 +1001,8 @@ std::string CPM68KFormat::GetDefaultExtension(Linker::Module& module, std::strin
 	switch(system)
 	{
 	case SYSTEM_CPM68K:
+		if(!relocations_suppressed)
+			return filename + ".rel";
 	case SYSTEM_CDOS68K:
 		return filename + ".68k";
 	case SYSTEM_GEMDOS:
