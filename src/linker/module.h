@@ -84,10 +84,17 @@ namespace Linker
 	public:
 		bool HasSymbolDefinition(const SymbolDefinition& symbol);
 
+	private:
 		/**
 		 * @brief List of relocations within the module
 		 */
 		std::vector<Relocation> relocations;
+
+	public:
+		/**
+		 * @brief Returns all the relocations within the module
+		 */
+		std::vector<Relocation>& GetRelocations();
 
 		/** @brief Set to true if module is included in the linking process, relevant for libraries */
 		bool is_included = false;

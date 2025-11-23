@@ -121,7 +121,7 @@ void MPFormat::ProcessModule(Linker::Module& module)
 		eip = 0;
 	}
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))
@@ -464,7 +464,7 @@ void P3Format::Flat::ProcessModule(Linker::Module& module)
 	}
 	cs = 0;
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))
@@ -887,7 +887,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 		}
 	}
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))

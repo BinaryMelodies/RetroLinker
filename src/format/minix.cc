@@ -554,7 +554,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 		break;
 	}
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))

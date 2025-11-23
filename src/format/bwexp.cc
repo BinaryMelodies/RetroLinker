@@ -342,7 +342,7 @@ void BWFormat::ProcessModule(Linker::Module& module)
 		ip = 0;
 	}
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))

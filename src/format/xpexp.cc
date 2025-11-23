@@ -568,7 +568,7 @@ void XPFormat::ProcessModule(Linker::Module& module)
 	ss = section_selectors[ss_section];
 
 	std::set<uint32_t> relocation_offsets;
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))

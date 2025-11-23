@@ -353,7 +353,7 @@ void O65Format::Module::GenerateModule(Linker::Module& module) const
 				break;
 			}
 			obj_rel.AddCurrentValue();
-			module.relocations.push_back(obj_rel);
+			module.AddRelocation(obj_rel);
 		}
 	}
 }

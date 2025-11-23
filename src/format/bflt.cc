@@ -220,7 +220,7 @@ void BFLTFormat::ProcessModule(Linker::Module& module)
 
 	// TODO: calculate GOT entries
 
-	for(Linker::Relocation rel : module.relocations)
+	for(Linker::Relocation rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(rel.kind == Linker::Relocation::GOTEntry)

@@ -1934,7 +1934,7 @@ void LEFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(rel.Resolve(module, resolution))

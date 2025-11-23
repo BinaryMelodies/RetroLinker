@@ -1309,7 +1309,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 				? Linker::Relocation::Relative(2, rel_source, rel_target, addend, ::LittleEndian)
 				: Linker::Relocation::Absolute(2, rel_source, rel_target, addend, ::LittleEndian);
 			//obj_rel.AddCurrentValue();
-			module.relocations.push_back(obj_rel);
+			module.AddRelocation(obj_rel);
 			Linker::Debug << "Debug: a.out relocation " << obj_rel << std::endl;
 		}
 	}
@@ -1491,7 +1491,7 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 
 	Link(module);
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))

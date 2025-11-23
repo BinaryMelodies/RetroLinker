@@ -1694,7 +1694,7 @@ void CPM86Format::BuildLDTImage(Linker::Module& module)
 
 	// divide the groups into segments
 	// also collect libraries
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(rel.kind != Linker::Relocation::SelectorIndex && rel.Resolve(module, resolution))
@@ -1753,7 +1753,7 @@ void CPM86Format::BuildLDTImage(Linker::Module& module)
 	// allocate internal selectors for each relocation
 	std::map<relocation_target, uint16_t> selectors;
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(rel.kind == Linker::Relocation::SelectorIndex && rel.Resolve(module, resolution) && resolution.reference == nullptr)
@@ -1782,7 +1782,7 @@ void CPM86Format::BuildLDTImage(Linker::Module& module)
 	// allocate external selectors
 	for(auto& library : library_descriptor.libraries)
 	{
-		for(Linker::Relocation& rel : module.relocations)
+		for(Linker::Relocation& rel : module.GetRelocations())
 		{
 			Linker::Resolution resolution;
 			if(rel.Resolve(module, resolution))
@@ -1863,7 +1863,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 	}
 
 	std::map<relocation_source, size_t> relocation_targets;
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(rel.Resolve(module, resolution))

@@ -69,6 +69,11 @@ bool Module::HasSymbolDefinition(const SymbolDefinition& symbol)
 	return it != symbol_sequence.end();
 }
 
+std::vector<Relocation>& Module::GetRelocations()
+{
+	return relocations;
+}
+
 void Module::SetupOptions(char special_char, std::shared_ptr<Linker::OutputFormat> output_format, std::shared_ptr<const Linker::InputFormat> input_format)
 {
 	special_prefix_char = special_char;

@@ -1575,7 +1575,7 @@ for(auto section : module.Sections())
 	/* must be the first entry */
 	codes[0]->near_entries.insert(entry_offset);
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))

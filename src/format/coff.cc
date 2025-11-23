@@ -1808,7 +1808,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 						break;
 					}
 					obj_rel.AddCurrentValue();
-					module.relocations.push_back(obj_rel);
+					module.AddRelocation(obj_rel);
 					Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 				}
 				break;
@@ -1844,7 +1844,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 							/* segment part */
 							obj_rel = Linker::Relocation::Segment(1, rel_source, rel_target.GetSegment(), rel.offset);
 							obj_rel.SetMask(0x7F);
-							module.relocations.push_back(obj_rel);
+							module.AddRelocation(obj_rel);
 							Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 							/* offset part */
 							obj_rel = Linker::Relocation::Offset(1, rel_source + 1, rel_target, rel.offset >> 8, ::BigEndian);
@@ -1861,7 +1861,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 							/* segment part */
 							obj_rel = Linker::Relocation::Segment(1, rel_source, rel_target.GetSegment(), rel.offset);
 							obj_rel.SetMask(0x7F);
-							module.relocations.push_back(obj_rel);
+							module.AddRelocation(obj_rel);
 							Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 							/* offset part */
 							obj_rel = Linker::Relocation::Offset(2, rel_source + 2, rel_target, rel.offset >> 16, ::BigEndian);
@@ -1928,7 +1928,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 							/* segment part */
 							obj_rel = Linker::Relocation::Segment(1, rel_source, rel_target.GetSegment(), rel.offset);
 							obj_rel.SetMask(0x7F);
-							module.relocations.push_back(obj_rel);
+							module.AddRelocation(obj_rel);
 							Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 							/* offset part */
 							if(rel.type == ZilogRelocation::R_Z8K_IMM32)
@@ -1948,7 +1948,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 
 					// The value in the COFF image is usually unusable, so we ignore it
 					//obj_rel.AddCurrentValue();
-					module.relocations.push_back(obj_rel);
+					module.AddRelocation(obj_rel);
 					Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 				}
 				break;
@@ -1999,7 +1999,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 						break;
 					}
 					obj_rel.AddCurrentValue();
-					module.relocations.push_back(obj_rel);
+					module.AddRelocation(obj_rel);
 					Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 					Linker::Debug << "Debug: value at location: " << obj_rel.addend - rel_addend << std::endl;
 				}
@@ -2293,7 +2293,7 @@ void COFFFormat::ProcessModule(Linker::Module& module)
 {
 	Link(module);
 
-	for(Linker::Relocation& rel : module.relocations)
+	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 		if(!rel.Resolve(module, resolution))
