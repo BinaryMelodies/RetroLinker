@@ -432,6 +432,8 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
+	// TODO: if word_size and endiantype are already set, enforce those values
+
 	word_size = 4;
 
 	switch(system)

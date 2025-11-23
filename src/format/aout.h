@@ -212,7 +212,7 @@ namespace AOut
 		static constexpr uint16_t MID_BFD_ARM = 0x067;
 
 		/** @brief Number of bytes in a machine word (2 or 4), typically also determines the size of the header (16 or 32 bytes) */
-		unsigned word_size;
+		unsigned word_size = 0;
 
 		/** @brief Retrieves the size of the header for the current settings */
 		constexpr uint32_t GetHeaderSize() const

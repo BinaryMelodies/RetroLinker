@@ -132,13 +132,16 @@ std::vector<Linker::OptionDescription<void> *> EMXAOutFormat::GetLinkerScriptPar
 
 std::shared_ptr<Linker::OptionCollector> EMXAOutFormat::GetOptions()
 {
-	// TODO
-	return OutputFormat::GetOptions();
+	return std::make_shared<EMXOptionCollector>();
 }
 
 void EMXAOutFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	// TODO
+	EMXOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
+	bound_image = stub.filename != "";
+	/* TODO */
 }
 
 void EMXAOutFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -172,6 +175,7 @@ void EMXAOutFormat::CalculateValues()
 	data_end = data_base + GetDataSegment()->data_size;
 	bss_base = data_end;
 	bss_end = bss_base + GetBssSegment()->zero_fill;
+	flags = 0x02000000; // application
 	// TODO: calculate the remaining values
 
 	data_section->WriteWord(4, 0, text_base, ::LittleEndian);
@@ -190,7 +194,7 @@ void EMXAOutFormat::CalculateValues()
 	data_section->WriteWord(4, 52, flags, ::LittleEndian);
 	data_section->WriteData(64, 60, os2_options.data());
 
-	if(stub.filename != "" || bound_image)
+	if(bound_image)
 	{
 		// TODO: fill in LX fields
 
@@ -206,8 +210,6 @@ void EMXAOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 	{
 		Linker::FatalError("Fatal error: Format only supports Intel 80386 binaries");
 	}
-
-	bound_image = stub.filename != "";
 
 	// a.out fields
 	AOutFormat::cpu = AOutFormat::I386;
@@ -228,7 +230,7 @@ void EMXAOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 
 std::string EMXAOutFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	if(stub.filename == "" || bound_image)
+	if(bound_image)
 		return filename;
 	else
 		return filename + ".exe";
@@ -236,7 +238,7 @@ std::string EMXAOutFormat::GetDefaultExtension(Linker::Module& module, std::stri
 
 std::string EMXAOutFormat::GetDefaultExtension(Linker::Module& module) const
 {
-	if(stub.filename == "" || bound_image)
+	if(bound_image)
 		return "a.out";
 	else
 		return "a.exe";

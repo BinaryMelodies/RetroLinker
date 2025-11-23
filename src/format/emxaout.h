@@ -58,6 +58,17 @@ namespace EMX
 
 		/* * * Writer members * * */
 
+		class EMXOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+			EMXOptionCollector()
+			{
+				InitializeFields(stub);
+			}
+		};
+
 		using LEFormat::stub;
 
 		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
