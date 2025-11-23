@@ -2803,13 +2803,18 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 						break;
 					case R_386_SEGRELATIVE:
 						// TODO
-						break;
+						Linker::Debug << "Internal error: SEGRELATIVE not supported" << std::endl;
+						continue;
 					case R_386_OZSEG16:
-						// TODO
+						obj_rel =
+							option_pmode
+							? Linker::Relocation::Selector(rel_source, rel_target.GetSegment(), rel.addend)
+							: Linker::Relocation::Paragraph(rel_source, rel_target.GetSegment(), rel.addend);
 						break;
 					case R_386_OZRELSEG16:
 						// TODO
-						break;
+						Linker::Debug << "Internal error: OZRELSEG16 not supported" << std::endl;
+						continue;
 					case R_386_GOT32:
 						obj_rel = Linker::Relocation::GOTEntryAbsolute(rel_size, rel_source, sym_name, rel.addend, ::LittleEndian);
 						// TODO: for PIC, use GOTEntryOffset instead
@@ -2822,7 +2827,8 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 						break;
 					case R_386_PLT32:
 						// TODO
-						break;
+						Linker::Debug << "Internal error: PLT32 not supported" << std::endl;
+						continue;
 					}
 					break;
 
@@ -2854,15 +2860,29 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 						obj_rel = Linker::Relocation::GOTEntryRelative(rel_size, rel_source, sym_name, rel.addend, ::BigEndian);
 						break;
 					case R_68K_PLT8:
+						// TODO
+						Linker::Debug << "Internal error: PLT8 not supported" << std::endl;
+						continue;
 					case R_68K_PLT16:
+						// TODO
+						Linker::Debug << "Internal error: PLT16 not supported" << std::endl;
+						continue;
 					case R_68K_PLT32:
 						// TODO
-						break;
+						Linker::Debug << "Internal error: PLT32 not supported" << std::endl;
+						continue;
 					case R_68K_PLT8O:
+						// TODO
+						Linker::Debug << "Internal error: PLT8O not supported" << std::endl;
+						continue;
 					case R_68K_PLT16O:
+						// TODO
+						Linker::Debug << "Internal error: PLT16O not supported" << std::endl;
+						continue;
 					case R_68K_PLT32O:
 						// TODO
-						break;
+						Linker::Debug << "Internal error: PLT32O not supported" << std::endl;
+						continue;
 					}
 					break;
 
