@@ -50,7 +50,7 @@ namespace AOut
 	{
 	public:
 		/* * * General members * * */
-		::EndianType endiantype;
+		::EndianType endiantype = ::UndefinedEndian;
 
 		/**
 		 * @brief The target operating system type for parsing or generating binaries
@@ -143,16 +143,13 @@ namespace AOut
 		 * - Under NetBSD, the midmag field is expected to be in big endian byte order, but if the CPU field is missing, it can be read in little endian byte order */
 		::EndianType midmag_endiantype;
 
+	protected:
 		AOutFormat(system_type system, magic_type magic)
 			: system(system), magic(magic)
 		{
 		}
 
-		AOutFormat(system_type system)
-			: system(system), magic(GetDefaultMagic(system))
-		{
-		}
-
+	public:
 		AOutFormat()
 			: system(UNSPECIFIED), magic(magic_type(0))
 		{
@@ -306,10 +303,15 @@ namespace AOut
 
 		/* * * Reader members * * */
 
+		static std::shared_ptr<AOutFormat> CreateReader(unsigned word_size, ::EndianType endiantype, system_type system = UNSPECIFIED);
+
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 
 		/* * * Writer members * * */
+
+		static std::shared_ptr<AOutFormat> CreateWriter(system_type system, magic_type magic);
+		static std::shared_ptr<AOutFormat> CreateWriter(system_type system);
 
 		class AOutOptionCollector : public Linker::OptionCollector
 		{

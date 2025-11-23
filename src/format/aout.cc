@@ -1019,6 +1019,15 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 
 /* * * Reader * * */
 
+std::shared_ptr<AOutFormat> AOutFormat::CreateReader(unsigned word_size, ::EndianType endiantype, system_type system)
+{
+	std::shared_ptr<AOutFormat> reader = std::make_shared<AOutFormat>();
+	reader->word_size = word_size;
+	reader->endiantype = endiantype;
+	reader->system = system;
+	return reader;
+}
+
 void AOutFormat::GenerateModule(Linker::Module& module) const
 {
 	switch(cpu)
@@ -1196,6 +1205,19 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 }
 
 /* * * Writer * * */
+
+std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system, magic_type magic)
+{
+	std::shared_ptr<AOutFormat> writer = std::make_shared<AOutFormat>();
+	writer->system = system;
+	writer->magic = magic;
+	return writer;
+}
+
+std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system)
+{
+	return CreateWriter(system, GetDefaultMagic(system));
+}
 
 static Linker::OptionDescription<offset_t> p_code_base_address("code_base_address", "Starting address of code section");
 static Linker::OptionDescription<offset_t> p_data_align("data_align", "Alignment of data section");
