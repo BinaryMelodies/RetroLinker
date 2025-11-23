@@ -214,6 +214,16 @@ bool Relocation::IsRelative() const
 	return false;
 }
 
+bool Relocation::IsAbsolute() const
+{
+	return reference == Target();
+}
+
+bool Relocation::IsOffset() const
+{
+	return reference == target.GetSegment();
+}
+
 bool Relocation::Combine(const Relocation& other)
 {
 	if(source != other.source

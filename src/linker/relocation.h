@@ -252,6 +252,20 @@ namespace Linker
 		bool IsRelative() const;
 
 		/**
+		 * @brief Determines if a relocation is absolute
+		 *
+		 * Absolute relocations are contrasted with Offset relocations whose reference is their preferred segment
+		 */
+		bool IsAbsolute() const;
+
+		/**
+		 * @brief Determines if a relocation is an offset
+		 *
+		 * Offset relocations are contrasted with Absolute relocations whose reference is the absolute 0 address
+		 */
+		bool IsOffset() const;
+
+		/**
 		 * @brief Attempts to combine two relocations.
 		 *
 		 * The types of combinations implemented is very limited, mostly intended to support the x86-16 segelf relocation method

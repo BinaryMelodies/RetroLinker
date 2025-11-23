@@ -53,7 +53,7 @@ namespace Linker
 		 *
 		 * For segment targets, it returns an identical Target object.
 		 */
-		Target GetSegment();
+		Target GetSegment() const;
 
 		/**
 		 * @brief Recalculates target after a section has moved

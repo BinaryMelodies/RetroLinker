@@ -5,7 +5,7 @@
 
 using namespace Linker;
 
-Target Target::GetSegment()
+Target Target::GetSegment() const
 {
 	return Target(target, true);
 }
