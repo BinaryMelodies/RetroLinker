@@ -432,113 +432,136 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
-	// TODO: if word_size and endiantype are already set, enforce those values
-
-	word_size = 4;
-
 	switch(system)
 	{
 	case UNSPECIFIED:
 	case LINUX:
-		// TODO: this can probably be simplified
-		// suggested algorithm:
-		// if first two bytes are not a valid magic number, it is big endian (and thus 32-bit), otherwise little endian
-		// if little endian, assume 32-bit and check file size, if too big, must be 16-bit
-		// finally, mask out 0x03FF0000 (BSD) to get machine type, or 0x00FF0000 (Linux) if that fails, fallback to VAX
-
-		// Big endian:
-		// .. 01 .. ..
-		// .. 02 .. ..
-		// .. 03 .. ..
-		// byte 2 must be 00 (QMAGIC) or 01
-
-		// Little endian:
-		// .. .. 64 ..
-		// .. .. 67 ..
-		// .. .. 97 ..
-		// .. .. 98 ..
-		// byte 1 must be 00 (QMAGIC) or 01
-
-		if(signature[1] == 0x00 || signature[1] == 0x01)
+		if(word_size != 0)
 		{
-			/* could be multiple formats, make multiple attempts */
-			endiantype = midmag_endiantype = ::LittleEndian;
-
-			word_size = file_offset ? 4 : 2;
-			/* if at beginning of file, first attempt 16-bit little endian (PDP-11, most likely input format) */
+			// word_size and endiantype are already set
+			midmag_endiantype = endiantype;
 			if(!AttemptReadFile(rd, signature, file_end - file_offset))
-			{
-				endiantype = midmag_endiantype = ::LittleEndian;
-				word_size = file_offset ? 2 : 4;
-				/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
-				if(!AttemptReadFile(rd, signature, file_end - file_offset))
-				{
-					endiantype = midmag_endiantype = ::BigEndian;
-					word_size = 4;
-					/* then attempt 32-bit big endian (Motorola 68000, most likely format if not little endian) */
-					if(!AttemptReadFile(rd, signature, file_end - file_offset))
-					{
-						endiantype = midmag_endiantype = ::BigEndian;
-						word_size = 2;
-						/* finally, attempt 16-bit big endian (unsure if any ever supported UNIX with a.out) */
-						if(!AttemptReadFile(rd, signature, file_end - file_offset))
-						{
-							Linker::FatalError("Fatal error: Unable to determine file format");
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			/* magic value is unrecognizable, attempting to read a couple of common CPU types */
-			switch(signature[1])
-			{
-			case MID_68010:
-			case MID_68020:
-				midmag_endiantype = ::BigEndian;
-				cpu = M68K;
-				break;
-			case MID_LINUX_SPARC:
-				midmag_endiantype = ::BigEndian;
-				cpu = SPARC;
-				break;
-			default:
-				switch(signature[2])
-				{
-				case MID_UNKNOWN:
-					midmag_endiantype = ::LittleEndian;
-					cpu = UNKNOWN;
-					break;
-				case MID_PC386:
-					midmag_endiantype = ::LittleEndian;
-					cpu = I386;
-					break;
-				case MID_BFD_ARM:
-					midmag_endiantype = ::LittleEndian;
-					cpu = ARM;
-					break;
-				case MID_MIPS1:
-				case MID_MIPS2:
-					midmag_endiantype = ::LittleEndian;
-					cpu = MIPS;
-					break;
-				}
-				break;
-			}
-
-			if(!AttemptFetchMagic(signature))
 			{
 				Linker::FatalError("Fatal error: Unable to determine file format");
 			}
 		}
+		else
+		{
+			// TODO: this can probably be simplified
+			// suggested algorithm:
+			// if first two bytes are not a valid magic number, it is big endian (and thus 32-bit), otherwise little endian
+			// if little endian, assume 32-bit and check file size, if too big, must be 16-bit
+			// finally, mask out 0x03FF0000 (BSD) to get machine type, or 0x00FF0000 (Linux) if that fails, fallback to VAX
 
-		endiantype = midmag_endiantype;
+			// Big endian:
+			// .. 01 .. ..
+			// .. 02 .. ..
+			// .. 03 .. ..
+			// byte 2 must be 00 (QMAGIC) or 01
+
+			// Little endian:
+			// .. .. 64 ..
+			// .. .. 67 ..
+			// .. .. 97 ..
+			// .. .. 98 ..
+			// byte 1 must be 00 (QMAGIC) or 01
+
+			if(signature[1] == 0x00 || signature[1] == 0x01)
+			{
+				/* could be multiple formats, make multiple attempts */
+				endiantype = midmag_endiantype = ::LittleEndian;
+
+				word_size = file_offset ? 4 : 2;
+				/* if at beginning of file, first attempt 16-bit little endian (PDP-11, most likely input format) */
+				if(!AttemptReadFile(rd, signature, file_end - file_offset))
+				{
+					endiantype = midmag_endiantype = ::LittleEndian;
+					word_size = file_offset ? 2 : 4;
+					/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
+					if(!AttemptReadFile(rd, signature, file_end - file_offset))
+					{
+						endiantype = midmag_endiantype = ::BigEndian;
+						word_size = 4;
+						/* then attempt 32-bit big endian (Motorola 68000, most likely format if not little endian) */
+						if(!AttemptReadFile(rd, signature, file_end - file_offset))
+						{
+							endiantype = midmag_endiantype = ::BigEndian;
+							word_size = 2;
+							/* finally, attempt 16-bit big endian (unsure if any ever supported UNIX with a.out) */
+							if(!AttemptReadFile(rd, signature, file_end - file_offset))
+							{
+								Linker::FatalError("Fatal error: Unable to determine file format");
+							}
+						}
+					}
+				}
+			}
+			else
+			{
+				word_size = 4;
+
+				/* magic value is unrecognizable, attempting to read a couple of common CPU types */
+				switch(signature[1])
+				{
+				case MID_68010:
+				case MID_68020:
+					midmag_endiantype = ::BigEndian;
+					cpu = M68K;
+					break;
+				case MID_LINUX_SPARC:
+					midmag_endiantype = ::BigEndian;
+					cpu = SPARC;
+					break;
+				default:
+					switch(signature[2])
+					{
+					case MID_UNKNOWN:
+						midmag_endiantype = ::LittleEndian;
+						cpu = UNKNOWN;
+						break;
+					case MID_PC386:
+						midmag_endiantype = ::LittleEndian;
+						cpu = I386;
+						break;
+					case MID_BFD_ARM:
+						midmag_endiantype = ::LittleEndian;
+						cpu = ARM;
+						break;
+					case MID_MIPS1:
+					case MID_MIPS2:
+						midmag_endiantype = ::LittleEndian;
+						cpu = MIPS;
+						break;
+					}
+					break;
+				}
+
+				if(!AttemptFetchMagic(signature))
+				{
+					Linker::FatalError("Fatal error: Unable to determine file format");
+				}
+			}
+
+			endiantype = midmag_endiantype;
+		}
 		break;
 
 	case FREEBSD:
+		if(word_size != 0)
+		{
+			// word_size and endiantype are already set
+			// assume that the midmag is in FreeBSD byte order, otherwise we would not have needed to set word_size and endiantype
+			midmag_endiantype = ::LittleEndian;
+			magic = magic_type(signature[0] | (signature[1] << 8));
+			flags = signature[3];
+			mid_value = signature[2] | (signature[3] << 8);
+		}
+		else
 		{
 			/* attempt little endian */
+			word_size = 4;
+			endiantype = ::UndefinedEndian;
+
 			uint16_t attempted_magic = signature[0] | (signature[1] << 8);
 			if(attempted_magic != OMAGIC && attempted_magic != NMAGIC && attempted_magic != ZMAGIC && attempted_magic != QMAGIC)
 			{
@@ -561,39 +584,57 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				mid_value = signature[2] | (signature[3] << 8);
 			}
 			magic = magic_type(attempted_magic);
-			flags &= 0xFC;
-			mid_value &= 0x03FF;
-			switch(mid_value)
-			{
-			case MID_UNKNOWN:
-			default:
-				cpu = UNKNOWN;
-				break;
-			case MID_68010:
-			case MID_68020:
-			case MID_HP200:
-			case MID_HP300:
-			case MID_HPUX:
-				cpu = M68K;
-				break;
-			case MID_I386:
-				cpu = I386;
-				break;
-			case MID_FREEBSD_SPARC:
-				cpu = SPARC;
-				break;
-			case MID_ARM6:
-				cpu = ARM;
-				break;
-			case MID_HPUX800:
-				cpu = PARISC;
-				break;
-			}
 		}
+
+		flags &= 0xFC;
+		mid_value &= 0x03FF;
+
+		switch(mid_value)
+		{
+		case MID_UNKNOWN:
+		default:
+			cpu = UNKNOWN;
+			break;
+		case MID_68010:
+		case MID_68020:
+		case MID_HP200:
+		case MID_HP300:
+		case MID_HPUX:
+			cpu = M68K;
+			break;
+		case MID_I386:
+			cpu = I386;
+			break;
+		case MID_FREEBSD_SPARC:
+			cpu = SPARC;
+			break;
+		case MID_ARM6:
+			cpu = ARM;
+			break;
+		case MID_HPUX800:
+			cpu = PARISC;
+			break;
+		}
+
+		if(endiantype == ::UndefinedEndian)
+			endiantype = GetEndianType();
 		break;
 
 	case NETBSD:
+		if(word_size != 0)
 		{
+			// word_size and endiantype are already set
+			// assume that the midmag is in NetBSD byte order, otherwise we would not have needed to set word_size and endiantype
+			midmag_endiantype = ::LittleEndian;
+			magic = magic_type(signature[3] | (signature[2] << 8));
+			flags = signature[0];
+			mid_value = signature[1] | (signature[0] << 8);
+		}
+		else
+		{
+			word_size = 4;
+			endiantype = ::UndefinedEndian;
+
 			/* attempt big endian */
 			uint16_t attempted_magic = signature[3] | (signature[2] << 8);
 			if(attempted_magic != OMAGIC && attempted_magic != NMAGIC && attempted_magic != ZMAGIC && attempted_magic != QMAGIC)
@@ -617,133 +658,135 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				mid_value = signature[1] | (signature[0] << 8);
 			}
 			magic = magic_type(attempted_magic);
-			flags &= 0xFC;
-			mid_value &= 0x03FF;
-
-			page_size = 0;
-			endiantype = ::UndefinedEndian;
-			switch(mid_value)
-			{
-			case MID_UNKNOWN:
-				cpu = UNKNOWN;
-				endiantype = midmag_endiantype;
-				break;
-			default:
-				cpu = UNKNOWN;
-				// TODO: endianness
-				break;
-			case MID_68010:
-			case MID_68020:
-			case MID_HP200:
-			case MID_HP300:
-			case MID_HPUX:
-				cpu = M68K;
-				break;
-			case MID_NETBSD_M680002K:
-				cpu = M68K;
-				page_size = 2 * 1000;
-				break;
-			case MID_NETBSD_M68K4K:
-				cpu = M68K;
-				page_size = 4 * 1000;
-				break;
-			case MID_NETBSD_M68K:
-				cpu = M68K;
-				page_size = 8 * 1000;
-				break;
-			case MID_PC386:
-			case MID_I386:
-				cpu = I386;
-				break;
-			case MID_NETBSD_NS32532K:
-				cpu = NS32K;
-				break;
-			case MID_NETBSD_SPARC:
-				cpu = SPARC;
-				break;
-			case MID_NETBSD_PMAX:
-				cpu = MIPS;
-				// TODO: endianness
-				break;
-			case MID_NETBSD_VAX:
-				cpu = VAX;
-				break;
-			case MID_NETBSD_VAX1K:
-				cpu = VAX;
-				page_size = 1 * 1000;
-				break;
-			case MID_NETBSD_ALPHA:
-				cpu = ALPHA;
-				// TODO: endianness
-				break;
-			case MID_NETBSD_MIPS:
-				cpu = MIPS;
-				endiantype = ::BigEndian;
-				break;
-			case MID_ARM6:
-				cpu = ARM;
-				break;
-			case MID_NETBSD_SH3:
-				cpu = SUPERH;
-				break;
-			case MID_NETBSD_POWERPC64:
-				cpu = PPC64;
-				break;
-			case MID_NETBSD_POWERPC:
-				cpu = PPC;
-				break;
-			case MID_MIPS1:
-			case MID_MIPS2:
-				cpu = MIPS;
-				break;
-			case MID_NETBSD_M88K:
-				cpu = M88K;
-				break;
-			case MID_NETBSD_HPPA:
-			case MID_HPUX800:
-				cpu = PARISC;
-				break;
-			case MID_NETBSD_SH5_64:
-				cpu = SUPERH64;
-				// TODO: endianness
-				break;
-			case MID_NETBSD_SPARC64:
-				cpu = SPARC64;
-				break;
-			case MID_NETBSD_X86_64:
-				cpu = AMD64;
-				break;
-			case MID_NETBSD_SH5_32:
-				cpu = SUPERH;
-				// TODO: endianness
-				break;
-			case MID_NETBSD_IA64:
-				cpu = IA64;
-				// TODO: endianness
-				break;
-			case MID_NETBSD_AARCH64:
-				cpu = AARCH64;
-				break;
-			case MID_NETBSD_OR1K:
-				cpu = OR1K;
-				// TODO: endianness
-				break;
-			case MID_NETBSD_RISCV:
-				cpu = RISCV;
-				// TODO: endianness
-				break;
-			}
-
-			if(endiantype == ::UndefinedEndian)
-				endiantype = GetEndianType();
-
-			GetPageSize();
 		}
+
+		flags &= 0xFC;
+		mid_value &= 0x03FF;
+
+		page_size = 0;
+		endiantype = ::UndefinedEndian;
+		switch(mid_value)
+		{
+		case MID_UNKNOWN:
+			cpu = UNKNOWN;
+			endiantype = midmag_endiantype;
+			break;
+		default:
+			cpu = UNKNOWN;
+			// TODO: endianness
+			break;
+		case MID_68010:
+		case MID_68020:
+		case MID_HP200:
+		case MID_HP300:
+		case MID_HPUX:
+			cpu = M68K;
+			break;
+		case MID_NETBSD_M680002K:
+			cpu = M68K;
+			page_size = 2 * 1000;
+			break;
+		case MID_NETBSD_M68K4K:
+			cpu = M68K;
+			page_size = 4 * 1000;
+			break;
+		case MID_NETBSD_M68K:
+			cpu = M68K;
+			page_size = 8 * 1000;
+			break;
+		case MID_PC386:
+		case MID_I386:
+			cpu = I386;
+			break;
+		case MID_NETBSD_NS32532K:
+			cpu = NS32K;
+			break;
+		case MID_NETBSD_SPARC:
+			cpu = SPARC;
+			break;
+		case MID_NETBSD_PMAX:
+			cpu = MIPS;
+			// TODO: endianness
+			break;
+		case MID_NETBSD_VAX:
+			cpu = VAX;
+			break;
+		case MID_NETBSD_VAX1K:
+			cpu = VAX;
+			page_size = 1 * 1000;
+			break;
+		case MID_NETBSD_ALPHA:
+			cpu = ALPHA;
+			// TODO: endianness
+			break;
+		case MID_NETBSD_MIPS:
+			cpu = MIPS;
+			endiantype = ::BigEndian;
+			break;
+		case MID_ARM6:
+			cpu = ARM;
+			break;
+		case MID_NETBSD_SH3:
+			cpu = SUPERH;
+			break;
+		case MID_NETBSD_POWERPC64:
+			cpu = PPC64;
+			break;
+		case MID_NETBSD_POWERPC:
+			cpu = PPC;
+			break;
+		case MID_MIPS1:
+		case MID_MIPS2:
+			cpu = MIPS;
+			break;
+		case MID_NETBSD_M88K:
+			cpu = M88K;
+			break;
+		case MID_NETBSD_HPPA:
+		case MID_HPUX800:
+			cpu = PARISC;
+			break;
+		case MID_NETBSD_SH5_64:
+			cpu = SUPERH64;
+			// TODO: endianness
+			break;
+		case MID_NETBSD_SPARC64:
+			cpu = SPARC64;
+			break;
+		case MID_NETBSD_X86_64:
+			cpu = AMD64;
+			break;
+		case MID_NETBSD_SH5_32:
+			cpu = SUPERH;
+			// TODO: endianness
+			break;
+		case MID_NETBSD_IA64:
+			cpu = IA64;
+			// TODO: endianness
+			break;
+		case MID_NETBSD_AARCH64:
+			cpu = AARCH64;
+			break;
+		case MID_NETBSD_OR1K:
+			cpu = OR1K;
+			// TODO: endianness
+			break;
+		case MID_NETBSD_RISCV:
+			cpu = RISCV;
+			// TODO: endianness
+			break;
+		}
+
+		if(endiantype == ::UndefinedEndian)
+			endiantype = GetEndianType();
+
+		GetPageSize();
 		break;
 
 	case DJGPP1:
 	case PDOS386:
 	case EMX:
+		word_size = 4;
 		endiantype = midmag_endiantype = ::LittleEndian;
 		cpu = I386;
 
@@ -964,7 +1007,19 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_descriptions, Dumper::HexDisplay::Make(4)), offset_t(magic));
 	if(word_size == 4)
 	{
-		static const std::map<offset_t, std::string> linux_midmag_descriptions =
+		static const std::map<offset_t, std::string> freebsd_midmag_descriptions =
+		{
+			{ ::LittleEndian, "FreeBSD order (little endian)" },
+			{ ::BigEndian, "NetBSD order (big endian)" },
+		};
+
+		static const std::map<offset_t, std::string> netbsd_midmag_descriptions =
+		{
+			{ ::LittleEndian, "little endian" },
+			{ ::BigEndian, "NetBSD order (big endian)" },
+		};
+
+		static const std::map<offset_t, std::string> linux_mid_descriptions =
 		{
 			{ MID_LINUX_OLDSUN2, "Old SUN2" },
 			{ MID_68010, "68010" },
@@ -975,6 +1030,60 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 			{ MID_MIPS2, "MIPS2" },
 		};
 
+		static const std::map<offset_t, std::string> freebsd_mid_descriptions =
+		{
+			{ MID_UNKNOWN, "unknown" },
+			{ MID_68010, "68010" },
+			{ MID_68020, "68020" },
+			{ MID_I386, "I386" },
+			{ MID_FREEBSD_SPARC, "SPARC" },
+			{ MID_ARM6, "ARM6" },
+			{ MID_HP200, "HP200" },
+			{ MID_HP300, "HP300" },
+			{ MID_HPUX800, "HPUX800" },
+			{ MID_HPUX, "HPUX" },
+		};
+
+		static const std::map<offset_t, std::string> netbsd_mid_descriptions =
+		{
+			{ MID_UNKNOWN, "unknown" },
+			{ MID_68010, "SUN010" },
+			{ MID_68020, "SUN020" },
+			{ MID_PC386, "PC386" },
+			{ MID_I386, "I386 (BSD binary)" },
+			{ MID_NETBSD_M68K, "M68K (with 8K pages, BSD binary)" },
+			{ MID_NETBSD_M68K4K, "M68K4K (M68K with 4K pages, BSD binary)" },
+			{ MID_NETBSD_NS32532K, "NS32532" },
+			{ MID_NETBSD_SPARC, "SPARC" },
+			{ MID_NETBSD_PMAX, "PMAX" },
+			{ MID_NETBSD_VAX1K, "VAX (with 1K pages)" },
+			{ MID_NETBSD_ALPHA, "ALPHA (BSD binary)" },
+			{ MID_NETBSD_MIPS, "MIPS (big-endian)" },
+			{ MID_ARM6, "ARM6" },
+			{ MID_NETBSD_M680002K, "M680002K (M68000 with 2K pages)" },
+			{ MID_NETBSD_SH3, "SH3" },
+			{ MID_NETBSD_POWERPC64, "POWERPC64 (big-endian)" },
+			{ MID_NETBSD_POWERPC, "POWERPC (big-endian)" },
+			{ MID_NETBSD_VAX, "VAX" },
+			{ MID_MIPS1, "MIPS1" },
+			{ MID_MIPS2, "MIPS2" },
+			{ MID_NETBSD_M88K, "M88K (BSD binary)" },
+			{ MID_NETBSD_HPPA, "HPPA (HP PA-RISC)" },
+			{ MID_NETBSD_SH5_64, "SH5_64 (LP64)" },
+			{ MID_NETBSD_SPARC64, "SPARC64 (LP64)" },
+			{ MID_NETBSD_X86_64, "X86_64" },
+			{ MID_NETBSD_SH5_32, "SH5_32 (ILP32)" },
+			{ MID_NETBSD_IA64, "IA64 (Itanium)" },
+			{ MID_NETBSD_AARCH64, "AARCH64" },
+			{ MID_NETBSD_OR1K, "OR1K (OpenRISC 1000)" },
+			{ MID_NETBSD_RISCV, "RISCV" },
+			{ MID_FREEBSD_SPARC, "SPARC" },
+			{ MID_HP200, "HP200" },
+			{ MID_HP300, "HP300" },
+			{ MID_HPUX800, "HPUX800" },
+			{ MID_HPUX, "HPUX" },
+		};
+
 		switch(system)
 		{
 		case DJGPP1:
@@ -982,19 +1091,23 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		case PDOS386:
 			break;
 		case UNSPECIFIED:
-			// TODO
-			break;
+			if(word_size == 2)
+				break;
 		case LINUX:
-			header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(linux_midmag_descriptions, Dumper::HexDisplay::Make(2)), offset_t(mid_value & 0xFF));
+			header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(linux_mid_descriptions, Dumper::HexDisplay::Make(2)), offset_t(mid_value & 0xFF));
 			header_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(2), offset_t(flags & 0xFF));
 			break;
 		case FREEBSD:
-			// TODO
+			header_region.AddField("Midmag byte order", Dumper::ChoiceDisplay::Make(freebsd_midmag_descriptions), offset_t(midmag_endiantype));
+			header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(freebsd_mid_descriptions, Dumper::HexDisplay::Make(2)), offset_t(mid_value & 0xFF));
 			header_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(2), offset_t(flags & 0xFC));
+			// TODO: describe flags
 			break;
 		case NETBSD:
-			// TODO
+			header_region.AddField("Midmag byte order", Dumper::ChoiceDisplay::Make(netbsd_midmag_descriptions), offset_t(midmag_endiantype));
+			header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(netbsd_mid_descriptions, Dumper::HexDisplay::Make(2)), offset_t(mid_value & 0xFF));
 			header_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(2), offset_t(flags & 0xFC));
+			// TODO: describe flags
 			break;
 		}
 	}
