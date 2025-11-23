@@ -44,3 +44,4 @@ tests/rsx/i86/*
 !tests/rsx/i86/common.s
 !tests/rsx/i86/Makefile
 tests/win16api/msgbox/main.exe
+tests/win16api/window/main.exe
