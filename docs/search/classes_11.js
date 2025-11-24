@@ -14,12 +14,14 @@ var searchData=
   ['textblock_11',['TextBlock',['../classAmiga_1_1HunkFormat_1_1TextBlock.html',1,'Amiga::HunkFormat']]],
   ['textcommentrecord_12',['TextCommentRecord',['../classOMF_1_1OMF86Format_1_1CommentRecord_1_1TextCommentRecord.html',1,'OMF::OMF86Format::CommentRecord']]],
   ['thread_13',['Thread',['../classOMF_1_1OMF86Format_1_1FixupRecord_1_1Thread.html',1,'OMF::OMF86Format::FixupRecord']]],
-  ['typedata_14',['TypeData',['../structLinker_1_1TypeData.html',1,'Linker']]],
-  ['typedata_3c_20bool_20_3e_15',['TypeData&lt; bool &gt;',['../structLinker_1_1TypeData_3_01bool_01_4.html',1,'Linker']]],
-  ['typedata_3c_20offset_5ft_20_3e_16',['TypeData&lt; offset_t &gt;',['../structLinker_1_1TypeData_3_01offset__t_01_4.html',1,'Linker']]],
-  ['typedata_3c_20std_3a_3aoptional_3c_20t_20_3e_20_3e_17',['TypeData&lt; std::optional&lt; T &gt; &gt;',['../structLinker_1_1TypeData_3_01std_1_1optional_3_01T_01_4_01_4.html',1,'Linker']]],
-  ['typedata_3c_20std_3a_3astring_20_3e_18',['TypeData&lt; std::string &gt;',['../structLinker_1_1TypeData_3_01std_1_1string_01_4.html',1,'Linker']]],
-  ['typedata_3c_20std_3a_3avector_3c_20t_20_3e_20_3e_19',['TypeData&lt; std::vector&lt; T &gt; &gt;',['../structLinker_1_1TypeData_3_01std_1_1vector_3_01T_01_4_01_4.html',1,'Linker']]],
-  ['typedefinitionrecord_20',['TypeDefinitionRecord',['../classOMF_1_1OMF86Format_1_1TypeDefinitionRecord.html',1,'OMF::OMF86Format']]],
-  ['typeindex_21',['TypeIndex',['../classOMF_1_1OMF86Format_1_1TypeIndex.html',1,'OMF::OMF86Format']]]
+  ['tislibraryendrecord_14',['TISLibraryEndRecord',['../classOMF_1_1OMF86Format_1_1TISLibraryEndRecord.html',1,'OMF::OMF86Format']]],
+  ['tislibraryheaderrecord_15',['TISLibraryHeaderRecord',['../classOMF_1_1OMF86Format_1_1TISLibraryHeaderRecord.html',1,'OMF::OMF86Format']]],
+  ['typedata_16',['TypeData',['../structLinker_1_1TypeData.html',1,'Linker']]],
+  ['typedata_3c_20bool_20_3e_17',['TypeData&lt; bool &gt;',['../structLinker_1_1TypeData_3_01bool_01_4.html',1,'Linker']]],
+  ['typedata_3c_20offset_5ft_20_3e_18',['TypeData&lt; offset_t &gt;',['../structLinker_1_1TypeData_3_01offset__t_01_4.html',1,'Linker']]],
+  ['typedata_3c_20std_3a_3aoptional_3c_20t_20_3e_20_3e_19',['TypeData&lt; std::optional&lt; T &gt; &gt;',['../structLinker_1_1TypeData_3_01std_1_1optional_3_01T_01_4_01_4.html',1,'Linker']]],
+  ['typedata_3c_20std_3a_3astring_20_3e_20',['TypeData&lt; std::string &gt;',['../structLinker_1_1TypeData_3_01std_1_1string_01_4.html',1,'Linker']]],
+  ['typedata_3c_20std_3a_3avector_3c_20t_20_3e_20_3e_21',['TypeData&lt; std::vector&lt; T &gt; &gt;',['../structLinker_1_1TypeData_3_01std_1_1vector_3_01T_01_4_01_4.html',1,'Linker']]],
+  ['typedefinitionrecord_22',['TypeDefinitionRecord',['../classOMF_1_1OMF86Format_1_1TypeDefinitionRecord.html',1,'OMF::OMF86Format::TypeDefinitionRecord'],['../classOMF_1_1OMF96Format_1_1TypeDefinitionRecord.html',1,'OMF::OMF96Format::TypeDefinitionRecord']]],
+  ['typeindex_23',['TypeIndex',['../classOMF_1_1OMF86Format_1_1TypeIndex.html',1,'OMF::OMF86Format::TypeIndex'],['../classOMF_1_1OMF96Format_1_1TypeIndex.html',1,'OMF::OMF96Format::TypeIndex']]]
 ];

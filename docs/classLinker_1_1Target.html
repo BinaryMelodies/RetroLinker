@@ -100,9 +100,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a73c974cd7db0a675725186b20993359d" id="r_a73c974cd7db0a675725186b20993359d"><td class="memItemLeft" align="right" valign="top"><a id="a73c974cd7db0a675725186b20993359d" name="a73c974cd7db0a675725186b20993359d"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Target</b> (<a class="el" href="classLinker_1_1SymbolName.html">SymbolName</a> symbol, bool <a class="el" href="#a10903a68baa79dfd2abaad3a9c8c4923">segment_of</a>=false)</td></tr>
 <tr class="separator:a73c974cd7db0a675725186b20993359d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53e62c6b146716463d8ca912aef35093" id="r_a53e62c6b146716463d8ca912aef35093"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLinker_1_1Target.html">Target</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a53e62c6b146716463d8ca912aef35093">GetSegment</a> ()</td></tr>
-<tr class="memdesc:a53e62c6b146716463d8ca912aef35093"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new target that references the segment of this target.  <br /></td></tr>
-<tr class="separator:a53e62c6b146716463d8ca912aef35093"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af50bca32b0ef8449fb210230738f174e" id="r_af50bca32b0ef8449fb210230738f174e"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classLinker_1_1Target.html">Target</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af50bca32b0ef8449fb210230738f174e">GetSegment</a> () const</td></tr>
+<tr class="memdesc:af50bca32b0ef8449fb210230738f174e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a new target that references the segment of this target.  <br /></td></tr>
+<tr class="separator:af50bca32b0ef8449fb210230738f174e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac136ed2a72fa0c95779643fd57fc6367" id="r_ac136ed2a72fa0c95779643fd57fc6367"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac136ed2a72fa0c95779643fd57fc6367">Displace</a> (const Displacement &amp;displacement)</td></tr>
 <tr class="memdesc:ac136ed2a72fa0c95779643fd57fc6367"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recalculates target after a section has moved.  <br /></td></tr>
 <tr class="separator:ac136ed2a72fa0c95779643fd57fc6367"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -112,6 +112,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af430c6f4ac6d6dea47338dac7011e7cc" id="r_af430c6f4ac6d6dea47338dac7011e7cc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af430c6f4ac6d6dea47338dac7011e7cc">Lookup</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;object, <a class="el" href="classLinker_1_1Position.html">Position</a> &amp;position)</td></tr>
 <tr class="memdesc:af430c6f4ac6d6dea47338dac7011e7cc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a <a class="el" href="classLinker_1_1Position.html" title="Stores an absolute address along with the containing segment or address space.">Position</a> object for locations and internal symbols, if possible.  <br /></td></tr>
 <tr class="separator:af430c6f4ac6d6dea47338dac7011e7cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:affc21ca90997bf890751fc9a51cc354a" id="r_affc21ca90997bf890751fc9a51cc354a"><td class="memItemLeft" align="right" valign="top"><a id="affc21ca90997bf890751fc9a51cc354a" name="affc21ca90997bf890751fc9a51cc354a"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsZero</b> () const</td></tr>
+<tr class="memdesc:affc21ca90997bf890751fc9a51cc354a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the target is the absolute 0 reference. <br /></td></tr>
+<tr class="separator:affc21ca90997bf890751fc9a51cc354a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -149,8 +153,8 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>segment_of</b></td></
 
 </div>
 </div>
-<a id="a53e62c6b146716463d8ca912aef35093" name="a53e62c6b146716463d8ca912aef35093"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a53e62c6b146716463d8ca912aef35093">&#9670;&#160;</a></span>GetSegment()</h2>
+<a id="af50bca32b0ef8449fb210230738f174e" name="af50bca32b0ef8449fb210230738f174e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af50bca32b0ef8449fb210230738f174e">&#9670;&#160;</a></span>GetSegment()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -159,7 +163,7 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>segment_of</b></td></
           <td class="memname"><a class="el" href="classLinker_1_1Target.html">Target</a> Target::GetSegment </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
-          <td></td>
+          <td> const</td>
         </tr>
       </table>
 </div><div class="memdoc">

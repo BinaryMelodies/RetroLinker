@@ -149,6 +149,30 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteWord</b> (uint64
 <tr class="memitem:ad31cfab7377ed147069785e88b2c96aa" id="r_ad31cfab7377ed147069785e88b2c96aa"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad31cfab7377ed147069785e88b2c96aa">IsRelative</a> () const</td></tr>
 <tr class="memdesc:ad31cfab7377ed147069785e88b2c96aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines if a relocation is self-relative.  <br /></td></tr>
 <tr class="separator:ad31cfab7377ed147069785e88b2c96aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4af0c08401b457267eb718d88bbbdb9" id="r_aa4af0c08401b457267eb718d88bbbdb9"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa4af0c08401b457267eb718d88bbbdb9">IsAbsolute</a> () const</td></tr>
+<tr class="memdesc:aa4af0c08401b457267eb718d88bbbdb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines if a relocation is absolute.  <br /></td></tr>
+<tr class="separator:aa4af0c08401b457267eb718d88bbbdb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2660285528ef274d6710d62c413a960" id="r_ab2660285528ef274d6710d62c413a960"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab2660285528ef274d6710d62c413a960">IsOffset</a> () const</td></tr>
+<tr class="memdesc:ab2660285528ef274d6710d62c413a960"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines if a relocation is an offset.  <br /></td></tr>
+<tr class="separator:ab2660285528ef274d6710d62c413a960"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acf962f9828c05b4a9bd433fb36bfcfdf" id="r_acf962f9828c05b4a9bd433fb36bfcfdf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acf962f9828c05b4a9bd433fb36bfcfdf">ReplaceTarget</a> (<a class="el" href="classLinker_1_1Target.html">Target</a> new_target)</td></tr>
+<tr class="memdesc:acf962f9828c05b4a9bd433fb36bfcfdf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies the relocation to have a different target.  <br /></td></tr>
+<tr class="separator:acf962f9828c05b4a9bd433fb36bfcfdf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a108f2a1f6f74bb2e4b37b16381fe7bbe" id="r_a108f2a1f6f74bb2e4b37b16381fe7bbe"><td class="memItemLeft" align="right" valign="top"><a id="a108f2a1f6f74bb2e4b37b16381fe7bbe" name="a108f2a1f6f74bb2e4b37b16381fe7bbe"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReplaceTarget</b> (<a class="el" href="classLinker_1_1Target.html">Target</a> new_target, <a class="el" href="classLinker_1_1Target.html">Target</a> new_reference)</td></tr>
+<tr class="memdesc:a108f2a1f6f74bb2e4b37b16381fe7bbe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies the relocation to have a different target and reference. <br /></td></tr>
+<tr class="separator:a108f2a1f6f74bb2e4b37b16381fe7bbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7377199a8003ff3e61f0bf1960858401" id="r_a7377199a8003ff3e61f0bf1960858401"><td class="memItemLeft" align="right" valign="top"><a id="a7377199a8003ff3e61f0bf1960858401" name="a7377199a8003ff3e61f0bf1960858401"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ConvertToSegment</b> (bool protected_mode, <a class="el" href="classLinker_1_1Target.html">Target</a> segment_target)</td></tr>
+<tr class="memdesc:a7377199a8003ff3e61f0bf1960858401"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies the relocation to be a reference to a paragraph address or selector index (x86) <br /></td></tr>
+<tr class="separator:a7377199a8003ff3e61f0bf1960858401"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd9182db0378a019d6991648b595dac8" id="r_afd9182db0378a019d6991648b595dac8"><td class="memItemLeft" align="right" valign="top"><a id="afd9182db0378a019d6991648b595dac8" name="afd9182db0378a019d6991648b595dac8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ConvertToParagraphDifference</b> (<a class="el" href="classLinker_1_1Target.html">Target</a> new_target, <a class="el" href="classLinker_1_1Target.html">Target</a> new_reference)</td></tr>
+<tr class="memdesc:afd9182db0378a019d6991648b595dac8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Modifies the relocation to be a paragraph difference between new_target and new_reference. <br /></td></tr>
+<tr class="separator:afd9182db0378a019d6991648b595dac8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55addab93251922854f1453863c6e325" id="r_a55addab93251922854f1453863c6e325"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a55addab93251922854f1453863c6e325">Combine</a> (const <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &amp;other)</td></tr>
+<tr class="memdesc:a55addab93251922854f1453863c6e325"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to combine two relocations.  <br /></td></tr>
+<tr class="separator:a55addab93251922854f1453863c6e325"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -317,6 +341,26 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>subtract</b></td></tr
 
 </div>
 </div>
+<a id="a55addab93251922854f1453863c6e325" name="a55addab93251922854f1453863c6e325"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55addab93251922854f1453863c6e325">&#9670;&#160;</a></span>Combine()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Relocation::Combine </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>other</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Attempts to combine two relocations. </p>
+<p>The types of combinations implemented is very limited, mostly intended to support the x86-16 segelf relocation method </p>
+
+</div>
+</div>
 <a id="aba1cfdf0438558e003d4cd3ce97c6523" name="aba1cfdf0438558e003d4cd3ce97c6523"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aba1cfdf0438558e003d4cd3ce97c6523">&#9670;&#160;</a></span>Empty()</h2>
 
@@ -342,6 +386,46 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>subtract</b></td></tr
 
 <p>Creates an empty relocation. </p>
 <p>This is used only as a default initializor. The generated relocation references an absolute location, and it is not expected to be resolved. </p>
+
+</div>
+</div>
+<a id="aa4af0c08401b457267eb718d88bbbdb9" name="aa4af0c08401b457267eb718d88bbbdb9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa4af0c08401b457267eb718d88bbbdb9">&#9670;&#160;</a></span>IsAbsolute()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Relocation::IsAbsolute </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Determines if a relocation is absolute. </p>
+<p>Absolute relocations are contrasted with Offset relocations whose reference is their preferred segment </p>
+
+</div>
+</div>
+<a id="ab2660285528ef274d6710d62c413a960" name="ab2660285528ef274d6710d62c413a960"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2660285528ef274d6710d62c413a960">&#9670;&#160;</a></span>IsOffset()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool Relocation::IsOffset </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Determines if a relocation is an offset. </p>
+<p>Offset relocations are contrasted with Absolute relocations whose reference is the absolute 0 address </p>
 
 </div>
 </div>
@@ -404,6 +488,26 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>subtract</b></td></tr
 
 <p>Creates a relocation that stores the 16-bit paragraph difference (shifted right by 4) between the target and the reference (Intel 8086 specific) </p>
 <p>This relocation is needed on platforms with no segment relocations to set up the segments as part of an initializing routine by adding the offset between segments to the initial value of one of the segment registers. For example, ELKS needs it. </p>
+
+</div>
+</div>
+<a id="acf962f9828c05b4a9bd433fb36bfcfdf" name="acf962f9828c05b4a9bd433fb36bfcfdf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acf962f9828c05b4a9bd433fb36bfcfdf">&#9670;&#160;</a></span>ReplaceTarget()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Relocation::ReplaceTarget </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Target.html">Target</a></td>          <td class="paramname"><span class="paramname"><em>new_target</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Modifies the relocation to have a different target. </p>
+<p>This method assumes that the original relocation was created by calling Absolute, Offset or Relative. If it is determined to have been created by calling Offset, it will also update its reference field. </p>
 
 </div>
 </div>

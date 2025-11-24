@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['v37_0',['V37',['../classAmiga_1_1HunkFormat.html#a511b431d1f5e11b90285235c54ef8742ae36caacf3b3f357344a7161f526154d2',1,'Amiga::HunkFormat']]],
-  ['v38_1',['V38',['../classAmiga_1_1HunkFormat.html#a511b431d1f5e11b90285235c54ef8742a0b4870ea17cd51791818cd3e91cf7e8f',1,'Amiga::HunkFormat']]],
-  ['v39_2',['V39',['../classAmiga_1_1HunkFormat.html#a511b431d1f5e11b90285235c54ef8742abef798e5c579fceb66dff53aeffec135',1,'Amiga::HunkFormat']]]
+  ['undefined_0',['Undefined',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca27ef7ad15cb05528aef8ac8bf8248cd2',1,'DigitalResearch::CPM86Format::Descriptor::Undefined'],['../classLinker_1_1SymbolDefinition.html#a8c8788c78a80c54ad6bb9e41de70bf97abc39451a14d6bdad840c8b2428902b41',1,'Linker::SymbolDefinition::Undefined']]],
+  ['unspecified_1',['UNSPECIFIED',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2',1,'AOut::AOutFormat']]],
+  ['unused_2',['Unused',['../classMicrosoft_1_1NEFormat_1_1Entry.html#adc00fcef26d344e30fa3a6ddd737a9b2a50aa81788194c2d8e0c89a0303c0bf4a',1,'Microsoft::NEFormat::Entry']]]
 ];

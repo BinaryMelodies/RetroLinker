@@ -18,11 +18,8 @@ var searchData=
   ['initializedcommunaldatarecord_15',['InitializedCommunalDataRecord',['../classOMF_1_1OMF86Format_1_1InitializedCommunalDataRecord.html',1,'OMF::OMF86Format']]],
   ['initialvalue_16',['InitialValue',['../classOMF_1_1OMF86Format_1_1RegisterInitializationRecord_1_1Register_1_1InitialValue.html',1,'OMF::OMF86Format::RegisterInitializationRecord::Register']]],
   ['inputformat_17',['InputFormat',['../classLinker_1_1InputFormat.html',1,'Linker']]],
-  ['intellibrarydictionaryrecord_18',['IntelLibraryDictionaryRecord',['../classOMF_1_1OMF86Format_1_1IntelLibraryDictionaryRecord.html',1,'OMF::OMF86Format']]],
-  ['intellibraryheaderrecord_19',['IntelLibraryHeaderRecord',['../classOMF_1_1OMF86Format_1_1IntelLibraryHeaderRecord.html',1,'OMF::OMF86Format']]],
-  ['intellibrarymodulelocationsrecord_20',['IntelLibraryModuleLocationsRecord',['../classOMF_1_1OMF86Format_1_1IntelLibraryModuleLocationsRecord.html',1,'OMF::OMF86Format']]],
-  ['intellibrarymodulenamesrecord_21',['IntelLibraryModuleNamesRecord',['../classOMF_1_1OMF86Format_1_1IntelLibraryModuleNamesRecord.html',1,'OMF::OMF86Format']]],
-  ['intersegmentrelocationrecord_22',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]],
-  ['iteratedpage_23',['IteratedPage',['../classMicrosoft_1_1LEFormat_1_1IteratedPage.html',1,'Microsoft::LEFormat']]],
-  ['iterationrecord_24',['IterationRecord',['../structMicrosoft_1_1LEFormat_1_1IteratedPage_1_1IterationRecord.html',1,'Microsoft::LEFormat::IteratedPage']]]
+  ['intersegmentreferencesrecord_18',['InterSegmentReferencesRecord',['../classOMF_1_1OMF80Format_1_1InterSegmentReferencesRecord.html',1,'OMF::OMF80Format']]],
+  ['intersegmentrelocationrecord_19',['IntersegmentRelocationRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1IntersegmentRelocationRecord.html',1,'Apple::OMFFormat::Segment']]],
+  ['iteratedpage_20',['IteratedPage',['../classMicrosoft_1_1LEFormat_1_1IteratedPage.html',1,'Microsoft::LEFormat']]],
+  ['iterationrecord_21',['IterationRecord',['../structMicrosoft_1_1LEFormat_1_1IteratedPage_1_1IterationRecord.html',1,'Microsoft::LEFormat::IteratedPage']]]
 ];

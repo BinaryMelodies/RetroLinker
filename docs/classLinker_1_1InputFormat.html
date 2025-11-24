@@ -93,16 +93,19 @@ Inheritance diagram for Linker::InputFormat:</div>
  <div class="center">
   <img src="classLinker_1_1InputFormat.png" usemap="#Linker::InputFormat_map" alt=""/>
   <map id="Linker::InputFormat_map" name="Linker::InputFormat_map">
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="690,56,956,80"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="690,0,956,24"/>
-<area href="classAOut_1_1AOutFormat.html" title="UNIX/Linux a.out binary file format." alt="AOut::AOutFormat" shape="rect" coords="0,168,266,192"/>
-<area href="classAS86Obj_1_1AS86ObjFormat.html" title="Object format of Introl-C, output format for as86, used as an output by Bruce&#39;s C compiler from the d..." alt="AS86Obj::AS86ObjFormat" shape="rect" coords="276,168,542,192"/>
-<area href="classArchive_1_1ArchiveFormat.html" title="UNIX archive format." alt="Archive::ArchiveFormat" shape="rect" coords="552,168,818,192"/>
-<area href="classCOFF_1_1COFFFormat.html" title="The UNIX COFF file format." alt="COFF::COFFFormat" shape="rect" coords="828,168,1094,192"/>
-<area href="classELF_1_1ELFFormat.html" title="ELF object and executable format." alt="ELF::ELFFormat" shape="rect" coords="1104,168,1370,192"/>
-<area href="classO65_1_1O65Format.html" title="Output format for the 6502 assembler xa." alt="O65::O65Format" shape="rect" coords="1380,168,1646,192"/>
-<area href="classOMF_1_1OMF86Format.html" title="Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,..." alt="OMF::OMF86Format" shape="rect" coords="1656,168,1922,192"/>
-<area href="classMicrosoft_1_1PEFormat.html" title="Microsoft PE .EXE portable executable file format." alt="Microsoft::PEFormat" shape="rect" coords="828,224,1094,248"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,266,80"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,266,24"/>
+<area href="classAOut_1_1AOutFormat.html" title="UNIX/Linux a.out binary file format." alt="AOut::AOutFormat" shape="rect" coords="414,168,680,192"/>
+<area href="classAS86Obj_1_1AS86ObjFormat.html" title="Object format of Introl-C, output format for as86, used as an output by Bruce&#39;s C compiler from the d..." alt="AS86Obj::AS86ObjFormat" shape="rect" coords="414,224,680,248"/>
+<area href="classArchive_1_1ArchiveFormat.html" title="UNIX archive format." alt="Archive::ArchiveFormat" shape="rect" coords="414,280,680,304"/>
+<area href="classCOFF_1_1COFFFormat.html" title="The UNIX COFF file format." alt="COFF::COFFFormat" shape="rect" coords="414,336,680,360"/>
+<area href="classELF_1_1ELFFormat.html" title="ELF object and executable format." alt="ELF::ELFFormat" shape="rect" coords="414,392,680,416"/>
+<area href="classO65_1_1O65Format.html" title="Output format for the 6502 assembler xa." alt="O65::O65Format" shape="rect" coords="414,448,680,472"/>
+<area href="classOMF_1_1OMF51Format.html" title="Intel Relocatable Object Module for the Intel MCS-51." alt="OMF::OMF51Format" shape="rect" coords="414,504,680,528"/>
+<area href="classOMF_1_1OMF80Format.html" title="Intel Relocatable Object Module for the Intel 8080." alt="OMF::OMF80Format" shape="rect" coords="414,560,680,584"/>
+<area href="classOMF_1_1OMF86Format.html" title="Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,..." alt="OMF::OMF86Format" shape="rect" coords="414,616,680,640"/>
+<area href="classOMF_1_1OMF96Format.html" title="Intel Relocatable Object Module for the Intel MCS-96." alt="OMF::OMF96Format" shape="rect" coords="414,672,680,696"/>
+<area href="classOMF_1_1OMFFormatContainer.html" alt="OMF::OMFFormatContainer" shape="rect" coords="414,728,680,752"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -295,7 +298,7 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></
 
 <p>Loads the information into a module object, a convenience method when there is a single module generated. </p>
 
-<p>Reimplemented in <a class="el" href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">AOut::AOutFormat</a>, <a class="el" href="classAS86Obj_1_1AS86ObjFormat.html#a653d951840e580fe0be4b9be4f695994">AS86Obj::AS86ObjFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a071e6dddbcb4ad0649ac8625c61bcd78">COFF::COFFFormat</a>, <a class="el" href="classELF_1_1ELFFormat.html#ad61ac5b2c2f8c49acc0556324eeb9f67">ELF::ELFFormat</a>, <a class="el" href="classO65_1_1O65Format.html#a6217125970edc7b305f45bb0c80f3531">O65::O65Format</a>, and <a class="el" href="classOMF_1_1OMF86Format.html#a798d80ab92bbcd71f885523d42d183a6">OMF::OMF86Format</a>.</p>
+<p>Reimplemented in <a class="el" href="classAOut_1_1AOutFormat.html#a6a7d91a754d98b715fd1a1cb5e6cd26f">AOut::AOutFormat</a>, <a class="el" href="classAS86Obj_1_1AS86ObjFormat.html#a653d951840e580fe0be4b9be4f695994">AS86Obj::AS86ObjFormat</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a071e6dddbcb4ad0649ac8625c61bcd78">COFF::COFFFormat</a>, <a class="el" href="classELF_1_1ELFFormat.html#ad61ac5b2c2f8c49acc0556324eeb9f67">ELF::ELFFormat</a>, <a class="el" href="classEMX_1_1EMXAOutFormat.html#a0c79bc66a6c9a6316420b4b5f0ae7e86">EMX::EMXAOutFormat</a>, <a class="el" href="classO65_1_1O65Format.html#a6217125970edc7b305f45bb0c80f3531">O65::O65Format</a>, <a class="el" href="classOMF_1_1OMF86Format.html#a798d80ab92bbcd71f885523d42d183a6">OMF::OMF86Format</a>, <a class="el" href="classOMF_1_1OMF80Format.html#a85eed269f91db0d0464cd87757a617ba">OMF::OMF80Format</a>, <a class="el" href="classOMF_1_1OMF51Format.html#a05ecc56d394b6c8f57cf8f4e558f58e1">OMF::OMF51Format</a>, <a class="el" href="classOMF_1_1OMF96Format.html#a75033981eeb2cf21774d06a967f9af36">OMF::OMF96Format</a>, and <a class="el" href="classOMF_1_1OMFFormatContainer.html#af8842098455b428a470ffbc180c3365f">OMF::OMFFormatContainer</a>.</p>
 
 </div>
 </div>

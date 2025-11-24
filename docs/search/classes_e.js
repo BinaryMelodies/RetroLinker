@@ -19,7 +19,10 @@ var searchData=
   ['precedence_16',['precedence',['../structApple_1_1OMFFormat_1_1Segment_1_1Expression_1_1precedence.html',1,'Apple::OMFFormat::Segment::Expression']]],
   ['prlformat_17',['PRLFormat',['../classBinary_1_1PRLFormat.html',1,'Binary']]],
   ['prloptioncollector_18',['PRLOptionCollector',['../classBinary_1_1PRLFormat_1_1PRLOptionCollector.html',1,'Binary::PRLFormat']]],
-  ['prodos_19',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
-  ['prodosfileinfo_20',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]],
-  ['programunit_21',['ProgramUnit',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1ProgramUnit.html',1,'Amiga::HunkFormat::IndexBlock']]]
+  ['procedureinformation_19',['ProcedureInformation',['../classOMF_1_1OMF96Format_1_1BlockDefinitionRecord_1_1ProcedureInformation.html',1,'OMF::OMF96Format::BlockDefinitionRecord']]],
+  ['prodos_20',['ProDOS',['../classApple_1_1FileInfo_1_1ProDOS.html',1,'Apple::FileInfo']]],
+  ['prodosfileinfo_21',['ProDOSFileInfo',['../classApple_1_1ProDOSFileInfo.html',1,'Apple']]],
+  ['programunit_22',['ProgramUnit',['../classAmiga_1_1HunkFormat_1_1IndexBlock_1_1ProgramUnit.html',1,'Amiga::HunkFormat::IndexBlock']]],
+  ['publicsymbols_23',['PublicSymbols',['../classOMF_1_1OMF51Format_1_1DebugItemsRecord_1_1PublicSymbols.html',1,'OMF::OMF51Format::DebugItemsRecord']]],
+  ['publicsymbolsrecord_24',['PublicSymbolsRecord',['../classOMF_1_1OMF51Format_1_1PublicSymbolsRecord.html',1,'OMF::OMF51Format']]]
 ];

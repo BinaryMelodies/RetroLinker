@@ -78,6 +78,7 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classOMF_1_1OMFFormat-members.html">List of all members</a>  </div>
@@ -95,20 +96,51 @@ Inheritance diagram for OMF::OMFFormat:</div>
  <div class="center">
   <img src="classOMF_1_1OMFFormat.png" usemap="#OMF::OMFFormat_map" alt=""/>
   <map id="OMF::OMFFormat_map" name="OMF::OMFFormat_map">
-<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,56,129,80"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,129,24"/>
-<area href="classOMF_1_1OMF86Format.html" title="Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,..." alt="OMF::OMF86Format" shape="rect" coords="0,168,129,192"/>
+<area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="208,56,337,80"/>
+<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="208,0,337,24"/>
+<area href="classOMF_1_1OMF51Format.html" title="Intel Relocatable Object Module for the Intel MCS-51." alt="OMF::OMF51Format" shape="rect" coords="0,168,129,192"/>
+<area href="classOMF_1_1OMF80Format.html" title="Intel Relocatable Object Module for the Intel 8080." alt="OMF::OMF80Format" shape="rect" coords="139,168,268,192"/>
+<area href="classOMF_1_1OMF86Format.html" title="Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,..." alt="OMF::OMF86Format" shape="rect" coords="278,168,407,192"/>
+<area href="classOMF_1_1OMF96Format.html" title="Intel Relocatable Object Module for the Intel MCS-96." alt="OMF::OMF96Format" shape="rect" coords="417,168,546,192"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1ContentRecord.html">ContentRecord</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A record representing data to be loaded into a segment.  <a href="classOMF_1_1OMFFormat_1_1ContentRecord.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1EmptyRecord.html">EmptyRecord</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A record type that has no contents, aside from the type, length and checksum, used for BLKEND.  <a href="classOMF_1_1OMFFormat_1_1EmptyRecord.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1LibraryDictionaryRecord.html">LibraryDictionaryRecord</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">All public symbols of all modules, used for LIBDIC.  <a href="classOMF_1_1OMFFormat_1_1LibraryDictionaryRecord.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1LibraryHeaderRecord.html">LibraryHeaderRecord</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Library header record, used for LIBHED.  <a href="classOMF_1_1OMFFormat_1_1LibraryHeaderRecord.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1LibraryModuleLocationsRecord.html">LibraryModuleLocationsRecord</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Library module offsets, used for LIBLOC.  <a href="classOMF_1_1OMFFormat_1_1LibraryModuleLocationsRecord.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1LibraryModuleNamesRecord.html">LibraryModuleNamesRecord</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Library module names, used for LIBNAM.  <a href="classOMF_1_1OMFFormat_1_1LibraryModuleNamesRecord.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1LineNumbersRecord.html">LineNumbersRecord</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A record representing line number information.  <a href="classOMF_1_1OMFFormat_1_1LineNumbersRecord.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1Record.html">Record</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Base class representing OMF record types.  <a href="classOMF_1_1OMFFormat_1_1Record.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classOMF_1_1OMFFormat_1_1UnknownRecord.html">UnknownRecord</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">An unparsed record type, if the format is not recognized.  <a href="classOMF_1_1OMFFormat_1_1UnknownRecord.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:adcdeaf38da6b217205c641a9e87b1d8c" id="r_adcdeaf38da6b217205c641a9e87b1d8c"><td class="memItemLeft" align="right" valign="top"><a id="adcdeaf38da6b217205c641a9e87b1d8c" name="adcdeaf38da6b217205c641a9e87b1d8c"></a>
+typedef uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>index_t</b></td></tr>
+<tr class="memdesc:adcdeaf38da6b217205c641a9e87b1d8c"><td class="mdescLeft">&#160;</td><td class="mdescRight">An index referring to an element or definition in the file, typically stored as 1 or 2 bytes, used for OMF86 and OMF96. <br /></td></tr>
+<tr class="separator:adcdeaf38da6b217205c641a9e87b1d8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
@@ -120,13 +152,29 @@ static std::string&#160;</td><td class="memItemRight" valign="bottom"><b>ReadStr
 static void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteString</b> (<a class="el" href="classOMF_1_1ChecksumWriter.html">ChecksumWriter</a> &amp;wr, std::string text)</td></tr>
 <tr class="memdesc:ad90b7f6d83c936a1a9010b6941132dbd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes a string prefixed with a length byte. <br /></td></tr>
 <tr class="separator:ad90b7f6d83c936a1a9010b6941132dbd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4834a5ac4a2a5e34d328f6b200aac327" id="r_a4834a5ac4a2a5e34d328f6b200aac327"><td class="memItemLeft" align="right" valign="top"><a id="a4834a5ac4a2a5e34d328f6b200aac327" name="a4834a5ac4a2a5e34d328f6b200aac327"></a>
+static <a class="el" href="#adcdeaf38da6b217205c641a9e87b1d8c">index_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ReadIndex</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a4834a5ac4a2a5e34d328f6b200aac327"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses a 1 or 2 byte index value. <br /></td></tr>
+<tr class="separator:a4834a5ac4a2a5e34d328f6b200aac327"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af12139f4c29f0f562a6d28ab7ffacae9" id="r_af12139f4c29f0f562a6d28ab7ffacae9"><td class="memItemLeft" align="right" valign="top"><a id="af12139f4c29f0f562a6d28ab7ffacae9" name="af12139f4c29f0f562a6d28ab7ffacae9"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteIndex</b> (<a class="el" href="classOMF_1_1ChecksumWriter.html">ChecksumWriter</a> &amp;wr, <a class="el" href="#adcdeaf38da6b217205c641a9e87b1d8c">index_t</a> index)</td></tr>
+<tr class="memdesc:af12139f4c29f0f562a6d28ab7ffacae9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces a 1 or 2 byte index value. <br /></td></tr>
+<tr class="separator:af12139f4c29f0f562a6d28ab7ffacae9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1daee0101caf24d1ef748b0a6299b9b" id="r_aa1daee0101caf24d1ef748b0a6299b9b"><td class="memItemLeft" align="right" valign="top"><a id="aa1daee0101caf24d1ef748b0a6299b9b" name="aa1daee0101caf24d1ef748b0a6299b9b"></a>
+static size_t&#160;</td><td class="memItemRight" valign="bottom"><b>IndexSize</b> (<a class="el" href="#adcdeaf38da6b217205c641a9e87b1d8c">index_t</a> index)</td></tr>
+<tr class="memdesc:aa1daee0101caf24d1ef748b0a6299b9b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Determines if the index value requires 1 or 2 bytes to store. <br /></td></tr>
+<tr class="separator:aa1daee0101caf24d1ef748b0a6299b9b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40c1002d56e1ac49764ef0ce1d103a35" id="r_a40c1002d56e1ac49764ef0ce1d103a35"><td class="memItemLeft" align="right" valign="top"><a id="a40c1002d56e1ac49764ef0ce1d103a35" name="a40c1002d56e1ac49764ef0ce1d103a35"></a>
+static std::shared_ptr&lt; <a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ReadOMFFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="memdesc:a40c1002d56e1ac49764ef0ce1d103a35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to parse an OMF file, whether OMF80, OMF86, OMF51 or OMF96. <br /></td></tr>
+<tr class="separator:a40c1002d56e1ac49764ef0ce1d103a35"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a4a556e7a30b0a56d058e9bbc4ead46f6" id="r_a4a556e7a30b0a56d058e9bbc4ead46f6"><td class="memItemLeft" align="right" valign="top"><a id="a4a556e7a30b0a56d058e9bbc4ead46f6" name="a4a556e7a30b0a56d058e9bbc4ead46f6"></a>
-std::vector&lt; std::shared_ptr&lt; <a class="el" href="classOMF_1_1OMFFormat_1_1Record.html">Record</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>records</b></td></tr>
-<tr class="memdesc:a4a556e7a30b0a56d058e9bbc4ead46f6"><td class="mdescLeft">&#160;</td><td class="mdescRight">The ordered collection of records contained in the file. <br /></td></tr>
-<tr class="separator:a4a556e7a30b0a56d058e9bbc4ead46f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a32405458ef28fccd02bbf87a4a5c2556" id="r_a32405458ef28fccd02bbf87a4a5c2556"><td class="memItemLeft" align="right" valign="top"><a id="a32405458ef28fccd02bbf87a4a5c2556" name="a32405458ef28fccd02bbf87a4a5c2556"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = 0</td></tr>
+<tr class="memdesc:a32405458ef28fccd02bbf87a4a5c2556"><td class="mdescLeft">&#160;</td><td class="mdescRight">Used to calculate record offsets when generating OMF file. <br /></td></tr>
+<tr class="separator:a32405458ef28fccd02bbf87a4a5c2556"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>

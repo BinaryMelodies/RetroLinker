@@ -130,6 +130,10 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a4d40c4f9e592b3d33dd43ab9dc14dbcf" id="r_a4d40c4f9e592b3d33dd43ab9dc14dbcf"><td class="memItemLeft" align="right" valign="top"><a id="a4d40c4f9e592b3d33dd43ab9dc14dbcf" name="a4d40c4f9e592b3d33dd43ab9dc14dbcf"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>HasSymbolDefinition</b> (const <a class="el" href="classLinker_1_1SymbolDefinition.html">SymbolDefinition</a> &amp;symbol)</td></tr>
 <tr class="separator:a4d40c4f9e592b3d33dd43ab9dc14dbcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81b4524b474fda1d738521ff2fda864f" id="r_a81b4524b474fda1d738521ff2fda864f"><td class="memItemLeft" align="right" valign="top"><a id="a81b4524b474fda1d738521ff2fda864f" name="a81b4524b474fda1d738521ff2fda864f"></a>
+std::vector&lt; <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetRelocations</b> ()</td></tr>
+<tr class="memdesc:a81b4524b474fda1d738521ff2fda864f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns all the relocations within the module. <br /></td></tr>
+<tr class="separator:a81b4524b474fda1d738521ff2fda864f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a74d5d024f2318aa4a82e9fad7fc0ccb2" id="r_a74d5d024f2318aa4a82e9fad7fc0ccb2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a74d5d024f2318aa4a82e9fad7fc0ccb2">SetupOptions</a> (char special_char, std::shared_ptr&lt; <a class="el" href="classLinker_1_1OutputFormat.html">OutputFormat</a> &gt; output_format, std::shared_ptr&lt; const <a class="el" href="classLinker_1_1InputFormat.html">InputFormat</a> &gt; input_format)</td></tr>
 <tr class="memdesc:a74d5d024f2318aa4a82e9fad7fc0ccb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Initializes the reader for linking purposes.  <br /></td></tr>
 <tr class="separator:a74d5d024f2318aa4a82e9fad7fc0ccb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -243,10 +247,6 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>file_name</b><
 std::vector&lt; <a class="el" href="classLinker_1_1SymbolDefinition.html">SymbolDefinition</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_sequence</b></td></tr>
 <tr class="memdesc:a24f93938d68f7237fd017c313aee8431"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sorted collection of all symbols appearing in the module, duplicates removed. <br /></td></tr>
 <tr class="separator:a24f93938d68f7237fd017c313aee8431"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae4f3bf290f658eb8a7bdd4221f433b19" id="r_ae4f3bf290f658eb8a7bdd4221f433b19"><td class="memItemLeft" align="right" valign="top"><a id="ae4f3bf290f658eb8a7bdd4221f433b19" name="ae4f3bf290f658eb8a7bdd4221f433b19"></a>
-std::vector&lt; <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
-<tr class="memdesc:ae4f3bf290f658eb8a7bdd4221f433b19"><td class="mdescLeft">&#160;</td><td class="mdescRight">List of relocations within the module. <br /></td></tr>
-<tr class="separator:ae4f3bf290f658eb8a7bdd4221f433b19"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a29d32dcfb957951871fbd33afec7a34f" id="r_a29d32dcfb957951871fbd33afec7a34f"><td class="memItemLeft" align="right" valign="top"><a id="a29d32dcfb957951871fbd33afec7a34f" name="a29d32dcfb957951871fbd33afec7a34f"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_included</b> = false</td></tr>
 <tr class="memdesc:a29d32dcfb957951871fbd33afec7a34f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Set to true if module is included in the linking process, relevant for libraries. <br /></td></tr>

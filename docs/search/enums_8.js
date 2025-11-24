@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['part_5ftype_0',['part_type',['../structELF_1_1ELFFormat_1_1Segment_1_1Part.html#a269042e386f99b6621af8508245782b9',1,'ELF::ELFFormat::Segment::Part']]],
-  ['program_5fflag_5ftype_1',['program_flag_type',['../classMicrosoft_1_1NEFormat.html#a45beeb2a4ab17368b6860673f05246fe',1,'Microsoft::NEFormat']]]
+  ['omf_5fversion_5ft_0',['omf_version_t',['../classOMF_1_1OMF86Format.html#ab005ecd9c27352899acedccb63e3c8f8',1,'OMF::OMF86Format']]],
+  ['operation_5ftype_1',['operation_type',['../classApple_1_1OMFFormat_1_1Segment_1_1Expression.html#a95307fd0f6be86fb16a2cdffab7f74db',1,'Apple::OMFFormat::Segment::Expression']]]
 ];

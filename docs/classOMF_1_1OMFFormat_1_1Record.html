@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.10.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>RetroLinker: OMF::OMFFormat::Record Class Reference</title>
+<title>RetroLinker: OMF::OMFFormat::Record&lt; RecordTypeByte, FormatType, ModuleType &gt; Class Template Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -80,7 +80,7 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classOMF_1_1OMFFormat_1_1Record-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">OMF::OMFFormat::Record Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
+  <div class="headertitle"><div class="title">OMF::OMFFormat::Record&lt; RecordTypeByte, FormatType, ModuleType &gt; Class Template Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
 </div><!--header-->
 <div class="contents">
 
@@ -89,100 +89,159 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="omf_8h_source.html">omf.h</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for OMF::OMFFormat::Record:</div>
+Inheritance diagram for OMF::OMFFormat::Record&lt; RecordTypeByte, FormatType, ModuleType &gt;:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="classOMF_1_1OMFFormat_1_1Record.png" usemap="#OMF::OMFFormat::Record_map" alt=""/>
-  <map id="OMF::OMFFormat::Record_map" name="OMF::OMFFormat::Record_map">
-<area href="classOMF_1_1OMF86Format_1_1Record.html" title="Record type appearing specifically in an OMF86 file." alt="OMF::OMF86Format::Record" shape="rect" coords="0,56,336,80"/>
-<area href="classOMF_1_1OMFFormat_1_1UnknownRecord.html" title="An unparsed record type, if the format is not recognized." alt="OMF::OMFFormat::UnknownRecord" shape="rect" coords="346,56,682,80"/>
-<area href="classOMF_1_1OMF86Format_1_1AliasDefinitionRecord.html" alt="OMF::OMF86Format::AliasDefinitionRecord" shape="rect" coords="346,112,682,136"/>
-<area href="classOMF_1_1OMF86Format_1_1BackpatchRecord.html" alt="OMF::OMF86Format::BackpatchRecord" shape="rect" coords="346,168,682,192"/>
-<area href="classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html" title="A record that defines a block, used for BLKDEF records (Intel only)" alt="OMF::OMF86Format::BlockDefinitionRecord" shape="rect" coords="346,224,682,248"/>
-<area href="classOMF_1_1OMF86Format_1_1CommentRecord.html" alt="OMF::OMF86Format::CommentRecord" shape="rect" coords="346,280,682,304"/>
-<area href="classOMF_1_1OMF86Format_1_1DebugSymbolsRecord.html" title="Record to store debug symbols, used for DEBSYM (Intel only)" alt="OMF::OMF86Format::DebugSymbolsRecord" shape="rect" coords="346,336,682,360"/>
-<area href="classOMF_1_1OMF86Format_1_1EmptyRecord.html" title="A record type that has no contents, aside from the type, length and checksum, used for BLKEND." alt="OMF::OMF86Format::EmptyRecord" shape="rect" coords="346,392,682,416"/>
-<area href="classOMF_1_1OMF86Format_1_1EndRecord.html" title="Record to signal termination of an overloay or block, used for ENDBLK (Intel only)" alt="OMF::OMF86Format::EndRecord" shape="rect" coords="346,448,682,472"/>
-<area href="classOMF_1_1OMF86Format_1_1ExternalNamesDefinitionRecord.html" title="A record defining several external or common symbols, used for EXTDEF, LEXTDEF, CEXTDEF,..." alt="OMF::OMF86Format::ExternalNamesDefinitionRecord" shape="rect" coords="346,504,682,528"/>
-<area href="classOMF_1_1OMF86Format_1_1FixupRecord.html" title="A record containing relocation data, used for FIXUPP." alt="OMF::OMF86Format::FixupRecord" shape="rect" coords="346,560,682,584"/>
-<area href="classOMF_1_1OMF86Format_1_1GroupDefinitionRecord.html" title="A record that defines a segment group, used for GRPDEF records." alt="OMF::OMF86Format::GroupDefinitionRecord" shape="rect" coords="346,616,682,640"/>
-<area href="classOMF_1_1OMF86Format_1_1InitializedCommunalDataRecord.html" alt="OMF::OMF86Format::InitializedCommunalDataRecord" shape="rect" coords="346,672,682,696"/>
-<area href="classOMF_1_1OMF86Format_1_1IntelLibraryDictionaryRecord.html" title="All public symbols of all modules, used for LIBDIC (Intel only)" alt="OMF::OMF86Format::IntelLibraryDictionaryRecord" shape="rect" coords="346,728,682,752"/>
-<area href="classOMF_1_1OMF86Format_1_1IntelLibraryHeaderRecord.html" title="Library header record, used for LIBHED (Intel only)" alt="OMF::OMF86Format::IntelLibraryHeaderRecord" shape="rect" coords="346,784,682,808"/>
-<area href="classOMF_1_1OMF86Format_1_1IntelLibraryModuleLocationsRecord.html" title="Library module offsets, used for LIBLOC (Intel only)" alt="OMF::OMF86Format::IntelLibraryModuleLocationsRecord" shape="rect" coords="346,840,682,864"/>
-<area href="classOMF_1_1OMF86Format_1_1IntelLibraryModuleNamesRecord.html" title="Library module names, used for LIBNAM (Intel only)" alt="OMF::OMF86Format::IntelLibraryModuleNamesRecord" shape="rect" coords="346,896,682,920"/>
-<area href="classOMF_1_1OMF86Format_1_1LibraryEndRecord.html" alt="OMF::OMF86Format::LibraryEndRecord" shape="rect" coords="346,952,682,976"/>
-<area href="classOMF_1_1OMF86Format_1_1LibraryHeaderRecord.html" alt="OMF::OMF86Format::LibraryHeaderRecord" shape="rect" coords="346,1008,682,1032"/>
-<area href="classOMF_1_1OMF86Format_1_1LineNumbersRecord.html" title="Stores as debugging data the line number information, used for LINNUM." alt="OMF::OMF86Format::LineNumbersRecord" shape="rect" coords="346,1064,682,1088"/>
-<area href="classOMF_1_1OMF86Format_1_1ListOfNamesRecord.html" title="A list of names to be referenced, used for LNAMES and LLNAMES records." alt="OMF::OMF86Format::ListOfNamesRecord" shape="rect" coords="346,1120,682,1144"/>
-<area href="classOMF_1_1OMF86Format_1_1LogicalDataRecord.html" title="Logical enumerated or iterated data, used for LEDATA and LIDATA." alt="OMF::OMF86Format::LogicalDataRecord" shape="rect" coords="346,1176,682,1200"/>
-<area href="classOMF_1_1OMF86Format_1_1ModuleEndRecord.html" title="Terminates a module, used for MODEND." alt="OMF::OMF86Format::ModuleEndRecord" shape="rect" coords="346,1232,682,1256"/>
-<area href="classOMF_1_1OMF86Format_1_1ModuleHeaderRecord.html" title="A header record, used for THEADR and LHEADR." alt="OMF::OMF86Format::ModuleHeaderRecord" shape="rect" coords="346,1288,682,1312"/>
-<area href="classOMF_1_1OMF86Format_1_1NamedBackpatchRecord.html" alt="OMF::OMF86Format::NamedBackpatchRecord" shape="rect" coords="346,1344,682,1368"/>
-<area href="classOMF_1_1OMF86Format_1_1OMFVersionNumberRecord.html" alt="OMF::OMF86Format::OMFVersionNumberRecord" shape="rect" coords="346,1400,682,1424"/>
-<area href="classOMF_1_1OMF86Format_1_1OverlayDefinitionRecord.html" title="A record that defines an overlay, used for OVLDEF records." alt="OMF::OMF86Format::OverlayDefinitionRecord" shape="rect" coords="346,1456,682,1480"/>
-<area href="classOMF_1_1OMF86Format_1_1PhysicalDataRecord.html" title="Physical enumerated or iterated data, used for PEDATA and PIDATA (Intel only)" alt="OMF::OMF86Format::PhysicalDataRecord" shape="rect" coords="346,1512,682,1536"/>
-<area href="classOMF_1_1OMF86Format_1_1RegisterInitializationRecord.html" title="Initialization values for registers, used for REGINT (Intel only)" alt="OMF::OMF86Format::RegisterInitializationRecord" shape="rect" coords="346,1568,682,1592"/>
-<area href="classOMF_1_1OMF86Format_1_1RelocatableDataRecord.html" title="Relocatable enumerated or iterated data, used for REDATA and RIDATA (Intel only)" alt="OMF::OMF86Format::RelocatableDataRecord" shape="rect" coords="346,1624,682,1648"/>
-<area href="classOMF_1_1OMF86Format_1_1SegmentDefinitionRecord.html" title="A record that defines a segment, used for SEGDEF records." alt="OMF::OMF86Format::SegmentDefinitionRecord" shape="rect" coords="346,1680,682,1704"/>
-<area href="classOMF_1_1OMF86Format_1_1SymbolLineNumbersRecord.html" alt="OMF::OMF86Format::SymbolLineNumbersRecord" shape="rect" coords="346,1736,682,1760"/>
-<area href="classOMF_1_1OMF86Format_1_1SymbolsDefinitionRecord.html" title="A record that defines a symbol, used by PUBDEF, LPUBDEF, LOCSYM." alt="OMF::OMF86Format::SymbolsDefinitionRecord" shape="rect" coords="346,1792,682,1816"/>
-<area href="classOMF_1_1OMF86Format_1_1TypeDefinitionRecord.html" title="A record that defines a data type, used for TYPDEF records." alt="OMF::OMF86Format::TypeDefinitionRecord" shape="rect" coords="346,1848,682,1872"/>
-<area href="classOMF_1_1OMF86Format_1_1VendorExtensionRecord.html" alt="OMF::OMF86Format::VendorExtensionRecord" shape="rect" coords="346,1904,682,1928"/>
+  <img src="classOMF_1_1OMFFormat_1_1Record.png" usemap="#OMF::OMFFormat::Record_3C_20RecordTypeByte_2C_20FormatType_2C_20ModuleType_20_3E_map" alt=""/>
+  <map id="OMF::OMFFormat::Record_3C_20RecordTypeByte_2C_20FormatType_2C_20ModuleType_20_3E_map" name="OMF::OMFFormat::Record_3C_20RecordTypeByte_2C_20FormatType_2C_20ModuleType_20_3E_map">
+<area href="classOMF_1_1OMF51Format_1_1DebugItemsRecord.html" alt="OMF::OMF51Format::DebugItemsRecord" shape="rect" coords="582,56,1154,80"/>
+<area href="classOMF_1_1OMF51Format_1_1ExternalDefinitionsRecord.html" alt="OMF::OMF51Format::ExternalDefinitionsRecord" shape="rect" coords="582,112,1154,136"/>
+<area href="classOMF_1_1OMF51Format_1_1FixupRecord.html" alt="OMF::OMF51Format::FixupRecord" shape="rect" coords="582,168,1154,192"/>
+<area href="classOMF_1_1OMF51Format_1_1ModuleEndRecord.html" alt="OMF::OMF51Format::ModuleEndRecord" shape="rect" coords="582,224,1154,248"/>
+<area href="classOMF_1_1OMF51Format_1_1ModuleHeaderRecord.html" alt="OMF::OMF51Format::ModuleHeaderRecord" shape="rect" coords="582,280,1154,304"/>
+<area href="classOMF_1_1OMF51Format_1_1PublicSymbolsRecord.html" alt="OMF::OMF51Format::PublicSymbolsRecord" shape="rect" coords="582,336,1154,360"/>
+<area href="classOMF_1_1OMF51Format_1_1ScopeDefinitionRecord.html" alt="OMF::OMF51Format::ScopeDefinitionRecord" shape="rect" coords="582,392,1154,416"/>
+<area href="classOMF_1_1OMF51Format_1_1SegmentDefinitionsRecord.html" alt="OMF::OMF51Format::SegmentDefinitionsRecord" shape="rect" coords="582,448,1154,472"/>
+<area href="classOMF_1_1OMF80Format_1_1ExternalDefinitionsRecord.html" alt="OMF::OMF80Format::ExternalDefinitionsRecord" shape="rect" coords="582,504,1154,528"/>
+<area href="classOMF_1_1OMF80Format_1_1ExternalReferencesRecord.html" alt="OMF::OMF80Format::ExternalReferencesRecord" shape="rect" coords="582,560,1154,584"/>
+<area href="classOMF_1_1OMF80Format_1_1ModuleAncestorRecord.html" alt="OMF::OMF80Format::ModuleAncestorRecord" shape="rect" coords="582,616,1154,640"/>
+<area href="classOMF_1_1OMF80Format_1_1ModuleEndRecord.html" alt="OMF::OMF80Format::ModuleEndRecord" shape="rect" coords="582,672,1154,696"/>
+<area href="classOMF_1_1OMF80Format_1_1ModuleHeaderRecord.html" alt="OMF::OMF80Format::ModuleHeaderRecord" shape="rect" coords="582,728,1154,752"/>
+<area href="classOMF_1_1OMF80Format_1_1NamedCommonDefinitionsRecord.html" alt="OMF::OMF80Format::NamedCommonDefinitionsRecord" shape="rect" coords="582,784,1154,808"/>
+<area href="classOMF_1_1OMF80Format_1_1RelocationsRecord.html" alt="OMF::OMF80Format::RelocationsRecord" shape="rect" coords="582,840,1154,864"/>
+<area href="classOMF_1_1OMF80Format_1_1SymbolDefinitionsRecord.html" alt="OMF::OMF80Format::SymbolDefinitionsRecord" shape="rect" coords="582,896,1154,920"/>
+<area href="classOMF_1_1OMF86Format_1_1AliasDefinitionRecord.html" title="Record defining a replacement name for symbols, used for ALIAS (included in TIS)" alt="OMF::OMF86Format::AliasDefinitionRecord" shape="rect" coords="582,952,1154,976"/>
+<area href="classOMF_1_1OMF86Format_1_1BackpatchRecord.html" title="A specialized relocation, used for BAKPAT (included in TIS)" alt="OMF::OMF86Format::BackpatchRecord" shape="rect" coords="582,1008,1154,1032"/>
+<area href="classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html" title="A record that defines a block, used for BLKDEF records (Intel only)" alt="OMF::OMF86Format::BlockDefinitionRecord" shape="rect" coords="582,1064,1154,1088"/>
+<area href="classOMF_1_1OMF86Format_1_1CommentRecord.html" alt="OMF::OMF86Format::CommentRecord" shape="rect" coords="582,1120,1154,1144"/>
+<area href="classOMF_1_1OMF86Format_1_1DebugSymbolsRecord.html" title="Record to store debug symbols, used for DEBSYM (Intel only)" alt="OMF::OMF86Format::DebugSymbolsRecord" shape="rect" coords="582,1176,1154,1200"/>
+<area href="classOMF_1_1OMF86Format_1_1EndRecord.html" title="Record to signal termination of an overloay or block, used for ENDBLK (Intel only)" alt="OMF::OMF86Format::EndRecord" shape="rect" coords="582,1232,1154,1256"/>
+<area href="classOMF_1_1OMF86Format_1_1ExternalNamesDefinitionRecord.html" title="A record defining several external or common symbols, used for EXTDEF, LEXTDEF, CEXTDEF,..." alt="OMF::OMF86Format::ExternalNamesDefinitionRecord" shape="rect" coords="582,1288,1154,1312"/>
+<area href="classOMF_1_1OMF86Format_1_1FixupRecord.html" title="A record containing relocation data, used for FIXUPP." alt="OMF::OMF86Format::FixupRecord" shape="rect" coords="582,1344,1154,1368"/>
+<area href="classOMF_1_1OMF86Format_1_1GroupDefinitionRecord.html" title="A record that defines a segment group, used for GRPDEF records." alt="OMF::OMF86Format::GroupDefinitionRecord" shape="rect" coords="582,1400,1154,1424"/>
+<area href="classOMF_1_1OMF86Format_1_1InitializedCommunalDataRecord.html" title="Initialization data for common segments, used for COMDAT (included in TIS)" alt="OMF::OMF86Format::InitializedCommunalDataRecord" shape="rect" coords="582,1456,1154,1480"/>
+<area href="classOMF_1_1OMF86Format_1_1LineNumbersRecord.html" title="Stores as debugging data the line number information, used for LINNUM." alt="OMF::OMF86Format::LineNumbersRecord" shape="rect" coords="582,1512,1154,1536"/>
+<area href="classOMF_1_1OMF86Format_1_1ListOfNamesRecord.html" title="A list of names to be referenced, used for LNAMES and LLNAMES records." alt="OMF::OMF86Format::ListOfNamesRecord" shape="rect" coords="582,1568,1154,1592"/>
+<area href="classOMF_1_1OMF86Format_1_1LogicalDataRecord.html" title="Logical enumerated or iterated data, used for LEDATA and LIDATA." alt="OMF::OMF86Format::LogicalDataRecord" shape="rect" coords="582,1624,1154,1648"/>
+<area href="classOMF_1_1OMF86Format_1_1ModuleEndRecord.html" title="Terminates a module, used for MODEND." alt="OMF::OMF86Format::ModuleEndRecord" shape="rect" coords="582,1680,1154,1704"/>
+<area href="classOMF_1_1OMF86Format_1_1ModuleHeaderRecord.html" title="A header record, used for THEADR and LHEADR." alt="OMF::OMF86Format::ModuleHeaderRecord" shape="rect" coords="582,1736,1154,1760"/>
+<area href="classOMF_1_1OMF86Format_1_1NamedBackpatchRecord.html" title="A specialized relocation for named common segments, used for NBKPAT (included in TIS)" alt="OMF::OMF86Format::NamedBackpatchRecord" shape="rect" coords="582,1792,1154,1816"/>
+<area href="classOMF_1_1OMF86Format_1_1OMFVersionNumberRecord.html" title="The version of the OMF format, used for VERNUM (included in TIS)" alt="OMF::OMF86Format::OMFVersionNumberRecord" shape="rect" coords="582,1848,1154,1872"/>
+<area href="classOMF_1_1OMF86Format_1_1OverlayDefinitionRecord.html" title="A record that defines an overlay, used for OVLDEF records." alt="OMF::OMF86Format::OverlayDefinitionRecord" shape="rect" coords="582,1904,1154,1928"/>
+<area href="classOMF_1_1OMF86Format_1_1PhysicalDataRecord.html" title="Physical enumerated or iterated data, used for PEDATA and PIDATA (Intel only)" alt="OMF::OMF86Format::PhysicalDataRecord" shape="rect" coords="582,1960,1154,1984"/>
+<area href="classOMF_1_1OMF86Format_1_1RegisterInitializationRecord.html" title="Initialization values for registers, used for REGINT (Intel only)" alt="OMF::OMF86Format::RegisterInitializationRecord" shape="rect" coords="582,2016,1154,2040"/>
+<area href="classOMF_1_1OMF86Format_1_1RelocatableDataRecord.html" title="Relocatable enumerated or iterated data, used for REDATA and RIDATA (Intel only)" alt="OMF::OMF86Format::RelocatableDataRecord" shape="rect" coords="582,2072,1154,2096"/>
+<area href="classOMF_1_1OMF86Format_1_1SegmentDefinitionRecord.html" title="A record that defines a segment, used for SEGDEF records." alt="OMF::OMF86Format::SegmentDefinitionRecord" shape="rect" coords="582,2128,1154,2152"/>
+<area href="classOMF_1_1OMF86Format_1_1SymbolLineNumbersRecord.html" title="Line numbers for common segments, used by LINSYM (included in TIS)" alt="OMF::OMF86Format::SymbolLineNumbersRecord" shape="rect" coords="582,2184,1154,2208"/>
+<area href="classOMF_1_1OMF86Format_1_1SymbolsDefinitionRecord.html" title="A record that defines a symbol, used by PUBDEF, LPUBDEF, LOCSYM." alt="OMF::OMF86Format::SymbolsDefinitionRecord" shape="rect" coords="582,2240,1154,2264"/>
+<area href="classOMF_1_1OMF86Format_1_1TISLibraryEndRecord.html" alt="OMF::OMF86Format::TISLibraryEndRecord" shape="rect" coords="582,2296,1154,2320"/>
+<area href="classOMF_1_1OMF86Format_1_1TISLibraryHeaderRecord.html" alt="OMF::OMF86Format::TISLibraryHeaderRecord" shape="rect" coords="582,2352,1154,2376"/>
+<area href="classOMF_1_1OMF86Format_1_1TypeDefinitionRecord.html" title="A record that defines a data type, used for TYPDEF records." alt="OMF::OMF86Format::TypeDefinitionRecord" shape="rect" coords="582,2408,1154,2432"/>
+<area href="classOMF_1_1OMF86Format_1_1VendorExtensionRecord.html" title="Vendor specific extension to the OMF format, used for VENDEXT (included in TIS)" alt="OMF::OMF86Format::VendorExtensionRecord" shape="rect" coords="582,2464,1154,2488"/>
+<area href="classOMF_1_1OMF96Format_1_1BlockDefinitionRecord.html" alt="OMF::OMF96Format::BlockDefinitionRecord" shape="rect" coords="582,2520,1154,2544"/>
+<area href="classOMF_1_1OMF96Format_1_1ExternalDefinitionsRecord.html" alt="OMF::OMF96Format::ExternalDefinitionsRecord" shape="rect" coords="582,2576,1154,2600"/>
+<area href="classOMF_1_1OMF96Format_1_1ModuleAncestorRecord.html" alt="OMF::OMF96Format::ModuleAncestorRecord" shape="rect" coords="582,2632,1154,2656"/>
+<area href="classOMF_1_1OMF96Format_1_1ModuleEndRecord.html" alt="OMF::OMF96Format::ModuleEndRecord" shape="rect" coords="582,2688,1154,2712"/>
+<area href="classOMF_1_1OMF96Format_1_1ModuleHeaderRecord.html" alt="OMF::OMF96Format::ModuleHeaderRecord" shape="rect" coords="582,2744,1154,2768"/>
+<area href="classOMF_1_1OMF96Format_1_1RelocationRecord.html" alt="OMF::OMF96Format::RelocationRecord" shape="rect" coords="582,2800,1154,2824"/>
+<area href="classOMF_1_1OMF96Format_1_1SegmentDefinitionsRecord.html" alt="OMF::OMF96Format::SegmentDefinitionsRecord" shape="rect" coords="582,2856,1154,2880"/>
+<area href="classOMF_1_1OMF96Format_1_1SymbolDefinitionsRecord.html" alt="OMF::OMF96Format::SymbolDefinitionsRecord" shape="rect" coords="582,2912,1154,2936"/>
+<area href="classOMF_1_1OMF96Format_1_1TypeDefinitionRecord.html" alt="OMF::OMF96Format::TypeDefinitionRecord" shape="rect" coords="582,2968,1154,2992"/>
+<area href="classOMF_1_1OMFFormat_1_1ContentRecord.html" title="A record representing data to be loaded into a segment." alt="OMF::OMFFormat::ContentRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;" shape="rect" coords="582,3024,1154,3048"/>
+<area href="classOMF_1_1OMFFormat_1_1EmptyRecord.html" title="A record type that has no contents, aside from the type, length and checksum, used for BLKEND." alt="OMF::OMFFormat::EmptyRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;" shape="rect" coords="582,3080,1154,3104"/>
+<area href="classOMF_1_1OMFFormat_1_1LibraryDictionaryRecord.html" title="All public symbols of all modules, used for LIBDIC." alt="OMF::OMFFormat::LibraryDictionaryRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;" shape="rect" coords="582,3136,1154,3160"/>
+<area href="classOMF_1_1OMFFormat_1_1LibraryHeaderRecord.html" title="Library header record, used for LIBHED." alt="OMF::OMFFormat::LibraryHeaderRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;" shape="rect" coords="582,3192,1154,3216"/>
+<area href="classOMF_1_1OMFFormat_1_1LibraryModuleLocationsRecord.html" title="Library module offsets, used for LIBLOC." alt="OMF::OMFFormat::LibraryModuleLocationsRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;" shape="rect" coords="582,3248,1154,3272"/>
+<area href="classOMF_1_1OMFFormat_1_1LibraryModuleNamesRecord.html" title="Library module names, used for LIBNAM." alt="OMF::OMFFormat::LibraryModuleNamesRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;" shape="rect" coords="582,3304,1154,3328"/>
+<area href="classOMF_1_1OMFFormat_1_1LineNumbersRecord.html" title="A record representing line number information." alt="OMF::OMFFormat::LineNumbersRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;" shape="rect" coords="582,3360,1154,3384"/>
+<area href="classOMF_1_1OMFFormat_1_1UnknownRecord.html" title="An unparsed record type, if the format is not recognized." alt="OMF::OMFFormat::UnknownRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;" shape="rect" coords="582,3416,1154,3440"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:acbc843243e6e6197cf1d9289e0372e88" id="r_acbc843243e6e6197cf1d9289e0372e88"><td class="memItemLeft" align="right" valign="top"><a id="acbc843243e6e6197cf1d9289e0372e88" name="acbc843243e6e6197cf1d9289e0372e88"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Record</b> (uint8_t <a class="el" href="#ab5b7b9b321c055bc335e434b4a0c97ca">record_type</a>=0)</td></tr>
-<tr class="separator:acbc843243e6e6197cf1d9289e0372e88"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a43a61e426d07e22259a2cbbf2613353e" id="r_a43a61e426d07e22259a2cbbf2613353e"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a43a61e426d07e22259a2cbbf2613353e">ReadRecordContents</a> (<a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> *omf, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)=0</td></tr>
-<tr class="memdesc:a43a61e426d07e22259a2cbbf2613353e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the record contents, except for the type, length and checksum.  <br /></td></tr>
-<tr class="separator:a43a61e426d07e22259a2cbbf2613353e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a528859a040c6dad1e2c2ade9c7a93fb9" id="r_a528859a040c6dad1e2c2ade9c7a93fb9"><td class="memItemLeft" align="right" valign="top">virtual uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a528859a040c6dad1e2c2ade9c7a93fb9">GetRecordSize</a> (<a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> *omf) const =0</td></tr>
-<tr class="memdesc:a528859a040c6dad1e2c2ade9c7a93fb9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the required bytes to write the record, might be less than record_length.  <br /></td></tr>
-<tr class="separator:a528859a040c6dad1e2c2ade9c7a93fb9"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac8b4a49980d819e9d4e6dddcbf355004" id="r_ac8b4a49980d819e9d4e6dddcbf355004"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac8b4a49980d819e9d4e6dddcbf355004">WriteRecordContents</a> (<a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> *omf, <a class="el" href="classOMF_1_1ChecksumWriter.html">ChecksumWriter</a> &amp;wr) const =0</td></tr>
-<tr class="memdesc:ac8b4a49980d819e9d4e6dddcbf355004"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the record contents, except for the type, length and checksum.  <br /></td></tr>
-<tr class="separator:ac8b4a49980d819e9d4e6dddcbf355004"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae155393ec466fcdd94bcc4c664e0bac3" id="r_ae155393ec466fcdd94bcc4c664e0bac3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae155393ec466fcdd94bcc4c664e0bac3">WriteRecord</a> (<a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> *omf, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
-<tr class="memdesc:ae155393ec466fcdd94bcc4c664e0bac3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the full record.  <br /></td></tr>
-<tr class="separator:ae155393ec466fcdd94bcc4c664e0bac3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a85aa5f461472ce82818b1193faed205e" id="r_a85aa5f461472ce82818b1193faed205e"><td class="memItemLeft" align="right" valign="top"><a id="a85aa5f461472ce82818b1193faed205e" name="a85aa5f461472ce82818b1193faed205e"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Record</b> (RecordTypeByte <a class="el" href="#a8f8393958856ccff684452aaf5906db4">record_type</a>=RecordTypeByte(0))</td></tr>
+<tr class="separator:a85aa5f461472ce82818b1193faed205e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64ab94f6aa24ce536317317e6230f623" id="r_a64ab94f6aa24ce536317317e6230f623"><td class="memItemLeft" align="right" valign="top"><a id="a64ab94f6aa24ce536317317e6230f623" name="a64ab94f6aa24ce536317317e6230f623"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>RecordEnd</b> () const</td></tr>
+<tr class="separator:a64ab94f6aa24ce536317317e6230f623"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab9662ce4c9d06c7f53a18a37ee377fb8" id="r_ab9662ce4c9d06c7f53a18a37ee377fb8"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab9662ce4c9d06c7f53a18a37ee377fb8">ReadRecordContents</a> (FormatType *omf, ModuleType *mod, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)=0</td></tr>
+<tr class="memdesc:ab9662ce4c9d06c7f53a18a37ee377fb8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the record contents, except for the type, length and checksum.  <br /></td></tr>
+<tr class="separator:ab9662ce4c9d06c7f53a18a37ee377fb8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14b9c36c4aeb57613e13ffba321a8205" id="r_a14b9c36c4aeb57613e13ffba321a8205"><td class="memItemLeft" align="right" valign="top">virtual uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a14b9c36c4aeb57613e13ffba321a8205">GetRecordSize</a> (FormatType *omf, ModuleType *mod) const =0</td></tr>
+<tr class="memdesc:a14b9c36c4aeb57613e13ffba321a8205"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the required bytes to write the record, might be less than record_length.  <br /></td></tr>
+<tr class="separator:a14b9c36c4aeb57613e13ffba321a8205"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7150f4dd02510115e928ce674faedd43" id="r_a7150f4dd02510115e928ce674faedd43"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7150f4dd02510115e928ce674faedd43">WriteRecordContents</a> (FormatType *omf, ModuleType *mod, <a class="el" href="classOMF_1_1ChecksumWriter.html">ChecksumWriter</a> &amp;wr) const =0</td></tr>
+<tr class="memdesc:a7150f4dd02510115e928ce674faedd43"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the record contents, except for the type, length and checksum.  <br /></td></tr>
+<tr class="separator:a7150f4dd02510115e928ce674faedd43"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57e737c807c68e7c8bba9107e0e10cb0" id="r_a57e737c807c68e7c8bba9107e0e10cb0"><td class="memItemLeft" align="right" valign="top"><a id="a57e737c807c68e7c8bba9107e0e10cb0" name="a57e737c807c68e7c8bba9107e0e10cb0"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteRecord</b> (FormatType *omf, ModuleType *mod, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="memdesc:a57e737c807c68e7c8bba9107e0e10cb0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the full record. <br /></td></tr>
+<tr class="separator:a57e737c807c68e7c8bba9107e0e10cb0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98ab1d950d96feda70d83303fee5494b" id="r_a98ab1d950d96feda70d83303fee5494b"><td class="memItemLeft" align="right" valign="top"><a id="a98ab1d950d96feda70d83303fee5494b" name="a98ab1d950d96feda70d83303fee5494b"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateValues</b> (FormatType *omf, ModuleType *mod)</td></tr>
+<tr class="memdesc:a98ab1d950d96feda70d83303fee5494b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Updates all fields that will be used for writing an OMF module, should be called before output. <br /></td></tr>
+<tr class="separator:a98ab1d950d96feda70d83303fee5494b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62da3889860e55cbb32c5e38ce59960c" id="r_a62da3889860e55cbb32c5e38ce59960c"><td class="memItemLeft" align="right" valign="top"><a id="a62da3889860e55cbb32c5e38ce59960c" name="a62da3889860e55cbb32c5e38ce59960c"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ResolveReferences</b> (FormatType *omf, ModuleType *mod)</td></tr>
+<tr class="memdesc:a62da3889860e55cbb32c5e38ce59960c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resolves any fields read from an OMF module, should be called after inpnut. <br /></td></tr>
+<tr class="separator:a62da3889860e55cbb32c5e38ce59960c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8786e0132650a6413f88ae1bdd893a63" id="r_a8786e0132650a6413f88ae1bdd893a63"><td class="memItemLeft" align="right" valign="top"><a id="a8786e0132650a6413f88ae1bdd893a63" name="a8786e0132650a6413f88ae1bdd893a63"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpAddFields</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, const FormatType *omf, const ModuleType *mod, size_t record_index) const</td></tr>
+<tr class="separator:a8786e0132650a6413f88ae1bdd893a63"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a108b277d7dd72de9ad14c52db0bdef40" id="r_a108b277d7dd72de9ad14c52db0bdef40"><td class="memItemLeft" align="right" valign="top"><a id="a108b277d7dd72de9ad14c52db0bdef40" name="a108b277d7dd72de9ad14c52db0bdef40"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const FormatType *omf, const ModuleType *mod, size_t record_index) const</td></tr>
+<tr class="separator:a108b277d7dd72de9ad14c52db0bdef40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a58a754751e3c74bf9f2081c26a446650" id="r_a58a754751e3c74bf9f2081c26a446650"><td class="memItemLeft" align="right" valign="top"><a id="a58a754751e3c74bf9f2081c26a446650" name="a58a754751e3c74bf9f2081c26a446650"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Is32Bit</b> (FormatType *omf) const</td></tr>
+<tr class="memdesc:a58a754751e3c74bf9f2081c26a446650"><td class="mdescLeft">&#160;</td><td class="mdescRight">Records are 32-bit if the least significant bit of their record type is set (only meaningful for <a class="el" href="classOMF_1_1OMF86Format.html" title="Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,...">OMF86Format</a>) <br /></td></tr>
+<tr class="separator:a58a754751e3c74bf9f2081c26a446650"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a238e0ea01f22333b2e64f0164965111f" id="r_a238e0ea01f22333b2e64f0164965111f"><td class="memItemLeft" align="right" valign="top"><a id="a238e0ea01f22333b2e64f0164965111f" name="a238e0ea01f22333b2e64f0164965111f"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetOffsetSize</b> (FormatType *omf) const</td></tr>
+<tr class="memdesc:a238e0ea01f22333b2e64f0164965111f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The number of bytes in an offset appearing inside the record, 2 for 16-bit records, 4 for 32-bit records (only meaningful for <a class="el" href="classOMF_1_1OMF86Format.html" title="Intel Relocatable Object Module format, used by various 16/32-bit DOS based compilers and linkers,...">OMF86Format</a>) <br /></td></tr>
+<tr class="separator:a238e0ea01f22333b2e64f0164965111f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aaca66a19b7f1ad12037629b59fb5bc29" id="r_aaca66a19b7f1ad12037629b59fb5bc29"><td class="memItemLeft" align="right" valign="top"><a id="aaca66a19b7f1ad12037629b59fb5bc29" name="aaca66a19b7f1ad12037629b59fb5bc29"></a>
+<tr class="memitem:a0116ec08a37bc97348f11b2bca1f33d6" id="r_a0116ec08a37bc97348f11b2bca1f33d6"><td class="memItemLeft" align="right" valign="top"><a id="a0116ec08a37bc97348f11b2bca1f33d6" name="a0116ec08a37bc97348f11b2bca1f33d6"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>record_offset</b></td></tr>
-<tr class="memdesc:aaca66a19b7f1ad12037629b59fb5bc29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of record within the file. <br /></td></tr>
-<tr class="separator:aaca66a19b7f1ad12037629b59fb5bc29"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8f56065b552b7ce1d2f51b8b372461c0" id="r_a8f56065b552b7ce1d2f51b8b372461c0"><td class="memItemLeft" align="right" valign="top"><a id="a8f56065b552b7ce1d2f51b8b372461c0" name="a8f56065b552b7ce1d2f51b8b372461c0"></a>
+<tr class="memdesc:a0116ec08a37bc97348f11b2bca1f33d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Offset of record within the file. <br /></td></tr>
+<tr class="separator:a0116ec08a37bc97348f11b2bca1f33d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1ac2e4809bccff7113f728705309352" id="r_ac1ac2e4809bccff7113f728705309352"><td class="memItemLeft" align="right" valign="top"><a id="ac1ac2e4809bccff7113f728705309352" name="ac1ac2e4809bccff7113f728705309352"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>record_length</b></td></tr>
-<tr class="memdesc:a8f56065b552b7ce1d2f51b8b372461c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of record body file, excluding the type byte and 2-byte length field. <br /></td></tr>
-<tr class="separator:a8f56065b552b7ce1d2f51b8b372461c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab5b7b9b321c055bc335e434b4a0c97ca" id="r_ab5b7b9b321c055bc335e434b4a0c97ca"><td class="memItemLeft" align="right" valign="top"><a id="ab5b7b9b321c055bc335e434b4a0c97ca" name="ab5b7b9b321c055bc335e434b4a0c97ca"></a>
-uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>record_type</b></td></tr>
-<tr class="memdesc:ab5b7b9b321c055bc335e434b4a0c97ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">A byte value identifying the type of record. <br /></td></tr>
-<tr class="separator:ab5b7b9b321c055bc335e434b4a0c97ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:ac1ac2e4809bccff7113f728705309352"><td class="mdescLeft">&#160;</td><td class="mdescRight">Length of record body file, excluding the type byte and 2-byte length field. <br /></td></tr>
+<tr class="separator:ac1ac2e4809bccff7113f728705309352"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f8393958856ccff684452aaf5906db4" id="r_a8f8393958856ccff684452aaf5906db4"><td class="memItemLeft" align="right" valign="top"><a id="a8f8393958856ccff684452aaf5906db4" name="a8f8393958856ccff684452aaf5906db4"></a>
+RecordTypeByte&#160;</td><td class="memItemRight" valign="bottom"><b>record_type</b></td></tr>
+<tr class="memdesc:a8f8393958856ccff684452aaf5906db4"><td class="mdescLeft">&#160;</td><td class="mdescRight">A byte value identifying the type of record. <br /></td></tr>
+<tr class="separator:a8f8393958856ccff684452aaf5906db4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Base class representing OMF record types. </p>
+<div class="textblock"><div class="compoundTemplParams">template&lt;typename RecordTypeByte, typename FormatType, typename ModuleType&gt;<br />
+class OMF::OMFFormat::Record&lt; RecordTypeByte, FormatType, ModuleType &gt;</div><p>Base class representing OMF record types. </p>
 <p>Any record type is expected to extend this class. If several record types have the same or similar layout, they can share the same class, since the record type can be determined using the record_type field. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="a528859a040c6dad1e2c2ade9c7a93fb9" name="a528859a040c6dad1e2c2ade9c7a93fb9"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a528859a040c6dad1e2c2ade9c7a93fb9">&#9670;&#160;</a></span>GetRecordSize()</h2>
+<a id="a14b9c36c4aeb57613e13ffba321a8205" name="a14b9c36c4aeb57613e13ffba321a8205"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14b9c36c4aeb57613e13ffba321a8205">&#9670;&#160;</a></span>GetRecordSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename RecordTypeByte , typename FormatType , typename ModuleType &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual uint16_t OMF::OMFFormat::Record::GetRecordSize </td>
+          <td class="memname">virtual uint16_t <a class="el" href="classOMF_1_1OMFFormat_1_1Record.html">OMF::OMFFormat::Record</a>&lt; RecordTypeByte, FormatType, ModuleType &gt;::GetRecordSize </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> *</td>          <td class="paramname"><span class="paramname"><em>omf</em></span></td><td>)</td>
-          <td> const</td>
+          <td class="paramtype">FormatType *</td>          <td class="paramname"><span class="paramname"><em>omf</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ModuleType *</td>          <td class="paramname"><span class="paramname"><em>mod</em></span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -194,23 +253,30 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>record_type</b></t
 
 <p>Calculates the required bytes to write the record, might be less than record_length. </p>
 
-<p>Implemented in <a class="el" href="classOMF_1_1OMFFormat_1_1UnknownRecord.html#a45108693aeb3f7e45250c905198f7650">OMF::OMFFormat::UnknownRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1Record.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::Record</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1EmptyRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::EmptyRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ModuleHeaderRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::ModuleHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RModuleHeaderRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::RModuleHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ListOfNamesRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::ListOfNamesRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SegmentDefinitionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::SegmentDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1GroupDefinitionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::GroupDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1TypeDefinitionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::TypeDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SymbolsDefinitionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::SymbolsDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ExternalNamesDefinitionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::ExternalNamesDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LineNumbersRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::LineNumbersRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::BlockDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1DebugSymbolsRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::DebugSymbolsRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RelocatableDataRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::RelocatableDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1PhysicalDataRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::PhysicalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LogicalDataRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::LogicalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1FixupRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::FixupRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1OverlayDefinitionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::OverlayDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1EndRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::EndRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RegisterInitializationRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::RegisterInitializationRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ModuleEndRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::ModuleEndRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryHeaderRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::IntelLibraryHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryModuleNamesRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::IntelLibraryModuleNamesRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryModuleLocationsRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::IntelLibraryModuleLocationsRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryDictionaryRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::IntelLibraryDictionaryRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1BackpatchRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::BackpatchRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1NamedBackpatchRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::NamedBackpatchRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1InitializedCommunalDataRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::InitializedCommunalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SymbolLineNumbersRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::SymbolLineNumbersRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1AliasDefinitionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::AliasDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1OMFVersionNumberRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::OMFVersionNumberRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1VendorExtensionRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::VendorExtensionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1CommentRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::CommentRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LibraryHeaderRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::LibraryHeaderRecord</a>, and <a class="el" href="classOMF_1_1OMF86Format_1_1LibraryEndRecord.html#abb732a6fd21f3e1d724afebfb9f58173">OMF::OMF86Format::LibraryEndRecord</a>.</p>
+<p>Implemented in <a class="el" href="classOMF_1_1OMFFormat_1_1UnknownRecord.html#acb22fc4639915936670e1ca4b9b354bf">OMF::OMFFormat::UnknownRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1EmptyRecord.html#a8d1dbef0b7c13620e750b6e01ec684df">OMF::OMFFormat::EmptyRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1ContentRecord.html#a6111ba88e9f534e15ab01526518bf59d">OMF::OMFFormat::ContentRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LineNumbersRecord.html#ad17ec03b1edab548712e95afbfc61dcf">OMF::OMFFormat::LineNumbersRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryHeaderRecord.html#a1e563255ae95c22889ae6c57ed42ee27">OMF::OMFFormat::LibraryHeaderRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryModuleNamesRecord.html#ab66690b4e6322d855e3249f6b57d3186">OMF::OMFFormat::LibraryModuleNamesRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryModuleLocationsRecord.html#ab41f53dc35ce67446b44e8dbcfe652de">OMF::OMFFormat::LibraryModuleLocationsRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, and <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryDictionaryRecord.html#a9d90cb643d34fe6d7477b76963facd69">OMF::OMFFormat::LibraryDictionaryRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>.</p>
 
 </div>
 </div>
-<a id="a43a61e426d07e22259a2cbbf2613353e" name="a43a61e426d07e22259a2cbbf2613353e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a43a61e426d07e22259a2cbbf2613353e">&#9670;&#160;</a></span>ReadRecordContents()</h2>
+<a id="ab9662ce4c9d06c7f53a18a37ee377fb8" name="ab9662ce4c9d06c7f53a18a37ee377fb8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab9662ce4c9d06c7f53a18a37ee377fb8">&#9670;&#160;</a></span>ReadRecordContents()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename RecordTypeByte , typename FormatType , typename ModuleType &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">virtual void OMF::OMFFormat::Record::ReadRecordContents </td>
+          <td class="memname">virtual void <a class="el" href="classOMF_1_1OMFFormat_1_1Record.html">OMF::OMFFormat::Record</a>&lt; RecordTypeByte, FormatType, ModuleType &gt;::ReadRecordContents </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> *</td>          <td class="paramname"><span class="paramname"><em>omf</em>, </span></td>
+          <td class="paramtype">FormatType *</td>          <td class="paramname"><span class="paramname"><em>omf</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">ModuleType *</td>          <td class="paramname"><span class="paramname"><em>mod</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -227,56 +293,30 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>record_type</b></t
 
 <p>Reads the record contents, except for the type, length and checksum. </p>
 
-<p>Implemented in <a class="el" href="classOMF_1_1OMFFormat_1_1UnknownRecord.html#adfa5bf2761b796cf7d7d70d6022b89b5">OMF::OMFFormat::UnknownRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1Record.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::Record</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1EmptyRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::EmptyRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ModuleHeaderRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::ModuleHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RModuleHeaderRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::RModuleHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ListOfNamesRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::ListOfNamesRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SegmentDefinitionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::SegmentDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1GroupDefinitionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::GroupDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1TypeDefinitionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::TypeDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SymbolsDefinitionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::SymbolsDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ExternalNamesDefinitionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::ExternalNamesDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LineNumbersRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::LineNumbersRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::BlockDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1DebugSymbolsRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::DebugSymbolsRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RelocatableDataRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::RelocatableDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1PhysicalDataRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::PhysicalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LogicalDataRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::LogicalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1FixupRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::FixupRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1OverlayDefinitionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::OverlayDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1EndRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::EndRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RegisterInitializationRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::RegisterInitializationRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ModuleEndRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::ModuleEndRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryHeaderRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::IntelLibraryHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryModuleNamesRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::IntelLibraryModuleNamesRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryModuleLocationsRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::IntelLibraryModuleLocationsRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryDictionaryRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::IntelLibraryDictionaryRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1BackpatchRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::BackpatchRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1NamedBackpatchRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::NamedBackpatchRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1InitializedCommunalDataRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::InitializedCommunalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SymbolLineNumbersRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::SymbolLineNumbersRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1AliasDefinitionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::AliasDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1OMFVersionNumberRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::OMFVersionNumberRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1VendorExtensionRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::VendorExtensionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1CommentRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::CommentRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LibraryHeaderRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::LibraryHeaderRecord</a>, and <a class="el" href="classOMF_1_1OMF86Format_1_1LibraryEndRecord.html#a4ed5d08d591b1afea86573a4cf415867">OMF::OMF86Format::LibraryEndRecord</a>.</p>
+<p>Implemented in <a class="el" href="classOMF_1_1OMFFormat_1_1UnknownRecord.html#ac8bf765b09aa1afb821d1c5d48adffea">OMF::OMFFormat::UnknownRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1EmptyRecord.html#ac765c18b866177ff7b5fe2f2b07406d5">OMF::OMFFormat::EmptyRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1ContentRecord.html#ae4877a519449431e6858b2818a069cae">OMF::OMFFormat::ContentRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LineNumbersRecord.html#afde22f098931eca789cf5d361b70015b">OMF::OMFFormat::LineNumbersRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryHeaderRecord.html#a2fddab492da20a420be853d279a84c15">OMF::OMFFormat::LibraryHeaderRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryModuleNamesRecord.html#a130ff875bb91dfda2d190c9e0dd834ee">OMF::OMFFormat::LibraryModuleNamesRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryModuleLocationsRecord.html#a2d050910902c4cd0c11a7626d1777d93">OMF::OMFFormat::LibraryModuleLocationsRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, and <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryDictionaryRecord.html#a081bcbd67521863884586dc8e3c2cf8a">OMF::OMFFormat::LibraryDictionaryRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>.</p>
 
 </div>
 </div>
-<a id="ae155393ec466fcdd94bcc4c664e0bac3" name="ae155393ec466fcdd94bcc4c664e0bac3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae155393ec466fcdd94bcc4c664e0bac3">&#9670;&#160;</a></span>WriteRecord()</h2>
+<a id="a7150f4dd02510115e928ce674faedd43" name="a7150f4dd02510115e928ce674faedd43"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7150f4dd02510115e928ce674faedd43">&#9670;&#160;</a></span>WriteRecordContents()</h2>
 
 <div class="memitem">
 <div class="memproto">
+<div class="memtemplate">
+template&lt;typename RecordTypeByte , typename FormatType , typename ModuleType &gt; </div>
 <table class="mlabels">
   <tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void OMFFormat::Record::WriteRecord </td>
+          <td class="memname">virtual void <a class="el" href="classOMF_1_1OMFFormat_1_1Record.html">OMF::OMFFormat::Record</a>&lt; RecordTypeByte, FormatType, ModuleType &gt;::WriteRecordContents </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> *</td>          <td class="paramname"><span class="paramname"><em>omf</em>, </span></td>
+          <td class="paramtype">FormatType *</td>          <td class="paramname"><span class="paramname"><em>omf</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span>&#160;) const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Writes the full record. </p>
-
-<p>Reimplemented in <a class="el" href="classOMF_1_1OMF86Format_1_1LibraryHeaderRecord.html#a316edcdbe2d63368abdc02f67bc8c8e0">OMF::OMF86Format::LibraryHeaderRecord</a>, and <a class="el" href="classOMF_1_1OMF86Format_1_1LibraryEndRecord.html#a4bf01c5dc4766c5b99854354ad212845">OMF::OMF86Format::LibraryEndRecord</a>.</p>
-
-</div>
-</div>
-<a id="ac8b4a49980d819e9d4e6dddcbf355004" name="ac8b4a49980d819e9d4e6dddcbf355004"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac8b4a49980d819e9d4e6dddcbf355004">&#9670;&#160;</a></span>WriteRecordContents()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual void OMF::OMFFormat::Record::WriteRecordContents </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classOMF_1_1OMFFormat.html">OMFFormat</a> *</td>          <td class="paramname"><span class="paramname"><em>omf</em>, </span></td>
+          <td class="paramtype">ModuleType *</td>          <td class="paramname"><span class="paramname"><em>mod</em>, </span></td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -293,13 +333,12 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>record_type</b></t
 
 <p>Writes the record contents, except for the type, length and checksum. </p>
 
-<p>Implemented in <a class="el" href="classOMF_1_1OMFFormat_1_1UnknownRecord.html#a641b1987e3f477881c0d7672b2c921bf">OMF::OMFFormat::UnknownRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1Record.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::Record</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1EmptyRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::EmptyRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ModuleHeaderRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::ModuleHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RModuleHeaderRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::RModuleHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ListOfNamesRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::ListOfNamesRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SegmentDefinitionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::SegmentDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1GroupDefinitionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::GroupDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1TypeDefinitionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::TypeDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SymbolsDefinitionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::SymbolsDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ExternalNamesDefinitionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::ExternalNamesDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LineNumbersRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::LineNumbersRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::BlockDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1DebugSymbolsRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::DebugSymbolsRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RelocatableDataRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::RelocatableDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1PhysicalDataRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::PhysicalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LogicalDataRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::LogicalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1FixupRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::FixupRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1OverlayDefinitionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::OverlayDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1EndRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::EndRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1RegisterInitializationRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::RegisterInitializationRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1ModuleEndRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::ModuleEndRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryHeaderRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::IntelLibraryHeaderRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryModuleNamesRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::IntelLibraryModuleNamesRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryModuleLocationsRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::IntelLibraryModuleLocationsRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1IntelLibraryDictionaryRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::IntelLibraryDictionaryRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1BackpatchRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::BackpatchRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1NamedBackpatchRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::NamedBackpatchRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1InitializedCommunalDataRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::InitializedCommunalDataRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1SymbolLineNumbersRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::SymbolLineNumbersRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1AliasDefinitionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::AliasDefinitionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1OMFVersionNumberRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::OMFVersionNumberRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1VendorExtensionRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::VendorExtensionRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1CommentRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::CommentRecord</a>, <a class="el" href="classOMF_1_1OMF86Format_1_1LibraryHeaderRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::LibraryHeaderRecord</a>, and <a class="el" href="classOMF_1_1OMF86Format_1_1LibraryEndRecord.html#a6419c06fc014d74e9cb9cdc30044bbf4">OMF::OMF86Format::LibraryEndRecord</a>.</p>
+<p>Implemented in <a class="el" href="classOMF_1_1OMFFormat_1_1UnknownRecord.html#a7fb3a5880f2c240153cf08f84823cf2c">OMF::OMFFormat::UnknownRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1EmptyRecord.html#a738364619b3e61ee214dde95e8afa55b">OMF::OMFFormat::EmptyRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1ContentRecord.html#ac9c50aad7a757cda887a620595b4b9de">OMF::OMFFormat::ContentRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LineNumbersRecord.html#a91a9c40d4c9fa3d7b698689c4a7041bf">OMF::OMFFormat::LineNumbersRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryHeaderRecord.html#a62a18a42ad6f751aebcd1a58e2d085e2">OMF::OMFFormat::LibraryHeaderRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryModuleNamesRecord.html#a169acc50c09c334ca58d07c560d56656">OMF::OMFFormat::LibraryModuleNamesRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryModuleLocationsRecord.html#aff417ab1596c9d204b09837156afbc79">OMF::OMFFormat::LibraryModuleLocationsRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>, and <a class="el" href="classOMF_1_1OMFFormat_1_1LibraryDictionaryRecord.html#a79a6493582f5704fb15a5a6737af7ea7">OMF::OMFFormat::LibraryDictionaryRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<hr/>The documentation for this class was generated from the following file:<ul>
 <li>src/format/<a class="el" href="omf_8h_source.html">omf.h</a></li>
-<li>src/format/<b>omf.cc</b></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

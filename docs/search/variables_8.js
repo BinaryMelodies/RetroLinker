@@ -10,10 +10,11 @@ var searchData=
   ['imported_5fnames_5ftable_5foffset_7',['imported_names_table_offset',['../classMicrosoft_1_1NEFormat.html#a0a4315ef5ed4bac4959595e0ff628584',1,'Microsoft::NEFormat']]],
   ['in_8',['in',['../classLinker_1_1Reader.html#aa4c1fc496c1388c0cf88eef5eed692a3',1,'Linker::Reader']]],
   ['index_5fbase_9',['index_base',['../classDigitalResearch_1_1CPM86Format_1_1FastLoadDescriptor.html#a82e27b2e1a505e341eeb4bca16ca8f3d',1,'DigitalResearch::CPM86Format::FastLoadDescriptor']]],
-  ['indexleaf_10',['IndexLeaf',['../classOMF_1_1OMF86Format_1_1TypeDefinitionRecord_1_1LeafDescriptor.html#af743cde67789bf9c6dd4dc5133770505',1,'OMF::OMF86Format::TypeDefinitionRecord::LeafDescriptor']]],
+  ['indexleaf_10',['IndexLeaf',['../classOMF_1_1OMF86Format_1_1TypeDefinitionRecord_1_1LeafDescriptor.html#af743cde67789bf9c6dd4dc5133770505',1,'OMF::OMF86Format::TypeDefinitionRecord::LeafDescriptor::IndexLeaf'],['../classOMF_1_1OMF96Format_1_1TypeDefinitionRecord_1_1LeafDescriptor.html#aa9c8ba2242d1e525b0e6a514b97e981c',1,'OMF::OMF96Format::TypeDefinitionRecord::LeafDescriptor::IndexLeaf']]],
   ['internal_11',['internal',['../classDumper_1_1Field.html#ae646e571d652615bd52b7d661173d349',1,'Dumper::Field']]],
   ['ip_12',['ip',['../classMicrosoft_1_1MZFormat.html#ab0a4024c4273a2196086ac0ef4ca5022',1,'Microsoft::MZFormat']]],
   ['is64_13',['is64',['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#a0fe438897916d36390a428f63e29def2',1,'COFF::COFFFormat::XCOFFAOutHeader']]],
   ['is_5fexecutable_14',['is_executable',['../classAmiga_1_1HunkFormat_1_1Block.html#aaa2336488acb58f392ab0cda76efbebb',1,'Amiga::HunkFormat::Block']]],
-  ['is_5fincluded_15',['is_included',['../classLinker_1_1Module.html#a29d32dcfb957951871fbd33afec7a34f',1,'Linker::Module']]]
+  ['is_5fincluded_15',['is_included',['../classLinker_1_1Module.html#a29d32dcfb957951871fbd33afec7a34f',1,'Linker::Module']]],
+  ['iterated_16',['iterated',['../classOMF_1_1OMF86Format_1_1InitializedCommunalDataRecord.html#a1372ba6f9877de504bf8d062b3115bc8',1,'OMF::OMF86Format::InitializedCommunalDataRecord']]]
 ];

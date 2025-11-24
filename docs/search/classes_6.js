@@ -9,7 +9,7 @@ var searchData=
   ['globaloffsettable_6',['GlobalOffsetTable',['../classLinker_1_1GlobalOffsetTable.html',1,'Linker']]],
   ['gnuaoutheader_7',['GNUAOutHeader',['../classCOFF_1_1COFFFormat_1_1GNUAOutHeader.html',1,'COFF::COFFFormat']]],
   ['gotentry_8',['GOTEntry',['../classLinker_1_1GOTEntry.html',1,'Linker']]],
-  ['group_9',['Group',['../classErgo_1_1XPFormat_1_1Group.html',1,'Ergo::XPFormat::Group'],['../classOMF_1_1OMF86Format_1_1IntelLibraryDictionaryRecord_1_1Group.html',1,'OMF::OMF86Format::IntelLibraryDictionaryRecord::Group']]],
+  ['group_9',['Group',['../classErgo_1_1XPFormat_1_1Group.html',1,'Ergo::XPFormat::Group'],['../classOMF_1_1OMFFormat_1_1LibraryDictionaryRecord_1_1Group.html',1,'OMF::OMFFormat::LibraryDictionaryRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;::Group']]],
   ['groupdefinitionrecord_10',['GroupDefinitionRecord',['../classOMF_1_1OMF86Format_1_1GroupDefinitionRecord.html',1,'OMF::OMF86Format']]],
   ['groupindex_11',['GroupIndex',['../classOMF_1_1OMF86Format_1_1GroupIndex.html',1,'OMF::OMF86Format']]],
   ['gsosomfreader_12',['GSOSOMFReader',['../classdump_1_1GSOSOMFReader.html',1,'dump']]]
