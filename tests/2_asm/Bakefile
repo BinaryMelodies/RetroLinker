@@ -181,6 +181,9 @@ Target(
 	Format = "bw",
 	output_file = "dos16m")
 Target(
+	System = "flexos286",
+	output_file = "flex286") # TODO: also test out FASTLOAD executables
+Target(
 	System = "djgpp",
 	Format = "aout",
 	output_file = "djgppv1")
@@ -213,6 +216,9 @@ Target(
 Target(
 	System = "os2v2",
 	output_file = "os2v2")
+Target(
+	System = "flexos386",
+	output_file = "flex386")
 Target(
 	System = "cpm68k",
 	Format = "68k_cont",
@@ -287,6 +293,9 @@ Target(
 Target(
 	System = "sql",
 	output_file = "sql")
+Target(
+	System = "flexos68k",
+	output_file = "flex68k") # TODO: also test out CP/M-68K executables
 Target(
 	System = "cpm8k",
 	Format = "z8k",

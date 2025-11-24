@@ -254,12 +254,10 @@ a5world_var:
 .endif
 	_SysVars
 
-#.ifdef TARGET_MSDOS
-#.ifdef FORMAT_MZ
-#	.section	.stack, "aw", @nobits
-#	.fill	0x100
-#.endif
-#.endif
+.if OPTION_EXPLICIT_STACK
+	.section	.stack, "aw", @nobits
+	.fill	OPTION_STACK_SIZE
+.endif
 
 .if	TARGET_MACOS
 # Making it 32-bit aware

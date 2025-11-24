@@ -67,6 +67,8 @@ message:
 	.ascii	" Mac OS"
 .elseif TARGET_SQL
 	.ascii	" Sinclair QL (QDOS)"
+.elseif TARGET_FLEXOS68K
+	.ascii	" FlexOS 68K"
 .endif
 
 	.byte	0
@@ -84,13 +86,6 @@ text_common2:
 
 	.comm	common1, 4
 
-#.ifdef TARGET_MSDOS
-#.ifdef FORMAT_MZ
-#	.section	.stack, "aw", @nobits
-#	.fill	0x100
-#.endif
-#.endif
-
 .if	TARGET_MACOS
 # Making it 32-bit aware
 	.section	$$RSRC$_SIZE$FFFF, "a", @progbits
@@ -102,5 +97,10 @@ text_common2:
 	.long	100 * 1024
 # minimum memory
 	.long	100 * 1024
+.endif
+
+.if OPTION_EXPLICIT_STACK
+	.section	.stack, "aw", @nobits
+	.fill	OPTION_STACK_SIZE
 .endif
 

@@ -58,6 +58,7 @@ using namespace X68000;
 typedef Apple::OMFFormat GSOS_OMFFormat;
 typedef OMF::OMFFormat Intel_OMFFormat;
 
+// note: entries with only no generator or description refer to the same format as the previous one
 format_specification formats[] =
 {
 	/* binary */
@@ -222,7 +223,8 @@ format_specification formats[] =
 	{ "cdos386_coff" },
 	{ "cdos68k_coff",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::CDOS68K); },
-		"COFF (68000) executable for Concurrent DOS 68K (.68k) [untested]" },
+		"COFF (68000) executable for Concurrent DOS 68K a.k.a. FlexOS 68K (.68k) [untested]" },
+	{ "flexos68k" },
 	{ "djgpp",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::DJGPP); },
 		"COFF (80386) executable for DJGPP 1.11 and later (.exe)" },

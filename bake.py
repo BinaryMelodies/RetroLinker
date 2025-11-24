@@ -542,6 +542,16 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
+	CPU = "i86",
+	System = "flexos286",
+	IncludeName = "flexos",
+	c_target_options2 = "-mcmodel=small -mprotected-mode",
+	Versions = [
+		DefineVersion("", ModelName = "", LinkerName = "", LinkerOptions = ["sharedcode"]),
+	],
+	extension = ".286")
+
+DefineTarget(
 	CPU = "i386",
 	System = "djgpp",
 	IncludeName = "msdos",
@@ -618,6 +628,12 @@ DefineTarget(
 	IncludeName = "os2",
 	#custom_entry = True, # TODO: ???
 	extension = ".exe")
+
+DefineTarget(
+	CPU = "i386",
+	System = "flexos386",
+	IncludeName = "flexos",
+	extension = ".386")
 
 DefineTarget(
 	CPU = "m68k",
@@ -722,6 +738,12 @@ DefineTarget(
 	CPU = "m68k",
 	System = "sql",
 	extension = "_bin") # can be anything
+
+DefineTarget(
+	CPU = "m68k",
+	System = "flexos68k",
+	IncludeName = "flexos",
+	extension = ".68k")
 
 DefineTarget(
 	CPU = "z8k",

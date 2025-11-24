@@ -76,6 +76,13 @@
 .set OPTION_CUSTOM_ENTRY, 1
 .endif
 
+.ifndef TARGET_FLEXOS286
+.set TARGET_FLEXOS286, 0
+.else
+.set TARGET_FLEXOS, 1
+.set OPTION_NO_DIFF_INTERSEG, 1
+.endif
+
 #### 80386 targets
 
 .ifndef TARGET_DJGPP
@@ -112,6 +119,13 @@
 .set TARGET_PDOS386, 0
 .else
 .set TARGET_MSDOS, 1 # Note: uses a 32-bit API
+.endif
+
+.ifndef TARGET_FLEXOS386
+.set TARGET_FLEXOS386, 0
+.else
+.set TARGET_FLEXOS, 1
+.set OPTION_STACK_SIZE, 0x1000
 .endif
 
 #### AMD64 targets
@@ -163,6 +177,13 @@
 .set OPTION_ONLY_LF, 1
 .endif
 
+# TODO: FlexOS 68K untested
+.ifndef TARGET_FLEXOS68K
+.set TARGET_FLEXOS68K, 0
+.else
+.set TARGET_FLEXOS, 1
+.endif
+
 #### Z8000 targets
 
 .ifndef TARGET_CPM8K
@@ -196,6 +217,10 @@
 # either 8086/80386
 .ifndef TARGET_OS2
 .set TARGET_OS2, 0
+.endif
+
+.ifndef TARGET_FLEXOS
+.set TARGET_FLEXOS, 0
 .endif
 
 # either 8086/80386/AMD64
@@ -370,6 +395,10 @@
 .set OPTION_EXPLICIT_STACK, 1
 .endif
 
+.if TARGET_FLEXOS
+.set OPTION_EXPLICIT_STACK, 1
+.endif
+
 #### Default options
 
 .ifndef OPTION_CUSTOM_ENTRY
@@ -400,6 +429,10 @@
 .set OPTION_ONLY_LF, 0
 .endif
 
+.ifndef OPTION_STACK_SIZE
+.set OPTION_STACK_SIZE, 0x100
+.endif
+
 #### General includes
 
 .if TARGET_CPM86
@@ -420,6 +453,10 @@
 
 .if TARGET_OS2
 .include "../include/os2.inc"
+.endif
+
+.if TARGET_FLEXOS
+.include "../include/flexos.inc"
 .endif
 
 .if TARGET_CPM68K

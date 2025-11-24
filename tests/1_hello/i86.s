@@ -74,6 +74,8 @@ message:
 	.ascii	" Windows (16-bit)"
 .elseif TARGET_OS2V1
 	.ascii	" OS/2 1.0 (16-bit)"
+.elseif TARGET_FLEXOS286
+	.ascii	" FlexOS 286 (16-bit)"
 .endif
 
 	.byte	0
@@ -89,6 +91,6 @@ message:
 
 .if OPTION_EXPLICIT_STACK
 	.section	.stack, "aw", @nobits
-	.fill	0x100
+	.fill	OPTION_STACK_SIZE
 .endif
 

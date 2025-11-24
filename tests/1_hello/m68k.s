@@ -74,6 +74,8 @@ message:
 	.ascii	" Mac OS"
 .elseif TARGET_SQL
 	.ascii	" Sinclair QL (QDOS)"
+.elseif TARGET_FLEXOS68K
+	.ascii	" FlexOS 68K"
 .endif
 
 	.byte	0
@@ -93,5 +95,10 @@ message:
 	.long	100 * 1024
 # minimum memory
 	.long	100 * 1024
+.endif
+
+.if OPTION_EXPLICIT_STACK
+	.section	.stack, "aw", @nobits
+	.fill	OPTION_STACK_SIZE
 .endif
 

@@ -58,11 +58,9 @@ message:
 .elseif FORMAT_COFF
 	.ascii	" COFF .exe file"
 .endif
-.endif
-.if TARGET_DOS4G
+.elseif TARGET_DOS4G
 	.ascii	" MS-DOS (DOS4G)"
-.endif
-.if TARGET_PHARLAP
+.elseif TARGET_PHARLAP
 	.ascii	" MS-DOS (386|DOS-Extender)"
 .if FORMAT_MP
 	.ascii	" MP .exp file"
@@ -71,9 +69,10 @@ message:
 .elseif FORMAT_P3
 	.ascii	" P3 flat .exp file"
 .endif
-.endif
-.if TARGET_OS2V2
+.elseif TARGET_OS2V2
 	.ascii	" OS/2 2.0 (32-bit)"
+.elseif TARGET_FLEXOS386
+	.ascii	" FlexOS 386 (32-bit)"
 .endif
 
 	.byte	0
@@ -90,4 +89,9 @@ text_common2:
 	.asciz	"common2="
 
 	.comm	common1, 4
+
+.if OPTION_EXPLICIT_STACK
+	.section	.stack, "aw", @nobits
+	.fill	OPTION_STACK_SIZE
+.endif
 
