@@ -16,9 +16,9 @@
 	int	0xDD
 .endif
 .if	TARGET_FLEXOS68K
-	move.l	#0, d0
+	move.l	#0, d1
 	# F_EXIT
-	move.l	25, d1
+	move.l	25, d0
 	trap	#0xE
 .endif
 .endm
@@ -104,10 +104,12 @@
 	# offset
 	move.l	#0, (FlexOS_paramblock + 20)
 
+	move.l	a0, -(sp)
 	lea.l	FlexOS_paramblock, a0
-	move.l	a0, d0
+	move.l	a0, d1
+	move.l	(sp)+, a0
 	# F_WRITE
-	move.l	#8, d1
+	move.l	#8, d0
 	trap	#14
 
 	rts

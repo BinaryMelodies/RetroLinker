@@ -681,6 +681,16 @@ void COFFFormat::OptionalHeader::Dump(const COFFFormat& coff, Dumper::Dumper& du
 {
 }
 
+COFFFormat::CDOS68K_Relocation::operator size_t() const
+{
+	return size;
+}
+
+COFFFormat::CDOS68K_Relocation COFFFormat::CDOS68K_Relocation::Create(size_t size, uint32_t offset, const COFFFormat& format)
+{
+	return size;
+}
+
 uint32_t COFFFormat::UnknownOptionalHeader::GetSize() const
 {
 	return buffer->ImageSize();
@@ -820,12 +830,20 @@ offset_t COFFFormat::FlexOSAOutHeader::CalculateValues(COFFFormat& coff)
 
 void COFFFormat::FlexOSAOutHeader::PostReadFile(COFFFormat& coff, Linker::Reader& rd)
 {
-	/* TODO */
+	if(coff.cpu_type == CPU_M68K)
+	{
+		rd.Seek(coff.file_offset + coff.relocations_offset);
+		DigitalResearch::CPM68KFormat::CDOS68K_ReadRelocations(rd, coff.relocations, coff);
+	}
 }
 
 void COFFFormat::FlexOSAOutHeader::PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const
 {
-	DigitalResearch::CPM68KFormat::CDOS68K_WriteRelocations(wr, coff.relocations);
+	if(coff.cpu_type == CPU_M68K)
+	{
+		wr.Seek(coff.file_offset + coff.relocations_offset);
+		DigitalResearch::CPM68KFormat::CDOS68K_WriteRelocations(wr, coff.relocations);
+	}
 }
 
 void COFFFormat::FlexOSAOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const

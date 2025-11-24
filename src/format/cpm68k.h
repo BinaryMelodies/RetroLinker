@@ -7,6 +7,7 @@
 #include "../common.h"
 #include "../linker/module.h"
 #include "../linker/options.h"
+#include "../linker/reader.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
@@ -119,6 +120,8 @@ namespace DigitalResearch
 			 */
 			unsigned segment;
 			operator size_t() const;
+
+			static Relocation Create(size_t size, uint32_t offset, const CPM68KFormat& format);
 		};
 		/**
 		 * @brief Relocations, not used for Human68k
@@ -237,6 +240,42 @@ namespace DigitalResearch
 					wr.WriteWord(1, highbit | 0x7F);
 					wr.WriteWord(4, difference);
 				}
+				last_relocation = it.first;
+			}
+			wr.WriteWord(1, 0);
+		}
+
+		template <typename SizeType, typename Format>
+			static void CDOS68K_ReadRelocations(Linker::Reader& rd, std::map<uint32_t, SizeType> relocations, const Format& format)
+		{
+			/* TODO: test */
+			offset_t offset = 0;
+			while(true)
+			{
+				uint8_t byte = rd.ReadUnsigned(1);
+				size_t size = (byte & 0x80) ? 2 : 4;
+				byte &= 0x7F;
+				if(byte == 0)
+				{
+					break;
+				}
+				else if(byte <= 0x7C)
+				{
+					offset += byte;
+				}
+				else if(byte == 0x7D)
+				{
+					offset += rd.ReadUnsigned(1);
+				}
+				else if(byte == 0x7E)
+				{
+					offset += rd.ReadUnsigned(2);
+				}
+				else /*if(byte == 0x7F)*/
+				{
+					offset += rd.ReadUnsigned(4);
+				}
+				relocations[offset] = SizeType::Create(size, offset, format);
 			}
 		}
 
@@ -277,9 +316,11 @@ namespace DigitalResearch
 
 		/** @brief Return code segment (if it exists) */
 		std::shared_ptr<Linker::Segment> CodeSegment();
+		std::shared_ptr<const Linker::Segment> CodeSegment() const;
 
 		/** @brief Return data segment (if it exists) */
 		std::shared_ptr<Linker::Segment> DataSegment();
+		std::shared_ptr<const Linker::Segment> DataSegment() const;
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 

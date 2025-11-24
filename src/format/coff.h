@@ -628,10 +628,21 @@ namespace COFF
 		 */
 		std::unique_ptr<OptionalHeader> optional_header = nullptr;
 
+		struct CDOS68K_Relocation
+		{
+			size_t size;
+			CDOS68K_Relocation(size_t size = 0)
+				: size(size)
+			{
+			}
+			operator size_t() const;
+			static CDOS68K_Relocation Create(size_t size, uint32_t offset, const COFFFormat& format);
+		};
+
 		/**
 		 * @brief Concurrent DOS 68K requires a special block of data to represent "crunched" relocations (see CPM68KWriter for more details)
 		 */
-		std::map<uint32_t, size_t> relocations; /* CDOS68K */
+		std::map<uint32_t, CDOS68K_Relocation> relocations; /* CDOS68K */
 
 		/**
 		 * @brief A simplified class to represent an optional header of unknown structure

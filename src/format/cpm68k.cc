@@ -13,6 +13,23 @@ CPM68KFormat::Relocation::operator size_t() const
 	return size;
 }
 
+CPM68KFormat::Relocation CPM68KFormat::Relocation::Create(size_t size, uint32_t offset, const CPM68KFormat& format)
+{
+	uint32_t value;
+
+	if(offset < format.data_address)
+		value = format.CodeSegment()->ReadUnsigned(size, offset, ::BigEndian);
+	else
+		value = format.DataSegment()->ReadUnsigned(size, offset, ::BigEndian);
+
+	if(value < format.data_address)
+		return Relocation{size, 2};
+	else if(value < format.bss_address)
+		return Relocation{size, 3};
+	else
+		return Relocation{size, 1};
+}
+
 CPM68KFormat::magic_type CPM68KFormat::GetSignature() const
 {
 	if(signature[0] == 0x60)
@@ -187,11 +204,9 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 	case SYSTEM_CDOS68K:
 		if(GetSignature() == MAGIC_CRUNCHED)
 		{
-#if 0 /* TODO */
 			/* relocations must be present */
-			CDOS68K_WriteRelocations(wr, relocations);
+			CDOS68K_ReadRelocations(rd, relocations, *this);
 			break;
-#endif
 		}
 	case SYSTEM_CPM68K:
 		if(relocations_suppressed == 0)
@@ -263,39 +278,6 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 
 	file_size = rd.Tell() - file_offset;
 }
-
-#if 0
-template <typename SizeType>
-	static void CDOS68K_WriteRelocations(Linker::Writer& wr, std::map<uint32_t, SizeType> relocations)
-{
-	/* TODO: test */
-	offset_t last_relocation = 0;
-	for(auto it : relocations)
-	{
-		offset_t difference = it.first - last_relocation;
-		uint8_t highbit = it.second/*.size*/ == 2 ? 0x80 : 0x00;
-		if(difference != 0 && difference <= 0x7C)
-		{
-			wr.WriteWord(1, highbit | difference);
-		}
-		else if(difference < 0x100)
-		{
-			wr.WriteWord(1, highbit | 0x7D);
-			wr.WriteWord(1, difference);
-		}
-		else if(difference < 0x10000)
-		{
-			wr.WriteWord(1, highbit | 0x7E);
-			wr.WriteWord(2, difference);
-		}
-		else
-		{
-			wr.WriteWord(1, highbit | 0x7F);
-			wr.WriteWord(4, difference);
-		}
-	}
-}
-#endif
 
 offset_t CPM68KFormat::MeasureRelocations() const
 {
@@ -601,7 +583,17 @@ std::shared_ptr<Linker::Segment> CPM68KFormat::CodeSegment()
 	return std::dynamic_pointer_cast<Linker::Segment>(code);
 }
 
+std::shared_ptr<const Linker::Segment> CPM68KFormat::CodeSegment() const
+{
+	return std::dynamic_pointer_cast<const Linker::Segment>(code);
+}
+
 std::shared_ptr<Linker::Segment> CPM68KFormat::DataSegment()
+{
+	return std::dynamic_pointer_cast<Linker::Segment>(data);
+}
+
+std::shared_ptr<const Linker::Segment> CPM68KFormat::DataSegment() const
 {
 	return std::dynamic_pointer_cast<Linker::Segment>(data);
 }
