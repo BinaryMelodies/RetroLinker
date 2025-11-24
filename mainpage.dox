@@ -58,7 +58,7 @@
  *
  * <tr>
  * <td colspan='2'><a href="classDigitalResearch_1_1CPM86Format.html">FlexOS format (<tt>.186</tt>, <tt>.286</tt>)</a></td>
- * <td>FlexOS (untested)</td>
+ * <td>FlexOS</td>
  * </tr>
  *
  * <tr>
@@ -119,14 +119,14 @@
  * <tr>
  * <td colspan='2'><a href="classErgo_1_1XPFormat.html"><tt>XP</tt> (<tt>.exp</tt>)</a></td>
  * <td>Intel 80286<br>Intel 80386</td>
- * <td>Ergo OS/286 and OS/386 extenders (unimplemented)</td>
+ * <td>Ergo OS/286 and OS/386 extenders (untested)</td>
  * </tr>
  *
  * <tr>
  * <td rowspan='2'><a href="classAOut_1_1AOutFormat.html">32-bit UNIX a.out</a></td>
  * <td>ZMAGIC (<tt>.exe</tt>)</td>
  * <td>Intel 80386</td>
- * <td>DJGPP (prior to 1.11)</td>
+ * <td>DJGPP (prior to 1.11)<br><a href="classEMX_1_1EMXAOutFormat.html">EMX</a> (unimplemented)</td>
  * </tr>
  *
  * <tr>
@@ -142,7 +142,7 @@
  * </tr>
  *
  * <tr>
- * <td>FlexOS 386 (<tt>.386</tt>) (untested)</td>
+ * <td>FlexOS 386 (<tt>.386</tt>)</td>
  * </tr>
  *
  * <tr>
@@ -164,7 +164,7 @@
  *
  * <tr>
  * <td><tt>LX</tt> (<tt>.exe</tt>)</td>
- * <td>OS/2 (32-bit)</td>
+ * <td>OS/2 (32-bit)<br><a href="classEMX_1_1EMXAOutFormat.html">EMX</a> (unimplemented)</td>
  * </tr>
  *
  * <tr>
@@ -187,7 +187,7 @@
  *
  * <tr>
  * <td>Contiguous binary (<tt>.68k</tt>)<br>with CP/M-68K or crunched relocations</td>
- * <td>Concurrent DOS 68K</td>
+ * <td>Concurrent DOS 68K (untested)</td>
  * </tr>
  *
  * <tr>
