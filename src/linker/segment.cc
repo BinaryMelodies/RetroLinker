@@ -131,6 +131,34 @@ offset_t Segment::WriteFile(Writer& wr) const
 	return WriteFile(*wr.out);
 }
 
+void Segment::WriteData(size_t bytes, offset_t offset, const void * buffer)
+{
+	if(offset + bytes > data_size && zero_fill != 0)
+	{
+		Linker::FatalError("Fatal error: cannot expand into zero filled section data");
+	}
+
+	for(auto& section : sections)
+	{
+		if(offset < section->Size())
+		{
+			size_t actual_count = std::min(offset + bytes, section->Size());
+			section->WriteData(actual_count, offset, buffer);
+			if(actual_count >= bytes)
+				return;
+			bytes -= actual_count;
+			offset = 0;
+			buffer = reinterpret_cast<const char *>(buffer) + actual_count;
+		}
+		else
+		{
+			offset -= section->Size();
+		}
+	}
+
+	assert(false);
+}
+
 size_t Segment::ReadData(size_t bytes, offset_t offset, void * buffer) const
 {
 	size_t total_count = 0;
@@ -138,7 +166,7 @@ size_t Segment::ReadData(size_t bytes, offset_t offset, void * buffer) const
 	{
 		if(offset < section->Size())
 		{
-			size_t actual_count = ReadData(bytes, offset, buffer);
+			size_t actual_count = section->ReadData(bytes, offset, buffer);
 			total_count += actual_count;
 			if(actual_count >= bytes)
 				return total_count;

@@ -99,6 +99,8 @@ namespace Linker
 		 */
 		offset_t WriteFile(Writer& wr) const override;
 
+		void WriteData(size_t bytes, offset_t offset, const void * buffer);
+
 		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
 		/**
