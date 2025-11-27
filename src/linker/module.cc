@@ -172,6 +172,7 @@ bool Module::parse_imported_name(std::string reference_name, Linker::SymbolName&
 		/* <library name> */
 		/* <library name>$<ordinal> */
 		/* <library name>$_<name> */
+		/* <library name>$<name>$<hint> */
 //		Linker::Debug << "Debug: Reference name " << reference_name << std::endl;
 		size_t ix = reference_name.find(special_prefix_char);
 		if(ix == std::string::npos)
@@ -181,14 +182,22 @@ bool Module::parse_imported_name(std::string reference_name, Linker::SymbolName&
 		else
 		{
 			std::string library_name = reference_name.substr(0, ix);
-			if(reference_name[ix + 1] == '_')
+			size_t ix2 = reference_name.find(special_prefix_char, ix + 1);
+			if(ix2 == std::string::npos)
 			{
-				symbol = Linker::SymbolName(library_name, reference_name.substr(ix + 2));
+				if(reference_name[ix + 1] == '_')
+				{
+					symbol = Linker::SymbolName(library_name, reference_name.substr(ix + 2));
+				}
+				else
+				{
+//					Linker::Debug << "Debug: Attempt parsing " << reference_name.substr(ix + 1) << std::endl;
+					symbol = Linker::SymbolName(library_name, stoll(reference_name.substr(ix + 1), nullptr, 16));
+				}
 			}
 			else
 			{
-//				Linker::Debug << "Debug: Attempt parsing " << reference_name.substr(ix + 1) << std::endl;
-				symbol = Linker::SymbolName(library_name, stoll(reference_name.substr(ix + 1), nullptr, 16));
+				symbol = Linker::SymbolName(library_name, reference_name.substr(ix + 1, ix2 - ix - 1), stoll(reference_name.substr(ix2 + 1), nullptr, 16));
 			}
 		}
 		return true;
@@ -270,6 +279,7 @@ bool Module::AddGlobalSymbol(std::string name, Location location)
 	{
 		/* $$EXPORT$<name> */
 		/* $$EXPORT$<name>$<ordinal> */
+		/* $$EXPORT$<ordinal>$_<name> */
 		std::string reference_name = name.substr(export_prefix().size());
 		Linker::ExportedSymbolName name("");
 		if(parse_exported_name(reference_name, name))
@@ -554,8 +564,10 @@ bool Module::AddUndefinedSymbol(std::string symbol_name)
 	{
 		if(symbol_name.rfind(import_prefix(), 0) == 0)
 		{
+			/* $$IMPORT$<library name> */
 			/* $$IMPORT$<library name>$<ordinal> */
 			/* $$IMPORT$<library name>$_<name> */
+			/* $$IMPORT$<library name>$<name>$<hint> */
 			std::string reference_name = symbol_name.substr(import_prefix().size());
 			Linker::SymbolName name("");
 			if(parse_imported_name(reference_name, name))
@@ -572,6 +584,8 @@ bool Module::AddUndefinedSymbol(std::string symbol_name)
 		{
 			/* $$IMPSEG$<library name>$<ordinal> */
 			/* $$IMPSEG$<library name>$_<name> */
+			/* $$IMPSEG$<library name>$_<name> */
+			/* $$IMPSEG$<library name>$<name>$<hint> */
 			std::string reference_name = symbol_name.substr(segment_of_import_prefix().size());
 			Linker::SymbolName name("");
 			if(parse_imported_name(reference_name, name))
