@@ -341,6 +341,11 @@ CPUS = {
 		'assembler_flags': '',
 		'compiler': 'i686-elf-gcc',
 	},
+	'x86_64': {
+		'assembler': 'x86_64-elf-as -msyntax=intel -mnaked-reg',
+		'assembler_flags': '',
+		'compiler': 'x86_64-elf-gcc -fpic -fpie',
+	},
 	'm68k': {
 		'assembler': 'm68k-elf-as --register-prefix-optional --bitwise-or',
 		'assembler_flags': '-m68000',
@@ -644,6 +649,16 @@ DefineTarget(
 	System = "flexos386",
 	IncludeName = "flexos",
 	extension = ".386")
+
+DefineTarget(
+	CPU = "x86_64",
+	System = "win64",
+	IncludeName = "windows",
+	Versions = [
+		DefineVersion("", ModelName = "", LinkerName = "", LinkerOptions = ["target=winnt", "subsystem=console"]),
+	],
+	custom_entry = True,
+	extension = ".exe")
 
 DefineTarget(
 	CPU = "m68k",

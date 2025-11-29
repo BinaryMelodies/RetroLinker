@@ -37,6 +37,8 @@ int AppMain(void)
 		"Windows (16-bit)"
 #elif TARGET_WIN32
 		"Windows (32-bit)"
+#elif TARGET_WIN64
+		"Windows (64-bit)"
 #elif TARGET_OS2V1
 		"OS/2 (16-bit)"
 #elif TARGET_OS2V2

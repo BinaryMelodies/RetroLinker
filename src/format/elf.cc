@@ -2927,8 +2927,8 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 						break;
 					default:
 						// TODO
-						Linker::Debug << "Internal error: relocation " << rel.type << " not supported" << std::endl;
-						continue;
+						Linker::Error << "Error: relocation " << rel.type << " encountered" << std::endl;
+						Linker::FatalError("Fatal error: relocation not supported");
 					}
 					break;
 

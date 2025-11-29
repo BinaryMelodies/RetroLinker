@@ -50,6 +50,14 @@ asm(
 	"call\tAppMain\n\t"
 	"call\tLibExit"
 );
+#elif defined __amd64__
+asm(
+#if TARGET_WIN64
+	"call\tLibInit\n\t"
+#endif
+	"call\tAppMain\n\t"
+	"call\tLibExit"
+);
 #elif defined __m68k__
 asm(
 #if TARGET_GEMDOS
@@ -155,30 +163,53 @@ unsigned short DosWrite(unsigned long FileHandle, void * BufferArea, unsigned lo
 			: "=a"(result) : "g"(BytesWritten), "g"(BufferLength), "g"(BufferArea), "g"(FileHandle));
 	return result;
 }
-#elif TARGET_WIN32
+#elif TARGET_WIN32 || TARGET_WIN64
 void ExitProcess(unsigned int uExitCode)
 {
+#if TARGET_WIN32
 	asm volatile(
 		"push\t%0\n\t"
 		".extern\t$$IMPORT$KERNEL32.dll$ExitProcess$0000\n\t"
 		"call\t*($$IMPORT$KERNEL32.dll$ExitProcess$0000)"
 			: : "g"(uExitCode));
+#elif TARGET_WIN64
+	asm volatile(
+		"andq\t$~0xF, %%rsp\n\t"
+		"subq\t$0x20, %%rsp\n\t"
+		".extern\t$$IMPORT$KERNEL32.dll$ExitProcess$0000\n\t"
+		"call\t*($$IMPORT$KERNEL32.dll$ExitProcess$0000)(%%rip)"
+			: : "c"(uExitCode));
+#endif
 }
 
-unsigned int GetStdHandle(unsigned int nStdHandle)
+void * GetStdHandle(unsigned int nStdHandle)
 {
-	register unsigned int result;
+	register void * result;
+#if TARGET_WIN32
 	asm(
 		"push\t%1\n\t"
 		".extern\t$$IMPORT$KERNEL32.dll$GetStdHandle$0000\n\t"
 		"call\t*($$IMPORT$KERNEL32.dll$GetStdHandle$0000)"
 			: "=a"(result) : "g"(nStdHandle));
+#elif TARGET_WIN64
+	asm(
+		"pushq\t%%rbp\n\t"
+		"movq\t%%rsp, %%rbp\n\t"
+		"andq\t$~0xF, %%rsp\n\t"
+		"subq\t$0x20, %%rsp\n\t"
+		".extern\t$$IMPORT$KERNEL32.dll$GetStdHandle$0000\n\t"
+		"call\t*($$IMPORT$KERNEL32.dll$GetStdHandle$0000)(%%rip)\n\t"
+		"movq\t%%rbp, %%rsp\n\t"
+		"pop\t%%rbp"
+			: "=a"(result) : "c"(nStdHandle));
+#endif
 	return result;
 }
 
-unsigned int WriteFile(unsigned int hFile, void * lpBuffer, unsigned int nNumberOfBytesToWrite, void * lpNumberOfBytesWritten, void * lpOverlapped)
+unsigned int WriteFile(void * hFile, void * lpBuffer, unsigned int nNumberOfBytesToWrite, void * lpNumberOfBytesWritten, void * lpOverlapped)
 {
 	register unsigned int result;
+#if TARGET_WIN32
 	asm(
 		"push\t%5\n\t"
 		"push\t%4\n\t"
@@ -188,6 +219,22 @@ unsigned int WriteFile(unsigned int hFile, void * lpBuffer, unsigned int nNumber
 		".extern\t$$IMPORT$KERNEL32.dll$WriteFile$0000\n\t"
 		"call\t*($$IMPORT$KERNEL32.dll$WriteFile$0000)"
 			: "=a"(result) : "g"(hFile), "g"(lpBuffer), "g"(nNumberOfBytesToWrite), "g"(lpNumberOfBytesWritten), "g"(lpOverlapped));
+#elif TARGET_WIN64
+	register unsigned int _nNumberOfBytesToWrite asm("r8") = nNumberOfBytesToWrite;
+	register void * _lpNumberOfBytesWritten asm("r9") = lpNumberOfBytesWritten;
+	asm(
+		"pushq\t%%rbp\n\t"
+		"movq\t%%rsp, %%rbp\n\t"
+		"andq\t$~0xF, %%rsp\n\t"
+		"subq\t$8, %%rsp\n\t"
+		"push\t%5\n\t"
+		"subq\t$0x20, %%rsp\n\t"
+		".extern\t$$IMPORT$KERNEL32.dll$WriteFile$0000\n\t"
+		"call\t*($$IMPORT$KERNEL32.dll$WriteFile$0000)(%%rip)\n\t"
+		"movq\t%%rbp, %%rsp\n\t"
+		"pop\t%%rbp"
+			: "=a"(result) : "c"(hFile), "d"(lpBuffer), "r"(_nNumberOfBytesToWrite), "r"(_lpNumberOfBytesWritten), "r"(lpOverlapped));
+#endif
 	return result;
 }
 #elif TARGET_AMIGA
@@ -369,7 +416,7 @@ void LibExit(void)
 	);
 #elif TARGET_OS2V1 || TARGET_OS2V2
 	DosExit(EXIT_PROCESS, 0);
-#elif TARGET_WIN32
+#elif TARGET_WIN32 || TARGET_WIN64
 	ExitProcess(0);
 #elif TARGET_CPM68K
 	asm(
@@ -421,8 +468,8 @@ void LibExit(void)
 #endif
 }
 
-#if TARGET_WIN32
-static unsigned int hStdOut = 0;
+#if TARGET_WIN32 || TARGET_WIN64
+static void * hStdOut = 0;
 #endif
 
 void LibPutChar(char c)
@@ -454,7 +501,7 @@ void LibPutChar(char c)
 	asm(
 		"movb\t$0x09, %%ah\n\t"
 		"int\t$0x21" : : "d"(&buff));
-#elif TARGET_WIN32
+#elif TARGET_WIN32 || TARGET_WIN64
 	unsigned int result;
 	WriteFile(hStdOut, &c, 1, &result, 0);
 #elif TARGET_OS2V1 || TARGET_OS2V2
@@ -534,7 +581,7 @@ void LibWaitForKey(void)
 	/*asm(
 		"mov\t$0x01, %ah\n\t"
 		"int\t$0x21");*/
-#elif TARGET_WIN32
+#elif TARGET_WIN32 || TARGET_WIN64
 	/* TODO */
 #elif TARGET_OS2V1 || TARGET_OS2V2
 	/* TODO */
@@ -627,7 +674,7 @@ static void * InitialStack;
 static void * InitialFrame;
 #endif
 
-#if TARGET_WIN32
+#if TARGET_WIN32 || TARGET_WIN64
 void LibInit(void)
 {
 	hStdOut = GetStdHandle(-11);

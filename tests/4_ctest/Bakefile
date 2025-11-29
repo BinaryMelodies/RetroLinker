@@ -132,6 +132,9 @@ Target(
 	System = "os2v2",
 	output_file = "os2v2")
 Target(
+	System = "win64",
+	output_file = "win64")
+Target(
 	System = "cpm68k",
 	Format = "68k_cont",
 	Version = "default",

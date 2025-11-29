@@ -43,8 +43,20 @@
 	mov	[hStdOut], eax
 .endif
 .if	TARGET_WIN64
-	# align stack pointer
-	sub	rsp, 8
+	push	rbp
+	mov	rbp, rsp
+	and	rsp, ~0xF
+
+	# shadow space
+	sub	rsp, 0x20
+	mov	ecx, -11
+	call	[rip + $$IMPORT$KERNEL32.dll$GetStdHandle$0000]
+	mov	[rip + hStdOut], rax
+	# shadow space
+	add	rsp, 0x20
+
+	mov	rsp, rbp
+	pop	rbp
 .endif
 .endm
 
@@ -60,7 +72,14 @@
 	call	[$$IMPORT$KERNEL32.dll$ExitProcess$0000]
 .endif
 .if	TARGET_WIN64
-	# TODO
+	.extern	$$IMPORT$KERNEL32.dll$ExitProcess$0000
+
+	and	rsp, ~0xF
+
+	# shadow space
+	sub	rsp, 0x20
+	mov	ecx, 0
+	call	[rip + $$IMPORT$KERNEL32.dll$ExitProcess$0000]
 .endif
 .endm
 
@@ -83,7 +102,26 @@
 	call	[$$IMPORT$KERNEL32.dll$WriteFile$0000]
 .endif
 .if	TARGET_WIN64
-	# TODO
+	.extern	$$IMPORT$KERNEL32.dll$WriteFile$0000
+
+	movb	[rip + PutChar_char], \char
+
+	push	rbp
+	mov	rbp, rsp
+	and	rsp, ~0xF
+	sub	rsp, 8
+	push	0
+
+	# shadow space
+	sub	rsp, 0x20
+	lea	r9, [rip + NumberOfBytesWritten]
+	mov	r8d, 1
+	lea	rdx, [rip + PutChar_char]
+	mov	rcx, [rip + hStdOut]
+	call	[rip + $$IMPORT$KERNEL32.dll$WriteFile$0000]
+
+	mov	rsp, rbp
+	pop	rbp
 .endif
 .endm
 
@@ -113,10 +151,14 @@
 
 	.section	.data
 
-.if	TARGET_WIN32
+.if	TARGET_WIN32 || TARGET_WIN64
 	.global	hStdOut
 hStdOut:
+.if	TARGET_WIN32
 	.long	0
+.elseif	TARGET_WIN64
+	.quad	0
+.endif
 NumberOfBytesWritten:
 	.long	0
 .endif
