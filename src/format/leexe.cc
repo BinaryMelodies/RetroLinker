@@ -1251,6 +1251,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		{ Windows, "Microsoft Windows" },
 		{ MSDOS4, "Multitasking/\"European\" Microsoft MS-DOS 4.0" },
 		{ Windows386, "Microsoft Windows 386" },
+		{ Neutral, "IBM Microkernel Personality Neutral" },
 	};
 	header_region.AddField("System", Dumper::ChoiceDisplay::Make(system_descriptions, Dumper::HexDisplay::Make(4)), offset_t(system));
 	header_region.AddField("Module version", Dumper::HexDisplay::Make(8), offset_t(module_version));

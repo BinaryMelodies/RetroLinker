@@ -407,6 +407,7 @@ namespace Microsoft
 			Windows, /* Windows 386 */
 			MSDOS4, /* ? */
 			Windows386, /* ? */
+			Neutral, /* ? */
 
 			DOS4G = -1, /* not a real system type */
 		};
