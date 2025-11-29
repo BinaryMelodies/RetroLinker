@@ -62,6 +62,7 @@ void PEFormat::PEOptionalHeader::ReadFile(Linker::Reader& rd)
 	win32_version = rd.ReadUnsigned(4);
 	total_image_size = rd.ReadUnsigned(4);
 	total_headers_size = rd.ReadUnsigned(4);
+	checksum = rd.ReadUnsigned(4);
 	subsystem = SubsystemType(rd.ReadUnsigned(2));
 	flags = rd.ReadUnsigned(2);
 	reserved_stack_size = rd.ReadUnsigned(Is64Bit() ? 8 : 4);
@@ -104,8 +105,9 @@ void PEFormat::PEOptionalHeader::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(4, win32_version);
 	wr.WriteWord(4, total_image_size);
 	wr.WriteWord(4, total_headers_size);
-	wr.WriteWord(4, subsystem);
-	wr.WriteWord(4, flags);
+	wr.WriteWord(4, checksum);
+	wr.WriteWord(2, subsystem);
+	wr.WriteWord(2, flags);
 	wr.WriteWord(Is64Bit() ? 8 : 4, reserved_stack_size);
 	wr.WriteWord(Is64Bit() ? 8 : 4, committed_stack_size);
 	wr.WriteWord(Is64Bit() ? 8 : 4, reserved_heap_size);
