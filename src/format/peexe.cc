@@ -344,7 +344,7 @@ void PEFormat::ImportsSection::Generate(PEFormat& fmt)
 	uint32_t rva = address;
 
 	// import directory table
-	rva += 20 * directories.size();
+	rva += 20 * (directories.size() + 1);
 
 	// first list the import lookup tables
 	for(auto& directory : directories)
@@ -404,6 +404,12 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 		wr.WriteWord(4, directory.name_rva);
 		wr.WriteWord(4, directory.address_table_rva);
 	}
+
+	wr.WriteWord(4, 0);
+	wr.WriteWord(4, 0);
+	wr.WriteWord(4, 0);
+	wr.WriteWord(4, 0);
+	wr.WriteWord(4, 0);
 
 	// first list the import lookup tables
 	for(auto& directory : directories)
