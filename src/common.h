@@ -124,6 +124,20 @@ struct CaseInsensitiveLess
 	}
 };
 
+/** @brief Checks if the string starts with a certain substring, based on the Python function with the same name
+ *
+ * @param str The string to check
+ * @param start The string that must appear in the beginning
+ */
+bool starts_with(std::string str, std::string start);
+
+/** @brief Checks if the string ends with a certain substring, based on the Python function with the same name
+ *
+ * @param str The string to check
+ * @param start The string that must appear in the end
+ */
+bool ends_with(std::string str, std::string end);
+
 namespace Linker
 {
 	class Exception

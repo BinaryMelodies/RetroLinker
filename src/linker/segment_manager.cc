@@ -454,13 +454,3 @@ offset_t Linker::SegmentManager::EvaluateExpression(std::unique_ptr<Node>& expre
 	}
 }
 
-bool Linker::starts_with(std::string str, std::string start)
-{
-	return str.size() >= start.size() && str.substr(0, start.size()) == start;
-}
-
-bool Linker::ends_with(std::string str, std::string end)
-{
-	return str.size() >= end.size() && str.substr(str.size() - end.size()) == end;
-}
-

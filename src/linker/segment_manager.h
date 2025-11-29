@@ -139,9 +139,6 @@ namespace Linker
 		bool CheckPredicate(std::unique_ptr<Script::Node>& predicate, std::shared_ptr<Section> section, Module& module);
 		offset_t EvaluateExpression(std::unique_ptr<Script::Node>& expression, Module& module);
 	};
-
-	bool starts_with(std::string str, std::string start);
-	bool ends_with(std::string str, std::string end);
 }
 
 #endif /* SEGMENT_MANAGER_H */

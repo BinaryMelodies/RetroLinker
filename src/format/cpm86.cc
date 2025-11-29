@@ -1136,7 +1136,7 @@ unsigned CPM86Format::FormatAdditionalSectionFlags(std::string section_name) con
 	{
 		flags = 0;
 	}
-	if(section_name == ".opt" || Linker::ends_with(section_name, ".opt"))
+	if(section_name == ".opt" || ends_with(section_name, ".opt"))
 	{
 		flags |= Linker::Section::Optional;
 	}

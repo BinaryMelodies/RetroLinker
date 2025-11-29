@@ -258,6 +258,16 @@ bool LookupOption(std::map<std::string, std::string>& options, std::string key, 
 	}
 }
 
+bool starts_with(std::string str, std::string start)
+{
+	return str.size() >= start.size() && str.substr(0, start.size()) == start;
+}
+
+bool ends_with(std::string str, std::string end)
+{
+	return str.size() >= end.size() && str.substr(str.size() - end.size()) == end;
+}
+
 std::ostream Linker::Debug(std::cerr.rdbuf());
 std::ostream Linker::Warning(std::cerr.rdbuf());
 std::ostream Linker::Error(std::cerr.rdbuf());

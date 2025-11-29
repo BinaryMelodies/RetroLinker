@@ -2795,7 +2795,7 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 				Linker::Location target_location = sym_target.location;
 				bool is_segment_name = false;
 
-				if(option_absolute_symbols && Linker::ends_with(symbol_name_string, "!"))
+				if(option_absolute_symbols && ends_with(symbol_name_string, "!"))
 				{
 					// in the segelf relocation scheme, this symbol refers to the beginning of the preferred segment of the actual symbol
 					is_segment_name = true;
