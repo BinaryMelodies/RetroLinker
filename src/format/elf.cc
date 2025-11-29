@@ -294,7 +294,9 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 		case R_X86_64_PC16:
 			return 2;
 		case R_X86_64_32:
+		case R_X86_64_32S:
 		case R_X86_64_PC32:
+		case R_X86_64_PLT32:
 			return 4;
 		case R_X86_64_64:
 		case R_X86_64_PC64:
@@ -2912,12 +2914,14 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					case R_X86_64_8:
 					case R_X86_64_16:
 					case R_X86_64_32:
+					case R_X86_64_32S:
 					case R_X86_64_64:
 						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
 						break;
 					case R_X86_64_PC8:
 					case R_X86_64_PC16:
 					case R_X86_64_PC32:
+					case R_X86_64_PLT32: // GNU assembler generates PLT32 as PC32, but apparently the distinction does not matter even under Linux
 					case R_X86_64_PC64:
 						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
 						break;

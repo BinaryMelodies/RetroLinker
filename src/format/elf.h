@@ -115,6 +115,7 @@ namespace ELF
 		static constexpr offset_t R_X86_64_32 = 10;
 		static constexpr offset_t R_X86_64_32S = 11;
 		static constexpr offset_t R_X86_64_PC32 = 2;
+		static constexpr offset_t R_X86_64_PLT32 = 4;
 		static constexpr offset_t R_X86_64_64 = 1;
 		static constexpr offset_t R_X86_64_PC64 = 24;
 
