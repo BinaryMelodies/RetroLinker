@@ -9,14 +9,17 @@
 
 namespace Linker
 {
+	/** @brief A representation of an enumeration with associated string representations for each value */
 	template <typename Enum>
 		class Enumeration
 	{
 	public:
 		typedef Enum value_type;
 
+		/** @brief Maps each value to a sequence of valid strings */
 		std::map<value_type, std::vector<std::string>> values;
 	protected:
+		/** @brief Maps each name to its value */
 		std::map<std::string, value_type, CaseInsensitiveLess> names;
 
 		void init(value_type next_value)
@@ -58,6 +61,7 @@ namespace Linker
 			init(value_type(0), args...);
 		}
 
+		/** @brief Searches (in a case-insensitive way) for a string */
 		std::optional<value_type> LookupName(std::string name) const
 		{
 			auto it = names.find(name);
@@ -68,6 +72,10 @@ namespace Linker
 		}
 	};
 
+	/** @brief Represents an instance of an Enumeration type
+	 *
+	 * A variable of type ItemOf<Enumeration<T>> is just a boxed version of T
+	 */
 	template <typename T>
 		class ItemOf
 	{

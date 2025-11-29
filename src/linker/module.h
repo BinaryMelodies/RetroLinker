@@ -37,25 +37,45 @@ namespace Linker
 		enum cpu_type
 		{
 			NONE,
-			I80, /* also Z80 */
+			/** @brief Intel 8080 and Zilog Z80 */
+			I80,
+			/** @brief Intel 8086 and 80286 */
 			I86,
+			/** @brief Intel 80386 */
 			I386,
+			/** @brief Intel and AMD 64-bit x86 */
 			X86_64,
+			/** @brief Motorla 6800 */
 			M6800,
+			/** @brief Motorla 6809 */
 			M6809,
+			/** @brief Motorla 68000 and 68020 */
 			M68K,
+			/** @brief MOS 6502 */
 			MOS6502,
+			/** @brief WDC 65C816 */
 			W65K,
+			/** @brief Zilog Z8000 */
 			Z8K,
+			/** @brief IBM PowerPC (32-bit) */
 			PPC,
+			/** @brief IBM PowerPC (64-bit) */
 			PPC64,
+			/** @brief ARM (32-bit) */
 			ARM,
+			/** @brief AArch64 or ARM64 (64-bit) */
 			ARM64,
+			/** @brief PDP-11 */
 			PDP11,
+			/** @brief MIPS */
 			MIPS,
+			/** @brief Sun SPARC */
 			SPARC,
+			/** @brief Hitachi SuperH */
 			SH,
+			/** @brief DEC Alpha */
 			ALPHA,
+			/** @brief Intel Itanium */
 			IA64,
 		};
 

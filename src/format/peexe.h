@@ -24,17 +24,26 @@ namespace Microsoft
 			uint16_t major, minor;
 		};
 
+		/** @brief The PE optional header as specified by Microsoft */
 		class PEOptionalHeader : public AOutHeader
 		{
 		public:
+			/** @brief Magic number for ROM images, according to Microsoft */
 			static constexpr uint16_t ROM32 = 0x0107;
+			/** @brief Magic number for 32-bit binaries, also signifies 4-byte entries in the file (PE32) */
 			static constexpr uint16_t EXE32 = 0x010B;
+			/** @brief Magic number for 64-bit binaries, also signifies 8-byte entries in the file (PE32+) */
 			static constexpr uint16_t EXE64 = 0x020B;
 
+			/** @brief Conventional image base for 32-bit Windows executables */
 			static constexpr offset_t Win32Base = 0x00400000;
+			/** @brief Conventional image base for 32-bit Windows dynamic linking libraries */
 			static constexpr offset_t Dll32Base = 0x10000000;
+			/** @brief Conventional image base for Windows CE executables */
 			static constexpr offset_t WinCEBase = 0x00010000;
+			/** @brief Conventional image base for 64-bit Windows executables */
 			static constexpr offset_t Win64Base = 0x140000000;
+			/** @brief Conventional image base for 64-bit Windows dynamic linking libraries */
 			static constexpr offset_t Dll64Base = 0x180000000;
 
 			/**
@@ -129,6 +138,7 @@ namespace Microsoft
 			{
 				uint32_t address = 0, size = 0;
 			};
+
 			enum
 			{
 				DirExportTable,
@@ -149,11 +159,13 @@ namespace Microsoft
 				DirReserved,
 				DirTotalCount,
 			};
+
 			/**
 			 * @brief PE specific areas in the file, each one has a specific purpose
 			 */
 			std::vector<DataDirectory> data_directories;
 
+			/** @brief Whether the file is in the PE32+ (64-bit) format */
 			bool Is64Bit() const;
 
 			PEOptionalHeader()
@@ -169,28 +181,40 @@ namespace Microsoft
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
+			/** @brief Converts a virtual address into an image base relative virtual address */
 			uint32_t AddressToRVA(offset_t address) const;
+			/** @brief Converts an image base relative virtual address into a virtual address */
 			offset_t RVAToAddress(uint32_t rva, bool suppress_on_zero = false) const;
 
 		protected:
 			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
 		};
 
+		/** @brief Retrieves the optional header */
 		PEOptionalHeader& GetOptionalHeader();
+		/** @brief Retrieves the optional header */
 		const PEOptionalHeader& GetOptionalHeader() const;
 
+		/** @brief Whether the file is in the PE32+ (64-bit) format */
 		bool Is64Bit() const;
 
+		/** @brief Converts a virtual address into an image base relative virtual address */
 		uint32_t AddressToRVA(offset_t address) const;
+		/** @brief Converts an image base relative virtual address into a virtual address */
 		offset_t RVAToAddress(uint32_t rva, bool suppress_on_zero = false) const;
 
+		/** @brief A section, with the PE extensions */
 		class Section : public COFF::COFFFormat::Section
 		{
 		public:
 			// TODO: other flags
+			/** @brief The section is discardable */
 			static constexpr uint32_t DISCARDABLE = 0x02000000;
+			/** @brief The section contains executable code */
 			static constexpr uint32_t EXECUTE = 0x20000000;
+			/** @brief The section contents are readable to the program */
 			static constexpr uint32_t READ = 0x40000000;
+			/** @brief The section contents are writable to the program */
 			static constexpr uint32_t WRITE = 0x80000000;
 
 			Section(uint32_t flags = 0, std::shared_ptr<Linker::Image> image = nullptr)
@@ -198,37 +222,50 @@ namespace Microsoft
 			{
 			}
 
+			/** @brief The COFF s_paddr field is redefined to contain the size of the section as loaded into memory */
 			constexpr offset_t& virtual_size() { return physical_address; }
+			/** @brief The COFF s_paddr field is redefined to contain the size of the section as loaded into memory */
 			constexpr const offset_t& virtual_size() const { return physical_address; }
-
-			constexpr offset_t& relative_virtual_address() { return address; }
-			constexpr const offset_t& relative_virtual_address() const { return address; }
 
 			void ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format) override;
 			void WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const override;
 			uint32_t ImageSize(const COFFFormat& coff_format) const override;
 
+			/** @brief Reads the contents of the section in the file */
 			virtual void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt);
+			/** @brief Writes the contents of the section to the file */
 			virtual void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const;
+			/** @brief Retrieves the size of the section, as stored in the file */
 			virtual uint32_t ImageSize(const PEFormat& fmt) const;
+			/** @brief Retrieves the size of the section, as loaded into memory */
 			virtual uint32_t MemorySize(const PEFormat& fmt) const;
 		};
 
+		/** @brief Represents a resource inside the image */
 		class Resource
 		{
 		public:
 			// TODO: this is just a sketch
 
+			/** @brief Represents a resource identifier, either a string or a 32-bit value */
 			typedef std::variant<std::string, uint32_t> Reference;
 
+			/** @brief The first level of the resource tree corresponds to the resource type */
 			static constexpr size_t Level_Type = 0;
+			/** @brief The second level of the resource tree corresponds to the resource name */
 			static constexpr size_t Level_Name = 1;
+			/** @brief The third level of the resource tree corresponds to the language (locale) for the resource */
 			static constexpr size_t Level_Language = 2;
+			/** @brief Total number of levels used */
 			static constexpr size_t Level_Count = 3;
 
+			/** @brief The sequence of IDs that identifies this resource, conventionally corresponding to the resource type, name and language */
 			std::vector<Reference> full_identifier;
-			uint32_t data_rva;
-			uint32_t codepage;
+			/** @brief The relative virtual address of the resource data */
+			uint32_t data_rva = 0;
+			/** @brief Codepage of the resource */
+			uint32_t codepage = 0;
+			/** @brief Reserved entry in the resource table */
 			uint32_t reserved = 0;
 		};
 
@@ -237,24 +274,37 @@ namespace Microsoft
 		public:
 			// TODO: this is just a sketch
 
+			/** @brief Represents a single entry in the resource directory */
 			template <typename Key>
 				class Entry
 			{
 			public:
+				/** @brief The value that identifiers the resource at the current level */
 				Key identifier;
+				/** @brief The contents at this level, either the resource itself, or another level of resource directory */
 				std::variant<std::shared_ptr<Resource>, std::shared_ptr<ResourceDirectory>> content;
+				/** @brief The relative virtual address of the contents */
 				uint32_t content_rva = 0;
 			};
 
+			/** @brief Resource directory characteristics */
 			uint32_t flags = 0;
 			uint32_t timestamp = 0;
 			version_type version = { };
+			/** @brief Entries that are identified via a string */
 			std::vector<Entry<std::string>> name_entries;
+			/** @brief Entries that are identified via a number */
 			std::vector<Entry<uint32_t>> id_entries;
 
+			/** @brief Inserts a resource into the directory
+			 *
+			 * @param resource The resource to add, it contains the full identification required to select the write directory entry
+			 * @param level The level at which this directory resides, required to determine the identifier component
+			 */
 			void AddResource(std::shared_ptr<Resource>& resource, size_t level = 0);
 		};
 
+		/** @brief Represents an `.rsrc` resource section in the binary */
 		class ResourcesSection : public Section, public ResourceDirectory
 		{
 		public:
@@ -262,7 +312,6 @@ namespace Microsoft
 				: Section(DATA | READ)
 			{
 				name = ".rsrc";
-				// TODO: flags and other fields
 			}
 
 			using Section::ReadSectionData;
@@ -277,17 +326,24 @@ namespace Microsoft
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 		};
 
+		/** @brief The resources in this file */
 		std::shared_ptr<ResourcesSection> resources = std::make_shared<ResourcesSection>();
 
+		/** @brief A collection of the imported names for a specific dynamic linking library */
 		class ImportDirectory
 		{
 		public:
 			typedef uint16_t Ordinal;
+
+			/** @brief Represents an entry in the hint-name table, corresponding to imports by name */
 			class Name
 			{
 			public:
+				/** @brief The hint (ordinal) corresponding to this entry */
 				uint16_t hint;
+				/** @brief The name by which the entry is identified */
 				std::string name = "";
+				/** @brief The relative virtual address of the name of the entry */
 				uint32_t rva = 0;
 
 				Name(std::string name, uint16_t hint = 0)
@@ -296,23 +352,35 @@ namespace Microsoft
 				}
 			};
 
+			/** @brief Represents a single entry in the import directory, either an ordinal or a name */
 			typedef std::variant<Ordinal, Name> ImportTableEntry;
 
+			/** @brief Relative virtual address for the lookup table, preserved during execution time */
 			uint32_t lookup_table_rva = 0;
+			/** @brief Relative virtual address for the address table, used to access the imported functions, but has the same layout as the lookup table in the image */
 			uint32_t address_table_rva = 0;
 			uint32_t timestamp = 0;
 			uint32_t forwarder_chain = 0;
+			/** @brief Name of the dynamic linking library included */
 			std::string name;
+			/** @brief Relative virtual address of the name */
 			uint32_t name_rva = 0;
 
+			/** @brief List of imported entries */
 			std::vector<ImportTableEntry> import_table;
+			/** @brief A convenience field to quickly access the imported entry index via its name, must be kept synchronized with import_table */
 			std::map<std::string, size_t> imports_by_name;
+			/** @brief A convenience field to quickly access the imported entry index via its ordinal (only for import by ordinal, not for hints), must be kept synchronized with import_table */
 			std::map<Ordinal, size_t> imports_by_ordinal;
 
+			/** @brief Adds a new imported entry by name and hint, unless an entry by the same name already exists, in which case it does nothing */
 			void AddImportByName(std::string entry_name, uint16_t hint);
+			/** @brief Adds a new imported entry by ordinal, unless an entry by the same ordinal already exists, in which case it does nothing */
 			void AddImportByOrdinal(uint16_t ordinal);
 
+			/** @brief Retrieves the virtual address of an already registered entry that is imported by name */
 			offset_t GetImportByNameAddress(const PEFormat& fmt, std::string name);
+			/** @brief Retrieves the virtual address of an already registered entry that is imported by ordinal */
 			offset_t GetImportByOrdinalAddress(const PEFormat& fmt, uint16_t ordinal);
 
 			ImportDirectory(std::string name)
@@ -321,20 +389,24 @@ namespace Microsoft
 			}
 		};
 
+		/** @brief Represents an `.idata` section for imported DLLs in the binary */
 		class ImportsSection : public Section
 		{
 		public:
+			/** @brief The sequence of all import directories, one for each DLL */
 			std::vector<ImportDirectory> directories;
+			/** @brief A convenience field to access the DLL index by its name */
 			std::map<std::string, size_t> library_indexes;
 
+			/** @brief Relative virtual address of the import address table, to be stored in the optional header */
 			uint32_t address_table_rva;
+			/** @brief Size of the import address table, to be stored in the optional header */
 			uint32_t address_table_size;
 
 			ImportsSection()
 				: Section(DATA | READ | WRITE)
 			{
 				name = ".idata";
-				// TODO: flags and other fields
 			}
 
 			using Section::ReadSectionData;
@@ -349,24 +421,38 @@ namespace Microsoft
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 		};
 
+		/** @brief The collection of imports in the file */
 		std::shared_ptr<ImportsSection> imports = std::make_shared<ImportsSection>();
 
-		class Export
+		/** @brief Represents a single exported entry in the file */
+		class ExportedEntry
 		{
 		public:
+			/** @brief Encompasses the information necessary to encode a forwarder exported reference
+			 *
+			 * Forwarder exported references contain the name of a different library and the name or ordinal to one of its entries.
+			 * It enables to reexport an already existing entry from a different library via the current library.
+			 */
 			class Forwarder
 			{
 			public:
+				/** @brief The name of the library whose entry is being reexported, this field will not appear directly in the image */
 				std::string dll_name;
+				/** @brief The name or ordinal to the entry that is being reexported, this field will not appear directly in the image */
 				std::variant<std::string, uint32_t> reference;
+				/** @brief A string representation of the forwarder, to appear in the image */
 				std::string reference_name;
+				/** @brief The relative virtual address of the reference name */
 				uint32_t rva;
 			};
 
+			/** @brief Represents a name by which an exported entry is identified */
 			class Name
 			{
 			public:
+				/** @brief The name, as a string */
 				std::string name;
+				/** @brief The relative virtual address of the name string */
 				uint32_t rva = 0;
 
 				Name(std::string name)
@@ -375,37 +461,50 @@ namespace Microsoft
 				}
 			};
 
+			/** @brief Represents the associated value of the entry: either the relative virtual address of the object being exported, or a forwarder entry */
 			std::variant<uint32_t, Forwarder> value;
+			/** @brief An optional name by which the exported entry is identified, otherwise its position in the export table (its ordinal) can be used only */
 			std::optional<Name> name;
 
-			Export(uint32_t rva)
+			ExportedEntry(uint32_t rva)
 				: value(rva), name()
 			{
 			}
 
-			Export(uint32_t rva, std::string name)
+			ExportedEntry(uint32_t rva, std::string name)
 				: value(rva), name(name)
 			{
 			}
 		};
 
+		/** @brief Represents an `.edata` section for the exported entries in the binary */
 		class ExportsSection : public Section
 		{
 		public:
 			uint32_t flags = 0;
 			uint32_t timestamp = 0;
 			version_type version = { };
+			/** @brief The name of this library */
 			std::string dll_name;
+			/** @brief The relative virtual address of the library name string */
 			uint32_t dll_name_rva = 0;
-			uint32_t ordinal_base = 0;
+			/** @brief The starting ordinal for the export table */
+			uint32_t ordinal_base = 1;
+			/** @brief Relative virtual address of the export address table, containing the exported entries for each successive ordinal value */
 			uint32_t address_table_rva = 0;
+			/** @brief Relative virtual address of the name pointer table, containing the relative virtual addresses of the names of each entry exported by name */
 			uint32_t name_table_rva = 0;
+			/** @brief Relative virtual address of the ordinal table, containing the ordinals for each entry exported by name */
 			uint32_t ordinal_table_rva = 0;
-			std::vector<std::optional<std::shared_ptr<Export>>> entries;
+			/** @brief Sequence of entries, the first entry corresponds to ordinal_base */
+			std::vector<std::optional<std::shared_ptr<ExportedEntry>>> entries;
+			/** @brief A collection of exports by name, with each string being associated with its ordinal */
 			std::map<std::string, uint32_t> named_exports;
 
-			void SetEntry(uint32_t ordinal, std::shared_ptr<Export> entry);
-			void AddEntry(std::shared_ptr<Export> entry);
+			/** @brief Sets a specific entry, corresponding to some ordinal */
+			void SetEntry(uint32_t ordinal, std::shared_ptr<ExportedEntry> entry);
+			/** @brief Adds an entry to an unused ordinal (for speed, we access the highest taken ordinal and assign this entry to the next ordinal) */
+			void AddEntry(std::shared_ptr<ExportedEntry> entry);
 
 			ExportsSection()
 				: Section(DATA | READ)
@@ -426,44 +525,73 @@ namespace Microsoft
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 		};
 
+		/** @brief The collection of exported symbols */
 		std::shared_ptr<ExportsSection> exports = std::make_shared<ExportsSection>();
 
+		/** @brief Represents a base relocation, as stored in the image */
 		class BaseRelocation
 		{
 		public:
+			/** @brief The type of the relocation, partly dependent on the current CPU */
 			enum relocation_type
 			{
+				/** @brief No relocation */
 				RelAbsolute = 0,
+				/** @brief The most significant 16 bits of the address */
 				RelHigh = 1,
+				/** @brief The least significant 16 bits of the address */
 				RelLow = 2,
+				/** @brief A full 32-bit address */
 				RelHighLow = 3,
+				/** @brief The most significant 16 bits of the address, with the currently assumed least significant 16 bits stored in the next relocation entry in the base relocation table */
 				RelHighAdj = 4,
+				/** @brief MIPS specific */
 				RelMIPSJmpAddr = 5,
+				/** @brief ARM specific */
 				RelARMMov32 = 5,
+				/** @brief RISC-V specific */
 				RelRISCVHigh20 = 5,
+				/** @brief Thumb (ARM) specific */
 				RelThumbMov32 = 7,
+				/** @brief RISC-V specific */
 				RelRISCVLow12I = 7,
+				/** @brief RISC-V specific */
 				RelRISCVLow12S = 8,
+				/** @brief LoongArch specific */
 				RelLoongArch32MarkLA = 8,
+				/** @brief LoongArch specific */
 				RelLoongArch64MarkLA = 8,
+				/** @brief MIPS specific */
 				RelMIPSJmpAddr16 = 9,
+				/** @brief A full 64-bit address */
 				RelDir64 = 10,
 			};
+			/** @brief The type of the relocation, stored as the 4 most significant bits of a 16-bit base relocation entry */
 			relocation_type type;
+			/** @brief The offset of the relocation within the page corresponding to this base relocation block, stored as the 12 least significant bits of a 16-bit base relocation entry */
 			uint16_t offset;
+			/** @brief For relocation type HighAdj, the 16-bit value stored in the following base relocation entry */
 			uint16_t parameter = 0;
 
+			/** @brief The number of base relocation entries required to store this base relocation, typically 1 */
 			size_t GetEntryCount(const PEFormat * format) const;
+			/** @brief The number of bytes impacted by this relocation (typically 2 or 4 or 8) */
 			size_t GetRelocationSize(const PEFormat * format) const;
 		};
 
+		/** @brief A block of base relocations, corresponding to a single page in the image */
 		class BaseRelocationBlock
 		{
 		public:
+			/** @brief Pages are 4 KiB long */
 			static constexpr uint32_t PAGE_SIZE = 0x1000;
+			/** @brief The relative virtual address of the page this block corresponds to, with the least significant 12 bits set to 0 */
 			uint32_t page_rva;
+			/** @brief Number of bytes in this block, including the initial 8 bytes for the relative virtual address of the page and the size of the block */
 			uint32_t block_size;
+			/** @brief Sequence of relocations in this block, filled in by the linker once all the relocations have been collected */
 			std::vector<BaseRelocation> relocations_list;
+			/** @brief Collection of relocations, accessed via their page offset */
 			std::map<uint16_t, BaseRelocation> relocations_map;
 
 			BaseRelocationBlock(uint32_t page_rva = 0)
@@ -472,17 +600,19 @@ namespace Microsoft
 			}
 		};
 
+		/** @brief Represents a `.reloc` section for the base relocations for the binary */
 		class BaseRelocationsSection : public Section
 		{
 		public:
+			/** @brief Sequence of relocation blocks, filled in by the linker once all the relocations have been collected */
 			std::vector<std::shared_ptr<BaseRelocationBlock>> blocks_list;
+			/** @brief Collection of relocation blocks, accessed via the relative virtual address of the page */
 			std::map<uint32_t, std::shared_ptr<BaseRelocationBlock>> blocks_map;
 
 			BaseRelocationsSection()
 				: Section(DATA | DISCARDABLE | READ)
 			{
 				name = ".reloc";
-				// TODO: flags and other fields
 			}
 
 			using Section::ReadSectionData;
@@ -497,8 +627,15 @@ namespace Microsoft
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 		};
 
+		/** @brief The collection of base relocations */
 		std::shared_ptr<BaseRelocationsSection> base_relocations = std::make_shared<BaseRelocationsSection>();
 
+		/** @brief Adds a base relocation at the specified relative virtual address
+		 *
+		 * @param rva The relative virtual address where the relocation appears, to be split into the page address and the page offset
+		 * @param type The type of the base relocation
+		 * @param low_ref Only used for HIGHADJ relocations, the parameter to be stored after the base relocation entry
+		 */
 		void AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type type, uint16_t low_ref = 0);
 
 		mutable MZStubWriter stub;
@@ -517,9 +654,6 @@ namespace Microsoft
 		{
 			optional_header = std::make_unique<PEOptionalHeader>();
 		}
-
-	protected:
-		void ReadOptionalHeader(Linker::Reader& rd);
 
 	public:
 		/* * * Writer members * * */
@@ -545,24 +679,30 @@ namespace Microsoft
 			TargetDotNET, // TODO: not supported
 			/** @brief Xbox */
 			TargetXbox, // TODO: not supported
-			//TargetBeOS,
-			//TargetSkyOS,
-			//TargetHXDOS,
+			//TargetBeOS, // TODO: possible target
+			//TargetSkyOS, // TODO: possible target
+			//TargetHXDOS, // TODO: possible target
 		};
+		/** @brief The expected target system, only used for setting up default values */
 		target_type target = target_type(0);
 
+		/** @brief Represents the target image type */
 		enum output_type
 		{
+			/** @brief An executable image, conventionally taking the suffix `.exe` */
 			OUTPUT_EXE,
+			/** @brief A dynamically linked library, conventionally taking the suffix `.dll` */
 			OUTPUT_DLL,
+			/** @brief A system file or driver, conventionally taking the suffix `.sys` */
 			OUTPUT_SYS,
 		};
+		/*** @brief Whether to generate an executable, library or system file */
 		output_type output = OUTPUT_EXE;
 
-		/** @brief Make generated image relocatable */
+		/** @brief Make generated image relocatable (TODO: expose as command line option) */
 		bool option_relocatable = true;
 
-		/** @brief Certain header flags are deprecated and should be zero, this option sets them if applicable */
+		/** @brief Certain header flags are deprecated and should be zero, this option sets them if applicable (TODO: expose as command line option) */
 		bool option_include_deprecated_flags = false;
 
 		/** @brief Include COFF line numbers (TODO: not implemented) */

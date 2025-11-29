@@ -210,12 +210,14 @@ uint32_t PEFormat::Section::ImageSize(const COFFFormat& coff_format) const
 
 void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
 {
+	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
 	rd.Seek(section_pointer);
 	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, ImageSize(fmt));
 }
 
 void PEFormat::Section::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
 {
+	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
 	wr.Seek(section_pointer);
 	image->WriteFile(wr);
 }
@@ -491,7 +493,7 @@ uint32_t PEFormat::ImportsSection::MemorySize(const PEFormat& fmt) const
 	return virtual_size();
 }
 
-void PEFormat::ExportsSection::SetEntry(uint32_t ordinal, std::shared_ptr<Export> entry)
+void PEFormat::ExportsSection::SetEntry(uint32_t ordinal, std::shared_ptr<ExportedEntry> entry)
 {
 	if(ordinal >= entries.size())
 	{
@@ -502,7 +504,7 @@ void PEFormat::ExportsSection::SetEntry(uint32_t ordinal, std::shared_ptr<Export
 	{
 		Linker::Error << "Error: overwriting entry " << ordinal << std::endl;
 	}
-	entries[ordinal] = std::make_optional<std::shared_ptr<Export>>(entry);
+	entries[ordinal] = std::make_optional<std::shared_ptr<ExportedEntry>>(entry);
 
 	if(entry->name)
 	{
@@ -514,7 +516,7 @@ void PEFormat::ExportsSection::SetEntry(uint32_t ordinal, std::shared_ptr<Export
 	}
 }
 
-void PEFormat::ExportsSection::AddEntry(std::shared_ptr<Export> entry)
+void PEFormat::ExportsSection::AddEntry(std::shared_ptr<ExportedEntry> entry)
 {
 	entries.push_back(entry);
 
@@ -561,7 +563,7 @@ void PEFormat::ExportsSection::Generate(PEFormat& fmt)
 	{
 		if(entry_opt)
 		{
-			if(auto forwarder = std::get_if<Export::Forwarder>(&entry_opt.value()->value))
+			if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&entry_opt.value()->value))
 			{
 				std::ostringstream oss;
 				oss << forwarder->dll_name << ".";
@@ -618,7 +620,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	{
 		if(entry_opt)
 		{
-			if(auto forwarder = std::get_if<Export::Forwarder>(&entry_opt.value()->value))
+			if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&entry_opt.value()->value))
 			{
 				wr.WriteWord(4, forwarder->rva);
 			}
@@ -660,7 +662,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	{
 		if(entry_opt)
 		{
-			if(auto forwarder = std::get_if<Export::Forwarder>(&entry_opt.value()->value))
+			if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&entry_opt.value()->value))
 			{
 				wr.Seek(rva_to_offset + forwarder->rva);
 				wr.WriteData(forwarder->reference_name);
@@ -793,11 +795,11 @@ void PEFormat::BaseRelocationsSection::Generate(PEFormat& fmt)
 		block->block_size = 8;
 		for(auto pair : block->relocations_map)
 		{
-Linker::Debug << "Debug: Relocation at " << std::hex << pair.second.offset << std::endl;
+			Linker::Debug << "Debug: Relocation at " << std::hex << pair.second.offset << std::endl;
 			block->relocations_list.push_back(pair.second);
 			block->block_size += 2 * pair.second.GetEntryCount(&fmt);
 		}
-Linker::Debug << "Debug: Block size " << std::hex << block->block_size << std::endl;
+		Linker::Debug << "Debug: Block size " << std::hex << block->block_size << std::endl;
 		full_size = AlignTo(full_size, 4) + block->block_size;
 	}
 
@@ -893,7 +895,7 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 	file_offset = rd.Tell();
 	rd.ReadData(4, pe_signature);
 	ReadCOFFHeader(rd);
-	ReadOptionalHeader(rd);
+	optional_header->ReadFile(rd);
 	ReadRestOfFile(rd);
 }
 
@@ -984,12 +986,6 @@ void PEFormat::CalculateValues()
 	}
 
 	optional_header->CalculateValues(*this);
-}
-
-void PEFormat::ReadOptionalHeader(Linker::Reader& rd)
-{
-	optional_header = std::make_unique<PEOptionalHeader>();
-	optional_header->ReadFile(rd);
 }
 
 offset_t PEFormat::WriteFile(Linker::Writer& wr) const
@@ -1504,16 +1500,16 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		uint16_t ordinal;
 		if(it.first.LoadOrdinalOrHint(ordinal))
 		{
-			std::shared_ptr<Export> exported_symbol;
+			std::shared_ptr<ExportedEntry> exported_symbol;
 			if(!it.first.IsExportedByOrdinal())
 			{
 				std::string name = "";
 				it.first.LoadName(name);
-				exported_symbol = std::make_shared<Export>(AddressToRVA(it.second.GetPosition().address), name);
+				exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address), name);
 			}
 			else
 			{
-				exported_symbol = std::make_shared<Export>(AddressToRVA(it.second.GetPosition().address));
+				exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address));
 			}
 			exports->SetEntry(ordinal, exported_symbol);
 		}
@@ -1524,10 +1520,10 @@ void PEFormat::ProcessModule(Linker::Module& module)
 	{
 		if(!it.first.IsExportedByOrdinal())
 		{
-			std::shared_ptr<Export> exported_symbol;
+			std::shared_ptr<ExportedEntry> exported_symbol;
 			std::string name = "";
 			it.first.LoadName(name);
-			exported_symbol = std::make_shared<Export>(AddressToRVA(it.second.GetPosition().address), name);
+			exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address), name);
 			exports->AddEntry(exported_symbol);
 		}
 	}
@@ -1890,6 +1886,15 @@ void PEFormat::GenerateFile(std::string filename, Linker::Module& module)
 
 std::string PEFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	return filename + ".exe";
+	switch(output)
+	{
+	default:
+	case OUTPUT_EXE:
+		return filename + ".exe";
+	case OUTPUT_DLL:
+		return filename + ".dll";
+	case OUTPUT_SYS:
+		return filename + ".sys";
+	}
 }
 

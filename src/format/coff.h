@@ -541,10 +541,13 @@ namespace COFF
 
 			virtual ~Section();
 
+			/** @brief Reads an entry in the section header table */
 			void ReadSectionHeader(Linker::Reader& rd, COFFVariantType coff_variant);
 
+			/** @brief Writes an entry in the section header table */
 			void WriteSectionHeader(Linker::Writer& wr, COFFVariantType coff_variant);
 
+			/** @brief Retrieves the size of the section (for PE, the size of the section as stored in the file) */
 			virtual uint32_t ImageSize(const COFFFormat& coff_format) const;
 
 			/** @brief Reads the section contents from a stream, can be overloaded by subclasses */
@@ -1060,8 +1063,11 @@ namespace COFF
 
 		void Clear() override;
 
+		/** @brief Loads the specified 16-bit integer in the specified byte order into the COFF header signature */
 		void AssignMagicValue(uint16_t value, ::EndianType as_endian_type);
+		/** @brief Loads the specified 16-bit integer in the currently set byte order into the COFF header signature */
 		void AssignMagicValue(uint16_t value);
+		/** @brief Loads the currently set CPU value in the currently set byte order into the COFF header signature */
 		void AssignMagicValue();
 
 		COFFVariantType coff_variant = AnyCOFFVariant;
@@ -1180,7 +1186,7 @@ namespace COFF
 			 */
 			CDOS386,
 			/**
-			 * @brief Windows Portable Executable
+			 * @brief Windows Portable Executable (used only by PE)
 			 */
 			WINDOWS,
 		};
