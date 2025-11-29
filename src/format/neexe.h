@@ -289,6 +289,8 @@ namespace Microsoft
 			entry_type type = Unused;
 			/** @brief The number of the segment, 1 based */
 			uint8_t segment = 0;
+			/** @brief Segment value to represent a constant in the module */
+			static constexpr uint8_t CONSTANT_VALUE = 0xFE;
 			/** @brief Flags present in an entry */
 			enum flag_type : uint8_t
 			{

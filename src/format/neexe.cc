@@ -344,7 +344,7 @@ NEFormat::Entry NEFormat::Entry::ReadEntry(Linker::Reader& rd, uint8_t indicator
 		break;
 	default:
 		entry.type = Fixed;
-		entry.segment = rd.ReadUnsigned(1);
+		entry.segment = indicator_byte;
 		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
 		entry.offset = rd.ReadUnsigned(2);
 		break;
@@ -1163,7 +1163,10 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 		call_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(entry.type));
 		if(entry.type != Entry::Unused)
 		{
-			call_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(4)), offset_t(entry.segment), offset_t(entry.offset));
+			if(entry.segment == Entry::CONSTANT_VALUE) // TODO: make dynamic?
+				call_entry.AddField("Value", Dumper::HexDisplay::Make(4), offset_t(entry.offset));
+			else
+				call_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(4)), offset_t(entry.segment), offset_t(entry.offset));
 			call_entry.AddField("Flags",
 				Dumper::BitFieldDisplay::Make(2)
 					->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("exported"), true)
