@@ -34,6 +34,7 @@ static void usage_format(format_specification * fmtspec)
 		for(auto option : opts->option_list)
 		{
 			std::cerr << "\t\t\t-S" << option->name << "=<" << option->type_name() << ">\t" << option->description << std::endl;
+			option->PrintDetails(std::cerr, "\t\t\t\t");
 		}
 		for(auto& model : fmt->GetMemoryModelNames())
 		{

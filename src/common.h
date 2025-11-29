@@ -115,6 +115,15 @@ void WriteWord(size_t bytes, size_t maximum, uint8_t * data, uint64_t value, End
 
 bool LookupOption(std::map<std::string, std::string>& options, std::string key, std::string& value);
 
+struct CaseInsensitiveLess
+{
+	inline bool operator()(const std::string& first, const std::string& second) const
+	{
+		return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end(),
+			[](char c1, char c2) -> bool { return std::tolower(static_cast<unsigned char>(c1)) < std::tolower(static_cast<unsigned char>(c2)); });
+	}
+};
+
 namespace Linker
 {
 	class Exception

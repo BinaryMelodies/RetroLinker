@@ -9,6 +9,75 @@
 
 namespace Linker
 {
+	template <typename Enum>
+		class Enumeration
+	{
+	public:
+		typedef Enum value_type;
+
+		std::map<value_type, std::vector<std::string>> values;
+	protected:
+		std::map<std::string, value_type, CaseInsensitiveLess> names;
+
+		void init(value_type next_value)
+		{
+		}
+
+		void init(value_type next_value, std::string name)
+		{
+			names[name] = next_value;
+			if(values.find(next_value) == values.end())
+				values[next_value] = std::vector<std::string>(1, name);
+			else
+				values[next_value].push_back(name);
+		}
+
+		template <typename ... Args>
+			void init(value_type next_value, std::string name, std::string next_name, Args ... args)
+		{
+			init(next_value, name);
+			init(value_type(next_value + 1), next_name, args...);
+		}
+
+		void init(value_type _, std::string name, value_type actual_next_value)
+		{
+			init(actual_next_value, name);
+		}
+
+		template <typename ... Args>
+			void init(value_type _, std::string name, value_type actual_next_value, std::string next_name, Args ... args)
+		{
+			init(actual_next_value, name);
+			init(value_type(actual_next_value + 1), next_name, args...);
+		}
+
+	public:
+		template <typename ... Args>
+			Enumeration(Args ... args)
+		{
+			init(value_type(0), args...);
+		}
+
+		std::optional<value_type> LookupName(std::string name) const
+		{
+			auto it = names.find(name);
+			if(it == names.end())
+				return std::optional<value_type>();
+			else
+				return std::make_optional(it->second);
+		}
+	};
+
+	template <typename T>
+		class ItemOf
+	{
+	public:
+		typedef typename T::value_type value_type;
+		value_type value;
+		ItemOf(value_type value = value_type()) : value(value) { }
+		operator value_type() const { return value; }
+	};
+
 	/** @brief Helper template to parse and display type of command line options */
 	template <typename T>
 		struct TypeData;
@@ -126,6 +195,32 @@ namespace Linker
 		}
 	};
 
+	/** @brief Helper template to parse and display type of command line options */
+	template <typename T>
+		struct TypeData<ItemOf<T>>
+	{
+		static T enumeration;
+
+		/** @brief Parses a string value */
+		static ItemOf<T> ParseValue(std::string value)
+		{
+			if(auto enum_value = enumeration.LookupName(value))
+			{
+				return ItemOf<T>(enum_value.value());
+			}
+			else
+			{
+				return ItemOf<T>();
+			}
+		}
+
+		/** @brief Returns a textual representation of the type, to be displayed to the user */
+		static std::string GetTypeName()
+		{
+			return "string";
+		}
+	};
+
 	template <typename T>
 		class OptionDescription;
 
@@ -145,6 +240,10 @@ namespace Linker
 		}
 
 		virtual ~OptionDescription() = default;
+
+		virtual void PrintDetails(std::ostream& out, std::string indentation)
+		{
+		}
 
 		/**
 		 * @brief Returns a textual representation of the type, to be displayed to the user
@@ -219,6 +318,58 @@ namespace Linker
 			else
 			{
 				return default_value;
+			}
+		}
+	};
+
+	/** @brief Documents and handles command line options */
+	template <typename T>
+		class Option<ItemOf<T>> : public virtual OptionDescription<ItemOf<T>>, public virtual Option<void>
+	{
+	public:
+		/** @brief Value of the option if not provided on the command line */
+		typename T::value_type default_value;
+
+		Option(std::string name, std::string description, T::value_type default_value = typename T::value_type())
+			: OptionDescription<void>(name, description), OptionDescription<ItemOf<T>>(name, description), Option<void>(name, description), default_value(ItemOf<T>(default_value))
+		{
+		}
+
+		std::string type_name() override
+		{
+			return "string option";
+		}
+
+		/** @brief Retrieve the provided value, parsed */
+		ItemOf<T> operator()()
+		{
+			auto option_it = options->find(name);
+			if(option_it != options->end())
+			{
+				return ParseValue<ItemOf<T>>(option_it->second);
+			}
+			else
+			{
+				return default_value;
+			}
+		}
+
+		void PrintDetails(std::ostream& out, std::string indentation) override
+		{
+			out << indentation << "permitted values:" << std::endl;
+			for(auto pair : TypeData<ItemOf<T>>::enumeration.values)
+			{
+				out << indentation << "\t";
+				bool started = false;
+				for(auto name : pair.second)
+				{
+					if(started)
+						out << ", ";
+					else
+						started = true;
+					out << name;
+				}
+				out << std::endl;
 			}
 		}
 	};
@@ -333,5 +484,8 @@ namespace Linker
 		}
 	};
 }
+
+template <typename T>
+	T Linker::TypeData<Linker::ItemOf<T>>::enumeration = T();
 
 #endif /* OPTIONS_H */
