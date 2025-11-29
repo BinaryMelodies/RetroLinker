@@ -776,27 +776,29 @@ size_t PEFormat::BaseRelocation::GetRelocationSize(const PEFormat * format) cons
 
 bool PEFormat::BaseRelocationsSection::IsPresent() const
 {
-	return relocations.size() > 0;
+	return blocks_map.size() > 0;
 }
 
 void PEFormat::BaseRelocationsSection::Generate(PEFormat& fmt)
 {
 	uint32_t full_size = 0;
-	relocations_list.clear();
-	for(auto pair : relocations_map)
+	blocks_list.clear();
+	for(auto pair : blocks_map)
 	{
-		relocations_list.push_back(pair.second);
+		blocks_list.push_back(pair.second);
 	}
 
-	for(auto relocations : relocations_list)
+	for(auto block : blocks_list)
 	{
-		relocations->block_size = 4;
-		for(auto pair : relocations->relocations_map)
+		block->block_size = 8;
+		for(auto pair : block->relocations_map)
 		{
-			relocations->relocations_list.push_back(pair.second);
-			relocations->block_size += 2 * pair.second.GetEntryCount(&fmt);
+Linker::Debug << "Debug: Relocation at " << std::hex << pair.second.offset << std::endl;
+			block->relocations_list.push_back(pair.second);
+			block->block_size += 2 * pair.second.GetEntryCount(&fmt);
 		}
-		full_size = AlignTo(full_size, 4) + relocations->block_size;
+Linker::Debug << "Debug: Block size " << std::hex << block->block_size << std::endl;
+		full_size = AlignTo(full_size, 4) + block->block_size;
 	}
 
 	virtual_size() = size = full_size;
@@ -810,7 +812,7 @@ void PEFormat::BaseRelocationsSection::ReadSectionData(Linker::Reader& rd, const
 void PEFormat::BaseRelocationsSection::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
 {
 	offset_t offset = section_pointer;
-	for(auto block : relocations_list)
+	for(auto block : blocks_list)
 	{
 		offset = AlignTo(offset, 4);
 		wr.Seek(offset);
@@ -819,10 +821,10 @@ void PEFormat::BaseRelocationsSection::WriteSectionData(Linker::Writer& wr, cons
 
 		for(auto relocation : block->relocations_list)
 		{
-			wr.WriteWord(4, (relocation.type << 12) | (relocation.offset));
+			wr.WriteWord(2, (relocation.type << 12) | (relocation.offset));
 			if(relocation.GetEntryCount(&fmt) >= 2)
 			{
-				wr.WriteWord(4, relocation.parameter);
+				wr.WriteWord(2, relocation.parameter);
 			}
 		}
 
@@ -868,12 +870,12 @@ offset_t PEFormat::RVAToAddress(uint32_t rva, bool suppress_on_zero) const
 void PEFormat::AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type type, uint16_t low_ref)
 {
 	uint32_t page_rva = rva & ~(BaseRelocationBlock::PAGE_SIZE - 1);
-	if(base_relocations->relocations_map.find(page_rva) == base_relocations->relocations_map.end())
+	if(base_relocations->blocks_map.find(page_rva) == base_relocations->blocks_map.end())
 	{
-		base_relocations->relocations_map[page_rva] = std::make_shared<BaseRelocationBlock>(page_rva);
+		base_relocations->blocks_map[page_rva] = std::make_shared<BaseRelocationBlock>(page_rva);
 	}
 	uint16_t page_offset = rva & (BaseRelocationBlock::PAGE_SIZE - 1);
-	if(base_relocations->relocations_map.find(page_offset) != base_relocations->relocations_map.end())
+	if(base_relocations->blocks_map.find(page_offset) != base_relocations->blocks_map.end())
 	{
 		Linker::Error << "Error: duplicate relocation for address " << std::hex << rva << std::endl;
 	}
@@ -883,7 +885,7 @@ void PEFormat::AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type t
 		// we will store low_ref in the following relocation entry
 		rel.parameter = low_ref;
 	}
-	base_relocations->relocations_map[page_rva]->relocations_map[page_offset] = rel;
+	base_relocations->blocks_map[page_rva]->relocations_map[page_offset] = rel;
 }
 
 void PEFormat::ReadFile(Linker::Reader& rd)
@@ -1583,7 +1585,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 	if(exports->IsPresent())
 	{
 		// generate .edata
-		sections.push_back(imports);
+		sections.push_back(exports);
 		exports->address = AddressToRVA(image_end);
 		exports->Generate(*this);
 		image_end = AlignTo(image_end + exports->MemorySize(*this), GetOptionalHeader().section_align);
@@ -1594,145 +1596,112 @@ void PEFormat::ProcessModule(Linker::Module& module)
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
-		if(rel.Resolve(module, resolution))
+
+		if(rel.Resolve(module, resolution) && resolution.target != nullptr && resolution.reference != nullptr)
 		{
-			if(resolution.target != nullptr)
+			Linker::Error << "Error: intersegment relocations not supported, ignoring" << std::endl;
+			Linker::Error << "Error: " << rel << std::endl;
+			continue;
+		}
+
+		switch(rel.kind)
+		{
+		case Linker::Relocation::Direct:
+			switch(rel.size)
 			{
-				if(resolution.reference != nullptr)
+			case 2:
+				if((rel.mask & 0xFFFF) != 0xFFFF)
 				{
-					Linker::Error << "Error: intersegment relocations not supported, ignoring" << std::endl;
-					Linker::Error << "Error: " << rel << std::endl;
-					continue;
+					Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
 				}
 
-				switch(rel.kind)
+				switch(rel.shift)
 				{
-				case Linker::Relocation::Direct:
-					switch(rel.size)
-					{
-					case 2:
-						if((rel.mask & 0xFFFF) != 0xFFFF)
-						{
-							Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
-						}
-
-						switch(rel.shift)
-						{
-						default:
-							Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
-							/* fall through */
-						case 0:
-							AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelLow);
-							break;
-						case 16:
-							AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHigh);
-							break;
-						}
-						break;
-					case 4:
-						if((rel.mask & 0xFFFFFFFF) != 0xFFFFFFFF)
-						{
-							Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
-						}
-
-						if(rel.shift != 0)
-						{
-							Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
-						}
-
-						AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHighLow);
-						break;
-					case 8:
-						if(rel.mask != 0xFFFFFFFFFFFFFFFF)
-						{
-							Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
-						}
-
-						if(rel.shift != 0)
-						{
-							Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
-						}
-
-						AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelDir64);
-						break;
-					}
-
-					break;
-				case Linker::Relocation::ParagraphAddress:
-				case Linker::Relocation::SelectorIndex:
-					Linker::Error << "Error: segment relocations not supported, ignoring" << std::endl;
-					Linker::Error << "Error: " << rel << std::endl;
-					continue;
 				default:
-					Linker::Error << "Error: invalid relocation type, ignoring" << std::endl;
-					Linker::Error << "Error: " << rel << std::endl;
-					continue;
+					Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
+					/* fall through */
+				case 0:
+					Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_LOW" << std::endl;
+					AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelLow);
+					break;
+				case 16:
+					Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGH" << std::endl;
+					AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHigh);
+					break;
 				}
+				break;
+			case 4:
+				if((rel.mask & 0xFFFFFFFF) != 0xFFFFFFFF)
+				{
+					Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
+				}
+
+				if(rel.shift != 0)
+				{
+					Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
+				}
+
+				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGHLOW" << std::endl;
+				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHighLow);
+				break;
+			case 8:
+				if(rel.mask != 0xFFFFFFFFFFFFFFFF)
+				{
+					Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
+				}
+
+				if(rel.shift != 0)
+				{
+					Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
+				}
+
+				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_DIR64" << std::endl;
+				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelDir64);
+				break;
 			}
 
+			break;
+		case Linker::Relocation::ParagraphAddress:
+		case Linker::Relocation::SelectorIndex:
+			Linker::Error << "Error: segment relocations not supported, ignoring" << std::endl;
+			Linker::Error << "Error: " << rel << std::endl;
+			continue;
+		default:
+			Linker::Error << "Error: invalid relocation type, ignoring" << std::endl;
+			Linker::Error << "Error: " << rel << std::endl;
+			continue;
+		}
+
+		if(rel.Resolve(module, resolution))
+		{
 			rel.WriteWord(resolution.value);
 		}
 		else
 		{
 			if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
 			{
-				switch(rel.kind)
+				switch(rel.size)
 				{
-				case Linker::Relocation::Direct:
-					switch(rel.size)
+				case 2:
+					Linker::Error << "Error: imported 16-bit references not allowed, ignoring" << std::endl;
+					Linker::Error << "Error: " << rel << std::endl;
+					continue;
+				case 4:
+					if(Is64Bit())
 					{
-					case 2:
-						Linker::Error << "Error: imported 16-bit references not allowed, ignoring" << std::endl;
+						Linker::Error << "Error: imported 32-bit references not allowed in 64-bit mode, ignoring" << std::endl;
 						Linker::Error << "Error: " << rel << std::endl;
 						continue;
-					case 4:
-						if(Is64Bit())
-						{
-							Linker::Error << "Error: imported 32-bit references not allowed in 64-bit mode, ignoring" << std::endl;
-							Linker::Error << "Error: " << rel << std::endl;
-							continue;
-						}
-
-						if((rel.mask & 0xFFFFFFFF) != 0xFFFFFFFF)
-						{
-							Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
-						}
-
-						if(rel.shift != 0)
-						{
-							Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
-						}
-						break;
-					case 8:
-						if(!Is64Bit())
-						{
-							Linker::Error << "Error: imported 64-bit references not allowed in 32-bit mode, ignoring" << std::endl;
-							Linker::Error << "Error: " << rel << std::endl;
-							continue;
-						}
-
-						if(rel.mask != 0xFFFFFFFFFFFFFFFF)
-						{
-							Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
-						}
-
-						if(rel.shift != 0)
-						{
-							Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
-						}
-						break;
 					}
-
 					break;
-				case Linker::Relocation::ParagraphAddress:
-				case Linker::Relocation::SelectorIndex:
-					Linker::Error << "Error: segment relocations not supported, ignoring" << std::endl;
-					Linker::Error << "Error: " << rel << std::endl;
-					continue;
-				default:
-					Linker::Error << "Error: invalid relocation type, ignoring" << std::endl;
-					Linker::Error << "Error: " << rel << std::endl;
-					continue;
+				case 8:
+					if(!Is64Bit())
+					{
+						Linker::Error << "Error: imported 64-bit references not allowed in 32-bit mode, ignoring" << std::endl;
+						Linker::Error << "Error: " << rel << std::endl;
+						continue;
+					}
+					break;
 				}
 
 				std::string library, name;
@@ -1765,7 +1734,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 	if(base_relocations->IsPresent())
 	{
 		// generate .reloc
-		sections.push_back(imports);
+		sections.push_back(base_relocations);
 		base_relocations->address = AddressToRVA(image_end);
 		base_relocations->Generate(*this);
 		image_end = AlignTo(image_end + base_relocations->MemorySize(*this), GetOptionalHeader().section_align);

@@ -475,8 +475,8 @@ namespace Microsoft
 		class BaseRelocationsSection : public Section
 		{
 		public:
-			std::vector<std::shared_ptr<BaseRelocationBlock>> relocations_list;
-			std::map<uint32_t, std::shared_ptr<BaseRelocationBlock>> relocations_map;
+			std::vector<std::shared_ptr<BaseRelocationBlock>> blocks_list;
+			std::map<uint32_t, std::shared_ptr<BaseRelocationBlock>> blocks_map;
 
 			BaseRelocationsSection()
 				: Section(DATA | DISCARDABLE | READ)
