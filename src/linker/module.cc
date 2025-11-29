@@ -632,8 +632,7 @@ void Module::AddRelocation(Relocation relocation)
 		std::string unparsed_name;
 		assert(symbolp->LoadName(unparsed_name));
 
-		if(output_format != nullptr && input_format != nullptr
-		&& (cpu == I86 || cpu == I386))
+		if(output_format != nullptr && input_format != nullptr)
 		{
 			/* Note: a much more general syntax could be developed:
 				segment :=
@@ -649,7 +648,7 @@ void Module::AddRelocation(Relocation relocation)
 					SEGMENT frame WRT frame
 			However, this would probably result in an overwhelming syntax
 			*/
-			if(output_format->FormatSupportsSegmentation() && !input_format->FormatProvidesSegmentation())
+			if((cpu == I86 || cpu == I386) && output_format->FormatSupportsSegmentation() && !input_format->FormatProvidesSegmentation())
 			{
 				if(unparsed_name.rfind(section_prefix(), 0) == 0 && relocation.size == 2)
 				{

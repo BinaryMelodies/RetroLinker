@@ -282,6 +282,24 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 		case R_386_PLT32:
 			return 4;
 		}
+	case EM_X86_64:
+		switch(type)
+		{
+		default:
+			return 0;
+		case R_X86_64_8:
+		case R_X86_64_PC8:
+			return 1;
+		case R_X86_64_16:
+		case R_X86_64_PC16:
+			return 2;
+		case R_X86_64_32:
+		case R_X86_64_PC32:
+			return 4;
+		case R_X86_64_64:
+		case R_X86_64_PC64:
+			return 4;
+		}
 	case EM_68K:
 		switch(type)
 		{
@@ -2673,6 +2691,9 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 	case EM_386:
 		module.cpu = option_16bit ? Linker::Module::I86 : Linker::Module::I386;
 		break;
+	case EM_X86_64:
+		module.cpu = Linker::Module::X86_64;
+		break;
 	case EM_68K:
 		module.cpu = Linker::Module::M68K;
 		break;
@@ -2877,6 +2898,32 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					case R_386_PLT32:
 						// TODO
 						Linker::Debug << "Internal error: PLT32 not supported" << std::endl;
+						continue;
+					}
+					break;
+
+				case EM_X86_64:
+					rel_size = rel.GetSize(cpu);
+					if(rel_size == 0)
+						continue;
+
+					switch(rel.type)
+					{
+					case R_X86_64_8:
+					case R_X86_64_16:
+					case R_X86_64_32:
+					case R_X86_64_64:
+						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+						break;
+					case R_X86_64_PC8:
+					case R_X86_64_PC16:
+					case R_X86_64_PC32:
+					case R_X86_64_PC64:
+						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+						break;
+					default:
+						// TODO
+						Linker::Debug << "Internal error: relocation " << rel.type << " not supported" << std::endl;
 						continue;
 					}
 					break;

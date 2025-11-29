@@ -95,18 +95,28 @@ namespace ELF
 		static constexpr offset_t R_386_GOTPC = 10;
 		static constexpr offset_t R_386_GOTOFF = 9;
 		static constexpr offset_t R_386_PLT32 = 4;
-		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md (not yet implemented) */
+		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md */
 		static constexpr offset_t R_386_SEG16 = 45;
-		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md (not yet implemented) */
+		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md */
 		static constexpr offset_t R_386_SUB16 = 46;
-		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md (not yet implemented) */
+		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md */
 		static constexpr offset_t R_386_SUB32 = 47;
 		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md (not yet implemented) */
 		static constexpr offset_t R_386_SEGRELATIVE = 48;
-		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md (not yet implemented) */
+		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md */
 		static constexpr offset_t R_386_OZSEG16 = 80;
 		/** @brief Extension, see here: https://gitlab.com/tkchia/build-ia16/-/blob/master/elf16-writeup.md (not yet implemented) */
 		static constexpr offset_t R_386_OZRELSEG16 = 81;
+
+		static constexpr offset_t R_X86_64_8 = 14;
+		static constexpr offset_t R_X86_64_PC8 = 15;
+		static constexpr offset_t R_X86_64_16 = 12;
+		static constexpr offset_t R_X86_64_PC16 = 13;
+		static constexpr offset_t R_X86_64_32 = 10;
+		static constexpr offset_t R_X86_64_32S = 11;
+		static constexpr offset_t R_X86_64_PC32 = 2;
+		static constexpr offset_t R_X86_64_64 = 1;
+		static constexpr offset_t R_X86_64_PC64 = 24;
 
 		static constexpr offset_t R_68K_8 = 3;
 		static constexpr offset_t R_68K_PC8 = 6;
