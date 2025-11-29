@@ -524,16 +524,13 @@ namespace COFF
 			 */
 			std::vector<std::unique_ptr<Relocation>> relocations;
 
-			/** @brief COFF section flags */
-			enum
-			{
-				/** @brief Section contains executable (COFF name: STYP_TEXT) */
-				TEXT = 0x0020,
-				/** @brief Section contains initialized data (COFF name: STYP_DATA) */
-				DATA = 0x0040,
-				/** @brief Section contains uninitialized data (COFF name: STYP_BSS) */
-				BSS  = 0x0080,
-			};
+			/* COFF section flags */
+			/** @brief COFF section flag: Section contains executable (COFF name: STYP_TEXT) */
+			static constexpr uint32_t TEXT = 0x0020;
+			/** @brief COFF section flag: Section contains initialized data (COFF name: STYP_DATA) */
+			static constexpr uint32_t DATA = 0x0040;
+			/** @brief COFF section flag: Section contains uninitialized data (COFF name: STYP_BSS) */
+			static constexpr uint32_t BSS  = 0x0080;
 
 			void Clear();
 
@@ -542,22 +539,24 @@ namespace COFF
 			{
 			}
 
-			~Section()
-			{
-				Clear();
-			}
+			virtual ~Section();
 
 			void ReadSectionHeader(Linker::Reader& rd, COFFVariantType coff_variant);
 
 			void WriteSectionHeader(Linker::Writer& wr, COFFVariantType coff_variant);
 
-			uint32_t ImageSize() const;
+			virtual uint32_t ImageSize(const COFFFormat& coff_format) const;
+
+			/** @brief Reads the section contents from a stream, can be overloaded by subclasses */
+			virtual void ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format);
+			/** @brief Writes the section contents to a stream, can be overloaded by subclasses */
+			virtual void WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const;
 		};
 
 		/**
 		 * @brief The list of COFF sections
 		 */
-		std::vector<std::unique_ptr<Section>> sections;
+		std::vector<std::shared_ptr<Section>> sections;
 
 		/**
 		 * @brief Section count (COFF name: f_nscns)
@@ -679,20 +678,20 @@ namespace COFF
 			 */
 			uint16_t magic = 0;
 			/**
-			 * @brief unused (COFF name: vstamp)
+			 * @brief Version stamp (COFF name: vstamp)
 			 */
 			uint16_t version_stamp = 0;
 
 			/**
-			 * @brief unused (COFF name: tsize)
+			 * @brief Code size (COFF name: tsize)
 			 */
 			uint32_t code_size = 0;
 			/**
-			 * @brief unused (COFF name: dsize)
+			 * @brief Data size (COFF name: dsize)
 			 */
 			uint32_t data_size = 0;
 			/**
-			 * @brief unused (COFF name: bsize)
+			 * @brief BSS size (COFF name: bsize)
 			 */
 			uint32_t bss_size = 0;
 			/**
@@ -700,11 +699,11 @@ namespace COFF
 			 */
 			uint32_t entry_address = 0;
 			/**
-			 * @brief unused (COFF name: text_start)
+			 * @brief Address of code (COFF name: text_start)
 			 */
 			uint32_t code_address = 0;
 			/**
-			 * @brief unused (COFF name: data_start)
+			 * @brief Address of data (COFF name: data_start)
 			 */
 			uint32_t data_address = 0;
 
@@ -1061,6 +1060,8 @@ namespace COFF
 
 		void Clear() override;
 
+		void AssignMagicValue(uint16_t value, ::EndianType as_endian_type);
+		void AssignMagicValue(uint16_t value);
 		void AssignMagicValue();
 
 		COFFVariantType coff_variant = AnyCOFFVariant;
@@ -1175,9 +1176,13 @@ namespace COFF
 			 */
 			CDOS68K,
 			/**
-			 * @brief FlexOS 386 executable (unknown)
+			 * @brief FlexOS 386 executable
 			 */
 			CDOS386,
+			/**
+			 * @brief Windows Portable Executable
+			 */
+			WINDOWS,
 		};
 		/**
 		 * @brief A representation of the format to generate
@@ -1265,7 +1270,7 @@ namespace COFF
 		void Link(Linker::Module& module);
 
 		/** @brief Return the segment stored inside the section, note that this only works for binary generation */
-		std::shared_ptr<Linker::Segment> GetSegment(std::unique_ptr<Section>& section);
+		std::shared_ptr<Linker::Segment> GetSegment(std::shared_ptr<Section>& section);
 
 		std::shared_ptr<Linker::Segment> GetCodeSegment();
 

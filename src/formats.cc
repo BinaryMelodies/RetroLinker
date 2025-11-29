@@ -246,6 +246,14 @@ format_specification formats[] =
 	{ "xcoff64",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::GENERIC, COFFFormat::XCOFF64); },
 		"XCOFF64" },
+	/* PE */
+	{ "pe",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<PEFormat>(); },
+		"Windows PE portable executable" },
+	{ "pe32" },
+	{ "win32" },
+	{ "pe64" },
+	{ "win64" },
 	/* a.out */
 	{ "aout",
 		[]() -> std::shared_ptr<Format> { return AOutFormat::CreateWriter(AOutFormat::DJGPP1); },

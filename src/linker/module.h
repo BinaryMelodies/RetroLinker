@@ -55,6 +55,8 @@ namespace Linker
 			MIPS,
 			SPARC,
 			SH,
+			ALPHA,
+			IA64,
 		};
 
 		/**

@@ -498,6 +498,11 @@ void COFFFormat::Section::Clear()
 	relocations.clear();
 }
 
+COFFFormat::Section::~Section()
+{
+	Clear();
+}
+
 void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFVariantType coff_variant)
 {
 	switch(coff_variant)
@@ -660,9 +665,21 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType
 	}
 }
 
-uint32_t COFFFormat::Section::ImageSize() const
+uint32_t COFFFormat::Section::ImageSize(const COFFFormat& coff_format) const
 {
 	return size; //image->ImageSize();
+}
+
+void COFFFormat::Section::ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format)
+{
+	rd.Seek(coff_format.file_offset + section_pointer);
+	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, ImageSize(coff_format));
+}
+
+void COFFFormat::Section::WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const
+{
+	wr.Seek(coff_format.file_offset + section_pointer);
+	image->WriteFile(wr);
 }
 
 COFFFormat::OptionalHeader::~OptionalHeader()
@@ -1165,10 +1182,20 @@ void COFFFormat::Clear()
 	stack = nullptr;
 }
 
+void COFFFormat::AssignMagicValue(uint16_t value, ::EndianType as_endian_type)
+{
+	::WriteWord(2, 2, reinterpret_cast<uint8_t *>(signature), value, as_endian_type);
+	Linker::Debug << "Debug: COFF MAGIC VALUE " << int(signature[0]) << ", " << int(signature[1]) << std::endl;
+}
+
+void COFFFormat::AssignMagicValue(uint16_t value)
+{
+	AssignMagicValue(value, endiantype);
+}
+
 void COFFFormat::AssignMagicValue()
 {
-	::WriteWord(2, 2, reinterpret_cast<uint8_t *>(signature), cpu_type, endiantype);
-	Linker::Debug << "Debug: COFF MAGIC VALUE " << int(signature[0]) << ", " << int(signature[1]) << std::endl;
+	AssignMagicValue(cpu_type, endiantype);
 }
 
 bool COFFFormat::DetectCpuType(::EndianType expected)
@@ -1372,8 +1399,7 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 	{
 		if(section->flags & (Section::TEXT | Section::DATA))
 		{
-			rd.Seek(file_offset + section->section_pointer);
-			std::dynamic_pointer_cast<Linker::Buffer>(section->image)->ReadFile(rd, section->ImageSize());
+			section->ReadSectionData(rd, *this);
 		}
 	}
 
@@ -1533,7 +1559,7 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 	/* Section Data */
 	for(auto& section : sections)
 	{
-		section->image->WriteFile(wr);
+		section->WriteSectionData(wr, *this);
 	}
 
 	/* TODO: store COFF relocations, symbols */
@@ -1791,7 +1817,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 
 	for(size_t i = 0; i < sections.size(); i++)
 	{
-		const std::unique_ptr<Section>& section = sections[i];
+		const std::shared_ptr<Section> section = sections[i];
 		for(auto& _rel : section->relocations)
 		{
 			switch(cpu_type)
@@ -2272,7 +2298,7 @@ void COFFFormat::Link(Linker::Module& module)
 }
 
 /** @brief Return the segment stored inside the section, note that this only works for binary generation */
-std::shared_ptr<Linker::Segment> COFFFormat::GetSegment(std::unique_ptr<Section>& section)
+std::shared_ptr<Linker::Segment> COFFFormat::GetSegment(std::shared_ptr<Section>& section)
 {
 	return std::dynamic_pointer_cast<Linker::Segment>(section->image);
 }
@@ -2371,9 +2397,13 @@ void COFFFormat::CalculateValues()
 {
 	switch(type)
 	{
+	case WINDOWS:
+		// handled in PEFormat
+		break;
 	case GENERIC:
 		/* TODO */
 		Linker::FatalError("Internal error: no generation type specified, exiting");
+
 	case DJGPP:
 		cpu_type = CPU_I386;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
@@ -2390,6 +2420,7 @@ void COFFFormat::CalculateValues()
 		optional_header = std::make_unique<FlexOSAOutHeader>();
 		break;
 	}
+
 	endiantype = GetEndianType();
 
 	section_count = sections.size();
@@ -2439,21 +2470,27 @@ void COFFFormat::CalculateValues()
 		break;
 	}
 
-	offset += optional_header->GetSize() + sections.size() * section_header_size;
+	offset += optional_header_size + sections.size() * section_header_size;
 
 	if(type == DJGPP)
 	{
+		// PEFormat has a different stub mechanism
 		file_offset = stub.GetStubImageSize();
 	}
-	for(auto& section : sections)
+
+	if(type != WINDOWS) // PEFormat has its own settings
 	{
-		std::shared_ptr<Linker::Segment> image = GetSegment(section);
-		section->name = image->name;
-		section->physical_address = section->address = image->base_address;
-		section->size = image->TotalSize();
-		section->section_pointer = offset;
-		offset += image->data_size;
+		for(auto& section : sections)
+		{
+			std::shared_ptr<Linker::Segment> image = GetSegment(section);
+			section->name = image->name;
+			section->physical_address = section->address = image->base_address;
+			section->size = image->TotalSize();
+			section->section_pointer = offset;
+			offset += image->data_size;
+		}
 	}
+
 	if(type == CDOS68K)
 	{
 		relocations_offset = offset;
@@ -2465,7 +2502,10 @@ void COFFFormat::CalculateValues()
 		file_size = offset;
 	}
 
-	AssignMagicValue();
+	if(type != WINDOWS) // PEFormat has its own settings
+	{
+		AssignMagicValue();
+	}
 }
 
 void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
