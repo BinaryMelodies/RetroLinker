@@ -1593,13 +1593,6 @@ void PEFormat::ProcessModule(Linker::Module& module)
 	{
 		Linker::Resolution resolution;
 
-		if(rel.Resolve(module, resolution) && resolution.target != nullptr && resolution.reference != nullptr)
-		{
-			Linker::Error << "Error: intersegment relocations not supported, ignoring" << std::endl;
-			Linker::Error << "Error: " << rel << std::endl;
-			continue;
-		}
-
 		switch(rel.kind)
 		{
 		case Linker::Relocation::Direct:
@@ -1683,12 +1676,6 @@ void PEFormat::ProcessModule(Linker::Module& module)
 					Linker::Error << "Error: " << rel << std::endl;
 					continue;
 				case 4:
-					if(Is64Bit())
-					{
-						Linker::Error << "Error: imported 32-bit references not allowed in 64-bit mode, ignoring" << std::endl;
-						Linker::Error << "Error: " << rel << std::endl;
-						continue;
-					}
 					break;
 				case 8:
 					if(!Is64Bit())
@@ -1714,11 +1701,21 @@ void PEFormat::ProcessModule(Linker::Module& module)
 				}
 				else
 				{
-					Linker::Error << "Error: undefined symbol " << *symbol << std::endl;
+					Linker::Error << "Error: undefined " << *symbol << std::endl;
 					continue;
 				}
 
-				rel.WriteWord(address);
+				Linker::Position reference;
+				if(!rel.reference.Lookup(module, reference))
+				{
+					Linker::Error << "Error: unable to resolve " << rel << std::endl;
+				}
+				else
+				{
+					address -= reference.address;
+				}
+
+				rel.WriteWord(address + rel.addend);
 			}
 			else
 			{
