@@ -44,6 +44,9 @@ asm(
 );
 #elif defined __i386__
 asm(
+#if TARGET_WIN32
+	"call\tLibInit\n\t"
+#endif
 	"call\tAppMain\n\t"
 	"call\tLibExit"
 );
@@ -98,7 +101,7 @@ static char _instance_data[16] = { 1 };
 #define EXIT_PROCESS 1
 void DosExit(unsigned short ActionCode, unsigned short ResultCode)
 {
-	asm(
+	asm volatile(
 		"pushw\t%0\n\t"
 		"pushw\t%1\n\t"
 		".byte\t0x9A\n\t"
@@ -130,7 +133,7 @@ unsigned short DosWrite(unsigned short FileHandle, void __far * BufferArea, unsi
 #define EXIT_PROCESS 1
 void DosExit(unsigned short ActionCode, unsigned short ResultCode)
 {
-	asm(
+	asm volatile(
 		"push\t%0\n\t"
 		"push\t%1\n\t"
 		".extern\t$$IMPORT$DOSCALLS$00EA\n\t"
@@ -150,6 +153,41 @@ unsigned short DosWrite(unsigned long FileHandle, void * BufferArea, unsigned lo
 		"call\t($$IMPORT$DOSCALLS$011A)\n\t"
 		"addl\t$16, %%esp"
 			: "=a"(result) : "g"(BytesWritten), "g"(BufferLength), "g"(BufferArea), "g"(FileHandle));
+	return result;
+}
+#elif TARGET_WIN32
+void ExitProcess(unsigned int uExitCode)
+{
+	asm volatile(
+		"push\t%0\n\t"
+		".extern\t$$IMPORT$KERNEL32.dll$ExitProcess$0000\n\t"
+		"call\t*($$IMPORT$KERNEL32.dll$ExitProcess$0000)"
+			: : "g"(uExitCode));
+}
+
+unsigned int GetStdHandle(unsigned int nStdHandle)
+{
+	register unsigned int result;
+	asm(
+		"push\t%1\n\t"
+		".extern\t$$IMPORT$KERNEL32.dll$GetStdHandle$0000\n\t"
+		"call\t*($$IMPORT$KERNEL32.dll$GetStdHandle$0000)"
+			: "=a"(result) : "g"(nStdHandle));
+	return result;
+}
+
+unsigned int WriteFile(unsigned int hFile, void * lpBuffer, unsigned int nNumberOfBytesToWrite, void * lpNumberOfBytesWritten, void * lpOverlapped)
+{
+	register unsigned int result;
+	asm(
+		"push\t%5\n\t"
+		"push\t%4\n\t"
+		"push\t%3\n\t"
+		"push\t%2\n\t"
+		"push\t%1\n\t"
+		".extern\t$$IMPORT$KERNEL32.dll$WriteFile$0000\n\t"
+		"call\t*($$IMPORT$KERNEL32.dll$WriteFile$0000)"
+			: "=a"(result) : "g"(hFile), "g"(lpBuffer), "g"(nNumberOfBytesToWrite), "g"(lpNumberOfBytesWritten), "g"(lpOverlapped));
 	return result;
 }
 #elif TARGET_AMIGA
@@ -331,6 +369,8 @@ void LibExit(void)
 	);
 #elif TARGET_OS2V1 || TARGET_OS2V2
 	DosExit(EXIT_PROCESS, 0);
+#elif TARGET_WIN32
+	ExitProcess(0);
 #elif TARGET_CPM68K
 	asm(
 		"clr.w\t%d0\n\t"
@@ -381,6 +421,10 @@ void LibExit(void)
 #endif
 }
 
+#if TARGET_WIN32
+static unsigned int hStdOut = 0;
+#endif
+
 void LibPutChar(char c)
 {
 #if TARGET_MSDOS || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP
@@ -410,6 +454,9 @@ void LibPutChar(char c)
 	asm(
 		"movb\t$0x09, %%ah\n\t"
 		"int\t$0x21" : : "d"(&buff));
+#elif TARGET_WIN32
+	unsigned int result;
+	WriteFile(hStdOut, &c, 1, &result, 0);
 #elif TARGET_OS2V1 || TARGET_OS2V2
 	char buff[1];
 	buff[0] = c;
@@ -487,6 +534,8 @@ void LibWaitForKey(void)
 	/*asm(
 		"mov\t$0x01, %ah\n\t"
 		"int\t$0x21");*/
+#elif TARGET_WIN32
+	/* TODO */
 #elif TARGET_OS2V1 || TARGET_OS2V2
 	/* TODO */
 #elif TARGET_CPM68K
@@ -578,7 +627,12 @@ static void * InitialStack;
 static void * InitialFrame;
 #endif
 
-#if TARGET_AMIGA
+#if TARGET_WIN32
+void LibInit(void)
+{
+	hStdOut = GetStdHandle(-11);
+}
+#elif TARGET_AMIGA
 static void * InitialStack;
 
 /* https://anadoxin.org/blog/amigaos-stdlib-vector-tables.html/ */

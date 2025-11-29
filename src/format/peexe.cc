@@ -1718,7 +1718,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 				}
 				else
 				{
-					Linker::Error << "Error: invalid import" << std::endl;
+					Linker::Error << "Error: undefined symbol " << *symbol << std::endl;
 					continue;
 				}
 

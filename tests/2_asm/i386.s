@@ -156,6 +156,8 @@ message:
 .elseif FORMAT_P3
 	.ascii	" P3 flat .exp file"
 .endif
+.elseif TARGET_WIN32
+	.ascii	" Windows (32-bit)"
 .elseif TARGET_OS2V2
 	.ascii	" OS/2 2.0 (32-bit)"
 .elseif TARGET_FLEXOS386

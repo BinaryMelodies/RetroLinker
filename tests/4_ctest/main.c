@@ -35,6 +35,8 @@ int AppMain(void)
 		"ELKS (Linux-8086)"
 #elif TARGET_WIN16
 		"Windows (16-bit)"
+#elif TARGET_WIN32
+		"Windows (32-bit)"
 #elif TARGET_OS2V1
 		"OS/2 (16-bit)"
 #elif TARGET_OS2V2

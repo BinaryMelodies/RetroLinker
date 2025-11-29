@@ -131,6 +131,9 @@ Target(
 	System = "pdos386",
 	output_file = "pdos386")
 Target(
+	System = "win32",
+	output_file = "win32")
+Target(
 	System = "os2v2",
 	output_file = "os2v2")
 Target(

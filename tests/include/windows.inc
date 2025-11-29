@@ -1,4 +1,8 @@
 
+.if	TARGET_WIN32
+	.extern	hStdOut
+.endif
+
 .macro	_StartUp
 .if	TARGET_WIN16
 	# InitTask
@@ -31,6 +35,13 @@
 	.word	$$IMPORT$USER$0005
 	.word	$$IMPSEG$USER$0005
 .endif
+.if	TARGET_WIN32
+	.extern	$$IMPORT$KERNEL32.dll$GetStdHandle$0000
+
+	push	-11
+	call	[$$IMPORT$KERNEL32.dll$GetStdHandle$0000]
+	mov	[hStdOut], eax
+.endif
 .if	TARGET_WIN64
 	# align stack pointer
 	sub	rsp, 8
@@ -43,7 +54,10 @@
 	int	0x21
 .endif
 .if	TARGET_WIN32
-	# TODO
+	.extern	$$IMPORT$KERNEL32.dll$ExitProcess$0000
+
+	push	0
+	call	[$$IMPORT$KERNEL32.dll$ExitProcess$0000]
 .endif
 .if	TARGET_WIN64
 	# TODO
@@ -58,7 +72,15 @@
 	int	0x21
 .endif
 .if	TARGET_WIN32
-	# TODO
+	.extern	$$IMPORT$KERNEL32.dll$WriteFile$0000
+
+	movb	PutChar_char, \char
+	push	0
+	push	offset NumberOfBytesWritten
+	push	1
+	push	offset PutChar_char
+	push	[hStdOut]
+	call	[$$IMPORT$KERNEL32.dll$WriteFile$0000]
 .endif
 .if	TARGET_WIN64
 	# TODO
@@ -90,6 +112,14 @@
 .endif
 
 	.section	.data
+
+.if	TARGET_WIN32
+	.global	hStdOut
+hStdOut:
+	.long	0
+NumberOfBytesWritten:
+	.long	0
+.endif
 
 PutChar_char:
 	.byte	0

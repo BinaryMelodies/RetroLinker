@@ -624,6 +624,16 @@ DefineTarget(
 
 DefineTarget(
 	CPU = "i386",
+	System = "win32",
+	IncludeName = "windows",
+	Versions = [
+		DefineVersion("", ModelName = "", LinkerName = "", LinkerOptions = ["target=winnt", "subsystem=console"]),
+	],
+	custom_entry = True,
+	extension = ".exe")
+
+DefineTarget(
+	CPU = "i386",
 	System = "os2v2",
 	IncludeName = "os2",
 	#custom_entry = True, # TODO: ???

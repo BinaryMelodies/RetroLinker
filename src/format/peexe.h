@@ -331,7 +331,7 @@ namespace Microsoft
 			uint32_t address_table_size;
 
 			ImportsSection()
-				: Section(DATA | READ)
+				: Section(DATA | READ | WRITE)
 			{
 				name = ".idata";
 				// TODO: flags and other fields

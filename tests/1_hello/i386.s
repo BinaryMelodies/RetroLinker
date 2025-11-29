@@ -65,6 +65,8 @@ message:
 .endif
 .elseif TARGET_PDOS386
 	.ascii	" PDOS/386 a.out .exe file"
+.elseif TARGET_WIN32
+	.ascii	" Windows (32-bit)"
 .elseif TARGET_OS2V2
 	.ascii	" OS/2 2.0 (32-bit)"
 .elseif TARGET_FLEXOS386
