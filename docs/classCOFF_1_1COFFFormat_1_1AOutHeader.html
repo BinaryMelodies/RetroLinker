@@ -98,7 +98,7 @@ Inheritance diagram for COFF::COFFFormat::AOutHeader:</div>
 <area href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html" title="An abstract class to represent the optional header." alt="COFF::COFFFormat::OptionalHeader" shape="rect" coords="256,0,502,24"/>
 <area href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html" title="Concurrent DOS 68K/FlexOS 386 optional header Concurrent DOS 68K uses the typical a...." alt="COFF::COFFFormat::FlexOSAOutHeader" shape="rect" coords="0,112,246,136"/>
 <area href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html" title="56 byte long header used on MIPS" alt="COFF::COFFFormat::MIPSAOutHeader" shape="rect" coords="256,112,502,136"/>
-<area href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html" alt="Microsoft::PEFormat::PEOptionalHeader" shape="rect" coords="512,112,758,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html" title="The PE optional header as specified by Microsoft." alt="Microsoft::PEFormat::PEOptionalHeader" shape="rect" coords="512,112,758,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -135,19 +135,19 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>magic</b> = 0</td
 <tr class="separator:a7b98197c30ecc0e3b76bc9df353e9c2d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a075a07387315972bdf923e0d1ab32bad" id="r_a075a07387315972bdf923e0d1ab32bad"><td class="memItemLeft" align="right" valign="top"><a id="a075a07387315972bdf923e0d1ab32bad" name="a075a07387315972bdf923e0d1ab32bad"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>version_stamp</b> = 0</td></tr>
-<tr class="memdesc:a075a07387315972bdf923e0d1ab32bad"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: vstamp) <br /></td></tr>
+<tr class="memdesc:a075a07387315972bdf923e0d1ab32bad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version stamp (COFF name: vstamp) <br /></td></tr>
 <tr class="separator:a075a07387315972bdf923e0d1ab32bad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb82b3fb406747ab82a98f64658e3353" id="r_abb82b3fb406747ab82a98f64658e3353"><td class="memItemLeft" align="right" valign="top"><a id="abb82b3fb406747ab82a98f64658e3353" name="abb82b3fb406747ab82a98f64658e3353"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_size</b> = 0</td></tr>
-<tr class="memdesc:abb82b3fb406747ab82a98f64658e3353"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: tsize) <br /></td></tr>
+<tr class="memdesc:abb82b3fb406747ab82a98f64658e3353"><td class="mdescLeft">&#160;</td><td class="mdescRight">Code size (COFF name: tsize) <br /></td></tr>
 <tr class="separator:abb82b3fb406747ab82a98f64658e3353"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae5f5827f880d97d3280440cc009082a3" id="r_ae5f5827f880d97d3280440cc009082a3"><td class="memItemLeft" align="right" valign="top"><a id="ae5f5827f880d97d3280440cc009082a3" name="ae5f5827f880d97d3280440cc009082a3"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_size</b> = 0</td></tr>
-<tr class="memdesc:ae5f5827f880d97d3280440cc009082a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: dsize) <br /></td></tr>
+<tr class="memdesc:ae5f5827f880d97d3280440cc009082a3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data size (COFF name: dsize) <br /></td></tr>
 <tr class="separator:ae5f5827f880d97d3280440cc009082a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae663abb1ff4c08cf1be465b456cab50f" id="r_ae663abb1ff4c08cf1be465b456cab50f"><td class="memItemLeft" align="right" valign="top"><a id="ae663abb1ff4c08cf1be465b456cab50f" name="ae663abb1ff4c08cf1be465b456cab50f"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>bss_size</b> = 0</td></tr>
-<tr class="memdesc:ae663abb1ff4c08cf1be465b456cab50f"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: bsize) <br /></td></tr>
+<tr class="memdesc:ae663abb1ff4c08cf1be465b456cab50f"><td class="mdescLeft">&#160;</td><td class="mdescRight">BSS size (COFF name: bsize) <br /></td></tr>
 <tr class="separator:ae663abb1ff4c08cf1be465b456cab50f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a591ee21664125f34aab797509a8a21ec" id="r_a591ee21664125f34aab797509a8a21ec"><td class="memItemLeft" align="right" valign="top"><a id="a591ee21664125f34aab797509a8a21ec" name="a591ee21664125f34aab797509a8a21ec"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_address</b> = 0</td></tr>
@@ -155,11 +155,11 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_address</b>
 <tr class="separator:a591ee21664125f34aab797509a8a21ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0178cb0da1c95a94f4435d3fe23b683e" id="r_a0178cb0da1c95a94f4435d3fe23b683e"><td class="memItemLeft" align="right" valign="top"><a id="a0178cb0da1c95a94f4435d3fe23b683e" name="a0178cb0da1c95a94f4435d3fe23b683e"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_address</b> = 0</td></tr>
-<tr class="memdesc:a0178cb0da1c95a94f4435d3fe23b683e"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: text_start) <br /></td></tr>
+<tr class="memdesc:a0178cb0da1c95a94f4435d3fe23b683e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address of code (COFF name: text_start) <br /></td></tr>
 <tr class="separator:a0178cb0da1c95a94f4435d3fe23b683e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aedf6b2f463ba78c13d6914ace91735c9" id="r_aedf6b2f463ba78c13d6914ace91735c9"><td class="memItemLeft" align="right" valign="top"><a id="aedf6b2f463ba78c13d6914ace91735c9" name="aedf6b2f463ba78c13d6914ace91735c9"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_address</b> = 0</td></tr>
-<tr class="memdesc:aedf6b2f463ba78c13d6914ace91735c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: data_start) <br /></td></tr>
+<tr class="memdesc:aedf6b2f463ba78c13d6914ace91735c9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address of data (COFF name: data_start) <br /></td></tr>
 <tr class="separator:aedf6b2f463ba78c13d6914ace91735c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>

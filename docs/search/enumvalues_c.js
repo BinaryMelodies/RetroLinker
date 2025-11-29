@@ -11,5 +11,8 @@ var searchData=
   ['omf_5fversion_5ftis_5f11_8',['OMF_VERSION_TIS_11',['../classOMF_1_1OMF86Format.html#ab005ecd9c27352899acedccb63e3c8f8a63eee2f259735afc34369c489d4829dc',1,'OMF::OMF86Format']]],
   ['optional_9',['Optional',['../classLinker_1_1Section.html#ac63d033d602ad0a9a0f82dddeaeb7d8fadada38e1155b0e6747c8fd45cdff3eea',1,'Linker::Section']]],
   ['os2_10',['OS2',['../classMicrosoft_1_1NEFormat.html#ac3ca11e474f3acf463ed93794ebdeaada1aa171c73f4a7183aa2c7075e1c6bd15',1,'Microsoft::NEFormat']]],
-  ['osfixup_11',['OSFixup',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a966f80e32bb3d588d3865c21953b1751af01d42471b5dbd667d60e2f0ab694850',1,'Microsoft::NEFormat::Segment::Relocation']]]
+  ['osfixup_11',['OSFixup',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a966f80e32bb3d588d3865c21953b1751af01d42471b5dbd667d60e2f0ab694850',1,'Microsoft::NEFormat::Segment::Relocation']]],
+  ['output_5fdll_12',['OUTPUT_DLL',['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a1fae6ca0326368caad3a99928fb01136',1,'Microsoft::PEFormat']]],
+  ['output_5fexe_13',['OUTPUT_EXE',['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a05cab81283c352f2043a186380be3d37',1,'Microsoft::PEFormat']]],
+  ['output_5fsys_14',['OUTPUT_SYS',['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a1929d9a8a2c9d26119f60c9df210cda0',1,'Microsoft::PEFormat']]]
 ];

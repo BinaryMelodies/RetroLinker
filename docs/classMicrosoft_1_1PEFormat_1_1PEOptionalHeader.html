@@ -87,6 +87,11 @@ $(function() {
   <div class="headertitle"><div class="title">Microsoft::PEFormat::PEOptionalHeader Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>The PE optional header as specified by Microsoft.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="peexe_8h_source.html">peexe.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Microsoft::PEFormat::PEOptionalHeader:</div>
 <div class="dyncontent">
@@ -102,9 +107,6 @@ Inheritance diagram for Microsoft::PEFormat::PEOptionalHeader:</div>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1DataDirectory.html">DataDirectory</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A data directory entry.  <a href="structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1DataDirectory.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1version__type.html">version_type</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a version entry with major and minor versions.  <a href="structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1version__type.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
@@ -160,6 +162,7 @@ Public Types</h2></td></tr>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a9b38d8e5a66724f72c271584339d8a98" id="r_a9b38d8e5a66724f72c271584339d8a98"><td class="memItemLeft" align="right" valign="top"><a id="a9b38d8e5a66724f72c271584339d8a98" name="a9b38d8e5a66724f72c271584339d8a98"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>Is64Bit</b> () const</td></tr>
+<tr class="memdesc:a9b38d8e5a66724f72c271584339d8a98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the file is in the PE32+ (64-bit) format. <br /></td></tr>
 <tr class="separator:a9b38d8e5a66724f72c271584339d8a98"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aee61920d352e0378a729d7cb2a66a432" id="r_aee61920d352e0378a729d7cb2a66a432"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aee61920d352e0378a729d7cb2a66a432">GetSize</a> () const override</td></tr>
 <tr class="memdesc:aee61920d352e0378a729d7cb2a66a432"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns size of optional header.  <br /></td></tr>
@@ -171,6 +174,14 @@ bool&#160;</td><td class="memItemRight" valign="bottom"><b>Is64Bit</b> () const<
 <tr class="memitem:ad60ef115bc8372ef36a64e30b5477906" id="r_ad60ef115bc8372ef36a64e30b5477906"><td class="memItemLeft" align="right" valign="top"><a id="ad60ef115bc8372ef36a64e30b5477906" name="ad60ef115bc8372ef36a64e30b5477906"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateValues</b> (COFFFormat &amp;coff) override</td></tr>
 <tr class="separator:ad60ef115bc8372ef36a64e30b5477906"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed77b12b71ade98af6292ff7b8c6b95f" id="r_aed77b12b71ade98af6292ff7b8c6b95f"><td class="memItemLeft" align="right" valign="top"><a id="aed77b12b71ade98af6292ff7b8c6b95f" name="aed77b12b71ade98af6292ff7b8c6b95f"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>AddressToRVA</b> (offset_t address) const</td></tr>
+<tr class="memdesc:aed77b12b71ade98af6292ff7b8c6b95f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a virtual address into an image base relative virtual address. <br /></td></tr>
+<tr class="separator:aed77b12b71ade98af6292ff7b8c6b95f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a566161d55ecff86ae14d5e74674b956c" id="r_a566161d55ecff86ae14d5e74674b956c"><td class="memItemLeft" align="right" valign="top"><a id="a566161d55ecff86ae14d5e74674b956c" name="a566161d55ecff86ae14d5e74674b956c"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>RVAToAddress</b> (uint32_t rva, bool suppress_on_zero=false) const</td></tr>
+<tr class="memdesc:a566161d55ecff86ae14d5e74674b956c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts an image base relative virtual address into a virtual address. <br /></td></tr>
+<tr class="separator:a566161d55ecff86ae14d5e74674b956c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html">COFF::COFFFormat::AOutHeader</a></td></tr>
 <tr class="memitem:aacc826fcbc7df37e7553cd1850eadae1 inherit pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_aacc826fcbc7df37e7553cd1850eadae1"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>AOutHeader</b> (uint16_t <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a7b98197c30ecc0e3b76bc9df353e9c2d">magic</a>=0)</td></tr>
@@ -196,22 +207,22 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>image_base</b> = 
 <tr class="separator:ad390dcba366e73abb9f6c5501eb2f15e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a45bd5a2e8ea9dcf9e4de6590d13dac49" id="r_a45bd5a2e8ea9dcf9e4de6590d13dac49"><td class="memItemLeft" align="right" valign="top"><a id="a45bd5a2e8ea9dcf9e4de6590d13dac49" name="a45bd5a2e8ea9dcf9e4de6590d13dac49"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>section_align</b> = 0</td></tr>
-<tr class="memdesc:a45bd5a2e8ea9dcf9e4de6590d13dac49"><td class="mdescLeft">&#160;</td><td class="mdescRight">Section alignment. <br /></td></tr>
+<tr class="memdesc:a45bd5a2e8ea9dcf9e4de6590d13dac49"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classMicrosoft_1_1PEFormat_1_1Section.html" title="A section, with the PE extensions.">Section</a> alignment. <br /></td></tr>
 <tr class="separator:a45bd5a2e8ea9dcf9e4de6590d13dac49"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a52ba745e1273503a496b79e15cc5b642" id="r_a52ba745e1273503a496b79e15cc5b642"><td class="memItemLeft" align="right" valign="top"><a id="a52ba745e1273503a496b79e15cc5b642" name="a52ba745e1273503a496b79e15cc5b642"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_align</b> = 0</td></tr>
 <tr class="memdesc:a52ba745e1273503a496b79e15cc5b642"><td class="mdescLeft">&#160;</td><td class="mdescRight">File alignment. <br /></td></tr>
 <tr class="separator:a52ba745e1273503a496b79e15cc5b642"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24329ffd631ce4591a4505c54ac4d470" id="r_a24329ffd631ce4591a4505c54ac4d470"><td class="memItemLeft" align="right" valign="top"><a id="a24329ffd631ce4591a4505c54ac4d470" name="a24329ffd631ce4591a4505c54ac4d470"></a>
-<a class="el" href="structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>os_version</b> = { }</td></tr>
+<a class="el" href="structMicrosoft_1_1PEFormat_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>os_version</b> = { }</td></tr>
 <tr class="memdesc:a24329ffd631ce4591a4505c54ac4d470"><td class="mdescLeft">&#160;</td><td class="mdescRight">Required operating system version. <br /></td></tr>
 <tr class="separator:a24329ffd631ce4591a4505c54ac4d470"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a14cd50a56828fe30ca18eb5a21aecab1" id="r_a14cd50a56828fe30ca18eb5a21aecab1"><td class="memItemLeft" align="right" valign="top"><a id="a14cd50a56828fe30ca18eb5a21aecab1" name="a14cd50a56828fe30ca18eb5a21aecab1"></a>
-<a class="el" href="structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>image_version</b> = { }</td></tr>
+<a class="el" href="structMicrosoft_1_1PEFormat_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>image_version</b> = { }</td></tr>
 <tr class="memdesc:a14cd50a56828fe30ca18eb5a21aecab1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Binary image version. <br /></td></tr>
 <tr class="separator:a14cd50a56828fe30ca18eb5a21aecab1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8c97ab18687e0b197c8220aab3fabe5" id="r_af8c97ab18687e0b197c8220aab3fabe5"><td class="memItemLeft" align="right" valign="top"><a id="af8c97ab18687e0b197c8220aab3fabe5" name="af8c97ab18687e0b197c8220aab3fabe5"></a>
-<a class="el" href="structMicrosoft_1_1PEFormat_1_1PEOptionalHeader_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>subsystem_version</b> = { }</td></tr>
+<a class="el" href="structMicrosoft_1_1PEFormat_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>subsystem_version</b> = { }</td></tr>
 <tr class="memdesc:af8c97ab18687e0b197c8220aab3fabe5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version of the subsystem. <br /></td></tr>
 <tr class="separator:af8c97ab18687e0b197c8220aab3fabe5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a2f759e28accf5c5f0d9d7f540756a4a0" id="r_a2f759e28accf5c5f0d9d7f540756a4a0"><td class="memItemLeft" align="right" valign="top"><a id="a2f759e28accf5c5f0d9d7f540756a4a0" name="a2f759e28accf5c5f0d9d7f540756a4a0"></a>
@@ -269,19 +280,19 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>magic</b> = 0</td
 <tr class="separator:a7b98197c30ecc0e3b76bc9df353e9c2d inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a075a07387315972bdf923e0d1ab32bad inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_a075a07387315972bdf923e0d1ab32bad"><td class="memItemLeft" align="right" valign="top">
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>version_stamp</b> = 0</td></tr>
-<tr class="memdesc:a075a07387315972bdf923e0d1ab32bad inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: vstamp) <br /></td></tr>
+<tr class="memdesc:a075a07387315972bdf923e0d1ab32bad inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Version stamp (COFF name: vstamp) <br /></td></tr>
 <tr class="separator:a075a07387315972bdf923e0d1ab32bad inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb82b3fb406747ab82a98f64658e3353 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_abb82b3fb406747ab82a98f64658e3353"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_size</b> = 0</td></tr>
-<tr class="memdesc:abb82b3fb406747ab82a98f64658e3353 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: tsize) <br /></td></tr>
+<tr class="memdesc:abb82b3fb406747ab82a98f64658e3353 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Code size (COFF name: tsize) <br /></td></tr>
 <tr class="separator:abb82b3fb406747ab82a98f64658e3353 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae5f5827f880d97d3280440cc009082a3 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_ae5f5827f880d97d3280440cc009082a3"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_size</b> = 0</td></tr>
-<tr class="memdesc:ae5f5827f880d97d3280440cc009082a3 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: dsize) <br /></td></tr>
+<tr class="memdesc:ae5f5827f880d97d3280440cc009082a3 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Data size (COFF name: dsize) <br /></td></tr>
 <tr class="separator:ae5f5827f880d97d3280440cc009082a3 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae663abb1ff4c08cf1be465b456cab50f inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_ae663abb1ff4c08cf1be465b456cab50f"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>bss_size</b> = 0</td></tr>
-<tr class="memdesc:ae663abb1ff4c08cf1be465b456cab50f inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: bsize) <br /></td></tr>
+<tr class="memdesc:ae663abb1ff4c08cf1be465b456cab50f inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">BSS size (COFF name: bsize) <br /></td></tr>
 <tr class="separator:ae663abb1ff4c08cf1be465b456cab50f inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a591ee21664125f34aab797509a8a21ec inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_a591ee21664125f34aab797509a8a21ec"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_address</b> = 0</td></tr>
@@ -289,33 +300,47 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_address</b>
 <tr class="separator:a591ee21664125f34aab797509a8a21ec inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0178cb0da1c95a94f4435d3fe23b683e inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_a0178cb0da1c95a94f4435d3fe23b683e"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_address</b> = 0</td></tr>
-<tr class="memdesc:a0178cb0da1c95a94f4435d3fe23b683e inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: text_start) <br /></td></tr>
+<tr class="memdesc:a0178cb0da1c95a94f4435d3fe23b683e inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address of code (COFF name: text_start) <br /></td></tr>
 <tr class="separator:a0178cb0da1c95a94f4435d3fe23b683e inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aedf6b2f463ba78c13d6914ace91735c9 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_aedf6b2f463ba78c13d6914ace91735c9"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_address</b> = 0</td></tr>
-<tr class="memdesc:aedf6b2f463ba78c13d6914ace91735c9 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">unused (COFF name: data_start) <br /></td></tr>
+<tr class="memdesc:aedf6b2f463ba78c13d6914ace91735c9 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address of data (COFF name: data_start) <br /></td></tr>
 <tr class="separator:aedf6b2f463ba78c13d6914ace91735c9 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
 <tr class="memitem:af638893a11b949f9c21b3c7a32c879e2" id="r_af638893a11b949f9c21b3c7a32c879e2"><td class="memItemLeft" align="right" valign="top"><a id="af638893a11b949f9c21b3c7a32c879e2" name="af638893a11b949f9c21b3c7a32c879e2"></a>
 static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>ROM32</b> = 0x0107</td></tr>
+<tr class="memdesc:af638893a11b949f9c21b3c7a32c879e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Magic number for ROM images, according to Microsoft. <br /></td></tr>
 <tr class="separator:af638893a11b949f9c21b3c7a32c879e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab588a31db20a6b008368030408b90f94" id="r_ab588a31db20a6b008368030408b90f94"><td class="memItemLeft" align="right" valign="top"><a id="ab588a31db20a6b008368030408b90f94" name="ab588a31db20a6b008368030408b90f94"></a>
 static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>EXE32</b> = 0x010B</td></tr>
+<tr class="memdesc:ab588a31db20a6b008368030408b90f94"><td class="mdescLeft">&#160;</td><td class="mdescRight">Magic number for 32-bit binaries, also signifies 4-byte entries in the file (PE32) <br /></td></tr>
 <tr class="separator:ab588a31db20a6b008368030408b90f94"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7cd9feef66a09151e157c5ca58159d0c" id="r_a7cd9feef66a09151e157c5ca58159d0c"><td class="memItemLeft" align="right" valign="top"><a id="a7cd9feef66a09151e157c5ca58159d0c" name="a7cd9feef66a09151e157c5ca58159d0c"></a>
 static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>EXE64</b> = 0x020B</td></tr>
+<tr class="memdesc:a7cd9feef66a09151e157c5ca58159d0c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Magic number for 64-bit binaries, also signifies 8-byte entries in the file (PE32+) <br /></td></tr>
 <tr class="separator:a7cd9feef66a09151e157c5ca58159d0c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a38361a1091c1c69c54bb3f062a978ab9" id="r_a38361a1091c1c69c54bb3f062a978ab9"><td class="memItemLeft" align="right" valign="top"><a id="a38361a1091c1c69c54bb3f062a978ab9" name="a38361a1091c1c69c54bb3f062a978ab9"></a>
 static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Win32Base</b> = 0x00400000</td></tr>
+<tr class="memdesc:a38361a1091c1c69c54bb3f062a978ab9"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conventional image base for 32-bit Windows executables. <br /></td></tr>
 <tr class="separator:a38361a1091c1c69c54bb3f062a978ab9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6cce1a3e6f0df3fe7c62622bb0c16bf3" id="r_a6cce1a3e6f0df3fe7c62622bb0c16bf3"><td class="memItemLeft" align="right" valign="top"><a id="a6cce1a3e6f0df3fe7c62622bb0c16bf3" name="a6cce1a3e6f0df3fe7c62622bb0c16bf3"></a>
 static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Dll32Base</b> = 0x10000000</td></tr>
+<tr class="memdesc:a6cce1a3e6f0df3fe7c62622bb0c16bf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conventional image base for 32-bit Windows dynamic linking libraries. <br /></td></tr>
 <tr class="separator:a6cce1a3e6f0df3fe7c62622bb0c16bf3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a930a9f14bb80aec2da0e264802683a22" id="r_a930a9f14bb80aec2da0e264802683a22"><td class="memItemLeft" align="right" valign="top"><a id="a930a9f14bb80aec2da0e264802683a22" name="a930a9f14bb80aec2da0e264802683a22"></a>
 static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>WinCEBase</b> = 0x00010000</td></tr>
+<tr class="memdesc:a930a9f14bb80aec2da0e264802683a22"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conventional image base for Windows CE executables. <br /></td></tr>
 <tr class="separator:a930a9f14bb80aec2da0e264802683a22"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a628ed11335e5a6f7466e5727ede357" id="r_a9a628ed11335e5a6f7466e5727ede357"><td class="memItemLeft" align="right" valign="top"><a id="a9a628ed11335e5a6f7466e5727ede357" name="a9a628ed11335e5a6f7466e5727ede357"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Win64Base</b> = 0x140000000</td></tr>
+<tr class="memdesc:a9a628ed11335e5a6f7466e5727ede357"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conventional image base for 64-bit Windows executables. <br /></td></tr>
+<tr class="separator:a9a628ed11335e5a6f7466e5727ede357"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae0419261f6586c6f54f3771e64f49015" id="r_ae0419261f6586c6f54f3771e64f49015"><td class="memItemLeft" align="right" valign="top"><a id="ae0419261f6586c6f54f3771e64f49015" name="ae0419261f6586c6f54f3771e64f49015"></a>
+static constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>Dll64Base</b> = 0x180000000</td></tr>
+<tr class="memdesc:ae0419261f6586c6f54f3771e64f49015"><td class="mdescLeft">&#160;</td><td class="mdescRight">Conventional image base for 64-bit Windows dynamic linking libraries. <br /></td></tr>
+<tr class="separator:ae0419261f6586c6f54f3771e64f49015"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
@@ -327,7 +352,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpFields</b> (const
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpFields</b> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;header_region) const</td></tr>
 <tr class="separator:a654d6df3ea0c0db5ad282452b8602959 inherit pro_methods_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Enumeration Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The PE optional header as specified by Microsoft. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="aaf9d98ff5d725bd1c152717162a5e614" name="aaf9d98ff5d725bd1c152717162a5e614"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aaf9d98ff5d725bd1c152717162a5e614">&#9670;&#160;</a></span>SubsystemType</h2>
 

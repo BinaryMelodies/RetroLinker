@@ -94,10 +94,11 @@ Inheritance diagram for Linker::OptionDescription&lt; void &gt;:</div>
  <div class="center">
   <img src="classLinker_1_1OptionDescription_3_01void_01_4.png" usemap="#Linker::OptionDescription_3C_20void_20_3E_map" alt=""/>
   <map id="Linker::OptionDescription_3C_20void_20_3E_map" name="Linker::OptionDescription_3C_20void_20_3E_map">
-<area href="classLinker_1_1Option_3_01void_01_4.html" title="Base class for documenting and handling command line options." alt="Linker::Option&lt; void &gt;" shape="rect" coords="221,56,432,80"/>
-<area href="classLinker_1_1Option_3_01bool_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; bool &gt;" shape="rect" coords="0,112,211,136"/>
-<area href="classLinker_1_1Option_3_01std_1_1optional_3_01T_01_4_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; std::optional&lt; T &gt; &gt;" shape="rect" coords="221,112,432,136"/>
-<area href="classLinker_1_1Option_3_01std_1_1vector_3_01T_01_4_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; std::vector&lt; T &gt; &gt;" shape="rect" coords="442,112,653,136"/>
+<area href="classLinker_1_1Option_3_01void_01_4.html" title="Base class for documenting and handling command line options." alt="Linker::Option&lt; void &gt;" shape="rect" coords="331,56,542,80"/>
+<area href="classLinker_1_1Option_3_01ItemOf_3_01T_01_4_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; ItemOf&lt; T &gt; &gt;" shape="rect" coords="0,112,211,136"/>
+<area href="classLinker_1_1Option_3_01bool_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; bool &gt;" shape="rect" coords="221,112,432,136"/>
+<area href="classLinker_1_1Option_3_01std_1_1optional_3_01T_01_4_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; std::optional&lt; T &gt; &gt;" shape="rect" coords="442,112,653,136"/>
+<area href="classLinker_1_1Option_3_01std_1_1vector_3_01T_01_4_01_4.html" title="Documents and handles command line options." alt="Linker::Option&lt; std::vector&lt; T &gt; &gt;" shape="rect" coords="663,112,874,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -106,6 +107,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a40ef0f236e22f55174c45c42e5f66dc2" id="r_a40ef0f236e22f55174c45c42e5f66dc2"><td class="memItemLeft" align="right" valign="top"><a id="a40ef0f236e22f55174c45c42e5f66dc2" name="a40ef0f236e22f55174c45c42e5f66dc2"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>OptionDescription</b> (std::string <a class="el" href="#a00b52e47d00d7a0cba7fca8ebff358f0">name</a>, std::string <a class="el" href="#a9507f74f64de02ee3b5f1c86d4fc2ccd">description</a>)</td></tr>
 <tr class="separator:a40ef0f236e22f55174c45c42e5f66dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4938c331d28565cdf26411f4b6957a9" id="r_aa4938c331d28565cdf26411f4b6957a9"><td class="memItemLeft" align="right" valign="top"><a id="aa4938c331d28565cdf26411f4b6957a9" name="aa4938c331d28565cdf26411f4b6957a9"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>PrintDetails</b> (std::ostream &amp;out, std::string indentation)</td></tr>
+<tr class="separator:aa4938c331d28565cdf26411f4b6957a9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a634d874a7ecfc7236dca43b04423c001" id="r_a634d874a7ecfc7236dca43b04423c001"><td class="memItemLeft" align="right" valign="top">virtual std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a634d874a7ecfc7236dca43b04423c001">type_name</a> ()</td></tr>
 <tr class="memdesc:a634d874a7ecfc7236dca43b04423c001"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a textual representation of the type, to be displayed to the user.  <br /></td></tr>
 <tr class="separator:a634d874a7ecfc7236dca43b04423c001"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -150,7 +154,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>description</b
 <p>Returns a textual representation of the type, to be displayed to the user. </p>
 <p>This function only returns a meaningful value if the option has a type. </p>
 
-<p>Reimplemented in <a class="el" href="classLinker_1_1Option_3_01bool_01_4.html#ae442ff4d5a71bc94050ca69000bfb475">Linker::Option&lt; bool &gt;</a>, <a class="el" href="classLinker_1_1Option_3_01std_1_1vector_3_01T_01_4_01_4.html#a0fdf0fc063dc61393e2b959663d123d4">Linker::Option&lt; std::vector&lt; T &gt; &gt;</a>, and <a class="el" href="classLinker_1_1Option_3_01std_1_1optional_3_01T_01_4_01_4.html#a113023eea870420f6c42faee0f667dc1">Linker::Option&lt; std::optional&lt; T &gt; &gt;</a>.</p>
+<p>Reimplemented in <a class="el" href="classLinker_1_1Option_3_01ItemOf_3_01T_01_4_01_4.html#a8e3daab36ffed8124b11618d3beedac5">Linker::Option&lt; ItemOf&lt; T &gt; &gt;</a>, <a class="el" href="classLinker_1_1Option_3_01bool_01_4.html#ae442ff4d5a71bc94050ca69000bfb475">Linker::Option&lt; bool &gt;</a>, <a class="el" href="classLinker_1_1Option_3_01std_1_1vector_3_01T_01_4_01_4.html#a0fdf0fc063dc61393e2b959663d123d4">Linker::Option&lt; std::vector&lt; T &gt; &gt;</a>, and <a class="el" href="classLinker_1_1Option_3_01std_1_1optional_3_01T_01_4_01_4.html#a113023eea870420f6c42faee0f667dc1">Linker::Option&lt; std::optional&lt; T &gt; &gt;</a>.</p>
 
 </div>
 </div>

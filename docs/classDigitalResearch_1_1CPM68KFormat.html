@@ -172,10 +172,16 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>MeasureRelocation
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CodeSegment</b> ()</td></tr>
 <tr class="memdesc:a2578b5026457611b216ecdd3b708eb97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return code segment (if it exists) <br /></td></tr>
 <tr class="separator:a2578b5026457611b216ecdd3b708eb97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e4d16c68d94bf06fa347e0449465e20" id="r_a1e4d16c68d94bf06fa347e0449465e20"><td class="memItemLeft" align="right" valign="top"><a id="a1e4d16c68d94bf06fa347e0449465e20" name="a1e4d16c68d94bf06fa347e0449465e20"></a>
+std::shared_ptr&lt; const <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CodeSegment</b> () const</td></tr>
+<tr class="separator:a1e4d16c68d94bf06fa347e0449465e20"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a932953f784c7095ac861c6fa2ffe015e" id="r_a932953f784c7095ac861c6fa2ffe015e"><td class="memItemLeft" align="right" valign="top"><a id="a932953f784c7095ac861c6fa2ffe015e" name="a932953f784c7095ac861c6fa2ffe015e"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>DataSegment</b> ()</td></tr>
 <tr class="memdesc:a932953f784c7095ac861c6fa2ffe015e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return data segment (if it exists) <br /></td></tr>
 <tr class="separator:a932953f784c7095ac861c6fa2ffe015e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a95acab897d8b74cd95242c5c99939003" id="r_a95acab897d8b74cd95242c5c99939003"><td class="memItemLeft" align="right" valign="top"><a id="a95acab897d8b74cd95242c5c99939003" name="a95acab897d8b74cd95242c5c99939003"></a>
+std::shared_ptr&lt; const <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>DataSegment</b> () const</td></tr>
+<tr class="separator:a95acab897d8b74cd95242c5c99939003"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97e81cf821bbbb1bdde6ae4556a329b2" id="r_a97e81cf821bbbb1bdde6ae4556a329b2"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a97e81cf821bbbb1bdde6ae4556a329b2">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
 <tr class="separator:a97e81cf821bbbb1bdde6ae4556a329b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a835fc4f8641b01fcd352c9f5d13d42ae" id="r_a835fc4f8641b01fcd352c9f5d13d42ae"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a835fc4f8641b01fcd352c9f5d13d42ae">GetLinkerScriptParameterNames</a> () override</td></tr>
@@ -345,6 +351,10 @@ template&lt;typename SizeType &gt; </td></tr>
 template&lt;typename SizeType &gt; </td></tr>
 <tr class="memitem:a92ffdb5f873b70e7aabe0b6a03b05589"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>CDOS68K_WriteRelocations</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, std::map&lt; uint32_t, SizeType &gt; <a class="el" href="#a37bac2c4e2736541cd471bc2e812132b">relocations</a>)</td></tr>
 <tr class="separator:a92ffdb5f873b70e7aabe0b6a03b05589"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8ee430c24e5f5ed87fdfbcb73579688" id="r_af8ee430c24e5f5ed87fdfbcb73579688"><td class="memTemplParams" colspan="2"><a id="af8ee430c24e5f5ed87fdfbcb73579688" name="af8ee430c24e5f5ed87fdfbcb73579688"></a>
+template&lt;typename SizeType , typename Format &gt; </td></tr>
+<tr class="memitem:af8ee430c24e5f5ed87fdfbcb73579688"><td class="memTemplItemLeft" align="right" valign="top">static void&#160;</td><td class="memTemplItemRight" valign="bottom"><b>CDOS68K_ReadRelocations</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, std::map&lt; uint32_t, SizeType &gt; <a class="el" href="#a37bac2c4e2736541cd471bc2e812132b">relocations</a>, const Format &amp;format)</td></tr>
+<tr class="separator:af8ee430c24e5f5ed87fdfbcb73579688"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>

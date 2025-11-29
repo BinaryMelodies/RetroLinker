@@ -77,9 +77,9 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
-<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classCOFF_1_1COFFFormat_1_1Section-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">COFF::COFFFormat::Section Class Reference</div></div>
 </div><!--header-->
@@ -89,16 +89,20 @@ $(function() {
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="coff_8h_source.html">coff.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for COFF::COFFFormat::Section:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classCOFF_1_1COFFFormat_1_1Section.png" usemap="#COFF::COFFFormat::Section_map" alt=""/>
+  <map id="COFF::COFFFormat::Section_map" name="COFF::COFFFormat::Section_map">
+<area href="classMicrosoft_1_1PEFormat_1_1Section.html" title="A section, with the PE extensions." alt="Microsoft::PEFormat::Section" shape="rect" coords="415,56,682,80"/>
+<area href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html" title="Represents a .reloc section for the base relocations for the binary." alt="Microsoft::PEFormat::BaseRelocationsSection" shape="rect" coords="0,112,267,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html" title="Represents an .edata section for the exported entries in the binary." alt="Microsoft::PEFormat::ExportsSection" shape="rect" coords="277,112,544,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html" title="Represents an .idata section for imported DLLs in the binary." alt="Microsoft::PEFormat::ImportsSection" shape="rect" coords="554,112,821,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html" title="Represents an .rsrc resource section in the binary." alt="Microsoft::PEFormat::ResourcesSection" shape="rect" coords="831,112,1098,136"/>
+  </map>
+</div></div>
 <table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
-Public Types</h2></td></tr>
-<tr class="memitem:aa98e4f30e87e423b60d4f9d924473ff1" id="r_aa98e4f30e87e423b60d4f9d924473ff1"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="#aa98e4f30e87e423b60d4f9d924473ff1af1f75fb0cf89d4fcb2e18f06b3e37773">TEXT</a> = 0x0020
-, <a class="el" href="#aa98e4f30e87e423b60d4f9d924473ff1ac312875fa4baa17c5155c3e9a387ba62">DATA</a> = 0x0040
-, <a class="el" href="#aa98e4f30e87e423b60d4f9d924473ff1acd6fe573a51ee5fb35133d867cf4ec5b">BSS</a> = 0x0080
- }</td></tr>
-<tr class="memdesc:aa98e4f30e87e423b60d4f9d924473ff1"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flags.  <a href="#aa98e4f30e87e423b60d4f9d924473ff1">More...</a><br /></td></tr>
-<tr class="separator:aa98e4f30e87e423b60d4f9d924473ff1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a7a3b4ee4b4daf8e6e3fbfd9c5414fe79" id="r_a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"><td class="memItemLeft" align="right" valign="top"><a id="a7a3b4ee4b4daf8e6e3fbfd9c5414fe79" name="a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"></a>
@@ -109,13 +113,24 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr
 <tr class="separator:af91a6ab97c922d4f8bf420520c126954"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b367685fd7160ba5beab5f2d98cac55" id="r_a9b367685fd7160ba5beab5f2d98cac55"><td class="memItemLeft" align="right" valign="top"><a id="a9b367685fd7160ba5beab5f2d98cac55" name="a9b367685fd7160ba5beab5f2d98cac55"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant)</td></tr>
+<tr class="memdesc:a9b367685fd7160ba5beab5f2d98cac55"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads an entry in the section header table. <br /></td></tr>
 <tr class="separator:a9b367685fd7160ba5beab5f2d98cac55"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a55970230d2b72e76b5bb1c57bcc7e00e" id="r_a55970230d2b72e76b5bb1c57bcc7e00e"><td class="memItemLeft" align="right" valign="top"><a id="a55970230d2b72e76b5bb1c57bcc7e00e" name="a55970230d2b72e76b5bb1c57bcc7e00e"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant)</td></tr>
+<tr class="memdesc:a55970230d2b72e76b5bb1c57bcc7e00e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an entry in the section header table. <br /></td></tr>
 <tr class="separator:a55970230d2b72e76b5bb1c57bcc7e00e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a265bb3eca9856fbdb5f602f969b61248" id="r_a265bb3eca9856fbdb5f602f969b61248"><td class="memItemLeft" align="right" valign="top"><a id="a265bb3eca9856fbdb5f602f969b61248" name="a265bb3eca9856fbdb5f602f969b61248"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ImageSize</b> () const</td></tr>
-<tr class="separator:a265bb3eca9856fbdb5f602f969b61248"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a90563248c85360177fd5dc01ebf91817" id="r_a90563248c85360177fd5dc01ebf91817"><td class="memItemLeft" align="right" valign="top"><a id="a90563248c85360177fd5dc01ebf91817" name="a90563248c85360177fd5dc01ebf91817"></a>
+virtual uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ImageSize</b> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff_format) const</td></tr>
+<tr class="memdesc:a90563248c85360177fd5dc01ebf91817"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size of the section (for PE, the size of the section as stored in the file) <br /></td></tr>
+<tr class="separator:a90563248c85360177fd5dc01ebf91817"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d469d08572517b364725409bd0d513f" id="r_a9d469d08572517b364725409bd0d513f"><td class="memItemLeft" align="right" valign="top"><a id="a9d469d08572517b364725409bd0d513f" name="a9d469d08572517b364725409bd0d513f"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionData</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff_format)</td></tr>
+<tr class="memdesc:a9d469d08572517b364725409bd0d513f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads the section contents from a stream, can be overloaded by subclasses. <br /></td></tr>
+<tr class="separator:a9d469d08572517b364725409bd0d513f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b685bf85013ae478de7f0bb0d414b58" id="r_a9b685bf85013ae478de7f0bb0d414b58"><td class="memItemLeft" align="right" valign="top"><a id="a9b685bf85013ae478de7f0bb0d414b58" name="a9b685bf85013ae478de7f0bb0d414b58"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionData</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff_format) const</td></tr>
+<tr class="memdesc:a9b685bf85013ae478de7f0bb0d414b58"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the section contents to a stream, can be overloaded by subclasses. <br /></td></tr>
+<tr class="separator:a9b685bf85013ae478de7f0bb0d414b58"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -170,35 +185,25 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image
 std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Relocation.html">Relocation</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="memdesc:a7455282ac373333f88b84edf7379258f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of COFF relocations. <br /></td></tr>
 <tr class="separator:a7455282ac373333f88b84edf7379258f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:ad9d056160da12bd14ddeb83ac74fb4bb" id="r_ad9d056160da12bd14ddeb83ac74fb4bb"><td class="memItemLeft" align="right" valign="top"><a id="ad9d056160da12bd14ddeb83ac74fb4bb" name="ad9d056160da12bd14ddeb83ac74fb4bb"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>TEXT</b> = 0x0020</td></tr>
+<tr class="memdesc:ad9d056160da12bd14ddeb83ac74fb4bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flag: <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> contains executable (COFF name: STYP_TEXT) <br /></td></tr>
+<tr class="separator:ad9d056160da12bd14ddeb83ac74fb4bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98a5b973b83ed13513d3fb4ef72d1ddb" id="r_a98a5b973b83ed13513d3fb4ef72d1ddb"><td class="memItemLeft" align="right" valign="top"><a id="a98a5b973b83ed13513d3fb4ef72d1ddb" name="a98a5b973b83ed13513d3fb4ef72d1ddb"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>DATA</b> = 0x0040</td></tr>
+<tr class="memdesc:a98a5b973b83ed13513d3fb4ef72d1ddb"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flag: <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> contains initialized data (COFF name: STYP_DATA) <br /></td></tr>
+<tr class="separator:a98a5b973b83ed13513d3fb4ef72d1ddb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c22d252be59a29bcea8ff0596111e13" id="r_a5c22d252be59a29bcea8ff0596111e13"><td class="memItemLeft" align="right" valign="top"><a id="a5c22d252be59a29bcea8ff0596111e13" name="a5c22d252be59a29bcea8ff0596111e13"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>BSS</b> = 0x0080</td></tr>
+<tr class="memdesc:a5c22d252be59a29bcea8ff0596111e13"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flag: <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> contains uninitialized data (COFF name: STYP_BSS) <br /></td></tr>
+<tr class="separator:a5c22d252be59a29bcea8ff0596111e13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A COFF section. </p>
-</div><h2 class="groupheader">Member Enumeration Documentation</h2>
-<a id="aa98e4f30e87e423b60d4f9d924473ff1" name="aa98e4f30e87e423b60d4f9d924473ff1"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa98e4f30e87e423b60d4f9d924473ff1">&#9670;&#160;</a></span>anonymous enum</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">anonymous enum</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>COFF section flags. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aa98e4f30e87e423b60d4f9d924473ff1af1f75fb0cf89d4fcb2e18f06b3e37773" name="aa98e4f30e87e423b60d4f9d924473ff1af1f75fb0cf89d4fcb2e18f06b3e37773"></a>TEXT&#160;</td><td class="fielddoc"><p><a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> contains executable (COFF name: STYP_TEXT) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="aa98e4f30e87e423b60d4f9d924473ff1ac312875fa4baa17c5155c3e9a387ba62" name="aa98e4f30e87e423b60d4f9d924473ff1ac312875fa4baa17c5155c3e9a387ba62"></a>DATA&#160;</td><td class="fielddoc"><p><a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> contains initialized data (COFF name: STYP_DATA) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="aa98e4f30e87e423b60d4f9d924473ff1acd6fe573a51ee5fb35133d867cf4ec5b" name="aa98e4f30e87e423b60d4f9d924473ff1acd6fe573a51ee5fb35133d867cf4ec5b"></a>BSS&#160;</td><td class="fielddoc"><p><a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> contains uninitialized data (COFF name: STYP_BSS) </p>
-</td></tr>
-</table>
-
-</div>
-</div>
-<h2 class="groupheader">Member Data Documentation</h2>
+</div><h2 class="groupheader">Member Data Documentation</h2>
 <a id="ad431a44fbdc52c6564a315dd32505517" name="ad431a44fbdc52c6564a315dd32505517"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ad431a44fbdc52c6564a315dd32505517">&#9670;&#160;</a></span>physical_address</h2>
 

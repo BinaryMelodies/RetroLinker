@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['name_0',['Name',['../structMicrosoft_1_1LEFormat_1_1Name.html',1,'Microsoft::LEFormat::Name'],['../structMicrosoft_1_1NEFormat_1_1Name.html',1,'Microsoft::NEFormat::Name']]],
+  ['name_0',['Name',['../structMicrosoft_1_1LEFormat_1_1Name.html',1,'Microsoft::LEFormat::Name'],['../structMicrosoft_1_1NEFormat_1_1Name.html',1,'Microsoft::NEFormat::Name'],['../classMicrosoft_1_1PEFormat_1_1ExportedEntry_1_1Name.html',1,'Microsoft::PEFormat::ExportedEntry::Name'],['../classMicrosoft_1_1PEFormat_1_1ImportDirectory_1_1Name.html',1,'Microsoft::PEFormat::ImportDirectory::Name']]],
   ['namedbackpatchrecord_1',['NamedBackpatchRecord',['../classOMF_1_1OMF86Format_1_1NamedBackpatchRecord.html',1,'OMF::OMF86Format']]],
   ['namedcommondefinition_2',['NamedCommonDefinition',['../classOMF_1_1OMF80Format_1_1NamedCommonDefinitionsRecord_1_1NamedCommonDefinition.html',1,'OMF::OMF80Format::NamedCommonDefinitionsRecord']]],
   ['namedcommondefinitionsrecord_3',['NamedCommonDefinitionsRecord',['../classOMF_1_1OMF80Format_1_1NamedCommonDefinitionsRecord.html',1,'OMF::OMF80Format']]],

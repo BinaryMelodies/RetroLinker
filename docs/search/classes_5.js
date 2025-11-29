@@ -20,5 +20,6 @@ var searchData=
   ['format_17',['Format',['../classLinker_1_1Format.html',1,'Linker']]],
   ['format_5fdescription_18',['format_description',['../structformat__description.html',1,'']]],
   ['format_5fmagic_19',['format_magic',['../structformat__magic.html',1,'']]],
-  ['format_5fspecification_20',['format_specification',['../structformat__specification.html',1,'']]]
+  ['format_5fspecification_20',['format_specification',['../structformat__specification.html',1,'']]],
+  ['forwarder_21',['Forwarder',['../classMicrosoft_1_1PEFormat_1_1ExportedEntry_1_1Forwarder.html',1,'Microsoft::PEFormat::ExportedEntry']]]
 ];

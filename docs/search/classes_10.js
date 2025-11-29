@@ -1,7 +1,7 @@
 var searchData=
 [
   ['scopedefinitionrecord_0',['ScopeDefinitionRecord',['../classOMF_1_1OMF51Format_1_1ScopeDefinitionRecord.html',1,'OMF::OMF51Format']]],
-  ['section_1',['Section',['../classCOFF_1_1COFFFormat_1_1Section.html',1,'COFF::COFFFormat::Section'],['../classELF_1_1ELFFormat_1_1Section.html',1,'ELF::ELFFormat::Section'],['../classLinker_1_1Section.html',1,'Linker::Section'],['../classMachO_1_1MachOFormat_1_1Section.html',1,'MachO::MachOFormat::Section']]],
+  ['section_1',['Section',['../classCOFF_1_1COFFFormat_1_1Section.html',1,'COFF::COFFFormat::Section'],['../classELF_1_1ELFFormat_1_1Section.html',1,'ELF::ELFFormat::Section'],['../classLinker_1_1Section.html',1,'Linker::Section'],['../classMachO_1_1MachOFormat_1_1Section.html',1,'MachO::MachOFormat::Section'],['../classMicrosoft_1_1PEFormat_1_1Section.html',1,'Microsoft::PEFormat::Section']]],
   ['sectioncontents_2',['SectionContents',['../classELF_1_1ELFFormat_1_1SectionContents.html',1,'ELF::ELFFormat']]],
   ['sectioneddisplay_3',['SectionedDisplay',['../classDumper_1_1SectionedDisplay.html',1,'Dumper']]],
   ['sectiongroup_4',['SectionGroup',['../classELF_1_1ELFFormat_1_1SectionGroup.html',1,'ELF::ELFFormat']]],
@@ -24,16 +24,17 @@ var searchData=
   ['stringdisplay_21',['StringDisplay',['../classDumper_1_1StringDisplay.html',1,'Dumper']]],
   ['stringrecord_22',['StringRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1StringRecord.html',1,'Apple::OMFFormat::Segment']]],
   ['stringtable_23',['StringTable',['../classELF_1_1ELFFormat_1_1StringTable.html',1,'ELF::ELFFormat']]],
-  ['supercompactrecord_24',['SuperCompactRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1SuperCompactRecord.html',1,'Apple::OMFFormat::Segment']]],
-  ['symbianformat_25',['SymbianFormat',['../classEPOC_1_1SymbianFormat.html',1,'EPOC']]],
-  ['symbol_26',['Symbol',['../classAOut_1_1AOutFormat_1_1Symbol.html',1,'AOut::AOutFormat::Symbol'],['../classAS86Obj_1_1AS86ObjFormat_1_1Symbol.html',1,'AS86Obj::AS86ObjFormat::Symbol'],['../classCOFF_1_1COFFFormat_1_1Symbol.html',1,'COFF::COFFFormat::Symbol'],['../structDigitalResearch_1_1CPM8KFormat_1_1Symbol.html',1,'DigitalResearch::CPM8KFormat::Symbol'],['../classELF_1_1ELFFormat_1_1Symbol.html',1,'ELF::ELFFormat::Symbol'],['../structMINIX_1_1MINIXFormat_1_1Symbol.html',1,'MINIX::MINIXFormat::Symbol'],['../classOMF_1_1OMF51Format_1_1DebugItemsRecord_1_1Symbol.html',1,'OMF::OMF51Format::DebugItemsRecord::Symbol']]],
-  ['symbolblock_27',['SymbolBlock',['../classAmiga_1_1HunkFormat_1_1SymbolBlock.html',1,'Amiga::HunkFormat']]],
-  ['symboldefinition_28',['SymbolDefinition',['../classLinker_1_1SymbolDefinition.html',1,'Linker::SymbolDefinition'],['../classOMF_1_1OMF51Format_1_1SymbolDefinition.html',1,'OMF::OMF51Format::SymbolDefinition'],['../classOMF_1_1OMF80Format_1_1SymbolDefinitionsRecord_1_1SymbolDefinition.html',1,'OMF::OMF80Format::SymbolDefinitionsRecord::SymbolDefinition'],['../classOMF_1_1OMF86Format_1_1SymbolDefinition.html',1,'OMF::OMF86Format::SymbolDefinition'],['../classOMF_1_1OMF96Format_1_1SymbolDefinition.html',1,'OMF::OMF96Format::SymbolDefinition']]],
-  ['symboldefinitionsrecord_29',['SymbolDefinitionsRecord',['../classOMF_1_1OMF80Format_1_1SymbolDefinitionsRecord.html',1,'OMF::OMF80Format::SymbolDefinitionsRecord'],['../classOMF_1_1OMF96Format_1_1SymbolDefinitionsRecord.html',1,'OMF::OMF96Format::SymbolDefinitionsRecord']]],
-  ['symbolinfo_30',['SymbolInfo',['../classOMF_1_1OMF51Format_1_1SymbolInfo.html',1,'OMF::OMF51Format']]],
-  ['symbollinenumbersrecord_31',['SymbolLineNumbersRecord',['../classOMF_1_1OMF86Format_1_1SymbolLineNumbersRecord.html',1,'OMF::OMF86Format']]],
-  ['symbolname_32',['SymbolName',['../classLinker_1_1SymbolName.html',1,'Linker']]],
-  ['symbolrelocator_33',['SymbolRelocator',['../classAS86Obj_1_1AS86ObjFormat_1_1SymbolRelocator.html',1,'AS86Obj::AS86ObjFormat']]],
-  ['symbolsdefinitionrecord_34',['SymbolsDefinitionRecord',['../classOMF_1_1OMF86Format_1_1SymbolsDefinitionRecord.html',1,'OMF::OMF86Format']]],
-  ['symboltable_35',['SymbolTable',['../classELF_1_1ELFFormat_1_1SymbolTable.html',1,'ELF::ELFFormat']]]
+  ['subsystemenumeration_24',['SubsystemEnumeration',['../classMicrosoft_1_1PEFormat_1_1PEOptionCollector_1_1SubsystemEnumeration.html',1,'Microsoft::PEFormat::PEOptionCollector']]],
+  ['supercompactrecord_25',['SuperCompactRecord',['../classApple_1_1OMFFormat_1_1Segment_1_1SuperCompactRecord.html',1,'Apple::OMFFormat::Segment']]],
+  ['symbianformat_26',['SymbianFormat',['../classEPOC_1_1SymbianFormat.html',1,'EPOC']]],
+  ['symbol_27',['Symbol',['../classAOut_1_1AOutFormat_1_1Symbol.html',1,'AOut::AOutFormat::Symbol'],['../classAS86Obj_1_1AS86ObjFormat_1_1Symbol.html',1,'AS86Obj::AS86ObjFormat::Symbol'],['../classCOFF_1_1COFFFormat_1_1Symbol.html',1,'COFF::COFFFormat::Symbol'],['../structDigitalResearch_1_1CPM8KFormat_1_1Symbol.html',1,'DigitalResearch::CPM8KFormat::Symbol'],['../classELF_1_1ELFFormat_1_1Symbol.html',1,'ELF::ELFFormat::Symbol'],['../structMINIX_1_1MINIXFormat_1_1Symbol.html',1,'MINIX::MINIXFormat::Symbol'],['../classOMF_1_1OMF51Format_1_1DebugItemsRecord_1_1Symbol.html',1,'OMF::OMF51Format::DebugItemsRecord::Symbol']]],
+  ['symbolblock_28',['SymbolBlock',['../classAmiga_1_1HunkFormat_1_1SymbolBlock.html',1,'Amiga::HunkFormat']]],
+  ['symboldefinition_29',['SymbolDefinition',['../classLinker_1_1SymbolDefinition.html',1,'Linker::SymbolDefinition'],['../classOMF_1_1OMF51Format_1_1SymbolDefinition.html',1,'OMF::OMF51Format::SymbolDefinition'],['../classOMF_1_1OMF80Format_1_1SymbolDefinitionsRecord_1_1SymbolDefinition.html',1,'OMF::OMF80Format::SymbolDefinitionsRecord::SymbolDefinition'],['../classOMF_1_1OMF86Format_1_1SymbolDefinition.html',1,'OMF::OMF86Format::SymbolDefinition'],['../classOMF_1_1OMF96Format_1_1SymbolDefinition.html',1,'OMF::OMF96Format::SymbolDefinition']]],
+  ['symboldefinitionsrecord_30',['SymbolDefinitionsRecord',['../classOMF_1_1OMF80Format_1_1SymbolDefinitionsRecord.html',1,'OMF::OMF80Format::SymbolDefinitionsRecord'],['../classOMF_1_1OMF96Format_1_1SymbolDefinitionsRecord.html',1,'OMF::OMF96Format::SymbolDefinitionsRecord']]],
+  ['symbolinfo_31',['SymbolInfo',['../classOMF_1_1OMF51Format_1_1SymbolInfo.html',1,'OMF::OMF51Format']]],
+  ['symbollinenumbersrecord_32',['SymbolLineNumbersRecord',['../classOMF_1_1OMF86Format_1_1SymbolLineNumbersRecord.html',1,'OMF::OMF86Format']]],
+  ['symbolname_33',['SymbolName',['../classLinker_1_1SymbolName.html',1,'Linker']]],
+  ['symbolrelocator_34',['SymbolRelocator',['../classAS86Obj_1_1AS86ObjFormat_1_1SymbolRelocator.html',1,'AS86Obj::AS86ObjFormat']]],
+  ['symbolsdefinitionrecord_35',['SymbolsDefinitionRecord',['../classOMF_1_1OMF86Format_1_1SymbolsDefinitionRecord.html',1,'OMF::OMF86Format']]],
+  ['symboltable_36',['SymbolTable',['../classELF_1_1ELFFormat_1_1SymbolTable.html',1,'ELF::ELFFormat']]]
 ];

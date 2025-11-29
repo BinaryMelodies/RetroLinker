@@ -78,9 +78,10 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
-<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classMicrosoft_1_1PEFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Microsoft::PEFormat Class Reference</div></div>
 </div><!--header-->
@@ -109,14 +110,217 @@ Inheritance diagram for Microsoft::PEFormat:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html">PEOptionalHeader</a></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocation.html">BaseRelocation</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a base relocation, as stored in the image.  <a href="classMicrosoft_1_1PEFormat_1_1BaseRelocation.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationBlock.html">BaseRelocationBlock</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A block of base relocations, corresponding to a single page in the image.  <a href="classMicrosoft_1_1PEFormat_1_1BaseRelocationBlock.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html">BaseRelocationsSection</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a <code>.reloc</code> section for the base relocations for the binary.  <a href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportedEntry.html">ExportedEntry</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a single exported entry in the file.  <a href="classMicrosoft_1_1PEFormat_1_1ExportedEntry.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html">ExportsSection</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents an <code>.edata</code> section for the exported entries in the binary.  <a href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportDirectory.html">ImportDirectory</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A collection of the imported names for a specific dynamic linking library.  <a href="classMicrosoft_1_1PEFormat_1_1ImportDirectory.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html">ImportsSection</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents an <code>.idata</code> section for imported DLLs in the binary.  <a href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html">PEOptionalHeader</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">The PE optional header as specified by Microsoft.  <a href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionCollector.html">PEOptionCollector</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1Resource.html">Resource</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a resource inside the image.  <a href="classMicrosoft_1_1PEFormat_1_1Resource.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourceDirectory.html">ResourceDirectory</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html">ResourcesSection</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents an <code>.rsrc</code> resource section in the binary.  <a href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1Section.html">Section</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A section, with the PE extensions.  <a href="classMicrosoft_1_1PEFormat_1_1Section.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMicrosoft_1_1PEFormat_1_1version__type.html">version_type</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a version entry with major and minor versions.  <a href="structMicrosoft_1_1PEFormat_1_1version__type.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:ab6c50ce9df5c703a3a26ea7fa4086d27" id="r_ab6c50ce9df5c703a3a26ea7fa4086d27"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27">target_type</a> { <br />
+&#160;&#160;<a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27a435c54fa3c1cad3f10164f8301f2d36b">TargetWin9x</a> = 1
+, <a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27ab7d58fbd484c4fc64f56a963e030f738">TargetWinNT</a>
+, <a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27af130f60f662d385c691a70f4b1582e66">TargetWinCE</a>
+, <a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27ac6efef71aafb0c01acbd4aaabfb066a5">TargetMacintosh</a>
+, <br />
+&#160;&#160;<a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27a1b1dca791d572f9e3786a92573a9c7ea">TargetWin32s</a>
+, <a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27a5cc592f6720f222bd78e86b489517f9c">TargetTNT</a>
+, <a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27a37b9b65c9b49708e7361f23486372fb4">TargetEFI</a>
+, <a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27ae7017bc9daa20627d9c16ba74598e0bd">TargetDotNET</a>
+, <br />
+&#160;&#160;<a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27a78e74efdb2118090d5604494c103069f">TargetXbox</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:ab6c50ce9df5c703a3a26ea7fa4086d27"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents settings and assumptions about the target.  <a href="#ab6c50ce9df5c703a3a26ea7fa4086d27">More...</a><br /></td></tr>
+<tr class="separator:ab6c50ce9df5c703a3a26ea7fa4086d27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a203344a33196639c23f1237d4e7a7d56" id="r_a203344a33196639c23f1237d4e7a7d56"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a203344a33196639c23f1237d4e7a7d56">output_type</a> { <a class="el" href="#a203344a33196639c23f1237d4e7a7d56a05cab81283c352f2043a186380be3d37">OUTPUT_EXE</a>
+, <a class="el" href="#a203344a33196639c23f1237d4e7a7d56a1fae6ca0326368caad3a99928fb01136">OUTPUT_DLL</a>
+, <a class="el" href="#a203344a33196639c23f1237d4e7a7d56a1929d9a8a2c9d26119f60c9df210cda0">OUTPUT_SYS</a>
+ }</td></tr>
+<tr class="memdesc:a203344a33196639c23f1237d4e7a7d56"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the target image type.  <a href="#a203344a33196639c23f1237d4e7a7d56">More...</a><br /></td></tr>
+<tr class="separator:a203344a33196639c23f1237d4e7a7d56"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6068827181ab4ad6dd750346c7f5c61a" id="r_a6068827181ab4ad6dd750346c7f5c61a"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aae625d2f85df04e1f71a14671e5a31244">FLAG_NO_RELOCATIONS</a> = 0x0001
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aaa5fe3a8d95b0ddc70a5c6b5da2d1a181">FLAG_EXECUTABLE</a> = 0x0002
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa0705f90872ef29742ac9d496d29c1b17">FLAG_NO_LINE_NUMBERS</a> = 0x0004
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aac478e2c89b0f3aa88f2f362b8971212b">FLAG_NO_SYMBOLS</a> = 0x0008
+, <br />
+&#160;&#160;<a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aacf05a9ec9c700e529ceb902b215093bd">FLAG_TRIM_WORKING_SET</a> = 0x0010
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aafd9078efb2ac7d93a96e632af2962e85">FLAG_LARGE_ADDRESS</a> = 0x0020
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa30863d1722e0c6df4be9a85a04cd970a">FLAG_LITTLE_ENDIAN</a> = 0x0080
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa10e3e270b6f59775d6552fe064c48d60">FLAG_32BIT</a> = 0x0100
+, <br />
+&#160;&#160;<a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa47731022f4a311ee566b2b26c4bd3d92">FLAG_NO_DEBUG</a> = 0x0200
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa0677e3b691b4dbfd886113a0b994397e">FLAG_ON_REMOVABLE</a> = 0x0400
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa86a81c2399e53ffab55db7d3839065db">FLAG_ON_NETWORK</a> = 0x0800
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa6cccdcf2680478476f7fab27e34cdbe6">FLAG_SYSTEM</a> = 0x1000
+, <br />
+&#160;&#160;<a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa2fab0b16cc07eb795a612eef44fa22b9">FLAG_LIBRARY</a> = 0x2000
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aafa0ea0fbae3e89bc9744ed1a8533dcdf">FLAG_UNIPROCESSOR_ONLY</a> = 0x4000
+, <a class="el" href="#a6068827181ab4ad6dd750346c7f5c61aa75066c28b0cad803cbb0f12227e5bc0c">FLAG_BIG_ENDIAN</a> = 0x8000
+<br />
+ }</td></tr>
+<tr class="memdesc:a6068827181ab4ad6dd750346c7f5c61a"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF file header flags, most of these are obsolete, we only use them as precombined flag sets.  <a href="#a6068827181ab4ad6dd750346c7f5c61a">More...</a><br /></td></tr>
+<tr class="separator:a6068827181ab4ad6dd750346c7f5c61a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_types_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
+<tr class="memitem:a804c399c94ce4aff3c5905406d7b0114 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a804c399c94ce4aff3c5905406d7b0114"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114">cpu</a> { <br />
+&#160;&#160;<b>CPU_UNKNOWN</b> = 0
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a5d0b4c33bf696ef64a80813744eaae79">CPU_I386</a> = 0x014C
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a8d612b09952c2e82a2b4960615400569">CPU_M68K</a> = 0x0150
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114adb9abe0e12ba4f059071dc895e8fe930">CPU_W65</a> = 0x6500
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a35b4506baa99baa01f20f5eddeba499e">CPU_Z80</a> = 0x805A
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a31232bd2cee14b66772280e029938fa9">CPU_Z8K</a> = 0x8000
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a12f19daaf2a18799df4f9a98c51e226a">CPU_I86</a> = 0x0148
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a494aa1d938eae39a0d7b516e67f538cc">CPU_NS32K</a> = 0x0154
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a47e4ea0f57f044285d3bfdcb1a69a442">CPU_I370</a> = 0x0158
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ada00d2720768aa39bd5df6485dd0c811">CPU_MIPS</a> = 0x0160
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114abe3fda9b1563ac3b809373791656d76f">CPU_M88K</a> = 0x016D
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aab2244a3a2217d1a65656198b4205a34">CPU_WE32K</a> = 0x0170
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a11318e92b137c7ba69dad86d4fb92fb7">CPU_VAX</a> = 0x0178
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aea30194e3dd1a82d2fec9b75f35523f2">CPU_AM29K</a> = 0x017A
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0bf3bfa9f9c4576c72d33214aba05c27">CPU_ALPHA</a> = 0x0183
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0ceb98cac951c4569dfc5d1bb403a0cb">CPU_PPC</a> = 0x01DF
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a591156045fccf5789d75ad854dc2af8f">CPU_PPC64</a> = 0x01F7
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114acbabecea306e34424361af045b57157a">CPU_SHARC</a> = 0x521C
+, <b>CPU_C5400</b> = 0x0098
+, <b>CPU_C6000</b> = 0x0099
+, <br />
+&#160;&#160;<b>CPU_C5500</b> = 0x009C
+, <b>CPU_MSP430</b> = 0x00A0
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aaa9c85b8fb5e16c64afb845478f2eb00">CPU_I860</a> = 0x014D
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ac1c472c9d3b4088c6cf8b86f836be50e">CPU_SH</a> = 0x01A2
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a7811d333db5070b6d113828c1be22d40">CPU_ARM</a> = 0x01C0
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a22ec50ee14ff54b174929903b8dcd7f0">CPU_AM33</a> = 0x01D3
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a06165a13d125968c85555aead8c3e181">CPU_IA64</a> = 0x0200
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ac86ca3ab9792d221d8252ef03874b163">CPU_HPPA</a> = 0x0290
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a801c68f3bac83fa532d84b37099065cd">CPU_EFI</a> = 0x0EBC
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a23f48f56ca04e359a0dbaafc64076769">CPU_RISCV32</a> = 0x5032
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ade1f19400e4f17160f3eb2a8754d8b04">CPU_RISCV64</a> = 0x5064
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ae1eed7b0a128e92e97b33abc95c47e17">CPU_RISCV128</a> = 0x5128
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0d7fba27483c64a7426210ed89621386">CPU_AMD64</a> = 0x8664
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a209f19b3a1bdf0249ae029528298a936">CPU_M32R</a> = 0x9041
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ad58d70f9ba2ddfcdf92ad3c6c9bbfe0e">CPU_ARM64</a> = 0xAA64
+<br />
+ }</td></tr>
+<tr class="memdesc:a804c399c94ce4aff3c5905406d7b0114"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the first 16-bit word of a COFF file.  <a href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114">More...</a><br /></td></tr>
+<tr class="separator:a804c399c94ce4aff3c5905406d7b0114 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07b40a36f51ffa98f39b074237c9c997 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a07b40a36f51ffa98f39b074237c9c997"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> { <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a44b6406a4a0a5d613288ba4e658e5839">COFF</a> = 1
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a577fb29526b05dabe1321c22d91d5520">ECOFF</a> = 2
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a6534899d3a247da9da853e328f7ea8a0">XCOFF32</a> = 3
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997ac286199c8e285c9fd374ee07b0dd0ba8">XCOFF64</a> = 4
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997aeb8c58eac39986299f9eeb403b81f8bc">PECOFF</a> = 5
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a914a13e6f3be3df2937efdc3d76399cc">TICOFF</a> = 6
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997af408894bf263695bc6fec803d85c0a58">TICOFF1</a> = 7
+<br />
+ }</td></tr>
+<tr class="memdesc:a07b40a36f51ffa98f39b074237c9c997"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variants of the COFF file format.  <a href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">More...</a><br /></td></tr>
+<tr class="separator:a07b40a36f51ffa98f39b074237c9c997 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a205bb77ac2289ed12beb03a1a72d25ac inherit pub_types_classCOFF_1_1COFFFormat" id="r_a205bb77ac2289ed12beb03a1a72d25ac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> { <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6">DJGPP</a>
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541">CDOS68K</a>
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c">CDOS386</a>
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acac8c0b131846c46eb9d444bd328c90495">WINDOWS</a>
+<br />
+ }</td></tr>
+<tr class="memdesc:a205bb77ac2289ed12beb03a1a72d25ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the type of target system, which will determine the CPU type and several other fields.  <a href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">More...</a><br /></td></tr>
+<tr class="separator:a205bb77ac2289ed12beb03a1a72d25ac inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29adeff9d932998e06a35922718bea12 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a29adeff9d932998e06a35922718bea12"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a34551f09227ead3c39364bd54b07ed1c">FLAG_NO_RELOCATIONS</a> = 0x0001
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12afa6e554318f2438d1143657ba25a3edb">FLAG_EXECUTABLE</a> = 0x0002
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12ae40f3f032aec5bac9d28bf036de7c58e">FLAG_NO_LINE_NUMBERS</a> = 0x0004
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a28c29674cdb6f4a9b736f8104961c74b">FLAG_NO_SYMBOLS</a> = 0x0008
+, <br />
+&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12af1f1b55d2c41ac0a6d48fc1a241e65b6">FLAG_PDP11_ENDIAN</a> = 0x0080
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a57122491afa2c30e65980ccc1ae6ed59">FLAG_32BIT_LITTLE_ENDIAN</a> = 0x0100
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a94f1fde35b094698e6df2d1e91e11937">FLAG_32BIT_BIG_ENDIAN</a> = 0x0200
+, <b>OMAGIC</b> = 0x0107
+, <br />
+&#160;&#160;<b>NMAGIC</b> = 0x0108
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a73d5453307f61d03b130b653422f6e1a">ZMAGIC</a> = 0x010B
+, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a484069135276e3612e0e822bc108d0be">MAGIC_FLEXOS386</a> = 0x01C0
+<br />
+ }</td></tr>
+<tr class="memdesc:a29adeff9d932998e06a35922718bea12"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF file header flags, most of these are obsolete, we only use them as precombined flag sets.  <a href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12">More...</a><br /></td></tr>
+<tr class="separator:a29adeff9d932998e06a35922718bea12 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:a8e5e7aeffc859685465e44a8b7e6fb45" id="r_a8e5e7aeffc859685465e44a8b7e6fb45"><td class="memItemLeft" align="right" valign="top"><a id="a8e5e7aeffc859685465e44a8b7e6fb45" name="a8e5e7aeffc859685465e44a8b7e6fb45"></a>
+<a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html">PEOptionalHeader</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetOptionalHeader</b> ()</td></tr>
+<tr class="memdesc:a8e5e7aeffc859685465e44a8b7e6fb45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the optional header. <br /></td></tr>
+<tr class="separator:a8e5e7aeffc859685465e44a8b7e6fb45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae50b05b08e0800768bba567b56658d69" id="r_ae50b05b08e0800768bba567b56658d69"><td class="memItemLeft" align="right" valign="top"><a id="ae50b05b08e0800768bba567b56658d69" name="ae50b05b08e0800768bba567b56658d69"></a>
+const <a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html">PEOptionalHeader</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>GetOptionalHeader</b> () const</td></tr>
+<tr class="memdesc:ae50b05b08e0800768bba567b56658d69"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the optional header. <br /></td></tr>
+<tr class="separator:ae50b05b08e0800768bba567b56658d69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a937f585c05cade80b0f3ed061e00405d" id="r_a937f585c05cade80b0f3ed061e00405d"><td class="memItemLeft" align="right" valign="top"><a id="a937f585c05cade80b0f3ed061e00405d" name="a937f585c05cade80b0f3ed061e00405d"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>Is64Bit</b> () const</td></tr>
+<tr class="memdesc:a937f585c05cade80b0f3ed061e00405d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the file is in the PE32+ (64-bit) format. <br /></td></tr>
+<tr class="separator:a937f585c05cade80b0f3ed061e00405d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a109938c505ce188589691c71f2744ec4" id="r_a109938c505ce188589691c71f2744ec4"><td class="memItemLeft" align="right" valign="top"><a id="a109938c505ce188589691c71f2744ec4" name="a109938c505ce188589691c71f2744ec4"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>AddressToRVA</b> (offset_t address) const</td></tr>
+<tr class="memdesc:a109938c505ce188589691c71f2744ec4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts a virtual address into an image base relative virtual address. <br /></td></tr>
+<tr class="separator:a109938c505ce188589691c71f2744ec4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeae4e6d498cb2a30d1f1461a9414bc97" id="r_aeae4e6d498cb2a30d1f1461a9414bc97"><td class="memItemLeft" align="right" valign="top"><a id="aeae4e6d498cb2a30d1f1461a9414bc97" name="aeae4e6d498cb2a30d1f1461a9414bc97"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>RVAToAddress</b> (uint32_t rva, bool suppress_on_zero=false) const</td></tr>
+<tr class="memdesc:aeae4e6d498cb2a30d1f1461a9414bc97"><td class="mdescLeft">&#160;</td><td class="mdescRight">Converts an image base relative virtual address into a virtual address. <br /></td></tr>
+<tr class="separator:aeae4e6d498cb2a30d1f1461a9414bc97"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49418cb660d09144c0c2d71a23276107" id="r_a49418cb660d09144c0c2d71a23276107"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a49418cb660d09144c0c2d71a23276107">AddBaseRelocation</a> (uint32_t rva, <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocation.html#a706cfff1504aa348a79b366987bb9d14">BaseRelocation::relocation_type</a> <a class="el" href="classCOFF_1_1COFFFormat.html#a63f75feed644eb7f7d81c71087832a0d">type</a>, uint16_t low_ref=0)</td></tr>
+<tr class="memdesc:a49418cb660d09144c0c2d71a23276107"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds a base relocation at the specified relative virtual address.  <br /></td></tr>
+<tr class="separator:a49418cb660d09144c0c2d71a23276107"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa93e7c752954377cb2b64a3ee9dfacac" id="r_aa93e7c752954377cb2b64a3ee9dfacac"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa93e7c752954377cb2b64a3ee9dfacac">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:aa93e7c752954377cb2b64a3ee9dfacac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:aa93e7c752954377cb2b64a3ee9dfacac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae1e7afa9094da3eae331e4ec94945a5" id="r_aae1e7afa9094da3eae331e4ec94945a5"><td class="memItemLeft" align="right" valign="top"><a id="aae1e7afa9094da3eae331e4ec94945a5" name="aae1e7afa9094da3eae331e4ec94945a5"></a>
+::EndianType&#160;</td><td class="memItemRight" valign="bottom"><b>GetMachineEndianType</b> () const</td></tr>
+<tr class="separator:aae1e7afa9094da3eae331e4ec94945a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace749edc0c21d5f0327202a7c17d4ac4" id="r_ace749edc0c21d5f0327202a7c17d4ac4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ace749edc0c21d5f0327202a7c17d4ac4">CalculateValues</a> () override</td></tr>
 <tr class="memdesc:ace749edc0c21d5f0327202a7c17d4ac4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="separator:ace749edc0c21d5f0327202a7c17d4ac4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -126,6 +330,47 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:aed107f7c0f2489b3e3d9405d2ed6a5d7" id="r_aed107f7c0f2489b3e3d9405d2ed6a5d7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aed107f7c0f2489b3e3d9405d2ed6a5d7">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
 <tr class="memdesc:aed107f7c0f2489b3e3d9405d2ed6a5d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
 <tr class="separator:aed107f7c0f2489b3e3d9405d2ed6a5d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeaca4ed9e17b22e1ccb16d7c65115986" id="r_aeaca4ed9e17b22e1ccb16d7c65115986"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeaca4ed9e17b22e1ccb16d7c65115986">FormatSupportsLibraries</a> () const override</td></tr>
+<tr class="memdesc:aeaca4ed9e17b22e1ccb16d7c65115986"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
+<tr class="separator:aeaca4ed9e17b22e1ccb16d7c65115986"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a42899ada0aa4fbe415fe0487a57dff49" id="r_a42899ada0aa4fbe415fe0487a57dff49"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a42899ada0aa4fbe415fe0487a57dff49">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
+<tr class="separator:a42899ada0aa4fbe415fe0487a57dff49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af485956d7b8c019625cc19dd71eb5dd2" id="r_af485956d7b8c019625cc19dd71eb5dd2"><td class="memItemLeft" align="right" valign="top"><a id="af485956d7b8c019625cc19dd71eb5dd2" name="af485956d7b8c019625cc19dd71eb5dd2"></a>
+std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1Resource.html">Resource</a> &gt; &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>AddResource</b> (std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1Resource.html">Resource</a> &gt; &amp;resource)</td></tr>
+<tr class="separator:af485956d7b8c019625cc19dd71eb5dd2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a970ee0a27fe384f2f537a0ae6c9be21b" id="r_a970ee0a27fe384f2f537a0ae6c9be21b"><td class="memItemLeft" align="right" valign="top"><a id="a970ee0a27fe384f2f537a0ae6c9be21b" name="a970ee0a27fe384f2f537a0ae6c9be21b"></a>
+<a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportDirectory.html">ImportDirectory</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>FetchImportLibrary</b> (std::string library_name, bool create_if_not_present=false)</td></tr>
+<tr class="separator:a970ee0a27fe384f2f537a0ae6c9be21b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac89dc58a1515a68ab788dbdf4205ef1b" id="r_ac89dc58a1515a68ab788dbdf4205ef1b"><td class="memItemLeft" align="right" valign="top"><a id="ac89dc58a1515a68ab788dbdf4205ef1b" name="ac89dc58a1515a68ab788dbdf4205ef1b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddImportByName</b> (std::string library_name, std::string entry_name, uint16_t hint)</td></tr>
+<tr class="separator:ac89dc58a1515a68ab788dbdf4205ef1b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af1db36a615eaeec000f42f15bdc7b4c2" id="r_af1db36a615eaeec000f42f15bdc7b4c2"><td class="memItemLeft" align="right" valign="top"><a id="af1db36a615eaeec000f42f15bdc7b4c2" name="af1db36a615eaeec000f42f15bdc7b4c2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AddImportByOrdinal</b> (std::string library_name, uint16_t ordinal)</td></tr>
+<tr class="separator:af1db36a615eaeec000f42f15bdc7b4c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2e4bde87a180b6c05fadefe15a8b41e" id="r_ab2e4bde87a180b6c05fadefe15a8b41e"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab2e4bde87a180b6c05fadefe15a8b41e">GetLinkerScriptParameterNames</a> () override</td></tr>
+<tr class="memdesc:ab2e4bde87a180b6c05fadefe15a8b41e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the parameters used in the linker scripts, used for documentation.  <br /></td></tr>
+<tr class="separator:ab2e4bde87a180b6c05fadefe15a8b41e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1ccb069576fe4e9ef491c1f5b577023" id="r_ac1ccb069576fe4e9ef491c1f5b577023"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac1ccb069576fe4e9ef491c1f5b577023">GetOptions</a> () override</td></tr>
+<tr class="memdesc:ac1ccb069576fe4e9ef491c1f5b577023"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
+<tr class="separator:ac1ccb069576fe4e9ef491c1f5b577023"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa3e13e16079b4db979ff582e80a2682d" id="r_aa3e13e16079b4db979ff582e80a2682d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa3e13e16079b4db979ff582e80a2682d">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
+<tr class="memdesc:aa3e13e16079b4db979ff582e80a2682d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
+<tr class="separator:aa3e13e16079b4db979ff582e80a2682d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13c8ff156583a3960cd75f52ad3214dc" id="r_a13c8ff156583a3960cd75f52ad3214dc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a13c8ff156583a3960cd75f52ad3214dc">OnNewSegment</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment) override</td></tr>
+<tr class="memdesc:a13c8ff156583a3960cd75f52ad3214dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
+<tr class="separator:a13c8ff156583a3960cd75f52ad3214dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8ee5ef78dc1c78b088af469153a0417" id="r_af8ee5ef78dc1c78b088af469153a0417"><td class="memItemLeft" align="right" valign="top"><a id="af8ee5ef78dc1c78b088af469153a0417" name="af8ee5ef78dc1c78b088af469153a0417"></a>
+std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
+<tr class="separator:af8ee5ef78dc1c78b088af469153a0417"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a40988786b03942d324cf8fcfc80ffba4" id="r_a40988786b03942d324cf8fcfc80ffba4"><td class="memItemLeft" align="right" valign="top"><a id="a40988786b03942d324cf8fcfc80ffba4" name="a40988786b03942d324cf8fcfc80ffba4"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
+<tr class="separator:a40988786b03942d324cf8fcfc80ffba4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9605e9f468ed627b49b8ba0ddebb2a6" id="r_ac9605e9f468ed627b49b8ba0ddebb2a6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac9605e9f468ed627b49b8ba0ddebb2a6">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
+<tr class="memdesc:ac9605e9f468ed627b49b8ba0ddebb2a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
+<tr class="separator:ac9605e9f468ed627b49b8ba0ddebb2a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3e4bd092aa1d8dc6583fa9886c0522e0" id="r_a3e4bd092aa1d8dc6583fa9886c0522e0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3e4bd092aa1d8dc6583fa9886c0522e0">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
+<tr class="memdesc:a3e4bd092aa1d8dc6583fa9886c0522e0"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
+<tr class="separator:a3e4bd092aa1d8dc6583fa9886c0522e0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8951f814699d84dbcf2c951b5e9f429e" id="r_a8951f814699d84dbcf2c951b5e9f429e"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8951f814699d84dbcf2c951b5e9f429e">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename) const override</td></tr>
 <tr class="memdesc:a8951f814699d84dbcf2c951b5e9f429e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
 <tr class="separator:a8951f814699d84dbcf2c951b5e9f429e"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -137,8 +382,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0129e17c2c0772232a3b291b399f1964 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a0129e17c2c0772232a3b291b399f1964"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a0129e17c2c0772232a3b291b399f1964">Clear</a> () override</td></tr>
 <tr class="memdesc:a0129e17c2c0772232a3b291b399f1964 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:a0129e17c2c0772232a3b291b399f1964 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50779559822c9e4895620651cb01e21e inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a50779559822c9e4895620651cb01e21e"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AssignMagicValue</b> (uint16_t value, ::EndianType as_endian_type)</td></tr>
+<tr class="memdesc:a50779559822c9e4895620651cb01e21e inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the specified 16-bit integer in the specified byte order into the COFF header signature. <br /></td></tr>
+<tr class="separator:a50779559822c9e4895620651cb01e21e inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af55c256efb24a740512ca39a11432384 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_af55c256efb24a740512ca39a11432384"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AssignMagicValue</b> (uint16_t value)</td></tr>
+<tr class="memdesc:af55c256efb24a740512ca39a11432384 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the specified 16-bit integer in the currently set byte order into the COFF header signature. <br /></td></tr>
+<tr class="separator:af55c256efb24a740512ca39a11432384 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace94222d8e36834120f218f22c2f1b02 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_ace94222d8e36834120f218f22c2f1b02"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AssignMagicValue</b> ()</td></tr>
+<tr class="memdesc:ace94222d8e36834120f218f22c2f1b02 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the currently set CPU value in the currently set byte order into the COFF header signature. <br /></td></tr>
 <tr class="separator:ace94222d8e36834120f218f22c2f1b02 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac535516374d0ff8c0ad91f2b925ee7d7 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_ac535516374d0ff8c0ad91f2b925ee7d7"><td class="memItemLeft" align="right" valign="top">
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>DetectCpuType</b> (::EndianType expected)</td></tr>
@@ -161,20 +415,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>DetectCpuType</b> ()<
 <tr class="memitem:a1d13873cd2addfd2a87a4249c51fe483 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a1d13873cd2addfd2a87a4249c51fe483"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>COFFFormat</b> (<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> <a class="el" href="classCOFF_1_1COFFFormat.html#a63f75feed644eb7f7d81c71087832a0d">type</a>=<a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant=<a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a44b6406a4a0a5d613288ba4e658e5839">COFF</a>, EndianType <a class="el" href="classCOFF_1_1COFFFormat.html#a913f2e79eb1d40d0527645c40a8f40dd">endiantype</a>=::UndefinedEndian)</td></tr>
 <tr class="separator:a1d13873cd2addfd2a87a4249c51fe483 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aea56aaf8438bb91e3dbe83ec523b1fef inherit pub_methods_classCOFF_1_1COFFFormat" id="r_aea56aaf8438bb91e3dbe83ec523b1fef"><td class="memItemLeft" align="right" valign="top">unsigned&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#aea56aaf8438bb91e3dbe83ec523b1fef">FormatAdditionalSectionFlags</a> (std::string section_name) const override</td></tr>
-<tr class="separator:aea56aaf8438bb91e3dbe83ec523b1fef inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a53369b26500357f3f380471e43803a3a inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a53369b26500357f3f380471e43803a3a"><td class="memItemLeft" align="right" valign="top">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a53369b26500357f3f380471e43803a3a">GetLinkerScriptParameterNames</a> () override</td></tr>
-<tr class="memdesc:a53369b26500357f3f380471e43803a3a inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a list of the parameters used in the linker scripts, used for documentation.  <br /></td></tr>
-<tr class="separator:a53369b26500357f3f380471e43803a3a inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a477369394c3ee2b118e44102dcafc8ad inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a477369394c3ee2b118e44102dcafc8ad"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a477369394c3ee2b118e44102dcafc8ad">GetOptions</a> () override</td></tr>
-<tr class="memdesc:a477369394c3ee2b118e44102dcafc8ad inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
-<tr class="separator:a477369394c3ee2b118e44102dcafc8ad inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad4cd9543645d19c01a9902bce9cf2ea2 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_ad4cd9543645d19c01a9902bce9cf2ea2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#ad4cd9543645d19c01a9902bce9cf2ea2">SetOptions</a> (std::map&lt; std::string, std::string &gt; &amp;options) override</td></tr>
-<tr class="memdesc:ad4cd9543645d19c01a9902bce9cf2ea2 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes command line parameters as settings over to format object.  <br /></td></tr>
-<tr class="separator:ad4cd9543645d19c01a9902bce9cf2ea2 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae62298017d2654313e85bc48d5f3b95b inherit pub_methods_classCOFF_1_1COFFFormat" id="r_ae62298017d2654313e85bc48d5f3b95b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#ae62298017d2654313e85bc48d5f3b95b">OnNewSegment</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment) override</td></tr>
-<tr class="memdesc:ae62298017d2654313e85bc48d5f3b95b inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
-<tr class="separator:ae62298017d2654313e85bc48d5f3b95b inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae1e2bf67e839fc9b06d2fb9216932a32 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_ae1e2bf67e839fc9b06d2fb9216932a32"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>CreateDefaultSegments</b> ()</td></tr>
 <tr class="separator:ae1e2bf67e839fc9b06d2fb9216932a32 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -184,10 +424,10 @@ std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</
 <tr class="memitem:a2f7c7de81c154ed3aa02b62385a7518a inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a2f7c7de81c154ed3aa02b62385a7518a"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="separator:a2f7c7de81c154ed3aa02b62385a7518a inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf95f1d9cd0de3a863f1c02b28e8b2b2 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_aaf95f1d9cd0de3a863f1c02b28e8b2b2"><td class="memItemLeft" align="right" valign="top">
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSegment</b> (std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">Section</a> &gt; &amp;section)</td></tr>
-<tr class="memdesc:aaf95f1d9cd0de3a863f1c02b28e8b2b2 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the segment stored inside the section, note that this only works for binary generation. <br /></td></tr>
-<tr class="separator:aaf95f1d9cd0de3a863f1c02b28e8b2b2 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3db3958adaa5f8c35a55a20a93be2228 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a3db3958adaa5f8c35a55a20a93be2228"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSegment</b> (std::shared_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">Section</a> &gt; &amp;section)</td></tr>
+<tr class="memdesc:a3db3958adaa5f8c35a55a20a93be2228 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the segment stored inside the section, note that this only works for binary generation. <br /></td></tr>
+<tr class="separator:a3db3958adaa5f8c35a55a20a93be2228 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a9fd03422d06bbad29c95b9298361cd inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a6a9fd03422d06bbad29c95b9298361cd"><td class="memItemLeft" align="right" valign="top">
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetCodeSegment</b> ()</td></tr>
 <tr class="separator:a6a9fd03422d06bbad29c95b9298361cd inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -197,12 +437,6 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Seg
 <tr class="memitem:a991374728ef530ed9037c34979621f1c inherit pub_methods_classCOFF_1_1COFFFormat" id="r_a991374728ef530ed9037c34979621f1c"><td class="memItemLeft" align="right" valign="top">
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetBssSegment</b> ()</td></tr>
 <tr class="separator:a991374728ef530ed9037c34979621f1c inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad6e72adc262e5910df2cfc675755f430 inherit pub_methods_classCOFF_1_1COFFFormat" id="r_ad6e72adc262e5910df2cfc675755f430"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#ad6e72adc262e5910df2cfc675755f430">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
-<tr class="memdesc:ad6e72adc262e5910df2cfc675755f430 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
-<tr class="separator:ad6e72adc262e5910df2cfc675755f430 inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aae1e7eea10ae2c9c17e25ad4aadecd2a inherit pub_methods_classCOFF_1_1COFFFormat" id="r_aae1e7eea10ae2c9c17e25ad4aadecd2a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#aae1e7eea10ae2c9c17e25ad4aadecd2a">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module) override</td></tr>
-<tr class="memdesc:aae1e7eea10ae2c9c17e25ad4aadecd2a inherit pub_methods_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
-<tr class="separator:aae1e7eea10ae2c9c17e25ad4aadecd2a inherit pub_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1InputFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1InputFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1InputFormat.html">Linker::InputFormat</a></td></tr>
 <tr class="memitem:a9769ff8202117ab97d6045e4d70b55df inherit pub_methods_classLinker_1_1InputFormat" id="r_a9769ff8202117ab97d6045e4d70b55df"><td class="memItemLeft" align="right" valign="top">
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ProduceModule</b> (<a class="el" href="classLinker_1_1ModuleCollector.html">ModuleCollector</a> &amp;linker, <a class="el" href="classLinker_1_1Reader.html">Reader</a> &amp;rd, std::string file_name)</td></tr>
@@ -348,18 +582,58 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat" id="r_afd51a2eb946dc0ed9b9750e840bcd247"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#afd51a2eb946dc0ed9b9750e840bcd247">FormatSupportsResources</a> () const</td></tr>
 <tr class="memdesc:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports resources.  <br /></td></tr>
 <tr class="separator:afd51a2eb946dc0ed9b9750e840bcd247 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a35ff0e5cd89f53d03a15e9e9c3260ad6"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a35ff0e5cd89f53d03a15e9e9c3260ad6">FormatSupportsLibraries</a> () const</td></tr>
-<tr class="memdesc:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format supports libraries.  <br /></td></tr>
-<tr class="separator:a35ff0e5cd89f53d03a15e9e9c3260ad6 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:af4fe988e718f86059fc591030694e1d6" id="r_af4fe988e718f86059fc591030694e1d6"><td class="memItemLeft" align="right" valign="top"><a id="af4fe988e718f86059fc591030694e1d6" name="af4fe988e718f86059fc591030694e1d6"></a>
 char&#160;</td><td class="memItemRight" valign="bottom"><b>pe_signature</b> [4]</td></tr>
 <tr class="separator:af4fe988e718f86059fc591030694e1d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8ea95361490ddbc91dd3ccd495289384" id="r_a8ea95361490ddbc91dd3ccd495289384"><td class="memItemLeft" align="right" valign="top"><a id="a8ea95361490ddbc91dd3ccd495289384" name="a8ea95361490ddbc91dd3ccd495289384"></a>
+std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html">ResourcesSection</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>resources</b> = std::make_shared&lt;<a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html">ResourcesSection</a>&gt;()</td></tr>
+<tr class="memdesc:a8ea95361490ddbc91dd3ccd495289384"><td class="mdescLeft">&#160;</td><td class="mdescRight">The resources in this file. <br /></td></tr>
+<tr class="separator:a8ea95361490ddbc91dd3ccd495289384"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ab58fc171f469fec0f6cd3dbaad7bcf" id="r_a3ab58fc171f469fec0f6cd3dbaad7bcf"><td class="memItemLeft" align="right" valign="top"><a id="a3ab58fc171f469fec0f6cd3dbaad7bcf" name="a3ab58fc171f469fec0f6cd3dbaad7bcf"></a>
+std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html">ImportsSection</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>imports</b> = std::make_shared&lt;<a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html">ImportsSection</a>&gt;()</td></tr>
+<tr class="memdesc:a3ab58fc171f469fec0f6cd3dbaad7bcf"><td class="mdescLeft">&#160;</td><td class="mdescRight">The collection of imports in the file. <br /></td></tr>
+<tr class="separator:a3ab58fc171f469fec0f6cd3dbaad7bcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4323eda329cacbc036896f27bda03b2e" id="r_a4323eda329cacbc036896f27bda03b2e"><td class="memItemLeft" align="right" valign="top"><a id="a4323eda329cacbc036896f27bda03b2e" name="a4323eda329cacbc036896f27bda03b2e"></a>
+std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html">ExportsSection</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>exports</b> = std::make_shared&lt;<a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html">ExportsSection</a>&gt;()</td></tr>
+<tr class="memdesc:a4323eda329cacbc036896f27bda03b2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">The collection of exported symbols. <br /></td></tr>
+<tr class="separator:a4323eda329cacbc036896f27bda03b2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b5b3df152c21f3d9aea24a52f6e8b24" id="r_a2b5b3df152c21f3d9aea24a52f6e8b24"><td class="memItemLeft" align="right" valign="top"><a id="a2b5b3df152c21f3d9aea24a52f6e8b24" name="a2b5b3df152c21f3d9aea24a52f6e8b24"></a>
+std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html">BaseRelocationsSection</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>base_relocations</b> = std::make_shared&lt;<a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html">BaseRelocationsSection</a>&gt;()</td></tr>
+<tr class="memdesc:a2b5b3df152c21f3d9aea24a52f6e8b24"><td class="mdescLeft">&#160;</td><td class="mdescRight">The collection of base relocations. <br /></td></tr>
+<tr class="separator:a2b5b3df152c21f3d9aea24a52f6e8b24"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af5a1e17b5e0764689111e4d954ca92e9" id="r_af5a1e17b5e0764689111e4d954ca92e9"><td class="memItemLeft" align="right" valign="top"><a id="af5a1e17b5e0764689111e4d954ca92e9" name="af5a1e17b5e0764689111e4d954ca92e9"></a>
 <a class="el" href="classMicrosoft_1_1MZStubWriter.html">MZStubWriter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>stub</b></td></tr>
 <tr class="separator:af5a1e17b5e0764689111e4d954ca92e9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a00d833b90e68ef52435cc037d672c1ac" id="r_a00d833b90e68ef52435cc037d672c1ac"><td class="memItemLeft" align="right" valign="top"><a id="a00d833b90e68ef52435cc037d672c1ac" name="a00d833b90e68ef52435cc037d672c1ac"></a>
+<a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27">target_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>target</b> = <a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27">target_type</a>(0)</td></tr>
+<tr class="memdesc:a00d833b90e68ef52435cc037d672c1ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">The expected target system, only used for setting up default values. <br /></td></tr>
+<tr class="separator:a00d833b90e68ef52435cc037d672c1ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b9b78d29948d29009082ad9913a44e2" id="r_a9b9b78d29948d29009082ad9913a44e2"><td class="memItemLeft" align="right" valign="top"><a id="a9b9b78d29948d29009082ad9913a44e2" name="a9b9b78d29948d29009082ad9913a44e2"></a>
+<a class="el" href="#a203344a33196639c23f1237d4e7a7d56">output_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>output</b> = <a class="el" href="#a203344a33196639c23f1237d4e7a7d56a05cab81283c352f2043a186380be3d37">OUTPUT_EXE</a></td></tr>
+<tr class="separator:a9b9b78d29948d29009082ad9913a44e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f5e72e5ceb2eac20229139fee8d2e21" id="r_a9f5e72e5ceb2eac20229139fee8d2e21"><td class="memItemLeft" align="right" valign="top"><a id="a9f5e72e5ceb2eac20229139fee8d2e21" name="a9f5e72e5ceb2eac20229139fee8d2e21"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_relocatable</b> = true</td></tr>
+<tr class="memdesc:a9f5e72e5ceb2eac20229139fee8d2e21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Make generated image relocatable (TODO: expose as command line option) <br /></td></tr>
+<tr class="separator:a9f5e72e5ceb2eac20229139fee8d2e21"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81a9b4b4eca5694893bddca53f41246c" id="r_a81a9b4b4eca5694893bddca53f41246c"><td class="memItemLeft" align="right" valign="top"><a id="a81a9b4b4eca5694893bddca53f41246c" name="a81a9b4b4eca5694893bddca53f41246c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_include_deprecated_flags</b> = false</td></tr>
+<tr class="memdesc:a81a9b4b4eca5694893bddca53f41246c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Certain header flags are deprecated and should be zero, this option sets them if applicable (TODO: expose as command line option) <br /></td></tr>
+<tr class="separator:a81a9b4b4eca5694893bddca53f41246c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c8ce6db24f0d0b8f6e93c49d9a0bffc" id="r_a9c8ce6db24f0d0b8f6e93c49d9a0bffc"><td class="memItemLeft" align="right" valign="top"><a id="a9c8ce6db24f0d0b8f6e93c49d9a0bffc" name="a9c8ce6db24f0d0b8f6e93c49d9a0bffc"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_coff_line_numbers</b> = false</td></tr>
+<tr class="memdesc:a9c8ce6db24f0d0b8f6e93c49d9a0bffc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Include COFF line numbers (TODO: not implemented) <br /></td></tr>
+<tr class="separator:a9c8ce6db24f0d0b8f6e93c49d9a0bffc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e5dc0a7afed2272c4805663fd5e4dff" id="r_a0e5dc0a7afed2272c4805663fd5e4dff"><td class="memItemLeft" align="right" valign="top"><a id="a0e5dc0a7afed2272c4805663fd5e4dff" name="a0e5dc0a7afed2272c4805663fd5e4dff"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_coff_local_symbols</b> = false</td></tr>
+<tr class="memdesc:a0e5dc0a7afed2272c4805663fd5e4dff"><td class="mdescLeft">&#160;</td><td class="mdescRight">Include COFF local symbols (TODO: not implemented) <br /></td></tr>
+<tr class="separator:a0e5dc0a7afed2272c4805663fd5e4dff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3a7a9d5704bbe270c6c3620715d2854c" id="r_a3a7a9d5704bbe270c6c3620715d2854c"><td class="memItemLeft" align="right" valign="top"><a id="a3a7a9d5704bbe270c6c3620715d2854c" name="a3a7a9d5704bbe270c6c3620715d2854c"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_debug_info</b> = false</td></tr>
+<tr class="memdesc:a3a7a9d5704bbe270c6c3620715d2854c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Include debug information (TODO: not implemented) <br /></td></tr>
+<tr class="separator:a3a7a9d5704bbe270c6c3620715d2854c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
 <tr class="memitem:ab80648dbac1a60c13a74187c68b9649c inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_ab80648dbac1a60c13a74187c68b9649c"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b></td></tr>
@@ -368,10 +642,10 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b></td
 char&#160;</td><td class="memItemRight" valign="bottom"><b>signature</b> [2] = { }</td></tr>
 <tr class="memdesc:a6ea5fe54f69b59cc42f7ed0d67c1e883 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual value of the magic number (COFF name: f_magic) <br /></td></tr>
 <tr class="separator:a6ea5fe54f69b59cc42f7ed0d67c1e883 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca7bb71282dad60d33df84a8d66a6c05 inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_aca7bb71282dad60d33df84a8d66a6c05"><td class="memItemLeft" align="right" valign="top">
-std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">Section</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sections</b></td></tr>
-<tr class="memdesc:aca7bb71282dad60d33df84a8d66a6c05 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The list of COFF sections. <br /></td></tr>
-<tr class="separator:aca7bb71282dad60d33df84a8d66a6c05 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e1f6affc2e87df31d081b070dba13fa inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_a0e1f6affc2e87df31d081b070dba13fa"><td class="memItemLeft" align="right" valign="top">
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">Section</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sections</b></td></tr>
+<tr class="memdesc:a0e1f6affc2e87df31d081b070dba13fa inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The list of COFF sections. <br /></td></tr>
+<tr class="separator:a0e1f6affc2e87df31d081b070dba13fa inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae4e9352e963d769bc7ebc0a62facece inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_aae4e9352e963d769bc7ebc0a62facece"><td class="memItemLeft" align="right" valign="top">
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>section_count</b> = 0</td></tr>
 <tr class="memdesc:aae4e9352e963d769bc7ebc0a62facece inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> count (COFF name: f_nscns) <br /></td></tr>
@@ -408,10 +682,10 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>target</b> = 0</t
 std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html">OptionalHeader</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>optional_header</b> = nullptr</td></tr>
 <tr class="memdesc:af4a1f9294249418e6024b641dd660b7a inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The optional header instance used for reading/writing the COFF file. <br /></td></tr>
 <tr class="separator:af4a1f9294249418e6024b641dd660b7a inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a326c430ca03d7d60467e62513286fd5f inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_a326c430ca03d7d60467e62513286fd5f"><td class="memItemLeft" align="right" valign="top">
-std::map&lt; uint32_t, size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
-<tr class="memdesc:a326c430ca03d7d60467e62513286fd5f inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent DOS 68K requires a special block of data to represent "crunched" relocations (see CPM68KWriter for more details) <br /></td></tr>
-<tr class="separator:a326c430ca03d7d60467e62513286fd5f inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae24b6b89f28e3817d870c18f9a80a6c6 inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_ae24b6b89f28e3817d870c18f9a80a6c6"><td class="memItemLeft" align="right" valign="top">
+std::map&lt; uint32_t, <a class="el" href="structCOFF_1_1COFFFormat_1_1CDOS68K__Relocation.html">CDOS68K_Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="memdesc:ae24b6b89f28e3817d870c18f9a80a6c6 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent DOS 68K requires a special block of data to represent "crunched" relocations (see CPM68KWriter for more details) <br /></td></tr>
+<tr class="separator:ae24b6b89f28e3817d870c18f9a80a6c6 inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7f9bcf072b033cd7905f72376f131ba inherit pub_attribs_classCOFF_1_1COFFFormat" id="r_ac7f9bcf072b033cd7905f72376f131ba"><td class="memItemLeft" align="right" valign="top">
 <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>coff_variant</b> = AnyCOFFVariant</td></tr>
 <tr class="separator:ac7f9bcf072b033cd7905f72376f131ba inherit pub_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -481,11 +755,22 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script<
 <tr class="memdesc:ae20462fa339b4597d18c2c9f775b4704 inherit pub_attribs_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Contents of the linker script. <br /></td></tr>
 <tr class="separator:ae20462fa339b4597d18c2c9f775b4704 inherit pub_attribs_classLinker_1_1SegmentManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
-Protected Member Functions</h2></td></tr>
-<tr class="memitem:a2dd10f43765291a4f9202033efb32498" id="r_a2dd10f43765291a4f9202033efb32498"><td class="memItemLeft" align="right" valign="top"><a id="a2dd10f43765291a4f9202033efb32498" name="a2dd10f43765291a4f9202033efb32498"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadOptionalHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
-<tr class="separator:a2dd10f43765291a4f9202033efb32498"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a19896644c9fe84a4d7177622672c3249" id="r_a19896644c9fe84a4d7177622672c3249"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a19896644c9fe84a4d7177622672c3249">ParameterNames</a></td></tr>
+<tr class="separator:a19896644c9fe84a4d7177622672c3249"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_attribs_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_attribs_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
+<tr class="memitem:a38d5a504a55d28c503118f955d6ccf1f inherit pub_static_attribs_classCOFF_1_1COFFFormat" id="r_a38d5a504a55d28c503118f955d6ccf1f"><td class="memItemLeft" align="right" valign="top">
+static constexpr <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>AnyCOFFVariant</b> = <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a>(0)</td></tr>
+<tr class="separator:a38d5a504a55d28c503118f955d6ccf1f inherit pub_static_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4ca14354930d750a5edd569e80cad5d0 inherit pub_static_attribs_classCOFF_1_1COFFFormat" id="r_a4ca14354930d750a5edd569e80cad5d0"><td class="memItemLeft" align="right" valign="top">
+static const std::map&lt; uint32_t, <a class="el" href="structCOFF_1_1COFFFormat_1_1MachineType.html">MachineType</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>MACHINE_TYPES</b></td></tr>
+<tr class="separator:a4ca14354930d750a5edd569e80cad5d0 inherit pub_static_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af807e9aa8f9230096f063b18a67071ed inherit pub_static_attribs_classCOFF_1_1COFFFormat" id="r_af807e9aa8f9230096f063b18a67071ed"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#af807e9aa8f9230096f063b18a67071ed">ParameterNames</a></td></tr>
+<tr class="separator:af807e9aa8f9230096f063b18a67071ed inherit pub_static_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_methods_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_methods_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Protected Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
 <tr class="memitem:a5bf5c0cc5940bf1fe8d4ba74e62b9a66 inherit pro_methods_classCOFF_1_1COFFFormat" id="r_a5bf5c0cc5940bf1fe8d4ba74e62b9a66"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadCOFFHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
@@ -499,105 +784,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadRestOfFile</b> (<
 <tr class="memitem:aeea68fa7b3c3e95c8d742c3eb383def5 inherit pro_methods_classCOFF_1_1COFFFormat" id="r_aeea68fa7b3c3e95c8d742c3eb383def5"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFileContents</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
 <tr class="separator:aeea68fa7b3c3e95c8d742c3eb383def5 inherit pro_methods_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
-<tr class="inherit_header pub_types_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
-<tr class="memitem:a804c399c94ce4aff3c5905406d7b0114 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a804c399c94ce4aff3c5905406d7b0114"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114">cpu</a> { <br />
-&#160;&#160;<b>CPU_UNKNOWN</b> = 0
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a5d0b4c33bf696ef64a80813744eaae79">CPU_I386</a> = 0x014C
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a8d612b09952c2e82a2b4960615400569">CPU_M68K</a> = 0x0150
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114adb9abe0e12ba4f059071dc895e8fe930">CPU_W65</a> = 0x6500
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a35b4506baa99baa01f20f5eddeba499e">CPU_Z80</a> = 0x805A
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a31232bd2cee14b66772280e029938fa9">CPU_Z8K</a> = 0x8000
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a12f19daaf2a18799df4f9a98c51e226a">CPU_I86</a> = 0x0148
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a494aa1d938eae39a0d7b516e67f538cc">CPU_NS32K</a> = 0x0154
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a47e4ea0f57f044285d3bfdcb1a69a442">CPU_I370</a> = 0x0158
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ada00d2720768aa39bd5df6485dd0c811">CPU_MIPS</a> = 0x0160
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114abe3fda9b1563ac3b809373791656d76f">CPU_M88K</a> = 0x016D
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aab2244a3a2217d1a65656198b4205a34">CPU_WE32K</a> = 0x0170
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a11318e92b137c7ba69dad86d4fb92fb7">CPU_VAX</a> = 0x0178
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aea30194e3dd1a82d2fec9b75f35523f2">CPU_AM29K</a> = 0x017A
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0bf3bfa9f9c4576c72d33214aba05c27">CPU_ALPHA</a> = 0x0183
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0ceb98cac951c4569dfc5d1bb403a0cb">CPU_PPC</a> = 0x01DF
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a591156045fccf5789d75ad854dc2af8f">CPU_PPC64</a> = 0x01F7
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114acbabecea306e34424361af045b57157a">CPU_SHARC</a> = 0x521C
-, <b>CPU_C5400</b> = 0x0098
-, <b>CPU_C6000</b> = 0x0099
-, <br />
-&#160;&#160;<b>CPU_C5500</b> = 0x009C
-, <b>CPU_MSP430</b> = 0x00A0
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114aaa9c85b8fb5e16c64afb845478f2eb00">CPU_I860</a> = 0x014D
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ac1c472c9d3b4088c6cf8b86f836be50e">CPU_SH</a> = 0x01A2
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a7811d333db5070b6d113828c1be22d40">CPU_ARM</a> = 0x01C0
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a22ec50ee14ff54b174929903b8dcd7f0">CPU_AM33</a> = 0x01D3
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a06165a13d125968c85555aead8c3e181">CPU_IA64</a> = 0x0200
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ac86ca3ab9792d221d8252ef03874b163">CPU_HPPA</a> = 0x0290
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a801c68f3bac83fa532d84b37099065cd">CPU_EFI</a> = 0x0EBC
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a23f48f56ca04e359a0dbaafc64076769">CPU_RISCV32</a> = 0x5032
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ade1f19400e4f17160f3eb2a8754d8b04">CPU_RISCV64</a> = 0x5064
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ae1eed7b0a128e92e97b33abc95c47e17">CPU_RISCV128</a> = 0x5128
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a0d7fba27483c64a7426210ed89621386">CPU_AMD64</a> = 0x8664
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114a209f19b3a1bdf0249ae029528298a936">CPU_M32R</a> = 0x9041
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114ad58d70f9ba2ddfcdf92ad3c6c9bbfe0e">CPU_ARM64</a> = 0xAA64
-<br />
- }</td></tr>
-<tr class="memdesc:a804c399c94ce4aff3c5905406d7b0114"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the first 16-bit word of a COFF file.  <a href="classCOFF_1_1COFFFormat.html#a804c399c94ce4aff3c5905406d7b0114">More...</a><br /></td></tr>
-<tr class="separator:a804c399c94ce4aff3c5905406d7b0114 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a07b40a36f51ffa98f39b074237c9c997 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a07b40a36f51ffa98f39b074237c9c997"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> { <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a44b6406a4a0a5d613288ba4e658e5839">COFF</a> = 1
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a577fb29526b05dabe1321c22d91d5520">ECOFF</a> = 2
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a6534899d3a247da9da853e328f7ea8a0">XCOFF32</a> = 3
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997ac286199c8e285c9fd374ee07b0dd0ba8">XCOFF64</a> = 4
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997aeb8c58eac39986299f9eeb403b81f8bc">PECOFF</a> = 5
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a914a13e6f3be3df2937efdc3d76399cc">TICOFF</a> = 6
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997af408894bf263695bc6fec803d85c0a58">TICOFF1</a> = 7
-<br />
- }</td></tr>
-<tr class="memdesc:a07b40a36f51ffa98f39b074237c9c997"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variants of the COFF file format.  <a href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">More...</a><br /></td></tr>
-<tr class="separator:a07b40a36f51ffa98f39b074237c9c997 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a205bb77ac2289ed12beb03a1a72d25ac inherit pub_types_classCOFF_1_1COFFFormat" id="r_a205bb77ac2289ed12beb03a1a72d25ac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> { <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6">DJGPP</a>
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541">CDOS68K</a>
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c">CDOS386</a>
- }</td></tr>
-<tr class="memdesc:a205bb77ac2289ed12beb03a1a72d25ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the type of target system, which will determine the CPU type and several other fields.  <a href="classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25ac">More...</a><br /></td></tr>
-<tr class="separator:a205bb77ac2289ed12beb03a1a72d25ac inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a29adeff9d932998e06a35922718bea12 inherit pub_types_classCOFF_1_1COFFFormat" id="r_a29adeff9d932998e06a35922718bea12"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a34551f09227ead3c39364bd54b07ed1c">FLAG_NO_RELOCATIONS</a> = 0x0001
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12afa6e554318f2438d1143657ba25a3edb">FLAG_EXECUTABLE</a> = 0x0002
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12ae40f3f032aec5bac9d28bf036de7c58e">FLAG_NO_LINE_NUMBERS</a> = 0x0004
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a28c29674cdb6f4a9b736f8104961c74b">FLAG_NO_SYMBOLS</a> = 0x0008
-, <br />
-&#160;&#160;<a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12af1f1b55d2c41ac0a6d48fc1a241e65b6">FLAG_PDP11_ENDIAN</a> = 0x0080
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a57122491afa2c30e65980ccc1ae6ed59">FLAG_32BIT_LITTLE_ENDIAN</a> = 0x0100
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a94f1fde35b094698e6df2d1e91e11937">FLAG_32BIT_BIG_ENDIAN</a> = 0x0200
-, <b>OMAGIC</b> = 0x0107
-, <br />
-&#160;&#160;<b>NMAGIC</b> = 0x0108
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a73d5453307f61d03b130b653422f6e1a">ZMAGIC</a> = 0x010B
-, <a class="el" href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12a484069135276e3612e0e822bc108d0be">MAGIC_FLEXOS386</a> = 0x01C0
-<br />
- }</td></tr>
-<tr class="memdesc:a29adeff9d932998e06a35922718bea12"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF file header flags, most of these are obsolete, we only use them as precombined flag sets.  <a href="classCOFF_1_1COFFFormat.html#a29adeff9d932998e06a35922718bea12">More...</a><br /></td></tr>
-<tr class="separator:a29adeff9d932998e06a35922718bea12 inherit pub_types_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_static_attribs_classCOFF_1_1COFFFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_attribs_classCOFF_1_1COFFFormat')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a></td></tr>
-<tr class="memitem:a38d5a504a55d28c503118f955d6ccf1f inherit pub_static_attribs_classCOFF_1_1COFFFormat" id="r_a38d5a504a55d28c503118f955d6ccf1f"><td class="memItemLeft" align="right" valign="top">
-static constexpr <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>AnyCOFFVariant</b> = <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a>(0)</td></tr>
-<tr class="separator:a38d5a504a55d28c503118f955d6ccf1f inherit pub_static_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a4ca14354930d750a5edd569e80cad5d0 inherit pub_static_attribs_classCOFF_1_1COFFFormat" id="r_a4ca14354930d750a5edd569e80cad5d0"><td class="memItemLeft" align="right" valign="top">
-static const std::map&lt; uint32_t, <a class="el" href="structCOFF_1_1COFFFormat_1_1MachineType.html">MachineType</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>MACHINE_TYPES</b></td></tr>
-<tr class="separator:a4ca14354930d750a5edd569e80cad5d0 inherit pub_static_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af807e9aa8f9230096f063b18a67071ed inherit pub_static_attribs_classCOFF_1_1COFFFormat" id="r_af807e9aa8f9230096f063b18a67071ed"><td class="memItemLeft" align="right" valign="top">static std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat.html#af807e9aa8f9230096f063b18a67071ed">ParameterNames</a></td></tr>
-<tr class="separator:af807e9aa8f9230096f063b18a67071ed inherit pub_static_attribs_classCOFF_1_1COFFFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:aba19c02257c496c2f8a7ea8ebc40be3d inherit pro_attribs_classLinker_1_1SegmentManager" id="r_aba19c02257c496c2f8a7ea8ebc40be3d"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b> = 0</td></tr>
@@ -618,7 +804,152 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Microsoft PE .EXE portable executable file format. </p>
-</div><h2 class="groupheader">Member Function Documentation</h2>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a6068827181ab4ad6dd750346c7f5c61a" name="a6068827181ab4ad6dd750346c7f5c61a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6068827181ab4ad6dd750346c7f5c61a">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>COFF file header flags, most of these are obsolete, we only use them as precombined flag sets. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aae625d2f85df04e1f71a14671e5a31244" name="a6068827181ab4ad6dd750346c7f5c61aae625d2f85df04e1f71a14671e5a31244"></a>FLAG_NO_RELOCATIONS&#160;</td><td class="fielddoc"><p>IMAGE_FILE_RELOCS_STRIPPED (F_RELFLG) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aaa5fe3a8d95b0ddc70a5c6b5da2d1a181" name="a6068827181ab4ad6dd750346c7f5c61aaa5fe3a8d95b0ddc70a5c6b5da2d1a181"></a>FLAG_EXECUTABLE&#160;</td><td class="fielddoc"><p>IMAGE_FILE_EXECUTABLE_IMAGE (F_EXEC) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa0705f90872ef29742ac9d496d29c1b17" name="a6068827181ab4ad6dd750346c7f5c61aa0705f90872ef29742ac9d496d29c1b17"></a>FLAG_NO_LINE_NUMBERS&#160;</td><td class="fielddoc"><p>(deprecated) IMAGE_FILE_LINE_NUMS_STRIPPED (F_LNNO) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aac478e2c89b0f3aa88f2f362b8971212b" name="a6068827181ab4ad6dd750346c7f5c61aac478e2c89b0f3aa88f2f362b8971212b"></a>FLAG_NO_SYMBOLS&#160;</td><td class="fielddoc"><p>(deprecated) IMAGE_FILE_LOCAL_SYMS_STRIPPED (F_LSYMS) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aacf05a9ec9c700e529ceb902b215093bd" name="a6068827181ab4ad6dd750346c7f5c61aacf05a9ec9c700e529ceb902b215093bd"></a>FLAG_TRIM_WORKING_SET&#160;</td><td class="fielddoc"><p>(deprecated) IMAGE_FILE_AGGRESSIVE_WS_TRIM (no COFF meaning) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aafd9078efb2ac7d93a96e632af2962e85" name="a6068827181ab4ad6dd750346c7f5c61aafd9078efb2ac7d93a96e632af2962e85"></a>FLAG_LARGE_ADDRESS&#160;</td><td class="fielddoc"><p>IMAGE_FILE_LARGE_ADDRESS_AWARE (no COFF meaning) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa30863d1722e0c6df4be9a85a04cd970a" name="a6068827181ab4ad6dd750346c7f5c61aa30863d1722e0c6df4be9a85a04cd970a"></a>FLAG_LITTLE_ENDIAN&#160;</td><td class="fielddoc"><p>(deprecated) IMAGE_FILE_BYTES_REVERSED_LO (redefined from COFF F_AR16WR) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa10e3e270b6f59775d6552fe064c48d60" name="a6068827181ab4ad6dd750346c7f5c61aa10e3e270b6f59775d6552fe064c48d60"></a>FLAG_32BIT&#160;</td><td class="fielddoc"><p>IMAGE_FILE_32BIT_MACHINE (redefined from COFF F_AR32WR) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa47731022f4a311ee566b2b26c4bd3d92" name="a6068827181ab4ad6dd750346c7f5c61aa47731022f4a311ee566b2b26c4bd3d92"></a>FLAG_NO_DEBUG&#160;</td><td class="fielddoc"><p>IMAGE_FILE_DEBUG_STRIPPED (redefined from COFF F_AR32W) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa0677e3b691b4dbfd886113a0b994397e" name="a6068827181ab4ad6dd750346c7f5c61aa0677e3b691b4dbfd886113a0b994397e"></a>FLAG_ON_REMOVABLE&#160;</td><td class="fielddoc"><p>IMAGE_FILE_REMOVABLE_RUN_FROM_SWAP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa86a81c2399e53ffab55db7d3839065db" name="a6068827181ab4ad6dd750346c7f5c61aa86a81c2399e53ffab55db7d3839065db"></a>FLAG_ON_NETWORK&#160;</td><td class="fielddoc"><p>IMAGE_FILE_NET_RUN_FROM_SWAP. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa6cccdcf2680478476f7fab27e34cdbe6" name="a6068827181ab4ad6dd750346c7f5c61aa6cccdcf2680478476f7fab27e34cdbe6"></a>FLAG_SYSTEM&#160;</td><td class="fielddoc"><p>IMAGE_FILE_SYSTEM. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa2fab0b16cc07eb795a612eef44fa22b9" name="a6068827181ab4ad6dd750346c7f5c61aa2fab0b16cc07eb795a612eef44fa22b9"></a>FLAG_LIBRARY&#160;</td><td class="fielddoc"><p>IMAGE_FILE_DLL. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aafa0ea0fbae3e89bc9744ed1a8533dcdf" name="a6068827181ab4ad6dd750346c7f5c61aafa0ea0fbae3e89bc9744ed1a8533dcdf"></a>FLAG_UNIPROCESSOR_ONLY&#160;</td><td class="fielddoc"><p>IMAGE_FILE_UP_SYSTEM_ONLY. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a6068827181ab4ad6dd750346c7f5c61aa75066c28b0cad803cbb0f12227e5bc0c" name="a6068827181ab4ad6dd750346c7f5c61aa75066c28b0cad803cbb0f12227e5bc0c"></a>FLAG_BIG_ENDIAN&#160;</td><td class="fielddoc"><p>(deprecated) IMAGE_FILE_BYTES_REVERSED_HI </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a203344a33196639c23f1237d4e7a7d56" name="a203344a33196639c23f1237d4e7a7d56"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a203344a33196639c23f1237d4e7a7d56">&#9670;&#160;</a></span>output_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a203344a33196639c23f1237d4e7a7d56">Microsoft::PEFormat::output_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Represents the target image type. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a203344a33196639c23f1237d4e7a7d56a05cab81283c352f2043a186380be3d37" name="a203344a33196639c23f1237d4e7a7d56a05cab81283c352f2043a186380be3d37"></a>OUTPUT_EXE&#160;</td><td class="fielddoc"><p>An executable image, conventionally taking the suffix <code>.exe</code> </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a203344a33196639c23f1237d4e7a7d56a1fae6ca0326368caad3a99928fb01136" name="a203344a33196639c23f1237d4e7a7d56a1fae6ca0326368caad3a99928fb01136"></a>OUTPUT_DLL&#160;</td><td class="fielddoc"><p>A dynamically linked library, conventionally taking the suffix <code>.dll</code> </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a203344a33196639c23f1237d4e7a7d56a1929d9a8a2c9d26119f60c9df210cda0" name="a203344a33196639c23f1237d4e7a7d56a1929d9a8a2c9d26119f60c9df210cda0"></a>OUTPUT_SYS&#160;</td><td class="fielddoc"><p>A system file or driver, conventionally taking the suffix <code>.sys</code> </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ab6c50ce9df5c703a3a26ea7fa4086d27" name="ab6c50ce9df5c703a3a26ea7fa4086d27"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6c50ce9df5c703a3a26ea7fa4086d27">&#9670;&#160;</a></span>target_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#ab6c50ce9df5c703a3a26ea7fa4086d27">Microsoft::PEFormat::target_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Represents settings and assumptions about the target. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27a435c54fa3c1cad3f10164f8301f2d36b" name="ab6c50ce9df5c703a3a26ea7fa4086d27a435c54fa3c1cad3f10164f8301f2d36b"></a>TargetWin9x&#160;</td><td class="fielddoc"><p>Windows 95/98/ME. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27ab7d58fbd484c4fc64f56a963e030f738" name="ab6c50ce9df5c703a3a26ea7fa4086d27ab7d58fbd484c4fc64f56a963e030f738"></a>TargetWinNT&#160;</td><td class="fielddoc"><p>Windows NT kernel. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27af130f60f662d385c691a70f4b1582e66" name="ab6c50ce9df5c703a3a26ea7fa4086d27af130f60f662d385c691a70f4b1582e66"></a>TargetWinCE&#160;</td><td class="fielddoc"><p>Windows CE kernel. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27ac6efef71aafb0c01acbd4aaabfb066a5" name="ab6c50ce9df5c703a3a26ea7fa4086d27ac6efef71aafb0c01acbd4aaabfb066a5"></a>TargetMacintosh&#160;</td><td class="fielddoc"><p>Windows Portability Library. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27a1b1dca791d572f9e3786a92573a9c7ea" name="ab6c50ce9df5c703a3a26ea7fa4086d27a1b1dca791d572f9e3786a92573a9c7ea"></a>TargetWin32s&#160;</td><td class="fielddoc"><p>Win32s compatibility library for Windows 3.1. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27a5cc592f6720f222bd78e86b489517f9c" name="ab6c50ce9df5c703a3a26ea7fa4086d27a5cc592f6720f222bd78e86b489517f9c"></a>TargetTNT&#160;</td><td class="fielddoc"><p>Phar Lap TNT DOS Extender. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27a37b9b65c9b49708e7361f23486372fb4" name="ab6c50ce9df5c703a3a26ea7fa4086d27a37b9b65c9b49708e7361f23486372fb4"></a>TargetEFI&#160;</td><td class="fielddoc"><p>EFI and UEFI firmware. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27ae7017bc9daa20627d9c16ba74598e0bd" name="ab6c50ce9df5c703a3a26ea7fa4086d27ae7017bc9daa20627d9c16ba74598e0bd"></a>TargetDotNET&#160;</td><td class="fielddoc"><p>.NET environment </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ab6c50ce9df5c703a3a26ea7fa4086d27a78e74efdb2118090d5604494c103069f" name="ab6c50ce9df5c703a3a26ea7fa4086d27a78e74efdb2118090d5604494c103069f"></a>TargetXbox&#160;</td><td class="fielddoc"><p>Xbox. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="a49418cb660d09144c0c2d71a23276107" name="a49418cb660d09144c0c2d71a23276107"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49418cb660d09144c0c2d71a23276107">&#9670;&#160;</a></span>AddBaseRelocation()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PEFormat::AddBaseRelocation </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t</td>          <td class="paramname"><span class="paramname"><em>rva</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocation.html#a706cfff1504aa348a79b366987bb9d14">BaseRelocation::relocation_type</a></td>          <td class="paramname"><span class="paramname"><em>type</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t</td>          <td class="paramname"><span class="paramname"><em>low_ref</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Adds a base relocation at the specified relative virtual address. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">rva</td><td>The relative virtual address where the relocation appears, to be split into the page address and the page offset </td></tr>
+    <tr><td class="paramname">type</td><td>The type of the base relocation </td></tr>
+    <tr><td class="paramname">low_ref</td><td>Only used for HIGHADJ relocations, the parameter to be stored after the base relocation entry </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
 <a id="ace749edc0c21d5f0327202a7c17d4ac4" name="ace749edc0c21d5f0327202a7c17d4ac4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ace749edc0c21d5f0327202a7c17d4ac4">&#9670;&#160;</a></span>CalculateValues()</h2>
 
@@ -677,6 +1008,95 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
+<a id="a42899ada0aa4fbe415fe0487a57dff49" name="a42899ada0aa4fbe415fe0487a57dff49"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a42899ada0aa4fbe415fe0487a57dff49">&#9670;&#160;</a></span>FormatAdditionalSectionFlags()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned PEFormat::FormatAdditionalSectionFlags </td>
+          <td>(</td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>section_name</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html">COFF::COFFFormat</a>.</p>
+
+</div>
+</div>
+<a id="aeaca4ed9e17b22e1ccb16d7c65115986" name="aeaca4ed9e17b22e1ccb16d7c65115986"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeaca4ed9e17b22e1ccb16d7c65115986">&#9670;&#160;</a></span>FormatSupportsLibraries()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool PEFormat::FormatSupportsLibraries </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Whether the format supports libraries. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a35ff0e5cd89f53d03a15e9e9c3260ad6">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a3e4bd092aa1d8dc6583fa9886c0522e0" name="a3e4bd092aa1d8dc6583fa9886c0522e0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3e4bd092aa1d8dc6583fa9886c0522e0">&#9670;&#160;</a></span>GenerateFile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PEFormat::GenerateFile </td>
+          <td>(</td>
+          <td class="paramtype">std::string</td>          <td class="paramname"><span class="paramname"><em>filename</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>module</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>The main function that handles processing, calculating and generating the final image. </p>
+
+<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html#aae1e7eea10ae2c9c17e25ad4aadecd2a">COFF::COFFFormat</a>.</p>
+
+</div>
+</div>
 <a id="a8951f814699d84dbcf2c951b5e9f429e" name="a8951f814699d84dbcf2c951b5e9f429e"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a8951f814699d84dbcf2c951b5e9f429e">&#9670;&#160;</a></span>GetDefaultExtension()</h2>
 
@@ -711,6 +1131,122 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
+<a id="ab2e4bde87a180b6c05fadefe15a8b41e" name="ab2e4bde87a180b6c05fadefe15a8b41e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2e4bde87a180b6c05fadefe15a8b41e">&#9670;&#160;</a></span>GetLinkerScriptParameterNames()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt; PEFormat::GetLinkerScriptParameterNames </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns a list of the parameters used in the linker scripts, used for documentation. </p>
+
+<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html#a53369b26500357f3f380471e43803a3a">COFF::COFFFormat</a>.</p>
+
+</div>
+</div>
+<a id="ac1ccb069576fe4e9ef491c1f5b577023" name="ac1ccb069576fe4e9ef491c1f5b577023"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac1ccb069576fe4e9ef491c1f5b577023">&#9670;&#160;</a></span>GetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt; PEFormat::GetOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Returns object containing a sequence of option fields provided with the -S command line flag. </p>
+
+<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html#a477369394c3ee2b118e44102dcafc8ad">COFF::COFFFormat</a>.</p>
+
+</div>
+</div>
+<a id="a13c8ff156583a3960cd75f52ad3214dc" name="a13c8ff156583a3960cd75f52ad3214dc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13c8ff156583a3960cd75f52ad3214dc">&#9670;&#160;</a></span>OnNewSegment()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PEFormat::OnNewSegment </td>
+          <td>(</td>
+          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>segment</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment. </p>
+
+<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html#ae62298017d2654313e85bc48d5f3b95b">COFF::COFFFormat</a>.</p>
+
+</div>
+</div>
+<a id="ac9605e9f468ed627b49b8ba0ddebb2a6" name="ac9605e9f468ed627b49b8ba0ddebb2a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac9605e9f468ed627b49b8ba0ddebb2a6">&#9670;&#160;</a></span>ProcessModule()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PEFormat::ProcessModule </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>object</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Processes the module object and initializes format fields. </p>
+
+<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html#ad6e72adc262e5910df2cfc675755f430">COFF::COFFFormat</a>.</p>
+
+</div>
+</div>
 <a id="aa93e7c752954377cb2b64a3ee9dfacac" name="aa93e7c752954377cb2b64a3ee9dfacac"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#aa93e7c752954377cb2b64a3ee9dfacac">&#9670;&#160;</a></span>ReadFile()</h2>
 
@@ -737,6 +1273,35 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Loads file into memory. </p>
 
 <p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html#aab8530040f5357e86cecd607605816ba">COFF::COFFFormat</a>.</p>
+
+</div>
+</div>
+<a id="aa3e13e16079b4db979ff582e80a2682d" name="aa3e13e16079b4db979ff582e80a2682d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa3e13e16079b4db979ff582e80a2682d">&#9670;&#160;</a></span>SetOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PEFormat::SetOptions </td>
+          <td>(</td>
+          <td class="paramtype">std::map&lt; std::string, std::string &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>options</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Passes command line parameters as settings over to format object. </p>
+
+<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html#ad4cd9543645d19c01a9902bce9cf2ea2">COFF::COFFFormat</a>.</p>
 
 </div>
 </div>
@@ -767,6 +1332,33 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat.html#a62419ada7cc4536fe74bbb18ea5ee9ac">COFF::COFFFormat</a>.</p>
 
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a19896644c9fe84a4d7177622672c3249" name="a19896644c9fe84a4d7177622672c3249"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19896644c9fe84a4d7177622672c3249">&#9670;&#160;</a></span>ParameterNames</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::vector&lt; <a class="el" href="classLinker_1_1OptionDescription.html">Linker::OptionDescription</a>&lt; void &gt; * &gt; PEFormat::ParameterNames</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">{</div>
+<div class="line">    </div>
+<div class="line">}</div>
+</div><!-- fragment -->
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following files:<ul>

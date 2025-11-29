@@ -114,6 +114,8 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html">AOutHeader</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A standard 28 byte a.out optional header, used by DJGPP.  <a href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structCOFF_1_1COFFFormat_1_1CDOS68K__Relocation.html">CDOS68K_Relocation</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1COFFOptionCollector.html">COFFOptionCollector</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html">ECOFFAOutHeader</a></td></tr>
@@ -218,10 +220,14 @@ Public Types</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a07b40a36f51ffa98f39b074237c9c997"><td class="mdescLeft">&#160;</td><td class="mdescRight">Variants of the COFF file format.  <a href="#a07b40a36f51ffa98f39b074237c9c997">More...</a><br /></td></tr>
 <tr class="separator:a07b40a36f51ffa98f39b074237c9c997"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a205bb77ac2289ed12beb03a1a72d25ac" id="r_a205bb77ac2289ed12beb03a1a72d25ac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> { <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>
+<tr class="memitem:a205bb77ac2289ed12beb03a1a72d25ac" id="r_a205bb77ac2289ed12beb03a1a72d25ac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> { <br />
+&#160;&#160;<a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>
 , <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6">DJGPP</a>
 , <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541">CDOS68K</a>
 , <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c">CDOS386</a>
+, <br />
+&#160;&#160;<a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acac8c0b131846c46eb9d444bd328c90495">WINDOWS</a>
+<br />
  }</td></tr>
 <tr class="memdesc:a205bb77ac2289ed12beb03a1a72d25ac"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents the type of target system, which will determine the CPU type and several other fields.  <a href="#a205bb77ac2289ed12beb03a1a72d25ac">More...</a><br /></td></tr>
 <tr class="separator:a205bb77ac2289ed12beb03a1a72d25ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -253,8 +259,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a0129e17c2c0772232a3b291b399f1964" id="r_a0129e17c2c0772232a3b291b399f1964"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0129e17c2c0772232a3b291b399f1964">Clear</a> () override</td></tr>
 <tr class="memdesc:a0129e17c2c0772232a3b291b399f1964"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
 <tr class="separator:a0129e17c2c0772232a3b291b399f1964"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50779559822c9e4895620651cb01e21e" id="r_a50779559822c9e4895620651cb01e21e"><td class="memItemLeft" align="right" valign="top"><a id="a50779559822c9e4895620651cb01e21e" name="a50779559822c9e4895620651cb01e21e"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AssignMagicValue</b> (uint16_t value, ::EndianType as_endian_type)</td></tr>
+<tr class="memdesc:a50779559822c9e4895620651cb01e21e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the specified 16-bit integer in the specified byte order into the COFF header signature. <br /></td></tr>
+<tr class="separator:a50779559822c9e4895620651cb01e21e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af55c256efb24a740512ca39a11432384" id="r_af55c256efb24a740512ca39a11432384"><td class="memItemLeft" align="right" valign="top"><a id="af55c256efb24a740512ca39a11432384" name="af55c256efb24a740512ca39a11432384"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AssignMagicValue</b> (uint16_t value)</td></tr>
+<tr class="memdesc:af55c256efb24a740512ca39a11432384"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the specified 16-bit integer in the currently set byte order into the COFF header signature. <br /></td></tr>
+<tr class="separator:af55c256efb24a740512ca39a11432384"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ace94222d8e36834120f218f22c2f1b02" id="r_ace94222d8e36834120f218f22c2f1b02"><td class="memItemLeft" align="right" valign="top"><a id="ace94222d8e36834120f218f22c2f1b02" name="ace94222d8e36834120f218f22c2f1b02"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>AssignMagicValue</b> ()</td></tr>
+<tr class="memdesc:ace94222d8e36834120f218f22c2f1b02"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads the currently set CPU value in the currently set byte order into the COFF header signature. <br /></td></tr>
 <tr class="separator:ace94222d8e36834120f218f22c2f1b02"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac535516374d0ff8c0ad91f2b925ee7d7" id="r_ac535516374d0ff8c0ad91f2b925ee7d7"><td class="memItemLeft" align="right" valign="top"><a id="ac535516374d0ff8c0ad91f2b925ee7d7" name="ac535516374d0ff8c0ad91f2b925ee7d7"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>DetectCpuType</b> (::EndianType expected)</td></tr>
@@ -309,10 +324,10 @@ std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</
 <tr class="memitem:a2f7c7de81c154ed3aa02b62385a7518a" id="r_a2f7c7de81c154ed3aa02b62385a7518a"><td class="memItemLeft" align="right" valign="top"><a id="a2f7c7de81c154ed3aa02b62385a7518a" name="a2f7c7de81c154ed3aa02b62385a7518a"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
 <tr class="separator:a2f7c7de81c154ed3aa02b62385a7518a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf95f1d9cd0de3a863f1c02b28e8b2b2" id="r_aaf95f1d9cd0de3a863f1c02b28e8b2b2"><td class="memItemLeft" align="right" valign="top"><a id="aaf95f1d9cd0de3a863f1c02b28e8b2b2" name="aaf95f1d9cd0de3a863f1c02b28e8b2b2"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSegment</b> (std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">Section</a> &gt; &amp;section)</td></tr>
-<tr class="memdesc:aaf95f1d9cd0de3a863f1c02b28e8b2b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the segment stored inside the section, note that this only works for binary generation. <br /></td></tr>
-<tr class="separator:aaf95f1d9cd0de3a863f1c02b28e8b2b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3db3958adaa5f8c35a55a20a93be2228" id="r_a3db3958adaa5f8c35a55a20a93be2228"><td class="memItemLeft" align="right" valign="top"><a id="a3db3958adaa5f8c35a55a20a93be2228" name="a3db3958adaa5f8c35a55a20a93be2228"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSegment</b> (std::shared_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">Section</a> &gt; &amp;section)</td></tr>
+<tr class="memdesc:a3db3958adaa5f8c35a55a20a93be2228"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the segment stored inside the section, note that this only works for binary generation. <br /></td></tr>
+<tr class="separator:a3db3958adaa5f8c35a55a20a93be2228"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6a9fd03422d06bbad29c95b9298361cd" id="r_a6a9fd03422d06bbad29c95b9298361cd"><td class="memItemLeft" align="right" valign="top"><a id="a6a9fd03422d06bbad29c95b9298361cd" name="a6a9fd03422d06bbad29c95b9298361cd"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetCodeSegment</b> ()</td></tr>
 <tr class="separator:a6a9fd03422d06bbad29c95b9298361cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -492,10 +507,10 @@ offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b></td
 char&#160;</td><td class="memItemRight" valign="bottom"><b>signature</b> [2] = { }</td></tr>
 <tr class="memdesc:a6ea5fe54f69b59cc42f7ed0d67c1e883"><td class="mdescLeft">&#160;</td><td class="mdescRight">The actual value of the magic number (COFF name: f_magic) <br /></td></tr>
 <tr class="separator:a6ea5fe54f69b59cc42f7ed0d67c1e883"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aca7bb71282dad60d33df84a8d66a6c05" id="r_aca7bb71282dad60d33df84a8d66a6c05"><td class="memItemLeft" align="right" valign="top"><a id="aca7bb71282dad60d33df84a8d66a6c05" name="aca7bb71282dad60d33df84a8d66a6c05"></a>
-std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">Section</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sections</b></td></tr>
-<tr class="memdesc:aca7bb71282dad60d33df84a8d66a6c05"><td class="mdescLeft">&#160;</td><td class="mdescRight">The list of COFF sections. <br /></td></tr>
-<tr class="separator:aca7bb71282dad60d33df84a8d66a6c05"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e1f6affc2e87df31d081b070dba13fa" id="r_a0e1f6affc2e87df31d081b070dba13fa"><td class="memItemLeft" align="right" valign="top"><a id="a0e1f6affc2e87df31d081b070dba13fa" name="a0e1f6affc2e87df31d081b070dba13fa"></a>
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">Section</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sections</b></td></tr>
+<tr class="memdesc:a0e1f6affc2e87df31d081b070dba13fa"><td class="mdescLeft">&#160;</td><td class="mdescRight">The list of COFF sections. <br /></td></tr>
+<tr class="separator:a0e1f6affc2e87df31d081b070dba13fa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae4e9352e963d769bc7ebc0a62facece" id="r_aae4e9352e963d769bc7ebc0a62facece"><td class="memItemLeft" align="right" valign="top"><a id="aae4e9352e963d769bc7ebc0a62facece" name="aae4e9352e963d769bc7ebc0a62facece"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>section_count</b> = 0</td></tr>
 <tr class="memdesc:aae4e9352e963d769bc7ebc0a62facece"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> count (COFF name: f_nscns) <br /></td></tr>
@@ -532,10 +547,10 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>target</b> = 0</t
 std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html">OptionalHeader</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>optional_header</b> = nullptr</td></tr>
 <tr class="memdesc:af4a1f9294249418e6024b641dd660b7a"><td class="mdescLeft">&#160;</td><td class="mdescRight">The optional header instance used for reading/writing the COFF file. <br /></td></tr>
 <tr class="separator:af4a1f9294249418e6024b641dd660b7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a326c430ca03d7d60467e62513286fd5f" id="r_a326c430ca03d7d60467e62513286fd5f"><td class="memItemLeft" align="right" valign="top"><a id="a326c430ca03d7d60467e62513286fd5f" name="a326c430ca03d7d60467e62513286fd5f"></a>
-std::map&lt; uint32_t, size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
-<tr class="memdesc:a326c430ca03d7d60467e62513286fd5f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent DOS 68K requires a special block of data to represent "crunched" relocations (see CPM68KWriter for more details) <br /></td></tr>
-<tr class="separator:a326c430ca03d7d60467e62513286fd5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae24b6b89f28e3817d870c18f9a80a6c6" id="r_ae24b6b89f28e3817d870c18f9a80a6c6"><td class="memItemLeft" align="right" valign="top"><a id="ae24b6b89f28e3817d870c18f9a80a6c6" name="ae24b6b89f28e3817d870c18f9a80a6c6"></a>
+std::map&lt; uint32_t, <a class="el" href="structCOFF_1_1COFFFormat_1_1CDOS68K__Relocation.html">CDOS68K_Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="memdesc:ae24b6b89f28e3817d870c18f9a80a6c6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Concurrent DOS 68K requires a special block of data to represent "crunched" relocations (see CPM68KWriter for more details) <br /></td></tr>
+<tr class="separator:ae24b6b89f28e3817d870c18f9a80a6c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7f9bcf072b033cd7905f72376f131ba" id="r_ac7f9bcf072b033cd7905f72376f131ba"><td class="memItemLeft" align="right" valign="top"><a id="ac7f9bcf072b033cd7905f72376f131ba" name="ac7f9bcf072b033cd7905f72376f131ba"></a>
 <a class="el" href="#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a>&#160;</td><td class="memItemRight" valign="bottom"><b>coff_variant</b> = AnyCOFFVariant</td></tr>
 <tr class="separator:ac7f9bcf072b033cd7905f72376f131ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -854,7 +869,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </td></tr>
 <tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541" name="a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541"></a>CDOS68K&#160;</td><td class="fielddoc"><p>Concurrent DOS 68K executable (untested but confident) </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c" name="a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c"></a>CDOS386&#160;</td><td class="fielddoc"><p>FlexOS 386 executable (unknown) </p>
+<tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c" name="a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c"></a>CDOS386&#160;</td><td class="fielddoc"><p>FlexOS 386 executable. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25acac8c0b131846c46eb9d444bd328c90495" name="a205bb77ac2289ed12beb03a1a72d25acac8c0b131846c46eb9d444bd328c90495"></a>WINDOWS&#160;</td><td class="fielddoc"><p>Windows Portable Executable (used only by PE) </p>
 </td></tr>
 </table>
 
@@ -1039,6 +1056,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a22e05e4807efbae279ab68dcab714a42">Linker::OutputFormat</a>.</p>
 
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#a3e4bd092aa1d8dc6583fa9886c0522e0">Microsoft::PEFormat</a>.</p>
+
 </div>
 </div>
 <a id="a071e6dddbcb4ad0649ac8625c61bcd78" name="a071e6dddbcb4ad0649ac8625c61bcd78"></a>
@@ -1133,6 +1152,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a5547ffeff38e88c78ea3a077d93944d4">Linker::OutputFormat</a>.</p>
 
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#ab2e4bde87a180b6c05fadefe15a8b41e">Microsoft::PEFormat</a>.</p>
+
 </div>
 </div>
 <a id="a477369394c3ee2b118e44102dcafc8ad" name="a477369394c3ee2b118e44102dcafc8ad"></a>
@@ -1161,6 +1182,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Returns object containing a sequence of option fields provided with the -S command line flag. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a6d92eec936815a0d2aa93ca2312b4045">Linker::OutputFormat</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#ac1ccb069576fe4e9ef491c1f5b577023">Microsoft::PEFormat</a>.</p>
 
 </div>
 </div>
@@ -1220,6 +1243,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1SegmentManager.html#af83e6db36a0b6d3233d1668e2e60192a">Linker::SegmentManager</a>.</p>
 
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#a13c8ff156583a3960cd75f52ad3214dc">Microsoft::PEFormat</a>.</p>
+
 </div>
 </div>
 <a id="ad6e72adc262e5910df2cfc675755f430" name="ad6e72adc262e5910df2cfc675755f430"></a>
@@ -1248,6 +1273,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Processes the module object and initializes format fields. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#a35dab761c545930c266365344057a665">Linker::OutputFormat</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#ac9605e9f468ed627b49b8ba0ddebb2a6">Microsoft::PEFormat</a>.</p>
 
 </div>
 </div>
@@ -1308,6 +1335,8 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Passes command line parameters as settings over to format object. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#aabb33f0f671aa3eaeb66d64b2ca4664b">Linker::OutputFormat</a>.</p>
+
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat.html#aa3e13e16079b4db979ff582e80a2682d">Microsoft::PEFormat</a>.</p>
 
 </div>
 </div>

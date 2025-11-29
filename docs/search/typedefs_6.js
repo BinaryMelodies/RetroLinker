@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['threadnumber_0',['ThreadNumber',['../classOMF_1_1OMF86Format_1_1Reference.html#aa745b97a25457a9d85d41e0fb98c2647',1,'OMF::OMF86Format::Reference']]]
+  ['segment_5fid_5ft_0',['segment_id_t',['../classOMF_1_1OMF80Format.html#a1e2f7e2bb5466d31b84786996bd5669c',1,'OMF::OMF80Format']]]
 ];
