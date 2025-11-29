@@ -16,20 +16,22 @@
 	.global	start
 start:
 	_StartUp
-#.if TARGET_WIN16
-#	pushw	offset 0
-#	pushw	offset $$SEGOF$dialog_message
-#	pushw	offset dialog_message
-#	pushw	offset $$SEGOF$dialog_title
-#	pushw	offset dialog_title
-#	pushw	offset 0
-#.set MessageBox, $$IMPORT$USER$0001
-#.set $$SEGOF$MessageBox, $$IMPSEG$USER$0001
-#	.extern	MessageBox, $$SEGOF$MessageBox
-#	.byte	0x9A
-#	.word	MessageBox
-#	.word	$$SEGOF$MessageBox
-#.endif
+
+.if TARGET_WIN64
+	push	rbp
+	mov	rbp, rsp
+	and	rsp, ~0xF
+	sub	rsp, 0x20
+	mov	ecx, 0
+	lea	rdx, [rip + dialog_message]
+	lea	r8, [rip + dialog_title]
+	mov	r9d, 0
+.set __imp__MessageBox, $$IMPORT$USER32.dll$MessageBoxA$0000
+	.extern	__imp__MessageBox
+	call	[rip + __imp__MessageBox]
+	mov	rsp, rbp
+	pop	rbp
+.endif
 
 	lea	rsi, [rip + message]
 	call	PutString
@@ -153,6 +155,13 @@ text_ss_rsp:
 
 text_message:
 	.asciz	"message="
+
+.if TARGET_WIN64
+dialog_title:
+	.asciz	"Sample Application"
+dialog_message:
+	.asciz	"Graphical Greetings!"
+.endif
 
 	_SysVars
 

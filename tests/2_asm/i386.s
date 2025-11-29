@@ -22,20 +22,16 @@ start:
 	mov	stored_eip, eax
 
 	_StartUp
-#.if TARGET_WIN16
-#	pushw	offset 0
-#	pushw	offset $$SEGOF$dialog_message
-#	pushw	offset dialog_message
-#	pushw	offset $$SEGOF$dialog_title
-#	pushw	offset dialog_title
-#	pushw	offset 0
-#.set MessageBox, $$IMPORT$USER$0001
-#.set $$SEGOF$MessageBox, $$IMPSEG$USER$0001
-#	.extern	MessageBox, $$SEGOF$MessageBox
-#	.byte	0x9A
-#	.word	MessageBox
-#	.word	$$SEGOF$MessageBox
-#.endif
+
+.if TARGET_WIN32
+	push	offset 0
+	push	offset dialog_title
+	push	offset dialog_message
+	push	offset 0
+.set __imp__MessageBox, $$IMPORT$USER32.dll$MessageBoxA$0000
+	.extern	__imp__MessageBox
+	call	[__imp__MessageBox]
+.endif
 
 	mov	esi, offset message
 	call	PutString
@@ -174,6 +170,13 @@ text_ss_esp:
 
 text_message:
 	.asciz	"message="
+
+.if TARGET_WIN32
+dialog_title:
+	.asciz	"Sample Application"
+dialog_message:
+	.asciz	"Graphical Greetings!"
+.endif
 
 	.section	.bss
 
