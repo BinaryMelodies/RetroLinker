@@ -49,6 +49,9 @@ tests_clean:
 	$(MAKE) -C tests/watcom clean
 	$(MAKE) -C tests/rsx/z80 clean
 	$(MAKE) -C tests/rsx/i86 clean
+	$(MAKE) -C tests/dll/win16 clean
+	$(MAKE) -C tests/dll/win32 clean
+	$(MAKE) -C tests/dll/win64 clean
 	$(MAKE) -C unittest clean
 
 distclean: clean
@@ -62,6 +65,9 @@ distclean: clean
 	$(MAKE) -C tests/watcom distclean
 	$(MAKE) -C tests/rsx/z80 distclean
 	$(MAKE) -C tests/rsx/i86 distclean
+	$(MAKE) -C tests/dll/win16 distclean
+	$(MAKE) -C tests/dll/win32 distclean
+	$(MAKE) -C tests/dll/win64 distclean
 	$(MAKE) -C unittest distclean
 
 tests:
@@ -71,6 +77,9 @@ tests:
 	$(MAKE) -C tests/4_ctest
 	$(MAKE) -C tests/watcom
 	$(MAKE) -C tests/rsx/z80
+	$(MAKE) -C tests/dll/win16
+	$(MAKE) -C tests/dll/win32
+	$(MAKE) -C tests/dll/win64
 	$(MAKE) -C tests/rsx/i86
 
 verify:
@@ -81,6 +90,9 @@ verify:
 	$(MAKE) -C tests/watcom verify
 	$(MAKE) -C tests/rsx/z80 verify
 	$(MAKE) -C tests/rsx/i86 verify
+#	$(MAKE) -C tests/dll/win16 verify
+#	$(MAKE) -C tests/dll/win32 verify
+#	$(MAKE) -C tests/dll/win64 verify
 
 unittests: link
 	$(MAKE) -C unittest
