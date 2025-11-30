@@ -49,3 +49,5 @@ tests/dll/win16/lib.dll
 tests/dll/win16/main.exe
 tests/dll/win32/lib.dll
 tests/dll/win32/main.exe
+tests/dll/win64/lib.dll
+tests/dll/win64/main.exe
