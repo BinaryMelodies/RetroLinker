@@ -1279,22 +1279,22 @@ std::shared_ptr<NEFormat> NEFormat::SimulateLinker(compatibility_type compatibil
 	case CompatibleMicrosoft:
 		// TODO
 		break;
-	case CompatibleGNU:
+	case CompatibleBorland:
+		/* TODO */
 		break;
-	/* TODO: others */
 	}
 	return shared_from_this();
 }
 
+// TODO: this code is now duplicated here and the SetOptions method
 std::shared_ptr<NEFormat> NEFormat::CreateConsoleApplication(system_type system)
 {
 	switch(system)
 	{
 	case OS2:
-	case Windows:
-		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE);
+		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE, OUTPUT_CON);
 	case MSDOS4:
-		return std::make_shared<NEFormat>(system, MULTIPLEDATA | GLOBAL_INITIALIZATION, 0);
+		return std::make_shared<NEFormat>(system, MULTIPLEDATA | GLOBAL_INITIALIZATION, 0, OUTPUT_CON);
 	default:
 		Linker::FatalError("Internal error: invalid target system");
 	}
@@ -1305,9 +1305,9 @@ std::shared_ptr<NEFormat> NEFormat::CreateGUIApplication(system_type system)
 	switch(system)
 	{
 	case OS2:
-		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI);
+		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI, OUTPUT_GUI);
 	case Windows:
-		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE);
+		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE, OUTPUT_GUI);
 	default:
 		Linker::FatalError("Internal error: invalid target system");
 	}
@@ -1319,9 +1319,9 @@ std::shared_ptr<NEFormat> NEFormat::CreateLibraryModule(system_type system)
 	{
 	case OS2:
 	case Windows:
-		return std::make_shared<NEFormat>(system, SINGLEDATA, GUI_AWARE | LIBRARY);
+		return std::make_shared<NEFormat>(system, SINGLEDATA, GUI_AWARE | LIBRARY, OUTPUT_DLL);
 	case MSDOS4:
-		return std::make_shared<NEFormat>(system, SINGLEDATA | GLOBAL_INITIALIZATION, LIBRARY);
+		return std::make_shared<NEFormat>(system, SINGLEDATA | GLOBAL_INITIALIZATION, LIBRARY, OUTPUT_DLL);
 	default:
 		Linker::FatalError("Internal error: invalid target system");
 	}
@@ -1475,6 +1475,76 @@ void NEFormat::SetOptions(std::map<std::string, std::string>& options)
 	NEOptionCollector collector;
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
+
+	if(collector.system())
+	{
+		system = collector.system();
+	}
+
+	if(collector.type())
+	{
+		// TODO: this code is now duplicated here and the Create* methods
+		switch(collector.type())
+		{
+		case OUTPUT_CON:
+			switch(system)
+			{
+			case OS2:
+				output = OUTPUT_CON;
+				program_flags = MULTIPLEDATA;
+				application_flags = GUI_AWARE;
+				break;
+			case MSDOS4:
+				output = OUTPUT_CON;
+				program_flags = program_flag_type(MULTIPLEDATA | GLOBAL_INITIALIZATION);
+				application_flags = application_flag_type(0);
+				break;
+			default:
+				Linker::FatalError("Error: invalid target system");
+			}
+			break;
+		case OUTPUT_GUI:
+			switch(system)
+			{
+			case OS2:
+				output = OUTPUT_GUI;
+				program_flags = MULTIPLEDATA;
+				application_flags = GUI;
+				break;
+			case Windows:
+				output = OUTPUT_GUI;
+				program_flags = MULTIPLEDATA;
+				application_flags = GUI_AWARE;
+				break;
+			default:
+				Linker::FatalError("Error: invalid target system");
+			}
+			break;
+		case OUTPUT_DLL:
+			switch(system)
+			{
+			case OS2:
+			case Windows:
+				output = OUTPUT_DLL;
+				program_flags = SINGLEDATA;
+				application_flags = application_flag_type(GUI_AWARE | LIBRARY);
+				break;
+			case MSDOS4:
+				output = OUTPUT_DLL;
+				program_flags = program_flag_type(SINGLEDATA | GLOBAL_INITIALIZATION);
+				application_flags = LIBRARY;
+				break;
+			default:
+				Linker::FatalError("Error: invalid target system");
+			}
+			break;
+		}
+	}
+
+	if(collector.compat())
+	{
+		compatibility = collector.compat();
+	}
 
 	switch(system & ~PharLap)
 	{
@@ -1980,6 +2050,9 @@ void NEFormat::GenerateFile(std::string filename, Linker::Module& module)
 
 std::string NEFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	return filename + ".exe";
+	if(output == OUTPUT_DLL && ((system & ~0x7F) == OS2 || (system & ~0x7F) == Windows || (system & ~0x7F) == Windows386))
+		return filename + ".dll";
+	else
+		return filename + ".exe";
 }
 

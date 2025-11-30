@@ -32,10 +32,16 @@ namespace Microsoft
 
 		enum compatibility_type
 		{
+			/** @brief No emulation is attempted */
 			CompatibleNone,
+			/** @brief Attempts to mimic the output of the Watcom linker */
 			CompatibleWatcom,
-			CompatibleMicrosoft, /* TODO??? */
-			CompatibleGNU, /* TODO: emx extender */
+			/** @brief Attempts to mimic the output of the Microsoft linker (TODO: unimplemented) */
+			CompatibleMicrosoft,
+			/** @brief Attempts to mimic the output of the Borland linker (TODO: unimplemented) */
+			CompatibleBorland,
+			// /** @brief Attempts to mimic the output of the GNU linker, this is undefined for the LE output */
+			// CompatibleGNU,
 		};
 
 		class Object
@@ -403,15 +409,38 @@ namespace Microsoft
 
 		enum system_type
 		{
-			OS2 = 1, /* OS/2 2.0+ */
-			Windows, /* Windows 386 */
-			MSDOS4, /* ? */
-			Windows386, /* ? */
-			Neutral, /* ? */
+			/** @brief Runs on OS/2 2.0+ */
+			OS2 = 1,
+			/** @brief Reserved for Windows, unimplemented */
+			Windows,
+			/** @brief Reserved for DOS 4.x, unimplemented */
+			MSDOS4,
+			/** @brief Windows 386 (only virtual device drivers supported) */
+			Windows386,
+			/** @brief IBM Microkernel Personality Neutral, unimplemented */
+			Neutral,
 
-			DOS4G = -1, /* not a real system type */
+			/** @brief Used by DOS/4G, the numerical value is chosen so that it gets stored as OS/2 in the binary */
+			DOS4G = 0x10001,
 		};
 		system_type system = system_type(0);
+
+		/** @brief Represents the target image type */
+		enum output_type
+		{
+			/** @brief A graphical executable image, conventionally taking the suffix `.exe` */
+			OUTPUT_GUI,
+			/** @brief A console executable image, conventionally taking the suffix `.exe` */
+			OUTPUT_CON,
+			/** @brief A dynamically linked library, conventionally taking the suffix `.dll` */
+			OUTPUT_DLL,
+			/** @brief A physical device driver, conventionally taking the suffix `.sys` */
+			OUTPUT_PDD,
+			/** @brief A virtual device driver, conventionally taking the suffix `.sys` */
+			OUTPUT_VDD,
+		};
+		/*** @brief Whether to generate an executable or a library */
+		output_type output;
 
 		uint32_t module_version = 0;
 
@@ -473,8 +502,8 @@ namespace Microsoft
 		{
 		}
 
-		LEFormat(unsigned system, unsigned module_flags, bool extended_format)
-			: system(system_type(system)), module_flags(module_flags), last_page_size(0)
+		LEFormat(unsigned system, unsigned module_flags, bool extended_format, output_type output)
+			: system(system_type(system)), output(output), module_flags(module_flags), last_page_size(0)
 		{
 			if(extended_format)
 				signature[1] = 'X';
@@ -502,11 +531,88 @@ namespace Microsoft
 		class LEOptionCollector : public Linker::OptionCollector
 		{
 		public:
+			class SystemEnumeration : public Linker::Enumeration<system_type>
+			{
+			public:
+				SystemEnumeration()
+					: Enumeration(
+						"OS2", OS2,
+						"WINDOWS", Windows,
+						"DOS", MSDOS4,
+						"WIN386", Windows386,
+						"WINDOWS386", Windows386,
+						"VXD", Windows386,
+						"IBM", Neutral,
+						"DOS4G", DOS4G,
+						"DOS4GW", DOS4G)
+				{
+					descriptions = {
+						{ OS2, "OS/2 2.0+" },
+						{ Windows, "Reserved for Windows (not supported)" },
+						{ MSDOS4, "Reserved for Multitasking MS-DOS 4.0 (not supported)" },
+						{ Windows386, "Windows 386 (virtual device driver only)" },
+						{ Neutral, "IBM Microkernel Personality Neutral (not supported)" },
+						{ DOS4G, "Rational Systems (Tenberry Software) DOS/4G or DOS/4GW executable" },
+					};
+				}
+			};
+
+			class OutputTypeEnumeration : public Linker::Enumeration<output_type>
+			{
+			public:
+				OutputTypeEnumeration()
+					: Enumeration(
+						"GUI", OUTPUT_GUI,
+						"PM", OUTPUT_GUI,
+						"WINDOWS", OUTPUT_GUI,
+						"CONSOLE", OUTPUT_CON,
+						"DLL", OUTPUT_DLL,
+						"PDD", OUTPUT_PDD,
+						"SYS", OUTPUT_PDD,
+						"VDD", OUTPUT_VDD,
+						"VXD", OUTPUT_VDD)
+				{
+					descriptions = {
+						{ OUTPUT_GUI, "creates a graphical executable (Presentation Manager for OS/2)" },
+						{ OUTPUT_CON, "creates a console (text mode) executable" },
+						{ OUTPUT_DLL, "creates a dynamic linking library (DLL)" },
+						{ OUTPUT_PDD, "creates a physical device driver" },
+						{ OUTPUT_VDD, "creates a virtual device driver" },
+					};
+				}
+			};
+
+			class CompatibilityEnumeration : public Linker::Enumeration<compatibility_type>
+			{
+			public:
+				CompatibilityEnumeration()
+					: Enumeration(
+						"NONE", CompatibleNone,
+						"WATCOM", CompatibleWatcom,
+						"MS", CompatibleMicrosoft,
+						"BORLAND", CompatibleBorland)
+						//"GNU", CompatibleGNU
+				{
+					descriptions = {
+						{ CompatibleNone, "default operation" },
+						{ CompatibleWatcom, "mimics the Watcom linker (not implemented)" },
+						{ CompatibleMicrosoft, "mimics the Microsoft linker (not implemented)" },
+						{ CompatibleBorland, "mimics the Borland linker (not implemented)" },
+						/*{ CompatibleGNU, "mimics the GNU linker (not implemented)" },*/
+					};
+				}
+			};
+
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			Linker::Option<Linker::ItemOf<SystemEnumeration>> system{"system", "Target system type"};
+			Linker::Option<Linker::ItemOf<OutputTypeEnumeration>> type{"type", "Type of binary"};
+			Linker::Option<Linker::ItemOf<CompatibilityEnumeration>> compat{"compat", "Mimics the behavior of another linker"};
+			Linker::Option<bool> le{"le", "Original linear executable (LE)"};
+			Linker::Option<bool> lx{"lx", "Extended linear executable (LX)"};
 
 			LEOptionCollector()
 			{
-				InitializeFields(stub);
+				InitializeFields(stub, system, type, compat, le, lx);
 			}
 		};
 
@@ -515,6 +621,8 @@ namespace Microsoft
 		static std::shared_ptr<LEFormat> CreateGUIApplication(system_type system = OS2);
 
 		static std::shared_ptr<LEFormat> CreateLibraryModule(system_type system = OS2);
+
+		static std::shared_ptr<LEFormat> CreateDeviceDriver(system_type system = OS2, bool virtual_device_driver = true);
 
 		std::shared_ptr<LEFormat> SimulateLinker(compatibility_type compatibility);
 

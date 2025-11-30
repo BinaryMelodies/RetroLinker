@@ -18,7 +18,7 @@ namespace EMX
 	{
 	public:
 		EMXAOutFormat()
-			: AOutFormat(AOutFormat::EMX, AOutFormat::ZMAGIC), LEFormat(LEFormat::OS2, LEFormat::GUIAware | LEFormat::NoInternalFixup, true)
+			: AOutFormat(AOutFormat::EMX, AOutFormat::ZMAGIC), LEFormat(LEFormat::OS2, LEFormat::GUIAware | LEFormat::NoInternalFixup, true, LEFormat::OUTPUT_CON)
 		{
 		}
 

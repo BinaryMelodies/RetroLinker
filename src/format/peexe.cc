@@ -1186,17 +1186,22 @@ void PEFormat::SetOptions(std::map<std::string, std::string>& options)
 		break;
 	}
 
+	if(collector.compat())
+	{
+		compatibility = collector.compat();
+	}
+
 	output = collector.output();
 
 	// TODO: DLL flags and similar
 
-	// TODO: it is not known at this point whether this is 64-bit or not
 	if(collector.image_base())
 	{
 		GetOptionalHeader().image_base = collector.image_base();
 	}
 	else
 	{
+		// it is not known at this point whether this is 64-bit or not, so we set it to 0
 		GetOptionalHeader().image_base = 0;
 	}
 

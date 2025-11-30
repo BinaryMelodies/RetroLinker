@@ -520,11 +520,11 @@ namespace Microsoft
 			/** @brief Used for OS/2 1.0 - 1.3 */
 			OS2 = 1,
 			/** @brief Used for Windows 1.0 - 3.11 */
-			Windows,
+			Windows = 2,
 			/** @brief Signifies Multitasking MS-DOS 4.0 */
-			MSDOS4,
-			Windows386,
-			BorlandOSS,
+			MSDOS4 = 3,
+			Windows386 = 4,
+			BorlandOSS = 5,
 			PharLap = 0x80,
 		};
 		system_type system = system_type(0);
@@ -571,26 +571,128 @@ namespace Microsoft
 
 		void Dump(Dumper::Dumper& dump) const override;
 
+		/** @brief Represents the target image type */
+		enum output_type
+		{
+			/** @brief A graphical executable image, conventionally taking the suffix `.exe` */
+			OUTPUT_GUI,
+			/** @brief A console executable image, conventionally taking the suffix `.exe` */
+			OUTPUT_CON,
+			/** @brief A dynamically linked library, conventionally taking the suffix `.dll` */
+			OUTPUT_DLL,
+		};
+		/*** @brief Whether to generate an executable or a library */
+		output_type output;
+
 		explicit NEFormat()
 		{
 		}
 
-		NEFormat(system_type system, unsigned program_flags, unsigned application_flags)
+		NEFormat(system_type system, unsigned program_flags, unsigned application_flags, output_type output)
 			: program_flags(program_flag_type(program_flags)), application_flags(application_flag_type(application_flags)), system(system),
-			fast_load_area_offset(0), fast_load_area_length(0)
+			fast_load_area_offset(0), fast_load_area_length(0), output(output)
 		{
 		}
 
 		/* * * Writer members * * */
 
+		enum compatibility_type
+		{
+			/** @brief No emulation is attempted */
+			CompatibleNone,
+			/** @brief Attempts to mimic the output of the Watcom linker */
+			CompatibleWatcom,
+			/** @brief Attempts to mimic the output of the Microsoft linker (TODO: unimplemented) */
+			CompatibleMicrosoft,
+			/** @brief Attempts to mimic the output of the Borland linker (TODO: unimplemented) */
+			CompatibleBorland,
+			// /** @brief Attempts to mimic the output of the GNU (MinGW) linker, this is undefined for the NE output */
+			// CompatibleGNU,
+		};
+		compatibility_type compatibility = CompatibleNone;
+
 		class NEOptionCollector : public Linker::OptionCollector
 		{
 		public:
+			class SystemEnumeration : public Linker::Enumeration<system_type>
+			{
+			public:
+				SystemEnumeration()
+					: Enumeration(
+						"OS2", OS2,
+						"WIN", Windows,
+						"WINDOWS", Windows,
+						"DOS", MSDOS4,
+						"MSDOS", MSDOS4,
+						"DOS4", MSDOS4,
+						"MSDOS4", MSDOS4,
+						"WIN386", Windows386,
+						"WINDOWS386", Windows386,
+						"BOSS", BorlandOSS,
+						"BORLAND", BorlandOSS,
+						"OS2+PHARLAP", system_type(OS2 + PharLap),
+						"WIN+PHARLAP", system_type(Windows + PharLap))
+				{
+					descriptions = {
+						{ OS2, "OS/2 1.0 - 1.3" },
+						{ Windows, "Windows 1.0 - 3.11" },
+						{ MSDOS4, "Multitasking MS-DOS 4.0" },
+						{ Windows386, "Windows 386 (not supported)" },
+						{ BorlandOSS, "Borland Operating System Services (not supported)" },
+						{ system_type(OS2 + PharLap), "Phar Lap 286|DOS-Extender, OS/2 personality (not supported)" },
+						{ system_type(Windows + PharLap), "Phar Lap 286|DOS-Extender, Windows personality (not supported)" },
+					};
+				}
+			};
+
+			class OutputTypeEnumeration : public Linker::Enumeration<output_type>
+			{
+			public:
+				OutputTypeEnumeration()
+					: Enumeration(
+						"GUI", OUTPUT_GUI,
+						"PM", OUTPUT_GUI,
+						"WINDOWS", OUTPUT_GUI,
+						"CONSOLE", OUTPUT_CON,
+						"DLL", OUTPUT_DLL)
+				{
+					descriptions = {
+						{ OUTPUT_GUI, "creates a graphical executable (for Windows, or Presentation Manager for OS/2)" },
+						{ OUTPUT_CON, "creates a console (text mode) executable (for OS/2 or Multitasking MS-DOS 4.0)" },
+						{ OUTPUT_DLL, "creates a dynamic linking library (DLL)" },
+					};
+				}
+			};
+
+			class CompatibilityEnumeration : public Linker::Enumeration<compatibility_type>
+			{
+			public:
+				CompatibilityEnumeration()
+					: Enumeration(
+						"NONE", CompatibleNone,
+						"WATCOM", CompatibleWatcom,
+						"MS", CompatibleMicrosoft,
+						"BORLAND", CompatibleBorland)
+						//"GNU", CompatibleGNU
+				{
+					descriptions = {
+						{ CompatibleNone, "default operation" },
+						{ CompatibleWatcom, "mimics the Watcom linker (not implemented)" },
+						{ CompatibleMicrosoft, "mimics the Microsoft linker (not implemented)" },
+						{ CompatibleBorland, "mimics the Borland linker (not implemented)" },
+						/*{ CompatibleGNU, "mimics the GNU linker (not implemented)" },*/
+					};
+				}
+			};
+
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			Linker::Option<Linker::ItemOf<SystemEnumeration>> system{"system", "Target system type"};
+			Linker::Option<Linker::ItemOf<OutputTypeEnumeration>> type{"type", "Type of binary"};
+			Linker::Option<Linker::ItemOf<CompatibilityEnumeration>> compat{"compat", "Mimics the behavior of another linker"};
 
 			NEOptionCollector()
 			{
-				InitializeFields(stub);
+				InitializeFields(stub, system, type, compat);
 			}
 		};
 
@@ -622,15 +724,6 @@ namespace Microsoft
 		bool FormatSupportsLibraries() const override;
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
-
-		enum compatibility_type
-		{
-			CompatibleNone,
-			CompatibleWatcom,
-			CompatibleMicrosoft, /* TODO */
-			CompatibleGNU, /* TODO */
-		};
-		compatibility_type compatibility = CompatibleNone;
 
 		std::shared_ptr<NEFormat> SimulateLinker(compatibility_type compatibility);
 

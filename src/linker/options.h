@@ -16,6 +16,9 @@ namespace Linker
 	public:
 		typedef Enum value_type;
 
+		/** @brief An empty dictionary that explains the value types in detail */
+		std::map<value_type, std::string> descriptions;
+
 		/** @brief Maps each value to a sequence of valid strings */
 		std::map<value_type, std::vector<std::string>> values;
 	protected:
@@ -378,6 +381,10 @@ namespace Linker
 					out << name;
 				}
 				out << std::endl;
+				if(TypeData<ItemOf<T>>::enumeration.descriptions.find(pair.first) != TypeData<ItemOf<T>>::enumeration.descriptions.end())
+				{
+					out << indentation << "\t\t" << TypeData<ItemOf<T>>::enumeration.descriptions[pair.first] << std::endl;
+				}
 			}
 		}
 	};

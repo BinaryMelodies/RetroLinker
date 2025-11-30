@@ -532,18 +532,17 @@ bool LEFormat::IsExtendedFormat() const
 
 bool LEFormat::IsLibrary() const
 {
-	return module_flags & Library;
+	return output == OUTPUT_DLL;
 }
 
 bool LEFormat::IsDriver() const
 {
-	/* TODO: Windows only */
-	return system == Windows;
+	return output == OUTPUT_PDD || output == OUTPUT_VDD;
 }
 
 bool LEFormat::IsOS2() const
 {
-	return IsExtendedFormat();
+	return system == OS2;
 }
 
 void LEFormat::ReadFile(Linker::Reader& rd)
@@ -1253,7 +1252,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		{ Windows386, "Microsoft Windows 386" },
 		{ Neutral, "IBM Microkernel Personality Neutral" },
 	};
-	header_region.AddField("System", Dumper::ChoiceDisplay::Make(system_descriptions, Dumper::HexDisplay::Make(4)), offset_t(system));
+	header_region.AddField("System", Dumper::ChoiceDisplay::Make(system_descriptions, Dumper::HexDisplay::Make(4)), offset_t(system & 0xFFFF));
 	header_region.AddField("Module version", Dumper::HexDisplay::Make(8), offset_t(module_version));
 	static const std::map<offset_t, std::string> gui_descriptions =
 	{
@@ -1507,16 +1506,15 @@ offset_t LEFormat::GetPageSize(uint32_t index) const
 			: page_size;
 }
 
+// TODO: this code is now duplicated here and the SetOptions method
 std::shared_ptr<LEFormat> LEFormat::CreateConsoleApplication(system_type system)
 {
 	switch(system)
 	{
 	case OS2:
-		return std::make_shared<LEFormat>(system, GUIAware, true);
-	case Windows386:
-		return std::make_shared<LEFormat>(system, Library | NoExternalFixup, false); /* TODO: actually, a driver */
-	case DOS4G: /* not an actual type */
-		return std::make_shared<LEFormat>(OS2, GUIAware, false);
+		return std::make_shared<LEFormat>(system, GUIAware, true, OUTPUT_CON);
+	case DOS4G: /* the actual system type is OS2 */
+		return std::make_shared<LEFormat>(DOS4G, GUIAware, false, OUTPUT_CON);
 	default:
 		Linker::FatalError("Internal error: invalid target system");
 	}
@@ -1527,7 +1525,7 @@ std::shared_ptr<LEFormat> LEFormat::CreateGUIApplication(system_type system)
 	switch(system)
 	{
 	case OS2:
-		return std::make_shared<LEFormat>(system, GUI, true);
+		return std::make_shared<LEFormat>(system, GUI, true, OUTPUT_GUI);
 	default:
 		Linker::FatalError("Internal error: invalid target system");
 	}
@@ -1538,7 +1536,20 @@ std::shared_ptr<LEFormat> LEFormat::CreateLibraryModule(system_type system)
 	switch(system)
 	{
 	case OS2:
-		return std::make_shared<LEFormat>(system, Library | NoInternalFixup, true);
+		return std::make_shared<LEFormat>(system, Library | NoInternalFixup, true, OUTPUT_DLL);
+	default:
+		Linker::FatalError("Internal error: invalid target system");
+	}
+}
+
+std::shared_ptr<LEFormat> LEFormat::CreateDeviceDriver(system_type system, bool virtual_device_driver)
+{
+	switch(system)
+	{
+	//case OS2: // TODO
+	case Windows386:
+		if(virtual_device_driver)
+			return std::make_shared<LEFormat>(system, Library | NoExternalFixup, false, OUTPUT_VDD);
 	default:
 		Linker::FatalError("Internal error: invalid target system");
 	}
@@ -1556,10 +1567,9 @@ std::shared_ptr<LEFormat> LEFormat::SimulateLinker(compatibility_type compatibil
 	case CompatibleMicrosoft:
 		/* TODO */
 		break;
-	case CompatibleGNU:
+	case CompatibleBorland:
 		/* TODO */
 		break;
-	/* TODO: others */
 	}
 	return shared_from_this();
 }
@@ -1742,6 +1752,102 @@ void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 	LEOptionCollector collector;
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
+
+	if(collector.system())
+	{
+		system = collector.system();
+		switch(system)
+		{
+		case OS2:
+			signature[1] = 'X';
+			break;
+		case Windows386:
+		case DOS4G:
+			signature[1] = 'E';
+			break;
+		default:
+			break;
+		}
+	}
+
+	if(collector.type())
+	{
+		// TODO: this code is now duplicated here and the Create* methods
+		switch(collector.type())
+		{
+		case OUTPUT_CON:
+			switch(system)
+			{
+			case OS2:
+				output = OUTPUT_CON;
+				module_flags = GUIAware;
+				signature[1] = 'X';
+				break;
+			case DOS4G: /* the actual system type is OS2 */
+				output = OUTPUT_CON;
+				module_flags = GUIAware;
+				signature[1] = 'E';
+				break;
+			default:
+				Linker::FatalError("Fatal error: invalid target system");
+			}
+			break;
+		case OUTPUT_GUI:
+			switch(system)
+			{
+			case OS2:
+				output = OUTPUT_GUI;
+				module_flags = GUI;
+				signature[1] = 'X';
+				break;
+			default:
+				Linker::FatalError("Fatal error: invalid target system");
+			}
+			break;
+		case OUTPUT_DLL:
+			switch(system)
+			{
+			case OS2:
+				output = OUTPUT_DLL;
+				module_flags = Library | NoInternalFixup;
+				signature[1] = 'X';
+				break;
+			default:
+				Linker::FatalError("Fatal error: invalid target system");
+			}
+			break;
+		case OUTPUT_PDD:
+			switch(system)
+			{
+			//case OS2: // TODO
+			default:
+				Linker::FatalError("Fatal error: invalid target system");
+			}
+			break;
+		case OUTPUT_VDD:
+			switch(system)
+			{
+			case Windows386:
+				output = OUTPUT_VDD;
+				module_flags = Library | NoInternalFixup;
+				signature[1] = 'E';
+				break;
+			default:
+				Linker::FatalError("Fatal error: invalid target system");
+			}
+			break;
+		}
+	}
+
+	if(collector.compat())
+	{
+		compatibility = collector.compat();
+	}
+
+	if(collector.le() && collector.lx())
+	{
+		Linker::FatalError("Fatal error: LE and LX flags are exclusive");
+	}
 	/* TODO */
 }
 
@@ -1825,7 +1931,7 @@ void LEFormat::Link(Linker::Module& module)
 
 void LEFormat::ProcessModule(Linker::Module& module)
 {
-	if(system == Windows386)
+	if((system & 0xFFFF) == Windows386)
 	{
 		linker_parameters["align"] = Linker::Location(0x1000);
 		linker_parameters["base_address"] = Linker::Location();
@@ -2039,9 +2145,9 @@ void LEFormat::ProcessModule(Linker::Module& module)
 		esp_object = automatic_data;
 		esp_value = objects[automatic_data - 1].size;
 	}
-	else if(automatic_data != 0 && system == OS2 && !IsLibrary())
+	else if(automatic_data != 0 && (system & 0xFFFF) == OS2 && !IsLibrary())
 	{
-		if(system == OS2 && !IsLibrary())
+		if((system & 0xFFFF) == OS2 && !IsLibrary())
 		{
 			offset_t stack_size = 0x1000; /* TODO: make into a parameter */
 			std::dynamic_pointer_cast<Linker::Segment>(objects[automatic_data - 1].image)->zero_fill += stack_size; // not important, just for consistency
@@ -2075,7 +2181,7 @@ void LEFormat::ProcessModule(Linker::Module& module)
 void LEFormat::CalculateValues()
 {
 	/* TODO: where does the stack value come from? */
-	switch(system)
+	switch((system & 0xFFFF))
 	{
 	case OS2:
 		stack_size = 0x1000;
@@ -2088,7 +2194,7 @@ void LEFormat::CalculateValues()
 	default:
 		{
 			std::ostringstream message;
-			message << "Fatal error: " << system;
+			message << "Fatal error: " << (system & 0xFFFF);
 			Linker::FatalError(message.str());
 		}
 	}
@@ -2096,7 +2202,7 @@ void LEFormat::CalculateValues()
 	if(IsLibrary() || IsDriver())
 		stack_size = esp_object = esp_value = 0;
 
-	if(system == Windows386 && compatibility == CompatibleWatcom)
+	if((system & 0xFFFF) == Windows386 && compatibility == CompatibleWatcom)
 	{
 		vxd_ddk_version = 0x4; /* TODO: Watcom? */
 	}
@@ -2244,6 +2350,18 @@ void LEFormat::GenerateFile(std::string filename, Linker::Module& module)
 
 std::string LEFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	return filename + ".exe";
+	switch(output)
+	{
+	default:
+		return filename + ".exe";
+	case OUTPUT_DLL:
+		return filename + ".dll";
+	case OUTPUT_PDD:
+	case OUTPUT_VDD:
+		if(system == Windows)
+			return filename + ".vxd"; // .386 before Windows 95
+		else
+			return filename + ".sys";
+	}
 }
 

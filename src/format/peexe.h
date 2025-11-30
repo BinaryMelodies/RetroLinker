@@ -658,6 +658,22 @@ namespace Microsoft
 	public:
 		/* * * Writer members * * */
 
+		enum compatibility_type
+		{
+			/** @brief No emulation is attempted */
+			CompatibleNone,
+			/** @brief Attempts to mimic the output of the Watcom linker */
+			CompatibleWatcom,
+			/** @brief Attempts to mimic the output of the Microsoft linker (TODO: unimplemented) */
+			CompatibleMicrosoft,
+			/** @brief Attempts to mimic the output of the Borland linker (TODO: unimplemented) */
+			CompatibleBorland,
+			/** @brief Attempts to mimic the output of the GNU (MinGW) linker, this is undefined for the LE output */
+			CompatibleGNU,
+		};
+
+		compatibility_type compatibility = CompatibleNone;
+
 		/** @brief Represents settings and assumptions about the target */
 		enum target_type
 		{
@@ -732,6 +748,20 @@ namespace Microsoft
 						"DOTNET", TargetDotNET,
 						"XBOX", TargetXbox)
 				{
+					descriptions = {
+						{ TargetWin9x, "targets Windows 95/98/ME" },
+						{ TargetWinNT, "targets Windows NT" },
+						{ TargetWinCE, "targets Windows CE/Windows Phone/Windows Mobile (pre-8)" },
+						{ TargetMacintosh, "targets the Windows Portability Library on Macintosh (not implemented)" },
+						{ TargetWin32s, "targets the Win32s layer for Windows 3.11" },
+						{ TargetTNT, "targets the Phar Lap TNT DOS Extender (not implemented)" },
+						{ TargetEFI, "targets EFI/UEFI (not implemented)" },
+						{ TargetDotNET, "targets the .NET environment (not implemented)" },
+						{ TargetXbox, "targets Xbox (not implemented)" },
+						//{ TargetBeOS, "targets BeOS x86 up to Release 3.2" },
+						//{ TargetSkyOS, "targets SkyOS" },
+						//{ TargetHXDOS, "targets the HX-DOS DOS extender" },
+					};
 				}
 			};
 
@@ -765,6 +795,18 @@ namespace Microsoft
 						"EFI_ROM", Subsystem_EFI_ROM,
 						"BOOT_APPLICATION", Subsystem_BootApplication)
 				{
+					descriptions = {
+						{ Subsystem_Windows, "creates a graphical program" },
+						{ Subsystem_Console, "creates a console (text mode) program" },
+						{ Subsystem_Native, "creates a native Windows NT kernel program" },
+						{ Subsystem_OS2, "creates a program that uses the OS/2 personality" },
+						{ Subsystem_POSIX, "creates a program that uses the POSIX personality" },
+						{ Subsystem_EFIApplication, "creates an EFI application" },
+						{ Subsystem_EFIBootServiceDriver, "creates an EFI boot service driver" },
+						{ Subsystem_EFIRuntimeDriver, "creates an EFI run-time driver" },
+						{ Subsystem_EFI_ROM, "creates an EFI ROM image" },
+						{ Subsystem_BootApplication, "creates a Windows boot application" },
+					};
 				}
 			};
 
@@ -777,6 +819,32 @@ namespace Microsoft
 						"DLL", OUTPUT_DLL,
 						"SYS", OUTPUT_SYS)
 				{
+					descriptions = {
+						{ OUTPUT_EXE, "creates an executable" },
+						{ OUTPUT_DLL, "creates a dynamic linking library (DLL)" },
+						{ OUTPUT_SYS, "creates a system program" }
+					};
+				}
+			};
+
+			class CompatibilityEnumeration : public Linker::Enumeration<compatibility_type>
+			{
+			public:
+				CompatibilityEnumeration()
+					: Enumeration(
+						"NONE", CompatibleNone,
+						"WATCOM", CompatibleWatcom,
+						"MS", CompatibleMicrosoft,
+						"BORLAND", CompatibleBorland,
+						"GNU", CompatibleGNU)
+				{
+					descriptions = {
+						{ CompatibleNone, "default operation" },
+						{ CompatibleWatcom, "mimics the Watcom linker (not implemented)" },
+						{ CompatibleMicrosoft, "mimics the Microsoft linker (not implemented)" },
+						{ CompatibleBorland, "mimics the Borland linker (not implemented)" },
+						{ CompatibleGNU, "mimics the GNU (MinGW) linker (not implemented)" },
+					};
 				}
 			};
 
@@ -784,12 +852,13 @@ namespace Microsoft
 			Linker::Option<Linker::ItemOf<TargetEnumeration>> target{"target", "Windows target type"};
 			Linker::Option<Linker::ItemOf<SubsystemEnumeration>> subsystem{"subsystem", "Windows subsystem to target"};
 			Linker::Option<Linker::ItemOf<OutputTypeEnumeration>> output{"output", "Output types"};
+			Linker::Option<Linker::ItemOf<CompatibilityEnumeration>> compat{"compat", "Mimics the behavior of another linker"};
 			Linker::Option<offset_t> image_base{"base", "Base address of image, used for calculating relative virtual addresses"};
 			Linker::Option<offset_t> section_align{"section_align", "Section alignment"};
 
 			PEOptionCollector()
 			{
-				InitializeFields(stub, target, subsystem, output, image_base, section_align);
+				InitializeFields(stub, target, subsystem, output, compat, image_base, section_align);
 			}
 		};
 
