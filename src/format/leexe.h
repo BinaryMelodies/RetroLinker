@@ -497,13 +497,28 @@ namespace Microsoft
 
 		offset_t file_size = offset_t(-1);
 
+		/** @brief Configures the values for system/output type */
+		void SetTargetDefaults();
+
 		explicit LEFormat()
 			: last_page_size(0)
 		{
 		}
 
-		LEFormat(unsigned system, unsigned module_flags, bool extended_format, output_type output)
-			: system(system_type(system)), output(output), module_flags(module_flags), last_page_size(0)
+		LEFormat(bool extended_format)
+			: last_page_size(0)
+		{
+			if(extended_format)
+				signature[1] = 'X';
+		}
+
+		LEFormat(system_type system, output_type output)
+			: system(system_type(system)), output(output), last_page_size(0)
+		{
+		}
+
+		LEFormat(system_type system, output_type output, bool extended_format)
+			: system(system_type(system)), output(output), last_page_size(0)
 		{
 			if(extended_format)
 				signature[1] = 'X';

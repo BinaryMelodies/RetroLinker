@@ -584,13 +584,15 @@ namespace Microsoft
 		/*** @brief Whether to generate an executable or a library */
 		output_type output;
 
+		/** @brief Configures the values for system/output type */
+		void SetTargetDefaults();
+
 		explicit NEFormat()
 		{
 		}
 
-		NEFormat(system_type system, unsigned program_flags, unsigned application_flags, output_type output)
-			: program_flags(program_flag_type(program_flags)), application_flags(application_flag_type(application_flags)), system(system),
-			fast_load_area_offset(0), fast_load_area_length(0), output(output)
+		NEFormat(system_type system, output_type output)
+			: system(system), fast_load_area_offset(0), fast_load_area_length(0), output(output)
 		{
 		}
 

@@ -530,6 +530,69 @@ bool LEFormat::IsExtendedFormat() const
 	return signature[1] == 'X';
 }
 
+void LEFormat::SetTargetDefaults()
+{
+	switch(output)
+	{
+	case OUTPUT_CON:
+		switch(system)
+		{
+		case OS2:
+			module_flags = GUIAware;
+			signature[1] = 'X';
+			break;
+		case DOS4G: /* the actual system type is OS2 */
+			module_flags = GUIAware;
+			signature[1] = 'E';
+			break;
+		default:
+			Linker::FatalError("Fatal error: invalid target system");
+		}
+		break;
+	case OUTPUT_GUI:
+		switch(system)
+		{
+		case OS2:
+			module_flags = GUI;
+			signature[1] = 'X';
+			break;
+		default:
+			Linker::FatalError("Fatal error: invalid target system");
+		}
+		break;
+	case OUTPUT_DLL:
+		switch(system)
+		{
+		case OS2:
+			module_flags = Library | NoInternalFixup;
+			signature[1] = 'X';
+			break;
+		default:
+			Linker::FatalError("Fatal error: invalid target system");
+		}
+		break;
+	case OUTPUT_PDD:
+		switch(system)
+		{
+		//case OS2: // TODO
+		default:
+			Linker::FatalError("Fatal error: invalid target system");
+		}
+		break;
+	case OUTPUT_VDD:
+		switch(system)
+		{
+		case Windows386:
+			module_flags = Library | NoExternalFixup;
+			signature[1] = 'E';
+			break;
+		default:
+			Linker::FatalError("Fatal error: invalid target system");
+		}
+		break;
+	}
+}
+
 bool LEFormat::IsLibrary() const
 {
 	return output == OUTPUT_DLL;
@@ -1506,53 +1569,32 @@ offset_t LEFormat::GetPageSize(uint32_t index) const
 			: page_size;
 }
 
-// TODO: this code is now duplicated here and the SetOptions method
 std::shared_ptr<LEFormat> LEFormat::CreateConsoleApplication(system_type system)
 {
-	switch(system)
-	{
-	case OS2:
-		return std::make_shared<LEFormat>(system, GUIAware, true, OUTPUT_CON);
-	case DOS4G: /* the actual system type is OS2 */
-		return std::make_shared<LEFormat>(DOS4G, GUIAware, false, OUTPUT_CON);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
+	auto fmt = std::make_shared<LEFormat>(system, OUTPUT_CON);
+	fmt->SetTargetDefaults();
+	return fmt;
 }
 
 std::shared_ptr<LEFormat> LEFormat::CreateGUIApplication(system_type system)
 {
-	switch(system)
-	{
-	case OS2:
-		return std::make_shared<LEFormat>(system, GUI, true, OUTPUT_GUI);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
+	auto fmt = std::make_shared<LEFormat>(system, OUTPUT_GUI);
+	fmt->SetTargetDefaults();
+	return fmt;
 }
 
 std::shared_ptr<LEFormat> LEFormat::CreateLibraryModule(system_type system)
 {
-	switch(system)
-	{
-	case OS2:
-		return std::make_shared<LEFormat>(system, Library | NoInternalFixup, true, OUTPUT_DLL);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
+	auto fmt = std::make_shared<LEFormat>(system, OUTPUT_DLL);
+	fmt->SetTargetDefaults();
+	return fmt;
 }
 
 std::shared_ptr<LEFormat> LEFormat::CreateDeviceDriver(system_type system, bool virtual_device_driver)
 {
-	switch(system)
-	{
-	//case OS2: // TODO
-	case Windows386:
-		if(virtual_device_driver)
-			return std::make_shared<LEFormat>(system, Library | NoExternalFixup, false, OUTPUT_VDD);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
+	auto fmt = std::make_shared<LEFormat>(system, virtual_device_driver ? OUTPUT_VDD : OUTPUT_PDD);
+	fmt->SetTargetDefaults();
+	return fmt;
 }
 
 std::shared_ptr<LEFormat> LEFormat::SimulateLinker(compatibility_type compatibility)
@@ -1772,72 +1814,10 @@ void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 
 	if(collector.type())
 	{
-		// TODO: this code is now duplicated here and the Create* methods
-		switch(collector.type())
-		{
-		case OUTPUT_CON:
-			switch(system)
-			{
-			case OS2:
-				output = OUTPUT_CON;
-				module_flags = GUIAware;
-				signature[1] = 'X';
-				break;
-			case DOS4G: /* the actual system type is OS2 */
-				output = OUTPUT_CON;
-				module_flags = GUIAware;
-				signature[1] = 'E';
-				break;
-			default:
-				Linker::FatalError("Fatal error: invalid target system");
-			}
-			break;
-		case OUTPUT_GUI:
-			switch(system)
-			{
-			case OS2:
-				output = OUTPUT_GUI;
-				module_flags = GUI;
-				signature[1] = 'X';
-				break;
-			default:
-				Linker::FatalError("Fatal error: invalid target system");
-			}
-			break;
-		case OUTPUT_DLL:
-			switch(system)
-			{
-			case OS2:
-				output = OUTPUT_DLL;
-				module_flags = Library | NoInternalFixup;
-				signature[1] = 'X';
-				break;
-			default:
-				Linker::FatalError("Fatal error: invalid target system");
-			}
-			break;
-		case OUTPUT_PDD:
-			switch(system)
-			{
-			//case OS2: // TODO
-			default:
-				Linker::FatalError("Fatal error: invalid target system");
-			}
-			break;
-		case OUTPUT_VDD:
-			switch(system)
-			{
-			case Windows386:
-				output = OUTPUT_VDD;
-				module_flags = Library | NoInternalFixup;
-				signature[1] = 'E';
-				break;
-			default:
-				Linker::FatalError("Fatal error: invalid target system");
-			}
-			break;
-		}
+		output = collector.type();
 	}
+
+	SetTargetDefaults();
 
 	if(collector.compat())
 	{

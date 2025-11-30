@@ -649,15 +649,6 @@ namespace Microsoft
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
-		PEFormat()
-			: COFFFormat(WINDOWS, PECOFF, ::LittleEndian)
-		{
-			optional_header = std::make_unique<PEOptionalHeader>();
-		}
-
-	public:
-		/* * * Writer members * * */
-
 		enum compatibility_type
 		{
 			/** @brief No emulation is attempted */
@@ -714,6 +705,16 @@ namespace Microsoft
 		};
 		/*** @brief Whether to generate an executable, library or system file */
 		output_type output = OUTPUT_EXE;
+
+		PEFormat(target_type target = TargetWinNT, PEOptionalHeader::SubsystemType subsystem = PEOptionalHeader::WindowsGUI, output_type output = OUTPUT_EXE)
+			: COFFFormat(WINDOWS, PECOFF, ::LittleEndian), target(target), output(output)
+		{
+			optional_header = std::make_unique<PEOptionalHeader>();
+			GetOptionalHeader().subsystem = subsystem;
+		}
+
+	public:
+		/* * * Writer members * * */
 
 		/** @brief Make generated image relocatable (TODO: expose as command line option) */
 		bool option_relocatable = true;
@@ -861,6 +862,16 @@ namespace Microsoft
 				InitializeFields(stub, target, subsystem, output, compat, image_base, section_align);
 			}
 		};
+
+		static std::shared_ptr<PEFormat> CreateConsoleApplication(target_type target = TargetWinNT, PEOptionalHeader::SubsystemType subsystem = PEOptionalHeader::WindowsCUI);
+
+		static std::shared_ptr<PEFormat> CreateGUIApplication(target_type target = TargetWinNT, PEOptionalHeader::SubsystemType subsystem = PEOptionalHeader::WindowsGUI);
+
+		static std::shared_ptr<PEFormat> CreateLibraryModule(target_type target = TargetWinNT);
+
+		static std::shared_ptr<PEFormat> CreateDeviceDriver(target_type target = TargetWinNT);
+
+		std::shared_ptr<PEFormat> SimulateLinker(compatibility_type compatibility);
 
 		bool FormatSupportsLibraries() const override;
 

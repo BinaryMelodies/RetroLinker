@@ -248,7 +248,7 @@ format_specification formats[] =
 		"XCOFF64" },
 	/* PE */
 	{ "pe",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<PEFormat>(); },
+		[]() -> std::shared_ptr<Format> { return PEFormat::CreateGUIApplication(PEFormat::TargetWin9x)->SimulateLinker(PEFormat::CompatibleNone); },
 		"Windows PE portable executable" },
 	{ "pe32" },
 	{ "win32" },

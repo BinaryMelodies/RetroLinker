@@ -1012,6 +1012,55 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 
 /* * * Writer members * * */
 
+std::shared_ptr<PEFormat> PEFormat::CreateConsoleApplication(target_type target, PEOptionalHeader::SubsystemType subsystem)
+{
+	// TODO: use subsystem, but only if it has a CUI variant
+	auto fmt = std::make_shared<PEFormat>(target, PEOptionalHeader::WindowsCUI, OUTPUT_EXE);
+	return fmt;
+}
+
+std::shared_ptr<PEFormat> PEFormat::CreateGUIApplication(target_type target, PEOptionalHeader::SubsystemType subsystem)
+{
+	// TODO: use subsystem, but only if it has a GUI variant
+	auto fmt = std::make_shared<PEFormat>(target, PEOptionalHeader::WindowsGUI, OUTPUT_EXE);
+	return fmt;
+}
+
+std::shared_ptr<PEFormat> PEFormat::CreateLibraryModule(target_type target)
+{
+	auto fmt = std::make_shared<PEFormat>(target, PEOptionalHeader::WindowsGUI, OUTPUT_DLL); // TODO: GUI or CUI?
+	return fmt;
+}
+
+std::shared_ptr<PEFormat> PEFormat::CreateDeviceDriver(target_type target)
+{
+	auto fmt = std::make_shared<PEFormat>(target, PEOptionalHeader::Native, OUTPUT_SYS);
+	return fmt;
+}
+
+std::shared_ptr<PEFormat> PEFormat::SimulateLinker(compatibility_type compatibility)
+{
+	this->compatibility = compatibility;
+	switch(compatibility)
+	{
+	case CompatibleNone:
+		break;
+	case CompatibleWatcom:
+		/* TODO */
+		break;
+	case CompatibleMicrosoft:
+		/* TODO */
+		break;
+	case CompatibleBorland:
+		/* TODO */
+		break;
+	case CompatibleGNU:
+		/* TODO */
+		break;
+	}
+	return std::dynamic_pointer_cast<PEFormat>(shared_from_this());
+}
+
 bool PEFormat::FormatSupportsLibraries() const
 {
 	return true;

@@ -18,8 +18,10 @@ namespace EMX
 	{
 	public:
 		EMXAOutFormat()
-			: AOutFormat(AOutFormat::EMX, AOutFormat::ZMAGIC), LEFormat(LEFormat::OS2, LEFormat::GUIAware | LEFormat::NoInternalFixup, true, LEFormat::OUTPUT_CON)
+			: AOutFormat(AOutFormat::EMX, AOutFormat::ZMAGIC), LEFormat(LEFormat::OS2, LEFormat::OUTPUT_CON)
 		{
+			LEFormat::module_flags = LEFormat::GUIAware | LEFormat::NoInternalFixup;
+			LEFormat::signature[1] = 'X';
 		}
 
 		bool bound_image = false;

@@ -1229,6 +1229,59 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 	}
 }
 
+void NEFormat::SetTargetDefaults()
+{
+	switch(output)
+	{
+	case OUTPUT_CON:
+		switch(system)
+		{
+		case OS2:
+			program_flags = MULTIPLEDATA;
+			application_flags = GUI_AWARE;
+			break;
+		case MSDOS4:
+			program_flags = program_flag_type(MULTIPLEDATA | GLOBAL_INITIALIZATION);
+			application_flags = application_flag_type(0);
+			break;
+		default:
+			Linker::FatalError("Error: invalid target system");
+		}
+		break;
+	case OUTPUT_GUI:
+		switch(system)
+		{
+		case OS2:
+			program_flags = MULTIPLEDATA;
+			application_flags = GUI;
+			break;
+		case Windows:
+			program_flags = MULTIPLEDATA;
+			application_flags = GUI_AWARE;
+			break;
+		default:
+			Linker::FatalError("Error: invalid target system");
+		}
+		break;
+	case OUTPUT_DLL:
+		switch(system)
+		{
+		case OS2:
+		case Windows:
+			program_flags = SINGLEDATA;
+			application_flags = application_flag_type(GUI_AWARE | LIBRARY);
+			break;
+		case MSDOS4:
+			program_flags = program_flag_type(SINGLEDATA | GLOBAL_INITIALIZATION);
+			application_flags = LIBRARY;
+			break;
+		default:
+			Linker::FatalError("Error: invalid target system");
+		}
+		break;
+	}
+}
+
 bool NEFormat::FormatSupportsSegmentation() const
 {
 	return true;
@@ -1286,45 +1339,25 @@ std::shared_ptr<NEFormat> NEFormat::SimulateLinker(compatibility_type compatibil
 	return shared_from_this();
 }
 
-// TODO: this code is now duplicated here and the SetOptions method
 std::shared_ptr<NEFormat> NEFormat::CreateConsoleApplication(system_type system)
 {
-	switch(system)
-	{
-	case OS2:
-		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE, OUTPUT_CON);
-	case MSDOS4:
-		return std::make_shared<NEFormat>(system, MULTIPLEDATA | GLOBAL_INITIALIZATION, 0, OUTPUT_CON);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
+	auto fmt = std::make_shared<NEFormat>(system, OUTPUT_CON);
+	fmt->SetTargetDefaults();
+	return fmt;
 }
 
 std::shared_ptr<NEFormat> NEFormat::CreateGUIApplication(system_type system)
 {
-	switch(system)
-	{
-	case OS2:
-		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI, OUTPUT_GUI);
-	case Windows:
-		return std::make_shared<NEFormat>(system, MULTIPLEDATA, GUI_AWARE, OUTPUT_GUI);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
+	auto fmt = std::make_shared<NEFormat>(system, OUTPUT_GUI);
+	fmt->SetTargetDefaults();
+	return fmt;
 }
 
 std::shared_ptr<NEFormat> NEFormat::CreateLibraryModule(system_type system)
 {
-	switch(system)
-	{
-	case OS2:
-	case Windows:
-		return std::make_shared<NEFormat>(system, SINGLEDATA, GUI_AWARE | LIBRARY, OUTPUT_DLL);
-	case MSDOS4:
-		return std::make_shared<NEFormat>(system, SINGLEDATA | GLOBAL_INITIALIZATION, LIBRARY, OUTPUT_DLL);
-	default:
-		Linker::FatalError("Internal error: invalid target system");
-	}
+	auto fmt = std::make_shared<NEFormat>(system, OUTPUT_DLL);
+	fmt->SetTargetDefaults();
+	return fmt;
 }
 
 unsigned NEFormat::GetCodeSegmentFlags() const
@@ -1483,63 +1516,10 @@ void NEFormat::SetOptions(std::map<std::string, std::string>& options)
 
 	if(collector.type())
 	{
-		// TODO: this code is now duplicated here and the Create* methods
-		switch(collector.type())
-		{
-		case OUTPUT_CON:
-			switch(system)
-			{
-			case OS2:
-				output = OUTPUT_CON;
-				program_flags = MULTIPLEDATA;
-				application_flags = GUI_AWARE;
-				break;
-			case MSDOS4:
-				output = OUTPUT_CON;
-				program_flags = program_flag_type(MULTIPLEDATA | GLOBAL_INITIALIZATION);
-				application_flags = application_flag_type(0);
-				break;
-			default:
-				Linker::FatalError("Error: invalid target system");
-			}
-			break;
-		case OUTPUT_GUI:
-			switch(system)
-			{
-			case OS2:
-				output = OUTPUT_GUI;
-				program_flags = MULTIPLEDATA;
-				application_flags = GUI;
-				break;
-			case Windows:
-				output = OUTPUT_GUI;
-				program_flags = MULTIPLEDATA;
-				application_flags = GUI_AWARE;
-				break;
-			default:
-				Linker::FatalError("Error: invalid target system");
-			}
-			break;
-		case OUTPUT_DLL:
-			switch(system)
-			{
-			case OS2:
-			case Windows:
-				output = OUTPUT_DLL;
-				program_flags = SINGLEDATA;
-				application_flags = application_flag_type(GUI_AWARE | LIBRARY);
-				break;
-			case MSDOS4:
-				output = OUTPUT_DLL;
-				program_flags = program_flag_type(SINGLEDATA | GLOBAL_INITIALIZATION);
-				application_flags = LIBRARY;
-				break;
-			default:
-				Linker::FatalError("Error: invalid target system");
-			}
-			break;
-		}
+		output = collector.type();
 	}
+
+	SetTargetDefaults();
 
 	if(collector.compat())
 	{
