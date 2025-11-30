@@ -45,3 +45,5 @@ tests/rsx/i86/*
 !tests/rsx/i86/Makefile
 tests/win16api/msgbox/main.exe
 tests/win16api/window/main.exe
+tests/dll/win16/lib.dll
+tests/dll/win16/main.exe
