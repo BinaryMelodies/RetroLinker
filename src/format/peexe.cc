@@ -518,16 +518,16 @@ void PEFormat::ExportsSection::SetEntry(uint32_t ordinal, std::shared_ptr<Export
 
 void PEFormat::ExportsSection::AddEntry(std::shared_ptr<ExportedEntry> entry)
 {
-	entries.push_back(entry);
+	assert(entry->name);
 
-	if(entry->name)
+	if(named_exports.find(entry->name.value().name) != named_exports.end())
 	{
-		if(named_exports.find(entry->name.value().name) != named_exports.end())
-		{
-			Linker::Error << "Error: overwriting entry " << entry->name.value().name << std::endl;
-		}
-		named_exports[entry->name.value().name] = entries.size() - 1;
+		// already added
+		return;
 	}
+
+	entries.push_back(entry);
+	named_exports[entry->name.value().name] = entries.size() - 1;
 }
 
 bool PEFormat::ExportsSection::IsPresent() const
@@ -651,7 +651,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	wr.Seek(rva_to_offset + ordinal_table_rva);
 	for(auto named_export : named_exports)
 	{
-		wr.WriteWord(2, uint16_t(named_export.second - ordinal_base));
+		wr.WriteWord(2, uint16_t(named_export.second));
 	}
 
 	wr.Seek(rva_to_offset + dll_name_rva);
@@ -1511,7 +1511,12 @@ void PEFormat::ProcessModule(Linker::Module& module)
 			{
 				exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address));
 			}
-			exports->SetEntry(ordinal, exported_symbol);
+			if(ordinal < exports->ordinal_base)
+			{
+				Linker::Error << "Error: invalid ordinal " << ordinal << " for ordinal base set to " << exports->ordinal_base << std::endl;
+				continue;
+			}
+			exports->SetEntry(ordinal - exports->ordinal_base, exported_symbol);
 		}
 	}
 
@@ -1873,6 +1878,8 @@ void PEFormat::GenerateFile(std::string filename, Linker::Module& module)
 		}
 		// TODO
 	}
+
+	exports->dll_name = filename;
 
 	linker_parameters["image_base"] = GetOptionalHeader().image_base;
 	linker_parameters["section_align"] = GetOptionalHeader().section_align;
