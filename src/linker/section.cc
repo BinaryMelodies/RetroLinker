@@ -247,7 +247,9 @@ offset_t Section::WriteData(size_t bytes, offset_t offset, const void * buffer)
 offset_t Section::WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype)
 {
 	if(value == 0 && (offset > Size() || IsZeroFilled()))
-		return 0; // TODO: expand?
+	{
+		return Expand(offset + bytes);
+	}
 	assert(!IsZeroFilled());
 	offset_t expand_count = Expand(offset + bytes);
 	// make sure the offset is within the stored data range, this is only required for subclasses of Section
