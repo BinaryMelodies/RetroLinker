@@ -226,7 +226,7 @@ extra_var:
 %ifdef	CPU_I386
 	section	stack use32 class=stack
 %endif
-	group dgroup data bss stack
+	group DGROUP data bss stack
 %else
 	section	.stack nobits alloc noexec write
 

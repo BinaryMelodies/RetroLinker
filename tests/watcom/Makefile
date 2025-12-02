@@ -1,6 +1,5 @@
 
-all: w/win16.exe l/win16.exe w/win16.dll l/win16.dll w/os2v1.exe l/os2v1.exe w/pmv1.exe l/pmv1.exe w/os2v1.dll l/os2v1.dll w/win16.386 l/win16.386 w/dos4gexe.exe l/dos4gexe.exe w/os2v2.exe l/os2v2.exe w/pmv2.exe l/pmv2.exe w/os2v2.dll l/os2v2.dll w/win32.exe w/gui32.exe w/win32.dll
-# TODO: maybe l/win32.exe l/gui32.exe l/win32.dll
+all: w/win16.exe l/win16.exe w/win16.dll l/win16.dll w/os2v1.exe l/os2v1.exe w/pmv1.exe l/pmv1.exe w/os2v1.dll l/os2v1.dll w/win16.386 l/win16.386 w/dos4gexe.exe l/dos4gexe.exe w/os2v2.exe l/os2v2.exe w/pmv2.exe l/pmv2.exe w/os2v2.dll l/os2v2.dll w/win32.exe l/win32.exe w/gui32.exe l/gui32.exe w/win32.dll l/win32.dll
 
 .PHONY: all clean distclean verify
 
@@ -124,13 +123,28 @@ w/win32.exe: source.asm w
 	wlink option quiet system nt name `basename $@` file `basename $@ .exe`.o option stub=stub
 	mv -f `basename $@` $@
 
+l/win32.exe: source.asm l ../../link
+	nasm -felf $< -o `basename $@ .exe`.o -DTARGET_WIN32=1 -DOUTPUT_CLI=1 -DCPU_I386=1 -DTARGET_ELF=1
+	../../link -Fwin32 -Starget=winnt -Ssubsystem=console -Scompat=watcom `basename $@ .exe`.o -o `basename $@` -d.entry=_start -$$=?
+	mv -f `basename $@` $@
+
 w/gui32.exe: source.asm w
 	nasm -fobj $< -o `basename $@ .exe`.o -DTARGET_WIN32=1 -DOUTPUT_CLI=1 -DCPU_I386=1 -DTARGET_OBJ=1
 	wlink option quiet system nt_win name `basename $@` file `basename $@ .exe`.o option stub=stub
 	mv -f `basename $@` $@
 
+l/gui32.exe: source.asm l ../../link
+	nasm -felf $< -o `basename $@ .exe`.o -DTARGET_WIN32=1 -DOUTPUT_CLI=1 -DCPU_I386=1 -DTARGET_ELF=1
+	../../link -Fwin32 -Starget=winnt -Ssubsystem=windows -Scompat=watcom `basename $@ .exe`.o -o `basename $@` -d.entry=_start -$$=?
+	mv -f `basename $@` $@
+
 w/win32.dll: source.asm w
 	nasm -fobj $< -o `basename $@ .dll`.o -DTARGET_WIN32=1 -DOUTPUT_CLI=1 -DCPU_I386=1 -DTARGET_OBJ=1
-	wlink option quiet system nt dll name `basename $@` file `basename $@ .dll`.o option stub=stub
+	wlink option quiet system nt_dll name `basename $@` file `basename $@ .dll`.o option stub=stub
+	mv -f `basename $@` $@
+
+l/win32.dll: source.asm l ../../link
+	nasm -felf $< -o `basename $@ .dll`.o -DTARGET_WIN32=1 -DOUTPUT_CLI=1 -DCPU_I386=1 -DTARGET_ELF=1
+	../../link -Fwin32 -Starget=winnt -Soutput=dll -Scompat=watcom `basename $@ .dll`.o -o `basename $@` -d.entry=_start -$$=?
 	mv -f `basename $@` $@
 

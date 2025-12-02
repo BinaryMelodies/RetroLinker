@@ -731,6 +731,13 @@ namespace Microsoft
 		/** @brief Include debug information (TODO: not implemented) */
 		bool option_debug_info = false;
 
+		/** @brief By default, imported labels address the import address table directly */
+		bool option_import_stubs = false;
+
+		Linker::Module * current_module = nullptr;
+		std::map<std::pair<std::string, std::string>, uint32_t> import_stubs_by_name;
+		std::map<std::pair<std::string, uint16_t>, uint32_t> import_stubs_by_ordinal;
+
 		class PEOptionCollector : public Linker::OptionCollector
 		{
 		public:
@@ -856,10 +863,11 @@ namespace Microsoft
 			Linker::Option<Linker::ItemOf<CompatibilityEnumeration>> compat{"compat", "Mimics the behavior of another linker"};
 			Linker::Option<offset_t> image_base{"base", "Base address of image, used for calculating relative virtual addresses"};
 			Linker::Option<offset_t> section_align{"section_align", "Section alignment"};
+			Linker::Option<bool> import_stubs{"import_stubs", "Create stub procedures for imported names"};
 
 			PEOptionCollector()
 			{
-				InitializeFields(stub, target, subsystem, output, compat, image_base, section_align);
+				InitializeFields(stub, target, subsystem, output, compat, image_base, section_align, import_stubs);
 			}
 		};
 

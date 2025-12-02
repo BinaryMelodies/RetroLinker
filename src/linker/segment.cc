@@ -142,7 +142,7 @@ void Segment::WriteData(size_t bytes, offset_t offset, const void * buffer)
 	{
 		if(offset < section->Size())
 		{
-			size_t actual_count = std::min(offset + bytes, section->Size());
+			size_t actual_count = std::min(offset + bytes, section->Size()) - offset;
 			section->WriteData(actual_count, offset, buffer);
 			if(actual_count >= bytes)
 				return;
@@ -156,7 +156,17 @@ void Segment::WriteData(size_t bytes, offset_t offset, const void * buffer)
 		}
 	}
 
-	assert(false);
+	offset += sections.back()->Size();
+	data_size += sections.back()->Expand(offset + bytes);
+	sections.back()->WriteData(bytes, offset, buffer);
+}
+
+void Segment::WriteWord(size_t bytes, offset_t offset, uint64_t value, ::EndianType endiantype)
+{
+	assert(bytes <= 8);
+	std::vector<uint8_t> buffer(bytes);
+	::WriteWord(bytes, bytes, buffer.data(), value, endiantype);
+	WriteData(bytes, offset, buffer.data());
 }
 
 size_t Segment::ReadData(size_t bytes, offset_t offset, void * buffer) const

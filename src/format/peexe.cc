@@ -1423,7 +1423,13 @@ void PEFormat::SetOptions(std::map<std::string, std::string>& options)
 		memcpy(pe_signature, "PL\0\0", 4);
 	else
 		memcpy(pe_signature, "PE\0\0", 4);
-	
+
+	option_import_stubs = collector.import_stubs();
+	if(compatibility != CompatibleNone)
+	{
+		option_import_stubs = true;
+	}
+
 	/* TODO */
 }
 
@@ -1441,6 +1447,46 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			Linker::Warning << "Warning: Out of order `.code` segment" << std::endl;
 		}
 		sections.push_back(std::make_unique<Section>(Section::TEXT | Section::EXECUTE | Section::READ, segment));
+
+		if(option_import_stubs)
+		{
+			// generate indirect calls to all the imported symbols
+			// TODO: this works for imported procedures, but how do we handle imported values?
+
+			for(const Linker::SymbolName& symbol : current_module->GetImportedSymbols())
+			{
+				assert(segment->zero_fill == 0);
+
+				std::string library;
+				if(symbol.LoadLibraryName(library))
+				{
+					uint16_t ordinal;
+					std::string name;
+
+					if(symbol.LoadName(name))
+					{
+						import_stubs_by_name[std::make_pair(library, name)] = segment->data_size;
+					}
+					else if(symbol.LoadOrdinalOrHint(ordinal))
+					{
+						import_stubs_by_ordinal[std::make_pair(library, ordinal)] = segment->data_size;
+					}
+				}
+
+				switch(cpu_type)
+				{
+				case CPU_I386:
+				case CPU_AMD64:
+					// jmp [abs32] (32-bit) or jmp [rel32] (64-bit)
+					// we fill in the actual address later
+					segment->WriteData(6, segment->data_size, "\xFF\x25\0\0\0\0");
+					break;
+				default:
+					Linker::Error << "Error: generating import stubs not supported for architecture" << std::endl;
+					break;
+				}
+			}
+		}
 	}
 	else if(segment->name == ".data")
 	{
@@ -1479,6 +1525,8 @@ std::unique_ptr<Script::List> PEFormat::GetScript(Linker::Module& module)
 	// TODO: the first section must come after the COFF/PE and section headers
 	// and so the start of the code section depends on the number of sections
 
+	// TODO: make the script not combine sections, instead including each section one by one
+
 	static const char * DefaultScript = R"(
 ".code"
 {
@@ -1512,6 +1560,8 @@ std::unique_ptr<Script::List> PEFormat::GetScript(Linker::Module& module)
 void PEFormat::Link(Linker::Module& module)
 {
 	std::unique_ptr<Script::List> script = GetScript(module);
+
+	current_module = &module;
 
 	ProcessScript(script, module);
 
@@ -1663,19 +1713,9 @@ void PEFormat::ProcessModule(Linker::Module& module)
 					Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
 				}
 
-				switch(rel.shift)
+				if(rel.shift != 0 && rel.shift != 16)
 				{
-				default:
 					Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
-					/* fall through */
-				case 0:
-					Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_LOW" << std::endl;
-					AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelLow);
-					break;
-				case 16:
-					Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGH" << std::endl;
-					AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHigh);
-					break;
 				}
 				break;
 			case 4:
@@ -1688,11 +1728,15 @@ void PEFormat::ProcessModule(Linker::Module& module)
 				{
 					Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
 				}
-
-				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGHLOW" << std::endl;
-				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHighLow);
 				break;
 			case 8:
+				if(!Is64Bit())
+				{
+					Linker::Error << "Error: 64-bit relocations not allowed in 32-bit mode, ignoring" << std::endl;
+					Linker::Error << "Error: " << rel << std::endl;
+					continue;
+				}
+
 				if(rel.mask != 0xFFFFFFFFFFFFFFFF)
 				{
 					Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
@@ -1702,9 +1746,6 @@ void PEFormat::ProcessModule(Linker::Module& module)
 				{
 					Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
 				}
-
-				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_DIR64" << std::endl;
-				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelDir64);
 				break;
 			}
 
@@ -1728,22 +1769,11 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		{
 			if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
 			{
-				switch(rel.size)
+				if(!option_import_stubs && rel.size == 2)
 				{
-				case 2:
 					Linker::Error << "Error: imported 16-bit references not allowed, ignoring" << std::endl;
 					Linker::Error << "Error: " << rel << std::endl;
 					continue;
-				case 4:
-					break;
-				case 8:
-					if(!Is64Bit())
-					{
-						Linker::Error << "Error: imported 64-bit references not allowed in 32-bit mode, ignoring" << std::endl;
-						Linker::Error << "Error: " << rel << std::endl;
-						continue;
-					}
-					break;
 				}
 
 				std::string library, name;
@@ -1752,11 +1782,25 @@ void PEFormat::ProcessModule(Linker::Module& module)
 
 				if(symbol->GetImportedName(library, name))
 				{
-					address = FetchImportLibrary(library).GetImportByNameAddress(*this, name);
+					if(!option_import_stubs)
+					{
+						address = FetchImportLibrary(library).GetImportByNameAddress(*this, name);
+					}
+					else
+					{
+						address = import_stubs_by_name[std::make_pair(library, name)] + GetCodeSegment()->base_address;
+					}
 				}
 				else if(symbol->GetImportedOrdinal(library, ordinal))
 				{
-					address = FetchImportLibrary(library).GetImportByOrdinalAddress(*this, ordinal);
+					if(!option_import_stubs)
+					{
+						address = FetchImportLibrary(library).GetImportByOrdinalAddress(*this, ordinal);
+					}
+					else
+					{
+						address = import_stubs_by_ordinal[std::make_pair(library, ordinal)] + GetCodeSegment()->base_address;
+					}
 				}
 				else
 				{
@@ -1779,6 +1823,72 @@ void PEFormat::ProcessModule(Linker::Module& module)
 			else
 			{
 				Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			}
+		}
+
+		// TODO: do not generate relocations for relative addresses
+		switch(rel.size)
+		{
+		case 2:
+			if(rel.shift == 16)
+			{
+				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGH" << std::endl;
+				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHigh);
+			}
+			else
+			{
+				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_LOW" << std::endl;
+				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelLow);
+			}
+			break;
+		case 4:
+			Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGHLOW" << std::endl;
+			AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHighLow);
+			break;
+		case 8:
+			Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_DIR64" << std::endl;
+			AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelDir64);
+			break;
+		}
+	}
+
+	if(option_import_stubs)
+	{
+		// create the actual addresses for the imported stubs
+
+		auto& code = *GetCodeSegment();
+
+		for(auto& import_data : import_stubs_by_name)
+		{
+			offset_t address = FetchImportLibrary(import_data.first.first).GetImportByNameAddress(*this, import_data.first.second);
+			switch(cpu_type)
+			{
+			case CPU_I386:
+				code.WriteWord(4, import_data.second + 2, address, ::LittleEndian);
+				break;
+			case CPU_AMD64:
+				code.WriteWord(4, import_data.second + 2, address - (code.base_address - import_data.second + 6), ::LittleEndian);
+				break;
+			default:
+				Linker::Error << "Error: generating import stubs not supported for architecture" << std::endl;
+				break;
+			}
+		}
+
+		for(auto& import_data : import_stubs_by_ordinal)
+		{
+			offset_t address = FetchImportLibrary(import_data.first.first).GetImportByOrdinalAddress(*this, import_data.first.second);
+			switch(cpu_type)
+			{
+			case CPU_I386:
+				code.WriteWord(4, import_data.second + 2, address, ::LittleEndian);
+				break;
+			case CPU_AMD64:
+				code.WriteWord(4, import_data.second + 2, address - (code.base_address - import_data.second + 6), ::LittleEndian);
+				break;
+			default:
+				Linker::Error << "Error: generating import stubs not supported for architecture" << std::endl;
+				break;
 			}
 		}
 	}

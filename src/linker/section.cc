@@ -233,41 +233,43 @@ size_t Section::ReadData(size_t bytes, offset_t offset, void * buffer) const
 	}
 }
 
-void Section::WriteData(size_t bytes, offset_t offset, const void * buffer)
+offset_t Section::WriteData(size_t bytes, offset_t offset, const void * buffer)
 {
 	assert(!IsZeroFilled());
-	Expand(offset + bytes);
+	offset_t expand_count = Expand(offset + bytes);
 	// make sure the offset is within the stored data range, this is only required for subclasses of Section
 	assert(offset >= Size() - data.size());
 	offset_t actual_offset = offset - (Size() - data.size());
 	std::copy(reinterpret_cast<const uint8_t *>(buffer), reinterpret_cast<const uint8_t *>(buffer) + bytes, data.data() + actual_offset);
+	return expand_count;
 }
 
-void Section::WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype)
+offset_t Section::WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype)
 {
 	if(value == 0 && (offset > Size() || IsZeroFilled()))
-		return;
+		return 0; // TODO: expand?
 	assert(!IsZeroFilled());
-	Expand(offset + bytes);
+	offset_t expand_count = Expand(offset + bytes);
 	// make sure the offset is within the stored data range, this is only required for subclasses of Section
 	assert(offset >= Size() - data.size());
 	offset_t actual_offset = offset - (Size() - data.size());
 	::WriteWord(bytes, bytes, data.data() + actual_offset, value, endiantype);
+	return expand_count;
 }
 
-void Section::WriteWord(size_t bytes, offset_t offset, uint64_t value)
+offset_t Section::WriteWord(size_t bytes, offset_t offset, uint64_t value)
 {
-	WriteWord(bytes, offset, value, ::DefaultEndianType);
+	return WriteWord(bytes, offset, value, ::DefaultEndianType);
 }
 
-void Section::WriteWord(size_t bytes, uint64_t value, EndianType endiantype)
+offset_t Section::WriteWord(size_t bytes, uint64_t value, EndianType endiantype)
 {
-	WriteWord(bytes, Size(), value, endiantype);
+	return WriteWord(bytes, Size(), value, endiantype);
 }
 
-void Section::WriteWord(size_t bytes, uint64_t value)
+offset_t Section::WriteWord(size_t bytes, uint64_t value)
 {
-	WriteWord(bytes, value, ::DefaultEndianType);
+	return WriteWord(bytes, value, ::DefaultEndianType);
 }
 
 offset_t Section::Append(const void * new_data, size_t length)

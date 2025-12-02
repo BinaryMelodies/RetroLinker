@@ -233,21 +233,40 @@ namespace Linker
 
 		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
-		void WriteData(size_t bytes, offset_t offset, const void * buffer);
+		/**
+		 * @brief Writes data into the section image
+		 *
+		 * @return The amount of bytes the section was increased by.
+		 */
+		offset_t WriteData(size_t bytes, offset_t offset, const void * buffer);
 
-		void WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype);
+		/**
+		 * @brief Writes a value into the section image
+		 *
+		 * @return The amount of bytes the section was increased by.
+		 */
+		offset_t WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype);
 
-		void WriteWord(size_t bytes, offset_t offset, uint64_t value);
+		/**
+		 * @brief Writes a value into the section image
+		 *
+		 * @return The amount of bytes the section was increased by.
+		 */
+		offset_t WriteWord(size_t bytes, offset_t offset, uint64_t value);
+
+		/**
+		 * @brief Writes a value at the current end of the section
+		 *
+		 * @return The amount of bytes the section was increased by.
+		 */
+		offset_t WriteWord(size_t bytes, uint64_t value, EndianType endiantype);
 
 		/**
 		 * @brief Writes value at the current end of the section
+		 *
+		 * @return The amount of bytes the section was increased by.
 		 */
-		void WriteWord(size_t bytes, uint64_t value, EndianType endiantype);
-
-		/**
-		 * @brief Writes value at the current end of the section
-		 */
-		void WriteWord(size_t bytes, uint64_t value);
+		offset_t WriteWord(size_t bytes, uint64_t value);
 
 		/**
 		 * @brief Appends data at the end of a section
