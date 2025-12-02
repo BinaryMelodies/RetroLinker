@@ -1031,7 +1031,7 @@ Linker::Debug << "\"" << std::endl;
 						if(file_size >= 0x40)
 						{
 							rd.Seek(0x3C);
-							uint32_t new_header = rd.ReadUnsigned(4, LittleEndian);
+							new_header = rd.ReadUnsigned(4, LittleEndian);
 							if(0 < new_header && new_header < file_size)
 								DetermineFormat(descriptions, rd, new_header);
 						}
