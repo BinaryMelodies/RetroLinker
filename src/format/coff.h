@@ -1094,6 +1094,7 @@ namespace COFF
 		void ReadCOFFHeader(Linker::Reader& rd);
 		void ReadOptionalHeader(Linker::Reader& rd);
 		void ReadRestOfFile(Linker::Reader& rd);
+		virtual std::shared_ptr<Section> CreateReadSection();
 
 	public:
 		offset_t ImageSize() const override;

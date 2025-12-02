@@ -202,6 +202,8 @@ namespace Microsoft
 		uint32_t AddressToRVA(offset_t address) const;
 		/** @brief Converts an image base relative virtual address into a virtual address */
 		offset_t RVAToAddress(uint32_t rva, bool suppress_on_zero = false) const;
+		/** @brief Converts an image base relative virtual address into a file offset */
+		offset_t RVAToFileOffset(uint32_t rva) const;
 
 		/** @brief A section, with the PE extensions */
 		class Section : public COFF::COFFFormat::Section
@@ -712,6 +714,9 @@ namespace Microsoft
 			optional_header = std::make_unique<PEOptionalHeader>();
 			GetOptionalHeader().subsystem = subsystem;
 		}
+
+	protected:
+		std::shared_ptr<COFFFormat::Section> CreateReadSection() override;
 
 	public:
 		/* * * Writer members * * */

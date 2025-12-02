@@ -575,19 +575,10 @@ void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFVariantType 
 		break;
 	}
 
+	// TODO: read long name (note: PE and COFF differ in interpretation)
+
 	/* TODO: Buffer instead of Section? */
-	if(flags & TEXT)
-	{
-		image = std::make_shared<Linker::Section>(".text");
-	}
-	else if(flags & DATA)
-	{
-		image = std::make_shared<Linker::Section>(".data");
-	}
-	else if(flags & BSS)
-	{
-		image = std::make_shared<Linker::Section>(".bss");
-	}
+	image = std::make_shared<Linker::Section>(name);
 }
 
 void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType coff_variant)
@@ -1390,9 +1381,9 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 {
 	for(size_t i = 0; i < section_count; i++)
 	{
-		std::unique_ptr<Section> section = std::make_unique<Section>();
+		std::shared_ptr<Section> section = CreateReadSection();
 		section->ReadSectionHeader(rd, coff_variant);
-		sections.push_back(std::move(section));
+		sections.push_back(section);
 	}
 
 	for(auto& section : sections)
@@ -1439,7 +1430,7 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 		break;
 	}
 
-	if(symbol_count > 0)
+	if(symbol_count > 0 && (cpu_type == CPU_Z80 || cpu_type == CPU_Z8K || cpu_type == CPU_W65)) // TODO: other CPU types
 	{
 		rd.Seek(file_offset + symbol_table_offset);
 		while(symbols.size() < symbol_count)
@@ -1481,6 +1472,11 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 	{
 		optional_header->PostReadFile(*this, rd);
 	}
+}
+
+std::shared_ptr<COFFFormat::Section> COFFFormat::CreateReadSection()
+{
+	return std::make_shared<Section>();
 }
 
 offset_t COFFFormat::WriteFile(Linker::Writer& wr) const

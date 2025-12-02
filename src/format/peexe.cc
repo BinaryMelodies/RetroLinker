@@ -164,33 +164,58 @@ void PEFormat::PEOptionalHeader::DumpFields(const COFFFormat& coff, Dumper::Dump
 	header_region.AddField("Text size", Dumper::HexDisplay::Make(), offset_t(code_size));
 	header_region.AddField("Data size", Dumper::HexDisplay::Make(), offset_t(data_size));
 	header_region.AddField("Bss size",  Dumper::HexDisplay::Make(), offset_t(bss_size));
-	std::string entry;
-	switch(coff.cpu_type)
-	{
-	case CPU_I386:
-		header_region.AddField("Entry address (RVA) (EIP)", Dumper::HexDisplay::Make(), offset_t(entry_address));
-		break;
-	case CPU_AMD64:
-		header_region.AddField("Entry address (RVA) (RIP)", Dumper::HexDisplay::Make(), offset_t(entry_address));
-		break;
-	case CPU_M68K:
-	case CPU_PPC:
-	case CPU_ARM:
-	case CPU_ARM64:
-	case CPU_ALPHA:
-	case CPU_IA64:
-	case CPU_MIPS:
-	case CPU_SH:
-		header_region.AddField("Entry address (RVA) (PC)", Dumper::HexDisplay::Make(), offset_t(entry_address));
-		break;
-	default:
-		header_region.AddField("Entry address (RVA)", Dumper::HexDisplay::Make(), offset_t(entry_address));
-		break;
-	}
+	header_region.AddField("Entry address (RVA)", Dumper::HexDisplay::Make(), offset_t(entry_address));
 	header_region.AddField("Text address (RVA)", Dumper::HexDisplay::Make(), offset_t(code_address));
 	if(!Is64Bit())
 		header_region.AddField("Data address (RVA)", Dumper::HexDisplay::Make(), offset_t(data_address));
-	// TODO
+	header_region.AddField("Image base", Dumper::HexDisplay::Make(Is64Bit() ? 16 : 8), offset_t(image_base));
+	header_region.AddField("Section alignment in memory", Dumper::HexDisplay::Make(), offset_t(section_align));
+	header_region.AddField("Section alignment in file", Dumper::HexDisplay::Make(), offset_t(file_align));
+	header_region.AddField("OS version", Dumper::VersionDisplay::Make(), offset_t(os_version.major), offset_t(os_version.minor));
+	header_region.AddField("Image version", Dumper::VersionDisplay::Make(), offset_t(image_version.major), offset_t(image_version.minor));
+	header_region.AddField("Subsystem version", Dumper::VersionDisplay::Make(), offset_t(subsystem_version.major), offset_t(subsystem_version.minor));
+	header_region.AddOptionalField("Win32 version (reserved)", Dumper::HexDisplay::Make(), offset_t(win32_version));
+	header_region.AddField("Total image size in memory", Dumper::HexDisplay::Make(), offset_t(total_image_size));
+	header_region.AddField("Total headers size in file", Dumper::HexDisplay::Make(), offset_t(total_headers_size));
+	header_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(), offset_t(checksum));
+	static const std::map<offset_t, std::string> subsystem_choice =
+	{
+		{ 0, "unknown" },
+		{ 1, "device driver or native Windows process" },
+		{ 2, "Windows GUI" },
+		{ 3, "Windows character based" },
+		{ 5, "OS/2 character based" },
+		{ 7, "POSIX character based" },
+		{ 8, "Native Windows 9x driver" },
+		{ 9, "Windows CE" },
+		{ 10, "EFI application" },
+		{ 11, "EFI driver with boot services" },
+		{ 12, "EFI driver with run-time services" },
+		{ 13, "EFI ROM image" },
+		{ 14, "Xbox" },
+		{ 16, "Windows boot application" },
+	};
+	header_region.AddField("Subsystem type", Dumper::ChoiceDisplay::Make(subsystem_choice, Dumper::HexDisplay::Make(4)), offset_t(subsystem));
+	header_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make()
+			->AddBitField(5,  1, Dumper::ChoiceDisplay::Make("handles high entropy 64-bit address space"), true)
+			->AddBitField(6,  1, Dumper::ChoiceDisplay::Make("relocatable DLL"), true)
+			->AddBitField(7,  1, Dumper::ChoiceDisplay::Make("code integrity checks enforced"), true)
+			->AddBitField(8,  1, Dumper::ChoiceDisplay::Make("NX compatible"), true)
+			->AddBitField(9,  1, Dumper::ChoiceDisplay::Make("isolation aware"), true)
+			->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("no structured exception handling"), true)
+			->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("do not bind image"), true)
+			->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("must run in AppContainer"), true)
+			->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("WDM driver"), true)
+			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("supports control flow guard"), true)
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("terminal server aware"), true),
+		offset_t(flags));
+	header_region.AddField("Reserved stack size", Dumper::HexDisplay::Make(Is64Bit() ? 16 : 8), offset_t(reserved_stack_size));
+	header_region.AddField("Committed stack size", Dumper::HexDisplay::Make(Is64Bit() ? 16 : 8), offset_t(committed_stack_size));
+	header_region.AddField("Reserved heap size", Dumper::HexDisplay::Make(Is64Bit() ? 16 : 8), offset_t(reserved_heap_size));
+	header_region.AddField("Committed heap size", Dumper::HexDisplay::Make(Is64Bit() ? 16 : 8), offset_t(committed_heap_size));
+	header_region.AddOptionalField("Loader flags (reserved)", Dumper::HexDisplay::Make(), offset_t(win32_version));
+	header_region.AddField("Directory count", Dumper::HexDisplay::Make(), offset_t(data_directories.size()));
 }
 
 void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format)
@@ -212,7 +237,7 @@ void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
 {
 	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
 	rd.Seek(section_pointer);
-	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, ImageSize(fmt));
+	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, size);
 }
 
 void PEFormat::Section::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
@@ -224,7 +249,7 @@ void PEFormat::Section::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt
 
 uint32_t PEFormat::Section::ImageSize(const PEFormat& fmt) const
 {
-	return std::dynamic_pointer_cast<Linker::Segment>(image)->ImageSize();
+	return image->ImageSize();
 }
 
 uint32_t PEFormat::Section::MemorySize(const PEFormat& fmt) const
@@ -869,6 +894,18 @@ offset_t PEFormat::RVAToAddress(uint32_t rva, bool suppress_on_zero) const
 	return GetOptionalHeader().RVAToAddress(rva, suppress_on_zero);
 }
 
+offset_t PEFormat::RVAToFileOffset(uint32_t rva) const
+{
+	for(auto coff_section : sections)
+	{
+		if(coff_section->address <= rva && rva < coff_section->address + coff_section->size)
+		{
+			return rva - coff_section->address + coff_section->section_pointer;
+		}
+	}
+	return 0;
+}
+
 void PEFormat::AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type type, uint16_t low_ref)
 {
 	uint32_t page_rva = rva & ~(BaseRelocationBlock::PAGE_SIZE - 1);
@@ -1000,14 +1037,236 @@ offset_t PEFormat::WriteFile(Linker::Writer& wr) const
 
 void PEFormat::Dump(Dumper::Dumper& dump) const
 {
-	// TODO: Windows encoding
-	dump.SetEncoding(Dumper::Block::encoding_default);
+	dump.SetEncoding(Dumper::Block::encoding_windows1252);
 
 	dump.SetTitle("PE format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, file_size, 8);
+#if 0
+	static const std::map<offset_t, std::string> endian_descriptions =
+	{
+		{ ::LittleEndian, "little endian" },
+		{ ::BigEndian,    "big endian" },
+	};
+	file_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(endian_descriptions), offset_t(endiantype));
+#endif
 	file_region.Display(dump);
 
+	Dumper::Region header_region("File header", file_offset, 20, 8);
+	static const std::map<offset_t, std::string> cpu_descriptions =
+	{
+		{ 0x014C, "Intel 80386 (32-bit x86)" },
+		{ 0x014D, "Intel i860 or Intel 80486 (obsolete)" },
+		{ 0x014E, "Intel Pentium (obsolete)" },
+		{ 0x0160, "MIPS I (32-bit, big endian)" },
+		{ 0x0162, "MIPS I (32-bit, little endian)" },
+		{ 0x0163, "MIPS II" },
+		{ 0x0166, "MIPS III (64-bit, little endian)" },
+		{ 0x0168, "MIPS IV (64-bit, little endian)" },
+		{ 0x0169, "MIPS (Windows CE 2.0, little endian)" },
+		{ 0x0183, "Alpha (obsolete)" },
+		{ 0x0184, "Alpha (32-bit address space)" },
+		{ 0x01A2, "Hitachi SH3" },
+		{ 0x01A3, "Hitachi SH3 DSP" },
+		{ 0x01A6, "Hitachi SH4" },
+		{ 0x01A8, "Hitachi SH5" },
+		{ 0x01C0, "ARM (32-bit, little endian)" },
+		{ 0x01C2, "ARM Thumb" },
+		{ 0x01C4, "ARM Thumb-2 (little endian)" },
+		{ 0x01D3, "Matsushita AM33" },
+		{ 0x01F0, "PowerPC (little endian)" },
+		{ 0x01F1, "PowerPC with FPU (little endian)" },
+		{ 0x0200, "Intel Itanium" },
+		{ 0x0266, "MIPS16" },
+		{ 0x0268, "Motorola 68000" },
+		{ 0x0284, "Alpha (64-bit address space)" },
+		{ 0x0290, "HP PA-RISC" },
+		{ 0x0366, "MIPS with FPU" },
+		{ 0x0466, "MIPS16 with FPU" },
+		{ 0x0500, "Hitachi SH (big endian)" },
+		{ 0x0550, "Hitachi SH (little endian)" },
+		{ 0x0601, "PowerPC based Macintosh" },
+		{ 0x0EBC, "EFI byte code" },
+		{ 0x5032, "RISC-V (32-bit address space)" },
+		{ 0x5064, "RISC-V (64-bit address space)" },
+		{ 0x5128, "RISC-V (128-bit address space)" },
+		{ 0x6232, "LoongArch 32-bit" },
+		{ 0x6264, "LoongArch 64-bit" },
+		{ 0x8664, "AMD64 (64-bit x86)" },
+		{ 0x9041, "Mitsubishi M32R (little endian)" },
+		{ 0xA641, "ARM64EC (AArch64 and AMD64 interoperability)" },
+		{ 0xA64E, "ARM64X (ARM64 and ARM64EC coexists)" },
+		{ 0xAA64, "AArch64 (64-bit ARM, little endian)" },
+	};
+	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
+	header_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
 	// TODO
+	header_region.AddOptionalField("Flags",
+		Dumper::BitFieldDisplay::Make()
+			->AddBitField(0,  1, Dumper::ChoiceDisplay::Make("no base relocations"), true)
+			->AddBitField(1,  1, Dumper::ChoiceDisplay::Make("executable"), true)
+			->AddBitField(2,  1, Dumper::ChoiceDisplay::Make("no COFF line numbers (deprecated)"), true)
+			->AddBitField(3,  1, Dumper::ChoiceDisplay::Make("no COFF symbols (deprecated)"), true)
+			->AddBitField(4,  1, Dumper::ChoiceDisplay::Make("aggressively trim working set (deprecated)"), true)
+			->AddBitField(5,  1, Dumper::ChoiceDisplay::Make("handles large (more than 2 GiB) address space"), true)
+			->AddBitField(7,  1, Dumper::ChoiceDisplay::Make("little endian (obsolete)"), true)
+			->AddBitField(8,  1, Dumper::ChoiceDisplay::Make("32-bit"), true)
+			->AddBitField(9,  1, Dumper::ChoiceDisplay::Make("no debug information"), true)
+			->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("copy to swap file if on removable media"), true)
+			->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("copy to swap file if on network"), true)
+			->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("system file"), true)
+			->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("dynamic-link library (DLL)"), true)
+			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("uniprocessor system only"), true)
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("big endian (obsolete)"), true),
+		offset_t(flags));
+	header_region.Display(dump);
+
+	if(optional_header)
+	{
+		optional_header->Dump(*this, dump);
+
+		size_t directory_number = 1;
+		for(auto& data_directory : GetOptionalHeader().data_directories)
+		{
+			static const std::map<offset_t, std::string> directory_type =
+			{
+				{ 1,  "Export table (.edata)" },
+				{ 2,  "Import table (.idata)" },
+				{ 3,  "Resource table (.rsrc)" },
+				{ 4,  "Exception table (.pdata)" },
+				{ 5,  "Certificate table" },
+				{ 6,  "Base relocation table (.reloc)" },
+				{ 7,  "Debug data (.debug)" },
+				{ 8,  "Architecture (reserved)" },
+				{ 9,  "Global pointer" },
+				{ 10, "Thread local storage table (.tls)" },
+				{ 11, "Load config table" },
+				{ 12, "Bound import table" },
+				{ 13, "Import address table" },
+				{ 14, "Delay import descriptor" },
+				{ 15, "CLR runtime header" },
+				{ 16, "(reserved)" },
+			};
+
+			Dumper::Region directory_region("Directory", RVAToFileOffset(data_directory.address), data_directory.size, 8);
+			directory_region.InsertField(0, "Type", Dumper::ChoiceDisplay::Make(directory_type, Dumper::DecDisplay::Make()), offset_t(directory_number));
+			directory_region.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(data_directory.address));
+			directory_region.Display(dump);
+
+			directory_number ++;
+		}
+	}
+
+	for(auto& section : sections)
+	{
+		Dumper::Block block("Section", file_offset + section->section_pointer, section->image->AsImage(), section->address, 8);
+		block.InsertField(0, "Name", Dumper::StringDisplay::Make(), section->name);
+		if((section->image != nullptr ? section->image->ImageSize() : 0) != section->size)
+			block.AddField("Size in memory",
+				Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
+				offset_t(section->size));
+		block.AddField("Physical address",
+			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
+			offset_t(section->physical_address));
+		block.AddOptionalField("Line numbers",
+			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
+			offset_t(section->line_number_pointer != 0 ? file_offset + section->line_number_pointer : 0)); /* TODO */
+		block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count)); /* TODO */
+		static const std::map<offset_t, std::string> alignment_type =
+		{
+			{ 1,  "Align on 1-byte boundary" },
+			{ 2,  "Align on 2-byte boundary" },
+			{ 3,  "Align on 4-byte boundary" },
+			{ 4,  "Align on 8-byte boundary" },
+			{ 5,  "Align on 16-byte boundary" },
+			{ 6,  "Align on 32-byte boundary" },
+			{ 7,  "Align on 64-byte boundary" },
+			{ 8,  "Align on 128-byte boundary" },
+			{ 9,  "Align on 256-byte boundary" },
+			{ 10, "Align on 512-byte boundary" },
+			{ 11, "Align on 1024-byte boundary" },
+			{ 12, "Align on 2048-byte boundary" },
+			{ 13, "Align on 4096-byte boundary" },
+			{ 14, "Align on 8192-byte boundary" },
+		};
+		block.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make()
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("no padding (obsolete)"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("contains executable code (text)"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("contains initialized data (data)"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("contains uninitialized data (bss)"), true)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("LNK_OTHER (reserved)"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("comments or other information"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("remove from image"), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("contains COMDAT data"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("global pointer relative data"), true)
+				->AddBitField(16, 1, Dumper::ChoiceDisplay::Make("MEM_PURGEABLE (reserved)"), true)
+				->AddBitField(17, 1, Dumper::ChoiceDisplay::Make("MEM_16BIT (reserved)"), true)
+				->AddBitField(18, 1, Dumper::ChoiceDisplay::Make("MEM_LOCKED (reserved)"), true)
+				->AddBitField(19, 1, Dumper::ChoiceDisplay::Make("MEM_PRELOAD (reserved)"), true)
+				->AddBitField(20, 4, Dumper::ChoiceDisplay::Make(alignment_type), true)
+				->AddBitField(24, 1, Dumper::ChoiceDisplay::Make("contains extended relocations"), true)
+				->AddBitField(25, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
+				->AddBitField(26, 1, Dumper::ChoiceDisplay::Make("cannot be cached"), true)
+				->AddBitField(27, 1, Dumper::ChoiceDisplay::Make("not pageable"), true)
+				->AddBitField(28, 1, Dumper::ChoiceDisplay::Make("can be in shared memory"), true)
+				->AddBitField(29, 1, Dumper::ChoiceDisplay::Make("executable"), true)
+				->AddBitField(30, 1, Dumper::ChoiceDisplay::Make("readable"), true)
+				->AddBitField(31, 1, Dumper::ChoiceDisplay::Make("writable"), true),
+			offset_t(section->flags));
+
+#if 0
+		if(section->relocation_count != 0)
+		{
+			Dumper::Region relocations("Section relocation", file_offset + section->relocation_pointer, 0, 8); /* TODO: size */
+			block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
+			relocations.Display(dump);
+		}
+
+		unsigned i = 0;
+		for(auto& relocation : section->relocations)
+		{
+			Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
+			relocation->FillEntry(relocation_entry);
+			// TODO: fill addend
+			relocation_entry.Display(dump);
+
+			block.AddSignal(relocation->GetAddress() - section->address, relocation->GetSize());
+			i++;
+		}
+#endif
+
+		block.Display(dump);
+	}
+
+#if 0
+	Dumper::Region symbol_table("Symbol table", file_offset + symbol_table_offset, symbol_count * 18, 8);
+	symbol_table.AddField("Count", Dumper::DecDisplay::Make(), offset_t(symbol_count));
+	symbol_table.Display(dump);
+	unsigned i = 0;
+	for(auto& symbol : symbols)
+	{
+		Dumper::Entry symbol_entry("Symbol", i + 1, file_offset + symbol_table_offset + 18 * i, 8);
+		if(symbol)
+		{
+			/* otherwise, ignored symbol */
+			symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol->name);
+			symbol_entry.AddOptionalField("Name index", Dumper::HexDisplay::Make(), offset_t(symbol->name_index));
+			symbol_entry.AddField("Value", Dumper::HexDisplay::Make(), offset_t(symbol->value));
+			symbol_entry.AddField("Section", Dumper::HexDisplay::Make(), offset_t(symbol->section_number));
+			symbol_entry.AddField("Type", Dumper::HexDisplay::Make(4), offset_t(symbol->type));
+			symbol_entry.AddField("Storage class", Dumper::HexDisplay::Make(2), offset_t(symbol->storage_class));
+			symbol_entry.AddOptionalField("Auxiliary count", Dumper::DecDisplay::Make(), offset_t(symbol->auxiliary_count));
+		}
+		symbol_entry.Display(dump);
+		i += 1;
+	}
+#endif
+	// TODO
+}
+
+std::shared_ptr<COFF::COFFFormat::Section> PEFormat::CreateReadSection()
+{
+	return std::make_unique<PEFormat::Section>();
 }
 
 /* * * Writer members * * */
