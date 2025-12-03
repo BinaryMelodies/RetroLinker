@@ -1006,6 +1006,7 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 		switch(directory_number)
 		{
 		case PEOptionalHeader::DirExportTable:
+			if(GetOptionalHeader().data_directories[directory_number].size != 0)
 			{
 				uint32_t rva = GetOptionalHeader().data_directories[directory_number].address;
 				exports->flags = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
@@ -1089,6 +1090,7 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 		//case PEOptionalHeader::DirExceptionTable:
 		//case PEOptionalHeader::DirCertificateTable:
 		case PEOptionalHeader::DirBaseRelocationTable:
+			if(GetOptionalHeader().data_directories[directory_number].size != 0)
 			{
 				uint32_t rva = GetOptionalHeader().data_directories[directory_number].address;
 				uint32_t end = rva + GetOptionalHeader().data_directories[directory_number].size;
@@ -1351,6 +1353,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			switch(directory_number)
 			{
 			case PEOptionalHeader::DirExportTable:
+				if(data_directory.size != 0)
 				{
 					Dumper::Region exports_region("Export table", RVAToFileOffset(data_directory.address), data_directory.size, 8);
 					exports_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(), offset_t(exports->flags));
@@ -1404,6 +1407,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			//case PEOptionalHeader::DirExceptionTable:
 			//case PEOptionalHeader::DirCertificateTable:
 			case PEOptionalHeader::DirBaseRelocationTable:
+				if(data_directory.size != 0)
 				{
 					uint32_t rva = data_directory.address;
 					for(auto block : base_relocations->blocks_list)
