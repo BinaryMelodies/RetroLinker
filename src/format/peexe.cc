@@ -321,6 +321,22 @@ void PEFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, uns
 				}
 			}
 		}
+
+		size_t entry_size = pe->Is64Bit() ? 8 : 4;
+
+		for(auto& library : pe->imports->libraries)
+		{
+			if(address < library.address_table_rva + library.import_table.size() * entry_size && library.address_table_rva < address + size)
+			{
+				for(
+					offset_t entry = std::max(offset_t(library.address_table_rva), offset_t(address & ~(entry_size - 1)));
+					entry < std::min(address + size, library.address_table_rva + library.import_table.size() * entry_size);
+					entry += entry_size)
+				{
+					section_block.AddSignal(entry - address, entry_size);
+				}
+			}
+		}
 	}
 
 	section_block.Display(dump);
