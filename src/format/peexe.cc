@@ -2061,6 +2061,22 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 					// we fill in the actual address later
 					segment->WriteData(6, segment->data_size, "\xFF\x25\0\0\0\0");
 					break;
+				case CPU_ARM:
+					// TODO: test
+					// ldr ip, [pc]
+					// ldr pc, [ip]
+					// .word abs32
+					segment->WriteData(12, segment->data_size, "\xE5\x9F\xC0\x00\xE5\x9C\xF0\x00\0\0\0\0");
+					// note: from ARMv6T2 onwards, movw/movt can also be used
+					break;
+				case CPU_ARM64:
+					// TODO: test
+					// we fill in the actual instructions later
+					// adrp x16, rel
+					// ldr x16, [x16, #rel]
+					// br x16
+					segment->WriteData(12, segment->data_size, "\0\0\0\0\0\0\0\0\xD6\x1F\x02\x00");
+					break;
 				default:
 					Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
 					break;
@@ -2448,6 +2464,25 @@ void PEFormat::ProcessModule(Linker::Module& module)
 				break;
 			case CPU_AMD64:
 				code.WriteWord(4, import_data.second + 2, address - (code.base_address - import_data.second + 6), ::LittleEndian);
+				break;
+			case CPU_ARM:
+				code.WriteWord(4, import_data.second + 4, address, ::LittleEndian);
+				// note: from ARMv6T2 onwards, movw/movt can also be used
+				break;
+			case CPU_ARM64:
+				// TODO: test
+				{
+					// adrp x16, address
+					uint64_t relative_address = address - (code.base_address - import_data.second);
+					uint32_t instruction = 0x90000010
+						| ((relative_address >> (12 - 5)) & 0x00FFFE00)
+						| (relative_address >> (12 + 19 - 29) & 0x60000000);
+					code.WriteWord(4, import_data.second, instruction, ::LittleEndian);
+					// ldr x16, [x16, #address]
+					instruction = 0xF9400210
+						| ((relative_address & 0xFFF) << 10);
+					code.WriteWord(4, import_data.second + 4, instruction, ::LittleEndian);
+				}
 				break;
 			default:
 				Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
