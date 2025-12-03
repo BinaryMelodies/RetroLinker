@@ -257,6 +257,11 @@ uint32_t PEFormat::Section::MemorySize(const PEFormat& fmt) const
 	return std::dynamic_pointer_cast<Linker::Segment>(image)->TotalSize();
 }
 
+size_t PEFormat::Section::ReadData(size_t bytes, size_t offset, void * buffer) const
+{
+	return image->AsImage()->ReadData(bytes, offset, buffer);
+}
+
 void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resource, size_t level)
 {
 	// TODO: test
@@ -896,14 +901,61 @@ offset_t PEFormat::RVAToAddress(uint32_t rva, bool suppress_on_zero) const
 
 offset_t PEFormat::RVAToFileOffset(uint32_t rva) const
 {
+	std::shared_ptr<Section> section;
+	size_t offset;
+	if(MapRVAToSectionData(rva, 1, section, offset) != 0)
+		return section->section_pointer + offset;
+	else
+		return 0;
+}
+
+size_t PEFormat::MapRVAToSectionData(uint32_t rva, size_t bytes, std::shared_ptr<Section>& found_section, size_t& section_offset) const
+{
 	for(auto coff_section : sections)
 	{
 		if(coff_section->address <= rva && rva < coff_section->address + coff_section->size)
 		{
-			return rva - coff_section->address + coff_section->section_pointer;
+			found_section = std::dynamic_pointer_cast<Section>(coff_section);
+			section_offset = rva - coff_section->address;
+			return std::min(bytes, coff_section->address + coff_section->size - rva);
 		}
 	}
 	return 0;
+}
+
+size_t PEFormat::ReadData(size_t bytes, uint32_t rva, void * buffer) const
+{
+	size_t count = 0;
+	while(bytes > 0)
+	{
+		std::shared_ptr<Section> section;
+		size_t offset;
+		size_t available_bytes = MapRVAToSectionData(rva, 1, section, offset);
+		if(available_bytes == 0)
+			break;
+
+		section->ReadData(available_bytes, offset, buffer);
+		bytes -= available_bytes;
+		rva += available_bytes;
+		buffer = reinterpret_cast<char *>(buffer) + available_bytes;
+	}
+	return count;
+}
+
+uint64_t PEFormat::ReadUnsigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const
+{
+	assert(bytes <= 8);
+	std::vector<uint8_t> data(bytes);
+	ReadData(bytes, rva, data.data());
+	return ::ReadUnsigned(bytes, bytes, data.data(), endiantype);
+}
+
+uint64_t PEFormat::ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const
+{
+	assert(bytes <= 8);
+	std::vector<uint8_t> data(bytes);
+	ReadData(bytes, rva, data.data());
+	return ::ReadSigned(bytes, bytes, data.data(), endiantype);
 }
 
 void PEFormat::AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type type, uint16_t low_ref)
@@ -934,6 +986,64 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 	ReadCOFFHeader(rd);
 	optional_header->ReadFile(rd);
 	ReadRestOfFile(rd);
+
+	for(size_t directory_number = 0; directory_number < GetOptionalHeader().data_directories.size(); directory_number++)
+	{
+		switch(directory_number)
+		{
+		case PEOptionalHeader::DirExportTable:
+			// TODO
+			break;
+		case PEOptionalHeader::DirImportTable:
+			// TODO
+			break;
+		case PEOptionalHeader::DirResourceTable:
+			// TODO
+			break;
+		//case PEOptionalHeader::DirExceptionTable:
+		//case PEOptionalHeader::DirCertificateTable:
+		case PEOptionalHeader::DirBaseRelocationTable:
+			{
+				uint32_t rva = GetOptionalHeader().data_directories[directory_number].address;
+				uint32_t end = rva + GetOptionalHeader().data_directories[directory_number].size;
+				while(rva < end)
+				{
+					std::shared_ptr<BaseRelocationBlock> block = std::make_shared<BaseRelocationBlock>();
+					base_relocations->blocks_list.push_back(block);
+					block->page_rva = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+					base_relocations->blocks_map[block->page_rva] = block;
+					block->block_size = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+					if(block->block_size < 8)
+						continue;
+					uint32_t block_end = rva + block->block_size - 8;
+					if(block_end > end)
+						block_end = end; // do not read beyond the directory
+					while(rva < block_end)
+					{
+						BaseRelocation reloc = { };
+						uint16_t entry = ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
+						reloc.type = BaseRelocation::relocation_type(entry >> 12);
+						reloc.offset = entry & 0x0FFF;
+						if(reloc.GetEntryCount(this) >= 2)
+						{
+							reloc.parameter = ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
+						}
+						block->relocations_list.push_back(reloc);
+						block->relocations_map[reloc.offset] = reloc;
+					}
+				}
+			}
+			break;
+		//case PEOptionalHeader::DirDebug:
+		//case PEOptionalHeader::DirGlobalPointer:
+		//case PEOptionalHeader::DirTLSTable:
+		//case PEOptionalHeader::DirLoadConfigTable:
+		//case PEOptionalHeader::DirBoundImport:
+		//case PEOptionalHeader::DirIAT:
+		//case PEOptionalHeader::DirDelayImportDescriptor:
+		//case PEOptionalHeader::DirCLRRuntimeHeader:
+		}
+	}
 }
 
 ::EndianType PEFormat::GetMachineEndianType() const
@@ -1097,7 +1207,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 		{ 0xA64E, "ARM64X (ARM64 and ARM64EC coexists)" },
 		{ 0xAA64, "AArch64 (64-bit ARM, little endian)" },
 	};
-	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
+	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(::ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
 	header_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
 	// TODO
 	header_region.AddOptionalField("Flags",
@@ -1124,7 +1234,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 	{
 		optional_header->Dump(*this, dump);
 
-		size_t directory_number = 1;
+		size_t directory_number = 0;
 		for(auto& data_directory : GetOptionalHeader().data_directories)
 		{
 			static const std::map<offset_t, std::string> directory_type =
@@ -1148,9 +1258,72 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			};
 
 			Dumper::Region directory_region("Directory", RVAToFileOffset(data_directory.address), data_directory.size, 8);
-			directory_region.InsertField(0, "Type", Dumper::ChoiceDisplay::Make(directory_type, Dumper::DecDisplay::Make()), offset_t(directory_number));
+			directory_region.InsertField(0, "Type", Dumper::ChoiceDisplay::Make(directory_type, Dumper::DecDisplay::Make()), offset_t(directory_number + 1));
 			directory_region.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(data_directory.address));
 			directory_region.Display(dump);
+
+			switch(directory_number)
+			{
+			case PEOptionalHeader::DirExportTable:
+				// TODO
+				break;
+			case PEOptionalHeader::DirImportTable:
+				// TODO
+				break;
+			case PEOptionalHeader::DirResourceTable:
+				// TODO
+				break;
+			//case PEOptionalHeader::DirExceptionTable:
+			//case PEOptionalHeader::DirCertificateTable:
+			case PEOptionalHeader::DirBaseRelocationTable:
+				{
+					uint32_t rva = data_directory.address;
+					for(auto block : base_relocations->blocks_list)
+					{
+						Dumper::Region block_region("Block", RVAToFileOffset(rva), block->block_size, 8);
+						block_region.AddField("Location", Dumper::HexDisplay::Make(), RVAToFileOffset(rva));
+						block_region.AddField("Page (RVA)", Dumper::HexDisplay::Make(), offset_t(block->page_rva));
+						block_region.Display(dump);
+
+						rva += 8;
+
+						size_t i = 0;
+						for(auto rel : block->relocations_list)
+						{
+							Dumper::Entry relocation_entry("Relocation", i + 1, RVAToFileOffset(rva), 8);
+							static const std::map<offset_t, std::string> reloc_type =
+							{
+								{ 0,  "skipped (ABSOLUTE)" },
+								{ 1,  "high 16-bit (HIGH)" },
+								{ 2,  "16-bit (LOW)" },
+								{ 3,  "32-bit (HIGHLOW)" },
+								{ 4,  "adjusted high 16-bit (HIGHADJ)" },
+								{ 5,  "MIPS: jump address; ARM: movw/movt; RISC-V: high 20" },
+								{ 7,  "Thumb (ARM): movw/movt; RISC-V: low 12 I-type" },
+								{ 8,  "RISC-V: low 12 S-type; LoongArch: la address" },
+								{ 9,  "MIPS16: jump address" },
+								{ 10, "64-bit (DIR64)" },
+							};
+							relocation_entry.AddField("Type", Dumper::ChoiceDisplay::Make(reloc_type, Dumper::DecDisplay::Make(1)), offset_t(rel.type));
+							relocation_entry.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(block->page_rva + rel.offset));
+							relocation_entry.AddOptionalField("Parameter", Dumper::HexDisplay::Make(4), offset_t(rel.parameter));
+							relocation_entry.AddField("Location", Dumper::HexDisplay::Make(), RVAToFileOffset(rva));
+							relocation_entry.Display(dump);
+							i += 1;
+							rva += rel.GetEntryCount(this) * 2;
+						}
+					}
+				}
+				break;
+			//case PEOptionalHeader::DirDebug:
+			//case PEOptionalHeader::DirGlobalPointer:
+			//case PEOptionalHeader::DirTLSTable:
+			//case PEOptionalHeader::DirLoadConfigTable:
+			//case PEOptionalHeader::DirBoundImport:
+			//case PEOptionalHeader::DirIAT:
+			//case PEOptionalHeader::DirDelayImportDescriptor:
+			//case PEOptionalHeader::DirCLRRuntimeHeader:
+			}
 
 			directory_number ++;
 		}
@@ -1158,19 +1331,19 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 
 	for(auto& section : sections)
 	{
-		Dumper::Block block("Section", file_offset + section->section_pointer, section->image->AsImage(), section->address, 8);
-		block.InsertField(0, "Name", Dumper::StringDisplay::Make(), section->name);
+		Dumper::Block section_block("Section", section->section_pointer, section->image->AsImage(), section->address, 8);
+		section_block.InsertField(0, "Name", Dumper::StringDisplay::Make(), section->name);
 		if((section->image != nullptr ? section->image->ImageSize() : 0) != section->size)
-			block.AddField("Size in memory",
+			section_block.AddField("Size in memory",
 				Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
 				offset_t(section->size));
-		block.AddField("Physical address",
+		section_block.AddField("Physical address",
 			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
 			offset_t(section->physical_address));
-		block.AddOptionalField("Line numbers",
+		section_block.AddOptionalField("Line numbers",
 			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
 			offset_t(section->line_number_pointer != 0 ? file_offset + section->line_number_pointer : 0)); /* TODO */
-		block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count)); /* TODO */
+		section_block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count)); /* TODO */
 		static const std::map<offset_t, std::string> alignment_type =
 		{
 			{ 1,  "Align on 1-byte boundary" },
@@ -1188,7 +1361,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			{ 13, "Align on 4096-byte boundary" },
 			{ 14, "Align on 8192-byte boundary" },
 		};
-		block.AddOptionalField("Flags",
+		section_block.AddOptionalField("Flags",
 			Dumper::BitFieldDisplay::Make()
 				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("no padding (obsolete)"), true)
 				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("contains executable code (text)"), true)
@@ -1218,7 +1391,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 		if(section->relocation_count != 0)
 		{
 			Dumper::Region relocations("Section relocation", file_offset + section->relocation_pointer, 0, 8); /* TODO: size */
-			block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
+			section_block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
 			relocations.Display(dump);
 		}
 
@@ -1230,12 +1403,27 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			// TODO: fill addend
 			relocation_entry.Display(dump);
 
-			block.AddSignal(relocation->GetAddress() - section->address, relocation->GetSize());
+			section_block.AddSignal(relocation->GetAddress() - section->address, relocation->GetSize());
 			i++;
 		}
 #endif
 
-		block.Display(dump);
+		for(auto block : base_relocations->blocks_list)
+		{
+			if(section->address <= block->page_rva && block->page_rva < section->address + section->size)
+			{
+				for(auto rel : block->relocations_list)
+				{
+					uint32_t rva = block->page_rva + rel.offset;
+					if(section->address <= rva && rva < section->address + section->size)
+					{
+						section_block.AddSignal(rva - section->address, rel.GetRelocationSize(this));
+					}
+				}
+			}
+		}
+
+		section_block.Display(dump);
 	}
 
 #if 0

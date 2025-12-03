@@ -241,7 +241,14 @@ namespace Microsoft
 			virtual uint32_t ImageSize(const PEFormat& fmt) const;
 			/** @brief Retrieves the size of the section, as loaded into memory */
 			virtual uint32_t MemorySize(const PEFormat& fmt) const;
+
+			size_t ReadData(size_t bytes, size_t offset, void * buffer) const;
 		};
+
+		size_t MapRVAToSectionData(uint32_t rva, size_t bytes, std::shared_ptr<Section>& found_section, size_t& section_offset) const;
+		size_t ReadData(size_t bytes, uint32_t rva, void * buffer) const;
+		uint64_t ReadUnsigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
+		uint64_t ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
 
 		/** @brief Represents a resource inside the image */
 		class Resource
