@@ -554,6 +554,8 @@ namespace COFF
 			virtual void ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format);
 			/** @brief Writes the section contents to a stream, can be overloaded by subclasses */
 			virtual void WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const;
+			/** @brief Displays the section information and contents */
+			virtual void Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const;
 		};
 
 		/**
@@ -1094,7 +1096,6 @@ namespace COFF
 		void ReadCOFFHeader(Linker::Reader& rd);
 		void ReadOptionalHeader(Linker::Reader& rd);
 		void ReadRestOfFile(Linker::Reader& rd);
-		virtual std::shared_ptr<Section> CreateReadSection();
 
 	public:
 		offset_t ImageSize() const override;

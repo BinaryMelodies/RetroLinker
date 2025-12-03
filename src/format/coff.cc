@@ -5,6 +5,7 @@
 #include "../linker/resolution.h"
 #include "../linker/section.h"
 #include "../linker/symbol_name.h"
+#include "peexe.h" // for PEFormat::Section
 
 using namespace COFF;
 
@@ -671,6 +672,54 @@ void COFFFormat::Section::WriteSectionData(Linker::Writer& wr, const COFFFormat&
 {
 	wr.Seek(coff_format.file_offset + section_pointer);
 	image->WriteFile(wr);
+}
+
+void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const
+{
+	Dumper::Block block("Section", format.file_offset + section_pointer, image->AsImage(), address, 8);
+	block.InsertField(0, "Name", Dumper::StringDisplay::Make("\""), name);
+	if((image != nullptr ? image->ImageSize() : 0) != size)
+		block.AddField("Size in memory",
+			Dumper::HexDisplay::Make(format.coff_variant == ECOFF || format.coff_variant == XCOFF64 ? 16 : 8),
+			offset_t(size));
+	block.AddField("Physical address",
+		Dumper::HexDisplay::Make(format.coff_variant == ECOFF || format.coff_variant == XCOFF64 ? 16 : 8),
+		offset_t(physical_address));
+	block.AddOptionalField("Line numbers",
+		Dumper::HexDisplay::Make(format.coff_variant == ECOFF || format.coff_variant == XCOFF64 ? 16 : 8),
+		offset_t(line_number_pointer != 0 ? format.file_offset + line_number_pointer : 0)); /* TODO */
+	block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(line_number_count)); /* TODO */
+	block.AddOptionalField("Flags",
+		Dumper::BitFieldDisplay::Make(format.coff_variant == XCOFF32 || format.coff_variant == TICOFF ? 4 : 8)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
+		offset_t(flags));
+	if(format.coff_variant == TICOFF || format.coff_variant == TICOFF1)
+	{
+		block.AddOptionalField("Memory page number", Dumper::HexDisplay::Make(4), offset_t(memory_page_number));
+	}
+
+	if(relocation_count != 0)
+	{
+		Dumper::Region relocations("Section relocation", format.file_offset + relocation_pointer, 0, 8); /* TODO: size */
+		block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(relocation_count));
+		relocations.Display(dump);
+	}
+
+	unsigned i = 0;
+	for(auto& relocation : relocations)
+	{
+		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
+		relocation->FillEntry(relocation_entry);
+		// TODO: fill addend
+		relocation_entry.Display(dump);
+
+		block.AddSignal(relocation->GetAddress() - address, relocation->GetSize());
+		i++;
+	}
+
+	block.Display(dump);
 }
 
 COFFFormat::OptionalHeader::~OptionalHeader()
@@ -1381,7 +1430,16 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 {
 	for(size_t i = 0; i < section_count; i++)
 	{
-		std::shared_ptr<Section> section = CreateReadSection();
+		std::shared_ptr<Section> section;
+		switch(type)
+		{
+		case WINDOWS:
+			section = std::make_shared<Microsoft::PEFormat::Section>();
+			break;
+		default:
+			section = std::make_shared<Section>();
+			break;
+		}
 		section->ReadSectionHeader(rd, coff_variant);
 		sections.push_back(section);
 	}
@@ -1472,11 +1530,6 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 	{
 		optional_header->PostReadFile(*this, rd);
 	}
-}
-
-std::shared_ptr<COFFFormat::Section> COFFFormat::CreateReadSection()
-{
-	return std::make_shared<Section>();
 }
 
 offset_t COFFFormat::WriteFile(Linker::Writer& wr) const
@@ -1639,52 +1692,11 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 		optional_header->Dump(*this, dump);
 	}
 
+	unsigned section_index = 0;
 	for(auto& section : sections)
 	{
-		Dumper::Block block("Section", file_offset + section->section_pointer, section->image->AsImage(), section->address, 8);
-		block.InsertField(0, "Name", Dumper::StringDisplay::Make("\""), section->name);
-		if((section->image != nullptr ? section->image->ImageSize() : 0) != section->size)
-			block.AddField("Size in memory",
-				Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
-				offset_t(section->size));
-		block.AddField("Physical address",
-			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
-			offset_t(section->physical_address));
-		block.AddOptionalField("Line numbers",
-			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
-			offset_t(section->line_number_pointer != 0 ? file_offset + section->line_number_pointer : 0)); /* TODO */
-		block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count)); /* TODO */
-		block.AddOptionalField("Flags",
-			Dumper::BitFieldDisplay::Make(coff_variant == XCOFF32 || coff_variant == TICOFF ? 4 : 8)
-				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
-				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
-				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
-			offset_t(section->flags));
-		if(coff_variant == TICOFF || coff_variant == TICOFF1)
-		{
-			block.AddOptionalField("Memory page number", Dumper::HexDisplay::Make(4), offset_t(section->memory_page_number));
-		}
-
-		if(section->relocation_count != 0)
-		{
-			Dumper::Region relocations("Section relocation", file_offset + section->relocation_pointer, 0, 8); /* TODO: size */
-			block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
-			relocations.Display(dump);
-		}
-
-		unsigned i = 0;
-		for(auto& relocation : section->relocations)
-		{
-			Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
-			relocation->FillEntry(relocation_entry);
-			// TODO: fill addend
-			relocation_entry.Display(dump);
-
-			block.AddSignal(relocation->GetAddress() - section->address, relocation->GetSize());
-			i++;
-		}
-
-		block.Display(dump);
+		section->Dump(dump, *this, section_index);
+		section_index ++;
 	}
 
 	Dumper::Region symbol_table("Symbol table", file_offset + symbol_table_offset, symbol_count * 18, 8);

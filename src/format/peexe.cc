@@ -233,6 +233,98 @@ uint32_t PEFormat::Section::ImageSize(const COFFFormat& coff_format) const
 	return ImageSize(dynamic_cast<const PEFormat&>(coff_format));
 }
 
+void PEFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const
+{
+	Dumper::Block section_block("Section", section_pointer, image->AsImage(), address, 8);
+	section_block.InsertField(0, "Name", Dumper::StringDisplay::Make("\""), name);
+	section_block.AddField("Size in memory", Dumper::HexDisplay::Make(), offset_t(virtual_size()));
+	section_block.AddOptionalField("Line numbers", Dumper::HexDisplay::Make(), offset_t(line_number_pointer));
+	section_block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(line_number_count));
+	static const std::map<offset_t, std::string> alignment_type =
+	{
+		{ 1,  "Align on 1-byte boundary" },
+		{ 2,  "Align on 2-byte boundary" },
+		{ 3,  "Align on 4-byte boundary" },
+		{ 4,  "Align on 8-byte boundary" },
+		{ 5,  "Align on 16-byte boundary" },
+		{ 6,  "Align on 32-byte boundary" },
+		{ 7,  "Align on 64-byte boundary" },
+		{ 8,  "Align on 128-byte boundary" },
+		{ 9,  "Align on 256-byte boundary" },
+		{ 10, "Align on 512-byte boundary" },
+		{ 11, "Align on 1024-byte boundary" },
+		{ 12, "Align on 2048-byte boundary" },
+		{ 13, "Align on 4096-byte boundary" },
+		{ 14, "Align on 8192-byte boundary" },
+	};
+	section_block.AddOptionalField("Flags",
+		Dumper::BitFieldDisplay::Make()
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("no padding (obsolete)"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("contains executable code (text)"), true)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("contains initialized data (data)"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("contains uninitialized data (bss)"), true)
+			->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("LNK_OTHER (reserved)"), true)
+			->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("comments or other information"), true)
+			->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("remove from image"), true)
+			->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("contains COMDAT data"), true)
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("global pointer relative data"), true)
+			->AddBitField(16, 1, Dumper::ChoiceDisplay::Make("MEM_PURGEABLE (reserved)"), true)
+			->AddBitField(17, 1, Dumper::ChoiceDisplay::Make("MEM_16BIT (reserved)"), true)
+			->AddBitField(18, 1, Dumper::ChoiceDisplay::Make("MEM_LOCKED (reserved)"), true)
+			->AddBitField(19, 1, Dumper::ChoiceDisplay::Make("MEM_PRELOAD (reserved)"), true)
+			->AddBitField(20, 4, Dumper::ChoiceDisplay::Make(alignment_type), true)
+			->AddBitField(24, 1, Dumper::ChoiceDisplay::Make("contains extended relocations"), true)
+			->AddBitField(25, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
+			->AddBitField(26, 1, Dumper::ChoiceDisplay::Make("cannot be cached"), true)
+			->AddBitField(27, 1, Dumper::ChoiceDisplay::Make("not pageable"), true)
+			->AddBitField(28, 1, Dumper::ChoiceDisplay::Make("can be in shared memory"), true)
+			->AddBitField(29, 1, Dumper::ChoiceDisplay::Make("executable"), true)
+			->AddBitField(30, 1, Dumper::ChoiceDisplay::Make("readable"), true)
+			->AddBitField(31, 1, Dumper::ChoiceDisplay::Make("writable"), true),
+		offset_t(flags));
+
+#if 0
+	if(relocation_count != 0)
+	{
+		Dumper::Region relocations("Section relocation", file_offset + relocation_pointer, 0, 8); /* TODO: size */
+		section_block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(relocation_count));
+		relocations.Display(dump);
+	}
+
+	unsigned i = 0;
+	for(auto& relocation : relocations)
+	{
+		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
+		relocation->FillEntry(relocation_entry);
+		// TODO: fill addend
+		relocation_entry.Display(dump);
+
+		section_block.AddSignal(relocation->GetAddress() - address, relocation->GetSize());
+		i++;
+	}
+#endif
+
+	if(auto * pe = dynamic_cast<const PEFormat *>(&format))
+	{
+		for(auto block : pe->base_relocations->blocks_list)
+		{
+			if(address <= block->page_rva && block->page_rva < address + size)
+			{
+				for(auto rel : block->relocations_list)
+				{
+					uint32_t rva = block->page_rva + rel.offset;
+					if(address <= rva && rva < address + size)
+					{
+						section_block.AddSignal(rva - address, rel.GetRelocationSize(pe));
+					}
+				}
+			}
+		}
+	}
+
+	section_block.Display(dump);
+}
+
 void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
 {
 	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
@@ -1496,44 +1588,6 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 				if(data_directory.size != 0)
 				{
 					base_relocations->DumpDirectory(*this, dump, data_directory.address, data_directory.size);
-#if 0
-					uint32_t rva = data_directory.address;
-					for(auto block : base_relocations->blocks_list)
-					{
-						Dumper::Region block_region("Block", RVAToFileOffset(rva), block->block_size, 8);
-						block_region.AddField("Location", Dumper::HexDisplay::Make(), RVAToFileOffset(rva));
-						block_region.AddField("Page (RVA)", Dumper::HexDisplay::Make(), offset_t(block->page_rva));
-						block_region.Display(dump);
-
-						rva += 8;
-
-						size_t i = 0;
-						for(auto rel : block->relocations_list)
-						{
-							Dumper::Entry relocation_entry("Relocation", i + 1, RVAToFileOffset(rva), 8);
-							static const std::map<offset_t, std::string> reloc_type =
-							{
-								{ 0,  "skipped (ABSOLUTE)" },
-								{ 1,  "high 16-bit (HIGH)" },
-								{ 2,  "16-bit (LOW)" },
-								{ 3,  "32-bit (HIGHLOW)" },
-								{ 4,  "adjusted high 16-bit (HIGHADJ)" },
-								{ 5,  "MIPS: jump address; ARM: movw/movt; RISC-V: high 20" },
-								{ 7,  "Thumb (ARM): movw/movt; RISC-V: low 12 I-type" },
-								{ 8,  "RISC-V: low 12 S-type; LoongArch: la address" },
-								{ 9,  "MIPS16: jump address" },
-								{ 10, "64-bit (DIR64)" },
-							};
-							relocation_entry.AddField("Type", Dumper::ChoiceDisplay::Make(reloc_type, Dumper::DecDisplay::Make(1)), offset_t(rel.type));
-							relocation_entry.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(block->page_rva + rel.offset));
-							relocation_entry.AddOptionalField("Parameter", Dumper::HexDisplay::Make(4), offset_t(rel.parameter));
-							relocation_entry.AddField("Location", Dumper::HexDisplay::Make(), RVAToFileOffset(rva));
-							relocation_entry.Display(dump);
-							i ++;
-							rva += rel.GetEntryCount(this) * 2;
-						}
-					}
-#endif
 				}
 				break;
 			//case PEOptionalHeader::DirDebug:
@@ -1550,93 +1604,11 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 		}
 	}
 
+	unsigned section_index = 0;
 	for(auto& section : sections)
 	{
-		Dumper::Block section_block("Section", section->section_pointer, section->image->AsImage(), section->address, 8);
-		section_block.InsertField(0, "Name", Dumper::StringDisplay::Make("\""), section->name);
-		section_block.AddField("Size in memory", Dumper::HexDisplay::Make(), offset_t(std::dynamic_pointer_cast<PEFormat::Section>(section)->virtual_size()));
-		section_block.AddOptionalField("Line numbers", Dumper::HexDisplay::Make(), offset_t(section->line_number_pointer));
-		section_block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count));
-		static const std::map<offset_t, std::string> alignment_type =
-		{
-			{ 1,  "Align on 1-byte boundary" },
-			{ 2,  "Align on 2-byte boundary" },
-			{ 3,  "Align on 4-byte boundary" },
-			{ 4,  "Align on 8-byte boundary" },
-			{ 5,  "Align on 16-byte boundary" },
-			{ 6,  "Align on 32-byte boundary" },
-			{ 7,  "Align on 64-byte boundary" },
-			{ 8,  "Align on 128-byte boundary" },
-			{ 9,  "Align on 256-byte boundary" },
-			{ 10, "Align on 512-byte boundary" },
-			{ 11, "Align on 1024-byte boundary" },
-			{ 12, "Align on 2048-byte boundary" },
-			{ 13, "Align on 4096-byte boundary" },
-			{ 14, "Align on 8192-byte boundary" },
-		};
-		section_block.AddOptionalField("Flags",
-			Dumper::BitFieldDisplay::Make()
-				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("no padding (obsolete)"), true)
-				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("contains executable code (text)"), true)
-				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("contains initialized data (data)"), true)
-				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("contains uninitialized data (bss)"), true)
-				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("LNK_OTHER (reserved)"), true)
-				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("comments or other information"), true)
-				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("remove from image"), true)
-				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("contains COMDAT data"), true)
-				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("global pointer relative data"), true)
-				->AddBitField(16, 1, Dumper::ChoiceDisplay::Make("MEM_PURGEABLE (reserved)"), true)
-				->AddBitField(17, 1, Dumper::ChoiceDisplay::Make("MEM_16BIT (reserved)"), true)
-				->AddBitField(18, 1, Dumper::ChoiceDisplay::Make("MEM_LOCKED (reserved)"), true)
-				->AddBitField(19, 1, Dumper::ChoiceDisplay::Make("MEM_PRELOAD (reserved)"), true)
-				->AddBitField(20, 4, Dumper::ChoiceDisplay::Make(alignment_type), true)
-				->AddBitField(24, 1, Dumper::ChoiceDisplay::Make("contains extended relocations"), true)
-				->AddBitField(25, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
-				->AddBitField(26, 1, Dumper::ChoiceDisplay::Make("cannot be cached"), true)
-				->AddBitField(27, 1, Dumper::ChoiceDisplay::Make("not pageable"), true)
-				->AddBitField(28, 1, Dumper::ChoiceDisplay::Make("can be in shared memory"), true)
-				->AddBitField(29, 1, Dumper::ChoiceDisplay::Make("executable"), true)
-				->AddBitField(30, 1, Dumper::ChoiceDisplay::Make("readable"), true)
-				->AddBitField(31, 1, Dumper::ChoiceDisplay::Make("writable"), true),
-			offset_t(section->flags));
-
-#if 0
-		if(section->relocation_count != 0)
-		{
-			Dumper::Region relocations("Section relocation", file_offset + section->relocation_pointer, 0, 8); /* TODO: size */
-			section_block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(section->relocation_count));
-			relocations.Display(dump);
-		}
-
-		unsigned i = 0;
-		for(auto& relocation : section->relocations)
-		{
-			Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
-			relocation->FillEntry(relocation_entry);
-			// TODO: fill addend
-			relocation_entry.Display(dump);
-
-			section_block.AddSignal(relocation->GetAddress() - section->address, relocation->GetSize());
-			i++;
-		}
-#endif
-
-		for(auto block : base_relocations->blocks_list)
-		{
-			if(section->address <= block->page_rva && block->page_rva < section->address + section->size)
-			{
-				for(auto rel : block->relocations_list)
-				{
-					uint32_t rva = block->page_rva + rel.offset;
-					if(section->address <= rva && rva < section->address + section->size)
-					{
-						section_block.AddSignal(rva - section->address, rel.GetRelocationSize(this));
-					}
-				}
-			}
-		}
-
-		section_block.Display(dump);
+		section->Dump(dump, *this, section_index);
+		section_index ++;
 	}
 
 #if 0
@@ -1663,11 +1635,6 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 	}
 #endif
 	// TODO
-}
-
-std::shared_ptr<COFF::COFFFormat::Section> PEFormat::CreateReadSection()
-{
-	return std::make_unique<PEFormat::Section>();
 }
 
 /* * * Writer members * * */

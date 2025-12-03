@@ -232,6 +232,7 @@ namespace Microsoft
 			void ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format) override;
 			void WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const override;
 			uint32_t ImageSize(const COFFFormat& coff_format) const override;
+			void Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const override;
 
 			/** @brief Reads the contents of the section in the file */
 			virtual void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt);
@@ -764,9 +765,6 @@ namespace Microsoft
 			optional_header = std::make_unique<PEOptionalHeader>();
 			GetOptionalHeader().subsystem = subsystem;
 		}
-
-	protected:
-		std::shared_ptr<COFFFormat::Section> CreateReadSection() override;
 
 	public:
 		/* * * Writer members * * */
