@@ -351,6 +351,11 @@ namespace Microsoft
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
+
+			/** @brief Parses the contents of the directory, after all the section data for the file is loaded */
+			void ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size);
+			/** @brief Displays the directory contents */
+			void DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const;
 		};
 
 		/** @brief The resources in this file */
@@ -446,6 +451,11 @@ namespace Microsoft
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
+
+			/** @brief Parses the contents of the directory, after all the section data for the file is loaded */
+			void ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size);
+			/** @brief Displays the directory contents */
+			void DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const;
 		};
 
 		/** @brief The collection of imports in the file */
@@ -555,6 +565,11 @@ namespace Microsoft
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
+
+			/** @brief Parses the contents of the directory, after all the section data for the file is loaded */
+			void ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size);
+			/** @brief Displays the directory contents */
+			void DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const;
 		};
 
 		/** @brief The collection of exported symbols */
@@ -657,6 +672,11 @@ namespace Microsoft
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
+
+			/** @brief Parses the contents of the directory, after all the section data for the file is loaded */
+			void ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size);
+			/** @brief Displays the directory contents */
+			void DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const;
 		};
 
 		/** @brief The collection of base relocations */
