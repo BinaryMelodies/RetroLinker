@@ -1225,16 +1225,78 @@ offset_t PEFormat::RVAToFileOffset(uint32_t rva) const
 
 size_t PEFormat::MapRVAToSectionData(uint32_t rva, size_t bytes, std::shared_ptr<Section>& found_section, size_t& section_offset) const
 {
-	for(auto coff_section : sections)
+	for(auto section : Sections())
 	{
-		if(coff_section->address <= rva && rva < coff_section->address + coff_section->size)
+		if(section->address <= rva && rva < section->address + section->size)
 		{
-			found_section = std::dynamic_pointer_cast<Section>(coff_section);
-			section_offset = rva - coff_section->address;
-			return std::min(bytes, coff_section->address + coff_section->size - rva);
+			found_section = std::const_pointer_cast<Section>(section);
+			section_offset = rva - section->address;
+			return std::min(bytes, section->address + section->size - rva);
 		}
 	}
 	return 0;
+}
+
+bool PEFormat::PESections::iterator::operator !=(const PEFormat::PESections::iterator& other) const
+{
+	return coff_iterator != other.coff_iterator;
+}
+
+PEFormat::PESections::iterator& PEFormat::PESections::iterator::operator++()
+{
+	coff_iterator++;
+	return *this;
+}
+
+std::shared_ptr<PEFormat::Section> PEFormat::PESections::iterator::operator*() const
+{
+	return std::dynamic_pointer_cast<PEFormat::Section>(*coff_iterator);
+}
+
+bool PEFormat::PESections::const_iterator::operator !=(const PEFormat::PESections::const_iterator& other) const
+{
+	return coff_iterator != other.coff_iterator;
+}
+
+PEFormat::PESections::const_iterator& PEFormat::PESections::const_iterator::operator++()
+{
+	coff_iterator++;
+	return *this;
+}
+
+std::shared_ptr<const PEFormat::Section> PEFormat::PESections::const_iterator::operator*() const
+{
+	return std::dynamic_pointer_cast<const PEFormat::Section>(*coff_iterator);
+}
+
+PEFormat::PESections::iterator PEFormat::PESections::begin()
+{
+	return iterator{const_cast<PEFormat *>(pe)->sections.begin()};
+}
+
+PEFormat::PESections::const_iterator PEFormat::PESections::begin() const
+{
+	return const_iterator{pe->sections.begin()};
+}
+
+PEFormat::PESections::iterator PEFormat::PESections::end()
+{
+	return iterator{const_cast<PEFormat *>(pe)->sections.end()};
+}
+
+PEFormat::PESections::const_iterator PEFormat::PESections::end() const
+{
+	return const_iterator{pe->sections.end()};
+}
+
+const PEFormat::PESections PEFormat::Sections() const
+{
+	return PESections{this};
+}
+
+PEFormat::PESections PEFormat::Sections()
+{
+	return const_cast<const PEFormat *>(this)->Sections();
 }
 
 size_t PEFormat::ReadData(size_t bytes, uint32_t rva, void * buffer) const
@@ -1430,9 +1492,8 @@ void PEFormat::CalculateValues()
 	offset_t section_header_size = 40;
 	offset_t offset = file_offset + 24 + optional_header->GetSize() + sections.size() * section_header_size;
 
-	for(auto& coff_section : sections)
+	for(auto section : Sections())
 	{
-		std::shared_ptr<Section> section = std::static_pointer_cast<Section>(coff_section);
 		section->virtual_size() = section->MemorySize(*this);
 		section->size = section->ImageSize(*this);
 		section->section_pointer = offset = AlignTo(offset, GetOptionalHeader().file_align);
@@ -1606,7 +1667,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 	}
 
 	unsigned section_index = 0;
-	for(auto& section : sections)
+	for(auto section : Sections())
 	{
 		section->Dump(dump, *this, section_index);
 		section_index ++;
@@ -2281,10 +2342,9 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
-	for(auto& coff_section : sections)
+	for(auto section : sections)
 	{
-		std::shared_ptr<Section> section = std::static_pointer_cast<Section>(coff_section);
-		std::shared_ptr<Linker::Segment> image = GetSegment(coff_section);
+		std::shared_ptr<Linker::Segment> image = GetSegment(section);
 		section->name = image->name;
 		section->address = AddressToRVA(image->base_address);
 	}

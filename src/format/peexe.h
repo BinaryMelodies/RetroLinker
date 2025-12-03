@@ -246,6 +246,35 @@ namespace Microsoft
 			size_t ReadData(size_t bytes, size_t offset, void * buffer) const;
 		};
 
+		/** @brief Wrapper around COFFFormat::sections to return PEFormat::Section pointers instead of COFFFormat::Section pointers */
+		struct PESections
+		{
+			const PEFormat * pe;
+			struct iterator
+			{
+				std::vector<std::shared_ptr<COFFFormat::Section>>::iterator coff_iterator;
+				bool operator !=(const iterator& other) const;
+				iterator& operator++();
+				std::shared_ptr<PEFormat::Section> operator*() const;
+			};
+			struct const_iterator
+			{
+				std::vector<std::shared_ptr<COFFFormat::Section>>::const_iterator coff_iterator;
+				bool operator !=(const const_iterator& other) const;
+				const_iterator& operator++();
+				std::shared_ptr<const PEFormat::Section> operator*() const;
+			};
+			iterator begin();
+			const_iterator begin() const;
+			iterator end();
+			const_iterator end() const;
+		};
+
+		/** @brief Access the sections as PEFormat::Section */
+		const PESections Sections() const;
+		/** @brief Access the sections as PEFormat::Section */
+		PESections Sections();
+
 		/**
 		 * @brief Attempts to find the section:offset pair that encompasses this memory range
 		 *
