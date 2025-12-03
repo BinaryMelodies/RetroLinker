@@ -236,7 +236,8 @@ uint32_t PEFormat::Section::ImageSize(const COFFFormat& coff_format) const
 void PEFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const
 {
 	Dumper::Block section_block("Section", section_pointer, image->AsImage(), address, 8);
-	section_block.InsertField(0, "Name", Dumper::StringDisplay::Make("\""), name);
+	section_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(section_index + 1));
+	section_block.AddField("Name", Dumper::StringDisplay::Make("\""), name);
 	section_block.AddField("Size in memory", Dumper::HexDisplay::Make(), offset_t(virtual_size()));
 	section_block.AddOptionalField("Line numbers", Dumper::HexDisplay::Make(), offset_t(line_number_pointer));
 	section_block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(line_number_count));

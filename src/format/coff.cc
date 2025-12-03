@@ -677,7 +677,8 @@ void COFFFormat::Section::WriteSectionData(Linker::Writer& wr, const COFFFormat&
 void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const
 {
 	Dumper::Block block("Section", format.file_offset + section_pointer, image->AsImage(), address, 8);
-	block.InsertField(0, "Name", Dumper::StringDisplay::Make("\""), name);
+	block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(section_index + 1));
+	block.AddField("Name", Dumper::StringDisplay::Make("\""), name);
 	if((image != nullptr ? image->ImageSize() : 0) != size)
 		block.AddField("Size in memory",
 			Dumper::HexDisplay::Make(format.coff_variant == ECOFF || format.coff_variant == XCOFF64 ? 16 : 8),
