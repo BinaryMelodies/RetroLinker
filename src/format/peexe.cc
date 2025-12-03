@@ -930,14 +930,17 @@ size_t PEFormat::ReadData(size_t bytes, uint32_t rva, void * buffer) const
 	{
 		std::shared_ptr<Section> section;
 		size_t offset;
-		size_t available_bytes = MapRVAToSectionData(rva, 1, section, offset);
+		size_t available_bytes = MapRVAToSectionData(rva, bytes, section, offset);
 		if(available_bytes == 0)
 			break;
 
-		section->ReadData(available_bytes, offset, buffer);
+		size_t result =
+			section->ReadData(available_bytes, offset, buffer);
+		assert(result == available_bytes);
 		bytes -= available_bytes;
 		rva += available_bytes;
 		buffer = reinterpret_cast<char *>(buffer) + available_bytes;
+		count += available_bytes;
 	}
 	return count;
 }
@@ -956,6 +959,17 @@ uint64_t PEFormat::ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantyp
 	std::vector<uint8_t> data(bytes);
 	ReadData(bytes, rva, data.data());
 	return ::ReadSigned(bytes, bytes, data.data(), endiantype);
+}
+
+std::string PEFormat::ReadASCII(uint32_t rva, char terminator, size_t maximum) const
+{
+	std::string tmp;
+	char c = 0;
+	while(ReadData(1, rva++, &c) != 0 && c != terminator)
+	{
+		tmp += c;
+	}
+	return tmp;
 }
 
 void PEFormat::AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type type, uint16_t low_ref)
@@ -992,7 +1006,79 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 		switch(directory_number)
 		{
 		case PEOptionalHeader::DirExportTable:
-			// TODO
+			{
+				uint32_t rva = GetOptionalHeader().data_directories[directory_number].address;
+				exports->flags = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+				exports->timestamp = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+				exports->version.major = ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
+				exports->version.minor = ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
+				exports->dll_name_rva = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+				exports->dll_name = ReadASCII(exports->dll_name_rva, '\0');
+				exports->ordinal_base = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+				uint32_t entry_count = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+				uint32_t name_count = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+				exports->address_table_rva = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+				exports->name_table_rva = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+				exports->ordinal_table_rva = ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+
+				for(uint32_t i = 0; i < entry_count; i++)
+				{
+					uint32_t export_rva = ReadUnsigned(4, exports->address_table_rva + 4 * i, ::LittleEndian);
+					if(export_rva == 0)
+					{
+						exports->entries.push_back(std::optional<std::shared_ptr<ExportedEntry>>());
+					}
+					else if(GetOptionalHeader().data_directories[directory_number].address <= export_rva
+					&& export_rva < GetOptionalHeader().data_directories[directory_number].address + GetOptionalHeader().data_directories[directory_number].size)
+					{
+						// forwarder entry
+						// TODO: test
+						ExportedEntry::Forwarder forwarder = { };
+						forwarder.rva = export_rva;
+						forwarder.reference_name = ReadASCII(forwarder.rva, '\0');
+						size_t ix = forwarder.reference_name.find('.');
+						if(ix != std::string::npos)
+						{
+							forwarder.dll_name = forwarder.reference_name.substr(0, ix);
+							if(ix + 1 < forwarder.reference_name.size() && forwarder.reference_name[ix + 1] == '#')
+							{
+								forwarder.reference = uint32_t(strtol(forwarder.reference_name.substr(ix + 2).c_str(), NULL, 10));
+							}
+							else
+							{
+								forwarder.reference = forwarder.reference_name.substr(ix + 1);
+							}
+						}
+						std::shared_ptr<ExportedEntry> entry = std::make_shared<ExportedEntry>(forwarder);
+						exports->entries.push_back(entry);
+					}
+					else
+					{
+						std::shared_ptr<ExportedEntry> entry = std::make_shared<ExportedEntry>(export_rva);
+						exports->entries.push_back(entry);
+					}
+				}
+
+				for(uint32_t i = 0; i < name_count; i++)
+				{
+					uint16_t ordinal = ReadUnsigned(2, exports->ordinal_table_rva + 2 * i, ::LittleEndian);
+					if(ordinal >= exports->entries.size())
+					{
+						Linker::Error << "Error: export ordinal " << std::dec << ordinal << " is outside export table" << std::endl;
+						continue;
+					}
+					ExportedEntry::Name name("");
+					name.rva = ReadUnsigned(4, exports->name_table_rva + 4 * i, ::LittleEndian);
+					name.name = ReadASCII(name.rva, '\0');
+					if(!exports->entries[ordinal])
+					{
+						Linker::Error << "Error: export ordinal " << std::dec << ordinal << " points to unused entry" << std::endl;
+						continue;
+					}
+					exports->entries[ordinal].value()->name = name;
+					exports->named_exports[name.name] = ordinal;
+				}
+			}
 			break;
 		case PEOptionalHeader::DirImportTable:
 			// TODO
@@ -1265,7 +1351,49 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			switch(directory_number)
 			{
 			case PEOptionalHeader::DirExportTable:
-				// TODO
+				{
+					Dumper::Region exports_region("Export table", RVAToFileOffset(data_directory.address), data_directory.size, 8);
+					exports_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(), offset_t(exports->flags));
+					exports_region.AddField("Timestamp", Dumper::HexDisplay::Make(), offset_t(exports->timestamp));
+					exports_region.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(exports->version.major), offset_t(exports->version.minor));
+					exports_region.AddField("DLL name", Dumper::StringDisplay::Make("\""), exports->dll_name);
+					exports_region.AddField("DLL name (RVA)", Dumper::HexDisplay::Make(), offset_t(exports->dll_name_rva));
+					exports_region.AddField("Ordinal base", Dumper::HexDisplay::Make(), offset_t(exports->ordinal_base));
+					exports_region.AddField("Address table (RVA)", Dumper::HexDisplay::Make(), offset_t(exports->address_table_rva));
+					exports_region.AddField("Name pointer table (RVA)", Dumper::HexDisplay::Make(), offset_t(exports->name_table_rva));
+					exports_region.AddField("Ordinal table (RVA)", Dumper::HexDisplay::Make(), offset_t(exports->ordinal_table_rva));
+					exports_region.Display(dump);
+
+					size_t i = 0;
+					for(auto& entry : exports->entries)
+					{
+						Dumper::Entry export_entry("Entry", i, RVAToFileOffset(exports->address_table_rva + i * 4), 8);
+						export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(exports->ordinal_base + i));
+						if(!entry)
+						{
+							export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("unused"));
+						}
+						else if(auto * forwarder = std::get_if<ExportedEntry::Forwarder>(&entry.value()->value))
+						{
+							export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("forwarder"));
+							// TODO
+						}
+						else if(auto * value = std::get_if<uint32_t>(&entry.value()->value))
+						{
+							export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("exported"));
+							export_entry.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(*value));
+							export_entry.AddField("Offset", Dumper::HexDisplay::Make(), RVAToFileOffset(*value));
+							if(entry.value()->name)
+							{
+								export_entry.AddField("Name", Dumper::StringDisplay::Make(), entry.value()->name.value().name);
+								export_entry.AddField("Name (RVA)", Dumper::HexDisplay::Make(), offset_t(entry.value()->name.value().rva));
+								export_entry.AddField("Name (offset)", Dumper::HexDisplay::Make(), RVAToFileOffset(entry.value()->name.value().rva));
+							}
+						}
+						export_entry.Display(dump);
+						i ++;
+					}
+				}
 				break;
 			case PEOptionalHeader::DirImportTable:
 				// TODO
@@ -1309,7 +1437,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 							relocation_entry.AddOptionalField("Parameter", Dumper::HexDisplay::Make(4), offset_t(rel.parameter));
 							relocation_entry.AddField("Location", Dumper::HexDisplay::Make(), RVAToFileOffset(rva));
 							relocation_entry.Display(dump);
-							i += 1;
+							i ++;
 							rva += rel.GetEntryCount(this) * 2;
 						}
 					}
@@ -1332,18 +1460,10 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 	for(auto& section : sections)
 	{
 		Dumper::Block section_block("Section", section->section_pointer, section->image->AsImage(), section->address, 8);
-		section_block.InsertField(0, "Name", Dumper::StringDisplay::Make(), section->name);
-		if((section->image != nullptr ? section->image->ImageSize() : 0) != section->size)
-			section_block.AddField("Size in memory",
-				Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
-				offset_t(section->size));
-		section_block.AddField("Physical address",
-			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
-			offset_t(section->physical_address));
-		section_block.AddOptionalField("Line numbers",
-			Dumper::HexDisplay::Make(coff_variant == ECOFF || coff_variant == XCOFF64 ? 16 : 8),
-			offset_t(section->line_number_pointer != 0 ? file_offset + section->line_number_pointer : 0)); /* TODO */
-		section_block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count)); /* TODO */
+		section_block.InsertField(0, "Name", Dumper::StringDisplay::Make("\""), section->name);
+		section_block.AddField("Size in memory", Dumper::HexDisplay::Make(), offset_t(std::dynamic_pointer_cast<PEFormat::Section>(section)->virtual_size()));
+		section_block.AddOptionalField("Line numbers", Dumper::HexDisplay::Make(), offset_t(section->line_number_pointer));
+		section_block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(section->line_number_count));
 		static const std::map<offset_t, std::string> alignment_type =
 		{
 			{ 1,  "Align on 1-byte boundary" },
@@ -1446,7 +1566,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			symbol_entry.AddOptionalField("Auxiliary count", Dumper::DecDisplay::Make(), offset_t(symbol->auxiliary_count));
 		}
 		symbol_entry.Display(dump);
-		i += 1;
+		i ++;
 	}
 #endif
 	// TODO

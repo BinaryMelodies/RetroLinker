@@ -249,6 +249,7 @@ namespace Microsoft
 		size_t ReadData(size_t bytes, uint32_t rva, void * buffer) const;
 		uint64_t ReadUnsigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
 		uint64_t ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
+		std::string ReadASCII(uint32_t rva, char terminator, size_t maximum = size_t(-1)) const;
 
 		/** @brief Represents a resource inside the image */
 		class Resource
@@ -482,6 +483,11 @@ namespace Microsoft
 
 			ExportedEntry(uint32_t rva, std::string name)
 				: value(rva), name(name)
+			{
+			}
+
+			ExportedEntry(Forwarder fwd)
+				: value(fwd), name()
 			{
 			}
 		};
