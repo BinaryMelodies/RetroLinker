@@ -392,7 +392,7 @@ namespace Microsoft
 		std::shared_ptr<ResourcesSection> resources = std::make_shared<ResourcesSection>();
 
 		/** @brief A collection of the imported names for a specific dynamic linking library */
-		class ImportDirectory
+		class ImportedLibrary
 		{
 		public:
 			typedef uint16_t Ordinal;
@@ -445,7 +445,7 @@ namespace Microsoft
 			/** @brief Retrieves the virtual address of an already registered entry that is imported by ordinal */
 			offset_t GetImportByOrdinalAddress(const PEFormat& fmt, uint16_t ordinal);
 
-			ImportDirectory(std::string name)
+			ImportedLibrary(std::string name)
 				: name(name)
 			{
 			}
@@ -456,7 +456,7 @@ namespace Microsoft
 		{
 		public:
 			/** @brief The sequence of all import directories, one for each DLL */
-			std::vector<ImportDirectory> directories;
+			std::vector<ImportedLibrary> libraries;
 			/** @brief A convenience field to access the DLL index by its name */
 			std::map<std::string, size_t> library_indexes;
 
@@ -969,7 +969,7 @@ namespace Microsoft
 
 		std::shared_ptr<Resource>& AddResource(std::shared_ptr<Resource>& resource);
 
-		ImportDirectory& FetchImportLibrary(std::string library_name, bool create_if_not_present = false);
+		ImportedLibrary& FetchImportLibrary(std::string library_name, bool create_if_not_present = false);
 		void AddImportByName(std::string library_name, std::string entry_name, uint16_t hint);
 		void AddImportByOrdinal(std::string library_name, uint16_t ordinal);
 

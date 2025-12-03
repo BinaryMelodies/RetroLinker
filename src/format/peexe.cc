@@ -473,7 +473,7 @@ void PEFormat::ResourcesSection::DumpDirectory(const PEFormat& fmt, Dumper::Dump
 
 bool PEFormat::ImportsSection::IsPresent() const
 {
-	return directories.size() > 0;
+	return libraries.size() > 0;
 }
 
 void PEFormat::ImportsSection::Generate(PEFormat& fmt)
@@ -481,30 +481,30 @@ void PEFormat::ImportsSection::Generate(PEFormat& fmt)
 	uint32_t rva = address;
 
 	// import directory table
-	rva += 20 * (directories.size() + 1);
+	rva += 20 * (libraries.size() + 1);
 
 	// first list the import lookup tables
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		directory.lookup_table_rva = rva;
-		rva += (directory.import_table.size() + 1) * (fmt.Is64Bit() ? 8 : 4);
+		library.lookup_table_rva = rva;
+		rva += (library.import_table.size() + 1) * (fmt.Is64Bit() ? 8 : 4);
 	}
 
 	// then list the import address tables (identical formats)
 	address_table_rva = rva;
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		directory.address_table_rva = rva;
-		rva += (directory.import_table.size() + 1) * (fmt.Is64Bit() ? 8 : 4);
+		library.address_table_rva = rva;
+		rva += (library.import_table.size() + 1) * (fmt.Is64Bit() ? 8 : 4);
 	}
 	address_table_size = rva - address_table_rva;
 
 	// list all the hint/name pairs
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		for(auto& import_entry : directory.import_table)
+		for(auto& import_entry : library.import_table)
 		{
-			if(auto import_name = std::get_if<ImportDirectory::Name>(&import_entry))
+			if(auto import_name = std::get_if<ImportedLibrary::Name>(&import_entry))
 			{
 				import_name->rva = rva;
 				rva = AlignTo(rva + 3 + import_name->name.size(), 2);
@@ -513,10 +513,10 @@ void PEFormat::ImportsSection::Generate(PEFormat& fmt)
 	}
 
 	// list DLL names
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		directory.name_rva = rva;
-		rva += directory.name.size() + 1;
+		library.name_rva = rva;
+		rva += library.name.size() + 1;
 	}
 
 	virtual_size() = size = rva - address;
@@ -533,13 +533,13 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 
 	wr.Seek(section_pointer);
 
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		wr.WriteWord(4, directory.lookup_table_rva);
-		wr.WriteWord(4, directory.timestamp);
-		wr.WriteWord(4, directory.forwarder_chain);
-		wr.WriteWord(4, directory.name_rva);
-		wr.WriteWord(4, directory.address_table_rva);
+		wr.WriteWord(4, library.lookup_table_rva);
+		wr.WriteWord(4, library.timestamp);
+		wr.WriteWord(4, library.forwarder_chain);
+		wr.WriteWord(4, library.name_rva);
+		wr.WriteWord(4, library.address_table_rva);
 	}
 
 	wr.WriteWord(4, 0);
@@ -549,16 +549,16 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	wr.WriteWord(4, 0);
 
 	// first list the import lookup tables
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		wr.Seek(rva_to_offset + directory.lookup_table_rva);
-		for(auto& import_entry : directory.import_table)
+		wr.Seek(rva_to_offset + library.lookup_table_rva);
+		for(auto& import_entry : library.import_table)
 		{
-			if(auto import_name = std::get_if<ImportDirectory::Name>(&import_entry))
+			if(auto import_name = std::get_if<ImportedLibrary::Name>(&import_entry))
 			{
 				wr.WriteWord(fmt.Is64Bit() ? 8 : 4, import_name->rva);
 			}
-			else if(auto import_id = std::get_if<ImportDirectory::Ordinal>(&import_entry))
+			else if(auto import_id = std::get_if<ImportedLibrary::Ordinal>(&import_entry))
 			{
 				wr.WriteWord(fmt.Is64Bit() ? 8 : 4, (fmt.Is64Bit() ? 0x8000000000000000 : 0x80000000) + *import_id);
 			}
@@ -571,16 +571,16 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	}
 
 	// then list the import address tables (identical formats)
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		wr.Seek(rva_to_offset + directory.address_table_rva);
-		for(auto& import_entry : directory.import_table)
+		wr.Seek(rva_to_offset + library.address_table_rva);
+		for(auto& import_entry : library.import_table)
 		{
-			if(auto import_name = std::get_if<ImportDirectory::Name>(&import_entry))
+			if(auto import_name = std::get_if<ImportedLibrary::Name>(&import_entry))
 			{
 				wr.WriteWord(fmt.Is64Bit() ? 8 : 4, import_name->rva);
 			}
-			else if(auto import_id = std::get_if<ImportDirectory::Ordinal>(&import_entry))
+			else if(auto import_id = std::get_if<ImportedLibrary::Ordinal>(&import_entry))
 			{
 				wr.WriteWord(fmt.Is64Bit() ? 8 : 4, (fmt.Is64Bit() ? 0x8000000000000000 : 0x80000000) + *import_id);
 			}
@@ -593,11 +593,11 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	}
 
 	// list all the hint/name pairs
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		for(auto& import_entry : directory.import_table)
+		for(auto& import_entry : library.import_table)
 		{
-			if(auto import_name = std::get_if<ImportDirectory::Name>(&import_entry))
+			if(auto import_name = std::get_if<ImportedLibrary::Name>(&import_entry))
 			{
 				wr.Seek(rva_to_offset + import_name->rva);
 				wr.WriteWord(2, import_name->hint);
@@ -608,10 +608,10 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	}
 
 	// list DLL names
-	for(auto& directory : directories)
+	for(auto& library : libraries)
 	{
-		wr.Seek(rva_to_offset + directory.name_rva);
-		wr.WriteData(directory.name);
+		wr.Seek(rva_to_offset + library.name_rva);
+		wr.WriteData(library.name);
 		wr.WriteWord(1, 0);
 	}
 }
@@ -628,12 +628,110 @@ uint32_t PEFormat::ImportsSection::MemorySize(const PEFormat& fmt) const
 
 void PEFormat::ImportsSection::ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size)
 {
-	// TODO
+	size_t entry_size = fmt.Is64Bit() ? 8 : 4;
+	uint32_t rva = directory_rva;
+	uint32_t end = rva + directory_size;
+	while(rva + 20 <= end)
+	{
+		{
+			ImportedLibrary library("");
+			library.lookup_table_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+			library.timestamp = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+			library.forwarder_chain = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+			library.name_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+			library.address_table_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+			if(
+				library.lookup_table_rva == 0
+				&& library.timestamp == 0
+				&& library.forwarder_chain == 0
+				&& library.name_rva == 0
+				&& library.address_table_rva == 0)
+			{
+				break;
+			}
+			libraries.push_back(library);
+		}
+
+		ImportedLibrary& library = libraries.back();
+		library.name = fmt.ReadASCII(library.name_rva, '\0');
+		library_indexes[library.name] = libraries.size() - 1;
+
+		// only read the import address table
+		uint32_t ilt_rva = library.address_table_rva;
+		while(ilt_rva + entry_size <= end)
+		{
+			offset_t entry = fmt.ReadUnsigned(entry_size, ilt_rva, ::LittleEndian); ilt_rva += entry_size;
+			if(entry == 0)
+				break;
+			if(((entry >> (entry_size * 8 - 1)) & 1))
+			{
+				// import by ordinal if bit 31/63 is set
+				uint16_t ordinal = entry & 0xFFFF;
+				library.import_table.emplace_back(ordinal);
+				library.imports_by_ordinal[ordinal] = library.import_table.size() - 1;
+			}
+			else
+			{
+				ImportedLibrary::Name name("");
+				name.rva = entry & 0x7FFFFFFF;
+				name.hint = fmt.ReadUnsigned(2, name.rva, ::LittleEndian);
+				name.name = fmt.ReadASCII(name.rva + 2, '\0');
+				library.import_table.emplace_back(name);
+				library.imports_by_name[name.name] = library.import_table.size() - 1;
+			}
+		}
+	}
 }
 
 void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const
 {
-	// TODO
+	size_t entry_size = fmt.Is64Bit() ? 8 : 4;
+
+	Dumper::Region imports_region("Import table", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
+	imports_region.Display(dump);
+
+	uint32_t rva = directory_rva;
+	size_t library_index = 0;
+	for(auto library : libraries)
+	{
+		Dumper::Region library_region("Imported library", fmt.RVAToFileOffset(rva), 20, 8);
+		library_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(library_index + 1));
+		library_region.AddField("Name", Dumper::StringDisplay::Make("\""), library.name);
+		library_region.AddField("Name (RVA)", Dumper::HexDisplay::Make(), offset_t(library.name_rva));
+		library_region.AddField("Name (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(library.name_rva));
+		library_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(library.timestamp));
+		library_region.AddOptionalField("Forwarder chain", Dumper::HexDisplay::Make(), offset_t(library.forwarder_chain));
+		library_region.AddField("Lookup table (RVA)", Dumper::HexDisplay::Make(), offset_t(library.lookup_table_rva));
+		library_region.AddField("Lookup table (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(library.lookup_table_rva));
+		library_region.AddField("Address table (RVA)", Dumper::HexDisplay::Make(), offset_t(library.address_table_rva));
+		library_region.AddField("Address table (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(library.address_table_rva));
+		library_region.Display(dump);
+		rva += 20;
+
+		uint32_t entry_index = 0;
+		for(auto& entry : library.import_table)
+		{
+			uint32_t entry_rva = library.address_table_rva + entry_index * entry_size;
+			Dumper::Entry import_entry("Import", entry_index + 1, fmt.RVAToFileOffset(entry_rva), 8);
+			import_entry.AddField("Address table entry (RVA)", Dumper::HexDisplay::Make(), offset_t(library.address_table_rva + entry_index * entry_size));
+			import_entry.AddField("Lookup table entry (RVA)", Dumper::HexDisplay::Make(), offset_t(library.lookup_table_rva + entry_index * entry_size));
+			if(auto * ordinal = std::get_if<ImportedLibrary::Ordinal>(&entry))
+			{
+				import_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("by ordinal"));
+				import_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(*ordinal));
+			}
+			else if(auto * name = std::get_if<ImportedLibrary::Name>(&entry))
+			{
+				import_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("by name"));
+				import_entry.AddField("Name", Dumper::StringDisplay::Make(), name->name);
+				import_entry.AddOptionalField("Hint", Dumper::DecDisplay::Make(), offset_t(name->hint));
+				import_entry.AddField("Hint-name (RVA)", Dumper::HexDisplay::Make(), offset_t(name->rva));
+				import_entry.AddField("Hint-name (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(name->rva));
+			}
+			import_entry.Display(dump);
+			entry_index ++;
+		}
+	}
 }
 
 void PEFormat::ExportsSection::SetEntry(uint32_t ordinal, std::shared_ptr<ExportedEntry> entry)
@@ -1390,7 +1488,10 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 			}
 			break;
 		case PEOptionalHeader::DirImportTable:
-			// TODO
+			if(data_directory.size != 0)
+			{
+				imports->ParseDirectoryData(*this, data_directory.address, data_directory.size);
+			}
 			break;
 		case PEOptionalHeader::DirResourceTable:
 			// TODO
@@ -1639,7 +1740,10 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 				}
 				break;
 			case PEOptionalHeader::DirImportTable:
-				// TODO
+				if(data_directory.size != 0)
+				{
+					imports->DumpDirectory(*this, dump, data_directory.address, data_directory.size);
+				}
 				break;
 			case PEOptionalHeader::DirResourceTable:
 				// TODO
@@ -1767,18 +1871,18 @@ std::shared_ptr<PEFormat::Resource>& PEFormat::AddResource(std::shared_ptr<Resou
 	return resource;
 }
 
-PEFormat::ImportDirectory& PEFormat::FetchImportLibrary(std::string library_name, bool create_if_not_present)
+PEFormat::ImportedLibrary& PEFormat::FetchImportLibrary(std::string library_name, bool create_if_not_present)
 {
 	auto imported_library_reference = imports->library_indexes.find(library_name);
 	if(imported_library_reference != imports->library_indexes.end())
 	{
-		return imports->directories[imported_library_reference->second];
+		return imports->libraries[imported_library_reference->second];
 	}
 	else if(create_if_not_present)
 	{
-		imports->directories.push_back(ImportDirectory(library_name));
-		imports->library_indexes[library_name] = imports->directories.size() - 1;
-		return imports->directories.back();
+		imports->libraries.push_back(ImportedLibrary(library_name));
+		imports->library_indexes[library_name] = imports->libraries.size() - 1;
+		return imports->libraries.back();
 	}
 	else
 	{
@@ -1786,28 +1890,28 @@ PEFormat::ImportDirectory& PEFormat::FetchImportLibrary(std::string library_name
 	}
 }
 
-void PEFormat::ImportDirectory::AddImportByName(std::string entry_name, uint16_t hint)
+void PEFormat::ImportedLibrary::AddImportByName(std::string entry_name, uint16_t hint)
 {
 	if(imports_by_name.find(entry_name) != imports_by_name.end())
 		return;
 
-	import_table.push_back(ImportDirectory::Name(entry_name, hint));
+	import_table.push_back(ImportedLibrary::Name(entry_name, hint));
 
 	imports_by_name[entry_name] = import_table.size() - 1;
 }
 
-void PEFormat::ImportDirectory::AddImportByOrdinal(uint16_t ordinal)
+void PEFormat::ImportedLibrary::AddImportByOrdinal(uint16_t ordinal)
 {
 	if(imports_by_ordinal.find(ordinal) != imports_by_ordinal.end())
 		return;
 
-	ImportDirectory::ImportTableEntry entry = ImportDirectory::Ordinal(ordinal);
+	ImportedLibrary::ImportTableEntry entry = ImportedLibrary::Ordinal(ordinal);
 	import_table.push_back(entry);
 
 	imports_by_ordinal[ordinal] = import_table.size() - 1;
 }
 
-offset_t PEFormat::ImportDirectory::GetImportByNameAddress(const PEFormat& fmt, std::string name)
+offset_t PEFormat::ImportedLibrary::GetImportByNameAddress(const PEFormat& fmt, std::string name)
 {
 	auto import_pointer = imports_by_name.find(name);
 	if(import_pointer == imports_by_name.end())
@@ -1818,7 +1922,7 @@ offset_t PEFormat::ImportDirectory::GetImportByNameAddress(const PEFormat& fmt, 
 	return fmt.RVAToAddress(address_table_rva + import_pointer->second * (fmt.Is64Bit() ? 8 : 4));
 }
 
-offset_t PEFormat::ImportDirectory::GetImportByOrdinalAddress(const PEFormat& fmt, uint16_t ordinal)
+offset_t PEFormat::ImportedLibrary::GetImportByOrdinalAddress(const PEFormat& fmt, uint16_t ordinal)
 {
 	auto import_pointer = imports_by_ordinal.find(ordinal);
 	if(import_pointer == imports_by_ordinal.end())
