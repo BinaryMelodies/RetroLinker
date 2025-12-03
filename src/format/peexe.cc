@@ -674,7 +674,7 @@ void PEFormat::ImportsSection::ParseDirectoryData(const PEFormat& fmt, uint32_t 
 
 		// only read the import address table
 		uint32_t ilt_rva = library.address_table_rva;
-		while(ilt_rva + entry_size <= end)
+		while(true)
 		{
 			offset_t entry = fmt.ReadUnsigned(entry_size, ilt_rva, ::LittleEndian); ilt_rva += entry_size;
 			if(entry == 0)
@@ -745,6 +745,8 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 			import_entry.Display(dump);
 			entry_index ++;
 		}
+
+		library_index ++;
 	}
 }
 
