@@ -1378,8 +1378,17 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 						}
 						else if(auto * forwarder = std::get_if<ExportedEntry::Forwarder>(&entry.value()->value))
 						{
+							// TODO: test
 							export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("forwarder"));
-							// TODO
+							export_entry.AddField("Library", Dumper::StringDisplay::Make("\""), forwarder->dll_name);
+							if(auto * ordinal = std::get_if<uint32_t>(&forwarder->reference))
+							{
+								export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(*ordinal));
+							}
+							else if(auto * name = std::get_if<std::string>(&forwarder->reference))
+							{
+								export_entry.AddField("Name", Dumper::StringDisplay::Make(), *name);
+							}
 						}
 						else if(auto * value = std::get_if<uint32_t>(&entry.value()->value))
 						{
