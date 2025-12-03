@@ -688,6 +688,7 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 	size_t entry_size = fmt.Is64Bit() ? 8 : 4;
 
 	Dumper::Region imports_region("Import table", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
+	imports_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(directory_rva));
 	imports_region.Display(dump);
 
 	uint32_t rva = directory_rva;
@@ -696,15 +697,13 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 	{
 		Dumper::Region library_region("Imported library", fmt.RVAToFileOffset(rva), 20, 8);
 		library_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(library_index + 1));
+		library_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(rva));
 		library_region.AddField("Name", Dumper::StringDisplay::Make("\""), library.name);
-		library_region.AddField("Name (RVA)", Dumper::HexDisplay::Make(), offset_t(library.name_rva));
-		library_region.AddField("Name (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(library.name_rva));
+		library_region.AddField("Name address", fmt.MakeRVADisplay(), offset_t(library.name_rva));
 		library_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(library.timestamp));
 		library_region.AddOptionalField("Forwarder chain", Dumper::HexDisplay::Make(), offset_t(library.forwarder_chain));
-		library_region.AddField("Lookup table (RVA)", Dumper::HexDisplay::Make(), offset_t(library.lookup_table_rva));
-		library_region.AddField("Lookup table (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(library.lookup_table_rva));
-		library_region.AddField("Address table (RVA)", Dumper::HexDisplay::Make(), offset_t(library.address_table_rva));
-		library_region.AddField("Address table (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(library.address_table_rva));
+		library_region.AddField("Lookup table", fmt.MakeRVADisplay(), offset_t(library.lookup_table_rva));
+		library_region.AddField("Address table", fmt.MakeRVADisplay(), offset_t(library.address_table_rva));
 		library_region.Display(dump);
 		rva += 20;
 
@@ -713,8 +712,8 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 		{
 			uint32_t entry_rva = library.address_table_rva + entry_index * entry_size;
 			Dumper::Entry import_entry("Import", entry_index + 1, fmt.RVAToFileOffset(entry_rva), 8);
-			import_entry.AddField("Address table entry (RVA)", Dumper::HexDisplay::Make(), offset_t(library.address_table_rva + entry_index * entry_size));
-			import_entry.AddField("Lookup table entry (RVA)", Dumper::HexDisplay::Make(), offset_t(library.lookup_table_rva + entry_index * entry_size));
+			import_entry.AddField("Address table entry (RVA)", Dumper::HexDisplay::Make(), offset_t(entry_rva));
+			import_entry.AddField("Lookup table entry", fmt.MakeRVADisplay(), offset_t(library.lookup_table_rva + entry_index * entry_size));
 			if(auto * ordinal = std::get_if<ImportedLibrary::Ordinal>(&entry))
 			{
 				import_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("by ordinal"));
@@ -725,8 +724,7 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 				import_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("by name"));
 				import_entry.AddField("Name", Dumper::StringDisplay::Make(), name->name);
 				import_entry.AddOptionalField("Hint", Dumper::DecDisplay::Make(), offset_t(name->hint));
-				import_entry.AddField("Hint-name (RVA)", Dumper::HexDisplay::Make(), offset_t(name->rva));
-				import_entry.AddField("Hint-name (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(name->rva));
+				import_entry.AddField("Hint-name", fmt.MakeRVADisplay(), offset_t(name->rva));
 			}
 			import_entry.Display(dump);
 			entry_index ++;
@@ -1009,21 +1007,22 @@ void PEFormat::ExportsSection::ParseDirectoryData(const PEFormat& fmt, uint32_t 
 void PEFormat::ExportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const
 {
 	Dumper::Region exports_region("Export table", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
+	exports_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(directory_rva));
 	exports_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(), offset_t(flags));
 	exports_region.AddField("Timestamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
 	exports_region.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(version.major), offset_t(version.minor));
 	exports_region.AddField("DLL name", Dumper::StringDisplay::Make("\""), dll_name);
-	exports_region.AddField("DLL name (RVA)", Dumper::HexDisplay::Make(), offset_t(dll_name_rva));
-	exports_region.AddField("Ordinal base", Dumper::HexDisplay::Make(), offset_t(ordinal_base));
-	exports_region.AddField("Address table (RVA)", Dumper::HexDisplay::Make(), offset_t(address_table_rva));
-	exports_region.AddField("Name pointer table (RVA)", Dumper::HexDisplay::Make(), offset_t(name_table_rva));
-	exports_region.AddField("Ordinal table (RVA)", Dumper::HexDisplay::Make(), offset_t(ordinal_table_rva));
+	exports_region.AddField("DLL name address", fmt.MakeRVADisplay(), offset_t(dll_name_rva));
+	exports_region.AddField("Address table", fmt.MakeRVADisplay(), offset_t(address_table_rva));
+	exports_region.AddField("Name pointer table", fmt.MakeRVADisplay(), offset_t(name_table_rva));
+	exports_region.AddField("Ordinal table", fmt.MakeRVADisplay(), offset_t(ordinal_table_rva));
 	exports_region.Display(dump);
 
 	size_t i = 0;
 	for(auto& entry : entries)
 	{
 		Dumper::Entry export_entry("Entry", i, fmt.RVAToFileOffset(address_table_rva + i * 4), 8);
+		export_entry.AddField("Entry (RVA)", Dumper::HexDisplay::Make(), offset_t(address_table_rva + i * 4));
 		export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(ordinal_base + i));
 		if(!entry)
 		{
@@ -1046,13 +1045,11 @@ void PEFormat::ExportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 		else if(auto * value = std::get_if<uint32_t>(&entry.value()->value))
 		{
 			export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("exported"));
-			export_entry.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(*value));
-			export_entry.AddField("File offset", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(*value));
+			export_entry.AddField("Address", fmt.MakeRVADisplay(), offset_t(*value));
 			if(entry.value()->name)
 			{
 				export_entry.AddField("Name", Dumper::StringDisplay::Make(), entry.value()->name.value().name);
-				export_entry.AddField("Name (RVA)", Dumper::HexDisplay::Make(), offset_t(entry.value()->name.value().rva));
-				export_entry.AddField("Name (file offset)", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(entry.value()->name.value().rva));
+				export_entry.AddField("Name address", fmt.MakeRVADisplay(), offset_t(entry.value()->name.value().rva));
 			}
 		}
 		export_entry.Display(dump);
@@ -2891,5 +2888,22 @@ std::string PEFormat::GetDefaultExtension(Linker::Module& module, std::string fi
 	case OUTPUT_SYS:
 		return filename + ".sys";
 	}
+}
+
+void PEFormat::RVADisplay::DisplayValue(Dumper::Dumper& dump, std::tuple<offset_t> values)
+{
+	dump.out << "(rva): ";
+	dump.PrintHex(std::get<0>(values), width);
+	offset_t file_offset = pe->RVAToFileOffset(std::get<0>(values));
+	if(file_offset != 0)
+	{
+		dump.out << ", (off): ";
+		dump.PrintHex(file_offset, width);
+	}
+}
+
+std::shared_ptr<PEFormat::RVADisplay> PEFormat::MakeRVADisplay(unsigned width) const
+{
+	return std::make_shared<RVADisplay>(this, width);
 }
 

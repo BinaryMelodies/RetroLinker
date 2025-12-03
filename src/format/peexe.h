@@ -1020,6 +1020,24 @@ namespace Microsoft
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
+
+		/**
+		 * @brief Represents a field that displays a relative virtual address and file offset pair
+		 */
+		class RVADisplay : public Dumper::Display<offset_t>
+		{
+		public:
+			const PEFormat * pe;
+			unsigned width;
+			RVADisplay(const PEFormat * pe, unsigned width)
+				: pe(pe), width(width)
+			{
+			}
+
+			void DisplayValue(Dumper::Dumper& dump, std::tuple<offset_t> values) override;
+		};
+
+		std::shared_ptr<RVADisplay> MakeRVADisplay(unsigned width = 8) const;
 	};
 }
 
