@@ -1297,7 +1297,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 	};
 	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(::ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
 	header_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
-	// TODO
+	// TODO: other fields?
 	header_region.AddOptionalField("Flags",
 		Dumper::BitFieldDisplay::Make()
 			->AddBitField(0,  1, Dumper::ChoiceDisplay::Make("no base relocations"), true)
@@ -1394,12 +1394,12 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 						{
 							export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("exported"));
 							export_entry.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(*value));
-							export_entry.AddField("Offset", Dumper::HexDisplay::Make(), RVAToFileOffset(*value));
+							export_entry.AddField("File offset", Dumper::HexDisplay::Make(), RVAToFileOffset(*value));
 							if(entry.value()->name)
 							{
 								export_entry.AddField("Name", Dumper::StringDisplay::Make(), entry.value()->name.value().name);
 								export_entry.AddField("Name (RVA)", Dumper::HexDisplay::Make(), offset_t(entry.value()->name.value().rva));
-								export_entry.AddField("Name (offset)", Dumper::HexDisplay::Make(), RVAToFileOffset(entry.value()->name.value().rva));
+								export_entry.AddField("Name (file offset)", Dumper::HexDisplay::Make(), RVAToFileOffset(entry.value()->name.value().rva));
 							}
 						}
 						export_entry.Display(dump);
@@ -2004,10 +2004,10 @@ void PEFormat::SetOptions(std::map<std::string, std::string>& options)
 	else
 		memcpy(pe_signature, "PE\0\0", 4);
 
-	option_import_stubs = collector.import_stubs();
+	option_import_thunks = collector.import_thunks();
 	if(compatibility != CompatibleNone)
 	{
-		option_import_stubs = true;
+		option_import_thunks = true;
 	}
 
 	/* TODO */
@@ -2028,7 +2028,7 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		}
 		sections.push_back(std::make_unique<Section>(Section::TEXT | Section::EXECUTE | Section::READ, segment));
 
-		if(option_import_stubs)
+		if(option_import_thunks)
 		{
 			// generate indirect calls to all the imported symbols
 			// TODO: this works for imported procedures, but how do we handle imported values?
@@ -2045,11 +2045,11 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 
 					if(symbol.LoadName(name))
 					{
-						import_stubs_by_name[std::make_pair(library, name)] = segment->data_size;
+						import_thunks_by_name[std::make_pair(library, name)] = segment->data_size;
 					}
 					else if(symbol.LoadOrdinalOrHint(ordinal))
 					{
-						import_stubs_by_ordinal[std::make_pair(library, ordinal)] = segment->data_size;
+						import_thunks_by_ordinal[std::make_pair(library, ordinal)] = segment->data_size;
 					}
 				}
 
@@ -2062,7 +2062,7 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 					segment->WriteData(6, segment->data_size, "\xFF\x25\0\0\0\0");
 					break;
 				default:
-					Linker::Error << "Error: generating import stubs not supported for architecture" << std::endl;
+					Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
 					break;
 				}
 			}
@@ -2349,7 +2349,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		{
 			if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
 			{
-				if(!option_import_stubs && rel.size == 2)
+				if(!option_import_thunks && rel.size == 2)
 				{
 					Linker::Error << "Error: imported 16-bit references not allowed, ignoring" << std::endl;
 					Linker::Error << "Error: " << rel << std::endl;
@@ -2362,24 +2362,24 @@ void PEFormat::ProcessModule(Linker::Module& module)
 
 				if(symbol->GetImportedName(library, name))
 				{
-					if(!option_import_stubs)
+					if(!option_import_thunks)
 					{
 						address = FetchImportLibrary(library).GetImportByNameAddress(*this, name);
 					}
 					else
 					{
-						address = import_stubs_by_name[std::make_pair(library, name)] + GetCodeSegment()->base_address;
+						address = import_thunks_by_name[std::make_pair(library, name)] + GetCodeSegment()->base_address;
 					}
 				}
 				else if(symbol->GetImportedOrdinal(library, ordinal))
 				{
-					if(!option_import_stubs)
+					if(!option_import_thunks)
 					{
 						address = FetchImportLibrary(library).GetImportByOrdinalAddress(*this, ordinal);
 					}
 					else
 					{
-						address = import_stubs_by_ordinal[std::make_pair(library, ordinal)] + GetCodeSegment()->base_address;
+						address = import_thunks_by_ordinal[std::make_pair(library, ordinal)] + GetCodeSegment()->base_address;
 					}
 				}
 				else
@@ -2432,13 +2432,13 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
-	if(option_import_stubs)
+	if(option_import_thunks)
 	{
-		// create the actual addresses for the imported stubs
+		// create the actual addresses for the imported thunks
 
 		auto& code = *GetCodeSegment();
 
-		for(auto& import_data : import_stubs_by_name)
+		for(auto& import_data : import_thunks_by_name)
 		{
 			offset_t address = FetchImportLibrary(import_data.first.first).GetImportByNameAddress(*this, import_data.first.second);
 			switch(cpu_type)
@@ -2450,12 +2450,12 @@ void PEFormat::ProcessModule(Linker::Module& module)
 				code.WriteWord(4, import_data.second + 2, address - (code.base_address - import_data.second + 6), ::LittleEndian);
 				break;
 			default:
-				Linker::Error << "Error: generating import stubs not supported for architecture" << std::endl;
+				Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
 				break;
 			}
 		}
 
-		for(auto& import_data : import_stubs_by_ordinal)
+		for(auto& import_data : import_thunks_by_ordinal)
 		{
 			offset_t address = FetchImportLibrary(import_data.first.first).GetImportByOrdinalAddress(*this, import_data.first.second);
 			switch(cpu_type)
@@ -2467,7 +2467,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 				code.WriteWord(4, import_data.second + 2, address - (code.base_address - import_data.second + 6), ::LittleEndian);
 				break;
 			default:
-				Linker::Error << "Error: generating import stubs not supported for architecture" << std::endl;
+				Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
 				break;
 			}
 		}

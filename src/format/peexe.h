@@ -79,7 +79,7 @@ namespace Microsoft
 			 */
 			uint32_t total_image_size = 0;
 			/**
-			 * @brief Cumulative size of all the headers, including the stub
+			 * @brief Cumulative size of all the headers, including the MZ stub
 			 */
 			uint32_t total_headers_size = 0;
 			/**
@@ -245,10 +245,27 @@ namespace Microsoft
 			size_t ReadData(size_t bytes, size_t offset, void * buffer) const;
 		};
 
+		/**
+		 * @brief Attempts to find the section:offset pair that encompasses this memory range
+		 *
+		 * This function can be used to find the data corresponding to some relative virtual address, once loaded into sections.
+		 * To fill the entire memory range, this function should be called repeatedly as it crosses section boundaries to retrieve all the parts of the memory.
+		 *
+		 * @param rva The relative virtual address of the start of the range, relative to the image base as specified in the optional header
+		 * @param bytes The number of bytes in this range
+		 * @param found_section The section that contains this relative virtual address
+		 * @param section_offset The offset within the section that has this relative virtual address
+		 * @return The largest number of bytes of this range that still belongs to this section, or 0 if the address does not belong to any section data
+		 */
 		size_t MapRVAToSectionData(uint32_t rva, size_t bytes, std::shared_ptr<Section>& found_section, size_t& section_offset) const;
+
+		/** @brief Loads a sequence of bytes from the filled section data */
 		size_t ReadData(size_t bytes, uint32_t rva, void * buffer) const;
+		/** @brief Loads an unsigned word from the filled section data */
 		uint64_t ReadUnsigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
+		/** @brief Loads a signed word from the filled section data */
 		uint64_t ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
+		/** @brief Loads a sequence of bytes terminated by a specific character from the filled section data */
 		std::string ReadASCII(uint32_t rva, char terminator, size_t maximum = size_t(-1)) const;
 
 		/** @brief Represents a resource inside the image */
@@ -750,11 +767,11 @@ namespace Microsoft
 		bool option_debug_info = false;
 
 		/** @brief By default, imported labels address the import address table directly */
-		bool option_import_stubs = false;
+		bool option_import_thunks = false;
 
 		Linker::Module * current_module = nullptr;
-		std::map<std::pair<std::string, std::string>, uint32_t> import_stubs_by_name;
-		std::map<std::pair<std::string, uint16_t>, uint32_t> import_stubs_by_ordinal;
+		std::map<std::pair<std::string, std::string>, uint32_t> import_thunks_by_name;
+		std::map<std::pair<std::string, uint16_t>, uint32_t> import_thunks_by_ordinal;
 
 		class PEOptionCollector : public Linker::OptionCollector
 		{
@@ -881,11 +898,11 @@ namespace Microsoft
 			Linker::Option<Linker::ItemOf<CompatibilityEnumeration>> compat{"compat", "Mimics the behavior of another linker"};
 			Linker::Option<offset_t> image_base{"base", "Base address of image, used for calculating relative virtual addresses"};
 			Linker::Option<offset_t> section_align{"section_align", "Section alignment"};
-			Linker::Option<bool> import_stubs{"import_stubs", "Create stub procedures for imported names"};
+			Linker::Option<bool> import_thunks{"import_thunks", "Create thunk procedures for imported names"};
 
 			PEOptionCollector()
 			{
-				InitializeFields(stub, target, subsystem, output, compat, image_base, section_align, import_stubs);
+				InitializeFields(stub, target, subsystem, output, compat, image_base, section_align, import_thunks);
 			}
 		};
 
