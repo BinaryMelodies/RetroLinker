@@ -154,6 +154,7 @@ public:
 		AndPredicate, /* $1 and $2 */
 		OrPredicate, /* $1 or $2 */
 		MaximumSections, /* $1 maximum $2 */
+		UntilSection, /* $1 until $2 */
 
 		Segment, /* $s { $1 } $2 */
 		SegmentTemplate, /* for $1 { $2 } $3 */

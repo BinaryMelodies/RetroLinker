@@ -47,6 +47,7 @@
 "start"	return START;
 "stack"	return STACK;
 "suffix"	return SUFFIX;
+"until"	return UNTIL;
 "writable"|"write"	return WRITE; /* section type */
 "zerofilled"|"zero"	return ZERO;	 /* section type */
 

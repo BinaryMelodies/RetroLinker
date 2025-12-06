@@ -51,6 +51,10 @@ namespace Linker
 		 */
 		offset_t template_counter = 0;
 		/**
+		 * @brief Condition to signal end of current `for` statement
+		 */
+		bool condition_failed = false;
+		/**
 		 * @brief Records the name of the currently generating segment for a `for` statement
 		 */
 		std::string current_template_name;

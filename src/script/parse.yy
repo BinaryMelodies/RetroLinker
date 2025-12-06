@@ -57,6 +57,7 @@ std::unique_ptr<List> script;
 %token STACK
 %token START
 %token SUFFIX
+%token UNTIL
 %token WRITE
 %token ZERO
 
@@ -143,9 +144,13 @@ segment
 
 guard
 	: simple_disjunction
-	| simple_disjunction MAXIMUM expression
+	| guard MAXIMUM expression
 		{
 			$$ = new Node(Node::MaximumSections, new List($1, $3));
+		}
+	| guard UNTIL simple_disjunction
+		{
+			$$ = new Node(Node::UntilSection, new List($1, $3));
 		}
 	;
 

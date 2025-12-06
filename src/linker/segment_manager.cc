@@ -185,15 +185,29 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 			break;
 		case Node::SegmentTemplate:
 			template_counter = 0;
+			condition_failed = false;
 			for(auto& section : module.Sections())
 			{
 				if(section->segment.use_count() != 0) // TODO
+				{
 					continue;
+				}
+
 				current_is_template = false;
 				current_is_template_head = true;
 				current_template_name = section->name;
-				if(!CheckPredicate(directive->at(0), section, module))
+
+				bool condition_result = CheckPredicate(directive->at(0), section, module);
+				if(condition_failed)
+				{
+					Linker::Debug << "Debug: break condition failed, halting for statement" << std::endl;
+					break;
+				}
+				if(!condition_result)
+				{
 					continue;
+				}
+
 				if(directive->at(3)->type == Node::Identifier)
 				{
 					current_template_name = *directive->at(3)->value->Get<std::string>();
@@ -307,8 +321,13 @@ bool Linker::SegmentManager::CheckPredicate(std::unique_ptr<Node>& predicate, st
 		AppendSection(section);
 		return false; /* already appended */
 	case Node::MaximumSections:
-		return template_counter < EvaluateExpression(predicate->at(1), module)
-			&& EvaluateExpression(predicate->at(0), module);
+		condition_failed = template_counter >= EvaluateExpression(predicate->at(1), module);
+		return !condition_failed
+			&& CheckPredicate(predicate->at(0), section, module);
+	case Node::UntilSection:
+		condition_failed = CheckPredicate(predicate->at(1), section, module);
+		return !condition_failed
+			&& CheckPredicate(predicate->at(0), section, module);
 	case Node::OrPredicate:
 		return
 			CheckPredicate(predicate->at(0), section, module)
