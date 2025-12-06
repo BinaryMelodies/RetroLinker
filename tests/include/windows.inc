@@ -140,9 +140,9 @@
 .endm
 
 .macro	_SysVars
+.if	TARGET_WIN16
 	.section	.beg.data, "aw", @progbits
 
-.if	TARGET_WIN16
 	# Instance data
 	.rept	16
 	.byte	0

@@ -2482,8 +2482,7 @@ std::unique_ptr<Script::List> PEFormat::GetScript(Linker::Module& module)
 	// TODO: the first section must come after the COFF/PE and section headers
 	// and so the start of the code section depends on the number of sections
 
-	// TODO: make the script not combine sections, instead including each section one by one
-
+#if 0
 	static const char * SimpleScript = R"(
 ".code"
 {
@@ -2505,6 +2504,7 @@ call "GenerateImportThunks";
 	all zero;
 };
 )";
+#endif
 
 	static const char * DefaultScript = R"(
 at ?image_base? + ?section_align?;
@@ -2622,13 +2622,12 @@ for any call "AUTO"
 	{
 		switch(compatibility)
 		{
-//			return Script::parse_string(DefaultScript);
 		case CompatibleWatcom:
 			return Script::parse_string(WatcomScript);
 		case CompatibleGNU:
 			return Script::parse_string(GNUScript);
 		default:
-			return Script::parse_string(SimpleScript);
+			return Script::parse_string(DefaultScript);
 		}
 	}
 }
