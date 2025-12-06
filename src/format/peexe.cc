@@ -2318,9 +2318,34 @@ void PEFormat::OnCallDirective(std::string identifier)
 		if(option_import_thunks)
 		{
 			std::shared_ptr<Linker::Segment> segment;
+			std::shared_ptr<Section> text_section;
 
-			std::shared_ptr<Section> last_text_section;
+			bool need_new_section = false;
+
 			if(Sections().size() == 0)
+			{
+				need_new_section = true;
+			}
+			else
+			{
+				switch(compatibility)
+				{
+				case CompatibleNone:
+				default:
+					text_section = std::dynamic_pointer_cast<PEFormat::Section>(sections.back());
+					break;
+				case CompatibleWatcom:
+					text_section = std::dynamic_pointer_cast<PEFormat::Section>(sections.back());
+					if(text_section->name != "AUTO") // the actual condition seems to be that the last section is not part of a group
+						need_new_section = true;
+					break;
+				case CompatibleGNU:
+					text_section = *Sections().begin();
+					break;
+				}
+			}
+
+			if(need_new_section)
 			{
 				std::string dummy_segment_name;
 				switch(compatibility)
@@ -2338,19 +2363,20 @@ void PEFormat::OnCallDirective(std::string identifier)
 				}
 				auto dummy_segment = std::make_shared<Linker::Segment>(dummy_segment_name);
 				dummy_segment->Append(std::make_shared<Linker::Section>(dummy_segment_name, Linker::Section::Readable | Linker::Section::Executable));
-				last_text_section = std::make_shared<Section>(Section::TEXT | Section::EXECUTE | Section::READ, dummy_segment);
-				sections.push_back(last_text_section);
+				text_section = std::make_shared<Section>(Section::TEXT | Section::EXECUTE | Section::READ, dummy_segment);
+				sections.push_back(text_section);
+				Linker::Debug << "Debug: Create new section " << dummy_segment_name << " for import thunks" << std::endl;
 			}
 			else
 			{
-				last_text_section = std::dynamic_pointer_cast<PEFormat::Section>(sections.back());
-				if(!(last_text_section->flags & Section::TEXT))
+				if(!(text_section->flags & Section::TEXT))
 				{
 					Linker::FatalError("Fatal error: in linker script, GenerateImportThunks must be called before data sections");
 				}
+				Linker::Debug << "Debug: Using existing section " << text_section->name << " for import thunks" << std::endl;
 			}
 
-			segment = std::dynamic_pointer_cast<Linker::Segment>(last_text_section->image);
+			segment = std::dynamic_pointer_cast<Linker::Segment>(text_section->image);
 
 			// generate indirect calls to all the imported symbols
 			// TODO: this works for imported procedures, but how do we handle imported values?
@@ -2512,8 +2538,19 @@ for any
 };
 )";
 
+	// This script attempts to simulate the default behavior of the Watcom linker
+	// We don't currently support groups, so we make the following assumptions:
+	// .text and .code belong to no group
+	// .data, .bss and .comm belong to DGROUP
+	// every other section belongs to a group with the same name as itself
 	static const char * WatcomScript = R"(
 at ?image_base? + ?section_align?;
+
+for execute until ".text" or ".code"
+{
+	at align(here, ?section_align?);
+	all;
+};
 
 for ".text" or ".code" call "AUTO"
 {
