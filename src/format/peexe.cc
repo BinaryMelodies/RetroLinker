@@ -2825,29 +2825,31 @@ void PEFormat::ProcessRelocations(Linker::Module& module)
 			}
 		}
 
-		// TODO: do not generate relocations for relative addresses
-		switch(rel.size)
+		if(rel.IsAbsolute())
 		{
-		case 2:
-			if(rel.shift == 16)
+			switch(rel.size)
 			{
-				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGH" << std::endl;
-				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHigh);
+			case 2:
+				if(rel.shift == 16)
+				{
+					Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGH" << std::endl;
+					AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHigh);
+				}
+				else
+				{
+					Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_LOW" << std::endl;
+					AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelLow);
+				}
+				break;
+			case 4:
+				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGHLOW" << std::endl;
+				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHighLow);
+				break;
+			case 8:
+				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_DIR64" << std::endl;
+				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelDir64);
+				break;
 			}
-			else
-			{
-				Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_LOW" << std::endl;
-				AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelLow);
-			}
-			break;
-		case 4:
-			Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_HIGHLOW" << std::endl;
-			AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelHighLow);
-			break;
-		case 8:
-			Linker::Debug << "Debug: " << rel.source.GetPosition() << " REL_DIR64" << std::endl;
-			AddBaseRelocation(AddressToRVA(rel.source.GetPosition().address), BaseRelocation::RelDir64);
-			break;
 		}
 	}
 
