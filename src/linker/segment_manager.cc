@@ -111,6 +111,8 @@ void SegmentManager::FinishCurrentSegment()
 	{
 		current_address = current_segment->GetEndAddress();
 		OnNewSegment(current_segment);
+		// in case the OnNewSegment call modified the segment size
+		current_address = current_segment->GetEndAddress();
 		current_segment = nullptr;
 	}
 }

@@ -2338,7 +2338,16 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		{
 			Linker::Debug << "Debug: - containing " << section->name << std::endl;
 		}
-		sections.push_back(std::make_unique<Section>(Section::DATA | Section::READ | Section::WRITE, segment));
+		uint32_t flags = Section::DATA | Section::READ;
+		for(auto section : segment->sections)
+		{
+			if(section->IsWritable())
+			{
+				flags |= Section::WRITE;
+				break;
+			}
+		}
+		sections.push_back(std::make_unique<Section>(flags, segment));
 	}
 	else
 	{
@@ -2400,6 +2409,63 @@ for any
 };
 )";
 
+	static const char * GNUScript = R"(
+at ?image_base? + ?section_align?;
+
+for ".text"
+{
+	at align(here, ?section_align?);
+	all;
+};
+
+for execute
+{
+	at align(here, ?section_align?);
+	all;
+};
+
+for ".data"
+{
+	at align(here, ?section_align?);
+	all;
+};
+
+for not zero
+{
+	at align(here, ?section_align?);
+	all;
+};
+
+for ".bss"
+{
+	at align(here, ?section_align?);
+	all;
+};
+
+for any
+{
+	at align(here, ?section_align?);
+	all;
+};
+)";
+
+	static const char * WatcomScript = R"(
+at ?image_base? + ?section_align?;
+
+"AUTO"
+{
+	at align(here, ?section_align?);
+	all execute;
+};
+
+"AUTO"
+{
+	at align(here, ?section_align?);
+	all not zero;
+	all zero;
+};
+)";
+
 	if(linker_script != "")
 	{
 		return SegmentManager::GetScript(module);
@@ -2408,9 +2474,11 @@ for any
 	{
 		switch(compatibility)
 		{
+//			return Script::parse_string(DefaultScript);
 		case CompatibleWatcom:
+			return Script::parse_string(WatcomScript);
 		case CompatibleGNU:
-			return Script::parse_string(DefaultScript);
+			return Script::parse_string(GNUScript);
 		default:
 			return Script::parse_string(SimpleScript);
 		}
@@ -2425,7 +2493,7 @@ void PEFormat::Link(Linker::Module& module)
 
 	ProcessScript(script, module);
 
-	CreateDefaultSegments();
+	//CreateDefaultSegments();
 }
 
 void PEFormat::ProcessModule(Linker::Module& module)
