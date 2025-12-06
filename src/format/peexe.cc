@@ -2686,8 +2686,11 @@ offset_t PEFormat::GenerateImportSection(Linker::Module& module, offset_t image_
 	image_end = AlignTo(image_end + imports->MemorySize(*this), GetOptionalHeader().section_align);
 	GetOptionalHeader().data_directories[PEOptionalHeader::DirImportTable] =
 		PEOptionalHeader::DataDirectory{uint32_t(imports->address), uint32_t(imports->size)};
-	GetOptionalHeader().data_directories[PEOptionalHeader::DirIAT] =
-		PEOptionalHeader::DataDirectory{uint32_t(imports->address_table_rva), uint32_t(imports->address_table_size)};
+	if(compatibility != CompatibleWatcom)
+	{
+		GetOptionalHeader().data_directories[PEOptionalHeader::DirIAT] =
+			PEOptionalHeader::DataDirectory{uint32_t(imports->address_table_rva), uint32_t(imports->address_table_size)};
+	}
 	return image_end;
 }
 
@@ -3059,15 +3062,33 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		Linker::Warning << "Warning: no entry point specified, using beginning of .code segment" << std::endl;
 	}
 
-	GetOptionalHeader().os_version = version_type{4, 0}; // TODO: this seems to be a recurring value, whatever system it is compiled for
 	//GetOptionalHeader().image_version = version_type{1, 0}; // TODO: customize
 	// TODO: GetOptionalHeader().flags
 
-	// TODO: make these customizable
-	GetOptionalHeader().reserved_stack_size  = 0x00100000;
-	GetOptionalHeader().committed_stack_size = 0x00001000;
-	GetOptionalHeader().reserved_heap_size   = 0x00100000;
-	GetOptionalHeader().committed_heap_size  = 0x00001000;
+	auto& optional_header = GetOptionalHeader();
+
+	switch(compatibility)
+	{
+	case CompatibleWatcom:
+		optional_header.reserved_stack_size  = 0x00100000;
+		optional_header.committed_stack_size = 0x00010000;
+		optional_header.reserved_heap_size   = 0x00002000;
+		optional_header.committed_heap_size  = 0x00001000;
+		break;
+	case CompatibleGNU:
+		optional_header.reserved_stack_size  = 0x00200000;
+		optional_header.committed_stack_size = 0x00001000;
+		optional_header.reserved_heap_size   = 0x00100000;
+		optional_header.committed_heap_size  = 0x00001000;
+		break;
+	default:
+		// TODO: make these customizable
+		optional_header.reserved_stack_size  = 0x00100000;
+		optional_header.committed_stack_size = 0x00001000;
+		optional_header.reserved_heap_size   = 0x00100000;
+		optional_header.committed_heap_size  = 0x00001000;
+		break;
+	}
 }
 
 void PEFormat::GenerateFile(std::string filename, Linker::Module& module)
@@ -3192,6 +3213,26 @@ void PEFormat::GenerateFile(std::string filename, Linker::Module& module)
 	linker_parameters["image_base"] = GetOptionalHeader().image_base;
 	linker_parameters["section_align"] = GetOptionalHeader().section_align;
 	// TODO
+
+	auto& optional_header = GetOptionalHeader();
+
+	switch(compatibility)
+	{
+	case CompatibleWatcom:
+		optional_header.version_stamp = 0x0212;
+		optional_header.os_version = version_type{1, 11};
+		//optional_header.subsystem_version = version_type{3, 10};
+		break;
+	case CompatibleGNU:
+		optional_header.version_stamp = 0x0227;
+		optional_header.os_version = version_type{4, 0};
+		//optional_header.image_version = version_type{1, 0};
+		//optional_header.subsystem_version = version_type{4, 0};
+		break;
+	default:
+		optional_header.os_version = version_type{4, 0}; // TODO: this seems to be a recurring value, whatever system it is compiled for
+		break;
+	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
