@@ -128,11 +128,17 @@ void SegmentManager::OnCallDirective(std::string identifier)
 	Linker::FatalError("Fatal error: format does not support the call \"" + identifier + "\" directive");
 }
 
+void SegmentManager::AppendSegment(std::shared_ptr<Segment> segment)
+{
+	current_segment = segment;
+	segment_vector.push_back(segment);
+	segment_map[segment->name] = segment;
+}
+
 std::shared_ptr<Segment> SegmentManager::AppendSegment(std::string name)
 {
 	current_segment = std::make_shared<Segment>(name, current_address);
-	segment_vector.push_back(current_segment);
-	segment_map[name] = current_segment;
+	AppendSegment(current_segment);
 	return current_segment;
 }
 

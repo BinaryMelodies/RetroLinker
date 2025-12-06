@@ -2362,9 +2362,11 @@ void PEFormat::OnCallDirective(std::string identifier)
 					break;
 				}
 				import_thunk_segment = std::make_shared<Linker::Segment>(dummy_segment_name);
+				import_thunk_segment->base_address = GetMemoryImageEnd() - GetOptionalHeader().image_base;
 				import_thunk_segment->Append(std::make_shared<Linker::Section>(dummy_segment_name, Linker::Section::Readable | Linker::Section::Executable));
 				text_section = std::make_shared<Section>(Section::TEXT | Section::EXECUTE | Section::READ, import_thunk_segment);
 				sections.push_back(text_section);
+				SegmentManager::AppendSegment(import_thunk_segment);
 				Linker::Debug << "Debug: Create new section " << dummy_segment_name << " for import thunks" << std::endl;
 			}
 			else
