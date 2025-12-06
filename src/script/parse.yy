@@ -33,6 +33,7 @@ std::unique_ptr<List> script;
 %token ANY
 %token AT
 %token BASE
+%token CALL
 %token CUSTOMFLAG
 %token EXECUTE
 %token FIXED
@@ -114,6 +115,10 @@ directive
 			$$ = new Node(Node::Sequence, $1);
 		}
 	| variable_assignment
+	| CALL IDENTIFIER
+		{
+			$$ = new Node(Node::Call, new Value<std::string>($2));
+		}
 	;
 
 segment

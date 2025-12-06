@@ -27,6 +27,7 @@
 "any"	return ANY;
 "at"	return AT;
 "base"	return BASE;
+"call"	return CALL;
 "customflag"	return CUSTOMFLAG; /* section type */
 "executable"|"execute"|"exec"	return EXECUTE; /* section type */
 "fixed"	return FIXED; /* section type */

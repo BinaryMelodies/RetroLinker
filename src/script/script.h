@@ -105,6 +105,7 @@ class Node
 public:
 	enum node_type
 	{
+		Empty, /* */
 		Sequence, /* $... */
 		CurrentAddress, /* here */
 		Identifier, /* $s */
@@ -131,6 +132,7 @@ public:
 		AlignAddress, /* align $1 */
 		SetNextBase, /* base $1 */
 		Assign, /* $s = $1 */
+		Call, /* call $s */
 
 		MatchAny, /* any */
 		MatchName, /* $s */

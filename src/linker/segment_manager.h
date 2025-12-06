@@ -127,6 +127,11 @@ namespace Linker
 		virtual void OnNewSegment(std::shared_ptr<Segment> segment);
 
 		/**
+		 * @brief Callback function for the CALL directive
+		 */
+		virtual void OnCallDirective(std::string identifier);
+
+		/**
 		 * @brief Terminates the current segment (if there is one), creates a new segment and attaches it to the image
 		 * @param name The name of the new segment
 		 */

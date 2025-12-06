@@ -122,6 +122,12 @@ void SegmentManager::OnNewSegment(std::shared_ptr<Segment> segment)
 	/* extend */
 }
 
+void SegmentManager::OnCallDirective(std::string identifier)
+{
+	/* extend */
+	Linker::FatalError("Fatal error: format does not support the call \"" + identifier + "\" directive");
+}
+
 std::shared_ptr<Segment> SegmentManager::AppendSegment(std::string name)
 {
 	FinishCurrentSegment();
@@ -201,6 +207,11 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 				}
 				template_counter += 1;
 			}
+			break;
+		case Node::Call:
+			OnCallDirective(*directive->value->Get<std::string>());
+			// in case the OnCallDirective call modified the segment size
+			current_address = current_segment->GetEndAddress();
 			break;
 		default:
 			Linker::FatalError("Internal error: invalid script");
