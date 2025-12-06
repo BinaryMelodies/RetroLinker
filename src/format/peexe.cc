@@ -2273,13 +2273,85 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		{
 			Linker::Debug << "Debug: - containing " << section->name << std::endl;
 		}
-		sections.push_back(std::make_unique<Section>(Section::TEXT | Section::EXECUTE | Section::READ, segment));
 		sections.push_back(std::make_shared<Section>(Section::TEXT | Section::EXECUTE | Section::READ, segment));
+	}
+	else if(!first_section->IsZeroFilled())
+	{
+		Linker::Debug << "Debug: PE data section: " << first_section->name << std::endl;
+		for(auto section : segment->sections)
+		{
+			Linker::Debug << "Debug: - containing " << section->name << std::endl;
+		}
+		uint32_t flags = Section::DATA | Section::READ;
+		for(auto section : segment->sections)
+		{
+			if(section->IsWritable())
+			{
+				flags |= Section::WRITE;
+				break;
+			}
+		}
+		sections.push_back(std::make_shared<Section>(flags, segment));
+	}
+	else
+	{
+		Linker::Debug << "Debug: PE bss section: " << first_section->name << std::endl;
+		for(auto section : segment->sections)
+		{
+			Linker::Debug << "Debug: - containing " << section->name << std::endl;
+		}
+		sections.push_back(std::make_shared<Section>(Section::BSS | Section::READ | Section::WRITE, segment));
+	}
+}
 
+void PEFormat::OnCallDirective(std::string identifier)
+{
+	if(identifier == "GenerateImportThunks")
+	{
 		if(option_import_thunks)
 		{
+			std::shared_ptr<Linker::Segment> segment;
+
+			std::shared_ptr<Section> last_text_section;
+			if(Sections().size() == 0)
+			{
+				std::string dummy_segment_name;
+				switch(compatibility)
+				{
+				case CompatibleNone:
+					dummy_segment_name = ".code";
+					break;
+				case CompatibleWatcom:
+					dummy_segment_name = "AUTO";
+					break;
+				default:
+				case CompatibleGNU:
+					dummy_segment_name = ".text";
+					break;
+				}
+				auto dummy_segment = std::make_shared<Linker::Segment>(dummy_segment_name);
+				dummy_segment->Append(std::make_shared<Linker::Section>(dummy_segment_name, Linker::Section::Readable | Linker::Section::Executable));
+				last_text_section = std::make_shared<Section>(Section::TEXT | Section::EXECUTE | Section::READ, dummy_segment);
+				sections.push_back(last_text_section);
+			}
+			else
+			{
+				last_text_section = std::dynamic_pointer_cast<PEFormat::Section>(sections.back());
+				if(!(last_text_section->flags & Section::TEXT))
+				{
+					Linker::FatalError("Fatal error: in linker script, GenerateImportThunks must be called before data sections");
+				}
+			}
+
+			segment = std::dynamic_pointer_cast<Linker::Segment>(last_text_section->image);
+
 			// generate indirect calls to all the imported symbols
 			// TODO: this works for imported procedures, but how do we handle imported values?
+
+			if(current_module->GetImportedSymbols().size() > 0)
+			{
+				segment->Fill();
+			}
 
 			for(const Linker::SymbolName& symbol : current_module->GetImportedSymbols())
 			{
@@ -2332,32 +2404,9 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			}
 		}
 	}
-	else if(!first_section->IsZeroFilled())
-	{
-		Linker::Debug << "Debug: PE data section: " << first_section->name << std::endl;
-		for(auto section : segment->sections)
-		{
-			Linker::Debug << "Debug: - containing " << section->name << std::endl;
-		}
-		uint32_t flags = Section::DATA | Section::READ;
-		for(auto section : segment->sections)
-		{
-			if(section->IsWritable())
-			{
-				flags |= Section::WRITE;
-				break;
-			}
-		}
-		sections.push_back(std::make_unique<Section>(flags, segment));
-	}
 	else
 	{
-		Linker::Debug << "Debug: PE bss section: " << first_section->name << std::endl;
-		for(auto section : segment->sections)
-		{
-			Linker::Debug << "Debug: - containing " << section->name << std::endl;
-		}
-		sections.push_back(std::make_unique<Section>(Section::BSS | Section::READ | Section::WRITE, segment));
+		Linker::SegmentManager::OnCallDirective(identifier);
 	}
 }
 
@@ -2374,6 +2423,8 @@ std::unique_ptr<Script::List> PEFormat::GetScript(Linker::Module& module)
 	at ?image_base? + ?section_align?;
 	all execute;
 };
+
+call "GenerateImportThunks";
 
 ".data"
 {
@@ -2397,6 +2448,8 @@ for execute
 	all;
 };
 
+call "GenerateImportThunks";
+
 for not zero
 {
 	at align(here, ?section_align?);
@@ -2418,6 +2471,8 @@ for ".text"
 	at align(here, ?section_align?);
 	all;
 };
+
+call "GenerateImportThunks";
 
 for execute
 {
@@ -2453,10 +2508,18 @@ for any
 	static const char * WatcomScript = R"(
 at ?image_base? + ?section_align?;
 
-"AUTO"
+for execute call "AUTO"
 {
 	at align(here, ?section_align?);
 	all execute;
+};
+
+call "GenerateImportThunks";
+
+for .data or .bss call "DGROUP"
+{
+	at align(here, ?section_align?);
+	all .data or .bss;
 };
 
 "AUTO"

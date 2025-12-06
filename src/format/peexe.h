@@ -1021,6 +1021,7 @@ namespace Microsoft
 		};
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
+		void OnCallDirective(std::string identifier) override;
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);
