@@ -2877,12 +2877,14 @@ void PEFormat::FixupImportThunk(Linker::Module& module, offset_t offset, offset_
 	{
 	case CPU_I386:
 		import_thunk_segment->WriteWord(4, offset + 2, address, ::LittleEndian);
+		AddBaseRelocation(import_thunk_segment->base_address - GetOptionalHeader().image_base + offset + 2, BaseRelocation::RelHighLow);
 		break;
 	case CPU_AMD64:
 		import_thunk_segment->WriteWord(4, offset + 2, address - (import_thunk_segment->base_address - offset + 6), ::LittleEndian);
 		break;
 	case CPU_ARM:
 		import_thunk_segment->WriteWord(4, offset + 4, address, ::LittleEndian);
+		AddBaseRelocation(import_thunk_segment->base_address - GetOptionalHeader().image_base + offset + 2, BaseRelocation::RelHighLow);
 		// note: from ARMv6T2 onwards, movw/movt can also be used
 		break;
 	case CPU_ARM64:
