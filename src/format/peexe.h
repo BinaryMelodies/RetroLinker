@@ -824,6 +824,9 @@ namespace Microsoft
 		/** @brief By default, imported labels address the import address table directly */
 		bool option_import_thunks = false;
 
+		/** @brief Holds the segment that contains the import thinks */
+		std::shared_ptr<Linker::Segment> import_thunk_segment = nullptr;
+
 		Linker::Module * current_module = nullptr;
 		std::map<std::pair<std::string, std::string>, uint32_t> import_thunks_by_name;
 		std::map<std::pair<std::string, uint16_t>, uint32_t> import_thunks_by_ordinal;
@@ -1031,6 +1034,7 @@ namespace Microsoft
 		offset_t GenerateExportSection(Linker::Module& module, offset_t image_end);
 		offset_t GenerateBaseRelocationSection(Linker::Module& module, offset_t image_end);
 		void ProcessRelocations(Linker::Module& module);
+		void FixupImportThunk(Linker::Module& module, offset_t offset, offset_t address);
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;

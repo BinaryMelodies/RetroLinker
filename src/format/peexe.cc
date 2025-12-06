@@ -2317,7 +2317,7 @@ void PEFormat::OnCallDirective(std::string identifier)
 	{
 		if(option_import_thunks)
 		{
-			std::shared_ptr<Linker::Segment> segment;
+			assert(import_thunk_segment == nullptr);
 			std::shared_ptr<Section> text_section;
 
 			bool need_new_section = false;
@@ -2361,9 +2361,9 @@ void PEFormat::OnCallDirective(std::string identifier)
 					dummy_segment_name = ".text";
 					break;
 				}
-				auto dummy_segment = std::make_shared<Linker::Segment>(dummy_segment_name);
-				dummy_segment->Append(std::make_shared<Linker::Section>(dummy_segment_name, Linker::Section::Readable | Linker::Section::Executable));
-				text_section = std::make_shared<Section>(Section::TEXT | Section::EXECUTE | Section::READ, dummy_segment);
+				import_thunk_segment = std::make_shared<Linker::Segment>(dummy_segment_name);
+				import_thunk_segment->Append(std::make_shared<Linker::Section>(dummy_segment_name, Linker::Section::Readable | Linker::Section::Executable));
+				text_section = std::make_shared<Section>(Section::TEXT | Section::EXECUTE | Section::READ, import_thunk_segment);
 				sections.push_back(text_section);
 				Linker::Debug << "Debug: Create new section " << dummy_segment_name << " for import thunks" << std::endl;
 			}
@@ -2374,34 +2374,33 @@ void PEFormat::OnCallDirective(std::string identifier)
 					Linker::FatalError("Fatal error: in linker script, GenerateImportThunks must be called before data sections");
 				}
 				Linker::Debug << "Debug: Using existing section " << text_section->name << " for import thunks" << std::endl;
+				import_thunk_segment = std::dynamic_pointer_cast<Linker::Segment>(text_section->image);
 			}
-
-			segment = std::dynamic_pointer_cast<Linker::Segment>(text_section->image);
 
 			// generate indirect calls to all the imported symbols
 			// TODO: this works for imported procedures, but how do we handle imported values?
 
 			if(current_module->GetImportedSymbols().size() > 0)
 			{
-				segment->Fill();
+				import_thunk_segment->Fill();
 			}
 
 			if(compatibility == CompatibleGNU)
 			{
-				unsigned misalign = segment->data_size & 3;
+				unsigned misalign = import_thunk_segment->data_size & 3;
 				switch(cpu_type)
 				{
 				case CPU_I386:
 					switch(misalign)
 					{
 					case 1:
-						segment->WriteData(3, segment->data_size, "\x66\x90\x90");
+						import_thunk_segment->WriteData(3, import_thunk_segment->data_size, "\x66\x90\x90");
 						break;
 					case 2:
-						segment->WriteData(2, segment->data_size, "\x66\x90");
+						import_thunk_segment->WriteData(2, import_thunk_segment->data_size, "\x66\x90");
 						break;
 					case 3:
-						segment->WriteData(3, segment->data_size, "\x90");
+						import_thunk_segment->WriteData(3, import_thunk_segment->data_size, "\x90");
 						break;
 					}
 					break;
@@ -2413,7 +2412,7 @@ void PEFormat::OnCallDirective(std::string identifier)
 
 			for(const Linker::SymbolName& symbol : current_module->GetImportedSymbols())
 			{
-				assert(segment->zero_fill == 0);
+				assert(import_thunk_segment->zero_fill == 0);
 
 				std::string library;
 				if(symbol.LoadLibraryName(library))
@@ -2423,11 +2422,11 @@ void PEFormat::OnCallDirective(std::string identifier)
 
 					if(symbol.LoadName(name))
 					{
-						import_thunks_by_name[std::make_pair(library, name)] = segment->data_size;
+						import_thunks_by_name[std::make_pair(library, name)] = import_thunk_segment->data_size;
 					}
 					else if(symbol.LoadOrdinalOrHint(ordinal))
 					{
-						import_thunks_by_ordinal[std::make_pair(library, ordinal)] = segment->data_size;
+						import_thunks_by_ordinal[std::make_pair(library, ordinal)] = import_thunk_segment->data_size;
 					}
 				}
 
@@ -2437,11 +2436,11 @@ void PEFormat::OnCallDirective(std::string identifier)
 				case CPU_AMD64:
 					// jmp [abs32] (32-bit) or jmp [rel32] (64-bit)
 					// we fill in the actual address later
-					segment->WriteData(6, segment->data_size, "\xFF\x25\0\0\0\0");
+					import_thunk_segment->WriteData(6, import_thunk_segment->data_size, "\xFF\x25\0\0\0\0");
 					if(compatibility == CompatibleGNU && cpu_type == CPU_I386)
 					{
 						// nop; nop
-						segment->WriteData(2, segment->data_size, "\x90\x90");
+						import_thunk_segment->WriteData(2, import_thunk_segment->data_size, "\x90\x90");
 					}
 					break;
 				case CPU_ARM:
@@ -2449,7 +2448,7 @@ void PEFormat::OnCallDirective(std::string identifier)
 					// ldr ip, [pc]
 					// ldr pc, [ip]
 					// .word abs32
-					segment->WriteData(12, segment->data_size, "\xE5\x9F\xC0\x00\xE5\x9C\xF0\x00\0\0\0\0");
+					import_thunk_segment->WriteData(12, import_thunk_segment->data_size, "\xE5\x9F\xC0\x00\xE5\x9C\xF0\x00\0\0\0\0");
 					// note: from ARMv6T2 onwards, movw/movt can also be used
 					break;
 				case CPU_ARM64:
@@ -2458,7 +2457,7 @@ void PEFormat::OnCallDirective(std::string identifier)
 					// adrp x16, rel
 					// ldr x16, [x16, #rel]
 					// br x16
-					segment->WriteData(12, segment->data_size, "\0\0\0\0\0\0\0\0\xD6\x1F\x02\x00");
+					import_thunk_segment->WriteData(12, import_thunk_segment->data_size, "\0\0\0\0\0\0\0\0\xD6\x1F\x02\x00");
 					break;
 				default:
 					Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
@@ -2468,7 +2467,7 @@ void PEFormat::OnCallDirective(std::string identifier)
 			if(compatibility == CompatibleGNU && cpu_type == CPU_I386)
 			{
 				// TODO: not sure what this is
-				segment->WriteData(16, segment->data_size, "\xFF\xFF\xFF\xFF\0\0\0\0\xFF\xFF\xFF\xFF\0\0\0\0");
+				import_thunk_segment->WriteData(16, import_thunk_segment->data_size, "\xFF\xFF\xFF\xFF\0\0\0\0\xFF\xFF\xFF\xFF\0\0\0\0");
 			}
 		}
 	}
@@ -2787,7 +2786,7 @@ void PEFormat::ProcessRelocations(Linker::Module& module)
 					}
 					else
 					{
-						address = import_thunks_by_name[std::make_pair(library, name)] + GetCodeSegment()->base_address;
+						address = import_thunks_by_name[std::make_pair(library, name)] + import_thunk_segment->base_address;
 					}
 				}
 				else if(symbol->GetImportedOrdinal(library, ordinal))
@@ -2798,7 +2797,7 @@ void PEFormat::ProcessRelocations(Linker::Module& module)
 					}
 					else
 					{
-						address = import_thunks_by_ordinal[std::make_pair(library, ordinal)] + GetCodeSegment()->base_address;
+						address = import_thunks_by_ordinal[std::make_pair(library, ordinal)] + import_thunk_segment->base_address;
 					}
 				}
 				else
@@ -2851,64 +2850,56 @@ void PEFormat::ProcessRelocations(Linker::Module& module)
 		}
 	}
 
-	if(option_import_thunks)
+	if(option_import_thunks && import_thunk_segment != nullptr)
 	{
 		// create the actual addresses for the imported thunks
-
-		auto& code = *GetCodeSegment();
 
 		for(auto& import_data : import_thunks_by_name)
 		{
 			offset_t address = FetchImportLibrary(import_data.first.first).GetImportByNameAddress(*this, import_data.first.second);
-			switch(cpu_type)
-			{
-			case CPU_I386:
-				code.WriteWord(4, import_data.second + 2, address, ::LittleEndian);
-				break;
-			case CPU_AMD64:
-				code.WriteWord(4, import_data.second + 2, address - (code.base_address - import_data.second + 6), ::LittleEndian);
-				break;
-			case CPU_ARM:
-				code.WriteWord(4, import_data.second + 4, address, ::LittleEndian);
-				// note: from ARMv6T2 onwards, movw/movt can also be used
-				break;
-			case CPU_ARM64:
-				// TODO: test
-				{
-					// adrp x16, address
-					uint64_t relative_address = address - (code.base_address - import_data.second);
-					uint32_t instruction = 0x90000010
-						| ((relative_address >> (12 - 5)) & 0x00FFFE00)
-						| (relative_address >> (12 + 19 - 29) & 0x60000000);
-					code.WriteWord(4, import_data.second, instruction, ::LittleEndian);
-					// ldr x16, [x16, #address]
-					instruction = 0xF9400210
-						| ((relative_address & 0xFFF) << 10);
-					code.WriteWord(4, import_data.second + 4, instruction, ::LittleEndian);
-				}
-				break;
-			default:
-				Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
-				break;
-			}
+			FixupImportThunk(module, import_data.second, address);
 		}
 
 		for(auto& import_data : import_thunks_by_ordinal)
 		{
 			offset_t address = FetchImportLibrary(import_data.first.first).GetImportByOrdinalAddress(*this, import_data.first.second);
-			switch(cpu_type)
-			{
-			case CPU_I386:
-				code.WriteWord(4, import_data.second + 2, address, ::LittleEndian);
-				break;
-			case CPU_AMD64:
-				code.WriteWord(4, import_data.second + 2, address - (code.base_address - import_data.second + 6), ::LittleEndian);
-				break;
-			default:
-				Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
-				break;
-			}
+			FixupImportThunk(module, import_data.second, address);
 		}
+	}
+}
+
+void PEFormat::FixupImportThunk(Linker::Module& module, offset_t offset, offset_t address)
+{
+	switch(cpu_type)
+	{
+	case CPU_I386:
+		import_thunk_segment->WriteWord(4, offset + 2, address, ::LittleEndian);
+		break;
+	case CPU_AMD64:
+		import_thunk_segment->WriteWord(4, offset + 2, address - (import_thunk_segment->base_address - offset + 6), ::LittleEndian);
+		break;
+	case CPU_ARM:
+		import_thunk_segment->WriteWord(4, offset + 4, address, ::LittleEndian);
+		// note: from ARMv6T2 onwards, movw/movt can also be used
+		break;
+	case CPU_ARM64:
+		// TODO: test
+		{
+			// adrp x16, address
+			uint64_t relative_address = address - (import_thunk_segment->base_address - offset);
+			uint32_t instruction = 0x90000010
+				| ((relative_address >> (12 - 5)) & 0x00FFFE00)
+				| (relative_address >> (12 + 19 - 29) & 0x60000000);
+			import_thunk_segment->WriteWord(4, offset, instruction, ::LittleEndian);
+			// ldr x16, [x16, #address]
+			instruction = 0xF9400210
+				| ((relative_address & 0xFFF) << 10);
+			import_thunk_segment->WriteWord(4, offset + 4, instruction, ::LittleEndian);
+		}
+		break;
+	default:
+		Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
+		break;
 	}
 }
 
