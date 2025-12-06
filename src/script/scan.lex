@@ -1,9 +1,19 @@
 
 %{
 #include "parse.tab.hh"
+
+#define YY_USER_ACTION \
+	yylloc.first_line = yylloc.last_line; \
+	yylloc.first_column = yylloc.last_column; \
+	yylloc.last_line = yylineno; \
+	if(strchr(yytext, '\n')) \
+		yylloc.last_column = strlen(yytext) - (strrchr(yytext, '\n') - yytext); \
+	else \
+		yylloc.last_column += strlen(yytext);
 %}
 
 %option noyywrap
+%option yylineno
 
 %%
 

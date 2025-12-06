@@ -5,6 +5,10 @@
 using namespace Script;
 }
 
+%define parse.error verbose
+%define parse.lac full
+%locations
+
 %{
 #include <stdio.h>
 #include <string>
@@ -430,7 +434,7 @@ expression_list
 
 void yyerror(const char * s)
 {
-	fprintf(stderr, "Error: %s\n", s);
+	fprintf(stderr, "Error in line %d at %d: %s\n", yylloc.first_line, yylloc.first_column, s);
 }
 
 std::unique_ptr<List> Script::parse_string(const char * buffer)
@@ -458,3 +462,4 @@ std::unique_ptr<List> Script::parse_file(const char * filename, bool& file_error
 	set_stream(stdin);
 	return result == 0 ? std::move(script) : nullptr;
 }
+

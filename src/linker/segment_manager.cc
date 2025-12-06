@@ -176,17 +176,18 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 			}
 			break;
 		case Node::SegmentTemplate:
-			current_is_template = false;
-			current_is_template_head = true;
 			template_counter = 0;
 			for(auto& section : module.Sections())
 			{
 				if(section->segment.use_count() != 0) // TODO
 					continue;
+				current_is_template = false;
+				current_is_template_head = true;
 				current_template_name = section->name;
 				if(!CheckPredicate(directive->at(0), section, module))
 					continue;
 				current_is_template = true;
+				current_is_template_head = false;
 				AppendSegment(current_template_name);
 				for(auto& command : directive->at(1)->list->children)
 				{
@@ -301,11 +302,7 @@ bool Linker::SegmentManager::CheckPredicate(std::unique_ptr<Node>& predicate, st
 	case Node::NotPredicate:
 		return !CheckPredicate(predicate->at(0), section, module);
 	case Node::MatchAny:
-		if(current_is_template_head)
-		{
-			return true;
-		}
-		else if(current_is_template)
+		if(current_is_template)
 		{
 			return current_template_name == section->name;
 		}
@@ -322,6 +319,7 @@ bool Linker::SegmentManager::CheckPredicate(std::unique_ptr<Node>& predicate, st
 			{
 				if(ends_with(section->name, suffix))
 				{
+					// instead of the full name, make the template name be the initial part
 					current_template_name = section->name.substr(0, suffix.size());
 					return true;
 				}

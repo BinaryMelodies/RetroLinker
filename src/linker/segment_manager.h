@@ -36,9 +36,23 @@ namespace Linker
 		 */
 		offset_t current_address = 0;
 
-		bool current_is_template = false;
+		/**
+		 * @brief Set during evaluation of `guard` in a `for <guard> { <body> }` statement
+		 */
 		bool current_is_template_head = false;
+		/**
+		 * @brief Set during evaluation of `body` in a `for <guard> { <body> }` statement
+		 */
+		bool current_is_template = false;
+		/**
+		 * @brief Counts how many times a `for` statement has been invoked
+		 *
+		 * This is used for the `maximum <count>` guard
+		 */
 		offset_t template_counter = 0;
+		/**
+		 * @brief Records the name of the currently generating segment for a `for` statement
+		 */
 		std::string current_template_name;
 	public:
 		/**
