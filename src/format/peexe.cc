@@ -2912,7 +2912,7 @@ offset_t PEFormat::GetMemoryImageEnd() const
 	if(Sections().size() != 0)
 	{
 		auto last_section = Sections().back();
-		image_end = GetOptionalHeader().image_base + last_section->address + last_section->MemorySize(*this);
+		image_end = GetOptionalHeader().image_base + std::dynamic_pointer_cast<Linker::Segment>(last_section->image)->base_address + last_section->MemorySize(*this);
 	}
 	image_end = AlignTo(image_end, GetOptionalHeader().section_align);
 	return image_end;
@@ -2995,7 +2995,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		section->address = AddressToRVA(image->base_address);
 	}
 
-	offset_t image_end = GetMemoryImageEnd();
+	offset_t image_end = GetMemoryImageEnd() - GetOptionalHeader().image_base;
 
 	// TODO: order of these sections
 
