@@ -752,18 +752,14 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 	}
 }
 
-void PEFormat::ExportsSection::SetEntry(uint32_t ordinal, std::shared_ptr<ExportedEntry> entry)
+void PEFormat::ExportsSection::SetEntry(PEFormat& fmt, uint32_t ordinal, std::shared_ptr<ExportedEntry> entry)
 {
-	if(ordinal >= entries.size())
-	{
-		entries.resize(ordinal + 1);
-	}
-
-	if(entries[ordinal])
+	if(entries.find(ordinal) != entries.end())
 	{
 		Linker::Error << "Error: overwriting entry " << ordinal << std::endl;
 	}
-	entries[ordinal] = std::make_optional<std::shared_ptr<ExportedEntry>>(entry);
+	Linker::Debug << "Debug: Inserting entry at " << ordinal << std::endl;
+	entries[ordinal] = entry;
 
 	if(entry->name)
 	{
@@ -775,7 +771,7 @@ void PEFormat::ExportsSection::SetEntry(uint32_t ordinal, std::shared_ptr<Export
 	}
 }
 
-void PEFormat::ExportsSection::AddEntry(std::shared_ptr<ExportedEntry> entry)
+void PEFormat::ExportsSection::AddEntry(PEFormat& fmt, std::shared_ptr<ExportedEntry> entry)
 {
 	assert(entry->name);
 
@@ -785,8 +781,20 @@ void PEFormat::ExportsSection::AddEntry(std::shared_ptr<ExportedEntry> entry)
 		return;
 	}
 
-	entries.push_back(entry);
-	named_exports[entry->name.value().name] = entries.size() - 1;
+	uint32_t ordinal;
+
+	for(;; first_allowed_ordinal++)
+	{
+		if(entries.find(first_allowed_ordinal) == entries.end())
+		{
+			ordinal = first_allowed_ordinal ++;
+			Linker::Debug << "Debug: Inserting entry at " << ordinal << std::endl;
+			entries[ordinal] = entry;
+			break;
+		}
+	}
+
+	named_exports[entry->name.value().name] = ordinal;
 }
 
 bool PEFormat::ExportsSection::IsPresent() const
@@ -799,12 +807,14 @@ void PEFormat::ExportsSection::Generate(PEFormat& fmt)
 {
 	uint32_t rva = address;
 
+	ordinal_base = entries.begin()->first;
+
 	// export directory table
 	rva += 40;
 
 	// export address table
 	address_table_rva = rva;
-	rva += 4 * entries.size();
+	rva += 4 * (entries.rbegin()->first - ordinal_base + 1);
 
 	// export name pointer table
 	name_table_rva = rva;
@@ -818,32 +828,33 @@ void PEFormat::ExportsSection::Generate(PEFormat& fmt)
 	dll_name_rva = rva;
 	rva += dll_name.size() + 1;
 
-	for(auto& entry_opt : entries)
+	for(auto& ordinal_entry : entries)
 	{
-		if(entry_opt)
+		if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&ordinal_entry.second->value))
 		{
-			if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&entry_opt.value()->value))
+			std::ostringstream oss;
+			oss << forwarder->dll_name << ".";
+			if(auto forwarder_s = std::get_if<std::string>(&forwarder->reference))
 			{
-				std::ostringstream oss;
-				oss << forwarder->dll_name << ".";
-				if(auto forwarder_s = std::get_if<std::string>(&forwarder->reference))
-				{
-					oss << *forwarder_s;
-				}
-				else if(auto forwarder_i = std::get_if<uint32_t>(&forwarder->reference))
-				{
-					oss << "#" << *forwarder_i;
-				}
-				forwarder->reference_name = oss.str();
-				forwarder->rva = rva;
-				rva += forwarder->reference_name.size() + 1;
+				oss << *forwarder_s;
 			}
+			else if(auto forwarder_i = std::get_if<uint32_t>(&forwarder->reference))
+			{
+				oss << "#" << *forwarder_i;
+			}
+			forwarder->reference_name = oss.str();
+			forwarder->rva = rva;
+			rva += forwarder->reference_name.size() + 1;
 		}
 	}
 
 	for(auto named_export : named_exports)
 	{
-		auto& name_rva = entries[named_export.second].value()->name.value();
+		if(entries.find(named_export.second) == entries.end())
+		{
+			Linker::FatalError("Internal error: entry does not exist");
+		}
+		auto& name_rva = entries[named_export.second]->name.value();
 		name_rva.rva = rva;
 		rva += name_rva.name.size() + 1;
 	}
@@ -867,7 +878,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	wr.WriteWord(2, version.minor);
 	wr.WriteWord(4, dll_name_rva);
 	wr.WriteWord(4, ordinal_base);
-	wr.WriteWord(4, entries.size());
+	wr.WriteWord(4, entries.rbegin()->first - entries.begin()->first + 1);
 	wr.WriteWord(4, named_exports.size());
 	wr.WriteWord(4, address_table_rva);
 	wr.WriteWord(4, name_table_rva);
@@ -875,34 +886,39 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 
 	// export address table
 	wr.Seek(rva_to_offset + address_table_rva);
-	for(auto& entry_opt : entries)
+	uint32_t ordinal = ordinal_base;
+	for(auto& ordinal_entry : entries)
 	{
-		if(entry_opt)
+		while(ordinal < ordinal_entry.first)
 		{
-			if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&entry_opt.value()->value))
-			{
-				wr.WriteWord(4, forwarder->rva);
-			}
-			else if(auto rva = std::get_if<uint32_t>(&entry_opt.value()->value))
-			{
-				wr.WriteWord(4, *rva);
-			}
-			else
-			{
-				assert(false);
-			}
+			Linker::Debug << "Debug: writing " << ordinal << " as unused" << std::endl;
+			wr.WriteWord(4, 0);
+			ordinal ++;
+		}
+
+		if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&ordinal_entry.second->value))
+		{
+			Linker::Debug << "Debug: writing " << ordinal << " as forwarder" << std::endl;
+			wr.WriteWord(4, forwarder->rva);
+		}
+		else if(auto rva = std::get_if<uint32_t>(&ordinal_entry.second->value))
+		{
+			Linker::Debug << "Debug: writing " << ordinal << " as entry" << std::endl;
+			wr.WriteWord(4, *rva);
 		}
 		else
 		{
-			wr.WriteWord(4, 0);
+			assert(false);
 		}
+
+		ordinal++;
 	}
 
 	// export name pointer table
 	wr.Seek(rva_to_offset + name_table_rva);
 	for(auto named_export : named_exports)
 	{
-		auto& name_rva = entries[named_export.second].value()->name.value();
+		auto& name_rva = entries.find(named_export.second)->second->name.value();
 		wr.WriteWord(4, name_rva.rva);
 	}
 
@@ -917,22 +933,19 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	wr.WriteData(dll_name);
 	wr.WriteWord(1, 0);
 
-	for(auto& entry_opt : entries)
+	for(auto& ordinal_entry : entries)
 	{
-		if(entry_opt)
+		if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&ordinal_entry.second->value))
 		{
-			if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&entry_opt.value()->value))
-			{
-				wr.Seek(rva_to_offset + forwarder->rva);
-				wr.WriteData(forwarder->reference_name);
-				wr.WriteWord(1, 0);
-			}
+			wr.Seek(rva_to_offset + forwarder->rva);
+			wr.WriteData(forwarder->reference_name);
+			wr.WriteWord(1, 0);
 		}
 	}
 
 	for(auto named_export : named_exports)
 	{
-		auto& name_rva = entries[named_export.second].value()->name.value();
+		auto& name_rva = entries.find(named_export.second)->second->name.value();
 		wr.Seek(rva_to_offset + name_rva.rva);
 		wr.WriteData(name_rva.name);
 		wr.WriteWord(1, 0);
@@ -968,58 +981,51 @@ void PEFormat::ExportsSection::ParseDirectoryData(const PEFormat& fmt, uint32_t 
 	for(uint32_t i = 0; i < entry_count; i++)
 	{
 		uint32_t export_rva = fmt.ReadUnsigned(4, address_table_rva + 4 * i, ::LittleEndian);
-		if(export_rva == 0)
+		if(export_rva != 0)
 		{
-			entries.push_back(std::optional<std::shared_ptr<ExportedEntry>>());
-		}
-		else if(directory_rva <= export_rva
-		&& export_rva < directory_rva + directory_size)
-		{
-			// forwarder entry
-			// TODO: test
-			ExportedEntry::Forwarder forwarder = { };
-			forwarder.rva = export_rva;
-			forwarder.reference_name = fmt.ReadASCII(forwarder.rva, '\0');
-			size_t ix = forwarder.reference_name.find('.');
-			if(ix != std::string::npos)
+			std::shared_ptr<ExportedEntry> entry;
+			if(directory_rva <= export_rva
+			&& export_rva < directory_rva + directory_size)
 			{
-				forwarder.dll_name = forwarder.reference_name.substr(0, ix);
-				if(ix + 1 < forwarder.reference_name.size() && forwarder.reference_name[ix + 1] == '#')
+				// forwarder entry
+				// TODO: test
+				ExportedEntry::Forwarder forwarder = { };
+				forwarder.rva = export_rva;
+				forwarder.reference_name = fmt.ReadASCII(forwarder.rva, '\0');
+				size_t ix = forwarder.reference_name.find('.');
+				if(ix != std::string::npos)
 				{
-					forwarder.reference = uint32_t(strtol(forwarder.reference_name.substr(ix + 2).c_str(), NULL, 10));
+					forwarder.dll_name = forwarder.reference_name.substr(0, ix);
+					if(ix + 1 < forwarder.reference_name.size() && forwarder.reference_name[ix + 1] == '#')
+					{
+						forwarder.reference = uint32_t(strtol(forwarder.reference_name.substr(ix + 2).c_str(), NULL, 10));
+					}
+					else
+					{
+						forwarder.reference = forwarder.reference_name.substr(ix + 1);
+					}
 				}
-				else
-				{
-					forwarder.reference = forwarder.reference_name.substr(ix + 1);
-				}
+				entries[ordinal_base + i] = std::make_shared<ExportedEntry>(forwarder);
 			}
-			std::shared_ptr<ExportedEntry> entry = std::make_shared<ExportedEntry>(forwarder);
-			entries.push_back(entry);
-		}
-		else
-		{
-			std::shared_ptr<ExportedEntry> entry = std::make_shared<ExportedEntry>(export_rva);
-			entries.push_back(entry);
+			else
+			{
+				entries[ordinal_base + i] = std::make_shared<ExportedEntry>(export_rva);
+			}
 		}
 	}
 
 	for(uint32_t i = 0; i < name_count; i++)
 	{
-		uint16_t ordinal = fmt.ReadUnsigned(2, ordinal_table_rva + 2 * i, ::LittleEndian);
-		if(ordinal >= entries.size())
-		{
-			Linker::Error << "Error: export ordinal " << std::dec << ordinal << " is outside export table" << std::endl;
-			continue;
-		}
+		uint32_t ordinal = ordinal_base + fmt.ReadUnsigned(2, ordinal_table_rva + 2 * i, ::LittleEndian);
 		ExportedEntry::Name name("");
 		name.rva = fmt.ReadUnsigned(4, name_table_rva + 4 * i, ::LittleEndian);
 		name.name = fmt.ReadASCII(name.rva, '\0');
-		if(!entries[ordinal])
+		if(entries.find(ordinal) == entries.end())
 		{
 			Linker::Error << "Error: export ordinal " << std::dec << ordinal << " points to unused entry" << std::endl;
 			continue;
 		}
-		entries[ordinal].value()->name = name;
+		entries[ordinal]->name = name;
 		named_exports[name.name] = ordinal;
 	}
 }
@@ -1038,17 +1044,27 @@ void PEFormat::ExportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 	exports_region.AddField("Ordinal table", fmt.MakeRVADisplay(), offset_t(ordinal_table_rva));
 	exports_region.Display(dump);
 
-	size_t i = 0;
-	for(auto& entry : entries)
+	uint32_t ordinal = ordinal_base;
+	for(auto& ordinal_entry : entries)
 	{
-		Dumper::Entry export_entry("Entry", i, fmt.RVAToFileOffset(address_table_rva + i * 4), 8);
-		export_entry.AddField("Entry (RVA)", Dumper::HexDisplay::Make(), offset_t(address_table_rva + i * 4));
-		export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(ordinal_base + i));
-		if(!entry)
+		uint32_t index = ordinal - ordinal_base;
+		while(ordinal < ordinal_entry.first)
 		{
+			Dumper::Entry export_entry("Entry", index, fmt.RVAToFileOffset(address_table_rva + index * 4), 8);
+			export_entry.AddField("Entry (RVA)", Dumper::HexDisplay::Make(), offset_t(address_table_rva + index * 4));
+			export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(ordinal));
 			export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("unused"));
+			export_entry.Display(dump);
+
+			ordinal ++;
+			index = ordinal - ordinal_base;
 		}
-		else if(auto * forwarder = std::get_if<ExportedEntry::Forwarder>(&entry.value()->value))
+
+		Dumper::Entry export_entry("Entry", index, fmt.RVAToFileOffset(address_table_rva + index * 4), 8);
+		export_entry.AddField("Entry (RVA)", Dumper::HexDisplay::Make(), offset_t(address_table_rva + index * 4));
+		export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(ordinal));
+
+		if(auto * forwarder = std::get_if<ExportedEntry::Forwarder>(&ordinal_entry.second->value))
 		{
 			// TODO: test
 			export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("forwarder"));
@@ -1062,18 +1078,18 @@ void PEFormat::ExportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 				export_entry.AddField("Name", Dumper::StringDisplay::Make(), *name);
 			}
 		}
-		else if(auto * value = std::get_if<uint32_t>(&entry.value()->value))
+		else if(auto * value = std::get_if<uint32_t>(&ordinal_entry.second->value))
 		{
 			export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("exported"));
 			export_entry.AddField("Address", fmt.MakeRVADisplay(), offset_t(*value));
-			if(entry.value()->name)
+			if(ordinal_entry.second->name)
 			{
-				export_entry.AddField("Name", Dumper::StringDisplay::Make(), entry.value()->name.value().name);
-				export_entry.AddField("Name address", fmt.MakeRVADisplay(), offset_t(entry.value()->name.value().rva));
+				export_entry.AddField("Name", Dumper::StringDisplay::Make(), ordinal_entry.second->name.value().name);
+				export_entry.AddField("Name address", fmt.MakeRVADisplay(), offset_t(ordinal_entry.second->name.value().rva));
 			}
 		}
 		export_entry.Display(dump);
-		i ++;
+		ordinal ++;
 	}
 }
 
@@ -2990,16 +3006,28 @@ void PEFormat::ProcessModule(Linker::Module& module)
 			{
 				exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address));
 			}
-			if(ordinal < exports->ordinal_base)
-			{
-				Linker::Error << "Error: invalid ordinal " << ordinal << " for ordinal base set to " << exports->ordinal_base << std::endl;
-				continue;
-			}
-			exports->SetEntry(ordinal - exports->ordinal_base, exported_symbol);
+			exports->SetEntry(*this, ordinal, exported_symbol);
 		}
 	}
 
 	/* then make entries for those symbols exported by name only */
+	if(compatibility == CompatibleGNU)
+	{
+		std::set<std::string> exported_by_name_set;
+		for(auto it : module.GetExportedSymbols())
+		{
+			if(!it.first.IsExportedByOrdinal())
+			{
+				std::shared_ptr<ExportedEntry> exported_symbol;
+				std::string name = "";
+				it.first.LoadName(name);
+				exported_by_name_set.insert(name);
+			}
+		}
+		uint32_t exported_by_name_count = exported_by_name_set.size();
+		exports->first_allowed_ordinal = std::max(1 + exported_by_name_count, exports->entries.rbegin()->first) - exported_by_name_count;
+	}
+
 	for(auto it : module.GetExportedSymbols())
 	{
 		if(!it.first.IsExportedByOrdinal())
@@ -3008,7 +3036,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 			std::string name = "";
 			it.first.LoadName(name);
 			exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address), name);
-			exports->AddEntry(exported_symbol);
+			exports->AddEntry(*this, exported_symbol);
 		}
 	}
 

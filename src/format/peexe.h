@@ -570,6 +570,8 @@ namespace Microsoft
 			uint32_t dll_name_rva = 0;
 			/** @brief The starting ordinal for the export table */
 			uint32_t ordinal_base = 1;
+			/** @brief A hint for AddEntry to start looking for free ordinals */
+			uint32_t first_allowed_ordinal = 1;
 			/** @brief Relative virtual address of the export address table, containing the exported entries for each successive ordinal value */
 			uint32_t address_table_rva = 0;
 			/** @brief Relative virtual address of the name pointer table, containing the relative virtual addresses of the names of each entry exported by name */
@@ -577,14 +579,14 @@ namespace Microsoft
 			/** @brief Relative virtual address of the ordinal table, containing the ordinals for each entry exported by name */
 			uint32_t ordinal_table_rva = 0;
 			/** @brief Sequence of entries, the first entry corresponds to ordinal_base */
-			std::vector<std::optional<std::shared_ptr<ExportedEntry>>> entries;
+			std::map<uint32_t, std::shared_ptr<ExportedEntry>> entries;
 			/** @brief A collection of exports by name, with each string being associated with its ordinal */
 			std::map<std::string, uint32_t> named_exports;
 
 			/** @brief Sets a specific entry, corresponding to some ordinal */
-			void SetEntry(uint32_t ordinal, std::shared_ptr<ExportedEntry> entry);
+			void SetEntry(PEFormat& fmt, uint32_t ordinal, std::shared_ptr<ExportedEntry> entry);
 			/** @brief Adds an entry to an unused ordinal (for speed, we access the highest taken ordinal and assign this entry to the next ordinal) */
-			void AddEntry(std::shared_ptr<ExportedEntry> entry);
+			void AddEntry(PEFormat& fmt, std::shared_ptr<ExportedEntry> entry);
 
 			ExportsSection()
 				: Section(DATA | READ)
