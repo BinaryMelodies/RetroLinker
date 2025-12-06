@@ -81,6 +81,7 @@ std::unique_ptr<List> script;
 %type <n> guard
 %type <n> segment
 %type <n> directive
+%type <n> rename_option
 %type <l> script
 
 %%
@@ -130,13 +131,13 @@ segment
 		{
 			$$ = new Node(Node::Segment, new Value<std::string>($1), new List(new Node(Node::Sequence, $3), new Node(Node::Sequence, $5)));
 		}
-	| FOR guard '{' commands '}'
+	| FOR guard rename_option '{' commands '}'
 		{
-			$$ = new Node(Node::SegmentTemplate, new List($2, new Node(Node::Sequence, $4), new Node(Node::Sequence)));
+			$$ = new Node(Node::SegmentTemplate, new List($2, new Node(Node::Sequence, $5), new Node(Node::Sequence), $3));
 		}
-	| FOR guard '{' commands '}' actions
+	| FOR guard rename_option '{' commands '}' actions
 		{
-			$$ = new Node(Node::SegmentTemplate, new List($2, new Node(Node::Sequence, $4), new Node(Node::Sequence, $6)));
+			$$ = new Node(Node::SegmentTemplate, new List($2, new Node(Node::Sequence, $5), new Node(Node::Sequence, $7), $3));
 		}
 	;
 
@@ -145,6 +146,17 @@ guard
 	| simple_disjunction MAXIMUM expression
 		{
 			$$ = new Node(Node::MaximumSections, new List($1, $3));
+		}
+	;
+
+rename_option
+	:
+		{
+			$$ = new Node(Node::Empty);
+		}
+	| CALL IDENTIFIER
+		{
+			$$ = new Node(Node::Identifier, new Value<std::string>($2));
 		}
 	;
 
