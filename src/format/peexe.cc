@@ -2274,6 +2274,7 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			Linker::Debug << "Debug: - containing " << section->name << std::endl;
 		}
 		sections.push_back(std::make_unique<Section>(Section::TEXT | Section::EXECUTE | Section::READ, segment));
+		sections.push_back(std::make_shared<Section>(Section::TEXT | Section::EXECUTE | Section::READ, segment));
 
 		if(option_import_thunks)
 		{

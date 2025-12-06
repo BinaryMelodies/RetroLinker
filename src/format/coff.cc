@@ -2130,7 +2130,7 @@ void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		{
 			Linker::Warning << "Warning: Out of order `.code` segment" << std::endl;
 		}
-		sections.push_back(std::make_unique<Section>(Section::TEXT, segment));
+		sections.push_back(std::make_shared<Section>(Section::TEXT, segment));
 	}
 	else if(segment->name == ".data")
 	{
@@ -2143,7 +2143,7 @@ void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		{
 			Linker::Warning << "Warning: Out of order `.data` segment" << std::endl;
 		}
-		sections.push_back(std::make_unique<Section>(Section::DATA, segment));
+		sections.push_back(std::make_shared<Section>(Section::DATA, segment));
 	}
 	else if(segment->name == ".bss")
 	{
@@ -2156,7 +2156,7 @@ void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		{
 			Linker::Warning << "Warning: Out of order `.bss` segment" << std::endl;
 		}
-		sections.push_back(std::make_unique<Section>(Section::BSS, segment));
+		sections.push_back(std::make_shared<Section>(Section::BSS, segment));
 	}
 	else if((type == CDOS68K || type == CDOS386) && segment->name == ".stack")
 	{
@@ -2178,15 +2178,15 @@ void COFFFormat::CreateDefaultSegments()
 {
 	if(GetCodeSegment() == nullptr)
 	{
-		sections.push_back(std::make_unique<Section>(Section::TEXT, std::make_shared<Linker::Segment>(".code")));
+		sections.push_back(std::make_shared<Section>(Section::TEXT, std::make_shared<Linker::Segment>(".code")));
 	}
 	if(GetDataSegment() == nullptr)
 	{
-		sections.push_back(std::make_unique<Section>(Section::DATA, std::make_shared<Linker::Segment>(".data")));
+		sections.push_back(std::make_shared<Section>(Section::DATA, std::make_shared<Linker::Segment>(".data")));
 	}
 	if(GetBssSegment() == nullptr)
 	{
-		sections.push_back(std::make_unique<Section>(Section::BSS, std::make_shared<Linker::Segment>(".bss")));
+		sections.push_back(std::make_shared<Section>(Section::BSS, std::make_shared<Linker::Segment>(".bss")));
 	}
 	if((type == CDOS68K || type == CDOS386) && stack == nullptr)
 	{
