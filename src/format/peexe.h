@@ -1028,13 +1028,55 @@ namespace Microsoft
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);
-		void ProcessModule(Linker::Module& module) override;
+
+		/**
+		 * @brief Creates a resource section and attaches it to the end of the file
+		 *
+		 * @param module The module currently being processed
+		 * @param image_end The last address currently used by the module (should be identical to GetMemoryImageEnd())
+		 * @return The last address after the section has been added (identical to new GetMemoryImageEnd())
+		 */
 		offset_t GenerateResourceSection(Linker::Module& module, offset_t image_end);
+
+		/**
+		 * @brief Creates an import section and attaches it to the end of the file
+		 *
+		 * @param module The module currently being processed
+		 * @param image_end The last address currently used by the module (should be identical to GetMemoryImageEnd())
+		 * @return The last address after the section has been added (identical to new GetMemoryImageEnd())
+		 */
 		offset_t GenerateImportSection(Linker::Module& module, offset_t image_end);
+
+		/**
+		 * @brief Creates an export section and attaches it to the end of the file
+		 *
+		 * @param module The module currently being processed
+		 * @param image_end The last address currently used by the module (should be identical to GetMemoryImageEnd())
+		 * @return The last address after the section has been added (identical to new GetMemoryImageEnd())
+		 */
 		offset_t GenerateExportSection(Linker::Module& module, offset_t image_end);
+
+		/**
+		 * @brief Creates a base relocation section and attaches it to the end of the file
+		 *
+		 * @param module The module currently being processed
+		 * @param image_end The last address currently used by the module (should be identical to GetMemoryImageEnd())
+		 * @return The last address after the section has been added (identical to new GetMemoryImageEnd())
+		 */
 		offset_t GenerateBaseRelocationSection(Linker::Module& module, offset_t image_end);
+
+		/**
+		 * @brief Processes relocations present in the module and stores them as base relocations and imports
+		 */
 		void ProcessRelocations(Linker::Module& module);
+
+		/**
+		 * @brief Adjust addresses in the text section where the indirect jumps appear
+		 */
 		void FixupImportThunk(Linker::Module& module, offset_t offset, offset_t address);
+
+		offset_t GetMemoryImageEnd() const;
+		void ProcessModule(Linker::Module& module) override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;

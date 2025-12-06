@@ -2903,6 +2903,18 @@ void PEFormat::FixupImportThunk(Linker::Module& module, offset_t offset, offset_
 	}
 }
 
+offset_t PEFormat::GetMemoryImageEnd() const
+{
+	offset_t image_end = GetOptionalHeader().image_base + 1;
+	if(Sections().size() != 0)
+	{
+		auto last_section = Sections().back();
+		image_end = GetOptionalHeader().image_base + last_section->address + last_section->MemorySize(*this);
+	}
+	image_end = AlignTo(image_end, GetOptionalHeader().section_align);
+	return image_end;
+}
+
 void PEFormat::ProcessModule(Linker::Module& module)
 {
 	Link(module);
@@ -2980,13 +2992,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		section->address = AddressToRVA(image->base_address);
 	}
 
-	offset_t image_end = GetOptionalHeader().image_base + 1;
-	if(Sections().size() != 0)
-	{
-		auto last_section = Sections().back();
-		image_end = GetOptionalHeader().image_base + last_section->address + last_section->MemorySize(*this);
-	}
-	image_end = AlignTo(image_end, GetOptionalHeader().section_align);
+	offset_t image_end = GetMemoryImageEnd();
 
 	// TODO: order of these sections
 
