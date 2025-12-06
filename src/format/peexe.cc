@@ -143,8 +143,10 @@ offset_t PEFormat::PEOptionalHeader::CalculateValues(COFFFormat& coff)
 		total_image_size += AlignTo(section->MemorySize(dynamic_cast<PEFormat&>(coff)), section_align);
 	}
 
-	code_address = AddressToRVA(coff.GetCodeSegment()->base_address);
-	data_address = AddressToRVA(coff.GetDataSegment()->base_address); // technically not needed for 64-bit binaries
+	auto code = coff.GetCodeSegment();
+	code_address = code ? AddressToRVA(code->base_address) : 0;
+	auto data = coff.GetDataSegment();
+	data_address = data ? AddressToRVA(data->base_address) : 0; // technically not needed for 64-bit binaries
 
 	// TODO: checksum must be calculated for critical DLLs
 
@@ -1371,6 +1373,16 @@ bool PEFormat::PESections::const_iterator::operator !=(const PEFormat::PESection
 	return coff_iterator != other.coff_iterator;
 }
 
+PEFormat::Section * PEFormat::PESections::const_reference::get() const
+{
+	return std::dynamic_pointer_cast<PEFormat::Section>(coff_reference).get();
+}
+
+PEFormat::Section * PEFormat::PESections::const_reference::operator->() const
+{
+	return get();
+}
+
 PEFormat::PESections::const_iterator& PEFormat::PESections::const_iterator::operator++()
 {
 	coff_iterator++;
@@ -1400,6 +1412,16 @@ PEFormat::PESections::iterator PEFormat::PESections::end()
 PEFormat::PESections::const_iterator PEFormat::PESections::end() const
 {
 	return const_iterator{pe->sections.end()};
+}
+
+size_t PEFormat::PESections::size() const
+{
+	return pe->sections.size();
+}
+
+PEFormat::PESections::const_reference PEFormat::PESections::back() const
+{
+	return const_reference{pe->sections.back()};
 }
 
 const PEFormat::PESections PEFormat::Sections() const
@@ -2243,16 +2265,13 @@ void PEFormat::SetOptions(std::map<std::string, std::string>& options)
 
 void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
-	if(segment->name == ".code")
+	auto first_section = segment->sections[0];
+	if(first_section->IsExecutable())
 	{
-		if(GetCodeSegment() != nullptr)
+		Linker::Debug << "Debug: PE code section: " << first_section->name << std::endl;
+		for(auto section : segment->sections)
 		{
-			Linker::Error << "Error: Duplicate `.code` segment, ignoring" << std::endl;
-			return;
-		}
-		if(sections.size() != 0)
-		{
-			Linker::Warning << "Warning: Out of order `.code` segment" << std::endl;
+			Linker::Debug << "Debug: - containing " << section->name << std::endl;
 		}
 		sections.push_back(std::make_unique<Section>(Section::TEXT | Section::EXECUTE | Section::READ, segment));
 
@@ -2312,35 +2331,23 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			}
 		}
 	}
-	else if(segment->name == ".data")
+	else if(!first_section->IsZeroFilled())
 	{
-		if(GetDataSegment() != nullptr)
+		Linker::Debug << "Debug: PE data section: " << first_section->name << std::endl;
+		for(auto section : segment->sections)
 		{
-			Linker::Error << "Error: Duplicate `.data` segment, ignoring" << std::endl;
-			return;
-		}
-		if(sections.size() != 1)
-		{
-			Linker::Warning << "Warning: Out of order `.data` segment" << std::endl;
+			Linker::Debug << "Debug: - containing " << section->name << std::endl;
 		}
 		sections.push_back(std::make_unique<Section>(Section::DATA | Section::READ | Section::WRITE, segment));
 	}
-	else if(segment->name == ".bss")
-	{
-		if(GetBssSegment() != nullptr)
-		{
-			Linker::Error << "Error: Duplicate `.bss` segment, ignoring" << std::endl;
-			return;
-		}
-		if(sections.size() != 2)
-		{
-			Linker::Warning << "Warning: Out of order `.bss` segment" << std::endl;
-		}
-		sections.push_back(std::make_unique<Section>(Section::BSS | Section::READ | Section::WRITE, segment));
-	}
 	else
 	{
-		Linker::Error << "Error: unknown segment `" << segment->name << "` for format, ignoring" << std::endl;
+		Linker::Debug << "Debug: PE bss section: " << first_section->name << std::endl;
+		for(auto section : segment->sections)
+		{
+			Linker::Debug << "Debug: - containing " << section->name << std::endl;
+		}
+		sections.push_back(std::make_unique<Section>(Section::BSS | Section::READ | Section::WRITE, segment));
 	}
 }
 
@@ -2351,11 +2358,11 @@ std::unique_ptr<Script::List> PEFormat::GetScript(Linker::Module& module)
 
 	// TODO: make the script not combine sections, instead including each section one by one
 
-	static const char * DefaultScript = R"(
+	static const char * SimpleScript = R"(
 ".code"
 {
 	at ?image_base? + ?section_align?;
-	all not write;
+	all execute;
 };
 
 ".data"
@@ -2371,13 +2378,42 @@ std::unique_ptr<Script::List> PEFormat::GetScript(Linker::Module& module)
 };
 )";
 
+	static const char * DefaultScript = R"(
+at ?image_base? + ?section_align?;
+
+for execute
+{
+	at align(here, ?section_align?);
+	all;
+};
+
+for not zero
+{
+	at align(here, ?section_align?);
+	all;
+};
+
+for any
+{
+	at align(here, ?section_align?);
+	all;
+};
+)";
+
 	if(linker_script != "")
 	{
 		return SegmentManager::GetScript(module);
 	}
 	else
 	{
-		return Script::parse_string(DefaultScript);
+		switch(compatibility)
+		{
+		case CompatibleWatcom:
+		case CompatibleGNU:
+			return Script::parse_string(DefaultScript);
+		default:
+			return Script::parse_string(SimpleScript);
+		}
 	}
 }
 
@@ -2469,19 +2505,11 @@ void PEFormat::ProcessModule(Linker::Module& module)
 	}
 
 	offset_t image_end = GetOptionalHeader().image_base + 1;
-	if(auto bss = GetBssSegment())
+	if(Sections().size() != 0)
 	{
-		image_end = bss->base_address + bss->zero_fill;
+		auto last_section = Sections().back();
+		image_end = GetOptionalHeader().image_base + last_section->address + last_section->MemorySize(*this);
 	}
-	else if(auto data = GetDataSegment())
-	{
-		image_end = data->base_address + data->data_size;
-	}
-	else if(auto code = GetCodeSegment())
-	{
-		image_end = code->base_address + code->data_size;
-	}
-
 	image_end = AlignTo(image_end, GetOptionalHeader().section_align);
 
 	// TODO: order of these sections

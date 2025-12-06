@@ -264,10 +264,18 @@ namespace Microsoft
 				const_iterator& operator++();
 				std::shared_ptr<const PEFormat::Section> operator*() const;
 			};
+			struct const_reference
+			{
+				std::vector<std::shared_ptr<COFFFormat::Section>>::const_reference coff_reference;
+				PEFormat::Section * get() const;
+				PEFormat::Section * operator->() const;
+			};
 			iterator begin();
 			const_iterator begin() const;
 			iterator end();
 			const_iterator end() const;
+			size_t size() const;
+			const_reference back() const;
 		};
 
 		/** @brief Access the sections as PEFormat::Section */
