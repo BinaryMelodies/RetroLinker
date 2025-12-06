@@ -2278,6 +2278,11 @@ void PEFormat::SetOptions(std::map<std::string, std::string>& options)
 	/* TODO */
 }
 
+void PEFormat::AllocateSymbols(Linker::Module& module) const
+{
+	module.AllocateSymbols(".bss", false);
+}
+
 void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	auto first_section = segment->sections[0];

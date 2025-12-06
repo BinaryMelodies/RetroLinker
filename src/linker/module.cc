@@ -1116,9 +1116,11 @@ void Module::Append(Module& other)
 	}
 }
 
-void Module::AllocateSymbols(std::string default_section_name)
+void Module::AllocateSymbols(std::string default_section_name, bool force_create_segment)
 {
-	FetchSection(default_section_name, Section::Readable|Section::Writable|Section::ZeroFilled);
+	if(force_create_segment)
+		FetchSection(default_section_name, Section::Readable|Section::Writable|Section::ZeroFilled);
+
 	for(auto it : global_symbols)
 	{
 		if(it.second.binding == SymbolDefinition::Common)

@@ -292,7 +292,7 @@ namespace Linker
 		/**
 		 * @brief All common symbols are converted to global symbols and assigned addresses within a their section (usually ".comm")
 		 */
-		void AllocateSymbols(std::string default_section_name = ".comm");
+		void AllocateSymbols(std::string default_section_name = ".comm", bool force_create_segment = true);
 	};
 }
 

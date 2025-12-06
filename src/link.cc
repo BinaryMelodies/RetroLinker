@@ -360,7 +360,7 @@ int main(int argc, char * argv[])
 //		Linker::Debug << it.first << " = " << loc << std::endl;
 	}
 
-	module.AllocateSymbols();
+	format->AllocateSymbols(module);
 	format->SetOptions(options); /* extension might depend on options */
 
 	if(output == "")

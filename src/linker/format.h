@@ -184,6 +184,11 @@ namespace Linker
 		 */
 		virtual bool FormatSupportsLibraries() const; /* imports/exports, fileformat level support, not system support */
 		virtual unsigned FormatAdditionalSectionFlags(std::string section_name) const;
+
+		/**
+		 * @brief Instructs the module to allocate any unallocated local symbols
+		 */
+		virtual void AllocateSymbols(Module& module) const;
 	};
 
 	/**

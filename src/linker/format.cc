@@ -1,6 +1,7 @@
 
 #include <fstream>
 #include "format.h"
+#include "module.h"
 #include "module_collector.h"
 #include "options.h"
 #include "writer.h"
@@ -194,6 +195,11 @@ bool OutputFormat::FormatSupportsLibraries() const
 unsigned OutputFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	return 0;
+}
+
+void OutputFormat::AllocateSymbols(Module& module) const
+{
+	module.AllocateSymbols();
 }
 
 void InputFormat::SetupOptions(std::shared_ptr<OutputFormat> format)
