@@ -195,7 +195,10 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 				if(!CheckPredicate(directive->at(0), section, module))
 					continue;
 				if(directive->at(3)->type == Node::Identifier)
+				{
 					current_template_name = *directive->at(3)->value->Get<std::string>();
+					Linker::Debug << "Debug: renaming template section to " << current_template_name << " from first section " << section->name << std::endl;
+				}
 				current_is_template = true;
 				current_is_template_head = false;
 				AppendSegment(current_template_name);

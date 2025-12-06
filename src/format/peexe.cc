@@ -2268,7 +2268,7 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	auto first_section = segment->sections[0];
 	if(first_section->IsExecutable())
 	{
-		Linker::Debug << "Debug: PE code section: " << first_section->name << std::endl;
+		Linker::Debug << "Debug: PE code section: " << segment->name << std::endl;
 		for(auto section : segment->sections)
 		{
 			Linker::Debug << "Debug: - containing " << section->name << std::endl;
@@ -2277,7 +2277,7 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else if(!first_section->IsZeroFilled())
 	{
-		Linker::Debug << "Debug: PE data section: " << first_section->name << std::endl;
+		Linker::Debug << "Debug: PE data section: " << segment->name << std::endl;
 		for(auto section : segment->sections)
 		{
 			Linker::Debug << "Debug: - containing " << section->name << std::endl;
@@ -2295,12 +2295,19 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else
 	{
-		Linker::Debug << "Debug: PE bss section: " << first_section->name << std::endl;
+		uint32_t flags = Section::BSS | Section::READ | Section::WRITE;
+		if(compatibility == CompatibleWatcom)
+		{
+			segment->Fill();
+			flags = Section::DATA | Section::READ | Section::WRITE;
+		}
+
+		Linker::Debug << "Debug: PE bss section: " << segment->name << std::endl;
 		for(auto section : segment->sections)
 		{
 			Linker::Debug << "Debug: - containing " << section->name << std::endl;
 		}
-		sections.push_back(std::make_shared<Section>(Section::BSS | Section::READ | Section::WRITE, segment));
+		sections.push_back(std::make_shared<Section>(flags, segment));
 	}
 }
 
@@ -2508,21 +2515,27 @@ for any
 	static const char * WatcomScript = R"(
 at ?image_base? + ?section_align?;
 
-for execute call "AUTO"
+for ".text" or ".code" call "AUTO"
 {
 	at align(here, ?section_align?);
-	all execute;
+	all ".text" or ".code";
+};
+
+for execute
+{
+	at align(here, ?section_align?);
+	all;
 };
 
 call "GenerateImportThunks";
 
-for .data or .bss call "DGROUP"
+for ".data" or ".bss" or ".comm" call "DGROUP"
 {
 	at align(here, ?section_align?);
-	all .data or .bss;
+	all ".data" or ".bss" or ".comm";
 };
 
-"AUTO"
+for any call "AUTO"
 {
 	at align(here, ?section_align?);
 	all not zero;
@@ -2632,6 +2645,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 	for(auto section : sections)
 	{
 		std::shared_ptr<Linker::Segment> image = GetSegment(section);
+		Linker::Debug << "Debug: Naming PE segment to " << image->name << std::endl;
 		section->name = image->name;
 		section->address = AddressToRVA(image->base_address);
 	}
