@@ -1186,8 +1186,18 @@ void PEFormat::BaseRelocationsSection::Generate(PEFormat& fmt)
 			block->relocations_list.push_back(pair.second);
 			block->block_size += 2 * pair.second.GetEntryCount(&fmt);
 		}
+		if(block->block_size != AlignTo(block->block_size, 4))
+		{
+			block->relocations_list.push_back(BaseRelocation{BaseRelocation::RelAbsolute, 0, 0});
+			block->block_size += 2;
+		}
 		Linker::Debug << "Debug: Block size " << std::hex << block->block_size << std::endl;
 		full_size = AlignTo(full_size, 4) + block->block_size;
+	}
+
+	if(fmt.compatibility == CompatibleWatcom)
+	{
+		full_size = AlignTo(full_size, fmt.GetOptionalHeader().file_align);
 	}
 
 	virtual_size() = size = full_size;
@@ -1218,6 +1228,11 @@ void PEFormat::BaseRelocationsSection::WriteSectionData(Linker::Writer& wr, cons
 		}
 
 		offset += block->block_size;
+	}
+
+	while(wr.Tell() < section_pointer + size)
+	{
+		wr.WriteWord(1, 0);
 	}
 }
 
