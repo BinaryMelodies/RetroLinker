@@ -2645,128 +2645,58 @@ void PEFormat::Link(Linker::Module& module)
 	//CreateDefaultSegments();
 }
 
-void PEFormat::ProcessModule(Linker::Module& module)
+offset_t PEFormat::GenerateResourceSection(Linker::Module& module, offset_t image_end)
 {
-	Link(module);
+	// generate .rsrc
+	sections.push_back(resources);
+	resources->address = AddressToRVA(image_end);
+	resources->Generate(*this);
+	image_end = AlignTo(image_end + resources->MemorySize(*this), GetOptionalHeader().section_align);
+	GetOptionalHeader().data_directories[PEOptionalHeader::DirResourceTable] =
+		PEOptionalHeader::DataDirectory{uint32_t(resources->address), uint32_t(resources->size)};
+	return image_end;
+}
 
-	GetOptionalHeader().data_directories.clear();
-	GetOptionalHeader().data_directories.resize(PEOptionalHeader::DirTotalCount, PEOptionalHeader::DataDirectory{0, 0});
+offset_t PEFormat::GenerateImportSection(Linker::Module& module, offset_t image_end)
+{
+	// generate .idata
+	sections.push_back(imports);
+	imports->address = AddressToRVA(image_end);
+	imports->Generate(*this);
+	image_end = AlignTo(image_end + imports->MemorySize(*this), GetOptionalHeader().section_align);
+	GetOptionalHeader().data_directories[PEOptionalHeader::DirImportTable] =
+		PEOptionalHeader::DataDirectory{uint32_t(imports->address), uint32_t(imports->size)};
+	GetOptionalHeader().data_directories[PEOptionalHeader::DirIAT] =
+		PEOptionalHeader::DataDirectory{uint32_t(imports->address_table_rva), uint32_t(imports->address_table_size)};
+	return image_end;
+}
 
-	for(const Linker::SymbolName& symbol : module.GetImportedSymbols())
-	{
-		std::string library;
-		if(symbol.LoadLibraryName(library))
-		{
-			uint16_t hint;
-			std::string name;
-			if(!symbol.LoadOrdinalOrHint(hint))
-			{
-				hint = 0;
-			}
+offset_t PEFormat::GenerateExportSection(Linker::Module& module, offset_t image_end)
+{
+	// generate .edata
+	sections.push_back(exports);
+	exports->address = AddressToRVA(image_end);
+	exports->Generate(*this);
+	image_end = AlignTo(image_end + exports->MemorySize(*this), GetOptionalHeader().section_align);
+	GetOptionalHeader().data_directories[PEOptionalHeader::DirExportTable] =
+		PEOptionalHeader::DataDirectory{uint32_t(exports->address), uint32_t(exports->size)};
+	return image_end;
+}
 
-			if(symbol.LoadName(name))
-			{
-				AddImportByName(library, name, hint);
-			}
-			else
-			{
-				AddImportByOrdinal(library, hint);
-			}
-		}
-	}
+offset_t PEFormat::GenerateBaseRelocationSection(Linker::Module& module, offset_t image_end)
+{
+	// generate .reloc
+	sections.push_back(base_relocations);
+	base_relocations->address = AddressToRVA(image_end);
+	base_relocations->Generate(*this);
+	image_end = AlignTo(image_end + base_relocations->MemorySize(*this), GetOptionalHeader().section_align);
+	GetOptionalHeader().data_directories[PEOptionalHeader::DirBaseRelocationTable] =
+		PEOptionalHeader::DataDirectory{uint32_t(base_relocations->address), uint32_t(base_relocations->size)};
+	return image_end;
+}
 
-	/* first make entries for those symbols exported by ordinals, or those that have hints */
-	for(auto it : module.GetExportedSymbols())
-	{
-		uint16_t ordinal;
-		if(it.first.LoadOrdinalOrHint(ordinal))
-		{
-			std::shared_ptr<ExportedEntry> exported_symbol;
-			if(!it.first.IsExportedByOrdinal())
-			{
-				std::string name = "";
-				it.first.LoadName(name);
-				exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address), name);
-			}
-			else
-			{
-				exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address));
-			}
-			if(ordinal < exports->ordinal_base)
-			{
-				Linker::Error << "Error: invalid ordinal " << ordinal << " for ordinal base set to " << exports->ordinal_base << std::endl;
-				continue;
-			}
-			exports->SetEntry(ordinal - exports->ordinal_base, exported_symbol);
-		}
-	}
-
-	/* then make entries for those symbols exported by name only */
-	for(auto it : module.GetExportedSymbols())
-	{
-		if(!it.first.IsExportedByOrdinal())
-		{
-			std::shared_ptr<ExportedEntry> exported_symbol;
-			std::string name = "";
-			it.first.LoadName(name);
-			exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address), name);
-			exports->AddEntry(exported_symbol);
-		}
-	}
-
-	for(auto section : sections)
-	{
-		std::shared_ptr<Linker::Segment> image = GetSegment(section);
-		Linker::Debug << "Debug: Naming PE segment to " << image->name << std::endl;
-		section->name = image->name;
-		section->address = AddressToRVA(image->base_address);
-	}
-
-	offset_t image_end = GetOptionalHeader().image_base + 1;
-	if(Sections().size() != 0)
-	{
-		auto last_section = Sections().back();
-		image_end = GetOptionalHeader().image_base + last_section->address + last_section->MemorySize(*this);
-	}
-	image_end = AlignTo(image_end, GetOptionalHeader().section_align);
-
-	// TODO: order of these sections
-
-	if(resources->IsPresent())
-	{
-		// generate .rsrc
-		sections.push_back(resources);
-		resources->address = AddressToRVA(image_end);
-		resources->Generate(*this);
-		image_end = AlignTo(image_end + resources->MemorySize(*this), GetOptionalHeader().section_align);
-		GetOptionalHeader().data_directories[PEOptionalHeader::DirResourceTable] =
-			PEOptionalHeader::DataDirectory{uint32_t(resources->address), uint32_t(resources->size)};
-	}
-
-	if(imports->IsPresent())
-	{
-		// generate .idata
-		sections.push_back(imports);
-		imports->address = AddressToRVA(image_end);
-		imports->Generate(*this);
-		image_end = AlignTo(image_end + imports->MemorySize(*this), GetOptionalHeader().section_align);
-		GetOptionalHeader().data_directories[PEOptionalHeader::DirImportTable] =
-			PEOptionalHeader::DataDirectory{uint32_t(imports->address), uint32_t(imports->size)};
-		GetOptionalHeader().data_directories[PEOptionalHeader::DirIAT] =
-			PEOptionalHeader::DataDirectory{uint32_t(imports->address_table_rva), uint32_t(imports->address_table_size)};
-	}
-
-	if(exports->IsPresent())
-	{
-		// generate .edata
-		sections.push_back(exports);
-		exports->address = AddressToRVA(image_end);
-		exports->Generate(*this);
-		image_end = AlignTo(image_end + exports->MemorySize(*this), GetOptionalHeader().section_align);
-		GetOptionalHeader().data_directories[PEOptionalHeader::DirExportTable] =
-			PEOptionalHeader::DataDirectory{uint32_t(exports->address), uint32_t(exports->size)};
-	}
-
+void PEFormat::ProcessRelocations(Linker::Module& module)
+{
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -2980,16 +2910,120 @@ void PEFormat::ProcessModule(Linker::Module& module)
 			}
 		}
 	}
+}
+
+void PEFormat::ProcessModule(Linker::Module& module)
+{
+	Link(module);
+
+	GetOptionalHeader().data_directories.clear();
+	GetOptionalHeader().data_directories.resize(PEOptionalHeader::DirTotalCount, PEOptionalHeader::DataDirectory{0, 0});
+
+	for(const Linker::SymbolName& symbol : module.GetImportedSymbols())
+	{
+		std::string library;
+		if(symbol.LoadLibraryName(library))
+		{
+			uint16_t hint;
+			std::string name;
+			if(!symbol.LoadOrdinalOrHint(hint))
+			{
+				hint = 0;
+			}
+
+			if(symbol.LoadName(name))
+			{
+				AddImportByName(library, name, hint);
+			}
+			else
+			{
+				AddImportByOrdinal(library, hint);
+			}
+		}
+	}
+
+	/* first make entries for those symbols exported by ordinals, or those that have hints */
+	for(auto it : module.GetExportedSymbols())
+	{
+		uint16_t ordinal;
+		if(it.first.LoadOrdinalOrHint(ordinal))
+		{
+			std::shared_ptr<ExportedEntry> exported_symbol;
+			if(!it.first.IsExportedByOrdinal())
+			{
+				std::string name = "";
+				it.first.LoadName(name);
+				exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address), name);
+			}
+			else
+			{
+				exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address));
+			}
+			if(ordinal < exports->ordinal_base)
+			{
+				Linker::Error << "Error: invalid ordinal " << ordinal << " for ordinal base set to " << exports->ordinal_base << std::endl;
+				continue;
+			}
+			exports->SetEntry(ordinal - exports->ordinal_base, exported_symbol);
+		}
+	}
+
+	/* then make entries for those symbols exported by name only */
+	for(auto it : module.GetExportedSymbols())
+	{
+		if(!it.first.IsExportedByOrdinal())
+		{
+			std::shared_ptr<ExportedEntry> exported_symbol;
+			std::string name = "";
+			it.first.LoadName(name);
+			exported_symbol = std::make_shared<ExportedEntry>(AddressToRVA(it.second.GetPosition().address), name);
+			exports->AddEntry(exported_symbol);
+		}
+	}
+
+	for(auto section : sections)
+	{
+		std::shared_ptr<Linker::Segment> image = GetSegment(section);
+		Linker::Debug << "Debug: Naming PE segment to " << image->name << std::endl;
+		section->name = image->name;
+		section->address = AddressToRVA(image->base_address);
+	}
+
+	offset_t image_end = GetOptionalHeader().image_base + 1;
+	if(Sections().size() != 0)
+	{
+		auto last_section = Sections().back();
+		image_end = GetOptionalHeader().image_base + last_section->address + last_section->MemorySize(*this);
+	}
+	image_end = AlignTo(image_end, GetOptionalHeader().section_align);
+
+	// TODO: order of these sections
+
+	if(resources->IsPresent())
+	{
+		image_end = GenerateResourceSection(module, image_end);
+	}
+
+	if(compatibility == CompatibleGNU && exports->IsPresent())
+	{
+		image_end = GenerateExportSection(module, image_end);
+	}
+
+	if(imports->IsPresent())
+	{
+		image_end = GenerateImportSection(module, image_end);
+	}
+
+	if(compatibility != CompatibleGNU && exports->IsPresent())
+	{
+		image_end = GenerateExportSection(module, image_end);
+	}
+
+	ProcessRelocations(module);
 
 	if(base_relocations->IsPresent())
 	{
-		// generate .reloc
-		sections.push_back(base_relocations);
-		base_relocations->address = AddressToRVA(image_end);
-		base_relocations->Generate(*this);
-		image_end = AlignTo(image_end + base_relocations->MemorySize(*this), GetOptionalHeader().section_align);
-		GetOptionalHeader().data_directories[PEOptionalHeader::DirBaseRelocationTable] =
-			PEOptionalHeader::DataDirectory{uint32_t(base_relocations->address), uint32_t(base_relocations->size)};
+		image_end = GenerateBaseRelocationSection(module, image_end);
 	}
 
 	Linker::Location entry;

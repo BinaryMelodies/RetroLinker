@@ -1026,6 +1026,11 @@ namespace Microsoft
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;
+		offset_t GenerateResourceSection(Linker::Module& module, offset_t image_end);
+		offset_t GenerateImportSection(Linker::Module& module, offset_t image_end);
+		offset_t GenerateExportSection(Linker::Module& module, offset_t image_end);
+		offset_t GenerateBaseRelocationSection(Linker::Module& module, offset_t image_end);
+		void ProcessRelocations(Linker::Module& module);
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
