@@ -130,7 +130,6 @@ void SegmentManager::OnCallDirective(std::string identifier)
 
 std::shared_ptr<Segment> SegmentManager::AppendSegment(std::string name)
 {
-	FinishCurrentSegment();
 	current_segment = std::make_shared<Segment>(name, current_address);
 	segment_vector.push_back(current_segment);
 	segment_map[name] = current_segment;
@@ -182,6 +181,7 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 			{
 				PostProcessAction(action, module);
 			}
+			FinishCurrentSegment();
 			break;
 		case Node::SegmentTemplate:
 			template_counter = 0;
@@ -212,17 +212,17 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 				}
 				template_counter += 1;
 			}
+			FinishCurrentSegment();
 			break;
 		case Node::Call:
 			OnCallDirective(*directive->value->Get<std::string>());
 			// in case the OnCallDirective call modified the segment size
-			current_address = current_segment->GetEndAddress();
+			current_address = segment_vector.back()->GetEndAddress();
 			break;
 		default:
 			Linker::FatalError("Internal error: invalid script");
 		}
 	}
-	FinishCurrentSegment();
 }
 
 void Linker::SegmentManager::ProcessAction(std::unique_ptr<Node>& action, Module& module)
