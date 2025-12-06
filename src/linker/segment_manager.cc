@@ -186,10 +186,13 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 		case Node::SegmentTemplate:
 			template_counter = 0;
 			condition_failed = false;
+			Linker::Debug << "Debug: begin for statement" << std::endl;
 			for(auto& section : module.Sections())
 			{
+				Linker::Debug << "Debug: check " << section->name << std::endl;
 				if(section->segment.use_count() != 0) // TODO
 				{
+					Linker::Debug << "Debug: " << section->name << " already collected" << std::endl;
 					continue;
 				}
 
@@ -205,6 +208,7 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 				}
 				if(!condition_result)
 				{
+					Linker::Debug << "Debug: " << section->name << " failed check" << std::endl;
 					continue;
 				}
 
@@ -213,6 +217,8 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 					current_template_name = *directive->at(3)->value->Get<std::string>();
 					Linker::Debug << "Debug: renaming template section to " << current_template_name << " from first section " << section->name << std::endl;
 				}
+				Linker::Debug << "Debug: creating " << current_template_name << std::endl;
+
 				current_is_template = true;
 				current_is_template_head = false;
 				AppendSegment(current_template_name);
@@ -224,9 +230,10 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 				{
 					PostProcessAction(action, module);
 				}
+				FinishCurrentSegment();
 				template_counter += 1;
 			}
-			FinishCurrentSegment();
+			Linker::Debug << "Debug: end for statement" << std::endl;
 			break;
 		case Node::Call:
 			OnCallDirective(*directive->value->Get<std::string>());

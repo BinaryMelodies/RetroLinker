@@ -2386,6 +2386,31 @@ void PEFormat::OnCallDirective(std::string identifier)
 				segment->Fill();
 			}
 
+			if(compatibility == CompatibleGNU)
+			{
+				unsigned misalign = segment->data_size & 3;
+				switch(cpu_type)
+				{
+				case CPU_I386:
+					switch(misalign)
+					{
+					case 1:
+						segment->WriteData(3, segment->data_size, "\x66\x90\x90");
+						break;
+					case 2:
+						segment->WriteData(2, segment->data_size, "\x66\x90");
+						break;
+					case 3:
+						segment->WriteData(3, segment->data_size, "\x90");
+						break;
+					}
+					break;
+				default:
+					// TODO: other CPUs
+					break;
+				}
+			}
+
 			for(const Linker::SymbolName& symbol : current_module->GetImportedSymbols())
 			{
 				assert(segment->zero_fill == 0);
@@ -2413,6 +2438,11 @@ void PEFormat::OnCallDirective(std::string identifier)
 					// jmp [abs32] (32-bit) or jmp [rel32] (64-bit)
 					// we fill in the actual address later
 					segment->WriteData(6, segment->data_size, "\xFF\x25\0\0\0\0");
+					if(compatibility == CompatibleGNU && cpu_type == CPU_I386)
+					{
+						// nop; nop
+						segment->WriteData(2, segment->data_size, "\x90\x90");
+					}
 					break;
 				case CPU_ARM:
 					// TODO: test
@@ -2434,6 +2464,11 @@ void PEFormat::OnCallDirective(std::string identifier)
 					Linker::Error << "Error: generating import thunks not supported for architecture" << std::endl;
 					break;
 				}
+			}
+			if(compatibility == CompatibleGNU && cpu_type == CPU_I386)
+			{
+				// TODO: not sure what this is
+				segment->WriteData(16, segment->data_size, "\xFF\xFF\xFF\xFF\0\0\0\0\xFF\xFF\xFF\xFF\0\0\0\0");
 			}
 		}
 	}
