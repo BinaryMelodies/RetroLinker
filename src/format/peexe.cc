@@ -124,6 +124,8 @@ void PEFormat::PEOptionalHeader::WriteFile(Linker::Writer& wr) const
 
 offset_t PEFormat::PEOptionalHeader::CalculateValues(COFFFormat& coff)
 {
+	auto& pe = dynamic_cast<PEFormat&>(coff);
+
 	code_size = 0;
 	data_size = 0;
 	bss_size = 0;
@@ -137,11 +139,20 @@ offset_t PEFormat::PEOptionalHeader::CalculateValues(COFFFormat& coff)
 		if((coff_section->flags & COFFFormat::Section::TEXT) != 0)
 			code_size += AlignTo(coff_section->size, file_align);
 		else if((coff_section->flags & COFFFormat::Section::DATA) != 0)
-			data_size += AlignTo(coff_section->size, file_align);
+		{
+			if(!(pe.compatibility == CompatibleWatcom &&
+				(coff_section == pe.resources
+				|| coff_section == pe.exports
+				|| coff_section == pe.base_relocations)))
+			{
+				// Watcom only includes the .idata section in the data size
+				data_size += AlignTo(coff_section->size, file_align);
+			}
+		}
 		else if((coff_section->flags & COFFFormat::Section::BSS) != 0)
 			bss_size += AlignTo(std::static_pointer_cast<Section>(coff_section)->virtual_size(), file_align);
 
-		total_image_size += AlignTo(section->MemorySize(dynamic_cast<PEFormat&>(coff)), section_align);
+		total_image_size += AlignTo(section->MemorySize(pe), section_align);
 	}
 
 	auto code = coff.GetCodeSegment();
@@ -931,6 +942,12 @@ void PEFormat::ExportsSection::Generate(PEFormat& fmt)
 		rva += name_rva.name.size() + 1;
 	}
 
+	if(fmt.compatibility == CompatibleGNU)
+	{
+		// TODO???
+		rva += 0x18;
+	}
+
 	virtual_size() = rva - address;
 	size = AlignTo(rva - address, fmt.GetOptionalHeader().file_align);
 }
@@ -1282,11 +1299,6 @@ void PEFormat::BaseRelocationsSection::Generate(PEFormat& fmt)
 		}
 		Linker::Debug << "Debug: Block size " << std::hex << block->block_size << std::endl;
 		full_size = AlignTo(full_size, 4) + block->block_size;
-	}
-
-	if(fmt.compatibility == CompatibleWatcom)
-	{
-		full_size = AlignTo(full_size, fmt.GetOptionalHeader().file_align);
 	}
 
 	virtual_size() = full_size;
@@ -1694,7 +1706,10 @@ void PEFormat::CalculateValues()
 			flags |= FLAG_NO_SYMBOLS;
 
 		// TODO: make FLAG_TRIM_WORKING_SET an option
+	}
 
+	if(option_include_deprecated_flags || compatibility == CompatibleWatcom)
+	{
 		// TODO: should we include this? only Watcom seems to generate it, not even Microsoft's own linker
 		switch(GetMachineEndianType())
 		{
@@ -2239,56 +2254,117 @@ void PEFormat::SetOptions(std::map<std::string, std::string>& options)
 		break;
 	}
 
-	switch(GetOptionalHeader().subsystem)
+	if(!collector.subsystem())
 	{
-	case PEOptionalHeader::Unknown:
-		break;
-
-	case PEOptionalHeader::Native:
-		// TODO
-		break;
-
-	case PEOptionalHeader::WindowsGUI:
-	case PEOptionalHeader::WindowsCUI:
-		switch(target)
+		switch(compatibility)
 		{
-		case TargetWin32s:
-		case TargetWin9x:
-			// Windows 95 (4.0)
+		case CompatibleWatcom:
+			GetOptionalHeader().subsystem_version = version_type{3, 10};
+			break;
+		case CompatibleGNU:
 			GetOptionalHeader().subsystem_version = version_type{4, 0};
 			break;
-		case TargetWinNT:
-		case TargetTNT:
-			switch(cpu_type)
+		default:
+			GetOptionalHeader().subsystem_version = version_type{3, 10};
+			break;
+		}
+	}
+	else
+	{
+		switch(GetOptionalHeader().subsystem)
+		{
+		case PEOptionalHeader::Unknown:
+			break;
+
+		case PEOptionalHeader::Native:
+			// TODO
+			break;
+
+		case PEOptionalHeader::WindowsGUI:
+		case PEOptionalHeader::WindowsCUI:
+			switch(target)
 			{
-			case CPU_I386:
-			case CPU_ALPHA:
-			case CPU_MIPS:
-				// NT 3.1
-				GetOptionalHeader().subsystem_version = version_type{3, 10};
+			case TargetWin32s:
+			case TargetWin9x:
+				// Windows 95 (4.0)
+				GetOptionalHeader().subsystem_version = version_type{4, 0};
 				break;
-			case CPU_PPC:
-				// NT 3.5
-				GetOptionalHeader().subsystem_version = version_type{3, 50};
+			case TargetWinNT:
+			case TargetTNT:
+				switch(cpu_type)
+				{
+				case CPU_I386:
+				case CPU_ALPHA:
+				case CPU_MIPS:
+					// NT 3.1
+					GetOptionalHeader().subsystem_version = version_type{3, 10};
+					break;
+				case CPU_PPC:
+					// NT 3.5
+					GetOptionalHeader().subsystem_version = version_type{3, 50};
+					break;
+				case CPU_IA64:
+					// NT 5.1 (Windows XP 64-bit Edition)
+					GetOptionalHeader().subsystem_version = version_type{5, 1};
+					break;
+				case CPU_AMD64:
+					// NT 5.2 (Windows XP Professional x64 Edition)
+					GetOptionalHeader().subsystem_version = version_type{5, 2};
+					break;
+				case CPU_ARM:
+				case CPU_ARM64: // TODO
+					// NT 6.2 (Windows Phone 8)
+					GetOptionalHeader().subsystem_version = version_type{6, 2};
+					break;
+				default:
+					break;
+				}
 				break;
-			case CPU_IA64:
-				// NT 5.1 (Windows XP 64-bit Edition)
-				GetOptionalHeader().subsystem_version = version_type{5, 1};
+			case TargetWinCE:
+				switch(cpu_type)
+				{
+				case CPU_SH:
+				case CPU_MIPS:
+					// CE 1.0
+					GetOptionalHeader().subsystem_version = version_type{1, 0};
+					break;
+				case CPU_I386:
+				case CPU_ARM:
+				case CPU_PPC:
+					// CE 2.0
+					GetOptionalHeader().subsystem_version = version_type{2, 0};
+					break;
+				default:
+					break;
+				}
 				break;
-			case CPU_AMD64:
-				// NT 5.2 (Windows XP Professional x64 Edition)
-				GetOptionalHeader().subsystem_version = version_type{5, 2};
+			case TargetMacintosh:
 				break;
-			case CPU_ARM:
-			case CPU_ARM64: // TODO
-				// NT 6.2 (Windows Phone 8)
-				GetOptionalHeader().subsystem_version = version_type{6, 2};
+			case TargetDotNET:
+				GetOptionalHeader().subsystem_version = version_type{4, 0};
 				break;
-			default:
+			case TargetEFI:
+				GetOptionalHeader().subsystem_version = version_type{1, 0};
+				break;
+			case TargetXbox:
+				// TODO
 				break;
 			}
 			break;
-		case TargetWinCE:
+
+		case PEOptionalHeader::OS2CUI:
+			// TODO
+			break;
+
+		case PEOptionalHeader::POSIXCUI:
+			GetOptionalHeader().subsystem_version = version_type{1, 0};
+			break;
+
+		case PEOptionalHeader::NativeWin95:
+			// TODO
+			break;
+
+		case PEOptionalHeader::WinCEGUI:
 			switch(cpu_type)
 			{
 			case CPU_SH:
@@ -2306,66 +2382,23 @@ void PEFormat::SetOptions(std::map<std::string, std::string>& options)
 				break;
 			}
 			break;
-		case TargetMacintosh:
-			break;
-		case TargetDotNET:
-			GetOptionalHeader().subsystem_version = version_type{4, 0};
-			break;
-		case TargetEFI:
+
+		case PEOptionalHeader::EFIApplication:
+		case PEOptionalHeader::EFIBootServiceDriver:
+		case PEOptionalHeader::EFIRuntimeDriver:
+		case PEOptionalHeader::EFIROM:
 			GetOptionalHeader().subsystem_version = version_type{1, 0};
 			break;
-		case TargetXbox:
+
+		case PEOptionalHeader::Xbox:
 			// TODO
 			break;
-		}
-		break;
 
-	case PEOptionalHeader::OS2CUI:
-		// TODO
-		break;
-
-	case PEOptionalHeader::POSIXCUI:
-		GetOptionalHeader().subsystem_version = version_type{1, 0};
-		break;
-
-	case PEOptionalHeader::NativeWin95:
-		// TODO
-		break;
-
-	case PEOptionalHeader::WinCEGUI:
-		switch(cpu_type)
-		{
-		case CPU_SH:
-		case CPU_MIPS:
-			// CE 1.0
+		case PEOptionalHeader::WindowsBootApplication:
+			// Microsoft linker
 			GetOptionalHeader().subsystem_version = version_type{1, 0};
 			break;
-		case CPU_I386:
-		case CPU_ARM:
-		case CPU_PPC:
-			// CE 2.0
-			GetOptionalHeader().subsystem_version = version_type{2, 0};
-			break;
-		default:
-			break;
 		}
-		break;
-
-	case PEOptionalHeader::EFIApplication:
-	case PEOptionalHeader::EFIBootServiceDriver:
-	case PEOptionalHeader::EFIRuntimeDriver:
-	case PEOptionalHeader::EFIROM:
-		GetOptionalHeader().subsystem_version = version_type{1, 0};
-		break;
-
-	case PEOptionalHeader::Xbox:
-		// TODO
-		break;
-
-	case PEOptionalHeader::WindowsBootApplication:
-		// Microsoft linker
-		GetOptionalHeader().subsystem_version = version_type{1, 0};
-		break;
 	}
 
 	if(target == TargetTNT)
@@ -3337,15 +3370,13 @@ void PEFormat::GenerateFile(std::string filename, Linker::Module& module)
 	switch(compatibility)
 	{
 	case CompatibleWatcom:
-		optional_header.version_stamp = 0x0212;
+		optional_header.version_stamp = 0x1202;
 		optional_header.os_version = version_type{1, 11};
-		//optional_header.subsystem_version = version_type{3, 10};
 		break;
 	case CompatibleGNU:
-		optional_header.version_stamp = 0x0227;
+		optional_header.version_stamp = 0x2702;
 		optional_header.os_version = version_type{4, 0};
 		//optional_header.image_version = version_type{1, 0};
-		//optional_header.subsystem_version = version_type{4, 0};
 		break;
 	default:
 		optional_header.os_version = version_type{4, 0}; // TODO: this seems to be a recurring value, whatever system it is compiled for
