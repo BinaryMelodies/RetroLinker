@@ -981,6 +981,60 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	}
 
 	/* TODO */
+
+	/* Load entry descriptions for readability */
+
+	for(auto& name : resident_names)
+	{
+		if(0 < name.ordinal && name.ordinal <= entries.size())
+		{
+			entries[name.ordinal - 1].export_state = Entry::ExportByName;
+			entries[name.ordinal - 1].entry_name = name.name;
+		}
+	}
+
+	for(auto& name : nonresident_names)
+	{
+		if(0 < name.ordinal && name.ordinal <= entries.size())
+		{
+			entries[name.ordinal - 1].export_state = Entry::ExportByOrdinal;
+			entries[name.ordinal - 1].entry_name = name.name;
+		}
+	}
+
+	/* Load relocation descriptions for readability */
+	for(auto& page : pages)
+	{
+		for(auto& relocation_entry : page.relocations)
+		{
+			auto& relocation_record = relocation_entry.second;
+			if((relocation_record.flags & Page::Relocation::FlagTypeMask) == Page::Relocation::ImportOrdinal
+			|| (relocation_record.flags & Page::Relocation::FlagTypeMask) == Page::Relocation::ImportName)
+			{
+				if(0 < relocation_record.module && relocation_record.module <= imported_modules.size())
+				{
+					relocation_record.module_name = imported_modules[relocation_record.module - 1];
+				}
+			}
+
+			if((relocation_record.flags & Page::Relocation::FlagTypeMask) == Page::Relocation::ImportName)
+			{
+				rd.Seek(imported_procedure_table_offset + relocation_record.target);
+				uint8_t length = rd.ReadUnsigned(1);
+				relocation_record.import_name = rd.ReadData(length);
+			}
+
+			if((relocation_record.flags & Page::Relocation::FlagTypeMask) == Page::Relocation::Entry)
+			{
+				if(0 < relocation_record.target && relocation_record.target <= entries.size())
+				{
+					relocation_record.actual_object = entries[relocation_record.target - 1].object;
+					relocation_record.actual_offset = entries[relocation_record.target - 1].offset;
+					relocation_record.import_name = entries[relocation_record.target - 1].entry_name;
+				}
+			}
+		}
+	}
 }
 
 offset_t LEFormat::ImageSize() const
@@ -1593,19 +1647,19 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 				break;
 			case Page::Relocation::ImportOrdinal:
 				rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation_record.module));
-//				rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name); // TODO
+				rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name);
 				rel_entry.AddField("Ordinal", Dumper::HexDisplay::Make(), offset_t(relocation_record.target));
 				break;
 			case Page::Relocation::ImportName:
 				rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation_record.module));
-//				rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name); // TODO
+				rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name);
 				rel_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(relocation_record.target));
-//				rel_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), relocation_record.import_name); // TODO
+				rel_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), relocation_record.import_name);
 				break;
 			case Page::Relocation::Entry:
 				rel_entry.AddField("Entry", Dumper::HexDisplay::Make(4), offset_t(relocation_record.target));
-//				rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_segment), offset_t(relocation_record.actual_offset)); // TODO
-//				rel_entry.AddOptionalField("Exported name", Dumper::StringDisplay::Make(), relocation_record.import_name); // TODO
+				rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_object), offset_t(relocation_record.actual_offset));
+				rel_entry.AddOptionalField("Exported name", Dumper::StringDisplay::Make(), relocation_record.import_name);
 				break;
 			}
 			rel_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(8), offset_t(relocation_record.addition));

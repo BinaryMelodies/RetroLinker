@@ -218,6 +218,16 @@ namespace Microsoft
 				uint32_t target = 0;
 				uint32_t addition = 0;
 
+				// informational purposes
+				/** @brief Convenience field that stores the module name, not used for generation */
+				std::string module_name;
+				/** @brief Convenience field that stores the imported procedure name, if imported by name, also the name for an exported entry, not used for generation */
+				std::string import_name;
+				/** @brief Convenience field that stores the actual object number for an entry, not used for generation */
+				uint16_t actual_object = 0;
+				/** @brief Convenience field that stores the actual offset for an entry, not used for generation */
+				uint32_t actual_offset = 0;
+
 				Relocation()
 					: Writer(::LittleEndian)
 				{
@@ -335,6 +345,21 @@ namespace Microsoft
 			};
 			flag_type flags = flag_type(0);
 			uint32_t offset = 0;
+
+			// informational purposes
+			enum export_type
+			{
+				/** @brief The entry is not exported, the Exported bit is not set */
+				NotExported,
+				/** @brief The entry is exported by name, it is referenced in the resident name table */
+				ExportByName,
+				/** @brief The entry is exported by ordinal, it is referenced in the nonresident name table */
+				ExportByOrdinal,
+			};
+			/** @brief Whether the entry is exported. This is not actually stored in the entry table and its value is ignored during program generation */
+			export_type export_state = NotExported;
+			/** @brief The name of an exported entry. This is not actually stored in the entry table and its value is ignored during program generation */
+			std::string entry_name;
 
 			Entry()
 				: Writer(::LittleEndian)
