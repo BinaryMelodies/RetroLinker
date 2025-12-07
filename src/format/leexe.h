@@ -146,15 +146,18 @@ namespace Microsoft
 			/**
 			 * @brief An image instance where the iterated page data can be accessed as the series of bytes it generates
 			 */
-			class View : public Linker::Image
+			class View : public Linker::ActualImage
 			{
 			public:
 				IteratedPage& iterated_page;
+				size_t size;
 
-				View(IteratedPage& iterated_page)
-					: iterated_page(iterated_page)
+				View(IteratedPage& iterated_page, size_t size)
+					: iterated_page(iterated_page), size(size)
 				{
 				}
+
+				size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
 				offset_t ImageSize() const override;
 				using Linker::Image::WriteFile;
@@ -353,6 +356,20 @@ namespace Microsoft
 			static Page LEPage(uint16_t page_number, uint8_t type);
 
 			static Page LXPage(uint32_t offset, uint16_t size, uint8_t type);
+
+		protected:
+			void FillDumpRegion(Dumper::Dumper& dump, Dumper::Region& page_region, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void FillDumpRelocations(Dumper::Dumper& dump, Dumper::Block& page_block, const LEFormat& fmt) const;
+			void DumpPhysicalPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void DumpInvalidPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void DumpZeroFilledPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void DumpPageRange(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void DumpCompressedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void DumpUnknownPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+
+		public:
+			void Dump(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t page_index) const;
 		};
 
 		/** @brief Stores an OS/2 resource */

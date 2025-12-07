@@ -107,10 +107,37 @@ offset_t LEFormat::IteratedPage::WriteFile(Linker::Writer& wr, offset_t count, o
 	return offset_t(-1);
 }
 
+size_t LEFormat::IteratedPage::View::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+	size_t total_count = 0;
+	for(auto& record : iterated_page.records)
+	{
+		size_t fill_size = record.count * record.data.size();
+		if(offset >= fill_size)
+		{
+			offset -= fill_size;
+		}
+		else
+		{
+			uint32_t full_count = record.count - (offset / record.data.size());
+			offset %= record.data.size();
+			while(full_count > 0 && bytes > 0)
+			{
+				size_t byte_count = std::min(bytes, record.data.size());
+				memcpy(buffer, record.data.data() + offset, byte_count);
+				buffer = reinterpret_cast<char *>(buffer) + byte_count;
+				offset = 0;
+				total_count += byte_count;
+				full_count --;
+			}
+		}
+	}
+	return total_count;
+}
+
 offset_t LEFormat::IteratedPage::View::ImageSize() const
 {
-	// TODO: size of a page
-	return offset_t(-1);
+	return size;
 }
 
 offset_t LEFormat::IteratedPage::View::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
@@ -461,6 +488,258 @@ LEFormat::Page LEFormat::Page::LEPage(uint16_t page_number, uint8_t type)
 LEFormat::Page LEFormat::Page::LXPage(uint32_t offset, uint16_t size, uint8_t type)
 {
 	return Page(offset, size, type);
+}
+
+void LEFormat::Page::FillDumpRegion(Dumper::Dumper& dump, Dumper::Region& page_region, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+{
+	page_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(page_index + 1));
+	page_region.AddField("Object", Dumper::DecDisplay::Make(), offset_t(object_number + 1));
+	static const std::map<offset_t, std::string> page_type_descriptions =
+	{
+		{ 0, "legal physical page" },
+		{ 1, "iterated page" },
+		{ 2, "illegal page" },
+		{ 3, "zero filled page" },
+		{ 4, "range of pages" },
+		{ 5, "compressed page" },
+	};
+	page_region.AddField("Type", Dumper::ChoiceDisplay::Make(page_type_descriptions), offset_t(type));
+	page_region.AddField("Fixup offset", Dumper::HexDisplay::Make(8), offset_t(fmt.fixup_page_table_offset + fixup_offset));
+	page_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(checksum));
+}
+
+void LEFormat::Page::FillDumpRelocations(Dumper::Dumper& dump, Dumper::Block& page_block, const LEFormat& fmt) const
+{
+	for(auto& relocation_entry : relocations)
+	{
+		auto& relocation_record = relocation_entry.second;
+		for(auto& source_chain : relocation_record.sources)
+		{
+			page_block.AddSignal(source_chain.source, relocation_record.GetSourceSize());
+			for(auto& chain : source_chain.chains)
+			{
+				page_block.AddSignal(chain.source, relocation_record.GetSourceSize());
+			}
+		}
+	}
+}
+
+void LEFormat::Page::DumpPhysicalPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+{
+	Dumper::Block page_block("Page", fmt.GetPageOffset(page_index), image->AsImage(),
+		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (page_index - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
+		8);
+	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
+	FillDumpRelocations(dump, page_block, fmt);
+	page_block.Display(dump);
+}
+
+void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+{
+	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), 0 /* TODO: size */, 8);
+	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
+	// TODO: dump iterated records
+	page_region.Display(dump);
+
+	std::shared_ptr<Linker::ActualImage> view = std::make_shared<IteratedPage::View>(dynamic_cast<IteratedPage &>(*image), fmt.page_size);
+	Dumper::Block page_block("Page contents", 0, view,
+		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (page_index - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
+		8);
+	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
+	FillDumpRelocations(dump, page_block, fmt);
+	page_block.Display(dump);
+}
+
+void LEFormat::Page::DumpInvalidPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+{
+	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), 0 /* TODO: size */, 8);
+	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
+	page_region.Display(dump);
+}
+
+void LEFormat::Page::DumpZeroFilledPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+{
+	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), 0 /* TODO: size */, 8);
+	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
+	page_region.Display(dump);
+}
+
+void LEFormat::Page::DumpPageRange(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+{
+	// TODO
+	Dumper::Block page_block("Page", fmt.GetPageOffset(page_index), image->AsImage(),
+		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (page_index - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
+		8);
+	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
+	FillDumpRelocations(dump, page_block, fmt);
+	page_block.Display(dump);
+}
+
+void LEFormat::Page::DumpCompressedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+{
+	// TODO
+	Dumper::Block page_block("Page", fmt.GetPageOffset(page_index), image->AsImage(),
+		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (page_index - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
+		8);
+	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
+	FillDumpRelocations(dump, page_block, fmt);
+	page_block.Display(dump);
+}
+
+void LEFormat::Page::DumpUnknownPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+{
+	// TODO
+	Dumper::Block page_block("Page", fmt.GetPageOffset(page_index), image->AsImage(),
+		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (page_index - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
+		8);
+	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
+	FillDumpRelocations(dump, page_block, fmt);
+	page_block.Display(dump);
+}
+
+void LEFormat::Page::Dump(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t page_index) const
+{
+	offset_t object_number = 0;
+	for(auto& object : fmt.objects)
+	{
+		if(object.page_table_index <= page_index && page_index < object.page_table_index + object.page_entry_count)
+			break;
+		object_number++;
+	}
+
+	switch(type)
+	{
+	case Preload:
+		DumpPhysicalPage(dump, fmt, object_number, page_index);
+		break;
+	case Iterated:
+		DumpIteratedPage(dump, fmt, object_number, page_index);
+		break;
+	case Invalid:
+		DumpInvalidPage(dump, fmt, object_number, page_index);
+		break;
+	case ZeroFilled:
+		DumpZeroFilledPage(dump, fmt, object_number, page_index);
+		break;
+	case Range:
+		DumpPageRange(dump, fmt, object_number, page_index);
+		break;
+	case Compressed:
+		DumpCompressedPage(dump, fmt, object_number, page_index);
+		break;
+	default:
+		DumpUnknownPage(dump, fmt, object_number, page_index);
+		break;
+	}
+
+	static const std::map<offset_t, std::string> relocation_type_descriptions =
+	{
+		{ Page::Relocation::Offset8, "8-bit offset" },
+		{ Page::Relocation::Selector16, "16-bit selector" },
+		{ Page::Relocation::Pointer32, "16:16-bit pointer" },
+		{ Page::Relocation::Offset16, "16-bit offset" },
+		{ Page::Relocation::Pointer48, "16:32-bit pointer" },
+		{ Page::Relocation::Offset32, "32-bit offset" },
+		{ Page::Relocation::Relative32, "32-bit relative" },
+	};
+
+	static const std::map<offset_t, std::string> target_descriptions =
+	{
+		{ Page::Relocation::Internal, "internal" },
+		{ Page::Relocation::ImportOrdinal, "import by ordinal" },
+		{ Page::Relocation::ImportName, "import by name" },
+		{ Page::Relocation::Entry, "entry" },
+	};
+
+	offset_t current_fixup_offset = fmt.fixup_record_table_offset + fixup_offset;
+	unsigned relocation_record_index = 0;
+	unsigned relocation_index = 0;
+	for(auto& relocation_entry : relocations)
+	{
+		auto& relocation_record = relocation_entry.second;
+		Dumper::Entry rel_entry("Relocation record", relocation_record_index + 1, current_fixup_offset, 8);
+		rel_entry.AddField("Type",
+			Dumper::BitFieldDisplay::Make(2)
+				->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(relocation_type_descriptions), false)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("fixup to 16:16 alias"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("soruce list"), true),
+			offset_t(relocation_record.type));
+		rel_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation_record.GetSourceSize()));
+		rel_entry.AddField("Flags",
+			Dumper::BitFieldDisplay::Make(2)
+				->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(target_descriptions), false)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("additive"), true)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("internal chaining"), true)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("32-bit target offset"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("32-bit additive offset"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("16-bit object number/module ordinal"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("8-bit ordinal"), true),
+			offset_t(relocation_record.flags));
+
+		switch(relocation_record.flags & Page::Relocation::FlagTypeMask)
+		{
+		case Page::Relocation::Internal:
+			rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.module), offset_t(relocation_record.target));
+			break;
+		case Page::Relocation::ImportOrdinal:
+			rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation_record.module));
+			rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name);
+			rel_entry.AddField("Ordinal", Dumper::HexDisplay::Make(), offset_t(relocation_record.target));
+			break;
+		case Page::Relocation::ImportName:
+			rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation_record.module));
+			rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name);
+			rel_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(relocation_record.target));
+			rel_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), relocation_record.import_name);
+			break;
+		case Page::Relocation::Entry:
+			rel_entry.AddField("Entry", Dumper::HexDisplay::Make(4), offset_t(relocation_record.target));
+			rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_object), offset_t(relocation_record.actual_offset));
+			rel_entry.AddOptionalField("Exported name", Dumper::StringDisplay::Make(), relocation_record.import_name);
+			break;
+		}
+		rel_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(8), offset_t(relocation_record.addition));
+		rel_entry.Display(dump);
+
+		current_fixup_offset += relocation_record.GetSize();
+
+		for(unsigned relocation_member_index = 0; relocation_member_index < relocation_record.sources.size(); relocation_member_index++)
+		{
+			auto& relocation = relocation_record.sources[relocation_member_index];
+
+			Dumper::Entry rel_entry("Relocation", relocation_index + 1, current_fixup_offset - 2 * (relocation_record.sources.size() - relocation_member_index), 8);
+			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(relocation.source));
+			rel_entry.Display(dump);
+
+			relocation_index ++;
+
+			for(auto& link : relocation.chains)
+			{
+				Dumper::Entry rel_entry("Chained relocation", relocation_index + 1, 0 /* TODO: file offset */, 8);
+				rel_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(link.target));
+				switch(relocation_record.flags & Page::Relocation::FlagTypeMask)
+				{
+				case Page::Relocation::Internal:
+					rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.module), offset_t(link.target));
+					break;
+				case Page::Relocation::ImportOrdinal:
+					// invalid
+					break;
+				case Page::Relocation::ImportName:
+					// invalid
+					break;
+				case Page::Relocation::Entry:
+					// TODO: unclear
+					rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_object), offset_t(relocation_record.actual_offset + link.target));
+					break;
+				}
+				rel_entry.Display(dump);
+				relocation_index ++;
+			}
+		}
+
+		relocation_record_index ++;
+	}
 }
 
 bool LEFormat::Entry::SameBundle(const Entry& other) const
@@ -1661,156 +1940,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		if(&page == &pages.front() || &page == &pages.back())
 			continue;
 
-		offset_t object_number = 0;
-		for(auto& object : objects)
-		{
-			if(object.page_table_index <= i && i < object.page_table_index + object.page_entry_count)
-				break;
-			object_number++;
-		}
-
-		// TODO: do not display illegal or zero filled pages
-		Dumper::Block page_block("Page", GetPageOffset(i), page.image->AsImage(),
-			object_number < objects.size() ? objects[object_number].address + (i - objects[object_number].page_table_index) * page_size : 0,
-			8);
-		page_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
-		page_block.AddField("Object", Dumper::DecDisplay::Make(), offset_t(object_number + 1));
-		static const std::map<offset_t, std::string> page_type_descriptions =
-		{
-			{ 0, "legal physical page" },
-			{ 1, "iterated page" },
-			{ 2, "illegal page" },
-			{ 3, "zero filled page" },
-			{ 4, "range of pages" },
-			{ 5, "compressed page" },
-		};
-		page_block.AddField("Type", Dumper::ChoiceDisplay::Make(page_type_descriptions), offset_t(page.type));
-		page_block.AddField("Fixup offset", Dumper::HexDisplay::Make(8), offset_t(fixup_page_table_offset + page.fixup_offset));
-
-		for(auto& relocation_entry : page.relocations)
-		{
-			auto& relocation_record = relocation_entry.second;
-			for(auto& source_chain : relocation_record.sources)
-			{
-				page_block.AddSignal(source_chain.source, relocation_record.GetSourceSize());
-				for(auto& chain : source_chain.chains)
-				{
-					page_block.AddSignal(chain.source, relocation_record.GetSourceSize());
-				}
-			}
-		}
-		page_block.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(page.checksum));
-		page_block.Display(dump);
-
-		static const std::map<offset_t, std::string> relocation_type_descriptions =
-		{
-			{ Page::Relocation::Offset8, "8-bit offset" },
-			{ Page::Relocation::Selector16, "16-bit selector" },
-			{ Page::Relocation::Pointer32, "16:16-bit pointer" },
-			{ Page::Relocation::Offset16, "16-bit offset" },
-			{ Page::Relocation::Pointer48, "16:32-bit pointer" },
-			{ Page::Relocation::Offset32, "32-bit offset" },
-			{ Page::Relocation::Relative32, "32-bit relative" },
-		};
-
-		static const std::map<offset_t, std::string> target_descriptions =
-		{
-			{ Page::Relocation::Internal, "internal" },
-			{ Page::Relocation::ImportOrdinal, "import by ordinal" },
-			{ Page::Relocation::ImportName, "import by name" },
-			{ Page::Relocation::Entry, "entry" },
-		};
-
-		offset_t fixup_offset = fixup_record_table_offset + page.fixup_offset;
-		unsigned relocation_record_index = 0;
-		for(auto& relocation_entry : page.relocations)
-		{
-			auto& relocation_record = relocation_entry.second;
-			Dumper::Entry rel_entry("Relocation record", relocation_record_index + 1, fixup_offset, 8);
-			rel_entry.AddField("Type",
-				Dumper::BitFieldDisplay::Make(2)
-					->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(relocation_type_descriptions), false)
-					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("fixup to 16:16 alias"), true)
-					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("soruce list"), true),
-				offset_t(relocation_record.type));
-			rel_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation_record.GetSourceSize()));
-			rel_entry.AddField("Offset #1", Dumper::HexDisplay::Make(4), offset_t(relocation_record.sources[0].source));
-			rel_entry.AddField("Flags",
-				Dumper::BitFieldDisplay::Make(2)
-					->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(target_descriptions), false)
-					->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("additive"), true)
-					->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("internal chaining"), true)
-					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("32-bit target offset"), true)
-					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("32-bit additive offset"), true)
-					->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("16-bit object number/module ordinal"), true)
-					->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("8-bit ordinal"), true),
-				offset_t(relocation_record.flags));
-
-			switch(relocation_record.flags & Page::Relocation::FlagTypeMask)
-			{
-			case Page::Relocation::Internal:
-				rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.module), offset_t(relocation_record.target));
-				break;
-			case Page::Relocation::ImportOrdinal:
-				rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation_record.module));
-				rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name);
-				rel_entry.AddField("Ordinal", Dumper::HexDisplay::Make(), offset_t(relocation_record.target));
-				break;
-			case Page::Relocation::ImportName:
-				rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation_record.module));
-				rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name);
-				rel_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(relocation_record.target));
-				rel_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), relocation_record.import_name);
-				break;
-			case Page::Relocation::Entry:
-				rel_entry.AddField("Entry", Dumper::HexDisplay::Make(4), offset_t(relocation_record.target));
-				rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_object), offset_t(relocation_record.actual_offset));
-				rel_entry.AddOptionalField("Exported name", Dumper::StringDisplay::Make(), relocation_record.import_name);
-				break;
-			}
-			rel_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(8), offset_t(relocation_record.addition));
-			rel_entry.Display(dump);
-
-			fixup_offset += relocation_record.GetSize();
-
-			for(unsigned relocation_member_index = 0; relocation_member_index < relocation_record.sources.size(); relocation_member_index++)
-			{
-				auto& relocation = relocation_record.sources[relocation_member_index];
-				if(relocation_member_index != 0)
-				{
-					Dumper::Entry rel_entry("Offset", relocation_member_index + 1, fixup_offset - 2 * (relocation_record.sources.size() - relocation_member_index), 8);
-					rel_entry.AddField("Value", Dumper::HexDisplay::Make(4), offset_t(relocation.source));
-					rel_entry.Display(dump);
-				}
-
-				unsigned link_index = 0;
-				for(auto& link : relocation.chains)
-				{
-					Dumper::Entry rel_entry("Chained", link_index + 1, 0 /* TODO: file offset */, 8);
-					rel_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(link.target));
-					switch(relocation_record.flags & Page::Relocation::FlagTypeMask)
-					{
-					case Page::Relocation::Internal:
-						rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.module), offset_t(link.target));
-						break;
-					case Page::Relocation::ImportOrdinal:
-						// invalid
-						break;
-					case Page::Relocation::ImportName:
-						// invalid
-						break;
-					case Page::Relocation::Entry:
-						// TODO: unclear
-						rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_object), offset_t(relocation_record.actual_offset + link.target));
-						break;
-					}
-					rel_entry.Display(dump);
-					link_index ++;
-				}
-			}
-
-			relocation_record_index ++;
-		}
+		page.Dump(dump, *this, i);
 
 		i++;
 	}
