@@ -290,9 +290,9 @@ namespace Linker
 		void Append(Module& other);
 
 		/**
-		 * @brief All common symbols are converted to global symbols and assigned addresses within a their section (usually ".comm")
+		 * @brief All common symbols are converted to global symbols and assigned addresses within a their section
 		 */
-		void AllocateSymbols(std::string default_section_name = ".comm", bool force_create_segment = true);
+		void AllocateSymbols(std::string default_section_name = ".bss", bool force_create_segment = false);
 	};
 }
 
