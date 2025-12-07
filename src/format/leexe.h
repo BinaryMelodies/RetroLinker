@@ -239,7 +239,6 @@ namespace Microsoft
 
 				size_t GetSourceSize() const;
 
-			private:
 				struct ChainLink
 				{
 					uint32_t target = 0;
@@ -254,7 +253,6 @@ namespace Microsoft
 
 				std::vector<Chain> sources;
 
-			public:
 				/* do not call this */
 				void DecrementSingleSourceOffset(size_t amount);
 

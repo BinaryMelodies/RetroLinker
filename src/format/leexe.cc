@@ -1527,9 +1527,101 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			// TODO: format unclear
 		}
 		page_block.AddField("Fixup offset", Dumper::HexDisplay::Make(8), offset_t(fixup_page_table_offset + page.fixup_offset));
-		// TODO: relocations
+
+		for(auto& relocation_entry : page.relocations)
+		{
+			auto& relocation_record = relocation_entry.second;
+			for(auto& source_chain : relocation_record.sources)
+			{
+				page_block.AddSignal(source_chain.source, relocation_record.GetSourceSize());
+				for(auto& chain : source_chain.chains)
+				{
+					page_block.AddSignal(chain.source, relocation_record.GetSourceSize());
+				}
+			}
+		}
 		page_block.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(page.checksum));
 		page_block.Display(dump);
+
+		static const std::map<offset_t, std::string> type_descriptions =
+		{
+			{ Page::Relocation::Offset8, "8-bit offset" },
+			{ Page::Relocation::Selector16, "16-bit selector" },
+			{ Page::Relocation::Pointer32, "16:16-bit pointer" },
+			{ Page::Relocation::Offset16, "16-bit offset" },
+			{ Page::Relocation::Pointer48, "16:32-bit pointer" },
+			{ Page::Relocation::Offset32, "32-bit offset" },
+			{ Page::Relocation::Relative32, "32-bit self-relative offset" },
+		};
+
+		static const std::map<offset_t, std::string> target_descriptions =
+		{
+			{ Page::Relocation::Internal, "internal" },
+			{ Page::Relocation::ImportOrdinal, "import by ordinal" },
+			{ Page::Relocation::ImportName, "import by name" },
+			{ Page::Relocation::Entry, "entry" },
+		};
+
+		unsigned relocation_record_index = 0;
+		for(auto& relocation_entry : page.relocations)
+		{
+			auto& relocation_record = relocation_entry.second;
+			Dumper::Entry rel_entry("Relocation record", relocation_record_index + 1, 0 /* TODO: file offset */, 8);
+			rel_entry.AddField("Type",
+				Dumper::BitFieldDisplay::Make(2)
+					->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(type_descriptions), false)
+					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("fixup to 16:16 alias"), true)
+					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("soruce list"), true),
+				offset_t(relocation_record.flags));
+			rel_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation_record.GetSourceSize()));
+			rel_entry.AddField("Offset #1", Dumper::HexDisplay::Make(4), offset_t(relocation_record.sources[0].source));
+			rel_entry.AddField("Flags",
+				Dumper::BitFieldDisplay::Make(2)
+					->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(target_descriptions), false)
+					->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("additive"), true)
+					->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("internal chaining"), true)
+					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("32-bit target offset"), true)
+					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("32-bit additive offset"), true)
+					->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("16-bit object number/module ordinal"), true)
+					->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("8-bit ordinal"), true),
+				offset_t(relocation_record.flags));
+
+			switch(relocation_record.flags & Page::Relocation::FlagTypeMask)
+			{
+			case Page::Relocation::Internal:
+				rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.module), offset_t(relocation_record.target));
+				break;
+			case Page::Relocation::ImportOrdinal:
+				rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation_record.module));
+//				rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name); // TODO
+				rel_entry.AddField("Ordinal", Dumper::HexDisplay::Make(), offset_t(relocation_record.target));
+				break;
+			case Page::Relocation::ImportName:
+				rel_entry.AddField("Module number", Dumper::DecDisplay::Make(), offset_t(relocation_record.module));
+//				rel_entry.AddOptionalField("Module", Dumper::StringDisplay::Make(), relocation_record.module_name); // TODO
+				rel_entry.AddField("Name offset", Dumper::HexDisplay::Make(), offset_t(relocation_record.target));
+//				rel_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), relocation_record.import_name); // TODO
+				break;
+			case Page::Relocation::Entry:
+				rel_entry.AddField("Entry", Dumper::HexDisplay::Make(4), offset_t(relocation_record.target));
+//				rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_segment), offset_t(relocation_record.actual_offset)); // TODO
+//				rel_entry.AddOptionalField("Exported name", Dumper::StringDisplay::Make(), relocation_record.import_name); // TODO
+				break;
+			}
+			rel_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(8), offset_t(relocation_record.addition));
+			rel_entry.Display(dump);
+
+			for(unsigned relocation_member_index = 1; relocation_member_index < relocation_record.sources.size(); relocation_member_index++)
+			{
+				auto& relocation = relocation_record.sources[relocation_member_index];
+				Dumper::Entry rel_entry("Offset", relocation_member_index + 1, 0 /* TODO: file offset */, 8);
+				rel_entry.AddField("Value", Dumper::HexDisplay::Make(4), offset_t(relocation.source));
+				rel_entry.Display(dump);
+			}
+
+			relocation_record_index ++;
+		}
+
 		i++;
 	}
 
