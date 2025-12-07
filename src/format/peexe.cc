@@ -933,7 +933,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	wr.Seek(rva_to_offset + ordinal_table_rva);
 	for(auto named_export : named_exports)
 	{
-		wr.WriteWord(2, uint16_t(named_export.second));
+		wr.WriteWord(2, uint16_t(named_export.second - ordinal_base));
 	}
 
 	wr.Seek(rva_to_offset + dll_name_rva);
