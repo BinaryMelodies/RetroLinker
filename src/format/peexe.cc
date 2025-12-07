@@ -130,6 +130,7 @@ offset_t PEFormat::PEOptionalHeader::CalculateValues(COFFFormat& coff)
 	data_size = 0;
 	bss_size = 0;
 
+	total_headers_size = AlignTo(pe.stub.GetStubImageSize() + 24 + GetSize() + coff.sections.size() * 40, file_align);
 	total_image_size = AlignTo(24 + GetSize() + coff.sections.size() * 40, section_align);
 
 	for(auto& coff_section : coff.sections)
