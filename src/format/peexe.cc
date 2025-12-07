@@ -524,6 +524,16 @@ void PEFormat::ImportsSection::Generate(PEFormat& fmt)
 	}
 	address_table_size = rva - address_table_rva;
 
+	if(fmt.compatibility == CompatibleWatcom)
+	{
+		// list DLL names
+		for(auto& library : libraries)
+		{
+			library.name_rva = rva;
+			rva += library.name.size() + 1;
+		}
+	}
+
 	// list all the hint/name pairs
 	for(auto& library : libraries)
 	{
@@ -537,11 +547,29 @@ void PEFormat::ImportsSection::Generate(PEFormat& fmt)
 		}
 	}
 
-	// list DLL names
-	for(auto& library : libraries)
+	if(fmt.compatibility == CompatibleGNU)
 	{
-		library.name_rva = rva;
-		rva += library.name.size() + 1;
+		// TODO: two 32-bit entries
+		rva = AlignTo(rva, 4) + 8;
+	}
+
+	if(fmt.compatibility != CompatibleWatcom)
+	{
+		// list DLL names
+		for(auto& library : libraries)
+		{
+			if(fmt.compatibility == CompatibleGNU)
+			{
+				rva += 4;
+			}
+			library.name_rva = rva;
+			rva += library.name.size() + 1;
+		}
+	}
+
+	if(fmt.compatibility == CompatibleGNU)
+	{
+		rva = AlignTo(rva, 0x10);
 	}
 
 	virtual_size() = size = rva - address;
@@ -632,12 +660,30 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 		}
 	}
 
+	if(fmt.compatibility == CompatibleGNU)
+	{
+		wr.Seek(rva_to_offset + libraries[0].name_rva - 4 - 8);
+		// TODO: two 32-bit entries
+		wr.WriteWord(4, address);
+		wr.WriteWord(4, address);
+	}
+
 	// list DLL names
+	uint32_t library_index = 0;
 	for(auto& library : libraries)
 	{
-		wr.Seek(rva_to_offset + library.name_rva);
+		if(fmt.compatibility == CompatibleGNU)
+		{
+			wr.Seek(rva_to_offset + library.name_rva - 4);
+			wr.WriteWord(4, address + library_index * 20);
+		}
+		else
+		{
+			wr.Seek(rva_to_offset + library.name_rva);
+		}
 		wr.WriteData(library.name);
 		wr.WriteWord(1, 0);
+		library_index ++;
 	}
 }
 
