@@ -1755,7 +1755,7 @@ void PEFormat::CalculateValues()
 	{
 		section->virtual_size() = section->MemorySize(*this);
 		section->size = section->ImageSize(*this);
-		if(section->size == 0 && compatibility == CompatibleGNU) // TODO: other linkers?
+		if(section->size == 0)
 		{
 			section->section_pointer = 0;
 		}
@@ -3084,6 +3084,21 @@ offset_t PEFormat::GetMemoryImageEnd() const
 void PEFormat::ProcessModule(Linker::Module& module)
 {
 	Link(module);
+
+	/* Prune empty sections (Win32s does not seem to like empty sections) */
+	size_t section_index = 0;
+	while(section_index < sections.size())
+	{
+		auto section = std::dynamic_pointer_cast<PEFormat::Section>(sections[section_index]);
+		if(section->MemorySize(*this) == 0 && section->ImageSize(*this) == 0)
+		{
+			sections.erase(sections.begin() + section_index);
+		}
+		else
+		{
+			section_index ++;
+		}
+	}
 
 	GetOptionalHeader().data_directories.clear();
 	GetOptionalHeader().data_directories.resize(PEOptionalHeader::DirTotalCount, PEOptionalHeader::DataDirectory{0, 0});
