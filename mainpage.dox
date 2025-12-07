@@ -17,7 +17,7 @@
  * </tr>
  *
  * <tr>
- * <td rowspan='4' colspan='2'><a href="classBinary_1_1BinaryFormat.html">Flat binary (<tt>.com</tt>)</a></td>
+ * <td rowspan='5' colspan='2'><a href="classBinary_1_1BinaryFormat.html">Flat binary (<tt>.com</tt>)</a></td>
  * <td>Intel 8080<br>Zilog Z80</td>
  * <td>CP/M-80<br>MSX-DOS</td>
  * </tr>
@@ -35,6 +35,11 @@
  * <tr>
  * <td>Motorola 68000</td>
  * <td>QDOS for Sinclair QL</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>PDP-11</td>
+ * <td>DX-DOS for Electronika BK</td>
  * </tr>
  *
  * <tr>

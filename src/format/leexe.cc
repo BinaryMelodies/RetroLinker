@@ -70,6 +70,68 @@ std::shared_ptr<const Linker::ActualImage> LEFormat::SegmentPage::AsImage() cons
 	}
 }
 
+offset_t LEFormat::IteratedPage::ImageSize() const
+{
+	offset_t size = 4 * records.size();
+	for(auto& record : records)
+	{
+		size += record.data.size();
+	}
+	return size;
+}
+
+std::shared_ptr<LEFormat::IteratedPage> LEFormat::IteratedPage::ReadFromFile(Linker::Reader& rd, uint16_t size)
+{
+	std::shared_ptr<IteratedPage> page = std::make_shared<IteratedPage>();
+	uint32_t offset = 0;
+	while(offset + 5 < size)
+	{
+		uint16_t count = rd.ReadUnsigned(2);
+		uint16_t length = rd.ReadUnsigned(2);
+		if(offset + 4 + length > size)
+			break;
+
+		page->records.push_back(IterationRecord{});
+		auto& record = page->records.back();
+
+		record.count = count;
+		record.data.resize(length);
+		rd.ReadData(record.data);
+	}
+	return page;
+}
+
+offset_t LEFormat::IteratedPage::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t LEFormat::IteratedPage::View::ImageSize() const
+{
+	// TODO: size of a page
+	return offset_t(-1);
+}
+
+offset_t LEFormat::IteratedPage::View::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+LEFormat::Page::page_type_t LEFormat::Page::GetPageType(const LEFormat& fmt) const
+{
+	if(fmt.IsExtendedFormat())
+	{
+		return page_type_t(lx.flags);
+	}
+	else
+	{
+		// TODO: unsure of interpretation
+		return page_type_t(le.type >> 6);
+	}
+}
+
 LEFormat::Page::Relocation::source_type LEFormat::Page::Relocation::GetType(Linker::Relocation& rel)
 {
 	if(rel.kind == Linker::Relocation::SelectorIndex)
@@ -334,7 +396,7 @@ LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& 
 			{
 				// first chain entry influences the displacement
 				uint32_t target = page.image->AsImage()->ReadUnsigned(4, source, rd.endiantype);
-				base_address -= target;
+				relocation.sources.back().base_address = base_address -= target;
 				source = target >> 12;
 				while(source != 0xFFF)
 				{
@@ -399,9 +461,9 @@ void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr) const
 	}
 }
 
-LEFormat::Page LEFormat::Page::LEPage(uint16_t fixup_table_index, uint8_t type)
+LEFormat::Page LEFormat::Page::LEPage(uint16_t page_number, uint8_t type)
 {
-	return Page(fixup_table_index, type);
+	return Page(page_number, type);
 }
 
 LEFormat::Page LEFormat::Page::LXPage(uint32_t offset, uint16_t size, uint8_t flags)
@@ -823,7 +885,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		for(uint32_t i = 0; i < page_count; i++)
 		{
 			Page page;
-			page.le.fixup_table_index = rd.ReadUnsigned(3, ::BigEndian);
+			page.le.page_number = rd.ReadUnsigned(3, ::BigEndian);
 			page.le.type = rd.ReadUnsigned(1);
 			pages.push_back(page);
 		}
@@ -978,8 +1040,29 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		uint16_t size = GetPageSize(i);
 		if(IsExtendedFormat())
 			rd.Seek(data_pages_offset + page.lx.offset);
+		switch(page.GetPageType(*this))
+		{
+		case Page::Preload:
+			page.image = Linker::Buffer::ReadFromFile(rd, size);
+			break;
+
 		// TODO: other types than legal physical page
-		page.image = Linker::Buffer::ReadFromFile(rd, size);
+		case Page::Iterated:
+			page.image = IteratedPage::ReadFromFile(rd, size);
+			break;
+		case Page::Invalid:
+			// TODO
+			break;
+		case Page::ZeroFilled:
+			// TODO
+			break;
+		case Page::Range:
+			// TODO
+			break;
+		case Page::Compressed:
+			// TODO
+			break;
+		}
 //		Linker::Debug << "Debug: page " << i << std::endl;
 //		assert(pages[i].image != nullptr);
 		file_size = std::max(file_size, rd.Tell());
@@ -1190,7 +1273,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
-			wr.WriteWord(3, page.le.fixup_table_index, ::BigEndian);
+			wr.WriteWord(3, page.le.page_number, ::BigEndian);
 			wr.WriteWord(1, page.le.type);
 		}
 	}
@@ -1594,6 +1677,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			object_number++;
 		}
 
+		// TODO: do not display illegal or zero filled pages
 		Dumper::Block page_block("Page", GetPageOffset(i), page.image->AsImage(),
 			object_number < objects.size() ? objects[object_number].address + (i - objects[object_number].page_table_index) * page_size : 0,
 			8);
@@ -1769,7 +1853,7 @@ offset_t LEFormat::GetPageOffset(uint32_t index) const
 	return
 		IsExtendedFormat()
 		? data_pages_offset + pages[index].lx.offset // TODO: iterated page offset
-		: data_pages_offset + page_size * (pages[index].le.fixup_table_index - 1);
+		: data_pages_offset + page_size * (pages[index].le.page_number - 1);
 }
 
 offset_t LEFormat::GetPageSize(uint32_t index) const
@@ -2172,12 +2256,10 @@ void LEFormat::ProcessModule(Linker::Module& module)
 			}
 			else
 			{
-				uint32_t fixup_table_index = pages.size();
-				pages.push_back(Page::LEPage(fixup_table_index, 0));
-				pages.back().image = std::make_shared<SegmentPage>(object.image, page_size * (fixup_table_index - object.page_table_index),
+				uint32_t page_number = pages.size();
+				pages.push_back(Page::LEPage(page_number, 0));
+				pages.back().image = std::make_shared<SegmentPage>(object.image, page_size * (page_number - object.page_table_index),
 					&object == &objects.back() && i == object.page_entry_count - 1 ? object_size & (page_size - 1) : page_size);
-				/* TODO: change fixup_table_index to 0 unless a relocation is present */
-				/* Idea: set fixup_table_index after going through all relocations */
 			}
 		}
 	}

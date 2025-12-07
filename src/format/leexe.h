@@ -44,6 +44,7 @@ namespace Microsoft
 			// CompatibleGNU,
 		};
 
+		/** @brief Represents an LE/LX object (a relocatable section of memory) as stored in the object table, alongside associated information */
 		class Object
 		{
 		public:
@@ -84,7 +85,12 @@ namespace Microsoft
 			}
 		};
 
-		/** @brief An image instance that is a collection of other images, conceptually pages */
+		/**
+		 * @brief An image instance that is a collection of other images, conceptually pages
+		 *
+		 * When parsing an LE/LX binary image, the contents of objects might not appear contiguously, but instead as a collection of pages (typically 4 KiB in size).
+		 * This class implements the Image interface but data crossing page boundaries can also be accessed.
+		 */
 		class PageSet : public Linker::Image
 		{
 		public:
@@ -95,7 +101,12 @@ namespace Microsoft
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 		};
 
-		/** @brief An image instance for a single page within a complete object image */
+		/**
+		 * @brief An image instance for a single page within a complete object image
+		 *
+		 * When writing an LE/LX binary image, the object data needs to be split up into sections called pages (typically 4 KiB in size).
+		 * This class implements the Image interface but instead gives a restricted window into the full data image, to be stored as a single page image.
+		 */
 		class SegmentPage : public Linker::Image
 		{
 		public:
@@ -114,6 +125,9 @@ namespace Microsoft
 			std::shared_ptr<const Linker::ActualImage> AsImage() const override;
 		};
 
+		/**
+		 * @brief A data structure to represent an LE/LX iterated page, consisting of data produced from a repetition of a certain pattern
+		 */
 		class IteratedPage : public Linker::Image
 		{
 		public:
@@ -126,8 +140,12 @@ namespace Microsoft
 
 			offset_t ImageSize() const override;
 			using Linker::Image::WriteFile;
+			static std::shared_ptr<IteratedPage> ReadFromFile(Linker::Reader& rd, uint16_t size);
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 
+			/**
+			 * @brief An image instance where the iterated page data can be accessed as the series of bytes it generates
+			 */
 			class View : public Linker::Image
 			{
 			public:
@@ -144,6 +162,7 @@ namespace Microsoft
 			};
 		};
 
+		/** @brief Represents a page (usually of 4 KiB) within an LE/LX object */
 		class Page
 		{
 		public:
@@ -151,32 +170,66 @@ namespace Microsoft
 			{
 				struct
 				{
-					uint32_t fixup_table_index;
+					/**
+					 * @brief The page number (stored as a big endian 24-bit entry)
+					 *
+					 * The available documentation contradict each other, but it seems to describe the offset of the page within the file, as well as the page fixup table entry index.
+					 * In the LX format, the offset field serves a similar purpose.
+					 */
+					uint32_t page_number;
+					/**
+					 * @brief The type of the page
+					 *
+					 * Documentation contradict each other, but this is typically set to 0.
+					 * In the LX format, the flags field serves a similar purpose.
+					 */
 					uint8_t type;
-				} le;
+				}
+				/** @brief LE binaries (as opposed to LX binaries) contain a 4-byte entry in the object page table */
+				le;
 				struct
 				{
+					/**
+					 * @brief Offset of the page within the file
+					 *
+					 * It is stored with a page_offset_shift in the page table.
+					 * In the LE format, the page_number field serves a similar purpose.
+					 */
 					uint32_t offset;
+					/** @brief The size of the page as stored in the file
+					 *
+					 * For legal physical pages, the remainder of the page is filled with zeroes.
+					 * For iterated pages, the page is filled with the iterated record data.
+					 */
 					uint16_t size;
+					/** @brief Type of page */
 					uint16_t flags;
-				} lx;
+				}
+				/** @brief LX binaries (as opposed to LE binaries) contain a 8-byte entry in the object page table */
+				lx;
 			};
 
-			enum
+			/** @brief LX (and presumably LE) page types */
+			enum page_type_t
 			{
 				/* LE types */
 				// TODO: unclear, different sources give contradicting information
 
 				/* LX flags */
 				Preload = 0,
-				Iterated,
-				Invalid,
-				ZeroFilled,
-				Range,
+				Iterated = 1,
+				Invalid = 2,
+				ZeroFilled = 3,
+				Range = 4,
+				Compressed = 5,
 			};
 
+			page_type_t GetPageType(const LEFormat& fmt) const;
+
+			/** @brief The offset to the first fixup from the fixup record table, as stored in the fixup page table */
 			uint32_t fixup_offset = 0;
 
+			/** @brief Represents a relocation record associated to this page */
 			class Relocation : public Linker::Writer
 			{
 			public:
@@ -248,18 +301,30 @@ namespace Microsoft
 
 				size_t GetSourceSize() const;
 
+				/** @brief For chained relocations, this contains an element of the relocation chain */
 				struct ChainLink
 				{
 					uint32_t target = 0;
 					uint16_t source = 0;
 				};
 
+				/**
+				 * @brief A source location entry in the relocation record
+				 *
+				 * Apart from containing the source offset within the relocation record, the 32-bit data as stored in the page image in the file may also be the start of a chain of entries.
+				 * If no chaining is enabled, this is just a wrapper around the source value.
+				 */
 				struct Chain
 				{
+					/** @brief Offset within page where relocation should be applied to */
 					uint16_t source = 0;
+					/** @brief If the relocations are chained, this contains the base address to which other fields are relocated to */
+					uint32_t base_address = 0;
+					/** @brief If the relocations are chained, this contains the following link entries */
 					std::vector<ChainLink> chains;
 				};
 
+				/** @brief The sequence of sources corresponding to the same relocation record */
 				std::vector<Chain> sources;
 
 				/* do not call this */
@@ -292,8 +357,8 @@ namespace Microsoft
 			}
 
 		protected:
-			Page(uint16_t fixup_table_index, uint8_t type)
-				: le{fixup_table_index, type}
+			Page(uint16_t page_number, uint8_t type)
+				: le{page_number, type}
 			{
 			}
 
@@ -303,11 +368,12 @@ namespace Microsoft
 			}
 
 		public:
-			static Page LEPage(uint16_t fixup_table_index, uint8_t type);
+			static Page LEPage(uint16_t page_number, uint8_t type);
 
 			static Page LXPage(uint32_t offset, uint16_t size, uint8_t flags);
 		};
 
+		/** @brief Stores an OS/2 resource */
 		class Resource
 		{
 		public:
@@ -317,6 +383,7 @@ namespace Microsoft
 			uint32_t offset = 0;
 		};
 
+		/** @brief A name and ordinal pair, as used for resident and non-resident names */
 		struct Name
 		{
 		public:
@@ -324,6 +391,7 @@ namespace Microsoft
 			uint16_t ordinal = 0;
 		};
 
+		/** @brief Represents an entry into the binary, typically DLL exported procedures */
 		class Entry : public Linker::Writer
 		{
 		public:
@@ -386,6 +454,7 @@ namespace Microsoft
 			void WriteEntryBody(Linker::Writer& wr) const;
 		};
 
+		/** @brief Stores a module directive in the module directive table */
 		class ModuleDirective
 		{
 		public:
