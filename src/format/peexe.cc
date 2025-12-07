@@ -347,15 +347,22 @@ void PEFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, uns
 void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
 {
 	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
-	rd.Seek(section_pointer);
-	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, size);
+	if(section_pointer != 0)
+	{
+		rd.Seek(section_pointer);
+		std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, size);
+	}
 }
 
 void PEFormat::Section::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
 {
 	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
-	wr.Seek(section_pointer);
-	image->WriteFile(wr);
+	if(section_pointer != 0)
+	{
+		std::cerr << "write " << name << " at " << std::hex << section_pointer << std::endl;
+		wr.Seek(section_pointer);
+		image->WriteFile(wr);
+	}
 }
 
 uint32_t PEFormat::Section::ImageSize(const PEFormat& fmt) const
@@ -1665,8 +1672,15 @@ void PEFormat::CalculateValues()
 	{
 		section->virtual_size() = section->MemorySize(*this);
 		section->size = section->ImageSize(*this);
-		section->section_pointer = offset = AlignTo(offset, GetOptionalHeader().file_align);
-		offset += section->size;
+		if(section->size == 0 && compatibility == CompatibleGNU) // TODO: other linkers?
+		{
+			section->section_pointer = 0;
+		}
+		else
+		{
+			section->section_pointer = offset = AlignTo(offset, GetOptionalHeader().file_align);
+			offset += section->size;
+		}
 	}
 
 	optional_header->CalculateValues(*this);
@@ -3013,6 +3027,8 @@ void PEFormat::ProcessModule(Linker::Module& module)
 	/* then make entries for those symbols exported by name only */
 	if(compatibility == CompatibleGNU)
 	{
+		/* MinGW makes sure the highest allocated ordinal is as low as possible, and then the lowest allocated ordinal is as high as possible */
+		/* To recreate this behavior, we count the exports by name, subtract it from the highest ordinal and adjust it to 1 if the result is negative */
 		std::set<std::string> exported_by_name_set;
 		for(auto it : module.GetExportedSymbols())
 		{
