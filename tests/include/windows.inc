@@ -1,7 +1,15 @@
 
-.if	TARGET_WIN32
-	.extern	hStdOut
+.ifndef OPTION_GUI_ONLY
+.set OPTION_GUI_ONLY, 0
 .endif
+
+.ifndef OPTION_IMPORT_THUNKS
+.set OPTION_IMPORT_THUNKS, 0
+.endif
+
+#.if	TARGET_WIN32
+#	.extern	hStdOut
+#.endif
 
 .macro	_StartUp
 .if	TARGET_WIN16
@@ -36,13 +44,20 @@
 	.word	$$IMPSEG$USER$0005
 .endif
 .if	TARGET_WIN32
+.if	!OPTION_GUI_ONLY
 	.extern	$$IMPORT$KERNEL32.dll$GetStdHandle$0000
 
 	push	-11
+.if	OPTION_IMPORT_THUNKS
+	call	$$IMPORT$KERNEL32.dll$GetStdHandle$0000
+.else
 	call	[$$IMPORT$KERNEL32.dll$GetStdHandle$0000]
+.endif
 	mov	[hStdOut], eax
 .endif
+.endif
 .if	TARGET_WIN64
+.if	!OPTION_GUI_ONLY
 	push	rbp
 	mov	rbp, rsp
 	and	rsp, ~0xF
@@ -50,13 +65,16 @@
 	# shadow space
 	sub	rsp, 0x20
 	mov	ecx, -11
+.if	OPTION_IMPORT_THUNKS
+	call	$$IMPORT$KERNEL32.dll$GetStdHandle$0000
+.else
 	call	[rip + $$IMPORT$KERNEL32.dll$GetStdHandle$0000]
+.endif
 	mov	[rip + hStdOut], rax
-	# shadow space
-	add	rsp, 0x20
 
 	mov	rsp, rbp
 	pop	rbp
+.endif
 .endif
 .endm
 
@@ -69,7 +87,11 @@
 	.extern	$$IMPORT$KERNEL32.dll$ExitProcess$0000
 
 	push	0
+.if	OPTION_IMPORT_THUNKS
+	call	$$IMPORT$KERNEL32.dll$ExitProcess$0000
+.else
 	call	[$$IMPORT$KERNEL32.dll$ExitProcess$0000]
+.endif
 .endif
 .if	TARGET_WIN64
 	.extern	$$IMPORT$KERNEL32.dll$ExitProcess$0000
@@ -79,10 +101,15 @@
 	# shadow space
 	sub	rsp, 0x20
 	mov	ecx, 0
+.if	OPTION_IMPORT_THUNKS
+	call	$$IMPORT$KERNEL32.dll$ExitProcess$0000
+.else
 	call	[rip + $$IMPORT$KERNEL32.dll$ExitProcess$0000]
+.endif
 .endif
 .endm
 
+.if	!OPTION_GUI_ONLY
 .macro	_PutChar char
 .if	TARGET_WIN16
 	mov	PutChar_char, \char
@@ -99,7 +126,11 @@
 	push	1
 	push	offset PutChar_char
 	push	[hStdOut]
+.if	OPTION_IMPORT_THUNKS
+	call	$$IMPORT$KERNEL32.dll$WriteFile$0000
+.else
 	call	[$$IMPORT$KERNEL32.dll$WriteFile$0000]
+.endif
 .endif
 .if	TARGET_WIN64
 	.extern	$$IMPORT$KERNEL32.dll$WriteFile$0000
@@ -118,12 +149,17 @@
 	mov	r8d, 1
 	lea	rdx, [rip + PutChar_char]
 	mov	rcx, [rip + hStdOut]
+.if	OPTION_IMPORT_THUNKS
+	call	$$IMPORT$KERNEL32.dll$WriteFile$0000
+.else
 	call	[rip + $$IMPORT$KERNEL32.dll$WriteFile$0000]
+.endif
 
 	mov	rsp, rbp
 	pop	rbp
 .endif
 .endm
+.endif
 
 .macro	_WaitForKey
 .if	TARGET_WIN16
@@ -151,6 +187,7 @@
 
 	.section	.data
 
+.if	!OPTION_GUI_ONLY
 .if	TARGET_WIN32 || TARGET_WIN64
 	.global	hStdOut
 hStdOut:
@@ -167,6 +204,7 @@ PutChar_char:
 	.byte	0
 .if	TARGET_WIN16
 	.byte	'$'
+.endif
 .endif
 .endm
 

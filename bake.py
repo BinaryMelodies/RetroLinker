@@ -535,6 +535,10 @@ DefineTarget(
 	System = "win16",
 	IncludeName = "windows",
 	c_target_options2 = "-mcmodel=small -mprotected-mode",
+	Versions = [
+		DefineVersion("", ModelName = "", LinkerName = ""),
+		DefineVersion("gui", ModelName = "", LinkerName = "", AssemblerOptions = ["gui_only"]),
+	],
 	custom_entry = True,
 	extension = ".exe")
 
@@ -633,6 +637,7 @@ DefineTarget(
 	IncludeName = "windows",
 	Versions = [
 		DefineVersion("", ModelName = "", LinkerName = "", LinkerOptions = ["target=winnt", "subsystem=console"]),
+		DefineVersion("gui", ModelName = "", LinkerName = "", AssemblerOptions = ["gui_only", "import_thunks"], LinkerOptions = ["target=win32s", "subsystem=windows", "import_thunks"]),
 	],
 	custom_entry = True,
 	extension = ".exe")
@@ -656,6 +661,7 @@ DefineTarget(
 	IncludeName = "windows",
 	Versions = [
 		DefineVersion("", ModelName = "", LinkerName = "", LinkerOptions = ["target=winnt", "subsystem=console"]),
+		DefineVersion("gui", ModelName = "", LinkerName = "", AssemblerOptions = ["gui_only", "import_thunks"], LinkerOptions = ["target=winnt", "subsystem=windows", "import_thunks"]),
 	],
 	custom_entry = True,
 	extension = ".exe")

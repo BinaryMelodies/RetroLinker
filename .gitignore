@@ -29,6 +29,11 @@ tests/4_ctest/*
 !tests/4_ctest/*.c
 !tests/4_ctest/Makefile
 !tests/4_ctest/Bakefile
+tests/5_gui/*
+!tests/5_gui/ref
+!tests/5_gui/*.c
+!tests/5_gui/Makefile
+!tests/5_gui/Bakefile
 tests/watcom/w
 tests/watcom/l
 tests/rsx/z80/*
