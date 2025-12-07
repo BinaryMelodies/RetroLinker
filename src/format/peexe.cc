@@ -1,4 +1,5 @@
 
+#include <filesystem>
 #include "peexe.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
@@ -872,6 +873,14 @@ void PEFormat::ExportsSection::Generate(PEFormat& fmt)
 	// export directory table
 	rva += 40;
 
+	if(fmt.compatibility == CompatibleWatcom)
+	{
+		// export name table
+		dll_name_rva = rva;
+		rva += dll_name.size() + 1;
+		rva = AlignTo(rva, 4);
+	}
+
 	// export address table
 	address_table_rva = rva;
 	rva += 4 * (entries.rbegin()->first - ordinal_base + 1);
@@ -884,9 +893,12 @@ void PEFormat::ExportsSection::Generate(PEFormat& fmt)
 	ordinal_table_rva = rva;
 	rva += 2 * named_exports.size();
 
-	// export name table
-	dll_name_rva = rva;
-	rva += dll_name.size() + 1;
+	if(fmt.compatibility != CompatibleWatcom)
+	{
+		// export name table
+		dll_name_rva = rva;
+		rva += dll_name.size() + 1;
+	}
 
 	for(auto& ordinal_entry : entries)
 	{
@@ -1739,6 +1751,13 @@ void PEFormat::CalculateValues()
 	}
 
 	optional_header->CalculateValues(*this);
+
+	if(compatibility == CompatibleWatcom)
+	{
+		// Watcom stores these as 0, but we use these values for most of the compilation, so we can only change them at the very last second
+		exports->virtual_size() = 0;
+		base_relocations->virtual_size() = 0;
+	}
 }
 
 offset_t PEFormat::WriteFile(Linker::Writer& wr) const
@@ -2758,7 +2777,7 @@ offset_t PEFormat::GenerateResourceSection(Linker::Module& module, offset_t imag
 	resources->Generate(*this);
 	image_end = AlignTo(image_end + resources->MemorySize(*this), GetOptionalHeader().section_align);
 	GetOptionalHeader().data_directories[PEOptionalHeader::DirResourceTable] =
-		PEOptionalHeader::DataDirectory{uint32_t(resources->address), uint32_t(resources->size)};
+		PEOptionalHeader::DataDirectory{uint32_t(resources->address), uint32_t(resources->virtual_size())};
 	return image_end;
 }
 
@@ -2770,7 +2789,7 @@ offset_t PEFormat::GenerateImportSection(Linker::Module& module, offset_t image_
 	imports->Generate(*this);
 	image_end = AlignTo(image_end + imports->MemorySize(*this), GetOptionalHeader().section_align);
 	GetOptionalHeader().data_directories[PEOptionalHeader::DirImportTable] =
-		PEOptionalHeader::DataDirectory{uint32_t(imports->address), uint32_t(imports->size)};
+		PEOptionalHeader::DataDirectory{uint32_t(imports->address), uint32_t(imports->virtual_size())};
 	if(compatibility != CompatibleWatcom)
 	{
 		GetOptionalHeader().data_directories[PEOptionalHeader::DirIAT] =
@@ -2787,7 +2806,7 @@ offset_t PEFormat::GenerateExportSection(Linker::Module& module, offset_t image_
 	exports->Generate(*this);
 	image_end = AlignTo(image_end + exports->MemorySize(*this), GetOptionalHeader().section_align);
 	GetOptionalHeader().data_directories[PEOptionalHeader::DirExportTable] =
-		PEOptionalHeader::DataDirectory{uint32_t(exports->address), uint32_t(exports->size)};
+		PEOptionalHeader::DataDirectory{uint32_t(exports->address), uint32_t(exports->virtual_size())};
 	return image_end;
 }
 
@@ -2799,7 +2818,7 @@ offset_t PEFormat::GenerateBaseRelocationSection(Linker::Module& module, offset_
 	base_relocations->Generate(*this);
 	image_end = AlignTo(image_end + base_relocations->MemorySize(*this), GetOptionalHeader().section_align);
 	GetOptionalHeader().data_directories[PEOptionalHeader::DirBaseRelocationTable] =
-		PEOptionalHeader::DataDirectory{uint32_t(base_relocations->address), uint32_t(base_relocations->size)};
+		PEOptionalHeader::DataDirectory{uint32_t(base_relocations->address), uint32_t(base_relocations->virtual_size())};
 	return image_end;
 }
 
@@ -3307,7 +3326,7 @@ void PEFormat::GenerateFile(std::string filename, Linker::Module& module)
 		// TODO
 	}
 
-	exports->dll_name = filename;
+	exports->dll_name = std::filesystem::path(filename).filename().string();
 
 	linker_parameters["image_base"] = GetOptionalHeader().image_base;
 	linker_parameters["section_align"] = GetOptionalHeader().section_align;
