@@ -165,8 +165,7 @@ namespace Microsoft
 			enum
 			{
 				/* LE types */
-				NoRelocations = 0,
-				Relocations = 3,
+				// TODO: unclear, different sources give contradicting information
 
 				/* LX flags */
 				Preload = 0,
@@ -280,7 +279,7 @@ namespace Microsoft
 
 				size_t GetSize() const;
 
-				static Relocation ReadFile(Linker::Reader& rd);
+				static Relocation ReadFile(Linker::Reader& rd, Page& page);
 				void WriteFile(Linker::Writer& wr) const;
 			};
 			std::map<uint16_t, Relocation> relocations;

@@ -261,7 +261,7 @@ size_t LEFormat::Page::Relocation::GetSize() const
 	return size;
 }
 
-LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& rd)
+LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& rd, Page& page)
 {
 	Relocation relocation;
 	relocation.type = source_type(rd.ReadUnsigned(1));
@@ -287,13 +287,13 @@ LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& 
 		break;
 	case ImportOrdinal:
 		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
-		relocation.target = rd.ReadUnsigned(relocation.GetTargetSize());
+		relocation.target = rd.ReadUnsigned(relocation.GetOrdinalSize());
 		if(relocation.IsAdditive())
 			relocation.addition = rd.ReadUnsigned(relocation.GetAdditiveSize());
 		break;
 	case ImportName:
 		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
-		relocation.target = rd.ReadUnsigned(relocation.GetOrdinalSize());
+		relocation.target = rd.ReadUnsigned(relocation.GetTargetSize());
 		if(relocation.IsAdditive())
 			relocation.addition = rd.ReadUnsigned(relocation.GetAdditiveSize());
 		break;
@@ -309,7 +309,43 @@ LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& 
 		{
 			uint16_t source = rd.ReadUnsigned(2);
 			relocation.sources.emplace_back(Chain{source});
-			// TODO: read chain
+
+			uint32_t base_address;
+			bool is_chained = false;
+			// TODO: this is not tested
+			switch(relocation.flags & FlagTypeMask)
+			{
+			case Internal:
+				is_chained = (relocation.flags & Chained) != 0;
+				base_address = relocation.target;
+				break;
+			case ImportOrdinal:
+				break;
+			case ImportName:
+				break;
+			case Entry:
+				is_chained = (relocation.flags & Chained) != 0;
+				base_address = 0;
+				break;
+			}
+
+			// read chain
+			if(is_chained)
+			{
+				// first chain entry influences the displacement
+				uint32_t target = page.image->AsImage()->ReadUnsigned(4, source, rd.endiantype);
+				base_address -= target;
+				source = target >> 12;
+				while(source != 0xFFF)
+				{
+					// further chain entries introduce new relocations
+					target = page.image->AsImage()->ReadUnsigned(4, source, rd.endiantype);
+					source = target >> 12;
+					target &= 0x000FFFFF;
+					target += base_address;
+					relocation.sources.back().chains.emplace_back(ChainLink{target, source});
+				}
+			}
 		}
 	}
 	return relocation;
@@ -899,7 +935,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		offset_t end = fixup_record_table_offset + pages[i + 1].fixup_offset;
 		while(rd.Tell() < end)
 		{
-			Page::Relocation relocation = Page::Relocation::ReadFile(rd);
+			Page::Relocation relocation = Page::Relocation::ReadFile(rd, page);
 			page.relocations[relocation.GetFirstSource()] = relocation;
 		}
 	}
@@ -1605,7 +1641,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			{ Page::Relocation::Offset16, "16-bit offset" },
 			{ Page::Relocation::Pointer48, "16:32-bit pointer" },
 			{ Page::Relocation::Offset32, "32-bit offset" },
-			{ Page::Relocation::Relative32, "32-bit self-relative offset" },
+			{ Page::Relocation::Relative32, "32-bit relative" },
 		};
 
 		static const std::map<offset_t, std::string> target_descriptions =
@@ -1616,17 +1652,18 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			{ Page::Relocation::Entry, "entry" },
 		};
 
+		offset_t fixup_offset = fixup_record_table_offset + page.fixup_offset;
 		unsigned relocation_record_index = 0;
 		for(auto& relocation_entry : page.relocations)
 		{
 			auto& relocation_record = relocation_entry.second;
-			Dumper::Entry rel_entry("Relocation record", relocation_record_index + 1, 0 /* TODO: file offset */, 8);
+			Dumper::Entry rel_entry("Relocation record", relocation_record_index + 1, fixup_offset, 8);
 			rel_entry.AddField("Type",
 				Dumper::BitFieldDisplay::Make(2)
 					->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(type_descriptions), false)
 					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("fixup to 16:16 alias"), true)
 					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("soruce list"), true),
-				offset_t(relocation_record.flags));
+				offset_t(relocation_record.type));
 			rel_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation_record.GetSourceSize()));
 			rel_entry.AddField("Offset #1", Dumper::HexDisplay::Make(4), offset_t(relocation_record.sources[0].source));
 			rel_entry.AddField("Flags",
@@ -1665,12 +1702,42 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			rel_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(8), offset_t(relocation_record.addition));
 			rel_entry.Display(dump);
 
-			for(unsigned relocation_member_index = 1; relocation_member_index < relocation_record.sources.size(); relocation_member_index++)
+			fixup_offset += relocation_record.GetSize();
+
+			for(unsigned relocation_member_index = 0; relocation_member_index < relocation_record.sources.size(); relocation_member_index++)
 			{
 				auto& relocation = relocation_record.sources[relocation_member_index];
-				Dumper::Entry rel_entry("Offset", relocation_member_index + 1, 0 /* TODO: file offset */, 8);
-				rel_entry.AddField("Value", Dumper::HexDisplay::Make(4), offset_t(relocation.source));
-				rel_entry.Display(dump);
+				if(relocation_member_index != 0)
+				{
+					Dumper::Entry rel_entry("Offset", relocation_member_index + 1, fixup_offset - 2 * (relocation_record.sources.size() - relocation_member_index), 8);
+					rel_entry.AddField("Value", Dumper::HexDisplay::Make(4), offset_t(relocation.source));
+					rel_entry.Display(dump);
+				}
+
+				unsigned link_index = 0;
+				for(auto& link : relocation.chains)
+				{
+					Dumper::Entry rel_entry("Chained", link_index + 1, 0 /* TODO: file offset */, 8);
+					rel_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(link.target));
+					switch(relocation_record.flags & Page::Relocation::FlagTypeMask)
+					{
+					case Page::Relocation::Internal:
+						rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.module), offset_t(link.target));
+						break;
+					case Page::Relocation::ImportOrdinal:
+						// invalid
+						break;
+					case Page::Relocation::ImportName:
+						// invalid
+						break;
+					case Page::Relocation::Entry:
+						// TODO: unclear
+						rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_object), offset_t(relocation_record.actual_offset + link.target));
+						break;
+					}
+					rel_entry.Display(dump);
+					link_index ++;
+				}
 			}
 
 			relocation_record_index ++;
@@ -2106,7 +2173,7 @@ void LEFormat::ProcessModule(Linker::Module& module)
 			else
 			{
 				uint32_t fixup_table_index = pages.size();
-				pages.push_back(Page::LEPage(fixup_table_index, 0)); //Page::Relocations));
+				pages.push_back(Page::LEPage(fixup_table_index, 0));
 				pages.back().image = std::make_shared<SegmentPage>(object.image, page_size * (fixup_table_index - object.page_table_index),
 					&object == &objects.back() && i == object.page_entry_count - 1 ? object_size & (page_size - 1) : page_size);
 				/* TODO: change fixup_table_index to 0 unless a relocation is present */
