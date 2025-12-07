@@ -3041,7 +3041,7 @@ void PEFormat::FixupImportThunk(Linker::Module& module, offset_t offset, offset_
 		AddBaseRelocation(import_thunk_segment->base_address - GetOptionalHeader().image_base + offset + 2, BaseRelocation::RelHighLow);
 		break;
 	case CPU_AMD64:
-		import_thunk_segment->WriteWord(4, offset + 2, address - (import_thunk_segment->base_address - offset + 6), ::LittleEndian);
+		import_thunk_segment->WriteWord(4, offset + 2, address - (import_thunk_segment->base_address + offset + 6), ::LittleEndian);
 		break;
 	case CPU_ARM:
 		import_thunk_segment->WriteWord(4, offset + 4, address, ::LittleEndian);
