@@ -121,15 +121,7 @@ offset_t LEFormat::IteratedPage::View::WriteFile(Linker::Writer& wr, offset_t co
 
 LEFormat::Page::page_type_t LEFormat::Page::GetPageType(const LEFormat& fmt) const
 {
-	if(fmt.IsExtendedFormat())
-	{
-		return page_type_t(lx.flags);
-	}
-	else
-	{
-		// TODO: unsure of interpretation
-		return page_type_t(le.type >> 6);
-	}
+	return page_type_t(type);
 }
 
 LEFormat::Page::Relocation::source_type LEFormat::Page::Relocation::GetType(Linker::Relocation& rel)
@@ -466,9 +458,9 @@ LEFormat::Page LEFormat::Page::LEPage(uint16_t page_number, uint8_t type)
 	return Page(page_number, type);
 }
 
-LEFormat::Page LEFormat::Page::LXPage(uint32_t offset, uint16_t size, uint8_t flags)
+LEFormat::Page LEFormat::Page::LXPage(uint32_t offset, uint16_t size, uint8_t type)
 {
-	return Page(offset, size, flags);
+	return Page(offset, size, type);
 }
 
 bool LEFormat::Entry::SameBundle(const Entry& other) const
@@ -874,9 +866,9 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		for(uint32_t i = 0; i < page_count; i++)
 		{
 			Page page;
-			page.lx.offset = offset_t(rd.ReadUnsigned(4)) << page_offset_shift;
-			page.lx.size = rd.ReadUnsigned(2);
-			page.lx.flags = rd.ReadUnsigned(2);
+			page.offset = offset_t(rd.ReadUnsigned(4)) << page_offset_shift;
+			page.size = rd.ReadUnsigned(2);
+			page.type = rd.ReadUnsigned(2);
 			pages.push_back(page);
 		}
 	}
@@ -885,8 +877,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		for(uint32_t i = 0; i < page_count; i++)
 		{
 			Page page;
-			page.le.page_number = rd.ReadUnsigned(3, ::BigEndian);
-			page.le.type = rd.ReadUnsigned(1);
+			page.page_number = rd.ReadUnsigned(3, ::BigEndian);
+			page.type = rd.ReadUnsigned(1);
 			pages.push_back(page);
 		}
 	}
@@ -1039,7 +1031,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		Page& page = pages[i];
 		uint16_t size = GetPageSize(i);
 		if(IsExtendedFormat())
-			rd.Seek(data_pages_offset + page.lx.offset);
+			rd.Seek(data_pages_offset + page.offset);
 		switch(page.GetPageType(*this))
 		{
 		case Page::Preload:
@@ -1262,9 +1254,9 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
-			wr.WriteWord(4, page.lx.offset >> page_offset_shift);
-			wr.WriteWord(2, page.lx.size);
-			wr.WriteWord(2, page.lx.flags);
+			wr.WriteWord(4, page.offset >> page_offset_shift);
+			wr.WriteWord(2, page.size);
+			wr.WriteWord(2, page.type);
 		}
 	}
 	else
@@ -1273,8 +1265,8 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
-			wr.WriteWord(3, page.le.page_number, ::BigEndian);
-			wr.WriteWord(1, page.le.type);
+			wr.WriteWord(3, page.page_number, ::BigEndian);
+			wr.WriteWord(1, page.type);
 		}
 	}
 
@@ -1422,7 +1414,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		{
 			const Page& page = pages[page_index];
 			if(IsExtendedFormat())
-				wr.Seek(data_pages_offset + page.lx.offset);
+				wr.Seek(data_pages_offset + page.offset);
 			page.image->WriteFile(wr);
 		}
 #if 0
@@ -1683,7 +1675,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			8);
 		page_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(i + 1));
 		page_block.AddField("Object", Dumper::DecDisplay::Make(), offset_t(object_number + 1));
-		static const std::map<offset_t, std::string> flags_descriptions =
+		static const std::map<offset_t, std::string> page_type_descriptions =
 		{
 			{ 0, "legal physical page" },
 			{ 1, "iterated page" },
@@ -1692,14 +1684,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			{ 4, "range of pages" },
 			{ 5, "compressed page" },
 		};
-		if(IsExtendedFormat())
-		{
-			page_block.AddField("Flags", Dumper::ChoiceDisplay::Make(flags_descriptions), offset_t(page.lx.flags));
-		}
-		else
-		{
-			// TODO: format unclear
-		}
+		page_block.AddField("Type", Dumper::ChoiceDisplay::Make(page_type_descriptions), offset_t(page.type));
 		page_block.AddField("Fixup offset", Dumper::HexDisplay::Make(8), offset_t(fixup_page_table_offset + page.fixup_offset));
 
 		for(auto& relocation_entry : page.relocations)
@@ -1717,7 +1702,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		page_block.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(page.checksum));
 		page_block.Display(dump);
 
-		static const std::map<offset_t, std::string> type_descriptions =
+		static const std::map<offset_t, std::string> relocation_type_descriptions =
 		{
 			{ Page::Relocation::Offset8, "8-bit offset" },
 			{ Page::Relocation::Selector16, "16-bit selector" },
@@ -1744,7 +1729,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Entry rel_entry("Relocation record", relocation_record_index + 1, fixup_offset, 8);
 			rel_entry.AddField("Type",
 				Dumper::BitFieldDisplay::Make(2)
-					->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(type_descriptions), false)
+					->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(relocation_type_descriptions), false)
 					->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("fixup to 16:16 alias"), true)
 					->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("soruce list"), true),
 				offset_t(relocation_record.type));
@@ -1852,15 +1837,15 @@ offset_t LEFormat::GetPageOffset(uint32_t index) const
 {
 	return
 		IsExtendedFormat()
-		? data_pages_offset + pages[index].lx.offset // TODO: iterated page offset
-		: data_pages_offset + page_size * (pages[index].le.page_number - 1);
+		? data_pages_offset + pages[index].offset // TODO: iterated page offset
+		: data_pages_offset + page_size * (pages[index].page_number - 1);
 }
 
 offset_t LEFormat::GetPageSize(uint32_t index) const
 {
 	return
 		IsExtendedFormat()
-		? pages[index].lx.size
+		? pages[index].size
 		: index == page_count
 			? last_page_size
 			: page_size;
@@ -2257,7 +2242,7 @@ void LEFormat::ProcessModule(Linker::Module& module)
 			else
 			{
 				uint32_t page_number = pages.size();
-				pages.push_back(Page::LEPage(page_number, 0));
+				pages.push_back(Page::LEPage(page_number, Page::Preload));
 				pages.back().image = std::make_shared<SegmentPage>(object.image, page_size * (page_number - object.page_table_index),
 					&object == &objects.back() && i == object.page_entry_count - 1 ? object_size & (page_size - 1) : page_size);
 			}

@@ -166,56 +166,9 @@ namespace Microsoft
 		class Page
 		{
 		public:
-			union
-			{
-				struct
-				{
-					/**
-					 * @brief The page number (stored as a big endian 24-bit entry)
-					 *
-					 * The available documentation contradict each other, but it seems to describe the offset of the page within the file, as well as the page fixup table entry index.
-					 * In the LX format, the offset field serves a similar purpose.
-					 */
-					uint32_t page_number;
-					/**
-					 * @brief The type of the page
-					 *
-					 * Documentation contradict each other, but this is typically set to 0.
-					 * In the LX format, the flags field serves a similar purpose.
-					 */
-					uint8_t type;
-				}
-				/** @brief LE binaries (as opposed to LX binaries) contain a 4-byte entry in the object page table */
-				le;
-				struct
-				{
-					/**
-					 * @brief Offset of the page within the file
-					 *
-					 * It is stored with a page_offset_shift in the page table.
-					 * In the LE format, the page_number field serves a similar purpose.
-					 */
-					uint32_t offset;
-					/** @brief The size of the page as stored in the file
-					 *
-					 * For legal physical pages, the remainder of the page is filled with zeroes.
-					 * For iterated pages, the page is filled with the iterated record data.
-					 */
-					uint16_t size;
-					/** @brief Type of page */
-					uint16_t flags;
-				}
-				/** @brief LX binaries (as opposed to LE binaries) contain a 8-byte entry in the object page table */
-				lx;
-			};
-
 			/** @brief LX (and presumably LE) page types */
 			enum page_type_t
 			{
-				/* LE types */
-				// TODO: unclear, different sources give contradicting information
-
-				/* LX flags */
 				Preload = 0,
 				Iterated = 1,
 				Invalid = 2,
@@ -223,6 +176,36 @@ namespace Microsoft
 				Range = 4,
 				Compressed = 5,
 			};
+
+			/**
+			 * @brief (LE only) The page number (stored as a big endian 24-bit entry)
+			 *
+			 * The available documentation contradict each other, but it seems to describe the offset of the page within the file, as well as the page fixup table entry index.
+			 * In the LX format, the offset field serves a similar purpose.
+			 */
+			uint32_t page_number = 0;
+
+			/**
+			 * @brief (LX only) Offset of the page within the file
+			 *
+			 * It is stored with a page_offset_shift in the page table.
+			 * In the LE format, the page_number field serves a similar purpose.
+			 */
+			uint32_t offset = 0;
+
+			/** @brief (LX only) The size of the page as stored in the file
+			 *
+			 * For legal physical pages, the remainder of the page is filled with zeroes.
+			 * For iterated pages, the page is filled with the iterated record data.
+			 */
+			uint16_t size = 0;
+
+			/**
+			 * @brief The type of the page
+			 *
+			 * For LE, documentation contradict each other, but this is typically set to 0.
+			 */
+			uint16_t type = 0;
 
 			page_type_t GetPageType(const LEFormat& fmt) const;
 
@@ -352,25 +335,24 @@ namespace Microsoft
 			std::shared_ptr<Linker::Image> image;
 
 			Page()
-				: lx{0, 0, 0}
 			{
 			}
 
 		protected:
 			Page(uint16_t page_number, uint8_t type)
-				: le{page_number, type}
+				: page_number(page_number), type(type)
 			{
 			}
 
-			Page(uint32_t offset, uint16_t size, uint8_t flags)
-				: lx{offset, size, flags}
+			Page(uint32_t offset, uint16_t size, uint8_t type)
+				: offset(offset), size(size), type(type)
 			{
 			}
 
 		public:
 			static Page LEPage(uint16_t page_number, uint8_t type);
 
-			static Page LXPage(uint32_t offset, uint16_t size, uint8_t flags);
+			static Page LXPage(uint32_t offset, uint16_t size, uint8_t type);
 		};
 
 		/** @brief Stores an OS/2 resource */
