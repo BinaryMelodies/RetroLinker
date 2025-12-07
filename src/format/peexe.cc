@@ -3010,7 +3010,7 @@ void PEFormat::ProcessModule(Linker::Module& module)
 		if(it.first.LoadOrdinalOrHint(ordinal))
 		{
 			std::shared_ptr<ExportedEntry> exported_symbol;
-			if(!it.first.IsExportedByOrdinal())
+			if(!it.first.IsExportedByOrdinal() || compatibility == CompatibleWatcom)
 			{
 				std::string name = "";
 				it.first.LoadName(name);
