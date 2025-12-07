@@ -362,12 +362,18 @@ void PEFormat::Section::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt
 		std::cerr << "write " << name << " at " << std::hex << section_pointer << std::endl;
 		wr.Seek(section_pointer);
 		image->WriteFile(wr);
+		if(wr.Tell() != section_pointer + size)
+		{
+			// fill in the gap
+			wr.Seek(section_pointer + size - 1);
+			wr.WriteWord(1, 0);
+		}
 	}
 }
 
 uint32_t PEFormat::Section::ImageSize(const PEFormat& fmt) const
 {
-	return image->ImageSize();
+	return AlignTo(image->ImageSize(), fmt.GetOptionalHeader().file_align);
 }
 
 uint32_t PEFormat::Section::MemorySize(const PEFormat& fmt) const
@@ -572,7 +578,8 @@ void PEFormat::ImportsSection::Generate(PEFormat& fmt)
 		rva = AlignTo(rva, 0x10);
 	}
 
-	virtual_size() = size = rva - address;
+	virtual_size() = rva - address;
+	size = AlignTo(rva - address, fmt.GetOptionalHeader().file_align);
 }
 
 void PEFormat::ImportsSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
@@ -912,7 +919,8 @@ void PEFormat::ExportsSection::Generate(PEFormat& fmt)
 		rva += name_rva.name.size() + 1;
 	}
 
-	virtual_size() = size = rva - address;
+	virtual_size() = rva - address;
+	size = AlignTo(rva - address, fmt.GetOptionalHeader().file_align);
 }
 
 void PEFormat::ExportsSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
@@ -1269,7 +1277,8 @@ void PEFormat::BaseRelocationsSection::Generate(PEFormat& fmt)
 		full_size = AlignTo(full_size, fmt.GetOptionalHeader().file_align);
 	}
 
-	virtual_size() = size = full_size;
+	virtual_size() = full_size;
+	size = AlignTo(full_size, fmt.GetOptionalHeader().file_align);
 }
 
 void PEFormat::BaseRelocationsSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
