@@ -31,6 +31,11 @@ namespace Linker
 			data.resize(size);
 		}
 
+		Buffer(const std::vector<uint8_t>& data)
+			: data(data)
+		{
+		}
+
 		offset_t ImageSize() const override;
 		virtual void ReadFile(Reader& rd);
 		void ReadFile(Reader& rd, offset_t count);

@@ -123,11 +123,12 @@ size_t LEFormat::IteratedPage::View::ReadData(size_t bytes, offset_t offset, voi
 			offset %= record.data.size();
 			while(full_count > 0 && bytes > 0)
 			{
-				size_t byte_count = std::min(bytes, record.data.size());
+				size_t byte_count = std::min(bytes, record.data.size() - offset);
 				memcpy(buffer, record.data.data() + offset, byte_count);
 				buffer = reinterpret_cast<char *>(buffer) + byte_count;
 				offset = 0;
 				total_count += byte_count;
+				bytes -= byte_count;
 				full_count --;
 			}
 		}
@@ -541,7 +542,23 @@ void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt,
 	// TODO: dump iterated records
 	page_region.Display(dump);
 
-	std::shared_ptr<Linker::ActualImage> view = std::make_shared<IteratedPage::View>(dynamic_cast<IteratedPage &>(*image), fmt.page_size);
+	auto& iterated_page = dynamic_cast<IteratedPage &>(*image);
+
+	offset_t current_offset = fmt.GetPageOffset(page_index);
+	uint32_t record_index = 0;
+	for(auto& record : iterated_page.records)
+	{
+		std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>(record.data);
+		Dumper::Block iter_entry("Iteration record", current_offset + 2, buffer, 0, 8);
+		iter_entry.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+		iter_entry.AddField("Iteration count", Dumper::DecDisplay::Make(), offset_t(record.count));
+		iter_entry.Display(dump);
+
+		current_offset += 2 + record.data.size();
+		record_index ++;
+	}
+
+	std::shared_ptr<Linker::ActualImage> view = std::make_shared<IteratedPage::View>(iterated_page, fmt.page_size);
 	Dumper::Block page_block("Page contents", 0, view,
 		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (page_index - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
 		8);
@@ -1051,10 +1068,6 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		object_page_table_offset += file_offset;
 	}
 	object_iterated_pages_offset = rd.ReadUnsigned(4);
-	if(object_iterated_pages_offset != 0)
-	{
-		object_iterated_pages_offset += file_offset;
-	}
 	resource_table_offset = rd.ReadUnsigned(4);
 	if(resource_table_offset != 0)
 	{
@@ -1309,28 +1322,28 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	{
 		Page& page = pages[i];
 		uint16_t size = GetPageSize(i);
-		if(IsExtendedFormat())
-			rd.Seek(data_pages_offset + page.offset);
 		switch(page.GetPageType(*this))
 		{
 		case Page::Preload:
+			if(IsExtendedFormat())
+				rd.Seek(data_pages_offset + page.offset);
 			page.image = Linker::Buffer::ReadFromFile(rd, size);
 			break;
-
-		// TODO: other types than legal physical page
 		case Page::Iterated:
+			if(IsExtendedFormat())
+				rd.Seek(object_iterated_pages_offset + page.offset);
 			page.image = IteratedPage::ReadFromFile(rd, size);
 			break;
 		case Page::Invalid:
-			// TODO
 			break;
 		case Page::ZeroFilled:
-			// TODO
 			break;
 		case Page::Range:
 			// TODO
 			break;
 		case Page::Compressed:
+			if(IsExtendedFormat())
+				rd.Seek(data_pages_offset + page.offset);
 			// TODO
 			break;
 		}
@@ -1965,10 +1978,27 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 
 offset_t LEFormat::GetPageOffset(uint32_t index) const
 {
-	return
-		IsExtendedFormat()
-		? data_pages_offset + pages[index].offset // TODO: iterated page offset
-		: data_pages_offset + page_size * (pages[index].page_number - 1);
+	switch(pages[index].GetPageType(*this))
+	{
+	case Page::Preload:
+	case Page::Compressed:
+		return
+			IsExtendedFormat()
+			? data_pages_offset + pages[index].offset
+			: data_pages_offset + page_size * (pages[index].page_number - 1);
+	case Page::Iterated:
+		return
+			IsExtendedFormat()
+			? object_iterated_pages_offset + pages[index].offset
+			: object_iterated_pages_offset + page_size * (pages[index].page_number - 1);
+	case Page::Invalid:
+	case Page::ZeroFilled:
+		return 0;
+	case Page::Range:
+	default:
+		// TODO
+		return 0;
+	}
 }
 
 offset_t LEFormat::GetPageSize(uint32_t index) const
