@@ -408,6 +408,8 @@ namespace Microsoft
 			{
 				Exported = 1,
 				SharedData = 2,
+
+				ForwarderByOrdinal = 1,
 			};
 			flag_type flags = flag_type(0);
 			uint32_t offset = 0;
@@ -426,9 +428,18 @@ namespace Microsoft
 			export_type export_state = NotExported;
 			/** @brief The name of an exported entry. This is not actually stored in the entry table and its value is ignored during program generation */
 			std::string entry_name;
+			/** @brief Convenience field that stores the module name for a forwarder entry, not used for generation */
+			std::string module_name;
+			/** @brief Convenience field that stores the imported procedure name for a forwarder entry, if imported by name, also the name for an exported entry, not used for generation */
+			std::string import_name;
 
 			Entry()
 				: Writer(::LittleEndian)
+			{
+			}
+
+			Entry(unsigned type)
+				: Writer(::LittleEndian), type(entry_type(type))
 			{
 			}
 
