@@ -8,6 +8,7 @@
 #include "../linker/buffer.h"
 #include "../linker/format.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/reader.h"
 #include "../linker/segment_manager.h"
 
@@ -490,7 +491,7 @@ namespace ELF
 		uint16_t elf_header_size = 0;
 		uint16_t program_header_entry_size = 0;
 		uint16_t section_header_entry_size = 0;
-		uint16_t section_name_string_table = 0;
+		uint32_t section_name_string_table = 0;
 
 		class SectionContents : public Linker::Image
 		{
@@ -1039,6 +1040,15 @@ namespace ELF
 				PT_OPENBSD_BOOTDATA = 0x65A41BE6,
 			};
 			segment_type type;
+			enum
+			{
+				/** @brief Executable segment */
+				PF_X = 0x00000001,
+				/** @brief Writable segment */
+				PF_W = 0x00000002,
+				/** @brief Readable segment */
+				PF_R = 0x00000004,
+			};
 			uint32_t flags = 0;
 			offset_t offset = 0, vaddr = 0, paddr = 0, filesz = 0, memsz = 0, align = 0;
 
@@ -1054,9 +1064,9 @@ namespace ELF
 				};
 				part_type type;
 
-				uint16_t index;
+				uint32_t index;
 				offset_t offset, size;
-				Part(part_type type, uint16_t index, offset_t offset, offset_t size)
+				Part(part_type type, uint32_t index, offset_t offset, offset_t size)
 					: type(type), index(index), offset(offset), size(size)
 				{
 				}
@@ -1134,6 +1144,61 @@ namespace ELF
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 		void CalculateValues() override;
+
+		/* * * Writer members * * */
+
+		enum operating_system_type
+		{
+			Linux,
+			AmigaOS, // TODO
+			OS2, // TODO
+			OS2beta, // TODO
+			DJGPP, // TODO
+		};
+		operating_system_type operating_system = Linux;
+
+		offset_t image_base;
+		offset_t header_size;
+		bool create_header_segment;
+		bool include_header_segment;
+		offset_t segment_align;
+		offset_t section_align;
+
+		class ELFOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			ELFOptionCollector()
+			{
+				//InitializeFields();
+			}
+		};
+
+		//static std::shared_ptr<PEFormat> CreateConsoleApplication(target_type target = TargetWinNT, PEOptionalHeader::SubsystemType subsystem = PEOptionalHeader::WindowsCUI);
+		//static std::shared_ptr<PEFormat> CreateGUIApplication(target_type target = TargetWinNT, PEOptionalHeader::SubsystemType subsystem = PEOptionalHeader::WindowsGUI);
+		//static std::shared_ptr<PEFormat> CreateLibraryModule(target_type target = TargetWinNT);
+		//static std::shared_ptr<PEFormat> CreateDeviceDriver(target_type target = TargetWinNT);
+		//std::shared_ptr<PEFormat> SimulateLinker(compatibility_type compatibility);
+
+		bool FormatSupportsLibraries() const override;
+
+		//unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
+
+		//std::shared_ptr<Resource>& AddResource(std::shared_ptr<Resource>& resource);
+
+		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
+		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
+		void SetOptions(std::map<std::string, std::string>& options) override;
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
+
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
+		void Link(Linker::Module& module);
+
+		void ProcessModule(Linker::Module& module) override;
+		void GenerateFile(std::string filename, Linker::Module& module) override;
+		using Linker::OutputFormat::GetDefaultExtension;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 	/**

@@ -4,6 +4,7 @@
 #include "../linker/position.h"
 #include "../linker/reader.h"
 #include "../linker/resolution.h"
+#include "../linker/segment.h"
 #include "../linker/section.h"
 #include "../linker/writer.h"
 
@@ -2104,7 +2105,7 @@ offset_t ELFFormat::WriteFile(Linker::Writer& wr) const
 
 	wr.endiantype = endiantype;
 
-	wr.WriteData(4, "\7F" "ELF");
+	wr.WriteData(4, "\x7F" "ELF");
 	wr.WriteWord(1, file_class);
 	wr.WriteWord(1, data_encoding);
 	wr.WriteWord(1, header_version);
@@ -2125,7 +2126,7 @@ offset_t ELFFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, segments.size()); // phnum
 	wr.WriteWord(2, section_header_entry_size); // shentsize
 	wr.WriteWord(2, sections.size()); // shnum
-	wr.WriteWord(2, section_name_string_table >= SHN_LORESERVE ? SHN_XINDEX : 0); // shstrndx
+	wr.WriteWord(2, section_name_string_table >= SHN_LORESERVE ? SHN_XINDEX : section_name_string_table); // shstrndx
 
 	unsigned i;
 
@@ -2166,6 +2167,8 @@ offset_t ELFFormat::WriteFile(Linker::Writer& wr) const
 	{
 		if(section.contents != nullptr)
 		{
+			wr.Seek(section.file_offset);
+			Linker::Debug << "Debug: writing section contents at offset " << std::hex << section.file_offset << std::endl;
 			section.contents->WriteFile(wr);
 		}
 	}
@@ -2174,6 +2177,7 @@ offset_t ELFFormat::WriteFile(Linker::Writer& wr) const
 	{
 		if(block.image != nullptr)
 		{
+			wr.Seek(block.offset);
 			block.image->WriteFile(wr);
 		}
 	}
@@ -3037,6 +3041,7 @@ void ELFFormat::CalculateValues()
 			break; // we will assume the user knows what they are doing
 		Linker::Error << "Error: unspecified or invalid word size, assuming 32-bit" << std::endl;
 		wordbytes = 4;
+		break;
 	case 4:
 		file_class = ELFCLASS32;
 		minimum_elf_header_size = 52;
@@ -3102,6 +3107,11 @@ void ELFFormat::CalculateValues()
 	if(section_name_string_table >= SHN_LORESERVE)
 		sections[0].link = section_name_string_table;
 
+#if 0
+	// TODO: initialize
+		uint32_t flags = 0;
+#endif
+
 	for(Section& section : sections)
 	{
 		switch(section.type)
@@ -3123,6 +3133,354 @@ void ELFFormat::CalculateValues()
 		}
 	}
 }
+
+/* * * Writer members * * */
+
+bool ELFFormat::FormatSupportsLibraries() const
+{
+	return true;
+}
+
+//unsigned ELFFormat::FormatAdditionalSectionFlags(std::string section_name) const override;
+
+//std::shared_ptr<Resource>& ELFFormat::AddResource(std::shared_ptr<Resource>& resource);
+
+std::vector<Linker::OptionDescription<void> *> ELFFormat::ParameterNames =
+{
+};
+
+std::vector<Linker::OptionDescription<void> *> ELFFormat::GetLinkerScriptParameterNames()
+{
+	return ParameterNames;
+}
+
+std::shared_ptr<Linker::OptionCollector> ELFFormat::GetOptions()
+{
+	return std::make_shared<ELFOptionCollector>();
+}
+
+void ELFFormat::SetOptions(std::map<std::string, std::string>& options)
+{
+	// TODO
+}
+
+void ELFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
+{
+	if(segments.size() == 0)
+	{
+		Segment header_segment;
+		header_segment.type = Segment::PT_LOAD;
+		header_segment.flags = Segment::PF_R;
+		header_segment.align = segment_align;
+
+		if(create_header_segment)
+		{
+			header_segment.vaddr = header_segment.paddr = image_base;
+			header_segment.filesz = header_segment.memsz = header_size;
+			segments.emplace_back(header_segment);
+		}
+	}
+
+	Segment elf_segment;
+	elf_segment.type = Segment::PT_LOAD;
+	elf_segment.flags = Segment::PF_R;
+	if(segment->sections[0]->IsExecutable())
+		elf_segment.flags |= Segment::PF_X;
+	else if(segment->sections[0]->IsWritable())
+		elf_segment.flags |= Segment::PF_W;
+	elf_segment.align = segment_align;
+	elf_segment.vaddr = elf_segment.paddr = segment->base_address;
+	elf_segment.filesz = segment->data_size;
+	elf_segment.memsz = segment->TotalSize();
+
+	offset_t current_address = elf_segment.vaddr;
+	for(auto section : segment->sections)
+	{
+		Section elf_section;
+		elf_section.contents = section;
+		elf_section.address = current_address;
+		sections.emplace_back(elf_section);
+
+		current_address += section->Size();
+
+		Segment::Part part { Segment::Part::Section, uint32_t(sections.size() - 1), 0, 0 };
+		elf_segment.parts.emplace_back(part);
+	}
+
+	segments.emplace_back(elf_segment);
+}
+
+std::unique_ptr<Script::List> ELFFormat::GetScript(Linker::Module& module)
+{
+	// TODO: the first section must come after the ELF header and segment headers
+	// and so the start of the code section depends on the number of sections
+
+	static const char * DefaultScript = R"(
+".code"
+{
+	at ?image_base?;
+	all execute;
+};
+
+".data"
+{
+	at align(here, ?segment_align?) + (align(here, ?section_align?) & (?segment_align? - 1));
+	all not zero;
+	all zero;
+};
+)";
+
+	if(linker_script != "")
+	{
+		return SegmentManager::GetScript(module);
+	}
+	else
+	{
+		return Script::parse_string(DefaultScript);
+	}
+}
+
+void ELFFormat::Link(Linker::Module& module)
+{
+	std::unique_ptr<Script::List> script = GetScript(module);
+
+	ProcessScript(script, module);
+
+	//CreateDefaultSegments();
+}
+
+void ELFFormat::ProcessModule(Linker::Module& module)
+{
+	sections.emplace_back(Section{Section::SHT_NULL});
+
+	Link(module);
+
+	for(Linker::Relocation& rel : module.GetRelocations())
+	{
+		Linker::Resolution resolution;
+
+		if(rel.Resolve(module, resolution))
+		{
+			rel.WriteWord(resolution.value);
+		}
+		else
+		{
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+		}
+	}
+
+	auto section_names = std::make_shared<Linker::Section>(".shstrtab"); // TODO: make a buffer that can be expanded
+	section_names->WriteData(1, 0, "\0");
+	Section section_string_table;
+	section_string_table.name = ".shstrtab";
+	section_string_table.type = Section::SHT_STRTAB;
+	section_string_table.flags = SHF_STRINGS;
+	section_string_table.entsize = 1;
+	section_string_table.contents = section_names;
+	sections.emplace_back(section_string_table);
+
+	section_name_string_table = sections.size() - 1;
+
+	offset_t current_offset = AlignTo(header_size, section_align);
+	bool data_segment_started = false;
+	for(auto& section : sections)
+	{
+		auto linker_section = std::dynamic_pointer_cast<Linker::Section>(section.contents);
+
+		if(linker_section == nullptr)
+			continue;
+
+		if(!data_segment_started && !linker_section->IsExecutable())
+		{
+			data_segment_started = true;
+			current_offset = AlignTo(current_offset, section_align);
+		}
+
+		// TODO: calculate name_offset
+		section.name = linker_section->name;
+		section.name_offset = section_names->Size();
+		section_names->WriteData(section.name.size() + 1, section_names->Size(), section.name.c_str());
+
+		if(section.type == 0)
+		{
+			if(linker_section->IsZeroFilled())
+				section.type = Section::SHT_NOBITS;
+			else
+				section.type = Section::SHT_PROGBITS;
+			section.flags |= SHF_ALLOC;
+			if(linker_section->IsWritable())
+				section.flags |= SHF_WRITE;
+			if(linker_section->IsExecutable())
+				section.flags |= SHF_EXECINSTR;
+		}
+		section.size = linker_section->Size();
+		section.align = linker_section->GetAlign();
+		section.file_offset = current_offset;
+
+		if(!linker_section->IsZeroFilled())
+		{
+			current_offset += linker_section->Size();
+		}
+	}
+
+	for(auto& segment : segments)
+	{
+		if(segment.parts.size() > 0 && segment.parts[0].type == Segment::Part::Section)
+		{
+			segment.offset = sections[segment.parts[0].index].file_offset;
+		}
+	}
+
+	section_header_offset = current_offset;
+
+	Linker::Location entry_location;
+	if(module.FindGlobalSymbol(".entry", entry_location))
+	{
+		entry = entry_location.GetPosition().address;
+	}
+	else
+	{
+		entry = sections[1].address;
+		Linker::Warning << "Warning: no entry point specified, using beginning of first executable section" << std::endl;
+	}
+
+	object_file_type = ET_EXEC;
+}
+
+void ELFFormat::GenerateFile(std::string filename, Linker::Module& module)
+{
+	switch(module.cpu)
+	{
+	case Linker::Module::I86:
+	case Linker::Module::I386:
+		cpu = EM_386;
+		file_class = ELFCLASS32;
+		data_encoding = ELFDATA2LSB;
+
+		image_base = 0x08048000;
+		header_size = 0x74; // TODO: calculate header sizes separately
+		create_header_segment = true;
+		include_header_segment = true;
+		segment_align = 0x1000;
+		section_align = 0x1000;
+		break;
+	case Linker::Module::X86_64:
+		cpu = EM_X86_64;
+		file_class = ELFCLASS64;
+		data_encoding = ELFDATA2LSB;
+
+		image_base = 0x00400000;
+		header_size = 0xE8; // TODO: calculate header sizes separately
+		create_header_segment = true;
+		include_header_segment = true;
+		segment_align = 0x1000;
+		section_align = 0x1000;
+		break;
+	case Linker::Module::M68K:
+		cpu = EM_68K;
+		file_class = ELFCLASS32;
+		data_encoding = ELFDATA2MSB;
+
+		image_base = 0x80000000;
+		header_size = 0x74; // TODO: calculate header sizes separately
+		create_header_segment = false;
+		include_header_segment = true;
+		segment_align = 0x2000;
+		section_align = 4;
+		break;
+	case Linker::Module::PPC:
+		if(operating_system == OS2beta)
+			cpu = EM_VPP500;
+		else
+			cpu = EM_PPC;
+		file_class = ELFCLASS32;
+		data_encoding = ELFDATA2MSB;
+		// TODO: parameters
+		break;
+	case Linker::Module::PPC64:
+		cpu = EM_PPC64;
+		file_class = ELFCLASS64;
+		data_encoding = ELFDATA2MSB;
+		// TODO: parameters
+		break;
+	case Linker::Module::ARM:
+		cpu = EM_ARM;
+		file_class = ELFCLASS32;
+		data_encoding = ELFDATA2LSB;
+
+		image_base = 0;
+		header_size = 0x00008000;
+		create_header_segment = false;
+		include_header_segment = true;
+		segment_align = 0x10000;
+		section_align = 1;
+		break;
+	case Linker::Module::ARM64:
+		cpu = EM_AARCH64;
+		file_class = ELFCLASS64;
+		data_encoding = ELFDATA2LSB;
+
+		image_base = 0x00400000;
+		header_size = 0x10000;
+		create_header_segment = false;
+		include_header_segment = false;
+		segment_align = 0x10000;
+		section_align = 1;
+		break;
+//	case Linker::Module::PICOJAVA: // TODO
+//		cpu = EM_PJ;
+//		file_class = ELFCLASS32;
+//		data_encoding = ELFDATA2MSB;
+//		break;
+	default:
+		Linker::FatalError("Fatal error: cpu type not supported for outputting ELF files");
+	}
+
+	linker_parameters["image_base"] = image_base + (include_header_segment ? AlignTo(header_size, section_align) : 0);
+	linker_parameters["segment_align"] = segment_align;
+	linker_parameters["section_align"] = section_align;
+
+	switch(file_class)
+	{
+	case ELFCLASS32:
+		wordbytes = 4;
+		break;
+	case ELFCLASS64:
+		wordbytes = 8;
+		break;
+	}
+
+	switch(data_encoding)
+	{
+	case ELFDATA2LSB:
+		endiantype = ::LittleEndian;
+		break;
+	case ELFDATA2MSB:
+		endiantype = ::BigEndian;
+		break;
+	}
+
+	// TODO
+
+	Linker::OutputFormat::GenerateFile(filename, module);
+}
+
+std::string ELFFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
+{
+	switch(operating_system)
+	{
+	default:
+	case Linux:
+	case AmigaOS:
+		return filename;
+	case OS2:
+	case OS2beta:
+	case DJGPP:
+		return filename + ".exe";
+	}
+}
+
+/* FatELF */
 
 FatELFFormat::Record FatELFFormat::Record::Read(Linker::Reader& rd)
 {

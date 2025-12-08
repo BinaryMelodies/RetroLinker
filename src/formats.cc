@@ -402,6 +402,9 @@ format_specification formats[] =
 	{ "nt_dll",
 		[]() -> std::shared_ptr<Format> { return PEFormat::CreateLibraryModule(PEFormat::TargetWinNT)->SimulateLinker(PEFormat::CompatibleWatcom); },
 		"Windows PE portable executable (emulate Watcom, DLL)" },
+	{ "elf",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<ELFFormat>(); },
+		"Linux ELF binary" },
 	/* BW */
 	{ "dos16m",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<BWFormat>(); },
