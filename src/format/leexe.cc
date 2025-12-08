@@ -2049,7 +2049,6 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	if(module_directives.size() != 0)
 	{
 		Dumper::Region module_directives_table_region("Module format directives table", module_directives_offset, module_directives.size() * 8, 8);
-		// TODO
 		module_directives_table_region.Display(dump);
 
 		// TODO: module_directives
@@ -2058,28 +2057,32 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	if(per_page_checksum_offset != 0)
 	{
 		Dumper::Region perpage_checksum_table_region("Per-page checksum", per_page_checksum_offset, page_count * 4, 8);
-		// TODO
 		perpage_checksum_table_region.Display(dump);
 	}
 
 	Dumper::Region fixup_section_region("Fixup section", fixup_page_table_offset, fixup_section_size, 8);
 	fixup_section_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(fixup_section_checksum));
-	// TODO
 	fixup_section_region.Display(dump);
 
 	Dumper::Region fixup_page_table_region("Fixup page table", fixup_page_table_offset, (page_count + 1) * 4, 8);
-	// TODO
 	fixup_page_table_region.Display(dump);
 
 	Dumper::Region fixup_record_table_region("Fixup record table", fixup_record_table_offset, imported_module_table_offset - fixup_record_table_offset, 8);
-	// TODO
 	fixup_record_table_region.Display(dump);
 
 	Dumper::Region import_module_name_table_region("Import module name table", imported_module_table_offset, imported_procedure_table_offset - imported_module_table_offset, 8);
-	// TODO
 	import_module_name_table_region.Display(dump);
 
-	// TODO: imported_modules
+	current_offset = imported_module_table_offset;
+	uint32_t module_index = 0;
+	for(auto& module_name : imported_modules)
+	{
+		Dumper::Entry module_entry("Module", module_index, current_offset, 8);
+		module_entry.AddField("Name", Dumper::StringDisplay::Make(), module_name);
+		module_entry.Display(dump);
+		current_offset += 1 + module_name.size();
+		module_index ++;
+	}
 
 	offset_t imported_procedure_table_end;
 	if(!IsExtendedFormat() && per_page_checksum_offset != 0)
@@ -2087,16 +2090,23 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	else
 		imported_procedure_table_end = fixup_page_table_offset + fixup_section_size;
 	Dumper::Region import_procedure_name_table_region("Import procedure name table", imported_procedure_table_offset, imported_procedure_table_end - imported_procedure_table_offset, 8);
-	// TODO
 	import_procedure_name_table_region.Display(dump);
 
-	// TODO: imported_procedures
+	current_offset = imported_procedure_table_offset;
+	uint32_t procedure_index = 0;
+	for(auto& procedure_name : imported_procedures)
+	{
+		Dumper::Entry procedure_entry("Procedure", procedure_index, current_offset, 8);
+		procedure_entry.AddField("Name", Dumper::StringDisplay::Make(), procedure_name);
+		procedure_entry.Display(dump);
+		current_offset += 1 + procedure_name.size();
+		procedure_index ++;
+	}
 
 	Dumper::Region page_data_region("Page data", data_pages_offset, 0 /* TODO */, 8);
 	page_data_region.AddField("Preload page count", Dumper::DecDisplay::Make(), offset_t(preload_page_count));
 	page_data_region.AddField("Instance preload page count", Dumper::DecDisplay::Make(), offset_t(instance_preload_page_count));
 	page_data_region.AddField("Instance demand page count", Dumper::DecDisplay::Make(), offset_t(instance_demand_page_count));
-	// TODO
 	page_data_region.Display(dump);
 
 	i = 1;
@@ -2132,7 +2142,6 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	if(debug_info_size != 0)
 	{
 		Dumper::Region debug_info_region("Debug info", debug_info_offset, debug_info_size, 8);
-		// TODO
 		debug_info_region.Display(dump);
 	}
 }
