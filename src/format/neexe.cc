@@ -2075,7 +2075,7 @@ void ResourceFile::ReadIdentifier(Linker::Reader& rd, Identifier& id)
 	else
 	{
 		rd.Skip(-1);
-		id = rd.ReadASCII('\0');
+		id = rd.ReadASCIIZ();
 	}
 }
 
@@ -2083,6 +2083,7 @@ void ResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
 {
 	if(auto ordinal_p = std::get_if<uint16_t>(&id))
 	{
+		wr.WriteWord(1, 0xFF);
 		wr.WriteWord(2, *ordinal_p, ::LittleEndian);
 	}
 	else if(auto string_p = std::get_if<std::string>(&id))
@@ -2096,7 +2097,7 @@ void ResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
 	}
 }
 
-offset_t ResourceFile::IdentifierSize(const Identifier& id)
+offset_t ResourceFile::GetIdentifierSize(const Identifier& id)
 {
 	if(std::get_if<uint16_t>(&id))
 	{
@@ -2176,7 +2177,7 @@ void ResourceFile::Dump(Dumper::Dumper& dump) const
 	offset_t current_offset = 0;
 	for(auto& resource : resources)
 	{
-		current_offset += IdentifierSize(resource.type) + IdentifierSize(resource.name) + 6;
+		current_offset += GetIdentifierSize(resource.type) + GetIdentifierSize(resource.name) + 6;
 		Dumper::Block resource_block("Resource", current_offset, resource.image->AsImage(), 0, 8);
 		resource_block.AddField("Type", IdDisplay::Make(*resource_type_id_descriptions), resource.type);
 		resource_block.AddField("Name", IdDisplay::Make(), resource.name);
@@ -2207,8 +2208,8 @@ void ResourceFile::IdDisplay::DisplayValue(Dumper::Dumper& dump, std::tuple<Iden
 	else if(auto string_p = std::get_if<std::string>(&id))
 	{
 		dump.out << '\'';
-		for(size_t i = 0; i < string_p->size(); i++)
-			dump.PutChar((*dump.encoding)[(*string_p)[i] & 0xFF]);
+		Dumper::StringDisplay display(-1, "", "");
+		dump.PutEncodedString(*string_p);
 		dump.out << '\'';
 	}
 	else

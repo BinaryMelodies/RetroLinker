@@ -785,7 +785,7 @@ namespace Microsoft
 
 		static void ReadIdentifier(Linker::Reader& rd, Identifier& id);
 		static void WriteIdentifier(Linker::Writer& wr, const Identifier& id);
-		static offset_t IdentifierSize(const Identifier& id);
+		static offset_t GetIdentifierSize(const Identifier& id);
 
 		class Resource
 		{
