@@ -348,7 +348,7 @@ void TestMZFormat::test_image(std::string data)
 	uint32_t file_size = exe.GetHeaderSize() + data.size();
 	CPPUNIT_ASSERT_EQUAL(file_size & 0x1FF, uint32_t(exe.last_block_size));
 	CPPUNIT_ASSERT_EQUAL((file_size + 0x1FF) >> 9, uint32_t(exe.file_size_blocks));
-	CPPUNIT_ASSERT_EQUAL(file_size, exe.GetFileSize());
+	CPPUNIT_ASSERT_EQUAL(file_size, uint32_t(exe.ImageSize()));
 	std::shared_ptr<Linker::Buffer> buffer = std::dynamic_pointer_cast<Linker::Buffer>(exe.image);
 	assert(buffer != nullptr); /* internal check */
 	CPPUNIT_ASSERT_EQUAL(offset_t(data.size()), buffer->ImageSize());
