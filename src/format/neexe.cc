@@ -2065,13 +2065,18 @@ std::string NEFormat::GetDefaultExtension(Linker::Module& module, std::string fi
 
 void ResourceFile::ReadIdentifier(Linker::Reader& rd, Identifier& id)
 {
-	uint8_t length;
+	uint8_t first_byte;
 
-	length = rd.ReadUnsigned(1);
-	if(length == 0xFF)
+	first_byte = rd.ReadUnsigned(1);
+	if(first_byte == 0xFF)
+	{
 		id = uint16_t(rd.ReadUnsigned(2, ::LittleEndian));
+	}
 	else
-		id = rd.ReadData(length);
+	{
+		rd.Skip(-1);
+		id = rd.ReadASCII('\0');
+	}
 }
 
 void ResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
@@ -2082,8 +2087,8 @@ void ResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
 	}
 	else if(auto string_p = std::get_if<std::string>(&id))
 	{
-		uint8_t length = std::max(size_t(0xFE), string_p->size());
-		wr.WriteData(length, *string_p);
+		wr.WriteData(*string_p);
+		wr.WriteWord(1, 0);
 	}
 	else
 	{
@@ -2099,7 +2104,7 @@ offset_t ResourceFile::IdentifierSize(const Identifier& id)
 	}
 	else if(auto string_p = std::get_if<std::string>(&id))
 	{
-		return 1 + std::max(size_t(0xFE), string_p->size());
+		return 1 + string_p->size();
 	}
 	else
 	{
