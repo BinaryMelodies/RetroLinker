@@ -83,6 +83,63 @@ std::string Reader::ReadASCIIZ(size_t maximum)
 	return ReadASCII('\0', size_t(-1));
 }
 
+std::string Reader::ReadUTF16Data(size_t count, bool terminate_at_null)
+{
+	std::vector<char> data(2 * count);
+	ReadData(count, data.data());
+	if(terminate_at_null)
+	{
+		for(size_t index = 0; index < count * 2; index += 2)
+		{
+			if(data[index] == 0 && data[index + 1] == 0)
+			{
+				count = index / 2;
+				break;
+			}
+		}
+	}
+	return std::string(data.data(), 2 * count);
+}
+
+std::string Reader::ReadUTF16Data(const char terminator[2], size_t maximum)
+{
+	std::string tmp;
+	while(tmp.size() < (maximum < (size_t(-1) >> 1) ? 2 * maximum : size_t(-1)))
+	{
+		uint8_t data[2];
+		data[0] = in->get();
+		data[1] = in->get();
+		if(data[0] == terminator[0] && data[1] == terminator[1])
+			break;
+		tmp += data[0];
+		tmp += data[1];
+	}
+	return tmp;
+}
+
+std::string Reader::ReadUTF16Data(char16_t terminator, size_t maximum, EndianType endiantype)
+{
+	uint8_t data[2];
+	::WriteWord(2, 2, data, terminator, endiantype);
+	return ReadUTF16Data(reinterpret_cast<char *>(data), maximum);
+}
+
+std::string Reader::ReadUTF16Data(char16_t terminator, size_t maximum)
+{
+	return ReadUTF16Data(terminator, maximum, endiantype);
+}
+
+std::string Reader::ReadUTF16Data(char16_t terminator, EndianType endiantype)
+{
+	return ReadUTF16Data(terminator, size_t(-1), endiantype);
+}
+
+std::string Reader::ReadUTF16ZData(size_t maximum)
+{
+	static const char zero[2] = { 0, 0 };
+	return ReadUTF16Data(zero, maximum);
+}
+
 uint64_t Reader::ReadUnsigned(size_t bytes, EndianType endiantype)
 {
 	std::vector<uint8_t> data(bytes);

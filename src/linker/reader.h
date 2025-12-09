@@ -60,6 +60,11 @@ namespace Linker
 		std::string ReadData(size_t count, bool terminate_at_null = false);
 
 		/**
+		 * @brief Read in a sequence of 16-bit words
+		 */
+		std::string ReadUTF16Data(size_t count, bool terminate_at_null = false);
+
+		/**
 		 * @brief Read in a sequence of bytes
 		 */
 		template <class T, std::size_t N>
@@ -79,6 +84,31 @@ namespace Linker
 		 * @brief Read a zero terminated ASCII string
 		 */
 		std::string ReadASCIIZ(size_t maximum = size_t(-1));
+
+		/**
+		 * @brief Read a string of 16-bit words up to a terminator
+		 */
+		std::string ReadUTF16Data(const char terminator[2], size_t maximum = size_t(-1));
+
+		/**
+		 * @brief Read a string of 16-bit words up to a terminator
+		 */
+		std::string ReadUTF16Data(char16_t terminator, size_t maximum, EndianType endiantype);
+
+		/**
+		 * @brief Read a string of 16-bit words up to a terminator
+		 */
+		std::string ReadUTF16Data(char16_t terminator, size_t maximum = size_t(-1));
+
+		/**
+		 * @brief Read a string of 16-bit words up to a terminator
+		 */
+		std::string ReadUTF16Data(char16_t terminator, EndianType endiantype);
+
+		/**
+		 * @brief Read a zero terminated string of 16-bit words
+		 */
+		std::string ReadUTF16ZData(size_t maximum = size_t(-1));
 
 		/**
 		 * @brief Read an unsigned word
