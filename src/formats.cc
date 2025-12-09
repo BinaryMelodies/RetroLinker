@@ -530,6 +530,11 @@ format_specification formats[] =
 	/* BFLT */
 	{ "bflt", []() -> std::shared_ptr<Format> { return std::make_shared<BFLT::BFLTFormat>(); },
 		"BFLT Binary Flat Format for uCLinux" },
+
+	// not executable formats
+	/* Windows and OS/2 resource files */
+	{ "res", []() -> std::shared_ptr<Format> { return std::make_shared<Microsoft::ResourceFile>(); },
+		"Resource files for OS/2 and 16-bit Windows" },
 };
 
 const size_t formats_size = sizeof(formats) / sizeof(formats[0]);

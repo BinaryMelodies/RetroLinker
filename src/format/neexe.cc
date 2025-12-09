@@ -2030,9 +2030,141 @@ void NEFormat::GenerateFile(std::string filename, Linker::Module& module)
 
 std::string NEFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
+	ResourceFile resfil;
+
 	if(output == OUTPUT_DLL && ((system & ~0x7F) == OS2 || (system & ~0x7F) == Windows || (system & ~0x7F) == Windows386))
 		return filename + ".dll";
 	else
 		return filename + ".exe";
+}
+
+void ResourceFile::ReadIdentifier(Linker::Reader& rd, Identifier& id)
+{
+	uint8_t length;
+
+	length = rd.ReadUnsigned(1);
+	if(length == 0xFF)
+		id = uint16_t(rd.ReadUnsigned(2, ::LittleEndian));
+	else
+		id = rd.ReadData(length);
+}
+
+void ResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
+{
+	if(auto ordinal_p = std::get_if<uint16_t>(&id))
+	{
+		wr.WriteWord(2, *ordinal_p, ::LittleEndian);
+	}
+	else if(auto string_p = std::get_if<std::string>(&id))
+	{
+		uint8_t length = std::max(size_t(0xFE), string_p->size());
+		wr.WriteData(length, *string_p);
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+offset_t ResourceFile::IdentifierSize(const Identifier& id)
+{
+	if(std::get_if<uint16_t>(&id))
+	{
+		return 3;
+	}
+	else if(auto string_p = std::get_if<std::string>(&id))
+	{
+		return 1 + std::max(size_t(0xFE), string_p->size());
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+void ResourceFile::ReadFile(Linker::Reader& rd)
+{
+	offset_t starting_offset = rd.Tell();
+	rd.SeekEnd();
+	offset_t ending_offset = rd.Tell();
+	rd.Seek(starting_offset);
+
+	while(rd.Tell() < ending_offset)
+	{
+		Resource resource;
+
+		ReadIdentifier(rd, resource.type);
+		ReadIdentifier(rd, resource.name);
+
+		resource.flags = rd.ReadUnsigned(2, ::LittleEndian);
+
+		uint32_t size = rd.ReadUnsigned(4, ::LittleEndian);
+		resource.image = Linker::Buffer::ReadFromFile(rd, size);
+
+		resources.emplace_back(resource);
+	}
+}
+
+offset_t ResourceFile::WriteFile(Linker::Writer& wr) const
+{
+	for(auto& resource : resources)
+	{
+		WriteIdentifier(wr, resource.type);
+		WriteIdentifier(wr, resource.name);
+
+		wr.WriteWord(2, resource.flags, ::LittleEndian);
+		wr.WriteWord(4, resource.image->ImageSize(), ::LittleEndian);
+		resource.image->WriteFile(wr);
+	}
+	return offset_t(-1); // TODO
+}
+
+void ResourceFile::Dump(Dumper::Dumper& dump) const
+{
+	if(dump.encoding == nullptr)
+		dump.SetEncoding(Dumper::Block::encoding_windows1252);
+
+	offset_t current_offset = 0;
+	for(auto& resource : resources)
+	{
+		current_offset += IdentifierSize(resource.type) + IdentifierSize(resource.name) + 6;
+		Dumper::Block resource_block("Resource", current_offset, resource.image->AsImage(), 0, 8);
+		resource_block.AddField("Type", IdDisplay::Make(), resource.type);
+		resource_block.AddField("Name", IdDisplay::Make(), resource.name);
+		resource_block.AddField("Flags",
+			Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("movable", "fixed"), false)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("pure", "impure"), false)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true),
+			offset_t(resource.flags));
+		resource_block.Display(dump);
+		current_offset += resource.image->ImageSize();
+	}
+}
+
+void ResourceFile::IdDisplay::DisplayValue(Dumper::Dumper& dump, std::tuple<Identifier> values)
+{
+	auto id = std::get<0>(values);
+	if(auto ordinal_p = std::get_if<uint16_t>(&id))
+	{
+		dump.PrintHex(*ordinal_p, 4);
+	}
+	else if(auto string_p = std::get_if<std::string>(&id))
+	{
+		dump.out << '\'';
+		for(size_t i = 0; i < string_p->size(); i++)
+			dump.PutChar((*dump.encoding)[(*string_p)[i] & 0xFF]);
+		dump.out << '\'';
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+std::shared_ptr<ResourceFile::IdDisplay> ResourceFile::IdDisplay::Make()
+{
+	return std::make_shared<IdDisplay>();
 }
 

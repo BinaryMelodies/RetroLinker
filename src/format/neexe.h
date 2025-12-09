@@ -757,6 +757,43 @@ namespace Microsoft
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
+
+	class ResourceFile : public virtual Linker::Format
+	{
+	public:
+		typedef std::variant<uint16_t, std::string> Identifier;
+
+		static void ReadIdentifier(Linker::Reader& rd, Identifier& id);
+		static void WriteIdentifier(Linker::Writer& wr, const Identifier& id);
+		static offset_t IdentifierSize(const Identifier& id);
+
+		class Resource
+		{
+		public:
+			Identifier type;
+			Identifier name;
+			uint16_t flags;
+			std::shared_ptr<Linker::Image> image;
+		};
+
+		std::vector<Resource> resources;
+
+		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+
+		class IdDisplay : public Dumper::Display<Identifier>
+		{
+		public:
+			IdDisplay()
+			{
+			}
+
+			void DisplayValue(Dumper::Dumper& dump, std::tuple<Identifier> values) override;
+			static std::shared_ptr<IdDisplay> Make();
+		};
+	};
 }
 
 #endif /* NEEXE_H */
