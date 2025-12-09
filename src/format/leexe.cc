@@ -1906,32 +1906,6 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Region resource_table_region("Resource table", resource_table_offset, resource_table_entry_count * 14, 8);
 		resource_table_region.Display(dump);
 
-		// TODO: identical to the table in neexe.c
-		static const std::map<offset_t, std::string> resource_id_descriptions =
-		{
-			{ OS2::RT_POINTER, "RT_POINTER" },
-			{ OS2::RT_BITMAP, "RT_BITMAP" },
-			{ OS2::RT_MENU, "RT_MENU" },
-			{ OS2::RT_DIALOG, "RT_DIALOG" },
-			{ OS2::RT_STRING, "RT_STRING" },
-			{ OS2::RT_FONTDIR, "RT_FONTDIR" },
-			{ OS2::RT_FONT, "RT_FONT" },
-			{ OS2::RT_ACCELERATOR, "RT_ACCELERATOR" },
-			{ OS2::RT_RCDATA, "RT_RCDATA" },
-			{ OS2::RT_MESSAGE, "RT_MESSAGE" },
-			{ OS2::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
-			{ OS2::RT_VKEYTBL, "RT_VKEYTBL" },
-			{ OS2::RT_KEYTBL, "RT_KEYTBL" },
-			{ OS2::RT_CHARTBL, "RT_CHARTBL" },
-			{ OS2::RT_DISPLAYINFO, "RT_DISPLAYINFO" },
-			{ OS2::RT_FKASHORT, "RT_FKASHORT" },
-			{ OS2::RT_FKALONG, "RT_FKALONG" },
-			{ OS2::RT_HELPTABLE, "RT_HELPTABLE" },
-			{ OS2::RT_HELPSUBTABLE, "RT_HELPSUBTABLE" },
-			{ OS2::RT_FDDIR, "RT_FDDIR" },
-			{ OS2::RT_FD, "RT_FD" },
-		};
-
 		uint32_t resource_index = 0;
 		for(auto& type_resources_pair : resources)
 		{
@@ -1940,7 +1914,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 				auto& resource = name_resource_pair.second;
 				Dumper::Entry resource_entry("Resource", resource_index + 1, resource_table_offset + resource_index * 0xE);
 				resource_entry.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(resource_index + 1));
-				resource_entry.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(resource.type));
+				resource_entry.AddField("Type ID", Dumper::ChoiceDisplay::Make(OS2::resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(resource.type));
 				resource_entry.AddField("Resource name ID", Dumper::HexDisplay::Make(4), offset_t(resource.name));
 				resource_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(resource.object), offset_t(resource.offset));
 				resource_entry.AddField("Size", Dumper::HexDisplay::Make(4), offset_t(resource.size));

@@ -40,6 +40,9 @@ namespace Microsoft
 			RT_HTML = 0x0017,
 			RT_MANIFEST = 0x0018,
 		};
+
+		extern const std::map<offset_t, std::string> resource_type_id_descriptions;
+		extern const std::map<offset_t, std::string> flagged_resource_type_id_descriptions;
 	}
 
 	namespace OS2
@@ -75,6 +78,8 @@ namespace Microsoft
 			RT_FDDIR = 0x0014,
 			RT_FD = 0x0015,
 		};
+
+		extern const std::map<offset_t, std::string> resource_type_id_descriptions;
 	}
 
 	/**
@@ -761,6 +766,21 @@ namespace Microsoft
 	class ResourceFile : public virtual Linker::Format
 	{
 	public:
+		enum system_type
+		{
+			System_Unspecified,
+			System_Windows,
+			System_Windows_1x,
+			System_Windows_3x,
+			System_OS2,
+		};
+		system_type system;
+
+		ResourceFile(system_type system = System_Unspecified)
+			: system(system)
+		{
+		}
+
 		typedef std::variant<uint16_t, std::string> Identifier;
 
 		static void ReadIdentifier(Linker::Reader& rd, Identifier& id);
@@ -786,12 +806,20 @@ namespace Microsoft
 		class IdDisplay : public Dumper::Display<Identifier>
 		{
 		public:
+			std::map<offset_t, std::string> names;
+
 			IdDisplay()
+			{
+			}
+
+			IdDisplay(const std::map<offset_t, std::string>& names)
+				: names(names)
 			{
 			}
 
 			void DisplayValue(Dumper::Dumper& dump, std::tuple<Identifier> values) override;
 			static std::shared_ptr<IdDisplay> Make();
+			static std::shared_ptr<IdDisplay> Make(const std::map<offset_t, std::string>& names);
 		};
 	};
 }

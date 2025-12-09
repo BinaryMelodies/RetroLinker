@@ -6,6 +6,81 @@
 
 using namespace Microsoft;
 
+const std::map<offset_t, std::string> OS2::resource_type_id_descriptions =
+{
+	{ OS2::RT_POINTER, "RT_POINTER" },
+	{ OS2::RT_BITMAP, "RT_BITMAP" },
+	{ OS2::RT_MENU, "RT_MENU" },
+	{ OS2::RT_DIALOG, "RT_DIALOG" },
+	{ OS2::RT_STRING, "RT_STRING" },
+	{ OS2::RT_FONTDIR, "RT_FONTDIR" },
+	{ OS2::RT_FONT, "RT_FONT" },
+	{ OS2::RT_ACCELERATOR, "RT_ACCELERATOR" },
+	{ OS2::RT_RCDATA, "RT_RCDATA" },
+	{ OS2::RT_MESSAGE, "RT_MESSAGE" },
+	{ OS2::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
+	{ OS2::RT_VKEYTBL, "RT_VKEYTBL" },
+	{ OS2::RT_KEYTBL, "RT_KEYTBL" },
+	{ OS2::RT_CHARTBL, "RT_CHARTBL" },
+	{ OS2::RT_DISPLAYINFO, "RT_DISPLAYINFO" },
+	{ OS2::RT_FKASHORT, "RT_FKASHORT" },
+	{ OS2::RT_FKALONG, "RT_FKALONG" },
+	{ OS2::RT_HELPTABLE, "RT_HELPTABLE" },
+	{ OS2::RT_HELPSUBTABLE, "RT_HELPSUBTABLE" },
+	{ OS2::RT_FDDIR, "RT_FDDIR" },
+	{ OS2::RT_FD, "RT_FD" },
+};
+
+const std::map<offset_t, std::string> Windows::resource_type_id_descriptions =
+{
+	{ Windows::RT_CURSOR, "RT_CURSOR" },
+	{ Windows::RT_BITMAP, "RT_BITMAP" },
+	{ Windows::RT_ICON, "RT_ICON" },
+	{ Windows::RT_MENU, "RT_MENU" },
+	{ Windows::RT_DIALOG, "RT_DIALOG" },
+	{ Windows::RT_STRING, "RT_STRING" },
+	{ Windows::RT_FONTDIR, "RT_FONTDIR" },
+	{ Windows::RT_FONT, "RT_FONT" },
+	{ Windows::RT_ACCELERATOR, "RT_ACCELERATOR" },
+	{ Windows::RT_RCDATA, "RT_RCDATA" },
+	{ Windows::RT_MESSAGETABLE, "RT_MESSAGETABLE" },
+	{ Windows::RT_GROUP_CURSOR, "RT_GROUP_CURSOR" },
+	{ Windows::RT_GROUP_ICON, "RT_GROUP_ICON" },
+	{ Windows::RT_VERSION, "RT_VERSION" },
+	{ Windows::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
+	{ Windows::RT_PLUGPLAY, "RT_PLUGPLAY" },
+	{ Windows::RT_VXD, "RT_VXD" },
+	{ Windows::RT_ANICURSOR, "RT_ANICURSOR" },
+	{ Windows::RT_ANIICON, "RT_ANIICON" },
+	{ Windows::RT_HTML, "RT_HTML" },
+	{ Windows::RT_MANIFEST, "RT_MANIFEST" },
+};
+
+const std::map<offset_t, std::string> Windows::flagged_resource_type_id_descriptions =
+{
+	{ 0x8000 | Windows::RT_CURSOR, "RT_CURSOR" },
+	{ 0x8000 | Windows::RT_BITMAP, "RT_BITMAP" },
+	{ 0x8000 | Windows::RT_ICON, "RT_ICON" },
+	{ 0x8000 | Windows::RT_MENU, "RT_MENU" },
+	{ 0x8000 | Windows::RT_DIALOG, "RT_DIALOG" },
+	{ 0x8000 | Windows::RT_STRING, "RT_STRING" },
+	{ 0x8000 | Windows::RT_FONTDIR, "RT_FONTDIR" },
+	{ 0x8000 | Windows::RT_FONT, "RT_FONT" },
+	{ 0x8000 | Windows::RT_ACCELERATOR, "RT_ACCELERATOR" },
+	{ 0x8000 | Windows::RT_RCDATA, "RT_RCDATA" },
+	{ 0x8000 | Windows::RT_MESSAGETABLE, "RT_MESSAGETABLE" },
+	{ 0x8000 | Windows::RT_GROUP_CURSOR, "RT_GROUP_CURSOR" },
+	{ 0x8000 | Windows::RT_GROUP_ICON, "RT_GROUP_ICON" },
+	{ 0x8000 | Windows::RT_VERSION, "RT_VERSION" },
+	{ 0x8000 | Windows::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
+	{ 0x8000 | Windows::RT_PLUGPLAY, "RT_PLUGPLAY" },
+	{ 0x8000 | Windows::RT_VXD, "RT_VXD" },
+	{ 0x8000 | Windows::RT_ANICURSOR, "RT_ANICURSOR" },
+	{ 0x8000 | Windows::RT_ANIICON, "RT_ANIICON" },
+	{ 0x8000 | Windows::RT_HTML, "RT_HTML" },
+	{ 0x8000 | Windows::RT_MANIFEST, "RT_MANIFEST" },
+};
+
 NEFormat::Segment::Relocation::source_type NEFormat::Segment::Relocation::GetType(Linker::Relocation& rel)
 {
 	if(rel.kind == Linker::Relocation::SelectorIndex)
@@ -181,34 +256,9 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 {
 	if(isos2)
 	{
-		static const std::map<offset_t, std::string> resource_id_descriptions =
-		{
-			{ OS2::RT_POINTER, "RT_POINTER" },
-			{ OS2::RT_BITMAP, "RT_BITMAP" },
-			{ OS2::RT_MENU, "RT_MENU" },
-			{ OS2::RT_DIALOG, "RT_DIALOG" },
-			{ OS2::RT_STRING, "RT_STRING" },
-			{ OS2::RT_FONTDIR, "RT_FONTDIR" },
-			{ OS2::RT_FONT, "RT_FONT" },
-			{ OS2::RT_ACCELERATOR, "RT_ACCELERATOR" },
-			{ OS2::RT_RCDATA, "RT_RCDATA" },
-			{ OS2::RT_MESSAGE, "RT_MESSAGE" },
-			{ OS2::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
-			{ OS2::RT_VKEYTBL, "RT_VKEYTBL" },
-			{ OS2::RT_KEYTBL, "RT_KEYTBL" },
-			{ OS2::RT_CHARTBL, "RT_CHARTBL" },
-			{ OS2::RT_DISPLAYINFO, "RT_DISPLAYINFO" },
-			{ OS2::RT_FKASHORT, "RT_FKASHORT" },
-			{ OS2::RT_FKALONG, "RT_FKALONG" },
-			{ OS2::RT_HELPTABLE, "RT_HELPTABLE" },
-			{ OS2::RT_HELPSUBTABLE, "RT_HELPSUBTABLE" },
-			{ OS2::RT_FDDIR, "RT_FDDIR" },
-			{ OS2::RT_FD, "RT_FD" },
-		};
-
 		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
-		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
+		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(OS2::resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
 		resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(id));
 		resource_block.AddField("Memory size", Dumper::HexDisplay::Make(4), offset_t(total_size));
 		resource_block.AddField("Flags",
@@ -242,34 +292,9 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 	}
 	else
 	{
-		static const std::map<offset_t, std::string> resource_id_descriptions =
-		{
-			{ 0x8000 | Windows::RT_CURSOR, "RT_CURSOR" },
-			{ 0x8000 | Windows::RT_BITMAP, "RT_BITMAP" },
-			{ 0x8000 | Windows::RT_ICON, "RT_ICON" },
-			{ 0x8000 | Windows::RT_MENU, "RT_MENU" },
-			{ 0x8000 | Windows::RT_DIALOG, "RT_DIALOG" },
-			{ 0x8000 | Windows::RT_STRING, "RT_STRING" },
-			{ 0x8000 | Windows::RT_FONTDIR, "RT_FONTDIR" },
-			{ 0x8000 | Windows::RT_FONT, "RT_FONT" },
-			{ 0x8000 | Windows::RT_ACCELERATOR, "RT_ACCELERATOR" },
-			{ 0x8000 | Windows::RT_RCDATA, "RT_RCDATA" },
-			{ 0x8000 | Windows::RT_MESSAGETABLE, "RT_MESSAGETABLE" },
-			{ 0x8000 | Windows::RT_GROUP_CURSOR, "RT_GROUP_CURSOR" },
-			{ 0x8000 | Windows::RT_GROUP_ICON, "RT_GROUP_ICON" },
-			{ 0x8000 | Windows::RT_VERSION, "RT_VERSION" },
-			{ 0x8000 | Windows::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
-			{ 0x8000 | Windows::RT_PLUGPLAY, "RT_PLUGPLAY" },
-			{ 0x8000 | Windows::RT_VXD, "RT_VXD" },
-			{ 0x8000 | Windows::RT_ANICURSOR, "RT_ANICURSOR" },
-			{ 0x8000 | Windows::RT_ANIICON, "RT_ANIICON" },
-			{ 0x8000 | Windows::RT_HTML, "RT_HTML" },
-			{ 0x8000 | Windows::RT_MANIFEST, "RT_MANIFEST" },
-		};
-
 		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
-		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(resource_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
+		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(Windows::flagged_resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
 		resource_block.AddOptionalField("Type ID name", Dumper::StringDisplay::Make(), type_id_name);
 		resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(id));
 		resource_block.AddOptionalField("Resource ID name", Dumper::StringDisplay::Make(), id_name);
@@ -2124,12 +2149,31 @@ void ResourceFile::Dump(Dumper::Dumper& dump) const
 	if(dump.encoding == nullptr)
 		dump.SetEncoding(Dumper::Block::encoding_windows1252);
 
+	static const std::map<offset_t, std::string> empty_map;
+	const std::map<offset_t, std::string> * resource_type_id_descriptions;
+
+	switch(system)
+	{
+	case System_Unspecified:
+	default:
+		resource_type_id_descriptions = &empty_map;
+		break;
+	case System_Windows:
+	case System_Windows_1x:
+	case System_Windows_3x:
+		resource_type_id_descriptions = &Windows::resource_type_id_descriptions;
+		break;
+	case System_OS2:
+		resource_type_id_descriptions = &OS2::resource_type_id_descriptions;
+		break;
+	}
+
 	offset_t current_offset = 0;
 	for(auto& resource : resources)
 	{
 		current_offset += IdentifierSize(resource.type) + IdentifierSize(resource.name) + 6;
 		Dumper::Block resource_block("Resource", current_offset, resource.image->AsImage(), 0, 8);
-		resource_block.AddField("Type", IdDisplay::Make(), resource.type);
+		resource_block.AddField("Type", IdDisplay::Make(*resource_type_id_descriptions), resource.type);
 		resource_block.AddField("Name", IdDisplay::Make(), resource.name);
 		resource_block.AddField("Flags",
 			Dumper::BitFieldDisplay::Make(4)
@@ -2149,6 +2193,11 @@ void ResourceFile::IdDisplay::DisplayValue(Dumper::Dumper& dump, std::tuple<Iden
 	if(auto ordinal_p = std::get_if<uint16_t>(&id))
 	{
 		dump.PrintHex(*ordinal_p, 4);
+		auto it = names.find(*ordinal_p);
+		if(it != names.end())
+		{
+			dump.out << " (" << it->second << ")";
+		}
 	}
 	else if(auto string_p = std::get_if<std::string>(&id))
 	{
@@ -2166,5 +2215,10 @@ void ResourceFile::IdDisplay::DisplayValue(Dumper::Dumper& dump, std::tuple<Iden
 std::shared_ptr<ResourceFile::IdDisplay> ResourceFile::IdDisplay::Make()
 {
 	return std::make_shared<IdDisplay>();
+}
+
+std::shared_ptr<ResourceFile::IdDisplay> ResourceFile::IdDisplay::Make(const std::map<offset_t, std::string>& names)
+{
+	return std::make_shared<IdDisplay>(names);
 }
 

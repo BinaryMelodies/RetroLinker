@@ -534,7 +534,21 @@ format_specification formats[] =
 	// not executable formats
 	/* Windows and OS/2 resource files */
 	{ "res", []() -> std::shared_ptr<Format> { return std::make_shared<Microsoft::ResourceFile>(); },
-		"Resource files for OS/2 and 16-bit Windows" },
+		"Resource files for OS/2 and 16-bit Windows (target system unspecified)" },
+	{ "res_win", []() -> std::shared_ptr<Format> { return std::make_shared<Microsoft::ResourceFile>(Microsoft::ResourceFile::System_Windows); },
+		"Resource files for 16-bit Windows" },
+	{ "res_win10", []() -> std::shared_ptr<Format> { return std::make_shared<Microsoft::ResourceFile>(Microsoft::ResourceFile::System_Windows_1x); },
+		"Resource files for 16-bit Windows 1.x/2.x" },
+	{ "res_win1x" },
+	{ "res_win20" },
+	{ "res_win2x" },
+	{ "res_win16", []() -> std::shared_ptr<Format> { return std::make_shared<Microsoft::ResourceFile>(Microsoft::ResourceFile::System_Windows_3x); },
+		"Resource files for 16-bit Windows 3.x" },
+	{ "res_win30" },
+	{ "res_win31" },
+	{ "res_win3x" },
+	{ "res_os2", []() -> std::shared_ptr<Format> { return std::make_shared<Microsoft::ResourceFile>(Microsoft::ResourceFile::System_OS2); },
+		"Resource files for OS/2" },
 };
 
 const size_t formats_size = sizeof(formats) / sizeof(formats[0]);
