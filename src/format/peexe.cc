@@ -372,7 +372,6 @@ void PEFormat::Section::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt
 	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
 	if(section_pointer != 0)
 	{
-		std::cerr << "write " << name << " at " << std::hex << section_pointer << std::endl;
 		wr.Seek(section_pointer);
 		image->WriteFile(wr);
 		if(wr.Tell() != section_pointer + size)
@@ -3431,5 +3430,152 @@ void PEFormat::RVADisplay::DisplayValue(Dumper::Dumper& dump, std::tuple<offset_
 std::shared_ptr<PEFormat::RVADisplay> PEFormat::MakeRVADisplay(unsigned width) const
 {
 	return std::make_shared<RVADisplay>(this, width);
+}
+
+void NTResourceFile::ReadIdentifier(Linker::Reader& rd, Identifier& id)
+{
+	uint16_t first_word;
+
+	first_word = rd.ReadUnsigned(2, ::LittleEndian);
+	if(first_word == 0xFFFF)
+	{
+		id = uint16_t(rd.ReadUnsigned(2, ::LittleEndian));
+	}
+	else
+	{
+		rd.Skip(-2);
+		id = rd.ReadUTF16ZData();
+	}
+}
+
+void NTResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
+{
+	if(auto ordinal_p = std::get_if<uint16_t>(&id))
+	{
+		wr.WriteWord(2, 0xFFFF, ::LittleEndian);
+		wr.WriteWord(2, *ordinal_p, ::LittleEndian);
+	}
+	else if(auto string_p = std::get_if<std::string>(&id))
+	{
+		wr.WriteData(string_p->size(), *string_p);
+		wr.WriteWord(2, 0, ::LittleEndian);
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+offset_t NTResourceFile::GetIdentifierSize(const Identifier& id)
+{
+	if(std::get_if<uint16_t>(&id))
+	{
+		return 4;
+	}
+	else if(auto string_p = std::get_if<std::string>(&id))
+	{
+		return 2 + string_p->size();
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
+void NTResourceFile::ReadFile(Linker::Reader& rd)
+{
+	offset_t starting_offset = rd.Tell();
+	rd.SeekEnd();
+	offset_t ending_offset = rd.Tell();
+	rd.Seek(starting_offset);
+
+	while(rd.Tell() < ending_offset)
+	{
+		offset_t current_offset = rd.Tell();
+		Resource resource;
+
+		uint32_t size = rd.ReadUnsigned(4, ::LittleEndian);
+		resource.header_size = rd.ReadUnsigned(4, ::LittleEndian);
+
+		ReadIdentifier(rd, resource.type);
+		ReadIdentifier(rd, resource.name);
+
+		resource.data_version = rd.ReadUnsigned(4, ::LittleEndian);
+		resource.flags = rd.ReadUnsigned(2, ::LittleEndian);
+		resource.language_id = rd.ReadUnsigned(2, ::LittleEndian);
+		resource.version = rd.ReadUnsigned(4, ::LittleEndian);
+		resource.characteristics = rd.ReadUnsigned(4, ::LittleEndian);
+
+		rd.Seek(current_offset + resource.header_size);
+		resource.image = Linker::Buffer::ReadFromFile(rd, size);
+
+		resources.emplace_back(resource);
+	}
+}
+
+void NTResourceFile::CalculateValues()
+{
+	for(auto& resource : resources)
+	{
+		offset_t minimum_header_size = 24 + GetIdentifierSize(resource.type) + GetIdentifierSize(resource.name);
+		if(resource.header_size < minimum_header_size)
+			resource.header_size = minimum_header_size;
+	}
+}
+
+offset_t NTResourceFile::WriteFile(Linker::Writer& wr) const
+{
+	for(auto& resource : resources)
+	{
+		offset_t current_offset = wr.Tell();
+
+		wr.WriteWord(4, resource.image->ImageSize(), ::LittleEndian);
+		wr.WriteWord(4, resource.header_size, ::LittleEndian);
+
+		WriteIdentifier(wr, resource.type);
+		WriteIdentifier(wr, resource.name);
+
+		wr.WriteWord(4, resource.data_version, ::LittleEndian);
+		wr.WriteWord(2, resource.flags, ::LittleEndian);
+		wr.WriteWord(2, resource.language_id, ::LittleEndian);
+		wr.WriteWord(4, resource.version, ::LittleEndian);
+		wr.WriteWord(4, resource.characteristics, ::LittleEndian);
+
+		wr.Seek(current_offset + resource.header_size);
+		resource.image->WriteFile(wr);
+	}
+	return offset_t(-1); // TODO
+}
+
+void NTResourceFile::Dump(Dumper::Dumper& dump) const
+{
+	Dumper::Encoding * encoding = dump.encoding;
+	dump.SetEncoding(Dumper::Block::encoding_windows1252);
+	dump.SetStringEncoding(Dumper::Block::encoding_utf16le);
+
+	offset_t current_offset = 0;
+	for(auto& resource : resources)
+	{
+		Dumper::Region header_region("Resource header", current_offset, resource.header_size, 8);
+		header_region.Display(dump);
+
+		current_offset += GetIdentifierSize(resource.type) + GetIdentifierSize(resource.name) + 6;
+		Dumper::Block resource_block("Resource", current_offset, resource.image->AsImage(), 0, 8);
+		resource_block.AddField("Type", IdDisplay::Make(Windows::resource_type_id_descriptions), resource.type);
+		resource_block.AddField("Name", IdDisplay::Make(), resource.name);
+		resource_block.AddField("Language", Dumper::HexDisplay::Make(4), offset_t(resource.language_id)); // TODO: names
+		resource_block.AddField("Flags",
+			Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("movable", "fixed"), false)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("pure", "impure"), false)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true),
+			offset_t(resource.flags));
+		resource_block.AddOptionalField("Data version", Dumper::HexDisplay::Make(), offset_t(resource.data_version));
+		resource_block.AddOptionalField("Version", Dumper::HexDisplay::Make(), offset_t(resource.data_version));
+		resource_block.AddOptionalField("Characteristics", Dumper::HexDisplay::Make(), offset_t(resource.data_version));
+		resource_block.Display(dump);
+		current_offset += resource.image->ImageSize();
+	}
 }
 

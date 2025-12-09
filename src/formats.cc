@@ -549,6 +549,9 @@ format_specification formats[] =
 	{ "res_win3x" },
 	{ "res_os2", []() -> std::shared_ptr<Format> { return std::make_shared<Microsoft::ResourceFile>(Microsoft::ResourceFile::System_OS2); },
 		"Resource files for OS/2" },
+	{ "res_nt", []() -> std::shared_ptr<Format> { return std::make_shared<Microsoft::NTResourceFile>(); },
+		"Resource files for 32-bit Windows" },
+	{ "res_win32" },
 };
 
 const size_t formats_size = sizeof(formats) / sizeof(formats[0]);

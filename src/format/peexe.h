@@ -7,6 +7,7 @@
 #include "../linker/segment_manager.h"
 #include "coff.h"
 #include "mzexe.h"
+#include "neexe.h"
 
 namespace Microsoft
 {
@@ -1101,6 +1102,36 @@ namespace Microsoft
 		};
 
 		std::shared_ptr<RVADisplay> MakeRVADisplay(unsigned width = 8) const;
+	};
+
+	class NTResourceFile : public virtual Linker::Format
+	{
+	public:
+		typedef ResourceFile::Identifier Identifier;
+
+		static void ReadIdentifier(Linker::Reader& rd, Identifier& id);
+		static void WriteIdentifier(Linker::Writer& wr, const Identifier& id);
+		static offset_t GetIdentifierSize(const Identifier& id);
+
+		class Resource : public ResourceFile::Resource
+		{
+		public:
+			uint32_t header_size;
+			uint32_t data_version;
+			uint16_t language_id;
+			uint32_t version;
+			uint32_t characteristics;
+		};
+
+		std::vector<Resource> resources;
+
+		void ReadFile(Linker::Reader& rd) override;
+		void CalculateValues();
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+
+		typedef ResourceFile::IdDisplay IdDisplay;
 	};
 }
 
