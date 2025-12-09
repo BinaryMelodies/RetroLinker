@@ -500,7 +500,7 @@ LEFormat::Page LEFormat::Page::LXPage(uint32_t offset, uint16_t size, uint8_t ty
 
 void LEFormat::Page::FillDumpRegion(Dumper::Dumper& dump, Dumper::Region& page_region, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
 {
-	page_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(page_index + 1));
+	page_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(page_index));
 	page_region.AddField("Object", Dumper::DecDisplay::Make(), offset_t(object_number + 1));
 	static const std::map<offset_t, std::string> page_type_descriptions =
 	{
@@ -1192,7 +1192,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 			pages.push_back(page);
 		}
 
-		while(rd.Tell() < resource_table_offset)
+		offset_t page_map_table_end = resource_table_offset ? resource_table_offset : resident_name_table_offset;
+		while(rd.Tell() < page_map_table_end)
 		{
 			uint32_t page_number = rd.ReadUnsigned(3, ::BigEndian);
 			Page::page_type type = Page::page_type(rd.ReadUnsigned(1));
@@ -1941,7 +1942,8 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	}
 	else
 	{
-		Dumper::Region object_page_map_table_region("Object page map table", object_page_table_offset, resource_table_offset - object_page_table_offset, 8);
+		offset_t page_map_table_size = resource_table_offset ? resource_table_offset - object_page_table_offset : resident_name_table_offset - object_page_table_offset;
+		Dumper::Region object_page_map_table_region("Object page map table", object_page_table_offset, page_map_table_size, 8);
 		object_page_map_table_region.AddField("Page count", Dumper::HexDisplay::Make(8), offset_t(page_count));
 		object_page_map_table_region.AddField("Page size", Dumper::HexDisplay::Make(8), offset_t(page_size));
 		object_page_map_table_region.AddField("Iterated pages offset", Dumper::HexDisplay::Make(8), offset_t(object_iterated_pages_offset));
