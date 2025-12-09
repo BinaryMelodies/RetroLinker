@@ -170,7 +170,7 @@ namespace Microsoft
 		{
 		public:
 			/** @brief LX (and presumably LE) page types */
-			enum page_type_t
+			enum page_type
 			{
 				Preload = 0,
 				Iterated = 1,
@@ -179,14 +179,6 @@ namespace Microsoft
 				Range = 4,
 				Compressed = 5,
 			};
-
-			/**
-			 * @brief (LE only) The page number (stored as a big endian 24-bit entry)
-			 *
-			 * The available documentation contradict each other, but it seems to describe the offset of the page within the file, as well as the page fixup table entry index.
-			 * In the LX format, the offset field serves a similar purpose.
-			 */
-			uint32_t page_number = 0;
 
 			/**
 			 * @brief (LX only) Offset of the page within the file
@@ -210,7 +202,7 @@ namespace Microsoft
 			 */
 			uint16_t type = 0;
 
-			page_type_t GetPageType(const LEFormat& fmt) const;
+			page_type GetPageType(const LEFormat& fmt) const;
 
 			/** @brief The offset to the first fixup from the fixup record table, as stored in the fixup page table */
 			uint32_t fixup_offset = 0;
@@ -341,19 +333,7 @@ namespace Microsoft
 			{
 			}
 
-		protected:
-			Page(uint16_t page_number, uint8_t type)
-				: page_number(page_number), type(type)
-			{
-			}
-
-			Page(uint32_t offset, uint16_t size, uint8_t type)
-				: offset(offset), size(size), type(type)
-			{
-			}
-
-		public:
-			static Page LEPage(uint16_t page_number, uint8_t type);
+			static Page LEPage(uint8_t type);
 
 			static Page LXPage(uint32_t offset, uint16_t size, uint8_t type);
 
@@ -591,6 +571,16 @@ namespace Microsoft
 		std::vector<ModuleDirective> module_directives;
 
 		std::vector<Page> pages;
+		/**
+		 * @brief (LE only) The object page map table contents
+		 *
+		 * The available documentation contradict each other, but each object page seems to map to a physical page offset within the file.
+		 * In the LX format, the offset field of the object page table serves a similar purpose.
+		 */
+		std::vector<std::tuple<uint32_t, Page::page_type>> page_map_table;
+
+		uint32_t ObjectPageToPhysicalPage(uint32_t index) const;
+
 		std::map<uint16_t, std::map<uint16_t, Resource>> resources;
 		std::vector<Name> resident_names, nonresident_names;
 		std::vector<Entry> entries;

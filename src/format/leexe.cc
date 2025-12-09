@@ -148,9 +148,9 @@ offset_t LEFormat::IteratedPage::View::WriteFile(Linker::Writer& wr, offset_t co
 	return offset_t(-1);
 }
 
-LEFormat::Page::page_type_t LEFormat::Page::GetPageType(const LEFormat& fmt) const
+LEFormat::Page::page_type LEFormat::Page::GetPageType(const LEFormat& fmt) const
 {
-	return page_type_t(type);
+	return page_type(type);
 }
 
 LEFormat::Page::Relocation::source_type LEFormat::Page::Relocation::GetType(Linker::Relocation& rel)
@@ -482,24 +482,26 @@ void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr) const
 	}
 }
 
-LEFormat::Page LEFormat::Page::LEPage(uint16_t page_number, uint8_t type)
+LEFormat::Page LEFormat::Page::LEPage(uint8_t type)
 {
-	return Page(page_number, type);
+	Page page;
+	page.type = type;
+	return page;
 }
 
 LEFormat::Page LEFormat::Page::LXPage(uint32_t offset, uint16_t size, uint8_t type)
 {
-	return Page(offset, size, type);
+	Page page;
+	page.offset = offset;
+	page.size = size;
+	page.type = type;
+	return page;
 }
 
 void LEFormat::Page::FillDumpRegion(Dumper::Dumper& dump, Dumper::Region& page_region, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
 {
 	page_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(page_index + 1));
 	page_region.AddField("Object", Dumper::DecDisplay::Make(), offset_t(object_number + 1));
-	if(!fmt.IsExtendedFormat())
-	{
-		page_region.AddField("Page number", Dumper::DecDisplay::Make(), offset_t(page_number));
-	}
 	static const std::map<offset_t, std::string> page_type_descriptions =
 	{
 		{ 0, "legal physical page" },
@@ -608,8 +610,25 @@ void LEFormat::Page::Dump(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t pa
 	offset_t object_number = 0;
 	for(auto& object : fmt.objects)
 	{
-		if(object.page_table_index <= page_index && page_index < object.page_table_index + object.page_entry_count)
-			break;
+		if(fmt.IsExtendedFormat())
+		{
+			if(object.page_table_index <= page_index && page_index < object.page_table_index + object.page_entry_count)
+				break;
+		}
+		else
+		{
+			bool object_found = false;
+			for(uint32_t object_page_number = object.page_table_index; object_page_number < object.page_table_index + object.page_entry_count; object_page_number++)
+			{
+				if(fmt.ObjectPageToPhysicalPage(object_page_number) == page_index)
+				{
+					object_found = true;
+					break;
+				}
+			}
+			if(object_found)
+				break;
+		}
 		object_number++;
 	}
 
@@ -968,6 +987,18 @@ void LEFormat::SetTargetDefaults()
 	}
 }
 
+uint32_t LEFormat::ObjectPageToPhysicalPage(uint32_t index) const
+{
+	if(IsExtendedFormat())
+	{
+		return index;
+	}
+	else
+	{
+		return std::get<0>(page_map_table[index - 1]);
+	}
+}
+
 bool LEFormat::IsLibrary() const
 {
 	return output == OUTPUT_DLL;
@@ -1139,7 +1170,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 
 	file_size = std::max(file_size, rd.Tell());
 
-	/* Object Page Table */
+	/* (LE) Object Page Map Table/(LX) Object Page Table */
 	rd.Seek(object_page_table_offset);
 	pages.push_back(Page());
 	if(IsExtendedFormat())
@@ -1158,9 +1189,16 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		for(uint32_t i = 0; i < page_count; i++)
 		{
 			Page page;
-			page.page_number = rd.ReadUnsigned(3, ::BigEndian);
-			page.type = rd.ReadUnsigned(1);
 			pages.push_back(page);
+		}
+
+		while(rd.Tell() < resource_table_offset)
+		{
+			uint32_t page_number = rd.ReadUnsigned(3, ::BigEndian);
+			Page::page_type type = Page::page_type(rd.ReadUnsigned(1));
+			page_map_table.push_back(std::make_tuple(page_number, type));
+
+			pages[page_number].type = type;
 		}
 	}
 	pages.push_back(Page());
@@ -1559,12 +1597,10 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	}
 	else
 	{
-		for(const Page& page : pages)
+		for(auto page_map_info : page_map_table)
 		{
-			if(&page == &pages.front() || &page == &pages.back())
-				continue;
-			wr.WriteWord(3, page.page_number, ::BigEndian);
-			wr.WriteWord(1, page.type);
+			wr.WriteWord(3, std::get<0>(page_map_info), ::BigEndian);
+			wr.WriteWord(1, std::get<1>(page_map_info));
 		}
 	}
 
@@ -1895,11 +1931,32 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		i++;
 	}
 
-	Dumper::Region object_page_table_region("Object page table", object_page_table_offset, page_count * (IsExtendedFormat() ? 8 : 4), 8);
-	object_page_table_region.AddField("Page count", Dumper::HexDisplay::Make(8), offset_t(page_count));
-	object_page_table_region.AddField("Page size", Dumper::HexDisplay::Make(8), offset_t(page_size));
-	object_page_table_region.AddField("Iterated pages offset", Dumper::HexDisplay::Make(8), offset_t(object_iterated_pages_offset));
-	object_page_table_region.Display(dump);
+	if(IsExtendedFormat())
+	{
+		Dumper::Region object_page_table_region("Object page table", object_page_table_offset, page_count * 8, 8);
+		object_page_table_region.AddField("Page count", Dumper::HexDisplay::Make(8), offset_t(page_count));
+		object_page_table_region.AddField("Page size", Dumper::HexDisplay::Make(8), offset_t(page_size));
+		object_page_table_region.AddField("Iterated pages offset", Dumper::HexDisplay::Make(8), offset_t(object_iterated_pages_offset));
+		object_page_table_region.Display(dump);
+	}
+	else
+	{
+		Dumper::Region object_page_map_table_region("Object page map table", object_page_table_offset, resource_table_offset - object_page_table_offset, 8);
+		object_page_map_table_region.AddField("Page count", Dumper::HexDisplay::Make(8), offset_t(page_count));
+		object_page_map_table_region.AddField("Page size", Dumper::HexDisplay::Make(8), offset_t(page_size));
+		object_page_map_table_region.AddField("Iterated pages offset", Dumper::HexDisplay::Make(8), offset_t(object_iterated_pages_offset));
+		object_page_map_table_region.Display(dump);
+
+		uint32_t entry_index = 0;
+		for(auto& page_map_entry : page_map_table)
+		{
+			Dumper::Entry name_entry("Page map", entry_index + 1, object_page_table_offset + 4 * entry_index, 8);
+			name_entry.AddField("Page number", Dumper::HexDisplay::Make(8), offset_t(std::get<0>(page_map_entry)));
+			name_entry.AddField("Type", Dumper::HexDisplay::Make(2), offset_t(std::get<1>(page_map_entry))); // TODO: print type names
+			name_entry.Display(dump);
+			entry_index ++;
+		}
+	}
 
 	if(resource_table_entry_count != 0)
 	{
@@ -2129,12 +2186,12 @@ offset_t LEFormat::GetPageOffset(uint32_t index) const
 		return
 			IsExtendedFormat()
 			? data_pages_offset + pages[index].offset
-			: data_pages_offset + page_size * (pages[index].page_number - 1);
+			: data_pages_offset + page_size * (index - 1);
 	case Page::Iterated:
 		return
 			IsExtendedFormat()
 			? object_iterated_pages_offset + pages[index].offset
-			: object_iterated_pages_offset + page_size * (pages[index].page_number - 1);
+			: object_iterated_pages_offset + page_size * (index - 1);
 	case Page::Invalid:
 	case Page::ZeroFilled:
 		return 0;
@@ -2546,9 +2603,10 @@ void LEFormat::ProcessModule(Linker::Module& module)
 			else
 			{
 				uint32_t page_number = pages.size();
-				pages.push_back(Page::LEPage(page_number, Page::Preload));
+				pages.push_back(Page::LEPage(Page::Preload));
 				pages.back().image = std::make_shared<SegmentPage>(object.image, page_size * (page_number - object.page_table_index),
 					&object == &objects.back() && i == object.page_entry_count - 1 ? object_size & (page_size - 1) : page_size);
+				page_map_table.push_back(std::make_tuple(pages.size() - 1, Page::page_type(pages.back().type)));
 			}
 		}
 	}
