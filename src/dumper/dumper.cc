@@ -3,6 +3,62 @@
 
 using namespace Dumper;
 
+char32_t SingleByteEncoding::GetChar(uint8_t const *& input, size_t& length)
+{
+	if(length > 0)
+	{
+		length --;
+		return (* codepage)[*input++];
+	}
+	return char32_t(-1);
+}
+
+char32_t UTF8Encoding::GetChar(uint8_t const *& input, size_t& length)
+{
+	char const * input_pointer = reinterpret_cast<char const *>(input);
+	char32_t result_char;
+	char32_t * output_pointer = &result_char;
+	UTF8ToUTF32(input_pointer, output_pointer, length);
+	length -= input_pointer - reinterpret_cast<char const *>(input);
+	input = reinterpret_cast<uint8_t const *>(input_pointer);
+	return result_char;
+}
+
+char32_t UTF16Encoding::GetChar(uint8_t const *& input, size_t& length)
+{
+	char16_t input_buffer[2];
+	if(length < 2)
+	{
+		return char32_t(-1);
+	}
+	input_buffer[0] = ::ReadUnsigned(2, 2, input, ::LittleEndian);
+	if(length >= 4)
+	{
+		input_buffer[1] = ::ReadUnsigned(2, 2, input + 2, ::LittleEndian);
+	}
+	char16_t const * input_pointer = input_buffer;
+	char32_t result_char;
+	char32_t * output_pointer = &result_char;
+	UTF16ToUTF32(input_pointer, output_pointer, length >= 4 ? 2 : 1);
+	input += 2 * (const_cast<char16_t *>(input_pointer) - input_buffer);
+	length -= 2 * (const_cast<char16_t *>(input_pointer) - input_buffer);
+	return result_char;
+}
+
+char32_t UTF32Encoding::GetChar(uint8_t const *& input, size_t& length)
+{
+	char32_t result_char;
+	if(length < 4)
+	{
+		return char32_t(-1);
+	}
+
+	result_char = ::ReadUnsigned(4, 4, input, ::LittleEndian);
+	input += 4;
+	length -= 4;
+	return result_char;
+}
+
 bool ChoiceDisplay::IsMissing(std::tuple<offset_t>& values)
 {
 	if(missing_on_value)
@@ -92,24 +148,11 @@ void StringDisplay::DisplayValue(Dumper& dump, std::tuple<std::string> values)
 	dump.out << open_quote;
 	if(width == offset_t(-1))
 	{
-		for(offset_t i = 0; i < std::get<0>(values).size() && std::get<0>(values)[i] != '\0'; i++)
-		{
-			dump.PutChar((*dump.encoding)[std::get<0>(values)[i] & 0xFF]);
-		}
+		dump.PutEncodedString(std::get<0>(values), true);
 	}
 	else
 	{
-		offset_t i;
-		for(i = 0; i < width; i++)
-		{
-			if(i >= std::get<0>(values).size())
-				break;
-			dump.PutChar((*dump.encoding)[std::get<0>(values)[i] & 0xFF]);
-		}
-		for(; i < width; i++)
-		{
-			dump.PutChar((*dump.encoding)[0]);
-		}
+		dump.PutEncodedString(width, std::get<0>(values), (*dump.encoding)[0]);
 	}
 	dump.out << close_quote;
 }
@@ -443,7 +486,7 @@ char32_t Block::encoding_default[256] =
 };
 #endif
 
-char32_t Block::encoding_default[256] =
+static char32_t _table_encoding_default[256] =
 {
 	0x2400, 0x2401, 0x2402, 0x2403, 0x2404, 0x2405, 0x2406, 0x2407,
 	0x2400, 0x2401, 0x2402, 0x2403, 0x2404, 0x2405, 0x2406, 0x2407,
@@ -478,8 +521,9 @@ char32_t Block::encoding_default[256] =
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 	0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD, 0xFFFD,
 };
+SingleByteEncoding Block::encoding_default(_table_encoding_default);
 
-char32_t Block::encoding_cp437[256] =
+static char32_t _table_encoding_cp437[256] =
 {
 	0x2400, 0x263A, 0x263B, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022,
 	0x25D8, 0x25CB, 0x25D9, 0x2642, 0x2640, 0x266A, 0x266B, 0x263C,
@@ -514,8 +558,9 @@ char32_t Block::encoding_cp437[256] =
 	0x2261, 0x00B1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00F7, 0x2248,
 	0x00B0, 0x2219, 0x00B7, 0x221A, 0x207F, 0x00B2, 0x25A0, 0xFFFD,
 };
+SingleByteEncoding Block::encoding_cp437(_table_encoding_cp437);
 
-char32_t Block::encoding_st[256] =
+static char32_t _table_encoding_st[256] =
 {
 	0x2400, 0x21E7, 0x21E9, 0x21E8, 0x21E6, 0xFFFD, 0xFFFD, 0xFFFD,
 	0x2713, 0xFFFD, 0xFFFD, 0x266A, 0x240C, 0x240D, 0xFFFD, 0xFFFD,
@@ -550,8 +595,9 @@ char32_t Block::encoding_st[256] =
 	0x2261, 0x00B1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00F7, 0x2248,
 	0x00B0, 0x2022, 0x00B7, 0x221A, 0x207F, 0x00B2, 0x00B3, 0x00AF,
 };
+SingleByteEncoding Block::encoding_st(_table_encoding_st);
 
-char32_t Block::encoding_iso8859_1[256] =
+static char32_t _table_encoding_iso8859_1[256] =
 {
 	0x2400, 0x2401, 0x2402, 0x2403, 0x2404, 0x2405, 0x2406, 0x2407,
 	0x2400, 0x2401, 0x2402, 0x2403, 0x2404, 0x2405, 0x2406, 0x2407,
@@ -586,8 +632,9 @@ char32_t Block::encoding_iso8859_1[256] =
 	0x00F0, 0x00F1, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x00F7,
 	0x00F8, 0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x00FD, 0x00FE, 0x00FF,
 };
+SingleByteEncoding Block::encoding_iso8859_1(_table_encoding_iso8859_1);
 
-char32_t Block::encoding_windows1252[256] =
+static char32_t _table_encoding_windows1252[256] =
 {
 	0x2400, 0x2401, 0x2402, 0x2403, 0x2404, 0x2405, 0x2406, 0x2407,
 	0x2400, 0x2401, 0x2402, 0x2403, 0x2404, 0x2405, 0x2406, 0x2407,
@@ -622,4 +669,11 @@ char32_t Block::encoding_windows1252[256] =
 	0x00F0, 0x00F1, 0x00F2, 0x00F3, 0x00F4, 0x00F5, 0x00F6, 0x00F7,
 	0x00F8, 0x00F9, 0x00FA, 0x00FB, 0x00FC, 0x00FD, 0x00FE, 0x00FF,
 };
+SingleByteEncoding Block::encoding_windows1252(_table_encoding_windows1252);
+
+UTF8Encoding Block::encoding_utf8;
+UTF16Encoding Block::encoding_utf16le(::LittleEndian);
+UTF16Encoding Block::encoding_utf16be(::BigEndian);
+UTF32Encoding Block::encoding_utf32le(::LittleEndian);
+UTF32Encoding Block::encoding_utf32be(::BigEndian);
 

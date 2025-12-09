@@ -6,12 +6,83 @@
 #include <set>
 #include <vector>
 #include "../common.h"
+#include "../unicode.h"
 #include "../linker/image.h"
 
 namespace Dumper
 {
 
 class Dumper;
+
+class Encoding
+{
+public:
+	virtual ~Encoding() = default;
+
+	virtual char32_t GetChar(uint8_t const *& input, size_t& length) = 0;
+
+	char32_t operator[](uint8_t input)
+	{
+		uint8_t const * input_pointer = &input;
+		size_t length = 1;
+		return GetChar(input_pointer, length);
+	}
+};
+
+class SingleByteEncoding : public Encoding
+{
+public:
+	char32_t (* codepage)[256];
+
+	SingleByteEncoding() = delete;
+	SingleByteEncoding(const SingleByteEncoding& ) = delete;
+
+	SingleByteEncoding(char32_t (& codepage)[256])
+		: codepage(&codepage)
+	{
+		assert(this->codepage != nullptr);
+	}
+
+	char32_t GetChar(uint8_t const *& input, size_t& length) override;
+};
+
+// TODO: untested
+class UTF8Encoding : public Encoding
+{
+public:
+	UTF8Encoding()
+	{
+	}
+
+	char32_t GetChar(uint8_t const *& input, size_t& length) override;
+};
+
+class UTF16Encoding : public Encoding
+{
+public:
+	::EndianType endiantype;
+
+	UTF16Encoding(::EndianType endiantype)
+		: endiantype(endiantype)
+	{
+	}
+
+	char32_t GetChar(uint8_t const *& input, size_t& length) override;
+};
+
+// TODO: untested
+class UTF32Encoding : public Encoding
+{
+public:
+	::EndianType endiantype;
+
+	UTF32Encoding(::EndianType endiantype)
+		: endiantype(endiantype)
+	{
+	}
+
+	char32_t GetChar(uint8_t const *& input, size_t& length) override;
+};
 
 /**
  * @brief This class represents an entry that can be displayed in a file dump
@@ -530,11 +601,16 @@ public:
 	/** @brief Displaying in-memory addresses */
 	unsigned address_display_width;
 
-	static char32_t encoding_default[256];
-	static char32_t encoding_cp437[256];
-	static char32_t encoding_st[256];
-	static char32_t encoding_iso8859_1[256];
-	static char32_t encoding_windows1252[256];
+	static SingleByteEncoding encoding_default;
+	static SingleByteEncoding encoding_cp437;
+	static SingleByteEncoding encoding_st;
+	static SingleByteEncoding encoding_iso8859_1;
+	static SingleByteEncoding encoding_windows1252;
+	static UTF8Encoding encoding_utf8;
+	static UTF16Encoding encoding_utf16le;
+	static UTF16Encoding encoding_utf16be;
+	static UTF32Encoding encoding_utf32le;
+	static UTF32Encoding encoding_utf32be;
 
 	std::shared_ptr<Linker::ActualImage> image;
 
@@ -588,19 +664,25 @@ public:
 	std::ostream& out;
 	bool use_ansi;
 
-	char32_t (* encoding)[256];
+	SingleByteEncoding * encoding;
+	Encoding * string_encoding;
 
 	Dumper(std::ostream& out)
-		: out(out), use_ansi(true), encoding(nullptr)
+		: out(out), use_ansi(true), encoding(nullptr), string_encoding(nullptr)
 	{
 	}
 
-	void SetEncoding(char32_t (& encoding)[256], bool force = false)
+	void SetEncoding(SingleByteEncoding& encoding, bool force = false)
 	{
 		if(this->encoding == nullptr || force)
 		{
 			this->encoding = &encoding;
 		}
+	}
+
+	void SetStringEncoding(Encoding& encoding)
+	{
+		this->string_encoding = &encoding;
 	}
 
 	void SetTitle(std::string title)
@@ -659,28 +741,42 @@ public:
 	 */
 	void PutChar(char32_t c)
 	{
-		/* TODO: this should be customizable */
-		if(c < 0x80)
+		/* TODO: this should depend on the current locale */
+		const char32_t * input = &c;
+		char * output = nullptr;
+		size_t size;
+		UTF32ToUTF8(input, output, 0, size);
+		std::vector<char> buffer(size);
+		output = buffer.data();
+		UTF32ToUTF8(input, output, size, size);
+		out << std::string(buffer.data(), buffer.size());
+	}
+
+	void PutEncodedString(std::string encoded_string, bool terminate_at_null = false)
+	{
+		uint8_t const * input = reinterpret_cast<uint8_t *>(encoded_string.data());
+		size_t length = encoded_string.size();
+		char32_t c;
+		while((c = (string_encoding ? string_encoding : encoding)->GetChar(input, length)) != char32_t(-1) || (terminate_at_null && c == U'\0'))
 		{
-			out.put(c);
+			PutChar(c);
 		}
-		else if(c < 0x800)
+	}
+
+	void PutEncodedString(offset_t width, std::string encoded_string, char32_t padding)
+	{
+		uint8_t const * input = reinterpret_cast<uint8_t *>(encoded_string.data());
+		size_t length = encoded_string.size();
+		char32_t c;
+		while(width > 0 && (c = (string_encoding ? string_encoding : encoding)->GetChar(input, length)) != char32_t(-1))
 		{
-			out.put((c >> 6) | 0xC0);
-			out.put((c & 0x3F) | 0x80);
+			PutChar(c);
+			width --;
 		}
-		else if(c < 0x10000)
+		while(width > 0)
 		{
-			out.put((c >> 12) | 0xE0);
-			out.put(((c >> 6) & 0x3F) | 0x80);
-			out.put((c & 0x3F) | 0x80);
-		}
-		else
-		{
-			out.put(((c >> 18) & 0x07) | 0xF0);
-			out.put(((c >> 12) & 0x3F) | 0x80);
-			out.put(((c >> 6) & 0x3F) | 0x80);
-			out.put((c & 0x3F) | 0x80);
+			PutChar(padding);
+			width --;
 		}
 	}
 
