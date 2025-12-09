@@ -3482,14 +3482,11 @@ offset_t NTResourceFile::GetIdentifierSize(const Identifier& id)
 	}
 }
 
-void NTResourceFile::ReadFile(Linker::Reader& rd)
+void NTResourceFile::ReadFile(Linker::Reader& rd, offset_t size)
 {
-	offset_t starting_offset = rd.Tell();
-	rd.SeekEnd();
-	offset_t ending_offset = rd.Tell();
-	rd.Seek(starting_offset);
+	file_offset = rd.Tell();
 
-	while(rd.Tell() < ending_offset)
+	while(rd.Tell() < file_offset + size)
 	{
 		offset_t current_offset = rd.Tell();
 		Resource resource;
@@ -3511,6 +3508,16 @@ void NTResourceFile::ReadFile(Linker::Reader& rd)
 
 		resources.emplace_back(resource);
 	}
+}
+
+void NTResourceFile::ReadFile(Linker::Reader& rd)
+{
+	offset_t starting_offset = rd.Tell();
+	rd.SeekEnd();
+	offset_t ending_offset = rd.Tell();
+	rd.Seek(starting_offset);
+
+	ReadFile(rd, ending_offset - starting_offset);
 }
 
 void NTResourceFile::CalculateValues()
@@ -3549,11 +3556,10 @@ offset_t NTResourceFile::WriteFile(Linker::Writer& wr) const
 
 void NTResourceFile::Dump(Dumper::Dumper& dump) const
 {
-	Dumper::Encoding * encoding = dump.encoding;
 	dump.SetEncoding(Dumper::Block::encoding_windows1252);
 	dump.SetStringEncoding(Dumper::Block::encoding_utf16le);
 
-	offset_t current_offset = 0;
+	offset_t current_offset = file_offset;
 	for(auto& resource : resources)
 	{
 		Dumper::Region header_region("Resource header", current_offset, resource.header_size, 8);

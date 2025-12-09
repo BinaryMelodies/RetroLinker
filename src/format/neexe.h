@@ -796,9 +796,11 @@ namespace Microsoft
 			std::shared_ptr<Linker::Image> image;
 		};
 
+		offset_t file_offset;
 		std::vector<Resource> resources;
 
 		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(Linker::Reader& rd, offset_t size);
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;

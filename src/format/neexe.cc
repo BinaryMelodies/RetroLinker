@@ -2113,14 +2113,11 @@ offset_t ResourceFile::GetIdentifierSize(const Identifier& id)
 	}
 }
 
-void ResourceFile::ReadFile(Linker::Reader& rd)
+void ResourceFile::ReadFile(Linker::Reader& rd, offset_t size)
 {
-	offset_t starting_offset = rd.Tell();
-	rd.SeekEnd();
-	offset_t ending_offset = rd.Tell();
-	rd.Seek(starting_offset);
+	file_offset = rd.Tell();
 
-	while(rd.Tell() < ending_offset)
+	while(rd.Tell() < file_offset + size)
 	{
 		Resource resource;
 
@@ -2134,6 +2131,16 @@ void ResourceFile::ReadFile(Linker::Reader& rd)
 
 		resources.emplace_back(resource);
 	}
+}
+
+void ResourceFile::ReadFile(Linker::Reader& rd)
+{
+	offset_t starting_offset = rd.Tell();
+	rd.SeekEnd();
+	offset_t ending_offset = rd.Tell();
+	rd.Seek(starting_offset);
+
+	ReadFile(rd, ending_offset - starting_offset);
 }
 
 offset_t ResourceFile::WriteFile(Linker::Writer& wr) const
@@ -2174,7 +2181,7 @@ void ResourceFile::Dump(Dumper::Dumper& dump) const
 		break;
 	}
 
-	offset_t current_offset = 0;
+	offset_t current_offset = file_offset;
 	for(auto& resource : resources)
 	{
 		current_offset += GetIdentifierSize(resource.type) + GetIdentifierSize(resource.name) + 6;

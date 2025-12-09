@@ -1153,6 +1153,12 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 
 	file_size = rd.Tell();
 
+	if(vxd_version_info_resource_length != 0)
+	{
+		rd.Seek(vxd_version_info_resource_offset);
+		vxd_version_info_resource.ReadFile(rd, vxd_version_info_resource_length);
+	}
+
 	/*** Loader Section ***/
 	/* Object Table */
 	rd.Seek(object_table_offset);
@@ -1885,6 +1891,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Region vxd_version_info_region("VxD version info resource", vxd_version_info_resource_offset, vxd_version_info_resource_length, 8);
 		vxd_version_info_region.Display(dump);
+		vxd_version_info_resource.Dump(dump);
 	}
 
 	Dumper::Region loader_section_region("Loader section", object_table_offset, loader_section_size, 8);

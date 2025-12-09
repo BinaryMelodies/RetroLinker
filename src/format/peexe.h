@@ -1123,9 +1123,11 @@ namespace Microsoft
 			uint32_t characteristics;
 		};
 
+		offset_t file_offset;
 		std::vector<Resource> resources;
 
 		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(Linker::Reader& rd, offset_t size);
 		void CalculateValues();
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

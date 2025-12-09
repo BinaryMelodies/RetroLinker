@@ -4,6 +4,7 @@
 #include <array>
 #include <vector>
 #include "mzexe.h"
+#include "neexe.h"
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
@@ -564,6 +565,7 @@ namespace Microsoft
 
 		uint32_t vxd_version_info_resource_offset = 0;
 		uint32_t vxd_version_info_resource_length = 0;
+		ResourceFile vxd_version_info_resource = ResourceFile(ResourceFile::System_Windows_3x);
 		uint16_t vxd_device_id = 0;
 		uint16_t vxd_ddk_version = 0;
 
