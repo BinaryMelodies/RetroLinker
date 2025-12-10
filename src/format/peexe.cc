@@ -3444,7 +3444,10 @@ void NTResourceFile::ReadIdentifier(Linker::Reader& rd, Identifier& id)
 	else
 	{
 		rd.Skip(-2);
-		id = rd.ReadUTF16ZData();
+		std::string s = rd.ReadUTF16ZData();
+		id = s;
+		if((s.size() % 4) != 0)
+			rd.Skip(4 - (s.size() % 4));
 	}
 }
 
@@ -3457,8 +3460,11 @@ void NTResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
 	}
 	else if(auto string_p = std::get_if<std::string>(&id))
 	{
-		wr.WriteData(string_p->size(), *string_p);
+		const std::string& s = *string_p;
+		wr.WriteData(s.size(), s);
 		wr.WriteWord(2, 0, ::LittleEndian);
+		if((s.size() % 4) != 0)
+			wr.Skip(4 - (s.size() % 4));
 	}
 	else
 	{
@@ -3507,6 +3513,9 @@ void NTResourceFile::ReadFile(Linker::Reader& rd, offset_t size)
 		resource.image = Linker::Buffer::ReadFromFile(rd, size);
 
 		resources.emplace_back(resource);
+
+		if((size % 4) != 0)
+			rd.Skip(4 - (size % 4));
 	}
 }
 
@@ -3535,8 +3544,9 @@ offset_t NTResourceFile::WriteFile(Linker::Writer& wr) const
 	for(auto& resource : resources)
 	{
 		offset_t current_offset = wr.Tell();
+		size_t size = resource.image->ImageSize();
 
-		wr.WriteWord(4, resource.image->ImageSize(), ::LittleEndian);
+		wr.WriteWord(4, size, ::LittleEndian);
 		wr.WriteWord(4, resource.header_size, ::LittleEndian);
 
 		WriteIdentifier(wr, resource.type);
@@ -3550,6 +3560,9 @@ offset_t NTResourceFile::WriteFile(Linker::Writer& wr) const
 
 		wr.Seek(current_offset + resource.header_size);
 		resource.image->WriteFile(wr);
+
+		if((size % 4) != 0)
+			wr.Skip(4 - (size % 4));
 	}
 	return offset_t(-1); // TODO
 }
