@@ -481,18 +481,18 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	uint16_t actual_segment_count = IsOS2() ? segment_count - resource_count : segment_count;
 	for(i = 0; i < actual_segment_count; i++)
 	{
-		Segment segment;
-		segment.data_offset = offset_t(rd.ReadUnsigned(2)) << sector_shift;
-		segment.image_size = rd.ReadUnsigned(2);
-		if(segment.data_offset != 0 && segment.image_size == 0)
+		std::shared_ptr<Segment> segment = std::make_shared<Segment>();
+		segment->data_offset = offset_t(rd.ReadUnsigned(2)) << sector_shift;
+		segment->image_size = rd.ReadUnsigned(2);
+		if(segment->data_offset != 0 && segment->image_size == 0)
 		{
-			segment.image_size = 0x10000;
+			segment->image_size = 0x10000;
 		}
-		segment.flags = Segment::flag_type(rd.ReadUnsigned(2));
-		segment.total_size = rd.ReadUnsigned(2);
-		if(segment.total_size == 0)
+		segment->flags = Segment::flag_type(rd.ReadUnsigned(2));
+		segment->total_size = rd.ReadUnsigned(2);
+		if(segment->total_size == 0)
 		{
-			segment.total_size = 0x10000;
+			segment->total_size = 0x10000;
 		}
 		segments.emplace_back(segment);
 	}
@@ -502,18 +502,18 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		// resource information is also stored in the segment table
 		for(i = 0; i < resource_count; i++)
 		{
-			Resource resource;
-			resource.data_offset = offset_t(rd.ReadUnsigned(2)) << sector_shift;
-			resource.image_size = rd.ReadUnsigned(2);
-			if(resource.data_offset != 0 && resource.image_size == 0)
+			std::shared_ptr<Resource> resource = std::make_shared<Resource>();
+			resource->data_offset = offset_t(rd.ReadUnsigned(2)) << sector_shift;
+			resource->image_size = rd.ReadUnsigned(2);
+			if(resource->data_offset != 0 && resource->image_size == 0)
 			{
-				resource.image_size = 0x10000;
+				resource->image_size = 0x10000;
 			}
-			resource.flags = Segment::flag_type(rd.ReadUnsigned(2));
-			resource.total_size = rd.ReadUnsigned(2);
-			if(resource.total_size == 0)
+			resource->flags = Segment::flag_type(rd.ReadUnsigned(2));
+			resource->total_size = rd.ReadUnsigned(2);
+			if(resource->total_size == 0)
 			{
-				resource.total_size = 0x10000;
+				resource->total_size = 0x10000;
 			}
 			resources.emplace_back(resource);
 		}
@@ -530,8 +530,8 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 			rd.Seek(resource_table_offset);
 			for(i = 0; i < resource_count; i++)
 			{
-				resources[i].type_id = rd.ReadUnsigned(2);
-				resources[i].id = rd.ReadUnsigned(2);
+				resources[i]->type_id = rd.ReadUnsigned(2);
+				resources[i]->id = rd.ReadUnsigned(2);
 			}
 		}
 	}
@@ -546,22 +546,22 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				uint16_t type_id = rd.ReadUnsigned(2);
 				if(type_id == 0)
 					break;
-				ResourceType rtype;
-				rtype.type_id = type_id;
+				std::shared_ptr<ResourceType> rtype = std::make_shared<ResourceType>();
+				rtype->type_id = type_id;
 				uint16_t count = rd.ReadUnsigned(2);
 				rd.Skip(4);
 				for(i = 0; i < count; i++)
 				{
-					Resource resource;
-					resource.type_id = type_id;
-					resource.data_offset = offset_t(rd.ReadUnsigned(2)) << resource_shift;
+					std::shared_ptr<Resource> resource = std::make_shared<Resource>();
+					resource->type_id = type_id;
+					resource->data_offset = offset_t(rd.ReadUnsigned(2)) << resource_shift;
 					// the official Microsoft documentation mistakenly claims that this length is in bytes
-					resource.image_size = offset_t(rd.ReadUnsigned(2)) << resource_shift;
-					resource.flags = Resource::flag_type(rd.ReadUnsigned(2));
-					resource.id = rd.ReadUnsigned(2);
-					resource.handle = rd.ReadUnsigned(2);
-					resource.usage = rd.ReadUnsigned(2);
-					rtype.resources.emplace_back(resource);
+					resource->image_size = offset_t(rd.ReadUnsigned(2)) << resource_shift;
+					resource->flags = Resource::flag_type(rd.ReadUnsigned(2));
+					resource->id = rd.ReadUnsigned(2);
+					resource->handle = rd.ReadUnsigned(2);
+					resource->usage = rd.ReadUnsigned(2);
+					rtype->resources.emplace_back(resource);
 				}
 				resource_types.emplace_back(rtype);
 			}
@@ -578,20 +578,20 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 
 		for(auto& rtype : resource_types)
 		{
-			if((rtype.type_id & 0x8000) == 0)
+			if((rtype->type_id & 0x8000) == 0)
 			{
-				rd.Seek(resource_table_offset + rtype.type_id);
+				rd.Seek(resource_table_offset + rtype->type_id);
 				uint8_t length = rd.ReadUnsigned(1);
-				rtype.type_id_name = rd.ReadData(length);
+				rtype->type_id_name = rd.ReadData(length);
 			}
-			for(auto& resource : rtype.resources)
+			for(auto& resource : rtype->resources)
 			{
-				resource.type_id_name = rtype.type_id_name;
-				if((resource.id & 0x8000) == 0)
+				resource->type_id_name = rtype->type_id_name;
+				if((resource->id & 0x8000) == 0)
 				{
-					rd.Seek(resource_table_offset + resource.id);
+					rd.Seek(resource_table_offset + resource->id);
 					uint8_t length = rd.ReadUnsigned(1);
-					resource.id_name = rd.ReadData(length);
+					resource->id_name = rd.ReadData(length);
 				}
 			}
 		}
@@ -680,20 +680,20 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	file_size = std::max(file_size, rd.Tell());
 
 	/* Segment data */
-	for(Segment& segment : segments)
+	for(auto segment : segments)
 	{
-		if(segment.data_offset != 0)
+		if(segment->data_offset != 0)
 		{
-			rd.Seek(segment.data_offset);
-			segment.image = Linker::Buffer::ReadFromFile(rd, segment.image_size);
+			rd.Seek(segment->data_offset);
+			segment->image = Linker::Buffer::ReadFromFile(rd, segment->image_size);
 		}
 		else
 		{
-			segment.image = std::make_shared<Linker::Buffer>();
+			segment->image = std::make_shared<Linker::Buffer>();
 		}
-		if((segment.flags & Segment::Relocations) != 0)
+		if((segment->flags & Segment::Relocations) != 0)
 		{
-			segment.relocations.clear();
+			segment->relocations.clear();
 			uint16_t count = rd.ReadUnsigned(2);
 			for(i = 0; i < count; i++)
 			{
@@ -706,7 +706,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				if((relocation.flags & Segment::Relocation::Additive) == 0)
 				{
 					uint16_t offset = relocation.offsets[0];
-					auto image = segment.image->AsImage();
+					auto image = segment->image->AsImage();
 					while(true)
 					{
 						uint16_t new_offset = image->GetByte(offset) | (image->GetByte(offset + 1) << 8);
@@ -717,7 +717,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 						offset = new_offset;
 					}
 				}
-				segment.relocations.emplace_back(relocation);
+				segment->relocations.emplace_back(relocation);
 			}
 		}
 		file_size = std::max(file_size, rd.Tell());
@@ -726,26 +726,26 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	/* Resource data */
 	if(IsOS2())
 	{
-		for(Resource& resource : resources)
+		for(auto resource : resources)
 		{
-			if(resource.data_offset != 0)
+			if(resource->data_offset != 0)
 			{
-				rd.Seek(resource.data_offset);
-				resource.image = Linker::Buffer::ReadFromFile(rd, resource.image_size);
+				rd.Seek(resource->data_offset);
+				resource->image = Linker::Buffer::ReadFromFile(rd, resource->image_size);
 			}
 			file_size = std::max(file_size, rd.Tell());
 		}
 	}
 	else
 	{
-		for(ResourceType& rtype : resource_types)
+		for(auto rtype : resource_types)
 		{
-			for(Resource& resource : rtype.resources)
+			for(auto resource : rtype->resources)
 			{
-				if(resource.data_offset != 0)
+				if(resource->data_offset != 0)
 				{
-					rd.Seek(resource.data_offset);
-					resource.image = Linker::Buffer::ReadFromFile(rd, resource.image_size);
+					rd.Seek(resource->data_offset);
+					resource->image = Linker::Buffer::ReadFromFile(rd, resource->image_size);
 				}
 				file_size = std::max(file_size, rd.Tell());
 			}
@@ -775,7 +775,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	/* Load relocation descriptions for readability */
 	for(auto& segment : segments)
 	{
-		for(auto& relocation : segment.relocations)
+		for(auto& relocation : segment->relocations)
 		{
 			if((relocation.flags & Segment::Relocation::TargetTypeMask) == Segment::Relocation::ImportOrdinal
 			|| (relocation.flags & Segment::Relocation::TargetTypeMask) == Segment::Relocation::ImportName)
@@ -855,12 +855,12 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 
 	/* Segment table */
 	wr.Seek(segment_table_offset);
-	for(const Segment& segment : segments)
+	for(auto segment : segments)
 	{
-		wr.WriteWord(2, segment.data_offset >> sector_shift);
-		wr.WriteWord(2, segment.image->ImageSize());
-		wr.WriteWord(2, segment.flags);
-		wr.WriteWord(2, segment.total_size);
+		wr.WriteWord(2, segment->data_offset >> sector_shift);
+		wr.WriteWord(2, segment->image->ImageSize());
+		wr.WriteWord(2, segment->flags);
+		wr.WriteWord(2, segment->total_size);
 	}
 
 	/* Resource table */
@@ -868,18 +868,18 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 	{
 		// TODO: test this out
 		wr.Seek(resource_table_offset);
-		for(auto& rtype : resource_types)
+		for(auto rtype : resource_types)
 		{
-			wr.WriteWord(2, rtype.type_id);
-			wr.WriteWord(2, rtype.resources.size());
+			wr.WriteWord(2, rtype->type_id);
+			wr.WriteWord(2, rtype->resources.size());
 			wr.Skip(4);
-			for(auto& resource : rtype.resources)
+			for(auto& resource : rtype->resources)
 			{
-				wr.WriteWord(2, resource.image->ImageSize());
-				wr.WriteWord(2, resource.flags);
-				wr.WriteWord(2, resource.id);
-				wr.WriteWord(2, resource.handle);
-				wr.WriteWord(2, resource.usage);
+				wr.WriteWord(2, resource->image->ImageSize());
+				wr.WriteWord(2, resource->flags);
+				wr.WriteWord(2, resource->id);
+				wr.WriteWord(2, resource->handle);
+				wr.WriteWord(2, resource->usage);
 			}
 		}
 		wr.WriteWord(2, 0);
@@ -941,14 +941,14 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 	}
 	wr.WriteWord(1, 0);
 
-	for(const Segment& segment : segments)
+	for(auto segment : segments)
 	{
-		wr.Seek(segment.data_offset);
-		segment.image->WriteFile(wr);
-		if(segment.relocations.size() != 0)
+		wr.Seek(segment->data_offset);
+		segment->image->WriteFile(wr);
+		if(segment->relocations.size() != 0)
 		{
-			wr.WriteWord(2, segment.relocations.size());
-			for(auto& it : segment.relocations)
+			wr.WriteWord(2, segment->relocations.size());
+			for(auto& it : segment->relocations)
 			{
 				wr.WriteWord(1, it.type);
 				wr.WriteWord(1, it.flags);
@@ -958,7 +958,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 				// TODO: check that this works
 				for(unsigned i = 1; i < it.offsets.size(); i++)
 				{
-					wr.Seek(segment.data_offset + it.offsets[i - 1]);
+					wr.Seek(segment->data_offset + it.offsets[i - 1]);
 					wr.WriteWord(2, it.offsets[i]);
 				}
 			}
@@ -969,25 +969,25 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 	// TODO: needs testing
 	if(IsOS2())
 	{
-		for(const Resource& resource : resources)
+		for(auto resource : resources)
 		{
-			if(resource.image != nullptr)
+			if(resource->image != nullptr)
 			{
-				wr.Seek(resource.data_offset);
-				resource.image->WriteFile(wr);
+				wr.Seek(resource->data_offset);
+				resource->image->WriteFile(wr);
 			}
 		}
 	}
 	else
 	{
-		for(const ResourceType& rtype : resource_types)
+		for(auto rtype : resource_types)
 		{
-			for(const Resource& resource : rtype.resources)
+			for(auto resource : rtype->resources)
 			{
-				if(resource.image != nullptr)
+				if(resource->image != nullptr)
 				{
-					wr.Seek(resource.data_offset);
-					resource.image->WriteFile(wr);
+					wr.Seek(resource->data_offset);
+					resource->image->WriteFile(wr);
 				}
 			}
 		}
@@ -1106,9 +1106,9 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 
 		// calculate the offset of the first string
 		current_offset = resource_table_offset + 4;
-		for(auto& rtype : resource_types)
+		for(auto rtype : resource_types)
 		{
-			current_offset += 8 + 12 * rtype.resources.size();
+			current_offset += 8 + 12 * rtype->resources.size();
 		}
 
 		i = 0;
@@ -1226,28 +1226,28 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 	}
 
 	i = 0;
-	for(auto& segment : segments)
+	for(auto segment : segments)
 	{
-		segment.Dump(dump, i, IsOS2());
+		segment->Dump(dump, i, IsOS2());
 		i++;
 	}
 
 	if(IsOS2())
 	{
-		for(auto& resource : resources)
+		for(auto resource : resources)
 		{
-			resource.Dump(dump, i, true);
+			resource->Dump(dump, i, true);
 			i++;
 		}
 	}
 	else
 	{
 		i = 0;
-		for(auto& rtype : resource_types)
+		for(auto rtype : resource_types)
 		{
-			for(auto& resource : rtype.resources)
+			for(auto resource : rtype->resources)
 			{
-				resource.Dump(dump, i, false);
+				resource->Dump(dump, i, false);
 				i++;
 			}
 		}
@@ -1417,10 +1417,10 @@ unsigned NEFormat::GetDataSegmentFlags() const
 	}
 }
 
-void NEFormat::AddSegment(const Segment& segment)
+void NEFormat::AddSegment(std::shared_ptr<Segment> segment)
 {
 	segments.push_back(segment);
-	segment_index[std::dynamic_pointer_cast<Linker::Segment>(segments.back().image)] = segments.size() - 1;
+	segment_index[std::dynamic_pointer_cast<Linker::Segment>(segments.back()->image)] = segments.size() - 1;
 }
 
 uint16_t NEFormat::FetchModule(std::string name)
@@ -1491,7 +1491,7 @@ uint16_t NEFormat::MakeEntry(uint16_t index, Linker::Position value)
 	}
 	uint16_t segment = segment_index[value.segment];
 	/* TODO: other flags? */
-	if((segments[segment].flags & Segment::Movable))
+	if((segments[segment]->flags & Segment::Movable))
 	{
 		entries[index] = Entry(Entry::Movable, segment + 1, Entry::Exported | Entry::SharedData, value.address);
 	}
@@ -1582,7 +1582,7 @@ void NEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	else
 	{
 Linker::Debug << "Debug: New segment " << segment->name << std::endl;
-		AddSegment(Segment(segment, segment->sections[0]->IsExecutable() ? GetCodeSegmentFlags() : GetDataSegmentFlags()));
+		AddSegment(std::make_shared<Segment>(segment, segment->sections[0]->IsExecutable() ? GetCodeSegmentFlags() : GetDataSegmentFlags()));
 
 		if(segment->name == ".data")
 			automatic_data = segments.size();
@@ -1762,9 +1762,9 @@ void NEFormat::ProcessModule(Linker::Module& module)
 					continue;
 				}
 				Linker::Position position = rel.source.GetPosition();
-				Segment& source_segment = segments[segment_index[position.segment]];
+				auto source_segment = segments[segment_index[position.segment]];
 				uint8_t target_segment = segment_index[resolution.target];
-				Segment& target_segment_object = segments[target_segment];
+				auto target_segment_object = segments[target_segment];
 				target_segment += 1;
 				int type = Segment::Relocation::GetType(rel);
 				if(type == -1)
@@ -1772,18 +1772,18 @@ void NEFormat::ProcessModule(Linker::Module& module)
 					Linker::Error << "Error: unknown relocation size, ignoring" << std::endl;
 					continue;
 				}
-				else if((target_segment_object.flags & Segment::Movable))
+				else if((target_segment_object->flags & Segment::Movable))
 				{
 					/* references to movable segments require a new entry point */
 					assert(resolution.value == 0); /* TODO: target != 0 ? */
-					if(target_segment_object.movable_entry_index == 0)
+					if(target_segment_object->movable_entry_index == 0)
 					{
 						entries.push_back(Entry(Entry::Movable, target_segment, 0, 0));
-						target_segment_object.movable_entry_index = entries.size();
+						target_segment_object->movable_entry_index = entries.size();
 					}
-					source_segment.AddRelocation(
+					source_segment->AddRelocation(
 						Segment::Relocation(type, Segment::Relocation::Internal,
-							position.address, 0xFF, target_segment_object.movable_entry_index)
+							position.address, 0xFF, target_segment_object->movable_entry_index)
 					);
 					rel.WriteWord(0xFFFFFFFF);
 				}
@@ -1792,7 +1792,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 					//assert(resolution.value == 0); /* TODO: target != 0 ? */
 					if(rel.kind == Linker::Relocation::SelectorIndex)
 						resolution.value = (resolution.value >> 4) + rel.addend; // TODO: ugly hack in case the program is executed in real mode (should we change FormatIsProtectedMode?)
-					source_segment.AddRelocation(
+					source_segment->AddRelocation(
 						Segment::Relocation(type, Segment::Relocation::Internal,
 							position.address, target_segment, resolution.value)
 					);
@@ -1810,7 +1810,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 			if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
 			{
 				Linker::Position position = rel.source.GetPosition();
-				Segment& source_segment = segments[segment_index[position.segment]];
+				auto source_segment = segments[segment_index[position.segment]];
 
 				std::string library, name;
 				uint16_t ordinal;
@@ -1822,7 +1822,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 				}
 				if(symbol->GetImportedName(library, name))
 				{
-					source_segment.AddRelocation(
+					source_segment->AddRelocation(
 						Segment::Relocation(type, Segment::Relocation::ImportName,
 							position.address, FetchModule(library) + 1, FetchImportedName(MakeProcedureName(name)))
 					);
@@ -1832,7 +1832,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 				}
 				else if(symbol->GetImportedOrdinal(library, ordinal))
 				{
-					source_segment.AddRelocation(
+					source_segment->AddRelocation(
 						Segment::Relocation(type, Segment::Relocation::ImportOrdinal,
 							position.address, FetchModule(library) + 1, ordinal)
 					);
@@ -1845,12 +1845,12 @@ void NEFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
-	for(auto& segment : segments)
+	for(auto segment : segments)
 	{
-		segment.relocations.clear();
-		for(auto& pair : segment.relocations_map)
+		segment->relocations.clear();
+		for(auto& pair : segment->relocations_map)
 		{
-			segment.relocations.emplace_back(pair.second);
+			segment->relocations.emplace_back(pair.second);
 		}
 	}
 
@@ -1878,7 +1878,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 		}
 		else
 		{
-			sp = std::dynamic_pointer_cast<Linker::Segment>(segments[automatic_data - 1].image)->TotalSize();
+			sp = std::dynamic_pointer_cast<Linker::Segment>(segments[automatic_data - 1]->image)->TotalSize();
 			ss = automatic_data;
 //			Linker::Debug << "Debug: End of memory: " << sp << std::endl;
 //			Linker::Debug << "Debug: Total size: " << image.TotalSize() << std::endl;
@@ -1951,9 +1951,9 @@ void NEFormat::CalculateValues()
 	resource_table_offset = segment_table_offset + 8 * segments.size();
 
 	resource_count = 0;
-	for(auto& rtype : resource_types)
+	for(auto rtype : resource_types)
 	{
-		resource_count += rtype.resources.size();
+		resource_count += rtype->resources.size();
 	}
 
 	resident_name_table_offset = resource_table_offset + 0; /* TODO: store resource table */
@@ -1993,23 +1993,23 @@ void NEFormat::CalculateValues()
 
 	current_offset = nonresident_name_table_offset + nonresident_name_table_length;
 
-	for(Segment& segment : segments)
+	for(auto segment : segments)
 	{
-		segment.data_offset = ::AlignTo(current_offset, 1 << sector_shift);
-		current_offset = segment.data_offset + segment.image->ImageSize();
-		if(Linker::Segment * segmentp = dynamic_cast<Linker::Segment *>(segment.image.get()))
+		segment->data_offset = ::AlignTo(current_offset, 1 << sector_shift);
+		current_offset = segment->data_offset + segment->image->ImageSize();
+		if(Linker::Segment * segmentp = dynamic_cast<Linker::Segment *>(segment->image.get()))
 		{
-			segment.total_size = segmentp->TotalSize();
+			segment->total_size = segmentp->TotalSize();
 		}
 		else
 		{
-			segment.total_size = segment.image->ImageSize();
+			segment->total_size = segment->image->ImageSize();
 		}
 
-		if(segment.relocations.size() != 0)
+		if(segment->relocations.size() != 0)
 		{
-			segment.flags = Segment::flag_type(segment.flags | Segment::Relocations);
-			current_offset += 2 + 8 * segment.relocations.size();
+			segment->flags = Segment::flag_type(segment->flags | Segment::Relocations);
+			current_offset += 2 + 8 * segment->relocations.size();
 		}
 	}
 

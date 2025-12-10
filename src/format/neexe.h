@@ -245,6 +245,8 @@ namespace Microsoft
 		class Resource : public Segment
 		{
 		public:
+			typedef std::variant<std::string, uint16_t> Identifier;
+
 			/** @brief Type identifier, used by both Windows and OS/2
 			 *
 			 * Under Windows, if bit 15 is cleared, it references a string
@@ -271,9 +273,11 @@ namespace Microsoft
 		class ResourceType
 		{
 		public:
+			virtual ~ResourceType() = default;
+
 			uint16_t type_id = 0;
 			std::string type_id_name;
-			std::vector<Resource> resources;
+			std::vector<std::shared_ptr<Resource>> resources;
 		};
 
 		/** @brief Represents an entry into the binary, typically DLL exported procedures */
@@ -448,7 +452,7 @@ namespace Microsoft
 		 */
 		uint32_t segment_table_offset = 0;
 
-		std::vector<Segment> segments;
+		std::vector<std::shared_ptr<Segment>> segments;
 
 		/** @brief Offset of resource table
 		 *
@@ -462,10 +466,10 @@ namespace Microsoft
 		uint16_t resource_shift = 0;
 
 		/** @brief On OS/2, this is a sequence of resources, for non-OS/2 targets, this must be compiled into resource_types */
-		std::vector<Resource> resources;
+		std::vector<std::shared_ptr<Resource>> resources;
 
 		/** @brief For non-OS/2 targets, the resources get organized according to their types */
-		std::vector<ResourceType> resource_types;
+		std::vector<std::shared_ptr<ResourceType>> resource_types;
 
 		/** @brief For non-OS/2 targets, this is a list of all the resource type strings and resource strings */
 		std::vector<std::string> resource_strings;
@@ -740,9 +744,12 @@ namespace Microsoft
 
 		static std::shared_ptr<NEFormat> CreateLibraryModule(system_type system = Windows);
 
+		/** @brief Map from resource type/name to a resource, only used during binary generation */
+		std::map<std::tuple<Resource::Identifier, Resource::Identifier>, Resource> resources_map;
+
 		unsigned GetCodeSegmentFlags() const;
 		unsigned GetDataSegmentFlags() const;
-		void AddSegment(const Segment& segment);
+		void AddSegment(std::shared_ptr<Segment> segment);
 		uint16_t FetchModule(std::string name);
 		uint16_t FetchImportedName(std::string name);
 		std::string MakeProcedureName(std::string name);
