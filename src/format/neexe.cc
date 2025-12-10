@@ -1011,7 +1011,6 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 	}
 
 	/* Resource data */
-	// TODO: needs testing
 	if(IsOS2())
 	{
 		for(auto resource : resources)

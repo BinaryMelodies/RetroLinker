@@ -1289,8 +1289,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	for(uint32_t i = 0; i < resource_table_entry_count; i++)
 	{
 		Resource resource;
-		resource.type = rd.ReadUnsigned(2);
-		resource.name = rd.ReadUnsigned(2);
+		resource.type_id = rd.ReadUnsigned(2);
+		resource.name_id = rd.ReadUnsigned(2);
 		resource.size = rd.ReadUnsigned(4);
 		resource.object = rd.ReadUnsigned(2);
 		resource.offset = rd.ReadUnsigned(4);
@@ -1684,17 +1684,13 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 
 	/* Resource Table */
 	assert(wr.Tell() == resource_table_offset);
-	// TODO: untested
-	for(auto it1 : resources)
+	for(auto it : resources)
 	{
-		for(auto it2 : it1.second)
-		{
-			wr.WriteWord(2, it2.second.type);
-			wr.WriteWord(2, it2.second.name);
-			wr.WriteWord(4, it2.second.size);
-			wr.WriteWord(2, it2.second.object);
-			wr.WriteWord(4, it2.second.offset);
-		}
+		wr.WriteWord(2, it.second.type_id);
+		wr.WriteWord(2, it.second.name_id);
+		wr.WriteWord(4, it.second.size);
+		wr.WriteWord(2, it.second.object);
+		wr.WriteWord(4, it.second.offset);
 	}
 
 	/* Resident Name Table */
@@ -2025,20 +2021,17 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		resource_table_region.Display(dump);
 
 		uint32_t resource_index = 0;
-		for(auto& type_resources_pair : resources)
+		for(auto& resource_pair : resources)
 		{
-			for(auto& name_resource_pair : type_resources_pair.second)
-			{
-				auto& resource = name_resource_pair.second;
-				Dumper::Entry resource_entry("Resource", resource_index + 1, resource_table_offset + resource_index * 0xE);
-				resource_entry.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(resource_index + 1));
-				resource_entry.AddField("Type ID", Dumper::ChoiceDisplay::Make(OS2::resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(resource.type));
-				resource_entry.AddField("Resource name ID", Dumper::HexDisplay::Make(4), offset_t(resource.name));
-				resource_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(resource.object), offset_t(resource.offset));
-				resource_entry.AddField("Size", Dumper::HexDisplay::Make(4), offset_t(resource.size));
-				resource_entry.Display(dump);
-				resource_index ++;
-			}
+			auto& resource = resource_pair.second;
+			Dumper::Entry resource_entry("Resource", resource_index + 1, resource_table_offset + resource_index * 0xE);
+			resource_entry.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(resource_index + 1));
+			resource_entry.AddField("Type ID", Dumper::ChoiceDisplay::Make(OS2::resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(resource.type_id));
+			resource_entry.AddField("Resource name ID", Dumper::HexDisplay::Make(4), offset_t(resource.name_id));
+			resource_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(resource.object), offset_t(resource.offset));
+			resource_entry.AddField("Size", Dumper::HexDisplay::Make(4), offset_t(resource.size));
+			resource_entry.Display(dump);
+			resource_index ++;
 		}
 	}
 
@@ -2330,6 +2323,11 @@ bool LEFormat::FormatSupportsLibraries() const
 	return true;
 }
 
+bool LEFormat::FormatSupportsResources() const
+{
+	return system == OS2;
+}
+
 unsigned LEFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)
@@ -2346,9 +2344,9 @@ unsigned LEFormat::FormatAdditionalSectionFlags(std::string section_name) const
 	}
 }
 
-LEFormat::Resource& LEFormat::AddResource(Resource& resource)
+LEFormat::Resource& LEFormat::AddResource(Resource resource)
 {
-	return resources[resource.type][resource.name] = resource;
+	return resources[std::make_tuple(resource.type_id, resource.name_id)] = resource;
 }
 
 void LEFormat::GetRelocationOffset(Object& object, size_t offset, PhysicalPageNumber& page_index, uint16_t& page_offset)
@@ -2560,6 +2558,35 @@ void LEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			flags |= Object::Writable;
 		if(section->IsExecutable())
 			flags |= Object::Executable;
+		if(section->GetFlags() & Linker::Section::Resource)
+		{
+			flags |= Object::Resource | Object::Discardable;
+			for(auto resource_section : segment->sections)
+			{
+				if(auto type_id_p = std::get_if<Linker::ResourceIdentifier_Integer>(&resource_section->resource_type))
+				{
+					if(*type_id_p > 0xFFFF)
+					{
+						Linker::Error << "Error: Unable to process resource identifiers beyond 16 bits, truncating" << std::endl;
+					}
+					uint16_t type_id = *type_id_p & 0xFFFF;
+
+					if(auto name_id_p = std::get_if<Linker::ResourceIdentifier_Integer>(&resource_section->resource_id))
+					{
+						if(*name_id_p > 0xFFFF)
+						{
+							Linker::Error << "Error: Unable to process resource identifiers beyond 16 bits, truncating" << std::endl;
+						}
+						uint16_t name_id = *name_id_p & 0xFFFF;
+
+						// since the linker script produces a single resource object that starts at address 0, the start address of its (resource) section also gives the offset
+						AddResource(Resource(type_id, name_id, resource_section->Size(), objects.size() + 1, resource_section->GetStartAddress()));
+						continue;
+					}
+				}
+				Linker::Error << "Error: OS/2 does not support resource names, removing resources" << std::endl;
+			}
+		}
 		AddObject(Object(segment, flags));
 
 		if(segment->name == ".data")
@@ -2589,10 +2616,17 @@ for ".heap"
 	all any;
 };
 
-for not ".stack"
+for not ".stack" and not resource
 {
 	at align(here, ?align?);
 	all any;
+};
+
+".rsrc"
+{
+	at 0;
+	all resource align 4;
+	align 4;
 };
 )";
 
@@ -2915,8 +2949,8 @@ void LEFormat::CalculateValues()
 	object_iterated_pages_offset = 0;
 
 	resource_table_offset = object_page_table_offset + (IsExtendedFormat() ? 8 : 4) * (pages.size() - 2);
-	resource_table_entry_count = 0; /* TODO: resources */
-	uint32_t resource_table_size = 0; /* TODO */
+	resource_table_entry_count = resources.size();
+	uint32_t resource_table_size = resource_table_entry_count * 0x0E;
 	resident_name_table_offset = resource_table_offset + resource_table_size;
 	uint32_t resident_name_table_length = 1;
 	for(Name& name : resident_names)

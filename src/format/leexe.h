@@ -377,10 +377,17 @@ namespace Microsoft
 		class Resource
 		{
 		public:
-			uint16_t type = 0, name = 0;
+			uint16_t type_id = 0, name_id = 0;
 			uint32_t size = 0;
 			uint16_t object = 0;
 			uint32_t offset = 0;
+
+			Resource() = default;
+
+			Resource(uint16_t type_id, uint16_t name_id, uint32_t size, uint16_t object = 0, uint32_t offset = 0)
+				: type_id(type_id), name_id(name_id), size(size), object(object), offset(offset)
+			{
+			}
 		};
 
 		/** @brief A name and ordinal pair, as used for resident and non-resident names */
@@ -634,7 +641,7 @@ namespace Microsoft
 
 		PhysicalPageNumber ObjectPageToPhysicalPage(uint32_t index) const;
 
-		std::map<uint16_t, std::map<uint16_t, Resource>> resources;
+		std::map<std::tuple<uint16_t, uint16_t>, Resource> resources;
 		std::vector<Name> resident_names, nonresident_names;
 		std::vector<Entry> entries;
 		std::vector<std::string> imported_modules, imported_procedures;
@@ -796,9 +803,11 @@ namespace Microsoft
 
 		bool FormatSupportsLibraries() const override;
 
+		bool FormatSupportsResources() const override;
+
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
-		Resource& AddResource(Resource& resource);
+		Resource& AddResource(Resource resource);
 
 		void GetRelocationOffset(Object& object, size_t offset, PhysicalPageNumber& page_index, uint16_t& page_offset);
 		void AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0);
