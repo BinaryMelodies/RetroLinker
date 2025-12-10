@@ -45,6 +45,18 @@ namespace Microsoft
 			// CompatibleGNU,
 		};
 
+		/** @brief Type safe wrapper for an uint32_t to access physical pages */
+		struct PhysicalPageNumber
+		{
+			uint32_t number;
+			explicit PhysicalPageNumber() : number(0) { }
+			explicit PhysicalPageNumber(uint32_t number) : number(number) { }
+			operator uint32_t() const { return number; }
+			PhysicalPageNumber operator +(int value) const { return PhysicalPageNumber{number + value}; }
+			PhysicalPageNumber operator -(int value) const { return PhysicalPageNumber{number - value}; }
+			PhysicalPageNumber& operator++(int) { number++; return *this; }
+		};
+
 		/** @brief Represents an LE/LX object (a relocatable section of memory) as stored in the object table, alongside associated information */
 		class Object
 		{
@@ -96,7 +108,7 @@ namespace Microsoft
 		{
 		public:
 			std::shared_ptr<LEFormat> file;
-			std::vector<uint32_t> pages;
+			std::vector<PhysicalPageNumber> pages;
 
 			PageSet() = delete;
 
@@ -347,18 +359,18 @@ namespace Microsoft
 			static Page LXPage(uint32_t offset, uint16_t size, uint8_t type);
 
 		protected:
-			void FillDumpRegion(Dumper::Dumper& dump, Dumper::Region& page_region, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void FillDumpRegion(Dumper::Dumper& dump, Dumper::Region& page_region, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const;
 			void FillDumpRelocations(Dumper::Dumper& dump, Dumper::Block& page_block, const LEFormat& fmt) const;
-			void DumpPhysicalPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
-			void DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
-			void DumpInvalidPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
-			void DumpZeroFilledPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
-			void DumpPageRange(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
-			void DumpCompressedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
-			void DumpUnknownPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const;
+			void DumpPhysicalPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const;
+			void DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const;
+			void DumpInvalidPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const;
+			void DumpZeroFilledPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const;
+			void DumpPageRange(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const;
+			void DumpCompressedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const;
+			void DumpUnknownPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const;
 
 		public:
-			void Dump(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t page_index) const;
+			void Dump(Dumper::Dumper& dump, const LEFormat& fmt, PhysicalPageNumber page_index) const;
 		};
 
 		/** @brief Stores an OS/2 resource */
@@ -580,16 +592,47 @@ namespace Microsoft
 		std::vector<Object> objects;
 		std::vector<ModuleDirective> module_directives;
 
-		std::vector<Page> pages;
+		/** @brief Typesafe wrapper around std::vector<Page> to only access elements via physical pages */
+		class PhysicalPages
+		{
+		private:
+			std::vector<Page> pages;
+		public:
+			typedef std::vector<Page>::iterator iterator;
+			typedef std::vector<Page>::const_iterator const_iterator;
+			typedef std::vector<Page>::reference reference;
+			typedef std::vector<Page>::const_reference const_reference;
+			typedef PhysicalPageNumber size_type;
+
+			Page& operator[](PhysicalPageNumber physical_page_number);
+			const Page& operator[](PhysicalPageNumber physical_page_number) const;
+
+			iterator begin();
+			const_iterator begin() const;
+			iterator end();
+			const_iterator end() const;
+
+			reference front();
+			const_reference front() const;
+			reference back();
+			const_reference back() const;
+
+			void push_back(const Page& page);
+
+			size_type size() const;
+		};
+
+		PhysicalPages pages;
+
 		/**
 		 * @brief (LE only) The object page map table contents
 		 *
 		 * The available documentation contradict each other, but each object page seems to map to a physical page offset within the file.
 		 * In the LX format, the offset field of the object page table serves a similar purpose.
 		 */
-		std::vector<std::tuple<uint32_t, Page::page_type>> page_map_table;
+		std::vector<std::tuple<PhysicalPageNumber, Page::page_type>> page_map_table;
 
-		uint32_t ObjectPageToPhysicalPage(uint32_t index) const;
+		PhysicalPageNumber ObjectPageToPhysicalPage(uint32_t index) const;
 
 		std::map<uint16_t, std::map<uint16_t, Resource>> resources;
 		std::vector<Name> resident_names, nonresident_names;
@@ -639,8 +682,8 @@ namespace Microsoft
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
-		offset_t GetPageOffset(uint32_t physical_page_number) const;
-		offset_t GetPageSize(uint32_t physical_page_number) const;
+		offset_t GetPageOffset(PhysicalPageNumber physical_page_number) const;
+		offset_t GetPageSize(PhysicalPageNumber physical_page_number) const;
 
 		/* * * Writer members * * */
 
@@ -757,7 +800,7 @@ namespace Microsoft
 
 		Resource& AddResource(Resource& resource);
 
-		void GetRelocationOffset(Object& object, size_t offset, size_t& page_index, uint16_t& page_offset);
+		void GetRelocationOffset(Object& object, size_t offset, PhysicalPageNumber& page_index, uint16_t& page_offset);
 		void AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0);
 
 		std::shared_ptr<Linker::Segment> stack, heap;

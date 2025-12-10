@@ -518,7 +518,7 @@ static const std::map<offset_t, std::string> page_type_descriptions =
 	{ 5, "compressed page" },
 };
 
-void LEFormat::Page::FillDumpRegion(Dumper::Dumper& dump, Dumper::Region& page_region, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+void LEFormat::Page::FillDumpRegion(Dumper::Dumper& dump, Dumper::Region& page_region, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	page_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(page_index));
 	page_region.AddField("Object", Dumper::DecDisplay::Make(), offset_t(object_number + 1));
@@ -543,17 +543,17 @@ void LEFormat::Page::FillDumpRelocations(Dumper::Dumper& dump, Dumper::Block& pa
 	}
 }
 
-void LEFormat::Page::DumpPhysicalPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+void LEFormat::Page::DumpPhysicalPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	Dumper::Block page_block("Page", fmt.GetPageOffset(page_index), image->AsImage(),
-		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (page_index - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
+		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (uint32_t(page_index) - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
 		8);
 	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
 	FillDumpRelocations(dump, page_block, fmt);
 	page_block.Display(dump);
 }
 
-void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), fmt.IsExtendedFormat() ? size : fmt.page_size /* TODO: what is the actual size? */, 8);
 	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
@@ -577,46 +577,46 @@ void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt,
 
 	std::shared_ptr<Linker::ActualImage> view = std::make_shared<IteratedPage::View>(iterated_page, fmt.page_size);
 	Dumper::Block page_block("Page contents", 0, view,
-		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (page_index - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
+		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (uint32_t(page_index) - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
 		8);
 	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
 	FillDumpRelocations(dump, page_block, fmt);
 	page_block.Display(dump);
 }
 
-void LEFormat::Page::DumpInvalidPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+void LEFormat::Page::DumpInvalidPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), fmt.IsExtendedFormat() ? size : fmt.page_size, 8);
 	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
 	page_region.Display(dump);
 }
 
-void LEFormat::Page::DumpZeroFilledPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+void LEFormat::Page::DumpZeroFilledPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), fmt.IsExtendedFormat() ? size : fmt.page_size, 8);
 	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
 	page_region.Display(dump);
 }
 
-void LEFormat::Page::DumpPageRange(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+void LEFormat::Page::DumpPageRange(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	// TODO
 	DumpPhysicalPage(dump, fmt, object_number, page_index);
 }
 
-void LEFormat::Page::DumpCompressedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+void LEFormat::Page::DumpCompressedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	// TODO
 	DumpPhysicalPage(dump, fmt, object_number, page_index);
 }
 
-void LEFormat::Page::DumpUnknownPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, uint32_t page_index) const
+void LEFormat::Page::DumpUnknownPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	// TODO
 	DumpPhysicalPage(dump, fmt, object_number, page_index);
 }
 
-void LEFormat::Page::Dump(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t page_index) const
+void LEFormat::Page::Dump(Dumper::Dumper& dump, const LEFormat& fmt, PhysicalPageNumber page_index) const
 {
 	offset_t object_number = 0;
 	for(auto& object : fmt.objects)
@@ -998,11 +998,71 @@ void LEFormat::SetTargetDefaults()
 	}
 }
 
-uint32_t LEFormat::ObjectPageToPhysicalPage(uint32_t index) const
+LEFormat::Page& LEFormat::PhysicalPages::operator[](LEFormat::PhysicalPageNumber physical_page_number)
+{
+	return pages[physical_page_number];
+}
+
+const LEFormat::Page& LEFormat::PhysicalPages::operator[](LEFormat::PhysicalPageNumber physical_page_number) const
+{
+	return pages[physical_page_number];
+}
+
+LEFormat::PhysicalPages::iterator LEFormat::PhysicalPages::begin()
+{
+	return pages.begin();
+}
+
+LEFormat::PhysicalPages::const_iterator LEFormat::PhysicalPages::begin() const
+{
+	return pages.begin();
+}
+
+LEFormat::PhysicalPages::iterator LEFormat::PhysicalPages::end()
+{
+	return pages.end();
+}
+
+LEFormat::PhysicalPages::const_iterator LEFormat::PhysicalPages::end() const
+{
+	return pages.end();
+}
+
+LEFormat::PhysicalPages::reference LEFormat::PhysicalPages::front()
+{
+	return pages.front();
+}
+
+LEFormat::PhysicalPages::const_reference LEFormat::PhysicalPages::front() const
+{
+	return pages.front();
+}
+
+LEFormat::PhysicalPages::reference LEFormat::PhysicalPages::back()
+{
+	return pages.back();
+}
+
+LEFormat::PhysicalPages::const_reference LEFormat::PhysicalPages::back() const
+{
+	return pages.back();
+}
+
+LEFormat::PhysicalPages::size_type LEFormat::PhysicalPages::size() const
+{
+	return PhysicalPageNumber{uint32_t(pages.size())};
+}
+
+void LEFormat::PhysicalPages::push_back(const Page& page)
+{
+	pages.push_back(page);
+}
+
+LEFormat::PhysicalPageNumber LEFormat::ObjectPageToPhysicalPage(uint32_t index) const
 {
 	if(IsExtendedFormat())
 	{
-		return index;
+		return PhysicalPageNumber{index};
 	}
 	else
 	{
@@ -1212,7 +1272,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		offset_t page_map_table_end = resource_table_offset ? resource_table_offset : resident_name_table_offset;
 		while(rd.Tell() < page_map_table_end)
 		{
-			uint32_t page_number = rd.ReadUnsigned(3, ::BigEndian);
+			PhysicalPageNumber page_number = PhysicalPageNumber{uint32_t(rd.ReadUnsigned(3, ::BigEndian))};
 			Page::page_type type = Page::page_type(rd.ReadUnsigned(1));
 			page_map_table.push_back(std::make_tuple(page_number, type));
 
@@ -1317,7 +1377,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	file_size = std::max(file_size, rd.Tell());
 
 	/* Fixup Record Table */
-	for(uint32_t physical_page = 1; physical_page < pages.size() - 1; physical_page++)
+	for(PhysicalPageNumber physical_page = PhysicalPageNumber{1}; physical_page < pages.size() - 1; physical_page++)
 	{
 		Page& page = pages[physical_page];
 		//if(&page == &pages.front() || &page == &pages.back())
@@ -1363,7 +1423,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	/*** Page Data ***/
 	if(!IsExtendedFormat())
 		rd.Seek(data_pages_offset);
-	for(uint32_t physical_page = 1; physical_page <= page_count; physical_page++)
+	for(PhysicalPageNumber physical_page = PhysicalPageNumber{1}; physical_page <= page_count; physical_page++)
 	{
 		Page& page = pages[physical_page];
 		uint16_t size = GetPageSize(physical_page);
@@ -1402,7 +1462,7 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		std::shared_ptr<PageSet> image = std::make_shared<PageSet>(shared_from_this());
 		for(uint32_t object_page = object.page_table_index; object_page < object.page_table_index + object.page_entry_count; object_page++)
 		{
-			uint32_t physical_page = ObjectPageToPhysicalPage(object_page);
+			PhysicalPageNumber physical_page = ObjectPageToPhysicalPage(object_page);
 			image->pages.push_back(physical_page);
 		}
 		object.image = image;
@@ -1753,7 +1813,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	}
 
 	/*** Page Data ***/
-	for(uint32_t physical_page_index = 1; physical_page_index <= page_count; physical_page_index++)
+	for(PhysicalPageNumber physical_page_index = PhysicalPageNumber{1}; physical_page_index <= page_count; physical_page_index++)
 	{
 		const Page& page = pages[physical_page_index];
 		switch(page.GetPageType(*this))
@@ -2140,15 +2200,15 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	page_data_region.AddField("Instance demand page count", Dumper::DecDisplay::Make(), offset_t(instance_demand_page_count));
 	page_data_region.Display(dump);
 
-	i = 1;
+	PhysicalPageNumber physical_page_number = PhysicalPageNumber{1};
 	for(const Page& page : pages)
 	{
 		if(&page == &pages.front() || &page == &pages.back())
 			continue;
 
-		page.Dump(dump, *this, i);
+		page.Dump(dump, *this, physical_page_number);
 
-		i++;
+		physical_page_number++;
 	}
 
 	if(nonresident_name_table_size != 0)
@@ -2177,7 +2237,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	}
 }
 
-offset_t LEFormat::GetPageOffset(uint32_t physical_page_number) const
+offset_t LEFormat::GetPageOffset(PhysicalPageNumber physical_page_number) const
 {
 	switch(pages[physical_page_number].GetPageType(*this))
 	{
@@ -2202,7 +2262,7 @@ offset_t LEFormat::GetPageOffset(uint32_t physical_page_number) const
 	}
 }
 
-offset_t LEFormat::GetPageSize(uint32_t physical_page_number) const
+offset_t LEFormat::GetPageSize(PhysicalPageNumber physical_page_number) const
 {
 	return
 		IsExtendedFormat()
@@ -2290,7 +2350,7 @@ LEFormat::Resource& LEFormat::AddResource(Resource& resource)
 	return resources[resource.type][resource.name] = resource;
 }
 
-void LEFormat::GetRelocationOffset(Object& object, size_t offset, size_t& page_index, uint16_t& page_offset)
+void LEFormat::GetRelocationOffset(Object& object, size_t offset, PhysicalPageNumber& page_index, uint16_t& page_offset)
 {
 	page_index = ObjectPageToPhysicalPage(object.page_table_index + (offset - object.address) / page_size);
 	page_offset = offset & (page_size - 1);
@@ -2298,7 +2358,7 @@ void LEFormat::GetRelocationOffset(Object& object, size_t offset, size_t& page_i
 
 void LEFormat::AddRelocation(Object& object, unsigned type, unsigned flags, size_t offset, uint16_t module, uint32_t target, uint32_t addition)
 {
-	size_t page_index;
+	PhysicalPageNumber page_index;
 	uint16_t page_offset;
 	GetRelocationOffset(object, offset, page_index, page_offset);
 	Page::Relocation rel = Page::Relocation(type, flags, page_offset, module, target, addition);
