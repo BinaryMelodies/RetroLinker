@@ -278,7 +278,7 @@ namespace Microsoft
 				}
 				else if(auto id_p = std::get_if<uint16_t>(&type))
 				{
-					type_id = 0x8000 | *id_p;
+					type_id = *id_p;
 				}
 
 				if(auto name_p = std::get_if<std::string>(&name))
@@ -287,7 +287,7 @@ namespace Microsoft
 				}
 				else if(auto id_p = std::get_if<uint16_t>(&name))
 				{
-					id = 0x8000 | *id_p;
+					id = *id_p;
 				}
 			}
 
@@ -343,7 +343,7 @@ namespace Microsoft
 				}
 				else if(auto id_p = std::get_if<uint16_t>(&type))
 				{
-					type_id = 0x8000 | *id_p;
+					type_id = *id_p;
 				}
 			}
 		};
@@ -821,6 +821,7 @@ namespace Microsoft
 
 		unsigned GetCodeSegmentFlags() const;
 		unsigned GetDataSegmentFlags() const;
+		unsigned GetResourceFlags() const;
 		void AddResource(std::shared_ptr<Resource> resource);
 		void AddSegment(std::shared_ptr<Segment> segment);
 		uint16_t FetchModule(std::string name);

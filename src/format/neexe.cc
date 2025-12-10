@@ -296,7 +296,7 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 		}
 		else
 		{
-			resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(Windows::resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id & 0x7FFF));
+			resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(Windows::resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
 		}
 		if(id_name)
 		{
@@ -593,14 +593,32 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				uint8_t length = rd.ReadUnsigned(1);
 				rtype->type_id_name = rd.ReadData(length);
 			}
+			else
+			{
+				rtype->type_id &= 0x7FFF;
+			}
+
 			for(auto& resource : rtype->resources)
 			{
 				resource->type_id_name = rtype->type_id_name;
+				if((resource->type_id & 0x8000) == 0)
+				{
+					resource->type_id_name = rtype->type_id_name;
+				}
+				else
+				{
+					resource->type_id &= 0x7FFF;
+				}
+
 				if((resource->id & 0x8000) == 0)
 				{
 					rd.Seek(resource_table_offset + resource->id);
 					uint8_t length = rd.ReadUnsigned(1);
 					resource->id_name = rd.ReadData(length);
+				}
+				else
+				{
+					resource->id &= 0x7FFF;
 				}
 			}
 		}
@@ -1286,7 +1304,7 @@ void NEFormat::SetTargetDefaults()
 	switch(output)
 	{
 	case OUTPUT_CON:
-		switch(system)
+		switch(system & ~PharLap)
 		{
 		case OS2:
 			program_flags = MULTIPLEDATA;
@@ -1301,7 +1319,7 @@ void NEFormat::SetTargetDefaults()
 		}
 		break;
 	case OUTPUT_GUI:
-		switch(system)
+		switch(system & ~PharLap)
 		{
 		case OS2:
 			program_flags = MULTIPLEDATA;
@@ -1316,7 +1334,7 @@ void NEFormat::SetTargetDefaults()
 		}
 		break;
 	case OUTPUT_DLL:
-		switch(system)
+		switch(system & ~PharLap)
 		{
 		case OS2:
 		case Windows:
@@ -1419,7 +1437,7 @@ std::shared_ptr<NEFormat> NEFormat::CreateLibraryModule(system_type system)
 
 unsigned NEFormat::GetCodeSegmentFlags() const
 {
-	switch(system)
+	switch(system & ~PharLap)
 	{
 	case OS2:
 		return 3 << Segment::PrivilegeLevelShift;
@@ -1437,7 +1455,7 @@ unsigned NEFormat::GetCodeSegmentFlags() const
 
 unsigned NEFormat::GetDataSegmentFlags() const
 {
-	switch(system)
+	switch(system & ~PharLap)
 	{
 	case MSDOS4:
 		if(IsLibrary())
@@ -1449,8 +1467,33 @@ unsigned NEFormat::GetDataSegmentFlags() const
 	}
 }
 
+unsigned NEFormat::GetResourceFlags() const
+{
+	switch(system & ~PharLap)
+	{
+	case OS2:
+		return Segment::Data | Segment::Movable | Segment::Shareable | Segment::ReadOnly | Segment::Discardable | (3 << Segment::PrivilegeLevelShift);
+	case Windows:
+		return Segment::Movable | Segment::Shareable | Segment::Discardable;
+	case MSDOS4:
+		Linker::Error << "Error: resources for MS-DOS 4 not implemented" << std::endl;
+		return Segment::Movable | Segment::Shareable | Segment::Discardable;
+	default:
+		Linker::FatalError("Internal error: invalid target system");
+	}
+}
+
 void NEFormat::AddResource(std::shared_ptr<Resource> resource)
 {
+	if(IsOS2())
+	{
+		if(resource->type_id_name || resource->id_name)
+		{
+			Linker::Error << "Error: OS/2 does not support resource names, removing resources" << std::endl;
+			return;
+		}
+	}
+
 	if(option_capitalize_names)
 	{
 		if(resource->type_id_name)
@@ -1646,7 +1689,7 @@ void NEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	if(segment->sections.front()->GetFlags() & Linker::Section::Resource)
 	{
 		auto section = segment->sections.front();
-		AddResource(std::make_shared<Resource>(section->resource_type, section->resource_id, segment, Segment::Movable | Segment::Shareable | Segment::Discardable));
+		AddResource(std::make_shared<Resource>(section->resource_type, section->resource_id, segment, GetResourceFlags()));
 		return;
 	}
 
@@ -1757,7 +1800,7 @@ for resource
 		switch(memory_model)
 		{
 		case MODEL_SMALL:
-			if(system == MSDOS4)
+			if((system & ~PharLap) == MSDOS4)
 			{
 				return Script::parse_string(SmallScript_msdos4);
 			}
@@ -1962,7 +2005,7 @@ void NEFormat::ProcessModule(Linker::Module& module)
 		sp = position.address;
 		ss = segment_index[position.segment] + 1;
 	}
-	else if(system != MSDOS4)
+	else if((system & ~PharLap) != MSDOS4)
 	{
 		/* top of automatic data segment */
 		sp = 0;
@@ -2037,22 +2080,29 @@ void NEFormat::ProcessModule(Linker::Module& module)
 	{
 		for(auto resource_type : resource_types)
 		{
-			uint16_t type_id = 0x8000;
 			if(resource_type->type_id_name)
 			{
-				type_id = FetchResourceName(resource_type->type_id_name.value());
+				uint16_t type_id = FetchResourceName(resource_type->type_id_name.value());
 				if((type_id & 0x8000) != 0)
 				{
 					Linker::Error << "Error: Too many resource names, resource name table overflow, ignoring" << std::endl;
 				}
 				resource_type->type_id = type_id;
 			}
+			else
+			{
+				resource_type->type_id |= 0x8000;
+			}
 
 			for(auto resource : resource_type->resources)
 			{
-				if((type_id & 0x8000) == 0)
+				if(resource->type_id_name)
 				{
-					resource->type_id = type_id;
+					resource->type_id = resource_type->type_id;
+				}
+				else
+				{
+					resource->type_id |= 0x8000;
 				}
 
 				if(resource->id_name)
@@ -2063,6 +2113,10 @@ void NEFormat::ProcessModule(Linker::Module& module)
 						Linker::Error << "Error: Too many resource names, resource name table overflow, ignoring" << std::endl;
 					}
 					resource->id = id;
+				}
+				else
+				{
+					resource->id |= 0x8000;
 				}
 			}
 		}
@@ -2077,7 +2131,7 @@ void NEFormat::CalculateValues()
 		automatic_data = 0;
 
 	/* TODO: should be a parameter */
-	switch(system)
+	switch(system & ~PharLap)
 	{
 	case MSDOS4:
 		stack_size = 0;
@@ -2116,6 +2170,8 @@ void NEFormat::CalculateValues()
 
 	if(IsOS2())
 	{
+		resource_table_offset += 8 * resources.size();
+
 		resource_count = resources.size();
 		resident_name_table_offset = resource_table_offset + 4 * resource_count;
 	}
@@ -2240,7 +2296,7 @@ std::string NEFormat::GetDefaultExtension(Linker::Module& module, std::string fi
 {
 	ResourceFile resfil;
 
-	if(output == OUTPUT_DLL && ((system & ~0x7F) == OS2 || (system & ~0x7F) == Windows || (system & ~0x7F) == Windows386))
+	if(output == OUTPUT_DLL && ((system & ~PharLap) == OS2 || (system & ~PharLap) == Windows || (system & ~PharLap) == Windows386))
 		return filename + ".dll";
 	else
 		return filename + ".exe";
