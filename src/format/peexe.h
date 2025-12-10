@@ -331,8 +331,6 @@ namespace Microsoft
 		class Resource
 		{
 		public:
-			// TODO: this is just a sketch
-
 			/** @brief Represents a resource identifier, either a string or a 32-bit value */
 			typedef std::variant<std::string, uint32_t> Identifier;
 
@@ -344,6 +342,9 @@ namespace Microsoft
 			static constexpr size_t Level_Language = 2;
 			/** @brief Total number of levels used */
 			static constexpr size_t Level_Count = 3;
+
+			/** @brief Adds fields to the container that describe the identifier */
+			static void DumpIdentifier(std::vector<Identifier> full_identifier, Dumper::Container& container);
 
 			/** @brief The sequence of IDs that identifies this resource, conventionally corresponding to the resource type, name and language */
 			std::vector<Identifier> full_identifier;
@@ -364,8 +365,8 @@ namespace Microsoft
 			{
 			}
 
-			/** @brief Parses the contents of the resource, after all the section data for the file is loaded */
-			void ParseResourceData(const PEFormat& fmt, uint32_t rva);
+			/** @brief Parses the contents of the resource, after all the section data for the file is loaded, returns longest full identifier */
+			size_t ParseResourceData(const PEFormat& fmt, uint32_t rva);
 			/** @brief Displays the resource contents */
 			void DumpResource(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t rva) const;
 			/** @brief Assigns the relative virtual addresses and returns the relative virtual address of the end of the resource */
@@ -381,8 +382,6 @@ namespace Microsoft
 		class ResourceDirectory
 		{
 		public:
-			// TODO: this is just a sketch
-
 			class Name
 			{
 			public:
@@ -426,10 +425,10 @@ namespace Microsoft
 			 */
 			void AddResource(std::shared_ptr<Resource>& resource, size_t level = 0);
 
-			/** @brief Parses the contents of the directory at the current level, after all the section data for the file is loaded */
-			void ParseResourceDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Identifier>& partial_identifier);
+			/** @brief Parses the contents of the directory at the current level, after all the section data for the file is loaded, returns longest identifier */
+			size_t ParseResourceDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Identifier>& partial_identifier);
 			/** @brief Displays the directory contents */
-			void DumpResourceDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t rva, size_t level = 0) const;
+			void DumpResourceDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Identifier>& partial_identifier, size_t dump_level) const;
 			/** @brief Fills in the offsets for all subdirectories at the specified relative level */
 			uint32_t CalculateDirectoryOffsets(PEFormat& fmt, uint32_t offset, size_t level_deeper);
 			/** @brief Registers all strings occuring in the directory and its subdirectories at the specified relative level */
