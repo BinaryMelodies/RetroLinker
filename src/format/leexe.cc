@@ -41,9 +41,10 @@ offset_t LEFormat::PageSet::WriteFile(Linker::Writer& wr, offset_t count, offset
 				offset = 0;
 				remainder_of_page -= actual_count;
 			}
-			if(remainder_of_page > 0)
+			while(remainder_of_page > 0)
 			{
-				// TODO: fill in zeroes?
+				wr.WriteWord(1, 0);
+				remainder_of_page --;
 			}
 		}
 	}

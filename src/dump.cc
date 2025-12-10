@@ -90,6 +90,12 @@ int main(int argc, char * argv[])
 
 	std::ifstream in;
 	in.open(input, std::ios_base::in | std::ios_base::binary);
+	if(!in.is_open())
+	{
+		std::ostringstream message;
+		message << "Fatal error: Unable to open file " << input;
+		Linker::FatalError(message.str());
+	}
 	Reader rd (LittleEndian, &in);
 	int status = 0;
 

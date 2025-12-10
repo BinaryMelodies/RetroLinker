@@ -672,17 +672,21 @@ public:
 	{
 	}
 
-	void SetEncoding(SingleByteEncoding& encoding, bool force = false)
+	SingleByteEncoding * SetEncoding(SingleByteEncoding& encoding, bool force = false)
 	{
+		SingleByteEncoding * old_encoding = this->encoding;
 		if(this->encoding == nullptr || force)
 		{
 			this->encoding = &encoding;
 		}
+		return old_encoding;
 	}
 
-	void SetStringEncoding(Encoding& encoding)
+	Encoding * SetStringEncoding(Encoding& encoding)
 	{
+		Encoding * old_encoding = this->string_encoding;
 		this->string_encoding = &encoding;
+		return old_encoding;
 	}
 
 	void SetTitle(std::string title)
