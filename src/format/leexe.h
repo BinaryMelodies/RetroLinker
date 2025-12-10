@@ -95,7 +95,15 @@ namespace Microsoft
 		class PageSet : public Linker::Image
 		{
 		public:
-			std::vector<std::shared_ptr<Linker::Image>> pages;
+			std::shared_ptr<LEFormat> file;
+			std::vector<uint32_t> pages;
+
+			PageSet() = delete;
+
+			PageSet(std::shared_ptr<LEFormat> file)
+				: file(file)
+			{
+			}
 
 			offset_t ImageSize() const override;
 			using Linker::Image::WriteFile;
@@ -631,8 +639,8 @@ namespace Microsoft
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
-		offset_t GetPageOffset(uint32_t index) const;
-		offset_t GetPageSize(uint32_t index) const;
+		offset_t GetPageOffset(uint32_t physical_page_number) const;
+		offset_t GetPageSize(uint32_t physical_page_number) const;
 
 		/* * * Writer members * * */
 
