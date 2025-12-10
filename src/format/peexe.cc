@@ -471,6 +471,33 @@ void PEFormat::Resource::DumpResource(const PEFormat& fmt, Dumper::Dumper& dump,
 	resource_block.Display(dump);
 }
 
+uint32_t PEFormat::Resource::AssignAddress(PEFormat& fmt, uint32_t rva)
+{
+	data_rva = rva;
+	if(section != nullptr)
+	{
+		size = section->Size();
+	}
+	return rva + size;
+}
+
+void PEFormat::Resource::WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const
+{
+	wr.WriteWord(4, data_rva, ::LittleEndian);
+	wr.WriteWord(4, size, ::LittleEndian);
+	wr.WriteWord(4, codepage, ::LittleEndian);
+	wr.WriteWord(4, reserved, ::LittleEndian);
+}
+
+void PEFormat::Resource::WriteResource(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
+{
+	if(section != nullptr)
+	{
+		wr.Seek(data_rva - rva_to_offset);
+		section->WriteFile(wr);
+	}
+}
+
 void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resource, size_t level)
 {
 	// TODO: test
@@ -547,7 +574,7 @@ void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resourc
 	}
 }
 
-void PEFormat::ResourceDirectory::ParseResourceDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Reference>& partial_identifier)
+void PEFormat::ResourceDirectory::ParseResourceDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Identifier>& partial_identifier)
 {
 	flags = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
 	timestamp = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
@@ -558,26 +585,26 @@ void PEFormat::ResourceDirectory::ParseResourceDirectoryData(const PEFormat& fmt
 	for(uint16_t entry_index = 0; entry_index < name_entry_count; entry_index ++)
 	{
 		Entry<Name> entry;
-		entry.identifier.rva = directory_rva + (fmt.ReadUnsigned(4, rva, ::LittleEndian) & 0x7FFFFFFF); rva += 4; // TODO: why is the high bit set
-		uint16_t length = fmt.ReadUnsigned(2, entry.identifier.rva, ::LittleEndian);
-		entry.identifier.name = fmt.ReadData(entry.identifier.rva + 2, uint32_t(length) * 2);
-		entry.content_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
-		bool is_subdir = (entry.content_rva & 0x80000000) != 0;
-		entry.content_rva = (entry.content_rva + directory_rva) & 0x7FFFFFFF;
+		entry.identifier.offset = fmt.ReadUnsigned(4, rva, ::LittleEndian) & 0x7FFFFFFF; rva += 4; // TODO: why is the high bit set
+		uint16_t length = fmt.ReadUnsigned(2, directory_rva + entry.identifier.offset, ::LittleEndian);
+		entry.identifier.name = fmt.ReadData(directory_rva + entry.identifier.offset + 2, uint32_t(length) * 2);
+		entry.content_offset = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+		bool is_subdir = (entry.content_offset & 0x80000000) != 0;
+		entry.content_offset &= 0x7FFFFFFF;
 
-		std::vector<Resource::Reference> new_identifier(partial_identifier);
+		std::vector<Resource::Identifier> new_identifier(partial_identifier);
 		new_identifier.push_back(entry.identifier.name);
 		if(is_subdir)
 		{
 			std::shared_ptr<ResourceDirectory> subdirectory = std::make_shared<ResourceDirectory>();
 			entry.content = subdirectory;
-			subdirectory->ParseResourceDirectoryData(fmt, directory_rva, entry.content_rva & 0x7FFFFFFF, new_identifier);
+			subdirectory->ParseResourceDirectoryData(fmt, directory_rva, directory_rva + entry.content_offset, new_identifier);
 		}
 		else
 		{
 			std::shared_ptr<Resource> resource = std::make_shared<Resource>(new_identifier);
 			entry.content = resource;
-			resource->ParseResourceData(fmt, entry.content_rva);
+			resource->ParseResourceData(fmt, directory_rva + entry.content_offset);
 		}
 
 		name_entries.emplace_back(entry);
@@ -586,30 +613,30 @@ void PEFormat::ResourceDirectory::ParseResourceDirectoryData(const PEFormat& fmt
 	{
 		Entry<uint32_t> entry;
 		entry.identifier = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
-		entry.content_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
-		bool is_subdir = (entry.content_rva & 0x80000000) != 0;
-		entry.content_rva = (entry.content_rva + directory_rva) & 0x7FFFFFFF;
+		entry.content_offset = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+		bool is_subdir = (entry.content_offset & 0x80000000) != 0;
+		entry.content_offset &= 0x7FFFFFFF;
 
-		std::vector<Resource::Reference> new_identifier(partial_identifier);
+		std::vector<Resource::Identifier> new_identifier(partial_identifier);
 		new_identifier.push_back(entry.identifier);
 		if(is_subdir)
 		{
 			std::shared_ptr<ResourceDirectory> subdirectory = std::make_shared<ResourceDirectory>();
 			entry.content = subdirectory;
-			subdirectory->ParseResourceDirectoryData(fmt, directory_rva, entry.content_rva & 0x7FFFFFFF, new_identifier);
+			subdirectory->ParseResourceDirectoryData(fmt, directory_rva, directory_rva + entry.content_offset, new_identifier);
 		}
 		else
 		{
 			std::shared_ptr<Resource> resource = std::make_shared<Resource>(new_identifier);
 			entry.content = resource;
-			resource->ParseResourceData(fmt, entry.content_rva);
+			resource->ParseResourceData(fmt, directory_rva + entry.content_offset);
 		}
 
 		id_entries.emplace_back(entry);
 	}
 }
 
-void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t rva, size_t level) const
+void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t rva, size_t level) const
 {
 	static const std::map<offset_t, std::string> level_description =
 	{
@@ -633,9 +660,9 @@ void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dum
 	{
 		Dumper::Entry dirent_entry("Directory entry", entry_index + 1, rva + 16 + entry_index * 8, 8);
 		dirent_entry.AddField("Entry name", Dumper::StringDisplay::Make(), entry.identifier.name);
-		dirent_entry.AddField("Entry name address", fmt.MakeRVADisplay(), offset_t(entry.identifier.rva & 0x7FFFFFFF));
-		dirent_entry.AddField("Content address", fmt.MakeRVADisplay(), offset_t(entry.content_rva & 0x7FFFFFFF));
-		dirent_entry.AddField("Content type", Dumper::ChoiceDisplay::Make("directory", "leaf"), offset_t((entry.content_rva & 0x80000000) != 0));
+		dirent_entry.AddField("Entry name address", fmt.MakeRVADisplay(), offset_t(directory_rva + entry.identifier.offset));
+		dirent_entry.AddField("Content address", fmt.MakeRVADisplay(), offset_t(directory_rva + entry.content_offset));
+		dirent_entry.AddField("Content type", Dumper::ChoiceDisplay::Make("directory", "leaf"), offset_t(entry.IsSubdirectory()));
 		dirent_entry.Display(dump);
 		entry_index ++;
 	}
@@ -644,8 +671,8 @@ void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dum
 	{
 		Dumper::Entry dirent_entry("Directory entry", entry_index + 1, rva + 16 + entry_index * 8, 8);
 		dirent_entry.AddField("Entry identifier", Dumper::HexDisplay::Make(), offset_t(entry.identifier));
-		dirent_entry.AddField("Content address", fmt.MakeRVADisplay(), offset_t(entry.content_rva & 0x7FFFFFFF));
-		dirent_entry.AddField("Content type", Dumper::ChoiceDisplay::Make("directory", "leaf"), offset_t((entry.content_rva & 0x80000000) != 0));
+		dirent_entry.AddField("Content address", fmt.MakeRVADisplay(), offset_t(directory_rva + entry.content_offset));
+		dirent_entry.AddField("Content type", Dumper::ChoiceDisplay::Make("directory", "leaf"), offset_t(entry.IsSubdirectory()));
 		dirent_entry.Display(dump);
 		entry_index ++;
 	}
@@ -654,11 +681,11 @@ void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dum
 	{
 		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
 		{
-			(*leaf)->DumpResource(fmt, dump, entry.content_rva & 0x7FFFFFFF);
+			(*leaf)->DumpResource(fmt, dump, directory_rva + entry.content_offset);
 		}
 		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
 		{
-			(*dir)->DumpResourceDirectory(fmt, dump, entry.content_rva & 0x7FFFFFFF, level + 1);
+			(*dir)->DumpResourceDirectory(fmt, dump, directory_rva + entry.content_offset, level + 1);
 		}
 	}
 
@@ -666,12 +693,215 @@ void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dum
 	{
 		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
 		{
-			(*leaf)->DumpResource(fmt, dump, entry.content_rva & 0x7FFFFFFF);
+			(*leaf)->DumpResource(fmt, dump, directory_rva + entry.content_offset);
 		}
 		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
 		{
-			(*dir)->DumpResourceDirectory(fmt, dump, entry.content_rva & 0x7FFFFFFF, level + 1);
+			(*dir)->DumpResourceDirectory(fmt, dump, directory_rva + entry.content_offset, level + 1);
 		}
+	}
+}
+
+uint32_t PEFormat::ResourceDirectory::CalculateDirectoryOffsets(PEFormat& fmt, uint32_t offset, size_t level_deeper)
+{
+	if(level_deeper == 0)
+	{
+		// current level
+		return offset + 16 + 8 * (name_entries.size() + id_entries.size());
+	}
+	else
+	{
+		// check children
+		for(auto& entry : name_entries)
+		{
+			if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+			{
+				if(level_deeper == 1)
+					entry.content_offset = offset;
+				offset = (*dir)->CalculateDirectoryOffsets(fmt, offset, level_deeper - 1);
+			}
+		}
+
+		for(auto& entry : id_entries)
+		{
+			if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+			{
+				if(level_deeper == 1)
+					entry.content_offset = offset;
+				offset = (*dir)->CalculateDirectoryOffsets(fmt, offset, level_deeper - 1);
+			}
+		}
+
+		return offset;
+	}
+}
+
+void PEFormat::ResourceDirectory::CollectSubdirectoryStrings(PEFormat& fmt, ResourcesSection& rsrc, size_t level_deeper)
+{
+	if(level_deeper == 0)
+	{
+		// current level
+		for(auto& entry : name_entries)
+		{
+			entry.identifier.offset = rsrc.FetchString(entry.identifier.name);
+		}
+	}
+	else
+	{
+		// check children
+		for(auto& entry : name_entries)
+		{
+			if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+			{
+				(*dir)->CollectSubdirectoryStrings(fmt, rsrc, level_deeper - 1);
+			}
+		}
+
+		for(auto& entry : id_entries)
+		{
+			if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+			{
+				(*dir)->CollectSubdirectoryStrings(fmt, rsrc, level_deeper - 1);
+			}
+		}
+	}
+}
+
+uint32_t PEFormat::ResourceDirectory::CollectResourceData(PEFormat& fmt, uint32_t rva, size_t level_deeper)
+{
+	if(level_deeper == 0)
+	{
+		// current level
+		for(auto& entry : name_entries)
+		{
+			if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
+			{
+				rva = (*leaf)->AssignAddress(fmt, rva);
+			}
+		}
+
+		for(auto& entry : id_entries)
+		{
+			if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
+			{
+				rva = (*leaf)->AssignAddress(fmt, rva);
+			}
+		}
+
+		return rva;
+	}
+	else
+	{
+		// check children
+		for(auto& entry : name_entries)
+		{
+			if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+			{
+				rva = (*dir)->CollectResourceData(fmt, rva, level_deeper - 1);
+			}
+		}
+
+		for(auto& entry : id_entries)
+		{
+			if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+			{
+				rva = (*dir)->CollectResourceData(fmt, rva, level_deeper - 1);
+			}
+		}
+
+		return rva;
+	}
+}
+
+void PEFormat::ResourceDirectory::WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const
+{
+	wr.WriteWord(4, flags, ::LittleEndian);
+	wr.WriteWord(4, timestamp, ::LittleEndian);
+	wr.WriteWord(2, version.major, ::LittleEndian);
+	wr.WriteWord(2, version.minor, ::LittleEndian);
+	wr.WriteWord(2, name_entries.size(), ::LittleEndian);
+	wr.WriteWord(2, id_entries.size(), ::LittleEndian);
+
+	for(auto& entry : name_entries)
+	{
+		wr.WriteWord(4, entry.identifier.offset);
+		wr.WriteWord(4, entry.content_offset | (entry.IsSubdirectory() ? 0x80000000 : 0));
+	}
+
+	for(auto& entry : id_entries)
+	{
+		wr.WriteWord(4, entry.identifier);
+		wr.WriteWord(4, entry.content_offset | (entry.IsSubdirectory() ? 0x80000000 : 0));
+	}
+
+	for(auto& entry : name_entries)
+	{
+		wr.Seek(section_pointer + entry.content_offset);
+		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
+		{
+			(*leaf)->WriteDirectories(wr, fmt, section_pointer);
+		}
+		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+		{
+			(*dir)->WriteDirectories(wr, fmt, section_pointer);
+		}
+	}
+
+	for(auto& entry : id_entries)
+	{
+		wr.Seek(section_pointer + entry.content_offset);
+		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
+		{
+			(*leaf)->WriteDirectories(wr, fmt, section_pointer);
+		}
+		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+		{
+			(*dir)->WriteDirectories(wr, fmt, section_pointer);
+		}
+	}
+}
+
+void PEFormat::ResourceDirectory::WriteResources(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
+{
+	for(auto& entry : name_entries)
+	{
+		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
+		{
+			(*leaf)->WriteResource(wr, fmt, rva_to_offset);
+		}
+		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+		{
+			(*dir)->WriteResources(wr, fmt, rva_to_offset);
+		}
+	}
+
+	for(auto& entry : id_entries)
+	{
+		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
+		{
+			(*leaf)->WriteResource(wr, fmt, rva_to_offset);
+		}
+		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+		{
+			(*dir)->WriteResources(wr, fmt, rva_to_offset);
+		}
+	}
+}
+
+uint32_t PEFormat::ResourcesSection::FetchString(std::string s)
+{
+	auto it = string_table_map.find(s);
+	if(it == string_table_map.end())
+	{
+		uint32_t offset = string_table_end_offset;
+		string_table.push_back(s);
+		string_table_map[s] = offset;
+		string_table_end_offset += 2 + AlignTo(s.size(), 2);
+		return offset;
+	}
+	else
+	{
+		return it->second;
 	}
 }
 
@@ -682,7 +912,23 @@ bool PEFormat::ResourcesSection::IsPresent() const
 
 void PEFormat::ResourcesSection::Generate(PEFormat& fmt)
 {
-	// TODO
+	uint32_t offset = 0;
+	for(size_t level = 0; level < max_depth; level++)
+	{
+		offset = CalculateDirectoryOffsets(fmt, offset, level);
+	}
+
+	string_table_end_offset = string_table_offset = offset;
+	for(size_t level = 0; level < max_depth; level++)
+	{
+		CollectSubdirectoryStrings(fmt, *this, level);
+	}
+
+	uint32_t rva = address + string_table_end_offset;
+	for(size_t level = 0; level < max_depth; level++)
+	{
+		rva = CollectResourceData(fmt, rva, level);
+	}
 }
 
 void PEFormat::ResourcesSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
@@ -692,7 +938,18 @@ void PEFormat::ResourcesSection::ReadSectionData(Linker::Reader& rd, const PEFor
 
 void PEFormat::ResourcesSection::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
 {
-	// TODO
+	WriteDirectories(wr, fmt, section_pointer);
+
+	wr.Seek(section_pointer + string_table_offset);
+	for(auto& s : string_table)
+	{
+		wr.WriteWord(2, AlignTo(s.size(), 2) >> 1, ::LittleEndian);
+		wr.WriteData(s);
+		if((s.size() & 1) != 0)
+			wr.WriteWord(1, 0);
+	}
+
+	WriteResources(wr, fmt, section_pointer - address);
 }
 
 uint32_t PEFormat::ResourcesSection::ImageSize(const PEFormat& fmt) const
@@ -707,7 +964,7 @@ uint32_t PEFormat::ResourcesSection::MemorySize(const PEFormat& fmt) const
 
 void PEFormat::ResourcesSection::ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size)
 {
-	std::vector<Resource::Reference> empty_identifier;
+	std::vector<Resource::Identifier> empty_identifier;
 	ParseResourceDirectoryData(fmt, directory_rva, directory_rva, empty_identifier);
 }
 
@@ -2252,6 +2509,11 @@ bool PEFormat::FormatSupportsLibraries() const
 	return true;
 }
 
+bool PEFormat::FormatSupportsResources() const
+{
+	return true;
+}
+
 unsigned PEFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	// TODO: do we need stack/heap?
@@ -2260,6 +2522,7 @@ unsigned PEFormat::FormatAdditionalSectionFlags(std::string section_name) const
 
 std::shared_ptr<PEFormat::Resource>& PEFormat::AddResource(std::shared_ptr<Resource>& resource)
 {
+	resources->max_depth = std::max(resources->max_depth, resource->full_identifier.size());
 	resources->AddResource(resource);
 	return resource;
 }
@@ -2644,8 +2907,25 @@ void PEFormat::AllocateSymbols(Linker::Module& module) const
 
 void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
+	if(segment->sections.size() == 0)
+		return;
+
 	auto first_section = segment->sections[0];
-	if(first_section->IsExecutable())
+	if(first_section->GetFlags() & Linker::Section::Resource)
+	{
+		resources->image = segment;
+		for(auto section : segment->sections)
+		{
+			std::vector<Resource::Identifier> full_identifier(3);
+			full_identifier[Resource::Level_Type] = section->resource_type;
+			full_identifier[Resource::Level_Name] = section->resource_id;
+			full_identifier[Resource::Level_Language] = section->resource_language;
+			std::shared_ptr<Resource> resource = std::make_shared<Resource>(full_identifier);
+			resource->section = section;
+			AddResource(resource);
+		}
+	}
+	else if(first_section->IsExecutable())
 	{
 		Linker::Debug << "Debug: PE code section: " << segment->name << std::endl;
 		for(auto section : segment->sections)
@@ -2898,17 +3178,22 @@ for execute
 
 call "GenerateImportThunks";
 
-for not zero
+for not zero and not resource
 {
 	at align(here, ?section_align?);
 	all;
 };
 
-for any
+for not resource
 {
 	at align(here, ?section_align?);
 	all;
 };
+
+".rsrc"
+{
+	all resource;
+}
 )";
 
 	static const char * GNUScript = R"(
@@ -2934,7 +3219,7 @@ for ".data"
 	all;
 };
 
-for not zero
+for not zero and not resource
 {
 	at align(here, ?section_align?);
 	all;
@@ -2946,11 +3231,16 @@ for ".bss"
 	all;
 };
 
-for any
+for not resource
 {
 	at align(here, ?section_align?);
 	all;
 };
+
+".rsrc"
+{
+	all resource;
+}
 )";
 
 	// This script attempts to simulate the default behavior of the Watcom linker
@@ -2987,12 +3277,17 @@ for ".data" or ".bss" or ".comm" call "DGROUP"
 	all ".data" or ".bss" or ".comm";
 };
 
-for any call "AUTO"
+for not resource call "AUTO"
 {
 	at align(here, ?section_align?);
 	all not zero;
 	all zero;
 };
+
+".rsrc"
+{
+	all resource;
+}
 )";
 
 	if(linker_script != "")

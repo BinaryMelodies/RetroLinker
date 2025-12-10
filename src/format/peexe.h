@@ -334,7 +334,7 @@ namespace Microsoft
 			// TODO: this is just a sketch
 
 			/** @brief Represents a resource identifier, either a string or a 32-bit value */
-			typedef std::variant<std::string, uint32_t> Reference;
+			typedef std::variant<std::string, uint32_t> Identifier;
 
 			/** @brief The first level of the resource tree corresponds to the resource type */
 			static constexpr size_t Level_Type = 0;
@@ -346,7 +346,7 @@ namespace Microsoft
 			static constexpr size_t Level_Count = 3;
 
 			/** @brief The sequence of IDs that identifies this resource, conventionally corresponding to the resource type, name and language */
-			std::vector<Reference> full_identifier;
+			std::vector<Identifier> full_identifier;
 			/** @brief The relative virtual address of the resource data */
 			uint32_t data_rva = 0;
 			/** @brief The size of the resource data */
@@ -356,7 +356,10 @@ namespace Microsoft
 			/** @brief Reserved entry in the resource table */
 			uint32_t reserved = 0;
 
-			Resource(const std::vector<Resource::Reference>& full_identifier)
+			/** @brief The section containing the resource, only used for generating images */
+			std::shared_ptr<Linker::Section> section = nullptr;
+
+			Resource(const std::vector<Resource::Identifier>& full_identifier)
 				: full_identifier(full_identifier)
 			{
 			}
@@ -365,7 +368,15 @@ namespace Microsoft
 			void ParseResourceData(const PEFormat& fmt, uint32_t rva);
 			/** @brief Displays the resource contents */
 			void DumpResource(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t rva) const;
+			/** @brief Assigns the relative virtual addresses and returns the relative virtual address of the end of the resource */
+			uint32_t AssignAddress(PEFormat& fmt, uint32_t rva);
+			/** @brief Writes the directory entry for this resource */
+			void WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const;
+			/** @brief Writes the actual resource */
+			void WriteResource(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
 		};
+
+		class ResourcesSection;
 
 		class ResourceDirectory
 		{
@@ -376,7 +387,7 @@ namespace Microsoft
 			{
 			public:
 				std::string name;
-				uint32_t rva = 0;
+				uint32_t offset = 0;
 
 				Name(std::string name = "")
 					: name(name)
@@ -393,8 +404,8 @@ namespace Microsoft
 				Key identifier;
 				/** @brief The contents at this level, either the resource itself, or another level of resource directory */
 				std::variant<std::shared_ptr<Resource>, std::shared_ptr<ResourceDirectory>> content;
-				/** @brief The relative virtual address of the contents */
-				uint32_t content_rva = 0;
+				/** @brief The offset of the contents within the section */
+				uint32_t content_offset = 0;
 
 				bool IsSubdirectory() const { return std::get_if<std::shared_ptr<ResourceDirectory>>(&content); }
 			};
@@ -416,9 +427,19 @@ namespace Microsoft
 			void AddResource(std::shared_ptr<Resource>& resource, size_t level = 0);
 
 			/** @brief Parses the contents of the directory at the current level, after all the section data for the file is loaded */
-			void ParseResourceDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Reference>& partial_identifier);
+			void ParseResourceDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Identifier>& partial_identifier);
 			/** @brief Displays the directory contents */
-			void DumpResourceDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t rva, size_t level = 0) const;
+			void DumpResourceDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t rva, size_t level = 0) const;
+			/** @brief Fills in the offsets for all subdirectories at the specified relative level */
+			uint32_t CalculateDirectoryOffsets(PEFormat& fmt, uint32_t offset, size_t level_deeper);
+			/** @brief Registers all strings occuring in the directory and its subdirectories at the specified relative level */
+			void CollectSubdirectoryStrings(PEFormat& fmt, ResourcesSection& rsrc, size_t level_deeper);
+			/** @brief Calculates the relative virtual addresses of each individual resource at the specified relative level */
+			uint32_t CollectResourceData(PEFormat& fmt, uint32_t rva, size_t level_deeper);
+			/** @brief Recursively writes the directory table and all those of all of its subdirectories and leaves */
+			void WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const;
+			/** @brief Recursively writes all the resources */
+			void WriteResources(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
 		};
 
 		/** @brief Represents an `.rsrc` resource section in the binary */
@@ -430,6 +451,15 @@ namespace Microsoft
 			{
 				name = ".rsrc";
 			}
+
+			size_t max_depth = 0;
+		protected:
+			std::vector<std::string> string_table;
+			std::map<std::string, uint32_t> string_table_map;
+			uint32_t string_table_offset = 0;
+			uint32_t string_table_end_offset = 0;
+		public:
+			uint32_t FetchString(std::string s);
 
 			using Section::ReadSectionData;
 			using Section::WriteSectionData;
@@ -1029,6 +1059,8 @@ namespace Microsoft
 		std::shared_ptr<PEFormat> SimulateLinker(compatibility_type compatibility);
 
 		bool FormatSupportsLibraries() const override;
+
+		bool FormatSupportsResources() const override;
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
