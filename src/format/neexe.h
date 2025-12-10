@@ -246,6 +246,8 @@ namespace Microsoft
 		public:
 			typedef std::variant<std::string, uint16_t> Identifier;
 
+			static Identifier ConvertIdentifier(Linker::ResourceIdentifier identifier);
+
 			/** @brief Type identifier, used by both Windows and OS/2
 			 *
 			 * Under Windows, if bit 15 is cleared, it references a string
@@ -287,6 +289,11 @@ namespace Microsoft
 				{
 					id = 0x8000 | *id_p;
 				}
+			}
+
+			Resource(const Linker::ResourceIdentifier& type, const Linker::ResourceIdentifier& name, std::shared_ptr<Linker::Segment> segment, unsigned flags)
+				: Resource(ConvertIdentifier(type), ConvertIdentifier(name), segment, flags)
+			{
 			}
 
 			Identifier GetTypeIdentifier() const

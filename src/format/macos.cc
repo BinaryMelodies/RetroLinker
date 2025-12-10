@@ -1437,14 +1437,14 @@ void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	{
 		std::shared_ptr<Linker::Section> section = segment->sections.front();
 		/* other resources */
-		std::string * type = std::get_if<std::string>(&section->resource_type);
+		Linker::ResourceIdentifier_String * type = std::get_if<std::string>(&section->resource_type);
 		if(type == nullptr || type->size() != 4)
 		{
 			Linker::Error << "Error: resources are expected to have a 4-character type" << std::endl;
 			return;
 		}
-		uint16_t * id = std::get_if<uint16_t>(&section->resource_id);
-		if(id == nullptr)
+		Linker::ResourceIdentifier_Integer * id = std::get_if<Linker::ResourceIdentifier_Integer>(&section->resource_id);
+		if(id == nullptr || *id > 0xFFFF)
 		{
 			Linker::Error << "Error: resources are expected to have a 16-bit ID" << std::endl;
 			return;

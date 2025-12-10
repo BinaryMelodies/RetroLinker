@@ -227,6 +227,26 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) c
 	}
 }
 
+NEFormat::Resource::Identifier NEFormat::Resource::ConvertIdentifier(Linker::ResourceIdentifier identifier)
+{
+	if(auto string_p = std::get_if<Linker::ResourceIdentifier_String>(&identifier))
+	{
+		return *string_p;
+	}
+	else if(auto integer_p = std::get_if<Linker::ResourceIdentifier_Integer>(&identifier))
+	{
+		if(*integer_p > 0xFFFF)
+		{
+			Linker::Error << "Error: Unable to process resource identifiers beyond 16 bits, truncating" << std::endl;
+		}
+		return uint16_t(*integer_p);
+	}
+	else
+	{
+		assert(false);
+	}
+}
+
 void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) const
 {
 	if(isos2)

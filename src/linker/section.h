@@ -15,6 +15,10 @@ namespace Linker
 	class Reader;
 	class Segment;
 
+	typedef uint32_t ResourceIdentifier_Integer;
+	typedef std::string ResourceIdentifier_String;
+	typedef std::variant<ResourceIdentifier_String, ResourceIdentifier_Integer> ResourceIdentifier;
+
 	/**
 	 * @brief A section of data as read from an object file
 	 *
@@ -122,15 +126,17 @@ namespace Linker
 		 * This is represented by setting the bias to -0x100.
 		 */
 		offset_t bias = 0;
+
 		/**
-		 * @brief The resource type and ID for a resource section
+		 * @brief The resource type, ID and language for a resource section
 		 *
 		 * All resources can have a resource type and a resource ID that can usually be a string or an integer.
 		 * Some platforms specify which one is which (for example, Macintosh resources have a 4-character type but a 16-bit ID).
 		 * For others (for example, the NE format), they can be either.
 		 */
-		std::variant<std::string, uint16_t> resource_type = "    ";
-		std::variant<std::string, uint16_t> resource_id = uint16_t(0);
+		ResourceIdentifier resource_type = "    ";
+		ResourceIdentifier resource_id = uint16_t(0);
+		ResourceIdentifier resource_language = uint16_t(0); // TODO: not currently used
 
 		/**
 		 * @brief The segment a section belongs to

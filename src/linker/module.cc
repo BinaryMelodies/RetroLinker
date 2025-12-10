@@ -955,7 +955,7 @@ void Module::AddSection(std::shared_ptr<Section> section)
 		/* $$RSRC$<typenum>$_<id> */
 		/* $$RSRC$_<type>$_<id> */
 		bool successful_parse = true;
-		std::variant<std::string, uint16_t> type = "", id = "";
+		ResourceIdentifier type = "", id = "";
 		size_t sep = section->name.rfind(special_prefix_char);
 		if(sep == std::string::npos || sep + 1 >= section->name.size())
 		{
@@ -971,7 +971,7 @@ void Module::AddSection(std::shared_ptr<Section> section)
 				}
 				else
 				{
-					type = uint16_t(stoll(section->name.substr(resource_prefix().size(), sep - resource_prefix().size()), nullptr, 16));
+					type = ResourceIdentifier_Integer(stoll(section->name.substr(resource_prefix().size(), sep - resource_prefix().size()), nullptr, 16));
 				}
 
 				if(section->name[sep + 1] == '_')
@@ -980,7 +980,7 @@ void Module::AddSection(std::shared_ptr<Section> section)
 				}
 				else
 				{
-					id = uint16_t(stoll(section->name.substr(sep + 1), nullptr, 16));
+					id = ResourceIdentifier_Integer(stoll(section->name.substr(sep + 1), nullptr, 16));
 				}
 			}
 			catch(std::invalid_argument& a)
