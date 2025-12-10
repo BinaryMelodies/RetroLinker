@@ -56,31 +56,6 @@ const std::map<offset_t, std::string> Windows::resource_type_id_descriptions =
 	{ Windows::RT_MANIFEST, "RT_MANIFEST" },
 };
 
-const std::map<offset_t, std::string> Windows::flagged_resource_type_id_descriptions =
-{
-	{ 0x8000 | Windows::RT_CURSOR, "RT_CURSOR" },
-	{ 0x8000 | Windows::RT_BITMAP, "RT_BITMAP" },
-	{ 0x8000 | Windows::RT_ICON, "RT_ICON" },
-	{ 0x8000 | Windows::RT_MENU, "RT_MENU" },
-	{ 0x8000 | Windows::RT_DIALOG, "RT_DIALOG" },
-	{ 0x8000 | Windows::RT_STRING, "RT_STRING" },
-	{ 0x8000 | Windows::RT_FONTDIR, "RT_FONTDIR" },
-	{ 0x8000 | Windows::RT_FONT, "RT_FONT" },
-	{ 0x8000 | Windows::RT_ACCELERATOR, "RT_ACCELERATOR" },
-	{ 0x8000 | Windows::RT_RCDATA, "RT_RCDATA" },
-	{ 0x8000 | Windows::RT_MESSAGETABLE, "RT_MESSAGETABLE" },
-	{ 0x8000 | Windows::RT_GROUP_CURSOR, "RT_GROUP_CURSOR" },
-	{ 0x8000 | Windows::RT_GROUP_ICON, "RT_GROUP_ICON" },
-	{ 0x8000 | Windows::RT_VERSION, "RT_VERSION" },
-	{ 0x8000 | Windows::RT_DLGINCLUDE, "RT_DLGINCLUDE" },
-	{ 0x8000 | Windows::RT_PLUGPLAY, "RT_PLUGPLAY" },
-	{ 0x8000 | Windows::RT_VXD, "RT_VXD" },
-	{ 0x8000 | Windows::RT_ANICURSOR, "RT_ANICURSOR" },
-	{ 0x8000 | Windows::RT_ANIICON, "RT_ANIICON" },
-	{ 0x8000 | Windows::RT_HTML, "RT_HTML" },
-	{ 0x8000 | Windows::RT_MANIFEST, "RT_MANIFEST" },
-};
-
 NEFormat::Segment::Relocation::source_type NEFormat::Segment::Relocation::GetType(Linker::Relocation& rel)
 {
 	if(rel.kind == Linker::Relocation::SelectorIndex)
@@ -294,10 +269,24 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 	{
 		Dumper::Block resource_block("Resource", data_offset, image->AsImage(), 0, 8);
 		resource_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
-		resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(Windows::flagged_resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id));
-		resource_block.AddOptionalField("Type ID name", Dumper::StringDisplay::Make(), type_id_name);
-		resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(id));
-		resource_block.AddOptionalField("Resource ID name", Dumper::StringDisplay::Make(), id_name);
+		if(type_id_name)
+		{
+			resource_block.AddField("Type name", Dumper::StringDisplay::Make(), type_id_name.value());
+			resource_block.AddField("Type name offset", Dumper::HexDisplay::Make(4), offset_t(type_id));
+		}
+		else
+		{
+			resource_block.AddField("Type ID", Dumper::ChoiceDisplay::Make(Windows::resource_type_id_descriptions, Dumper::HexDisplay::Make(4)), offset_t(type_id & 0x7FFF));
+		}
+		if(id_name)
+		{
+			resource_block.AddField("Resource name", Dumper::StringDisplay::Make(), id_name.value());
+			resource_block.AddField("Resource name offset", Dumper::HexDisplay::Make(4), offset_t(id));
+		}
+		else
+		{
+			resource_block.AddField("Resource ID", Dumper::HexDisplay::Make(4), offset_t(id & 0x7FFF));
+		}
 		resource_block.AddField("Flags",
 			Dumper::BitFieldDisplay::Make(4)
 				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data"), true)
@@ -832,7 +821,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, cs);
 	wr.WriteWord(2, sp);
 	wr.WriteWord(2, ss);
-	wr.WriteWord(2, segments.size());
+	wr.WriteWord(2, IsOS2() ? segments.size() + resources.size() : segments.size());
 	wr.WriteWord(2, module_references.size());
 	wr.WriteWord(2, nonresident_name_table_length);
 	wr.WriteWord(2, segment_table_offset - file_offset);
@@ -864,10 +853,27 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 	}
 
 	/* Resource table */
-	if(resource_types.size() != 0)
+	if(IsOS2())
 	{
-		// TODO: test this out
+		for(auto resource : resources)
+		{
+			wr.WriteWord(2, resource->data_offset >> sector_shift);
+			wr.WriteWord(2, resource->image->ImageSize());
+			wr.WriteWord(2, resource->flags);
+			wr.WriteWord(2, resource->total_size);
+		}
+
 		wr.Seek(resource_table_offset);
+		for(auto resource : resources)
+		{
+			wr.WriteWord(2, resource->type_id);
+			wr.WriteWord(2, resource->id);
+		}
+	}
+	else if(resource_types.size() != 0)
+	{
+		wr.Seek(resource_table_offset);
+		wr.WriteWord(2, resource_shift);
 		for(auto rtype : resource_types)
 		{
 			wr.WriteWord(2, rtype->type_id);
@@ -875,7 +881,8 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 			wr.Skip(4);
 			for(auto& resource : rtype->resources)
 			{
-				wr.WriteWord(2, resource->image->ImageSize());
+				wr.WriteWord(2, resource->data_offset >> resource_shift);
+				wr.WriteWord(2, AlignTo(resource->image->ImageSize(), 1 << resource_shift) >> resource_shift);
 				wr.WriteWord(2, resource->flags);
 				wr.WriteWord(2, resource->id);
 				wr.WriteWord(2, resource->handle);
@@ -1328,6 +1335,11 @@ bool NEFormat::FormatSupportsLibraries() const
 	return true;
 }
 
+bool NEFormat::FormatSupportsResources() const
+{
+	return true;
+}
+
 unsigned NEFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)
@@ -1417,6 +1429,30 @@ unsigned NEFormat::GetDataSegmentFlags() const
 	}
 }
 
+void NEFormat::AddResource(std::shared_ptr<Resource> resource)
+{
+	if(option_capitalize_names)
+	{
+		if(resource->type_id_name)
+		{
+			std::transform(resource->type_id_name.value().begin(), resource->type_id_name.value().end(), resource->type_id_name.value().begin(), ::toupper);
+		}
+
+		if(resource->id_name)
+		{
+			std::transform(resource->id_name.value().begin(), resource->id_name.value().end(), resource->id_name.value().begin(), ::toupper);
+		}
+	}
+
+	std::tuple<Resource::Identifier, Resource::Identifier> key = std::make_tuple(resource->GetTypeIdentifier(), resource->GetNameIdentifier());
+	if(resources_map.find(key) != resources_map.end())
+	{
+		Linker::Error << "Error: resource with this type id ane name id already added, ignoring" << std::endl;
+		return;
+	}
+	resources_map[key] = resource;
+}
+
 void NEFormat::AddSegment(std::shared_ptr<Segment> segment)
 {
 	segments.push_back(segment);
@@ -1448,6 +1484,24 @@ uint16_t NEFormat::FetchImportedName(std::string name)
 		imported_names.push_back(name);
 		imported_name_offsets[name] = offset;
 		imported_names_length += 1 + name.size();
+		return offset;
+	}
+	else
+	{
+		return it->second;
+	}
+}
+
+uint16_t NEFormat::FetchResourceName(std::string name)
+{
+	auto it = resource_name_offsets.find(name);
+	if(it == resource_name_offsets.end())
+	{
+		uint16_t offset = resource_table_size;
+		Linker::Debug << "Debug: New resource name: " << name << " = " << offset << std::endl;
+		resource_strings.push_back(name);
+		resource_name_offsets[name] = offset;
+		resource_table_size += 1 + name.size();
 		return offset;
 	}
 	else
@@ -1569,6 +1623,13 @@ void NEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	if(segment->sections.size() == 0)
 		return;
 
+	if(segment->sections.front()->GetFlags() & Linker::Section::Resource)
+	{
+		auto section = segment->sections.front();
+		AddResource(std::make_shared<Resource>(section->resource_type, section->resource_id, segment, Segment::Movable | Segment::Shareable | Segment::Discardable));
+		return;
+	}
+
 	/* TODO: stack, heap */
 
 	if(segment->name == ".heap")
@@ -1601,13 +1662,19 @@ std::unique_ptr<Script::List> NEFormat::GetScript(Linker::Module& module)
 {
 	at 0;
 	all ".beg.data"; # for Win16, must come before everything
-	all not zero;
-	all not ".stack";
+	all not zero and not resource;
+	all not ".stack" and not resource;
 };
 
 ".stack"
 {
-	all;
+	all not resource;
+};
+
+for resource
+{
+	at 0;
+	all any;
 };
 )";
 
@@ -1620,9 +1687,15 @@ std::unique_ptr<Script::List> NEFormat::GetScript(Linker::Module& module)
 ".data"
 {
 	at 0;
-	all not zero;
-	all not ".stack";
-	all;
+	all not zero and not resource;
+	all not ".stack" and not resource;
+	all not resource;
+};
+
+for resource
+{
+	at 0;
+	all any;
 };
 )";
 
@@ -1641,10 +1714,16 @@ std::unique_ptr<Script::List> NEFormat::GetScript(Linker::Module& module)
 	all ".stack";
 };
 
-for not ".heap"
+for not ".heap" and not resource
 {
 	at 0;
-	all any and not zero;
+	all any and not zero and not resource;
+	all any and not resource;
+};
+
+for resource
+{
+	at 0;
 	all any;
 };
 )";
@@ -1685,6 +1764,7 @@ void NEFormat::Link(Linker::Module& module)
 void NEFormat::ProcessModule(Linker::Module& module)
 {
 	sector_shift = 1; /* TODO: parametrize */
+	resource_shift = 1; /* TODO: parametrize */
 	for(auto& section : module.Sections())
 	{
 		section->RealignEnd(1 << sector_shift); /* TODO: this is probably what Watcom does */
@@ -1903,6 +1983,70 @@ void NEFormat::ProcessModule(Linker::Module& module)
 		cs = 1;
 		Linker::Warning << "Warning: no entry point specified, using beginning of .code segment" << std::endl;
 	}
+
+	if(IsOS2())
+	{
+		resources.clear();
+	}
+	else
+	{
+		resource_types.clear();
+	}
+
+	Resource::Identifier last_type_id;
+	for(auto resource_data : resources_map)
+	{
+		auto resource = resource_data.second;
+		// we maintain a sequence of all resources even when targetting Windows
+		resources.push_back(resource);
+		if(!IsOS2())
+		{
+			Resource::Identifier next_type_id = resource->GetTypeIdentifier();
+			if(resource_types.empty() || last_type_id != next_type_id)
+			{
+				resource_types.push_back(std::make_shared<ResourceType>(next_type_id));
+				last_type_id = resource->GetTypeIdentifier();
+				resource_table_size += 8;
+			}
+			resource_types.back()->resources.push_back(resource);
+			resource_table_size += 12;
+		}
+	}
+
+	if(!IsOS2())
+	{
+		for(auto resource_type : resource_types)
+		{
+			uint16_t type_id = 0x8000;
+			if(resource_type->type_id_name)
+			{
+				type_id = FetchResourceName(resource_type->type_id_name.value());
+				if((type_id & 0x8000) != 0)
+				{
+					Linker::Error << "Error: Too many resource names, resource name table overflow, ignoring" << std::endl;
+				}
+				resource_type->type_id = type_id;
+			}
+
+			for(auto resource : resource_type->resources)
+			{
+				if((type_id & 0x8000) == 0)
+				{
+					resource->type_id = type_id;
+				}
+
+				if(resource->id_name)
+				{
+					uint16_t id = FetchResourceName(resource->id_name.value());
+					if((id & 0x8000) != 0)
+					{
+						Linker::Error << "Error: Too many resource names, resource name table overflow, ignoring" << std::endl;
+					}
+					resource->id = id;
+				}
+			}
+		}
+	}
 }
 
 void NEFormat::CalculateValues()
@@ -1950,13 +2094,17 @@ void NEFormat::CalculateValues()
 
 	resource_table_offset = segment_table_offset + 8 * segments.size();
 
-	resource_count = 0;
-	for(auto rtype : resource_types)
+	if(IsOS2())
 	{
-		resource_count += rtype->resources.size();
+		resource_count = resources.size();
+		resident_name_table_offset = resource_table_offset + 4 * resource_count;
+	}
+	else
+	{
+		resource_count = 0;
+		resident_name_table_offset = resource_table_offset + (resource_types.size() != 0 ? resource_table_size + 1 : 0);
 	}
 
-	resident_name_table_offset = resource_table_offset + 0; /* TODO: store resource table */
 	current_offset = resident_name_table_offset + 1;
 	for(Name& name : resident_names)
 	{
@@ -2010,6 +2158,21 @@ void NEFormat::CalculateValues()
 		{
 			segment->flags = Segment::flag_type(segment->flags | Segment::Relocations);
 			current_offset += 2 + 8 * segment->relocations.size();
+		}
+	}
+
+	for(auto resource : resources)
+	{
+		if(IsOS2())
+		{
+			resource->data_offset = ::AlignTo(current_offset, 1 << sector_shift);
+			current_offset = resource->data_offset + resource->image->ImageSize();
+			resource->total_size = resource->image->ImageSize();
+		}
+		else
+		{
+			resource->data_offset = ::AlignTo(current_offset, 1 << resource_shift);
+			current_offset = resource->data_offset + resource->image->ImageSize();
 		}
 	}
 

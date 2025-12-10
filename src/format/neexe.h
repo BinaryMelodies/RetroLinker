@@ -42,7 +42,6 @@ namespace Microsoft
 		};
 
 		extern const std::map<offset_t, std::string> resource_type_id_descriptions;
-		extern const std::map<offset_t, std::string> flagged_resource_type_id_descriptions;
 	}
 
 	namespace OS2
@@ -253,18 +252,66 @@ namespace Microsoft
 			 */
 			uint16_t type_id = 0;
 			/** @brief Type name, used only by Windows */
-			std::string type_id_name;
+			std::optional<std::string> type_id_name;
 			/** @brief Resource dentifier, used by both Windows and OS/2
 			 *
 			 * Under Windows, if bit 15 is cleared, it references a string
 			 */
 			uint16_t id = 0;
 			/** @brief Resource name, used only by Windows */
-			std::string id_name;
+			std::optional<std::string> id_name;
 			/** @brief Reserved field, named so in Microsoft documentation */
 			uint16_t handle = 0;
 			/** @brief Reserved field, named so in Microsoft documentation */
 			uint16_t usage = 0;
+
+			Resource() = default;
+
+			Resource(const Identifier& type, const Identifier& name, std::shared_ptr<Linker::Segment> segment, unsigned flags)
+				: Segment(segment, flags)
+			{
+				if(auto name_p = std::get_if<std::string>(&type))
+				{
+					type_id_name = *name_p;
+				}
+				else if(auto id_p = std::get_if<uint16_t>(&type))
+				{
+					type_id = 0x8000 | *id_p;
+				}
+
+				if(auto name_p = std::get_if<std::string>(&name))
+				{
+					id_name = *name_p;
+				}
+				else if(auto id_p = std::get_if<uint16_t>(&name))
+				{
+					id = 0x8000 | *id_p;
+				}
+			}
+
+			Identifier GetTypeIdentifier() const
+			{
+				if(type_id_name)
+				{
+					return Identifier(type_id_name.value());
+				}
+				else
+				{
+					return Identifier(uint16_t(type_id & 0x7FFF));
+				}
+			}
+
+			Identifier GetNameIdentifier() const
+			{
+				if(id_name)
+				{
+					return Identifier(id_name.value());
+				}
+				else
+				{
+					return Identifier(uint16_t(id & 0x7FFF));
+				}
+			}
 
 			void Dump(Dumper::Dumper& dump, unsigned index, bool isos2) const;
 		};
@@ -276,8 +323,22 @@ namespace Microsoft
 			virtual ~ResourceType() = default;
 
 			uint16_t type_id = 0;
-			std::string type_id_name;
+			std::optional<std::string> type_id_name;
 			std::vector<std::shared_ptr<Resource>> resources;
+
+			ResourceType() = default;
+
+			ResourceType(const Resource::Identifier& type)
+			{
+				if(auto name_p = std::get_if<std::string>(&type))
+				{
+					type_id_name = *name_p;
+				}
+				else if(auto id_p = std::get_if<uint16_t>(&type))
+				{
+					type_id = 0x8000 | *id_p;
+				}
+			}
 		};
 
 		/** @brief Represents an entry into the binary, typically DLL exported procedures */
@@ -713,6 +774,8 @@ namespace Microsoft
 		std::map<std::string, uint16_t> module_reference_offsets;
 		std::map<std::string, uint16_t> imported_name_offsets;
 		uint16_t imported_names_length = 0;
+		std::map<std::string, uint16_t> resource_name_offsets;
+		uint16_t resource_table_size = 4; // alignment + resource type table terminator (without string table terminator 0 byte)
 
 		/*std::string stub_file;*/
 		std::string module_name;
@@ -734,6 +797,8 @@ namespace Microsoft
 
 		bool FormatSupportsLibraries() const override;
 
+		bool FormatSupportsResources() const override;
+
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
 		std::shared_ptr<NEFormat> SimulateLinker(compatibility_type compatibility);
@@ -745,13 +810,15 @@ namespace Microsoft
 		static std::shared_ptr<NEFormat> CreateLibraryModule(system_type system = Windows);
 
 		/** @brief Map from resource type/name to a resource, only used during binary generation */
-		std::map<std::tuple<Resource::Identifier, Resource::Identifier>, Resource> resources_map;
+		std::map<std::tuple<Resource::Identifier, Resource::Identifier>, std::shared_ptr<Resource>> resources_map;
 
 		unsigned GetCodeSegmentFlags() const;
 		unsigned GetDataSegmentFlags() const;
+		void AddResource(std::shared_ptr<Resource> resource);
 		void AddSegment(std::shared_ptr<Segment> segment);
 		uint16_t FetchModule(std::string name);
 		uint16_t FetchImportedName(std::string name);
+		uint16_t FetchResourceName(std::string name);
 		std::string MakeProcedureName(std::string name);
 		uint16_t MakeEntry(Linker::Position value);
 		uint16_t MakeEntry(uint16_t ordinal, Linker::Position value);

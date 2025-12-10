@@ -948,20 +948,54 @@ void Module::AddSection(std::shared_ptr<Section> section)
 
 	if(output_format != nullptr && output_format->FormatSupportsResources()
 	&& input_format != nullptr && !input_format->FormatProvidesResources()
-	&& section->name.rfind(resource_prefix() + "_",  0) == 0)
+	&& section->name.rfind(resource_prefix(),  0) == 0)
 	{
-		/* $$RSRC$_<type>$<id> */
-		section->SetFlag(Linker::Section::Resource);
+		/* $$RSRC$<typenum>$<idnum> */
+		/* $$RSRC$_<type>$<idnum> */
+		/* $$RSRC$<typenum>$_<id> */
+		/* $$RSRC$_<type>$_<id> */
+		bool successful_parse = true;
+		std::variant<std::string, uint16_t> type = "", id = "";
 		size_t sep = section->name.rfind(special_prefix_char);
-		std::string resource_type = section->name.substr(resource_prefix().size() + 1, sep - resource_prefix().size() - 1);
-		try
+		if(sep == std::string::npos || sep + 1 >= section->name.size())
 		{
-			uint16_t resource_id = stoll(section->name.substr(sep + 1), nullptr, 16);
-			section->resource_type = resource_type;
-			section->resource_id = resource_id;
-			Linker::Debug << "Debug: Resource type " << resource_type << ", id " << resource_id << std::endl;
+			Linker::Error << "Error: Unable to parse resource section name " << section->name << ", proceeding" << std::endl;
 		}
-		catch(std::invalid_argument& a)
+		else
+		{
+			try
+			{
+				if(section->name[resource_prefix().size()] == '_')
+				{
+					type = section->name.substr(resource_prefix().size() + 1, sep - resource_prefix().size() - 1);
+				}
+				else
+				{
+					type = uint16_t(stoll(section->name.substr(resource_prefix().size(), sep - resource_prefix().size()), nullptr, 16));
+				}
+
+				if(section->name[sep + 1] == '_')
+				{
+					id = section->name.substr(sep + 2);
+				}
+				else
+				{
+					id = uint16_t(stoll(section->name.substr(sep + 1), nullptr, 16));
+				}
+			}
+			catch(std::invalid_argument& a)
+			{
+				successful_parse = false;
+			}
+		}
+
+		if(successful_parse)
+		{
+			section->SetFlag(Linker::Section::Resource);
+			section->resource_type = type;
+			section->resource_id = id;
+		}
+		else
 		{
 			Linker::Error << "Error: Unable to parse resource section name " << section->name << ", proceeding" << std::endl;
 		}
