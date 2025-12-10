@@ -306,6 +306,26 @@ namespace Microsoft
 		uint64_t ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
 		/** @brief Loads a sequence of bytes terminated by a specific character from the filled section data */
 		std::string ReadASCII(uint32_t rva, char terminator, size_t maximum = size_t(-1)) const;
+		/** @brief Loads a sequence of bytes */
+		std::string ReadData(uint32_t rva, size_t count) const;
+
+		class MemoryPortionImage : public virtual Linker::ActualImage
+		{
+		public:
+			const PEFormat& fmt;
+			uint32_t rva;
+			uint32_t size;
+
+			MemoryPortionImage(const PEFormat& fmt, uint32_t rva, uint32_t size)
+				: fmt(fmt), rva(rva), size(size)
+			{
+			}
+
+			offset_t ImageSize() const override;
+			using Linker::Image::WriteFile;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
+			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
+		};
 
 		/** @brief Represents a resource inside the image */
 		class Resource
@@ -329,16 +349,40 @@ namespace Microsoft
 			std::vector<Reference> full_identifier;
 			/** @brief The relative virtual address of the resource data */
 			uint32_t data_rva = 0;
+			/** @brief The size of the resource data */
+			uint32_t size = 0;
 			/** @brief Codepage of the resource */
 			uint32_t codepage = 0;
 			/** @brief Reserved entry in the resource table */
 			uint32_t reserved = 0;
+
+			Resource(const std::vector<Resource::Reference>& full_identifier)
+				: full_identifier(full_identifier)
+			{
+			}
+
+			/** @brief Parses the contents of the resource, after all the section data for the file is loaded */
+			void ParseResourceData(const PEFormat& fmt, uint32_t rva);
+			/** @brief Displays the resource contents */
+			void DumpResource(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t rva) const;
 		};
 
 		class ResourceDirectory
 		{
 		public:
 			// TODO: this is just a sketch
+
+			class Name
+			{
+			public:
+				std::string name;
+				uint32_t rva = 0;
+
+				Name(std::string name = "")
+					: name(name)
+				{
+				}
+			};
 
 			/** @brief Represents a single entry in the resource directory */
 			template <typename Key>
@@ -351,6 +395,8 @@ namespace Microsoft
 				std::variant<std::shared_ptr<Resource>, std::shared_ptr<ResourceDirectory>> content;
 				/** @brief The relative virtual address of the contents */
 				uint32_t content_rva = 0;
+
+				bool IsSubdirectory() const { return std::get_if<std::shared_ptr<ResourceDirectory>>(&content); }
 			};
 
 			/** @brief Resource directory characteristics */
@@ -358,7 +404,7 @@ namespace Microsoft
 			uint32_t timestamp = 0;
 			version_type version = { };
 			/** @brief Entries that are identified via a string */
-			std::vector<Entry<std::string>> name_entries;
+			std::vector<Entry<Name>> name_entries;
 			/** @brief Entries that are identified via a number */
 			std::vector<Entry<uint32_t>> id_entries;
 
@@ -368,6 +414,11 @@ namespace Microsoft
 			 * @param level The level at which this directory resides, required to determine the identifier component
 			 */
 			void AddResource(std::shared_ptr<Resource>& resource, size_t level = 0);
+
+			/** @brief Parses the contents of the directory at the current level, after all the section data for the file is loaded */
+			void ParseResourceDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Reference>& partial_identifier);
+			/** @brief Displays the directory contents */
+			void DumpResourceDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t rva, size_t level = 0) const;
 		};
 
 		/** @brief Represents an `.rsrc` resource section in the binary */

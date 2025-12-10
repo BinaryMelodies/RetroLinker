@@ -398,6 +398,79 @@ size_t PEFormat::Section::ReadData(size_t bytes, size_t offset, void * buffer) c
 	return image->AsImage()->ReadData(bytes, offset, buffer);
 }
 
+offset_t PEFormat::MemoryPortionImage::ImageSize() const
+{
+	return size;
+}
+
+offset_t PEFormat::MemoryPortionImage::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+size_t PEFormat::MemoryPortionImage::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+	if(offset + bytes > size)
+		bytes = size - offset;
+	return fmt.ReadData(bytes, rva + offset, buffer);
+}
+
+void PEFormat::Resource::ParseResourceData(const PEFormat& fmt, uint32_t rva)
+{
+	data_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+	size = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+	codepage = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+	reserved = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+}
+
+void PEFormat::Resource::DumpResource(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t rva) const
+{
+	Dumper::Region resource_region("Resource header", fmt.RVAToFileOffset(rva), 16, 8);
+	resource_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(rva));
+	resource_region.Display(dump);
+
+	std::shared_ptr<MemoryPortionImage> image = std::make_shared<MemoryPortionImage>(fmt, data_rva, size);
+	Dumper::Block resource_block("Resource", fmt.RVAToFileOffset(rva), image, rva, 8);
+	for(uint32_t level = 0; level < full_identifier.size(); level++)
+	{
+		std::string level_name;
+		switch(level)
+		{
+		case Level_Type:
+			level_name = "Type";
+			break;
+		case Level_Name:
+			level_name = "Name";
+			break;
+		case Level_Language:
+			level_name = "Language";
+			break;
+		default:
+			{
+				std::ostringstream oss;
+				oss << "Level " << level;
+				level_name = oss.str();
+			}
+			break;
+		}
+		if(auto string_p = std::get_if<std::string>(&full_identifier[level]))
+		{
+			resource_block.AddField(level_name, Dumper::StringDisplay::Make(), *string_p);
+		}
+		else if(auto id_p = std::get_if<uint32_t>(&full_identifier[level]))
+		{
+			resource_block.AddField(level_name, Dumper::HexDisplay::Make(), offset_t(*id_p));
+		}
+		else
+		{
+			assert(false);
+		}
+	}
+	resource_region.AddField("Codepage", Dumper::HexDisplay::Make(), offset_t(codepage));
+	resource_block.Display(dump);
+}
+
 void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resource, size_t level)
 {
 	// TODO: test
@@ -406,7 +479,7 @@ void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resourc
 	{
 		for(auto& entry : name_entries)
 		{
-			if(entry.identifier == *level_name)
+			if(entry.identifier.name == *level_name)
 			{
 				auto * subdir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content);
 				if(!subdir)
@@ -426,13 +499,13 @@ void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resourc
 
 		if(level + 1 == resource->full_identifier.size())
 		{
-			Entry<std::string> entry{*level_name, resource};
+			Entry<Name> entry{*level_name, resource};
 			name_entries.push_back(entry);
 		}
 		else
 		{
 			std::shared_ptr<ResourceDirectory> subdir = std::make_shared<ResourceDirectory>();
-			Entry<std::string> entry{*level_name, subdir};
+			Entry<Name> entry{*level_name, subdir};
 			name_entries.push_back(entry);
 			subdir->AddResource(resource, level + 1);
 		}
@@ -474,6 +547,134 @@ void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resourc
 	}
 }
 
+void PEFormat::ResourceDirectory::ParseResourceDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t rva, const std::vector<Resource::Reference>& partial_identifier)
+{
+	flags = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+	timestamp = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+	version.major = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
+	version.minor = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
+	uint16_t name_entry_count = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
+	uint16_t id_entry_count = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
+	for(uint16_t entry_index = 0; entry_index < name_entry_count; entry_index ++)
+	{
+		Entry<Name> entry;
+		entry.identifier.rva = directory_rva + (fmt.ReadUnsigned(4, rva, ::LittleEndian) & 0x7FFFFFFF); rva += 4; // TODO: why is the high bit set
+		uint16_t length = fmt.ReadUnsigned(2, entry.identifier.rva, ::LittleEndian);
+		entry.identifier.name = fmt.ReadData(entry.identifier.rva + 2, uint32_t(length) * 2);
+		entry.content_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+		bool is_subdir = (entry.content_rva & 0x80000000) != 0;
+		entry.content_rva = (entry.content_rva + directory_rva) & 0x7FFFFFFF;
+
+		std::vector<Resource::Reference> new_identifier(partial_identifier);
+		new_identifier.push_back(entry.identifier.name);
+		if(is_subdir)
+		{
+			std::shared_ptr<ResourceDirectory> subdirectory = std::make_shared<ResourceDirectory>();
+			entry.content = subdirectory;
+			subdirectory->ParseResourceDirectoryData(fmt, directory_rva, entry.content_rva & 0x7FFFFFFF, new_identifier);
+		}
+		else
+		{
+			std::shared_ptr<Resource> resource = std::make_shared<Resource>(new_identifier);
+			entry.content = resource;
+			resource->ParseResourceData(fmt, entry.content_rva);
+		}
+
+		name_entries.emplace_back(entry);
+	}
+	for(uint16_t entry_index = 0; entry_index < id_entry_count; entry_index ++)
+	{
+		Entry<uint32_t> entry;
+		entry.identifier = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+		entry.content_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+		bool is_subdir = (entry.content_rva & 0x80000000) != 0;
+		entry.content_rva = (entry.content_rva + directory_rva) & 0x7FFFFFFF;
+
+		std::vector<Resource::Reference> new_identifier(partial_identifier);
+		new_identifier.push_back(entry.identifier);
+		if(is_subdir)
+		{
+			std::shared_ptr<ResourceDirectory> subdirectory = std::make_shared<ResourceDirectory>();
+			entry.content = subdirectory;
+			subdirectory->ParseResourceDirectoryData(fmt, directory_rva, entry.content_rva & 0x7FFFFFFF, new_identifier);
+		}
+		else
+		{
+			std::shared_ptr<Resource> resource = std::make_shared<Resource>(new_identifier);
+			entry.content = resource;
+			resource->ParseResourceData(fmt, entry.content_rva);
+		}
+
+		id_entries.emplace_back(entry);
+	}
+}
+
+void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t rva, size_t level) const
+{
+	static const std::map<offset_t, std::string> level_description =
+	{
+		{ Resource::Level_Type, "Type ID" },
+		{ Resource::Level_Name, "Name ID" },
+		{ Resource::Level_Language, "Language ID"},
+	};
+
+	Dumper::Region directory_region("Resource directory", fmt.RVAToFileOffset(rva), 0 /* TODO */, 8);
+	directory_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(rva));
+	directory_region.AddField("Level", Dumper::ChoiceDisplay::Make(level_description), offset_t(level));
+	directory_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(), offset_t(flags));
+	directory_region.AddField("Timestamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
+	directory_region.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(version.major), offset_t(version.minor));
+	directory_region.AddField("Named entry count", Dumper::DecDisplay::Make(), offset_t(name_entries.size()));
+	directory_region.AddField("ID entry count", Dumper::DecDisplay::Make(), offset_t(id_entries.size()));
+	directory_region.Display(dump);
+
+	uint16_t entry_index = 0;
+	for(auto& entry : name_entries)
+	{
+		Dumper::Entry dirent_entry("Directory entry", entry_index + 1, rva + 16 + entry_index * 8, 8);
+		dirent_entry.AddField("Entry name", Dumper::StringDisplay::Make(), entry.identifier.name);
+		dirent_entry.AddField("Entry name address", fmt.MakeRVADisplay(), offset_t(entry.identifier.rva & 0x7FFFFFFF));
+		dirent_entry.AddField("Content address", fmt.MakeRVADisplay(), offset_t(entry.content_rva & 0x7FFFFFFF));
+		dirent_entry.AddField("Content type", Dumper::ChoiceDisplay::Make("directory", "leaf"), offset_t((entry.content_rva & 0x80000000) != 0));
+		dirent_entry.Display(dump);
+		entry_index ++;
+	}
+
+	for(auto& entry : id_entries)
+	{
+		Dumper::Entry dirent_entry("Directory entry", entry_index + 1, rva + 16 + entry_index * 8, 8);
+		dirent_entry.AddField("Entry identifier", Dumper::HexDisplay::Make(), offset_t(entry.identifier));
+		dirent_entry.AddField("Content address", fmt.MakeRVADisplay(), offset_t(entry.content_rva & 0x7FFFFFFF));
+		dirent_entry.AddField("Content type", Dumper::ChoiceDisplay::Make("directory", "leaf"), offset_t((entry.content_rva & 0x80000000) != 0));
+		dirent_entry.Display(dump);
+		entry_index ++;
+	}
+
+	for(auto& entry : name_entries)
+	{
+		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
+		{
+			(*leaf)->DumpResource(fmt, dump, entry.content_rva & 0x7FFFFFFF);
+		}
+		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+		{
+			(*dir)->DumpResourceDirectory(fmt, dump, entry.content_rva & 0x7FFFFFFF, level + 1);
+		}
+	}
+
+	for(auto& entry : id_entries)
+	{
+		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
+		{
+			(*leaf)->DumpResource(fmt, dump, entry.content_rva & 0x7FFFFFFF);
+		}
+		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
+		{
+			(*dir)->DumpResourceDirectory(fmt, dump, entry.content_rva & 0x7FFFFFFF, level + 1);
+		}
+	}
+}
+
 bool PEFormat::ResourcesSection::IsPresent() const
 {
 	return name_entries.size() > 0 || id_entries.size() > 0;
@@ -506,12 +707,20 @@ uint32_t PEFormat::ResourcesSection::MemorySize(const PEFormat& fmt) const
 
 void PEFormat::ResourcesSection::ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size)
 {
-	// TODO
+	std::vector<Resource::Reference> empty_identifier;
+	ParseResourceDirectoryData(fmt, directory_rva, directory_rva, empty_identifier);
 }
 
 void PEFormat::ResourcesSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const
 {
-	// TODO
+	Dumper::Encoding * old_encoding = dump.SetStringEncoding(Dumper::Block::encoding_utf16le);
+
+	Dumper::Region resources_region("Resource table", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
+	resources_region.Display(dump);
+
+	DumpResourceDirectory(fmt, dump, directory_rva, 0);
+
+	dump.SetStringEncoding(*old_encoding);
 }
 
 bool PEFormat::ImportsSection::IsPresent() const
@@ -1600,6 +1809,13 @@ std::string PEFormat::ReadASCII(uint32_t rva, char terminator, size_t maximum) c
 	return tmp;
 }
 
+std::string PEFormat::ReadData(uint32_t rva, size_t count) const
+{
+	std::string tmp(count, '\0');
+	ReadData(count, rva, tmp.data());
+	return tmp;
+}
+
 void PEFormat::AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type type, uint16_t low_ref)
 {
 	uint32_t page_rva = rva & ~(BaseRelocationBlock::PAGE_SIZE - 1);
@@ -1648,7 +1864,10 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 			}
 			break;
 		case PEOptionalHeader::DirResourceTable:
-			// TODO
+			if(data_directory.size != 0)
+			{
+				resources->ParseDirectoryData(*this, data_directory.address, data_directory.size);
+			}
 			break;
 		//case PEOptionalHeader::DirExceptionTable:
 		//case PEOptionalHeader::DirCertificateTable:
@@ -1917,7 +2136,10 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 				}
 				break;
 			case PEOptionalHeader::DirResourceTable:
-				// TODO
+				if(data_directory.size != 0)
+				{
+					resources->DumpDirectory(*this, dump, data_directory.address, data_directory.size);
+				}
 				break;
 			//case PEOptionalHeader::DirExceptionTable:
 			//case PEOptionalHeader::DirCertificateTable:
