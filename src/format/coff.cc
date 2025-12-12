@@ -1085,7 +1085,7 @@ uint32_t COFFFormat::UnknownOptionalHeader::GetSize() const
 
 void COFFFormat::UnknownOptionalHeader::ReadFile(Linker::Reader& rd)
 {
-	buffer->ReadFile(rd);
+	buffer->ReadFile(rd, buffer->ImageSize());
 }
 
 void COFFFormat::UnknownOptionalHeader::WriteFile(Linker::Writer& wr) const
