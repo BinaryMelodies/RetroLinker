@@ -774,6 +774,8 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x01\x03"),            0, FORMAT_MINIX,   "MINIX/ELKS a.out executable" },
 	{ std::string("\x01\x06"),            0, FORMAT_COFF,    "Microsoft COFF, PowerPC based Macintosh (stored in little endian)" },
 	{ std::string("\x01P"),               0, FORMAT_COFF,    "Motorola 68000 COFF executable (Concurrent DOS 68K)" },
+	{ std::string("\x01\xDF"),            0, FORMAT_COFF,    "XCOFF32" },
+	{ std::string("\x01\xF7"),            0, FORMAT_COFF,    "XCOFF64" },
 	{ std::string("\x02\x06"),            0, FORMAT_XENIX,   "Big endian x.out (Xenix)" },
 	{ std::string("\x02"),                0, FORMAT_FLEX,    "FLEX command file", VerifyFLEX },
 	{ std::string("\x02"),                0, FORMAT_OMF,     "Intel Object Module Format, 8080/8051/8096" }, // TODO: conflicts with FLEX command file
