@@ -462,6 +462,24 @@ void COFFFormat::ZilogRelocation::FillEntry(Dumper::Entry& entry) const
 //				entry.AddField("Target", ???);
 }
 
+void COFFFormat::Symbol::FileNameAuxiliaryEntry::Read(Linker::Reader& rd)
+{
+	file_name = rd.ReadData(14);
+	file_name.erase(file_name.find_last_not_of('\0') + 1);
+	rd.Skip(4);
+}
+
+void COFFFormat::Symbol::FileNameAuxiliaryEntry::Write(Linker::Writer& wr) const
+{
+	wr.WriteData(14, file_name);
+	wr.WriteWord(4, 0);
+}
+
+void COFFFormat::Symbol::FileNameAuxiliaryEntry::FillDumpData(Dumper::Entry& entry) const
+{
+	entry.AddField("File name", Dumper::StringDisplay::Make("\'"), file_name);
+}
+
 void COFFFormat::Symbol::Read(Linker::Reader& rd)
 {
 	union
@@ -485,7 +503,98 @@ void COFFFormat::Symbol::Read(Linker::Reader& rd)
 	type = rd.ReadUnsigned(2);
 	storage_class = rd.ReadUnsigned(1);
 	auxiliary_count = rd.ReadUnsigned(1);
-	rd.Skip(18 * auxiliary_count); // TODO: parse
+	uint8_t skip_entries = auxiliary_count;
+	switch(storage_class)
+	{
+	case C_FILE:
+		if(auxiliary_count >= 1)
+		{
+			auxiliary_entry = std::make_unique<FileNameAuxiliaryEntry>();
+			auxiliary_entry->Read(rd);
+			skip_entries --;
+		}
+		break;
+	case C_STAT:
+		if((type & 0xF) == T_NULL && auxiliary_count >= 1)
+		{
+			switch((type >> 4) & 3)
+			{
+			case DT_NON:
+				// TODO
+				//auxiliary_entry = std::make_unique<SectionAuxiliaryEntry>();
+				//auxiliary_entry->Read(rd);
+				//skip_entries --;
+				break;
+			case DT_FCN:
+				// TODO
+				//auxiliary_entry = std::make_unique<FunctionAuxiliaryEntry>();
+				//auxiliary_entry->Read(rd);
+				//skip_entries --;
+				break;
+			case DT_ARY:
+				// TODO
+				//auxiliary_entry = std::make_unique<ArrayAuxiliaryEntry>();
+				//auxiliary_entry->Read(rd);
+				//skip_entries --;
+				break;
+			}
+		}
+		break;
+	case C_STRTAG:
+	case C_UNTAG:
+	case C_ENTAG:
+		if(auxiliary_count >= 1)
+		{
+			// TODO
+			//auxiliary_entry = std::make_unique<TagNameAuxiliaryEntry>();
+			//auxiliary_entry->Read(rd);
+			//skip_entries --;
+		}
+		break;
+	case C_EOS:
+		if(auxiliary_count >= 1)
+		{
+			// TODO
+			//auxiliary_entry = std::make_unique<EndOfStructureAuxiliaryEntry>();
+			//auxiliary_entry->Read(rd);
+			//skip_entries --;
+		}
+		break;
+	case C_EXT:
+	case C_WEAKEXT:
+		if(auxiliary_count >= 1)
+		{
+			// TODO
+			//auxiliary_entry = std::make_unique<FunctionAuxiliaryEntry>();
+			//auxiliary_entry->Read(rd);
+			//skip_entries --;
+		}
+		break;
+	case C_AUTO:
+	case C_MOS:
+	case C_MOU:
+	case C_TPDEF:
+		if(auxiliary_count >= 1)
+		{
+			// TODO
+			//auxiliary_entry = std::make_unique<ArrayAuxiliaryEntry>();
+			//auxiliary_entry->Read(rd);
+			//skip_entries --;
+		}
+		break;
+	case C_BLOCK:
+	case C_FCN:
+		if(auxiliary_count >= 1)
+		{
+			// TODO
+			//auxiliary_entry = std::make_unique<BeginOrEndAuxiliaryEntry>();
+			//auxiliary_entry->Read(rd);
+			//skip_entries --;
+		}
+		break;
+	// TODO: StructureAuxiliaryEntry?
+	}
+	rd.Skip(18 * skip_entries);
 }
 
 bool COFFFormat::Symbol::IsExternal() const
@@ -1722,7 +1831,7 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 		break;
 	}
 
-	if(symbol_count > 0 && (cpu_type == CPU_Z80 || cpu_type == CPU_Z8K || cpu_type == CPU_W65)) // TODO: other CPU types
+	if(symbol_count > 0)
 	{
 		rd.Seek(file_offset + symbol_table_offset);
 		while(symbols.size() < symbol_count)
@@ -1949,6 +2058,108 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Region symbol_table("Symbol table", file_offset + symbol_table_offset, symbol_count * 18, 8);
 	symbol_table.AddField("Count", Dumper::DecDisplay::Make(), offset_t(symbol_count));
 	symbol_table.Display(dump);
+
+	static const std::map<offset_t, std::string> storage_class_descriptions =
+	{
+		{ Symbol::C_EFCN, "physical end of function (C_EFCN)" },
+		{ Symbol::C_NULL, "(C_NULL)" },
+		{ Symbol::C_AUTO, "automatic variable (C_AUTO)" },
+		{ Symbol::C_EXT, "external symbol (C_EXT)" },
+		{ Symbol::C_STAT, "static variable (C_STAT)" },
+		{ Symbol::C_REG, "register variable (C_REG)" },
+		{ Symbol::C_EXTDEF, "external definition (C_EXTDEF)" },
+		{ Symbol::C_LABEL, "label (C_LABEL)" },
+		{ Symbol::C_ULABEL, "undefined label (C_ULABEL)" },
+		{ Symbol::C_MOS, "member of structure (C_MOS)" },
+		{ Symbol::C_ARG, "function argument (C_ARG)" },
+		{ Symbol::C_STRTAG, "structure tag (C_STRTAG)" },
+		{ Symbol::C_MOU, "member of union (C_MOU)" },
+		{ Symbol::C_UNTAG, "union tag (C_UNTAG)" },
+		{ Symbol::C_TPDEF, "type definition (C_TPDEF)" },
+		{ Symbol::C_USTATIC, "uninitialized static (C_USTATIC)" },
+		{ Symbol::C_ENTAG, "enumeration tag (C_ENTAG)" },
+		{ Symbol::C_MOE, "member of enumeration (C_MOE)" },
+		{ Symbol::C_REGPARM, "register parameter (C_REGPARM)" },
+		{ Symbol::C_FIELD, "bit field (C_FIELD)" },
+		{ Symbol::C_BLOCK, "begin/end block (C_BLOCK)" },
+		{ Symbol::C_FCN, "begin/end function (C_FCN)" },
+		{ Symbol::C_EOS, "end of structure (C_EOS)" },
+		{ Symbol::C_FILE, "file name (C_FILE)" },
+		{ Symbol::C_LINE, "(C_LINE)" },
+		{ Symbol::C_ALIAS, "duplicated tag (C_ALIAS)" },
+		{ Symbol::C_HIDDEN, "static but avoids name conflict (C_HIDDEN)" },
+		{ Symbol::C_SHADOW, "shadow symbol (C_SHADOW)" },
+		{ Symbol::C_WEAKEXT, "external with weak linkage (C_WEAKEXT)" },
+	};
+
+	// those that are not present in this map will use "Value" but hide it if it is 0
+	static const std::map<offset_t, std::string> storage_class_value_meaning =
+	{
+//		{ Symbol::C_EFCN, "Value" },
+//		{ Symbol::C_NULL, "Value" },
+		{ Symbol::C_AUTO, "Stack offset" },
+		{ Symbol::C_EXT, "Address" },
+		{ Symbol::C_STAT, "Address" },
+		{ Symbol::C_REG, "Register number" },
+//		{ Symbol::C_EXTDEF, "Value" },
+		{ Symbol::C_LABEL, "Address" },
+//		{ Symbol::C_ULABEL, "Value" },
+		{ Symbol::C_MOS, "Offset" },
+		{ Symbol::C_ARG, "Stack offset" },
+//		{ Symbol::C_STRTAG, "Value" }, // 0
+//		{ Symbol::C_MOU, "Value" }, // 0
+//		{ Symbol::C_UNTAG, "Value" }, // 0
+//		{ Symbol::C_TPDEF, "Value" }, // 0
+//		{ Symbol::C_USTATIC, "Value" },
+//		{ Symbol::C_ENTAG, "Value" }, // 0
+		{ Symbol::C_MOE, "Value" },
+		{ Symbol::C_REGPARM, "Register number" },
+		{ Symbol::C_FIELD, "Bit displacement" },
+		{ Symbol::C_BLOCK, "Address" },
+		{ Symbol::C_FCN, "Address" },
+		{ Symbol::C_EOS, "Size" },
+		{ Symbol::C_FILE, "Next file symbol index" },
+//		{ Symbol::C_LINE, "Value" },
+		{ Symbol::C_ALIAS, "Tag index" },
+		{ Symbol::C_HIDDEN, "Address" },
+//		{ Symbol::C_SHADOW, "Value" },
+		{ Symbol::C_WEAKEXT, "Address" },
+	};
+
+	static const std::map<offset_t, std::string> special_section_names =
+	{
+		{ Symbol::N_DEBUG, "debug" },
+		{ Symbol::N_ABS, "absolute" },
+		{ Symbol::N_UNDEF, "undefined" },
+	};
+
+	static const std::map<offset_t, std::string> fundamental_type_descriptions =
+	{
+		{ Symbol::T_NULL, "not assigned (T_NULL)" },
+		{ Symbol::T_ARG, "function argument (T_ARG)" },
+		{ Symbol::T_CHAR, "character (T_CHAR)" },
+		{ Symbol::T_SHORT, "short integer (T_SHORT)" },
+		{ Symbol::T_INT, "integer (T_INT)" },
+		{ Symbol::T_LONG, "long integer (T_LONG)" },
+		{ Symbol::T_FLOAT, "single precision floating point (T_FLOAT)" },
+		{ Symbol::T_DOUBLE, "double precision floating point (T_DOUBLE)" },
+		{ Symbol::T_STRUCT, "structure (T_STRUCT)" },
+		{ Symbol::T_UNION, "union (T_UNION)" },
+		{ Symbol::T_ENUM, "enumeration (T_ENUM)" },
+		{ Symbol::T_MOE, "member of enumeration (T_MOE)" },
+		{ Symbol::T_UCHAR, "unsigned character (T_UCHAR)" },
+		{ Symbol::T_USHORT, "unsigned short integer (T_USHORT)" },
+		{ Symbol::T_UINT, "unsigned integer (T_UINT)" },
+		{ Symbol::T_ULONG, "unsigned long integer (T_ULONG)" },
+	};
+
+	static const std::map<offset_t, std::string> derived_type_descriptions =
+	{
+		{ Symbol::DT_PTR, "pointer (DT_PTR)" },
+		{ Symbol::DT_FCN, "function (DT_FCN)" },
+		{ Symbol::DT_ARY, "array (DT_ARY)" },
+	};
+
 	unsigned i = 0;
 	for(auto& symbol : symbols)
 	{
@@ -1958,11 +2169,34 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 			/* otherwise, ignored symbol */
 			symbol_entry.AddField("Name", Dumper::StringDisplay::Make(), symbol->name);
 			symbol_entry.AddOptionalField("Name index", Dumper::HexDisplay::Make(), offset_t(symbol->name_index));
-			symbol_entry.AddField("Value", Dumper::HexDisplay::Make(), offset_t(symbol->value));
-			symbol_entry.AddField("Section", Dumper::HexDisplay::Make(), offset_t(symbol->section_number));
+
+			auto value_name = storage_class_value_meaning.find(symbol->storage_class);
+			if(value_name == storage_class_value_meaning.end())
+				symbol_entry.AddOptionalField("Value", Dumper::HexDisplay::Make(), offset_t(symbol->value));
+			else
+				symbol_entry.AddField(value_name->second, Dumper::HexDisplay::Make(), offset_t(symbol->value));
+
+			if(special_section_names.find(symbol->section_number) != special_section_names.end()) // TODO: make the ChoiceDisplay handle this
+				symbol_entry.AddField("Section", Dumper::ChoiceDisplay::Make(special_section_names, Dumper::DecDisplay::Make()), offset_t(symbol->section_number));
+			else
+				symbol_entry.AddField("Section", Dumper::DecDisplay::Make(), offset_t(symbol->section_number));
+
 			symbol_entry.AddField("Type", Dumper::HexDisplay::Make(4), offset_t(symbol->type));
-			symbol_entry.AddField("Storage class", Dumper::HexDisplay::Make(2), offset_t(symbol->storage_class));
+			symbol_entry.AddOptionalField("Flags",
+				Dumper::BitFieldDisplay::Make(4)
+					->AddBitField(0, 4, Dumper::ChoiceDisplay::Make(fundamental_type_descriptions), false)
+					->AddBitField(4, 2, Dumper::ChoiceDisplay::Make(derived_type_descriptions), true)
+					->AddBitField(6, 2, Dumper::ChoiceDisplay::Make(derived_type_descriptions), true)
+					->AddBitField(8, 2, Dumper::ChoiceDisplay::Make(derived_type_descriptions), true)
+					->AddBitField(10, 2, Dumper::ChoiceDisplay::Make(derived_type_descriptions), true)
+					->AddBitField(12, 2, Dumper::ChoiceDisplay::Make(derived_type_descriptions), true)
+					->AddBitField(14, 2, Dumper::ChoiceDisplay::Make(derived_type_descriptions), true),
+				offset_t(symbol->type));
+
+			symbol_entry.AddField("Storage class", Dumper::ChoiceDisplay::Make(storage_class_descriptions, Dumper::DecDisplay::Make()), offset_t(symbol->storage_class));
 			symbol_entry.AddOptionalField("Auxiliary count", Dumper::DecDisplay::Make(), offset_t(symbol->auxiliary_count));
+			if(symbol->auxiliary_entry)
+				symbol->auxiliary_entry->FillDumpData(symbol_entry);
 		}
 		symbol_entry.Display(dump);
 		i += 1;

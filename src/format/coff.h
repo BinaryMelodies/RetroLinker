@@ -1,6 +1,7 @@
 #ifndef COFF_H
 #define COFF_H
 
+#include <array>
 #include <map>
 #include "cpm68k.h"
 #include "mzexe.h"
@@ -459,6 +460,242 @@ namespace COFF
 			void Read(Linker::Reader& rd);
 
 			bool IsExternal() const;
+
+			class AuxiliaryEntry
+			{
+			public:
+				virtual ~AuxiliaryEntry() = default;
+				virtual void Read(Linker::Reader& rd) = 0;
+				virtual void Write(Linker::Writer& wr) const = 0;
+				virtual void FillDumpData(Dumper::Entry& entry) const = 0;
+			};
+
+			class FileNameAuxiliaryEntry : public AuxiliaryEntry
+			{
+			public:
+				std::string file_name;
+
+				void Read(Linker::Reader& rd) override;
+				void Write(Linker::Writer& wr) const override;
+				void FillDumpData(Dumper::Entry& entry) const override;
+			};
+
+			class SectionAuxiliaryEntry : public AuxiliaryEntry
+			{
+			public:
+				// TODO
+				int32_t section_length;
+				uint16_t relocation_entry_count;
+				uint16_t line_number_count;
+
+				void Read(Linker::Reader& rd) override;
+				void Write(Linker::Writer& wr) const override;
+				void FillDumpData(Dumper::Entry& entry) const override;
+			};
+
+			class TagNameAuxiliaryEntry : public AuxiliaryEntry
+			{
+			public:
+				// TODO
+				// skip 6 bytes
+				uint16_t size;
+				// skip 4 bytes
+				int32_t next_entry_index;
+
+				void Read(Linker::Reader& rd) override;
+				void Write(Linker::Writer& wr) const override;
+				void FillDumpData(Dumper::Entry& entry) const override;
+			};
+
+			class EndOfStructureAuxiliaryEntry : public AuxiliaryEntry
+			{
+			public:
+				// TODO
+				int32_t tag_index;
+				// skip 2 bytes
+				uint16_t size;
+				// skip 4 bytes
+
+				void Read(Linker::Reader& rd) override;
+				void Write(Linker::Writer& wr) const override;
+				void FillDumpData(Dumper::Entry& entry) const override;
+			};
+
+			class FunctionAuxiliaryEntry : public AuxiliaryEntry
+			{
+			public:
+				// TODO
+				int32_t tag_index;
+				int32_t size;
+				int32_t pointer_to_line_number;
+				int32_t next_entry_index;
+				uint16_t transfer_table_index;
+
+				void Read(Linker::Reader& rd) override;
+				void Write(Linker::Writer& wr) const override;
+				void FillDumpData(Dumper::Entry& entry) const override;
+			};
+
+			class ArrayAuxiliaryEntry : public AuxiliaryEntry
+			{
+			public:
+				// TODO
+				int32_t tag_index;
+				uint16_t declaration_line_number;
+				uint16_t size;
+				std::array<uint16_t, 4> dimensions;
+
+				void Read(Linker::Reader& rd) override;
+				void Write(Linker::Writer& wr) const override;
+				void FillDumpData(Dumper::Entry& entry) const override;
+			};
+
+			class BeginOrEndAuxiliaryEntry : public AuxiliaryEntry
+			{
+			public:
+				// TODO
+				// skip 4 bytes
+				uint16_t line_number;
+				// skip 6 bytes
+				int32_t next_entry_index; // TODO: only for beginning
+
+				void Read(Linker::Reader& rd) override;
+				void Write(Linker::Writer& wr) const override;
+				void FillDumpData(Dumper::Entry& entry) const override;
+			};
+
+			class StructureAuxiliaryEntry : public AuxiliaryEntry
+			{
+			public:
+				// TODO
+				int32_t tag_index;
+				// skip 2 bytes
+				uint16_t size;
+
+				void Read(Linker::Reader& rd) override;
+				void Write(Linker::Writer& wr) const override;
+				void FillDumpData(Dumper::Entry& entry) const override;
+			};
+
+			std::unique_ptr<AuxiliaryEntry> auxiliary_entry = nullptr;
+
+			enum
+			{
+				/** @brief Pysical end of function */
+				C_EFCN = uint8_t(-1),
+				C_NULL = 0,
+				/** @brief Automatic variable */
+				C_AUTO,
+				/** @brief external symbol */
+				C_EXT,
+				/** @brief static variable */
+				C_STAT,
+				/** @brief register variable */
+				C_REG,
+				/** @brief external definition */
+				C_EXTDEF,
+				/** @brief label */
+				C_LABEL,
+				/** @brief undefined label */
+				C_ULABEL,
+				/** @brief member of structure */
+				C_MOS,
+				/** @brief function argument */
+				C_ARG,
+				/** @brief structure tag */
+				C_STRTAG,
+				/** @brief member of union */
+				C_MOU,
+				/** @brief union tag */
+				C_UNTAG,
+				/** @brief type definition */
+				C_TPDEF,
+				/** @brief uninitialized static */
+				C_USTATIC,
+				/** @brief enumeration tag */
+				C_ENTAG,
+				/** @brief member of enumeration */
+				C_MOE,
+				/** @brief register parameter */
+				C_REGPARM,
+				/** @brief bit field */
+				C_FIELD,
+				/** @brief begin/end block */
+				C_BLOCK = 100,
+				/** @brief begin/end function */
+				C_FCN,
+				/** @brief end of structure */
+				C_EOS,
+				/** @brief file name */
+				C_FILE,
+				/** @brief */
+				C_LINE,
+				/** @brief duplicated tag */
+				C_ALIAS,
+				/** @brief static but avoids name conflict */
+				C_HIDDEN,
+				/** @brief shadow symbol */
+				C_SHADOW,
+				/** @brief external with weak linkage */
+				C_WEAKEXT
+			};
+
+			enum
+			{
+				/** @brief Debugging symbol */
+				N_DEBUG = uint16_t(-2),
+				/** @brief Absolute symbol */
+				N_ABS = uint16_t(-1),
+				/** @brief Undefined external symbol */
+				N_UNDEF = 0,
+			};
+
+			enum
+			{
+				T_NULL = 0,
+				/** @brief Function argument */
+				T_ARG,
+				/** @brief Character (C type char) */
+				T_CHAR,
+				/** @brief Short integer (C type short) */
+				T_SHORT,
+				/** @brief Integer (C type int) */
+				T_INT,
+				/** @brief Long integer (C type long) */
+				T_LONG,
+				/** @brief Float (C type float) */
+				T_FLOAT,
+				/** @brief Double (C type double) */
+				T_DOUBLE,
+				/** @brief Structure (C keyword struct) */
+				T_STRUCT,
+				/** @brief Union (C keyword union) */
+				T_UNION,
+				/** @brief Enumeration (C keyword enum) */
+				T_ENUM,
+				/** @brief Member of enumeration */
+				T_MOE,
+				/** @brief Unsigned character (C type unsigned char) */
+				T_UCHAR,
+				/** @brief Unsigned short integer (C type unsigned short) */
+				T_USHORT,
+				/** @brief Unsigned integer (C type unsigned int) */
+				T_UINT,
+				/** @brief Unsigned long integer (C type unsigned long) */
+				T_ULONG,
+			};
+
+			enum
+			{
+				/** @brief Not a derived type */
+				DT_NON = 0,
+				/** @brief Pointer to */
+				DT_PTR,
+				/** @brief Function returning */
+				DT_FCN,
+				/** @brief Array of */
+				DT_ARY,
+			};
 		};
 
 		/**
