@@ -504,9 +504,60 @@ COFFFormat::Section::~Section()
 	Clear();
 }
 
-void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFVariantType coff_variant)
+bool COFFFormat::Section::PresentInFile(COFFVariantType coff_variant) const
 {
 	switch(coff_variant)
+	{
+	case COFF:
+		return (flags & (COFF_Flags::NOLOAD | COFF_Flags::DSECT | BSS)) == 0;
+	case XCOFF32:
+	case XCOFF64:
+		// TODO
+		return (flags & BSS) == 0;
+	case PECOFF:
+		// TODO
+		return (flags & BSS) == 0;
+	case TICOFF:
+		// TODO
+	case TICOFF1:
+		// TODO
+	case ECOFF:
+		// TODO
+		return (flags & (BSS | ECOFF_Flags::SBSS)) == 0;
+	default:
+		// fallback to only treating text/data/bss
+		return (flags & BSS) == 0;
+	}
+}
+
+bool COFFFormat::Section::PresentInMemory(COFFVariantType coff_variant) const
+{
+	switch(coff_variant)
+	{
+	case COFF:
+		return (flags & (COFF_Flags::DSECT | COFF_Flags::PAD | COFF_Flags::COPY | COFF_Flags::INFO | COFF_Flags::OVER | COFF_Flags::LIB)) == 0;
+	case XCOFF64:
+	case XCOFF32:
+		return (flags & (TEXT | DATA | BSS | XCOFF_Flags::TDATA | XCOFF_Flags::TBSS | XCOFF_Flags::LOADER)) != 0;
+	case PECOFF:
+		// TODO
+		return true;
+	case TICOFF:
+		// TODO
+	case TICOFF1:
+		// TODO
+	case ECOFF:
+		// TODO
+		return address == 0;
+	default:
+		// fallback to only treating text/data/bss
+		return true;
+	}
+}
+
+void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFFormat& coff_format)
+{
+	switch(coff_format.coff_variant)
 	{
 	case COFF:
 	case XCOFF32:
@@ -520,7 +571,14 @@ void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFVariantType 
 		line_number_pointer = rd.ReadUnsigned(4);
 		relocation_count = rd.ReadUnsigned(2);
 		line_number_count = rd.ReadUnsigned(2);
-		flags = rd.ReadUnsigned(coff_variant == XCOFF32 ? 2 : 4);
+		flags = rd.ReadUnsigned(coff_format.coff_variant == XCOFF32 ? 2 : 4);
+		if(coff_format.coff_variant == PECOFF && (flags & PECOFF_Flags::LNK_NRELOC_OVFL) != 0)
+		{
+			offset_t end_of_section_header = rd.Tell();
+			rd.Seek(coff_format.file_offset + relocation_pointer);
+			relocation_count = rd.ReadUnsigned(4);
+			rd.Seek(end_of_section_header);
+		}
 		break;
 	case TICOFF:
 		name = rd.ReadData(8, true);
@@ -561,6 +619,15 @@ void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFVariantType 
 		relocation_count = rd.ReadUnsigned(2);
 		line_number_count = rd.ReadUnsigned(2);
 		flags = rd.ReadUnsigned(4);
+		if((flags & ECOFF_Flags::NRELOC_OVERFLOWED) != 0)
+		{
+			offset_t end_of_section_header = rd.Tell();
+			// skip first relocation entry r_vaddr field
+			rd.Seek(coff_format.file_offset + relocation_pointer + 8);
+			// read first relocation entry r_symndx field
+			relocation_count = rd.ReadUnsigned(4);
+			rd.Seek(end_of_section_header);
+		}
 		break;
 	case XCOFF64:
 		name = rd.ReadData(8, true);
@@ -582,9 +649,9 @@ void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFVariantType 
 	image = std::make_shared<Linker::Section>(name);
 }
 
-void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType coff_variant)
+void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, const COFFFormat& coff_format)
 {
-	switch(coff_variant)
+	switch(coff_format.coff_variant)
 	{
 	default:
 		Linker::FatalError("Internal error: undefined COFF variant");
@@ -598,9 +665,9 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType
 		wr.WriteWord(4, section_pointer);
 		wr.WriteWord(4, relocation_pointer);
 		wr.WriteWord(4, line_number_pointer);
-		wr.WriteWord(2, relocation_count);
+		wr.WriteWord(2, coff_format.coff_variant == PECOFF && (flags & PECOFF_Flags::LNK_NRELOC_OVFL) != 0 ? 0xFFFF : relocation_count);
 		wr.WriteWord(2, line_number_count);
-		wr.WriteWord(coff_variant == XCOFF32 ? 2 : 4, flags);
+		wr.WriteWord(coff_format.coff_variant == XCOFF32 ? 2 : 4, flags);
 		break;
 	case TICOFF:
 		wr.WriteData(8, name);
@@ -638,7 +705,7 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, COFFVariantType
 		wr.WriteWord(8, section_pointer);
 		wr.WriteWord(8, relocation_pointer);
 		wr.WriteWord(8, line_number_pointer);
-		wr.WriteWord(2, relocation_count);
+		wr.WriteWord(2, (flags & ECOFF_Flags::NRELOC_OVERFLOWED) != 0 ? 0xFFFF : relocation_count);
 		wr.WriteWord(2, line_number_count);
 		wr.WriteWord(4, flags);
 		break;
@@ -679,10 +746,14 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 	Dumper::Block block("Section", format.file_offset + section_pointer, image->AsImage(), address, 8);
 	block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(section_index + 1));
 	block.AddField("Name", Dumper::StringDisplay::Make("\""), name);
-	if((image != nullptr ? image->ImageSize() : 0) != size)
+	block.AddField("Present", Dumper::ChoiceDisplay::Make("in file", "not in file"), offset_t(PresentInFile(format.coff_variant)));
+	block.AddField("Allocated", Dumper::ChoiceDisplay::Make("in memory", "not in memory"), offset_t(PresentInMemory(format.coff_variant)));
+	if(PresentInMemory(format.coff_variant) && (image != nullptr ? image->ImageSize() : 0) != size)
+	{
 		block.AddField("Size in memory",
 			Dumper::HexDisplay::Make(format.coff_variant == ECOFF || format.coff_variant == XCOFF64 ? 16 : 8),
 			offset_t(size));
+	}
 	block.AddField("Physical address",
 		Dumper::HexDisplay::Make(format.coff_variant == ECOFF || format.coff_variant == XCOFF64 ? 16 : 8),
 		offset_t(physical_address));
@@ -690,12 +761,156 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 		Dumper::HexDisplay::Make(format.coff_variant == ECOFF || format.coff_variant == XCOFF64 ? 16 : 8),
 		offset_t(line_number_pointer != 0 ? format.file_offset + line_number_pointer : 0)); /* TODO */
 	block.AddOptionalField("Line numbers count", Dumper::DecDisplay::Make(), offset_t(line_number_count)); /* TODO */
-	block.AddOptionalField("Flags",
-		Dumper::BitFieldDisplay::Make(format.coff_variant == XCOFF32 || format.coff_variant == TICOFF ? 4 : 8)
-			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
-			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
-			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
-		offset_t(flags));
+
+	static const std::map<offset_t, std::string> ecoff_extra_flags =
+	{
+		{ 0x01, "additional dynamic linking information (CONFLICT)" },
+		{ 0x10, "termination text (FINI)" },
+		{ 0x20, "comment section (COMMENT)" },
+		{ 0x22, "read-only section (RCONST)" },
+		{ 0x24, "exception scope table (XDATA)" },
+		{ 0x25, "initialized TLS data (TLSDATA)" },
+		{ 0x26, "uninitialized TLS data (TLSBSS)" },
+		{ 0x27, "initialization for TLS data (TLSINIT)" },
+		{ 0x28, "exception procedure table (PDATA)" },
+	};
+
+	static const std::map<offset_t, std::string> pecoff_alignment_flags =
+	{
+		{ 0x1, "byte" },
+		{ 0x2, "2-byte (x86 word)" },
+		{ 0x3, "4-byte (x86 dword)" },
+		{ 0x4, "8-byte (x86 qword)" },
+		{ 0x5, "16-byte (x86 paragraph)" },
+		{ 0x6, "32-byte" },
+		{ 0x7, "64-byte" },
+		{ 0x8, "128-byte" },
+		{ 0x9, "256-byte" },
+		{ 0xA, "512-byte" },
+		{ 0xB, "1024-byte" },
+		{ 0xC, "2048-byte" },
+		{ 0xD, "4096-byte (x86 page)" },
+		{ 0xE, "8192-byte" },
+	};
+
+	switch(format.coff_variant)
+	{
+	default:
+		// fallback, minimal
+		block.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
+			offset_t(flags));
+		break;
+	case COFF:
+		block.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("dummy (DSECT)"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("noload"), true)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("group"), true)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("padding (PAD)"), true)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("copy"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("comment (INFO)"), true)
+				->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("overlay (OVER)"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("\".lib\" (LIB)"), true),
+			offset_t(flags));
+		break;
+	case ECOFF:
+		block.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("read-only data (RDATA)"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("small data (SDATA)"), true)
+				->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("small bss (SBSS)"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("obsolete (UCODE)"), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("global offset table (GOT)"), true)
+				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("dynamic linking information (DYNAMIC)"), true)
+				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("dynamic linking symbol table (DYNSYM)"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("dynamic relocation information (REL_DYN)"), true)
+				->AddBitField(16, 1, Dumper::ChoiceDisplay::Make("dynamic linking string table (DYNSTR)"), true)
+				->AddBitField(17, 1, Dumper::ChoiceDisplay::Make("dynamic symbol hash table (HASH)"), true)
+				->AddBitField(18, 1, Dumper::ChoiceDisplay::Make("shared library dependency list (DSOLIST)"), true)
+				->AddBitField(19, 1, Dumper::ChoiceDisplay::Make("additional dynamic linking symbol table (MSYM)"), true)
+				->AddBitField(20, 6, Dumper::ChoiceDisplay::Make(ecoff_extra_flags), true)
+				->AddBitField(26, 1, Dumper::ChoiceDisplay::Make("address literals (LITA)"), true)
+				->AddBitField(27, 1, Dumper::ChoiceDisplay::Make("8-byte literals (LIT8)"), true)
+				->AddBitField(28, 1, Dumper::ChoiceDisplay::Make("4-byte literals (LIT4)"), true)
+				->AddBitField(29, 1, Dumper::ChoiceDisplay::Make("relocation count overflow"), true)
+				->AddBitField(31, 1, Dumper::ChoiceDisplay::Make("initialization text (INIT)"), true),
+			offset_t(flags));
+		break;
+	case XCOFF32:
+	case XCOFF64:
+		block.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(format.coff_variant == XCOFF32 ? 4 : 8)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("padding (PAD)"), true)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("DWARF relocation section"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("exception section"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("comment section (INFO)"), true)
+				->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("thread-local data (TDATA)"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("thread-local bss (TBSS)"), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("loader section"), true)
+				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("debug section"), true)
+				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("type-check section (TYPCHK)"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("relocation/line-number overflow entry"), true),
+			offset_t(flags));
+		break;
+	case PECOFF:
+		block.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("no pad"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("other"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("comments (INFO)"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("remove from image"), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("comdat"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("GP accessed data (GPREL)"), true)
+				->AddBitField(16, 1, Dumper::ChoiceDisplay::Make("purgeable"), true)
+				->AddBitField(17, 1, Dumper::ChoiceDisplay::Make("16-bit"), true)
+				->AddBitField(18, 1, Dumper::ChoiceDisplay::Make("locked"), true)
+				->AddBitField(19, 1, Dumper::ChoiceDisplay::Make("preload"), true)
+				->AddBitField(20, 4, "alignment", Dumper::ChoiceDisplay::Make(pecoff_alignment_flags), true)
+				->AddBitField(24, 1, Dumper::ChoiceDisplay::Make("relocation count overflow"), true)
+				->AddBitField(25, 1, Dumper::ChoiceDisplay::Make("discardable"), true)
+				->AddBitField(26, 1, Dumper::ChoiceDisplay::Make("not cacheable"), true)
+				->AddBitField(27, 1, Dumper::ChoiceDisplay::Make("not pageable"), true)
+				->AddBitField(28, 1, Dumper::ChoiceDisplay::Make("shared"), true)
+				->AddBitField(29, 1, Dumper::ChoiceDisplay::Make("execute"), true)
+				->AddBitField(30, 1, Dumper::ChoiceDisplay::Make("readable"), true)
+				->AddBitField(31, 1, Dumper::ChoiceDisplay::Make("writable"), true),
+			offset_t(flags));
+		break;
+	case TICOFF:
+		// fallback, minimal (TODO)
+		block.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(4) // only 2 bytes
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
+			offset_t(flags));
+		break;
+	case TICOFF1:
+		// fallback, minimal (TODO)
+		block.AddOptionalField("Flags",
+			Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
+			offset_t(flags));
+		break;
+	}
 	if(format.coff_variant == TICOFF || format.coff_variant == TICOFF1)
 	{
 		block.AddOptionalField("Memory page number", Dumper::HexDisplay::Make(4), offset_t(memory_page_number));
@@ -1435,19 +1650,32 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 		switch(type)
 		{
 		case WINDOWS:
+			Linker::Debug << "Debug: Reading sections as PE" << std::endl;
 			section = std::make_shared<Microsoft::PEFormat::Section>();
 			break;
 		default:
 			section = std::make_shared<Section>();
 			break;
 		}
-		section->ReadSectionHeader(rd, coff_variant);
+		section->ReadSectionHeader(rd, *this);
 		sections.push_back(section);
+	}
+
+	if(coff_variant == XCOFF32)
+	{
+		for(auto& section : sections)
+		{
+			if((section->flags & Section::XCOFF_Flags::OVERFLO) != 0)
+			{
+				sections[section->relocation_count - 1]->relocation_count = section->physical_address;
+				sections[section->line_number_count - 1]->line_number_count = section->address;
+			}
+		}
 	}
 
 	for(auto& section : sections)
 	{
-		if(section->flags & (Section::TEXT | Section::DATA))
+		if(section->PresentInFile(coff_variant))
 		{
 			section->ReadSectionData(rd, *this);
 		}
@@ -1603,7 +1831,7 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 	/* Section Header */
 	for(auto& section : sections)
 	{
-		section->WriteSectionHeader(wr, coff_variant);
+		section->WriteSectionHeader(wr, *this);
 	}
 
 	/* Section Data */
@@ -1666,6 +1894,19 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 		{ ::BigEndian,    "big endian" },
 	};
 	file_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(endian_descriptions), offset_t(endiantype));
+
+	static const std::map<offset_t, std::string> variant_descriptions =
+	{
+		{ 0,       "Generic COFF" },
+		{ COFF,    "Standard 32-bit COFF" },
+		{ ECOFF,   "64-bit ECOFF" },
+		{ XCOFF32, "32-bit IBM XCOFF" },
+		{ XCOFF64, "64-bit IBM XCOFF" },
+		{ PECOFF,  "Microsoft PE/COFF" },
+		{ TICOFF1, "Texas Instruments COFF1" },
+		{ TICOFF,  "Texas Instruments COFF2" },
+	};
+	file_region.AddField("Parsed as", Dumper::ChoiceDisplay::Make(variant_descriptions), offset_t(coff_variant));
 
 	file_region.Display(dump);
 

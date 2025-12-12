@@ -524,13 +524,163 @@ namespace COFF
 			 */
 			std::vector<std::unique_ptr<Relocation>> relocations;
 
-			/* COFF section flags */
-			/** @brief COFF section flag: Section contains executable (COFF name: STYP_TEXT) */
-			static constexpr uint32_t TEXT = 0x0020;
+			/* COFF section flags (common to all variants) */
+			/** @brief COFF section flag: Section contains executable instructions (COFF name: STYP_TEXT) */
+			static constexpr uint32_t TEXT  = 0x0020;
 			/** @brief COFF section flag: Section contains initialized data (COFF name: STYP_DATA) */
-			static constexpr uint32_t DATA = 0x0040;
+			static constexpr uint32_t DATA  = 0x0040;
 			/** @brief COFF section flag: Section contains uninitialized data (COFF name: STYP_BSS) */
-			static constexpr uint32_t BSS  = 0x0080;
+			static constexpr uint32_t BSS   = 0x0080;
+
+			/* UNIX COFF section flags */
+			struct COFF_Flags
+			{
+				/** @brief COFF section flag: Dummy section (COFF name: STYP_DSECT) */
+				static constexpr uint32_t DSECT = 0x0001;
+				/** @brief COFF section flag: Noload section (COFF name: STYP_NOLOAD) */
+				static constexpr uint32_t NOLOAD = 0x0002;
+				/** @brief COFF section flag: Grouped section, formed from input sections (COFF name: STYP_GROUP) */
+				static constexpr uint32_t GROUP = 0x0004;
+				/** @brief COFF section flag: Padding section (COFF name: STYP_PAD) */
+				static constexpr uint32_t PAD = 0x0008;
+				/** @brief COFF section flag: Copy section (COFF name: STYP_COPY) */
+				static constexpr uint32_t COPY = 0x0010;
+				/** @brief COFF section flag: Comment section (COFF name: STYP_INFO) */
+				static constexpr uint32_t INFO = 0x0200;
+				/** @brief COFF section flag: Overlay section (COFF name: STYP_OVER) */
+				static constexpr uint32_t OVER = 0x0400;
+				/** @brief COFF section flag: Library section (also used by X/GEM to store library information) (COFF name: STYPE_LIB) */
+				static constexpr uint32_t LIB   = 0x0800;
+			};
+
+			/* ECOFF section flags */
+			struct ECOFF_Flags
+			{
+				/** @brief ECOFF section flag: Section contains read-only data (ECOFF name: STYP_RDATA) */
+				static constexpr uint32_t RDATA    = 0x00000100;
+				/** @brief ECOFF section flag: "Small data" (ECOFF name: STYP_SDATA) */
+				static constexpr uint32_t SDATA    = 0x00000200;
+				/** @brief ECOFF section flag: "Small bss" (ECOFF name: STYP_SBSS) */
+				static constexpr uint32_t SBSS     = 0x00000400;
+				/** @brief ECOFF section flag: (ECOFF name: STYP_UCODE) */
+				static constexpr uint32_t UCODE    = 0x00000800;
+				/** @brief ECOFF section flag: Global offset table (ECOFF name: STYP_GOT) */
+				static constexpr uint32_t GOT      = 0x00001000;
+				/** @brief ECOFF section flag: Dynamic linking information (ECOFF name: STYP_DYNAMIC) */
+				static constexpr uint32_t DYNAMIC  = 0x00002000;
+				/** @brief ECOFF section flag: Dynamic linking symbol table (ECOFF name: STYP_DYNSYM) */
+				static constexpr uint32_t DYNSYM   = 0x00004000;
+				/** @brief ECOFF section flag: Dynamic relocation information (ECOFF name: STYP_REL_DYN) */
+				static constexpr uint32_t REL_DYN  = 0x00008000;
+				/** @brief ECOFF section flag: Dynamic linking string table (ECOFF name: STYP_DYNSTR) */
+				static constexpr uint32_t DYNSTR   = 0x00010000;
+				/** @brief ECOFF section flag: Dynamic symbol hash table (ECOFF name: STYP_HASH) */
+				static constexpr uint32_t HASH     = 0x00020000;
+				/** @brief ECOFF section flag: Shared library dependency list (ECOFF name: STYP_DSOLIST) */
+				static constexpr uint32_t DSOLIST  = 0x00040000;
+				/** @brief ECOFF section flag: Additional dynamic linking symbol table (ECOFF name: STYP_MSYM) */
+				static constexpr uint32_t MSYM     = 0x00080000;
+				/** @brief ECOFF section flag: Multiple bit flag values */
+				static constexpr uint32_t EXTMASK  = 0x0FF00000;
+				/** @brief ECOFF section flag: Additional dynamic linking information (ECOFF name: STYP_CONFLICT) */
+				static constexpr uint32_t CONFLICT = 0x00100000;
+				/** @brief ECOFF section flag: Termination text (ECOFF name: STYP_FINI) */
+				static constexpr uint32_t FINI     = 0x01000000;
+				/** @brief ECOFF section flag: Comment section (ECOFF name: STYP_COMMENT) */
+				static constexpr uint32_t COMMENT  = 0x02000000;
+				/** @brief ECOFF section flag: Read-only constants (ECOFF name: STYP_RCONST) */
+				static constexpr uint32_t RCONST   = 0x02200000;
+				/** @brief ECOFF section flag: Exception scope table (ECOFF name: STYP_XDATA) */
+				static constexpr uint32_t XDATA    = 0x02400000;
+				/** @brief ECOFF section flag: Initialized TLS data (ECOFF name: STYP_TLSDATA) */
+				static constexpr uint32_t TLSDATA  = 0x02500000;
+				/** @brief ECOFF section flag: Uninitialized TLS data (ECOFF name: STYP_TLSBSS) */
+				static constexpr uint32_t TLSBSS   = 0x02600000;
+				/** @brief ECOFF section flag: Initialization for TLS data (ECOFF name: STYP_TLSINIT) */
+				static constexpr uint32_t TLSINIT  = 0x02700000;
+				/** @brief ECOFF section flag: Exception procedure table (ECOFF name: STYP_PDATA) */
+				static constexpr uint32_t PDATA    = 0x02800000;
+				/** @brief ECOFF section flag: Address literals (ECOFF name: STYP_LITA) */
+				static constexpr uint32_t LITA     = 0x04000000;
+				/** @brief ECOFF section flag: 8-byte literals (ECOFF name: STYP_LIT8) */
+				static constexpr uint32_t LIT8     = 0x08000000;
+				/** @brief ECOFF section flag: 4-byte literals (ECOFF name: STYP_LIT8) */
+				static constexpr uint32_t LIT4     = 0x10000000;
+				/** @brief ECOFF section flag: the s_nreloc field overflowed (ECOFF name: S_NRELOC_OVFL) */
+				static constexpr uint32_t NRELOC_OVERFLOWED = 0x20000000;
+				/** @brief ECOFF section flag: Initialization text (ECOFF name: STYP_INIT) */
+				static constexpr uint32_t INIT     = 0x80000000;
+			};
+
+			/* PE section flags */
+			struct PECOFF_Flags
+			{
+				/** @brief PE section flag: Section should not be padded */
+				static constexpr uint32_t TYPE_NO_PAD = 0x00000008;
+				/** @brief PE section flag: reserved */
+				static constexpr uint32_t LNK_OTHER = 0x00000100;
+				/** @brief PE section flag: Section contains comments */
+				static constexpr uint32_t LNK_INFO = 0x00000200;
+				/** @brief PE section flag: Section should be removed when generating image */
+				static constexpr uint32_t LNK_REMOVE = 0x00000800;
+				/** @brief PE section flag: Section contains COMDAT data */
+				static constexpr uint32_t LNK_COMDAT = 0x00001000;
+				/** @brief PE section flag: Section data accessed through the global pointer */
+				static constexpr uint32_t GPREL = 0x00008000;
+				/** @brief PE section flag: reserved */
+				static constexpr uint32_t MEM_PURGEABLE = 0x00010000;
+				/** @brief PE section flag: reserved */
+				static constexpr uint32_t MEM_16BIT = 0x00020000;
+				/** @brief PE section flag: reserved */
+				static constexpr uint32_t MEM_LOCKED = 0x00040000;
+				/** @brief PE section flag: reserved */
+				static constexpr uint32_t MEM_PRELOAD = 0x00080000;
+				/** @brief PE section flag: alignment mask */
+				static constexpr uint32_t ALIGN_MASK = 0x00F00000;
+				/** @brief PE section flag: alignment shift */
+				static constexpr uint32_t ALIGN_SHIFT = 20;
+				/** @brief PE section flag: Section contains more than 65535 relocations */
+				static constexpr uint32_t LNK_NRELOC_OVFL = 0x01000000;
+				/** @brief PE section flag: Section can be discarded */
+				static constexpr uint32_t MEM_DISCARDABLE = 0x02000000;
+				/** @brief PE section flag: Section cannot be cached */
+				static constexpr uint32_t MEM_NOT_CACHED = 0x04000000;
+				/** @brief PE section flag: Section is not pageable */
+				static constexpr uint32_t MEM_NOT_PAGED = 0x08000000;
+				/** @brief PE section flag: Section can be shared in memory */
+				static constexpr uint32_t MEM_SHARED = 0x10000000;
+				/** @brief PE section flag: Section data can be executed */
+				static constexpr uint32_t MEM_EXECUTE = 0x20000000;
+				/** @brief PE section flag: Section can be read from */
+				static constexpr uint32_t MEM_READ = 0x40000000;
+				/** @brief PE section flag: Section can be written to */
+				static constexpr uint32_t MEM_WRITE = 0x80000000;
+			};
+
+			/* UNIX XCOFF section flags */
+			struct XCOFF_Flags
+			{
+				/** @brief XCOFF section flag: Padding section (XCOFF name: STYP_PAD) */
+				static constexpr uint32_t PAD = 0x0008;
+				/** @brief XCOFF section flag: DWARF relocation section (XCOFF name: STYP_DWARF) */
+				static constexpr uint32_t DWARF = 0x0010;
+				/** @brief XCOFF section flag: Exception section (XCOFF name: STYP_EXCEPT) */
+				static constexpr uint32_t EXCEPT = 0x0100;
+				/** @brief XCOFF section flag: Comment section (XCOFF name: STYP_INFO) */
+				static constexpr uint32_t INFO = 0x0200;
+				/** @brief XCOFF section flag: Initialized thread-local data (XCOFF name: STYP_TDATA) */
+				static constexpr uint32_t TDATA = 0x0400;
+				/** @brief XCOFF section flag: Uninitialized thread-local data (XCOFF name: STYP_TBSS) */
+				static constexpr uint32_t TBSS = 0x0800;
+				/** @brief XCOFF section flag: Loader section (XCOFF name: STYP_LOADER) */
+				static constexpr uint32_t LOADER = 0x1000;
+				/** @brief XCOFF section flag: Debug section (XCOFF name: STYP_DEBUG) */
+				static constexpr uint32_t DEBUG = 0x2000;
+				/** @brief XCOFF section flag: Type-check section (XCOFF name: STYP_TYPCHK) */
+				static constexpr uint32_t TYPCHK = 0x4000;
+				/** @brief XCOFF section flag: (XCOFF name: STYP_OVERFLO) */
+				static constexpr uint32_t OVERFLO = 0x8000;
+			};
 
 			void Clear();
 
@@ -541,11 +691,14 @@ namespace COFF
 
 			virtual ~Section();
 
+			bool PresentInFile(COFFVariantType coff_variant) const;
+			bool PresentInMemory(COFFVariantType coff_variant) const;
+
 			/** @brief Reads an entry in the section header table */
-			void ReadSectionHeader(Linker::Reader& rd, COFFVariantType coff_variant);
+			void ReadSectionHeader(Linker::Reader& rd, COFFFormat& coff_format);
 
 			/** @brief Writes an entry in the section header table */
-			void WriteSectionHeader(Linker::Writer& wr, COFFVariantType coff_variant);
+			void WriteSectionHeader(Linker::Writer& wr, const COFFFormat& coff_format);
 
 			/** @brief Retrieves the size of the section (for PE, the size of the section as stored in the file) */
 			virtual uint32_t ImageSize(const COFFFormat& coff_format) const;
