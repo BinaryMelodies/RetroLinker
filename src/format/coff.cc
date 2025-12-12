@@ -519,8 +519,10 @@ bool COFFFormat::Section::PresentInFile(COFFVariantType coff_variant) const
 		return (flags & BSS) == 0;
 	case TICOFF:
 		// TODO
+		return (flags & BSS) == 0;
 	case TICOFF1:
 		// TODO
+		return (flags & BSS) == 0;
 	case ECOFF:
 		// TODO
 		return (flags & (BSS | ECOFF_Flags::SBSS)) == 0;
@@ -544,8 +546,10 @@ bool COFFFormat::Section::PresentInMemory(COFFVariantType coff_variant) const
 		return true;
 	case TICOFF:
 		// TODO
+		return true;
 	case TICOFF1:
 		// TODO
+		return true;
 	case ECOFF:
 		// TODO
 		return address == 0;
@@ -893,21 +897,22 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 			offset_t(flags));
 		break;
 	case TICOFF:
-		// fallback, minimal (TODO)
-		block.AddOptionalField("Flags",
-			Dumper::BitFieldDisplay::Make(4) // only 2 bytes
-				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
-				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
-				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
-			offset_t(flags));
-		break;
 	case TICOFF1:
-		// fallback, minimal (TODO)
 		block.AddOptionalField("Flags",
-			Dumper::BitFieldDisplay::Make(8)
+			Dumper::BitFieldDisplay::Make(format.coff_variant == TICOFF ? 4 : 8)
+				->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("dummy (DSECT)"), true)
+				->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("noload"), true)
+				->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("group"), true)
+				->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("padding (PAD)"), true)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("copy"), true)
 				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("text"), true)
 				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("data"), true)
-				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true),
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("bss"), true)
+				->AddBitField(16, 1, Dumper::ChoiceDisplay::Make("(BLOCK)"), true)
+				->AddBitField(17, 1, Dumper::ChoiceDisplay::Make("pass through unchanged (PASS)"), true)
+				->AddBitField(18, 1, Dumper::ChoiceDisplay::Make("conditional linking required (CLINK)"), true)
+				->AddBitField(19, 1, Dumper::ChoiceDisplay::Make("vector table (VECTOR)"), true)
+				->AddBitField(20, 1, Dumper::ChoiceDisplay::Make("padded (PADDED)"), true),
 			offset_t(flags));
 		break;
 	}

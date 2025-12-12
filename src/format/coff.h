@@ -536,21 +536,21 @@ namespace COFF
 			struct COFF_Flags
 			{
 				/** @brief COFF section flag: Dummy section (COFF name: STYP_DSECT) */
-				static constexpr uint32_t DSECT = 0x0001;
+				static constexpr uint32_t DSECT  = 0x0001;
 				/** @brief COFF section flag: Noload section (COFF name: STYP_NOLOAD) */
 				static constexpr uint32_t NOLOAD = 0x0002;
 				/** @brief COFF section flag: Grouped section, formed from input sections (COFF name: STYP_GROUP) */
-				static constexpr uint32_t GROUP = 0x0004;
+				static constexpr uint32_t GROUP  = 0x0004;
 				/** @brief COFF section flag: Padding section (COFF name: STYP_PAD) */
-				static constexpr uint32_t PAD = 0x0008;
+				static constexpr uint32_t PAD    = 0x0008;
 				/** @brief COFF section flag: Copy section (COFF name: STYP_COPY) */
-				static constexpr uint32_t COPY = 0x0010;
+				static constexpr uint32_t COPY   = 0x0010;
 				/** @brief COFF section flag: Comment section (COFF name: STYP_INFO) */
-				static constexpr uint32_t INFO = 0x0200;
+				static constexpr uint32_t INFO   = 0x0200;
 				/** @brief COFF section flag: Overlay section (COFF name: STYP_OVER) */
-				static constexpr uint32_t OVER = 0x0400;
+				static constexpr uint32_t OVER   = 0x0400;
 				/** @brief COFF section flag: Library section (also used by X/GEM to store library information) (COFF name: STYPE_LIB) */
-				static constexpr uint32_t LIB   = 0x0800;
+				static constexpr uint32_t LIB    = 0x0800;
 			};
 
 			/* ECOFF section flags */
@@ -657,7 +657,7 @@ namespace COFF
 				static constexpr uint32_t MEM_WRITE = 0x80000000;
 			};
 
-			/* UNIX XCOFF section flags */
+			/* XCOFF section flags */
 			struct XCOFF_Flags
 			{
 				/** @brief XCOFF section flag: Padding section (XCOFF name: STYP_PAD) */
@@ -680,6 +680,31 @@ namespace COFF
 				static constexpr uint32_t TYPCHK = 0x4000;
 				/** @brief XCOFF section flag: (XCOFF name: STYP_OVERFLO) */
 				static constexpr uint32_t OVERFLO = 0x8000;
+			};
+
+			/* TICOFF section flags */
+			struct TICOFF_Flags
+			{
+				/** @brief COFF section flag: Dummy section (COFF name: STYP_DSECT) */
+				static constexpr uint32_t DSECT  = 0x00000001;
+				/** @brief COFF section flag: Noload section (COFF name: STYP_NOLOAD) */
+				static constexpr uint32_t NOLOAD = 0x00000002;
+				/** @brief COFF section flag: Grouped section, formed from input sections (COFF name: STYP_GROUP) */
+				static constexpr uint32_t GROUP  = 0x00000004;
+				/** @brief COFF section flag: Padding section (COFF name: STYP_PAD) */
+				static constexpr uint32_t PAD    = 0x00000008;
+				/** @brief COFF section flag: Copy section (COFF name: STYP_COPY) */
+				static constexpr uint32_t COPY   = 0x00000010;
+				/** @brief TI COFF section flag: Alignment used as a blocking factor (TI COFF name: STYP_BLOCK) */
+				static constexpr uint32_t BLOCK  = 0x00010000;
+				/** @brief TI COFF section flag: Section should not be changed (TI COFF name: STYP_PASS) */
+				static constexpr uint32_t PASS   = 0x00020000;
+				/** @brief TI COFF section flag: Conditional linking required (TI COFF name: STYP_CLINK) */
+				static constexpr uint32_t CLINK  = 0x00040000;
+				/** @brief TI COFF section flag: Section contains vector table (TI COFF name: STYP_VECTOR) */
+				static constexpr uint32_t VECTOR = 0x00080000;
+				/** @brief TI COFF section flag: Section has been padded (TI COFF name: STYP_PADDED) */
+				static constexpr uint32_t PADDED = 0x00100000;
 			};
 
 			void Clear();
