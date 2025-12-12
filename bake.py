@@ -246,8 +246,8 @@ class DefineVersion:
 			Id - version is identified by this
 			ModelName - passed to assembler as symbol MODEL_*
 			LinkerName - passed to linker as -M*, default: Id
-			LinkerOptions - passed to linker as -P*
-			LinkerParameters - passed to linker as -S*
+			LinkerOptions - passed to linker as -S*
+			LinkerParameters - passed to linker as -P*
 		"""
 		self.id = Id
 		self.model_name = ModelName
@@ -557,6 +557,7 @@ DefineTarget(
 	c_target_options2 = "-mcmodel=small -mprotected-mode",
 	Versions = [
 		DefineVersion("", ModelName = "", LinkerName = "", LinkerOptions = ["sharedcode"]),
+		DefineVersion("postlink", ModelName = "postlink", LinkerName = "", LinkerOptions = ["sharedcode", "postlink"]),
 	],
 	extension = ".286")
 

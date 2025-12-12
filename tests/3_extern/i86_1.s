@@ -74,6 +74,9 @@ message:
 	.ascii	" OS/2 1.0 (16-bit)"
 .elseif TARGET_FLEXOS286
 	.ascii	" FlexOS 286 (16-bit)"
+.ifdef	MODEL_POSTLINK
+	.ascii	" fast load binary"
+.endif
 .endif
 
 	.byte	0

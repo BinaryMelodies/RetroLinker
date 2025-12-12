@@ -182,7 +182,11 @@ Target(
 	output_file = "dos16m")
 Target(
 	System = "flexos286",
-	output_file = "flex286") # TODO: also test out FASTLOAD executables
+	output_file = "flex286")
+Target(
+	System = "flexos286",
+	Version = "postlink",
+	output_file = "flex286p")
 Target(
 	System = "djgpp",
 	Format = "aout",

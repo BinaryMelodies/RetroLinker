@@ -88,6 +88,10 @@ Target(
 	System = "flexos286",
 	output_file = "flex286")
 Target(
+	System = "flexos286",
+	Version = "postlink",
+	output_file = "flex286p")
+Target(
 	System = "djgpp",
 	Format = "aout",
 	output_file = "djgppv1")
