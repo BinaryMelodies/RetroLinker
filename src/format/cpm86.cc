@@ -1305,6 +1305,98 @@ void CPM86Format::SetOptions(std::map<std::string, std::string>& options)
 	CPM86OptionCollector collector;
 	collector.ConsiderOptions(options);
 
+	if(collector.system())
+	{
+		switch(collector.system())
+		{
+		case CPM86OptionCollector::System_CPM86:
+			if(collector.format())
+			{
+				switch(collector.format())
+				{
+				case CPM86OptionCollector::Format_8080:
+					format = FORMAT_8080;
+					break;
+				case CPM86OptionCollector::Format_Small:
+					format = FORMAT_SMALL;
+					break;
+				case CPM86OptionCollector::Format_Compact:
+					format = FORMAT_COMPACT;
+					break;
+				}
+			}
+			else
+			{
+				if(format != FORMAT_8080 && format != FORMAT_SMALL && format != FORMAT_COMPACT)
+				{
+					// overrides previous FlexOS format
+					format = FORMAT_SMALL;
+				}
+			}
+
+			if(collector.postlink())
+			{
+				Linker::Error << "Error: CP/M-86 does not support fast load (POSTLINK) format, ignoring" << std::endl;
+			}
+			break;
+		case CPM86OptionCollector::System_FlexOS286:
+			if(collector.postlink())
+			{
+				format = FORMAT_FASTLOAD;
+			}
+			else if(format != FORMAT_FLEXOS && format != FORMAT_FASTLOAD)
+			{
+				// overrides previous CP/M format
+				format = FORMAT_FLEXOS;
+			}
+
+			if(collector.format())
+			{
+				Linker::Warning << "Warning: FlexOS only supports \"compact\" format (separate code, data, stack groups), ignoring" << std::endl;
+			}
+			break;
+		}
+	}
+	else
+	{
+		if(collector.postlink())
+		{
+			if(format != FORMAT_FLEXOS && format != FORMAT_FASTLOAD)
+			{
+				Linker::FatalError("Fatal error: To use the fast load (POSTLINK) format, the FlexOS system must be selected");
+			}
+			format = FORMAT_FASTLOAD;
+
+			if(collector.format())
+			{
+				Linker::Warning << "Warning: FlexOS only supports \"compact\" format (separate code, data, stack groups), ignoring" << std::endl;
+			}
+		}
+		else
+		{
+			if(collector.format())
+			{
+				if(format != FORMAT_UNKNOWN && format != FORMAT_8080 && format != FORMAT_SMALL && format != FORMAT_COMPACT)
+				{
+					Linker::FatalError("Fatal error: To use a format, the CP/M system must be selected");
+				}
+
+				switch(collector.format())
+				{
+				case CPM86OptionCollector::Format_8080:
+					format = FORMAT_8080;
+					break;
+				case CPM86OptionCollector::Format_Small:
+					format = FORMAT_SMALL;
+					break;
+				case CPM86OptionCollector::Format_Compact:
+					format = FORMAT_COMPACT;
+					break;
+				}
+			}
+		}
+	}
+
 	option_no_relocation = collector.noreloc();
 	option_shared_code = collector.sharedcode();
 	option_generate_fixup_group = collector.fixupgroup();

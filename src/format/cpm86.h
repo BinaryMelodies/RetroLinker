@@ -578,6 +578,61 @@ namespace DigitalResearch
 		class CPM86OptionCollector : public Linker::OptionCollector
 		{
 		public:
+			enum system_type
+			{
+				System_CPM86,
+				System_FlexOS286,
+			};
+
+			class SystemEnumeration : public Linker::Enumeration<system_type>
+			{
+			public:
+				SystemEnumeration()
+					: Enumeration(
+						"CPM", System_CPM86,
+						"CPM86", System_CPM86,
+						"FLEXOS", System_FlexOS286,
+						"FLEXOS286", System_FlexOS286)
+				{
+					descriptions = {
+						{ System_CPM86, "Digital Research CP/M-86" },
+						{ System_FlexOS286, "Digital Research FlexOS 286" },
+					};
+				}
+			};
+
+			enum format_type
+			{
+				Format_8080,
+				Format_Small,
+				Format_Compact,
+			};
+
+			class FormatEnumeration : public Linker::Enumeration<format_type>
+			{
+			public:
+				FormatEnumeration()
+					: Enumeration(
+						"8080", Format_8080,
+						"TINY", Format_8080,
+						"T", Format_8080,
+						"SMALL", Format_Small,
+						"S", Format_Small,
+						"COMPACT", Format_Compact,
+						"COMP", Format_Compact,
+						"C", Format_Compact)
+				{
+					descriptions = {
+						{ Format_8080, "8080 model, a single segment group is generated" },
+						{ Format_Small, "Small model, a single code and separate data group is generated" },
+						{ Format_Compact, "Compact model, a single code and multiple data groups are generated" },
+					};
+				}
+			};
+
+			Linker::Option<Linker::ItemOf<SystemEnumeration>> system{"system", "Target operating system"};
+			Linker::Option<Linker::ItemOf<FormatEnumeration>> format{"format", "File format"};
+			Linker::Option<bool> postlink{"postlink", "Generate fast load (POSTLINK) format (only for FlexOS)"};
 			Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
 			Linker::Option<bool> sharedcode{"sharedcode", "Make the code segment shared (descriptor type 9)"};
 			Linker::Option<std::optional<std::vector<std::string>>> rsx_file_names{"rsx", "List of filenames to append as Resident System Extensions (CP/M)"};
@@ -594,7 +649,7 @@ namespace DigitalResearch
 
 			CPM86OptionCollector()
 			{
-				InitializeFields(noreloc, sharedcode, rsx_file_names, fixupgroup, srtl, x87, directvideo, mpmlock, nobank, f1, f2, f3, f4);
+				InitializeFields(system, format, postlink, noreloc, sharedcode, rsx_file_names, fixupgroup, srtl, x87, directvideo, mpmlock, nobank, f1, f2, f3, f4);
 			}
 		};
 
