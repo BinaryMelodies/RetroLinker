@@ -1697,7 +1697,7 @@ void CPM86Format::BuildLDTImage(Linker::Module& module)
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
-		if(rel.kind != Linker::Relocation::SelectorIndex && rel.Resolve(module, resolution))
+		if(rel.kind == Linker::Relocation::SelectorIndex && rel.Resolve(module, resolution))
 		{
 			if(resolution.reference == nullptr)
 			{
