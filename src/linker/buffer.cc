@@ -11,24 +11,29 @@ offset_t Buffer::ImageSize() const
 	return data.size();
 }
 
+void Buffer::Resize(offset_t new_size)
+{
+	data.resize(new_size);
+}
+
+void Buffer::ReadFile(Reader& rd)
+{
+	ReadFile(rd, data.size());
+}
+
+void Buffer::ReadFileRemaining(Reader& rd)
+{
+	ReadFile(rd, rd.GetRemainingCount());
+}
+
 void Buffer::ReadFile(Reader& rd, offset_t count)
 {
 	rd.ReadData(count, data);
 }
 
-void Buffer::ReadFile(Reader& rd)
-{
-	/* TODO: is there a better way? */
-	offset_t current = rd.Tell();
-	rd.SeekEnd();
-	offset_t total = rd.Tell();
-	rd.Seek(current);
-	ReadFile(rd, total - current);
-}
-
 std::shared_ptr<Buffer> Buffer::ReadFromFile(Reader& rd)
 {
-	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>();
+	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>(rd.GetRemainingCount());
 	buffer->ReadFile(rd);
 	return buffer;
 }

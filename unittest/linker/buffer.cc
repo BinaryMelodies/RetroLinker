@@ -40,7 +40,7 @@ void TestBuffer::testReadFile()
 	{
 		std::istringstream iss(input);
 		Reader rd(::LittleEndian, &iss);
-		buffer.ReadFile(rd);
+		buffer.ReadFileRemaining(rd);
 		CPPUNIT_ASSERT_EQUAL(offset_t(input.size()), buffer.ImageSize());
 	}
 
@@ -61,7 +61,7 @@ void TestBuffer::testReadFile()
 	{
 		std::istringstream iss(input);
 		Reader rd(::LittleEndian, &iss);
-		buffer.ReadFile(rd);
+		buffer.ReadFileRemaining(rd);
 		size_t offset = input.size() / 2;
 		CPPUNIT_ASSERT_EQUAL(offset_t(input.size()), buffer.ImageSize());
 		CPPUNIT_ASSERT_EQUAL(int(input[offset]), buffer.GetByte(offset));
@@ -77,7 +77,7 @@ void TestBuffer::testWriteFile()
 	{
 		std::istringstream iss(input);
 		Reader rd(::LittleEndian, &iss);
-		buffer.ReadFile(rd);
+		buffer.ReadFileRemaining(rd);
 	}
 
 	{

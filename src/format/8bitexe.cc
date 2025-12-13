@@ -16,9 +16,7 @@ void AppleFormat::ReadFile(Linker::Reader& rd)
 	rd.endiantype = ::LittleEndian;
 	base_address = rd.ReadUnsigned(2);
 	uint16_t size = rd.ReadUnsigned(2);
-	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
-	buffer->ReadFile(rd, size);
-	image = buffer;
+	image = Linker::Buffer::ReadFromFile(rd, size);
 }
 
 offset_t AppleFormat::WriteFile(Linker::Writer& wr) const

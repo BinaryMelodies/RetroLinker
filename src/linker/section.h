@@ -315,7 +315,7 @@ namespace Linker
 		virtual void ReadFile(std::istream& in);
 
 		/**
-		 * @brief Overwrites section data with contents of input stream
+		 * @brief Overwrites section data with contents of reader
 		 *
 		 * Note that only as many bytes are read in as the size of the section.
 		 */

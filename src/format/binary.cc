@@ -22,9 +22,7 @@ void GenericBinaryFormat::ReadFile(Linker::Reader& rd)
 
 	rd.endiantype = ::UndefinedEndian; /* does not matter */
 
-	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
-	buffer->ReadFile(rd);
-	image = buffer;
+	image = Linker::Buffer::ReadFromFile(rd);
 }
 
 offset_t GenericBinaryFormat::ImageSize() const
@@ -241,12 +239,10 @@ void BinaryFormat::ReadFile(Linker::Reader& rd)
 	}
 	rd.Seek(position);
 
-	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
 	if(pif == nullptr)
-		buffer->ReadFile(rd);
+		image = Linker::Buffer::ReadFromFile(rd);
 	else
-		buffer->ReadFile(rd, count); /* skip PIF structure */
-	image = buffer;
+		image = Linker::Buffer::ReadFromFile(rd, count); /* skip PIF structure */
 }
 
 offset_t BinaryFormat::ImageSize() const

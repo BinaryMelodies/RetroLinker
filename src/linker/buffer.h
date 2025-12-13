@@ -37,9 +37,34 @@ namespace Linker
 		}
 
 		offset_t ImageSize() const override;
+		void Resize(offset_t new_size);
+		/**
+		 * @brief Overwrites buffer data with contents of reader
+		 *
+		 * Note that only as many bytes are read in as the size of the buffer.
+		 */
 		virtual void ReadFile(Reader& rd);
+		/**
+		 * @brief Overwrites buffer data with contents of reader
+		 *
+		 * All the remaining bytes are read, the buffer is expanded if needed but not shrank
+		 */
+		void ReadFileRemaining(Reader& rd);
+		/**
+		 * @brief Overwrites buffer data with contents of reader
+		 *
+		 * Exactly the specified amount is read, the buffer is expanded if needed but not shrank
+		 */
 		void ReadFile(Reader& rd, offset_t count);
+		/**
+		 * @brief Creates a buffer containing the remaining data in the reader
+		 */
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd);
+		/**
+		 * @brief Creates a buffer containing the specified amount of bytes from the reader
+		 *
+		 * If less data is available, the buffer will be shorter
+		 */
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd, offset_t count);
 		using Image::WriteFile;
 		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;

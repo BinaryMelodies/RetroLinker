@@ -199,8 +199,7 @@ std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linke
 				count = 64;
 			}
 			std::unique_ptr<RawBytes> bytecode = std::make_unique<RawBytes>();
-			bytecode->buffer = std::make_unique<Linker::Buffer>();
-			bytecode->buffer->ReadFile(rd, count);
+			bytecode->buffer = Linker::Buffer::ReadFromFile(rd, count);
 			return bytecode;
 		}
 	case 0x8:

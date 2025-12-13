@@ -87,9 +87,7 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 		if(!segment.IsPresent())
 			continue;
 
-		std::shared_ptr<Linker::Buffer> section = std::make_shared<Linker::Buffer>();
-		section->ReadFile(rd, segment.length);
-		segment.image = section;
+		segment.image = Linker::Buffer::ReadFromFile(rd, segment.length);
 	}
 
 	// TODO: relocations
