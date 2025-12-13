@@ -9,6 +9,10 @@
 
 namespace Linker
 {
+	class ReadOverflow
+	{
+	};
+
 	/**
 	 * @brief A helper class, encapsulating functionality needed to import binary data
 	 */
@@ -23,6 +27,14 @@ namespace Linker
 		 * @brief The input stream
 		 */
 		std::istream * in;
+
+		enum OverflowHandlingMode
+		{
+			IgnoreOnOverflow,
+			ReportOnOverflow,
+			TerminateOnOverflow,
+		};
+		OverflowHandlingMode on_overflow = TerminateOnOverflow;
 
 		const offset_t start_offset;
 		const offset_t maximum_size;

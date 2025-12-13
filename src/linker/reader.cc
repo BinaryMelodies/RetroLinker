@@ -38,8 +38,16 @@ void Reader::ReadData(size_t count, void * data)
 	size_t actual_count = in->gcount();
 	if(actual_count != count)
 	{
-//		Linker::Debug << "Internal warning: tried reading " << count << " only managed " << actual_count << std::endl;
-		Linker::FatalError("Fatal error: read less than expected");
+		switch(on_overflow)
+		{
+		case IgnoreOnOverflow:
+			Linker::Debug << "Internal warning: tried reading " << count << " only managed " << actual_count << std::endl;
+			break;
+		case ReportOnOverflow:
+			throw ReadOverflow();
+		case TerminateOnOverflow:
+			Linker::FatalError("Fatal error: read less than expected");
+		}
 	}
 }
 
