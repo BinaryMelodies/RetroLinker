@@ -261,8 +261,9 @@ class DefineTarget:
 	"""Registers a new target, for CPU/OS/binary format. Instantiating this class automatically registers the target for compilation."""
 	SYSTEMS = {}
 	TARGETS = {}
-	def __init__(self, CPU, System, TargetName = None, IncludeName = None, Format = None, FormatName = None, LinkerName = None, Versions = (), PostProcess = None, **keywords):
+	def __init__(self, Description, CPU, System, TargetName = None, IncludeName = None, Format = None, FormatName = None, LinkerName = None, Versions = (), PostProcess = None, **keywords):
 		"""
+			Description - textual representation of target
 			System, Format - target is identified by this pair
 			TargetName - passed to assembler as symbol TARGET_*, default: System value
 			IncludeName - depends on include/*.inc, default: System value
@@ -379,26 +380,34 @@ CPUS = {
 	},
 }
 
+######## Intel 8080/Zilog Z80 based systems
+
 DefineTarget(
+	Description = "Digital Research CP/M-80 .com for Intel 8080",
 	CPU = "z80",
 	System = "cpm80",
 	Format = "com",
 	extension = ".com")
 
 DefineTarget(
+	Description = "Digital Research CP/M-80 .prl for Intel 8080",
 	CPU = "z80",
 	System = "cpm80",
 	Format = "prl",
 	extension = ".prl")
 
 DefineTarget(
+	Description = "Microsoft/ASCII Corporation MSX-DOS for Zilog Z80",
 	CPU = "z80",
 	System = "msxdos",
 	IncludeName = "cpm80", # same include file
 	Format = "com",
 	extension = ".com")
 
+######## Intel 8086 based systems
+
 DefineTarget(
+	Description = "Microsoft MS-DOS .com for Intel 8086",
 	CPU = "i86",
 	System = "msdos",
 	Format = "com",
@@ -411,6 +420,7 @@ DefineTarget(
 	extension = ".com")
 
 DefineTarget(
+	Description = "Microsoft MS-DOS (MZ) .exe for Intel 8086",
 	CPU = "i86",
 	System = "msdos",
 	Format = "mz",
@@ -426,6 +436,7 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
+	Description = "Microsoft MS-DOS 1.x (MZ) .exe for Intel 8086",
 	CPU = "i86",
 	System = "msdos1",
 	IncludeName = "msdos",
@@ -442,6 +453,7 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
+	Description = "Microsoft Multitasking \"European\" MS-DOS 4.0 (NE) .exe for Intel 8086",
 	CPU = "i86",
 	System = "msdos4",
 	TargetName = "msdos",
@@ -457,6 +469,7 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
+	Description = "Rational Systems/Tenberry Software DOS/16M (BW) .exp for Intel 8086",
 	CPU = "i86",
 	System = "dos16m",
 	IncludeName = "msdos",
@@ -473,6 +486,7 @@ DefineTarget(
 	stub = ENV.get("DOS16MSTUB", "missing")) # TODO: requires a DOS/16M compatible stub
 
 DefineTarget(
+	Description = "Digital Research CP/M-86 tiny/\"8080\" model .cmd for Intel 8086",
 	CPU = "i86",
 	System = "cpm86",
 	Format = "cmd_tiny",
@@ -488,6 +502,7 @@ DefineTarget(
 	extension = ".cmd")
 
 DefineTarget(
+	Description = "Digital Research CP/M-86 small model .cmd for Intel 8086",
 	CPU = "i86",
 	System = "cpm86",
 	Format = "cmd_small",
@@ -503,6 +518,7 @@ DefineTarget(
 	extension = ".cmd")
 
 DefineTarget(
+	Description = "Digital Research CP/M-86 compact model .cmd for Intel 8086",
 	CPU = "i86",
 	System = "cpm86",
 	Format = "cmd_compact",
@@ -513,24 +529,29 @@ DefineTarget(
 	extension = ".cmd")
 
 DefineTarget(
+	Description = "ELKS (Embeddable Linux Kernel Subset) combined executable for Intel 8086",
 	CPU = "i86",
 	System = "elks",
 	Format = "aout_com",
+	IncludeName = "linux",
 	LinkerName = "elks_comb",
 	PostProcess = Recipe([
 		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
 	], register = False))
 
 DefineTarget(
+	Description = "ELKS (Embeddable Linux Kernel Subset) split executable for Intel 8086",
 	CPU = "i86",
 	System = "elks",
 	Format = "aout_sep",
+	IncludeName = "linux",
 	LinkerName = "elks_sep",
 	PostProcess = Recipe([
 		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
 	], register = False))
 
 DefineTarget(
+	Description = "Microsoft Windows (NE) .exe for Intel 8086",
 	CPU = "i86",
 	System = "win16",
 	IncludeName = "windows",
@@ -543,6 +564,7 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
+	Description = "Microsoft/IBM OS/2 1.x (NE) .exe for Intel 286",
 	CPU = "i86",
 	System = "os2v1",
 	IncludeName = "os2",
@@ -551,6 +573,7 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
+	Description = "Digital Research FlexOS 286 .286 for Intel 286",
 	CPU = "i86",
 	System = "flexos286",
 	IncludeName = "flexos",
@@ -561,7 +584,10 @@ DefineTarget(
 	],
 	extension = ".286")
 
+######## Intel 80386 based systems
+
 DefineTarget(
+	Description = "DJGPP DOS Extender (up to 1.10) a.out .exe for Intel 80386",
 	CPU = "i386",
 	System = "djgpp",
 	IncludeName = "msdos",
@@ -571,6 +597,7 @@ DefineTarget(
 	stub = ENV.get("GO32STUB", "missing")) # TODO: requires a GO32 compatible stub that can load a.out files
 
 DefineTarget(
+	Description = "DJGPP DOS Extender 1.11+ COFF .exe for Intel 80386",
 	CPU = "i386",
 	System = "djgpp",
 	IncludeName = "msdos",
@@ -580,6 +607,7 @@ DefineTarget(
 	stub = ENV.get("CWSDPMISTUB", "missing")) # TODO: requires a CWSDPMI compatible stub that can load COFF files
 
 DefineTarget(
+	Description = "Rational Systems/Tenberry Software DOS/14G (LE) .exe for Intel 80386",
 	CPU = "i386",
 	System = "dos4g",
 	IncludeName = "msdos",
@@ -587,6 +615,7 @@ DefineTarget(
 	stub = ENV.get("DOS4GWSTUB", "missing")) # TODO: requires a DOS/4GW compatible stub
 
 DefineTarget(
+	Description = "Phar Lap 386|DOS-Extender (MP) .exp for Intel 80386",
 	CPU = "i386",
 	System = "pharlap",
 	IncludeName = "msdos",
@@ -597,6 +626,7 @@ DefineTarget(
 	extension = ".exp")
 
 DefineTarget(
+	Description = "Phar Lap 386|DOS-Extender (MQ) .exp for Intel 80386",
 	CPU = "i386",
 	System = "pharlap",
 	IncludeName = "msdos",
@@ -607,6 +637,7 @@ DefineTarget(
 	extension = ".rex")
 
 DefineTarget(
+	Description = "Phar Lap 386|DOS Extender flat (P3) .exp for Intel 80386",
 	CPU = "i386",
 	System = "pharlap",
 	IncludeName = "msdos",
@@ -617,6 +648,7 @@ DefineTarget(
 	extension = ".exp")
 
 DefineTarget(
+	Description = "Phar Lap 386|DOS Extender multisegmented (P3) .exp for Intel 80386",
 	CPU = "i386",
 	System = "pharlap",
 	IncludeName = "msdos",
@@ -627,12 +659,27 @@ DefineTarget(
 	extension = ".exp")
 
 DefineTarget(
+	Description = "Public Domain OS (PDOS) 386 a.out .exe for Intel 80386",
 	CPU = "i386",
 	System = "pdos386",
 	IncludeName = "msdos",
 	extension = ".exe")
 
 DefineTarget(
+	Description = "Linux ELF .exe for Intel 80386",
+	CPU = "i386",
+	System = "linux_x86_32",
+	TargetName = "linux",
+	IncludeName = "linux",
+	LinkerName = "elf",
+	# TODO: add version with dynamic linking
+	custom_entry = True,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+DefineTarget(
+	Description = "Microsoft Windows (PE) .exe for Intel 80386",
 	CPU = "i386",
 	System = "win32",
 	IncludeName = "windows",
@@ -644,6 +691,7 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
+	Description = "IBM OS/2 2.x (LX) .exe for Intel 80386",
 	CPU = "i386",
 	System = "os2v2",
 	IncludeName = "os2",
@@ -651,12 +699,29 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
+	Description = "Digital Research FlexOS 386 (COFF) .386 .exe for Intel 80386",
 	CPU = "i386",
 	System = "flexos386",
 	IncludeName = "flexos",
 	extension = ".386")
 
+######## AMD64 based systems
+
 DefineTarget(
+	Description = "Linux ELF .exe for AMD64",
+	CPU = "x86_64",
+	System = "linux_x86_64",
+	TargetName = "linux",
+	IncludeName = "linux",
+	LinkerName = "elf",
+	# TODO: add version with dynamic linking
+	custom_entry = True,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+DefineTarget(
+	Description = "Microsoft Windows (PE) .exe for AMD64",
 	CPU = "x86_64",
 	System = "win64",
 	IncludeName = "windows",
@@ -667,7 +732,10 @@ DefineTarget(
 	custom_entry = True,
 	extension = ".exe")
 
+######## Motorola 68000 based systems
+
 DefineTarget(
+	Description = "Digital Research CP/M-68K contiguous (601A) .68k for Motorola 68000",
 	CPU = "m68k",
 	System = "cpm68k",
 	Format = "68k_cont",
@@ -681,6 +749,7 @@ DefineTarget(
 	extension = ".68k")
 
 DefineTarget(
+	Description = "Digital Research CP/M-68K non-contiguous (601B) .68k for Motorola 68000",
 	CPU = "m68k",
 	System = "cpm68k",
 	Format = "68k_noncont",
@@ -694,6 +763,7 @@ DefineTarget(
 	extension = ".68k")
 
 DefineTarget( # TODO: this is a bug, remove
+	Description = "???",
 	CPU = "m68k",
 	System = "cpm68k",
 	Format = "68k_noncont-cont",
@@ -705,6 +775,7 @@ DefineTarget( # TODO: this is a bug, remove
 	extension = ".68k")
 
 DefineTarget(
+	Description = "Digital Research/Atari GEMDOS contiguous (601A) .prg for Motorola 68000",
 	CPU = "m68k",
 	System = "gemdos",
 	FormatName = "prg",
@@ -717,6 +788,7 @@ DefineTarget(
 	extension = ".prg")
 
 DefineTarget(
+	Description = "Sharp/Hudson Soft Human68k relocatable .r for Motorola 68000",
 	CPU = "m68k",
 	System = "human68k",
 	Format = "rfile",
@@ -729,6 +801,7 @@ DefineTarget(
 	extension = ".r")
 
 DefineTarget(
+	Description = "Sharp/Hudson Soft Human68k contiguous (601A) .68k for Motorola 68000",
 	CPU = "m68k",
 	System = "human68k",
 	Format = "zfile",
@@ -737,6 +810,7 @@ DefineTarget(
 	extension = ".z")
 
 DefineTarget(
+	Description = "Sharp/Hudson Soft Human68k (HU) .x for Motorola 68000",
 	CPU = "m68k",
 	System = "human68k",
 	Format = "xfile",
@@ -746,6 +820,7 @@ DefineTarget(
 	extension = ".x")
 
 DefineTarget(
+	Description = "Commodore AmigaDOS on Amiga \"Hunk\" for Motorola 68000",
 	CPU = "m68k",
 	System = "amiga",
 	Versions = [
@@ -756,6 +831,7 @@ DefineTarget(
 	])
 
 DefineTarget(
+	Description = "Apple Mac OS on Classic Macintosh \"CODE\" resources for Motorola 68000",
 	CPU = "m68k",
 	System = "macos",
 	Versions = [
@@ -767,17 +843,35 @@ DefineTarget(
 	additional_outputs = ('{output_file}.mbin', '%{output_file}', '.finf/{output_file}', '.rsrc/{output_file}'))
 
 DefineTarget(
+	Description = "QDOS on Sinclair QL Motorola 68000",
 	CPU = "m68k",
 	System = "sql",
 	extension = "_bin") # can be anything
 
 DefineTarget(
+	Description = "Digital Research FlexOS 68K .68k for Motorola 68000",
 	CPU = "m68k",
 	System = "flexos68k",
 	IncludeName = "flexos",
 	extension = ".68k")
 
 DefineTarget(
+	Description = "Linux ELF .exe for Motorola 68000",
+	CPU = "m68k",
+	System = "linux_68k",
+	TargetName = "linux",
+	IncludeName = "linux",
+	LinkerName = "elf",
+	# TODO: add version with dynamic linking
+	custom_entry = True,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+######## Z8000 based systems
+
+DefineTarget(
+	Description = "Digital Research CP/M-8000 .z8k for Zilog Z8000",
 	CPU = "z8k",
 	System = "cpm8k",
 	Format = "z8k",
@@ -785,6 +879,7 @@ DefineTarget(
 	extension = ".z8k")
 
 DefineTarget(
+	Description = "Digital Research CP/M-8000 non-shared (EE03) .z8k for Zilog Z8000",
 	CPU = "z8k",
 	System = "cpm8k",
 	Format = "z8k",
@@ -793,6 +888,7 @@ DefineTarget(
 	extension = ".z8k")
 
 DefineTarget(
+	Description = "Digital Research CP/M-8000 split (EE0B) .z8k for Zilog Z8000",
 	CPU = "z8k",
 	System = "cpm8k",
 	Format = "z8k_split",
@@ -800,6 +896,7 @@ DefineTarget(
 	extension = ".z8k")
 
 DefineTarget(
+	Description = "Digital Research CP/M-8000 segmented (EE01) .z8k for Zilog Z8000",
 	CPU = "z8k",
 	System = "cpm8k",
 	Format = "z8k_segmented",
@@ -807,14 +904,33 @@ DefineTarget(
 	c_arguments = " -mz8001",
 	extension = ".z8k")
 
+######## ARM based systems
+
 DefineTarget(
+	Description = "Acorn RISC OS for ARM",
 	CPU = "arm",
 	System = "riscos",
 	Format = "ff8",
 	extension = ",ff8") # actually, not an extension, but a hexadecimal file type
 
+DefineTarget(
+	Description = "Linux ELF .exe for ARM",
+	CPU = "arm",
+	System = "linux_arm_32",
+	TargetName = "linux",
+	IncludeName = "linux",
+	LinkerName = "elf",
+	# TODO: add version with dynamic linking
+	custom_entry = True,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+######## PDP-11 based systems
+
 DXDOS_BASE = 0x200 # This seems to be the default, with SP set to 0x1FE, presumably with a value pushed
 DefineTarget(
+	Description = "DX-DOS on Elektronika BK for PDP-11",
 	CPU = "pdp11",
 	System = "dxdos",
 	Format = "com",
@@ -823,7 +939,10 @@ DefineTarget(
 	],
 	extension = ".com")
 
+######## 6502/65C816 based systems
+
 DefineTarget(
+	Description = "Atari 400/800 on 6502, using xa assembler",
 	CPU = "mos6502",
 	System = "atari400",
 	Format = "atari-com",
@@ -835,6 +954,7 @@ DefineTarget(
 	extension = ".xex")
 
 DefineTarget(
+	Description = "Atari 400/800 on 6502, using GNU binutils",
 	CPU = "w65",
 	System = "atari400-binutils",
 	TargetName = "atari400",
@@ -848,6 +968,7 @@ DefineTarget(
 	extension = ".xex")
 
 DefineTarget(
+	Description = "Commodore 64 on 6502, using xa assembler",
 	CPU = "mos6502",
 	System = "c64",
 	Format = "cbm-prg",
@@ -858,6 +979,7 @@ DefineTarget(
 	extension = ".prg")
 
 DefineTarget(
+	Description = "Commodore 64 on 6502, using GNU binutils",
 	CPU = "w65",
 	System = "c64-binutils",
 	TargetName = "c64",

@@ -5,7 +5,9 @@
 
 start:
 	_StartUp
+.if	OPTION_EXPLICIT_STACK
 	ldr	sp, =stack_top
+.endif
 
 	ldr	r1, =message
 	bl	PutString
@@ -46,8 +48,11 @@ Exit:
 
 message:
 	.ascii	"Greetings!"
-	.ascii	" RISC OS"
-	.ascii	" executable file"
+.if	TARGET_RISCOS
+	.ascii	" RISC OS executable file"
+.elseif TARGET_LINUX
+	.ascii	" Linux (32-bit ARM)"
+.endif
 
 	.byte	0
 

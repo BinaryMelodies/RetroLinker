@@ -5,12 +5,12 @@
 #.set FORMAT_COM, 0 # used by other targets
 .set FORMAT_PRL, 0
 
-.ifndef CPU_86
-.set CPU_86, 0
+.ifndef CPU_I86
+.set CPU_I86, 0
 .endif
 
-.ifndef CPU_386
-.set CPU_386, 0
+.ifndef CPU_I386
+.set CPU_I386, 0
 .endif
 
 .ifndef CPU_68K
@@ -228,6 +228,11 @@
 .set TARGET_WINDOWS, 0
 .endif
 
+# multiple
+.ifndef TARGET_LINUX
+.set TARGET_LINUX, 0
+.endif
+
 #### MS-DOS formats
 
 .ifndef FORMAT_COM
@@ -443,8 +448,8 @@
 .include "../include/msdos.inc"
 .endif
 
-.if TARGET_ELKS
-.include "../include/elks.inc"
+.if TARGET_ELKS || TARGET_LINUX
+.include "../include/linux.inc"
 .endif
 
 .if TARGET_WINDOWS

@@ -122,6 +122,9 @@ Target(
 	System = "pdos386",
 	output_file = "pdos386")
 Target(
+	System = "linux_x86_32",
+	output_file = "linux-x86-32")
+Target(
 	System = "win32",
 	output_file = "win32")
 Target(
@@ -192,6 +195,9 @@ Target(
 	System = "riscos",
 	Format = "ff8",
 	output_file = "riscos")
+Target(
+	System = "linux_arm_32",
+	output_file = "linux-arm-32")
 Target(
 	System = "dxdos",
 	Format = "com",
