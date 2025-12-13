@@ -81,6 +81,212 @@ void W3Format::Dump(Dumper::Dumper& dump) const
 
 // W4Format
 
+class ImageStreambuf : public std::basic_streambuf<char>
+{
+public:
+	std::shared_ptr<Linker::ActualImage> image;
+	offset_t image_offset = 0;
+	offset_t image_displacement;
+
+	ImageStreambuf(std::shared_ptr<Linker::ActualImage> image, offset_t image_displacement = 0)
+		: image(image), image_displacement(image_displacement)
+	{
+	}
+
+protected:
+	pos_type seekoff(off_type off, std::ios_base::seekdir dir, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) override
+	{
+		if((which & std::ios_base::in) != 0)
+		{
+			switch(dir)
+			{
+			case std::ios_base::beg:
+				if(off < 0 || offset_t(off) < image_displacement)
+					image_offset = 0;
+				image_offset = off - image_displacement;
+				if(image_offset > image->ImageSize())
+					image_offset = image->ImageSize();
+				break;
+			case std::ios_base::end:
+				if(off < 0 && offset_t(-off) > image->ImageSize())
+					image_offset = 0;
+				else
+					image_offset = image->ImageSize() + off; // TODO: check overflow
+				break;
+			case std::ios_base::cur:
+				if(off < 0 && offset_t(-off) > image_offset)
+					image_offset = 0;
+				else
+					image_offset += off; // TODO: check overflow
+				break;
+			}
+		}
+		if(image_offset > image->ImageSize())
+			image_offset = image->ImageSize();
+		return pos_type(image_offset + image_displacement);
+	}
+
+	pos_type seekpos(pos_type pos, std::ios_base::openmode which = std::ios_base::in | std::ios_base::out) override
+	{
+		if((which & std::ios_base::in) != 0)
+		{
+			if(pos < 0 || offset_t(pos) < image_displacement)
+				image_offset = 0;
+			else
+				image_offset = offset_t(pos) - image_displacement;
+			if(image_offset > image->ImageSize())
+				image_offset = image->ImageSize();
+		}
+		return pos_type(image_offset + image_displacement);
+	}
+
+	std::streamsize xsgetn(char_type * s, std::streamsize count) override
+	{
+		std::streamsize result = image->ReadData(count, image_offset, s);
+		image_offset += result;
+		return result;
+	}
+};
+
+class BitStream
+{
+protected:
+	std::shared_ptr<Linker::ActualImage> contents;
+	offset_t contents_offset = 0;
+	uint8_t byte = 0;
+	unsigned bit_count = 0;
+
+	void NextByte()
+	{
+		if(contents_offset >= contents->ImageSize())
+			return;
+		byte = contents->GetByte(contents_offset);
+		bit_count = 8;
+		contents_offset++;
+	}
+
+	unsigned ReadSomeBits(unsigned count, uint8_t& read_bits)
+	{
+		if(bit_count == 0)
+		{
+			NextByte();
+			if(bit_count == 0)
+				return 0;
+		}
+		if(count > bit_count)
+			count = bit_count;
+
+		read_bits = byte & ((1 << count) - 1);
+		byte >>= count;
+		bit_count -= count;
+		return count;
+	}
+
+public:
+	BitStream(std::shared_ptr<Linker::ActualImage> contents)
+		: contents(contents)
+	{
+	}
+
+	uint32_t ReadBits(unsigned count)
+	{
+		uint32_t value = 0;
+		uint32_t shift = 0;
+		while(count > 0)
+		{
+			uint8_t bit_sequence = 0;
+ 			unsigned read_bit_count = ReadSomeBits(count, bit_sequence);
+			if(read_bit_count == 0)
+				return value;
+			value |= uint32_t(bit_sequence) << shift;
+			shift += read_bit_count;
+			count -= read_bit_count;
+		}
+		return value;
+	}
+
+	bool IsOver() const
+	{
+		return contents_offset >= contents->ImageSize() && bit_count == 0;
+	}
+};
+
+std::shared_ptr<Linker::Buffer> W4Format::DecompressW4()
+{
+	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Buffer>();
+	uint32_t chunk_index = 0;
+	for(auto& chunk : chunks)
+	{
+		std::vector<uint8_t> bytes;
+		BitStream bitstream(chunk.contents);
+		bool chunk_over = false;
+		while(!chunk_over && !bitstream.IsOver())
+		{
+			size_t depth = 0;
+			size_t count = 0;
+			switch(bitstream.ReadBits(2))
+			{
+			case 0b00:
+				//Linker::Debug << "Debug: 0b00" << std::endl;
+				depth = bitstream.ReadBits(6);
+				if(depth == 0)
+				{
+					chunk_over = true;
+				}
+				break;
+			case 0b01:
+				//Linker::Debug << "Debug: 0b01" << std::endl;
+				bytes.push_back(bitstream.ReadBits(7) | 0x80);
+				//Linker::Debug << std::hex << int(bytes[bytes.size() - 1]) << std::endl;
+				break;
+			case 0b10:
+				//Linker::Debug << "Debug: 0b10" << std::endl;
+				bytes.push_back(bitstream.ReadBits(7));
+				//Linker::Debug << std::hex << int(bytes[bytes.size() - 1]) << std::endl;
+				break;
+			case 0b11:
+				//Linker::Debug << "Debug: 0b11" << std::endl;
+				switch(bitstream.ReadBits(1))
+				{
+				case 0b0:
+					depth = 64 + bitstream.ReadBits(8);
+					break;
+				case 0b1:
+					depth = 320 + bitstream.ReadBits(12);
+					if(depth == 4415)
+						continue;
+					break;
+				}
+				break;
+			}
+			if(depth != 0)
+			{
+				size_t count_bits = 0;
+				while(bitstream.ReadBits(1) == 0)
+				{
+					count_bits ++;
+					if(count_bits == 9)
+					{
+						Linker::FatalError("Fatal error: illegal encoding in W4 compression");
+					}
+				}
+				count = bitstream.ReadBits(count_bits) + (1 << count_bits) + 1;
+
+				//Linker::Debug << "Debug: repeat " << std::dec << depth << " bytes for " << count << " bytes" << std::endl;
+				for(size_t char_index = 0; char_index < count; char_index++)
+				{
+					bytes.push_back(bytes[bytes.size() - depth]);
+					//Linker::Debug << std::hex << int(bytes[bytes.size() - 1]) << std::endl;
+				}
+			}
+		}
+		buffer->Append(bytes);
+		buffer->Resize(chunk_size * (chunk_index + 1));
+		chunk_index ++;
+	}
+	return buffer;
+}
+
 void W4Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
@@ -103,7 +309,25 @@ void W4Format::ReadFile(Linker::Reader& rd)
 	if(chunks.size() > 0)
 		chunks.back().length = file_end - chunks.back().file_offset;
 
-	// TODO: read and decode contents
+	for(auto& chunk : chunks)
+	{
+		rd.Seek(chunk.file_offset);
+		chunk.contents = Linker::Buffer::ReadFromFile(rd, chunk.length);
+	}
+
+	std::shared_ptr<Linker::Buffer> image = DecompressW4();
+
+#if 0
+	Dumper::Dumper dump(std::cout);
+	dump.SetEncoding(Dumper::Block::encoding_windows1252);
+	Dumper::Block decompressed_block("Decompressed block", 0, image, 0, 8);
+	decompressed_block.Display(dump);
+#endif
+
+	ImageStreambuf sb(image, file_offset);
+	std::istream in(&sb);
+	Linker::Reader image_rd(::LittleEndian, &in);
+	w3format.ReadFile(image_rd);
 }
 
 offset_t W4Format::WriteFile(Linker::Writer& wr) const
@@ -140,12 +364,13 @@ void W4Format::Dump(Dumper::Dumper& dump) const
 	uint16_t chunk_count = 0;
 	for(auto& chunk : chunks)
 	{
-		Dumper::Region chunk_region("Chunk", chunk.file_offset, chunk.length, 8);
-		chunk_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(chunk_count + 1));
-		chunk_region.Display(dump);
+		Dumper::Block chunk_block("Chunk", chunk.file_offset, std::const_pointer_cast<Linker::ActualImage>(chunk.contents->AsImage()), 0, 8); // TODO: remove const_pointer_cast
+		chunk_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(chunk_count + 1));
+		chunk_block.Display(dump);
+
 		chunk_count ++;
 	}
 
-	// TODO: display entries
+	w3format.Dump(dump);
 }
 

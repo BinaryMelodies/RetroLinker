@@ -37,7 +37,14 @@ namespace Linker
 		}
 
 		offset_t ImageSize() const override;
+		/**
+		 * @brief Resize buffer
+		 */
 		void Resize(offset_t new_size);
+		/**
+		 * @brief Append data to buffer
+		 */
+		void Append(std::vector<uint8_t>& additional_data);
 		/**
 		 * @brief Overwrites buffer data with contents of reader
 		 *

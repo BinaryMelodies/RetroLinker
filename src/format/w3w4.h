@@ -60,8 +60,9 @@ namespace Microsoft
 		class Chunk
 		{
 		public:
-			uint32_t file_offset;
-			uint32_t length;
+			uint32_t file_offset = 0;
+			uint32_t length = 0;
+			std::shared_ptr<Linker::Buffer> contents = nullptr;
 		};
 
 		offset_t file_offset;
@@ -73,6 +74,9 @@ namespace Microsoft
 		uint16_t chunk_size;
 		std::vector<Chunk> chunks;
 		uint32_t file_end;
+		W3Format w3format;
+
+		std::shared_ptr<Linker::Buffer> DecompressW4();
 
 //		void Clear() override;
 //		void CalculateValues() override;

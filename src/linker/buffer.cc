@@ -16,6 +16,11 @@ void Buffer::Resize(offset_t new_size)
 	data.resize(new_size);
 }
 
+void Buffer::Append(std::vector<uint8_t>& additional_data)
+{
+	data.insert(data.end(), additional_data.begin(), additional_data.end());
+}
+
 void Buffer::ReadFile(Reader& rd)
 {
 	ReadFile(rd, data.size());

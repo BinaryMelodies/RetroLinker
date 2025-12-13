@@ -79,8 +79,12 @@ std::string Reader::ReadASCII(char terminator, size_t maximum)
 {
 	std::string tmp;
 	int c;
+	offset_t last_position = offset_t(in->tellg());
 	while(tmp.size() < maximum && (c = in->get()) != terminator)
 	{
+		if(last_position == offset_t(in->tellg()))
+			break;
+		last_position = offset_t(in->tellg());
 		tmp += c;
 	}
 	return tmp;
