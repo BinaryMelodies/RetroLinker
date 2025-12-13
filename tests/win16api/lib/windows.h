@@ -54,8 +54,8 @@ typedef struct
 
 typedef struct
 {
-	LONG x;
-	LONG y;
+	int x;
+	int y;
 } POINT;
 
 typedef struct
@@ -72,10 +72,10 @@ typedef MSG FAR * LPMSG;
 
 typedef struct
 {
-	LONG left;
-	LONG top;
-	LONG right;
-	LONG bottom;
+	int left;
+	int top;
+	int right;
+	int bottom;
 } RECT;
 
 typedef struct
@@ -103,6 +103,9 @@ typedef PAINTSTRUCT FAR * LPPAINTSTRUCT;
 #define WM_PAINT 0x000F
 
 #define COLOR_WINDOW 5
+
+#define MAKEINTRESOURCE(__value) ((LPCSTR)(uint32_t)(uint16_t)(__value))
+#define IDC_ARROW MAKEINTRESOURCE(0x7F00)
 
 #define MessageBox $$IMPORT$USER$0001
 extern int WINAPI MessageBox(HWND hwnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType);
@@ -142,5 +145,11 @@ extern LRESULT WINAPI DispatchMessage(const MSG FAR * lpMsg);
 
 #define UpdateWindow $$IMPORT$USER$007C
 extern BOOL WINAPI UpdateWindow(HWND hWnd);
+
+#define LoadCursor $$IMPORT$USER$00AD
+extern HCURSOR WINAPI LoadCursor(HINSTANCE hInstance, LPCSTR lpCursorName);
+
+#define TextOut $$IMPORT$GDI$0021
+extern BOOL WINAPI TextOut(HDC hdc, int x, int y, LPCSTR lpString, int c);
 
 #endif /* __WINDOWS_H */

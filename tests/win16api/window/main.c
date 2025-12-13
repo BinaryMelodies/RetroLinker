@@ -2,31 +2,38 @@
 #include "windows.h"
 
 #define CLASS_NAME "SampleWindowClass"
+#define MESSAGE "Welcome to RetroLinker! (16-bit)"
 
-LRESULT CALLBACK __attribute__((near_section)) MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	LRESULT lresult;
 	asm volatile("pushw\t%ss\n\tpopw\t%ds"); // work around for -mno-callee-assume-ds-ss
+	asm volatile("incw\t(%bp)"); // make stack walking possible
 	switch(msg)
 	{
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		return 0;
-#if 0
+		lresult = 0;
+		break;
 	case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(hWnd, &ps);
-			FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+			TextOut(hdc, 10, 10, MESSAGE, sizeof MESSAGE - 1);
 			EndPaint(hWnd, &ps);
 		}
-		return 0;
-#endif
+		lresult = 0;
+		break;
+	default:
+		lresult = DefWindowProc(hWnd, msg, wParam, lParam);
+		break;
 	}
 
-	return DefWindowProc(hWnd, msg, wParam, lParam);
+	asm volatile("decw\t(%bp)"); // make stack walking possible
+	return lresult;
 }
 
-int PASCAL __attribute__((near_section)) WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int PASCAL WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	MessageBox(0, "Hello World!", "Message", 0);
 	if(!hPrevInstance)
@@ -34,6 +41,7 @@ int PASCAL __attribute__((near_section)) WinMain(HINSTANCE hInstance, HINSTANCE 
 		WNDCLASS wc = { 0 };
 		wc.lpfnWndProc = MainWndProc;
 		wc.hInstance = hInstance;
+		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 		wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
 		wc.lpszClassName = CLASS_NAME;
 		RegisterClass(&wc);
