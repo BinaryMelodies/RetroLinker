@@ -825,7 +825,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("PL\x00\x00", 4),       0, FORMAT_PE,      "Microsoft 32/64-bit portable executable (\"PL\") for Windows (Phar Lap modification)" },
 	{ std::string("PMW1"),                0, FORMAT_PMODEW,  "PMODE/W executable" },
 	{ std::string("W3"),                  0, FORMAT_W3,      "Windows WIN386.EXE file" },
-//	{ std::string("W4"),                  0, FORMAT_W4,      "Windows 95 WIN32.VXD file" }, /* TODO: unverified */
+	{ std::string("W4"),                  0, FORMAT_W4,      "Windows 95 VMM32.VXD file" },
 	{ std::string("XP\x01\x00", 4),       0, FORMAT_XP,      "Ergo OS/286 and OS/386 executable (.exp)" },
 	{ std::string("S1"),                  0, FORMAT_AS86,    "Introl object format (6809)" },
 	{ std::string("ZM"),                  0, FORMAT_MZ,      "MS-DOS executable (.exe), old-style \"ZM\" variant" },
@@ -1189,11 +1189,9 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_UZI280:
 		return std::make_shared<UZI280Format>(); // TODO
 	case FORMAT_W3:
-		/* TODO */
 		return std::make_shared<W3Format>(); // TODO
 	case FORMAT_W4:
-		/* TODO */
-		return nullptr;
+		return std::make_shared<W4Format>(); // TODO
 	case FORMAT_XENIX:
 		/* TODO */
 		return std::make_shared<Xenix::XOutFormat>(); // TODO
