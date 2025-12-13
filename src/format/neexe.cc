@@ -2374,9 +2374,7 @@ void ResourceFile::ReadFile(Linker::Reader& rd, offset_t size)
 void ResourceFile::ReadFile(Linker::Reader& rd)
 {
 	offset_t starting_offset = rd.Tell();
-	rd.SeekEnd();
-	offset_t ending_offset = rd.Tell();
-	rd.Seek(starting_offset);
+	offset_t ending_offset = rd.GetImageEnd();
 
 	ReadFile(rd, ending_offset - starting_offset);
 }

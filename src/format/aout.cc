@@ -405,9 +405,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		system = DJGPP1;
 	}
 
-	rd.SeekEnd();
-	offset_t file_end = rd.Tell();
-	rd.Seek(file_offset);
+	offset_t file_end = rd.GetImageEnd();
 	rd.ReadData(sizeof(signature), signature);
 
 	if(file_offset == 0 && (system == UNSPECIFIED || system == DJGPP1)

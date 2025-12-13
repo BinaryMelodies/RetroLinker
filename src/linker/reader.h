@@ -149,6 +149,16 @@ namespace Linker
 		 * @brief Retrieve the current location
 		 */
 		offset_t Tell();
+
+		/**
+		 * @brief Returns the last location that can be read
+		 */
+		offset_t GetImageEnd();
+
+		/**
+		 * @brief Returns the byte count until the last location that can be read
+		 */
+		offset_t GetRemainingCount();
 	};
 }
 

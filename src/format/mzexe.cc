@@ -177,10 +177,7 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 {
 	Clear();
 
-	offset_t file_offset = rd.Tell();
-	rd.SeekEnd();
-	offset_t file_end = rd.Tell();
-	rd.Seek(file_offset);
+	offset_t file_end = rd.GetImageEnd();
 
 	rd.endiantype = ::LittleEndian;
 

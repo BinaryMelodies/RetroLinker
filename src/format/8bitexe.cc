@@ -210,9 +210,7 @@ void AtariFormat::ProcessModule(Linker::Module& module)
 
 void AtariFormat::ReadFile(Linker::Reader& rd)
 {
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(0);
+	offset_t end = rd.GetImageEnd();
 	uint16_t signature = rd.ReadUnsigned(2);
 	if(signature < Segment::segment_type::SIGNATURE_LOW)
 	{
@@ -667,9 +665,7 @@ void PRLFormat::ReadFile(Linker::Reader& rd)
 void PRLFormat::ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size)
 {
 	offset_t offset = rd.Tell();
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(offset);
+	offset_t end = rd.GetImageEnd();
 
 	image = Linker::Buffer::ReadFromFile(rd, image_size);
 

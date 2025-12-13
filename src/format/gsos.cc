@@ -717,9 +717,7 @@ void OMFFormat::CalculateValues()
 
 void OMFFormat::ReadFile(Linker::Reader& rd)
 {
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(0);
+	offset_t end = rd.GetImageEnd();
 	while(rd.Tell() < end)
 	{
 		segments.push_back(std::make_unique<Segment>());

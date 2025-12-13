@@ -4254,9 +4254,7 @@ void OMF86Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dum
 void OMF86Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = LittleEndian;
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(0);
+	offset_t end = rd.GetImageEnd();
 
 	while(rd.Tell() < end)
 	{
@@ -4836,9 +4834,7 @@ void OMF80Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dum
 void OMF80Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = LittleEndian;
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(0);
+	offset_t end = rd.GetImageEnd();
 
 	while(rd.Tell() < end)
 	{
@@ -5574,9 +5570,7 @@ void OMF51Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dum
 void OMF51Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = LittleEndian;
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(0);
+	offset_t end = rd.GetImageEnd();
 
 	while(rd.Tell() < end)
 	{
@@ -6440,9 +6434,7 @@ void OMF96Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dum
 void OMF96Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = LittleEndian;
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(0);
+	offset_t end = rd.GetImageEnd();
 
 	while(rd.Tell() < end)
 	{

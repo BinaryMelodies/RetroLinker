@@ -1562,9 +1562,7 @@ offset_t HunkFormat::ImageSize() const
 void HunkFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::BigEndian;
-	rd.SeekEnd();
-	offset_t end = rd.Tell();
-	rd.Seek(0);
+	offset_t end = rd.GetImageEnd();
 
 	std::shared_ptr<Block> next_block = Block::ReadBlock(rd, IsExecutable());
 

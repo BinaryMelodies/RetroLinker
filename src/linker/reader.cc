@@ -200,7 +200,7 @@ void Reader::SeekEnd(relative_offset_t offset)
 {
 	if(maximum_size != offset_t(-1))
 	{
-		offset_t actual_offset = start_offset + maximum_size;
+		offset_t actual_offset = start_offset + maximum_size + offset;
 		if(actual_offset < start_offset)
 		{
 			actual_offset = start_offset;
@@ -245,5 +245,26 @@ offset_t Reader::Tell()
 	{
 		return in->tellg();
 	}
+}
+
+offset_t Reader::GetImageEnd()
+{
+	if(maximum_size != offset_t(-1))
+	{
+		return maximum_size;
+	}
+	else
+	{
+		offset_t current = Tell();
+		SeekEnd();
+		offset_t total = Tell();
+		Seek(current);
+		return total;
+	}
+}
+
+offset_t Reader::GetRemainingCount()
+{
+	return GetImageEnd() - Tell();
 }
 

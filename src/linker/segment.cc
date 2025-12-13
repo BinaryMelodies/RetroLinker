@@ -203,7 +203,9 @@ offset_t Segment::ImageSize() const /* should be always equivalent to data_size 
 	for(auto& section : sections)
 	{
 		if(!section->IsZeroFilled())
+		{
 			sum += section->Size();
+		}
 	}
 	assert(data_size == sum);
 	return sum;
