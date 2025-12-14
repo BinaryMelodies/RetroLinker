@@ -44,6 +44,7 @@ void MPFormat::SetOptions(std::map<std::string, std::string>& options)
 	MPOptionCollector collector;
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
+	stack_size = collector.stack();
 }
 
 void MPFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -93,6 +94,8 @@ void MPFormat::Link(Linker::Module& module)
 
 void MPFormat::ProcessModule(Linker::Module& module)
 {
+	module.AllocateStack(stack_size);
+
 	Link(module);
 
 	Linker::Location stack_top;
@@ -105,7 +108,7 @@ void MPFormat::ProcessModule(Linker::Module& module)
 		Linker::Warning << "Warning: no stack found" << std::endl;
 		if(module.FindSection(".stack") == nullptr)
 		{
-			image->zero_fill += 0x1000; /* TODO: parametrize */
+			image->zero_fill += 0x1000;
 		}
 		esp = image->TotalSize();
 	}
@@ -296,6 +299,7 @@ void P3Format::SetOptions(std::map<std::string, std::string>& options)
 	P3OptionCollector collector;
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
+	stack_size = collector.stack();
 }
 
 std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string filename) const
@@ -417,6 +421,8 @@ void P3Format::Flat::Link(Linker::Module& module)
 
 void P3Format::Flat::ProcessModule(Linker::Module& module)
 {
+	module.AllocateStack(stack_size);
+
 	Link(module);
 
 	minimum_extra = image->zero_fill;
@@ -426,29 +432,37 @@ void P3Format::Flat::ProcessModule(Linker::Module& module)
 		maximum_extra = -1;
 	}
 
-	if(std::shared_ptr<Linker::Section> stack_section = module.FindSection(".stack"))
-	{
-		stack_size = stack_section->Size();
-	}
-	else
-	{
-		stack_size = 0;
-	}
-
 	Linker::Location stack_top;
 	if(module.FindGlobalSymbol(".stack_top", stack_top))
 	{
 		esp = stack_top.GetPosition().address;
+		if(stack_size == 0)
+		{
+			// make the entire section data until .stack_top part of the stack
+			stack_size = stack_top.offset;
+		}
+
+		// TODO: if stack only had a default value, completely override it
 	}
 	else
 	{
-		Linker::Warning << "Warning: no stack found" << std::endl;
-		if(stack_size == 0)
+		auto stack_section = module.FindSection(".stack");
+		if(stack_section != nullptr && stack_section->Size() != 0)
 		{
+			// if .stack exists, use it as the stack area
+			esp = image->TotalSize();
+			if(stack_section->Size() > stack_size)
+			{
+				stack_size = stack_section->Size();
+			}
+		}
+		else
+		{
+			Linker::Warning << "Warning: no stack found" << std::endl;
 			stack_size = 0x1000;
 			minimum_extra += stack_size;
+			esp = image->TotalSize() + stack_size;
 		}
-		esp = image->TotalSize() + stack_size;
 	}
 	ss = 0;
 
@@ -814,17 +828,20 @@ void P3Format::MultiSegmented::Link(Linker::Module& module)
 
 void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 {
+	// TODO: the stack generation code update has not been tested
+
+	module.AllocateStack(stack_size);
+
 	Link(module);
 
 	std::shared_ptr<Linker::Segment> stack_segment;
-	if(std::shared_ptr<Linker::Section> stack_section = module.FindSection(".stack"))
+	std::shared_ptr<Linker::Section> stack_section;
+	if((stack_section = module.FindSection(".stack")))
 	{
-		stack_size = stack_section->Size();
 		stack_segment = stack_section->segment.lock();
 	}
 	else
 	{
-		stack_size = 0;
 		stack_segment = nullptr;
 	}
 
@@ -834,6 +851,14 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 		Linker::Position position = stack_top.GetPosition();
 		esp = position.address;
 		ss = segment_associations[position.segment]->selector;
+		if(stack_size == 0)
+		{
+			// make the entire section data until .stack_top part of the stack
+			stack_size = stack_top.offset;
+		}
+
+		// TODO: if stack only had a default value, completely override it
+
 		if(stack_segment != nullptr && stack_segment != position.segment)
 		{
 			Linker::Warning << "Warning: stack_top not within .stack segment" << std::endl;
@@ -847,11 +872,16 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 			std::shared_ptr<Segment> segment = segment_associations[stack_segment];
 			esp = segment->GetLoadedSize();
 			ss = segment->selector;
+			assert(stack_section != nullptr);
+			if(stack_section->Size() > stack_size)
+			{
+				stack_size = stack_section->Size();
+			}
 		}
 		else if(data != nullptr)
 		{
 			Linker::Warning << "Warning: no stack found, using data segment" << std::endl;
-			stack_size = 0x1000; /* TODO: parametrize */
+			stack_size = 0x1000;
 			data->segment->zero_fill += stack_size;
 			esp = data->segment->TotalSize();
 			ss = data->selector;

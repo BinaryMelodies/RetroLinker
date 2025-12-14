@@ -19,10 +19,11 @@ namespace PharLap
 		{
 		public:
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			Linker::Option<offset_t> stack{"stack", "Specify the stack size"};
 
 			MPOptionCollector()
 			{
-				InitializeFields(stub);
+				InitializeFields(stub, stack);
 			}
 		};
 
@@ -66,6 +67,8 @@ namespace PharLap
 		uint32_t esp = 0;
 		uint32_t eip = 0;
 		offset_t relocation_offset = 0;
+		/** @brief Stack size requested at the command line */
+		uint32_t stack_size = 0;
 		mutable Microsoft::MZStubWriter stub;
 
 		MPFormat(bool has_relocations = false)
@@ -105,10 +108,11 @@ namespace PharLap
 		{
 		public:
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			Linker::Option<offset_t> stack{"stack", "Specify the stack size"};
 
 			P3OptionCollector()
 			{
-				InitializeFields(stub);
+				InitializeFields(stub, stack);
 			}
 		};
 
