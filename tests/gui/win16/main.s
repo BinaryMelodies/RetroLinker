@@ -1,14 +1,28 @@
 
+.macro	CALLFAR	seg, off
+	.byte	0x9A
+	.word	\off
+	.word	\seg
+.endm
+
 	.section	.text
 	.code16
 
+	.set	InitTask, $$IMPORT$KERNEL$005B
+	.set	$$SEGOF$InitTask, $$IMPSEG$KERNEL$005B
+
+	.set	WaitEvent, $$IMPORT$KERNEL$001E
+	.set	$$SEGOF$WaitEvent, $$IMPSEG$KERNEL$001E
+
+	.set	InitApp, $$IMPORT$USER$0005
+	.set	$$SEGOF$InitApp, $$IMPSEG$USER$0005
+
+	.set	MessageBox, $$IMPORT$USER$0001
+	.set	$$SEGOF$MessageBox, $$IMPSEG$USER$0001
+
 	.global	_start
 _start:
-	# InitTask
-	.extern	$$IMPORT$KERNEL$005B, $$IMPSEG$KERNEL$005B
-	.byte	0x9A
-	.word	$$IMPORT$KERNEL$005B
-	.word	$$IMPSEG$KERNEL$005B
+	CALLFAR	$$SEGOF$InitTask, InitTask
 
 	test	ax, ax
 	jnz	1f
@@ -22,17 +36,9 @@ _start:
 
 	mov	ax, 0
 	push	ax
-	# WaitEvent
-	.extern	$$IMPORT$KERNEL$001E, $$IMPSEG$KERNEL$001E
-	.byte	0x9A
-	.word	$$IMPORT$KERNEL$001E
-	.word	$$IMPSEG$KERNEL$001E
+	CALLFAR	$$SEGOF$WaitEvent, WaitEvent
 
-	# InitApp
-	.extern	$$IMPORT$USER$0005, $$IMPSEG$USER$0005
-	.byte	0x9A
-	.word	$$IMPORT$USER$0005
-	.word	$$IMPSEG$USER$0005
+	CALLFAR	$$SEGOF$InitApp, InitApp
 
 	# Main part
 
@@ -42,12 +48,7 @@ _start:
 	pushw	offset $$SEGOF$dialog_title
 	pushw	offset dialog_title
 	pushw	offset 0
-.set MessageBox, $$IMPORT$USER$0001
-.set $$SEGOF$MessageBox, $$IMPSEG$USER$0001
-	.extern	MessageBox, $$SEGOF$MessageBox
-	.byte	0x9A
-	.word	MessageBox
-	.word	$$SEGOF$MessageBox
+	CALLFAR	$$SEGOF$MessageBox, MessageBox
 
 	call	Exit
 
@@ -55,19 +56,20 @@ Exit:
 	mov	ax, 0x4C00
 	int	0x21
 
-	.section	.data
-
-dialog_title:
-	.asciz	"Sample Application"
-dialog_message:
-	.ascii	"Graphical Greetings!"
-	.ascii	" Windows (16-bit)"
-	.byte	0
-
 	.section	.beg.data, "aw", @progbits
 
 	# Instance data
 	.rept	16
 	.byte	0
 	.endr
+
+	.section	.data
+
+dialog_title:
+	.asciz	"Sample Application"
+
+dialog_message:
+	.ascii	"Graphical Greetings!"
+	.ascii	" Windows (16-bit)"
+	.byte	0
 

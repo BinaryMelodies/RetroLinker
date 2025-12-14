@@ -8,6 +8,12 @@
 	.section .text
 	.code16
 
+	.set	LocalInit, $$IMPORT$KERNEL$0004
+	.set	$$SEGOF$LocalInit, $$IMPSEG$KERNEL$0004
+
+	.set	MessageBox, $$IMPORT$USER$0001
+	.set	$$SEGOF$MessageBox, $$IMPSEG$USER$0001
+
 	.global	_start
 _start:
 	push	ds
@@ -25,8 +31,6 @@ _start:
 	xor	ax, ax
 	push	ax
 	push	cx
-	.set	LocalInit, $$IMPORT$KERNEL$0004
-	.set	$$SEGOF$LocalInit, $$IMPSEG$KERNEL$0004
 	CALLFAR	$$SEGOF$LocalInit, LocalInit
 _no_heap:
 
@@ -36,7 +40,7 @@ _no_heap:
 	dec	bp
 	retf
 
-	.set	DisplayMessage, $$EXPORT$DISPLAYMESSAGE$0001
+	#.set	DisplayMessage, $$EXPORT$DISPLAYMESSAGE$0001
 	.global	$$EXPORT$DISPLAYMESSAGE$0001
 $$EXPORT$DISPLAYMESSAGE$0001:
 	mov	ax, offset $$SEG$.data
@@ -57,8 +61,6 @@ $$EXPORT$DISPLAYMESSAGE$0001:
 	push	ax
 	mov	ax, 0
 	push	ax
-	.set	MessageBox, $$IMPORT$USER$0001
-	.set	$$SEGOF$MessageBox, $$IMPSEG$USER$0001
 	CALLFAR	$$SEGOF$MessageBox, MessageBox
 
 	pop	ds
@@ -71,6 +73,7 @@ $$EXPORT$DISPLAYMESSAGE$0001:
 text_title:
 	.ascii	"16-bit"
 	.byte	0
+
 text_message:
 	.ascii	"MessageBox called from DLL"
 	.byte	0

@@ -2,54 +2,41 @@
 	.section .text
 	.code32
 
+	.set	MessageBoxA, $$IMPORT$USER32.dll$MessageBoxA$0000
+	.set	ExitProcess, $$IMPORT$KERNEL32.dll$ExitProcess$0000
+
+	.set	DisplayMessage, $$IMPORT$LIB.dll$DisplayMessage$0000
+
 	.global	_start
 _start:
-	.set	__imp__GetStdHandle, $$IMPORT$KERNEL32.dll$GetStdHandle$0000
-	push	-11
-	call	[__imp__GetStdHandle]
-	# eax = hStdOut
-
-	push	0	# temporary
-	lea	ebx, [esp]
-	.set	__imp__WriteFile, $$IMPORT$KERNEL32.dll$WriteFile$0000
 	push	0
-	push	ebx
-	push	offset	length_msg_start
-	push	offset	msg_start
-	push	eax
-	call	[__imp__WriteFile]
-	add	esp, 4
-
-	.set	__imp__DisplayMessage, $$IMPORT$LIB.dll$DisplayMessage$0000
-	call	[__imp__DisplayMessage]
-
-	push	-11
-	call	[__imp__GetStdHandle]
-	# eax = hStdOut
-
-	push	0	# temporary
-	lea	ebx, [esp]
+	push	offset	text_title
+	push	offset	text_start
 	push	0
-	push	ebx
-	push	offset	length_msg_quit
-	push	offset	msg_quit
-	push	eax
-	call	[__imp__WriteFile]
-	add	esp, 4
+	call	MessageBoxA
 
-	.set	__imp__ExitProcess, $$IMPORT$KERNEL32.dll$ExitProcess$0000
+	call	DisplayMessage
+
 	push	0
-	call	[__imp__ExitProcess]
+	push	offset	text_title
+	push	offset	text_quit
+	push	0
+	call	MessageBoxA
+
+	push	0
+	call	ExitProcess
 
 	.section .data
 
-msg_start:
-	.ascii	"Starting 32-bit"
-	.byte	10
-	.equ	length_msg_start, . - msg_start
+text_title:
+	.ascii	"32-bit"
+	.byte	0
 
-msg_quit:
+text_start:
+	.ascii	"Starting 32-bit"
+	.byte	0
+
+text_quit:
 	.ascii	"Quitting"
-	.byte	10
-	.equ	length_msg_quit, . - msg_quit
+	.byte	0
 

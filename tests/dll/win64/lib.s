@@ -2,11 +2,13 @@
 	.section .text
 	.code64
 
+	.set	MessageBoxA, $$IMPORT$USER32.dll$MessageBoxA$0000
+
 	.global	_start
 _start:
 	ret
 
-	.set	DisplayMessage, $$EXPORT$DisplayMessage$0001
+	#.set	DisplayMessage, $$EXPORT$DisplayMessage$0001
 	.global	$$EXPORT$DisplayMessage$0001
 $$EXPORT$DisplayMessage$0001:
 	push	rbp
@@ -17,8 +19,7 @@ $$EXPORT$DisplayMessage$0001:
 	lea	r8, [rip + text_title]
 	lea	rdx, [rip + text_message]
 	mov	ecx, 0
-	.set	__imp__MessageBoxA, $$IMPORT$USER32.dll$MessageBoxA$0000
-	call	[rip + __imp__MessageBoxA]
+	call	MessageBoxA
 
 	mov	rsp, rbp
 	pop	rbp
@@ -29,6 +30,7 @@ $$EXPORT$DisplayMessage$0001:
 text_title:
 	.ascii	"64-bit"
 	.byte	0
+
 text_message:
 	.ascii	"MessageBox called from DLL"
 	.byte	0

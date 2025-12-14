@@ -8,11 +8,23 @@
 	.section .text
 	.code16
 
-	.global	_start
-_start:
-
 	.set	InitTask, $$IMPORT$KERNEL$005B
 	.set	$$SEGOF$InitTask, $$IMPSEG$KERNEL$005B
+
+	.set	WaitEvent, $$IMPORT$KERNEL$001E
+	.set	$$SEGOF$WaitEvent, $$IMPSEG$KERNEL$001E
+
+	.set	InitApp, $$IMPORT$USER$0005
+	.set	$$SEGOF$InitApp, $$IMPSEG$USER$0005
+
+	.set	MessageBox, $$IMPORT$USER$0001
+	.set	$$SEGOF$MessageBox, $$IMPSEG$USER$0001
+
+	.set	DisplayMessage, $$IMPORT$LIB$_DISPLAYMESSAGE
+	.set	$$SEGOF$DisplayMessage, $$IMPSEG$LIB$_DISPLAYMESSAGE
+
+	.global	_start
+_start:
 	CALLFAR	$$SEGOF$InitTask, InitTask
 
 	test	ax, ax
@@ -27,25 +39,39 @@ _start:
 
 	mov	ax, 0
 	push	ax
-	.set	WaitEvent, $$IMPORT$KERNEL$001E
-	.set	$$SEGOF$WaitEvent, $$IMPSEG$KERNEL$001E
 	CALLFAR	$$SEGOF$WaitEvent, WaitEvent
 
-	.set	InitApp, $$IMPORT$USER$0005
-	.set	$$SEGOF$InitApp, $$IMPSEG$USER$0005
 	CALLFAR	$$SEGOF$InitApp, InitApp
 
-	mov	dx, offset msg_start
-	mov	ah, 0x09
-	int	0x21
+	mov	ax, 0
+	push	ax
+	mov	ax, offset $$SEGOF$text_start
+	push	ax
+	mov	ax, offset text_start
+	push	ax
+	mov	ax, offset $$SEGOF$text_title
+	push	ax
+	mov	ax, offset text_title
+	push	ax
+	mov	ax, 0
+	push	ax
+	CALLFAR	$$SEGOF$MessageBox, MessageBox
 
-	.set	DisplayMessage, $$IMPORT$LIB$_DISPLAYMESSAGE
-	.set	$$SEGOF$DisplayMessage, $$IMPSEG$LIB$_DISPLAYMESSAGE
 	CALLFAR	$$SEGOF$DisplayMessage, DisplayMessage
 
-	mov	dx, offset msg_quit
-	mov	ah, 0x09
-	int	0x21
+	mov	ax, 0
+	push	ax
+	mov	ax, offset $$SEGOF$text_quit
+	push	ax
+	mov	ax, offset text_quit
+	push	ax
+	mov	ax, offset $$SEGOF$text_title
+	push	ax
+	mov	ax, offset text_title
+	push	ax
+	mov	ax, 0
+	push	ax
+	CALLFAR	$$SEGOF$MessageBox, MessageBox
 
 	mov	ax, 0x4C00
 	int	0x21
@@ -54,13 +80,15 @@ _start:
 
 	.skip	16
 
-msg_start:
-	.ascii	"Starting 16-bit"
-	.byte	13, 10
-	.byte	'$'
+text_title:
+	.ascii	"16-bit"
+	.byte	0
 
-msg_quit:
+text_start:
+	.ascii	"Starting 16-bit"
+	.byte	0
+
+text_quit:
 	.ascii	"Quitting"
-	.byte	13, 10
-	.byte	'$'
+	.byte	0
 

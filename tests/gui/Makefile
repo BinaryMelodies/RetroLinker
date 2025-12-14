@@ -15,8 +15,8 @@ distclean: clean
 	make -C win32 distclean
 	make -C win64 distclean
 
-.PHONY: all clean distclean verify
-
 verify: all
 	for file in ref/*/*; do diff $$file $${file#ref/}; done
+
+.PHONY: all clean distclean verify
 
