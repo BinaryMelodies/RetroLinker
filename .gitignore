@@ -29,9 +29,11 @@ tests/4_ctest/*
 !tests/4_ctest/*.c
 !tests/4_ctest/Makefile
 !tests/4_ctest/Bakefile
-tests/gui/*
-!tests/gui/ref
-!tests/gui/*.c
+tests/gui/win16/*
+tests/gui/win32/*
+tests/gui/win64/*
+!tests/gui/*/Makefile
+!tests/gui/*/main.s
 !tests/gui/Makefile
 !tests/gui/Bakefile
 tests/watcom/w
