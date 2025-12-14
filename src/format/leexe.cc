@@ -2546,7 +2546,7 @@ void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 
 	if(collector.stack())
 	{
-		stack_size = collector.stack();
+		stack_size = collector.stack().value();
 	}
 	else
 	{
