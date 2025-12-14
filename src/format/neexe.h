@@ -768,10 +768,11 @@ namespace Microsoft
 			Linker::Option<Linker::ItemOf<SystemEnumeration>> system{"system", "Target system type"};
 			Linker::Option<Linker::ItemOf<OutputTypeEnumeration>> type{"type", "Type of binary"};
 			Linker::Option<Linker::ItemOf<CompatibilityEnumeration>> compat{"compat", "Mimics the behavior of another linker"};
+			Linker::Option<std::optional<offset_t>> stack{"stack", "Specify the stack size"};
 
 			NEOptionCollector()
 			{
-				InitializeFields(stub, system, type, compat);
+				InitializeFields(stub, system, type, compat, stack);
 			}
 		};
 

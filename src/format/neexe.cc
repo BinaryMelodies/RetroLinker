@@ -1667,6 +1667,34 @@ void NEFormat::SetOptions(std::map<std::string, std::string>& options)
 		compatibility = collector.compat();
 	}
 
+	if(collector.stack())
+	{
+		if(IsLibrary())
+		{
+			Linker::Error << "Error: library cannot have initial stack, ignoring" << std::endl;
+		}
+		else
+		{
+			stack_size = collector.stack().value();
+		}
+	}
+	else
+	{
+		switch(system & ~PharLap)
+		{
+		case OS2:
+			if(!IsLibrary())
+				stack_size = 0x1000;
+			break;
+		case Windows:
+			if(!IsLibrary())
+				stack_size = 0x2000;
+			break;
+		default:
+			break;
+		}
+	}
+
 	switch(system & ~PharLap)
 	{
 	case Windows:
@@ -1700,6 +1728,7 @@ void NEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else if(segment->name == ".stack")
 	{
+Linker::Debug << "Debug: New stack segment " << segment->name << std::endl;
 		stack = segment;
 	}
 	else
@@ -1730,6 +1759,7 @@ std::unique_ptr<Script::List> NEFormat::GetScript(Linker::Module& module)
 
 ".stack"
 {
+	at 0;
 	all not resource;
 };
 
@@ -1761,8 +1791,42 @@ for resource
 };
 )";
 
-	/* TODO: stack, heap */
 	static const char LargeScript[] = R"(
+".code"
+{
+	all exec;
+};
+
+".data"
+{
+	at 0;
+	all ".data" or ".rodata";
+	all ".bss" or ".comm";
+};
+
+for not ".stack" and not ".heap" and not resource
+{
+	at 0;
+	all any and not zero and not resource;
+	all any and not ".stack" and not resource;
+};
+
+".stack"
+{
+	at 0;
+	all not resource;
+};
+
+for resource
+{
+	at 0;
+	all any;
+};
+)";
+
+
+	/* TODO: stack, heap */
+	static const char LargeScript_msdos4[] = R"(
 ".code"
 {
 	all ".code" or ".text";
@@ -1808,8 +1872,14 @@ for resource
 				return Script::parse_string(SmallScript);
 			}
 		case MODEL_LARGE:
-			/* TODO: this is MSDOS4 only */
-			return Script::parse_string(LargeScript);
+			if((system & ~PharLap) == MSDOS4)
+			{
+				return Script::parse_string(LargeScript_msdos4);
+			}
+			else
+			{
+				return Script::parse_string(LargeScript);
+			}
 		default:
 			Linker::FatalError("Internal error: invalid memory model");
 		}
@@ -1831,6 +1901,8 @@ void NEFormat::ProcessModule(Linker::Module& module)
 	{
 		section->RealignEnd(1 << sector_shift); /* TODO: this is probably what Watcom does */
 	}
+
+	module.AllocateStack(stack_size);
 
 	Link(module);
 
@@ -1996,39 +2068,52 @@ void NEFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
-	/* TODO: allocate stack instead */
-	Linker::Location stack_top;
-	if(module.FindGlobalSymbol(".stack_top", stack_top))
+	if(!IsLibrary())
 	{
-		Linker::Position position = stack_top.GetPosition();
-		sp = position.address;
-		ss = segment_index[position.segment] + 1;
-	}
-	else if((system & ~PharLap) != MSDOS4)
-	{
-		/* top of automatic data segment */
-		sp = 0;
-		ss = automatic_data;
-	}
-	else
-	{
-		/* Multitasking MS-DOS 4 */
-		if(automatic_data == 0)
+		Linker::Location stack_top;
+		if(module.FindGlobalSymbol(".stack_top", stack_top))
 		{
+			Linker::Position position = stack_top.GetPosition();
+			sp = position.address;
+			ss = segment_index[position.segment] + 1;
+			if(stack_size == 0 && (system & ~PharLap) != MSDOS4)
+			{
+				// make the entire section data until .stack_top part of the stack
+				stack_size = stack_top.offset;
+			}
+
+			// TODO: if stack only had a default value, completely override it
+		}
+		else if((system & ~PharLap) != MSDOS4)
+		{
+			/* top of automatic data segment */
 			sp = 0;
-			ss = 0;
+			ss = automatic_data;
+			if(stack != nullptr && stack->TotalSize() > stack_size)
+			{
+				stack_size = stack->TotalSize();
+			}
 		}
 		else
 		{
-			sp = std::dynamic_pointer_cast<Linker::Segment>(segments[automatic_data - 1]->image)->TotalSize();
-			ss = automatic_data;
-//			Linker::Debug << "Debug: End of memory: " << sp << std::endl;
-//			Linker::Debug << "Debug: Total size: " << image.TotalSize() << std::endl;
-//			Linker::Debug << "Debug: Stack base: " << ss << std::endl;
-//			if(!(stack->GetFlags() & Linker::Section::Stack))
-//			{
-//				Linker::Warning << "Warning: no stack top specified, using end of .bss segment" << std::endl;
-//			}
+			/* Multitasking MS-DOS 4 */
+			if(automatic_data == 0)
+			{
+				sp = 0;
+				ss = 0;
+			}
+			else
+			{
+				sp = std::dynamic_pointer_cast<Linker::Segment>(segments[automatic_data - 1]->image)->TotalSize();
+				ss = automatic_data;
+//				Linker::Debug << "Debug: End of memory: " << sp << std::endl;
+//				Linker::Debug << "Debug: Total size: " << image.TotalSize() << std::endl;
+//				Linker::Debug << "Debug: Stack base: " << ss << std::endl;
+//				if(!(stack->GetFlags() & Linker::Section::Stack))
+//				{
+//					Linker::Warning << "Warning: no stack top specified, using end of .bss segment" << std::endl;
+//				}
+			}
 		}
 	}
 
@@ -2133,19 +2218,16 @@ void NEFormat::CalculateValues()
 	switch(system & ~PharLap)
 	{
 	case MSDOS4:
-		stack_size = 0;
 		heap_size = 0;
 		windows_version.major = 0;
 		windows_version.minor = 0;
 		break;
 	case OS2:
-		stack_size = 0x1000;
 		heap_size = 0;
 		windows_version.major = 0;
 		windows_version.minor = 0;
 		break;
 	case Windows:
-		stack_size = 0x2000;
 		heap_size = 0x400;
 		windows_version.major = 3;
 		windows_version.minor = 0;
@@ -2156,9 +2238,6 @@ void NEFormat::CalculateValues()
 
 	if(ss != automatic_data)
 		stack_size = 0; /* no initial stack possible */
-
-	if(IsLibrary())
-		stack_size = ss = sp = 0;
 
 	// TODO: provide option to suppress stub generation
 	file_offset = stub.GetStubImageSize();

@@ -775,7 +775,7 @@ namespace Microsoft
 			Linker::Option<Linker::ItemOf<SystemEnumeration>> system{"system", "Target system type"};
 			Linker::Option<Linker::ItemOf<OutputTypeEnumeration>> type{"type", "Type of binary"};
 			Linker::Option<Linker::ItemOf<CompatibilityEnumeration>> compat{"compat", "Mimics the behavior of another linker"};
-			Linker::Option<offset_t> stack{"stack", "Specify the stack size"};
+			Linker::Option<std::optional<offset_t>> stack{"stack", "Specify the stack size"};
 			Linker::Option<offset_t> heap{"heap", "Specify the heap size"};
 			Linker::Option<bool> le{"le", "Original linear executable (LE)"};
 			Linker::Option<bool> lx{"lx", "Extended linear executable (LX)"};
