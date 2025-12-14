@@ -23,6 +23,11 @@
 	mov	r7, #1
 	mov	r0, #0
 	swi	0
+.elseif	CPU_AARCH64
+	# TODO: untested
+	mov	w8, #93
+	mov	w0, #0
+	svc	#0
 .endif
 .endm
 
@@ -64,13 +69,22 @@
 	addq.l	#2, sp
 	rts
 .elseif	CPU_ARM
-	stmdb	sp!, {r0, lr}
+	stmdb	sp!, {r0}
 	mov	r7, #4
 	mov	r0, #1
 	mov	r1, sp
 	mov	r2, #1
 	swi	0
-	ldmia	sp!, {r0, pc}
+	ldmia	sp!, {r0}
+.elseif	CPU_AARCH64
+	# TODO: untested
+	stp	x0, x1, [sp, #-16]!
+	mov	w8, #64
+	mov	w0, #1
+	ldr	x1, sp
+	mov	w2, #1
+	svc	#0
+	ldp	x0, x1, [sp], #16
 .endif
 .endm
 
@@ -112,13 +126,22 @@
 	addq.l	#2, sp
 	rts
 .elseif	CPU_ARM
-	stmdb	sp!, {r0, lr}
+	stmdb	sp!, {r0}
 	mov	r7, #3
 	mov	r0, #1
 	mov	r1, sp
 	mov	r2, #1
 	swi	0
-	ldmia	sp!, {r0, pc}
+	ldmia	sp!, {r0}
+.elseif	CPU_AARCH64
+	# TODO: untested
+	stp	x0, x1, [sp, #-16]!
+	mov	w8, #63
+	mov	w0, #1
+	ldr	x1, sp
+	mov	w2, #1
+	svc	#0
+	ldp	x0, x1, [sp], #16
 .endif
 .endm
 
