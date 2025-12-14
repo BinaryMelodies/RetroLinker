@@ -293,6 +293,11 @@ namespace Linker
 		 * @brief All common symbols are converted to global symbols and assigned addresses within a their section
 		 */
 		void AllocateSymbols(std::string default_section_name = ".bss", bool force_create_segment = false);
+
+		/**
+		 * @brief Unless .stack_top is defined or stack_size is zero, makes sure a .stack segment exists and is at least as large as stack_size
+		 */
+		void AllocateStack(offset_t stack_size, std::string default_section_name = ".stack");
 	};
 }
 

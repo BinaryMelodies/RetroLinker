@@ -1171,3 +1171,17 @@ void Module::AllocateSymbols(std::string default_section_name, bool force_create
 	}
 }
 
+void Module::AllocateStack(offset_t stack_size, std::string default_section_name)
+{
+	if(stack_size == 0)
+		return;
+
+	Linker::Location stack_top;
+	if(!FindGlobalSymbol(".stack_top", stack_top))
+	{
+		auto stack_section = FetchSection(".stack", Linker::Section::Readable | Linker::Section::Writable | Linker::Section::ZeroFilled | Linker::Section::Stack);
+		if(stack_section->Size() < stack_size)
+			stack_section->Expand(stack_size);
+	}
+}
+

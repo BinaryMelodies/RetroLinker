@@ -1086,6 +1086,11 @@ bool LEFormat::IsOS2() const
 	return system == OS2;
 }
 
+bool LEFormat::MayHaveStack() const
+{
+	return (system & 0xFFFF) == OS2 && !IsLibrary();
+}
+
 void LEFormat::ReadFile(Linker::Reader& rd)
 {
 	/* new header */
@@ -2530,6 +2535,29 @@ void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 	{
 		Linker::FatalError("Fatal error: LE and LX flags are exclusive");
 	}
+	else if(collector.le())
+	{
+		signature[1] = 'E';
+	}
+	else if(collector.lx())
+	{
+		signature[1] = 'X';
+	}
+
+	if(collector.stack())
+	{
+		stack_size = collector.stack();
+	}
+	else
+	{
+		if(IsLibrary() || IsDriver())
+			stack_size = 0;
+		else
+			stack_size = 0x1000;
+	}
+
+	heap_size = 0;
+
 	/* TODO */
 }
 
@@ -2608,6 +2636,7 @@ std::unique_ptr<Script::List> LEFormat::GetScript(Linker::Module& module)
 	at align(here, ?align?);
 	all ".data";
 	all ".bss" or ".comm";
+	all ".stack";
 };
 
 for ".heap"
@@ -2659,6 +2688,11 @@ void LEFormat::ProcessModule(Linker::Module& module)
 		linker_parameters["align"] = Linker::Location(0x10000);
 		linker_parameters["base_address"] = Linker::Location(0x10000);
 	}
+
+	if(!MayHaveStack())
+		stack_size = 0;
+
+	module.AllocateStack(stack_size);
 
 	Link(module);
 
@@ -2849,35 +2883,49 @@ void LEFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
-	/* TODO: allocate stack instead */
 	Linker::Location stack_top;
 	if(module.FindGlobalSymbol(".stack_top", stack_top))
 	{
-		Linker::Position position = stack_top.GetPosition();
-		esp_object = object_index[position.segment] + 1;
-		esp_value = position.address - position.segment->base_address;
-	}
-	else if(automatic_data != 0 && module.FindSection(".stack") != nullptr && module.FindSection(".stack")->Size() != 0)
-	{
-		esp_object = automatic_data;
-		esp_value = objects[automatic_data - 1].size;
-	}
-	else if(automatic_data != 0 && (system & 0xFFFF) == OS2 && !IsLibrary())
-	{
-		if((system & 0xFFFF) == OS2 && !IsLibrary())
+		if(!MayHaveStack())
 		{
-			offset_t stack_size = 0x1000; /* TODO: make into a parameter */
-			std::dynamic_pointer_cast<Linker::Segment>(objects[automatic_data - 1].image)->zero_fill += stack_size; // not important, just for consistency
-			objects[automatic_data - 1].size += stack_size;
+			Linker::Error << "Error: OS/2 DLLs and Windows VxDs may not have an initial stack, ignoring" << std::endl;
 		}
-		esp_object = automatic_data;
-		esp_value = objects[automatic_data - 1].size;
+		else
+		{
+			// if .stack_top exists, use it and its start as the stack start
+
+			Linker::Position position = stack_top.GetPosition();
+			esp_object = object_index[position.segment] + 1;
+			esp_value = position.address - position.segment->base_address;
+			if(stack_size == 0)
+			{
+				// make the entire section data until .stack_top part of the stack
+				stack_size = stack_top.offset;
+			}
+
+			// TODO: if stack only had a default value, completely override it
+		}
 	}
-	else
+	else if(MayHaveStack())
 	{
-		/* top of automatic data segment */
-		esp_object = automatic_data;
-		esp_value = 0;
+		auto stack_section = module.FindSection(".stack");
+		if(stack_section != nullptr && stack_section->Size() != 0)
+		{
+			// if .stack exists, use it as the stack area
+			esp_object = automatic_data;
+			esp_value = objects[automatic_data - 1].size;
+			if(stack_section->Size() > stack_size)
+			{
+				stack_size = stack_section->Size();
+			}
+		}
+		else if(automatic_data != 0)
+		{
+			// otherwise, let the OS/2 loader set the starting stack
+			/* top of automatic data segment */
+			esp_object = automatic_data;
+			esp_value = 0;
+		}
 	}
 
 	Linker::Location entry;
@@ -2897,28 +2945,6 @@ void LEFormat::ProcessModule(Linker::Module& module)
 
 void LEFormat::CalculateValues()
 {
-	/* TODO: where does the stack value come from? */
-	switch((system & 0xFFFF))
-	{
-	case OS2:
-		stack_size = 0x1000;
-		heap_size = 0;
-		break;
-	case Windows386:
-		stack_size = 0;
-		heap_size = 0;
-		break;
-	default:
-		{
-			std::ostringstream message;
-			message << "Fatal error: " << (system & 0xFFFF);
-			Linker::FatalError(message.str());
-		}
-	}
-
-	if(IsLibrary() || IsDriver())
-		stack_size = esp_object = esp_value = 0;
-
 	if((system & 0xFFFF) == Windows386 && compatibility == CompatibleWatcom)
 	{
 		vxd_ddk_version = 0x4; /* TODO: Watcom? */
