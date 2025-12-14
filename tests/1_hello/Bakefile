@@ -134,6 +134,9 @@ Target(
 	System = "flexos386",
 	output_file = "flex386")
 Target(
+	System = "linux_x86_64",
+	output_file = "linux-x86-64")
+Target(
 	System = "win64",
 	output_file = "win64")
 Target(
@@ -176,6 +179,9 @@ Target(
 Target(
 	System = "sql",
 	output_file = "sql")
+Target(
+	System = "linux_68k",
+	output_file = "linux-68k")
 Target(
 	System = "flexos68k",
 	output_file = "flex68k")

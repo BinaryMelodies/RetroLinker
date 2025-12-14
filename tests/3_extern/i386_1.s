@@ -75,6 +75,8 @@ message:
 	.ascii	" OS/2 2.0 (32-bit)"
 .elseif TARGET_FLEXOS386
 	.ascii	" FlexOS 386 (32-bit)"
+.elseif TARGET_LINUX
+	.ascii	" Linux (32-bit x86)"
 .endif
 
 	.byte	0

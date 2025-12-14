@@ -76,6 +76,8 @@ message:
 	.ascii	" Sinclair QL (QDOS)"
 .elseif TARGET_FLEXOS68K
 	.ascii	" FlexOS 68K"
+.elseif TARGET_LINUX
+	.ascii	" Linux (68k)"
 .endif
 
 	.byte	0

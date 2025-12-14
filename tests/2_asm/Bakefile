@@ -218,6 +218,9 @@ Target(
 	System = "pdos386",
 	output_file = "pdos386")
 Target(
+	System = "linux_x86_32",
+	output_file = "linux-x86-32")
+Target(
 	System = "win32",
 	output_file = "win32")
 Target(
@@ -226,6 +229,9 @@ Target(
 Target(
 	System = "flexos386",
 	output_file = "flex386")
+Target(
+	System = "linux_x86_64",
+	output_file = "linux-x86-64")
 Target(
 	System = "win64",
 	output_file = "win64")
@@ -304,6 +310,9 @@ Target(
 	System = "sql",
 	output_file = "sql")
 Target(
+	System = "linux_68k",
+	output_file = "linux-68k")
+Target(
 	System = "flexos68k",
 	output_file = "flex68k") # TODO: also test out CP/M-68K executables
 Target(
@@ -322,6 +331,9 @@ Target(
 	System = "riscos",
 	Format = "ff8",
 	output_file = "riscos")
+Target(
+	System = "linux_arm_32",
+	output_file = "linux-arm-32")
 Target(
 	System = "dxdos",
 	Format = "com",

@@ -195,6 +195,8 @@ message:
 	.ascii	" Mac OS"
 .elseif TARGET_SQL
 	.ascii	" Sinclair QL (QDOS)"
+.elseif TARGET_LINUX
+	.ascii	" Linux (68k)"
 .endif
 
 .ifndef OPTION_SUPPRESS_RELOC

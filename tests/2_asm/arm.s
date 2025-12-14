@@ -8,7 +8,9 @@ start:
 	_StartUp
 	ldr	r1, =stored_sp
 	str	sp, [r1]
+.if OPTION_EXPLICIT_STACK
 	ldr	sp, =stack_top
+.endif
 
 	bl	1f
 1:
@@ -101,8 +103,11 @@ error:
 
 message:
 	.ascii	"Greetings!"
-	.ascii	" RISC OS"
-	.ascii	" executable file"
+.if	TARGET_RISCOS
+	.ascii	" RISC OS executable file"
+.elseif TARGET_LINUX
+	.ascii	" Linux (32-bit ARM)"
+.endif
 
 	.byte	0
 

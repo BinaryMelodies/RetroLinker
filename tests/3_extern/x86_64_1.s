@@ -53,6 +53,8 @@ message:
 	.ascii	"Greetings!"
 .if TARGET_WIN64
 	.ascii	" Windows (64-bit)"
+.elseif TARGET_LINUX
+	.ascii	" Linux (64-bit x86)"
 .endif
 
 	.byte	0

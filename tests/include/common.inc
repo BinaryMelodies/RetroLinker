@@ -13,8 +13,12 @@
 .set CPU_I386, 0
 .endif
 
-.ifndef CPU_68K
-.set CPU_68K, 0
+.ifndef CPU_X86_64
+.set CPU_X86_64, 0
+.endif
+
+.ifndef CPU_M68K
+.set CPU_M68K, 0
 .endif
 
 .ifndef CPU_Z8K
