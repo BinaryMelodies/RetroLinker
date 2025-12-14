@@ -1,14 +1,41 @@
 
-.include "../include/common.inc"
-
 	.section	.text
 	.code16
 
-	.global	start
-start:
-	_StartUp
+	.global	_start
+_start:
+	# InitTask
+	.extern	$$IMPORT$KERNEL$005B, $$IMPSEG$KERNEL$005B
+	.byte	0x9A
+	.word	$$IMPORT$KERNEL$005B
+	.word	$$IMPSEG$KERNEL$005B
 
-.if TARGET_WIN16
+	test	ax, ax
+	jnz	1f
+
+	mov	ax, 0x4C01
+	int	0x21
+1:
+
+	# hInstance, used by InitApp
+	push	di
+
+	mov	ax, 0
+	push	ax
+	# WaitEvent
+	.extern	$$IMPORT$KERNEL$001E, $$IMPSEG$KERNEL$001E
+	.byte	0x9A
+	.word	$$IMPORT$KERNEL$001E
+	.word	$$IMPSEG$KERNEL$001E
+
+	# InitApp
+	.extern	$$IMPORT$USER$0005, $$IMPSEG$USER$0005
+	.byte	0x9A
+	.word	$$IMPORT$USER$0005
+	.word	$$IMPSEG$USER$0005
+
+	# Main part
+
 	pushw	offset 0
 	pushw	offset $$SEGOF$dialog_message
 	pushw	offset dialog_message
@@ -21,12 +48,12 @@ start:
 	.byte	0x9A
 	.word	MessageBox
 	.word	$$SEGOF$MessageBox
-.endif
 
 	call	Exit
 
 Exit:
-	_Exit
+	mov	ax, 0x4C00
+	int	0x21
 
 	.section	.data
 
@@ -34,15 +61,13 @@ dialog_title:
 	.asciz	"Sample Application"
 dialog_message:
 	.ascii	"Graphical Greetings!"
-.if TARGET_WIN16
 	.ascii	" Windows (16-bit)"
-.endif
 	.byte	0
 
-	_SysVars
+	.section	.beg.data, "aw", @progbits
 
-.if OPTION_EXPLICIT_STACK
-	.section	.stack, "aw", @nobits
-	.fill	OPTION_STACK_SIZE
-.endif
+	# Instance data
+	.rept	16
+	.byte	0
+	.endr
 
