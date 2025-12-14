@@ -33,6 +33,7 @@ tests/gui/win16/*
 tests/gui/win32/*
 tests/gui/win64/*
 tests/gui/os2v1/*
+tests/gui/os2v2/*
 !tests/gui/*/Makefile
 !tests/gui/*/main.s
 !tests/gui/Makefile
