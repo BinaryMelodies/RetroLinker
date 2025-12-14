@@ -646,6 +646,7 @@ namespace DigitalResearch
 			Linker::Option<bool> f2{"f2", "CP/M F2 flag (Concurrent DOS)"};
 			Linker::Option<bool> f3{"f3", "CP/M F3 flag (Concurrent DOS)"};
 			Linker::Option<bool> f4{"f4", "CP/M F4 flag (Concurrent DOS)"};
+			// TODO: make stack size a parameter (for FlexOS)
 
 			CPM86OptionCollector()
 			{

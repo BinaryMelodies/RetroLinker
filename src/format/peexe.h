@@ -1040,6 +1040,7 @@ namespace Microsoft
 			Linker::Option<offset_t> image_base{"base", "Base address of image, used for calculating relative virtual addresses"};
 			Linker::Option<offset_t> section_align{"section_align", "Section alignment"};
 			Linker::Option<bool> import_thunks{"import_thunks", "Create thunk procedures for imported names"};
+			// TODO: make stack size a parameter
 
 			PEOptionCollector()
 			{

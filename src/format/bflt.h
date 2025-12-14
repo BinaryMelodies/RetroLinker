@@ -84,6 +84,7 @@ namespace BFLT
 		public:
 			Linker::Option<bool> ram{"ram", "File should be fully loaded into RAM"};
 			Linker::Option<bool> got{"got", "Program is position independent and has GOT"};
+			// TODO: make stack size a parameter
 
 			BFLTOptionCollector()
 			{

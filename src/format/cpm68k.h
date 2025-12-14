@@ -297,6 +297,8 @@ namespace DigitalResearch
 		public:
 			Linker::Option<bool> noreloc{"noreloc", "Suppress generating relocations"};
 			Linker::Option<bool> reloc{"reloc", "Force relocation generation"};
+			// TODO: make stack size a parameter (for Concurrent DOS 68K)
+			// TODO: make parameters for system and format type
 
 			CPM68KOptionCollector()
 			{

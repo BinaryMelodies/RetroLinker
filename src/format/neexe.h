@@ -769,6 +769,7 @@ namespace Microsoft
 			Linker::Option<Linker::ItemOf<OutputTypeEnumeration>> type{"type", "Type of binary"};
 			Linker::Option<Linker::ItemOf<CompatibilityEnumeration>> compat{"compat", "Mimics the behavior of another linker"};
 			Linker::Option<std::optional<offset_t>> stack{"stack", "Specify the stack size"};
+			// TODO: make heap, target windows version, font/memory support parameters
 
 			NEOptionCollector()
 			{

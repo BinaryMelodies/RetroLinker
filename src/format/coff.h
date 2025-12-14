@@ -1571,6 +1571,7 @@ namespace COFF
 		{
 		public:
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			// TODO: make stack size a parameter (for FlexOS)
 
 			COFFOptionCollector()
 			{
