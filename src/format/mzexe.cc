@@ -472,6 +472,7 @@ void MZFormat::SetOptions(std::map<std::string, std::string>& options)
 	{
 		option_file_align = file_align.value();
 	}
+	stack_size = collector.stack();
 }
 
 void MZFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -621,6 +622,8 @@ void MZFormat::LinkLarge(Linker::Module& module)
 
 void MZFormat::ProcessModule(Linker::Module& module)
 {
+	module.AllocateStack(stack_size);
+
 	Link(module);
 
 	std::set<uint32_t> relocation_offsets;
@@ -657,7 +660,6 @@ void MZFormat::ProcessModule(Linker::Module& module)
 		relocations.push_back(Relocation::FromLinear(rel));
 	}
 
-	/* TODO: permit stack size parameter */
 	Linker::Location stack_top;
 	if(module.FindGlobalSymbol(".stack_top", stack_top))
 	{
@@ -667,6 +669,7 @@ void MZFormat::ProcessModule(Linker::Module& module)
 	}
 	else
 	{
+		// use last section of image as stack top
 		std::shared_ptr<Linker::Segment> image_segment = std::dynamic_pointer_cast<Linker::Segment>(image);
 		std::shared_ptr<Linker::Section> stack = image_segment->sections.back();
 		ss = stack->Base().address >> 4;
@@ -697,6 +700,7 @@ void MZFormat::ProcessModule(Linker::Module& module)
 
 	if(GetSignature() == MAGIC_DL)
 	{
+		/* TODO: untested */
 		offset_t code_size = 0;
 		for(auto& section : std::dynamic_pointer_cast<Linker::Segment>(image)->sections)
 		{
@@ -706,7 +710,6 @@ void MZFormat::ProcessModule(Linker::Module& module)
 			code_size += section->Size();
 		}
 		data_segment = (code_size + 0xF) >> 4;
-		/* TODO: untested */
 	}
 
 	min_extra_paras = (zero_fill + 0xF) >> 4;

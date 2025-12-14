@@ -178,10 +178,11 @@ namespace Microsoft
 		public:
 			Linker::Option<std::optional<offset_t>> header_align{"header_align", "Aligns the end of the header to a specific boundary, must be power of 2"};
 			Linker::Option<std::optional<offset_t>> file_align{"file_align", "Aligns the end of the file to a specific boundary, must be power of 2"};
+			Linker::Option<offset_t> stack{"stack", "Specify the stack size"};
 
 			MZOptionCollector()
 			{
-				InitializeFields(header_align, file_align);
+				InitializeFields(header_align, file_align, stack);
 			}
 		};
 
@@ -203,6 +204,9 @@ namespace Microsoft
 		memory_model_t memory_model = MODEL_DEFAULT;
 
 		/* filled in automatically */
+		/** @brief Stack size requested at the command line */
+		uint16_t stack_size = 0;
+
 		/** @brief Required maximum extra paragraphs after bss */
 		uint16_t extra_paras = 0;
 

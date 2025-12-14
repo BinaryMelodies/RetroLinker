@@ -2556,7 +2556,7 @@ void LEFormat::SetOptions(std::map<std::string, std::string>& options)
 			stack_size = 0x1000;
 	}
 
-	heap_size = 0;
+	heap_size = collector.heap();
 
 	/* TODO */
 }
