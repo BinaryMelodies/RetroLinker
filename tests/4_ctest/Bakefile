@@ -134,10 +134,12 @@ Target(
 Target(
 	System = "os2v2",
 	output_file = "os2v2")
+# DOES NOT WORK
 Target(
 	System = "linux_x86_64",
 	output_file = "linux-x86-64")
-Target( # DOES NOT WORK
+# DOES NOT WORK
+Target(
 	System = "win64",
 	output_file = "win64")
 Target(

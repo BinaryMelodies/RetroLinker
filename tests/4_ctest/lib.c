@@ -473,8 +473,8 @@ void LibExit(void)
 	);
 #elif TARGET_LINUX && CPU_X86_64
 	asm(
-		"xorl\t%edx, %edx\n\t"
-		"movl\t$0x3C, %rax\n\t"
+		"xorl\t%edi, %edi\n\t"
+		"movl\t$0x3C, %eax\n\t"
 		"syscall"
 	);
 #elif TARGET_LINUX && CPU_M68K
