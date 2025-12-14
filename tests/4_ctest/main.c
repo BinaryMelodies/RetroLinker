@@ -33,6 +33,17 @@ int AppMain(void)
 		"CP/M-86"
 #elif TARGET_ELKS
 		"ELKS (Linux-8086)"
+#elif TARGET_LINUX
+		"Linux"
+# if CPU_I386
+		" (32-bit x86)"
+# elif CPU_X86_64
+		" (64-bit x86)"
+# elif CPU_M68K
+		" (68k)"
+# elif CPU_ARM
+		" (32-bit ARM)"
+# endif
 #elif TARGET_WIN16
 		"Windows (16-bit)"
 #elif TARGET_WIN32

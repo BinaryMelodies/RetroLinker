@@ -126,12 +126,18 @@ Target(
 	System = "pdos386",
 	output_file = "pdos386")
 Target(
+	System = "linux_x86_32",
+	output_file = "linux-x86-32")
+Target(
 	System = "win32",
 	output_file = "win32")
 Target(
 	System = "os2v2",
 	output_file = "os2v2")
 Target(
+	System = "linux_x86_64",
+	output_file = "linux-x86-64")
+Target( # DOES NOT WORK
 	System = "win64",
 	output_file = "win64")
 Target(
@@ -174,6 +180,9 @@ Target(
 	System = "sql",
 	output_file = "sql")
 Target(
+	System = "linux_68k",
+	output_file = "linux-68k")
+Target(
 	System = "cpm8k",
 	Format = "z8k",
 	output_file = "cpm8kns")
@@ -189,6 +198,9 @@ Target(
 	System = "riscos",
 	Format = "ff8",
 	output_file = "riscos")
+Target(
+	System = "linux_arm_32",
+	output_file = "linux-arm-32")
 Target(
 	System = "dxdos",
 	Format = "com",

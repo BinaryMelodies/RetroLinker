@@ -17,7 +17,7 @@
 	syscall
 .elseif	CPU_M68K
 	move.l	#1, d0
-	move.l	#0, d1
+	clr.l	d1
 	trap	#0
 .elseif	CPU_ARM
 	mov	r7, #1

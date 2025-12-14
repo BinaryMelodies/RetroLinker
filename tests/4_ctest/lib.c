@@ -85,7 +85,9 @@ asm(
 );
 #elif defined __arm__
 asm(
+#if TARGET_RISCOS
 	"ldr\tsp, =AppStackTop\n\t"
+#endif
 	"bl\tAppMain\n\t"
 	"bl\tLibExit"
 );
@@ -463,6 +465,30 @@ void LibExit(void)
 		"iot\n\t"
 		".word\t0"
 	);
+#elif TARGET_LINUX && CPU_I386
+	asm(
+		"xorl\t%ebx, %ebx\n\t"
+		"movl\t$0x01, %eax\n\t"
+		"int\t$0x80"
+	);
+#elif TARGET_LINUX && CPU_X86_64
+	asm(
+		"xorl\t%edx, %edx\n\t"
+		"movl\t$0x3C, %rax\n\t"
+		"syscall"
+	);
+#elif TARGET_LINUX && CPU_M68K
+	asm(
+		"clr.l\t%d1\n\t"
+		"move.l\t#0x01, %d0\n\t"
+		"trap\t#0x0"
+	);
+#elif TARGET_LINUX && CPU_ARM
+	asm(
+		"mov\tr0, #0x0\n\t"
+		"mov\tr7, #0x01\n\t"
+		"swi\t#0x0"
+	);
 #else
 #warning Unimplemented: LibExit
 #endif
@@ -554,6 +580,32 @@ void LibPutChar(char c)
 		"mov\t%0, r0\n\t"
 		"iot\n\t"
 		".word\t2" : : "g"(c));
+#elif TARGET_LINUX && CPU_I386
+	asm(
+		"movl\t$0x04, %%eax\n\t"
+		"movl\t$1, %%ebx\n\t"
+		"movl\t$1, %%edx\n\t"
+		"int\t$0x80" : : "c"(&c));
+#elif TARGET_LINUX && CPU_X86_64
+	asm(
+		"movl\t$0x01, %%eax\n\t"
+		"movl\t$1, %%edi\n\t"
+		"movl\t$1, %%edx\n\t"
+		"syscall" : : "S"(&c));
+#elif TARGET_LINUX && CPU_M68K
+	register unsigned char * d2 asm("%d2") = &c;
+	asm(
+		"move.l\t#4, %%d0\n\t"
+		"move.l\t#1, %%d1\n\t"
+		"move.l\t#1, %%d3\n\t"
+		"trap\t#0" : : "r"(d2));
+#elif TARGET_LINUX && CPU_ARM
+	register unsigned char * r1 asm("r1") = &c;
+	asm(
+		"mov\tr7, #4\n\t"
+		"mov\tr0, #1\n\t"
+		"mov\tr2, #1\n\t"
+		"swi\t#0x0" : : "r"(r1));
 #else
 #warning Unimplemented: LibPutChar
 #endif
@@ -623,6 +675,36 @@ void LibWaitForKey(void)
 	asm(
 		"iot\n\t"
 		".word\t1");
+#elif TARGET_LINUX && CPU_I386
+	int tmp;
+	asm(
+		"movl\t$0x03, %%eax\n\t"
+		"movl\t$1, %%ebx\n\t"
+		"movl\t$1, %%edx\n\t"
+		"int\t$0x80" : : "c"(&tmp));
+#elif TARGET_LINUX && CPU_X86_64
+	int tmp;
+	asm(
+		"movl\t$0x00, %%eax\n\t"
+		"movl\t$1, %%edi\n\t"
+		"movl\t$1, %%edx\n\t"
+		"syscall" : : "S"(&tmp));
+#elif TARGET_LINUX && CPU_M68K
+	int tmp;
+	register int * d2 asm("%d2") = &tmp;
+	asm(
+		"move.l\t#3, %%d0\n\t"
+		"move.l\t#1, %%d1\n\t"
+		"move.l\t#1, %%d3\n\t"
+		"trap\t#0" : : "r"(d2));
+#elif TARGET_LINUX && CPU_ARM
+	int tmp;
+	register int * r1 asm("r1") = &tmp;
+	asm(
+		"mov\tr7, #3\n\t"
+		"mov\tr0, #1\n\t"
+		"mov\tr2, #1\n\t"
+		"swi\t#0x0" : : "r"(r1));
 #else
 #warning Unimplemented: LibWaitForKey
 #endif
