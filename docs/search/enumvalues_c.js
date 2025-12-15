@@ -10,9 +10,13 @@ var searchData=
   ['omf_5fversion_5fpharlap_7',['OMF_VERSION_PHARLAP',['../classOMF_1_1OMF86Format.html#ab005ecd9c27352899acedccb63e3c8f8a95379b7c5b8c8ce135c70f92dfef6529',1,'OMF::OMF86Format']]],
   ['omf_5fversion_5ftis_5f11_8',['OMF_VERSION_TIS_11',['../classOMF_1_1OMF86Format.html#ab005ecd9c27352899acedccb63e3c8f8a63eee2f259735afc34369c489d4829dc',1,'OMF::OMF86Format']]],
   ['optional_9',['Optional',['../classLinker_1_1Section.html#ac63d033d602ad0a9a0f82dddeaeb7d8fadada38e1155b0e6747c8fd45cdff3eea',1,'Linker::Section']]],
-  ['os2_10',['OS2',['../classMicrosoft_1_1NEFormat.html#ac3ca11e474f3acf463ed93794ebdeaada1aa171c73f4a7183aa2c7075e1c6bd15',1,'Microsoft::NEFormat']]],
+  ['os2_10',['OS2',['../classMicrosoft_1_1LEFormat.html#af0b84dca24862d7b242d3624a0774ec5a9b52880a52eb5a3be2b33b4fcf517488',1,'Microsoft::LEFormat::OS2'],['../classMicrosoft_1_1NEFormat.html#ac3ca11e474f3acf463ed93794ebdeaada1aa171c73f4a7183aa2c7075e1c6bd15',1,'Microsoft::NEFormat::OS2']]],
   ['osfixup_11',['OSFixup',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a966f80e32bb3d588d3865c21953b1751af01d42471b5dbd667d60e2f0ab694850',1,'Microsoft::NEFormat::Segment::Relocation']]],
-  ['output_5fdll_12',['OUTPUT_DLL',['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a1fae6ca0326368caad3a99928fb01136',1,'Microsoft::PEFormat']]],
-  ['output_5fexe_13',['OUTPUT_EXE',['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a05cab81283c352f2043a186380be3d37',1,'Microsoft::PEFormat']]],
-  ['output_5fsys_14',['OUTPUT_SYS',['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a1929d9a8a2c9d26119f60c9df210cda0',1,'Microsoft::PEFormat']]]
+  ['output_5fcon_12',['OUTPUT_CON',['../classMicrosoft_1_1LEFormat.html#aec59d3b359a5e7ef4f4c0ed6bf6dbe3eabd4c3b49606cdb0b5869d40d0af16c0a',1,'Microsoft::LEFormat::OUTPUT_CON'],['../classMicrosoft_1_1NEFormat.html#a0b26ff90e5c1d5b95137ea9ad949f2b0a3cbf006a5ef05455b84e55e72eb1b4fa',1,'Microsoft::NEFormat::OUTPUT_CON']]],
+  ['output_5fdll_13',['OUTPUT_DLL',['../classMicrosoft_1_1LEFormat.html#aec59d3b359a5e7ef4f4c0ed6bf6dbe3ea5f04c105b9acead581a2958a018ca69e',1,'Microsoft::LEFormat::OUTPUT_DLL'],['../classMicrosoft_1_1NEFormat.html#a0b26ff90e5c1d5b95137ea9ad949f2b0a9ddacd78f5b5198e7a9df279dd695302',1,'Microsoft::NEFormat::OUTPUT_DLL'],['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a1fae6ca0326368caad3a99928fb01136',1,'Microsoft::PEFormat::OUTPUT_DLL']]],
+  ['output_5fexe_14',['OUTPUT_EXE',['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a05cab81283c352f2043a186380be3d37',1,'Microsoft::PEFormat']]],
+  ['output_5fgui_15',['OUTPUT_GUI',['../classMicrosoft_1_1LEFormat.html#aec59d3b359a5e7ef4f4c0ed6bf6dbe3ea9b7e0a2e13b69d4c81e8610d0cdb99b5',1,'Microsoft::LEFormat::OUTPUT_GUI'],['../classMicrosoft_1_1NEFormat.html#a0b26ff90e5c1d5b95137ea9ad949f2b0ae21e1953d793824e83e030eecdb364b3',1,'Microsoft::NEFormat::OUTPUT_GUI']]],
+  ['output_5fpdd_16',['OUTPUT_PDD',['../classMicrosoft_1_1LEFormat.html#aec59d3b359a5e7ef4f4c0ed6bf6dbe3ea70162796c415d24ed5a641cd462f70fb',1,'Microsoft::LEFormat']]],
+  ['output_5fsys_17',['OUTPUT_SYS',['../classMicrosoft_1_1PEFormat.html#a203344a33196639c23f1237d4e7a7d56a1929d9a8a2c9d26119f60c9df210cda0',1,'Microsoft::PEFormat']]],
+  ['output_5fvdd_18',['OUTPUT_VDD',['../classMicrosoft_1_1LEFormat.html#aec59d3b359a5e7ef4f4c0ed6bf6dbe3ea5828530329968f1ff5979f4dc86d6c12',1,'Microsoft::LEFormat']]]
 ];

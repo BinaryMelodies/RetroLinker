@@ -85,6 +85,11 @@ $(function() {
   <div class="headertitle"><div class="title">Microsoft::LEFormat::Entry Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents an entry into the binary, typically DLL exported procedures.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="leexe_8h_source.html">leexe.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Microsoft::LEFormat::Entry:</div>
 <div class="dyncontent">
@@ -109,11 +114,20 @@ Public Types</h2></td></tr>
 <tr class="separator:a21bccac491ef9bcab3081c10d2627ef5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a513e787e486eb0a93a1a667a078bee6c" id="r_a513e787e486eb0a93a1a667a078bee6c"><td class="memItemLeft" align="right" valign="top"><a id="a513e787e486eb0a93a1a667a078bee6c" name="a513e787e486eb0a93a1a667a078bee6c"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>flag_type</b> { <b>Exported</b> = 1
 , <b>SharedData</b> = 2
+, <b>ForwarderByOrdinal</b> = 1
  }</td></tr>
 <tr class="separator:a513e787e486eb0a93a1a667a078bee6c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac23d20805d71b431c251ba502463b780" id="r_ac23d20805d71b431c251ba502463b780"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac23d20805d71b431c251ba502463b780">export_type</a> { <a class="el" href="#ac23d20805d71b431c251ba502463b780a3d7ba293adf8f3012c9071651741118a">NotExported</a>
+, <a class="el" href="#ac23d20805d71b431c251ba502463b780a5f157621a67388fbe6a229d8ba70cd98">ExportByName</a>
+, <a class="el" href="#ac23d20805d71b431c251ba502463b780ab8ee0198acfd9dde303556c2c007afe3">ExportByOrdinal</a>
+ }</td></tr>
+<tr class="separator:ac23d20805d71b431c251ba502463b780"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:ae1a90d6facc05273f39f589a38b334be" id="r_ae1a90d6facc05273f39f589a38b334be"><td class="memItemLeft" align="right" valign="top"><a id="ae1a90d6facc05273f39f589a38b334be" name="ae1a90d6facc05273f39f589a38b334be"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Entry</b> (unsigned type)</td></tr>
+<tr class="separator:ae1a90d6facc05273f39f589a38b334be"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7bc1ff709f03070c0558203a2af905bd" id="r_a7bc1ff709f03070c0558203a2af905bd"><td class="memItemLeft" align="right" valign="top"><a id="a7bc1ff709f03070c0558203a2af905bd" name="a7bc1ff709f03070c0558203a2af905bd"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Entry</b> (unsigned type, uint16_t object, unsigned flags, uint32_t offset)</td></tr>
 <tr class="separator:a7bc1ff709f03070c0558203a2af905bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -221,6 +235,22 @@ flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = flag
 <tr class="memitem:ae34aab9ea4464df4ee21e26c222ab0e8" id="r_ae34aab9ea4464df4ee21e26c222ab0e8"><td class="memItemLeft" align="right" valign="top"><a id="ae34aab9ea4464df4ee21e26c222ab0e8" name="ae34aab9ea4464df4ee21e26c222ab0e8"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>offset</b> = 0</td></tr>
 <tr class="separator:ae34aab9ea4464df4ee21e26c222ab0e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e87ddceff6cdbfd2e0da019b7c6facc" id="r_a0e87ddceff6cdbfd2e0da019b7c6facc"><td class="memItemLeft" align="right" valign="top"><a id="a0e87ddceff6cdbfd2e0da019b7c6facc" name="a0e87ddceff6cdbfd2e0da019b7c6facc"></a>
+<a class="el" href="#ac23d20805d71b431c251ba502463b780">export_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>export_state</b> = <a class="el" href="#ac23d20805d71b431c251ba502463b780a3d7ba293adf8f3012c9071651741118a">NotExported</a></td></tr>
+<tr class="memdesc:a0e87ddceff6cdbfd2e0da019b7c6facc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the entry is exported. This is not actually stored in the entry table and its value is ignored during program generation. <br /></td></tr>
+<tr class="separator:a0e87ddceff6cdbfd2e0da019b7c6facc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a06a10756d17c6ac9e7c8175c3e1eb3" id="r_a8a06a10756d17c6ac9e7c8175c3e1eb3"><td class="memItemLeft" align="right" valign="top"><a id="a8a06a10756d17c6ac9e7c8175c3e1eb3" name="a8a06a10756d17c6ac9e7c8175c3e1eb3"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>entry_name</b></td></tr>
+<tr class="memdesc:a8a06a10756d17c6ac9e7c8175c3e1eb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The name of an exported entry. This is not actually stored in the entry table and its value is ignored during program generation. <br /></td></tr>
+<tr class="separator:a8a06a10756d17c6ac9e7c8175c3e1eb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af877014d8c1ebfed0f67dc746bef3776" id="r_af877014d8c1ebfed0f67dc746bef3776"><td class="memItemLeft" align="right" valign="top"><a id="af877014d8c1ebfed0f67dc746bef3776" name="af877014d8c1ebfed0f67dc746bef3776"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>module_name</b></td></tr>
+<tr class="memdesc:af877014d8c1ebfed0f67dc746bef3776"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience field that stores the module name for a forwarder entry, not used for generation. <br /></td></tr>
+<tr class="separator:af877014d8c1ebfed0f67dc746bef3776"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a17f2ba80e85290c8b01523c031b4b08e" id="r_a17f2ba80e85290c8b01523c031b4b08e"><td class="memItemLeft" align="right" valign="top"><a id="a17f2ba80e85290c8b01523c031b4b08e" name="a17f2ba80e85290c8b01523c031b4b08e"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>import_name</b></td></tr>
+<tr class="memdesc:a17f2ba80e85290c8b01523c031b4b08e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience field that stores the imported procedure name for a forwarder entry, if imported by name, also the name for an exported entry, not used for generation. <br /></td></tr>
+<tr class="separator:a17f2ba80e85290c8b01523c031b4b08e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7d722ce72455d49350ba804655613620" id="r_a7d722ce72455d49350ba804655613620"><td class="memItemLeft" align="right" valign="top"><a id="a7d722ce72455d49350ba804655613620" name="a7d722ce72455d49350ba804655613620"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>same_bundle</b> = false</td></tr>
 <tr class="separator:a7d722ce72455d49350ba804655613620"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -241,6 +271,31 @@ Additional Inherited Members</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ForceSeek</b> (offset_t offset)</td></tr>
 <tr class="separator:a5b4180ae7390c1a559f8932c8bf25ac9 inherit pro_methods_classLinker_1_1Writer"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents an entry into the binary, typically DLL exported procedures. </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="ac23d20805d71b431c251ba502463b780" name="ac23d20805d71b431c251ba502463b780"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac23d20805d71b431c251ba502463b780">&#9670;&#160;</a></span>export_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#ac23d20805d71b431c251ba502463b780">Microsoft::LEFormat::Entry::export_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac23d20805d71b431c251ba502463b780a3d7ba293adf8f3012c9071651741118a" name="ac23d20805d71b431c251ba502463b780a3d7ba293adf8f3012c9071651741118a"></a>NotExported&#160;</td><td class="fielddoc"><p>The entry is not exported, the Exported bit is not set. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac23d20805d71b431c251ba502463b780a5f157621a67388fbe6a229d8ba70cd98" name="ac23d20805d71b431c251ba502463b780a5f157621a67388fbe6a229d8ba70cd98"></a>ExportByName&#160;</td><td class="fielddoc"><p>The entry is exported by name, it is referenced in the resident name table. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac23d20805d71b431c251ba502463b780ab8ee0198acfd9dde303556c2c007afe3" name="ac23d20805d71b431c251ba502463b780ab8ee0198acfd9dde303556c2c007afe3"></a>ExportByOrdinal&#160;</td><td class="fielddoc"><p>The entry is exported by ordinal, it is referenced in the nonresident name table. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="leexe_8h_source.html">leexe.h</a></li>
 <li>src/format/<b>leexe.cc</b></li>

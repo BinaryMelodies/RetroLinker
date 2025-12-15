@@ -119,6 +119,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Generate</b> (<a clas
 <tr class="memitem:a68be326e576f282c4111423e9e554f98" id="r_a68be326e576f282c4111423e9e554f98"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a68be326e576f282c4111423e9e554f98">MemorySize</a> (const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt) const override</td></tr>
 <tr class="memdesc:a68be326e576f282c4111423e9e554f98"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size of the section, as loaded into memory.  <br /></td></tr>
 <tr class="separator:a68be326e576f282c4111423e9e554f98"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a59b3d6670a2a72466ed6e9985c24fded" id="r_a59b3d6670a2a72466ed6e9985c24fded"><td class="memItemLeft" align="right" valign="top"><a id="a59b3d6670a2a72466ed6e9985c24fded" name="a59b3d6670a2a72466ed6e9985c24fded"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ParseDirectoryData</b> (const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t directory_rva, uint32_t directory_size)</td></tr>
+<tr class="memdesc:a59b3d6670a2a72466ed6e9985c24fded"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the contents of the directory, after all the section data for the file is loaded. <br /></td></tr>
+<tr class="separator:a59b3d6670a2a72466ed6e9985c24fded"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af87b6ee057df807225fb65c09b009c4b" id="r_af87b6ee057df807225fb65c09b009c4b"><td class="memItemLeft" align="right" valign="top"><a id="af87b6ee057df807225fb65c09b009c4b" name="af87b6ee057df807225fb65c09b009c4b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpDirectory</b> (const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, uint32_t directory_rva, uint32_t directory_size) const</td></tr>
+<tr class="memdesc:af87b6ee057df807225fb65c09b009c4b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the directory contents. <br /></td></tr>
+<tr class="separator:af87b6ee057df807225fb65c09b009c4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab1eee4af94cf5370c75250a0e24d0733" id="r_ab1eee4af94cf5370c75250a0e24d0733"><td class="memItemLeft" align="right" valign="top"><a id="ab1eee4af94cf5370c75250a0e24d0733" name="ab1eee4af94cf5370c75250a0e24d0733"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionData</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, const COFFFormat &amp;coff_format) override</td></tr>
 <tr class="separator:ab1eee4af94cf5370c75250a0e24d0733"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -138,9 +146,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ImageSize</b> (co
 <tr class="memdesc:a4f4788874949964689ba0fafe67debda"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size of the section, as stored in the file.  <br /></td></tr>
 <tr class="separator:a4f4788874949964689ba0fafe67debda"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classMicrosoft_1_1PEFormat_1_1Section"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classMicrosoft_1_1PEFormat_1_1Section')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classMicrosoft_1_1PEFormat_1_1Section.html">Microsoft::PEFormat::Section</a></td></tr>
-<tr class="memitem:aa9c845207d3010b9038569928e2e2ea7 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section" id="r_aa9c845207d3010b9038569928e2e2ea7"><td class="memItemLeft" align="right" valign="top">
-&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html#ae9cd2bb74e3a12cec1fdc82409225666">image</a>=nullptr)</td></tr>
-<tr class="separator:aa9c845207d3010b9038569928e2e2ea7 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6f1184b65e7d53e5453f1cf8cbda8b9 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section" id="r_ab6f1184b65e7d53e5453f1cf8cbda8b9"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a> &gt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html#afb1f0b3519e6d7c99791f25c0215fc80">image</a>=nullptr)</td></tr>
+<tr class="separator:ab6f1184b65e7d53e5453f1cf8cbda8b9 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae8a71918b48c35ce4dcce76c72065171 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section" id="r_ae8a71918b48c35ce4dcce76c72065171"><td class="memItemLeft" align="right" valign="top">
 constexpr offset_t &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>virtual_size</b> ()</td></tr>
 <tr class="memdesc:ae8a71918b48c35ce4dcce76c72065171 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">The COFF s_paddr field is redefined to contain the size of the section as loaded into memory. <br /></td></tr>
@@ -158,21 +166,33 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionData</b> 
 <tr class="memitem:a8c935f318d0f47cffcab45c0ff27fdff inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section" id="r_a8c935f318d0f47cffcab45c0ff27fdff"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ImageSize</b> (const COFFFormat &amp;coff_format) const override</td></tr>
 <tr class="separator:a8c935f318d0f47cffcab45c0ff27fdff inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2993b5bd9e001879e1cba39d58f94524 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section" id="r_a2993b5bd9e001879e1cba39d58f94524"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const COFFFormat &amp;format, unsigned section_index) const override</td></tr>
+<tr class="separator:a2993b5bd9e001879e1cba39d58f94524 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a594d7fd66c7b825411786f881ff3f321 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section" id="r_a594d7fd66c7b825411786f881ff3f321"><td class="memItemLeft" align="right" valign="top">
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadData</b> (size_t bytes, size_t offset, void *buffer) const</td></tr>
+<tr class="separator:a594d7fd66c7b825411786f881ff3f321 inherit pub_methods_classMicrosoft_1_1PEFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classCOFF_1_1COFFFormat_1_1Section')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">COFF::COFFFormat::Section</a></td></tr>
 <tr class="memitem:a7a3b4ee4b4daf8e6e3fbfd9c5414fe79 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_a7a3b4ee4b4daf8e6e3fbfd9c5414fe79"><td class="memItemLeft" align="right" valign="top">
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Clear</b> ()</td></tr>
 <tr class="separator:a7a3b4ee4b4daf8e6e3fbfd9c5414fe79 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af91a6ab97c922d4f8bf420520c126954 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_af91a6ab97c922d4f8bf420520c126954"><td class="memItemLeft" align="right" valign="top">
-&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html#ae9cd2bb74e3a12cec1fdc82409225666">image</a>=nullptr)</td></tr>
-<tr class="separator:af91a6ab97c922d4f8bf420520c126954 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a9b367685fd7160ba5beab5f2d98cac55 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_a9b367685fd7160ba5beab5f2d98cac55"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant)</td></tr>
-<tr class="memdesc:a9b367685fd7160ba5beab5f2d98cac55 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads an entry in the section header table. <br /></td></tr>
-<tr class="separator:a9b367685fd7160ba5beab5f2d98cac55 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a55970230d2b72e76b5bb1c57bcc7e00e inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_a55970230d2b72e76b5bb1c57bcc7e00e"><td class="memItemLeft" align="right" valign="top">
-void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, <a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant)</td></tr>
-<tr class="memdesc:a55970230d2b72e76b5bb1c57bcc7e00e inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an entry in the section header table. <br /></td></tr>
-<tr class="separator:a55970230d2b72e76b5bb1c57bcc7e00e inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc30b613bfcb50ef94ea8c2d18b08c6d inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_abc30b613bfcb50ef94ea8c2d18b08c6d"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>Section</b> (uint32_t <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html#af8f29d90638046cbb99f74fb6e1f1edc">flags</a>=0, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a> &gt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html#afb1f0b3519e6d7c99791f25c0215fc80">image</a>=nullptr)</td></tr>
+<tr class="separator:abc30b613bfcb50ef94ea8c2d18b08c6d inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abfc9d0e6f20b727755e744dbe34ae45b inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_abfc9d0e6f20b727755e744dbe34ae45b"><td class="memItemLeft" align="right" valign="top">
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>PresentInFile</b> (<a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant) const</td></tr>
+<tr class="separator:abfc9d0e6f20b727755e744dbe34ae45b inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3d5657ed81d2d89be82e4e0ff9f61267 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_a3d5657ed81d2d89be82e4e0ff9f61267"><td class="memItemLeft" align="right" valign="top">
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>PresentInMemory</b> (<a class="el" href="classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997">COFFVariantType</a> coff_variant) const</td></tr>
+<tr class="separator:a3d5657ed81d2d89be82e4e0ff9f61267 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a865982908b393b26941f54b1e291b82d inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_a865982908b393b26941f54b1e291b82d"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff_format)</td></tr>
+<tr class="memdesc:a865982908b393b26941f54b1e291b82d inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads an entry in the section header table. <br /></td></tr>
+<tr class="separator:a865982908b393b26941f54b1e291b82d inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab83b76586fa3caca4eebd9e2d9b837b4 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_ab83b76586fa3caca4eebd9e2d9b837b4"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff_format)</td></tr>
+<tr class="memdesc:ab83b76586fa3caca4eebd9e2d9b837b4 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes an entry in the section header table. <br /></td></tr>
+<tr class="separator:ab83b76586fa3caca4eebd9e2d9b837b4 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a90563248c85360177fd5dc01ebf91817 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_a90563248c85360177fd5dc01ebf91817"><td class="memItemLeft" align="right" valign="top">
 virtual uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>ImageSize</b> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff_format) const</td></tr>
 <tr class="memdesc:a90563248c85360177fd5dc01ebf91817 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size of the section (for PE, the size of the section as stored in the file) <br /></td></tr>
@@ -185,13 +205,17 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSectionDa
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteSectionData</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff_format) const</td></tr>
 <tr class="memdesc:a9b685bf85013ae478de7f0bb0d414b58 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the section contents to a stream, can be overloaded by subclasses. <br /></td></tr>
 <tr class="separator:a9b685bf85013ae478de7f0bb0d414b58 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2ff7a3d7698c954363c1fb53fe6aaf23 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section" id="r_a2ff7a3d7698c954363c1fb53fe6aaf23"><td class="memItemLeft" align="right" valign="top">
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;format, unsigned section_index) const</td></tr>
+<tr class="memdesc:a2ff7a3d7698c954363c1fb53fe6aaf23 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the section information and contents. <br /></td></tr>
+<tr class="separator:a2ff7a3d7698c954363c1fb53fe6aaf23 inherit pub_methods_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a79e31d5b836592ce2cd6e125af6102c2" id="r_a79e31d5b836592ce2cd6e125af6102c2"><td class="memItemLeft" align="right" valign="top"><a id="a79e31d5b836592ce2cd6e125af6102c2" name="a79e31d5b836592ce2cd6e125af6102c2"></a>
-std::vector&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportDirectory.html">ImportDirectory</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>directories</b></td></tr>
-<tr class="memdesc:a79e31d5b836592ce2cd6e125af6102c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sequence of all import directories, one for each DLL. <br /></td></tr>
-<tr class="separator:a79e31d5b836592ce2cd6e125af6102c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cc42694dd8de13c1d7b03d1c5b335c3" id="r_a6cc42694dd8de13c1d7b03d1c5b335c3"><td class="memItemLeft" align="right" valign="top"><a id="a6cc42694dd8de13c1d7b03d1c5b335c3" name="a6cc42694dd8de13c1d7b03d1c5b335c3"></a>
+std::vector&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportedLibrary.html">ImportedLibrary</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>libraries</b></td></tr>
+<tr class="memdesc:a6cc42694dd8de13c1d7b03d1c5b335c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sequence of all import directories, one for each DLL. <br /></td></tr>
+<tr class="separator:a6cc42694dd8de13c1d7b03d1c5b335c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a31de82c44d42220500d0d1b8787e745c" id="r_a31de82c44d42220500d0d1b8787e745c"><td class="memItemLeft" align="right" valign="top"><a id="a31de82c44d42220500d0d1b8787e745c" name="a31de82c44d42220500d0d1b8787e745c"></a>
 std::map&lt; std::string, size_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>library_indexes</b></td></tr>
 <tr class="memdesc:a31de82c44d42220500d0d1b8787e745c"><td class="mdescLeft">&#160;</td><td class="mdescRight">A convenience field to access the DLL index by its name. <br /></td></tr>
@@ -248,10 +272,10 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>flags</b> = 0</td
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>memory_page_number</b> = 0</td></tr>
 <tr class="memdesc:a7d6a4def9c49227d2b7c10f31d9c16fc inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">TICOFF specific field. <br /></td></tr>
 <tr class="separator:a7d6a4def9c49227d2b7c10f31d9c16fc inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9cd2bb74e3a12cec1fdc82409225666 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section" id="r_ae9cd2bb74e3a12cec1fdc82409225666"><td class="memItemLeft" align="right" valign="top">
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="memdesc:ae9cd2bb74e3a12cec1fdc82409225666 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">The stored image data. <br /></td></tr>
-<tr class="separator:ae9cd2bb74e3a12cec1fdc82409225666 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb1f0b3519e6d7c99791f25c0215fc80 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section" id="r_afb1f0b3519e6d7c99791f25c0215fc80"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="memdesc:afb1f0b3519e6d7c99791f25c0215fc80 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">The stored image data. <br /></td></tr>
+<tr class="separator:afb1f0b3519e6d7c99791f25c0215fc80 inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7455282ac373333f88b84edf7379258f inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section" id="r_a7455282ac373333f88b84edf7379258f"><td class="memItemLeft" align="right" valign="top">
 std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Relocation.html">Relocation</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
 <tr class="memdesc:a7455282ac373333f88b84edf7379258f inherit pub_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">Collection of COFF relocations. <br /></td></tr>
@@ -279,7 +303,7 @@ static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>
 <tr class="inherit_header pub_static_attribs_classCOFF_1_1COFFFormat_1_1Section"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_attribs_classCOFF_1_1COFFFormat_1_1Section')"><img src="closed.png" alt="-"/>&#160;Static Public Attributes inherited from <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html">COFF::COFFFormat::Section</a></td></tr>
 <tr class="memitem:ad9d056160da12bd14ddeb83ac74fb4bb inherit pub_static_attribs_classCOFF_1_1COFFFormat_1_1Section" id="r_ad9d056160da12bd14ddeb83ac74fb4bb"><td class="memItemLeft" align="right" valign="top">
 static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>TEXT</b> = 0x0020</td></tr>
-<tr class="memdesc:ad9d056160da12bd14ddeb83ac74fb4bb inherit pub_static_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flag: <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> contains executable (COFF name: STYP_TEXT) <br /></td></tr>
+<tr class="memdesc:ad9d056160da12bd14ddeb83ac74fb4bb inherit pub_static_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF section flag: <a class="el" href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section.">Section</a> contains executable instructions (COFF name: STYP_TEXT) <br /></td></tr>
 <tr class="separator:ad9d056160da12bd14ddeb83ac74fb4bb inherit pub_static_attribs_classCOFF_1_1COFFFormat_1_1Section"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a98a5b973b83ed13513d3fb4ef72d1ddb inherit pub_static_attribs_classCOFF_1_1COFFFormat_1_1Section" id="r_a98a5b973b83ed13513d3fb4ef72d1ddb"><td class="memItemLeft" align="right" valign="top">
 static constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>DATA</b> = 0x0040</td></tr>

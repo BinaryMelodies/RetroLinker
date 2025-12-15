@@ -77,6 +77,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classDigitalResearch_1_1CPM86Format_1_1CPM86OptionCollector-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">DigitalResearch::CPM86Format::CPM86OptionCollector Class Reference</div></div>
@@ -92,8 +94,36 @@ Inheritance diagram for DigitalResearch::CPM86Format::CPM86OptionCollector:</div
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDigitalResearch_1_1CPM86Format_1_1CPM86OptionCollector_1_1FormatEnumeration.html">FormatEnumeration</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDigitalResearch_1_1CPM86Format_1_1CPM86OptionCollector_1_1SystemEnumeration.html">SystemEnumeration</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a3b7ff76bc7f9184dba7dd0b427344ffe" id="r_a3b7ff76bc7f9184dba7dd0b427344ffe"><td class="memItemLeft" align="right" valign="top"><a id="a3b7ff76bc7f9184dba7dd0b427344ffe" name="a3b7ff76bc7f9184dba7dd0b427344ffe"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>system_type</b> { <b>System_CPM86</b>
+, <b>System_FlexOS286</b>
+ }</td></tr>
+<tr class="separator:a3b7ff76bc7f9184dba7dd0b427344ffe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c875746261d230dbbd36634ad00c081" id="r_a9c875746261d230dbbd36634ad00c081"><td class="memItemLeft" align="right" valign="top"><a id="a9c875746261d230dbbd36634ad00c081" name="a9c875746261d230dbbd36634ad00c081"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>format_type</b> { <b>Format_8080</b>
+, <b>Format_Small</b>
+, <b>Format_Compact</b>
+ }</td></tr>
+<tr class="separator:a9c875746261d230dbbd36634ad00c081"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
+<tr class="memitem:adc19bb427d7e535ed1bda1051cee742f" id="r_adc19bb427d7e535ed1bda1051cee742f"><td class="memItemLeft" align="right" valign="top"><a id="adc19bb427d7e535ed1bda1051cee742f" name="adc19bb427d7e535ed1bda1051cee742f"></a>
+<a class="el" href="classLinker_1_1Option.html">Linker::Option</a>&lt; <a class="el" href="classLinker_1_1ItemOf.html">Linker::ItemOf</a>&lt; <a class="el" href="classDigitalResearch_1_1CPM86Format_1_1CPM86OptionCollector_1_1SystemEnumeration.html">SystemEnumeration</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>system</b> {&quot;system&quot;, &quot;Target operating system&quot;}</td></tr>
+<tr class="separator:adc19bb427d7e535ed1bda1051cee742f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4f5288abf368663e79f1550e0053f1f7" id="r_a4f5288abf368663e79f1550e0053f1f7"><td class="memItemLeft" align="right" valign="top"><a id="a4f5288abf368663e79f1550e0053f1f7" name="a4f5288abf368663e79f1550e0053f1f7"></a>
+<a class="el" href="classLinker_1_1Option.html">Linker::Option</a>&lt; <a class="el" href="classLinker_1_1ItemOf.html">Linker::ItemOf</a>&lt; <a class="el" href="classDigitalResearch_1_1CPM86Format_1_1CPM86OptionCollector_1_1FormatEnumeration.html">FormatEnumeration</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>format</b> {&quot;format&quot;, &quot;File format&quot;}</td></tr>
+<tr class="separator:a4f5288abf368663e79f1550e0053f1f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a205fc8b3b5813414299ec819e7ba4b7f" id="r_a205fc8b3b5813414299ec819e7ba4b7f"><td class="memItemLeft" align="right" valign="top"><a id="a205fc8b3b5813414299ec819e7ba4b7f" name="a205fc8b3b5813414299ec819e7ba4b7f"></a>
+<a class="el" href="classLinker_1_1Option.html">Linker::Option</a>&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>postlink</b> {&quot;postlink&quot;, &quot;Generate fast load (POSTLINK) format (only for FlexOS)&quot;}</td></tr>
+<tr class="separator:a205fc8b3b5813414299ec819e7ba4b7f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bc997b46fedf1f64217551bf6a9eaf1" id="r_a5bc997b46fedf1f64217551bf6a9eaf1"><td class="memItemLeft" align="right" valign="top"><a id="a5bc997b46fedf1f64217551bf6a9eaf1" name="a5bc997b46fedf1f64217551bf6a9eaf1"></a>
 <a class="el" href="classLinker_1_1Option.html">Linker::Option</a>&lt; bool &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>noreloc</b> {&quot;noreloc&quot;, &quot;Suppress generating relocations&quot;}</td></tr>
 <tr class="separator:a5bc997b46fedf1f64217551bf6a9eaf1"><td class="memSeparator" colspan="2">&#160;</td></tr>

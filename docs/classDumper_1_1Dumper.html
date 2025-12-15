@@ -94,9 +94,12 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8abeaeab11a5f87660aa2dcc55fabeae" id="r_a8abeaeab11a5f87660aa2dcc55fabeae"><td class="memItemLeft" align="right" valign="top"><a id="a8abeaeab11a5f87660aa2dcc55fabeae" name="a8abeaeab11a5f87660aa2dcc55fabeae"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Dumper</b> (std::ostream &amp;out)</td></tr>
 <tr class="separator:a8abeaeab11a5f87660aa2dcc55fabeae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa423e73e3dae0872c134fe276f4c4335" id="r_aa423e73e3dae0872c134fe276f4c4335"><td class="memItemLeft" align="right" valign="top"><a id="aa423e73e3dae0872c134fe276f4c4335" name="aa423e73e3dae0872c134fe276f4c4335"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>SetEncoding</b> (char32_t(&amp;encoding)[256], bool force=false)</td></tr>
-<tr class="separator:aa423e73e3dae0872c134fe276f4c4335"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a231e88c77b4e93d027f7aa56e1ac5373" id="r_a231e88c77b4e93d027f7aa56e1ac5373"><td class="memItemLeft" align="right" valign="top"><a id="a231e88c77b4e93d027f7aa56e1ac5373" name="a231e88c77b4e93d027f7aa56e1ac5373"></a>
+<a class="el" href="classDumper_1_1SingleByteEncoding.html">SingleByteEncoding</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>SetEncoding</b> (<a class="el" href="classDumper_1_1SingleByteEncoding.html">SingleByteEncoding</a> &amp;encoding, bool force=false)</td></tr>
+<tr class="separator:a231e88c77b4e93d027f7aa56e1ac5373"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3fd83e2430ae70632e7630178569170" id="r_af3fd83e2430ae70632e7630178569170"><td class="memItemLeft" align="right" valign="top"><a id="af3fd83e2430ae70632e7630178569170" name="af3fd83e2430ae70632e7630178569170"></a>
+<a class="el" href="classDumper_1_1Encoding.html">Encoding</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>SetStringEncoding</b> (<a class="el" href="classDumper_1_1Encoding.html">Encoding</a> &amp;encoding)</td></tr>
+<tr class="separator:af3fd83e2430ae70632e7630178569170"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7f64501f7b4e39864a9a826c7e9c13a7" id="r_a7f64501f7b4e39864a9a826c7e9c13a7"><td class="memItemLeft" align="right" valign="top"><a id="a7f64501f7b4e39864a9a826c7e9c13a7" name="a7f64501f7b4e39864a9a826c7e9c13a7"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>SetTitle</b> (std::string title)</td></tr>
 <tr class="separator:a7f64501f7b4e39864a9a826c7e9c13a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -116,6 +119,12 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>PrintDecSigned</b> (r
 void&#160;</td><td class="memItemRight" valign="bottom"><b>PutChar</b> (char32_t c)</td></tr>
 <tr class="memdesc:ad70bd979bbe1b63554ddec79eb14d942"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays a Unicode character as a UTF-8 byte sequence. <br /></td></tr>
 <tr class="separator:ad70bd979bbe1b63554ddec79eb14d942"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ec380814fa8d46239710e073dd01672" id="r_a6ec380814fa8d46239710e073dd01672"><td class="memItemLeft" align="right" valign="top"><a id="a6ec380814fa8d46239710e073dd01672" name="a6ec380814fa8d46239710e073dd01672"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PutEncodedString</b> (std::string encoded_string, bool terminate_at_null=false)</td></tr>
+<tr class="separator:a6ec380814fa8d46239710e073dd01672"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae506e5186fa6fa1423ec07a51a53a0d6" id="r_ae506e5186fa6fa1423ec07a51a53a0d6"><td class="memItemLeft" align="right" valign="top"><a id="ae506e5186fa6fa1423ec07a51a53a0d6" name="ae506e5186fa6fa1423ec07a51a53a0d6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>PutEncodedString</b> (offset_t width, std::string encoded_string, char32_t padding)</td></tr>
+<tr class="separator:ae506e5186fa6fa1423ec07a51a53a0d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab9ebe2519df04c643ef60e13287ff5a6" id="r_ab9ebe2519df04c643ef60e13287ff5a6"><td class="memItemLeft" align="right" valign="top"><a id="ab9ebe2519df04c643ef60e13287ff5a6" name="ab9ebe2519df04c643ef60e13287ff5a6"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>BeginUnderline</b> ()</td></tr>
 <tr class="memdesc:ab9ebe2519df04c643ef60e13287ff5a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">ANSI escape sequence to add underline. <br /></td></tr>
@@ -133,9 +142,12 @@ std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>out</b>
 <tr class="memitem:ac4712da336bbd76a4802da617a0e9c3d" id="r_ac4712da336bbd76a4802da617a0e9c3d"><td class="memItemLeft" align="right" valign="top"><a id="ac4712da336bbd76a4802da617a0e9c3d" name="ac4712da336bbd76a4802da617a0e9c3d"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>use_ansi</b></td></tr>
 <tr class="separator:ac4712da336bbd76a4802da617a0e9c3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afce42c45a12a84d8a715652e3a8992b3" id="r_afce42c45a12a84d8a715652e3a8992b3"><td class="memItemLeft" align="right" valign="top"><a id="afce42c45a12a84d8a715652e3a8992b3" name="afce42c45a12a84d8a715652e3a8992b3"></a>
-char32_t(*&#160;</td><td class="memItemRight" valign="bottom"><b>encoding</b> )[256]</td></tr>
-<tr class="separator:afce42c45a12a84d8a715652e3a8992b3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a29a70c6390791c53126572a2e12c4615" id="r_a29a70c6390791c53126572a2e12c4615"><td class="memItemLeft" align="right" valign="top"><a id="a29a70c6390791c53126572a2e12c4615" name="a29a70c6390791c53126572a2e12c4615"></a>
+<a class="el" href="classDumper_1_1SingleByteEncoding.html">SingleByteEncoding</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>encoding</b></td></tr>
+<tr class="separator:a29a70c6390791c53126572a2e12c4615"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3517986c4c282eeeedfd97a4eb0c61c" id="r_ab3517986c4c282eeeedfd97a4eb0c61c"><td class="memItemLeft" align="right" valign="top"><a id="ab3517986c4c282eeeedfd97a4eb0c61c" name="ab3517986c4c282eeeedfd97a4eb0c61c"></a>
+<a class="el" href="classDumper_1_1Encoding.html">Encoding</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>string_encoding</b></td></tr>
+<tr class="separator:ab3517986c4c282eeeedfd97a4eb0c61c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>An abstract interface that separates structure and presentation of the data inside a file. </p>

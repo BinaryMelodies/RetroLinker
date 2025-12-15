@@ -26,6 +26,6 @@ var searchData=
   ['model_5ftiny_23',['MODEL_TINY',['../classBinary_1_1BinaryFormat.html#a5a48c0a58040c5e59c1b4d2ec8554515aad5371112d94eb2b20550e72f1ba650b',1,'Binary::BinaryFormat::MODEL_TINY'],['../classDigitalResearch_1_1CPM86Format.html#a6503f9e1d16bfba45df9a4acb402d05fa466c6cec694d20390c38c9b2e3965c9d',1,'DigitalResearch::CPM86Format::MODEL_TINY'],['../classMicrosoft_1_1MZFormat.html#aacb034ec17033245a85deb560444ca7fa93baf16a07e3bb9130d73238637f6c6d',1,'Microsoft::MZFormat::MODEL_TINY']]],
   ['mos6502_24',['MOS6502',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756a6c4249ebcf5f62fd3297fbbb9fd1163e',1,'Linker::Module']]],
   ['movable_25',['Movable',['../classMicrosoft_1_1NEFormat_1_1Entry.html#adc00fcef26d344e30fa3a6ddd737a9b2a4fed6bfead9d0075004602d4c15cbc18',1,'Microsoft::NEFormat::Entry']]],
-  ['msdos4_26',['MSDOS4',['../classMicrosoft_1_1NEFormat.html#ac3ca11e474f3acf463ed93794ebdeaada5cadc3189b14ea4b4fc41d0aa0e15e5b',1,'Microsoft::NEFormat']]],
+  ['msdos4_26',['MSDOS4',['../classMicrosoft_1_1LEFormat.html#af0b84dca24862d7b242d3624a0774ec5a75aa4aa559e3ecfbe3726507903e657b',1,'Microsoft::LEFormat::MSDOS4'],['../classMicrosoft_1_1NEFormat.html#ac3ca11e474f3acf463ed93794ebdeaada5cadc3189b14ea4b4fc41d0aa0e15e5b',1,'Microsoft::NEFormat::MSDOS4']]],
   ['multipledata_27',['MULTIPLEDATA',['../classMicrosoft_1_1NEFormat.html#a45beeb2a4ab17368b6860673f05246fea3f21709a6680512bba5bcc8aac9697b6',1,'Microsoft::NEFormat']]]
 ];

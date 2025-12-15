@@ -97,18 +97,18 @@ Inheritance diagram for SeychellDOS32::AdamFormat:</div>
   <map id="SeychellDOS32::AdamFormat_map" name="SeychellDOS32::AdamFormat_map">
 <area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="0,112,179,136"/>
 <area href="classLinker_1_1OutputFormat.html" title="A class that provides a general interface to setting up generation for a format." alt="Linker::OutputFormat" shape="rect" coords="189,112,368,136"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,56,179,80"/>
+<area href="classLinker_1_1Contents.html" title="Represents abstract data contents whose data can be written to a file." alt="Linker::Contents" shape="rect" coords="0,56,179,80"/>
 <area href="classLinker_1_1Format.html" title="A class to encode a general file format." alt="Linker::Format" shape="rect" coords="189,56,368,80"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="189,0,368,24"/>
+<area href="classLinker_1_1Contents.html" title="Represents abstract data contents whose data can be written to a file." alt="Linker::Contents" shape="rect" coords="189,0,368,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:a53bc36470a613a96d60c358e9abac4a1" id="r_a53bc36470a613a96d60c358e9abac4a1"><td class="memItemLeft" align="right" valign="top"><a id="a53bc36470a613a96d60c358e9abac4a1" name="a53bc36470a613a96d60c358e9abac4a1"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>FLAG_COMPRESSED</b> = 0x0001
+<tr class="memitem:a34fe50ddb700023a96b62194e1a4a7a8" id="r_a34fe50ddb700023a96b62194e1a4a7a8"><td class="memItemLeft" align="right" valign="top"><a id="a34fe50ddb700023a96b62194e1a4a7a8" name="a34fe50ddb700023a96b62194e1a4a7a8"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <b>FLAG_COMPRESSED</b> = 0x0001
 , <b>FLAG_DISPLAY_LOGO</b> = 0x0002
  }</td></tr>
-<tr class="separator:a53bc36470a613a96d60c358e9abac4a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="separator:a34fe50ddb700023a96b62194e1a4a7a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -140,14 +140,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a3b945a05d9c620cc00682fca2f3fc255 inherit pub_methods_classLinker_1_1Format" id="r_a3b945a05d9c620cc00682fca2f3fc255"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a3b945a05d9c620cc00682fca2f3fc255">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr, offset_t count, offset_t offset=0) const override</td></tr>
 <tr class="memdesc:a3b945a05d9c620cc00682fca2f3fc255 inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
 <tr class="separator:a3b945a05d9c620cc00682fca2f3fc255 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classLinker_1_1Image"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Image')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Image.html">Linker::Image</a></td></tr>
-<tr class="memitem:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image" id="r_acaef1c478cfe2e33e41d9e1acd633be5"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; const <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#acaef1c478cfe2e33e41d9e1acd633be5">AsImage</a> () const</td></tr>
-<tr class="memdesc:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
-<tr class="separator:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image" id="r_a252985c07abe8a9da6c9c40d11af7dfb"><td class="memItemLeft" align="right" valign="top">
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>AsImage</b> ()</td></tr>
-<tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
-<tr class="separator:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classLinker_1_1Contents"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Contents')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a></td></tr>
+<tr class="memitem:a6b03d930e8e4a77c6b76120899768628 inherit pub_methods_classLinker_1_1Contents" id="r_a6b03d930e8e4a77c6b76120899768628"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; const <a class="el" href="classLinker_1_1Image.html">Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Contents.html#a6b03d930e8e4a77c6b76120899768628">AsImage</a> () const</td></tr>
+<tr class="memdesc:a6b03d930e8e4a77c6b76120899768628 inherit pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="separator:a6b03d930e8e4a77c6b76120899768628 inherit pub_methods_classLinker_1_1Contents"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents" id="r_ae83d572ac94545b2e83238bb998dcb5c"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>AsImage</b> ()</td></tr>
+<tr class="memdesc:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
+<tr class="separator:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1OutputFormat"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1OutputFormat')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1OutputFormat.html">Linker::OutputFormat</a></td></tr>
 <tr class="memitem:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat" id="r_aeeec2cbf4f03e45b0cdf46f2a52a5416"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#aeeec2cbf4f03e45b0cdf46f2a52a5416">AddSupplementaryOutputFormat</a> (std::string subformat)</td></tr>
 <tr class="memdesc:aeeec2cbf4f03e45b0cdf46f2a52a5416 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">If the output format actually drives multiple output formats (resource file, apple double, etc.), specify multiple types, return false if unknown.  <br /></td></tr>
@@ -219,6 +219,9 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a9065ef224d05dd9702fb85bf196f9041 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a9065ef224d05dd9702fb85bf196f9041"><td class="memItemLeft" align="right" valign="top">
 virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdditionalSectionFlags</b> (std::string section_name) const</td></tr>
 <tr class="separator:a9065ef224d05dd9702fb85bf196f9041 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11e13bf6aad68d8199c300c9932be147 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a11e13bf6aad68d8199c300c9932be147"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a11e13bf6aad68d8199c300c9932be147">AllocateSymbols</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module) const</td></tr>
+<tr class="memdesc:a11e13bf6aad68d8199c300c9932be147 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instructs the module to allocate any unallocated local symbols.  <br /></td></tr>
+<tr class="separator:a11e13bf6aad68d8199c300c9932be147 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -262,9 +265,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>relocation_start<
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>last_header_field</b> = 0</td></tr>
 <tr class="memdesc:a0d4b81119c5135b1305e0af59b8f557b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unknown field for version 3.5. <br /></td></tr>
 <tr class="separator:a0d4b81119c5135b1305e0af59b8f557b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a7897da3be3a79e45ff53c9bd85041a5d" id="r_a7897da3be3a79e45ff53c9bd85041a5d"><td class="memItemLeft" align="right" valign="top"><a id="a7897da3be3a79e45ff53c9bd85041a5d" name="a7897da3be3a79e45ff53c9bd85041a5d"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="separator:a7897da3be3a79e45ff53c9bd85041a5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48a3b0cb363849de2cf454a3932964d8" id="r_a48a3b0cb363849de2cf454a3932964d8"><td class="memItemLeft" align="right" valign="top"><a id="a48a3b0cb363849de2cf454a3932964d8" name="a48a3b0cb363849de2cf454a3932964d8"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:a48a3b0cb363849de2cf454a3932964d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>

@@ -77,6 +77,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
@@ -85,6 +86,11 @@ $(function() {
   <div class="headertitle"><div class="title">Microsoft::LEFormat::Page::Relocation Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents a relocation record associated to this page.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="leexe_8h_source.html">leexe.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Microsoft::LEFormat::Page::Relocation:</div>
 <div class="dyncontent">
@@ -95,6 +101,15 @@ Inheritance diagram for Microsoft::LEFormat::Page::Relocation:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMicrosoft_1_1LEFormat_1_1Page_1_1Relocation_1_1Chain.html">Chain</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A source location entry in the relocation record.  <a href="structMicrosoft_1_1LEFormat_1_1Page_1_1Relocation_1_1Chain.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structMicrosoft_1_1LEFormat_1_1Page_1_1Relocation_1_1ChainLink.html">ChainLink</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">For chained relocations, this contains an element of the relocation chain.  <a href="structMicrosoft_1_1LEFormat_1_1Page_1_1Relocation_1_1ChainLink.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:acfd4921048ccc0e23d5f65537d89e8e1" id="r_acfd4921048ccc0e23d5f65537d89e8e1"><td class="memItemLeft" align="right" valign="top"><a id="acfd4921048ccc0e23d5f65537d89e8e1" name="acfd4921048ccc0e23d5f65537d89e8e1"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>source_type</b> { <br />
@@ -134,7 +149,7 @@ Public Types</h2></td></tr>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a1e0b6085f68207b34f93f3e93ade8ee6" id="r_a1e0b6085f68207b34f93f3e93ade8ee6"><td class="memItemLeft" align="right" valign="top"><a id="a1e0b6085f68207b34f93f3e93ade8ee6" name="a1e0b6085f68207b34f93f3e93ade8ee6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Relocation</b> (unsigned type, unsigned flags, uint16_t offset, uint16_t module, uint32_t target=0, uint32_t addition=0)</td></tr>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Relocation</b> (unsigned type, unsigned flags, uint16_t <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page.html#a0ff0ee3d6f6733f030cace3e46d1d278">offset</a>, uint16_t module, uint32_t target=0, uint32_t addition=0)</td></tr>
 <tr class="separator:a1e0b6085f68207b34f93f3e93ade8ee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a21fdca0bd8b8678c9b25ae7fb917a80d" id="r_a21fdca0bd8b8678c9b25ae7fb917a80d"><td class="memItemLeft" align="right" valign="top"><a id="a21fdca0bd8b8678c9b25ae7fb917a80d" name="a21fdca0bd8b8678c9b25ae7fb917a80d"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsExternal</b> () const</td></tr>
@@ -176,7 +191,7 @@ size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetOrdinalSize</b> 
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetFirstSource</b> () const</td></tr>
 <tr class="separator:a51dd98f82d5210c4e39f3dc5920aa0e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab979c657e306e50842929fc79efa77d3" id="r_ab979c657e306e50842929fc79efa77d3"><td class="memItemLeft" align="right" valign="top"><a id="ab979c657e306e50842929fc79efa77d3" name="ab979c657e306e50842929fc79efa77d3"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateSizes</b> (compatibility_type compatibility)</td></tr>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateSizes</b> (<a class="el" href="classMicrosoft_1_1LEFormat.html#a174f448ec1a040b251e5626d8c787d44">compatibility_type</a> compatibility)</td></tr>
 <tr class="separator:ab979c657e306e50842929fc79efa77d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af83183f69881c25435aa68e4a38e6a7c" id="r_af83183f69881c25435aa68e4a38e6a7c"><td class="memItemLeft" align="right" valign="top"><a id="af83183f69881c25435aa68e4a38e6a7c" name="af83183f69881c25435aa68e4a38e6a7c"></a>
 size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> () const</td></tr>
@@ -255,9 +270,9 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memitem:aad9b0e32e6efaccc63169d416b7289ff" id="r_aad9b0e32e6efaccc63169d416b7289ff"><td class="memItemLeft" align="right" valign="top"><a id="aad9b0e32e6efaccc63169d416b7289ff" name="aad9b0e32e6efaccc63169d416b7289ff"></a>
 static source_type&#160;</td><td class="memItemRight" valign="bottom"><b>GetType</b> (<a class="el" href="classLinker_1_1Relocation.html">Linker::Relocation</a> &amp;rel)</td></tr>
 <tr class="separator:aad9b0e32e6efaccc63169d416b7289ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3f1e2e0190f563c482cebc783a073979" id="r_a3f1e2e0190f563c482cebc783a073979"><td class="memItemLeft" align="right" valign="top"><a id="a3f1e2e0190f563c482cebc783a073979" name="a3f1e2e0190f563c482cebc783a073979"></a>
-static <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page_1_1Relocation.html">Relocation</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
-<tr class="separator:a3f1e2e0190f563c482cebc783a073979"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addbe2c974260a7b6db5277f8f8ded873" id="r_addbe2c974260a7b6db5277f8f8ded873"><td class="memItemLeft" align="right" valign="top"><a id="addbe2c974260a7b6db5277f8f8ded873" name="addbe2c974260a7b6db5277f8f8ded873"></a>
+static <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page_1_1Relocation.html">Relocation</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page.html">Page</a> &amp;page)</td></tr>
+<tr class="separator:addbe2c974260a7b6db5277f8f8ded873"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -276,6 +291,26 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>target</b> = 0</t
 <tr class="memitem:ae58f61e6170ae3da40c107f1a210e4ea" id="r_ae58f61e6170ae3da40c107f1a210e4ea"><td class="memItemLeft" align="right" valign="top"><a id="ae58f61e6170ae3da40c107f1a210e4ea" name="ae58f61e6170ae3da40c107f1a210e4ea"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>addition</b> = 0</td></tr>
 <tr class="separator:ae58f61e6170ae3da40c107f1a210e4ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8684f84b2860533985e921b99ffcf57b" id="r_a8684f84b2860533985e921b99ffcf57b"><td class="memItemLeft" align="right" valign="top"><a id="a8684f84b2860533985e921b99ffcf57b" name="a8684f84b2860533985e921b99ffcf57b"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>module_name</b></td></tr>
+<tr class="memdesc:a8684f84b2860533985e921b99ffcf57b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience field that stores the module name, not used for generation. <br /></td></tr>
+<tr class="separator:a8684f84b2860533985e921b99ffcf57b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aac7319799a2dc840c6d22e0e00f0a7dc" id="r_aac7319799a2dc840c6d22e0e00f0a7dc"><td class="memItemLeft" align="right" valign="top"><a id="aac7319799a2dc840c6d22e0e00f0a7dc" name="aac7319799a2dc840c6d22e0e00f0a7dc"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>import_name</b></td></tr>
+<tr class="memdesc:aac7319799a2dc840c6d22e0e00f0a7dc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience field that stores the imported procedure name, if imported by name, also the name for an exported entry, not used for generation. <br /></td></tr>
+<tr class="separator:aac7319799a2dc840c6d22e0e00f0a7dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2d2c2a9c1d44fdde5576673384128024" id="r_a2d2c2a9c1d44fdde5576673384128024"><td class="memItemLeft" align="right" valign="top"><a id="a2d2c2a9c1d44fdde5576673384128024" name="a2d2c2a9c1d44fdde5576673384128024"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>actual_object</b> = 0</td></tr>
+<tr class="memdesc:a2d2c2a9c1d44fdde5576673384128024"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience field that stores the actual object number for an entry, not used for generation. <br /></td></tr>
+<tr class="separator:a2d2c2a9c1d44fdde5576673384128024"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a86abf8f8ab87441181931e9eaa70c26b" id="r_a86abf8f8ab87441181931e9eaa70c26b"><td class="memItemLeft" align="right" valign="top"><a id="a86abf8f8ab87441181931e9eaa70c26b" name="a86abf8f8ab87441181931e9eaa70c26b"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>actual_offset</b> = 0</td></tr>
+<tr class="memdesc:a86abf8f8ab87441181931e9eaa70c26b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Convenience field that stores the actual offset for an entry, not used for generation. <br /></td></tr>
+<tr class="separator:a86abf8f8ab87441181931e9eaa70c26b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb27ba21dd31dbd65eb8b7c8e94b2320" id="r_abb27ba21dd31dbd65eb8b7c8e94b2320"><td class="memItemLeft" align="right" valign="top"><a id="abb27ba21dd31dbd65eb8b7c8e94b2320" name="abb27ba21dd31dbd65eb8b7c8e94b2320"></a>
+std::vector&lt; <a class="el" href="structMicrosoft_1_1LEFormat_1_1Page_1_1Relocation_1_1Chain.html">Chain</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>sources</b></td></tr>
+<tr class="memdesc:abb27ba21dd31dbd65eb8b7c8e94b2320"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sequence of sources corresponding to the same relocation record. <br /></td></tr>
+<tr class="separator:abb27ba21dd31dbd65eb8b7c8e94b2320"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Writer"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1Writer')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a></td></tr>
 <tr class="memitem:a7c915c00aec7552e12a0f5e549632ec0 inherit pub_attribs_classLinker_1_1Writer" id="r_a7c915c00aec7552e12a0f5e549632ec0"><td class="memItemLeft" align="right" valign="top">
 EndianType&#160;</td><td class="memItemRight" valign="bottom"><b>endiantype</b></td></tr>
@@ -293,7 +328,9 @@ Additional Inherited Members</h2></td></tr>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>ForceSeek</b> (offset_t offset)</td></tr>
 <tr class="separator:a5b4180ae7390c1a559f8932c8bf25ac9 inherit pro_methods_classLinker_1_1Writer"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following files:<ul>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents a relocation record associated to this page. </p>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="leexe_8h_source.html">leexe.h</a></li>
 <li>src/format/<b>leexe.cc</b></li>
 </ul>

@@ -9,6 +9,9 @@ var searchData=
   ['usesabsolute_6',['UsesAbsolute',['../structOMF_1_1OMF86Format_1_1UsesAbsolute.html',1,'OMF::OMF86Format']]],
   ['usessource_7',['UsesSource',['../structOMF_1_1OMF86Format_1_1UsesSource.html',1,'OMF::OMF86Format']]],
   ['usestarget_8',['UsesTarget',['../structOMF_1_1OMF86Format_1_1UsesTarget.html',1,'OMF::OMF86Format']]],
-  ['uzi280format_9',['UZI280Format',['../classBinary_1_1UZI280Format.html',1,'Binary']]],
-  ['uziformat_10',['UZIFormat',['../classBinary_1_1UZIFormat.html',1,'Binary']]]
+  ['utf16encoding_9',['UTF16Encoding',['../classDumper_1_1UTF16Encoding.html',1,'Dumper']]],
+  ['utf32encoding_10',['UTF32Encoding',['../classDumper_1_1UTF32Encoding.html',1,'Dumper']]],
+  ['utf8encoding_11',['UTF8Encoding',['../classDumper_1_1UTF8Encoding.html',1,'Dumper']]],
+  ['uzi280format_12',['UZI280Format',['../classBinary_1_1UZI280Format.html',1,'Binary']]],
+  ['uziformat_13',['UZIFormat',['../classBinary_1_1UZIFormat.html',1,'Binary']]]
 ];

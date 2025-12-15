@@ -4,9 +4,12 @@ var searchData=
   ['pdos386_1',['PDOS386',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baaf39ce9da42bed280f89cb7eb47d5779f',1,'AOut::AOutFormat']]],
   ['pdp11_2',['PDP11',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756a824c3901dd686ac60230319cf5b08952',1,'Linker::Module']]],
   ['pecoff_3',['PECOFF',['../classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997aeb8c58eac39986299f9eeb403b81f8bc',1,'COFF::COFFFormat']]],
-  ['pltentry_4',['PLTEntry',['../classLinker_1_1Relocation.html#a53b13249581f7975adc1c5836a48efd9ab5163d614b4b99b771c6f2dcb3060e7b',1,'Linker::Relocation']]],
-  ['pointer32_5',['Pointer32',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a4405e4729bd6659fd65d3ec8af2b4730ae14b78568454bc2e0a607e3159e2f072',1,'Microsoft::NEFormat::Segment::Relocation']]],
-  ['pointer48_6',['Pointer48',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a4405e4729bd6659fd65d3ec8af2b4730a6705bf980b73e990b8d58fe135be849f',1,'Microsoft::NEFormat::Segment::Relocation']]],
-  ['ppc_7',['PPC',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756a76f233fdb566a4df5185e40b7bbf8f01',1,'Linker::Module']]],
-  ['ppc64_8',['PPC64',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756a0dbe5e5d3cde99c8c0ae2744607eb1e1',1,'Linker::Module']]]
+  ['pf_5fr_4',['PF_R',['../classELF_1_1ELFFormat_1_1Segment.html#a139eafb5983828846f57f51a5e76f443ac06cdcd997b55e32783f8ef76a015627',1,'ELF::ELFFormat::Segment']]],
+  ['pf_5fw_5',['PF_W',['../classELF_1_1ELFFormat_1_1Segment.html#a139eafb5983828846f57f51a5e76f443a83bfff25d91ab17feeca3944c2cbce8c',1,'ELF::ELFFormat::Segment']]],
+  ['pf_5fx_6',['PF_X',['../classELF_1_1ELFFormat_1_1Segment.html#a139eafb5983828846f57f51a5e76f443a3c01e4b0f78b5bb1023c574ec586c9f9',1,'ELF::ELFFormat::Segment']]],
+  ['pltentry_7',['PLTEntry',['../classLinker_1_1Relocation.html#a53b13249581f7975adc1c5836a48efd9ab5163d614b4b99b771c6f2dcb3060e7b',1,'Linker::Relocation']]],
+  ['pointer32_8',['Pointer32',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a4405e4729bd6659fd65d3ec8af2b4730ae14b78568454bc2e0a607e3159e2f072',1,'Microsoft::NEFormat::Segment::Relocation']]],
+  ['pointer48_9',['Pointer48',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a4405e4729bd6659fd65d3ec8af2b4730a6705bf980b73e990b8d58fe135be849f',1,'Microsoft::NEFormat::Segment::Relocation']]],
+  ['ppc_10',['PPC',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756a76f233fdb566a4df5185e40b7bbf8f01',1,'Linker::Module']]],
+  ['ppc64_11',['PPC64',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756a0dbe5e5d3cde99c8c0ae2744607eb1e1',1,'Linker::Module']]]
 ];

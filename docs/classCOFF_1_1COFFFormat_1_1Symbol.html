@@ -77,6 +77,8 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classCOFF_1_1COFFFormat_1_1Symbol-members.html">List of all members</a>  </div>
@@ -89,6 +91,104 @@ $(function() {
 
 <p><code>#include &lt;<a class="el" href="coff_8h_source.html">coff.h</a>&gt;</code></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1ArrayAuxiliaryEntry.html">ArrayAuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1AuxiliaryEntry.html">AuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1BeginOrEndAuxiliaryEntry.html">BeginOrEndAuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1EndOfStructureAuxiliaryEntry.html">EndOfStructureAuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1FileNameAuxiliaryEntry.html">FileNameAuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1FunctionAuxiliaryEntry.html">FunctionAuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1SectionAuxiliaryEntry.html">SectionAuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1StructureAuxiliaryEntry.html">StructureAuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1TagNameAuxiliaryEntry.html">TagNameAuxiliaryEntry</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a996004e8f4d1b55f3db91c0626a96185" id="r_a996004e8f4d1b55f3db91c0626a96185"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a1742f10ba16a35e04c2ec61347eea8ea">C_EFCN</a> = uint8_t(-1)
+, <b>C_NULL</b> = 0
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a28f68a49f7cc75626994f9016ce93479">C_AUTO</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a819261886dc44aa337a7a1c2a0ada211">C_EXT</a>
+, <br />
+&#160;&#160;<a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a44dd24bf1bb1b2c177b493b726b3f44a">C_STAT</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a6a91a7323e94ecf7e4d99730d61be950">C_REG</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a3c597c5422618937233e1e6e71d84be4">C_EXTDEF</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a496b15e0e96520b2bbe77ad0dbbcfeb6">C_LABEL</a>
+, <br />
+&#160;&#160;<a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a200c3cac94be5723bc16f5c42a5e6ff9">C_ULABEL</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a4af6189402373fa46b13c703cfc4933e">C_MOS</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185ad9981ac021c3cc9be8bf006a7236df10">C_ARG</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185ac3874713a768d24c1d9b64521fc3d849">C_STRTAG</a>
+, <br />
+&#160;&#160;<a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a0e6f396478e96aa62c6172af40094a4b">C_MOU</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a0128ead9fe7d9fc99cce7ff599aa3015">C_UNTAG</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a42a5137a39dfc077fde37de292495105">C_TPDEF</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a763ba717ca487730e3393e3d21398826">C_USTATIC</a>
+, <br />
+&#160;&#160;<a class="el" href="#a996004e8f4d1b55f3db91c0626a96185afca529c36063b8ea7c7fcb7876c8d6b2">C_ENTAG</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a7ffe5d9ae8af973cf5b4b509f7b01c4c">C_MOE</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a4e90e680620668b88544f3e6836a2dec">C_REGPARM</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a3f71822273ab74748fb013bd9288fe58">C_FIELD</a>
+, <br />
+&#160;&#160;<a class="el" href="#a996004e8f4d1b55f3db91c0626a96185adbb2738b6a3efc720c6ca34e8b6ab400">C_BLOCK</a> = 100
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a46e66db12c949ee645953aff49e88a3d">C_FCN</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185ad9f21335a8f2d95d681f7d812343110b">C_EOS</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a60c97c4e6c15308ddac289ecebcd2df8">C_FILE</a>
+, <br />
+&#160;&#160;<b>C_LINE</b>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a3e76bdc90bd3858df080dcb04acac9b9">C_ALIAS</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185addad76e8d64d94ecf1e1afef6106b6a8">C_HIDDEN</a>
+, <a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a3e1e986bd5b4ff915570519839d7595b">C_SHADOW</a>
+, <br />
+&#160;&#160;<a class="el" href="#a996004e8f4d1b55f3db91c0626a96185a49b43b82ba6b30ce1b45c0bbdbaeac20">C_WEAKEXT</a>
+<br />
+ }</td></tr>
+<tr class="separator:a996004e8f4d1b55f3db91c0626a96185"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a630ab03b779238c46b0288ad82e298f6" id="r_a630ab03b779238c46b0288ad82e298f6"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="#a630ab03b779238c46b0288ad82e298f6ad4239da7b708f5b66c9a5081832d386c">N_DEBUG</a> = uint16_t(-2)
+, <a class="el" href="#a630ab03b779238c46b0288ad82e298f6ad2a00009f7e2df0b79c20cc6fd1c6820">N_ABS</a> = uint16_t(-1)
+, <a class="el" href="#a630ab03b779238c46b0288ad82e298f6a6586165f28b8a84796c25ec2ba510fa7">N_UNDEF</a> = 0
+ }</td></tr>
+<tr class="separator:a630ab03b779238c46b0288ad82e298f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae94f89487a1ed0c0c2f1bd5a1f0741d0" id="r_ae94f89487a1ed0c0c2f1bd5a1f0741d0"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
+&#160;&#160;<b>T_NULL</b> = 0
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0abbf271965b6374e48b4846af05ae2cdd">T_ARG</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0a69a78148f81d5811fa0316a9a4e18bc2">T_CHAR</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0aeab554b74dc77cba1e3edb9a4e42817c">T_SHORT</a>
+, <br />
+&#160;&#160;<a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0ae8114a044772f8cf0048fc8179be1ea7">T_INT</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0a6f5fc545378a2b8cdd1064aaf6167dc7">T_LONG</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0af979f5b8de6dda0d57595e61e72278bd">T_FLOAT</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0ae5ec9709dd0584511ab504f67c1ef668">T_DOUBLE</a>
+, <br />
+&#160;&#160;<a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0a965086d52bf2845340de5f420f04b2ec">T_STRUCT</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0a1dc08577cbf269381a12b0bca2f3b9f8">T_UNION</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0a5efe5c03ee2c6469536f68e777280c5e">T_ENUM</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0a1437ac08cfc5a702501b80154758e1de">T_MOE</a>
+, <br />
+&#160;&#160;<a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0adba21a2b0494c45199ca639e3e165173">T_UCHAR</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0a262b029eff1019c98f60df68416e9ee3">T_USHORT</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0ac963aacc542b4a132c08ebbf6f1cf327">T_UINT</a>
+, <a class="el" href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0a3d57b71e39a73b70f2669b92fbd35e6f">T_ULONG</a>
+<br />
+ }</td></tr>
+<tr class="separator:ae94f89487a1ed0c0c2f1bd5a1f0741d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8af4f38b50b1e518213e407c623571f0" id="r_a8af4f38b50b1e518213e407c623571f0"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom">{ <a class="el" href="#a8af4f38b50b1e518213e407c623571f0a0163d8b01734bf4433368f6149b35ab0">DT_NON</a> = 0
+, <a class="el" href="#a8af4f38b50b1e518213e407c623571f0a4cc878f4ab598a565ab9e6e800970013">DT_PTR</a>
+, <a class="el" href="#a8af4f38b50b1e518213e407c623571f0a17b4ea1ce3864f28fa23e2e034770eac">DT_FCN</a>
+, <a class="el" href="#a8af4f38b50b1e518213e407c623571f0a1a6388b32951ad8d1ed0785486ebfad8">DT_ARY</a>
+ }</td></tr>
+<tr class="separator:a8af4f38b50b1e518213e407c623571f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a10d869867df14231a4bf267df554968c" id="r_a10d869867df14231a4bf267df554968c"><td class="memItemLeft" align="right" valign="top"><a id="a10d869867df14231a4bf267df554968c" name="a10d869867df14231a4bf267df554968c"></a>
@@ -127,10 +227,176 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>auxiliary_count</b></td></tr>
 <tr class="memdesc:abcf0bbfac8cac73503e3c30d0438f701"><td class="mdescLeft">&#160;</td><td class="mdescRight">Signifies how many extra entries are present, these should be skipped, 0 is a typical value (COFF name: n_numaux) <br /></td></tr>
 <tr class="separator:abcf0bbfac8cac73503e3c30d0438f701"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae16af3a62f864cbf17e8db7955db57ff" id="r_ae16af3a62f864cbf17e8db7955db57ff"><td class="memItemLeft" align="right" valign="top"><a id="ae16af3a62f864cbf17e8db7955db57ff" name="ae16af3a62f864cbf17e8db7955db57ff"></a>
+std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_1_1Symbol_1_1AuxiliaryEntry.html">AuxiliaryEntry</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>auxiliary_entry</b> = nullptr</td></tr>
+<tr class="separator:ae16af3a62f864cbf17e8db7955db57ff"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A COFF symbol. </p>
-</div><h2 class="groupheader">Member Data Documentation</h2>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a996004e8f4d1b55f3db91c0626a96185" name="a996004e8f4d1b55f3db91c0626a96185"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a996004e8f4d1b55f3db91c0626a96185">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a1742f10ba16a35e04c2ec61347eea8ea" name="a996004e8f4d1b55f3db91c0626a96185a1742f10ba16a35e04c2ec61347eea8ea"></a>C_EFCN&#160;</td><td class="fielddoc"><p>Pysical end of function. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a28f68a49f7cc75626994f9016ce93479" name="a996004e8f4d1b55f3db91c0626a96185a28f68a49f7cc75626994f9016ce93479"></a>C_AUTO&#160;</td><td class="fielddoc"><p>Automatic variable. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a819261886dc44aa337a7a1c2a0ada211" name="a996004e8f4d1b55f3db91c0626a96185a819261886dc44aa337a7a1c2a0ada211"></a>C_EXT&#160;</td><td class="fielddoc"><p>external symbol </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a44dd24bf1bb1b2c177b493b726b3f44a" name="a996004e8f4d1b55f3db91c0626a96185a44dd24bf1bb1b2c177b493b726b3f44a"></a>C_STAT&#160;</td><td class="fielddoc"><p>static variable </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a6a91a7323e94ecf7e4d99730d61be950" name="a996004e8f4d1b55f3db91c0626a96185a6a91a7323e94ecf7e4d99730d61be950"></a>C_REG&#160;</td><td class="fielddoc"><p>register variable </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a3c597c5422618937233e1e6e71d84be4" name="a996004e8f4d1b55f3db91c0626a96185a3c597c5422618937233e1e6e71d84be4"></a>C_EXTDEF&#160;</td><td class="fielddoc"><p>external definition </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a496b15e0e96520b2bbe77ad0dbbcfeb6" name="a996004e8f4d1b55f3db91c0626a96185a496b15e0e96520b2bbe77ad0dbbcfeb6"></a>C_LABEL&#160;</td><td class="fielddoc"><p>label </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a200c3cac94be5723bc16f5c42a5e6ff9" name="a996004e8f4d1b55f3db91c0626a96185a200c3cac94be5723bc16f5c42a5e6ff9"></a>C_ULABEL&#160;</td><td class="fielddoc"><p>undefined label </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a4af6189402373fa46b13c703cfc4933e" name="a996004e8f4d1b55f3db91c0626a96185a4af6189402373fa46b13c703cfc4933e"></a>C_MOS&#160;</td><td class="fielddoc"><p>member of structure </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185ad9981ac021c3cc9be8bf006a7236df10" name="a996004e8f4d1b55f3db91c0626a96185ad9981ac021c3cc9be8bf006a7236df10"></a>C_ARG&#160;</td><td class="fielddoc"><p>function argument </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185ac3874713a768d24c1d9b64521fc3d849" name="a996004e8f4d1b55f3db91c0626a96185ac3874713a768d24c1d9b64521fc3d849"></a>C_STRTAG&#160;</td><td class="fielddoc"><p>structure tag </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a0e6f396478e96aa62c6172af40094a4b" name="a996004e8f4d1b55f3db91c0626a96185a0e6f396478e96aa62c6172af40094a4b"></a>C_MOU&#160;</td><td class="fielddoc"><p>member of union </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a0128ead9fe7d9fc99cce7ff599aa3015" name="a996004e8f4d1b55f3db91c0626a96185a0128ead9fe7d9fc99cce7ff599aa3015"></a>C_UNTAG&#160;</td><td class="fielddoc"><p>union tag </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a42a5137a39dfc077fde37de292495105" name="a996004e8f4d1b55f3db91c0626a96185a42a5137a39dfc077fde37de292495105"></a>C_TPDEF&#160;</td><td class="fielddoc"><p>type definition </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a763ba717ca487730e3393e3d21398826" name="a996004e8f4d1b55f3db91c0626a96185a763ba717ca487730e3393e3d21398826"></a>C_USTATIC&#160;</td><td class="fielddoc"><p>uninitialized static </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185afca529c36063b8ea7c7fcb7876c8d6b2" name="a996004e8f4d1b55f3db91c0626a96185afca529c36063b8ea7c7fcb7876c8d6b2"></a>C_ENTAG&#160;</td><td class="fielddoc"><p>enumeration tag </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a7ffe5d9ae8af973cf5b4b509f7b01c4c" name="a996004e8f4d1b55f3db91c0626a96185a7ffe5d9ae8af973cf5b4b509f7b01c4c"></a>C_MOE&#160;</td><td class="fielddoc"><p>member of enumeration </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a4e90e680620668b88544f3e6836a2dec" name="a996004e8f4d1b55f3db91c0626a96185a4e90e680620668b88544f3e6836a2dec"></a>C_REGPARM&#160;</td><td class="fielddoc"><p>register parameter </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a3f71822273ab74748fb013bd9288fe58" name="a996004e8f4d1b55f3db91c0626a96185a3f71822273ab74748fb013bd9288fe58"></a>C_FIELD&#160;</td><td class="fielddoc"><p>bit field </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185adbb2738b6a3efc720c6ca34e8b6ab400" name="a996004e8f4d1b55f3db91c0626a96185adbb2738b6a3efc720c6ca34e8b6ab400"></a>C_BLOCK&#160;</td><td class="fielddoc"><p>begin/end block </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a46e66db12c949ee645953aff49e88a3d" name="a996004e8f4d1b55f3db91c0626a96185a46e66db12c949ee645953aff49e88a3d"></a>C_FCN&#160;</td><td class="fielddoc"><p>begin/end function </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185ad9f21335a8f2d95d681f7d812343110b" name="a996004e8f4d1b55f3db91c0626a96185ad9f21335a8f2d95d681f7d812343110b"></a>C_EOS&#160;</td><td class="fielddoc"><p>end of structure </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a60c97c4e6c15308ddac289ecebcd2df8" name="a996004e8f4d1b55f3db91c0626a96185a60c97c4e6c15308ddac289ecebcd2df8"></a>C_FILE&#160;</td><td class="fielddoc"><p>file name </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a3e76bdc90bd3858df080dcb04acac9b9" name="a996004e8f4d1b55f3db91c0626a96185a3e76bdc90bd3858df080dcb04acac9b9"></a>C_ALIAS&#160;</td><td class="fielddoc"><p>duplicated tag </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185addad76e8d64d94ecf1e1afef6106b6a8" name="a996004e8f4d1b55f3db91c0626a96185addad76e8d64d94ecf1e1afef6106b6a8"></a>C_HIDDEN&#160;</td><td class="fielddoc"><p>static but avoids name conflict </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a3e1e986bd5b4ff915570519839d7595b" name="a996004e8f4d1b55f3db91c0626a96185a3e1e986bd5b4ff915570519839d7595b"></a>C_SHADOW&#160;</td><td class="fielddoc"><p>shadow symbol </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a996004e8f4d1b55f3db91c0626a96185a49b43b82ba6b30ce1b45c0bbdbaeac20" name="a996004e8f4d1b55f3db91c0626a96185a49b43b82ba6b30ce1b45c0bbdbaeac20"></a>C_WEAKEXT&#160;</td><td class="fielddoc"><p>external with weak linkage </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a630ab03b779238c46b0288ad82e298f6" name="a630ab03b779238c46b0288ad82e298f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a630ab03b779238c46b0288ad82e298f6">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a630ab03b779238c46b0288ad82e298f6ad4239da7b708f5b66c9a5081832d386c" name="a630ab03b779238c46b0288ad82e298f6ad4239da7b708f5b66c9a5081832d386c"></a>N_DEBUG&#160;</td><td class="fielddoc"><p>Debugging symbol. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a630ab03b779238c46b0288ad82e298f6ad2a00009f7e2df0b79c20cc6fd1c6820" name="a630ab03b779238c46b0288ad82e298f6ad2a00009f7e2df0b79c20cc6fd1c6820"></a>N_ABS&#160;</td><td class="fielddoc"><p>Absolute symbol. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a630ab03b779238c46b0288ad82e298f6a6586165f28b8a84796c25ec2ba510fa7" name="a630ab03b779238c46b0288ad82e298f6a6586165f28b8a84796c25ec2ba510fa7"></a>N_UNDEF&#160;</td><td class="fielddoc"><p>Undefined external symbol. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae94f89487a1ed0c0c2f1bd5a1f0741d0">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0abbf271965b6374e48b4846af05ae2cdd" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0abbf271965b6374e48b4846af05ae2cdd"></a>T_ARG&#160;</td><td class="fielddoc"><p>Function argument. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0a69a78148f81d5811fa0316a9a4e18bc2" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0a69a78148f81d5811fa0316a9a4e18bc2"></a>T_CHAR&#160;</td><td class="fielddoc"><p>Character (C type char) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0aeab554b74dc77cba1e3edb9a4e42817c" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0aeab554b74dc77cba1e3edb9a4e42817c"></a>T_SHORT&#160;</td><td class="fielddoc"><p>Short integer (C type short) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0ae8114a044772f8cf0048fc8179be1ea7" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0ae8114a044772f8cf0048fc8179be1ea7"></a>T_INT&#160;</td><td class="fielddoc"><p>Integer (C type int) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0a6f5fc545378a2b8cdd1064aaf6167dc7" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0a6f5fc545378a2b8cdd1064aaf6167dc7"></a>T_LONG&#160;</td><td class="fielddoc"><p>Long integer (C type long) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0af979f5b8de6dda0d57595e61e72278bd" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0af979f5b8de6dda0d57595e61e72278bd"></a>T_FLOAT&#160;</td><td class="fielddoc"><p>Float (C type float) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0ae5ec9709dd0584511ab504f67c1ef668" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0ae5ec9709dd0584511ab504f67c1ef668"></a>T_DOUBLE&#160;</td><td class="fielddoc"><p>Double (C type double) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0a965086d52bf2845340de5f420f04b2ec" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0a965086d52bf2845340de5f420f04b2ec"></a>T_STRUCT&#160;</td><td class="fielddoc"><p>Structure (C keyword struct) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0a1dc08577cbf269381a12b0bca2f3b9f8" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0a1dc08577cbf269381a12b0bca2f3b9f8"></a>T_UNION&#160;</td><td class="fielddoc"><p>Union (C keyword union) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0a5efe5c03ee2c6469536f68e777280c5e" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0a5efe5c03ee2c6469536f68e777280c5e"></a>T_ENUM&#160;</td><td class="fielddoc"><p>Enumeration (C keyword enum) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0a1437ac08cfc5a702501b80154758e1de" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0a1437ac08cfc5a702501b80154758e1de"></a>T_MOE&#160;</td><td class="fielddoc"><p>Member of enumeration. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0adba21a2b0494c45199ca639e3e165173" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0adba21a2b0494c45199ca639e3e165173"></a>T_UCHAR&#160;</td><td class="fielddoc"><p>Unsigned character (C type unsigned char) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0a262b029eff1019c98f60df68416e9ee3" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0a262b029eff1019c98f60df68416e9ee3"></a>T_USHORT&#160;</td><td class="fielddoc"><p>Unsigned short integer (C type unsigned short) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0ac963aacc542b4a132c08ebbf6f1cf327" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0ac963aacc542b4a132c08ebbf6f1cf327"></a>T_UINT&#160;</td><td class="fielddoc"><p>Unsigned integer (C type unsigned int) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae94f89487a1ed0c0c2f1bd5a1f0741d0a3d57b71e39a73b70f2669b92fbd35e6f" name="ae94f89487a1ed0c0c2f1bd5a1f0741d0a3d57b71e39a73b70f2669b92fbd35e6f"></a>T_ULONG&#160;</td><td class="fielddoc"><p>Unsigned long integer (C type unsigned long) </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a8af4f38b50b1e518213e407c623571f0" name="a8af4f38b50b1e518213e407c623571f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8af4f38b50b1e518213e407c623571f0">&#9670;&#160;</a></span>anonymous enum</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">anonymous enum</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a8af4f38b50b1e518213e407c623571f0a0163d8b01734bf4433368f6149b35ab0" name="a8af4f38b50b1e518213e407c623571f0a0163d8b01734bf4433368f6149b35ab0"></a>DT_NON&#160;</td><td class="fielddoc"><p>Not a derived type. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a8af4f38b50b1e518213e407c623571f0a4cc878f4ab598a565ab9e6e800970013" name="a8af4f38b50b1e518213e407c623571f0a4cc878f4ab598a565ab9e6e800970013"></a>DT_PTR&#160;</td><td class="fielddoc"><p>Pointer to. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a8af4f38b50b1e518213e407c623571f0a17b4ea1ce3864f28fa23e2e034770eac" name="a8af4f38b50b1e518213e407c623571f0a17b4ea1ce3864f28fa23e2e034770eac"></a>DT_FCN&#160;</td><td class="fielddoc"><p>Function returning. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a8af4f38b50b1e518213e407c623571f0a1a6388b32951ad8d1ed0785486ebfad8" name="a8af4f38b50b1e518213e407c623571f0a1a6388b32951ad8d1ed0785486ebfad8"></a>DT_ARY&#160;</td><td class="fielddoc"><p>Array of. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
 <a id="a916030448fcf75f5e5deda04f23269a7" name="a916030448fcf75f5e5deda04f23269a7"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a916030448fcf75f5e5deda04f23269a7">&#9670;&#160;</a></span>storage_class</h2>
 

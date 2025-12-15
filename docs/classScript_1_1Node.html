@@ -88,63 +88,67 @@ $(function() {
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a69429c5b734106cb84a28dd4c01ec634" id="r_a69429c5b734106cb84a28dd4c01ec634"><td class="memItemLeft" align="right" valign="top"><a id="a69429c5b734106cb84a28dd4c01ec634" name="a69429c5b734106cb84a28dd4c01ec634"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>node_type</b> { <br />
-&#160;&#160;<b>Sequence</b>
+&#160;&#160;<b>Empty</b>
+, <b>Sequence</b>
 , <b>CurrentAddress</b>
 , <b>Identifier</b>
-, <b>Parameter</b>
 , <br />
-&#160;&#160;<b>Integer</b>
+&#160;&#160;<b>Parameter</b>
+, <b>Integer</b>
 , <b>BaseOf</b>
 , <b>StartOf</b>
-, <b>SizeOf</b>
 , <br />
-&#160;&#160;<b>Location</b>
+&#160;&#160;<b>SizeOf</b>
+, <b>Location</b>
 , <b>Neg</b>
 , <b>Not</b>
-, <b>AlignTo</b>
 , <br />
-&#160;&#160;<b>Minimum</b>
+&#160;&#160;<b>AlignTo</b>
+, <b>Minimum</b>
 , <b>Maximum</b>
 , <b>Shl</b>
-, <b>Shr</b>
 , <br />
-&#160;&#160;<b>Add</b>
+&#160;&#160;<b>Shr</b>
+, <b>Add</b>
 , <b>Sub</b>
 , <b>And</b>
-, <b>Xor</b>
 , <br />
-&#160;&#160;<b>Or</b>
+&#160;&#160;<b>Xor</b>
+, <b>Or</b>
 , <b>SetCurrentAddress</b>
 , <b>AlignAddress</b>
-, <b>SetNextBase</b>
 , <br />
-&#160;&#160;<b>Assign</b>
+&#160;&#160;<b>SetNextBase</b>
+, <b>Assign</b>
+, <b>Call</b>
 , <b>MatchAny</b>
-, <b>MatchName</b>
+, <br />
+&#160;&#160;<b>MatchName</b>
 , <b>MatchSuffix</b>
-, <br />
-&#160;&#160;<b>IsReadable</b>
+, <b>IsReadable</b>
 , <b>IsWritable</b>
-, <b>IsExecutable</b>
+, <br />
+&#160;&#160;<b>IsExecutable</b>
 , <b>IsMergeable</b>
-, <br />
-&#160;&#160;<b>IsZeroFilled</b>
+, <b>IsZeroFilled</b>
 , <b>IsFixedAddress</b>
-, <b>IsResource</b>
+, <br />
+&#160;&#160;<b>IsResource</b>
 , <b>IsOptional</b>
-, <br />
-&#160;&#160;<b>IsStack</b>
+, <b>IsStack</b>
 , <b>IsHeap</b>
-, <b>IsCustomFlag</b>
+, <br />
+&#160;&#160;<b>IsCustomFlag</b>
 , <b>Collect</b>
-, <br />
-&#160;&#160;<b>NotPredicate</b>
+, <b>NotPredicate</b>
 , <b>AndPredicate</b>
-, <b>OrPredicate</b>
-, <b>MaximumSections</b>
 , <br />
-&#160;&#160;<b>Segment</b>
-, <b>SegmentTemplate</b>
+&#160;&#160;<b>OrPredicate</b>
+, <b>MaximumSections</b>
+, <b>UntilSection</b>
+, <b>Segment</b>
+, <br />
+&#160;&#160;<b>SegmentTemplate</b>
 <br />
  }</td></tr>
 <tr class="separator:a69429c5b734106cb84a28dd4c01ec634"><td class="memSeparator" colspan="2">&#160;</td></tr>

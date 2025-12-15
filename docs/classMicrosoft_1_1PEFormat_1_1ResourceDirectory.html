@@ -99,12 +99,42 @@ Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourceDirectory_1_1Entry.html">Entry</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a single entry in the resource directory.  <a href="classMicrosoft_1_1PEFormat_1_1ResourceDirectory_1_1Entry.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourceDirectory_1_1Name.html">Name</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
 <tr class="memitem:a5fca3e472b2bc507e07f44246510733a" id="r_a5fca3e472b2bc507e07f44246510733a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5fca3e472b2bc507e07f44246510733a">AddResource</a> (std::shared_ptr&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1Resource.html">Resource</a> &gt; &amp;resource, size_t level=0)</td></tr>
 <tr class="memdesc:a5fca3e472b2bc507e07f44246510733a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Inserts a resource into the directory.  <br /></td></tr>
 <tr class="separator:a5fca3e472b2bc507e07f44246510733a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37a7810ef95e4c1cdcd7a797b0ba80ad" id="r_a37a7810ef95e4c1cdcd7a797b0ba80ad"><td class="memItemLeft" align="right" valign="top"><a id="a37a7810ef95e4c1cdcd7a797b0ba80ad" name="a37a7810ef95e4c1cdcd7a797b0ba80ad"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>ParseResourceDirectoryData</b> (const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t directory_rva, uint32_t rva, const std::vector&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1Resource.html#a939ae7e9235b245008d89618f37aeeee">Resource::Identifier</a> &gt; &amp;partial_identifier)</td></tr>
+<tr class="memdesc:a37a7810ef95e4c1cdcd7a797b0ba80ad"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the contents of the directory at the current level, after all the section data for the file is loaded, returns longest identifier. <br /></td></tr>
+<tr class="separator:a37a7810ef95e4c1cdcd7a797b0ba80ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acc2ad21be537ca139be62357b0c9ad37" id="r_acc2ad21be537ca139be62357b0c9ad37"><td class="memItemLeft" align="right" valign="top"><a id="acc2ad21be537ca139be62357b0c9ad37" name="acc2ad21be537ca139be62357b0c9ad37"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpResourceDirectory</b> (const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, uint32_t directory_rva, uint32_t rva, const std::vector&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1Resource.html#a939ae7e9235b245008d89618f37aeeee">Resource::Identifier</a> &gt; &amp;partial_identifier, size_t dump_level) const</td></tr>
+<tr class="memdesc:acc2ad21be537ca139be62357b0c9ad37"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the directory contents. <br /></td></tr>
+<tr class="separator:acc2ad21be537ca139be62357b0c9ad37"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad64154e65dec847217fd19fbfbe12c1" id="r_aad64154e65dec847217fd19fbfbe12c1"><td class="memItemLeft" align="right" valign="top"><a id="aad64154e65dec847217fd19fbfbe12c1" name="aad64154e65dec847217fd19fbfbe12c1"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>CalculateDirectoryOffsets</b> (<a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t offset, size_t level_deeper)</td></tr>
+<tr class="memdesc:aad64154e65dec847217fd19fbfbe12c1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills in the offsets for all subdirectories at the specified relative level. <br /></td></tr>
+<tr class="separator:aad64154e65dec847217fd19fbfbe12c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5729a13497522cf8f45d6fdd870f6b45" id="r_a5729a13497522cf8f45d6fdd870f6b45"><td class="memItemLeft" align="right" valign="top"><a id="a5729a13497522cf8f45d6fdd870f6b45" name="a5729a13497522cf8f45d6fdd870f6b45"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>CollectSubdirectoryStrings</b> (<a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html">ResourcesSection</a> &amp;rsrc, size_t level_deeper)</td></tr>
+<tr class="memdesc:a5729a13497522cf8f45d6fdd870f6b45"><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers all strings occuring in the directory and its subdirectories at the specified relative level. <br /></td></tr>
+<tr class="separator:a5729a13497522cf8f45d6fdd870f6b45"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ef0936f177feffc1c5e16cbce066338" id="r_a6ef0936f177feffc1c5e16cbce066338"><td class="memItemLeft" align="right" valign="top"><a id="a6ef0936f177feffc1c5e16cbce066338" name="a6ef0936f177feffc1c5e16cbce066338"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>CollectResourceData</b> (<a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t rva, size_t level_deeper)</td></tr>
+<tr class="memdesc:a6ef0936f177feffc1c5e16cbce066338"><td class="mdescLeft">&#160;</td><td class="mdescRight">Calculates the relative virtual addresses of each individual resource at the specified relative level. <br /></td></tr>
+<tr class="separator:a6ef0936f177feffc1c5e16cbce066338"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea65eb4e5e8b30ecbf14db5826bf538d" id="r_aea65eb4e5e8b30ecbf14db5826bf538d"><td class="memItemLeft" align="right" valign="top"><a id="aea65eb4e5e8b30ecbf14db5826bf538d" name="aea65eb4e5e8b30ecbf14db5826bf538d"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteDirectories</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t section_pointer) const</td></tr>
+<tr class="memdesc:aea65eb4e5e8b30ecbf14db5826bf538d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recursively writes the directory table and all those of all of its subdirectories and leaves. <br /></td></tr>
+<tr class="separator:aea65eb4e5e8b30ecbf14db5826bf538d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afa3495e3b1dc31a54675b88cad5da034" id="r_afa3495e3b1dc31a54675b88cad5da034"><td class="memItemLeft" align="right" valign="top"><a id="afa3495e3b1dc31a54675b88cad5da034" name="afa3495e3b1dc31a54675b88cad5da034"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteResources</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t rva_to_offset) const</td></tr>
+<tr class="memdesc:afa3495e3b1dc31a54675b88cad5da034"><td class="mdescLeft">&#160;</td><td class="mdescRight">Recursively writes all the resources. <br /></td></tr>
+<tr class="separator:afa3495e3b1dc31a54675b88cad5da034"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -118,10 +148,10 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>timestamp</b> = 0
 <tr class="memitem:af5a4f27a00a989088d33ec8e75ddb8a7" id="r_af5a4f27a00a989088d33ec8e75ddb8a7"><td class="memItemLeft" align="right" valign="top"><a id="af5a4f27a00a989088d33ec8e75ddb8a7" name="af5a4f27a00a989088d33ec8e75ddb8a7"></a>
 <a class="el" href="structMicrosoft_1_1PEFormat_1_1version__type.html">version_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>version</b> = { }</td></tr>
 <tr class="separator:af5a4f27a00a989088d33ec8e75ddb8a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af959c9058dd6e6b07f4808f89cf59bce" id="r_af959c9058dd6e6b07f4808f89cf59bce"><td class="memItemLeft" align="right" valign="top"><a id="af959c9058dd6e6b07f4808f89cf59bce" name="af959c9058dd6e6b07f4808f89cf59bce"></a>
-std::vector&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourceDirectory_1_1Entry.html">Entry</a>&lt; std::string &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>name_entries</b></td></tr>
-<tr class="memdesc:af959c9058dd6e6b07f4808f89cf59bce"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entries that are identified via a string. <br /></td></tr>
-<tr class="separator:af959c9058dd6e6b07f4808f89cf59bce"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50e9344a7539cd3297e57ccab94a0420" id="r_a50e9344a7539cd3297e57ccab94a0420"><td class="memItemLeft" align="right" valign="top"><a id="a50e9344a7539cd3297e57ccab94a0420" name="a50e9344a7539cd3297e57ccab94a0420"></a>
+std::vector&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourceDirectory_1_1Entry.html">Entry</a>&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourceDirectory_1_1Name.html">Name</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>name_entries</b></td></tr>
+<tr class="memdesc:a50e9344a7539cd3297e57ccab94a0420"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entries that are identified via a string. <br /></td></tr>
+<tr class="separator:a50e9344a7539cd3297e57ccab94a0420"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad3182795318767233cda436978e90bf3" id="r_ad3182795318767233cda436978e90bf3"><td class="memItemLeft" align="right" valign="top"><a id="ad3182795318767233cda436978e90bf3" name="ad3182795318767233cda436978e90bf3"></a>
 std::vector&lt; <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourceDirectory_1_1Entry.html">Entry</a>&lt; uint32_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>id_entries</b></td></tr>
 <tr class="memdesc:ad3182795318767233cda436978e90bf3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Entries that are identified via a number. <br /></td></tr>

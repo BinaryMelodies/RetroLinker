@@ -90,7 +90,7 @@ Inheritance diagram for ELF::ELFFormat::DynamicSection:</div>
   <img src="classELF_1_1ELFFormat_1_1DynamicSection.png" usemap="#ELF::ELFFormat::DynamicSection_map" alt=""/>
   <map id="ELF::ELFFormat::DynamicSection_map" name="ELF::ELFFormat::DynamicSection_map">
 <area href="classELF_1_1ELFFormat_1_1SectionContents.html" alt="ELF::ELFFormat::SectionContents" shape="rect" coords="0,56,200,80"/>
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,200,24"/>
+<area href="classLinker_1_1Contents.html" title="Represents abstract data contents whose data can be written to a file." alt="Linker::Contents" shape="rect" coords="0,0,200,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -111,17 +111,17 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a01471ed107f7997d63f25b09624d9cbd inherit pub_methods_classELF_1_1ELFFormat_1_1SectionContents" id="r_a01471ed107f7997d63f25b09624d9cbd"><td class="memItemLeft" align="right" valign="top">
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>AddDumperFields</b> (std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt; &amp;region, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classELF_1_1ELFFormat.html">ELFFormat</a> &amp;fmt, unsigned index) const</td></tr>
 <tr class="separator:a01471ed107f7997d63f25b09624d9cbd inherit pub_methods_classELF_1_1ELFFormat_1_1SectionContents"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="inherit_header pub_methods_classLinker_1_1Image"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Image')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Image.html">Linker::Image</a></td></tr>
-<tr class="memitem:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image" id="r_a345910fe1b88a080b8c94e4de4386366"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#a345910fe1b88a080b8c94e4de4386366">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr) const</td></tr>
-<tr class="memdesc:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image" id="r_acaef1c478cfe2e33e41d9e1acd633be5"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; const <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#acaef1c478cfe2e33e41d9e1acd633be5">AsImage</a> () const</td></tr>
-<tr class="memdesc:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
-<tr class="separator:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image" id="r_a252985c07abe8a9da6c9c40d11af7dfb"><td class="memItemLeft" align="right" valign="top">
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>AsImage</b> ()</td></tr>
-<tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
-<tr class="separator:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classLinker_1_1Contents"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Contents')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a></td></tr>
+<tr class="memitem:ab2a671ae11b6970b9992bfe3b4247315 inherit pub_methods_classLinker_1_1Contents" id="r_ab2a671ae11b6970b9992bfe3b4247315"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Contents.html#ab2a671ae11b6970b9992bfe3b4247315">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr) const</td></tr>
+<tr class="memdesc:ab2a671ae11b6970b9992bfe3b4247315 inherit pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:ab2a671ae11b6970b9992bfe3b4247315 inherit pub_methods_classLinker_1_1Contents"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b03d930e8e4a77c6b76120899768628 inherit pub_methods_classLinker_1_1Contents" id="r_a6b03d930e8e4a77c6b76120899768628"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; const <a class="el" href="classLinker_1_1Image.html">Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Contents.html#a6b03d930e8e4a77c6b76120899768628">AsImage</a> () const</td></tr>
+<tr class="memdesc:a6b03d930e8e4a77c6b76120899768628 inherit pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="separator:a6b03d930e8e4a77c6b76120899768628 inherit pub_methods_classLinker_1_1Contents"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents" id="r_ae83d572ac94545b2e83238bb998dcb5c"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>AsImage</b> ()</td></tr>
+<tr class="memdesc:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
+<tr class="separator:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -197,7 +197,7 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1DynamicObject.html"
 
 <p>Retrieves size of stored data. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Image.html#a94dfc8a1f78b22134c2bb82dbc554bb6">Linker::Image</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Contents.html#a67a690b7bd6597ba0bc1008ef83efaa4">Linker::Contents</a>.</p>
 
 </div>
 </div>
@@ -235,7 +235,7 @@ std::vector&lt; <a class="el" href="classELF_1_1ELFFormat_1_1DynamicObject.html"
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Image.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Image</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Contents.html#ad3ba5a8126db240d37a27cc9909f53fe">Linker::Contents</a>.</p>
 
 </div>
 </div>

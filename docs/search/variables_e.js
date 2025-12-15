@@ -1,14 +1,19 @@
 var searchData=
 [
-  ['page_5fresident_0',['page_resident',['../classOMF_1_1OMF86Format_1_1SegmentDefinitionRecord.html#a88a0b76ebfb318ce2c82386c0a2c534b',1,'OMF::OMF86Format::SegmentDefinitionRecord']]],
-  ['page_5frva_1',['page_rva',['../classMicrosoft_1_1PEFormat_1_1BaseRelocationBlock.html#acc12449c9c0c752a3994b64c3de8adc6',1,'Microsoft::PEFormat::BaseRelocationBlock']]],
-  ['page_5fsize_2',['PAGE_SIZE',['../classMicrosoft_1_1PEFormat_1_1BaseRelocationBlock.html#a87daa5f19d89daed006d9d03293fbd1b',1,'Microsoft::PEFormat::BaseRelocationBlock']]],
-  ['parameter_3',['parameter',['../classMicrosoft_1_1PEFormat_1_1BaseRelocation.html#a3a8f38eebf51d1452e55c75202e6a91f',1,'Microsoft::PEFormat::BaseRelocation']]],
-  ['physical_5faddress_4',['physical_address',['../classCOFF_1_1COFFFormat_1_1Section.html#ad431a44fbdc52c6564a315dd32505517',1,'COFF::COFFFormat::Section']]],
-  ['pif_5',['pif',['../classBinary_1_1BinaryFormat.html#aebf359aa79577139a37a542b1aca2fe5',1,'Binary::BinaryFormat::pif'],['../classMicrosoft_1_1MZFormat.html#af2e7c81ecde8a455f262ae3526cb407c',1,'Microsoft::MZFormat::pif']]],
-  ['position_5fdisplay_5fwidth_6',['position_display_width',['../classDumper_1_1Block.html#a5414cdaa41d5c73dd188e55b4793cda3',1,'Dumper::Block']]],
-  ['position_5findependent_7',['position_independent',['../classBinary_1_1GenericBinaryFormat.html#ab26e7d22d4e556c5b81a1b4dd53fc4e2',1,'Binary::GenericBinaryFormat']]],
-  ['preinit_5fcode_8',['preinit_code',['../classBinary_1_1CPM3Format.html#a45e524ed39b32650ced697417e69d0fb',1,'Binary::CPM3Format']]],
-  ['procedure_9',['procedure',['../classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html#a56d34a110d74b23b78cb665e6d9409a1',1,'OMF::OMF86Format::BlockDefinitionRecord']]],
-  ['program_5fflags_10',['program_flags',['../classDigitalResearch_1_1CPM68KFormat.html#a2afc0b8e6ac0aff40e946bea69166133',1,'DigitalResearch::CPM68KFormat::program_flags'],['../classMicrosoft_1_1NEFormat.html#a4bf95971b5f791863dcbe18430955a8c',1,'Microsoft::NEFormat::program_flags']]]
+  ['pad_0',['PAD',['../structCOFF_1_1COFFFormat_1_1Section_1_1COFF__Flags.html#a777dae9295a1a9bc9047884c88d67f93',1,'COFF::COFFFormat::Section::COFF_Flags::PAD'],['../structCOFF_1_1COFFFormat_1_1Section_1_1XCOFF__Flags.html#af9b2bf72e595568560e8c0b553ab2d85',1,'COFF::COFFFormat::Section::XCOFF_Flags::PAD'],['../structCOFF_1_1COFFFormat_1_1Section_1_1TICOFF__Flags.html#ac454a59f0c9a40d57f100fd2c94a930e',1,'COFF::COFFFormat::Section::TICOFF_Flags::PAD']]],
+  ['padded_1',['PADDED',['../structCOFF_1_1COFFFormat_1_1Section_1_1TICOFF__Flags.html#adac86b4b24ddb50e0bf9fbe449a6283c',1,'COFF::COFFFormat::Section::TICOFF_Flags']]],
+  ['page_5fmap_5ftable_2',['page_map_table',['../classMicrosoft_1_1LEFormat.html#a0a0cf8df3d9de96981a51c4d565d094c',1,'Microsoft::LEFormat']]],
+  ['page_5fresident_3',['page_resident',['../classOMF_1_1OMF86Format_1_1SegmentDefinitionRecord.html#a88a0b76ebfb318ce2c82386c0a2c534b',1,'OMF::OMF86Format::SegmentDefinitionRecord']]],
+  ['page_5frva_4',['page_rva',['../classMicrosoft_1_1PEFormat_1_1BaseRelocationBlock.html#acc12449c9c0c752a3994b64c3de8adc6',1,'Microsoft::PEFormat::BaseRelocationBlock']]],
+  ['page_5fsize_5',['PAGE_SIZE',['../classMicrosoft_1_1PEFormat_1_1BaseRelocationBlock.html#a87daa5f19d89daed006d9d03293fbd1b',1,'Microsoft::PEFormat::BaseRelocationBlock']]],
+  ['parameter_6',['parameter',['../classMicrosoft_1_1PEFormat_1_1BaseRelocation.html#a3a8f38eebf51d1452e55c75202e6a91f',1,'Microsoft::PEFormat::BaseRelocation']]],
+  ['pass_7',['PASS',['../structCOFF_1_1COFFFormat_1_1Section_1_1TICOFF__Flags.html#a1bfb2ced24064c31487db26deae16232',1,'COFF::COFFFormat::Section::TICOFF_Flags']]],
+  ['pdata_8',['PDATA',['../structCOFF_1_1COFFFormat_1_1Section_1_1ECOFF__Flags.html#ae39448270de500819667a8110b61d56d',1,'COFF::COFFFormat::Section::ECOFF_Flags']]],
+  ['physical_5faddress_9',['physical_address',['../classCOFF_1_1COFFFormat_1_1Section.html#ad431a44fbdc52c6564a315dd32505517',1,'COFF::COFFFormat::Section']]],
+  ['pif_10',['pif',['../classBinary_1_1BinaryFormat.html#aebf359aa79577139a37a542b1aca2fe5',1,'Binary::BinaryFormat::pif'],['../classMicrosoft_1_1MZFormat.html#af2e7c81ecde8a455f262ae3526cb407c',1,'Microsoft::MZFormat::pif']]],
+  ['position_5fdisplay_5fwidth_11',['position_display_width',['../classDumper_1_1Block.html#a5414cdaa41d5c73dd188e55b4793cda3',1,'Dumper::Block']]],
+  ['position_5findependent_12',['position_independent',['../classBinary_1_1GenericBinaryFormat.html#ab26e7d22d4e556c5b81a1b4dd53fc4e2',1,'Binary::GenericBinaryFormat']]],
+  ['preinit_5fcode_13',['preinit_code',['../classBinary_1_1CPM3Format.html#a45e524ed39b32650ced697417e69d0fb',1,'Binary::CPM3Format']]],
+  ['procedure_14',['procedure',['../classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html#a56d34a110d74b23b78cb665e6d9409a1',1,'OMF::OMF86Format::BlockDefinitionRecord']]],
+  ['program_5fflags_15',['program_flags',['../classDigitalResearch_1_1CPM68KFormat.html#a2afc0b8e6ac0aff40e946bea69166133',1,'DigitalResearch::CPM68KFormat::program_flags'],['../classMicrosoft_1_1NEFormat.html#a4bf95971b5f791863dcbe18430955a8c',1,'Microsoft::NEFormat::program_flags']]]
 ];

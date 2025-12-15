@@ -83,48 +83,83 @@ $(function() {
   <div class="headertitle"><div class="title">Microsoft::LEFormat::IteratedPage::View Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>An image instance where the iterated page data can be accessed as the series of bytes it generates.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="leexe_8h_source.html">leexe.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for Microsoft::LEFormat::IteratedPage::View:</div>
 <div class="dyncontent">
  <div class="center">
   <img src="classMicrosoft_1_1LEFormat_1_1IteratedPage_1_1View.png" usemap="#Microsoft::LEFormat::IteratedPage::View_map" alt=""/>
   <map id="Microsoft::LEFormat::IteratedPage::View_map" name="Microsoft::LEFormat::IteratedPage::View_map">
-<area href="classLinker_1_1Image.html" title="Represents an abstract data image whose data can be written to a file." alt="Linker::Image" shape="rect" coords="0,0,236,24"/>
+<area href="classLinker_1_1Image.html" alt="Linker::Image" shape="rect" coords="123,56,359,80"/>
+<area href="classLinker_1_1Contents.html" title="Represents abstract data contents whose data can be written to a file." alt="Linker::Contents" shape="rect" coords="0,0,236,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:a87674f91edff5301468463cf4ccc6319" id="r_a87674f91edff5301468463cf4ccc6319"><td class="memItemLeft" align="right" valign="top"><a id="a87674f91edff5301468463cf4ccc6319" name="a87674f91edff5301468463cf4ccc6319"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>View</b> (<a class="el" href="classMicrosoft_1_1LEFormat_1_1IteratedPage.html">IteratedPage</a> &amp;iterated_page)</td></tr>
-<tr class="separator:a87674f91edff5301468463cf4ccc6319"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a44d58c85ceb561707f319c8105a6bc78" id="r_a44d58c85ceb561707f319c8105a6bc78"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a44d58c85ceb561707f319c8105a6bc78">ImageSize</a> () const override</td></tr>
-<tr class="memdesc:a44d58c85ceb561707f319c8105a6bc78"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
-<tr class="separator:a44d58c85ceb561707f319c8105a6bc78"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab59fef16eb4ec4aa3cbe99465bf8cabc" id="r_ab59fef16eb4ec4aa3cbe99465bf8cabc"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab59fef16eb4ec4aa3cbe99465bf8cabc">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, offset_t count, offset_t offset=0) const override</td></tr>
-<tr class="memdesc:ab59fef16eb4ec4aa3cbe99465bf8cabc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:ab59fef16eb4ec4aa3cbe99465bf8cabc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3983c5704d444cfa10a9e8e458d2062b" id="r_a3983c5704d444cfa10a9e8e458d2062b"><td class="memItemLeft" align="right" valign="top"><a id="a3983c5704d444cfa10a9e8e458d2062b" name="a3983c5704d444cfa10a9e8e458d2062b"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>View</b> (<a class="el" href="classMicrosoft_1_1LEFormat_1_1IteratedPage.html">IteratedPage</a> &amp;iterated_page, size_t size)</td></tr>
+<tr class="separator:a3983c5704d444cfa10a9e8e458d2062b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab87e6af994564b2841f3d4a9d22b97b4" id="r_ab87e6af994564b2841f3d4a9d22b97b4"><td class="memItemLeft" align="right" valign="top">size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab87e6af994564b2841f3d4a9d22b97b4">ReadData</a> (size_t bytes, offset_t offset, void *buffer) const override</td></tr>
+<tr class="memdesc:ab87e6af994564b2841f3d4a9d22b97b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Attempts to fill a buffer with data.  <br /></td></tr>
+<tr class="separator:ab87e6af994564b2841f3d4a9d22b97b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac0de1bddca107f1cf4a639055b1df820" id="r_ac0de1bddca107f1cf4a639055b1df820"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac0de1bddca107f1cf4a639055b1df820">ImageSize</a> () const override</td></tr>
+<tr class="memdesc:ac0de1bddca107f1cf4a639055b1df820"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
+<tr class="separator:ac0de1bddca107f1cf4a639055b1df820"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa143a6e0f1b1ae12373cf984eb688569" id="r_aa143a6e0f1b1ae12373cf984eb688569"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa143a6e0f1b1ae12373cf984eb688569">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, offset_t count, offset_t offset=0) const override</td></tr>
+<tr class="memdesc:aa143a6e0f1b1ae12373cf984eb688569"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:aa143a6e0f1b1ae12373cf984eb688569"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classLinker_1_1Image"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Image')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Image.html">Linker::Image</a></td></tr>
-<tr class="memitem:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image" id="r_a345910fe1b88a080b8c94e4de4386366"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#a345910fe1b88a080b8c94e4de4386366">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr) const</td></tr>
-<tr class="memdesc:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
-<tr class="separator:a345910fe1b88a080b8c94e4de4386366 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image" id="r_acaef1c478cfe2e33e41d9e1acd633be5"><td class="memItemLeft" align="right" valign="top">virtual std::shared_ptr&lt; const <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#acaef1c478cfe2e33e41d9e1acd633be5">AsImage</a> () const</td></tr>
-<tr class="memdesc:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
-<tr class="separator:acaef1c478cfe2e33e41d9e1acd633be5 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image" id="r_a252985c07abe8a9da6c9c40d11af7dfb"><td class="memItemLeft" align="right" valign="top">
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1ActualImage.html">ActualImage</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>AsImage</b> ()</td></tr>
-<tr class="memdesc:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
-<tr class="separator:a252985c07abe8a9da6c9c40d11af7dfb inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af8df00b5d92fe89fe6f285511f5ce471 inherit pub_methods_classLinker_1_1Image" id="r_af8df00b5d92fe89fe6f285511f5ce471"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; const <a class="el" href="classLinker_1_1Image.html">Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Image.html#af8df00b5d92fe89fe6f285511f5ce471">AsImage</a> () const override</td></tr>
+<tr class="memdesc:af8df00b5d92fe89fe6f285511f5ce471 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image.  <br /></td></tr>
+<tr class="separator:af8df00b5d92fe89fe6f285511f5ce471 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1dfa35a6df4196f9c6446f27628d8ff inherit pub_methods_classLinker_1_1Image" id="r_aa1dfa35a6df4196f9c6446f27628d8ff"><td class="memItemLeft" align="right" valign="top">
+uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadUnsigned</b> (size_t bytes, offset_t offset, EndianType endiantype) const</td></tr>
+<tr class="memdesc:aa1dfa35a6df4196f9c6446f27628d8ff inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads an unsigned number at a specific offset. <br /></td></tr>
+<tr class="separator:aa1dfa35a6df4196f9c6446f27628d8ff inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c63d10b421952b35fde3e80dcbb1f89 inherit pub_methods_classLinker_1_1Image" id="r_a1c63d10b421952b35fde3e80dcbb1f89"><td class="memItemLeft" align="right" valign="top">
+uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadUnsigned</b> (size_t bytes, offset_t offset) const</td></tr>
+<tr class="memdesc:a1c63d10b421952b35fde3e80dcbb1f89 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads an unsigned number at a specific offset with the default endianness. <br /></td></tr>
+<tr class="separator:a1c63d10b421952b35fde3e80dcbb1f89 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96d9221ae59cff1320049b2749bb83ba inherit pub_methods_classLinker_1_1Image" id="r_a96d9221ae59cff1320049b2749bb83ba"><td class="memItemLeft" align="right" valign="top">
+int64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSigned</b> (size_t bytes, offset_t offset, EndianType endiantype) const</td></tr>
+<tr class="memdesc:a96d9221ae59cff1320049b2749bb83ba inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a signed number at a specific offset. <br /></td></tr>
+<tr class="separator:a96d9221ae59cff1320049b2749bb83ba inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98fec2254687395b75ef67d336f1ae01 inherit pub_methods_classLinker_1_1Image" id="r_a98fec2254687395b75ef67d336f1ae01"><td class="memItemLeft" align="right" valign="top">
+int64_t&#160;</td><td class="memItemRight" valign="bottom"><b>ReadSigned</b> (size_t bytes, offset_t offset) const</td></tr>
+<tr class="memdesc:a98fec2254687395b75ef67d336f1ae01 inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a signed number at a specific offset with the default endianness. <br /></td></tr>
+<tr class="separator:a98fec2254687395b75ef67d336f1ae01 inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b14a1cb5d8bb8ce5a999c26dc441eeb inherit pub_methods_classLinker_1_1Image" id="r_a4b14a1cb5d8bb8ce5a999c26dc441eeb"><td class="memItemLeft" align="right" valign="top">
+int&#160;</td><td class="memItemRight" valign="bottom"><b>GetByte</b> (offset_t offset) const</td></tr>
+<tr class="memdesc:a4b14a1cb5d8bb8ce5a999c26dc441eeb inherit pub_methods_classLinker_1_1Image"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieve byte at a certain offset (optional, might not be defined) <br /></td></tr>
+<tr class="separator:a4b14a1cb5d8bb8ce5a999c26dc441eeb inherit pub_methods_classLinker_1_1Image"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classLinker_1_1Contents"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classLinker_1_1Contents')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a></td></tr>
+<tr class="memitem:ab2a671ae11b6970b9992bfe3b4247315 inherit pub_methods_classLinker_1_1Contents" id="r_ab2a671ae11b6970b9992bfe3b4247315"><td class="memItemLeft" align="right" valign="top">virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Contents.html#ab2a671ae11b6970b9992bfe3b4247315">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Writer</a> &amp;wr) const</td></tr>
+<tr class="memdesc:ab2a671ae11b6970b9992bfe3b4247315 inherit pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes data of non-zero filled sections.  <br /></td></tr>
+<tr class="separator:ab2a671ae11b6970b9992bfe3b4247315 inherit pub_methods_classLinker_1_1Contents"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents" id="r_ae83d572ac94545b2e83238bb998dcb5c"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>AsImage</b> ()</td></tr>
+<tr class="memdesc:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
+<tr class="separator:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:aaab7a04a7037dd97d2ad353847277962" id="r_aaab7a04a7037dd97d2ad353847277962"><td class="memItemLeft" align="right" valign="top"><a id="aaab7a04a7037dd97d2ad353847277962" name="aaab7a04a7037dd97d2ad353847277962"></a>
 <a class="el" href="classMicrosoft_1_1LEFormat_1_1IteratedPage.html">IteratedPage</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>iterated_page</b></td></tr>
 <tr class="separator:aaab7a04a7037dd97d2ad353847277962"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7742f30fe44eedc1d30e629051fb9e4" id="r_ad7742f30fe44eedc1d30e629051fb9e4"><td class="memItemLeft" align="right" valign="top"><a id="ad7742f30fe44eedc1d30e629051fb9e4" name="ad7742f30fe44eedc1d30e629051fb9e4"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b></td></tr>
+<tr class="separator:ad7742f30fe44eedc1d30e629051fb9e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
-<a id="a44d58c85ceb561707f319c8105a6bc78" name="a44d58c85ceb561707f319c8105a6bc78"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a44d58c85ceb561707f319c8105a6bc78">&#9670;&#160;</a></span>ImageSize()</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>An image instance where the iterated page data can be accessed as the series of bytes it generates. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac0de1bddca107f1cf4a639055b1df820" name="ac0de1bddca107f1cf4a639055b1df820"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac0de1bddca107f1cf4a639055b1df820">&#9670;&#160;</a></span>ImageSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -133,7 +168,7 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">offset_t Microsoft::LEFormat::IteratedPage::View::ImageSize </td>
+          <td class="memname">offset_t LEFormat::IteratedPage::View::ImageSize </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td> const</td>
@@ -148,12 +183,12 @@ Public Attributes</h2></td></tr>
 
 <p>Retrieves size of stored data. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Image.html#a94dfc8a1f78b22134c2bb82dbc554bb6">Linker::Image</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Contents.html#a67a690b7bd6597ba0bc1008ef83efaa4">Linker::Contents</a>.</p>
 
 </div>
 </div>
-<a id="ab59fef16eb4ec4aa3cbe99465bf8cabc" name="ab59fef16eb4ec4aa3cbe99465bf8cabc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab59fef16eb4ec4aa3cbe99465bf8cabc">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="ab87e6af994564b2841f3d4a9d22b97b4" name="ab87e6af994564b2841f3d4a9d22b97b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab87e6af994564b2841f3d4a9d22b97b4">&#9670;&#160;</a></span>ReadData()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -162,7 +197,54 @@ Public Attributes</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">offset_t Microsoft::LEFormat::IteratedPage::View::WriteFile </td>
+          <td class="memname">size_t LEFormat::IteratedPage::View::ReadData </td>
+          <td>(</td>
+          <td class="paramtype">size_t</td>          <td class="paramname"><span class="paramname"><em>bytes</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>offset</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>buffer</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Attempts to fill a buffer with data. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">bytes</td><td>The (maximum) number of bytes to place in buffer </td></tr>
+    <tr><td class="paramname">offset</td><td>The offset in the image to start reading the data </td></tr>
+    <tr><td class="paramname">buffer</td><td>A byte buffer </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Actual number of bytes copied into buffer </dd></dl>
+
+<p>Implements <a class="el" href="classLinker_1_1Image.html#ad1cb463860cf1691467a56b443480829">Linker::Image</a>.</p>
+
+</div>
+</div>
+<a id="aa143a6e0f1b1ae12373cf984eb688569" name="aa143a6e0f1b1ae12373cf984eb688569"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa143a6e0f1b1ae12373cf984eb688569">&#9670;&#160;</a></span>WriteFile()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">offset_t LEFormat::IteratedPage::View::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em>, </span></td>
         </tr>
@@ -186,12 +268,13 @@ Public Attributes</h2></td></tr>
 
 <p>Writes data of non-zero filled sections. </p>
 
-<p>Implements <a class="el" href="classLinker_1_1Image.html#a6de5e965b64ca60e3a70247f71e22650">Linker::Image</a>.</p>
+<p>Implements <a class="el" href="classLinker_1_1Contents.html#ad3ba5a8126db240d37a27cc9909f53fe">Linker::Contents</a>.</p>
 
 </div>
 </div>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="leexe_8h_source.html">leexe.h</a></li>
+<li>src/format/<b>leexe.cc</b></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

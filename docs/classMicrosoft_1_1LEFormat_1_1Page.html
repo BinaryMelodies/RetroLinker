@@ -79,6 +79,7 @@ $(function() {
   <div class="summary">
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
@@ -86,70 +87,65 @@ $(function() {
   <div class="headertitle"><div class="title">Microsoft::LEFormat::Page Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Represents a page (usually of 4 KiB) within an LE/LX object.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="leexe_8h_source.html">leexe.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classMicrosoft_1_1LEFormat_1_1Page_1_1Relocation.html">Relocation</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a relocation record associated to this page.  <a href="classMicrosoft_1_1LEFormat_1_1Page_1_1Relocation.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ae2a16bbaffa97106e59c515c1430f54d" id="r_ae2a16bbaffa97106e59c515c1430f54d"><td class="memItemLeft" align="right" valign="top"><a id="ae2a16bbaffa97106e59c515c1430f54d" name="ae2a16bbaffa97106e59c515c1430f54d"></a>enum &#160;</td><td class="memItemRight" valign="bottom">{ <br />
-&#160;&#160;<b>NoRelocations</b> = 0
-, <b>Relocations</b> = 3
-, <b>Preload</b> = 0
-, <b>Iterated</b>
+<tr class="memitem:a0a4f98f070b2a9dadef38a2db4448d91" id="r_a0a4f98f070b2a9dadef38a2db4448d91"><td class="memItemLeft" align="right" valign="top"><a id="a0a4f98f070b2a9dadef38a2db4448d91" name="a0a4f98f070b2a9dadef38a2db4448d91"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0a4f98f070b2a9dadef38a2db4448d91">page_type</a> { <br />
+&#160;&#160;<b>Preload</b> = 0
+, <b>Iterated</b> = 1
+, <b>Invalid</b> = 2
+, <b>ZeroFilled</b> = 3
 , <br />
-&#160;&#160;<b>Invalid</b>
-, <b>ZeroFilled</b>
-, <b>Range</b>
+&#160;&#160;<b>Range</b> = 4
+, <b>Compressed</b> = 5
 <br />
  }</td></tr>
-<tr class="separator:ae2a16bbaffa97106e59c515c1430f54d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memdesc:a0a4f98f070b2a9dadef38a2db4448d91"><td class="mdescLeft">&#160;</td><td class="mdescRight">LX (and presumably LE) page types. <br /></td></tr>
+<tr class="separator:a0a4f98f070b2a9dadef38a2db4448d91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a98a33f3c4f50d1e10cd9d71f5b3177d9" id="r_a98a33f3c4f50d1e10cd9d71f5b3177d9"><td class="memItemLeft" align="right" valign="top"><a id="a98a33f3c4f50d1e10cd9d71f5b3177d9" name="a98a33f3c4f50d1e10cd9d71f5b3177d9"></a>
+<a class="el" href="#a0a4f98f070b2a9dadef38a2db4448d91">page_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GetPageType</b> (const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt) const</td></tr>
+<tr class="separator:a98a33f3c4f50d1e10cd9d71f5b3177d9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a4b31678b4bad8af56baa49b594b0d1" id="r_a7a4b31678b4bad8af56baa49b594b0d1"><td class="memItemLeft" align="right" valign="top"><a id="a7a4b31678b4bad8af56baa49b594b0d1" name="a7a4b31678b4bad8af56baa49b594b0d1"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:a7a4b31678b4bad8af56baa49b594b0d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ac68786bee8da7440f7a5377739f3df5e" id="r_ac68786bee8da7440f7a5377739f3df5e"><td class="memItemLeft" align="right" valign="top"><a id="ac68786bee8da7440f7a5377739f3df5e" name="ac68786bee8da7440f7a5377739f3df5e"></a>
-static <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page.html">Page</a>&#160;</td><td class="memItemRight" valign="bottom"><b>LEPage</b> (uint16_t fixup_table_index, uint8_t type)</td></tr>
-<tr class="separator:ac68786bee8da7440f7a5377739f3df5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab6b43bb9497fc817ac6da410eb875fe4" id="r_ab6b43bb9497fc817ac6da410eb875fe4"><td class="memItemLeft" align="right" valign="top"><a id="ab6b43bb9497fc817ac6da410eb875fe4" name="ab6b43bb9497fc817ac6da410eb875fe4"></a>
-static <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page.html">Page</a>&#160;</td><td class="memItemRight" valign="bottom"><b>LXPage</b> (uint32_t offset, uint16_t size, uint8_t flags)</td></tr>
-<tr class="separator:ab6b43bb9497fc817ac6da410eb875fe4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a96514ed259650673cfb632c88d5555d8" id="r_a96514ed259650673cfb632c88d5555d8"><td class="memItemLeft" align="right" valign="top"><a id="a96514ed259650673cfb632c88d5555d8" name="a96514ed259650673cfb632c88d5555d8"></a>
+static <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page.html">Page</a>&#160;</td><td class="memItemRight" valign="bottom"><b>LEPage</b> (uint8_t <a class="el" href="#ae65e88fd04f3432264691e3fdd9e85bb">type</a>)</td></tr>
+<tr class="separator:a96514ed259650673cfb632c88d5555d8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1aa40531d9c3d273b2dca92fa5b1f50a" id="r_a1aa40531d9c3d273b2dca92fa5b1f50a"><td class="memItemLeft" align="right" valign="top"><a id="a1aa40531d9c3d273b2dca92fa5b1f50a" name="a1aa40531d9c3d273b2dca92fa5b1f50a"></a>
+static <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page.html">Page</a>&#160;</td><td class="memItemRight" valign="bottom"><b>LXPage</b> (uint32_t <a class="el" href="#a0ff0ee3d6f6733f030cace3e46d1d278">offset</a>, uint16_t <a class="el" href="#ab453414eb7477cf81f0cfefc9f3e243a">size</a>, uint8_t <a class="el" href="#ae65e88fd04f3432264691e3fdd9e85bb">type</a>)</td></tr>
+<tr class="separator:a1aa40531d9c3d273b2dca92fa5b1f50a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a90df5a96e6e8d8a1b78a1180d7e35fea" id="r_a90df5a96e6e8d8a1b78a1180d7e35fea"><td class="memItemLeft" ><a id="a90df5a96e6e8d8a1b78a1180d7e35fea" name="a90df5a96e6e8d8a1b78a1180d7e35fea"></a>
-union {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeeef9d0b7f21c99c7402a8fbaf9efa1c" id="r_aeeef9d0b7f21c99c7402a8fbaf9efa1c"><td class="memItemLeft" >
-&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:ac95d6307fb59af429f680e747496b98e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aaf0f8edfb4a728e1824e6ac83044bb58" id="r_aaf0f8edfb4a728e1824e6ac83044bb58"><td class="memItemLeft" >
-&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<b>fixup_table_index</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:aaf0f8edfb4a728e1824e6ac83044bb58"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2b8d43534a3085da81df0b3d79aa3625" id="r_a2b8d43534a3085da81df0b3d79aa3625"><td class="memItemLeft" >
-&#160;&#160;&#160;&#160;&#160;&#160;uint8_t&#160;&#160;&#160;<b>type</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a2b8d43534a3085da81df0b3d79aa3625"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aeeef9d0b7f21c99c7402a8fbaf9efa1c" id="r_aeeef9d0b7f21c99c7402a8fbaf9efa1c"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<b>le</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:aeeef9d0b7f21c99c7402a8fbaf9efa1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97034ef817c1fd5c5d6549f9d9402ae6" id="r_a97034ef817c1fd5c5d6549f9d9402ae6"><td class="memItemLeft" >
-&#160;&#160;&#160;struct {&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:aa0a67eb0e9a50ede5c7d3a7804f4d3a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a96f7931de88e4f92e8a1c71dae6b8d98" id="r_a96f7931de88e4f92e8a1c71dae6b8d98"><td class="memItemLeft" >
-&#160;&#160;&#160;&#160;&#160;&#160;uint32_t&#160;&#160;&#160;<b>offset</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a96f7931de88e4f92e8a1c71dae6b8d98"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab52a27ad6dde503ac1513fc45272a219" id="r_ab52a27ad6dde503ac1513fc45272a219"><td class="memItemLeft" >
-&#160;&#160;&#160;&#160;&#160;&#160;uint16_t&#160;&#160;&#160;<b>size</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:ab52a27ad6dde503ac1513fc45272a219"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a84ecc698a33debc43ee2b80682d050d4" id="r_a84ecc698a33debc43ee2b80682d050d4"><td class="memItemLeft" >
-&#160;&#160;&#160;&#160;&#160;&#160;uint16_t&#160;&#160;&#160;<b>flags</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a84ecc698a33debc43ee2b80682d050d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a97034ef817c1fd5c5d6549f9d9402ae6" id="r_a97034ef817c1fd5c5d6549f9d9402ae6"><td class="memItemLeft" valign="top">&#160;&#160;&#160;}&#160;&#160;&#160;<b>lx</b>&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a97034ef817c1fd5c5d6549f9d9402ae6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a90df5a96e6e8d8a1b78a1180d7e35fea" id="r_a90df5a96e6e8d8a1b78a1180d7e35fea"><td class="memItemLeft" valign="top">};&#160;</td><td class="memItemRight" valign="bottom">&#160;</td><td class="memItemRight" valign="bottom"></td></tr>
-<tr class="separator:a90df5a96e6e8d8a1b78a1180d7e35fea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0ff0ee3d6f6733f030cace3e46d1d278" id="r_a0ff0ee3d6f6733f030cace3e46d1d278"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0ff0ee3d6f6733f030cace3e46d1d278">offset</a> = 0</td></tr>
+<tr class="memdesc:a0ff0ee3d6f6733f030cace3e46d1d278"><td class="mdescLeft">&#160;</td><td class="mdescRight">(LX only) Offset of the page within the file  <br /></td></tr>
+<tr class="separator:a0ff0ee3d6f6733f030cace3e46d1d278"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab453414eb7477cf81f0cfefc9f3e243a" id="r_ab453414eb7477cf81f0cfefc9f3e243a"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab453414eb7477cf81f0cfefc9f3e243a">size</a> = 0</td></tr>
+<tr class="memdesc:ab453414eb7477cf81f0cfefc9f3e243a"><td class="mdescLeft">&#160;</td><td class="mdescRight">(LX only) The size of the page as stored in the file  <br /></td></tr>
+<tr class="separator:ab453414eb7477cf81f0cfefc9f3e243a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae65e88fd04f3432264691e3fdd9e85bb" id="r_ae65e88fd04f3432264691e3fdd9e85bb"><td class="memItemLeft" align="right" valign="top">uint16_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae65e88fd04f3432264691e3fdd9e85bb">type</a> = 0</td></tr>
+<tr class="memdesc:ae65e88fd04f3432264691e3fdd9e85bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">The type of the page.  <br /></td></tr>
+<tr class="separator:ae65e88fd04f3432264691e3fdd9e85bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa7942ba9a33dab9f40bc249939908919" id="r_aa7942ba9a33dab9f40bc249939908919"><td class="memItemLeft" align="right" valign="top"><a id="aa7942ba9a33dab9f40bc249939908919" name="aa7942ba9a33dab9f40bc249939908919"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>fixup_offset</b> = 0</td></tr>
+<tr class="memdesc:aa7942ba9a33dab9f40bc249939908919"><td class="mdescLeft">&#160;</td><td class="mdescRight">The offset to the first fixup from the fixup record table, as stored in the fixup page table. <br /></td></tr>
 <tr class="separator:aa7942ba9a33dab9f40bc249939908919"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a69c915636bcbe791275c7907733a98eb" id="r_a69c915636bcbe791275c7907733a98eb"><td class="memItemLeft" align="right" valign="top"><a id="a69c915636bcbe791275c7907733a98eb" name="a69c915636bcbe791275c7907733a98eb"></a>
 std::map&lt; uint16_t, <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
@@ -157,19 +153,94 @@ std::map&lt; uint16_t, <a class="el" href="classMicrosoft_1_1LEFormat_1_1Page_1_
 <tr class="memitem:acd4e0061475ea931dbeed5b71781d6d3" id="r_acd4e0061475ea931dbeed5b71781d6d3"><td class="memItemLeft" align="right" valign="top"><a id="acd4e0061475ea931dbeed5b71781d6d3" name="acd4e0061475ea931dbeed5b71781d6d3"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>checksum</b> = 0</td></tr>
 <tr class="separator:acd4e0061475ea931dbeed5b71781d6d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a3a64c19033a36e0345d771b67815f68d" id="r_a3a64c19033a36e0345d771b67815f68d"><td class="memItemLeft" align="right" valign="top"><a id="a3a64c19033a36e0345d771b67815f68d" name="a3a64c19033a36e0345d771b67815f68d"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="separator:a3a64c19033a36e0345d771b67815f68d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22a3f4991d97a21c1b860e1765f583b0" id="r_a22a3f4991d97a21c1b860e1765f583b0"><td class="memItemLeft" align="right" valign="top"><a id="a22a3f4991d97a21c1b860e1765f583b0" name="a22a3f4991d97a21c1b860e1765f583b0"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:a22a3f4991d97a21c1b860e1765f583b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:a3638507337ef3128653d5d5a045980f6" id="r_a3638507337ef3128653d5d5a045980f6"><td class="memItemLeft" align="right" valign="top"><a id="a3638507337ef3128653d5d5a045980f6" name="a3638507337ef3128653d5d5a045980f6"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Page</b> (uint16_t fixup_table_index, uint8_t type)</td></tr>
-<tr class="separator:a3638507337ef3128653d5d5a045980f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a342304637b7f88acc9af1e1a5be80666" id="r_a342304637b7f88acc9af1e1a5be80666"><td class="memItemLeft" align="right" valign="top"><a id="a342304637b7f88acc9af1e1a5be80666" name="a342304637b7f88acc9af1e1a5be80666"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>Page</b> (uint32_t offset, uint16_t size, uint8_t flags)</td></tr>
-<tr class="separator:a342304637b7f88acc9af1e1a5be80666"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8515bc5d610c0eea66a7cf2b2b13ca18" id="r_a8515bc5d610c0eea66a7cf2b2b13ca18"><td class="memItemLeft" align="right" valign="top"><a id="a8515bc5d610c0eea66a7cf2b2b13ca18" name="a8515bc5d610c0eea66a7cf2b2b13ca18"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>FillDumpRegion</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;page_region, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, uint32_t object_number, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:a8515bc5d610c0eea66a7cf2b2b13ca18"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a31c46d3e64d14b240b65de2f938e91f0" id="r_a31c46d3e64d14b240b65de2f938e91f0"><td class="memItemLeft" align="right" valign="top"><a id="a31c46d3e64d14b240b65de2f938e91f0" name="a31c46d3e64d14b240b65de2f938e91f0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>FillDumpRelocations</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Block.html">Dumper::Block</a> &amp;page_block, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt) const</td></tr>
+<tr class="separator:a31c46d3e64d14b240b65de2f938e91f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aedec29820e8162a93995970c82e5ba5c" id="r_aedec29820e8162a93995970c82e5ba5c"><td class="memItemLeft" align="right" valign="top"><a id="aedec29820e8162a93995970c82e5ba5c" name="aedec29820e8162a93995970c82e5ba5c"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpPhysicalPage</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, uint32_t object_number, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:aedec29820e8162a93995970c82e5ba5c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75b29fdda4ff4b295112abff16b2d319" id="r_a75b29fdda4ff4b295112abff16b2d319"><td class="memItemLeft" align="right" valign="top"><a id="a75b29fdda4ff4b295112abff16b2d319" name="a75b29fdda4ff4b295112abff16b2d319"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpIteratedPage</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, uint32_t object_number, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:a75b29fdda4ff4b295112abff16b2d319"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8974ff6f2e79d8e728b30d0b9bcd4ede" id="r_a8974ff6f2e79d8e728b30d0b9bcd4ede"><td class="memItemLeft" align="right" valign="top"><a id="a8974ff6f2e79d8e728b30d0b9bcd4ede" name="a8974ff6f2e79d8e728b30d0b9bcd4ede"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpInvalidPage</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, uint32_t object_number, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:a8974ff6f2e79d8e728b30d0b9bcd4ede"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb961e9607452f3626f019577dc5c274" id="r_acb961e9607452f3626f019577dc5c274"><td class="memItemLeft" align="right" valign="top"><a id="acb961e9607452f3626f019577dc5c274" name="acb961e9607452f3626f019577dc5c274"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpZeroFilledPage</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, uint32_t object_number, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:acb961e9607452f3626f019577dc5c274"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af5f2ecf991fb9857a212f11547320348" id="r_af5f2ecf991fb9857a212f11547320348"><td class="memItemLeft" align="right" valign="top"><a id="af5f2ecf991fb9857a212f11547320348" name="af5f2ecf991fb9857a212f11547320348"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpPageRange</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, uint32_t object_number, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:af5f2ecf991fb9857a212f11547320348"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad5d82204670c16d7a322e5b02ca78c64" id="r_ad5d82204670c16d7a322e5b02ca78c64"><td class="memItemLeft" align="right" valign="top"><a id="ad5d82204670c16d7a322e5b02ca78c64" name="ad5d82204670c16d7a322e5b02ca78c64"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpCompressedPage</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, uint32_t object_number, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:ad5d82204670c16d7a322e5b02ca78c64"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abbb1a284e28c5ef46cede56649892be9" id="r_abbb1a284e28c5ef46cede56649892be9"><td class="memItemLeft" align="right" valign="top"><a id="abbb1a284e28c5ef46cede56649892be9" name="abbb1a284e28c5ef46cede56649892be9"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpUnknownPage</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classMicrosoft_1_1LEFormat.html">LEFormat</a> &amp;fmt, uint32_t object_number, <a class="el" href="structMicrosoft_1_1LEFormat_1_1PhysicalPageNumber.html">PhysicalPageNumber</a> page_index) const</td></tr>
+<tr class="separator:abbb1a284e28c5ef46cede56649892be9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Represents a page (usually of 4 KiB) within an LE/LX object. </p>
+</div><h2 class="groupheader">Member Data Documentation</h2>
+<a id="a0ff0ee3d6f6733f030cace3e46d1d278" name="a0ff0ee3d6f6733f030cace3e46d1d278"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0ff0ee3d6f6733f030cace3e46d1d278">&#9670;&#160;</a></span>offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t Microsoft::LEFormat::Page::offset = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>(LX only) Offset of the page within the file </p>
+<p>It is stored with a page_offset_shift in the page table. In the LE format, the page_number field serves a similar purpose. </p>
+
+</div>
+</div>
+<a id="ab453414eb7477cf81f0cfefc9f3e243a" name="ab453414eb7477cf81f0cfefc9f3e243a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab453414eb7477cf81f0cfefc9f3e243a">&#9670;&#160;</a></span>size</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t Microsoft::LEFormat::Page::size = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>(LX only) The size of the page as stored in the file </p>
+<p>For legal physical pages, the remainder of the page is filled with zeroes. For iterated pages, the page is filled with the iterated record data. </p>
+
+</div>
+</div>
+<a id="ae65e88fd04f3432264691e3fdd9e85bb" name="ae65e88fd04f3432264691e3fdd9e85bb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae65e88fd04f3432264691e3fdd9e85bb">&#9670;&#160;</a></span>type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint16_t Microsoft::LEFormat::Page::type = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>The type of the page. </p>
+<p>For LE, documentation contradict each other, but this is typically set to 0. </p>
+
+</div>
+</div>
 <hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="leexe_8h_source.html">leexe.h</a></li>
 <li>src/format/<b>leexe.cc</b></li>

@@ -5,5 +5,7 @@ var searchData=
   ['yy_5fbuffer_5fstate_2',['yy_buffer_state',['../structyy__buffer__state.html',1,'']]],
   ['yy_5ftrans_5finfo_3',['yy_trans_info',['../structyy__trans__info.html',1,'']]],
   ['yyalloc_4',['yyalloc',['../unionyyalloc.html',1,'']]],
-  ['yystype_5',['YYSTYPE',['../unionYYSTYPE.html',1,'']]]
+  ['yyltype_5',['YYLTYPE',['../structYYLTYPE.html',1,'']]],
+  ['yypcontext_5ft_6',['yypcontext_t',['../structyypcontext__t.html',1,'']]],
+  ['yystype_7',['YYSTYPE',['../unionYYSTYPE.html',1,'']]]
 ];

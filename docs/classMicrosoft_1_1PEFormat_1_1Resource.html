@@ -78,6 +78,8 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classMicrosoft_1_1PEFormat_1_1Resource-members.html">List of all members</a>  </div>
@@ -92,21 +94,58 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
-<tr class="memitem:ac9a711a2350fd451b9a9666142457330" id="r_ac9a711a2350fd451b9a9666142457330"><td class="memItemLeft" align="right" valign="top"><a id="ac9a711a2350fd451b9a9666142457330" name="ac9a711a2350fd451b9a9666142457330"></a>
-typedef std::variant&lt; std::string, uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Reference</b></td></tr>
-<tr class="memdesc:ac9a711a2350fd451b9a9666142457330"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a resource identifier, either a string or a 32-bit value. <br /></td></tr>
-<tr class="separator:ac9a711a2350fd451b9a9666142457330"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a939ae7e9235b245008d89618f37aeeee" id="r_a939ae7e9235b245008d89618f37aeeee"><td class="memItemLeft" align="right" valign="top"><a id="a939ae7e9235b245008d89618f37aeeee" name="a939ae7e9235b245008d89618f37aeeee"></a>
+typedef std::variant&lt; std::string, uint32_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Identifier</b></td></tr>
+<tr class="memdesc:a939ae7e9235b245008d89618f37aeeee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a resource identifier, either a string or a 32-bit value. <br /></td></tr>
+<tr class="separator:a939ae7e9235b245008d89618f37aeeee"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a650322aeb52d9a7b31532dd5dea502c1" id="r_a650322aeb52d9a7b31532dd5dea502c1"><td class="memItemLeft" align="right" valign="top"><a id="a650322aeb52d9a7b31532dd5dea502c1" name="a650322aeb52d9a7b31532dd5dea502c1"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>Resource</b> (const std::vector&lt; <a class="el" href="#a939ae7e9235b245008d89618f37aeeee">Resource::Identifier</a> &gt; &amp;<a class="el" href="#a3adfccc6d2fc907812b543a9cc32d063">full_identifier</a>)</td></tr>
+<tr class="separator:a650322aeb52d9a7b31532dd5dea502c1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a4bc247e01682dde8b54bbf2aa5cefe" id="r_a9a4bc247e01682dde8b54bbf2aa5cefe"><td class="memItemLeft" align="right" valign="top"><a id="a9a4bc247e01682dde8b54bbf2aa5cefe" name="a9a4bc247e01682dde8b54bbf2aa5cefe"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>ParseResourceData</b> (const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t rva)</td></tr>
+<tr class="memdesc:a9a4bc247e01682dde8b54bbf2aa5cefe"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parses the contents of the resource, after all the section data for the file is loaded, returns longest full identifier. <br /></td></tr>
+<tr class="separator:a9a4bc247e01682dde8b54bbf2aa5cefe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada26f6f5bbc443e696fffb3b0c0463e2" id="r_ada26f6f5bbc443e696fffb3b0c0463e2"><td class="memItemLeft" align="right" valign="top"><a id="ada26f6f5bbc443e696fffb3b0c0463e2" name="ada26f6f5bbc443e696fffb3b0c0463e2"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpResource</b> (const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, uint32_t rva) const</td></tr>
+<tr class="memdesc:ada26f6f5bbc443e696fffb3b0c0463e2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays the resource contents. <br /></td></tr>
+<tr class="separator:ada26f6f5bbc443e696fffb3b0c0463e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93c7ff1d26dae56ad23878b483d75ee6" id="r_a93c7ff1d26dae56ad23878b483d75ee6"><td class="memItemLeft" align="right" valign="top"><a id="a93c7ff1d26dae56ad23878b483d75ee6" name="a93c7ff1d26dae56ad23878b483d75ee6"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>AssignAddress</b> (<a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t rva)</td></tr>
+<tr class="memdesc:a93c7ff1d26dae56ad23878b483d75ee6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assigns the relative virtual addresses and returns the relative virtual address of the end of the resource. <br /></td></tr>
+<tr class="separator:a93c7ff1d26dae56ad23878b483d75ee6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae2d7cffc3b99f7d24c958e0d330afb3" id="r_aae2d7cffc3b99f7d24c958e0d330afb3"><td class="memItemLeft" align="right" valign="top"><a id="aae2d7cffc3b99f7d24c958e0d330afb3" name="aae2d7cffc3b99f7d24c958e0d330afb3"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteDirectories</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t section_pointer) const</td></tr>
+<tr class="memdesc:aae2d7cffc3b99f7d24c958e0d330afb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the directory entry for this resource. <br /></td></tr>
+<tr class="separator:aae2d7cffc3b99f7d24c958e0d330afb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a675686626f464fbcce0d5523c0a7ac09" id="r_a675686626f464fbcce0d5523c0a7ac09"><td class="memItemLeft" align="right" valign="top"><a id="a675686626f464fbcce0d5523c0a7ac09" name="a675686626f464fbcce0d5523c0a7ac09"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteResource</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classMicrosoft_1_1PEFormat.html">PEFormat</a> &amp;fmt, uint32_t rva_to_offset) const</td></tr>
+<tr class="memdesc:a675686626f464fbcce0d5523c0a7ac09"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the actual resource. <br /></td></tr>
+<tr class="separator:a675686626f464fbcce0d5523c0a7ac09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:ae3d22d3db3121c202a93f58d147c175b" id="r_ae3d22d3db3121c202a93f58d147c175b"><td class="memItemLeft" align="right" valign="top"><a id="ae3d22d3db3121c202a93f58d147c175b" name="ae3d22d3db3121c202a93f58d147c175b"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpIdentifier</b> (std::vector&lt; <a class="el" href="#a939ae7e9235b245008d89618f37aeeee">Identifier</a> &gt; <a class="el" href="#a3adfccc6d2fc907812b543a9cc32d063">full_identifier</a>, <a class="el" href="classDumper_1_1Container.html">Dumper::Container</a> &amp;container)</td></tr>
+<tr class="memdesc:ae3d22d3db3121c202a93f58d147c175b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds fields to the container that describe the identifier. <br /></td></tr>
+<tr class="separator:ae3d22d3db3121c202a93f58d147c175b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:aba4b3c0d0e0e234c73ad956f2874ba28" id="r_aba4b3c0d0e0e234c73ad956f2874ba28"><td class="memItemLeft" align="right" valign="top"><a id="aba4b3c0d0e0e234c73ad956f2874ba28" name="aba4b3c0d0e0e234c73ad956f2874ba28"></a>
-std::vector&lt; <a class="el" href="#ac9a711a2350fd451b9a9666142457330">Reference</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>full_identifier</b></td></tr>
-<tr class="memdesc:aba4b3c0d0e0e234c73ad956f2874ba28"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sequence of IDs that identifies this resource, conventionally corresponding to the resource type, name and language. <br /></td></tr>
-<tr class="separator:aba4b3c0d0e0e234c73ad956f2874ba28"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3adfccc6d2fc907812b543a9cc32d063" id="r_a3adfccc6d2fc907812b543a9cc32d063"><td class="memItemLeft" align="right" valign="top"><a id="a3adfccc6d2fc907812b543a9cc32d063" name="a3adfccc6d2fc907812b543a9cc32d063"></a>
+std::vector&lt; <a class="el" href="#a939ae7e9235b245008d89618f37aeeee">Identifier</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>full_identifier</b></td></tr>
+<tr class="memdesc:a3adfccc6d2fc907812b543a9cc32d063"><td class="mdescLeft">&#160;</td><td class="mdescRight">The sequence of IDs that identifies this resource, conventionally corresponding to the resource type, name and language. <br /></td></tr>
+<tr class="separator:a3adfccc6d2fc907812b543a9cc32d063"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a1e95d741e3e982c72fad5ed99c0f4709" id="r_a1e95d741e3e982c72fad5ed99c0f4709"><td class="memItemLeft" align="right" valign="top"><a id="a1e95d741e3e982c72fad5ed99c0f4709" name="a1e95d741e3e982c72fad5ed99c0f4709"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_rva</b> = 0</td></tr>
 <tr class="memdesc:a1e95d741e3e982c72fad5ed99c0f4709"><td class="mdescLeft">&#160;</td><td class="mdescRight">The relative virtual address of the resource data. <br /></td></tr>
 <tr class="separator:a1e95d741e3e982c72fad5ed99c0f4709"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b02b82feb2ca72083012c5bf82c7408" id="r_a9b02b82feb2ca72083012c5bf82c7408"><td class="memItemLeft" align="right" valign="top"><a id="a9b02b82feb2ca72083012c5bf82c7408" name="a9b02b82feb2ca72083012c5bf82c7408"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> = 0</td></tr>
+<tr class="memdesc:a9b02b82feb2ca72083012c5bf82c7408"><td class="mdescLeft">&#160;</td><td class="mdescRight">The size of the resource data. <br /></td></tr>
+<tr class="separator:a9b02b82feb2ca72083012c5bf82c7408"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0a94888bb4415a478a0b159537e69abc" id="r_a0a94888bb4415a478a0b159537e69abc"><td class="memItemLeft" align="right" valign="top"><a id="a0a94888bb4415a478a0b159537e69abc" name="a0a94888bb4415a478a0b159537e69abc"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>codepage</b> = 0</td></tr>
 <tr class="memdesc:a0a94888bb4415a478a0b159537e69abc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Codepage of the resource. <br /></td></tr>
@@ -115,6 +154,10 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>codepage</b> = 0<
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>reserved</b> = 0</td></tr>
 <tr class="memdesc:a1b7447448019e3614cd6f8262527e745"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reserved entry in the resource table. <br /></td></tr>
 <tr class="separator:a1b7447448019e3614cd6f8262527e745"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adceec3bebfda175b65941c831092af75" id="r_adceec3bebfda175b65941c831092af75"><td class="memItemLeft" align="right" valign="top"><a id="adceec3bebfda175b65941c831092af75" name="adceec3bebfda175b65941c831092af75"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Section.html">Linker::Section</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>section</b> = nullptr</td></tr>
+<tr class="memdesc:adceec3bebfda175b65941c831092af75"><td class="mdescLeft">&#160;</td><td class="mdescRight">The section containing the resource, only used for generating images. <br /></td></tr>
+<tr class="separator:adceec3bebfda175b65941c831092af75"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
@@ -137,8 +180,9 @@ static constexpr size_t&#160;</td><td class="memItemRight" valign="bottom"><b>Le
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Represents a resource inside the image. </p>
-</div><hr/>The documentation for this class was generated from the following file:<ul>
+</div><hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="peexe_8h_source.html">peexe.h</a></li>
+<li>src/format/<b>peexe.cc</b></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

@@ -228,10 +228,14 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (std::shar
 void&#160;</td><td class="memItemRight" valign="bottom"><b>Append</b> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;other)</td></tr>
 <tr class="memdesc:a8e39ce2d456bae6b064d2dd9ffe0bb11"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends another module object, merging identically named sections. <br /></td></tr>
 <tr class="separator:a8e39ce2d456bae6b064d2dd9ffe0bb11"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a768bd7cc4e03bee3e7402374e6ef803e" id="r_a768bd7cc4e03bee3e7402374e6ef803e"><td class="memItemLeft" align="right" valign="top"><a id="a768bd7cc4e03bee3e7402374e6ef803e" name="a768bd7cc4e03bee3e7402374e6ef803e"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> (std::string default_section_name=&quot;.comm&quot;)</td></tr>
-<tr class="memdesc:a768bd7cc4e03bee3e7402374e6ef803e"><td class="mdescLeft">&#160;</td><td class="mdescRight">All common symbols are converted to global symbols and assigned addresses within a their section (usually ".comm") <br /></td></tr>
-<tr class="separator:a768bd7cc4e03bee3e7402374e6ef803e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac5c029d2920797c969ec986afe7d65bc" id="r_ac5c029d2920797c969ec986afe7d65bc"><td class="memItemLeft" align="right" valign="top"><a id="ac5c029d2920797c969ec986afe7d65bc" name="ac5c029d2920797c969ec986afe7d65bc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateSymbols</b> (std::string default_section_name=&quot;.bss&quot;, bool force_create_segment=false)</td></tr>
+<tr class="memdesc:ac5c029d2920797c969ec986afe7d65bc"><td class="mdescLeft">&#160;</td><td class="mdescRight">All common symbols are converted to global symbols and assigned addresses within a their section. <br /></td></tr>
+<tr class="separator:ac5c029d2920797c969ec986afe7d65bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a702dd9d99d4b1ecdd987cd80145646a0" id="r_a702dd9d99d4b1ecdd987cd80145646a0"><td class="memItemLeft" align="right" valign="top"><a id="a702dd9d99d4b1ecdd987cd80145646a0" name="a702dd9d99d4b1ecdd987cd80145646a0"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>AllocateStack</b> (offset_t stack_size, std::string default_section_name=&quot;.stack&quot;)</td></tr>
+<tr class="memdesc:a702dd9d99d4b1ecdd987cd80145646a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Unless .stack_top is defined or stack_size is zero, makes sure a .stack segment exists and is at least as large as stack_size. <br /></td></tr>
+<tr class="separator:a702dd9d99d4b1ecdd987cd80145646a0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>

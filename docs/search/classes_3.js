@@ -15,12 +15,13 @@ var searchData=
   ['descriptortable_12',['DescriptorTable',['../classPharLap_1_1P3Format_1_1MultiSegmented_1_1DescriptorTable.html',1,'PharLap::P3Format::MultiSegmented']]],
   ['determiner_13',['Determiner',['../classdump_1_1Determiner.html',1,'dump']]],
   ['display_14',['Display',['../classDumper_1_1Display.html',1,'Dumper']]],
-  ['display_3c_20offset_5ft_20_3e_15',['Display&lt; offset_t &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
-  ['display_3c_20offset_5ft_2c_20offset_5ft_20_3e_16',['Display&lt; offset_t, offset_t &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
-  ['display_3c_20offset_5ft_2c_20ts_2e_2e_2e_20_3e_17',['Display&lt; offset_t, Ts... &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
-  ['display_3c_20std_3a_3astring_20_3e_18',['Display&lt; std::string &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
-  ['dummysegment_19',['DummySegment',['../classDOS16M_1_1BWFormat_1_1DummySegment.html',1,'DOS16M::BWFormat']]],
-  ['dumper_20',['Dumper',['../classDumper_1_1Dumper.html',1,'Dumper']]],
-  ['dynamicobject_21',['DynamicObject',['../classELF_1_1ELFFormat_1_1DynamicObject.html',1,'ELF::ELFFormat']]],
-  ['dynamicsection_22',['DynamicSection',['../classELF_1_1ELFFormat_1_1DynamicSection.html',1,'ELF::ELFFormat']]]
+  ['display_3c_20identifier_20_3e_15',['Display&lt; Identifier &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
+  ['display_3c_20offset_5ft_20_3e_16',['Display&lt; offset_t &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
+  ['display_3c_20offset_5ft_2c_20offset_5ft_20_3e_17',['Display&lt; offset_t, offset_t &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
+  ['display_3c_20offset_5ft_2c_20ts_2e_2e_2e_20_3e_18',['Display&lt; offset_t, Ts... &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
+  ['display_3c_20std_3a_3astring_20_3e_19',['Display&lt; std::string &gt;',['../classDumper_1_1Display.html',1,'Dumper']]],
+  ['dummysegment_20',['DummySegment',['../classDOS16M_1_1BWFormat_1_1DummySegment.html',1,'DOS16M::BWFormat']]],
+  ['dumper_21',['Dumper',['../classDumper_1_1Dumper.html',1,'Dumper']]],
+  ['dynamicobject_22',['DynamicObject',['../classELF_1_1ELFFormat_1_1DynamicObject.html',1,'ELF::ELFFormat']]],
+  ['dynamicsection_23',['DynamicSection',['../classELF_1_1ELFFormat_1_1DynamicSection.html',1,'ELF::ELFFormat']]]
 ];
