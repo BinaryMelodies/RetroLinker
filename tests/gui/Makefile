@@ -3,17 +3,23 @@ all:
 	make -C win16
 	make -C win32
 	make -C win64
+	make -C os2v1
+	make -C os2v2
 
 clean:
 	make -C win16 clean
 	make -C win32 clean
 	make -C win64 clean
+	make -C os2v1 clean
+	make -C os2v2 clean
 
 distclean: clean
 	rm -rf *~
 	make -C win16 distclean
 	make -C win32 distclean
 	make -C win64 distclean
+	make -C os2v1 distclean
+	make -C os2v2 distclean
 
 verify: all
 	for file in ref/*/*; do diff $$file $${file#ref/}; done
