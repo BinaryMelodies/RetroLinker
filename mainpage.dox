@@ -254,7 +254,7 @@
  * <tr>
  * <td colspan='2'><a href="classELF_1_1ELFFormat.html">ELF</a><br><a href="classELF_1_1FatELFFormat.html">FatELF</a></td>
  * <td>Intel 80386<br>etc.</td>
- * <td>Linux<br>etc. (unimplemented)</td>
+ * <td>Linux<br>etc. (only static linking implemented)</td>
  * </tr>
  *
  * <tr>
