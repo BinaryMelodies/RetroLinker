@@ -7,7 +7,7 @@
 
 using namespace Linker;
 
-std::shared_ptr<const ActualImage> Image::AsImage() const
+std::shared_ptr<const ActualImage> Contents::AsImage() const
 {
 	// TODO: test
 	// TODO: find a more efficient way
@@ -20,12 +20,12 @@ std::shared_ptr<const ActualImage> Image::AsImage() const
 	return buffer;
 }
 
-std::shared_ptr<ActualImage> Image::AsImage()
+std::shared_ptr<ActualImage> Contents::AsImage()
 {
-	return std::const_pointer_cast<ActualImage>(const_cast<const Image *>(this)->AsImage());
+	return std::const_pointer_cast<ActualImage>(const_cast<const Contents *>(this)->AsImage());
 }
 
-offset_t Image::WriteFile(Writer& wr) const
+offset_t Contents::WriteFile(Writer& wr) const
 {
 	return WriteFile(wr, ImageSize());
 }

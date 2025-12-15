@@ -328,9 +328,9 @@ namespace Apple
 			class DataRecord : public Record
 			{
 			public:
-				std::shared_ptr<Linker::Image> image;
+				std::shared_ptr<Linker::Contents> image;
 
-				DataRecord(record_type type, std::shared_ptr<Linker::Image> image)
+				DataRecord(record_type type, std::shared_ptr<Linker::Contents> image)
 					: Record(type), image(image)
 				{
 				}
@@ -647,7 +647,7 @@ namespace Apple
 			std::unique_ptr<Record> ReadRecord(Linker::Reader& rd);
 
 			std::unique_ptr<Record> makeEND();
-			std::unique_ptr<Record> makeCONST(std::shared_ptr<Linker::Image> image);
+			std::unique_ptr<Record> makeCONST(std::shared_ptr<Linker::Contents> image);
 			std::unique_ptr<Record> makeCONST(size_t length);
 			std::unique_ptr<Record> makeALIGN(offset_t align = 0);
 			std::unique_ptr<Record> makeORG(offset_t value = 0);
@@ -677,7 +677,7 @@ namespace Apple
 			std::unique_ptr<Record> makeEQU(std::string name, uint16_t line_length, int operation, uint16_t private_flag, std::unique_ptr<Expression> expression);
 			std::unique_ptr<Record> makeDS(offset_t count = 0);
 			std::unique_ptr<Record> makeLCONST();
-			std::unique_ptr<Record> makeLCONST(std::shared_ptr<Linker::Image> image);
+			std::unique_ptr<Record> makeLCONST(std::shared_ptr<Linker::Contents> image);
 			std::unique_ptr<Record> makeLEXPR();
 			std::unique_ptr<Record> makeLEXPR(uint8_t size, std::unique_ptr<Expression> expression);
 			std::unique_ptr<Record> makeENTRY();

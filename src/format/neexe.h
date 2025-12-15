@@ -107,7 +107,7 @@ namespace Microsoft
 		class Segment
 		{
 		public:
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 			offset_t data_offset = 0;
 			/** @brief Size of segment as stored in the file, only used during reading */
 			offset_t image_size = 0;
@@ -877,7 +877,7 @@ namespace Microsoft
 			Identifier type;
 			Identifier name;
 			uint16_t flags;
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 		};
 
 		offset_t file_offset;

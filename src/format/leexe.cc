@@ -78,7 +78,7 @@ std::shared_ptr<const Linker::ActualImage> LEFormat::SegmentPage::AsImage() cons
 	}
 	else
 	{
-		return Image::AsImage();
+		return Contents::AsImage();
 	}
 }
 

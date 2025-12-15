@@ -61,7 +61,7 @@ namespace Microsoft
 		class Object
 		{
 		public:
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 			enum flag_type
 			{
 				Readable = 0x0001,
@@ -104,7 +104,7 @@ namespace Microsoft
 		 * When parsing an LE/LX binary image, the contents of objects might not appear contiguously, but instead as a collection of pages (typically 4 KiB in size).
 		 * This class implements the Image interface but data crossing page boundaries can also be accessed.
 		 */
-		class PageSet : public Linker::Image
+		class PageSet : public Linker::Contents
 		{
 		public:
 			std::shared_ptr<LEFormat> file;
@@ -118,7 +118,7 @@ namespace Microsoft
 			}
 
 			offset_t ImageSize() const override;
-			using Linker::Image::WriteFile;
+			using Linker::Contents::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 		};
 
@@ -128,20 +128,20 @@ namespace Microsoft
 		 * When writing an LE/LX binary image, the object data needs to be split up into sections called pages (typically 4 KiB in size).
 		 * This class implements the Image interface but instead gives a restricted window into the full data image, to be stored as a single page image.
 		 */
-		class SegmentPage : public Linker::Image
+		class SegmentPage : public Linker::Contents
 		{
 		public:
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 			offset_t offset = 0;
 			offset_t size = 0;
 
-			SegmentPage(std::shared_ptr<Linker::Image> image, offset_t offset, offset_t size)
+			SegmentPage(std::shared_ptr<Linker::Contents> image, offset_t offset, offset_t size)
 				: image(image), offset(offset), size(size)
 			{
 			}
 
 			offset_t ImageSize() const override;
-			using Linker::Image::WriteFile;
+			using Linker::Contents::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 			std::shared_ptr<const Linker::ActualImage> AsImage() const override;
 		};
@@ -149,7 +149,7 @@ namespace Microsoft
 		/**
 		 * @brief A data structure to represent an LE/LX iterated page, consisting of data produced from a repetition of a certain pattern
 		 */
-		class IteratedPage : public Linker::Image
+		class IteratedPage : public Linker::Contents
 		{
 		public:
 			struct IterationRecord
@@ -160,7 +160,7 @@ namespace Microsoft
 			std::vector<IterationRecord> records;
 
 			offset_t ImageSize() const override;
-			using Linker::Image::WriteFile;
+			using Linker::Contents::WriteFile;
 			static std::shared_ptr<IteratedPage> ReadFromFile(Linker::Reader& rd, uint16_t size);
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 
@@ -181,7 +181,7 @@ namespace Microsoft
 				size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
 				offset_t ImageSize() const override;
-				using Linker::Image::WriteFile;
+				using Linker::Contents::WriteFile;
 				offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 			};
 		};
@@ -348,7 +348,7 @@ namespace Microsoft
 			};
 			std::map<uint16_t, Relocation> relocations;
 			uint32_t checksum = 0;
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 
 			Page()
 			{

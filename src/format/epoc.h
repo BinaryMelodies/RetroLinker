@@ -120,7 +120,7 @@ namespace EPOC
 		uint8_t export_description_type = 0;
 		std::vector<uint8_t> export_description;
 
-		std::shared_ptr<Linker::Image> code, data;
+		std::shared_ptr<Linker::Contents> code, data;
 
 		struct ImportBlock
 		{

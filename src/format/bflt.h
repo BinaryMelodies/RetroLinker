@@ -32,7 +32,7 @@ namespace BFLT
 		uint32_t stack_size = 0;
 		uint32_t relocation_offset = 0;
 
-		std::shared_ptr<Linker::Image> code, data;
+		std::shared_ptr<Linker::Contents> code, data;
 
 		/**
 		 * @brief Represents a relocation within the image

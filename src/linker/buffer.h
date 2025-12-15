@@ -73,12 +73,12 @@ namespace Linker
 		 * If less data is available, the buffer will be shorter
 		 */
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd, offset_t count);
-		using Image::WriteFile;
+		using Contents::WriteFile;
 		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;
 		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
 		friend class Section;
-		friend class Image;
+		friend class Contents;
 	};
 }
 

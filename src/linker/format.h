@@ -25,7 +25,7 @@ namespace Linker
 	/**
 	 * @brief A class to encode a general file format
 	 */
-	class Format : public virtual Image
+	class Format : public virtual Contents
 	{
 	public:
 		offset_t file_offset;

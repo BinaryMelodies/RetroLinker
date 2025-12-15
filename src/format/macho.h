@@ -149,7 +149,7 @@ namespace MachO
 			{
 			}
 
-			std::shared_ptr<Linker::Image> command_image;
+			std::shared_ptr<Linker::Contents> command_image;
 
 			void Read(Linker::Reader& rd, offset_t size) override;
 			void Write(Linker::Writer& wr) const override;
@@ -213,7 +213,7 @@ namespace MachO
 			uint32_t offset = 0;
 			uint32_t size = 0;
 			uint32_t align = 0;
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 
 			static Entry Read(Linker::Reader& rd);
 			void Write(Linker::Writer& wr) const;

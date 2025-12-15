@@ -186,7 +186,7 @@ unsigned CPM8KFormat::GetSegmentNumber(std::shared_ptr<Linker::Segment>segment)
 {
 	for(size_t i = 0; i < segments.size(); i++)
 	{
-		if(segments[i].image == std::dynamic_pointer_cast<Linker::Image>(segment))
+		if(segments[i].image == std::dynamic_pointer_cast<Linker::Contents>(segment))
 			return segments[i].number;
 	}
 	return unsigned(-1);

@@ -102,11 +102,11 @@ namespace DigitalResearch
 		/**
 		 * @brief Storage for code segment
 		 */
-		std::shared_ptr<Linker::Image> code = nullptr;
+		std::shared_ptr<Linker::Contents> code = nullptr;
 		/**
 		 * @brief Storage for data segment
 		 */
-		std::shared_ptr<Linker::Image> data = nullptr;
+		std::shared_ptr<Linker::Contents> data = nullptr;
 
 		/* filled in automatically */
 		struct Relocation

@@ -11,12 +11,12 @@ namespace Linker
 	class Writer;
 
 	/**
-	 * @brief Represents an abstract data image whose data can be written to a file
+	 * @brief Represents abstract data contents whose data can be written to a file
 	 */
-	class Image
+	class Contents
 	{
 	public:
-		virtual ~Image() = default;
+		virtual ~Contents() = default;
 		/**
 		 * @brief Retrieves size of stored data
 		 */
@@ -39,7 +39,7 @@ namespace Linker
 		std::shared_ptr<ActualImage> AsImage();
 	};
 
-	class ActualImage : public Image, public std::enable_shared_from_this<ActualImage>
+	class ActualImage : public Contents, public std::enable_shared_from_this<ActualImage>
 	{
 	public:
 		std::shared_ptr<const ActualImage> AsImage() const override;

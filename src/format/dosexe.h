@@ -40,7 +40,7 @@ namespace SeychellDOS32
 		/** @brief Unknown field for version 3.5 */
 		uint32_t last_header_field = 0;
 
-		std::shared_ptr<Linker::Image> image;
+		std::shared_ptr<Linker::Contents> image;
 
 		enum
 		{
@@ -103,7 +103,7 @@ namespace DX64
 		uint32_t eip = 0;
 		uint32_t esp = 0;
 		uint32_t extra_memory_size = 0;
-		std::shared_ptr<Linker::Image> image;
+		std::shared_ptr<Linker::Contents> image;
 
 		explicit LVFormat()
 		{

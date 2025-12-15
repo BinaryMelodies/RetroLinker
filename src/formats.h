@@ -117,8 +117,8 @@ std::shared_ptr<Linker::Format> FetchFormat(std::string text);
  */
 void DetermineFormat(std::vector<format_description>& descriptions, Linker::Reader& rd, uint32_t offset = 0);
 
-std::shared_ptr<Linker::Image> ReadArchiveFile(Linker::Reader& rd, offset_t size);
-std::shared_ptr<Linker::Image> ReadLibraryFile(Linker::Reader& rd, offset_t size);
+std::shared_ptr<Linker::Contents> ReadArchiveFile(Linker::Reader& rd, offset_t size);
+std::shared_ptr<Linker::Contents> ReadLibraryFile(Linker::Reader& rd, offset_t size);
 
 /**
  * @brief Creates a format object that can be used to read in a binary file

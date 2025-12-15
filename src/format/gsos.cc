@@ -1649,7 +1649,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeEND()
 	return std::make_unique<Record>(Record::OPC_END);
 }
 
-std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::shared_ptr<Linker::Image> image)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeCONST(std::shared_ptr<Linker::Contents> image)
 {
 	size_t length = image->ImageSize();
 	if(length >= Record::OPC_CONST_LAST)
@@ -1803,7 +1803,7 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeDS(offset_t 
 	return std::make_unique<ValueRecord>(Record::OPC_DS, count);
 }
 
-std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::shared_ptr<Linker::Image> image)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeLCONST(std::shared_ptr<Linker::Contents> image)
 {
 	return std::make_unique<DataRecord>(Record::OPC_LCONST, image);
 }

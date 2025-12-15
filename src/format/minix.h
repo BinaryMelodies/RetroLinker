@@ -157,7 +157,7 @@ namespace MINIX
 		std::vector<Relocation> code_relocations, data_relocations, far_code_relocations;
 
 		/* generated */
-		std::shared_ptr<Linker::Image> code, data, far_code;
+		std::shared_ptr<Linker::Contents> code, data, far_code;
 		std::shared_ptr<Linker::Segment> bss, heap, stack;
 		uint32_t entry_address = 0;
 

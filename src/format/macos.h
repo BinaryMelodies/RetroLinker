@@ -104,7 +104,7 @@ namespace Apple
 		class UnknownEntry : public Entry
 		{
 		public:
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 
 			UnknownEntry(uint32_t id)
 				: Entry(id)
@@ -264,7 +264,7 @@ namespace Apple
 	class DataFork : public AppleSingleDouble::Entry
 	{
 	public:
-		std::shared_ptr<Linker::Image> image;
+		std::shared_ptr<Linker::Contents> image;
 
 		DataFork()
 			: Entry(AppleSingleDouble::ID_DataFork)
@@ -353,7 +353,7 @@ namespace Apple
 			{
 			}
 
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 
 			void ProcessModule(Linker::Module& module) override;
 
@@ -418,7 +418,7 @@ namespace Apple
 			static constexpr uint32_t OSType = OSTypeToUInt32('C', 'O', 'D', 'E');
 
 			std::shared_ptr<JumpTableCodeResource> jump_table;
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 			uint32_t zero_fill = 0; // used for code generation
 
 			CodeResource(uint16_t id, std::shared_ptr<JumpTableCodeResource> jump_table = nullptr)

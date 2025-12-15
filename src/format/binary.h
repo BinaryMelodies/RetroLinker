@@ -23,7 +23,7 @@ namespace Binary
 		/* * * General members * * */
 
 		/** @brief The actual stored image */
-		std::shared_ptr<Linker::Image> image = nullptr;
+		std::shared_ptr<Linker::Contents> image = nullptr;
 
 		void Clear() override;
 

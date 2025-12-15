@@ -97,7 +97,7 @@ namespace Ergo
 		uint32_t unknown_field = 0;
 		uint32_t gs = 0, fs = 0, ds = 0, ss = 0, cs = 0, es = 0, edi = 0, esi = 0, ebp = 0, esp = 0, ebx = 0, edx = 0, ecx = 0, eax = 0, eflags = 0, eip = 0;
 		std::vector<Segment> ldt;
-		std::shared_ptr<Linker::Image> image;
+		std::shared_ptr<Linker::Contents> image;
 
 		void Clear() override;
 		void CalculateValues() override;

@@ -109,7 +109,7 @@ namespace DigitalResearch
 			 */
 			uint32_t offset = 0;
 			/** @brief The actual binary image of the group */
-			std::shared_ptr<Linker::Image> image = nullptr;
+			std::shared_ptr<Linker::Contents> image = nullptr;
 			/** @brief Set to true if a supplementary 256 bytes of zeros are required. When generating image, it is easier to just insert 256 bytes of 0 instead of modifying the image. This is not required when storing a file loaded from disk */
 			bool attach_zero_page = false;
 
@@ -223,7 +223,7 @@ namespace DigitalResearch
 			/**
 			 * @brief A reference to the stored module, either parsed or a raw block of data
 			 */
-			std::shared_ptr<Linker::Image> contents;
+			std::shared_ptr<Linker::Contents> contents;
 
 			void Clear();
 

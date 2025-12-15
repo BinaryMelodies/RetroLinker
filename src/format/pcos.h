@@ -86,7 +86,7 @@ namespace PCOS
 			/** @brief The first 4 bytes of the block */
 			uint32_t block_id;
 			/** @brief The memory resident part of the block */
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 
 			uint16_t GetLength() const override;
 			void ReadFile(Linker::Reader& rd, uint16_t length) override;
@@ -127,7 +127,7 @@ namespace PCOS
 			{
 			}
 
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 
 			uint16_t GetLength() const override;
 			void ReadFile(Linker::Reader& rd, uint16_t length) override;

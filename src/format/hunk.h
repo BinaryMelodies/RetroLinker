@@ -231,7 +231,7 @@ namespace Amiga
 		class LoadBlock : public RelocatableBlock
 		{
 		public:
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 
 			LoadBlock(block_type type, uint32_t flags = LoadAny)
 				: RelocatableBlock(type, flags)
@@ -417,7 +417,7 @@ namespace Amiga
 		{
 		public:
 			// TODO: untested
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 
 			DebugBlock()
 				: Block(HUNK_DEBUG)
@@ -565,7 +565,7 @@ namespace Amiga
 
 			LoadBlock::flag_type flags = LoadBlock::LoadPublic;
 			/** @brief The memory image, if stored in a file (that is, a non-bss segment) */
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 			/** @brief Size of the memory image, if it is a zero filled segment (bss) */
 			offset_t image_size = 0;
 

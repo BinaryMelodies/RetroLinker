@@ -220,7 +220,7 @@ namespace Microsoft
 			/** @brief The section contents are writable to the program */
 			static constexpr uint32_t WRITE = 0x80000000;
 
-			Section(uint32_t flags = 0, std::shared_ptr<Linker::Image> image = nullptr)
+			Section(uint32_t flags = 0, std::shared_ptr<Linker::Contents> image = nullptr)
 				: COFFFormat::Section(flags, image)
 			{
 			}
@@ -322,7 +322,7 @@ namespace Microsoft
 			}
 
 			offset_t ImageSize() const override;
-			using Linker::Image::WriteFile;
+			using Linker::Contents::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 		};

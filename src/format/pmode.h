@@ -52,7 +52,7 @@ namespace PMODE
 			uint32_t relocation_offset = 0;
 			uint32_t relocation_count = 0; // only needed during reading
 			uint32_t image_size = 0; // without compression
-			std::shared_ptr<Linker::Image> image;
+			std::shared_ptr<Linker::Contents> image;
 			std::vector<Relocation> relocations;
 		};
 		std::vector<Object> objects;
