@@ -21,7 +21,7 @@ namespace Linker
 	 *
 	 * Only sections that appear consecutively in memory (or with known displacements at linking time) may be stored in the same segment.
 	 */
-	class Segment : public ActualImage
+	class Segment : public Image
 	{
 	public:
 		/**

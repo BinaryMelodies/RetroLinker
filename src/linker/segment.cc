@@ -281,7 +281,7 @@ void Segment::SetStartAddress(offset_t address)
 
 std::shared_ptr<Segment> Segment::shared_from_this()
 {
-	return std::static_pointer_cast<Segment>(ActualImage::shared_from_this());
+	return std::static_pointer_cast<Segment>(Image::shared_from_this());
 }
 
 std::ostream& Linker::operator<<(std::ostream& out, const Segment& segment)

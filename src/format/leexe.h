@@ -143,7 +143,7 @@ namespace Microsoft
 			offset_t ImageSize() const override;
 			using Linker::Contents::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
-			std::shared_ptr<const Linker::ActualImage> AsImage() const override;
+			std::shared_ptr<const Linker::Image> AsImage() const override;
 		};
 
 		/**
@@ -167,7 +167,7 @@ namespace Microsoft
 			/**
 			 * @brief An image instance where the iterated page data can be accessed as the series of bytes it generates
 			 */
-			class View : public Linker::ActualImage
+			class View : public Linker::Image
 			{
 			public:
 				IteratedPage& iterated_page;

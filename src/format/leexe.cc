@@ -70,7 +70,7 @@ offset_t LEFormat::SegmentPage::WriteFile(Linker::Writer& wr, offset_t count, of
 	return count;
 }
 
-std::shared_ptr<const Linker::ActualImage> LEFormat::SegmentPage::AsImage() const
+std::shared_ptr<const Linker::Image> LEFormat::SegmentPage::AsImage() const
 {
 	if(offset == 0 && size == image->ImageSize())
 	{
@@ -576,7 +576,7 @@ void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt,
 		record_index ++;
 	}
 
-	std::shared_ptr<Linker::ActualImage> view = std::make_shared<IteratedPage::View>(iterated_page, fmt.page_size);
+	std::shared_ptr<Linker::Image> view = std::make_shared<IteratedPage::View>(iterated_page, fmt.page_size);
 	Dumper::Block page_block("Page contents", 0, view,
 		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (uint32_t(page_index) - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
 		8);

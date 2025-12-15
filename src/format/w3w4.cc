@@ -84,11 +84,11 @@ void W3Format::Dump(Dumper::Dumper& dump) const
 class ImageStreambuf : public std::basic_streambuf<char>
 {
 public:
-	std::shared_ptr<Linker::ActualImage> image;
+	std::shared_ptr<Linker::Image> image;
 	offset_t image_offset = 0;
 	offset_t image_displacement;
 
-	ImageStreambuf(std::shared_ptr<Linker::ActualImage> image, offset_t image_displacement = 0)
+	ImageStreambuf(std::shared_ptr<Linker::Image> image, offset_t image_displacement = 0)
 		: image(image), image_displacement(image_displacement)
 	{
 	}
@@ -151,7 +151,7 @@ protected:
 class BitStream
 {
 protected:
-	std::shared_ptr<Linker::ActualImage> contents;
+	std::shared_ptr<Linker::Image> contents;
 	offset_t contents_offset = 0;
 	uint8_t byte = 0;
 	unsigned bit_count = 0;
@@ -183,7 +183,7 @@ protected:
 	}
 
 public:
-	BitStream(std::shared_ptr<Linker::ActualImage> contents)
+	BitStream(std::shared_ptr<Linker::Image> contents)
 		: contents(contents)
 	{
 	}
@@ -364,7 +364,7 @@ void W4Format::Dump(Dumper::Dumper& dump) const
 	uint16_t chunk_count = 0;
 	for(auto& chunk : chunks)
 	{
-		Dumper::Block chunk_block("Chunk", chunk.file_offset, std::const_pointer_cast<Linker::ActualImage>(chunk.contents->AsImage()), 0, 8); // TODO: remove const_pointer_cast
+		Dumper::Block chunk_block("Chunk", chunk.file_offset, std::const_pointer_cast<Linker::Image>(chunk.contents->AsImage()), 0, 8); // TODO: remove const_pointer_cast
 		chunk_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(chunk_count + 1));
 		chunk_block.Display(dump);
 

@@ -6,7 +6,7 @@
 
 namespace Linker
 {
-	class ActualImage;
+	class Image;
 	class Reader;
 	class Writer;
 
@@ -32,17 +32,17 @@ namespace Linker
 		/**
 		 * @brief Retrieves a randomly accessible image
 		 */
-		virtual std::shared_ptr<const ActualImage> AsImage() const;
+		virtual std::shared_ptr<const Image> AsImage() const;
 		/**
 		 * @brief Retrieves a randomly accessible image
 		 */
-		std::shared_ptr<ActualImage> AsImage();
+		std::shared_ptr<Image> AsImage();
 	};
 
-	class ActualImage : public Contents, public std::enable_shared_from_this<ActualImage>
+	class Image : public Contents, public std::enable_shared_from_this<Image>
 	{
 	public:
-		std::shared_ptr<const ActualImage> AsImage() const override;
+		std::shared_ptr<const Image> AsImage() const override;
 
 		/**
 		 * @brief Attempts to fill a buffer with data

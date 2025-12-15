@@ -309,7 +309,7 @@ namespace Microsoft
 		/** @brief Loads a sequence of bytes */
 		std::string ReadData(uint32_t rva, size_t count) const;
 
-		class MemoryPortionImage : public virtual Linker::ActualImage
+		class MemoryPortionImage : public virtual Linker::Image
 		{
 		public:
 			const PEFormat& fmt;
