@@ -77,6 +77,7 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
 <a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
@@ -103,6 +104,11 @@ Inheritance diagram for Xenix::XOutFormat:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classXenix_1_1XOutFormat_1_1Segment.html">Segment</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
 Public Types</h2></td></tr>
 <tr class="memitem:a8f9d95c2603c4942d8c5add92871f8e8" id="r_a8f9d95c2603c4942d8c5add92871f8e8"><td class="memItemLeft" align="right" valign="top"><a id="a8f9d95c2603c4942d8c5add92871f8e8" name="a8f9d95c2603c4942d8c5add92871f8e8"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>cpu_type</b> { <br />
@@ -145,6 +151,21 @@ Public Types</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:abb8d0435cd7bb74a62db20489ce390f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa380c975f0e33d321bb11c0a27370c75" id="r_aa380c975f0e33d321bb11c0a27370c75"><td class="memItemLeft" align="right" valign="top"><a id="aa380c975f0e33d321bb11c0a27370c75" name="aa380c975f0e33d321bb11c0a27370c75"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>machine_dependent_table_format_type</b> : uint8_t { <b>MDT_None</b> = 0
+, <b>MDT_286LDT</b> = 1
+ }</td></tr>
+<tr class="separator:aa380c975f0e33d321bb11c0a27370c75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2b1b1bec19e160d38af6bd30b56d9f69" id="r_a2b1b1bec19e160d38af6bd30b56d9f69"><td class="memItemLeft" align="right" valign="top"><a id="a2b1b1bec19e160d38af6bd30b56d9f69" name="a2b1b1bec19e160d38af6bd30b56d9f69"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>operating_system_type</b> : uint8_t { <b>OS_None</b> = 0
+, <b>OS_Xenix</b> = 1
+, <b>OS_iRMX</b> = 2
+, <b>OS_ConcurrentCPM</b> = 3
+ }</td></tr>
+<tr class="separator:a2b1b1bec19e160d38af6bd30b56d9f69"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae38704e92e74c4704ee2c9937e186c5d" id="r_ae38704e92e74c4704ee2c9937e186c5d"><td class="memItemLeft" align="right" valign="top"><a id="ae38704e92e74c4704ee2c9937e186c5d" name="ae38704e92e74c4704ee2c9937e186c5d"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>system_version_type</b> : uint8_t { <b>SystemVersion_Xenix2</b> = 0
+, <b>SystemVersion_Xenix3</b> = 1
+, <b>SystemVersion_Xenix5</b> = 2
+ }</td></tr>
+<tr class="separator:ae38704e92e74c4704ee2c9937e186c5d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -154,6 +175,12 @@ uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetCPUByte</b> () 
 <tr class="memitem:a73b10d3ae38a2e4cfdf2493d9b6be9fd" id="r_a73b10d3ae38a2e4cfdf2493d9b6be9fd"><td class="memItemLeft" align="right" valign="top"><a id="a73b10d3ae38a2e4cfdf2493d9b6be9fd" name="a73b10d3ae38a2e4cfdf2493d9b6be9fd"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetRelSymByte</b> () const</td></tr>
 <tr class="separator:a73b10d3ae38a2e4cfdf2493d9b6be9fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6639808d1e4f149bedaab789c3010394" id="r_a6639808d1e4f149bedaab789c3010394"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6639808d1e4f149bedaab789c3010394">Clear</a> () override</td></tr>
+<tr class="memdesc:a6639808d1e4f149bedaab789c3010394"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
+<tr class="separator:a6639808d1e4f149bedaab789c3010394"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a48de4b5a48430932c32a11d83f0c0a16" id="r_a48de4b5a48430932c32a11d83f0c0a16"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a48de4b5a48430932c32a11d83f0c0a16">CalculateValues</a> () override</td></tr>
+<tr class="memdesc:a48de4b5a48430932c32a11d83f0c0a16"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
+<tr class="separator:a48de4b5a48430932c32a11d83f0c0a16"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11f07f3e05658c2f9ac5e59712cabeef" id="r_a11f07f3e05658c2f9ac5e59712cabeef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a11f07f3e05658c2f9ac5e59712cabeef">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a11f07f3e05658c2f9ac5e59712cabeef"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
 <tr class="separator:a11f07f3e05658c2f9ac5e59712cabeef"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -272,9 +299,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="botto
 <tr class="memitem:a35dab761c545930c266365344057a665 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a35dab761c545930c266365344057a665"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a35dab761c545930c266365344057a665">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;object)</td></tr>
 <tr class="memdesc:a35dab761c545930c266365344057a665 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
 <tr class="separator:a35dab761c545930c266365344057a665 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae63d979e5fa85a76ffe06ac613b6ec27 inherit pub_methods_classLinker_1_1OutputFormat" id="r_ae63d979e5fa85a76ffe06ac613b6ec27"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#ae63d979e5fa85a76ffe06ac613b6ec27">CalculateValues</a> ()</td></tr>
-<tr class="memdesc:ae63d979e5fa85a76ffe06ac613b6ec27 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
-<tr class="separator:ae63d979e5fa85a76ffe06ac613b6ec27 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a22e05e4807efbae279ab68dcab714a42 inherit pub_methods_classLinker_1_1OutputFormat" id="r_a22e05e4807efbae279ab68dcab714a42"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1OutputFormat.html#a22e05e4807efbae279ab68dcab714a42">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a22e05e4807efbae279ab68dcab714a42 inherit pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="separator:a22e05e4807efbae279ab68dcab714a42 inherit pub_methods_classLinker_1_1OutputFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -312,9 +336,6 @@ virtual unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>FormatAdd
 <tr class="memitem:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format" id="r_a10296b22383c5b8d061308d1f0cee6a8"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>Format</b> (offset_t file_offset=0)</td></tr>
 <tr class="separator:a10296b22383c5b8d061308d1f0cee6a8 inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format" id="r_af096ef1500e69a6b3112c7640b3748bd"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Clear</a> ()</td></tr>
-<tr class="memdesc:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Resets all fields to their default values, deallocate memory.  <br /></td></tr>
-<tr class="separator:af096ef1500e69a6b3112c7640b3748bd inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a85d55c9bad57d0bca811c325ba3af25a inherit pub_methods_classLinker_1_1Format" id="r_a85d55c9bad57d0bca811c325ba3af25a"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1Format.html#a85d55c9bad57d0bca811c325ba3af25a">ImageSize</a> () const override</td></tr>
 <tr class="memdesc:a85d55c9bad57d0bca811c325ba3af25a inherit pub_methods_classLinker_1_1Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of stored data.  <br /></td></tr>
 <tr class="separator:a85d55c9bad57d0bca811c325ba3af25a inherit pub_methods_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -383,6 +404,39 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_base_address
 <tr class="memitem:afc6b7475038f5480d8ab7f62a2ffd310" id="r_afc6b7475038f5480d8ab7f62a2ffd310"><td class="memItemLeft" align="right" valign="top"><a id="afc6b7475038f5480d8ab7f62a2ffd310" name="afc6b7475038f5480d8ab7f62a2ffd310"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stack_size</b> = 0</td></tr>
 <tr class="separator:afc6b7475038f5480d8ab7f62a2ffd310"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13b923d48a8905075d7325cc851a7b39" id="r_a13b923d48a8905075d7325cc851a7b39"><td class="memItemLeft" align="right" valign="top"><a id="a13b923d48a8905075d7325cc851a7b39" name="a13b923d48a8905075d7325cc851a7b39"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>segment_table_offset</b> = 0</td></tr>
+<tr class="separator:a13b923d48a8905075d7325cc851a7b39"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92989153ee09a5b3021c67942a1ed67b" id="r_a92989153ee09a5b3021c67942a1ed67b"><td class="memItemLeft" align="right" valign="top"><a id="a92989153ee09a5b3021c67942a1ed67b" name="a92989153ee09a5b3021c67942a1ed67b"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>segment_table_size</b> = 0</td></tr>
+<tr class="separator:a92989153ee09a5b3021c67942a1ed67b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a81632aa47f2296a3563ec7f50990ab29" id="r_a81632aa47f2296a3563ec7f50990ab29"><td class="memItemLeft" align="right" valign="top"><a id="a81632aa47f2296a3563ec7f50990ab29" name="a81632aa47f2296a3563ec7f50990ab29"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>machine_dependent_table_offset</b> = 0</td></tr>
+<tr class="separator:a81632aa47f2296a3563ec7f50990ab29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af845008a17b4e0615afd6761cfbc8eb4" id="r_af845008a17b4e0615afd6761cfbc8eb4"><td class="memItemLeft" align="right" valign="top"><a id="af845008a17b4e0615afd6761cfbc8eb4" name="af845008a17b4e0615afd6761cfbc8eb4"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>machine_dependent_table_size</b> = 0</td></tr>
+<tr class="separator:af845008a17b4e0615afd6761cfbc8eb4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06217493229a086b00d544d89bbb64f3" id="r_a06217493229a086b00d544d89bbb64f3"><td class="memItemLeft" align="right" valign="top"><a id="a06217493229a086b00d544d89bbb64f3" name="a06217493229a086b00d544d89bbb64f3"></a>
+machine_dependent_table_format_type&#160;</td><td class="memItemRight" valign="bottom"><b>machine_dependent_table_format</b> = MDT_None</td></tr>
+<tr class="separator:a06217493229a086b00d544d89bbb64f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae032b48a14dbff70594ac9a78e9e3a20" id="r_ae032b48a14dbff70594ac9a78e9e3a20"><td class="memItemLeft" align="right" valign="top"><a id="ae032b48a14dbff70594ac9a78e9e3a20" name="ae032b48a14dbff70594ac9a78e9e3a20"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>page_size</b> = 0</td></tr>
+<tr class="separator:ae032b48a14dbff70594ac9a78e9e3a20"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2570605a6ed723678956ab807bd24ff3" id="r_a2570605a6ed723678956ab807bd24ff3"><td class="memItemLeft" align="right" valign="top"><a id="a2570605a6ed723678956ab807bd24ff3" name="a2570605a6ed723678956ab807bd24ff3"></a>
+operating_system_type&#160;</td><td class="memItemRight" valign="bottom"><b>operating_system</b> = OS_None</td></tr>
+<tr class="separator:a2570605a6ed723678956ab807bd24ff3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8d252862d67f95a22473ea788b4ff778" id="r_a8d252862d67f95a22473ea788b4ff778"><td class="memItemLeft" align="right" valign="top"><a id="a8d252862d67f95a22473ea788b4ff778" name="a8d252862d67f95a22473ea788b4ff778"></a>
+system_version_type&#160;</td><td class="memItemRight" valign="bottom"><b>system_version</b> = SystemVersion_Xenix2</td></tr>
+<tr class="separator:a8d252862d67f95a22473ea788b4ff778"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44fb659f294875289c865ec0c9aa77db" id="r_a44fb659f294875289c865ec0c9aa77db"><td class="memItemLeft" align="right" valign="top"><a id="a44fb659f294875289c865ec0c9aa77db" name="a44fb659f294875289c865ec0c9aa77db"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>entry_segment</b> = 0</td></tr>
+<tr class="separator:a44fb659f294875289c865ec0c9aa77db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a399688383b25b2971302d320035b56f8" id="r_a399688383b25b2971302d320035b56f8"><td class="memItemLeft" align="right" valign="top"><a id="a399688383b25b2971302d320035b56f8" name="a399688383b25b2971302d320035b56f8"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>header_reserved1</b> = 0</td></tr>
+<tr class="separator:a399688383b25b2971302d320035b56f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea97f314e18591acd10f73fc1c57b0bb" id="r_aea97f314e18591acd10f73fc1c57b0bb"><td class="memItemLeft" align="right" valign="top"><a id="aea97f314e18591acd10f73fc1c57b0bb" name="aea97f314e18591acd10f73fc1c57b0bb"></a>
+std::vector&lt; <a class="el" href="classXenix_1_1XOutFormat_1_1Segment.html">Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segments</b></td></tr>
+<tr class="separator:aea97f314e18591acd10f73fc1c57b0bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:ae752ce750027654f07078e855335b92c inherit pub_attribs_classLinker_1_1SegmentManager" id="r_ae752ce750027654f07078e855335b92c"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1SegmentManager.html#ae752ce750027654f07078e855335b92c">current_base</a> = 0</td></tr>
 <tr class="memdesc:ae752ce750027654f07078e855335b92c inherit pub_attribs_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
@@ -499,6 +553,64 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Xenix x.out executable. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a48de4b5a48430932c32a11d83f0c0a16" name="a48de4b5a48430932c32a11d83f0c0a16"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a48de4b5a48430932c32a11d83f0c0a16">&#9670;&#160;</a></span>CalculateValues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void XOutFormat::CalculateValues </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae63d979e5fa85a76ffe06ac613b6ec27">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
+<a id="a6639808d1e4f149bedaab789c3010394" name="a6639808d1e4f149bedaab789c3010394"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6639808d1e4f149bedaab789c3010394">&#9670;&#160;</a></span>Clear()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void XOutFormat::Clear </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Resets all fields to their default values, deallocate memory. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#af096ef1500e69a6b3112c7640b3748bd">Linker::Format</a>.</p>
+
+</div>
+</div>
 <a id="a09e089c1a88560144f93efd5e185a693" name="a09e089c1a88560144f93efd5e185a693"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a09e089c1a88560144f93efd5e185a693">&#9670;&#160;</a></span>Dump()</h2>
 

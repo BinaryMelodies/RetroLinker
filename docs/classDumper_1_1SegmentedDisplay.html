@@ -119,8 +119,8 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DisplayValue<
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:ad64437b25dbc71e5522c1460c4c4597b" id="r_ad64437b25dbc71e5522c1460c4c4597b"><td class="memItemLeft" align="right" valign="top"><a id="ad64437b25dbc71e5522c1460c4c4597b" name="ad64437b25dbc71e5522c1460c4c4597b"></a>
-static std::shared_ptr&lt; <a class="el" href="classDumper_1_1SegmentedDisplay.html">SegmentedDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (unsigned width=4)</td></tr>
+<tr class="memitem:ad64437b25dbc71e5522c1460c4c4597b" id="r_ad64437b25dbc71e5522c1460c4c4597b"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classDumper_1_1SegmentedDisplay.html">SegmentedDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad64437b25dbc71e5522c1460c4c4597b">Make</a> (unsigned width=4)</td></tr>
+<tr class="memdesc:ad64437b25dbc71e5522c1460c4c4597b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a segmented display of two hexadecimal values.  <br /></td></tr>
 <tr class="separator:ad64437b25dbc71e5522c1460c4c4597b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
@@ -131,7 +131,42 @@ unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>width</b></td></t
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A value displayed as a colon-separated pair, typically 8086 segmented addresses. </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="ad64437b25dbc71e5522c1460c4c4597b" name="ad64437b25dbc71e5522c1460c4c4597b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad64437b25dbc71e5522c1460c4c4597b">&#9670;&#160;</a></span>Make()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::shared_ptr&lt; <a class="el" href="classDumper_1_1SegmentedDisplay.html">SegmentedDisplay</a> &gt; Dumper::SegmentedDisplay::Make </td>
+          <td>(</td>
+          <td class="paramtype">unsigned</td>          <td class="paramname"><span class="paramname"><em>width</em><span class="paramdefsep"> = </span><span class="paramdefval">4</span></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a segmented display of two hexadecimal values. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">width</td><td>The width (in characters) of the offset field, the segment field is always 4 characters wide </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A segmented display </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/dumper/<a class="el" href="dumper_8h_source.html">dumper.h</a></li>
 <li>src/dumper/<b>dumper.cc</b></li>
 </ul>

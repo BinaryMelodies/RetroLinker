@@ -139,12 +139,12 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DisplayValue<
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
 Static Public Member Functions</h2></td></tr>
-<tr class="memitem:a56337a777ea7bf5d6fee3e56e3345ff0" id="r_a56337a777ea7bf5d6fee3e56e3345ff0"><td class="memItemLeft" align="right" valign="top"><a id="a56337a777ea7bf5d6fee3e56e3345ff0" name="a56337a777ea7bf5d6fee3e56e3345ff0"></a>
-static std::shared_ptr&lt; <a class="el" href="classDumper_1_1BitFieldDisplay.html">BitFieldDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (unsigned width=8)</td></tr>
+<tr class="memitem:a56337a777ea7bf5d6fee3e56e3345ff0" id="r_a56337a777ea7bf5d6fee3e56e3345ff0"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classDumper_1_1BitFieldDisplay.html">BitFieldDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a56337a777ea7bf5d6fee3e56e3345ff0">Make</a> (unsigned width=8)</td></tr>
+<tr class="memdesc:a56337a777ea7bf5d6fee3e56e3345ff0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Create a bit field display.  <br /></td></tr>
 <tr class="separator:a56337a777ea7bf5d6fee3e56e3345ff0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_static_methods_classDumper_1_1HexDisplay"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_methods_classDumper_1_1HexDisplay')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="classDumper_1_1HexDisplay.html">Dumper::HexDisplay</a></td></tr>
-<tr class="memitem:ab21d42a8966ae5859d8f662fcb5668b9 inherit pub_static_methods_classDumper_1_1HexDisplay" id="r_ab21d42a8966ae5859d8f662fcb5668b9"><td class="memItemLeft" align="right" valign="top">
-static std::shared_ptr&lt; <a class="el" href="classDumper_1_1HexDisplay.html">HexDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>Make</b> (unsigned width=8)</td></tr>
+<tr class="memitem:ab21d42a8966ae5859d8f662fcb5668b9 inherit pub_static_methods_classDumper_1_1HexDisplay" id="r_ab21d42a8966ae5859d8f662fcb5668b9"><td class="memItemLeft" align="right" valign="top">static std::shared_ptr&lt; <a class="el" href="classDumper_1_1HexDisplay.html">HexDisplay</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDumper_1_1HexDisplay.html#ab21d42a8966ae5859d8f662fcb5668b9">Make</a> (unsigned width=8)</td></tr>
+<tr class="memdesc:ab21d42a8966ae5859d8f662fcb5668b9 inherit pub_static_methods_classDumper_1_1HexDisplay"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a hexadecimal display.  <br /></td></tr>
 <tr class="separator:ab21d42a8966ae5859d8f662fcb5668b9 inherit pub_static_methods_classDumper_1_1HexDisplay"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
@@ -159,7 +159,42 @@ unsigned&#160;</td><td class="memItemRight" valign="bottom"><b>width</b></td></t
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A value that is separated into bitfields, typically bit flags. </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a56337a777ea7bf5d6fee3e56e3345ff0" name="a56337a777ea7bf5d6fee3e56e3345ff0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56337a777ea7bf5d6fee3e56e3345ff0">&#9670;&#160;</a></span>Make()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static std::shared_ptr&lt; <a class="el" href="classDumper_1_1BitFieldDisplay.html">BitFieldDisplay</a> &gt; Dumper::BitFieldDisplay::Make </td>
+          <td>(</td>
+          <td class="paramtype">unsigned</td>          <td class="paramname"><span class="paramname"><em>width</em><span class="paramdefsep"> = </span><span class="paramdefval">8</span></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">inline</span><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Create a bit field display. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">width</td><td>The number of digits to use for displaying the value as a hexadecimal </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>A bit field display </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/dumper/<a class="el" href="dumper_8h_source.html">dumper.h</a></li>
 <li>src/dumper/<b>dumper.cc</b></li>
 </ul>
