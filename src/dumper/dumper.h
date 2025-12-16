@@ -137,21 +137,53 @@ public:
 	{
 	}
 
+	/**
+	 * @brief Create a choice display
+	 *
+	 * @param[in] names A lookup table that maps certain values to their string representation
+	 * @param[in] default_name The string to print when the value cannot be found in the lookup table
+	 * @param[in] secondary_display Displays the value within parentheses after the name. If a secondary display is not provided, only the name is displayed
+	 * @return A choice display
+	 */
 	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, std::string default_name = "unknown", std::shared_ptr<Display<offset_t>> secondary_display = nullptr)
 	{
 		return std::make_shared<ChoiceDisplay>(names, default_name, false, 0, secondary_display);
 	}
 
+	/**
+	 * @brief Create a choice display
+	 *
+	 * @param[in] names A lookup table that maps certain values to their string representation
+	 * @param[in] missing_value The value that is considered missing
+	 * @param[in] default_name The string to print when the value cannot be found in the lookup table
+	 * @param[in] secondary_display Displays the value within parentheses after the name. If a secondary display is not provided, only the name is displayed
+	 * @return A choice display
+	 */
 	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, offset_t missing_value, std::string default_name = "unknown", std::shared_ptr<Display<offset_t>> secondary_display = nullptr)
 	{
 		return std::make_shared<ChoiceDisplay>(names, default_name, true, missing_value, secondary_display);
 	}
 
+	/**
+	 * @brief Create a choice display
+	 *
+	 * @param[in] names A lookup table that maps certain values to their string representation
+	 * @param[in] secondary_display Displays the value within parentheses after the name. If a secondary display is not provided, only the name is displayed
+	 * @return A choice display
+	 */
 	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, std::shared_ptr<Display<offset_t>> secondary_display)
 	{
 		return std::make_shared<ChoiceDisplay>(names, "unknown", false, 0, secondary_display);
 	}
 
+	/**
+	 * @brief Create a choice display
+	 *
+	 * @param[in] names A lookup table that maps certain values to their string representation
+	 * @param[in] missing_value The value that is considered missing
+	 * @param[in] secondary_display Displays the value within parentheses after the name. If a secondary display is not provided, only the name is displayed
+	 * @return A choice display
+	 */
 	static std::shared_ptr<ChoiceDisplay> Make(std::map<offset_t, std::string> names, offset_t missing_value, std::shared_ptr<Display<offset_t>> secondary_display)
 	{
 		return std::make_shared<ChoiceDisplay>(names, "unknown", true, missing_value, secondary_display);
@@ -159,6 +191,10 @@ public:
 
 	/**
 	 * @brief Creates a boolean choice
+	 *
+	 * @param[in] on_true Name to display on 1
+	 * @param[in] on_false Name to display on 0
+	 * @return A choice display
 	 */
 	static std::shared_ptr<ChoiceDisplay> Make(std::string on_true, std::string on_false)
 	{
@@ -174,6 +210,9 @@ public:
 
 	/**
 	 * @brief Creates a boolean choice that is either present with name or not present at all
+	 *
+	 * @param[in] on_true Name to display on 1
+	 * @return A choice display
 	 */
 	static std::shared_ptr<ChoiceDisplay> Make(std::string on_true)
 	{
@@ -203,6 +242,12 @@ public:
 	{
 	}
 
+	/**
+	 * @brief Creates a hexadecimal display
+	 *
+	 * @param[in] width The number of characters to use, padded on the left with zeroes
+	 * @return A hexadecimal display
+	 */
 	static std::shared_ptr<HexDisplay> Make(unsigned width = 8)
 	{
 		return std::make_shared<HexDisplay>(width);
@@ -224,11 +269,24 @@ public:
 	{
 	}
 
+	/**
+	 * @brief Creates a decimal display
+	 *
+	 * @param[in] enable_signed Whether the value is treated as signed or unsigned
+	 * @return A decimal display
+	 */
 	static std::shared_ptr<DecDisplay> Make(bool enable_signed)
 	{
 		return std::make_shared<DecDisplay>("", enable_signed);
 	}
 
+	/**
+	 * @brief Creates a decimal display
+	 *
+	 * @param[in] suffix Text to append to the end of the decimal number
+	 * @param[in] enable_signed Whether the value is treated as signed or unsigned
+	 * @return A decimal display
+	 */
 	static std::shared_ptr<DecDisplay> Make(std::string suffix = "", bool enable_signed = false)
 	{
 		return std::make_shared<DecDisplay>(suffix, enable_signed);
@@ -249,6 +307,12 @@ public:
 	{
 	}
 
+	/**
+	 * @brief Create a segmented display of two hexadecimal values
+	 *
+	 * @param[in] width The width (in characters) of the offset field, the segment field is always 4 characters wide
+	 * @return A segmented display
+	 */
 	static std::shared_ptr<SegmentedDisplay> Make(unsigned width = 4)
 	{
 		return std::make_shared<SegmentedDisplay>(width);
@@ -269,6 +333,12 @@ public:
 	{
 	}
 
+	/**
+	 * @brief Create a version display of two unsigned decimal values
+	 *
+	 * @param[in] separator Text to separate the two parts with, typically "."
+	 * @return A version display
+	 */
 	static std::shared_ptr<VersionDisplay> Make(std::string separator = ".")
 	{
 		return std::make_shared<VersionDisplay>(separator);
@@ -292,11 +362,24 @@ public:
 	{
 	}
 
+	/**
+	 * @brief Create a sectioned display of an unsigned decimal and a secondary value
+	 *
+	 * @param[in] offset_display The formatting for the second value, the first value is always displayed as an unsigned decimal
+	 * @return A sectioned display
+	 */
 	static std::shared_ptr<SectionedDisplay> Make(std::shared_ptr<Display<Ts...>> offset_display)
 	{
 		return Make("", offset_display);
 	}
 
+	/**
+	 * @brief Create a sectioned display of an unsigned decimal and a secondary value
+	 *
+	 * @param[in] suffix The string to attach to the end of the section number
+	 * @param[in] offset_display The formatting for the second value, the first value is always displayed as an unsigned decimal
+	 * @return A sectioned display
+	 */
 	static std::shared_ptr<SectionedDisplay> Make(std::string suffix, std::shared_ptr<Display<Ts...>> offset_display)
 	{
 		return std::make_shared<SectionedDisplay>(suffix, offset_display);
@@ -337,6 +420,12 @@ public:
 	{
 	}
 
+	/**
+	 * @brief Create a bit field display
+	 *
+	 * @param[in] width The number of digits to use for displaying the value as a hexadecimal
+	 * @return A bit field display
+	 */
 	static std::shared_ptr<BitFieldDisplay> Make(unsigned width = 8)
 	{
 		return std::make_shared<BitFieldDisplay>(width);
@@ -374,16 +463,37 @@ public:
 	{
 	}
 
+	/**
+	 * @brief Create a string display
+	 *
+	 * @param[in] width The exact number of characters to display
+	 * @param[in] open_quote String to prefix to the string
+	 * @param[in] close_quote String to sufffix to the string
+	 * @return A string display
+	 */
 	static std::shared_ptr<StringDisplay> Make(size_t width, std::string open_quote, std::string close_quote)
 	{
 		return std::make_shared<StringDisplay>(width, open_quote, close_quote);
 	}
 
+	/**
+	 * @brief Create a string display
+	 *
+	 * @param[in] width The exact number of characters to display
+	 * @param[in] quote String to use to prefix and suffix to the string
+	 * @return A string display
+	 */
 	static std::shared_ptr<StringDisplay> Make(size_t width, std::string quote = "")
 	{
 		return std::make_shared<StringDisplay>(width, quote, quote);
 	}
 
+	/**
+	 * @brief Create a string display
+	 *
+	 * @param[in] quote String to use to prefix and suffix to the string
+	 * @return A string display
+	 */
 	static std::shared_ptr<StringDisplay> Make(std::string quote = "")
 	{
 		return std::make_shared<StringDisplay>(-1, quote, quote);
