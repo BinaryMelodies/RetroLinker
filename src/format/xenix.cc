@@ -1,5 +1,6 @@
 
 #include "xenix.h"
+#include "../linker/buffer.h"
 #include "../linker/location.h"
 
 /* TODO: unimplemented */
@@ -30,9 +31,196 @@ void BOutFormat::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+void XOutFormat::Segment::Calculate(XOutFormat& xout)
+{
+	// TODO: untested
+
+#if 0
+	offset_t page_size = xout.GetPageSize();
+	if(page_size > 1)
+	{
+		if((offset % page_size) != 0)
+			offset += page_size - (offset % page_size);
+	}
+#endif
+	file_size = contents ? contents->ImageSize() : 0;
+	// TODO
+}
+
+XOutFormat::Segment XOutFormat::Segment::ReadHeader(Linker::Reader& rd, XOutFormat& xout)
+{
+	Segment segment;
+	segment.type = segment_type(rd.ReadUnsigned(2));
+	segment.attributes = rd.ReadUnsigned(2);
+	segment.number = rd.ReadUnsigned(2);
+	segment.log2_align = rd.ReadUnsigned(1);
+	segment.reserved1 = rd.ReadUnsigned(1);
+#if 0
+	segment.offset = offset_t(rd.ReadUnsigned(4)) * xout.GetPageSize();
+#else
+	segment.offset = rd.ReadUnsigned(4);
+#endif
+	Linker::Debug << "Debug: file size stored at offset " << std::hex << rd.Tell() << std::endl;
+	segment.file_size = rd.ReadUnsigned(4);
+	segment.memory_size = rd.ReadUnsigned(4);
+	segment.base_address = rd.ReadUnsigned(4); // TODO: transform according to page size?
+	segment.name_offset = rd.ReadUnsigned(2);
+	segment.reserved2 = rd.ReadUnsigned(2);
+	segment.reserved3 = rd.ReadUnsigned(4);
+	return segment;
+}
+
+void XOutFormat::Segment::ReadContents(Linker::Reader& rd, XOutFormat& xout)
+{
+	// TODO: also read name
+
+	if(file_size != 0)
+	{
+		Linker::Debug << "Debug: reading " << std::hex << file_size << " from offset " << std::hex << (xout.file_offset + offset) << std::endl;
+		rd.Seek(xout.file_offset + offset);
+		contents = Linker::Buffer::ReadFromFile(rd, file_size);
+	}
+}
+
+void XOutFormat::Segment::WriteHeader(Linker::Writer& wr, const XOutFormat& xout) const
+{
+	// TODO: untested
+
+	wr.WriteWord(2, type);
+	wr.WriteWord(2, attributes);
+	wr.WriteWord(2, number);
+	wr.WriteWord(1, log2_align);
+	wr.WriteWord(1, reserved1);
+#if 0
+	wr.WriteWord(4, offset / xout.GetPageSize());
+#else
+	wr.WriteWord(4, offset);
+#endif
+	wr.WriteWord(4, file_size);
+	wr.WriteWord(4, memory_size);
+	wr.WriteWord(4, base_address); // TODO: transform according to page size?
+	wr.WriteWord(2, name_offset);
+	wr.WriteWord(2, reserved2);
+	wr.WriteWord(4, reserved3);
+}
+
+void XOutFormat::Segment::WriteContents(Linker::Writer& wr, const XOutFormat& xout) const
+{
+	// TODO: untested
+
+	if(contents)
+	{
+		wr.Seek(xout.file_offset + offset);
+		contents->WriteFile(wr);
+	}
+}
+
+void XOutFormat::Segment::Dump(Dumper::Dumper& dump, const XOutFormat& xout, uint32_t index) const
+{
+	Dumper::Region header_region("Segment header", xout.header_size + index * 0x20, 0x20, 8);
+	header_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index + 1));
+	header_region.Display(dump);
+
+	static const std::map<offset_t, std::string> type_descriptions =
+	{
+		{ Null, "unused" },
+		{ Text, "text" },
+		{ Data, "data" },
+		{ SymbolTable, "symbol table segment (SYMS)" },
+		{ Relocation, "relocation segment (REL)" },
+		{ SegmentStringTable, "string table for segment table (SESTR)" },
+		{ GroupDefinition, "group definition segment (GRPS)" },
+		{ IteratedData, "iterated data (IDATA)" },
+		{ TSS, "x86 task state segment (TSS)" },
+		{ LODFIX, "\"lodfix\" segment (LFIX)" },
+		{ DescriptorNames, "descriptor names (DNAME)" },
+		{ DebugText, "debug text segment (DTEXT/IDBG)" },
+		{ DebugRelocation, "debug relocations (DFIX)" },
+		{ OverlayTable, "overlay table (OVTAB)" },
+		{ SymbolStringTable, "string table for symbols (SYSTR)" },
+	};
+
+	Dumper::Block segment_block("Segment", xout.file_offset + offset, contents->AsImage(), base_address, 8);
+	segment_block.AddField("Number", Dumper::DecDisplay::Make(), offset_t(number));
+	segment_block.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(type));
+	switch(type)
+	{
+	default:
+		segment_block.AddField("Attributes", Dumper::BitFieldDisplay::Make(4)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("iterated records (ITER)"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("huge elements (HUGE)"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("implicit bss (BSS)"), true)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("read-only shareable (PURE)"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("x86 expand down (EDOWN)"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("cannot be combined (PRIV)"), true)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("32-bit"), true)
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("represents memory image (MEM)"), true),
+				offset_t(attributes));
+		break;
+	case SymbolTable:
+		{
+			static const std::map<offset_t, std::string> format_descriptions =
+			{
+				{ Attribute_SymbolTable_Bell, "Bell 5.2" },
+				{ Attribute_SymbolTable_XOut, "x.out segmented" },
+				{ Attribute_SymbolTable_IslandDebugger, "island debugger support" },
+			};
+			segment_block.AddField("Attributes", Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(0, 14, "Symbol table format", Dumper::ChoiceDisplay::Make(format_descriptions), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("represents memory image (MEM)"), true),
+					offset_t(attributes));
+		}
+		break;
+	case Relocation:
+		{
+			static const std::map<offset_t, std::string> format_descriptions =
+			{
+				{ Attribute_Relocation_XOutSegmented, "x.out segmented" },
+				{ Attribute_Relocation_8086Segmented, "8086 x.out segmented" },
+			};
+			segment_block.AddField("Attributes", Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(0, 14, "Symbol table format", Dumper::ChoiceDisplay::Make(format_descriptions), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("represents memory image (MEM)"), true),
+					offset_t(attributes));
+		}
+		break;
+	}
+	segment_block.AddField("Alignment", Dumper::HexDisplay::Make(8), offset_t(1) << log2_align);
+	segment_block.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(memory_size));
+	segment_block.AddField("Name offset", Dumper::HexDisplay::Make(4), offset_t(name_offset));
+	segment_block.AddOptionalField("Reserved @0x07", Dumper::HexDisplay::Make(2), offset_t(reserved1));
+	segment_block.AddOptionalField("Reserved @0x1A", Dumper::HexDisplay::Make(4), offset_t(reserved2));
+	segment_block.AddOptionalField("Reserved @0x1C", Dumper::HexDisplay::Make(9), offset_t(reserved3));
+	segment_block.Display(dump);
+}
+
+void XOutFormat::Clear()
+{
+	// extended header members might not be overwritten by ReadFile
+	text_relocation_size = 0;
+	data_relocation_size = 0;
+	text_base_address = 0;
+	data_base_address = 0;
+	stack_size = 0;
+	segment_table_offset = 0;
+	segment_table_size = 0;
+	machine_dependent_table_offset = 0;
+	machine_dependent_table_size = 0;
+	machine_dependent_table_format = MDT_None;
+	page_size = 0;
+	operating_system = OS_None;
+	system_version = SystemVersion_Xenix2;
+	entry_segment = 0;
+	header_reserved1 = 0;
+
+	segments.clear();
+}
+
 void XOutFormat::CalculateValues()
 {
 	// TODO: untested
+
+	segment_table_size = segments.size() * 0x20;
 
 	if((runtime_environment & Flag_SegmentTable) != 0
 	|| segment_table_offset
@@ -176,6 +364,18 @@ void XOutFormat::ReadFile(Linker::Reader& rd)
 		header_reserved1 = rd.ReadUnsigned(2);
 	}
 
+	segments.clear();
+	for(uint32_t segment_offset = 0; segment_offset < segment_table_size; segment_offset += 0x20)
+	{
+		rd.Seek(file_offset + segment_table_offset + segment_offset);
+		segments.emplace_back(Segment::ReadHeader(rd, *this));
+	}
+
+	for(auto& segment : segments)
+	{
+		segment.ReadContents(rd, *this);
+	}
+
 	/* TODO */
 }
 
@@ -302,6 +502,20 @@ uint8_t XOutFormat::GetRelSymByte() const
 {
 	return (relocation_format << 4) | symbol_format;
 }
+
+#if 0
+offset_t XOutFormat::GetPageSize() const
+{
+	if(cpu == CPU_80386)
+	{
+		return page_size;
+	}
+	else
+	{
+		return 1;
+	}
+}
+#endif
 
 void XOutFormat::Dump(Dumper::Dumper& dump) const
 {
@@ -468,6 +682,13 @@ void XOutFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Region machine_dependent_table_region("Machine dependent table", machine_dependent_table_offset, machine_dependent_table_size, 8);
 		machine_dependent_table_region.AddField("Format", Dumper::ChoiceDisplay::Make(mdt_format_description), offset_t(machine_dependent_table_format));
 		machine_dependent_table_region.Display(dump);
+	}
+
+	uint32_t segment_index = 0;
+	for(auto& segment : segments)
+	{
+		segment.Dump(dump, *this, segment_index);
+		segment_index ++;
 	}
 
 	// TODO

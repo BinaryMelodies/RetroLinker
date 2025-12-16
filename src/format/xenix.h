@@ -31,6 +31,68 @@ namespace Xenix
 	class XOutFormat : public virtual Linker::SegmentManager
 	{
 	public:
+		class Segment
+		{
+		public:
+			enum segment_type : uint16_t
+			{
+				Null = 0x00,
+				Text = 0x01,
+				Data = 0x02,
+				SymbolTable = 0x03,
+				Relocation = 0x04,
+				SegmentStringTable = 0x05,
+				GroupDefinition = 0x06,
+				IteratedData = 0x40,
+				TSS = 0x41,
+				LODFIX = 0x42,
+				DescriptorNames = 0x43,
+				DebugText = 0x44,
+				DebugRelocation = 0x45,
+				OverlayTable = 0x46,
+				SymbolStringTable = 0x48,
+			};
+			segment_type type = Null;
+			uint16_t attributes = 0;
+
+			uint16_t number = 0;
+			uint8_t log2_align = 0;
+			uint8_t reserved1 = 0;
+			offset_t offset = 0;
+			uint32_t file_size = 0;
+			uint32_t memory_size = 0;
+			uint32_t base_address = 0;
+			uint16_t name_offset = 0;
+			//std::string name; // TODO
+			uint16_t reserved2 = 0;
+			uint32_t reserved3 = 0;
+
+			std::shared_ptr<Linker::Contents> contents;
+
+			static constexpr uint16_t Attribute_Iterated = 0x0001;
+			static constexpr uint16_t Attribute_Huge = 0x0002;
+			static constexpr uint16_t Attribute_ImplicitBss = 0x0004;
+			static constexpr uint16_t Attribute_Pure = 0x0008;
+			static constexpr uint16_t Attribute_ExpandDown = 0x0010;
+			static constexpr uint16_t Attribute_Private = 0x0020;
+			static constexpr uint16_t Attribute_32Bit = 0x0040;
+			static constexpr uint16_t Attribute_MemoryImage = 0x8000;
+
+			static constexpr uint16_t Attribute_SymbolTable_Bell = 0x0000;
+			static constexpr uint16_t Attribute_SymbolTable_XOut = 0x0001;
+			static constexpr uint16_t Attribute_SymbolTable_IslandDebugger = 0x0002;
+
+			static constexpr uint16_t Attribute_Relocation_XOutSegmented = 0x0001;
+			static constexpr uint16_t Attribute_Relocation_8086Segmented = 0x0002;
+
+			void Calculate(XOutFormat& xout);
+			static Segment ReadHeader(Linker::Reader& rd, XOutFormat& xout);
+			void ReadContents(Linker::Reader& rd, XOutFormat& xout);
+			void WriteHeader(Linker::Writer& wr, const XOutFormat& xout) const;
+			void WriteContents(Linker::Writer& wr, const XOutFormat& xout) const;
+			void Dump(Dumper::Dumper& dump, const XOutFormat& xout, uint32_t index) const;
+		};
+
 		enum cpu_type
 		{
 			CPU_None = 0,
@@ -115,8 +177,14 @@ namespace Xenix
 		uint16_t entry_segment = 0;
 		uint16_t header_reserved1 = 0;
 
+		std::vector<Segment> segments;
+
 		uint8_t GetCPUByte() const;
 		uint8_t GetRelSymByte() const;
+#if 0
+		/** @brief Returns the unit in which segment offsets are measured in */
+		offset_t GetPageSize() const;
+#endif
 
 		static constexpr uint16_t Flag_Executable = 0x0001;
 		static constexpr uint16_t Flag_SeparateInsData = 0x0002;
@@ -138,6 +206,7 @@ namespace Xenix
 		static constexpr uint16_t Flag_Xenix3x = 0x8000;
 		static constexpr uint16_t Flag_Xenix5x = 0xC000;
 
+		void Clear() override;
 		void CalculateValues() override;
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
