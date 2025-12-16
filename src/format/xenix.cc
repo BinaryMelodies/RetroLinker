@@ -30,6 +30,40 @@ void BOutFormat::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+void XOutFormat::CalculateValues()
+{
+	// TODO: untested
+
+	if((runtime_environment & Flag_SegmentTable) != 0
+	|| segment_table_offset
+	|| segment_table_size
+	|| machine_dependent_table_offset
+	|| machine_dependent_table_size
+	|| machine_dependent_table_format
+	|| page_size
+	|| operating_system
+	|| system_version
+	|| entry_segment
+	|| header_reserved1)
+	{
+		header_size = std::max(uint16_t(0x4C), header_size);
+	}
+	else if(text_relocation_size
+	|| data_relocation_size
+	|| text_base_address
+	|| data_base_address
+	|| stack_size)
+	{
+		header_size = std::max(uint16_t(0x34), header_size);
+	}
+	else
+	{
+		header_size = std::max(uint16_t(0x20), header_size);
+	}
+
+	page_size = std::min(offset_t(0x255 << 9), AlignTo(page_size, 0x200));
+}
+
 void XOutFormat::ReadFile(Linker::Reader& rd)
 {
 	file_offset = rd.Tell();
@@ -54,7 +88,7 @@ void XOutFormat::ReadFile(Linker::Reader& rd)
 	}
 	rd.endiantype = endiantype;
 	rd.Seek(file_offset + 2);
-	header_size = rd.ReadUnsigned(2);
+	header_size = 0x20 + rd.ReadUnsigned(2);
 	text_size = rd.ReadUnsigned(4);
 	data_size = rd.ReadUnsigned(4);
 	bss_size = rd.ReadUnsigned(4);
@@ -92,11 +126,152 @@ void XOutFormat::ReadFile(Linker::Reader& rd)
 		stack_size = rd.ReadUnsigned(4);
 	}
 
+	if(header_size >= 0x38)
+	{
+		segment_table_offset = rd.ReadUnsigned(4);
+	}
+
+	if(header_size >= 0x3C)
+	{
+		segment_table_size = rd.ReadUnsigned(4);
+	}
+
+	if(header_size >= 0x40)
+	{
+		machine_dependent_table_offset = rd.ReadUnsigned(4);
+	}
+
+	if(header_size >= 0x44)
+	{
+		machine_dependent_table_size = rd.ReadUnsigned(4);
+	}
+
+	if(header_size >= 0x45)
+	{
+		machine_dependent_table_format = machine_dependent_table_format_type(rd.ReadUnsigned(1));
+	}
+
+	if(header_size >= 0x46)
+	{
+		page_size = uint32_t(rd.ReadUnsigned(1)) << 9;
+	}
+
+	if(header_size >= 0x47)
+	{
+		operating_system = operating_system_type(rd.ReadUnsigned(1));
+	}
+
+	if(header_size >= 0x48)
+	{
+		system_version = system_version_type(rd.ReadUnsigned(1));
+	}
+
+	if(header_size >= 0x4A)
+	{
+		entry_segment = rd.ReadUnsigned(2);
+	}
+
+	if(header_size >= 0x4C)
+	{
+		header_reserved1 = rd.ReadUnsigned(2);
+	}
+
 	/* TODO */
 }
 
 offset_t XOutFormat::WriteFile(Linker::Writer& wr) const
 {
+	// TODO: untested
+
+	wr.endiantype = endiantype;
+	wr.Seek(file_offset);
+	wr.WriteData(2, "\x06\x02");
+	wr.WriteWord(2, std::max(uint16_t(0x20), header_size) - 0x20);
+	wr.WriteWord(4, text_size);
+	wr.WriteWord(4, data_size);
+	wr.WriteWord(4, bss_size);
+	wr.WriteWord(4, symbol_table_size);
+	wr.WriteWord(4, relocation_size);
+	wr.WriteWord(4, entry_address);
+	wr.WriteWord(1, GetCPUByte());
+	wr.WriteWord(1, GetRelSymByte());
+	wr.WriteWord(2, runtime_environment);
+
+	if(header_size >= 0x24)
+	{
+		wr.WriteWord(4, text_relocation_size);
+	}
+
+	if(header_size >= 0x28)
+	{
+		wr.WriteWord(4, data_relocation_size);
+	}
+
+	if(header_size >= 0x2C)
+	{
+		wr.WriteWord(4, text_base_address);
+	}
+
+	if(header_size >= 0x30)
+	{
+		wr.WriteWord(4, data_base_address);
+	}
+
+	if(header_size >= 0x34)
+	{
+		wr.WriteWord(4, stack_size);
+	}
+
+	if(header_size >= 0x38)
+	{
+		wr.WriteWord(4, segment_table_offset);
+	}
+
+	if(header_size >= 0x3C)
+	{
+		wr.WriteWord(4, segment_table_size);
+	}
+
+	if(header_size >= 0x40)
+	{
+		wr.WriteWord(4, machine_dependent_table_offset);
+	}
+
+	if(header_size >= 0x44)
+	{
+		wr.WriteWord(4, machine_dependent_table_size);
+	}
+
+	if(header_size >= 0x45)
+	{
+		wr.WriteWord(1, machine_dependent_table_format);
+	}
+
+	if(header_size >= 0x46)
+	{
+		wr.WriteWord(1, page_size >> 9);
+	}
+
+	if(header_size >= 0x47)
+	{
+		wr.WriteWord(1, operating_system);
+	}
+
+	if(header_size >= 0x48)
+	{
+		wr.WriteWord(1, system_version);
+	}
+
+	if(header_size >= 0x4A)
+	{
+		wr.WriteWord(2, entry_segment);
+	}
+
+	if(header_size >= 0x4C)
+	{
+		wr.WriteWord(2, header_reserved1);
+	}
+
 	/* TODO */
 
 	return offset_t(-1);
@@ -188,13 +363,27 @@ void XOutFormat::Dump(Dumper::Dumper& dump) const
 		{ 3, "5.x" },
 	};
 
+	static const std::map<offset_t, std::string> system_description =
+	{
+		{ OS_Xenix,         "Xenix" },
+		{ OS_iRMX,          "Intel iRMX" },
+		{ OS_ConcurrentCPM, "Concurrent CP/M" },
+	};
+
 	Dumper::Region header_region("Header", file_offset, header_size, 8);
-	header_region.AddField("Text size", Dumper::HexDisplay::Make(), offset_t(text_size));
-	header_region.AddField("Data size", Dumper::HexDisplay::Make(), offset_t(data_size));
-	header_region.AddField("BSS size", Dumper::HexDisplay::Make(), offset_t(bss_size));
-	header_region.AddField("Symbol table size", Dumper::HexDisplay::Make(), offset_t(symbol_table_size));
-	header_region.AddField("Relocation table size", Dumper::HexDisplay::Make(), offset_t(relocation_size));
-	header_region.AddField("Entry address", Dumper::HexDisplay::Make(), offset_t(entry_address));
+	header_region.AddField("Text size", Dumper::HexDisplay::Make(8), offset_t(text_size));
+	header_region.AddField("Data size", Dumper::HexDisplay::Make(8), offset_t(data_size));
+	header_region.AddField("BSS size", Dumper::HexDisplay::Make(8), offset_t(bss_size));
+	header_region.AddField("Symbol table size", Dumper::HexDisplay::Make(8), offset_t(symbol_table_size));
+	header_region.AddField("Relocation table size", Dumper::HexDisplay::Make(8), offset_t(relocation_size));
+	if(entry_segment == 0)
+	{
+		header_region.AddField("Entry address", Dumper::HexDisplay::Make(8), offset_t(entry_address));
+	}
+	else
+	{
+		header_region.AddField("Entry address", Dumper::SegmentedDisplay::Make(8), offset_t(entry_segment), offset_t(entry_address));
+	}
 	header_region.AddField("CPU type byte",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 6, "CPU", Dumper::ChoiceDisplay::Make(cpu_description), false)
@@ -240,7 +429,46 @@ void XOutFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddOptionalField("Text base address", Dumper::HexDisplay::Make(8), offset_t(text_base_address));
 	header_region.AddOptionalField("Data base address", Dumper::HexDisplay::Make(8), offset_t(data_base_address));
 	header_region.AddOptionalField("Stack size", Dumper::HexDisplay::Make(8), offset_t(stack_size));
+	header_region.AddOptionalField("Page size", Dumper::HexDisplay::Make(5), offset_t(page_size));
+	header_region.AddOptionalField("Operating system", Dumper::ChoiceDisplay::Make(system_description), offset_t(operating_system));
+	switch(operating_system)
+	{
+	case OS_Xenix:
+		{
+			static const std::map<offset_t, std::string> system_version_description =
+			{
+				{ 0, "2.x" },
+				{ 1, "2.x" },
+				{ 2, "5.x" },
+			};
+			header_region.AddOptionalField("System version", Dumper::ChoiceDisplay::Make(system_version_description, Dumper::HexDisplay::Make(2)), offset_t(system_version));
+		}
+		break;
+	default:
+		header_region.AddOptionalField("System version", Dumper::HexDisplay::Make(2), offset_t(system_version));
+		break;
+	}
+	header_region.AddOptionalField("Reserved (@0x4A)", Dumper::HexDisplay::Make(8), offset_t(header_reserved1));
 	header_region.Display(dump);
+
+	if(segment_table_size != 0 || segment_table_offset != 0)
+	{
+		Dumper::Region segment_table_region("Segment table", segment_table_offset, segment_table_size, 8);
+		segment_table_region.Display(dump);
+	}
+
+	if(machine_dependent_table_size != 0 || machine_dependent_table_offset != 0)
+	{
+		static const std::map<offset_t, std::string> mdt_format_description =
+		{
+			{ MDT_None,   "None" },
+			{ MDT_286LDT, "Intel 80286 LDT" },
+		};
+
+		Dumper::Region machine_dependent_table_region("Machine dependent table", machine_dependent_table_offset, machine_dependent_table_size, 8);
+		machine_dependent_table_region.AddField("Format", Dumper::ChoiceDisplay::Make(mdt_format_description), offset_t(machine_dependent_table_format));
+		machine_dependent_table_region.Display(dump);
+	}
 
 	// TODO
 }

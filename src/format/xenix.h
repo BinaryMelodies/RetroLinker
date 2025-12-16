@@ -86,6 +86,34 @@ namespace Xenix
 		uint32_t text_base_address = 0;
 		uint32_t data_base_address = 0;
 		uint32_t stack_size = 0;
+		uint32_t segment_table_offset = 0;
+		uint32_t segment_table_size = 0;
+		uint32_t machine_dependent_table_offset = 0;
+		uint32_t machine_dependent_table_size = 0;
+		enum machine_dependent_table_format_type : uint8_t
+		{
+			MDT_None = 0,
+			MDT_286LDT = 1,
+		};
+		machine_dependent_table_format_type machine_dependent_table_format = MDT_None;
+		uint32_t page_size = 0;
+		enum operating_system_type : uint8_t
+		{
+			OS_None = 0,
+			OS_Xenix = 1,
+			OS_iRMX = 2,
+			OS_ConcurrentCPM = 3,
+		};
+		operating_system_type operating_system = OS_None;
+		enum system_version_type : uint8_t
+		{
+			SystemVersion_Xenix2 = 0,
+			SystemVersion_Xenix3 = 1,
+			SystemVersion_Xenix5 = 2,
+		};
+		system_version_type system_version = SystemVersion_Xenix2;
+		uint16_t entry_segment = 0;
+		uint16_t header_reserved1 = 0;
 
 		uint8_t GetCPUByte() const;
 		uint8_t GetRelSymByte() const;
@@ -110,6 +138,7 @@ namespace Xenix
 		static constexpr uint16_t Flag_Xenix3x = 0x8000;
 		static constexpr uint16_t Flag_Xenix5x = 0xC000;
 
+		void CalculateValues() override;
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
