@@ -830,7 +830,7 @@ offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr) const
 
 void AppleSingleDouble::Dump(Dumper::Dumper& dump) const
 {
-	dump.SetEncoding(Dumper::Block::encoding_default);
+	dump.SetEncoding(Dumper::Block::encoding_macroman);
 
 	dump.SetTitle("AppleSingle/AppleDouble format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
@@ -1808,7 +1808,7 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 
 void ResourceFork::Dump(Dumper::Dumper& dump) const
 {
-	dump.SetEncoding(Dumper::Block::encoding_default);
+	dump.SetEncoding(Dumper::Block::encoding_macroman);
 
 	dump.SetTitle("Macintosh resource fork format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
@@ -2535,7 +2535,7 @@ offset_t MacBinary::WriteFile(Linker::Writer& wr) const
 
 void MacBinary::Dump(Dumper::Dumper& dump) const
 {
-	dump.SetEncoding(Dumper::Block::encoding_default);
+	dump.SetEncoding(Dumper::Block::encoding_macroman);
 
 	dump.SetTitle("MacBinary format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);

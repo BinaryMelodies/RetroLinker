@@ -716,6 +716,7 @@ public:
 	static SingleByteEncoding encoding_st;
 	static SingleByteEncoding encoding_iso8859_1;
 	static SingleByteEncoding encoding_windows1252;
+	static SingleByteEncoding encoding_macroman;
 	static UTF8Encoding encoding_utf8;
 	static UTF16Encoding encoding_utf16le;
 	static UTF16Encoding encoding_utf16be;
