@@ -1588,7 +1588,7 @@ offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
 
 void HunkFormat::Dump(Dumper::Dumper& dump) const
 {
-	dump.SetEncoding(Dumper::Block::encoding_default);
+	dump.SetEncoding(Dumper::Block::encoding_iso8859_1);
 
 	dump.SetTitle("Hunk format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
