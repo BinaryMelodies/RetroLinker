@@ -270,7 +270,7 @@ namespace AOut
 			uint32_t address = 0;
 			uint32_t symbol = 0;
 			bool relative = false;
-			size_t length = 0;
+			size_t size = 0;
 			enum segment_type
 			{
 				Undefined,
@@ -292,7 +292,7 @@ namespace AOut
 			void WriteFile32Bit(Linker::Writer& wr) const;
 		};
 
-		std::map<uint32_t, uint32_t> code_relocations, data_relocations; /* only used by PDOS386 OMAGIC */
+		std::map<uint32_t, Relocation> code_relocation_map, data_relocation_map; /* only used by PDOS386 OMAGIC */
 
 		std::shared_ptr<Linker::Contents> code, data, bss;
 
