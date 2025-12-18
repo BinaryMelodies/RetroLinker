@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['data_0',['Data',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca492c2e9bd5afcfdad00b90ca418de356',1,'DigitalResearch::CPM86Format::Descriptor']]],
+  ['data_0',['Data',['../classAOut_1_1AOutFormat_1_1Relocation.html#ac76c5ef3f7dc23b18a419e611c37f2cbab78018af226f07c88d958808b16f037e',1,'AOut::AOutFormat::Relocation::Data'],['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca492c2e9bd5afcfdad00b90ca418de356',1,'DigitalResearch::CPM86Format::Descriptor::Data']]],
   ['datarelative_1',['DataRelative',['../structAmiga_1_1HunkFormat_1_1Relocation.html#adb1b1b2457e2722eaea92a64395d881ba440d6a55db46ac48720c613cd32d8203',1,'Amiga::HunkFormat::Relocation']]],
   ['direct_2',['Direct',['../classLinker_1_1Relocation.html#a53b13249581f7975adc1c5836a48efd9abc98d476e839fb1966eb4fd1310f3e9a',1,'Linker::Relocation']]],
   ['djgpp_3',['DJGPP',['../classCOFF_1_1COFFFormat.html#a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6',1,'COFF::COFFFormat']]],

@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['absolute_0',['Absolute',['../structAmiga_1_1HunkFormat_1_1Relocation.html#adb1b1b2457e2722eaea92a64395d881ba26f4ecea78f9a20e1a51b0b764bf0287',1,'Amiga::HunkFormat::Relocation']]],
+  ['absolute_0',['Absolute',['../classAOut_1_1AOutFormat_1_1Relocation.html#ac76c5ef3f7dc23b18a419e611c37f2cba79d80935bee2a2eed9c2de75e3d7bc61',1,'AOut::AOutFormat::Relocation::Absolute'],['../structAmiga_1_1HunkFormat_1_1Relocation.html#adb1b1b2457e2722eaea92a64395d881ba26f4ecea78f9a20e1a51b0b764bf0287',1,'Amiga::HunkFormat::Relocation::Absolute']]],
   ['actualauxiliary4_1',['ActualAuxiliary4',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bcae218ed246145a67e1e94f5ef8c71c9fe',1,'DigitalResearch::CPM86Format::Descriptor']]],
   ['actualfixups_2',['ActualFixups',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca92571d0c94c4c0dc7d2c8542f471303a',1,'DigitalResearch::CPM86Format::Descriptor']]],
   ['additive_3',['Additive',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a966f80e32bb3d588d3865c21953b1751a789c035095061d885d10238558297880',1,'Microsoft::NEFormat::Segment::Relocation']]],

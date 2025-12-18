@@ -2,7 +2,7 @@ var searchData=
 [
   ['ucode_0',['UCODE',['../structCOFF_1_1COFFFormat_1_1Section_1_1ECOFF__Flags.html#af27f35e721a05dd937b8cbf14a6f6bf1',1,'COFF::COFFFormat::Section::ECOFF_Flags']]],
   ['uint16_5ft_1',['uint16_t',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#acdae6325e757e165fbd329eb56b865fb',1,'Microsoft::NEFormat::Segment::Relocation']]],
-  ['undefined_2',['Undefined',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca27ef7ad15cb05528aef8ac8bf8248cd2',1,'DigitalResearch::CPM86Format::Descriptor::Undefined'],['../classLinker_1_1SymbolDefinition.html#a8c8788c78a80c54ad6bb9e41de70bf97abc39451a14d6bdad840c8b2428902b41',1,'Linker::SymbolDefinition::Undefined']]],
+  ['undefined_2',['Undefined',['../classAOut_1_1AOutFormat_1_1Relocation.html#ac76c5ef3f7dc23b18a419e611c37f2cba86170913cd43c629c94a036911c9e52b',1,'AOut::AOutFormat::Relocation::Undefined'],['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca27ef7ad15cb05528aef8ac8bf8248cd2',1,'DigitalResearch::CPM86Format::Descriptor::Undefined'],['../classLinker_1_1SymbolDefinition.html#a8c8788c78a80c54ad6bb9e41de70bf97abc39451a14d6bdad840c8b2428902b41',1,'Linker::SymbolDefinition::Undefined']]],
   ['undefined_5freferences_3',['undefined_references',['../classO65_1_1O65Format_1_1Module.html#a972cc089911d9556808e7e904e1f4b48',1,'O65::O65Format::Module']]],
   ['unit_4',['Unit',['../classAmiga_1_1HunkFormat_1_1SymbolBlock_1_1Unit.html',1,'Amiga::HunkFormat::SymbolBlock']]],
   ['unixrelocation_5',['UNIXRelocation',['../classCOFF_1_1COFFFormat_1_1UNIXRelocation.html',1,'COFF::COFFFormat']]],

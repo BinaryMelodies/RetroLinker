@@ -6,8 +6,8 @@ var searchData=
   ['endofbranchleaf_3',['EndOfBranchLeaf',['../classOMF_1_1OMF96Format_1_1TypeDefinitionRecord_1_1LeafDescriptor.html#a9e26808da66ec94281260ac7e6776550',1,'OMF::OMF96Format::TypeDefinitionRecord::LeafDescriptor']]],
   ['entries_4',['entries',['../classMicrosoft_1_1PEFormat_1_1ExportsSection.html#a4543192aeebe3e08eec97a193e07ccd5',1,'Microsoft::PEFormat::ExportsSection::entries'],['../classLinker_1_1TableSection.html#a3ae7967d1c4a046df6d16c755cf7bc43',1,'Linker::TableSection::entries']]],
   ['entry_5',['entry',['../classApple_1_1OMFFormat_1_1Segment.html#ab2a398e1102c41681d319e05bb9fed91',1,'Apple::OMFFormat::Segment']]],
-  ['entry_5faddress_6',['entry_address',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#a591ee21664125f34aab797509a8a21ec',1,'COFF::COFFFormat::AOutHeader::entry_address'],['../classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html#af85bc55b2328f26bd488c06ebff16548',1,'COFF::COFFFormat::ECOFFAOutHeader::entry_address'],['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#abb669429075828eb1ab40e31f5e6cc63',1,'COFF::COFFFormat::XCOFFAOutHeader::entry_address'],['../classCOFF_1_1COFFFormat.html#ac43a27d9ef5847c230dff13089ea8cce',1,'COFF::COFFFormat::entry_address']]],
-  ['entry_5faddress_7',['ENTRY_ADDRESS',['../classBinary_1_1AtariFormat.html#aee4fa4abc879ec1b1a12ed0df423f626',1,'Binary::AtariFormat']]],
+  ['entry_5faddress_6',['ENTRY_ADDRESS',['../classBinary_1_1AtariFormat.html#aee4fa4abc879ec1b1a12ed0df423f626',1,'Binary::AtariFormat']]],
+  ['entry_5faddress_7',['entry_address',['../classCOFF_1_1COFFFormat_1_1AOutHeader.html#a591ee21664125f34aab797509a8a21ec',1,'COFF::COFFFormat::AOutHeader::entry_address'],['../classCOFF_1_1COFFFormat_1_1ECOFFAOutHeader.html#af85bc55b2328f26bd488c06ebff16548',1,'COFF::COFFFormat::ECOFFAOutHeader::entry_address'],['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#abb669429075828eb1ab40e31f5e6cc63',1,'COFF::COFFFormat::XCOFFAOutHeader::entry_address'],['../classCOFF_1_1COFFFormat.html#ac43a27d9ef5847c230dff13089ea8cce',1,'COFF::COFFFormat::entry_address']]],
   ['entry_5fname_8',['entry_name',['../classMicrosoft_1_1LEFormat_1_1Entry.html#a8a06a10756d17c6ac9e7c8175c3e1eb3',1,'Microsoft::LEFormat::Entry::entry_name'],['../classMicrosoft_1_1NEFormat_1_1Entry.html#ab6f8983170281f8a55cf9a6ac5ab576a',1,'Microsoft::NEFormat::Entry::entry_name']]],
   ['entry_5fpoint_9',['entry_point',['../classPCOS_1_1CMDFormat.html#ad6074daa1ffc558c7d8aab53121080ed',1,'PCOS::CMDFormat']]],
   ['entry_5fsection_10',['entry_section',['../classCOFF_1_1COFFFormat_1_1XCOFFAOutHeader.html#a63ddf4ca85965f416cca5fc064cb80a2',1,'COFF::COFFFormat::XCOFFAOutHeader']]],
@@ -24,6 +24,7 @@ var searchData=
   ['extdefs_21',['extdefs',['../classOMF_1_1OMF86Format_1_1Module.html#a37dfa5a24bad64d6b91dd8c7c86ff6f3',1,'OMF::OMF86Format::Module']]],
   ['extension_22',['extension',['../classBinary_1_1GenericBinaryFormat.html#aebdf2a95e651fa7585d88aaf12a91eec',1,'Binary::GenericBinaryFormat::extension'],['../classOMF_1_1OMF86Format_1_1VendorExtensionRecord.html#ae60f8d5fbfe840342dc7f3dc156d9a06',1,'OMF::OMF86Format::VendorExtensionRecord::extension']]],
   ['externalindex_5ftype_23',['ExternalIndex_type',['../classOMF_1_1OMF86Format_1_1GroupDefinitionRecord_1_1Component.html#a8146699bc00ac14a53bcc79bf430af77',1,'OMF::OMF86Format::GroupDefinitionRecord::Component']]],
-  ['extmask_24',['EXTMASK',['../structCOFF_1_1COFFFormat_1_1Section_1_1ECOFF__Flags.html#a7834d377aad7fb0c17248fc48cbdcc1b',1,'COFF::COFFFormat::Section::ECOFF_Flags']]],
-  ['extra_5fparas_25',['extra_paras',['../classMicrosoft_1_1MZFormat.html#a701a408bbf3d6e030eb1c03d11465a3b',1,'Microsoft::MZFormat']]]
+  ['externals_24',['externals',['../classAmiga_1_1HunkFormat_1_1Hunk.html#a0106329529bac8585308a6e7af587212',1,'Amiga::HunkFormat::Hunk']]],
+  ['extmask_25',['EXTMASK',['../structCOFF_1_1COFFFormat_1_1Section_1_1ECOFF__Flags.html#a7834d377aad7fb0c17248fc48cbdcc1b',1,'COFF::COFFFormat::Section::ECOFF_Flags']]],
+  ['extra_5fparas_26',['extra_paras',['../classMicrosoft_1_1MZFormat.html#a701a408bbf3d6e030eb1c03d11465a3b',1,'Microsoft::MZFormat']]]
 ];

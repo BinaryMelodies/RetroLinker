@@ -25,12 +25,13 @@ var searchData=
   ['targetwince_22',['TargetWinCE',['../classMicrosoft_1_1PEFormat.html#ab6c50ce9df5c703a3a26ea7fa4086d27af130f60f662d385c691a70f4b1582e66',1,'Microsoft::PEFormat']]],
   ['targetwinnt_23',['TargetWinNT',['../classMicrosoft_1_1PEFormat.html#ab6c50ce9df5c703a3a26ea7fa4086d27ab7d58fbd484c4fc64f56a963e030f738',1,'Microsoft::PEFormat']]],
   ['targetxbox_24',['TargetXbox',['../classMicrosoft_1_1PEFormat.html#ab6c50ce9df5c703a3a26ea7fa4086d27a78e74efdb2118090d5604494c103069f',1,'Microsoft::PEFormat']]],
-  ['ticoff_25',['TICOFF',['../classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a914a13e6f3be3df2937efdc3d76399cc',1,'COFF::COFFFormat']]],
-  ['ticoff1_26',['TICOFF1',['../classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997af408894bf263695bc6fec803d85c0a58',1,'COFF::COFFFormat']]],
-  ['type_5fcmd_27',['TYPE_CMD',['../classPCOS_1_1CMDFormat.html#a758f992ed1c64ca88e64f243ae71c8c3a2db361042f7e08221ea3c5a1857c90b7',1,'PCOS::CMDFormat']]],
-  ['type_5fend_28',['TYPE_END',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a01f8e120d7b9cfc5384632b24465f7f8',1,'PCOS::CMDFormat::MemoryBlock']]],
-  ['type_5fload_29',['TYPE_LOAD',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a089d49ccf3fe69474d72c2b54d237bec',1,'PCOS::CMDFormat::MemoryBlock']]],
-  ['type_5foffset_5frelocation_30',['TYPE_OFFSET_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671ae914d3f15724daa5d644948e784f29ee',1,'PCOS::CMDFormat::MemoryBlock']]],
-  ['type_5fsav_31',['TYPE_SAV',['../classPCOS_1_1CMDFormat.html#a758f992ed1c64ca88e64f243ae71c8c3a45becd7ee74f562e1cf733bfdf051210',1,'PCOS::CMDFormat']]],
-  ['type_5fsegment_5frelocation_32',['TYPE_SEGMENT_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a18a19e367bda74cec4f4d4da412b3332',1,'PCOS::CMDFormat::MemoryBlock']]]
+  ['text_25',['Text',['../classAOut_1_1AOutFormat_1_1Relocation.html#ac76c5ef3f7dc23b18a419e611c37f2cba3df6dee40d99aa092234c31e64dda1b1',1,'AOut::AOutFormat::Relocation']]],
+  ['ticoff_26',['TICOFF',['../classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997a914a13e6f3be3df2937efdc3d76399cc',1,'COFF::COFFFormat']]],
+  ['ticoff1_27',['TICOFF1',['../classCOFF_1_1COFFFormat.html#a07b40a36f51ffa98f39b074237c9c997af408894bf263695bc6fec803d85c0a58',1,'COFF::COFFFormat']]],
+  ['type_5fcmd_28',['TYPE_CMD',['../classPCOS_1_1CMDFormat.html#a758f992ed1c64ca88e64f243ae71c8c3a2db361042f7e08221ea3c5a1857c90b7',1,'PCOS::CMDFormat']]],
+  ['type_5fend_29',['TYPE_END',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a01f8e120d7b9cfc5384632b24465f7f8',1,'PCOS::CMDFormat::MemoryBlock']]],
+  ['type_5fload_30',['TYPE_LOAD',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a089d49ccf3fe69474d72c2b54d237bec',1,'PCOS::CMDFormat::MemoryBlock']]],
+  ['type_5foffset_5frelocation_31',['TYPE_OFFSET_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671ae914d3f15724daa5d644948e784f29ee',1,'PCOS::CMDFormat::MemoryBlock']]],
+  ['type_5fsav_32',['TYPE_SAV',['../classPCOS_1_1CMDFormat.html#a758f992ed1c64ca88e64f243ae71c8c3a45becd7ee74f562e1cf733bfdf051210',1,'PCOS::CMDFormat']]],
+  ['type_5fsegment_5frelocation_33',['TYPE_SEGMENT_RELOCATION',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac681106844bec3f377bc9fbdd8c4a671a18a19e367bda74cec4f4d4da412b3332',1,'PCOS::CMDFormat::MemoryBlock']]]
 ];

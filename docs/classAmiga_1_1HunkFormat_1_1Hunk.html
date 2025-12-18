@@ -158,7 +158,12 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td><
 <tr class="separator:a8ecbd29c5790ba6eda35be90b984d437"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8677ed80dbfe6f0080527dc79ad080f" id="r_af8677ed80dbfe6f0080527dc79ad080f"><td class="memItemLeft" align="right" valign="top"><a id="af8677ed80dbfe6f0080527dc79ad080f" name="af8677ed80dbfe6f0080527dc79ad080f"></a>
 std::map&lt; uint32_t, std::set&lt; <a class="el" href="structAmiga_1_1HunkFormat_1_1Relocation.html">Relocation</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="memdesc:af8677ed80dbfe6f0080527dc79ad080f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Internal relocations, grouped according to addressed hunk number. <br /></td></tr>
 <tr class="separator:af8677ed80dbfe6f0080527dc79ad080f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0106329529bac8585308a6e7af587212" id="r_a0106329529bac8585308a6e7af587212"><td class="memItemLeft" align="right" valign="top"><a id="a0106329529bac8585308a6e7af587212" name="a0106329529bac8585308a6e7af587212"></a>
+std::map&lt; std::string, std::set&lt; <a class="el" href="structAmiga_1_1HunkFormat_1_1Relocation.html">Relocation</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>externals</b></td></tr>
+<tr class="memdesc:a0106329529bac8585308a6e7af587212"><td class="mdescLeft">&#160;</td><td class="mdescRight">External relocations, grouped according to name of symbol (only for object files) <br /></td></tr>
+<tr class="separator:a0106329529bac8585308a6e7af587212"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>The smallest loadable unit of a <a class="el" href="classAmiga_1_1HunkFormat_1_1Hunk.html" title="The smallest loadable unit of a Hunk file is the hunk, it roughly corresponds to a segment in other f...">Hunk</a> file is the hunk, it roughly corresponds to a segment in other file formats. </p>
