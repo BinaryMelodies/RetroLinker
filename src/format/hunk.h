@@ -373,6 +373,12 @@ namespace Amiga
 				{
 				}
 
+				bool ContainsRelocations() const;
+
+				size_t GetRelocationSize() const;
+
+				Relocation::relocation_type GetRelocationType() const;
+
 				void Read(Linker::Reader& rd) override;
 				/** @brief Write entire unit */
 				void Write(Linker::Writer& wr) const override;
@@ -586,7 +592,13 @@ namespace Amiga
 			{
 			}
 
+			/** @brief Internal relocations, grouped according to addressed hunk number */
 			std::map<uint32_t, std::set<Relocation>> relocations;
+
+			/** @brief External relocations, grouped according to name of symbol (only for object files) */
+			std::map<std::string, std::set<Relocation>> externals;
+
+			// TODO: also store defined variables, common variables (only for object files) */
 
 			/** @brief Converts the data collected by the linker into hunk blocks */
 			void ProduceBlocks(HunkFormat& fmt, Module& module);

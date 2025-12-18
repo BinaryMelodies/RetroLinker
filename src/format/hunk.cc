@@ -351,6 +351,13 @@ void HunkFormat::LoadBlock::Dump(Dumper::Dumper& dump, const Module& module, con
 			hunk_block.AddSignal(rel.offset, rel.size);
 		}
 	}
+	for(auto pair : hunk->externals)
+	{
+		for(auto rel : pair.second)
+		{
+			hunk_block.AddSignal(rel.offset, rel.size);
+		}
+	}
 	hunk_block.Display(dump);
 }
 
@@ -652,6 +659,77 @@ void HunkFormat::SymbolBlock::Definition::AddExtraFields(Dumper::Dumper& dump, D
 }
 
 // SymbolBlock::References
+
+bool HunkFormat::SymbolBlock::References::ContainsRelocations() const
+{
+	switch(type)
+	{
+	default:
+		return false;
+	case EXT_ABSREF32:
+	case EXT_COMMON:
+	case EXT_RELREF16:
+	case EXT_RELREF8:
+	case EXT_DREF32:
+	case EXT_DREF16:
+	case EXT_DREF8:
+	case EXT_RELREF32:
+	case EXT_RELCOMMON:
+	case EXT_ABSREF16:
+	case EXT_ABSREF8:
+	case EXT_RELREF26:
+		return true;
+	}
+}
+
+size_t HunkFormat::SymbolBlock::References::GetRelocationSize() const
+{
+	switch(type)
+	{
+	default:
+		assert(false);
+	case EXT_ABSREF32:
+	case EXT_COMMON:
+	case EXT_DREF32:
+	case EXT_RELREF32:
+	case EXT_RELCOMMON:
+	case EXT_RELREF26:
+		return 4;
+	case EXT_RELREF16:
+	case EXT_DREF16:
+	case EXT_ABSREF16:
+		return 2;
+	case EXT_RELREF8:
+	case EXT_DREF8:
+	case EXT_ABSREF8:
+		return 1;
+	}
+}
+
+HunkFormat::Relocation::relocation_type HunkFormat::SymbolBlock::References::GetRelocationType() const
+{
+	switch(type)
+	{
+	default:
+		assert(false);
+	case EXT_ABSREF32:
+	case EXT_COMMON:
+	case EXT_ABSREF16:
+	case EXT_ABSREF8:
+		return Relocation::Absolute;
+	case EXT_RELREF16:
+	case EXT_RELREF8:
+	case EXT_RELREF32:
+	case EXT_RELCOMMON:
+		return Relocation::SelfRelative;
+	case EXT_DREF32:
+	case EXT_DREF16:
+	case EXT_DREF8:
+		return Relocation::DataRelative;
+	case EXT_RELREF26:
+		return Relocation::SelfRelative26;
+	}
+}
 
 void HunkFormat::SymbolBlock::References::Read(Linker::Reader& rd)
 {
@@ -1373,6 +1451,23 @@ void HunkFormat::Hunk::AppendBlock(std::shared_ptr<Block> block)
 		// TODO
 		break;
 	case Block::HUNK_EXT:
+		{
+			SymbolBlock * symbol_block = dynamic_cast<SymbolBlock *>(block.get());
+			for(auto& unit_ptr : symbol_block->symbols)
+			{
+				auto unit = unit_ptr.get();
+				if(auto data = dynamic_cast<SymbolBlock::References *>(unit))
+				{
+					assert(data->ContainsRelocations());
+					for(auto offset : data->references)
+					{
+						// TODO: more information needs to be stored
+						externals[unit->name].insert(Relocation(data->GetRelocationSize(), data->GetRelocationType(), offset));
+					}
+				}
+			}
+		}
+		break;
 	case Block::HUNK_SYMBOL:
 		// TODO
 		break;
