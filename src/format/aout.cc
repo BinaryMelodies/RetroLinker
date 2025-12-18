@@ -999,10 +999,6 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 				uint16_t offset = source_segment == 0 ? i : i - code_size;
 				Relocation relocation = Relocation::ReadFile16Bit(rd, offset);
-				if(relocation.segment == Relocation::Absolute)
-				{
-					continue;
-				}
 
 				Linker::Debug << "Debug: Offset " << std::hex << i << " relocation " /*<< std::hex << value*/ << std::endl;
 
@@ -1451,6 +1447,9 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 			/* the values stored in the object file are already relative to the start of the code segment */
 			switch(rel.second.segment)
 			{
+			case Relocation::Absolute:
+				/* ignore */
+				continue;
 			case Relocation::Text:
 				/* text based variable */
 				rel_target = Linker::Target(Linker::Location(linker_code, base));
