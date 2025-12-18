@@ -1317,7 +1317,8 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Block text_block("Text", GetTextOffset(), code->AsImage(), GetTextAddress(), 2 * word_size, 2 * word_size);
 	for(auto& rel : code_relocations)
 	{
-		text_block.AddSignal(rel.address, rel.size);
+		if(rel.segment != Relocation::Absolute)
+			text_block.AddSignal(rel.address, rel.size);
 	}
 	text_block.Display(dump);
 
@@ -1327,13 +1328,79 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Block data_block("Data", data_offset, data->AsImage(), data_address, 2 * word_size, 2 * word_size);
 	for(auto& rel : data_relocations)
 	{
-		data_block.AddSignal(rel.address, rel.size);
+		if(rel.segment != Relocation::Absolute)
+			data_block.AddSignal(rel.address, rel.size);
 	}
 	data_block.Display(dump);
 
 	Dumper::Region bss_region("BSS", data_offset + data->ImageSize(), bss_size, 2 * word_size);
 	bss_region.AddField("Address", Dumper::HexDisplay::Make(2 * word_size), data_address + data->ImageSize());
 	bss_region.Display(dump);
+
+	static const std::map<offset_t, std::string> source_segment_description =
+	{
+		{ 0, "Text" },
+		{ 1, "Data" },
+	};
+
+	static const std::map<offset_t, std::string> target_segment_description =
+	{
+		{ Relocation::Undefined, "undefined" },
+		{ Relocation::External, "external" },
+		{ Relocation::Absolute, "absolute" },
+		{ Relocation::Text, "text" },
+		{ Relocation::Data, "data" },
+		{ Relocation::Bss, "bss" },
+		{ Relocation::FileName, "filename" },
+		{ Relocation::Illegal, "illegal entry" },
+	};
+
+	uint32_t rel_index = 0;
+
+	offset_t relocation_offset = data_offset + data->ImageSize();
+	offset_t text_size = word_size == WordSize32 ? code_relocations.size() * 8 : relocations_suppressed == 0 ? code->ImageSize() : 0;
+	if(text_size != 0)
+	{
+		Dumper::Region text_rel_region("Text relocation region", relocation_offset, code_relocations.size() * (word_size == WordSize16 ? 2 : 8), 2 * word_size);
+		text_rel_region.Display(dump);
+
+		for(auto& rel : code_relocations)
+		{
+			Dumper::Entry rel_entry("Relocation", rel_index + 1, 2 * word_size);
+			rel_entry.AddField("File offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(relocation_offset + rel_index * (word_size == WordSize16 ? 2 : 8)));
+			rel_entry.AddField("Source segment", Dumper::ChoiceDisplay::Make(source_segment_description), offset_t(0));
+			rel_entry.AddField("Source offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(rel.address));
+			rel_entry.AddOptionalField("Symbol index", Dumper::DecDisplay::Make(), offset_t(rel.symbol));
+			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make("relative", "absolute"), offset_t(rel.relative));
+			rel_entry.AddField("Target", Dumper::ChoiceDisplay::Make(target_segment_description), offset_t(rel.segment));
+			rel_entry.AddField("Size", Dumper::DecDisplay::Make(" bytes"), offset_t(rel.size));
+			// TODO: literal_entry
+			rel_entry.Display(dump);
+			rel_index ++;
+		}
+	}
+
+	offset_t data_size = word_size == WordSize32 ? data_relocations.size() * 8 : relocations_suppressed == 0 ? data->ImageSize() : 0;
+	if(data_size != 0)
+	{
+		Dumper::Region data_rel_region("Data relocation region", relocation_offset + code_relocations.size() * (word_size == WordSize16 ? 2 : 8), data_relocations.size() * (word_size == WordSize16 ? 2 : 8), 2 * word_size);
+		data_rel_region.Display(dump);
+
+		for(auto& rel : data_relocations)
+		{
+			Dumper::Entry rel_entry("Relocation", rel_index + 1, 2 * word_size);
+			rel_entry.AddField("File offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(relocation_offset + rel_index * (word_size == WordSize16 ? 2 : 8)));
+			rel_entry.AddField("Source segment", Dumper::ChoiceDisplay::Make(source_segment_description), offset_t(1));
+			rel_entry.AddField("Source offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(rel.address));
+			rel_entry.AddOptionalField("Symbol index", Dumper::DecDisplay::Make(), offset_t(rel.symbol));
+			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make("relative", "absolute"), offset_t(rel.relative));
+			rel_entry.AddField("Target", Dumper::ChoiceDisplay::Make(target_segment_description), offset_t(rel.segment));
+			rel_entry.AddField("Size", Dumper::DecDisplay::Make(" bytes"), offset_t(rel.size));
+			// TODO: literal_entry
+			rel_entry.Display(dump);
+			rel_index ++;
+		}
+	}
 }
 
 /* * * Reader * * */
