@@ -261,30 +261,54 @@ namespace AOut
 		uint32_t bss_size = 0;
 		uint32_t symbol_table_size = 0;
 		uint32_t entry_address = 0;
-		uint32_t code_relocation_size = 0;
-		uint32_t data_relocation_size = 0;
+		// only for 16-bit format
 		uint16_t reserved = 0;
 		uint16_t relocations_suppressed = 0;
+		// only for 32-bit format
+		uint32_t code_relocation_size = 0;
+		uint32_t data_relocation_size = 0;
 
+		/**
+		 * @brief Represents an a.out relocation, unifying 16-bit and 32-bit formats
+		 */
 		class Relocation
 		{
 		public:
+			/** @brief Offset of relocation within segment */
 			uint32_t address = 0;
+			/** @brief Symbol number, only valid for external relocations */
 			uint32_t symbol = 0;
+			/** @brief Set to true if the relocation is PC-relative */
 			bool relative = false;
+			/**
+			 * @brief Size of relocation, in bytes
+			 *
+			 * Must be 2 for 16-bit a.out
+			 */
 			size_t size = 0;
+			/** @brief Type of target */
 			enum segment_type
 			{
+				/** @brief Target is undefined */
 				Undefined,
+				/** @brief Target is external, symbol contains symbol number */
 				External,
+				/** @brief Target is an absolute value */
 				Absolute,
+				/** @brief Target is the text segment */
 				Text,
+				/** @brief Target is the data segment */
 				Data,
+				/** @brief Target is the bss segment */
 				Bss,
+				/** @brief Represents a file name symbol */
 				FileName,
+				/** @brief Relocation entry is invalid */
 				Illegal,
 			};
+			/** @brief Represents the type of relocation target */
 			segment_type segment = Undefined;
+			/** @brief For invalid bit combinations, stores the bits that are expected to be 0 */
 			uint32_t literal_entry = 0;
 
 			static Relocation ReadFile16Bit(Linker::Reader& rd, uint16_t offset);
