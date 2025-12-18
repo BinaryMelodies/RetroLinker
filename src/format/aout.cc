@@ -558,8 +558,17 @@ void AOutFormat::ReadHeader(Linker::Reader& rd)
 	bss_size = rd.ReadUnsigned(word_size);
 	symbol_table_size = rd.ReadUnsigned(word_size);
 	entry_address = rd.ReadUnsigned(word_size);
-	code_relocation_size = rd.ReadUnsigned(word_size);
-	data_relocation_size = rd.ReadUnsigned(word_size);
+	switch(word_size)
+	{
+	case WordSize16:
+		reserved = rd.ReadUnsigned(word_size);
+		relocations_suppressed = rd.ReadUnsigned(word_size);
+		break;
+	case WordSize32:
+		code_relocation_size = rd.ReadUnsigned(word_size);
+		data_relocation_size = rd.ReadUnsigned(word_size);
+		break;
+	}
 }
 
 void AOutFormat::ReadFile(Linker::Reader& rd)
@@ -986,7 +995,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	{
 	case WordSize16:
 		/* this is only for PDP-11 */
-		if(data_relocation_size == 0)
+		if(relocations_suppressed == 0)
 		{
 			/* indicates that relocations are present */
 			int source_segment = 0;
@@ -1006,11 +1015,11 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				{
 				case 0:
 					/* text */
-					code_relocation_map[offset] = relocation;
+					code_relocations.push_back(relocation);
 					break;
 				case 1:
 					/* data */
-					data_relocation_map[offset] = relocation;
+					data_relocations.push_back(relocation);
 					break;
 				}
 			}
@@ -1029,7 +1038,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			}
 
 			offset_t string_table_offset = code_size + data_size;
-			if(data_relocation_size == 0)
+			if(relocations_suppressed == 0)
 			{
 				string_table_offset *= 2;
 			}
@@ -1046,18 +1055,18 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	case WordSize32:
 		/* Linux a.out */
 
-		code_relocation_map.clear();
+		code_relocations.clear();
 		for(uint32_t rel_off = 0; rel_off < code_relocation_size; rel_off += 8)
 		{
 			Relocation relocation = Relocation::ReadFile32Bit(rd);
-			code_relocation_map[relocation.address] = relocation;
+			code_relocations.push_back(relocation);
 		}
 
-		data_relocation_map.clear();
+		data_relocations.clear();
 		for(uint32_t rel_off = 0; rel_off < data_relocation_size; rel_off += 8)
 		{
 			Relocation relocation = Relocation::ReadFile32Bit(rd);
-			data_relocation_map[relocation.address] = relocation;
+			data_relocations.push_back(relocation);
 		}
 
 		// TODO: symbol table
@@ -1070,7 +1079,15 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 offset_t AOutFormat::ImageSize() const
 {
-	return 8 * word_size + code->ImageSize() + data->ImageSize() + code_relocation_map.size() * 8 + data_relocation_map.size() * 8;
+	switch(word_size)
+	{
+	case WordSize16:
+		return 8 * word_size + (code->ImageSize() + data->ImageSize()) * (relocations_suppressed == 0 ? 2 : 1);
+	case WordSize32:
+		return 8 * word_size + code->ImageSize() + data->ImageSize() + code_relocations.size() * 8 + data_relocations.size() * 8;
+	default:
+		assert(false);
+	}
 }
 
 void AOutFormat::WriteHeader(Linker::Writer& wr) const
@@ -1081,8 +1098,17 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 	wr.WriteWord(word_size, bss_size);
 	wr.WriteWord(word_size, symbol_table_size);
 	wr.WriteWord(word_size, entry_address);
-	wr.WriteWord(word_size, code_relocation_size);
-	wr.WriteWord(word_size, data_relocation_size);
+	switch(word_size)
+	{
+	case WordSize16:
+		wr.WriteWord(word_size, reserved);
+		wr.WriteWord(word_size, relocations_suppressed);
+		break;
+	case WordSize32:
+		wr.WriteWord(word_size, code_relocation_size);
+		wr.WriteWord(word_size, data_relocation_size);
+		break;
+	}
 }
 
 offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
@@ -1109,14 +1135,14 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 
 	// TODO: 16-bit relocations
 
-	for(auto it : code_relocation_map)
+	for(auto& rel : code_relocations)
 	{
-		it.second.WriteFile32Bit(wr);
+		rel.WriteFile32Bit(wr);
 	}
 
-	for(auto it : data_relocation_map)
+	for(auto& rel : data_relocations)
 	{
-		it.second.WriteFile32Bit(wr);
+		rel.WriteFile32Bit(wr);
 	}
 
 	// TODO: symbol table
@@ -1289,9 +1315,9 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	// TODO: print symbols, strings, relocations
 
 	Dumper::Block text_block("Text", GetTextOffset(), code->AsImage(), GetTextAddress(), 2 * word_size, 2 * word_size);
-	for(auto it : code_relocation_map)
+	for(auto& rel : code_relocations)
 	{
-		text_block.AddSignal(it.first, it.second.size);
+		text_block.AddSignal(rel.address, rel.size);
 	}
 	text_block.Display(dump);
 
@@ -1299,9 +1325,9 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	uint32_t data_address = AlignTo(GetTextAddress() + code->ImageSize(), GetDataAddressAlign());
 
 	Dumper::Block data_block("Data", data_offset, data->AsImage(), data_address, 2 * word_size, 2 * word_size);
-	for(auto it : data_relocation_map)
+	for(auto& rel : data_relocations)
 	{
-		data_block.AddSignal(it.first, it.second.size);
+		data_block.AddSignal(rel.address, rel.size);
 	}
 	data_block.Display(dump);
 
@@ -1429,23 +1455,23 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 	for(int i = 0; i < 2; i++)
 	{
 		std::shared_ptr<Linker::Section> section = i == 0 ? linker_code : linker_data;
-		for(auto& rel : i == 0 ? code_relocation_map : data_relocation_map)
+		for(auto& rel : i == 0 ? code_relocations : data_relocations)
 		{
 			/* TODO: only PDP-11 specific */
-			Linker::Location rel_source = Linker::Location(section, rel.second.address);
+			Linker::Location rel_source = Linker::Location(section, rel.address);
 			Linker::Target rel_target;
-			uint32_t base = section->ReadUnsigned(2, rel.second.address); // 6
-			bool is_relative = rel.second.relative;
+			uint32_t base = section->ReadUnsigned(2, rel.address); // 6
+			bool is_relative = rel.relative;
 			if(is_relative)
 			{
-				base += rel.second.address; // E
+				base += rel.address; // E
 				if(i == 1)
 					base += code_size;
 			}
 			uint32_t addend = 0;
 
 			/* the values stored in the object file are already relative to the start of the code segment */
-			switch(rel.second.segment)
+			switch(rel.segment)
 			{
 			case Relocation::Absolute:
 				/* ignore */
@@ -1465,7 +1491,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 			case Relocation::External:
 				/* external symbol */
 				{
-					const Symbol& symbol = symbols[rel.second.symbol];
+					const Symbol& symbol = symbols[rel.symbol];
 #if 0
 					if(symbol.name == ".text")
 					{
@@ -1679,6 +1705,8 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 
 	Link(module);
 
+	std::map<uint32_t, Relocation> code_relocation_map, data_relocation_map; /* only used by PDOS386 OMAGIC */
+
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -1731,6 +1759,17 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 		}
 	}
 
+	// TODO: this only works for 32-bit formats
+	for(auto it : code_relocation_map)
+	{
+		code_relocations.push_back(it.second);
+	}
+
+	for(auto it : data_relocation_map)
+	{
+		data_relocations.push_back(it.second);
+	}
+
 	Linker::Location stack_top;
 	if(module.FindGlobalSymbol(".stack_top", stack_top))
 	{
@@ -1780,8 +1819,20 @@ void AOutFormat::CalculateValues()
 		bss_size = AlignTo(std::max(GetBssSegment()->zero_fill, data_size_extra) - data_size_extra, 8);
 	}
 	symbol_table_size = 0;
-	code_relocation_size = code_relocation_map.size() * 8;
-	data_relocation_size = data_relocation_map.size() * 8;
+	switch(word_size)
+	{
+	case WordSize16:
+		reserved = 0;
+		if(code_relocations.size() != 0 || data_relocations.size() != 0)
+		{
+			relocations_suppressed = 0;
+		}
+		break;
+	case WordSize32:
+		code_relocation_size = code_relocations.size() * 8;
+		data_relocation_size = data_relocations.size() * 8;
+		break;
+	}
 }
 
 void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)

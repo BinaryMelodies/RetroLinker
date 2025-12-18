@@ -263,6 +263,8 @@ namespace AOut
 		uint32_t entry_address = 0;
 		uint32_t code_relocation_size = 0;
 		uint32_t data_relocation_size = 0;
+		uint16_t reserved = 0;
+		uint16_t relocations_suppressed = 0;
 
 		class Relocation
 		{
@@ -292,7 +294,7 @@ namespace AOut
 			void WriteFile32Bit(Linker::Writer& wr) const;
 		};
 
-		std::map<uint32_t, Relocation> code_relocation_map, data_relocation_map; /* only used by PDOS386 OMAGIC */
+		std::vector<Relocation> code_relocations, data_relocations;
 
 		std::shared_ptr<Linker::Contents> code, data, bss;
 
