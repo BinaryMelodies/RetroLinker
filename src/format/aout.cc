@@ -811,9 +811,10 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	rd.Seek(file_offset + data_offset);
 	data = Linker::Section::ReadFromFile(rd, data_size, ".data");
 
-	if(word_size == WordSize16)
+	switch(word_size)
 	{
-		/* TODO: this is only for PDP-11 */
+	case WordSize16:
+		/* this is only for PDP-11 */
 		if(data_relocation_size == 0)
 		{
 			/* indicates that relocations are present */
@@ -874,21 +875,29 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				Linker::Debug << "Debug: Symbol " << symbol.name << " (offset " << symbol.name_offset << ") of type " << symbol.type << " value " << symbol.value << std::endl;
 			}
 		}
-	}
+		break;
+	case WordSize32:
+		/* Linux a.out */
 
-#if 0
-	for(auto it : code_relocations)
-	{
-		wr.WriteWord(4, it.first);
-		wr.WriteWord(4, it.second);
-	}
+		code_relocations.clear();
+		for(uint32_t rel_off = 0; rel_off < code_relocation_size; rel_off += 8)
+		{
+			uint32_t offset = rd.ReadUnsigned(4);
+			uint32_t value = rd.ReadUnsigned(4);
+			code_relocations[offset] = value;
+		}
 
-	for(auto it : data_relocations)
-	{
-		wr.WriteWord(4, it.first);
-		wr.WriteWord(4, it.second);
+		data_relocations.clear();
+		for(uint32_t rel_off = 0; rel_off < data_relocation_size; rel_off += 8)
+		{
+			uint32_t offset = rd.ReadUnsigned(4);
+			uint32_t value = rd.ReadUnsigned(4);
+			data_relocations[offset] = value;
+		}
+
+		// TODO: symbol table
+		break;
 	}
-#endif
 
 	/* this is required for module generation */
 	bss = std::make_shared<Linker::Section>(".bss");
@@ -1113,12 +1122,20 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	// TODO: print symbols, strings, relocations
 
 	Dumper::Block text_block("Text", GetTextOffset(), code->AsImage(), GetTextAddress(), 2 * word_size, 2 * word_size);
+	for(auto it : code_relocations)
+	{
+		text_block.AddSignal(it.first, 1 << ((it.second >> 25) & 3));
+	}
 	text_block.Display(dump);
 
 	uint32_t data_offset = AlignTo(GetTextOffset() + code->ImageSize(), GetDataOffsetAlign());
 	uint32_t data_address = AlignTo(GetTextAddress() + code->ImageSize(), GetDataAddressAlign());
 
 	Dumper::Block data_block("Data", data_offset, data->AsImage(), data_address, 2 * word_size, 2 * word_size);
+	for(auto it : data_relocations)
+	{
+		data_block.AddSignal(it.first, 1 << ((it.second >> 25) & 3));
+	}
 	data_block.Display(dump);
 
 	Dumper::Region bss_region("BSS", data_offset + data->ImageSize(), bss_size, 2 * word_size);
