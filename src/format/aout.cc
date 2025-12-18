@@ -52,6 +52,176 @@ AOutFormat::word_size_t AOutFormat::GetWordSize() const
 	}
 }
 
+AOutFormat::Relocation AOutFormat::Relocation::ReadFile16Bit(Linker::Reader& rd, uint16_t offset)
+{
+	Relocation relocation;
+	uint16_t word_value = rd.ReadUnsigned(2);
+	relocation.address = offset;
+	relocation.relative = (word_value & 1) != 0;
+	relocation.length = 2;
+	switch((word_value & 0xE))
+	{
+	case 0x00:
+		relocation.segment = Absolute;
+		relocation.literal_entry = word_value & 0xFFF0;
+		break;
+	case 0x02:
+		relocation.segment = Text;
+		relocation.literal_entry = word_value & 0xFFF0;
+		break;
+	case 0x04:
+		relocation.segment = Data;
+		relocation.literal_entry = word_value & 0xFFF0;
+		break;
+	case 0x06:
+		relocation.segment = Bss;
+		relocation.literal_entry = word_value & 0xFFF0;
+		break;
+	case 0x08:
+		relocation.segment = External;
+		relocation.symbol = word_value >> 4;
+		break;
+	default:
+		relocation.segment = Illegal;
+		relocation.literal_entry = word_value & 0xE;
+		break;
+	}
+	return relocation;
+}
+
+void AOutFormat::Relocation::WriteFile16Bit(Linker::Writer& wr) const
+{
+	uint16_t word_value;
+	switch(segment)
+	{
+	case External:
+		word_value = 0x08 | (symbol << 4);
+		break;
+	case Absolute:
+		word_value = 0x00;
+		break;
+	case Text:
+		word_value = 0x02;
+		break;
+	case Data:
+		word_value = 0x04;
+		break;
+	case Bss:
+		word_value = 0x06;
+		break;
+	case Undefined:
+	case FileName:
+	case Illegal:
+	default:
+		return;
+	}
+
+	if(relative)
+		word_value |= 1;
+
+	wr.WriteWord(2, word_value);
+}
+
+AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(Linker::Reader& rd)
+{
+	Relocation relocation;
+	relocation.address = rd.ReadUnsigned(4);
+	uint32_t word_value = rd.ReadUnsigned(4);
+	if((word_value & 0x08000000))
+	{
+		relocation.segment = External;
+		relocation.symbol = word_value & 0x00FFFFFF;
+	}
+	else
+	{
+		switch(word_value & 0x00FFFFFF)
+		{
+		case 0:
+			relocation.segment = Undefined;
+			break;
+		case 1:
+			relocation.segment = External;
+			break;
+		case 2:
+			relocation.segment = Absolute;
+			break;
+		case 4:
+			relocation.segment = Text;
+			break;
+		case 6:
+			relocation.segment = Data;
+			break;
+		case 8:
+			relocation.segment = Bss;
+			break;
+		case 15:
+			relocation.segment = FileName;
+			break;
+		default:
+			relocation.segment = Illegal;
+			relocation.literal_entry = word_value & 0x00FFFFFF;
+			break;
+		}
+	}
+	relocation.relative = (word_value & 0x01000000) != 0;
+	relocation.length = 1 << ((word_value >> 25) & 3);
+	return relocation;
+}
+
+void AOutFormat::Relocation::WriteFile32Bit(Linker::Writer& wr) const
+{
+	uint32_t word_value;
+	switch(segment)
+	{
+	case Undefined:
+		word_value = 0x00;
+		break;
+	case External:
+		word_value = 0x08000000 | symbol;
+		break;
+	case Absolute:
+		word_value = 0x02;
+		break;
+	case Text:
+		word_value = 0x04;
+		break;
+	case Data:
+		word_value = 0x06;
+		break;
+	case Bss:
+		word_value = 0x08;
+		break;
+	case FileName:
+		word_value = 0x0F;
+		break;
+	case Illegal:
+	default:
+		return;
+	}
+	switch(length)
+	{
+	case 1:
+		break;
+	case 2:
+		word_value |= 0x02000000;
+		break;
+	case 4:
+		word_value |= 0x04000000;
+		break;
+	case 8:
+		word_value |= 0x06000000;
+		break;
+	default:
+		return;
+	}
+
+	if(relative)
+		word_value |= 0x01000000;
+
+	wr.WriteWord(4, address);
+	wr.WriteWord(4, word_value);
+}
+
 bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
 {
 	/* Check valid magic number */

@@ -263,6 +263,35 @@ namespace AOut
 		uint32_t entry_address = 0;
 		uint32_t code_relocation_size = 0;
 		uint32_t data_relocation_size = 0;
+
+		class Relocation
+		{
+		public:
+			uint32_t address = 0;
+			uint32_t symbol = 0;
+			bool relative = false;
+			size_t length = 0;
+			enum segment_type
+			{
+				Undefined,
+				External,
+				Absolute,
+				Text,
+				Data,
+				Bss,
+				FileName,
+				Illegal,
+			};
+			segment_type segment = Undefined;
+			uint32_t literal_entry = 0;
+
+			static Relocation ReadFile16Bit(Linker::Reader& rd, uint16_t offset);
+			void WriteFile16Bit(Linker::Writer& wr) const;
+
+			static Relocation ReadFile32Bit(Linker::Reader& rd);
+			void WriteFile32Bit(Linker::Writer& wr) const;
+		};
+
 		std::map<uint32_t, uint32_t> code_relocations, data_relocations; /* only used by PDOS386 OMAGIC */
 
 		std::shared_ptr<Linker::Contents> code, data, bss;
