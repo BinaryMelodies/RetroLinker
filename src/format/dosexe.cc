@@ -39,6 +39,7 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 		file_offset = stub.GetStubImageSize();
 	}
 
+	// v3.3: only selector relocations are supported, DX64: offset relocations are not counted here
 	uint32_t relocations_size = 0;
 
 	if(!IsV35())
@@ -49,6 +50,8 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 			if(offset_and_type.second == Selector16)
 				selector_relocations.push_back(offset_and_type.first);
 		}
+		selector_relocation_count = selector_relocations.size();
+		relocations_size = 4 * selector_relocation_count;
 
 		offset_relocations.clear();
 		for(auto offset_and_type : relocations_map)
@@ -56,9 +59,7 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 			if(offset_and_type.second == Offset32)
 				offset_relocations.push_back(offset_and_type.first);
 		}
-
-		relocation_count = selector_relocations.size();
-		relocations_size = 4 * relocation_count;
+		offset_relocations_size = 4 * offset_relocations.size();
 	}
 	else
 	{
@@ -80,11 +81,6 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 		MakeLibrary();
 	}
 
-	if(format == FORMAT_DX64)
-	{
-		dx64_flags = 0x04; // this seems to be needed to make the program run correctly
-	}
-
 	if(IsV35() || format == FORMAT_DX64)
 	{
 		header_size = std::max(header_size, uint32_t(0x2C));
@@ -103,12 +99,9 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
 	file_offset = rd.Tell();
-	offset_t image_end = rd.GetImageEnd();
 	rd.ReadData(signature);
 	rd.ReadData(dlink_version);
 	rd.ReadData(minimum_dos_version);
-
-	uint32_t relocation_count = 0;
 
 	if(!IsV35())
 	{
@@ -118,11 +111,11 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 		memory_size = rd.ReadUnsigned(4);
 		eip = rd.ReadUnsigned(4);
 		esp = rd.ReadUnsigned(4);
-		relocation_count = rd.ReadUnsigned(4);
+		selector_relocation_count = rd.ReadUnsigned(4);
 		flags = rd.ReadUnsigned(4);
 		if(header_size >= 0x2C)
 		{
-			dx64_flags = rd.ReadUnsigned(4);
+			offset_relocations_size = rd.ReadUnsigned(4);
 		}
 		else
 		{
@@ -146,7 +139,7 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 
 	if(!IsV35())
 	{
-		for(size_t i = 0; i < relocation_count; i++)
+		for(size_t i = 0; i < selector_relocation_count; i++)
 		{
 			uint32_t offset = rd.ReadUnsigned(4);
 			selector_relocations.push_back(offset);
@@ -154,7 +147,7 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 		}
 
 		// DX64
-		while(rd.Tell() + 4 <= image_end)
+		for(size_t i = 0; i < offset_relocations_size; i += 4)
 		{
 			uint32_t offset = rd.ReadUnsigned(4) - 4;
 			offset_relocations.push_back(offset);
@@ -246,11 +239,11 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 		wr.WriteWord(4, memory_size);
 		wr.WriteWord(4, eip);
 		wr.WriteWord(4, esp);
-		wr.WriteWord(4, relocation_count);
+		wr.WriteWord(4, selector_relocation_count);
 		wr.WriteWord(4, flags);
-		if(dx64_flags != 0 && header_size >= 0x2C)
+		if(offset_relocations_size != 0 && header_size >= 0x2C)
 		{
-			wr.WriteWord(4, dx64_flags);
+			wr.WriteWord(4, offset_relocations_size);
 			wr.Skip(header_size - 0x2C);
 		}
 		else
@@ -342,7 +335,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Entry point (EIP)", Dumper::HexDisplay::Make(8), offset_t(eip)); // TODO: RIP
 	file_region.AddField("Starting stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(esp)); // TODO: RSP
 	file_region.AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(flags)); // TODO: print bits
-	file_region.AddOptionalField("DX64 flags", Dumper::HexDisplay::Make(8), offset_t(dx64_flags)); // TODO: unsure
+	file_region.AddOptionalField("Offset relocation size", Dumper::HexDisplay::Make(8), offset_t(offset_relocations_size)); // DX64 only
 	file_region.Display(dump);
 
 	Dumper::Block image_block("Image", file_offset + header_size, image->AsImage(), 0 /* TODO */, 8);
@@ -393,7 +386,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Entry rel_entry("Relocation", relocation_index + 1, relocation_offset, 8);
 			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(rel.first));
 			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_description), offset_t(rel.second));
-			rel_entry.AddField("Size", Dumper::HexDisplay::Make(8), offset_t(relocation_size));
+			rel_entry.AddField("Entry size", Dumper::HexDisplay::Make(8), offset_t(relocation_size));
 			rel_entry.Display(dump);
 			relocation_index ++;
 			relocation_offset += relocation_size;

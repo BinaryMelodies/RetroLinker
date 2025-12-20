@@ -64,7 +64,9 @@ namespace SeychellDOS32
 		/* v3.5 only: program + relocations */
 		uint32_t contents_size = 0;
 		/* v3.3 only */
-		uint32_t relocation_count = 0;
+		uint32_t selector_relocation_count = 0;
+		/* DX64 only */
+		uint32_t offset_relocations_size = 0;
 		uint32_t eip = 0;
 		uint32_t esp = 0;
 		std::vector<uint32_t> selector_relocations;
@@ -72,8 +74,6 @@ namespace SeychellDOS32
 		/* v3.3: used internally, v3.5: used to import/export */
 		std::map<uint32_t, relocation_type> relocations_map;
 		uint32_t flags = 0;
-		/* additional flag for DX64 */
-		uint32_t dx64_flags = 0; // TODO: unsure
 
 		std::shared_ptr<Linker::Contents> image;
 
