@@ -448,9 +448,10 @@ std::unique_ptr<Script::List> SeychellDOS32::AdamFormat::GetScript(Linker::Modul
 	static const char * DefaultScript = R"(
 ".code"
 {
-	all not zero;
+	all not zero align 2;
 	all not ".stack";
 	all;
+	align 0x1000;
 };
 )";
 
@@ -597,6 +598,7 @@ void SeychellDOS32::AdamFormat::GenerateFile(std::string filename, Linker::Modul
 		dlink_version = { 0x50, 0x03 };
 		// 2.0
 		minimum_dos_version = { 0x00, 0x02 };
+		flags = 0x00040000; // 4MB heap limit for unregistered version
 		break;
 	}
 
