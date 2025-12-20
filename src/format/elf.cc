@@ -301,7 +301,7 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 			return 4;
 		case R_X86_64_64:
 		case R_X86_64_PC64:
-			return 4;
+			return 8;
 		}
 	case EM_68K:
 		switch(type)

@@ -3,8 +3,6 @@
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
-/* untested */
-
 void SeychellDOS32::AdamFormat::MakeApplication()
 {
 	memcpy(signature.data(), "Adam", 4);
@@ -290,7 +288,6 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 	}
 	else
 	{
-		// TODO: untested
 		uint32_t relocation_source_offset = 0;
 		for(auto rel : relocations_map)
 		{
@@ -470,10 +467,9 @@ std::unique_ptr<Script::List> SeychellDOS32::AdamFormat::GetScript(Linker::Modul
 	static const char * DefaultScript = R"(
 ".code"
 {
-	all not zero align 2;
+	all not zero;
 	all not ".stack";
 	all;
-	align 0x1000;
 };
 )";
 
@@ -522,13 +518,18 @@ void SeychellDOS32::AdamFormat::ProcessModule(Linker::Module& module)
 				}
 				relocations_map[rel.source.GetPosition().address] = Offset32;
 			}
+std::cerr << std::hex << rel.size << "," << resolution.value << std::endl;
 			rel.WriteWord(resolution.value);
 		}
-		else if(rel.kind == Linker::Relocation::SelectorIndex)
+		else if(rel.kind == Linker::Relocation::SelectorIndex && resolution.target != nullptr)
 		{
-			if(resolution.target != nullptr)
+			if(format != FORMAT_DX64)
 			{
 				relocations_map[rel.source.GetPosition().address] = Selector16;
+			}
+			else
+			{
+				Linker::Error << "Error: unsupported selector relocation, ignoring" << std::endl;
 			}
 			rel.WriteWord(resolution.value);
 		}
@@ -634,6 +635,8 @@ std::string SeychellDOS32::AdamFormat::GetDefaultExtension(Linker::Module& modul
 
 // D3X
 
+/* untested */
+
 void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
@@ -669,6 +672,8 @@ void BorcaD3X::D3X1Format::Dump(Dumper::Dumper& dump) const
 
 	// TODO
 }
+
+/* untested */
 
 void DX64::LVFormat::SetSignature(format_type type)
 {
