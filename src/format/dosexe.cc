@@ -256,7 +256,39 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 	}
 	else
 	{
-		// TODO: v3.5
+		// TODO: untested
+		uint32_t relocation_source_offset = 0;
+		for(auto rel : relocations_map)
+		{
+			uint32_t displacement = rel.first - relocation_source_offset;
+			// encode the displacement in base 128
+			std::array<uint8_t, 5> values;
+			size_t value_count = 0;
+			uint32_t tmp = displacement;
+			do
+			{
+				assert(value_count < 5);
+				values[value_count] = tmp & 0x7F;
+				value_count ++;
+				tmp >>= 7;
+			} while(tmp != 0);
+			for(int i = value_count - 1; i >= 0; i--)
+			{
+				uint8_t value = values[i];
+				if(i > 0)
+					value += 0x80;
+				uint8_t opcode = (value << 4) | (value >> 4);
+				wr.WriteWord(1, opcode);
+				uint8_t scales = i > 1 ? i - 1 : 0;
+				while(scales-- != 0)
+				{
+					wr.WriteWord(1, 0x08);
+				}
+			}
+			if(rel.second == Selector16)
+				wr.WriteWord(1, 0x00);
+			relocation_source_offset = rel.first;
+		}
 	}
 
 	return offset_t(-1);
