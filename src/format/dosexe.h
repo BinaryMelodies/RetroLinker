@@ -13,7 +13,7 @@ namespace SeychellDOS32
 	/**
 	 * @brief Adam Seychell's DOS32 "Adam" executable format
 	 */
-	class AdamFormat : public virtual Linker::Format, public virtual Linker::OutputFormat
+	class AdamFormat : public virtual Linker::Format, public virtual Linker::SegmentManager
 	{
 	public:
 		enum format_type
@@ -28,10 +28,17 @@ namespace SeychellDOS32
 		};
 		format_type format;
 
-		AdamFormat(format_type format = FORMAT_UNSPECIFIED, bool is_dll = false)
-			: format(format)
+		enum output_type
 		{
-			if(is_dll)
+			OUTPUT_EXE,
+			OUTPUT_DLL
+		};
+		output_type output;
+
+		AdamFormat(format_type format = FORMAT_UNSPECIFIED, output_type output = OUTPUT_EXE)
+			: format(format), output(output)
+		{
+			if(output == OUTPUT_EXE)
 				MakeApplication();
 			else
 				MakeLibrary();
@@ -90,6 +97,69 @@ namespace SeychellDOS32
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
+
+		/* * * Writer members * * */
+
+		mutable Microsoft::MZSimpleStubWriter stub;
+		uint32_t stack_size = 0;
+
+		class AdamOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			class OutputEnumeration : public Linker::Enumeration<output_type>
+			{
+			public:
+				OutputEnumeration()
+					: Enumeration(
+						"EXE", OUTPUT_EXE,
+						"DLL", OUTPUT_DLL)
+				{
+					descriptions = {
+						{ OUTPUT_EXE, "executable" },
+						{ OUTPUT_DLL, "shared library" },
+					};
+				}
+			};
+
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			Linker::Option<Linker::ItemOf<OutputEnumeration>> output{"output", "Binary type"};
+			Linker::Option<offset_t> stack{"stack", "Specify the stack size"};
+
+			AdamOptionCollector()
+			{
+				InitializeFields(stub, output, stack);
+			}
+		};
+
+		bool FormatSupportsSegmentation() const override;
+
+		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
+
+		/**
+		 * @brief Create the required segments, if they have not already been allocated.
+		 * The Adam format uses a single segment.
+		 */
+		void CreateDefaultSegments();
+
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
+
+		/**
+		 * @brief Link application according to script or memory model
+		 */
+		void Link(Linker::Module& module);
+
+		void ProcessModule(Linker::Module& module) override;
+
+		void GenerateFile(std::string filename, Linker::Module& module) override;
+
+		using Linker::OutputFormat::GetDefaultExtension;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 };
 

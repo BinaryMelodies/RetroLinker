@@ -379,7 +379,6 @@ void MZFormat::CalculateValues()
 
 /* * * Writer members * * */
 
-
 bool MZFormat::FormatSupportsSegmentation() const
 {
 	return true;

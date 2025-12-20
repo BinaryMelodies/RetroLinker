@@ -1,5 +1,7 @@
 
 #include "dosexe.h"
+#include "../linker/position.h"
+#include "../linker/resolution.h"
 
 /* untested */
 
@@ -34,6 +36,11 @@ uint32_t SeychellDOS32::AdamFormat::GetRelocationSize(uint32_t displacement, rel
 
 void SeychellDOS32::AdamFormat::CalculateValues()
 {
+	if(stub.filename != "")
+	{
+		file_offset = stub.GetStubImageSize();
+	}
+
 	uint32_t relocations_size = 0;
 
 	if(!IsV35())
@@ -139,7 +146,7 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 		// DX64
 		while(rd.Tell() + 4 <= image_end)
 		{
-			uint32_t offset = rd.ReadUnsigned(4) - 3;
+			uint32_t offset = rd.ReadUnsigned(4) - 4;
 			offset_relocations.push_back(offset);
 			relocations_map[offset] = Offset32;
 		}
@@ -211,7 +218,13 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 
 offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 {
+	if(stub.filename != "")
+	{
+		stub.WriteStubImage(wr);
+	}
+
 	wr.endiantype = ::LittleEndian;
+	wr.Seek(file_offset);
 	wr.WriteData(signature);
 	wr.WriteData(dlink_version);
 	wr.WriteData(minimum_dos_version);
@@ -251,7 +264,7 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 		// DX64
 		for(auto rel : offset_relocations)
 		{
-			wr.WriteWord(4, rel + 3);
+			wr.WriteWord(4, rel + 4);
 		}
 	}
 	else
@@ -301,8 +314,8 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 	dump.SetTitle("Adam format");
 	Dumper::Region file_region("File", file_offset, image_size + (!IsV35() && offset_relocations.size() != 0 ? 4 * offset_relocations.size() : 0), 8);
 	file_region.AddField("Signature", Dumper::StringDisplay::Make(4, "'"), std::string(signature.data(), 4));
-	file_region.AddField("DLINK version", Dumper::VersionDisplay::Make(), offset_t(dlink_version[1]), offset_t(dlink_version[0]));
-	file_region.AddField("DOS version", Dumper::VersionDisplay::Make(), offset_t(minimum_dos_version[1]), offset_t(minimum_dos_version[0]));
+	file_region.AddField("DLINK version", Dumper::VersionDisplay::Make(), offset_t(dlink_version[1]), offset_t(dlink_version[0])); // TODO: print as BCD/hexadecimal
+	file_region.AddField("DOS version", Dumper::VersionDisplay::Make(), offset_t(minimum_dos_version[1]), offset_t(minimum_dos_version[0])); // TODO: print as BCD/hexadecimal
 	if(IsV35())
 		file_region.AddField("Image size (after header)", Dumper::HexDisplay::Make(8), offset_t(contents_size));
 	if(!IsV35() && offset_relocations.size())
@@ -368,6 +381,234 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 		}
 	}
 }
+
+/* * * Writer members * * */
+
+bool SeychellDOS32::AdamFormat::FormatSupportsSegmentation() const
+{
+	return true;
+}
+
+unsigned SeychellDOS32::AdamFormat::FormatAdditionalSectionFlags(std::string section_name) const
+{
+	unsigned flags;
+	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)
+	{
+		flags = Linker::Section::Stack;
+	}
+	else
+	{
+		flags = 0;
+	}
+	return flags;
+}
+
+std::shared_ptr<Linker::OptionCollector> SeychellDOS32::AdamFormat::GetOptions()
+{
+	return std::make_shared<AdamOptionCollector>();
+}
+
+void SeychellDOS32::AdamFormat::SetOptions(std::map<std::string, std::string>& options)
+{
+	AdamOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
+	stack_size = collector.stack();
+	output = collector.output();
+}
+
+void SeychellDOS32::AdamFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
+{
+	if(segment->name == ".code")
+	{
+		if(image != nullptr)
+		{
+			Linker::Error << "Error: duplicate `.code` segment, ignoring" << std::endl;
+			return;
+		}
+		image = segment;
+		memory_size = segment->TotalSize();
+	}
+	else
+	{
+		Linker::Error << "Error: unknown segment `" << segment->name << "` for format, expected `.code`, ignoring" << std::endl;
+	}
+}
+
+void SeychellDOS32::AdamFormat::CreateDefaultSegments()
+{
+	if(image == nullptr)
+	{
+		image = std::make_shared<Linker::Segment>(".code");
+	}
+}
+
+std::unique_ptr<Script::List> SeychellDOS32::AdamFormat::GetScript(Linker::Module& module)
+{
+	static const char * DefaultScript = R"(
+".code"
+{
+	all not zero;
+	all not ".stack";
+	all;
+};
+)";
+
+	if(linker_script != "")
+	{
+		return SegmentManager::GetScript(module);
+	}
+	else
+	{
+		return Script::parse_string(DefaultScript);
+	}
+}
+
+void SeychellDOS32::AdamFormat::Link(Linker::Module& module)
+{
+	std::unique_ptr<Script::List> script = GetScript(module);
+
+	ProcessScript(script, module);
+
+	CreateDefaultSegments();
+}
+
+void SeychellDOS32::AdamFormat::ProcessModule(Linker::Module& module)
+{
+	module.AllocateStack(stack_size);
+
+	Link(module);
+
+	std::set<uint32_t> relocation_offsets;
+	for(Linker::Relocation& rel : module.GetRelocations())
+	{
+		Linker::Resolution resolution;
+		if(!rel.Resolve(module, resolution))
+		{
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			continue;
+		}
+
+		if(rel.kind == Linker::Relocation::Direct)
+		{
+			if(resolution.target != nullptr && (format == FORMAT_35 || format == FORMAT_DX64))
+			{
+				if(rel.size < 4)
+				{
+					Linker::Warning << "Warning: " << std::dec << (rel.size * 8) << "-bit relocations not supported, suppressing" << std::endl;
+				}
+				relocations_map[rel.source.GetPosition().address] = Offset32;
+			}
+			rel.WriteWord(resolution.value);
+		}
+		else if(rel.kind == Linker::Relocation::SelectorIndex)
+		{
+			if(resolution.target != nullptr)
+			{
+				relocations_map[rel.source.GetPosition().address] = Selector16;
+			}
+			rel.WriteWord(resolution.value);
+		}
+		else
+		{
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
+		}
+	}
+
+	Linker::Location stack_top;
+	if(module.FindGlobalSymbol(".stack_top", stack_top))
+	{
+		Linker::Debug << "Debug: " << stack_top << std::endl;
+		esp = stack_top.GetPosition().address;
+	}
+	else
+	{
+		// use end of image as stack top
+		esp = memory_size;
+	}
+
+	Linker::Location entry;
+	if(module.FindGlobalSymbol(".entry", entry))
+	{
+		eip = entry.GetPosition().address;
+	}
+	else
+	{
+		eip = 0;
+		Linker::Warning << "Warning: no entry point specified, using beginning of .code segment" << std::endl;
+	}
+}
+
+void SeychellDOS32::AdamFormat::GenerateFile(std::string filename, Linker::Module& module)
+{
+	if(module.cpu == Linker::Module::X86_64)
+	{
+		if(format == FORMAT_UNSPECIFIED)
+		{
+			format = FORMAT_DX64;
+			Linker::Debug << "Debug: 64-bit module, generating DX64 output" << std::endl;
+		}
+		else if(format != FORMAT_DX64)
+		{
+			Linker::FatalError("Fatal error: Format only supports 32-bit x86 binaries");
+		}
+	}
+	else if(module.cpu == Linker::Module::I386)
+	{
+		if(format == FORMAT_UNSPECIFIED)
+		{
+			format = FORMAT_33;
+			Linker::Debug << "Debug: 32-bit module, generating DOS32 3.3 output" << std::endl;
+		}
+		else if(format == FORMAT_DX64)
+		{
+			Linker::FatalError("Fatal error: Format only supports 64-bit x86 binaries");
+		}
+	}
+	else
+	{
+		switch(format)
+		{
+		default:
+			Linker::FatalError("Fatal error: Format only supports 32-bit x86 binaries");
+			break;
+		case FORMAT_UNSPECIFIED:
+			Linker::FatalError("Fatal error: Format only supports 32/64-bit x86 binaries");
+			break;
+		case FORMAT_DX64:
+			Linker::FatalError("Fatal error: Format only supports 64-bit x86 binaries");
+			break;
+		}
+	}
+
+	switch(format)
+	{
+	case FORMAT_UNSPECIFIED: // should not happen
+	case FORMAT_33:
+	case FORMAT_DX64:
+		// 3.0
+		dlink_version = { 0x00, 0x03 };
+		// 1.20
+		minimum_dos_version = { 0x20, 0x01 };
+		break;
+	case FORMAT_35:
+		// 3.50
+		dlink_version = { 0x50, 0x03 };
+		// 2.0
+		minimum_dos_version = { 0x00, 0x02 };
+		break;
+	}
+
+	Linker::OutputFormat::GenerateFile(filename, module);
+}
+
+std::string SeychellDOS32::AdamFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
+{
+	return filename + ".exe"; // TODO: .dll extension?
+}
+
+// D3X
 
 void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
 {
