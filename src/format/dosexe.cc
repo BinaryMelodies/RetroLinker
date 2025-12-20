@@ -111,7 +111,66 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 	}
 	else
 	{
-		// TODO
+		uint32_t current_offset = 0;
+
+		uint32_t current_advancement = 0;
+		bool needs_relocation = false;
+
+		while(rd.Tell() < file_offset + header_size + contents_size)
+		{
+			uint8_t opcode = rd.ReadUnsigned(1);
+			if(opcode == 0x00)
+			{
+				if(needs_relocation)
+				{
+					relocations_map[current_offset] = Selector16;
+					needs_relocation = false;
+				}
+				else
+				{
+					current_offset += current_advancement;
+					current_advancement = 0;
+					needs_relocation = true;
+				}
+			}
+			else if(opcode == 0x08)
+			{
+				current_advancement *= 0x80;
+			}
+			else if((opcode & 0x08) == 0)
+			{
+				uint8_t offset = (opcode << 4) | (opcode >> 4);
+
+				if(needs_relocation)
+				{
+					relocations_map[current_offset] = Offset32;
+					needs_relocation = false;
+				}
+
+				current_offset += current_advancement + offset;
+				current_advancement = 0;
+				needs_relocation = true;
+			}
+			else
+			{
+				uint8_t offset = ((opcode - 8) << 4) | (opcode >> 4);
+
+				if(needs_relocation)
+				{
+					relocations_map[current_offset] = Offset32;
+					needs_relocation = false;
+				}
+
+				current_offset += current_advancement;
+				current_advancement = offset * 0x80;
+			}
+		}
+
+		if(needs_relocation)
+		{
+			relocations_map[current_offset] = Offset32;
+			needs_relocation = false;
+		}
 	}
 }
 
@@ -194,6 +253,47 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 		image_block.AddSignal(rel.first, rel.second == Offset32 ? 4 : 2);
 	}
 	image_block.Display(dump);
+
+	static const std::map<offset_t, std::string> relocation_type_description =
+	{
+		{ Selector16, "16-bit selector" },
+		{ Offset32, "32-bit base offset" },
+	};
+
+	if(!IsV35())
+	{
+		uint32_t relocation_index = 0;
+		for(auto rel : selector_relocations)
+		{
+			Dumper::Entry rel_entry("Relocation", relocation_index + 1, file_offset + header_size + program_size + 4 * relocation_index, 8);
+			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(rel));
+			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_description), offset_t(Selector16));
+			rel_entry.Display(dump);
+			relocation_index ++;
+		}
+
+		for(auto rel : offset_relocations)
+		{
+			Dumper::Entry rel_entry("Relocation", relocation_index + 1, file_offset + header_size + program_size + 4 * relocation_index, 8);
+			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(rel));
+			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_description), offset_t(Offset32));
+			rel_entry.Display(dump);
+			relocation_index ++;
+		}
+	}
+	else
+	{
+		uint32_t relocation_offset = file_offset + header_size + program_size; // TODO:
+		uint32_t relocation_index = 0;
+		for(auto rel : relocations_map)
+		{
+			Dumper::Entry rel_entry("Relocation", relocation_index + 1, relocation_offset, 8);
+			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(rel.first));
+			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_description), offset_t(rel.second));
+			rel_entry.Display(dump);
+			relocation_index ++;
+		}
+	}
 }
 
 void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
