@@ -755,7 +755,7 @@ void DX64::LVFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Starting stack (RSP)", Dumper::HexDisplay::Make(8), offset_t(esp));
 	file_region.Display(dump);
 
-	Dumper::Block image_block("Image", file_offset + header_size, image->AsImage(), 0 /* TODO */, 8);
+	Dumper::Block image_block("Image", file_offset + 20, image->AsImage(), 0 /* TODO */, 8);
 	image_block.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(memory_size));
 	image_block.Display(dump);
 }
