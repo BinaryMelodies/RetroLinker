@@ -1,6 +1,7 @@
 #ifndef DOSEXE_H
 #define DOSEXE_H
 
+#include <array>
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/segment_manager.h"
@@ -15,30 +16,55 @@ namespace SeychellDOS32
 	class AdamFormat : public virtual Linker::Format, public virtual Linker::OutputFormat
 	{
 	public:
-		bool is_v35; /* based on Michael Tippach's research */
-
-		AdamFormat(bool is_v35 = false)
-			: is_v35(is_v35)
+		enum format_type
 		{
-			if(is_v35)
-			{
-				Linker::FatalError("Fatal error: 3.5 format unimplemented");
-			}
+			FORMAT_UNSPECIFIED,
+			/** @brief DOS32 version 3.3 */
+			FORMAT_33,
+			/** @brief DOS32 version 3.5 beta */
+			FORMAT_35, /* based on Michael Tippach's and own research */
+			/** @brief DX64 veresion */
+			FORMAT_DX64,
+		};
+		format_type format;
+
+		AdamFormat(format_type format = FORMAT_UNSPECIFIED, bool is_dll = false)
+			: format(format)
+		{
+			if(is_dll)
+				signature[0] = 'D';
+			else
+				signature[0] = 'A';
 		}
 
-		bool is_dll = false;
-		uint16_t minimum_dos_version = 0;
-		uint16_t dlink_version = 0;
+		enum relocation_type
+		{
+			Selector16,
+			Offset32,
+		};
+
+		std::array<char, 4> signature;
+		std::array<uint8_t, 2> minimum_dos_version;
+		std::array<uint8_t, 2> dlink_version;
+		/* header + program + relocations */
 		uint32_t image_size = 0;
+		/* header */
 		uint32_t header_size = 0;
-		uint32_t extra_memory_size = 0;
+		/* program */
+		uint32_t program_size = 0;
+		/* program + zero data */
+		uint32_t memory_size = 0;
+		/* v3.5 only: program + relocations */
+		uint32_t contents_size = 0;
+		/* v3.3 only */
+		uint32_t relocation_count = 0;
 		uint32_t eip = 0;
 		uint32_t esp = 0;
-		std::set<uint32_t> relocations;
+		std::vector<uint32_t> selector_relocations;
+		std::vector<uint32_t> offset_relocations;
+		/* v3.3: used internally, v3.5: used to import/export */
+		std::map<uint32_t, relocation_type> relocations_map;
 		uint32_t flags = 0;
-		uint32_t relocation_start = 0;
-		/** @brief Unknown field for version 3.5 */
-		uint32_t last_header_field = 0;
 
 		std::shared_ptr<Linker::Contents> image;
 
@@ -47,6 +73,9 @@ namespace SeychellDOS32
 			FLAG_COMPRESSED = 0x0001,
 			FLAG_DISPLAY_LOGO = 0x0002,
 		};
+
+		constexpr bool IsV35() const { return (dlink_version[1] > 0x03) || (dlink_version[1] == 0x03 && dlink_version[0] >= 0x50); }
+		constexpr bool IsDLL() const { return signature[0] == 'D'; }
 
 		void CalculateValues() override;
 
