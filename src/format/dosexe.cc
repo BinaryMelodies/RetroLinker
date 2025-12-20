@@ -3,6 +3,16 @@
 
 /* untested */
 
+void SeychellDOS32::AdamFormat::MakeApplication()
+{
+	memcpy(signature.data(), "Adam", 4);
+}
+
+void SeychellDOS32::AdamFormat::MakeLibrary()
+{
+	memcpy(signature.data(), "DLL ", 4);
+}
+
 void SeychellDOS32::AdamFormat::CalculateValues()
 {
 	uint32_t relocations_size = 0;
@@ -33,11 +43,11 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 
 	if(!IsDLL())
 	{
-		memcpy(signature.data(), "Adam", 4);
+		MakeApplication();
 	}
 	else
 	{
-		memcpy(signature.data(), "DLL ", 4);
+		MakeLibrary();
 	}
 
 	if(IsV35() || format == FORMAT_DX64)

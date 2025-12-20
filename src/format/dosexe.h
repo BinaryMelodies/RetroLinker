@@ -32,9 +32,9 @@ namespace SeychellDOS32
 			: format(format)
 		{
 			if(is_dll)
-				signature[0] = 'D';
+				MakeApplication();
 			else
-				signature[0] = 'A';
+				MakeLibrary();
 		}
 
 		enum relocation_type
@@ -76,6 +76,9 @@ namespace SeychellDOS32
 
 		constexpr bool IsV35() const { return (dlink_version[1] > 0x03) || (dlink_version[1] == 0x03 && dlink_version[0] >= 0x50); }
 		constexpr bool IsDLL() const { return signature[0] == 'D'; }
+
+		void MakeApplication();
+		void MakeLibrary();
 
 		void CalculateValues() override;
 
