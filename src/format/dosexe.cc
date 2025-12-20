@@ -82,6 +82,11 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 		MakeLibrary();
 	}
 
+	if(format == FORMAT_DX64)
+	{
+		dx64_flags = 0x04; // this seems to be needed to make the program run correctly
+	}
+
 	if(IsV35() || format == FORMAT_DX64)
 	{
 		header_size = std::max(header_size, uint32_t(0x2C));
@@ -117,6 +122,14 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 		esp = rd.ReadUnsigned(4);
 		relocation_count = rd.ReadUnsigned(4);
 		flags = rd.ReadUnsigned(4);
+		if(header_size >= 0x2C)
+		{
+			dx64_flags = rd.ReadUnsigned(4);
+		}
+		else
+		{
+			rd.Skip(header_size - 0x28);
+		}
 	}
 	else
 	{
@@ -128,9 +141,8 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 		esp = rd.ReadUnsigned(4);
 		program_size = rd.ReadUnsigned(4);
 		flags = rd.ReadUnsigned(4);
+		rd.Skip(header_size - 0x28);
 	}
-
-	rd.Skip(header_size - 0x28);
 
 	image = Linker::Buffer::ReadFromFile(rd, program_size);
 
@@ -238,6 +250,15 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 		wr.WriteWord(4, esp);
 		wr.WriteWord(4, relocation_count);
 		wr.WriteWord(4, flags);
+		if(dx64_flags != 0 && header_size >= 0x2C)
+		{
+			wr.WriteWord(4, dx64_flags);
+			wr.Skip(header_size - 0x2C);
+		}
+		else
+		{
+			wr.Skip(header_size - 0x28);
+		}
 	}
 	else
 	{
@@ -249,9 +270,9 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 		wr.WriteWord(4, esp);
 		wr.WriteWord(4, program_size);
 		wr.WriteWord(4, flags);
+		wr.Skip(header_size - 0x28);
 	}
 
-	wr.Skip(header_size - 0x28);
 	image->WriteFile(wr);
 
 	if(!IsV35())
@@ -324,6 +345,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Entry point (EIP)", Dumper::HexDisplay::Make(8), offset_t(eip)); // TODO: RIP
 	file_region.AddField("Starting stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(esp)); // TODO: RSP
 	file_region.AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(flags)); // TODO: print bits
+	file_region.AddOptionalField("DX64 flags", Dumper::HexDisplay::Make(8), offset_t(dx64_flags)); // TODO: unsure
 	file_region.Display(dump);
 
 	Dumper::Block image_block("Image", file_offset + header_size, image->AsImage(), 0 /* TODO */, 8);

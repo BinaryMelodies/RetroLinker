@@ -72,6 +72,8 @@ namespace SeychellDOS32
 		/* v3.3: used internally, v3.5: used to import/export */
 		std::map<uint32_t, relocation_type> relocations_map;
 		uint32_t flags = 0;
+		/* additional flag for DX64 */
+		uint32_t dx64_flags = 0; // TODO: unsure
 
 		std::shared_ptr<Linker::Contents> image;
 
@@ -79,6 +81,7 @@ namespace SeychellDOS32
 		{
 			FLAG_COMPRESSED = 0x0001,
 			FLAG_DISPLAY_LOGO = 0x0002,
+			FLAG_4MB_HEAP_LIMIT = 0x0004, // 3.5 only
 		};
 
 		constexpr bool IsV35() const { return (dlink_version[1] > 0x03) || (dlink_version[1] == 0x03 && dlink_version[0] >= 0x50); }
