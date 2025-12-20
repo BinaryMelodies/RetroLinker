@@ -5,11 +5,18 @@
 
 void SeychellDOS32::AdamFormat::MakeApplication()
 {
-	memcpy(signature.data(), "Adam", 4);
+	if(format != FORMAT_LV)
+	{
+		memcpy(signature.data(), "Adam", 4);
+	}
 }
 
 void SeychellDOS32::AdamFormat::MakeLibrary()
 {
+	if(format == FORMAT_LV)
+	{
+		Linker::FatalError("Fatal error: LV format does not support shared libraries (DLL)");
+	}
 	memcpy(signature.data(), "DLL ", 4);
 }
 
@@ -100,6 +107,10 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 	rd.endiantype = ::LittleEndian;
 	file_offset = rd.Tell();
 	rd.ReadData(signature);
+	if(memcmp(signature.data(), "Adam", 4) != 0 && memcmp(signature.data(), "DLL ", 4) != 0)
+	{
+		Linker::Error << "Error: invalid signature" << std::endl;
+	}
 	rd.ReadData(dlink_version);
 	rd.ReadData(minimum_dos_version);
 
@@ -398,7 +409,14 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 
 bool SeychellDOS32::AdamFormat::FormatSupportsSegmentation() const
 {
-	return true;
+	switch(format)
+	{
+	case FORMAT_DX64:
+	case FORMAT_LV:
+		return false;
+	default:
+		return true;
+	}
 }
 
 unsigned SeychellDOS32::AdamFormat::FormatAdditionalSectionFlags(std::string section_name) const
@@ -515,7 +533,7 @@ void SeychellDOS32::AdamFormat::ProcessModule(Linker::Module& module)
 		}
 		else if(rel.kind == Linker::Relocation::SelectorIndex && resolution.target != nullptr)
 		{
-			if(format != FORMAT_DX64)
+			if(format != FORMAT_DX64 && format != FORMAT_LV)
 			{
 				relocations_map[rel.source.GetPosition().address] = Selector16;
 			}
@@ -558,6 +576,11 @@ void SeychellDOS32::AdamFormat::ProcessModule(Linker::Module& module)
 
 void SeychellDOS32::AdamFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
+	if(format == FORMAT_LV)
+	{
+		Linker::FatalError("Internal error: LV format must be generated via LVFormat");
+	}
+
 	if(module.cpu == Linker::Module::X86_64)
 	{
 		if(format == FORMAT_UNSPECIFIED)
@@ -615,6 +638,8 @@ void SeychellDOS32::AdamFormat::GenerateFile(std::string filename, Linker::Modul
 		minimum_dos_version = { 0x00, 0x02 };
 		flags = 0x00040000; // 4MB heap limit for unregistered version
 		break;
+	case FORMAT_LV:
+		assert(false);
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);
@@ -672,10 +697,10 @@ void DX64::LVFormat::SetSignature(format_type type)
 	switch(type)
 	{
 	case FORMAT_FLAT:
-		memcpy(signature, "Flat", 4);
+		memcpy(signature.data(), "Flat", 4);
 		break;
 	case FORMAT_LV:
-		memcpy(signature, "LV\0\0", 4);
+		memcpy(signature.data(), "LV\0\0", 4);
 		break;
 	default:
 		Linker::FatalError("Internal error: invalid format type");
@@ -685,27 +710,36 @@ void DX64::LVFormat::SetSignature(format_type type)
 void DX64::LVFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	rd.ReadData(4, signature);
-	if(memcmp(signature, "Flat", 4) != 0 && memcmp(signature, "LV\0\0", 4) != 0)
+	file_offset = rd.Tell();
+	rd.ReadData(signature);
+	if(memcmp(signature.data(), "Flat", 4) != 0 && memcmp(signature.data(), "LV\0\0", 4) != 0)
 	{
 		Linker::Error << "Error: invalid signature" << std::endl;
 	}
-	uint32_t program_size = rd.ReadUnsigned(4);
+	program_size = rd.ReadUnsigned(4);
 	eip = rd.ReadUnsigned(4);
 	esp = rd.ReadUnsigned(4);
-	extra_memory_size = rd.ReadUnsigned(4);
+	memory_size = rd.ReadUnsigned(4);
 
 	image = Linker::Buffer::ReadFromFile(rd, program_size);
 }
 
 offset_t DX64::LVFormat::WriteFile(Linker::Writer& wr) const
 {
+	if(stub.filename != "")
+	{
+		stub.WriteStubImage(wr);
+	}
+
 	wr.endiantype = ::LittleEndian;
-	wr.WriteData(4, signature);
-	wr.WriteWord(4, image->ImageSize());
+	wr.Seek(file_offset);
+
+	wr.endiantype = ::LittleEndian;
+	wr.WriteData(signature);
+	wr.WriteWord(4, program_size);
 	wr.WriteWord(4, eip);
 	wr.WriteWord(4, esp);
-	wr.WriteWord(4, extra_memory_size);
+	wr.WriteWord(4, memory_size);
 	image->WriteFile(wr);
 	return offset_t(-1);
 }
@@ -716,8 +750,38 @@ void DX64::LVFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("LV/Flat format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.AddField("Signature", Dumper::StringDisplay::Make(4, "'"), std::string(signature.data(), 4));
+	file_region.AddField("Entry point (RIP)", Dumper::HexDisplay::Make(8), offset_t(eip));
+	file_region.AddField("Starting stack (RSP)", Dumper::HexDisplay::Make(8), offset_t(esp));
 	file_region.Display(dump);
 
-	// TODO
+	Dumper::Block image_block("Image", file_offset + header_size, image->AsImage(), 0 /* TODO */, 8);
+	image_block.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(memory_size));
+	image_block.Display(dump);
+}
+
+/* * * Writer members * * */
+
+std::shared_ptr<Linker::OptionCollector> DX64::LVFormat::GetOptions()
+{
+	return std::make_shared<LVOptionCollector>();
+}
+
+void DX64::LVFormat::SetOptions(std::map<std::string, std::string>& options)
+{
+	LVOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
+	stack_size = collector.stack();
+}
+
+void DX64::LVFormat::GenerateFile(std::string filename, Linker::Module& module)
+{
+	if(module.cpu != Linker::Module::X86_64)
+	{
+		Linker::FatalError("Fatal error: Format only supports 64-bit x86 binaries");
+	}
+
+	Linker::OutputFormat::GenerateFile(filename, module);
 }
 

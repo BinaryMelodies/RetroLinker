@@ -25,6 +25,8 @@ namespace SeychellDOS32
 			FORMAT_35, /* based on Michael Tippach's and own research */
 			/** @brief DX64 veresion */
 			FORMAT_DX64,
+			/** @brief DX64 version, only used with LVFormat */
+			FORMAT_LV,
 		};
 		format_type format;
 
@@ -198,7 +200,7 @@ namespace DX64
 	/**
 	 * @brief CandyMan's DX64 "Flat" and "LV" executable formats
 	 */
-	class LVFormat : public virtual Linker::Format
+	class LVFormat : public virtual SeychellDOS32::AdamFormat
 	{
 	public:
 		enum format_type
@@ -207,17 +209,12 @@ namespace DX64
 			FORMAT_LV,
 		};
 
-		char signature[4];
-		uint32_t eip = 0;
-		uint32_t esp = 0;
-		uint32_t extra_memory_size = 0;
-		std::shared_ptr<Linker::Contents> image;
-
 		explicit LVFormat()
 		{
 		}
 
 		LVFormat(format_type type)
+			: AdamFormat(AdamFormat::FORMAT_LV, OUTPUT_EXE)
 		{
 			SetSignature(type);
 		}
@@ -229,6 +226,28 @@ namespace DX64
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
+
+		/* * * Writer members * * */
+
+		// TODO: check Flat support
+
+		class LVOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			Linker::Option<offset_t> stack{"stack", "Specify the stack size"};
+
+			LVOptionCollector()
+			{
+				InitializeFields(stub, stack);
+			}
+		};
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
+		void GenerateFile(std::string filename, Linker::Module& module) override;
 	};
 }
 
