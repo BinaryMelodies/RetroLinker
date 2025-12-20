@@ -518,7 +518,6 @@ void SeychellDOS32::AdamFormat::ProcessModule(Linker::Module& module)
 				}
 				relocations_map[rel.source.GetPosition().address] = Offset32;
 			}
-std::cerr << std::hex << rel.size << "," << resolution.value << std::endl;
 			rel.WriteWord(resolution.value);
 		}
 		else if(rel.kind == Linker::Relocation::SelectorIndex && resolution.target != nullptr)
