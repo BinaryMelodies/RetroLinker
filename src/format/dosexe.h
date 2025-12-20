@@ -80,6 +80,9 @@ namespace SeychellDOS32
 		void MakeApplication();
 		void MakeLibrary();
 
+		/* only for v3.5 */
+		static uint32_t GetRelocationSize(uint32_t displacement, relocation_type type);
+
 		void CalculateValues() override;
 
 		void ReadFile(Linker::Reader& rd) override;

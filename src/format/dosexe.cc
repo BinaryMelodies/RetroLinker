@@ -13,6 +13,25 @@ void SeychellDOS32::AdamFormat::MakeLibrary()
 	memcpy(signature.data(), "DLL ", 4);
 }
 
+uint32_t SeychellDOS32::AdamFormat::GetRelocationSize(uint32_t displacement, relocation_type type)
+{
+	uint32_t size = 1; // one byte is 0x00-0x7F with nibble order inverted
+	uint8_t bytes = 1; // additional bytes is 0x81-0xFF with nibble order inverted, with an additional 0x80 appended each cycle
+	displacement >>= 7;
+	while(displacement > 0)
+	{
+		if((displacement & 0x7F) != 0)
+		{
+			size += bytes;
+		}
+		bytes ++;
+		displacement >>= 7;
+	}
+	if(type == Selector16)
+		size ++;
+	return size;
+}
+
 void SeychellDOS32::AdamFormat::CalculateValues()
 {
 	uint32_t relocations_size = 0;
@@ -38,7 +57,13 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 	}
 	else
 	{
-		// TODO: relocation_size for v3.5
+		uint32_t relocation_source_offset = 0;
+		relocations_size = 0;
+		for(auto rel : relocations_map)
+		{
+			relocations_size += GetRelocationSize(rel.first - relocation_source_offset, rel.second);
+			relocation_source_offset = rel.first;
+		}
 	}
 
 	if(!IsDLL())
@@ -294,14 +319,20 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 	else
 	{
 		uint32_t relocation_offset = file_offset + header_size + program_size; // TODO:
+		uint32_t relocation_source_offset = 0;
 		uint32_t relocation_index = 0;
 		for(auto rel : relocations_map)
 		{
+			uint32_t relocation_size = GetRelocationSize(rel.first - relocation_source_offset, rel.second);
+			relocation_source_offset = rel.first;
+
 			Dumper::Entry rel_entry("Relocation", relocation_index + 1, relocation_offset, 8);
 			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(rel.first));
 			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_description), offset_t(rel.second));
+			rel_entry.AddField("Size", Dumper::HexDisplay::Make(8), offset_t(relocation_size));
 			rel_entry.Display(dump);
 			relocation_index ++;
+			relocation_offset += relocation_size;
 		}
 	}
 }
