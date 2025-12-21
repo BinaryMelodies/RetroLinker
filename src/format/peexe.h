@@ -373,8 +373,8 @@ namespace Microsoft
 			uint32_t AssignAddress(PEFormat& fmt, uint32_t rva);
 			/** @brief Writes the directory entry for this resource */
 			void WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const;
-			/** @brief Writes the actual resource */
-			void WriteResource(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
+			/** @brief Writes the actual resource, returns the file offset after the last written byte */
+			offset_t WriteResource(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
 		};
 
 		class ResourcesSection;
@@ -437,8 +437,8 @@ namespace Microsoft
 			uint32_t CollectResourceData(PEFormat& fmt, uint32_t rva, size_t level_deeper);
 			/** @brief Recursively writes the directory table and all those of all of its subdirectories and leaves */
 			void WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const;
-			/** @brief Recursively writes all the resources */
-			void WriteResources(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
+			/** @brief Recursively writes all the resources, returns the file offset after the last written byte */
+			offset_t WriteResources(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
 		};
 
 		/** @brief Represents an `.rsrc` resource section in the binary */

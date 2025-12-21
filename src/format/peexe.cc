@@ -532,13 +532,15 @@ void PEFormat::Resource::WriteDirectories(Linker::Writer& wr, const PEFormat& fm
 	wr.WriteWord(4, reserved, ::LittleEndian);
 }
 
-void PEFormat::Resource::WriteResource(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
+offset_t PEFormat::Resource::WriteResource(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
 {
 	if(section != nullptr)
 	{
 		wr.Seek(data_rva - rva_to_offset);
 		section->WriteFile(wr);
 	}
+
+	return wr.Tell();
 }
 
 void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resource, size_t level)
@@ -928,17 +930,18 @@ void PEFormat::ResourceDirectory::WriteDirectories(Linker::Writer& wr, const PEF
 	}
 }
 
-void PEFormat::ResourceDirectory::WriteResources(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
+offset_t PEFormat::ResourceDirectory::WriteResources(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
 {
+	offset_t last_written_offset = 0;
 	for(auto& entry : name_entries)
 	{
 		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
 		{
-			(*leaf)->WriteResource(wr, fmt, rva_to_offset);
+			last_written_offset = std::max(last_written_offset, (*leaf)->WriteResource(wr, fmt, rva_to_offset));
 		}
 		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
 		{
-			(*dir)->WriteResources(wr, fmt, rva_to_offset);
+			last_written_offset = std::max(last_written_offset, (*dir)->WriteResources(wr, fmt, rva_to_offset));
 		}
 	}
 
@@ -946,13 +949,15 @@ void PEFormat::ResourceDirectory::WriteResources(Linker::Writer& wr, const PEFor
 	{
 		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
 		{
-			(*leaf)->WriteResource(wr, fmt, rva_to_offset);
+			last_written_offset = std::max(last_written_offset, (*leaf)->WriteResource(wr, fmt, rva_to_offset));
 		}
 		else if(auto dir = std::get_if<std::shared_ptr<ResourceDirectory>>(&entry.content))
 		{
-			(*dir)->WriteResources(wr, fmt, rva_to_offset);
+			last_written_offset = std::max(last_written_offset, (*dir)->WriteResources(wr, fmt, rva_to_offset));
 		}
 	}
+
+	return last_written_offset;
 }
 
 uint32_t PEFormat::ResourcesSection::FetchString(std::string s)
@@ -1016,7 +1021,14 @@ void PEFormat::ResourcesSection::WriteSectionData(Linker::Writer& wr, const PEFo
 			wr.WriteWord(1, 0);
 	}
 
-	WriteResources(wr, fmt, section_pointer - address);
+	offset_t last_written_offset = WriteResources(wr, fmt, section_pointer - address);
+
+	if(last_written_offset != section_pointer + size)
+	{
+		// fill in the gap
+		wr.Seek(section_pointer + size - 1);
+		wr.WriteWord(1, 0);
+	}
 }
 
 uint32_t PEFormat::ResourcesSection::ImageSize(const PEFormat& fmt) const
@@ -1157,6 +1169,8 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	wr.WriteWord(4, 0);
 	wr.WriteWord(4, 0);
 
+	offset_t last_written_offset = wr.Tell();
+
 	// first list the import lookup tables
 	for(auto& library : libraries)
 	{
@@ -1177,6 +1191,7 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 			}
 		}
 		wr.WriteWord(fmt.Is64Bit() ? 8 : 4, 0);
+		last_written_offset = std::max(last_written_offset, wr.Tell());
 	}
 
 	// then list the import address tables (identical formats)
@@ -1199,6 +1214,7 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 			}
 		}
 		wr.WriteWord(fmt.Is64Bit() ? 8 : 4, 0);
+		last_written_offset = std::max(last_written_offset, wr.Tell());
 	}
 
 	// list all the hint/name pairs
@@ -1212,6 +1228,7 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 				wr.WriteWord(2, import_name->hint);
 				wr.WriteData(import_name->name);
 				wr.WriteWord(1, 0);
+				last_written_offset = std::max(last_written_offset, wr.Tell());
 			}
 		}
 	}
@@ -1222,6 +1239,7 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 		// TODO: two 32-bit entries
 		wr.WriteWord(4, address);
 		wr.WriteWord(4, address);
+		last_written_offset = std::max(last_written_offset, wr.Tell());
 	}
 
 	// list DLL names
@@ -1239,7 +1257,15 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 		}
 		wr.WriteData(library.name);
 		wr.WriteWord(1, 0);
+		last_written_offset = std::max(last_written_offset, wr.Tell());
 		library_index ++;
+	}
+
+	if(last_written_offset != section_pointer + size)
+	{
+		// fill in the gap
+		wr.Seek(section_pointer + size - 1);
+		wr.WriteWord(1, 0);
 	}
 }
 
@@ -1511,6 +1537,8 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	wr.WriteWord(4, name_table_rva);
 	wr.WriteWord(4, ordinal_table_rva);
 
+	offset_t last_written_offset = wr.Tell();
+
 	// export address table
 	wr.Seek(rva_to_offset + address_table_rva);
 	uint32_t ordinal = ordinal_base;
@@ -1540,6 +1568,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 
 		ordinal++;
 	}
+	last_written_offset = std::max(last_written_offset, wr.Tell());
 
 	// export name pointer table
 	wr.Seek(rva_to_offset + name_table_rva);
@@ -1548,6 +1577,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 		auto& name_rva = entries.find(named_export.second)->second->name.value();
 		wr.WriteWord(4, name_rva.rva);
 	}
+	last_written_offset = std::max(last_written_offset, wr.Tell());
 
 	// export ordinal table
 	wr.Seek(rva_to_offset + ordinal_table_rva);
@@ -1555,10 +1585,12 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	{
 		wr.WriteWord(2, uint16_t(named_export.second - ordinal_base));
 	}
+	last_written_offset = std::max(last_written_offset, wr.Tell());
 
 	wr.Seek(rva_to_offset + dll_name_rva);
 	wr.WriteData(dll_name);
 	wr.WriteWord(1, 0);
+	last_written_offset = std::max(last_written_offset, wr.Tell());
 
 	for(auto& ordinal_entry : entries)
 	{
@@ -1567,6 +1599,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 			wr.Seek(rva_to_offset + forwarder->rva);
 			wr.WriteData(forwarder->reference_name);
 			wr.WriteWord(1, 0);
+			last_written_offset = std::max(last_written_offset, wr.Tell());
 		}
 	}
 
@@ -1575,6 +1608,14 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 		auto& name_rva = entries.find(named_export.second)->second->name.value();
 		wr.Seek(rva_to_offset + name_rva.rva);
 		wr.WriteData(name_rva.name);
+		wr.WriteWord(1, 0);
+		last_written_offset = std::max(last_written_offset, wr.Tell());
+	}
+
+	if(last_written_offset != section_pointer + size)
+	{
+		// fill in the gap
+		wr.Seek(section_pointer + size - 1);
 		wr.WriteWord(1, 0);
 	}
 }
