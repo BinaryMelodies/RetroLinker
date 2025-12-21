@@ -490,9 +490,14 @@ format_specification formats[] =
 	{ "dx64",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<SeychellDOS32::AdamFormat>(SeychellDOS32::AdamFormat::FORMAT_DX64); },
 		"CandyMan DX64 DOS extender 'Adam' format (.exe)" },
+	{ "dx64_adam" },
+	{ "adam_dx64" },
 	{ "dx64_lv",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<DX64::LVFormat>(DX64::LVFormat::FORMAT_LV); },
 		"CandyMan DX64 DOS extender 'LV' format (.exe)" },
+	{ "dx64_flat",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<DX64::LVFormat>(DX64::LVFormat::FORMAT_FLAT); },
+		"CandyMan DX64 DOS extender 'Flat' format (.exe)" }, // TODO: untested
 	/* Intel OMF */
 	{ "omf80",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF80Format>(); },

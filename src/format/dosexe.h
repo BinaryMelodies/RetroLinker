@@ -26,7 +26,7 @@ namespace SeychellDOS32
 			/** @brief DX64 veresion */
 			FORMAT_DX64,
 			/** @brief DX64 version, only used with LVFormat */
-			FORMAT_LV,
+			FORMAT_LV_FLAT,
 		};
 		format_type format;
 
@@ -214,7 +214,7 @@ namespace DX64
 		}
 
 		LVFormat(format_type type)
-			: AdamFormat(AdamFormat::FORMAT_LV, OUTPUT_EXE)
+			: AdamFormat(AdamFormat::FORMAT_LV_FLAT, OUTPUT_EXE)
 		{
 			SetSignature(type);
 		}

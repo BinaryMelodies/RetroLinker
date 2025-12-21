@@ -5,7 +5,7 @@
 
 void SeychellDOS32::AdamFormat::MakeApplication()
 {
-	if(format != FORMAT_LV)
+	if(format != FORMAT_LV_FLAT)
 	{
 		memcpy(signature.data(), "Adam", 4);
 	}
@@ -13,7 +13,7 @@ void SeychellDOS32::AdamFormat::MakeApplication()
 
 void SeychellDOS32::AdamFormat::MakeLibrary()
 {
-	if(format == FORMAT_LV)
+	if(format == FORMAT_LV_FLAT)
 	{
 		Linker::FatalError("Fatal error: LV format does not support shared libraries (DLL)");
 	}
@@ -100,6 +100,8 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 	program_size = image->ImageSize();
 	image_size = header_size + program_size + relocations_size;
 	contents_size = image->ImageSize() + relocations_size;
+
+memory_size = 0x200000;
 }
 
 void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
@@ -412,7 +414,7 @@ bool SeychellDOS32::AdamFormat::FormatSupportsSegmentation() const
 	switch(format)
 	{
 	case FORMAT_DX64:
-	case FORMAT_LV:
+	case FORMAT_LV_FLAT:
 		return false;
 	default:
 		return true;
@@ -533,7 +535,7 @@ void SeychellDOS32::AdamFormat::ProcessModule(Linker::Module& module)
 		}
 		else if(rel.kind == Linker::Relocation::SelectorIndex && resolution.target != nullptr)
 		{
-			if(format != FORMAT_DX64 && format != FORMAT_LV)
+			if(format != FORMAT_DX64 && format != FORMAT_LV_FLAT)
 			{
 				relocations_map[rel.source.GetPosition().address] = Selector16;
 			}
@@ -576,7 +578,7 @@ void SeychellDOS32::AdamFormat::ProcessModule(Linker::Module& module)
 
 void SeychellDOS32::AdamFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
-	if(format == FORMAT_LV)
+	if(format == FORMAT_LV_FLAT)
 	{
 		Linker::FatalError("Internal error: LV format must be generated via LVFormat");
 	}
@@ -638,7 +640,7 @@ void SeychellDOS32::AdamFormat::GenerateFile(std::string filename, Linker::Modul
 		minimum_dos_version = { 0x00, 0x02 };
 		flags = 0x00040000; // 4MB heap limit for unregistered version
 		break;
-	case FORMAT_LV:
+	case FORMAT_LV_FLAT:
 		assert(false);
 	}
 
