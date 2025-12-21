@@ -62,6 +62,9 @@ void BWFormat::ReadFile(Linker::Reader& rd)
 		option_relocations = RelocationsType2;
 		first_relocation_selector = relocsel & ~7;
 	}
+	last_relocation_selector = 0;
+	remaining_relocation_offsets = 0;
+	must_read_relocation_count = false;
 
 	rd.Seek(file_offset + 0xB0);
 	segments.clear();
@@ -85,6 +88,22 @@ void BWFormat::ReadFile(Linker::Reader& rd)
 	{
 		rd.Seek(::AlignTo(rd.Tell(), 0x10));
 		segment->ReadContent(rd, *this);
+	}
+
+	relocations_map.clear();
+	if(option_relocations != RelocationsNone)
+	{
+		for(auto& relocation : relocations_list)
+		{
+			if(relocation.offsets.size() == 0)
+				continue;
+			if(relocations_map.find(relocation.selector) == relocations_map.end())
+				relocations_map[relocation.selector] = std::set<uint16_t>();
+			for(auto& offset : relocation.offsets)
+			{
+				relocations_map[relocation.selector].insert(offset);
+			}
+		}
 	}
 }
 
@@ -200,7 +219,16 @@ void BWFormat::Segment::Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t 
 	segment_block.AddField("Memory size", Dumper::HexDisplay::Make(6), offset_t(total_length + 1));
 	segment_block.AddField("Access", Dumper::HexDisplay::Make(2), offset_t(access)); // TODO: bitfield
 	segment_block.AddOptionalField("Flags", Dumper::HexDisplay::Make(1), offset_t(flags >> 12)); // TODO: bitfield
-	// TODO: relocation signals
+
+	auto it = bw.relocations_map.find(selector_offset);
+	if(it != bw.relocations_map.end())
+	{
+		for(uint16_t offset : it->second)
+		{
+			segment_block.AddSignal(offset, 2);
+		}
+	}
+
 	segment_block.Display(dump);
 }
 
@@ -255,7 +283,66 @@ uint32_t BWFormat::RelocationSegment::GetSize(const BWFormat& bw) const
 
 void BWFormat::RelocationSegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
 {
-	// TODO
+	switch(bw.option_relocations)
+	{
+	case RelocationsType1:
+		if(index == 0)
+		{
+			for(uint16_t segment_offset = 0; segment_offset < size; segment_offset += 2)
+			{
+				uint16_t selector = rd.ReadUnsigned(2);
+				bw.relocations_list.emplace_back(Relocation{selector, std::vector<uint16_t>{}});
+			}
+		}
+		else if(index == 1)
+		{
+			for(uint16_t segment_offset = 0; segment_offset < size; segment_offset += 2)
+			{
+				uint16_t offset = rd.ReadUnsigned(2);
+				if(offset == 0 && bw.relocations_list[segment_offset / 2].selector == 0)
+				{
+					// remove unused relocation entries
+					bw.relocations_list.resize(segment_offset / 2);
+					break;
+				}
+				bw.relocations_list[segment_offset / 2].offsets.push_back(offset);
+			}
+
+			if(size < 2 * bw.relocations_list.size())
+			{
+				// remove unused relocation entries
+				bw.relocations_list.resize(size / 2);
+			}
+		}
+		break;
+	case RelocationsType2:
+		// read as a state machine: first read the relocation selector, then the number of offsets, then each offset one by one
+		// this lets us continue the reading across segment boundaries
+		for(uint16_t segment_offset = 0; segment_offset < size; segment_offset += 2)
+		{
+			if(bw.must_read_relocation_count)
+			{
+				bw.remaining_relocation_offsets = rd.ReadUnsigned(2);
+				bw.relocations_list.emplace_back(Relocation{uint16_t(bw.last_relocation_selector & ~2), std::vector<uint16_t>{}});
+				bw.must_read_relocation_count = false;
+			}
+			else if(bw.remaining_relocation_offsets == 0)
+			{
+				if((bw.last_relocation_selector & 2) != 0)
+					break; // no more relocations
+				bw.last_relocation_selector = rd.ReadUnsigned(2);
+				bw.must_read_relocation_count = true;
+			}
+			else
+			{
+				bw.relocations_list.back().offsets.push_back(rd.ReadUnsigned(2));
+				bw.remaining_relocation_offsets -= 2;
+			}
+		}
+		break;
+	default:
+		Linker::FatalError("Internal error: Impossible relocation mode");
+	}
 }
 
 void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const

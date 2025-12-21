@@ -204,6 +204,9 @@ namespace DOS16M
 
 		std::vector<Relocation> relocations_list;
 		std::map<uint16_t, std::set<uint16_t>> relocations_map;
+		uint16_t last_relocation_selector = 0; // only used during reading
+		uint16_t remaining_relocation_offsets = 0; // only used during reading
+		bool must_read_relocation_count = false; // only used during reading
 
 		offset_t MeasureRelocations() const;
 
