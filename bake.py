@@ -732,6 +732,30 @@ DefineTarget(
 ######## AMD64 based systems
 
 DefineTarget(
+	Description = "CandyMan DX64 DOS extender (Adam) .exe for AMD64",
+	CPU = "x86_64",
+	System = "dx64",
+	IncludeName = "msdos",
+	Format = "adam33",
+	LinkerName = "dx64_adam",
+	custom_entry = True,
+	compiled_stack = True,
+	extension = ".exe",
+	stub = ENV.get("DX64STUB", "missing")) # TODO: requires a DX64 compatible stub
+
+DefineTarget(
+	Description = "CandyMan DX64 DOS extender (LV) .exe for AMD64",
+	CPU = "x86_64",
+	System = "dx64",
+	IncludeName = "msdos",
+	Format = "lv",
+	LinkerName = "dx64_lv",
+	custom_entry = True,
+	compiled_stack = True,
+	extension = ".exe",
+	stub = ENV.get("DX64STUB", "missing")) # TODO: requires a DX64 compatible stub
+
+DefineTarget(
 	Description = "Linux ELF .exe for AMD64",
 	CPU = "x86_64",
 	System = "linux_x86_64",

@@ -101,14 +101,14 @@
 .set TARGET_MSDOS, 1
 .endif
 
-.ifndef TARGET_DOS32
-.set TARGET_DOS32, 0
+.ifndef TARGET_PHARLAP
+.set TARGET_PHARLAP, 0
 .else
 .set TARGET_MSDOS, 1
 .endif
 
-.ifndef TARGET_PHARLAP
-.set TARGET_PHARLAP, 0
+.ifndef TARGET_DOS32
+.set TARGET_DOS32, 0
 .else
 .set TARGET_MSDOS, 1
 .endif
@@ -139,6 +139,12 @@
 .endif
 
 #### AMD64 targets
+
+.ifndef TARGET_DX64
+.set TARGET_DX64, 0
+.else
+.set TARGET_MSDOS, 1
+.endif
 
 .ifndef TARGET_WIN64
 .set TARGET_WIN64, 0
@@ -285,6 +291,10 @@
 .set FORMAT_ADAM35, 0
 .endif
 
+.ifndef FORMAT_LV
+.set FORMAT_LV, 0
+.endif
+
 #### CP/M-86/FlexOS formats
 
 .ifndef FORMAT_CMD_TINY
@@ -397,7 +407,7 @@
 
 #### Options
 
-.if TARGET_MSDOS & (FORMAT_MZ | FORMAT_NE | FORMAT_BW | FORMAT_MP | FORMAT_MQ | FORMAT_P3 | FORMAT_ADAM33 | FORMAT_ADAM35)
+.if TARGET_MSDOS & (FORMAT_MZ | FORMAT_NE | FORMAT_BW | FORMAT_MP | FORMAT_MQ | FORMAT_P3 | FORMAT_ADAM33 | FORMAT_ADAM35 | FORMAT_LV)
 .set OPTION_EXPLICIT_STACK, 1
 .endif
 

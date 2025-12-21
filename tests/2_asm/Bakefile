@@ -238,6 +238,14 @@ Target(
 	System = "flexos386",
 	output_file = "flex386")
 Target(
+	System = "dx64",
+	Format = "adam33",
+	output_file = "dx64adam")
+Target(
+	System = "dx64",
+	Format = "lv",
+	output_file = "dx64lv")
+Target(
 	System = "linux_x86_64",
 	output_file = "linux-x86-64")
 Target(

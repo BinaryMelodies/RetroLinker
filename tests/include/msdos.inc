@@ -1,5 +1,25 @@
 
 .macro	_StartUp
+.if TARGET_DX64
+	.code32
+.if FORMAT_ADAM33
+	call	0x28, 1f
+1:
+.elseif FORMAT_LV
+1:
+	call	2f
+2:
+	pop	edi
+	add	edi, 4f - 2b # edi contains the 4 address
+	mov	[edi + 3f - 4f], edi # edi relative access to 3
+	jmp	fword ptr [edi + 3f - 4f]
+3:
+	.long	0
+	.word	0x28
+4:
+.endif
+	.code64
+.endif
 .if FORMAT_COM
 .if MODEL_TINY
 .elseif MODEL_SMALL

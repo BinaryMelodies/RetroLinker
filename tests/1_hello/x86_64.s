@@ -45,7 +45,15 @@ Exit:
 
 message:
 	.ascii	"Greetings!"
-.if TARGET_WIN64
+.if TARGET_DX64
+	.ascii	" MS-DOS (DX64"
+.if FORMAT_ADAM33
+	.ascii	" Adam format"
+.elseif FORMAT_LV
+	.ascii	" LV format"
+.endif
+	.ascii	" .exe 64-bit)"
+.elseif TARGET_WIN64
 	.ascii	" Windows (64-bit)"
 .elseif TARGET_LINUX
 	.ascii	" Linux (64-bit x86)"
@@ -56,4 +64,9 @@ message:
 	.section	.bss
 
 	_SysVars
+
+.if OPTION_EXPLICIT_STACK
+	.section	.stack, "aw", @nobits
+	.fill	OPTION_STACK_SIZE
+.endif
 
