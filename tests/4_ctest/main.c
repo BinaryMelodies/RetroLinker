@@ -27,6 +27,8 @@ int AppMain(void)
 		"MS-DOS, DOS/4G extender"
 #elif TARGET_PHARLAP
 		"MS-DOS, 386|DOS-Extender extender"
+#elif TARGET_DOS32
+		"MS-DOS, Adam Seychell DOS32 extender"
 #elif TARGET_PDOS386
 		"PDOS/386 (or PD-Windows)"
 #elif TARGET_CPM86

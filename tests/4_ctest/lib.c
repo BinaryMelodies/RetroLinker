@@ -400,7 +400,7 @@ void CTabChanged(struct ColorTable ** ctab)
 
 void LibExit(void)
 {
-#if TARGET_MSDOS || TARGET_WIN16 || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP
+#if TARGET_MSDOS || TARGET_WIN16 || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP || TARGET_DOS32
 	asm(
 		"movw\t$0x4C00, %ax\n\t"
 		"int\t$0x21"
@@ -500,7 +500,7 @@ static void * hStdOut = 0;
 
 void LibPutChar(char c)
 {
-#if TARGET_MSDOS || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP
+#if TARGET_MSDOS || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP || TARGET_DOS32
 # if defined __ia16__
 	asm(
 		"movb\t$0x02, %%ah\n\t"
@@ -613,7 +613,7 @@ void LibPutChar(char c)
 
 void LibWaitForKey(void)
 {
-#if TARGET_MSDOS || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP
+#if TARGET_MSDOS || TARGET_DJGPP || TARGET_DOS4G || TARGET_PDOS386 || TARGET_DOS16M || TARGET_PHARLAP || TARGET_DOS32
 	asm(
 		"mov\t$0x01, %ah\n\t"
 		"int\t$0x21");
@@ -808,7 +808,7 @@ void LibInit(void)
 }
 #endif
 
-#if TARGET_MSDOS || TARGET_CPM86 || TARGET_GEMDOS || TARGET_HUMAN68K || TARGET_DOS16M || TARGET_PHARLAP
+#if TARGET_MSDOS || TARGET_CPM86 || TARGET_GEMDOS || TARGET_HUMAN68K || TARGET_DOS16M || TARGET_PHARLAP || TARGET_DOS32
 char * AppStack[512] __attribute__((section(".stack,\"aw\",@nobits\n#")));
 char * AppStackTop __attribute__((section(".stack,\"aw\",@nobits\n#")));
 #endif

@@ -69,6 +69,14 @@ message:
 .elseif FORMAT_P3
 	.ascii	" P3 flat .exp file"
 .endif
+.elseif TARGET_DOS32
+	.ascii	" MS-DOS (DOS32"
+.if FORMAT_ADAM33
+	.ascii	" 3.3"
+.elseif FORMAT_ADAM35
+	.ascii	" 3.5 beta"
+.endif
+	.ascii	" Adam format .exe 32-bit)"
 .elseif TARGET_WIN32
 	.ascii	" Windows (32-bit)"
 .elseif TARGET_OS2V2

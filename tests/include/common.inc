@@ -101,6 +101,12 @@
 .set TARGET_MSDOS, 1
 .endif
 
+.ifndef TARGET_DOS32
+.set TARGET_DOS32, 0
+.else
+.set TARGET_MSDOS, 1
+.endif
+
 .ifndef TARGET_PHARLAP
 .set TARGET_PHARLAP, 0
 .else
@@ -271,6 +277,14 @@
 .set FORMAT_P3, 0
 .endif
 
+.ifndef FORMAT_ADAM33
+.set FORMAT_ADAM33, 0
+.endif
+
+.ifndef FORMAT_ADAM35
+.set FORMAT_ADAM35, 0
+.endif
+
 #### CP/M-86/FlexOS formats
 
 .ifndef FORMAT_CMD_TINY
@@ -383,7 +397,7 @@
 
 #### Options
 
-.if TARGET_MSDOS & (FORMAT_MZ | FORMAT_NE | FORMAT_BW | FORMAT_MP | FORMAT_MQ | FORMAT_P3)
+.if TARGET_MSDOS & (FORMAT_MZ | FORMAT_NE | FORMAT_BW | FORMAT_MP | FORMAT_MQ | FORMAT_P3 | FORMAT_ADAM33 | FORMAT_ADAM35)
 .set OPTION_EXPLICIT_STACK, 1
 .endif
 

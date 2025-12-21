@@ -215,6 +215,14 @@ Target(
 	System = "dos4g",
 	output_file = "dos4gexe")
 Target(
+	System = "dos32",
+	Format = "adam33",
+	output_file = "adam33")
+Target(
+	System = "dos32",
+	Format = "adam35",
+	output_file = "adam35")
+Target(
 	System = "pdos386",
 	output_file = "pdos386")
 Target(

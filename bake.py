@@ -659,6 +659,30 @@ DefineTarget(
 	extension = ".exp")
 
 DefineTarget(
+	Description = "Adam Seychell DOS32 3.3 DOS extender (Adam) .exe for Intel 80386",
+	CPU = "i386",
+	System = "dos32",
+	IncludeName = "msdos",
+	Format = "adam33",
+	LinkerName = "adam33",
+	custom_entry = True,
+	compiled_stack = True,
+	extension = ".exe",
+	stub = ENV.get("DOS32STUB", "missing")) # TODO: requires a DOS32 compatible stub
+
+DefineTarget(
+	Description = "Adam Seychell DOS32 3.5 beta DOS extender (Adam) .exe for Intel 80386",
+	CPU = "i386",
+	System = "dos32",
+	IncludeName = "msdos",
+	Format = "adam35",
+	LinkerName = "adam35",
+	custom_entry = True,
+	compiled_stack = True,
+	extension = ".exe",
+	stub = ENV.get("DOS32STUB", "missing")) # TODO: requires a DOS32 compatible stub
+
+DefineTarget(
 	Description = "Public Domain OS (PDOS) 386 a.out .exe for Intel 80386",
 	CPU = "i386",
 	System = "pdos386",
