@@ -262,6 +262,9 @@ void BWFormat::RelocationSegment::SetTotalSize(uint32_t new_value)
 
 uint32_t BWFormat::RelocationSegment::GetSize(const BWFormat& bw) const
 {
+	if(size != 0)
+		return size;
+
 	switch(bw.option_relocations)
 	{
 	case RelocationsType1:
@@ -420,7 +423,27 @@ offset_t BWFormat::MeasureRelocations() const
 
 void BWFormat::RelocationSegment::Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const
 {
-	// TODO
+	std::string region_name;
+	switch(bw.option_relocations)
+	{
+	case RelocationsNone:
+		Linker::FatalError("Internal error: Invalid relocation segment");
+	case RelocationsType1:
+		region_name = "RSI-1 relocation segment";
+		break;
+	case RelocationsType2:
+		region_name = "RSI-2 relocation segment";
+		break;
+	default:
+		Linker::FatalError("Internal error: Impossible relocation type");
+	}
+
+	Dumper::Region segment_region(region_name, file_offset, GetSize(bw), 6);
+	segment_region.InsertField(0, "Selector", Dumper::HexDisplay::Make(4), offset_t(selector_offset));
+	segment_region.AddOptionalField("Memory size", Dumper::HexDisplay::Make(6), offset_t(total_length != 0 ? total_length + 1 : 0));
+	segment_region.AddField("Access", Dumper::HexDisplay::Make(2), offset_t(access)); // TODO: bitfield
+	segment_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(1), offset_t(flags >> 12)); // TODO: bitfield
+	segment_region.Display(dump);
 }
 
 std::shared_ptr<Linker::OptionCollector> BWFormat::GetOptions()
@@ -759,11 +782,62 @@ void BWFormat::Dump(Dumper::Dumper& dump) const
 	gdt_region.AddField("Last used selector", Dumper::HexDisplay::Make(4), offset_t(last_used_selector));
 	gdt_region.Display(dump);
 
+	uint16_t first_relocation_selector;
+	switch(option_relocations)
+	{
+	case RelocationsNone:
+		first_relocation_selector = uint16_t(-1);
+		break;
+	case RelocationsType1:
+		first_relocation_selector = (last_used_selector & ~7) - 8;
+		break;
+	case RelocationsType2:
+		first_relocation_selector = relocsel & ~7;
+		break;
+	default:
+		Linker::FatalError("Internal error: Impossible relocation type");
+	}
+
 	uint16_t selector_offset = first_selector & ~7;
+	offset_t current_offset = file_offset + 0xB0;
+	offset_t relocation_offset = 0;
+
 	for(auto& segment : segments)
 	{
-		segment->Dump(dump, *this, 0 /* TODO: file offset */, selector_offset);
+		if(selector_offset == first_relocation_selector)
+			relocation_offset = current_offset;
+
+		segment->Dump(dump, *this, current_offset, selector_offset);
 		selector_offset += 8;
+		current_offset = ::AlignTo(current_offset + segment->GetSize(*this), 0x10);
+	}
+
+	offset_t bundle_index = 0;
+	offset_t relocation_index = 0;
+	for(auto& relocation : relocations_list)
+	{
+		if(option_relocations == RelocationsType2)
+		{
+			Dumper::Entry bundle_entry("Relocation bundle", bundle_index + 1, relocation_offset, 8);
+			bundle_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(relocation.selector));
+			bundle_entry.AddField("Offset count", Dumper::DecDisplay::Make(), offset_t(relocation.offsets.size()));
+			bundle_entry.Display(dump);
+
+			relocation_offset += 4;
+		}
+
+		for(uint16_t offset : relocation.offsets)
+		{
+			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, relocation_offset, 8);
+			relocation_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(relocation.selector));
+			relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(offset));
+			relocation_entry.Display(dump);
+
+			relocation_offset += 2;
+			relocation_index ++;
+		}
+
+		bundle_index ++;
 	}
 }
 
