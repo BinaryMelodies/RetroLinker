@@ -1,4 +1,5 @@
 
+#include <array>
 #include "bwexp.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
@@ -7,7 +8,84 @@ using namespace DOS16M;
 
 void BWFormat::ReadFile(Linker::Reader& rd)
 {
-	/* TODO */
+	std::array<char, 2> signature;
+	rd.endiantype = ::LittleEndian;
+	file_offset = rd.Tell();
+	rd.ReadData(signature);
+	if(signature[0] != 'B' || signature[1] != 'W')
+	{
+		// TODO: try to find real file offset
+	}
+	file_size = rd.ReadUnsigned(2);
+	file_size += uint32_t(rd.ReadUnsigned(2)) << 9;
+	rd.Skip(4); // reserved
+	min_extra = uint32_t(rd.ReadUnsigned(2)) << 10;
+	max_extra = uint32_t(rd.ReadUnsigned(2)) << 10;
+	ss = rd.ReadUnsigned(2);
+	sp = rd.ReadUnsigned(2);
+	relocsel = rd.ReadUnsigned(2);
+	ip = rd.ReadUnsigned(2);
+	cs = rd.ReadUnsigned(2);
+	runtime_gdt_length = rd.ReadUnsigned(2);
+	version = rd.ReadUnsigned(2);
+	next_header_offset = rd.ReadUnsigned(4); // TODO: read sequence of spliced images
+	debug_info_offset = rd.ReadUnsigned(4);
+	last_used_selector = rd.ReadUnsigned(2);
+	private_xm = uint32_t(rd.ReadUnsigned(2)) << 10;
+	ext_reserve = rd.ReadUnsigned(2);
+	rd.Skip(6); // reserved
+	options = option_type(rd.ReadUnsigned(2));
+	transparent_stack = rd.ReadUnsigned(2);
+	exp_flags = exp_flag_type(rd.ReadUnsigned(2));
+	program_size = uint32_t(rd.ReadUnsigned(2)) << 4;
+	gdt_size = rd.ReadUnsigned(2);
+	first_selector = rd.ReadUnsigned(2);
+	default_memory_strategy = rd.ReadUnsigned(1);
+	rd.Skip(1); // reserved
+	transfer_buffer_size = rd.ReadUnsigned(2);
+	rd.Skip(48); // TODO
+	exp_name = rd.ReadData(48); // TODO: trim
+
+	uint16_t first_relocation_selector;
+	if((options & OPTION_RELOCATIONS) == 0)
+	{
+		option_relocations = RelocationsNone;
+		first_relocation_selector = uint16_t(-1);
+	}
+	else if(relocsel == 0)
+	{
+		option_relocations = RelocationsType1;
+		first_relocation_selector = (last_used_selector & ~7) - 8;
+	}
+	else
+	{
+		option_relocations = RelocationsType2;
+		first_relocation_selector = relocsel & ~7;
+	}
+
+	rd.Seek(file_offset + 0xB0);
+	segments.clear();
+
+	for(uint16_t selector = first_selector ? first_selector & ~7 : 0x80; selector <= (last_used_selector & ~7); selector += 8)
+	{
+		std::unique_ptr<AbstractSegment> segment;
+		if(selector >= first_relocation_selector)
+		{
+			segment = std::make_unique<RelocationSegment>();
+		}
+		else
+		{
+			segment = std::make_unique<Segment>();
+		}
+		segment->ReadHeader(rd);
+		segments.emplace_back(std::move(segment));
+	}
+	rd.Seek(file_offset + 48 + gdt_size + 1);
+	for(auto& segment : segments)
+	{
+		rd.Seek(::AlignTo(rd.Tell(), 0x10));
+		segment->ReadContent(rd, *this);
+	}
 }
 
 bool BWFormat::FormatSupportsSegmentation() const
@@ -67,6 +145,18 @@ void BWFormat::AbstractSegment::Prepare(BWFormat& bw)
 		flags = flag_type(flags & ~FLAG_EMPTY);
 }
 
+void BWFormat::AbstractSegment::ReadHeader(Linker::Reader& rd)
+{
+	size = rd.ReadUnsigned(2);
+	if(size != 0)
+		size += 1;
+	address = rd.ReadUnsigned(3);
+	access = access_type(rd.ReadUnsigned(1));
+	total_length = rd.ReadUnsigned(2);
+	flags = flag_type(total_length & 0xF000);
+	total_length <<= 4;
+}
+
 void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, const BWFormat& bw) const
 {
 	uint32_t size = GetSize(bw);
@@ -79,12 +169,20 @@ void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, const BWFormat& 
 void BWFormat::Segment::SetTotalSize(uint32_t new_value)
 {
 	AbstractSegment::SetTotalSize(new_value);
-	image->SetEndAddress(GetTotalSize());
+	std::dynamic_pointer_cast<Linker::Segment>(image)->SetEndAddress(GetTotalSize());
 }
 
 uint32_t BWFormat::Segment::GetSize(const BWFormat& bw) const
 {
-	return image ? image->data_size : 0;
+	return image ? image->ImageSize() : 0;
+}
+
+void BWFormat::Segment::ReadContent(Linker::Reader& rd, BWFormat& bw)
+{
+	if(size != 0)
+	{
+		image = Linker::Buffer::ReadFromFile(rd, size);
+	}
 }
 
 void BWFormat::Segment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
@@ -93,6 +191,17 @@ void BWFormat::Segment::WriteContent(Linker::Writer& wr, const BWFormat& bw) con
 	{
 		image->WriteFile(wr);
 	}
+}
+
+void BWFormat::Segment::Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const
+{
+	Dumper::Block segment_block("Segment", file_offset, image, address, 6);
+	segment_block.InsertField(0, "Selector", Dumper::HexDisplay::Make(4), offset_t(selector_offset));
+	segment_block.AddField("Memory size", Dumper::HexDisplay::Make(6), offset_t(total_length + 1));
+	segment_block.AddField("Access", Dumper::HexDisplay::Make(2), offset_t(access)); // TODO: bitfield
+	segment_block.AddOptionalField("Flags", Dumper::HexDisplay::Make(1), offset_t(flags >> 12)); // TODO: bitfield
+	// TODO: relocation signals
+	segment_block.Display(dump);
 }
 
 void BWFormat::DummySegment::SetTotalSize(uint32_t new_value)
@@ -105,8 +214,17 @@ uint32_t BWFormat::DummySegment::GetSize(const BWFormat& bw) const
 	return 0;
 }
 
+void BWFormat::DummySegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
+{
+}
+
 void BWFormat::DummySegment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
 {
+}
+
+void BWFormat::DummySegment::Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const
+{
+	// TODO
 }
 
 void BWFormat::RelocationSegment::SetTotalSize(uint32_t new_value)
@@ -133,6 +251,11 @@ uint32_t BWFormat::RelocationSegment::GetSize(const BWFormat& bw) const
 	default:
 		Linker::FatalError("Internal error: Impossible relocation mode");
 	}
+}
+
+void BWFormat::RelocationSegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
+{
+	// TODO
 }
 
 void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
@@ -218,6 +341,11 @@ offset_t BWFormat::MeasureRelocations() const
 	default:
 		Linker::FatalError("Internal error: Impossible relocation type");
 	}
+}
+
+void BWFormat::RelocationSegment::Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const
+{
+	// TODO
 }
 
 std::shared_ptr<Linker::OptionCollector> BWFormat::GetOptions()
@@ -429,6 +557,9 @@ void BWFormat::CalculateValues()
 	{
 		segment->Prepare(*this);
 	}
+
+	last_used_selector = first_selector + (segments.size() - 1) * 8;
+	gdt_size = ::AlignTo(first_selector + segments.size() * 8, 0x10) - 1;
 }
 
 offset_t BWFormat::ImageSize() const
@@ -459,7 +590,7 @@ offset_t BWFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, version);
 	wr.WriteWord(4, next_header_offset);
 	wr.WriteWord(4, debug_info_offset);
-	wr.WriteWord(2, first_selector + (segments.size() - 1) * 8);
+	wr.WriteWord(2, last_used_selector);
 	wr.WriteWord(2, (private_xm + 0x3FF) >> 10);
 	wr.WriteWord(2, ext_reserve);
 	wr.Skip(6);
@@ -467,7 +598,7 @@ offset_t BWFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, transparent_stack);
 	wr.WriteWord(2, exp_flags);
 	wr.WriteWord(2, (program_size + 0xF) >> 4);
-	wr.WriteWord(2, ::AlignTo(first_selector + segments.size() * 8, 0x10) - 1);
+	wr.WriteWord(2, gdt_size);
 	wr.WriteWord(2, first_selector);
 	wr.WriteWord(1, default_memory_strategy);
 	wr.Skip(1);
@@ -496,10 +627,43 @@ void BWFormat::Dump(Dumper::Dumper& dump) const
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
 	dump.SetTitle("BW format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, file_size, 8);
+	file_region.AddField(".EXP file name", Dumper::StringDisplay::Make("'"), exp_name);
+	file_region.AddOptionalField("Program size", Dumper::HexDisplay::Make(8), offset_t(program_size));
+	file_region.AddField("Tool version", Dumper::DecDisplay::Make(), offset_t(version));
+	file_region.AddOptionalField("Next header offset", Dumper::HexDisplay::Make(8), offset_t(next_header_offset));
+	file_region.AddField("Minimum additional memory", Dumper::HexDisplay::Make(8), offset_t(min_extra));
+	file_region.AddField("Maximum additional memory", Dumper::HexDisplay::Make(8), offset_t(max_extra));
+	file_region.AddField("Private memory allocation", Dumper::HexDisplay::Make(8), offset_t(private_xm));
+	file_region.AddField("Allocation increment", Dumper::HexDisplay::Make(8), offset_t(ext_reserve));
+	file_region.AddField("Entry (CS:IP)", Dumper::SegmentedDisplay::Make(4), offset_t(cs), offset_t(ip));
+	file_region.AddField("Initial stack (SS:SP)", Dumper::SegmentedDisplay::Make(4), offset_t(ss), offset_t(sp));
+	file_region.AddOptionalField("First relocation selector", Dumper::HexDisplay::Make(4), offset_t(relocsel));
+	file_region.AddOptionalField("Debug information offset", Dumper::HexDisplay::Make(8), offset_t(debug_info_offset));
+	file_region.AddOptionalField("Runtime options", Dumper::BitFieldDisplay::Make(4)
+		/* TODO */,
+		offset_t(options));
+	file_region.AddOptionalField("Module flags", Dumper::BitFieldDisplay::Make(4)
+		/* TODO */,
+		offset_t(exp_flags));
+	file_region.AddOptionalField("Transparent stack selector", Dumper::HexDisplay::Make(4), offset_t(transparent_stack));
+	file_region.AddOptionalField("Default memory strategy", Dumper::HexDisplay::Make(2), offset_t(default_memory_strategy)); // TODO: make choice
+	file_region.AddField("Transfer buffer size (0x2000 if 0)", Dumper::HexDisplay::Make(4), offset_t(transfer_buffer_size));
 	file_region.Display(dump);
 
-	// TODO
+	Dumper::Region gdt_region("GDT", file_offset + 48, gdt_size != 0 ? gdt_size + 1 : (last_used_selector + 8) & ~7, 8);
+	gdt_region.AddField("File size", Dumper::HexDisplay::Make(4), offset_t(gdt_size));
+	gdt_region.AddField("Runtime size", Dumper::HexDisplay::Make(4), offset_t(runtime_gdt_length));
+	gdt_region.AddField("First selector", Dumper::HexDisplay::Make(4), offset_t(first_selector));
+	gdt_region.AddField("Last used selector", Dumper::HexDisplay::Make(4), offset_t(last_used_selector));
+	gdt_region.Display(dump);
+
+	uint16_t selector_offset = first_selector & ~7;
+	for(auto& segment : segments)
+	{
+		segment->Dump(dump, *this, 0 /* TODO: file offset */, selector_offset);
+		selector_offset += 8;
+	}
 }
 
 std::string BWFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const

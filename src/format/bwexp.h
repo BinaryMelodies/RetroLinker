@@ -55,6 +55,7 @@ namespace DOS16M
 
 			uint32_t address = 0;
 			uint32_t total_length;
+			uint32_t size = 0; // only used for reading
 
 			AbstractSegment(unsigned access = TYPE_DATA, unsigned flags = 0, uint32_t total_length = 0)
 				: access(access_type(access)), flags(flag_type(flags)), total_length(total_length)
@@ -77,6 +78,11 @@ namespace DOS16M
 			 * @brief Retrieves size of segment. Some subclasses might calculate this dynamically
 			 */
 			virtual uint32_t GetSize(const BWFormat& bw) const = 0;
+
+			void ReadHeader(Linker::Reader& rd);
+
+			virtual void ReadContent(Linker::Reader& rd, BWFormat& bw) = 0;
+
 			/**
 			 * @brief Produces the binary contents of the segment
 			 */
@@ -91,12 +97,19 @@ namespace DOS16M
 			 * @brief Produces the GDT entry for the header
 			 */
 			void WriteHeader(Linker::Writer& wr, const BWFormat& bw) const;
+
+			virtual void Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const = 0;
 		};
 
 		class Segment : public AbstractSegment
 		{
 		public:
-			std::shared_ptr<Linker::Segment> image;
+			std::shared_ptr<Linker::Image> image;
+
+			explicit Segment()
+				: AbstractSegment(0, 0, 0), image(nullptr)
+			{
+			}
 
 			Segment(std::shared_ptr<Linker::Segment> segment, unsigned access = TYPE_DATA, unsigned flags = 0)
 				: AbstractSegment(access, flags, segment->TotalSize()), image(segment)
@@ -107,7 +120,11 @@ namespace DOS16M
 
 			uint32_t GetSize(const BWFormat& bw) const override;
 
+			void ReadContent(Linker::Reader& rd, BWFormat& bw) override;
+
 			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
+
+			void Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const override;
 		};
 
 		class DummySegment : public AbstractSegment
@@ -122,13 +139,22 @@ namespace DOS16M
 
 			uint32_t GetSize(const BWFormat& bw) const override;
 
+			void ReadContent(Linker::Reader& rd, BWFormat& bw) override;
+
 			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
+
+			void Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const override;
 		};
 
 		class RelocationSegment : public AbstractSegment
 		{
 		public:
 			uint16_t index;
+
+			explicit RelocationSegment()
+				: AbstractSegment(0, 0, 0), index(0)
+			{
+			}
 
 			RelocationSegment(uint16_t index)
 				: AbstractSegment(TYPE_DATA), index(index)
@@ -142,7 +168,11 @@ namespace DOS16M
 
 			uint32_t GetSize(const BWFormat& bw) const override;
 
+			void ReadContent(Linker::Reader& rd, BWFormat& bw) override;
+
 			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
+
+			void Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const override;
 		};
 
 		/**
@@ -185,11 +215,13 @@ namespace DOS16M
 		uint16_t version = 0;
 		uint32_t next_header_offset = 0;
 		uint32_t debug_info_offset = 0; /* TODO: ??? */
+		uint16_t last_used_selector = 0;
 		uint16_t first_selector = 0x0080; /* TODO: make dynamic */
 		uint32_t private_xm = 0; /* TODO: make parameter */
 		uint16_t ext_reserve = 0; /* TODO: ??? */
 		uint16_t transparent_stack = 0; /* TODO: ??? */
 		uint32_t program_size = 0; /* TODO: ??? */
+		uint16_t gdt_size = 0;
 		uint8_t default_memory_strategy = 0; /* TODO: ??? */
 		uint16_t transfer_buffer_size = 0; /* TODO: ??? */
 		std::string exp_name; /* TODO: ??? */
