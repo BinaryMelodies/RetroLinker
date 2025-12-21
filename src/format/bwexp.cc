@@ -167,13 +167,15 @@ void BWFormat::AbstractSegment::Prepare(BWFormat& bw)
 void BWFormat::AbstractSegment::ReadHeader(Linker::Reader& rd)
 {
 	size = rd.ReadUnsigned(2);
-	if(size != 0)
-		size += 1;
 	address = rd.ReadUnsigned(3);
 	access = access_type(rd.ReadUnsigned(1));
 	total_length = rd.ReadUnsigned(2);
-	flags = flag_type(total_length & 0xF000);
+	flags = flag_type(total_length & 0xE000);
 	total_length <<= 4;
+	if((flags & FLAG_EMPTY) != 0)
+		size = 0; // TODO: it should be zero, but how do we handle if it isn't?
+	else
+		size += 1;
 }
 
 void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, const BWFormat& bw) const
@@ -188,7 +190,12 @@ void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, const BWFormat& 
 void BWFormat::Segment::SetTotalSize(uint32_t new_value)
 {
 	AbstractSegment::SetTotalSize(new_value);
-	std::dynamic_pointer_cast<Linker::Segment>(image)->SetEndAddress(GetTotalSize());
+	auto segment = std::dynamic_pointer_cast<Linker::Segment>(image);
+	if(segment == nullptr)
+	{
+		Linker::FatalError("Fatal error: unable to set total size of BW segment");
+	}
+	segment->SetEndAddress(GetTotalSize());
 }
 
 uint32_t BWFormat::Segment::GetSize(const BWFormat& bw) const
@@ -216,9 +223,16 @@ void BWFormat::Segment::Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t 
 {
 	Dumper::Block segment_block("Segment", file_offset, image, address, 6);
 	segment_block.InsertField(0, "Selector", Dumper::HexDisplay::Make(4), offset_t(selector_offset));
-	segment_block.AddField("Memory size", Dumper::HexDisplay::Make(6), offset_t(total_length + 1));
-	segment_block.AddField("Access", Dumper::HexDisplay::Make(2), offset_t(access)); // TODO: bitfield
-	segment_block.AddOptionalField("Flags", Dumper::HexDisplay::Make(1), offset_t(flags >> 12)); // TODO: bitfield
+	segment_block.AddField("Memory size", Dumper::HexDisplay::Make(6), offset_t((flags & FLAG_EMPTY) != 0 ? 0 : total_length));
+	segment_block.AddField("Access", Dumper::BitFieldDisplay::Make(2)
+		->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("code", "data"), false)
+		->AddBitField(1, 1, Dumper::ChoiceDisplay::Make(access & 8 ? "readable" : "writable"), true)
+		->AddBitField(5, 2, "privilege level", Dumper::DecDisplay::Make(), false),
+		offset_t(access));
+	segment_block.AddOptionalField("Flags", Dumper::BitFieldDisplay::Make(1)
+		->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("empty"), true)
+		->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("transparent stack"), true),
+		offset_t((flags >> 12) & 0xE));
 
 	auto it = bw.relocations_map.find(selector_offset);
 	if(it != bw.relocations_map.end())
@@ -252,7 +266,8 @@ void BWFormat::DummySegment::WriteContent(Linker::Writer& wr, const BWFormat& bw
 
 void BWFormat::DummySegment::Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const
 {
-	// TODO
+	// this will never be called by the dumper because it does not create DummySegments
+	Linker::Warning << "Warning: dummy segment should not be dumped" << std::endl;
 }
 
 void BWFormat::RelocationSegment::SetTotalSize(uint32_t new_value)
@@ -440,9 +455,16 @@ void BWFormat::RelocationSegment::Dump(Dumper::Dumper& dump, const BWFormat& bw,
 
 	Dumper::Region segment_region(region_name, file_offset, GetSize(bw), 6);
 	segment_region.InsertField(0, "Selector", Dumper::HexDisplay::Make(4), offset_t(selector_offset));
-	segment_region.AddOptionalField("Memory size", Dumper::HexDisplay::Make(6), offset_t(total_length != 0 ? total_length + 1 : 0));
-	segment_region.AddField("Access", Dumper::HexDisplay::Make(2), offset_t(access)); // TODO: bitfield
-	segment_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(1), offset_t(flags >> 12)); // TODO: bitfield
+	segment_region.AddField("Memory size", Dumper::HexDisplay::Make(6), offset_t((flags & FLAG_EMPTY) != 0 ? 0 : total_length));
+	segment_region.AddField("Access", Dumper::BitFieldDisplay::Make(2)
+		->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("code", "data"), false)
+		->AddBitField(1, 1, Dumper::ChoiceDisplay::Make(access & 8 ? "readable" : "writable"), true)
+		->AddBitField(5, 2, "privilege level", Dumper::DecDisplay::Make(), false),
+		offset_t(access));
+	segment_region.AddOptionalField("Flags", Dumper::BitFieldDisplay::Make(1)
+		->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("empty"), true)
+		->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("transparent stack"), true),
+		offset_t((flags >> 12) & 0xE));
 	segment_region.Display(dump);
 }
 
@@ -751,6 +773,17 @@ void BWFormat::Dump(Dumper::Dumper& dump) const
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
 	dump.SetTitle("BW format");
+
+	static const std::map<offset_t, std::string> memory_strategy_description =
+	{
+		{ 0x00, "MPreferExt - Prefer extended memory" },
+		{ 0x01, "MPreferLow - Prefer conventional memory" },
+		{ 0x02, "MForceExt - Requires extended memory" },
+		{ 0x03, "MForceLow - Requires conventional memory" },
+		{ 0x04, "MTransparent - Requires conventional memory, allocate selectors for transparent addressing" },
+		{ 0x05, "MTransStack - Requires conventional memory, allocate selectors for transparent addressing, aligned for use as stack" },
+	};
+
 	Dumper::Region file_region("File", file_offset, file_size, 8);
 	file_region.AddField(".EXP file name", Dumper::StringDisplay::Make("'"), exp_name);
 	file_region.AddOptionalField("Program size", Dumper::HexDisplay::Make(8), offset_t(program_size));
@@ -765,13 +798,26 @@ void BWFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddOptionalField("First relocation selector", Dumper::HexDisplay::Make(4), offset_t(relocsel));
 	file_region.AddOptionalField("Debug information offset", Dumper::HexDisplay::Make(8), offset_t(debug_info_offset));
 	file_region.AddOptionalField("Runtime options", Dumper::BitFieldDisplay::Make(4)
-		/* TODO */,
+		->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("force A20 to 0 in 386 real mode"), true)
+		->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("do not test for VCPI on startup"), true)
+		->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("do not inhibit keyboard polling"), true)
+		->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("allow overloading"), true)
+		->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("OPT_INT10"), true) // TODO: unknown meaning
+		->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("initialize newly allocated memory to 0x00"), true)
+		->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("initialize newly allocated memory to 0xFF"), true)
+		->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("rotate selector assignment"), true)
+		->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("relocations present"), true),
 		offset_t(options));
 	file_region.AddOptionalField("Module flags", Dumper::BitFieldDisplay::Make(4)
-		/* TODO */,
+		->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("module is relocatable"), true)
+		->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("module is .exp package"), true)
+		->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("do not place stack in low DPMI memory"), true)
+		->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("data is global", "data is per-instance"), false)
+		->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("may be shared"), true)
+		->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("requires DOS/4G"), true),
 		offset_t(exp_flags));
 	file_region.AddOptionalField("Transparent stack selector", Dumper::HexDisplay::Make(4), offset_t(transparent_stack));
-	file_region.AddOptionalField("Default memory strategy", Dumper::HexDisplay::Make(2), offset_t(default_memory_strategy)); // TODO: make choice
+	file_region.AddField("Default memory strategy", Dumper::ChoiceDisplay::Make(memory_strategy_description, Dumper::HexDisplay::Make(2)), offset_t(default_memory_strategy));
 	file_region.AddField("Transfer buffer size (0x2000 if 0)", Dumper::HexDisplay::Make(4), offset_t(transfer_buffer_size));
 	file_region.Display(dump);
 
