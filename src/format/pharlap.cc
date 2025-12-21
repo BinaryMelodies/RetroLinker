@@ -9,6 +9,7 @@ using namespace PharLap;
 
 void MPFormat::ReadFile(Linker::Reader& rd)
 {
+	//file_offset = Microsoft::FindActualSignature(rd, signature, "MP", "MQ", true);
 	/* TODO */
 }
 
@@ -235,6 +236,7 @@ std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string fi
 
 void P3Format::ReadFile(Linker::Reader& rd)
 {
+	//file_offset = Microsoft::FindActualSignature(rd, signature, "P3", "P2");
 	/* TODO */
 }
 
@@ -1066,6 +1068,7 @@ void P3Format::MultiSegmented::Dump(Dumper::Dumper& dump) const
 void P3FormatContainer::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
+	//file_offset = Microsoft::FindActualSignature(rd, signature, "P3", "P2");
 	offset_t file_offset = rd.Tell();
 	rd.Skip(2);
 	uint16_t level = rd.ReadUnsigned(2);

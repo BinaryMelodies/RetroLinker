@@ -1,5 +1,7 @@
 
+#include <array>
 #include "w3w4.h"
+#include "mzexe.h"
 
 using namespace Microsoft;
 
@@ -8,9 +10,9 @@ using namespace Microsoft;
 void W3Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
+	std::array<char, 2> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "W3");
 	file_end = rd.GetImageEnd();
-	rd.Skip(2); // "W3"
 	system_version.minor = rd.ReadUnsigned(1);
 	system_version.major = rd.ReadUnsigned(1);
 	uint16_t entry_count = rd.ReadUnsigned(2);
@@ -290,9 +292,9 @@ std::shared_ptr<Linker::Buffer> W4Format::DecompressW4()
 void W4Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
+	std::array<char, 2> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "W4");
 	file_end = rd.GetImageEnd();
-	rd.Skip(2); // "W4"
 	system_version.minor = rd.ReadUnsigned(1);
 	system_version.major = rd.ReadUnsigned(1);
 	chunk_size = rd.ReadUnsigned(2);

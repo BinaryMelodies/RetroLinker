@@ -1,6 +1,8 @@
 
+#include <array>
 #include <sstream>
 #include "elf.h"
+#include "mzexe.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
 #include "../linker/resolution.h"
@@ -1602,8 +1604,8 @@ offset_t ELFFormat::Segment::Part::GetActualSize(const ELFFormat& fmt) const
 
 void ELFFormat::ReadFile(Linker::Reader& rd)
 {
-	file_offset = rd.Tell();
-	rd.Skip(4); // skip signature
+	std::array<char, 4> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "\x7F" "ELF"); // for the experimental DJGPP ELF backend
 
 	file_class = rd.ReadUnsigned(1);
 	switch(file_class)

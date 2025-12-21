@@ -1,5 +1,7 @@
 
+#include <array>
 #include "pmode.h"
+#include "mzexe.h"
 #include "../dumper/dumper.h"
 #include "../linker/buffer.h"
 #include "../linker/location.h"
@@ -11,8 +13,8 @@ using namespace PMODE;
 void PMW1Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
-	rd.Skip(4); // "PMW1"
+	std::array<char, 4> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "PMW1");
 	version.major = rd.ReadUnsigned(1);
 	version.minor = rd.ReadUnsigned(1);
 	flags = rd.ReadUnsigned(2);

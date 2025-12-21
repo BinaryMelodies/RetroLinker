@@ -1627,6 +1627,18 @@ void COFFFormat::DetectCpuType()
 void COFFFormat::ReadFile(Linker::Reader& rd)
 {
 	file_offset = rd.Tell();
+	if(file_offset == 0 && (coff_variant == AnyCOFFVariant || coff_variant == COFF) && (type == GENERIC || type == DJGPP))
+	{
+		// try to check for MZ stub
+		std::array<char, 2> signature;
+		rd.ReadData(signature);
+		if(signature[0] == 'M' && signature[1] == 'Z')
+		{
+			rd.Seek(0);
+			file_offset = Microsoft::FindActualSignature(rd, signature, "L\1");
+		}
+		rd.Seek(file_offset);
+	}
 	ReadCOFFHeader(rd);
 	ReadOptionalHeader(rd);
 	ReadRestOfFile(rd);

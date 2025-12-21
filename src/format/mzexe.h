@@ -338,18 +338,18 @@ namespace Microsoft
 		}
 	};
 
-	template <typename T, size_t N>
-		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, std::string expected_signature, bool search_win386_offset = false)
+	template <typename T, size_t N, typename Predicate>
+		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, Predicate predicate, bool search_win386_offset = false)
 	{
 		offset_t file_offset = rd.Tell();
 		rd.ReadData(signature);
-		if(file_offset == 0 && (memcmp(signature.data(), expected_signature.c_str(), N) != 0))
+		if(file_offset == 0 && !predicate(signature))
 		{
 			// try to find real file offset
 			offset_t file_end = rd.GetImageEnd();
 
-			uint32_t mz_image_end = rd.ReadUnsigned(2);
-			mz_image_end = (uint32_t(rd.ReadUnsigned(2)) << 9) - (-mz_image_end & 0x1FF);
+			uint32_t mz_image_end = rd.ReadUnsigned(2, ::LittleEndian);
+			mz_image_end = (uint32_t(rd.ReadUnsigned(2, ::LittleEndian)) << 9) - (-mz_image_end & 0x1FF);
 
 			uint32_t win386_header_offset = 0;
 			uint32_t ne_header_offset = 0;
@@ -358,13 +358,13 @@ namespace Microsoft
 				if(search_win386_offset)
 				{
 					rd.Seek(0x38);
-					win386_header_offset = rd.ReadUnsigned(4);
+					win386_header_offset = rd.ReadUnsigned(4, ::LittleEndian);
 				}
 				else
 				{
 					rd.Seek(0x3C);
 				}
-				ne_header_offset = rd.ReadUnsigned(4);
+				ne_header_offset = rd.ReadUnsigned(4, ::LittleEndian);
 			}
 
 			if(ne_header_offset != 0 && ne_header_offset + N < file_end)
@@ -373,7 +373,7 @@ namespace Microsoft
 				rd.ReadData(signature);
 			}
 
-			if(memcmp(signature.data(), expected_signature.c_str(), N) == 0)
+			if(predicate(signature))
 			{
 				file_offset = rd.Tell() - N;
 			}
@@ -381,11 +381,11 @@ namespace Microsoft
 			{
 				if(mz_image_end != 0 && mz_image_end != ne_header_offset && mz_image_end + N < file_end)
 				{
-					rd.Seek(ne_header_offset);
+					rd.Seek(mz_image_end);
 					rd.ReadData(signature);
 				}
 
-				if(memcmp(signature.data(), expected_signature.c_str(), N) == 0)
+				if(predicate(signature))
 				{
 					file_offset = rd.Tell() - N;
 				}
@@ -397,7 +397,7 @@ namespace Microsoft
 						rd.ReadData(signature);
 					}
 
-					if(memcmp(signature.data(), expected_signature.c_str(), N) == 0)
+					if(predicate(signature))
 					{
 						file_offset = rd.Tell() - N;
 					}
@@ -410,6 +410,26 @@ namespace Microsoft
 		}
 
 		return file_offset;
+	}
+
+	template <typename T, size_t N>
+		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, const char * expected_signature, bool search_win386_offset = false)
+	{
+		return FindActualSignature(
+			rd,
+			signature,
+			[expected_signature](std::array<T, N>& signature) { return memcmp(signature.data(), expected_signature, N) == 0; },
+			search_win386_offset);
+	}
+
+	template <typename T, size_t N>
+		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, const char * expected_signature1, const char * expected_signature2, bool search_win386_offset = false)
+	{
+		return FindActualSignature(
+			rd,
+			signature,
+			[expected_signature1, expected_signature2](std::array<T, N>& signature) { return memcmp(signature.data(), expected_signature1, N) == 0 || memcmp(signature.data(), expected_signature2, N) == 0; },
+			search_win386_offset);
 	}
 }
 

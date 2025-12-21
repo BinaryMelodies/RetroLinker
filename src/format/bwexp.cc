@@ -12,6 +12,7 @@ void BWFormat::ReadFile(Linker::Reader& rd)
 	std::array<char, 2> signature;
 	rd.endiantype = ::LittleEndian;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "BW");
+
 	file_size = rd.ReadUnsigned(2);
 	file_size += uint32_t(rd.ReadUnsigned(2)) << 9;
 	rd.Skip(4); // reserved

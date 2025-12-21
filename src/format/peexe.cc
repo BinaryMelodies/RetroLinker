@@ -2209,7 +2209,8 @@ void PEFormat::AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type t
 void PEFormat::ReadFile(Linker::Reader& rd)
 {
 	file_offset = rd.Tell();
-	rd.ReadData(4, pe_signature);
+	file_offset = Microsoft::FindActualSignature(rd, pe_signature, "PE\0\0", "PL\0\0" /* TNT DOS Extender variant */);
+
 	ReadCOFFHeader(rd);
 	optional_header->ReadFile(rd);
 	ReadRestOfFile(rd);
@@ -2368,7 +2369,7 @@ offset_t PEFormat::WriteFile(Linker::Writer& wr) const
 	wr.endiantype = ::LittleEndian;
 	stub.WriteStubImage(wr);
 	wr.Seek(file_offset);
-	wr.WriteData(4, pe_signature);
+	wr.WriteData(pe_signature);
 	WriteFileContents(wr);
 	return offset_t(-1);
 }
@@ -2999,9 +3000,9 @@ void PEFormat::SetOptions(std::map<std::string, std::string>& options)
 	}
 
 	if(target == TargetTNT)
-		memcpy(pe_signature, "PL\0\0", 4);
+		memcpy(pe_signature.data(), "PL\0\0", 4);
 	else
-		memcpy(pe_signature, "PE\0\0", 4);
+		memcpy(pe_signature.data(), "PE\0\0", 4);
 
 	option_import_thunks = collector.import_thunks();
 	if(compatibility != CompatibleNone)

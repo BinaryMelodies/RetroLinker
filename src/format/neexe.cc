@@ -418,11 +418,10 @@ bool NEFormat::IsOS2() const
 void NEFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
+	file_offset = Microsoft::FindActualSignature(rd, signature, "NE", "DX" /* DOS/16M variant */);
 
 	/* New header */
 
-	rd.ReadData(signature);
 	linker_version.major = rd.ReadUnsigned(1);
 	linker_version.minor = rd.ReadUnsigned(1);
 	entry_table_offset = rd.ReadUnsigned(2);

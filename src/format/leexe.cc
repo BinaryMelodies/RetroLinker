@@ -1095,7 +1095,8 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 {
 	/* new header */
 	file_offset = rd.Tell();
-	rd.ReadData(signature);
+	file_offset = Microsoft::FindActualSignature(rd, signature, "LE", "LX");
+
 	uint8_t byte_order = rd.ReadUnsigned(1);
 	if(byte_order != 0 && byte_order != 1)
 	{

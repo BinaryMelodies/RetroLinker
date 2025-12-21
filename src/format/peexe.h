@@ -1,6 +1,7 @@
 #ifndef PEEXE_H
 #define PEEXE_H
 
+#include <array>
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/options.h"
@@ -17,7 +18,7 @@ namespace Microsoft
 	class PEFormat : public COFF::COFFFormat
 	{
 	public:
-		char pe_signature[4];
+		std::array<char, 4> pe_signature;
 
 		/** @brief Represents a version entry with major and minor versions */
 		struct version_type

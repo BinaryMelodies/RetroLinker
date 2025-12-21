@@ -49,8 +49,8 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 {
 	Clear();
 	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
-	rd.Skip(4); // signature
+	std::array<char, 4> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "XP\1\0", "XP\2\0");
 	ldt_offset = rd.ReadUnsigned(4);
 	uint32_t ldt_count = rd.ReadUnsigned(4);
 	image_offset = rd.ReadUnsigned(4);
