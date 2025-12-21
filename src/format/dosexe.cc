@@ -100,8 +100,6 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 	program_size = image->ImageSize();
 	image_size = header_size + program_size + relocations_size;
 	contents_size = image->ImageSize() + relocations_size;
-
-memory_size = 0x200000;
 }
 
 void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
