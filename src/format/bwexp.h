@@ -151,11 +151,6 @@ namespace DOS16M
 		public:
 			uint16_t index;
 
-			explicit RelocationSegment()
-				: AbstractSegment(0, 0, 0), index(0)
-			{
-			}
-
 			RelocationSegment(uint16_t index)
 				: AbstractSegment(TYPE_DATA), index(index)
 			{
@@ -199,7 +194,16 @@ namespace DOS16M
 		};
 		option_type options = option_type(0);
 
-		std::map<uint16_t, std::set<uint16_t> > relocations;
+		class Relocation
+		{
+		public:
+			uint16_t selector = 0;
+			// for RSI-1, this contains a single offset, for RSI-2, a list of all the offsets in a single relocation bundle
+			std::vector<uint16_t> offsets;
+		};
+
+		std::vector<Relocation> relocations_list;
+		std::map<uint16_t, std::set<uint16_t>> relocations_map;
 
 		offset_t MeasureRelocations() const;
 

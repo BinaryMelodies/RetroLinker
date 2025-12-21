@@ -71,7 +71,7 @@ void BWFormat::ReadFile(Linker::Reader& rd)
 		std::unique_ptr<AbstractSegment> segment;
 		if(selector >= first_relocation_selector)
 		{
-			segment = std::make_unique<RelocationSegment>();
+			segment = std::make_unique<RelocationSegment>((selector - first_selector) >> 3);
 		}
 		else
 		{
@@ -266,20 +266,15 @@ void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, const BWForma
 		if(index == 0)
 		{
 			/* write both segments */
-			for(auto& it : bw.relocations)
+			for(auto& relocation : bw.relocations_list)
 			{
-				for(unsigned i = 0; i < it.second.size(); i++)
-				{
-					wr.WriteWord(2, it.first);
-				}
+				wr.WriteWord(2, relocation.selector);
 			}
 			wr.AlignTo(0x10);
-			for(auto& it : bw.relocations)
+			for(auto& relocation : bw.relocations_list)
 			{
-				for(auto& it2 : it.second)
-				{
-					wr.WriteWord(2, it2);
-				}
+				assert(relocation.offsets.size() == 1);
+				wr.WriteWord(2, relocation.offsets[0]);
 			}
 		}
 		break;
@@ -288,22 +283,22 @@ void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, const BWForma
 		{
 			/* write all segments */
 			size_t count = 0;
-			if(bw.relocations.empty())
+			if(bw.relocations_map.empty())
 			{
 				/* if no relocations are present, create dummy relocation sequence so file appears relocatable */
 				wr.WriteWord(2, 0x0002); /* end of relocations */
 				wr.WriteWord(2, 0x0000); /* 0 relocations */
 			}
-			for(auto& it : bw.relocations)
+			for(auto& relocation : bw.relocations_list)
 			{
-				if(count == bw.relocations.size() - 1)
-					wr.WriteWord(2, it.first | 2);
+				if(count == bw.relocations_list.size() - 1)
+					wr.WriteWord(2, relocation.selector | 2);
 				else
-					wr.WriteWord(2, it.first);
-				wr.WriteWord(2, it.second.size());
-				for(auto& it2 : it.second)
+					wr.WriteWord(2, relocation.selector);
+				wr.WriteWord(2, relocation.offsets.size());
+				for(auto offset : relocation.offsets)
 				{
-					wr.WriteWord(2, it2);
+					wr.WriteWord(2, offset);
 				}
 				count++;
 			}
@@ -321,20 +316,13 @@ offset_t BWFormat::MeasureRelocations() const
 	case RelocationsNone:
 		return 0;
 	case RelocationsType1:
-		{
-			offset_t count = 0;
-			for(auto& it : relocations)
-			{
-				count += 2 * it.second.size();
-			}
-			return count;
-		}
+		return 2 * relocations_list.size();
 	case RelocationsType2:
 		{
 			offset_t count = 0;
-			for(auto& it : relocations)
+			for(auto& relocation : relocations_list)
 			{
-				count += 4 + 2 * it.second.size();
+				count += 4 + 2 * relocation.offsets.size();
 			}
 			return count;
 		}
@@ -499,12 +487,12 @@ void BWFormat::ProcessModule(Linker::Module& module)
 			uint16_t source_selector = first_selector + segment_indices[source.segment] * 8;
 			uint16_t target_selector = first_selector + segment_indices[resolution.target] * 8;
 			rel.WriteWord(target_selector);
-			auto it = relocations.find(source_selector);
-			if(it == relocations.end())
+			auto it = relocations_map.find(source_selector);
+			if(it == relocations_map.end())
 			{
-				relocations[source_selector] = std::set<uint16_t>();
+				relocations_map[source_selector] = std::set<uint16_t>();
 			}
-			relocations[source_selector].insert(source.address);
+			relocations_map[source_selector].insert(source.address);
 		}
 		else
 		{
@@ -518,6 +506,32 @@ void BWFormat::CalculateValues()
 {
 	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
 	//Linker::Debug << "Debug: New header offset: " << std::hex << file_offset << std::endl;
+
+	relocations_list.clear();
+	switch(option_relocations)
+	{
+	case RelocationsType1:
+		for(auto& it : relocations_map)
+		{
+			for(auto& it2 : it.second)
+			{
+				relocations_list.emplace_back(Relocation{it.first, std::vector<uint16_t>{it2}});
+			}
+		}
+		break;
+	case RelocationsType2:
+		for(auto& it : relocations_map)
+		{
+			relocations_list.emplace_back(Relocation{it.first, std::vector<uint16_t>()});
+			for(auto& it2 : it.second)
+			{
+				relocations_list.back().offsets.emplace_back(it2);
+			}
+		}
+		break;
+	default:
+		Linker::FatalError("Internal error: Impossible relocation mode");
+	}
 
 	min_extra = 0; /* TODO: parametrize */
 	max_extra = 0x3FFFC00; /* TODO: parametrize */
