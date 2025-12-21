@@ -1,6 +1,7 @@
 #ifndef MZEXE_H
 #define MZEXE_H
 
+#include <array>
 #include <iomanip>
 #include <set>
 #include <string>
@@ -337,6 +338,79 @@ namespace Microsoft
 		}
 	};
 
+	template <typename T, size_t N>
+		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, std::string expected_signature, bool search_win386_offset = false)
+	{
+		offset_t file_offset = rd.Tell();
+		rd.ReadData(signature);
+		if(file_offset == 0 && (memcmp(signature.data(), expected_signature.c_str(), N) != 0))
+		{
+			// try to find real file offset
+			offset_t file_end = rd.GetImageEnd();
+
+			uint32_t mz_image_end = rd.ReadUnsigned(2);
+			mz_image_end = (uint32_t(rd.ReadUnsigned(2)) << 9) - (-mz_image_end & 0x1FF);
+
+			uint32_t win386_header_offset = 0;
+			uint32_t ne_header_offset = 0;
+			if(file_end >= 0x40)
+			{
+				if(search_win386_offset)
+				{
+					rd.Seek(0x38);
+					win386_header_offset = rd.ReadUnsigned(4);
+				}
+				else
+				{
+					rd.Seek(0x3C);
+				}
+				ne_header_offset = rd.ReadUnsigned(4);
+			}
+
+			if(ne_header_offset != 0 && ne_header_offset + N < file_end)
+			{
+				rd.Seek(ne_header_offset);
+				rd.ReadData(signature);
+			}
+
+			if(memcmp(signature.data(), expected_signature.c_str(), N) == 0)
+			{
+				file_offset = rd.Tell() - N;
+			}
+			else
+			{
+				if(mz_image_end != 0 && mz_image_end != ne_header_offset && mz_image_end + N < file_end)
+				{
+					rd.Seek(ne_header_offset);
+					rd.ReadData(signature);
+				}
+
+				if(memcmp(signature.data(), expected_signature.c_str(), N) == 0)
+				{
+					file_offset = rd.Tell() - N;
+				}
+				else
+				{
+					if(win386_header_offset != 0 && win386_header_offset != ne_header_offset && win386_header_offset != mz_image_end && win386_header_offset + N < file_end)
+					{
+						rd.Seek(win386_header_offset);
+						rd.ReadData(signature);
+					}
+
+					if(memcmp(signature.data(), expected_signature.c_str(), N) == 0)
+					{
+						file_offset = rd.Tell() - N;
+					}
+					else
+					{
+						rd.Seek(N);
+					}
+				}
+			}
+		}
+
+		return file_offset;
+	}
 }
 
 #endif /* MZEXE_H */

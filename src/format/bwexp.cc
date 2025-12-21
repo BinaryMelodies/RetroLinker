@@ -1,6 +1,7 @@
 
 #include <array>
 #include "bwexp.h"
+#include "mzexe.h"
 #include "../linker/position.h"
 #include "../linker/resolution.h"
 
@@ -10,51 +11,7 @@ void BWFormat::ReadFile(Linker::Reader& rd)
 {
 	std::array<char, 2> signature;
 	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
-	rd.ReadData(signature);
-	if(file_offset == 0 && (signature[0] != 'B' || signature[1] != 'W'))
-	{
-		// try to find real file offset
-		offset_t file_end = rd.GetImageEnd();
-
-		uint32_t mz_image_end = rd.ReadUnsigned(2);
-		mz_image_end = (uint32_t(rd.ReadUnsigned(2)) << 9) - (-mz_image_end & 0x1FF);
-
-		uint32_t ne_header_offset = 0;
-		if(file_end >= 0x40)
-		{
-			rd.Seek(0x3C);
-			ne_header_offset = rd.ReadUnsigned(4);
-		}
-
-		if(ne_header_offset != 0 && ne_header_offset + 2 < file_end)
-		{
-			rd.Seek(ne_header_offset);
-			rd.ReadData(signature);
-		}
-
-		if(signature[0] == 'B' && signature[1] == 'W')
-		{
-			file_offset = rd.Tell() - 2;
-		}
-		else
-		{
-			if(mz_image_end != 0 && mz_image_end != ne_header_offset && mz_image_end + 2 < file_end)
-			{
-				rd.Seek(ne_header_offset);
-				rd.ReadData(signature);
-			}
-
-			if(signature[0] == 'B' && signature[1] == 'W')
-			{
-				file_offset = rd.Tell() - 2;
-			}
-			else
-			{
-				rd.Seek(2);
-			}
-		}
-	}
+	file_offset = Microsoft::FindActualSignature(rd, signature, "BW");
 	file_size = rd.ReadUnsigned(2);
 	file_size += uint32_t(rd.ReadUnsigned(2)) << 9;
 	rd.Skip(4); // reserved
