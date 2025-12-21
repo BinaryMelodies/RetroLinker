@@ -77,6 +77,8 @@ message:
 	.ascii	" 3.5 beta"
 .endif
 	.ascii	" Adam format .exe 32-bit)"
+.elseif TARGET_PDOS386
+	.ascii	" PDOS/386 a.out .exe file"
 .elseif TARGET_WIN32
 	.ascii	" Windows (32-bit)"
 .elseif TARGET_OS2V2
