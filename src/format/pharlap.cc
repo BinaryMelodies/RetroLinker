@@ -626,6 +626,13 @@ void P3Format::Descriptor::FillEntry(Dumper::Entry& entry) const
 				->AddBitField(22, 1, Dumper::ChoiceDisplay::Make("32-bit", "16-bit"), false)
 				->AddBitField(23, 1, Dumper::ChoiceDisplay::Make("granularity"), true),
 				offset_t(access));
+
+			if(auto sit_entry = std::dynamic_pointer_cast<SITEntry>(image.lock()))
+			{
+				entry.AddOptionalField("SIT flags", Dumper::HexDisplay::Make(4), offset_t(sit_entry->flags));
+				entry.AddOptionalField("Base offset", Dumper::HexDisplay::Make(4), offset_t(sit_entry->base_offset));
+				entry.AddOptionalField("Zero fill", Dumper::HexDisplay::Make(4), offset_t(sit_entry->zero_fill));
+			}
 		}
 	}
 }
@@ -1474,6 +1481,50 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 		for(uint32_t ldt_offset = 0; ldt_offset < ldt_size; ldt_offset += 8)
 		{
 			ldt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), ldt_address + ldt_offset));
+		}
+	}
+
+	// combine SIT and descriptor table information
+
+	for(auto segment : segments)
+	{
+		std::shared_ptr<SITEntry> entry = std::static_pointer_cast<SITEntry>(segment);
+		uint16_t index = entry->selector >> 3;
+		Descriptor * descriptor;
+		if((entry->selector & 4) == 0)
+		{
+			if(index >= gdt->descriptors.size())
+			{
+				Linker::Error << "Error: segment information table entry overflow" << std::endl;
+				continue;
+			}
+			descriptor = &gdt->descriptors[index];
+		}
+		else
+		{
+			if(index >= ldt->descriptors.size())
+			{
+				Linker::Error << "Error: segment information table entry overflow" << std::endl;
+				continue;
+			}
+			descriptor = &ldt->descriptors[index];
+		}
+		if(descriptor->IsGate())
+			continue; // invalid
+		if(descriptor->image.use_count() != 0)
+		{
+			Linker::Error << "Error: multiple segment information table entries reference same segment" << std::endl;
+			continue;
+		}
+		descriptor->image = segment;
+	}
+
+	if(segment_information_table_size != 0 && segment_information_table_entry_size != 0)
+	{
+		for(uint32_t sit_offset = 0; sit_offset + segment_information_table_entry_size <= segment_information_table_size; sit_offset += segment_information_table_entry_size)
+		{
+			rd.Seek(file_offset + sit_offset);
+			segments.push_back(SITEntry::ReadSITEntry(rd));
 		}
 	}
 
