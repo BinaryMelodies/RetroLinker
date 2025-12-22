@@ -130,11 +130,13 @@ namespace PharLap
 		bool FormatSupportsStackSection() const override;
 #endif
 
-		const bool is_multisegmented;
+		bool is_multisegmented;
 		bool is_32bit;
 
 		uint16_t header_size = 0;
 		uint32_t file_size = 0;
+		uint16_t checksum16 = 0; // TODO
+		uint32_t checksum32 = 0; // TODO
 
 		uint32_t runtime_parameters_offset = 0;
 		uint32_t runtime_parameters_size = 0;
@@ -182,6 +184,8 @@ namespace PharLap
 			uint32_t realmode_area_end = 0;
 			uint16_t call_buffer_size_kb = 0, flags = 0, ring = 0;
 
+			void ReadFile(Linker::Reader& rd);
+
 			void CalculateValues();
 
 			void WriteFile(Linker::Writer& wr) const;
@@ -202,6 +206,7 @@ namespace PharLap
 
 		class Flat;
 		class MultiSegmented;
+		class External;
 	};
 
 	class P3Format::Flat : public P3Format
@@ -385,13 +390,48 @@ namespace PharLap
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
-	/**
-	 * @brief Container for Phar Lap "P2"/"P3" .exp files, used when reading in a P2/P3 file
-	 */
-	class P3FormatContainer : public virtual Linker::OutputFormat
+	class P3Format::External : public P3Format
 	{
 	public:
-		std::unique_ptr<P3Format> contents;
+		class Segment : public P3Format::MultiSegmented::AbstractSegment
+		{
+		public:
+			uint16_t selector = 0;
+			uint16_t flags = 0;
+			uint32_t base_offset = 0; /* TODO??? */
+			uint32_t zero_fill = 0;
+
+			uint32_t GetStoredSize() const override;
+
+			uint32_t GetLoadedSize() const override;
+
+			void WriteSITEntry(Linker::Writer& wr) const;
+
+			void WriteFile(Linker::Writer& wr) const override;
+
+			static std::shared_ptr<Segment> ReadSITEntry(Linker::Reader& rd);
+		};
+
+		class Relocation
+		{
+		public:
+			uint16_t selector;
+			uint32_t offset;
+
+			Relocation(uint16_t selector, uint32_t offset)
+				: selector(selector), offset(offset)
+			{
+			}
+		};
+
+		std::vector<std::shared_ptr<Segment>> segments;
+		std::vector<Relocation> relocations;
+		std::shared_ptr<Linker::Buffer> image;
+
+		External()
+			: P3Format(true, true)
+		{
+		}
 
 		void ReadFile(Linker::Reader& rd) override;
 
