@@ -5,7 +5,7 @@ var searchData=
   ['tagnameauxiliaryentry_2',['TagNameAuxiliaryEntry',['../classCOFF_1_1COFFFormat_1_1Symbol_1_1TagNameAuxiliaryEntry.html',1,'COFF::COFFFormat::Symbol']]],
   ['target_3',['Target',['../classLinker_1_1Target.html',1,'Linker']]],
   ['targetenumeration_4',['TargetEnumeration',['../classMicrosoft_1_1PEFormat_1_1PEOptionCollector_1_1TargetEnumeration.html',1,'Microsoft::PEFormat::PEOptionCollector']]],
-  ['taskstatesegment_5',['TaskStateSegment',['../classPharLap_1_1P3Format_1_1MultiSegmented_1_1TaskStateSegment.html',1,'PharLap::P3Format::MultiSegmented']]],
+  ['taskstatesegment_5',['TaskStateSegment',['../classPharLap_1_1P3Format_1_1TaskStateSegment.html',1,'PharLap::P3Format']]],
   ['testbuffer_6',['TestBuffer',['../classUnitTests_1_1TestBuffer.html',1,'UnitTests']]],
   ['testexportedsymbol_7',['TestExportedSymbol',['../classUnitTests_1_1TestExportedSymbol.html',1,'UnitTests']]],
   ['testlocation_8',['TestLocation',['../classUnitTests_1_1TestLocation.html',1,'UnitTests']]],

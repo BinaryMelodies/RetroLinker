@@ -111,6 +111,8 @@ Classes</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDOS16M_1_1BWFormat_1_1DummySegment.html">DummySegment</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDOS16M_1_1BWFormat_1_1Relocation.html">Relocation</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDOS16M_1_1BWFormat_1_1RelocationSegment.html">RelocationSegment</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDOS16M_1_1BWFormat_1_1Segment.html">Segment</a></td></tr>
@@ -340,9 +342,21 @@ exp_flag_type&#160;</td><td class="memItemRight" valign="bottom"><b>exp_flags</b
 <tr class="memitem:a7662644f6d448e1541d95b07bd3affd3" id="r_a7662644f6d448e1541d95b07bd3affd3"><td class="memItemLeft" align="right" valign="top"><a id="a7662644f6d448e1541d95b07bd3affd3" name="a7662644f6d448e1541d95b07bd3affd3"></a>
 option_type&#160;</td><td class="memItemRight" valign="bottom"><b>options</b> = option_type(0)</td></tr>
 <tr class="separator:a7662644f6d448e1541d95b07bd3affd3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab7dfbeafe12ccdc60813c6c706a30d73" id="r_ab7dfbeafe12ccdc60813c6c706a30d73"><td class="memItemLeft" align="right" valign="top"><a id="ab7dfbeafe12ccdc60813c6c706a30d73" name="ab7dfbeafe12ccdc60813c6c706a30d73"></a>
-std::map&lt; uint16_t, std::set&lt; uint16_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
-<tr class="separator:ab7dfbeafe12ccdc60813c6c706a30d73"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6b7208aba515710104c875de103ed40" id="r_ad6b7208aba515710104c875de103ed40"><td class="memItemLeft" align="right" valign="top"><a id="ad6b7208aba515710104c875de103ed40" name="ad6b7208aba515710104c875de103ed40"></a>
+std::vector&lt; <a class="el" href="classDOS16M_1_1BWFormat_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations_list</b></td></tr>
+<tr class="separator:ad6b7208aba515710104c875de103ed40"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a11abd6f8bc955405db21218794224968" id="r_a11abd6f8bc955405db21218794224968"><td class="memItemLeft" align="right" valign="top"><a id="a11abd6f8bc955405db21218794224968" name="a11abd6f8bc955405db21218794224968"></a>
+std::map&lt; uint16_t, std::set&lt; uint16_t &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations_map</b></td></tr>
+<tr class="separator:a11abd6f8bc955405db21218794224968"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a88b5074a365d280beb97bcbbd99f0214" id="r_a88b5074a365d280beb97bcbbd99f0214"><td class="memItemLeft" align="right" valign="top"><a id="a88b5074a365d280beb97bcbbd99f0214" name="a88b5074a365d280beb97bcbbd99f0214"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>last_relocation_selector</b> = 0</td></tr>
+<tr class="separator:a88b5074a365d280beb97bcbbd99f0214"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1842ab393cfb361d61834b46444e338" id="r_ab1842ab393cfb361d61834b46444e338"><td class="memItemLeft" align="right" valign="top"><a id="ab1842ab393cfb361d61834b46444e338" name="ab1842ab393cfb361d61834b46444e338"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>remaining_relocation_offsets</b> = 0</td></tr>
+<tr class="separator:ab1842ab393cfb361d61834b46444e338"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21c912b40ea38618d0d9e61873f62882" id="r_a21c912b40ea38618d0d9e61873f62882"><td class="memItemLeft" align="right" valign="top"><a id="a21c912b40ea38618d0d9e61873f62882" name="a21c912b40ea38618d0d9e61873f62882"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>must_read_relocation_count</b> = false</td></tr>
+<tr class="separator:a21c912b40ea38618d0d9e61873f62882"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acaa56bfe1a89e0837852212b4c6f70f9" id="r_acaa56bfe1a89e0837852212b4c6f70f9"><td class="memItemLeft" align="right" valign="top"><a id="acaa56bfe1a89e0837852212b4c6f70f9" name="acaa56bfe1a89e0837852212b4c6f70f9"></a>
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = 0</td></tr>
 <tr class="separator:acaa56bfe1a89e0837852212b4c6f70f9"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -379,6 +393,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>next_header_offse
 <tr class="memitem:abaf10c67e74e16f9bfb6cf465e85640f" id="r_abaf10c67e74e16f9bfb6cf465e85640f"><td class="memItemLeft" align="right" valign="top"><a id="abaf10c67e74e16f9bfb6cf465e85640f" name="abaf10c67e74e16f9bfb6cf465e85640f"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>debug_info_offset</b> = 0</td></tr>
 <tr class="separator:abaf10c67e74e16f9bfb6cf465e85640f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a075a6aa7ae0173d6c2176ec970ffb850" id="r_a075a6aa7ae0173d6c2176ec970ffb850"><td class="memItemLeft" align="right" valign="top"><a id="a075a6aa7ae0173d6c2176ec970ffb850" name="a075a6aa7ae0173d6c2176ec970ffb850"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>last_used_selector</b> = 0</td></tr>
+<tr class="separator:a075a6aa7ae0173d6c2176ec970ffb850"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abb88c33fd062c8cf1d3252eaebe03634" id="r_abb88c33fd062c8cf1d3252eaebe03634"><td class="memItemLeft" align="right" valign="top"><a id="abb88c33fd062c8cf1d3252eaebe03634" name="abb88c33fd062c8cf1d3252eaebe03634"></a>
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>first_selector</b> = 0x0080</td></tr>
 <tr class="separator:abb88c33fd062c8cf1d3252eaebe03634"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -394,6 +411,9 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>transparent_stack
 <tr class="memitem:abafa5ce87a9549a28ce38c6b22be28e8" id="r_abafa5ce87a9549a28ce38c6b22be28e8"><td class="memItemLeft" align="right" valign="top"><a id="abafa5ce87a9549a28ce38c6b22be28e8" name="abafa5ce87a9549a28ce38c6b22be28e8"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>program_size</b> = 0</td></tr>
 <tr class="separator:abafa5ce87a9549a28ce38c6b22be28e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3763d4dbe881f442f9f84184c7b305bb" id="r_a3763d4dbe881f442f9f84184c7b305bb"><td class="memItemLeft" align="right" valign="top"><a id="a3763d4dbe881f442f9f84184c7b305bb" name="a3763d4dbe881f442f9f84184c7b305bb"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>gdt_size</b> = 0</td></tr>
+<tr class="separator:a3763d4dbe881f442f9f84184c7b305bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0762bdae6906a1917a6ac5a3559e84a2" id="r_a0762bdae6906a1917a6ac5a3559e84a2"><td class="memItemLeft" align="right" valign="top"><a id="a0762bdae6906a1917a6ac5a3559e84a2" name="a0762bdae6906a1917a6ac5a3559e84a2"></a>
 uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>default_memory_strategy</b> = 0</td></tr>
 <tr class="separator:a0762bdae6906a1917a6ac5a3559e84a2"><td class="memSeparator" colspan="2">&#160;</td></tr>

@@ -122,6 +122,12 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetTotalSize</b> 
 <tr class="memitem:a50d4726eed0b0050aac1638d7a825730" id="r_a50d4726eed0b0050aac1638d7a825730"><td class="memItemLeft" align="right" valign="top">virtual uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a50d4726eed0b0050aac1638d7a825730">GetSize</a> (const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw) const =0</td></tr>
 <tr class="memdesc:a50d4726eed0b0050aac1638d7a825730"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves size of segment. Some subclasses might calculate this dynamically.  <br /></td></tr>
 <tr class="separator:a50d4726eed0b0050aac1638d7a825730"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a36c9c423e79c158cf46a567336f4f6" id="r_a4a36c9c423e79c158cf46a567336f4f6"><td class="memItemLeft" align="right" valign="top"><a id="a4a36c9c423e79c158cf46a567336f4f6" name="a4a36c9c423e79c158cf46a567336f4f6"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadHeader</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="separator:a4a36c9c423e79c158cf46a567336f4f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf163dd5a33a00ddaf655ee4a4b9a739" id="r_adf163dd5a33a00ddaf655ee4a4b9a739"><td class="memItemLeft" align="right" valign="top"><a id="adf163dd5a33a00ddaf655ee4a4b9a739" name="adf163dd5a33a00ddaf655ee4a4b9a739"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>ReadContent</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw)=0</td></tr>
+<tr class="separator:adf163dd5a33a00ddaf655ee4a4b9a739"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a039a9cd8714598219a33860b2159adb3" id="r_a039a9cd8714598219a33860b2159adb3"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a039a9cd8714598219a33860b2159adb3">WriteContent</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw) const =0</td></tr>
 <tr class="memdesc:a039a9cd8714598219a33860b2159adb3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the binary contents of the segment.  <br /></td></tr>
 <tr class="separator:a039a9cd8714598219a33860b2159adb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -133,6 +139,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Prepare</b> (<a class
 void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw) const</td></tr>
 <tr class="memdesc:ad3d1f7fda34baca2916063d95a824718"><td class="mdescLeft">&#160;</td><td class="mdescRight">Produces the GDT entry for the header. <br /></td></tr>
 <tr class="separator:ad3d1f7fda34baca2916063d95a824718"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1414d8696f1c6ac82def64c1d31793fe" id="r_a1414d8696f1c6ac82def64c1d31793fe"><td class="memItemLeft" align="right" valign="top"><a id="a1414d8696f1c6ac82def64c1d31793fe" name="a1414d8696f1c6ac82def64c1d31793fe"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>Dump</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classDOS16M_1_1BWFormat.html">BWFormat</a> &amp;bw, offset_t file_offset, uint16_t selector_offset) const =0</td></tr>
+<tr class="separator:a1414d8696f1c6ac82def64c1d31793fe"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -148,6 +157,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b> = 0</
 <tr class="memitem:a4859a05c92e2104b489b2a570f6a92df" id="r_a4859a05c92e2104b489b2a570f6a92df"><td class="memItemLeft" align="right" valign="top"><a id="a4859a05c92e2104b489b2a570f6a92df" name="a4859a05c92e2104b489b2a570f6a92df"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>total_length</b></td></tr>
 <tr class="separator:a4859a05c92e2104b489b2a570f6a92df"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a469681d3563c4e632e59e54aed82b02c" id="r_a469681d3563c4e632e59e54aed82b02c"><td class="memItemLeft" align="right" valign="top"><a id="a469681d3563c4e632e59e54aed82b02c" name="a469681d3563c4e632e59e54aed82b02c"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>size</b> = 0</td></tr>
+<tr class="separator:a469681d3563c4e632e59e54aed82b02c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Member Function Documentation</h2>
 <a id="a50d4726eed0b0050aac1638d7a825730" name="a50d4726eed0b0050aac1638d7a825730"></a>

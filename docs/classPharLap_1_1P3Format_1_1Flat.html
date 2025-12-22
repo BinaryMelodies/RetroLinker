@@ -78,11 +78,15 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
-<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classPharLap_1_1P3Format_1_1Flat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">PharLap::P3Format::Flat Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
+
+<p>Class used for generating flat P3 binaries.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="pharlap_8h_source.html">pharlap.h</a>&gt;</code></p>
 <div class="dynheader">
 Inheritance diagram for PharLap::P3Format::Flat:</div>
 <div class="dyncontent">
@@ -102,8 +106,14 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a15c650d6b3e389eea65fa80e75245db3" id="r_a15c650d6b3e389eea65fa80e75245db3"><td class="memItemLeft" align="right" valign="top"><a id="a15c650d6b3e389eea65fa80e75245db3" name="a15c650d6b3e389eea65fa80e75245db3"></a>
 &#160;</td><td class="memItemRight" valign="bottom"><b>Flat</b> (bool is_32bit=true)</td></tr>
 <tr class="separator:a15c650d6b3e389eea65fa80e75245db3"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a813e4e35aabf56df1961333fa57fc47f" id="r_a813e4e35aabf56df1961333fa57fc47f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a813e4e35aabf56df1961333fa57fc47f">OnNewSegment</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment) override</td></tr>
-<tr class="memdesc:a813e4e35aabf56df1961333fa57fc47f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
+<tr class="memitem:a82990148e63bcc405aed85946b252b35" id="r_a82990148e63bcc405aed85946b252b35"><td class="memItemLeft" align="right" valign="top"><a id="a82990148e63bcc405aed85946b252b35" name="a82990148e63bcc405aed85946b252b35"></a>
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSegment</b> ()</td></tr>
+<tr class="separator:a82990148e63bcc405aed85946b252b35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3ece434f0cf958edad0d1430f87af07f" id="r_a3ece434f0cf958edad0d1430f87af07f"><td class="memItemLeft" align="right" valign="top"><a id="a3ece434f0cf958edad0d1430f87af07f" name="a3ece434f0cf958edad0d1430f87af07f"></a>
+std::shared_ptr&lt; const <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetSegment</b> () const</td></tr>
+<tr class="separator:a3ece434f0cf958edad0d1430f87af07f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a813e4e35aabf56df1961333fa57fc47f" id="r_a813e4e35aabf56df1961333fa57fc47f"><td class="memItemLeft" align="right" valign="top"><a id="a813e4e35aabf56df1961333fa57fc47f" name="a813e4e35aabf56df1961333fa57fc47f"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>OnNewSegment</b> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt; segment) override</td></tr>
 <tr class="separator:a813e4e35aabf56df1961333fa57fc47f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaec6afd6095d709844905c508b65cad4" id="r_aaec6afd6095d709844905c508b65cad4"><td class="memItemLeft" align="right" valign="top"><a id="aaec6afd6095d709844905c508b65cad4" name="aaec6afd6095d709844905c508b65cad4"></a>
 std::unique_ptr&lt; <a class="el" href="classScript_1_1List.html">Script::List</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetScript</b> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module)</td></tr>
@@ -120,9 +130,6 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="e
 <tr class="memitem:a00064037ec2c74c670c479023fb75afb" id="r_a00064037ec2c74c670c479023fb75afb"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a00064037ec2c74c670c479023fb75afb">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
 <tr class="memdesc:a00064037ec2c74c670c479023fb75afb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:a00064037ec2c74c670c479023fb75afb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2d9b0423ee05f119fd7448ca9d8db34c" id="r_a2d9b0423ee05f119fd7448ca9d8db34c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2d9b0423ee05f119fd7448ca9d8db34c">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
-<tr class="memdesc:a2d9b0423ee05f119fd7448ca9d8db34c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display file contents in a nice manner.  <br /></td></tr>
-<tr class="separator:a2d9b0423ee05f119fd7448ca9d8db34c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classPharLap_1_1P3Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classPharLap_1_1P3Format')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classPharLap_1_1P3Format.html">PharLap::P3Format</a></td></tr>
 <tr class="memitem:a2903dd38d0d535cb2570f8ae2efa6682 inherit pub_methods_classPharLap_1_1P3Format" id="r_a2903dd38d0d535cb2570f8ae2efa6682"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPharLap_1_1P3Format.html#a2903dd38d0d535cb2570f8ae2efa6682">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:a2903dd38d0d535cb2570f8ae2efa6682 inherit pub_methods_classPharLap_1_1P3Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
@@ -136,9 +143,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="e
 <tr class="memitem:afe98b2a199b1fa8830b9e3d757210f8c inherit pub_methods_classPharLap_1_1P3Format" id="r_afe98b2a199b1fa8830b9e3d757210f8c"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPharLap_1_1P3Format.html#afe98b2a199b1fa8830b9e3d757210f8c">FormatIsProtectedMode</a> () const override</td></tr>
 <tr class="memdesc:afe98b2a199b1fa8830b9e3d757210f8c inherit pub_methods_classPharLap_1_1P3Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Whether the format is in protected mode or not (x86 only)  <br /></td></tr>
 <tr class="separator:afe98b2a199b1fa8830b9e3d757210f8c inherit pub_methods_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a909e546719a29a95366923c9fb1f4ed2 inherit pub_methods_classPharLap_1_1P3Format" id="r_a909e546719a29a95366923c9fb1f4ed2"><td class="memItemLeft" align="right" valign="top">
-&#160;</td><td class="memItemRight" valign="bottom"><b>P3Format</b> (bool is_multisegmented, bool is_32bit=true)</td></tr>
-<tr class="separator:a909e546719a29a95366923c9fb1f4ed2 inherit pub_methods_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5edd9b7fd06d385f3ff91068d126ccc inherit pub_methods_classPharLap_1_1P3Format" id="r_ae5edd9b7fd06d385f3ff91068d126ccc"><td class="memItemLeft" align="right" valign="top">
+&#160;</td><td class="memItemRight" valign="bottom"><b>P3Format</b> (bool is_multisegmented=true, bool is_32bit=true)</td></tr>
+<tr class="separator:ae5edd9b7fd06d385f3ff91068d126ccc inherit pub_methods_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aed911c96e343451c0bfbae3f806dd904 inherit pub_methods_classPharLap_1_1P3Format" id="r_aed911c96e343451c0bfbae3f806dd904"><td class="memItemLeft" align="right" valign="top">std::shared_ptr&lt; <a class="el" href="classLinker_1_1OptionCollector.html">Linker::OptionCollector</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPharLap_1_1P3Format.html#aed911c96e343451c0bfbae3f806dd904">GetOptions</a> () override</td></tr>
 <tr class="memdesc:aed911c96e343451c0bfbae3f806dd904 inherit pub_methods_classPharLap_1_1P3Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns object containing a sequence of option fields provided with the -S command line flag.  <br /></td></tr>
 <tr class="separator:aed911c96e343451c0bfbae3f806dd904 inherit pub_methods_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -148,6 +155,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>Link</b> (<a class="e
 <tr class="memitem:a28001d171bffcd9b9d6634e8fe08ad6d inherit pub_methods_classPharLap_1_1P3Format" id="r_a28001d171bffcd9b9d6634e8fe08ad6d"><td class="memItemLeft" align="right" valign="top">std::string&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPharLap_1_1P3Format.html#a28001d171bffcd9b9d6634e8fe08ad6d">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Linker::Module</a> &amp;module, std::string filename) const override</td></tr>
 <tr class="memdesc:a28001d171bffcd9b9d6634e8fe08ad6d inherit pub_methods_classPharLap_1_1P3Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Appends a default extension to the filename.  <br /></td></tr>
 <tr class="separator:a28001d171bffcd9b9d6634e8fe08ad6d inherit pub_methods_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7536d37e7e3ea2cd90aa43ea508b1e37 inherit pub_methods_classPharLap_1_1P3Format" id="r_a7536d37e7e3ea2cd90aa43ea508b1e37"><td class="memItemLeft" align="right" valign="top">
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteHeader</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="separator:a7536d37e7e3ea2cd90aa43ea508b1e37 inherit pub_methods_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2545749fc517b3237f18e5d163b2148 inherit pub_methods_classPharLap_1_1P3Format" id="r_af2545749fc517b3237f18e5d163b2148"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPharLap_1_1P3Format.html#af2545749fc517b3237f18e5d163b2148">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
 <tr class="memdesc:af2545749fc517b3237f18e5d163b2148 inherit pub_methods_classPharLap_1_1P3Format"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="separator:af2545749fc517b3237f18e5d163b2148 inherit pub_methods_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -185,6 +195,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetLatestBase</b> (of
 void&#160;</td><td class="memItemRight" valign="bottom"><b>FinishCurrentSegment</b> ()</td></tr>
 <tr class="memdesc:a8d23691cbd09dd0a6503582f842e39f8 inherit pub_methods_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Closes the current segment, sets current_segment to null. <br /></td></tr>
 <tr class="separator:a8d23691cbd09dd0a6503582f842e39f8 inherit pub_methods_classLinker_1_1SegmentManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af83e6db36a0b6d3233d1668e2e60192a inherit pub_methods_classLinker_1_1SegmentManager" id="r_af83e6db36a0b6d3233d1668e2e60192a"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1SegmentManager.html#af83e6db36a0b6d3233d1668e2e60192a">OnNewSegment</a> (std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Segment</a> &gt; segment)</td></tr>
+<tr class="memdesc:af83e6db36a0b6d3233d1668e2e60192a inherit pub_methods_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment.  <br /></td></tr>
+<tr class="separator:af83e6db36a0b6d3233d1668e2e60192a inherit pub_methods_classLinker_1_1SegmentManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a97e954eda960fcb17348a0df03e06921 inherit pub_methods_classLinker_1_1SegmentManager" id="r_a97e954eda960fcb17348a0df03e06921"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1SegmentManager.html#a97e954eda960fcb17348a0df03e06921">OnCallDirective</a> (std::string identifier)</td></tr>
 <tr class="memdesc:a97e954eda960fcb17348a0df03e06921 inherit pub_methods_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Callback function for the CALL directive.  <br /></td></tr>
 <tr class="separator:a97e954eda960fcb17348a0df03e06921 inherit pub_methods_classLinker_1_1SegmentManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -294,15 +307,12 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Image</a> &gt
 <tr class="memdesc:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
 <tr class="separator:ae83d572ac94545b2e83238bb998dcb5c inherit pub_methods_classLinker_1_1Contents"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
-Public Attributes</h2></td></tr>
-<tr class="memitem:a79a5c33cd1447c6f51d9b01075c505b8" id="r_a79a5c33cd1447c6f51d9b01075c505b8"><td class="memItemLeft" align="right" valign="top"><a id="a79a5c33cd1447c6f51d9b01075c505b8" name="a79a5c33cd1447c6f51d9b01075c505b8"></a>
-std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
-<tr class="separator:a79a5c33cd1447c6f51d9b01075c505b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pub_attribs_classPharLap_1_1P3Format"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classPharLap_1_1P3Format')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classPharLap_1_1P3Format.html">PharLap::P3Format</a></td></tr>
-<tr class="memitem:a07705a76b24c916deb646c9ca8ccc7af inherit pub_attribs_classPharLap_1_1P3Format" id="r_a07705a76b24c916deb646c9ca8ccc7af"><td class="memItemLeft" align="right" valign="top">
-const bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_multisegmented</b></td></tr>
-<tr class="separator:a07705a76b24c916deb646c9ca8ccc7af inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae3303cfbafcbde1ef48498959fa34725 inherit pub_attribs_classPharLap_1_1P3Format" id="r_ae3303cfbafcbde1ef48498959fa34725"><td class="memItemLeft" align="right" valign="top">
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_multisegmented</b></td></tr>
+<tr class="separator:ae3303cfbafcbde1ef48498959fa34725 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae5377bcf9c82daad555e59b995ee5cb2 inherit pub_attribs_classPharLap_1_1P3Format" id="r_ae5377bcf9c82daad555e59b995ee5cb2"><td class="memItemLeft" align="right" valign="top">
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>is_32bit</b></td></tr>
 <tr class="separator:ae5377bcf9c82daad555e59b995ee5cb2 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -312,6 +322,12 @@ uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>header_size</b> =
 <tr class="memitem:a8290918a743cd44a017359d58a30a6b0 inherit pub_attribs_classPharLap_1_1P3Format" id="r_a8290918a743cd44a017359d58a30a6b0"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_size</b> = 0</td></tr>
 <tr class="separator:a8290918a743cd44a017359d58a30a6b0 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a492e6b4b3d3210c3f598eef7f4b32f4c inherit pub_attribs_classPharLap_1_1P3Format" id="r_a492e6b4b3d3210c3f598eef7f4b32f4c"><td class="memItemLeft" align="right" valign="top">
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>checksum16</b> = 0</td></tr>
+<tr class="separator:a492e6b4b3d3210c3f598eef7f4b32f4c inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab47ed98186a501f47d485192673166af inherit pub_attribs_classPharLap_1_1P3Format" id="r_ab47ed98186a501f47d485192673166af"><td class="memItemLeft" align="right" valign="top">
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>checksum32</b> = 0</td></tr>
+<tr class="separator:ab47ed98186a501f47d485192673166af inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6c690a72849503527a91072ff4f00560 inherit pub_attribs_classPharLap_1_1P3Format" id="r_a6c690a72849503527a91072ff4f00560"><td class="memItemLeft" align="right" valign="top">
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>runtime_parameters_offset</b> = 0</td></tr>
 <tr class="separator:a6c690a72849503527a91072ff4f00560 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -408,9 +424,30 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>stack_size</b> = 
 <tr class="memitem:a34db5449311948ebf409ae20e0b352c4 inherit pub_attribs_classPharLap_1_1P3Format" id="r_a34db5449311948ebf409ae20e0b352c4"><td class="memItemLeft" align="right" valign="top">
 <a class="el" href="classMicrosoft_1_1MZStubWriter.html">Microsoft::MZStubWriter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>stub</b></td></tr>
 <tr class="separator:a34db5449311948ebf409ae20e0b352c4 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee00df6d6d3ae8bd28c412e2d330d762 inherit pub_attribs_classPharLap_1_1P3Format" id="r_aee00df6d6d3ae8bd28c412e2d330d762"><td class="memItemLeft" align="right" valign="top">
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classPharLap_1_1P3Format_1_1AbstractSegment.html">AbstractSegment</a> &gt; &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>segments</b></td></tr>
+<tr class="separator:aee00df6d6d3ae8bd28c412e2d330d762 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a548cdad418d3ee1e7afc61feda15abc8 inherit pub_attribs_classPharLap_1_1P3Format" id="r_a548cdad418d3ee1e7afc61feda15abc8"><td class="memItemLeft" align="right" valign="top">
+std::vector&lt; <a class="el" href="classPharLap_1_1P3Format_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>relocations</b></td></tr>
+<tr class="separator:a548cdad418d3ee1e7afc61feda15abc8 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a7cfb976704b82feaf4db0a5f75b647e4 inherit pub_attribs_classPharLap_1_1P3Format" id="r_a7cfb976704b82feaf4db0a5f75b647e4"><td class="memItemLeft" align="right" valign="top">
 <a class="el" href="classPharLap_1_1P3Format_1_1RunTimeParameterBlock.html">RunTimeParameterBlock</a>&#160;</td><td class="memItemRight" valign="bottom"><b>runtime_parameters</b></td></tr>
 <tr class="separator:a7cfb976704b82feaf4db0a5f75b647e4 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd28adff8de69c60cdf832250635b685 inherit pub_attribs_classPharLap_1_1P3Format" id="r_afd28adff8de69c60cdf832250635b685"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>image</b></td></tr>
+<tr class="separator:afd28adff8de69c60cdf832250635b685 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac1cf628171cd22d4a63d1cec058a30ce inherit pub_attribs_classPharLap_1_1P3Format" id="r_ac1cf628171cd22d4a63d1cec058a30ce"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classPharLap_1_1P3Format_1_1DescriptorTable.html">DescriptorTable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>gdt</b> = std::make_shared&lt;<a class="el" href="classPharLap_1_1P3Format_1_1DescriptorTable.html">DescriptorTable</a>&gt;()</td></tr>
+<tr class="separator:ac1cf628171cd22d4a63d1cec058a30ce inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1f26584c219c7d5817442f6bffbb678 inherit pub_attribs_classPharLap_1_1P3Format" id="r_ad1f26584c219c7d5817442f6bffbb678"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classPharLap_1_1P3Format_1_1DescriptorTable.html">DescriptorTable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>idt</b> = std::make_shared&lt;<a class="el" href="classPharLap_1_1P3Format_1_1DescriptorTable.html">DescriptorTable</a>&gt;()</td></tr>
+<tr class="separator:ad1f26584c219c7d5817442f6bffbb678 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aec373df7035a895c26d4d5f55fb11492 inherit pub_attribs_classPharLap_1_1P3Format" id="r_aec373df7035a895c26d4d5f55fb11492"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classPharLap_1_1P3Format_1_1DescriptorTable.html">DescriptorTable</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>ldt</b> = std::make_shared&lt;<a class="el" href="classPharLap_1_1P3Format_1_1DescriptorTable.html">DescriptorTable</a>&gt;()</td></tr>
+<tr class="separator:aec373df7035a895c26d4d5f55fb11492 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07f89762239a52fd3b21abd86c384ea2 inherit pub_attribs_classPharLap_1_1P3Format" id="r_a07f89762239a52fd3b21abd86c384ea2"><td class="memItemLeft" align="right" valign="top">
+std::shared_ptr&lt; <a class="el" href="classPharLap_1_1P3Format_1_1TaskStateSegment.html">TaskStateSegment</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>tss</b> = std::make_shared&lt;<a class="el" href="classPharLap_1_1P3Format_1_1TaskStateSegment.html">TaskStateSegment</a>&gt;()</td></tr>
+<tr class="separator:a07f89762239a52fd3b21abd86c384ea2 inherit pub_attribs_classPharLap_1_1P3Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:ae752ce750027654f07078e855335b92c inherit pub_attribs_classLinker_1_1SegmentManager" id="r_ae752ce750027654f07078e855335b92c"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classLinker_1_1SegmentManager.html#ae752ce750027654f07078e855335b92c">current_base</a> = 0</td></tr>
 <tr class="memdesc:ae752ce750027654f07078e855335b92c inherit pub_attribs_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
@@ -439,9 +476,6 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script<
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>file_offset</b></td></tr>
 <tr class="separator:a79b3bfba10139c14b62afccdc13ae117 inherit pub_attribs_classLinker_1_1Format"><td class="memSeparator" colspan="2">&#160;</td></tr>
-</table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1SegmentManager"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pro_attribs_classLinker_1_1SegmentManager')"><img src="closed.png" alt="-"/>&#160;Protected Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:aba19c02257c496c2f8a7ea8ebc40be3d inherit pro_attribs_classLinker_1_1SegmentManager" id="r_aba19c02257c496c2f8a7ea8ebc40be3d"><td class="memItemLeft" align="right" valign="top">
 offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>current_address</b> = 0</td></tr>
@@ -467,7 +501,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <tr class="memdesc:a9f36cbb957623f1c1b64bea50752a480 inherit pro_attribs_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">Records the name of the currently generating segment for a <code>for</code> statement. <br /></td></tr>
 <tr class="separator:a9f36cbb957623f1c1b64bea50752a480 inherit pro_attribs_classLinker_1_1SegmentManager"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<h2 class="groupheader">Member Function Documentation</h2>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Class used for generating flat P3 binaries. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a9f8d94a21dbc4db2c319913d7acf6f99" name="a9f8d94a21dbc4db2c319913d7acf6f99"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a9f8d94a21dbc4db2c319913d7acf6f99">&#9670;&#160;</a></span>CalculateValues()</h2>
 
@@ -494,64 +530,6 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields. </p>
 
 <p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae63d979e5fa85a76ffe06ac613b6ec27">Linker::OutputFormat</a>.</p>
-
-</div>
-</div>
-<a id="a2d9b0423ee05f119fd7448ca9d8db34c" name="a2d9b0423ee05f119fd7448ca9d8db34c"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2d9b0423ee05f119fd7448ca9d8db34c">&#9670;&#160;</a></span>Dump()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void P3Format::Flat::Dump </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
-          <td> const</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Display file contents in a nice manner. </p>
-
-<p>Reimplemented from <a class="el" href="classLinker_1_1Format.html#a098d2d37cf55278aa98722b766d4fc38">Linker::Format</a>.</p>
-
-</div>
-</div>
-<a id="a813e4e35aabf56df1961333fa57fc47f" name="a813e4e35aabf56df1961333fa57fc47f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a813e4e35aabf56df1961333fa57fc47f">&#9670;&#160;</a></span>OnNewSegment()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void P3Format::Flat::OnNewSegment </td>
-          <td>(</td>
-          <td class="paramtype">std::shared_ptr&lt; <a class="el" href="classLinker_1_1Segment.html">Linker::Segment</a> &gt;</td>          <td class="paramname"><span class="paramname"><em>segment</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Callback function when allocating a new segment When the linker script runs, it creates segments consecutively. Overriding this method permits the output format to handle the allocated segment. </p>
-
-<p>Reimplemented from <a class="el" href="classLinker_1_1SegmentManager.html#af83e6db36a0b6d3233d1668e2e60192a">Linker::SegmentManager</a>.</p>
 
 </div>
 </div>

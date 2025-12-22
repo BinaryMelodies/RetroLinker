@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['link_0',['Link',['../classMicrosoft_1_1MZFormat.html#a510b6d6309a9f14261ebb73a1c9d2512',1,'Microsoft::MZFormat::Link()'],['../classErgo_1_1XPFormat.html#adf115112fdaaf1745cefbdccad6ad2c9',1,'Ergo::XPFormat::Link()']]],
+  ['link_0',['Link',['../classSeychellDOS32_1_1AdamFormat.html#a08e24c5dc8701623ea39bf92b3ceca1e',1,'SeychellDOS32::AdamFormat::Link()'],['../classMicrosoft_1_1MZFormat.html#a510b6d6309a9f14261ebb73a1c9d2512',1,'Microsoft::MZFormat::Link()'],['../classErgo_1_1XPFormat.html#adf115112fdaaf1745cefbdccad6ad2c9',1,'Ergo::XPFormat::Link()']]],
   ['loadlibraryname_1',['LoadLibraryName',['../classLinker_1_1SymbolName.html#adfcb41f833acfa11cfec3d752c6713cd',1,'Linker::SymbolName']]],
   ['loadname_2',['LoadName',['../classLinker_1_1SymbolName.html#a5d843b215931ce91d0b058407cd829ae',1,'Linker::SymbolName::LoadName()'],['../classLinker_1_1ExportedSymbolName.html#aab4743478f9041a4a96cac5220824516',1,'Linker::ExportedSymbolName::LoadName()']]],
   ['loadordinalorhint_3',['LoadOrdinalOrHint',['../classLinker_1_1SymbolName.html#aba884bef7536a6c1a359d7c797155342',1,'Linker::SymbolName::LoadOrdinalOrHint()'],['../classLinker_1_1ExportedSymbolName.html#aea92b2aa8f83537f5ba706c47e7bc30b',1,'Linker::ExportedSymbolName::LoadOrdinalOrHint()']]],

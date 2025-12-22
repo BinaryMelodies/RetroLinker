@@ -28,5 +28,6 @@ var searchData=
   ['localsymbols_25',['LocalSymbols',['../classOMF_1_1OMF51Format_1_1DebugItemsRecord_1_1LocalSymbols.html',1,'OMF::OMF51Format::DebugItemsRecord']]],
   ['location_26',['Location',['../classLinker_1_1Location.html',1,'Linker::Location'],['../structOMF_1_1OMF86Format_1_1BaseSpecification_1_1Location.html',1,'OMF::OMF86Format::BaseSpecification::Location'],['../structOMF_1_1OMFFormat_1_1LibraryModuleLocationsRecord_1_1Location.html',1,'OMF::OMFFormat::LibraryModuleLocationsRecord&lt; RecordTypeByte, FormatType, ModuleType &gt;::Location']]],
   ['logicaldatarecord_27',['LogicalDataRecord',['../classOMF_1_1OMF86Format_1_1LogicalDataRecord.html',1,'OMF::OMF86Format']]],
-  ['lvformat_28',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]]
+  ['lvformat_28',['LVFormat',['../classDX64_1_1LVFormat.html',1,'DX64']]],
+  ['lvoptioncollector_29',['LVOptionCollector',['../classDX64_1_1LVFormat_1_1LVOptionCollector.html',1,'DX64::LVFormat']]]
 ];

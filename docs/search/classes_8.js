@@ -37,7 +37,8 @@ var searchData=
   ['itemof_3c_20microsoft_3a_3apeformat_3a_3apeoptioncollector_3a_3aoutputtypeenumeration_20_3e_34',['ItemOf&lt; Microsoft::PEFormat::PEOptionCollector::OutputTypeEnumeration &gt;',['../classLinker_1_1ItemOf.html',1,'Linker']]],
   ['itemof_3c_20microsoft_3a_3apeformat_3a_3apeoptioncollector_3a_3asubsystemenumeration_20_3e_35',['ItemOf&lt; Microsoft::PEFormat::PEOptionCollector::SubsystemEnumeration &gt;',['../classLinker_1_1ItemOf.html',1,'Linker']]],
   ['itemof_3c_20microsoft_3a_3apeformat_3a_3apeoptioncollector_3a_3atargetenumeration_20_3e_36',['ItemOf&lt; Microsoft::PEFormat::PEOptionCollector::TargetEnumeration &gt;',['../classLinker_1_1ItemOf.html',1,'Linker']]],
-  ['iteratedpage_37',['IteratedPage',['../classMicrosoft_1_1LEFormat_1_1IteratedPage.html',1,'Microsoft::LEFormat']]],
-  ['iterationrecord_38',['IterationRecord',['../structMicrosoft_1_1LEFormat_1_1IteratedPage_1_1IterationRecord.html',1,'Microsoft::LEFormat::IteratedPage']]],
-  ['iterator_39',['iterator',['../structMicrosoft_1_1PEFormat_1_1PESections_1_1iterator.html',1,'Microsoft::PEFormat::PESections']]]
+  ['itemof_3c_20seychelldos32_3a_3aadamformat_3a_3aadamoptioncollector_3a_3aoutputenumeration_20_3e_37',['ItemOf&lt; SeychellDOS32::AdamFormat::AdamOptionCollector::OutputEnumeration &gt;',['../classLinker_1_1ItemOf.html',1,'Linker']]],
+  ['iteratedpage_38',['IteratedPage',['../classMicrosoft_1_1LEFormat_1_1IteratedPage.html',1,'Microsoft::LEFormat']]],
+  ['iterationrecord_39',['IterationRecord',['../structMicrosoft_1_1LEFormat_1_1IteratedPage_1_1IterationRecord.html',1,'Microsoft::LEFormat::IteratedPage']]],
+  ['iterator_40',['iterator',['../structMicrosoft_1_1PEFormat_1_1PESections_1_1iterator.html',1,'Microsoft::PEFormat::PESections']]]
 ];
