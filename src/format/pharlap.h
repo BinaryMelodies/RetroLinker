@@ -172,7 +172,7 @@ namespace PharLap
 
 		mutable Microsoft::MZStubWriter stub;
 
-		P3Format(bool is_multisegmented, bool is_32bit = true)
+		P3Format(bool is_multisegmented = true, bool is_32bit = true)
 			: is_multisegmented(is_multisegmented), is_32bit(is_32bit)
 		{
 		}
@@ -373,6 +373,7 @@ namespace PharLap
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 
+		void WriteHeader(Linker::Writer& wr) const;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -405,7 +406,6 @@ namespace PharLap
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
 	};
 
 	class P3Format::MultiSegmented : public P3Format
@@ -432,37 +432,6 @@ namespace PharLap
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
-	};
-
-	class P3Format::External : public P3Format
-	{
-	public:
-		External()
-			: P3Format(true, true)
-		{
-		}
-
-		void ReadFile(Linker::Reader& rd) override;
-
-		bool FormatSupportsSegmentation() const override;
-
-		bool FormatIs16bit() const override;
-
-		bool FormatIsProtectedMode() const override;
-
-		void SetOptions(std::map<std::string, std::string>& options) override;
-
-		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
-
-		void ProcessModule(Linker::Module& module) override;
-
-		void CalculateValues() override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
 	};
 }
 

@@ -1194,7 +1194,7 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_OMF86:
 		return std::make_shared<OMF::OMF86Format>(); // TODO
 	case FORMAT_P3:
-		return std::make_shared<P3Format::External>(); // TODO
+		return std::make_shared<P3Format>();
 	case FORMAT_PCOS:
 		return std::make_shared<PCOS::CMDFormat>(); // TODO
 	case FORMAT_PE:

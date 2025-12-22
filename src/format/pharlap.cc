@@ -306,8 +306,185 @@ std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string fi
 
 void P3Format::ReadFile(Linker::Reader& rd)
 {
-	//file_offset = Microsoft::FindActualSignature(rd, signature, "P3", "P2");
-	/* TODO */
+	rd.endiantype = ::LittleEndian;
+	std::array<char, 2> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "P3", "P2");
+	if(signature[0] == 'P' && signature[1] == '3')
+	{
+		is_32bit = true;
+	}
+	else if(signature[0] == 'P' && signature[1] == '2')
+	{
+		is_32bit = false;
+	}
+	else
+	{
+		Linker::Error << "Error: invalid signature, assuming 32-bit" << std::endl;
+	}
+	uint16_t level = rd.ReadUnsigned(2);
+	switch(level)
+	{
+	case 1:
+		is_multisegmented = false;
+		break;
+	case 2:
+		is_multisegmented = true;
+		break;
+	default:
+		Linker::Error << "Error: invalid P2/P3 format level " << level << std::endl;
+		is_multisegmented = true;
+		break;
+	}
+	header_size = rd.ReadUnsigned(2);
+	file_size = rd.ReadUnsigned(4);
+	checksum16 = rd.ReadUnsigned(2);
+	runtime_parameters_offset = rd.ReadUnsigned(4);
+	runtime_parameters_size = rd.ReadUnsigned(4);
+	relocation_table_offset = rd.ReadUnsigned(4);
+	relocation_table_size = rd.ReadUnsigned(4);
+	segment_information_table_offset = rd.ReadUnsigned(4);
+	segment_information_table_size = rd.ReadUnsigned(4);
+	segment_information_table_entry_size = rd.ReadUnsigned(2);
+	load_image_offset = rd.ReadUnsigned(4);
+	load_image_size = rd.ReadUnsigned(4);
+	symbol_table_offset = rd.ReadUnsigned(4);
+	symbol_table_size = rd.ReadUnsigned(4);
+	gdt_address = rd.ReadUnsigned(4);
+	gdt_size = rd.ReadUnsigned(4);
+	ldt_address = rd.ReadUnsigned(4);
+	ldt_size = rd.ReadUnsigned(4);
+	idt_address = rd.ReadUnsigned(4);
+	idt_size = rd.ReadUnsigned(4);
+	tss_address = rd.ReadUnsigned(4);
+	tss_size = rd.ReadUnsigned(4);
+	minimum_extra = rd.ReadUnsigned(4);
+	maximum_extra = rd.ReadUnsigned(4);
+	base_load_offset = rd.ReadUnsigned(4);
+	esp = rd.ReadUnsigned(4);
+	ss = rd.ReadUnsigned(2);
+	eip = rd.ReadUnsigned(4);
+	cs = rd.ReadUnsigned(2);
+	ldtr = rd.ReadUnsigned(2);
+	tr = rd.ReadUnsigned(2);
+	flags = rd.ReadUnsigned(2);
+	memory_requirements = rd.ReadUnsigned(4);
+	checksum32 = rd.ReadUnsigned(4);
+	stack_size = rd.ReadUnsigned(4);
+
+	/* Segment Information Table */
+
+	if(segment_information_table_size != 0 && segment_information_table_entry_size != 0)
+	{
+		for(uint32_t sit_offset = 0; sit_offset + segment_information_table_entry_size <= segment_information_table_size; sit_offset += segment_information_table_entry_size)
+		{
+			rd.Seek(file_offset + segment_information_table_offset + sit_offset);
+			segments.push_back(SITEntry::ReadSITEntry(rd));
+		}
+	}
+
+	/* Relocation Table */
+
+	if(relocation_table_size != 0)
+	{
+		rd.Seek(file_offset + relocation_table_offset);
+		for(uint32_t relocation_offset = 0; relocation_offset < relocation_table_size; relocation_offset += (is_32bit ? 6 : 4))
+		{
+			Relocation relocation{0, 0};
+			relocation.offset = rd.ReadUnsigned(is_32bit ? 4 : 2);
+			relocation.selector = rd.ReadUnsigned(2);
+			relocations.push_back(relocation);
+		}
+	}
+
+	/* Runtime Parameters */
+
+	if(runtime_parameters_size != 0)
+	{
+		rd.Seek(file_offset + runtime_parameters_offset);
+		runtime_parameters.ReadFile(rd); // TODO: pass runtime_parameters_size as parameter
+	}
+
+	/* Symbol Table */
+
+	// TODO
+
+	/* Load Image */
+
+	rd.Seek(file_offset + load_image_offset);
+	image = Linker::Buffer::ReadFromFile(rd, file_size - load_image_offset);
+
+	/* Task State Segment */
+
+	tss->is_32bit = is_32bit;
+	if(tss_size != 0)
+	{
+		tss->ReadImage(*image.get(), tss_address); // TODO: do not read more than tss_size
+	}
+
+	/* Global Descriptor Table */
+
+	if(gdt_size != 0)
+	{
+		for(uint32_t gdt_offset = 0; gdt_offset < gdt_size; gdt_offset += 8)
+		{
+			gdt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), gdt_address + gdt_offset));
+		}
+	}
+
+	/* Interrupt Descriptor Table */
+
+	if(idt_size != 0)
+	{
+		for(uint32_t idt_offset = 0; idt_offset < idt_size; idt_offset += 8)
+		{
+			idt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), idt_address + idt_offset));
+		}
+	}
+
+	/* Local Descriptor Table */
+
+	if(ldt_size != 0)
+	{
+		for(uint32_t ldt_offset = 0; ldt_offset < ldt_size; ldt_offset += 8)
+		{
+			ldt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), ldt_address + ldt_offset));
+		}
+	}
+
+	// combine SIT and descriptor table information
+
+	for(auto segment : segments)
+	{
+		std::shared_ptr<SITEntry> entry = std::static_pointer_cast<SITEntry>(segment);
+		uint16_t index = entry->selector >> 3;
+		Descriptor * descriptor;
+		if((entry->selector & 4) == 0)
+		{
+			if(index >= gdt->descriptors.size())
+			{
+				Linker::Error << "Error: segment information table entry overflow" << std::endl;
+				continue;
+			}
+			descriptor = &gdt->descriptors[index];
+		}
+		else
+		{
+			if(index >= ldt->descriptors.size())
+			{
+				Linker::Error << "Error: segment information table entry overflow" << std::endl;
+				continue;
+			}
+			descriptor = &ldt->descriptors[index];
+		}
+		if(descriptor->IsGate())
+			continue; // invalid
+		if(descriptor->image.use_count() != 0)
+		{
+			Linker::Error << "Error: multiple segment information table entries reference same segment" << std::endl;
+			continue;
+		}
+		descriptor->image = segment;
+	}
 }
 
 bool P3Format::FormatSupportsSegmentation() const
@@ -400,7 +577,7 @@ std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string fi
 	}
 }
 
-offset_t P3Format::WriteFile(Linker::Writer& wr) const
+void P3Format::WriteHeader(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	if(stub.filename != "")
@@ -445,7 +622,12 @@ offset_t P3Format::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(4, memory_requirements);
 	wr.WriteWord(4, checksum32); /* TODO */
 	wr.WriteWord(4, stack_size);
+}
 
+offset_t P3Format::WriteFile(Linker::Writer& wr) const
+{
+	WriteHeader(wr);
+	// TODO
 	return offset_t(-1);
 }
 
@@ -453,11 +635,222 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
+	static const std::map<offset_t, std::string> level_description =
+	{
+		{ 1, "flat" },
+		{ 2, "multisegmented" },
+	};
+
 	dump.SetTitle("P2/P3 format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, file_size, 8);
+	file_region.AddField("Signature", Dumper::StringDisplay::Make(2, "'"), std::string(is_32bit ? "P3" : "P2"));
+	file_region.AddField("Word size", Dumper::ChoiceDisplay::Make("32-bit", "16-bit"), offset_t(is_32bit));
+	file_region.AddField("Level", Dumper::ChoiceDisplay::Make(level_description, 4), offset_t(is_multisegmented ? 2 : 1));
+	file_region.AddOptionalField("Checksum (16-bit)", Dumper::HexDisplay::Make(4), offset_t(checksum16));
+	file_region.AddOptionalField("Checksum (32-bit)", Dumper::HexDisplay::Make(8), offset_t(checksum32));
+	if(!is_multisegmented || minimum_extra != 0)
+	{
+		file_region.AddField("Minimum extra size", Dumper::HexDisplay::Make(8), offset_t(minimum_extra));
+	}
+	if(!is_multisegmented || maximum_extra != 0)
+	{
+		file_region.AddField("Maximum extra size", Dumper::HexDisplay::Make(8), offset_t(maximum_extra));
+	}
+	if(!is_multisegmented || base_load_offset != 0)
+	{
+		file_region.AddField("Base address", Dumper::HexDisplay::Make(8), offset_t(base_load_offset));
+	}
+	if(is_multisegmented || cs != 0)
+	{
+		file_region.AddField("Entry (CS:EIP)", Dumper::SegmentedDisplay::Make(8), offset_t(cs), offset_t(eip));
+	}
+	else
+	{
+		file_region.AddField("Entry (EIP)", Dumper::HexDisplay::Make(8), offset_t(eip));
+	}
+	if(is_multisegmented || ss != 0)
+	{
+		file_region.AddField("Initial stack (SS:ESP)", Dumper::SegmentedDisplay::Make(8), offset_t(ss), offset_t(esp));
+	}
+	else
+	{
+		file_region.AddField("Initial stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(esp));
+	}
+	if(is_multisegmented || ldtr != 0)
+	{
+		file_region.AddField("Initial LDTR (local description table register)", Dumper::HexDisplay::Make(4), offset_t(ldtr));
+	}
+	if(is_multisegmented || tr != 0)
+	{
+		file_region.AddField("Initial TR (task state segment register)", Dumper::HexDisplay::Make(4), offset_t(tr));
+	}
+	file_region.AddOptionalField("Flags", Dumper::BitFieldDisplay::Make(4)
+		->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("compressed"), true)
+		->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("32-bit checksum"), true)
+		->AddBitField(2, 3, "relocation table type", Dumper::DecDisplay::Make(), true),
+		offset_t(flags));
+	file_region.AddField("Size of initial stack", Dumper::HexDisplay::Make(4), offset_t(stack_size));
 	file_region.Display(dump);
 
-	// TODO
+	Dumper::Region header_region("Header", file_offset, header_size, 8);
+	if(is_multisegmented || gdt_address != 0 || gdt_size != 0)
+	{
+		header_region.AddField("GDT address", Dumper::HexDisplay::Make(8), offset_t(gdt_address));
+		header_region.AddField("GDT size", Dumper::HexDisplay::Make(8), offset_t(gdt_size));
+	}
+	if(is_multisegmented || ldt_address != 0 || ldt_size != 0)
+	{
+		header_region.AddField("LDT address", Dumper::HexDisplay::Make(8), offset_t(ldt_address));
+		header_region.AddField("LDT size", Dumper::HexDisplay::Make(8), offset_t(ldt_size));
+	}
+	if(is_multisegmented || idt_address != 0 || idt_size != 0)
+	{
+		header_region.AddField("IDT address", Dumper::HexDisplay::Make(8), offset_t(idt_address));
+		header_region.AddField("IDT size", Dumper::HexDisplay::Make(8), offset_t(idt_size));
+	}
+	if(is_multisegmented || tss_address != 0 || tss_size != 0)
+	{
+		header_region.AddField("TSS address", Dumper::HexDisplay::Make(8), offset_t(tss_address));
+		header_region.AddField("TSS size", Dumper::HexDisplay::Make(8), offset_t(tss_size));
+	}
+	header_region.Display(dump);
+
+	if(segment_information_table_offset != 0 || segment_information_table_size != 0)
+	{
+		Dumper::Region segment_information_table_region("Segment information table", file_offset + segment_information_table_offset, segment_information_table_size, 8);
+		segment_information_table_region.AddField("Entry size", Dumper::HexDisplay::Make(4), offset_t(segment_information_table_entry_size));
+		segment_information_table_region.Display(dump);
+
+		uint32_t segment_index = 0;
+		for(auto segment : segments)
+		{
+			if(auto sit_entry = std::dynamic_pointer_cast<SITEntry>(segment))
+			{
+				Dumper::Entry segment_entry("Segment", segment_index + 1, file_offset + segment_information_table_offset + segment_index * segment_information_table_entry_size, 8);
+				segment_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(sit_entry->selector));
+				segment_entry.AddOptionalField("Flags", Dumper::HexDisplay::Make(4), offset_t(sit_entry->flags));
+				segment_entry.AddOptionalField("Base offset", Dumper::HexDisplay::Make(8), offset_t(sit_entry->base_offset));
+				segment_entry.AddOptionalField("Extra bytes", Dumper::HexDisplay::Make(8), offset_t(sit_entry->zero_fill));
+				segment_entry.Display(dump);
+				segment_index++;
+			}
+		}
+	}
+
+	if(relocation_table_offset != 0 || relocation_table_size != 0)
+	{
+		Dumper::Region relocation_table_region("Relocation table", file_offset + relocation_table_offset, relocation_table_size, 8);
+		relocation_table_region.Display(dump);
+
+		uint32_t relocation_index = 0;
+		for(auto relocation : relocations)
+		{
+			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, file_offset + relocation_table_offset + relocation_index * (is_32bit ? 6 : 4), 8);
+			relocation_entry.AddField("Address", Dumper::SegmentedDisplay::Make(is_32bit ? 8 : 4), offset_t(relocation.selector), offset_t(relocation.offset));
+			relocation_entry.Display(dump);
+			relocation_index++;
+		}
+	}
+
+	if(runtime_parameters_offset != 0 || runtime_parameters_size != 0)
+	{
+		Dumper::Region runtime_parameters_region("Runtime parameters", file_offset + runtime_parameters_offset, runtime_parameters_size, 8);
+		runtime_parameters_region.Display(dump);
+	}
+
+	if(symbol_table_offset != 0 || symbol_table_size != 0)
+	{
+		Dumper::Region symbol_table_region("Symbol table", file_offset + symbol_table_offset, symbol_table_size, 8);
+		// TODO
+		symbol_table_region.Display(dump);
+	}
+
+	Dumper::Block load_image_block("Load image", file_offset + load_image_offset, image, is_multisegmented ? 0 : base_load_offset, 8);
+	load_image_block.AddOptionalField("Size in memory", Dumper::HexDisplay::Make(4), offset_t(memory_requirements));
+	for(auto relocation : relocations)
+	{
+		uint16_t index = relocation.selector >> 3;
+		Descriptor * descriptor;
+		if((relocation.selector & 4) == 0)
+		{
+			if(index >= gdt->descriptors.size())
+				continue; // invalid
+			descriptor = &gdt->descriptors[index];
+		}
+		else
+		{
+			if(index >= ldt->descriptors.size())
+				continue; // invalid
+			descriptor = &ldt->descriptors[index];
+		}
+		if(descriptor->IsGate())
+			continue; // invalid
+		load_image_block.AddSignal(descriptor->base + relocation.offset, 2);
+	}
+	load_image_block.Display(dump);
+
+	/* Task State Segment */
+
+	if(tss_address != 0 || tss_size != 0)
+	{
+		Dumper::Region tss_region("Task State Segment (TSS)", file_offset + load_image_offset + tss_address, tss_size, 8);
+		tss->FillEntries(tss_region);
+		tss_region.Display(dump);
+	}
+
+	/* Global Descriptor Table */
+
+	if(gdt_address != 0 || gdt_size != 0)
+	{
+		Dumper::Region gdt_region("Global Descriptor Table (GDT)", file_offset + load_image_offset + gdt_address, gdt_size, 8);
+		gdt_region.Display(dump);
+	}
+
+	uint32_t descriptor_index = 0;
+	for(auto& descriptor : gdt->descriptors)
+	{
+		Dumper::Entry gdt_entry("GDT entry", descriptor_index + 1, file_offset + load_image_offset + gdt_address + 8 * descriptor_index, 8);
+		gdt_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(descriptor_index * 8));
+		descriptor.FillEntry(gdt_entry);
+		gdt_entry.Display(dump);
+		descriptor_index ++;
+	}
+
+	/* Interrupt Descriptor Table */
+
+	if(idt_address != 0 || idt_size != 0)
+	{
+		Dumper::Region idt_region("Interrupt Descriptor Table (IDT)", file_offset + load_image_offset + idt_address, idt_size, 8);
+		idt_region.Display(dump);
+	}
+
+	descriptor_index = 0;
+	for(auto& descriptor : idt->descriptors)
+	{
+		Dumper::Entry idt_entry("IDT entry", descriptor_index + 1, file_offset + load_image_offset + idt_address + 8 * descriptor_index, 8);
+		idt_entry.AddField("Interrupt number", Dumper::HexDisplay::Make(2), offset_t(descriptor_index));
+		descriptor.FillEntry(idt_entry);
+		idt_entry.Display(dump);
+		descriptor_index ++;
+	}
+
+	/* Local Descriptor Table */
+
+	if(ldt_address != 0 || ldt_size != 0)
+	{
+		Dumper::Region ldt_region("Local Descriptor Table (LDT)", file_offset + load_image_offset + ldt_address, ldt_size, 8);
+		ldt_region.Display(dump);
+	}
+
+	descriptor_index = 0;
+	for(auto& descriptor : ldt->descriptors)
+	{
+		Dumper::Entry ldt_entry("LDT entry", descriptor_index + 1, file_offset + load_image_offset + ldt_address + 8 * descriptor_index, 8);
+		ldt_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(descriptor_index * 8 + 4));
+		descriptor.FillEntry(ldt_entry);
+		ldt_entry.Display(dump);
+		descriptor_index ++;
+	}
 }
 
 P3Format::AbstractSegment::~AbstractSegment()
@@ -1077,7 +1470,7 @@ void P3Format::Flat::CalculateValues()
 
 offset_t P3Format::Flat::WriteFile(Linker::Writer& wr) const
 {
-	P3Format::WriteFile(wr);
+	P3Format::WriteHeader(wr);
 
 	wr.Seek(file_offset + runtime_parameters_offset);
 	runtime_parameters.WriteFile(wr);
@@ -1086,12 +1479,6 @@ offset_t P3Format::Flat::WriteFile(Linker::Writer& wr) const
 	image->WriteFile(wr);
 
 	return offset_t(-1);
-}
-
-void P3Format::Flat::Dump(Dumper::Dumper& dump) const
-{
-	P3Format::Dump(dump);
-	// TODO
 }
 
 void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> linker_segment)
@@ -1394,7 +1781,7 @@ void P3Format::MultiSegmented::CalculateValues()
 
 offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr) const
 {
-	P3Format::WriteFile(wr);
+	P3Format::WriteHeader(wr);
 
 	wr.Seek(file_offset + segment_information_table_offset);
 	for(auto abstract_segment : segments)
@@ -1421,459 +1808,5 @@ offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr) const
 	}
 
 	return offset_t(-1);
-}
-
-void P3Format::MultiSegmented::Dump(Dumper::Dumper& dump) const
-{
-	P3Format::Dump(dump);
-	// TODO
-}
-
-////
-
-void P3Format::External::ReadFile(Linker::Reader& rd)
-{
-	rd.endiantype = ::LittleEndian;
-	std::array<char, 2> signature;
-	file_offset = Microsoft::FindActualSignature(rd, signature, "P3", "P2");
-	if(signature[0] == 'P' && signature[1] == '3')
-	{
-		is_32bit = true;
-	}
-	else if(signature[0] == 'P' && signature[1] == '2')
-	{
-		is_32bit = false;
-	}
-	else
-	{
-		Linker::Error << "Error: invalid signature, assuming 32-bit" << std::endl;
-	}
-	uint16_t level = rd.ReadUnsigned(2);
-	switch(level)
-	{
-	case 1:
-		is_multisegmented = false;
-		break;
-	case 2:
-		is_multisegmented = true;
-		break;
-	default:
-		Linker::Error << "Error: invalid P2/P3 format level " << level << std::endl;
-		is_multisegmented = true;
-		break;
-	}
-	header_size = rd.ReadUnsigned(2);
-	file_size = rd.ReadUnsigned(4);
-	checksum16 = rd.ReadUnsigned(2);
-	runtime_parameters_offset = rd.ReadUnsigned(4);
-	runtime_parameters_size = rd.ReadUnsigned(4);
-	relocation_table_offset = rd.ReadUnsigned(4);
-	relocation_table_size = rd.ReadUnsigned(4);
-	segment_information_table_offset = rd.ReadUnsigned(4);
-	segment_information_table_size = rd.ReadUnsigned(4);
-	segment_information_table_entry_size = rd.ReadUnsigned(2);
-	load_image_offset = rd.ReadUnsigned(4);
-	load_image_size = rd.ReadUnsigned(4);
-	symbol_table_offset = rd.ReadUnsigned(4);
-	symbol_table_size = rd.ReadUnsigned(4);
-	gdt_address = rd.ReadUnsigned(4);
-	gdt_size = rd.ReadUnsigned(4);
-	ldt_address = rd.ReadUnsigned(4);
-	ldt_size = rd.ReadUnsigned(4);
-	idt_address = rd.ReadUnsigned(4);
-	idt_size = rd.ReadUnsigned(4);
-	tss_address = rd.ReadUnsigned(4);
-	tss_size = rd.ReadUnsigned(4);
-	minimum_extra = rd.ReadUnsigned(4);
-	maximum_extra = rd.ReadUnsigned(4);
-	base_load_offset = rd.ReadUnsigned(4);
-	esp = rd.ReadUnsigned(4);
-	ss = rd.ReadUnsigned(2);
-	eip = rd.ReadUnsigned(4);
-	cs = rd.ReadUnsigned(2);
-	ldtr = rd.ReadUnsigned(2);
-	tr = rd.ReadUnsigned(2);
-	flags = rd.ReadUnsigned(2);
-	memory_requirements = rd.ReadUnsigned(4);
-	checksum32 = rd.ReadUnsigned(4);
-	stack_size = rd.ReadUnsigned(4);
-
-	/* Segment Information Table */
-
-	if(segment_information_table_size != 0 && segment_information_table_entry_size != 0)
-	{
-		for(uint32_t sit_offset = 0; sit_offset + segment_information_table_entry_size <= segment_information_table_size; sit_offset += segment_information_table_entry_size)
-		{
-			rd.Seek(file_offset + segment_information_table_offset + sit_offset);
-			segments.push_back(SITEntry::ReadSITEntry(rd));
-		}
-	}
-
-	/* Relocation Table */
-
-	if(relocation_table_size != 0)
-	{
-		rd.Seek(file_offset + relocation_table_offset);
-		for(uint32_t relocation_offset = 0; relocation_offset < relocation_table_size; relocation_offset += (is_32bit ? 6 : 4))
-		{
-			Relocation relocation{0, 0};
-			relocation.offset = rd.ReadUnsigned(is_32bit ? 4 : 2);
-			relocation.selector = rd.ReadUnsigned(2);
-			relocations.push_back(relocation);
-		}
-	}
-
-	/* Runtime Parameters */
-
-	if(runtime_parameters_size != 0)
-	{
-		rd.Seek(file_offset + runtime_parameters_offset);
-		runtime_parameters.ReadFile(rd); // TODO: pass runtime_parameters_size as parameter
-	}
-
-	/* Symbol Table */
-
-	// TODO
-
-	/* Load Image */
-
-	rd.Seek(file_offset + load_image_offset);
-	image = Linker::Buffer::ReadFromFile(rd, file_size - load_image_offset);
-
-	/* Task State Segment */
-
-	tss->is_32bit = is_32bit;
-	if(tss_size != 0)
-	{
-		tss->ReadImage(*image.get(), tss_address); // TODO: do not read more than tss_size
-	}
-
-	/* Global Descriptor Table */
-
-	if(gdt_size != 0)
-	{
-		for(uint32_t gdt_offset = 0; gdt_offset < gdt_size; gdt_offset += 8)
-		{
-			gdt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), gdt_address + gdt_offset));
-		}
-	}
-
-	/* Interrupt Descriptor Table */
-
-	if(idt_size != 0)
-	{
-		for(uint32_t idt_offset = 0; idt_offset < idt_size; idt_offset += 8)
-		{
-			idt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), idt_address + idt_offset));
-		}
-	}
-
-	/* Local Descriptor Table */
-
-	if(ldt_size != 0)
-	{
-		for(uint32_t ldt_offset = 0; ldt_offset < ldt_size; ldt_offset += 8)
-		{
-			ldt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), ldt_address + ldt_offset));
-		}
-	}
-
-	// combine SIT and descriptor table information
-
-	for(auto segment : segments)
-	{
-		std::shared_ptr<SITEntry> entry = std::static_pointer_cast<SITEntry>(segment);
-		uint16_t index = entry->selector >> 3;
-		Descriptor * descriptor;
-		if((entry->selector & 4) == 0)
-		{
-			if(index >= gdt->descriptors.size())
-			{
-				Linker::Error << "Error: segment information table entry overflow" << std::endl;
-				continue;
-			}
-			descriptor = &gdt->descriptors[index];
-		}
-		else
-		{
-			if(index >= ldt->descriptors.size())
-			{
-				Linker::Error << "Error: segment information table entry overflow" << std::endl;
-				continue;
-			}
-			descriptor = &ldt->descriptors[index];
-		}
-		if(descriptor->IsGate())
-			continue; // invalid
-		if(descriptor->image.use_count() != 0)
-		{
-			Linker::Error << "Error: multiple segment information table entries reference same segment" << std::endl;
-			continue;
-		}
-		descriptor->image = segment;
-	}
-}
-
-bool P3Format::External::FormatSupportsSegmentation() const
-{
-	return is_multisegmented;
-}
-
-bool P3Format::External::FormatIs16bit() const
-{
-	return !is_32bit;
-}
-
-bool P3Format::External::FormatIsProtectedMode() const
-{
-	return true;
-}
-
-void P3Format::External::SetOptions(std::map<std::string, std::string>& options)
-{
-	Linker::FatalError("Internal error: P2/P3 file level not provided");
-}
-
-std::string P3Format::External::GetDefaultExtension(Linker::Module& module, std::string filename) const
-{
-	Linker::FatalError("Internal error: P2/P3 file level not provided");
-}
-
-void P3Format::External::ProcessModule(Linker::Module& module)
-{
-	Linker::FatalError("Internal error: P2/P3 file level not provided");
-}
-
-void P3Format::External::CalculateValues()
-{
-	// TODO
-}
-
-offset_t P3Format::External::WriteFile(Linker::Writer& wr) const
-{
-	// TODO
-	return 0;
-}
-
-void P3Format::External::Dump(Dumper::Dumper& dump) const
-{
-	dump.SetEncoding(Dumper::Block::encoding_cp437);
-
-	static const std::map<offset_t, std::string> level_description =
-	{
-		{ 1, "flat" },
-		{ 2, "multisegmented" },
-	};
-
-	dump.SetTitle("P2/P3 format");
-	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.AddField("Signature", Dumper::StringDisplay::Make(2, "'"), std::string(is_32bit ? "P3" : "P2"));
-	file_region.AddField("Word size", Dumper::ChoiceDisplay::Make("32-bit", "16-bit"), offset_t(is_32bit));
-	file_region.AddField("Level", Dumper::ChoiceDisplay::Make(level_description, 4), offset_t(is_multisegmented ? 2 : 1));
-	file_region.AddOptionalField("Checksum (16-bit)", Dumper::HexDisplay::Make(4), offset_t(checksum16));
-	file_region.AddOptionalField("Checksum (32-bit)", Dumper::HexDisplay::Make(8), offset_t(checksum32));
-	if(!is_multisegmented || minimum_extra != 0)
-	{
-		file_region.AddField("Minimum extra size", Dumper::HexDisplay::Make(8), offset_t(minimum_extra));
-	}
-	if(!is_multisegmented || maximum_extra != 0)
-	{
-		file_region.AddField("Maximum extra size", Dumper::HexDisplay::Make(8), offset_t(maximum_extra));
-	}
-	if(!is_multisegmented || base_load_offset != 0)
-	{
-		file_region.AddField("Base address", Dumper::HexDisplay::Make(8), offset_t(base_load_offset));
-	}
-	if(is_multisegmented || cs != 0)
-	{
-		file_region.AddField("Entry (CS:EIP)", Dumper::SegmentedDisplay::Make(8), offset_t(cs), offset_t(eip));
-	}
-	else
-	{
-		file_region.AddField("Entry (EIP)", Dumper::HexDisplay::Make(8), offset_t(eip));
-	}
-	if(is_multisegmented || ss != 0)
-	{
-		file_region.AddField("Initial stack (SS:ESP)", Dumper::SegmentedDisplay::Make(8), offset_t(ss), offset_t(esp));
-	}
-	else
-	{
-		file_region.AddField("Initial stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(esp));
-	}
-	if(is_multisegmented || ldtr != 0)
-	{
-		file_region.AddField("Initial LDTR (local description table register)", Dumper::HexDisplay::Make(4), offset_t(ldtr));
-	}
-	if(is_multisegmented || tr != 0)
-	{
-		file_region.AddField("Initial TR (task state segment register)", Dumper::HexDisplay::Make(4), offset_t(tr));
-	}
-	file_region.AddOptionalField("Flags", Dumper::BitFieldDisplay::Make(4)
-		->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("compressed"), true)
-		->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("32-bit checksum"), true)
-		->AddBitField(2, 3, "relocation table type", Dumper::DecDisplay::Make(), true),
-		offset_t(flags));
-	file_region.AddField("Size of initial stack", Dumper::HexDisplay::Make(4), offset_t(stack_size));
-	file_region.Display(dump);
-
-	Dumper::Region header_region("Header", file_offset, header_size, 8);
-	if(is_multisegmented || gdt_address != 0 || gdt_size != 0)
-	{
-		header_region.AddField("GDT address", Dumper::HexDisplay::Make(8), offset_t(gdt_address));
-		header_region.AddField("GDT size", Dumper::HexDisplay::Make(8), offset_t(gdt_size));
-	}
-	if(is_multisegmented || ldt_address != 0 || ldt_size != 0)
-	{
-		header_region.AddField("LDT address", Dumper::HexDisplay::Make(8), offset_t(ldt_address));
-		header_region.AddField("LDT size", Dumper::HexDisplay::Make(8), offset_t(ldt_size));
-	}
-	if(is_multisegmented || idt_address != 0 || idt_size != 0)
-	{
-		header_region.AddField("IDT address", Dumper::HexDisplay::Make(8), offset_t(idt_address));
-		header_region.AddField("IDT size", Dumper::HexDisplay::Make(8), offset_t(idt_size));
-	}
-	if(is_multisegmented || tss_address != 0 || tss_size != 0)
-	{
-		header_region.AddField("TSS address", Dumper::HexDisplay::Make(8), offset_t(tss_address));
-		header_region.AddField("TSS size", Dumper::HexDisplay::Make(8), offset_t(tss_size));
-	}
-	header_region.Display(dump);
-
-	if(segment_information_table_offset != 0 || segment_information_table_size != 0)
-	{
-		Dumper::Region segment_information_table_region("Segment information table", file_offset + segment_information_table_offset, segment_information_table_size, 8);
-		segment_information_table_region.AddField("Entry size", Dumper::HexDisplay::Make(4), offset_t(segment_information_table_entry_size));
-		segment_information_table_region.Display(dump);
-
-		uint32_t segment_index = 0;
-		for(auto segment : segments)
-		{
-			if(auto sit_entry = std::dynamic_pointer_cast<SITEntry>(segment))
-			{
-				Dumper::Entry segment_entry("Segment", segment_index + 1, file_offset + segment_information_table_offset + segment_index * segment_information_table_entry_size, 8);
-				segment_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(sit_entry->selector));
-				segment_entry.AddOptionalField("Flags", Dumper::HexDisplay::Make(4), offset_t(sit_entry->flags));
-				segment_entry.AddOptionalField("Base offset", Dumper::HexDisplay::Make(8), offset_t(sit_entry->base_offset));
-				segment_entry.AddOptionalField("Extra bytes", Dumper::HexDisplay::Make(8), offset_t(sit_entry->zero_fill));
-				segment_entry.Display(dump);
-				segment_index++;
-			}
-		}
-	}
-
-	if(relocation_table_offset != 0 || relocation_table_size != 0)
-	{
-		Dumper::Region relocation_table_region("Relocation table", file_offset + relocation_table_offset, relocation_table_size, 8);
-		relocation_table_region.Display(dump);
-
-		uint32_t relocation_index = 0;
-		for(auto relocation : relocations)
-		{
-			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, file_offset + relocation_table_offset + relocation_index * (is_32bit ? 6 : 4), 8);
-			relocation_entry.AddField("Address", Dumper::SegmentedDisplay::Make(is_32bit ? 8 : 4), offset_t(relocation.selector), offset_t(relocation.offset));
-			relocation_entry.Display(dump);
-			relocation_index++;
-		}
-	}
-
-	if(runtime_parameters_offset != 0 || runtime_parameters_size != 0)
-	{
-		Dumper::Region runtime_parameters_region("Runtime parameters", file_offset + runtime_parameters_offset, runtime_parameters_size, 8);
-		runtime_parameters_region.Display(dump);
-	}
-
-	if(symbol_table_offset != 0 || symbol_table_size != 0)
-	{
-		Dumper::Region symbol_table_region("Symbol table", file_offset + symbol_table_offset, symbol_table_size, 8);
-		// TODO
-		symbol_table_region.Display(dump);
-	}
-
-	Dumper::Block load_image_block("Load image", file_offset + load_image_offset, image, is_multisegmented ? 0 : base_load_offset, 8);
-	load_image_block.AddOptionalField("Size in memory", Dumper::HexDisplay::Make(4), offset_t(memory_requirements));
-	for(auto relocation : relocations)
-	{
-		uint16_t index = relocation.selector >> 3;
-		Descriptor * descriptor;
-		if((relocation.selector & 4) == 0)
-		{
-			if(index >= gdt->descriptors.size())
-				continue; // invalid
-			descriptor = &gdt->descriptors[index];
-		}
-		else
-		{
-			if(index >= ldt->descriptors.size())
-				continue; // invalid
-			descriptor = &ldt->descriptors[index];
-		}
-		if(descriptor->IsGate())
-			continue; // invalid
-		load_image_block.AddSignal(descriptor->base + relocation.offset, 2);
-	}
-	load_image_block.Display(dump);
-
-	/* Task State Segment */
-
-	if(tss_address != 0 || tss_size != 0)
-	{
-		Dumper::Region tss_region("Task State Segment (TSS)", file_offset + load_image_offset + tss_address, tss_size, 8);
-		tss->FillEntries(tss_region);
-		tss_region.Display(dump);
-	}
-
-	/* Global Descriptor Table */
-
-	if(gdt_address != 0 || gdt_size != 0)
-	{
-		Dumper::Region gdt_region("Global Descriptor Table (GDT)", file_offset + load_image_offset + gdt_address, gdt_size, 8);
-		gdt_region.Display(dump);
-	}
-
-	uint32_t descriptor_index = 0;
-	for(auto& descriptor : gdt->descriptors)
-	{
-		Dumper::Entry gdt_entry("GDT entry", descriptor_index + 1, file_offset + load_image_offset + gdt_address + 8 * descriptor_index, 8);
-		gdt_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(descriptor_index * 8));
-		descriptor.FillEntry(gdt_entry);
-		gdt_entry.Display(dump);
-		descriptor_index ++;
-	}
-
-	/* Interrupt Descriptor Table */
-
-	if(idt_address != 0 || idt_size != 0)
-	{
-		Dumper::Region idt_region("Interrupt Descriptor Table (IDT)", file_offset + load_image_offset + idt_address, idt_size, 8);
-		idt_region.Display(dump);
-	}
-
-	descriptor_index = 0;
-	for(auto& descriptor : idt->descriptors)
-	{
-		Dumper::Entry idt_entry("IDT entry", descriptor_index + 1, file_offset + load_image_offset + idt_address + 8 * descriptor_index, 8);
-		idt_entry.AddField("Interrupt number", Dumper::HexDisplay::Make(2), offset_t(descriptor_index));
-		descriptor.FillEntry(idt_entry);
-		idt_entry.Display(dump);
-		descriptor_index ++;
-	}
-
-	/* Local Descriptor Table */
-
-	if(ldt_address != 0 || ldt_size != 0)
-	{
-		Dumper::Region ldt_region("Local Descriptor Table (LDT)", file_offset + load_image_offset + ldt_address, ldt_size, 8);
-		ldt_region.Display(dump);
-	}
-
-	descriptor_index = 0;
-	for(auto& descriptor : ldt->descriptors)
-	{
-		Dumper::Entry ldt_entry("LDT entry", descriptor_index + 1, file_offset + load_image_offset + ldt_address + 8 * descriptor_index, 8);
-		ldt_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(descriptor_index * 8 + 4));
-		descriptor.FillEntry(ldt_entry);
-		ldt_entry.Display(dump);
-		descriptor_index ++;
-	}
 }
 
