@@ -177,66 +177,6 @@ namespace PharLap
 		{
 		}
 
-		class RunTimeParameterBlock
-		{
-		public:
-			uint16_t min_realmode_param = 0, max_realmode_param = 0, min_int_buffer_size_kb = 0, max_int_buffer_size_kb = 0, int_stack_count = 0, int_stack_size_kb = 0;
-			uint32_t realmode_area_end = 0;
-			uint16_t call_buffer_size_kb = 0, flags = 0, ring = 0;
-
-			void ReadFile(Linker::Reader& rd);
-
-			void CalculateValues();
-
-			void WriteFile(Linker::Writer& wr) const;
-		};
-
-		RunTimeParameterBlock runtime_parameters;
-
-		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
-
-		void SetOptions(std::map<std::string, std::string>& options) override;
-
-		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
-
-		class Flat;
-		class MultiSegmented;
-		class External;
-	};
-
-	class P3Format::Flat : public P3Format
-	{
-	public:
-		Flat(bool is_32bit = true)
-			: P3Format(false, is_32bit)
-		{
-		}
-
-		std::shared_ptr<Linker::Segment> image;
-
-		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
-
-		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
-
-		void Link(Linker::Module& module);
-
-		void ProcessModule(Linker::Module& module) override;
-
-		void CalculateValues() override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
-	};
-
-	class P3Format::MultiSegmented : public P3Format
-	{
-	public:
 		class AbstractSegment
 		{
 		public:
@@ -304,10 +244,6 @@ namespace PharLap
 			void CalculateValues();
 		};
 
-		std::shared_ptr<DescriptorTable> gdt;
-		std::shared_ptr<DescriptorTable> idt;
-		std::shared_ptr<DescriptorTable> ldt;
-
 		class TaskStateSegment : public AbstractSegment
 		{
 		public:
@@ -329,8 +265,6 @@ namespace PharLap
 
 			void WriteFile(Linker::Writer& wr) const override;
 		};
-
-		std::shared_ptr<TaskStateSegment> tss;
 
 		class SITEntry : public AbstractSegment
 		{
@@ -378,11 +312,6 @@ namespace PharLap
 			void WriteFile(Linker::Writer& wr) const override;
 		};
 
-		MultiSegmented(bool is_32bit = true)
-			: P3Format(true, is_32bit)
-		{
-		}
-
 		class Relocation
 		{
 		public:
@@ -401,9 +330,91 @@ namespace PharLap
 			void WriteFile(Linker::Writer& wr) const;
 		};
 
+		class RunTimeParameterBlock
+		{
+		public:
+			uint16_t min_realmode_param = 0, max_realmode_param = 0, min_int_buffer_size_kb = 0, max_int_buffer_size_kb = 0, int_stack_count = 0, int_stack_size_kb = 0;
+			uint32_t realmode_area_end = 0;
+			uint16_t call_buffer_size_kb = 0, flags = 0, ring = 0;
+
+			void ReadFile(Linker::Reader& rd);
+
+			void CalculateValues();
+
+			void WriteFile(Linker::Writer& wr) const;
+		};
+
+		// not needed for flat binaries
 		std::vector<std::shared_ptr<AbstractSegment>> segments;
+
+		// not needed for flat binaries
+		std::vector<Relocation> relocations;
+
+		RunTimeParameterBlock runtime_parameters;
+
+		// not needed for multi segment binaries
+		std::shared_ptr<Linker::Image> image;
+
+		// not needed for flat binaries
+		std::shared_ptr<DescriptorTable> gdt = std::make_shared<DescriptorTable>();
+		// not needed for flat binaries
+		std::shared_ptr<DescriptorTable> idt = std::make_shared<DescriptorTable>();
+		// not needed for flat binaries
+		std::shared_ptr<DescriptorTable> ldt = std::make_shared<DescriptorTable>();
+		// not needed for flat binaries
+		std::shared_ptr<TaskStateSegment> tss = std::make_shared<TaskStateSegment>();
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
+		using Linker::OutputFormat::GetDefaultExtension;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+
+		class Flat;
+		class MultiSegmented;
+		class External;
+	};
+
+	class P3Format::Flat : public P3Format
+	{
+	public:
+		Flat(bool is_32bit = true)
+			: P3Format(false, is_32bit)
+		{
+		}
+
+		std::shared_ptr<Linker::Segment> GetSegment();
+		std::shared_ptr<const Linker::Segment> GetSegment() const;
+
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
+
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
+
+		void Link(Linker::Module& module);
+
+		void ProcessModule(Linker::Module& module) override;
+
+		void CalculateValues() override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+	};
+
+	class P3Format::MultiSegmented : public P3Format
+	{
+	public:
+		MultiSegmented(bool is_32bit = true)
+			: P3Format(true, is_32bit)
+		{
+		}
+
 		std::map<std::shared_ptr<Linker::Segment>, uint16_t> segment_associations;
-		std::set<Relocation> relocations;
 		std::shared_ptr<Segment> code;
 		std::shared_ptr<Segment> data;
 
@@ -425,15 +436,6 @@ namespace PharLap
 	class P3Format::External : public P3Format
 	{
 	public:
-		std::vector<std::shared_ptr<P3Format::MultiSegmented::SITEntry>> segments;
-		std::vector<P3Format::MultiSegmented::Relocation> relocations;
-		std::shared_ptr<Linker::Buffer> image;
-
-		std::shared_ptr<P3Format::MultiSegmented::DescriptorTable> gdt;
-		std::shared_ptr<P3Format::MultiSegmented::DescriptorTable> idt;
-		std::shared_ptr<P3Format::MultiSegmented::DescriptorTable> ldt;
-		std::shared_ptr<P3Format::MultiSegmented::TaskStateSegment> tss;
-
 		External()
 			: P3Format(true, true)
 		{

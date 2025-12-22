@@ -460,204 +460,11 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
-void P3Format::Flat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
-{
-	if(segment->name == ".code")
-	{
-		image = segment;
-	}
-	else
-	{
-		Linker::Error << "Error: unknown segment `" << segment->name << "` for format, ignoring" << std::endl;
-	}
-}
-
-std::unique_ptr<Script::List> P3Format::Flat::GetScript(Linker::Module& module)
-{
-	static const char * SimpleScript = R"(
-".code"
-{
-	all not write align 4;
-	align 4;
-
-	all not zero align 4;
-	align 4;
-
-	all align 4;
-	align 4
-};
-)";
-
-	if(linker_script != "")
-	{
-		return SegmentManager::GetScript(module);
-	}
-	else
-	{
-		return Script::parse_string(SimpleScript);
-	}
-}
-
-void P3Format::Flat::Link(Linker::Module& module)
-{
-	std::unique_ptr<Script::List> script = GetScript(module);
-
-	ProcessScript(script, module);
-}
-
-void P3Format::Flat::ProcessModule(Linker::Module& module)
-{
-	module.AllocateStack(stack_size);
-
-	Link(module);
-
-	minimum_extra = image->zero_fill;
-	maximum_extra = image->optional_extra;
-	if(maximum_extra == 0)
-	{
-		maximum_extra = -1;
-	}
-
-	Linker::Location stack_top;
-	if(module.FindGlobalSymbol(".stack_top", stack_top))
-	{
-		esp = stack_top.GetPosition().address;
-		if(stack_size == 0)
-		{
-			// make the entire section data until .stack_top part of the stack
-			stack_size = stack_top.offset;
-		}
-
-		// TODO: if stack only had a default value, completely override it
-	}
-	else
-	{
-		auto stack_section = module.FindSection(".stack");
-		if(stack_section != nullptr && stack_section->Size() != 0)
-		{
-			// if .stack exists, use it as the stack area
-			esp = image->TotalSize();
-			if(stack_section->Size() > stack_size)
-			{
-				stack_size = stack_section->Size();
-			}
-		}
-		else
-		{
-			Linker::Warning << "Warning: no stack found" << std::endl;
-			stack_size = 0x1000;
-			minimum_extra += stack_size;
-			esp = image->TotalSize() + stack_size;
-		}
-	}
-	ss = 0;
-
-	Linker::Location entry;
-	if(module.FindGlobalSymbol(".entry", entry))
-	{
-		eip = entry.GetPosition().address;
-	}
-	else
-	{
-		Linker::Warning << "Warning: no entry found, using 0" << std::endl;
-		eip = 0;
-	}
-	cs = 0;
-
-	for(Linker::Relocation& rel : module.GetRelocations())
-	{
-		Linker::Resolution resolution;
-		if(!rel.Resolve(module, resolution))
-		{
-			Linker::Error << "Error: unable to resolve relocation: " << rel << ", ignoring" << std::endl;
-			continue;
-		}
-
-		if(rel.kind == Linker::Relocation::Direct)
-		{
-			rel.WriteWord(resolution.value);
-		}
-		else if(rel.kind == Linker::Relocation::SelectorIndex)
-		{
-			Linker::Error << "Error: segment relocations impossible in flat memory model, ignoring" << std::endl;
-			continue;
-		}
-		else
-		{
-			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
-			continue;
-		}
-	}
-}
-
-void P3Format::Flat::CalculateValues()
-{
-	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
-
-	header_size = 0x180;
-
-	segment_information_table_offset = 0;
-	segment_information_table_entry_size = 0;
-	segment_information_table_size = 0;
-
-	relocation_table_offset = 0;
-	relocation_table_size = 0;
-
-	runtime_parameters_offset = header_size;
-	runtime_parameters_size = 0x80;
-	runtime_parameters.CalculateValues();
-
-	load_image_offset = runtime_parameters_offset + runtime_parameters_size;
-	load_image_size = image->data_size;
-	memory_requirements = load_image_size; /* TODO: ? */
-
-	file_size = load_image_offset + load_image_size;
-
-	tss_address = 0;
-	tss_size = 0;
-
-	gdt_address = 0;
-	gdt_size = 0;
-
-	idt_address = 0;
-	idt_size = 0;
-
-	ldt_address = 0;
-	ldt_size = 0;
-
-	base_load_offset = 0;
-
-	flags = 0;
-
-	/* TODO: position in file? */
-	symbol_table_offset = 0;
-	symbol_table_size = 0;
-}
-
-offset_t P3Format::Flat::WriteFile(Linker::Writer& wr) const
-{
-	P3Format::WriteFile(wr);
-
-	wr.Seek(file_offset + runtime_parameters_offset);
-	runtime_parameters.WriteFile(wr);
-
-	wr.Seek(file_offset + load_image_offset);
-	image->WriteFile(wr);
-
-	return offset_t(-1);
-}
-
-void P3Format::Flat::Dump(Dumper::Dumper& dump) const
-{
-	P3Format::Dump(dump);
-	// TODO
-}
-
-P3Format::MultiSegmented::AbstractSegment::~AbstractSegment()
+P3Format::AbstractSegment::~AbstractSegment()
 {
 }
 
-P3Format::MultiSegmented::Descriptor P3Format::MultiSegmented::Descriptor::FromSegment(uint32_t access, std::weak_ptr<AbstractSegment> image)
+P3Format::Descriptor P3Format::Descriptor::FromSegment(uint32_t access, std::weak_ptr<AbstractSegment> image)
 {
 	Descriptor descriptor;
 	descriptor.image = image;
@@ -665,7 +472,7 @@ P3Format::MultiSegmented::Descriptor P3Format::MultiSegmented::Descriptor::FromS
 	return descriptor;
 }
 
-P3Format::MultiSegmented::Descriptor P3Format::MultiSegmented::Descriptor::ReadEntry(Linker::Image& image, offset_t offset)
+P3Format::Descriptor P3Format::Descriptor::ReadEntry(Linker::Image& image, offset_t offset)
 {
 	Descriptor descriptor;
 	descriptor.access = image.ReadUnsigned(4, offset + 4, ::LittleEndian);
@@ -689,7 +496,7 @@ P3Format::MultiSegmented::Descriptor P3Format::MultiSegmented::Descriptor::ReadE
 	return descriptor;
 }
 
-bool P3Format::MultiSegmented::Descriptor::IsSegment() const
+bool P3Format::Descriptor::IsSegment() const
 {
 	if((access & DESC_S) != 0)
 		return true;
@@ -704,7 +511,7 @@ bool P3Format::MultiSegmented::Descriptor::IsSegment() const
 	}
 }
 
-bool P3Format::MultiSegmented::Descriptor::IsGate() const
+bool P3Format::Descriptor::IsGate() const
 {
 	if((access & DESC_S) != 0)
 		return false;
@@ -720,7 +527,7 @@ bool P3Format::MultiSegmented::Descriptor::IsGate() const
 	}
 }
 
-void P3Format::MultiSegmented::Descriptor::CalculateValues()
+void P3Format::Descriptor::CalculateValues()
 {
 	std::shared_ptr<AbstractSegment> segment = image.lock();
 	uint32_t size = segment ? segment->GetLoadedSize() : 0;
@@ -739,7 +546,7 @@ void P3Format::MultiSegmented::Descriptor::CalculateValues()
 	base = segment ? segment->address : 0;
 }
 
-void P3Format::MultiSegmented::Descriptor::WriteEntry(Linker::Writer& wr) const
+void P3Format::Descriptor::WriteEntry(Linker::Writer& wr) const
 {
 	if(IsGate())
 	{
@@ -757,7 +564,7 @@ void P3Format::MultiSegmented::Descriptor::WriteEntry(Linker::Writer& wr) const
 	}
 }
 
-void P3Format::MultiSegmented::Descriptor::FillEntry(Dumper::Entry& entry) const
+void P3Format::Descriptor::FillEntry(Dumper::Entry& entry) const
 {
 	static const std::map<offset_t, std::string> type_description =
 	{
@@ -823,17 +630,17 @@ void P3Format::MultiSegmented::Descriptor::FillEntry(Dumper::Entry& entry) const
 	}
 }
 
-uint32_t P3Format::MultiSegmented::DescriptorTable::GetStoredSize() const
+uint32_t P3Format::DescriptorTable::GetStoredSize() const
 {
 	return descriptors.size() * 8;
 }
 
-uint32_t P3Format::MultiSegmented::DescriptorTable::GetLoadedSize() const
+uint32_t P3Format::DescriptorTable::GetLoadedSize() const
 {
 	return descriptors.size() * 8;
 }
 
-void P3Format::MultiSegmented::DescriptorTable::WriteFile(Linker::Writer& wr) const
+void P3Format::DescriptorTable::WriteFile(Linker::Writer& wr) const
 {
 	for(auto& descriptor : descriptors)
 	{
@@ -841,7 +648,7 @@ void P3Format::MultiSegmented::DescriptorTable::WriteFile(Linker::Writer& wr) co
 	}
 }
 
-void P3Format::MultiSegmented::DescriptorTable::CalculateValues()
+void P3Format::DescriptorTable::CalculateValues()
 {
 	for(auto& descriptor : descriptors)
 	{
@@ -849,17 +656,17 @@ void P3Format::MultiSegmented::DescriptorTable::CalculateValues()
 	}
 }
 
-uint32_t P3Format::MultiSegmented::TaskStateSegment::GetStoredSize() const
+uint32_t P3Format::TaskStateSegment::GetStoredSize() const
 {
 	return is_32bit ? 0x68 : 0x2C;
 }
 
-uint32_t P3Format::MultiSegmented::TaskStateSegment::GetLoadedSize() const
+uint32_t P3Format::TaskStateSegment::GetLoadedSize() const
 {
 	return is_32bit ? 0x68 : 0x2C;
 }
 
-void P3Format::MultiSegmented::TaskStateSegment::WriteFile(Linker::Writer& wr) const
+void P3Format::TaskStateSegment::WriteFile(Linker::Writer& wr) const
 {
 	if(is_32bit)
 	{
@@ -917,23 +724,23 @@ void P3Format::MultiSegmented::TaskStateSegment::WriteFile(Linker::Writer& wr) c
 	}
 }
 
-uint32_t P3Format::MultiSegmented::SITEntry::GetStoredSize() const
+uint32_t P3Format::SITEntry::GetStoredSize() const
 {
 	// TODO
 	return 0;
 }
 
-uint32_t P3Format::MultiSegmented::SITEntry::GetZeroSize() const
+uint32_t P3Format::SITEntry::GetZeroSize() const
 {
 	return zero_fill;
 }
 
-uint32_t P3Format::MultiSegmented::SITEntry::GetLoadedSize() const
+uint32_t P3Format::SITEntry::GetLoadedSize() const
 {
 	return GetStoredSize() + GetZeroSize();
 }
 
-void P3Format::MultiSegmented::SITEntry::WriteSITEntry(Linker::Writer& wr) const
+void P3Format::SITEntry::WriteSITEntry(Linker::Writer& wr) const
 {
 	wr.WriteWord(2, selector);
 	wr.WriteWord(2, flags);
@@ -941,12 +748,12 @@ void P3Format::MultiSegmented::SITEntry::WriteSITEntry(Linker::Writer& wr) const
 	wr.WriteWord(4, GetZeroSize());
 }
 
-void P3Format::MultiSegmented::SITEntry::WriteFile(Linker::Writer& wr) const
+void P3Format::SITEntry::WriteFile(Linker::Writer& wr) const
 {
 	// TODO
 }
 
-std::shared_ptr<P3Format::MultiSegmented::SITEntry> P3Format::MultiSegmented::SITEntry::ReadSITEntry(Linker::Reader& rd)
+std::shared_ptr<P3Format::SITEntry> P3Format::SITEntry::ReadSITEntry(Linker::Reader& rd)
 {
 	std::shared_ptr<SITEntry> segment = std::make_shared<SITEntry>();
 	segment->selector = rd.ReadUnsigned(2);
@@ -956,35 +763,238 @@ std::shared_ptr<P3Format::MultiSegmented::SITEntry> P3Format::MultiSegmented::SI
 	return segment;
 }
 
-uint32_t P3Format::MultiSegmented::Segment::GetStoredSize() const
+uint32_t P3Format::Segment::GetStoredSize() const
 {
 	return segment->data_size;
 }
 
-uint32_t P3Format::MultiSegmented::Segment::GetZeroSize() const
+uint32_t P3Format::Segment::GetZeroSize() const
 {
 	return segment->zero_fill;
 }
 
-void P3Format::MultiSegmented::Segment::WriteFile(Linker::Writer& wr) const
+void P3Format::Segment::WriteFile(Linker::Writer& wr) const
 {
 	segment->WriteFile(wr);
 }
 
-bool P3Format::MultiSegmented::Relocation::operator ==(const Relocation& other) const
+bool P3Format::Relocation::operator ==(const Relocation& other) const
 {
 	return selector == other.selector && offset == other.offset;
 }
 
-bool P3Format::MultiSegmented::Relocation::operator <(const Relocation& other) const
+bool P3Format::Relocation::operator <(const Relocation& other) const
 {
 	return selector < other.selector || (selector == other.selector && offset < other.offset);
 }
 
-void P3Format::MultiSegmented::Relocation::WriteFile(Linker::Writer& wr) const
+void P3Format::Relocation::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, offset);
 	wr.WriteWord(2, selector);
+}
+
+std::shared_ptr<Linker::Segment> P3Format::Flat::GetSegment()
+{
+	return std::static_pointer_cast<Linker::Segment>(image);
+}
+
+std::shared_ptr<const Linker::Segment> P3Format::Flat::GetSegment() const
+{
+	return std::static_pointer_cast<const Linker::Segment>(image);
+}
+
+void P3Format::Flat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
+{
+	if(segment->name == ".code")
+	{
+		image = segment;
+	}
+	else
+	{
+		Linker::Error << "Error: unknown segment `" << segment->name << "` for format, ignoring" << std::endl;
+	}
+}
+
+std::unique_ptr<Script::List> P3Format::Flat::GetScript(Linker::Module& module)
+{
+	static const char * SimpleScript = R"(
+".code"
+{
+	all not write align 4;
+	align 4;
+
+	all not zero align 4;
+	align 4;
+
+	all align 4;
+	align 4
+};
+)";
+
+	if(linker_script != "")
+	{
+		return SegmentManager::GetScript(module);
+	}
+	else
+	{
+		return Script::parse_string(SimpleScript);
+	}
+}
+
+void P3Format::Flat::Link(Linker::Module& module)
+{
+	std::unique_ptr<Script::List> script = GetScript(module);
+
+	ProcessScript(script, module);
+}
+
+void P3Format::Flat::ProcessModule(Linker::Module& module)
+{
+	module.AllocateStack(stack_size);
+
+	Link(module);
+
+	minimum_extra = GetSegment()->zero_fill;
+	maximum_extra = GetSegment()->optional_extra;
+	if(maximum_extra == 0)
+	{
+		maximum_extra = -1;
+	}
+
+	Linker::Location stack_top;
+	if(module.FindGlobalSymbol(".stack_top", stack_top))
+	{
+		esp = stack_top.GetPosition().address;
+		if(stack_size == 0)
+		{
+			// make the entire section data until .stack_top part of the stack
+			stack_size = stack_top.offset;
+		}
+
+		// TODO: if stack only had a default value, completely override it
+	}
+	else
+	{
+		auto stack_section = module.FindSection(".stack");
+		if(stack_section != nullptr && stack_section->Size() != 0)
+		{
+			// if .stack exists, use it as the stack area
+			esp = GetSegment()->TotalSize();
+			if(stack_section->Size() > stack_size)
+			{
+				stack_size = stack_section->Size();
+			}
+		}
+		else
+		{
+			Linker::Warning << "Warning: no stack found" << std::endl;
+			stack_size = 0x1000;
+			minimum_extra += stack_size;
+			esp = GetSegment()->TotalSize() + stack_size;
+		}
+	}
+	ss = 0;
+
+	Linker::Location entry;
+	if(module.FindGlobalSymbol(".entry", entry))
+	{
+		eip = entry.GetPosition().address;
+	}
+	else
+	{
+		Linker::Warning << "Warning: no entry found, using 0" << std::endl;
+		eip = 0;
+	}
+	cs = 0;
+
+	for(Linker::Relocation& rel : module.GetRelocations())
+	{
+		Linker::Resolution resolution;
+		if(!rel.Resolve(module, resolution))
+		{
+			Linker::Error << "Error: unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			continue;
+		}
+
+		if(rel.kind == Linker::Relocation::Direct)
+		{
+			rel.WriteWord(resolution.value);
+		}
+		else if(rel.kind == Linker::Relocation::SelectorIndex)
+		{
+			Linker::Error << "Error: segment relocations impossible in flat memory model, ignoring" << std::endl;
+			continue;
+		}
+		else
+		{
+			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+			continue;
+		}
+	}
+}
+
+void P3Format::Flat::CalculateValues()
+{
+	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
+
+	header_size = 0x180;
+
+	segment_information_table_offset = 0;
+	segment_information_table_entry_size = 0;
+	segment_information_table_size = 0;
+
+	relocation_table_offset = 0;
+	relocation_table_size = 0;
+
+	runtime_parameters_offset = header_size;
+	runtime_parameters_size = 0x80;
+	runtime_parameters.CalculateValues();
+
+	load_image_offset = runtime_parameters_offset + runtime_parameters_size;
+	load_image_size = GetSegment()->data_size;
+	memory_requirements = load_image_size; /* TODO: ? */
+
+	file_size = load_image_offset + load_image_size;
+
+	tss_address = 0;
+	tss_size = 0;
+
+	gdt_address = 0;
+	gdt_size = 0;
+
+	idt_address = 0;
+	idt_size = 0;
+
+	ldt_address = 0;
+	ldt_size = 0;
+
+	base_load_offset = 0;
+
+	flags = 0;
+
+	/* TODO: position in file? */
+	symbol_table_offset = 0;
+	symbol_table_size = 0;
+}
+
+offset_t P3Format::Flat::WriteFile(Linker::Writer& wr) const
+{
+	P3Format::WriteFile(wr);
+
+	wr.Seek(file_offset + runtime_parameters_offset);
+	runtime_parameters.WriteFile(wr);
+
+	wr.Seek(file_offset + load_image_offset);
+	image->WriteFile(wr);
+
+	return offset_t(-1);
+}
+
+void P3Format::Flat::Dump(Dumper::Dumper& dump) const
+{
+	P3Format::Dump(dump);
+	// TODO
 }
 
 void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> linker_segment)
@@ -1053,11 +1063,6 @@ for any
 void P3Format::MultiSegmented::Link(Linker::Module& module)
 {
 	/* WATCOM set up */
-	gdt = std::make_shared<DescriptorTable>();
-	idt = std::make_shared<DescriptorTable>();
-	ldt = std::make_shared<DescriptorTable>();
-	tss = std::make_shared<TaskStateSegment>();
-
 	gdt->descriptors.push_back(Descriptor::FromSegment(0));
 	tr = gdt->descriptors.size() * 8;
 	gdt->descriptors.push_back(Descriptor::FromSegment(Descriptor::TSS32, tss));
@@ -1173,6 +1178,8 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 		}
 	}
 
+	std::set<Relocation> relocations_set;
+
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -1194,13 +1201,19 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 				continue;
 			}
 			Linker::Position source = rel.source.GetPosition();
-			relocations.insert(Relocation(std::static_pointer_cast<Segment>(segments[segment_associations[source.segment]])->selector, source.address));
+			relocations_set.insert(Relocation(std::static_pointer_cast<Segment>(segments[segment_associations[source.segment]])->selector, source.address));
 		}
 		else
 		{
 			Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
 			continue;
 		}
+	}
+
+	relocations.clear();
+	for(auto relocation : relocations_set)
+	{
+		relocations.push_back(relocation);
 	}
 }
 
@@ -1323,11 +1336,6 @@ void P3Format::MultiSegmented::Dump(Dumper::Dumper& dump) const
 
 void P3Format::External::ReadFile(Linker::Reader& rd)
 {
-	gdt = std::make_shared<P3Format::MultiSegmented::DescriptorTable>();
-	idt = std::make_shared<P3Format::MultiSegmented::DescriptorTable>();
-	ldt = std::make_shared<P3Format::MultiSegmented::DescriptorTable>();
-	tss = std::make_shared<P3Format::MultiSegmented::TaskStateSegment>();
-
 	rd.endiantype = ::LittleEndian;
 	std::array<char, 2> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "P3", "P2");
@@ -1400,7 +1408,7 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 		for(uint32_t sit_offset = 0; sit_offset + segment_information_table_entry_size <= segment_information_table_size; sit_offset += segment_information_table_entry_size)
 		{
 			rd.Seek(file_offset + sit_offset);
-			segments.push_back(P3Format::MultiSegmented::SITEntry::ReadSITEntry(rd));
+			segments.push_back(SITEntry::ReadSITEntry(rd));
 		}
 	}
 
@@ -1411,7 +1419,7 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 		rd.Seek(file_offset + relocation_table_offset);
 		for(uint32_t relocation_offset = 0; relocation_offset < relocation_table_size; relocation_offset += (is_32bit ? 6 : 4))
 		{
-			P3Format::MultiSegmented::Relocation relocation{0, 0};
+			Relocation relocation{0, 0};
 			relocation.offset = rd.ReadUnsigned(is_32bit ? 4 : 2);
 			relocation.selector = rd.ReadUnsigned(2);
 			relocations.push_back(relocation);
@@ -1441,11 +1449,23 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 
 	/* Global Descriptor Table */
 
-	// TODO
+	if(gdt_size != 0)
+	{
+		for(uint32_t gdt_offset = 0; gdt_offset < gdt_size; gdt_offset += 8)
+		{
+			gdt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), gdt_address + gdt_offset));
+		}
+	}
 
 	/* Interrupt Descriptor Table */
 
-	// TODO
+	if(idt_size != 0)
+	{
+		for(uint32_t idt_offset = 0; idt_offset < idt_size; idt_offset += 8)
+		{
+			idt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), idt_address + idt_offset));
+		}
+	}
 
 	/* Local Descriptor Table */
 
@@ -1453,9 +1473,11 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 	{
 		for(uint32_t ldt_offset = 0; ldt_offset < ldt_size; ldt_offset += 8)
 		{
-			ldt->descriptors.push_back(P3Format::MultiSegmented::Descriptor::ReadEntry(*image.get(), ldt_address + ldt_offset));
+			ldt->descriptors.push_back(Descriptor::ReadEntry(*image.get(), ldt_address + ldt_offset));
 		}
 	}
+
+	// TODO: combine SIT entries with descriptors
 }
 
 bool P3Format::External::FormatSupportsSegmentation() const
@@ -1623,7 +1645,7 @@ void P3Format::External::Dump(Dumper::Dumper& dump) const
 	for(auto relocation : relocations)
 	{
 		uint16_t index = relocation.selector >> 3;
-		P3Format::MultiSegmented::Descriptor * descriptor;
+		Descriptor * descriptor;
 		if((relocation.selector & 4) == 0)
 		{
 			if(index >= gdt->descriptors.size())
