@@ -9,8 +9,32 @@ using namespace PharLap;
 
 void MPFormat::ReadFile(Linker::Reader& rd)
 {
-	//file_offset = Microsoft::FindActualSignature(rd, signature, "MP", "MQ", true);
-	/* TODO */
+	rd.endiantype = ::LittleEndian;
+	std::array<char, 2> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "MP", "MQ", true);
+	has_relocations = signature[1] == 'Q';
+	image_size = rd.ReadUnsigned(2);
+	image_size = (uint32_t(rd.ReadUnsigned(2)) << 9) - (-image_size & 0x1FF);
+	relocation_count = rd.ReadUnsigned(2);
+	header_size = uint32_t(rd.ReadUnsigned(2)) << 4;
+	min_extra_pages = rd.ReadUnsigned(2);
+	max_extra_pages = rd.ReadUnsigned(2);
+	esp = rd.ReadUnsigned(4);
+	checksum = rd.ReadUnsigned(2);
+	eip = rd.ReadUnsigned(4);
+	relocation_offset = rd.ReadUnsigned(2);
+
+	rd.Seek(file_offset + relocation_offset);
+	if(has_relocations && relocation_count != 0)
+	{
+		for(uint16_t relocation_index = 0; relocation_index < relocation_count; relocation_index++)
+		{
+			relocations.push_back(Relocation(rd.ReadUnsigned(4)));
+		}
+	}
+
+	rd.Seek(file_offset + header_size);
+	image = Linker::Buffer::ReadFromFile(rd, image_size - header_size);
 }
 
 unsigned MPFormat::FormatAdditionalSectionFlags(std::string section_name) const
@@ -99,6 +123,8 @@ void MPFormat::ProcessModule(Linker::Module& module)
 
 	Link(module);
 
+	std::shared_ptr<Linker::Segment> segment = std::static_pointer_cast<Linker::Segment>(image);
+
 	Linker::Location stack_top;
 	if(module.FindGlobalSymbol(".stack_top", stack_top))
 	{
@@ -109,9 +135,9 @@ void MPFormat::ProcessModule(Linker::Module& module)
 		Linker::Warning << "Warning: no stack found" << std::endl;
 		if(module.FindSection(".stack") == nullptr)
 		{
-			image->zero_fill += 0x1000;
+			segment->zero_fill += 0x1000;
 		}
-		esp = image->TotalSize();
+		esp = segment->TotalSize();
 	}
 
 	Linker::Location entry;
@@ -125,6 +151,7 @@ void MPFormat::ProcessModule(Linker::Module& module)
 		eip = 0;
 	}
 
+	std::set<Relocation> relocations_set;
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -141,9 +168,9 @@ void MPFormat::ProcessModule(Linker::Module& module)
 			{
 				Linker::Position source = rel.source.GetPosition();
 				if(rel.size == 4)
-					relocations.insert(Relocation(source.address, 1));
+					relocations_set.insert(Relocation(source.address, 1));
 				else
-					relocations.insert(Relocation(source.address, 0));
+					relocations_set.insert(Relocation(source.address, 0));
 			}
 		}
 		else if(rel.kind == Linker::Relocation::SelectorIndex)
@@ -157,16 +184,24 @@ void MPFormat::ProcessModule(Linker::Module& module)
 			continue;
 		}
 	}
+
+	relocations.clear();
+	for(auto relocation : relocations_set)
+	{
+		relocations.push_back(relocation);
+	}
 }
 
 void MPFormat::CalculateValues()
 {
+	std::shared_ptr<Linker::Segment> segment = std::static_pointer_cast<Linker::Segment>(image);
 	file_offset = stub.filename != "" ? stub.GetStubImageSize() : 0;;
 	relocation_offset = 0x1E;
 	header_size = ::AlignTo(relocation_offset + (has_relocations ? 4 * relocations.size() : 0), 0x10);
-	image_size = header_size + image->data_size;
-	bss_pages = (image->zero_fill + 0x3FFF) >> 12;
-	extra_pages = (image->optional_extra + 0x3FFF) >> 12; /* TODO */
+	image_size = header_size + segment->data_size;
+	min_extra_pages = (segment->zero_fill + 0x3FFF) >> 12;
+	max_extra_pages = min_extra_pages + ((segment->optional_extra + 0x3FFF) >> 12); /* TODO */
+	relocation_count = has_relocations ? relocations.size() : 0;
 }
 
 offset_t MPFormat::WriteFile(Linker::Writer& wr) const
@@ -180,12 +215,12 @@ offset_t MPFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteData(2, has_relocations ? "MQ" : "MP");
 	wr.WriteWord(2, image_size & 0x1FF);
 	wr.WriteWord(2, (image_size + 0x1FF) >> 9);
-	wr.WriteWord(2, has_relocations ? relocations.size() : 0);
+	wr.WriteWord(2, relocation_count);
 	wr.WriteWord(2, (header_size + 0xF) >> 4);
-	wr.WriteWord(2, bss_pages);
-	wr.WriteWord(2, bss_pages + extra_pages);
+	wr.WriteWord(2, min_extra_pages);
+	wr.WriteWord(2, max_extra_pages);
 	wr.WriteWord(4, esp);
-	wr.WriteWord(2, 0); /* TODO: checksum */
+	wr.WriteWord(2, checksum); /* TODO */
 	wr.WriteWord(4, eip);
 	wr.WriteWord(2, has_relocations ? relocation_offset : 0);
 	wr.WriteWord(2, 1);
@@ -210,10 +245,45 @@ void MPFormat::Dump(Dumper::Dumper& dump) const
 	dump.SetEncoding(Dumper::Block::encoding_cp437);
 
 	dump.SetTitle("MP/MQ format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", file_offset, image_size, 8);
 	file_region.Display(dump);
 
-	// TODO
+	Dumper::Region header_region("Header", file_offset, header_size, 8);
+	header_region.AddField("Signature", Dumper::StringDisplay::Make("'"), std::string(has_relocations ? "MQ" : "MP"));
+	header_region.AddField("Relocation count", Dumper::DecDisplay::Make(), offset_t(relocation_count));
+	header_region.AddField("Relocation offset", Dumper::DecDisplay::Make(), offset_t(relocation_count));
+	header_region.AddField("Minimum extra memory", Dumper::HexDisplay::Make(8), offset_t(min_extra_pages) << 12);
+	header_region.AddField("Maximum extra memory", Dumper::HexDisplay::Make(8), offset_t(max_extra_pages) << 12);
+	header_region.AddField("Entry (EIP)", Dumper::HexDisplay::Make(8), offset_t(eip));
+	header_region.AddField("Initial stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(esp));
+	header_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(4), offset_t(checksum));
+	header_region.Display(dump);
+
+	if(relocation_offset != 0 || relocation_count != 0)
+	{
+		Dumper::Region relocation_region("Relocations", file_offset + relocation_offset, 4 * relocation_count, 8);
+		header_region.AddField("Count", Dumper::DecDisplay::Make(), offset_t(relocation_count));
+		relocation_region.Display(dump);
+
+		uint32_t relocation_index = 0;
+		for(auto relocation : relocations)
+		{
+			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, file_offset + relocation_offset + 4 * relocation_index, 8);
+			relocation_entry.AddField("Value", Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(0, 31, "Offset", Dumper::HexDisplay::Make(8))
+				->AddBitField(31, 1, "Size", Dumper::ChoiceDisplay::Make("4", "2")),
+				offset_t(relocation.value));
+			relocation_entry.Display(dump);
+			relocation_index++;
+		}
+	}
+
+	Dumper::Block image_block("Image", file_offset + header_size, image->AsImage(), 0, 8);
+	for(auto relocation : relocations)
+	{
+		image_block.AddSignal(relocation.offset, relocation.rel32 ? 4 : 2);
+	}
+	image_block.Display(dump);
 }
 
 std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const

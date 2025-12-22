@@ -33,7 +33,7 @@ namespace PharLap
 
 		bool has_relocations;
 
-		std::shared_ptr<Linker::Segment> image;
+		std::shared_ptr<Linker::Contents> image;
 
 		static const uint32_t REL32 = 0x80000000;
 		union Relocation
@@ -49,10 +49,10 @@ namespace PharLap
 			{
 			}
 
-			/*Relocation(uint32_t offset)
+			explicit Relocation(uint32_t offset)
 				: value(offset)
 			{
-			}*/
+			}
 
 			bool operator ==(const Relocation& other) const;
 
@@ -60,13 +60,15 @@ namespace PharLap
 		};
 
 		offset_t image_size = 0;
-		std::set<Relocation> relocations;
+		std::vector<Relocation> relocations;
 		offset_t header_size = 0;
-		offset_t bss_pages = 0;
-		offset_t extra_pages = 0;
+		offset_t min_extra_pages = 0;
+		offset_t max_extra_pages = 0;
 		uint32_t esp = 0;
 		uint32_t eip = 0;
+		uint16_t checksum = 0; // TODO
 		offset_t relocation_offset = 0;
+		uint16_t relocation_count = 0;
 		/** @brief Stack size requested at the command line */
 		uint32_t stack_size = 0;
 		mutable Microsoft::MZStubWriter stub;
