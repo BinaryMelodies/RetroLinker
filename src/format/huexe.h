@@ -47,10 +47,17 @@ namespace X68000
 		};
 
 		/* filled in automatically */
-		std::shared_ptr<Linker::Segment> code, data, bss;
+		std::shared_ptr<Linker::Image> code, data, bss;
 		uint32_t relocation_size = 0;
 		std::map<uint32_t, uint8_t> relocations;
 		std::vector<Relocation> relocation_sequence;
+
+		std::shared_ptr<Linker::Segment> GetCodeSegment();
+		std::shared_ptr<const Linker::Segment> GetCodeSegment() const;
+		std::shared_ptr<Linker::Segment> GetDataSegment();
+		std::shared_ptr<const Linker::Segment> GetDataSegment() const;
+		std::shared_ptr<Linker::Segment> GetBssSegment();
+		std::shared_ptr<const Linker::Segment> GetBssSegment() const;
 
 		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
 		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;

@@ -1,5 +1,6 @@
 
 #include "huexe.h"
+#include "../linker/buffer.h"
 #include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
@@ -24,7 +25,81 @@ void HUFormat::ReadFile(Linker::Reader& rd)
 	debug_string_table_size = rd.ReadUnsigned(4);
 	rd.Skip(0x10);
 	bound_module_list_offset = rd.ReadUnsigned(4);
-	/* TODO */
+
+	code = Linker::Buffer::ReadFromFile(rd, code_size);
+	data = Linker::Buffer::ReadFromFile(rd, data_size);
+
+	uint32_t relocation_offset = 0;
+	relocation_sequence.clear();
+	while(relocation_offset < relocation_size)
+	{
+		Relocation relocation;
+		uint32_t displacement = rd.ReadUnsigned(2);
+		relocation_offset += 2;
+		if(displacement == 0x0001)
+		{
+			relocation.absolute_displacement = true;
+			relocation_offset += 4;
+			if(relocation_offset > relocation_size)
+			{
+				Linker::Error << "Error: relocation section overflow" << std::endl;
+				break;
+			}
+			displacement = rd.ReadUnsigned(4);
+		}
+		else
+		{
+			relocation.absolute_displacement = false;
+		}
+		relocation.is16bit = (displacement & 1) != 0;
+		relocation.displacement = displacement & ~1;
+		relocation_sequence.push_back(relocation);
+	}
+
+	relocations.clear();
+	uint32_t last_relocation = 0;
+	for(auto relocation : relocation_sequence)
+	{
+		if(relocation.absolute_displacement)
+		{
+			last_relocation = relocation.displacement;
+		}
+		else
+		{
+			last_relocation += relocation.displacement;
+		}
+		relocations[last_relocation] = relocation.is16bit ? 2 : 4;
+	}
+}
+
+std::shared_ptr<Linker::Segment> HUFormat::GetCodeSegment()
+{
+	return std::static_pointer_cast<Linker::Segment>(code);
+}
+
+std::shared_ptr<const Linker::Segment> HUFormat::GetCodeSegment() const
+{
+	return std::static_pointer_cast<const Linker::Segment>(code);
+}
+
+std::shared_ptr<Linker::Segment> HUFormat::GetDataSegment()
+{
+	return std::static_pointer_cast<Linker::Segment>(data);
+}
+
+std::shared_ptr<const Linker::Segment> HUFormat::GetDataSegment() const
+{
+	return std::static_pointer_cast<const Linker::Segment>(data);
+}
+
+std::shared_ptr<Linker::Segment> HUFormat::GetBssSegment()
+{
+	return std::static_pointer_cast<Linker::Segment>(bss);
+}
+
+std::shared_ptr<const Linker::Segment> HUFormat::GetBssSegment() const
+{
+	return std::static_pointer_cast<const Linker::Segment>(bss);
 }
 
 static Linker::OptionDescription<offset_t> p_base_address("base_address", "Starting address of binary image");
@@ -115,7 +190,7 @@ void HUFormat::Link(Linker::Module& module)
 	ProcessScript(script, module);
 
 	CreateDefaultSegments();
-	Linker::Debug << "Debug: " << linker_parameters["base_address"] << ", " << code->base_address << std::endl;
+	Linker::Debug << "Debug: " << linker_parameters["base_address"] << ", " << GetCodeSegment()->base_address << std::endl;
 }
 
 void HUFormat::ProcessModule(Linker::Module& module)
@@ -143,7 +218,7 @@ void HUFormat::ProcessModule(Linker::Module& module)
 				{
 					Linker::Error << "Error: Format only support word and longword relocations: " << rel << std::endl;
 				}
-				uint32_t offset = rel.source.GetPosition().address - code->base_address;
+				uint32_t offset = rel.source.GetPosition().address - GetCodeSegment()->base_address;
 				if((offset & 1))
 					Linker::Error << "Error: Illegal relocation offset" << std::endl;
 				relocations[offset] = rel.size;
@@ -201,10 +276,10 @@ void HUFormat::CalculateValues()
 			relocation_size += 4;
 	}
 
-	base_address = code->base_address;
-	code_size = code->data_size;
-	data_size = data->data_size;
-	bss_size = bss->zero_fill;
+	base_address = GetCodeSegment()->base_address;
+	code_size = GetCodeSegment()->data_size;
+	data_size = GetDataSegment()->data_size;
+	bss_size = GetBssSegment()->zero_fill;
 }
 
 offset_t HUFormat::WriteFile(Linker::Writer& wr) const
@@ -246,6 +321,8 @@ offset_t HUFormat::WriteFile(Linker::Writer& wr) const
 		}
 	}
 
+	// TODO: symbol table
+
 	return offset_t(-1);
 }
 
@@ -253,11 +330,77 @@ void HUFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
+	static const std::map<offset_t, std::string> load_mode_description =
+	{
+		{ MODE_NORMAL,   "normal" },
+		{ MODE_SMALLEST, "smallest block" },
+		{ MODE_HIGHEST,  "highest address" },
+	};
+
 	dump.SetTitle("HU format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	Dumper::Region file_region("File", 0, 0x40 + code_size + data_size + relocation_size + symbol_table_size, 8); // TODO: other entries
+	file_region.AddField("Load mode", Dumper::ChoiceDisplay::Make(load_mode_description, Dumper::HexDisplay::Make(2)), offset_t(load_mode));
+	file_region.AddField("Entry (PC)", Dumper::HexDisplay::Make(8), offset_t(entry_address));
+	file_region.AddOptionalField("Debug line number table size", Dumper::HexDisplay::Make(8), offset_t(debug_line_number_table_size));
+	file_region.AddOptionalField("Debug symbol table size", Dumper::HexDisplay::Make(8), offset_t(debug_symbol_table_size));
+	file_region.AddOptionalField("Debug string table size", Dumper::HexDisplay::Make(8), offset_t(debug_string_table_size));
+	file_region.AddOptionalField("Offset to bound module list", Dumper::HexDisplay::Make(8), offset_t(bound_module_list_offset));
 	file_region.Display(dump);
 
-	// TODO
+	Dumper::Block code_block("Code", 0x40, code, base_address, 8);
+	Dumper::Block data_block("Data", 0x40 + code_size, data, base_address + code_size, 8);
+
+	for(auto it : relocations)
+	{
+		if(it.first < code_size)
+		{
+			code_block.AddSignal(it.first, it.second);
+		}
+		else
+		{
+			data_block.AddSignal(it.first, it.second);
+		}
+	}
+
+	code_block.Display(dump);
+	data_block.Display(dump);
+
+	Dumper::Region bss_region("BSS", 0x40 + code_size + data_size, bss_size, 8);
+	bss_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(base_address + code_size + data_size));
+	bss_region.Display(dump);
+
+	if(relocation_size != 0)
+	{
+		Dumper::Region relocations_region("Relocations", 0x40 + code_size + data_size, relocation_size, 8);
+		relocations_region.Display(dump);
+
+		uint32_t relocation_offset = 0x40 + code_size + data_size;
+		uint32_t relocation_index = 0;
+		uint32_t relocation_source = 0;
+		for(auto relocation : relocation_sequence)
+		{
+			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, relocation_offset, 8);
+			relocation_entry.AddField("Word", Dumper::HexDisplay::Make(4), offset_t(relocation.absolute_displacement ? 0x0001 : relocation.displacement | (relocation.is16bit ? 1 : 0)));
+			if(relocation.absolute_displacement)
+				relocation_source = relocation.displacement;
+			else
+				relocation_source += relocation.displacement;
+			relocation_entry.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(relocation_source));
+			relocation_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation.is16bit ? 2 : 4));
+			relocation_entry.AddField("Record bytes", Dumper::DecDisplay::Make(), offset_t(relocation.absolute_displacement ? 6 : 2));
+			relocation_entry.Display(dump);
+
+			relocation_index++;
+			relocation_offset += relocation.absolute_displacement ? 6 : 2;
+		}
+	}
+
+	if(symbol_table_size != 0)
+	{
+		Dumper::Region symbol_table_region("Symbol table", 0x40 + code_size + data_size + relocation_size, symbol_table_size, 8);
+		symbol_table_region.Display(dump);
+		// TODO: write symbols
+	}
 }
 
 void HUFormat::GenerateFile(std::string filename, Linker::Module& module)
