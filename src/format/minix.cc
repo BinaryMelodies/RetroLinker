@@ -970,7 +970,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 		current_offset += far_code->ImageSize();
 	}
 
-	Dumper::Block data_block("Code", current_offset, data->AsImage(), 0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0), 8);
+	Dumper::Block data_block("Data", current_offset, data->AsImage(), 0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0), 8);
 	for(auto& rel : data_relocations)
 	{
 		size_t size = rel.GetSize();
@@ -979,6 +979,10 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 	}
 	data_block.Display(dump);
 	current_offset += data->ImageSize();
+
+	Dumper::Region bss_region("BSS", current_offset, bss_size, 8);
+	bss_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0) + data->ImageSize()));
+	bss_region.Display(dump);
 
 	unsigned i = 0;
 	for(auto& rel : code_relocations)

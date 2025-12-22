@@ -542,6 +542,11 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 	code_block.Display(dump);
 	data_block.Display(dump);
 
+	Dumper::Region bss_region("BSS segment", file_offset + header_size + code_size + data_size, bss_size, 8);
+	bss_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(
+		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? bss_address : code_size + data_size));
+	bss_region.Display(dump);
+
 	/* TODO: symbol table */
 }
 
