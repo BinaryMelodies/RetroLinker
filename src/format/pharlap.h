@@ -177,6 +177,11 @@ namespace PharLap
 		{
 		}
 
+		/**
+		 * @brief Represents a section of data in the image
+		 *
+		 * Used for generating multisegmented binaries
+		 */
 		class AbstractSegment
 		{
 		public:
@@ -187,9 +192,11 @@ namespace PharLap
 			virtual void WriteFile(Linker::Writer& wr) const = 0;
 		};
 
+		/** @brief An entry in a GDT, LDT or IDT image */
 		class Descriptor
 		{
 		public:
+			/** @brief Reference to a segment in the file */
 			std::weak_ptr<AbstractSegment> image = std::weak_ptr<AbstractSegment>();
 
 			enum
@@ -230,6 +237,7 @@ namespace PharLap
 			void FillEntry(Dumper::Entry& entry) const;
 		};
 
+		/** @brief An array of descriptors, used for GDT, LDT and IDT */
 		class DescriptorTable : public AbstractSegment
 		{
 		public:
@@ -244,6 +252,7 @@ namespace PharLap
 			void CalculateValues();
 		};
 
+		/** @brief An Intel x86 task state segment structure, stored in the image */
 		class TaskStateSegment : public AbstractSegment
 		{
 		public:
@@ -268,6 +277,7 @@ namespace PharLap
 			void FillEntries(Dumper::Region& region) const;
 		};
 
+		/** @brief Corresponds to an entry in the Segment Information Table */
 		class SITEntry : public AbstractSegment
 		{
 		public:
@@ -294,6 +304,11 @@ namespace PharLap
 			static std::shared_ptr<SITEntry> ReadSITEntry(Linker::Reader& rd);
 		};
 
+		/**
+		 * @brief A segment that appears in the Segment Information Table
+		 *
+		 * Used for generating multisegmented binaries
+		 */
 		class Segment : public SITEntry
 		{
 		public:
@@ -314,6 +329,7 @@ namespace PharLap
 			void WriteFile(Linker::Writer& wr) const override;
 		};
 
+		/** @brief A relocation entry in the relocation table */
 		class Relocation
 		{
 		public:
@@ -383,6 +399,7 @@ namespace PharLap
 		class External;
 	};
 
+	/** @brief Class used for generating flat P3 binaries */
 	class P3Format::Flat : public P3Format
 	{
 	public:
@@ -408,6 +425,7 @@ namespace PharLap
 		offset_t WriteFile(Linker::Writer& wr) const override;
 	};
 
+	/** @brief Class used for generating multisegmented P3 binaries */
 	class P3Format::MultiSegmented : public P3Format
 	{
 	public:
