@@ -391,7 +391,7 @@ namespace PharLap
 		};
 
 		std::vector<std::shared_ptr<AbstractSegment>> segments;
-		std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<Segment>> segment_associations;
+		std::map<std::shared_ptr<Linker::Segment>, uint16_t> segment_associations;
 		std::set<Relocation> relocations;
 		std::shared_ptr<Segment> code;
 		std::shared_ptr<Segment> data;

@@ -856,7 +856,7 @@ void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> lin
 		ldt->descriptors.size() * 8 + 4);
 
 	segments.push_back(segment);
-	segment_associations[linker_segment] = segment;
+	segment_associations[linker_segment] = segments.size() - 1;
 	ldt->descriptors.push_back(Descriptor(segment->access, segment));
 
 	if(linker_segment->name == ".code")
@@ -967,7 +967,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 	{
 		Linker::Position position = stack_top.GetPosition();
 		esp = position.address;
-		ss = segment_associations[position.segment]->selector;
+		ss = std::static_pointer_cast<Segment>(segments[segment_associations[position.segment]])->selector;
 		if(stack_size == 0)
 		{
 			// make the entire section data until .stack_top part of the stack
@@ -986,7 +986,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 		if(stack_segment != nullptr)
 		{
 			/* Attempt to use .stack segment */
-			std::shared_ptr<Segment> segment = segment_associations[stack_segment];
+			std::shared_ptr<Segment> segment = std::static_pointer_cast<Segment>(segments[segment_associations[stack_segment]]);
 			esp = segment->GetLoadedSize();
 			ss = segment->selector;
 			assert(stack_section != nullptr);
@@ -1016,7 +1016,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 	{
 		Linker::Position position = entry.GetPosition();
 		eip = position.address;
-		cs = segment_associations[position.segment]->selector;
+		cs = std::static_pointer_cast<Segment>(segments[segment_associations[position.segment]])->selector;
 	}
 	else
 	{
@@ -1055,7 +1055,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 				continue;
 			}
 			Linker::Position source = rel.source.GetPosition();
-			relocations.insert(Relocation(segment_associations[source.segment], source.address));
+			relocations.insert(Relocation(std::static_pointer_cast<Segment>(segments[segment_associations[source.segment]]), source.address));
 		}
 		else
 		{
