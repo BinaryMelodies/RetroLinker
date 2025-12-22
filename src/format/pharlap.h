@@ -321,27 +321,48 @@ namespace PharLap
 
 		std::shared_ptr<TaskStateSegment> tss;
 
-		class Segment : public AbstractSegment
+		class SITEntry : public AbstractSegment
+		{
+		public:
+			uint16_t selector = 0;
+			uint16_t flags = 0;
+			uint32_t base_offset = 0; /* TODO??? */
+			uint32_t zero_fill = 0; /* only used for reading */
+
+			SITEntry(uint16_t selector = 0)
+				: selector(selector)
+			{
+			}
+
+			uint32_t GetStoredSize() const override;
+
+			virtual uint32_t GetZeroSize() const;
+
+			uint32_t GetLoadedSize() const override;
+
+			void WriteSITEntry(Linker::Writer& wr) const;
+
+			void WriteFile(Linker::Writer& wr) const override;
+
+			static std::shared_ptr<SITEntry> ReadSITEntry(Linker::Reader& rd);
+		};
+
+		class Segment : public SITEntry
 		{
 		public:
 			/* Segment members */
 			std::shared_ptr<Linker::Segment> segment;
 
 			uint32_t access;
-			uint16_t selector;
-			uint16_t flags = 0;
-			uint32_t base_offset = 0; /* TODO??? */
 
 			Segment(std::shared_ptr<Linker::Segment> segment, uint32_t access, uint16_t selector)
-				: segment(segment), access(access), selector(selector)
+				: SITEntry(selector), segment(segment), access(access)
 			{
 			}
 
 			uint32_t GetStoredSize() const override;
 
-			uint32_t GetLoadedSize() const override;
-
-			void WriteSITEntry(Linker::Writer& wr) const;
+			uint32_t GetZeroSize() const override;
 
 			void WriteFile(Linker::Writer& wr) const override;
 		};
@@ -393,25 +414,6 @@ namespace PharLap
 	class P3Format::External : public P3Format
 	{
 	public:
-		class Segment : public P3Format::MultiSegmented::AbstractSegment
-		{
-		public:
-			uint16_t selector = 0;
-			uint16_t flags = 0;
-			uint32_t base_offset = 0; /* TODO??? */
-			uint32_t zero_fill = 0;
-
-			uint32_t GetStoredSize() const override;
-
-			uint32_t GetLoadedSize() const override;
-
-			void WriteSITEntry(Linker::Writer& wr) const;
-
-			void WriteFile(Linker::Writer& wr) const override;
-
-			static std::shared_ptr<Segment> ReadSITEntry(Linker::Reader& rd);
-		};
-
 		class Relocation
 		{
 		public:
@@ -424,7 +426,7 @@ namespace PharLap
 			}
 		};
 
-		std::vector<std::shared_ptr<Segment>> segments;
+		std::vector<std::shared_ptr<P3Format::MultiSegmented::SITEntry>> segments;
 		std::vector<Relocation> relocations;
 		std::shared_ptr<Linker::Buffer> image;
 

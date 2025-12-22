@@ -778,22 +778,53 @@ void P3Format::MultiSegmented::TaskStateSegment::WriteFile(Linker::Writer& wr) c
 	}
 }
 
+uint32_t P3Format::MultiSegmented::SITEntry::GetStoredSize() const
+{
+	// TODO
+	return 0;
+}
+
+uint32_t P3Format::MultiSegmented::SITEntry::GetZeroSize() const
+{
+	return zero_fill;
+}
+
+uint32_t P3Format::MultiSegmented::SITEntry::GetLoadedSize() const
+{
+	return GetStoredSize() + GetZeroSize();
+}
+
+void P3Format::MultiSegmented::SITEntry::WriteSITEntry(Linker::Writer& wr) const
+{
+	wr.WriteWord(2, selector);
+	wr.WriteWord(2, flags);
+	wr.WriteWord(4, base_offset);
+	wr.WriteWord(4, GetZeroSize());
+}
+
+void P3Format::MultiSegmented::SITEntry::WriteFile(Linker::Writer& wr) const
+{
+	// TODO
+}
+
+std::shared_ptr<P3Format::MultiSegmented::SITEntry> P3Format::MultiSegmented::SITEntry::ReadSITEntry(Linker::Reader& rd)
+{
+	std::shared_ptr<SITEntry> segment = std::make_shared<SITEntry>();
+	segment->selector = rd.ReadUnsigned(2);
+	segment->flags = rd.ReadUnsigned(2);
+	segment->base_offset = rd.ReadUnsigned(4);
+	segment->zero_fill = rd.ReadUnsigned(4);
+	return segment;
+}
+
 uint32_t P3Format::MultiSegmented::Segment::GetStoredSize() const
 {
 	return segment->data_size;
 }
 
-uint32_t P3Format::MultiSegmented::Segment::GetLoadedSize() const
+uint32_t P3Format::MultiSegmented::Segment::GetZeroSize() const
 {
-	return segment->data_size + segment->zero_fill;
-}
-
-void P3Format::MultiSegmented::Segment::WriteSITEntry(Linker::Writer& wr) const
-{
-	wr.WriteWord(2, selector);
-	wr.WriteWord(2, flags);
-	wr.WriteWord(4, base_offset);
-	wr.WriteWord(4, segment->zero_fill);
+	return segment->zero_fill;
 }
 
 void P3Format::MultiSegmented::Segment::WriteFile(Linker::Writer& wr) const
@@ -1151,41 +1182,6 @@ void P3Format::MultiSegmented::Dump(Dumper::Dumper& dump) const
 
 ////
 
-uint32_t P3Format::External::Segment::GetStoredSize() const
-{
-	// TODO
-	return 0;
-}
-
-uint32_t P3Format::External::Segment::GetLoadedSize() const
-{
-	// TODO
-	return GetStoredSize() + zero_fill;
-}
-
-void P3Format::External::Segment::WriteSITEntry(Linker::Writer& wr) const
-{
-	wr.WriteWord(2, selector);
-	wr.WriteWord(2, flags);
-	wr.WriteWord(4, base_offset);
-	wr.WriteWord(4, zero_fill);
-}
-
-void P3Format::External::Segment::WriteFile(Linker::Writer& wr) const
-{
-	// TODO
-}
-
-std::shared_ptr<P3Format::External::Segment> P3Format::External::Segment::ReadSITEntry(Linker::Reader& rd)
-{
-	std::shared_ptr<Segment> segment = std::make_shared<Segment>();
-	segment->selector = rd.ReadUnsigned(2);
-	segment->flags = rd.ReadUnsigned(2);
-	segment->base_offset = rd.ReadUnsigned(4);
-	segment->zero_fill = rd.ReadUnsigned(4);
-	return segment;
-}
-
 void P3Format::External::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
@@ -1260,7 +1256,7 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 		for(uint32_t sit_offset = 0; sit_offset + segment_information_table_entry_size <= segment_information_table_size; sit_offset += segment_information_table_entry_size)
 		{
 			rd.Seek(file_offset + sit_offset);
-			segments.push_back(Segment::ReadSITEntry(rd));
+			segments.push_back(P3Format::MultiSegmented::SITEntry::ReadSITEntry(rd));
 		}
 	}
 
