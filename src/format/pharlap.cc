@@ -657,6 +657,69 @@ P3Format::MultiSegmented::AbstractSegment::~AbstractSegment()
 {
 }
 
+P3Format::MultiSegmented::Descriptor P3Format::MultiSegmented::Descriptor::FromSegment(uint32_t access, std::weak_ptr<AbstractSegment> image)
+{
+	Descriptor descriptor;
+	descriptor.image = image;
+	descriptor.access = access;
+	return descriptor;
+}
+
+P3Format::MultiSegmented::Descriptor P3Format::MultiSegmented::Descriptor::ReadEntry(Linker::Image& image, offset_t offset)
+{
+	Descriptor descriptor;
+	descriptor.access = image.ReadUnsigned(4, offset + 4, ::LittleEndian);
+	if(descriptor.IsGate())
+	{
+		descriptor.offset = image.ReadUnsigned(2, offset, ::LittleEndian);
+		descriptor.offset |= descriptor.access & 0xFFFF0000;
+		descriptor.selector = image.ReadUnsigned(3, offset + 2, ::LittleEndian);
+		descriptor.access &= 0x0000FF00;
+	}
+	else
+	{
+		descriptor.limit = image.ReadUnsigned(2, offset, ::LittleEndian);
+		descriptor.limit |= descriptor.access & 0x000F0000;
+		descriptor.base = image.ReadUnsigned(3, offset + 2, ::LittleEndian);
+		descriptor.base |= descriptor.access & 0xFF000000;
+		if((descriptor.access & DESC_G) != 0)
+			descriptor.limit <<= 12;
+		descriptor.access &= 0x00F0FF00;
+	}
+	return descriptor;
+}
+
+bool P3Format::MultiSegmented::Descriptor::IsSegment() const
+{
+	if((access & DESC_S) != 0)
+		return true;
+	else switch(access & 0x00000700)
+	{
+	case 0x100:
+	case 0x200:
+	case 0x300:
+		return true;
+	default:
+		return false;
+	}
+}
+
+bool P3Format::MultiSegmented::Descriptor::IsGate() const
+{
+	if((access & DESC_S) != 0)
+		return false;
+	else switch(access & 0x00000700)
+	{
+	case 0x400:
+	case 0x500:
+	case 0x600:
+	case 0x700:
+		return true;
+	default:
+		return false;
+	}
+}
+
 void P3Format::MultiSegmented::Descriptor::CalculateValues()
 {
 	std::shared_ptr<AbstractSegment> segment = image.lock();
@@ -678,10 +741,86 @@ void P3Format::MultiSegmented::Descriptor::CalculateValues()
 
 void P3Format::MultiSegmented::Descriptor::WriteEntry(Linker::Writer& wr) const
 {
-	wr.WriteWord(2, limit & 0xFFFF);
-	wr.WriteWord(3, base & 0xFFFFFF);
-	wr.WriteWord(2, (access | (limit & 0xF0000)) >> 8);
-	wr.WriteWord(1, base >> 24);
+	if(IsGate())
+	{
+		wr.WriteWord(2, offset & 0xFFFF);
+		wr.WriteWord(2, selector);
+		wr.WriteWord(2, access & 0xFFFF);
+		wr.WriteWord(2, offset >> 16);
+	}
+	else
+	{
+		wr.WriteWord(2, limit & 0xFFFF);
+		wr.WriteWord(3, base & 0xFFFFFF);
+		wr.WriteWord(2, (access | (limit & 0xF0000)) >> 8);
+		wr.WriteWord(1, base >> 24);
+	}
+}
+
+void P3Format::MultiSegmented::Descriptor::FillEntry(Dumper::Entry& entry) const
+{
+	static const std::map<offset_t, std::string> type_description =
+	{
+		{ 1, "16-bit available TSS" },
+		{ 2, "LDT" },
+		{ 3, "16-bit busy TSS" },
+		{ 4, "16-bit call gate" },
+		{ 5, "task gate" },
+		{ 6, "16-bit interrupt gate" },
+		{ 7, "16-bit trap gate" },
+		{ 9, "32-bit available TSS" },
+		{ 11, "32-bit busy TSS" },
+		{ 12, "32-bit call gate" },
+		{ 14, "32-bit interrupt gate" },
+		{ 15, "32-bit trap gate" },
+	};
+
+	if(IsGate())
+	{
+		entry.AddField("Gate selector", Dumper::HexDisplay::Make(4), offset_t(selector));
+		entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
+		entry.AddField("Access", Dumper::BitFieldDisplay::Make(8)
+			->AddBitField(0, 5, "parameter count", Dumper::DecDisplay::Make(), true)
+			->AddBitField(8, 4, Dumper::ChoiceDisplay::Make(type_description), false)
+			->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("segment", "system segment"), false)
+			->AddBitField(13, 2, "DPL", Dumper::DecDisplay::Make(), false)
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("present", "absent"), false),
+			offset_t(access));
+	}
+	else
+	{
+		entry.AddField("Base", Dumper::HexDisplay::Make(8), offset_t(base));
+		entry.AddField("Limit", Dumper::HexDisplay::Make(8), offset_t(limit));
+		if((access & DESC_S) == 0)
+		{
+			entry.AddField("Access", Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(8, 4, Dumper::ChoiceDisplay::Make(type_description), false)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("segment", "system segment"), false)
+				->AddBitField(13, 2, "DPL", Dumper::DecDisplay::Make(), false)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("present", "absent"), false)
+				->AddBitField(20, 1, Dumper::ChoiceDisplay::Make("available flag"), true)
+				->AddBitField(23, 1, Dumper::ChoiceDisplay::Make("granularity"), true),
+				offset_t(access));
+		}
+		else
+		{
+			entry.AddField("Access", Dumper::BitFieldDisplay::Make(8)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("accessed"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make(
+					access & DESC_X ? "readable" : "writable",
+					access & DESC_X ? "execute-only" : "read-only"), false)
+				->AddBitField(10, 1, Dumper::ChoiceDisplay::Make(
+					access & DESC_X ? "conforming" : "expand-down"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("code", "data"), false)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("segment", "system segment"), false)
+				->AddBitField(13, 2, "DPL", Dumper::DecDisplay::Make(), false)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("present", "absent"), false)
+				->AddBitField(20, 1, Dumper::ChoiceDisplay::Make("available flag"), true)
+				->AddBitField(22, 1, Dumper::ChoiceDisplay::Make("32-bit", "16-bit"), false)
+				->AddBitField(23, 1, Dumper::ChoiceDisplay::Make("granularity"), true),
+				offset_t(access));
+		}
+	}
 }
 
 uint32_t P3Format::MultiSegmented::DescriptorTable::GetStoredSize() const
@@ -857,7 +996,7 @@ void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> lin
 
 	segments.push_back(segment);
 	segment_associations[linker_segment] = segments.size() - 1;
-	ldt->descriptors.push_back(Descriptor(segment->access, segment));
+	ldt->descriptors.push_back(Descriptor::FromSegment(segment->access, segment));
 
 	if(linker_segment->name == ".code")
 	{
@@ -919,19 +1058,19 @@ void P3Format::MultiSegmented::Link(Linker::Module& module)
 	ldt = std::make_shared<DescriptorTable>();
 	tss = std::make_shared<TaskStateSegment>();
 
-	gdt->descriptors.push_back(Descriptor(0));
+	gdt->descriptors.push_back(Descriptor::FromSegment(0));
 	tr = gdt->descriptors.size() * 8;
-	gdt->descriptors.push_back(Descriptor(Descriptor::TSS32, tss));
-	gdt->descriptors.push_back(Descriptor(Descriptor::Data16, tss));
-	gdt->descriptors.push_back(Descriptor(Descriptor::Data16, gdt));
-	gdt->descriptors.push_back(Descriptor(Descriptor::Data16, idt));
+	gdt->descriptors.push_back(Descriptor::FromSegment(Descriptor::TSS32, tss));
+	gdt->descriptors.push_back(Descriptor::FromSegment(Descriptor::Data16, tss));
+	gdt->descriptors.push_back(Descriptor::FromSegment(Descriptor::Data16, gdt));
+	gdt->descriptors.push_back(Descriptor::FromSegment(Descriptor::Data16, idt));
 	tss->ldtr = ldtr = gdt->descriptors.size() * 8;
-	gdt->descriptors.push_back(Descriptor(Descriptor::LDT, ldt));
-	gdt->descriptors.push_back(Descriptor(Descriptor::Data16, ldt));
+	gdt->descriptors.push_back(Descriptor::FromSegment(Descriptor::LDT, ldt));
+	gdt->descriptors.push_back(Descriptor::FromSegment(Descriptor::Data16, ldt));
 
-	idt->descriptors.push_back(Descriptor(0));
+	idt->descriptors.push_back(Descriptor::FromSegment(0));
 
-	ldt->descriptors.push_back(Descriptor(0));
+	ldt->descriptors.push_back(Descriptor::FromSegment(0));
 
 	segments.push_back(tss);
 	segments.push_back(gdt);
@@ -1184,6 +1323,11 @@ void P3Format::MultiSegmented::Dump(Dumper::Dumper& dump) const
 
 void P3Format::External::ReadFile(Linker::Reader& rd)
 {
+	gdt = std::make_shared<P3Format::MultiSegmented::DescriptorTable>();
+	idt = std::make_shared<P3Format::MultiSegmented::DescriptorTable>();
+	ldt = std::make_shared<P3Format::MultiSegmented::DescriptorTable>();
+	tss = std::make_shared<P3Format::MultiSegmented::TaskStateSegment>();
+
 	rd.endiantype = ::LittleEndian;
 	std::array<char, 2> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "P3", "P2");
@@ -1305,7 +1449,13 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 
 	/* Local Descriptor Table */
 
-	// TODO
+	if(ldt_size != 0)
+	{
+		for(uint32_t ldt_offset = 0; ldt_offset < ldt_size; ldt_offset += 8)
+		{
+			ldt->descriptors.push_back(P3Format::MultiSegmented::Descriptor::ReadEntry(*image.get(), ldt_address + ldt_offset));
+		}
+	}
 }
 
 bool P3Format::External::FormatSupportsSegmentation() const
@@ -1470,9 +1620,86 @@ void P3Format::External::Dump(Dumper::Dumper& dump) const
 
 	Dumper::Block load_image_block("Load image", file_offset + load_image_offset, image, is_multisegmented ? 0 : base_load_offset, 8);
 	load_image_block.AddOptionalField("Size in memory", Dumper::HexDisplay::Make(4), offset_t(memory_requirements));
-	// TODO: relocations
+	for(auto relocation : relocations)
+	{
+		uint16_t index = relocation.selector >> 3;
+		P3Format::MultiSegmented::Descriptor * descriptor;
+		if((relocation.selector & 4) == 0)
+		{
+			if(index >= gdt->descriptors.size())
+				continue; // invalid
+			descriptor = &gdt->descriptors[index];
+		}
+		else
+		{
+			if(index >= ldt->descriptors.size())
+				continue; // invalid
+			descriptor = &ldt->descriptors[index];
+		}
+		if(descriptor->IsGate())
+			continue; // invalid
+		load_image_block.AddSignal(descriptor->base + relocation.offset, 2);
+	}
 	load_image_block.Display(dump);
 
-	// TODO: display segments, GDT, LDT, IDT, TSS
+	/* Task State Segment */
+
+	// TODO
+
+	/* Global Descriptor Table */
+
+	if(gdt_address != 0 || gdt_size != 0)
+	{
+		Dumper::Region gdt_region("Global Descriptor Table (GDT)", file_offset + load_image_offset + gdt_address, gdt_size, 8);
+		gdt_region.Display(dump);
+	}
+
+	uint32_t descriptor_index = 0;
+	for(auto& descriptor : gdt->descriptors)
+	{
+		Dumper::Entry gdt_entry("GDT entry", descriptor_index + 1, file_offset + load_image_offset + gdt_address + 8 * descriptor_index, 8);
+		gdt_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(descriptor_index * 8));
+		descriptor.FillEntry(gdt_entry);
+		gdt_entry.Display(dump);
+		descriptor_index ++;
+	}
+
+	/* Interrupt Descriptor Table */
+
+	if(idt_address != 0 || idt_size != 0)
+	{
+		Dumper::Region idt_region("Interrupt Descriptor Table (IDT)", file_offset + load_image_offset + idt_address, idt_size, 8);
+		idt_region.Display(dump);
+	}
+
+	descriptor_index = 0;
+	for(auto& descriptor : idt->descriptors)
+	{
+		Dumper::Entry idt_entry("IDT entry", descriptor_index + 1, file_offset + load_image_offset + idt_address + 8 * descriptor_index, 8);
+		idt_entry.AddField("Interrupt number", Dumper::HexDisplay::Make(2), offset_t(descriptor_index));
+		descriptor.FillEntry(idt_entry);
+		idt_entry.Display(dump);
+		descriptor_index ++;
+	}
+
+	/* Local Descriptor Table */
+
+	if(ldt_address != 0 || ldt_size != 0)
+	{
+		Dumper::Region ldt_region("Local Descriptor Table (LDT)", file_offset + load_image_offset + ldt_address, ldt_size, 8);
+		ldt_region.Display(dump);
+	}
+
+	descriptor_index = 0;
+	for(auto& descriptor : ldt->descriptors)
+	{
+		Dumper::Entry ldt_entry("LDT entry", descriptor_index + 1, file_offset + load_image_offset + ldt_address + 8 * descriptor_index, 8);
+		ldt_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(descriptor_index * 8 + 4));
+		descriptor.FillEntry(ldt_entry);
+		ldt_entry.Display(dump);
+		descriptor_index ++;
+	}
+
+	// TODO: display segments
 }
 

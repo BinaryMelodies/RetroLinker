@@ -250,7 +250,7 @@ namespace PharLap
 		class Descriptor
 		{
 		public:
-			std::weak_ptr<AbstractSegment> image;
+			std::weak_ptr<AbstractSegment> image = std::weak_ptr<AbstractSegment>();
 
 			enum
 			{
@@ -262,21 +262,32 @@ namespace PharLap
 				Data16 = 0x00009200,
 				Data32 = 0x00409200,
 
+				DESC_X = 0x00000800,
+				DESC_S = 0x00001000,
 				DESC_G = 0x00800000,
 			};
+			uint32_t access = 0;
 
+			// only for segments
 			uint32_t limit = 0;
 			uint32_t base = 0;
-			uint32_t access;
+			// only for gates
+			uint32_t offset = 0;
+			uint16_t selector = 0;
 
-			Descriptor(uint32_t access, std::weak_ptr<AbstractSegment> image = std::weak_ptr<AbstractSegment>())
-				: image(image), access(access)
-			{
-			}
+			explicit Descriptor() = default;
+
+			static Descriptor FromSegment(uint32_t access, std::weak_ptr<AbstractSegment> image = std::weak_ptr<AbstractSegment>());
+			static Descriptor ReadEntry(Linker::Image& image, offset_t offset);
+
+			bool IsSegment() const;
+			bool IsGate() const;
 
 			void CalculateValues();
 
 			void WriteEntry(Linker::Writer& wr) const;
+
+			void FillEntry(Dumper::Entry& entry) const;
 		};
 
 		class DescriptorTable : public AbstractSegment
@@ -417,6 +428,11 @@ namespace PharLap
 		std::vector<std::shared_ptr<P3Format::MultiSegmented::SITEntry>> segments;
 		std::vector<P3Format::MultiSegmented::Relocation> relocations;
 		std::shared_ptr<Linker::Buffer> image;
+
+		std::shared_ptr<P3Format::MultiSegmented::DescriptorTable> gdt;
+		std::shared_ptr<P3Format::MultiSegmented::DescriptorTable> idt;
+		std::shared_ptr<P3Format::MultiSegmented::DescriptorTable> ldt;
+		std::shared_ptr<P3Format::MultiSegmented::TaskStateSegment> tss;
 
 		External()
 			: P3Format(true, true)
