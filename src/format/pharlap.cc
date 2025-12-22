@@ -1444,6 +1444,15 @@ void P3Format::External::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Region relocation_table_region("Relocation table", file_offset + relocation_table_offset, relocation_table_size, 8);
 		relocation_table_region.Display(dump);
+
+		uint32_t relocation_index = 0;
+		for(auto relocation : relocations)
+		{
+			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, file_offset + relocation_table_offset + relocation_index * (is_32bit ? 6 : 4), 8);
+			relocation_entry.AddField("Address", Dumper::SegmentedDisplay::Make(is_32bit ? 8 : 4), offset_t(relocation.selector), offset_t(relocation.offset));
+			relocation_entry.Display(dump);
+			relocation_index++;
+		}
 	}
 
 	if(runtime_parameters_offset != 0 || runtime_parameters_size != 0)
