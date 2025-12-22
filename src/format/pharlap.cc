@@ -731,6 +731,96 @@ void P3Format::TaskStateSegment::WriteFile(Linker::Writer& wr) const
 	}
 }
 
+void P3Format::TaskStateSegment::ReadImage(Linker::Image& image, offset_t offset)
+{
+	if(is_32bit)
+	{
+		link = image.ReadUnsigned(4, offset + 0x00, ::LittleEndian);
+		esp0 = image.ReadUnsigned(4, offset + 0x04, ::LittleEndian);
+		ss0 = image.ReadUnsigned(4, offset + 0x08, ::LittleEndian);
+		esp1 = image.ReadUnsigned(4, offset + 0x0C, ::LittleEndian);
+		ss1 = image.ReadUnsigned(4, offset + 0x10, ::LittleEndian);
+		esp2 = image.ReadUnsigned(4, offset + 0x14, ::LittleEndian);
+		ss2 = image.ReadUnsigned(4, offset + 0x18, ::LittleEndian);
+		cr3 = image.ReadUnsigned(4, offset + 0x1C, ::LittleEndian);
+		eip = image.ReadUnsigned(4, offset + 0x20, ::LittleEndian);
+		eflags = image.ReadUnsigned(4, offset + 0x24, ::LittleEndian);
+		eax = image.ReadUnsigned(4, offset + 0x28, ::LittleEndian);
+		ecx = image.ReadUnsigned(4, offset + 0x2C, ::LittleEndian);
+		edx = image.ReadUnsigned(4, offset + 0x30, ::LittleEndian);
+		ebx = image.ReadUnsigned(4, offset + 0x34, ::LittleEndian);
+		esp = image.ReadUnsigned(4, offset + 0x38, ::LittleEndian);
+		ebp = image.ReadUnsigned(4, offset + 0x3C, ::LittleEndian);
+		esi = image.ReadUnsigned(4, offset + 0x40, ::LittleEndian);
+		edi = image.ReadUnsigned(4, offset + 0x44, ::LittleEndian);
+		es = image.ReadUnsigned(4, offset + 0x48, ::LittleEndian);
+		cs = image.ReadUnsigned(4, offset + 0x4C, ::LittleEndian);
+		ss = image.ReadUnsigned(4, offset + 0x50, ::LittleEndian);
+		ds = image.ReadUnsigned(4, offset + 0x54, ::LittleEndian);
+		fs = image.ReadUnsigned(4, offset + 0x58, ::LittleEndian);
+		gs = image.ReadUnsigned(4, offset + 0x5C, ::LittleEndian);
+		ldtr = image.ReadUnsigned(4, offset + 0x60, ::LittleEndian);
+		iopb = image.ReadUnsigned(2, offset + 0x66, ::LittleEndian);
+	}
+	else
+	{
+		link = image.ReadUnsigned(2, offset + 0x00, ::LittleEndian);
+		esp0 = image.ReadUnsigned(2, offset + 0x02, ::LittleEndian);
+		ss0 = image.ReadUnsigned(2, offset + 0x04, ::LittleEndian);
+		esp1 = image.ReadUnsigned(2, offset + 0x06, ::LittleEndian);
+		ss1 = image.ReadUnsigned(2, offset + 0x08, ::LittleEndian);
+		esp2 = image.ReadUnsigned(2, offset + 0x0A, ::LittleEndian);
+		ss2 = image.ReadUnsigned(2, offset + 0x0C, ::LittleEndian);
+		eip = image.ReadUnsigned(2, offset + 0x0E, ::LittleEndian);
+		eflags = image.ReadUnsigned(2, offset + 0x10, ::LittleEndian);
+		eax = image.ReadUnsigned(2, offset + 0x12, ::LittleEndian);
+		ecx = image.ReadUnsigned(2, offset + 0x14, ::LittleEndian);
+		edx = image.ReadUnsigned(2, offset + 0x16, ::LittleEndian);
+		ebx = image.ReadUnsigned(2, offset + 0x18, ::LittleEndian);
+		esp = image.ReadUnsigned(2, offset + 0x1A, ::LittleEndian);
+		ebp = image.ReadUnsigned(2, offset + 0x1C, ::LittleEndian);
+		esi = image.ReadUnsigned(2, offset + 0x1E, ::LittleEndian);
+		edi = image.ReadUnsigned(2, offset + 0x20, ::LittleEndian);
+		es = image.ReadUnsigned(2, offset + 0x22, ::LittleEndian);
+		cs = image.ReadUnsigned(2, offset + 0x24, ::LittleEndian);
+		ss = image.ReadUnsigned(2, offset + 0x26, ::LittleEndian);
+		ds = image.ReadUnsigned(2, offset + 0x28, ::LittleEndian);
+		ldtr = image.ReadUnsigned(2, offset + 0x2A, ::LittleEndian);
+	}
+}
+
+void P3Format::TaskStateSegment::FillEntries(Dumper::Region& region) const
+{
+	region.AddOptionalField("Link", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(link));
+	region.AddOptionalField(is_32bit ? "SS0:ESP0" : "SS0:SP0", Dumper::SegmentedDisplay::Make(is_32bit ? 8 : 4), offset_t(ss0), offset_t(esp0));
+	region.AddOptionalField(is_32bit ? "SS1:ESP1" : "SS1:SP1", Dumper::SegmentedDisplay::Make(is_32bit ? 8 : 4), offset_t(ss1), offset_t(esp1));
+	region.AddOptionalField(is_32bit ? "SS2:ESP2" : "SS2:SP2", Dumper::SegmentedDisplay::Make(is_32bit ? 8 : 4), offset_t(ss2), offset_t(esp2));
+	if(is_32bit)
+		region.AddOptionalField("CR3", Dumper::HexDisplay::Make(8), offset_t(cr3));
+	region.AddOptionalField(is_32bit ? "EIP" : "IP", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(eip));
+	region.AddOptionalField(is_32bit ? "EFLAGS" : "FLAGS", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(eflags));
+	region.AddOptionalField(is_32bit ? "EAX" : "AX", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(eax));
+	region.AddOptionalField(is_32bit ? "ECX" : "CX", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(ecx));
+	region.AddOptionalField(is_32bit ? "EDX" : "DX", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(edx));
+	region.AddOptionalField(is_32bit ? "EBX" : "BX", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(ebx));
+	region.AddOptionalField(is_32bit ? "ESP" : "SP", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(esp));
+	region.AddOptionalField(is_32bit ? "EBP" : "BP", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(ebp));
+	region.AddOptionalField(is_32bit ? "ESI" : "SI", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(esi));
+	region.AddOptionalField(is_32bit ? "EDI" : "DI", Dumper::HexDisplay::Make(is_32bit ? 8 : 4), offset_t(edi));
+	region.AddOptionalField("ES", Dumper::HexDisplay::Make(4), offset_t(es));
+	region.AddOptionalField("CS", Dumper::HexDisplay::Make(4), offset_t(cs));
+	region.AddOptionalField("SS", Dumper::HexDisplay::Make(4), offset_t(ss));
+	region.AddOptionalField("DS", Dumper::HexDisplay::Make(4), offset_t(ds));
+	if(is_32bit)
+	{
+		region.AddOptionalField("FS", Dumper::HexDisplay::Make(4), offset_t(fs));
+		region.AddOptionalField("GS", Dumper::HexDisplay::Make(4), offset_t(gs));
+	}
+	region.AddOptionalField("LDTR", Dumper::HexDisplay::Make(4), offset_t(ldtr));
+	if(is_32bit)
+		region.AddOptionalField("IOPB", Dumper::HexDisplay::Make(4), offset_t(iopb));
+}
+
 uint32_t P3Format::SITEntry::GetStoredSize() const
 {
 	// TODO
@@ -1414,7 +1504,7 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 	{
 		for(uint32_t sit_offset = 0; sit_offset + segment_information_table_entry_size <= segment_information_table_size; sit_offset += segment_information_table_entry_size)
 		{
-			rd.Seek(file_offset + sit_offset);
+			rd.Seek(file_offset + segment_information_table_offset + sit_offset);
 			segments.push_back(SITEntry::ReadSITEntry(rd));
 		}
 	}
@@ -1452,7 +1542,11 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 
 	/* Task State Segment */
 
-	// TODO
+	tss->is_32bit = is_32bit;
+	if(tss_size != 0)
+	{
+		tss->ReadImage(*image.get(), tss_address); // TODO: do not read more than tss_size
+	}
 
 	/* Global Descriptor Table */
 
@@ -1518,17 +1612,6 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 		}
 		descriptor->image = segment;
 	}
-
-	if(segment_information_table_size != 0 && segment_information_table_entry_size != 0)
-	{
-		for(uint32_t sit_offset = 0; sit_offset + segment_information_table_entry_size <= segment_information_table_size; sit_offset += segment_information_table_entry_size)
-		{
-			rd.Seek(file_offset + sit_offset);
-			segments.push_back(SITEntry::ReadSITEntry(rd));
-		}
-	}
-
-	// TODO: combine SIT entries with descriptors
 }
 
 bool P3Format::External::FormatSupportsSegmentation() const
@@ -1661,6 +1744,21 @@ void P3Format::External::Dump(Dumper::Dumper& dump) const
 		Dumper::Region segment_information_table_region("Segment information table", file_offset + segment_information_table_offset, segment_information_table_size, 8);
 		segment_information_table_region.AddField("Entry size", Dumper::HexDisplay::Make(4), offset_t(segment_information_table_entry_size));
 		segment_information_table_region.Display(dump);
+
+		uint32_t segment_index = 0;
+		for(auto segment : segments)
+		{
+			if(auto sit_entry = std::dynamic_pointer_cast<SITEntry>(segment))
+			{
+				Dumper::Entry segment_entry("Segment", segment_index + 1, file_offset + segment_information_table_offset + segment_index * segment_information_table_entry_size, 8);
+				segment_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(sit_entry->selector));
+				segment_entry.AddOptionalField("Flags", Dumper::HexDisplay::Make(4), offset_t(sit_entry->flags));
+				segment_entry.AddOptionalField("Base offset", Dumper::HexDisplay::Make(8), offset_t(sit_entry->base_offset));
+				segment_entry.AddOptionalField("Extra bytes", Dumper::HexDisplay::Make(8), offset_t(sit_entry->zero_fill));
+				segment_entry.Display(dump);
+				segment_index++;
+			}
+		}
 	}
 
 	if(relocation_table_offset != 0 || relocation_table_size != 0)
@@ -1717,7 +1815,12 @@ void P3Format::External::Dump(Dumper::Dumper& dump) const
 
 	/* Task State Segment */
 
-	// TODO
+	if(tss_address != 0 || tss_size != 0)
+	{
+		Dumper::Region tss_region("Task State Segment (TSS)", file_offset + load_image_offset + tss_address, tss_size, 8);
+		tss->FillEntries(tss_region);
+		tss_region.Display(dump);
+	}
 
 	/* Global Descriptor Table */
 
@@ -1772,7 +1875,5 @@ void P3Format::External::Dump(Dumper::Dumper& dump) const
 		ldt_entry.Display(dump);
 		descriptor_index ++;
 	}
-
-	// TODO: display segments
 }
 

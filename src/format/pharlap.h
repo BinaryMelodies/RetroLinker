@@ -264,6 +264,8 @@ namespace PharLap
 			uint32_t GetLoadedSize() const override;
 
 			void WriteFile(Linker::Writer& wr) const override;
+			void ReadImage(Linker::Image& image, offset_t offset);
+			void FillEntries(Dumper::Region& region) const;
 		};
 
 		class SITEntry : public AbstractSegment
