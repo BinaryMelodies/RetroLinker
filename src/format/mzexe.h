@@ -348,6 +348,7 @@ namespace Microsoft
 			// try to find real file offset
 			offset_t file_end = rd.GetImageEnd();
 
+			rd.Seek(2);
 			uint32_t mz_image_end = rd.ReadUnsigned(2, ::LittleEndian);
 			mz_image_end = (uint32_t(rd.ReadUnsigned(2, ::LittleEndian)) << 9) - (-mz_image_end & 0x1FF);
 

@@ -105,8 +105,7 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
-	rd.ReadData(signature);
+	file_offset = Microsoft::FindActualSignature(rd, signature, "Adam", "DLL ");
 	if(memcmp(signature.data(), "Adam", 4) != 0 && memcmp(signature.data(), "DLL ", 4) != 0)
 	{
 		Linker::Error << "Error: invalid signature" << std::endl;
@@ -657,7 +656,8 @@ std::string SeychellDOS32::AdamFormat::GetDefaultExtension(Linker::Module& modul
 void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	rd.Skip(4); /* signature */
+	std::array<char, 4> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "D3X1");
 	header_size = rd.ReadUnsigned(4);
 	binary_size = rd.ReadUnsigned(4);
 	extra_size = rd.ReadUnsigned(4);
@@ -710,8 +710,7 @@ void DX64::LVFormat::SetSignature(format_type type)
 void DX64::LVFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
-	rd.ReadData(signature);
+	file_offset = Microsoft::FindActualSignature(rd, signature, "Flat", "LV\0\0");
 	if(memcmp(signature.data(), "Flat", 4) != 0 && memcmp(signature.data(), "LV\0\0", 4) != 0)
 	{
 		Linker::Error << "Error: invalid signature" << std::endl;
