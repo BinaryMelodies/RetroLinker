@@ -1126,13 +1126,13 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_68K:
 		return std::make_shared<CPM68KFormat>();
 	case FORMAT_ADAM:
-		return std::make_shared<SeychellDOS32::AdamFormat>(); // TODO: test
+		return std::make_shared<SeychellDOS32::AdamFormat>();
 	case FORMAT_AIF:
 		return std::make_shared<ARM::AIFFormat>(); // TODO
 	case FORMAT_AOUT:
-		return std::make_shared<AOutFormat>(); // TODO: test dumper
+		return std::make_shared<AOutFormat>();
 	case FORMAT_APPLE:
-		return std::make_shared<Apple::AppleSingleDouble>(); // TODO: test
+		return std::make_shared<Apple::AppleSingleDouble>();
 	case FORMAT_APPLEII:
 		return std::make_shared<AppleFormat>(); // TODO: test
 	case FORMAT_AR:
@@ -1144,9 +1144,9 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_BFLT:
 		return std::make_shared<BFLT::BFLTFormat>(); // TODO: test
 	case FORMAT_BW:
-		return std::make_shared<BWFormat>(); // TODO: test dumper
+		return std::make_shared<BWFormat>();
 	case FORMAT_COFF:
-		return std::make_shared<COFFFormat>(); // TODO: test dumper
+		return std::make_shared<COFFFormat>();
 	case FORMAT_CMD:
 		return std::make_shared<CPM86Format>();
 	case FORMAT_CPM3:
@@ -1154,11 +1154,11 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_D3X:
 		return std::make_shared<BorcaD3X::D3X1Format>(); // TODO: test
 	case FORMAT_ELF:
-		return std::make_shared<ELFFormat>(); // TODO: test dumper
+		return std::make_shared<ELFFormat>();
 	case FORMAT_ELF_MULTIPLE:
 		return std::make_shared<FatELFFormat>(); // TODO: test
 	case FORMAT_FLAT:
-		return std::make_shared<BinaryFormat>(); // TODO: test
+		return std::make_shared<BinaryFormat>();
 	case FORMAT_FLEX:
 		return std::make_shared<FLEXFormat>(); // TODO
 	case FORMAT_GEOS:
@@ -1168,25 +1168,25 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_HU:
 		return std::make_shared<HUFormat>(); // TODO
 	case FORMAT_HUNK:
-		return std::make_shared<HunkFormat>(); // TODO
+		return std::make_shared<HunkFormat>();
 	case FORMAT_JAVA:
 		return std::make_shared<Java::ClassFormat>();
 	case FORMAT_LE:
-		return std::make_shared<LEFormat>(); // TODO
+		return std::make_shared<LEFormat>();
 	case FORMAT_LV:
-		return std::make_shared<DX64::LVFormat>(); // TODO
+		return std::make_shared<DX64::LVFormat>();
 	case FORMAT_MACHO:
 		return std::make_shared<MachOFormat>(); // TODO
 	case FORMAT_MACHO_MULTIPLE:
 		return std::make_shared<FatMachOFormat>(); // TODO
 	case FORMAT_MINIX:
-		return std::make_shared<MINIXFormat>(); // TODO
+		return std::make_shared<MINIXFormat>();
 	case FORMAT_MP:
-		return std::make_shared<MPFormat>(); // TODO
+		return std::make_shared<MPFormat>();
 	case FORMAT_MZ:
 		return std::make_shared<MZFormat>();
 	case FORMAT_NE:
-		return std::make_shared<NEFormat>(); // TODO
+		return std::make_shared<NEFormat>();
 	case FORMAT_O65:
 		return std::make_shared<O65::O65Format>(); // TODO
 	case FORMAT_OMF:
@@ -1198,29 +1198,27 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_PCOS:
 		return std::make_shared<PCOS::CMDFormat>(); // TODO
 	case FORMAT_PE:
-		return std::make_shared<PEFormat>(); // TODO
+		return std::make_shared<PEFormat>();
 	case FORMAT_PEF:
 		return std::make_shared<Apple::PEFFormat>(); // TODO
 	case FORMAT_PMODEW:
 		return std::make_shared<PMODE::PMW1Format>(); // TODO
 	case FORMAT_PRL:
-		return std::make_shared<PRLFormat>(); // TODO
+		return std::make_shared<PRLFormat>();
 	case FORMAT_RSRC:
-		return std::make_shared<Apple::ResourceFork>(); // TODO: test
+		return std::make_shared<Apple::ResourceFork>();
 	case FORMAT_UZI280:
 		return std::make_shared<UZI280Format>(); // TODO
 	case FORMAT_W3:
-		return std::make_shared<W3Format>(); // TODO
+		return std::make_shared<W3Format>();
 	case FORMAT_W4:
-		return std::make_shared<W4Format>(); // TODO
+		return std::make_shared<W4Format>();
 	case FORMAT_XENIX:
-		/* TODO */
-		return std::make_shared<Xenix::XOutFormat>(); // TODO
+		return std::make_shared<Xenix::XOutFormat>();
 	case FORMAT_XENIX_BOUT:
 		return std::make_shared<Xenix::BOutFormat>(); // TODO
 	case FORMAT_XP:
-		/* TODO */
-		return std::make_shared<Ergo::XPFormat>(); // TODO
+		return std::make_shared<Ergo::XPFormat>();
 	case FORMAT_Z8K:
 		return std::make_shared<CPM8KFormat>(); // TODO: test
 #if 0

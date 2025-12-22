@@ -28,10 +28,29 @@ namespace X68000
 		uint32_t entry_address = 0;
 		bool option_no_relocation = false; /* TODO: make parameter */
 
+		uint32_t base_address = 0;
+		uint32_t code_size = 0;
+		uint32_t data_size = 0;
+		uint32_t bss_size = 0;
+		uint32_t symbol_table_size = 0; // TODO
+		uint32_t debug_line_number_table_size = 0; // TODO
+		uint32_t debug_symbol_table_size = 0; // TODO
+		uint32_t debug_string_table_size = 0; // TODO
+		uint32_t bound_module_list_offset = 0; // TODO
+
+		struct Relocation
+		{
+		public:
+			bool is16bit = false;
+			bool absolute_displacement = false;
+			uint32_t displacement = 0;
+		};
+
 		/* filled in automatically */
 		std::shared_ptr<Linker::Segment> code, data, bss;
 		uint32_t relocation_size = 0;
-		std::map<uint32_t, unsigned char> relocations;
+		std::map<uint32_t, uint8_t> relocations;
+		std::vector<Relocation> relocation_sequence;
 
 		static std::vector<Linker::OptionDescription<void> *> ParameterNames;
 		std::vector<Linker::OptionDescription<void> *> GetLinkerScriptParameterNames() override;

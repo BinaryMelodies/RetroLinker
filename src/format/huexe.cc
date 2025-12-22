@@ -2,12 +2,28 @@
 #include "huexe.h"
 #include "../linker/options.h"
 #include "../linker/position.h"
+#include "../linker/reader.h"
 #include "../linker/resolution.h"
 
 using namespace X68000;
 
 void HUFormat::ReadFile(Linker::Reader& rd)
 {
+	rd.endiantype = ::BigEndian;
+	rd.Skip(3); // "HU\0"
+	load_mode = load_mode_type(rd.ReadUnsigned(1));
+	base_address = rd.ReadUnsigned(4);
+	entry_address = rd.ReadUnsigned(4);
+	code_size = rd.ReadUnsigned(4);
+	data_size = rd.ReadUnsigned(4);
+	bss_size = rd.ReadUnsigned(4);
+	relocation_size = rd.ReadUnsigned(4);
+	symbol_table_size = rd.ReadUnsigned(4);
+	debug_line_number_table_size = rd.ReadUnsigned(4);
+	debug_symbol_table_size = rd.ReadUnsigned(4);
+	debug_string_table_size = rd.ReadUnsigned(4);
+	rd.Skip(0x10);
+	bound_module_list_offset = rd.ReadUnsigned(4);
 	/* TODO */
 }
 
@@ -155,17 +171,40 @@ void HUFormat::ProcessModule(Linker::Module& module)
 
 void HUFormat::CalculateValues()
 {
-	relocation_size = 2 * relocations.size();
 	uint32_t last_relocation = 0;
+	relocation_sequence.clear();
 	for(auto it : relocations)
 	{
+		Relocation relocation;
 		uint32_t offset = it.first - last_relocation;
+		if((offset & 1))
+			Linker::Error << "Error: Illegal relocation offset" << std::endl;
+		relocation.is16bit = it.second == 2;
 		if(offset > 0xFFFF)
 		{
-			relocation_size += 4;
+			relocation.absolute_displacement = true;
+			relocation.displacement = it.first;
 		}
-		last_relocation = offset;
+		else
+		{
+			relocation.absolute_displacement = false;
+			relocation.displacement = offset;
+		}
+		relocation_sequence.push_back(relocation);
+		last_relocation = it.first;
 	}
+
+	relocation_size = 2 * relocation_sequence.size();
+	for(auto relocation : relocation_sequence)
+	{
+		if(relocation.absolute_displacement)
+			relocation_size += 4;
+	}
+
+	base_address = code->base_address;
+	code_size = code->data_size;
+	data_size = data->data_size;
+	bss_size = bss->zero_fill;
 }
 
 offset_t HUFormat::WriteFile(Linker::Writer& wr) const
@@ -173,37 +212,38 @@ offset_t HUFormat::WriteFile(Linker::Writer& wr) const
 	wr.endiantype = ::BigEndian;
 	wr.WriteData(3, "HU\0");
 	wr.WriteWord(1, load_mode);
-	wr.WriteWord(4, code->base_address);
+	wr.WriteWord(4, base_address);
 	wr.WriteWord(4, entry_address);
-	wr.WriteWord(4, code->data_size);
-	wr.WriteWord(4, data->data_size);
-	wr.WriteWord(4, bss->zero_fill);
+	wr.WriteWord(4, code_size);
+	wr.WriteWord(4, data_size);
+	wr.WriteWord(4, bss_size);
 	wr.WriteWord(4, relocation_size);
-	wr.WriteWord(4, 0); /* symbol table */
-	wr.Seek(0x40);
+	wr.WriteWord(4, symbol_table_size);
+	wr.WriteWord(4, debug_line_number_table_size);
+	wr.WriteWord(4, debug_symbol_table_size);
+	wr.WriteWord(4, debug_string_table_size);
+	wr.Skip(0x10);
+	wr.WriteWord(4, bound_module_list_offset);
+
 	code->WriteFile(wr);
 	data->WriteFile(wr);
 
-	uint32_t last_relocation = 0;
-	for(auto it : relocations)
+	for(auto relocation : relocation_sequence)
 	{
-		uint32_t offset = it.first - last_relocation;
-		if((offset & 1))
-			Linker::Error << "Error: Illegal relocation offset" << std::endl;
-		if(it.second == 2)
-			offset |= 1;
+		uint32_t displacement = relocation.displacement;
+		if(relocation.is16bit)
+			displacement |= 1;
 		else
-			offset &= ~1;
-		if(offset > 0xFFFF)
+			displacement &= ~1;
+		if(relocation.absolute_displacement)
 		{
 			wr.WriteWord(2, 1);
-			wr.WriteWord(4, offset);
+			wr.WriteWord(4, relocation.displacement);
 		}
 		else
 		{
-			wr.WriteWord(2, offset);
+			wr.WriteWord(2, relocation.displacement);
 		}
-		last_relocation = it.first;
 	}
 
 	return offset_t(-1);
