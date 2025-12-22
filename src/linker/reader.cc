@@ -29,6 +29,7 @@ Reader Reader::CreateWindow(offset_t new_start_offset, offset_t new_maximum_size
 
 void Reader::ReadData(size_t count, void * data)
 {
+	offset_t _off = Tell();
 	size_t permitted_count = count;
 	if(maximum_size != offset_t(-1) && offset_t(in->tellg()) + permitted_count > start_offset + maximum_size)
 	{
@@ -38,6 +39,7 @@ void Reader::ReadData(size_t count, void * data)
 	size_t actual_count = in->gcount();
 	if(actual_count != count)
 	{
+		Linker::Error << "Reading error at offset " << std::hex << _off << std::endl;
 		switch(on_overflow)
 		{
 		case IgnoreOnOverflow:

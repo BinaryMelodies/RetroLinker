@@ -361,10 +361,8 @@ namespace Microsoft
 					rd.Seek(0x38);
 					win386_header_offset = rd.ReadUnsigned(4, ::LittleEndian);
 				}
-				else
-				{
-					rd.Seek(0x3C);
-				}
+
+				rd.Seek(0x3C);
 				ne_header_offset = rd.ReadUnsigned(4, ::LittleEndian);
 			}
 
