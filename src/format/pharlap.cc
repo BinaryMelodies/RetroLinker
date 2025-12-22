@@ -834,18 +834,18 @@ void P3Format::MultiSegmented::Segment::WriteFile(Linker::Writer& wr) const
 
 bool P3Format::MultiSegmented::Relocation::operator ==(const Relocation& other) const
 {
-	return segment->selector == other.segment->selector && offset == other.offset;
+	return selector == other.selector && offset == other.offset;
 }
 
 bool P3Format::MultiSegmented::Relocation::operator <(const Relocation& other) const
 {
-	return segment->selector < other.segment->selector || (segment->selector == other.segment->selector && offset < other.offset);
+	return selector < other.selector || (selector == other.selector && offset < other.offset);
 }
 
 void P3Format::MultiSegmented::Relocation::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, offset);
-	wr.WriteWord(2, segment->selector);
+	wr.WriteWord(2, selector);
 }
 
 void P3Format::MultiSegmented::OnNewSegment(std::shared_ptr<Linker::Segment> linker_segment)
@@ -1055,7 +1055,7 @@ void P3Format::MultiSegmented::ProcessModule(Linker::Module& module)
 				continue;
 			}
 			Linker::Position source = rel.source.GetPosition();
-			relocations.insert(Relocation(std::static_pointer_cast<Segment>(segments[segment_associations[source.segment]]), source.address));
+			relocations.insert(Relocation(std::static_pointer_cast<Segment>(segments[segment_associations[source.segment]])->selector, source.address));
 		}
 		else
 		{
@@ -1267,7 +1267,7 @@ void P3Format::External::ReadFile(Linker::Reader& rd)
 		rd.Seek(file_offset + relocation_table_offset);
 		for(uint32_t relocation_offset = 0; relocation_offset < relocation_table_size; relocation_offset += (is_32bit ? 6 : 4))
 		{
-			Relocation relocation{0, 0};
+			P3Format::MultiSegmented::Relocation relocation{0, 0};
 			relocation.offset = rd.ReadUnsigned(is_32bit ? 4 : 2);
 			relocation.selector = rd.ReadUnsigned(2);
 			relocations.push_back(relocation);

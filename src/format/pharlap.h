@@ -375,11 +375,11 @@ namespace PharLap
 		class Relocation
 		{
 		public:
-			std::shared_ptr<Segment> segment;
+			uint16_t selector;
 			uint32_t offset;
 
-			Relocation(std::shared_ptr<Segment> segment, uint32_t offset)
-				: segment(segment), offset(offset)
+			Relocation(uint16_t selector, uint32_t offset)
+				: selector(selector), offset(offset)
 			{
 			}
 
@@ -414,20 +414,8 @@ namespace PharLap
 	class P3Format::External : public P3Format
 	{
 	public:
-		class Relocation
-		{
-		public:
-			uint16_t selector;
-			uint32_t offset;
-
-			Relocation(uint16_t selector, uint32_t offset)
-				: selector(selector), offset(offset)
-			{
-			}
-		};
-
 		std::vector<std::shared_ptr<P3Format::MultiSegmented::SITEntry>> segments;
-		std::vector<Relocation> relocations;
+		std::vector<P3Format::MultiSegmented::Relocation> relocations;
 		std::shared_ptr<Linker::Buffer> image;
 
 		External()
