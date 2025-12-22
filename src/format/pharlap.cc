@@ -1367,7 +1367,7 @@ void P3Format::External::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, file_size, 8);
 	file_region.AddField("Signature", Dumper::StringDisplay::Make(2, "'"), std::string(is_32bit ? "P3" : "P2"));
 	file_region.AddField("Word size", Dumper::ChoiceDisplay::Make("32-bit", "16-bit"), offset_t(is_32bit));
-	file_region.AddField("Level", Dumper::ChoiceDisplay::Make(level_description), offset_t(is_multisegmented ? 2 : 1));
+	file_region.AddField("Level", Dumper::ChoiceDisplay::Make(level_description, 4), offset_t(is_multisegmented ? 2 : 1));
 	file_region.AddOptionalField("Checksum (16-bit)", Dumper::HexDisplay::Make(4), offset_t(checksum16));
 	file_region.AddOptionalField("Checksum (32-bit)", Dumper::HexDisplay::Make(8), offset_t(checksum32));
 	if(!is_multisegmented || minimum_extra != 0)
@@ -1400,13 +1400,17 @@ void P3Format::External::Dump(Dumper::Dumper& dump) const
 	}
 	if(is_multisegmented || ldtr != 0)
 	{
-		file_region.AddField("Initial LDTR (local description table register)", Dumper::SegmentedDisplay::Make(8), offset_t(ss), offset_t(ldtr));
+		file_region.AddField("Initial LDTR (local description table register)", Dumper::HexDisplay::Make(4), offset_t(ldtr));
 	}
 	if(is_multisegmented || tr != 0)
 	{
-		file_region.AddField("Initial TR (task state segment register)", Dumper::SegmentedDisplay::Make(8), offset_t(ss), offset_t(tr));
+		file_region.AddField("Initial TR (task state segment register)", Dumper::HexDisplay::Make(4), offset_t(tr));
 	}
-	file_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(4), offset_t(flags)); // TODO: bit field
+	file_region.AddOptionalField("Flags", Dumper::BitFieldDisplay::Make(4)
+		->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("compressed"), true)
+		->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("32-bit checksum"), true)
+		->AddBitField(2, 3, "relocation table type", Dumper::DecDisplay::Make(), true),
+		offset_t(flags));
 	file_region.AddField("Size of initial stack", Dumper::HexDisplay::Make(4), offset_t(stack_size));
 	file_region.Display(dump);
 
