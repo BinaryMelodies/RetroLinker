@@ -575,7 +575,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 {
 	// note: bound EMX executables are not parsed here
 
-	uint8_t signature[4];
+	std::array<uint8_t, 4> signature;
 
 	file_offset = rd.Tell();
 
@@ -586,28 +586,18 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	}
 
 	offset_t file_end = rd.GetImageEnd();
-	rd.ReadData(sizeof(signature), signature);
+	rd.ReadData(signature);
 
 	if(file_offset == 0 && (system == UNSPECIFIED || system == DJGPP1)
 	&& ((signature[0] == 'M' && signature[1] == 'Z')
 		|| (signature[0] == 'Z' && signature[1] == 'M')))
 	{
-		// we were given a stubbed executable, attempt to find the actual a.out entry
-		rd.endiantype = ::LittleEndian;
-
-		rd.Seek(2);
-		uint32_t stub_size = rd.ReadUnsigned(2);
-		stub_size = (uint32_t(rd.ReadUnsigned(2)) << 9) - (-stub_size & 0x1FF);
-
-		if(stub_size < file_end)
-		{
-			// attempt to read as DJGPP executable
-			file_offset = stub_size;
-			system = DJGPP1;
-
-			rd.Seek(file_offset);
-			rd.ReadData(sizeof(signature), signature);
-		}
+		// try to check for MZ stub
+		rd.Seek(0);
+		std::array<uint8_t, 2> magic;
+		file_offset = Microsoft::FindActualSignature(rd, magic, "\7\1", "\10\1", "\13\1");
+		rd.Seek(file_offset);
+		rd.ReadData(signature);
 	}
 
 	switch(system)
@@ -618,7 +608,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		{
 			// word_size and endiantype are already set
 			midmag_endiantype = endiantype;
-			if(!AttemptReadFile(rd, signature, file_end - file_offset))
+			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 			{
 				Linker::FatalError("Fatal error: Unable to determine file format");
 			}
@@ -651,22 +641,22 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 				word_size = file_offset ? WordSize32 : WordSize16;
 				/* if at beginning of file, first attempt 16-bit little endian (PDP-11, most likely input format) */
-				if(!AttemptReadFile(rd, signature, file_end - file_offset))
+				if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 				{
 					endiantype = midmag_endiantype = ::LittleEndian;
 					word_size = file_offset ? WordSize16 : WordSize32;
 					/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
-					if(!AttemptReadFile(rd, signature, file_end - file_offset))
+					if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 					{
 						endiantype = midmag_endiantype = ::BigEndian;
 						word_size = WordSize32;
 						/* then attempt 32-bit big endian (Motorola 68000, most likely format if not little endian) */
-						if(!AttemptReadFile(rd, signature, file_end - file_offset))
+						if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 						{
 							endiantype = midmag_endiantype = ::BigEndian;
 							word_size = WordSize16;
 							/* finally, attempt 16-bit big endian (unsure if any ever supported UNIX with a.out) */
-							if(!AttemptReadFile(rd, signature, file_end - file_offset))
+							if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 							{
 								Linker::FatalError("Fatal error: Unable to determine file format");
 							}
@@ -714,7 +704,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 					break;
 				}
 
-				if(!AttemptFetchMagic(signature))
+				if(!AttemptFetchMagic(signature.data()))
 				{
 					Linker::FatalError("Fatal error: Unable to determine file format");
 				}

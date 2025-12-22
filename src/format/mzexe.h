@@ -430,6 +430,16 @@ namespace Microsoft
 			[expected_signature1, expected_signature2](std::array<T, N>& signature) { return memcmp(signature.data(), expected_signature1, N) == 0 || memcmp(signature.data(), expected_signature2, N) == 0; },
 			search_win386_offset);
 	}
+
+	template <typename T, size_t N>
+		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, const char * expected_signature1, const char * expected_signature2, const char * expected_signature3)
+	{
+		return FindActualSignature(
+			rd,
+			signature,
+			[expected_signature1, expected_signature2, expected_signature3](std::array<T, N>& signature) { return memcmp(signature.data(), expected_signature1, N) == 0 || memcmp(signature.data(), expected_signature2, N) == 0 || memcmp(signature.data(), expected_signature3, N) == 0; },
+			false);
+	}
 }
 
 #endif /* MZEXE_H */
