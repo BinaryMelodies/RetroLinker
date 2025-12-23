@@ -35,6 +35,24 @@ void CPM8KFormat::Relocation::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, target);
 }
 
+CPM8KFormat::Symbol CPM8KFormat::Symbol::ReadFile(Linker::Reader& rd)
+{
+	Symbol symbol;
+	symbol.segment_number = rd.ReadUnsigned(1);
+	symbol.type = symbol_type(rd.ReadUnsigned(1));
+	symbol.value = rd.ReadUnsigned(2);
+	symbol.name = rd.ReadData(8, true);
+	return symbol;
+}
+
+void CPM8KFormat::Symbol::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteWord(1, segment_number);
+	wr.WriteWord(1, type);
+	wr.WriteWord(2, value);
+	wr.WriteData(8, name);
+}
+
 CPM8KFormat::magic_type CPM8KFormat::GetSignature() const
 {
 	if((signature[0] & 0xFF) == 0xEE)
@@ -115,7 +133,10 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 		relocations.push_back(Relocation::ReadFile(rd));
 	}
 
-	// TODO: symbols
+	for(uint32_t symbol_offset = 0; symbol_offset < symbol_table_size; symbol_offset += 12)
+	{
+		symbols.push_back(Symbol::ReadFile(rd));
+	}
 }
 
 offset_t CPM8KFormat::ImageSize() const
@@ -131,8 +152,7 @@ offset_t CPM8KFormat::ImageSize() const
 	}
 
 	size += relocation_size;
-
-	// TODO: symbols
+	size += symbol_table_size;
 
 	return size;
 }
@@ -168,7 +188,10 @@ offset_t CPM8KFormat::WriteFile(Linker::Writer& wr) const
 		relocation.WriteFile(wr);
 	}
 
-	// TODO: symbols
+	for(auto& symbol : symbols)
+	{
+		symbol.WriteFile(wr);
+	}
 
 	return ImageSize();
 }
@@ -266,6 +289,8 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 			if(relocation.IsExternal())
 			{
 				relocation_entry.AddField("Symbol number", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
+				if(relocation.target < symbols.size())
+					relocation_entry.AddField("Symbol name", Dumper::StringDisplay::Make("'"), symbols[relocation.target].name);
 			}
 			else
 			{
@@ -281,8 +306,31 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 	if(symbol_table_size != 0)
 	{
 		Dumper::Region symbol_table_region("Symbol table", file_offset + 0x40 + 4 * segments.size() + total_size + relocation_size, symbol_table_size, 8);
-		// TODO
 		symbol_table_region.Display(dump);
+
+		static const std::map<offset_t, std::string> symbol_type_description =
+		{
+			{ Symbol::LOCAL, "local" },
+			{ Symbol::EXTERNAL, "undefined/external" },
+			{ Symbol::GLOBAL, "global" },
+			{ Symbol::SEGMENT, "segment" },
+		};
+
+		uint32_t symbol_index = 0;
+		for(auto& symbol : symbols)
+		{
+			Dumper::Entry symbol_entry("Symbol", symbol_index + 1, file_offset + 0x40 + 4 * segments.size() + total_size + relocation_size + 12 * symbol_index, 8);
+			symbol_entry.AddField("Type", Dumper::ChoiceDisplay::Make(symbol_type_description, 2), offset_t(symbol.type));
+			if(symbol.segment_number != Symbol::ABSOLUTE || symbol.type == Symbol::SEGMENT)
+				symbol_entry.AddField("Value", Dumper::SegmentedDisplay::Make(4), offset_t(symbol.segment_number), offset_t(symbol.value));
+			else if(symbol.type != Symbol::EXTERNAL)
+				symbol_entry.AddField("Value", Dumper::HexDisplay::Make(4), offset_t(symbol.value));
+			else
+				symbol_entry.AddOptionalField("Size", Dumper::HexDisplay::Make(4), offset_t(symbol.value));
+			symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol.name);
+			symbol_entry.Display(dump);
+			symbol_index++;
+		}
 	}
 }
 

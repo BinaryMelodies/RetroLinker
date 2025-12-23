@@ -121,7 +121,21 @@ namespace DigitalResearch
 
 		struct Symbol
 		{
-			/* TODO */
+			uint8_t segment_number;
+			static constexpr uint8_t ABSOLUTE = 0xFF;
+			enum symbol_type
+			{
+				LOCAL,
+				EXTERNAL,
+				GLOBAL,
+				SEGMENT,
+			};
+			symbol_type type;
+			uint16_t value;
+			std::string name;
+
+			static Symbol ReadFile(Linker::Reader& rd);
+			void WriteFile(Linker::Writer& wr) const;
 		};
 
 		enum magic_type
