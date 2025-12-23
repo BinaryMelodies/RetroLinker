@@ -125,10 +125,10 @@ namespace DigitalResearch
 			static constexpr uint8_t ABSOLUTE = 0xFF;
 			enum symbol_type
 			{
-				LOCAL,
-				EXTERNAL,
-				GLOBAL,
-				SEGMENT,
+				LOCAL = 1,
+				EXTERNAL = 2,
+				GLOBAL = 3,
+				SEGMENT = 4,
 			};
 			symbol_type type;
 			uint16_t value;
