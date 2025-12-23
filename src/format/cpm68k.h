@@ -128,6 +128,30 @@ namespace DigitalResearch
 		 */
 		std::map<uint32_t, Relocation> relocations;
 
+		struct Symbol
+		{
+			std::string name;
+			enum symbol_type
+			{
+				LIBRARY_START = 0x0040,
+				OBJECT_START = 0x0080,
+				BSS_BASED = 0x0100,
+				TEXT_BASED = 0x0200,
+				DATA_BASED = 0x0400,
+				EXTERNAL = 0x0800,
+				REGISTER = 0x1000,
+				GLOBAL = 0x2000,
+				EQUATED = 0x4000,
+				DEFINED = 0x8000,
+			};
+			uint16_t type;
+			uint32_t value;
+
+			static Symbol ReadFile(Linker::Reader& rd);
+			void WriteFile(Linker::Writer& wr) const;
+		};
+		std::vector<Symbol> symbols;
+
 		magic_type GetSignature() const;
 
 		void SetSignature(magic_type magic);

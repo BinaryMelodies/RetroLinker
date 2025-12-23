@@ -44,6 +44,22 @@ CPM68KFormat::magic_type CPM68KFormat::GetSignature() const
 	return magic_type(0); // invalid
 }
 
+CPM68KFormat::Symbol CPM68KFormat::Symbol::ReadFile(Linker::Reader& rd)
+{
+	Symbol symbol;
+	symbol.name = rd.ReadData(8, true);
+	symbol.type = rd.ReadUnsigned(2);
+	symbol.value = rd.ReadUnsigned(4);
+	return symbol;
+}
+
+void CPM68KFormat::Symbol::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteData(8, name);
+	wr.WriteWord(2, type);
+	wr.WriteWord(4, value);
+}
+
 void CPM68KFormat::SetSignature(magic_type magic)
 {
 	switch(magic)
@@ -195,7 +211,13 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 	data_section->ReadFile(rd, data_size);
 	data = data_section;
 
-	/* TODO: symbol table */
+	rd.Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C) + code_size + data_size);
+
+	// TODO: other symbol table formats
+	for(uint32_t symbol_offset = 0; symbol_offset < symbol_table_size; symbol_offset += 14)
+	{
+		symbols.push_back(Symbol::ReadFile(rd));
+	}
 
 	rd.Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C) + code_size + data_size + symbol_table_size);
 
@@ -352,6 +374,10 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 	}
 	code->WriteFile(wr);
 	data->WriteFile(wr);
+	for(auto& symbol : symbols)
+	{
+		symbol.WriteFile(wr);
+	}
 	switch(system)
 	{
 	case SYSTEM_CDOS68K:
@@ -486,8 +512,6 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Block data_block("Data segment", file_offset + header_size + code_size, data->AsImage(),
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? data_address : code_size, 8);
 
-	header_region.AddField("Bss address", Dumper::HexDisplay::Make(), offset_t(bss_address)); /* TODO: place as part of a container */
-
 	header_region.AddOptionalField("Symbol table size", Dumper::HexDisplay::Make(), offset_t(symbol_table_size));
 	header_region.AddOptionalField("Stack size", Dumper::HexDisplay::Make(), offset_t(stack_size));
 	if(system == SYSTEM_GEMDOS)
@@ -513,30 +537,34 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 
 	header_region.Display(dump);
 
-//			Dumper::Region relocations_region("Relocations", file_offset + code_size + data_size + symbol_table_size, 0); /* TODO: unknown size */
-
-	static const std::map<offset_t, std::string> segment_names =
+	if(relocations.size() > 0)
 	{
-		{ 1, "Data" },
-		{ 2, "Text" },
-		{ 3, "Bss" },
-	};
+		Dumper::Region relocations_region("Relocations", file_offset + code_size + data_size + symbol_table_size, 0 /* TODO: unknown size */, 8);
+		relocations_region.Display(dump);
 
-	size_t i = 0;
-	for(auto relocation : relocations)
-	{
-		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
-		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(relocation.first));
-		relocation_entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(relocation.second.size));
-		relocation_entry.AddField("Target", Dumper::ChoiceDisplay::Make(segment_names, Dumper::DecDisplay::Make()), offset_t(relocation.second.segment));
-		// TODO: fill addend
-		relocation_entry.Display(dump);
+		static const std::map<offset_t, std::string> segment_names =
+		{
+			{ 1, "Data" },
+			{ 2, "Text" },
+			{ 3, "Bss" },
+		};
 
-		if(relocation.first < code_address + code_size)
-			code_block.AddSignal(relocation.first - code_address, relocation.second.size);
-		else
-			data_block.AddSignal(relocation.first - code_address - code_size, relocation.second.size);
-		i++;
+		size_t i = 0;
+		for(auto relocation : relocations)
+		{
+			Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
+			relocation_entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(relocation.first));
+			relocation_entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(relocation.second.size));
+			relocation_entry.AddField("Target", Dumper::ChoiceDisplay::Make(segment_names, Dumper::DecDisplay::Make()), offset_t(relocation.second.segment));
+			// TODO: fill addend
+			relocation_entry.Display(dump);
+
+			if(relocation.first < code_address + code_size)
+				code_block.AddSignal(relocation.first - code_address, relocation.second.size);
+			else
+				data_block.AddSignal(relocation.first - code_address - code_size, relocation.second.size);
+			i++;
+		}
 	}
 
 	code_block.Display(dump);
@@ -547,7 +575,33 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? bss_address : code_size + data_size));
 	bss_region.Display(dump);
 
-	/* TODO: symbol table */
+	if(symbols.size() > 0)
+	{
+		Dumper::Region symbol_table_region("Symbol table", file_offset + header_size + code_size + data_size, symbol_table_size, 8);
+		symbol_table_region.Display(dump);
+
+		uint32_t symbol_index = 0;
+		for(auto& symbol : symbols)
+		{
+			Dumper::Entry symbol_entry("Symbol", symbol_index + 1, file_offset + header_size + code_size + data_size + 14 * symbol_index, 8);
+			symbol_entry.AddField("Type", Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("library start"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("object start"), true)
+				->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("bss based"), true)
+				->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("text based"), true)
+				->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("data based"), true)
+				->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("external"), true)
+				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("register"), true)
+				->AddBitField(13, 1, Dumper::ChoiceDisplay::Make("global"), true)
+				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("equated"), true)
+				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("defined"), true),
+				offset_t(symbol.type));
+			symbol_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(symbol.value));
+			symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol.name);
+			symbol_entry.Display(dump);
+			symbol_index++;
+		}
+	}
 }
 
 void CPM68KFormat::CalculateValues()
