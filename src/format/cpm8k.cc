@@ -146,11 +146,60 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
+	static const std::map<offset_t, std::string> signature_description =
+	{
+		{ 0xEE00, "segmented, non-executable" },
+		{ 0xEE01, "segmented, executable" },
+		{ 0xEE02, "non-segmented, non-executable" },
+		{ 0xEE03, "non-segmented, executable, non-shared instruction and data space" },
+		{ 0xEE06, "non-segmented, non-executable, shared instruction and data space" },
+		{ 0xEE07, "non-segmented, executable, shared instruction and data space" },
+		{ 0xEE0A, "non-segmented, non-executable, split instruction and data space" },
+		{ 0xEE0B, "non-segmented, executable, split instruction and data space" },
+	};
+
 	dump.SetTitle("CP/M-8000 format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 6);
+	file_region.AddField("Signature", Dumper::ChoiceDisplay::Make(signature_description, Dumper::HexDisplay::Make(4)),
+		offset_t((uint8_t(signature[0]) << 8) | uint8_t(signature[1])));
+	file_region.AddField("Segment count", Dumper::DecDisplay::Make(), offset_t(segment_count));
+	file_region.AddField("Total size", Dumper::HexDisplay::Make(8), offset_t(total_size));
 	file_region.Display(dump);
 
-	// TODO
+	uint16_t segment_index = 0;
+	uint32_t segment_offset = file_offset;
+	for(auto& segment : segments)
+	{
+		if(segment.IsPresent())
+		{
+			Dumper::Block segment_block("Segment", segment_offset, segment.image->AsImage(), 0 /* TODO */, 8);
+			segment_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(segment_index + 1));
+			segment_block.Display(dump);
+			segment_offset += segment.length;
+		}
+		else
+		{
+			Dumper::Region segment_region("Segment", segment_offset, segment.length, 8);
+			segment_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(segment_index + 1));
+			segment_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(0 /* TODO */));
+			segment_region.Display(dump);
+		}
+		segment_index ++;
+	}
+
+	if(relocation_size != 0)
+	{
+		Dumper::Region relocation_region("Relocations", file_offset + total_size, relocation_size, 8);
+		// TODO
+		relocation_region.Display(dump);
+	}
+
+	if(symbol_table_size != 0)
+	{
+		Dumper::Region symbol_table_region("Symbol table", file_offset + total_size + relocation_size, symbol_table_size, 8);
+		// TODO
+		symbol_table_region.Display(dump);
+	}
 }
 
 void CPM8KFormat::CalculateValues()
