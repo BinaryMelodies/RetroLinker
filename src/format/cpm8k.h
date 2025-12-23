@@ -92,6 +92,31 @@ namespace DigitalResearch
 			 * @brief The segment or symbol number that the relocation references
 			 */
 			uint16_t target;
+
+			constexpr bool IsExternal() const
+			{
+				return type == EXT_OFFSET || type == EXT_SHORT_SEGMENTED || type == EXT_LONG_SEGMENTED;
+			}
+
+			constexpr size_t GetRelocationSize() const
+			{
+				switch(type)
+				{
+				case SEG_OFFSET:
+				case SEG_SHORT_SEGMENTED:
+				case EXT_OFFSET:
+				case EXT_SHORT_SEGMENTED:
+					return 2;
+				case SEG_LONG_SEGMENTED:
+				case EXT_LONG_SEGMENTED:
+					return 4;
+				default:
+					return 0;
+				}
+			}
+
+			static Relocation ReadFile(Linker::Reader& rd);
+			void WriteFile(Linker::Writer& wr) const;
 		};
 
 		struct Symbol

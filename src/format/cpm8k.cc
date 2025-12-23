@@ -17,6 +17,24 @@ bool CPM8KFormat::Segment::IsPresent() const
 	return type != BSS && type != STACK;
 }
 
+CPM8KFormat::Relocation CPM8KFormat::Relocation::ReadFile(Linker::Reader& rd)
+{
+	Relocation relocation;
+	relocation.segment = rd.ReadUnsigned(1);
+	relocation.type = Relocation::relocation_type(rd.ReadUnsigned(1));
+	relocation.offset = rd.ReadUnsigned(2);
+	relocation.target = rd.ReadUnsigned(2);
+	return relocation;
+}
+
+void CPM8KFormat::Relocation::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteWord(1, segment);
+	wr.WriteWord(1, type);
+	wr.WriteWord(2, offset);
+	wr.WriteWord(2, target);
+}
+
 CPM8KFormat::magic_type CPM8KFormat::GetSignature() const
 {
 	if((signature[0] & 0xFF) == 0xEE)
@@ -90,7 +108,13 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 		segment.image = Linker::Buffer::ReadFromFile(rd, segment.length);
 	}
 
-	// TODO: relocations
+	rd.Seek(0x10 + 4 * segments.size() + total_size);
+
+	for(uint32_t relocation_offset = 0; relocation_offset < relocation_size; relocation_offset += 6)
+	{
+		relocations.push_back(Relocation::ReadFile(rd));
+	}
+
 	// TODO: symbols
 }
 
@@ -106,7 +130,8 @@ offset_t CPM8KFormat::ImageSize() const
 		}
 	}
 
-	// TODO: relocations
+	size += relocation_size;
+
 	// TODO: symbols
 
 	return size;
@@ -136,7 +161,13 @@ offset_t CPM8KFormat::WriteFile(Linker::Writer& wr) const
 		}
 	}
 
-	// TODO: relocations
+	wr.Seek(0x10 + 4 * segments.size() + total_size);
+
+	for(auto& relocation : relocations)
+	{
+		relocation.WriteFile(wr);
+	}
+
 	// TODO: symbols
 
 	return ImageSize();
@@ -166,14 +197,34 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Total size", Dumper::HexDisplay::Make(8), offset_t(total_size));
 	file_region.Display(dump);
 
+	static const std::map<offset_t, std::string> type_descriptions =
+	{
+		{ Segment::BSS, "BSS (uninitialized data)" },
+		{ Segment::STACK, "Stack (not present)" },
+		{ Segment::CODE, "Code/text (executable)" },
+		{ Segment::RODATA, "Constant pool (read-only data)" },
+		{ Segment::DATA, "Initialized data" },
+		{ Segment::MIXED, "Mixed code and data, not write protectable" },
+		{ Segment::MIXED_PROTECTABLE, "Mixed code and data, write protectable" },
+	};
+
 	uint16_t segment_index = 0;
-	uint32_t segment_offset = file_offset;
+	uint32_t segment_offset = file_offset + 0x40;
 	for(auto& segment : segments)
 	{
 		if(segment.IsPresent())
 		{
 			Dumper::Block segment_block("Segment", segment_offset, segment.image->AsImage(), 0 /* TODO */, 8);
 			segment_block.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(segment_index + 1));
+			segment_block.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(segment.type));
+
+			for(auto& relocation : relocations)
+			{
+				if(relocation.segment != segment_index)
+					continue;
+				segment_block.AddSignal(relocation.offset, relocation.GetRelocationSize());
+			}
+
 			segment_block.Display(dump);
 			segment_offset += segment.length;
 		}
@@ -182,6 +233,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Region segment_region("Segment", segment_offset, segment.length, 8);
 			segment_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(segment_index + 1));
 			segment_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(0 /* TODO */));
+			segment_region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(segment.type));
 			segment_region.Display(dump);
 		}
 		segment_index ++;
@@ -189,14 +241,46 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 
 	if(relocation_size != 0)
 	{
-		Dumper::Region relocation_region("Relocations", file_offset + total_size, relocation_size, 8);
-		// TODO
+		Dumper::Region relocation_region("Relocations", file_offset + 0x40 + 4 * segments.size() + total_size, relocation_size, 8);
 		relocation_region.Display(dump);
+
+		static const std::map<offset_t, std::string> relocation_descriptions =
+		{
+			{ Relocation::SEG_OFFSET, "Offset to segment" },
+			{ Relocation::SEG_SHORT_SEGMENTED, "16-bit segmented address to segment" },
+			{ Relocation::SEG_LONG_SEGMENTED, "32-bit segmented address to segment" },
+			{ Relocation::EXT_OFFSET, "Offset to symbol" },
+			{ Relocation::EXT_SHORT_SEGMENTED, "16-bit segmented address to symbol" },
+			{ Relocation::EXT_LONG_SEGMENTED, "32-bit segmented address to symbol" },
+		};
+
+		uint32_t relocation_index = 0;
+		for(auto& relocation : relocations)
+		{
+			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, file_offset + 0x40 + 4 * segments.size() + total_size + 6 * relocation_index, 8);
+			if(relocation.segment < segments.size())
+				relocation_entry.AddField("Source segment type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(segments[relocation.segment].type));
+			relocation_entry.AddField("Source", Dumper::SegmentedDisplay::Make(4), offset_t(relocation.segment), offset_t(relocation.offset));
+			relocation_entry.AddField("Relocation type", Dumper::ChoiceDisplay::Make(relocation_descriptions, Dumper::HexDisplay::Make(2)), offset_t(relocation.type));
+			relocation_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation.GetRelocationSize()));
+			if(relocation.IsExternal())
+			{
+				relocation_entry.AddField("Symbol number", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
+			}
+			else
+			{
+				relocation_entry.AddField("Segment number", Dumper::HexDisplay::Make(4), offset_t(relocation.target));
+				if(relocation.target < segments.size())
+					relocation_entry.AddField("Segment type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(segments[relocation.target].type));
+			}
+			relocation_entry.Display(dump);
+			relocation_index++;
+		}
 	}
 
 	if(symbol_table_size != 0)
 	{
-		Dumper::Region symbol_table_region("Symbol table", file_offset + total_size + relocation_size, symbol_table_size, 8);
+		Dumper::Region symbol_table_region("Symbol table", file_offset + 0x40 + 4 * segments.size() + total_size + relocation_size, symbol_table_size, 8);
 		// TODO
 		symbol_table_region.Display(dump);
 	}
