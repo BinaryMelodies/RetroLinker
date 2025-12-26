@@ -1072,8 +1072,8 @@ Linker::Debug << "\"" << std::endl;
 					if(file_size >= 0x06)
 					{
 						rd.Seek(2);
-						uint32_t image_size = rd.ReadUnsigned(2, LittleEndian);
-						image_size = (rd.ReadUnsigned(2, LittleEndian) << 9) - (-image_size & 0x1FF);
+						uint32_t image_end = rd.ReadUnsigned(2, LittleEndian);
+						image_end = offset + (rd.ReadUnsigned(2, LittleEndian) << 9) - (-image_end & 0x1FF);
 						uint32_t new_header = 0;
 
 						if(file_size >= 0x40)
@@ -1084,8 +1084,8 @@ Linker::Debug << "\"" << std::endl;
 								DetermineFormat(descriptions, rd, new_header);
 						}
 
-						if(0 < image_size && image_size < file_size && image_size != new_header)
-							DetermineFormat(descriptions, rd, image_size);
+						if(0 < image_end && image_end < file_size && image_end != new_header)
+							DetermineFormat(descriptions, rd, image_end);
 
 						if(file_size >= 0x40)
 						{

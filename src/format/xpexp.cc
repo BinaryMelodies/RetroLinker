@@ -271,7 +271,7 @@ void XPFormat::Segment::Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned 
 	descriptor_entry.AddField("Attribute bits",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("alias"), true) // Ergo specific field
-			->AddBitField(5, 2, Dumper::ChoiceDisplay::Make("window"), true) // Ergo specific field
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("window"), true) // Ergo specific field
 			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("32-bit", "16-bit"), false)
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("limit in pages", "limit in bytes"), false),
 			offset_t(flags & 0xF0));
