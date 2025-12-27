@@ -251,6 +251,7 @@ bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 	/* Check if all sizes fit within the image */
 	rd.Seek(file_offset + word_size);
 	uint32_t full_size = 0;
+	uint32_t load_size = 0;
 	uint32_t next_size;
 	/*
 		16-bit: only add text, data and syms
@@ -268,7 +269,26 @@ bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 		if(full_size + next_size < full_size || full_size + next_size > image_size)
 			return false;
 		full_size += next_size;
+
+		if(word_size == WordSize16 && i != 4)
+		{
+			// text and data
+			load_size += next_size;
+		}
 	}
+
+	if(word_size == WordSize16)
+	{
+		rd.Seek(file_offset + 7 * word_size);
+		if(rd.ReadUnsigned(word_size) == 0)
+		{
+			// add relocations (same size as text + data)
+			if(full_size + load_size < full_size || full_size + load_size > image_size)
+				return false;
+			full_size += load_size;
+		}
+	}
+
 	return true;
 }
 
