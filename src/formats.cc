@@ -922,6 +922,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x01\x18"),            2, FORMAT_AOUT,    "Big endian a.out, 2.11BSD overlay, combined code/data", nullptr, PRIORITY_LOW },
 	{ std::string("\x01\x19"),            2, FORMAT_AOUT,    "Big endian a.out, 2.11BSD overlay, separate code/data", nullptr, PRIORITY_LOW },
 	{ std::string("\x01\x1F"),            2, FORMAT_AOUT,    "Big endian a.out, System V overlay, separate code/data", nullptr, PRIORITY_LOW },
+	{ std::string("\x03\x01"),            2, FORMAT_MINIX,   "MINIX/ELKS a.out executable" },
 	{ std::string("TLOC"),                3, FORMAT_PCOS,    "Olivetti M20 PCOS file format", nullptr, PRIORITY_LOW },
 	{ std::string(""),                    0, FORMAT_CMD,     "CP/M-86 executable format (.cmd)", VerifyCPM86, PRIORITY_LOW },
 	{ std::string(""),                    0, FORMAT_GSOS,    "Apple GS/OS object format", VerifyGSOS, PRIORITY_LOW },

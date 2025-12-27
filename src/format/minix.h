@@ -66,6 +66,7 @@ namespace MINIX
 		uint8_t header_size = 0x20;
 		uint16_t format_version = 0;
 
+		::EndianType endian_type = ::UndefinedEndian;
 		static ::EndianType GetEndianType(cpu_type cpu);
 
 		::EndianType GetEndianType() const;

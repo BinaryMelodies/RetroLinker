@@ -1,4 +1,5 @@
 
+#include <array>
 #include <sstream>
 #include "minix.h"
 #include "../linker/buffer.h"
@@ -149,15 +150,32 @@ void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t re
 
 void MINIXFormat::ReadFile(Linker::Reader& rd)
 {
+	std::array<char, 4> signature;
 	rd.endiantype = ::UndefinedEndian; // should not matter
-	rd.Skip(2); // signature: \x01\x03
-	format = format_type(rd.ReadUnsigned(1));
-	cpu = cpu_type(rd.ReadUnsigned(1));
-	// the cpu field can be used to determine the endianness
-	rd.endiantype = GetEndianType();
-	header_size = rd.ReadUnsigned(1);
-	rd.Skip(1);
-	format_version = rd.ReadUnsigned(2);
+	rd.ReadData(signature);
+	if(signature[3] == '\x01' && signature[2] == '\x03')
+	{
+		// big endian
+		rd.endiantype = endian_type = ::BigEndian;
+		format = format_type(signature[1]);
+		cpu = cpu_type(signature[0]);
+	}
+	else
+	{
+		if(!(signature[0] == '\x01' && signature[1] == '\x03'))
+		{
+			Linker::Error << "Error: Invalid MINIX signature, ignoring" << std::endl;
+		}
+
+		// little endian
+		rd.endiantype = endian_type = ::LittleEndian;
+		format = format_type(signature[2]);
+		cpu = cpu_type(signature[3]);
+	}
+
+	uint32_t word2 = rd.ReadUnsigned(4);
+	header_size = word2 & 0xFF;
+	format_version = word2 >> 16;
 
 	uint32_t code_size;
 	uint32_t data_size;
@@ -769,6 +787,7 @@ void MINIXFormat::ProcessModule(Linker::Module& module)
 
 void MINIXFormat::CalculateValues()
 {
+	endian_type = GetEndianType();
 }
 
 offset_t MINIXFormat::ImageSize() const
@@ -798,13 +817,9 @@ total_memory
 
 offset_t MINIXFormat::WriteFile(Linker::Writer& wr) const
 {
-	wr.endiantype = GetEndianType();
-	wr.WriteData(2, "\x01\x03");
-	wr.WriteWord(1, format);
-	wr.WriteWord(1, cpu);
-	wr.WriteWord(1, header_size);
-	wr.Skip(1);
-	wr.WriteWord(2, format_version);
+	wr.endiantype = endian_type;
+	wr.WriteWord(4, 0x00000301 | (uint32_t(format) << 16) | (uint32_t(cpu) << 24));
+	wr.WriteWord(4, header_size | (uint32_t(format_version) << 16));
 	switch(format_version)
 	{
 	case 0:
@@ -879,19 +894,16 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
-	dump.SetTitle("MINIX format");
-	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
-	file_region.AddField("Flags",
-		Dumper::BitFieldDisplay::Make()
-			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("unmapped zero"), true)
-			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("page aligned"), true)
-			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("new-style symbol table"), true)
-			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("combined executable"), true)
-			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("split executable"), true)
-			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("pure text"), true)
-			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("text overlay"), true),
-		offset_t(format));
+	// how bytes are actually laid out in the file
+	static const std::map<offset_t, std::string> endian_type_descriptions =
+	{
+		{ ::LittleEndian, "little endian" },
+		{ ::AntiPDP11Endian, "reversed PDP-11 endian" },
+		{ ::PDP11Endian, "PDP-11 endian" },
+		{ ::BigEndian, "big endian" },
+	};
 
+	// part of the CPU field
 	static const std::map<offset_t, std::string> endian_descriptions =
 	{
 		{ 0, "little endian" },
@@ -909,8 +921,22 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 		{ SPARC >> 2, "Sun SPARC" },
 	};
 
+	dump.SetTitle("MINIX format");
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
+	file_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(endian_type_descriptions), offset_t(endian_type));
+	file_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("unmapped zero"), true)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("page aligned"), true)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("new-style symbol table"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("combined executable"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("split executable"), true)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("pure text"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("text overlay"), true),
+		offset_t(format));
+
 	file_region.AddField("CPU",
-		Dumper::BitFieldDisplay::Make()
+		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 2, Dumper::ChoiceDisplay::Make(endian_descriptions), false)
 			->AddBitField(2, 6, Dumper::ChoiceDisplay::Make(cpu_descriptions), false),
 		offset_t(cpu));
@@ -947,7 +973,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 
 	offset_t current_offset = header_size;
 
-	Dumper::Block code_block("Code", current_offset, code->AsImage(), 0 /* TODO: what is the base address? */, 8);
+	Dumper::Block code_block("Code", current_offset, code != nullptr ? code->AsImage() : nullptr, 0 /* TODO: what is the base address? */, 8);
 	for(auto& rel : code_relocations)
 	{
 		size_t size = rel.GetSize();
@@ -955,7 +981,8 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 			code_block.AddSignal(rel.address, 2);
 	}
 	code_block.Display(dump);
-	current_offset += code->ImageSize();
+	if(code != nullptr)
+		current_offset += code->ImageSize();
 
 	if(far_code != nullptr && far_code->ImageSize() > 0)
 	{
@@ -970,7 +997,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 		current_offset += far_code->ImageSize();
 	}
 
-	Dumper::Block data_block("Data", current_offset, data->AsImage(), 0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0), 8);
+	Dumper::Block data_block("Data", current_offset, data != nullptr ? data->AsImage() : nullptr, 0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0), 8);
 	for(auto& rel : data_relocations)
 	{
 		size_t size = rel.GetSize();
@@ -978,10 +1005,11 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 			data_block.AddSignal(rel.address, 2);
 	}
 	data_block.Display(dump);
-	current_offset += data->ImageSize();
+	if(data != nullptr)
+		current_offset += data->ImageSize();
 
 	Dumper::Region bss_region("BSS", current_offset, bss_size, 8);
-	bss_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(0 /* TODO: what is the base address? */ + ((format & FormatCombined) ? code->ImageSize() : 0) + data->ImageSize()));
+	bss_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(0 /* TODO: what is the base address? */ + ((format & FormatCombined) && code != nullptr ? code->ImageSize() : 0) + (data != nullptr ? data->ImageSize() : 0)));
 	bss_region.Display(dump);
 
 	unsigned i = 0;
