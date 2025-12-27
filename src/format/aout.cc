@@ -252,11 +252,15 @@ bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 	rd.Seek(file_offset + word_size);
 	uint32_t full_size = 0;
 	uint32_t next_size;
-	for(int i = 1; i < 8; i++)
+	/*
+		16-bit: only add text, data and syms
+		32-bit: also add trsize and drsize
+	*/
+	for(int i = 1; i < (word_size == WordSize16 ? 5 : 8); i++)
 	{
-		if(i == 5)
+		if(i == 3 || i == 5)
 		{
-			/* entry point */
+			/* bss and entry point */
 			rd.Skip(word_size);
 			continue;
 		}
