@@ -287,7 +287,6 @@ namespace AOut
 			IA64,
 			OR1K,
 			RISCV,
-			WE32K,
 			SYS360,
 			SYS390_64,
 		};
@@ -310,6 +309,8 @@ namespace AOut
 		// only for 32-bit format
 		uint32_t code_relocation_size = 0;
 		uint32_t data_relocation_size = 0;
+		// AT&T specifi
+		uint16_t environment_stamp = 0;
 
 		/**
 		 * @brief Represents an a.out relocation, unifying 16-bit and 32-bit formats

@@ -14,7 +14,6 @@ using namespace AOut;
 	case PPC: case PPC64:
 	case M88K:
 	case PARISC:
-	case WE32K:
 	case SYS360:
 	case SYS390_64:
 		return ::BigEndian;
@@ -608,6 +607,21 @@ void AOutFormat::ReadHeader(Linker::Reader& rd)
 	case WordSize16:
 		reserved = rd.ReadUnsigned(word_size);
 		relocations_suppressed = rd.ReadUnsigned(word_size);
+		switch(system)
+		{
+		default:
+			break;
+		case SYSTEM_III:
+			environment_stamp = reserved;
+			reserved = 0;
+			break;
+		case SYSTEM_V:
+			code_size |= uint32_t(reserved & 0xFF00) << 8;
+			reserved &= 0x00FF;
+			environment_stamp = relocations_suppressed >> 8;
+			relocations_suppressed &= 0x00FF;
+			break;
+		}
 		break;
 	case WordSize32:
 		code_relocation_size = rd.ReadUnsigned(word_size);
@@ -652,10 +666,59 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		midmag_endiantype = endiantype = ::PDP11Endian;
 		magic = magic_type(signature[0] | (signature[1] << 8));
 		break;
-	case UNSPECIFIED:
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
+		if(word_size != 0)
+		{
+			// word_size and endiantype are already set
+			midmag_endiantype = endiantype;
+			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
+			{
+				Linker::FatalError("Fatal error: Unable to determine file format");
+			}
+		}
+		else
+		{
+			endiantype = midmag_endiantype = ::LittleEndian;
+			word_size = WordSize32;
+			// attempt VAX byte order
+			if(system != SYSTEM_V && !AttemptReadFile(rd, signature.data(), file_end - file_offset))
+			{
+				endiantype = midmag_endiantype = ::BigEndian;
+				word_size = WordSize32;
+				// attempt System/360 byte order
+				if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
+				{
+					endiantype = midmag_endiantype = ::LittleEndian;
+					word_size = WordSize16;
+					// attempt PDP-11 byte order
+					if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
+					{
+						Linker::FatalError("Fatal error: Unable to determine file format");
+					}
+				}
+			}
+		}
+
+		if(word_size == WordSize32 && (system == SYSTEM_III || system == SYSTEM_V))
+		{
+			switch(midmag_endiantype)
+			{
+			case ::UndefinedEndian:
+				Linker::FatalError("Internal error: endian type undetermined");
+			case ::LittleEndian:
+			case ::PDP11Endian:
+				environment_stamp = signature[2] | (signature[3] << 8);
+				break;
+			case ::BigEndian:
+			case ::AntiPDP11Endian:
+				environment_stamp = signature[1] | (signature[0] << 8);
+				break;
+			}
+		}
+		break;
+	case UNSPECIFIED:
 	case LINUX:
 		if(word_size != 0)
 		{
@@ -1135,7 +1198,24 @@ offset_t AOutFormat::ImageSize() const
 
 void AOutFormat::WriteHeader(Linker::Writer& wr) const
 {
-	wr.WriteWord(word_size, magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
+	switch(word_size)
+	{
+	case WordSize16:
+		wr.WriteWord(word_size, magic);
+		break;
+	case WordSize32:
+		switch(system)
+		{
+		case SYSTEM_III:
+			wr.WriteWord(word_size, magic | (uint32_t(environment_stamp) << 16));
+			break;
+		default:
+			wr.WriteWord(word_size, magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
+			break;
+		}
+		break;
+	}
+
 	wr.WriteWord(word_size, code_size);
 	wr.WriteWord(word_size, data_size);
 	wr.WriteWord(word_size, bss_size);
@@ -1144,8 +1224,22 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 	switch(word_size)
 	{
 	case WordSize16:
-		wr.WriteWord(word_size, reserved);
-		wr.WriteWord(word_size, relocations_suppressed);
+		switch(system)
+		{
+		default:
+			wr.WriteWord(word_size, reserved);
+			wr.WriteWord(word_size, relocations_suppressed);
+			break;
+		case SYSTEM_III:
+			wr.WriteWord(word_size, environment_stamp);
+			wr.WriteWord(word_size, relocations_suppressed);
+			break;
+		case SYSTEM_V:
+			wr.WriteWord(word_size, (reserved & 0x00FF) | ((code_size >> 8) & 0xFF00));
+			// Note: relocations_suppressed should have a set bit in the lower 8 bits if it is non-zero
+			wr.WriteWord(word_size, (relocations_suppressed & 0x00FF) | (environment_stamp << 8));
+			break;
+		}
 		break;
 	case WordSize32:
 		wr.WriteWord(word_size, code_relocation_size);
