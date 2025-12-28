@@ -3271,21 +3271,8 @@ void ELFFormat::SetOptions(std::map<std::string, std::string>& options)
 
 void ELFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
-	// TODO: include_header_segment should include it in the first load segment
-	if(segments.size() == 0)
-	{
-		Segment header_segment;
-		header_segment.type = Segment::PT_LOAD;
-		header_segment.flags = Segment::PF_R;
-		header_segment.align = segment_align;
-
-		if(create_header_segment)
-		{
-			header_segment.vaddr = header_segment.paddr = image_base;
-			header_segment.filesz = header_segment.memsz = header_size;
-			segments.emplace_back(header_segment);
-		}
-	}
+	if(segment->sections.size() == 0)
+		return;
 
 	Segment elf_segment;
 	elf_segment.type = Segment::PT_LOAD;
@@ -3299,9 +3286,34 @@ void ELFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	elf_segment.filesz = segment->data_size;
 	elf_segment.memsz = segment->TotalSize();
 
+	if(segments.size() == 0)
+	{
+		if(create_header_segment)
+		{
+			// create a separate segment for the file and program header
+			Segment header_segment;
+			header_segment.type = Segment::PT_LOAD;
+			header_segment.flags = Segment::PF_R;
+			header_segment.align = segment_align;
+			header_segment.vaddr = header_segment.paddr = image_base;
+			header_segment.filesz = header_segment.memsz = header_size;
+			segments.emplace_back(header_segment);
+		}
+		else if(include_header_segment)
+		{
+			// attach the file and program header to the first segment
+			blocks.push_back(Block(0, 0));
+			Segment::Part part { Segment::Part::Section, uint32_t(sections.size() - 1), 0, 0 };
+			elf_segment.parts.emplace_back(Segment::Part(Segment::Part::Block, 0, 0, 0));
+		}
+	}
+
 	offset_t current_address = elf_segment.vaddr;
 	for(auto section : segment->sections)
 	{
+		if(section->Size() == 0)
+			continue;
+
 		Section elf_section;
 		elf_section.contents = section;
 		elf_section.address = current_address;
@@ -3431,9 +3443,22 @@ void ELFFormat::ProcessModule(Linker::Module& module)
 
 	for(auto& segment : segments)
 	{
-		if(segment.parts.size() > 0 && segment.parts[0].type == Segment::Part::Section)
+		if(segment.parts.size() < 1)
+			continue;
+
+		if(segment.parts[0].type == Segment::Part::Section)
 		{
 			segment.offset = sections[segment.parts[0].index].file_offset;
+		}
+		else
+		{
+			// the file header and program header have been included in the segment, increase its size
+			assert(segment.parts.size() >= 2);
+			assert(segment.parts[1].type == Segment::Part::Section);
+			segment.filesz += sections[segment.parts[1].index].file_offset;
+			segment.memsz += sections[segment.parts[1].index].file_offset;
+			segment.paddr -= sections[segment.parts[1].index].file_offset;
+			segment.vaddr -= sections[segment.parts[1].index].file_offset;
 		}
 	}
 
@@ -3503,10 +3528,10 @@ void ELFFormat::GenerateFile(std::string filename, Linker::Module& module)
 		data_encoding = ELFDATA2MSB;
 
 		image_base = 0x01800000;
-		header_size = 0x80; // TODO: calculate header sizes separately
+		header_size = 0x74; // TODO: calculate header sizes separately
 		create_header_segment = false;
 		include_header_segment = true;
-		segment_align = 1;
+		segment_align = 0x10000;
 		section_align = 1;
 		break;
 	case Linker::Module::PPC64:
