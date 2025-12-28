@@ -169,6 +169,12 @@ namespace AOut
 		{
 			switch(system)
 			{
+			case UNIX_V1:
+				return MAGIC_V1;
+			case UNIX:
+			case SYSTEM_III:
+			case SYSTEM_V:
+				return OMAGIC;
 			default:
 			case DJGPP1:
 				return ZMAGIC;

@@ -2107,6 +2107,10 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		mid_value = MID_68020; /* TODO: maybe M68010 is enough? */
 		flags = 0;
 		break;
+	case Linker::Module::PDP11:
+		cpu = PDP11;
+		break;
+	//case Linker::Module::VAX: // TODO
 	default:
 		Linker::Error << "Error: Format only supports Intel 80386 and Motorola 68000 binaries" << std::endl;
 	}
