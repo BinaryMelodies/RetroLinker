@@ -681,6 +681,10 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		word_size = WordSize16;
 		midmag_endiantype = endiantype = ::PDP11Endian;
 		magic = magic_type(signature[0] | (signature[1] << 8));
+		if(magic == (MAGIC_V1 & 0xFFFF))
+		{
+			magic = MAGIC_V1;
+		}
 		break;
 	case UNIX:
 	case SYSTEM_III:
@@ -1348,6 +1352,10 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 
 	static const std::map<offset_t, std::string> system_descriptions =
 	{
+		{ UNIX_V1, "AT&T UNIX Version 1 or 2" },
+		{ UNIX, "AT&T UNIX Versions 3 to 7 or 32V" },
+		{ SYSTEM_III, "AT&T UNIX System III" },
+		{ SYSTEM_V, "AT&T UNIX System V" },
 		{ LINUX, "Linux (pre-1.2)" },
 		{ FREEBSD, "FreeBSD (pre-3.0)" },
 		{ NETBSD, "NetBSD (pre-1.5)" },
@@ -1373,12 +1381,37 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Region header_region("Header", file_offset, GetHeaderSize(), 2 * word_size);
 	static const std::map<offset_t, std::string> magic_descriptions =
 	{
-		{ OMAGIC, "\"OMAGIC\"" },
-		{ NMAGIC, "\"NMAGIC\"" },
-		{ ZMAGIC, "\"ZMAGIC\"" },
-		{ QMAGIC, "\"QMAGIC\"" },
+		{ OMAGIC, "Impure executable (OMAGIC)" },
+		{ NMAGIC, "Pure executable/read-only code segment (NMAGIC)" },
+		{ ZMAGIC, "Demand paged (ZMAGIC)" },
+		{ QMAGIC, "Demand paged with unmapped page zero (QMAGIC)" },
+		{ MAGIC_SEPARATE, "Separate instruction and data spaces" },
+		{ MAGIC_OVERLAY, "Overlay" },
+		{ MAGIC_AUTO_OVERLAY_NONSEPARATE, "Auto-overlay, non-separate" },
+		{ MAGIC_AUTO_OVERLAY_SEPARATE, "Auto-overlay, separate" },
 	};
-	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_descriptions, Dumper::HexDisplay::Make(4)), offset_t(magic));
+
+	static const std::map<offset_t, std::string> magic_descriptions_v1 =
+	{
+		{ OMAGIC, "Impure executable (OMAGIC)" },
+		{ NMAGIC, "Pure executable/read-only code segment (NMAGIC)" },
+		{ ZMAGIC, "Demand paged (ZMAGIC)" },
+		{ QMAGIC, "Demand paged with unmapped page zero (QMAGIC)" },
+		{ MAGIC_SEPARATE, "Separate instruction and data spaces" },
+		//{ MAGIC_OVERLAY, "Overlay" },
+		{ MAGIC_V1, "UNIX Version 1 impure executable" },
+		{ MAGIC_AUTO_OVERLAY_NONSEPARATE, "Auto-overlay, non-separate" },
+		{ MAGIC_AUTO_OVERLAY_SEPARATE, "Auto-overlay, separate" },
+	};
+
+	if(magic != MAGIC_V1)
+	{
+		header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_descriptions, Dumper::HexDisplay::Make(4)), offset_t(magic));
+	}
+	else
+	{
+		header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_descriptions_v1, Dumper::HexDisplay::Make(4)), offset_t(magic & 0xFFFF));
+	}
 	if(word_size == WordSize32)
 	{
 		static const std::map<offset_t, std::string> freebsd_midmag_descriptions =
@@ -1790,6 +1823,7 @@ std::shared_ptr<AOutFormat> AOutFormat::CreateWriter(system_type system)
 }
 
 static Linker::OptionDescription<offset_t> p_code_base_address("code_base_address", "Starting address of code section");
+static Linker::OptionDescription<offset_t> p_data_base_address("data_base_address", "Starting address of code section (only used for separate I&D executables)");
 static Linker::OptionDescription<offset_t> p_data_align("data_align", "Alignment of data section");
 static Linker::OptionDescription<offset_t> p_code_end_align("code_end_align", "Alignment of end of code section");
 static Linker::OptionDescription<offset_t> p_data_end_align("data_end_align", "Alignment of end of data section");
@@ -1798,6 +1832,7 @@ static Linker::OptionDescription<offset_t> p_bss_end_align("bss_end_align", "Ali
 std::vector<Linker::OptionDescription<void> *> AOutFormat::ParameterNames =
 {
 	&p_code_base_address,
+	&p_data_base_address,
 	&p_data_align,
 	&p_code_end_align,
 	&p_data_end_align,
@@ -1865,7 +1900,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 	else if(collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
 	{
 		int count = collector.nflag() + collector.iflag() + collector.zflag() + collector.Oflag();
-		if(count > 0)
+		if(count > 1)
 		{
 			Linker::FatalError("Fatal error: only one of n/i/z/O can be specified");
 		}
@@ -1891,6 +1926,11 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 	if(v == Version1 && magic == OMAGIC)
 	{
 		magic = MAGIC_V1;
+	}
+	else if(magic == ZMAGIC && !SupportedMagicType(v, magic))
+	{
+		// avoids displaying error message
+		magic = MAGIC_SEPARATE;
 	}
 
 	force_magic_number = collector.magic();
@@ -1970,9 +2010,35 @@ std::unique_ptr<Script::List> AOutFormat::GetScript(Linker::Module& module)
 };
 )";
 
+	static const char * SplitScript = R"(
+".code"
+{
+	at ?code_base_address?;
+	all not write align ?align?;
+	align ?code_end_align?;
+};
+
+".data"
+{
+	at ?data_base_address?;
+	all not zero align ?align?;
+	align ?data_end_align?;
+};
+
+".bss"
+{
+	all align ?align?;
+	align ?bss_end_align?;
+};
+)";
+
 	if(linker_script != "")
 	{
 		return SegmentManager::GetScript(module);
+	}
+	else if(magic == MAGIC_SEPARATE)
+	{
+		return Script::parse_string(SplitScript);
 	}
 	else
 	{
@@ -2121,12 +2187,31 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 	Linker::Location entry;
 	if(module.FindGlobalSymbol(".entry", entry))
 	{
+		// TODO: should be 0 before Version 5, not just Version 1/2
 		entry_address = entry.GetPosition().address;
+		if(system == UNIX_V1 && entry_address != text_address)
+		{
+			Linker::Error << "Error: Entry address not supported, ignoring" << std::endl;
+			entry_address = 0;
+		}
 	}
 	else
 	{
-		entry_address = GetCodeSegment()->base_address;
-		Linker::Warning << "Warning: no entry point specified, using beginning of .code segment" << std::endl;
+		if(system == UNIX_V1)
+		{
+			Linker::Error << "Error: Entry address not supported, ignoring" << std::endl;
+			entry_address = 0;
+		}
+
+		if(system != UNIX_V1)
+		{
+			entry_address = GetCodeSegment()->base_address;
+			// TODO: should be 0 before Version 5, not just Version 1/2
+			if(system != UNIX)
+			{
+				Linker::Warning << "Warning: no entry point specified, using beginning of .code segment" << std::endl;
+			}
+		}
 	}
 }
 

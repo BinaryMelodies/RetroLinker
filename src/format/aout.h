@@ -462,7 +462,7 @@ namespace AOut
 			case _211BSD:
 				return magic == OMAGIC || magic == NMAGIC || magic == MAGIC_SEPARATE || magic == MAGIC_OVERLAY || magic == MAGIC_AUTO_OVERLAY_NONSEPARATE || magic == MAGIC_AUTO_OVERLAY_SEPARATE;
 			case DefaultVersion:
-				return magic == OMAGIC || magic == NMAGIC || magic == MAGIC_SEPARATE || magic == MAGIC_OVERLAY || magic == MAGIC_AUTO_OVERLAY_NONSEPARATE || magic == MAGIC_AUTO_OVERLAY_SEPARATE;
+				return true;
 			}
 		}
 
@@ -531,12 +531,21 @@ namespace AOut
 						"AUTOOVLS", MAGIC_AUTO_OVERLAY_SEPARATE,
 						"AUTOOVLSEP", MAGIC_AUTO_OVERLAY_SEPARATE)
 				{
+					descriptions = {
+						{ OMAGIC, "Impure executable (OMAGIC)" },
+						{ NMAGIC, "Pure executable (NMAGIC)" },
+						{ ZMAGIC, "Demand paged (ZMAGIC)" },
+						{ QMAGIC, "Demand paged with unmapped page zero (QMAGIC)" },
+						{ MAGIC_OVERLAY, "Overlay (PDP-11 BSD only)" },
+						{ MAGIC_AUTO_OVERLAY_NONSEPARATE, "Auto-overlay, non-separate (PDP-11 BSD only)" },
+						{ MAGIC_AUTO_OVERLAY_SEPARATE, "Auto-overlay, separate (PDP-11 BSD only)" },
+					};
 				}
 			};
 
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable (DJGPP only)"};
 			Linker::Option<Linker::ItemOf<UnixVersionEnumeration>> unix_v{"version", "Targeted UNIX version (UNIX only)"};
-			Linker::Option<Linker::ItemOf<MagicEnumeration>> type{"t", "Executable type"};
+			Linker::Option<Linker::ItemOf<MagicEnumeration>> type{"type", "Executable type"};
 			Linker::Option<std::optional<offset_t>> magic{"magic", "Explicit magic type specification"};
 			Linker::Option<bool> nflag{"n", "NMAGIC"};
 			Linker::Option<bool> iflag{"i", "Generate separated executable"};
