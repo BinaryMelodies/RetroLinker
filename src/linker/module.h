@@ -67,14 +67,22 @@ namespace Linker
 			ARM64,
 			/** @brief PDP-11 */
 			PDP11,
+			/** @brief VAX */
+			VAX,
+			/** @brief DEC Alpha */
+			ALPHA,
+			/** @brief Bellmac 32/Western Electric 32000/32100/32200 */
+			WE32K,
+			/** @brief IBM System/360, System/370, System/390 */
+			SYS360,
+			/** @brief IBM z/Architecture */
+			SYS390_64,
 			/** @brief MIPS */
 			MIPS,
 			/** @brief Sun SPARC */
 			SPARC,
 			/** @brief Hitachi SuperH */
 			SH,
-			/** @brief DEC Alpha */
-			ALPHA,
 			/** @brief Intel Itanium */
 			IA64,
 		};
