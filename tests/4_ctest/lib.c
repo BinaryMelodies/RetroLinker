@@ -93,7 +93,9 @@ asm(
 );
 #elif defined __pdp11__
 asm(
+#if TARGET_DXDOS
 	"mov\t$0x200, sp\n\t"
+#endif
 	"jsr\tpc, _AppMain\n\t"
 	"jsr\tpc, _LibExit"
 );
@@ -489,6 +491,22 @@ void LibExit(void)
 		"mov\tr7, #0x01\n\t"
 		"swi\t#0x0"
 	);
+#elif TARGET_UNIX
+	asm(
+		"mov\t$0, r0\n\t"
+		"sys\t1"
+	);
+#elif TARGET_UNIX
+	asm(
+		"mov\t$0, r0\n\t"
+		"sys\t1"
+	);
+#elif TARGET_BSD
+	asm(
+		"mov\t$0, -(sp)\n\t"
+		"clr\t-(sp)\n\t"
+		"sys\t1"
+	);
 #else
 #warning Unimplemented: LibExit
 #endif
@@ -606,6 +624,22 @@ void LibPutChar(char c)
 		"mov\tr0, #1\n\t"
 		"mov\tr2, #1\n\t"
 		"swi\t#0x0" : : "r"(r1));
+#elif TARGET_UNIX
+	static unsigned char LibPutChar_buffer = 1;
+	LibPutChar_buffer = c;
+	asm(
+		"mov\t$1, r0\n\t"
+		"sys\t4\n\t"
+		".word\t%0\n\t"
+		".word\t1" : : "m"(LibPutChar_buffer));
+#elif TARGET_BSD
+	asm(
+		"mov\t$1, -(sp)\n\t"
+		"mov\t%0, -(sp)\n\t"
+		"mov\t$1, -(sp)\n\t"
+		"clr\t-(sp)\n\t"
+		"sys\t4\n\t"
+		"add\t$8, sp" : : "g"(&c));
 #else
 #warning Unimplemented: LibPutChar
 #endif
@@ -705,6 +739,10 @@ void LibWaitForKey(void)
 		"mov\tr0, #1\n\t"
 		"mov\tr2, #1\n\t"
 		"swi\t#0x0" : : "r"(r1));
+#elif TARGET_UNIX
+	// TODO
+#elif TARGET_BSD
+	// TODO
 #else
 #warning Unimplemented: LibWaitForKey
 #endif
@@ -744,7 +782,7 @@ void LibPutNewLine(void)
 {
 #if TARGET_MACOS
 	MoveTo(0, a5()->current_row += font_height);
-#elif TARGET_AMIGA | TARGET_SQL
+#elif TARGET_AMIGA || TARGET_SQL || TARGET_UNIX || TARGET_BSD
 	LibPutString("\n");
 #else
 	LibPutString("\r\n");

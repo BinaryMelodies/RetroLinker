@@ -1007,6 +1007,7 @@ DefineTarget(
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v7", "type=omagic"]),
 	],
+#	c_target_options = "-msplit",
 	custom_entry = False)
 
 DefineTarget(
@@ -1018,6 +1019,7 @@ DefineTarget(
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v7", "type=nmagic"]),
 	],
+#	c_target_options = "-msplit",
 	custom_entry = False)
 
 DefineTarget(
@@ -1029,6 +1031,7 @@ DefineTarget(
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v7", "type=separate"]),
 	],
+	c_target_options = "-msplit",
 	custom_entry = False)
 
 DefineTarget(
@@ -1040,6 +1043,7 @@ DefineTarget(
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=omagic"]),
 	],
+#	c_target_options = "-msplit",
 	custom_entry = False)
 
 DefineTarget(
@@ -1051,6 +1055,7 @@ DefineTarget(
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=nmagic"]),
 	],
+#	c_target_options = "-msplit",
 	custom_entry = False)
 
 DefineTarget(
@@ -1062,6 +1067,7 @@ DefineTarget(
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=separate"]),
 	],
+	c_target_options = "-msplit",
 	custom_entry = False)
 
 DXDOS_BASE = 0x200 # This seems to be the default, with SP set to 0x1FE, presumably with a value pushed

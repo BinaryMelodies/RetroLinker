@@ -17,12 +17,12 @@ static int v5;
 int AppMain(void)
 {
 	LibPutString("Hello! Welcome to "
-#if TARGET_DOS16M
-		"MS-DOS, DOS/16M extender"
-#elif TARGET_MSDOS
+#if TARGET_MSDOS
 		"MS-DOS"
 #elif TARGET_DJGPP
 		"MS-DOS, DJGPP DOS extender"
+#elif TARGET_DOS16M
+		"MS-DOS, DOS/16M extender"
 #elif TARGET_DOS4G
 		"MS-DOS, DOS/4G extender"
 #elif TARGET_PHARLAP
@@ -74,6 +74,10 @@ int AppMain(void)
 		"RISC OS"
 #elif TARGET_DXDOS
 		"DX-DOS"
+#elif TARGET_UNIX
+		"AT&T UNIX"
+#elif TARGET_BSD
+		"BSD"
 #else
 #warning Unknown operating system
 		"an unknown operating system"
