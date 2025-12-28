@@ -355,6 +355,11 @@ uint32_t AOutFormat::GetPageSize() const
 	{
 	case UNSPECIFIED:
 		return 0x00000400;
+	case UNIX_V1:
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
+		return 0x00002000; // TODO: this is the value up to Version 7, according to apout, for PDP-11
 	case LINUX:
 		return 0x00000400;
 	case FREEBSD:
@@ -397,6 +402,11 @@ uint32_t AOutFormat::GetTextOffset() const
 {
 	switch(system)
 	{
+	case UNIX_V1:
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
+		return GetHeaderSize();
 	case UNSPECIFIED:
 	case LINUX:
 		switch(magic)
@@ -475,6 +485,12 @@ uint32_t AOutFormat::GetTextAddress() const
 {
 	switch(system)
 	{
+	case UNIX_V1:
+		return 0x00008000; // according to apout
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
+		return 0; // TODO: according to apout, for PDP-11
 	case UNSPECIFIED:
 	case LINUX:
 		switch(magic)
@@ -530,6 +546,10 @@ uint32_t AOutFormat::GetDataOffsetAlign() const
 {
 	switch(system)
 	{
+	case UNIX_V1:
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
 	case UNSPECIFIED:
 	case LINUX:
 		return 1;
@@ -551,6 +571,16 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 {
 	switch(system)
 	{
+	case UNIX_V1:
+		return 1;
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
+		// TODO: according to apout, for PDP-11
+		if(magic == NMAGIC)
+			return GetPageSize();
+		else
+			return 1;
 	case UNSPECIFIED:
 	case LINUX:
 	case DJGPP1:
@@ -626,7 +656,15 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 	switch(system)
 	{
+	case UNIX_V1:
+		word_size = WordSize16;
+		midmag_endiantype = endiantype = ::PDP11Endian;
+		magic = magic_type(signature[0] | (signature[1] << 8));
+		break;
 	case UNSPECIFIED:
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
 	case LINUX:
 		if(word_size != 0)
 		{
@@ -1303,6 +1341,10 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		case DJGPP1:
 		case EMX:
 		case PDOS386:
+		case UNIX_V1:
+		case UNIX:
+		case SYSTEM_III:
+		case SYSTEM_V:
 			break;
 		case UNSPECIFIED:
 		case LINUX:
@@ -1918,6 +1960,29 @@ void AOutFormat::CalculateValues()
 
 void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
+	if(system == DEFAULT)
+	{
+		switch(module.cpu)
+		{
+		case Linker::Module::I386:
+			if(magic == OMAGIC)
+				system = PDOS386; // TODO: should this really be the default?
+			else
+				system = DJGPP1; // TODO: should this really be the default?
+			break;
+		case Linker::Module::PDP11:
+		case Linker::Module::VAX:
+			system = UNIX;
+			break;
+		case Linker::Module::M68K:
+			// TODO: set to SUNOS
+		default:
+			Linker::Error << "Error: no system specified, defaulting to UNIX Version 7" << std::endl;
+			system = UNIX;
+			break;
+		}
+	}
+
 	switch(module.cpu)
 	{
 	case Linker::Module::I386:

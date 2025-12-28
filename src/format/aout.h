@@ -57,8 +57,16 @@ namespace AOut
 		 */
 		enum system_type
 		{
-			/** @brief Treat it as undetermined, intended for object files and early UNIX binaries */
+			/** @brief Treat it as undetermined, intended for object files */
 			UNSPECIFIED,
+			/** @brief Treat it as a UNIX Version 1/2 binary (PDP-11 only) */
+			UNIX_V1, /* TODO */
+			/** @brief Treat it as a UNIX Version 3/4/5/6/7 binary */
+			UNIX,
+			/** @brief Treat it as a UNIX System III binary */
+			SYSTEM_III,
+			/** @brief Treat it as a UNIX System V binary (PDP-11 only) */
+			SYSTEM_V,
 			/**
 			 * @brief Treat it as a Linux a.out binary, used before kernel 5.19 (Linux switched to ELF in 1.2)
 			 *
@@ -95,6 +103,8 @@ namespace AOut
 			EMX,
 		};
 
+		static constexpr system_type DEFAULT = system_type(-1);
+
 		/**
 		 * @brief The target operating system, it influences section offset and address choices
 		 */
@@ -107,12 +117,42 @@ namespace AOut
 		{
 			/** @brief Object file or impure executable: The text, data and bss sections are loaded contiguously */
 			OMAGIC = 0x0107,
+			/** @brief Same as OMAGIC */
+			MAGIC_IMPURE = OMAGIC,
+
 			/** @brief Pure executable: The data section starts on a page boundary, making it possible to have a write protected text section */
 			NMAGIC = 0x0108,
+			/** @brief Same as NMAGIC */
+			MAGIC_ROTEXT = NMAGIC,
+			/** @brief Same as NMAGIC */
+			MAGIC_PURE = NMAGIC,
+
 			/** @brief Demand paged executable: Like NMAGIC, the data section starts on a page boundary, but the text section also starts on a page boundary */
 			ZMAGIC = 0x010B,
+			/** @brief Same as ZMAGIC */
+			MAGIC_DEMAND_PAGED = ZMAGIC,
+
 			/** @brief The header is included in the text segment, but the first page is unmapped */
 			QMAGIC = 0x00CC,
+			/** @brief Same as QMAGIC */
+			MAGIC_UNMAPPED_ZERO = QMAGIC,
+
+			// PDP-11 specific
+
+			/** @brief UNIX Version 1 magic number, collides with Version 7 overlay magic number */
+			MAGIC_V1 = 0x0105 | 0xFFFF0000,
+
+			/** @brief Overlay, since UNIX Version 7 (PDP-11 only, TODO: double check if not supported for VAX) */
+			MAGIC_OVERLAY = 0x0105,
+
+			/** @brief Code and data are in different address spaces (PDP-11 only) */
+			MAGIC_SEPARATE = 0x0109,
+
+			/** @brief 2.9BSD/2.11BSD (PDP-11 only) */
+			MAGIC_AUTO_OVERLAY_NONSEPARATE = 0x0118,
+
+			/** @brief 2.9BSD/2.11BSD (PDP-11 only) */
+			MAGIC_AUTO_OVERLAY_SEPARATE = 0x0119,
 		};
 		/**
 		 * @brief The low 16 bits of the midmag field
