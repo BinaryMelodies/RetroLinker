@@ -393,6 +393,9 @@ uint32_t AOutFormat::GetTextOffset() const
 	switch(system)
 	{
 	case UNIX_V1:
+		if(magic == MAGIC_V1)
+			return 0;
+		// fall through
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
@@ -597,6 +600,19 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 
 void AOutFormat::ReadHeader(Linker::Reader& rd)
 {
+	if(magic == MAGIC_V1)
+	{
+		code_size = rd.ReadUnsigned(word_size);
+		symbol_table_size = rd.ReadUnsigned(word_size);
+		code_relocation_size = rd.ReadUnsigned(word_size);
+		bss_size = rd.ReadUnsigned(word_size);
+		reserved = rd.ReadUnsigned(word_size);
+
+		data_size = 0;
+		entry_address = 0;
+		return;
+	}
+
 	code_size = rd.ReadUnsigned(word_size);
 	data_size = rd.ReadUnsigned(word_size);
 	bss_size = rd.ReadUnsigned(word_size);
@@ -1220,6 +1236,16 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 		break;
 	}
 
+	if(magic == MAGIC_V1)
+	{
+		wr.WriteWord(word_size, code_size);
+		wr.WriteWord(word_size, symbol_table_size);
+		wr.WriteWord(word_size, code_relocation_size);
+		wr.WriteWord(word_size, bss_size);
+		wr.WriteWord(word_size, reserved);
+		return;
+	}
+
 	wr.WriteWord(word_size, code_size);
 	wr.WriteWord(word_size, data_size);
 	wr.WriteWord(word_size, bss_size);
@@ -1269,8 +1295,11 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 
 	code->WriteFile(wr);
 
-	uint32_t data_offset = AlignTo(GetTextOffset() + code_size, GetDataOffsetAlign());
-	wr.Seek(file_offset + data_offset);
+	if(magic != MAGIC_V1)
+	{
+		uint32_t data_offset = AlignTo(GetTextOffset() + code_size, GetDataOffsetAlign());
+		wr.Seek(file_offset + data_offset);
+	}
 
 	data->WriteFile(wr);
 
@@ -1832,11 +1861,6 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 		}
 
 		magic = collector.type();
-
-		if(v == Version1 && magic == NMAGIC)
-		{
-			magic = MAGIC_V1;
-		}
 	}
 	else if(collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
 	{
@@ -1848,14 +1872,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 
 		if(collector.nflag())
 		{
-			if(v == Version1)
-			{
-				magic = MAGIC_V1;
-			}
-			else
-			{
-				magic = NMAGIC;
-			}
+			magic = NMAGIC;
 		}
 		else if(collector.iflag())
 		{
@@ -1869,6 +1886,11 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 		{
 			magic = MAGIC_OVERLAY;
 		}
+	}
+
+	if(v == Version1 && magic == OMAGIC)
+	{
+		magic = MAGIC_V1;
 	}
 
 	force_magic_number = collector.magic();
@@ -2151,6 +2173,13 @@ void AOutFormat::CalculateValues()
 		code_relocation_size = code_relocations.size() * 8;
 		data_relocation_size = data_relocations.size() * 8;
 		break;
+	}
+
+	if(magic == MAGIC_V1)
+	{
+		// TODO: relocations have a different format for UNIX Version 1
+		code_size += data_size;
+		code_relocation_size += data_relocation_size;
 	}
 }
 

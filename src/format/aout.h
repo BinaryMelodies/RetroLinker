@@ -10,17 +10,6 @@
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
-/* TODO: UNIX v1 a.out
-	magic
-	header_size + text_size + data_size
-	symtab_size
-	relocations_size
-	bss_size
-	0
-
-TODO: PDP-11 a.out
-*/
-
 namespace AOut
 {
 	/**
@@ -60,7 +49,7 @@ namespace AOut
 			/** @brief Treat it as undetermined, intended for object files */
 			UNSPECIFIED,
 			/** @brief Treat it as a UNIX Version 1/2 binary (PDP-11 only) */
-			UNIX_V1, /* TODO */
+			UNIX_V1,
 			/** @brief Treat it as a UNIX Version 3/4/5/6/7 or 2.9/2.11BSD binary*/
 			UNIX,
 			/** @brief Treat it as a UNIX System III binary */
@@ -266,7 +255,16 @@ namespace AOut
 		/** @brief Retrieves the size of the header for the current settings */
 		constexpr uint32_t GetHeaderSize() const
 		{
-			return word_size * 8;
+			switch(magic)
+			{
+			case MAGIC_V1:
+				return word_size * 6;
+			case MAGIC_AUTO_OVERLAY_NONSEPARATE:
+			case MAGIC_AUTO_OVERLAY_SEPARATE:
+				return word_size * (8 + 16);
+			default:
+				return word_size * 8;
+			}
 		}
 
 		enum cpu_type
