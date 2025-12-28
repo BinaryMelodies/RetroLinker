@@ -287,6 +287,9 @@ namespace AOut
 			IA64,
 			OR1K,
 			RISCV,
+			WE32K,
+			SYS360,
+			SYS390_64,
 		};
 		cpu_type cpu = UNKNOWN;
 

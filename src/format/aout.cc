@@ -14,14 +14,17 @@ using namespace AOut;
 	case PPC: case PPC64:
 	case M88K:
 	case PARISC:
+	case WE32K:
+	case SYS360:
+	case SYS390_64:
 		return ::BigEndian;
+	case PDP11: /* Note: actually, PDP-11 endian */
 	case I386: case AMD64:
 	case ARM: case AARCH64:
 	case MIPS: /* TODO: check */
-	case PDP11:
 	case NS32K:
 	case VAX:
-		return ::LittleEndian; /* Note: actually, PDP-11 endian */
+		return ::LittleEndian;
 	case UNKNOWN:
 	case ALPHA:
 	case SUPERH: case SUPERH64:
@@ -37,19 +40,7 @@ using namespace AOut;
 
 AOutFormat::word_size_t AOutFormat::GetWordSize() const
 {
-	switch(cpu)
-	{
-	case M68K:
-	case SPARC:
-	case I386:
-	case ARM:
-	case MIPS:
-		return WordSize32;
-	case PDP11:
-		return WordSize16;
-	default:
-		Linker::FatalError("Internal error: invalid CPU type");
-	}
+	return cpu == PDP11 ? WordSize16 : WordSize32;
 }
 
 AOutFormat::Relocation AOutFormat::Relocation::ReadFile16Bit(Linker::Reader& rd, uint16_t offset)
@@ -1208,6 +1199,10 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	switch(system)
 	{
 	default:
+	case UNIX_V1:
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
 	case UNSPECIFIED:
 	case LINUX:
 	case FREEBSD:
@@ -1989,7 +1984,15 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		cpu = I386;
 		switch(system)
 		{
-		default:
+		case UNSPECIFIED:
+			Linker::Error << "Internal error: system type not specified" << std::endl; // should not happen
+			break;
+		case UNIX_V1:
+		case UNIX:
+		case SYSTEM_III:
+		case SYSTEM_V:
+			// mid_value not used
+			break;
 		case LINUX:
 		case EMX:
 		case PDOS386:
@@ -2025,13 +2028,19 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	case DJGPP1:
 	case PDOS386:
 		return filename + ".exe";
+	case UNIX_V1:
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
 	case LINUX:
 	case FREEBSD:
 	case NETBSD:
 		return filename;
-	default:
-		Linker::FatalError("Internal error: invalid target system");
+	case UNSPECIFIED:
+	case EMX:
+		break; // should not happen
 	}
+	Linker::FatalError("Internal error: invalid target system");
 }
 
 std::string AOutFormat::GetDefaultExtension(Linker::Module& module) const
@@ -2041,12 +2050,18 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module) const
 	case DJGPP1:
 	case PDOS386:
 		return "a.exe";
+	case UNIX_V1:
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
 	case LINUX:
 	case FREEBSD:
 	case NETBSD:
 		return "a.out";
-	default:
-		Linker::FatalError("Internal error: invalid target system");
+	case UNSPECIFIED:
+	case EMX:
+		break; // should not happen
 	}
+	Linker::FatalError("Internal error: invalid target system");
 }
 
