@@ -221,6 +221,38 @@ Target(
 	System = "linux_arm_32",
 	output_file = "linux-arm-32")
 Target(
+	System = "unix",
+	Format = "v1",
+	output_file = "unix11v1")
+Target(
+	System = "unix",
+	Format = "v2",
+	output_file = "unix11v2")
+Target(
+	System = "unix",
+	Format = "omagic",
+	output_file = "unix11omagic")
+Target(
+	System = "unix",
+	Format = "nmagic",
+	output_file = "unix11nmagic")
+Target(
+	System = "unix",
+	Format = "imagic",
+	output_file = "unix11imagic")
+Target(
+	System = "bsd",
+	Format = "omagic",
+	output_file = "bsd11omagic")
+Target(
+	System = "bsd",
+	Format = "nmagic",
+	output_file = "bsd11nmagic")
+Target(
+	System = "bsd",
+	Format = "imagic",
+	output_file = "bsd11imagic")
+Target(
 	System = "dxdos",
 	Format = "com",
 	output_file = "dxdos")

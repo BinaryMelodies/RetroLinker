@@ -21,12 +21,14 @@ PutString:
 	rts	pc
 
 PutNewLine:
+.if TARGET_DXDOS
 	mov	$13, r0
 	jsr	pc, PutChar
+.endif
 	mov	$10, r0
 
 PutChar:
-	_PutChar
+	_PutChar	r0
 	rts	pc
 
 WaitForKey:
@@ -36,14 +38,36 @@ WaitForKey:
 Exit:
 	_Exit
 
+	_SysVars
+
 	.data
 
 message:
 	.ascii	"Greetings!"
+.if TARGET_DXDOS
 	.ascii	" DX-DOS"
+.elseif TARGET_UNIX || TARGET_BSD
+.if TARGET_UNIX
+	.ascii	" AT&T UNIX"
+.if FORMAT_V1
+	.ascii	" Version 1"
+.elseif FORMAT_V2
+	.ascii	" Version 2"
+.else
+	.ascii	" Version 7"
+.endif
+.elseif TARGET_BSD
+	.ascii	" 2.11BSD"
+.endif
+.if FORMAT_OMAGIC || FORMAT_V1 || FORMAT_V2
+	.ascii	" impure executable"
+.elseif FORMAT_NMAGIC
+	.ascii	" pure executable"
+.elseif FORMAT_IMAGIC
+	.ascii	" executable with separate spaces"
+.endif
+.endif
 	.byte	0
 
 	.bss
-
-#	_SysVars
 

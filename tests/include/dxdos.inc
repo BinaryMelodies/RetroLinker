@@ -15,6 +15,7 @@
 .endm
 
 .macro	_PutChar	char
+	mov	\char, r0
 	iot
 	.word	2
 .endm

@@ -245,6 +245,16 @@
 .endif
 
 # multiple
+.ifndef TARGET_UNIX
+.set TARGET_UNIX, 0
+.endif
+
+# multiple
+.ifndef TARGET_BSD
+.set TARGET_BSD, 0
+.endif
+
+# multiple
 .ifndef TARGET_LINUX
 .set TARGET_LINUX, 0
 .endif
@@ -387,6 +397,36 @@
 .set FORMAT_Z8K_SEGMENTED, 0
 .endif
 
+#### UNIX/BSD formats
+
+.ifndef FORMAT_V1
+.set FORMAT_V1, 0
+.endif
+
+.ifndef FORMAT_V2
+.set FORMAT_V2, 0
+.endif
+
+.ifndef FORMAT_OMAGIC
+.set FORMAT_OMAGIC, 0
+.endif
+
+.ifndef FORMAT_NMAGIC
+.set FORMAT_NMAGIC, 0
+.endif
+
+.ifndef FORMAT_IMAGIC
+.set FORMAT_IMAGIC, 0
+.endif
+
+.ifndef FORMAT_ZMAGIC
+.set FORMAT_ZMAGIC, 0
+.endif
+
+.ifndef FORMAT_QMAGIC
+.set FORMAT_QMAGIC, 0
+.endif
+
 #### Memory models
 
 .ifndef MODEL_TINY
@@ -474,6 +514,14 @@
 
 .if TARGET_MSDOS
 .include "../include/msdos.inc"
+.endif
+
+.if TARGET_UNIX
+.include "../include/unix.inc"
+.endif
+
+.if TARGET_BSD
+.include "../include/bsd.inc"
 .endif
 
 .if TARGET_ELKS || TARGET_LINUX

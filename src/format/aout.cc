@@ -2199,7 +2199,6 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 	{
 		if(system == UNIX_V1)
 		{
-			Linker::Error << "Error: Entry address not supported, ignoring" << std::endl;
 			entry_address = 0;
 		}
 

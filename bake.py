@@ -976,6 +976,94 @@ DefineTarget(
 
 ######## PDP-11 based systems
 
+DefineTarget(
+	Description = "UNIX Version 1 a.out for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "unix",
+	Format = "v1",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=v1"]),
+	],
+	custom_entry = False)
+
+DefineTarget(
+	Description = "UNIX Version 2 a.out for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "unix",
+	Format = "v2",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=v2"]),
+	],
+	custom_entry = False)
+
+DefineTarget(
+	Description = "UNIX Version 7 impure a.out for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "unix",
+	Format = "omagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=v7", "type=omagic"]),
+	],
+	custom_entry = False)
+
+DefineTarget(
+	Description = "UNIX Version 7 pure a.out for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "unix",
+	Format = "nmagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=v7", "type=nmagic"]),
+	],
+	custom_entry = False)
+
+DefineTarget(
+	Description = "UNIX Version 7 split a.out for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "unix",
+	Format = "imagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=v7", "type=separate"]),
+	],
+	custom_entry = False)
+
+DefineTarget(
+	Description = "2.11BSD impure a.out for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "bsd",
+	Format = "omagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=omagic"]),
+	],
+	custom_entry = False)
+
+DefineTarget(
+	Description = "2.11BSD pure a.out for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "bsd",
+	Format = "nmagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=nmagic"]),
+	],
+	custom_entry = False)
+
+DefineTarget(
+	Description = "2.11BSD split a.out for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "bsd",
+	Format = "imagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=separate"]),
+	],
+	custom_entry = False)
+
 DXDOS_BASE = 0x200 # This seems to be the default, with SP set to 0x1FE, presumably with a value pushed
 DefineTarget(
 	Description = "DX-DOS on Elektronika BK for PDP-11",
