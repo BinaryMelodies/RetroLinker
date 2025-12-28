@@ -165,6 +165,26 @@ namespace ELF
 		static constexpr offset_t R_PPC_ADDR32 = 1;
 		static constexpr offset_t R_PPC_UADDR32 = 24;
 		static constexpr offset_t R_PPC_REL32 = 26;
+		static constexpr offset_t R_PPC64_ADDR64 = 38;
+		static constexpr offset_t R_PPC64_UADDR64 = 43;
+		static constexpr offset_t R_PPC64_REL64 = 44;
+
+		/* https://github.com/bminor/binutils-gdb/blob/master/include/elf/vax.h */
+		static constexpr offset_t R_VAX_8 = 3;
+		static constexpr offset_t R_VAX_PC8 = 6;
+		static constexpr offset_t R_VAX_16 = 2;
+		static constexpr offset_t R_VAX_PC16 = 5;
+		static constexpr offset_t R_VAX_32 = 1;
+		static constexpr offset_t R_VAX_PC32 = 4;
+		static constexpr offset_t R_VAX_GOT32 = 7;
+		static constexpr offset_t R_VAX_PLT32 = 13;
+
+		static constexpr offset_t R_Z80_8 = 1;
+		static constexpr offset_t R_Z80_8_DIS = 2;
+		static constexpr offset_t R_Z80_8_PCREL = 3;
+		static constexpr offset_t R_Z80_16 = 4;
+		static constexpr offset_t R_Z80_24 = 5;
+		static constexpr offset_t R_Z80_32 = 6;
 
 		static constexpr offset_t DT_NULL = 0;
 		static constexpr offset_t DT_NEEDED = 1;
