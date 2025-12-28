@@ -476,7 +476,7 @@ uint32_t AOutFormat::GetTextAddress() const
 	switch(system)
 	{
 	case UNIX_V1:
-		return 0x00008000; // according to apout
+		return 0x00004000; // according to apout
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
@@ -1198,19 +1198,23 @@ offset_t AOutFormat::ImageSize() const
 
 void AOutFormat::WriteHeader(Linker::Writer& wr) const
 {
+	uint16_t written_magic = magic;
+	if(force_magic_number)
+		written_magic = force_magic_number.value();
+
 	switch(word_size)
 	{
 	case WordSize16:
-		wr.WriteWord(word_size, magic);
+		wr.WriteWord(word_size, written_magic);
 		break;
 	case WordSize32:
 		switch(system)
 		{
 		case SYSTEM_III:
-			wr.WriteWord(word_size, magic | (uint32_t(environment_stamp) << 16));
+			wr.WriteWord(word_size, written_magic | (uint32_t(environment_stamp) << 16));
 			break;
 		default:
-			wr.WriteWord(word_size, magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
+			wr.WriteWord(word_size, written_magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
 			break;
 		}
 		break;
@@ -1787,6 +1791,100 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
 
+	unix_version v = collector.unix_v();
+
+	if(v)
+	{
+		if(system != DEFAULT && system != UNSPECIFIED && system != UNIX_V1 && system != UNIX && system != SYSTEM_III && system != SYSTEM_V)
+		{
+			Linker::Error << "Error: UNIX version can only be set for UNIX, setting up UNIX" << std::endl;
+		}
+
+		switch(v)
+		{
+		case Version1:
+		case Version2:
+			system = UNIX_V1;
+			break;
+		case DefaultVersion:
+		case Version3:
+		case Version4:
+		case Version5:
+		case Version6:
+		case Version7:
+		case _211BSD:
+			system = UNIX;
+			break;
+		case SystemIII:
+			system = SYSTEM_III;
+			break;
+		case SystemV:
+			system = SYSTEM_V;
+			break;
+		}
+	}
+
+	if(collector.type())
+	{
+		if(collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
+		{
+			Linker::Error << "Error: flags n/i/z/O cannot be specified alongside executable type" << std::endl;
+		}
+
+		magic = collector.type();
+
+		if(v == Version1 && magic == NMAGIC)
+		{
+			magic = MAGIC_V1;
+		}
+	}
+	else if(collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
+	{
+		int count = collector.nflag() + collector.iflag() + collector.zflag() + collector.Oflag();
+		if(count > 0)
+		{
+			Linker::FatalError("Fatal error: only one of n/i/z/O can be specified");
+		}
+
+		if(collector.nflag())
+		{
+			if(v == Version1)
+			{
+				magic = MAGIC_V1;
+			}
+			else
+			{
+				magic = NMAGIC;
+			}
+		}
+		else if(collector.iflag())
+		{
+			magic = MAGIC_SEPARATE;
+		}
+		else if(collector.zflag())
+		{
+			magic = ZMAGIC;
+		}
+		else if(collector.Oflag())
+		{
+			magic = MAGIC_OVERLAY;
+		}
+	}
+
+	force_magic_number = collector.magic();
+	if(collector.magic())
+	{
+		if(!(collector.type() || collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag()))
+		{
+			magic = magic_type(force_magic_number.value());
+		}
+	}
+
+	if(!SupportedMagicType(v, magic))
+	{
+		Linker::Error << "Error: unsupported magic type for UNIX version" << std::endl;
+	}
+
 	/* TODO: other parameters */
 }
 
@@ -1901,6 +1999,15 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 		break;
 	case EMX:
 		linker_parameters["code_end_align"] = Linker::Location(0x1000);
+		linker_parameters["data_end_align"] = Linker::Location(1);
+		linker_parameters["bss_end_align"] = Linker::Location(1);
+		linker_parameters["align"] = Linker::Location(1);
+		break;
+	case UNIX_V1:
+	case UNIX:
+	case SYSTEM_III:
+	case SYSTEM_V:
+		linker_parameters["code_end_align"] = Linker::Location(1);
 		linker_parameters["data_end_align"] = Linker::Location(1);
 		linker_parameters["bss_end_align"] = Linker::Location(1);
 		linker_parameters["align"] = Linker::Location(1);
@@ -2109,6 +2216,11 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		break;
 	case Linker::Module::PDP11:
 		cpu = PDP11;
+		if(magic == ZMAGIC)
+		{
+			// according to what the 2.11BSD linker does for the -z option
+			magic = MAGIC_SEPARATE;
+		}
 		break;
 	//case Linker::Module::VAX: // TODO
 	default:

@@ -61,7 +61,7 @@ namespace AOut
 			UNSPECIFIED,
 			/** @brief Treat it as a UNIX Version 1/2 binary (PDP-11 only) */
 			UNIX_V1, /* TODO */
-			/** @brief Treat it as a UNIX Version 3/4/5/6/7 binary */
+			/** @brief Treat it as a UNIX Version 3/4/5/6/7 or 2.9/2.11BSD binary*/
 			UNIX,
 			/** @brief Treat it as a UNIX System III binary */
 			SYSTEM_III,
@@ -421,17 +421,133 @@ namespace AOut
 
 		/* * * Writer members * * */
 
+		std::optional<offset_t> force_magic_number;
+
 		static std::shared_ptr<AOutFormat> CreateWriter(system_type system, magic_type magic);
 		static std::shared_ptr<AOutFormat> CreateWriter(system_type system);
+
+		enum unix_version
+		{
+			DefaultVersion,
+			Version1,
+			Version2,
+			Version3,
+			Version4,
+			Version5,
+			Version6,
+			Version7,
+			SystemIII,
+			SystemV,
+			_211BSD,
+		};
+
+		static constexpr bool SupportedMagicType(unix_version version, magic_type magic)
+		{
+			switch(version)
+			{
+			default:
+				return false;
+			case Version1:
+				return magic == MAGIC_V1;
+			case Version2:
+				return magic == OMAGIC;
+			case Version3:
+			case Version4:
+			case Version5:
+				return magic == OMAGIC || magic == NMAGIC;
+			case Version6:
+				return magic == OMAGIC || magic == NMAGIC || magic == MAGIC_SEPARATE;
+			case Version7:
+			case SystemIII:
+			case SystemV:
+				return magic == OMAGIC || magic == NMAGIC || magic == MAGIC_SEPARATE || magic == MAGIC_OVERLAY;
+			case _211BSD:
+				return magic == OMAGIC || magic == NMAGIC || magic == MAGIC_SEPARATE || magic == MAGIC_OVERLAY || magic == MAGIC_AUTO_OVERLAY_NONSEPARATE || magic == MAGIC_AUTO_OVERLAY_SEPARATE;
+			case DefaultVersion:
+				return magic == OMAGIC || magic == NMAGIC || magic == MAGIC_SEPARATE || magic == MAGIC_OVERLAY || magic == MAGIC_AUTO_OVERLAY_NONSEPARATE || magic == MAGIC_AUTO_OVERLAY_SEPARATE;
+			}
+		}
 
 		class AOutOptionCollector : public Linker::OptionCollector
 		{
 		public:
-			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			class UnixVersionEnumeration : public Linker::Enumeration<unix_version>
+			{
+			public:
+				UnixVersionEnumeration()
+					: Enumeration(
+						"V1", Version1,
+						"V2", Version2,
+						"V3", Version3,
+						"V4", Version4,
+						"V5", Version5,
+						"V6", Version6,
+						"V7", Version7,
+						"SYSIII", SystemIII,
+						"SYS3", SystemIII,
+						"SIII", SystemIII,
+						"S3", SystemIII,
+						"SYSV", SystemV,
+						"SYS5", SystemV,
+						"SV", SystemV,
+						"S5", SystemV,
+						"2.11BSD", _211BSD,
+						"211BSD", _211BSD,
+						"2.9BSD", _211BSD,
+						"29BSD", _211BSD,
+						"2BSD", _211BSD)
+				{
+					descriptions = {
+						{ Version1, "UNIX Version 1" },
+						{ Version2, "UNIX Version 2" },
+						{ Version3, "UNIX Version 3" },
+						{ Version4, "UNIX Version 4" },
+						{ Version5, "UNIX Version 5" },
+						{ Version6, "UNIX Version 6" },
+						{ Version7, "UNIX Version 7" },
+						{ SystemIII, "UNIX System III" },
+						{ SystemV, "UNIX System V" },
+						{ _211BSD, "2.11BSD" },
+					};
+				}
+			};
+
+			class MagicEnumeration : public Linker::Enumeration<magic_type>
+			{
+			public:
+				MagicEnumeration()
+					: Enumeration(
+						"OMAGIC", OMAGIC,
+						"IMPURE", OMAGIC,
+						"NMAGIC", NMAGIC,
+						"ROTEXT", NMAGIC,
+						"PURE", NMAGIC,
+						"ZMAGIC", ZMAGIC,
+						"DEMANDPAGED", ZMAGIC,
+						"QMAGIC", QMAGIC,
+						"UNMAPPED", QMAGIC,
+						"OVERLAY", MAGIC_OVERLAY,
+						"SEPARATE", MAGIC_OVERLAY,
+						"AUTOOVL", MAGIC_AUTO_OVERLAY_NONSEPARATE,
+						"AUTOOVLNS", MAGIC_AUTO_OVERLAY_NONSEPARATE,
+						"AUTOOVLS", MAGIC_AUTO_OVERLAY_SEPARATE,
+						"AUTOOVLSEP", MAGIC_AUTO_OVERLAY_SEPARATE)
+				{
+				}
+			};
+
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable (DJGPP only)"};
+			Linker::Option<Linker::ItemOf<UnixVersionEnumeration>> unix_v{"version", "Targeted UNIX version (UNIX only)"};
+			Linker::Option<Linker::ItemOf<MagicEnumeration>> type{"t", "Executable type"};
+			Linker::Option<std::optional<offset_t>> magic{"magic", "Explicit magic type specification"};
+			Linker::Option<bool> nflag{"n", "NMAGIC"};
+			Linker::Option<bool> iflag{"i", "Generate separated executable"};
+			Linker::Option<bool> zflag{"z", "Demand paged executable (identical to -i for PDP-11)"};
+			Linker::Option<bool> Oflag{"O", "Generate text overlay"};
 
 			AOutOptionCollector()
 			{
-				InitializeFields(stub);
+				InitializeFields(stub, unix_v, type, magic, nflag, iflag, zflag, Oflag);
 			}
 		};
 
