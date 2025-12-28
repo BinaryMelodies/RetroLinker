@@ -33,6 +33,14 @@
 .set CPU_ARM, 0
 .endif
 
+.ifndef CPU_AARCH64
+.set CPU_AARCH64, 0
+.endif
+
+.ifndef CPU_PPC
+.set CPU_PPC, 0
+.endif
+
 .ifndef CPU_6502
 .set CPU_6502, 0
 .endif

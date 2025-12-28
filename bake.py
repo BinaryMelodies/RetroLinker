@@ -357,6 +357,11 @@ CPUS = {
 		'assembler_flags': '',
 		'compiler': 'arm-none-eabi-gcc -march=armv3',
 	},
+	'ppc': {
+		'assembler': 'powerpc-elf-as',
+		'assembler_flags': '',
+		'compiler': 'powerpc-elf-gcc',
+	},
 	'pdp11': {
 		'assembler': 'pdp11-aout-as',
 		'assembler_flags': '',
@@ -690,7 +695,7 @@ DefineTarget(
 	extension = ".exe")
 
 DefineTarget(
-	Description = "Linux ELF .exe for Intel 80386",
+	Description = "Linux ELF for Intel 80386",
 	CPU = "i386",
 	System = "linux_x86_32",
 	TargetName = "linux",
@@ -756,7 +761,7 @@ DefineTarget(
 	stub = ENV.get("DX64STUB", "missing")) # TODO: requires a DX64 compatible stub
 
 DefineTarget(
-	Description = "Linux ELF .exe for AMD64",
+	Description = "Linux ELF for AMD64",
 	CPU = "x86_64",
 	System = "linux_x86_64",
 	TargetName = "linux",
@@ -904,7 +909,7 @@ DefineTarget(
 	extension = ".68k")
 
 DefineTarget(
-	Description = "Linux ELF .exe for Motorola 68000",
+	Description = "Linux ELF for Motorola 68000",
 	CPU = "m68k",
 	System = "linux_68k",
 	TargetName = "linux",
@@ -962,9 +967,24 @@ DefineTarget(
 	extension = ",ff8") # actually, not an extension, but a hexadecimal file type
 
 DefineTarget(
-	Description = "Linux ELF .exe for ARM",
+	Description = "Linux ELF for ARM",
 	CPU = "arm",
 	System = "linux_arm_32",
+	TargetName = "linux",
+	IncludeName = "linux",
+	LinkerName = "elf",
+	# TODO: add version with dynamic linking
+	custom_entry = True,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+######## PowerPC based systems
+
+DefineTarget(
+	Description = "Linux ELF for PowerPC",
+	CPU = "ppc",
+	System = "linux_ppc_32",
 	TargetName = "linux",
 	IncludeName = "linux",
 	LinkerName = "elf",

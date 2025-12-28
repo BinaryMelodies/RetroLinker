@@ -351,6 +351,9 @@ Target(
 	System = "linux_arm_32",
 	output_file = "linux-arm-32")
 Target(
+	System = "linux_ppc_32",
+	output_file = "linux-ppc-32")
+Target(
 	System = "unix",
 	Format = "v1",
 	output_file = "unix11v1")
