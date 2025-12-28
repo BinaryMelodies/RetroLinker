@@ -3,30 +3,34 @@
 .endm
 
 .macro	_Exit
-	mov $0, -(sp)
-	clr -(sp)
-	sys 1
+	mov	$0, -(sp)
+	clr	-(sp)
+	sys	1
 .endm
 
 .macro	_PutChar	char
-putchar:
-	movb \char, buffer
-	mov $1, -(sp)
-	mov $buffer, -(sp)
-	mov $1, -(sp)
-	clr -(sp)
-	sys 4
-	add $8, sp
+	movb	\char, PutChar_char
+	mov	$1, -(sp)
+	mov	$PutChar_char, -(sp)
+	mov	$1, -(sp)
+	clr	-(sp)
+	sys	4
+	add	$8, sp
 .endm
 
 .macro	_WaitForKey
-	# TODO
+	mov	$1, -(sp)
+	mov	$PutChar_char, -(sp)
+	mov	$1, -(sp)
+	clr	-(sp)
+	sys	3
+	add	$8, sp
 .endm
 
 .macro	_SysVars
 	.data
 
-buffer:
+PutChar_char:
 	.byte	0
 .endm
 

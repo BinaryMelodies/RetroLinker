@@ -43,13 +43,15 @@ PutString:
 
 	.global	PutNewLine
 PutNewLine:
+.if TARGET_DXDOS
 	mov	$13, r0
 	jsr	pc, PutChar
+.endif
 	mov	$10, r0
 
 	.global	PutChar
 PutChar:
-	_PutChar
+	_PutChar	r0
 	rts	pc
 
 	.global	WaitForKey

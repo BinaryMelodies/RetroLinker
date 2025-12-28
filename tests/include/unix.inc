@@ -3,41 +3,52 @@
 .endm
 
 .macro	_Exit
-	mov $0, r0
-	sys 1
+	mov	$0, r0
+	sys	1
 .endm
 
 .macro	_PutChar	char
-putchar:
-	movb \char, buffer
+	movb	\char, PutChar_char
 .if	FORMAT_IMAGIC
-	mov $1, r0
-	sys 0
-	.word write_data
+	mov	$1, r0
+	sys	0
+	.word	PutChar_SysCall
 .else
-	mov $1, r0
-	sys 4
-	.word buffer
-	.word 1
+	mov	$1, r0
+	sys	4
+	.word	PutChar_char
+	.word	1
 .endif
 .endm
 
 .macro	_WaitForKey
-	# TODO
+.if	FORMAT_IMAGIC
+	mov	$0, r0
+	sys	0
+	.word	WaitForKey_SysCall
+.else
+	mov	$1, r0
+	sys	3
+	.word	PutChar_char
+	.word	1
+.endif
 .endm
 
 .macro	_SysVars
 	.data
 
 .if	FORMAT_IMAGIC
-	.word	0
-write_data:
-	sys 4
-	.word buffer
-	.word 1
+PutChar_SysCall:
+	sys	4
+	.word	PutChar_char
+	.word	1
+WaitForKey_SysCall:
+	sys	3
+	.word	PutChar_char
+	.word	1
 .endif
 
-buffer:
+PutChar_char:
 	.byte	0
 .endm
 
