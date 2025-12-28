@@ -94,6 +94,10 @@ namespace Linker
 		 */
 		int shift;
 		/**
+		 * @brief Add 1 to the value if the last shifted bit is set, used for PowerPC "high adjusted" relocation types
+		 */
+		bool adjusted_shift;
+		/**
 		 * @brief The bitmask of the value within the word
 		 */
 		uint64_t mask;
@@ -104,7 +108,7 @@ namespace Linker
 
 		Relocation(reference_kind kind, size_t size, Location source, Target target, Target reference, uint64_t addend, EndianType endiantype)
 			: kind(kind), size(size), source(source), target(target), reference(reference), addend(addend), endiantype(endiantype),
-				shift(0), mask(-1), subtract(false)
+				shift(0), adjusted_shift(false), mask(-1), subtract(false)
 		{
 		}
 
@@ -202,7 +206,7 @@ namespace Linker
 		/**
 		 * @brief The value stored in the word must be shifted by this to give the actual value
 		 */
-		Relocation& SetShift(int new_shift);
+		Relocation& SetShift(int new_shift, bool adjusted = false);
 
 		/**
 		 * @brief The value stored in the word must be negated before adding the addend and storing

@@ -98,9 +98,10 @@ Relocation& Relocation::SetMask(uint64_t new_mask)
 	return *this;
 }
 
-Relocation& Relocation::SetShift(int new_shift)
+Relocation& Relocation::SetShift(int new_shift, bool adjusted)
 {
 	shift = new_shift;
+	adjusted_shift = adjusted;
 	return *this;
 }
 
@@ -189,6 +190,8 @@ void Relocation::WriteWord(uint64_t value)
 {
 	if(shift < 0)
 		value <<= -shift;
+	else if(adjusted_shift && ((value >> (shift - 1)) & 1) != 0)
+		value = (value >> shift) + 1; /* TODO: signed */
 	else
 		value >>= shift; /* TODO: signed */
 	if(mask != uint64_t(-1))
@@ -260,6 +263,7 @@ bool Relocation::Combine(const Relocation& other)
 	|| size != other.size
 	|| endiantype != other.endiantype
 	|| shift != other.shift
+	|| adjusted_shift != other.adjusted_shift
 	|| mask != other.mask
 	|| subtract != other.subtract)
 		return false;
@@ -319,6 +323,8 @@ std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation
 	else if(relocation.shift > 0)
 	{
 		out << " shifted left by " << relocation.shift;
+		if(relocation.adjusted_shift)
+			out << " adjusted";
 	}
 	if(relocation.mask != -uint64_t(1u))
 	{

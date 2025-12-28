@@ -148,6 +148,24 @@ namespace ELF
 		static constexpr offset_t R_ARM_PC24 = 1;
 		static constexpr offset_t R_ARM_V4BX = 40;
 
+		static constexpr offset_t R_PPC_ADDR14 = 7;
+		static constexpr offset_t R_PPC_ADDR14_BRTAKEN = 8;
+		static constexpr offset_t R_PPC_ADDR14_BRNTAKEN = 9;
+		static constexpr offset_t R_PPC_REL14 = 11;
+		static constexpr offset_t R_PPC_REL14_BRTAKEN = 12;
+		static constexpr offset_t R_PPC_REL14_BRNTAKEN = 13;
+		static constexpr offset_t R_PPC_ADDR16 = 3;
+		static constexpr offset_t R_PPC_UADDR16 = 25;
+		static constexpr offset_t R_PPC_ADDR16_LO = 4;
+		static constexpr offset_t R_PPC_ADDR16_HI = 5;
+		static constexpr offset_t R_PPC_ADDR16_HA = 6;
+		static constexpr offset_t R_PPC_ADDR24 = 2;
+		static constexpr offset_t R_PPC_REL24 = 10;
+		static constexpr offset_t R_PPC_ADDR30 = 37;
+		static constexpr offset_t R_PPC_ADDR32 = 1;
+		static constexpr offset_t R_PPC_UADDR32 = 24;
+		static constexpr offset_t R_PPC_REL32 = 26;
+
 		static constexpr offset_t DT_NULL = 0;
 		static constexpr offset_t DT_NEEDED = 1;
 		static constexpr offset_t DT_PLTRELSZ = 2;

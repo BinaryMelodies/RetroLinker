@@ -349,6 +349,31 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 		case R_ARM_V4BX:
 			return 4;
 		}
+	case EM_PPC:
+		switch(type)
+		{
+		default:
+			return 0;
+		case R_PPC_ADDR16:
+		case R_PPC_UADDR16:
+		case R_PPC_ADDR16_LO:
+		case R_PPC_ADDR16_HI:
+		case R_PPC_ADDR16_HA:
+			return 2;
+		case R_PPC_ADDR14:
+		case R_PPC_ADDR14_BRTAKEN:
+		case R_PPC_ADDR14_BRNTAKEN:
+		case R_PPC_REL14:
+		case R_PPC_REL14_BRTAKEN:
+		case R_PPC_REL14_BRNTAKEN:
+		case R_PPC_ADDR24:
+		case R_PPC_REL24:
+		case R_PPC_ADDR30:
+		case R_PPC_ADDR32:
+		case R_PPC_UADDR32:
+		case R_PPC_REL32:
+			return 4;
+		}
 	default:
 		return 0;
 	}
@@ -461,6 +486,7 @@ std::string ELFFormat::Relocation::GetName(cpu_type cpu) const
 		case R_ARM_V4BX:
 			return "R_ARM_V4BX";
 		}
+	// TODO: EM_PPC
 	default:
 		return "";
 	}
@@ -2708,6 +2734,17 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 	case EM_ARM:
 		module.cpu = Linker::Module::ARM;
 		break;
+	case EM_AARCH64:
+		// TODO: not yet supported
+		module.cpu = Linker::Module::ARM64;
+		break;
+	case EM_PPC:
+		module.cpu = Linker::Module::PPC;
+		break;
+	case EM_PPC64:
+		// TODO: not yet supported
+		module.cpu = Linker::Module::PPC64;
+		break;
 	default:
 		{
 			std::ostringstream message;
@@ -3014,6 +3051,72 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					}
 					break;
 
+				case EM_PPC:
+					/* TODO: use endianness of object file, or make parametrizable */
+					switch(rel.type)
+					{
+					case R_PPC_ADDR32:
+					case R_PPC_UADDR32:
+						obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::BigEndian);
+						break;
+
+					case R_PPC_ADDR24:
+						obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::BigEndian);
+						obj_rel.SetMask(0x03FFFFFC);
+						break;
+
+					case R_PPC_ADDR16:
+					case R_PPC_UADDR16:
+					case R_PPC_ADDR16_LO:
+						obj_rel = Linker::Relocation::Absolute(2, rel_source, rel_target, rel.addend, ::BigEndian);
+						break;
+
+					case R_PPC_ADDR16_HI:
+						obj_rel = Linker::Relocation::Absolute(2, rel_source, rel_target, rel.addend, ::BigEndian);
+						obj_rel.SetShift(16);
+						break;
+
+					case R_PPC_ADDR16_HA:
+						obj_rel = Linker::Relocation::Absolute(2, rel_source, rel_target, rel.addend, ::BigEndian);
+						obj_rel.SetShift(16, true);
+						break;
+
+					case R_PPC_ADDR14:
+					case R_PPC_ADDR14_BRTAKEN:
+					case R_PPC_ADDR14_BRNTAKEN:
+						obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::BigEndian);
+						obj_rel.SetMask(0x0000FFFC);
+						// TODO: set/clear branch prediction bit
+						break;
+
+					case R_PPC_REL24:
+						obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::BigEndian);
+						obj_rel.SetMask(0x03FFFFFC);
+						break;
+
+					case R_PPC_REL14:
+					case R_PPC_REL14_BRTAKEN:
+					case R_PPC_REL14_BRNTAKEN:
+						obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::BigEndian);
+						obj_rel.SetMask(0x0000FFFC);
+						// TODO: set/clear branch prediction bit
+						break;
+
+					case R_PPC_REL32:
+						obj_rel = Linker::Relocation::Relative(4, rel_source, rel_target, rel.addend, ::BigEndian);
+						break;
+
+					case R_PPC_ADDR30:
+						obj_rel = Linker::Relocation::Absolute(4, rel_source, rel_target, rel.addend, ::BigEndian);
+						obj_rel.SetMask(0xFFFFFFFC);
+						break;
+
+					default:
+						Linker::Warning << "Warning: unhandled PPC relocation type " << rel.type << std::endl;
+						continue;
+					}
+					break;
+
 				default:
 					// unknown backend
 					break;
@@ -3168,6 +3271,7 @@ void ELFFormat::SetOptions(std::map<std::string, std::string>& options)
 
 void ELFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
+	// TODO: include_header_segment should include it in the first load segment
 	if(segments.size() == 0)
 	{
 		Segment header_segment;
@@ -3397,7 +3501,13 @@ void ELFFormat::GenerateFile(std::string filename, Linker::Module& module)
 			cpu = EM_PPC;
 		file_class = ELFCLASS32;
 		data_encoding = ELFDATA2MSB;
-		// TODO: parameters
+
+		image_base = 0x01800000;
+		header_size = 0x80; // TODO: calculate header sizes separately
+		create_header_segment = false;
+		include_header_segment = true;
+		segment_align = 1;
+		section_align = 1;
 		break;
 	case Linker::Module::PPC64:
 		cpu = EM_PPC64;
