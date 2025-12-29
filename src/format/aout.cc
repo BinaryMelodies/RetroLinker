@@ -256,6 +256,8 @@ bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 			continue;
 		}
 		next_size = rd.ReadUnsigned(word_size);
+		if(i == 1 && next_size == 0)
+			return false; // empty text segment
 		if(full_size + next_size < full_size || full_size + next_size > image_size)
 			return false;
 		full_size += next_size;
@@ -345,11 +347,15 @@ uint32_t AOutFormat::GetPageSize() const
 	{
 	case UNSPECIFIED:
 		return 0x00000400;
-	case UNIX_V1:
 	case UNIX:
 	case SYSTEM_III:
+		if(word_size == WordSize32)
+			return 0x00000200;
+	case UNIX_V1:
 	case SYSTEM_V:
-		return 0x00002000; // TODO: this is the value up to Version 7, according to apout, for PDP-11
+		// only 16-bit support
+		return 0x00002000;
+	case BSD:
 	case LINUX:
 		return 0x00000400;
 	case FREEBSD:
@@ -401,10 +407,11 @@ uint32_t AOutFormat::GetTextOffset() const
 	case SYSTEM_V:
 		return GetHeaderSize();
 	case UNSPECIFIED:
+	case BSD:
 	case LINUX:
 		switch(magic)
 		{
-		case QMAGIC:
+		case QMAGIC: // not used for 4BSD
 			return 0;
 		case ZMAGIC:
 			return GetPageSize();
@@ -483,7 +490,8 @@ uint32_t AOutFormat::GetTextAddress() const
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
-		return 0; // TODO: according to apout, for PDP-11
+	case BSD:
+		return 0;
 	case UNSPECIFIED:
 	case LINUX:
 		switch(magic)
@@ -544,6 +552,7 @@ uint32_t AOutFormat::GetDataOffsetAlign() const
 	case SYSTEM_III:
 	case SYSTEM_V:
 	case UNSPECIFIED:
+	case BSD: // ZMAGIC pads to 0x400
 	case LINUX:
 		return 1;
 	case FREEBSD:
@@ -569,12 +578,12 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
-		// TODO: according to apout, for PDP-11
 		if(magic == NMAGIC)
 			return GetPageSize();
 		else
 			return 1;
 	case UNSPECIFIED:
+	case BSD:
 	case LINUX:
 	case DJGPP1:
 	case EMX:
@@ -689,6 +698,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
+	case BSD:
 		if(word_size != 0)
 		{
 			// word_size and endiantype are already set
@@ -701,9 +711,9 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		else
 		{
 			endiantype = midmag_endiantype = ::LittleEndian;
-			word_size = WordSize32;
-			// attempt VAX byte order
-			if(system != SYSTEM_V && !AttemptReadFile(rd, signature.data(), file_end - file_offset))
+			word_size = WordSize16;
+			// attempt PDP-11 byte order
+			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 			{
 				endiantype = midmag_endiantype = ::BigEndian;
 				word_size = WordSize32;
@@ -711,9 +721,9 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 				{
 					endiantype = midmag_endiantype = ::LittleEndian;
-					word_size = WordSize16;
-					// attempt PDP-11 byte order
-					if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
+					word_size = WordSize32;
+					// attempt VAX byte order
+					if(system != SYSTEM_V && !AttemptReadFile(rd, signature.data(), file_end - file_offset))
 					{
 						Linker::FatalError("Fatal error: Unable to determine file format");
 					}
@@ -723,6 +733,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 		if(word_size == WordSize32 && (system == SYSTEM_III || system == SYSTEM_V))
 		{
+			// get environment stamp
 			switch(midmag_endiantype)
 			{
 			case ::UndefinedEndian:
@@ -1117,6 +1128,8 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 	rd.Seek(file_offset + data_offset);
 	data = Linker::Section::ReadFromFile(rd, data_size, ".data");
 
+	// TODO: for 16-bit auto-overlay executables (2.9BSD/2.11BSD), read overlays
+
 	switch(word_size)
 	{
 	case WordSize16:
@@ -1299,13 +1312,24 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 
 	code->WriteFile(wr);
 
-	if(magic != MAGIC_V1)
+	if(magic == MAGIC_V1)
+	{
+		data->WriteFile(wr);
+	}
+	else
 	{
 		uint32_t data_offset = AlignTo(GetTextOffset() + code_size, GetDataOffsetAlign());
 		wr.Seek(file_offset + data_offset);
+		data->WriteFile(wr);
+		if(wr.Tell() < file_offset + data_offset + data_size)
+		{
+			// fill to the end
+			wr.Seek(file_offset + data_offset + data_size - 1);
+			wr.WriteWord(1, 0);
+		}
 	}
 
-	data->WriteFile(wr);
+	// TODO: for 16-bit auto-overlay executables (2.9BSD/2.11BSD), write overlays
 
 	// TODO: 16-bit relocations
 
@@ -1500,6 +1524,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		case UNIX:
 		case SYSTEM_III:
 		case SYSTEM_V:
+		case BSD:
 			break;
 		case UNSPECIFIED:
 		case LINUX:
@@ -1523,7 +1548,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Entry", Dumper::HexDisplay::Make(2 * word_size), offset_t(entry_address));
 	header_region.Display(dump);
 
-	// TODO: print symbols, strings, relocations
+	// TODO: print overlays, symbols, strings, relocations
 
 	Dumper::Block text_block("Text", GetTextOffset(), code->AsImage(), GetTextAddress(), 2 * word_size, 2 * word_size);
 	for(auto& rel : code_relocations)
@@ -1876,8 +1901,8 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 		case Version5:
 		case Version6:
 		case Version7:
-		case _211BSD:
-			system = UNIX;
+		case AnyBSD:
+			system = BSD;
 			break;
 		case SystemIII:
 			system = SYSTEM_III;
@@ -1890,21 +1915,25 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 
 	if(collector.type())
 	{
-		if(collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
+		if(collector.Nflag() || collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
 		{
 			Linker::Error << "Error: flags n/i/z/O cannot be specified alongside executable type" << std::endl;
 		}
 
 		magic = collector.type();
 	}
-	else if(collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
+	else if(collector.Nflag() || collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
 	{
-		int count = collector.nflag() + collector.iflag() + collector.zflag() + collector.Oflag();
+		int count = collector.Nflag() + collector.nflag() + collector.iflag() + collector.zflag() + collector.Oflag();
 		if(count > 1)
 		{
 			Linker::FatalError("Fatal error: only one of n/i/z/O can be specified");
 		}
 
+		if(collector.Nflag())
+		{
+			magic = OMAGIC;
+		}
 		if(collector.nflag())
 		{
 			magic = NMAGIC;
@@ -1936,7 +1965,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 	force_magic_number = collector.magic();
 	if(collector.magic())
 	{
-		if(!(collector.type() || collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag()))
+		if(!(collector.type() || collector.Nflag() || collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag()))
 		{
 			magic = magic_type(force_magic_number.value());
 		}
@@ -2095,13 +2124,17 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
-		linker_parameters["code_end_align"] = Linker::Location(1);
-		linker_parameters["data_end_align"] = Linker::Location(1);
-		linker_parameters["bss_end_align"] = Linker::Location(1);
+	case BSD:
+		linker_parameters["code_end_align"] = Linker::Location(magic == ZMAGIC ? GetPageSize() : word_size);
+		linker_parameters["data_end_align"] = Linker::Location(word_size);
+		linker_parameters["bss_end_align"] = Linker::Location(word_size);
 		linker_parameters["align"] = Linker::Location(1);
 		break;
 	case PDOS386:
-	default:
+	case LINUX: // TODO
+	case FREEBSD: // TODO
+	case NETBSD: // TODO
+	case UNSPECIFIED: // TODO
 		linker_parameters["code_end_align"] = Linker::Location(4); /* TODO: is this needed? */
 		linker_parameters["data_end_align"] = Linker::Location(4); /* TODO: is this needed? */
 		linker_parameters["bss_end_align"] = Linker::Location(4); /* TODO: is this needed? */
@@ -2230,19 +2263,20 @@ void AOutFormat::CalculateValues()
 		code_size += GetHeaderSize() - GetTextOffset();
 	}
 
-	if(system != EMX)
-	{
-		data_size = GetDataSegment()->data_size;
-		bss_size  = GetBssSegment()->zero_fill;
-	}
-	else
+	if(system == EMX || (system == BSD && magic == ZMAGIC))
 	{
 		// align end of data section
-		data_size = AlignTo(GetDataSegment()->data_size, 0x1000);
+		data_size = AlignTo(GetDataSegment()->data_size, GetPageSize());
 		// bss must follow the data immediately, fit as much of bss into the data section as we can
 		offset_t data_size_extra = data_size - GetDataSegment()->data_size;
 		bss_size = AlignTo(std::max(GetBssSegment()->zero_fill, data_size_extra) - data_size_extra, 8);
 	}
+	else
+	{
+		data_size = GetDataSegment()->data_size;
+		bss_size  = GetBssSegment()->zero_fill;
+	}
+
 	symbol_table_size = 0;
 	switch(word_size)
 	{
@@ -2305,6 +2339,7 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		case UNIX:
 		case SYSTEM_III:
 		case SYSTEM_V:
+		case BSD:
 			// mid_value not used
 			break;
 		case LINUX:
@@ -2329,15 +2364,49 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		break;
 	case Linker::Module::PDP11:
 		cpu = PDP11;
+		if(system == BSD)
+		{
+			system = UNIX;
+		}
 		if(magic == ZMAGIC)
 		{
 			// according to what the 2.11BSD linker does for the -z option
 			magic = MAGIC_SEPARATE;
 		}
 		break;
-	//case Linker::Module::VAX: // TODO
+	case Linker::Module::VAX:
+		cpu = VAX;
+		switch(system)
+		{
+		case UNIX_V1:
+			Linker::Error << "Error: UNIX Version 1 does not support VAX, switching to UNIX/32V" << std::endl;
+			system = UNIX;
+			break;
+		case SYSTEM_V:
+			Linker::Error << "Error: UNIX System V does not support a.out VAX, switching to System III" << std::endl;
+			system = SYSTEM_III;
+			break;
+		default:
+			break;
+		}
+		switch(magic)
+		{
+		case MAGIC_SEPARATE:
+			Linker::Error << "Error: VAX does not support separate I&D, switching to ZMAGIC" << std::endl;
+			magic = ZMAGIC;
+			break;
+		case MAGIC_OVERLAY: // TODO: does VAX support this?
+		case MAGIC_AUTO_OVERLAY_NONSEPARATE:
+		case MAGIC_AUTO_OVERLAY_SEPARATE:
+			Linker::Error << "Error: VAX does not support overlays, switching to ZMAGIC" << std::endl;
+			magic = ZMAGIC;
+			break;
+		default:
+			break;
+		}
+		break;
 	default:
-		Linker::Error << "Error: Format only supports Intel 80386 and Motorola 68000 binaries" << std::endl;
+		Linker::Error << "Error: Format only supports DEC PDP-11, DEC VAX, Intel 80386 and Motorola 68000 binaries" << std::endl;
 	}
 
 	word_size = GetWordSize();
@@ -2355,6 +2424,7 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
+	case BSD:
 	case LINUX:
 	case FREEBSD:
 	case NETBSD:
@@ -2377,6 +2447,7 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module) const
 	case UNIX:
 	case SYSTEM_III:
 	case SYSTEM_V:
+	case BSD:
 	case LINUX:
 	case FREEBSD:
 	case NETBSD:

@@ -332,6 +332,23 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 		case R_68K_PLT32O:
 			return 4;
 		}
+	case EM_VAX:
+		switch(type)
+		{
+		default:
+			return 0;
+		case R_VAX_8:
+		case R_VAX_PC8:
+			return 1;
+		case R_VAX_16:
+		case R_VAX_PC16:
+			return 2;
+		case R_VAX_32:
+		case R_VAX_PC32:
+		case R_VAX_GOT32:
+		case R_VAX_PLT32:
+			return 4;
+		}
 	case EM_ARM:
 		switch(type)
 		{
@@ -486,7 +503,7 @@ std::string ELFFormat::Relocation::GetName(cpu_type cpu) const
 		case R_ARM_V4BX:
 			return "R_ARM_V4BX";
 		}
-	// TODO: EM_PPC
+	// TODO: EM_PPC, EM_VAX
 	default:
 		return "";
 	}
@@ -2745,6 +2762,9 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 		// TODO: not yet supported
 		module.cpu = Linker::Module::PPC64;
 		break;
+	case EM_VAX:
+		module.cpu = Linker::Module::VAX;
+		break;
 	default:
 		{
 			std::ostringstream message;
@@ -3025,6 +3045,33 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					case R_68K_PLT32O:
 						// TODO
 						Linker::Debug << "Internal error: PLT32O not supported" << std::endl;
+						continue;
+					}
+					break;
+
+				case EM_VAX:
+					rel_size = rel.GetSize(cpu);
+					if(rel_size == 0)
+						continue;
+
+					switch(rel.type)
+					{
+					case R_VAX_8:
+					case R_VAX_16:
+					case R_VAX_32:
+						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+						break;
+					case R_VAX_PC8:
+					case R_VAX_PC16:
+					case R_VAX_PC32:
+						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend - rel_size, ::LittleEndian);
+						break;
+					case R_VAX_GOT32:
+						obj_rel = Linker::Relocation::GOTEntryAbsolute(rel_size, rel_source, sym_name, rel.addend, ::LittleEndian);
+						break;
+					case R_VAX_PLT32:
+						// TODO
+						Linker::Debug << "Internal error: PLT32 not supported" << std::endl;
 						continue;
 					}
 					break;

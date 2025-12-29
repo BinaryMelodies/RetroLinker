@@ -46,16 +46,49 @@ namespace AOut
 		 */
 		enum system_type
 		{
-			/** @brief Treat it as undetermined, intended for object files */
+			/**
+			 * @brief Treat it as undetermined, intended for object files
+			 *
+			 * The parser will make some guesses to determine the header structure.
+			 */
 			UNSPECIFIED,
-			/** @brief Treat it as a UNIX Version 1/2 binary (PDP-11 only) */
+			/**
+			 * @brief Treat it as a UNIX Version 1/2 binary (PDP-11 only)
+			 *
+			 * Only 16-bit version available (PDP-11).
+			 * This option processes the header formats for magic numbers 0o0405/0x0105 (12 byte header) and 0o0407/0x017 (16 byte header)
+			 * UNIX Version 1/2 binaries are loaded at offset 0x4000 instead of 0.
+			 */
 			UNIX_V1,
-			/** @brief Treat it as a UNIX Version 3/4/5/6/7 or 2.9/2.11BSD binary*/
+			/**
+			 * @brief Treat it as a UNIX Version 3/4/5/6/7 or 2.9/2.11BSD binary, also used for UNIX/32V
+			 *
+			 * Either 16-bit (PDP-11, AT&T or BSD) or 32-bit (VAX, AT&T).
+			 * This option understands OMAGIC (0o0407/0x0107), NMAGIC (0o0410/0x0108), IMAGIC (0o0411/0x0109), overlays (0o0405/0x0105) and auto-overlay executables (0o0430/0x0118 and 0o0431/0x0119).
+			 */
 			UNIX,
-			/** @brief Treat it as a UNIX System III binary */
+			/**
+			 * @brief Treat it as a UNIX System III binary
+			 *
+			 * Either 16-bit (PDP-11) or 32-bit (VAX).
+			 * The header file contains an additional field for environment version stamp.
+			 * Same magic numbers as for UNIX.
+			 */
 			SYSTEM_III,
-			/** @brief Treat it as a UNIX System V binary (PDP-11 only) */
+			/**
+			 * @brief Treat it as a UNIX System V binary (PDP-11 only)
+			 *
+			 * Only 16-bit (PDP-11).
+			 * The header contains some additional fields.
+			 * Same magic numbers as for UNIX.
+			 */
 			SYSTEM_V,
+			/**
+			 * @brief Treat it as 4.3BSD
+			 *
+			 * 4.3BSD supported OMAGIC, NMAGIC, ZMAGIC binaries
+			 */
+			BSD,
 			/**
 			 * @brief Treat it as a Linux a.out binary, used before kernel 5.19 (Linux switched to ELF in 1.2)
 			 *
@@ -135,7 +168,8 @@ namespace AOut
 			MAGIC_OVERLAY = 0x0105,
 
 			/** @brief Code and data are in different address spaces (PDP-11 only) */
-			MAGIC_SEPARATE = 0x0109,
+			IMAGIC = 0x0109,
+			MAGIC_SEPARATE = IMAGIC,
 
 			/** @brief 2.9BSD/2.11BSD (PDP-11 only) */
 			MAGIC_AUTO_OVERLAY_NONSEPARATE = 0x0118,
@@ -163,13 +197,20 @@ namespace AOut
 			case UNIX:
 			case SYSTEM_III:
 			case SYSTEM_V:
+			case UNSPECIFIED: // TODO: which should we pick?
 				return OMAGIC;
-			default:
+			case BSD:
+			case LINUX: // TODO: check default
+			case FREEBSD: // TODO: check default
+			case NETBSD: // TODO: check default
+				return ZMAGIC;
 			case DJGPP1:
+			case EMX:
 				return ZMAGIC;
 			case PDOS386:
 				return OMAGIC;
 			}
+			return OMAGIC; // TODO: make sure it is the same as UNSPECIFIED
 		}
 
 		/**
@@ -436,7 +477,7 @@ namespace AOut
 			Version7,
 			SystemIII,
 			SystemV,
-			_211BSD,
+			AnyBSD,
 		};
 
 		static constexpr bool SupportedMagicType(unix_version version, magic_type magic)
@@ -459,8 +500,12 @@ namespace AOut
 			case SystemIII:
 			case SystemV:
 				return magic == OMAGIC || magic == NMAGIC || magic == MAGIC_SEPARATE || magic == MAGIC_OVERLAY;
-			case _211BSD:
-				return magic == OMAGIC || magic == NMAGIC || magic == MAGIC_SEPARATE || magic == MAGIC_OVERLAY || magic == MAGIC_AUTO_OVERLAY_NONSEPARATE || magic == MAGIC_AUTO_OVERLAY_SEPARATE;
+			case AnyBSD:
+				return magic == OMAGIC || magic == NMAGIC
+					/* 16-bit only */
+					|| magic == MAGIC_SEPARATE || magic == MAGIC_OVERLAY || magic == MAGIC_AUTO_OVERLAY_NONSEPARATE || magic == MAGIC_AUTO_OVERLAY_SEPARATE
+					/* 32-bit only */
+					|| magic == ZMAGIC;
 			case DefaultVersion:
 				return true;
 			}
@@ -489,11 +534,14 @@ namespace AOut
 						"SYS5", SystemV,
 						"SV", SystemV,
 						"S5", SystemV,
-						"2.11BSD", _211BSD,
-						"211BSD", _211BSD,
-						"2.9BSD", _211BSD,
-						"29BSD", _211BSD,
-						"2BSD", _211BSD)
+						"BSD", AnyBSD,
+						"2.11BSD", AnyBSD,
+						"211BSD", AnyBSD,
+						"2.9BSD", AnyBSD,
+						"29BSD", AnyBSD,
+						"2BSD", AnyBSD,
+						"43BSD", AnyBSD,
+						"4BSD", AnyBSD)
 				{
 					descriptions = {
 						{ Version1, "UNIX Version 1" },
@@ -505,7 +553,7 @@ namespace AOut
 						{ Version7, "UNIX Version 7" },
 						{ SystemIII, "UNIX System III" },
 						{ SystemV, "UNIX System V" },
-						{ _211BSD, "2.11BSD" },
+						{ AnyBSD, "2.11BSD (16-bit) or 4.3BSD (32-bit)" },
 					};
 				}
 			};
@@ -548,6 +596,7 @@ namespace AOut
 			Linker::Option<Linker::ItemOf<UnixVersionEnumeration>> unix_v{"version", "Targeted UNIX version (UNIX only)"};
 			Linker::Option<Linker::ItemOf<MagicEnumeration>> type{"type", "Executable type"};
 			Linker::Option<std::optional<offset_t>> magic{"magic", "Explicit magic type specification"};
+			Linker::Option<bool> Nflag{"N", "OMAGIC"};
 			Linker::Option<bool> nflag{"n", "NMAGIC"};
 			Linker::Option<bool> iflag{"i", "Generate separated executable"};
 			Linker::Option<bool> zflag{"z", "Demand paged executable (identical to -i for PDP-11)"};
@@ -555,7 +604,7 @@ namespace AOut
 
 			AOutOptionCollector()
 			{
-				InitializeFields(stub, unix_v, type, magic, nflag, iflag, zflag, Oflag);
+				InitializeFields(stub, unix_v, type, magic, Nflag, nflag, iflag, zflag, Oflag);
 			}
 		};
 
