@@ -12,28 +12,28 @@ start:
 
 	bl	1f
 1:
-	mflr	3
-	la	3, start - 1b(3)
-	lis	4, stored_pc@ha
-	stw	3, stored_pc@l(4)
+	mflr	r3
+	la	r3, start - 1b(r3)
+	lis	r4, stored_pc@ha
+	stw	r3, stored_pc@l(r4)
 
-	lis	4, message@ha
-	la	4, message@l(4)
+	lis	r4, message@ha
+	la	r4, message@l(r4)
 	bl	PutString
 	bl	PutNewLine
 
-	lis	4, text_pc@ha
-	la	4, text_pc@l(4)
+	lis	r4, text_pc@ha
+	la	r4, text_pc@l(r4)
 	bl	PutString
-	lis	4, stored_pc@ha
-	lwz	3, stored_pc@l(4)
+	lis	r4, stored_pc@ha
+	lwz	r3, stored_pc@l(r4)
 	bl	PutLong
 	bl	PutNewLine
 
-	lis	4, text_sp@ha
-	la	4, text_sp@l(4)
+	lis	r4, text_sp@ha
+	la	r4, text_sp@l(r4)
 	bl	PutString
-	mr	3, 1
+	mr	r3, r1
 	bl	PutLong
 	bl	PutNewLine
 
@@ -41,77 +41,77 @@ start:
 	bl	Exit
 
 PutLong:
-	mflr	0
-	stwu	0, -4(1)
-	stwu	3, -4(1)
-	srawi	3, 3, 16
+	mflr	r0
+	stwu	r0, -4(r1)
+	stwu	r3, -4(r1)
+	srawi	r3, r3, 16
 	bl	PutWord
-	lwz	3, 0(1)
-	lwz	0, 4(1)
-	mtlr	0
-	la	1, 8(1)
+	lwz	r3, 0(r1)
+	lwz	r0, 4(r1)
+	mtlr	r0
+	la	r1, 8(r1)
 #	b	PutWord
 
 PutWord:
-	mflr	0
-	stwu	0, -4(1)
-	stwu	3, -4(1)
-	srawi	3, 3, 8
+	mflr	r0
+	stwu	r0, -4(r1)
+	stwu	r3, -4(r1)
+	srawi	r3, r3, 8
 	bl	PutByte
-	lwz	3, 0(1)
-	lwz	0, 4(1)
-	mtlr	0
-	la	1, 8(1)
+	lwz	r3, 0(r1)
+	lwz	r0, 4(r1)
+	mtlr	r0
+	la	r1, 8(r1)
 #	b	PutByte
 
 PutByte:
-	mflr	0
-	stwu	0, -4(1)
-	stwu	3, -4(1)
-	srawi	3, 3, 4
+	mflr	r0
+	stwu	r0, -4(r1)
+	stwu	r3, -4(r1)
+	srawi	r3, r3, 4
 	bl	PutNibble
-	lwz	3, 0(1)
-	lwz	0, 4(1)
-	mtlr	0
-	la	1, 8(1)
+	lwz	r3, 0(r1)
+	lwz	r0, 4(r1)
+	mtlr	r0
+	la	r1, 8(r1)
 #	b	PutNibble
 
 PutNibble:
-	andi.	3, 3, 0xF
-	cmpi	cr0, 0, 3, 10
+	andi.	r3, r3, 0xF
+	cmpi	cr0, 0, r3, 10
 	bge	1f
-	addi	3, 3, '0'
+	addi	r3, r3, '0'
 	b	2f
 1:
-	addi	3, 3, 'A' - 10
+	addi	r3, r3, 'A' - 10
 2:
 	b	PutChar
 
 PutString:
-	mflr	0
-	stwu	0, -4(1)
+	mflr	r0
+	stwu	r0, -4(r1)
 1:
-	lbz	3, 0(4)
-	cmpi	cr0, 0, 3, 0
+	lbz	r3, 0(r4)
+	cmpi	cr0, 0, r3, 0
 	beq	2f
-	la	4, 1(4)
-	stwu	4, -4(1)
+	la	r4, 1(r4)
+	stwu	r4, -4(r1)
 	bl	PutChar
-	lwz	4, 0(1)
-	la	1, 4(1)
+	lwz	r4, 0(r1)
+	la	r1, 4(r1)
 	b	1b
 2:
-	lwz	0, 0(1)
-	la	1, 4(1)
-	mtlr	0
+	lwz	r0, 0(r1)
+	la	r1, 4(r1)
+	mtlr	r0
 	blr
 
 PutNewLine:
-	li	3, 10
+	li	r3, 10
 #	b	PutChar
 
 PutChar:
-	_PutChar	3
+	_PutChar	r3
 	blr
 
 WaitForKey:

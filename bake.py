@@ -358,7 +358,7 @@ CPUS = {
 		'compiler': 'arm-none-eabi-gcc -march=armv3',
 	},
 	'ppc': {
-		'assembler': 'powerpc-elf-as',
+		'assembler': 'powerpc-elf-as -mregnames',
 		'assembler_flags': '',
 		'compiler': 'powerpc-elf-gcc',
 	},

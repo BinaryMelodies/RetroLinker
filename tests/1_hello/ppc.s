@@ -9,38 +9,38 @@ start:
 	# TODO
 .endif
 
-	lis	4, message@ha
-	la	4, message@l(4)
+	lis	r4, message@ha
+	la	r4, message@l(r4)
 	bl	PutString
 	bl	PutNewLine
 	bl	WaitForKey
 	bl	Exit
 
 PutString:
-	mflr	0
-	stwu	0, -4(1)
+	mflr	r0
+	stwu	r0, -4(r1)
 1:
-	lbz	3, 0(4)
-	cmpi	cr0, 0, 3, 0
+	lbz	r3, 0(r4)
+	cmpi	cr0, 0, r3, 0
 	beq	2f
-	la	4, 1(4)
-	stwu	4, -4(1)
+	la	r4, 1(r4)
+	stwu	r4, -4(r1)
 	bl	PutChar
-	lwz	4, 0(1)
-	la	1, 4(1)
+	lwz	r4, 0(r1)
+	la	r1, 4(r1)
 	b	1b
 2:
-	lwz	0, 0(1)
-	la	1, 4(1)
-	mtlr	0
+	lwz	r0, 0(r1)
+	la	r1, 4(r1)
+	mtlr	r0
 	blr
 
 PutNewLine:
-	li	3, 10
+	li	r3, 10
 #	b	PutChar
 
 PutChar:
-	_PutChar	3
+	_PutChar	r3
 	blr
 
 WaitForKey:

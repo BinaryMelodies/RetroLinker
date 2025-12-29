@@ -9,48 +9,48 @@ start:
 	# TODO
 .endif
 
-	lis	4, message@ha
-	la	4, message@l(4)
+	lis	r4, message@ha
+	la	r4, message@l(r4)
 	bl	PutString
 	bl	PutNewLine
 
-	lis	4, text_extval@ha
-	la	4, text_extval@l(4)
+	lis	r4, text_extval@ha
+	la	r4, text_extval@l(r4)
 	bl	PutString
-	lis	3, extval@ha
-	la	3, extval@l(3)
+	lis	r3, extval@ha
+	la	r3, extval@l(r3)
 	bl	PutLong
 	bl	PutNewLine
 
-	lis	4, text_extref@ha
-	la	4, text_extref@l(4)
+	lis	r4, text_extref@ha
+	la	r4, text_extref@l(r4)
 	bl	PutString
-	lis	3, extref@ha
-	la	3, extref@l(3)
+	lis	r3, extref@ha
+	la	r3, extref@l(r3)
 	bl	PutLong
 	bl	PutNewLine
 
-	lis	4, text_extref2@ha
-	la	4, text_extref2@l(4)
+	lis	r4, text_extref2@ha
+	la	r4, text_extref2@l(r4)
 	bl	PutString
-	lis	3, extref2@ha
-	la	3, extref2@l(3)
+	lis	r3, extref2@ha
+	la	r3, extref2@l(r3)
 	bl	PutLong
 	bl	PutNewLine
 
-	lis	4, text_common1@ha
-	la	4, text_common1@l(4)
+	lis	r4, text_common1@ha
+	la	r4, text_common1@l(r4)
 	bl	PutString
-	lis	3, common1@ha
-	la	3, common1@l(3)
+	lis	r3, common1@ha
+	la	r3, common1@l(r3)
 	bl	PutLong
 	bl	PutNewLine
 
-	lis	4, text_common2@ha
-	la	4, text_common2@l(4)
+	lis	r4, text_common2@ha
+	la	r4, text_common2@l(r4)
 	bl	PutString
-	lis	3, common2@ha
-	la	3, common2@l(3)
+	lis	r3, common2@ha
+	la	r3, common2@l(r3)
 	bl	PutLong
 	bl	PutNewLine
 
