@@ -20,20 +20,29 @@ namespace AOut
 	 *
 	 * Versions:
 	 * - PDP-7 version (unimplemented)
-	 * - UNIX v1 version (unimplemented)
-	 * - 16-bit UNIX version (unimplemented)
+	 * - UNIX v1 version
+	 * - 16-bit UNIX version
 	 * - 32-bit UNIX version (first introduced on the VAX)
 	 *
 	 * Variants:
 	 * - OMAGIC (old magic), the code segment is writable
 	 * - NMAGIC (new magic), the code segment is pure and can be shared (read-only)
-	 * - ZMAGIC, demand paged
-	 * - QMAGIC (TODO)
+	 * - ZMAGIC, demand paged (32-bit only)
+	 * - QMAGIC (TODO) (32-bit only)
+	 * - "IMAGIC", separate instruction & data address spaces (16-bit only)
 	 *
 	 * Platforms:
-	 * - early Linux (unimplemented) (obsolete)
+	 * - AT&T UNIX Versions 1 to 7 (16-bit)
+	 * - AT&T UNIX/32V (VAX)
+	 * - AT&T UNIX System III (PDP-11 and VAX)
+	 * - AT&T UNIX System V (PDP-11 only, VAX uses COFF on this platform)
+	 * - 2.11BSD (PDP-11)
+	 * - 4.3BSD (VAX)
+	 * - early Linux (unimplemented)
+	 * - early FreeBSD (unimplemented)
+	 * - early NetBSD (unimplemented)
 	 * - early DJGPP before version 1.11
-	 * - early PDOS/386 and PD-Windows (http://pdos.sourceforge.net/) (obsolete)
+	 * - early PDOS/386 and PD-Windows (http://pdos.sourceforge.net/)
 	 */
 	class AOutFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager
 	{
@@ -460,11 +469,13 @@ namespace AOut
 
 		/* * * Writer members * * */
 
+		/** @brief Setting this allows overriding the magic number without changing the file format (not recommended) */
 		std::optional<offset_t> force_magic_number;
 
 		static std::shared_ptr<AOutFormat> CreateWriter(system_type system, magic_type magic);
 		static std::shared_ptr<AOutFormat> CreateWriter(system_type system);
 
+		/** @brief Target UNIX version */
 		enum unix_version
 		{
 			DefaultVersion,
@@ -479,6 +490,8 @@ namespace AOut
 			SystemV,
 			AnyBSD,
 		};
+		/** @brief Specify a UNIX version */
+		unix_version target_unix_version = DefaultVersion;
 
 		static constexpr bool SupportedMagicType(unix_version version, magic_type magic)
 		{

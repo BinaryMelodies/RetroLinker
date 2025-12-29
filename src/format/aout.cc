@@ -1880,16 +1880,16 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
 
-	unix_version v = collector.unix_v();
+	target_unix_version = collector.unix_v();
 
-	if(v)
+	if(target_unix_version)
 	{
 		if(system != DEFAULT && system != UNSPECIFIED && system != UNIX_V1 && system != UNIX && system != SYSTEM_III && system != SYSTEM_V)
 		{
 			Linker::Error << "Error: UNIX version can only be set for UNIX, setting up UNIX" << std::endl;
 		}
 
-		switch(v)
+		switch(target_unix_version)
 		{
 		case Version1:
 		case Version2:
@@ -1952,11 +1952,11 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 		}
 	}
 
-	if(v == Version1 && magic == OMAGIC)
+	if(target_unix_version == Version1 && magic == OMAGIC)
 	{
 		magic = MAGIC_V1;
 	}
-	else if(magic == ZMAGIC && !SupportedMagicType(v, magic))
+	else if(magic == ZMAGIC && !SupportedMagicType(target_unix_version, magic))
 	{
 		// avoids displaying error message
 		magic = MAGIC_SEPARATE;
@@ -1971,7 +1971,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 		}
 	}
 
-	if(!SupportedMagicType(v, magic))
+	if(!SupportedMagicType(target_unix_version, magic))
 	{
 		Linker::Error << "Error: unsupported magic type for UNIX version" << std::endl;
 	}
@@ -2220,9 +2220,8 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 	Linker::Location entry;
 	if(module.FindGlobalSymbol(".entry", entry))
 	{
-		// TODO: should be 0 before Version 5, not just Version 1/2
 		entry_address = entry.GetPosition().address;
-		if(system == UNIX_V1 && entry_address != text_address)
+		if((target_unix_version != DefaultVersion && target_unix_version < Version5) && entry_address != text_address)
 		{
 			Linker::Error << "Error: Entry address not supported, ignoring" << std::endl;
 			entry_address = 0;
@@ -2230,16 +2229,14 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 	}
 	else
 	{
-		if(system == UNIX_V1)
+		if(target_unix_version != DefaultVersion && target_unix_version < Version5)
 		{
 			entry_address = 0;
 		}
-
-		if(system != UNIX_V1)
+		else
 		{
 			entry_address = GetCodeSegment()->base_address;
-			// TODO: should be 0 before Version 5, not just Version 1/2
-			if(system != UNIX)
+			if(target_unix_version != DefaultVersion)
 			{
 				Linker::Warning << "Warning: no entry point specified, using beginning of .code segment" << std::endl;
 			}
