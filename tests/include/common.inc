@@ -407,6 +407,10 @@
 
 #### UNIX/BSD formats
 
+.ifndef FORMAT_RAW
+.set FORMAT_RAW, 0
+.endif
+
 .ifndef FORMAT_V1
 .set FORMAT_V1, 0
 .endif

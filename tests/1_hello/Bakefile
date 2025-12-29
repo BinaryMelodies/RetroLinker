@@ -225,6 +225,10 @@ Target(
 	output_file = "linux-ppc-32")
 Target(
 	System = "unix",
+	Format = "raw",
+	output_file = "unix11v1raw")
+Target(
+	System = "unix",
 	Format = "v1",
 	output_file = "unix11v1")
 Target(

@@ -997,6 +997,17 @@ DefineTarget(
 ######## PDP-11 based systems
 
 DefineTarget(
+	Description = "UNIX Version 1 raw binary for the DEC PDP-11",
+	CPU = "pdp11",
+	System = "unix",
+	Format = "raw",
+	LinkerName = "bin",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=v1"], LinkerParameters = [f"base_address=0x4000"]),
+	],
+	custom_entry = False)
+
+DefineTarget(
 	Description = "UNIX Version 1 a.out for the DEC PDP-11",
 	CPU = "pdp11",
 	System = "unix",

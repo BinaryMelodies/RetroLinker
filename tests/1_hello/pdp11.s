@@ -59,7 +59,9 @@ message:
 .elseif TARGET_BSD
 	.ascii	" 2.11BSD"
 .endif
-.if FORMAT_OMAGIC || FORMAT_V1 || FORMAT_V2
+.if FORMAT_RAW
+	.ascii	" raw binary"
+.elseif FORMAT_OMAGIC || FORMAT_V1 || FORMAT_V2
 	.ascii	" impure executable"
 .elseif FORMAT_NMAGIC
 	.ascii	" pure executable"
