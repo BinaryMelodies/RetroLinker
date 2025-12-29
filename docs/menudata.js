@@ -113,7 +113,8 @@ var menudata={children:[
 {text:"p",url:"functions_enum.html#index_p"},
 {text:"r",url:"functions_enum.html#index_r"},
 {text:"s",url:"functions_enum.html#index_s"},
-{text:"t",url:"functions_enum.html#index_t"}]},
+{text:"t",url:"functions_enum.html#index_t"},
+{text:"u",url:"functions_enum.html#index_u"}]},
 {text:"Enumerator",url:"functions_eval.html",children:[
 {text:"a",url:"functions_eval.html#index_a"},
 {text:"b",url:"functions_eval_b.html#index_b"},

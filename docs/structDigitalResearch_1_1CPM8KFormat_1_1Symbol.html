@@ -76,11 +76,62 @@ $(function() {
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
+<a href="structDigitalResearch_1_1CPM8KFormat_1_1Symbol-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">DigitalResearch::CPM8KFormat::Symbol Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
-<hr/>The documentation for this struct was generated from the following file:<ul>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:afd5acfddfb0e2da64e9fe6367b08d028" id="r_afd5acfddfb0e2da64e9fe6367b08d028"><td class="memItemLeft" align="right" valign="top"><a id="afd5acfddfb0e2da64e9fe6367b08d028" name="afd5acfddfb0e2da64e9fe6367b08d028"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>symbol_type</b> { <b>LOCAL</b> = 1
+, <b>EXTERNAL</b> = 2
+, <b>GLOBAL</b> = 3
+, <b>SEGMENT</b> = 4
+ }</td></tr>
+<tr class="separator:afd5acfddfb0e2da64e9fe6367b08d028"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a8bda5e6e2276690b513309a1afab5e11" id="r_a8bda5e6e2276690b513309a1afab5e11"><td class="memItemLeft" align="right" valign="top"><a id="a8bda5e6e2276690b513309a1afab5e11" name="a8bda5e6e2276690b513309a1afab5e11"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
+<tr class="separator:a8bda5e6e2276690b513309a1afab5e11"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a32a36678ffa72e7ab93c74cf1e45eab2" id="r_a32a36678ffa72e7ab93c74cf1e45eab2"><td class="memItemLeft" align="right" valign="top"><a id="a32a36678ffa72e7ab93c74cf1e45eab2" name="a32a36678ffa72e7ab93c74cf1e45eab2"></a>
+static <a class="el" href="structDigitalResearch_1_1CPM8KFormat_1_1Symbol.html">Symbol</a>&#160;</td><td class="memItemRight" valign="bottom"><b>ReadFile</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="separator:a32a36678ffa72e7ab93c74cf1e45eab2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:af87386665265550901d9462a3581b025" id="r_af87386665265550901d9462a3581b025"><td class="memItemLeft" align="right" valign="top"><a id="af87386665265550901d9462a3581b025" name="af87386665265550901d9462a3581b025"></a>
+uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>segment_number</b></td></tr>
+<tr class="separator:af87386665265550901d9462a3581b025"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64eba91dfd4fb74a6c6bab2c0fb09982" id="r_a64eba91dfd4fb74a6c6bab2c0fb09982"><td class="memItemLeft" align="right" valign="top"><a id="a64eba91dfd4fb74a6c6bab2c0fb09982" name="a64eba91dfd4fb74a6c6bab2c0fb09982"></a>
+symbol_type&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
+<tr class="separator:a64eba91dfd4fb74a6c6bab2c0fb09982"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4a088b82cd28263de26a16c6beb8871b" id="r_a4a088b82cd28263de26a16c6beb8871b"><td class="memItemLeft" align="right" valign="top"><a id="a4a088b82cd28263de26a16c6beb8871b" name="a4a088b82cd28263de26a16c6beb8871b"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>value</b></td></tr>
+<tr class="separator:a4a088b82cd28263de26a16c6beb8871b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23206834da30996fc487519ba66fabe4" id="r_a23206834da30996fc487519ba66fabe4"><td class="memItemLeft" align="right" valign="top"><a id="a23206834da30996fc487519ba66fabe4" name="a23206834da30996fc487519ba66fabe4"></a>
+std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
+<tr class="separator:a23206834da30996fc487519ba66fabe4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a442c6658ab8f377d29503d82fad38059" id="r_a442c6658ab8f377d29503d82fad38059"><td class="memItemLeft" align="right" valign="top"><a id="a442c6658ab8f377d29503d82fad38059" name="a442c6658ab8f377d29503d82fad38059"></a>
+static constexpr uint8_t&#160;</td><td class="memItemRight" valign="bottom"><b>ABSOLUTE</b> = 0xFF</td></tr>
+<tr class="separator:a442c6658ab8f377d29503d82fad38059"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<hr/>The documentation for this struct was generated from the following files:<ul>
 <li>src/format/<a class="el" href="cpm8k_8h_source.html">cpm8k.h</a></li>
+<li>src/format/<b>cpm8k.cc</b></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

@@ -115,10 +115,10 @@ Public Member Functions</h2></td></tr>
 <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>SetMask</b> (uint64_t new_mask)</td></tr>
 <tr class="memdesc:a6f622a8c2deab8d83658b56a122d4cbf"><td class="mdescLeft">&#160;</td><td class="mdescRight">Instead of the full word, only modify the following bits. <br /></td></tr>
 <tr class="separator:a6f622a8c2deab8d83658b56a122d4cbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a19f61c05e7eaff3591f3597ca0060aab" id="r_a19f61c05e7eaff3591f3597ca0060aab"><td class="memItemLeft" align="right" valign="top"><a id="a19f61c05e7eaff3591f3597ca0060aab" name="a19f61c05e7eaff3591f3597ca0060aab"></a>
-<a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>SetShift</b> (int new_shift)</td></tr>
-<tr class="memdesc:a19f61c05e7eaff3591f3597ca0060aab"><td class="mdescLeft">&#160;</td><td class="mdescRight">The value stored in the word must be shifted by this to give the actual value. <br /></td></tr>
-<tr class="separator:a19f61c05e7eaff3591f3597ca0060aab"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f9080278adcd6328eb2ea21ae4aefe2" id="r_a7f9080278adcd6328eb2ea21ae4aefe2"><td class="memItemLeft" align="right" valign="top"><a id="a7f9080278adcd6328eb2ea21ae4aefe2" name="a7f9080278adcd6328eb2ea21ae4aefe2"></a>
+<a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>SetShift</b> (int new_shift, bool adjusted=false)</td></tr>
+<tr class="memdesc:a7f9080278adcd6328eb2ea21ae4aefe2"><td class="mdescLeft">&#160;</td><td class="mdescRight">The value stored in the word must be shifted by this to give the actual value. <br /></td></tr>
+<tr class="separator:a7f9080278adcd6328eb2ea21ae4aefe2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a54f1baba0cd332e37697b57b63b4c00f" id="r_a54f1baba0cd332e37697b57b63b4c00f"><td class="memItemLeft" align="right" valign="top"><a id="a54f1baba0cd332e37697b57b63b4c00f" name="a54f1baba0cd332e37697b57b63b4c00f"></a>
 <a class="el" href="classLinker_1_1Relocation.html">Relocation</a> &amp;&#160;</td><td class="memItemRight" valign="bottom"><b>SetSubtract</b> (bool to_subtract=true)</td></tr>
 <tr class="memdesc:a54f1baba0cd332e37697b57b63b4c00f"><td class="mdescLeft">&#160;</td><td class="mdescRight">The value stored in the word must be negated before adding the addend and storing. <br /></td></tr>
@@ -273,6 +273,10 @@ EndianType&#160;</td><td class="memItemRight" valign="bottom"><b>endiantype</b><
 int&#160;</td><td class="memItemRight" valign="bottom"><b>shift</b></td></tr>
 <tr class="memdesc:af88eb44ed1c4b96ffd0a382dd67a7b7d"><td class="mdescLeft">&#160;</td><td class="mdescRight">The amount of bits the value should be shifted by. <br /></td></tr>
 <tr class="separator:af88eb44ed1c4b96ffd0a382dd67a7b7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5e4d5d5a062decab8089bd37e05a3fe8" id="r_a5e4d5d5a062decab8089bd37e05a3fe8"><td class="memItemLeft" align="right" valign="top"><a id="a5e4d5d5a062decab8089bd37e05a3fe8" name="a5e4d5d5a062decab8089bd37e05a3fe8"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>adjusted_shift</b></td></tr>
+<tr class="memdesc:a5e4d5d5a062decab8089bd37e05a3fe8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add 1 to the value if the last shifted bit is set, used for PowerPC "high adjusted" relocation types. <br /></td></tr>
+<tr class="separator:a5e4d5d5a062decab8089bd37e05a3fe8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a76181e4a494e21fd18a226a6f4f89838" id="r_a76181e4a494e21fd18a226a6f4f89838"><td class="memItemLeft" align="right" valign="top"><a id="a76181e4a494e21fd18a226a6f4f89838" name="a76181e4a494e21fd18a226a6f4f89838"></a>
 uint64_t&#160;</td><td class="memItemRight" valign="bottom"><b>mask</b></td></tr>
 <tr class="memdesc:a76181e4a494e21fd18a226a6f4f89838"><td class="mdescLeft">&#160;</td><td class="mdescRight">The bitmask of the value within the word. <br /></td></tr>

@@ -124,21 +124,43 @@ Classes</h2></td></tr>
 Public Types</h2></td></tr>
 <tr class="memitem:ac4ac5a8725cfbf843d960ba6984346ba" id="r_ac4ac5a8725cfbf843d960ba6984346ba"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a> { <br />
 &#160;&#160;<a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2">UNSPECIFIED</a>
+, <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baaf52cf1d519048831fa79ea86f9b3dd92">UNIX_V1</a>
+, <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baaa68508c65962b8f5dd4ff7889db46189">UNIX</a>
+, <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa3df503e356182731539633ec96bf86cc">SYSTEM_III</a>
+, <br />
+&#160;&#160;<a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa86690e98f54af77c8c4799e00fc8d878">SYSTEM_V</a>
+, <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baad5f45f31405dddb1cd403180d2465102">BSD</a>
 , <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa01fa88ef7821c4496e0f374046c685e3">LINUX</a>
 , <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa6dbb14b489f95a10f0615b8bdf932997">FREEBSD</a>
-, <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa5a1ea4d9d550d4c6f2e2ed5412afd011">NETBSD</a>
 , <br />
-&#160;&#160;<a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baab3e13ec8a152010ea28870934510c69a">DJGPP1</a>
+&#160;&#160;<a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa5a1ea4d9d550d4c6f2e2ed5412afd011">NETBSD</a>
+, <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baab3e13ec8a152010ea28870934510c69a">DJGPP1</a>
 , <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baaf39ce9da42bed280f89cb7eb47d5779f">PDOS386</a>
 , <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baae735b7cf2a64cc9472a56e5ae31a00e1">EMX</a>
 <br />
  }</td></tr>
 <tr class="memdesc:ac4ac5a8725cfbf843d960ba6984346ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">The target operating system type for parsing or generating binaries.  <a href="#ac4ac5a8725cfbf843d960ba6984346ba">More...</a><br /></td></tr>
 <tr class="separator:ac4ac5a8725cfbf843d960ba6984346ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a21ba7c404e01c8e56239be73c337499b" id="r_a21ba7c404e01c8e56239be73c337499b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a21ba7c404e01c8e56239be73c337499b">magic_type</a> { <a class="el" href="#a21ba7c404e01c8e56239be73c337499baa656dc167e4ac3e208e2567ce22695d8">OMAGIC</a> = 0x0107
+<tr class="memitem:a21ba7c404e01c8e56239be73c337499b" id="r_a21ba7c404e01c8e56239be73c337499b"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a21ba7c404e01c8e56239be73c337499b">magic_type</a> { <br />
+&#160;&#160;<a class="el" href="#a21ba7c404e01c8e56239be73c337499baa656dc167e4ac3e208e2567ce22695d8">OMAGIC</a> = 0x0107
+, <a class="el" href="#a21ba7c404e01c8e56239be73c337499ba84171d3d5bf5d397799cd92da19889f0">MAGIC_IMPURE</a> = OMAGIC
 , <a class="el" href="#a21ba7c404e01c8e56239be73c337499baf4ef23a377daa0e28b87f0025c737a96">NMAGIC</a> = 0x0108
+, <a class="el" href="#a21ba7c404e01c8e56239be73c337499baddb3fe94320699a13e0da396c5f5d327">MAGIC_ROTEXT</a> = NMAGIC
+, <br />
+&#160;&#160;<a class="el" href="#a21ba7c404e01c8e56239be73c337499baba50a78d24e0aa55f87aa5e892f7eae1">MAGIC_PURE</a> = NMAGIC
 , <a class="el" href="#a21ba7c404e01c8e56239be73c337499ba2159317c6b2ace2999f702cf35f8e21e">ZMAGIC</a> = 0x010B
+, <a class="el" href="#a21ba7c404e01c8e56239be73c337499ba9e3a11d62dc2c522f7c780744633232a">MAGIC_DEMAND_PAGED</a> = ZMAGIC
 , <a class="el" href="#a21ba7c404e01c8e56239be73c337499baf3ad2e3516a334070d44c7aaa3a60220">QMAGIC</a> = 0x00CC
+, <br />
+&#160;&#160;<a class="el" href="#a21ba7c404e01c8e56239be73c337499bab985d5a45ae86c5348a9bfa78ce785e3">MAGIC_UNMAPPED_ZERO</a> = QMAGIC
+, <a class="el" href="#a21ba7c404e01c8e56239be73c337499ba2dd5e037eb76f86a0ee3c174f71ce84e">MAGIC_V1</a> = 0x0105 | 0xFFFF0000
+, <a class="el" href="#a21ba7c404e01c8e56239be73c337499baf686cc296005948d424f01e583a25d31">MAGIC_OVERLAY</a> = 0x0105
+, <a class="el" href="#a21ba7c404e01c8e56239be73c337499ba9665e67d43434f4f2804c2fe3a27b383">IMAGIC</a> = 0x0109
+, <br />
+&#160;&#160;<b>MAGIC_SEPARATE</b> = IMAGIC
+, <a class="el" href="#a21ba7c404e01c8e56239be73c337499bacbdf2ca0bc71c413dfe0c1662922b47e">MAGIC_AUTO_OVERLAY_NONSEPARATE</a> = 0x0118
+, <a class="el" href="#a21ba7c404e01c8e56239be73c337499ba75988ea5e89d0bd084f0b5594b2dff4a">MAGIC_AUTO_OVERLAY_SEPARATE</a> = 0x0119
+<br />
  }</td></tr>
 <tr class="memdesc:a21ba7c404e01c8e56239be73c337499b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The low 16 bits of the midmag field, it determines how sections should be loaded into memory, in a system dependent way.  <a href="#a21ba7c404e01c8e56239be73c337499b">More...</a><br /></td></tr>
 <tr class="separator:a21ba7c404e01c8e56239be73c337499b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -174,9 +196,29 @@ Public Types</h2></td></tr>
 , <br />
 &#160;&#160;<b>OR1K</b>
 , <b>RISCV</b>
+, <b>SYS360</b>
+, <b>SYS390_64</b>
 <br />
  }</td></tr>
 <tr class="separator:a0381742adceb2505ef098079ff119336"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae44ffe70781da784ec9fc82cac4fdd5" id="r_aae44ffe70781da784ec9fc82cac4fdd5"><td class="memItemLeft" align="right" valign="top"><a id="aae44ffe70781da784ec9fc82cac4fdd5" name="aae44ffe70781da784ec9fc82cac4fdd5"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aae44ffe70781da784ec9fc82cac4fdd5">unix_version</a> { <br />
+&#160;&#160;<b>DefaultVersion</b>
+, <b>Version1</b>
+, <b>Version2</b>
+, <b>Version3</b>
+, <br />
+&#160;&#160;<b>Version4</b>
+, <b>Version5</b>
+, <b>Version6</b>
+, <b>Version7</b>
+, <br />
+&#160;&#160;<b>SystemIII</b>
+, <b>SystemV</b>
+, <b>AnyBSD</b>
+<br />
+ }</td></tr>
+<tr class="memdesc:aae44ffe70781da784ec9fc82cac4fdd5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Target UNIX version. <br /></td></tr>
+<tr class="separator:aae44ffe70781da784ec9fc82cac4fdd5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
@@ -455,6 +497,9 @@ static std::shared_ptr&lt; <a class="el" href="classAOut_1_1AOutFormat.html">AOu
 <tr class="memitem:a74dcd9289393b1693cc70ddb0a8abdea" id="r_a74dcd9289393b1693cc70ddb0a8abdea"><td class="memItemLeft" align="right" valign="top"><a id="a74dcd9289393b1693cc70ddb0a8abdea" name="a74dcd9289393b1693cc70ddb0a8abdea"></a>
 static std::shared_ptr&lt; <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateWriter</b> (<a class="el" href="#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a> <a class="el" href="#a7222ee73ce1b07dbfa3bf9e5217e476a">system</a>)</td></tr>
 <tr class="separator:a74dcd9289393b1693cc70ddb0a8abdea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89270e2f1055b71884698724b62d2684" id="r_a89270e2f1055b71884698724b62d2684"><td class="memItemLeft" align="right" valign="top"><a id="a89270e2f1055b71884698724b62d2684" name="a89270e2f1055b71884698724b62d2684"></a>
+static constexpr bool&#160;</td><td class="memItemRight" valign="bottom"><b>SupportedMagicType</b> (<a class="el" href="#aae44ffe70781da784ec9fc82cac4fdd5">unix_version</a> version, <a class="el" href="#a21ba7c404e01c8e56239be73c337499b">magic_type</a> <a class="el" href="#a4dd44cd34da9f58b77c0193c2ee13dbb">magic</a>)</td></tr>
+<tr class="separator:a89270e2f1055b71884698724b62d2684"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -510,6 +555,9 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>code_relocation_s
 <tr class="memitem:a38db8d8c3faf747e2fabaa9d3c566a93" id="r_a38db8d8c3faf747e2fabaa9d3c566a93"><td class="memItemLeft" align="right" valign="top"><a id="a38db8d8c3faf747e2fabaa9d3c566a93" name="a38db8d8c3faf747e2fabaa9d3c566a93"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_relocation_size</b> = 0</td></tr>
 <tr class="separator:a38db8d8c3faf747e2fabaa9d3c566a93"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a615405f49aa610690b530c24dd6186f5" id="r_a615405f49aa610690b530c24dd6186f5"><td class="memItemLeft" align="right" valign="top"><a id="a615405f49aa610690b530c24dd6186f5" name="a615405f49aa610690b530c24dd6186f5"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>environment_stamp</b> = 0</td></tr>
+<tr class="separator:a615405f49aa610690b530c24dd6186f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a33089687c98ca1413433e0d35c27a46c" id="r_a33089687c98ca1413433e0d35c27a46c"><td class="memItemLeft" align="right" valign="top"><a id="a33089687c98ca1413433e0d35c27a46c" name="a33089687c98ca1413433e0d35c27a46c"></a>
 std::vector&lt; <a class="el" href="classAOut_1_1AOutFormat_1_1Relocation.html">Relocation</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>code_relocations</b></td></tr>
 <tr class="separator:a33089687c98ca1413433e0d35c27a46c"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -531,6 +579,14 @@ std::vector&lt; <a class="el" href="classAOut_1_1AOutFormat_1_1Symbol.html">Symb
 <tr class="memitem:aa9eb25ffdfcd0962a249ac3d73179d80" id="r_aa9eb25ffdfcd0962a249ac3d73179d80"><td class="memItemLeft" align="right" valign="top"><a id="aa9eb25ffdfcd0962a249ac3d73179d80" name="aa9eb25ffdfcd0962a249ac3d73179d80"></a>
 uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>page_size</b> = 0</td></tr>
 <tr class="separator:aa9eb25ffdfcd0962a249ac3d73179d80"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10f761039068cb5e274254d6dafef8d3" id="r_a10f761039068cb5e274254d6dafef8d3"><td class="memItemLeft" align="right" valign="top"><a id="a10f761039068cb5e274254d6dafef8d3" name="a10f761039068cb5e274254d6dafef8d3"></a>
+std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>force_magic_number</b></td></tr>
+<tr class="memdesc:a10f761039068cb5e274254d6dafef8d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Setting this allows overriding the magic number without changing the file format (not recommended) <br /></td></tr>
+<tr class="separator:a10f761039068cb5e274254d6dafef8d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed4b5bf7c564adbd32e8f844f5abca87" id="r_aed4b5bf7c564adbd32e8f844f5abca87"><td class="memItemLeft" align="right" valign="top"><a id="aed4b5bf7c564adbd32e8f844f5abca87" name="aed4b5bf7c564adbd32e8f844f5abca87"></a>
+<a class="el" href="#aae44ffe70781da784ec9fc82cac4fdd5">unix_version</a>&#160;</td><td class="memItemRight" valign="bottom"><b>target_unix_version</b> = DefaultVersion</td></tr>
+<tr class="memdesc:aed4b5bf7c564adbd32e8f844f5abca87"><td class="mdescLeft">&#160;</td><td class="mdescRight">Specify a UNIX version. <br /></td></tr>
+<tr class="separator:aed4b5bf7c564adbd32e8f844f5abca87"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad2875818bdce95c7fd8a12f6974278b4" id="r_ad2875818bdce95c7fd8a12f6974278b4"><td class="memItemLeft" align="right" valign="top"><a id="ad2875818bdce95c7fd8a12f6974278b4" name="ad2875818bdce95c7fd8a12f6974278b4"></a>
 <a class="el" href="classMicrosoft_1_1MZSimpleStubWriter.html">Microsoft::MZSimpleStubWriter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>stub</b></td></tr>
 <tr class="separator:ad2875818bdce95c7fd8a12f6974278b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -565,6 +621,9 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>linker_script<
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
 Static Public Attributes</h2></td></tr>
+<tr class="memitem:a42fe2488845b3f3a0f4e7cea02fee5d7" id="r_a42fe2488845b3f3a0f4e7cea02fee5d7"><td class="memItemLeft" align="right" valign="top"><a id="a42fe2488845b3f3a0f4e7cea02fee5d7" name="a42fe2488845b3f3a0f4e7cea02fee5d7"></a>
+static constexpr <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>DEFAULT</b> = <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a>(-1)</td></tr>
+<tr class="separator:a42fe2488845b3f3a0f4e7cea02fee5d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4f323f9763d863f266b47d15d4cadef4" id="r_a4f323f9763d863f266b47d15d4cadef4"><td class="memItemLeft" align="right" valign="top"><a id="a4f323f9763d863f266b47d15d4cadef4" name="a4f323f9763d863f266b47d15d4cadef4"></a>
 static constexpr uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>MID_UNKNOWN</b> = 0x000</td></tr>
 <tr class="separator:a4f323f9763d863f266b47d15d4cadef4"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -723,20 +782,29 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>Introduced in the earliest versions of UNIX, it underwent several incompatible updates, including being extended to 32 bits. At the time of writing, almost all current UNIX platforms use the COFF or ELF format.</p>
 <p>Versions:</p><ul>
 <li>PDP-7 version (unimplemented)</li>
-<li>UNIX v1 version (unimplemented)</li>
-<li>16-bit UNIX version (unimplemented)</li>
+<li>UNIX v1 version</li>
+<li>16-bit UNIX version</li>
 <li>32-bit UNIX version (first introduced on the VAX)</li>
 </ul>
 <p>Variants:</p><ul>
 <li>OMAGIC (old magic), the code segment is writable</li>
 <li>NMAGIC (new magic), the code segment is pure and can be shared (read-only)</li>
-<li>ZMAGIC, demand paged</li>
-<li>QMAGIC (TODO)</li>
+<li>ZMAGIC, demand paged (32-bit only)</li>
+<li>QMAGIC (TODO) (32-bit only)</li>
+<li>"IMAGIC", separate instruction &amp; data address spaces (16-bit only)</li>
 </ul>
 <p>Platforms:</p><ul>
-<li>early Linux (unimplemented) (obsolete)</li>
+<li>AT&amp;T UNIX Versions 1 to 7 (16-bit)</li>
+<li>AT&amp;T UNIX/32V (VAX)</li>
+<li>AT&amp;T UNIX System III (PDP-11 and VAX)</li>
+<li>AT&amp;T UNIX System V (PDP-11 only, VAX uses COFF on this platform)</li>
+<li>2.11BSD (PDP-11)</li>
+<li>4.3BSD (VAX)</li>
+<li>early Linux (unimplemented)</li>
+<li>early FreeBSD (unimplemented)</li>
+<li>early NetBSD (unimplemented)</li>
 <li>early DJGPP before version 1.11</li>
-<li>early PDOS/386 and PD-Windows (<a href="http://pdos.sourceforge.net/">http://pdos.sourceforge.net/</a>) (obsolete) </li>
+<li>early PDOS/386 and PD-Windows (<a href="http://pdos.sourceforge.net/">http://pdos.sourceforge.net/</a>) </li>
 </ul>
 </div><h2 class="groupheader">Member Enumeration Documentation</h2>
 <a id="a21ba7c404e01c8e56239be73c337499b" name="a21ba7c404e01c8e56239be73c337499b"></a>
@@ -755,11 +823,31 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499baa656dc167e4ac3e208e2567ce22695d8" name="a21ba7c404e01c8e56239be73c337499baa656dc167e4ac3e208e2567ce22695d8"></a>OMAGIC&#160;</td><td class="fielddoc"><p>Object file or impure executable: The text, data and bss sections are loaded contiguously. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499ba84171d3d5bf5d397799cd92da19889f0" name="a21ba7c404e01c8e56239be73c337499ba84171d3d5bf5d397799cd92da19889f0"></a>MAGIC_IMPURE&#160;</td><td class="fielddoc"><p>Same as OMAGIC. </p>
+</td></tr>
 <tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499baf4ef23a377daa0e28b87f0025c737a96" name="a21ba7c404e01c8e56239be73c337499baf4ef23a377daa0e28b87f0025c737a96"></a>NMAGIC&#160;</td><td class="fielddoc"><p>Pure executable: The data section starts on a page boundary, making it possible to have a write protected text section. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499baddb3fe94320699a13e0da396c5f5d327" name="a21ba7c404e01c8e56239be73c337499baddb3fe94320699a13e0da396c5f5d327"></a>MAGIC_ROTEXT&#160;</td><td class="fielddoc"><p>Same as NMAGIC. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499baba50a78d24e0aa55f87aa5e892f7eae1" name="a21ba7c404e01c8e56239be73c337499baba50a78d24e0aa55f87aa5e892f7eae1"></a>MAGIC_PURE&#160;</td><td class="fielddoc"><p>Same as NMAGIC. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499ba2159317c6b2ace2999f702cf35f8e21e" name="a21ba7c404e01c8e56239be73c337499ba2159317c6b2ace2999f702cf35f8e21e"></a>ZMAGIC&#160;</td><td class="fielddoc"><p>Demand paged executable: Like NMAGIC, the data section starts on a page boundary, but the text section also starts on a page boundary. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499ba9e3a11d62dc2c522f7c780744633232a" name="a21ba7c404e01c8e56239be73c337499ba9e3a11d62dc2c522f7c780744633232a"></a>MAGIC_DEMAND_PAGED&#160;</td><td class="fielddoc"><p>Same as ZMAGIC. </p>
+</td></tr>
 <tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499baf3ad2e3516a334070d44c7aaa3a60220" name="a21ba7c404e01c8e56239be73c337499baf3ad2e3516a334070d44c7aaa3a60220"></a>QMAGIC&#160;</td><td class="fielddoc"><p>The header is included in the text segment, but the first page is unmapped. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499bab985d5a45ae86c5348a9bfa78ce785e3" name="a21ba7c404e01c8e56239be73c337499bab985d5a45ae86c5348a9bfa78ce785e3"></a>MAGIC_UNMAPPED_ZERO&#160;</td><td class="fielddoc"><p>Same as QMAGIC. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499ba2dd5e037eb76f86a0ee3c174f71ce84e" name="a21ba7c404e01c8e56239be73c337499ba2dd5e037eb76f86a0ee3c174f71ce84e"></a>MAGIC_V1&#160;</td><td class="fielddoc"><p>UNIX Version 1 magic number, collides with Version 7 overlay magic number. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499baf686cc296005948d424f01e583a25d31" name="a21ba7c404e01c8e56239be73c337499baf686cc296005948d424f01e583a25d31"></a>MAGIC_OVERLAY&#160;</td><td class="fielddoc"><p>Overlay, since UNIX Version 7 (PDP-11 only, TODO: double check if not supported for VAX) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499ba9665e67d43434f4f2804c2fe3a27b383" name="a21ba7c404e01c8e56239be73c337499ba9665e67d43434f4f2804c2fe3a27b383"></a>IMAGIC&#160;</td><td class="fielddoc"><p>Code and data are in different address spaces (PDP-11 only) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499bacbdf2ca0bc71c413dfe0c1662922b47e" name="a21ba7c404e01c8e56239be73c337499bacbdf2ca0bc71c413dfe0c1662922b47e"></a>MAGIC_AUTO_OVERLAY_NONSEPARATE&#160;</td><td class="fielddoc"><p>2.9BSD/2.11BSD (PDP-11 only) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a21ba7c404e01c8e56239be73c337499ba75988ea5e89d0bd084f0b5594b2dff4a" name="a21ba7c404e01c8e56239be73c337499ba75988ea5e89d0bd084f0b5594b2dff4a"></a>MAGIC_AUTO_OVERLAY_SEPARATE&#160;</td><td class="fielddoc"><p>2.9BSD/2.11BSD (PDP-11 only) </p>
 </td></tr>
 </table>
 
@@ -779,7 +867,23 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 <p>The target operating system type for parsing or generating binaries. </p>
 <table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2" name="ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2"></a>UNSPECIFIED&#160;</td><td class="fielddoc"><p>Treat it as undetermined, intended for object files and early UNIX binaries. </p>
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2" name="ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2"></a>UNSPECIFIED&#160;</td><td class="fielddoc"><p>Treat it as undetermined, intended for object files. </p>
+<p>The parser will make some guesses to determine the header structure. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baaf52cf1d519048831fa79ea86f9b3dd92" name="ac4ac5a8725cfbf843d960ba6984346baaf52cf1d519048831fa79ea86f9b3dd92"></a>UNIX_V1&#160;</td><td class="fielddoc"><p>Treat it as a UNIX Version 1/2 binary (PDP-11 only) </p>
+<p>Only 16-bit version available (PDP-11). This option processes the header formats for magic numbers 0o0405/0x0105 (12 byte header) and 0o0407/0x017 (16 byte header) UNIX Version 1/2 binaries are loaded at offset 0x4000 instead of 0. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baaa68508c65962b8f5dd4ff7889db46189" name="ac4ac5a8725cfbf843d960ba6984346baaa68508c65962b8f5dd4ff7889db46189"></a>UNIX&#160;</td><td class="fielddoc"><p>Treat it as a UNIX Version 3/4/5/6/7 or 2.9/2.11BSD binary, also used for UNIX/32V. </p>
+<p>Either 16-bit (PDP-11, AT&amp;T or BSD) or 32-bit (VAX, AT&amp;T). This option understands OMAGIC (0o0407/0x0107), NMAGIC (0o0410/0x0108), IMAGIC (0o0411/0x0109), overlays (0o0405/0x0105) and auto-overlay executables (0o0430/0x0118 and 0o0431/0x0119). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baa3df503e356182731539633ec96bf86cc" name="ac4ac5a8725cfbf843d960ba6984346baa3df503e356182731539633ec96bf86cc"></a>SYSTEM_III&#160;</td><td class="fielddoc"><p>Treat it as a UNIX System III binary. </p>
+<p>Either 16-bit (PDP-11) or 32-bit (VAX). The header file contains an additional field for environment version stamp. Same magic numbers as for UNIX. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baa86690e98f54af77c8c4799e00fc8d878" name="ac4ac5a8725cfbf843d960ba6984346baa86690e98f54af77c8c4799e00fc8d878"></a>SYSTEM_V&#160;</td><td class="fielddoc"><p>Treat it as a UNIX System V binary (PDP-11 only) </p>
+<p>Only 16-bit (PDP-11). The header contains some additional fields. Same magic numbers as for UNIX. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baad5f45f31405dddb1cd403180d2465102" name="ac4ac5a8725cfbf843d960ba6984346baad5f45f31405dddb1cd403180d2465102"></a>BSD&#160;</td><td class="fielddoc"><p>Treat it as 4.3BSD. </p>
+<p>4.3BSD supported OMAGIC, NMAGIC, ZMAGIC binaries </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baa01fa88ef7821c4496e0f374046c685e3" name="ac4ac5a8725cfbf843d960ba6984346baa01fa88ef7821c4496e0f374046c685e3"></a>LINUX&#160;</td><td class="fielddoc"><p>Treat it as a Linux a.out binary, used before kernel 5.19 (Linux switched to ELF in 1.2) </p>
 <p>Linux supported OMAGIC, NMAGIC, ZMAGIC, QMAGIC binaries, the midmag field is in the native byte order and the machine type is stored in bits 16 to 23 of midmag </p>
@@ -1348,6 +1452,7 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">{</div>
 <div class="line">    &amp;p_code_base_address,</div>
+<div class="line">    &amp;p_data_base_address,</div>
 <div class="line">    &amp;p_data_align,</div>
 <div class="line">    &amp;p_code_end_align,</div>
 <div class="line">    &amp;p_data_end_align,</div>

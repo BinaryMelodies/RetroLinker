@@ -40,10 +40,14 @@ var searchData=
   ['ss_5fsp_37',['SS_SP',['../classOMF_1_1OMF86Format_1_1RegisterInitializationRecord_1_1Register.html#a006f5f39a5cb89730e8e6a624fdd8e1eaf6cdb69df6f316e458523edc152d1ca2',1,'OMF::OMF86Format::RegisterInitializationRecord::Register']]],
   ['stack_38',['Stack',['../classDigitalResearch_1_1CPM86Format_1_1Descriptor.html#af657b23aac9b14639cb22bf34c2847bca829a6a4e19d570606b0da4f241aa97a0',1,'DigitalResearch::CPM86Format::Descriptor::Stack'],['../classLinker_1_1Section.html#ac63d033d602ad0a9a0f82dddeaeb7d8fa5208e5a4b284d0504e761c0a61d69feb',1,'Linker::Section::Stack']]],
   ['stackunderflow_39',['StackUnderflow',['../classApple_1_1OMFFormat_1_1Segment_1_1Expression.html#a95307fd0f6be86fb16a2cdffab7f74dbaf42aa14f6921bae1cc9ec7b334a27723',1,'Apple::OMFFormat::Segment::Expression']]],
-  ['system_5fcdos68k_40',['SYSTEM_CDOS68K',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1ba5e6b33e76cf55ed17a0f6237a73808ea',1,'DigitalResearch::CPM68KFormat']]],
-  ['system_5fcpm68k_41',['SYSTEM_CPM68K',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1bad04dc5f0edc1ab2af285a1bc785ceb32',1,'DigitalResearch::CPM68KFormat']]],
-  ['system_5fgemdos_42',['SYSTEM_GEMDOS',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1ba013986292e603c077687f1f6b48301ae',1,'DigitalResearch::CPM68KFormat']]],
-  ['system_5fgemdos_5fearly_43',['SYSTEM_GEMDOS_EARLY',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1ba74c69cc9d8f1fcebafe0d83f0d769f65',1,'DigitalResearch::CPM68KFormat']]],
-  ['system_5fhuman68k_44',['SYSTEM_HUMAN68K',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1baa4d56796da0fcfd685d076e4809642dd',1,'DigitalResearch::CPM68KFormat']]],
-  ['system_5funknown_45',['SYSTEM_UNKNOWN',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1ba41bc1e64e5d47878232dcc8e699da07f',1,'DigitalResearch::CPM68KFormat']]]
+  ['sys360_40',['SYS360',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756ada4fee909498d68966ae5d0a304025d7',1,'Linker::Module']]],
+  ['sys390_5f64_41',['SYS390_64',['../classLinker_1_1Module.html#a91adcc0d6d9aa631e4d79dad0154a756a589a112eb7b9bf8240e300ed769b4987',1,'Linker::Module']]],
+  ['system_5fcdos68k_42',['SYSTEM_CDOS68K',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1ba5e6b33e76cf55ed17a0f6237a73808ea',1,'DigitalResearch::CPM68KFormat']]],
+  ['system_5fcpm68k_43',['SYSTEM_CPM68K',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1bad04dc5f0edc1ab2af285a1bc785ceb32',1,'DigitalResearch::CPM68KFormat']]],
+  ['system_5fgemdos_44',['SYSTEM_GEMDOS',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1ba013986292e603c077687f1f6b48301ae',1,'DigitalResearch::CPM68KFormat']]],
+  ['system_5fgemdos_5fearly_45',['SYSTEM_GEMDOS_EARLY',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1ba74c69cc9d8f1fcebafe0d83f0d769f65',1,'DigitalResearch::CPM68KFormat']]],
+  ['system_5fhuman68k_46',['SYSTEM_HUMAN68K',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1baa4d56796da0fcfd685d076e4809642dd',1,'DigitalResearch::CPM68KFormat']]],
+  ['system_5fiii_47',['SYSTEM_III',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baa3df503e356182731539633ec96bf86cc',1,'AOut::AOutFormat']]],
+  ['system_5funknown_48',['SYSTEM_UNKNOWN',['../classDigitalResearch_1_1CPM68KFormat.html#abb931463a3828b9f6b41aed2260b8d1ba41bc1e64e5d47878232dcc8e699da07f',1,'DigitalResearch::CPM68KFormat']]],
+  ['system_5fv_49',['SYSTEM_V',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baa86690e98f54af77c8c4799e00fc8d878',1,'AOut::AOutFormat']]]
 ];
