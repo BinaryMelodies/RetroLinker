@@ -348,10 +348,9 @@ uint32_t AOutFormat::GetPageSize() const
 	case UNSPECIFIED:
 		return 0x00000400;
 	case UNIX:
-	case SYSTEM_III:
 		if(word_size == WordSize32)
 			return 0x00000200;
-	case UNIX_V1:
+	case UNIX_V1_V2:
 	case SYSTEM_V:
 		// only 16-bit support
 		return 0x00002000;
@@ -398,12 +397,11 @@ uint32_t AOutFormat::GetTextOffset() const
 {
 	switch(system)
 	{
-	case UNIX_V1:
+	case UNIX_V1_V2:
 		if(magic == MAGIC_V1)
 			return 0;
 		// fall through
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 		return GetHeaderSize();
 	case UNSPECIFIED:
@@ -485,10 +483,9 @@ uint32_t AOutFormat::GetTextAddress() const
 {
 	switch(system)
 	{
-	case UNIX_V1:
+	case UNIX_V1_V2:
 		return 0x00004000; // according to apout
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 	case BSD:
 		return 0;
@@ -547,9 +544,8 @@ uint32_t AOutFormat::GetDataOffsetAlign() const
 {
 	switch(system)
 	{
-	case UNIX_V1:
+	case UNIX_V1_V2:
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 	case UNSPECIFIED:
 	case BSD: // ZMAGIC pads to 0x400
@@ -573,10 +569,9 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 {
 	switch(system)
 	{
-	case UNIX_V1:
+	case UNIX_V1_V2:
 		return 1;
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 		if(magic == NMAGIC)
 			return GetPageSize();
@@ -636,7 +631,7 @@ void AOutFormat::ReadHeader(Linker::Reader& rd)
 		{
 		default:
 			break;
-		case SYSTEM_III:
+		case UNIX:
 			environment_stamp = reserved;
 			reserved = 0;
 			break;
@@ -686,7 +681,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 	switch(system)
 	{
-	case UNIX_V1:
+	case UNIX_V1_V2:
 		word_size = WordSize16;
 		midmag_endiantype = endiantype = ::PDP11Endian;
 		magic = magic_type(signature[0] | (signature[1] << 8));
@@ -696,7 +691,6 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		}
 		break;
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 	case BSD:
 		if(word_size != 0)
@@ -731,7 +725,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			}
 		}
 
-		if(word_size == WordSize32 && (system == SYSTEM_III || system == SYSTEM_V))
+		if(word_size == WordSize32 && (system == UNIX || system == SYSTEM_V))
 		{
 			// get environment stamp
 			switch(midmag_endiantype)
@@ -1243,7 +1237,7 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 	case WordSize32:
 		switch(system)
 		{
-		case SYSTEM_III:
+		case UNIX:
 			wr.WriteWord(word_size, written_magic | (uint32_t(environment_stamp) << 16));
 			break;
 		default:
@@ -1277,7 +1271,7 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 			wr.WriteWord(word_size, reserved);
 			wr.WriteWord(word_size, relocations_suppressed);
 			break;
-		case SYSTEM_III:
+		case UNIX:
 			wr.WriteWord(word_size, environment_stamp);
 			wr.WriteWord(word_size, relocations_suppressed);
 			break;
@@ -1354,9 +1348,8 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	switch(system)
 	{
 	default:
-	case UNIX_V1:
+	case UNIX_V1_V2:
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 	case UNSPECIFIED:
 	case LINUX:
@@ -1376,9 +1369,8 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 
 	static const std::map<offset_t, std::string> system_descriptions =
 	{
-		{ UNIX_V1, "AT&T UNIX Version 1 or 2" },
-		{ UNIX, "AT&T UNIX Versions 3 to 7 or 32V" },
-		{ SYSTEM_III, "AT&T UNIX System III" },
+		{ UNIX_V1_V2, "AT&T UNIX Version 1 or 2" },
+		{ UNIX, "AT&T UNIX Versions 3 to 7 or 32V or System III" },
 		{ SYSTEM_V, "AT&T UNIX System V" },
 		{ LINUX, "Linux (pre-1.2)" },
 		{ FREEBSD, "FreeBSD (pre-3.0)" },
@@ -1520,11 +1512,14 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		case DJGPP1:
 		case EMX:
 		case PDOS386:
-		case UNIX_V1:
-		case UNIX:
-		case SYSTEM_III:
-		case SYSTEM_V:
 		case BSD:
+			break;
+		case UNIX_V1_V2:
+			header_region.AddOptionalField("Stack size (reserved)", Dumper::HexDisplay::Make(4), offset_t(reserved));
+			break;
+		case UNIX:
+		case SYSTEM_V:
+			header_region.AddOptionalField("Environment version stamp", Dumper::HexDisplay::Make(system == SYSTEM_V ? 2 : 4), offset_t(environment_stamp));
 			break;
 		case UNSPECIFIED:
 		case LINUX:
@@ -1884,7 +1879,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 
 	if(target_unix_version)
 	{
-		if(system != DEFAULT && system != UNSPECIFIED && system != UNIX_V1 && system != UNIX && system != SYSTEM_III && system != SYSTEM_V)
+		if(system != DEFAULT && system != UNSPECIFIED && system != UNIX_V1_V2 && system != UNIX && system != SYSTEM_V)
 		{
 			Linker::Error << "Error: UNIX version can only be set for UNIX, setting up UNIX" << std::endl;
 		}
@@ -1893,7 +1888,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 		{
 		case Version1:
 		case Version2:
-			system = UNIX_V1;
+			system = UNIX_V1_V2;
 			break;
 		case DefaultVersion:
 		case Version3:
@@ -1901,14 +1896,14 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 		case Version5:
 		case Version6:
 		case Version7:
-		case AnyBSD:
-			system = BSD;
-			break;
 		case SystemIII:
-			system = SYSTEM_III;
+			system = UNIX;
 			break;
 		case SystemV:
 			system = SYSTEM_V;
+			break;
+		case AnyBSD:
+			system = BSD;
 			break;
 		}
 	}
@@ -2120,9 +2115,8 @@ void AOutFormat::ProcessModule(Linker::Module& module)
 		linker_parameters["bss_end_align"] = Linker::Location(1);
 		linker_parameters["align"] = Linker::Location(1);
 		break;
-	case UNIX_V1:
+	case UNIX_V1_V2:
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 	case BSD:
 		linker_parameters["code_end_align"] = Linker::Location(magic == ZMAGIC ? GetPageSize() : word_size);
@@ -2332,9 +2326,8 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		case UNSPECIFIED:
 			Linker::Error << "Internal error: system type not specified" << std::endl; // should not happen
 			break;
-		case UNIX_V1:
+		case UNIX_V1_V2:
 		case UNIX:
-		case SYSTEM_III:
 		case SYSTEM_V:
 		case BSD:
 			// mid_value not used
@@ -2375,13 +2368,13 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		cpu = VAX;
 		switch(system)
 		{
-		case UNIX_V1:
-			Linker::Error << "Error: UNIX Version 1 does not support VAX, switching to UNIX/32V" << std::endl;
+		case UNIX_V1_V2:
+			Linker::Error << "Error: UNIX Version 1/2 do not support VAX, switching to UNIX/32V" << std::endl;
 			system = UNIX;
 			break;
 		case SYSTEM_V:
 			Linker::Error << "Error: UNIX System V does not support a.out VAX, switching to System III" << std::endl;
-			system = SYSTEM_III;
+			system = UNIX;
 			break;
 		default:
 			break;
@@ -2417,9 +2410,8 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	case DJGPP1:
 	case PDOS386:
 		return filename + ".exe";
-	case UNIX_V1:
+	case UNIX_V1_V2:
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 	case BSD:
 	case LINUX:
@@ -2440,9 +2432,8 @@ std::string AOutFormat::GetDefaultExtension(Linker::Module& module) const
 	case DJGPP1:
 	case PDOS386:
 		return "a.exe";
-	case UNIX_V1:
+	case UNIX_V1_V2:
 	case UNIX:
-	case SYSTEM_III:
 	case SYSTEM_V:
 	case BSD:
 	case LINUX:

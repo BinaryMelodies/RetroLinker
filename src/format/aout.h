@@ -68,22 +68,14 @@ namespace AOut
 			 * This option processes the header formats for magic numbers 0o0405/0x0105 (12 byte header) and 0o0407/0x017 (16 byte header)
 			 * UNIX Version 1/2 binaries are loaded at offset 0x4000 instead of 0.
 			 */
-			UNIX_V1,
+			UNIX_V1_V2,
 			/**
-			 * @brief Treat it as a UNIX Version 3/4/5/6/7 or 2.9/2.11BSD binary, also used for UNIX/32V
+			 * @brief Treat it as a UNIX Version 3/4/5/6/7 or 2.9/2.11BSD binary, also used for UNIX/32V and System III
 			 *
 			 * Either 16-bit (PDP-11, AT&T or BSD) or 32-bit (VAX, AT&T).
 			 * This option understands OMAGIC (0o0407/0x0107), NMAGIC (0o0410/0x0108), IMAGIC (0o0411/0x0109), overlays (0o0405/0x0105) and auto-overlay executables (0o0430/0x0118 and 0o0431/0x0119).
 			 */
 			UNIX,
-			/**
-			 * @brief Treat it as a UNIX System III binary
-			 *
-			 * Either 16-bit (PDP-11) or 32-bit (VAX).
-			 * The header file contains an additional field for environment version stamp.
-			 * Same magic numbers as for UNIX.
-			 */
-			SYSTEM_III,
 			/**
 			 * @brief Treat it as a UNIX System V binary (PDP-11 only)
 			 *
@@ -201,10 +193,9 @@ namespace AOut
 		{
 			switch(system)
 			{
-			case UNIX_V1:
+			case UNIX_V1_V2:
 				return MAGIC_V1;
 			case UNIX:
-			case SYSTEM_III:
 			case SYSTEM_V:
 			case UNSPECIFIED: // TODO: which should we pick?
 				return OMAGIC;
