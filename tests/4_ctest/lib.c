@@ -91,6 +91,11 @@ asm(
 	"bl\tAppMain\n\t"
 	"bl\tLibExit"
 );
+#elif defined __PPC__
+asm(
+	"bl\tAppMain\n\t"
+	"bl\tLibExit"
+);
 #elif defined __pdp11__
 asm(
 #if TARGET_DXDOS
@@ -491,6 +496,12 @@ void LibExit(void)
 		"mov\tr7, #0x01\n\t"
 		"swi\t#0x0"
 	);
+#elif TARGET_LINUX && CPU_PPC
+	asm(
+		"li\t3, 0\n\t"
+		"li\t0, 1\n\t"
+		"sc"
+	);
 #elif TARGET_UNIX
 	asm(
 		"mov\t$0, r0\n\t"
@@ -624,6 +635,13 @@ void LibPutChar(char c)
 		"mov\tr0, #1\n\t"
 		"mov\tr2, #1\n\t"
 		"swi\t#0x0" : : "r"(r1));
+#elif TARGET_LINUX && CPU_PPC
+	register unsigned char * r4 asm("4") = &c;
+	asm(
+		"li\t5, 1\n\t"
+		"li\t3, 1\n\t"
+		"li\t0, 4\n\t"
+		"sc" : : "r"(r4));
 #elif TARGET_UNIX
 	static unsigned char LibPutChar_buffer = 1;
 	LibPutChar_buffer = c;
@@ -739,6 +757,14 @@ void LibWaitForKey(void)
 		"mov\tr0, #1\n\t"
 		"mov\tr2, #1\n\t"
 		"swi\t#0x0" : : "r"(r1));
+#elif TARGET_LINUX && CPU_PPC
+	int tmp;
+	register int * r4 asm("4") = &tmp;
+	asm(
+		"li\t5, 1\n\t"
+		"li\t3, 1\n\t"
+		"li\t0, 3\n\t"
+		"sc" : : "r"(r4));
 #elif TARGET_UNIX
 	// TODO
 #elif TARGET_BSD

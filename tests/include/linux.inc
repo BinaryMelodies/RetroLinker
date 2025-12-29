@@ -29,8 +29,8 @@
 	mov	w0, #0
 	svc	#0
 .elseif	CPU_PPC
-	li	3, 0
-	li	0, 1
+	li	r3, 0
+	li	r0, 1
 	sc
 .endif
 .endm
@@ -90,14 +90,14 @@
 	svc	#0
 	ldp	x0, x1, [sp], #16
 .elseif	CPU_PPC
-	addi	1, 1, -4
-	stb	3, 0(1)
-	li	5, 1
-	mr	4, 1
-	li	3, 1
-	li	0, 4
+	addi	r1, r1, -4
+	stb	r3, 0(r1)
+	li	r5, 1
+	mr	r4, r1
+	li	r3, 1
+	li	r0, 4
 	sc
-	addi	1, 1, 4
+	addi	r1, r1, 4
 .endif
 .endm
 
@@ -156,13 +156,13 @@
 	svc	#0
 	ldp	x0, x1, [sp], #16
 .elseif	CPU_PPC
-	stwu	0, -4(1)
-	li	5, 1
-	mr	4, 1
-	li	3, 1
-	li	0, 3
+	stwu	r0, -4(r1)
+	li	r5, 1
+	mr	r4, r1
+	li	r3, 1
+	li	r0, 3
 	sc
-	addi	1, 1, 4
+	addi	r1, r1, 4
 .endif
 .endm
 
