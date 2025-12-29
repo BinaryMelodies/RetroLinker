@@ -6,7 +6,7 @@ var searchData=
   ['undefined_5freferences_3',['undefined_references',['../classO65_1_1O65Format_1_1Module.html#a972cc089911d9556808e7e904e1f4b48',1,'O65::O65Format::Module']]],
   ['unit_4',['Unit',['../classAmiga_1_1HunkFormat_1_1SymbolBlock_1_1Unit.html',1,'Amiga::HunkFormat::SymbolBlock']]],
   ['unix_5',['UNIX',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baaa68508c65962b8f5dd4ff7889db46189',1,'AOut::AOutFormat']]],
-  ['unix_5fv1_6',['UNIX_V1',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baaf52cf1d519048831fa79ea86f9b3dd92',1,'AOut::AOutFormat']]],
+  ['unix_5fv1_5fv2_6',['UNIX_V1_V2',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baadac9b789970cf7222d61afea71e22a36',1,'AOut::AOutFormat']]],
   ['unix_5fversion_7',['unix_version',['../classAOut_1_1AOutFormat.html#aae44ffe70781da784ec9fc82cac4fdd5',1,'AOut::AOutFormat']]],
   ['unixrelocation_8',['UNIXRelocation',['../classCOFF_1_1COFFFormat_1_1UNIXRelocation.html',1,'COFF::COFFFormat']]],
   ['unixversionenumeration_9',['UnixVersionEnumeration',['../classAOut_1_1AOutFormat_1_1AOutOptionCollector_1_1UnixVersionEnumeration.html',1,'AOut::AOutFormat::AOutOptionCollector']]],
