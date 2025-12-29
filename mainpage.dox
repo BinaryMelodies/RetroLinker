@@ -17,7 +17,7 @@
  * </tr>
  *
  * <tr>
- * <td rowspan='5' colspan='2'><a href="classBinary_1_1BinaryFormat.html">Flat binary (<tt>.com</tt>)</a></td>
+ * <td rowspan='6' colspan='2'><a href="classBinary_1_1BinaryFormat.html">Flat binary (<tt>.com</tt>)</a></td>
  * <td>Intel 8080<br>Zilog Z80</td>
  * <td>CP/M-80<br>MSX-DOS</td>
  * </tr>
@@ -40,6 +40,11 @@
  * <tr>
  * <td>PDP-11</td>
  * <td>DX-DOS for Electronika BK</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>PDP-11</td>
+ * <td>AT&T UNIX Version 1</td>
  * </tr>
  *
  * <tr>
@@ -128,7 +133,20 @@
  * </tr>
  *
  * <tr>
- * <td rowspan='2'><a href="classAOut_1_1AOutFormat.html">32-bit UNIX a.out</a></td>
+ * <td><a href="classAOut_1_1AOutFormat.html">16-bit UNIX a.out</a></td>
+ * <td>Version 1<br>OMAGIC<br>NMAGIC<br>IMAGIC</td>
+ * <td>PDP-11</td>
+ * <td>AT&T UNIX Versions 1 to 7<br>2.11BSD</td>
+ * </tr>
+ *
+ * <tr>
+ * <td rowspan='3'><a href="classAOut_1_1AOutFormat.html">32-bit UNIX a.out</a></td>
+ * <td>OMAGIC<br>NMAGIC<br>ZMAGIC</td>
+ * <td>VAX</td>
+ * <td>AT&T UNIX/32V and UNIX System III (untested)<br>4.3BSD</td>
+ * </tr>
+ *
+ * <tr>
  * <td>ZMAGIC (<tt>.exe</tt>)</td>
  * <td>Intel 80386</td>
  * <td>DJGPP (prior to 1.11)<br><a href="classEMX_1_1EMXAOutFormat.html">EMX</a> (unimplemented)</td>
