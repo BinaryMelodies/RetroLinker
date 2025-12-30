@@ -198,24 +198,62 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 		switch(type)
 		{
 		case R_ABS:
-		case R_TOKEN: // TODO
+		case R_AUX: // TODO
 		default:
 			return 0;
-		case R_SECREL7:
+		case R_OFF8:
+		case R_OFF16: // high 8 bits in 16-bit word
+		case R_RELBYTE:
+		case R_PCRBYTE:
 			return 1;
 		case R_DIR16:
 		case R_REL16:
+		case R_IND16:
 		case R_SEG12:
-		case R_SECTION:
+		case R_OPT16:
+		case R_RELWORD:
+		case R_PCRWORD:
 			return 2;
+		case R_DIR24:
+		case R_REL24:
+		case R_IND24:
+			return 3;
 		case R_DIR32:
-		case R_REL32:
-		case R_DIR32NB:
-		case R_SECREL:
+		case R_DIR32S:
+		case R_IND32:
+		case R_RELLONG:
+		case R_PCRLONG:
 			return 4;
 		}
 	case PECOFF:
-		return 0; // TODO
+		switch(cpu_type)
+		{
+		case CPU_I386:
+			switch(type)
+			{
+			case REL_I386_ABSOLUTE:
+			case REL_I386_TOKEN: // TODO
+			default:
+				return 0;
+			case REL_I386_SECREL7:
+				return 1;
+			case REL_I386_DIR16:
+			case REL_I386_REL16:
+			case REL_I386_SEG12:
+			case REL_I386_SECTION:
+				return 2;
+			case REL_I386_DIR32:
+			case REL_I386_REL32:
+			case REL_I386_DIR32NB:
+			case REL_I386_SECREL:
+				return 4;
+			}
+			return 0;
+		// TODO: other CPU types
+		default:
+			return 0;
+		}
+		return 0;
 	case TICOFF:
 	case TICOFF1:
 		return 0; // TODO
@@ -299,7 +337,76 @@ void COFFFormat::UNIXRelocation::WriteFile(Linker::Writer& wr) const
 
 void COFFFormat::UNIXRelocation::FillEntry(Dumper::Entry& entry) const
 {
-	// TODO
+	static const std::map<offset_t, std::string> unix_relocation_type_names =
+	{
+		{ UNIXRelocation::R_ABS,     "ABS" },
+		{ UNIXRelocation::R_DIR16,   "DIR16" },
+		{ UNIXRelocation::R_REL16,   "REL16" },
+		{ UNIXRelocation::R_IND16,   "IND16" },
+		{ UNIXRelocation::R_DIR24,   "DIR24" },
+		{ UNIXRelocation::R_REL24,   "REL24" },
+		{ UNIXRelocation::R_DIR32,   "DIR32" },
+		{ UNIXRelocation::R_OFF8,    "OFF8" },
+		{ UNIXRelocation::R_OFF16,   "OFF16" },
+		{ UNIXRelocation::R_SEG12,   "SEG12" },
+		{ UNIXRelocation::R_DIR32S,  "DIR32S" },
+		{ UNIXRelocation::R_AUX,     "AUX" },
+		{ UNIXRelocation::R_OPT16,   "OPT16" },
+		{ UNIXRelocation::R_IND24,   "IND24" },
+		{ UNIXRelocation::R_IND32,   "IND32" },
+		{ UNIXRelocation::R_RELBYTE, "RELBYTE" },
+		{ UNIXRelocation::R_RELWORD, "RELWORD" },
+		{ UNIXRelocation::R_RELLONG, "RELLONG" },
+		{ UNIXRelocation::R_PCRBYTE, "PCRBYTE" },
+		{ UNIXRelocation::R_PCRWORD, "PCRWORD" },
+		{ UNIXRelocation::R_PCRLONG, "PCRLONG" },
+	};
+
+	static const std::map<offset_t, std::string> pecoff_i386_relocation_type_names =
+	{
+		{ UNIXRelocation::REL_I386_ABSOLUTE, "ABSOLUTE" },
+		{ UNIXRelocation::REL_I386_DIR16,    "DIR16" },
+		{ UNIXRelocation::REL_I386_REL16,    "REL16" },
+		{ UNIXRelocation::REL_I386_DIR32,    "DIR32" },
+		{ UNIXRelocation::REL_I386_DIR32NB,  "DIR32NB" },
+		{ UNIXRelocation::REL_I386_SEG12,    "SEG12" },
+		{ UNIXRelocation::REL_I386_SECTION,  "SECTION" },
+		{ UNIXRelocation::REL_I386_SECREL,   "SECREL" },
+		{ UNIXRelocation::REL_I386_TOKEN,    "TOKEN" },
+		{ UNIXRelocation::REL_I386_SECREL7,  "SECREL7" },
+		{ UNIXRelocation::REL_I386_REL32,    "REL32" },
+	};
+
+	const std::map<offset_t, std::string> * relocation_type_names = nullptr;
+	switch(coff_variant)
+	{
+	case COFF:
+		relocation_type_names = &unix_relocation_type_names;
+		break;
+	case PECOFF:
+		switch(cpu_type)
+		{
+		case CPU_I386:
+			relocation_type_names = &pecoff_i386_relocation_type_names;
+			break;
+		default:
+			Linker::Error << "Internal error: unknown CPU type" << std::endl;
+			break;
+		}
+		break;
+	default:
+		Linker::Error << "Internal error: unknown COFF variant" << std::endl;
+		break;
+	}
+
+	entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(address));
+	entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(GetSize()));
+	if(relocation_type_names != nullptr)
+		entry.AddField("Type", Dumper::ChoiceDisplay::Make(*relocation_type_names, Dumper::HexDisplay::Make(4)), offset_t(type));
+	entry.AddOptionalField("Address", Dumper::HexDisplay::Make(), offset_t(address));
+	/* TODO */
+	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), offset_t(symbol_index));
+//				entry.AddField("Target", ???);
 }
 
 void COFFFormat::ZilogRelocation::Read(Linker::Reader& rd)

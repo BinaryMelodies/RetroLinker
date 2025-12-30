@@ -292,28 +292,75 @@ namespace COFF
 		class UNIXRelocation : public Relocation
 		{
 		public:
+			// UNIX relocations
+
 			/** @brief No relocation */
 			static constexpr uint16_t R_ABS = 0;
-			/** @brief 16-bit virtual address of symbol */
+			/** @brief 16-bit direct address of symbol */
 			static constexpr uint16_t R_DIR16 = 1;
 			/** @brief 16-bit relative address of symbol */
 			static constexpr uint16_t R_REL16 = 2;
-			/** @brief 32-bit virtual address of symbol */
+			/** @brief 16-bit indirect address of symbol */
+			static constexpr uint16_t R_IND16 = 3;
+			/** @brief 24-bit direct address of symbol */
+			static constexpr uint16_t R_DIR24 = 4;
+			/** @brief 24-bit relative address of symbol */
+			static constexpr uint16_t R_REL24 = 5;
+			/** @brief 32-bit direct address of symbol */
 			static constexpr uint16_t R_DIR32 = 6;
-			/** @brief (Microsoft COFF) 32-bit relative virtual address of symbol */
-			static constexpr uint16_t R_DIR32NB = 7;
+			/** @brief 8-bit low byte of address of symbol */
+			static constexpr uint16_t R_OFF8 = 7;
+			/** @brief 8-bit high byte of address of symbol */
+			static constexpr uint16_t R_OFF16 = 8;
 			/** @brief (Intel x86) 16-bit segment selector of symbol */
 			static constexpr uint16_t R_SEG12 = 9;
-			/** @brief (Microsoft, debugging) 16-bit section index */
-			static constexpr uint16_t R_SECTION = 10;
-			/** @brief (Microsoft, debugging) 32-bit offset from section start */
-			static constexpr uint16_t R_SECREL = 11;
-			/** @brief (Microsoft) CLR token */
-			static constexpr uint16_t R_TOKEN = 12;
-			/** @brief (Microsoft) 7-bit offset from section base */
-			static constexpr uint16_t R_SECREL7 = 13;
+			/** @brief (WE32K) 32-bit direct address of symbol, byte swapped */
+			static constexpr uint16_t R_DIR32S = 10;
+			/** @brief Auxiliary relocation */
+			static constexpr uint16_t R_AUX = 11;
+			/** @brief 16-bit (WE32K) optimized indirect address of symbol */
+			static constexpr uint16_t R_OPT16 = 12;
+			/** @brief 24-bit indirect address of symbol */
+			static constexpr uint16_t R_IND24 = 13;
+			/** @brief 32-bit indirect address of symbol */
+			static constexpr uint16_t R_IND32 = 14;
+			/** @brief 8-bit direct (symbol relative) address of symbol */
+			static constexpr uint16_t R_RELBYTE = 15;
+			/** @brief 16-bit direct (symbol relative) address of symbol */
+			static constexpr uint16_t R_RELWORD = 16;
+			/** @brief 32-bit direct (symbol relative) address of symbol */
+			static constexpr uint16_t R_RELLONG = 17;
+			/** @brief 8-bit PC relative address of symbol */
+			static constexpr uint16_t R_PCRBYTE = 18;
+			/** @brief 16-bit PC relative address of symbol */
+			static constexpr uint16_t R_PCRWORD = 19;
+			/** @brief 32-bit PC relative address of symbol */
+			static constexpr uint16_t R_PCRLONG = 20;
+
+			// Microsoft relocations
+
+			/** @brief No relocation */
+			static constexpr uint16_t REL_I386_ABSOLUTE = 0;
+			/** @brief 16-bit virtual address of symbol (not supported) */
+			static constexpr uint16_t REL_I386_DIR16 = 1;
+			/** @brief 16-bit relative address of symbol (not supported) */
+			static constexpr uint16_t REL_I386_REL16 = 2;
+			/** @brief 32-bit virtual address of symbol */
+			static constexpr uint16_t REL_I386_DIR32 = 6;
+			/** @brief 32-bit relative virtual address of symbol */
+			static constexpr uint16_t REL_I386_DIR32NB = 7;
+			/** @brief 16-bit segment selector of symbol (not supported) */
+			static constexpr uint16_t REL_I386_SEG12 = 9;
+			/** @brief 16-bit section index (debugging) */
+			static constexpr uint16_t REL_I386_SECTION = 10;
+			/** @brief 32-bit offset from section start (debugging) */
+			static constexpr uint16_t REL_I386_SECREL = 11;
+			/** @brief CLR token */
+			static constexpr uint16_t REL_I386_TOKEN = 12;
+			/** @brief 7-bit offset from section base */
+			static constexpr uint16_t REL_I386_SECREL7 = 13;
 			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t R_REL32 = 20;
+			static constexpr uint16_t REL_I386_REL32 = 20;
 
 			COFFVariantType coff_variant;
 			cpu cpu_type;
