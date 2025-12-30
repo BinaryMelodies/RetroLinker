@@ -409,7 +409,73 @@ namespace COFF
 			// TODO: Microsoft relocations (ARM64)
 			// TODO: Microsoft relocations (MIPS)
 			// TODO: Microsoft relocations (PowerPC)
-			// TODO: Microsoft relocations (Alpha)
+
+			// Microsoft relocations (Alpha)
+
+			/** @brief No relocation */
+			static constexpr uint16_t REL_ALPHA_ABSOLUTE = 0;
+			/** @brief 32-bit virtual address of symbol */
+			static constexpr uint16_t REL_ALPHA_REFLONG = 1;
+			/** @brief 64-bit virtual address of symbol */
+			static constexpr uint16_t REL_ALPHA_REFQUAD = 2;
+			/** @brief 32-bit global pointer relative address of symbol */
+			static constexpr uint16_t REL_ALPHA_GPREL32 = 3;
+			/** @brief 16-bit global pointer relative address of symbol */
+			static constexpr uint16_t REL_ALPHA_LITERAL = 4;
+			/** @brief reserved */
+			static constexpr uint16_t REL_ALPHA_LITUSE = 5;
+			/** @brief reserved */
+			static constexpr uint16_t REL_ALPHA_GPDISP = 6;
+			/** @brief 21-bit relative address of symbol */
+			static constexpr uint16_t REL_ALPHA_BRADDR = 7;
+			/** @brief 14-bit hint for jump target */
+			static constexpr uint16_t REL_ALPHA_HINT = 8;
+			/** @brief 32-bit virtual address of symbol split into two 16-bit values; this relocation must be followed by an ABSOLUTE or MATCH relocation */
+			static constexpr uint16_t REL_ALPHA_INLINE_REFLONG = 9;
+			/** @brief High 16 bits of 32-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
+			static constexpr uint16_t REL_ALPHA_REFHI = 10;
+			/** @brief Low 16 bits of 32-bit virtual address of symbol */
+			static constexpr uint16_t REL_ALPHA_REFLO = 11;
+			/** @brief Displacement value for a preceding REFHI, SECRELHI, REFQ3 or REFQ2 relocation */
+			static constexpr uint16_t REL_ALPHA_PAIR = 12;
+			/** @brief Displacement value for a preceding REFLONG relocation */
+			static constexpr uint16_t REL_ALPHA_MATCH = 13;
+			/** @brief 16-bit section index (debugging) */
+			static constexpr uint16_t REL_ALPHA_SECTION = 14;
+			/** @brief 32-bit offset from section start (debugging) */
+			static constexpr uint16_t REL_ALPHA_SECREL = 15;
+			/** @brief 32-bit relative virtual address of symbol */
+			static constexpr uint16_t REL_ALPHA_REFLONGNB = 16;
+			/** @brief Low 16 bits of 32-bit offset from section start (debugging) */
+			static constexpr uint16_t REL_ALPHA_SECRELLO = 17;
+			/** @brief High 16 bits of 32-bit offset from section start; this relocation must be followed by a PAIR relocation (debugging) */
+			static constexpr uint16_t REL_ALPHA_SECRELHI = 18;
+			/** @brief The second most significant 16 bits of the 64-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
+			static constexpr uint16_t REL_ALPHA_REFQ3 = 19;
+			/** @brief The third most significant 16 bits of the 64-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
+			static constexpr uint16_t REL_ALPHA_REFQ2 = 20;
+			/** @brief The least significant 16 bits of the 64-bit virtual address of symbol */
+			static constexpr uint16_t REL_ALPHA_REFQ1 = 21;
+			/** @brief Low 16 bits of 32-bit global pointer relative address of symbol */
+			static constexpr uint16_t REL_ALPHA_GPRELLO = 22;
+			/** @brief High 16 bits of 32-bit global pointer relative address of symbol */
+			static constexpr uint16_t REL_ALPHA_GPRELHI = 23;
+
+			/** @brief 16-bit virtual address of symbol (not supported) */
+			static constexpr uint16_t REL_ALPHA_DIR16 = 1;
+			/** @brief 16-bit relative address of symbol (not supported) */
+			static constexpr uint16_t REL_ALPHA_REL16 = 2;
+			/** @brief 32-bit relative virtual address of symbol */
+			static constexpr uint16_t REL_ALPHA_DIR32NB = 7;
+			/** @brief 16-bit segment selector of symbol (not supported) */
+			static constexpr uint16_t REL_ALPHA_SEG12 = 9;
+			/** @brief CLR token */
+			static constexpr uint16_t REL_ALPHA_TOKEN = 12;
+			/** @brief 7-bit offset from section base */
+			static constexpr uint16_t REL_ALPHA_SECREL7 = 13;
+			/** @brief 32-bit relative address of symbol */
+			static constexpr uint16_t REL_ALPHA_REL32 = 20;
+
 			// TODO: Microsoft relocations (IA64)
 			// TODO: Microsoft relocations (SuperH)
 
