@@ -249,6 +249,33 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 				return 4;
 			}
 			return 0;
+		case CPU_AMD64:
+			switch(type)
+			{
+			case REL_AMD64_ABSOLUTE:
+			case REL_AMD64_TOKEN: // TODO
+			case REL_AMD64_PAIR: // TODO
+			default:
+				return 0;
+			case REL_AMD64_SECTION:
+			case REL_AMD64_SECREL7:
+				return 2;
+			case REL_AMD64_ADDR32:
+			case REL_AMD64_ADDR32NB:
+			case REL_AMD64_REL32:
+			case REL_AMD64_REL32_1:
+			case REL_AMD64_REL32_2:
+			case REL_AMD64_REL32_3:
+			case REL_AMD64_REL32_4:
+			case REL_AMD64_REL32_5:
+			case REL_AMD64_SECREL:
+			case REL_AMD64_SREL32:
+			case REL_AMD64_SSPAN32:
+				return 4;
+			case REL_AMD64_ADDR64:
+				return 8;
+			}
+			return 0;
 		// TODO: other CPU types
 		default:
 			return 0;
@@ -339,42 +366,63 @@ void COFFFormat::UNIXRelocation::FillEntry(Dumper::Entry& entry) const
 {
 	static const std::map<offset_t, std::string> unix_relocation_type_names =
 	{
-		{ UNIXRelocation::R_ABS,     "ABS" },
-		{ UNIXRelocation::R_DIR16,   "DIR16" },
-		{ UNIXRelocation::R_REL16,   "REL16" },
-		{ UNIXRelocation::R_IND16,   "IND16" },
-		{ UNIXRelocation::R_DIR24,   "DIR24" },
-		{ UNIXRelocation::R_REL24,   "REL24" },
-		{ UNIXRelocation::R_DIR32,   "DIR32" },
-		{ UNIXRelocation::R_OFF8,    "OFF8" },
-		{ UNIXRelocation::R_OFF16,   "OFF16" },
-		{ UNIXRelocation::R_SEG12,   "SEG12" },
-		{ UNIXRelocation::R_DIR32S,  "DIR32S" },
-		{ UNIXRelocation::R_AUX,     "AUX" },
-		{ UNIXRelocation::R_OPT16,   "OPT16" },
-		{ UNIXRelocation::R_IND24,   "IND24" },
-		{ UNIXRelocation::R_IND32,   "IND32" },
-		{ UNIXRelocation::R_RELBYTE, "RELBYTE" },
-		{ UNIXRelocation::R_RELWORD, "RELWORD" },
-		{ UNIXRelocation::R_RELLONG, "RELLONG" },
-		{ UNIXRelocation::R_PCRBYTE, "PCRBYTE" },
-		{ UNIXRelocation::R_PCRWORD, "PCRWORD" },
-		{ UNIXRelocation::R_PCRLONG, "PCRLONG" },
+		{ UNIXRelocation::R_ABS,     "ABS - no relocation" },
+		{ UNIXRelocation::R_DIR16,   "DIR16 - symbol value" },
+		{ UNIXRelocation::R_REL16,   "REL16 - relative" },
+		{ UNIXRelocation::R_IND16,   "IND16 - indirect" },
+		{ UNIXRelocation::R_DIR24,   "DIR24 - symbol value" },
+		{ UNIXRelocation::R_REL24,   "REL24 - relative" },
+		{ UNIXRelocation::R_DIR32,   "DIR32 - symbol value" },
+		{ UNIXRelocation::R_OFF8,    "OFF8 - symbol value" },
+		{ UNIXRelocation::R_OFF16,   "OFF16 - shifted by 8" },
+		{ UNIXRelocation::R_SEG12,   "SEG12 - x86 segment" },
+		{ UNIXRelocation::R_DIR32S,  "DIR32S - byte swapped" },
+		{ UNIXRelocation::R_AUX,     "AUX - auxiliary" },
+		{ UNIXRelocation::R_OPT16,   "OPT16 - optimized indirect" },
+		{ UNIXRelocation::R_IND24,   "IND24 - indirect" },
+		{ UNIXRelocation::R_IND32,   "IND32 - indirect" },
+		{ UNIXRelocation::R_RELBYTE, "RELBYTE - symbol value" },
+		{ UNIXRelocation::R_RELWORD, "RELWORD - symbol value" },
+		{ UNIXRelocation::R_RELLONG, "RELLONG - symbol value" },
+		{ UNIXRelocation::R_PCRBYTE, "PCRBYTE - relative" },
+		{ UNIXRelocation::R_PCRWORD, "PCRWORD - relative" },
+		{ UNIXRelocation::R_PCRLONG, "PCRLONG - relative" },
 	};
 
 	static const std::map<offset_t, std::string> pecoff_i386_relocation_type_names =
 	{
-		{ UNIXRelocation::REL_I386_ABSOLUTE, "ABSOLUTE" },
-		{ UNIXRelocation::REL_I386_DIR16,    "DIR16" },
-		{ UNIXRelocation::REL_I386_REL16,    "REL16" },
-		{ UNIXRelocation::REL_I386_DIR32,    "DIR32" },
-		{ UNIXRelocation::REL_I386_DIR32NB,  "DIR32NB" },
-		{ UNIXRelocation::REL_I386_SEG12,    "SEG12" },
-		{ UNIXRelocation::REL_I386_SECTION,  "SECTION" },
-		{ UNIXRelocation::REL_I386_SECREL,   "SECREL" },
-		{ UNIXRelocation::REL_I386_TOKEN,    "TOKEN" },
-		{ UNIXRelocation::REL_I386_SECREL7,  "SECREL7" },
-		{ UNIXRelocation::REL_I386_REL32,    "REL32" },
+		{ UNIXRelocation::REL_I386_ABSOLUTE, "ABSOLUTE - no relocation" },
+		{ UNIXRelocation::REL_I386_DIR16,    "DIR16 - unsupported (symbol value)" },
+		{ UNIXRelocation::REL_I386_REL16,    "REL16 - unsupported (relative)" },
+		{ UNIXRelocation::REL_I386_DIR32,    "DIR32 - virtual address" },
+		{ UNIXRelocation::REL_I386_DIR32NB,  "DIR32NB - relative virtual address" },
+		{ UNIXRelocation::REL_I386_SEG12,    "SEG12 - unsupported (x86 segment)" },
+		{ UNIXRelocation::REL_I386_SECTION,  "SECTION - section index" },
+		{ UNIXRelocation::REL_I386_SECREL,   "SECREL - offset within section" },
+		{ UNIXRelocation::REL_I386_TOKEN,    "TOKEN - CLR token" },
+		{ UNIXRelocation::REL_I386_SECREL7,  "SECREL7 - offset within section" },
+		{ UNIXRelocation::REL_I386_REL32,    "REL32 - relative" },
+	};
+
+	static const std::map<offset_t, std::string> pecoff_amd64_relocation_type_names =
+	{
+		{ UNIXRelocation::REL_AMD64_ABSOLUTE, "ABSOLUTE - no relocation" },
+		{ UNIXRelocation::REL_AMD64_ADDR64,   "ADDR64 - virtual address" },
+		{ UNIXRelocation::REL_AMD64_ADDR32,   "ADDR32 - virtual address" },
+		{ UNIXRelocation::REL_AMD64_ADDR32NB, "ADDR32NB - relative virtual address" },
+		{ UNIXRelocation::REL_AMD64_REL32,    "REL32 - relative address" },
+		{ UNIXRelocation::REL_AMD64_REL32_1,  "REL32_1 - relative address - 1" },
+		{ UNIXRelocation::REL_AMD64_REL32_2,  "REL32_2 - relative address - 2" },
+		{ UNIXRelocation::REL_AMD64_REL32_3,  "REL32_3 - relative address - 3" },
+		{ UNIXRelocation::REL_AMD64_REL32_4,  "REL32_4 - relative address - 4" },
+		{ UNIXRelocation::REL_AMD64_REL32_5,  "REL32_5 - relative address - 5" },
+		{ UNIXRelocation::REL_AMD64_SECTION,  "SECTION - section index" },
+		{ UNIXRelocation::REL_AMD64_SECREL,   "SECREL - offset within section" },
+		{ UNIXRelocation::REL_AMD64_SECREL7,  "SECREL7 - offset within section" },
+		{ UNIXRelocation::REL_AMD64_TOKEN,    "TOKEN - CLR token" },
+		{ UNIXRelocation::REL_AMD64_SREL32,   "SREL32" }, // TODO: explain
+		{ UNIXRelocation::REL_AMD64_PAIR,     "PAIR" }, // TODO: explain
+		{ UNIXRelocation::REL_AMD64_SSPAN32,  "SSPAN32" }, // TODO: explain
 	};
 
 	const std::map<offset_t, std::string> * relocation_type_names = nullptr;
@@ -388,6 +436,9 @@ void COFFFormat::UNIXRelocation::FillEntry(Dumper::Entry& entry) const
 		{
 		case CPU_I386:
 			relocation_type_names = &pecoff_i386_relocation_type_names;
+			break;
+		case CPU_AMD64:
+			relocation_type_names = &pecoff_amd64_relocation_type_names;
 			break;
 		default:
 			Linker::Error << "Internal error: unknown CPU type" << std::endl;

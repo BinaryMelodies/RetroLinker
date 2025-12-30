@@ -337,7 +337,7 @@ namespace COFF
 			/** @brief 32-bit PC relative address of symbol */
 			static constexpr uint16_t R_PCRLONG = 20;
 
-			// Microsoft relocations
+			// Microsoft relocations (Intel 386)
 
 			/** @brief No relocation */
 			static constexpr uint16_t REL_I386_ABSOLUTE = 0;
@@ -361,6 +361,51 @@ namespace COFF
 			static constexpr uint16_t REL_I386_SECREL7 = 13;
 			/** @brief 32-bit relative address of symbol */
 			static constexpr uint16_t REL_I386_REL32 = 20;
+
+			// Microsoft relocations (AMD64)
+
+			/** @brief No relocation */
+			static constexpr uint16_t REL_AMD64_ABSOLUTE = 0;
+			/** @brief 64-bit virtual address of symbol */
+			static constexpr uint16_t REL_AMD64_ADDR64 = 1;
+			/** @brief 32-bit virtual address of symbol */
+			static constexpr uint16_t REL_AMD64_ADDR32 = 2;
+			/** @brief 32-bit relative virtual address of symbol */
+			static constexpr uint16_t REL_AMD64_ADDR32NB = 3;
+			/** @brief 32-bit relative address of symbol */
+			static constexpr uint16_t REL_AMD64_REL32 = 4;
+			/** @brief 32-bit relative address of symbol minus 1 */
+			static constexpr uint16_t REL_AMD64_REL32_1 = 5;
+			/** @brief 32-bit relative address of symbol minus 2 */
+			static constexpr uint16_t REL_AMD64_REL32_2 = 6;
+			/** @brief 32-bit relative address of symbol minus 3 */
+			static constexpr uint16_t REL_AMD64_REL32_3 = 7;
+			/** @brief 32-bit relative address of symbol minus 4 */
+			static constexpr uint16_t REL_AMD64_REL32_4 = 8;
+			/** @brief 32-bit relative address of symbol minus 5 */
+			static constexpr uint16_t REL_AMD64_REL32_5 = 9;
+			/** @brief 16-bit section index (debugging) */
+			static constexpr uint16_t REL_AMD64_SECTION = 10;
+			/** @brief 32-bit offset from section start (debugging) */
+			static constexpr uint16_t REL_AMD64_SECREL = 11;
+			/** @brief 7-bit offset from section base */
+			static constexpr uint16_t REL_AMD64_SECREL7 = 12;
+			/** @brief CLR token */
+			static constexpr uint16_t REL_AMD64_TOKEN = 13;
+			/** @brief ? */
+			static constexpr uint16_t REL_AMD64_SREL32 = 14;
+			/** @brief ? */
+			static constexpr uint16_t REL_AMD64_PAIR = 15;
+			/** @brief ? */
+			static constexpr uint16_t REL_AMD64_SSPAN32 = 16;
+
+			// TODO: Microsoft relocations (ARM)
+			// TODO: Microsoft relocations (ARM64)
+			// TODO: Microsoft relocations (MIPS)
+			// TODO: Microsoft relocations (PowerPC)
+			// TODO: Microsoft relocations (Alpha)
+			// TODO: Microsoft relocations (IA64)
+			// TODO: Microsoft relocations (SuperH)
 
 			COFFVariantType coff_variant;
 			cpu cpu_type;
