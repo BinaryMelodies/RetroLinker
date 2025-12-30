@@ -461,21 +461,6 @@ namespace COFF
 			/** @brief High 16 bits of 32-bit global pointer relative address of symbol */
 			static constexpr uint16_t REL_ALPHA_GPRELHI = 23;
 
-			/** @brief 16-bit virtual address of symbol (not supported) */
-			static constexpr uint16_t REL_ALPHA_DIR16 = 1;
-			/** @brief 16-bit relative address of symbol (not supported) */
-			static constexpr uint16_t REL_ALPHA_REL16 = 2;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_DIR32NB = 7;
-			/** @brief 16-bit segment selector of symbol (not supported) */
-			static constexpr uint16_t REL_ALPHA_SEG12 = 9;
-			/** @brief CLR token */
-			static constexpr uint16_t REL_ALPHA_TOKEN = 12;
-			/** @brief 7-bit offset from section base */
-			static constexpr uint16_t REL_ALPHA_SECREL7 = 13;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_REL32 = 20;
-
 			// TODO: Microsoft relocations (IA64)
 			// TODO: Microsoft relocations (SuperH)
 
