@@ -30,7 +30,7 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x0147,    MachineType { CPU_I86,   ::LittleEndian }) },
 	{ std::make_pair(0x0148,    MachineType { CPU_I86,   ::LittleEndian }) }, // TODO: also NS32K
 	{ std::make_pair(0x0149,    MachineType { CPU_I86,   ::LittleEndian }) },
-	{ std::make_pair(0x014A,    MachineType { CPU_I86,   ::LittleEndian }) }, // actually 286
+	{ std::make_pair(0x014A,    MachineType { CPU_I286,  ::LittleEndian }) }, // actually 286
 	{ std::make_pair(0x014C,    MachineType { CPU_I386,  ::LittleEndian }) }, // GNU header, FlexOS header
 	{ std::make_pair(0x014D,    MachineType { CPU_NS32K, ::LittleEndian }) }, // TODO: also I860
 	// 0x014E -- Intel
@@ -38,6 +38,7 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x0150,    MachineType { CPU_M68K,  ::BigEndian }) }, // FlexOS header
 	{ std::make_pair(0x0151,    MachineType { CPU_M68K,  ::BigEndian }) },
 	{ std::make_pair(0x0152,    MachineType { CPU_M68K,  ::BigEndian }) }, // TODO: also 286
+	//{ std::make_pair(0x0152,    MachineType { CPU_I286,  ::LittleEndian }) },
 	{ std::make_pair(0x0154,    MachineType { CPU_NS32K, ::LittleEndian }) },
 	{ std::make_pair(0x0155,    MachineType { CPU_NS32K, ::LittleEndian }) },
 	{ std::make_pair(0x0158,    MachineType { CPU_I370,  ::BigEndian }) },
@@ -2156,6 +2157,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 		{ CPU_W65,   "WDC 6502/65C816" },
 
 		{ CPU_I86,   "Intel 8086" },
+		{ CPU_I286,  "Intel 80286" },
 		{ CPU_NS32K, "National Semiconductor NS32000" },
 		{ CPU_I370,  "IBM System/370" },
 		{ CPU_MIPS,  "MIPS" },
@@ -2479,237 +2481,278 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 		const std::shared_ptr<Section> section = sections[i];
 		for(auto& _rel : section->relocations)
 		{
-			switch(cpu_type)
+			if(UNIXRelocation * relp = dynamic_cast<UNIXRelocation *>(_rel.get()))
 			{
-			case CPU_Z80:
+				UNIXRelocation& rel = *relp;
+				switch(coff_variant)
 				{
-					ZilogRelocation& rel = *dynamic_cast<ZilogRelocation *>(_rel.get());
-
-					Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address);
-					Symbol& sym_target = *symbols[rel.symbol_index];
-					Linker::Target rel_target =
-						sym_target.storage_class == C_STAT && sym_target.value == 0
-						? Linker::Target(Linker::Location(linker_sections[sym_target.section_number - 1]))
-						: Linker::Target(Linker::SymbolName(sym_target.name));
-					Linker::Relocation obj_rel = Linker::Relocation::Empty();
-
-					size_t rel_size = rel.GetSize();
-
-					switch(rel.type)
+				case COFF:
 					{
-					case ZilogRelocation::R_Z80_IMM8:
-					case ZilogRelocation::R_Z80_IMM16:
-					case ZilogRelocation::R_Z80_IMM24:
-					case ZilogRelocation::R_Z80_IMM32:
-					case ZilogRelocation::R_Z80_OFF8:
-						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, 0, ::LittleEndian);
-						break;
-					case ZilogRelocation::R_Z80_JR:
-						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, ::LittleEndian);
-						break;
-					default:
-						break;
+						// TODO: untested
+						Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address);
+						Symbol& sym_target = *symbols[rel.symbol_index];
+						Linker::Target rel_target =
+							sym_target.storage_class == C_STAT && sym_target.value == 0
+							? Linker::Target(Linker::Location(linker_sections[sym_target.section_number - 1]))
+							: Linker::Target(Linker::SymbolName(sym_target.name));
+						Linker::Relocation obj_rel = Linker::Relocation::Empty();
+
+						size_t rel_size = rel.GetSize();
+
+						switch(rel.type)
+						{
+						case UNIXRelocation::R_ABS:
+						case UNIXRelocation::R_AUX: // TODO
+						default:
+							continue;
+
+						case UNIXRelocation::R_OFF8:
+						case UNIXRelocation::R_DIR16:
+						case UNIXRelocation::R_DIR24:
+						case UNIXRelocation::R_DIR32:
+						case UNIXRelocation::R_RELBYTE:
+						case UNIXRelocation::R_RELWORD:
+						case UNIXRelocation::R_RELLONG:
+							obj_rel =
+								cpu_type == CPU_I86 || cpu_type == CPU_I286
+								? Linker::Relocation::Offset(rel_size, rel_source, rel_target, 0, GetEndianType())
+								: Linker::Relocation::Absolute(rel_size, rel_source, rel_target, 0, GetEndianType());
+							break;
+
+						case UNIXRelocation::R_DIR32S:
+							// Note: this is only used by WE32K, but it is meaningful in general
+							obj_rel =
+								cpu_type == CPU_I86 || cpu_type == CPU_I286
+								? Linker::Relocation::Offset(rel_size, rel_source, rel_target, 0, ByteSwapped(GetEndianType()))
+								: Linker::Relocation::Absolute(rel_size, rel_source, rel_target, 0, ByteSwapped(GetEndianType()));
+							break;
+
+						case UNIXRelocation::R_PCRBYTE:
+						case UNIXRelocation::R_REL16:
+						case UNIXRelocation::R_PCRWORD:
+						case UNIXRelocation::R_REL24:
+						case UNIXRelocation::R_PCRLONG:
+							// TODO: relative to what?
+							obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, GetEndianType());
+							break;
+
+						case UNIXRelocation::R_OFF16:
+							obj_rel =
+								cpu_type == CPU_I86
+								? Linker::Relocation::Offset(rel_size, rel_source, rel_target, 0, GetEndianType())
+								: Linker::Relocation::Absolute(rel_size, rel_source, rel_target, 0, GetEndianType());
+							obj_rel.SetShift(8);
+							break;
+
+						case UNIXRelocation::R_SEG12:
+							obj_rel =
+								cpu_type == CPU_I86
+								? Linker::Relocation::Paragraph(rel_source, rel_target, 0)
+								: Linker::Relocation::Selector(rel_source, rel_target, 0);
+
+						case UNIXRelocation::R_IND16:
+						case UNIXRelocation::R_IND24:
+						case UNIXRelocation::R_IND32:
+							continue; // TODO: unimplemented
+
+						case UNIXRelocation::R_OPT16:
+							continue; // TODO: unimplemented
+						}
+
+						obj_rel.AddCurrentValue();
+						module.AddRelocation(obj_rel);
+						Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 					}
-					obj_rel.AddCurrentValue();
-					module.AddRelocation(obj_rel);
-					Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
+					break;
+				case PECOFF:
+					// TODO
+					break;
+				default:
+					// TODO
+					break;
 				}
-				break;
-			case CPU_Z8K:
+			}
+			else if(ZilogRelocation * relp = dynamic_cast<ZilogRelocation *>(_rel.get()))
+			{
+				ZilogRelocation& rel = *relp;
+				switch(cpu_type)
 				{
-					ZilogRelocation& rel = *dynamic_cast<ZilogRelocation *>(_rel.get());
-
-					Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address);
-					Symbol& sym_target = *symbols[rel.symbol_index];
-					Linker::Target rel_target =
-						sym_target.storage_class == C_STAT && sym_target.value == 0
-						? Linker::Target(Linker::Location(linker_sections[sym_target.section_number - 1]))
-						: Linker::Target(Linker::SymbolName(sym_target.name));
-					Linker::Relocation obj_rel = Linker::Relocation::Empty();
-
-					switch(rel.type)
+				case CPU_Z80:
 					{
-					case ZilogRelocation::R_Z8K_IMM4L:
-						obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
-						obj_rel.SetMask(0x0F);
-						break;
-					case ZilogRelocation::R_Z8K_IMM4H:
-						/* TODO: untested */
-						obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
-						obj_rel.SetMask(0xF0);
-						break;
-					case ZilogRelocation::R_Z8K_IMM8:
-						obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
-						break;
-					case ZilogRelocation::R_Z8K_IMM16:
-						if(option_segmentation && sym_target.section_number != N_UNDEF && sym_target.section_number != N_ABS && sym_target.section_number != N_DEBUG)
+						Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address);
+						Symbol& sym_target = *symbols[rel.symbol_index];
+						Linker::Target rel_target =
+							sym_target.storage_class == C_STAT && sym_target.value == 0
+							? Linker::Target(Linker::Location(linker_sections[sym_target.section_number - 1]))
+							: Linker::Target(Linker::SymbolName(sym_target.name));
+						Linker::Relocation obj_rel = Linker::Relocation::Empty();
+
+						size_t rel_size = rel.GetSize();
+
+						switch(rel.type)
 						{
-							/* segment part */
-							obj_rel = Linker::Relocation::Segment(1, rel_source, rel_target.GetSegment(), rel.offset);
-							obj_rel.SetMask(0x7F);
-							module.AddRelocation(obj_rel);
-							Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
-							/* offset part */
-							obj_rel = Linker::Relocation::Offset(1, rel_source + 1, rel_target, rel.offset >> 8, ::BigEndian);
-							rel_source.section->WriteWord(2, rel_source.offset, 0x0000, ::BigEndian);
+						case ZilogRelocation::R_Z80_IMM8:
+						case ZilogRelocation::R_Z80_IMM16:
+						case ZilogRelocation::R_Z80_IMM24:
+						case ZilogRelocation::R_Z80_IMM32:
+						case ZilogRelocation::R_Z80_OFF8:
+							obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, 0, ::LittleEndian);
+							break;
+						case ZilogRelocation::R_Z80_JR:
+							obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, ::LittleEndian);
+							break;
+						default:
+							continue;
 						}
-						else
-						{
-							obj_rel = Linker::Relocation::Offset(2, rel_source, rel_target, 0, ::BigEndian);
-						}
-						break;
-					case ZilogRelocation::R_Z8K_IMM32:
-						if(option_segmentation && /*sym_target.section_number != N_UNDEF &&*/ sym_target.section_number != N_ABS && sym_target.section_number != N_DEBUG)
-						{
-							/* segment part */
-							obj_rel = Linker::Relocation::Segment(1, rel_source, rel_target.GetSegment(), rel.offset);
-							obj_rel.SetMask(0x7F);
-							module.AddRelocation(obj_rel);
-							Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
-							/* offset part */
-							obj_rel = Linker::Relocation::Offset(2, rel_source + 2, rel_target, rel.offset >> 16, ::BigEndian);
-							rel_source.section->WriteWord(2, rel_source.offset, 0x8000, ::BigEndian);
-						}
-						else
-						{
-							obj_rel = Linker::Relocation::Offset(4, rel_source, rel_target, 0, ::BigEndian);
-						}
-						break;
-					case ZilogRelocation::R_Z8K_DISP7:
-						obj_rel = Linker::Relocation::Relative(1, rel_source, rel_target, 1, ::BigEndian);
-						obj_rel.SetSubtract();
-						obj_rel.SetMask(0x7F);
-						obj_rel.SetShift(1);
-						break;
-					case ZilogRelocation::R_Z8K_REL16:
-						obj_rel = Linker::Relocation::Relative(2, rel_source, rel_target, -2, ::BigEndian);
-						break;
-					case ZilogRelocation::R_Z8K_JR:
-						obj_rel = Linker::Relocation::Relative(1, rel_source, rel_target, -1, ::BigEndian);
-						break;
-					case ZilogRelocation::R_Z8K_CALLR:
-						obj_rel = Linker::Relocation::Relative(2, rel_source, rel_target, 2, ::BigEndian);
-						obj_rel.SetSubtract();
-						obj_rel.SetMask(0x0FFF);
-						obj_rel.SetShift(1);
-						break;
+						obj_rel.AddCurrentValue();
+						module.AddRelocation(obj_rel);
+						Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 					}
-
-#if 0
-					if(sym_target.IsExternal())
+					break;
+				case CPU_Z8K:
 					{
-						if(option_segmentation && sym_target.name.rfind(segment_prefix(), 0) == 0 && (rel.type == ZilogRelocation::R_Z8K_IMM16 || rel.type == ZilogRelocation::R_Z8K_IMM32))
+						Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address);
+						Symbol& sym_target = *symbols[rel.symbol_index];
+						Linker::Target rel_target =
+							sym_target.storage_class == C_STAT && sym_target.value == 0
+							? Linker::Target(Linker::Location(linker_sections[sym_target.section_number - 1]))
+							: Linker::Target(Linker::SymbolName(sym_target.name));
+						Linker::Relocation obj_rel = Linker::Relocation::Empty();
+
+						switch(rel.type)
 						{
-							/* $$SEG$<section name> */
-							/* Note: can only refer to a currently present section */
-							std::string section_name = sym_target.name.substr(segment_prefix().size());
-							Linker::Section * section = module.FindSection(section_name);
-							if(section == nullptr)
+						case ZilogRelocation::R_Z8K_IMM4L:
+							obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
+							obj_rel.SetMask(0x0F);
+							break;
+						case ZilogRelocation::R_Z8K_IMM4H:
+							/* TODO: untested */
+							obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
+							obj_rel.SetMask(0xF0);
+							break;
+						case ZilogRelocation::R_Z8K_IMM8:
+							obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
+							break;
+						case ZilogRelocation::R_Z8K_IMM16:
+							if(option_segmentation && sym_target.section_number != N_UNDEF && sym_target.section_number != N_ABS && sym_target.section_number != N_DEBUG)
 							{
-								Linker::Error << "Error: invalid section in extended relocation `" << section_name << "'" << std::endl;
-							}
-							else
-							{
-								obj_rel = Linker::Relocation::Segment(1, rel_source, Linker::Target(Linker::Location(section)).GetSegment(), rel.offset);
+								/* segment part */
+								obj_rel = Linker::Relocation::Segment(1, rel_source, rel_target.GetSegment(), rel.offset);
 								obj_rel.SetMask(0x7F);
-							}
-							rel_source.section->WriteWord(2, rel_source.offset, 0, ::BigEndian);
-						}
-						else if(option_segmentation && sym_target.name.rfind(segment_of_prefix(), 0) == 0 && rel.type == ZilogRelocation::R_Z8K_IMM16)
-						{
-							/* $$SEGOF$<symbol name> */
-							std::string symbol_name = sym_target.name.substr(segment_of_prefix().size());
-							obj_rel = Linker::Relocation::Segment(1, rel_source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), rel.offset);
-							obj_rel.SetMask(0x7F);
-							rel_source.section->WriteWord(2, rel_source.offset, 0, ::BigEndian);
-						}
-						else if(option_segmentation && sym_target.name.rfind(segmented_address_prefix(), 0) == 0 && (rel.type == ZilogRelocation::R_Z8K_IMM16 || rel.type == ZilogRelocation::R_Z8K_IMM32))
-						{
-							/* $$SEGADR$<symbol name> */
-							std::string symbol_name = sym_target.name.substr(segmented_address_prefix().size());
-							rel_target = Linker::Target(Linker::SymbolName(symbol_name));
-							/* segment part */
-							obj_rel = Linker::Relocation::Segment(1, rel_source, rel_target.GetSegment(), rel.offset);
-							obj_rel.SetMask(0x7F);
-							module.AddRelocation(obj_rel);
-							Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
-							/* offset part */
-							if(rel.type == ZilogRelocation::R_Z8K_IMM32)
-							{
-								obj_rel = Linker::Relocation::Offset(2, rel_source + 2, rel_target, rel.offset >> 16, ::BigEndian);
+								module.AddRelocation(obj_rel);
+								Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
+								/* offset part */
+								obj_rel = Linker::Relocation::Offset(1, rel_source + 1, rel_target, rel.offset >> 8, ::BigEndian);
+								rel_source.section->WriteWord(2, rel_source.offset, 0x0000, ::BigEndian);
 							}
 							else
 							{
-								obj_rel = Linker::Relocation::Offset(1, rel_source + 1, rel_target, rel.offset >> 8, ::BigEndian);
+								obj_rel = Linker::Relocation::Offset(2, rel_source, rel_target, 0, ::BigEndian);
 							}
-							rel_source.section->WriteWord(2, rel_source.offset,
-								obj_rel.size == 2 ? 0x8000 : 0x0000,
-								::BigEndian);
+							break;
+						case ZilogRelocation::R_Z8K_IMM32:
+							if(option_segmentation && /*sym_target.section_number != N_UNDEF &&*/ sym_target.section_number != N_ABS && sym_target.section_number != N_DEBUG)
+							{
+								/* segment part */
+								obj_rel = Linker::Relocation::Segment(1, rel_source, rel_target.GetSegment(), rel.offset);
+								obj_rel.SetMask(0x7F);
+								module.AddRelocation(obj_rel);
+								Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
+								/* offset part */
+								obj_rel = Linker::Relocation::Offset(2, rel_source + 2, rel_target, rel.offset >> 16, ::BigEndian);
+								rel_source.section->WriteWord(2, rel_source.offset, 0x8000, ::BigEndian);
+							}
+							else
+							{
+								obj_rel = Linker::Relocation::Offset(4, rel_source, rel_target, 0, ::BigEndian);
+							}
+							break;
+						case ZilogRelocation::R_Z8K_DISP7:
+							obj_rel = Linker::Relocation::Relative(1, rel_source, rel_target, 1, ::BigEndian);
+							obj_rel.SetSubtract();
+							obj_rel.SetMask(0x7F);
+							obj_rel.SetShift(1);
+							break;
+						case ZilogRelocation::R_Z8K_REL16:
+							obj_rel = Linker::Relocation::Relative(2, rel_source, rel_target, -2, ::BigEndian);
+							break;
+						case ZilogRelocation::R_Z8K_JR:
+							obj_rel = Linker::Relocation::Relative(1, rel_source, rel_target, -1, ::BigEndian);
+							break;
+						case ZilogRelocation::R_Z8K_CALLR:
+							obj_rel = Linker::Relocation::Relative(2, rel_source, rel_target, 2, ::BigEndian);
+							obj_rel.SetSubtract();
+							obj_rel.SetMask(0x0FFF);
+							obj_rel.SetShift(1);
+							break;
+						default:
+							continue;
 						}
+						// The value in the COFF image is usually unusable, so we ignore it
+						//obj_rel.AddCurrentValue();
+						module.AddRelocation(obj_rel);
+						Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 					}
-#endif
-
-					// The value in the COFF image is usually unusable, so we ignore it
-					//obj_rel.AddCurrentValue();
-					module.AddRelocation(obj_rel);
-					Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
-				}
-				break;
-			case CPU_W65:
-				{
-					ZilogRelocation& rel = *dynamic_cast<ZilogRelocation *>(_rel.get());
-
-					Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address - sections[i]->address);
-					Symbol& sym_target = *symbols[rel.symbol_index];
-					bool is_section = sym_target.storage_class == C_STAT && sym_target.value == 0;
-					Linker::Target rel_target =
-						is_section
-						? Linker::Target(Linker::Location(linker_sections[sym_target.section_number - 1]))
-						: Linker::Target(Linker::SymbolName(sym_target.name));
-					Linker::Relocation obj_rel = Linker::Relocation::Empty();
-
-					offset_t rel_addend = 0;
-					if(!is_section)
+					break;
+				case CPU_W65:
 					{
-						auto it = linker_section_addresses.find(sym_target.name);
-						if(it != linker_section_addresses.end())
+						Linker::Location rel_source = Linker::Location(linker_sections[i], rel.address - sections[i]->address);
+						Symbol& sym_target = *symbols[rel.symbol_index];
+						bool is_section = sym_target.storage_class == C_STAT && sym_target.value == 0;
+						Linker::Target rel_target =
+							is_section
+							? Linker::Target(Linker::Location(linker_sections[sym_target.section_number - 1]))
+							: Linker::Target(Linker::SymbolName(sym_target.name));
+						Linker::Relocation obj_rel = Linker::Relocation::Empty();
+
+						offset_t rel_addend = 0;
+						if(!is_section)
 						{
-							// Section values are already added
-							Linker::Debug << "Debug: " << sym_target.name << ", start: " << it->second << std::endl;
-							rel_addend -= it->second;
+							auto it = linker_section_addresses.find(sym_target.name);
+							if(it != linker_section_addresses.end())
+							{
+								// Section values are already added
+								Linker::Debug << "Debug: " << sym_target.name << ", start: " << it->second << std::endl;
+								rel_addend -= it->second;
+							}
 						}
-					}
 
-					size_t rel_size = rel.GetSize();
+						size_t rel_size = rel.GetSize();
 
-					switch(rel.type)
-					{
-					case ZilogRelocation::R_W65_PCR8:
-					case ZilogRelocation::R_W65_PCR16:
-						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, ::LittleEndian);
-						break;
-					case ZilogRelocation::R_W65_ABS8S8:
-					case ZilogRelocation::R_W65_ABS16S8:
-						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
-						obj_rel.SetShift(8);
-						break;
-					case ZilogRelocation::R_W65_ABS8S16:
-					case ZilogRelocation::R_W65_ABS16S16:
-						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
-						obj_rel.SetShift(16);
-					default:
-						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
-						break;
+						switch(rel.type)
+						{
+						case ZilogRelocation::R_W65_PCR8:
+						case ZilogRelocation::R_W65_PCR16:
+							obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, ::LittleEndian);
+							break;
+						case ZilogRelocation::R_W65_ABS8S8:
+						case ZilogRelocation::R_W65_ABS16S8:
+							obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
+							obj_rel.SetShift(8);
+							break;
+						case ZilogRelocation::R_W65_ABS8S16:
+						case ZilogRelocation::R_W65_ABS16S16:
+							obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
+							obj_rel.SetShift(16);
+						case ZilogRelocation::R_W65_ABS8:
+						case ZilogRelocation::R_W65_ABS16:
+						case ZilogRelocation::R_W65_ABS24:
+						case ZilogRelocation::R_W65_DP:
+							obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
+							break;
+						default:
+							continue;
+						}
+						obj_rel.AddCurrentValue();
+						module.AddRelocation(obj_rel);
+						Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
+						Linker::Debug << "Debug: value at location: " << obj_rel.addend - rel_addend << std::endl;
 					}
-					obj_rel.AddCurrentValue();
-					module.AddRelocation(obj_rel);
-					Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
-					Linker::Debug << "Debug: value at location: " << obj_rel.addend - rel_addend << std::endl;
+					break;
+				default:
+					/* unknown CPU */
+					break;
 				}
-				break;
-			default:
-				/* unknown CPU */
-				break;
 			}
 		}
 	}

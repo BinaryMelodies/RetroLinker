@@ -22,6 +22,24 @@ enum EndianType
 	AntiPDP11Endian,
 };
 
+static constexpr EndianType ByteSwapped(EndianType endian_type)
+{
+	switch(endian_type)
+	{
+	case UndefinedEndian:
+		return UndefinedEndian;
+	case LittleEndian:
+		return BigEndian;
+	case BigEndian:
+		return LittleEndian;
+	case PDP11Endian:
+		return AntiPDP11Endian;
+	case AntiPDP11Endian:
+		return PDP11Endian;
+	}
+	assert(false);
+}
+
 extern EndianType DefaultEndianType;
 
 /**

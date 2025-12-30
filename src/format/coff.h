@@ -78,6 +78,12 @@ namespace COFF
 			 */
 			CPU_I86   = 0x0148,
 
+			/** @brief Intel x86-16, introduced with the Intel 286
+			 *
+			 * Value as used by UNIX
+			 */
+			CPU_I286  = 0x014A,
+
 			/** @brief National Semiconductor NS32000
 			 *
 			 * Value as used by UNIX
