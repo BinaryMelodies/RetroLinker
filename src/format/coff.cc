@@ -249,7 +249,6 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 			case REL_I386_SECREL:
 				return 4;
 			}
-			return 0;
 		case CPU_AMD64:
 			switch(type)
 			{
@@ -276,12 +275,43 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 			case REL_AMD64_ADDR64:
 				return 8;
 			}
-			return 0;
+		case CPU_ALPHA:
+			switch(type)
+			{
+			case REL_ALPHA_ABSOLUTE:
+			case REL_ALPHA_LITUSE: // TODO: what was the purpose of this?
+			case REL_ALPHA_GPDISP: // TODO: what was the purpose of this?
+			case REL_ALPHA_PAIR: // not a relocation itself
+			case REL_ALPHA_MATCH: // not a relocation itself
+			default:
+				return 0;
+			case REL_ALPHA_LITERAL:
+			case REL_ALPHA_REFHI:
+			case REL_ALPHA_REFLO:
+			case REL_ALPHA_SECTION:
+			case REL_ALPHA_SECRELLO:
+			case REL_ALPHA_SECRELHI:
+			case REL_ALPHA_REFQ3:
+			case REL_ALPHA_REFQ2:
+			case REL_ALPHA_REFQ1:
+			case REL_ALPHA_GPRELLO:
+			case REL_ALPHA_GPRELHI:
+				return 2;
+			case REL_ALPHA_REFLONG:
+			case REL_ALPHA_GPREL32:
+			case REL_ALPHA_BRADDR:
+			case REL_ALPHA_HINT:
+			case REL_ALPHA_SECREL:
+			case REL_ALPHA_REFLONGNB:
+				return 4;
+			case REL_ALPHA_REFQUAD:
+			case REL_ALPHA_INLINE_REFLONG: // two 32-bit instructions
+				return 8;
+			}
 		// TODO: other CPU types
 		default:
 			return 0;
 		}
-		return 0;
 	case TICOFF:
 	case TICOFF1:
 		return 0; // TODO
