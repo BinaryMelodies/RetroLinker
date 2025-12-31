@@ -241,7 +241,7 @@ namespace COFF
 		/** @brief Variants of the COFF file format */
 		enum COFFVariantType
 		{
-			/** @brief Standard COFF variant (also for 32-bit ECOFF) */
+			/** @brief Standard COFF variant (also for 32-bit ECOFF for MIPS) */
 			COFF = 1,
 			/** @brief ECOFF 64-bit version */
 			ECOFF = 2,
@@ -327,20 +327,6 @@ namespace COFF
 			}
 			assert(false);
 		}
-
-		/**
-		 * @brief A generic COFF relocation
-		 */
-		class _Relocation
-		{
-		public:
-			virtual ~_Relocation();
-			virtual offset_t GetAddress() const = 0;
-			virtual size_t GetSize() const = 0;
-			virtual size_t GetEntrySize() const = 0;
-			virtual void WriteFile(Linker::Writer& wr) const = 0;
-			virtual void FillEntry(Dumper::Entry& entry) const = 0;
-		};
 
 		// UNIX relocations
 

@@ -21,8 +21,8 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x009D,    MachineType { CPU_ARM,   ::UndefinedEndian, TICOFF }) }, // TMS320C2800
 	{ std::make_pair(0x00A0,    MachineType { CPU_MSP430,::UndefinedEndian, TICOFF }) },
 	{ std::make_pair(0x00A1,    MachineType { CPU_C5500, ::UndefinedEndian, TICOFF }) },
-	{ std::make_pair(0x0140,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
-	{ std::make_pair(0x0142,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0140,    MachineType { CPU_MIPS,  ::UndefinedEndian, COFF }) },
+	{ std::make_pair(0x0142,    MachineType { CPU_MIPS,  ::UndefinedEndian, COFF }) },
 	{ std::make_pair(0x0143,    MachineType { CPU_I86,   ::LittleEndian }) },
 	{ std::make_pair(0x0144,    MachineType { CPU_I86,   ::LittleEndian }) },
 	{ std::make_pair(0x0145,    MachineType { CPU_I86,   ::LittleEndian }) },
@@ -47,13 +47,13 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	// 0x015B -- I370
 	{ std::make_pair(0x015C,    MachineType { CPU_I370,  ::BigEndian }) }, // Amdahl
 	{ std::make_pair(0x015D,    MachineType { CPU_I370,  ::BigEndian }) },
-	{ std::make_pair(0x0160,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) }, // ECOFF but also COFF with MIPS optional header?
+	{ std::make_pair(0x0160,    MachineType { CPU_MIPS,  ::UndefinedEndian, COFF }) },
 	// also OpenBSD i960
-	{ std::make_pair(0x0162,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
-	{ std::make_pair(0x0163,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0162,    MachineType { CPU_MIPS,  ::UndefinedEndian, COFF }) },
+	{ std::make_pair(0x0163,    MachineType { CPU_MIPS,  ::UndefinedEndian, COFF }) },
 	// 0x0164 -- Zilog
 	// 0x0165 -- Zilog
-	{ std::make_pair(0x0166,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0166,    MachineType { CPU_MIPS,  ::UndefinedEndian, COFF }) },
 	{ std::make_pair(0x0168,    MachineType { CPU_WE32K, ::BigEndian }) }, // 3B20 // TODO: also NetBSD SH3
 	{ std::make_pair(0x0169,    MachineType { CPU_WE32K, ::BigEndian }) }, // 3B20
 	{ std::make_pair(0x016C,    MachineType { CPU_M68K,  ::BigEndian }) },
@@ -67,8 +67,8 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	{ std::make_pair(0x017B,    MachineType { CPU_AM29K, ::LittleEndian }) },
 	{ std::make_pair(0x017D,    MachineType { CPU_VAX,   ::LittleEndian }) },
 	// TODO: 0x017F - CLIPPER (unknown endianness)
-	{ std::make_pair(0x0180,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
-	{ std::make_pair(0x0182,    MachineType { CPU_MIPS,  ::UndefinedEndian, ECOFF }) },
+	{ std::make_pair(0x0180,    MachineType { CPU_MIPS,  ::UndefinedEndian, COFF }) },
+	{ std::make_pair(0x0182,    MachineType { CPU_MIPS,  ::UndefinedEndian, COFF }) },
 	{ std::make_pair(0x0183,    MachineType { CPU_ALPHA, ::UndefinedEndian, ECOFF }) },
 	{ std::make_pair(0x0185,    MachineType { CPU_ALPHA, ::UndefinedEndian, ECOFF }) },
 	{ std::make_pair(0x0188,    MachineType { CPU_ALPHA, ::UndefinedEndian, ECOFF }) },
@@ -143,6 +143,12 @@ void COFFFormat::Relocation::Read(Linker::Reader& rd, const COFFFormat& coff)
 		symbol_index = rd.ReadUnsigned(4);
 		type = rd.ReadUnsigned(2);
 		break;
+	case COFF_14:
+		address = rd.ReadUnsigned(4);
+		symbol_index = rd.ReadUnsigned(4);
+		type = rd.ReadUnsigned(2);
+		offset = rd.ReadUnsigned(4);
+		break;
 	case COFF_16:
 		address = rd.ReadUnsigned(4);
 		symbol_index = rd.ReadUnsigned(4);
@@ -161,6 +167,23 @@ void COFFFormat::Relocation::Read(Linker::Reader& rd, const COFFFormat& coff)
 		symbol_index = rd.ReadUnsigned(4);
 		information = rd.ReadUnsigned(2); // extended address
 		type = rd.ReadUnsigned(2);
+		break;
+	case ECOFF_8:
+		address = rd.ReadUnsigned(4);
+		symbol_index = rd.ReadUnsigned(3);
+		information = rd.ReadUnsigned(1);
+		// type extraction based on binutils
+		// TODO: untested
+		if(coff.endiantype == ::LittleEndian)
+		{
+			type = ((information & 0x78) >> 1) | ((information & 0x04) << 2);
+			information &= ~0x7C;
+		}
+		else
+		{
+			type = (information & 0x3E) >> 1;
+			information &= ~0x3E;
+		}
 		break;
 	case ECOFF_16:
 		address = rd.ReadUnsigned(8);
@@ -463,10 +486,23 @@ void COFFFormat::Relocation::WriteFile(Linker::Writer& wr, const COFFFormat& cof
 		wr.WriteWord(4, symbol_index);
 		wr.WriteWord(2, type);
 		break;
+	case COFF_14:
+		wr.WriteWord(4, address);
+		wr.WriteWord(4, symbol_index);
+		wr.WriteWord(2, type);
+		wr.WriteWord(4, offset);
+		break;
+	case COFF_16:
+		wr.WriteWord(4, address);
+		wr.WriteWord(4, symbol_index);
+		wr.WriteWord(4, offset);
+		wr.WriteWord(2, type);
+		wr.WriteWord(2, information);
+		break;
 	case TICOFF_10:
 		wr.WriteWord(4, address);
 		wr.WriteWord(2, symbol_index);
-		wr.Skip(2);
+		wr.WriteWord(2, information); // reserved
 		wr.WriteWord(2, type);
 		break;
 	case TICOFF_12:
@@ -474,6 +510,24 @@ void COFFFormat::Relocation::WriteFile(Linker::Writer& wr, const COFFFormat& cof
 		wr.WriteWord(4, symbol_index);
 		wr.WriteWord(2, information); // extended address
 		wr.WriteWord(2, type);
+		break;
+	case ECOFF_8:
+		wr.WriteWord(4, address);
+		wr.WriteWord(3, symbol_index);
+		// type extraction based on binutils
+		// TODO: untested
+		if(coff.endiantype == ::LittleEndian)
+		{
+			uint8_t byte = information & ~0x7C;
+			byte |= ((type << 1) & 0x78) | ((type >> 2) & 0x04);
+			wr.WriteWord(1, byte);
+		}
+		else
+		{
+			uint8_t byte = information & ~0x3E;
+			byte |= (type << 1) & 0x3E;
+			wr.WriteWord(1, byte);
+		}
 		break;
 	case ECOFF_16:
 		wr.WriteWord(8, address);
@@ -1979,6 +2033,9 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 			// GNU binutils
 			relocation_format = COFF_16;
 			break;
+		case CPU_MIPS:
+			relocation_format = ECOFF_8;
+			break;
 		default:
 			relocation_format = COFF_10;
 			break;
@@ -2768,10 +2825,13 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 						Linker::Debug << "Debug: COFF relocation " << obj_rel << std::endl;
 						Linker::Debug << "Debug: value at location: " << obj_rel.addend - rel_addend << std::endl;
 						break;
+					default:
+						/* unknown CPU */
+						break;
 					}
 					break;
 				default:
-					/* unknown CPU */
+					/* TODO: unknown relocation format */
 					break;
 				}
 				break;
@@ -2779,7 +2839,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 				// TODO
 				break;
 			default:
-				// TODO
+				// TODO: unhandled COFF type
 				break;
 			}
 		}
