@@ -180,6 +180,7 @@ uint64_t Reader::ReadSigned(size_t bytes)
 
 void Reader::Seek(offset_t offset)
 {
+	in->clear();
 	if(maximum_size != offset_t(-1) && offset > maximum_size)
 	{
 		offset = maximum_size;
@@ -190,6 +191,7 @@ void Reader::Seek(offset_t offset)
 
 void Reader::Skip(offset_t offset)
 {
+	in->clear();
 	if(maximum_size != offset_t(-1) && offset_t(in->tellg()) + offset > start_offset + maximum_size)
 	{
 		offset = start_offset + maximum_size - in->tellg();
@@ -212,6 +214,7 @@ void Reader::Skip(offset_t offset)
 
 void Reader::SeekEnd(relative_offset_t offset)
 {
+	in->clear();
 	if(maximum_size != offset_t(-1))
 	{
 		offset_t actual_offset = start_offset + maximum_size + offset;
