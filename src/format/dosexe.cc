@@ -649,48 +649,7 @@ std::string SeychellDOS32::AdamFormat::GetDefaultExtension(Linker::Module& modul
 	return filename + ".exe"; // TODO: .dll extension?
 }
 
-// D3X
-
-/* untested */
-
-void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
-{
-	rd.endiantype = ::LittleEndian;
-	std::array<char, 4> signature;
-	file_offset = Microsoft::FindActualSignature(rd, signature, "D3X1");
-	header_size = rd.ReadUnsigned(4);
-	binary_size = rd.ReadUnsigned(4);
-	extra_size = rd.ReadUnsigned(4);
-	entry = rd.ReadUnsigned(4);
-	stack_top = rd.ReadUnsigned(4);
-	/* TODO */
-}
-
-offset_t BorcaD3X::D3X1Format::WriteFile(Linker::Writer& wr) const
-{
-	wr.endiantype = ::LittleEndian;
-	wr.WriteData(4, "D3X1");
-	wr.WriteWord(4, header_size);
-	wr.WriteWord(4, binary_size);
-	wr.WriteWord(4, extra_size);
-	wr.WriteWord(4, entry);
-	wr.WriteWord(4, stack_top);
-	/* TODO */
-	return offset_t(-1);
-}
-
-void BorcaD3X::D3X1Format::Dump(Dumper::Dumper& dump) const
-{
-	dump.SetEncoding(Dumper::Block::encoding_cp437);
-
-	dump.SetTitle("D3X1 format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
-
-	// TODO
-}
-
-/* untested */
+// DX64
 
 void DX64::LVFormat::SetSignature(format_type type)
 {
@@ -782,5 +741,61 @@ void DX64::LVFormat::GenerateFile(std::string filename, Linker::Module& module)
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);
+}
+
+// D3X
+
+/* untested */
+
+void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = ::LittleEndian;
+	std::array<char, 4> signature;
+	file_offset = Microsoft::FindActualSignature(rd, signature, "D3X1");
+	header_size = rd.ReadUnsigned(4);
+	binary_size = rd.ReadUnsigned(4);
+	extra_size = rd.ReadUnsigned(4);
+	entry = rd.ReadUnsigned(4);
+	stack_top = rd.ReadUnsigned(4);
+	rd.Seek(file_offset + header_size);
+	contents = Linker::Buffer::ReadFromFile(rd, binary_size);
+}
+
+offset_t BorcaD3X::D3X1Format::WriteFile(Linker::Writer& wr) const
+{
+	if(stub.filename != "")
+	{
+		stub.WriteStubImage(wr);
+	}
+
+	wr.endiantype = ::LittleEndian;
+	wr.Seek(file_offset);
+	wr.WriteData(4, "D3X1");
+	wr.WriteWord(4, header_size);
+	wr.WriteWord(4, binary_size);
+	wr.WriteWord(4, extra_size);
+	wr.WriteWord(4, entry);
+	wr.WriteWord(4, stack_top);
+	wr.Seek(file_offset + header_size);
+	contents->WriteFile(wr);
+	return file_offset + header_size + contents->ImageSize();
+}
+
+void BorcaD3X::D3X1Format::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_cp437);
+
+	dump.SetTitle("D3X1 format");
+	Dumper::Region file_region("File", file_offset, header_size + binary_size, 8);
+	file_region.Display(dump);
+
+	Dumper::Region header_region("Header", file_offset, header_size, 8);
+	header_region.AddField("Additional memory", Dumper::HexDisplay::Make(8), offset_t(extra_size));
+	header_region.AddField("Entry (EIP)", Dumper::HexDisplay::Make(8), offset_t(entry));
+	header_region.AddField("Initial stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(stack_top));
+	header_region.Display(dump);
+
+	Dumper::Block data_block("Data", file_offset + header_size, contents ? contents->AsImage() : nullptr, 0, 8);
+	data_block.Display(dump);
 }
 

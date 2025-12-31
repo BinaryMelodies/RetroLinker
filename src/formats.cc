@@ -303,6 +303,9 @@ format_specification formats[] =
 		[]() -> std::shared_ptr<Format> { return AOutFormat::CreateReader(AOutFormat::WordSize16, ::LittleEndian); },
 		"16-bit little endian a.out (parsing only)" },
 	{ "aout16" },
+	{ "aout32_bsd",
+		[]() -> std::shared_ptr<Format> { return AOutFormat::CreateReader(AOutFormat::WordSize32, ::LittleEndian, AOutFormat::BSD); },
+		"32-bit little endian a.out for 4.3BSD (parsing only)" },
 	{ "aout32le",
 		[]() -> std::shared_ptr<Format> { return AOutFormat::CreateReader(AOutFormat::WordSize32, ::LittleEndian); },
 		"32-bit little endian a.out (parsing only)" },
@@ -528,6 +531,10 @@ format_specification formats[] =
 	{ "dx64_flat",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<DX64::LVFormat>(DX64::LVFormat::FORMAT_FLAT); },
 		"CandyMan DX64 DOS extender 'Flat' format (.exe)" }, // TODO: untested
+	/* D3X */
+	{ "d3x",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<BorcaD3X::D3X1Format>(); },
+		"Daniel Borca D3X DOS extender 'D3X1' format (.exe)" },
 	/* Intel OMF */
 	{ "omf80",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<OMF::OMF80Format>(); },

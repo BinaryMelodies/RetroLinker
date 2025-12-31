@@ -13,7 +13,7 @@ namespace SeychellDOS32
 	/**
 	 * @brief Adam Seychell's DOS32 "Adam" executable format
 	 */
-	class AdamFormat : public virtual Linker::Format, public virtual Linker::SegmentManager
+	class AdamFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		enum format_type
@@ -168,33 +168,6 @@ namespace SeychellDOS32
 	};
 };
 
-namespace BorcaD3X
-{
-	/**
-	 * @brief Daniel Borca's D3X executable format
-	 */
-	class D3X1Format : public virtual Linker::Format
-	{
-	public:
-		uint32_t header_size = 0;
-		uint32_t binary_size = 0;
-		uint32_t extra_size = 0;
-		uint32_t entry = 0;
-		uint32_t stack_top = 0;
-
-		D3X1Format()
-			: header_size(24)
-		{
-		}
-
-		void ReadFile(Linker::Reader& rd) override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
-	};
-};
-
 namespace DX64
 {
 	/**
@@ -250,6 +223,39 @@ namespace DX64
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 	};
 }
+
+namespace BorcaD3X
+{
+	/**
+	 * @brief Daniel Borca's D3X executable format
+	 */
+	class D3X1Format : public virtual Linker::SegmentManager
+	{
+	public:
+		uint32_t header_size = 0;
+		uint32_t binary_size = 0;
+		uint32_t extra_size = 0;
+		uint32_t entry = 0;
+		uint32_t stack_top = 0;
+
+		std::shared_ptr<Linker::Contents> contents;
+
+		D3X1Format()
+			: header_size(32)
+		{
+		}
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+
+		/* * * Writer members * * */
+
+		mutable Microsoft::MZSimpleStubWriter stub;
+	};
+};
 
 /* TODO: other formats? */
 
