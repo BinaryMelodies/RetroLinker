@@ -280,14 +280,23 @@ namespace COFF
 
 		enum relocation_format_type
 		{
+			/** @brief The standard 10-byte UNIX COFF relocation format, also used for Microsoft PE COFF objects */
 			COFF_10,
+			/** @brief A 14-byte relocation */
 			COFF_14,
+			/** @brief A 16-byte relocation, as stored by the Z80/Z8000 GNU assembler */
 			COFF_16,
+			/** @brief An 8-byte relocation, used for 32-bit ECOFF MIPS binaries */
 			ECOFF_8,
+			/** @brief A 16-byte relocation, used for 64-bit ECOFF Alpha binaries */
 			ECOFF_16,
+			/** @brief A 10-byte relocation, used for 32-bit XCOFF32 binaries */
 			XCOFF_10,
+			/** @brief A 14-byte relocation, used for 64-bit XCOFF64 binaries */
 			XCOFF_14,
+			/** @brief A 10-byte relocation used for TICOFF */
 			TICOFF_10,
+			/** @brief A 12-byte relocation used for TICOFF */
 			TICOFF_12,
 		};
 
@@ -333,279 +342,279 @@ namespace COFF
 			virtual void FillEntry(Dumper::Entry& entry) const = 0;
 		};
 
+		// UNIX relocations
+
+		/** @brief No relocation */
+		static constexpr uint16_t R_ABS = 0;
+		/** @brief 16-bit direct address of symbol */
+		static constexpr uint16_t R_DIR16 = 1;
+		/** @brief 16-bit relative address of symbol */
+		static constexpr uint16_t R_REL16 = 2;
+		/** @brief 16-bit indirect address of symbol */
+		static constexpr uint16_t R_IND16 = 3;
+		/** @brief 24-bit direct address of symbol */
+		static constexpr uint16_t R_DIR24 = 4;
+		/** @brief 24-bit relative address of symbol */
+		static constexpr uint16_t R_REL24 = 5;
+		/** @brief 32-bit direct address of symbol */
+		static constexpr uint16_t R_DIR32 = 6;
+		/** @brief 8-bit low byte of address of symbol */
+		static constexpr uint16_t R_OFF8 = 7;
+		/** @brief 8-bit high byte of address of symbol */
+		static constexpr uint16_t R_OFF16 = 8;
+		/** @brief (Intel x86) 16-bit segment selector of symbol */
+		static constexpr uint16_t R_SEG12 = 9;
+		/** @brief (WE32K) 32-bit direct address of symbol, byte swapped */
+		static constexpr uint16_t R_DIR32S = 10;
+		/** @brief Auxiliary relocation */
+		static constexpr uint16_t R_AUX = 11;
+		/** @brief 16-bit (WE32K) optimized indirect address of symbol */
+		static constexpr uint16_t R_OPT16 = 12;
+		/** @brief 24-bit indirect address of symbol */
+		static constexpr uint16_t R_IND24 = 13;
+		/** @brief 32-bit indirect address of symbol */
+		static constexpr uint16_t R_IND32 = 14;
+		/** @brief 8-bit direct (symbol relative) address of symbol */
+		static constexpr uint16_t R_RELBYTE = 15;
+		/** @brief 16-bit direct (symbol relative) address of symbol */
+		static constexpr uint16_t R_RELWORD = 16;
+		/** @brief 32-bit direct (symbol relative) address of symbol */
+		static constexpr uint16_t R_RELLONG = 17;
+		/** @brief 8-bit PC relative address of symbol */
+		static constexpr uint16_t R_PCRBYTE = 18;
+		/** @brief 16-bit PC relative address of symbol */
+		static constexpr uint16_t R_PCRWORD = 19;
+		/** @brief 32-bit PC relative address of symbol */
+		static constexpr uint16_t R_PCRLONG = 20;
+
+		// Microsoft relocations (Intel 386)
+
+		/** @brief No relocation */
+		static constexpr uint16_t REL_I386_ABSOLUTE = 0;
+		/** @brief 16-bit virtual address of symbol (not supported) */
+		static constexpr uint16_t REL_I386_DIR16 = 1;
+		/** @brief 16-bit relative address of symbol (not supported) */
+		static constexpr uint16_t REL_I386_REL16 = 2;
+		/** @brief 32-bit virtual address of symbol */
+		static constexpr uint16_t REL_I386_DIR32 = 6;
+		/** @brief 32-bit relative virtual address of symbol */
+		static constexpr uint16_t REL_I386_DIR32NB = 7;
+		/** @brief 16-bit segment selector of symbol (not supported) */
+		static constexpr uint16_t REL_I386_SEG12 = 9;
+		/** @brief 16-bit section index (debugging) */
+		static constexpr uint16_t REL_I386_SECTION = 10;
+		/** @brief 32-bit offset from section start (debugging) */
+		static constexpr uint16_t REL_I386_SECREL = 11;
+		/** @brief CLR token */
+		static constexpr uint16_t REL_I386_TOKEN = 12;
+		/** @brief 7-bit offset from section base */
+		static constexpr uint16_t REL_I386_SECREL7 = 13;
+		/** @brief 32-bit relative address of symbol */
+		static constexpr uint16_t REL_I386_REL32 = 20;
+
+		// Microsoft relocations (AMD64)
+
+		/** @brief No relocation */
+		static constexpr uint16_t REL_AMD64_ABSOLUTE = 0;
+		/** @brief 64-bit virtual address of symbol */
+		static constexpr uint16_t REL_AMD64_ADDR64 = 1;
+		/** @brief 32-bit virtual address of symbol */
+		static constexpr uint16_t REL_AMD64_ADDR32 = 2;
+		/** @brief 32-bit relative virtual address of symbol */
+		static constexpr uint16_t REL_AMD64_ADDR32NB = 3;
+		/** @brief 32-bit relative address of symbol */
+		static constexpr uint16_t REL_AMD64_REL32 = 4;
+		/** @brief 32-bit relative address of symbol minus 1 */
+		static constexpr uint16_t REL_AMD64_REL32_1 = 5;
+		/** @brief 32-bit relative address of symbol minus 2 */
+		static constexpr uint16_t REL_AMD64_REL32_2 = 6;
+		/** @brief 32-bit relative address of symbol minus 3 */
+		static constexpr uint16_t REL_AMD64_REL32_3 = 7;
+		/** @brief 32-bit relative address of symbol minus 4 */
+		static constexpr uint16_t REL_AMD64_REL32_4 = 8;
+		/** @brief 32-bit relative address of symbol minus 5 */
+		static constexpr uint16_t REL_AMD64_REL32_5 = 9;
+		/** @brief 16-bit section index (debugging) */
+		static constexpr uint16_t REL_AMD64_SECTION = 10;
+		/** @brief 32-bit offset from section start (debugging) */
+		static constexpr uint16_t REL_AMD64_SECREL = 11;
+		/** @brief 7-bit offset from section base */
+		static constexpr uint16_t REL_AMD64_SECREL7 = 12;
+		/** @brief CLR token */
+		static constexpr uint16_t REL_AMD64_TOKEN = 13;
+		/** @brief ? */
+		static constexpr uint16_t REL_AMD64_SREL32 = 14;
+		/** @brief ? */
+		static constexpr uint16_t REL_AMD64_PAIR = 15;
+		/** @brief ? */
+		static constexpr uint16_t REL_AMD64_SSPAN32 = 16;
+
+		// Microsoft relocations (ARM)
+
+		/** @brief No relocation */
+		static constexpr uint16_t REL_ARM_ABSOLUTE = 0;
+		/** @brief 32-bit virtual address of symbol */
+		static constexpr uint16_t REL_ARM_ADDR32 = 1;
+		/** @brief 32-bit relative virtual address of symbol */
+		static constexpr uint16_t REL_ARM_ADDR32NB = 2;
+		/** @brief 24-bit ARM relative address of symbol */
+		static constexpr uint16_t REL_ARM_BRANCH24 = 3;
+		/** @brief Two 16-bit instructions with 11 bits of the relative address of symbol each */
+		static constexpr uint16_t REL_ARM_BRANCH11 = 4;
+		/** @brief 32-bit relative address of symbol */
+		static constexpr uint16_t REL_ARM_REL32 = 10;
+		/** @brief 16-bit section index (debugging) */
+		static constexpr uint16_t REL_ARM_SECTION = 14;
+		/** @brief 32-bit offset from section start (debugging) */
+		static constexpr uint16_t REL_ARM_SECREL = 15;
+		/** @brief Two 32-bit ARM instructions with 32 bits of the virtual address of the symbol */
+		static constexpr uint16_t REL_ARM_MOV32 = 16;
+		/** @brief Two 32-bit Thumb instructions with 32 bits of the virtual address of the symbol */
+		static constexpr uint16_t REL_THUMB_MOV32 = 17;
+		/** @brief 24-bit Thumb relative address of symbol */
+		static constexpr uint16_t REL_THUMB_BRANCH24 = 20;
+		/** @brief 23-bit Thumb BLX relative address of symbol */
+		static constexpr uint16_t REL_THUMB_BLX23 = 21;
+		/** @brief ? */
+		static constexpr uint16_t REL_ARM_PAIR = 22;
+
+		// Microsoft relocations (ARM64)
+
+		/** @brief No relocation */
+		static constexpr uint16_t REL_ARM64_ABSOLUTE = 0;
+		/** @brief 32-bit virtual address of symbol */
+		static constexpr uint16_t REL_ARM64_ADDR32 = 1;
+		/** @brief 32-bit relative virtual address of symbol */
+		static constexpr uint16_t REL_ARM64_ADDR32NB = 2;
+		/** @brief 26-bit ARM relative address of symbol */
+		static constexpr uint16_t REL_ARM64_BRANCH26 = 3;
+		/** @brief Page base of symbol for ADRP */
+		static constexpr uint16_t REL_ARM64_PAGEBASE_REL21 = 4;
+		/** @brief 12-bit relative address of symbol for ADR */
+		static constexpr uint16_t REL_ARM64_REL21 = 5;
+		/** @brief 12-bit page offset of symbol for ADD/ADDS */
+		static constexpr uint16_t REL_ARM64_PAGEOFFSET_12A = 6;
+		/** @brief 12-bit page offset of symbol for LDR */
+		static constexpr uint16_t REL_ARM64_PAGEOFFSET_12L = 7;
+		/** @brief 32-bit offset from section start (debugging) */
+		static constexpr uint16_t REL_ARM64_SECREL = 8;
+		/** @brief Low 12 bits of offset from section start for ADD/ADDS */
+		static constexpr uint16_t REL_ARM64_SECREL_LOW12A = 9;
+		/** @brief Bits 12 to 23 of offset from section start for ADD/ADDS */
+		static constexpr uint16_t REL_ARM64_SECREL_HIGH12A = 10;
+		/** @brief Low 12 bits of offset from section start for LDR */
+		static constexpr uint16_t REL_ARM64_SECREL_LOW12L = 11;
+		/** @brief CLR token */
+		static constexpr uint16_t REL_ARM64_TOKEN = 12;
+		/** @brief 16-bit section index (debugging) */
+		static constexpr uint16_t REL_ARM64_SECTION = 13;
+		/** @brief 64-bit virtual address of symbol */
+		static constexpr uint16_t REL_ARM64_ADDR64 = 14;
+		/** @brief 19-bit relative address of symbol */
+		static constexpr uint16_t REL_ARM64_BRANCH19 = 15;
+		/** @brief 14-bit relative address of symbol for TBZ/TBNZ */
+		static constexpr uint16_t REL_ARM64_BRANCH14 = 16;
+		/** @brief 32-bit relative address of symbol */
+		static constexpr uint16_t REL_ARM64_REL32 = 17;
+
+		// TODO: Microsoft relocations (MIPS)
+
+		// Microsoft relocations (Alpha)
+
+		/** @brief No relocation */
+		static constexpr uint16_t REL_ALPHA_ABSOLUTE = 0;
+		/** @brief 32-bit virtual address of symbol */
+		static constexpr uint16_t REL_ALPHA_REFLONG = 1;
+		/** @brief 64-bit virtual address of symbol */
+		static constexpr uint16_t REL_ALPHA_REFQUAD = 2;
+		/** @brief 32-bit global pointer relative address of symbol */
+		static constexpr uint16_t REL_ALPHA_GPREL32 = 3;
+		/** @brief 16-bit global pointer relative address of symbol */
+		static constexpr uint16_t REL_ALPHA_LITERAL = 4;
+		/** @brief reserved */
+		static constexpr uint16_t REL_ALPHA_LITUSE = 5;
+		/** @brief reserved */
+		static constexpr uint16_t REL_ALPHA_GPDISP = 6;
+		/** @brief 21-bit relative address of symbol */
+		static constexpr uint16_t REL_ALPHA_BRADDR = 7;
+		/** @brief 14-bit hint for jump target */
+		static constexpr uint16_t REL_ALPHA_HINT = 8;
+		/** @brief 32-bit virtual address of symbol split into two 16-bit values; this relocation must be followed by an ABSOLUTE or MATCH relocation */
+		static constexpr uint16_t REL_ALPHA_INLINE_REFLONG = 9;
+		/** @brief High 16 bits of 32-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
+		static constexpr uint16_t REL_ALPHA_REFHI = 10;
+		/** @brief Low 16 bits of 32-bit virtual address of symbol */
+		static constexpr uint16_t REL_ALPHA_REFLO = 11;
+		/** @brief Displacement value for a preceding REFHI, SECRELHI, REFQ3 or REFQ2 relocation */
+		static constexpr uint16_t REL_ALPHA_PAIR = 12;
+		/** @brief Displacement value for a preceding REFLONG relocation */
+		static constexpr uint16_t REL_ALPHA_MATCH = 13;
+		/** @brief 16-bit section index (debugging) */
+		static constexpr uint16_t REL_ALPHA_SECTION = 14;
+		/** @brief 32-bit offset from section start (debugging) */
+		static constexpr uint16_t REL_ALPHA_SECREL = 15;
+		/** @brief 32-bit relative virtual address of symbol */
+		static constexpr uint16_t REL_ALPHA_REFLONGNB = 16;
+		/** @brief Low 16 bits of 32-bit offset from section start (debugging) */
+		static constexpr uint16_t REL_ALPHA_SECRELLO = 17;
+		/** @brief High 16 bits of 32-bit offset from section start; this relocation must be followed by a PAIR relocation (debugging) */
+		static constexpr uint16_t REL_ALPHA_SECRELHI = 18;
+		/** @brief The second most significant 16 bits of the 64-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
+		static constexpr uint16_t REL_ALPHA_REFQ3 = 19;
+		/** @brief The third most significant 16 bits of the 64-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
+		static constexpr uint16_t REL_ALPHA_REFQ2 = 20;
+		/** @brief The least significant 16 bits of the 64-bit virtual address of symbol */
+		static constexpr uint16_t REL_ALPHA_REFQ1 = 21;
+		/** @brief Low 16 bits of 32-bit global pointer relative address of symbol */
+		static constexpr uint16_t REL_ALPHA_GPRELLO = 22;
+		/** @brief High 16 bits of 32-bit global pointer relative address of symbol */
+		static constexpr uint16_t REL_ALPHA_GPRELHI = 23;
+
+		// TODO: Microsoft relocations (PowerPC)
+		// TODO: Microsoft relocations (IA64)
+
+		// TODO: Microsoft relocations (SuperH)
+
+		// Other relocation types
+
+		// https://github.com/aixoss/binutils/blob/master/include/coff/internal.h
+		// https://github.com/aixoss/binutils/blob/master/include/coff/z80.h
+		// https://github.com/aixoss/binutils/blob/master/include/coff/z8k.h
+
+		static constexpr uint16_t R_Z80_IMM8  = 0x22;
+		static constexpr uint16_t R_Z80_IMM16 = 0x01;
+		static constexpr uint16_t R_Z80_IMM24 = 0x33;
+		static constexpr uint16_t R_Z80_IMM32 = 0x17;
+		static constexpr uint16_t R_Z80_OFF8  = 0x32;
+		static constexpr uint16_t R_Z80_JR    = 0x02;
+
+		static constexpr uint16_t R_Z8K_IMM4L = 0x23;
+		static constexpr uint16_t R_Z8K_IMM4H = 0x24;
+		static constexpr uint16_t R_Z8K_DISP7 = 0x25; /* djnz */
+		static constexpr uint16_t R_Z8K_IMM8  = 0x22;
+		static constexpr uint16_t R_Z8K_IMM16 = 0x01;
+		static constexpr uint16_t R_Z8K_REL16 = 0x04;
+		static constexpr uint16_t R_Z8K_IMM32 = 0x11;
+		static constexpr uint16_t R_Z8K_JR    = 0x02; /* jr */
+		static constexpr uint16_t R_Z8K_CALLR = 0x05; /* callr */
+
+		static constexpr uint16_t R_W65_ABS8     = 0x01;
+		static constexpr uint16_t R_W65_ABS16    = 0x02;
+		static constexpr uint16_t R_W65_ABS24    = 0x03;
+		static constexpr uint16_t R_W65_ABS8S8   = 0x04;
+		static constexpr uint16_t R_W65_ABS8S16  = 0x05;
+		static constexpr uint16_t R_W65_ABS16S8  = 0x06;
+		static constexpr uint16_t R_W65_ABS16S16 = 0x07;
+		static constexpr uint16_t R_W65_PCR8     = 0x08;
+		static constexpr uint16_t R_W65_PCR16    = 0x09;
+		static constexpr uint16_t R_W65_DP       = 0x0A;
+
 		/**
 		 * @brief A generic COFF relocation
 		 */
 		class Relocation
 		{
 		public:
-			// UNIX relocations
-
-			/** @brief No relocation */
-			static constexpr uint16_t R_ABS = 0;
-			/** @brief 16-bit direct address of symbol */
-			static constexpr uint16_t R_DIR16 = 1;
-			/** @brief 16-bit relative address of symbol */
-			static constexpr uint16_t R_REL16 = 2;
-			/** @brief 16-bit indirect address of symbol */
-			static constexpr uint16_t R_IND16 = 3;
-			/** @brief 24-bit direct address of symbol */
-			static constexpr uint16_t R_DIR24 = 4;
-			/** @brief 24-bit relative address of symbol */
-			static constexpr uint16_t R_REL24 = 5;
-			/** @brief 32-bit direct address of symbol */
-			static constexpr uint16_t R_DIR32 = 6;
-			/** @brief 8-bit low byte of address of symbol */
-			static constexpr uint16_t R_OFF8 = 7;
-			/** @brief 8-bit high byte of address of symbol */
-			static constexpr uint16_t R_OFF16 = 8;
-			/** @brief (Intel x86) 16-bit segment selector of symbol */
-			static constexpr uint16_t R_SEG12 = 9;
-			/** @brief (WE32K) 32-bit direct address of symbol, byte swapped */
-			static constexpr uint16_t R_DIR32S = 10;
-			/** @brief Auxiliary relocation */
-			static constexpr uint16_t R_AUX = 11;
-			/** @brief 16-bit (WE32K) optimized indirect address of symbol */
-			static constexpr uint16_t R_OPT16 = 12;
-			/** @brief 24-bit indirect address of symbol */
-			static constexpr uint16_t R_IND24 = 13;
-			/** @brief 32-bit indirect address of symbol */
-			static constexpr uint16_t R_IND32 = 14;
-			/** @brief 8-bit direct (symbol relative) address of symbol */
-			static constexpr uint16_t R_RELBYTE = 15;
-			/** @brief 16-bit direct (symbol relative) address of symbol */
-			static constexpr uint16_t R_RELWORD = 16;
-			/** @brief 32-bit direct (symbol relative) address of symbol */
-			static constexpr uint16_t R_RELLONG = 17;
-			/** @brief 8-bit PC relative address of symbol */
-			static constexpr uint16_t R_PCRBYTE = 18;
-			/** @brief 16-bit PC relative address of symbol */
-			static constexpr uint16_t R_PCRWORD = 19;
-			/** @brief 32-bit PC relative address of symbol */
-			static constexpr uint16_t R_PCRLONG = 20;
-
-			// Microsoft relocations (Intel 386)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_I386_ABSOLUTE = 0;
-			/** @brief 16-bit virtual address of symbol (not supported) */
-			static constexpr uint16_t REL_I386_DIR16 = 1;
-			/** @brief 16-bit relative address of symbol (not supported) */
-			static constexpr uint16_t REL_I386_REL16 = 2;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_I386_DIR32 = 6;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_I386_DIR32NB = 7;
-			/** @brief 16-bit segment selector of symbol (not supported) */
-			static constexpr uint16_t REL_I386_SEG12 = 9;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_I386_SECTION = 10;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_I386_SECREL = 11;
-			/** @brief CLR token */
-			static constexpr uint16_t REL_I386_TOKEN = 12;
-			/** @brief 7-bit offset from section base */
-			static constexpr uint16_t REL_I386_SECREL7 = 13;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_I386_REL32 = 20;
-
-			// Microsoft relocations (AMD64)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_AMD64_ABSOLUTE = 0;
-			/** @brief 64-bit virtual address of symbol */
-			static constexpr uint16_t REL_AMD64_ADDR64 = 1;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_AMD64_ADDR32 = 2;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_AMD64_ADDR32NB = 3;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_AMD64_REL32 = 4;
-			/** @brief 32-bit relative address of symbol minus 1 */
-			static constexpr uint16_t REL_AMD64_REL32_1 = 5;
-			/** @brief 32-bit relative address of symbol minus 2 */
-			static constexpr uint16_t REL_AMD64_REL32_2 = 6;
-			/** @brief 32-bit relative address of symbol minus 3 */
-			static constexpr uint16_t REL_AMD64_REL32_3 = 7;
-			/** @brief 32-bit relative address of symbol minus 4 */
-			static constexpr uint16_t REL_AMD64_REL32_4 = 8;
-			/** @brief 32-bit relative address of symbol minus 5 */
-			static constexpr uint16_t REL_AMD64_REL32_5 = 9;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_AMD64_SECTION = 10;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_AMD64_SECREL = 11;
-			/** @brief 7-bit offset from section base */
-			static constexpr uint16_t REL_AMD64_SECREL7 = 12;
-			/** @brief CLR token */
-			static constexpr uint16_t REL_AMD64_TOKEN = 13;
-			/** @brief ? */
-			static constexpr uint16_t REL_AMD64_SREL32 = 14;
-			/** @brief ? */
-			static constexpr uint16_t REL_AMD64_PAIR = 15;
-			/** @brief ? */
-			static constexpr uint16_t REL_AMD64_SSPAN32 = 16;
-
-			// Microsoft relocations (ARM)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_ARM_ABSOLUTE = 0;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_ARM_ADDR32 = 1;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_ARM_ADDR32NB = 2;
-			/** @brief 24-bit ARM relative address of symbol */
-			static constexpr uint16_t REL_ARM_BRANCH24 = 3;
-			/** @brief Two 16-bit instructions with 11 bits of the relative address of symbol each */
-			static constexpr uint16_t REL_ARM_BRANCH11 = 4;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_ARM_REL32 = 10;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_ARM_SECTION = 14;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_ARM_SECREL = 15;
-			/** @brief Two 32-bit ARM instructions with 32 bits of the virtual address of the symbol */
-			static constexpr uint16_t REL_ARM_MOV32 = 16;
-			/** @brief Two 32-bit Thumb instructions with 32 bits of the virtual address of the symbol */
-			static constexpr uint16_t REL_THUMB_MOV32 = 17;
-			/** @brief 24-bit Thumb relative address of symbol */
-			static constexpr uint16_t REL_THUMB_BRANCH24 = 20;
-			/** @brief 23-bit Thumb BLX relative address of symbol */
-			static constexpr uint16_t REL_THUMB_BLX23 = 21;
-			/** @brief ? */
-			static constexpr uint16_t REL_ARM_PAIR = 22;
-
-			// Microsoft relocations (ARM64)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_ARM64_ABSOLUTE = 0;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_ARM64_ADDR32 = 1;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_ARM64_ADDR32NB = 2;
-			/** @brief 26-bit ARM relative address of symbol */
-			static constexpr uint16_t REL_ARM64_BRANCH26 = 3;
-			/** @brief Page base of symbol for ADRP */
-			static constexpr uint16_t REL_ARM64_PAGEBASE_REL21 = 4;
-			/** @brief 12-bit relative address of symbol for ADR */
-			static constexpr uint16_t REL_ARM64_REL21 = 5;
-			/** @brief 12-bit page offset of symbol for ADD/ADDS */
-			static constexpr uint16_t REL_ARM64_PAGEOFFSET_12A = 6;
-			/** @brief 12-bit page offset of symbol for LDR */
-			static constexpr uint16_t REL_ARM64_PAGEOFFSET_12L = 7;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_ARM64_SECREL = 8;
-			/** @brief Low 12 bits of offset from section start for ADD/ADDS */
-			static constexpr uint16_t REL_ARM64_SECREL_LOW12A = 9;
-			/** @brief Bits 12 to 23 of offset from section start for ADD/ADDS */
-			static constexpr uint16_t REL_ARM64_SECREL_HIGH12A = 10;
-			/** @brief Low 12 bits of offset from section start for LDR */
-			static constexpr uint16_t REL_ARM64_SECREL_LOW12L = 11;
-			/** @brief CLR token */
-			static constexpr uint16_t REL_ARM64_TOKEN = 12;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_ARM64_SECTION = 13;
-			/** @brief 64-bit virtual address of symbol */
-			static constexpr uint16_t REL_ARM64_ADDR64 = 14;
-			/** @brief 19-bit relative address of symbol */
-			static constexpr uint16_t REL_ARM64_BRANCH19 = 15;
-			/** @brief 14-bit relative address of symbol for TBZ/TBNZ */
-			static constexpr uint16_t REL_ARM64_BRANCH14 = 16;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_ARM64_REL32 = 17;
-
-			// TODO: Microsoft relocations (MIPS)
-
-			// Microsoft relocations (Alpha)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_ALPHA_ABSOLUTE = 0;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFLONG = 1;
-			/** @brief 64-bit virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFQUAD = 2;
-			/** @brief 32-bit global pointer relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_GPREL32 = 3;
-			/** @brief 16-bit global pointer relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_LITERAL = 4;
-			/** @brief reserved */
-			static constexpr uint16_t REL_ALPHA_LITUSE = 5;
-			/** @brief reserved */
-			static constexpr uint16_t REL_ALPHA_GPDISP = 6;
-			/** @brief 21-bit relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_BRADDR = 7;
-			/** @brief 14-bit hint for jump target */
-			static constexpr uint16_t REL_ALPHA_HINT = 8;
-			/** @brief 32-bit virtual address of symbol split into two 16-bit values; this relocation must be followed by an ABSOLUTE or MATCH relocation */
-			static constexpr uint16_t REL_ALPHA_INLINE_REFLONG = 9;
-			/** @brief High 16 bits of 32-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
-			static constexpr uint16_t REL_ALPHA_REFHI = 10;
-			/** @brief Low 16 bits of 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFLO = 11;
-			/** @brief Displacement value for a preceding REFHI, SECRELHI, REFQ3 or REFQ2 relocation */
-			static constexpr uint16_t REL_ALPHA_PAIR = 12;
-			/** @brief Displacement value for a preceding REFLONG relocation */
-			static constexpr uint16_t REL_ALPHA_MATCH = 13;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_ALPHA_SECTION = 14;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_ALPHA_SECREL = 15;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFLONGNB = 16;
-			/** @brief Low 16 bits of 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_ALPHA_SECRELLO = 17;
-			/** @brief High 16 bits of 32-bit offset from section start; this relocation must be followed by a PAIR relocation (debugging) */
-			static constexpr uint16_t REL_ALPHA_SECRELHI = 18;
-			/** @brief The second most significant 16 bits of the 64-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
-			static constexpr uint16_t REL_ALPHA_REFQ3 = 19;
-			/** @brief The third most significant 16 bits of the 64-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
-			static constexpr uint16_t REL_ALPHA_REFQ2 = 20;
-			/** @brief The least significant 16 bits of the 64-bit virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFQ1 = 21;
-			/** @brief Low 16 bits of 32-bit global pointer relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_GPRELLO = 22;
-			/** @brief High 16 bits of 32-bit global pointer relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_GPRELHI = 23;
-
-			// TODO: Microsoft relocations (PowerPC)
-			// TODO: Microsoft relocations (IA64)
-
-			// TODO: Microsoft relocations (SuperH)
-
-			// Other relocation types
-
-			// https://github.com/aixoss/binutils/blob/master/include/coff/internal.h
-			// https://github.com/aixoss/binutils/blob/master/include/coff/z80.h
-			// https://github.com/aixoss/binutils/blob/master/include/coff/z8k.h
-
-			static constexpr uint16_t R_Z80_IMM8  = 0x22;
-			static constexpr uint16_t R_Z80_IMM16 = 0x01;
-			static constexpr uint16_t R_Z80_IMM24 = 0x33;
-			static constexpr uint16_t R_Z80_IMM32 = 0x17;
-			static constexpr uint16_t R_Z80_OFF8  = 0x32;
-			static constexpr uint16_t R_Z80_JR    = 0x02;
-
-			static constexpr uint16_t R_Z8K_IMM4L = 0x23;
-			static constexpr uint16_t R_Z8K_IMM4H = 0x24;
-			static constexpr uint16_t R_Z8K_DISP7 = 0x25; /* djnz */
-			static constexpr uint16_t R_Z8K_IMM8  = 0x22;
-			static constexpr uint16_t R_Z8K_IMM16 = 0x01;
-			static constexpr uint16_t R_Z8K_REL16 = 0x04;
-			static constexpr uint16_t R_Z8K_IMM32 = 0x11;
-			static constexpr uint16_t R_Z8K_JR    = 0x02; /* jr */
-			static constexpr uint16_t R_Z8K_CALLR = 0x05; /* callr */
-
-			static constexpr uint16_t R_W65_ABS8     = 0x01;
-			static constexpr uint16_t R_W65_ABS16    = 0x02;
-			static constexpr uint16_t R_W65_ABS24    = 0x03;
-			static constexpr uint16_t R_W65_ABS8S8   = 0x04;
-			static constexpr uint16_t R_W65_ABS8S16  = 0x05;
-			static constexpr uint16_t R_W65_ABS16S8  = 0x06;
-			static constexpr uint16_t R_W65_ABS16S16 = 0x07;
-			static constexpr uint16_t R_W65_PCR8     = 0x08;
-			static constexpr uint16_t R_W65_PCR16    = 0x09;
-			static constexpr uint16_t R_W65_DP       = 0x0A;
-
 			/**
 			 * @brief Address of the relocation (COFF name: r_vaddr)
 			 */
@@ -632,350 +641,6 @@ namespace COFF
 			size_t GetSize(const COFFFormat& coff) const;
 			void WriteFile(Linker::Writer& wr, const COFFFormat& coff) const;
 			void FillEntry(Dumper::Entry& entry, const COFFFormat& coff) const;
-		};
-
-		/**
-		 * @brief The standard UNIX COFF relocation format
-		 */
-		class UNIXRelocation : public _Relocation
-		{
-		public:
-			// UNIX relocations
-
-			/** @brief No relocation */
-			static constexpr uint16_t R_ABS = 0;
-			/** @brief 16-bit direct address of symbol */
-			static constexpr uint16_t R_DIR16 = 1;
-			/** @brief 16-bit relative address of symbol */
-			static constexpr uint16_t R_REL16 = 2;
-			/** @brief 16-bit indirect address of symbol */
-			static constexpr uint16_t R_IND16 = 3;
-			/** @brief 24-bit direct address of symbol */
-			static constexpr uint16_t R_DIR24 = 4;
-			/** @brief 24-bit relative address of symbol */
-			static constexpr uint16_t R_REL24 = 5;
-			/** @brief 32-bit direct address of symbol */
-			static constexpr uint16_t R_DIR32 = 6;
-			/** @brief 8-bit low byte of address of symbol */
-			static constexpr uint16_t R_OFF8 = 7;
-			/** @brief 8-bit high byte of address of symbol */
-			static constexpr uint16_t R_OFF16 = 8;
-			/** @brief (Intel x86) 16-bit segment selector of symbol */
-			static constexpr uint16_t R_SEG12 = 9;
-			/** @brief (WE32K) 32-bit direct address of symbol, byte swapped */
-			static constexpr uint16_t R_DIR32S = 10;
-			/** @brief Auxiliary relocation */
-			static constexpr uint16_t R_AUX = 11;
-			/** @brief 16-bit (WE32K) optimized indirect address of symbol */
-			static constexpr uint16_t R_OPT16 = 12;
-			/** @brief 24-bit indirect address of symbol */
-			static constexpr uint16_t R_IND24 = 13;
-			/** @brief 32-bit indirect address of symbol */
-			static constexpr uint16_t R_IND32 = 14;
-			/** @brief 8-bit direct (symbol relative) address of symbol */
-			static constexpr uint16_t R_RELBYTE = 15;
-			/** @brief 16-bit direct (symbol relative) address of symbol */
-			static constexpr uint16_t R_RELWORD = 16;
-			/** @brief 32-bit direct (symbol relative) address of symbol */
-			static constexpr uint16_t R_RELLONG = 17;
-			/** @brief 8-bit PC relative address of symbol */
-			static constexpr uint16_t R_PCRBYTE = 18;
-			/** @brief 16-bit PC relative address of symbol */
-			static constexpr uint16_t R_PCRWORD = 19;
-			/** @brief 32-bit PC relative address of symbol */
-			static constexpr uint16_t R_PCRLONG = 20;
-
-			// Microsoft relocations (Intel 386)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_I386_ABSOLUTE = 0;
-			/** @brief 16-bit virtual address of symbol (not supported) */
-			static constexpr uint16_t REL_I386_DIR16 = 1;
-			/** @brief 16-bit relative address of symbol (not supported) */
-			static constexpr uint16_t REL_I386_REL16 = 2;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_I386_DIR32 = 6;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_I386_DIR32NB = 7;
-			/** @brief 16-bit segment selector of symbol (not supported) */
-			static constexpr uint16_t REL_I386_SEG12 = 9;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_I386_SECTION = 10;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_I386_SECREL = 11;
-			/** @brief CLR token */
-			static constexpr uint16_t REL_I386_TOKEN = 12;
-			/** @brief 7-bit offset from section base */
-			static constexpr uint16_t REL_I386_SECREL7 = 13;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_I386_REL32 = 20;
-
-			// Microsoft relocations (AMD64)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_AMD64_ABSOLUTE = 0;
-			/** @brief 64-bit virtual address of symbol */
-			static constexpr uint16_t REL_AMD64_ADDR64 = 1;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_AMD64_ADDR32 = 2;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_AMD64_ADDR32NB = 3;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_AMD64_REL32 = 4;
-			/** @brief 32-bit relative address of symbol minus 1 */
-			static constexpr uint16_t REL_AMD64_REL32_1 = 5;
-			/** @brief 32-bit relative address of symbol minus 2 */
-			static constexpr uint16_t REL_AMD64_REL32_2 = 6;
-			/** @brief 32-bit relative address of symbol minus 3 */
-			static constexpr uint16_t REL_AMD64_REL32_3 = 7;
-			/** @brief 32-bit relative address of symbol minus 4 */
-			static constexpr uint16_t REL_AMD64_REL32_4 = 8;
-			/** @brief 32-bit relative address of symbol minus 5 */
-			static constexpr uint16_t REL_AMD64_REL32_5 = 9;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_AMD64_SECTION = 10;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_AMD64_SECREL = 11;
-			/** @brief 7-bit offset from section base */
-			static constexpr uint16_t REL_AMD64_SECREL7 = 12;
-			/** @brief CLR token */
-			static constexpr uint16_t REL_AMD64_TOKEN = 13;
-			/** @brief ? */
-			static constexpr uint16_t REL_AMD64_SREL32 = 14;
-			/** @brief ? */
-			static constexpr uint16_t REL_AMD64_PAIR = 15;
-			/** @brief ? */
-			static constexpr uint16_t REL_AMD64_SSPAN32 = 16;
-
-			// Microsoft relocations (ARM)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_ARM_ABSOLUTE = 0;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_ARM_ADDR32 = 1;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_ARM_ADDR32NB = 2;
-			/** @brief 24-bit ARM relative address of symbol */
-			static constexpr uint16_t REL_ARM_BRANCH24 = 3;
-			/** @brief Two 16-bit instructions with 11 bits of the relative address of symbol each */
-			static constexpr uint16_t REL_ARM_BRANCH11 = 4;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_ARM_REL32 = 10;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_ARM_SECTION = 14;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_ARM_SECREL = 15;
-			/** @brief Two 32-bit ARM instructions with 32 bits of the virtual address of the symbol */
-			static constexpr uint16_t REL_ARM_MOV32 = 16;
-			/** @brief Two 32-bit Thumb instructions with 32 bits of the virtual address of the symbol */
-			static constexpr uint16_t REL_THUMB_MOV32 = 17;
-			/** @brief 24-bit Thumb relative address of symbol */
-			static constexpr uint16_t REL_THUMB_BRANCH24 = 20;
-			/** @brief 23-bit Thumb BLX relative address of symbol */
-			static constexpr uint16_t REL_THUMB_BLX23 = 21;
-			/** @brief ? */
-			static constexpr uint16_t REL_ARM_PAIR = 22;
-
-			// Microsoft relocations (ARM64)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_ARM64_ABSOLUTE = 0;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_ARM64_ADDR32 = 1;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_ARM64_ADDR32NB = 2;
-			/** @brief 26-bit ARM relative address of symbol */
-			static constexpr uint16_t REL_ARM64_BRANCH26 = 3;
-			/** @brief Page base of symbol for ADRP */
-			static constexpr uint16_t REL_ARM64_PAGEBASE_REL21 = 4;
-			/** @brief 12-bit relative address of symbol for ADR */
-			static constexpr uint16_t REL_ARM64_REL21 = 5;
-			/** @brief 12-bit page offset of symbol for ADD/ADDS */
-			static constexpr uint16_t REL_ARM64_PAGEOFFSET_12A = 6;
-			/** @brief 12-bit page offset of symbol for LDR */
-			static constexpr uint16_t REL_ARM64_PAGEOFFSET_12L = 7;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_ARM64_SECREL = 8;
-			/** @brief Low 12 bits of offset from section start for ADD/ADDS */
-			static constexpr uint16_t REL_ARM64_SECREL_LOW12A = 9;
-			/** @brief Bits 12 to 23 of offset from section start for ADD/ADDS */
-			static constexpr uint16_t REL_ARM64_SECREL_HIGH12A = 10;
-			/** @brief Low 12 bits of offset from section start for LDR */
-			static constexpr uint16_t REL_ARM64_SECREL_LOW12L = 11;
-			/** @brief CLR token */
-			static constexpr uint16_t REL_ARM64_TOKEN = 12;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_ARM64_SECTION = 13;
-			/** @brief 64-bit virtual address of symbol */
-			static constexpr uint16_t REL_ARM64_ADDR64 = 14;
-			/** @brief 19-bit relative address of symbol */
-			static constexpr uint16_t REL_ARM64_BRANCH19 = 15;
-			/** @brief 14-bit relative address of symbol for TBZ/TBNZ */
-			static constexpr uint16_t REL_ARM64_BRANCH14 = 16;
-			/** @brief 32-bit relative address of symbol */
-			static constexpr uint16_t REL_ARM64_REL32 = 17;
-
-			// TODO: Microsoft relocations (MIPS)
-
-			// Microsoft relocations (Alpha)
-
-			/** @brief No relocation */
-			static constexpr uint16_t REL_ALPHA_ABSOLUTE = 0;
-			/** @brief 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFLONG = 1;
-			/** @brief 64-bit virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFQUAD = 2;
-			/** @brief 32-bit global pointer relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_GPREL32 = 3;
-			/** @brief 16-bit global pointer relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_LITERAL = 4;
-			/** @brief reserved */
-			static constexpr uint16_t REL_ALPHA_LITUSE = 5;
-			/** @brief reserved */
-			static constexpr uint16_t REL_ALPHA_GPDISP = 6;
-			/** @brief 21-bit relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_BRADDR = 7;
-			/** @brief 14-bit hint for jump target */
-			static constexpr uint16_t REL_ALPHA_HINT = 8;
-			/** @brief 32-bit virtual address of symbol split into two 16-bit values; this relocation must be followed by an ABSOLUTE or MATCH relocation */
-			static constexpr uint16_t REL_ALPHA_INLINE_REFLONG = 9;
-			/** @brief High 16 bits of 32-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
-			static constexpr uint16_t REL_ALPHA_REFHI = 10;
-			/** @brief Low 16 bits of 32-bit virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFLO = 11;
-			/** @brief Displacement value for a preceding REFHI, SECRELHI, REFQ3 or REFQ2 relocation */
-			static constexpr uint16_t REL_ALPHA_PAIR = 12;
-			/** @brief Displacement value for a preceding REFLONG relocation */
-			static constexpr uint16_t REL_ALPHA_MATCH = 13;
-			/** @brief 16-bit section index (debugging) */
-			static constexpr uint16_t REL_ALPHA_SECTION = 14;
-			/** @brief 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_ALPHA_SECREL = 15;
-			/** @brief 32-bit relative virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFLONGNB = 16;
-			/** @brief Low 16 bits of 32-bit offset from section start (debugging) */
-			static constexpr uint16_t REL_ALPHA_SECRELLO = 17;
-			/** @brief High 16 bits of 32-bit offset from section start; this relocation must be followed by a PAIR relocation (debugging) */
-			static constexpr uint16_t REL_ALPHA_SECRELHI = 18;
-			/** @brief The second most significant 16 bits of the 64-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
-			static constexpr uint16_t REL_ALPHA_REFQ3 = 19;
-			/** @brief The third most significant 16 bits of the 64-bit virtual address of symbol; this relocation must be followed by a PAIR relocation */
-			static constexpr uint16_t REL_ALPHA_REFQ2 = 20;
-			/** @brief The least significant 16 bits of the 64-bit virtual address of symbol */
-			static constexpr uint16_t REL_ALPHA_REFQ1 = 21;
-			/** @brief Low 16 bits of 32-bit global pointer relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_GPRELLO = 22;
-			/** @brief High 16 bits of 32-bit global pointer relative address of symbol */
-			static constexpr uint16_t REL_ALPHA_GPRELHI = 23;
-
-			// TODO: Microsoft relocations (PowerPC)
-			// TODO: Microsoft relocations (IA64)
-
-			// TODO: Microsoft relocations (SuperH)
-
-			COFFVariantType coff_variant;
-			cpu cpu_type;
-
-			offset_t address = 0;
-			uint32_t symbol_index = 0;
-			uint16_t type = 0;
-			uint32_t information = 0;
-
-			UNIXRelocation(COFFVariantType coff_variant, cpu cpu_type)
-				: coff_variant(coff_variant), cpu_type(cpu_type)
-			{
-			}
-
-			void Read(Linker::Reader& rd);
-
-			offset_t GetAddress() const override;
-
-			size_t GetSize() const override;
-
-			size_t GetEntrySize() const override;
-
-			void WriteFile(Linker::Writer& wr) const override;
-
-			void FillEntry(Dumper::Entry& entry) const override;
-		};
-
-		/**
-		 * @brief A relocation, as stored by the Z80/Z8000 backend
-		 */
-		class ZilogRelocation : public _Relocation
-		{
-		public:
-			// https://github.com/aixoss/binutils/blob/master/include/coff/internal.h
-			// https://github.com/aixoss/binutils/blob/master/include/coff/z80.h
-			// https://github.com/aixoss/binutils/blob/master/include/coff/z8k.h
-
-			static constexpr uint16_t R_Z80_IMM8  = 0x22;
-			static constexpr uint16_t R_Z80_IMM16 = 0x01;
-			static constexpr uint16_t R_Z80_IMM24 = 0x33;
-			static constexpr uint16_t R_Z80_IMM32 = 0x17;
-			static constexpr uint16_t R_Z80_OFF8  = 0x32;
-			static constexpr uint16_t R_Z80_JR    = 0x02;
-
-			static constexpr uint16_t R_Z8K_IMM4L = 0x23;
-			static constexpr uint16_t R_Z8K_IMM4H = 0x24;
-			static constexpr uint16_t R_Z8K_DISP7 = 0x25; /* djnz */
-			static constexpr uint16_t R_Z8K_IMM8  = 0x22;
-			static constexpr uint16_t R_Z8K_IMM16 = 0x01;
-			static constexpr uint16_t R_Z8K_REL16 = 0x04;
-			static constexpr uint16_t R_Z8K_IMM32 = 0x11;
-			static constexpr uint16_t R_Z8K_JR    = 0x02; /* jr */
-			static constexpr uint16_t R_Z8K_CALLR = 0x05; /* callr */
-
-			static constexpr uint16_t R_W65_ABS8     = 0x01;
-			static constexpr uint16_t R_W65_ABS16    = 0x02;
-			static constexpr uint16_t R_W65_ABS24    = 0x03;
-			static constexpr uint16_t R_W65_ABS8S8   = 0x04;
-			static constexpr uint16_t R_W65_ABS8S16  = 0x05;
-			static constexpr uint16_t R_W65_ABS16S8  = 0x06;
-			static constexpr uint16_t R_W65_ABS16S16 = 0x07;
-			static constexpr uint16_t R_W65_PCR8     = 0x08;
-			static constexpr uint16_t R_W65_PCR16    = 0x09;
-			static constexpr uint16_t R_W65_DP       = 0x0A;
-
-			cpu cpu_type;
-
-			/**
-			 * @brief Address of the relocation (COFF name: r_vaddr)
-			 */
-			uint32_t address;
-			/**
-			 * @brief Index of symbol in symbol table (COFF name: r_symndx)
-			 */
-			uint32_t symbol_index;
-			/**
-			 * @brief (COFF name: r_offset)
-			 */
-			uint32_t offset;
-			/**
-			 * @brief Type of relocation (COFF name: r_type)
-			 */
-			uint16_t type;
-			/**
-			 * @brief unknown (COFF name: r_stuff)
-			 */
-			uint16_t data;
-
-			ZilogRelocation(cpu cpu_type)
-				: cpu_type(cpu_type)
-			{
-			}
-
-			void Read(Linker::Reader& rd);
-
-			offset_t GetAddress() const override;
-
-			size_t GetSize() const override;
-
-			size_t GetEntrySize() const override;
-
-			void WriteFile(Linker::Writer& wr) const override;
-
-			void FillEntry(Dumper::Entry& entry) const override;
 		};
 
 		/**
@@ -1317,8 +982,6 @@ namespace COFF
 			/**
 			 * @brief Collection of COFF relocations
 			 */
-			std::vector<std::unique_ptr<_Relocation>> _relocations;
-
 			std::vector<std::unique_ptr<Relocation>> relocations;
 
 			/* COFF section flags (common to all variants) */

@@ -502,102 +502,102 @@ void COFFFormat::Relocation::FillEntry(Dumper::Entry& entry, const COFFFormat& c
 
 	static const std::map<offset_t, std::string> unix_relocation_type_names =
 	{
-		{ UNIXRelocation::R_ABS,     "ABS - no relocation" },
-		{ UNIXRelocation::R_DIR16,   "DIR16 - symbol value" },
-		{ UNIXRelocation::R_REL16,   "REL16 - relative" },
-		{ UNIXRelocation::R_IND16,   "IND16 - indirect" },
-		{ UNIXRelocation::R_DIR24,   "DIR24 - symbol value" },
-		{ UNIXRelocation::R_REL24,   "REL24 - relative" },
-		{ UNIXRelocation::R_DIR32,   "DIR32 - symbol value" },
-		{ UNIXRelocation::R_OFF8,    "OFF8 - symbol value" },
-		{ UNIXRelocation::R_OFF16,   "OFF16 - shifted by 8" },
-		{ UNIXRelocation::R_SEG12,   "SEG12 - x86 segment" },
-		{ UNIXRelocation::R_DIR32S,  "DIR32S - byte swapped" },
-		{ UNIXRelocation::R_AUX,     "AUX - auxiliary" },
-		{ UNIXRelocation::R_OPT16,   "OPT16 - optimized indirect" },
-		{ UNIXRelocation::R_IND24,   "IND24 - indirect" },
-		{ UNIXRelocation::R_IND32,   "IND32 - indirect" },
-		{ UNIXRelocation::R_RELBYTE, "RELBYTE - symbol value" },
-		{ UNIXRelocation::R_RELWORD, "RELWORD - symbol value" },
-		{ UNIXRelocation::R_RELLONG, "RELLONG - symbol value" },
-		{ UNIXRelocation::R_PCRBYTE, "PCRBYTE - relative" },
-		{ UNIXRelocation::R_PCRWORD, "PCRWORD - relative" },
-		{ UNIXRelocation::R_PCRLONG, "PCRLONG - relative" },
+		{ R_ABS,     "ABS - no relocation" },
+		{ R_DIR16,   "DIR16 - symbol value" },
+		{ R_REL16,   "REL16 - relative" },
+		{ R_IND16,   "IND16 - indirect" },
+		{ R_DIR24,   "DIR24 - symbol value" },
+		{ R_REL24,   "REL24 - relative" },
+		{ R_DIR32,   "DIR32 - symbol value" },
+		{ R_OFF8,    "OFF8 - symbol value" },
+		{ R_OFF16,   "OFF16 - shifted by 8" },
+		{ R_SEG12,   "SEG12 - x86 segment" },
+		{ R_DIR32S,  "DIR32S - byte swapped" },
+		{ R_AUX,     "AUX - auxiliary" },
+		{ R_OPT16,   "OPT16 - optimized indirect" },
+		{ R_IND24,   "IND24 - indirect" },
+		{ R_IND32,   "IND32 - indirect" },
+		{ R_RELBYTE, "RELBYTE - symbol value" },
+		{ R_RELWORD, "RELWORD - symbol value" },
+		{ R_RELLONG, "RELLONG - symbol value" },
+		{ R_PCRBYTE, "PCRBYTE - relative" },
+		{ R_PCRWORD, "PCRWORD - relative" },
+		{ R_PCRLONG, "PCRLONG - relative" },
 	};
 
 	// Microsoft relocations
 	static const std::map<offset_t, std::string> pecoff_i386_relocation_type_names =
 	{
-		{ UNIXRelocation::REL_I386_ABSOLUTE, "ABSOLUTE - no relocation" },
-		{ UNIXRelocation::REL_I386_DIR16,    "DIR16 - unsupported (symbol value)" },
-		{ UNIXRelocation::REL_I386_REL16,    "REL16 - unsupported (relative)" },
-		{ UNIXRelocation::REL_I386_DIR32,    "DIR32 - virtual address" },
-		{ UNIXRelocation::REL_I386_DIR32NB,  "DIR32NB - relative virtual address" },
-		{ UNIXRelocation::REL_I386_SEG12,    "SEG12 - unsupported (x86 segment)" },
-		{ UNIXRelocation::REL_I386_SECTION,  "SECTION - section index" },
-		{ UNIXRelocation::REL_I386_SECREL,   "SECREL - offset within section" },
-		{ UNIXRelocation::REL_I386_TOKEN,    "TOKEN - CLR token" },
-		{ UNIXRelocation::REL_I386_SECREL7,  "SECREL7 - offset within section" },
-		{ UNIXRelocation::REL_I386_REL32,    "REL32 - relative" },
+		{ REL_I386_ABSOLUTE, "ABSOLUTE - no relocation" },
+		{ REL_I386_DIR16,    "DIR16 - unsupported (symbol value)" },
+		{ REL_I386_REL16,    "REL16 - unsupported (relative)" },
+		{ REL_I386_DIR32,    "DIR32 - virtual address" },
+		{ REL_I386_DIR32NB,  "DIR32NB - relative virtual address" },
+		{ REL_I386_SEG12,    "SEG12 - unsupported (x86 segment)" },
+		{ REL_I386_SECTION,  "SECTION - section index" },
+		{ REL_I386_SECREL,   "SECREL - offset within section" },
+		{ REL_I386_TOKEN,    "TOKEN - CLR token" },
+		{ REL_I386_SECREL7,  "SECREL7 - offset within section" },
+		{ REL_I386_REL32,    "REL32 - relative" },
 	};
 
 	static const std::map<offset_t, std::string> pecoff_amd64_relocation_type_names =
 	{
-		{ UNIXRelocation::REL_AMD64_ABSOLUTE, "ABSOLUTE - no relocation" },
-		{ UNIXRelocation::REL_AMD64_ADDR64,   "ADDR64 - virtual address" },
-		{ UNIXRelocation::REL_AMD64_ADDR32,   "ADDR32 - virtual address" },
-		{ UNIXRelocation::REL_AMD64_ADDR32NB, "ADDR32NB - relative virtual address" },
-		{ UNIXRelocation::REL_AMD64_REL32,    "REL32 - relative address" },
-		{ UNIXRelocation::REL_AMD64_REL32_1,  "REL32_1 - relative address - 1" },
-		{ UNIXRelocation::REL_AMD64_REL32_2,  "REL32_2 - relative address - 2" },
-		{ UNIXRelocation::REL_AMD64_REL32_3,  "REL32_3 - relative address - 3" },
-		{ UNIXRelocation::REL_AMD64_REL32_4,  "REL32_4 - relative address - 4" },
-		{ UNIXRelocation::REL_AMD64_REL32_5,  "REL32_5 - relative address - 5" },
-		{ UNIXRelocation::REL_AMD64_SECTION,  "SECTION - section index" },
-		{ UNIXRelocation::REL_AMD64_SECREL,   "SECREL - offset within section" },
-		{ UNIXRelocation::REL_AMD64_SECREL7,  "SECREL7 - offset within section" },
-		{ UNIXRelocation::REL_AMD64_TOKEN,    "TOKEN - CLR token" },
-		{ UNIXRelocation::REL_AMD64_SREL32,   "SREL32" }, // TODO: explain
-		{ UNIXRelocation::REL_AMD64_PAIR,     "PAIR" }, // TODO: explain
-		{ UNIXRelocation::REL_AMD64_SSPAN32,  "SSPAN32" }, // TODO: explain
+		{ REL_AMD64_ABSOLUTE, "ABSOLUTE - no relocation" },
+		{ REL_AMD64_ADDR64,   "ADDR64 - virtual address" },
+		{ REL_AMD64_ADDR32,   "ADDR32 - virtual address" },
+		{ REL_AMD64_ADDR32NB, "ADDR32NB - relative virtual address" },
+		{ REL_AMD64_REL32,    "REL32 - relative address" },
+		{ REL_AMD64_REL32_1,  "REL32_1 - relative address - 1" },
+		{ REL_AMD64_REL32_2,  "REL32_2 - relative address - 2" },
+		{ REL_AMD64_REL32_3,  "REL32_3 - relative address - 3" },
+		{ REL_AMD64_REL32_4,  "REL32_4 - relative address - 4" },
+		{ REL_AMD64_REL32_5,  "REL32_5 - relative address - 5" },
+		{ REL_AMD64_SECTION,  "SECTION - section index" },
+		{ REL_AMD64_SECREL,   "SECREL - offset within section" },
+		{ REL_AMD64_SECREL7,  "SECREL7 - offset within section" },
+		{ REL_AMD64_TOKEN,    "TOKEN - CLR token" },
+		{ REL_AMD64_SREL32,   "SREL32" }, // TODO: explain
+		{ REL_AMD64_PAIR,     "PAIR" }, // TODO: explain
+		{ REL_AMD64_SSPAN32,  "SSPAN32" }, // TODO: explain
 	};
 
 	// COFF_16 relocation types
 	static const std::map<offset_t, std::string> z80_relocation_type_names =
 	{
-		{ ZilogRelocation::R_Z80_IMM8,  "imm8" },
-		{ ZilogRelocation::R_Z80_IMM16, "imm16" },
-		{ ZilogRelocation::R_Z80_IMM24, "imm24" },
-		{ ZilogRelocation::R_Z80_IMM32, "imm32" },
-		{ ZilogRelocation::R_Z80_OFF8,  "off8" },
-		{ ZilogRelocation::R_Z80_JR,    "jr" },
+		{ R_Z80_IMM8,  "imm8" },
+		{ R_Z80_IMM16, "imm16" },
+		{ R_Z80_IMM24, "imm24" },
+		{ R_Z80_IMM32, "imm32" },
+		{ R_Z80_OFF8,  "off8" },
+		{ R_Z80_JR,    "jr" },
 	};
 
 	static const std::map<offset_t, std::string> z8k_relocation_type_names =
 	{
-		{ ZilogRelocation::R_Z8K_IMM4L, "imm4l" },
-		{ ZilogRelocation::R_Z8K_IMM4H, "imm4h" },
-		{ ZilogRelocation::R_Z8K_DISP7, "disp7" },
-		{ ZilogRelocation::R_Z8K_IMM8,  "imm8" },
-		{ ZilogRelocation::R_Z8K_IMM16, "imm16" },
-		{ ZilogRelocation::R_Z8K_REL16, "rel16" },
-		{ ZilogRelocation::R_Z8K_IMM32, "imm32" },
-		{ ZilogRelocation::R_Z8K_JR,    "jr" },
-		{ ZilogRelocation::R_Z8K_CALLR, "callr" },
+		{ R_Z8K_IMM4L, "imm4l" },
+		{ R_Z8K_IMM4H, "imm4h" },
+		{ R_Z8K_DISP7, "disp7" },
+		{ R_Z8K_IMM8,  "imm8" },
+		{ R_Z8K_IMM16, "imm16" },
+		{ R_Z8K_REL16, "rel16" },
+		{ R_Z8K_IMM32, "imm32" },
+		{ R_Z8K_JR,    "jr" },
+		{ R_Z8K_CALLR, "callr" },
 	};
 
 	static const std::map<offset_t, std::string> w65_relocation_type_names =
 	{
-		{ ZilogRelocation::R_W65_ABS8,     "abs8" },
-		{ ZilogRelocation::R_W65_ABS16,    "abs16" },
-		{ ZilogRelocation::R_W65_ABS24,    "abs24" },
-		{ ZilogRelocation::R_W65_ABS8S8,   "abs8s8" },
-		{ ZilogRelocation::R_W65_ABS8S16,  "abs8s16" },
-		{ ZilogRelocation::R_W65_ABS16S8,  "abs16s8" },
-		{ ZilogRelocation::R_W65_ABS16S16, "abs16s16" },
-		{ ZilogRelocation::R_W65_PCR8,     "pcr8" },
-		{ ZilogRelocation::R_W65_PCR16,    "pcr16" },
-		{ ZilogRelocation::R_W65_DP,       "dp" },
+		{ R_W65_ABS8,     "abs8" },
+		{ R_W65_ABS16,    "abs16" },
+		{ R_W65_ABS24,    "abs24" },
+		{ R_W65_ABS8S8,   "abs8s8" },
+		{ R_W65_ABS8S16,  "abs8s16" },
+		{ R_W65_ABS16S8,  "abs16s8" },
+		{ R_W65_ABS16S16, "abs16s16" },
+		{ R_W65_PCR8,     "pcr8" },
+		{ R_W65_PCR16,    "pcr16" },
+		{ R_W65_DP,       "dp" },
 	};
 
 	const std::map<offset_t, std::string> * relocation_type_names = nullptr;
@@ -658,572 +658,6 @@ void COFFFormat::Relocation::FillEntry(Dumper::Entry& entry, const COFFFormat& c
 	/* TODO */
 	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), offset_t(symbol_index));
 //	entry.AddField("Target", ???);
-}
-
-COFFFormat::_Relocation::~_Relocation()
-{
-}
-
-void COFFFormat::UNIXRelocation::Read(Linker::Reader& rd)
-{
-	switch(coff_variant)
-	{
-	case COFF:
-	case PECOFF:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(4);
-		type = rd.ReadUnsigned(2);
-		break;
-	case TICOFF:
-	case TICOFF1:
-		if(cpu_type == CPU_C5400 || cpu_type == CPU_C5500)
-		{
-			address = rd.ReadUnsigned(4);
-			symbol_index = rd.ReadUnsigned(4);
-			information = rd.ReadUnsigned(2); // extended address
-			type = rd.ReadUnsigned(2);
-		}
-		else
-		{
-			address = rd.ReadUnsigned(4);
-			symbol_index = rd.ReadUnsigned(2);
-			rd.Skip(2);
-			type = rd.ReadUnsigned(2);
-		}
-		break;
-	case ECOFF:
-		address = rd.ReadUnsigned(8);
-		symbol_index = rd.ReadUnsigned(4);
-		type = rd.ReadUnsigned(1);
-		information = rd.ReadUnsigned(3);
-		break;
-	case XCOFF32:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(4);
-		information = rd.ReadUnsigned(1);
-		type = rd.ReadUnsigned(1);
-		break;
-	case XCOFF64:
-		address = rd.ReadUnsigned(8);
-		symbol_index = rd.ReadUnsigned(4);
-		information = rd.ReadUnsigned(1);
-		type = rd.ReadUnsigned(1);
-		break;
-	}
-}
-
-offset_t COFFFormat::UNIXRelocation::GetAddress() const
-{
-	return address;
-}
-
-size_t COFFFormat::UNIXRelocation::GetSize() const
-{
-	switch(coff_variant)
-	{
-	case COFF:
-		switch(type)
-		{
-		case R_ABS:
-		case R_AUX: // TODO
-		default:
-			return 0;
-		case R_OFF8:
-		case R_OFF16: // high 8 bits in 16-bit word
-		case R_RELBYTE:
-		case R_PCRBYTE:
-			return 1;
-		case R_DIR16:
-		case R_REL16:
-		case R_IND16:
-		case R_SEG12:
-		case R_OPT16:
-		case R_RELWORD:
-		case R_PCRWORD:
-			return 2;
-		case R_DIR24:
-		case R_REL24:
-		case R_IND24:
-			return 3;
-		case R_DIR32:
-		case R_DIR32S:
-		case R_IND32:
-		case R_RELLONG:
-		case R_PCRLONG:
-			return 4;
-		}
-	case PECOFF:
-		switch(cpu_type)
-		{
-		case CPU_I386:
-			switch(type)
-			{
-			case REL_I386_ABSOLUTE:
-			default:
-				return 0;
-			case REL_I386_SECREL7:
-				return 1;
-			case REL_I386_DIR16:
-			case REL_I386_REL16:
-			case REL_I386_SEG12:
-			case REL_I386_SECTION:
-				return 2;
-			case REL_I386_DIR32:
-			case REL_I386_REL32:
-			case REL_I386_DIR32NB:
-			case REL_I386_SECREL:
-			case REL_I386_TOKEN:
-				return 4;
-			}
-		case CPU_AMD64:
-			switch(type)
-			{
-			case REL_AMD64_ABSOLUTE:
-			case REL_AMD64_PAIR: // TODO
-			default:
-				return 0;
-			case REL_AMD64_SECTION:
-			case REL_AMD64_SECREL7:
-				return 2;
-			case REL_AMD64_ADDR32:
-			case REL_AMD64_ADDR32NB:
-			case REL_AMD64_REL32:
-			case REL_AMD64_REL32_1:
-			case REL_AMD64_REL32_2:
-			case REL_AMD64_REL32_3:
-			case REL_AMD64_REL32_4:
-			case REL_AMD64_REL32_5:
-			case REL_AMD64_SECREL:
-			case REL_AMD64_TOKEN:
-			case REL_AMD64_SREL32:
-			case REL_AMD64_SSPAN32:
-				return 4;
-			case REL_AMD64_ADDR64:
-				return 8;
-			}
-		case CPU_ARM:
-			switch(type)
-			{
-			case REL_ARM_ABSOLUTE:
-			case REL_ARM_PAIR:
-			default:
-				return 0;
-			case REL_ARM_SECTION:
-				return 2;
-			case REL_ARM_ADDR32:
-			case REL_ARM_ADDR32NB:
-			case REL_ARM_BRANCH24:
-			case REL_ARM_BRANCH11:
-			case REL_ARM_REL32:
-			case REL_ARM_SECREL:
-			case REL_THUMB_BRANCH24:
-			case REL_THUMB_BLX23:
-				return 4;
-			case REL_ARM_MOV32:
-			case REL_THUMB_MOV32:
-				return 8;
-			}
-		case CPU_ARM64:
-			switch(type)
-			{
-			case REL_ARM64_ABSOLUTE:
-			default:
-				return 0;
-			case REL_ARM64_SECTION:
-				return 2;
-			case REL_ARM64_ADDR32:
-			case REL_ARM64_ADDR32NB:
-			case REL_ARM64_BRANCH26:
-			case REL_ARM64_PAGEBASE_REL21:
-			case REL_ARM64_REL21:
-			case REL_ARM64_PAGEOFFSET_12A:
-			case REL_ARM64_PAGEOFFSET_12L:
-			case REL_ARM64_SECREL:
-			case REL_ARM64_SECREL_LOW12A:
-			case REL_ARM64_SECREL_HIGH12A:
-			case REL_ARM64_SECREL_LOW12L:
-			case REL_ARM64_TOKEN:
-			case REL_ARM64_BRANCH19:
-			case REL_ARM64_BRANCH14:
-			case REL_ARM64_REL32:
-				return 4;
-			case REL_ARM64_ADDR64:
-				return 8;
-			}
-		case CPU_ALPHA:
-			switch(type)
-			{
-			case REL_ALPHA_ABSOLUTE:
-			case REL_ALPHA_LITUSE: // TODO: what was the purpose of this?
-			case REL_ALPHA_GPDISP: // TODO: what was the purpose of this?
-			case REL_ALPHA_PAIR: // not a relocation itself
-			case REL_ALPHA_MATCH: // not a relocation itself
-			default:
-				return 0;
-			case REL_ALPHA_LITERAL:
-			case REL_ALPHA_REFHI:
-			case REL_ALPHA_REFLO:
-			case REL_ALPHA_SECTION:
-			case REL_ALPHA_SECRELLO:
-			case REL_ALPHA_SECRELHI:
-			case REL_ALPHA_REFQ3:
-			case REL_ALPHA_REFQ2:
-			case REL_ALPHA_REFQ1:
-			case REL_ALPHA_GPRELLO:
-			case REL_ALPHA_GPRELHI:
-				return 2;
-			case REL_ALPHA_REFLONG:
-			case REL_ALPHA_GPREL32:
-			case REL_ALPHA_BRADDR:
-			case REL_ALPHA_HINT:
-			case REL_ALPHA_SECREL:
-			case REL_ALPHA_REFLONGNB:
-				return 4;
-			case REL_ALPHA_REFQUAD:
-			case REL_ALPHA_INLINE_REFLONG: // two 32-bit instructions
-				return 8;
-			}
-		// TODO: other CPU types
-		default:
-			return 0;
-		}
-	case TICOFF:
-	case TICOFF1:
-		return 0; // TODO
-	case ECOFF:
-		return 0; // TODO
-	case XCOFF32:
-		return 0; // TODO
-	case XCOFF64:
-		return 0; // TODO
-	}
-	assert(false);
-}
-
-size_t COFFFormat::UNIXRelocation::GetEntrySize() const
-{
-	switch(coff_variant)
-	{
-	case COFF:
-	case PECOFF:
-		return 10;
-	case TICOFF:
-	case TICOFF1:
-		return (cpu_type == CPU_C5400 || cpu_type == CPU_C5500) ? 12 : 10;
-	case ECOFF:
-		return 16;
-	case XCOFF32:
-		return 10;
-	case XCOFF64:
-		return 14;
-	}
-	assert(false);
-}
-
-void COFFFormat::UNIXRelocation::WriteFile(Linker::Writer& wr) const
-{
-	switch(coff_variant)
-	{
-	case COFF:
-	case PECOFF:
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(2, type);
-		break;
-	case TICOFF:
-	case TICOFF1:
-		if(cpu_type == CPU_C5400 || cpu_type == CPU_C5500)
-		{
-			wr.WriteWord(4, address);
-			wr.WriteWord(4, symbol_index);
-			wr.WriteWord(2, information); // extended address
-			wr.WriteWord(2, type);
-		}
-		else
-		{
-			wr.WriteWord(4, address);
-			wr.WriteWord(2, symbol_index);
-			wr.Skip(2);
-			wr.WriteWord(2, type);
-		}
-		break;
-	case ECOFF:
-		wr.WriteWord(8, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(1, type);
-		wr.WriteWord(3, information);
-		break;
-	case XCOFF32:
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(1, information);
-		wr.WriteWord(1, type);
-		break;
-	case XCOFF64:
-		wr.WriteWord(8, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(1, information);
-		wr.WriteWord(1, type);
-		break;
-	}
-}
-
-void COFFFormat::UNIXRelocation::FillEntry(Dumper::Entry& entry) const
-{
-	static const std::map<offset_t, std::string> unix_relocation_type_names =
-	{
-		{ UNIXRelocation::R_ABS,     "ABS - no relocation" },
-		{ UNIXRelocation::R_DIR16,   "DIR16 - symbol value" },
-		{ UNIXRelocation::R_REL16,   "REL16 - relative" },
-		{ UNIXRelocation::R_IND16,   "IND16 - indirect" },
-		{ UNIXRelocation::R_DIR24,   "DIR24 - symbol value" },
-		{ UNIXRelocation::R_REL24,   "REL24 - relative" },
-		{ UNIXRelocation::R_DIR32,   "DIR32 - symbol value" },
-		{ UNIXRelocation::R_OFF8,    "OFF8 - symbol value" },
-		{ UNIXRelocation::R_OFF16,   "OFF16 - shifted by 8" },
-		{ UNIXRelocation::R_SEG12,   "SEG12 - x86 segment" },
-		{ UNIXRelocation::R_DIR32S,  "DIR32S - byte swapped" },
-		{ UNIXRelocation::R_AUX,     "AUX - auxiliary" },
-		{ UNIXRelocation::R_OPT16,   "OPT16 - optimized indirect" },
-		{ UNIXRelocation::R_IND24,   "IND24 - indirect" },
-		{ UNIXRelocation::R_IND32,   "IND32 - indirect" },
-		{ UNIXRelocation::R_RELBYTE, "RELBYTE - symbol value" },
-		{ UNIXRelocation::R_RELWORD, "RELWORD - symbol value" },
-		{ UNIXRelocation::R_RELLONG, "RELLONG - symbol value" },
-		{ UNIXRelocation::R_PCRBYTE, "PCRBYTE - relative" },
-		{ UNIXRelocation::R_PCRWORD, "PCRWORD - relative" },
-		{ UNIXRelocation::R_PCRLONG, "PCRLONG - relative" },
-	};
-
-	static const std::map<offset_t, std::string> pecoff_i386_relocation_type_names =
-	{
-		{ UNIXRelocation::REL_I386_ABSOLUTE, "ABSOLUTE - no relocation" },
-		{ UNIXRelocation::REL_I386_DIR16,    "DIR16 - unsupported (symbol value)" },
-		{ UNIXRelocation::REL_I386_REL16,    "REL16 - unsupported (relative)" },
-		{ UNIXRelocation::REL_I386_DIR32,    "DIR32 - virtual address" },
-		{ UNIXRelocation::REL_I386_DIR32NB,  "DIR32NB - relative virtual address" },
-		{ UNIXRelocation::REL_I386_SEG12,    "SEG12 - unsupported (x86 segment)" },
-		{ UNIXRelocation::REL_I386_SECTION,  "SECTION - section index" },
-		{ UNIXRelocation::REL_I386_SECREL,   "SECREL - offset within section" },
-		{ UNIXRelocation::REL_I386_TOKEN,    "TOKEN - CLR token" },
-		{ UNIXRelocation::REL_I386_SECREL7,  "SECREL7 - offset within section" },
-		{ UNIXRelocation::REL_I386_REL32,    "REL32 - relative" },
-	};
-
-	static const std::map<offset_t, std::string> pecoff_amd64_relocation_type_names =
-	{
-		{ UNIXRelocation::REL_AMD64_ABSOLUTE, "ABSOLUTE - no relocation" },
-		{ UNIXRelocation::REL_AMD64_ADDR64,   "ADDR64 - virtual address" },
-		{ UNIXRelocation::REL_AMD64_ADDR32,   "ADDR32 - virtual address" },
-		{ UNIXRelocation::REL_AMD64_ADDR32NB, "ADDR32NB - relative virtual address" },
-		{ UNIXRelocation::REL_AMD64_REL32,    "REL32 - relative address" },
-		{ UNIXRelocation::REL_AMD64_REL32_1,  "REL32_1 - relative address - 1" },
-		{ UNIXRelocation::REL_AMD64_REL32_2,  "REL32_2 - relative address - 2" },
-		{ UNIXRelocation::REL_AMD64_REL32_3,  "REL32_3 - relative address - 3" },
-		{ UNIXRelocation::REL_AMD64_REL32_4,  "REL32_4 - relative address - 4" },
-		{ UNIXRelocation::REL_AMD64_REL32_5,  "REL32_5 - relative address - 5" },
-		{ UNIXRelocation::REL_AMD64_SECTION,  "SECTION - section index" },
-		{ UNIXRelocation::REL_AMD64_SECREL,   "SECREL - offset within section" },
-		{ UNIXRelocation::REL_AMD64_SECREL7,  "SECREL7 - offset within section" },
-		{ UNIXRelocation::REL_AMD64_TOKEN,    "TOKEN - CLR token" },
-		{ UNIXRelocation::REL_AMD64_SREL32,   "SREL32" }, // TODO: explain
-		{ UNIXRelocation::REL_AMD64_PAIR,     "PAIR" }, // TODO: explain
-		{ UNIXRelocation::REL_AMD64_SSPAN32,  "SSPAN32" }, // TODO: explain
-	};
-
-	const std::map<offset_t, std::string> * relocation_type_names = nullptr;
-	switch(coff_variant)
-	{
-	case COFF:
-		relocation_type_names = &unix_relocation_type_names;
-		break;
-	case PECOFF:
-		switch(cpu_type)
-		{
-		case CPU_I386:
-			relocation_type_names = &pecoff_i386_relocation_type_names;
-			break;
-		case CPU_AMD64:
-			relocation_type_names = &pecoff_amd64_relocation_type_names;
-			break;
-		default:
-			Linker::Error << "Internal error: unknown CPU type" << std::endl;
-			break;
-		}
-		break;
-	default:
-		Linker::Error << "Internal error: unknown COFF variant" << std::endl;
-		break;
-	}
-
-	entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(address));
-	entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(GetSize()));
-	if(relocation_type_names != nullptr)
-		entry.AddField("Type", Dumper::ChoiceDisplay::Make(*relocation_type_names, Dumper::HexDisplay::Make(4)), offset_t(type));
-	entry.AddOptionalField("Address", Dumper::HexDisplay::Make(), offset_t(address));
-	/* TODO */
-	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), offset_t(symbol_index));
-//				entry.AddField("Target", ???);
-}
-
-void COFFFormat::ZilogRelocation::Read(Linker::Reader& rd)
-{
-	address = rd.ReadUnsigned(4);
-	symbol_index = rd.ReadUnsigned(4);
-	offset = rd.ReadUnsigned(4);
-	type = rd.ReadUnsigned(2);
-	data = rd.ReadUnsigned(2);
-}
-
-offset_t COFFFormat::ZilogRelocation::GetAddress() const
-{
-	return address;
-}
-
-size_t COFFFormat::ZilogRelocation::GetSize() const
-{
-	switch(cpu_type)
-	{
-	case CPU_Z80:
-		switch(type)
-		{
-		case R_Z80_IMM8:
-		case R_Z80_OFF8:
-		case R_Z80_JR:
-			return 1;
-		case R_Z80_IMM16:
-			return 2;
-		case R_Z80_IMM24:
-			return 3;
-		case R_Z80_IMM32:
-			return 4;
-		default:
-			Linker::Error << "Error: Unknown relocation type" << std::endl;
-			return -1;
-		}
-	case CPU_Z8K:
-		switch(type)
-		{
-		case R_Z8K_IMM4L:
-		case R_Z8K_IMM4H:
-		case R_Z8K_DISP7:
-		case R_Z8K_JR:
-		case R_Z8K_IMM8:
-			return 1;
-		case R_Z8K_IMM16:
-		case R_Z8K_REL16:
-		case R_Z8K_CALLR:
-			return 2;
-		case R_Z8K_IMM32:
-			return 4;
-		default:
-			Linker::Error << "Error: Unknown relocation type" << std::endl;
-			return -1;
-		}
-	case CPU_W65:
-		switch(type)
-		{
-		case R_W65_ABS8:
-		case R_W65_ABS8S8:
-		case R_W65_ABS8S16:
-		case R_W65_PCR8:
-		case R_W65_DP:
-			return 1;
-		case R_W65_ABS16:
-		case R_W65_ABS16S8:
-		case R_W65_ABS16S16:
-		case R_W65_PCR16:
-			return 2;
-		case R_W65_ABS24:
-			return 3;
-		default:
-			Linker::Error << "Error: Unknown relocation type" << std::endl;
-			return -1;
-		}
-	default:
-		Linker::Error << "Error: Unknown relocation type" << std::endl;
-		return -1;
-	}
-}
-
-size_t COFFFormat::ZilogRelocation::GetEntrySize() const
-{
-	return 16;
-}
-
-void COFFFormat::ZilogRelocation::WriteFile(Linker::Writer& wr) const
-{
-	wr.WriteWord(4, address);
-	wr.WriteWord(4, symbol_index);
-	wr.WriteWord(4, offset);
-	wr.WriteWord(2, type);
-	wr.WriteWord(2, data);
-}
-
-void COFFFormat::ZilogRelocation::FillEntry(Dumper::Entry& entry) const
-{
-	static const std::map<offset_t, std::string> z80_relocation_type_names =
-	{
-		{ ZilogRelocation::R_Z80_IMM8,  "imm8" },
-		{ ZilogRelocation::R_Z80_IMM16, "imm16" },
-		{ ZilogRelocation::R_Z80_IMM24, "imm24" },
-		{ ZilogRelocation::R_Z80_IMM32, "imm32" },
-		{ ZilogRelocation::R_Z80_OFF8,  "off8" },
-		{ ZilogRelocation::R_Z80_JR,    "jr" },
-	};
-
-	static const std::map<offset_t, std::string> z8k_relocation_type_names =
-	{
-		{ ZilogRelocation::R_Z8K_IMM4L, "imm4l" },
-		{ ZilogRelocation::R_Z8K_IMM4H, "imm4h" },
-		{ ZilogRelocation::R_Z8K_DISP7, "disp7" },
-		{ ZilogRelocation::R_Z8K_IMM8,  "imm8" },
-		{ ZilogRelocation::R_Z8K_IMM16, "imm16" },
-		{ ZilogRelocation::R_Z8K_REL16, "rel16" },
-		{ ZilogRelocation::R_Z8K_IMM32, "imm32" },
-		{ ZilogRelocation::R_Z8K_JR,    "jr" },
-		{ ZilogRelocation::R_Z8K_CALLR, "callr" },
-	};
-
-	static const std::map<offset_t, std::string> w65_relocation_type_names =
-	{
-		{ ZilogRelocation::R_W65_ABS8,     "abs8" },
-		{ ZilogRelocation::R_W65_ABS16,    "abs16" },
-		{ ZilogRelocation::R_W65_ABS24,    "abs24" },
-		{ ZilogRelocation::R_W65_ABS8S8,   "abs8s8" },
-		{ ZilogRelocation::R_W65_ABS8S16,  "abs8s16" },
-		{ ZilogRelocation::R_W65_ABS16S8,  "abs16s8" },
-		{ ZilogRelocation::R_W65_ABS16S16, "abs16s16" },
-		{ ZilogRelocation::R_W65_PCR8,     "pcr8" },
-		{ ZilogRelocation::R_W65_PCR16,    "pcr16" },
-		{ ZilogRelocation::R_W65_DP,       "dp" },
-	};
-
-	const std::map<offset_t, std::string> * relocation_type_names = nullptr;
-	switch(cpu_type)
-	{
-	case CPU_Z80:
-		relocation_type_names = &z80_relocation_type_names;
-		break;
-	case CPU_Z8K:
-		relocation_type_names = &z8k_relocation_type_names;
-		break;
-	case CPU_W65:
-		relocation_type_names = &w65_relocation_type_names;
-		break;
-	default:
-		Linker::Error << "Internal error: unknown CPU type" << std::endl;
-		break;
-	}
-
-	entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(address));
-	entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(GetSize()));
-	if(relocation_type_names != nullptr)
-		entry.AddField("Type", Dumper::ChoiceDisplay::Make(*relocation_type_names, Dumper::HexDisplay::Make(4)), offset_t(type));
-	entry.AddOptionalField("Offset", Dumper::HexDisplay::Make(), offset_t(offset));
-	/* TODO */
-	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), offset_t(symbol_index));
-//				entry.AddField("Target", ???);
 }
 
 void COFFFormat::Symbol::FileNameAuxiliaryEntry::Read(Linker::Reader& rd)
@@ -1369,7 +803,6 @@ bool COFFFormat::Symbol::IsExternal() const
 void COFFFormat::Section::Clear()
 {
 	image = nullptr;
-	_relocations.clear();
 	relocations.clear();
 }
 
@@ -1803,14 +1236,14 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 	}
 
 	unsigned i = 0;
-	for(auto& relocation : _relocations)
+	for(auto& relocation : relocations)
 	{
 		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
-		relocation->FillEntry(relocation_entry);
+		relocation->FillEntry(relocation_entry, format);
 		// TODO: fill addend
 		relocation_entry.Display(dump);
 
-		block.AddSignal(relocation->GetAddress() - address, relocation->GetSize());
+		block.AddSignal(relocation->address - address, relocation->GetSize(format));
 		i++;
 	}
 
@@ -2628,42 +2061,6 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 		}
 	}
 
-	switch(cpu_type)
-	{
-	case CPU_Z80:
-	case CPU_Z8K:
-	case CPU_W65:
-		for(auto& section : sections)
-		{
-			if(section->relocation_count > 0)
-			{
-				rd.Seek(file_offset + section->relocation_pointer);
-				for(size_t i = 0; i < section->relocation_count; i++)
-				{
-					std::unique_ptr<ZilogRelocation> rel = std::make_unique<ZilogRelocation>(cpu_type);
-					rel->Read(rd);
-					section->_relocations.push_back(std::move(rel));
-				}
-			}
-		}
-		break;
-	default:
-		for(auto& section : sections)
-		{
-			if(section->relocation_count > 0)
-			{
-				rd.Seek(file_offset + section->relocation_pointer);
-				for(size_t i = 0; i < section->relocation_count; i++)
-				{
-					std::unique_ptr<UNIXRelocation> rel = std::make_unique<UNIXRelocation>(coff_variant, cpu_type);
-					rel->Read(rd);
-					section->_relocations.push_back(std::move(rel));
-				}
-			}
-		}
-		break;
-	}
-
 	if(symbol_count > 0)
 	{
 		rd.Seek(file_offset + symbol_table_offset);
@@ -3167,25 +2564,25 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 
 					switch(rel.type)
 					{
-					case UNIXRelocation::R_ABS:
-					case UNIXRelocation::R_AUX: // TODO
+					case R_ABS:
+					case R_AUX: // TODO
 					default:
 						continue;
 
-					case UNIXRelocation::R_OFF8:
-					case UNIXRelocation::R_DIR16:
-					case UNIXRelocation::R_DIR24:
-					case UNIXRelocation::R_DIR32:
-					case UNIXRelocation::R_RELBYTE:
-					case UNIXRelocation::R_RELWORD:
-					case UNIXRelocation::R_RELLONG:
+					case R_OFF8:
+					case R_DIR16:
+					case R_DIR24:
+					case R_DIR32:
+					case R_RELBYTE:
+					case R_RELWORD:
+					case R_RELLONG:
 						obj_rel =
 							cpu_type == CPU_I86 || cpu_type == CPU_I286
 							? Linker::Relocation::Offset(rel_size, rel_source, rel_target, 0, GetEndianType())
 							: Linker::Relocation::Absolute(rel_size, rel_source, rel_target, 0, GetEndianType());
 						break;
 
-					case UNIXRelocation::R_DIR32S:
+					case R_DIR32S:
 						// Note: this is only used by WE32K, but it is meaningful in general
 						obj_rel =
 							cpu_type == CPU_I86 || cpu_type == CPU_I286
@@ -3193,16 +2590,16 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 							: Linker::Relocation::Absolute(rel_size, rel_source, rel_target, 0, ByteSwapped(GetEndianType()));
 						break;
 
-					case UNIXRelocation::R_PCRBYTE:
-					case UNIXRelocation::R_REL16:
-					case UNIXRelocation::R_PCRWORD:
-					case UNIXRelocation::R_REL24:
-					case UNIXRelocation::R_PCRLONG:
+					case R_PCRBYTE:
+					case R_REL16:
+					case R_PCRWORD:
+					case R_REL24:
+					case R_PCRLONG:
 						// TODO: relative to what?
 						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, GetEndianType());
 						break;
 
-					case UNIXRelocation::R_OFF16:
+					case R_OFF16:
 						obj_rel =
 							cpu_type == CPU_I86
 							? Linker::Relocation::Offset(rel_size, rel_source, rel_target, 0, GetEndianType())
@@ -3210,18 +2607,18 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 						obj_rel.SetShift(8);
 						break;
 
-					case UNIXRelocation::R_SEG12:
+					case R_SEG12:
 						obj_rel =
 							cpu_type == CPU_I86
 							? Linker::Relocation::Paragraph(rel_source, rel_target, 0)
 							: Linker::Relocation::Selector(rel_source, rel_target, 0);
 
-					case UNIXRelocation::R_IND16:
-					case UNIXRelocation::R_IND24:
-					case UNIXRelocation::R_IND32:
+					case R_IND16:
+					case R_IND24:
+					case R_IND32:
 						continue; // TODO: unimplemented
 
-					case UNIXRelocation::R_OPT16:
+					case R_OPT16:
 						continue; // TODO: unimplemented
 					}
 
@@ -3236,14 +2633,14 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 					case CPU_Z80:
 						switch(rel.type)
 						{
-						case ZilogRelocation::R_Z80_IMM8:
-						case ZilogRelocation::R_Z80_IMM16:
-						case ZilogRelocation::R_Z80_IMM24:
-						case ZilogRelocation::R_Z80_IMM32:
-						case ZilogRelocation::R_Z80_OFF8:
+						case R_Z80_IMM8:
+						case R_Z80_IMM16:
+						case R_Z80_IMM24:
+						case R_Z80_IMM32:
+						case R_Z80_OFF8:
 							obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, 0, ::LittleEndian);
 							break;
-						case ZilogRelocation::R_Z80_JR:
+						case R_Z80_JR:
 							obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, ::LittleEndian);
 							break;
 						default:
@@ -3256,19 +2653,19 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 					case CPU_Z8K:
 						switch(rel.type)
 						{
-						case ZilogRelocation::R_Z8K_IMM4L:
+						case R_Z8K_IMM4L:
 							obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
 							obj_rel.SetMask(0x0F);
 							break;
-						case ZilogRelocation::R_Z8K_IMM4H:
+						case R_Z8K_IMM4H:
 							/* TODO: untested */
 							obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
 							obj_rel.SetMask(0xF0);
 							break;
-						case ZilogRelocation::R_Z8K_IMM8:
+						case R_Z8K_IMM8:
 							obj_rel = Linker::Relocation::Offset(1, rel_source, rel_target, 0, ::BigEndian);
 							break;
-						case ZilogRelocation::R_Z8K_IMM16:
+						case R_Z8K_IMM16:
 							if(option_segmentation && sym_target.section_number != N_UNDEF && sym_target.section_number != N_ABS && sym_target.section_number != N_DEBUG)
 							{
 								/* segment part */
@@ -3285,7 +2682,7 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 								obj_rel = Linker::Relocation::Offset(2, rel_source, rel_target, 0, ::BigEndian);
 							}
 							break;
-						case ZilogRelocation::R_Z8K_IMM32:
+						case R_Z8K_IMM32:
 							if(option_segmentation && /*sym_target.section_number != N_UNDEF &&*/ sym_target.section_number != N_ABS && sym_target.section_number != N_DEBUG)
 							{
 								/* segment part */
@@ -3302,19 +2699,19 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 								obj_rel = Linker::Relocation::Offset(4, rel_source, rel_target, 0, ::BigEndian);
 							}
 							break;
-						case ZilogRelocation::R_Z8K_DISP7:
+						case R_Z8K_DISP7:
 							obj_rel = Linker::Relocation::Relative(1, rel_source, rel_target, 1, ::BigEndian);
 							obj_rel.SetSubtract();
 							obj_rel.SetMask(0x7F);
 							obj_rel.SetShift(1);
 							break;
-						case ZilogRelocation::R_Z8K_REL16:
+						case R_Z8K_REL16:
 							obj_rel = Linker::Relocation::Relative(2, rel_source, rel_target, -2, ::BigEndian);
 							break;
-						case ZilogRelocation::R_Z8K_JR:
+						case R_Z8K_JR:
 							obj_rel = Linker::Relocation::Relative(1, rel_source, rel_target, -1, ::BigEndian);
 							break;
-						case ZilogRelocation::R_Z8K_CALLR:
+						case R_Z8K_CALLR:
 							obj_rel = Linker::Relocation::Relative(2, rel_source, rel_target, 2, ::BigEndian);
 							obj_rel.SetSubtract();
 							obj_rel.SetMask(0x0FFF);
@@ -3344,23 +2741,23 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 
 						switch(rel.type)
 						{
-						case ZilogRelocation::R_W65_PCR8:
-						case ZilogRelocation::R_W65_PCR16:
+						case R_W65_PCR8:
+						case R_W65_PCR16:
 							obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, ::LittleEndian);
 							break;
-						case ZilogRelocation::R_W65_ABS8S8:
-						case ZilogRelocation::R_W65_ABS16S8:
+						case R_W65_ABS8S8:
+						case R_W65_ABS16S8:
 							obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
 							obj_rel.SetShift(8);
 							break;
-						case ZilogRelocation::R_W65_ABS8S16:
-						case ZilogRelocation::R_W65_ABS16S16:
+						case R_W65_ABS8S16:
+						case R_W65_ABS16S16:
 							obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
 							obj_rel.SetShift(16);
-						case ZilogRelocation::R_W65_ABS8:
-						case ZilogRelocation::R_W65_ABS16:
-						case ZilogRelocation::R_W65_ABS24:
-						case ZilogRelocation::R_W65_DP:
+						case R_W65_ABS8:
+						case R_W65_ABS16:
+						case R_W65_ABS24:
+						case R_W65_DP:
 							obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel_addend, ::LittleEndian);
 							break;
 						default:
