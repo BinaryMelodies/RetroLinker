@@ -297,6 +297,33 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 			case REL_THUMB_MOV32:
 				return 8;
 			}
+		case CPU_ARM64:
+			switch(type)
+			{
+			case REL_ARM64_ABSOLUTE:
+			default:
+				return 0;
+			case REL_ARM64_SECTION:
+				return 2;
+			case REL_ARM64_ADDR32:
+			case REL_ARM64_ADDR32NB:
+			case REL_ARM64_BRANCH26:
+			case REL_ARM64_PAGEBASE_REL21:
+			case REL_ARM64_REL21:
+			case REL_ARM64_PAGEOFFSET_12A:
+			case REL_ARM64_PAGEOFFSET_12L:
+			case REL_ARM64_SECREL:
+			case REL_ARM64_SECREL_LOW12A:
+			case REL_ARM64_SECREL_HIGH12A:
+			case REL_ARM64_SECREL_LOW12L:
+			case REL_ARM64_TOKEN:
+			case REL_ARM64_BRANCH19:
+			case REL_ARM64_BRANCH14:
+			case REL_ARM64_REL32:
+				return 4;
+			case REL_ARM64_ADDR64:
+				return 8;
+			}
 		case CPU_ALPHA:
 			switch(type)
 			{

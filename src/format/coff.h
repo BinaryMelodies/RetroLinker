@@ -434,7 +434,45 @@ namespace COFF
 			/** @brief ? */
 			static constexpr uint16_t REL_ARM_PAIR = 22;
 
-			// TODO: Microsoft relocations (ARM64)
+			// Microsoft relocations (ARM64)
+
+			/** @brief No relocation */
+			static constexpr uint16_t REL_ARM64_ABSOLUTE = 0;
+			/** @brief 32-bit virtual address of symbol */
+			static constexpr uint16_t REL_ARM64_ADDR32 = 1;
+			/** @brief 32-bit relative virtual address of symbol */
+			static constexpr uint16_t REL_ARM64_ADDR32NB = 2;
+			/** @brief 26-bit ARM relative address of symbol */
+			static constexpr uint16_t REL_ARM64_BRANCH26 = 3;
+			/** @brief Page base of symbol for ADRP */
+			static constexpr uint16_t REL_ARM64_PAGEBASE_REL21 = 4;
+			/** @brief 12-bit relative address of symbol for ADR */
+			static constexpr uint16_t REL_ARM64_REL21 = 5;
+			/** @brief 12-bit page offset of symbol for ADD/ADDS */
+			static constexpr uint16_t REL_ARM64_PAGEOFFSET_12A = 6;
+			/** @brief 12-bit page offset of symbol for LDR */
+			static constexpr uint16_t REL_ARM64_PAGEOFFSET_12L = 7;
+			/** @brief 32-bit offset from section start (debugging) */
+			static constexpr uint16_t REL_ARM64_SECREL = 8;
+			/** @brief Low 12 bits of offset from section start for ADD/ADDS */
+			static constexpr uint16_t REL_ARM64_SECREL_LOW12A = 9;
+			/** @brief Bits 12 to 23 of offset from section start for ADD/ADDS */
+			static constexpr uint16_t REL_ARM64_SECREL_HIGH12A = 10;
+			/** @brief Low 12 bits of offset from section start for LDR */
+			static constexpr uint16_t REL_ARM64_SECREL_LOW12L = 11;
+			/** @brief CLR token */
+			static constexpr uint16_t REL_ARM64_TOKEN = 12;
+			/** @brief 16-bit section index (debugging) */
+			static constexpr uint16_t REL_ARM64_SECTION = 13;
+			/** @brief 64-bit virtual address of symbol */
+			static constexpr uint16_t REL_ARM64_ADDR64 = 14;
+			/** @brief 19-bit relative address of symbol */
+			static constexpr uint16_t REL_ARM64_BRANCH19 = 15;
+			/** @brief 14-bit relative address of symbol for TBZ/TBNZ */
+			static constexpr uint16_t REL_ARM64_BRANCH14 = 16;
+			/** @brief 32-bit relative address of symbol */
+			static constexpr uint16_t REL_ARM64_REL32 = 17;
+
 			// TODO: Microsoft relocations (MIPS)
 
 			// Microsoft relocations (Alpha)
