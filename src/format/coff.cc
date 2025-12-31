@@ -233,7 +233,6 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 			switch(type)
 			{
 			case REL_I386_ABSOLUTE:
-			case REL_I386_TOKEN: // TODO
 			default:
 				return 0;
 			case REL_I386_SECREL7:
@@ -247,13 +246,13 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 			case REL_I386_REL32:
 			case REL_I386_DIR32NB:
 			case REL_I386_SECREL:
+			case REL_I386_TOKEN:
 				return 4;
 			}
 		case CPU_AMD64:
 			switch(type)
 			{
 			case REL_AMD64_ABSOLUTE:
-			case REL_AMD64_TOKEN: // TODO
 			case REL_AMD64_PAIR: // TODO
 			default:
 				return 0;
@@ -269,10 +268,33 @@ size_t COFFFormat::UNIXRelocation::GetSize() const
 			case REL_AMD64_REL32_4:
 			case REL_AMD64_REL32_5:
 			case REL_AMD64_SECREL:
+			case REL_AMD64_TOKEN:
 			case REL_AMD64_SREL32:
 			case REL_AMD64_SSPAN32:
 				return 4;
 			case REL_AMD64_ADDR64:
+				return 8;
+			}
+		case CPU_ARM:
+			switch(type)
+			{
+			case REL_ARM_ABSOLUTE:
+			case REL_ARM_PAIR:
+			default:
+				return 0;
+			case REL_ARM_SECTION:
+				return 2;
+			case REL_ARM_ADDR32:
+			case REL_ARM_ADDR32NB:
+			case REL_ARM_BRANCH24:
+			case REL_ARM_BRANCH11:
+			case REL_ARM_REL32:
+			case REL_ARM_SECREL:
+			case REL_THUMB_BRANCH24:
+			case REL_THUMB_BLX23:
+				return 4;
+			case REL_ARM_MOV32:
+			case REL_THUMB_MOV32:
 				return 8;
 			}
 		case CPU_ALPHA:

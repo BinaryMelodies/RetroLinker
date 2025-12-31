@@ -405,10 +405,37 @@ namespace COFF
 			/** @brief ? */
 			static constexpr uint16_t REL_AMD64_SSPAN32 = 16;
 
-			// TODO: Microsoft relocations (ARM)
+			// Microsoft relocations (ARM)
+
+			/** @brief No relocation */
+			static constexpr uint16_t REL_ARM_ABSOLUTE = 0;
+			/** @brief 32-bit virtual address of symbol */
+			static constexpr uint16_t REL_ARM_ADDR32 = 1;
+			/** @brief 32-bit relative virtual address of symbol */
+			static constexpr uint16_t REL_ARM_ADDR32NB = 2;
+			/** @brief 24-bit ARM relative address of symbol */
+			static constexpr uint16_t REL_ARM_BRANCH24 = 3;
+			/** @brief Two 16-bit instructions with 11 bits of the relative address of symbol each */
+			static constexpr uint16_t REL_ARM_BRANCH11 = 4;
+			/** @brief 32-bit relative address of symbol */
+			static constexpr uint16_t REL_ARM_REL32 = 10;
+			/** @brief 16-bit section index (debugging) */
+			static constexpr uint16_t REL_ARM_SECTION = 14;
+			/** @brief 32-bit offset from section start (debugging) */
+			static constexpr uint16_t REL_ARM_SECREL = 15;
+			/** @brief Two 32-bit ARM instructions with 32 bits of the virtual address of the symbol */
+			static constexpr uint16_t REL_ARM_MOV32 = 16;
+			/** @brief Two 32-bit Thumb instructions with 32 bits of the virtual address of the symbol */
+			static constexpr uint16_t REL_THUMB_MOV32 = 17;
+			/** @brief 24-bit Thumb relative address of symbol */
+			static constexpr uint16_t REL_THUMB_BRANCH24 = 20;
+			/** @brief 23-bit Thumb BLX relative address of symbol */
+			static constexpr uint16_t REL_THUMB_BLX23 = 21;
+			/** @brief ? */
+			static constexpr uint16_t REL_ARM_PAIR = 22;
+
 			// TODO: Microsoft relocations (ARM64)
 			// TODO: Microsoft relocations (MIPS)
-			// TODO: Microsoft relocations (PowerPC)
 
 			// Microsoft relocations (Alpha)
 
@@ -461,6 +488,7 @@ namespace COFF
 			/** @brief High 16 bits of 32-bit global pointer relative address of symbol */
 			static constexpr uint16_t REL_ALPHA_GPRELHI = 23;
 
+			// TODO: Microsoft relocations (PowerPC)
 			// TODO: Microsoft relocations (IA64)
 			// TODO: Microsoft relocations (SuperH)
 
