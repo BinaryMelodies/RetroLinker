@@ -7,6 +7,7 @@
 #include "../linker/segment_manager.h"
 #include "../linker/section.h"
 #include "mzexe.h"
+#include "binary.h"
 
 namespace SeychellDOS32
 {
@@ -229,7 +230,7 @@ namespace BorcaD3X
 	/**
 	 * @brief Daniel Borca's D3X executable format
 	 */
-	class D3X1Format : public virtual Linker::SegmentManager
+	class D3X1Format : public virtual Binary::GenericBinaryFormat
 	{
 	public:
 		uint32_t header_size = 0;
@@ -238,22 +239,43 @@ namespace BorcaD3X
 		uint32_t entry = 0;
 		uint32_t stack_top = 0;
 
-		std::shared_ptr<Linker::Contents> contents;
-
 		D3X1Format()
-			: header_size(32)
+			: Binary::GenericBinaryFormat(0, ".exe"), header_size(32)
 		{
 		}
 
 		void ReadFile(Linker::Reader& rd) override;
 
+		offset_t ImageSize() const override;
+
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
+		void CalculateValues() override;
+
 		/* * * Writer members * * */
 
+		class D3XOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+
+			D3XOptionCollector()
+			{
+				InitializeFields(stub);
+			}
+		};
+
 		mutable Microsoft::MZSimpleStubWriter stub;
+
+		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
+		void ProcessModule(Linker::Module& module) override;
 	};
 };
 

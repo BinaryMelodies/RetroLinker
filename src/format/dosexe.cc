@@ -758,7 +758,12 @@ void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
 	entry = rd.ReadUnsigned(4);
 	stack_top = rd.ReadUnsigned(4);
 	rd.Seek(file_offset + header_size);
-	contents = Linker::Buffer::ReadFromFile(rd, binary_size);
+	image = Linker::Buffer::ReadFromFile(rd, binary_size);
+}
+
+offset_t BorcaD3X::D3X1Format::ImageSize() const
+{
+	return file_offset + header_size + image->ImageSize();
 }
 
 offset_t BorcaD3X::D3X1Format::WriteFile(Linker::Writer& wr) const
@@ -777,8 +782,8 @@ offset_t BorcaD3X::D3X1Format::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(4, entry);
 	wr.WriteWord(4, stack_top);
 	wr.Seek(file_offset + header_size);
-	contents->WriteFile(wr);
-	return file_offset + header_size + contents->ImageSize();
+	image->WriteFile(wr);
+	return ImageSize();
 }
 
 void BorcaD3X::D3X1Format::Dump(Dumper::Dumper& dump) const
@@ -795,7 +800,69 @@ void BorcaD3X::D3X1Format::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Initial stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(stack_top));
 	header_region.Display(dump);
 
-	Dumper::Block data_block("Data", file_offset + header_size, contents ? contents->AsImage() : nullptr, 0, 8);
+	Dumper::Block data_block("Data", file_offset + header_size, image ? image->AsImage() : nullptr, 0, 8);
 	data_block.Display(dump);
+}
+
+void BorcaD3X::D3X1Format::CalculateValues()
+{
+	if(header_size < 24)
+		header_size = 24;
+	binary_size = image->ImageSize();
+
+	file_offset = stub.GetStubImageSize();
+}
+
+unsigned BorcaD3X::D3X1Format::FormatAdditionalSectionFlags(std::string section_name) const
+{
+	unsigned flags;
+	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)
+	{
+		flags = Linker::Section::Stack;
+	}
+	else
+	{
+		flags = 0;
+	}
+	return flags;
+}
+
+std::shared_ptr<Linker::OptionCollector> BorcaD3X::D3X1Format::GetOptions()
+{
+	return std::make_shared<D3XOptionCollector>();
+}
+
+void BorcaD3X::D3X1Format::SetOptions(std::map<std::string, std::string>& options)
+{
+	D3XOptionCollector collector;
+	collector.ConsiderOptions(options);
+	stub.filename = collector.stub();
+}
+
+void BorcaD3X::D3X1Format::ProcessModule(Linker::Module& module)
+{
+	GenericBinaryFormat::ProcessModule(module);
+
+	Linker::Location l_stack_top;
+	if(module.FindGlobalSymbol(".stack_top", l_stack_top))
+	{
+		stack_top = l_stack_top.GetPosition().address;
+	}
+	else
+	{
+		Linker::Warning << "Warning: no stack top specified, using end of image" << std::endl;
+		stack_top = std::dynamic_pointer_cast<Linker::Segment>(image)->TotalSize();
+	}
+
+	Linker::Location l_entry;
+	if(module.FindGlobalSymbol(".entry", l_entry))
+	{
+		entry = l_entry.GetPosition().address;
+	}
+	else
+	{
+		Linker::Warning << "Warning: no entry point specified, using beginning of image" << std::endl;
+		entry = 0;
+	}
 }
 
