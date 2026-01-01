@@ -29,6 +29,10 @@
 .set CPU_PDP11, 0
 .endif
 
+.ifndef CPU_VAX
+.set CPU_VAX, 0
+.endif
+
 .ifndef CPU_ARM
 .set CPU_ARM, 0
 .endif
@@ -533,7 +537,11 @@
 .endif
 
 .if TARGET_BSD
+.if CPU_VAX
+.include "../include/unix.inc"
+.else
 .include "../include/bsd.inc"
+.endif
 .endif
 
 .if TARGET_ELKS || TARGET_LINUX

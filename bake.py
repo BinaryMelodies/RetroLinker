@@ -367,6 +367,11 @@ CPUS = {
 		'assembler_flags': '',
 		'compiler': 'pdp11-aout-gcc',
 	},
+	'vax': {
+		'assembler': 'vax-linux-as',
+		'assembler_flags': '',
+		'compiler': 'vax-linux-gcc',
+	},
 	'z8k': {
 		'assembler': 'z8k-coff-as',
 		'assembler_flags': '',
@@ -999,107 +1004,152 @@ DefineTarget(
 DefineTarget(
 	Description = "UNIX Version 1 raw binary for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "unix",
+	System = "unix-pdp11",
+	TargetName = "unix",
+	IncludeName = "unix",
 	Format = "raw",
 	LinkerName = "bin",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v1"], LinkerParameters = [f"base_address=0x4000"]),
 	],
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DefineTarget(
 	Description = "UNIX Version 1 a.out for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "unix",
+	System = "unix-pdp11",
+	TargetName = "unix",
+	IncludeName = "unix",
 	Format = "v1",
 	LinkerName = "unix",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v1"]),
 	],
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DefineTarget(
 	Description = "UNIX Version 2 a.out for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "unix",
+	System = "unix-pdp11",
+	TargetName = "unix",
+	IncludeName = "unix",
 	Format = "v2",
 	LinkerName = "unix",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v2"]),
 	],
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DefineTarget(
 	Description = "UNIX Version 7 impure a.out for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "unix",
+	System = "unix-pdp11",
+	TargetName = "unix",
+	IncludeName = "unix",
 	Format = "omagic",
 	LinkerName = "unix",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v7", "type=omagic"]),
 	],
 #	c_target_options = "-msplit",
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DefineTarget(
 	Description = "UNIX Version 7 pure a.out for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "unix",
+	System = "unix-pdp11",
+	TargetName = "unix",
+	IncludeName = "unix",
 	Format = "nmagic",
 	LinkerName = "unix",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v7", "type=nmagic"]),
 	],
 #	c_target_options = "-msplit",
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DefineTarget(
 	Description = "UNIX Version 7 split a.out for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "unix",
+	System = "unix-pdp11",
+	TargetName = "unix",
+	IncludeName = "unix",
 	Format = "imagic",
 	LinkerName = "unix",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=v7", "type=separate"]),
 	],
 	c_target_options = "-msplit",
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DefineTarget(
 	Description = "2.11BSD impure a.out for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "bsd",
+	System = "bsd-pdp11",
+	TargetName = "bsd",
+	IncludeName = "bsd",
 	Format = "omagic",
 	LinkerName = "unix",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=omagic"]),
 	],
 #	c_target_options = "-msplit",
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DefineTarget(
 	Description = "2.11BSD pure a.out for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "bsd",
+	System = "bsd-pdp11",
+	TargetName = "bsd",
+	IncludeName = "bsd",
 	Format = "nmagic",
 	LinkerName = "unix",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=nmagic"]),
 	],
 #	c_target_options = "-msplit",
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DefineTarget(
 	Description = "2.11BSD split a.out for the DEC PDP-11",
 	CPU = "pdp11",
-	System = "bsd",
+	System = "bsd-pdp11",
+	TargetName = "bsd",
+	IncludeName = "bsd",
 	Format = "imagic",
 	LinkerName = "unix",
 	Versions = [
 		DefineVersion("", LinkerOptions = ["version=2.11bsd", "type=separate"]),
 	],
 	c_target_options = "-msplit",
-	custom_entry = False)
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 DXDOS_BASE = 0x200 # This seems to be the default, with SP set to 0x1FE, presumably with a value pushed
 DefineTarget(
@@ -1111,6 +1161,93 @@ DefineTarget(
 		DefineVersion("", LinkerParameters = [f"base_address={DXDOS_BASE}"]),
 	],
 	extension = ".com")
+
+######## VAX based systems
+
+DefineTarget(
+	Description = "UNIX System III impure a.out for the DEC VAX",
+	CPU = "vax",
+	System = "unix-vax",
+	TargetName = "unix",
+	IncludeName = "unix",
+	Format = "omagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=unix", "type=omagic"]),
+	],
+#	c_target_options = "-msplit",
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+DefineTarget(
+	Description = "UNIX System III pure a.out for the DEC VAX",
+	CPU = "vax",
+	System = "unix-vax",
+	TargetName = "unix",
+	IncludeName = "unix",
+	Format = "nmagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=unix", "type=nmagic"]),
+	],
+#	c_target_options = "-msplit",
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+DefineTarget(
+	Description = "4.3BSD impure a.out for the DEC VAX",
+	CPU = "vax",
+	System = "bsd-vax",
+	TargetName = "bsd",
+	IncludeName = "bsd",
+	Format = "omagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=4.3bsd", "type=omagic"]),
+	],
+#	c_target_options = "-msplit",
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+DefineTarget(
+	Description = "4.3BSD pure a.out for the DEC VAX",
+	CPU = "vax",
+	System = "bsd-vax",
+	TargetName = "bsd",
+	IncludeName = "bsd",
+	Format = "nmagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=4.3bsd", "type=nmagic"]),
+	],
+#	c_target_options = "-msplit",
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
+DefineTarget(
+	Description = "4.3BSD demand paged a.out for the DEC VAX",
+	CPU = "vax",
+	System = "bsd-vax",
+	TargetName = "bsd",
+	IncludeName = "bsd",
+	Format = "zmagic",
+	LinkerName = "unix",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["version=4.3bsd", "type=zmagic"]),
+	],
+#	c_target_options = "-msplit",
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
 
 ######## 6502/65C816 based systems
 

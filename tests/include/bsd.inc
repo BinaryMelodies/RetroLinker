@@ -1,4 +1,6 @@
 
+# For VAX, see unix.inc
+
 .macro	_StartUp
 .endm
 

@@ -239,43 +239,63 @@ Target(
 	System = "linux_ppc_32",
 	output_file = "linux-ppc-32")
 Target(
-	System = "unix",
+	System = "unix-pdp11",
 	Format = "raw",
 	output_file = "unix11v1raw")
 Target(
-	System = "unix",
+	System = "unix-pdp11",
 	Format = "v1",
 	output_file = "unix11v1")
 Target(
-	System = "unix",
+	System = "unix-pdp11",
 	Format = "v2",
 	output_file = "unix11v2")
 Target(
-	System = "unix",
+	System = "unix-pdp11",
 	Format = "omagic",
 	output_file = "unix11omagic")
 Target(
-	System = "unix",
+	System = "unix-pdp11",
 	Format = "nmagic",
 	output_file = "unix11nmagic")
 Target(
-	System = "unix",
+	System = "unix-pdp11",
 	Format = "imagic",
 	output_file = "unix11imagic")
 Target(
-	System = "bsd",
+	System = "bsd-pdp11",
 	Format = "omagic",
 	output_file = "bsd11omagic")
 Target(
-	System = "bsd",
+	System = "bsd-pdp11",
 	Format = "nmagic",
 	output_file = "bsd11nmagic")
 Target(
-	System = "bsd",
+	System = "bsd-pdp11",
 	Format = "imagic",
 	output_file = "bsd11imagic")
 Target(
 	System = "dxdos",
 	Format = "com",
 	output_file = "dxdos")
+Target(
+	System = "unix-vax",
+	Format = "omagic",
+	output_file = "unix-vax-omagic")
+Target(
+	System = "unix-vax",
+	Format = "nmagic",
+	output_file = "unix-vax-nmagic")
+Target(
+	System = "bsd-vax",
+	Format = "omagic",
+	output_file = "bsd-vax-omagic")
+Target(
+	System = "bsd-vax",
+	Format = "nmagic",
+	output_file = "bsd-vax-nmagic")
+Target(
+	System = "bsd-vax",
+	Format = "zmagic",
+	output_file = "bsd-vax-zmagic")
 

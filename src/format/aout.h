@@ -611,6 +611,7 @@ namespace AOut
 						"2.9BSD", AnyBSD,
 						"29BSD", AnyBSD,
 						"2BSD", AnyBSD,
+						"4.3BSD", AnyBSD,
 						"43BSD", AnyBSD,
 						"4BSD", AnyBSD)
 				{
