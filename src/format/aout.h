@@ -419,14 +419,22 @@ namespace AOut
 		bool AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size);
 
 	public:
+		enum symbol_format_type
+		{
+			/** @brief Symbol entry contains name, used by AT&T UNIX and 16-bit BSD up to 2.9BSD and 32-bit BSD up to 3BSD */
+			SYMBOL_FORMAT_ATT,
+			/** @brief Symbol entry contains name offset, used since 2.11BSD and 4.1BSD */
+			SYMBOL_FORMAT_BSD,
+		};
+		symbol_format_type symbol_format = SYMBOL_FORMAT_BSD;
+
 		class Symbol
 		{
 		public:
 			std::string name;
-			uint16_t unknown = 0;
-			uint16_t name_offset = 0;
-			uint16_t type = 0;
-			uint16_t value = 0;
+			offset_t name_offset = 0;
+			uint32_t type_etc = 0;
+			offset_t value = 0;
 		};
 
 		std::vector<Symbol> symbols;

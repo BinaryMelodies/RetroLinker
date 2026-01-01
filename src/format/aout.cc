@@ -17,7 +17,8 @@ using namespace AOut;
 	case SYS360:
 	case SYS390_64:
 		return ::BigEndian;
-	case PDP11: /* Note: actually, PDP-11 endian */
+	case PDP11:
+		return ::PDP11Endian;
 	case I386: case AMD64:
 	case ARM: case AARCH64:
 	case MIPS: /* TODO: check */
@@ -664,10 +665,18 @@ void AOutFormat::ReadHeader(Linker::Reader& rd)
 			relocations_suppressed &= 0x00FF;
 			break;
 		}
+
+		if(relocations_suppressed == 0)
+		{
+			code_relocation_size = code_size;
+			data_relocation_size = data_size;
+		}
 		break;
 	case WordSize32:
 		code_relocation_size = rd.ReadUnsigned(word_size);
 		data_relocation_size = rd.ReadUnsigned(word_size);
+
+		// environment_stamp is initialized when reading the first word
 		break;
 	}
 }
@@ -726,7 +735,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		}
 		else
 		{
-			endiantype = midmag_endiantype = ::LittleEndian;
+			endiantype = midmag_endiantype = ::PDP11Endian;
 			word_size = WordSize16;
 			// attempt PDP-11 byte order
 			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
@@ -800,14 +809,14 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			if(signature[1] == 0x00 || signature[1] == 0x01)
 			{
 				/* could be multiple formats, make multiple attempts */
-				endiantype = midmag_endiantype = ::LittleEndian;
-
 				word_size = file_offset ? WordSize32 : WordSize16;
-				/* if at beginning of file, first attempt 16-bit little endian (PDP-11, most likely input format) */
+				endiantype = midmag_endiantype = word_size == WordSize32 ? ::LittleEndian : ::PDP11Endian;
+
+				/* if at beginning of file, first attempt 16-bit PDP-11 endian (PDP-11, most likely input format) */
 				if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 				{
-					endiantype = midmag_endiantype = ::LittleEndian;
 					word_size = file_offset ? WordSize16 : WordSize32;
+					endiantype = midmag_endiantype = word_size == WordSize32 ? ::LittleEndian : ::PDP11Endian;
 					/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
 					if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
 					{
@@ -1179,33 +1188,6 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				}
 			}
 		}
-
-		if(symbol_table_size != 0)
-		{
-			for(size_t i = 0; i < symbol_table_size; i += 8)
-			{
-				Symbol symbol;
-				symbol.unknown = rd.ReadUnsigned(2);
-				symbol.name_offset = rd.ReadUnsigned(2);
-				symbol.type = rd.ReadUnsigned(2);
-				symbol.value = rd.ReadUnsigned(2);
-				symbols.push_back(symbol);
-			}
-
-			offset_t string_table_offset = code_size + data_size;
-			if(relocations_suppressed == 0)
-			{
-				string_table_offset *= 2;
-			}
-			string_table_offset += file_offset + 0x10 + symbol_table_size;
-			Linker::Debug << "Debug: String table offset " << std::hex << string_table_offset << std::endl;
-			for(auto& symbol : symbols)
-			{
-				rd.Seek(string_table_offset + symbol.name_offset);
-				symbol.name = rd.ReadASCIIZ();
-				Linker::Debug << "Debug: Symbol " << symbol.name << " (offset " << symbol.name_offset << ") of type " << symbol.type << " value " << symbol.value << std::endl;
-			}
-		}
 		break;
 	case WordSize32:
 		/* Linux a.out */
@@ -1226,6 +1208,35 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 		// TODO: symbol table
 		break;
+	}
+
+	if(symbol_table_size != 0)
+	{
+		switch(symbol_format)
+		{
+		case SYMBOL_FORMAT_ATT:
+			// TODO
+			break;
+		case SYMBOL_FORMAT_BSD:
+			for(size_t i = 0; i < symbol_table_size; i += 8)
+			{
+				Symbol symbol;
+				symbol.name_offset = rd.ReadUnsigned(4);
+				symbol.type_etc = rd.ReadUnsigned(word_size);
+				symbol.value = rd.ReadUnsigned(word_size);
+				symbols.push_back(symbol);
+			}
+
+			offset_t string_table_offset = code_size + data_size + code_relocation_size + data_relocation_size + symbol_table_size;
+			string_table_offset += file_offset + GetHeaderSize();
+			Linker::Debug << "Debug: String table offset " << std::hex << string_table_offset << std::endl;
+			for(auto& symbol : symbols)
+			{
+				rd.Seek(string_table_offset + symbol.name_offset);
+				symbol.name = rd.ReadASCIIZ();
+				Linker::Debug << "Debug: Symbol " << symbol.name << " (offset " << symbol.name_offset << ") of type " << symbol.type_etc << " value " << symbol.value << std::endl;
+			}
+		}
 	}
 
 	/* this is required for module generation */
@@ -1733,7 +1744,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 	{
 		offset_t offset;
 		std::shared_ptr<Linker::Section> section;
-		switch(symbol.type)
+		switch(symbol.type_etc & 0xFF)
 		{
 		case 0x20:
 			/* external or common */
