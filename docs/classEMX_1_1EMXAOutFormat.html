@@ -161,12 +161,15 @@ Public Member Functions</h2></td></tr>
 constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetHeaderSize</b> () const</td></tr>
 <tr class="memdesc:a941c74d11e24051ecd0096f0f8e061af inherit pub_methods_classAOut_1_1AOutFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size of the header for the current settings. <br /></td></tr>
 <tr class="separator:a941c74d11e24051ecd0096f0f8e061af inherit pub_methods_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a496b519d5dc5122e22d615e07e9a6c2f inherit pub_methods_classAOut_1_1AOutFormat" id="r_a496b519d5dc5122e22d615e07e9a6c2f"><td class="memItemLeft" align="right" valign="top">
+constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetRelocationSize</b> () const</td></tr>
+<tr class="separator:a496b519d5dc5122e22d615e07e9a6c2f inherit pub_methods_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcc7c53cb0d44930882696dca41e4ad8 inherit pub_methods_classAOut_1_1AOutFormat" id="r_afcc7c53cb0d44930882696dca41e4ad8"><td class="memItemLeft" align="right" valign="top">
 ::EndianType&#160;</td><td class="memItemRight" valign="bottom"><b>GetEndianType</b> () const</td></tr>
 <tr class="memdesc:afcc7c53cb0d44930882696dca41e4ad8 inherit pub_methods_classAOut_1_1AOutFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the default endian type for the currently set CPU. <br /></td></tr>
 <tr class="separator:afcc7c53cb0d44930882696dca41e4ad8 inherit pub_methods_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8dc4399a07cf16fc55e4925c3227f6a inherit pub_methods_classAOut_1_1AOutFormat" id="r_ac8dc4399a07cf16fc55e4925c3227f6a"><td class="memItemLeft" align="right" valign="top">
-word_size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetWordSize</b> () const</td></tr>
+<a class="el" href="classAOut_1_1AOutFormat.html#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GetWordSize</b> () const</td></tr>
 <tr class="memdesc:ac8dc4399a07cf16fc55e4925c3227f6a inherit pub_methods_classAOut_1_1AOutFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the expected word size for the currently set CPU. <br /></td></tr>
 <tr class="separator:ac8dc4399a07cf16fc55e4925c3227f6a inherit pub_methods_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3350b83287acbd6563cb181555750c77 inherit pub_methods_classAOut_1_1AOutFormat" id="r_a3350b83287acbd6563cb181555750c77"><td class="memItemLeft" align="right" valign="top">
@@ -437,7 +440,7 @@ std::array&lt; char, 64 &gt;&#160;</td><td class="memItemRight" valign="bottom">
 <tr class="memitem:a8aa14342e2a23bc0ce5b673e28be77aa inherit pub_attribs_classAOut_1_1AOutFormat" id="r_a8aa14342e2a23bc0ce5b673e28be77aa"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAOut_1_1AOutFormat.html#a8aa14342e2a23bc0ce5b673e28be77aa">flags</a> = 0</td></tr>
 <tr class="separator:a8aa14342e2a23bc0ce5b673e28be77aa inherit pub_attribs_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58dc1361ef4414912bf32f3607121531 inherit pub_attribs_classAOut_1_1AOutFormat" id="r_a58dc1361ef4414912bf32f3607121531"><td class="memItemLeft" align="right" valign="top">
-word_size_t&#160;</td><td class="memItemRight" valign="bottom"><b>word_size</b> = word_size_t(0)</td></tr>
+<a class="el" href="classAOut_1_1AOutFormat.html#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>word_size</b> = <a class="el" href="classAOut_1_1AOutFormat.html#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a>(0)</td></tr>
 <tr class="memdesc:a58dc1361ef4414912bf32f3607121531 inherit pub_attribs_classAOut_1_1AOutFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of bytes in a machine word (2 or 4), typically also determines the size of the header (16 or 32 bytes) <br /></td></tr>
 <tr class="separator:a58dc1361ef4414912bf32f3607121531 inherit pub_attribs_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8bed7b9cebb485efe63226465123be1 inherit pub_attribs_classAOut_1_1AOutFormat" id="r_af8bed7b9cebb485efe63226465123be1"><td class="memItemLeft" align="right" valign="top">
@@ -488,6 +491,9 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Co
 <tr class="memitem:a7aa180a2b8fdcb2be37e22d20a9e6033 inherit pub_attribs_classAOut_1_1AOutFormat" id="r_a7aa180a2b8fdcb2be37e22d20a9e6033"><td class="memItemLeft" align="right" valign="top">
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>bss</b></td></tr>
 <tr class="separator:a7aa180a2b8fdcb2be37e22d20a9e6033 inherit pub_attribs_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4c854a1b6724649e5f6ddb0cc6527dc inherit pub_attribs_classAOut_1_1AOutFormat" id="r_aa4c854a1b6724649e5f6ddb0cc6527dc"><td class="memItemLeft" align="right" valign="top">
+<a class="el" href="classAOut_1_1AOutFormat.html#aa328b8042f17f54a27afa73e5c9e8e72">symbol_format_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_format</b> = <a class="el" href="classAOut_1_1AOutFormat.html#aa328b8042f17f54a27afa73e5c9e8e72a46a64603fbafc73742c9ca750433a823">SYMBOL_FORMAT_BSD</a></td></tr>
+<tr class="separator:aa4c854a1b6724649e5f6ddb0cc6527dc inherit pub_attribs_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8755142c0587d7060597a305e61004df inherit pub_attribs_classAOut_1_1AOutFormat" id="r_a8755142c0587d7060597a305e61004df"><td class="memItemLeft" align="right" valign="top">
 std::vector&lt; <a class="el" href="classAOut_1_1AOutFormat_1_1Symbol.html">Symbol</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>symbols</b></td></tr>
 <tr class="separator:a8755142c0587d7060597a305e61004df inherit pub_attribs_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -706,8 +712,9 @@ Additional Inherited Members</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a21ba7c404e01c8e56239be73c337499b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The low 16 bits of the midmag field, it determines how sections should be loaded into memory, in a system dependent way.  <a href="classAOut_1_1AOutFormat.html#a21ba7c404e01c8e56239be73c337499b">More...</a><br /></td></tr>
 <tr class="separator:a21ba7c404e01c8e56239be73c337499b inherit pub_types_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91f01eac9b7a509ac27ae432926130bd inherit pub_types_classAOut_1_1AOutFormat" id="r_a91f01eac9b7a509ac27ae432926130bd"><td class="memItemLeft" align="right" valign="top"><a id="a91f01eac9b7a509ac27ae432926130bd" name="a91f01eac9b7a509ac27ae432926130bd"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>word_size_t</b> { <b>WordSize16</b> = 2
-, <b>WordSize32</b> = 4
+<tr class="memitem:a91f01eac9b7a509ac27ae432926130bd inherit pub_types_classAOut_1_1AOutFormat" id="r_a91f01eac9b7a509ac27ae432926130bd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAOut_1_1AOutFormat.html#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a> { <a class="el" href="classAOut_1_1AOutFormat.html#a91f01eac9b7a509ac27ae432926130bdab59969244269b37087e573eba28cfedc">WordSize16</a> = 2
+, <a class="el" href="classAOut_1_1AOutFormat.html#a91f01eac9b7a509ac27ae432926130bdaeffa579d352dd9426f0646e963676c34">WordSize32</a> = 4
+, <a class="el" href="classAOut_1_1AOutFormat.html#a91f01eac9b7a509ac27ae432926130bda09f906d25ddf7cb12b35a175541ea544">WordSize64</a> = 8
  }</td></tr>
 <tr class="separator:a91f01eac9b7a509ac27ae432926130bd inherit pub_types_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0381742adceb2505ef098079ff119336 inherit pub_types_classAOut_1_1AOutFormat" id="r_a0381742adceb2505ef098079ff119336"><td class="memItemLeft" align="right" valign="top"><a id="a0381742adceb2505ef098079ff119336" name="a0381742adceb2505ef098079ff119336"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>cpu_type</b> { <br />
@@ -743,6 +750,10 @@ Additional Inherited Members</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a0381742adceb2505ef098079ff119336 inherit pub_types_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa328b8042f17f54a27afa73e5c9e8e72 inherit pub_types_classAOut_1_1AOutFormat" id="r_aa328b8042f17f54a27afa73e5c9e8e72"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAOut_1_1AOutFormat.html#aa328b8042f17f54a27afa73e5c9e8e72">symbol_format_type</a> { <a class="el" href="classAOut_1_1AOutFormat.html#aa328b8042f17f54a27afa73e5c9e8e72a00d4d959c8d6acc7c980d636ec2a3cc0">SYMBOL_FORMAT_ATT</a>
+, <a class="el" href="classAOut_1_1AOutFormat.html#aa328b8042f17f54a27afa73e5c9e8e72a46a64603fbafc73742c9ca750433a823">SYMBOL_FORMAT_BSD</a>
+ }</td></tr>
+<tr class="separator:aa328b8042f17f54a27afa73e5c9e8e72 inherit pub_types_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae44ffe70781da784ec9fc82cac4fdd5 inherit pub_types_classAOut_1_1AOutFormat" id="r_aae44ffe70781da784ec9fc82cac4fdd5"><td class="memItemLeft" align="right" valign="top"><a id="aae44ffe70781da784ec9fc82cac4fdd5" name="aae44ffe70781da784ec9fc82cac4fdd5"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAOut_1_1AOutFormat.html#aae44ffe70781da784ec9fc82cac4fdd5">unix_version</a> { <br />
 &#160;&#160;<b>DefaultVersion</b>
 , <b>Version1</b>
@@ -766,7 +777,7 @@ Additional Inherited Members</h2></td></tr>
 <tr class="memdesc:a1c118cd84fa7432845d9a075d1dc6cc3 inherit pub_static_methods_classAOut_1_1AOutFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default magic number associated with the system.  <br /></td></tr>
 <tr class="separator:a1c118cd84fa7432845d9a075d1dc6cc3 inherit pub_static_methods_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03356154085908c0031d2ea3fc71a0b9 inherit pub_static_methods_classAOut_1_1AOutFormat" id="r_a03356154085908c0031d2ea3fc71a0b9"><td class="memItemLeft" align="right" valign="top">
-static std::shared_ptr&lt; <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateReader</b> (word_size_t <a class="el" href="classAOut_1_1AOutFormat.html#a58dc1361ef4414912bf32f3607121531">word_size</a>, ::EndianType endiantype, <a class="el" href="classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a> <a class="el" href="classAOut_1_1AOutFormat.html#a7222ee73ce1b07dbfa3bf9e5217e476a">system</a>=<a class="el" href="classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2">UNSPECIFIED</a>)</td></tr>
+static std::shared_ptr&lt; <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateReader</b> (<a class="el" href="classAOut_1_1AOutFormat.html#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a> <a class="el" href="classAOut_1_1AOutFormat.html#a58dc1361ef4414912bf32f3607121531">word_size</a>, ::EndianType endiantype, <a class="el" href="classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a> <a class="el" href="classAOut_1_1AOutFormat.html#a7222ee73ce1b07dbfa3bf9e5217e476a">system</a>=<a class="el" href="classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2">UNSPECIFIED</a>)</td></tr>
 <tr class="separator:a03356154085908c0031d2ea3fc71a0b9 inherit pub_static_methods_classAOut_1_1AOutFormat"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0aa014943403a664b90b10548345843 inherit pub_static_methods_classAOut_1_1AOutFormat" id="r_ad0aa014943403a664b90b10548345843"><td class="memItemLeft" align="right" valign="top">
 static std::shared_ptr&lt; <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateWriter</b> (<a class="el" href="classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a> <a class="el" href="classAOut_1_1AOutFormat.html#a7222ee73ce1b07dbfa3bf9e5217e476a">system</a>, <a class="el" href="classAOut_1_1AOutFormat.html#a21ba7c404e01c8e56239be73c337499b">magic_type</a> <a class="el" href="classAOut_1_1AOutFormat.html#a4dd44cd34da9f58b77c0193c2ee13dbb">magic</a>)</td></tr>

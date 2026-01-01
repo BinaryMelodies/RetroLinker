@@ -163,8 +163,9 @@ Public Types</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a21ba7c404e01c8e56239be73c337499b"><td class="mdescLeft">&#160;</td><td class="mdescRight">The low 16 bits of the midmag field, it determines how sections should be loaded into memory, in a system dependent way.  <a href="#a21ba7c404e01c8e56239be73c337499b">More...</a><br /></td></tr>
 <tr class="separator:a21ba7c404e01c8e56239be73c337499b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a91f01eac9b7a509ac27ae432926130bd" id="r_a91f01eac9b7a509ac27ae432926130bd"><td class="memItemLeft" align="right" valign="top"><a id="a91f01eac9b7a509ac27ae432926130bd" name="a91f01eac9b7a509ac27ae432926130bd"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>word_size_t</b> { <b>WordSize16</b> = 2
-, <b>WordSize32</b> = 4
+<tr class="memitem:a91f01eac9b7a509ac27ae432926130bd" id="r_a91f01eac9b7a509ac27ae432926130bd"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a> { <a class="el" href="#a91f01eac9b7a509ac27ae432926130bdab59969244269b37087e573eba28cfedc">WordSize16</a> = 2
+, <a class="el" href="#a91f01eac9b7a509ac27ae432926130bdaeffa579d352dd9426f0646e963676c34">WordSize32</a> = 4
+, <a class="el" href="#a91f01eac9b7a509ac27ae432926130bda09f906d25ddf7cb12b35a175541ea544">WordSize64</a> = 8
  }</td></tr>
 <tr class="separator:a91f01eac9b7a509ac27ae432926130bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0381742adceb2505ef098079ff119336" id="r_a0381742adceb2505ef098079ff119336"><td class="memItemLeft" align="right" valign="top"><a id="a0381742adceb2505ef098079ff119336" name="a0381742adceb2505ef098079ff119336"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>cpu_type</b> { <br />
@@ -200,6 +201,10 @@ Public Types</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:a0381742adceb2505ef098079ff119336"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa328b8042f17f54a27afa73e5c9e8e72" id="r_aa328b8042f17f54a27afa73e5c9e8e72"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa328b8042f17f54a27afa73e5c9e8e72">symbol_format_type</a> { <a class="el" href="#aa328b8042f17f54a27afa73e5c9e8e72a00d4d959c8d6acc7c980d636ec2a3cc0">SYMBOL_FORMAT_ATT</a>
+, <a class="el" href="#aa328b8042f17f54a27afa73e5c9e8e72a46a64603fbafc73742c9ca750433a823">SYMBOL_FORMAT_BSD</a>
+ }</td></tr>
+<tr class="separator:aa328b8042f17f54a27afa73e5c9e8e72"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aae44ffe70781da784ec9fc82cac4fdd5" id="r_aae44ffe70781da784ec9fc82cac4fdd5"><td class="memItemLeft" align="right" valign="top"><a id="aae44ffe70781da784ec9fc82cac4fdd5" name="aae44ffe70781da784ec9fc82cac4fdd5"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aae44ffe70781da784ec9fc82cac4fdd5">unix_version</a> { <br />
 &#160;&#160;<b>DefaultVersion</b>
 , <b>Version1</b>
@@ -225,12 +230,15 @@ Public Member Functions</h2></td></tr>
 constexpr uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetHeaderSize</b> () const</td></tr>
 <tr class="memdesc:a941c74d11e24051ecd0096f0f8e061af"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves the size of the header for the current settings. <br /></td></tr>
 <tr class="separator:a941c74d11e24051ecd0096f0f8e061af"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a496b519d5dc5122e22d615e07e9a6c2f" id="r_a496b519d5dc5122e22d615e07e9a6c2f"><td class="memItemLeft" align="right" valign="top"><a id="a496b519d5dc5122e22d615e07e9a6c2f" name="a496b519d5dc5122e22d615e07e9a6c2f"></a>
+constexpr offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetRelocationSize</b> () const</td></tr>
+<tr class="separator:a496b519d5dc5122e22d615e07e9a6c2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afcc7c53cb0d44930882696dca41e4ad8" id="r_afcc7c53cb0d44930882696dca41e4ad8"><td class="memItemLeft" align="right" valign="top"><a id="afcc7c53cb0d44930882696dca41e4ad8" name="afcc7c53cb0d44930882696dca41e4ad8"></a>
 ::EndianType&#160;</td><td class="memItemRight" valign="bottom"><b>GetEndianType</b> () const</td></tr>
 <tr class="memdesc:afcc7c53cb0d44930882696dca41e4ad8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the default endian type for the currently set CPU. <br /></td></tr>
 <tr class="separator:afcc7c53cb0d44930882696dca41e4ad8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8dc4399a07cf16fc55e4925c3227f6a" id="r_ac8dc4399a07cf16fc55e4925c3227f6a"><td class="memItemLeft" align="right" valign="top"><a id="ac8dc4399a07cf16fc55e4925c3227f6a" name="ac8dc4399a07cf16fc55e4925c3227f6a"></a>
-word_size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetWordSize</b> () const</td></tr>
+<a class="el" href="#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>GetWordSize</b> () const</td></tr>
 <tr class="memdesc:ac8dc4399a07cf16fc55e4925c3227f6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the expected word size for the currently set CPU. <br /></td></tr>
 <tr class="separator:ac8dc4399a07cf16fc55e4925c3227f6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3350b83287acbd6563cb181555750c77" id="r_a3350b83287acbd6563cb181555750c77"><td class="memItemLeft" align="right" valign="top"><a id="a3350b83287acbd6563cb181555750c77" name="a3350b83287acbd6563cb181555750c77"></a>
@@ -488,7 +496,7 @@ Static Public Member Functions</h2></td></tr>
 <tr class="memdesc:a1c118cd84fa7432845d9a075d1dc6cc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Default magic number associated with the system.  <br /></td></tr>
 <tr class="separator:a1c118cd84fa7432845d9a075d1dc6cc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03356154085908c0031d2ea3fc71a0b9" id="r_a03356154085908c0031d2ea3fc71a0b9"><td class="memItemLeft" align="right" valign="top"><a id="a03356154085908c0031d2ea3fc71a0b9" name="a03356154085908c0031d2ea3fc71a0b9"></a>
-static std::shared_ptr&lt; <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateReader</b> (word_size_t <a class="el" href="#a58dc1361ef4414912bf32f3607121531">word_size</a>, ::EndianType endiantype, <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a> <a class="el" href="#a7222ee73ce1b07dbfa3bf9e5217e476a">system</a>=<a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2">UNSPECIFIED</a>)</td></tr>
+static std::shared_ptr&lt; <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateReader</b> (<a class="el" href="#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a> <a class="el" href="#a58dc1361ef4414912bf32f3607121531">word_size</a>, ::EndianType endiantype, <a class="el" href="#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a> <a class="el" href="#a7222ee73ce1b07dbfa3bf9e5217e476a">system</a>=<a class="el" href="#ac4ac5a8725cfbf843d960ba6984346baa709b3e94febfe8112db4e6d5067ec6b2">UNSPECIFIED</a>)</td></tr>
 <tr class="separator:a03356154085908c0031d2ea3fc71a0b9"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad0aa014943403a664b90b10548345843" id="r_ad0aa014943403a664b90b10548345843"><td class="memItemLeft" align="right" valign="top"><a id="ad0aa014943403a664b90b10548345843" name="ad0aa014943403a664b90b10548345843"></a>
 static std::shared_ptr&lt; <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>CreateWriter</b> (<a class="el" href="#ac4ac5a8725cfbf843d960ba6984346ba">system_type</a> <a class="el" href="#a7222ee73ce1b07dbfa3bf9e5217e476a">system</a>, <a class="el" href="#a21ba7c404e01c8e56239be73c337499b">magic_type</a> <a class="el" href="#a4dd44cd34da9f58b77c0193c2ee13dbb">magic</a>)</td></tr>
@@ -521,7 +529,7 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a8aa14342e2a23bc0ce5b673e28be77aa" id="r_a8aa14342e2a23bc0ce5b673e28be77aa"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8aa14342e2a23bc0ce5b673e28be77aa">flags</a> = 0</td></tr>
 <tr class="separator:a8aa14342e2a23bc0ce5b673e28be77aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a58dc1361ef4414912bf32f3607121531" id="r_a58dc1361ef4414912bf32f3607121531"><td class="memItemLeft" align="right" valign="top"><a id="a58dc1361ef4414912bf32f3607121531" name="a58dc1361ef4414912bf32f3607121531"></a>
-word_size_t&#160;</td><td class="memItemRight" valign="bottom"><b>word_size</b> = word_size_t(0)</td></tr>
+<a class="el" href="#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a>&#160;</td><td class="memItemRight" valign="bottom"><b>word_size</b> = <a class="el" href="#a91f01eac9b7a509ac27ae432926130bd">word_size_t</a>(0)</td></tr>
 <tr class="memdesc:a58dc1361ef4414912bf32f3607121531"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of bytes in a machine word (2 or 4), typically also determines the size of the header (16 or 32 bytes) <br /></td></tr>
 <tr class="separator:a58dc1361ef4414912bf32f3607121531"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8bed7b9cebb485efe63226465123be1" id="r_af8bed7b9cebb485efe63226465123be1"><td class="memItemLeft" align="right" valign="top"><a id="af8bed7b9cebb485efe63226465123be1" name="af8bed7b9cebb485efe63226465123be1"></a>
@@ -572,6 +580,9 @@ std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Co
 <tr class="memitem:a7aa180a2b8fdcb2be37e22d20a9e6033" id="r_a7aa180a2b8fdcb2be37e22d20a9e6033"><td class="memItemLeft" align="right" valign="top"><a id="a7aa180a2b8fdcb2be37e22d20a9e6033" name="a7aa180a2b8fdcb2be37e22d20a9e6033"></a>
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Contents.html">Linker::Contents</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>bss</b></td></tr>
 <tr class="separator:a7aa180a2b8fdcb2be37e22d20a9e6033"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa4c854a1b6724649e5f6ddb0cc6527dc" id="r_aa4c854a1b6724649e5f6ddb0cc6527dc"><td class="memItemLeft" align="right" valign="top"><a id="aa4c854a1b6724649e5f6ddb0cc6527dc" name="aa4c854a1b6724649e5f6ddb0cc6527dc"></a>
+<a class="el" href="#aa328b8042f17f54a27afa73e5c9e8e72">symbol_format_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_format</b> = <a class="el" href="#aa328b8042f17f54a27afa73e5c9e8e72a46a64603fbafc73742c9ca750433a823">SYMBOL_FORMAT_BSD</a></td></tr>
+<tr class="separator:aa4c854a1b6724649e5f6ddb0cc6527dc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8755142c0587d7060597a305e61004df" id="r_a8755142c0587d7060597a305e61004df"><td class="memItemLeft" align="right" valign="top"><a id="a8755142c0587d7060597a305e61004df" name="a8755142c0587d7060597a305e61004df"></a>
 std::vector&lt; <a class="el" href="classAOut_1_1AOutFormat_1_1Symbol.html">Symbol</a> &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>symbols</b></td></tr>
 <tr class="separator:a8755142c0587d7060597a305e61004df"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -852,6 +863,26 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 
 </div>
 </div>
+<a id="aa328b8042f17f54a27afa73e5c9e8e72" name="aa328b8042f17f54a27afa73e5c9e8e72"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa328b8042f17f54a27afa73e5c9e8e72">&#9670;&#160;</a></span>symbol_format_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#aa328b8042f17f54a27afa73e5c9e8e72">AOut::AOutFormat::symbol_format_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="aa328b8042f17f54a27afa73e5c9e8e72a00d4d959c8d6acc7c980d636ec2a3cc0" name="aa328b8042f17f54a27afa73e5c9e8e72a00d4d959c8d6acc7c980d636ec2a3cc0"></a>SYMBOL_FORMAT_ATT&#160;</td><td class="fielddoc"><p><a class="el" href="classAOut_1_1AOutFormat_1_1Symbol.html">Symbol</a> entry contains name, used by AT&amp;T UNIX and 16-bit BSD up to 2.9BSD and 32-bit BSD up to 3BSD. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="aa328b8042f17f54a27afa73e5c9e8e72a46a64603fbafc73742c9ca750433a823" name="aa328b8042f17f54a27afa73e5c9e8e72a46a64603fbafc73742c9ca750433a823"></a>SYMBOL_FORMAT_BSD&#160;</td><td class="fielddoc"><p><a class="el" href="classAOut_1_1AOutFormat_1_1Symbol.html">Symbol</a> entry contains name offset, used since 2.11BSD and 4.1BSD. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
 <a id="ac4ac5a8725cfbf843d960ba6984346ba" name="ac4ac5a8725cfbf843d960ba6984346ba"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac4ac5a8725cfbf843d960ba6984346ba">&#9670;&#160;</a></span>system_type</h2>
 
@@ -872,13 +903,13 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baadac9b789970cf7222d61afea71e22a36" name="ac4ac5a8725cfbf843d960ba6984346baadac9b789970cf7222d61afea71e22a36"></a>UNIX_V1_V2&#160;</td><td class="fielddoc"><p>Treat it as a UNIX Version 1/2 binary (PDP-11 only) </p>
 <p>Only 16-bit version available (PDP-11). This option processes the header formats for magic numbers 0o0405/0x0105 (12 byte header) and 0o0407/0x017 (16 byte header) UNIX Version 1/2 binaries are loaded at offset 0x4000 instead of 0. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baaa68508c65962b8f5dd4ff7889db46189" name="ac4ac5a8725cfbf843d960ba6984346baaa68508c65962b8f5dd4ff7889db46189"></a>UNIX&#160;</td><td class="fielddoc"><p>Treat it as a UNIX Version 3/4/5/6/7 or 2.9/2.11BSD binary, also used for UNIX/32V and System III. </p>
+<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baaa68508c65962b8f5dd4ff7889db46189" name="ac4ac5a8725cfbf843d960ba6984346baaa68508c65962b8f5dd4ff7889db46189"></a>UNIX&#160;</td><td class="fielddoc"><p>Treat it as a UNIX Version 3/4/5/6/7, also used for UNIX/32V and System III. </p>
 <p>Either 16-bit (PDP-11, AT&amp;T or BSD) or 32-bit (VAX, AT&amp;T). This option understands OMAGIC (0o0407/0x0107), NMAGIC (0o0410/0x0108), IMAGIC (0o0411/0x0109), overlays (0o0405/0x0105) and auto-overlay executables (0o0430/0x0118 and 0o0431/0x0119). </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baa86690e98f54af77c8c4799e00fc8d878" name="ac4ac5a8725cfbf843d960ba6984346baa86690e98f54af77c8c4799e00fc8d878"></a>SYSTEM_V&#160;</td><td class="fielddoc"><p>Treat it as a UNIX System V binary (PDP-11 only) </p>
 <p>Only 16-bit (PDP-11). The header contains some additional fields. Same magic numbers as for UNIX. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baad5f45f31405dddb1cd403180d2465102" name="ac4ac5a8725cfbf843d960ba6984346baad5f45f31405dddb1cd403180d2465102"></a>BSD&#160;</td><td class="fielddoc"><p>Treat it as 4.3BSD. </p>
+<tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baad5f45f31405dddb1cd403180d2465102" name="ac4ac5a8725cfbf843d960ba6984346baad5f45f31405dddb1cd403180d2465102"></a>BSD&#160;</td><td class="fielddoc"><p>Treat it as a 2.9BSD/2.11BSD or 4.3BSD binary. </p>
 <p>4.3BSD supported OMAGIC, NMAGIC, ZMAGIC binaries </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baa01fa88ef7821c4496e0f374046c685e3" name="ac4ac5a8725cfbf843d960ba6984346baa01fa88ef7821c4496e0f374046c685e3"></a>LINUX&#160;</td><td class="fielddoc"><p>Treat it as a Linux a.out binary, used before kernel 5.19 (Linux switched to ELF in 1.2) </p>
@@ -897,6 +928,28 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <p>PDOS only supports OMAGIC binaries </p>
 </td></tr>
 <tr><td class="fieldname"><a id="ac4ac5a8725cfbf843d960ba6984346baae735b7cf2a64cc9472a56e5ae31a00e1" name="ac4ac5a8725cfbf843d960ba6984346baae735b7cf2a64cc9472a56e5ae31a00e1"></a>EMX&#160;</td><td class="fielddoc"><p>Treat it as an EMX a.out binary, should only be used with EMXAOutFormat. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a91f01eac9b7a509ac27ae432926130bd" name="a91f01eac9b7a509ac27ae432926130bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a91f01eac9b7a509ac27ae432926130bd">&#9670;&#160;</a></span>word_size_t</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a91f01eac9b7a509ac27ae432926130bd">AOut::AOutFormat::word_size_t</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a91f01eac9b7a509ac27ae432926130bdab59969244269b37087e573eba28cfedc" name="a91f01eac9b7a509ac27ae432926130bdab59969244269b37087e573eba28cfedc"></a>WordSize16&#160;</td><td class="fielddoc"><p>16-bit a.out, used on PDP-11 </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a91f01eac9b7a509ac27ae432926130bdaeffa579d352dd9426f0646e963676c34" name="a91f01eac9b7a509ac27ae432926130bdaeffa579d352dd9426f0646e963676c34"></a>WordSize32&#160;</td><td class="fielddoc"><p>32-bit a.out </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a91f01eac9b7a509ac27ae432926130bda09f906d25ddf7cb12b35a175541ea544" name="a91f01eac9b7a509ac27ae432926130bda09f906d25ddf7cb12b35a175541ea544"></a>WordSize64&#160;</td><td class="fielddoc"><p>64-bit a.out, supported by GNU binutils (TODO: what systems actually use this?) </p>
 </td></tr>
 </table>
 

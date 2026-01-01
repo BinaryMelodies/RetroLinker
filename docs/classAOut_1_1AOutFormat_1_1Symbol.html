@@ -77,32 +77,60 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classAOut_1_1AOutFormat_1_1Symbol-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">AOut::AOutFormat::Symbol Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a9aa0a4003b2e48ca0049d042ba9c270c" id="r_a9aa0a4003b2e48ca0049d042ba9c270c"><td class="memItemLeft" align="right" valign="top"><a id="a9aa0a4003b2e48ca0049d042ba9c270c" name="a9aa0a4003b2e48ca0049d042ba9c270c"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>segment_type</b> { <br />
+&#160;&#160;<b>Undefined</b> = 0
+, <b>Absolute</b> = 1
+, <b>Text</b> = 2
+, <b>Data</b> = 3
+, <br />
+&#160;&#160;<b>Bss</b> = 4
+, <b>Common</b> = 9
+, <b>Register</b> = 20
+, <b>FileName</b> = 31
+<br />
+ }</td></tr>
+<tr class="separator:a9aa0a4003b2e48ca0049d042ba9c270c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:a471e475162f8e7261d96052734bfcca6" id="r_a471e475162f8e7261d96052734bfcca6"><td class="memItemLeft" align="right" valign="top"><a id="a471e475162f8e7261d96052734bfcca6" name="a471e475162f8e7261d96052734bfcca6"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetTypeByte</b> (const <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &amp;aout) const</td></tr>
+<tr class="separator:a471e475162f8e7261d96052734bfcca6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7475351717037ae934cd34e3191fce9e" id="r_a7475351717037ae934cd34e3191fce9e"><td class="memItemLeft" align="right" valign="top"><a id="a7475351717037ae934cd34e3191fce9e" name="a7475351717037ae934cd34e3191fce9e"></a>
+segment_type&#160;</td><td class="memItemRight" valign="bottom"><b>GetType</b> (const <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &amp;aout) const</td></tr>
+<tr class="separator:a7475351717037ae934cd34e3191fce9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37ef2902f767667c379ea12d0c70d187" id="r_a37ef2902f767667c379ea12d0c70d187"><td class="memItemLeft" align="right" valign="top"><a id="a37ef2902f767667c379ea12d0c70d187" name="a37ef2902f767667c379ea12d0c70d187"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>IsExternal</b> (const <a class="el" href="classAOut_1_1AOutFormat.html">AOutFormat</a> &amp;aout) const</td></tr>
+<tr class="separator:a37ef2902f767667c379ea12d0c70d187"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ab890278976d8f8ec82207078291dfd63" id="r_ab890278976d8f8ec82207078291dfd63"><td class="memItemLeft" align="right" valign="top"><a id="ab890278976d8f8ec82207078291dfd63" name="ab890278976d8f8ec82207078291dfd63"></a>
 std::string&#160;</td><td class="memItemRight" valign="bottom"><b>name</b></td></tr>
 <tr class="separator:ab890278976d8f8ec82207078291dfd63"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a62d4b4f474ecfd94307f805d2a6af928" id="r_a62d4b4f474ecfd94307f805d2a6af928"><td class="memItemLeft" align="right" valign="top"><a id="a62d4b4f474ecfd94307f805d2a6af928" name="a62d4b4f474ecfd94307f805d2a6af928"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>unknown</b> = 0</td></tr>
-<tr class="separator:a62d4b4f474ecfd94307f805d2a6af928"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a93a0cae241accd82cfb58090fcede42f" id="r_a93a0cae241accd82cfb58090fcede42f"><td class="memItemLeft" align="right" valign="top"><a id="a93a0cae241accd82cfb58090fcede42f" name="a93a0cae241accd82cfb58090fcede42f"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>name_offset</b> = 0</td></tr>
-<tr class="separator:a93a0cae241accd82cfb58090fcede42f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a206eb98347b170f4005f6572b6fe2d25" id="r_a206eb98347b170f4005f6572b6fe2d25"><td class="memItemLeft" align="right" valign="top"><a id="a206eb98347b170f4005f6572b6fe2d25" name="a206eb98347b170f4005f6572b6fe2d25"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>type</b> = 0</td></tr>
-<tr class="separator:a206eb98347b170f4005f6572b6fe2d25"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afea7e137a821bb9777a24bf4440b8022" id="r_afea7e137a821bb9777a24bf4440b8022"><td class="memItemLeft" align="right" valign="top"><a id="afea7e137a821bb9777a24bf4440b8022" name="afea7e137a821bb9777a24bf4440b8022"></a>
-uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>value</b> = 0</td></tr>
-<tr class="separator:afea7e137a821bb9777a24bf4440b8022"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0eb122235c6daaf05d08680efdb812ae" id="r_a0eb122235c6daaf05d08680efdb812ae"><td class="memItemLeft" align="right" valign="top"><a id="a0eb122235c6daaf05d08680efdb812ae" name="a0eb122235c6daaf05d08680efdb812ae"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>name_offset</b> = 0</td></tr>
+<tr class="separator:a0eb122235c6daaf05d08680efdb812ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a91102aa58000a5d815b8a775b5f3f459" id="r_a91102aa58000a5d815b8a775b5f3f459"><td class="memItemLeft" align="right" valign="top"><a id="a91102aa58000a5d815b8a775b5f3f459" name="a91102aa58000a5d815b8a775b5f3f459"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>type_etc</b> = 0</td></tr>
+<tr class="separator:a91102aa58000a5d815b8a775b5f3f459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad4c1e2d21601911ddcf161cfbf9c866e" id="r_ad4c1e2d21601911ddcf161cfbf9c866e"><td class="memItemLeft" align="right" valign="top"><a id="ad4c1e2d21601911ddcf161cfbf9c866e" name="ad4c1e2d21601911ddcf161cfbf9c866e"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>value</b> = 0</td></tr>
+<tr class="separator:ad4c1e2d21601911ddcf161cfbf9c866e"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
-<hr/>The documentation for this class was generated from the following file:<ul>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/format/<a class="el" href="aout_8h_source.html">aout.h</a></li>
+<li>src/format/<b>aout.cc</b></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

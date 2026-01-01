@@ -78,8 +78,9 @@ $(function() {
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="classCOFF_1_1COFFFormat_1_1Relocation-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">COFF::COFFFormat::Relocation Class Reference<span class="mlabels"><span class="mlabel">abstract</span></span></div></div>
+  <div class="headertitle"><div class="title">COFF::COFFFormat::Relocation Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
@@ -87,34 +88,44 @@ $(function() {
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="coff_8h_source.html">coff.h</a>&gt;</code></p>
-<div class="dynheader">
-Inheritance diagram for COFF::COFFFormat::Relocation:</div>
-<div class="dyncontent">
- <div class="center">
-  <img src="classCOFF_1_1COFFFormat_1_1Relocation.png" usemap="#COFF::COFFFormat::Relocation_map" alt=""/>
-  <map id="COFF::COFFFormat::Relocation_map" name="COFF::COFFFormat::Relocation_map">
-<area href="classCOFF_1_1COFFFormat_1_1UNIXRelocation.html" title="The standard UNIX COFF relocation format." alt="COFF::COFFFormat::UNIXRelocation" shape="rect" coords="0,56,221,80"/>
-<area href="classCOFF_1_1COFFFormat_1_1ZilogRelocation.html" title="A relocation, as stored by the Z80/Z8000 backend." alt="COFF::COFFFormat::ZilogRelocation" shape="rect" coords="231,56,452,80"/>
-  </map>
-</div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ac4456eafd305d86e48967ceaa4637d6b" id="r_ac4456eafd305d86e48967ceaa4637d6b"><td class="memItemLeft" align="right" valign="top"><a id="ac4456eafd305d86e48967ceaa4637d6b" name="ac4456eafd305d86e48967ceaa4637d6b"></a>
-virtual offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetAddress</b> () const =0</td></tr>
-<tr class="separator:ac4456eafd305d86e48967ceaa4637d6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a5baf1b4d910dd2a6f0bab65b1d574e7b" id="r_a5baf1b4d910dd2a6f0bab65b1d574e7b"><td class="memItemLeft" align="right" valign="top"><a id="a5baf1b4d910dd2a6f0bab65b1d574e7b" name="a5baf1b4d910dd2a6f0bab65b1d574e7b"></a>
-virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> () const =0</td></tr>
-<tr class="separator:a5baf1b4d910dd2a6f0bab65b1d574e7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aec5af79920d9022cb0c410e5b9abea71" id="r_aec5af79920d9022cb0c410e5b9abea71"><td class="memItemLeft" align="right" valign="top"><a id="aec5af79920d9022cb0c410e5b9abea71" name="aec5af79920d9022cb0c410e5b9abea71"></a>
-virtual size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetEntrySize</b> () const =0</td></tr>
-<tr class="separator:aec5af79920d9022cb0c410e5b9abea71"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aafe33a31e8e5f1104306cb54adc8325a" id="r_aafe33a31e8e5f1104306cb54adc8325a"><td class="memItemLeft" align="right" valign="top"><a id="aafe33a31e8e5f1104306cb54adc8325a" name="aafe33a31e8e5f1104306cb54adc8325a"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const =0</td></tr>
-<tr class="separator:aafe33a31e8e5f1104306cb54adc8325a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa7c8e366f1b0bb09da888d547c357ec8" id="r_aa7c8e366f1b0bb09da888d547c357ec8"><td class="memItemLeft" align="right" valign="top"><a id="aa7c8e366f1b0bb09da888d547c357ec8" name="aa7c8e366f1b0bb09da888d547c357ec8"></a>
-virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>FillEntry</b> (<a class="el" href="classDumper_1_1Entry.html">Dumper::Entry</a> &amp;entry) const =0</td></tr>
-<tr class="separator:aa7c8e366f1b0bb09da888d547c357ec8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50b2d9e6fbfa2ed86bc6ecf134bdc41b" id="r_a50b2d9e6fbfa2ed86bc6ecf134bdc41b"><td class="memItemLeft" align="right" valign="top"><a id="a50b2d9e6fbfa2ed86bc6ecf134bdc41b" name="a50b2d9e6fbfa2ed86bc6ecf134bdc41b"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>Read</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd, const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff)</td></tr>
+<tr class="separator:a50b2d9e6fbfa2ed86bc6ecf134bdc41b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac219f51a4732341fe772e4cb06b713c0" id="r_ac219f51a4732341fe772e4cb06b713c0"><td class="memItemLeft" align="right" valign="top"><a id="ac219f51a4732341fe772e4cb06b713c0" name="ac219f51a4732341fe772e4cb06b713c0"></a>
+size_t&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff) const</td></tr>
+<tr class="separator:ac219f51a4732341fe772e4cb06b713c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ee4cbc48654c261f3ff037546824feb" id="r_a7ee4cbc48654c261f3ff037546824feb"><td class="memItemLeft" align="right" valign="top"><a id="a7ee4cbc48654c261f3ff037546824feb" name="a7ee4cbc48654c261f3ff037546824feb"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>WriteFile</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff) const</td></tr>
+<tr class="separator:a7ee4cbc48654c261f3ff037546824feb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f7386b7e5a77c78bb4909e40d7b3766" id="r_a1f7386b7e5a77c78bb4909e40d7b3766"><td class="memItemLeft" align="right" valign="top"><a id="a1f7386b7e5a77c78bb4909e40d7b3766" name="a1f7386b7e5a77c78bb4909e40d7b3766"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>FillEntry</b> (<a class="el" href="classDumper_1_1Entry.html">Dumper::Entry</a> &amp;entry, const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff) const</td></tr>
+<tr class="separator:a1f7386b7e5a77c78bb4909e40d7b3766"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:ad3f71447b0eb7c9bf4154f13d23e14a2" id="r_ad3f71447b0eb7c9bf4154f13d23e14a2"><td class="memItemLeft" align="right" valign="top"><a id="ad3f71447b0eb7c9bf4154f13d23e14a2" name="ad3f71447b0eb7c9bf4154f13d23e14a2"></a>
+offset_t&#160;</td><td class="memItemRight" valign="bottom"><b>address</b></td></tr>
+<tr class="memdesc:ad3f71447b0eb7c9bf4154f13d23e14a2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Address of the relocation (COFF name: r_vaddr) <br /></td></tr>
+<tr class="separator:ad3f71447b0eb7c9bf4154f13d23e14a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a452b42832947d8eff88898c5df55b0d3" id="r_a452b42832947d8eff88898c5df55b0d3"><td class="memItemLeft" align="right" valign="top"><a id="a452b42832947d8eff88898c5df55b0d3" name="a452b42832947d8eff88898c5df55b0d3"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>symbol_index</b></td></tr>
+<tr class="memdesc:a452b42832947d8eff88898c5df55b0d3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Index of symbol in symbol table (COFF name: r_symndx) <br /></td></tr>
+<tr class="separator:a452b42832947d8eff88898c5df55b0d3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1336c8d1b8d17e5aea5f1ab521dd522f" id="r_a1336c8d1b8d17e5aea5f1ab521dd522f"><td class="memItemLeft" align="right" valign="top"><a id="a1336c8d1b8d17e5aea5f1ab521dd522f" name="a1336c8d1b8d17e5aea5f1ab521dd522f"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>offset</b></td></tr>
+<tr class="memdesc:a1336c8d1b8d17e5aea5f1ab521dd522f"><td class="mdescLeft">&#160;</td><td class="mdescRight">(COFF name: r_offset) <br /></td></tr>
+<tr class="separator:a1336c8d1b8d17e5aea5f1ab521dd522f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7244c5926a268c0ed93c984b7a9ed6a" id="r_ad7244c5926a268c0ed93c984b7a9ed6a"><td class="memItemLeft" align="right" valign="top"><a id="ad7244c5926a268c0ed93c984b7a9ed6a" name="ad7244c5926a268c0ed93c984b7a9ed6a"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>type</b></td></tr>
+<tr class="memdesc:ad7244c5926a268c0ed93c984b7a9ed6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Type of relocation (COFF name: r_type) <br /></td></tr>
+<tr class="separator:ad7244c5926a268c0ed93c984b7a9ed6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94b23b09235b9cd9d37d7f3f72fef1fb" id="r_a94b23b09235b9cd9d37d7f3f72fef1fb"><td class="memItemLeft" align="right" valign="top"><a id="a94b23b09235b9cd9d37d7f3f72fef1fb" name="a94b23b09235b9cd9d37d7f3f72fef1fb"></a>
+uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>information</b></td></tr>
+<tr class="memdesc:a94b23b09235b9cd9d37d7f3f72fef1fb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Assorted information (COFF name: r_bits, r_size, r_stuff etc.) <br /></td></tr>
+<tr class="separator:a94b23b09235b9cd9d37d7f3f72fef1fb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A generic COFF relocation. </p>

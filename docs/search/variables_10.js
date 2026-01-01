@@ -62,7 +62,7 @@ var searchData=
   ['symbol_59',['symbol',['../classAOut_1_1AOutFormat_1_1Relocation.html#ab63cba43f108ece437139cf4fccb7e50',1,'AOut::AOutFormat::Relocation']]],
   ['symbol_5fcount_60',['symbol_count',['../classCOFF_1_1COFFFormat.html#acdbe8a8b81b3acc58972e7c4f0c86565',1,'COFF::COFFFormat']]],
   ['symbol_5fdefinitions_61',['symbol_definitions',['../classLinker_1_1ModuleCollector.html#aff73eb0303ffd96b33f81d945bc3a221',1,'Linker::ModuleCollector']]],
-  ['symbol_5findex_62',['symbol_index',['../classCOFF_1_1COFFFormat_1_1ZilogRelocation.html#a2ec67dfacd98925f1192cb84781cfaa1',1,'COFF::COFFFormat::ZilogRelocation::symbol_index'],['../structO65_1_1O65Format_1_1Module_1_1relocation.html#a182b233cfe2df0826c32fce8ff2a9bbf',1,'O65::O65Format::Module::relocation::symbol_index']]],
+  ['symbol_5findex_62',['symbol_index',['../classCOFF_1_1COFFFormat_1_1Relocation.html#a452b42832947d8eff88898c5df55b0d3',1,'COFF::COFFFormat::Relocation::symbol_index'],['../structO65_1_1O65Format_1_1Module_1_1relocation.html#a182b233cfe2df0826c32fce8ff2a9bbf',1,'O65::O65Format::Module::relocation::symbol_index']]],
   ['symbol_5fname_63',['symbol_name',['../structBinary_1_1AtariFormat_1_1Segment.html#a8d8c6213d2dff8e6d83e195e19e9d710',1,'Binary::AtariFormat::Segment']]],
   ['symbol_5fsequence_64',['symbol_sequence',['../classLinker_1_1Module.html#a24f93938d68f7237fd017c313aee8431',1,'Linker::Module']]],
   ['symbol_5ftable_5foffset_65',['symbol_table_offset',['../classCOFF_1_1COFFFormat.html#ae1baa4eeea0efa38a2ffd83bfb09afe2',1,'COFF::COFFFormat']]],
