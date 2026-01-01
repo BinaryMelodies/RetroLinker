@@ -286,8 +286,12 @@ namespace AOut
 
 		enum word_size_t
 		{
+			/** @brief 16-bit a.out, used on PDP-11 */
 			WordSize16 = 2,
+			/** @brief 32-bit a.out */
 			WordSize32 = 4,
+			/** @brief 64-bit a.out, supported by GNU binutils (TODO: what systems actually use this?) */
+			WordSize64 = 8,
 		};
 
 		/** @brief Number of bytes in a machine word (2 or 4), typically also determines the size of the header (16 or 32 bytes) */
@@ -304,7 +308,19 @@ namespace AOut
 			case MAGIC_AUTO_OVERLAY_SEPARATE:
 				return word_size * (8 + 16);
 			default:
-				return word_size * 8;
+				return std::min(4, int(word_size)) + 7 * word_size;
+			}
+		}
+
+		constexpr offset_t GetRelocationSize() const
+		{
+			switch(word_size)
+			{
+			case WordSize16:
+				// TODO: MAGIC_V1 has different format
+				return 2;
+			default:
+				return word_size + 4;
 			}
 		}
 
@@ -403,8 +419,8 @@ namespace AOut
 			static Relocation ReadFile16Bit(Linker::Reader& rd, uint16_t offset);
 			void WriteFile16Bit(Linker::Writer& wr) const;
 
-			static Relocation ReadFile32Bit(Linker::Reader& rd);
-			void WriteFile32Bit(Linker::Writer& wr) const;
+			static Relocation ReadFile32Bit(Linker::Reader& rd, word_size_t word_size = WordSize32);
+			void WriteFile32Bit(Linker::Writer& wr, word_size_t word_size = WordSize32) const;
 		};
 
 		std::vector<Relocation> code_relocations, data_relocations;

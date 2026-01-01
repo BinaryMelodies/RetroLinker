@@ -40,6 +40,7 @@ using namespace AOut;
 
 AOutFormat::word_size_t AOutFormat::GetWordSize() const
 {
+	// TODO: other CPUs?
 	return cpu == PDP11 ? WordSize16 : WordSize32;
 }
 
@@ -113,10 +114,10 @@ void AOutFormat::Relocation::WriteFile16Bit(Linker::Writer& wr) const
 	wr.WriteWord(2, word_value);
 }
 
-AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(Linker::Reader& rd)
+AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(Linker::Reader& rd, word_size_t word_size)
 {
 	Relocation relocation;
-	relocation.address = rd.ReadUnsigned(4);
+	relocation.address = rd.ReadUnsigned(word_size);
 	uint32_t word_value = rd.ReadUnsigned(4);
 	if((word_value & 0x08000000))
 	{
@@ -159,7 +160,7 @@ AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(Linker::Reader& rd)
 	return relocation;
 }
 
-void AOutFormat::Relocation::WriteFile32Bit(Linker::Writer& wr) const
+void AOutFormat::Relocation::WriteFile32Bit(Linker::Writer& wr, word_size_t word_size) const
 {
 	uint32_t word_value;
 	switch(segment)
@@ -210,7 +211,7 @@ void AOutFormat::Relocation::WriteFile32Bit(Linker::Writer& wr) const
 	if(relative)
 		word_value |= 0x01000000;
 
-	wr.WriteWord(4, address);
+	wr.WriteWord(word_size, address);
 	wr.WriteWord(4, word_value);
 }
 
@@ -224,7 +225,7 @@ bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
 	case ::PDP11Endian:
 		attempted_magic = signature[0] | (signature[1] << 8);
 		break;
-	case ::BigEndian: /* TODO: or PDP11 */
+	case ::BigEndian:
 		attempted_magic = signature[word_size - 1] | (signature[word_size - 2] << 8);
 		break;
 	default:
@@ -240,7 +241,7 @@ bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
 bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 {
 	/* Check if all sizes fit within the image */
-	rd.Seek(file_offset + word_size);
+	rd.Seek(file_offset + std::min(4, int(word_size))); // offset 2 or 4
 	uint32_t full_size = 0;
 	uint32_t load_size = 0;
 	uint32_t next_size;
@@ -290,8 +291,8 @@ bool AOutFormat::AttemptReadFileWithCurrentSettings(Linker::Reader& rd, uint8_t 
 	if(!AttemptFetchMagic(signature))
 		return false;
 
-	/* Check valid CPU type (32-bit only) */
-	if(word_size == WordSize32)
+	/* Check valid CPU type (32/64-bit only) */
+	if(word_size != WordSize16)
 	{
 		switch(endiantype)
 		{
@@ -349,7 +350,7 @@ uint32_t AOutFormat::GetPageSize() const
 	case UNSPECIFIED:
 		return 0x00000400;
 	case UNIX:
-		if(word_size == WordSize32)
+		if(word_size != WordSize16)
 			return 0x00000200;
 	case UNIX_V1_V2:
 	case SYSTEM_V:
@@ -673,6 +674,7 @@ void AOutFormat::ReadHeader(Linker::Reader& rd)
 		}
 		break;
 	case WordSize32:
+	case WordSize64:
 		code_relocation_size = rd.ReadUnsigned(word_size);
 		data_relocation_size = rd.ReadUnsigned(word_size);
 
@@ -756,8 +758,10 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				environment_stamp = signature[2] | (signature[3] << 8);
 				break;
 			case ::BigEndian:
-			case ::AntiPDP11Endian:
 				environment_stamp = signature[1] | (signature[0] << 8);
+				break;
+			case ::AntiPDP11Endian:
+				environment_stamp = signature[3] | (signature[2] << 8);
 				break;
 			}
 		}
@@ -942,9 +946,9 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			// word_size and endiantype are already set
 			// assume that the midmag is in NetBSD byte order, otherwise we would not have needed to set word_size and endiantype
 			midmag_endiantype = ::LittleEndian;
-			magic = magic_type(signature[3] | (signature[2] << 8));
-			flags = signature[0];
-			mid_value = signature[1] | (signature[0] << 8);
+			magic = magic_type(signature[word_size - 1] | (signature[word_size - 2] << 8));
+			flags = signature[word_size - 4];
+			mid_value = signature[word_size - 3] | (signature[word_size - 4] << 8);
 		}
 		else
 		{
@@ -1116,7 +1120,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 	rd.endiantype = endiantype;
 
-	rd.Seek(file_offset + word_size);
+	rd.Seek(file_offset + std::min(4, int(word_size))); // offset 2 or 4
 
 	ReadHeader(rd);
 
@@ -1166,23 +1170,21 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		}
 		break;
 	case WordSize32:
+	case WordSize64:
 		/* Linux a.out */
-
 		code_relocations.clear();
-		for(uint32_t rel_off = 0; rel_off < code_relocation_size; rel_off += 8)
+		for(uint32_t rel_off = 0; rel_off < code_relocation_size; rel_off += GetRelocationSize())
 		{
-			Relocation relocation = Relocation::ReadFile32Bit(rd);
+			Relocation relocation = Relocation::ReadFile32Bit(rd, word_size);
 			code_relocations.push_back(relocation);
 		}
 
 		data_relocations.clear();
-		for(uint32_t rel_off = 0; rel_off < data_relocation_size; rel_off += 8)
+		for(uint32_t rel_off = 0; rel_off < data_relocation_size; rel_off += GetRelocationSize())
 		{
-			Relocation relocation = Relocation::ReadFile32Bit(rd);
+			Relocation relocation = Relocation::ReadFile32Bit(rd, word_size);
 			data_relocations.push_back(relocation);
 		}
-
-		// TODO: symbol table
 		break;
 	}
 
@@ -1197,8 +1199,8 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			for(size_t i = 0; i < symbol_table_size; i += 8)
 			{
 				Symbol symbol;
-				symbol.name_offset = rd.ReadUnsigned(4);
-				symbol.type_etc = rd.ReadUnsigned(word_size);
+				symbol.name_offset = rd.ReadUnsigned(std::max(4, int(word_size))); // 32-bit or 64-bit
+				symbol.type_etc = rd.ReadUnsigned(std::min(4, int(word_size))); // 16-bit or 32-bit
 				symbol.value = rd.ReadUnsigned(word_size);
 				symbols.push_back(symbol);
 			}
@@ -1224,9 +1226,10 @@ offset_t AOutFormat::ImageSize() const
 	switch(word_size)
 	{
 	case WordSize16:
-		return 8 * word_size + (code->ImageSize() + data->ImageSize()) * (relocations_suppressed == 0 ? 2 : 1);
+		return GetHeaderSize() + (code->ImageSize() + data->ImageSize()) * (relocations_suppressed == 0 ? 2 : 1);
 	case WordSize32:
-		return 8 * word_size + code->ImageSize() + data->ImageSize() + code_relocations.size() * 8 + data_relocations.size() * 8;
+	case WordSize64:
+		return GetHeaderSize() + code->ImageSize() + data->ImageSize() + code_relocations.size() * GetRelocationSize() + data_relocations.size() * GetRelocationSize();
 	default:
 		assert(false);
 	}
@@ -1244,6 +1247,7 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 		wr.WriteWord(word_size, written_magic);
 		break;
 	case WordSize32:
+	case WordSize64:
 		switch(system)
 		{
 		case UNIX:
@@ -1292,6 +1296,7 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 		}
 		break;
 	case WordSize32:
+	case WordSize64:
 		wr.WriteWord(word_size, code_relocation_size);
 		wr.WriteWord(word_size, data_relocation_size);
 		break;
@@ -1334,16 +1339,22 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 
 	// TODO: for 16-bit auto-overlay executables (2.9BSD/2.11BSD), write overlays
 
-	// TODO: 16-bit relocations
-
-	for(auto& rel : code_relocations)
+	switch(word_size)
 	{
-		rel.WriteFile32Bit(wr);
-	}
-
-	for(auto& rel : data_relocations)
-	{
-		rel.WriteFile32Bit(wr);
+	case WordSize16:
+		// TODO: 16-bit relocations
+		break;
+	case WordSize32:
+	case WordSize64:
+		for(auto& rel : code_relocations)
+		{
+			rel.WriteFile32Bit(wr, word_size);
+		}
+		for(auto& rel : data_relocations)
+		{
+			rel.WriteFile32Bit(wr, word_size);
+		}
+		break;
 	}
 
 	// TODO: symbol table
@@ -1375,7 +1386,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	}
 
 	dump.SetTitle("UNIX a.out format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 2 * word_size);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 2 * word_size);
 
 	static const std::map<offset_t, std::string> system_descriptions =
 	{
@@ -1438,7 +1449,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	{
 		header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_descriptions_v1, Dumper::HexDisplay::Make(4)), offset_t(magic & 0xFFFF));
 	}
-	if(word_size == WordSize32)
+	if(word_size != WordSize16)
 	{
 		static const std::map<offset_t, std::string> freebsd_midmag_descriptions =
 		{
@@ -1599,16 +1610,16 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	uint32_t rel_index = 0;
 
 	offset_t relocation_offset = data_offset + data->ImageSize();
-	offset_t text_size = word_size == WordSize32 ? code_relocations.size() * 8 : relocations_suppressed == 0 ? code->ImageSize() : 0;
+	offset_t text_size = word_size != WordSize16 ? code_relocations.size() * GetRelocationSize() : relocations_suppressed == 0 ? code->ImageSize() : 0;
 	if(text_size != 0)
 	{
-		Dumper::Region text_rel_region("Text relocation region", relocation_offset, code_relocations.size() * (word_size == WordSize16 ? 2 : 8), 2 * word_size);
+		Dumper::Region text_rel_region("Text relocation region", relocation_offset, code_relocations.size() * GetRelocationSize(), 2 * word_size);
 		text_rel_region.Display(dump);
 
 		for(auto& rel : code_relocations)
 		{
 			Dumper::Entry rel_entry("Relocation", rel_index + 1, 2 * word_size);
-			rel_entry.AddField("File offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(relocation_offset + rel_index * (word_size == WordSize16 ? 2 : 8)));
+			rel_entry.AddField("File offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(relocation_offset + rel_index * GetRelocationSize()));
 			rel_entry.AddField("Source segment", Dumper::ChoiceDisplay::Make(source_segment_description), offset_t(0));
 			rel_entry.AddField("Source offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(rel.address));
 			rel_entry.AddOptionalField("Symbol index", Dumper::DecDisplay::Make(), offset_t(rel.symbol));
@@ -1621,16 +1632,16 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		}
 	}
 
-	offset_t data_size = word_size == WordSize32 ? data_relocations.size() * 8 : relocations_suppressed == 0 ? data->ImageSize() : 0;
+	offset_t data_size = word_size != WordSize16 ? data_relocations.size() * GetRelocationSize() : relocations_suppressed == 0 ? data->ImageSize() : 0;
 	if(data_size != 0)
 	{
-		Dumper::Region data_rel_region("Data relocation region", relocation_offset + code_relocations.size() * (word_size == WordSize16 ? 2 : 8), data_relocations.size() * (word_size == WordSize16 ? 2 : 8), 2 * word_size);
+		Dumper::Region data_rel_region("Data relocation region", relocation_offset + code_relocations.size() * GetRelocationSize(), data_relocations.size() * GetRelocationSize(), 2 * word_size);
 		data_rel_region.Display(dump);
 
 		for(auto& rel : data_relocations)
 		{
 			Dumper::Entry rel_entry("Relocation", rel_index + 1, 2 * word_size);
-			rel_entry.AddField("File offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(relocation_offset + rel_index * (word_size == WordSize16 ? 2 : 8)));
+			rel_entry.AddField("File offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(relocation_offset + rel_index * GetRelocationSize()));
 			rel_entry.AddField("Source segment", Dumper::ChoiceDisplay::Make(source_segment_description), offset_t(1));
 			rel_entry.AddField("Source offset", Dumper::HexDisplay::Make(2 * word_size), offset_t(rel.address));
 			rel_entry.AddOptionalField("Symbol index", Dumper::DecDisplay::Make(), offset_t(rel.symbol));
@@ -2289,8 +2300,9 @@ void AOutFormat::CalculateValues()
 		}
 		break;
 	case WordSize32:
-		code_relocation_size = code_relocations.size() * 8;
-		data_relocation_size = data_relocations.size() * 8;
+	case WordSize64:
+		code_relocation_size = code_relocations.size() * GetRelocationSize();
+		data_relocation_size = data_relocations.size() * GetRelocationSize();
 		break;
 	}
 
