@@ -416,7 +416,34 @@ namespace AOut
 
 		bool CheckFileSizes(Linker::Reader& rd, offset_t image_size);
 
-		bool AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size);
+		bool AttemptReadFileWithCurrentSettings(Linker::Reader& rd, uint8_t signature[4], offset_t image_size);
+
+		struct read_attempt_type
+		{
+			word_size_t word_size;
+			::EndianType midmag_endiantype;
+		};
+
+		bool AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size, read_attempt_type first_attempt)
+		{
+			return false;
+		}
+
+		template <typename ... read_attempt_types>
+			bool AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size, read_attempt_type first_attempt, read_attempt_types ... remaining_attempts)
+		{
+			midmag_endiantype = endiantype = first_attempt.midmag_endiantype;
+			word_size = first_attempt.word_size;
+
+			if(!AttemptReadFileWithCurrentSettings(rd, signature, image_size))
+			{
+				return AttemptReadFile(rd, signature, image_size, remaining_attempts...);
+			}
+			else
+			{
+				return true;
+			}
+		}
 
 	public:
 		enum symbol_format_type

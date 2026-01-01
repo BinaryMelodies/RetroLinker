@@ -285,7 +285,7 @@ bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 	return true;
 }
 
-bool AOutFormat::AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size)
+bool AOutFormat::AttemptReadFileWithCurrentSettings(Linker::Reader& rd, uint8_t signature[4], offset_t image_size)
 {
 	if(!AttemptFetchMagic(signature))
 		return false;
@@ -727,32 +727,20 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		if(word_size != 0)
 		{
 			// word_size and endiantype are already set
-			midmag_endiantype = endiantype;
-			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
+			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset, read_attempt_type{word_size, endiantype}))
 			{
 				Linker::FatalError("Fatal error: Unable to determine file format");
 			}
 		}
 		else
 		{
-			endiantype = midmag_endiantype = ::PDP11Endian;
-			word_size = WordSize16;
-			// attempt PDP-11 byte order
-			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
+			// attempt PDP-11, then VAX, then 68000
+			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset,
+				read_attempt_type{WordSize16, ::PDP11Endian},
+				read_attempt_type{WordSize32, ::LittleEndian}, // not possible for System V, which used COFF for VAX
+				read_attempt_type{WordSize32, ::BigEndian}))
 			{
-				endiantype = midmag_endiantype = ::BigEndian;
-				word_size = WordSize32;
-				// attempt System/360 byte order
-				if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
-				{
-					endiantype = midmag_endiantype = ::LittleEndian;
-					word_size = WordSize32;
-					// attempt VAX byte order
-					if(system != SYSTEM_V && !AttemptReadFile(rd, signature.data(), file_end - file_offset))
-					{
-						Linker::FatalError("Fatal error: Unable to determine file format");
-					}
-				}
+				Linker::FatalError("Fatal error: Unable to determine file format");
 			}
 		}
 
@@ -779,8 +767,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		if(word_size != 0)
 		{
 			// word_size and endiantype are already set
-			midmag_endiantype = endiantype;
-			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
+			if(!AttemptReadFile(rd, signature.data(), file_end - file_offset, read_attempt_type{word_size, endiantype}))
 			{
 				Linker::FatalError("Fatal error: Unable to determine file format");
 			}
@@ -808,33 +795,22 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 			if(signature[1] == 0x00 || signature[1] == 0x01)
 			{
-				/* could be multiple formats, make multiple attempts */
-				word_size = file_offset ? WordSize32 : WordSize16;
-				endiantype = midmag_endiantype = word_size == WordSize32 ? ::LittleEndian : ::PDP11Endian;
-
-				/* if at beginning of file, first attempt 16-bit PDP-11 endian (PDP-11, most likely input format) */
-				if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
+				/* could be multiple formats, make multiple attempts
+				 * distinguishing between a 16-bit and 32-bit file in little endian order is a bit tricky
+				 * if at beginning of file, first attempt 16-bit PDP-11 endian (PDP-11, most likely input format)
+				 * otherwise first attempt 32-bit little endian
+				 * finally attempt 32-bit big endian which is distinct enough from the other types on a byte-per-byte level
+				 * (unsure if 16-bit big endian was ever a thing)
+				 */
+				if(!AttemptReadFile(rd, signature.data(), file_end - file_offset,
+					file_offset == 0 ? read_attempt_type{WordSize16, ::PDP11Endian} : read_attempt_type{WordSize32, ::LittleEndian},
+					file_offset == 0 ? read_attempt_type{WordSize32, ::LittleEndian} : read_attempt_type{WordSize16, ::PDP11Endian},
+					read_attempt_type{WordSize32, ::BigEndian}))
 				{
-					word_size = file_offset ? WordSize16 : WordSize32;
-					endiantype = midmag_endiantype = word_size == WordSize32 ? ::LittleEndian : ::PDP11Endian;
-					/* then attempt 32-bit little endian (Intel 80386, most likely format found on system) */
-					if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
-					{
-						endiantype = midmag_endiantype = ::BigEndian;
-						word_size = WordSize32;
-						/* then attempt 32-bit big endian (Motorola 68000, most likely format if not little endian) */
-						if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
-						{
-							endiantype = midmag_endiantype = ::BigEndian;
-							word_size = WordSize16;
-							/* finally, attempt 16-bit big endian (unsure if any ever supported UNIX with a.out) */
-							if(!AttemptReadFile(rd, signature.data(), file_end - file_offset))
-							{
-								Linker::FatalError("Fatal error: Unable to determine file format");
-							}
-						}
-					}
+					Linker::FatalError("Fatal error: Unable to determine file format");
 				}
+
+				endiantype = word_size == WordSize16 ? ::PDP11Endian : midmag_endiantype;
 			}
 			else
 			{
