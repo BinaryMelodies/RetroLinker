@@ -355,6 +355,10 @@ uint32_t AOutFormat::GetPageSize() const
 		// only 16-bit support
 		return 0x00002000;
 	case BSD:
+		if(word_size == WordSize16)
+			return 0x00002000;
+		else
+			return 0x00000400;
 	case LINUX:
 		return 0x00000400;
 	case FREEBSD:
@@ -411,7 +415,7 @@ uint32_t AOutFormat::GetTextOffset() const
 		{
 		case QMAGIC: // not used for 4BSD
 			return 0;
-		case ZMAGIC:
+		case ZMAGIC: // not used for 2BSD
 			return GetPageSize();
 		default:
 			return GetHeaderSize();
@@ -577,8 +581,26 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 			return GetPageSize();
 		else
 			return 1;
-	case UNSPECIFIED:
+		break;
 	case BSD:
+		switch(magic)
+		{
+		case OMAGIC:
+			return 1;
+		case NMAGIC:
+			return GetPageSize();
+		default:
+			if(word_size == WordSize16)
+			{
+				return 1;
+			}
+			else
+			{
+				return GetPageSize();
+			}
+		}
+		break;
+	case UNSPECIFIED:
 	case LINUX:
 	case DJGPP1:
 	case EMX:
@@ -1351,6 +1373,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	case UNIX_V1_V2:
 	case UNIX:
 	case SYSTEM_V:
+	case BSD:
 	case UNSPECIFIED:
 	case LINUX:
 	case FREEBSD:
@@ -2354,10 +2377,6 @@ void AOutFormat::GenerateFile(std::string filename, Linker::Module& module)
 		break;
 	case Linker::Module::PDP11:
 		cpu = PDP11;
-		if(system == BSD)
-		{
-			system = UNIX;
-		}
 		if(magic == ZMAGIC)
 		{
 			// according to what the 2.11BSD linker does for the -z option
