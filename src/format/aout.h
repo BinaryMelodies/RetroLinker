@@ -479,7 +479,21 @@ namespace AOut
 			uint32_t type_etc = 0;
 			offset_t value = 0;
 
-			uint16_t GetType(const AOutFormat& aout) const;
+			enum segment_type
+			{
+				Undefined = 0,
+				Absolute = 1,
+				Text = 2,
+				Data = 3,
+				Bss = 4,
+				Common = 9,
+				Register = 20,
+				FileName = 31,
+			};
+
+			uint16_t GetTypeByte(const AOutFormat& aout) const;
+			segment_type GetType(const AOutFormat& aout) const;
+			bool IsExternal(const AOutFormat& aout) const;
 		};
 
 		std::vector<Symbol> symbols;

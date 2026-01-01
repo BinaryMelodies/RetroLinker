@@ -343,7 +343,7 @@ bool AOutFormat::AttemptReadFileWithCurrentSettings(Linker::Reader& rd, uint8_t 
 	return CheckFileSizes(rd, image_size);
 }
 
-uint16_t AOutFormat::Symbol::GetType(const AOutFormat& aout) const
+uint16_t AOutFormat::Symbol::GetTypeByte(const AOutFormat& aout) const
 {
 	if(aout.word_size == WordSize16 && aout.symbol_format == SYMBOL_FORMAT_ATT)
 	{
@@ -363,6 +363,38 @@ uint16_t AOutFormat::Symbol::GetType(const AOutFormat& aout) const
 		default:
 			Linker::FatalError("Internal error: cannot parse symbols without knowing byte order");
 		}
+	}
+}
+
+AOutFormat::Symbol::segment_type AOutFormat::Symbol::GetType(const AOutFormat& aout) const
+{
+	uint8_t type = GetTypeByte(aout) & 0x1F;
+	if(aout.word_size == WordSize16)
+	{
+		return segment_type(type);
+	}
+	else
+	{
+		if(type == 0x1F)
+			return FileName;
+		else
+			return segment_type(type >> 1);
+	}
+}
+
+bool AOutFormat::Symbol::IsExternal(const AOutFormat& aout) const
+{
+	uint8_t type = GetTypeByte(aout);
+	if(aout.word_size == WordSize16)
+	{
+		return (type & 0x20) != 0;
+	}
+	else
+	{
+		if(type == 0x1F)
+			return false;
+		else
+			return (type & 0x01) != 0;
 	}
 }
 
@@ -1216,7 +1248,14 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		switch(symbol_format)
 		{
 		case SYMBOL_FORMAT_ATT:
-			// TODO
+			for(size_t i = 0; i < symbol_table_size; i += 8)
+			{
+				Symbol symbol;
+				symbol.name = rd.ReadASCIIZ(8);
+				symbol.type_etc = rd.ReadUnsigned(std::min(4, int(word_size))); // 16-bit or 32-bit
+				symbol.value = rd.ReadUnsigned(word_size);
+				symbols.push_back(symbol);
+			}
 			break;
 		case SYMBOL_FORMAT_BSD:
 			for(size_t i = 0; i < symbol_table_size; i += 8)
@@ -1237,6 +1276,7 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 				symbol.name = rd.ReadASCIIZ();
 				Linker::Debug << "Debug: Symbol " << symbol.name << " (offset " << symbol.name_offset << ") of type " << symbol.type_etc << " value " << symbol.value << std::endl;
 			}
+			break;
 		}
 	}
 
@@ -1756,37 +1796,46 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 		std::shared_ptr<Linker::Section> section;
 		switch(symbol.GetType(*this))
 		{
-		case 0x20:
+		case Symbol::Undefined:
 			/* external or common */
-			if(symbol.value != 0)
+			if(!symbol.IsExternal(*this))
+			{
+				goto unhandled_type;
+			}
+			else if(symbol.value != 0)
 			{
 				module.AddCommonSymbol(Linker::SymbolDefinition::CreateCommon(symbol.name, "", symbol.value, 1 /* TODO: alignment */));
 			}
 			continue;
-		case 0x01:
+		case Symbol::Absolute:
 			/* absolute */
-			offset = symbol.value;
-			section = nullptr;
+			if(!symbol.IsExternal(*this))
+			{
+				offset = symbol.value;
+				section = nullptr;
+			}
+			else
+			{
+				goto unhandled_type;
+			}
 			break;
-		case 0x22:
-		case 0x02:
+		case Symbol::Text:
 			/* text based */
 			offset = symbol.value;
 			section = linker_code;
 			break;
-		case 0x23:
-		case 0x03:
+		case Symbol::Data:
 			/* data based */
 			offset = symbol.value - code_size;
 			section = linker_data;
 			break;
-		case 0x24:
-		case 0x04:
+		case Symbol::Bss:
 			/* bss based */
 			offset = symbol.value - code_size - data_size;
 			section = linker_bss;
 			break;
 		default:
+		unhandled_type:
 			Linker::Error << "Internal error: unhandled symbol type" << std::endl;
 			continue;
 		}
