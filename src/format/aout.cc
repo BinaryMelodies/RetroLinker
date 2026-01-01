@@ -119,6 +119,7 @@ AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(Linker::Reader& rd,
 	Relocation relocation;
 	relocation.address = rd.ReadUnsigned(word_size);
 	uint32_t word_value = rd.ReadUnsigned(4);
+	// TODO: check for big endian
 	if((word_value & 0x08000000))
 	{
 		relocation.segment = External;
@@ -157,6 +158,7 @@ AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(Linker::Reader& rd,
 	}
 	relocation.relative = (word_value & 0x01000000) != 0;
 	relocation.size = 1 << ((word_value >> 25) & 3);
+	// TODO: other fields (baserel (GOT), jmptable (PLT), relative (image base relative), copy)
 	return relocation;
 }
 
@@ -1848,18 +1850,19 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 		std::shared_ptr<Linker::Section> section = i == 0 ? linker_code : linker_data;
 		for(auto& rel : i == 0 ? code_relocations : data_relocations)
 		{
-			/* TODO: only PDP-11 specific */
+			/* TODO: only tested for PDP-11 */
 			Linker::Location rel_source = Linker::Location(section, rel.address);
 			Linker::Target rel_target;
-			uint32_t base = section->ReadUnsigned(2, rel.address); // 6
+			// base will contain the target of the relocation
+			offset_t base = section->ReadUnsigned(rel.size, rel.address);
 			bool is_relative = rel.relative;
 			if(is_relative)
 			{
-				base += rel.address; // E
+				base += rel.address;
 				if(i == 1)
 					base += code_size;
 			}
-			uint32_t addend = 0;
+			offset_t addend = 0;
 
 			/* the values stored in the object file are already relative to the start of the code segment */
 			switch(rel.segment)
@@ -1911,8 +1914,8 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 
 			Linker::Relocation obj_rel =
 				is_relative
-				? Linker::Relocation::Relative(2, rel_source, rel_target, addend, ::LittleEndian)
-				: Linker::Relocation::Absolute(2, rel_source, rel_target, addend, ::LittleEndian);
+				? Linker::Relocation::Relative(rel.size, rel_source, rel_target, addend, ::LittleEndian)
+				: Linker::Relocation::Absolute(rel.size, rel_source, rel_target, addend, ::LittleEndian);
 			//obj_rel.AddCurrentValue();
 			module.AddRelocation(obj_rel);
 			Linker::Debug << "Debug: a.out relocation " << obj_rel << std::endl;
