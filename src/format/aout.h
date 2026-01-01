@@ -478,6 +478,8 @@ namespace AOut
 			offset_t name_offset = 0;
 			uint32_t type_etc = 0;
 			offset_t value = 0;
+
+			uint16_t GetType(const AOutFormat& aout) const;
 		};
 
 		std::vector<Symbol> symbols;

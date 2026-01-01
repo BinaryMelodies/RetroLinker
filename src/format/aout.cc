@@ -343,6 +343,29 @@ bool AOutFormat::AttemptReadFileWithCurrentSettings(Linker::Reader& rd, uint8_t 
 	return CheckFileSizes(rd, image_size);
 }
 
+uint16_t AOutFormat::Symbol::GetType(const AOutFormat& aout) const
+{
+	if(aout.word_size == WordSize16 && aout.symbol_format == SYMBOL_FORMAT_ATT)
+	{
+		return type_etc;
+	}
+	else
+	{
+		switch(aout.endiantype)
+		{
+		case ::LittleEndian:
+		case ::PDP11Endian:
+			return type_etc & 0xFF;
+		case ::BigEndian:
+			return type_etc >> ((aout.word_size - 1) * 8);
+		case ::AntiPDP11Endian:
+			return (type_etc >> 8) & 0xFF;
+		default:
+			Linker::FatalError("Internal error: cannot parse symbols without knowing byte order");
+		}
+	}
+}
+
 uint32_t AOutFormat::GetPageSize() const
 {
 	switch(system)
@@ -1731,7 +1754,7 @@ void AOutFormat::GenerateModule(Linker::Module& module) const
 	{
 		offset_t offset;
 		std::shared_ptr<Linker::Section> section;
-		switch(symbol.type_etc & 0xFF)
+		switch(symbol.GetType(*this))
 		{
 		case 0x20:
 			/* external or common */
