@@ -413,4 +413,8 @@ Target(
 	System = "bsd-vax",
 	Format = "zmagic",
 	output_file = "bsd-vax-zmagic")
+Target(
+	System = "unix-vax",
+	Format = "coff",
+	output_file = "unix-vax-coff")
 

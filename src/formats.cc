@@ -230,7 +230,10 @@ format_specification formats[] =
 		"COFF (80386) executable for DJGPP 1.11 and later (.exe)" },
 	{ "djgpp_coff" },
 	{ "djgppv2" }, /* technically, 1.11 */
-	{ "coff" },
+	{ "coff",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::UNIX); },
+		"COFF (VAX, WE32K, 386) executable for UNIX System V (Releases 1 to 3)" },
+	{ "unix_coff" },
 	{ "coffle",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<COFFFormat>(COFFFormat::GENERIC, COFFFormat::COFF, ::LittleEndian); },
 		"little endian COFF" },

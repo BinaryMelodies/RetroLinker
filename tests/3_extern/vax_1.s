@@ -56,7 +56,11 @@ message:
 	.ascii	"Greetings!"
 .if TARGET_UNIX || TARGET_BSD
 .if TARGET_UNIX
+.if FORMAT_COFF
+	.ascii	" AT&T UNIX System V"
+.else
 	.ascii	" AT&T UNIX System III"
+.endif
 .elseif TARGET_BSD
 	.ascii	" 4.3BSD"
 .endif
@@ -66,6 +70,8 @@ message:
 	.ascii	" pure executable"
 .elseif FORMAT_ZMAGIC
 	.ascii	" demand paged executable"
+.elseif FORMAT_COFF
+	.ascii	" COFF executable"
 .endif
 .endif
 	.byte	0

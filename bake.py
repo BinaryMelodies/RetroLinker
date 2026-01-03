@@ -1249,6 +1249,23 @@ DefineTarget(
 		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
 	], register = False))
 
+DefineTarget(
+	Description = "UNIX System V COFF for the DEC VAX",
+	CPU = "vax",
+	System = "unix-vax",
+	TargetName = "unix",
+	IncludeName = "unix",
+	Format = "coff",
+	LinkerName = "unix_coff",
+	Versions = [
+		DefineVersion("", LinkerOptions = []),
+	],
+#	c_target_options = "-msplit",
+	custom_entry = False,
+	PostProcess = Recipe([
+		RecipeStep(Arguments = ["chmod", "+x", "{binary_file}"], Input = "{binary_file}", Output = "{binary_file}"),
+	], register = False))
+
 ######## 6502/65C816 based systems
 
 DefineTarget(

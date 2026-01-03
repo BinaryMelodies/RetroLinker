@@ -284,6 +284,10 @@ Target(
 	Format = "zmagic",
 	output_file = "bsd-vax-zmagic")
 Target(
+	System = "unix-vax",
+	Format = "coff",
+	output_file = "unix-vax-coff")
+Target(
 	System = "atari400",
 	Format = "atari-com",
 	output_file = "atari")

@@ -3484,9 +3484,6 @@ void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
 		break;
 	}
 
-	if(magic_type == ZMAGIC)
-		option_unmapped_zero_page = true; // TODO: make this a parameter, make it option
-
 	if(linker_parameters.find("code_base_address") == linker_parameters.end())
 	{
 		uint32_t code_base_address = 0;
