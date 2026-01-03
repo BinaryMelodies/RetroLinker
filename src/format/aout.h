@@ -654,9 +654,9 @@ namespace AOut
 					descriptions = {
 						{ OMAGIC, "Impure executable (OMAGIC)" },
 						{ NMAGIC, "Pure executable (NMAGIC)" },
-						{ ZMAGIC, "Demand paged (ZMAGIC)" },
-						{ QMAGIC, "Demand paged with unmapped page zero (QMAGIC)" },
-						{ MAGIC_SEPARATE, "Separate instruction and data spaces (PDP-11 only)" },
+						{ ZMAGIC, "Demand paged executable (ZMAGIC)" },
+						{ QMAGIC, "Demand paged executable with unmapped page zero (QMAGIC)" },
+						{ MAGIC_SEPARATE, "Executable with separate instruction and data spaces (IMAGIC, PDP-11 only)" },
 						{ MAGIC_OVERLAY, "Overlay (PDP-11 BSD only)" },
 						{ MAGIC_AUTO_OVERLAY_NONSEPARATE, "Auto-overlay, non-separate (PDP-11 BSD only)" },
 						{ MAGIC_AUTO_OVERLAY_SEPARATE, "Auto-overlay, separate (PDP-11 BSD only)" },
@@ -668,10 +668,10 @@ namespace AOut
 			Linker::Option<Linker::ItemOf<UnixVersionEnumeration>> unix_v{"version", "Targeted UNIX version (UNIX only)"};
 			Linker::Option<Linker::ItemOf<MagicEnumeration>> type{"type", "Executable type"};
 			Linker::Option<std::optional<offset_t>> magic{"magic", "Explicit magic type specification"};
-			Linker::Option<bool> Nflag{"N", "OMAGIC"};
-			Linker::Option<bool> nflag{"n", "NMAGIC"};
-			Linker::Option<bool> iflag{"i", "Generate separated executable"};
-			Linker::Option<bool> zflag{"z", "Demand paged executable (identical to -i for PDP-11)"};
+			Linker::Option<bool> Nflag{"N", "Impure executable (OMAGIC)"};
+			Linker::Option<bool> nflag{"n", "Pure executable (NMAGIC)"};
+			Linker::Option<bool> iflag{"i", "Generate separated executable (IMAGIC, PDP-11 only)"};
+			Linker::Option<bool> zflag{"z", "Demand paged executable (ZMAGIC, identical to -i for PDP-11)"};
 			Linker::Option<bool> Oflag{"O", "Generate text overlay"};
 
 			AOutOptionCollector()

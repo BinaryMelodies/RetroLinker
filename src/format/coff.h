@@ -118,7 +118,7 @@ namespace COFF
 			 *
 			 * Value as used by UNIX
 			 */
-			CPU_VAX   = 0x0178,
+			CPU_VAX   = 0x017D,
 
 			/** @brief AMD 29000
 			 *
@@ -1297,7 +1297,7 @@ namespace COFF
 		};
 
 		/**
-		 * @brief A standard 28 byte a.out optional header, used by DJGPP
+		 * @brief A standard 28 byte a.out optional header, used by AT&T UNIX and DJGPP
 		 */
 		class AOutHeader : public OptionalHeader
 		{
@@ -1354,6 +1354,35 @@ namespace COFF
 
 		public:
 			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
+		};
+
+		/**
+		 * @brief AT&T 3B20 36 byte a.out optional header
+		 */
+		class AOutHeader3B20 : public AOutHeader
+		{
+		public:
+			uint32_t reserved1 = 0;
+			uint32_t reserved2 = 0;
+
+			AOutHeader3B20(uint16_t magic = 0)
+				: AOutHeader(magic)
+			{
+			}
+
+			uint32_t GetSize() const override;
+
+			void ReadFile(Linker::Reader& rd) override;
+
+			void WriteFile(Linker::Writer& wr) const override;
+
+			//offset_t CalculateValues(COFFFormat& coff) override;
+
+		protected:
+			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
+
+		//public:
+		//	void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
 		};
 
 		/**
@@ -1466,9 +1495,6 @@ namespace COFF
 		class ECOFFAOutHeader : public OptionalHeader
 		{
 		public:
-			static constexpr uint16_t OMAGIC = 0x0107;
-			static constexpr uint16_t NMAGIC = 0x0108;
-			static constexpr uint16_t ZMAGIC = 0x010B;
 			/**
 			 * @brief Type of executable
 			 */
@@ -1776,15 +1802,70 @@ namespace COFF
 
 		/* * * Writer members * * */
 
+		/**
+		 * @brief Value stored as the magic of the a.out header
+		 */
+		enum opthdr_magic_type
+		{
+			/**
+			 * @brief Impure format - text segment is not write protected, text and data segment are contiguous
+			 */
+			OMAGIC = 0x0107,
+			/**
+			 * @brief Shared text - text segment is write protected, data segment follows on the next page
+			 */
+			NMAGIC = 0x0108,
+			/**
+			 * @brief Demand paged
+			 */
+			ZMAGIC = 0x010B,
+			/**
+			 * @brief Shared library
+			 */
+			SHMAGIC = 0x012B,
+			/**
+			 * @brief Magic number required by FlexOS 386
+			 */
+			MAGIC_FLEXOS386 = 0x01C0,
+		};
+		opthdr_magic_type magic_type = opthdr_magic_type(0);
+		bool option_unmapped_zero_page = false;
+
 		class COFFOptionCollector : public Linker::OptionCollector
 		{
 		public:
+			class MagicEnumeration : public Linker::Enumeration<opthdr_magic_type>
+			{
+			public:
+				MagicEnumeration()
+					: Enumeration(
+						"OMAGIC", OMAGIC,
+						"IMPURE", OMAGIC,
+						"NMAGIC", NMAGIC,
+						"ROTEXT", NMAGIC,
+						"PURE", NMAGIC,
+						"ZMAGIC", ZMAGIC,
+						"DEMANDPAGED", ZMAGIC)
+				{
+					descriptions = {
+						{ OMAGIC, "Impure executable (OMAGIC)" },
+						{ NMAGIC, "Pure executable (NMAGIC)" },
+						{ ZMAGIC, "Demand paged executable (ZMAGIC)" },
+					};
+				}
+			};
+
 			Linker::Option<std::string> stub{"stub", "Filename for stub that gets prepended to executable"};
+			Linker::Option<Linker::ItemOf<MagicEnumeration>> type{"type", "Executable type"};
+			Linker::Option<bool> Nflag{"N", "Impure executable (OMAGIC)"};
+			Linker::Option<bool> nflag{"n", "Pure executable (NMAGIC)"};
+			Linker::Option<bool> zflag{"z", "Demand paged executable (ZMAGIC)"};
+
 			// TODO: make stack size a parameter (for FlexOS)
 
 			COFFOptionCollector()
 			{
-				InitializeFields(stub);
+				InitializeFields(stub, type, Nflag, nflag, zflag);
 			}
 		};
 
@@ -1800,6 +1881,22 @@ namespace COFF
 			 * @brief An unspecified value, probably will not work
 			 */
 			GENERIC,
+			/**
+			 * @brief AT&T UNIX System V Release 1-3
+			 */
+			UNIX,
+			/**
+			 * @brief AT&T UNIX System V Release 3 for the AT&T 3B20 (WE32K)
+			 */
+			UNIX_3B20,
+			/**
+			 * @brief AT&T UNIX System V Release 3 for the AT&T 3B5 and 3B15 (WE32K)
+			 */
+			UNIX_3B5,
+			/**
+			 * @brief AT&T UNIX System V Release 3 for the AT&T 3B2 (WE32K)
+			 */
+			UNIX_3B2,
 			/**
 			 * @brief DJGPP COFF executable
 			 */
@@ -1881,17 +1978,6 @@ namespace COFF
 			FLAG_32BIT_LITTLE_ENDIAN = 0x0100,
 			/** @brief F_AR32W */
 			FLAG_32BIT_BIG_ENDIAN = 0x0200,
-
-			OMAGIC = 0x0107,
-			NMAGIC = 0x0108,
-			/**
-			 * @brief Stored as the magic of the a.out header
-			 */
-			ZMAGIC = 0x010B,
-			/**
-			 * @brief Magic number required by FlexOS 386
-			 */
-			MAGIC_FLEXOS386 = 0x01C0,
 		};
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;

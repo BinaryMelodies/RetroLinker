@@ -2008,7 +2008,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 	{
 		if(collector.Nflag() || collector.nflag() || collector.iflag() || collector.zflag() || collector.Oflag())
 		{
-			Linker::Error << "Error: flags n/i/z/O cannot be specified alongside executable type" << std::endl;
+			Linker::Error << "Error: flags N/n/i/z/O cannot be specified alongside executable type" << std::endl;
 		}
 
 		magic = collector.type();
@@ -2018,7 +2018,7 @@ void AOutFormat::SetOptions(std::map<std::string, std::string>& options)
 		int count = collector.Nflag() + collector.nflag() + collector.iflag() + collector.zflag() + collector.Oflag();
 		if(count > 1)
 		{
-			Linker::FatalError("Fatal error: only one of n/i/z/O can be specified");
+			Linker::FatalError("Fatal error: only one of N/n/i/z/O can be specified");
 		}
 
 		if(collector.Nflag())

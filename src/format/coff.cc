@@ -1440,6 +1440,46 @@ void COFFFormat::AOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) 
 	header_region.Display(dump);
 }
 
+uint32_t COFFFormat::AOutHeader3B20::GetSize() const
+{
+	return 36;
+}
+
+void COFFFormat::AOutHeader3B20::ReadFile(Linker::Reader& rd)
+{
+	magic = rd.ReadUnsigned(2);
+	version_stamp = rd.ReadUnsigned(2);
+	code_size = rd.ReadUnsigned(4);
+	data_size = rd.ReadUnsigned(4);
+	bss_size = rd.ReadUnsigned(4);
+	reserved1 = rd.ReadUnsigned(4);
+	reserved2 = rd.ReadUnsigned(4);
+	entry_address = rd.ReadUnsigned(4);
+	code_address = rd.ReadUnsigned(4);
+	data_address = rd.ReadUnsigned(4);
+}
+
+void COFFFormat::AOutHeader3B20::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteWord(2, magic);
+	wr.WriteWord(2, version_stamp);
+	wr.WriteWord(4, code_size);
+	wr.WriteWord(4, data_size);
+	wr.WriteWord(4, bss_size);
+	wr.WriteWord(4, reserved1);
+	wr.WriteWord(4, reserved2);
+	wr.WriteWord(4, entry_address);
+	wr.WriteWord(4, code_address);
+	wr.WriteWord(4, data_address);
+}
+
+void COFFFormat::AOutHeader3B20::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
+{
+	AOutHeader::DumpFields(coff, dump, header_region);
+	header_region.AddOptionalField("Reserved field at 0x10", Dumper::HexDisplay::Make(), offset_t(reserved1));
+	header_region.AddOptionalField("Reserved field at 0x14", Dumper::HexDisplay::Make(), offset_t(reserved2));
+}
+
 uint32_t COFFFormat::FlexOSAOutHeader::GetSize() const
 {
 	return 36;
@@ -1971,6 +2011,11 @@ void COFFFormat::ReadOptionalHeader(Linker::Reader& rd)
 			optional_header = std::make_unique<FlexOSAOutHeader>();
 			break;
 		}
+		else if(cpu_type == CPU_WE32K)
+		{
+			optional_header = std::make_unique<AOutHeader3B20>();
+			break;
+		}
 		break;
 	case 56:
 		/* MIPS header */
@@ -2266,20 +2311,19 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 
 	static const std::map<offset_t, std::string> cpu_descriptions =
 	{
-		{ CPU_I386,  "Intel 80386" }, // (DJGPP or FlexOS 386)
-		{ CPU_M68K,  "Motorola 68000" },
-		{ CPU_Z80,   "Zilog Z80" },
-		{ CPU_Z8K,   "Zilog Z8000" },
-		{ CPU_W65,   "WDC 6502/65C816" },
-
+		{ CPU_I386,  "Intel 80386" }, // DJGPP or FlexOS 386
+		{ CPU_M68K,  "Motorola 68000" }, // Concurrent DOS 68K
+		{ CPU_Z80,   "Zilog Z80" }, // parsing GNU binutils objects
+		{ CPU_Z8K,   "Zilog Z8000" }, // parsing GNU binutils objects
+		{ CPU_W65,   "WDC 6502/65C816" }, // parsing GNU binutils objects
+		{ CPU_VAX,   "DEC VAX" }, // AT&T UNIX
+		{ CPU_WE32K, "Western Electric 32000" }, // AT&T UNIX
 		{ CPU_I86,   "Intel 8086" },
 		{ CPU_I286,  "Intel 80286" },
 		{ CPU_NS32K, "National Semiconductor NS32000" },
 		{ CPU_I370,  "IBM System/370" },
 		{ CPU_MIPS,  "MIPS" },
 		{ CPU_M88K,  "Motorola 88000" },
-		{ CPU_WE32K, "Western Electric 32000" },
-		{ CPU_VAX,   "DEC VAX" },
 		{ CPU_AM29K, "AMD 29000" },
 		{ CPU_ALPHA, "DEC Alpha" },
 		{ CPU_PPC,   "IBM POWER, 32-bit" },
@@ -2894,6 +2938,37 @@ void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 	collector.ConsiderOptions(options);
 	stub.filename = collector.stub();
 
+	if(collector.type())
+	{
+		if(collector.Nflag() || collector.nflag() || collector.zflag())
+		{
+			Linker::Error << "Error: flags N/n/z cannot be specified alongside executable type" << std::endl;
+		}
+
+		magic_type = collector.type();
+	}
+	else if(collector.Nflag() || collector.nflag() || collector.zflag())
+	{
+		int count = collector.Nflag() + collector.nflag() + collector.zflag();
+		if(count > 1)
+		{
+			Linker::FatalError("Fatal error: only one of N/n/z can be specified");
+		}
+
+		if(collector.Nflag())
+		{
+			magic_type = OMAGIC;
+		}
+		if(collector.nflag())
+		{
+			magic_type = NMAGIC;
+		}
+		else if(collector.zflag())
+		{
+			magic_type = ZMAGIC;
+		}
+	}
+
 	/* TODO */
 	option_no_relocation = false;
 }
@@ -2989,6 +3064,7 @@ std::unique_ptr<Script::List> COFFFormat::GetScript(Linker::Module& module)
 ".data"
 {
 	at max(here, ?data_base_address?);
+	at align(here, ?segment_align?) + (here & (?segment_align? - 1));
 	all not zero align 4;
 	align 4;
 };
@@ -3034,7 +3110,7 @@ std::unique_ptr<Script::List> COFFFormat::GetScript(Linker::Module& module)
 	static const char * SimpleScript_cdos386 = R"(
 ".code"
 {
-	at 0x1000;
+	at ?code_base_address?;
 	all not write align 4;
 	align 4;
 };
@@ -3137,7 +3213,7 @@ void COFFFormat::ProcessModule(Linker::Module& module)
 		rel.WriteWord(resolution.value);
 		if(resolution.target != nullptr && resolution.reference == nullptr)
 		{
-			if(type == DJGPP || type == CDOS386)
+			if(type != CDOS68K)
 			{
 				if(rel.kind == Linker::Relocation::SelectorIndex)
 				{
@@ -3194,18 +3270,41 @@ void COFFFormat::CalculateValues()
 		/* TODO */
 		Linker::FatalError("Internal error: no generation type specified, exiting");
 
+	case UNIX:
+	case UNIX_3B20:
+	case UNIX_3B5:
+	case UNIX_3B2:
+		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS;
+		if(cpu_type == CPU_WE32K)
+			flags |= 0x6000; // BM32B instructions and math arithmetic unit
+		switch(GetEndianType())
+		{
+		case ::LittleEndian:
+			flags |= FLAG_32BIT_LITTLE_ENDIAN;
+			break;
+		case ::BigEndian:
+			flags |= FLAG_32BIT_BIG_ENDIAN;
+			break;
+		default:
+			Linker::Warning << "Warning: Unknown endian type, ignoring" << std::endl;
+			break;
+		}
+
+		if(type == UNIX_3B20)
+			optional_header = std::make_unique<AOutHeader3B20>(magic_type);
+		else
+			optional_header = std::make_unique<AOutHeader>(magic_type);
+		break;
+
 	case DJGPP:
-		cpu_type = CPU_I386;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
-		optional_header = std::make_unique<AOutHeader>(ZMAGIC);
+		optional_header = std::make_unique<AOutHeader>(magic_type);
 		break;
 	case CDOS386:
-		cpu_type = CPU_I386;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
 		optional_header = std::make_unique<FlexOSAOutHeader>(MAGIC_FLEXOS386);
 		break;
 	case CDOS68K:
-		cpu_type = CPU_M68K;
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_BIG_ENDIAN;
 		optional_header = std::make_unique<FlexOSAOutHeader>();
 		break;
@@ -3292,9 +3391,39 @@ void COFFFormat::CalculateValues()
 		file_size = offset;
 	}
 
-	if(type != WINDOWS) // PEFormat has its own settings
+	switch(type)
 	{
+	case UNIX:
+		switch(cpu_type)
+		{
+		case CPU_VAX:
+			switch(magic_type)
+			{
+			case OMAGIC:
+				AssignMagicValue(0x0178);
+				break;
+			default:
+				AssignMagicValue(0x017D);
+				break;
+			}
+		default:
+			AssignMagicValue();
+			break;
+		}
+		break;
+	case UNIX_3B20:
+		AssignMagicValue(0x0168);
+		break;
+	case UNIX_3B5:
+	case UNIX_3B2:
+		AssignMagicValue(0x0170);
+		break;
+	case WINDOWS:
+		// PEFormat has its own settings
+		break;
+	default:
 		AssignMagicValue();
+		break;
 	}
 }
 
@@ -3303,38 +3432,161 @@ void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
 	switch(module.cpu)
 	{
 	case Linker::Module::I386:
-		if(type != DJGPP && type != CDOS386)
+		cpu_type = CPU_I386;
+		if(type != UNIX && type != DJGPP && type != CDOS386)
 		{
-			Linker::Error << "Error: Only DJGPP (and FlexOS 386) supports Intel 80386 binaries, switching to it" << std::endl;
+			Linker::Error << "Error: Only AT&T UNIX, DJGPP and FlexOS 386 support Intel 80386 binaries, switching to it" << std::endl;
 			type = DJGPP;
 		}
 		break;
 	case Linker::Module::M68K:
+		cpu_type = CPU_M68K;
 		if(type != CDOS68K)
 		{
 			Linker::Error << "Error: Only Concurrent DOS 68K supports Motorola 68000 binaries, switching to it" << std::endl;
 			type = CDOS68K;
 		}
 		break;
+	case Linker::Module::VAX:
+		cpu_type = CPU_VAX;
+		if(type != UNIX)
+		{
+			Linker::Error << "Error: Only AT&T UNIX supports DEC VAX binaries, switching to it" << std::endl;
+			type = UNIX;
+		}
+		break;
+	case Linker::Module::WE32K:
+		cpu_type = CPU_WE32K;
+		if(type != UNIX_3B20 && type != UNIX_3B5 && type != UNIX_3B2)
+		{
+			if(type != UNIX)
+			{
+				Linker::Error << "Error: Only AT&T UNIX supports AT&T WE32K binaries, switching to it" << std::endl;
+			}
+			type = UNIX_3B2; // this will be the default version for the linker
+		}
+		break;
 	default:
-		Linker::Error << "Error: Format only supports Intel 80386 and Motorola 68000 binaries" << std::endl;
+		Linker::Error << "Error: Format only supports DEC VAX, Intel 80386, Motorola 68000 and AT&T WE32K binaries" << std::endl;
 	}
+
+	switch(type)
+	{
+	case WINDOWS:
+		// handled in PEFormat
+		break;
+	default:
+		if(!magic_type)
+			magic_type = ZMAGIC;
+		break;
+	case CDOS386:
+	case CDOS68K:
+		break;
+	}
+
+	if(magic_type == ZMAGIC)
+		option_unmapped_zero_page = true; // TODO: make this a parameter, make it option
 
 	if(linker_parameters.find("code_base_address") == linker_parameters.end())
 	{
-		if(type == DJGPP)
+		uint32_t code_base_address = 0;
+		switch(type)
 		{
-			linker_parameters["code_base_address"] = Linker::Location(0x1000);
-		}
-		else if(type != CDOS386)
-		{
+		case UNIX:
+			// TODO: what happens for NMAGIC? only OMAGIC and ZMAGIC was studied
+			// TODO: what happens on 386 and WE32K?
+			switch(cpu_type)
+			{
+			case CPU_VAX:
+				if(magic_type == ZMAGIC)
+					code_base_address += 0xA8; // TODO: calculate header size
+				if(option_unmapped_zero_page)
+					code_base_address += 0x00002000;
+				break;
+			case CPU_I386:
+				if(magic_type == ZMAGIC)
+					code_base_address += 0xD0; // TODO: calculate header size
+				//if(option_unmapped_zero_page)
+				//	code_base_address += 0x00002000; // TODO: what is the page size?
+				break;
+			default:
+				Linker::Warning << "Warning: no base address specified for .code, setting to 0" << std::endl;
+				break;
+			}
+			break;
+		case UNIX_3B20:
+			if(magic_type == ZMAGIC)
+				code_base_address += 0xB8; // TODO: calculate header size
+			if(option_unmapped_zero_page)
+				code_base_address += 0x00002000;
+			break;
+		case UNIX_3B5:
+		case UNIX_3B2:
+			code_base_address = 0x80800000;
+			if(magic_type == ZMAGIC)
+				code_base_address += 0xA8; // TODO: calculate header size
+			if(option_unmapped_zero_page)
+				code_base_address += 0x00002000; // TODO: does this happen?
+			break;
+		case DJGPP:
+			code_base_address = 0x1000;
+			break;
+		case CDOS386:
+			code_base_address = 0x1000;
+			break;
+		case CDOS68K:
+		//case WINDOWS:
+		default:
 			Linker::Warning << "Warning: no base address specified for .code, setting to 0" << std::endl;
-			linker_parameters["code_base_address"] = Linker::Location();
+			break;
 		}
+		linker_parameters["code_base_address"] = Linker::Location(code_base_address);
 	}
 	else if(type == CDOS386 && linker_parameters["code_base_address"] != 0x1000)
 	{
 		Linker::Warning << "Warning: base address ignored for .code, setting to 0x1000" << std::endl;
+		linker_parameters["code_base_address"] = Linker::Location(0x1000);
+	}
+
+	switch(type)
+	{
+	case UNIX:
+		switch(cpu_type)
+		{
+		case CPU_VAX:
+			linker_parameters["segment_align"] = Linker::Location(magic_type == OMAGIC ? 1 : 0x00010000);
+			break;
+		case CPU_I386:
+			linker_parameters["segment_align"] = Linker::Location(magic_type == OMAGIC ? 1 : 0x00400000);
+			// TODO: address should be considered up to 0x1000 alignment
+			break;
+		default:
+			linker_parameters["segment_align"] = Linker::Location(1); // TODO
+			break;
+		}
+		break;
+	case UNIX_3B20:
+		linker_parameters["segment_align"] = Linker::Location(magic_type == OMAGIC ? 1 : 0x00020000);
+		break;
+	case UNIX_3B5:
+	case UNIX_3B2:
+		linker_parameters["segment_align"] = Linker::Location(magic_type == OMAGIC ? 1 : 0x00040000);
+		break;
+	case DJGPP:
+		linker_parameters["segment_align"] = Linker::Location(1); // TODO
+		break;
+	case CDOS386:
+		linker_parameters["segment_align"] = Linker::Location(1); // TODO
+		break;
+	case CDOS68K:
+		linker_parameters["segment_align"] = Linker::Location(1); // TODO
+		break;
+	case WINDOWS:
+		linker_parameters["segment_align"] = Linker::Location(1); // TODO
+		break;
+	default:
+		linker_parameters["segment_align"] = Linker::Location(1); // TODO
+		break;
 	}
 
 	Linker::OutputFormat::GenerateFile(filename, module);
@@ -3350,6 +3602,11 @@ std::string COFFFormat::GetDefaultExtension(Linker::Module& module, std::string 
 		return filename + ".68k";
 	case CDOS386:
 		return filename + ".386";
+	case UNIX:
+	case UNIX_3B20:
+	case UNIX_3B5:
+	case UNIX_3B2:
+		return filename;
 	default:
 		Linker::FatalError("Internal error: invalid target system");
 	}
