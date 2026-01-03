@@ -3275,8 +3275,8 @@ void COFFFormat::CalculateValues()
 	case UNIX_3B5:
 	case UNIX_3B2:
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS;
-		if(cpu_type == CPU_WE32K)
-			flags |= 0x6000; // BM32B instructions and math arithmetic unit
+		//if(cpu_type == CPU_WE32K)
+		//	flags |= 0x6000; // BM32B instructions and math arithmetic unit (not actually required for generating binaries)
 		switch(GetEndianType())
 		{
 		case ::LittleEndian:
@@ -3518,15 +3518,13 @@ void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
 			if(magic_type == ZMAGIC)
 				code_base_address += 0xB8; // TODO: calculate header size
 			if(option_unmapped_zero_page)
-				code_base_address += 0x00002000;
+				code_base_address += 0x00002000; // TODO: unsure if this is needed
 			break;
 		case UNIX_3B5:
 		case UNIX_3B2:
 			code_base_address = 0x80800000;
 			if(magic_type == ZMAGIC)
 				code_base_address += 0xA8; // TODO: calculate header size
-			if(option_unmapped_zero_page)
-				code_base_address += 0x00002000; // TODO: does this happen?
 			break;
 		case DJGPP:
 			code_base_address = 0x1000;
