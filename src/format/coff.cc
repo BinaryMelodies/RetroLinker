@@ -2560,6 +2560,9 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 	case CPU_WE32K:
 		module.cpu = Linker::Module::WE32K;
 		break;
+	case CPU_VAX:
+		module.cpu = Linker::Module::VAX;
+		break;
 	case CPU_Z80:
 		module.cpu = Linker::Module::I80;
 		break;
@@ -2699,8 +2702,8 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 					case R_PCRWORD:
 					case R_REL24:
 					case R_PCRLONG:
-						// TODO: relative to what?
-						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, 0, GetEndianType());
+						// TODO: relative to what? (this is DJGPP COFF behavior, probably close enough to standard UNIX)
+						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.address, GetEndianType());
 						break;
 
 					case R_OFF16:
