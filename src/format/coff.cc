@@ -2557,6 +2557,9 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 	case CPU_M68K:
 		module.cpu = Linker::Module::M68K;
 		break;
+	case CPU_WE32K:
+		module.cpu = Linker::Module::WE32K;
+		break;
 	case CPU_Z80:
 		module.cpu = Linker::Module::I80;
 		break;
