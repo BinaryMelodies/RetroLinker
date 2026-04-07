@@ -207,7 +207,7 @@ namespace Linker
 		offset_t GetEndAddress() const;
 
 		/**
-		 * @brief For non-fixed segments, sets the starting address and makes the fixed
+		 * @brief For non-fixed segments, sets the starting address and makes the segment fixed
 		 *
 		 * If the segment is already fixed, the address is not changed.
 		 * Alignment requirements might cause the new address to be incremented.

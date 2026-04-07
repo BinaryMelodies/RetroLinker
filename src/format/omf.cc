@@ -1,6 +1,8 @@
 
 #include <algorithm>
 #include "omf.h"
+#include "../linker/module.h"
+#include "../linker/section.h"
 
 /* TODO: incomplete */
 
@@ -1275,7 +1277,19 @@ void OMF86Format::SegmentDefinitionRecord::ReadRecordContents(OMF86Format * omf,
 			alignment = AlignUnnamed;
 			break;
 		default:
-			alignment = Align32;
+			alignment = Align4;
+			break;
+		}
+		break;
+	case alignment_t(6):
+		// according to NASM output
+		switch(omf->omf_version)
+		{
+		case OMF_VERSION_PHARLAP:
+		default:
+			alignment = Align4096;
+			break;
+		case OMF_VERSION_INTEL_40:
 			break;
 		}
 		break;
@@ -3519,7 +3533,7 @@ std::shared_ptr<OMF86Format::CommentRecord> OMF86Format::CommentRecord::ReadComm
 		record = std::make_shared<GenericCommentRecord>(comment_class_t(comment_class));
 		break;
 	case LinkPassSeparator:
-		record = std::make_shared<EmptyCommentRecord>(comment_class_t(comment_class));
+		record = std::make_shared<GenericCommentRecord>(comment_class_t(comment_class));
 		break;
 	case LIBMOD:
 		record = std::make_shared<TextCommentRecord>(comment_class_t(comment_class));
@@ -4262,6 +4276,14 @@ void OMF86Format::ReadFile(Linker::Reader& rd)
 	}
 
 	file_size = rd.Tell();
+
+	for(auto& module : modules)
+	{
+		for(size_t record_index = 0; record_index < module.record_count; record_index ++)
+		{
+			records[module.first_record + record_index]->ResolveReferences(this, &module);
+		}
+	}
 }
 
 offset_t OMF86Format::WriteFile(Linker::Writer& wr) const
@@ -4299,7 +4321,119 @@ void OMF86Format::Dump(Dumper::Dumper& dump) const
 
 void OMF86Format::GenerateModule(Linker::Module& module) const
 {
-	/* TODO */
+	// TODO: when to use Linker::Module::I386? when option_16bit is enabled like for ELF? when there are 32-bit segments in the file?
+	module.cpu = Linker::Module::I86;
+	module.endiantype = LittleEndian;
+
+	for(auto record : records)
+	{
+		// TODO: collect while parsing
+		if(auto extension_record = std::dynamic_pointer_cast<OMFExtensionRecord>(record))
+		{
+			if(extension_record->subtype == OMFExtensionRecord::BigEndian)
+			{
+				module.endiantype = BigEndian;
+			}
+		}
+	}
+
+	for(auto& omf_module : modules)
+	{
+		for(auto segment : omf_module.segdefs)
+		{
+			// TODO: is there a better way to determine the flags?
+			// TODO: set Mergeable
+			int flags = Linker::Section::Readable;
+			if(CaseInsensitiveEqual()(segment->class_name.text, "code"))
+			{
+				flags |= Linker::Section::Executable;
+			}
+			else
+			{
+				if(CaseInsensitiveEqual()(segment->class_name.text, "bss")
+				|| CaseInsensitiveEqual()(segment->class_name.text, "stack"))
+				{
+					flags |= Linker::Section::ZeroFilled;
+				}
+				flags |= Linker::Section::Writable;
+			}
+
+			switch(segment->combination)
+			{
+			case SegmentDefinitionRecord::Combination_Private:
+				// TODO: segments with the same name cannot be merged
+				break;
+			case SegmentDefinitionRecord::Combination_Merge_Highest:
+				// TODO
+				break;
+			case SegmentDefinitionRecord::Combination_Append: // Combination_Public
+			case SegmentDefinitionRecord::Combination_Public4:
+			case SegmentDefinitionRecord::Combination_Public7:
+			default:
+				break;
+			case SegmentDefinitionRecord::Combination_Join_Low:
+				// TODO: share lowest address, add sizes
+				break;
+			case SegmentDefinitionRecord::Combination_Join_High:
+				// TODO: share highest address, add sizes
+				break;
+			case SegmentDefinitionRecord::Combination_Stack:
+				flags |= Linker::Section::Stack;
+				// TODO: share highest address, add sizes
+				break;
+			case SegmentDefinitionRecord::Combination_Merge_Low:
+			case SegmentDefinitionRecord::Combination_Common:
+				flags |= Linker::Section::Mergeable; // TODO: not implemented/tested yet
+				break;
+			case SegmentDefinitionRecord::Combination_Merge_High:
+				flags |= Linker::Section::Mergeable; // TODO: not implemented/tested yet
+				// TODO: share highest address
+				break;
+			}
+
+			auto section = std::make_shared<Linker::Section>(segment->segment_name.text, flags);
+			// TODO: class_name, overlay_name
+			switch(segment->alignment)
+			{
+			case SegmentDefinitionRecord::AlignAbsolute:
+				section->SetAddress(std::get<SegmentDefinitionRecord::Absolute>(segment->location));
+				break;
+			case SegmentDefinitionRecord::Align1:
+				section->SetAlign(1);
+				break;
+			case SegmentDefinitionRecord::Align2:
+				section->SetAlign(2);
+				break;
+			case SegmentDefinitionRecord::Align4:
+				section->SetAlign(4);
+				break;
+			case SegmentDefinitionRecord::Align16:
+				section->SetAlign(16);
+				break;
+			case SegmentDefinitionRecord::Align256:
+				section->SetAlign(256);
+				break;
+			case SegmentDefinitionRecord::Align4096:
+				section->SetAlign(4096);
+				break;
+			//case AlignPage: // should not appear
+			//case AlignLTL16: // not supported
+			//case AlignUnnamed: // not supported
+			default:
+				break;
+			}
+			// TODO: page_resident
+			// TODO: use32
+			if(segment->use32)
+				module.cpu = Linker::Module::I386; // TODO: can we allow 32-bit segments inside a 16-bit binary?
+			// TODO: access bits
+
+			module.AddSection(section);
+		}
+		// TODO: groups
+	}
+
+	// TODO: fetch symbols, relocations etc.
 }
 
 //// OMF80Format::ExternalNameIndex

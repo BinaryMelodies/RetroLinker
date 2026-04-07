@@ -970,7 +970,7 @@ namespace OMF
 				/** @brief Unnamed absolute portion of the memory address space, type 5 as defined by Intel */
 				AlignUnnamed = FlagIntel | 5,
 				/** @brief Relocatable segment, double word (4-byte) aligned, type 5 as defined by TIS */
-				Align32 = FlagTIS | 5,
+				Align4 = FlagTIS | 5,
 			};
 
 			/** @brief Alignment of segment */
@@ -1016,7 +1016,7 @@ namespace OMF
 				Combination_Common = FlagTIS | 6,
 				/** @brief Merges the two segments at their highest address, their size is the maximum (Intel interpretation) */
 				Combination_Merge_High = 7,
-				Combination_Public7 = FlagTIS | 4,
+				Combination_Public7 = FlagTIS | 7,
 			};
 
 			/** @brief How segments of the same type should be combined */
