@@ -404,6 +404,8 @@ namespace OMF
 
 		/* * * General members * * */
 
+		::EndianType endian_type = ::LittleEndian;
+
 		/** @brief Represents the various variants of the OMF file format, some of them are incompatible */
 		enum omf_version_t
 		{
@@ -1075,6 +1077,8 @@ namespace OMF
 
 			void CalculateValues(OMF86Format * omf, Module * mod) override;
 			void ResolveReferences(OMF86Format * omf, Module * mod) override;
+
+			std::shared_ptr<Linker::Section> GenerateLinkerSection();
 		};
 
 		/** @brief A record that defines a segment group, used for GRPDEF records */
@@ -2180,6 +2184,9 @@ namespace OMF
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
+
+		static uint32_t FillSectionData(std::shared_ptr<Linker::Section> section, uint32_t offset, std::shared_ptr<OMF86Format::DataBlock> data);
+
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;
 		/* TODO */

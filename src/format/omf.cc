@@ -1593,6 +1593,94 @@ void OMF86Format::SegmentDefinitionRecord::ResolveReferences(OMF86Format * omf, 
 	}
 }
 
+
+std::shared_ptr<Linker::Section> OMF86Format::SegmentDefinitionRecord::GenerateLinkerSection()
+{
+	int flags = Linker::Section::Readable;
+	if(CaseInsensitiveEqual()(class_name.text, "code"))
+	{
+		flags |= Linker::Section::Executable;
+	}
+	else
+	{
+		if(CaseInsensitiveEqual()(class_name.text, "bss")
+		|| CaseInsensitiveEqual()(class_name.text, "stack"))
+		{
+			flags |= Linker::Section::ZeroFilled;
+		}
+		flags |= Linker::Section::Writable;
+	}
+
+	switch(combination)
+	{
+	case SegmentDefinitionRecord::Combination_Private:
+		// TODO: segments with the same name cannot be merged
+		break;
+	case SegmentDefinitionRecord::Combination_Merge_Highest:
+		// TODO
+		break;
+	case SegmentDefinitionRecord::Combination_Append: // Combination_Public
+	case SegmentDefinitionRecord::Combination_Public4:
+	case SegmentDefinitionRecord::Combination_Public7:
+	default:
+		break;
+	case SegmentDefinitionRecord::Combination_Join_Low:
+		// TODO: share lowest address, add sizes
+		break;
+	case SegmentDefinitionRecord::Combination_Join_High:
+		// TODO: share highest address, add sizes
+		break;
+	case SegmentDefinitionRecord::Combination_Stack:
+		flags |= Linker::Section::Stack;
+		// TODO: share highest address, add sizes
+		break;
+	case SegmentDefinitionRecord::Combination_Merge_Low:
+	case SegmentDefinitionRecord::Combination_Common:
+		flags |= Linker::Section::Mergeable; // TODO: not implemented/tested yet
+		break;
+	case SegmentDefinitionRecord::Combination_Merge_High:
+		flags |= Linker::Section::Mergeable; // TODO: not implemented/tested yet
+		// TODO: share highest address
+		break;
+	}
+
+	linker_section = std::make_shared<Linker::Section>(segment_name.text, flags);
+	// TODO: class_name, overlay_name
+	switch(alignment)
+	{
+	case SegmentDefinitionRecord::AlignAbsolute:
+		linker_section->SetAddress(std::get<SegmentDefinitionRecord::Absolute>(location));
+		break;
+	case SegmentDefinitionRecord::Align1:
+		linker_section->SetAlign(1);
+		break;
+	case SegmentDefinitionRecord::Align2:
+		linker_section->SetAlign(2);
+		break;
+	case SegmentDefinitionRecord::Align4:
+		linker_section->SetAlign(4);
+		break;
+	case SegmentDefinitionRecord::Align16:
+		linker_section->SetAlign(16);
+		break;
+	case SegmentDefinitionRecord::Align256:
+		linker_section->SetAlign(256);
+		break;
+	case SegmentDefinitionRecord::Align4096:
+		linker_section->SetAlign(4096);
+		break;
+	//case AlignPage: // should not appear
+	//case AlignLTL16: // not supported
+	//case AlignUnnamed: // not supported
+	default:
+		break;
+	}
+	// TODO: page_resident
+	// TODO: use32
+	// TODO: access bits
+	return linker_section;
+}
+
 //// OMF86Format::GroupDefinitionRecord::Component
 
 OMF86Format::GroupDefinitionRecord::Component OMF86Format::GroupDefinitionRecord::Component::Read(OMF86Format * omf, Module * mod, Linker::Reader& rd)
@@ -3591,6 +3679,7 @@ std::shared_ptr<OMF86Format::CommentRecord> OMF86Format::CommentRecord::ReadComm
 				break;
 			case OMFExtensionRecord::BigEndian:
 				record = std::make_shared<OMFExtensionRecord::EmptyOMFExtensionRecord>(OMFExtensionRecord::extension_type_t(subtype));
+				omf->endian_type = BigEndian;
 				break;
 			case OMFExtensionRecord::PRECOMP:
 				record = std::make_shared<OMFExtensionRecord::EmptyOMFExtensionRecord>(OMFExtensionRecord::extension_type_t(subtype));
@@ -4392,8 +4481,7 @@ void OMF86Format::Dump(Dumper::Dumper& dump) const
 	}
 }
 
-// TODO: integrate into class
-static inline uint32_t fill_section_data(std::shared_ptr<Linker::Section> section, uint32_t offset, std::shared_ptr<OMF86Format::DataBlock> data)
+uint32_t OMF86Format::FillSectionData(std::shared_ptr<Linker::Section> section, uint32_t offset, std::shared_ptr<OMF86Format::DataBlock> data)
 {
 	size_t original_offset = offset;
 	for(uint16_t count = 0; count < data->repeat_count; count ++)
@@ -4410,7 +4498,7 @@ static inline uint32_t fill_section_data(std::shared_ptr<Linker::Section> sectio
 			{
 				for(auto block : content)
 				{
-					offset += fill_section_data(section, offset, block);
+					offset += FillSectionData(section, offset, block);
 				}
 			}
 			else
@@ -4426,110 +4514,15 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 {
 	// TODO: when to use Linker::Module::I386? when option_16bit is enabled like for ELF? when there are 32-bit segments in the file?
 	module.cpu = Linker::Module::I86;
-	module.endiantype = LittleEndian;
-
-	for(auto record : records)
-	{
-		// TODO: collect while parsing
-		if(auto extension_record = std::dynamic_pointer_cast<OMFExtensionRecord>(record))
-		{
-			if(extension_record->subtype == OMFExtensionRecord::BigEndian)
-			{
-				module.endiantype = BigEndian;
-			}
-		}
-	}
+	module.endiantype = endian_type;
 
 	for(auto& omf_module : modules)
 	{
 		for(auto segment : omf_module.segdefs)
 		{
-			// TODO: is there a better way to determine the flags?
-			int flags = Linker::Section::Readable;
-			if(CaseInsensitiveEqual()(segment->class_name.text, "code"))
-			{
-				flags |= Linker::Section::Executable;
-			}
-			else
-			{
-				if(CaseInsensitiveEqual()(segment->class_name.text, "bss")
-				|| CaseInsensitiveEqual()(segment->class_name.text, "stack"))
-				{
-					flags |= Linker::Section::ZeroFilled;
-				}
-				flags |= Linker::Section::Writable;
-			}
-
-			switch(segment->combination)
-			{
-			case SegmentDefinitionRecord::Combination_Private:
-				// TODO: segments with the same name cannot be merged
-				break;
-			case SegmentDefinitionRecord::Combination_Merge_Highest:
-				// TODO
-				break;
-			case SegmentDefinitionRecord::Combination_Append: // Combination_Public
-			case SegmentDefinitionRecord::Combination_Public4:
-			case SegmentDefinitionRecord::Combination_Public7:
-			default:
-				break;
-			case SegmentDefinitionRecord::Combination_Join_Low:
-				// TODO: share lowest address, add sizes
-				break;
-			case SegmentDefinitionRecord::Combination_Join_High:
-				// TODO: share highest address, add sizes
-				break;
-			case SegmentDefinitionRecord::Combination_Stack:
-				flags |= Linker::Section::Stack;
-				// TODO: share highest address, add sizes
-				break;
-			case SegmentDefinitionRecord::Combination_Merge_Low:
-			case SegmentDefinitionRecord::Combination_Common:
-				flags |= Linker::Section::Mergeable; // TODO: not implemented/tested yet
-				break;
-			case SegmentDefinitionRecord::Combination_Merge_High:
-				flags |= Linker::Section::Mergeable; // TODO: not implemented/tested yet
-				// TODO: share highest address
-				break;
-			}
-
-			segment->linker_section = std::make_shared<Linker::Section>(segment->segment_name.text, flags);
-			// TODO: class_name, overlay_name
-			switch(segment->alignment)
-			{
-			case SegmentDefinitionRecord::AlignAbsolute:
-				segment->linker_section->SetAddress(std::get<SegmentDefinitionRecord::Absolute>(segment->location));
-				break;
-			case SegmentDefinitionRecord::Align1:
-				segment->linker_section->SetAlign(1);
-				break;
-			case SegmentDefinitionRecord::Align2:
-				segment->linker_section->SetAlign(2);
-				break;
-			case SegmentDefinitionRecord::Align4:
-				segment->linker_section->SetAlign(4);
-				break;
-			case SegmentDefinitionRecord::Align16:
-				segment->linker_section->SetAlign(16);
-				break;
-			case SegmentDefinitionRecord::Align256:
-				segment->linker_section->SetAlign(256);
-				break;
-			case SegmentDefinitionRecord::Align4096:
-				segment->linker_section->SetAlign(4096);
-				break;
-			//case AlignPage: // should not appear
-			//case AlignLTL16: // not supported
-			//case AlignUnnamed: // not supported
-			default:
-				break;
-			}
-			// TODO: page_resident
+			module.AddSection(segment->GenerateLinkerSection());
 			if(segment->use32)
 				module.cpu = Linker::Module::I386; // TODO: can we allow 32-bit segments inside a 16-bit binary?
-			// TODO: access bits
-
-			module.AddSection(segment->linker_section);
 		}
 		// TODO: groups
 
@@ -4546,7 +4539,7 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 			if(auto logical_data_record = std::dynamic_pointer_cast<LogicalDataRecord>(current_record))
 			{
 				auto segment = logical_data_record->segment.record;
-				fill_section_data(segment->linker_section, logical_data_record->offset, logical_data_record->data);
+				FillSectionData(segment->linker_section, logical_data_record->offset, logical_data_record->data);
 				last_data_record = Linker::Location(segment->linker_section, logical_data_record->offset);
 			}
 			else if(auto relocatable_data_record = std::dynamic_pointer_cast<RelocatableDataRecord>(current_record))
