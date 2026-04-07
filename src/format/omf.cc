@@ -713,7 +713,10 @@ void OMF86Format::BaseSpecification::ResolveReferences(OMF86Format * omf, Module
 {
 	if(auto _location = std::get_if<Location>(&location))
 	{
-		_location->group.ResolveReferences(omf, mod);
+		if(_location->group.index != 0)
+		{
+			_location->group.ResolveReferences(omf, mod);
+		}
 		_location->segment.ResolveReferences(omf, mod);
 	}
 }
@@ -2024,6 +2027,7 @@ void OMF86Format::SymbolsDefinitionRecord::CalculateValues(OMF86Format * omf, Mo
 
 void OMF86Format::SymbolsDefinitionRecord::ResolveReferences(OMF86Format * omf, Module * mod)
 {
+	base.ResolveReferences(omf, mod);
 	for(auto& symbol : symbols)
 	{
 		symbol.ResolveReferences(omf, mod);
@@ -2040,7 +2044,9 @@ void OMF86Format::ExternalNamesDefinitionRecord::ReadRecordContents(OMF86Format 
 	extdef_count = 0;
 	while(rd.Tell() < RecordEnd())
 	{
-		if(common)
+		if(record_type == CEXTDEF)
+			omf->modules.back().extdefs.push_back(ExternalName::ReadComdatExternalName(omf, rd));
+		else if(common)
 			omf->modules.back().extdefs.push_back(ExternalName::ReadCommonName(omf, rd, local));
 		else
 			omf->modules.back().extdefs.push_back(ExternalName::ReadExternalName(omf, rd, local));
@@ -4471,10 +4477,73 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 		for(size_t record_index = 0; record_index < omf_module.record_count; record_index ++)
 		{
 			// TODO: section data should have been collected during parsing
-			if(auto logical_data_record = std::dynamic_pointer_cast<LogicalDataRecord>(records[omf_module.first_record + record_index]))
+			auto current_record = records[omf_module.first_record + record_index];
+			if(auto logical_data_record = std::dynamic_pointer_cast<LogicalDataRecord>(current_record))
 			{
 				auto segment = logical_data_record->segment.record;
 				fill_section_data(segment->linker_section, logical_data_record->offset, logical_data_record->data);
+			}
+			else if(auto symbols_definition_record = std::dynamic_pointer_cast<SymbolsDefinitionRecord>(current_record))
+			{
+				Linker::Location base_location = std::visit([](auto&& base)
+				{
+					using T = std::decay_t<decltype(base)>;
+					if constexpr(std::is_same_v<T, OMF86Format::BaseSpecification::Location>)
+					{
+						return Linker::Location(base.segment.record->linker_section);
+					}
+					else if constexpr(std::is_same_v<T, OMF86Format::FrameNumber>)
+					{
+						return Linker::Location(offset_t(base) << 4);
+					}
+					else
+					{
+						static_assert(false);
+					}
+				}, symbols_definition_record->base.location);
+				for(auto& symbol_definition : symbols_definition_record->symbols)
+				{
+					if(symbol_definition.local)
+					{
+						module.AddLocalSymbol(symbol_definition.name, base_location + symbol_definition.offset);
+					}
+					else
+					{
+						module.AddGlobalSymbol(symbol_definition.name, base_location + symbol_definition.offset);
+					}
+				}
+			}
+			else if(auto external_names_definition_record = std::dynamic_pointer_cast<ExternalNamesDefinitionRecord>(current_record))
+			{
+				for(uint16_t extdef_index = 0; extdef_index < external_names_definition_record->extdef_count; extdef_index ++)
+				{
+					auto& extdef = omf_module.extdefs[external_names_definition_record->first_extdef.index + extdef_index - 1];
+					size_t common_size = 0;
+					switch(extdef.common_type)
+					{
+					case ExternalName::External:
+						// TODO: local external names not supported
+						module.AddUndefinedSymbol(extdef.name.text);
+						continue;
+					case ExternalName::SegmentIndexCommon:
+						// TODO: unknown size
+						break;
+					case ExternalName::NearCommon:
+						common_size = extdef.value.near.length;
+						break;
+					case ExternalName::FarCommon:
+						common_size = extdef.value.far.number * extdef.value.far.element_size;
+						break;
+					}
+					if(extdef.local)
+					{
+						module.AddCommonSymbol(Linker::SymbolDefinition::CreateCommon(extdef.name.text, "", common_size));
+					}
+					else
+					{
+						module.AddLocalCommonSymbol(Linker::SymbolDefinition::CreateCommon(extdef.name.text, "", common_size));
+					}
+				}
 			}
 		}
 		// TODO: fetch symbols, relocations etc.
