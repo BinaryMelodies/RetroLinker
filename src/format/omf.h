@@ -1046,6 +1046,9 @@ namespace OMF
 			/** @brief Represents the value of a Phar Lap specific extension word */
 			std::optional<access_t> access;
 
+			/** @brief The section that gets generated during parsing the OMF file **/
+			std::shared_ptr<Linker::Section> linker_section = nullptr;
+
 			SegmentDefinitionRecord(record_type_t record_type = record_type_t(0))
 				: Record(record_type)
 			{

@@ -396,7 +396,12 @@ void OMF86Format::SegmentIndex::CalculateValues(OMF86Format * omf, Module * mod)
 
 void OMF86Format::SegmentIndex::ResolveReferences(OMF86Format * omf, Module * mod)
 {
-	record = std::dynamic_pointer_cast<SegmentDefinitionRecord>(omf->records[mod->first_record + index - 1]);
+	record = std::dynamic_pointer_cast<SegmentDefinitionRecord>(mod->segdefs[index - 1]);
+	if(!record)
+	{
+		Linker::Debug << mod->first_record << ", " << index << std::endl;
+		Linker::FatalError("Internal error: not a segment definition record");
+	}
 }
 
 //// OMF86Format::GroupIndex
@@ -408,7 +413,7 @@ void OMF86Format::GroupIndex::CalculateValues(OMF86Format * omf, Module * mod)
 
 void OMF86Format::GroupIndex::ResolveReferences(OMF86Format * omf, Module * mod)
 {
-	record = std::dynamic_pointer_cast<GroupDefinitionRecord>(omf->records[mod->first_record + index - 1]);
+	record = std::dynamic_pointer_cast<GroupDefinitionRecord>(mod->grpdefs[index - 1]);
 }
 
 //// OMF86Format::TypeIndex
@@ -420,7 +425,7 @@ void OMF86Format::TypeIndex::CalculateValues(OMF86Format * omf, Module * mod)
 
 void OMF86Format::TypeIndex::ResolveReferences(OMF86Format * omf, Module * mod)
 {
-	record = std::dynamic_pointer_cast<TypeDefinitionRecord>(omf->records[mod->first_record + index - 1]);
+	record = std::dynamic_pointer_cast<TypeDefinitionRecord>(mod->typdefs[index - 1]);
 }
 
 //// OMF86Format::BlockIndex
@@ -432,7 +437,7 @@ void OMF86Format::BlockIndex::CalculateValues(OMF86Format * omf, Module * mod)
 
 void OMF86Format::BlockIndex::ResolveReferences(OMF86Format * omf, Module * mod)
 {
-	record = std::dynamic_pointer_cast<BlockDefinitionRecord>(omf->records[mod->first_record + index - 1]);
+	record = std::dynamic_pointer_cast<BlockDefinitionRecord>(mod->blkdefs[index - 1]);
 }
 
 //// OMF86Format::OverlayIndex
@@ -444,7 +449,7 @@ void OMF86Format::OverlayIndex::CalculateValues(OMF86Format * omf, Module * mod)
 
 void OMF86Format::OverlayIndex::ResolveReferences(OMF86Format * omf, Module * mod)
 {
-	record = std::dynamic_pointer_cast<OverlayDefinitionRecord>(omf->records[mod->first_record + index - 1]);
+	record = std::dynamic_pointer_cast<OverlayDefinitionRecord>(mod->ovldefs[index - 1]);
 }
 
 //// OMF86Format::ExternalIndex
@@ -744,7 +749,10 @@ void OMF86Format::SymbolDefinition::CalculateValues(OMF86Format * omf, Module * 
 
 void OMF86Format::SymbolDefinition::ResolveReferences(OMF86Format * omf, Module * mod)
 {
-	type.ResolveReferences(omf, mod);
+	if(type.index != 0)
+	{
+		type.ResolveReferences(omf, mod);
+	}
 }
 
 //// OMF86Format::LineNumber
@@ -4319,6 +4327,36 @@ void OMF86Format::Dump(Dumper::Dumper& dump) const
 	}
 }
 
+// TODO: integrate into class
+static inline uint32_t fill_section_data(std::shared_ptr<Linker::Section> section, uint32_t offset, std::shared_ptr<OMF86Format::DataBlock> data)
+{
+	size_t original_offset = offset;
+	for(uint16_t count = 0; count < data->repeat_count; count ++)
+	{
+		std::visit([section, &offset](auto&& content)
+		{
+			using T = std::decay_t<decltype(content)>;
+			if constexpr(std::is_same_v<T, OMF86Format::DataBlock::Data>)
+			{
+				section->WriteData(content.size(), offset, content.data());
+				offset += content.size();
+			}
+			else if constexpr(std::is_same_v<T, OMF86Format::DataBlock::Blocks>)
+			{
+				for(auto block : content)
+				{
+					offset += fill_section_data(section, offset, block);
+				}
+			}
+			else
+			{
+				static_assert(false);
+			}
+		}, data->content);
+	}
+	return offset - original_offset;
+}
+
 void OMF86Format::GenerateModule(Linker::Module& module) const
 {
 	// TODO: when to use Linker::Module::I386? when option_16bit is enabled like for ELF? when there are 32-bit segments in the file?
@@ -4342,7 +4380,6 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 		for(auto segment : omf_module.segdefs)
 		{
 			// TODO: is there a better way to determine the flags?
-			// TODO: set Mergeable
 			int flags = Linker::Section::Readable;
 			if(CaseInsensitiveEqual()(segment->class_name.text, "code"))
 			{
@@ -4391,30 +4428,30 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 				break;
 			}
 
-			auto section = std::make_shared<Linker::Section>(segment->segment_name.text, flags);
+			segment->linker_section = std::make_shared<Linker::Section>(segment->segment_name.text, flags);
 			// TODO: class_name, overlay_name
 			switch(segment->alignment)
 			{
 			case SegmentDefinitionRecord::AlignAbsolute:
-				section->SetAddress(std::get<SegmentDefinitionRecord::Absolute>(segment->location));
+				segment->linker_section->SetAddress(std::get<SegmentDefinitionRecord::Absolute>(segment->location));
 				break;
 			case SegmentDefinitionRecord::Align1:
-				section->SetAlign(1);
+				segment->linker_section->SetAlign(1);
 				break;
 			case SegmentDefinitionRecord::Align2:
-				section->SetAlign(2);
+				segment->linker_section->SetAlign(2);
 				break;
 			case SegmentDefinitionRecord::Align4:
-				section->SetAlign(4);
+				segment->linker_section->SetAlign(4);
 				break;
 			case SegmentDefinitionRecord::Align16:
-				section->SetAlign(16);
+				segment->linker_section->SetAlign(16);
 				break;
 			case SegmentDefinitionRecord::Align256:
-				section->SetAlign(256);
+				segment->linker_section->SetAlign(256);
 				break;
 			case SegmentDefinitionRecord::Align4096:
-				section->SetAlign(4096);
+				segment->linker_section->SetAlign(4096);
 				break;
 			//case AlignPage: // should not appear
 			//case AlignLTL16: // not supported
@@ -4423,17 +4460,25 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 				break;
 			}
 			// TODO: page_resident
-			// TODO: use32
 			if(segment->use32)
 				module.cpu = Linker::Module::I386; // TODO: can we allow 32-bit segments inside a 16-bit binary?
 			// TODO: access bits
 
-			module.AddSection(section);
+			module.AddSection(segment->linker_section);
 		}
 		// TODO: groups
-	}
 
-	// TODO: fetch symbols, relocations etc.
+		for(size_t record_index = 0; record_index < omf_module.record_count; record_index ++)
+		{
+			// TODO: section data should have been collected during parsing
+			if(auto logical_data_record = std::dynamic_pointer_cast<LogicalDataRecord>(records[omf_module.first_record + record_index]))
+			{
+				auto segment = logical_data_record->segment.record;
+				fill_section_data(segment->linker_section, logical_data_record->offset, logical_data_record->data);
+			}
+		}
+		// TODO: fetch symbols, relocations etc.
+	}
 }
 
 //// OMF80Format::ExternalNameIndex
