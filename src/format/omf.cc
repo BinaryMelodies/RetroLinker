@@ -922,6 +922,10 @@ void OMF86Format::Reference::Read(OMF86Format * omf, Linker::Reader& rd, size_t 
 	{
 		displacement = rd.ReadUnsigned(displacement_size);
 	}
+	else
+	{
+		displacement = 0;
+	}
 }
 
 uint16_t OMF86Format::Reference::Size(OMF86Format * omf, bool is32bit) const
@@ -1155,6 +1159,61 @@ void OMF86Format::Reference::ResolveReferences(OMF86Format * omf, Module * mod)
 	{
 		external->ResolveReferences(omf, mod);
 	}
+}
+
+Linker::Target OMF86Format::Reference::GetTarget(SegmentIndex segment_index)
+{
+	return Linker::Target(Linker::Location(segment_index.record->linker_section));
+}
+
+Linker::Target OMF86Format::Reference::GetTarget(GroupIndex group_index)
+{
+	Linker::FatalError("Unimplemented"); // TODO: should have a Linker::Section to refer to
+}
+
+Linker::Target OMF86Format::Reference::GetTarget(ExternalIndex external_index)
+{
+	return Linker::Target(Linker::SymbolName(external_index.name.name.text));
+}
+
+Linker::Target OMF86Format::Reference::GetTarget(FrameNumber frame_number)
+{
+	return Linker::Location(offset_t(frame_number) << 4);
+}
+
+Linker::Target OMF86Format::Reference::GetFrame(Linker::Location source, Linker::Target target, SegmentIndex segment_index)
+{
+	return GetTarget(segment_index);
+}
+
+Linker::Target OMF86Format::Reference::GetFrame(Linker::Location source, Linker::Target target, GroupIndex group_index)
+{
+	return GetTarget(group_index);
+}
+
+Linker::Target OMF86Format::Reference::GetFrame(Linker::Location source, Linker::Target target, ExternalIndex external_index)
+{
+	return GetTarget(external_index);
+}
+
+Linker::Target OMF86Format::Reference::GetFrame(Linker::Location source, Linker::Target target, FrameNumber frame_number)
+{
+	return GetTarget(frame_number);
+}
+
+Linker::Target OMF86Format::Reference::GetFrame(Linker::Location source, Linker::Target target, UsesSource _)
+{
+	return Linker::Target(source).GetSegment();
+}
+
+Linker::Target OMF86Format::Reference::GetFrame(Linker::Location source, Linker::Target target, UsesTarget _)
+{
+	return Linker::Target(target.GetSegment());
+}
+
+Linker::Target OMF86Format::Reference::GetFrame(Linker::Location source, Linker::Target target, UsesAbsolute _)
+{
+	return Linker::Target();
 }
 
 //// OMF86Format::ModuleHeaderRecord
@@ -4474,6 +4533,12 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 		}
 		// TODO: groups
 
+		// used for FIXUPP records
+		Linker::Location last_data_record;
+
+		std::array<std::optional<FixupRecord::frame_reference_type>, 4> frame_thread;
+		std::array<std::optional<FixupRecord::target_reference_type>, 4> target_thread;
+
 		for(size_t record_index = 0; record_index < omf_module.record_count; record_index ++)
 		{
 			// TODO: section data should have been collected during parsing
@@ -4482,6 +4547,19 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 			{
 				auto segment = logical_data_record->segment.record;
 				fill_section_data(segment->linker_section, logical_data_record->offset, logical_data_record->data);
+				last_data_record = Linker::Location(segment->linker_section, logical_data_record->offset);
+			}
+			else if(auto relocatable_data_record = std::dynamic_pointer_cast<RelocatableDataRecord>(current_record))
+			{
+				// TODO
+				Linker::Error << "Relocatable data records not supported" << std::endl;
+				last_data_record = Linker::Location();
+			}
+			else if(auto physical_data_record = std::dynamic_pointer_cast<PhysicalDataRecord>(current_record))
+			{
+				// TODO
+				Linker::Error << "Physical data records not supported" << std::endl;
+				last_data_record = Linker::Location();
 			}
 			else if(auto symbols_definition_record = std::dynamic_pointer_cast<SymbolsDefinitionRecord>(current_record))
 			{
@@ -4535,18 +4613,169 @@ void OMF86Format::GenerateModule(Linker::Module& module) const
 						common_size = extdef.value.far.number * extdef.value.far.element_size;
 						break;
 					}
+
+					auto linker_symbol = Linker::SymbolDefinition::CreateCommon(extdef.name.text, "", common_size);
 					if(extdef.local)
 					{
-						module.AddCommonSymbol(Linker::SymbolDefinition::CreateCommon(extdef.name.text, "", common_size));
+						module.AddCommonSymbol(linker_symbol);
 					}
 					else
 					{
-						module.AddLocalCommonSymbol(Linker::SymbolDefinition::CreateCommon(extdef.name.text, "", common_size));
+						module.AddLocalCommonSymbol(linker_symbol);
 					}
 				}
 			}
+			else if(auto fixup_record = std::dynamic_pointer_cast<FixupRecord>(current_record))
+			{
+				// TODO: this will not work for iterated records
+				for(auto data : fixup_record->fixup_data)
+				{
+					std::visit([&module, &frame_thread, &target_thread, last_data_record](auto&& content)
+					{
+						using T = std::decay_t<decltype(content)>;
+						if constexpr(std::is_same_v<T, OMF86Format::FixupRecord::Fixup>)
+						{
+							auto fixup = content;
+
+							Linker::Location linker_source = last_data_record + fixup.offset;
+
+							Linker::Target linker_target;
+
+							std::visit([&target_thread, &linker_target](auto&& target)
+							{
+								using T = std::decay_t<decltype(target)>;
+								if constexpr(std::is_same_v<T, OMF86Format::Reference::ThreadNumber>)
+								{
+									if(!target_thread[target])
+									{
+										Linker::Error << "Invalid thread (OMF)" << std::endl;
+										return;
+									}
+									std::visit([&linker_target](auto&& target) { linker_target = Reference::GetTarget(target); }, target_thread[target].value());
+								}
+								else
+								{
+									linker_target = Reference::GetTarget(target);
+								}
+							}, fixup.ref.target);
+
+							Linker::Target linker_frame;
+							std::visit([&frame_thread, &linker_frame, linker_source, linker_target](auto&& frame)
+							{
+								using T = std::decay_t<decltype(frame)>;
+								if constexpr(std::is_same_v<T, OMF86Format::Reference::ThreadNumber>)
+								{
+									if(!frame_thread[frame])
+									{
+										Linker::Error << "Invalid thread (OMF)" << std::endl;
+										return;
+									}
+									std::visit([&linker_frame, linker_source, linker_target](auto&& frame) { linker_frame = Reference::GetFrame(linker_source, linker_target, frame); }, frame_thread[frame].value());
+								}
+								else
+								{
+									linker_frame = Reference::GetFrame(linker_source, linker_target, frame);
+								}
+							}, fixup.ref.frame);
+
+							size_t rel_size = 0;
+							bool use_segment = false;
+							int shift = 0;
+							switch(fixup.type)
+							{
+							case FixupRecord::Fixup::RelocationLowByte:
+								rel_size = 1;
+								break;
+							case FixupRecord::Fixup::RelocationOffset16:
+							case FixupRecord::Fixup::RelocationOffset16_LoaderResolved: // TODO
+								rel_size = 2;
+								break;
+							case FixupRecord::Fixup::RelocationSegment:
+								rel_size = 0;
+								use_segment = true;
+								break;
+							case FixupRecord::Fixup::RelocationPointer32:
+								rel_size = 2;
+								use_segment = true;
+								break;
+							case FixupRecord::Fixup::RelocationHighByte:
+								rel_size = 1;
+								shift = 8;
+								break;
+							case FixupRecord::Fixup::RelocationOffset32:
+							case FixupRecord::Fixup::RelocationOffset32_PharLap:
+							case FixupRecord::Fixup::RelocationOffset32_LoaderResolved: // TODO
+								rel_size = 4;
+								break;
+							case FixupRecord::Fixup::RelocationPointer48:
+							case FixupRecord::Fixup::RelocationPointer48_PharLap:
+								rel_size = 4;
+								use_segment = true;
+								break;
+							}
+
+							if(rel_size != 0)
+							{
+								if(fixup.segment_relative)
+								{
+									module.AddRelocation(Linker::Relocation(
+										Linker::Relocation::Direct,
+										rel_size,
+										linker_source,
+										linker_target,
+										linker_frame,
+										fixup.ref.displacement,
+										LittleEndian).SetShift(shift));
+								}
+								else
+								{
+									module.AddRelocation(Linker::Relocation::Relative(
+										rel_size,
+										linker_source,
+										linker_target,
+										fixup.ref.displacement,
+										LittleEndian));
+								}
+							}
+
+							if(use_segment)
+							{
+								module.AddRelocation(Linker::Relocation::Paragraph(
+									linker_source + rel_size,
+									linker_target,
+									fixup.ref.displacement));
+							}
+						}
+						else if constexpr(std::is_same_v<T, OMF86Format::FixupRecord::Thread>)
+						{
+							auto thread = content;
+							if(thread.frame)
+								frame_thread[thread.thread_number] = thread.reference;
+							else
+								std::visit([&target_thread, &thread](auto&& reference)
+								{
+									using T = std::decay_t<decltype(reference)>;
+									if constexpr(std::is_same_v<T, SegmentIndex>
+									|| std::is_same_v<T, GroupIndex>
+									|| std::is_same_v<T, ExternalIndex>
+									|| std::is_same_v<T, FrameNumber>)
+									{
+										target_thread[thread.thread_number] = reference;
+									}
+									else
+									{
+										Linker::Error << "Internal error: invalid target thread" << std::endl;
+									}
+								}, thread.reference);
+						}
+						else
+						{
+							static_assert(false);
+						}
+					}, data);
+				}
+			}
 		}
-		// TODO: fetch symbols, relocations etc.
 	}
 }
 

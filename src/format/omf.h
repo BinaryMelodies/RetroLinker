@@ -7,6 +7,8 @@
 #include "../dumper/dumper.h"
 #include "../linker/format.h"
 #include "../linker/reader.h"
+#include "../linker/symbol_definition.h"
+#include "../linker/target.h"
 #include "../linker/writer.h"
 
 /* TODO: incomplete */
@@ -762,6 +764,19 @@ namespace OMF
 
 			void CalculateValues(OMF86Format * omf, Module * mod);
 			void ResolveReferences(OMF86Format * omf, Module * mod);
+
+			static Linker::Target GetTarget(SegmentIndex segment_index);
+			static Linker::Target GetTarget(GroupIndex group_index);
+			static Linker::Target GetTarget(ExternalIndex external_index);
+			static Linker::Target GetTarget(FrameNumber frame_number);
+
+			static Linker::Target GetFrame(Linker::Location source, Linker::Target target, SegmentIndex segment_index);
+			static Linker::Target GetFrame(Linker::Location source, Linker::Target target, GroupIndex group_index);
+			static Linker::Target GetFrame(Linker::Location source, Linker::Target target, ExternalIndex external_index);
+			static Linker::Target GetFrame(Linker::Location source, Linker::Target target, FrameNumber frame_number);
+			static Linker::Target GetFrame(Linker::Location source, Linker::Target target, UsesSource _);
+			static Linker::Target GetFrame(Linker::Location source, Linker::Target target, UsesTarget _);
+			static Linker::Target GetFrame(Linker::Location source, Linker::Target target, UsesAbsolute _);
 		};
 
 		/** @brief The recognized record types in an OMF86 file */
@@ -1446,6 +1461,9 @@ namespace OMF
 		class FixupRecord : public Record
 		{
 		public:
+			typedef std::variant<SegmentIndex, GroupIndex, ExternalIndex, FrameNumber> target_reference_type;
+			typedef std::variant<SegmentIndex, GroupIndex, ExternalIndex, FrameNumber, UsesSource, UsesTarget, UsesAbsolute> frame_reference_type;
+
 			/** @brief Threads are intermediary storage for relocation targets and frames, this class represents a thread assignment */
 			class Thread
 			{
@@ -1455,7 +1473,7 @@ namespace OMF
 				/** @brief Set if this is a frame thread, it is a target thread otherwise */
 				bool frame;
 				/** @brief The frame or target reference */
-				std::variant<SegmentIndex, GroupIndex, ExternalIndex, FrameNumber, UsesSource, UsesTarget, UsesAbsolute> reference = FrameNumber(0);
+				frame_reference_type reference = FrameNumber(0);
 
 				static Thread Read(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint8_t leading_data_byte);
 				uint16_t Size(OMF86Format * omf, Module * mod) const;
