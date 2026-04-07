@@ -25,7 +25,7 @@ var searchData=
   ['netbsd_22',['NETBSD',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baa5a1ea4d9d550d4c6f2e2ed5412afd011',1,'AOut::AOutFormat']]],
   ['neutral_23',['Neutral',['../classMicrosoft_1_1LEFormat.html#af0b84dca24862d7b242d3624a0774ec5ac7adc9af0355dc210fe041ef288b10b9',1,'Microsoft::LEFormat']]],
   ['nice_24',['nice',['../classOMF_1_1OMF86Format_1_1TypeDefinitionRecord_1_1LeafDescriptor.html#a4f991bfe4662dcad13e309a0eda73241',1,'OMF::OMF86Format::TypeDefinitionRecord::LeafDescriptor']]],
-  ['nmagic_25',['NMAGIC',['../classAOut_1_1AOutFormat.html#a21ba7c404e01c8e56239be73c337499baf4ef23a377daa0e28b87f0025c737a96',1,'AOut::AOutFormat']]],
+  ['nmagic_25',['NMAGIC',['../classAOut_1_1AOutFormat.html#a21ba7c404e01c8e56239be73c337499baf4ef23a377daa0e28b87f0025c737a96',1,'AOut::AOutFormat::NMAGIC'],['../classCOFF_1_1COFFFormat.html#acb5fa8d1690ad3402c68e5c31b00b7eea549f5a2b2b4943d3f3268fb722f37b90',1,'COFF::COFFFormat::NMAGIC']]],
   ['nodata_26',['NODATA',['../classMicrosoft_1_1NEFormat.html#a45beeb2a4ab17368b6860673f05246fea4d8341b446b00ebccfcc04870ba9c2ec',1,'Microsoft::NEFormat']]],
   ['node_27',['Node',['../classScript_1_1Node.html',1,'Script']]],
   ['noload_28',['NOLOAD',['../structCOFF_1_1COFFFormat_1_1Section_1_1COFF__Flags.html#a21ca01f57a78578a97a2f702dc5bc50d',1,'COFF::COFFFormat::Section::COFF_Flags::NOLOAD'],['../structCOFF_1_1COFFFormat_1_1Section_1_1TICOFF__Flags.html#a9c1d6542cee6ad44ec06df09a6f3da1c',1,'COFF::COFFFormat::Section::TICOFF_Flags::NOLOAD']]],

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.10.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>RetroLinker: COFF::COFFFormat::MIPSAOutHeader Class Reference</title>
+<title>RetroLinker: COFF::COFFFormat::AOutHeader3B20 Class Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -72,7 +72,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><b>COFF</b></li><li class="navelem"><a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a></li><li class="navelem"><a class="el" href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html">MIPSAOutHeader</a></li>  </ul>
+<li class="navelem"><b>COFF</b></li><li class="navelem"><a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a></li><li class="navelem"><a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader3B20.html">AOutHeader3B20</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -80,45 +80,45 @@ $(function() {
 <a href="#pub-methods">Public Member Functions</a> &#124;
 <a href="#pub-attribs">Public Attributes</a> &#124;
 <a href="#pro-methods">Protected Member Functions</a> &#124;
-<a href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader-members.html">List of all members</a>  </div>
-  <div class="headertitle"><div class="title">COFF::COFFFormat::MIPSAOutHeader Class Reference</div></div>
+<a href="classCOFF_1_1COFFFormat_1_1AOutHeader3B20-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">COFF::COFFFormat::AOutHeader3B20 Class Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>56 byte long header used on MIPS  
+<p>AT&amp;T 3B20 36 byte a.out optional header.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="coff_8h_source.html">coff.h</a>&gt;</code></p>
 <div class="dynheader">
-Inheritance diagram for COFF::COFFFormat::MIPSAOutHeader:</div>
+Inheritance diagram for COFF::COFFFormat::AOutHeader3B20:</div>
 <div class="dyncontent">
  <div class="center">
-  <img src="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.png" usemap="#COFF::COFFFormat::MIPSAOutHeader_map" alt=""/>
-  <map id="COFF::COFFFormat::MIPSAOutHeader_map" name="COFF::COFFFormat::MIPSAOutHeader_map">
-<area href="classCOFF_1_1COFFFormat_1_1AOutHeader.html" title="A standard 28 byte a.out optional header, used by AT&amp;T UNIX and DJGPP." alt="COFF::COFFFormat::AOutHeader" shape="rect" coords="0,56,234,80"/>
-<area href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html" title="An abstract class to represent the optional header." alt="COFF::COFFFormat::OptionalHeader" shape="rect" coords="0,0,234,24"/>
+  <img src="classCOFF_1_1COFFFormat_1_1AOutHeader3B20.png" usemap="#COFF::COFFFormat::AOutHeader3B20_map" alt=""/>
+  <map id="COFF::COFFFormat::AOutHeader3B20_map" name="COFF::COFFFormat::AOutHeader3B20_map">
+<area href="classCOFF_1_1COFFFormat_1_1AOutHeader.html" title="A standard 28 byte a.out optional header, used by AT&amp;T UNIX and DJGPP." alt="COFF::COFFFormat::AOutHeader" shape="rect" coords="0,56,233,80"/>
+<area href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html" title="An abstract class to represent the optional header." alt="COFF::COFFFormat::OptionalHeader" shape="rect" coords="0,0,233,24"/>
   </map>
 </div></div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:af8061055a78a63c3f5e1bfdad36b275c" id="r_af8061055a78a63c3f5e1bfdad36b275c"><td class="memItemLeft" align="right" valign="top"><a id="af8061055a78a63c3f5e1bfdad36b275c" name="af8061055a78a63c3f5e1bfdad36b275c"></a>
-&#160;</td><td class="memItemRight" valign="bottom"><b>MIPSAOutHeader</b> (uint16_t <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a7b98197c30ecc0e3b76bc9df353e9c2d">magic</a>=0)</td></tr>
-<tr class="separator:af8061055a78a63c3f5e1bfdad36b275c"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a531d491e15c8176f996926359cfbe6c2" id="r_a531d491e15c8176f996926359cfbe6c2"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a531d491e15c8176f996926359cfbe6c2">GetSize</a> () const override</td></tr>
-<tr class="memdesc:a531d491e15c8176f996926359cfbe6c2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns size of optional header.  <br /></td></tr>
-<tr class="separator:a531d491e15c8176f996926359cfbe6c2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af481bff320cedec6523730857ba1edae" id="r_af481bff320cedec6523730857ba1edae"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af481bff320cedec6523730857ba1edae">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
-<tr class="separator:af481bff320cedec6523730857ba1edae"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a37d7b6b56ebf36ff61f473ea2824e5f6" id="r_a37d7b6b56ebf36ff61f473ea2824e5f6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a37d7b6b56ebf36ff61f473ea2824e5f6">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
-<tr class="separator:a37d7b6b56ebf36ff61f473ea2824e5f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aada2fe122bdc6434acda0f8cff46c65f" id="r_aada2fe122bdc6434acda0f8cff46c65f"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aada2fe122bdc6434acda0f8cff46c65f">CalculateValues</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff) override</td></tr>
-<tr class="memdesc:aada2fe122bdc6434acda0f8cff46c65f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up fields to be consistent.  <br /></td></tr>
-<tr class="separator:aada2fe122bdc6434acda0f8cff46c65f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4dccfd7a379bfeecbe7b5bf1c874cb9f" id="r_a4dccfd7a379bfeecbe7b5bf1c874cb9f"><td class="memItemLeft" align="right" valign="top"><a id="a4dccfd7a379bfeecbe7b5bf1c874cb9f" name="a4dccfd7a379bfeecbe7b5bf1c874cb9f"></a>
+&#160;</td><td class="memItemRight" valign="bottom"><b>AOutHeader3B20</b> (uint16_t <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a7b98197c30ecc0e3b76bc9df353e9c2d">magic</a>=0)</td></tr>
+<tr class="separator:a4dccfd7a379bfeecbe7b5bf1c874cb9f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f27e1ea802098378ed3988e7403e260" id="r_a2f27e1ea802098378ed3988e7403e260"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2f27e1ea802098378ed3988e7403e260">GetSize</a> () const override</td></tr>
+<tr class="memdesc:a2f27e1ea802098378ed3988e7403e260"><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns size of optional header.  <br /></td></tr>
+<tr class="separator:a2f27e1ea802098378ed3988e7403e260"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8acdcb62638101aecbed9b12e00503c9" id="r_a8acdcb62638101aecbed9b12e00503c9"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8acdcb62638101aecbed9b12e00503c9">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
+<tr class="separator:a8acdcb62638101aecbed9b12e00503c9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a274e1ff4efba1522669599dfe0f38905" id="r_a274e1ff4efba1522669599dfe0f38905"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a274e1ff4efba1522669599dfe0f38905">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
+<tr class="separator:a274e1ff4efba1522669599dfe0f38905"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html">COFF::COFFFormat::AOutHeader</a></td></tr>
 <tr class="memitem:aacc826fcbc7df37e7553cd1850eadae1 inherit pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_aacc826fcbc7df37e7553cd1850eadae1"><td class="memItemLeft" align="right" valign="top">
 &#160;</td><td class="memItemRight" valign="bottom"><b>AOutHeader</b> (uint16_t <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a7b98197c30ecc0e3b76bc9df353e9c2d">magic</a>=0)</td></tr>
 <tr class="separator:aacc826fcbc7df37e7553cd1850eadae1 inherit pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a51bdc80bc726db4de83a1b90206582 inherit pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_a7a51bdc80bc726db4de83a1b90206582"><td class="memItemLeft" align="right" valign="top">offset_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a7a51bdc80bc726db4de83a1b90206582">CalculateValues</a> (<a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff) override</td></tr>
+<tr class="memdesc:a7a51bdc80bc726db4de83a1b90206582 inherit pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up fields to be consistent.  <br /></td></tr>
+<tr class="separator:a7a51bdc80bc726db4de83a1b90206582 inherit pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4fbae53a6ccdb79194509602a96d4984 inherit pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_a4fbae53a6ccdb79194509602a96d4984"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a4fbae53a6ccdb79194509602a96d4984">Dump</a> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
 <tr class="separator:a4fbae53a6ccdb79194509602a96d4984 inherit pub_methods_classCOFF_1_1COFFFormat_1_1AOutHeader"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classCOFF_1_1COFFFormat_1_1OptionalHeader')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html">COFF::COFFFormat::OptionalHeader</a></td></tr>
@@ -131,18 +131,12 @@ Public Member Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:a9c8df61427fc3aea3b7d612befd252fd" id="r_a9c8df61427fc3aea3b7d612befd252fd"><td class="memItemLeft" align="right" valign="top"><a id="a9c8df61427fc3aea3b7d612befd252fd" name="a9c8df61427fc3aea3b7d612befd252fd"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>bss_address</b></td></tr>
-<tr class="separator:a9c8df61427fc3aea3b7d612befd252fd"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa20011aec53dcc3114905054a5de45ed" id="r_aa20011aec53dcc3114905054a5de45ed"><td class="memItemLeft" align="right" valign="top"><a id="aa20011aec53dcc3114905054a5de45ed" name="aa20011aec53dcc3114905054a5de45ed"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>gpr_mask</b></td></tr>
-<tr class="separator:aa20011aec53dcc3114905054a5de45ed"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adcc58a7a656df7018f41a27177b26f93" id="r_adcc58a7a656df7018f41a27177b26f93"><td class="memItemLeft" align="right" valign="top"><a id="adcc58a7a656df7018f41a27177b26f93" name="adcc58a7a656df7018f41a27177b26f93"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>cpr_mask</b> [4]</td></tr>
-<tr class="separator:adcc58a7a656df7018f41a27177b26f93"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae42b8f905a5891befb732bcb0ed4b1a7" id="r_ae42b8f905a5891befb732bcb0ed4b1a7"><td class="memItemLeft" align="right" valign="top"><a id="ae42b8f905a5891befb732bcb0ed4b1a7" name="ae42b8f905a5891befb732bcb0ed4b1a7"></a>
-uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>gp_value</b></td></tr>
-<tr class="separator:ae42b8f905a5891befb732bcb0ed4b1a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a413d0898d06f764fd99c363591b3c903" id="r_a413d0898d06f764fd99c363591b3c903"><td class="memItemLeft" align="right" valign="top"><a id="a413d0898d06f764fd99c363591b3c903" name="a413d0898d06f764fd99c363591b3c903"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>reserved1</b> = 0</td></tr>
+<tr class="separator:a413d0898d06f764fd99c363591b3c903"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38a8b731e140099e44ef3f13ac4615c0" id="r_a38a8b731e140099e44ef3f13ac4615c0"><td class="memItemLeft" align="right" valign="top"><a id="a38a8b731e140099e44ef3f13ac4615c0" name="a38a8b731e140099e44ef3f13ac4615c0"></a>
+uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>reserved2</b> = 0</td></tr>
+<tr class="separator:a38a8b731e140099e44ef3f13ac4615c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="inherit_header pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader')"><img src="closed.png" alt="-"/>&#160;Public Attributes inherited from <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html">COFF::COFFFormat::AOutHeader</a></td></tr>
 <tr class="memitem:a7b98197c30ecc0e3b76bc9df353e9c2d inherit pub_attribs_classCOFF_1_1COFFFormat_1_1AOutHeader" id="r_a7b98197c30ecc0e3b76bc9df353e9c2d"><td class="memItemLeft" align="right" valign="top">
 uint16_t&#160;</td><td class="memItemRight" valign="bottom"><b>magic</b> = 0</td></tr>
@@ -179,15 +173,14 @@ uint32_t&#160;</td><td class="memItemRight" valign="bottom"><b>data_address</b> 
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
 Protected Member Functions</h2></td></tr>
-<tr class="memitem:ac1d3aa54896675f4b86a164ba6cfb36d" id="r_ac1d3aa54896675f4b86a164ba6cfb36d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac1d3aa54896675f4b86a164ba6cfb36d">DumpFields</a> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;header_region) const override</td></tr>
-<tr class="separator:ac1d3aa54896675f4b86a164ba6cfb36d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9a5bfd3e693241d212024fe557c08a3" id="r_aa9a5bfd3e693241d212024fe557c08a3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa9a5bfd3e693241d212024fe557c08a3">DumpFields</a> (const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;coff, <a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;header_region) const override</td></tr>
+<tr class="separator:aa9a5bfd3e693241d212024fe557c08a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>56 byte long header used on MIPS </p>
-<p>TODO: untested </p>
+<div class="textblock"><p>AT&amp;T 3B20 36 byte a.out optional header. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
-<a id="aada2fe122bdc6434acda0f8cff46c65f" name="aada2fe122bdc6434acda0f8cff46c65f"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aada2fe122bdc6434acda0f8cff46c65f">&#9670;&#160;</a></span>CalculateValues()</h2>
+<a id="aa9a5bfd3e693241d212024fe557c08a3" name="aa9a5bfd3e693241d212024fe557c08a3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9a5bfd3e693241d212024fe557c08a3">&#9670;&#160;</a></span>DumpFields()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -196,37 +189,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">offset_t COFFFormat::MIPSAOutHeader::CalculateValues </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">override</span><span class="mlabel">virtual</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p>Sets up fields to be consistent. </p>
-<dl class="section return"><dt>Returns</dt><dd>Number of extra bytes following symbol table </dd></dl>
-
-<p>Reimplemented from <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#a7a51bdc80bc726db4de83a1b90206582">COFF::COFFFormat::AOutHeader</a>.</p>
-
-</div>
-</div>
-<a id="ac1d3aa54896675f4b86a164ba6cfb36d" name="ac1d3aa54896675f4b86a164ba6cfb36d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac1d3aa54896675f4b86a164ba6cfb36d">&#9670;&#160;</a></span>DumpFields()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">void COFFFormat::MIPSAOutHeader::DumpFields </td>
+          <td class="memname">void COFFFormat::AOutHeader3B20::DumpFields </td>
           <td>(</td>
           <td class="paramtype">const <a class="el" href="classCOFF_1_1COFFFormat.html">COFFFormat</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>coff</em>, </span></td>
         </tr>
@@ -252,8 +215,8 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a531d491e15c8176f996926359cfbe6c2" name="a531d491e15c8176f996926359cfbe6c2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a531d491e15c8176f996926359cfbe6c2">&#9670;&#160;</a></span>GetSize()</h2>
+<a id="a2f27e1ea802098378ed3988e7403e260" name="a2f27e1ea802098378ed3988e7403e260"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f27e1ea802098378ed3988e7403e260">&#9670;&#160;</a></span>GetSize()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -262,7 +225,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">uint32_t COFFFormat::MIPSAOutHeader::GetSize </td>
+          <td class="memname">uint32_t COFFFormat::AOutHeader3B20::GetSize </td>
           <td>(</td>
           <td class="paramname"><span class="paramname"></span></td><td>)</td>
           <td> const</td>
@@ -281,8 +244,8 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="af481bff320cedec6523730857ba1edae" name="af481bff320cedec6523730857ba1edae"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af481bff320cedec6523730857ba1edae">&#9670;&#160;</a></span>ReadFile()</h2>
+<a id="a8acdcb62638101aecbed9b12e00503c9" name="a8acdcb62638101aecbed9b12e00503c9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8acdcb62638101aecbed9b12e00503c9">&#9670;&#160;</a></span>ReadFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -291,7 +254,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void COFFFormat::MIPSAOutHeader::ReadFile </td>
+          <td class="memname">void COFFFormat::AOutHeader3B20::ReadFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>rd</em></span></td><td>)</td>
           <td></td>
@@ -308,8 +271,8 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a37d7b6b56ebf36ff61f473ea2824e5f6" name="a37d7b6b56ebf36ff61f473ea2824e5f6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a37d7b6b56ebf36ff61f473ea2824e5f6">&#9670;&#160;</a></span>WriteFile()</h2>
+<a id="a274e1ff4efba1522669599dfe0f38905" name="a274e1ff4efba1522669599dfe0f38905"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a274e1ff4efba1522669599dfe0f38905">&#9670;&#160;</a></span>WriteFile()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -318,7 +281,7 @@ Protected Member Functions</h2></td></tr>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">void COFFFormat::MIPSAOutHeader::WriteFile </td>
+          <td class="memname">void COFFFormat::AOutHeader3B20::WriteFile </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>wr</em></span></td><td>)</td>
           <td> const</td>

@@ -85,7 +85,7 @@ $(function() {
 </div><!--header-->
 <div class="contents">
 
-<p>A standard 28 byte a.out optional header, used by DJGPP.  
+<p>A standard 28 byte a.out optional header, used by AT&amp;T UNIX and DJGPP.  
  <a href="#details">More...</a></p>
 
 <p><code>#include &lt;<a class="el" href="coff_8h_source.html">coff.h</a>&gt;</code></p>
@@ -95,10 +95,11 @@ Inheritance diagram for COFF::COFFFormat::AOutHeader:</div>
  <div class="center">
   <img src="classCOFF_1_1COFFFormat_1_1AOutHeader.png" usemap="#COFF::COFFFormat::AOutHeader_map" alt=""/>
   <map id="COFF::COFFFormat::AOutHeader_map" name="COFF::COFFFormat::AOutHeader_map">
-<area href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html" title="An abstract class to represent the optional header." alt="COFF::COFFFormat::OptionalHeader" shape="rect" coords="256,0,502,24"/>
-<area href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html" title="Concurrent DOS 68K/FlexOS 386 optional header Concurrent DOS 68K uses the typical a...." alt="COFF::COFFFormat::FlexOSAOutHeader" shape="rect" coords="0,112,246,136"/>
-<area href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html" title="56 byte long header used on MIPS" alt="COFF::COFFFormat::MIPSAOutHeader" shape="rect" coords="256,112,502,136"/>
-<area href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html" title="The PE optional header as specified by Microsoft." alt="Microsoft::PEFormat::PEOptionalHeader" shape="rect" coords="512,112,758,136"/>
+<area href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html" title="An abstract class to represent the optional header." alt="COFF::COFFFormat::OptionalHeader" shape="rect" coords="384,0,630,24"/>
+<area href="classCOFF_1_1COFFFormat_1_1AOutHeader3B20.html" title="AT&amp;T 3B20 36 byte a.out optional header." alt="COFF::COFFFormat::AOutHeader3B20" shape="rect" coords="0,112,246,136"/>
+<area href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html" title="Concurrent DOS 68K/FlexOS 386 optional header Concurrent DOS 68K uses the typical a...." alt="COFF::COFFFormat::FlexOSAOutHeader" shape="rect" coords="256,112,502,136"/>
+<area href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html" title="56 byte long header used on MIPS" alt="COFF::COFFFormat::MIPSAOutHeader" shape="rect" coords="512,112,758,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html" title="The PE optional header as specified by Microsoft." alt="Microsoft::PEFormat::PEOptionalHeader" shape="rect" coords="768,112,1014,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -169,7 +170,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpFields</b
 <tr class="separator:a654d6df3ea0c0db5ad282452b8602959"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>A standard 28 byte a.out optional header, used by DJGPP. </p>
+<div class="textblock"><p>A standard 28 byte a.out optional header, used by AT&amp;T UNIX and DJGPP. </p>
 </div><h2 class="groupheader">Member Function Documentation</h2>
 <a id="a7a51bdc80bc726db4de83a1b90206582" name="a7a51bdc80bc726db4de83a1b90206582"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7a51bdc80bc726db4de83a1b90206582">&#9670;&#160;</a></span>CalculateValues()</h2>
@@ -261,7 +262,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>DumpFields</b
 
 <p>Implements <a class="el" href="classCOFF_1_1COFFFormat_1_1OptionalHeader.html#a0b8c424f72c38548afd35cc2e4fe908e">COFF::COFFFormat::OptionalHeader</a>.</p>
 
-<p>Reimplemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a63dc6232505cf94d688cd29838e724b0">COFF::COFFFormat::FlexOSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html#a531d491e15c8176f996926359cfbe6c2">COFF::COFFFormat::MIPSAOutHeader</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#aee61920d352e0378a729d7cb2a66a432">Microsoft::PEFormat::PEOptionalHeader</a>.</p>
+<p>Reimplemented in <a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader3B20.html#a2f27e1ea802098378ed3988e7403e260">COFF::COFFFormat::AOutHeader3B20</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1FlexOSAOutHeader.html#a63dc6232505cf94d688cd29838e724b0">COFF::COFFFormat::FlexOSAOutHeader</a>, <a class="el" href="classCOFF_1_1COFFFormat_1_1MIPSAOutHeader.html#a531d491e15c8176f996926359cfbe6c2">COFF::COFFFormat::MIPSAOutHeader</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#aee61920d352e0378a729d7cb2a66a432">Microsoft::PEFormat::PEOptionalHeader</a>.</p>
 
 </div>
 </div>

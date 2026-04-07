@@ -112,7 +112,10 @@ Inheritance diagram for COFF::COFFFormat:</div>
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
 Classes</h2></td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader.html">AOutHeader</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A standard 28 byte a.out optional header, used by DJGPP.  <a href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#details">More...</a><br /></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A standard 28 byte a.out optional header, used by AT&amp;T UNIX and DJGPP.  <a href="classCOFF_1_1COFFFormat_1_1AOutHeader.html#details">More...</a><br /></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCOFF_1_1COFFFormat_1_1AOutHeader3B20.html">AOutHeader3B20</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">AT&amp;T 3B20 36 byte a.out optional header.  <a href="classCOFF_1_1COFFFormat_1_1AOutHeader3B20.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structCOFF_1_1COFFFormat_1_1CDOS68K__Relocation.html">CDOS68K_Relocation</a></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -170,7 +173,7 @@ Public Types</h2></td></tr>
 , <a class="el" href="#a804c399c94ce4aff3c5905406d7b0114abe3fda9b1563ac3b809373791656d76f">CPU_M88K</a> = 0x016D
 , <br />
 &#160;&#160;<a class="el" href="#a804c399c94ce4aff3c5905406d7b0114aab2244a3a2217d1a65656198b4205a34">CPU_WE32K</a> = 0x0170
-, <a class="el" href="#a804c399c94ce4aff3c5905406d7b0114a11318e92b137c7ba69dad86d4fb92fb7">CPU_VAX</a> = 0x0178
+, <a class="el" href="#a804c399c94ce4aff3c5905406d7b0114a11318e92b137c7ba69dad86d4fb92fb7">CPU_VAX</a> = 0x017D
 , <a class="el" href="#a804c399c94ce4aff3c5905406d7b0114aea30194e3dd1a82d2fec9b75f35523f2">CPU_AM29K</a> = 0x017A
 , <a class="el" href="#a804c399c94ce4aff3c5905406d7b0114a0bf3bfa9f9c4576c72d33214aba05c27">CPU_ALPHA</a> = 0x0183
 , <br />
@@ -230,8 +233,24 @@ Public Types</h2></td></tr>
 <br />
  }</td></tr>
 <tr class="separator:ac6435257203f0fd50f8c61322d42d9e2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb5fa8d1690ad3402c68e5c31b00b7ee" id="r_acb5fa8d1690ad3402c68e5c31b00b7ee"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7ee">opthdr_magic_type</a> { <br />
+&#160;&#160;<a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7eea7d6cbc7b77863f2439e9fb426e3ba8c8">OMAGIC</a> = 0x0107
+, <a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7eea549f5a2b2b4943d3f3268fb722f37b90">NMAGIC</a> = 0x0108
+, <a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7eea73d5453307f61d03b130b653422f6e1a">ZMAGIC</a> = 0x010B
+, <a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7eea41e3d0a4327f5260914ff673f8560640">SHMAGIC</a> = 0x012B
+, <br />
+&#160;&#160;<a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7eea484069135276e3612e0e822bc108d0be">MAGIC_FLEXOS386</a> = 0x01C0
+<br />
+ }</td></tr>
+<tr class="memdesc:acb5fa8d1690ad3402c68e5c31b00b7ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Value stored as the magic of the a.out header.  <a href="#acb5fa8d1690ad3402c68e5c31b00b7ee">More...</a><br /></td></tr>
+<tr class="separator:acb5fa8d1690ad3402c68e5c31b00b7ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a205bb77ac2289ed12beb03a1a72d25ac" id="r_a205bb77ac2289ed12beb03a1a72d25ac"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a205bb77ac2289ed12beb03a1a72d25ac">format_type</a> { <br />
 &#160;&#160;<a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0">GENERIC</a>
+, <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25aca4f339b28f394deacb1093fd77908ffb1">UNIX</a>
+, <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acad526ba93b08c0b4422b62e91755ac297">UNIX_3B20</a>
+, <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25aca040084bfbc748070ff5fa3862176bb2e">UNIX_3B5</a>
+, <br />
+&#160;&#160;<a class="el" href="#a205bb77ac2289ed12beb03a1a72d25aca516496a54aeb7e9a98de53668c563708">UNIX_3B2</a>
 , <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6">DJGPP</a>
 , <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541">CDOS68K</a>
 , <a class="el" href="#a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c">CDOS386</a>
@@ -250,11 +269,6 @@ Public Types</h2></td></tr>
 &#160;&#160;<a class="el" href="#a29adeff9d932998e06a35922718bea12af1f1b55d2c41ac0a6d48fc1a241e65b6">FLAG_PDP11_ENDIAN</a> = 0x0080
 , <a class="el" href="#a29adeff9d932998e06a35922718bea12a57122491afa2c30e65980ccc1ae6ed59">FLAG_32BIT_LITTLE_ENDIAN</a> = 0x0100
 , <a class="el" href="#a29adeff9d932998e06a35922718bea12a94f1fde35b094698e6df2d1e91e11937">FLAG_32BIT_BIG_ENDIAN</a> = 0x0200
-, <b>OMAGIC</b> = 0x0107
-, <br />
-&#160;&#160;<b>NMAGIC</b> = 0x0108
-, <a class="el" href="#a29adeff9d932998e06a35922718bea12a73d5453307f61d03b130b653422f6e1a">ZMAGIC</a> = 0x010B
-, <a class="el" href="#a29adeff9d932998e06a35922718bea12a484069135276e3612e0e822bc108d0be">MAGIC_FLEXOS386</a> = 0x01C0
 <br />
  }</td></tr>
 <tr class="memdesc:a29adeff9d932998e06a35922718bea12"><td class="mdescLeft">&#160;</td><td class="mdescRight">COFF file header flags, most of these are obsolete, we only use them as precombined flag sets.  <a href="#a29adeff9d932998e06a35922718bea12">More...</a><br /></td></tr>
@@ -590,6 +604,12 @@ std::map&lt; uint32_t, <a class="el" href="structCOFF_1_1COFFFormat_1_1CDOS68K__
 <tr class="memitem:af8bf9aee74dfc2068deffcda24ceaf8c" id="r_af8bf9aee74dfc2068deffcda24ceaf8c"><td class="memItemLeft" align="right" valign="top"><a id="af8bf9aee74dfc2068deffcda24ceaf8c" name="af8bf9aee74dfc2068deffcda24ceaf8c"></a>
 bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_segmentation</b> = false</td></tr>
 <tr class="separator:af8bf9aee74dfc2068deffcda24ceaf8c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a851684fd6fdae38c93b758af3a6d0cf2" id="r_a851684fd6fdae38c93b758af3a6d0cf2"><td class="memItemLeft" align="right" valign="top"><a id="a851684fd6fdae38c93b758af3a6d0cf2" name="a851684fd6fdae38c93b758af3a6d0cf2"></a>
+<a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7ee">opthdr_magic_type</a>&#160;</td><td class="memItemRight" valign="bottom"><b>magic_type</b> = <a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7ee">opthdr_magic_type</a>(0)</td></tr>
+<tr class="separator:a851684fd6fdae38c93b758af3a6d0cf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aea1bc7c7d2c2f444b8acaa2f97b14fa1" id="r_aea1bc7c7d2c2f444b8acaa2f97b14fa1"><td class="memItemLeft" align="right" valign="top"><a id="aea1bc7c7d2c2f444b8acaa2f97b14fa1" name="aea1bc7c7d2c2f444b8acaa2f97b14fa1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>option_unmapped_zero_page</b> = false</td></tr>
+<tr class="separator:aea1bc7c7d2c2f444b8acaa2f97b14fa1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ae491f0f268489dd1d831c5188e905edf" id="r_ae491f0f268489dd1d831c5188e905edf"><td class="memItemLeft" align="right" valign="top"><a id="ae491f0f268489dd1d831c5188e905edf" name="ae491f0f268489dd1d831c5188e905edf"></a>
 <a class="el" href="classMicrosoft_1_1MZSimpleStubWriter.html">Microsoft::MZSimpleStubWriter</a>&#160;</td><td class="memItemRight" valign="bottom"><b>stub</b></td></tr>
 <tr class="separator:ae491f0f268489dd1d831c5188e905edf"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -1226,10 +1246,6 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 </td></tr>
 <tr><td class="fieldname"><a id="a29adeff9d932998e06a35922718bea12a94f1fde35b094698e6df2d1e91e11937" name="a29adeff9d932998e06a35922718bea12a94f1fde35b094698e6df2d1e91e11937"></a>FLAG_32BIT_BIG_ENDIAN&#160;</td><td class="fielddoc"><p>F_AR32W. </p>
 </td></tr>
-<tr><td class="fieldname"><a id="a29adeff9d932998e06a35922718bea12a73d5453307f61d03b130b653422f6e1a" name="a29adeff9d932998e06a35922718bea12a73d5453307f61d03b130b653422f6e1a"></a>ZMAGIC&#160;</td><td class="fielddoc"><p>Stored as the magic of the a.out header. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="a29adeff9d932998e06a35922718bea12a484069135276e3612e0e822bc108d0be" name="a29adeff9d932998e06a35922718bea12a484069135276e3612e0e822bc108d0be"></a>MAGIC_FLEXOS386&#160;</td><td class="fielddoc"><p>Magic number required by FlexOS 386. </p>
-</td></tr>
 </table>
 
 </div>
@@ -1392,6 +1408,14 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <table class="fieldtable">
 <tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0" name="a205bb77ac2289ed12beb03a1a72d25acae7e705fbd20a2b3d5f82145997b5f1e0"></a>GENERIC&#160;</td><td class="fielddoc"><p>An unspecified value, probably will not work. </p>
 </td></tr>
+<tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25aca4f339b28f394deacb1093fd77908ffb1" name="a205bb77ac2289ed12beb03a1a72d25aca4f339b28f394deacb1093fd77908ffb1"></a>UNIX&#160;</td><td class="fielddoc"><p>AT&amp;T UNIX System V Release 1-3. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25acad526ba93b08c0b4422b62e91755ac297" name="a205bb77ac2289ed12beb03a1a72d25acad526ba93b08c0b4422b62e91755ac297"></a>UNIX_3B20&#160;</td><td class="fielddoc"><p>AT&amp;T UNIX System V Release 3 for the AT&amp;T 3B20 (WE32K) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25aca040084bfbc748070ff5fa3862176bb2e" name="a205bb77ac2289ed12beb03a1a72d25aca040084bfbc748070ff5fa3862176bb2e"></a>UNIX_3B5&#160;</td><td class="fielddoc"><p>AT&amp;T UNIX System V Release 3 for the AT&amp;T 3B5 and 3B15 (WE32K) </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25aca516496a54aeb7e9a98de53668c563708" name="a205bb77ac2289ed12beb03a1a72d25aca516496a54aeb7e9a98de53668c563708"></a>UNIX_3B2&#160;</td><td class="fielddoc"><p>AT&amp;T UNIX System V Release 3 for the AT&amp;T 3B2 (WE32K) </p>
+</td></tr>
 <tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6" name="a205bb77ac2289ed12beb03a1a72d25acaf1971793850657a6e57b7c06efdc89b6"></a>DJGPP&#160;</td><td class="fielddoc"><p>DJGPP COFF executable. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541" name="a205bb77ac2289ed12beb03a1a72d25acafc03bd551a50f1b4ddfb5d5b97efe541"></a>CDOS68K&#160;</td><td class="fielddoc"><p>Concurrent DOS 68K executable (untested but confident) </p>
@@ -1399,6 +1423,34 @@ std::string&#160;</td><td class="memItemRight" valign="bottom"><b>current_templa
 <tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c" name="a205bb77ac2289ed12beb03a1a72d25aca80ca5a704e7b53e211021287a4bb463c"></a>CDOS386&#160;</td><td class="fielddoc"><p>FlexOS 386 executable. </p>
 </td></tr>
 <tr><td class="fieldname"><a id="a205bb77ac2289ed12beb03a1a72d25acac8c0b131846c46eb9d444bd328c90495" name="a205bb77ac2289ed12beb03a1a72d25acac8c0b131846c46eb9d444bd328c90495"></a>WINDOWS&#160;</td><td class="fielddoc"><p>Windows Portable Executable (used only by PE) </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="acb5fa8d1690ad3402c68e5c31b00b7ee" name="acb5fa8d1690ad3402c68e5c31b00b7ee"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb5fa8d1690ad3402c68e5c31b00b7ee">&#9670;&#160;</a></span>opthdr_magic_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#acb5fa8d1690ad3402c68e5c31b00b7ee">COFF::COFFFormat::opthdr_magic_type</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Value stored as the magic of the a.out header. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="acb5fa8d1690ad3402c68e5c31b00b7eea7d6cbc7b77863f2439e9fb426e3ba8c8" name="acb5fa8d1690ad3402c68e5c31b00b7eea7d6cbc7b77863f2439e9fb426e3ba8c8"></a>OMAGIC&#160;</td><td class="fielddoc"><p>Impure format - text segment is not write protected, text and data segment are contiguous. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acb5fa8d1690ad3402c68e5c31b00b7eea549f5a2b2b4943d3f3268fb722f37b90" name="acb5fa8d1690ad3402c68e5c31b00b7eea549f5a2b2b4943d3f3268fb722f37b90"></a>NMAGIC&#160;</td><td class="fielddoc"><p>Shared text - text segment is write protected, data segment follows on the next page. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acb5fa8d1690ad3402c68e5c31b00b7eea73d5453307f61d03b130b653422f6e1a" name="acb5fa8d1690ad3402c68e5c31b00b7eea73d5453307f61d03b130b653422f6e1a"></a>ZMAGIC&#160;</td><td class="fielddoc"><p>Demand paged. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acb5fa8d1690ad3402c68e5c31b00b7eea41e3d0a4327f5260914ff673f8560640" name="acb5fa8d1690ad3402c68e5c31b00b7eea41e3d0a4327f5260914ff673f8560640"></a>SHMAGIC&#160;</td><td class="fielddoc"><p>Shared library. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="acb5fa8d1690ad3402c68e5c31b00b7eea484069135276e3612e0e822bc108d0be" name="acb5fa8d1690ad3402c68e5c31b00b7eea484069135276e3612e0e822bc108d0be"></a>MAGIC_FLEXOS386&#160;</td><td class="fielddoc"><p>Magic number required by FlexOS 386. </p>
 </td></tr>
 </table>
 

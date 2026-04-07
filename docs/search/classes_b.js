@@ -8,7 +8,7 @@ var searchData=
   ['macintosh_5',['Macintosh',['../classApple_1_1FileInfo_1_1Macintosh.html',1,'Apple::FileInfo']]],
   ['macintoshfileinfo_6',['MacintoshFileInfo',['../classApple_1_1MacintoshFileInfo.html',1,'Apple']]],
   ['macintoshresourcereader_7',['MacintoshResourceReader',['../classdump_1_1MacintoshResourceReader.html',1,'dump']]],
-  ['magicenumeration_8',['MagicEnumeration',['../classAOut_1_1AOutFormat_1_1AOutOptionCollector_1_1MagicEnumeration.html',1,'AOut::AOutFormat::AOutOptionCollector']]],
+  ['magicenumeration_8',['MagicEnumeration',['../classAOut_1_1AOutFormat_1_1AOutOptionCollector_1_1MagicEnumeration.html',1,'AOut::AOutFormat::AOutOptionCollector::MagicEnumeration'],['../classCOFF_1_1COFFFormat_1_1COFFOptionCollector_1_1MagicEnumeration.html',1,'COFF::COFFFormat::COFFOptionCollector::MagicEnumeration']]],
   ['memoryblock_9',['MemoryBlock',['../classPCOS_1_1CMDFormat_1_1MemoryBlock.html',1,'PCOS::CMDFormat']]],
   ['memoryportionimage_10',['MemoryPortionImage',['../classMicrosoft_1_1PEFormat_1_1MemoryPortionImage.html',1,'Microsoft::PEFormat']]],
   ['minixaoutreader_11',['MINIXAOutReader',['../classdump_1_1MINIXAOutReader.html',1,'dump']]],

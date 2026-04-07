@@ -3,7 +3,7 @@ var searchData=
   ['offset16_0',['Offset16',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a4405e4729bd6659fd65d3ec8af2b4730a205ccee53c07da16b51d2cf34660b611',1,'Microsoft::NEFormat::Segment::Relocation']]],
   ['offset32_1',['Offset32',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a4405e4729bd6659fd65d3ec8af2b4730a62ae225412b088ef6b4e42d41c2db3eb',1,'Microsoft::NEFormat::Segment::Relocation']]],
   ['offset8_2',['Offset8',['../classMicrosoft_1_1NEFormat_1_1Segment_1_1Relocation.html#a4405e4729bd6659fd65d3ec8af2b4730aadd0e38acbd8239027958ee640799ab7',1,'Microsoft::NEFormat::Segment::Relocation']]],
-  ['omagic_3',['OMAGIC',['../classAOut_1_1AOutFormat.html#a21ba7c404e01c8e56239be73c337499baa656dc167e4ac3e208e2567ce22695d8',1,'AOut::AOutFormat']]],
+  ['omagic_3',['OMAGIC',['../classAOut_1_1AOutFormat.html#a21ba7c404e01c8e56239be73c337499baa656dc167e4ac3e208e2567ce22695d8',1,'AOut::AOutFormat::OMAGIC'],['../classCOFF_1_1COFFFormat.html#acb5fa8d1690ad3402c68e5c31b00b7eea7d6cbc7b77863f2439e9fb426e3ba8c8',1,'COFF::COFFFormat::OMAGIC']]],
   ['omf_5fversion_5fibm_4',['OMF_VERSION_IBM',['../classOMF_1_1OMF86Format.html#ab005ecd9c27352899acedccb63e3c8f8a98860f70842a0bfacd93c9aebad3bb7e',1,'OMF::OMF86Format']]],
   ['omf_5fversion_5fintel_5f40_5',['OMF_VERSION_INTEL_40',['../classOMF_1_1OMF86Format.html#ab005ecd9c27352899acedccb63e3c8f8a5805309a3cf8d0e8569df930eb329eb3',1,'OMF::OMF86Format']]],
   ['omf_5fversion_5fmicrosoft_6',['OMF_VERSION_MICROSOFT',['../classOMF_1_1OMF86Format.html#ab005ecd9c27352899acedccb63e3c8f8a9d60079d3d56853345436c17eccc116a',1,'OMF::OMF86Format']]],
