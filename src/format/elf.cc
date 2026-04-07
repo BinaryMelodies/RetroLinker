@@ -391,6 +391,22 @@ size_t ELFFormat::Relocation::GetSize(cpu_type cpu) const
 		case R_PPC_REL32:
 			return 4;
 		}
+	case EM_Z80:
+		switch(type)
+		{
+		default:
+			return 0;
+		case R_Z80_8:
+		case R_Z80_8_DIS:
+		case R_Z80_8_PCREL:
+			return 1;
+		case R_Z80_16:
+			return 2;
+		case R_Z80_24:
+			return 3;
+		case R_Z80_32:
+			return 4;
+		}
 	default:
 		return 0;
 	}
@@ -504,6 +520,24 @@ std::string ELFFormat::Relocation::GetName(cpu_type cpu) const
 			return "R_ARM_V4BX";
 		}
 	// TODO: EM_PPC, EM_VAX
+	case EM_Z80:
+		switch(type)
+		{
+		default:
+			return 0;
+		case R_Z80_8:
+			return "R_Z80_8";
+		case R_Z80_8_DIS:
+			return "R_Z80_8_DIS";
+		case R_Z80_8_PCREL:
+			return "R_Z80_8_PCREL";
+		case R_Z80_16:
+			return "R_Z80_16";
+		case R_Z80_24:
+			return "R_Z80_24";
+		case R_Z80_32:
+			return "R_Z80_32";
+		}
 	default:
 		return "";
 	}
@@ -2765,6 +2799,9 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 	case EM_VAX:
 		module.cpu = Linker::Module::VAX;
 		break;
+	case EM_Z80:
+		module.cpu = Linker::Module::I80;
+		break;
 	default:
 		{
 			std::ostringstream message;
@@ -3161,6 +3198,21 @@ void ELFFormat::GenerateModule(Linker::Module& module) const
 					default:
 						Linker::Warning << "Warning: unhandled PPC relocation type " << rel.type << std::endl;
 						continue;
+					}
+					break;
+
+				case EM_Z80:
+					rel_size = rel.GetSize(cpu);
+					if(rel_size == 0)
+						continue;
+
+					if(rel.type == R_Z80_8_PCREL)
+					{
+						obj_rel = Linker::Relocation::Relative(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
+					}
+					else
+					{
+						obj_rel = Linker::Relocation::Absolute(rel_size, rel_source, rel_target, rel.addend, ::LittleEndian);
 					}
 					break;
 
