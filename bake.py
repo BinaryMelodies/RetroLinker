@@ -1329,6 +1329,18 @@ DefineTarget(
 	],
 	extension = "")
 
+DefineTarget(
+	Description = "Apple ][ on 6502, using xa assembler",
+	CPU = "mos6502",
+	System = "apple2",
+	Format = "apple-sys",
+	FormatName = "sys",
+	LinkerName = "bin",
+	Versions = [
+		DefineVersion("", LinkerParameters = ["base_address=0x2000"]),
+	],
+	extension = "")
+
 if __name__ == '__main__':
 	exec(open('Bakefile').read())
 

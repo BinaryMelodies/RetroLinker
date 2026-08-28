@@ -307,4 +307,8 @@ Target(
 	System = "apple2",
 	Format = "apple-bin",
 	output_file = "apple2")
+Target(
+	System = "apple2",
+	Format = "apple-sys",
+	output_file = "apple2-sys")
 
