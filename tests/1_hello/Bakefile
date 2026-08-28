@@ -303,4 +303,8 @@ Target(
 	System = "c64-binutils",
 	Format = "cbm-prg",
 	output_file = "c64_2")
+Target(
+	System = "apple2",
+	Format = "apple-bin",
+	output_file = "apple2")
 

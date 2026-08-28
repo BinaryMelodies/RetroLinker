@@ -1,6 +1,12 @@
 
 	.text
 
+#ifdef	TARGET_APPLE2
+	tmp_address=$40
+#else
+	tmp_address=$20
+#endif
+
 	.as
 	.xs
 
@@ -9,21 +15,27 @@ start:
 	tsx
 	stx	ExitStack
 #endif
+#ifdef	TARGET_APPLE2
+#ifdef	FORMAT_BIN
+	tsx
+	stx	ExitStack
+#endif
+#endif
 
 	lda	#>Message
-	sta	<$21
+	sta	<tmp_address+1
 	lda	#<Message
-	sta	<$20
+	sta	<tmp_address
 
 	ldy	#0
 Loop:
-	lda	($20),y
+	lda	(tmp_address),y
 	cmp	#0
 	beq	PrintDone
 
-	sty	<$22
+	sty	<tmp_address+2
 	jsr	PutChar
-	ldy	<$22
+	ldy	<tmp_address+2
 	iny
 	jmp	Loop
 
@@ -45,6 +57,9 @@ Message:
 #ifdef	TARGET_C64
 	.aasc	" COMMODORE 64"
 #endif
+#ifdef	TARGET_APPLE2
+	.aasc	" APPLE ]["
+#endif
 	.byte	0
 
 #ifdef	TARGET_ATARI400
@@ -53,5 +68,9 @@ Message:
 
 #ifdef	TARGET_C64
 #include "../include/c64.asm"
+#endif
+
+#ifdef	TARGET_APPLE2
+#include "../include/apple2.asm"
 #endif
 
