@@ -42,7 +42,17 @@ namespace Binary
 	};
 
 	/**
-	 * @brief BIN/SYS file for Apple ][
+	 * @brief This is not actually a file format, but an interface to permit generating multiple binary outputs for Apple ][ binaries.
+	 *
+	 * Depending on the target disk file system and tools, there are a variety of ways to prepare a binary file for Apple ][.
+	 * The ones currently implemented are:
+	 * - If the target file system is an Apple DOS 3.3 system, a BIN binary is prefixed with a 4 byte header. This is achieved
+	 * by selecting target to be TARGET_BIN or TARGET_DOS33.
+	 * - If the target file system is a ProDOS system, the file type and auxiliary file type must also be stored. This is achieved
+	 * in two ways:
+	 * - Either by adding a suffix of the form #TTAAAA where TT is the hexadecimal value of the file type and AAAA is the hexadecimal
+	 * value of the auxiliary file type (this is referred to as NuLib2 Attribute Preservation String or NAPS in CiderPress documents)
+	 * - Or by bundling the data fork alongside the ProDOS file information in an AppleSingle file.
 	 */
 	class AppleDriver : public Linker::OutputFormat
 	{
