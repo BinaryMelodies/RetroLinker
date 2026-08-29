@@ -206,7 +206,8 @@ void BFLTFormat::ProcessModule(Linker::Module& module)
 			got->entries.insert(got->entries.begin(), Linker::GOTEntry());
 			got->entries.insert(got->entries.begin(), Linker::GOTEntry());
 			got->entries.insert(got->entries.begin(), Linker::GOTEntry());
-			got->entries.push_back(Linker::GOTEntry(Linker::Location(-1)));
+			auto entry = Linker::GOTEntry(Linker::Location(-1));
+			got->entries.push_back(entry);
 		}
 	}
 

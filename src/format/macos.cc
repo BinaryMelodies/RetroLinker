@@ -1855,11 +1855,11 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 		i++;
 	}
 
-	offset_t resource_name_list_size = 0;
+	/*offset_t resource_name_list_size = 0;
 	for(auto& name : resource_names)
 	{
 		resource_name_list_size += name.size() + 1;
-	}
+	}*/
 	Dumper::Region resource_name_list_region("Resource name list", file_offset + map_offset + name_list_offset, resource_type_list_size, 8);
 	resource_name_list_region.Display(dump);
 

@@ -183,7 +183,7 @@ namespace Linker
 		}
 
 		/** @brief The value to be stored */
-		Int value;
+		Int value = 0;
 	};
 
 	// TODO: uint64_t
