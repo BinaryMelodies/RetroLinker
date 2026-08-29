@@ -313,11 +313,11 @@ offset_t HUFormat::WriteFile(Linker::Writer& wr) const
 		if(relocation.absolute_displacement)
 		{
 			wr.WriteWord(2, 1);
-			wr.WriteWord(4, relocation.displacement);
+			wr.WriteWord(4, displacement);
 		}
 		else
 		{
-			wr.WriteWord(2, relocation.displacement);
+			wr.WriteWord(2, displacement);
 		}
 	}
 
