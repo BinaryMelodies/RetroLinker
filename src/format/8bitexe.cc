@@ -126,11 +126,15 @@ void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
 	}
 
 	image = std::make_shared<AppleFormat>(default_base_address, "", UseDOS33Header());
-	// TODO: add ProDOS entry
+	container->SetProDOSAccess(0xC3); // read/write/rename/delete
+	container->SetProDOSFileType(GetFileType());
+	container->SetProDOSAUXType(GetAuxiliaryFileType());
 	container->entries.push_back(std::make_shared<Apple::DataFork>(std::static_pointer_cast<Linker::Contents>(image)));
 
 	image->ProcessModule(module);
+	//container->ProcessModule(module); // we prepare the container ourselves
 	image->CalculateValues();
+	container->CalculateValues();
 
 	if((produce & PRODUCE_NAPS_SUFFIX) != 0)
 	{

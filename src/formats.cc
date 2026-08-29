@@ -588,7 +588,7 @@ format_specification formats[] =
 	{ "cbm-prg", // TODO: testing
 		[]() -> std::shared_ptr<Format> { return std::make_shared<CommodoreFormat>(); },
 		"Commodore 8-bit file format" },
-	{ "apple-bin", // TODO: testing
+	{ "apple-bin",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_BIN, AppleDriver::TARGET_BIN); },
 		"Apple 8-bit BIN file format" },
 	{ "apple-bin-dos33",

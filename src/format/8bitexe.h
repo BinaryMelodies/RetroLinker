@@ -50,15 +50,13 @@ namespace Binary
 		std::shared_ptr<Apple::AppleSingleDouble> container;
 		std::shared_ptr<AppleFormat> image;
 
-		/* TODO: untested */
-
 		/* format of "filename" */
 		enum target_format_t
 		{
 			TARGET_NONE, /* do not generate main file */
-			TARGET_BIN, /* main file is a BIN file, possibly with a DOS 3.3 header */
-			TARGET_DOS33, /* main file is a BIN file with DOS 3.3 header */
-			TARGET_RAW, /* main file is a raw BIN file */
+			TARGET_BIN, /* main file is a BIN file, possibly with a DOS 3.3 header (if no "+naps" is specified) */
+			TARGET_DOS33, /* main file is a BIN file with DOS 3.3 header (even if "+naps" is specified) */
+			TARGET_RAW, /* main file is a raw BIN file (even if no "+naps" is specified) */
 			TARGET_APPLESINGLE, /* main file is an AppleSingle file */
 		};
 		target_format_t target;
@@ -83,10 +81,9 @@ namespace Binary
 		file_type_t file_type;
 
 		/* TODO: enable setting the base address as a parameter */
-		/* TODO: SYS files are pure binary loaded at 0x2000 */
 
 		AppleDriver(file_type_t file_type = FILE_TYPE_BIN, target_format_t target = TARGET_BIN)
-			: container(std::make_shared<Apple::AppleSingleDouble>()),
+			: container(std::make_shared<Apple::AppleSingleDouble>(Apple::AppleSingleDouble::SINGLE)),
 			target(target),
 			file_type(file_type)
 		{
