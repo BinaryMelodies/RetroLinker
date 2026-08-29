@@ -1319,7 +1319,7 @@ DefineTarget(
 	extension = ".prg")
 
 DefineTarget(
-	Description = "Apple ][ on 6502, using xa assembler",
+	Description = "Apple ][ BIN on 6502, using xa assembler",
 	CPU = "mos6502",
 	System = "apple2",
 	Format = "apple-bin",
@@ -1330,16 +1330,59 @@ DefineTarget(
 	extension = "")
 
 DefineTarget(
-	Description = "Apple ][ on 6502, using xa assembler",
+	Description = "Apple ][ SYS on 6502, using xa assembler",
 	CPU = "mos6502",
 	System = "apple2",
 	Format = "apple-sys",
 	FormatName = "sys",
-	LinkerName = "bin",
 	Versions = [
-		DefineVersion("", LinkerParameters = ["base_address=0x2000"]),
+		DefineVersion(""),
 	],
 	extension = "")
+
+DefineTarget(
+	Description = "Apple ][ BIN on 6502, using xa assembler (NAPS suffix)",
+	CPU = "mos6502",
+	System = "apple2",
+	Format = "apple-bin+naps",
+	FormatName = "bin",
+	Versions = [
+		DefineVersion("", LinkerParameters = ["base_address=0x803"]),
+	],
+	extension = "")
+
+DefineTarget(
+	Description = "Apple ][ SYS on 6502, using xa assembler (NAPS suffix)",
+	CPU = "mos6502",
+	System = "apple2",
+	Format = "apple-sys+naps",
+	FormatName = "sys",
+	Versions = [
+		DefineVersion(""),
+	],
+	extension = "")
+
+DefineTarget(
+	Description = "Apple ][ BIN on 6502, using xa assembler (AppleSingle)",
+	CPU = "mos6502",
+	System = "apple2",
+	Format = "applesingle-bin",
+	FormatName = "bin",
+	Versions = [
+		DefineVersion("", LinkerParameters = ["base_address=0x803"]),
+	],
+	extension = ".as")
+
+DefineTarget(
+	Description = "Apple ][ SYS on 6502, using xa assembler (AppleSingle)",
+	CPU = "mos6502",
+	System = "apple2",
+	Format = "applesingle-sys",
+	FormatName = "sys",
+	Versions = [
+		DefineVersion(""),
+	],
+	extension = ".as")
 
 if __name__ == '__main__':
 	exec(open('Bakefile').read())
