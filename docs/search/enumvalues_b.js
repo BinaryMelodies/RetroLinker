@@ -1,8 +1,8 @@
 var searchData=
 [
-  ['n_5fabs_0',['N_ABS',['../classCOFF_1_1COFFFormat_1_1Symbol.html#a630ab03b779238c46b0288ad82e298f6ad2a00009f7e2df0b79c20cc6fd1c6820',1,'COFF::COFFFormat::Symbol']]],
-  ['n_5fdebug_1',['N_DEBUG',['../classCOFF_1_1COFFFormat_1_1Symbol.html#a630ab03b779238c46b0288ad82e298f6ad4239da7b708f5b66c9a5081832d386c',1,'COFF::COFFFormat::Symbol']]],
-  ['n_5fundef_2',['N_UNDEF',['../classCOFF_1_1COFFFormat_1_1Symbol.html#a630ab03b779238c46b0288ad82e298f6a6586165f28b8a84796c25ec2ba510fa7',1,'COFF::COFFFormat::Symbol']]],
+  ['n_5fabs_0',['N_ABS',['../classCOFF_1_1COFFFormat_1_1Symbol.html#a089539647c252da179e00a341c74ec75ad2a00009f7e2df0b79c20cc6fd1c6820',1,'COFF::COFFFormat::Symbol']]],
+  ['n_5fdebug_1',['N_DEBUG',['../classCOFF_1_1COFFFormat_1_1Symbol.html#a089539647c252da179e00a341c74ec75ad4239da7b708f5b66c9a5081832d386c',1,'COFF::COFFFormat::Symbol']]],
+  ['n_5fundef_2',['N_UNDEF',['../classCOFF_1_1COFFFormat_1_1Symbol.html#a089539647c252da179e00a341c74ec75a6586165f28b8a84796c25ec2ba510fa7',1,'COFF::COFFFormat::Symbol']]],
   ['nearcommon_3',['NearCommon',['../classOMF_1_1OMF86Format_1_1ExternalName.html#ab96fff5d656877d1fcfa7d4af19d67cea0771475880866c5f5471178d6008f34a',1,'OMF::OMF86Format::ExternalName']]],
   ['nearprocedure_4',['NearProcedure',['../classOMF_1_1OMF86Format_1_1BlockDefinitionRecord.html#a21118107640e8d6848a5183f3dec1a2da3eea656d0624bafa57358f0b9653f9fb',1,'OMF::OMF86Format::BlockDefinitionRecord']]],
   ['netbsd_5',['NETBSD',['../classAOut_1_1AOutFormat.html#ac4ac5a8725cfbf843d960ba6984346baa5a1ea4d9d550d4c6f2e2ed5412afd011',1,'AOut::AOutFormat']]],
