@@ -96,8 +96,6 @@ namespace Binary
 
 		void ReadFile(Linker::Reader& rd) override;
 
-		void ProcessModule(Linker::Module& module) override;
-		void CalculateValues() override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;

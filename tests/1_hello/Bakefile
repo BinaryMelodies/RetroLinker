@@ -311,4 +311,12 @@ Target(
 	System = "apple2",
 	Format = "apple-sys",
 	output_file = "apple2-sys")
+Target(
+	System = "apple2",
+	Format = "apple-bin+naps",
+	output_file = "apple2-naps")
+Target(
+	System = "apple2",
+	Format = "apple-sys+naps",
+	output_file = "apple2-sys-naps")
 

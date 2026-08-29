@@ -96,7 +96,19 @@ void AppleDriver::ReadFile(Linker::Reader& rd)
 	// TODO: read with DOS 3.3 header
 }
 
-void AppleDriver::ProcessModule(Linker::Module& module)
+offset_t AppleDriver::WriteFile(Linker::Writer& wr) const
+{
+	if(target == TARGET_APPLESINGLE)
+	{
+		return container->WriteFile(wr);
+	}
+	else
+	{
+		return image->WriteFile(wr);
+	}
+}
+
+void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
 {
 	uint64_t default_base_address;
 	switch(file_type)
@@ -118,37 +130,22 @@ void AppleDriver::ProcessModule(Linker::Module& module)
 	container->entries.push_back(std::make_shared<Apple::DataFork>(std::static_pointer_cast<Linker::Contents>(image)));
 
 	image->ProcessModule(module);
-}
-
-void AppleDriver::CalculateValues()
-{
 	image->CalculateValues();
-}
 
-offset_t AppleDriver::WriteFile(Linker::Writer& wr) const
-{
-	if(target == TARGET_APPLESINGLE)
-	{
-		return container->WriteFile(wr);
-	}
-	else
-	{
-		return image->WriteFile(wr);
-	}
-}
-
-void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
-{
 	if((produce & PRODUCE_NAPS_SUFFIX) != 0)
 	{
 		// if suffix generation was explicitly specified, the user requested that it be attached to the filename
 		// for CiderPress
 		std::ostringstream oss;
-		oss << filename << "#" << std::hex << std::uppercase << std::setw(2) << int(GetFileType()) << std::setw(4) << int(GetAuxiliaryFileType());
+		oss << filename << "#" << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << int(GetFileType()) << std::setw(4) << int(GetAuxiliaryFileType());
 		filename = oss.str();
 	}
 
-	OutputFormat::GenerateFile(filename, module);
+	std::ofstream out;
+	out.open(filename, std::ios_base::out | std::ios_base::binary);
+	Linker::Writer wr(::LittleEndian, &out);
+	WriteFile(wr);
+	out.close();
 
 	/*if((produce & PRODUCE_RESOURCE_FORK))
 	{
