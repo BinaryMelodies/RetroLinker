@@ -11,9 +11,12 @@ using namespace Binary;
 
 void AppleFormat::ReadFile(Linker::Reader& rd)
 {
+	// the reader assumes there is a DOS 3.3 header, otherwise a different parser could be used
+
 	Clear();
 
 	rd.endiantype = ::LittleEndian;
+	dos33_header = true;
 	base_address = rd.ReadUnsigned(2);
 	uint16_t size = rd.ReadUnsigned(2);
 	image = Linker::Buffer::ReadFromFile(rd, size);
@@ -21,21 +24,192 @@ void AppleFormat::ReadFile(Linker::Reader& rd)
 
 offset_t AppleFormat::WriteFile(Linker::Writer& wr) const
 {
+	// the writer works as a raw binary writer, including the DOS 3.3 header, or adding a data fork
+
 	wr.endiantype = ::LittleEndian;
-	wr.WriteWord(2, base_address);
-	wr.WriteWord(2, image->ImageSize());
+	if(dos33_header)
+	{
+		wr.WriteWord(2, base_address);
+		wr.WriteWord(2, image->ImageSize());
+	}
 	image->WriteFile(wr);
 	return offset_t(-1);
 }
 
 void AppleFormat::Dump(Dumper::Dumper& dump) const
 {
+	if(!dos33_header)
+	{
+		GenericBinaryFormat::Dump(dump);
+		return;
+	}
+
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
-	dump.SetTitle("Apple 8-bit format");
+	dump.SetTitle("Apple 8-bit format DOS 3.3 header"); // TODO: only if dos33_header is true
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
 	file_region.Display(dump);
 
+	// TODO
+}
+
+// AppleDriver
+
+bool AppleDriver::AddSupplementaryOutputFormat(std::string subformat)
+{
+	if(subformat == "rsrc")
+	{
+		Linker::Debug << "Debug: Requested to generate resource fork under .rsrc (unimplemented)" << std::endl;
+		//produce = produce_format_t(produce | PRODUCE_RESOURCE_FORK);
+	}
+	else if(subformat == "finf")
+	{
+		Linker::Debug << "Debug: Requested to generate Finder Info file under .finf (unimplemented)" << std::endl;
+		//produce = produce_format_t(produce | PRODUCE_FINDER_INFO);
+	}
+	else if(subformat == "double" || subformat == "appledouble")
+	{
+		Linker::Debug << "Debug: Requested to generate AppleDouble (unimplemented)" << std::endl;
+		//produce = produce_format_t(produce | PRODUCE_APPLE_DOUBLE);
+		/* TODO: versions */
+	}
+	else if(subformat == "mbin" || subformat == "macbin" || subformat == "macbinary")
+	{
+		Linker::Debug << "Debug: Requested to generate MacBinary (unimplemented)" << std::endl;
+		//produce = produce_format_t(produce | PRODUCE_MAC_BINARY);
+		/* TODO: versions */
+	}
+	else if(subformat == "naps")
+	{
+		Linker::Debug << "Debug: Requested to add NuLib2 attribute preservation string suffix" << std::endl;
+		produce = produce_format_t(produce | PRODUCE_NAPS_SUFFIX);
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
+void AppleDriver::ReadFile(Linker::Reader& rd)
+{
+	// TODO: read with DOS 3.3 header
+}
+
+void AppleDriver::ProcessModule(Linker::Module& module)
+{
+	uint64_t default_base_address;
+	switch(file_type)
+	{
+	case FILE_TYPE_BIN:
+		default_base_address = 0x0803;
+		break;
+	case FILE_TYPE_SYS:
+		default_base_address = 0x2000;
+		break;
+	default:
+		// no current meaning assigned to this case
+		default_base_address = 0;
+		break;
+	}
+
+	image = std::make_shared<AppleFormat>(default_base_address, "", UseDOS33Header());
+	// TODO: add ProDOS entry
+	container->entries.push_back(std::make_shared<Apple::DataFork>(std::static_pointer_cast<Linker::Contents>(image)));
+
+	image->ProcessModule(module);
+}
+
+void AppleDriver::CalculateValues()
+{
+	image->CalculateValues();
+}
+
+offset_t AppleDriver::WriteFile(Linker::Writer& wr) const
+{
+	if(target == TARGET_APPLESINGLE)
+	{
+		return container->WriteFile(wr);
+	}
+	else
+	{
+		return image->WriteFile(wr);
+	}
+}
+
+void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
+{
+	if((produce & PRODUCE_NAPS_SUFFIX) != 0)
+	{
+		// if suffix generation was explicitly specified, the user requested that it be attached to the filename
+		// for CiderPress
+		std::ostringstream oss;
+		oss << filename << "#" << std::hex << std::uppercase << std::setw(2) << int(GetFileType()) << std::setw(4) << int(GetAuxiliaryFileType());
+		filename = oss.str();
+	}
+
+	OutputFormat::GenerateFile(filename, module);
+
+	/*if((produce & PRODUCE_RESOURCE_FORK))
+	{
+		Linker::Debug << "Debug: Generating resource fork under .rsrc" << std::endl;
+	}*/
+
+	/*if((produce & PRODUCE_FINDER_INFO))
+	{
+		Linker::Debug << "Debug: Generating Finder Info file under .finf" << std::endl;
+	}*/
+
+	/*if((produce & PRODUCE_APPLE_DOUBLE))
+	{
+		Linker::Debug << "Debug: Generating AppleDouble" << std::endl;
+		// TODO: CiderPress will be looking for a file beginning with "._"
+	}*/
+
+	/*if((produce & PRODUCE_MAC_BINARY))
+	{
+		Linker::Debug << "Debug: Generating MacBinary" << std::endl;
+	}*/
+}
+
+uint8_t AppleDriver::GetFileType() const
+{
+	return file_type;
+}
+
+uint16_t AppleDriver::GetAuxiliaryFileType() const
+{
+	switch(file_type)
+	{
+	case FILE_TYPE_BIN:
+		if(!image)
+		{
+			// unusual behavior
+			return 0;
+		}
+		return image->base_address;
+	case FILE_TYPE_SYS:
+		return 0x2000;
+	default:
+		// unspecified
+		return 0;
+	}
+}
+
+std::string AppleDriver::GetDefaultExtension(Linker::Module& module) const
+{
+	if(target == TARGET_APPLESINGLE)
+	{
+		return ".as"; // for CiderPress
+	}
+	else
+	{
+		return "";
+	}
+}
+
+void AppleDriver::Dump(Dumper::Dumper& dump) const
+{
 	// TODO
 }
 

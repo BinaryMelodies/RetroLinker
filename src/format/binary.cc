@@ -134,29 +134,6 @@ void GenericBinaryFormat::Link(Linker::Module& module)
 
 void GenericBinaryFormat::ProcessModule(Linker::Module& module)
 {
-	Link(module);
-
-	for(Linker::Relocation& rel : module.GetRelocations())
-	{
-		Linker::Resolution resolution;
-		if(!rel.Resolve(module, resolution))
-		{
-			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
-			continue;
-		}
-		else
-		{
-			ProcessRelocation(module, rel, resolution);
-		}
-	}
-}
-
-void GenericBinaryFormat::CalculateValues()
-{
-}
-
-void GenericBinaryFormat::GenerateFile(std::string filename, Linker::Module& module)
-{
 	if(linker_parameters.find("base_address") == linker_parameters.end())
 	{
 		if(module.cpu == Linker::Module::I86)
@@ -192,7 +169,25 @@ void GenericBinaryFormat::GenerateFile(std::string filename, Linker::Module& mod
 		}
 	}
 
-	Linker::OutputFormat::GenerateFile(filename, module);
+	Link(module);
+
+	for(Linker::Relocation& rel : module.GetRelocations())
+	{
+		Linker::Resolution resolution;
+		if(!rel.Resolve(module, resolution))
+		{
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			continue;
+		}
+		else
+		{
+			ProcessRelocation(module, rel, resolution);
+		}
+	}
+}
+
+void GenericBinaryFormat::CalculateValues()
+{
 }
 
 std::string GenericBinaryFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const

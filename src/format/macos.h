@@ -271,6 +271,11 @@ namespace Apple
 		{
 		}
 
+		DataFork(std::shared_ptr<Linker::Contents> image)
+			: Entry(AppleSingleDouble::ID_DataFork), image(image)
+		{
+		}
+
 		offset_t ImageSize() const override;
 
 		void ReadFile(Linker::Reader& rd) override;

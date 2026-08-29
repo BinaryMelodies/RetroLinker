@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include "binary.h"
+#include "macos.h"
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
@@ -23,12 +24,13 @@ namespace Binary
 	{
 	public:
 		/* TODO: untested */
+		bool dos33_header;
 
 		/* TODO: enable setting the base address as a parameter */
 		/* TODO: SYS files are pure binary loaded at 0x2000 */
 
-		AppleFormat(uint64_t default_base_address = 0x0803, std::string default_extension = ".bin")
-			: GenericBinaryFormat(default_base_address, default_extension)
+		AppleFormat(uint64_t default_base_address = 0x0803, std::string default_extension = "", bool dos33_header = true)
+			: GenericBinaryFormat(default_base_address, default_extension), dos33_header(dos33_header)
 		{
 		}
 
@@ -37,6 +39,94 @@ namespace Binary
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
+	};
+
+	/**
+	 * @brief BIN/SYS file for Apple ][
+	 */
+	class AppleDriver : public Linker::OutputFormat
+	{
+	public:
+		std::shared_ptr<Apple::AppleSingleDouble> container;
+		std::shared_ptr<AppleFormat> image;
+
+		/* TODO: untested */
+
+		/* format of "filename" */
+		enum target_format_t
+		{
+			TARGET_NONE, /* do not generate main file */
+			TARGET_BIN, /* main file is a BIN file, possibly with a DOS 3.3 header */
+			TARGET_DOS33, /* main file is a BIN file with DOS 3.3 header */
+			TARGET_RAW, /* main file is a raw BIN file */
+			TARGET_APPLESINGLE, /* main file is an AppleSingle file */
+		};
+		target_format_t target;
+
+		/* other files to produce */
+		enum produce_format_t
+		{
+			//PRODUCE_RESOURCE_FORK = 1 << 0, /* under .rsrc */
+			//PRODUCE_FINDER_INFO = 1 << 1, /* under .finf */
+			//PRODUCE_APPLE_DOUBLE = 1 << 2, /* with % prefix */
+			//PRODUCE_MAC_BINARY = 1 << 3, /* with .mbin extension */
+			PRODUCE_NAPS_SUFFIX = 1 << 4, /* NuLib2 attribute preservation string suffix, such as #06xxxx */
+		};
+		produce_format_t produce = produce_format_t(0);
+
+		/* the ProDOS file type */
+		enum file_type_t : uint8_t
+		{
+			FILE_TYPE_BIN = 0x06,
+			FILE_TYPE_SYS = 0xFF,
+		};
+		file_type_t file_type;
+
+		/* TODO: enable setting the base address as a parameter */
+		/* TODO: SYS files are pure binary loaded at 0x2000 */
+
+		AppleDriver(file_type_t file_type = FILE_TYPE_BIN, target_format_t target = TARGET_BIN)
+			: container(std::make_shared<Apple::AppleSingleDouble>()),
+			target(target),
+			file_type(file_type)
+		{
+		}
+
+		bool AddSupplementaryOutputFormat(std::string subformat) override;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		void ProcessModule(Linker::Module& module) override;
+		void CalculateValues() override;
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void GenerateFile(std::string filename, Linker::Module& module) override;
+		void Dump(Dumper::Dumper& dump) const override;
+
+		uint8_t GetFileType() const;
+		uint16_t GetAuxiliaryFileType() const;
+
+		bool UseDOS33Header() const
+		{
+			if(file_type != FILE_TYPE_BIN)
+			{
+				return false;
+			}
+
+			switch(target)
+			{
+			case TARGET_BIN:
+				// only apply header if there is no NAPS suffix
+				return (produce & PRODUCE_NAPS_SUFFIX) == 0;
+			case TARGET_DOS33:
+				return true;
+			default:
+				return false;
+			}
+		}
+
+		using Linker::OutputFormat::GetDefaultExtension;
+		std::string GetDefaultExtension(Linker::Module& module) const override;
 	};
 
 	/**
