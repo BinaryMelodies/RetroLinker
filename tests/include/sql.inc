@@ -1,9 +1,12 @@
 
 .macro	_StartUp
+	# Sinclair QL does not offer a way to exit (as far as I know)
+	# So we store the initial stack and return during exit
 	move.l	sp, ExitStack.l
 .endm
 
 .macro	_Exit
+	# Restore initial stack and return to it
 	clr.l	d0
 	move.l	ExitStack.l, sp
 	rts
@@ -43,6 +46,7 @@
 
 .macro	_SysVars
 	.section	.bss
+	# Initial stack pointer, required for exit
 	.global	ExitStack
 ExitStack:
 	.long	0

@@ -15,6 +15,7 @@
 
 .if FORMAT_Z8K_SEGMENTED
 .macro	LDA	rw, rl, name
+	# segmented executables use 32-bit pointers
 #	ldl	\rl, #$$SEGADR$\name
 	ldl	\rl, #\name
 .endm
@@ -31,6 +32,7 @@
 .endm
 
 .macro	_WaitForKey
+	# CP/M conin
 	ld	r5, #0x01
 	sc	#2
 .endm

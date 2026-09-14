@@ -1,5 +1,6 @@
 
 .macro	_StartUp
+	# we can set up the stack pointer to point right below the entry point (this is what DX-DOS binaries seem to do)
 #	mov	$.text, sp # TODO: this is bugged, .text resolves to the absolute 0
 	mov	$0x200, sp
 # Alternatively, move pc to sp
@@ -21,6 +22,7 @@
 .endm
 
 .macro	_WaitForKey
+	# DX-DOS conin
 	iot
 	.word	1
 .endm

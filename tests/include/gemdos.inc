@@ -16,6 +16,7 @@
 .endm
 
 .macro	_WaitForKey
+	# GEMDOS conin
 	move.w	#0x01, -(sp)
 	trap	#1
 	addq.l	#2, sp
@@ -31,6 +32,8 @@
 
 .macro	_StoreL	src, ref
 .if OPTION_NO_RELOC
+	# to avoid relocation, we need to use PC-relative pointers
+	# even though 68K does not support PC-relative addressing for destination operands
 	lea	\ref(pc), a0
 	move.l	\src, (a0)
 .else

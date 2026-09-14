@@ -1,3 +1,4 @@
+# Sets up all macros, includes proper system specific files
 
 .set CPU_Z80, 0
 .set TARGET_CPM80, 0

@@ -3,6 +3,7 @@
 .endm
 
 .macro	_Exit
+	# sys_exit
 .if	CPU_I86
 	mov	ax, 1
 	xor	bx, bx
@@ -36,6 +37,7 @@
 .endm
 
 .macro	_PutChar char
+	# sys_write
 .if	CPU_I86
 	push	ax
 	mov	ax, 4
@@ -102,6 +104,7 @@
 .endm
 
 .macro	_WaitForKey
+	# sys_read
 .if	CPU_I86
 	push	ax
 	mov	ax, 3

@@ -14,6 +14,7 @@
 .endm
 
 .macro	_WaitForKey
+	# Human68k conin
 	.word	0xFF01
 .endm
 

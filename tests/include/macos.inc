@@ -1,4 +1,5 @@
 
+	# Toolbox calls
 .macro	__InitGraf
 	.short	0xA86E
 .endm
@@ -30,6 +31,7 @@
 .set	fontHeight, 15
 
 .macro	_StartUp
+	# Initialize basic Toolbox managers
 	pea	-4(a5)
 	__InitGraf
 
@@ -37,6 +39,7 @@
 	__InitWindows
 	__InitCursor
 
+	# Initialize text writing routines
 # TextMode(srcCopy)
 	clr.w	-(sp)
 	__TextMode
@@ -53,11 +56,13 @@
 .endm
 
 .macro	_PutChar char
+	# Brute force output text to screen
 	move.w	\char, -(sp)
 	__DrawChar
 .endm
 
 .macro	_PutNewLine
+	# Advance cursor pointer to next line
 	clr.w	-(sp)
 	lea	current_row(a5), a0
 	add.w	#fontHeight, (a0)
@@ -66,6 +71,7 @@
 .endm
 
 .macro	_WaitForKey
+	# Wait for events and filter for keyboard input
 1:
 	subq.l	#2, sp
 # everyEvent
@@ -99,14 +105,16 @@
 
 .macro	_SysVars
 	.section	.a5world, "aw", @nobits
+	# store the pixel offset for the current row
 	.global	current_row
 current_row:
 	.skip	2
 
+	# store event structure for GetNextEvent
 event:
 	.skip	16
 
-# QD globals
+	# QD globals, must come at end
 	.skip	248
 .endm
 

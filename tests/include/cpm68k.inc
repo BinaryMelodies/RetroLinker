@@ -15,14 +15,17 @@
 .endm
 
 .macro	_WaitForKey
+	# CP/M conin
 	move.w	#0x01, d0
 	trap	#2
 .endm
 
 .macro	_LoadA	ref, dst
 .if FORMAT_68K_NONCONT
+	# non-contiguous binaries cannot make PC-relative references to the data segment
 	move.w	#\ref, \dst
 .else
+	# contiguous binaries can avoid having relocations if PC-relative references are used
 	lea	\ref(pc), \dst
 .endif
 .endm

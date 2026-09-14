@@ -1,3 +1,4 @@
+# TODO: add comments
 
 .macro	_StartUp
 	tsx

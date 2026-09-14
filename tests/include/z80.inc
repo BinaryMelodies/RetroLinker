@@ -1,4 +1,6 @@
 
+# The Z80 port of the GNU assembler does not support the .set directive, so a separate include file is needed
+
 TARGET_CPM86 defl 0
 TARGET_MSDOS defl 0
 TARGET_ELKS defl 0

@@ -5,14 +5,19 @@
 .set	Write, -48
 
 .macro	_StartUp
+	# There is an Exit system call, but it's easier to restore the stack and issue a return
+	# This will also work for AmigaOS 4
 	move.l	sp, ExitStack.l
 
+	# The following code is based on the ChibiAkumas example (https://www.chibiakumas.com/68000/)
+	# Open dos.library
 	lea	text_dos_library, a1
 	move.l	#0, d0
 	move.l	SystemBase, a6
 	jsr	OpenLibrary(a6)
 	move.l	d0, (DosHandle).l
 
+	# Open CONSOLE for basic input/output
 	move.l	d0, a6
 	lea	text_console, a0
 	move.l	a0, d1
@@ -22,11 +27,13 @@
 .endm
 
 .macro	_Exit
+	# Restore stack to startup state and issue a return
 	move.l	ExitStack.l, sp
 	rts
 .endm
 
 .macro	_PutChar char
+	# Write to CONSOLE
 	move.b	\char, (CharBuffer).l
 	move.l	(ConsoleHandle).l, d1
 	lea	(CharBuffer).l, a0
@@ -63,15 +70,19 @@ text_console:
 	.align	4
 
 	.section	.bss
+	# initial stack pointer, required for exit
 	.global	ExitStack
 ExitStack:
 	.long	0
+	# handle to dos.library
 	.global	DosHandle
 DosHandle:
 	.long	0
+	# handle to CONSOLE
 	.global	ConsoleHandle
 ConsoleHandle:
 	.long	0
+	# buffer for dos.library:Write
 CharBuffer:
 	.byte	0
 	.align	4

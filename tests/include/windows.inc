@@ -1,4 +1,8 @@
 
+# For Win32/Win64, the linker supports automatically generating the .itable entries using a compiler flag
+# The imported names either refer directly to the address inside the .itable (call [itable-entry])
+# or an automatically generated stub, similar to what the Watcom linker does (call stub-entry)
+
 .ifndef OPTION_GUI_ONLY
 .set OPTION_GUI_ONLY, 0
 .endif
@@ -13,6 +17,8 @@
 
 .macro	_StartUp
 .if	TARGET_WIN16
+	# Win16 requires a couple of special instructions, as seen in https://devblogs.microsoft.com/oldnewthing/20071203-00/?p=24323
+
 	# InitTask
 	.extern	$$IMPORT$KERNEL$005B, $$IMPSEG$KERNEL$005B
 	.byte	0x9A
@@ -44,6 +50,7 @@
 	.word	$$IMPSEG$USER$0005
 .endif
 .if	TARGET_WIN32
+	# Win32/64 need to open the standard input handle first
 .if	!OPTION_GUI_ONLY
 	.extern	$$IMPORT$KERNEL32.dll$GetStdHandle$0000
 
@@ -179,7 +186,7 @@
 .if	TARGET_WIN16
 	.section	.beg.data, "aw", @progbits
 
-	# Instance data
+	# Instance data, must be the first 16 bytes of a Win16 automatic data segment
 	.rept	16
 	.byte	0
 	.endr
@@ -187,6 +194,7 @@
 
 	.section	.data
 
+	# store handle for stdout
 .if	!OPTION_GUI_ONLY
 .if	TARGET_WIN32 || TARGET_WIN64
 	.global	hStdOut
@@ -200,6 +208,7 @@ NumberOfBytesWritten:
 	.long	0
 .endif
 
+	# buffer for WriteFile (Win32/Win64) or conout (Win16 or MS-DOS)
 PutChar_char:
 	.byte	0
 .if	TARGET_WIN16
