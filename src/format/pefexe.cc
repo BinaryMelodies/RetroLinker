@@ -329,7 +329,7 @@ void PEFFormat::Section::ReadHeader(Linker::Reader& rd)
 
 void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 {
-	if(name_offset != no_name_offset)
+	if(name_offset != NoNameOffset)
 	{
 		rd.Seek(pef_format.GetSectionNameTableOffset());
 		name = rd.ReadASCII('\0');
@@ -368,10 +368,23 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 		}
 		break;
 	case Loader:
-		// TODO
+		rd.Seek(container_offset);
+		pef_format.ReadLoaderSection(rd);
 		break;
 	default:
 		break;
+	}
+}
+
+size_t PEFFormat::Section::GetImageSize(PEFFormat& pef_format)
+{
+	if(section_kind == Loader)
+	{
+		return pef_format.GetLoaderSectionSize();
+	}
+	else
+	{
+		return packed_size;
 	}
 }
 
@@ -418,6 +431,10 @@ void PEFFormat::Section::CalculateValues(PEFFormat& pef_format)
 		pef_format.section_name_table.push_back(name);
 		pef_format.section_name_table_end += name.size() + 1;
 	}
+	else
+	{
+		name_offset = NoNameOffset;
+	}
 
 	// TODO: container_offset
 }
@@ -456,13 +473,113 @@ void PEFFormat::Section::WriteFile(const PEFFormat& pef_format, Linker::Writer& 
 		}
 		break;
 	case Loader:
-		// TODO
+		wr.Seek(container_offset);
+		pef_format.WriteLoaderSection(wr);
 		break;
 	default:
 		break;
 	}
+}
 
-	// TODO: write names
+void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
+{
+	// header
+	main_symbol.section = rd.ReadUnsigned(4);
+	main_symbol.name_offset = rd.ReadUnsigned(4); // TODO: read name
+
+	init_symbol.section = rd.ReadUnsigned(4);
+	init_symbol.name_offset = rd.ReadUnsigned(4); // TODO: read name
+
+	term_symbol.section = rd.ReadUnsigned(4);
+	term_symbol.name_offset = rd.ReadUnsigned(4); // TODO: read name
+
+	uint32_t imported_library_count = rd.ReadUnsigned(4);
+	uint32_t total_imported_symbol_count = rd.ReadUnsigned(4);
+
+	uint32_t reloc_section_count = rd.ReadUnsigned(4);
+	reloc_instr_offset = rd.ReadUnsigned(4);
+
+	loader_strings_offset = rd.ReadUnsigned(4);
+
+	export_hash_offset = rd.ReadUnsigned(4);
+	export_hash_table_power = rd.ReadUnsigned(4);
+	uint32_t exported_symbol_count = rd.ReadUnsigned(4);
+
+	// imported library descriptions
+
+	for(uint32_t imported_library_index = 0; imported_library_index < imported_library_count; imported_library_index++)
+	{
+		imported_libraries.push_back(ImportedLibrary());
+		auto& library = imported_libraries.back();
+		library.name_offset = rd.ReadUnsigned(4); // TODO: read name
+		library.old_imp_version = rd.ReadUnsigned(4);
+		library.current_version = rd.ReadUnsigned(4);
+		library.imported_symbol_count = rd.ReadUnsigned(4); // TODO: initialize imported_symbols
+		library.first_imported_symbol = rd.ReadUnsigned(4);
+		library.options = rd.ReadUnsigned(1);
+		library.reserved_a = rd.ReadUnsigned(1);
+		library.reserved_b = rd.ReadUnsigned(2);
+	}
+
+	// imported symbol tables
+	for(uint32_t imported_symbol_index = 0; imported_symbol_index < total_imported_symbol_count; imported_symbol_index++)
+	{
+		imported_symbols.push_back(ImportedSymbol());
+		auto& symbol = imported_symbols.back();
+		uint32_t value = rd.ReadUnsigned(4);
+		symbol.symbol_class = ImportedSymbol::class_type((value >> 24) & 0x0F);
+		symbol.flags = (value >> 24) & 0xF0;
+		symbol.name_offset = value & 0x00FFFFFF; // TODO: read name
+	}
+	// TODO
+
+	// relocation headers
+	// TODO
+
+	// relocation area
+	// TODO
+
+	// loader string table
+	// TODO
+
+	// export hash table
+	// TODO
+
+	// export key table
+	// TODO
+
+	// exported symbol table
+	// TODO
+}
+
+void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
+{
+	// header
+	// TODO
+
+	// imported library descriptions
+	// TODO
+
+	// imported symbol tables
+	// TODO
+
+	// relocation headers
+	// TODO
+
+	// relocation area
+	// TODO
+
+	// loader string table
+	// TODO
+
+	// export hash table
+	// TODO
+
+	// export key table
+	// TODO
+
+	// exported symbol table
+	// TODO
 }
 
 void PEFFormat::ReadFile(Linker::Reader& rd)
@@ -563,6 +680,13 @@ void PEFFormat::CalculateValues()
 	for(auto section : sections)
 	{
 		section->CalculateValues(*this);
+	}
+
+	uint32_t section_offset = section_name_table_end;
+	for(auto section : sections)
+	{
+		section->container_offset = ::AlignTo(section_offset, section->ExpectedAlignment());
+		section_offset = section->container_offset + section->GetImageSize(*this);
 	}
 }
 

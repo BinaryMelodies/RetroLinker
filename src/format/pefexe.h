@@ -18,20 +18,6 @@ namespace Apple
 	class PEFFormat : public virtual Linker::SegmentManager
 	{
 	public:
-		// values are stored as the bigendian 32-bit word
-		enum cpu_type
-		{
-			M68K = 0x6D36386B, // 'm68k'
-			PPC  = 0x70777063, // 'pwpc'
-		};
-		cpu_type architecture = PPC;
-		uint32_t format_version = 1;
-		uint32_t date_time_stamp = 0;
-		uint32_t old_def_version = 0;
-		uint32_t old_imp_version = 0;
-		uint32_t current_version = 0;
-		uint32_t reserved = 0;
-
 		// TODO: untested
 		class PatternInitialization
 		{
@@ -61,6 +47,12 @@ namespace Apple
 			void ExpandData(Linker::Buffer& buffer) const;
 		};
 
+		class Relocation
+		{
+		public:
+			// TODO
+		};
+
 		class Section
 		{
 		public:
@@ -82,8 +74,8 @@ namespace Apple
 				GlobalShare = 4,
 				ProtectedShare = 5,
 			};
-			static constexpr uint32_t no_name_offset = uint32_t(-1);
-			uint32_t name_offset = no_name_offset;
+			static constexpr uint32_t NoNameOffset = uint32_t(-1);
+			uint32_t name_offset = NoNameOffset;
 			std::string name = "";
 			uint32_t default_address = 0;
 			uint32_t total_size = 0;
@@ -97,6 +89,7 @@ namespace Apple
 
 			std::shared_ptr<Linker::Contents> image;
 			std::vector<PatternInitialization> patterns;
+			std::vector<Relocation> relocations;
 
 			bool IsInstantiated() const
 			{
@@ -132,11 +125,27 @@ namespace Apple
 
 			void ReadHeader(Linker::Reader& rd);
 			void ReadFile(PEFFormat& pef_format, Linker::Reader& rd);
+			size_t GetImageSize(PEFFormat& pef_format);
 			void CalculateValues(PEFFormat& pef_format);
 			void WriteHeader(Linker::Writer& wr) const;
 			void WriteFile(const PEFFormat& pef_format, Linker::Writer& wr) const;
 		};
 
+		// container header information
+
+		// values are stored as the bigendian 32-bit word
+		enum cpu_type
+		{
+			M68K = 0x6D36386B, // 'm68k'
+			PPC  = 0x70777063, // 'pwpc'
+		};
+		cpu_type architecture = PPC;
+		uint32_t format_version = 1;
+		uint32_t date_time_stamp = 0;
+		uint32_t old_def_version = 0;
+		uint32_t old_imp_version = 0;
+		uint32_t current_version = 0;
+		uint32_t reserved = 0;
 		uint16_t inst_section_count = 0;
 		std::vector<std::shared_ptr<Section>> sections;
 		std::vector<std::string> section_name_table;
@@ -149,6 +158,120 @@ namespace Apple
 		{
 			return ContainerHeaderSize + SectionHeaderSize * sections.size();
 		}
+
+		// loader section information
+		struct SymbolReference
+		{
+			static constexpr uint32_t NoSection = uint32_t(-1);
+			uint32_t section = NoSection;
+			uint32_t name_offset = 0;
+			std::string name;
+		};
+		SymbolReference main_symbol, init_symbol, term_symbol;
+
+		class ImportedSymbol
+		{
+		public:
+			enum class_type
+			{
+				Code,
+				Data,
+				TVect,
+				TOC,
+				Glue,
+			};
+			class_type symbol_class;
+			uint8_t flags;
+			uint32_t name_offset;
+			std::string name;
+		};
+
+		class ImportedLibrary
+		{
+		public:
+			uint32_t name_offset;
+			std::string name;
+			uint32_t old_imp_version;
+			uint32_t current_version;
+			uint32_t imported_symbol_count;
+			uint32_t first_imported_symbol;
+			std::vector<ImportedSymbol> imported_symbols;
+			uint8_t options;
+			uint8_t reserved_a;
+			uint16_t reserved_b;
+		};
+		std::vector<ImportedLibrary> imported_libraries;
+		std::vector<ImportedSymbol> imported_symbols;
+		std::vector<uint32_t> reloc_section_indexes;
+		uint32_t reloc_instr_offset = 0;
+		uint32_t loader_strings_offset = 0;
+		uint32_t export_hash_offset = 0;
+		uint32_t export_hash_table_power = 0;
+
+		class ExportedSymbol
+		{
+			// TODO
+		};
+		std::vector<ExportedSymbol> exported_symbols;
+
+		static constexpr uint32_t LoaderHeaderSize = 56;
+		uint32_t GetLibraryDescriptionsSize() const
+		{
+			return 24 * imported_libraries.size();
+		}
+		uint32_t GetSymbolTablesSize() const
+		{
+			uint32_t size = 0;
+			for(auto& library : imported_libraries)
+			{
+				size += 4 * library.imported_symbols.size();
+			}
+			return size;
+		}
+		uint32_t GetRelocationHeadersSize() const
+		{
+			return 12 * reloc_section_indexes.size();
+		}
+		uint32_t GetRelocationAreaSize() const
+		{
+			// TODO
+			return 0;
+		}
+		uint32_t GetLoaderStringAreaSize() const
+		{
+			// TODO
+			return 0;
+		}
+		uint32_t GetExportHashTableSize() const
+		{
+			// TODO
+			return 0;
+		}
+		uint32_t GetExportKeyTableSize() const
+		{
+			// TODO
+			return 0;
+		}
+		uint32_t GetExportSymbolTableSize() const
+		{
+			// TODO
+			return 0;
+		}
+		uint32_t GetLoaderSectionSize() const
+		{
+			return LoaderHeaderSize
+				+ GetLibraryDescriptionsSize()
+				+ GetSymbolTablesSize()
+				+ GetRelocationHeadersSize()
+				+ GetRelocationAreaSize()
+				+ GetLoaderStringAreaSize()
+				+ GetExportHashTableSize()
+				+ GetExportKeyTableSize()
+				+ GetExportSymbolTableSize();
+		}
+
+		void ReadLoaderSection(Linker::Reader& rd);
+		void WriteLoaderSection(Linker::Writer& wr) const;
 
 		void ReadFile(Linker::Reader& rd) override;
 		void CalculateValues() override;
