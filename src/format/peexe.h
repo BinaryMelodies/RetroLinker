@@ -812,6 +812,35 @@ namespace Microsoft
 		 */
 		void AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type type, uint16_t low_ref = 0);
 
+		// TODO: document
+		// TODO: should this be an actual section?
+		class CLRHeaderSection : public Section
+		{
+		public:
+			CLRHeaderSection()
+				: Section(TEXT | EXECUTE) // TODO: are these the correct flags?
+			{
+				name = ".cormeta"; // TODO: is this the correct name?
+			}
+
+			using Section::ReadSectionData;
+			using Section::WriteSectionData;
+			using Section::ImageSize;
+
+			void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt) override;
+			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
+			uint32_t ImageSize(const PEFormat& fmt) const override;
+			uint32_t MemorySize(const PEFormat& fmt) const override;
+
+			/** @brief Parses the contents of the directory, after all the section data for the file is loaded */
+			void ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size);
+			/** @brief Displays the directory contents */
+			void DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const;
+		};
+
+		// TODO: document
+		std::shared_ptr<CLRHeaderSection> clr_header = std::make_shared<CLRHeaderSection>();
+
 		mutable MZStubWriter stub;
 
 		void ReadFile(Linker::Reader& rd) override;

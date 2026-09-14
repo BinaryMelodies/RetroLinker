@@ -1998,6 +1998,45 @@ void PEFormat::BaseRelocationsSection::DumpDirectory(const PEFormat& fmt, Dumper
 	}
 }
 
+void PEFormat::CLRHeaderSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
+{
+	// TODO
+}
+
+void PEFormat::CLRHeaderSection::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
+{
+	// TODO
+}
+
+uint32_t PEFormat::CLRHeaderSection::ImageSize(const PEFormat& fmt) const
+{
+	// TODO
+	return 0;
+}
+
+uint32_t PEFormat::CLRHeaderSection::MemorySize(const PEFormat& fmt) const
+{
+	// TODO
+	return 0;
+}
+
+void PEFormat::CLRHeaderSection::ParseDirectoryData(const PEFormat& fmt, uint32_t directory_rva, uint32_t directory_size)
+{
+	// TODO
+}
+
+void PEFormat::CLRHeaderSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper& dump, uint32_t directory_rva, uint32_t directory_size) const
+{
+	Dumper::Encoding * old_encoding = dump.SetStringEncoding(Dumper::Block::encoding_utf16le);
+
+	Dumper::Region resources_region("CLR Runtime Header", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
+	resources_region.Display(dump);
+
+	// TODO
+
+	dump.SetStringEncoding(*old_encoding);
+}
+
 PEFormat::PEOptionalHeader& PEFormat::GetOptionalHeader()
 {
 	return *dynamic_cast<PEFormat::PEOptionalHeader *>(optional_header.get());
@@ -2254,7 +2293,12 @@ void PEFormat::ReadFile(Linker::Reader& rd)
 		//case PEOptionalHeader::DirBoundImport:
 		//case PEOptionalHeader::DirIAT:
 		//case PEOptionalHeader::DirDelayImportDescriptor:
-		//case PEOptionalHeader::DirCLRRuntimeHeader:
+		case PEOptionalHeader::DirCLRRuntimeHeader:
+			if(data_directory.size != 0)
+			{
+				clr_header->ParseDirectoryData(*this, data_directory.address, data_directory.size);
+			}
+			break;
 		}
 	}
 }
@@ -2526,7 +2570,12 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			//case PEOptionalHeader::DirBoundImport:
 			//case PEOptionalHeader::DirIAT:
 			//case PEOptionalHeader::DirDelayImportDescriptor:
-			//case PEOptionalHeader::DirCLRRuntimeHeader:
+			case PEOptionalHeader::DirCLRRuntimeHeader:
+				if(data_directory.size != 0)
+				{
+					clr_header->DumpDirectory(*this, dump, data_directory.address, data_directory.size);
+				}
+				break;
 			}
 
 			directory_number ++;
