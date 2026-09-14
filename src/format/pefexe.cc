@@ -479,14 +479,24 @@ void PEFFormat::ReadFile(Linker::Reader& rd)
 	inst_section_count = rd.ReadUnsigned(2);
 	reserved = rd.ReadUnsigned(4);
 
+	section_name_table_end = GetSectionNameTableOffset();
 	for(uint16_t section_index = 0; section_index < section_count; section_index++)
 	{
 		auto section = std::make_shared<Section>();
 		section->ReadHeader(rd);
 		sections.push_back(section);
+		if(section_index == 0 || section_name_table_end > section->container_offset)
+		{
+			section_name_table_end = section->container_offset;
+		}
 	}
 
-	section_name_table_end = GetSectionNameTableOffset();
+	// TODO: untested
+	while(rd.Tell() < section_name_table_end)
+	{
+		section_name_table.push_back(rd.ReadASCII('\0'));
+	}
+
 	for(auto section : sections)
 	{
 		section->ReadFile(*this, rd);
@@ -512,7 +522,6 @@ offset_t PEFFormat::WriteFile(Linker::Writer& wr) const
 		section->WriteHeader(wr);
 	}
 
-	// TODO: this only works if CalculateValues was executed, and it will not reproduce the table perfectly
 	for(auto name : section_name_table)
 	{
 		wr.WriteData(name);
@@ -549,6 +558,8 @@ void PEFFormat::CalculateValues()
 		}
 	}
 
+	section_name_table_end = GetSectionNameTableOffset();
+	section_name_table.clear();
 	for(auto section : sections)
 	{
 		section->CalculateValues(*this);
@@ -581,6 +592,9 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Instantiated section count", Dumper::DecDisplay::Make(), offset_t(inst_section_count));
 	header_region.AddOptionalField("Reserved field", Dumper::HexDisplay::Make(8), offset_t(reserved));
 	header_region.Display(dump);
+
+	Dumper::Region section_headers_region("Section headers", file_offset + ContainerHeaderSize, SectionHeaderSize * sections.size(), 8);
+	section_headers_region.Display(dump);
 
 	for(uint16_t section_number = 0; section_number < sections.size(); section_number++)
 	{
@@ -623,6 +637,10 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		section_block.Display(dump);
 		// TODO
 	}
+
+	Dumper::Region section_names_region("Section name table", GetSectionNameTableOffset(), section_name_table_end - GetSectionNameTableOffset(), 8);
+	// TODO: print names
+	section_names_region.Display(dump);
 
 	// TODO
 }
