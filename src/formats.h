@@ -72,6 +72,7 @@ enum format_type
 	FORMAT_PRL, // MP/M-80 relocatable
 	FORMAT_RSRC, // Classic Macintosh resource, possibly containing an executable
 	FORMAT_UZI280, // UZI-280 executable
+	FORMAT_WASM, // WebAssembly module format
 	FORMAT_W3, // Windows unique file
 	FORMAT_W4, // Windows unique file
 	FORMAT_XENIX, // Xenix segmented executable

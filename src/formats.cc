@@ -30,10 +30,11 @@
 #include "format/o65.h" /* TODO: not implemented */
 #include "format/omf.h" /* TODO: not implemented */
 #include "format/pcos.h" /* M20 PCOS files */ /* TODO: not yet finished or tested */
-#include "format/peexe.h" /* TODO: not implemented */
+#include "format/peexe.h"
 #include "format/pefexe.h" /* TODO: not implemented */
 #include "format/pharlap.h" /* .exp, .rex (Phar Lap) */
 #include "format/pmode.h" /* TODO: not implemented */
+#include "format/wasm.h" /* TODO: not implemented */
 #include "format/w3w4.h" /* TODO: not implemented */
 #include "format/xenix.h" /* TODO: not implemented */
 #include "format/xpexp.h" /* TODO: not tested */
@@ -846,7 +847,8 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x00\x05\x16\x00", 4), 0, FORMAT_APPLE,   "Macintosh AppleSingle" },
 	{ std::string("\x00\x05\x16\x07", 4), 0, FORMAT_APPLE,   "Macintosh AppleDouble" },
 	{ std::string("\x00\x05", 2),         0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH big endian", nullptr, PRIORITY_LOW },
-	{ std::string("\x00\x65", 2),         0, FORMAT_COFF,    "WDC65 COFF object file" },
+	{ std::string("\x00" "asm", 4),       0, FORMAT_WASM,    "WebAssembly module format" },
+	{ std::string("\x00" "e", 2),         0, FORMAT_COFF,    "WDC65 COFF object file" },
 	{ std::string("\x00", 1),             0, FORMAT_PRL,     "MP/M-80 page relocatable executable (.prl)", VerifyDRPageRelocatable, PRIORITY_LOW },
 	{ std::string("\x01\x00o65", 5),      0, FORMAT_O65,     "6502 binary relocation format (André Fachat, used by xa)" },
 //	{ std::string("\x01\x01"),            0, FORMAT_AOUT,    "Little endian a.out, UNIX/RT lpd" }, // conflicts with CMD format
@@ -1274,6 +1276,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<Apple::ResourceFork>();
 	case FORMAT_UZI280:
 		return std::make_shared<UZI280Format>(); // TODO
+	case FORMAT_WASM:
+		return std::make_shared<Wasm::WebAssemblyFormat>(); // TODO
 	case FORMAT_W3:
 		return std::make_shared<W3Format>();
 	case FORMAT_W4:
