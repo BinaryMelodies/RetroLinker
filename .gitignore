@@ -59,3 +59,5 @@ tests/watcom/w
 tests/watcom/l
 tests/win16api/msgbox/main.exe
 tests/win16api/window/main.exe
+/misc/diag/bin
+/misc/diag/obj
