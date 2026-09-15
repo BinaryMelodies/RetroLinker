@@ -160,16 +160,26 @@ namespace Apple
 		}
 
 		// loader section information
+		uint32_t loader_section_offset = 0; // duplicate value of sections[*]->container_offset for sections[*]->section_kind == Section::Loader
 		struct SymbolReference
 		{
 			static constexpr uint32_t NoSection = uint32_t(-1);
 			uint32_t section = NoSection;
-			uint32_t name_offset = 0;
-			std::string name;
+			uint32_t offset = 0;
+
+			bool IsPresent() const { return section != NoSection; }
 		};
 		SymbolReference main_symbol, init_symbol, term_symbol;
 
-		class ImportedSymbol
+		class Name
+		{
+		public:
+			uint32_t name_offset;
+			std::string name;
+			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
+		};
+
+		class ImportedSymbol : public Name
 		{
 		public:
 			enum class_type
@@ -182,26 +192,22 @@ namespace Apple
 			};
 			class_type symbol_class;
 			uint8_t flags;
-			uint32_t name_offset;
-			std::string name;
 		};
 
-		class ImportedLibrary
+		class ImportedLibrary : public Name
 		{
 		public:
-			uint32_t name_offset;
-			std::string name;
 			uint32_t old_imp_version;
 			uint32_t current_version;
 			uint32_t imported_symbol_count;
 			uint32_t first_imported_symbol;
-			std::vector<ImportedSymbol> imported_symbols;
+			std::vector<std::shared_ptr<ImportedSymbol>> imported_symbols;
 			uint8_t options;
 			uint8_t reserved_a;
 			uint16_t reserved_b;
 		};
-		std::vector<ImportedLibrary> imported_libraries;
-		std::vector<ImportedSymbol> imported_symbols;
+		std::vector<std::shared_ptr<ImportedLibrary>> imported_libraries;
+		std::vector<std::shared_ptr<ImportedSymbol>> imported_symbols;
 		std::vector<uint32_t> reloc_section_indexes;
 		uint32_t reloc_instr_offset = 0;
 		uint32_t loader_strings_offset = 0;
@@ -215,16 +221,17 @@ namespace Apple
 		std::vector<ExportedSymbol> exported_symbols;
 
 		static constexpr uint32_t LoaderHeaderSize = 56;
+		static constexpr uint32_t LibraryDescriptionSize = 24;
 		uint32_t GetLibraryDescriptionsSize() const
 		{
-			return 24 * imported_libraries.size();
+			return LibraryDescriptionSize * imported_libraries.size();
 		}
 		uint32_t GetSymbolTablesSize() const
 		{
 			uint32_t size = 0;
-			for(auto& library : imported_libraries)
+			for(auto library : imported_libraries)
 			{
-				size += 4 * library.imported_symbols.size();
+				size += 4 * library->imported_symbols.size();
 			}
 			return size;
 		}
@@ -257,17 +264,28 @@ namespace Apple
 			// TODO
 			return 0;
 		}
-		uint32_t GetLoaderSectionSize() const
+
+		uint32_t GetMinimumRelocInstrOffset() const
 		{
 			return LoaderHeaderSize
-				+ GetLibraryDescriptionsSize()
-				+ GetSymbolTablesSize()
-				+ GetRelocationHeadersSize()
-				+ GetRelocationAreaSize()
-				+ GetLoaderStringAreaSize()
-				+ GetExportHashTableSize()
-				+ GetExportKeyTableSize()
-				+ GetExportSymbolTableSize();
+					+ GetLibraryDescriptionsSize()
+					+ GetSymbolTablesSize()
+					+ GetRelocationHeadersSize();
+		}
+
+		uint32_t GetLoaderSectionSize() const
+		{
+			return
+				std::max({LoaderHeaderSize
+					+ GetLibraryDescriptionsSize()
+					+ GetSymbolTablesSize()
+					+ GetRelocationHeadersSize(),
+					reloc_instr_offset + GetRelocationAreaSize(),
+					loader_strings_offset + GetLoaderStringAreaSize(),
+					export_hash_table_power
+						+ GetExportHashTableSize()
+						+ GetExportKeyTableSize()
+						+ GetExportSymbolTableSize()});
 		}
 
 		void ReadLoaderSection(Linker::Reader& rd);

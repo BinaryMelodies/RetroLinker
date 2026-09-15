@@ -369,6 +369,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 		break;
 	case Loader:
 		rd.Seek(container_offset);
+		pef_format.loader_section_offset = container_offset;
 		pef_format.ReadLoaderSection(rd);
 		break;
 	default:
@@ -481,17 +482,24 @@ void PEFFormat::Section::WriteFile(const PEFFormat& pef_format, Linker::Writer& 
 	}
 }
 
+std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd)
+{
+	rd.Seek(pef_format.loader_section_offset + pef_format.loader_strings_offset + name_offset);
+	return name = rd.ReadASCII('\0');
+}
+
 void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 {
-	// header
+	//// header
+
 	main_symbol.section = rd.ReadUnsigned(4);
-	main_symbol.name_offset = rd.ReadUnsigned(4); // TODO: read name
+	main_symbol.offset = rd.ReadUnsigned(4);
 
 	init_symbol.section = rd.ReadUnsigned(4);
-	init_symbol.name_offset = rd.ReadUnsigned(4); // TODO: read name
+	init_symbol.offset = rd.ReadUnsigned(4);
 
 	term_symbol.section = rd.ReadUnsigned(4);
-	term_symbol.name_offset = rd.ReadUnsigned(4); // TODO: read name
+	term_symbol.offset = rd.ReadUnsigned(4);
 
 	uint32_t imported_library_count = rd.ReadUnsigned(4);
 	uint32_t total_imported_symbol_count = rd.ReadUnsigned(4);
@@ -505,80 +513,114 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 	export_hash_table_power = rd.ReadUnsigned(4);
 	uint32_t exported_symbol_count = rd.ReadUnsigned(4);
 
-	// imported library descriptions
+	//// imported library descriptions
 
 	for(uint32_t imported_library_index = 0; imported_library_index < imported_library_count; imported_library_index++)
 	{
-		imported_libraries.push_back(ImportedLibrary());
-		auto& library = imported_libraries.back();
-		library.name_offset = rd.ReadUnsigned(4); // TODO: read name
-		library.old_imp_version = rd.ReadUnsigned(4);
-		library.current_version = rd.ReadUnsigned(4);
-		library.imported_symbol_count = rd.ReadUnsigned(4); // TODO: initialize imported_symbols
-		library.first_imported_symbol = rd.ReadUnsigned(4);
-		library.options = rd.ReadUnsigned(1);
-		library.reserved_a = rd.ReadUnsigned(1);
-		library.reserved_b = rd.ReadUnsigned(2);
+		auto library = std::make_shared<ImportedLibrary>();
+		imported_libraries.push_back(library);
+		library->name_offset = rd.ReadUnsigned(4);
+		library->old_imp_version = rd.ReadUnsigned(4);
+		library->current_version = rd.ReadUnsigned(4);
+		library->imported_symbol_count = rd.ReadUnsigned(4);
+		library->first_imported_symbol = rd.ReadUnsigned(4);
+		library->options = rd.ReadUnsigned(1);
+		library->reserved_a = rd.ReadUnsigned(1);
+		library->reserved_b = rd.ReadUnsigned(2);
 	}
 
-	// imported symbol tables
+	//// imported symbol tables
+
 	for(uint32_t imported_symbol_index = 0; imported_symbol_index < total_imported_symbol_count; imported_symbol_index++)
 	{
-		imported_symbols.push_back(ImportedSymbol());
-		auto& symbol = imported_symbols.back();
+		auto symbol = std::make_shared<ImportedSymbol>();
+		imported_symbols.push_back(symbol);
 		uint32_t value = rd.ReadUnsigned(4);
-		symbol.symbol_class = ImportedSymbol::class_type((value >> 24) & 0x0F);
-		symbol.flags = (value >> 24) & 0xF0;
-		symbol.name_offset = value & 0x00FFFFFF; // TODO: read name
+		symbol->symbol_class = ImportedSymbol::class_type((value >> 24) & 0x0F);
+		symbol->flags = (value >> 24) & 0xF0;
+		symbol->name_offset = value & 0x00FFFFFF;
 	}
+
+	// now the library specific symbols can be loaded
+	for(auto library : imported_libraries)
+	{
+		library->imported_symbols.insert(
+			library->imported_symbols.begin(),
+			imported_symbols.begin() + library->first_imported_symbol,
+			imported_symbols.begin() + library->first_imported_symbol + library->imported_symbol_count);
+	}
+
+	//// relocation headers
+
 	// TODO
 
-	// relocation headers
+	//// relocation area
+
 	// TODO
 
-	// relocation area
+	//// loader string table
+
+	for(auto library : imported_libraries)
+	{
+		library->LoadNameString(*this, rd);
+	}
+
+	for(auto symbol : imported_symbols)
+	{
+		symbol->LoadNameString(*this, rd);
+	}
+
+	// TODO: read full table
+
+	//// export hash table
+
 	// TODO
 
-	// loader string table
+	//// export key table
+
 	// TODO
 
-	// export hash table
-	// TODO
+	//// exported symbol table
 
-	// export key table
-	// TODO
-
-	// exported symbol table
 	// TODO
 }
 
 void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
 {
-	// header
+	//// header
+
 	// TODO
 
-	// imported library descriptions
+	//// imported library descriptions
+
 	// TODO
 
-	// imported symbol tables
+	//// imported symbol tables
+
 	// TODO
 
-	// relocation headers
+	//// relocation headers
+
 	// TODO
 
-	// relocation area
+	//// relocation area
+
 	// TODO
 
-	// loader string table
+	//// loader string table
+
 	// TODO
 
-	// export hash table
+	//// export hash table
+
 	// TODO
 
-	// export key table
+	//// export key table
+
 	// TODO
 
-	// exported symbol table
+	//// exported symbol table
+
 	// TODO
 }
 
@@ -682,10 +724,31 @@ void PEFFormat::CalculateValues()
 		section->CalculateValues(*this);
 	}
 
+	// TODO: initialize imported symbol table
+
+	if(reloc_instr_offset < GetMinimumRelocInstrOffset())
+	{
+		reloc_instr_offset = GetMinimumRelocInstrOffset();
+	}
+
+	if(loader_strings_offset < reloc_instr_offset + GetRelocationAreaSize())
+	{
+		loader_strings_offset = reloc_instr_offset + GetRelocationAreaSize();
+	}
+
+	if(export_hash_offset < loader_strings_offset + GetLoaderStringAreaSize())
+	{
+		export_hash_offset = loader_strings_offset + GetLoaderStringAreaSize();
+	}
+
 	uint32_t section_offset = section_name_table_end;
 	for(auto section : sections)
 	{
 		section->container_offset = ::AlignTo(section_offset, section->ExpectedAlignment());
+		if(section->section_kind == Section::Loader)
+		{
+			loader_section_offset = section->container_offset;
+		}
 		section_offset = section->container_offset + section->GetImageSize(*this);
 	}
 }
@@ -727,6 +790,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 			section->section_kind != Section::PatternInitializedData ? section->container_offset : 0,
 				// for pattern initialized data, image represents the unpacked data, so the file offset makes no sense
 			section->image ? section->image->AsImage() : nullptr,
+				// no image for loader section
 			section->default_address,
 			8);
 		section_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(section_number + 1));
@@ -757,8 +821,105 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		section_block.AddField("Share kind", Dumper::ChoiceDisplay::Make(share_type), offset_t(section->share_kind));
 		section_block.AddField("Alignment", Dumper::DecDisplay::Make(), offset_t(1 << section->alignment));
 		section_block.AddOptionalField("Reserved", Dumper::HexDisplay::Make(2), offset_t(section->reserved));
+		if(section->section_kind == Section::Loader)
+		{
+			if(main_symbol.IsPresent())
+			{
+				section_block.AddField("Main symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(main_symbol.section), offset_t(main_symbol.offset));
+			}
+			else
+			{
+				section_block.AddField("Main symbol", Dumper::StringDisplay::Make(), std::string("-"));
+			}
+
+			if(init_symbol.IsPresent())
+			{
+				section_block.AddField("Initialization function symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(init_symbol.section), offset_t(init_symbol.offset));
+			}
+			else
+			{
+				section_block.AddField("Initialization function symbol", Dumper::StringDisplay::Make(), std::string("-"));
+			}
+
+			if(init_symbol.IsPresent())
+			{
+				section_block.AddField("Termination function symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(init_symbol.section), offset_t(init_symbol.offset));
+			}
+			else
+			{
+				section_block.AddField("Termination function symbol", Dumper::StringDisplay::Make(), std::string("-"));
+			}
+
+			section_block.AddField("Imported library count", Dumper::DecDisplay::Make(), offset_t(imported_libraries.size()));
+			section_block.AddField("Total imported symbol count", Dumper::DecDisplay::Make(), offset_t(imported_symbols.size()));
+
+#if 0
+	uint32_t reloc_section_count = rd.ReadUnsigned(4);
+	reloc_instr_offset = rd.ReadUnsigned(4);
+#endif
+
+		section_block.AddField("Loader string offset", Dumper::HexDisplay::Make(8), offset_t(loader_strings_offset));
+
+#if 0
+	export_hash_offset = rd.ReadUnsigned(4);
+	export_hash_table_power = rd.ReadUnsigned(4);
+	uint32_t exported_symbol_count = rd.ReadUnsigned(4);
+#endif
+		}
 		// TODO: print records for PatternInitializedData
 		section_block.Display(dump);
+
+		if(section->section_kind == Section::Loader)
+		{
+			static const std::map<offset_t, std::string> symbol_type =
+			{
+				{ ImportedSymbol::Code,  "Code" },
+				{ ImportedSymbol::Data,  "Data" },
+				{ ImportedSymbol::TVect, "Transition Vector" },
+				{ ImportedSymbol::TOC,   "Table of Contents" },
+				{ ImportedSymbol::Glue,  "Linker inserted glue symbol" },
+			};
+
+			offset_t library_index = 0;
+			for(auto library : imported_libraries)
+			{
+				Dumper::Region library_region("Imported library", loader_section_offset + LoaderHeaderSize + LibraryDescriptionSize * library_index, LibraryDescriptionSize, 8);
+				library_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(library_index + 1));
+				library_region.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(library->name_offset));
+				library_region.AddField("Name", Dumper::StringDisplay::Make("'"), library->name);
+				library_region.AddField("Old implementation version", Dumper::DecDisplay::Make(), offset_t(library->old_imp_version));
+				library_region.AddField("Current version", Dumper::DecDisplay::Make(), offset_t(library->current_version));
+				library_region.AddField("First symbol", Dumper::DecDisplay::Make(), offset_t(library->first_imported_symbol + 1));
+				library_region.AddField("Symbol count", Dumper::DecDisplay::Make(), offset_t(library->imported_symbol_count));
+				library_region.AddField("Options",
+					Dumper::BitFieldDisplay::Make(2)
+						->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("weak import"), true)
+						->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("must initialize before client"), true),
+					offset_t(library->options));
+				library_region.AddOptionalField("Reserved A", Dumper::HexDisplay::Make(2), offset_t(library->reserved_a));
+				library_region.AddOptionalField("Reserved B", Dumper::HexDisplay::Make(4), offset_t(library->reserved_b));
+				library_region.Display(dump);
+
+				offset_t symbol_index = 0;
+				for(auto symbol : imported_symbols)
+				{
+					Dumper::Entry symbol_entry("Symbol", symbol_index + 1);
+					symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(symbol->name_offset));
+					symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol->name);
+					symbol_entry.AddField("Class", Dumper::ChoiceDisplay::Make(symbol_type), offset_t(symbol->symbol_class));
+					symbol_entry.AddField("Flags",
+						Dumper::BitFieldDisplay::Make(2)
+							->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("weak"), true),
+						offset_t(symbol->flags | symbol->symbol_class));
+					symbol_entry.Display(dump);
+
+					symbol_index ++;
+				}
+
+				library_index ++;
+			}
+		}
+
 		// TODO
 	}
 
