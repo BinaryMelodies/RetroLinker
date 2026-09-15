@@ -392,16 +392,19 @@ namespace Apple
 		// loader section information
 		uint32_t loader_section_offset = 0; // duplicate value of sections[*]->container_offset for sections[*]->section_kind == Section::Loader
 
+		static constexpr uint32_t NoSection = uint32_t(-1);
+		static constexpr uint32_t Absolute = uint32_t(-2);
+		static constexpr uint32_t Reexported = uint32_t(-3);
+
 		/** @brief Represents a reference to some data, stored as an offset into a section pair */
-		struct SymbolReference
+		struct Reference
 		{
-			static constexpr uint32_t NoSection = uint32_t(-1);
 			uint32_t section = NoSection;
 			uint32_t offset = 0;
 
 			bool IsPresent() const { return section != NoSection; }
 		};
-		SymbolReference main_symbol, init_symbol, term_symbol;
+		Reference main_symbol, init_symbol, term_symbol;
 
 		/** @brief Represents a string stored in the loader section string table */
 		class Name
@@ -410,22 +413,24 @@ namespace Apple
 			uint32_t name_offset;
 			std::string name;
 			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
+			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd, uint16_t length);
 		};
 
 		class ImportedLibrary;
 
+		enum symbol_class_type
+		{
+			Code,
+			Data,
+			TVect,
+			TOC,
+			Glue,
+		};
+
 		class ImportedSymbol : public Name
 		{
 		public:
-			enum class_type
-			{
-				Code,
-				Data,
-				TVect,
-				TOC,
-				Glue,
-			};
-			class_type symbol_class;
+			symbol_class_type symbol_class;
 			uint8_t flags;
 
 			std::weak_ptr<ImportedLibrary> library; // back link to library that includes it
@@ -449,11 +454,22 @@ namespace Apple
 		uint32_t reloc_instr_offset = 0;
 		uint32_t loader_strings_offset = 0;
 		uint32_t export_hash_offset = 0;
-		uint32_t export_hash_table_power = 0;
 
-		class ExportedSymbol
+		struct HashTableEntry
 		{
-			// TODO
+			uint16_t chain_count = 0;
+			uint32_t first_index = 0;
+		};
+		std::vector<HashTableEntry> hash_table;
+
+		struct ExportedSymbol : public Name, public Reference
+		{
+			uint16_t symbol_length = 0;
+			uint16_t hash_value = 0;
+
+			symbol_class_type symbol_class;
+			using Name::LoadNameString;
+			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
 		};
 		std::vector<ExportedSymbol> exported_symbols;
 
@@ -488,18 +504,15 @@ namespace Apple
 		}
 		uint32_t GetExportHashTableSize() const
 		{
-			// TODO
-			return 0;
+			return 4 * hash_table.size();
 		}
 		uint32_t GetExportKeyTableSize() const
 		{
-			// TODO
-			return 0;
+			return 4 * exported_symbols.size();
 		}
 		uint32_t GetExportSymbolTableSize() const
 		{
-			// TODO
-			return 0;
+			return 10 * exported_symbols.size();
 		}
 
 		uint32_t GetMinimumRelocInstrOffset() const
@@ -519,7 +532,7 @@ namespace Apple
 					+ GetRelocationHeadersSize(),
 					reloc_instr_offset + GetRelocationAreaSize(),
 					loader_strings_offset + GetLoaderStringAreaSize(),
-					export_hash_table_power
+					export_hash_offset
 						+ GetExportHashTableSize()
 						+ GetExportKeyTableSize()
 						+ GetExportSymbolTableSize()});

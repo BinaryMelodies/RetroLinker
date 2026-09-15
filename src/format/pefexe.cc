@@ -318,8 +318,8 @@ void PEFFormat::RelocationProcessor::Initialize()
 	//reloc_instr_ptr = 0;
 	reloc_address = 0;
 	import_index = 0;
-	section_c = pef_format.sections[0]->IsInstantiated() ? 0 : SymbolReference::NoSection;
-	section_d = pef_format.sections[1]->IsInstantiated() ? 1 : SymbolReference::NoSection;
+	section_c = pef_format.sections[0]->IsInstantiated() ? 0 : PEFFormat::NoSection;
+	section_d = pef_format.sections[1]->IsInstantiated() ? 1 : PEFFormat::NoSection;
 	//current_repeat_count = 0;
 }
 
@@ -789,6 +789,17 @@ std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker:
 	return name = rd.ReadASCII('\0');
 }
 
+std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd, uint16_t length)
+{
+	rd.Seek(pef_format.loader_section_offset + pef_format.loader_strings_offset + name_offset);
+	return name = rd.ReadData(length);
+}
+
+std::string PEFFormat::ExportedSymbol::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd)
+{
+	return LoadNameString(pef_format, rd, symbol_length);
+}
+
 void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 {
 	//// header
@@ -811,7 +822,7 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 	loader_strings_offset = rd.ReadUnsigned(4);
 
 	export_hash_offset = rd.ReadUnsigned(4);
-	export_hash_table_power = rd.ReadUnsigned(4);
+	uint32_t export_hash_table_power = rd.ReadUnsigned(4);
 	uint32_t exported_symbol_count = rd.ReadUnsigned(4);
 
 	//// imported library descriptions
@@ -837,7 +848,7 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		auto symbol = std::make_shared<ImportedSymbol>();
 		imported_symbols.push_back(symbol);
 		uint32_t value = rd.ReadUnsigned(4);
-		symbol->symbol_class = ImportedSymbol::class_type((value >> 24) & 0x0F);
+		symbol->symbol_class = symbol_class_type((value >> 24) & 0x0F);
 		symbol->flags = (value >> 24) & 0xF0;
 		symbol->name_offset = value & 0x00FFFFFF;
 	}
@@ -912,19 +923,43 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		symbol->LoadNameString(*this, rd);
 	}
 
-	// TODO: read full table
+	// TODO: read full table (this might not be possible, since exported symbols are not zero terminated)
 
 	//// export hash table
 
-	// TODO
+	rd.Seek(loader_section_offset + export_hash_offset);
+	hash_table.resize(1 << export_hash_table_power);
+	for(auto& hash_table_entry : hash_table)
+	{
+		uint32_t value = rd.ReadUnsigned(4);
+		hash_table_entry.chain_count = value >> 18;
+		hash_table_entry.first_index = value & 0x0003FFFF;
+	}
 
 	//// export key table
 
-	// TODO
+	exported_symbols.resize(exported_symbol_count);
+	for(auto& symbol : exported_symbols)
+	{
+		symbol.symbol_length = rd.ReadUnsigned(2);
+		symbol.hash_value = rd.ReadUnsigned(2);
+	}
 
 	//// exported symbol table
 
-	// TODO
+	for(auto& symbol : exported_symbols)
+	{
+		symbol.name_offset = rd.ReadUnsigned(4);
+		symbol.symbol_class = symbol_class_type(symbol.name_offset >> 24);
+		symbol.name_offset &= 0x00FFFFFF;
+		symbol.offset = rd.ReadUnsigned(4);
+		symbol.section = rd.ReadSigned(2); // sign extend to 32-bit
+	}
+
+	for(auto& symbol : exported_symbols)
+	{
+		symbol.LoadNameString(*this, rd);
+	}
 }
 
 void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
@@ -1210,12 +1245,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 			section_block.AddOptionalField("Offset to relocations", Dumper::HexDisplay::Make(8), offset_t(reloc_instr_offset));
 
 			section_block.AddField("Loader string offset", Dumper::HexDisplay::Make(8), offset_t(loader_strings_offset));
-
-#if 0
-	export_hash_offset = rd.ReadUnsigned(4);
-	export_hash_table_power = rd.ReadUnsigned(4);
-	uint32_t exported_symbol_count = rd.ReadUnsigned(4);
-#endif
+			// TODO: print all strings?
 		}
 		// TODO: print records for PatternInitializedData
 		section_block.Display(dump);
@@ -1335,11 +1365,11 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		{
 			static const std::map<offset_t, std::string> symbol_type =
 			{
-				{ ImportedSymbol::Code,  "Code" },
-				{ ImportedSymbol::Data,  "Data" },
-				{ ImportedSymbol::TVect, "Transition Vector" },
-				{ ImportedSymbol::TOC,   "Table of Contents" },
-				{ ImportedSymbol::Glue,  "Linker inserted glue symbol" },
+				{ PEFFormat::Code,  "Code" },
+				{ PEFFormat::Data,  "Data" },
+				{ PEFFormat::TVect, "Transition Vector" },
+				{ PEFFormat::TOC,   "Table of Contents" },
+				{ PEFFormat::Glue,  "Linker inserted glue symbol" },
 			};
 
 			offset_t library_index = 0;
@@ -1402,9 +1432,50 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 				symbol_index ++;
 			}
 			// TODO: print all relocation opcodes?
-		}
 
-		// TODO
+			Dumper::Region hash_table_region("Export hash table", loader_section_offset + export_hash_offset, GetExportHashTableSize(), 8);
+			hash_table_region.Display(dump);
+			offset_t hash_index = 0;
+			for(auto& hash_table_entry : hash_table)
+			{
+				Dumper::Entry dump_entry("Table entry", hash_index);
+				dump_entry.AddField("Chain count", Dumper::DecDisplay::Make(), offset_t(hash_table_entry.chain_count));
+				dump_entry.AddField("First index", Dumper::DecDisplay::Make(), offset_t(hash_table_entry.first_index));
+				dump_entry.Display(dump);
+				hash_index ++;
+			}
+
+			symbol_index = 0;
+			for(auto& symbol : exported_symbols)
+			{
+				Dumper::Entry symbol_entry("Exported symbol", symbol_index);
+				symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol.name);
+				symbol_entry.AddField("Hash value", Dumper::HexDisplay::Make(4), offset_t(symbol.hash_value));
+				symbol_entry.AddField("Class", Dumper::ChoiceDisplay::Make(symbol_type), offset_t(symbol.symbol_class));
+				switch(symbol.section)
+				{
+				case Absolute:
+					symbol_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(symbol.offset));
+					break;
+				case Reexported:
+					symbol_entry.AddField("Imported symbol", Dumper::DecDisplay::Make(8), offset_t(symbol.offset));
+					{
+						auto imported_symbol = imported_symbols[symbol.offset];
+						if(auto library = imported_symbol->library.lock())
+						{
+							symbol_entry.AddField("Library", Dumper::StringDisplay::Make("'"), library->name);
+						}
+						symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), imported_symbol->name);
+					}
+					break;
+				default:
+					symbol_entry.AddField("Value", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(uint16_t(symbol.section)), offset_t(symbol.offset));
+					break;
+				}
+				symbol_entry.Display(dump);
+				symbol_index ++;
+			}
+		}
 	}
 
 	Dumper::Region section_names_region("Section name table", GetSectionNameTableOffset(), section_name_table_end - GetSectionNameTableOffset(), 8);
