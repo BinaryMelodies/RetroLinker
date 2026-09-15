@@ -19,6 +19,10 @@ namespace Apple
 	{
 	public:
 		// TODO: untested
+		/** @brief Pattern initialization data
+		 *
+		 * For pattern initialized data sections (data sections that are not unpacked), they are stored in the file as
+		 * a sequence of pattern initialization data. This class represents a single pattern in a stream of patterns. */
 		class PatternInitialization
 		{
 		public:
@@ -30,26 +34,43 @@ namespace Apple
 				InterleaveRepeatBlockWithBlockCopy = 3,
 				InterleaveRepeatBlockWithZero = 4,
 			};
+			/** @brief Offset at which this pattern is stored in the file (only relevant for dumping) */
 			offset_t file_offset;
+			/** @brief The pattern type */
 			opcode_type opcode;
+			/** @brief Generic count parameter, used for repeating or zero filling data */
 			uint32_t count;
+			/** @brief Sequence of data to be used, possibly repeatedly */
 			std::vector<uint8_t> common_data;
+			/** @brief Equal sized sequences of data to be inserted between repeated common data */
 			std::vector<std::vector<uint8_t>> custom_data;
 
+			/** @brief Reads a variable length value as used by some patterns */
 			static uint32_t ReadValue(Linker::Reader& rd);
+			/** @brief Determines the required number of bytes to store this value, with an optional minimum size */
 			static size_t GetValueSize(uint32_t value, size_t size_hint = 0);
+			/** @brief Writes a variable length value, with an optional minimum size */
 			static void WriteValue(Linker::Writer& wr, uint32_t value, size_t size_hint = 0);
 
+			/** @brief Reads an initialization pattern and initializes this structure */
 			void ReadFile(Linker::Reader& rd);
+			/** @brief Writes the initialization pattern to a stream */
 			void WriteFile(Linker::Writer& wr) const;
+			/** @brief Size of the packed data, as stored in the file */
 			offset_t CodeSize() const;
+			/** @brief Size of the unpacked data, as loaded into memory */
 			offset_t DataSize() const;
+			/** @brief Expand the pattern into unpacked data and append it to the buffer */
 			void ExpandData(Linker::Buffer& buffer) const;
 		};
 
 		class ImportedSymbol;
 		class ImportedLibrary;
 
+		/** @brief Represents a single relocated 32-bit word in memory
+		 *
+		 * Note that PEF files do not store these directly, instead these have to be generated from the relocation data.
+		 */
 		class Relocation
 		{
 		public:
@@ -87,6 +108,13 @@ namespace Apple
 
 		class RelocOpcode;
 
+		/** @brief A representation of a state machine that generates the actual relocations using the relocation data in a file
+		 *
+		 * PEF files contain a sequence of instructions that express state changes to be applied to an internal "pseudo-microprocessor".
+		 * This class can interpret these instructions and convert them to symbol relocations. The behavior is modelled on the description
+		 * in Inside Macintosh: Mac OS Runtime Architectures, except no actual memory addresses are used, since this is not intended
+		 * to be used as a loader. Addresses are instead replaced by section and symbol indices.
+		 */
 		class RelocationProcessor
 		{
 		public:
@@ -118,7 +146,6 @@ namespace Apple
 			void AddRelocation(Relocation relocation)
 			{
 				relocations.push_back(relocation);
-				// TODO: look up symbol
 				Advance(4);
 			}
 
@@ -143,15 +170,27 @@ namespace Apple
 				import_index ++;
 			}
 
+			/** @brief Step back this amount of 16-bit halfwords in the instruction stream */
 			void Regress(uint32_t block_count);
 
+			/** @brief Repeat a previous sequence of instructions
+			 *
+			 * This function is intended to be called repeatedly each time the sequence of instructions
+			 * is executed. The processor keeps track of how many times the repetition has taken place
+			 * and stops iterating once the internal count reaches zero.
+			 *
+			 * @param[in] block_count The number of 16-bit halfwords consisting of the block (not counting the repetition instruction).
+			 * Note that some instructions have a length of 32 bits, which means block_count has to count them as 2.
+			 * @param[in] repeat_count The number of times the block needs to be repeated. This does not include the initial repetition.
+			 */
 			void Repeat(uint32_t block_count, uint32_t repeat_count)
 			{
 				// unless this is the last iteration of this block
 				if(current_repeat_count != 1)
 				{
 					// jump over this (already processed) instruction and the block
-					Regress(block_count + 1);
+					reloc_instr_ptr --;
+					Regress(block_count);
 				}
 
 				if(current_repeat_count == 0)
@@ -168,6 +207,7 @@ namespace Apple
 			void GenerateRelocations();
 		};
 
+		/** @brief Represents a single 16-bit or 32-bit opcode that encodes relocations */
 		class RelocOpcode
 		{
 		public:
@@ -196,30 +236,44 @@ namespace Apple
 				LgSetSectC = 0xB440,
 				LgSetSectD = 0xB480,
 			};
+			/** @brief Offset of opcode within file (only used for dumping) */
 			uint32_t offset = 0; // within file
-			opcode_type opcode = SmInvalid; // not SmRepeat/LgRepeat
-			/*union
-			{
-				uint32_t skip; // BySectDWithSkip
-				uint32_t offset; // IncrPosition, SetPosition
-				uint32_t index; // *ByImport, *SetSect*, *BySection
-				uint32_t block_count; // *Repeat
-			}*/
+			/** @brief Opcode type */
+			opcode_type opcode = SmInvalid;
+
+			/** @brief A value parameter
+			 *
+			 * Depending on the type of the operation, this may encode a byte skip value (BySectDWithSkip), an offset
+			 * value (IncrPosition, SetPosition), a section or symbol index (ByImport, SetSect, BySection) or
+			 * the size of the block to repeat in 16-bit halfwords (Repeat) */
 			uint32_t value = 0;
+
 			/*union
 			{
 				uint32_t run_length; // BySectDWithSkip, BySect*, TVector*, VTable8, ImportRun
 				uint32_t repeat_count; // *Repeat
 			};*/
+			/** @brief A repetition parameter
+			 *
+			 * Depending on the type of the operation, this may encode a run_length (BySectDWithSkip, BySecton, TVector, VTable8, ImportRun)
+			 * or a repetition count (Repeat) */
 			uint32_t repeat = 0;
 
+			/** @brief Reads and initializes a single relocation opcode record */
 			void ReadFile(Linker::Reader& rd);
+			/** @brief Returns the bit sequence that this opcode is stored as in the file
+			 *
+			 * For 16-bit instructions, the value is stored as a zero extended value in the least significant bits, for 32-bit instructions,
+			 * it takes up the entire word. */
 			uint32_t GetWord() const;
+			/** @brief Returns the number of bytes required to encode this opcode */
 			offset_t CodeSize() const;
+			/** @brief Outputs a single relocation opcode to the file */
 			void WriteFile(Linker::Writer& wr)
 			{
 				wr.WriteWord(CodeSize(), GetWord());
 			}
+			/** @brief Executes the opcode to possibly produce some relocation information and/or alter the state of the pseudo-microprocessor */
 			void GenerateRelocations(RelocationProcessor& processor) const;
 		};
 
@@ -337,6 +391,8 @@ namespace Apple
 
 		// loader section information
 		uint32_t loader_section_offset = 0; // duplicate value of sections[*]->container_offset for sections[*]->section_kind == Section::Loader
+
+		/** @brief Represents a reference to some data, stored as an offset into a section pair */
 		struct SymbolReference
 		{
 			static constexpr uint32_t NoSection = uint32_t(-1);
@@ -347,6 +403,7 @@ namespace Apple
 		};
 		SymbolReference main_symbol, init_symbol, term_symbol;
 
+		/** @brief Represents a string stored in the loader section string table */
 		class Name
 		{
 		public:
@@ -476,7 +533,6 @@ namespace Apple
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
-		/* TODO */
 	};
 }
 

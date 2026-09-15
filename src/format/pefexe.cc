@@ -1363,9 +1363,9 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 				library_region.Display(dump);
 
 				offset_t symbol_index = 0;
-				for(auto symbol : imported_symbols)
+				for(auto symbol : library->imported_symbols)
 				{
-					Dumper::Entry symbol_entry("Symbol", symbol_index + 1);
+					Dumper::Entry symbol_entry("Library symbol", symbol_index + 1);
 					symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(symbol->name_offset));
 					symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol->name);
 					symbol_entry.AddField("Class", Dumper::ChoiceDisplay::Make(symbol_type), offset_t(symbol->symbol_class));
@@ -1380,7 +1380,27 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 
 				library_index ++;
 			}
-			// TODO: print all symbols?
+
+			// symbols
+			offset_t symbol_index = 0;
+			for(auto symbol : imported_symbols)
+			{
+				Dumper::Entry symbol_entry("Symbol", symbol_index);
+				if(auto library = symbol->library.lock())
+				{
+					symbol_entry.AddField("Library", Dumper::StringDisplay::Make("'"), library->name);
+				}
+				symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(symbol->name_offset));
+				symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol->name);
+				symbol_entry.AddField("Class", Dumper::ChoiceDisplay::Make(symbol_type), offset_t(symbol->symbol_class));
+				symbol_entry.AddField("Flags",
+					Dumper::BitFieldDisplay::Make(2)
+						->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("weak"), true),
+					offset_t(symbol->flags | symbol->symbol_class));
+				symbol_entry.Display(dump);
+
+				symbol_index ++;
+			}
 			// TODO: print all relocation opcodes?
 		}
 
