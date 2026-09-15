@@ -47,10 +47,180 @@ namespace Apple
 			void ExpandData(Linker::Buffer& buffer) const;
 		};
 
+		class ImportedSymbol;
+		class ImportedLibrary;
+
 		class Relocation
 		{
 		public:
-			// TODO
+			// add 32-bit section start to offset
+			enum target_type
+			{
+				Section,
+				Symbol,
+			};
+			target_type type = Section;
+			uint32_t offset = 0;
+			// section: section number, symbol: symbol number
+			uint32_t number = 0;
+			// only for symbol targets
+			std::weak_ptr<ImportedSymbol> symbol;
+
+			static inline Relocation ToSection(uint32_t offset, uint32_t section_number)
+			{
+				Relocation relocation;
+				relocation.type = Section;
+				relocation.offset = offset;
+				relocation.number = section_number;
+				return relocation;
+			}
+
+			static inline Relocation ToSymbol(uint32_t offset, uint32_t symbol_number)
+			{
+				Relocation relocation;
+				relocation.type = Symbol;
+				relocation.offset = offset;
+				relocation.number = symbol_number;
+				return relocation;
+			}
+		};
+
+		class RelocOpcode;
+
+		class RelocationProcessor
+		{
+		public:
+			const PEFFormat& pef_format;
+
+			size_t reloc_instr_ptr = 0;
+			uint32_t reloc_address = 0;
+			uint32_t import_index = 0;
+			uint32_t section_c = 0;
+			uint32_t section_d = 0;
+			uint32_t current_repeat_count = 0;
+
+			std::vector<RelocOpcode>& reloc_opcodes;
+			std::vector<Relocation>& relocations;
+
+			void Initialize();
+
+			RelocationProcessor(const PEFFormat& pef_format, std::vector<RelocOpcode>& reloc_opcodes, std::vector<Relocation>& relocations)
+				: pef_format(pef_format), reloc_opcodes(reloc_opcodes), relocations(relocations)
+			{
+				Initialize();
+			}
+
+			void Advance(uint32_t offset)
+			{
+				reloc_address += offset;
+			}
+
+			void AddRelocation(Relocation relocation)
+			{
+				relocations.push_back(relocation);
+				// TODO: look up symbol
+				Advance(4);
+			}
+
+			void AddSection(uint32_t section_number)
+			{
+				AddRelocation(Relocation::ToSection(reloc_address, section_number));
+			}
+
+			void AddSectionC()
+			{
+				AddSection(section_c);
+			}
+
+			void AddSectionD()
+			{
+				AddSection(section_d);
+			}
+
+			void AddSymbol()
+			{
+				AddRelocation(Relocation::ToSymbol(reloc_address, import_index));
+				import_index ++;
+			}
+
+			void Regress(uint32_t block_count);
+
+			void Repeat(uint32_t block_count, uint32_t repeat_count)
+			{
+				// unless this is the last iteration of this block
+				if(current_repeat_count != 1)
+				{
+					// jump over this (already processed) instruction and the block
+					Regress(block_count + 1);
+				}
+
+				if(current_repeat_count == 0)
+				{
+					// iteration starts
+					current_repeat_count = repeat_count;
+				}
+				else
+				{
+					current_repeat_count --;
+				}
+			}
+
+			void GenerateRelocations();
+		};
+
+		class RelocOpcode
+		{
+		public:
+			/* the values are chosen so that they can be bitwise or'd to the opcode word */
+			enum opcode_type
+			{
+				SmInvalid = -1,
+				//LgInvalid = -2,
+				BySectDWithSkip = 0x0000,
+				BySectC = 0x4000,
+				BySectD = 0x4200,
+				TVector12 = 0x4400,
+				TVector8 = 0x4600,
+				VTable8 = 0x4800,
+				ImportRun = 0x4A00,
+				SmByImport = 0x6000,
+				SmSetSectC = 0x6200,
+				SmSetSectD = 0x6400,
+				SmBySection = 0x6600,
+				IncrPosition = 0x8000,
+				SmRepeat = 0x9000,
+				SetPosition = 0xA000,
+				LgByImport = 0xA400,
+				LgRepeat = 0xB000,
+				LgBySection = 0xB400,
+				LgSetSectC = 0xB440,
+				LgSetSectD = 0xB480,
+			};
+			uint32_t offset = 0; // within file
+			opcode_type opcode = SmInvalid; // not SmRepeat/LgRepeat
+			/*union
+			{
+				uint32_t skip; // BySectDWithSkip
+				uint32_t offset; // IncrPosition, SetPosition
+				uint32_t index; // *ByImport, *SetSect*, *BySection
+				uint32_t block_count; // *Repeat
+			}*/
+			uint32_t value = 0;
+			/*union
+			{
+				uint32_t run_length; // BySectDWithSkip, BySect*, TVector*, VTable8, ImportRun
+				uint32_t repeat_count; // *Repeat
+			};*/
+			uint32_t repeat = 0;
+
+			void ReadFile(Linker::Reader& rd);
+			uint32_t GetWord() const;
+			offset_t CodeSize() const;
+			void WriteFile(Linker::Writer& wr)
+			{
+				wr.WriteWord(CodeSize(), GetWord());
+			}
+			void GenerateRelocations(RelocationProcessor& processor) const;
 		};
 
 		class Section
@@ -89,7 +259,13 @@ namespace Apple
 
 			std::shared_ptr<Linker::Contents> image;
 			std::vector<PatternInitialization> patterns;
+			// only appearing in sections with relocations
 			std::vector<Relocation> relocations;
+			std::vector<RelocOpcode> reloc_opcodes;
+			bool contains_relocations = false;
+			uint16_t reserved_a = 0;
+			uint32_t reloc_instr_size = 0;
+			uint32_t first_reloc_offset = 0;
 
 			bool IsInstantiated() const
 			{
@@ -179,6 +355,8 @@ namespace Apple
 			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
 		};
 
+		class ImportedLibrary;
+
 		class ImportedSymbol : public Name
 		{
 		public:
@@ -192,6 +370,8 @@ namespace Apple
 			};
 			class_type symbol_class;
 			uint8_t flags;
+
+			std::weak_ptr<ImportedLibrary> library; // back link to library that includes it
 		};
 
 		class ImportedLibrary : public Name

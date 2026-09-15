@@ -313,6 +313,307 @@ void PEFFormat::PatternInitialization::ExpandData(Linker::Buffer& buffer) const
 	}
 }
 
+void PEFFormat::RelocationProcessor::Initialize()
+{
+	//reloc_instr_ptr = 0;
+	reloc_address = 0;
+	import_index = 0;
+	section_c = pef_format.sections[0]->IsInstantiated() ? 0 : SymbolReference::NoSection;
+	section_d = pef_format.sections[1]->IsInstantiated() ? 1 : SymbolReference::NoSection;
+	//current_repeat_count = 0;
+}
+
+void PEFFormat::RelocationProcessor::Regress(uint32_t block_count)
+{
+	while(block_count > 0)
+	{
+		reloc_instr_ptr --;
+		block_count -= reloc_opcodes[reloc_instr_ptr].CodeSize() >> 1;
+	}
+}
+
+void PEFFormat::RelocationProcessor::GenerateRelocations()
+{
+	current_repeat_count = 0;
+	for(reloc_instr_ptr = 0; reloc_instr_ptr < reloc_opcodes.size(); )
+	{
+		auto& opcode = reloc_opcodes[reloc_instr_ptr++];
+		opcode.GenerateRelocations(*this);
+	}
+}
+
+void PEFFormat::RelocOpcode::ReadFile(Linker::Reader& rd)
+{
+	offset = rd.Tell();
+	uint16_t word = rd.ReadUnsigned(2);
+	if((word & 0xC000) == 0x0000)
+	{
+		opcode = BySectDWithSkip;
+		value = ((word >> 6) & 0xFF) * 4;
+		repeat = word & 0x3F;
+	}
+	else if((word & 0xE000) == 0x4000)
+	{
+		switch((word >> 9) & 0xF)
+		{
+		case 0:
+			opcode = BySectC;
+			break;
+		case 1:
+			opcode = BySectD;
+			break;
+		case 2:
+			opcode = TVector12;
+			break;
+		case 3:
+			opcode = TVector8;
+			break;
+		case 4:
+			opcode = VTable8;
+			break;
+		case 5:
+			opcode = ImportRun;
+			break;
+		default:
+			opcode = SmInvalid;
+			value = word;
+			return;
+		}
+		repeat = (word & 0x1FF) + 1;
+	}
+	else if((word & 0xE000) == 0x6000)
+	{
+		switch((word >> 9) & 0xF)
+		{
+		case 0:
+			opcode = SmByImport;
+			break;
+		case 1:
+			opcode = SmSetSectC;
+			break;
+		case 2:
+			opcode = SmSetSectD;
+			break;
+		case 3:
+			opcode = SmBySection;
+			break;
+		default:
+			opcode = SmInvalid;
+			value = word;
+			return;
+		}
+		value = word & 0x1FF;
+	}
+	else if((word & 0xF000) == 0x8000)
+	{
+		opcode = IncrPosition;
+		value = (word & 0x0FFF) + 1;
+	}
+	else if((word & 0xF000) == 0x9000)
+	{
+		opcode = SmRepeat;
+		value = ((word >> 8) & 0xF) + 1;
+		repeat = (word & 0xFF) + 1;
+	}
+	else if((word & 0xFC00) == 0xA000)
+	{
+		opcode = SetPosition;
+		value = uint32_t(word & 0x03FF) << 16;
+		value |= rd.ReadUnsigned(2);
+	}
+	else if((word & 0xFC00) == 0xA400)
+	{
+		opcode = LgByImport;
+		value = uint32_t(word & 0x03FF) << 16;
+		value |= rd.ReadUnsigned(2);
+	}
+	else if((word & 0xFC00) == 0xB000)
+	{
+		opcode = LgRepeat;
+		value = ((word >> 6) & 0xF) + 1;
+		repeat = uint32_t(word & 0x003F) << 16;
+		repeat |= rd.ReadUnsigned(2);
+	}
+	else
+	{
+		switch(word & 0xFFC0)
+		{
+		case LgBySection:
+		case LgSetSectC:
+		case LgSetSectD:
+			opcode = opcode_type(word & 0xFFC0);
+			value = uint32_t(word & 0x003F) << 16;
+			value |= rd.ReadUnsigned(2);
+			break;
+		default:
+			opcode = SmInvalid; // note: this could be LgInvalid and another word could be read
+			value = word;
+			return;
+		}
+	}
+}
+
+uint32_t PEFFormat::RelocOpcode::GetWord() const
+{
+	switch(opcode)
+	{
+	case BySectDWithSkip:
+		return opcode | (((value / 4) & 0xFF) << 6) | (repeat & 0x3F);
+	case BySectC:
+	case BySectD:
+	case TVector12:
+	case TVector8:
+	case VTable8:
+	case ImportRun:
+		return opcode | ((repeat - 1) & 0x1FF);
+	case SmByImport:
+	case SmSetSectC:
+	case SmSetSectD:
+	case SmBySection:
+		return opcode | (value & 0x1FF);
+	case IncrPosition:
+		return opcode | ((value - 1) & 0x0FFF);
+	case SmRepeat:
+		return opcode | (((value - 1) & 0xF) << 8) | ((repeat - 1) & 0xFF);
+	case SetPosition:
+	case LgByImport:
+		return (uint32_t(opcode) << 16) | (value & 0x03FFFFFF);
+	case LgRepeat:
+		return (uint32_t(opcode) << 16) | (uint32_t((value - 1) & 0xF) << 22) | (repeat & 0x003FFFFF);
+	case LgBySection:
+	case LgSetSectC:
+	case LgSetSectD:
+		return (uint32_t(opcode) << 16) | (value & 0x003FFFFF);
+	case SmInvalid:
+	//case LgInvalid:
+		return value;
+	default:
+		// TODO: error
+		return 0;
+	}
+}
+
+offset_t PEFFormat::RelocOpcode::CodeSize() const
+{
+	switch(opcode)
+	{
+	case BySectDWithSkip:
+	case BySectC:
+	case BySectD:
+	case TVector12:
+	case TVector8:
+	case VTable8:
+	case ImportRun:
+	case SmByImport:
+	case SmSetSectC:
+	case SmSetSectD:
+	case SmBySection:
+	case IncrPosition:
+	case SmRepeat:
+	case SmInvalid:
+		return 2;
+	case SetPosition:
+	case LgByImport:
+	case LgRepeat:
+	case LgBySection:
+	case LgSetSectC:
+	case LgSetSectD:
+	//case LgInvalid:
+		return 4;
+	default:
+		// TODO: error
+		return 0;
+	}
+}
+
+void PEFFormat::RelocOpcode::GenerateRelocations(RelocationProcessor& processor) const
+{
+	switch(opcode)
+	{
+	case BySectDWithSkip:
+		processor.Advance(value);
+		for(uint32_t index = 0; index < repeat; index++)
+		{
+			processor.AddSectionD();
+		}
+		break;
+	case BySectC:
+		for(uint32_t index = 0; index < repeat; index++)
+		{
+			processor.AddSectionC();
+		}
+		break;
+	case BySectD:
+		for(uint32_t index = 0; index < repeat; index++)
+		{
+			processor.AddSectionD();
+		}
+		break;
+	case TVector12:
+		for(uint32_t index = 0; index < repeat; index++)
+		{
+			processor.AddSectionC();
+			processor.AddSectionD();
+			processor.Advance(4);
+		}
+		break;
+	case TVector8:
+		for(uint32_t index = 0; index < repeat; index++)
+		{
+			processor.AddSectionC();
+			processor.AddSectionD();
+		}
+		break;
+	case VTable8:
+		for(uint32_t index = 0; index < repeat; index++)
+		{
+			processor.AddSectionD();
+			processor.Advance(4);
+		}
+		break;
+	case ImportRun:
+		for(uint32_t index = 0; index < repeat; index++)
+		{
+			processor.AddSymbol();
+		}
+		break;
+	case SmByImport:
+	case LgByImport:
+		processor.import_index = value;
+		processor.AddSymbol();
+		break;
+	case SmSetSectC:
+	case LgSetSectC:
+		processor.section_c = value;
+		break;
+	case SmSetSectD:
+	case LgSetSectD:
+		processor.section_d = value;
+		break;
+	case SmBySection:
+	case LgBySection:
+		processor.AddSection(value);
+		break;
+	case IncrPosition:
+		processor.reloc_address += value;
+		break;
+	case SmRepeat:
+	case LgRepeat:
+		processor.Repeat(value, repeat);
+		break;
+	case SetPosition:
+		processor.reloc_address = value;
+		break;
+	case SmInvalid:
+	//case LgInvalid:
+		// TODO: error
+		break;
+	default:
+		// TODO: error
+		break;
+	}
+}
+
 void PEFFormat::Section::ReadHeader(Linker::Reader& rd)
 {
 	name_offset = rd.ReadUnsigned(4);
@@ -548,15 +849,56 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 			library->imported_symbols.begin(),
 			imported_symbols.begin() + library->first_imported_symbol,
 			imported_symbols.begin() + library->first_imported_symbol + library->imported_symbol_count);
+
+		for(auto symbol : library->imported_symbols)
+		{
+			symbol->library = library;
+		}
 	}
 
 	//// relocation headers
 
-	// TODO
+	for(uint32_t reloc_section_index = 0; reloc_section_index < reloc_section_count; reloc_section_index++)
+	{
+		uint16_t section_index = rd.ReadUnsigned(2);
+		reloc_section_indexes.push_back(section_index);
+		auto section = sections[section_index];
+		section->contains_relocations = true;
+		section->reserved_a = rd.ReadUnsigned(2);
+		section->reloc_instr_size = rd.ReadUnsigned(4) * 2;
+		section->first_reloc_offset = rd.ReadUnsigned(4) * 2;
+	}
 
 	//// relocation area
 
-	// TODO
+	// this is where consecutive reading stops
+
+	for(auto section : sections)
+	{
+		if(section->contains_relocations)
+		{
+			rd.Seek(loader_section_offset + reloc_instr_offset + section->first_reloc_offset);
+			while(rd.Tell() < loader_section_offset + reloc_instr_offset + section->first_reloc_offset + section->reloc_instr_size)
+			{
+				RelocOpcode opcode;
+				opcode.ReadFile(rd);
+				section->reloc_opcodes.push_back(opcode);
+			}
+
+			RelocationProcessor processor(*this, section->reloc_opcodes, section->relocations);
+			processor.GenerateRelocations();
+
+			for(auto& relocation : section->relocations)
+			{
+				if(relocation.type == Relocation::Symbol)
+				{
+					relocation.symbol = imported_symbols[relocation.number];
+				}
+			}
+		}
+	}
+
+	// TODO: read all relocation instructions
 
 	//// loader string table
 
@@ -821,6 +1163,17 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		section_block.AddField("Share kind", Dumper::ChoiceDisplay::Make(share_type), offset_t(section->share_kind));
 		section_block.AddField("Alignment", Dumper::DecDisplay::Make(), offset_t(1 << section->alignment));
 		section_block.AddOptionalField("Reserved", Dumper::HexDisplay::Make(2), offset_t(section->reserved));
+		if(section->contains_relocations)
+		{
+			section_block.AddField("Relocation record size", Dumper::HexDisplay::Make(8), offset_t(section->reloc_instr_size));
+			section_block.AddField("Relocation record offset", Dumper::HexDisplay::Make(8), offset_t(section->first_reloc_offset));
+
+			for(auto& relocation : section->relocations)
+			{
+				section_block.AddSignal(relocation.offset, 4);
+			}
+		}
+
 		if(section->section_kind == Section::Loader)
 		{
 			if(main_symbol.IsPresent())
@@ -853,12 +1206,10 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 			section_block.AddField("Imported library count", Dumper::DecDisplay::Make(), offset_t(imported_libraries.size()));
 			section_block.AddField("Total imported symbol count", Dumper::DecDisplay::Make(), offset_t(imported_symbols.size()));
 
-#if 0
-	uint32_t reloc_section_count = rd.ReadUnsigned(4);
-	reloc_instr_offset = rd.ReadUnsigned(4);
-#endif
+			section_block.AddField("Sections with relocations", Dumper::DecDisplay::Make(), offset_t(reloc_section_indexes.size()));
+			section_block.AddOptionalField("Offset to relocations", Dumper::HexDisplay::Make(8), offset_t(reloc_instr_offset));
 
-		section_block.AddField("Loader string offset", Dumper::HexDisplay::Make(8), offset_t(loader_strings_offset));
+			section_block.AddField("Loader string offset", Dumper::HexDisplay::Make(8), offset_t(loader_strings_offset));
 
 #if 0
 	export_hash_offset = rd.ReadUnsigned(4);
@@ -868,6 +1219,117 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		}
 		// TODO: print records for PatternInitializedData
 		section_block.Display(dump);
+
+		if(section->contains_relocations)
+		{
+			uint32_t opcode_index = 0;
+			for(auto& opcode : section->reloc_opcodes)
+			{
+				static const std::map<offset_t, std::string> opcode_type =
+				{
+					{ RelocOpcode::SmInvalid,       "Invalid" },
+					//{ RelocOpcode::LgInvalid,       "Invalid" },
+					{ RelocOpcode::BySectDWithSkip, "BySectDWithSkip" },
+					{ RelocOpcode::BySectC,         "BySectC" },
+					{ RelocOpcode::BySectD,         "BySectD" },
+					{ RelocOpcode::TVector12,       "TVector12" },
+					{ RelocOpcode::TVector8,        "TVector8" },
+					{ RelocOpcode::VTable8,         "VTable8" },
+					{ RelocOpcode::ImportRun,       "ImportRun" },
+					{ RelocOpcode::SmByImport,      "SmByImport" },
+					{ RelocOpcode::SmSetSectC,      "SmSetSectC" },
+					{ RelocOpcode::SmSetSectD,      "SmSetSectD" },
+					{ RelocOpcode::SmBySection,     "SmBySection" },
+					{ RelocOpcode::IncrPosition,    "IncrPosition" },
+					{ RelocOpcode::SmRepeat,        "SmRepeat" },
+					{ RelocOpcode::SetPosition,     "SetPosition" },
+					{ RelocOpcode::LgByImport,      "LgByImport" },
+					{ RelocOpcode::LgRepeat,        "LgRepeat" },
+					{ RelocOpcode::LgBySection,     "LgBySection" },
+					{ RelocOpcode::LgSetSectC,      "LgSetSectC" },
+					{ RelocOpcode::LgSetSectD,      "LgSetSectD" },
+				};
+				Dumper::Entry reloc_entry("Relocation opcode", opcode_index + 1);
+				reloc_entry.AddField("File offset", Dumper::HexDisplay::Make(8), offset_t(opcode.offset));
+				reloc_entry.AddField("Opcode", Dumper::ChoiceDisplay::Make(opcode_type), offset_t(opcode.opcode));
+				reloc_entry.AddField("Width", Dumper::DecDisplay::Make(), offset_t(opcode.CodeSize()));
+				reloc_entry.AddField("Record", Dumper::HexDisplay::Make(2 * opcode.CodeSize()), offset_t(opcode.GetWord()));
+				switch(opcode.opcode)
+				{
+				case RelocOpcode::BySectDWithSkip:
+					reloc_entry.AddField("Skip", Dumper::HexDisplay::Make(8), offset_t(opcode.value));
+					reloc_entry.AddField("Count", Dumper::DecDisplay::Make(), offset_t(opcode.repeat));
+					break;
+				case RelocOpcode::BySectC:
+				case RelocOpcode::BySectD:
+				case RelocOpcode::TVector12:
+				case RelocOpcode::TVector8:
+				case RelocOpcode::VTable8:
+				case RelocOpcode::ImportRun:
+					reloc_entry.AddField("Count", Dumper::DecDisplay::Make(), offset_t(opcode.repeat));
+					break;
+				case RelocOpcode::SmByImport:
+				case RelocOpcode::SmSetSectC:
+				case RelocOpcode::SmSetSectD:
+				case RelocOpcode::SmBySection:
+					reloc_entry.AddField("Index", Dumper::HexDisplay::Make(4), offset_t(opcode.value));
+					break;
+				case RelocOpcode::IncrPosition:
+					reloc_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(opcode.value));
+					break;
+				case RelocOpcode::SmRepeat:
+				case RelocOpcode::LgRepeat:
+					reloc_entry.AddField("Block count", Dumper::DecDisplay::Make(), offset_t(opcode.value));
+					reloc_entry.AddField("Repeat count", Dumper::DecDisplay::Make(), offset_t(opcode.repeat));
+					break;
+				case RelocOpcode::SetPosition:
+					reloc_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(opcode.value));
+					break;
+				case RelocOpcode::LgByImport:
+				case RelocOpcode::LgBySection:
+				case RelocOpcode::LgSetSectC:
+				case RelocOpcode::LgSetSectD:
+					reloc_entry.AddField("Index", Dumper::HexDisplay::Make(8), offset_t(opcode.value));
+					break;
+				default:
+					break;
+				}
+				reloc_entry.Display(dump);
+
+				opcode_index++;
+			}
+
+			uint32_t reloc_index = 0;
+			for(auto& relocation : section->relocations)
+			{
+				static const std::map<offset_t, std::string> relocation_type =
+				{
+					{ Relocation::Section, "Section" },
+					{ Relocation::Symbol,  "Imported symbol" },
+				};
+				Dumper::Entry reloc_entry("Relocation", reloc_index + 1);
+				reloc_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(relocation.offset));
+				reloc_entry.AddField("Target", Dumper::ChoiceDisplay::Make(relocation_type), offset_t(relocation.type));
+				reloc_entry.AddField(
+					relocation.type == Relocation::Symbol ? "Symbol index" : "Section index", Dumper::DecDisplay::Make(), offset_t(relocation.number));
+
+				if(relocation.type == Relocation::Symbol)
+				{
+					// for symbols, display library and symbol name
+					if(auto symbol = relocation.symbol.lock())
+					{
+						if(auto library = symbol->library.lock())
+						{
+							reloc_entry.AddField("Library", Dumper::StringDisplay::Make("'"), library->name);
+						}
+						reloc_entry.AddField("Symbol", Dumper::StringDisplay::Make("'"), symbol->name);
+					}
+				}
+				reloc_entry.Display(dump);
+
+				reloc_index++;
+			}
+		}
 
 		if(section->section_kind == Section::Loader)
 		{
@@ -918,6 +1380,8 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 
 				library_index ++;
 			}
+			// TODO: print all symbols?
+			// TODO: print all relocation opcodes?
 		}
 
 		// TODO
