@@ -145,6 +145,7 @@ void&#160;</td><td class="memItemRight"><b>ReadRelocations</b> (<a class="el" hr
 void&#160;</td><td class="memItemRight"><b>WriteRelocations</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr, const std::set&lt; uint32_t &gt; &amp;relocations) const</td></tr>
 <tr class="memitem:a07aaedea2ad50f18d20b693cfaff3e14" id="r_a07aaedea2ad50f18d20b693cfaff3e14"><td class="memItemLeft">offset_t&#160;</td><td class="memItemRight"><a class="el" href="#a07aaedea2ad50f18d20b693cfaff3e14">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
 <tr class="memdesc:a07aaedea2ad50f18d20b693cfaff3e14"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
+<tr class="memitem:a559e6a6c3568458f79ea636743e67559" id="r_a559e6a6c3568458f79ea636743e67559"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a559e6a6c3568458f79ea636743e67559">GetDisplayOptions</a> () const override</td></tr>
 <tr class="memitem:ad28e5f379f3807145ccbb2479d899a06" id="r_ad28e5f379f3807145ccbb2479d899a06"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ad28e5f379f3807145ccbb2479d899a06">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, offset_t file_offset) const override</td></tr>
 <tr class="memitem:a75dfefff8dffeee7648ec2210f81f2be" id="r_a75dfefff8dffeee7648ec2210f81f2be"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a75dfefff8dffeee7648ec2210f81f2be">AddFields</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, offset_t file_offset) const override</td></tr>
 <tr class="memitem:af0fce41553531f5856d4e239adbf600a" id="r_af0fce41553531f5856d4e239adbf600a"><td class="memItemLeft">std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#af0fce41553531f5856d4e239adbf600a">CreateRegion</a> (std::string name, offset_t offset, offset_t length, unsigned display_width) const override</td></tr>
@@ -437,6 +438,33 @@ Additional Inherited Members</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>file_offset</em></span>&#160;) const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Reimplemented from <a class="el" href="classApple_1_1ResourceFork_1_1Resource.html">Apple::ResourceFork::Resource</a>.</p>
+
+</div>
+</div>
+<a id="a559e6a6c3568458f79ea636743e67559" name="a559e6a6c3568458f79ea636743e67559"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a559e6a6c3568458f79ea636743e67559">&#9670;&#160;</a></span>GetDisplayOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int ResourceFork::CodeResource::GetDisplayOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
         </tr>
       </table>
   </td>

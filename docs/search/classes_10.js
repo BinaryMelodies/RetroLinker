@@ -1,7 +1,7 @@
 var searchData=
 [
   ['scopedefinitionrecord_0',['ScopeDefinitionRecord',['../classOMF_1_1OMF51Format_1_1ScopeDefinitionRecord.html',1,'OMF::OMF51Format']]],
-  ['section_1',['Section',['../classCOFF_1_1COFFFormat_1_1Section.html',1,'COFF::COFFFormat::Section'],['../classELF_1_1ELFFormat_1_1Section.html',1,'ELF::ELFFormat::Section'],['../classLinker_1_1Section.html',1,'Linker::Section'],['../classMachO_1_1MachOFormat_1_1Section.html',1,'MachO::MachOFormat::Section'],['../classMicrosoft_1_1PEFormat_1_1Section.html',1,'Microsoft::PEFormat::Section']]],
+  ['section_1',['Section',['../classApple_1_1PEFFormat_1_1Section.html',1,'Apple::PEFFormat::Section'],['../classCOFF_1_1COFFFormat_1_1Section.html',1,'COFF::COFFFormat::Section'],['../classELF_1_1ELFFormat_1_1Section.html',1,'ELF::ELFFormat::Section'],['../classLinker_1_1Section.html',1,'Linker::Section'],['../classMachO_1_1MachOFormat_1_1Section.html',1,'MachO::MachOFormat::Section'],['../classMicrosoft_1_1PEFormat_1_1Section.html',1,'Microsoft::PEFormat::Section']]],
   ['sectionauxiliaryentry_2',['SectionAuxiliaryEntry',['../classCOFF_1_1COFFFormat_1_1Symbol_1_1SectionAuxiliaryEntry.html',1,'COFF::COFFFormat::Symbol']]],
   ['sectioncontents_3',['SectionContents',['../classELF_1_1ELFFormat_1_1SectionContents.html',1,'ELF::ELFFormat']]],
   ['sectioneddisplay_4',['SectionedDisplay',['../classDumper_1_1SectionedDisplay.html',1,'Dumper']]],

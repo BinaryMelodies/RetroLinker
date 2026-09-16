@@ -158,8 +158,8 @@ template&lt;typename D, typename ... Ts&gt; </td></tr>
 <tr class="memitem:a5b143216ef93616afd170113ea9fcfcf" id="r_a5b143216ef93616afd170113ea9fcfcf"><td class="memTemplParams" colspan="2"><a id="a5b143216ef93616afd170113ea9fcfcf" name="a5b143216ef93616afd170113ea9fcfcf"></a>
 template&lt;typename D, typename ... Ts&gt; </td></tr>
 <tr class="memitem:a5b143216ef93616afd170113ea9fcfcf template"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><b>InsertHiddenField</b> (size_t index, std::string label, std::shared_ptr&lt; D &gt; display, Ts... values)</td></tr>
-<tr class="memitem:a2cb191a753ad97ea07af0b2269c408df" id="r_a2cb191a753ad97ea07af0b2269c408df"><td class="memItemLeft"><a id="a2cb191a753ad97ea07af0b2269c408df" name="a2cb191a753ad97ea07af0b2269c408df"></a>
-virtual void&#160;</td><td class="memItemRight"><b>Display</b> (<a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;dump)</td></tr>
+<tr class="memitem:a14512cd24be483b84fcca28794545293" id="r_a14512cd24be483b84fcca28794545293"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a14512cd24be483b84fcca28794545293">Display</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;dump, int options)</td></tr>
+<tr class="memdesc:a14512cd24be483b84fcca28794545293"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes information onto the dumper.  <br /></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -172,7 +172,48 @@ std::vector&lt; std::shared_ptr&lt; <a class="el" href="classDumper_1_1Field.htm
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>A record whose values should be displayed together, as a collection. </p>
-</div><hr/>The documentation for this class was generated from the following files:<ul>
+</div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="a14512cd24be483b84fcca28794545293" name="a14512cd24be483b84fcca28794545293"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14512cd24be483b84fcca28794545293">&#9670;&#160;</a></span>Display()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void Container::Display </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>options</em></span>&#160;)</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Passes information onto the dumper. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dump</td><td>The dumper object </td></tr>
+    <tr><td class="paramname">options</td><td>Flags that let the dumper filter for which information should be displayed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented in <a class="el" href="classDumper_1_1Block.html#a9a9ba03369fd3c47784e7068c9eda5fd">Dumper::Block</a>, and <a class="el" href="classDumper_1_1Entry.html#a892c653a28573d38eda1928a011ae908">Dumper::Entry</a>.</p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
 <li>src/dumper/<a class="el" href="dumper_8h_source.html">dumper.h</a></li>
 <li>src/dumper/<b>dumper.cc</b></li>
 </ul>

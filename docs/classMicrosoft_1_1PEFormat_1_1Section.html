@@ -121,11 +121,12 @@ Inheritance diagram for Microsoft::PEFormat::Section:</div>
  <div class="center">
   <img src="classMicrosoft_1_1PEFormat_1_1Section.png" usemap="#Microsoft_3A_3APEFormat_3A_3ASection_map" alt=""/>
   <map id="Microsoft_3A_3APEFormat_3A_3ASection_map" name="Microsoft_3A_3APEFormat_3A_3ASection_map">
-<area href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section." alt="COFF::COFFFormat::Section" shape="rect" coords="415,0,682,24"/>
+<area href="classCOFF_1_1COFFFormat_1_1Section.html" title="A COFF section." alt="COFF::COFFFormat::Section" shape="rect" coords="554,0,821,24"/>
 <area href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html" title="Represents a .reloc section for the base relocations for the binary." alt="Microsoft::PEFormat::BaseRelocationsSection" shape="rect" coords="0,112,267,136"/>
-<area href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html" title="Represents an .edata section for the exported entries in the binary." alt="Microsoft::PEFormat::ExportsSection" shape="rect" coords="277,112,544,136"/>
-<area href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html" title="Represents an .idata section for imported DLLs in the binary." alt="Microsoft::PEFormat::ImportsSection" shape="rect" coords="554,112,821,136"/>
-<area href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html" title="Represents an .rsrc resource section in the binary." alt="Microsoft::PEFormat::ResourcesSection" shape="rect" coords="831,112,1098,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1CLRHeaderSection.html" alt="Microsoft::PEFormat::CLRHeaderSection" shape="rect" coords="277,112,544,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html" title="Represents an .edata section for the exported entries in the binary." alt="Microsoft::PEFormat::ExportsSection" shape="rect" coords="554,112,821,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html" title="Represents an .idata section for imported DLLs in the binary." alt="Microsoft::PEFormat::ImportsSection" shape="rect" coords="831,112,1098,136"/>
+<area href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html" title="Represents an .rsrc resource section in the binary." alt="Microsoft::PEFormat::ResourcesSection" shape="rect" coords="1108,112,1375,136"/>
   </map>
 </div></div>
 <table class="memberdecls">
@@ -280,7 +281,7 @@ std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_
 
 <p>Retrieves the size of the section, as stored in the file. </p>
 
-<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#a87ee9bc788f6a5b9d4d3a4fc0e4f04b5">Microsoft::PEFormat::BaseRelocationsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#acc098a8eb954a9802805c363c1f9bbd3">Microsoft::PEFormat::ExportsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#a5d2b8b34bf1ad7079f056c65d8141a82">Microsoft::PEFormat::ImportsSection</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#ad672b3139348cefe878430a148233c61">Microsoft::PEFormat::ResourcesSection</a>.</p>
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#a87ee9bc788f6a5b9d4d3a4fc0e4f04b5">Microsoft::PEFormat::BaseRelocationsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1CLRHeaderSection.html#a33b3e4edc57ef10e2242ff1dd1e8fc9c">Microsoft::PEFormat::CLRHeaderSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#acc098a8eb954a9802805c363c1f9bbd3">Microsoft::PEFormat::ExportsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#a5d2b8b34bf1ad7079f056c65d8141a82">Microsoft::PEFormat::ImportsSection</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#ad672b3139348cefe878430a148233c61">Microsoft::PEFormat::ResourcesSection</a>.</p>
 
 </div>
 </div>
@@ -309,7 +310,7 @@ std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_
 
 <p>Retrieves the size of the section, as loaded into memory. </p>
 
-<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#a150cf9e51c498fb5dba4c8ca50bd4514">Microsoft::PEFormat::BaseRelocationsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#a2e61f401c34524abc88eed62f67f63a7">Microsoft::PEFormat::ExportsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#a68be326e576f282c4111423e9e554f98">Microsoft::PEFormat::ImportsSection</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#a805e2d1bf7088288dd85b80ce976298e">Microsoft::PEFormat::ResourcesSection</a>.</p>
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#a150cf9e51c498fb5dba4c8ca50bd4514">Microsoft::PEFormat::BaseRelocationsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1CLRHeaderSection.html#a5933c071ccb20d13f599a637ed3f2eec">Microsoft::PEFormat::CLRHeaderSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#a2e61f401c34524abc88eed62f67f63a7">Microsoft::PEFormat::ExportsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#a68be326e576f282c4111423e9e554f98">Microsoft::PEFormat::ImportsSection</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#a805e2d1bf7088288dd85b80ce976298e">Microsoft::PEFormat::ResourcesSection</a>.</p>
 
 </div>
 </div>
@@ -342,7 +343,7 @@ std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_
 
 <p>Reads the contents of the section in the file. </p>
 
-<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#a48deedf0940ae0333d5e4ff6893588f4">Microsoft::PEFormat::BaseRelocationsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#a7b3a94d94c605c9ea27f7f0b32f6f469">Microsoft::PEFormat::ExportsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#a5da51ac7afba14ed46d594aca0a355ff">Microsoft::PEFormat::ImportsSection</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#a452d2911c2ad8568386dfdbceb391cf9">Microsoft::PEFormat::ResourcesSection</a>.</p>
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#a48deedf0940ae0333d5e4ff6893588f4">Microsoft::PEFormat::BaseRelocationsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1CLRHeaderSection.html#acf84a41ad3dabd385ad4d0dadccbf600">Microsoft::PEFormat::CLRHeaderSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#a7b3a94d94c605c9ea27f7f0b32f6f469">Microsoft::PEFormat::ExportsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#a5da51ac7afba14ed46d594aca0a355ff">Microsoft::PEFormat::ImportsSection</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#a452d2911c2ad8568386dfdbceb391cf9">Microsoft::PEFormat::ResourcesSection</a>.</p>
 
 </div>
 </div>
@@ -375,7 +376,7 @@ std::vector&lt; std::unique_ptr&lt; <a class="el" href="classCOFF_1_1COFFFormat_
 
 <p>Writes the contents of the section to the file. </p>
 
-<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#a6f589ff7693c00357489c720eca40745">Microsoft::PEFormat::BaseRelocationsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#a025b5b1672dc5e594afda20dc61df5d4">Microsoft::PEFormat::ExportsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#a7a5f09bf640ac178d17757fc7cc18aa2">Microsoft::PEFormat::ImportsSection</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#a3c017d2f0f816adada4c21e1c42f87a6">Microsoft::PEFormat::ResourcesSection</a>.</p>
+<p>Reimplemented in <a class="el" href="classMicrosoft_1_1PEFormat_1_1BaseRelocationsSection.html#a6f589ff7693c00357489c720eca40745">Microsoft::PEFormat::BaseRelocationsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1CLRHeaderSection.html#a604f69f9c4d4871db7c8118ed0247ece">Microsoft::PEFormat::CLRHeaderSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ExportsSection.html#a025b5b1672dc5e594afda20dc61df5d4">Microsoft::PEFormat::ExportsSection</a>, <a class="el" href="classMicrosoft_1_1PEFormat_1_1ImportsSection.html#a7a5f09bf640ac178d17757fc7cc18aa2">Microsoft::PEFormat::ImportsSection</a>, and <a class="el" href="classMicrosoft_1_1PEFormat_1_1ResourcesSection.html#a3c017d2f0f816adada4c21e1c42f87a6">Microsoft::PEFormat::ResourcesSection</a>.</p>
 
 </div>
 </div>

@@ -134,7 +134,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a1f3148ed13be3968248a671615b4332f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add a relocation inside the image block.  <br /></td></tr>
 <tr class="memitem:a8476637b79b680b087f892df44f88ed3" id="r_a8476637b79b680b087f892df44f88ed3"><td class="memItemLeft"><a id="a8476637b79b680b087f892df44f88ed3" name="a8476637b79b680b087f892df44f88ed3"></a>
 &#160;</td><td class="memItemRight"><b>Block</b> (std::string name, offset_t offset, std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Linker::Image</a> &gt; image, offset_t address, unsigned display_width, unsigned offset_display_width=8, unsigned address_display_width=-1u, unsigned position_display_width=-1u)</td></tr>
-<tr class="memitem:aa623280d070cb78ac95cb3e4f3741463" id="r_aa623280d070cb78ac95cb3e4f3741463"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa623280d070cb78ac95cb3e4f3741463">Display</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;dump) override</td></tr>
+<tr class="memitem:a9a9ba03369fd3c47784e7068c9eda5fd" id="r_a9a9ba03369fd3c47784e7068c9eda5fd"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a9a9ba03369fd3c47784e7068c9eda5fd">Display</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;dump, int options) override</td></tr>
+<tr class="memdesc:a9a9ba03369fd3c47784e7068c9eda5fd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Passes information onto the dumper.  <br /></td></tr>
 <tr class="inherit_header pub_methods_classDumper_1_1Region"><td colspan="2">Public Member Functions inherited from <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a></td></tr>
 <tr class="memitem:a2a10352bb4c5cf4a28163ac0581e15b1 pub_methods_classDumper_1_1Region" id="r_a2a10352bb4c5cf4a28163ac0581e15b1"><td class="memItemLeft">
 &#160;</td><td class="memItemRight"><b>Region</b> (std::string name, offset_t offset, offset_t length, unsigned display_width)</td></tr>
@@ -262,8 +263,8 @@ static <a class="el" href="classDumper_1_1UTF32Encoding.html">UTF32Encoding</a>&
 
 </div>
 </div>
-<a id="aa623280d070cb78ac95cb3e4f3741463" name="aa623280d070cb78ac95cb3e4f3741463"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa623280d070cb78ac95cb3e4f3741463">&#9670;&#160;</a></span>Display()</h2>
+<a id="a9a9ba03369fd3c47784e7068c9eda5fd" name="a9a9ba03369fd3c47784e7068c9eda5fd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a9ba03369fd3c47784e7068c9eda5fd">&#9670;&#160;</a></span>Display()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -274,8 +275,12 @@ static <a class="el" href="classDumper_1_1UTF32Encoding.html">UTF32Encoding</a>&
         <tr>
           <td class="memname">void Block::Display </td>
           <td>(</td>
-          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span></td><td>)</td>
+          <td class="paramtype"><a class="el" href="classDumper_1_1Dumper.html">Dumper</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>dump</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>options</em></span>&#160;)</td>
         </tr>
       </table>
   </td>
@@ -285,7 +290,16 @@ static <a class="el" href="classDumper_1_1UTF32Encoding.html">UTF32Encoding</a>&
 </table>
 </div><div class="memdoc">
 
-<p>Reimplemented from <a class="el" href="classDumper_1_1Container.html">Dumper::Container</a>.</p>
+<p>Passes information onto the dumper. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">dump</td><td>The dumper object </td></tr>
+    <tr><td class="paramname">options</td><td>Flags that let the dumper filter for which information should be displayed </td></tr>
+  </table>
+  </dd>
+</dl>
+
+<p>Reimplemented from <a class="el" href="classDumper_1_1Container.html#a14512cd24be483b84fcca28794545293">Dumper::Container</a>.</p>
 
 </div>
 </div>

@@ -146,6 +146,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a2a669cff8680fb815f7396a38cf79356"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills the contents of this object.  <br /></td></tr>
 <tr class="memitem:af5ea7c794df4c776ca22327d9ceda95d" id="r_af5ea7c794df4c776ca22327d9ceda95d"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#af5ea7c794df4c776ca22327d9ceda95d">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
 <tr class="memdesc:af5ea7c794df4c776ca22327d9ceda95d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the contents of the block to the file, including the type and length fields.  <br /></td></tr>
+<tr class="memitem:ac5ab2cc4f40e41a5e5b34327dda4e781" id="r_ac5ab2cc4f40e41a5e5b34327dda4e781"><td class="memItemLeft">virtual int&#160;</td><td class="memItemRight"><a class="el" href="#ac5ab2cc4f40e41a5e5b34327dda4e781">GetDisplayOptions</a> () const</td></tr>
+<tr class="memdesc:ac5ab2cc4f40e41a5e5b34327dda4e781"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filters for display.  <br /></td></tr>
 <tr class="memitem:a32e2763b7534c726c29a4b9de720100a" id="r_a32e2763b7534c726c29a4b9de720100a"><td class="memItemLeft">virtual std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#a32e2763b7534c726c29a4b9de720100a">MakeRegion</a> (std::string name, offset_t offset, unsigned display_width) const</td></tr>
 <tr class="memdesc:a32e2763b7534c726c29a4b9de720100a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a region for displaying the block contents.  <br /></td></tr>
 <tr class="memitem:a2ea6e34409f592f0871c62a4633738a7" id="r_a2ea6e34409f592f0871c62a4633738a7"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a2ea6e34409f592f0871c62a4633738a7">AddFields</a> (<a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, const CMDFormat &amp;module) const</td></tr>
@@ -268,6 +270,35 @@ Public Attributes</h2></td></tr>
 <p>Display block specific contents. </p>
 
 <p>Reimplemented in <a class="el" href="classPCOS_1_1CMDFormat_1_1RelocationBlock.html#a33f2a199a650d6e5586ba1a31661779a">PCOS::CMDFormat::RelocationBlock</a>.</p>
+
+</div>
+</div>
+<a id="ac5ab2cc4f40e41a5e5b34327dda4e781" name="ac5ab2cc4f40e41a5e5b34327dda4e781"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac5ab2cc4f40e41a5e5b34327dda4e781">&#9670;&#160;</a></span>GetDisplayOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int CMDFormat::MemoryBlock::GetDisplayOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Filters for display. </p>
+
+<p>Reimplemented in <a class="el" href="classPCOS_1_1CMDFormat_1_1LoadBlock.html#ac4c277aaf54cdb18e980855f53069ee8">PCOS::CMDFormat::LoadBlock</a>, and <a class="el" href="classPCOS_1_1CMDFormat_1_1RelocationBlock.html#a6f852cd9814c060616aad2930bb66a6e">PCOS::CMDFormat::RelocationBlock</a>.</p>
 
 </div>
 </div>

@@ -184,8 +184,8 @@ Public Member Functions</h2></td></tr>
 virtual void&#160;</td><td class="memItemRight"><b>ReadFile</b> (<a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
 <tr class="memitem:ad6c18d2adbea6efdc180a942edc68df4" id="r_ad6c18d2adbea6efdc180a942edc68df4"><td class="memItemLeft"><a id="ad6c18d2adbea6efdc180a942edc68df4" name="ad6c18d2adbea6efdc180a942edc68df4"></a>
 virtual void&#160;</td><td class="memItemRight"><b>WriteFile</b> (const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, <a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
-<tr class="memitem:a26676b280531a67d336b29baeb3a9cc6" id="r_a26676b280531a67d336b29baeb3a9cc6"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a26676b280531a67d336b29baeb3a9cc6">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classApple_1_1OMFFormat.html">OMFFormat</a> &amp;omf, const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, unsigned index, offset_t file_offset, offset_t address) const</td></tr>
-<tr class="memdesc:a26676b280531a67d336b29baeb3a9cc6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays information pertaining to this record.  <br /></td></tr>
+<tr class="memitem:a6db863f518bbdbf7cce3bba4d3af3009" id="r_a6db863f518bbdbf7cce3bba4d3af3009"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a6db863f518bbdbf7cce3bba4d3af3009">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, const <a class="el" href="classApple_1_1OMFFormat.html">OMFFormat</a> &amp;omf, const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, unsigned index, offset_t file_offset, offset_t address, int display_options=Dumper::None) const</td></tr>
+<tr class="memdesc:a6db863f518bbdbf7cce3bba4d3af3009"><td class="mdescLeft">&#160;</td><td class="mdescRight">Displays information pertaining to this record.  <br /></td></tr>
 <tr class="memitem:a46c22c733d9d996709b35abb1acb3f46" id="r_a46c22c733d9d996709b35abb1acb3f46"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a46c22c733d9d996709b35abb1acb3f46">AddFields</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump, <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, const <a class="el" href="classApple_1_1OMFFormat.html">OMFFormat</a> &amp;omf, const <a class="el" href="classApple_1_1OMFFormat_1_1Segment.html">Segment</a> &amp;segment, unsigned index, offset_t file_offset, offset_t address) const</td></tr>
 <tr class="memdesc:a46c22c733d9d996709b35abb1acb3f46"><td class="mdescLeft">&#160;</td><td class="mdescRight">Adds any further fields to the file region that encompasses this record.  <br /></td></tr>
 <tr class="memitem:a533d38a87659f02ae569a434f7e6d72c" id="r_a533d38a87659f02ae569a434f7e6d72c"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="#a533d38a87659f02ae569a434f7e6d72c">AddSignals</a> (<a class="el" href="classDumper_1_1Block.html">Dumper::Block</a> &amp;block, offset_t current_segment_offset) const</td></tr>
@@ -292,8 +292,8 @@ record_type&#160;</td><td class="memItemRight"><b>type</b></td></tr>
 
 </div>
 </div>
-<a id="a26676b280531a67d336b29baeb3a9cc6" name="a26676b280531a67d336b29baeb3a9cc6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a26676b280531a67d336b29baeb3a9cc6">&#9670;&#160;</a></span>Dump()</h2>
+<a id="a6db863f518bbdbf7cce3bba4d3af3009" name="a6db863f518bbdbf7cce3bba4d3af3009"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6db863f518bbdbf7cce3bba4d3af3009">&#9670;&#160;</a></span>Dump()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -329,7 +329,12 @@ record_type&#160;</td><td class="memItemRight"><b>type</b></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>address</em></span>&#160;) const</td>
+          <td class="paramtype">offset_t</td>          <td class="paramname"><span class="paramname"><em>address</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>display_options</em></span><span class="paramdefsep"> = </span><span class="paramdefval">Dumper::None</span>&#160;) const</td>
         </tr>
       </table>
   </td>
@@ -348,11 +353,12 @@ record_type&#160;</td><td class="memItemRight"><b>type</b></td></tr>
     <tr><td class="paramname">index</td><td>0-based index of the record within the segment </td></tr>
     <tr><td class="paramname">file_offset</td><td>Full file offset, including segment start offset, that this record starts at </td></tr>
     <tr><td class="paramname">address</td><td>The current memory pointer when this record is interpreted </td></tr>
+    <tr><td class="paramname">display_options</td><td>Flags for filtering what gets displayed </td></tr>
   </table>
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1DataRecord.html#a5254d2b5aa1835e5e3c385ca4ce54a54">Apple::OMFFormat::Segment::DataRecord</a>, and <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1SuperCompactRecord.html#a4fb82ba49daabd6c860fa4e042bafc17">Apple::OMFFormat::Segment::SuperCompactRecord</a>.</p>
+<p>Reimplemented in <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1DataRecord.html#af2aa40fb684b3773f366f4334c3428da">Apple::OMFFormat::Segment::DataRecord</a>, and <a class="el" href="classApple_1_1OMFFormat_1_1Segment_1_1SuperCompactRecord.html#aaa5b087bb448fcb5f976b1cb276fdd57">Apple::OMFFormat::Segment::SuperCompactRecord</a>.</p>
 
 </div>
 </div>

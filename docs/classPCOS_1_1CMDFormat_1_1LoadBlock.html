@@ -128,6 +128,8 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a3a9cb2c4125f27b7a5c49cd2ec1f6def"><td class="mdescLeft">&#160;</td><td class="mdescRight">Fills the contents of this object.  <br /></td></tr>
 <tr class="memitem:a2b27d709c7d3f297efb1d070af31559e" id="r_a2b27d709c7d3f297efb1d070af31559e"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a2b27d709c7d3f297efb1d070af31559e">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
 <tr class="memdesc:a2b27d709c7d3f297efb1d070af31559e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Writes the contents of the block to the file, including the type and length fields.  <br /></td></tr>
+<tr class="memitem:ac4c277aaf54cdb18e980855f53069ee8" id="r_ac4c277aaf54cdb18e980855f53069ee8"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#ac4c277aaf54cdb18e980855f53069ee8">GetDisplayOptions</a> () const override</td></tr>
+<tr class="memdesc:ac4c277aaf54cdb18e980855f53069ee8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Filters for display.  <br /></td></tr>
 <tr class="memitem:aa9266a8701775ffd1da9991340e95dfa" id="r_aa9266a8701775ffd1da9991340e95dfa"><td class="memItemLeft">std::unique_ptr&lt; <a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &gt;&#160;</td><td class="memItemRight"><a class="el" href="#aa9266a8701775ffd1da9991340e95dfa">MakeRegion</a> (std::string name, offset_t offset, unsigned display_width) const override</td></tr>
 <tr class="memdesc:aa9266a8701775ffd1da9991340e95dfa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a region for displaying the block contents.  <br /></td></tr>
 <tr class="memitem:aa012812f876e6e6f7e431f7a04f8d2f4" id="r_aa012812f876e6e6f7e431f7a04f8d2f4"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#aa012812f876e6e6f7e431f7a04f8d2f4">AddFields</a> (<a class="el" href="classDumper_1_1Region.html">Dumper::Region</a> &amp;region, const CMDFormat &amp;module) const override</td></tr>
@@ -199,6 +201,35 @@ static std::unique_ptr&lt; MemoryBlock &gt;&#160;</td><td class="memItemRight"><
 <p>Adds block specific fields. </p>
 
 <p>Reimplemented from <a class="el" href="classPCOS_1_1CMDFormat_1_1MemoryBlock.html#a2ea6e34409f592f0871c62a4633738a7">PCOS::CMDFormat::MemoryBlock</a>.</p>
+
+</div>
+</div>
+<a id="ac4c277aaf54cdb18e980855f53069ee8" name="ac4c277aaf54cdb18e980855f53069ee8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac4c277aaf54cdb18e980855f53069ee8">&#9670;&#160;</a></span>GetDisplayOptions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int CMDFormat::LoadBlock::GetDisplayOptions </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Filters for display. </p>
+
+<p>Reimplemented from <a class="el" href="classPCOS_1_1CMDFormat_1_1MemoryBlock.html#ac5ab2cc4f40e41a5e5b34327dda4e781">PCOS::CMDFormat::MemoryBlock</a>.</p>
 
 </div>
 </div>

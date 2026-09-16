@@ -104,7 +104,11 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="doc-content">
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Classes</a> &#124;
+<a href="#pub-types">Public Types</a> &#124;
 <a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pub-static-attribs">Static Public Attributes</a> &#124;
 <a href="classApple_1_1PEFFormat-members.html">List of all members</a>  </div>
   <div class="headertitle"><div class="title">Apple::PEFFormat Class Reference</div></div>
 </div><!--header-->
@@ -127,10 +131,73 @@ Inheritance diagram for Apple::PEFFormat:</div>
   </map>
 </div></div>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-nested-classes" class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Classes</h2></td></tr>
+<tr class="memitem:PatternInitialization" id="r_PatternInitialization"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classApple_1_1PEFFormat_1_1PatternInitialization.html">PatternInitialization</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Pattern initialization data.  <a href="classApple_1_1PEFFormat_1_1PatternInitialization.html#details">More...</a><br /></td></tr>
+<tr class="memitem:Relocation" id="r_Relocation"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classApple_1_1PEFFormat_1_1Relocation.html">Relocation</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a single relocated 32-bit word in memory.  <a href="classApple_1_1PEFFormat_1_1Relocation.html#details">More...</a><br /></td></tr>
+<tr class="memitem:RelocationProcessor" id="r_RelocationProcessor"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classApple_1_1PEFFormat_1_1RelocationProcessor.html">RelocationProcessor</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">A representation of a state machine that generates the actual relocations using the relocation data in a file.  <a href="classApple_1_1PEFFormat_1_1RelocationProcessor.html#details">More...</a><br /></td></tr>
+<tr class="memitem:RelocOpcode" id="r_RelocOpcode"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classApple_1_1PEFFormat_1_1RelocOpcode.html">RelocOpcode</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a single 16-bit or 32-bit opcode that encodes relocations.  <a href="classApple_1_1PEFFormat_1_1RelocOpcode.html#details">More...</a><br /></td></tr>
+<tr class="memitem:Section" id="r_Section"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classApple_1_1PEFFormat_1_1Section.html">Section</a></td></tr>
+<tr class="memitem:Reference" id="r_Reference"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structApple_1_1PEFFormat_1_1Reference.html">Reference</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a reference to some data, stored as an offset into a section pair.  <a href="structApple_1_1PEFFormat_1_1Reference.html#details">More...</a><br /></td></tr>
+<tr class="memitem:Name" id="r_Name"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classApple_1_1PEFFormat_1_1Name.html">Name</a></td></tr>
+<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Represents a string stored in the loader section string table.  <a href="classApple_1_1PEFFormat_1_1Name.html#details">More...</a><br /></td></tr>
+<tr class="memitem:ImportedSymbol" id="r_ImportedSymbol"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classApple_1_1PEFFormat_1_1ImportedSymbol.html">ImportedSymbol</a></td></tr>
+<tr class="memitem:ImportedLibrary" id="r_ImportedLibrary"><td class="memItemLeft">class &#160;</td><td class="memItemRight"><a class="el" href="classApple_1_1PEFFormat_1_1ImportedLibrary.html">ImportedLibrary</a></td></tr>
+<tr class="memitem:HashTableEntry" id="r_HashTableEntry"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structApple_1_1PEFFormat_1_1HashTableEntry.html">HashTableEntry</a></td></tr>
+<tr class="memitem:ExportedSymbol" id="r_ExportedSymbol"><td class="memItemLeft">struct &#160;</td><td class="memItemRight"><a class="el" href="structApple_1_1PEFFormat_1_1ExportedSymbol.html">ExportedSymbol</a></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-types" class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:acf340cdfec2bc09d9ed1b99a48f94824" id="r_acf340cdfec2bc09d9ed1b99a48f94824"><td class="memItemLeft"><a id="acf340cdfec2bc09d9ed1b99a48f94824" name="acf340cdfec2bc09d9ed1b99a48f94824"></a>enum &#160;</td><td class="memItemRight"><b>cpu_type</b> { <b>M68K</b> = 0x6D36386B
+, <b>PPC</b> = 0x70777063
+ }</td></tr>
+<tr class="memitem:a3d47498b94a9793697b277e6aa083fe2" id="r_a3d47498b94a9793697b277e6aa083fe2"><td class="memItemLeft"><a id="a3d47498b94a9793697b277e6aa083fe2" name="a3d47498b94a9793697b277e6aa083fe2"></a>enum &#160;</td><td class="memItemRight"><b>symbol_class_type</b> { <br />
+&#160;&#160;<b>Code</b>
+, <b>Data</b>
+, <b>TVect</b>
+, <b>TOC</b>
+, <br />
+&#160;&#160;<b>Glue</b>
+<br />
+ }</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-methods" class="groupheader"><a id="pub-methods" name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
+<tr class="memitem:aba43222d2bce06046bd1ddb40b6eca68" id="r_aba43222d2bce06046bd1ddb40b6eca68"><td class="memItemLeft"><a id="aba43222d2bce06046bd1ddb40b6eca68" name="aba43222d2bce06046bd1ddb40b6eca68"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetSectionNameTableOffset</b> () const</td></tr>
+<tr class="memitem:a879bf631e7369ee2a28b3028e644e15e" id="r_a879bf631e7369ee2a28b3028e644e15e"><td class="memItemLeft"><a id="a879bf631e7369ee2a28b3028e644e15e" name="a879bf631e7369ee2a28b3028e644e15e"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetLibraryDescriptionsSize</b> () const</td></tr>
+<tr class="memitem:a5fea19b5d66c94d2879ae248dc4c7105" id="r_a5fea19b5d66c94d2879ae248dc4c7105"><td class="memItemLeft"><a id="a5fea19b5d66c94d2879ae248dc4c7105" name="a5fea19b5d66c94d2879ae248dc4c7105"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetSymbolTablesSize</b> () const</td></tr>
+<tr class="memitem:a3bd13edf4da11a41d51151575d8936c3" id="r_a3bd13edf4da11a41d51151575d8936c3"><td class="memItemLeft"><a id="a3bd13edf4da11a41d51151575d8936c3" name="a3bd13edf4da11a41d51151575d8936c3"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetRelocationHeadersSize</b> () const</td></tr>
+<tr class="memitem:a8dbbea16cc296893e4bed6171fd109bd" id="r_a8dbbea16cc296893e4bed6171fd109bd"><td class="memItemLeft"><a id="a8dbbea16cc296893e4bed6171fd109bd" name="a8dbbea16cc296893e4bed6171fd109bd"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetRelocationAreaSize</b> () const</td></tr>
+<tr class="memitem:aa207e7a6dcb35304ed57302a0ed48014" id="r_aa207e7a6dcb35304ed57302a0ed48014"><td class="memItemLeft"><a id="aa207e7a6dcb35304ed57302a0ed48014" name="aa207e7a6dcb35304ed57302a0ed48014"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetLoaderStringAreaSize</b> () const</td></tr>
+<tr class="memitem:a0367c313917a065b38d3d5f2365371b1" id="r_a0367c313917a065b38d3d5f2365371b1"><td class="memItemLeft"><a id="a0367c313917a065b38d3d5f2365371b1" name="a0367c313917a065b38d3d5f2365371b1"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetExportHashTableSize</b> () const</td></tr>
+<tr class="memitem:af8abeb0c24f4357e6c172291f9a8c194" id="r_af8abeb0c24f4357e6c172291f9a8c194"><td class="memItemLeft"><a id="af8abeb0c24f4357e6c172291f9a8c194" name="af8abeb0c24f4357e6c172291f9a8c194"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetExportKeyTableSize</b> () const</td></tr>
+<tr class="memitem:a3c2e9e60f10ac95e454d2cc7f4d9cee3" id="r_a3c2e9e60f10ac95e454d2cc7f4d9cee3"><td class="memItemLeft"><a id="a3c2e9e60f10ac95e454d2cc7f4d9cee3" name="a3c2e9e60f10ac95e454d2cc7f4d9cee3"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetExportSymbolTableSize</b> () const</td></tr>
+<tr class="memitem:a9048574fc170622ed36d667a9fc2d79d" id="r_a9048574fc170622ed36d667a9fc2d79d"><td class="memItemLeft"><a id="a9048574fc170622ed36d667a9fc2d79d" name="a9048574fc170622ed36d667a9fc2d79d"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetMinimumRelocInstrOffset</b> () const</td></tr>
+<tr class="memitem:a05cfe16cb44b9d275bb0df3160027107" id="r_a05cfe16cb44b9d275bb0df3160027107"><td class="memItemLeft"><a id="a05cfe16cb44b9d275bb0df3160027107" name="a05cfe16cb44b9d275bb0df3160027107"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>GetLoaderSectionSize</b> () const</td></tr>
+<tr class="memitem:a5255dd035b9876bd530734941135163e" id="r_a5255dd035b9876bd530734941135163e"><td class="memItemLeft"><a id="a5255dd035b9876bd530734941135163e" name="a5255dd035b9876bd530734941135163e"></a>
+void&#160;</td><td class="memItemRight"><b>ReadLoaderSection</b> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd)</td></tr>
+<tr class="memitem:a8653ed1b2f6eb9ddf35864a28e77ab29" id="r_a8653ed1b2f6eb9ddf35864a28e77ab29"><td class="memItemLeft"><a id="a8653ed1b2f6eb9ddf35864a28e77ab29" name="a8653ed1b2f6eb9ddf35864a28e77ab29"></a>
+void&#160;</td><td class="memItemRight"><b>WriteLoaderSection</b> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const</td></tr>
 <tr class="memitem:ac2afe6e4739d901bf05310a513b9ce29" id="r_ac2afe6e4739d901bf05310a513b9ce29"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ac2afe6e4739d901bf05310a513b9ce29">ReadFile</a> (<a class="el" href="classLinker_1_1Reader.html">Linker::Reader</a> &amp;rd) override</td></tr>
 <tr class="memdesc:ac2afe6e4739d901bf05310a513b9ce29"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads file into memory.  <br /></td></tr>
+<tr class="memitem:af313d6c10d24eb89884e17109f95df5c" id="r_af313d6c10d24eb89884e17109f95df5c"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#af313d6c10d24eb89884e17109f95df5c">CalculateValues</a> () override</td></tr>
+<tr class="memdesc:af313d6c10d24eb89884e17109f95df5c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="memitem:ab40e3b4296ef2f965df4244e32df2943" id="r_ab40e3b4296ef2f965df4244e32df2943"><td class="memItemLeft">offset_t&#160;</td><td class="memItemRight"><a class="el" href="#ab40e3b4296ef2f965df4244e32df2943">WriteFile</a> (<a class="el" href="classLinker_1_1Writer.html">Linker::Writer</a> &amp;wr) const override</td></tr>
 <tr class="memdesc:ab40e3b4296ef2f965df4244e32df2943"><td class="mdescLeft">&#160;</td><td class="mdescRight">Stores data in memory to file.  <br /></td></tr>
 <tr class="memitem:ac19028ce5498cee3264694e7caf287e4" id="r_ac19028ce5498cee3264694e7caf287e4"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#ac19028ce5498cee3264694e7caf287e4">Dump</a> (<a class="el" href="classDumper_1_1Dumper.html">Dumper::Dumper</a> &amp;dump) const override</td></tr>
@@ -215,8 +282,6 @@ std::optional&lt; offset_t &gt;&#160;</td><td class="memItemRight"><b>FetchInteg
 <tr class="memdesc:ade72610728318b9d106b3276bab836e0 pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the way memory is organized, typically modifying a built-in script.  <br /></td></tr>
 <tr class="memitem:a35dab761c545930c266365344057a665 pub_methods_classLinker_1_1OutputFormat" id="r_a35dab761c545930c266365344057a665"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="classLinker_1_1OutputFormat.html#a35dab761c545930c266365344057a665">ProcessModule</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;object)</td></tr>
 <tr class="memdesc:a35dab761c545930c266365344057a665 pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Processes the module object and initializes format fields.  <br /></td></tr>
-<tr class="memitem:ae63d979e5fa85a76ffe06ac613b6ec27 pub_methods_classLinker_1_1OutputFormat" id="r_ae63d979e5fa85a76ffe06ac613b6ec27"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="classLinker_1_1OutputFormat.html#ae63d979e5fa85a76ffe06ac613b6ec27">CalculateValues</a> ()</td></tr>
-<tr class="memdesc:ae63d979e5fa85a76ffe06ac613b6ec27 pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields.  <br /></td></tr>
 <tr class="memitem:a22e05e4807efbae279ab68dcab714a42 pub_methods_classLinker_1_1OutputFormat" id="r_a22e05e4807efbae279ab68dcab714a42"><td class="memItemLeft">virtual void&#160;</td><td class="memItemRight"><a class="el" href="classLinker_1_1OutputFormat.html#a22e05e4807efbae279ab68dcab714a42">GenerateFile</a> (std::string filename, <a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module)</td></tr>
 <tr class="memdesc:a22e05e4807efbae279ab68dcab714a42 pub_methods_classLinker_1_1OutputFormat"><td class="mdescLeft">&#160;</td><td class="mdescRight">The main function that handles processing, calculating and generating the final image.  <br /></td></tr>
 <tr class="memitem:ad0543e040b215834a776ecbf146e36ee pub_methods_classLinker_1_1OutputFormat" id="r_ad0543e040b215834a776ecbf146e36ee"><td class="memItemLeft">virtual std::string&#160;</td><td class="memItemRight"><a class="el" href="classLinker_1_1OutputFormat.html#ad0543e040b215834a776ecbf146e36ee">GetDefaultExtension</a> (<a class="el" href="classLinker_1_1Module.html">Module</a> &amp;module, std::string filename) const</td></tr>
@@ -253,8 +318,54 @@ virtual unsigned&#160;</td><td class="memItemRight"><b>FormatAdditionalSectionFl
 std::shared_ptr&lt; <a class="el" href="classLinker_1_1Image.html">Image</a> &gt;&#160;</td><td class="memItemRight"><b>AsImage</b> ()</td></tr>
 <tr class="memdesc:ae83d572ac94545b2e83238bb998dcb5c pub_methods_classLinker_1_1Contents"><td class="mdescLeft">&#160;</td><td class="mdescRight">Retrieves a randomly accessible image. <br /></td></tr>
 </table><table class="memberdecls">
-<tr class="heading"><td colspan="2"><h2 id="header-inherited" class="groupheader"><a id="inherited" name="inherited"></a>
-Additional Inherited Members</h2></td></tr>
+<tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:adc4c56f9b3fa9f6fedec8a7ff61187e4" id="r_adc4c56f9b3fa9f6fedec8a7ff61187e4"><td class="memItemLeft"><a id="adc4c56f9b3fa9f6fedec8a7ff61187e4" name="adc4c56f9b3fa9f6fedec8a7ff61187e4"></a>
+cpu_type&#160;</td><td class="memItemRight"><b>architecture</b> = PPC</td></tr>
+<tr class="memitem:a570acb96af63fef60bb5a0d20b5bc5db" id="r_a570acb96af63fef60bb5a0d20b5bc5db"><td class="memItemLeft"><a id="a570acb96af63fef60bb5a0d20b5bc5db" name="a570acb96af63fef60bb5a0d20b5bc5db"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>format_version</b> = 1</td></tr>
+<tr class="memitem:afebceef3f8a4eef3216bc7daa3ea2fdf" id="r_afebceef3f8a4eef3216bc7daa3ea2fdf"><td class="memItemLeft"><a id="afebceef3f8a4eef3216bc7daa3ea2fdf" name="afebceef3f8a4eef3216bc7daa3ea2fdf"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>date_time_stamp</b> = 0</td></tr>
+<tr class="memitem:a1e9cca8a28fd9a5a101e2edcbbbf671a" id="r_a1e9cca8a28fd9a5a101e2edcbbbf671a"><td class="memItemLeft"><a id="a1e9cca8a28fd9a5a101e2edcbbbf671a" name="a1e9cca8a28fd9a5a101e2edcbbbf671a"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>old_def_version</b> = 0</td></tr>
+<tr class="memitem:a801d7fe4887a7b6531e377477f79086a" id="r_a801d7fe4887a7b6531e377477f79086a"><td class="memItemLeft"><a id="a801d7fe4887a7b6531e377477f79086a" name="a801d7fe4887a7b6531e377477f79086a"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>old_imp_version</b> = 0</td></tr>
+<tr class="memitem:a77f197d9cc7c1a000622c205897beb90" id="r_a77f197d9cc7c1a000622c205897beb90"><td class="memItemLeft"><a id="a77f197d9cc7c1a000622c205897beb90" name="a77f197d9cc7c1a000622c205897beb90"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>current_version</b> = 0</td></tr>
+<tr class="memitem:a0838b9a0d1044ee0fcf7bda7781a6b2f" id="r_a0838b9a0d1044ee0fcf7bda7781a6b2f"><td class="memItemLeft"><a id="a0838b9a0d1044ee0fcf7bda7781a6b2f" name="a0838b9a0d1044ee0fcf7bda7781a6b2f"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>reserved</b> = 0</td></tr>
+<tr class="memitem:a7802463455431006c74b2aca9edcea39" id="r_a7802463455431006c74b2aca9edcea39"><td class="memItemLeft"><a id="a7802463455431006c74b2aca9edcea39" name="a7802463455431006c74b2aca9edcea39"></a>
+uint16_t&#160;</td><td class="memItemRight"><b>inst_section_count</b> = 0</td></tr>
+<tr class="memitem:ad024fc94755e10c883ba03346a2368a6" id="r_ad024fc94755e10c883ba03346a2368a6"><td class="memItemLeft"><a id="ad024fc94755e10c883ba03346a2368a6" name="ad024fc94755e10c883ba03346a2368a6"></a>
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classApple_1_1PEFFormat_1_1Section.html">Section</a> &gt; &gt;&#160;</td><td class="memItemRight"><b>sections</b></td></tr>
+<tr class="memitem:a25112dcb4c47230a67c129bea224f7c5" id="r_a25112dcb4c47230a67c129bea224f7c5"><td class="memItemLeft"><a id="a25112dcb4c47230a67c129bea224f7c5" name="a25112dcb4c47230a67c129bea224f7c5"></a>
+std::vector&lt; std::string &gt;&#160;</td><td class="memItemRight"><b>section_name_table</b></td></tr>
+<tr class="memitem:aa0c5a7d09e83d69ec51e9d6bc0e7b9da" id="r_aa0c5a7d09e83d69ec51e9d6bc0e7b9da"><td class="memItemLeft"><a id="aa0c5a7d09e83d69ec51e9d6bc0e7b9da" name="aa0c5a7d09e83d69ec51e9d6bc0e7b9da"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>section_name_table_end</b> = 0</td></tr>
+<tr class="memitem:a1f5139c27b8ebdf355094c2d4b053536" id="r_a1f5139c27b8ebdf355094c2d4b053536"><td class="memItemLeft"><a id="a1f5139c27b8ebdf355094c2d4b053536" name="a1f5139c27b8ebdf355094c2d4b053536"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>loader_section_offset</b> = 0</td></tr>
+<tr class="memitem:a85cf876f7fae0780fc2180933f910d6b" id="r_a85cf876f7fae0780fc2180933f910d6b"><td class="memItemLeft"><a id="a85cf876f7fae0780fc2180933f910d6b" name="a85cf876f7fae0780fc2180933f910d6b"></a>
+<a class="el" href="structApple_1_1PEFFormat_1_1Reference.html">Reference</a>&#160;</td><td class="memItemRight"><b>main_symbol</b></td></tr>
+<tr class="memitem:a5762d40ca6ab2b55bcc8fa8c286b552f" id="r_a5762d40ca6ab2b55bcc8fa8c286b552f"><td class="memItemLeft"><a id="a5762d40ca6ab2b55bcc8fa8c286b552f" name="a5762d40ca6ab2b55bcc8fa8c286b552f"></a>
+<a class="el" href="structApple_1_1PEFFormat_1_1Reference.html">Reference</a>&#160;</td><td class="memItemRight"><b>init_symbol</b></td></tr>
+<tr class="memitem:a37b156bcacb3e6b138c3e9029f0ceaf7" id="r_a37b156bcacb3e6b138c3e9029f0ceaf7"><td class="memItemLeft"><a id="a37b156bcacb3e6b138c3e9029f0ceaf7" name="a37b156bcacb3e6b138c3e9029f0ceaf7"></a>
+<a class="el" href="structApple_1_1PEFFormat_1_1Reference.html">Reference</a>&#160;</td><td class="memItemRight"><b>term_symbol</b></td></tr>
+<tr class="memitem:af588773b4ebe9ef416a0d40ea188ae98" id="r_af588773b4ebe9ef416a0d40ea188ae98"><td class="memItemLeft"><a id="af588773b4ebe9ef416a0d40ea188ae98" name="af588773b4ebe9ef416a0d40ea188ae98"></a>
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classApple_1_1PEFFormat_1_1ImportedLibrary.html">ImportedLibrary</a> &gt; &gt;&#160;</td><td class="memItemRight"><b>imported_libraries</b></td></tr>
+<tr class="memitem:ac7b59c6c46c56bfe534d1199408fdeac" id="r_ac7b59c6c46c56bfe534d1199408fdeac"><td class="memItemLeft"><a id="ac7b59c6c46c56bfe534d1199408fdeac" name="ac7b59c6c46c56bfe534d1199408fdeac"></a>
+std::vector&lt; std::shared_ptr&lt; <a class="el" href="classApple_1_1PEFFormat_1_1ImportedSymbol.html">ImportedSymbol</a> &gt; &gt;&#160;</td><td class="memItemRight"><b>imported_symbols</b></td></tr>
+<tr class="memitem:aac24f2336d4ec34a386e93a1629c21b2" id="r_aac24f2336d4ec34a386e93a1629c21b2"><td class="memItemLeft"><a id="aac24f2336d4ec34a386e93a1629c21b2" name="aac24f2336d4ec34a386e93a1629c21b2"></a>
+std::vector&lt; uint32_t &gt;&#160;</td><td class="memItemRight"><b>reloc_section_indexes</b></td></tr>
+<tr class="memitem:a8f4cc50d02cf02238a6f7c6f9ada00e8" id="r_a8f4cc50d02cf02238a6f7c6f9ada00e8"><td class="memItemLeft"><a id="a8f4cc50d02cf02238a6f7c6f9ada00e8" name="a8f4cc50d02cf02238a6f7c6f9ada00e8"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>reloc_instr_offset</b> = 0</td></tr>
+<tr class="memitem:a6ac24c93ccbf88acbfd68760124a8faf" id="r_a6ac24c93ccbf88acbfd68760124a8faf"><td class="memItemLeft"><a id="a6ac24c93ccbf88acbfd68760124a8faf" name="a6ac24c93ccbf88acbfd68760124a8faf"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>loader_strings_offset</b> = 0</td></tr>
+<tr class="memitem:a7d3057ce521df09b1674c53f9d480b92" id="r_a7d3057ce521df09b1674c53f9d480b92"><td class="memItemLeft"><a id="a7d3057ce521df09b1674c53f9d480b92" name="a7d3057ce521df09b1674c53f9d480b92"></a>
+uint32_t&#160;</td><td class="memItemRight"><b>export_hash_offset</b> = 0</td></tr>
+<tr class="memitem:ab9aecd4af6e63fcef53c5121b28b6824" id="r_ab9aecd4af6e63fcef53c5121b28b6824"><td class="memItemLeft"><a id="ab9aecd4af6e63fcef53c5121b28b6824" name="ab9aecd4af6e63fcef53c5121b28b6824"></a>
+std::vector&lt; <a class="el" href="structApple_1_1PEFFormat_1_1HashTableEntry.html">HashTableEntry</a> &gt;&#160;</td><td class="memItemRight"><b>hash_table</b></td></tr>
+<tr class="memitem:a3452463f93c0433b8c55f47f4c1f054c" id="r_a3452463f93c0433b8c55f47f4c1f054c"><td class="memItemLeft"><a id="a3452463f93c0433b8c55f47f4c1f054c" name="a3452463f93c0433b8c55f47f4c1f054c"></a>
+std::vector&lt; <a class="el" href="structApple_1_1PEFFormat_1_1ExportedSymbol.html">ExportedSymbol</a> &gt;&#160;</td><td class="memItemRight"><b>exported_symbols</b></td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1SegmentManager"><td colspan="2">Public Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:ae752ce750027654f07078e855335b92c pub_attribs_classLinker_1_1SegmentManager" id="r_ae752ce750027654f07078e855335b92c"><td class="memItemLeft">offset_t&#160;</td><td class="memItemRight"><a class="el" href="classLinker_1_1SegmentManager.html#ae752ce750027654f07078e855335b92c">current_base</a> = 0</td></tr>
 <tr class="memdesc:ae752ce750027654f07078e855335b92c pub_attribs_classLinker_1_1SegmentManager"><td class="mdescLeft">&#160;</td><td class="mdescRight">The base address of the current section.  <br /></td></tr>
@@ -276,6 +387,26 @@ std::string&#160;</td><td class="memItemRight"><b>linker_script</b></td></tr>
 <tr class="inherit_header pub_attribs_classLinker_1_1Format"><td colspan="2">Public Attributes inherited from <a class="el" href="classLinker_1_1Format.html">Linker::Format</a></td></tr>
 <tr class="memitem:a79b3bfba10139c14b62afccdc13ae117 pub_attribs_classLinker_1_1Format" id="r_a79b3bfba10139c14b62afccdc13ae117"><td class="memItemLeft">
 offset_t&#160;</td><td class="memItemRight"><b>file_offset</b></td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-pub-static-attribs" class="groupheader"><a id="pub-static-attribs" name="pub-static-attribs"></a>
+Static Public Attributes</h2></td></tr>
+<tr class="memitem:a1a6a939e05f9e7befc54030b7270c2b2" id="r_a1a6a939e05f9e7befc54030b7270c2b2"><td class="memItemLeft"><a id="a1a6a939e05f9e7befc54030b7270c2b2" name="a1a6a939e05f9e7befc54030b7270c2b2"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight"><b>ContainerHeaderSize</b> = 40</td></tr>
+<tr class="memitem:a131b7b90ed4f0e240dd8412e32b09624" id="r_a131b7b90ed4f0e240dd8412e32b09624"><td class="memItemLeft"><a id="a131b7b90ed4f0e240dd8412e32b09624" name="a131b7b90ed4f0e240dd8412e32b09624"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight"><b>SectionHeaderSize</b> = 28</td></tr>
+<tr class="memitem:a4f0afa3afdb1a6895c219f349ec94d94" id="r_a4f0afa3afdb1a6895c219f349ec94d94"><td class="memItemLeft"><a id="a4f0afa3afdb1a6895c219f349ec94d94" name="a4f0afa3afdb1a6895c219f349ec94d94"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight"><b>NoSection</b> = uint32_t(-1)</td></tr>
+<tr class="memitem:a115339074fda13b97f0d426f508fd5d4" id="r_a115339074fda13b97f0d426f508fd5d4"><td class="memItemLeft"><a id="a115339074fda13b97f0d426f508fd5d4" name="a115339074fda13b97f0d426f508fd5d4"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight"><b>Absolute</b> = uint32_t(-2)</td></tr>
+<tr class="memitem:a9ed815cf29c9e7a1bd74f824c69111b8" id="r_a9ed815cf29c9e7a1bd74f824c69111b8"><td class="memItemLeft"><a id="a9ed815cf29c9e7a1bd74f824c69111b8" name="a9ed815cf29c9e7a1bd74f824c69111b8"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight"><b>Reexported</b> = uint32_t(-3)</td></tr>
+<tr class="memitem:abadd6410d277dd446435a9d6e5aef8d1" id="r_abadd6410d277dd446435a9d6e5aef8d1"><td class="memItemLeft"><a id="abadd6410d277dd446435a9d6e5aef8d1" name="abadd6410d277dd446435a9d6e5aef8d1"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight"><b>LoaderHeaderSize</b> = 56</td></tr>
+<tr class="memitem:aba1f40405d4ee5d963969a8e4bdf0101" id="r_aba1f40405d4ee5d963969a8e4bdf0101"><td class="memItemLeft"><a id="aba1f40405d4ee5d963969a8e4bdf0101" name="aba1f40405d4ee5d963969a8e4bdf0101"></a>
+static constexpr uint32_t&#160;</td><td class="memItemRight"><b>LibraryDescriptionSize</b> = 24</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-inherited" class="groupheader"><a id="inherited" name="inherited"></a>
+Additional Inherited Members</h2></td></tr>
 <tr class="inherit_header pro_attribs_classLinker_1_1SegmentManager"><td colspan="2">Protected Attributes inherited from <a class="el" href="classLinker_1_1SegmentManager.html">Linker::SegmentManager</a></td></tr>
 <tr class="memitem:aba19c02257c496c2f8a7ea8ebc40be3d pro_attribs_classLinker_1_1SegmentManager" id="r_aba19c02257c496c2f8a7ea8ebc40be3d"><td class="memItemLeft">
 offset_t&#160;</td><td class="memItemRight"><b>current_address</b> = 0</td></tr>
@@ -298,6 +429,35 @@ std::string&#160;</td><td class="memItemRight"><b>current_template_name</b></td>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>PowerPC Classic Mac OS "PEF" file format. </p>
 </div><a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Member Function Documentation</h2>
+<a id="af313d6c10d24eb89884e17109f95df5c" name="af313d6c10d24eb89884e17109f95df5c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af313d6c10d24eb89884e17109f95df5c">&#9670;&#160;</a></span>CalculateValues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">void PEFFormat::CalculateValues </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel override">override</span><span class="mlabel virtual">virtual</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p>Intermediate step between processing module and generating output file to set up headers and management sections It is expected that after a module is processed, additional steps are required to evaluate the final values of the fields. </p>
+
+<p>Reimplemented from <a class="el" href="classLinker_1_1OutputFormat.html#ae63d979e5fa85a76ffe06ac613b6ec27">Linker::OutputFormat</a>.</p>
+
+</div>
+</div>
 <a id="ac19028ce5498cee3264694e7caf287e4" name="ac19028ce5498cee3264694e7caf287e4"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ac19028ce5498cee3264694e7caf287e4">&#9670;&#160;</a></span>Dump()</h2>
 

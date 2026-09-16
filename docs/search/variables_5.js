@@ -4,7 +4,7 @@ var searchData=
   ['file_5falign_1',['file_align',['../classMicrosoft_1_1PEFormat_1_1PEOptionalHeader.html#a52ba745e1273503a496b79e15cc5b642',1,'Microsoft::PEFormat::PEOptionalHeader']]],
   ['file_5fheader_5fsize_2',['file_header_size',['../classPCOS_1_1CMDFormat.html#a63f70aa5d45613921514cdb24fb2cbc6',1,'PCOS::CMDFormat']]],
   ['file_5fname_3',['file_name',['../classLinker_1_1Module.html#acc9e11633c4eead1022c97401849b699',1,'Linker::Module']]],
-  ['file_5foffset_4',['file_offset',['../classDigitalResearch_1_1CPM86Format.html#ae7ee8da3bfc85a0bbf7410f6e046ffc1',1,'DigitalResearch::CPM86Format']]],
+  ['file_5foffset_4',['file_offset',['../classDigitalResearch_1_1CPM86Format.html#ae7ee8da3bfc85a0bbf7410f6e046ffc1',1,'DigitalResearch::CPM86Format::file_offset'],['../classApple_1_1PEFFormat_1_1PatternInitialization.html#ade1f1122fd6c78f0f2a095705f5b503b',1,'Apple::PEFFormat::PatternInitialization::file_offset']]],
   ['file_5fsize_5',['file_size',['../classDigitalResearch_1_1CPM68KFormat.html#a00d14720586cf0960d73abfb37ee6485',1,'DigitalResearch::CPM68KFormat::file_size'],['../classDigitalResearch_1_1CPM86Format.html#a18978e46a4ee03cab19be5d548160efa',1,'DigitalResearch::CPM86Format::file_size'],['../classOMF_1_1OMFFormat.html#a32405458ef28fccd02bbf87a4a5c2556',1,'OMF::OMFFormat::file_size']]],
   ['file_5fsize_5fblocks_6',['file_size_blocks',['../classMicrosoft_1_1MZFormat.html#a82224a520647c484ebc0797b5db94dec',1,'Microsoft::MZFormat']]],
   ['fini_7',['FINI',['../structCOFF_1_1COFFFormat_1_1Section_1_1ECOFF__Flags.html#a958a09f717c7a4e9bc4d903249ed78cb',1,'COFF::COFFFormat::Section::ECOFF_Flags']]],
