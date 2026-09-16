@@ -937,6 +937,10 @@ void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFFormat& coff
 		relocation_count = rd.ReadUnsigned(2);
 		line_number_count = rd.ReadUnsigned(2);
 		flags = rd.ReadUnsigned(coff_format.coff_variant == XCOFF32 ? 2 : 4);
+		if(coff_format.coff_variant == XCOFF32)
+		{
+			rd.Skip(2);
+		}
 		if(coff_format.coff_variant == PECOFF && (flags & PECOFF_Flags::LNK_NRELOC_OVFL) != 0)
 		{
 			offset_t end_of_section_header = rd.Tell();
@@ -1033,6 +1037,10 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, const COFFForma
 		wr.WriteWord(2, coff_format.coff_variant == PECOFF && (flags & PECOFF_Flags::LNK_NRELOC_OVFL) != 0 ? 0xFFFF : relocation_count);
 		wr.WriteWord(2, line_number_count);
 		wr.WriteWord(coff_format.coff_variant == XCOFF32 ? 2 : 4, flags);
+		if(coff_format.coff_variant == XCOFF32)
+		{
+			wr.Skip(2);
+		}
 		break;
 	case TICOFF:
 		wr.WriteData(8, name);
@@ -3341,7 +3349,7 @@ void COFFFormat::CalculateValues()
 
 	case XCOFF32:
 		offset = 20;
-		section_header_size = 38;
+		section_header_size = 40;
 		break;
 
 	case TICOFF:
