@@ -321,6 +321,13 @@ namespace Apple
 			uint32_t reloc_instr_size = 0;
 			uint32_t first_reloc_offset = 0;
 
+			Section() = default;
+			Section(section_type section_kind, share_type share_kind, std::shared_ptr<Linker::Contents> image)
+				: section_kind(section_kind), share_kind(share_kind), image(image)
+			{
+				alignment = ExpectedAlignment();
+			}
+
 			bool IsInstantiated() const
 			{
 				switch(section_kind)
@@ -473,8 +480,8 @@ namespace Apple
 		};
 		std::vector<ExportedSymbol> exported_symbols;
 
-		static constexpr uint32_t LoaderHeaderSize = 56;
-		static constexpr uint32_t LibraryDescriptionSize = 24;
+		static constexpr uint32_t LoaderHeaderSize = 40;
+		static constexpr uint32_t LibraryDescriptionSize = 28;
 		uint32_t GetLibraryDescriptionsSize() const
 		{
 			return LibraryDescriptionSize * imported_libraries.size();
@@ -546,6 +553,12 @@ namespace Apple
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
+
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
+		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
+		void Link(Linker::Module& module);
+		void ProcessModule(Linker::Module& module) override;
+		void GenerateFile(std::string filename, Linker::Module& module) override;
 	};
 }
 

@@ -1,6 +1,9 @@
 
 #include "pefexe.h"
 #include "../linker/location.h"
+#include "../linker/module.h"
+#include "../linker/section.h"
+#include "../linker/segment.h"
 
 /* TODO: unimplemented */
 
@@ -966,19 +969,65 @@ void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
 {
 	//// header
 
-	// TODO
+	wr.WriteWord(4, main_symbol.section);
+	wr.WriteWord(4, main_symbol.offset);
+
+	wr.WriteWord(4, init_symbol.section);
+	wr.WriteWord(4, init_symbol.offset);
+
+	wr.WriteWord(4, term_symbol.section);
+	wr.WriteWord(4, term_symbol.offset);
+
+	wr.WriteWord(4, imported_libraries.size());
+	wr.WriteWord(4, imported_symbols.size());
+
+	wr.WriteWord(4, reloc_section_indexes.size());
+	wr.WriteWord(4, reloc_instr_offset);
+
+	wr.WriteWord(4, loader_strings_offset);
+
+	wr.WriteWord(4, export_hash_offset);
+
+	uint32_t export_hash_table_size = hash_table.size();
+	uint32_t export_hash_table_power = 0;
+	while(export_hash_table_size > 0)
+	{
+		export_hash_table_size >>= 1;
+		export_hash_table_power ++;
+	}
+	wr.WriteWord(4, export_hash_table_power);
+	wr.WriteWord(4, exported_symbols.size());
 
 	//// imported library descriptions
 
-	// TODO
+	for(auto library : imported_libraries)
+	{
+		wr.WriteWord(4, library->name_offset);
+		wr.WriteWord(4, library->old_imp_version);
+		wr.WriteWord(4, library->current_version);
+		wr.WriteWord(4, library->imported_symbol_count);
+		wr.WriteWord(4, library->first_imported_symbol);
+		wr.WriteWord(1, library->options);
+		wr.WriteWord(1, library->reserved_a);
+		wr.WriteWord(2, library->reserved_b);
+	}
 
 	//// imported symbol tables
 
-	// TODO
+	for(auto symbol : imported_symbols)
+	{
+		wr.WriteWord(4, (symbol->name_offset & 0x00FFFFFF) | ((symbol->symbol_class & 0x0F) << 24) | ((symbol->flags & 0xF0) << 24));
+	}
 
 	//// relocation headers
 
-	// TODO
+	for(auto section_index : reloc_section_indexes)
+	{
+		auto section = sections[section_index];
+		wr.WriteWord(2, section->reserved_a);
+		wr.WriteWord(4, section->reloc_instr_size / 2);
+		wr.WriteWord(4, section->first_reloc_offset / 2);
+	}
 
 	//// relocation area
 
@@ -1101,7 +1150,41 @@ void PEFFormat::CalculateValues()
 		section->CalculateValues(*this);
 	}
 
-	// TODO: initialize imported symbol table
+	// rebuild symbol table using the symbols stored in the internal library structures
+	imported_symbols.clear();
+	for(auto library : imported_libraries)
+	{
+		library->first_imported_symbol = imported_symbols.size();
+		library->imported_symbol_count = library->imported_symbols.size();
+		imported_symbols.insert(
+			imported_symbols.begin(),
+			library->imported_symbols.begin(),
+			library->imported_symbols.end());
+	}
+
+	// collect relocation containing section indexes
+	reloc_section_indexes.clear();
+	for(uint32_t section_index = 0; section_index < sections.size(); section_index ++)
+	{
+		auto section = sections[section_index];
+		if(!section->relocations.empty())
+		{
+			section->contains_relocations = true;
+			reloc_section_indexes.push_back(section_index);
+			if(section->reloc_opcodes.empty())
+			{
+				// TODO: initialize
+			}
+			// TODO: section->first_reloc_offset = current relocation size
+			for(auto opcode : section->reloc_opcodes)
+			{
+				// TODO: append relocations
+			}
+			// TODO: section->reloc_instr_size = current relocation size - section->first_reloc_offset
+		}
+	}
+
+	// TODO: collect imported and exported symbol names
 
 	if(reloc_instr_offset < GetMinimumRelocInstrOffset())
 	{
@@ -1121,7 +1204,7 @@ void PEFFormat::CalculateValues()
 	uint32_t section_offset = section_name_table_end;
 	for(auto section : sections)
 	{
-		section->container_offset = ::AlignTo(section_offset, section->ExpectedAlignment());
+		section->container_offset = ::AlignTo(section_offset, section->alignment);
 		if(section->section_kind == Section::Loader)
 		{
 			loader_section_offset = section->container_offset;
@@ -1483,5 +1566,100 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	section_names_region.Display(dump, Dumper::String);
 
 	// TODO
+}
+
+void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
+{
+	if(segment->sections.size() == 0)
+		return;
+
+	auto first_section = segment->sections[0];
+	if(first_section->GetFlags() & Linker::Section::Resource)
+	{
+		// TODO
+	}
+	else if(first_section->IsExecutable())
+	{
+		sections.push_back(std::make_shared<Section>(Section::Code, Section::GlobalShare, segment));
+	}
+	else
+	{
+		sections.push_back(std::make_shared<Section>(Section::UnpackedData, Section::ProcessShare, segment));
+	}
+}
+
+std::unique_ptr<Script::List> PEFFormat::GetScript(Linker::Module& module)
+{
+	static const char * DefaultScript = R"(
+".code"
+{
+	all execute;
+	at align(here, ?code_section_align?);
+};
+
+".data"
+{
+	at 0;
+	all not zero and not resource;
+	all not resource;
+	at align(here, ?data_section_align?);
+};
+
+".rsrc"
+{
+	all resource; // TODO
+}
+)";
+
+	if(linker_script != "")
+	{
+		return SegmentManager::GetScript(module);
+	}
+	else
+	{
+		return Script::parse_string(DefaultScript);
+	}
+}
+
+void PEFFormat::Link(Linker::Module& module)
+{
+	std::unique_ptr<Script::List> script = GetScript(module);
+
+	ProcessScript(script, module);
+}
+
+void PEFFormat::ProcessModule(Linker::Module& module)
+{
+	Link(module);
+
+	sections.push_back(std::make_shared<Section>(Section::Loader, Section::GlobalShare, nullptr));
+
+	// TODO
+
+	// TODO: collect imported symbols
+	// TODO: generate relocations
+	// TODO: collect exported symbols
+
+	// TODO: set main_symbol
+	// TODO: set init_symbol, term_symbol?
+
+	CalculateValues();
+}
+
+void PEFFormat::GenerateFile(std::string filename, Linker::Module& module)
+{
+	switch(module.cpu)
+	{
+	case Linker::Module::M68K:
+		architecture = M68K;
+		break;
+	case Linker::Module::PPC:
+		architecture = PPC;
+		break;
+	default:
+		Linker::Error << "Error: Unsupported CPU type" << std::endl;
+	}
+
+	Linker::OutputFormat::GenerateFile(filename, module);
 }
 

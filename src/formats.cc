@@ -360,6 +360,10 @@ format_specification formats[] =
 	{ "mbin",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::MacDriver>(Apple::MacDriver::TARGET_MAC_BINARY); },
 		"Classic Macintosh 'CODE' resource executable, stored as MacBinary format" },
+	/* PEF */
+	{ "pef",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::PEFFormat>(); },
+		"Classic PowerPC Macintosh Preferred Executable Format" },
 	/* Hunk */
 	{ "amiga",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<HunkFormat>(); },
