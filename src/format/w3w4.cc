@@ -63,7 +63,7 @@ void W3Format::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
 	file_region.AddField("System version", Dumper::VersionDisplay::Make(), offset_t(system_version.major), offset_t(system_version.minor));
 	file_region.AddField("Entry count", Dumper::DecDisplay::Make(), offset_t(entries.size()));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	uint16_t entry_count = 0;
 	for(auto& entry : entries)
@@ -73,7 +73,7 @@ void W3Format::Dump(Dumper::Dumper& dump) const
 		entry_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(entry_count + 1));
 		entry_region.AddField("Filename", Dumper::StringDisplay::Make("\""), entry.filename);
 		entry_region.AddField("Header size", Dumper::HexDisplay::Make(), offset_t(entry.header_size));
-		entry_region.Display(dump);
+		entry_region.Display(dump, Dumper::Header);
 
 		entry.contents->Dump(dump);
 
@@ -323,7 +323,7 @@ void W4Format::ReadFile(Linker::Reader& rd)
 	Dumper::Dumper dump(std::cout);
 	dump.SetEncoding(Dumper::Block::encoding_windows1252);
 	Dumper::Block decompressed_block("Decompressed block", 0, image, 0, 8);
-	decompressed_block.Display(dump);
+	decompressed_block.Display(dump, Dumper::Generated | Dumper::Image);
 #endif
 
 	ImageStreambuf sb(image, file_offset);
@@ -361,14 +361,14 @@ void W4Format::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("System version", Dumper::VersionDisplay::Make(), offset_t(system_version.major), offset_t(system_version.minor));
 	file_region.AddField("Chunk size", Dumper::HexDisplay::Make(4), offset_t(chunk_size));
 	file_region.AddField("Chunk count", Dumper::DecDisplay::Make(), offset_t(chunks.size()));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	uint16_t chunk_count = 0;
 	for(auto& chunk : chunks)
 	{
 		Dumper::Block chunk_block("Chunk", chunk.file_offset, std::const_pointer_cast<Linker::Image>(chunk.contents->AsImage()), 0, 8); // TODO: remove const_pointer_cast
 		chunk_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(chunk_count + 1));
-		chunk_block.Display(dump);
+		chunk_block.Display(dump, Dumper::Header | Dumper::Image);
 
 		chunk_count ++;
 	}

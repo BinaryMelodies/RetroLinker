@@ -113,7 +113,7 @@ void MZFormat::PIF::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("Direct video access"), true),
 		offset_t(screen_usage));
 
-	pif_region.Display(dump);
+	pif_region.Display(dump, Dumper::Miscellaneous);
 }
 
 MZFormat::magic_type MZFormat::GetSignature() const
@@ -294,7 +294,7 @@ void MZFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Type", Dumper::ChoiceDisplay::Make(magic_field_descriptions), offset_t(magic_field));
 	file_region.AddOptionalField("Overlay", Dumper::DecDisplay::Make(), magic_field != MAGIC_DL ? overlay_number : offset_t(0));
 	file_region.AddOptionalField("Data segment", Dumper::HexDisplay::Make(), magic_field != MAGIC_DL ? 0 : offset_t(uint32_t(data_segment) << 4));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Header", file_offset, GetHeaderSize(), 6);
 	header_region.AddField("SS:SP", Dumper::SegmentedDisplay::Make(), offset_t(ss), offset_t(sp));
@@ -302,11 +302,11 @@ void MZFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Minimum", Dumper::HexDisplay::Make(), offset_t(ImageSize() - GetHeaderSize() + (uint32_t(min_extra_paras) << 4)));
 	header_region.AddField("Maximum", Dumper::HexDisplay::Make(), offset_t(ImageSize() - GetHeaderSize() + (uint32_t(max_extra_paras) << 4)));
 	header_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(4), offset_t(checksum));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	Dumper::Region relocations_region("Relocations", file_offset + relocation_offset, relocation_count * 4, 8);
 	relocations_region.AddField("Count", Dumper::DecDisplay::Make(), offset_t(relocation_count));
-	relocations_region.Display(dump);
+	relocations_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 	if(pif)
 	{
@@ -321,12 +321,12 @@ void MZFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + relocation_offset + i * 4, 6);
 		relocation_entry.AddField("Source", Dumper::SegmentedDisplay::Make(), offset_t(relocation.segment), offset_t(relocation.offset));
 		relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(4), image->AsImage()->ReadUnsigned(2, (offset_t(relocation.segment) << 4) | relocation.offset));
-		relocation_entry.Display(dump);
+		relocation_entry.Display(dump, Dumper::Relocation);
 		image_block.AddSignal(relocation.GetOffset(), 2);
 		i++;
 	}
 
-	image_block.Display(dump);
+	image_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 void MZFormat::CalculateValues()

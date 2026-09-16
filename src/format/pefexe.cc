@@ -1136,7 +1136,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("PEF format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Container header", file_offset, ContainerHeaderSize, 8);
 	// convert architecture word back to ASCII string
@@ -1155,10 +1155,10 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Section count", Dumper::DecDisplay::Make(), offset_t(sections.size()));
 	header_region.AddField("Instantiated section count", Dumper::DecDisplay::Make(), offset_t(inst_section_count));
 	header_region.AddOptionalField("Reserved field", Dumper::HexDisplay::Make(8), offset_t(reserved));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	Dumper::Region section_headers_region("Section headers", file_offset + ContainerHeaderSize, SectionHeaderSize * sections.size(), 8);
-	section_headers_region.Display(dump);
+	section_headers_region.Display(dump, Dumper::Header);
 
 	for(uint16_t section_number = 0; section_number < sections.size(); section_number++)
 	{
@@ -1248,7 +1248,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 			// TODO: print all strings?
 		}
 		// TODO: print records for PatternInitializedData
-		section_block.Display(dump);
+		section_block.Display(dump, Dumper::Header | Dumper::Image);
 
 		if(section->contains_relocations)
 		{
@@ -1324,7 +1324,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 				default:
 					break;
 				}
-				reloc_entry.Display(dump);
+				reloc_entry.Display(dump, Dumper::Relocation | Dumper::Control);
 
 				opcode_index++;
 			}
@@ -1355,7 +1355,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 						reloc_entry.AddField("Symbol", Dumper::StringDisplay::Make("'"), symbol->name);
 					}
 				}
-				reloc_entry.Display(dump);
+				reloc_entry.Display(dump, Dumper::Relocation | Dumper::Generated);
 
 				reloc_index++;
 			}
@@ -1390,7 +1390,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 					offset_t(library->options));
 				library_region.AddOptionalField("Reserved A", Dumper::HexDisplay::Make(2), offset_t(library->reserved_a));
 				library_region.AddOptionalField("Reserved B", Dumper::HexDisplay::Make(4), offset_t(library->reserved_b));
-				library_region.Display(dump);
+				library_region.Display(dump, Dumper::Import);
 
 				offset_t symbol_index = 0;
 				for(auto symbol : library->imported_symbols)
@@ -1403,7 +1403,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 						Dumper::BitFieldDisplay::Make(2)
 							->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("weak"), true),
 						offset_t(symbol->flags | symbol->symbol_class));
-					symbol_entry.Display(dump);
+					symbol_entry.Display(dump, Dumper::Import | Dumper::Symbol | Dumper::Redundant);
 
 					symbol_index ++;
 				}
@@ -1427,21 +1427,21 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 					Dumper::BitFieldDisplay::Make(2)
 						->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("weak"), true),
 					offset_t(symbol->flags | symbol->symbol_class));
-				symbol_entry.Display(dump);
+				symbol_entry.Display(dump, Dumper::Import | Dumper::Symbol);
 
 				symbol_index ++;
 			}
 			// TODO: print all relocation opcodes?
 
 			Dumper::Region hash_table_region("Export hash table", loader_section_offset + export_hash_offset, GetExportHashTableSize(), 8);
-			hash_table_region.Display(dump);
+			hash_table_region.Display(dump, Dumper::Header | Dumper::Export);
 			offset_t hash_index = 0;
 			for(auto& hash_table_entry : hash_table)
 			{
 				Dumper::Entry dump_entry("Table entry", hash_index);
 				dump_entry.AddField("Chain count", Dumper::DecDisplay::Make(), offset_t(hash_table_entry.chain_count));
 				dump_entry.AddField("First index", Dumper::DecDisplay::Make(), offset_t(hash_table_entry.first_index));
-				dump_entry.Display(dump);
+				dump_entry.Display(dump, Dumper::Export);
 				hash_index ++;
 			}
 
@@ -1472,7 +1472,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 					symbol_entry.AddField("Value", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(uint16_t(symbol.section)), offset_t(symbol.offset));
 					break;
 				}
-				symbol_entry.Display(dump);
+				symbol_entry.Display(dump, Dumper::Export);
 				symbol_index ++;
 			}
 		}
@@ -1480,7 +1480,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 
 	Dumper::Region section_names_region("Section name table", GetSectionNameTableOffset(), section_name_table_end - GetSectionNameTableOffset(), 8);
 	// TODO: print names
-	section_names_region.Display(dump);
+	section_names_region.Display(dump, Dumper::String);
 
 	// TODO
 }

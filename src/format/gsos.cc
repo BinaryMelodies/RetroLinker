@@ -345,10 +345,10 @@ void OMFFormat::Segment::Dump(Dumper::Dumper& dump, const OMFFormat& omf, unsign
 		segment_region.AddOptionalField("Language card bank", Dumper::HexDisplay::Make(2), offset_t(language_card_bank));
 	}
 	segment_region.AddField("Entry", Dumper::HexDisplay::Make(8), offset_t(entry));
-	segment_region.Display(dump);
+	segment_region.Display(dump, Dumper::Header);
 
 	Dumper::Region records_region("Segment records", segment_offset + segment_data_offset, total_segment_size - segment_data_offset, 8);
-	records_region.Display(dump);
+	records_region.Display(dump, Dumper::Header | Dumper::Control);
 
 	offset_t current_offset = segment_offset + segment_data_offset;
 	offset_t current_address = base_address;
@@ -749,7 +749,7 @@ void OMFFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("GS/OS OMF format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	unsigned segment_index = 0;
 	for(auto& segment : segments)
@@ -778,7 +778,7 @@ void OMFFormat::Segment::Record::WriteFile(const Segment& segment, Linker::Write
 	wr.WriteWord(1, type);
 }
 
-void OMFFormat::Segment::Record::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+void OMFFormat::Segment::Record::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options) const
 {
 	Dumper::Region record_region("Record", file_offset, GetLength(segment), 8);
 	record_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
@@ -817,7 +817,7 @@ void OMFFormat::Segment::Record::Dump(Dumper::Dumper& dump, const OMFFormat& omf
 	}
 	record_region.AddField("Record opcode", Dumper::ChoiceDisplay::Make(opcode_description, Dumper::HexDisplay::Make(2)), offset_t(type));
 	AddFields(dump, record_region, omf, segment, index, file_offset, address);
-	record_region.Display(dump);
+	record_region.Display(dump, Dumper::Control | display_options);
 }
 
 void OMFFormat::Segment::Record::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
@@ -876,7 +876,7 @@ void OMFFormat::Segment::DataRecord::WriteFile(const Segment& segment, Linker::W
 	}
 }
 
-void OMFFormat::Segment::DataRecord::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+void OMFFormat::Segment::DataRecord::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options) const
 {
 	OMFFormat::Segment::Record::Dump(dump, omf, segment, index, file_offset, address);
 	
@@ -886,7 +886,7 @@ void OMFFormat::Segment::DataRecord::Dump(Dumper::Dumper& dump, const OMFFormat&
 	{
 		record->AddSignals(data_block, address - segment.base_address);
 	}
-	data_block.Display(dump);
+	data_block.Display(dump, display_options | Dumper::Image);
 }
 
 void OMFFormat::Segment::DataRecord::ReadData(size_t bytes, offset_t offset, void * buffer) const
@@ -1394,9 +1394,9 @@ void OMFFormat::Segment::SuperCompactRecord::WritePatchList(Linker::Writer& wr, 
 	}
 }
 
-void OMFFormat::Segment::SuperCompactRecord::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
+void OMFFormat::Segment::SuperCompactRecord::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options) const
 {
-	Record::Dump(dump, omf, segment, index, file_offset, address);
+	Record::Dump(dump, omf, segment, index, file_offset, address, display_options | Dumper::Relocation);
 	IntersegmentRelocationRecord relocation;
 	for(uint32_t i = 0; ; i++)
 	{
@@ -1413,7 +1413,7 @@ void OMFFormat::Segment::SuperCompactRecord::Dump(Dumper::Dumper& dump, const OM
 		else
 			relocation_entry.AddField("Target", Dumper::SectionedDisplay<offset_t, offset_t>::Make(Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8))), offset_t(relocation.file_number), offset_t(relocation.segment_number), offset_t(relocation.target));
 		relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(relocation.size * 2), offset_t(segment.ReadUnsigned(relocation.size, relocation.source)));
-		relocation_entry.Display(dump);
+		relocation_entry.Display(dump, Dumper::Relocation);
 	}
 }
 

@@ -126,10 +126,10 @@ void PMW1Format::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("EIP", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(eip_object), offset_t(eip));
 	file_region.AddField("ESP", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(esp_object), offset_t(esp));
 	file_region.AddField("Relocations offset", Dumper::HexDisplay::Make(8), offset_t(relocation_table_offset));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region object_table_region("Object table", file_offset + object_table_offset, 24 * objects.size(), 8);
-	object_table_region.Display(dump);
+	object_table_region.Display(dump, Dumper::Header);
 
 	unsigned i = 0;
 	offset_t object_offset = file_offset + data_offset;
@@ -149,7 +149,7 @@ void PMW1Format::Dump(Dumper::Dumper& dump) const
 			j++;
 		}*/
 
-		object_block.Display(dump);
+		object_block.Display(dump, Dumper::Header | Dumper::Image | Dumper::Relocation);
 
 		unsigned j = 0;
 		for(auto& rel : object.relocations)
@@ -159,7 +159,7 @@ void PMW1Format::Dump(Dumper::Dumper& dump) const
 			relocation_entry.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(rel.source));
 			relocation_entry.AddField("Target", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(rel.target_object), offset_t(rel.target_offset));
 			// TODO: addend
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 			j++;
 		}
 

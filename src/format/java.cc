@@ -32,7 +32,7 @@ void ClassFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Java class format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }

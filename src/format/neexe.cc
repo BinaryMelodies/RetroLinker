@@ -135,7 +135,7 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) c
 			segment_block.AddSignal(offset, relocation.GetSize());
 		}
 	}
-	segment_block.Display(dump);
+	segment_block.Display(dump, Dumper::Header | Dumper::Image | Dumper::Relocation);
 	unsigned i = 0;
 	static const std::map<offset_t, std::string> type_descriptions =
 	{
@@ -213,13 +213,13 @@ void NEFormat::Segment::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) c
 				{
 					rel_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(4), offset_t(image->AsImage()->ReadUnsigned(2, offset, ::LittleEndian)));
 				}
-				rel_entry.Display(dump);
+				rel_entry.Display(dump, Dumper::Relocation);
 			}
 			else
 			{
 				Dumper::Entry rel_entry("Chained", j, data_offset + relocation.offsets[j - 1], 8);
 				rel_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(offset));
-				rel_entry.Display(dump);
+				rel_entry.Display(dump, Dumper::Relocation);
 			}
 			j++;
 		}
@@ -282,7 +282,7 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 				resource_block.AddSignal(offset, relocation.GetSize());
 			}
 		}
-		resource_block.Display(dump);
+		resource_block.Display(dump, Dumper::Resource);
 		// TODO: print out relocations
 	}
 	else
@@ -326,7 +326,7 @@ void NEFormat::Resource::Dump(Dumper::Dumper& dump, unsigned index, bool isos2) 
 				->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("huge segment"), true)
 				->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("RESRC_HIGH"), true),
 			offset_t(flags));
-		resource_block.Display(dump);
+		resource_block.Display(dump, Dumper::Resource);
 	}
 }
 
@@ -1048,7 +1048,7 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("NE format");
 	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("New header", file_offset, segment_table_offset - file_offset, 8);
 	header_region.AddField("Signature", Dumper::StringDisplay::Make("'"), std::string(signature.data(), 2));
@@ -1118,7 +1118,7 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddOptionalField(IsOS2() ? "Offset to segment reference thunks" : "Offset to fast load length", Dumper::HexDisplay::Make(8), offset_t(fast_load_area_length) << sector_shift);
 	header_region.AddOptionalField("Minimum code swap area size", Dumper::HexDisplay::Make(4), offset_t(code_swap_area_length));
 	header_region.AddOptionalField("Minimal Windows version", Dumper::VersionDisplay::Make(), offset_t(windows_version.major), offset_t(windows_version.minor));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	offset_t segment_count = segments.size();
 	if(IsOS2())
@@ -1132,20 +1132,20 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 	}
 	segment_table_region.AddField("Segment count", Dumper::DecDisplay::Make(), offset_t(segments.size()));
 	segment_table_region.AddField("Sector shift count", Dumper::DecDisplay::Make(), offset_t(sector_shift));
-	segment_table_region.Display(dump);
+	segment_table_region.Display(dump, Dumper::Header);
 
 	if(IsOS2())
 	{
 		Dumper::Region resource_table_region("Resource table", resource_table_offset, resource_count * 4, 8);
 		resource_table_region.AddField("Resource count", Dumper::DecDisplay::Make(), offset_t(resource_count));
-		resource_table_region.Display(dump);
+		resource_table_region.Display(dump, Dumper::Header);
 	}
 	else
 	{
 		Dumper::Region resource_table_region("Resource table", resource_table_offset, resident_name_table_offset - resource_table_offset, 8);
 		resource_table_region.AddField("Resource count", Dumper::DecDisplay::Make(), offset_t(resource_count));
 		resource_table_region.AddField("Sector shift count", Dumper::DecDisplay::Make(), offset_t(resource_shift));
-		resource_table_region.Display(dump);
+		resource_table_region.Display(dump, Dumper::Header);
 
 		// calculate the offset of the first string
 		current_offset = resource_table_offset + 4;
@@ -1159,14 +1159,14 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 		{
 			Dumper::Entry string_entry("String", i + 1, current_offset, 8);
 			string_entry.AddField("Name", Dumper::StringDisplay::Make("\""), string);
-			string_entry.Display(dump);
+			string_entry.Display(dump, Dumper::String);
 			current_offset += string.size() + 1;
 			i++;
 		}
 	}
 
 	Dumper::Region resident_name_table_region("Resident name table", resident_name_table_offset, module_reference_table_offset - resident_name_table_offset, 8);
-	resident_name_table_region.Display(dump);
+	resident_name_table_region.Display(dump, Dumper::Header | Dumper::Export);
 
 	i = 0;
 	current_offset = resident_name_table_offset;
@@ -1175,25 +1175,25 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Entry name_entry("Name", i + 1, current_offset, 8);
 		name_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name.name);
 		name_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(name.ordinal));
-		name_entry.Display(dump);
+		name_entry.Display(dump, Dumper::Export);
 		current_offset += name.name.size() + 3;
 		i++;
 	}
 
 	Dumper::Region module_reference_table_region("Module reference table", module_reference_table_offset, module_references.size(), 8);
-	module_reference_table_region.Display(dump);
+	module_reference_table_region.Display(dump, Dumper::Header | Dumper::Import);
 	i = 0;
 	for(auto& module : module_references)
 	{
 		Dumper::Entry name_entry("Module", i + 1, module_reference_table_offset + i * 2, 8);
 		name_entry.AddField("Name", Dumper::StringDisplay::Make(), module.name);
 		name_entry.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(imported_names_table_offset + module.name_offset));
-		name_entry.Display(dump);
+		name_entry.Display(dump, Dumper::Import);
 		i++;
 	}
 
 	Dumper::Region imported_names_table_region("Imported names table", imported_names_table_offset, entry_table_offset - imported_names_table_offset, 8);
-	imported_names_table_region.Display(dump);
+	imported_names_table_region.Display(dump, Dumper::Header | Dumper::Import);
 
 	i = 0;
 	current_offset = imported_names_table_offset;
@@ -1201,14 +1201,14 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Entry name_entry("Name", i + 1, current_offset, 8);
 		name_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name);
-		name_entry.Display(dump);
+		name_entry.Display(dump, Dumper::Import);
 		current_offset += name.size() + 1;
 		i++;
 	}
 
 	Dumper::Region entry_table_region("Entry table", entry_table_offset, entry_table_length, 8);
 	entry_table_region.AddField("Movable entry count", Dumper::DecDisplay::Make(), offset_t(movable_entry_count));
-	entry_table_region.Display(dump);
+	entry_table_region.Display(dump, Dumper::Header | Dumper::Export);
 
 	i = 0;
 	current_offset = entry_table_offset;
@@ -1246,7 +1246,7 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 				call_entry.AddField("Name", Dumper::StringDisplay::Make(), entry.entry_name);
 			}
 		}
-		call_entry.Display(dump);
+		call_entry.Display(dump, Dumper::Export);
 		current_offset += entry.GetEntrySize();
 		if(!entry.same_bundle)
 			current_offset += 2;
@@ -1254,7 +1254,7 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 	}
 
 	Dumper::Region nonresident_name_table_region("Non-resident name table", nonresident_name_table_offset, nonresident_name_table_length, 8);
-	nonresident_name_table_region.Display(dump);
+	nonresident_name_table_region.Display(dump, Dumper::Header | Dumper::Export);
 
 	i = 0;
 	current_offset = nonresident_name_table_offset;
@@ -1263,7 +1263,7 @@ void NEFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Entry name_entry("Name", i + 1, current_offset, 8);
 		name_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name.name);
 		name_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(name.ordinal));
-		name_entry.Display(dump);
+		name_entry.Display(dump, Dumper::Export);
 		current_offset += name.name.size() + 3;
 		i++;
 	}
@@ -2509,7 +2509,7 @@ void ResourceFile::Dump(Dumper::Dumper& dump) const
 				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("load on call", "preload"), false)
 				->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("discardable"), true),
 			offset_t(resource.flags));
-		resource_block.Display(dump);
+		resource_block.Display(dump, Dumper::Resource);
 		current_offset += resource.image->ImageSize();
 	}
 }

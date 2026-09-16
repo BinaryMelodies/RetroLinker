@@ -99,12 +99,17 @@ offset_t HunkFormat::Block::FileSize() const
 	return 4;
 }
 
+int HunkFormat::Block::GetDisplayOptions() const
+{
+	return Dumper::Header;
+}
+
 void HunkFormat::Block::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Dumper::Region block_region("Block", current_offset, FileSize(), 8);
 	AddCommonFields(block_region, index);
 	AddExtraFields(block_region, module, hunk, index, current_offset);
-	block_region.Display(dump);
+	block_region.Display(dump, GetDisplayOptions());
 }
 
 void HunkFormat::Block::AddCommonFields(Dumper::Region& region, unsigned index) const
@@ -219,6 +224,11 @@ offset_t HunkFormat::HeaderBlock::FileSize() const
 	return size;
 }
 
+/*int HunkFormat::HeaderBlock::GetDisplayOptions() const
+{
+	return Dumper::Header;
+}*/
+
 void HunkFormat::HeaderBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
@@ -229,7 +239,7 @@ void HunkFormat::HeaderBlock::Dump(Dumper::Dumper& dump, const Module& module, c
 		// TODO: untested
 		Dumper::Entry library_entry("Library", i, current_offset);
 		library_entry.AddField("Name", Dumper::StringDisplay::Make(), name);
-		library_entry.Display(dump);
+		library_entry.Display(dump, Dumper::Header | Dumper::Import);
 		current_offset += HunkFormat::MeasureString(name);
 		i++;
 	}
@@ -238,7 +248,7 @@ void HunkFormat::HeaderBlock::Dump(Dumper::Dumper& dump, const Module& module, c
 	{
 		Dumper::Entry hunk_size_entry("Hunk size", first_hunk + i, current_offset + i * 4);
 		hunk_size_entry.AddField("Size", Dumper::HexDisplay::Make(8), offset_t(hunk_sizes[i]));
-		hunk_size_entry.Display(dump);
+		hunk_size_entry.Display(dump, Dumper::Header);
 	}
 }
 
@@ -334,6 +344,11 @@ void HunkFormat::RelocatableBlock::WriteBody(Linker::Writer& wr) const
 
 // LoadBlock
 
+int HunkFormat::LoadBlock::GetDisplayOptions() const
+{
+	return Dumper::Header | Dumper::Image;
+}
+
 void HunkFormat::LoadBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
@@ -358,7 +373,7 @@ void HunkFormat::LoadBlock::Dump(Dumper::Dumper& dump, const Module& module, con
 			hunk_block.AddSignal(rel.offset, rel.size);
 		}
 	}
-	hunk_block.Display(dump);
+	hunk_block.Display(dump, Dumper::Image);
 }
 
 uint32_t HunkFormat::LoadBlock::GetSize() const
@@ -528,6 +543,11 @@ offset_t HunkFormat::RelocationBlock::FileSize() const
 	return size;
 }
 
+int HunkFormat::RelocationBlock::GetDisplayOptions() const
+{
+	return Dumper::Header | Dumper::Relocation;
+}
+
 void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
@@ -555,7 +575,7 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const Module& modul
 				relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(2 * GetRelocationSize()), offset_t(
 					hunk->image->AsImage()->ReadUnsigned(GetRelocationSize(), offset, ::BigEndian)));
 			}
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 			i += 1;
 			current_offset += wordread;
 		}
@@ -763,7 +783,7 @@ void HunkFormat::SymbolBlock::References::DumpContents(Dumper::Dumper& dump, con
 	{
 		Dumper::Entry reference_entry("Reference", i + 1, current_offset);
 		reference_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(reference));
-		reference_entry.Display(dump);
+		reference_entry.Display(dump, Dumper::Symbol);
 		current_offset += 4;
 		i++;
 	}
@@ -835,6 +855,11 @@ offset_t HunkFormat::SymbolBlock::FileSize() const
 	return size;
 }
 
+int HunkFormat::SymbolBlock::GetDisplayOptions() const
+{
+	return Dumper::Header | Dumper::Symbol;
+}
+
 void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
@@ -865,7 +890,7 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const Module& module, c
 		unit_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(unit->type));
 		unit_entry.AddField("Name", Dumper::StringDisplay::Make(), unit->name);
 		unit->AddExtraFields(dump, unit_entry, module, hunk, i, current_offset);
-		unit_entry.Display(dump);
+		unit_entry.Display(dump, Dumper::Symbol);
 
 		unit->DumpContents(dump, module, hunk, i, current_offset);
 
@@ -896,12 +921,17 @@ offset_t HunkFormat::DebugBlock::FileSize() const
 	return 8 + ::AlignTo(image->ImageSize(), 4);
 }
 
+int HunkFormat::DebugBlock::GetDisplayOptions() const
+{
+	return Dumper::Header | Dumper::Debug;
+}
+
 void HunkFormat::DebugBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
 
 	Dumper::Block hunk_block("Data", current_offset + 8, image->AsImage(), 0, 8);
-	hunk_block.Display(dump);
+	hunk_block.Display(dump, Dumper::Debug);
 }
 
 // OverlayBlock
@@ -950,6 +980,11 @@ offset_t HunkFormat::OverlayBlock::FileSize() const
 	return 8 + 4 * maximum_level + 32 * overlay_data_table.size();
 }
 
+int HunkFormat::OverlayBlock::GetDisplayOptions() const
+{
+	return Dumper::Header;
+}
+
 void HunkFormat::OverlayBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
 {
 	Block::Dump(dump, module, hunk, index, current_offset);
@@ -977,6 +1012,11 @@ void HunkFormat::LibraryBlock::Write(Linker::Writer& wr) const
 offset_t HunkFormat::LibraryBlock::FileSize() const
 {
 	return 8 + hunks->ImageSize();
+}
+
+int HunkFormat::LibraryBlock::GetDisplayOptions() const
+{
+	return Dumper::Header;
 }
 
 void HunkFormat::LibraryBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
@@ -1138,6 +1178,11 @@ offset_t HunkFormat::IndexBlock::FileSize() const
 		total_size += unit.FileSize();
 	}
 	return ::AlignTo(total_size, 4);
+}
+
+int HunkFormat::IndexBlock::GetDisplayOptions() const
+{
+	return Dumper::Header;
 }
 
 void HunkFormat::IndexBlock::Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const
@@ -1588,12 +1633,12 @@ void HunkFormat::Module::Dump(Dumper::Dumper& dump, offset_t current_offset, uns
 {
 	Dumper::Region file_region("Module", current_offset, ImageSize(), 8);
 	file_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(index + 1));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	if(start_block == nullptr)
 	{
 		Dumper::Region header_region("Missing header", current_offset, 0, 8);
-		header_region.Display(dump);
+		header_region.Display(dump, Dumper::Header);
 	}
 	else
 	{
@@ -1608,7 +1653,7 @@ void HunkFormat::Module::Dump(Dumper::Dumper& dump, offset_t current_offset, uns
 		Dumper::Region hunk_region("Hunk", current_offset, hunk.GetFileSize(), 8);
 		hunk_region.AddField("Number", Dumper::DecDisplay::Make(), offset_t(hunk_number));
 		hunk_region.AddOptionalField("Name", Dumper::StringDisplay::Make(), hunk.name);
-		hunk_region.Display(dump);
+		hunk_region.Display(dump, Dumper::All);
 		for(auto& block : hunk.blocks)
 		{
 			block->Dump(dump, *this, &hunk, current_block, current_offset);
@@ -1687,7 +1732,7 @@ void HunkFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Hunk format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	offset_t current_offset = 0;
 	unsigned module_number = 0;

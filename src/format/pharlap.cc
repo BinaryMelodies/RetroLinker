@@ -246,7 +246,7 @@ void MPFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("MP/MQ format");
 	Dumper::Region file_region("File", file_offset, image_size, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Header", file_offset, header_size, 8);
 	header_region.AddField("Signature", Dumper::StringDisplay::Make("'"), std::string(has_relocations ? "MQ" : "MP"));
@@ -257,13 +257,13 @@ void MPFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Entry (EIP)", Dumper::HexDisplay::Make(8), offset_t(eip));
 	header_region.AddField("Initial stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(esp));
 	header_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(4), offset_t(checksum));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	if(relocation_offset != 0 || relocation_count != 0)
 	{
 		Dumper::Region relocation_region("Relocations", file_offset + relocation_offset, 4 * relocation_count, 8);
 		header_region.AddField("Count", Dumper::DecDisplay::Make(), offset_t(relocation_count));
-		relocation_region.Display(dump);
+		relocation_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 		uint32_t relocation_index = 0;
 		for(auto relocation : relocations)
@@ -273,7 +273,7 @@ void MPFormat::Dump(Dumper::Dumper& dump) const
 				->AddBitField(0, 31, "Offset", Dumper::HexDisplay::Make(8))
 				->AddBitField(31, 1, "Size", Dumper::ChoiceDisplay::Make("4", "2")),
 				offset_t(relocation.value));
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 			relocation_index++;
 		}
 	}
@@ -283,7 +283,7 @@ void MPFormat::Dump(Dumper::Dumper& dump) const
 	{
 		image_block.AddSignal(relocation.offset, relocation.rel32 ? 4 : 2);
 	}
-	image_block.Display(dump);
+	image_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
@@ -690,7 +690,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 		->AddBitField(2, 3, "relocation table type", Dumper::DecDisplay::Make(), true),
 		offset_t(flags));
 	file_region.AddField("Size of initial stack", Dumper::HexDisplay::Make(4), offset_t(stack_size));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Header", file_offset, header_size, 8);
 	if(is_multisegmented || gdt_address != 0 || gdt_size != 0)
@@ -713,13 +713,13 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 		header_region.AddField("TSS address", Dumper::HexDisplay::Make(8), offset_t(tss_address));
 		header_region.AddField("TSS size", Dumper::HexDisplay::Make(8), offset_t(tss_size));
 	}
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	if(segment_information_table_offset != 0 || segment_information_table_size != 0)
 	{
 		Dumper::Region segment_information_table_region("Segment information table", file_offset + segment_information_table_offset, segment_information_table_size, 8);
 		segment_information_table_region.AddField("Entry size", Dumper::HexDisplay::Make(4), offset_t(segment_information_table_entry_size));
-		segment_information_table_region.Display(dump);
+		segment_information_table_region.Display(dump, Dumper::Header);
 
 		uint32_t segment_index = 0;
 		for(auto segment : segments)
@@ -731,7 +731,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 				segment_entry.AddOptionalField("Flags", Dumper::HexDisplay::Make(4), offset_t(sit_entry->flags));
 				segment_entry.AddOptionalField("Base offset", Dumper::HexDisplay::Make(8), offset_t(sit_entry->base_offset));
 				segment_entry.AddOptionalField("Extra bytes", Dumper::HexDisplay::Make(8), offset_t(sit_entry->zero_fill));
-				segment_entry.Display(dump);
+				segment_entry.Display(dump, Dumper::Header);
 				segment_index++;
 			}
 		}
@@ -740,14 +740,14 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 	if(relocation_table_offset != 0 || relocation_table_size != 0)
 	{
 		Dumper::Region relocation_table_region("Relocation table", file_offset + relocation_table_offset, relocation_table_size, 8);
-		relocation_table_region.Display(dump);
+		relocation_table_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 		uint32_t relocation_index = 0;
 		for(auto relocation : relocations)
 		{
 			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, file_offset + relocation_table_offset + relocation_index * (is_32bit ? 6 : 4), 8);
 			relocation_entry.AddField("Address", Dumper::SegmentedDisplay::Make(is_32bit ? 8 : 4), offset_t(relocation.selector), offset_t(relocation.offset));
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 			relocation_index++;
 		}
 	}
@@ -755,14 +755,14 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 	if(runtime_parameters_offset != 0 || runtime_parameters_size != 0)
 	{
 		Dumper::Region runtime_parameters_region("Runtime parameters", file_offset + runtime_parameters_offset, runtime_parameters_size, 8);
-		runtime_parameters_region.Display(dump);
+		runtime_parameters_region.Display(dump, Dumper::Header);
 	}
 
 	if(symbol_table_offset != 0 || symbol_table_size != 0)
 	{
 		Dumper::Region symbol_table_region("Symbol table", file_offset + symbol_table_offset, symbol_table_size, 8);
 		// TODO
-		symbol_table_region.Display(dump);
+		symbol_table_region.Display(dump, Dumper::Header | Dumper::Symbol);
 	}
 
 	Dumper::Block load_image_block("Load image", file_offset + load_image_offset, image, is_multisegmented ? 0 : base_load_offset, 8);
@@ -787,7 +787,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 			continue; // invalid
 		load_image_block.AddSignal(descriptor->base + relocation.offset, 2);
 	}
-	load_image_block.Display(dump);
+	load_image_block.Display(dump, Dumper::Header | Dumper::Image);
 
 	/* Task State Segment */
 
@@ -795,7 +795,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Region tss_region("Task State Segment (TSS)", file_offset + load_image_offset + tss_address, tss_size, 8);
 		tss->FillEntries(tss_region);
-		tss_region.Display(dump);
+		tss_region.Display(dump, Dumper::Header);
 	}
 
 	/* Global Descriptor Table */
@@ -803,7 +803,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 	if(gdt_address != 0 || gdt_size != 0)
 	{
 		Dumper::Region gdt_region("Global Descriptor Table (GDT)", file_offset + load_image_offset + gdt_address, gdt_size, 8);
-		gdt_region.Display(dump);
+		gdt_region.Display(dump, Dumper::Header);
 	}
 
 	uint32_t descriptor_index = 0;
@@ -812,7 +812,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 		Dumper::Entry gdt_entry("GDT entry", descriptor_index + 1, file_offset + load_image_offset + gdt_address + 8 * descriptor_index, 8);
 		gdt_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(descriptor_index * 8));
 		descriptor.FillEntry(gdt_entry);
-		gdt_entry.Display(dump);
+		gdt_entry.Display(dump, Dumper::Miscellaneous);
 		descriptor_index ++;
 	}
 
@@ -821,7 +821,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 	if(idt_address != 0 || idt_size != 0)
 	{
 		Dumper::Region idt_region("Interrupt Descriptor Table (IDT)", file_offset + load_image_offset + idt_address, idt_size, 8);
-		idt_region.Display(dump);
+		idt_region.Display(dump, Dumper::Header);
 	}
 
 	descriptor_index = 0;
@@ -830,7 +830,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 		Dumper::Entry idt_entry("IDT entry", descriptor_index + 1, file_offset + load_image_offset + idt_address + 8 * descriptor_index, 8);
 		idt_entry.AddField("Interrupt number", Dumper::HexDisplay::Make(2), offset_t(descriptor_index));
 		descriptor.FillEntry(idt_entry);
-		idt_entry.Display(dump);
+		idt_entry.Display(dump, Dumper::Miscellaneous);
 		descriptor_index ++;
 	}
 
@@ -839,7 +839,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 	if(ldt_address != 0 || ldt_size != 0)
 	{
 		Dumper::Region ldt_region("Local Descriptor Table (LDT)", file_offset + load_image_offset + ldt_address, ldt_size, 8);
-		ldt_region.Display(dump);
+		ldt_region.Display(dump, Dumper::Header);
 	}
 
 	descriptor_index = 0;
@@ -848,7 +848,7 @@ void P3Format::Dump(Dumper::Dumper& dump) const
 		Dumper::Entry ldt_entry("LDT entry", descriptor_index + 1, file_offset + load_image_offset + ldt_address + 8 * descriptor_index, 8);
 		ldt_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(descriptor_index * 8 + 4));
 		descriptor.FillEntry(ldt_entry);
-		ldt_entry.Display(dump);
+		ldt_entry.Display(dump, Dumper::Miscellaneous);
 		descriptor_index ++;
 	}
 }

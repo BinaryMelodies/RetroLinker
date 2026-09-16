@@ -218,8 +218,11 @@ Container::~Container()
 {
 }
 
-void Container::Display(Dumper& dump)
+void Container::Display(Dumper& dump, int options)
 {
+	if((dump.show_options & options) == 0 || (dump.hide_options & options) != 0)
+		return;
+
 	dump.out << "== " << name;
 	std::shared_ptr<Field> number_field;
 	if((number_field = FindField("number")) && number_field->internal)
@@ -240,8 +243,11 @@ void Container::Display(Dumper& dump)
 	}
 }
 
-/*void Region::Display(Dumper& dump)
+/*void Region::Display(Dumper& dump, int options)
 {
+	if((dump.show_options & options) == 0 || (dump.hide_options & options) != 0)
+		return;
+
 	dump.out << "== " << name;
 	Field * number_field;
 	if((number_field = FindField("number")) && number_field->internal)
@@ -262,8 +268,11 @@ void Container::Display(Dumper& dump)
 	}
 }*/
 
-void Entry::Display(Dumper& dump)
+void Entry::Display(Dumper& dump, int options)
 {
+	if((dump.show_options & options) == 0 || (dump.hide_options & options) != 0)
+		return;
+
 	dump.out << "* ";
 	if(offset != offset_t(-1))
 	{
@@ -290,10 +299,15 @@ void Entry::Display(Dumper& dump)
 	dump.out << std::endl;
 }
 
-void Block::Display(Dumper& dump)
+void Block::Display(Dumper& dump, int options)
 {
-	Region::Display(dump);
+	if((dump.show_options & options) == 0 || (dump.hide_options & options) != 0)
+		return;
+
+	Region::Display(dump, options);
 	if(!image || image->ImageSize() == 0)
+		return;
+	if((dump.show_options & Image) == 0 || (dump.hide_options & Image) != 0)
 		return;
 	size_t block_offset = GetField<offset_t>("Offset", 0);
 	size_t block_address = GetField<offset_t>("Address", 0);

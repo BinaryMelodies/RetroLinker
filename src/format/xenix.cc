@@ -26,7 +26,7 @@ void BOutFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("b.out format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }
@@ -119,7 +119,7 @@ void XOutFormat::Segment::Dump(Dumper::Dumper& dump, const XOutFormat& xout, uin
 {
 	Dumper::Region header_region("Segment header", xout.header_size + index * 0x20, 0x20, 8);
 	header_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index + 1));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	static const std::map<offset_t, std::string> type_descriptions =
 	{
@@ -191,7 +191,7 @@ void XOutFormat::Segment::Dump(Dumper::Dumper& dump, const XOutFormat& xout, uin
 	segment_block.AddOptionalField("Reserved @0x07", Dumper::HexDisplay::Make(2), offset_t(reserved1));
 	segment_block.AddOptionalField("Reserved @0x1A", Dumper::HexDisplay::Make(4), offset_t(reserved2));
 	segment_block.AddOptionalField("Reserved @0x1C", Dumper::HexDisplay::Make(9), offset_t(reserved3));
-	segment_block.Display(dump);
+	segment_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 void XOutFormat::Clear()
@@ -524,7 +524,7 @@ void XOutFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("x.out format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	static const std::map<offset_t, std::string> cpu_description =
 	{
@@ -663,12 +663,12 @@ void XOutFormat::Dump(Dumper::Dumper& dump) const
 		break;
 	}
 	header_region.AddOptionalField("Reserved (@0x4A)", Dumper::HexDisplay::Make(8), offset_t(header_reserved1));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	if(segment_table_size != 0 || segment_table_offset != 0)
 	{
 		Dumper::Region segment_table_region("Segment table", segment_table_offset, segment_table_size, 8);
-		segment_table_region.Display(dump);
+		segment_table_region.Display(dump, Dumper::Header);
 	}
 
 	if(machine_dependent_table_size != 0 || machine_dependent_table_offset != 0)
@@ -681,7 +681,7 @@ void XOutFormat::Dump(Dumper::Dumper& dump) const
 
 		Dumper::Region machine_dependent_table_region("Machine dependent table", machine_dependent_table_offset, machine_dependent_table_size, 8);
 		machine_dependent_table_region.AddField("Format", Dumper::ChoiceDisplay::Make(mdt_format_description), offset_t(machine_dependent_table_format));
-		machine_dependent_table_region.Display(dump);
+		machine_dependent_table_region.Display(dump, Dumper::Header);
 	}
 
 	uint32_t segment_index = 0;

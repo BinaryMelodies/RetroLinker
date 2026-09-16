@@ -4422,7 +4422,7 @@ std::shared_ptr<OMF86Format> OMF86Format::ReadOMFFile(Linker::Reader& rd)
 	return omf;
 }
 
-void OMF86Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF86Format * omf, const Module * mod, size_t record_index)
+void OMF86Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF86Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options)
 {
 	region.AddField("Record name", Dumper::ChoiceDisplay::Make(RecordTypeNames, "unknown"), offset_t(record->record_type));
 }
@@ -4461,7 +4461,7 @@ void OMF86Format::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Intel OMF-86 format");
 	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	size_t record_index = 0;
 	ssize_t module_index = -1;
@@ -4473,7 +4473,7 @@ void OMF86Format::Dump(Dumper::Dumper& dump) const
 
 			Dumper::Region module_region("Module", record->record_offset, records[record_index + modules[module_index].record_count - 1]->RecordEnd() + 1 - record->record_offset, 8);
 			module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(module_index + 1));
-			module_region.Display(dump);
+			module_region.Display(dump, Dumper::Header);
 		}
 
 		record->Dump(dump, this, module_index >= 0 ? &modules[module_index] : nullptr, record_index);
@@ -5296,7 +5296,7 @@ std::shared_ptr<OMF80Format> OMF80Format::ReadOMFFile(Linker::Reader& rd)
 	return omf;
 }
 
-void OMF80Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF80Format * omf, const Module * mod, size_t record_index)
+void OMF80Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF80Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options)
 {
 	region.AddField("Record name", Dumper::ChoiceDisplay::Make(RecordTypeNames, "unknown"), offset_t(record->record_type));
 }
@@ -5327,7 +5327,7 @@ void OMF80Format::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Intel OMF-80 format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	size_t record_index = 0;
 	ssize_t module_index = -1;
@@ -5339,7 +5339,7 @@ void OMF80Format::Dump(Dumper::Dumper& dump) const
 
 			Dumper::Region module_region("Module", record->record_offset, records[record_index + modules[module_index].record_count - 1]->RecordEnd() + 1 - record->record_offset, 8);
 			module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(module_index + 1));
-			module_region.Display(dump);
+			module_region.Display(dump, Dumper::Header);
 		}
 
 		record->Dump(dump, this, module_index >= 0 ? &modules[module_index] : nullptr, record_index);
@@ -6032,7 +6032,7 @@ std::shared_ptr<OMF51Format> OMF51Format::ReadOMFFile(Linker::Reader& rd)
 	return omf;
 }
 
-void OMF51Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF51Format * omf, const Module * mod, size_t record_index)
+void OMF51Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF51Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options)
 {
 	region.AddField("Record name", Dumper::ChoiceDisplay::Make(RecordTypeNames, "unknown"), offset_t(record->record_type));
 }
@@ -6063,7 +6063,7 @@ void OMF51Format::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Intel OMF-51 format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	size_t record_index = 0;
 	ssize_t module_index = -1;
@@ -6075,7 +6075,7 @@ void OMF51Format::Dump(Dumper::Dumper& dump) const
 
 			Dumper::Region module_region("Module", record->record_offset, records[record_index + modules[module_index].record_count - 1]->RecordEnd() + 1 - record->record_offset, 8);
 			module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(module_index + 1));
-			module_region.Display(dump);
+			module_region.Display(dump, Dumper::Header);
 		}
 
 		record->Dump(dump, this, module_index >= 0 ? &modules[module_index] : nullptr, record_index);
@@ -6896,7 +6896,7 @@ std::shared_ptr<OMF96Format> OMF96Format::ReadOMFFile(Linker::Reader& rd)
 	return omf;
 }
 
-void OMF96Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF96Format * omf, const Module * mod, size_t record_index)
+void OMF96Format::DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF96Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options)
 {
 	region.AddField("Record name", Dumper::ChoiceDisplay::Make(RecordTypeNames, "unknown"), offset_t(record->record_type));
 }
@@ -6927,7 +6927,7 @@ void OMF96Format::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Intel OMF-96 format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	size_t record_index = 0;
 	ssize_t module_index = -1;
@@ -6939,7 +6939,7 @@ void OMF96Format::Dump(Dumper::Dumper& dump) const
 
 			Dumper::Region module_region("Module", record->record_offset, records[record_index + modules[module_index].record_count - 1]->RecordEnd() + 1 - record->record_offset, 8);
 			module_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(module_index + 1));
-			module_region.Display(dump);
+			module_region.Display(dump, Dumper::Header);
 		}
 
 		record->Dump(dump, this, module_index >= 0 ? &modules[module_index] : nullptr, record_index);

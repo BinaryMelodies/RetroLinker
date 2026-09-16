@@ -551,14 +551,14 @@ void LEFormat::Page::DumpPhysicalPage(Dumper::Dumper& dump, const LEFormat& fmt,
 		8);
 	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
 	FillDumpRelocations(dump, page_block, fmt);
-	page_block.Display(dump);
+	page_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), fmt.IsExtendedFormat() ? size : fmt.page_size /* TODO: what is the actual size? */, 8);
 	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
-	page_region.Display(dump);
+	page_region.Display(dump, Dumper::Header | Dumper::Image);
 
 	auto& iterated_page = dynamic_cast<IteratedPage &>(*image);
 
@@ -570,7 +570,7 @@ void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt,
 		Dumper::Block iter_entry("Iteration record", current_offset + 2, buffer, 0, 8);
 		iter_entry.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
 		iter_entry.AddField("Iteration count", Dumper::DecDisplay::Make(), offset_t(record.count));
-		iter_entry.Display(dump);
+		iter_entry.Display(dump, Dumper::Control);
 
 		current_offset += 2 + record.data.size();
 		record_index ++;
@@ -582,21 +582,21 @@ void LEFormat::Page::DumpIteratedPage(Dumper::Dumper& dump, const LEFormat& fmt,
 		8);
 	FillDumpRegion(dump, page_block, fmt, object_number, page_index);
 	FillDumpRelocations(dump, page_block, fmt);
-	page_block.Display(dump);
+	page_block.Display(dump, Dumper::Image | Dumper::Generated);
 }
 
 void LEFormat::Page::DumpInvalidPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), fmt.IsExtendedFormat() ? size : fmt.page_size, 8);
 	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
-	page_region.Display(dump);
+	page_region.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 void LEFormat::Page::DumpZeroFilledPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
 	Dumper::Region page_region("Page", fmt.GetPageOffset(page_index), fmt.IsExtendedFormat() ? size : fmt.page_size, 8);
 	FillDumpRegion(dump, page_region, fmt, object_number, page_index);
-	page_region.Display(dump);
+	page_region.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 void LEFormat::Page::DumpPageRange(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
@@ -736,7 +736,7 @@ void LEFormat::Page::Dump(Dumper::Dumper& dump, const LEFormat& fmt, PhysicalPag
 			break;
 		}
 		rel_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(8), offset_t(relocation_record.addition));
-		rel_entry.Display(dump);
+		rel_entry.Display(dump, Dumper::Relocation);
 
 		current_fixup_offset += relocation_record.GetSize();
 
@@ -746,7 +746,7 @@ void LEFormat::Page::Dump(Dumper::Dumper& dump, const LEFormat& fmt, PhysicalPag
 
 			Dumper::Entry rel_entry("Relocation", relocation_index + 1, current_fixup_offset - 2 * (relocation_record.sources.size() - relocation_member_index), 8);
 			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(relocation.source));
-			rel_entry.Display(dump);
+			rel_entry.Display(dump, Dumper::Relocation);
 
 			relocation_index ++;
 
@@ -770,7 +770,7 @@ void LEFormat::Page::Dump(Dumper::Dumper& dump, const LEFormat& fmt, PhysicalPag
 					rel_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(relocation_record.actual_object), offset_t(relocation_record.actual_offset + link.target));
 					break;
 				}
-				rel_entry.Display(dump);
+				rel_entry.Display(dump, Dumper::Relocation);
 				relocation_index ++;
 			}
 		}
@@ -1863,7 +1863,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("LE/LX format");
 	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	static const std::map<offset_t, std::string> endian_descriptions =
 	{
@@ -1940,20 +1940,20 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	}
 	header_region.AddOptionalField("VxD Device ID", Dumper::HexDisplay::Make(4), offset_t(vxd_device_id));
 	header_region.AddOptionalField("VxD DDK version", Dumper::HexDisplay::Make(4), offset_t(vxd_ddk_version));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 	if(vxd_version_info_resource_offset != 0 || vxd_version_info_resource_length != 0)
 	{
 		Dumper::Region vxd_version_info_region("VxD version info resource", vxd_version_info_resource_offset, vxd_version_info_resource_length, 8);
-		vxd_version_info_region.Display(dump);
+		vxd_version_info_region.Display(dump, Dumper::Header);
 		vxd_version_info_resource.Dump(dump);
 	}
 
 	Dumper::Region loader_section_region("Loader section", object_table_offset, loader_section_size, 8);
 	loader_section_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(loader_section_checksum));
-	loader_section_region.Display(dump);
+	loader_section_region.Display(dump, Dumper::Header);
 
 	Dumper::Region object_table_region("Object table", object_table_offset, objects.size() * 24, 8);
-	object_table_region.Display(dump);
+	object_table_region.Display(dump, Dumper::Header);
 
 	offset_t i = 0;
 	for(auto& object : objects)
@@ -1989,7 +1989,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			offset_t(object.flags));
 		object_region.AddField("Page table index", Dumper::HexDisplay::Make(8), offset_t(object.page_table_index));
 		object_region.AddField("Page table entry count", Dumper::DecDisplay::Make(), offset_t(object.page_entry_count));
-		object_region.Display(dump);
+		object_region.Display(dump, Dumper::Header);
 		i++;
 	}
 
@@ -1999,7 +1999,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		object_page_table_region.AddField("Page count", Dumper::HexDisplay::Make(8), offset_t(page_count));
 		object_page_table_region.AddField("Page size", Dumper::HexDisplay::Make(8), offset_t(page_size));
 		object_page_table_region.AddField("Iterated pages offset", Dumper::HexDisplay::Make(8), offset_t(object_iterated_pages_offset));
-		object_page_table_region.Display(dump);
+		object_page_table_region.Display(dump, Dumper::Header);
 	}
 	else
 	{
@@ -2008,7 +2008,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		object_page_map_table_region.AddField("Page count", Dumper::HexDisplay::Make(8), offset_t(page_count));
 		object_page_map_table_region.AddField("Page size", Dumper::HexDisplay::Make(8), offset_t(page_size));
 		object_page_map_table_region.AddField("Iterated pages offset", Dumper::HexDisplay::Make(8), offset_t(object_iterated_pages_offset));
-		object_page_map_table_region.Display(dump);
+		object_page_map_table_region.Display(dump, Dumper::Header | Dumper::Miscellaneous);
 
 		uint32_t entry_index = 0;
 		for(auto& page_map_entry : page_map_table)
@@ -2016,7 +2016,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Entry page_entry("Page map", entry_index + 1, object_page_table_offset + 4 * entry_index, 8);
 			page_entry.AddField("Page number", Dumper::DecDisplay::Make(), offset_t(std::get<0>(page_map_entry)));
 			page_entry.AddField("Type", Dumper::ChoiceDisplay::Make(page_type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(std::get<1>(page_map_entry)));
-			page_entry.Display(dump);
+			page_entry.Display(dump, Dumper::Miscellaneous);
 			entry_index ++;
 		}
 	}
@@ -2024,7 +2024,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	if(resource_table_entry_count != 0)
 	{
 		Dumper::Region resource_table_region("Resource table", resource_table_offset, resource_table_entry_count * 14, 8);
-		resource_table_region.Display(dump);
+		resource_table_region.Display(dump, Dumper::Header | Dumper::Resource);
 
 		uint32_t resource_index = 0;
 		for(auto& resource_pair : resources)
@@ -2036,13 +2036,13 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			resource_entry.AddField("Resource name ID", Dumper::HexDisplay::Make(4), offset_t(resource.name_id));
 			resource_entry.AddField("Location", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make()), offset_t(resource.object), offset_t(resource.offset));
 			resource_entry.AddField("Size", Dumper::HexDisplay::Make(4), offset_t(resource.size));
-			resource_entry.Display(dump);
+			resource_entry.Display(dump, Dumper::Resource);
 			resource_index ++;
 		}
 	}
 
 	Dumper::Region resident_name_table_region("Resident name table", resident_name_table_offset, entry_table_offset - resident_name_table_offset, 8);
-	resident_name_table_region.Display(dump);
+	resident_name_table_region.Display(dump, Dumper::Header | Dumper::Export);
 
 	uint32_t current_offset = resident_name_table_offset;
 	uint32_t name_index = 0;
@@ -2051,13 +2051,13 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Entry name_entry("Name", name_index + 1, current_offset, 8);
 		name_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name.name);
 		name_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(name.ordinal));
-		name_entry.Display(dump);
+		name_entry.Display(dump, Dumper::Export);
 		current_offset += name.name.size() + 3;
 		name_index ++;
 	}
 
 	Dumper::Region entry_table_region("Entry table", entry_table_offset, 0 /* TODO */, 8);
-	entry_table_region.Display(dump);
+	entry_table_region.Display(dump, Dumper::Header | Dumper::Export);
 
 	static const std::map<offset_t, std::string> type_descriptions =
 	{
@@ -2130,7 +2130,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			call_entry.AddField("Export", Dumper::ChoiceDisplay::Make(export_descriptions), offset_t(entry.export_state));
 			call_entry.AddField("Name", Dumper::StringDisplay::Make(), entry.entry_name);
 		}
-		call_entry.Display(dump);
+		call_entry.Display(dump, Dumper::Export);
 		current_offset += entry.GetEntryBodySize();
 		if(!entry.same_bundle)
 			current_offset += entry.GetEntryHeadSize();
@@ -2140,7 +2140,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	if(module_directives_offset != 0 || module_directives.size() != 0)
 	{
 		Dumper::Region module_directives_table_region("Module format directives table", module_directives_offset, module_directives.size() * 8, 8);
-		module_directives_table_region.Display(dump);
+		module_directives_table_region.Display(dump, Dumper::Header);
 
 		// TODO: module_directives
 	}
@@ -2148,21 +2148,21 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	if(per_page_checksum_offset != 0)
 	{
 		Dumper::Region perpage_checksum_table_region("Per-page checksum", per_page_checksum_offset, page_count * 4, 8);
-		perpage_checksum_table_region.Display(dump);
+		perpage_checksum_table_region.Display(dump, Dumper::Header);
 	}
 
 	Dumper::Region fixup_section_region("Fixup section", fixup_page_table_offset, fixup_section_size, 8);
 	fixup_section_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(fixup_section_checksum));
-	fixup_section_region.Display(dump);
+	fixup_section_region.Display(dump, Dumper::Header);
 
 	Dumper::Region fixup_page_table_region("Fixup page table", fixup_page_table_offset, (page_count + 1) * 4, 8);
-	fixup_page_table_region.Display(dump);
+	fixup_page_table_region.Display(dump, Dumper::Header);
 
 	Dumper::Region fixup_record_table_region("Fixup record table", fixup_record_table_offset, imported_module_table_offset - fixup_record_table_offset, 8);
-	fixup_record_table_region.Display(dump);
+	fixup_record_table_region.Display(dump, Dumper::Header);
 
 	Dumper::Region import_module_name_table_region("Import module name table", imported_module_table_offset, imported_procedure_table_offset - imported_module_table_offset, 8);
-	import_module_name_table_region.Display(dump);
+	import_module_name_table_region.Display(dump, Dumper::Header | Dumper::Import);
 
 	current_offset = imported_module_table_offset;
 	uint32_t module_index = 0;
@@ -2170,7 +2170,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Entry module_entry("Module", module_index, current_offset, 8);
 		module_entry.AddField("Name", Dumper::StringDisplay::Make(), module_name);
-		module_entry.Display(dump);
+		module_entry.Display(dump, Dumper::Import);
 		current_offset += 1 + module_name.size();
 		module_index ++;
 	}
@@ -2181,7 +2181,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	else
 		imported_procedure_table_end = fixup_page_table_offset + fixup_section_size;
 	Dumper::Region import_procedure_name_table_region("Import procedure name table", imported_procedure_table_offset, imported_procedure_table_end - imported_procedure_table_offset, 8);
-	import_procedure_name_table_region.Display(dump);
+	import_procedure_name_table_region.Display(dump, Dumper::Header | Dumper::Import);
 
 	current_offset = imported_procedure_table_offset;
 	uint32_t procedure_index = 0;
@@ -2189,7 +2189,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Entry procedure_entry("Procedure", procedure_index, current_offset, 8);
 		procedure_entry.AddField("Name", Dumper::StringDisplay::Make(), procedure_name);
-		procedure_entry.Display(dump);
+		procedure_entry.Display(dump, Dumper::Import);
 		current_offset += 1 + procedure_name.size();
 		procedure_index ++;
 	}
@@ -2198,7 +2198,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	page_data_region.AddField("Preload page count", Dumper::DecDisplay::Make(), offset_t(preload_page_count));
 	page_data_region.AddField("Instance preload page count", Dumper::DecDisplay::Make(), offset_t(instance_preload_page_count));
 	page_data_region.AddField("Instance demand page count", Dumper::DecDisplay::Make(), offset_t(instance_demand_page_count));
-	page_data_region.Display(dump);
+	page_data_region.Display(dump, Dumper::Header);
 
 	PhysicalPageNumber physical_page_number = PhysicalPageNumber{1};
 	for(const Page& page : pages)
@@ -2215,7 +2215,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Region nonresident_name_table_region("Non-resident name table", nonresident_name_table_offset, nonresident_name_table_size, 8);
 		nonresident_name_table_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(8), offset_t(nonresident_name_table_checksum));
-		nonresident_name_table_region.Display(dump);
+		nonresident_name_table_region.Display(dump, Dumper::Header | Dumper::Export);
 
 		current_offset = resident_name_table_offset;
 		name_index = 0;
@@ -2224,7 +2224,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Entry name_entry("Name", name_index + 1, current_offset, 8);
 			name_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name.name);
 			name_entry.AddField("Ordinal", Dumper::HexDisplay::Make(4), offset_t(name.ordinal));
-			name_entry.Display(dump);
+			name_entry.Display(dump, Dumper::Export);
 			current_offset += name.name.size() + 3;
 			name_index ++;
 		}
@@ -2233,7 +2233,7 @@ void LEFormat::Dump(Dumper::Dumper& dump) const
 	if(debug_info_size != 0)
 	{
 		Dumper::Region debug_info_region("Debug info", debug_info_offset, debug_info_size, 8);
-		debug_info_region.Display(dump);
+		debug_info_region.Display(dump, Dumper::Header | Dumper::Debug);
 	}
 }
 

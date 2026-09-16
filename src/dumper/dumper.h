@@ -12,6 +12,56 @@
 namespace Dumper
 {
 
+enum display_option
+{
+	_Image,
+	_Header,
+	_Symbol,
+	_Relocation,
+	_Import,
+	_Export,
+	_Control,
+	_String,
+	_Debug,
+	_Resource,
+	_Dynamic,
+	_Miscellaneous,
+	_Redundant,
+	_Generated,
+
+	/** @brief Include blocks of data in the display and their associated information */
+	Image = 1 << _Image,
+	/** @brief Include header information, consisting of metadata, load parameters etc. */
+	Header = 1 << _Header,
+	/** @brief Include symbol information */
+	Symbol = 1 << _Symbol,
+	/** @brief Include relocation information */
+	Relocation = 1 << _Relocation,
+	/** @brief Include information related to importing external symbols (often shared with Symbol and Relocation) */
+	Import = 1 << _Import,
+	/** @brief Include information related to exporting symbols (often shared with Symbol) */
+	Export = 1 << _Export,
+	/** @brief Include information used to generate metadata, such as load commands */
+	Control = 1 << _Control,
+	/** @brief Include raw dumps of string tables */
+	String = 1 << _String,
+	/** @brief Include assorted debugging information (symbols are treated separately) */
+	Debug = 1 << _Debug,
+	/** @brief Include specialized resource sections */
+	Resource = 1 << _Resource,
+	/** @brief Include dynamic sections, containing loading information relevant for UNIX-like systems */
+	Dynamic = 1 << _Dynamic,
+	/** @brief Include any assorted information */
+	Miscellaneous = 1 << _Miscellaneous,
+	/** @brief Repeated information that is only displayed for convenience */
+	Redundant = 1 << _Redundant,
+	/** @brief Include information that is generated while parsing using control information (such as Image or Relocation information) */
+	Generated = 1 << _Generated,
+
+	None = 0,
+	All = Image | Header | Symbol | Relocation | Import | Export | Control | Miscellaneous | Generated,
+};
+
 class Dumper;
 
 class Encoding
@@ -656,7 +706,12 @@ public:
 		AddField(index, std::make_shared<FieldOf<Ts...>>(label, display, values..., false, true));
 	}
 
-	virtual void Display(Dumper& dump);
+	/** @brief Passes information onto the dumper
+	 *
+	 * @param dump The dumper object
+	 * @param options Flags that let the dumper filter for which information should be displayed
+	 */
+	virtual void Display(Dumper& dump, int options);
 };
 
 /**
@@ -677,7 +732,7 @@ public:
 		return std::make_shared<Region>(name, offset, length, display_width);
 	}
 
-//	void Display(Dumper& dump);
+//	void Display(Dumper& dump, int options);
 };
 
 /**
@@ -695,7 +750,7 @@ public:
 	{
 	}
 
-	void Display(Dumper& dump) override;
+	void Display(Dumper& dump, int options) override;
 };
 
 /**
@@ -759,7 +814,7 @@ public:
 		return std::make_shared<Block>(name, offset, image, address, display_width, offset_display_width, address_display_width, position_display_width);
 	}
 
-	void Display(Dumper& dump) override;
+	void Display(Dumper& dump, int options) override;
 };
 
 /**
@@ -774,6 +829,8 @@ class Dumper
 public:
 	std::ostream& out;
 	bool use_ansi;
+	int show_options = All;
+	int hide_options = None;
 
 	SingleByteEncoding * encoding;
 	Encoding * string_encoding;

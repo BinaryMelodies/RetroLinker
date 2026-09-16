@@ -74,7 +74,7 @@ void MINIXFormat::Relocation::Dump(Dumper::Dumper& dump, unsigned index, offset_
 	}
 	relocation_entry.AddOptionalField("Symbol", Dumper::StringDisplay::Make(), name);
 	relocation_entry.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(address));
-	relocation_entry.Display(dump);
+	relocation_entry.Display(dump, Dumper::Relocation);
 }
 
 size_t MINIXFormat::Relocation::GetSize() const
@@ -145,7 +145,7 @@ void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t re
 		{ S_STAT, "static" },
 	};
 	symbol_entry.AddField("Storage class", Dumper::ChoiceDisplay::Make(section_descriptions, Dumper::HexDisplay::Make(2)), offset_t(sclass & N_CLASS));
-	symbol_entry.Display(dump);
+	symbol_entry.Display(dump, Dumper::Symbol);
 }
 
 void MINIXFormat::ReadFile(Linker::Reader& rd)
@@ -969,7 +969,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 		file_region.AddOptionalField("Data relocation base address", Dumper::HexDisplay::Make(8), offset_t(data_relocation_base));
 	}
 
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	offset_t current_offset = header_size;
 
@@ -980,7 +980,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 		if(size != 0)
 			code_block.AddSignal(rel.address, 2);
 	}
-	code_block.Display(dump);
+	code_block.Display(dump, Dumper::Header | Dumper::Image);
 	if(code != nullptr)
 		current_offset += code->ImageSize();
 
@@ -993,7 +993,7 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 			if(size != 0)
 				far_code_block.AddSignal(rel.address, 2);
 		}
-		far_code_block.Display(dump);
+		far_code_block.Display(dump, Dumper::Header | Dumper::Image);
 		current_offset += far_code->ImageSize();
 	}
 
@@ -1004,13 +1004,13 @@ void MINIXFormat::Dump(Dumper::Dumper& dump) const
 		if(size != 0)
 			data_block.AddSignal(rel.address, 2);
 	}
-	data_block.Display(dump);
+	data_block.Display(dump, Dumper::Header | Dumper::Image);
 	if(data != nullptr)
 		current_offset += data->ImageSize();
 
 	Dumper::Region bss_region("BSS", current_offset, bss_size, 8);
 	bss_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(0 /* TODO: what is the base address? */ + ((format & FormatCombined) && code != nullptr ? code->ImageSize() : 0) + (data != nullptr ? data->ImageSize() : 0)));
-	bss_region.Display(dump);
+	bss_region.Display(dump, Dumper::Header | Dumper::Image);
 
 	unsigned i = 0;
 	for(auto& rel : code_relocations)

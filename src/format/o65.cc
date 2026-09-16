@@ -415,7 +415,7 @@ void O65Format::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("O64 format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }

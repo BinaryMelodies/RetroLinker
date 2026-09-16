@@ -346,7 +346,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Starting stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(esp)); // TODO: RSP
 	file_region.AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(flags)); // TODO: print bits
 	file_region.AddOptionalField("Offset relocation size", Dumper::HexDisplay::Make(8), offset_t(offset_relocations_size)); // DX64 only
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Block image_block("Image", file_offset + header_size, image->AsImage(), 0 /* TODO */, 8);
 	image_block.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(memory_size));
@@ -354,7 +354,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 	{
 		image_block.AddSignal(rel.first, rel.second == Offset32 ? 4 : 2);
 	}
-	image_block.Display(dump);
+	image_block.Display(dump, Dumper::Header | Dumper::Image);
 
 	static const std::map<offset_t, std::string> relocation_type_description =
 	{
@@ -370,7 +370,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Entry rel_entry("Relocation", relocation_index + 1, file_offset + header_size + program_size + 4 * relocation_index, 8);
 			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(rel));
 			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_description), offset_t(Selector16));
-			rel_entry.Display(dump);
+			rel_entry.Display(dump, Dumper::Relocation);
 			relocation_index ++;
 		}
 
@@ -379,7 +379,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Entry rel_entry("Relocation", relocation_index + 1, file_offset + header_size + program_size + 4 * relocation_index, 8);
 			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(rel));
 			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_description), offset_t(Offset32));
-			rel_entry.Display(dump);
+			rel_entry.Display(dump, Dumper::Relocation);
 			relocation_index ++;
 		}
 	}
@@ -397,7 +397,7 @@ void SeychellDOS32::AdamFormat::Dump(Dumper::Dumper& dump) const
 			rel_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(rel.first));
 			rel_entry.AddField("Type", Dumper::ChoiceDisplay::Make(relocation_type_description), offset_t(rel.second));
 			rel_entry.AddField("Entry size", Dumper::HexDisplay::Make(8), offset_t(relocation_size));
-			rel_entry.Display(dump);
+			rel_entry.Display(dump, Dumper::Relocation);
 			relocation_index ++;
 			relocation_offset += relocation_size;
 		}
@@ -711,11 +711,11 @@ void DX64::LVFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Signature", Dumper::StringDisplay::Make(4, "'"), std::string(signature.data(), 4));
 	file_region.AddField("Entry point (RIP)", Dumper::HexDisplay::Make(8), offset_t(eip));
 	file_region.AddField("Starting stack (RSP)", Dumper::HexDisplay::Make(8), offset_t(esp));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Block image_block("Image", file_offset + 20, image->AsImage(), 0 /* TODO */, 8);
 	image_block.AddField("Memory size", Dumper::HexDisplay::Make(8), offset_t(memory_size));
-	image_block.Display(dump);
+	image_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 /* * * Writer members * * */
@@ -792,16 +792,16 @@ void BorcaD3X::D3X1Format::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("D3X1 format");
 	Dumper::Region file_region("File", file_offset, header_size + binary_size, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Header", file_offset, header_size, 8);
 	header_region.AddField("Additional memory", Dumper::HexDisplay::Make(8), offset_t(extra_size));
 	header_region.AddField("Entry (EIP)", Dumper::HexDisplay::Make(8), offset_t(entry));
 	header_region.AddField("Initial stack (ESP)", Dumper::HexDisplay::Make(8), offset_t(stack_top));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	Dumper::Block data_block("Data", file_offset + header_size, image ? image->AsImage() : nullptr, 0, 8);
-	data_block.Display(dump);
+	data_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 void BorcaD3X::D3X1Format::CalculateValues()

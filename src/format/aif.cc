@@ -174,7 +174,7 @@ void AIFFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("AIF format");
 	Dumper::Region file_region("File", file_offset, file_size, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }

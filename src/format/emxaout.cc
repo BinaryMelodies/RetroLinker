@@ -98,7 +98,7 @@ void EMXAOutFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("EMX a.out format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	if(bound_image)
 	{

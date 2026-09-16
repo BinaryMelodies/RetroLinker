@@ -188,7 +188,7 @@ void ArchiveFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Archive format");
 	Dumper::Region file_region("File", file_offset, file_size != offset_t(-1) ? file_size : 0, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	offset_t current_offset = 8;
 	unsigned i = 0;
@@ -199,7 +199,7 @@ void ArchiveFormat::Dump(Dumper::Dumper& dump) const
 		file_entry.AddField("Offset", Dumper::HexDisplay::Make(8), current_offset + 60);
 		file_entry.AddField("Length", Dumper::HexDisplay::Make(8), file.size);
 		// TODO: other fields
-		file_entry.Display(dump);
+		file_entry.Display(dump, Dumper::Header);
 		current_offset += 60 + file.size;
 		i++;
 	}

@@ -48,7 +48,7 @@ void AppleFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Apple 8-bit format DOS 3.3 header"); // TODO: only if dos33_header is true
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }
@@ -414,7 +414,7 @@ void AtariFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Atari 8-bit format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }
@@ -469,7 +469,7 @@ void CommodoreFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Commodore 8-bit format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }
@@ -627,7 +627,7 @@ void CPM3Format::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("CP/M Plus format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }
@@ -683,7 +683,7 @@ void FLEXFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("FLEX format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }
@@ -915,7 +915,7 @@ void PRLFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddOptionalField("Load address", Dumper::HexDisplay::Make(4), offset_t(load_address));
 	file_region.AddOptionalField("Code segment length", Dumper::HexDisplay::Make(4), offset_t(cslen));
 	file_region.AddField("Relocations", Dumper::ChoiceDisplay::Make("present", "missing"), offset_t(!suppress_relocations));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO: determine application type from file extension?
 	Dumper::Block image_block("Image", 0x0100, image->AsImage(),
@@ -925,7 +925,7 @@ void PRLFormat::Dump(Dumper::Dumper& dump) const
 	{
 		image_block.AddSignal(relocation, 1);
 	}
-	image_block.Display(dump);
+	image_block.Display(dump, Dumper::Image);
 
 	unsigned i = 0;
 	for(auto relocation : relocations)
@@ -933,7 +933,7 @@ void PRLFormat::Dump(Dumper::Dumper& dump) const
 		Dumper::Entry relocation_entry("Relocation", i + 1, 0x100 + image->ImageSize() + (relocation >> 3), 4);
 		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(4), offset_t(relocation));
 		relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(2), offset_t(image->AsImage()->ReadUnsigned(1, relocation, ::LittleEndian)));
-		relocation_entry.Display(dump);
+		relocation_entry.Display(dump, Dumper::Relocation);
 		i++;
 	}
 }
@@ -966,7 +966,7 @@ void UZIFormat::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("UZI format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }
@@ -1016,7 +1016,7 @@ void UZI280Format::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("UZI280 format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }

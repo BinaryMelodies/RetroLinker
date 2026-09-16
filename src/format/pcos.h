@@ -57,6 +57,8 @@ namespace PCOS
 			virtual void ReadFile(Linker::Reader& rd, uint16_t length);
 			/** @brief Writes the contents of the block to the file, including the type and length fields */
 			virtual void WriteFile(Linker::Writer& wr) const;
+			/** @brief Filters for display */
+			virtual int GetDisplayOptions() const;
 			/** @brief Creates a region for displaying the block contents */
 			virtual std::unique_ptr<Dumper::Region> MakeRegion(std::string name, offset_t offset, unsigned display_width) const;
 			/** @brief Adds block specific fields */
@@ -91,6 +93,7 @@ namespace PCOS
 			uint16_t GetLength() const override;
 			void ReadFile(Linker::Reader& rd, uint16_t length) override;
 			void WriteFile(Linker::Writer& wr) const override;
+			int GetDisplayOptions() const override;
 			std::unique_ptr<Dumper::Region> MakeRegion(std::string name, offset_t offset, unsigned display_width) const override;
 			void AddFields(Dumper::Region& region, const CMDFormat& module) const override;
 		};
@@ -114,6 +117,7 @@ namespace PCOS
 			uint16_t GetLength() const override;
 			void ReadFile(Linker::Reader& rd, uint16_t length) override;
 			void WriteFile(Linker::Writer& wr) const override;
+			int GetDisplayOptions() const override;
 			void AddFields(Dumper::Region& region, const CMDFormat& module) const override;
 			void DumpContents(Dumper::Dumper& dump, offset_t file_offset, const CMDFormat& module) const override;
 		};

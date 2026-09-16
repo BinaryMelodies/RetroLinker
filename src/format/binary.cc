@@ -44,7 +44,7 @@ void GenericBinaryFormat::Dump(Dumper::Dumper& dump) const
 
 	Dumper::Block image_block("Image", file_offset, image->AsImage(), 0, 4);
 
-	image_block.Display(dump);
+	image_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 /* * * Writer members * * */
@@ -267,7 +267,7 @@ void BinaryFormat::Dump(Dumper::Dumper& dump) const
 		pif->Dump(dump, image->ImageSize());
 	}
 
-	image_block.Display(dump);
+	image_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 /* * * Writer members * * */

@@ -129,6 +129,7 @@ namespace Amiga
 			virtual void Write(Linker::Writer& wr) const;
 			/** @brief Returns the size of the block as stored inside a file */
 			virtual offset_t FileSize() const;
+			virtual int GetDisplayOptions() const;
 			virtual void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
 			void AddCommonFields(Dumper::Region& region, unsigned index) const;
 			virtual void AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
@@ -168,6 +169,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
+			//int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 			void AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
@@ -238,6 +240,7 @@ namespace Amiga
 			{
 			}
 
+			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 
 		protected:
@@ -294,6 +297,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
+			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
@@ -415,6 +419,7 @@ namespace Amiga
 			void Read(Linker::Reader& rd) override;
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
+			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
@@ -434,6 +439,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
+			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
@@ -466,6 +472,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
+			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
@@ -486,6 +493,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
+			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 
@@ -545,6 +553,7 @@ namespace Amiga
 			void Write(Linker::Writer& wr) const override;
 			offset_t FileSize() const override;
 
+			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
 		};
 

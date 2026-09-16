@@ -226,7 +226,7 @@ void AppleSingleDouble::Entry::DumpEntry(Dumper::Dumper& dump, unsigned index) c
 		{ ID_AFPDirectoryID, "AFP directory ID (version 2 only)" },
 	};
 	entry_region.AddField("Id", Dumper::ChoiceDisplay::Make(id_descriptions, Dumper::HexDisplay::Make(8)), offset_t(id));
-	entry_region.Display(dump);
+	entry_region.Display(dump, Dumper::All);
 }
 
 void AppleSingleDouble::Entry::ProcessModule(Linker::Module& module)
@@ -265,7 +265,7 @@ offset_t AppleSingleDouble::UnknownEntry::WriteFile(Linker::Writer& out) const
 void AppleSingleDouble::UnknownEntry::Dump(Dumper::Dumper& dump) const
 {
 	Dumper::Block block("Block", file_offset, image->AsImage(), 0, 8);
-	block.Display(dump);
+	block.Display(dump, Dumper::Miscellaneous);
 }
 
 void AppleSingleDouble::UnknownEntry::CalculateValues()
@@ -834,7 +834,7 @@ void AppleSingleDouble::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("AppleSingle/AppleDouble format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	unsigned i = 0;
 	for(auto& entry : entries)
@@ -967,7 +967,7 @@ offset_t DataFork::WriteFile(Linker::Writer& out) const
 void DataFork::Dump(Dumper::Dumper& dump) const
 {
 	Dumper::Block block("Data fork", file_offset, image->AsImage(), 0, 8);
-	block.Display(dump);
+	block.Display(dump, Dumper::Image);
 }
 
 void DataFork::CalculateValues()
@@ -1017,6 +1017,11 @@ void ResourceFork::Resource::Dump(Dumper::Dumper& dump) const
 	Dump(dump, 0);
 }
 
+int ResourceFork::Resource::GetDisplayOptions() const
+{
+	return Dumper::Resource;
+}
+
 void ResourceFork::Resource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	std::unique_ptr<Dumper::Region> resource_region = CreateRegion("Resource", file_offset, ImageSize(), 8);
@@ -1026,7 +1031,7 @@ void ResourceFork::Resource::Dump(Dumper::Dumper& dump, offset_t file_offset) co
 		resource_region->AddField("Name", Dumper::StringDisplay::Make("\""), *name);
 	resource_region->AddField("Attributes", Dumper::HexDisplay::Make(2), offset_t(attributes));
 	AddFields(dump, *resource_region, file_offset);
-	resource_region->Display(dump);
+	resource_region->Display(dump, GetDisplayOptions());
 }
 
 void ResourceFork::Resource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
@@ -1187,6 +1192,11 @@ void ResourceFork::JumpTableCodeResource::AddFields(Dumper::Dumper& dump, Dumper
 	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(32));
 }
 
+int ResourceFork::JumpTableCodeResource::GetDisplayOptions() const
+{
+	return Dumper::Header | Dumper::Image | Dumper::Export; // not technically exported, entries behave similarly to export tables
+}
+
 void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	Resource::Dump(dump, file_offset);
@@ -1197,7 +1207,7 @@ void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t fi
 		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
 		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("near"), offset_t(true));
 		entry_entry.AddField("Value", Dumper::SegmentedDisplay::Make(4), offset_t(entry.segment), offset_t(entry.offset));
-		entry_entry.Display(dump);
+		entry_entry.Display(dump, GetDisplayOptions());
 		i++;
 	}
 
@@ -1209,7 +1219,7 @@ void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t fi
 		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
 		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("near"), offset_t(true));
 		entry_entry.AddField("Value", Dumper::SegmentedDisplay::Make(8), offset_t(entry.segment), offset_t(entry.offset));
-		entry_entry.Display(dump);
+		entry_entry.Display(dump, GetDisplayOptions());
 		i++;
 	}
 }
@@ -1396,6 +1406,11 @@ void ResourceFork::CodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region&
 		region.AddField("Segment address", Dumper::HexDisplay::Make(8), offset_t(base_address));
 	}
 
+}
+
+int ResourceFork::CodeResource::GetDisplayOptions() const
+{
+	return Dumper::Header | Dumper::Image;
 }
 
 void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
@@ -1812,14 +1827,14 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("Macintosh resource fork format");
 	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region data_region("Resource data", file_offset + data_offset, data_length, 8);
-	data_region.Display(dump);
+	data_region.Display(dump, Dumper::Header);
 
 	Dumper::Region map_region("Resource map", file_offset + map_offset, map_length, 8);
 	map_region.AddField("Attributes", Dumper::HexDisplay::Make(4), offset_t(attributes));
-	map_region.Display(dump);
+	map_region.Display(dump, Dumper::Header);
 
 	offset_t resource_type_list_size = 2 + resource_types.size() * 8;
 	for(auto& type : resource_types)
@@ -1827,14 +1842,14 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 		resource_type_list_size += type.references.size() * 12;
 	}
 	Dumper::Region resource_type_list_region("Resource type list", file_offset + map_offset + resource_type_list_offset, resource_type_list_size, 8);
-	resource_type_list_region.Display(dump);
+	resource_type_list_region.Display(dump, Dumper::Header);
 
 	unsigned i = 0;
 	for(auto& type : resource_types)
 	{
 		Dumper::Entry resource_type_entry("Resource type", i + 1, file_offset + map_offset + resource_type_list_offset + i * 8, 8);
 		resource_type_entry.AddField("OSType", Dumper::StringDisplay::Make(4, "'"), std::string(type.type, 4));
-		resource_type_entry.Display(dump);
+		resource_type_entry.Display(dump, Dumper::Header | (memcmp(type.type, "CODE", 4) == 0 ? Dumper::Image : Dumper::Resource));
 
 		unsigned j = 0;
 		for(auto& reference : type.references)
@@ -1848,7 +1863,7 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 			resource_reference_entry.AddField("Attributes", Dumper::HexDisplay::Make(2), offset_t(reference.attributes));
 			resource_reference_entry.AddField("Data offset", Dumper::HexDisplay::Make(8), offset_t(reference.data_offset));
 			resource_reference_entry.AddField("Data length", Dumper::HexDisplay::Make(8), offset_t(reference.data->ImageSize()));
-			resource_reference_entry.Display(dump);
+			resource_reference_entry.Display(dump, Dumper::Header | (memcmp(type.type, "CODE", 4) == 0 ? Dumper::Image : Dumper::Resource));
 			j++;
 		}
 
@@ -1861,7 +1876,7 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 		resource_name_list_size += name.size() + 1;
 	}*/
 	Dumper::Region resource_name_list_region("Resource name list", file_offset + map_offset + name_list_offset, resource_type_list_size, 8);
-	resource_name_list_region.Display(dump);
+	resource_name_list_region.Display(dump, Dumper::Header | Dumper::String);
 
 	offset_t current_offset = file_offset + map_offset + name_list_offset;
 	i = 0;
@@ -1869,7 +1884,7 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Entry name_entry("Name", i + 1, current_offset, 8);
 		name_entry.AddField("Value", Dumper::StringDisplay::Make("'"), name);
-		name_entry.Display(dump);
+		name_entry.Display(dump, Dumper::String);
 		current_offset += name.size() + 1;
 		i++;
 	}
@@ -2539,7 +2554,7 @@ void MacBinary::Dump(Dumper::Dumper& dump) const
 
 	dump.SetTitle("MacBinary format");
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	// TODO
 }

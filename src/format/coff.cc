@@ -1286,7 +1286,7 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 	{
 		Dumper::Region relocations("Section relocation", format.file_offset + relocation_pointer, 0, 8); /* TODO: size */
 		block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(relocation_count));
-		relocations.Display(dump);
+		relocations.Display(dump, Dumper::Header | Dumper::Relocation);
 	}
 
 	unsigned i = 0;
@@ -1295,13 +1295,13 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
 		relocation->FillEntry(relocation_entry, format);
 		// TODO: fill addend
-		relocation_entry.Display(dump);
+		relocation_entry.Display(dump, Dumper::Relocation);
 
 		block.AddSignal(relocation->address - address, relocation->GetSize(format));
 		i++;
 	}
 
-	block.Display(dump);
+	block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 COFFFormat::OptionalHeader::~OptionalHeader()
@@ -1437,7 +1437,7 @@ void COFFFormat::AOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) 
 {
 	Dumper::Region header_region("Optional header", coff.file_offset + 20, GetSize(), 8);
 	DumpFields(coff, dump, header_region);
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 }
 
 uint32_t COFFFormat::AOutHeader3B20::GetSize() const
@@ -1592,7 +1592,7 @@ void COFFFormat::GNUAOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dum
 	}
 	header_region.AddField("Text relocation size", Dumper::HexDisplay::Make(), offset_t(code_relocation_size));
 	header_region.AddField("Data relocation size", Dumper::HexDisplay::Make(), offset_t(data_relocation_size));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 }
 
 uint32_t COFFFormat::MIPSAOutHeader::GetSize() const
@@ -2354,7 +2354,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 	};
 	file_region.AddField("Parsed as", Dumper::ChoiceDisplay::Make(variant_descriptions), offset_t(coff_variant));
 
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("File header", file_offset, 20, 8);
 	header_region.AddField("Signature", Dumper::HexDisplay::Make(4), offset_t(ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
@@ -2373,7 +2373,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 	{
 		header_region.AddOptionalField("Target ID", Dumper::HexDisplay::Make(4), offset_t(target));
 	}
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	if(optional_header)
 	{
@@ -2389,7 +2389,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 
 	Dumper::Region symbol_table("Symbol table", file_offset + symbol_table_offset, symbol_count * 18, 8);
 	symbol_table.AddField("Count", Dumper::DecDisplay::Make(), offset_t(symbol_count));
-	symbol_table.Display(dump);
+	symbol_table.Display(dump, Dumper::Header | Dumper::Symbol);
 
 	static const std::map<offset_t, std::string> storage_class_descriptions =
 	{
@@ -2530,7 +2530,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 			if(symbol->auxiliary_entry)
 				symbol->auxiliary_entry->FillDumpData(symbol_entry);
 		}
-		symbol_entry.Display(dump);
+		symbol_entry.Display(dump, Dumper::Symbol);
 		i += 1;
 	}
 }

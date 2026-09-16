@@ -48,6 +48,8 @@ int main(int argc, char * argv[])
 {
 	std::string input = "";
 	std::shared_ptr<Format> format = nullptr;
+	int show_options = 0;
+	int hide_options = 0;
 
 	for(int i = 1; i < argc; i++)
 	{
@@ -63,6 +65,85 @@ int main(int argc, char * argv[])
 				/* TODO: FetchFormat with another table for input formats, enable setting system type */
 				format = FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]);
 				/* TODO: enable selecting a format within the determined formats, or force parsing a format at a specified address */
+			}
+			else if(memcmp(argv[i], "--show-", 7) || memcmp(argv[i], "--hide-", 7))
+			{
+				bool show = argv[i][2] != 'h';
+				char * flag = &argv[i][7];
+				int option = 0;
+				if(strcmp(flag, "all") == 0)
+				{
+					option = Dumper::All;
+				}
+				else if(strcmp(flag, "data") == 0 || strcmp(flag, "image") == 0)
+				{
+					option = Dumper::Image;
+				}
+				else if(strcmp(flag, "header") == 0 || strcmp(flag, "headers") == 0)
+				{
+					option = Dumper::Header;
+				}
+				else if(strcmp(flag, "symbol") == 0 || strcmp(flag, "symbols") == 0)
+				{
+					option = Dumper::Symbol;
+				}
+				else if(strcmp(flag, "reloc") == 0 || strcmp(flag, "relocs") == 0 || strcmp(flag, "relocation") == 0 || strcmp(flag, "relocations") == 0)
+				{
+					option = Dumper::Relocation;
+				}
+				else if(strcmp(flag, "import") == 0 || strcmp(flag, "imports") == 0)
+				{
+					option = Dumper::Import;
+				}
+				else if(strcmp(flag, "export") == 0 || strcmp(flag, "exports") == 0)
+				{
+					option = Dumper::Export;
+				}
+				else if(strcmp(flag, "control") == 0)
+				{
+					option = Dumper::Control;
+				}
+				else if(strcmp(flag, "string") == 0)
+				{
+					option = Dumper::String;
+				}
+				else if(strcmp(flag, "debug") == 0)
+				{
+					option = Dumper::Debug;
+				}
+				else if(strcmp(flag, "res") == 0 || strcmp(flag, "rsrc") == 0 || strcmp(flag, "resource") == 0 || strcmp(flag, "resources") == 0)
+				{
+					option = Dumper::Resource;
+				}
+				else if(strcmp(flag, "dynamic") == 0)
+				{
+					option = Dumper::Dynamic;
+				}
+				else if(strcmp(flag, "redundant") == 0)
+				{
+					option = Dumper::Redundant;
+				}
+				else if(strcmp(flag, "generated") == 0)
+				{
+					option = Dumper::Generated;
+				}
+				else if(strcmp(flag, "misc") == 0)
+				{
+					option = Dumper::Miscellaneous;
+				}
+				else
+				{
+					Linker::Error << "Error: unknown option flag `" << argv[i] << "'" << std::endl;
+				}
+
+				if(show)
+				{
+					show_options |= option;
+				}
+				else
+				{
+					hide_options |= option;
+				}
 			}
 			/* TODO: select text encoding */
 			else
@@ -136,6 +217,11 @@ int main(int argc, char * argv[])
 			{
 				format->ReadFile(rd);
 				Dumper::Dumper dump(std::cout);
+				dump.hide_options = hide_options;
+				if(show_options != 0)
+				{
+					dump.show_options = show_options;
+				}
 				format->Dump(dump);
 			}
 			catch(Linker::Exception&)
@@ -155,6 +241,11 @@ int main(int argc, char * argv[])
 	{
 		format->ReadFile(rd);
 		Dumper::Dumper dump(std::cout);
+		dump.hide_options = hide_options;
+		if(show_options != 0)
+		{
+			dump.show_options = show_options;
+		}
 		format->Dump(dump);
 	}
 

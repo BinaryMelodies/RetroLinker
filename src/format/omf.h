@@ -151,7 +151,7 @@ namespace OMF
 			{
 			}
 
-			virtual void DumpAddFields(Dumper::Dumper& dump, Dumper::Region& region, const FormatType * omf, const ModuleType * mod, size_t record_index) const
+			virtual void DumpAddFields(Dumper::Dumper& dump, Dumper::Region& region, const FormatType * omf, const ModuleType * mod, size_t record_index, Dumper::display_option& options) const
 			{
 			}
 
@@ -160,9 +160,10 @@ namespace OMF
 				Dumper::Region record_region("Record", record_offset, RecordEnd() + 1 - record_offset, 8);
 				record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
 				record_region.AddField("Record type", Dumper::HexDisplay::Make(2), offset_t(record_type));
-				FormatType::DumpAddFields(this, dump, record_region, omf, mod, record_index);
-				DumpAddFields(dump, record_region, omf, mod, record_index);
-				record_region.Display(dump);
+				Dumper::display_option options = Dumper::Control;
+				FormatType::DumpAddFields(this, dump, record_region, omf, mod, record_index, options);
+				DumpAddFields(dump, record_region, omf, mod, record_index, options);
+				record_region.Display(dump, options);
 			}
 
 			/** @brief Records are 32-bit if the least significant bit of their record type is set (only meaningful for OMF86Format) */
@@ -2178,7 +2179,7 @@ namespace OMF
 		/** @brief Parses an OMF86 file */
 		static std::shared_ptr<OMF86Format> ReadOMFFile(Linker::Reader& rd);
 
-		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF86Format * omf, const Module * mod, size_t record_index);
+		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF86Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options);
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
@@ -2610,7 +2611,7 @@ namespace OMF
 		/** @brief Parses an OMF80 file */
 		static std::shared_ptr<OMF80Format> ReadOMFFile(Linker::Reader& rd);
 
-		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF80Format * omf, const Module * mod, size_t record_index);
+		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF80Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options);
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
@@ -3052,7 +3053,7 @@ namespace OMF
 		/** @brief Parses an OMF51 file */
 		static std::shared_ptr<OMF51Format> ReadOMFFile(Linker::Reader& rd);
 
-		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF51Format * omf, const Module * mod, size_t record_index);
+		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF51Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options);
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
@@ -3519,7 +3520,7 @@ namespace OMF
 		/** @brief Parses an OMF96 file */
 		static std::shared_ptr<OMF96Format> ReadOMFFile(Linker::Reader& rd);
 
-		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF96Format * omf, const Module * mod, size_t record_index);
+		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF96Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options);
 
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;

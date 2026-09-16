@@ -221,7 +221,7 @@ void CPM86Format::rsx_record::Dump(Dumper::Dumper& dump) const
 	else
 	{
 		Dumper::Block block("Image", uint32_t(offset_record) << 7, contents->AsImage(), contents->ImageSize(), 6);
-		block.Display(dump);
+		block.Display(dump, Dumper::Header | Dumper::Image);
 	}
 }
 
@@ -822,7 +822,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 	file_region.AddOptionalField("Library version", Dumper::VersionDisplay::Make(), offset_t(lib_id.major_version), offset_t(lib_id.minor_version));
 	file_region.AddOptionalField("Library flags", Dumper::HexDisplay::Make(8), offset_t(lib_id.flags));
 
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	static const std::map<offset_t, std::string> group_types =
 	{
@@ -861,7 +861,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 	if(fixups == nullptr && fixups_paras != 0)
 	{
 		fixups = Dumper::Region::Make("Fixups", relocations_offset, uint32_t(fixups_paras) << 4, 5);
-		fixups->Display(dump);
+		fixups->Display(dump, Dumper::Header | Dumper::Relocation);
 	}
 
 	size_t i = 0;
@@ -872,7 +872,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 		relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), offset_t(source.segment), source.offset);
 		relocation_entry.AddField("Target", Dumper::DecDisplay::Make(), offset_t(rel.target));
 		// TODO: fill addend
-		relocation_entry.Display(dump);
+		relocation_entry.Display(dump, Dumper::Relocation);
 
 		number_t segment = FindSegmentGroup(source.segment);
 		if(segment != size_t(-1))
@@ -890,7 +890,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
 		Dumper::Region libraries("SRTL group", library_descriptor.offset, uint32_t(library_descriptor.size_paras) << 4, 5);
-		libraries.Display(dump);
+		libraries.Display(dump, Dumper::Header);
 		size_t j = 0;
 		for(auto& library : library_descriptor.libraries)
 		{
@@ -906,7 +906,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 			}
 
 			lib.AddHiddenField("number", Dumper::DecDisplay::Make(), offset_t(j + 1));
-			lib.Display(dump);
+			lib.Display(dump, Dumper::Import | Dumper::Relocation);
 			j += 1;
 
 			size_t i = 0;
@@ -916,7 +916,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 				next_relocation_offset += 4;
 				relocation_source source = rel.GetSource();
 				relocation_entry.AddField("Source", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(5)), offset_t(source.segment), source.offset);
-				relocation_entry.Display(dump);
+				relocation_entry.Display(dump, Dumper::Relocation);
 
 				number_t segment = FindSegmentGroup(source.segment);
 				if(segment != size_t(-1))
@@ -940,7 +940,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 		postlink.AddField("Index base", Dumper::HexDisplay::Make(4), offset_t(fastload_descriptor.index_base));
 		postlink.AddField("First used index", Dumper::HexDisplay::Make(4), offset_t(fastload_descriptor.first_used_index));
 
-		postlink.Display(dump);
+		postlink.Display(dump, Dumper::Header);
 
 		size_t i = 0;
 		library current_library;
@@ -963,7 +963,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 				descriptor_entry.AddField("Group", Dumper::HexDisplay::Make(2), offset_t(desc.group));
 				if(current_library.name != "")
 					descriptor_entry.AddField("Library", Dumper::StringDisplay::Make(8, "\"", "\""), current_library.name);
-				descriptor_entry.Display(dump);
+				descriptor_entry.Display(dump, Dumper::Header);
 			}
 			i ++;
 		}
@@ -971,7 +971,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 
 	for(auto& group : groups)
 	{
-		group->Display(dump);
+		group->Display(dump, Dumper::Header | Dumper::Image);
 	}
 
 	if(rsx_table_offset != 0)
@@ -984,7 +984,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 		}
 
 		Dumper::Region rsx_table_region("RSX table", rsx_table_offset, (rsx_count + 1) * 16, 6);
-		rsx_table_region.Display(dump);
+		rsx_table_region.Display(dump, Dumper::Header);
 
 		for(int i = 0; i < 8; i++)
 		{
@@ -993,7 +993,7 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 			Dumper::Region rsx_entry("RSX", rsx_table[i].offset_record << 7, rsx_table[i].GetFullFileSize(), 6);
 			rsx_entry.AddField("Name", Dumper::StringDisplay::Make(8, "\""), rsx_table[i].name);
 			rsx_entry.AddHiddenField("number", Dumper::DecDisplay::Make(), offset_t(i + 1));
-			rsx_entry.Display(dump);
+			rsx_entry.Display(dump, Dumper::Header);
 		}
 
 		for(int i = 0; i < 8; i++)

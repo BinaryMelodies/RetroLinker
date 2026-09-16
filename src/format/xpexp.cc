@@ -179,10 +179,10 @@ void XPFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddOptionalField("DS", Dumper::HexDisplay::Make(4), offset_t(ds));
 	file_region.AddOptionalField("FS", Dumper::HexDisplay::Make(4), offset_t(fs));
 	file_region.AddOptionalField("GS", Dumper::HexDisplay::Make(4), offset_t(gs));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region ldt_region("Local Descriptor Table", file_offset + ldt_offset, 8 * ldt.size(), 8);
-	ldt_region.Display(dump);
+	ldt_region.Display(dump, Dumper::Header);
 	unsigned i = 0;
 	for(auto& segment : ldt)
 	{
@@ -191,10 +191,10 @@ void XPFormat::Dump(Dumper::Dumper& dump) const
 	}
 
 	Dumper::Block image_block("Image", file_offset + image_offset, image->AsImage(), 0, 8);
-	image_block.Display(dump);
+	image_block.Display(dump, Dumper::Header | Dumper::Image);
 
 	Dumper::Region relocation_region("Relocations", file_offset + relocation_offset, relocation_count /* TODO: unit of relocation */, 8); // TODO: nothing is known about relocations aside from their position
-	relocation_region.Display(dump);
+	relocation_region.Display(dump, Dumper::Header | Dumper::Relocation);
 }
 
 XPFormat::Segment XPFormat::Segment::ReadFile(Linker::Reader& rd)
@@ -275,7 +275,7 @@ void XPFormat::Segment::Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned 
 			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("32-bit", "16-bit"), false)
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("limit in pages", "limit in bytes"), false),
 			offset_t(flags & 0xF0));
-	descriptor_entry.Display(dump);
+	descriptor_entry.Display(dump, Dumper::Miscellaneous);
 }
 
 /* * * Writer members * * */

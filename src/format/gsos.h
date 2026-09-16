@@ -314,8 +314,9 @@ namespace Apple
 				 * @param index 0-based index of the record within the segment
 				 * @param file_offset Full file offset, including segment start offset, that this record starts at
 				 * @param address The current memory pointer when this record is interpreted
+				 * @param display_options Flags for filtering what gets displayed
 				 */
-				virtual void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const;
+				virtual void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options = Dumper::None) const;
 				/** @brief Adds any further fields to the file region that encompasses this record */
 				virtual void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const;
 				/** @brief If this is a relocation record, add the relocation signals to the block */
@@ -344,7 +345,7 @@ namespace Apple
 				offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const override;
 				void ReadFile(Segment& segment, Linker::Reader& rd) override;
 				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
-				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options = Dumper::None) const override;
 				void ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			};
 
@@ -630,7 +631,7 @@ namespace Apple
 				void WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches) const;
 
 			public:
-				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
+				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options = Dumper::None) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 				void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const override;
 

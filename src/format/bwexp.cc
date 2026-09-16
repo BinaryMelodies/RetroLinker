@@ -240,7 +240,7 @@ void BWFormat::Segment::Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t 
 		}
 	}
 
-	segment_block.Display(dump);
+	segment_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 void BWFormat::DummySegment::SetTotalSize(uint32_t new_value)
@@ -462,7 +462,7 @@ void BWFormat::RelocationSegment::Dump(Dumper::Dumper& dump, const BWFormat& bw,
 		->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("empty"), true)
 		->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("transparent stack"), true),
 		offset_t((flags >> 12) & 0xE));
-	segment_region.Display(dump);
+	segment_region.Display(dump, Dumper::Header);
 }
 
 std::shared_ptr<Linker::OptionCollector> BWFormat::GetOptions()
@@ -816,14 +816,14 @@ void BWFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddOptionalField("Transparent stack selector", Dumper::HexDisplay::Make(4), offset_t(transparent_stack));
 	file_region.AddField("Default memory strategy", Dumper::ChoiceDisplay::Make(memory_strategy_description, Dumper::HexDisplay::Make(2)), offset_t(default_memory_strategy));
 	file_region.AddField("Transfer buffer size (0x2000 if 0)", Dumper::HexDisplay::Make(4), offset_t(transfer_buffer_size));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region gdt_region("GDT", file_offset + 48, gdt_size != 0 ? gdt_size + 1 : (last_used_selector + 8) & ~7, 8);
 	gdt_region.AddField("File size", Dumper::HexDisplay::Make(4), offset_t(gdt_size));
 	gdt_region.AddField("Runtime size", Dumper::HexDisplay::Make(4), offset_t(runtime_gdt_length));
 	gdt_region.AddField("First selector", Dumper::HexDisplay::Make(4), offset_t(first_selector));
 	gdt_region.AddField("Last used selector", Dumper::HexDisplay::Make(4), offset_t(last_used_selector));
-	gdt_region.Display(dump);
+	gdt_region.Display(dump, Dumper::Header);
 
 	uint16_t first_relocation_selector;
 	switch(option_relocations)
@@ -864,7 +864,7 @@ void BWFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Entry bundle_entry("Relocation bundle", bundle_index + 1, relocation_offset, 8);
 			bundle_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(relocation.selector));
 			bundle_entry.AddField("Offset count", Dumper::DecDisplay::Make(), offset_t(relocation.offsets.size()));
-			bundle_entry.Display(dump);
+			bundle_entry.Display(dump, Dumper::Relocation);
 
 			relocation_offset += 4;
 		}
@@ -874,7 +874,7 @@ void BWFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Entry relocation_entry("Relocation", relocation_index + 1, relocation_offset, 8);
 			relocation_entry.AddField("Selector", Dumper::HexDisplay::Make(4), offset_t(relocation.selector));
 			relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(4), offset_t(offset));
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 
 			relocation_offset += 2;
 			relocation_index ++;

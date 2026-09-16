@@ -345,7 +345,7 @@ void HUFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddOptionalField("Debug symbol table size", Dumper::HexDisplay::Make(8), offset_t(debug_symbol_table_size));
 	file_region.AddOptionalField("Debug string table size", Dumper::HexDisplay::Make(8), offset_t(debug_string_table_size));
 	file_region.AddOptionalField("Offset to bound module list", Dumper::HexDisplay::Make(8), offset_t(bound_module_list_offset));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Block code_block("Code", 0x40, code, base_address, 8);
 	Dumper::Block data_block("Data", 0x40 + code_size, data, base_address + code_size, 8);
@@ -362,17 +362,17 @@ void HUFormat::Dump(Dumper::Dumper& dump) const
 		}
 	}
 
-	code_block.Display(dump);
-	data_block.Display(dump);
+	code_block.Display(dump, Dumper::Header | Dumper::Image);
+	data_block.Display(dump, Dumper::Header | Dumper::Image);
 
 	Dumper::Region bss_region("BSS", 0x40 + code_size + data_size, bss_size, 8);
 	bss_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(base_address + code_size + data_size));
-	bss_region.Display(dump);
+	bss_region.Display(dump, Dumper::Header | Dumper::Image);
 
 	if(relocation_size != 0)
 	{
 		Dumper::Region relocations_region("Relocations", 0x40 + code_size + data_size, relocation_size, 8);
-		relocations_region.Display(dump);
+		relocations_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 		uint32_t relocation_offset = 0x40 + code_size + data_size;
 		uint32_t relocation_index = 0;
@@ -388,7 +388,7 @@ void HUFormat::Dump(Dumper::Dumper& dump) const
 			relocation_entry.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(relocation_source));
 			relocation_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation.is16bit ? 2 : 4));
 			relocation_entry.AddField("Record bytes", Dumper::DecDisplay::Make(), offset_t(relocation.absolute_displacement ? 6 : 2));
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 
 			relocation_index++;
 			relocation_offset += relocation.absolute_displacement ? 6 : 2;
@@ -398,7 +398,7 @@ void HUFormat::Dump(Dumper::Dumper& dump) const
 	if(symbol_table_size != 0)
 	{
 		Dumper::Region symbol_table_region("Symbol table", 0x40 + code_size + data_size + relocation_size, symbol_table_size, 8);
-		symbol_table_region.Display(dump);
+		symbol_table_region.Display(dump, Dumper::Header | Dumper::Symbol);
 		// TODO: write symbols
 	}
 }

@@ -109,7 +109,7 @@ void ELFFormat::SymbolTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, un
 		};
 		symbol_entry.AddField("Visibility", Dumper::ChoiceDisplay::Make(visibility_descriptions, Dumper::DecDisplay::Make()), offset_t(symbol.other));
 
-		symbol_entry.Display(dump);
+		symbol_entry.Display(dump, Dumper::Symbol);
 
 		i += 1;
 	}
@@ -142,7 +142,7 @@ void ELFFormat::StringTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, un
 	{
 		Dumper::Entry string_entry("String", i + 1, offset, 2 * fmt.wordbytes);
 		string_entry.AddField("Value name", Dumper::StringDisplay::Make(), s);
-		string_entry.Display(dump);
+		string_entry.Display(dump, Dumper::String);
 		i += 1;
 		offset += s.size() + 1;
 	}
@@ -173,7 +173,7 @@ void ELFFormat::Array::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned
 	{
 		Dumper::Entry array_entry("Value", i + 1, fmt.sections[index].file_offset + i * entsize, 2 * fmt.wordbytes);
 		array_entry.AddField("Value", Dumper::HexDisplay::Make(2 * entsize), value);
-		array_entry.Display(dump);
+		array_entry.Display(dump, Dumper::Miscellaneous);
 		i += 1;
 	}
 }
@@ -215,7 +215,7 @@ void ELFFormat::SectionGroup::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, u
 			value == SHN_COMMON ? "SHN_COMMON" :
 			value == SHN_XINDEX ? "SHN_XINDEX" :
 			fmt.sections[value].name);
-		array_entry.Display(dump);
+		array_entry.Display(dump, Dumper::Miscellaneous);
 		i += 1;
 	}
 }
@@ -249,7 +249,7 @@ void ELFFormat::IndexArray::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, uns
 			value == SHN_COMMON ? "SHN_COMMON" :
 			value == SHN_XINDEX ? "SHN_XINDEX" :
 			fmt.sections[value].name);
-		array_entry.Display(dump);
+		array_entry.Display(dump, Dumper::Miscellaneous);
 		i += 1;
 	}
 }
@@ -596,7 +596,7 @@ void ELFFormat::Relocations::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, un
 		if(!rel.addend_from_section_data)
 			relocation_entry.AddField("Addend", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(rel.addend));
 		// TODO: fill addend
-		relocation_entry.Display(dump);
+		relocation_entry.Display(dump, Dumper::Relocation);
 		i += 1;
 	}
 }
@@ -733,7 +733,7 @@ void ELFFormat::DynamicSection::Dump(Dumper::Dumper& dump, const ELFFormat& fmt,
 			dynamic_entry.AddField("Value", Dumper::HexDisplay::Make(2 * fmt.wordbytes), dynobj.value);
 			dynamic_entry.AddOptionalField("Value name", Dumper::StringDisplay::Make(), dynobj.name);
 		}
-		dynamic_entry.Display(dump);
+		dynamic_entry.Display(dump, Dumper::Header | Dumper::Dynamic | Dumper::Import | Dumper::Export | Dumper::Miscellaneous);
 		i += 1;
 	}
 }
@@ -791,7 +791,7 @@ void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsi
 		bucket_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(bucket));
 		Symbol& sym = fmt.sections[fmt.sections[index].link].GetSymbolTable()->symbols[bucket];
 		bucket_entry.AddOptionalField("Symbol", Dumper::StringDisplay::Make(), sym.name);
-		bucket_entry.Display(dump);
+		bucket_entry.Display(dump, Dumper::Export);
 		i++;
 	}
 
@@ -802,7 +802,7 @@ void ELFFormat::HashTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsi
 		chain_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(chain));
 		Symbol& sym = fmt.sections[fmt.sections[index].link].GetSymbolTable()->symbols[chain];
 		chain_entry.AddOptionalField("Symbol", Dumper::StringDisplay::Make(), sym.name);
-		chain_entry.Display(dump);
+		chain_entry.Display(dump, Dumper::Export);
 		i++;
 	}
 }
@@ -848,7 +848,7 @@ void ELFFormat::NotesSection::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, u
 		note_entry.AddField("Name", Dumper::StringDisplay::Make(), note.name);
 		note_entry.AddField("Description", Dumper::StringDisplay::Make(), note.descriptor);
 		note_entry.AddField("Type", Dumper::HexDisplay::Make(2 * fmt.wordbytes), offset_t(note.type));
-		note_entry.Display(dump);
+		note_entry.Display(dump, Dumper::Miscellaneous);
 		i += 1;
 		offset += 3 * 4 + note.name.size() + 1;
 		offset = ::AlignTo(offset, 4);
@@ -985,7 +985,7 @@ void ELFFormat::IBMImportTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt,
 		import_entry.AddField("DLL value", Dumper::HexDisplay::Make(8), offset_t(import.dll));
 		import_entry.AddOptionalField("DLL name", Dumper::StringDisplay::Make(), import.dll_name);
 
-		import_entry.Display(dump);
+		import_entry.Display(dump, Dumper::Import);
 		i++;
 	}
 }
@@ -1026,7 +1026,7 @@ void ELFFormat::IBMExportTable::Dump(Dumper::Dumper& dump, const ELFFormat& fmt,
 		export_entry.AddOptionalField("Name offset", Dumper::HexDisplay::Make(8), offset_t(_export.name_offset));
 		export_entry.AddOptionalField("Name", Dumper::StringDisplay::Make(), _export.name);
 
-		export_entry.Display(dump);
+		export_entry.Display(dump, Dumper::Export);
 		i++;
 	}
 }
@@ -1077,7 +1077,7 @@ void ELFFormat::IBMResourceCollection::Dump(Dumper::Dumper& dump, const ELFForma
 		resource_block.AddField("Name", Dumper::StringDisplay::Make(), resource.name);
 		resource_block.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(resource.name_offset));
 		resource_block.AddField("Data offset", Dumper::HexDisplay::Make(8), offset_t(resource.data_offset));
-		resource_block.Display(dump);
+		resource_block.Display(dump, Dumper::Resource);
 
 		i++;
 	}
@@ -1641,7 +1641,7 @@ void ELFFormat::Section::Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsign
 		section_contents->AddDumperFields(region, dump, fmt, index);
 	}
 
-	region->Display(dump);
+	region->Display(dump, Dumper::Header | (dynamic_cast<Dumper::Block *>(region.get()) ? Dumper::Image : 0));
 
 	if(auto section_contents = std::dynamic_pointer_cast<SectionContents>(contents))
 	{
@@ -2300,7 +2300,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 
 //	Dumper::Region file_region("File", 0, 0, 2 * wordbytes); /* TODO: file size */
 //	/* TODO */
-//	file_region.Display(dump);
+//	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region identification_region("ELF Identification", 0, 16, 2);
 	static const std::map<offset_t, std::string> class_descriptions =
@@ -2338,7 +2338,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 	};
 	identification_region.AddField("OS/ABI extensions", Dumper::ChoiceDisplay::Make(osabi_descriptions, Dumper::HexDisplay::Make(2)), offset_t(osabi));
 	identification_region.AddField("ABI version", Dumper::DecDisplay::Make(), offset_t(abi_version));
-	identification_region.Display(dump);
+	identification_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("ELF Header", 0, elf_header_size, 2 * wordbytes);
 	static const std::map<offset_t, std::string> file_type_descriptions =
@@ -2571,12 +2571,12 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Object file version", Dumper::DecDisplay::Make(), offset_t(file_version));
 	header_region.AddField("Entry", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(entry));
 	header_region.AddField("Flags", Dumper::HexDisplay::Make(4), offset_t(flags));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	Dumper::Region program_header_region("Program header", program_header_offset, segments.size() * program_header_entry_size, 2 * wordbytes);
 	program_header_region.AddField("Entry size", Dumper::HexDisplay::Make(4), offset_t(program_header_entry_size));
 	program_header_region.AddField("Entry count", Dumper::DecDisplay::Make(), offset_t(segments.size()));
-	program_header_region.Display(dump);
+	program_header_region.Display(dump, Dumper::Header);
 
 	Dumper::Region section_header_region("Section header", section_header_offset, sections.size() * section_header_entry_size, 2 * wordbytes);
 	section_header_region.AddField("Entry size", Dumper::HexDisplay::Make(4), offset_t(section_header_entry_size));
@@ -2584,7 +2584,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 	section_header_region.AddField("Section name string table", Dumper::DecDisplay::Make(), offset_t(section_name_string_table));
 	if(section_name_string_table != 0)
 		section_header_region.AddField("Section name string table name", Dumper::StringDisplay::Make(), sections[section_name_string_table].name);
-	section_header_region.Display(dump);
+	section_header_region.Display(dump, Dumper::Header);
 
 	unsigned i = 0;
 	for(auto& section : sections)
@@ -2651,7 +2651,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 			segment_region.AddField("Memory length", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(segment.memsz));
 		if(segment.align > 1)
 			segment_region.AddField("Alignment", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(segment.align));
-		segment_region.Display(dump);
+		segment_region.Display(dump, Dumper::Header | Dumper::Image);
 
 		unsigned j = 0;
 		for(auto& part : segment.parts)
@@ -2692,13 +2692,13 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 				part_entry.AddOptionalField("Offset within section", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(part.offset));
 			}
 			part_entry.AddField("Length", Dumper::HexDisplay::Make(2 * wordbytes), offset_t(part.size));
-			part_entry.Display(dump);
+			part_entry.Display(dump, Dumper::Image);
 			if(part.type == Segment::Part::Block && part.offset == 0 && part.size == part.GetActualSize(*this) && blocks[part.index].image != nullptr)
 			{
 				Dumper::Block block("Block", blocks[part.index].offset, blocks[part.index].image->AsImage(),
 					segment.vaddr + (blocks[part.index].offset - segment.offset),
 					2 * wordbytes);
-				block.Display(dump);
+				block.Display(dump, Dumper::Image);
 			}
 			j++;
 		}
@@ -2710,7 +2710,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 	{
 		Dumper::Region resources_region("Resources", hobbit_beos_resource_offset, 4 + 20 * hobbit_beos_resources.size(), 8);
 		resources_region.AddField("Entry count", Dumper::DecDisplay::Make(), offset_t(hobbit_beos_resources.size()));
-		resources_region.Display(dump);
+		resources_region.Display(dump, Dumper::Header | Dumper::Resource);
 
 		i = 0;
 		for(auto& resource : hobbit_beos_resources)
@@ -2720,7 +2720,7 @@ void ELFFormat::Dump(Dumper::Dumper& dump) const
 			resource_block.AddField("Type", Dumper::StringDisplay::Make(4, "'"), std::string(resource.type, 4));
 			resource_block.AddField("Unknown entry 1", Dumper::HexDisplay::Make(), resource.unknown1);
 			resource_block.AddField("Unknown entry 2", Dumper::HexDisplay::Make(), resource.unknown2);
-			resource_block.Display(dump);
+			resource_block.Display(dump, Dumper::Resource);
 			i += 1;
 		}
 	}

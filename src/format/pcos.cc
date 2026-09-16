@@ -50,6 +50,11 @@ std::unique_ptr<CMDFormat::MemoryBlock> CMDFormat::MemoryBlock::ReadFile(Linker:
 	return block;
 }
 
+int CMDFormat::MemoryBlock::GetDisplayOptions() const
+{
+	return Dumper::Miscellaneous;
+}
+
 std::unique_ptr<Dumper::Region> CMDFormat::MemoryBlock::MakeRegion(std::string name, offset_t offset, unsigned display_width) const
 {
 	return std::make_unique<Dumper::Region>(name, offset, 3 + GetLength(), display_width);
@@ -75,7 +80,7 @@ void CMDFormat::MemoryBlock::Dump(Dumper::Dumper& dump, offset_t file_offset, co
 	};
 	region->AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(type));
 	AddFields(*region, module);
-	region->Display(dump);
+	region->Display(dump, Dumper::Header | GetDisplayOptions());
 
 	DumpContents(dump, file_offset, module);
 	// TODO: display relocations, they are contained in different blocks
@@ -97,6 +102,11 @@ void CMDFormat::LoadBlock::WriteFile(Linker::Writer& wr) const
 	MemoryBlock::WriteFile(wr);
 	wr.WriteWord(4, block_id);
 	image->WriteFile(wr);
+}
+
+int CMDFormat::LoadBlock::GetDisplayOptions() const
+{
+	return Dumper::Image;
 }
 
 std::unique_ptr<Dumper::Region> CMDFormat::LoadBlock::MakeRegion(std::string name, offset_t offset, unsigned display_width) const
@@ -139,6 +149,11 @@ void CMDFormat::RelocationBlock::ReadFile(Linker::Reader& rd, uint16_t length)
 	}
 }
 
+int CMDFormat::RelocationBlock::GetDisplayOptions() const
+{
+	return Dumper::Relocation;
+}
+
 void CMDFormat::RelocationBlock::WriteFile(Linker::Writer& wr) const
 {
 	MemoryBlock::WriteFile(wr);
@@ -164,7 +179,7 @@ void CMDFormat::RelocationBlock::DumpContents(Dumper::Dumper& dump, offset_t fil
 		Dumper::Entry relocation_entry("Relocation", i + 1, file_offset + 3 + 2 + 2 * i, 6);
 		relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(2), offset_t(rel));
 		relocation_entry.AddOptionalField("Addend", Dumper::HexDisplay::Make(4), module.GetLoadBlockById(source)->image->AsImage()->ReadUnsigned(2, rel));
-		relocation_entry.Display(dump);
+		relocation_entry.Display(dump, Dumper::Relocation);
 		i ++;
 	}
 }
@@ -255,7 +270,7 @@ void CMDFormat::Dump(Dumper::Dumper& dump) const
 	file_region.AddField("Stack size", Dumper::HexDisplay::Make(4), offset_t(stack_size));
 	file_region.AddField("Allocation size", Dumper::HexDisplay::Make(4), offset_t(allocation_length));
 
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	offset_t file_offset = 3 + file_header_size;
 

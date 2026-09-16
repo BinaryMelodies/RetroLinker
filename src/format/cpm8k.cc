@@ -218,7 +218,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 		offset_t((uint8_t(signature[0]) << 8) | uint8_t(signature[1])));
 	file_region.AddField("Segment count", Dumper::DecDisplay::Make(), offset_t(segment_count));
 	file_region.AddField("Total size", Dumper::HexDisplay::Make(8), offset_t(total_size));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	static const std::map<offset_t, std::string> type_descriptions =
 	{
@@ -248,7 +248,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 				segment_block.AddSignal(relocation.offset, relocation.GetRelocationSize());
 			}
 
-			segment_block.Display(dump);
+			segment_block.Display(dump, Dumper::Header | Dumper::Image);
 			segment_offset += segment.length;
 		}
 		else
@@ -257,7 +257,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 			segment_region.InsertField(0, "Number", Dumper::DecDisplay::Make(), offset_t(segment_index + 1));
 			segment_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(0 /* TODO */));
 			segment_region.AddField("Type", Dumper::ChoiceDisplay::Make(type_descriptions, Dumper::HexDisplay::Make(2)), offset_t(segment.type));
-			segment_region.Display(dump);
+			segment_region.Display(dump, Dumper::Header | Dumper::Image);
 		}
 		segment_index ++;
 	}
@@ -265,7 +265,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 	if(relocation_size != 0)
 	{
 		Dumper::Region relocation_region("Relocations", file_offset + 0x40 + 4 * segments.size() + total_size, relocation_size, 8);
-		relocation_region.Display(dump);
+		relocation_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 		static const std::map<offset_t, std::string> relocation_descriptions =
 		{
@@ -298,7 +298,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 				if(relocation.target < segments.size())
 					relocation_entry.AddField("Segment type", Dumper::ChoiceDisplay::Make(type_descriptions), offset_t(segments[relocation.target].type));
 			}
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 			relocation_index++;
 		}
 	}
@@ -306,7 +306,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 	if(symbol_table_size != 0)
 	{
 		Dumper::Region symbol_table_region("Symbol table", file_offset + 0x40 + 4 * segments.size() + total_size + relocation_size, symbol_table_size, 8);
-		symbol_table_region.Display(dump);
+		symbol_table_region.Display(dump, Dumper::Header | Dumper::Symbol);
 
 		static const std::map<offset_t, std::string> symbol_type_description =
 		{
@@ -328,7 +328,7 @@ void CPM8KFormat::Dump(Dumper::Dumper& dump) const
 			else
 				symbol_entry.AddOptionalField("Size", Dumper::HexDisplay::Make(4), offset_t(symbol.value));
 			symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol.name);
-			symbol_entry.Display(dump);
+			symbol_entry.Display(dump, Dumper::Symbol);
 			symbol_index++;
 		}
 	}

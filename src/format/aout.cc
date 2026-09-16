@@ -1478,7 +1478,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		{ ::BigEndian, "big endian" },
 	};
 	file_region.AddField("Endianness", Dumper::ChoiceDisplay::Make(endiantype_descriptions), offset_t(endiantype));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Header", file_offset, GetHeaderSize(), 2 * word_size);
 	static const std::map<offset_t, std::string> magic_descriptions =
@@ -1627,7 +1627,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		}
 	}
 	header_region.AddField("Entry", Dumper::HexDisplay::Make(2 * word_size), offset_t(entry_address));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	// TODO: print overlays, symbols, strings, relocations
 
@@ -1637,7 +1637,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		if(rel.segment != Relocation::Absolute)
 			text_block.AddSignal(rel.address, rel.size);
 	}
-	text_block.Display(dump);
+	text_block.Display(dump, Dumper::Header | Dumper::Image);
 
 	uint32_t data_offset = AlignTo(GetTextOffset() + code->ImageSize(), GetDataOffsetAlign());
 	uint32_t data_address = AlignTo(GetTextAddress() + code->ImageSize(), GetDataAddressAlign());
@@ -1648,11 +1648,11 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 		if(rel.segment != Relocation::Absolute)
 			data_block.AddSignal(rel.address, rel.size);
 	}
-	data_block.Display(dump);
+	data_block.Display(dump, Dumper::Header | Dumper::Image);
 
 	Dumper::Region bss_region("BSS", data_offset + data->ImageSize(), bss_size, 2 * word_size);
 	bss_region.AddField("Address", Dumper::HexDisplay::Make(2 * word_size), data_address + data->ImageSize());
-	bss_region.Display(dump);
+	bss_region.Display(dump, Dumper::Header | Dumper::Image);
 
 	static const std::map<offset_t, std::string> source_segment_description =
 	{
@@ -1679,7 +1679,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	if(text_size != 0)
 	{
 		Dumper::Region text_rel_region("Text relocation region", relocation_offset, code_relocations.size() * GetRelocationSize(), 2 * word_size);
-		text_rel_region.Display(dump);
+		text_rel_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 		for(auto& rel : code_relocations)
 		{
@@ -1692,7 +1692,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 			rel_entry.AddField("Target", Dumper::ChoiceDisplay::Make(target_segment_description), offset_t(rel.segment));
 			rel_entry.AddField("Size", Dumper::DecDisplay::Make(" bytes"), offset_t(rel.size));
 			// TODO: literal_entry
-			rel_entry.Display(dump);
+			rel_entry.Display(dump, Dumper::Relocation);
 			rel_index ++;
 		}
 	}
@@ -1701,7 +1701,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 	if(data_size != 0)
 	{
 		Dumper::Region data_rel_region("Data relocation region", relocation_offset + code_relocations.size() * GetRelocationSize(), data_relocations.size() * GetRelocationSize(), 2 * word_size);
-		data_rel_region.Display(dump);
+		data_rel_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 		for(auto& rel : data_relocations)
 		{
@@ -1714,7 +1714,7 @@ void AOutFormat::Dump(Dumper::Dumper& dump) const
 			rel_entry.AddField("Target", Dumper::ChoiceDisplay::Make(target_segment_description), offset_t(rel.segment));
 			rel_entry.AddField("Size", Dumper::DecDisplay::Make(" bytes"), offset_t(rel.size));
 			// TODO: literal_entry
-			rel_entry.Display(dump);
+			rel_entry.Display(dump, Dumper::Relocation);
 			rel_index ++;
 		}
 	}

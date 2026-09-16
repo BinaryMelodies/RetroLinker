@@ -501,7 +501,7 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, file_size, 8);
 	file_region.AddField("Magic", Dumper::ChoiceDisplay::Make(format_descriptions), offset_t(GetSignature()));
 	file_region.AddField("System", Dumper::ChoiceDisplay::Make(system_descriptions), offset_t(system));
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Header", file_offset, header_size, 8);
 	header_region.AddField("Suppression word", Dumper::HexDisplay::Make(4), offset_t(relocations_suppressed));
@@ -535,12 +535,12 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 		offset_t(program_flags));
 	}
 
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	if(relocations.size() > 0)
 	{
 		Dumper::Region relocations_region("Relocations", file_offset + code_size + data_size + symbol_table_size, 0 /* TODO: unknown size */, 8);
-		relocations_region.Display(dump);
+		relocations_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 		static const std::map<offset_t, std::string> segment_names =
 		{
@@ -557,7 +557,7 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 			relocation_entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(relocation.second.size));
 			relocation_entry.AddField("Target", Dumper::ChoiceDisplay::Make(segment_names, Dumper::DecDisplay::Make()), offset_t(relocation.second.segment));
 			// TODO: fill addend
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 
 			if(relocation.first < code_address + code_size)
 				code_block.AddSignal(relocation.first - code_address, relocation.second.size);
@@ -567,18 +567,18 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 		}
 	}
 
-	code_block.Display(dump);
-	data_block.Display(dump);
+	code_block.Display(dump, Dumper::Header | Dumper::Image);
+	data_block.Display(dump, Dumper::Header | Dumper::Image);
 
 	Dumper::Region bss_region("BSS segment", file_offset + header_size + code_size + data_size, bss_size, 8);
 	bss_region.AddField("Address", Dumper::HexDisplay::Make(8), offset_t(
 		system != SYSTEM_GEMDOS && system != SYSTEM_GEMDOS_EARLY ? bss_address : code_size + data_size));
-	bss_region.Display(dump);
+	bss_region.Display(dump, Dumper::Header | Dumper::Image);
 
 	if(symbols.size() > 0)
 	{
 		Dumper::Region symbol_table_region("Symbol table", file_offset + header_size + code_size + data_size, symbol_table_size, 8);
-		symbol_table_region.Display(dump);
+		symbol_table_region.Display(dump, Dumper::Header | Dumper::Symbol);
 
 		uint32_t symbol_index = 0;
 		for(auto& symbol : symbols)
@@ -598,7 +598,7 @@ void CPM68KFormat::Dump(Dumper::Dumper& dump) const
 				offset_t(symbol.type));
 			symbol_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(symbol.value));
 			symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol.name);
-			symbol_entry.Display(dump);
+			symbol_entry.Display(dump, Dumper::Symbol);
 			symbol_index++;
 		}
 	}

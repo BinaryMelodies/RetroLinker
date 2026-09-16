@@ -304,7 +304,7 @@ void PEFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, uns
 	{
 		Dumper::Region relocations("Section relocation", file_offset + relocation_pointer, 0, 8); /* TODO: size */
 		section_block.AddOptionalField("Count", Dumper::DecDisplay::Make(), offset_t(relocation_count));
-		relocations.Display(dump);
+		relocations.Display(dump, Dumper::Header | Dumper::Relocation);
 	}
 
 	unsigned i = 0;
@@ -313,7 +313,7 @@ void PEFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, uns
 		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
 		relocation->FillEntry(relocation_entry);
 		// TODO: fill addend
-		relocation_entry.Display(dump);
+		relocation_entry.Display(dump, Dumper::Relocation);
 
 		section_block.AddSignal(relocation->GetAddress() - address, relocation->GetSize());
 		i++;
@@ -354,7 +354,7 @@ void PEFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, uns
 		}
 	}
 
-	section_block.Display(dump);
+	section_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
 void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
@@ -468,7 +468,7 @@ void PEFormat::Resource::DumpResource(const PEFormat& fmt, Dumper::Dumper& dump,
 {
 	Dumper::Region resource_region("Resource header", fmt.RVAToFileOffset(rva), 16, 8);
 	resource_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(rva));
-	resource_region.Display(dump);
+	resource_region.Display(dump, Dumper::Header | Dumper::Resource);
 
 	std::shared_ptr<MemoryPortionImage> image = std::make_shared<MemoryPortionImage>(fmt, data_rva, size);
 	Dumper::Block resource_block("Resource", fmt.RVAToFileOffset(rva), image, rva, 8);
@@ -510,8 +510,8 @@ void PEFormat::Resource::DumpResource(const PEFormat& fmt, Dumper::Dumper& dump,
 		}
 	}
 #endif
-	resource_region.AddField("Codepage", Dumper::HexDisplay::Make(), offset_t(codepage));
-	resource_block.Display(dump);
+	resource_block.AddField("Codepage", Dumper::HexDisplay::Make(), offset_t(codepage));
+	resource_block.Display(dump, Dumper::Header | Dumper::Resource);
 }
 
 uint32_t PEFormat::Resource::AssignAddress(PEFormat& fmt, uint32_t rva)
@@ -709,7 +709,7 @@ void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dum
 		directory_region.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(version.major), offset_t(version.minor));
 		directory_region.AddField("Named entry count", Dumper::DecDisplay::Make(), offset_t(name_entries.size()));
 		directory_region.AddField("ID entry count", Dumper::DecDisplay::Make(), offset_t(id_entries.size()));
-		directory_region.Display(dump);
+		directory_region.Display(dump, Dumper::Header | Dumper::Resource);
 
 		uint16_t entry_index = 0;
 		for(auto& entry : name_entries)
@@ -719,7 +719,7 @@ void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dum
 			dirent_entry.AddField("Entry name address", fmt.MakeRVADisplay(), offset_t(directory_rva + entry.identifier.offset));
 			dirent_entry.AddField("Content address", fmt.MakeRVADisplay(), offset_t(directory_rva + entry.content_offset));
 			dirent_entry.AddField("Content type", Dumper::ChoiceDisplay::Make("directory", "leaf"), offset_t(entry.IsSubdirectory()));
-			dirent_entry.Display(dump);
+			dirent_entry.Display(dump, Dumper::Header | Dumper::Resource);
 			entry_index ++;
 		}
 
@@ -729,7 +729,7 @@ void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dum
 			dirent_entry.AddField("Entry identifier", Dumper::HexDisplay::Make(), offset_t(entry.identifier));
 			dirent_entry.AddField("Content address", fmt.MakeRVADisplay(), offset_t(directory_rva + entry.content_offset));
 			dirent_entry.AddField("Content type", Dumper::ChoiceDisplay::Make("directory", "leaf"), offset_t(entry.IsSubdirectory()));
-			dirent_entry.Display(dump);
+			dirent_entry.Display(dump, Dumper::Header | Dumper::Resource);
 			entry_index ++;
 		}
 	}
@@ -1052,7 +1052,7 @@ void PEFormat::ResourcesSection::DumpDirectory(const PEFormat& fmt, Dumper::Dump
 	Dumper::Encoding * old_encoding = dump.SetStringEncoding(Dumper::Block::encoding_utf16le);
 
 	Dumper::Region resources_region("Resource table", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
-	resources_region.Display(dump);
+	resources_region.Display(dump, Dumper::Header | Dumper::Resource);
 
 	std::vector<Resource::Identifier> empty_identifier;
 	for(size_t level = 0; level < max_depth + 1; level++)
@@ -1342,7 +1342,7 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 
 	Dumper::Region imports_region("Import table", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
 	imports_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(directory_rva));
-	imports_region.Display(dump);
+	imports_region.Display(dump, Dumper::Header | Dumper::Import);
 
 	uint32_t rva = directory_rva;
 	size_t library_index = 0;
@@ -1357,7 +1357,7 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 		library_region.AddOptionalField("Forwarder chain", Dumper::HexDisplay::Make(), offset_t(library.forwarder_chain));
 		library_region.AddField("Lookup table", fmt.MakeRVADisplay(), offset_t(library.lookup_table_rva));
 		library_region.AddField("Address table", fmt.MakeRVADisplay(), offset_t(library.address_table_rva));
-		library_region.Display(dump);
+		library_region.Display(dump, Dumper::Import);
 		rva += 20;
 
 		uint32_t entry_index = 0;
@@ -1379,7 +1379,7 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 				import_entry.AddOptionalField("Hint", Dumper::DecDisplay::Make(), offset_t(name->hint));
 				import_entry.AddField("Hint-name", fmt.MakeRVADisplay(), offset_t(name->rva));
 			}
-			import_entry.Display(dump);
+			import_entry.Display(dump, Dumper::Import);
 			entry_index ++;
 		}
 
@@ -1710,7 +1710,7 @@ void PEFormat::ExportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 	exports_region.AddField("Address table", fmt.MakeRVADisplay(), offset_t(address_table_rva));
 	exports_region.AddField("Name pointer table", fmt.MakeRVADisplay(), offset_t(name_table_rva));
 	exports_region.AddField("Ordinal table", fmt.MakeRVADisplay(), offset_t(ordinal_table_rva));
-	exports_region.Display(dump);
+	exports_region.Display(dump, Dumper::Header | Dumper::Export);
 
 	uint32_t ordinal = ordinal_base;
 	for(auto& ordinal_entry : entries)
@@ -1722,7 +1722,7 @@ void PEFormat::ExportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 			export_entry.AddField("Entry (RVA)", Dumper::HexDisplay::Make(), offset_t(address_table_rva + index * 4));
 			export_entry.AddField("Ordinal", Dumper::DecDisplay::Make(), offset_t(ordinal));
 			export_entry.AddField("Type", Dumper::StringDisplay::Make(), std::string("unused"));
-			export_entry.Display(dump);
+			export_entry.Display(dump, Dumper::Export);
 
 			ordinal ++;
 			index = ordinal - ordinal_base;
@@ -1756,7 +1756,7 @@ void PEFormat::ExportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 				export_entry.AddField("Name address", fmt.MakeRVADisplay(), offset_t(ordinal_entry.second->name.value().rva));
 			}
 		}
-		export_entry.Display(dump);
+		export_entry.Display(dump, Dumper::Export);
 		ordinal ++;
 	}
 }
@@ -1966,7 +1966,7 @@ void PEFormat::BaseRelocationsSection::DumpDirectory(const PEFormat& fmt, Dumper
 		Dumper::Region block_region("Block", fmt.RVAToFileOffset(rva), block->block_size, 8);
 		block_region.AddField("Location", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(rva));
 		block_region.AddField("Page (RVA)", Dumper::HexDisplay::Make(), offset_t(block->page_rva));
-		block_region.Display(dump);
+		block_region.Display(dump, Dumper::Header | Dumper::Relocation);
 
 		rva += 8;
 
@@ -1991,7 +1991,7 @@ void PEFormat::BaseRelocationsSection::DumpDirectory(const PEFormat& fmt, Dumper
 			relocation_entry.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(block->page_rva + rel.offset));
 			relocation_entry.AddOptionalField("Parameter", Dumper::HexDisplay::Make(4), offset_t(rel.parameter));
 			relocation_entry.AddField("Location", Dumper::HexDisplay::Make(), fmt.RVAToFileOffset(rva));
-			relocation_entry.Display(dump);
+			relocation_entry.Display(dump, Dumper::Relocation);
 			i ++;
 			rva += rel.GetEntryCount(&fmt) * 2;
 		}
@@ -2029,8 +2029,8 @@ void PEFormat::CLRHeaderSection::DumpDirectory(const PEFormat& fmt, Dumper::Dump
 {
 	Dumper::Encoding * old_encoding = dump.SetStringEncoding(Dumper::Block::encoding_utf16le);
 
-	Dumper::Region resources_region("CLR Runtime Header", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
-	resources_region.Display(dump);
+	Dumper::Region clr_header_region("CLR Runtime Header", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
+	clr_header_region.Display(dump, Dumper::Header);
 
 	// TODO
 
@@ -2432,7 +2432,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 	};
 	file_region.AddField("Byte order", Dumper::ChoiceDisplay::Make(endian_descriptions), offset_t(endiantype));
 #endif
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("File header", file_offset, 20, 8);
 	static const std::map<offset_t, std::string> cpu_descriptions =
@@ -2501,7 +2501,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("uniprocessor system only"), true)
 			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("big endian (obsolete)"), true),
 		offset_t(flags));
-	header_region.Display(dump);
+	header_region.Display(dump, Dumper::Header);
 
 	if(optional_header)
 	{
@@ -2533,7 +2533,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			Dumper::Region directory_region("Directory", RVAToFileOffset(data_directory.address), data_directory.size, 8);
 			directory_region.InsertField(0, "Type", Dumper::ChoiceDisplay::Make(directory_type, Dumper::DecDisplay::Make()), offset_t(directory_number + 1));
 			directory_region.AddField("Address (RVA)", Dumper::HexDisplay::Make(), offset_t(data_directory.address));
-			directory_region.Display(dump);
+			directory_region.Display(dump, Dumper::Header);
 
 			switch(directory_number)
 			{
@@ -2592,7 +2592,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 #if 0
 	Dumper::Region symbol_table("Symbol table", file_offset + symbol_table_offset, symbol_count * 18, 8);
 	symbol_table.AddField("Count", Dumper::DecDisplay::Make(), offset_t(symbol_count));
-	symbol_table.Display(dump);
+	symbol_table.Display(dump, Dumper::Header | Dumper::Symbol);
 	unsigned i = 0;
 	for(auto& symbol : symbols)
 	{
@@ -2608,7 +2608,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 			symbol_entry.AddField("Storage class", Dumper::HexDisplay::Make(2), offset_t(symbol->storage_class));
 			symbol_entry.AddOptionalField("Auxiliary count", Dumper::DecDisplay::Make(), offset_t(symbol->auxiliary_count));
 		}
-		symbol_entry.Display(dump);
+		symbol_entry.Display(dump, Dumper::Symbol);
 		i ++;
 	}
 #endif
@@ -4253,7 +4253,7 @@ void NTResourceFile::Dump(Dumper::Dumper& dump) const
 	for(auto& resource : resources)
 	{
 		Dumper::Region header_region("Resource header", current_offset, resource.header_size, 8);
-		header_region.Display(dump);
+		header_region.Display(dump, Dumper::Header | Dumper::Resource);
 
 		current_offset += GetIdentifierSize(resource.type) + GetIdentifierSize(resource.name) + 6;
 		Dumper::Block resource_block("Resource", current_offset, resource.image->AsImage(), 0, 8);
@@ -4270,7 +4270,7 @@ void NTResourceFile::Dump(Dumper::Dumper& dump) const
 		resource_block.AddOptionalField("Data version", Dumper::HexDisplay::Make(), offset_t(resource.data_version));
 		resource_block.AddOptionalField("Version", Dumper::HexDisplay::Make(), offset_t(resource.data_version));
 		resource_block.AddOptionalField("Characteristics", Dumper::HexDisplay::Make(), offset_t(resource.data_version));
-		resource_block.Display(dump);
+		resource_block.Display(dump, Dumper::Resource);
 		current_offset += resource.image->ImageSize();
 	}
 }

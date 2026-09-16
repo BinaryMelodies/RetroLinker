@@ -34,7 +34,7 @@ void AS86ObjFormat::RelocatorSize::Dump(Dumper::Dumper& dump, unsigned index, of
 {
 	Dumper::Entry entry("Relocation size", index, file_offset, 8);
 	entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(size));
-	entry.Display(dump);
+	entry.Display(dump, Dumper::Control);
 }
 
 offset_t AS86ObjFormat::SkipBytes::GetMemorySize() const
@@ -46,7 +46,7 @@ void AS86ObjFormat::SkipBytes::Dump(Dumper::Dumper& dump, unsigned index, offset
 {
 	Dumper::Entry entry("Skip bytes", index, file_offset, 8);
 	entry.AddField("Count", Dumper::HexDisplay::Make(), offset_t(count));
-	entry.Display(dump);
+	entry.Display(dump, Dumper::Control);
 }
 
 void AS86ObjFormat::SkipBytes::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
@@ -64,7 +64,7 @@ void AS86ObjFormat::ChangeSegment::Dump(Dumper::Dumper& dump, unsigned index, of
 {
 	Dumper::Entry entry("Change segment", index, file_offset, 8);
 	entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(segment));
-	entry.Display(dump);
+	entry.Display(dump, Dumper::Control);
 }
 
 void AS86ObjFormat::ChangeSegment::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
@@ -86,7 +86,7 @@ void AS86ObjFormat::RawBytes::Dump(Dumper::Dumper& dump, unsigned index, offset_
 {
 	Dumper::Block block("Raw bytes",file_offset, buffer, memory_offset, 8);
 	block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index));
-	block.Display(dump);
+	block.Display(dump, Dumper::Header | Dumper::Image | Dumper::Control);
 }
 
 void AS86ObjFormat::RawBytes::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
@@ -112,7 +112,7 @@ void AS86ObjFormat::SimpleRelocator::Dump(Dumper::Dumper& dump, unsigned index, 
 	entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
 	entry.AddField("Segment", Dumper::DecDisplay::Make(), offset_t(segment));
 	entry.AddOptionalField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
-	entry.Display(dump);
+	entry.Display(dump, Dumper::Relocation | Dumper::Control);
 }
 
 void AS86ObjFormat::SimpleRelocator::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
@@ -153,7 +153,7 @@ void AS86ObjFormat::SymbolRelocator::Dump(Dumper::Dumper& dump, unsigned index, 
 	entry.AddField("Symbol name", Dumper::StringDisplay::Make(), symbol_name);
 	entry.AddField("Symbol index size", Dumper::DecDisplay::Make(), offset_t(index_size));
 	entry.AddOptionalField("IP relative", Dumper::ChoiceDisplay::Make("true"), offset_t(ip_relative));
-	entry.Display(dump);
+	entry.Display(dump, Dumper::Relocation | Dumper::Control);
 }
 
 void AS86ObjFormat::SymbolRelocator::Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const
@@ -283,10 +283,10 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index) const
 		}
 	}
 
-	module_region.Display(dump);
+	module_region.Display(dump, Dumper::Header);
 
 	Dumper::Region string_table_region("String table region", string_table_offset, string_table_size, 8);
-	string_table_region.Display(dump);
+	string_table_region.Display(dump, Dumper::Header);
 
 	unsigned i = 0;
 	for(auto& symbol : symbols)
@@ -318,7 +318,7 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index) const
 			symbol_entry.AddField("Offset", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(symbol.segment), offset_t(symbol.offset));
 			symbol_entry.AddField("Offset size", Dumper::DecDisplay::Make(), offset_t(symbol.offset_size));
 		}
-		symbol_entry.Display(dump);
+		symbol_entry.Display(dump, Dumper::Symbol);
 		i ++;
 	}
 
@@ -434,7 +434,7 @@ void AS86ObjFormat::Dump(Dumper::Dumper& dump) const
 	dump.SetTitle("Introl object format");
 
 	Dumper::Region file_region("File", 0, modules.back().file_offset + modules.back().module_size, 8);
-	file_region.Display(dump);
+	file_region.Display(dump, Dumper::Header);
 
 	unsigned i = 0;
 	for(auto& module : modules)
