@@ -865,6 +865,20 @@ void PEFFormat::Section::WriteFile(const PEFFormat& pef_format, Linker::Writer& 
 	}
 }
 
+void PEFFormat::Reference::SetPosition(PEFFormat& pef_format, const Linker::Position& position)
+{
+	offset = position.address;
+	if(position.segment != nullptr)
+	{
+		section_pointer = pef_format.segment_to_section_map[position.segment];
+		offset -= position.segment->base_address;
+	}
+	else
+	{
+		section_pointer.reset();
+	}
+}
+
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd)
 {
 	rd.Seek(pef_format.loader_section_offset + pef_format.loader_strings_offset + name_offset);
@@ -1488,9 +1502,9 @@ void PEFFormat::CalculateValues()
 		// get the numeric value of the section
 		symbol->StoreSectionIndex();
 		symbol->symbol_length = symbol->name.size();
-		// note: ProcessModule already fills it in, but CalculateValues is intended to
+		// note: ProcessModule already calculates it, but CalculateValues is intended to
 		// create a consistent state, so this call will be duplicated
-		symbol->hash_value = ComputeHashWord(symbol->name);
+		symbol->hash_value = ComputeHashWord(symbol->name) & 0xFFFF;
 	}
 
 	if(export_hash_offset < loader_strings_offset + GetLoaderStringAreaSize())
@@ -1517,6 +1531,10 @@ void PEFFormat::CalculateValues()
 		}
 		section_offset = section->container_offset + section->GetImageSize(*this);
 	}
+
+	main_symbol.StoreSectionIndex();
+	init_symbol.StoreSectionIndex();
+	term_symbol.StoreSectionIndex();
 }
 
 void PEFFormat::Dump(Dumper::Dumper& dump) const
@@ -2025,12 +2043,7 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 			}
 			auto exported_symbol = std::make_shared<ExportedSymbol>(name, symbol_class_type(hint));
 			auto position = symbol.second.GetPosition();
-			exported_symbol->offset = position.address;
-			if(position.segment)
-			{
-				exported_symbol->section_pointer = segment_to_section_map[position.segment];
-				exported_symbol->offset -= position.segment->base_address;
-			}
+			exported_symbol->SetPosition(*this, position);
 			exported_symbols.push_back(exported_symbol);
 		}
 		else
@@ -2046,8 +2059,8 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 	hash_table.resize(1 << export_hash_table_power);
 	for(auto symbol : exported_symbols)
 	{
-		symbol->hash_value = ComputeHashWord(symbol->name);
-		uint32_t hash_index = HashTableIndex(symbol->hash_value, export_hash_table_power);
+		uint32_t hash_value = ComputeHashWord(symbol->name);
+		uint32_t hash_index = HashTableIndex(hash_value, export_hash_table_power);
 		hash_table[hash_index].chain.push_back(symbol);
 	}
 
@@ -2063,7 +2076,19 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 			hash_table_entry.chain.end());
 	}
 
-	// TODO: set main_symbol
+	Linker::Location entry;
+	if(module.FindGlobalSymbol(".entry", entry))
+	{
+		main_symbol.SetPosition(*this, entry.GetPosition());
+	}
+	else
+	{
+		if(exported_symbols.size() == 0)
+		{
+			Linker::Warning << "Warning: no entry point or exported symbols specified specified" << std::endl;
+		}
+	}
+
 	// TODO: set init_symbol, term_symbol?
 }
 

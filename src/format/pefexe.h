@@ -8,7 +8,10 @@
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
-/* TODO: unimplemented */
+namespace Linker
+{
+	class Position;
+}
 
 namespace Apple
 {
@@ -442,6 +445,8 @@ namespace Apple
 			std::weak_ptr<Section> section_pointer;
 			uint32_t section = NoSection;
 			uint32_t offset = 0;
+
+			void SetPosition(PEFFormat& pef_format, const Linker::Position& position);
 
 			bool IsPresent() const { return section != NoSection; }
 			void StoreSectionIndex()
