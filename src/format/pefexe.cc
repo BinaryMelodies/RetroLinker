@@ -1075,6 +1075,8 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		symbol.offset = rd.ReadUnsigned(4);
 		symbol.section = rd.ReadSigned(2); // sign extend to 32-bit
 
+		// since exported strings are not (necessarily) null terminated, we need to record where terminations occur
+		// in order to be able to parse the full string table
 		string_terminations.insert(symbol.name_offset + symbol.symbol_length);
 	}
 
@@ -1089,6 +1091,7 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 	loader_string_table_size = 0;
 	while(rd.Tell() < loader_section_offset + export_hash_offset)
 	{
+		// check where the next exported symbol termination occurs
 		auto termination = std::upper_bound(string_terminations.begin(), string_terminations.end(), rd.Tell() - (loader_section_offset + loader_strings_offset));
 		offset_t maximum;
 		if(termination == string_terminations.end())
