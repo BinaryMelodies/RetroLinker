@@ -94,7 +94,7 @@ std::string Reader::ReadASCII(char terminator, size_t maximum)
 
 std::string Reader::ReadASCIIZ(size_t maximum)
 {
-	return ReadASCII('\0', size_t(-1));
+	return ReadASCII('\0', maximum);
 }
 
 std::string Reader::ReadUTF16Data(size_t count, bool terminate_at_null)

@@ -710,7 +710,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 	if(name_offset != NoNameOffset)
 	{
 		rd.Seek(pef_format.GetSectionNameTableOffset());
-		name = rd.ReadASCII('\0');
+		name = rd.ReadASCIIZ();
 	}
 	else
 	{
@@ -868,7 +868,7 @@ void PEFFormat::Section::WriteFile(const PEFFormat& pef_format, Linker::Writer& 
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd)
 {
 	rd.Seek(pef_format.loader_section_offset + pef_format.loader_strings_offset + name_offset);
-	return name = rd.ReadASCII('\0');
+	return name = rd.ReadASCIIZ();
 }
 
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd, uint16_t length)
@@ -1215,7 +1215,7 @@ void PEFFormat::ReadFile(Linker::Reader& rd)
 	// TODO: untested
 	while(rd.Tell() < section_name_table_end)
 	{
-		section_name_table.push_back(rd.ReadASCII('\0'));
+		section_name_table.push_back(rd.ReadASCIIZ());
 	}
 
 	for(auto section : sections)
