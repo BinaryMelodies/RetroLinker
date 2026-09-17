@@ -760,7 +760,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 		rd.Seek(container_offset);
 		pef_format.loader_section_offset = container_offset;
 		{
-			Linker::Reader section_reader = rd.CreateWindow(container_offset, unpacked_size);
+			Linker::Reader section_reader = rd.CreateWindow(container_offset, packed_size);
 			pef_format.ReadLoaderSection(section_reader);
 		}
 		break;
@@ -1566,7 +1566,7 @@ void PEFFormat::CalculateValues()
 		section->container_offset = ::AlignTo(section_offset, section->alignment);
 		if(section->section_kind == Section::Loader)
 		{
-			section->total_size = section->unpacked_size = section->packed_size = GetLoaderSectionSize();
+			section->packed_size = GetLoaderSectionSize();
 			loader_section_offset = section->container_offset;
 		}
 		section_offset = section->container_offset + section->GetImageSize(*this);
