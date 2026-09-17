@@ -39,7 +39,7 @@ void Reader::ReadData(size_t count, void * data)
 	size_t actual_count = in->gcount();
 	if(actual_count != count)
 	{
-		Linker::Error << "Reading error at offset " << std::hex << _off << std::endl;
+		Linker::Error << "Reading error at offset 0x" << std::hex << _off << ": tried reading " << std::dec << count << " only managed " << std::dec << actual_count << std::endl;
 		switch(on_overflow)
 		{
 		case IgnoreOnOverflow:

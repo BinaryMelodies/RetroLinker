@@ -729,11 +729,22 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 	case PatternInitializedData:
 		// TODO: untested
 		rd.Seek(container_offset);
-		patterns.clear();
-		while(rd.Tell() < container_offset + packed_size)
 		{
-			patterns.push_back(PatternInitialization());
-			patterns.back().ReadFile(rd);
+			Linker::Reader section_reader = rd.CreateWindow(container_offset, unpacked_size);
+			section_reader.on_overflow = Linker::Reader::ReportOnOverflow;
+			patterns.clear();
+			try
+			{
+				while(section_reader.Tell() < packed_size)
+				{
+					patterns.push_back(PatternInitialization());
+					patterns.back().ReadFile(section_reader);
+				}
+			}
+			catch(Linker::ReadOverflow)
+			{
+				Linker::Error << "Error: pattern initialized data exceeded section limit" << std::endl;
+			}
 		}
 
 		{
