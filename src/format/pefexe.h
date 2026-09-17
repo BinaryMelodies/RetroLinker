@@ -64,6 +64,7 @@ namespace Apple
 			void ExpandData(Linker::Buffer& buffer) const;
 		};
 
+		class Section;
 		class ImportedSymbol;
 		class ImportedLibrary;
 
@@ -81,27 +82,45 @@ namespace Apple
 				Symbol,
 			};
 			target_type type = Section;
-			uint32_t offset = 0;
+			bool compiled = true;
 			// section: section number, symbol: symbol number
 			uint32_t number = 0;
+			// only for section targets
+			std::weak_ptr<PEFFormat::Section> section;
 			// only for symbol targets
 			std::weak_ptr<ImportedSymbol> symbol;
 
-			static inline Relocation ToSection(uint32_t offset, uint32_t section_number)
+			static inline Relocation ToSection(uint32_t section_number)
 			{
 				Relocation relocation;
 				relocation.type = Section;
-				relocation.offset = offset;
 				relocation.number = section_number;
 				return relocation;
 			}
 
-			static inline Relocation ToSymbol(uint32_t offset, uint32_t symbol_number)
+			static inline Relocation ToSection(std::weak_ptr<PEFFormat::Section> section)
+			{
+				Relocation relocation;
+				relocation.type = Section;
+				relocation.compiled = false;
+				relocation.section = section;
+				return relocation;
+			}
+
+			static inline Relocation ToSymbol(uint32_t symbol_number)
 			{
 				Relocation relocation;
 				relocation.type = Symbol;
-				relocation.offset = offset;
 				relocation.number = symbol_number;
+				return relocation;
+			}
+
+			static inline Relocation ToSymbol(std::weak_ptr<ImportedSymbol> symbol)
+			{
+				Relocation relocation;
+				relocation.type = Symbol;
+				relocation.compiled = false;
+				relocation.symbol = symbol;
 				return relocation;
 			}
 		};
@@ -128,11 +147,11 @@ namespace Apple
 			uint32_t current_repeat_count = 0;
 
 			std::vector<RelocOpcode>& reloc_opcodes;
-			std::vector<Relocation>& relocations;
+			std::map<uint32_t, Relocation>& relocations;
 
 			void Initialize();
 
-			RelocationProcessor(const PEFFormat& pef_format, std::vector<RelocOpcode>& reloc_opcodes, std::vector<Relocation>& relocations)
+			RelocationProcessor(const PEFFormat& pef_format, std::vector<RelocOpcode>& reloc_opcodes, std::map<uint32_t, Relocation>& relocations)
 				: pef_format(pef_format), reloc_opcodes(reloc_opcodes), relocations(relocations)
 			{
 				Initialize();
@@ -145,13 +164,13 @@ namespace Apple
 
 			void AddRelocation(Relocation relocation)
 			{
-				relocations.push_back(relocation);
+				relocations[reloc_address] = relocation;
 				Advance(4);
 			}
 
 			void AddSection(uint32_t section_number)
 			{
-				AddRelocation(Relocation::ToSection(reloc_address, section_number));
+				AddRelocation(Relocation::ToSection(section_number));
 			}
 
 			void AddSectionC()
@@ -166,7 +185,7 @@ namespace Apple
 
 			void AddSymbol()
 			{
-				AddRelocation(Relocation::ToSymbol(reloc_address, import_index));
+				AddRelocation(Relocation::ToSymbol(import_index));
 				import_index ++;
 			}
 
@@ -259,6 +278,16 @@ namespace Apple
 			 * or a repetition count (Repeat) */
 			uint32_t repeat = 0;
 
+			RelocOpcode(opcode_type opcode = SmInvalid)
+				: opcode(opcode)
+			{
+			}
+
+			RelocOpcode(opcode_type opcode, uint32_t value, uint32_t repeat)
+				: opcode(opcode), value(value), repeat(repeat)
+			{
+			}
+
 			/** @brief Reads and initializes a single relocation opcode record */
 			void ReadFile(Linker::Reader& rd);
 			/** @brief Returns the bit sequence that this opcode is stored as in the file
@@ -275,6 +304,8 @@ namespace Apple
 			}
 			/** @brief Executes the opcode to possibly produce some relocation information and/or alter the state of the pseudo-microprocessor */
 			void GenerateRelocations(RelocationProcessor& processor) const;
+
+			void Dump(Dumper::Dumper& dump, const PEFFormat& pef_format, uint32_t opcode_index, int display_options = 0) const;
 		};
 
 		class Section
@@ -310,11 +341,13 @@ namespace Apple
 			share_type share_kind = ProcessShare;
 			uint8_t alignment = 0;
 			uint8_t reserved = 0;
+			// convenience field to determine index of symbol in table
+			uint32_t section_number = uint32_t(-1);
 
 			std::shared_ptr<Linker::Contents> image;
 			std::vector<PatternInitialization> patterns;
 			// only appearing in sections with relocations
-			std::vector<Relocation> relocations;
+			std::map<uint32_t, Relocation> relocations;
 			std::vector<RelocOpcode> reloc_opcodes;
 			bool contains_relocations = false;
 			uint16_t reserved_a = 0;
@@ -417,10 +450,19 @@ namespace Apple
 		class Name
 		{
 		public:
-			uint32_t name_offset;
-			std::string name;
+			uint32_t name_offset = 0;
+			std::string name = "";
 			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
 			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd, uint16_t length);
+			void StoreNameString(PEFFormat& pef_format);
+			void StoreNameStringNoNull(PEFFormat& pef_format);
+
+			Name() = default;
+
+			Name(std::string name)
+				: name(name)
+			{
+			}
 		};
 
 		class ImportedLibrary;
@@ -437,8 +479,13 @@ namespace Apple
 		class ImportedSymbol : public Name
 		{
 		public:
-			symbol_class_type symbol_class;
-			uint8_t flags;
+			symbol_class_type symbol_class = TVect;
+			uint8_t flags = 0;
+			// convenience field to determine index of symbol in table
+			uint32_t symbol_number = uint32_t(-1);
+
+			ImportedSymbol() = default;
+			ImportedSymbol(std::string name) : Name(name) { }
 
 			std::weak_ptr<ImportedLibrary> library; // back link to library that includes it
 		};
@@ -446,21 +493,48 @@ namespace Apple
 		class ImportedLibrary : public Name
 		{
 		public:
-			uint32_t old_imp_version;
-			uint32_t current_version;
-			uint32_t imported_symbol_count;
-			uint32_t first_imported_symbol;
+			uint32_t old_imp_version = 0;
+			uint32_t current_version = 0;
+			uint32_t imported_symbol_count = 0;
+			uint32_t first_imported_symbol = 0;
 			std::vector<std::shared_ptr<ImportedSymbol>> imported_symbols;
-			uint8_t options;
-			uint8_t reserved_a;
-			uint16_t reserved_b;
+			// only used for generation
+			std::map<std::string, std::shared_ptr<ImportedSymbol>> named_imported_symbols;
+			uint8_t options = 0;
+			uint8_t reserved_a = 0;
+			uint16_t reserved_b = 0;
+
+			ImportedLibrary() = default;
+			ImportedLibrary(std::string name) : Name(name) { }
+
+			std::shared_ptr<ImportedSymbol> GetImportByName(std::string name)
+			{
+				auto symbol_iter = named_imported_symbols.find(name);
+				if(symbol_iter == named_imported_symbols.end())
+				{
+					auto symbol = std::make_shared<ImportedSymbol>(name);
+					imported_symbols.push_back(symbol);
+					named_imported_symbols[name] = symbol;
+					return symbol;
+				}
+				else
+				{
+					return symbol_iter->second;
+				}
+			}
 		};
 		std::vector<std::shared_ptr<ImportedLibrary>> imported_libraries;
+		// only used for generation
+		std::map<std::string, std::shared_ptr<ImportedLibrary>> named_imported_libraries;
 		std::vector<std::shared_ptr<ImportedSymbol>> imported_symbols;
 		std::vector<uint32_t> reloc_section_indexes;
 		uint32_t reloc_instr_offset = 0;
 		uint32_t loader_strings_offset = 0;
 		uint32_t export_hash_offset = 0;
+		std::vector<RelocOpcode> relocs_area;
+		uint32_t relocs_area_size = 0;
+		std::vector<std::string> loader_string_table;
+		uint32_t loader_string_table_size = 0;
 
 		struct HashTableEntry
 		{
@@ -477,10 +551,27 @@ namespace Apple
 			symbol_class_type symbol_class;
 			using Name::LoadNameString;
 			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
+			void StoreNameString(PEFFormat& pef_format);
 		};
 		std::vector<ExportedSymbol> exported_symbols;
 
-		static constexpr uint32_t LoaderHeaderSize = 40;
+		std::shared_ptr<ImportedLibrary> FetchImportLibrary(std::string name)
+		{
+			auto library_iter = named_imported_libraries.find(name);
+			if(library_iter == named_imported_libraries.end())
+			{
+				auto library = std::make_shared<ImportedLibrary>(name);
+				imported_libraries.push_back(library);
+				named_imported_libraries[name] = library;
+				return library;
+			}
+			else
+			{
+				return library_iter->second;
+			}
+		}
+
+		static constexpr uint32_t LoaderHeaderSize = 56;
 		static constexpr uint32_t LibraryDescriptionSize = 28;
 		uint32_t GetLibraryDescriptionsSize() const
 		{
@@ -501,13 +592,11 @@ namespace Apple
 		}
 		uint32_t GetRelocationAreaSize() const
 		{
-			// TODO
-			return 0;
+			return relocs_area_size;
 		}
 		uint32_t GetLoaderStringAreaSize() const
 		{
-			// TODO
-			return 0;
+			return loader_string_table_size;
 		}
 		uint32_t GetExportHashTableSize() const
 		{
@@ -557,6 +646,8 @@ namespace Apple
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);
+		void SortImports();
+		void ProcessRelocations(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 	};
