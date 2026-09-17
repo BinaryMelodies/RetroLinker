@@ -1527,6 +1527,7 @@ void PEFFormat::CalculateValues()
 		section->container_offset = ::AlignTo(section_offset, section->alignment);
 		if(section->section_kind == Section::Loader)
 		{
+			section->total_size = section->unpacked_size = section->packed_size = GetLoaderSectionSize();
 			loader_section_offset = section->container_offset;
 		}
 		section_offset = section->container_offset + section->GetImageSize(*this);
@@ -1580,9 +1581,9 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		section_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(section_number + 1));
 		section_block.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(section->name_offset));
 		section_block.AddOptionalField("Name", Dumper::StringDisplay::Make("\""), section->name);
-		section_block.AddOptionalField("Total size", Dumper::HexDisplay::Make(8), offset_t(section->total_size));
-		section_block.AddOptionalField("Unpacked size", Dumper::HexDisplay::Make(8), offset_t(section->unpacked_size));
-		section_block.AddOptionalField("Packed size", Dumper::HexDisplay::Make(8), offset_t(section->packed_size));
+		section_block.AddField("Total size", Dumper::HexDisplay::Make(8), offset_t(section->total_size));
+		section_block.AddField("Unpacked size", Dumper::HexDisplay::Make(8), offset_t(section->unpacked_size));
+		section_block.AddField("Packed size", Dumper::HexDisplay::Make(8), offset_t(section->packed_size));
 		static const std::map<offset_t, std::string> section_type =
 		{
 			{ Section::Code,                   "Code" },
