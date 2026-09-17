@@ -748,7 +748,10 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 	case Loader:
 		rd.Seek(container_offset);
 		pef_format.loader_section_offset = container_offset;
-		pef_format.ReadLoaderSection(rd);
+		{
+			Linker::Reader section_reader = rd.CreateWindow(container_offset, unpacked_size);
+			pef_format.ReadLoaderSection(section_reader);
+		}
 		break;
 	default:
 		break;
@@ -798,6 +801,7 @@ void PEFFormat::Section::CalculateValues(PEFFormat& pef_format)
 		}
 		break;
 	case Loader:
+		// fill in later
 		total_size = unpacked_size = packed_size = 0;
 		break;
 	default:
@@ -819,8 +823,6 @@ void PEFFormat::Section::CalculateValues(PEFFormat& pef_format)
 	{
 		name_offset = NoNameOffset;
 	}
-
-	// TODO: container_offset
 }
 
 void PEFFormat::Section::WriteHeader(Linker::Writer& wr) const
@@ -881,13 +883,13 @@ void PEFFormat::Reference::SetPosition(PEFFormat& pef_format, const Linker::Posi
 
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd)
 {
-	rd.Seek(pef_format.loader_section_offset + pef_format.loader_strings_offset + name_offset);
+	rd.Seek(pef_format.loader_strings_offset + name_offset);
 	return name = rd.ReadASCIIZ();
 }
 
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd, uint16_t length)
 {
-	rd.Seek(pef_format.loader_section_offset + pef_format.loader_strings_offset + name_offset);
+	rd.Seek(pef_format.loader_strings_offset + name_offset);
 	return name = rd.ReadData(length);
 }
 
@@ -957,204 +959,230 @@ bool PEFFormat::FormatSupportsResources() const
 
 void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 {
-	//// header
+	rd.on_overflow = Linker::Reader::ReportOnOverflow;
 
-	main_symbol.section = rd.ReadUnsigned(4);
-	main_symbol.offset = rd.ReadUnsigned(4);
-
-	init_symbol.section = rd.ReadUnsigned(4);
-	init_symbol.offset = rd.ReadUnsigned(4);
-
-	term_symbol.section = rd.ReadUnsigned(4);
-	term_symbol.offset = rd.ReadUnsigned(4);
-
-	uint32_t imported_library_count = rd.ReadUnsigned(4);
-	uint32_t total_imported_symbol_count = rd.ReadUnsigned(4);
-
-	uint32_t reloc_section_count = rd.ReadUnsigned(4);
-	reloc_instr_offset = rd.ReadUnsigned(4);
-
-	loader_strings_offset = rd.ReadUnsigned(4);
-
-	export_hash_offset = rd.ReadUnsigned(4);
-	uint32_t export_hash_table_power = rd.ReadUnsigned(4);
-	uint32_t exported_symbol_count = rd.ReadUnsigned(4);
-
-	//// imported library descriptions
-
-	for(uint32_t imported_library_index = 0; imported_library_index < imported_library_count; imported_library_index++)
+	try
 	{
-		auto library = std::make_shared<ImportedLibrary>();
-		imported_libraries.push_back(library);
-		library->name_offset = rd.ReadUnsigned(4);
-		library->old_imp_version = rd.ReadUnsigned(4);
-		library->current_version = rd.ReadUnsigned(4);
-		library->imported_symbol_count = rd.ReadUnsigned(4);
-		library->first_imported_symbol = rd.ReadUnsigned(4);
-		library->options = rd.ReadUnsigned(1);
-		library->reserved_a = rd.ReadUnsigned(1);
-		library->reserved_b = rd.ReadUnsigned(2);
-	}
+		//// header
 
-	//// imported symbol tables
+		main_symbol.section = rd.ReadUnsigned(4);
+		main_symbol.offset = rd.ReadUnsigned(4);
 
-	for(uint32_t imported_symbol_index = 0; imported_symbol_index < total_imported_symbol_count; imported_symbol_index++)
-	{
-		auto symbol = std::make_shared<ImportedSymbol>();
-		imported_symbols.push_back(symbol);
-		uint32_t value = rd.ReadUnsigned(4);
-		symbol->symbol_class = symbol_class_type((value >> 24) & 0x0F);
-		symbol->flags = (value >> 24) & 0xF0;
-		symbol->name_offset = value & 0x00FFFFFF;
-	}
+		init_symbol.section = rd.ReadUnsigned(4);
+		init_symbol.offset = rd.ReadUnsigned(4);
 
-	// now the library specific symbols can be loaded
-	for(auto library : imported_libraries)
-	{
-		library->imported_symbols.insert(
-			library->imported_symbols.begin(),
-			imported_symbols.begin() + library->first_imported_symbol,
-			imported_symbols.begin() + library->first_imported_symbol + library->imported_symbol_count);
+		term_symbol.section = rd.ReadUnsigned(4);
+		term_symbol.offset = rd.ReadUnsigned(4);
 
-		for(auto symbol : library->imported_symbols)
+		uint32_t imported_library_count = rd.ReadUnsigned(4);
+		uint32_t total_imported_symbol_count = rd.ReadUnsigned(4);
+
+		uint32_t reloc_section_count = rd.ReadUnsigned(4);
+		reloc_instr_offset = rd.ReadUnsigned(4);
+
+		loader_strings_offset = rd.ReadUnsigned(4);
+
+		export_hash_offset = rd.ReadUnsigned(4);
+		uint32_t export_hash_table_power = rd.ReadUnsigned(4);
+		uint32_t exported_symbol_count = rd.ReadUnsigned(4);
+
+		//// imported library descriptions
+
+		for(uint32_t imported_library_index = 0; imported_library_index < imported_library_count; imported_library_index++)
 		{
-			symbol->library = library;
+			auto library = std::make_shared<ImportedLibrary>();
+			imported_libraries.push_back(library);
+			library->name_offset = rd.ReadUnsigned(4);
+			library->old_imp_version = rd.ReadUnsigned(4);
+			library->current_version = rd.ReadUnsigned(4);
+			library->imported_symbol_count = rd.ReadUnsigned(4);
+			library->first_imported_symbol = rd.ReadUnsigned(4);
+			library->options = rd.ReadUnsigned(1);
+			library->reserved_a = rd.ReadUnsigned(1);
+			library->reserved_b = rd.ReadUnsigned(2);
 		}
-	}
 
-	//// relocation headers
+		//// imported symbol tables
 
-	for(uint32_t reloc_section_index = 0; reloc_section_index < reloc_section_count; reloc_section_index++)
-	{
-		uint16_t section_index = rd.ReadUnsigned(2);
-		reloc_section_indexes.push_back(section_index);
-		auto section = sections[section_index];
-		section->contains_relocations = true;
-		section->reserved_a = rd.ReadUnsigned(2);
-		section->reloc_instr_size = rd.ReadUnsigned(4) * 2;
-		section->first_reloc_offset = rd.ReadUnsigned(4) * 2;
-	}
-
-	//// relocation area
-
-	// this is where consecutive reading stops
-
-	for(auto section : sections)
-	{
-		if(section->contains_relocations)
+		for(uint32_t imported_symbol_index = 0; imported_symbol_index < total_imported_symbol_count; imported_symbol_index++)
 		{
-			rd.Seek(loader_section_offset + reloc_instr_offset + section->first_reloc_offset);
-			while(rd.Tell() < loader_section_offset + reloc_instr_offset + section->first_reloc_offset + section->reloc_instr_size)
+			auto symbol = std::make_shared<ImportedSymbol>();
+			imported_symbols.push_back(symbol);
+			uint32_t value = rd.ReadUnsigned(4);
+			symbol->symbol_class = symbol_class_type((value >> 24) & 0x0F);
+			symbol->flags = (value >> 24) & 0xF0;
+			symbol->name_offset = value & 0x00FFFFFF;
+		}
+
+		// now the library specific symbols can be loaded
+		for(auto library : imported_libraries)
+		{
+			library->imported_symbols.insert(
+				library->imported_symbols.begin(),
+				imported_symbols.begin() + library->first_imported_symbol,
+				imported_symbols.begin() + library->first_imported_symbol + library->imported_symbol_count);
+
+			for(auto symbol : library->imported_symbols)
 			{
-				RelocOpcode opcode;
-				opcode.ReadFile(rd);
-				section->reloc_opcodes.push_back(opcode);
+				symbol->library = library;
 			}
+		}
 
-			RelocationProcessor processor(*this, section->reloc_opcodes, section->relocations);
-			processor.GenerateRelocations();
+		//// relocation headers
 
-			for(auto& relocation : section->relocations)
+		for(uint32_t reloc_section_index = 0; reloc_section_index < reloc_section_count; reloc_section_index++)
+		{
+			uint16_t section_index = rd.ReadUnsigned(2);
+			reloc_section_indexes.push_back(section_index);
+			auto section = sections[section_index];
+			section->contains_relocations = true;
+			section->reserved_a = rd.ReadUnsigned(2);
+			section->reloc_instr_size = rd.ReadUnsigned(4) * 2;
+			section->first_reloc_offset = rd.ReadUnsigned(4) * 2;
+		}
+
+		//// relocation area
+
+		// this is where consecutive reading stops
+
+		for(auto section : sections)
+		{
+			if(section->contains_relocations)
 			{
-				if(relocation.second.type == Relocation::Symbol)
+				rd.Seek(reloc_instr_offset + section->first_reloc_offset);
+				while(rd.Tell() < reloc_instr_offset + section->first_reloc_offset + section->reloc_instr_size)
 				{
-					relocation.second.symbol = imported_symbols[relocation.second.number];
+					RelocOpcode opcode;
+					opcode.ReadFile(rd);
+					section->reloc_opcodes.push_back(opcode);
+				}
+
+				RelocationProcessor processor(*this, section->reloc_opcodes, section->relocations);
+				processor.GenerateRelocations();
+
+				for(auto& relocation : section->relocations)
+				{
+					if(relocation.second.type == Relocation::Symbol)
+					{
+						relocation.second.symbol = imported_symbols[relocation.second.number];
+					}
 				}
 			}
 		}
-	}
 
-	rd.Seek(loader_section_offset + reloc_instr_offset);
-	relocs_area.clear();
-	while(rd.Tell() < loader_section_offset + loader_strings_offset)
-	{
-		RelocOpcode opcode;
-		opcode.ReadFile(rd);
-		relocs_area.push_back(opcode);
-	}
-
-	//// loader string table
-
-	for(auto library : imported_libraries)
-	{
-		library->LoadNameString(*this, rd);
-	}
-
-	for(auto symbol : imported_symbols)
-	{
-		symbol->LoadNameString(*this, rd);
-	}
-
-	// read full table after reading the exported symbol table (since exported symbols are not necessarily zero terminated)
-
-	//// export hash table
-
-	rd.Seek(loader_section_offset + export_hash_offset);
-	hash_table.resize(1 << export_hash_table_power);
-	for(auto& hash_table_entry : hash_table)
-	{
-		uint32_t value = rd.ReadUnsigned(4);
-		hash_table_entry.chain_count = value >> 18;
-		hash_table_entry.first_index = value & 0x0003FFFF;
-	}
-
-	//// export key table
-
-	for(uint32_t export_index = 0; export_index < exported_symbol_count; export_index ++)
-	{
-		auto symbol = std::make_shared<ExportedSymbol>();
-		exported_symbols.push_back(symbol);
-		symbol->symbol_length = rd.ReadUnsigned(2);
-		symbol->hash_value = rd.ReadUnsigned(2);
-	}
-
-	//// exported symbol table
-
-	std::set<uint32_t> string_terminations;
-
-	for(auto& symbol : exported_symbols)
-	{
-		symbol->name_offset = rd.ReadUnsigned(4);
-		symbol->symbol_class = symbol_class_type(symbol->name_offset >> 24);
-		symbol->name_offset &= 0x00FFFFFF;
-		symbol->offset = rd.ReadUnsigned(4);
-		symbol->section = rd.ReadSigned(2); // sign extend to 32-bit
-
-		// since exported strings are not (necessarily) null terminated, we need to record where terminations occur
-		// in order to be able to parse the full string table
-		string_terminations.insert(symbol->name_offset + symbol->symbol_length);
-	}
-
-	for(auto& symbol : exported_symbols)
-	{
-		symbol->LoadNameString(*this, rd);
-	}
-
-	// read full string table
-	rd.Seek(loader_section_offset + loader_strings_offset);
-	loader_string_table.clear();
-	loader_string_table_size = 0;
-	while(rd.Tell() < loader_section_offset + export_hash_offset)
-	{
-		// check where the next exported symbol termination occurs
-		auto termination = std::upper_bound(string_terminations.begin(), string_terminations.end(), rd.Tell() - (loader_section_offset + loader_strings_offset));
-		offset_t maximum;
-		if(termination == string_terminations.end())
+		try
 		{
-			maximum = loader_section_offset + export_hash_offset - rd.Tell();
+			// read all relocations
+
+			rd.Seek(reloc_instr_offset);
+			relocs_area.clear();
+			while(rd.Tell() < loader_strings_offset)
+			{
+				RelocOpcode opcode;
+				opcode.ReadFile(rd);
+				relocs_area.push_back(opcode);
+			}
 		}
-		else
+		catch(Linker::ReadOverflow)
 		{
-			maximum = *termination - (rd.Tell() - (loader_section_offset + loader_strings_offset));
+			Linker::Error << "Error: relocation data exceeded loader section limit" << std::endl;
 		}
-		std::string name = rd.ReadASCIIZ(maximum);
-		if(name.size() < maximum)
+
+		//// loader string table
+
+		for(auto library : imported_libraries)
 		{
-			// zero terminated
-			name += std::string("\0", 1);
+			library->LoadNameString(*this, rd);
 		}
-		loader_string_table.push_back(name);
-		loader_string_table_size += maximum;
+
+		for(auto symbol : imported_symbols)
+		{
+			symbol->LoadNameString(*this, rd);
+		}
+
+		// read full table after reading the exported symbol table (since exported symbols are not necessarily zero terminated)
+
+		//// export hash table
+
+		rd.Seek(export_hash_offset);
+		hash_table.resize(1 << export_hash_table_power);
+		for(auto& hash_table_entry : hash_table)
+		{
+			uint32_t value = rd.ReadUnsigned(4);
+			hash_table_entry.chain_count = value >> 18;
+			hash_table_entry.first_index = value & 0x0003FFFF;
+		}
+
+		//// export key table
+
+		for(uint32_t export_index = 0; export_index < exported_symbol_count; export_index ++)
+		{
+			auto symbol = std::make_shared<ExportedSymbol>();
+			exported_symbols.push_back(symbol);
+			symbol->symbol_length = rd.ReadUnsigned(2);
+			symbol->hash_value = rd.ReadUnsigned(2);
+		}
+
+		//// exported symbol table
+
+		std::set<uint32_t> string_terminations;
+
+		for(auto& symbol : exported_symbols)
+		{
+			symbol->name_offset = rd.ReadUnsigned(4);
+			symbol->symbol_class = symbol_class_type(symbol->name_offset >> 24);
+			symbol->name_offset &= 0x00FFFFFF;
+			symbol->offset = rd.ReadUnsigned(4);
+			symbol->section = rd.ReadSigned(2); // sign extend to 32-bit
+
+			// since exported strings are not (necessarily) null terminated, we need to record where terminations occur
+			// in order to be able to parse the full string table
+			string_terminations.insert(symbol->name_offset + symbol->symbol_length);
+		}
+
+		for(auto& symbol : exported_symbols)
+		{
+			symbol->LoadNameString(*this, rd);
+		}
+
+		try
+		{
+			// read full string table
+			rd.Seek(loader_strings_offset);
+			loader_string_table.clear();
+			loader_string_table_size = 0;
+			while(rd.Tell() < export_hash_offset)
+			{
+				// check where the next exported symbol termination occurs
+				auto termination = std::upper_bound(string_terminations.begin(), string_terminations.end(), rd.Tell() - loader_strings_offset);
+				offset_t maximum;
+				if(termination == string_terminations.end())
+				{
+					maximum = export_hash_offset - rd.Tell();
+				}
+				else
+				{
+					maximum = *termination - (rd.Tell() - loader_strings_offset);
+				}
+				std::string name = rd.ReadASCIIZ(maximum);
+				if(name.size() < maximum)
+				{
+					// zero terminated
+					name += std::string("\0", 1);
+				}
+				loader_string_table.push_back(name);
+				loader_string_table_size += maximum;
+			}
+		}
+		catch(Linker::ReadOverflow)
+		{
+			Linker::Error << "Error: loader string table exceeded loader section limit" << std::endl;
+		}
+	}
+	catch(Linker::ReadOverflow)
+	{
+		Linker::Error << "Error: loader data exceeded section limit" << std::endl;
+		return;
 	}
 }
 
