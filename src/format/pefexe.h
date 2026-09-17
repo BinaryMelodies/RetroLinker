@@ -439,10 +439,16 @@ namespace Apple
 		/** @brief Represents a reference to some data, stored as an offset into a section pair */
 		struct Reference
 		{
+			std::weak_ptr<Section> section_pointer;
 			uint32_t section = NoSection;
 			uint32_t offset = 0;
 
 			bool IsPresent() const { return section != NoSection; }
+			void StoreSectionIndex()
+			{
+				auto actual_section = section_pointer.lock();
+				section = actual_section ? actual_section->section_number : NoSection;
+			}
 		};
 		Reference main_symbol, init_symbol, term_symbol;
 
@@ -469,12 +475,26 @@ namespace Apple
 
 		enum symbol_class_type
 		{
-			Code,
-			Data,
-			TVect,
-			TOC,
-			Glue,
+			Code = 0,
+			Data = 1,
+			TVect = 2,
+			TOC = 3,
+			Glue = 4,
 		};
+		static inline constexpr bool IsValidSymbolClass(int value)
+		{
+			switch(value)
+			{
+			case Code:
+			case Data:
+			case TVect:
+			case TOC:
+			case Glue:
+				return true;
+			default:
+				return false;
+			}
+		}
 
 		class ImportedSymbol : public Name
 		{
@@ -536,10 +556,15 @@ namespace Apple
 		std::vector<std::string> loader_string_table;
 		uint32_t loader_string_table_size = 0;
 
+		struct ExportedSymbol;
+
 		struct HashTableEntry
 		{
 			uint16_t chain_count = 0;
 			uint32_t first_index = 0;
+
+			// used only for generation
+			std::vector<std::shared_ptr<ExportedSymbol>> chain;
 		};
 		std::vector<HashTableEntry> hash_table;
 
@@ -547,13 +572,28 @@ namespace Apple
 		{
 			uint16_t symbol_length = 0;
 			uint16_t hash_value = 0;
+			symbol_class_type symbol_class = Data;
 
-			symbol_class_type symbol_class;
+			ExportedSymbol() = default;
+
+			ExportedSymbol(std::string name)
+				: Name(name)
+			{
+			}
+
+			ExportedSymbol(std::string name, symbol_class_type symbol_class)
+				: Name(name), symbol_class(symbol_class)
+			{
+			}
+
 			using Name::LoadNameString;
 			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
-			void StoreNameString(PEFFormat& pef_format);
 		};
-		std::vector<ExportedSymbol> exported_symbols;
+		std::vector<std::shared_ptr<ExportedSymbol>> exported_symbols;
+
+		static uint32_t ComputeHashWord(std::string name);
+		static uint32_t HashTableIndex(uint32_t hash_word, uint32_t export_hash_table_power);
+		static uint8_t ComputeHashTableExponent(uint32_t hash_table_size);
 
 		std::shared_ptr<ImportedLibrary> FetchImportLibrary(std::string name)
 		{
@@ -634,6 +674,8 @@ namespace Apple
 						+ GetExportSymbolTableSize()});
 		}
 
+		// temporary structure to map linker segments to PEF sections
+		std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<Section>> segment_to_section_map;
 
 		bool FormatSupportsLibraries() const override;
 		bool FormatSupportsResources() const override;

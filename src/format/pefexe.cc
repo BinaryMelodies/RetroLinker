@@ -896,9 +896,39 @@ std::string PEFFormat::ExportedSymbol::LoadNameString(const PEFFormat& pef_forma
 	return LoadNameString(pef_format, rd, symbol_length);
 }
 
-void PEFFormat::ExportedSymbol::StoreNameString(PEFFormat& pef_format)
+uint32_t PEFFormat::ComputeHashWord(std::string name)
 {
-	StoreNameStringNoNull(pef_format);
+	// based on the documentation in Mac OS Runtime Architectures
+	int32_t hash_value = 0;
+	for(auto c : name)
+	{
+		hash_value = (hash_value << 1) - (hash_value >> 16);
+		hash_value ^= c & 0xFF;
+	}
+	hash_value ^= hash_value >> 16;
+	return (name.size() << 16) | (hash_value & 0xFFFF);
+}
+
+uint32_t PEFFormat::HashTableIndex(uint32_t hash_word, uint32_t export_hash_table_power)
+{
+	// based on the documentation in Mac OS Runtime Architectures
+	hash_word ^= hash_word >> export_hash_table_power;
+	return hash_word & ((1 << export_hash_table_power) - 1);
+}
+
+uint8_t PEFFormat::ComputeHashTableExponent(uint32_t hash_table_size)
+{
+	// based on the recommendation in Mac OS Runtime Architectures
+	static constexpr int32_t ExponentLimit = 16;
+	static constexpr int32_t AverageChainLimit = 10;
+
+	uint8_t export_hash_table_power;
+	for(export_hash_table_power = 0; export_hash_table_power < ExponentLimit; export_hash_table_power ++)
+	{
+		if((hash_table_size >> export_hash_table_power) < AverageChainLimit)
+			break;
+	}
+	return export_hash_table_power;
 }
 
 bool PEFFormat::FormatSupportsLibraries() const
@@ -1041,7 +1071,7 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		symbol->LoadNameString(*this, rd);
 	}
 
-	// TODO: read full table (this might not be possible, since exported symbols are not zero terminated)
+	// read full table after reading the exported symbol table (since exported symbols are not necessarily zero terminated)
 
 	//// export hash table
 
@@ -1056,11 +1086,12 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 
 	//// export key table
 
-	exported_symbols.resize(exported_symbol_count);
-	for(auto& symbol : exported_symbols)
+	for(uint32_t export_index = 0; export_index < exported_symbol_count; export_index ++)
 	{
-		symbol.symbol_length = rd.ReadUnsigned(2);
-		symbol.hash_value = rd.ReadUnsigned(2);
+		auto symbol = std::make_shared<ExportedSymbol>();
+		exported_symbols.push_back(symbol);
+		symbol->symbol_length = rd.ReadUnsigned(2);
+		symbol->hash_value = rd.ReadUnsigned(2);
 	}
 
 	//// exported symbol table
@@ -1069,20 +1100,20 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 
 	for(auto& symbol : exported_symbols)
 	{
-		symbol.name_offset = rd.ReadUnsigned(4);
-		symbol.symbol_class = symbol_class_type(symbol.name_offset >> 24);
-		symbol.name_offset &= 0x00FFFFFF;
-		symbol.offset = rd.ReadUnsigned(4);
-		symbol.section = rd.ReadSigned(2); // sign extend to 32-bit
+		symbol->name_offset = rd.ReadUnsigned(4);
+		symbol->symbol_class = symbol_class_type(symbol->name_offset >> 24);
+		symbol->name_offset &= 0x00FFFFFF;
+		symbol->offset = rd.ReadUnsigned(4);
+		symbol->section = rd.ReadSigned(2); // sign extend to 32-bit
 
 		// since exported strings are not (necessarily) null terminated, we need to record where terminations occur
 		// in order to be able to parse the full string table
-		string_terminations.insert(symbol.name_offset + symbol.symbol_length);
+		string_terminations.insert(symbol->name_offset + symbol->symbol_length);
 	}
 
 	for(auto& symbol : exported_symbols)
 	{
-		symbol.LoadNameString(*this, rd);
+		symbol->LoadNameString(*this, rd);
 	}
 
 	// read full string table
@@ -1206,16 +1237,17 @@ void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
 
 	for(auto& symbol : exported_symbols)
 	{
-		wr.WriteWord(2, symbol.symbol_length);
-		wr.WriteWord(2, symbol.hash_value);
+		wr.WriteWord(2, symbol->symbol_length);
+		wr.WriteWord(2, symbol->hash_value);
 	}
 
 	//// exported symbol table
 
 	for(auto& symbol : exported_symbols)
 	{
-		wr.WriteWord(4, (uint32_t(symbol.name_offset) << 24) | (symbol.name_offset & 0x00FFFFFF));
-		wr.WriteWord(2, symbol.section & 0xFFFF);
+		wr.WriteWord(4, (uint32_t(symbol->symbol_class) << 24) | (symbol->name_offset & 0x00FFFFFF));
+		wr.WriteWord(4, symbol->offset);
+		wr.WriteWord(2, symbol->section & 0xFFFF);
 	}
 }
 
@@ -1442,6 +1474,23 @@ void PEFFormat::CalculateValues()
 	for(auto symbol : imported_symbols)
 	{
 		symbol->StoreNameString(*this);
+	}
+	for(auto symbol : exported_symbols)
+	{
+		symbol->StoreNameStringNoNull(*this);
+
+		// attach a terminating null string so that the symbol name is null terminated anyway
+		// we could have done this by symbol->StoreNameString that automatically attaches the null character
+		// however this makes the internal state identical to that on reading, which would split the terminating null off
+		Name null;
+		null.StoreNameString(*this);
+
+		// get the numeric value of the section
+		symbol->StoreSectionIndex();
+		symbol->symbol_length = symbol->name.size();
+		// note: ProcessModule already fills it in, but CalculateValues is intended to
+		// create a consistent state, so this call will be duplicated
+		symbol->hash_value = ComputeHashWord(symbol->name);
 	}
 
 	if(export_hash_offset < loader_strings_offset + GetLoaderStringAreaSize())
@@ -1727,18 +1776,19 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 			for(auto& symbol : exported_symbols)
 			{
 				Dumper::Entry symbol_entry("Exported symbol", symbol_index);
-				symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol.name);
-				symbol_entry.AddField("Hash value", Dumper::HexDisplay::Make(4), offset_t(symbol.hash_value));
-				symbol_entry.AddField("Class", Dumper::ChoiceDisplay::Make(symbol_type), offset_t(symbol.symbol_class));
-				switch(symbol.section)
+				symbol_entry.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(symbol->name_offset));
+				symbol_entry.AddField("Name", Dumper::StringDisplay::Make("'"), symbol->name);
+				symbol_entry.AddField("Hash value", Dumper::HexDisplay::Make(4), offset_t(symbol->hash_value));
+				symbol_entry.AddField("Class", Dumper::ChoiceDisplay::Make(symbol_type), offset_t(symbol->symbol_class));
+				switch(symbol->section)
 				{
 				case Absolute:
-					symbol_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(symbol.offset));
+					symbol_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(symbol->offset));
 					break;
 				case Reexported:
-					symbol_entry.AddField("Imported symbol", Dumper::DecDisplay::Make(8), offset_t(symbol.offset));
+					symbol_entry.AddField("Imported symbol", Dumper::DecDisplay::Make(8), offset_t(symbol->offset));
 					{
-						auto imported_symbol = imported_symbols[symbol.offset];
+						auto imported_symbol = imported_symbols[symbol->offset];
 						if(auto library = imported_symbol->library.lock())
 						{
 							symbol_entry.AddField("Library", Dumper::StringDisplay::Make("'"), library->name);
@@ -1747,7 +1797,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 					}
 					break;
 				default:
-					symbol_entry.AddField("Value", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(uint16_t(symbol.section)), offset_t(symbol.offset));
+					symbol_entry.AddField("Value", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(uint16_t(symbol->section)), offset_t(symbol->offset));
 					break;
 				}
 				symbol_entry.Display(dump, Dumper::Export);
@@ -1853,16 +1903,6 @@ void PEFFormat::SortImports()
 
 void PEFFormat::ProcessRelocations(Linker::Module& module)
 {
-	// assign to each linker segment the PEF section to which it is placed into
-	std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<Section>> segment_to_section_map;
-	for(auto section : sections)
-	{
-		if(auto segment = std::dynamic_pointer_cast<Linker::Segment>(section->image))
-		{
-			segment_to_section_map[segment] = section;
-		}
-	}
-
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -1954,9 +1994,74 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 
 	sections.push_back(std::make_shared<Section>(Section::Loader, Section::GlobalShare, nullptr));
 
+	for(auto section : sections)
+	{
+		if(auto segment = std::dynamic_pointer_cast<Linker::Segment>(section->image))
+		{
+			segment_to_section_map[segment] = section;
+		}
+	}
+
 	ProcessRelocations(module);
 	SortImports();
-	// TODO: collect exported symbols
+
+	// collect exported symbols
+
+	for(auto symbol : module.GetExportedSymbols())
+	{
+		std::string name;
+		uint16_t hint; // we reinterpret hint to be the symbol type: 0 for code, 1 for data, 2 for transition vector, 3 for TOC symbol, 4 for glue symbol
+		if(symbol.first.GetExportedByName(name, hint))
+		{
+			// check if there was a hint provided
+			if(hint == 0 && !symbol.first.LoadOrdinalOrHint(hint))
+			{
+				hint = 1; // data will be the default
+			}
+			else if(!IsValidSymbolClass(hint))
+			{
+				Linker::Error << "Error: invalid symbol class " << hint << std::endl;
+				hint = 1; // revert to data
+			}
+			auto exported_symbol = std::make_shared<ExportedSymbol>(name, symbol_class_type(hint));
+			auto position = symbol.second.GetPosition();
+			exported_symbol->offset = position.address;
+			if(position.segment)
+			{
+				exported_symbol->section_pointer = segment_to_section_map[position.segment];
+				exported_symbol->offset -= position.segment->base_address;
+			}
+			exported_symbols.push_back(exported_symbol);
+		}
+		else
+		{
+			Linker::Error << "Error: PEF does not support exports by ordinal" << std::endl;
+		}
+	}
+
+	uint8_t export_hash_table_power = ComputeHashTableExponent(exported_symbols.size());
+
+	// collect exported symbols into chains
+	hash_table.clear();
+	hash_table.resize(1 << export_hash_table_power);
+	for(auto symbol : exported_symbols)
+	{
+		symbol->hash_value = ComputeHashWord(symbol->name);
+		uint32_t hash_index = HashTableIndex(symbol->hash_value, export_hash_table_power);
+		hash_table[hash_index].chain.push_back(symbol);
+	}
+
+	// reorder the exported symbols so symbols belonging to the same chain appear contiguously
+	exported_symbols.clear();
+	for(auto& hash_table_entry : hash_table)
+	{
+		hash_table_entry.chain_count = hash_table_entry.chain.size();
+		hash_table_entry.first_index = exported_symbols.size();
+		exported_symbols.insert(
+			exported_symbols.end(),
+			hash_table_entry.chain.begin(),
+			hash_table_entry.chain.end());
+	}
 
 	// TODO: set main_symbol
 	// TODO: set init_symbol, term_symbol?
