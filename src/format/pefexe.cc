@@ -60,7 +60,7 @@ void PEFFormat::PatternInitialization::ReadFile(Linker::Reader& rd)
 	file_offset = rd.Tell();
 	uint8_t byte = rd.ReadUnsigned(1);
 	opcode = opcode_type(byte >> 5);
-	uint32_t param1 = opcode & 0x1F;
+	uint32_t param1 = byte & 0x1F;
 	if(param1 == 0)
 	{
 		param1 = ReadValue(rd);
@@ -727,10 +727,9 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 		image = Linker::Buffer::ReadFromFile(rd, packed_size);
 		break;
 	case PatternInitializedData:
-		// TODO: untested
 		rd.Seek(container_offset);
 		{
-			Linker::Reader section_reader = rd.CreateWindow(container_offset, unpacked_size);
+			Linker::Reader section_reader = rd.CreateWindow(container_offset, packed_size);
 			section_reader.on_overflow = Linker::Reader::ReportOnOverflow;
 			patterns.clear();
 			try
@@ -754,6 +753,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 			{
 				pattern.ExpandData(*buffer);
 			}
+			buffer->Resize(unpacked_size);
 		}
 		break;
 	case Loader:
@@ -1610,19 +1610,28 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	for(uint16_t section_number = 0; section_number < sections.size(); section_number++)
 	{
 		auto section = sections[section_number];
-		Dumper::Block section_block("Section",
-			section->section_kind != Section::PatternInitializedData ? section->container_offset : 0,
-				// for pattern initialized data, image represents the unpacked data, so the file offset makes no sense
-			section->image ? section->image->AsImage() : nullptr,
-				// no image for loader section
-			section->default_address,
-			8);
-		section_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(section_number + 1));
-		section_block.AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(section->name_offset));
-		section_block.AddOptionalField("Name", Dumper::StringDisplay::Make("\""), section->name);
-		section_block.AddField("Total size", Dumper::HexDisplay::Make(8), offset_t(section->total_size));
-		section_block.AddField("Unpacked size", Dumper::HexDisplay::Make(8), offset_t(section->unpacked_size));
-		section_block.AddField("Packed size", Dumper::HexDisplay::Make(8), offset_t(section->packed_size));
+		std::unique_ptr<Dumper::Region> section_region;
+		if(section->IsInstantiated() && section->section_kind != Section::PatternInitializedData)
+		{
+			section_region = std::make_unique<Dumper::Block>("Section",
+				section->container_offset,
+				section->image->AsImage(),
+				section->default_address,
+				8);
+		}
+		else
+		{
+			section_region = std::make_unique<Dumper::Region>("Section",
+				section->container_offset,
+				section->packed_size,
+				8);
+		}
+		section_region->InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(section_number + 1));
+		section_region->AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(section->name_offset));
+		section_region->AddOptionalField("Name", Dumper::StringDisplay::Make("\""), section->name);
+		section_region->AddField("Total size", Dumper::HexDisplay::Make(8), offset_t(section->total_size));
+		section_region->AddField("Unpacked size", Dumper::HexDisplay::Make(8), offset_t(section->unpacked_size));
+		section_region->AddField("Packed size", Dumper::HexDisplay::Make(8), offset_t(section->packed_size));
 		static const std::map<offset_t, std::string> section_type =
 		{
 			{ Section::Code,                   "Code" },
@@ -1635,24 +1644,109 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 			{ Section::Exception,              "Exception" },
 			{ Section::Traceback,              "Traceback" },
 		};
-		section_block.AddField("Section kind", Dumper::ChoiceDisplay::Make(section_type), offset_t(section->section_kind));
+		section_region->AddField("Section kind", Dumper::ChoiceDisplay::Make(section_type), offset_t(section->section_kind));
 		static const std::map<offset_t, std::string> share_type =
 		{
 			{ Section::ProcessShare,   "ProcessShare" },
 			{ Section::GlobalShare,    "GlobalShare" },
 			{ Section::ProtectedShare, "ProtectedShare" },
 		};
-		section_block.AddField("Share kind", Dumper::ChoiceDisplay::Make(share_type), offset_t(section->share_kind));
-		section_block.AddField("Alignment", Dumper::DecDisplay::Make(), offset_t(1 << section->alignment));
-		section_block.AddOptionalField("Reserved", Dumper::HexDisplay::Make(2), offset_t(section->reserved));
+		section_region->AddField("Share kind", Dumper::ChoiceDisplay::Make(share_type), offset_t(section->share_kind));
+		section_region->AddField("Alignment", Dumper::DecDisplay::Make(), offset_t(1 << section->alignment));
+		section_region->AddOptionalField("Reserved", Dumper::HexDisplay::Make(2), offset_t(section->reserved));
+
+		if(section->section_kind == Section::PatternInitializedData)
+		{
+			section_region->Display(dump, Dumper::Header | Dumper::Image | Dumper::Generated);
+
+			// print records for PatternInitializedData
+			uint32_t pattern_index = 0;
+			for(auto pattern : section->patterns)
+			{
+				Dumper::Entry pattern_entry("Pattern", pattern_index + 1);
+				pattern_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(pattern.file_offset));
+
+				static const std::map<offset_t, std::string> opcode_type =
+				{
+					{ PatternInitialization::Zero,                               "Zero" },
+					{ PatternInitialization::BlockCopy,                          "blockCopy" },
+					{ PatternInitialization::RepeatedBlock,                      "repeatedBlock" },
+					{ PatternInitialization::InterleaveRepeatBlockWithBlockCopy, "interleaveRepeatBlockWithBlockCopy" },
+					{ PatternInitialization::InterleaveRepeatBlockWithZero,      "interleaveRepeatBlockWithZero" },
+				};
+
+				pattern_entry.AddField("Opcode", Dumper::ChoiceDisplay::Make(opcode_type), offset_t(pattern.opcode));
+
+				switch(pattern.opcode)
+				{
+				case PatternInitialization::Zero:
+					pattern_entry.AddField("Count", Dumper::HexDisplay::Make(8), offset_t(pattern.count));
+					break;
+				case PatternInitialization::BlockCopy:
+					pattern_entry.AddField("Block size", Dumper::HexDisplay::Make(8), offset_t(pattern.common_data.size()));
+					pattern_entry.AddField("Raw data", Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(pattern.common_data.data()), pattern.common_data.size()));
+					break;
+				case PatternInitialization::RepeatedBlock:
+					pattern_entry.AddField("Block size", Dumper::HexDisplay::Make(8), offset_t(pattern.common_data.size()));
+					pattern_entry.AddField("Repeat count", Dumper::HexDisplay::Make(8), offset_t(pattern.count));
+					pattern_entry.AddField("Raw data", Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(pattern.common_data.data()), pattern.common_data.size()));
+					break;
+				case PatternInitialization::InterleaveRepeatBlockWithBlockCopy:
+					pattern_entry.AddField("Common size", Dumper::HexDisplay::Make(8), offset_t(pattern.common_data.size()));
+					pattern_entry.AddField("Custom size", Dumper::HexDisplay::Make(8), offset_t(pattern.custom_data[0].size()));
+					pattern_entry.AddField("Repeat count", Dumper::HexDisplay::Make(8), offset_t(pattern.custom_data.size()));
+					pattern_entry.AddField("Common data", Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(pattern.common_data.data()), pattern.common_data.size()));
+					{
+						uint32_t data_index = 0;
+						for(auto& custom_data : pattern.custom_data)
+						{
+							std::ostringstream oss;
+							oss << "Custom data " << data_index + 1;
+							pattern_entry.AddField(oss.str(), Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(custom_data.data()), custom_data.size()));
+							data_index ++;
+						}
+					}
+					break;
+				case PatternInitialization::InterleaveRepeatBlockWithZero:
+					pattern_entry.AddField("Common size", Dumper::HexDisplay::Make(8), offset_t(pattern.count));
+					pattern_entry.AddField("Custom size", Dumper::HexDisplay::Make(8), offset_t(pattern.custom_data[0].size()));
+					pattern_entry.AddField("Repeat count", Dumper::HexDisplay::Make(8), offset_t(pattern.custom_data.size()));
+					{
+						uint32_t data_index = 0;
+						for(auto& custom_data : pattern.custom_data)
+						{
+							std::ostringstream oss;
+							oss << "Custom data " << data_index + 1;
+							pattern_entry.AddField(oss.str(), Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(custom_data.data()), custom_data.size()));
+							data_index ++;
+						}
+					}
+					break;
+				}
+				pattern_entry.Display(dump, Dumper::Control);
+
+				pattern_index ++;
+			}
+
+			section_region = std::make_unique<Dumper::Block>("Unpacked section data",
+				0, // for pattern initialized data, image represents the unpacked data, so the file offset makes no sense
+				section->image->AsImage(),
+				section->default_address,
+				8);
+		}
+
 		if(section->contains_relocations)
 		{
-			section_block.AddField("Relocation record size", Dumper::HexDisplay::Make(8), offset_t(section->reloc_instr_size));
-			section_block.AddField("Relocation record offset", Dumper::HexDisplay::Make(8), offset_t(section->first_reloc_offset));
+			section_region->AddField("Relocation record size", Dumper::HexDisplay::Make(8), offset_t(section->reloc_instr_size));
+			section_region->AddField("Relocation record offset", Dumper::HexDisplay::Make(8), offset_t(section->first_reloc_offset));
 
 			for(auto& relocation : section->relocations)
 			{
-				section_block.AddSignal(relocation.first, 4);
+				auto section_block = dynamic_cast<Dumper::Block *>(section_region.get());
+				if(section_block)
+				{
+					section_block->AddSignal(relocation.first, 4);
+				}
 			}
 		}
 
@@ -1660,42 +1754,40 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		{
 			if(main_symbol.IsPresent())
 			{
-				section_block.AddField("Main symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(main_symbol.section), offset_t(main_symbol.offset));
+				section_region->AddField("Main symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(main_symbol.section), offset_t(main_symbol.offset));
 			}
 			else
 			{
-				section_block.AddField("Main symbol", Dumper::StringDisplay::Make(), std::string("-"));
+				section_region->AddField("Main symbol", Dumper::StringDisplay::Make(), std::string("-"));
 			}
 
 			if(init_symbol.IsPresent())
 			{
-				section_block.AddField("Initialization function symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(init_symbol.section), offset_t(init_symbol.offset));
+				section_region->AddField("Initialization function symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(init_symbol.section), offset_t(init_symbol.offset));
 			}
 			else
 			{
-				section_block.AddField("Initialization function symbol", Dumper::StringDisplay::Make(), std::string("-"));
+				section_region->AddField("Initialization function symbol", Dumper::StringDisplay::Make(), std::string("-"));
 			}
 
 			if(init_symbol.IsPresent())
 			{
-				section_block.AddField("Termination function symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(init_symbol.section), offset_t(init_symbol.offset));
+				section_region->AddField("Termination function symbol", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(init_symbol.section), offset_t(init_symbol.offset));
 			}
 			else
 			{
-				section_block.AddField("Termination function symbol", Dumper::StringDisplay::Make(), std::string("-"));
+				section_region->AddField("Termination function symbol", Dumper::StringDisplay::Make(), std::string("-"));
 			}
 
-			section_block.AddField("Imported library count", Dumper::DecDisplay::Make(), offset_t(imported_libraries.size()));
-			section_block.AddField("Total imported symbol count", Dumper::DecDisplay::Make(), offset_t(imported_symbols.size()));
+			section_region->AddField("Imported library count", Dumper::DecDisplay::Make(), offset_t(imported_libraries.size()));
+			section_region->AddField("Total imported symbol count", Dumper::DecDisplay::Make(), offset_t(imported_symbols.size()));
 
-			section_block.AddField("Sections with relocations", Dumper::DecDisplay::Make(), offset_t(reloc_section_indexes.size()));
-			section_block.AddOptionalField("Offset to relocations", Dumper::HexDisplay::Make(8), offset_t(reloc_instr_offset));
+			section_region->AddField("Sections with relocations", Dumper::DecDisplay::Make(), offset_t(reloc_section_indexes.size()));
+			section_region->AddOptionalField("Offset to relocations", Dumper::HexDisplay::Make(8), offset_t(reloc_instr_offset));
 
-			section_block.AddField("Loader string offset", Dumper::HexDisplay::Make(8), offset_t(loader_strings_offset));
-			// TODO: print all strings?
+			section_region->AddField("Loader string offset", Dumper::HexDisplay::Make(8), offset_t(loader_strings_offset));
 		}
-		// TODO: print records for PatternInitializedData
-		section_block.Display(dump, Dumper::Header | Dumper::Image);
+		section_region->Display(dump, Dumper::Header | Dumper::Image);
 
 		if(section->contains_relocations)
 		{
