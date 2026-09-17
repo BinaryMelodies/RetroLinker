@@ -1065,6 +1065,8 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 
 	//// exported symbol table
 
+	std::set<uint32_t> string_terminations;
+
 	for(auto& symbol : exported_symbols)
 	{
 		symbol.name_offset = rd.ReadUnsigned(4);
@@ -1072,11 +1074,39 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		symbol.name_offset &= 0x00FFFFFF;
 		symbol.offset = rd.ReadUnsigned(4);
 		symbol.section = rd.ReadSigned(2); // sign extend to 32-bit
+
+		string_terminations.insert(symbol.name_offset + symbol.symbol_length);
 	}
 
 	for(auto& symbol : exported_symbols)
 	{
 		symbol.LoadNameString(*this, rd);
+	}
+
+	// read full string table
+	rd.Seek(loader_section_offset + loader_strings_offset);
+	loader_string_table.clear();
+	loader_string_table_size = 0;
+	while(rd.Tell() < loader_section_offset + export_hash_offset)
+	{
+		auto termination = std::upper_bound(string_terminations.begin(), string_terminations.end(), rd.Tell() - (loader_section_offset + loader_strings_offset));
+		offset_t maximum;
+		if(termination == string_terminations.end())
+		{
+			maximum = loader_section_offset + export_hash_offset - rd.Tell();
+		}
+		else
+		{
+			maximum = *termination - (rd.Tell() - (loader_section_offset + loader_strings_offset));
+		}
+		std::string name = rd.ReadASCIIZ(maximum);
+		if(name.size() < maximum)
+		{
+			// zero terminated
+			name += std::string("\0", 1);
+		}
+		loader_string_table.push_back(name);
+		loader_string_table_size += maximum;
 	}
 }
 
@@ -1719,6 +1749,29 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 				}
 				symbol_entry.Display(dump, Dumper::Export);
 				symbol_index ++;
+			}
+
+			Dumper::Region string_table_region("Loader string table", loader_section_offset + loader_strings_offset, GetExportHashTableSize(), 8);
+			string_table_region.Display(dump, Dumper::Header | Dumper::String);
+
+			offset_t string_offset = 0;
+			offset_t string_index = 0;
+			for(auto& string : loader_string_table)
+			{
+				Dumper::Entry string_entry("Loader string", string_index + 1);
+				string_entry.AddField("Offset", Dumper::HexDisplay::Make(8), string_offset);
+				std::string name = string;
+				bool null_terminated = false;
+				if(name.back() == '\0')
+				{
+					name = name.substr(0, name.size() - 1);
+					null_terminated = true;
+				}
+				string_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name);
+				string_entry.AddField("Null terminated", Dumper::ChoiceDisplay::Make("true", "false"), offset_t(null_terminated));
+				string_entry.Display(dump, Dumper::String);
+				string_offset += string.size();
+				string_index ++;
 			}
 		}
 	}
