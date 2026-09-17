@@ -634,6 +634,10 @@ namespace Apple
 						+ GetExportSymbolTableSize()});
 		}
 
+
+		bool FormatSupportsLibraries() const override;
+		bool FormatSupportsResources() const override;
+
 		void ReadLoaderSection(Linker::Reader& rd);
 		void WriteLoaderSection(Linker::Writer& wr) const;
 

@@ -901,6 +901,16 @@ void PEFFormat::ExportedSymbol::StoreNameString(PEFFormat& pef_format)
 	StoreNameStringNoNull(pef_format);
 }
 
+bool PEFFormat::FormatSupportsLibraries() const
+{
+	return true;
+}
+
+bool PEFFormat::FormatSupportsResources() const
+{
+	return true;
+}
+
 void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 {
 	//// header
@@ -1287,7 +1297,7 @@ void PEFFormat::CalculateValues()
 		library->first_imported_symbol = imported_symbols.size();
 		library->imported_symbol_count = library->imported_symbols.size();
 		imported_symbols.insert(
-			imported_symbols.begin(),
+			imported_symbols.end(),
 			library->imported_symbols.begin(),
 			library->imported_symbols.end());
 	}
@@ -1297,21 +1307,32 @@ void PEFFormat::CalculateValues()
 	}
 
 	// collect relocation containing section indexes
-	if(reloc_instr_offset < GetMinimumRelocInstrOffset())
-	{
-		reloc_instr_offset = GetMinimumRelocInstrOffset();
-	}
-	relocs_area_size = 0;
-
 	reloc_section_indexes.clear();
-	relocs_area.clear();
 	for(uint32_t section_index = 0; section_index < sections.size(); section_index ++)
 	{
 		auto section = sections[section_index];
 		if(!section->relocations.empty())
 		{
 			section->contains_relocations = true;
+		}
+		if(section->contains_relocations)
+		{
 			reloc_section_indexes.push_back(section_index);
+		}
+	}
+
+	if(reloc_instr_offset < GetMinimumRelocInstrOffset())
+	{
+		reloc_instr_offset = GetMinimumRelocInstrOffset();
+	}
+	relocs_area.clear();
+	relocs_area_size = 0;
+
+	for(uint32_t section_index = 0; section_index < sections.size(); section_index ++)
+	{
+		auto section = sections[section_index];
+		if(section->contains_relocations)
+		{
 			if(section->reloc_opcodes.empty())
 			{
 				// fetch index for each relocation
@@ -1380,6 +1401,10 @@ void PEFFormat::CalculateValues()
 	if(loader_strings_offset < reloc_instr_offset + GetRelocationAreaSize())
 	{
 		loader_strings_offset = reloc_instr_offset + GetRelocationAreaSize();
+	}
+	for(auto library : imported_libraries)
+	{
+		library->StoreNameString(*this);
 	}
 	for(auto symbol : imported_symbols)
 	{
@@ -1879,8 +1904,6 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 
 	// TODO: set main_symbol
 	// TODO: set init_symbol, term_symbol?
-
-	CalculateValues();
 }
 
 void PEFFormat::GenerateFile(std::string filename, Linker::Module& module)
