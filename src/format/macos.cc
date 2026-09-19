@@ -2633,50 +2633,6 @@ bool MacDriver::AddSupplementaryOutputFormat(std::string subformat)
 	return true;
 }
 
-std::shared_ptr<const ResourceFork> MacDriver::GetResourceFork() const
-{
-	if(apple_single == nullptr && mac_binary == nullptr)
-	{
-		return resource_fork;
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-
-std::shared_ptr<ResourceFork> MacDriver::GetResourceFork()
-{
-	return std::const_pointer_cast<ResourceFork>(const_cast<const MacDriver *>(this)->GetResourceFork());
-}
-
-std::shared_ptr<const AppleSingleDouble> MacDriver::GetAppleSingleDouble() const
-{
-	if(mac_binary == nullptr)
-	{
-		return apple_single;
-	}
-	else
-	{
-		return nullptr;
-	}
-}
-
-std::shared_ptr<AppleSingleDouble> MacDriver::GetAppleSingleDouble()
-{
-	return std::const_pointer_cast<AppleSingleDouble>(const_cast<const MacDriver *>(this)->GetAppleSingleDouble());
-}
-
-std::shared_ptr<const MacBinary> MacDriver::GetMacBinary() const
-{
-	return mac_binary;
-}
-
-std::shared_ptr<MacBinary> MacDriver::GetMacBinary()
-{
-	return mac_binary;
-}
-
 void MacDriver::SetOptions(std::map<std::string, std::string>& options)
 {
 	this->options = options;
@@ -2706,15 +2662,25 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
 	}
 
+	container = CONTAINER_APPLE_SINGLE;
 	apple_single = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 		apple_single_double_version, home_file_system);
 
 	apple_single->SetOptions(options);
+	resource_fork = std::dynamic_pointer_cast<ResourceFork>(apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork));
+	assert(resource_fork);
 	apple_single->SetModel(model);
 	apple_single->SetLinkScript(script_file, script_options);
 
 	apple_single->ProcessModule(module);
 	apple_single->CalculateValues();
+
+	if(target == TARGET_MAC_BINARY || (produce & PRODUCE_MAC_BINARY) != 0)
+	{
+		container = CONTAINER_MAC_BINARY;
+		mac_binary = std::make_shared<MacBinary>(*apple_single, macbinary_version, macbinary_minimum_version);
+		mac_binary->generated_file_name = filename;
+	}
 
 	std::ofstream out;
 	Linker::Writer wr(::BigEndian);
@@ -2750,11 +2716,7 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		// TODO: untested
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
 		wr.out = &out;
-		{
-			MacBinary macbinary(*apple_single, macbinary_version, macbinary_minimum_version);
-			macbinary.generated_file_name = filename;
-			macbinary.WriteFile(wr);
-		}
+		mac_binary->WriteFile(wr);
 		out.close();
 		break;
 	}
@@ -2829,9 +2791,7 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 			target == TARGET_NONE ? filename : filename + ".mbin",
 			std::ios_base::out | std::ios_base::binary);
 		wr.out = &out;
-		MacBinary macbinary(*apple_single, macbinary_version, macbinary_minimum_version);
-		macbinary.generated_file_name = filename;
-		macbinary.WriteFile(wr);
+		mac_binary->WriteFile(wr);
 		out.close();
 	}
 }
@@ -2846,18 +2806,21 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 	{
 	case TARGET_RESOURCE_FORK:
 		{
+			container = CONTAINER_RESOURCE_FORK;
 			resource_fork = std::make_shared<ResourceFork>();
 			resource_fork->ReadFile(rd);
 		}
 		break;
 	case TARGET_APPLE_SINGLE:
 		{
+			container = CONTAINER_APPLE_SINGLE;
 			apple_single = std::make_shared<AppleSingleDouble>();
 			apple_single->ReadFile(rd);
 		}
 		break;
 	case TARGET_MAC_BINARY:
 		{
+			container = CONTAINER_MAC_BINARY;
 			mac_binary = std::make_shared<MacBinary>();
 			mac_binary->ReadFile(rd);
 		}
@@ -2865,16 +2828,19 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 	default:
 		if((produce & PRODUCE_APPLE_DOUBLE))
 		{
+			container = CONTAINER_APPLE_SINGLE;
 			apple_single = std::make_shared<AppleSingleDouble>();
 			apple_single->ReadFile(rd);
 		}
 		else if((produce & PRODUCE_RESOURCE_FORK))
 		{
+			container = CONTAINER_RESOURCE_FORK;
 			resource_fork = std::make_shared<ResourceFork>();
 			resource_fork->ReadFile(rd);
 		}
 		else if((produce & PRODUCE_MAC_BINARY))
 		{
+			container = CONTAINER_MAC_BINARY;
 			mac_binary = std::make_shared<MacBinary>();
 			mac_binary->ReadFile(rd);
 		}
@@ -2888,40 +2854,33 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 
 offset_t MacDriver::WriteFile(Linker::Writer& wr) const
 {
-	if(auto resource_fork = GetResourceFork())
+	switch(container)
 	{
+	case CONTAINER_RESOURCE_FORK:
 		return resource_fork->WriteFile(wr);
-	}
-	else if(auto apple_single_double = GetAppleSingleDouble())
-	{
-		return apple_single_double->WriteFile(wr);
-	}
-	else if(auto mac_binary = GetMacBinary())
-	{
+	case CONTAINER_APPLE_SINGLE:
+		return apple_single->WriteFile(wr);
+	case CONTAINER_MAC_BINARY:
 		return mac_binary->WriteFile(wr);
-	}
-	else
-	{
+	default:
 		Linker::FatalError("Internal error: file not loaded");
 	}
 }
 
 void MacDriver::Dump(Dumper::Dumper& dump) const
 {
-	if(auto resource_fork = GetResourceFork())
+	switch(container)
 	{
+	case CONTAINER_RESOURCE_FORK:
 		resource_fork->Dump(dump);
-	}
-	else if(auto apple_single_double = GetAppleSingleDouble())
-	{
-		apple_single_double->Dump(dump);
-	}
-	else if(auto mac_binary = GetMacBinary())
-	{
+		break;
+	case CONTAINER_APPLE_SINGLE:
+		apple_single->Dump(dump);
+		break;
+	case CONTAINER_MAC_BINARY:
 		mac_binary->Dump(dump);
-	}
-	else
-	{
+		break;
+	default:
 		Linker::FatalError("Internal error: file not loaded");
 	}
 }

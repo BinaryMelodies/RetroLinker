@@ -241,7 +241,7 @@ namespace Apple
 		uint32_t GetMacintoshAttributes();
 
 		void ProcessModule(Linker::Module& module) override; // TODO: separate part that creates missing entries
-		void CalculateValues() override;
+		void CalculateValues() override; // TODO: separate
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -985,7 +985,7 @@ namespace Apple
 
 		void WriteHeader(Linker::Writer& wr) const;
 
-		void CalculateValues() override;
+		void CalculateValues() override; // TODO: separate
 
 		void ReadFile(Linker::Reader& rd) override;
 
@@ -1068,19 +1068,22 @@ namespace Apple
 		bool AddSupplementaryOutputFormat(std::string subformat) override;
 
 	private:
+		/* format of information stored */
+		enum container_format_t
+		{
+			CONTAINER_EMPTY,
+			CONTAINER_RESOURCE_FORK,
+			CONTAINER_APPLE_SINGLE,
+			CONTAINER_MAC_BINARY,
+		};
+		container_format_t container = CONTAINER_EMPTY;
+
 		/** Direct access to the Mac OS resource fork */
 		std::shared_ptr<ResourceFork> resource_fork;
 		/** Container for all the necessary additional information */
 		std::shared_ptr<AppleSingleDouble> apple_single;
 		/** Container for MacBinary */
 		std::shared_ptr<MacBinary> mac_binary;
-
-		std::shared_ptr<const ResourceFork> GetResourceFork() const;
-		std::shared_ptr<ResourceFork> GetResourceFork();
-		std::shared_ptr<const AppleSingleDouble> GetAppleSingleDouble() const;
-		std::shared_ptr<AppleSingleDouble> GetAppleSingleDouble();
-		std::shared_ptr<const MacBinary> GetMacBinary() const;
-		std::shared_ptr<MacBinary> GetMacBinary();
 
 		std::map<std::string, std::string> options;
 		std::string model;
