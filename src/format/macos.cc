@@ -528,9 +528,7 @@ void AppleSingleDouble::SetCreationDate(uint32_t CreationDate)
 
 uint32_t AppleSingleDouble::GetCreationDate()
 {
-	std::shared_ptr<Entry> entry = GetMacintoshFileInfo();
-	if(entry == nullptr)
-		return 0;
+	std::shared_ptr<Entry> entry;
 	switch(version)
 	{
 	case 1:
@@ -559,6 +557,35 @@ uint32_t AppleSingleDouble::GetCreationDate()
 		entry = GetFileDatesInfo();
 		if(entry != nullptr)
 			return std::dynamic_pointer_cast<FileDatesInfo>(entry)->CreationDate;
+	}
+	return 0;
+}
+
+uint32_t AppleSingleDouble::ReadCreationDate()
+{
+	switch(version)
+	{
+	case 1:
+		switch(home_file_system)
+		{
+		case HFS_Macintosh:
+		case HFS_UNIX:
+		case HFS_ProDOS:
+			if(FindEntry(ID_FileInfo) != nullptr)
+			{
+				return GetCreationDate();
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+	case 2:
+		if(FindEntry(ID_FileDatesInfo) != nullptr)
+		{
+			return GetCreationDate();
+		}
+		break;
 	}
 	return 0;
 }
@@ -644,6 +671,36 @@ uint32_t AppleSingleDouble::GetModificationDate()
 	return 0;
 }
 
+uint32_t AppleSingleDouble::ReadModificationDate()
+{
+	switch(version)
+	{
+	case 1:
+		switch(home_file_system)
+		{
+		case HFS_Macintosh:
+		case HFS_UNIX:
+		case HFS_ProDOS:
+		case HFS_MSDOS:
+			if(FindEntry(ID_FileInfo) != nullptr)
+			{
+				return GetModificationDate();
+			}
+			break;
+		default:
+			break;
+		}
+		break;
+	case 2:
+		if(FindEntry(ID_FileDatesInfo) != nullptr)
+		{
+			return GetModificationDate();
+		}
+		break;
+	}
+	return 0;
+}
+
 void AppleSingleDouble::SetBackupDate(uint32_t BackupDate)
 {
 	std::shared_ptr<Entry> entry;
@@ -716,6 +773,31 @@ uint32_t AppleSingleDouble::GetMacintoshAttributes()
 	default:
 		return 0;
 	}
+}
+
+uint32_t AppleSingleDouble::ReadMacintoshAttributes()
+{
+	std::shared_ptr<Entry> entry;
+	switch(version)
+	{
+	case 1:
+		if(home_file_system == HFS_Macintosh
+		&& FindEntry(ID_FileInfo) != nullptr)
+		{
+			return GetMacintoshAttributes();
+		}
+		break;
+	case 2:
+		if(FindEntry(ID_MacintoshFileInfo) != nullptr)
+		{
+			return GetMacintoshAttributes();
+		}
+		break;
+	default:
+		Linker::FatalError("Internal error: invalid AppleSingle/AppleDouble version");
+	}
+
+	return 0;
 }
 
 void AppleSingleDouble::SetProDOSAccess(uint16_t Access)
@@ -2215,6 +2297,7 @@ void FinderInfo::Dump(Dumper::Dumper& dump) const
 
 void FinderInfo::ProcessModule(Linker::Module& module)
 {
+	// TODO: only some Mac applications
 	memcpy(Type, "APPL", 4);
 	memcpy(Creator, "????", 4);
 }
@@ -2524,9 +2607,9 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 
 void MacBinary::CalculateValues()
 {
-	attributes = apple_single->GetMacintoshAttributes();
-	creation = apple_single->GetCreationDate();
-	modification = apple_single->GetModificationDate();
+	attributes = apple_single->ReadMacintoshAttributes();
+	creation = apple_single->ReadCreationDate();
+	modification = apple_single->ReadModificationDate();
 	apple_single->CalculateValues();
 }
 
@@ -2684,20 +2767,35 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		apple_single_double_version, home_file_system);
 	apple_single->AppendEntry(resource_fork);
 
-	apple_single->SetOptions(options);
-	assert(resource_fork == std::dynamic_pointer_cast<ResourceFork>(apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork)));
-	apple_single->SetModel(model);
-	apple_single->SetLinkScript(script_file, script_options);
+	resource_fork->SetOptions(options);
+	resource_fork->SetModel(model);
+	resource_fork->SetLinkScript(script_file, script_options);
 
-	apple_single->ProcessModule(module);
-	apple_single->CalculateValues();
+	apple_single->ProcessModule(module); // TODO: separate ResourceFork and FinderInfo processing (Macintosh specific)
 
 	if(target == TARGET_MAC_BINARY || (produce & PRODUCE_MAC_BINARY) != 0)
 	{
 		container = CONTAINER_MAC_BINARY;
-		mac_binary = std::make_shared<MacBinary>(*apple_single, macbinary_version, macbinary_minimum_version);
+		mac_binary = std::make_shared<MacBinary>(apple_single, macbinary_version, macbinary_minimum_version);
 		mac_binary->generated_file_name = filename;
 	}
+
+	switch(container)
+	{
+	case CONTAINER_EMPTY:
+		break;
+	case CONTAINER_RESOURCE_FORK:
+		resource_fork->CalculateValues(); // TODO: untested
+		break;
+	case CONTAINER_APPLE_SINGLE:
+		apple_single->CalculateValues();
+		break;
+	case CONTAINER_MAC_BINARY:
+		mac_binary->CalculateValues();
+		break;
+	}
+
+	assert(resource_fork == std::dynamic_pointer_cast<ResourceFork>(apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork)));
 
 	std::ofstream out;
 	Linker::Writer wr(::BigEndian);

@@ -235,9 +235,19 @@ namespace Apple
 		void SetProDOSAUXType(uint32_t AUXType);
 		void SetMSDOSAttributes(uint16_t Attributes);
 
+		/** @brief Retrieves creation date field and creates it if it does not exist */
 		uint32_t GetCreationDate();
+		/** @brief Retrieves modification date field and creates it if it does not exist */
 		uint32_t GetModificationDate();
+		/** @brief Retrieves Macintosh attributes field and creates it if it does not exist */
 		uint32_t GetMacintoshAttributes();
+
+		/** @brief Retrieves creation date field if it exists */
+		uint32_t ReadCreationDate();
+		/** @brief Retrieves modification date field if it exists */
+		uint32_t ReadModificationDate();
+		/** @brief Retrieves Macintosh attributes field if it exists */
+		uint32_t ReadMacintoshAttributes();
 
 		void ProcessModule(Linker::Module& module) override; // TODO: separate part that creates missing entries
 		void CalculateValues() override; // TODO: separate
@@ -962,8 +972,8 @@ namespace Apple
 		{
 		}
 
-		explicit MacBinary(AppleSingleDouble& apple, version_t version, version_t minimum_version)
-			: apple_single(std::make_shared<AppleSingleDouble>(apple, AppleSingleDouble::DOUBLE)), version(version), minimum_version(version < minimum_version ? version : minimum_version)
+		explicit MacBinary(std::shared_ptr<AppleSingleDouble> apple, version_t version, version_t minimum_version)
+			: apple_single(apple), version(version), minimum_version(version < minimum_version ? version : minimum_version)
 		{
 		}
 
