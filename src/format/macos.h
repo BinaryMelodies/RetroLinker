@@ -42,13 +42,11 @@ namespace Apple
 	 * It has two versions, and version 2 is used most commonly.
 	 * See also Apple::AppleSingleDouble::ResourceFork.
 	 */
-	class AppleSingleDouble : public Linker::OutputFormat
+	class AppleSingleDouble : public Linker::Format
 	{
 	public:
 		offset_t ImageSize() const override;
 		void ReadFile(Linker::Reader& rd) override;
-
-		bool FormatSupportsResources() const override;
 
 		enum format_type
 		{
@@ -206,11 +204,6 @@ namespace Apple
 			}
 		}
 
-		void SetOptions(std::map<std::string, std::string>& options) override; // TODO: redundant
-		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override; // TODO: redundant
-		void SetModel(std::string model) override; // TODO: redundant
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override; // TODO: redundant
-
 		std::shared_ptr<const Entry> FindEntry(uint32_t id) const;
 		std::shared_ptr<Entry> FindEntry(uint32_t id);
 		void AppendEntry(std::shared_ptr<Entry> entry);
@@ -249,8 +242,7 @@ namespace Apple
 		/** @brief Retrieves Macintosh attributes field if it exists */
 		uint32_t ReadMacintoshAttributes();
 
-		void ProcessModule(Linker::Module& module) override; // TODO: separate part that creates missing entries
-		void CalculateValues() override; // TODO: separate
+		void CalculateValues();
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -263,11 +255,6 @@ namespace Apple
 		std::string GetMacOSXDoubleFilename(std::string filename);
 		std::string GetProDOSDoubleFilename(std::string filename);
 		std::string GetMSDOSDoubleFilename(std::string filename);
-
-		void GenerateFile(std::string filename, Linker::Module& module) override; // TODO: is this redundant?
-
-		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) const override; // TODO: is this redundant?
 	};
 
 	class DataFork : public AppleSingleDouble::Entry
@@ -326,7 +313,7 @@ namespace Apple
 		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
 		void SetModel(std::string model) override;
 
-		class Resource : public Linker::OutputFormat
+		class Resource : public Linker::Format
 		{
 		public:
 			using Linker::Format::ReadFile;
@@ -358,6 +345,8 @@ namespace Apple
 			uint8_t attributes;
 
 			offset_t ImageSize() const override = 0;
+
+			virtual void CalculateValues() = 0;
 		};
 
 		class GenericResource : public Resource
@@ -369,8 +358,6 @@ namespace Apple
 			}
 
 			std::shared_ptr<Linker::Contents> image;
-
-			void ProcessModule(Linker::Module& module) override;
 
 			void CalculateValues() override;
 
@@ -404,8 +391,6 @@ namespace Apple
 			uint32_t jump_table_offset = 32;
 			std::vector<Entry> near_entries;
 			std::vector<Entry> far_entries;
-
-			void ProcessModule(Linker::Module& module) override;
 
 			void CalculateValues() override;
 
@@ -461,8 +446,6 @@ namespace Apple
 			uint32_t a5_relocation_offset;
 			uint32_t segment_relocation_offset;
 			uint32_t resource_size;
-
-			void ProcessModule(Linker::Module& module) override;
 
 			void CalculateValues() override;
 
@@ -938,7 +921,7 @@ namespace Apple
 	/**
 	 * @brief MacBinary is an alternative format to AppleSingle for representing a Macintosh file on a non-Macintosh filesystem.
 	 */
-	class MacBinary : public Linker::OutputFormat
+	class MacBinary : public Linker::Format
 	{
 	public:
 		std::shared_ptr<AppleSingleDouble> apple_single;
@@ -994,7 +977,7 @@ namespace Apple
 
 		void WriteHeader(Linker::Writer& wr) const;
 
-		void CalculateValues() override; // TODO: separate
+		void CalculateValues();
 
 		void ReadFile(Linker::Reader& rd) override;
 
@@ -1002,17 +985,6 @@ namespace Apple
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
-
-		void GenerateFile(std::string filename, Linker::Module& module) override;
-
-		void SetOptions(std::map<std::string, std::string>& options) override; // TODO: redundant
-		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override; // TODO: redundant
-		void SetModel(std::string model) override; // TODO: redundant
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override; // TODO: redundant
-		void ProcessModule(Linker::Module& module) override; // TODO: separate part that creates missing entries
-		//void GenerateFile(std::string filename, Linker::Module& module) override; // TODO: is this redundant?
-		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override; // TODO: is this redundant?
 	};
 
 	/**
@@ -1115,6 +1087,9 @@ namespace Apple
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
+
+		std::string GetDefaultExtension(Linker::Module& module) const override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 }
 

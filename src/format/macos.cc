@@ -118,11 +118,6 @@ void AppleSingleDouble::ReadFile(Linker::Reader& rd)
 	}
 }
 
-bool AppleSingleDouble::FormatSupportsResources() const
-{
-	return true;
-}
-
 // Entry
 
 std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::Entry::ReadEntry(Linker::Reader& rd, hfs_type home_file_system)
@@ -279,28 +274,6 @@ const char AppleSingleDouble::TXT_ProDOS[16] = "ProDOS";
 const char AppleSingleDouble::TXT_MS_DOS[16] = "MS-DOS";
 const char AppleSingleDouble::TXT_UNIX[16] = "Unix";
 const char AppleSingleDouble::TXT_VAX_VMS[16] = "VAX VMS";
-
-void AppleSingleDouble::SetOptions(std::map<std::string, std::string>& options)
-{
-	/* TODO */
-
-	std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->SetOptions(options);
-}
-
-std::vector<Linker::OptionDescription<void>> AppleSingleDouble::GetMemoryModelNames()
-{
-	return std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->GetMemoryModelNames();
-}
-
-void AppleSingleDouble::SetModel(std::string model)
-{
-	std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->SetModel(model);
-}
-
-void AppleSingleDouble::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	std::dynamic_pointer_cast<ResourceFork>(GetResourceFork())->SetLinkScript(script_file, options);
-}
 
 std::shared_ptr<const AppleSingleDouble::Entry> AppleSingleDouble::FindEntry(uint32_t id) const
 {
@@ -864,10 +837,6 @@ void AppleSingleDouble::SetMSDOSAttributes(uint16_t Attributes)
 	}
 }
 
-void AppleSingleDouble::ProcessModule(Linker::Module& module)
-{
-}
-
 void AppleSingleDouble::CalculateValues()
 {
 	unsigned entry_bitmap = 0;
@@ -983,47 +952,6 @@ std::string AppleSingleDouble::GetMSDOSDoubleFilename(std::string filename)
 	return ReplaceExtension(filename, ".adf", 8);
 }
 
-void AppleSingleDouble::GenerateFile(std::string filename, Linker::Module& module)
-{
-	if(module.cpu != Linker::Module::M68K)
-	{
-		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
-	}
-
-	ProcessModule(module);
-	CalculateValues();
-
-	std::ofstream out;
-	Linker::Writer wr(::BigEndian);
-	switch(type)
-	{
-	case SINGLE:
-		out.open(filename, std::ios_base::out | std::ios_base::binary);
-		wr.out = &out;
-		WriteFile(wr);
-		out.close();
-		break;
-	case DOUBLE:
-		{
-			std::ofstream empty;
-			empty.open(filename, std::ios_base::out | std::ios_base::binary);
-			empty.close();
-		}
-
-		// TODO: check host operating system
-		out.open(GetUNIXDoubleFilename(filename), std::ios_base::out | std::ios_base::binary);
-		wr.out = &out;
-		WriteFile(wr);
-		out.close();
-		break;
-	}
-}
-
-std::string AppleSingleDouble::GetDefaultExtension(Linker::Module& module) const
-{
-	return "a.out";
-}
-
 // DataFork
 
 offset_t DataFork::ImageSize() const
@@ -1128,10 +1056,6 @@ std::unique_ptr<Dumper::Region> ResourceFork::Resource::CreateRegion(std::string
 	return std::make_unique<Dumper::Region>(name, offset, length, display_width);
 }
 
-void ResourceFork::GenericResource::ProcessModule(Linker::Module& module)
-{
-}
-
 void ResourceFork::GenericResource::CalculateValues()
 {
 }
@@ -1159,10 +1083,6 @@ offset_t ResourceFork::GenericResource::WriteFile(Linker::Writer& wr) const
 std::unique_ptr<Dumper::Region> ResourceFork::GenericResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
 {
 	return std::make_unique<Dumper::Block>(name, offset, image->AsImage(), 0, display_width);
-}
-
-void ResourceFork::JumpTableCodeResource::ProcessModule(Linker::Module& module)
-{
 }
 
 void ResourceFork::JumpTableCodeResource::CalculateValues()
@@ -1307,10 +1227,6 @@ void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t fi
 		entry_entry.Display(dump, GetDisplayOptions());
 		i++;
 	}
-}
-
-void ResourceFork::CodeResource::ProcessModule(Linker::Module& module)
-{
 }
 
 void ResourceFork::CodeResource::CalculateValues()
@@ -2645,42 +2561,6 @@ void MacBinary::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
-void MacBinary::GenerateFile(std::string filename, Linker::Module& module)
-{
-	generated_file_name = filename;
-	apple_single->GenerateFile(filename, module);
-}
-
-void MacBinary::SetOptions(std::map<std::string, std::string>& options)
-{
-	apple_single->SetOptions(options);
-}
-
-std::vector<Linker::OptionDescription<void>> MacBinary::GetMemoryModelNames()
-{
-	return apple_single->GetMemoryModelNames();
-}
-
-void MacBinary::SetModel(std::string model)
-{
-	apple_single->SetModel(model);
-}
-
-void MacBinary::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
-{
-	apple_single->SetLinkScript(script_file, options);
-}
-
-void MacBinary::ProcessModule(Linker::Module& module)
-{
-	apple_single->ProcessModule(module);
-}
-
-std::string MacBinary::GetDefaultExtension(Linker::Module& module, std::string filename) const
-{
-	return filename + ".bin";
-}
-
 // MacDriver
 
 bool MacDriver::FormatSupportsResources() const
@@ -2765,8 +2645,6 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 
 	resource_fork->ProcessModule(module);
 	finder_info->ProcessModule(module);
-
-	apple_single->ProcessModule(module); // TODO: move to CalculateValues, do not use module
 
 	if(target == TARGET_MAC_BINARY || (produce & PRODUCE_MAC_BINARY) != 0)
 	{
@@ -2992,6 +2870,38 @@ void MacDriver::Dump(Dumper::Dumper& dump) const
 		break;
 	default:
 		Linker::FatalError("Internal error: file not loaded");
+	}
+}
+
+std::string MacDriver::GetDefaultExtension(Linker::Module& module) const
+{
+	switch(target)
+	{
+	case TARGET_NONE:
+	case TARGET_DATA_FORK:
+		return "a.out";
+	default:
+		return Linker::OutputFormat::GetDefaultExtension(module);
+	}
+}
+
+std::string MacDriver::GetDefaultExtension(Linker::Module& module, std::string filename) const
+{
+	switch(target)
+	{
+	case TARGET_NONE:
+	case TARGET_DATA_FORK:
+		return filename;
+	case TARGET_RESOURCE_FORK:
+		return filename + ".res"; // A/UX convention (see A/UX Toolbox: Macintosh ROM Interface)
+	case TARGET_APPLE_SINGLE:
+		return filename + ".as"; // used by CiderPress
+	//case TARGET_APPLE_DOUBLE:
+	//	return filename + ".ad"; // understood by Retro68
+	case TARGET_MAC_BINARY:
+		return filename + ".bin"; // understood by Retro68
+	default:
+		return filename; // should not happen
 	}
 }
 
