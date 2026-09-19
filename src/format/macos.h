@@ -206,10 +206,10 @@ namespace Apple
 			}
 		}
 
-		void SetOptions(std::map<std::string, std::string>& options) override;
-		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
-		void SetModel(std::string model) override;
-		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
+		void SetOptions(std::map<std::string, std::string>& options) override; // TODO: redundant
+		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override; // TODO: redundant
+		void SetModel(std::string model) override; // TODO: redundant
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override; // TODO: redundant
 
 		std::shared_ptr<const Entry> FindEntry(uint32_t id) const;
 		std::shared_ptr<Entry> FindEntry(uint32_t id);
@@ -240,7 +240,7 @@ namespace Apple
 		uint32_t GetModificationDate();
 		uint32_t GetMacintoshAttributes();
 
-		void ProcessModule(Linker::Module& module) override;
+		void ProcessModule(Linker::Module& module) override; // TODO: separate part that creates missing entries
 		void CalculateValues() override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -255,10 +255,10 @@ namespace Apple
 		std::string GetProDOSDoubleFilename(std::string filename);
 		std::string GetMSDOSDoubleFilename(std::string filename);
 
-		void GenerateFile(std::string filename, Linker::Module& module) override;
+		void GenerateFile(std::string filename, Linker::Module& module) override; // TODO: is this redundant?
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) const override;
+		std::string GetDefaultExtension(Linker::Module& module) const override; // TODO: is this redundant?
 	};
 
 	class DataFork : public AppleSingleDouble::Entry
@@ -1057,11 +1057,12 @@ namespace Apple
 		bool AddSupplementaryOutputFormat(std::string subformat) override;
 
 	private:
-		std::variant<
-			std::shared_ptr<ResourceFork>,
-			std::shared_ptr<AppleSingleDouble>
-			//std::shared_ptr<MacBinary> // stored as AppleSingleDouble
-		> container;
+		/** Direct access to the Mac OS resource fork */
+		std::shared_ptr<ResourceFork> resource_fork;
+		/** Container for all the necessary additional information */
+		std::shared_ptr<AppleSingleDouble> apple_single;
+		/** Container for MacBinary */
+		std::shared_ptr<MacBinary> mac_binary;
 
 		std::shared_ptr<const ResourceFork> GetResourceFork() const;
 		std::shared_ptr<ResourceFork> GetResourceFork();
