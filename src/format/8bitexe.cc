@@ -98,7 +98,7 @@ void AppleDriver::ReadFile(Linker::Reader& rd)
 
 offset_t AppleDriver::WriteFile(Linker::Writer& wr) const
 {
-	if(target == TARGET_APPLESINGLE)
+	if(target == TARGET_APPLE_SINGLE)
 	{
 		return container->WriteFile(wr);
 	}
@@ -199,7 +199,7 @@ uint16_t AppleDriver::GetAuxiliaryFileType() const
 
 std::string AppleDriver::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	if(target == TARGET_APPLESINGLE)
+	if(target == TARGET_APPLE_SINGLE)
 	{
 		return filename + ".as"; // for CiderPress
 	}

@@ -67,7 +67,8 @@ namespace Binary
 			TARGET_BIN, /* main file is a BIN file, possibly with a DOS 3.3 header (if no "+naps" is specified) */
 			TARGET_DOS33, /* main file is a BIN file with DOS 3.3 header (even if "+naps" is specified) */
 			TARGET_RAW, /* main file is a raw BIN file (even if no "+naps" is specified) */
-			TARGET_APPLESINGLE, /* main file is an AppleSingle file */
+			TARGET_APPLE_SINGLE, /* main file is an AppleSingle file */
+			//TARGET_APPLE_DOUBLE, /* main file is an AppleDouble file */
 		};
 		target_format_t target;
 
