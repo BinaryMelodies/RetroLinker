@@ -847,8 +847,6 @@ FILE_PATTERNS          = *.c \
                          *.md \
                          *.mm \
                          *.dox \
-                         *.py \
-                         *.pyw \
                          *.f90 \
                          *.f95 \
                          *.f03 \
