@@ -957,7 +957,14 @@ offset_t DataFork::ImageSize() const
 
 void DataFork::ReadFile(Linker::Reader& rd)
 {
-	image = Linker::Buffer::ReadFromFile(rd, image_size);
+	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
+	{
+		format->ReadFile(rd);
+	}
+	else
+	{
+		image = Linker::Buffer::ReadFromFile(rd, image_size);
+	}
 }
 
 offset_t DataFork::WriteFile(Linker::Writer& out) const
@@ -975,34 +982,107 @@ offset_t DataFork::WriteFile(Linker::Writer& out) const
 
 void DataFork::Dump(Dumper::Dumper& dump) const
 {
-	Dumper::Block block("Data fork", file_offset, image->AsImage(), 0, 8);
-	block.Display(dump, Dumper::Image);
+	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
+	{
+		Dumper::Region region("Data fork", file_offset, image->ImageSize(), 8);
+		region.Display(dump, Dumper::Header);
+
+		format->Dump(dump);
+	}
+	else
+	{
+		Dumper::Block block("Data fork", file_offset, image->AsImage(), 0, 8);
+		block.Display(dump, Dumper::Image);
+	}
 }
 
 void DataFork::CalculateValues()
 {
+	if(auto format = std::dynamic_pointer_cast<Linker::OutputFormat>(image))
+	{
+		format->CalculateValues();
+	}
+
 	image_size = image != nullptr ? image->ImageSize() : 0;
 }
 
 // ResourceFork
 
-void ResourceFork::SetOptions(std::map<std::string, std::string>& options)
+offset_t ResourceFork::ImageSize() const
+{
+	return image->ImageSize();
+}
+
+void ResourceFork::ReadFile(Linker::Reader& rd)
+{
+	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
+	{
+		format->ReadFile(rd);
+	}
+	else
+	{
+		image = Linker::Buffer::ReadFromFile(rd, image_size);
+	}
+}
+
+offset_t ResourceFork::WriteFile(Linker::Writer& out) const
+{
+	if(image != nullptr)
+	{
+		image->WriteFile(out);
+		return image->ImageSize();
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void ResourceFork::Dump(Dumper::Dumper& dump) const
+{
+	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
+	{
+		Dumper::Region region("Data fork", file_offset, image->ImageSize(), 8);
+		region.Display(dump, Dumper::Header);
+
+		format->Dump(dump);
+	}
+	else
+	{
+		Dumper::Block block("Data fork", file_offset, image->AsImage(), 0, 8);
+		block.Display(dump, Dumper::Image);
+	}
+}
+
+void ResourceFork::CalculateValues()
+{
+	if(auto format = std::dynamic_pointer_cast<Linker::OutputFormat>(image))
+	{
+		format->CalculateValues();
+	}
+
+	image_size = image != nullptr ? image->ImageSize() : 0;
+}
+
+// MacintoshResourceFileFormat
+
+void MacintoshResourceFileFormat::SetOptions(std::map<std::string, std::string>& options)
 {
 	/* TODO */
 }
 
-std::vector<Linker::OptionDescription<void>> ResourceFork::MemoryModelNames =
+std::vector<Linker::OptionDescription<void>> MacintoshResourceFileFormat::MemoryModelNames =
 {
 	Linker::OptionDescription<void>("default", "Normal model, symbols in zero-filled sectioned must be accessed as A5 relative addresses (\"A5 world\")"),
 	Linker::OptionDescription<void>("tiny", "Tiny model, symbols in zero-filled sections are placed in the CODE segment"),
 };
 
-std::vector<Linker::OptionDescription<void>> ResourceFork::GetMemoryModelNames()
+std::vector<Linker::OptionDescription<void>> MacintoshResourceFileFormat::GetMemoryModelNames()
 {
 	return MemoryModelNames;
 }
 
-void ResourceFork::SetModel(std::string model)
+void MacintoshResourceFileFormat::SetModel(std::string model)
 {
 	if(model == "" || model == "default")
 	{
@@ -1021,17 +1101,17 @@ void ResourceFork::SetModel(std::string model)
 	}
 }
 
-void ResourceFork::Resource::Dump(Dumper::Dumper& dump) const
+void MacintoshResourceFileFormat::Resource::Dump(Dumper::Dumper& dump) const
 {
 	Dump(dump, 0);
 }
 
-int ResourceFork::Resource::GetDisplayOptions() const
+int MacintoshResourceFileFormat::Resource::GetDisplayOptions() const
 {
 	return Dumper::Resource;
 }
 
-void ResourceFork::Resource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
+void MacintoshResourceFileFormat::Resource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	std::unique_ptr<Dumper::Region> resource_region = CreateRegion("Resource", file_offset, ImageSize(), 8);
 	resource_region->AddField("OSType", Dumper::StringDisplay::Make(4, "'"), std::string(type, 4));
@@ -1043,45 +1123,45 @@ void ResourceFork::Resource::Dump(Dumper::Dumper& dump, offset_t file_offset) co
 	resource_region->Display(dump, GetDisplayOptions());
 }
 
-void ResourceFork::Resource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+void MacintoshResourceFileFormat::Resource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
 {
 }
 
-std::unique_ptr<Dumper::Region> ResourceFork::Resource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
+std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::Resource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
 {
 	return std::make_unique<Dumper::Region>(name, offset, length, display_width);
 }
 
-void ResourceFork::GenericResource::CalculateValues()
+void MacintoshResourceFileFormat::GenericResource::CalculateValues()
 {
 }
 
-offset_t ResourceFork::GenericResource::ImageSize() const
+offset_t MacintoshResourceFileFormat::GenericResource::ImageSize() const
 {
 	return image->ImageSize();
 }
 
-void ResourceFork::GenericResource::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::GenericResource::ReadFile(Linker::Reader& rd)
 {
 	image = Linker::Buffer::ReadFromFile(rd);
 }
 
-void ResourceFork::GenericResource::ReadFile(Linker::Reader& rd, offset_t length)
+void MacintoshResourceFileFormat::GenericResource::ReadFile(Linker::Reader& rd, offset_t length)
 {
 	image = Linker::Buffer::ReadFromFile(rd, length);
 }
 
-offset_t ResourceFork::GenericResource::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::GenericResource::WriteFile(Linker::Writer& wr) const
 {
 	return image->WriteFile(wr);
 }
 
-std::unique_ptr<Dumper::Region> ResourceFork::GenericResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
+std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::GenericResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
 {
 	return std::make_unique<Dumper::Block>(name, offset, image->AsImage(), 0, display_width);
 }
 
-void ResourceFork::JumpTableCodeResource::CalculateValues()
+void MacintoshResourceFileFormat::JumpTableCodeResource::CalculateValues()
 {
 	jump_table_offset = 32;
 	if(far_entries.size() == 0)
@@ -1094,7 +1174,7 @@ void ResourceFork::JumpTableCodeResource::CalculateValues()
 	}
 }
 
-offset_t ResourceFork::JumpTableCodeResource::ImageSize() const
+offset_t MacintoshResourceFileFormat::JumpTableCodeResource::ImageSize() const
 {
 	if(far_entries.size() == 0)
 	{
@@ -1106,12 +1186,12 @@ offset_t ResourceFork::JumpTableCodeResource::ImageSize() const
 	}
 }
 
-void ResourceFork::JumpTableCodeResource::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(Linker::Reader& rd)
 {
 	/* TODO */
 }
 
-void ResourceFork::JumpTableCodeResource::ReadFile(Linker::Reader& rd, offset_t length)
+void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(Linker::Reader& rd, offset_t length)
 {
 	above_a5 = rd.ReadUnsigned(4);
 	below_a5 = rd.ReadUnsigned(4);
@@ -1142,7 +1222,7 @@ void ResourceFork::JumpTableCodeResource::ReadFile(Linker::Reader& rd, offset_t 
 	}
 }
 
-offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(Linker::Writer& wr) const
 {
 	wr.WriteWord(4, above_a5);
 	wr.WriteWord(4, below_a5);
@@ -1176,7 +1256,7 @@ offset_t ResourceFork::JumpTableCodeResource::WriteFile(Linker::Writer& wr) cons
 	return ImageSize();
 }
 
-void ResourceFork::JumpTableCodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+void MacintoshResourceFileFormat::JumpTableCodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
 {
 	region.AddField("Above A5", Dumper::HexDisplay::Make(8), offset_t(above_a5));
 	region.AddField("Below A5", Dumper::HexDisplay::Make(8), offset_t(below_a5));
@@ -1193,12 +1273,12 @@ void ResourceFork::JumpTableCodeResource::AddFields(Dumper::Dumper& dump, Dumper
 	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(32));
 }
 
-int ResourceFork::JumpTableCodeResource::GetDisplayOptions() const
+int MacintoshResourceFileFormat::JumpTableCodeResource::GetDisplayOptions() const
 {
 	return Dumper::Header | Dumper::Image | Dumper::Export; // not technically exported, entries behave similarly to export tables
 }
 
-void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
+void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	Resource::Dump(dump, file_offset);
 
@@ -1225,7 +1305,7 @@ void ResourceFork::JumpTableCodeResource::Dump(Dumper::Dumper& dump, offset_t fi
 	}
 }
 
-void ResourceFork::CodeResource::CalculateValues()
+void MacintoshResourceFileFormat::CodeResource::CalculateValues()
 {
 	if(Linker::Segment * segment = dynamic_cast<Linker::Segment *>(image.get()))
 	{
@@ -1246,12 +1326,12 @@ void ResourceFork::CodeResource::CalculateValues()
 	}
 }
 
-offset_t ResourceFork::CodeResource::ImageSize() const
+offset_t MacintoshResourceFileFormat::CodeResource::ImageSize() const
 {
 	return resource_size;
 }
 
-uint32_t ResourceFork::CodeResource::MeasureRelocations(std::set<uint32_t>& relocations) const
+uint32_t MacintoshResourceFileFormat::CodeResource::MeasureRelocations(std::set<uint32_t>& relocations) const
 {
 	uint32_t count = 2;
 	uint32_t last_relocation = 0;
@@ -1275,7 +1355,7 @@ uint32_t ResourceFork::CodeResource::MeasureRelocations(std::set<uint32_t>& relo
 	return count;
 }
 
-void ResourceFork::CodeResource::ReadRelocations(Linker::Reader& rd, std::set<uint32_t>& relocations) const
+void MacintoshResourceFileFormat::CodeResource::ReadRelocations(Linker::Reader& rd, std::set<uint32_t>& relocations) const
 {
 	/* TODO: test */
 	uint32_t last_relocation = 0;
@@ -1301,7 +1381,7 @@ void ResourceFork::CodeResource::ReadRelocations(Linker::Reader& rd, std::set<ui
 	}
 }
 
-void ResourceFork::CodeResource::WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const
+void MacintoshResourceFileFormat::CodeResource::WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const
 {
 	/* TODO: test */
 	uint32_t last_relocation = 0;
@@ -1326,12 +1406,12 @@ void ResourceFork::CodeResource::WriteRelocations(Linker::Writer& wr, const std:
 	wr.WriteWord(2, 0);
 }
 
-void ResourceFork::CodeResource::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::CodeResource::ReadFile(Linker::Reader& rd)
 {
 	/* TODO */
 }
 
-void ResourceFork::CodeResource::ReadFile(Linker::Reader& rd, offset_t length)
+void MacintoshResourceFileFormat::CodeResource::ReadFile(Linker::Reader& rd, offset_t length)
 {
 	resource_size = length;
 	first_near_entry_offset = rd.ReadUnsigned(2);
@@ -1359,7 +1439,7 @@ void ResourceFork::CodeResource::ReadFile(Linker::Reader& rd, offset_t length)
 	}
 }
 
-offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::CodeResource::WriteFile(Linker::Writer& wr) const
 {
 	if(!is_far)
 	{
@@ -1388,7 +1468,7 @@ offset_t ResourceFork::CodeResource::WriteFile(Linker::Writer& wr) const
 	return ImageSize();
 }
 
-void ResourceFork::CodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+void MacintoshResourceFileFormat::CodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
 {
 	region.AddField("Type", Dumper::ChoiceDisplay::Make("far", "near"), offset_t(is_far));
 	region.AddField("Near entry count", Dumper::DecDisplay::Make(), offset_t(near_entry_count));
@@ -1405,29 +1485,29 @@ void ResourceFork::CodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region&
 
 }
 
-int ResourceFork::CodeResource::GetDisplayOptions() const
+int MacintoshResourceFileFormat::CodeResource::GetDisplayOptions() const
 {
 	return Dumper::Header | Dumper::Image;
 }
 
-void ResourceFork::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
+void MacintoshResourceFileFormat::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	Resource::Dump(dump, file_offset);
 	// TODO: print relocations
 }
 
-std::unique_ptr<Dumper::Region> ResourceFork::CodeResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
+std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::CodeResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
 {
 	return std::make_unique<Dumper::Block>(name, offset + (is_far ? 0x28 : 4), image->AsImage(), base_address, display_width);
 }
 
-void ResourceFork::AddResource(std::shared_ptr<Resource> resource)
+void MacintoshResourceFileFormat::AddResource(std::shared_ptr<Resource> resource)
 {
 	uint32_t typeval = OSTypeToUInt32(resource->type);
 	resources[typeval][resource->id] = resource;
 }
 
-void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
+void MacintoshResourceFileFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->name == ".a5world")
 	{
@@ -1470,7 +1550,7 @@ void ResourceFork::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 }
 
-std::unique_ptr<Script::List> ResourceFork::GetScript(Linker::Module& module)
+std::unique_ptr<Script::List> MacintoshResourceFileFormat::GetScript(Linker::Module& module)
 {
 	/* TODO: make placing .comm/.bss data inside the .a5world optional */
 
@@ -1550,14 +1630,14 @@ for any
 	}
 }
 
-void ResourceFork::Link(Linker::Module& module)
+void MacintoshResourceFileFormat::Link(Linker::Module& module)
 {
 	std::unique_ptr<Script::List> script = GetScript(module);
 
 	ProcessScript(script, module);
 }
 
-void ResourceFork::ProcessModule(Linker::Module& module)
+void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 {
 	jump_table = std::make_shared<JumpTableCodeResource>();
 	AddResource(jump_table);
@@ -1629,7 +1709,7 @@ for(auto section : module.Sections())
 	}
 }
 
-void ResourceFork::CalculateValues()
+void MacintoshResourceFileFormat::CalculateValues()
 {
 	data_length = 0;
 	uint32_t name_list_length = 0;
@@ -1680,12 +1760,12 @@ void ResourceFork::CalculateValues()
 	map_length = name_list_offset + name_list_length;
 }
 
-offset_t ResourceFork::ImageSize() const
+offset_t MacintoshResourceFileFormat::ImageSize() const
 {
 	return std::max(data_offset + data_length, map_offset + map_length);
 }
 
-void ResourceFork::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
 	offset_t read_offset = rd.Tell();
@@ -1760,7 +1840,7 @@ void ResourceFork::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
 	offset_t write_offset = wr.Tell();
@@ -1818,7 +1898,7 @@ offset_t ResourceFork::WriteFile(Linker::Writer& wr) const
 	return ImageSize();
 }
 
-void ResourceFork::Dump(Dumper::Dumper& dump) const
+void MacintoshResourceFileFormat::Dump(Dumper::Dumper& dump) const
 {
 	dump.SetEncoding(Dumper::Block::encoding_macroman);
 
@@ -1897,7 +1977,7 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 	// TODO: display all resource data
 }
 
-void ResourceFork::GenerateFile(std::string filename, Linker::Module& module)
+void MacintoshResourceFileFormat::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::M68K)
 	{
@@ -1907,12 +1987,12 @@ void ResourceFork::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
-std::string ResourceFork::GetDefaultExtension(Linker::Module& module) const
+std::string MacintoshResourceFileFormat::GetDefaultExtension(Linker::Module& module) const
 {
 	return "a.out";
 }
 
-std::shared_ptr<ResourceFork::Resource> ResourceFork::ReadResource(Linker::Reader& rd, const ResourceType& type, const ResourceReference& reference)
+std::shared_ptr<MacintoshResourceFileFormat::Resource> MacintoshResourceFileFormat::ReadResource(Linker::Reader& rd, const ResourceType& type, const ResourceReference& reference)
 {
 	std::shared_ptr<Resource> resource = nullptr;
 	uint32_t length = rd.ReadUnsigned(4);
@@ -2618,7 +2698,7 @@ void MacDriver::SetOptions(std::map<std::string, std::string>& options)
 
 std::vector<Linker::OptionDescription<void>> MacDriver::GetMemoryModelNames()
 {
-	ResourceFork tmp;
+	MacintoshResourceFileFormat tmp;
 	return tmp.GetMemoryModelNames();
 }
 
@@ -2643,12 +2723,12 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 	std::shared_ptr<FinderInfo> finder_info;
 
 	container = CONTAINER_RESOURCE_FORK;
-	resource_fork = std::make_shared<ResourceFork>();
+	resource_fork = std::make_shared<MacintoshResourceFileFormat>();
 
 	container = CONTAINER_APPLE_SINGLE;
 	apple_single = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 		apple_single_double_version, home_file_system);
-	apple_single->AppendEntry(resource_fork);
+	apple_single->AppendEntry(std::make_shared<ResourceFork>(resource_fork));
 	finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
 
 	resource_fork->SetOptions(options);
@@ -2679,8 +2759,6 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		mac_binary->CalculateValues();
 		break;
 	}
-
-	assert(resource_fork == std::dynamic_pointer_cast<ResourceFork>(apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork)));
 
 	std::ofstream out;
 	Linker::Writer wr(::BigEndian);
@@ -2807,7 +2885,7 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 	case TARGET_RESOURCE_FORK:
 		{
 			container = CONTAINER_RESOURCE_FORK;
-			resource_fork = std::make_shared<ResourceFork>();
+			resource_fork = std::make_shared<MacintoshResourceFileFormat>();
 			resource_fork->ReadFile(rd);
 		}
 		break;
@@ -2835,7 +2913,7 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 		else if((produce & PRODUCE_RESOURCE_FORK))
 		{
 			container = CONTAINER_RESOURCE_FORK;
-			resource_fork = std::make_shared<ResourceFork>();
+			resource_fork = std::make_shared<MacintoshResourceFileFormat>();
 			resource_fork->ReadFile(rd);
 		}
 		else if((produce & PRODUCE_MAC_BINARY))

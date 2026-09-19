@@ -40,7 +40,7 @@ namespace Apple
 	 *
 	 * This container format was first invented for the A/UX Apple UNIX system.
 	 * It has two versions, and version 2 is used most commonly.
-	 * See also Apple::AppleSingleDouble::ResourceFork.
+	 * See also Apple::MacintoshResourceFileFormat.
 	 */
 	class AppleSingleDouble : public Linker::Format
 	{
@@ -283,6 +283,33 @@ namespace Apple
 		void CalculateValues() override;
 	};
 
+	class ResourceFork : public AppleSingleDouble::Entry
+	{
+	public:
+		std::shared_ptr<Linker::Contents> image;
+
+		ResourceFork()
+			: Entry(AppleSingleDouble::ID_ResourceFork)
+		{
+		}
+
+		ResourceFork(std::shared_ptr<Linker::Contents> image)
+			: Entry(AppleSingleDouble::ID_ResourceFork), image(image)
+		{
+		}
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& out) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
+
+		void CalculateValues() override;
+	};
+
 	/**
 	 * @brief A Macintosh resource fork
 	 *
@@ -291,7 +318,7 @@ namespace Apple
 	 *
 	 * This format has been obsoleted in favor of the PEF format, used on PowerPC based Macintosh computers.
 	 */
-	class ResourceFork : public virtual AppleSingleDouble::Entry, public virtual Linker::SegmentManager
+	class MacintoshResourceFileFormat : public virtual Linker::SegmentManager
 	{
 	public:
 		bool FormatSupportsResources() const override
@@ -467,8 +494,8 @@ namespace Apple
 			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
-		ResourceFork()
-			: Entry(AppleSingleDouble::ID_ResourceFork)/*, a5world(".bss")*/
+		MacintoshResourceFileFormat()
+			/*: a5world(".bss")*/
 		{
 		}
 
@@ -1059,7 +1086,7 @@ namespace Apple
 		container_format_t container = CONTAINER_EMPTY;
 
 		/** Direct access to the Mac OS resource fork */
-		std::shared_ptr<ResourceFork> resource_fork;
+		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
 		/** Container for all the necessary additional information */
 		std::shared_ptr<AppleSingleDouble> apple_single;
 		/** Container for MacBinary */
