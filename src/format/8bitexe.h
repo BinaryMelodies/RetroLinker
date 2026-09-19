@@ -131,7 +131,7 @@ namespace Binary
 		}
 
 		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module) const override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
 	/**

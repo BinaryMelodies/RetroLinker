@@ -197,15 +197,15 @@ uint16_t AppleDriver::GetAuxiliaryFileType() const
 	}
 }
 
-std::string AppleDriver::GetDefaultExtension(Linker::Module& module) const
+std::string AppleDriver::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	if(target == TARGET_APPLESINGLE)
 	{
-		return ".as"; // for CiderPress
+		return filename + ".as"; // for CiderPress
 	}
 	else
 	{
-		return "";
+		return filename;
 	}
 }
 
