@@ -224,10 +224,6 @@ void AppleSingleDouble::Entry::DumpEntry(Dumper::Dumper& dump, unsigned index) c
 	entry_region.Display(dump, Dumper::All);
 }
 
-void AppleSingleDouble::Entry::ProcessModule(Linker::Module& module)
-{
-}
-
 void AppleSingleDouble::Entry::CalculateValues()
 {
 }
@@ -2200,11 +2196,27 @@ void FinderInfo::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
-void FinderInfo::ProcessModule(Linker::Module& module)
+void FinderInfo::SetTypeAndCreator(std::string type, std::string creator)
 {
-	// TODO: only some Mac applications
-	memcpy(Type, "APPL", 4);
-	memcpy(Creator, "????", 4);
+	if(type.size() < 4)
+	{
+		memcpy(Type, type.c_str(), type.size());
+		memset(Type + type.size(), 0, 4 - type.size());
+	}
+	else
+	{
+		memcpy(Type, type.c_str(), 4);
+	}
+
+	if(creator.size() < 4)
+	{
+		memcpy(Creator, creator.c_str(), creator.size());
+		memset(Type + creator.size(), 0, 4 - creator.size());
+	}
+	else
+	{
+		memcpy(Creator, creator.c_str(), 4);
+	}
 }
 
 // MacintoshFileInfo
@@ -2644,7 +2656,7 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 	resource_fork->SetLinkScript(script_file, script_options);
 
 	resource_fork->ProcessModule(module);
-	finder_info->ProcessModule(module);
+	finder_info->SetTypeAndCreator("APPL", "????");
 
 	if(target == TARGET_MAC_BINARY || (produce & PRODUCE_MAC_BINARY) != 0)
 	{

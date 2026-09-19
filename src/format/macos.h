@@ -95,7 +95,6 @@ namespace Apple
 
 			void DumpEntry(Dumper::Dumper& dump, unsigned index) const;
 
-			virtual void ProcessModule(Linker::Module& module);
 			virtual void CalculateValues();
 		};
 
@@ -789,7 +788,7 @@ namespace Apple
 
 		void Dump(Dumper::Dumper& dump) const override;
 
-		void ProcessModule(Linker::Module& module) override;
+		void SetTypeAndCreator(std::string type, std::string creator);
 	};
 
 	/* Version 2 only */
