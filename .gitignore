@@ -8,6 +8,7 @@ link
 dump
 unittest/main
 results.xml
+/docs
 /latex
 tests/1_hello/*
 !tests/1_hello/ref
