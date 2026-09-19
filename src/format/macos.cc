@@ -866,32 +866,21 @@ void AppleSingleDouble::SetMSDOSAttributes(uint16_t Attributes)
 
 void AppleSingleDouble::ProcessModule(Linker::Module& module)
 {
+}
+
+void AppleSingleDouble::CalculateValues()
+{
 	unsigned entry_bitmap = 0;
 	for(auto entry : entries)
 	{
 		if(entry->id < 32)
 			entry_bitmap |= 1 << entry->id;
 	}
-	if(type == SINGLE && !(entry_bitmap & (1 << ID_DataFork)))
+	if(type == SINGLE && (entry_bitmap & (1 << ID_DataFork)) != 0)
 	{
 		GetDataFork();
 	}
-	if(!(entry_bitmap & (1 << ID_ResourceFork)))
-	{
-		GetResourceFork();
-	}
-	if(!(entry_bitmap & (1 << ID_FinderInfo)))
-	{
-		GetFinderInfo();
-	}
-	for(auto entry : entries)
-	{
-		entry->ProcessModule(module);
-	}
-}
 
-void AppleSingleDouble::CalculateValues()
-{
 	offset_t current_offset = 26 + 12 * entries.size();
 	for(auto entry : entries)
 	{
@@ -2759,6 +2748,8 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
 	}
 
+	std::shared_ptr<FinderInfo> finder_info;
+
 	container = CONTAINER_RESOURCE_FORK;
 	resource_fork = std::make_shared<ResourceFork>();
 
@@ -2766,12 +2757,16 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 	apple_single = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 		apple_single_double_version, home_file_system);
 	apple_single->AppendEntry(resource_fork);
+	finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
 
 	resource_fork->SetOptions(options);
 	resource_fork->SetModel(model);
 	resource_fork->SetLinkScript(script_file, script_options);
 
-	apple_single->ProcessModule(module); // TODO: separate ResourceFork and FinderInfo processing (Macintosh specific)
+	resource_fork->ProcessModule(module);
+	finder_info->ProcessModule(module);
+
+	apple_single->ProcessModule(module); // TODO: move to CalculateValues, do not use module
 
 	if(target == TARGET_MAC_BINARY || (produce & PRODUCE_MAC_BINARY) != 0)
 	{
