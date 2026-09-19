@@ -129,7 +129,7 @@ void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
 	container->SetProDOSAccess(0xC3); // read/write/rename/delete
 	container->SetProDOSFileType(GetFileType());
 	container->SetProDOSAUXType(GetAuxiliaryFileType());
-	container->entries.push_back(std::make_shared<Apple::DataFork>(std::static_pointer_cast<Linker::Contents>(image)));
+	container->AppendEntry(std::make_shared<Apple::DataFork>(std::static_pointer_cast<Linker::Contents>(image)));
 
 	image->ProcessModule(module);
 	//container->ProcessModule(module); // we prepare the container ourselves

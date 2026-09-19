@@ -213,8 +213,8 @@ namespace Apple
 
 		std::shared_ptr<const Entry> FindEntry(uint32_t id) const;
 		std::shared_ptr<Entry> FindEntry(uint32_t id);
+		void AppendEntry(std::shared_ptr<Entry> entry);
 
-	protected:
 		std::shared_ptr<Entry> GetFileDatesInfo();
 		std::shared_ptr<Entry> GetMacintoshFileInfo();
 		std::shared_ptr<Entry> GetAUXFileInfo();
@@ -225,7 +225,6 @@ namespace Apple
 		std::shared_ptr<Entry> GetResourceFork();
 		std::shared_ptr<Entry> GetFinderInfo();
 
-	public:
 		void SetCreationDate(uint32_t CreationDate);
 		void SetModificationDate(uint32_t ModificationDate);
 		void SetBackupDate(uint32_t BackupDate);

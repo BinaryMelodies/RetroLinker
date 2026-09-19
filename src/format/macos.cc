@@ -317,6 +317,20 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::FindEntry(uint32_t 
 	return std::const_pointer_cast<AppleSingleDouble::Entry>(const_cast<const AppleSingleDouble *>(this)->FindEntry(id));
 }
 
+void AppleSingleDouble::AppendEntry(std::shared_ptr<Entry> entry)
+{
+	for(auto entry_iter = entries.begin(); entry_iter != entries.end(); entry_iter ++)
+	{
+		if((*entry_iter)->id == entry->id)
+		{
+			entries.erase(entry_iter);
+			break;
+		}
+	}
+
+	entries.push_back(entry);
+}
+
 std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetFileDatesInfo()
 {
 	std::shared_ptr<Entry> entry;
@@ -2662,13 +2676,16 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
 	}
 
+	container = CONTAINER_RESOURCE_FORK;
+	resource_fork = std::make_shared<ResourceFork>();
+
 	container = CONTAINER_APPLE_SINGLE;
 	apple_single = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 		apple_single_double_version, home_file_system);
+	apple_single->AppendEntry(resource_fork);
 
 	apple_single->SetOptions(options);
-	resource_fork = std::dynamic_pointer_cast<ResourceFork>(apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork));
-	assert(resource_fork);
+	assert(resource_fork == std::dynamic_pointer_cast<ResourceFork>(apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork)));
 	apple_single->SetModel(model);
 	apple_single->SetLinkScript(script_file, script_options);
 
