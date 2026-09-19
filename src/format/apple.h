@@ -263,9 +263,14 @@ namespace Apple
 		void CalculateValues() override;
 	};
 
+	/** @brief Container for a resource fork
+	 *
+	 * Multiple resource file formats may be supported, for example Macintosh and GS/OS resources.
+	 */
 	class ResourceFork : public AppleSingleDouble::Entry
 	{
 	public:
+		/** @brief The actual resource image, for example Apple::MacintoshResourceFileFormat */
 		std::shared_ptr<Linker::Contents> image;
 
 		ResourceFork()
