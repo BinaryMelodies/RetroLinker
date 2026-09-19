@@ -1282,6 +1282,11 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		mac_binary->generated_file_name = filename;
 	}
 
+	if(target == TARGET_APPLE_SINGLE)
+	{
+		apple_single->GetDataFork();
+	}
+
 	switch(container)
 	{
 	case CONTAINER_EMPTY:
@@ -1314,11 +1319,8 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		break;
 	case TARGET_RESOURCE_FORK:
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
-		if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
-		{
-			wr.out = &out;
-			entry->WriteFile(wr);
-		}
+		wr.out = &out;
+		resource_fork->WriteFile(wr);
 		out.close();
 		break;
 	case TARGET_APPLE_SINGLE:
@@ -1329,7 +1331,6 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		out.close();
 		break;
 	case TARGET_MAC_BINARY:
-		// TODO: untested
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
 		wr.out = &out;
 		mac_binary->WriteFile(wr);
@@ -1524,8 +1525,8 @@ std::string MacDriver::GetDefaultExtension(Linker::Module& module, std::string f
 		return filename + ".res"; // A/UX convention (see A/UX Toolbox: Macintosh ROM Interface)
 	case TARGET_APPLE_SINGLE:
 		return filename + ".as"; // used by CiderPress
-	//case TARGET_APPLE_DOUBLE:
-	//	return filename + ".ad"; // understood by Retro68
+	case TARGET_APPLE_DOUBLE:
+		return filename + ".ad"; // understood by Retro68
 	case TARGET_MAC_BINARY:
 		return filename + ".bin"; // understood by Retro68
 	default:

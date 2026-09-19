@@ -2,6 +2,7 @@
 #include <cstring>
 #include <filesystem>
 #include "apple.h"
+#include "macos.h" // for MacintoshResourceFileFormat
 #include "../dumper/dumper.h"
 #include "../linker/buffer.h"
 #include "../linker/image.h"
@@ -936,7 +937,7 @@ std::string AppleSingleDouble::GetMSDOSDoubleFilename(std::string filename)
 
 offset_t DataFork::ImageSize() const
 {
-	return image->ImageSize();
+	return image ? image->ImageSize() : 0;
 }
 
 void DataFork::ReadFile(Linker::Reader& rd)
@@ -994,7 +995,7 @@ void DataFork::CalculateValues()
 
 offset_t ResourceFork::ImageSize() const
 {
-	return image->ImageSize();
+	return image ? image->ImageSize() : 0;
 }
 
 void ResourceFork::ReadFile(Linker::Reader& rd)
@@ -1005,7 +1006,11 @@ void ResourceFork::ReadFile(Linker::Reader& rd)
 	}
 	else
 	{
-		image = Linker::Buffer::ReadFromFile(rd, image_size);
+		// TODO: check file type
+		//image = Linker::Buffer::ReadFromFile(rd, image_size);
+		auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
+		mac_rsrc->ReadFile(rd);
+		image = mac_rsrc;
 	}
 }
 

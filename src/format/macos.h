@@ -374,7 +374,7 @@ namespace Apple
 			TARGET_DATA_FORK, /* main file is a data fork, typically empty */
 			TARGET_RESOURCE_FORK, /* main file is a resource fork */
 			TARGET_APPLE_SINGLE, /* main file is an AppleSingle */
-			TARGET_APPLE_DOUBLE, /* main file is an AppleDouble */ // TODO: no command line flag
+			TARGET_APPLE_DOUBLE, /* main file is an AppleDouble */
 			TARGET_MAC_BINARY, /* main file as a MacBinary */
 		};
 		target_format_t target;
