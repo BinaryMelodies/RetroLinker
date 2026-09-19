@@ -2419,7 +2419,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 {
 	CRC_Initialize();
 	WriteWord(wr, 1, 0);
-	if(auto entry = FindEntry(ID_RealName))
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_RealName))
 	{
 		const std::string& name = std::dynamic_pointer_cast<const RealName>(entry)->name;
 		WriteWord(wr, 1, name.size() > 63 ? 63 : name.size());
@@ -2431,7 +2431,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 		WriteData(wr, 63, generated_file_name);
 	}
 	std::shared_ptr<const FinderInfo> info = nullptr;
-	if(auto entry = FindEntry(ID_FinderInfo))
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_FinderInfo))
 	{
 		info = std::dynamic_pointer_cast<const FinderInfo>(entry);
 		WriteData(wr, 4, info->Type);
@@ -2448,7 +2448,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	}
 	WriteWord(wr, 1, attributes);
 	WriteWord(wr, 1, 0);
-	if(auto entry = FindEntry(ID_DataFork))
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
 	{
 		WriteWord(wr, 4, entry->ImageSize());
 	}
@@ -2456,7 +2456,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	{
 		WriteWord(wr, 4, 0);
 	}
-	if(auto entry = FindEntry(ID_ResourceFork))
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
 	{
 		WriteWord(wr, 4, entry->ImageSize());
 	}
@@ -2470,7 +2470,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	{
 		return;
 	}
-	if(auto entry = FindEntry(ID_Comment))
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_Comment))
 	{
 		WriteWord(wr, 2, entry->ImageSize());
 	}
@@ -2510,10 +2510,10 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 
 void MacBinary::CalculateValues()
 {
-	attributes = GetMacintoshAttributes();
-	creation = GetCreationDate();
-	modification = GetModificationDate();
-	AppleSingleDouble::CalculateValues();
+	attributes = apple_single->GetMacintoshAttributes();
+	creation = apple_single->GetCreationDate();
+	modification = apple_single->GetModificationDate();
+	apple_single->CalculateValues();
 }
 
 void MacBinary::ReadFile(Linker::Reader& rd)
@@ -2526,19 +2526,19 @@ offset_t MacBinary::WriteFile(Linker::Writer& wr) const
 	WriteHeader(wr);
 	wr.Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
 	/* secondary header */
-	if(auto entry = FindEntry(ID_DataFork))
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
 	{
 		entry->WriteFile(wr);
 		wr.AlignTo(0x80);
 	}
-	if(auto entry = FindEntry(ID_ResourceFork))
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
 	{
 		entry->WriteFile(wr);
 		wr.AlignTo(0x80);
 	}
 	if(version >= MACBIN1_GETINFO)
 	{
-		if(auto entry = FindEntry(ID_Comment))
+		if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_Comment))
 		{
 			entry->WriteFile(wr);
 			wr.AlignTo(0x80);
@@ -2562,7 +2562,37 @@ void MacBinary::Dump(Dumper::Dumper& dump) const
 void MacBinary::GenerateFile(std::string filename, Linker::Module& module)
 {
 	generated_file_name = filename;
-	AppleSingleDouble::GenerateFile(filename, module);
+	apple_single->GenerateFile(filename, module);
+}
+
+void MacBinary::SetOptions(std::map<std::string, std::string>& options)
+{
+	apple_single->SetOptions(options);
+}
+
+std::vector<Linker::OptionDescription<void>> MacBinary::GetMemoryModelNames()
+{
+	return apple_single->GetMemoryModelNames();
+}
+
+void MacBinary::SetModel(std::string model)
+{
+	apple_single->SetModel(model);
+}
+
+void MacBinary::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	apple_single->SetLinkScript(script_file, options);
+}
+
+void MacBinary::ProcessModule(Linker::Module& module)
+{
+	apple_single->ProcessModule(module);
+}
+
+std::string MacBinary::GetDefaultExtension(Linker::Module& module, std::string filename) const
+{
+	return filename + ".bin";
 }
 
 // MacDriver

@@ -929,9 +929,11 @@ namespace Apple
 	/**
 	 * @brief MacBinary is an alternative format to AppleSingle for representing a Macintosh file on a non-Macintosh filesystem.
 	 */
-	class MacBinary : public AppleSingleDouble
+	class MacBinary : public Linker::OutputFormat
 	{
 	public:
+		std::shared_ptr<AppleSingleDouble> apple_single;
+
 		enum version_t
 		{
 			/* assigning values to the first two does not matter, because we don't generate the fields that hold them */
@@ -952,17 +954,17 @@ namespace Apple
 		std::string generated_file_name;
 
 		MacBinary(version_t version = MACBIN3)
-			: AppleSingleDouble(AppleSingleDouble::DOUBLE), version(version), minimum_version(version <= MACBIN2 ? version : MACBIN2)
+			: apple_single(std::make_shared<AppleSingleDouble>(AppleSingleDouble::DOUBLE)), version(version), minimum_version(version <= MACBIN2 ? version : MACBIN2)
 		{
 		}
 
 		MacBinary(version_t version, version_t minimum_version)
-			: AppleSingleDouble(AppleSingleDouble::DOUBLE), version(version), minimum_version(version < minimum_version ? version : minimum_version)
+			: apple_single(std::make_shared<AppleSingleDouble>(AppleSingleDouble::DOUBLE)), version(version), minimum_version(version < minimum_version ? version : minimum_version)
 		{
 		}
 
 		explicit MacBinary(AppleSingleDouble& apple, version_t version, version_t minimum_version)
-			: AppleSingleDouble(apple, AppleSingleDouble::DOUBLE), version(version), minimum_version(version < minimum_version ? version : minimum_version)
+			: apple_single(std::make_shared<AppleSingleDouble>(apple, AppleSingleDouble::DOUBLE)), version(version), minimum_version(version < minimum_version ? version : minimum_version)
 		{
 		}
 
@@ -993,6 +995,15 @@ namespace Apple
 		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
+
+		void SetOptions(std::map<std::string, std::string>& options) override; // TODO: redundant
+		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override; // TODO: redundant
+		void SetModel(std::string model) override; // TODO: redundant
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override; // TODO: redundant
+		void ProcessModule(Linker::Module& module) override; // TODO: separate part that creates missing entries
+		//void GenerateFile(std::string filename, Linker::Module& module) override; // TODO: is this redundant?
+		using Linker::OutputFormat::GetDefaultExtension;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override; // TODO: is this redundant?
 	};
 
 	/**
