@@ -41,6 +41,119 @@ namespace Binary
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
+	class GSOutput : public Linker::OutputFormat
+	{
+	public:
+		/** @brief Represents the file type of the main file */
+		enum target_format_t
+		{
+			/** @brief Do not generate main file */
+			TARGET_NONE,
+			/** @brief Main file is a data fork, typically empty */
+			TARGET_DATA_FORK,
+			/** @brief Main file is a resource fork */
+			TARGET_RESOURCE_FORK,
+			/** @brief Main file is an AppleSingle */
+			TARGET_APPLE_SINGLE,
+			/** @brief Main file is an AppleDouble */
+			TARGET_APPLE_DOUBLE,
+			// /** @brief Main file as a MacBinary */
+			// TARGET_MAC_BINARY,
+			// TODO: Binary II
+		};
+		/** @brief Format of "filename" */
+		target_format_t target;
+
+		/** @brief Represents what additional files should be generated */
+		enum produce_format_t
+		{
+			/** @brief Places a GS/OS format resource file under the directory .rsrc */
+			PRODUCE_RESOURCE_FORK = 1 << 0,
+			// /** @brief Places a Finder Information file under the directory .finf */
+			// PRODUCE_FINDER_INFO = 1 << 1,
+			/** @brief Creates an AppleDouble binary with the '%' prefix */
+			PRODUCE_APPLE_DOUBLE = 1 << 2,
+			// /** @brief Creates a MacBinary with the .mbin extension */
+			// PRODUCE_MAC_BINARY = 1 << 3,
+			/** @brief NuLib2 attribute preservation string suffix, such as #06xxxx */
+			PRODUCE_NAPS_SUFFIX = 1 << 4,
+		};
+		/** @brief Bitset of other files to produce */
+		produce_format_t produce;
+
+		/* the ProDOS file type */
+		enum file_type_t : uint8_t
+		{
+			FILE_TYPE_BIN = 0x06,
+			FILE_TYPE_SOS = 0x0C,
+			FILE_TYPE_S16 = 0xB3,
+			FILE_TYPE_EXE = 0xB5,
+			FILE_TYPE_SYS = 0xFF,
+		};
+		file_type_t file_type;
+
+		unsigned apple_single_double_version = 2;
+		/* Only relevant for version 1 */
+		Apple::AppleSingleDouble::hfs_type home_file_system = Apple::AppleSingleDouble::HFS_UNDEFINED;
+
+		//MacBinary::version_t macbinary_version = MacBinary::MACBIN3, macbinary_minimum_version = MacBinary::MACBIN2;
+
+		GSOutput(target_format_t target = TARGET_DATA_FORK)
+			: target(target),
+			produce(target == TARGET_DATA_FORK ? PRODUCE_APPLE_DOUBLE
+				: produce_format_t(0))
+		{
+		}
+
+		GSOutput(target_format_t target, int produce)
+			: target(target), produce(produce_format_t(produce))
+		{
+		}
+
+		bool AddSupplementaryOutputFormat(std::string subformat) override;
+
+	protected:
+		/** @brief Format of container stored in memory */
+		enum container_format_t
+		{
+			/** @brief No container is stored */
+			CONTAINER_NONE,
+			/** @brief Use an AppleSingle container */
+			CONTAINER_APPLE_SINGLE,
+			// /** @brief Use a MacBinary container as well as an AppleSingle container */
+			// CONTAINER_MAC_BINARY,
+		};
+		/** @brief The container type used to store metainformation while processing */
+		container_format_t container = CONTAINER_NONE;
+
+		/** @brief Container for all the necessary additional information */
+		std::shared_ptr<Apple::AppleSingleDouble> apple_single;
+		// /** @brief Container for MacBinary */
+		// std::shared_ptr<MacBinary> mac_binary;
+
+		/** @brief Called after the container is created */
+		virtual void OnContainerCreated();
+		/** @brief Called if there is no container allocated */
+		virtual void OnCalculateValues();
+		/** @brief Called if there is no container allocated */
+		virtual void OnReadFile(Linker::Reader& rd);
+		/** @brief Called if there is no container allocated */
+		virtual offset_t OnWriteFile(Linker::Writer& wr) const;
+		/** @brief Called if there is no container allocated */
+		virtual void OnDump(Dumper::Dumper& dump) const;
+
+	public:
+		/** @brief Tasked to create all the requested files */
+		void GenerateFiles(std::string filename, std::shared_ptr<Contents> data_fork, std::shared_ptr<Contents> resource_fork, uint8_t file_type, uint16_t auxiliary_file_type);
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
+	};
+
 	/**
 	 * @brief This is not actually a file format, but an interface to permit generating multiple binary outputs for Apple ][ binaries.
 	 *
@@ -57,8 +170,8 @@ namespace Binary
 	class AppleDriver : public Linker::OutputFormat
 	{
 	public:
-		std::shared_ptr<Apple::AppleSingleDouble> container;
-		std::shared_ptr<AppleFormat> image;
+		std::shared_ptr<Apple::AppleSingleDouble> apple_single;
+		std::shared_ptr<AppleFormat> data_fork;
 
 		/* format of "filename" */
 		enum target_format_t
@@ -94,7 +207,7 @@ namespace Binary
 		/* TODO: enable setting the base address as a parameter */
 
 		AppleDriver(file_type_t file_type = FILE_TYPE_BIN, target_format_t target = TARGET_BIN)
-			: container(std::make_shared<Apple::AppleSingleDouble>(Apple::AppleSingleDouble::SINGLE)),
+			: apple_single(std::make_shared<Apple::AppleSingleDouble>(Apple::AppleSingleDouble::SINGLE)),
 			target(target),
 			file_type(file_type)
 		{
