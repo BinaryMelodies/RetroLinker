@@ -363,29 +363,48 @@ namespace Apple
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
+	/**
+	 * @brief This is not actually a file format, but an interface to permit generating multiple binary outputs for Macintosh executables.
+	 *
+	 * This class is needed because Macintosh executables require utilization of the resource fork, a part of the filesystem which is generally unavailable on other platforms.
+	 * There are multiple ways to represent the resource fork on a non-Macintosh file system, including a separate file, an AppleSingle/AppleDouble container or a MacBinary file.
+	 * This driver permits generation of one or more of these different formats for the same executable.
+	 */
 	class MacintoshOutput : public Linker::OutputFormat
 	{
 	public:
-		/* format of "filename" */
+		/** @brief Represents the file type of the main file */
 		enum target_format_t
 		{
-			TARGET_NONE, /* do not generate main file */
-			TARGET_DATA_FORK, /* main file is a data fork, typically empty */
-			TARGET_RESOURCE_FORK, /* main file is a resource fork */
-			TARGET_APPLE_SINGLE, /* main file is an AppleSingle */
-			TARGET_APPLE_DOUBLE, /* main file is an AppleDouble */
-			TARGET_MAC_BINARY, /* main file as a MacBinary */
+			/** @brief Do not generate main file */
+			TARGET_NONE,
+			/** @brief Main file is a data fork, typically empty */
+			TARGET_DATA_FORK,
+			/** @brief Main file is a resource fork */
+			TARGET_RESOURCE_FORK,
+			/** @brief Main file is an AppleSingle */
+			TARGET_APPLE_SINGLE,
+			/** @brief Main file is an AppleDouble */
+			TARGET_APPLE_DOUBLE,
+			/** @brief Main file as a MacBinary */
+			TARGET_MAC_BINARY,
 		};
+		/** @brief Format of "filename" */
 		target_format_t target;
 
-		/* other files to produce */
+		/** @brief Represents what additional files should be generated */
 		enum produce_format_t
 		{
-			PRODUCE_RESOURCE_FORK = 1 << 0, /* under .rsrc */
-			PRODUCE_FINDER_INFO = 1 << 1, /* under .finf */
-			PRODUCE_APPLE_DOUBLE = 1 << 2, /* with % prefix */
-			PRODUCE_MAC_BINARY = 1 << 3, /* with .mbin extension */
+			/** @brief Places a Macintosh format resource file under the directory .rsrc */
+			PRODUCE_RESOURCE_FORK = 1 << 0,
+			/** @brief Places a Finder Information file under the directory .finf */
+			PRODUCE_FINDER_INFO = 1 << 1,
+			/** @brief Creates an AppleDouble binary with the '%' prefix */
+			PRODUCE_APPLE_DOUBLE = 1 << 2,
+			/** @brief Creates a MacBinary with the .mbin extension */
+			PRODUCE_MAC_BINARY = 1 << 3,
 		};
+		/** @brief Bitset of other files to produce */
 		produce_format_t produce;
 
 		/* Typical combinations:
@@ -417,18 +436,22 @@ namespace Apple
 		bool AddSupplementaryOutputFormat(std::string subformat) override;
 
 	protected:
-		/* format of information stored */
+		/** @brief Format of container stored in memory */
 		enum container_format_t
 		{
+			/** @brief No container is stored */
 			CONTAINER_NONE,
+			/** @brief Use an AppleSingle container */
 			CONTAINER_APPLE_SINGLE,
+			/** @brief Use a MacBinary container as well as an AppleSingle container */
 			CONTAINER_MAC_BINARY,
 		};
+		/** @brief The container type used to store metainformation while processing */
 		container_format_t container = CONTAINER_NONE;
 
-		/** Container for all the necessary additional information */
+		/** @brief Container for all the necessary additional information */
 		std::shared_ptr<AppleSingleDouble> apple_single;
-		/** Container for MacBinary */
+		/** @brief Container for MacBinary */
 		std::shared_ptr<MacBinary> mac_binary;
 
 		/** @brief Called after the container is created */
@@ -443,6 +466,7 @@ namespace Apple
 		virtual void OnDump(Dumper::Dumper& dump) const;
 
 	public:
+		/** @brief Tasked to create all the requested files */
 		void GenerateFiles(std::string filename, std::shared_ptr<Contents> data_fork, std::shared_ptr<Contents> resource_fork);
 
 		void ReadFile(Linker::Reader& rd) override;
@@ -454,21 +478,17 @@ namespace Apple
 	};
 
 	/**
-	 * @brief This is not actually a file format, but an interface to permit generating multiple binary outputs for Macintosh executables.
-	 *
-	 * This class is needed because Macintosh executables require utilization of the resource fork, a part of the filesystem which is generally unavailable on other platforms.
-	 * There are multiple ways to represent the resource fork on a non-Macintosh file system, including a separate file, an AppleSingle/AppleDouble container or a MacBinary file.
-	 * This driver permits generation of one or more of these different formats for the same executable.
+	 * @brief Interface to generate files required for the Classic 68K Mac OS runtime
 	 */
-	class MacDriver : public MacintoshOutput
+	class Classic68KDriver : public MacintoshOutput
 	{
 	public:
-		MacDriver(target_format_t target = TARGET_DATA_FORK)
+		Classic68KDriver(target_format_t target = TARGET_DATA_FORK)
 			: MacintoshOutput(target)
 		{
 		}
 
-		MacDriver(target_format_t target, int produce)
+		Classic68KDriver(target_format_t target, int produce)
 			: MacintoshOutput(target, produce)
 		{
 		}

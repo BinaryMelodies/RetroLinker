@@ -1365,10 +1365,12 @@ void MacintoshOutput::OnDump(Dumper::Dumper& dump) const
 
 void MacintoshOutput::GenerateFiles(std::string filename, std::shared_ptr<Contents> data_fork, std::shared_ptr<Contents> resource_fork)
 {
-	container = CONTAINER_NONE;
+	container = CONTAINER_NONE; // initial setting
 
-	if(target != TARGET_RESOURCE_FORK || (produce & ~PRODUCE_RESOURCE_FORK) != 0)
+	if((data_fork != nullptr && (target != TARGET_DATA_FORK || produce != 0))
+	|| (resource_fork != nullptr && (target != TARGET_RESOURCE_FORK || (produce & ~PRODUCE_RESOURCE_FORK) != 0)))
 	{
+		// if anything other than a single data fork or single resource fork is required, create an AppleSingleDouble container
 		container = CONTAINER_APPLE_SINGLE;
 		apple_single = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 			apple_single_double_version, home_file_system);
@@ -1385,6 +1387,7 @@ void MacintoshOutput::GenerateFiles(std::string filename, std::shared_ptr<Conten
 
 	if(target == TARGET_MAC_BINARY || (produce & PRODUCE_MAC_BINARY) != 0)
 	{
+		// the presence of a MacBinary container implies presence of an AppleSingleDouble container
 		container = CONTAINER_MAC_BINARY;
 		mac_binary = std::make_shared<MacBinary>(apple_single, macbinary_version, macbinary_minimum_version);
 		mac_binary->generated_file_name = filename;
@@ -1534,6 +1537,7 @@ void MacintoshOutput::ReadFile(Linker::Reader& rd)
 		OnReadFile(rd);
 		break;
 	case TARGET_APPLE_SINGLE:
+	case TARGET_APPLE_DOUBLE:
 		{
 			container = CONTAINER_APPLE_SINGLE;
 			apple_single = std::make_shared<AppleSingleDouble>();
@@ -1547,17 +1551,12 @@ void MacintoshOutput::ReadFile(Linker::Reader& rd)
 			mac_binary->ReadFile(rd);
 		}
 		break;
-	default:
+	case TARGET_NONE:
 		if((produce & PRODUCE_APPLE_DOUBLE))
 		{
 			container = CONTAINER_APPLE_SINGLE;
 			apple_single = std::make_shared<AppleSingleDouble>();
 			apple_single->ReadFile(rd);
-		}
-		else if((produce & PRODUCE_RESOURCE_FORK))
-		{
-			container = CONTAINER_NONE;
-			OnReadFile(rd);
 		}
 		else if((produce & PRODUCE_MAC_BINARY))
 		{
@@ -1567,7 +1566,8 @@ void MacintoshOutput::ReadFile(Linker::Reader& rd)
 		}
 		else
 		{
-			Linker::FatalError("Fatal error: Reading the specified format is not supported");
+			container = CONTAINER_NONE;
+			OnReadFile(rd);
 		}
 		break;
 	}
@@ -1606,36 +1606,36 @@ void MacintoshOutput::Dump(Dumper::Dumper& dump) const
 	}
 }
 
-// MacDriver
+// Classic68KDriver
 
-bool MacDriver::FormatSupportsResources() const
+bool Classic68KDriver::FormatSupportsResources() const
 {
 	return true;
 }
 
-void MacDriver::SetOptions(std::map<std::string, std::string>& options)
+void Classic68KDriver::SetOptions(std::map<std::string, std::string>& options)
 {
 	this->options = options;
 }
 
-std::vector<Linker::OptionDescription<void>> MacDriver::GetMemoryModelNames()
+std::vector<Linker::OptionDescription<void>> Classic68KDriver::GetMemoryModelNames()
 {
 	MacintoshResourceFileFormat tmp;
 	return tmp.GetMemoryModelNames();
 }
 
-void MacDriver::SetModel(std::string model)
+void Classic68KDriver::SetModel(std::string model)
 {
 	this->model = model;
 }
 
-void MacDriver::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+void Classic68KDriver::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
 {
 	this->script_file = script_file;
 	this->script_options = options;
 }
 
-void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
+void Classic68KDriver::GenerateFile(std::string filename, Linker::Module& module)
 {
 	if(module.cpu != Linker::Module::M68K)
 	{
@@ -1654,8 +1654,11 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 	GenerateFiles(filename, nullptr, resource_fork);
 }
 
-void MacDriver::OnContainerCreated()
+void Classic68KDriver::OnContainerCreated()
 {
+	// if an AppleSingleDouble container is created, we need to allocate the FinderInfo entry
+	// this is also needed if no actual AppleSingle/AppleDouble file is created, as this might be placed under the .finf directory
+
 	finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
 	if(finder_info != nullptr)
 	{
@@ -1663,29 +1666,38 @@ void MacDriver::OnContainerCreated()
 	}
 }
 
-void MacDriver::OnCalculateValues()
+void Classic68KDriver::OnCalculateValues()
 {
 	resource_fork->CalculateValues(); // TODO: untested
 }
 
-void MacDriver::OnReadFile(Linker::Reader& rd)
+void Classic68KDriver::OnReadFile(Linker::Reader& rd)
 {
-	resource_fork = std::make_shared<MacintoshResourceFileFormat>();
-	resource_fork->ReadFile(rd);
+	if(target == TARGET_RESOURCE_FORK || (produce & PRODUCE_RESOURCE_FORK) != 0)
+	{
+		// parse as resource fork, but only if this option is allowed
+		resource_fork = std::make_shared<MacintoshResourceFileFormat>();
+		resource_fork->ReadFile(rd);
+	}
+	else
+	{
+		Linker::FatalError("Fatal error: Reading the specified format is not supported");
+	}
 }
 
-offset_t MacDriver::OnWriteFile(Linker::Writer& wr) const
+offset_t Classic68KDriver::OnWriteFile(Linker::Writer& wr) const
 {
 	return resource_fork->WriteFile(wr);
 }
 
-void MacDriver::OnDump(Dumper::Dumper& dump) const
+void Classic68KDriver::OnDump(Dumper::Dumper& dump) const
 {
 	resource_fork->Dump(dump);
 }
 
-void MacDriver::ReadFile(Linker::Reader& rd)
+void Classic68KDriver::ReadFile(Linker::Reader& rd)
 {
+	// reading a Classic 68K Mac OS executable cannot be done via its data fork
 	if(target == TARGET_DATA_FORK)
 	{
 		target = TARGET_NONE;
@@ -1693,7 +1705,7 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 	MacintoshOutput::ReadFile(rd);
 }
 
-std::string MacDriver::GetDefaultExtension(Linker::Module& module) const
+std::string Classic68KDriver::GetDefaultExtension(Linker::Module& module) const
 {
 	switch(target)
 	{
@@ -1705,7 +1717,7 @@ std::string MacDriver::GetDefaultExtension(Linker::Module& module) const
 	}
 }
 
-std::string MacDriver::GetDefaultExtension(Linker::Module& module, std::string filename) const
+std::string Classic68KDriver::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
 	switch(target)
 	{
