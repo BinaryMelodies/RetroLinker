@@ -173,13 +173,27 @@ namespace Binary
 		std::shared_ptr<Apple::AppleSingleDouble> apple_single;
 		std::shared_ptr<AppleFormat> data_fork;
 
+		enum header_format_t
+		{
+			/** @brief For a BIN file, there may or may not be a DOS 3.3 header (if no "+naps" is specified) */
+			HEADER_BIN,
+			/** @brief For a BIN file, the DOS 3.3 header is included (even if "+naps" is specified) */
+			HEADER_DOS33,
+			/** @brief For a BIN file, there is no DOS 3.3 header (even if no "+naps" is specified) */
+			HEADER_RAW,
+		};
+		header_format_t header;
+
 		/* format of "filename" */
 		enum target_format_t
 		{
 			TARGET_NONE, /* do not generate main file */
+#if 0
 			TARGET_BIN, /* main file is a BIN file, possibly with a DOS 3.3 header (if no "+naps" is specified) */
 			TARGET_DOS33, /* main file is a BIN file with DOS 3.3 header (even if "+naps" is specified) */
 			TARGET_RAW, /* main file is a raw BIN file (even if no "+naps" is specified) */
+#endif
+			TARGET_DATA_FORK,
 			TARGET_APPLE_SINGLE, /* main file is an AppleSingle file */
 			//TARGET_APPLE_DOUBLE, /* main file is an AppleDouble file */
 		};
@@ -206,8 +220,17 @@ namespace Binary
 
 		/* TODO: enable setting the base address as a parameter */
 
-		AppleDriver(file_type_t file_type = FILE_TYPE_BIN, target_format_t target = TARGET_BIN)
+		AppleDriver(file_type_t file_type = FILE_TYPE_BIN, header_format_t header = HEADER_BIN)
 			: apple_single(std::make_shared<Apple::AppleSingleDouble>(Apple::AppleSingleDouble::SINGLE)),
+			header(header),
+			target(TARGET_DATA_FORK),
+			file_type(file_type)
+		{
+		}
+
+		AppleDriver(file_type_t file_type, target_format_t target)
+			: apple_single(std::make_shared<Apple::AppleSingleDouble>(Apple::AppleSingleDouble::SINGLE)),
+			header(HEADER_BIN),
 			target(target),
 			file_type(file_type)
 		{
@@ -227,19 +250,20 @@ namespace Binary
 
 		bool UseDOS33Header() const
 		{
-			if(file_type != FILE_TYPE_BIN)
+			if(file_type != FILE_TYPE_BIN || target != TARGET_DATA_FORK)
 			{
 				return false;
 			}
 
-			switch(target)
+			switch(header)
 			{
-			case TARGET_BIN:
+			case HEADER_BIN:
 				// only apply header if there is no NAPS suffix
 				return (produce & PRODUCE_NAPS_SUFFIX) == 0;
-			case TARGET_DOS33:
+			case HEADER_DOS33:
 				return true;
 			default:
+			case HEADER_RAW:
 				return false;
 			}
 		}
