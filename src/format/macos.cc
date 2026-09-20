@@ -1421,15 +1421,16 @@ void MacintoshOutput::GenerateFiles(std::string filename, std::shared_ptr<Conten
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
 		if(data_fork != nullptr)
 		{
+			wr.out = &out;
 			data_fork->WriteFile(wr);
 		}
 		out.close();
 		break;
 	case TARGET_RESOURCE_FORK:
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
-		wr.out = &out;
 		if(resource_fork != nullptr)
 		{
+			wr.out = &out;
 			resource_fork->WriteFile(wr);
 		}
 		out.close();
@@ -1641,8 +1642,6 @@ void Classic68KDriver::GenerateFile(std::string filename, Linker::Module& module
 	{
 		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
 	}
-
-	std::shared_ptr<FinderInfo> finder_info;
 
 	resource_fork = std::make_shared<MacintoshResourceFileFormat>();
 	resource_fork->SetOptions(options);

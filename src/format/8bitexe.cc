@@ -129,6 +129,7 @@ void GSOutput::GenerateFiles(std::string filename, std::shared_ptr<Contents> dat
 		container = CONTAINER_APPLE_SINGLE;
 		apple_single = std::make_shared<Apple::AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? Apple::AppleSingleDouble::SINGLE : Apple::AppleSingleDouble::DOUBLE,
 			apple_single_double_version, home_file_system);
+		OnContainerCreated(); // TODO: this position should not matter
 		if(data_fork != nullptr)
 		{
 			apple_single->AppendEntry(std::make_shared<Apple::DataFork>(data_fork));
@@ -137,7 +138,6 @@ void GSOutput::GenerateFiles(std::string filename, std::shared_ptr<Contents> dat
 		{
 			apple_single->AppendEntry(std::make_shared<Apple::ResourceFork>(resource_fork));
 		}
-		OnContainerCreated();
 	}
 
 #if 0
@@ -188,15 +188,16 @@ void GSOutput::GenerateFiles(std::string filename, std::shared_ptr<Contents> dat
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
 		if(data_fork != nullptr)
 		{
+			wr.out = &out;
 			data_fork->WriteFile(wr);
 		}
 		out.close();
 		break;
 	case TARGET_RESOURCE_FORK:
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
-		wr.out = &out;
 		if(resource_fork != nullptr)
 		{
+			wr.out = &out;
 			resource_fork->WriteFile(wr);
 		}
 		out.close();
@@ -389,57 +390,14 @@ void GSOutput::Dump(Dumper::Dumper& dump) const
 
 // AppleDriver
 
-bool AppleDriver::AddSupplementaryOutputFormat(std::string subformat) // TODO: remove (inherits from GSOutput)
+void AppleDriver::ReadFile(Linker::Reader& rd)
 {
-	if(subformat == "rsrc")
+	// reading an Apple ][ executable cannot be done via its resource fork
+	if(target == TARGET_RESOURCE_FORK)
 	{
-		Linker::Debug << "Debug: Requested to generate resource fork under .rsrc (unimplemented)" << std::endl;
-		//produce = produce_format_t(produce | PRODUCE_RESOURCE_FORK);
+		Linker::FatalError("Fatal error: Reading the specified format is not supported");
 	}
-	else if(subformat == "finf")
-	{
-		Linker::Debug << "Debug: Requested to generate Finder Info file under .finf (unimplemented)" << std::endl;
-		//produce = produce_format_t(produce | PRODUCE_FINDER_INFO);
-	}
-	else if(subformat == "double" || subformat == "appledouble")
-	{
-		Linker::Debug << "Debug: Requested to generate AppleDouble (unimplemented)" << std::endl;
-		//produce = produce_format_t(produce | PRODUCE_APPLE_DOUBLE);
-		/* TODO: versions */
-	}
-	else if(subformat == "mbin" || subformat == "macbin" || subformat == "macbinary")
-	{
-		Linker::Debug << "Debug: Requested to generate MacBinary (unimplemented)" << std::endl;
-		//produce = produce_format_t(produce | PRODUCE_MAC_BINARY);
-		/* TODO: versions */
-	}
-	else if(subformat == "naps")
-	{
-		Linker::Debug << "Debug: Requested to add NuLib2 attribute preservation string suffix" << std::endl;
-		produce = produce_format_t(produce | PRODUCE_NAPS_SUFFIX);
-	}
-	else
-	{
-		return false;
-	}
-	return true;
-}
-
-void AppleDriver::ReadFile(Linker::Reader& rd) // TODO: make OnReadFile
-{
-	// TODO: read with DOS 3.3 header
-}
-
-offset_t AppleDriver::WriteFile(Linker::Writer& wr) const // TODO: make OnWriteFile
-{
-	if(target == TARGET_APPLE_SINGLE)
-	{
-		return apple_single->WriteFile(wr);
-	}
-	else
-	{
-		return data_fork->WriteFile(wr);
-	}
+	GSOutput::ReadFile(rd);
 }
 
 void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
@@ -460,50 +418,43 @@ void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
 	}
 
 	data_fork = std::make_shared<AppleFormat>(default_base_address, "", UseDOS33Header());
+	data_fork->ProcessModule(module);
+
+	GenerateFiles(filename, data_fork, nullptr, GetFileType(), GetAuxiliaryFileType());
+}
+
+void AppleDriver::OnContainerCreated()
+{
 	apple_single->SetProDOSAccess(0xC3); // read/write/rename/delete
 	apple_single->SetProDOSFileType(GetFileType());
 	apple_single->SetProDOSAUXType(GetAuxiliaryFileType());
-	apple_single->AppendEntry(std::make_shared<Apple::DataFork>(std::static_pointer_cast<Linker::Contents>(data_fork)));
+}
 
-	data_fork->ProcessModule(module);
-	//data_fork->CalculateValues(); // TODO: testing
-	apple_single->CalculateValues();
+void AppleDriver::OnCalculateValues()
+{
+	data_fork->CalculateValues();
+}
 
-	if((produce & PRODUCE_NAPS_SUFFIX) != 0)
+void AppleDriver::OnReadFile(Linker::Reader& rd)
+{
+	if(target == TARGET_DATA_FORK)
 	{
-		// if suffix generation was explicitly specified, the user requested that it be attached to the filename
-		// for CiderPress
-		std::ostringstream oss;
-		oss << filename << "#" << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << int(GetFileType()) << std::setw(4) << int(GetAuxiliaryFileType());
-		filename = oss.str();
+		// TODO: read with DOS 3.3 header
 	}
-
-	std::ofstream out;
-	out.open(filename, std::ios_base::out | std::ios_base::binary);
-	Linker::Writer wr(::LittleEndian, &out);
-	WriteFile(wr);
-	out.close();
-
-	/*if((produce & PRODUCE_RESOURCE_FORK))
+	else
 	{
-		Linker::Debug << "Debug: Generating resource fork under .rsrc" << std::endl;
-	}*/
+		Linker::FatalError("Fatal error: Reading the specified format is not supported");
+	}
+}
 
-	/*if((produce & PRODUCE_FINDER_INFO))
-	{
-		Linker::Debug << "Debug: Generating Finder Info file under .finf" << std::endl;
-	}*/
+offset_t AppleDriver::OnWriteFile(Linker::Writer& wr) const
+{
+	return data_fork->WriteFile(wr);
+}
 
-	/*if((produce & PRODUCE_APPLE_DOUBLE))
-	{
-		Linker::Debug << "Debug: Generating AppleDouble" << std::endl;
-		// TODO: CiderPress will be looking for a file beginning with "._"
-	}*/
-
-	/*if((produce & PRODUCE_MAC_BINARY))
-	{
-		Linker::Debug << "Debug: Generating MacBinary" << std::endl;
-	}*/
+void AppleDriver::OnDump(Dumper::Dumper& dump) const
+{
+	data_fork->Dump(dump);
 }
 
 uint8_t AppleDriver::GetFileType() const

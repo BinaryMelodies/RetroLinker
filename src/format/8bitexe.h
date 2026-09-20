@@ -90,7 +90,6 @@ namespace Binary
 			FILE_TYPE_EXE = 0xB5,
 			FILE_TYPE_SYS = 0xFF,
 		};
-		file_type_t file_type;
 
 		unsigned apple_single_double_version = 2;
 		/* Only relevant for version 1 */
@@ -167,10 +166,9 @@ namespace Binary
 	 * value of the auxiliary file type (this is referred to as NuLib2 Attribute Preservation String or NAPS in CiderPress documents)
 	 * - Or by bundling the data fork alongside the ProDOS file information in an AppleSingle file.
 	 */
-	class AppleDriver : public Linker::OutputFormat
+	class AppleDriver : public GSOutput
 	{
 	public:
-		std::shared_ptr<Apple::AppleSingleDouble> apple_single;
 		std::shared_ptr<AppleFormat> data_fork;
 
 		enum header_format_t
@@ -184,64 +182,33 @@ namespace Binary
 		};
 		header_format_t header;
 
-		/* format of "filename" */
-		enum target_format_t
-		{
-			TARGET_NONE, /* do not generate main file */
-#if 0
-			TARGET_BIN, /* main file is a BIN file, possibly with a DOS 3.3 header (if no "+naps" is specified) */
-			TARGET_DOS33, /* main file is a BIN file with DOS 3.3 header (even if "+naps" is specified) */
-			TARGET_RAW, /* main file is a raw BIN file (even if no "+naps" is specified) */
-#endif
-			TARGET_DATA_FORK,
-			TARGET_APPLE_SINGLE, /* main file is an AppleSingle file */
-			//TARGET_APPLE_DOUBLE, /* main file is an AppleDouble file */
-		};
-		target_format_t target;
-
-		/* other files to produce */
-		enum produce_format_t
-		{
-			//PRODUCE_RESOURCE_FORK = 1 << 0, /* under .rsrc */
-			//PRODUCE_FINDER_INFO = 1 << 1, /* under .finf */
-			//PRODUCE_APPLE_DOUBLE = 1 << 2, /* with % prefix */
-			//PRODUCE_MAC_BINARY = 1 << 3, /* with .mbin extension */
-			PRODUCE_NAPS_SUFFIX = 1 << 4, /* NuLib2 attribute preservation string suffix, such as #06xxxx */
-		};
-		produce_format_t produce = produce_format_t(0);
-
-		/* the ProDOS file type */
-		enum file_type_t : uint8_t
-		{
-			FILE_TYPE_BIN = 0x06,
-			FILE_TYPE_SYS = 0xFF,
-		};
 		file_type_t file_type;
-
 		/* TODO: enable setting the base address as a parameter */
 
 		AppleDriver(file_type_t file_type = FILE_TYPE_BIN, header_format_t header = HEADER_BIN)
-			: apple_single(std::make_shared<Apple::AppleSingleDouble>(Apple::AppleSingleDouble::SINGLE)),
+			: GSOutput(TARGET_DATA_FORK, 0),
 			header(header),
-			target(TARGET_DATA_FORK),
 			file_type(file_type)
 		{
 		}
 
 		AppleDriver(file_type_t file_type, target_format_t target)
-			: apple_single(std::make_shared<Apple::AppleSingleDouble>(Apple::AppleSingleDouble::SINGLE)),
+			: GSOutput(target, 0),
 			header(HEADER_BIN),
-			target(target),
 			file_type(file_type)
 		{
 		}
 
-		bool AddSupplementaryOutputFormat(std::string subformat) override;
+	protected:
+		void OnContainerCreated() override;
+		void OnCalculateValues() override;
+		void OnReadFile(Linker::Reader& rd) override;
+		offset_t OnWriteFile(Linker::Writer& wr) const override;
+		void OnDump(Dumper::Dumper& dump) const override;
 
+	public:
 		void ReadFile(Linker::Reader& rd) override;
 
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		void Dump(Dumper::Dumper& dump) const override;
 
