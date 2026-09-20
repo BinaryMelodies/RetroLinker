@@ -196,6 +196,7 @@ namespace Apple
 		std::shared_ptr<Entry> GetDataFork();
 		std::shared_ptr<Entry> GetResourceFork();
 		std::shared_ptr<Entry> GetFinderInfo();
+		std::shared_ptr<Entry> GetRealName();
 
 		void SetCreationDate(uint32_t CreationDate);
 		void SetModificationDate(uint32_t ModificationDate);

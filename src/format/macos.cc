@@ -1039,6 +1039,66 @@ void MacBinary::WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) cons
 	WriteData(wr, bytes, data.data());
 }
 
+void MacBinary::ReadHeader(Linker::Reader& rd)
+{
+	rd.Skip(1);
+	if(apple_single == nullptr)
+	{
+		apple_single = std::make_shared<AppleSingleDouble>();
+	}
+	uint8_t name_size = rd.ReadUnsigned(1);
+	if(name_size > 63)
+	{
+		Linker::Warning << "Warning: Invalid name size found, truncating: " << name_size << std::endl;
+		name_size = 63;
+	}
+	auto real_name = std::dynamic_pointer_cast<RealName>(apple_single->GetRealName());
+	real_name->name = rd.ReadData(name_size);
+	rd.Skip(63 - name_size);
+	auto finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
+	rd.ReadData(4, finder_info->Type);
+	rd.ReadData(4, finder_info->Creator);
+	finder_info->Flags = rd.ReadUnsigned(1) << 8;
+	rd.Skip(1);
+	finder_info->Location.x = rd.ReadUnsigned(2);
+	finder_info->Location.y = rd.ReadUnsigned(2);
+	rd.Skip(2); // TODO: window/folder info?
+	attributes = rd.ReadUnsigned(1);
+	rd.Skip(1);
+	data_fork_length = rd.ReadUnsigned(4);
+	resource_fork_length = rd.ReadUnsigned(4);
+	creation = rd.ReadUnsigned(4); // TODO: maybe these 2 could be stored in a file field?
+	modification = rd.ReadUnsigned(4);
+	// Get Info extension
+	comment_length = rd.ReadUnsigned(2);
+	if(comment_length != 0 && version < MACBIN1_GETINFO)
+	{
+		version = MACBIN1_GETINFO;
+	}
+	// MacBinary II
+	uint8_t flags_low_byte = rd.ReadUnsigned(1);
+	finder_info->Flags |= flags_low_byte;
+	if(flags_low_byte != 0 && version < MACBIN2)
+	{
+		version = MACBIN2;
+	}
+	// MacBinary III
+	auto signature = rd.ReadData(4);
+	if(signature == "mBIN")
+	{
+		// TODO: script of file and extended Finder flags
+	}
+	rd.Skip(14); // TODO:
+	secondary_header_size = rd.ReadUnsigned(2);
+	uint8_t actual_version = rd.ReadUnsigned(1);
+	if(actual_version != 0)
+	{
+		version = version_t(actual_version);
+	}
+	minimum_version = version_t(rd.ReadUnsigned(1));
+	crc = rd.ReadUnsigned(2);
+}
+
 void MacBinary::WriteHeader(Linker::Writer& wr) const
 {
 	CRC_Initialize();
@@ -1054,16 +1114,16 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 		WriteWord(wr, 1, generated_file_name.size() > 63 ? 63 : generated_file_name.size());
 		WriteData(wr, 63, generated_file_name);
 	}
-	std::shared_ptr<const FinderInfo> info = nullptr;
+	std::shared_ptr<const FinderInfo> finder_info = nullptr;
 	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_FinderInfo))
 	{
-		info = std::dynamic_pointer_cast<const FinderInfo>(entry);
-		WriteData(wr, 4, info->Type);
-		WriteData(wr, 4, info->Creator);
-		WriteWord(wr, 1, info->Flags >> 1);
+		finder_info = std::dynamic_pointer_cast<const FinderInfo>(entry);
+		WriteData(wr, 4, finder_info->Type);
+		WriteData(wr, 4, finder_info->Creator);
+		WriteWord(wr, 1, finder_info->Flags >> 8);
 		WriteWord(wr, 1, 0);
-		WriteWord(wr, 2, info->Location.y);
-		WriteWord(wr, 2, info->Location.x);
+		WriteWord(wr, 2, finder_info->Location.y);
+		WriteWord(wr, 2, finder_info->Location.x);
 		WriteWord(wr, 2, 0); /* window/folder info */
 	}
 	else
@@ -1106,9 +1166,9 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	{
 		return;
 	}
-	if(info != nullptr)
+	if(finder_info != nullptr)
 	{
-		WriteWord(wr, 1, info->Flags & 0xFF);
+		WriteWord(wr, 1, finder_info->Flags & 0xFF);
 	}
 	else
 	{
@@ -1142,7 +1202,31 @@ void MacBinary::CalculateValues()
 
 void MacBinary::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	ReadHeader(rd);
+	rd.Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
+	/* secondary header */
+	if(data_fork_length != 0)
+	{
+		auto data_fork = dynamic_pointer_cast<DataFork>(apple_single->GetDataFork());
+		// TODO: check format
+		auto image = Linker::Buffer::ReadFromFile(rd, data_fork_length);
+		data_fork->image = image;
+		rd.Seek(::AlignTo(rd.Tell(), 0x80));
+	}
+	if(resource_fork_length != 0)
+	{
+		auto resource_fork = dynamic_pointer_cast<ResourceFork>(apple_single->GetResourceFork());
+		// TODO: check format
+		auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
+		mac_rsrc->ReadFile(rd);
+		resource_fork->image = mac_rsrc;
+		rd.Seek(::AlignTo(rd.Tell(), 0x80));
+	}
+	if(comment_length != 0)
+	{
+		//auto comment = dynamic_pointer_cast<Comment>(apple_single->GetComment());
+		// TODO
+	}
 }
 
 offset_t MacBinary::WriteFile(Linker::Writer& wr) const
@@ -1180,7 +1264,47 @@ void MacBinary::Dump(Dumper::Dumper& dump) const
 	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
 	file_region.Display(dump, Dumper::Header);
 
-	// TODO
+	Dumper::Region header_region("Header", file_offset, 0x80, 8);
+	std::string real_name = "";
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_RealName))
+	{
+		real_name = std::dynamic_pointer_cast<const RealName>(entry)->name;
+	}
+	header_region.AddField("Real name", Dumper::StringDisplay::Make("'"), real_name);
+	auto finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
+	if(finder_info)
+	{
+		header_region.AddField("OS Type", Dumper::StringDisplay::Make(4, "'"), std::string(finder_info->Type));
+		header_region.AddField("Creator", Dumper::StringDisplay::Make(4, "'"), std::string(finder_info->Creator));
+		header_region.AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(finder_info->Flags)); // TODO: should be a bit field
+		header_region.AddField("Location.x", Dumper::DecDisplay::Make(), offset_t(finder_info->Location.x));
+		header_region.AddField("Location.x", Dumper::DecDisplay::Make(), offset_t(finder_info->Location.y));
+	}
+	header_region.AddField("Attributes", Dumper::HexDisplay::Make(4), offset_t(attributes)); // TODO: should be a bit field
+	header_region.AddField("Creation", Dumper::DecDisplay::Make(), offset_t(creation)); // TODO: format
+	header_region.AddField("Modification", Dumper::DecDisplay::Make(), offset_t(modification)); // TODO: format
+	// TODO: MacBinary III "mBIN" field present, script of file and extended Finder flags
+	header_region.AddOptionalField("Modification", Dumper::DecDisplay::Make(), offset_t(modification)); // TODO: format
+	header_region.AddField("Version", Dumper::DecDisplay::Make(), offset_t(version < MACBIN2 ? 0 : version));
+	header_region.AddField("Minimum version", Dumper::DecDisplay::Make(), offset_t(minimum_version));
+	header_region.AddField("CRC", Dumper::HexDisplay::Make(4), offset_t(crc));
+	header_region.Display(dump, Dumper::Header);
+
+	if(secondary_header_size != 0)
+	{
+		Dumper::Region secondary_header_region("Secondary header", file_offset + 0x80, secondary_header_size, 8);
+		secondary_header_region.Display(dump, Dumper::Header);
+	}
+
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
+	{
+		entry->Dump(dump);
+	}
+
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
+	{
+		entry->Dump(dump);
+	}
 }
 
 // MacDriver

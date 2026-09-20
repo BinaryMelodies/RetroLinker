@@ -313,6 +313,11 @@ namespace Apple
 		uint32_t creation = 0;
 		uint32_t modification = 0;
 
+		/* only used during parsing */
+		uint32_t data_fork_length = 0;
+		uint32_t resource_fork_length = 0;
+		uint16_t comment_length = 0;
+
 		std::string generated_file_name;
 
 		MacBinary(version_t version = MACBIN3)
@@ -345,6 +350,7 @@ namespace Apple
 
 		void WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const;
 
+		void ReadHeader(Linker::Reader& rd);
 		void WriteHeader(Linker::Writer& wr) const;
 
 		void CalculateValues();

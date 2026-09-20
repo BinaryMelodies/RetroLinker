@@ -445,6 +445,18 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetFinderInfo()
 	return entry;
 }
 
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetRealName()
+{
+	std::shared_ptr<Entry> entry;
+	entry = FindEntry(ID_RealName);
+	if(entry == nullptr)
+	{
+		entry = std::make_shared<RealName>();
+		entries.push_back(entry);
+	}
+	return entry;
+}
+
 void AppleSingleDouble::SetCreationDate(uint32_t CreationDate)
 {
 	std::shared_ptr<Entry> entry;
