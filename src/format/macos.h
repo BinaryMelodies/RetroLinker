@@ -363,14 +363,7 @@ namespace Apple
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
-	/**
-	 * @brief This is not actually a file format, but an interface to permit generating multiple binary outputs for Macintosh executables.
-	 *
-	 * This class is needed because Macintosh executables require utilization of the resource fork, a part of the filesystem which is generally unavailable on other platforms.
-	 * There are multiple ways to represent the resource fork on a non-Macintosh file system, including a separate file, an AppleSingle/AppleDouble container or a MacBinary file.
-	 * This driver permits generation of one or more of these different formats for the same executable.
-	 */
-	class MacDriver : public Linker::OutputFormat
+	class MacintoshOutput : public Linker::OutputFormat
 	{
 	public:
 		/* format of "filename" */
@@ -408,7 +401,7 @@ namespace Apple
 
 		MacBinary::version_t macbinary_version = MacBinary::MACBIN3, macbinary_minimum_version = MacBinary::MACBIN2;
 
-		MacDriver(target_format_t target = TARGET_DATA_FORK)
+		MacintoshOutput(target_format_t target = TARGET_DATA_FORK)
 			: target(target),
 			produce(target == TARGET_NONE ? PRODUCE_MAC_BINARY
 				: target == TARGET_DATA_FORK ? PRODUCE_APPLE_DOUBLE
@@ -416,32 +409,76 @@ namespace Apple
 		{
 		}
 
-		MacDriver(target_format_t target, int produce)
+		MacintoshOutput(target_format_t target, int produce)
 			: target(target), produce(produce_format_t(produce))
+		{
+		}
+
+		bool AddSupplementaryOutputFormat(std::string subformat) override;
+
+	protected:
+		/* format of information stored */
+		enum container_format_t
+		{
+			CONTAINER_NONE,
+			CONTAINER_APPLE_SINGLE,
+			CONTAINER_MAC_BINARY,
+		};
+		container_format_t container = CONTAINER_NONE;
+
+		/** Container for all the necessary additional information */
+		std::shared_ptr<AppleSingleDouble> apple_single;
+		/** Container for MacBinary */
+		std::shared_ptr<MacBinary> mac_binary;
+
+		/** @brief Called after the container is created */
+		virtual void OnContainerCreated();
+		/** @brief Called if there is no container allocated */
+		virtual void OnCalculateValues();
+		/** @brief Called if there is no container allocated */
+		virtual void OnReadFile(Linker::Reader& rd);
+		/** @brief Called if there is no container allocated */
+		virtual offset_t OnWriteFile(Linker::Writer& wr) const;
+		/** @brief Called if there is no container allocated */
+		virtual void OnDump(Dumper::Dumper& dump) const;
+
+	public:
+		void GenerateFiles(std::string filename, std::shared_ptr<Contents> data_fork, std::shared_ptr<Contents> resource_fork);
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
+	};
+
+	/**
+	 * @brief This is not actually a file format, but an interface to permit generating multiple binary outputs for Macintosh executables.
+	 *
+	 * This class is needed because Macintosh executables require utilization of the resource fork, a part of the filesystem which is generally unavailable on other platforms.
+	 * There are multiple ways to represent the resource fork on a non-Macintosh file system, including a separate file, an AppleSingle/AppleDouble container or a MacBinary file.
+	 * This driver permits generation of one or more of these different formats for the same executable.
+	 */
+	class MacDriver : public MacintoshOutput
+	{
+	public:
+		MacDriver(target_format_t target = TARGET_DATA_FORK)
+			: MacintoshOutput(target)
+		{
+		}
+
+		MacDriver(target_format_t target, int produce)
+			: MacintoshOutput(target, produce)
 		{
 		}
 
 		bool FormatSupportsResources() const override;
 
-		bool AddSupplementaryOutputFormat(std::string subformat) override;
-
 	private:
-		/* format of information stored */
-		enum container_format_t
-		{
-			CONTAINER_EMPTY,
-			CONTAINER_RESOURCE_FORK,
-			CONTAINER_APPLE_SINGLE,
-			CONTAINER_MAC_BINARY,
-		};
-		container_format_t container = CONTAINER_EMPTY;
-
 		/** Direct access to the Mac OS resource fork */
 		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
-		/** Container for all the necessary additional information */
-		std::shared_ptr<AppleSingleDouble> apple_single;
-		/** Container for MacBinary */
-		std::shared_ptr<MacBinary> mac_binary;
+		std::shared_ptr<FinderInfo> finder_info;
 
 		std::map<std::string, std::string> options;
 		std::string model;
@@ -458,12 +495,15 @@ namespace Apple
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
+	protected:
+		void OnContainerCreated() override;
+		void OnCalculateValues() override;
+		void OnReadFile(Linker::Reader& rd) override;
+		offset_t OnWriteFile(Linker::Writer& wr) const override;
+		void OnDump(Dumper::Dumper& dump) const override;
+
+	public:
 		void ReadFile(Linker::Reader& rd) override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
-
-		void Dump(Dumper::Dumper& dump) const override;
 
 		std::string GetDefaultExtension(Linker::Module& module) const override;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;

@@ -1307,14 +1307,9 @@ void MacBinary::Dump(Dumper::Dumper& dump) const
 	}
 }
 
-// MacDriver
+// MacintoshOutput
 
-bool MacDriver::FormatSupportsResources() const
-{
-	return true;
-}
-
-bool MacDriver::AddSupplementaryOutputFormat(std::string subformat)
+bool MacintoshOutput::AddSupplementaryOutputFormat(std::string subformat)
 {
 	if(subformat == "rsrc")
 	{
@@ -1345,58 +1340,47 @@ bool MacDriver::AddSupplementaryOutputFormat(std::string subformat)
 	return true;
 }
 
-void MacDriver::SetOptions(std::map<std::string, std::string>& options)
+void MacintoshOutput::OnContainerCreated() { }
+
+void MacintoshOutput::OnCalculateValues()
 {
-	this->options = options;
+	// TODO: error
 }
 
-std::vector<Linker::OptionDescription<void>> MacDriver::GetMemoryModelNames()
+void MacintoshOutput::OnReadFile(Linker::Reader& rd)
 {
-	MacintoshResourceFileFormat tmp;
-	return tmp.GetMemoryModelNames();
+	// TODO: error
 }
 
-void MacDriver::SetModel(std::string model)
+offset_t MacintoshOutput::OnWriteFile(Linker::Writer& wr) const
 {
-	this->model = model;
+	// TODO: error
+	return offset_t(-1);
 }
 
-void MacDriver::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+void MacintoshOutput::OnDump(Dumper::Dumper& dump) const
 {
-	this->script_file = script_file;
-	this->script_options = options;
+	// TODO: error
 }
 
-void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
+void MacintoshOutput::GenerateFiles(std::string filename, std::shared_ptr<Contents> data_fork, std::shared_ptr<Contents> resource_fork)
 {
-	if(module.cpu != Linker::Module::M68K)
-	{
-		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
-	}
-
-	std::shared_ptr<FinderInfo> finder_info;
-
-	container = CONTAINER_RESOURCE_FORK;
-	resource_fork = std::make_shared<MacintoshResourceFileFormat>();
+	container = CONTAINER_NONE;
 
 	if(target != TARGET_RESOURCE_FORK || (produce & ~PRODUCE_RESOURCE_FORK) != 0)
 	{
 		container = CONTAINER_APPLE_SINGLE;
 		apple_single = std::make_shared<AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? AppleSingleDouble::SINGLE : AppleSingleDouble::DOUBLE,
 			apple_single_double_version, home_file_system);
-		apple_single->AppendEntry(std::make_shared<ResourceFork>(resource_fork));
-		finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
-	}
-
-	resource_fork->SetOptions(options);
-	resource_fork->SetModel(model);
-	resource_fork->SetLinkScript(script_file, script_options);
-
-	resource_fork->ProcessModule(module);
-
-	if(finder_info != nullptr)
-	{
-		finder_info->SetTypeAndCreator("APPL", "????");
+		if(data_fork != nullptr)
+		{
+			apple_single->AppendEntry(std::make_shared<DataFork>(data_fork));
+		}
+		if(resource_fork != nullptr)
+		{
+			apple_single->AppendEntry(std::make_shared<ResourceFork>(resource_fork));
+		}
+		OnContainerCreated();
 	}
 
 	if(target == TARGET_MAC_BINARY || (produce & PRODUCE_MAC_BINARY) != 0)
@@ -1413,10 +1397,8 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 
 	switch(container)
 	{
-	case CONTAINER_EMPTY:
-		break;
-	case CONTAINER_RESOURCE_FORK:
-		resource_fork->CalculateValues(); // TODO: untested
+	case CONTAINER_NONE:
+		OnCalculateValues();
 		break;
 	case CONTAINER_APPLE_SINGLE:
 		apple_single->CalculateValues();
@@ -1434,24 +1416,26 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		break;
 	case TARGET_DATA_FORK:
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
-		if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
+		if(data_fork != nullptr)
 		{
-			wr.out = &out;
-			entry->WriteFile(wr);
+			data_fork->WriteFile(wr);
 		}
 		out.close();
 		break;
 	case TARGET_RESOURCE_FORK:
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
 		wr.out = &out;
-		resource_fork->WriteFile(wr);
+		if(resource_fork != nullptr)
+		{
+			resource_fork->WriteFile(wr);
+		}
 		out.close();
 		break;
 	case TARGET_APPLE_SINGLE:
 	case TARGET_APPLE_DOUBLE:
 		out.open(filename, std::ios_base::out | std::ios_base::binary);
 		wr.out = &out;
-		WriteFile(wr);
+		apple_single->WriteFile(wr);
 		out.close();
 		break;
 	case TARGET_MAC_BINARY:
@@ -1475,10 +1459,10 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 		else
 		{
 			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
-			if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
+			if(resource_fork != nullptr)
 			{
 				wr.out = &out;
-				entry->WriteFile(wr);
+				resource_fork->WriteFile(wr);
 			}
 			out.close();
 		}
@@ -1537,20 +1521,17 @@ void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
 	}
 }
 
-void MacDriver::ReadFile(Linker::Reader& rd)
+void MacintoshOutput::ReadFile(Linker::Reader& rd)
 {
-	resource_fork = nullptr;
 	apple_single = nullptr;
 	mac_binary = nullptr;
 
 	switch(target)
 	{
+	case TARGET_DATA_FORK:
 	case TARGET_RESOURCE_FORK:
-		{
-			container = CONTAINER_RESOURCE_FORK;
-			resource_fork = std::make_shared<MacintoshResourceFileFormat>();
-			resource_fork->ReadFile(rd);
-		}
+		container = CONTAINER_NONE;
+		OnReadFile(rd);
 		break;
 	case TARGET_APPLE_SINGLE:
 		{
@@ -1575,9 +1556,8 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 		}
 		else if((produce & PRODUCE_RESOURCE_FORK))
 		{
-			container = CONTAINER_RESOURCE_FORK;
-			resource_fork = std::make_shared<MacintoshResourceFileFormat>();
-			resource_fork->ReadFile(rd);
+			container = CONTAINER_NONE;
+			OnReadFile(rd);
 		}
 		else if((produce & PRODUCE_MAC_BINARY))
 		{
@@ -1593,12 +1573,12 @@ void MacDriver::ReadFile(Linker::Reader& rd)
 	}
 }
 
-offset_t MacDriver::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshOutput::WriteFile(Linker::Writer& wr) const
 {
 	switch(container)
 	{
-	case CONTAINER_RESOURCE_FORK:
-		return resource_fork->WriteFile(wr);
+	case CONTAINER_NONE:
+		return OnWriteFile(wr);
 	case CONTAINER_APPLE_SINGLE:
 		return apple_single->WriteFile(wr);
 	case CONTAINER_MAC_BINARY:
@@ -1608,12 +1588,12 @@ offset_t MacDriver::WriteFile(Linker::Writer& wr) const
 	}
 }
 
-void MacDriver::Dump(Dumper::Dumper& dump) const
+void MacintoshOutput::Dump(Dumper::Dumper& dump) const
 {
 	switch(container)
 	{
-	case CONTAINER_RESOURCE_FORK:
-		resource_fork->Dump(dump);
+	case CONTAINER_NONE:
+		OnDump(dump);
 		break;
 	case CONTAINER_APPLE_SINGLE:
 		apple_single->Dump(dump);
@@ -1624,6 +1604,93 @@ void MacDriver::Dump(Dumper::Dumper& dump) const
 	default:
 		Linker::FatalError("Internal error: file not loaded");
 	}
+}
+
+// MacDriver
+
+bool MacDriver::FormatSupportsResources() const
+{
+	return true;
+}
+
+void MacDriver::SetOptions(std::map<std::string, std::string>& options)
+{
+	this->options = options;
+}
+
+std::vector<Linker::OptionDescription<void>> MacDriver::GetMemoryModelNames()
+{
+	MacintoshResourceFileFormat tmp;
+	return tmp.GetMemoryModelNames();
+}
+
+void MacDriver::SetModel(std::string model)
+{
+	this->model = model;
+}
+
+void MacDriver::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	this->script_file = script_file;
+	this->script_options = options;
+}
+
+void MacDriver::GenerateFile(std::string filename, Linker::Module& module)
+{
+	if(module.cpu != Linker::Module::M68K)
+	{
+		Linker::Error << "Error: Format only supports Motorola 68000 binaries" << std::endl;
+	}
+
+	std::shared_ptr<FinderInfo> finder_info;
+
+	resource_fork = std::make_shared<MacintoshResourceFileFormat>();
+	resource_fork->SetOptions(options);
+	resource_fork->SetModel(model);
+	resource_fork->SetLinkScript(script_file, script_options);
+
+	resource_fork->ProcessModule(module);
+
+	GenerateFiles(filename, nullptr, resource_fork);
+}
+
+void MacDriver::OnContainerCreated()
+{
+	finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
+	if(finder_info != nullptr)
+	{
+		finder_info->SetTypeAndCreator("APPL", "????");
+	}
+}
+
+void MacDriver::OnCalculateValues()
+{
+	resource_fork->CalculateValues(); // TODO: untested
+}
+
+void MacDriver::OnReadFile(Linker::Reader& rd)
+{
+	resource_fork = std::make_shared<MacintoshResourceFileFormat>();
+	resource_fork->ReadFile(rd);
+}
+
+offset_t MacDriver::OnWriteFile(Linker::Writer& wr) const
+{
+	return resource_fork->WriteFile(wr);
+}
+
+void MacDriver::OnDump(Dumper::Dumper& dump) const
+{
+	resource_fork->Dump(dump);
+}
+
+void MacDriver::ReadFile(Linker::Reader& rd)
+{
+	if(target == TARGET_DATA_FORK)
+	{
+		target = TARGET_NONE;
+	}
+	MacintoshOutput::ReadFile(rd);
 }
 
 std::string MacDriver::GetDefaultExtension(Linker::Module& module) const
