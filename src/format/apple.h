@@ -457,13 +457,20 @@ namespace Apple
 	public:
 		struct Point
 		{
-			uint16_t x, y;
+			int16_t x, y;
 		};
 
+		// file information
 		char Type[4] = { '?', '?', '?', '?' };
 		char Creator[4] = { '?', '?', '?', '?' };
-		uint16_t Flags = 0;
+		int16_t Flags = 0;
 		Point Location = { 0, 0 };
+		int16_t Folder = 0;
+		// extended file information
+		int16_t IconID = 0;
+		int8_t Script = 0;
+		int16_t CommentID = 0;
+		int32_t HomeDirectoryID = 0;
 
 		FinderInfo()
 			: Entry(AppleSingleDouble::ID_FinderInfo)

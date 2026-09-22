@@ -1275,7 +1275,20 @@ offset_t FinderInfo::ImageSize() const
 
 void FinderInfo::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	rd.endiantype = ::BigEndian;
+	rd.ReadData(4, Type);
+	rd.ReadData(4, Creator);
+	Flags = rd.ReadSigned(2);
+	Location.x = rd.ReadSigned(2);
+	Location.y = rd.ReadSigned(2);
+	Folder = rd.ReadSigned(2);
+	// extended file information
+	IconID = rd.ReadSigned(2);
+	rd.Skip(6);
+	Script = rd.ReadSigned(1);
+	rd.Skip(1);
+	CommentID = rd.ReadSigned(2);
+	HomeDirectoryID = rd.ReadSigned(4);
 }
 
 offset_t FinderInfo::WriteFile(Linker::Writer& wr) const
@@ -1286,15 +1299,25 @@ offset_t FinderInfo::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, Flags);
 	wr.WriteWord(2, Location.x);
 	wr.WriteWord(2, Location.y);
-	wr.Skip(17);
-	wr.WriteWord(1, 0);
+	wr.WriteWord(2, Folder);
+	// extended file information
+	wr.WriteWord(2, IconID);
+	wr.Skip(6);
+	wr.WriteWord(1, Script);
+	wr.Skip(1);
+	wr.WriteWord(2, CommentID);
+	wr.WriteWord(4, HomeDirectoryID);
 
 	return offset_t(-1);
 }
 
 void FinderInfo::Dump(Dumper::Dumper& dump) const
 {
+	Dumper::Region region("Finder Info", file_offset, ImageSize(), 8);
+	region.AddField("Type", Dumper::StringDisplay::Make("'"), std::string(Type, 4));
+	region.AddField("Creator", Dumper::StringDisplay::Make("'"), std::string(Creator, 4));
 	// TODO
+	region.Display(dump, Dumper::Header);
 }
 
 void FinderInfo::SetTypeAndCreator(std::string type, std::string creator)
