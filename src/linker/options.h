@@ -292,7 +292,7 @@ namespace Linker
 	{
 	public:
 		/** @brief Reference to the collection of command line options, to be accessed by the Option instance */
-		std::map<std::string, std::string> * options;
+		std::map<std::string, std::string> * options = nullptr;
 
 		Option(std::string name, std::string description)
 			: OptionDescription<void>(name, description)
@@ -321,6 +321,11 @@ namespace Linker
 		/** @brief Retrieve the provided value, parsed */
 		T operator()()
 		{
+			if(!options)
+			{
+				Linker::FatalError("Internal error: option " + name + " was not initialized by format code");
+			}
+
 			auto option_it = options->find(name);
 			if(option_it != options->end())
 			{
@@ -354,6 +359,11 @@ namespace Linker
 		/** @brief Retrieve the provided value, parsed */
 		ItemOf<T> operator()()
 		{
+			if(!options)
+			{
+				Linker::FatalError("Internal error: option " + name + " was not initialized by format code");
+			}
+
 			auto option_it = options->find(name);
 			if(option_it != options->end())
 			{
@@ -407,6 +417,11 @@ namespace Linker
 		/** @brief Retrieve the provided value, parsed */
 		bool operator()()
 		{
+			if(!options)
+			{
+				Linker::FatalError("Internal error: option " + name + " was not initialized by format code");
+			}
+
 			return options->find(name) != options->end();
 		}
 	};
@@ -429,6 +444,11 @@ namespace Linker
 		/** @brief Retrieve the provided value, parsed */
 		std::vector<T> operator()()
 		{
+			if(!options)
+			{
+				Linker::FatalError("Internal error: option " + name + " was not initialized by format code");
+			}
+
 			auto option_it = options->find(name);
 			if(option_it == options->end())
 			{
@@ -457,6 +477,11 @@ namespace Linker
 		/** @brief Retrieve the provided value, parsed */
 		std::optional<T> operator()()
 		{
+			if(!options)
+			{
+				Linker::FatalError("Internal error: option " + name + " was not initialized by format code");
+			}
+
 			auto option = options->find(name);
 			if(option != options->end())
 			{
