@@ -1207,7 +1207,7 @@ void MacBinary::ReadFile(Linker::Reader& rd)
 	/* secondary header */
 	if(data_fork_length != 0)
 	{
-		auto data_fork = dynamic_pointer_cast<DataFork>(apple_single->GetDataFork());
+		auto data_fork = dynamic_pointer_cast<AppleSingleDouble::GenericEntry>(apple_single->GetDataFork());
 		// TODO: check format
 		auto image = Linker::Buffer::ReadFromFile(rd, data_fork_length);
 		data_fork->image = image;
@@ -1215,7 +1215,7 @@ void MacBinary::ReadFile(Linker::Reader& rd)
 	}
 	if(resource_fork_length != 0)
 	{
-		auto resource_fork = dynamic_pointer_cast<ResourceFork>(apple_single->GetResourceFork());
+		auto resource_fork = dynamic_pointer_cast<AppleSingleDouble::GenericEntry>(apple_single->GetResourceFork());
 		// TODO: check format
 		auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
 		mac_rsrc->ReadFile(rd);
@@ -1376,11 +1376,11 @@ void MacintoshOutput::GenerateFiles(std::string filename, std::shared_ptr<Conten
 			apple_single_double_version, home_file_system);
 		if(data_fork != nullptr)
 		{
-			apple_single->AppendEntry(std::make_shared<DataFork>(data_fork));
+			apple_single->AppendEntry(std::make_shared<AppleSingleDouble::GenericEntry>(AppleSingleDouble::ID_DataFork, data_fork));
 		}
 		if(resource_fork != nullptr)
 		{
-			apple_single->AppendEntry(std::make_shared<ResourceFork>(resource_fork));
+			apple_single->AppendEntry(std::make_shared<AppleSingleDouble::GenericEntry>(AppleSingleDouble::ID_ResourceFork, resource_fork));
 		}
 		OnContainerCreated();
 	}

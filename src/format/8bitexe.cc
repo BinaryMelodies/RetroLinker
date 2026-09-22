@@ -183,11 +183,11 @@ void GSOutput::GenerateFiles(std::string filename, std::shared_ptr<Contents> dat
 			apple_single_double_version, home_file_system);
 		if(data_fork != nullptr)
 		{
-			apple_single->AppendEntry(std::make_shared<Apple::DataFork>(data_fork));
+			apple_single->AppendEntry(std::make_shared<Apple::AppleSingleDouble::GenericEntry>(Apple::AppleSingleDouble::ID_DataFork, data_fork));
 		}
 		if(resource_fork != nullptr)
 		{
-			apple_single->AppendEntry(std::make_shared<Apple::ResourceFork>(resource_fork));
+			apple_single->AppendEntry(std::make_shared<Apple::AppleSingleDouble::GenericEntry>(Apple::AppleSingleDouble::ID_ResourceFork, resource_fork));
 		}
 		OnContainerCreated();
 	}

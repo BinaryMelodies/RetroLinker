@@ -1858,3 +1858,21 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeSUPER(SuperC
 	return std::make_unique<SuperCompactRecord>(Record::OPC_SUPER, super_type);
 }
 
+// GSOSResourceFileFormat
+
+void GSOSResourceFileFormat::ReadFile(Linker::Reader& rd)
+{
+	// TODO
+}
+
+offset_t GSOSResourceFileFormat::WriteFile(Linker::Writer& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void GSOSResourceFileFormat::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+}
+

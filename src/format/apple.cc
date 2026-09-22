@@ -3,6 +3,7 @@
 #include <filesystem>
 #include "apple.h"
 #include "macos.h" // for MacintoshResourceFileFormat
+#include "gsos.h" // for GSOSResourceFileFormat
 #include "../dumper/dumper.h"
 #include "../linker/buffer.h"
 #include "../linker/image.h"
@@ -113,16 +114,16 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::Entry::ReadEntry(Li
 	switch(id)
 	{
 	case ID_DataFork:
-		entry = std::make_shared<DataFork>();
+		entry = std::make_shared<GenericEntry>(ID_DataFork);
 		break;
 	case ID_ResourceFork:
-		entry = std::make_shared<ResourceFork>();
+		entry = std::make_shared<GenericEntry>(ID_ResourceFork);
 		break;
 	case ID_RealName:
 		entry = std::make_shared<RealName>();
 		break;
 	case ID_Comment:
-		entry = std::make_shared<Comment>();
+		entry = std::make_shared<GenericEntry>(ID_Comment);
 		break;
 	case ID_IconBW:
 		entry = std::make_shared<IconBW>();
@@ -146,7 +147,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::Entry::ReadEntry(Li
 			entry = std::make_shared<FileInfo::AUX>();
 			break;
 		default:
-			entry = std::make_shared<UnknownEntry>(id);
+			entry = std::make_shared<GenericEntry>(id);
 			break;
 		}
 		break;
@@ -175,7 +176,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::Entry::ReadEntry(Li
 		entry = std::make_shared<AFPDirectoryID>();
 		break;
 	default:
-		entry = std::make_shared<UnknownEntry>(id);
+		entry = std::make_shared<GenericEntry>(id);
 		break;
 	}
 	entry->file_offset = rd.ReadUnsigned(4);
@@ -213,19 +214,43 @@ void AppleSingleDouble::Entry::CalculateValues()
 {
 }
 
-// UnknownEntry
+// GenericEntry
 
-offset_t AppleSingleDouble::UnknownEntry::ImageSize() const
+offset_t AppleSingleDouble::GenericEntry::ImageSize() const
 {
-	return image->ImageSize();
+	return image ? image->ImageSize() : 0;
 }
 
-void AppleSingleDouble::UnknownEntry::ReadFile(Linker::Reader& rd)
+void AppleSingleDouble::GenericEntry::ReadFile(Linker::Reader& rd)
 {
-	image = Linker::Buffer::ReadFromFile(rd, image_size);
+	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
+	{
+		format->ReadFile(rd);
+	}
+	else if(id == ID_ResourceFork)
+	{
+		uint32_t version = rd.ReadUnsigned(4, EndianType::BigEndian);
+		rd.Skip(-4);
+		if(version >= 128)
+		{
+			auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
+			mac_rsrc->ReadFile(rd);
+			image = mac_rsrc;
+		}
+		else
+		{
+			auto gsos_rsrc = std::make_shared<GSOSResourceFileFormat>();
+			gsos_rsrc->ReadFile(rd);
+			image = gsos_rsrc;
+		}
+	}
+	else
+	{
+		image = Linker::Buffer::ReadFromFile(rd, image_size);
+	}
 }
 
-offset_t AppleSingleDouble::UnknownEntry::WriteFile(Linker::Writer& out) const
+offset_t AppleSingleDouble::GenericEntry::WriteFile(Linker::Writer& out) const
 {
 	if(image != nullptr)
 	{
@@ -238,14 +263,51 @@ offset_t AppleSingleDouble::UnknownEntry::WriteFile(Linker::Writer& out) const
 	}
 }
 
-void AppleSingleDouble::UnknownEntry::Dump(Dumper::Dumper& dump) const
+void AppleSingleDouble::GenericEntry::Dump(Dumper::Dumper& dump) const
 {
-	Dumper::Block block("Block", file_offset, image->AsImage(), 0, 8);
-	block.Display(dump, Dumper::Miscellaneous);
+	std::string region_name;
+	int display_option;
+	switch(id)
+	{
+	case ID_DataFork:
+		region_name = "Data fork";
+		display_option = Dumper::Image;
+		break;
+	case ID_ResourceFork:
+		region_name = "Resource fork";
+		display_option = Dumper::Image;
+		break;
+	case ID_Comment:
+		region_name = "Comment";
+		display_option = Dumper::Miscellaneous;
+		break;
+	default:
+		region_name = "Unidentified block";
+		display_option = Dumper::Miscellaneous;
+		break;
+	}
+
+	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
+	{
+		Dumper::Region region(region_name, file_offset, image->ImageSize(), 8);
+		region.Display(dump, Dumper::Header);
+
+		format->Dump(dump);
+	}
+	else
+	{
+		Dumper::Block block(region_name, file_offset, image->AsImage(), 0, 8);
+		block.Display(dump, display_option);
+	}
 }
 
-void AppleSingleDouble::UnknownEntry::CalculateValues()
+void AppleSingleDouble::GenericEntry::CalculateValues()
 {
+	if(auto format = std::dynamic_pointer_cast<Linker::OutputFormat>(image))
+	{
+		format->CalculateValues();
+	}
+
 	image_size = image != nullptr ? image->ImageSize() : 0;
 }
 
@@ -415,7 +477,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetDataFork()
 	entry = FindEntry(ID_DataFork);
 	if(entry == nullptr)
 	{
-		entry = std::make_shared<DataFork>();
+		entry = std::make_shared<GenericEntry>(ID_DataFork);
 		entries.push_back(entry);
 	}
 	return entry;
@@ -427,7 +489,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetResourceFork()
 	entry = FindEntry(ID_ResourceFork);
 	if(entry == nullptr)
 	{
-		entry = std::make_shared<ResourceFork>();
+		entry = std::make_shared<GenericEntry>(ID_ResourceFork);
 		entries.push_back(entry);
 	}
 	return entry;
@@ -945,126 +1007,6 @@ std::string AppleSingleDouble::GetMSDOSDoubleFilename(std::string filename)
 	return ReplaceExtension(filename, ".adf", 8);
 }
 
-// DataFork
-
-offset_t DataFork::ImageSize() const
-{
-	return image ? image->ImageSize() : 0;
-}
-
-void DataFork::ReadFile(Linker::Reader& rd)
-{
-	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
-	{
-		format->ReadFile(rd);
-	}
-	else
-	{
-		image = Linker::Buffer::ReadFromFile(rd, image_size);
-	}
-}
-
-offset_t DataFork::WriteFile(Linker::Writer& out) const
-{
-	if(image != nullptr)
-	{
-		image->WriteFile(out);
-		return image->ImageSize();
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-void DataFork::Dump(Dumper::Dumper& dump) const
-{
-	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
-	{
-		Dumper::Region region("Data fork", file_offset, image->ImageSize(), 8);
-		region.Display(dump, Dumper::Header);
-
-		format->Dump(dump);
-	}
-	else
-	{
-		Dumper::Block block("Data fork", file_offset, image->AsImage(), 0, 8);
-		block.Display(dump, Dumper::Image);
-	}
-}
-
-void DataFork::CalculateValues()
-{
-	if(auto format = std::dynamic_pointer_cast<Linker::OutputFormat>(image))
-	{
-		format->CalculateValues();
-	}
-
-	image_size = image != nullptr ? image->ImageSize() : 0;
-}
-
-// ResourceFork
-
-offset_t ResourceFork::ImageSize() const
-{
-	return image ? image->ImageSize() : 0;
-}
-
-void ResourceFork::ReadFile(Linker::Reader& rd)
-{
-	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
-	{
-		format->ReadFile(rd);
-	}
-	else
-	{
-		// TODO: check file type
-		//image = Linker::Buffer::ReadFromFile(rd, image_size);
-		auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
-		mac_rsrc->ReadFile(rd);
-		image = mac_rsrc;
-	}
-}
-
-offset_t ResourceFork::WriteFile(Linker::Writer& out) const
-{
-	if(image != nullptr)
-	{
-		image->WriteFile(out);
-		return image->ImageSize();
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-void ResourceFork::Dump(Dumper::Dumper& dump) const
-{
-	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
-	{
-		Dumper::Region region("Resource fork", file_offset, image->ImageSize(), 8);
-		region.Display(dump, Dumper::Header);
-
-		format->Dump(dump);
-	}
-	else
-	{
-		Dumper::Block block("Resource fork", file_offset, image->AsImage(), 0, 8);
-		block.Display(dump, Dumper::Image);
-	}
-}
-
-void ResourceFork::CalculateValues()
-{
-	if(auto format = std::dynamic_pointer_cast<Linker::OutputFormat>(image))
-	{
-		format->CalculateValues();
-	}
-
-	image_size = image != nullptr ? image->ImageSize() : 0;
-}
-
 // RealName
 
 offset_t RealName::ImageSize() const
@@ -1086,29 +1028,6 @@ offset_t RealName::WriteFile(Linker::Writer& wr) const
 }
 
 void RealName::Dump(Dumper::Dumper& dump) const
-{
-	// TODO
-}
-
-// Comment
-
-offset_t Comment::ImageSize() const
-{
-	return offset_t(-1); // TODO
-}
-
-void Comment::ReadFile(Linker::Reader& rd)
-{
-	// TODO
-}
-
-offset_t Comment::WriteFile(Linker::Writer& out) const
-{
-	// TODO
-	return ImageSize();
-}
-
-void Comment::Dump(Dumper::Dumper& dump) const
 {
 	// TODO
 }

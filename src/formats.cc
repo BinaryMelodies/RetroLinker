@@ -1281,9 +1281,9 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_PRL:
 		return std::make_shared<PRLFormat>();
 	case FORMAT_RSRC:
-		return std::make_shared<Apple::ResourceFork>(); // TODO: specify Macintosh fork
+		return std::make_shared<Apple::MacintoshResourceFileFormat>();
 	case FORMAT_RSRC_GS:
-		return std::make_shared<Apple::ResourceFork>(); // TODO: specify GS/OS fork
+		return std::make_shared<Apple::GSOSResourceFileFormat>();
 	case FORMAT_SOS:
 		return std::make_shared<SOSFormat>();
 	case FORMAT_UZI280:

@@ -78,13 +78,18 @@ namespace Apple
 			virtual void CalculateValues();
 		};
 
-		class UnknownEntry : public Entry
+		class GenericEntry : public Entry
 		{
 		public:
 			std::shared_ptr<Linker::Contents> image;
 
-			UnknownEntry(uint32_t id)
+			GenericEntry(uint32_t id)
 				: Entry(id)
+			{
+			}
+
+			GenericEntry(uint32_t id, std::shared_ptr<Linker::Contents> image)
+				: Entry(id), image(image)
 			{
 			}
 
@@ -237,64 +242,12 @@ namespace Apple
 		std::string GetMSDOSDoubleFilename(std::string filename);
 	};
 
-	class DataFork : public AppleSingleDouble::Entry
-	{
-	public:
-		std::shared_ptr<Linker::Contents> image;
-
-		DataFork()
-			: Entry(AppleSingleDouble::ID_DataFork)
-		{
-		}
-
-		DataFork(std::shared_ptr<Linker::Contents> image)
-			: Entry(AppleSingleDouble::ID_DataFork), image(image)
-		{
-		}
-
-		offset_t ImageSize() const override;
-
-		void ReadFile(Linker::Reader& rd) override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& out) const override;
-
-		void Dump(Dumper::Dumper& dump) const override;
-
-		void CalculateValues() override;
-	};
-
+#if 0
 	/** @brief Container for a resource fork
 	 *
 	 * Multiple resource file formats may be supported, for example Macintosh and GS/OS resources.
 	 */
-	class ResourceFork : public AppleSingleDouble::Entry
-	{
-	public:
-		/** @brief The actual resource image, for example Apple::MacintoshResourceFileFormat */
-		std::shared_ptr<Linker::Contents> image;
-
-		ResourceFork()
-			: Entry(AppleSingleDouble::ID_ResourceFork)
-		{
-		}
-
-		ResourceFork(std::shared_ptr<Linker::Contents> image)
-			: Entry(AppleSingleDouble::ID_ResourceFork), image(image)
-		{
-		}
-
-		offset_t ImageSize() const override;
-
-		void ReadFile(Linker::Reader& rd) override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& out) const override;
-
-		void Dump(Dumper::Dumper& dump) const override;
-
-		void CalculateValues() override;
-	};
+#endif
 
 	class RealName : public AppleSingleDouble::Entry
 	{
@@ -312,25 +265,6 @@ namespace Apple
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
-
-		void Dump(Dumper::Dumper& dump) const override;
-	};
-
-	class Comment : public AppleSingleDouble::Entry
-	{
-	public:
-		Comment()
-			: Entry(AppleSingleDouble::ID_Comment)
-		{
-		}
-		/* TODO - this is a stub */
-
-		offset_t ImageSize() const override;
-
-		void ReadFile(Linker::Reader& rd) override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& out) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
 	};

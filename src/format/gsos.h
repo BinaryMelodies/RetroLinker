@@ -708,6 +708,10 @@ namespace Apple
 	{
 	public:
 		/* TODO */
+		void ReadFile(Linker::Reader& rd) override;
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
 	};
 }
 
