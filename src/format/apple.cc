@@ -1416,3 +1416,682 @@ void AFPDirectoryID::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// MacBinary
+
+uint16_t MacBinary::crc_step[256];
+
+void MacBinary::CRC_Initialize() const
+{
+	crc = 0; // 0x1021;
+	for(int byte = 0; byte < 256; byte++)
+	{
+		uint16_t value = byte << 8;
+		for(int shift = 0; shift < 8; shift++)
+		{
+			if((value & 0x8000))
+			{
+				value = (value << 1) ^ 0x1021;
+			}
+			else
+			{
+				value <<= 1;
+			}
+		}
+		crc_step[byte] = value;
+	}
+}
+
+void MacBinary::CRC_Step(uint8_t byte) const
+{
+	crc = (crc << 8) ^ crc_step[(crc >> 8) ^ byte];
+}
+
+void MacBinary::Skip(Linker::Writer& wr, size_t count) const
+{
+	for(size_t i = 0; i < count; i++)
+	{
+		CRC_Step(0);
+	}
+	wr.Skip(count);
+}
+
+void MacBinary::WriteData(Linker::Writer& wr, size_t count, const void * data) const
+{
+	for(size_t i = 0; i < count; i++)
+	{
+		CRC_Step(static_cast<const char *>(data)[i]);
+	}
+	wr.WriteData(count, data);
+}
+
+void MacBinary::WriteData(Linker::Writer& wr, size_t count, std::string text) const
+{
+	for(size_t i = 0; i < count; i++)
+	{
+		CRC_Step(i < text.size() ? text[i] : 0);
+	}
+	wr.WriteData(count, text);
+}
+
+void MacBinary::WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const
+{
+	std::vector<uint8_t> data(bytes);
+	::WriteWord(bytes, bytes, data.data(), value, EndianType::BigEndian);
+	WriteData(wr, bytes, data.data());
+}
+
+void MacBinary::ReadHeader(Linker::Reader& rd)
+{
+	version = MACBIN1;
+
+	rd.Skip(1);
+	if(apple_single == nullptr)
+	{
+		apple_single = std::make_shared<AppleSingleDouble>();
+	}
+	uint8_t name_size = rd.ReadUnsigned(1);
+	if(name_size > 63)
+	{
+		Linker::Warning << "Warning: Invalid name size found, truncating: " << name_size << std::endl;
+		name_size = 63;
+	}
+	auto real_name = std::dynamic_pointer_cast<RealName>(apple_single->GetRealName());
+	real_name->name = rd.ReadData(name_size);
+	rd.Skip(63 - name_size);
+	auto finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
+	rd.ReadData(4, finder_info->Type);
+	rd.ReadData(4, finder_info->Creator);
+	finder_info->Flags = rd.ReadUnsigned(1) << 8;
+	rd.Skip(1);
+	finder_info->Location.x = rd.ReadUnsigned(2);
+	finder_info->Location.y = rd.ReadUnsigned(2);
+	rd.Skip(2); // TODO: window/folder info?
+	attributes = rd.ReadUnsigned(1);
+	rd.Skip(1);
+	data_fork_length = rd.ReadUnsigned(4);
+	resource_fork_length = rd.ReadUnsigned(4);
+	creation = rd.ReadUnsigned(4); // TODO: maybe these 2 could be stored in a file field?
+	modification = rd.ReadUnsigned(4);
+	// Get Info extension
+	comment_length = rd.ReadUnsigned(2);
+	if(comment_length != 0 && version < MACBIN1_GETINFO)
+	{
+		version = MACBIN1_GETINFO;
+	}
+	// MacBinary II
+	uint8_t flags_low_byte = rd.ReadUnsigned(1);
+	finder_info->Flags |= flags_low_byte;
+	if(flags_low_byte != 0 && version < MACBIN2)
+	{
+		version = MACBIN2;
+	}
+	// MacBinary III
+	auto signature = rd.ReadData(4);
+	if(signature == "mBIN")
+	{
+		// TODO: script of file and extended Finder flags
+	}
+	rd.Skip(14); // TODO:
+	secondary_header_size = rd.ReadUnsigned(2);
+	uint8_t actual_version = rd.ReadUnsigned(1);
+	if(actual_version != 0)
+	{
+		version = version_t(actual_version);
+	}
+	minimum_version = version_t(rd.ReadUnsigned(1));
+	crc = rd.ReadUnsigned(2);
+}
+
+void MacBinary::WriteHeader(Linker::Writer& wr) const
+{
+	CRC_Initialize();
+	WriteWord(wr, 1, 0);
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_RealName))
+	{
+		const std::string& name = std::dynamic_pointer_cast<const RealName>(entry)->name;
+		WriteWord(wr, 1, name.size() > 63 ? 63 : name.size());
+		WriteData(wr, 63, name);
+	}
+	else
+	{
+		WriteWord(wr, 1, generated_file_name.size() > 63 ? 63 : generated_file_name.size());
+		WriteData(wr, 63, generated_file_name);
+	}
+	std::shared_ptr<const FinderInfo> finder_info = nullptr;
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_FinderInfo))
+	{
+		finder_info = std::dynamic_pointer_cast<const FinderInfo>(entry);
+		WriteData(wr, 4, finder_info->Type);
+		WriteData(wr, 4, finder_info->Creator);
+		WriteWord(wr, 1, finder_info->Flags >> 8);
+		WriteWord(wr, 1, 0);
+		WriteWord(wr, 2, finder_info->Location.y);
+		WriteWord(wr, 2, finder_info->Location.x);
+		WriteWord(wr, 2, 0); /* window/folder info */
+	}
+	else
+	{
+		WriteData(wr, 16, "");
+	}
+	WriteWord(wr, 1, attributes);
+	WriteWord(wr, 1, 0);
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
+	{
+		WriteWord(wr, 4, entry->ImageSize());
+	}
+	else
+	{
+		WriteWord(wr, 4, 0);
+	}
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
+	{
+		WriteWord(wr, 4, entry->ImageSize());
+	}
+	else
+	{
+		WriteWord(wr, 4, 0);
+	}
+	WriteWord(wr, 4, creation);
+	WriteWord(wr, 4, modification);
+	if(version < MACBIN1_GETINFO)
+	{
+		return;
+	}
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_Comment))
+	{
+		WriteWord(wr, 2, entry->ImageSize());
+	}
+	else
+	{
+		WriteWord(wr, 2, 0);
+	}
+	if(version < MACBIN2)
+	{
+		return;
+	}
+	if(finder_info != nullptr)
+	{
+		WriteWord(wr, 1, finder_info->Flags & 0xFF);
+	}
+	else
+	{
+		WriteWord(wr, 1, 0);
+	}
+	if(version >= MACBIN3)
+	{
+		WriteData(wr, 4, "mBIN");
+		WriteWord(wr, 1, 0); /* script of file */
+		WriteWord(wr, 1, 0); /* extended Finder flags */
+		Skip(wr, 8);
+	}
+	else
+	{
+		Skip(wr, 14);
+	}
+	WriteWord(wr, 4, 0); /* unpacked file size */
+	WriteWord(wr, 2, secondary_header_size);
+	WriteWord(wr, 1, version);
+	WriteWord(wr, 1, minimum_version);
+	wr.WriteWord(2, crc);
+}
+
+void MacBinary::CalculateValues()
+{
+	attributes = apple_single->ReadMacintoshAttributes();
+	creation = apple_single->ReadCreationDate();
+	modification = apple_single->ReadModificationDate();
+	apple_single->CalculateValues();
+}
+
+void MacBinary::ReadFile(Linker::Reader& rd)
+{
+	ReadHeader(rd);
+	rd.Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
+	/* secondary header */
+	if(data_fork_length != 0)
+	{
+		auto data_fork = dynamic_pointer_cast<AppleSingleDouble::GenericEntry>(apple_single->GetDataFork());
+		// TODO: check format
+		auto image = Linker::Buffer::ReadFromFile(rd, data_fork_length);
+		data_fork->image = image;
+		rd.Seek(::AlignTo(rd.Tell(), 0x80));
+	}
+	if(resource_fork_length != 0)
+	{
+		auto resource_fork = dynamic_pointer_cast<AppleSingleDouble::GenericEntry>(apple_single->GetResourceFork());
+		// TODO: check format
+		auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
+		mac_rsrc->ReadFile(rd);
+		resource_fork->image = mac_rsrc;
+		rd.Seek(::AlignTo(rd.Tell(), 0x80));
+	}
+	if(comment_length != 0)
+	{
+		//auto comment = dynamic_pointer_cast<Comment>(apple_single->GetComment());
+		// TODO
+	}
+}
+
+offset_t MacBinary::WriteFile(Linker::Writer& wr) const
+{
+	WriteHeader(wr);
+	wr.Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
+	/* secondary header */
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
+	{
+		entry->WriteFile(wr);
+		wr.AlignTo(0x80);
+	}
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
+	{
+		entry->WriteFile(wr);
+		wr.AlignTo(0x80);
+	}
+	if(version >= MACBIN1_GETINFO)
+	{
+		if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_Comment))
+		{
+			entry->WriteFile(wr);
+			wr.AlignTo(0x80);
+		}
+	}
+
+	return offset_t(-1);
+}
+
+void MacBinary::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_macroman);
+
+	dump.SetTitle("MacBinary format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 8);
+	file_region.Display(dump, Dumper::Header);
+
+	Dumper::Region header_region("Header", file_offset, 0x80, 8);
+	std::string real_name = "";
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_RealName))
+	{
+		real_name = std::dynamic_pointer_cast<const RealName>(entry)->name;
+	}
+	header_region.AddField("Real name", Dumper::StringDisplay::Make("'"), real_name);
+	auto finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
+	if(finder_info)
+	{
+		header_region.AddField("OS Type", Dumper::StringDisplay::Make(4, "'"), std::string(finder_info->Type));
+		header_region.AddField("Creator", Dumper::StringDisplay::Make(4, "'"), std::string(finder_info->Creator));
+		header_region.AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(finder_info->Flags)); // TODO: should be a bit field
+		header_region.AddField("Location.x", Dumper::DecDisplay::Make(), offset_t(finder_info->Location.x));
+		header_region.AddField("Location.x", Dumper::DecDisplay::Make(), offset_t(finder_info->Location.y));
+	}
+	header_region.AddField("Attributes", Dumper::HexDisplay::Make(4), offset_t(attributes)); // TODO: should be a bit field
+	header_region.AddField("Creation", Dumper::DecDisplay::Make(), offset_t(creation)); // TODO: format
+	header_region.AddField("Modification", Dumper::DecDisplay::Make(), offset_t(modification)); // TODO: format
+	// TODO: MacBinary III "mBIN" field present, script of file and extended Finder flags
+	header_region.AddOptionalField("Modification", Dumper::DecDisplay::Make(), offset_t(modification)); // TODO: format
+	static const std::map<offset_t, std::string> version_values =
+	{
+		{ MacBinary::MACBIN1, "Revision 1 (1985)" },
+		{ MacBinary::MACBIN1_GETINFO, "Revision 1 (1985) with Get Info extension" },
+		{ MacBinary::MACBIN2, "MacBinary II, Revision 2 (1987)" },
+		{ MacBinary::MACBIN3, "MacBinary III, Revision 3 (1987)" },
+	};
+	header_region.AddField("Version (value)", Dumper::DecDisplay::Make(), offset_t(version < MACBIN2 ? 0 : version));
+	header_region.AddField("Version (name)", Dumper::ChoiceDisplay::Make(version_values), offset_t(version < MACBIN2 ? 0 : version));
+	header_region.AddField("Minimum version (value)", Dumper::DecDisplay::Make(), offset_t(minimum_version));
+	header_region.AddField("Minimum version (name)", Dumper::ChoiceDisplay::Make(version_values), offset_t(minimum_version));
+	header_region.AddField("CRC", Dumper::HexDisplay::Make(4), offset_t(crc));
+	header_region.Display(dump, Dumper::Header);
+
+	if(secondary_header_size != 0)
+	{
+		Dumper::Region secondary_header_region("Secondary header", file_offset + 0x80, secondary_header_size, 8);
+		secondary_header_region.Display(dump, Dumper::Header);
+	}
+
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
+	{
+		entry->Dump(dump);
+	}
+
+	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
+	{
+		entry->Dump(dump);
+	}
+}
+
+// OutputDriver
+
+bool OutputDriver::AddSupplementaryOutputFormat(std::string subformat)
+{
+	if(subformat == "rsrc")
+	{
+		if(SupportedSupplementaryFormat(PRODUCE_RESOURCE_FORK))
+		{
+			Linker::Debug << "Debug: Requested to generate resource fork under .rsrc" << std::endl;
+			produce = produce_format_t(produce | PRODUCE_RESOURCE_FORK);
+			return true;
+		}
+	}
+
+	if(subformat == "finf")
+	{
+		if(SupportedSupplementaryFormat(PRODUCE_FINDER_INFO))
+		{
+			Linker::Debug << "Debug: Requested to generate Finder Info file under .finf" << std::endl;
+			produce = produce_format_t(produce | PRODUCE_FINDER_INFO);
+			return true;
+		}
+	}
+
+	if(subformat == "double" || subformat == "appledouble")
+	{
+		if(SupportedSupplementaryFormat(PRODUCE_APPLE_DOUBLE))
+		{
+			Linker::Debug << "Debug: Requested to generate AppleDouble" << std::endl;
+			produce = produce_format_t(produce | PRODUCE_APPLE_DOUBLE);
+			return true;
+		}
+	}
+
+	if(subformat == "mbin" || subformat == "macbin" || subformat == "macbinary")
+	{
+		if(SupportedSupplementaryFormat(PRODUCE_MAC_BINARY))
+		{
+			Linker::Debug << "Debug: Requested to generate MacBinary" << std::endl;
+			produce = produce_format_t(produce | PRODUCE_MAC_BINARY);
+			return true;
+		}
+	}
+
+	if(subformat == "naps")
+	{
+		if(SupportedSupplementaryFormat(PRODUCE_NAPS_SUFFIX))
+		{
+			Linker::Debug << "Debug: Requested to add NuLib2 attribute preservation string suffix" << std::endl;
+			produce = produce_format_t(produce | PRODUCE_NAPS_SUFFIX);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void OutputDriver::OnContainerCreated() { }
+
+void OutputDriver::OnCalculateValues()
+{
+	// TODO: error
+}
+
+void OutputDriver::OnReadFile(Linker::Reader& rd)
+{
+	// TODO: error
+}
+
+offset_t OutputDriver::OnWriteFile(Linker::Writer& wr) const
+{
+	// TODO: error
+	return offset_t(-1);
+}
+
+void OutputDriver::OnDump(Dumper::Dumper& dump) const
+{
+	// TODO: error
+}
+
+void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents> data_fork, std::shared_ptr<Contents> resource_fork, uint8_t file_type, uint16_t auxiliary_file_type)
+{
+	container = CONTAINER_NONE; // initial setting
+
+	if((data_fork != nullptr && (target != TARGET_DATA_FORK || produce != 0))
+	|| (resource_fork != nullptr && (target != TARGET_RESOURCE_FORK || (produce & ~PRODUCE_RESOURCE_FORK) != 0)))
+	{
+		// if anything other than a single data fork or single resource fork is required, create an AppleSingleDouble container
+		container = CONTAINER_APPLE_SINGLE;
+		apple_single = std::make_shared<Apple::AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? Apple::AppleSingleDouble::SINGLE : Apple::AppleSingleDouble::DOUBLE,
+			apple_single_double_version, home_file_system);
+		if(data_fork != nullptr)
+		{
+			apple_single->AppendEntry(std::make_shared<Apple::AppleSingleDouble::GenericEntry>(Apple::AppleSingleDouble::ID_DataFork, data_fork));
+		}
+		if(resource_fork != nullptr)
+		{
+			apple_single->AppendEntry(std::make_shared<Apple::AppleSingleDouble::GenericEntry>(Apple::AppleSingleDouble::ID_ResourceFork, resource_fork));
+		}
+		OnContainerCreated();
+	}
+
+	if(target == TARGET_MAC_BINARY || (produce & PRODUCE_MAC_BINARY) != 0)
+	{
+		// the presence of a MacBinary container implies presence of an AppleSingleDouble container
+		container = CONTAINER_MAC_BINARY;
+		mac_binary = std::make_shared<MacBinary>(apple_single, macbinary_version, macbinary_minimum_version);
+		mac_binary->generated_file_name = filename;
+	}
+
+	if(target == TARGET_APPLE_SINGLE)
+	{
+		apple_single->GetDataFork();
+	}
+
+	std::string naps_suffix = "";
+	if((produce & PRODUCE_NAPS_SUFFIX) != 0)
+	{
+		// if suffix generation was explicitly specified, the user requested that it be attached to the filename
+		// for CiderPress
+		std::ostringstream oss;
+		oss << "#" << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << int(file_type) << std::setw(4) << int(auxiliary_file_type);
+		naps_suffix = oss.str();
+	}
+
+	switch(container)
+	{
+	case CONTAINER_NONE:
+		OnCalculateValues();
+		break;
+	case CONTAINER_APPLE_SINGLE:
+		apple_single->CalculateValues();
+		break;
+	case CONTAINER_MAC_BINARY:
+		mac_binary->CalculateValues();
+		break;
+	}
+
+	std::ofstream out;
+	Linker::Writer wr(::BigEndian);
+	switch(target)
+	{
+	case TARGET_NONE:
+		break;
+	case TARGET_DATA_FORK:
+		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
+		if(data_fork != nullptr)
+		{
+			wr.out = &out;
+			data_fork->WriteFile(wr);
+		}
+		out.close();
+		break;
+	case TARGET_RESOURCE_FORK:
+		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
+		if(resource_fork != nullptr)
+		{
+			wr.out = &out;
+			resource_fork->WriteFile(wr);
+		}
+		out.close();
+		break;
+	case TARGET_APPLE_SINGLE:
+	case TARGET_APPLE_DOUBLE:
+		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
+		wr.out = &out;
+		apple_single->WriteFile(wr);
+		out.close();
+		break;
+	case TARGET_MAC_BINARY:
+		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
+		wr.out = &out;
+		mac_binary->WriteFile(wr);
+		out.close();
+		break;
+	}
+
+	if((produce & PRODUCE_RESOURCE_FORK))
+	{
+		Linker::Debug << "Debug: Generating resource fork under .rsrc" << std::endl;
+		std::error_code err;
+		std::filesystem::path path = std::filesystem::path(filename);
+		path = path.parent_path() / ".rsrc" / path.filename();
+		path += naps_suffix;
+		if(!std::filesystem::create_directory(path.parent_path(), err) && err != std::errc(0))
+		{
+			Linker::Error << "Error: Unable to create folder " << path.parent_path() << ", no resource fork file will be generated" << std::endl;
+		}
+		else
+		{
+			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
+			if(resource_fork != nullptr)
+			{
+				wr.out = &out;
+				resource_fork->WriteFile(wr);
+			}
+			out.close();
+		}
+	}
+
+	if((produce & PRODUCE_FINDER_INFO))
+	{
+		Linker::Debug << "Debug: Generating Finder Info file under .finf" << std::endl;
+		std::error_code err;
+		std::filesystem::path path = std::filesystem::path(filename);
+		path = path.parent_path() / ".finf" / path.filename();
+		path += naps_suffix;
+		if(!std::filesystem::create_directory(path.parent_path(), err) && err != std::errc(0))
+		{
+			Linker::Error << "Error: Unable to create folder " << path.parent_path() << ", no Finder Info file will be generated" << std::endl;
+		}
+		else
+		{
+			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
+			if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_FinderInfo))
+			{
+				wr.out = &out;
+				entry->WriteFile(wr);
+			}
+			out.close();
+		}
+	}
+
+	if((produce & PRODUCE_APPLE_DOUBLE))
+	{
+		Linker::Debug << "Debug: Generating AppleDouble" << std::endl;
+		std::ofstream out;
+		out.open(apple_single->GetUNIXDoubleFilename(filename) + naps_suffix, std::ios_base::out | std::ios_base::binary);
+		wr.out = &out;
+		if(target != TARGET_APPLE_SINGLE)
+		{
+			apple_single->WriteFile(wr);
+		}
+		else
+		{
+			Apple::AppleSingleDouble apple_double(*apple_single, Apple::AppleSingleDouble::DOUBLE);
+			apple_double.WriteFile(wr);
+		}
+		out.close();
+	}
+
+	if((produce & PRODUCE_MAC_BINARY))
+	{
+		Linker::Debug << "Debug: Generating MacBinary" << std::endl;
+		std::ofstream out;
+		out.open(
+			(target == TARGET_NONE ? filename : filename + ".mbin") + naps_suffix,
+			std::ios_base::out | std::ios_base::binary);
+		wr.out = &out;
+		mac_binary->WriteFile(wr);
+		out.close();
+	}
+}
+
+void OutputDriver::ReadFile(Linker::Reader& rd)
+{
+	apple_single = nullptr;
+	mac_binary = nullptr;
+
+	switch(target)
+	{
+	case TARGET_DATA_FORK:
+	case TARGET_RESOURCE_FORK:
+		container = CONTAINER_NONE;
+		OnReadFile(rd);
+		break;
+	case TARGET_APPLE_SINGLE:
+	case TARGET_APPLE_DOUBLE:
+		{
+			container = CONTAINER_APPLE_SINGLE;
+			apple_single = std::make_shared<Apple::AppleSingleDouble>();
+			apple_single->ReadFile(rd);
+		}
+		break;
+	case TARGET_MAC_BINARY:
+		{
+			container = CONTAINER_MAC_BINARY;
+			mac_binary = std::make_shared<MacBinary>();
+			mac_binary->ReadFile(rd);
+		}
+		break;
+	case TARGET_NONE:
+		if((produce & PRODUCE_APPLE_DOUBLE))
+		{
+			container = CONTAINER_APPLE_SINGLE;
+			apple_single = std::make_shared<Apple::AppleSingleDouble>();
+			apple_single->ReadFile(rd);
+		}
+		else if((produce & PRODUCE_MAC_BINARY))
+		{
+			container = CONTAINER_MAC_BINARY;
+			mac_binary = std::make_shared<MacBinary>();
+			mac_binary->ReadFile(rd);
+		}
+		else
+		{
+			container = CONTAINER_NONE;
+			OnReadFile(rd);
+		}
+		break;
+	}
+}
+
+offset_t OutputDriver::WriteFile(Linker::Writer& wr) const
+{
+	switch(container)
+	{
+	case CONTAINER_NONE:
+		return OnWriteFile(wr);
+	case CONTAINER_APPLE_SINGLE:
+		return apple_single->WriteFile(wr);
+	case CONTAINER_MAC_BINARY:
+		return mac_binary->WriteFile(wr);
+	default:
+		Linker::FatalError("Internal error: file not loaded");
+	}
+}
+
+void OutputDriver::Dump(Dumper::Dumper& dump) const
+{
+	switch(container)
+	{
+	case CONTAINER_NONE:
+		OnDump(dump);
+		break;
+	case CONTAINER_APPLE_SINGLE:
+		apple_single->Dump(dump);
+		break;
+	case CONTAINER_MAC_BINARY:
+		mac_binary->Dump(dump);
+		break;
+	default:
+		Linker::FatalError("Internal error: file not loaded");
+	}
+}
+

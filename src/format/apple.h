@@ -607,6 +607,197 @@ namespace Apple
 
 		void Dump(Dumper::Dumper& dump) const override;
 	};
+
+	/**
+	 * @brief MacBinary is an alternative format to AppleSingle for representing a Macintosh file on a non-Macintosh filesystem.
+	 */
+	class MacBinary : public Linker::Format
+	{
+	public:
+		std::shared_ptr<AppleSingleDouble> apple_single;
+
+		enum version_t
+		{
+			/* assigning values to the first two does not matter, because we don't generate the fields that hold them */
+			MACBIN1,
+			MACBIN1_GETINFO, /* extension */
+			MACBIN2 = 0x11,
+			MACBIN3 = 0x12,
+		};
+		version_t version, minimum_version;
+
+		uint16_t secondary_header_size = 0; /* TODO */
+		mutable uint16_t crc = 0;
+
+		uint8_t attributes = 0;
+		uint32_t creation = 0;
+		uint32_t modification = 0;
+
+		/* only used during parsing */
+		uint32_t data_fork_length = 0;
+		uint32_t resource_fork_length = 0;
+		uint16_t comment_length = 0;
+
+		std::string generated_file_name;
+
+		MacBinary(version_t version = MACBIN3)
+			: apple_single(std::make_shared<AppleSingleDouble>(AppleSingleDouble::DOUBLE)), version(version), minimum_version(version <= MACBIN2 ? version : MACBIN2)
+		{
+		}
+
+		MacBinary(version_t version, version_t minimum_version)
+			: apple_single(std::make_shared<AppleSingleDouble>(AppleSingleDouble::DOUBLE)), version(version), minimum_version(version < minimum_version ? version : minimum_version)
+		{
+		}
+
+		explicit MacBinary(std::shared_ptr<AppleSingleDouble> apple, version_t version, version_t minimum_version)
+			: apple_single(apple), version(version), minimum_version(version < minimum_version ? version : minimum_version)
+		{
+		}
+
+		/* CRC16-CCITT */
+		static uint16_t crc_step[256];
+
+		void CRC_Initialize() const;
+
+		void CRC_Step(uint8_t byte = 0) const;
+
+		void Skip(Linker::Writer& wr, size_t count) const;
+
+		void WriteData(Linker::Writer& wr, size_t count, const void * data) const;
+
+		void WriteData(Linker::Writer& wr, size_t count, std::string text) const;
+
+		void WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const;
+
+		void ReadHeader(Linker::Reader& rd);
+		void WriteHeader(Linker::Writer& wr) const;
+
+		void CalculateValues();
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
+	};
+
+	/**
+	 * @brief This is not actually a file format, but an interface to permit generating multiple binary outputs for various Apple computers
+	 */
+	class OutputDriver : public Linker::OutputFormat
+	{
+	protected:
+		/** @brief Represents the file type of the main file */
+		enum target_format_t
+		{
+			/** @brief Do not generate main file */
+			TARGET_NONE,
+			/** @brief Main file is a data fork, typically empty */
+			TARGET_DATA_FORK,
+			/** @brief Main file is a resource fork */
+			TARGET_RESOURCE_FORK,
+			/** @brief Main file is an AppleSingle */
+			TARGET_APPLE_SINGLE,
+			/** @brief Main file is an AppleDouble */
+			TARGET_APPLE_DOUBLE,
+			/** @brief Main file as a MacBinary (Macintosh only) */
+			TARGET_MAC_BINARY,
+			// TODO: Binary II
+		};
+
+		/** @brief Represents what additional files should be generated */
+		enum produce_format_t
+		{
+			/** @brief Places a GS/OS format resource file under the directory .rsrc */
+			PRODUCE_RESOURCE_FORK = 1 << 0,
+			/** @brief Places a Finder Information file under the directory .finf (Macintosh only) */
+			PRODUCE_FINDER_INFO = 1 << 1,
+			/** @brief Creates an AppleDouble binary with the '%' prefix */
+			PRODUCE_APPLE_DOUBLE = 1 << 2,
+			/** @brief Creates a MacBinary with the .mbin extension (Macintosh only) */
+			PRODUCE_MAC_BINARY = 1 << 3,
+			/** @brief NuLib2 attribute preservation string suffix, such as #06xxxx (Apple II, III, IIgs only)*/
+			PRODUCE_NAPS_SUFFIX = 1 << 4,
+		};
+
+	public:
+		/** @brief Format of "filename" */
+		target_format_t target;
+
+		/** @brief Bitset of other files to produce */
+		produce_format_t produce;
+
+// TODO: move?
+		/* the ProDOS file type */
+		enum file_type_t : uint8_t
+		{
+			FILE_TYPE_BIN = 0x06,
+			FILE_TYPE_SOS = 0x0C,
+			FILE_TYPE_S16 = 0xB3,
+			FILE_TYPE_EXE = 0xB5,
+			FILE_TYPE_SYS = 0xFF,
+		};
+
+		unsigned apple_single_double_version = 2;
+		/* Only relevant for version 1 */
+		Apple::AppleSingleDouble::hfs_type home_file_system = Apple::AppleSingleDouble::HFS_UNDEFINED;
+
+		MacBinary::version_t macbinary_version = MacBinary::MACBIN3, macbinary_minimum_version = MacBinary::MACBIN2;
+
+	protected:
+		OutputDriver(target_format_t target = TARGET_DATA_FORK, produce_format_t produce = produce_format_t(0))
+			: target(target), produce(produce_format_t(produce))
+		{
+		}
+
+		virtual bool SupportedSupplementaryFormat(produce_format_t produce) = 0;
+	public:
+		bool AddSupplementaryOutputFormat(std::string subformat) override;
+
+	protected:
+		/** @brief Format of container stored in memory */
+		enum container_format_t
+		{
+			/** @brief No container is stored */
+			CONTAINER_NONE,
+			/** @brief Use an AppleSingle container */
+			CONTAINER_APPLE_SINGLE,
+			/** @brief Use a MacBinary container as well as an AppleSingle container (Macintosh only) */
+			CONTAINER_MAC_BINARY,
+		};
+		/** @brief The container type used to store metainformation while processing */
+		container_format_t container = CONTAINER_NONE;
+
+		/** @brief Container for all the necessary additional information */
+		std::shared_ptr<Apple::AppleSingleDouble> apple_single;
+		/** @brief Container for MacBinary (Macintosh only) */
+		std::shared_ptr<MacBinary> mac_binary;
+
+		/** @brief Called after the container is created */
+		virtual void OnContainerCreated();
+		/** @brief Called if there is no container allocated */
+		virtual void OnCalculateValues();
+		/** @brief Called if there is no container allocated */
+		virtual void OnReadFile(Linker::Reader& rd);
+		/** @brief Called if there is no container allocated */
+		virtual offset_t OnWriteFile(Linker::Writer& wr) const;
+		/** @brief Called if there is no container allocated */
+		virtual void OnDump(Dumper::Dumper& dump) const;
+
+	protected:
+		/** @brief Tasked to create all the requested files */
+		void GenerateFiles(std::string filename, std::shared_ptr<Contents> data_fork, std::shared_ptr<Contents> resource_fork, uint8_t file_type, uint16_t auxiliary_file_type);
+
+	public:
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+
+		void Dump(Dumper::Dumper& dump) const override;
+	};
 }
 
 #endif /* APPLE_H */

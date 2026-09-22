@@ -78,7 +78,7 @@ namespace Binary
 	 * value of the auxiliary file type (this is referred to as NuLib2 Attribute Preservation String or NAPS in CiderPress documents)
 	 * - Or by bundling the data fork alongside the ProDOS file information in an AppleSingle file.
 	 */
-	class AppleDriver : public Apple::GSOutput
+	class AppleDriver : public Apple::GSOutputDriver
 	{
 	public:
 		std::shared_ptr<Linker::OutputFormat> data_fork;
@@ -98,14 +98,14 @@ namespace Binary
 		/* TODO: enable setting the base address as a parameter */
 
 		AppleDriver(file_type_t file_type = FILE_TYPE_BIN, header_format_t header = HEADER_BIN)
-			: GSOutput(TARGET_DATA_FORK, 0),
+			: GSOutputDriver(TARGET_DATA_FORK, 0),
 			header(header),
 			file_type(file_type)
 		{
 		}
 
 		AppleDriver(file_type_t file_type, target_format_t target)
-			: GSOutput(target, 0),
+			: GSOutputDriver(target, 0),
 			header(HEADER_BIN),
 			file_type(file_type)
 		{
@@ -129,7 +129,7 @@ namespace Binary
 
 		bool UseDOS33Header() const
 		{
-			if(file_type != FILE_TYPE_BIN || target != TARGET_DATA_FORK)
+			if(file_type != FILE_TYPE_BIN || target != OutputDriver::TARGET_DATA_FORK)
 			{
 				return false;
 			}
@@ -138,7 +138,7 @@ namespace Binary
 			{
 			case HEADER_BIN:
 				// only apply header if there is no NAPS suffix
-				return (produce & PRODUCE_NAPS_SUFFIX) == 0;
+				return (produce & OutputDriver::PRODUCE_NAPS_SUFFIX) == 0;
 			case HEADER_DOS33:
 				return true;
 			default:

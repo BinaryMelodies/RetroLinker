@@ -115,11 +115,11 @@ void SOSFormat::Dump(Dumper::Dumper& dump) const
 void AppleDriver::ReadFile(Linker::Reader& rd)
 {
 	// reading an Apple ][ executable cannot be done via its resource fork
-	if(target == TARGET_RESOURCE_FORK)
+	if(target == OutputDriver::TARGET_RESOURCE_FORK)
 	{
 		Linker::FatalError("Fatal error: Reading the specified format is not supported");
 	}
-	GSOutput::ReadFile(rd);
+	GSOutputDriver::ReadFile(rd);
 }
 
 void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
@@ -173,7 +173,7 @@ void AppleDriver::OnCalculateValues()
 
 void AppleDriver::OnReadFile(Linker::Reader& rd)
 {
-	if(target == TARGET_DATA_FORK)
+	if(target == OutputDriver::TARGET_DATA_FORK)
 	{
 		// TODO: read with DOS 3.3 header
 	}
@@ -221,7 +221,7 @@ uint16_t AppleDriver::GetAuxiliaryFileType() const
 
 std::string AppleDriver::GetDefaultExtension(Linker::Module& module, std::string filename) const
 {
-	if(target == TARGET_APPLE_SINGLE)
+	if(target == OutputDriver::TARGET_APPLE_SINGLE)
 	{
 		return filename + ".as"; // for CiderPress
 	}
