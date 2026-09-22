@@ -255,12 +255,15 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 	}
 
 	// skip one value for separator
+	Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+	entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("separator"), offset_t(true));
+	entry_entry.Display(dump, GetDisplayOptions());
 	i++;
 
 	for(auto& entry : far_entries)
 	{
 		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
-		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("near"), offset_t(true));
+		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("far"), offset_t(true));
 		entry_entry.AddField("Value", Dumper::SegmentedDisplay::Make(8), offset_t(entry.segment), offset_t(entry.offset));
 		entry_entry.Display(dump, GetDisplayOptions());
 		i++;
@@ -375,6 +378,7 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(Linker::Reader& rd)
 
 void MacintoshResourceFileFormat::CodeResource::ReadFile(Linker::Reader& rd, offset_t length)
 {
+	offset_t start_offset = rd.Tell();
 	resource_size = length;
 	first_near_entry_offset = rd.ReadUnsigned(2);
 	near_entry_count = rd.ReadUnsigned(2);
@@ -390,9 +394,17 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(Linker::Reader& rd, off
 		segment_relocation_offset = rd.ReadUnsigned(4);
 		base_address = rd.ReadUnsigned(4);
 		rd.Skip(4);
-		image = Linker::Buffer::ReadFromFile(rd, a5_relocation_offset - 0x28);
-		ReadRelocations(rd, a5_relocations);
-		ReadRelocations(rd, segment_relocations);
+		image = Linker::Buffer::ReadFromFile(rd, std::min({a5_relocation_offset - 0x28, segment_relocation_offset - 0x28, uint32_t(length - 0x28)}));
+		if(a5_relocation_offset != 0)
+		{
+			rd.Seek(start_offset + a5_relocation_offset);
+			ReadRelocations(rd, a5_relocations);
+		}
+		if(segment_relocation_offset != 0)
+		{
+			rd.Seek(start_offset + segment_relocation_offset);
+			ReadRelocations(rd, segment_relocations);
+		}
 	}
 	else
 	{
