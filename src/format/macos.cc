@@ -1059,6 +1059,8 @@ void MacBinary::WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) cons
 
 void MacBinary::ReadHeader(Linker::Reader& rd)
 {
+	version = MACBIN1;
+
 	rd.Skip(1);
 	if(apple_single == nullptr)
 	{
@@ -1303,8 +1305,17 @@ void MacBinary::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Modification", Dumper::DecDisplay::Make(), offset_t(modification)); // TODO: format
 	// TODO: MacBinary III "mBIN" field present, script of file and extended Finder flags
 	header_region.AddOptionalField("Modification", Dumper::DecDisplay::Make(), offset_t(modification)); // TODO: format
-	header_region.AddField("Version", Dumper::DecDisplay::Make(), offset_t(version < MACBIN2 ? 0 : version));
-	header_region.AddField("Minimum version", Dumper::DecDisplay::Make(), offset_t(minimum_version));
+	static const std::map<offset_t, std::string> version_values =
+	{
+		{ MacBinary::MACBIN1, "Revision 1 (1985)" },
+		{ MacBinary::MACBIN1_GETINFO, "Revision 1 (1985) with Get Info extension" },
+		{ MacBinary::MACBIN2, "MacBinary II, Revision 2 (1987)" },
+		{ MacBinary::MACBIN3, "MacBinary III, Revision 3 (1987)" },
+	};
+	header_region.AddField("Version (value)", Dumper::DecDisplay::Make(), offset_t(version < MACBIN2 ? 0 : version));
+	header_region.AddField("Version (name)", Dumper::ChoiceDisplay::Make(version_values), offset_t(version < MACBIN2 ? 0 : version));
+	header_region.AddField("Minimum version (value)", Dumper::DecDisplay::Make(), offset_t(minimum_version));
+	header_region.AddField("Minimum version (name)", Dumper::ChoiceDisplay::Make(version_values), offset_t(minimum_version));
 	header_region.AddField("CRC", Dumper::HexDisplay::Make(4), offset_t(crc));
 	header_region.Display(dump, Dumper::Header);
 
@@ -1696,6 +1707,28 @@ void Classic68KDriver::SetOptions(std::map<std::string, std::string>& options)
 	if(asdver != 0)
 	{
 		SetAppleSingleDoubleVersion(asdver);
+	}
+
+	if(auto option = collector.mbinver())
+	{
+		macbinary_version = *option;
+	}
+
+	if(auto option = collector.minmbinver())
+	{
+		macbinary_minimum_version = *option;
+	}
+
+	if(macbinary_minimum_version > macbinary_version)
+	{
+		if(collector.mbinver() && collector.minmbinver())
+		{
+			Linker::Error << "Error: Minimum provided version for MacBinary is larger than actual version" << std::endl;
+		}
+		else
+		{
+			macbinary_minimum_version = macbinary_version;
+		}
 	}
 
 	this->options = options;

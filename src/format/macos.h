@@ -512,13 +512,34 @@ namespace Apple
 		class DriverOptionCollector : public Linker::OptionCollector
 		{
 		public:
+			class MacBinaryVersionEnumerator : public Linker::Enumeration<MacBinary::version_t>
+			{
+			public:
+				MacBinaryVersionEnumerator()
+					: Enumeration(
+						"1", MacBinary::MACBIN1,
+						"GETINFO", MacBinary::MACBIN1_GETINFO,
+						"2", MacBinary::MACBIN2,
+						"3", MacBinary::MACBIN3)
+				{
+					descriptions = {
+						{ MacBinary::MACBIN1, "Revision 1 (1985)" },
+						{ MacBinary::MACBIN1_GETINFO, "Revision 1 (1985) with Get Info extension" },
+						{ MacBinary::MACBIN2, "MacBinary II, Revision 2 (1987)" },
+						{ MacBinary::MACBIN3, "MacBinary III, Revision 3 (1987)" },
+					};
+				}
+			};
+
 			Linker::Option<std::optional<offset_t>> asver{"asver", "Version of the AppleSingle/AppleDouble container (recognized values: 1, 2)"};
 			Linker::Option<std::optional<offset_t>> adver{"adver", "Version of the AppleSingle/AppleDouble container (recognized values: 1, 2)"};
+			Linker::Option<std::optional<Linker::ItemOf<MacBinaryVersionEnumerator>>> mbinver{"mbinver", "Version of the MacBinary container"};
+			Linker::Option<std::optional<Linker::ItemOf<MacBinaryVersionEnumerator>>> minmbinver{"minmbinver", "Minimum required version for the MacBinary container"};
 
 			DriverOptionCollector()
 				// TODO: if MacintoshResourceFileFormat gets formats, call its constructor
 			{
-				InitializeFields(asver, adver);
+				InitializeFields(asver, adver, mbinver, minmbinver);
 			}
 		};
 
