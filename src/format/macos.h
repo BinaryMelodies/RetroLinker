@@ -8,6 +8,7 @@
 #include "apple.h"
 #include "../dumper/dumper.h"
 #include "../linker/module.h"
+#include "../linker/options.h"
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
@@ -506,6 +507,22 @@ namespace Apple
 		std::map<std::string, std::string> script_options;
 
 	public:
+		void SetAppleSingleDoubleVersion(offset_t version);
+
+		class DriverOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::optional<offset_t>> asver{"asver", "Version of the AppleSingle/AppleDouble container (recognized values: 1, 2)"};
+			Linker::Option<std::optional<offset_t>> adver{"adver", "Version of the AppleSingle/AppleDouble container (recognized values: 1, 2)"};
+
+			DriverOptionCollector()
+				// TODO: if MacintoshResourceFileFormat gets formats, call its constructor
+			{
+				InitializeFields(asver, adver);
+			}
+		};
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
