@@ -129,7 +129,6 @@ void GSOutput::GenerateFiles(std::string filename, std::shared_ptr<Contents> dat
 		container = CONTAINER_APPLE_SINGLE;
 		apple_single = std::make_shared<Apple::AppleSingleDouble>(target == TARGET_APPLE_SINGLE ? Apple::AppleSingleDouble::SINGLE : Apple::AppleSingleDouble::DOUBLE,
 			apple_single_double_version, home_file_system);
-		OnContainerCreated(); // TODO: this position should not matter
 		if(data_fork != nullptr)
 		{
 			apple_single->AppendEntry(std::make_shared<Apple::DataFork>(data_fork));
@@ -138,6 +137,7 @@ void GSOutput::GenerateFiles(std::string filename, std::shared_ptr<Contents> dat
 		{
 			apple_single->AppendEntry(std::make_shared<Apple::ResourceFork>(resource_fork));
 		}
+		OnContainerCreated();
 	}
 
 #if 0
