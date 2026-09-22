@@ -920,6 +920,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("W4"),                  0, FORMAT_W4,      "Windows 95 VMM32.VXD file" },
 	{ std::string("XP\x01\x00", 4),       0, FORMAT_XP,      "Ergo OS/286 and OS/386 executable (.exp)" },
 	{ std::string("S1"),                  0, FORMAT_AS86,    "Introl object format (6809)" },
+	{ std::string("SOS NTRP"),            0, FORMAT_SOS,     "Apple SOS interpreter" },
 	{ std::string("ZM"),                  0, FORMAT_MZ,      "MS-DOS executable (.exe), old-style \"ZM\" variant" },
 	{ std::string("Z\x80"),               0, FORMAT_COFF,    "Zilog Z80 COFF object file" },
 	{ std::string("`\x1A"),               0, FORMAT_68K,     "CP/M-68K/Concurrent DOS 68K/GEMDOS/Atari TOS/Human68k contiguous executable (.68k/.prg/.tos/.z)" },
@@ -1280,7 +1281,11 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	case FORMAT_PRL:
 		return std::make_shared<PRLFormat>();
 	case FORMAT_RSRC:
-		return std::make_shared<Apple::ResourceFork>();
+		return std::make_shared<Apple::ResourceFork>(); // TODO: specify Macintosh fork
+	case FORMAT_RSRC_GS:
+		return std::make_shared<Apple::ResourceFork>(); // TODO: specify GS/OS fork
+	case FORMAT_SOS:
+		return std::make_shared<SOSFormat>();
 	case FORMAT_UZI280:
 		return std::make_shared<UZI280Format>(); // TODO
 	case FORMAT_WASM:

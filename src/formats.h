@@ -71,6 +71,8 @@ enum format_type
 	FORMAT_PMODEW, // PMODE/W executable
 	FORMAT_PRL, // MP/M-80 relocatable
 	FORMAT_RSRC, // Classic Macintosh resource, possibly containing an executable
+	FORMAT_RSRC_GS, // IIgs resource /* TODO: not implemented */
+	FORMAT_SOS, // Apple /// SOS interpreter
 	FORMAT_UZI280, // UZI-280 executable
 	FORMAT_WASM, // WebAssembly module format
 	FORMAT_W3, // Windows unique file

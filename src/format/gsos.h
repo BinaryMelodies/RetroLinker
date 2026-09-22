@@ -700,6 +700,15 @@ namespace Apple
 		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 	};
+
+	/**
+	 * @brief A GS/OS resource fork
+	 */
+	class GSOSResourceFileFormat : public virtual Linker::SegmentManager
+	{
+	public:
+		/* TODO */
+	};
 }
 
 #endif /* GSOS_H */

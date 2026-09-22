@@ -53,6 +53,58 @@ void AppleFormat::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// SOSFormat
+
+void SOSFormat::ReadFile(Linker::Reader& rd)
+{
+	Clear();
+
+	rd.endiantype = ::LittleEndian;
+	rd.Skip(8); // label
+	uint16_t opt_header_length = rd.ReadUnsigned(2);
+	if(opt_header_length != 0)
+	{
+		optional_header = Linker::Buffer::ReadFromFile(rd, opt_header_length);
+	}
+	else
+	{
+		optional_header = nullptr;
+	}
+	base_address = rd.ReadUnsigned(2);
+	uint16_t size = rd.ReadUnsigned(2);
+	image = Linker::Buffer::ReadFromFile(rd, size);
+}
+
+offset_t SOSFormat::WriteFile(Linker::Writer& wr) const
+{
+	wr.endiantype = ::LittleEndian;
+	wr.WriteData(8, "SOS NTRP");
+	if(optional_header != nullptr)
+	{
+		wr.WriteWord(2, optional_header->ImageSize());
+		optional_header->WriteFile(wr);
+	}
+	else
+	{
+		wr.WriteWord(2, 0);
+	}
+	wr.WriteWord(2, base_address);
+	wr.WriteWord(2, image->ImageSize());
+	image->WriteFile(wr);
+	return 14 + image->ImageSize() + (optional_header ? optional_header->ImageSize() : 0);
+}
+
+void SOSFormat::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_default);
+
+	dump.SetTitle("Apple 8-bit SOS format");
+	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	file_region.Display(dump, Dumper::Header);
+
+	// TODO
+}
+
 // GSOutput
 
 bool GSOutput::AddSupplementaryOutputFormat(std::string subformat)

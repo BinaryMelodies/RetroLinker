@@ -39,6 +39,30 @@ namespace Binary
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
+	/**
+	 * @brief SOS file for Apple ///
+	 */
+	class SOSFormat : public Binary::GenericBinaryFormat
+	{
+	public:
+		// TODO: untested
+
+		std::shared_ptr<Linker::Contents> optional_header;
+
+		/* TODO: enable setting the base address as a parameter */
+
+		SOSFormat(uint64_t default_base_address = 0x9000, std::string default_extension = "") // TODO: what would be a good default address? this is lifted from the SOS reference manual
+			: GenericBinaryFormat(default_base_address, default_extension)
+		{
+		}
+
+		void ReadFile(Linker::Reader& rd) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(Linker::Writer& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+	};
+
 	class GSOutput : public Linker::OutputFormat
 	{
 	public:
