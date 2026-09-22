@@ -21,6 +21,9 @@ start:
 	stx	ExitStack
 #endif
 #endif
+#ifdef	TARGET_APPLE3
+	jsr	StartUp
+#endif
 
 	lda	#>Message
 	sta	<tmp_address+1
@@ -60,6 +63,9 @@ Message:
 #ifdef	TARGET_APPLE2
 	.aasc	" APPLE ]["
 #endif
+#ifdef	TARGET_APPLE3
+	.aasc	" APPLE ///"
+#endif
 	.byte	0
 
 #ifdef	TARGET_ATARI400
@@ -72,5 +78,9 @@ Message:
 
 #ifdef	TARGET_APPLE2
 #include "../include/apple2.asm"
+#endif
+
+#ifdef	TARGET_APPLE3
+#include "../include/apple3.asm"
 #endif
 

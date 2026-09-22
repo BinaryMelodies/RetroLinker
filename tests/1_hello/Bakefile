@@ -312,6 +312,10 @@ Target(
 	Format = "apple-sys",
 	output_file = "apple2-sys")
 Target(
+	System = "apple3",
+	Format = "sos",
+	output_file = "apple3")
+Target(
 	System = "apple2",
 	Format = "apple-bin+naps",
 	output_file = "apple2-naps")
@@ -320,6 +324,10 @@ Target(
 	Format = "apple-sys+naps",
 	output_file = "apple2-sys-naps")
 Target(
+	System = "apple3",
+	Format = "sos+naps",
+	output_file = "apple3-naps")
+Target(
 	System = "apple2",
 	Format = "applesingle-bin",
 	output_file = "apple2")
@@ -327,4 +335,8 @@ Target(
 	System = "apple2",
 	Format = "applesingle-sys",
 	output_file = "apple2-sys")
+Target(
+	System = "apple3",
+	Format = "applesingle-sos",
+	output_file = "apple3")
 

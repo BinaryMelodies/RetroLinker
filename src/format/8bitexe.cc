@@ -55,6 +55,11 @@ void AppleFormat::Dump(Dumper::Dumper& dump) const
 
 // SOSFormat
 
+offset_t SOSFormat::ImageSize() const
+{
+	return 14 + image->ImageSize() + (optional_header ? optional_header->ImageSize() : 0);
+}
+
 void SOSFormat::ReadFile(Linker::Reader& rd)
 {
 	Clear();
@@ -91,7 +96,7 @@ offset_t SOSFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, base_address);
 	wr.WriteWord(2, image->ImageSize());
 	image->WriteFile(wr);
-	return 14 + image->ImageSize() + (optional_header ? optional_header->ImageSize() : 0);
+	return ImageSize();
 }
 
 void SOSFormat::Dump(Dumper::Dumper& dump) const
@@ -128,13 +133,27 @@ void AppleDriver::GenerateFile(std::string filename, Linker::Module& module)
 	case FILE_TYPE_SYS:
 		default_base_address = 0x2000;
 		break;
+	case FILE_TYPE_SOS:
+		default_base_address = 0x9000; // TODO: not sure
+		break;
 	default:
 		// no current meaning assigned to this case
 		default_base_address = 0;
 		break;
 	}
 
-	data_fork = std::make_shared<AppleFormat>(default_base_address, "", UseDOS33Header());
+	std::shared_ptr<AppleFormat> bin;
+	std::shared_ptr<SOSFormat> sos;
+
+	if(file_type != FILE_TYPE_SOS)
+	{
+		data_fork = bin = std::make_shared<AppleFormat>(default_base_address, "", UseDOS33Header());
+	}
+	else
+	{
+		data_fork = sos = std::make_shared<SOSFormat>(default_base_address, "");
+	}
+
 	data_fork->ProcessModule(module);
 
 	GenerateFiles(filename, data_fork, nullptr, GetFileType(), GetAuxiliaryFileType());
@@ -189,9 +208,11 @@ uint16_t AppleDriver::GetAuxiliaryFileType() const
 			// unusual behavior
 			return 0;
 		}
-		return data_fork->base_address;
+		return std::dynamic_pointer_cast<AppleFormat>(data_fork)->base_address;
 	case FILE_TYPE_SYS:
 		return 0x2000;
+	case FILE_TYPE_SOS:
+		return 0; // TODO
 	default:
 		// unspecified
 		return 0;

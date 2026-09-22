@@ -1341,6 +1341,16 @@ DefineTarget(
 	extension = "")
 
 DefineTarget(
+	Description = "Apple /// SOS on 6502, using xa assembler",
+	CPU = "mos6502",
+	System = "apple3",
+	Format = "sos",
+	Versions = [
+		DefineVersion("", LinkerParameters = ["base_address=0x9000"]),
+	],
+	extension = "")
+
+DefineTarget(
 	Description = "Apple ][ BIN on 6502, using xa assembler (NAPS suffix)",
 	CPU = "mos6502",
 	System = "apple2",
@@ -1363,6 +1373,16 @@ DefineTarget(
 	extension = "")
 
 DefineTarget(
+	Description = "Apple /// SOS on 6502, using xa assembler (NAPS suffix)",
+	CPU = "mos6502",
+	System = "apple3",
+	Format = "sos+naps",
+	Versions = [
+		DefineVersion("", LinkerParameters = ["base_address=0x9000"]),
+	],
+	extension = "")
+
+DefineTarget(
 	Description = "Apple ][ BIN on 6502, using xa assembler (AppleSingle)",
 	CPU = "mos6502",
 	System = "apple2",
@@ -1381,6 +1401,16 @@ DefineTarget(
 	FormatName = "sys",
 	Versions = [
 		DefineVersion(""),
+	],
+	extension = ".as")
+
+DefineTarget(
+	Description = "Apple /// SOS on 6502, using xa assembler (AppleSingle)",
+	CPU = "mos6502",
+	System = "apple3",
+	Format = "applesingle-sos",
+	Versions = [
+		DefineVersion("", LinkerParameters = ["base_address=0x9000"]),
 	],
 	extension = ".as")
 

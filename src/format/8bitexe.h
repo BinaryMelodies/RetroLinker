@@ -56,6 +56,8 @@ namespace Binary
 		{
 		}
 
+		offset_t ImageSize() const override;
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		using Linker::Format::WriteFile;
@@ -79,7 +81,7 @@ namespace Binary
 	class AppleDriver : public Apple::GSOutput
 	{
 	public:
-		std::shared_ptr<AppleFormat> data_fork;
+		std::shared_ptr<Linker::OutputFormat> data_fork;
 
 		enum header_format_t
 		{

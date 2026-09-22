@@ -614,6 +614,12 @@ format_specification formats[] =
 	{ "applesingle-sys",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_SYS, AppleDriver::TARGET_APPLE_SINGLE); },
 		"Apple 8-bit SYS file format stored in AppleSingle container" },
+	{ "sos",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_SOS, AppleDriver::TARGET_DATA_FORK); },
+		"Apple /// 8-bit SOS file format" },
+	{ "applesingle-sos",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_SOS, AppleDriver::TARGET_APPLE_SINGLE); },
+		"Apple /// 8-bit SOS file format stored in AppleSingle container" },
 	/* BFLT */
 	{ "bflt", []() -> std::shared_ptr<Format> { return std::make_shared<BFLT::BFLTFormat>(); },
 		"BFLT Binary Flat Format for uCLinux" },
