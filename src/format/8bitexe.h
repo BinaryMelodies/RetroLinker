@@ -119,6 +119,23 @@ namespace Binary
 		void OnDump(Dumper::Dumper& dump) const override;
 
 	public:
+		void SetAppleSingleDoubleVersion(offset_t version);
+
+		class DriverOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<std::optional<offset_t>> asver{"asver", "Version of the AppleSingle/AppleDouble container (recognized values: 1, 2)"};
+			Linker::Option<std::optional<offset_t>> adver{"adver", "Version of the AppleSingle/AppleDouble container (recognized values: 1, 2)"};
+
+			DriverOptionCollector()
+			{
+				InitializeFields(asver, adver);
+			}
+		};
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
 		void ReadFile(Linker::Reader& rd) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;

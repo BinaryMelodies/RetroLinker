@@ -385,8 +385,10 @@ namespace Apple
 		std::map<std::string, std::string> script_options;
 
 	public:
+		// TODO: move to OutputDriver
 		void SetAppleSingleDoubleVersion(offset_t version);
 
+		// TODO: extend OutputDriver::DriverOptionCollector
 		class DriverOptionCollector : public Linker::OptionCollector
 		{
 		public:

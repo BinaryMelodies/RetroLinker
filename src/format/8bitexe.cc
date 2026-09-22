@@ -112,6 +112,76 @@ void SOSFormat::Dump(Dumper::Dumper& dump) const
 
 // AppleDriver
 
+void AppleDriver::SetAppleSingleDoubleVersion(offset_t version)
+{
+	switch(version)
+	{
+	case 1:
+		apple_single_double_version = 1;
+		home_file_system = Apple::AppleSingleDouble::HFS_ProDOS;
+		break;
+	case 2:
+		apple_single_double_version = 2;
+		home_file_system = Apple::AppleSingleDouble::HFS_UNDEFINED;
+		break;
+	}
+}
+
+std::shared_ptr<Linker::OptionCollector> AppleDriver::GetOptions()
+{
+	return std::make_shared<DriverOptionCollector>();
+}
+
+void AppleDriver::SetOptions(std::map<std::string, std::string>& options)
+{
+	DriverOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	offset_t asdver = 0;
+
+	if(std::optional<offset_t> option = collector.asver())
+	{
+		options.erase(collector.asver.name);
+		switch(*option)
+		{
+		case 1:
+		case 2:
+			asdver = *option;
+			break;
+		default:
+			Linker::Error << "Error: invalid AppleSingle/AppleDouble version: " << std::dec << *option << std::endl;
+		}
+	}
+
+	if(auto option = collector.adver())
+	{
+		options.erase(collector.adver.name);
+		switch(*option)
+		{
+		case 1:
+		case 2:
+			if(asdver == 0)
+			{
+				asdver = *option;
+			}
+			else if(asdver != *option)
+			{
+				Linker::Error << "Error: `asver' and `adver' have been provided with unequivalent values" << std::endl;
+			}
+			break;
+		default:
+			Linker::Error << "Error: invalid AppleSingle/AppleDouble version: " << std::dec << *option << std::endl;
+		}
+	}
+
+	if(asdver != 0)
+	{
+		SetAppleSingleDoubleVersion(asdver);
+	}
+
+	//this->options = options; // TODO
+}
+
 void AppleDriver::ReadFile(Linker::Reader& rd)
 {
 	// reading an Apple ][ executable cannot be done via its resource fork

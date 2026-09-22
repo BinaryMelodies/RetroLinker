@@ -764,6 +764,7 @@ namespace Apple
 			FILE_TYPE_SYS = 0xFF,
 		};
 
+		// TODO: move to OutputDriver
 		GSOutputDriver(target_format_t target = TARGET_DATA_FORK)
 			: OutputDriver(OutputDriver::target_format_t(target),
 				OutputDriver::produce_format_t(
@@ -772,6 +773,7 @@ namespace Apple
 		{
 		}
 
+		// TODO: move to OutputDriver
 		GSOutputDriver(target_format_t target, int produce)
 			: OutputDriver(OutputDriver::target_format_t(target), OutputDriver::produce_format_t(produce))
 		{
