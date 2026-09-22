@@ -12,8 +12,8 @@
 #include "../linker/segment.h"
 #include "../linker/writer.h"
 
-/* TODO: this is all pretty much preliminary */
-/* TODO: combine into binary.h? */
+/* a collection of various simple 8-bit formats */
+/* TODO: should this be reorganized? */
 
 namespace Binary
 {
@@ -23,11 +23,9 @@ namespace Binary
 	class AppleFormat : public Binary::GenericBinaryFormat
 	{
 	public:
-		/* TODO: untested */
 		bool dos33_header;
 
 		/* TODO: enable setting the base address as a parameter */
-		/* TODO: SYS files are pure binary loaded at 0x2000 */
 
 		AppleFormat(uint64_t default_base_address = 0x0803, std::string default_extension = "", bool dos33_header = true)
 			: GenericBinaryFormat(default_base_address, default_extension), dos33_header(dos33_header)

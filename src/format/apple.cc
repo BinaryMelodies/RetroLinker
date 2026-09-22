@@ -1043,14 +1043,14 @@ void ResourceFork::Dump(Dumper::Dumper& dump) const
 {
 	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
 	{
-		Dumper::Region region("Data fork", file_offset, image->ImageSize(), 8);
+		Dumper::Region region("Resource fork", file_offset, image->ImageSize(), 8);
 		region.Display(dump, Dumper::Header);
 
 		format->Dump(dump);
 	}
 	else
 	{
-		Dumper::Block block("Data fork", file_offset, image->AsImage(), 0, 8);
+		Dumper::Block block("Resource fork", file_offset, image->AsImage(), 0, 8);
 		block.Display(dump, Dumper::Image);
 	}
 }
