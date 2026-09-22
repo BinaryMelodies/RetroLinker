@@ -1087,7 +1087,11 @@ offset_t FileInfo::Macintosh::ImageSize() const
 
 void FileInfo::Macintosh::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	rd.endiantype = ::BigEndian;
+	CreationDate = rd.ReadUnsigned(4);
+	ModificationDate = rd.ReadUnsigned(4);
+	LastBackupDate = rd.ReadUnsigned(4);
+	Attributes = rd.ReadUnsigned(4);
 }
 
 offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr) const
@@ -1115,7 +1119,12 @@ offset_t FileInfo::ProDOS::ImageSize() const
 
 void FileInfo::ProDOS::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	rd.endiantype = ::BigEndian;
+	CreationDate = rd.ReadUnsigned(4);
+	ModificationDate = rd.ReadUnsigned(4);
+	Access = rd.ReadUnsigned(2);
+	FileType = rd.ReadUnsigned(2);
+	AUXType = rd.ReadUnsigned(4);
 }
 
 offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr) const
@@ -1304,7 +1313,10 @@ offset_t ProDOSFileInfo::ImageSize() const
 
 void ProDOSFileInfo::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	rd.endiantype = ::BigEndian;
+	Access = rd.ReadUnsigned(2);
+	FileType = rd.ReadUnsigned(2);
+	AUXType = rd.ReadUnsigned(4);
 }
 
 offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1319,7 +1331,129 @@ offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
 
 void ProDOSFileInfo::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Region region("ProDOS file info", file_offset, ImageSize(), 8);
+	region.AddField("Access", Dumper::HexDisplay::Make(4), offset_t(Access)); // TODO: should be a bitmap
+
+	static const std::map<offset_t, std::string> file_types =
+	{
+		// based on Jon Relay's Apple II Info Archives
+		{ 0x00, "UNK (Unknown)" },
+		{ 0x01, "BAD (Bad Block)" },
+		{ 0x02, "PCD (Pascal Code)" },
+		{ 0x03, "PTX (Pascal Text)" },
+		{ 0x04, "TXT (ASCII Text)" },
+		{ 0x05, "PDA (Pascal Data)" },
+		{ 0x06, "BIN (Binary File)" },
+		{ 0x07, "FNT (Apple /// Font)" },
+		{ 0x08, "FOT (HiRes/Double HiRes Graphics)" },
+		{ 0x09, "BA3 (Apple /// BASIC Program)" },
+		{ 0x0A, "DA3 (Apple /// BASIC Data)" },
+		{ 0x0B, "WPF (Generic Word Processing)" },
+		{ 0x0C, "SOS (SOS System File)" },
+		{ 0x0F, "DIR (ProDOS Directory)" },
+		// TODO
+		{ 0x29, "3SD (SOS Directory)" },
+		// TODO
+		{ 0x80, "GES (GEOS System File)" },
+		// TODO
+		{ 0x82, "GEO (GEOS Application)" },
+		// TODO
+		{ 0xB3, "S16 (Apple IIgs Application Program)" },
+		// TODO
+		{ 0xB5, "EXE (Apple IIgs Shell Script)" },
+		// TODO
+		{ 0xE0, "LBR (Archive)" },
+		// TODO
+		{ 0xF9, "P16 (ProDOS-16 System File)" },
+		// TODO
+		{ 0xFF, "SYS (ProDOS-8 System File)" },
+	};
+
+	static const std::map<offset_t, std::string> TXT_file_types =
+	{
+		{ 0x0000, "Sequential" },
+	};
+
+	static const std::map<offset_t, std::string> LBR_file_types =
+	{
+		{ 0x0000, "ALU" },
+		{ 0x0001, "AppleSingle" },
+		{ 0x0002, "AppleDouble Header" },
+		{ 0x0003, "AppleDouble Data" },
+		{ 0x8000, "Binary II" },
+		{ 0x8001, "AppleLink ACU" },
+		{ 0x8002, "ShrinkIt" },
+	};
+
+	std::string auxiliary_type_name = "Auxiliary type";
+	const std::map<offset_t, std::string> * auxiliary_file_types = nullptr;
+	switch(FileType)
+	{
+	case 0x04: // TXT
+		auxiliary_type_name = "Record length";
+		auxiliary_file_types = &TXT_file_types;
+		break;
+	case 0x06: // BIN
+	case 0xFC: // BAS
+		auxiliary_type_name = "Load address";
+		break;
+	case 0x2C: // 8IC
+		// TODO
+		break;
+	case 0x50: // GWP
+		// TODO
+		break;
+	case 0x51: // GSS
+		// TODO
+		break;
+	case 0x52: // GDB
+		// TODO
+		break;
+	case 0x53: // DRW
+		// TODO
+		break;
+	case 0x54: // GDP
+		// TODO
+		break;
+	case 0x55: // HMD
+		// TODO
+		break;
+	case 0x59: // COM
+		// TODO
+		break;
+	case 0xBC: // LDF
+		// TODO
+		break;
+	case 0xC0: // PNT
+		// TODO
+		break;
+	case 0xC1: // PIC
+		// TODO
+		break;
+	case 0xC8: // FON
+		// TODO
+		break;
+	case 0xD8: // SND
+		// TODO
+		break;
+	case 0xE0: // LBR
+		auxiliary_file_types = &LBR_file_types;
+		break;
+	case 0xE2: // ATK
+		// TODO
+		break;
+	}
+
+	region.AddField("File type", Dumper::ChoiceDisplay::Make(file_types, Dumper::HexDisplay::Make(2)), offset_t(FileType));
+	if(auxiliary_file_types)
+	{
+		region.AddField(auxiliary_type_name, Dumper::ChoiceDisplay::Make(file_types, Dumper::HexDisplay::Make(4)), offset_t(AUXType));
+	}
+	else
+	{
+		region.AddField(auxiliary_type_name, Dumper::HexDisplay::Make(4), offset_t(AUXType));
+	}
+	region.Display(dump, Dumper::Header);
 }
 
 // MSDOSFileInfo
