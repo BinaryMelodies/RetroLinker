@@ -860,7 +860,7 @@ void AppleSingleDouble::SetProDOSFileType(uint16_t FileType)
 	}
 }
 
-void AppleSingleDouble::SetProDOSAUXType(uint32_t AUXType)
+void AppleSingleDouble::SetProDOSAuxiliaryType(uint32_t AuxiliaryType)
 {
 	std::shared_ptr<Entry> entry = GetProDOSFileInfo();
 	if(entry == nullptr)
@@ -868,10 +868,10 @@ void AppleSingleDouble::SetProDOSAUXType(uint32_t AUXType)
 	switch(version)
 	{
 	case 1:
-		std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->AUXType = AUXType;
+		std::dynamic_pointer_cast<FileInfo::ProDOS>(entry)->AuxiliaryType = AuxiliaryType;
 		break;
 	case 2:
-		std::dynamic_pointer_cast<ProDOSFileInfo>(entry)->AUXType = AUXType;
+		std::dynamic_pointer_cast<ProDOSFileInfo>(entry)->AuxiliaryType = AuxiliaryType;
 		break;
 	}
 }
@@ -1107,7 +1107,11 @@ offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr) const
 
 void FileInfo::Macintosh::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Region region("File info", file_offset, ImageSize(), 8);
+	region.AddField("Home File System", Dumper::StringDisplay::Make("'"), std::string(AppleSingleDouble::TXT_Macintosh, 16));
+	FileDatesInfo::DumpFields(region, CreationDate, ModificationDate, LastBackupDate, {});
+	MacintoshFileInfo::DumpFields(region, Attributes);
+	region.Display(dump, Dumper::Header);
 }
 
 // FileInfo::ProDOS
@@ -1124,7 +1128,7 @@ void FileInfo::ProDOS::ReadFile(Linker::Reader& rd)
 	ModificationDate = rd.ReadUnsigned(4);
 	Access = rd.ReadUnsigned(2);
 	FileType = rd.ReadUnsigned(2);
-	AUXType = rd.ReadUnsigned(4);
+	AuxiliaryType = rd.ReadUnsigned(4);
 }
 
 offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr) const
@@ -1134,14 +1138,18 @@ offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(4, ModificationDate);
 	wr.WriteWord(2, Access);
 	wr.WriteWord(2, FileType);
-	wr.WriteWord(4, AUXType);
+	wr.WriteWord(4, AuxiliaryType);
 
 	return offset_t(-1);
 }
 
 void FileInfo::ProDOS::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Region region("File info", file_offset, ImageSize(), 8);
+	region.AddField("Home File System", Dumper::StringDisplay::Make("'"), std::string(AppleSingleDouble::TXT_ProDOS, 16));
+	FileDatesInfo::DumpFields(region, CreationDate, ModificationDate, {}, {});
+	ProDOSFileInfo::DumpFields(region, Access, FileType, AuxiliaryType);
+	region.Display(dump, Dumper::Header);
 }
 
 // FileInfo::MSDOS
@@ -1153,7 +1161,9 @@ offset_t FileInfo::MSDOS::ImageSize() const
 
 void FileInfo::MSDOS::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	rd.endiantype = ::BigEndian;
+	ModificationDate = rd.ReadUnsigned(4);
+	Attributes = rd.ReadUnsigned(2);
 }
 
 offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr) const
@@ -1167,7 +1177,11 @@ offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr) const
 
 void FileInfo::MSDOS::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Region region("File info", file_offset, ImageSize(), 8);
+	region.AddField("Home File System", Dumper::StringDisplay::Make("'"), std::string(AppleSingleDouble::TXT_MS_DOS, 16));
+	FileDatesInfo::DumpFields(region, {}, ModificationDate, {}, {});
+	MSDOSFileInfo::DumpFields(region, Attributes);
+	region.Display(dump, Dumper::Header);
 }
 
 // FileInfo::AUX
@@ -1179,7 +1193,6 @@ offset_t FileInfo::AUX::ImageSize() const
 
 void FileInfo::AUX::ReadFile(Linker::Reader& rd)
 {
-	// TODO
 }
 
 offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr) const
@@ -1194,7 +1207,10 @@ offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr) const
 
 void FileInfo::AUX::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Region region("File info", file_offset, ImageSize(), 8);
+	region.AddField("Home File System", Dumper::StringDisplay::Make("'"), std::string(AppleSingleDouble::TXT_UNIX, 16));
+	FileDatesInfo::DumpFields(region, CreationDate, ModificationDate, {}, AccessDate);
+	region.Display(dump, Dumper::Header);
 }
 
 // FileDatesInfo
@@ -1222,7 +1238,32 @@ offset_t FileDatesInfo::WriteFile(Linker::Writer& wr) const
 
 void FileDatesInfo::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Region region("File Dates Info", file_offset, ImageSize(), 8);
+	DumpFields(region, CreationDate, ModificationDate, BackupDate, AccessDate);
+	region.Display(dump, Dumper::Header);
+}
+
+void FileDatesInfo::DumpFields(Dumper::Region& region, std::optional<uint32_t> CreationDate, std::optional<uint32_t> ModificationDate, std::optional<uint32_t> BackupDate, std::optional<uint32_t> AccessDate)
+{
+	if(CreationDate)
+	{
+		region.AddField("Creation date", Dumper::DecDisplay::Make(), offset_t(*CreationDate)); // TODO: date display
+	}
+
+	if(ModificationDate)
+	{
+		region.AddField("Modification date", Dumper::DecDisplay::Make(), offset_t(*ModificationDate)); // TODO: date display
+	}
+
+	if(BackupDate)
+	{
+		region.AddField("Backup date", Dumper::DecDisplay::Make(), offset_t(*BackupDate)); // TODO: date display
+	}
+
+	if(AccessDate)
+	{
+		region.AddField("Access date", Dumper::DecDisplay::Make(), offset_t(*AccessDate)); // TODO: date display
+	}
 }
 
 // FinderInfo
@@ -1288,7 +1329,8 @@ offset_t MacintoshFileInfo::ImageSize() const
 
 void MacintoshFileInfo::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	rd.endiantype = ::BigEndian;
+	Attributes = rd.ReadUnsigned(4);
 }
 
 offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1301,7 +1343,18 @@ offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr) const
 
 void MacintoshFileInfo::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Region region("Macintosh file info", file_offset, ImageSize(), 8);
+	DumpFields(region, Attributes);
+	region.Display(dump, Dumper::Header);
+}
+
+void MacintoshFileInfo::DumpFields(Dumper::Region& region, uint32_t Attributes)
+{
+	region.AddField("Attributes",
+		Dumper::BitFieldDisplay::Make(8)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("Locked"), false)
+			->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("Protected"), false),
+		offset_t(Attributes));
 }
 
 // ProDOSFileInfo
@@ -1316,7 +1369,7 @@ void ProDOSFileInfo::ReadFile(Linker::Reader& rd)
 	rd.endiantype = ::BigEndian;
 	Access = rd.ReadUnsigned(2);
 	FileType = rd.ReadUnsigned(2);
-	AUXType = rd.ReadUnsigned(4);
+	AuxiliaryType = rd.ReadUnsigned(4);
 }
 
 offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1324,7 +1377,7 @@ offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
 	wr.endiantype = ::BigEndian;
 	wr.WriteWord(2, Access);
 	wr.WriteWord(2, FileType);
-	wr.WriteWord(4, AUXType);
+	wr.WriteWord(4, AuxiliaryType);
 
 	return offset_t(-1);
 }
@@ -1332,6 +1385,12 @@ offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
 void ProDOSFileInfo::Dump(Dumper::Dumper& dump) const
 {
 	Dumper::Region region("ProDOS file info", file_offset, ImageSize(), 8);
+	DumpFields(region, Access, FileType, AuxiliaryType);
+	region.Display(dump, Dumper::Header);
+}
+
+void ProDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Access, uint16_t FileType, uint32_t AuxiliaryType)
+{
 	region.AddField("Access", Dumper::HexDisplay::Make(4), offset_t(Access)); // TODO: should be a bitmap
 
 	static const std::map<offset_t, std::string> file_types =
@@ -1447,13 +1506,12 @@ void ProDOSFileInfo::Dump(Dumper::Dumper& dump) const
 	region.AddField("File type", Dumper::ChoiceDisplay::Make(file_types, Dumper::HexDisplay::Make(2)), offset_t(FileType));
 	if(auxiliary_file_types)
 	{
-		region.AddField(auxiliary_type_name, Dumper::ChoiceDisplay::Make(file_types, Dumper::HexDisplay::Make(4)), offset_t(AUXType));
+		region.AddField(auxiliary_type_name, Dumper::ChoiceDisplay::Make(file_types, Dumper::HexDisplay::Make(4)), offset_t(AuxiliaryType));
 	}
 	else
 	{
-		region.AddField(auxiliary_type_name, Dumper::HexDisplay::Make(4), offset_t(AUXType));
+		region.AddField(auxiliary_type_name, Dumper::HexDisplay::Make(4), offset_t(AuxiliaryType));
 	}
-	region.Display(dump, Dumper::Header);
 }
 
 // MSDOSFileInfo
@@ -1465,7 +1523,8 @@ offset_t MSDOSFileInfo::ImageSize() const
 
 void MSDOSFileInfo::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	rd.endiantype = ::BigEndian;
+	Attributes = rd.ReadUnsigned(2);
 }
 
 offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1478,7 +1537,14 @@ offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr) const
 
 void MSDOSFileInfo::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	Dumper::Region region("MS-DOS file info", file_offset, ImageSize(), 8);
+	DumpFields(region, Attributes);
+	region.Display(dump, Dumper::Header);
+}
+
+void MSDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Attributes)
+{
+	region.AddField("Attributes", Dumper::HexDisplay::Make(8), offset_t(Attributes)); // TODO: bit field
 }
 
 // AFPShortName

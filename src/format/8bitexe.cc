@@ -163,7 +163,7 @@ void AppleDriver::OnContainerCreated()
 {
 	apple_single->SetProDOSAccess(0xC3); // read/write/rename/delete
 	apple_single->SetProDOSFileType(GetFileType());
-	apple_single->SetProDOSAUXType(GetAuxiliaryFileType());
+	apple_single->SetProDOSAuxiliaryType(GetAuxiliaryFileType());
 }
 
 void AppleDriver::OnCalculateValues()

@@ -1,6 +1,7 @@
 #ifndef APPLE_H
 #define APPLE_H
 
+#include "../dumper/dumper.h"
 #include "../linker/format.h"
 
 /* Structures common to multiple Apple products */
@@ -105,7 +106,6 @@ namespace Apple
 			void CalculateValues() override;
 		};
 
-	private:
 		static const char TXT_undefined[16];
 		static const char TXT_Macintosh[16];
 		static const char TXT_ProDOS[16];
@@ -113,7 +113,6 @@ namespace Apple
 		static const char TXT_UNIX[16];
 		static const char TXT_VAX_VMS[16];
 
-	public:
 		std::vector<std::shared_ptr<Entry>> entries;
 		offset_t image_size = offset_t(-1);
 
@@ -210,7 +209,7 @@ namespace Apple
 		void SetMacintoshAttributes(uint32_t Attributes);
 		void SetProDOSAccess(uint16_t Access);
 		void SetProDOSFileType(uint16_t FileType);
-		void SetProDOSAUXType(uint32_t AUXType);
+		void SetProDOSAuxiliaryType(uint32_t AuxiliaryType);
 		void SetMSDOSAttributes(uint16_t Attributes);
 
 		/** @brief Retrieves creation date field and creates it if it does not exist */
@@ -356,14 +355,14 @@ namespace Apple
 		uint32_t ModificationDate;
 		uint16_t Access;
 		uint16_t FileType;
-		uint32_t AUXType;
+		uint32_t AuxiliaryType;
 
 		ProDOS(uint32_t CreationDate = 0,
 				uint32_t ModificationDate = 0,
 				uint16_t Access = 0,
 				uint16_t FileType = 0,
-				uint32_t AUXType = 0)
-			: CreationDate(CreationDate), ModificationDate(ModificationDate), Access(Access), FileType(FileType), AUXType(AUXType)
+				uint32_t AuxiliaryType = 0)
+			: CreationDate(CreationDate), ModificationDate(ModificationDate), Access(Access), FileType(FileType), AuxiliaryType(AuxiliaryType)
 		{
 		}
 
@@ -450,6 +449,7 @@ namespace Apple
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
+		static void DumpFields(Dumper::Region& region, std::optional<uint32_t> CreationDate, std::optional<uint32_t> ModificationDate, std::optional<uint32_t> BackupDate, std::optional<uint32_t> AccessDate);
 	};
 
 	class FinderInfo : public AppleSingleDouble::Entry
@@ -500,6 +500,7 @@ namespace Apple
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
+		static void DumpFields(Dumper::Region& region, uint32_t Attributes);
 	};
 
 	/* Version 2 only */
@@ -508,12 +509,12 @@ namespace Apple
 	public:
 		uint16_t Access;
 		uint16_t FileType;
-		uint32_t AUXType;
+		uint32_t AuxiliaryType;
 
 		ProDOSFileInfo(uint16_t Access = 0,
 				uint16_t FileType = 0,
-				uint32_t AUXType = 0)
-			: Entry(AppleSingleDouble::ID_ProDOSFileInfo), Access(Access), FileType(FileType), AUXType(AUXType)
+				uint32_t AuxiliaryType = 0)
+			: Entry(AppleSingleDouble::ID_ProDOSFileInfo), Access(Access), FileType(FileType), AuxiliaryType(AuxiliaryType)
 		{
 		}
 
@@ -525,6 +526,7 @@ namespace Apple
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
+		static void DumpFields(Dumper::Region& region, uint16_t Access, uint16_t FileType, uint32_t AuxiliaryType);
 	};
 
 	/* Version 2 only */
@@ -546,6 +548,7 @@ namespace Apple
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
+		static void DumpFields(Dumper::Region& region, uint16_t Attributes);
 	};
 
 	/* Version 2 only */
