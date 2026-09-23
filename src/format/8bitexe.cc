@@ -511,6 +511,110 @@ void AtariFormat::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+// CommodoreFormat::BASICLine
+
+void CommodoreFormat::BASICLine::AddToken(Token token)
+{
+	tokens.push_back(token);
+}
+
+void CommodoreFormat::BASICLine::AddString(std::string text)
+{
+	tokens.insert(tokens.end(), text.begin(), text.end());
+}
+
+void CommodoreFormat::BASICLine::AddDecimal(int value)
+{
+	std::ostringstream oss;
+	oss << value;
+	AddString(oss.str());
+}
+
+size_t CommodoreFormat::BASICLine::GetSize() const
+{
+	return tokens.size() + 5;
+}
+
+void CommodoreFormat::BASICLine::ReadFile(Linker::Reader& rd)
+{
+	tokens.clear();
+
+	next_address = rd.ReadUnsigned(2);
+	if(next_address == 0)
+	{
+		line_number = 0;
+		return;
+	}
+	line_number = rd.ReadUnsigned(2);
+	AddString(rd.ReadData(size_t(-1), true)); // null terminated
+}
+
+offset_t CommodoreFormat::BASICLine::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteWord(2, next_address);
+	if(next_address != 0)
+	{
+		wr.WriteWord(2, line_number);
+		wr.WriteData(tokens);
+		wr.WriteWord(1, 0);
+	}
+	return GetSize();
+}
+
+void CommodoreFormat::BASICLine::CalculateValues()
+{
+	next_address = line_address + GetSize();
+}
+
+// CommodoreFormat::BASICFile
+
+void CommodoreFormat::BASICFile::ReadFile(Linker::Reader& rd)
+{
+	uint16_t current_address = load_address;
+	while(true)
+	{
+		BASICLine line;
+		line.line_address = current_address;
+		line.ReadFile(rd);
+		if(line.next_address == 0)
+		{
+			break;
+		}
+		lines.push_back(line);
+		current_address = line.next_address;
+	}
+	end_address = current_address + 2;
+}
+
+offset_t CommodoreFormat::BASICFile::WriteFile(Linker::Writer& wr) const
+{
+	uint16_t total_size = 0;
+	for(auto& line : lines)
+	{
+		total_size += line.WriteFile(wr);
+	}
+	wr.WriteWord(2, 0);
+	return total_size + 2;
+}
+
+void CommodoreFormat::BASICFile::CalculateValues()
+{
+	uint16_t current_address = load_address;
+	if(lines.size() == 0)
+	{
+		Linker::Warning << "Warning: Empty BASIC file" << std::endl;
+	}
+
+	for(auto& line : lines)
+	{
+		line.line_address = current_address;
+		line.CalculateValues();
+		current_address = line.next_address;
+	}
+
+	end_address = current_address + 2;
+}
+
 // CommodoreFormat
 
 void CommodoreFormat::Clear()
@@ -518,38 +622,55 @@ void CommodoreFormat::Clear()
 	loader = nullptr;
 }
 
+uint16_t CommodoreFormat::GetLoadAddress() const
+{
+	if(auto file = std::dynamic_pointer_cast<const BASICFile>(loader))
+	{
+		return file->load_address;
+	}
+	else if(auto segment = std::dynamic_pointer_cast<const Linker::Segment>(loader))
+	{
+		return segment->base_address;
+	}
+	else
+	{
+		Linker::Error << "Internal error: invalid Commodore .PRG file loader section" << std::endl;
+		return 0;
+	}
+}
+
 void CommodoreFormat::SetupDefaultLoader()
 {
-	std::shared_ptr<Linker::Section> loader_section = std::make_shared<Linker::Section>(".loader");
-	std::ostringstream oss;
-	oss << " (" << base_address << ")";
-	std::string text = oss.str();
-	//loader_section->WriteWord(2, base_address + 7 + text.size());
-	loader_section->WriteWord(2, BASIC_START + 7 + text.size());
-	loader_section->WriteWord(2, 10); /* line number */
-	loader_section->WriteWord(1, BASIC_SYS);
-	loader_section->Append(text.c_str());
-	loader_section->WriteWord(2, 0); // TODO: why are two bytes
-	loader_section->WriteWord(2, 0);
-	if(loader == nullptr)
+	std::shared_ptr<BASICFile> loader_section = std::make_shared<BASICFile>();
+	loader_section->load_address = C64_BASIC_START; // TODO: make configurable
+	BASICLine line;
+	line.line_number = 10;
+	line.AddToken(BASICLine::SYS);
+	line.AddString(" (");
+	line.AddDecimal(base_address); // TODO: base_address - loader data size
+	line.AddString(")");
+	while(line.GetSize() < 14) // minimum size to fit a possibly 5-digit load address (TODO: can this be simplified?)
 	{
-		loader = std::make_shared<Linker::Segment>(".loader");
+		line.tokens.push_back(0);
 	}
-	loader->Append(loader_section);
-	//loader->SetStartAddress(base_address - loader->data_size);
-	loader->SetStartAddress(BASIC_START);
+	loader_section->lines.push_back(line);
+	loader_section->CalculateValues();
+	loader = loader_section;
 }
 
 void CommodoreFormat::ProcessModule(Linker::Module& module)
 {
 	GenericBinaryFormat::ProcessModule(module);
-	SetupDefaultLoader(); /* TODO: if a separate loader is ready, use that instead */
+	if(loader == nullptr)
+	{
+		SetupDefaultLoader(); /* TODO: if a separate loader is ready, use that instead */
+	}
 }
 
 offset_t CommodoreFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	wr.WriteWord(2, loader->base_address);
+	wr.WriteWord(2, GetLoadAddress());
 	loader->WriteFile(wr);
 	image->WriteFile(wr);
 	return offset_t(-1);

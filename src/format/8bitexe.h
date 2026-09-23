@@ -330,17 +330,65 @@ namespace Binary
 	class CommodoreFormat : public GenericBinaryFormat
 	{
 	public:
+		class BASICLine : public Linker::Format
+		{
+		public:
+			uint16_t line_address = 0;
+			uint16_t line_number = 0;
+			uint16_t next_address = 0;
+			std::vector<uint8_t> tokens;
+
+			/* BASIC token */
+			enum Token
+			{
+				SYS = 0x9E,
+			};
+
+			void AddToken(Token token);
+			void AddString(std::string text);
+			void AddDecimal(int value);
+			size_t GetSize() const; // including header
+
+			void ReadFile(Linker::Reader& rd) override;
+			using Linker::Format::WriteFile;
+			offset_t WriteFile(Linker::Writer& wr) const override;
+			void CalculateValues();
+			/* TODO */
+		};
+
+		class BASICFile : public Linker::Format
+		{
+		public:
+			uint16_t load_address = 0;
+			std::vector<BASICLine> lines;
+			uint16_t end_address = 0;
+
+			void ReadFile(Linker::Reader& rd) override;
+			using Linker::Format::WriteFile;
+			offset_t WriteFile(Linker::Writer& wr) const override;
+			void CalculateValues();
+			/* TODO */
+		};
+
 		/* TODO */
 
-		/** @brief Address at which the BASIC program should start */
-		static const uint16_t BASIC_START = 0x0801;
+		/** @brief Address at which the BASIC program should start for a Commodore PET */
+		static const uint16_t PET_BASIC_START = 0x0401;
+		/** @brief Address at which the BASIC program should start for a Commodore VIC-20 */
+		static const uint16_t VIC_BASIC_START = 0x1001;
+		/** @brief Address at which the BASIC program should start for a Commodore 64 */
+		static const uint16_t C64_BASIC_START = 0x0801;
+
+		std::shared_ptr<Linker::Contents> loader;
+
+		uint16_t GetLoadAddress() const;
 
 		enum
 		{
 			BASIC_SYS = 0x9E, /* BASIC token */
 		};
 
-		std::shared_ptr<Linker::Segment> loader; /* loader routine in BASIC */
+		//std::shared_ptr<Linker::Segment> loader; /* loader routine in BASIC */
 
 		void Clear() override;
 
