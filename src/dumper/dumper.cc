@@ -188,6 +188,65 @@ void VersionDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t, offset_t> v
 	dump.PrintDec(std::get<1>(values), "");
 }
 
+bool BlobDisplay::IsMissing(std::tuple<std::vector<uint8_t>>& values)
+{
+	for(offset_t i = 0; i < width; i++)
+	{
+		if(std::get<0>(values)[i] != 0)
+			return false;
+	}
+	return true;
+}
+
+void BlobDisplay::DisplayValue(Dumper& dump, std::tuple<std::vector<uint8_t>> values)
+{
+	auto data = std::get<0>(values);
+	for(offset_t i = 0; i < width; i++)
+	{
+		if(i != 0)
+		{
+			dump.out << " ";
+		}
+		dump.PrintHex(data[i], 2, "");
+	}
+
+	if(secondary_display)
+	{
+		dump.out << " ";
+		secondary_display->DisplayValue(dump, std::string(data.begin(), data.end()));
+	}
+}
+
+bool BlobDisplay::IsMissing(std::tuple<offset_t>& values)
+{
+	uint8_t * data = reinterpret_cast<uint8_t *>(std::get<0>(values));
+	for(offset_t i = 0; i < width; i++)
+	{
+		if(data[i] != 0)
+			return false;
+	}
+	return true;
+}
+
+void BlobDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)
+{
+	uint8_t * data = reinterpret_cast<uint8_t *>(std::get<0>(values));
+	for(offset_t i = 0; i < width; i++)
+	{
+		if(i != 0)
+		{
+			dump.out << " ";
+		}
+		dump.PrintHex(data[i], 2, "");
+	}
+
+	if(secondary_display)
+	{
+		dump.out << " ";
+		secondary_display->DisplayValue(dump, std::string(data, data + width));
+	}
+}
+
 bool StringDisplay::IsMissing(std::tuple<std::string>& values)
 {
 	if(width == offset_t(-1))

@@ -1684,25 +1684,25 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 					break;
 				case PatternInitialization::BlockCopy:
 					pattern_entry.AddField("Block size", Dumper::HexDisplay::Make(8), offset_t(pattern.common_data.size()));
-					pattern_entry.AddField("Raw data", Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(pattern.common_data.data()), pattern.common_data.size()));
+					pattern_entry.AddField("Raw data", Dumper::BlobDisplay::Make(pattern.common_data.size(), Dumper::StringDisplay::Make("\"")), pattern.common_data);
 					break;
 				case PatternInitialization::RepeatedBlock:
 					pattern_entry.AddField("Block size", Dumper::HexDisplay::Make(8), offset_t(pattern.common_data.size()));
 					pattern_entry.AddField("Repeat count", Dumper::HexDisplay::Make(8), offset_t(pattern.count));
-					pattern_entry.AddField("Raw data", Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(pattern.common_data.data()), pattern.common_data.size()));
+					pattern_entry.AddField("Raw data", Dumper::BlobDisplay::Make(pattern.common_data.size(), Dumper::StringDisplay::Make("\"")), pattern.common_data);
 					break;
 				case PatternInitialization::InterleaveRepeatBlockWithBlockCopy:
 					pattern_entry.AddField("Common size", Dumper::HexDisplay::Make(8), offset_t(pattern.common_data.size()));
 					pattern_entry.AddField("Custom size", Dumper::HexDisplay::Make(8), offset_t(pattern.custom_data[0].size()));
 					pattern_entry.AddField("Repeat count", Dumper::HexDisplay::Make(8), offset_t(pattern.custom_data.size()));
-					pattern_entry.AddField("Common data", Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(pattern.common_data.data()), pattern.common_data.size()));
+					pattern_entry.AddField("Common data", Dumper::BlobDisplay::Make(pattern.common_data.size(), Dumper::StringDisplay::Make("\"")), pattern.common_data);
 					{
 						uint32_t data_index = 0;
 						for(auto& custom_data : pattern.custom_data)
 						{
 							std::ostringstream oss;
 							oss << "Custom data " << data_index + 1;
-							pattern_entry.AddField(oss.str(), Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(custom_data.data()), custom_data.size()));
+							pattern_entry.AddField(oss.str(), Dumper::BlobDisplay::Make(custom_data.size(), Dumper::StringDisplay::Make("\"")), custom_data);
 							data_index ++;
 						}
 					}
@@ -1717,7 +1717,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 						{
 							std::ostringstream oss;
 							oss << "Custom data " << data_index + 1;
-							pattern_entry.AddField(oss.str(), Dumper::StringDisplay::Make("\""), std::string(reinterpret_cast<char *>(custom_data.data()), custom_data.size()));
+							pattern_entry.AddField(oss.str(), Dumper::BlobDisplay::Make(custom_data.size(), Dumper::StringDisplay::Make("\"")), custom_data);
 							data_index ++;
 						}
 					}

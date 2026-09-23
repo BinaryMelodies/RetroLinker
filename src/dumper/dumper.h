@@ -553,6 +553,49 @@ public:
 };
 
 /**
+ * @brief A display for a fixed length binary data field
+ */
+class BlobDisplay : public Display<std::vector<uint8_t>>
+{
+public:
+	/**
+	 * @brief The width of the string field, exactly this many characters will be shown, unless it is offset_t(-1), then it prints until the first null byte
+	 */
+	offset_t width;
+
+	/**
+	 * @brief Alternative representation, appearing after the value
+	 */
+	std::shared_ptr<Display<std::string>> secondary_display;
+
+	BlobDisplay(size_t width, std::shared_ptr<Display<std::string>> secondary_display = nullptr)
+		: width(width), secondary_display(secondary_display)
+	{
+	}
+
+	/**
+	 * @brief Create a binary blob display
+	 *
+	 * @param[in] width The exact number of characters to display
+	 * @param[in] open_quote String to prefix to the string
+	 * @param[in] close_quote String to sufffix to the string
+	 * @return A string display
+	 */
+	static std::shared_ptr<BlobDisplay> Make(size_t width, std::shared_ptr<Display<std::string>> secondary_display = nullptr)
+	{
+		return std::make_shared<BlobDisplay>(width, secondary_display);
+	}
+
+	bool IsMissing(std::tuple<std::vector<uint8_t>>& values) override;
+	void DisplayValue(Dumper& dump, std::tuple<std::vector<uint8_t>> values) override;
+
+	using Display<std::vector<uint8_t>>::IsMissing;
+	bool IsMissing(std::tuple<offset_t>& values);
+	using Display<std::vector<uint8_t>>::DisplayValue;
+	void DisplayValue(Dumper& dump, std::tuple<offset_t> values);
+};
+
+/**
  * @brief A display for a fixed or variable length string field
  */
 class StringDisplay : public Display<std::string>
