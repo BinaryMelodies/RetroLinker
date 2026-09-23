@@ -59,6 +59,75 @@ char32_t UTF32Encoding::GetChar(uint8_t const *& input, size_t& length)
 	return result_char;
 }
 
+RichText& RichText::operator +=(const RichText& other)
+{
+	for(auto format_pair : other.formatting)
+	{
+		for(auto format_command : format_pair.second)
+		{
+			formatting[text.size() + format_pair.first].insert_or_assign(format_command.first, format_command.second);
+		}
+	}
+	text += other.text;
+	return *this;
+}
+
+void RichText::Dump(Dumper& dump) const
+{
+	std::set<Formatting> current_formats;
+	size_t current_position = 0;
+	for(auto format_pair : formatting)
+	{
+		if(current_position < format_pair.first)
+		{
+			dump.PutEncodedString(text.substr(current_position, format_pair.first - current_position));
+			current_position = format_pair.first;
+		}
+		std::map<Formatting, bool> change;
+		for(auto new_format : format_pair.second)
+		{
+			auto format_iter = current_formats.find(new_format.first);
+			if((format_iter != current_formats.end()) != new_format.second)
+			{
+				change[new_format.first] = new_format.second;
+				if(new_format.second)
+				{
+					current_formats.insert(new_format.first);
+				}
+				else
+				{
+					current_formats.erase(new_format.first);
+				}
+			}
+		}
+		if(!change.empty())
+		{
+			for(auto change_format : change)
+			{
+				switch(change_format.first)
+				{
+				case Bold:
+					if(change_format.second)
+						dump.BeginBold();
+					else
+						dump.EndBold();
+					break;
+				case Underline:
+					if(change_format.second)
+						dump.BeginUnderline();
+					else
+						dump.EndUnderline();
+					break;
+				}
+			}
+		}
+	}
+	if(current_position < text.size())
+	{
+		dump.PutEncodedString(text.substr(current_position));
+	}
+}
+
 bool ChoiceDisplay::IsMissing(std::tuple<offset_t>& values)
 {
 	if(missing_on_value)
@@ -191,6 +260,28 @@ void StringDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)
 		dump.PutChar((*dump.encoding)[text[i] & 0xFF]);
 	}
 	dump.out << close_quote;
+}
+
+bool RichTextDisplay::IsMissing(std::tuple<RichText>& values)
+{
+	return std::get<0>(values).text.empty();
+}
+
+void RichTextDisplay::DisplayValue(Dumper& dump, std::tuple<RichText> values)
+{
+	dump.out << open_quote;
+	std::get<0>(values).Dump(dump);
+	dump.out << close_quote;
+}
+
+bool RichTextDisplay::IsMissing(std::tuple<offset_t>& values)
+{
+	Linker::FatalError("Fatal error: rich text display received untyped argument");
+}
+
+void RichTextDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)
+{
+	Linker::FatalError("Fatal error: rich text display received untyped argument");
 }
 
 void BitFieldDisplay::DisplayValue(Dumper& dump, std::tuple<offset_t> values)

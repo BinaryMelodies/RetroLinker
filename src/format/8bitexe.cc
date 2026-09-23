@@ -678,30 +678,30 @@ void CommodoreFormat::BASICLine::Dump(Dumper::Dumper& dump, std::optional<uint16
 		{ _PI, "π" },
 	};
 
-	std::ostringstream oss;
+	Dumper::RichText line_text;
 	for(auto token : tokens)
 	{
 		if(' ' <= token && token <= '~')
 		{
-			oss << char(token);
+			line_text += char(token);
 		}
 		else
 		{
 			auto token_iter = token_texts.find(token);
 			if(token_iter != token_texts.end())
 			{
-				oss << "\33[1m" << token_iter->second << "\33[m"; // TODO: do not bake ANSI escape sequences into the display
+				line_text += Dumper::RichText(token_iter->second, Dumper::RichText::Bold);
 			}
 			else
 			{
-				oss << "\33[1m" "$" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << int(token) << "\33[m"; // TODO: do not bake ANSI escape sequences into the display
+				std::ostringstream oss;
+				oss << "$" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << int(token);
+				line_text += Dumper::RichText(oss.str(), Dumper::RichText::Bold);
 			}
 		}
 	}
 
-	std::string line_text = oss.str();
-
-	line_region.AddField("Line", Dumper::StringDisplay::Make(), line_text);
+	line_region.AddField("Line", Dumper::RichTextDisplay::Make(), line_text);
 	line_region.Display(dump, display_flags);
 }
 

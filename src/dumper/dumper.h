@@ -134,6 +134,62 @@ public:
 	char32_t GetChar(uint8_t const *& input, size_t& length) override;
 };
 
+class Dumper;
+class RichText
+{
+public:
+	enum Formatting
+	{
+		Bold,
+		Underline,
+	};
+
+	std::string text;
+	std::map<size_t, std::map<Formatting, bool>> formatting;
+
+	RichText() = default;
+
+	RichText(std::string text)
+		: text(text)
+	{
+	}
+
+	template <typename ... Ts>
+		RichText(std::string text, Formatting format, Ts ... rest)
+		: RichText{text, rest...}
+	{
+		formatting[0][format] = true;
+		formatting[text.size()][format] = false;
+	}
+
+	RichText& operator +=(char c)
+	{
+		text += c;
+		return *this;
+	}
+
+	RichText& operator +=(std::string s)
+	{
+		text += s;
+		return *this;
+	}
+
+	RichText& operator +=(const RichText& other);
+	void Dump(Dumper& dump) const;
+
+	bool operator ==(const RichText& other) const
+	{
+		return text == other.text && formatting == other.formatting;
+	}
+};
+
+static inline RichText operator +(const RichText& first, const RichText& second)
+{
+	RichText result = first;
+	result += second;
+	return result;
+}
+
 /**
  * @brief This class represents an entry that can be displayed in a file dump
  */
@@ -559,6 +615,51 @@ public:
 };
 
 /**
+ * @brief A display for a fixed or variable length string field with formatting
+ */
+class RichTextDisplay : public Display<RichText>
+{
+public:
+	std::string open_quote, close_quote;
+
+	RichTextDisplay(std::string open_quote, std::string close_quote)
+		: open_quote(open_quote), close_quote(close_quote)
+	{
+	}
+
+	/**
+	 * @brief Create a string display
+	 *
+	 * @param[in] open_quote String to prefix to the string
+	 * @param[in] close_quote String to sufffix to the string
+	 * @return A string display
+	 */
+	static std::shared_ptr<RichTextDisplay> Make(std::string open_quote, std::string close_quote)
+	{
+		return std::make_shared<RichTextDisplay>(open_quote, close_quote);
+	}
+
+	/**
+	 * @brief Create a string display
+	 *
+	 * @param[in] quote String to use to prefix and suffix to the string
+	 * @return A string display
+	 */
+	static std::shared_ptr<RichTextDisplay> Make(std::string quote = "")
+	{
+		return std::make_shared<RichTextDisplay>(quote, quote);
+	}
+
+	bool IsMissing(std::tuple<RichText>& values) override;
+	void DisplayValue(Dumper& dump, std::tuple<RichText> values) override;
+
+	using Display<RichText>::IsMissing;
+	bool IsMissing(std::tuple<offset_t>& values);
+	using Display<RichText>::DisplayValue;
+	void DisplayValue(Dumper& dump, std::tuple<offset_t> values);
+};
+
+/**
  * @brief A representation of a named value within a structure
  */
 class Field
@@ -950,6 +1051,24 @@ public:
 			PutChar(padding);
 			width --;
 		}
+	}
+
+	/**
+	 * @brief ANSI escape sequence to begin bold text
+	 */
+	void BeginBold()
+	{
+		if(use_ansi)
+			out << "\33[1m";
+	}
+
+	/**
+	 * @brief ANSI escape sequence to end terminate text
+	 */
+	void EndBold()
+	{
+		if(use_ansi)
+			out << "\33[22m";
 	}
 
 	/**
