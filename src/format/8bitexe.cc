@@ -812,7 +812,7 @@ uint16_t CommodoreFormat::GetLoadAddress() const
 void CommodoreFormat::SetupDefaultLoader()
 {
 	std::shared_ptr<BASICFile> loader_section = std::make_shared<BASICFile>();
-	loader_section->load_address = C64_BASIC_START; // TODO: make configurable
+	loader_section->load_address = load_address;
 	BASICLine line;
 	line.line_number = 10;
 	line.AddToken(BASICLine::SYS);
@@ -825,6 +825,7 @@ void CommodoreFormat::SetupDefaultLoader()
 
 void CommodoreFormat::ProcessModule(Linker::Module& module)
 {
+	load_address = C64_BASIC_START; // TODO: make configurable
 	GenericBinaryFormat::ProcessModule(module);
 	if(loader == nullptr)
 	{
@@ -834,21 +835,15 @@ void CommodoreFormat::ProcessModule(Linker::Module& module)
 
 uint16_t CommodoreFormat::GetImagePaddingSize() const
 {
-	if(auto segment = std::dynamic_pointer_cast<Linker::Segment>(image))
+	if(base_address >= load_address + loader->ImageSize())
 	{
-		if(auto basic = std::dynamic_pointer_cast<BASICFile>(loader))
-		{
-			if(segment->base_address >= basic->load_address + basic->ImageSize())
-			{
-				return segment->base_address - (basic->load_address + basic->ImageSize());
-			}
-			else
-			{
-				Linker::Error << "Error: image address begins before BASIC load address" << std::endl;
-			}
-		}
+		return base_address - (load_address + loader->ImageSize());
 	}
-	return 0;
+	else
+	{
+		Linker::Error << "Error: image address begins before BASIC load address" << std::endl;
+		return 0;
+	}
 }
 
 void CommodoreFormat::ReadFile(Linker::Reader& rd)
@@ -856,11 +851,18 @@ void CommodoreFormat::ReadFile(Linker::Reader& rd)
 	rd.endiantype = ::LittleEndian;
 
 	std::shared_ptr<BASICFile> loader_section = std::make_shared<BASICFile>();
-	loader_section->load_address = rd.ReadUnsigned(2);
+	loader_section->load_address = load_address = rd.ReadUnsigned(2);
 	loader_section->ReadFile(rd);
 	loader = loader_section;
 
+	base_address = load_address + loader_section->ImageSize();
 	image = Linker::Buffer::ReadFromFile(rd);
+}
+
+void CommodoreFormat::CalculateValues()
+{
+	GenericBinaryFormat::CalculateValues();
+	load_address = GetLoadAddress();
 }
 
 offset_t CommodoreFormat::ImageSize() const
@@ -871,7 +873,7 @@ offset_t CommodoreFormat::ImageSize() const
 offset_t CommodoreFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
-	wr.WriteWord(2, GetLoadAddress());
+	wr.WriteWord(2, load_address);
 	loader->WriteFile(wr);
 	wr.Skip(GetImagePaddingSize());
 	image->WriteFile(wr);
@@ -894,13 +896,13 @@ void CommodoreFormat::Dump(Dumper::Dumper& dump) const
 	}
 	else
 	{
-		Dumper::Block loader_block("Loader", 2, loader->AsImage(), GetLoadAddress(), 4, 4);
+		Dumper::Block loader_block("Loader", 2, loader->AsImage(), load_address, 4, 4);
 		loader_block.Display(dump, loader_options);
 	}
 
 	if(binary_blob_present)
 	{
-		Dumper::Block image_block("Image", 2 + loader->ImageSize() + GetImagePaddingSize(), image->AsImage(), GetLoadAddress() + GetImagePaddingSize(), 4, 4);
+		Dumper::Block image_block("Image", 2 + loader->ImageSize() + GetImagePaddingSize(), image->AsImage(), load_address + GetImagePaddingSize(), 4, 4);
 		image_block.Display(dump, Dumper::Image);
 	}
 }

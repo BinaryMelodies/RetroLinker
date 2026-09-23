@@ -450,8 +450,6 @@ namespace Binary
 			void Dump(Dumper::Dumper& dump, int display_flags) const;
 		};
 
-		/* TODO */
-
 		/** @brief Address at which the BASIC program should start for a Commodore PET */
 		static const uint16_t PET_BASIC_START = 0x0401;
 		/** @brief Address at which the BASIC program should start for a Commodore VIC-20 */
@@ -459,16 +457,10 @@ namespace Binary
 		/** @brief Address at which the BASIC program should start for a Commodore 64 */
 		static const uint16_t C64_BASIC_START = 0x0801;
 
+		uint16_t load_address = 0;
 		std::shared_ptr<Linker::Contents> loader;
 
 		uint16_t GetLoadAddress() const;
-
-		enum
-		{
-			BASIC_SYS = 0x9E, /* BASIC token */
-		};
-
-		//std::shared_ptr<Linker::Segment> loader; /* loader routine in BASIC */
 
 		void Clear() override;
 
@@ -483,6 +475,7 @@ namespace Binary
 		void ProcessModule(Linker::Module& module) override;
 
 		void ReadFile(Linker::Reader& rd) override;
+		void CalculateValues() override;
 		offset_t ImageSize() const override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
