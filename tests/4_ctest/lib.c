@@ -265,12 +265,7 @@ exg\t%1, %%a6" : "=r"(d0) : "r"(a6), "r"(d1), "r"(d2), "r"(d3));
 }
 #elif TARGET_MACOS
 #include "../include/macos.h"
-static inline struct a5world * a5(void)
-{
-	register struct a5world * a5 __asm__("a5");
-	asm("" : "=r"(a5));
-	return &a5[-1];
-}
+__attribute__((section(".a5world, \"aw\", @nobits\n#"))) struct a5world  __a5world;
 
 void InitGraf(void * globalPtr)
 {

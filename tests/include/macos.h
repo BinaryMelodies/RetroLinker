@@ -138,9 +138,9 @@ union event
 
 typedef uint8_t Cursor[68];
 
-static struct a5world
+struct a5world
 {
-	char __other[108]; /* make it have at least 0xF8 bytes */
+	char __other[116]; /* make it have at least 0xF8 bytes */
 //	struct WindowRecord * window;
 	short current_row;
 
@@ -149,9 +149,14 @@ static struct a5world
 	Cursor arrow;
 	struct Pattern dkGray, ltGray, gray, black, white;
 	struct GrafPort * thePort;
-} __a5world;
+};
 
-static inline struct a5world * a5(void);
+static inline struct a5world * a5(void)
+{
+	register struct a5world * a5 __asm__("a5");
+	asm("" : "=r"(a5));
+	return &a5[-1];
+}
 
 void InitGraf(void * globalPtr);
 void InitFonts(void);
