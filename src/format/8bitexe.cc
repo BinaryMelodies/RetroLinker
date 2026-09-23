@@ -520,7 +520,23 @@ void CommodoreFormat::BASICLine::AddToken(Token token)
 
 void CommodoreFormat::BASICLine::AddString(std::string text)
 {
+	size_t old_length = tokens.size();
 	tokens.insert(tokens.end(), text.begin(), text.end());
+	static const std::vector<std::tuple<uint8_t, uint8_t>> basic_token_replacements =
+	{
+		{ '+', _PLUS },
+		{ '-', _MINUS },
+		{ '*', _MULTIPLY },
+		{ '/', _DIVIDE },
+		{ '^', _POWER },
+		{ '>', _GREATER },
+		{ '=', _EQUAL },
+		{ '<', _LESS },
+	};
+	for(auto replacement : basic_token_replacements)
+	{
+		std::replace(tokens.begin() + old_length, tokens.end(), std::get<0>(replacement), std::get<1>(replacement));
+	}
 }
 
 void CommodoreFormat::BASICLine::AddDecimal(int value)
@@ -546,7 +562,7 @@ void CommodoreFormat::BASICLine::ReadFile(Linker::Reader& rd)
 		return;
 	}
 	line_number = rd.ReadUnsigned(2);
-	AddString(rd.ReadData(size_t(-1), true)); // null terminated
+	AddString(rd.ReadASCIIZ());
 }
 
 offset_t CommodoreFormat::BASICLine::WriteFile(Linker::Writer& wr) const
@@ -566,10 +582,134 @@ void CommodoreFormat::BASICLine::CalculateValues()
 	next_address = line_address + ImageSize();
 }
 
+void CommodoreFormat::BASICLine::Dump(Dumper::Dumper& dump) const
+{
+	Dump(dump, {}, Dumper::Image);
+}
+
+void CommodoreFormat::BASICLine::Dump(Dumper::Dumper& dump, std::optional<uint16_t> line_index, int display_flags) const
+{
+	Dumper::Region line_region("Line", line_address, ImageSize(), 4);
+	if(line_index)
+	{
+		line_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(*line_index + 1));
+	}
+	line_region.AddField("Address of next line", Dumper::HexDisplay::Make(4), offset_t(next_address)); // TODO: might be redundant
+	line_region.AddField("Line number", Dumper::DecDisplay::Make(), offset_t(line_number));
+
+	static const std::map<uint8_t, std::string> token_texts =
+	{
+		{ END, "END" },
+		{ FOR, "FOR" },
+		{ NEXT, "NEXT" },
+		{ DATA, "DATA" },
+		{ INPUT_HASH, "INPUT#" },
+		{ INPUT, "INPUT" },
+		{ DIM, "DIM" },
+		{ READ, "READ" },
+		{ LET, "LET" },
+		{ GOTO, "GOTO" },
+		{ RUN, "RUN" },
+		{ IF, "IF" },
+		{ RESTORE, "RESTORE" },
+		{ GOSUB, "GOSUB" },
+		{ RETURN, "RETURN" },
+		{ REM, "REM" },
+		{ STOP, "STOP" },
+		{ ON, "ON" },
+		{ WAIT, "WAIT" },
+		{ LOAD, "LOAD" },
+		{ SAVE, "SAVE" },
+		{ VERIFY, "VERIFY" },
+		{ DEF, "DEF" },
+		{ POKE, "POKE" },
+		{ PRINT_HASH, "PRINT#" },
+		{ PRINT, "PRINT" },
+		{ CONST, "CONST" },
+		{ LIST, "LIST" },
+		{ CLR, "CLR" },
+		{ CMD, "CMD" },
+		{ SYS, "SYS" },
+		{ OPEN, "OPEN" },
+		{ CLOSE, "CLOSE" },
+		{ GET, "GET" },
+		{ NEW, "NEW" },
+		{ TAB_PAREN, "TAB_PAREN" },
+		{ TO, "TO" },
+		{ FN, "FN" },
+		{ SPC_PAREN, "SPC(" },
+		{ THEN, "THEN" },
+		{ NOT, "NOT" },
+		{ STEP, "STEP" },
+		{ _PLUS, "+" },
+		{ _MINUS, "-" },
+		{ _MULTIPLY, "*" },
+		{ _DIVIDE, "/" },
+		{ _POWER, "^" },
+		{ AND, "AND" },
+		{ OR, "OR" },
+		{ _GREATER, ">" },
+		{ _EQUAL, "=" },
+		{ _LESS, "<" },
+		{ SGN, "SGN" },
+		{ INT, "INT" },
+		{ ABS, "ABS" },
+		{ USR, "USR" },
+		{ FRE, "FRE" },
+		{ POS, "POS" },
+		{ SQR, "SQR" },
+		{ RND, "RND" },
+		{ LOG, "LOG" },
+		{ EXP, "EXP" },
+		{ COS, "COS" },
+		{ SIN, "SIN" },
+		{ TAN, "TAN" },
+		{ ATN, "ATN" },
+		{ PEEK, "PEEK" },
+		{ LEN, "LEN" },
+		{ STR_DOLLAR, "STR$" },
+		{ VAL, "VAL" },
+		{ ASC, "ASC" },
+		{ CHR_DOLLAR, "CHR$" },
+		{ LEFT_DOLLAR, "LEFT$" },
+		{ RIGHT_DOLLAR, "RIGHT$" },
+		{ MID_DOLLAR, "MID$" },
+		{ GO, "GO" },
+		{ _PI, "π" },
+	};
+
+	std::ostringstream oss;
+	for(auto token : tokens)
+	{
+		if(' ' <= token && token <= '~')
+		{
+			oss << char(token);
+		}
+		else
+		{
+			auto token_iter = token_texts.find(token);
+			if(token_iter != token_texts.end())
+			{
+				oss << "\33[1m" << token_iter->second << "\33[m"; // TODO: do not bake ANSI escape sequences into the display
+			}
+			else
+			{
+				oss << "\33[1m" "$" << std::hex << std::uppercase << std::setw(2) << std::setfill('0') << int(token) << "\33[m"; // TODO: do not bake ANSI escape sequences into the display
+			}
+		}
+	}
+
+	std::string line_text = oss.str();
+
+	line_region.AddField("Line", Dumper::StringDisplay::Make(), line_text);
+	line_region.Display(dump, display_flags);
+}
+
 // CommodoreFormat::BASICFile
 
 void CommodoreFormat::BASICFile::ReadFile(Linker::Reader& rd)
 {
+	rd.endiantype = ::LittleEndian;
 	uint16_t current_address = load_address;
 	while(true)
 	{
@@ -581,7 +721,9 @@ void CommodoreFormat::BASICFile::ReadFile(Linker::Reader& rd)
 			break;
 		}
 		lines.push_back(line);
+		ssize_t difference = ssize_t(line.next_address) - ssize_t(current_address + line.ImageSize());
 		current_address = line.next_address;
+		rd.Skip(difference);
 	}
 	end_address = current_address + 2;
 }
@@ -598,6 +740,7 @@ offset_t CommodoreFormat::BASICFile::ImageSize() const
 
 offset_t CommodoreFormat::BASICFile::WriteFile(Linker::Writer& wr) const
 {
+	wr.endiantype = ::LittleEndian;
 	uint16_t total_size = 0;
 	for(auto& line : lines)
 	{
@@ -625,6 +768,23 @@ void CommodoreFormat::BASICFile::CalculateValues()
 	end_address = current_address + 2;
 }
 
+void CommodoreFormat::BASICFile::Dump(Dumper::Dumper& dump) const
+{
+	Dump(dump, Dumper::Image);
+}
+
+void CommodoreFormat::BASICFile::Dump(Dumper::Dumper& dump, int display_flags) const
+{
+	Dumper::Block basic_block("BASIC file", 2, std::const_pointer_cast<Linker::Image>(AsImage()), load_address, 4, 4);
+	basic_block.Display(dump, display_flags);
+	uint16_t line_index = 0;
+	for(auto& line : lines)
+	{
+		line.Dump(dump, line_index, display_flags);
+		line_index ++;
+	}
+}
+
 // CommodoreFormat
 
 void CommodoreFormat::Clear()
@@ -634,9 +794,9 @@ void CommodoreFormat::Clear()
 
 uint16_t CommodoreFormat::GetLoadAddress() const
 {
-	if(auto file = std::dynamic_pointer_cast<const BASICFile>(loader))
+	if(auto basic_file = std::dynamic_pointer_cast<const BASICFile>(loader))
 	{
-		return file->load_address;
+		return basic_file->load_address;
 	}
 	else if(auto segment = std::dynamic_pointer_cast<const Linker::Segment>(loader))
 	{
@@ -691,6 +851,23 @@ uint16_t CommodoreFormat::GetImagePaddingSize() const
 	return 0;
 }
 
+void CommodoreFormat::ReadFile(Linker::Reader& rd)
+{
+	rd.endiantype = ::LittleEndian;
+
+	std::shared_ptr<BASICFile> loader_section = std::make_shared<BASICFile>();
+	loader_section->load_address = rd.ReadUnsigned(2);
+	loader_section->ReadFile(rd);
+	loader = loader_section;
+
+	image = Linker::Buffer::ReadFromFile(rd);
+}
+
+offset_t CommodoreFormat::ImageSize() const
+{
+	return 2 + loader->ImageSize() + GetImagePaddingSize() + image->ImageSize();
+}
+
 offset_t CommodoreFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
@@ -698,7 +875,7 @@ offset_t CommodoreFormat::WriteFile(Linker::Writer& wr) const
 	loader->WriteFile(wr);
 	wr.Skip(GetImagePaddingSize());
 	image->WriteFile(wr);
-	return offset_t(-1);
+	return ImageSize();
 }
 
 void CommodoreFormat::Dump(Dumper::Dumper& dump) const
@@ -706,10 +883,26 @@ void CommodoreFormat::Dump(Dumper::Dumper& dump) const
 	dump.SetEncoding(Dumper::Block::encoding_default);
 
 	dump.SetTitle("Commodore 8-bit format");
-	Dumper::Region file_region("File", file_offset, 0 /* TODO: file size */, 4);
+	Dumper::Region file_region("File", file_offset, ImageSize(), 4);
 	file_region.Display(dump, Dumper::Header);
 
-	// TODO
+	bool binary_blob_present = image != nullptr && image->ImageSize() != 0;
+	int loader_options = binary_blob_present ? Dumper::Miscellaneous : Dumper::Image;
+	if(auto basic_file = std::dynamic_pointer_cast<const BASICFile>(loader))
+	{
+		basic_file->Dump(dump, loader_options);
+	}
+	else
+	{
+		Dumper::Block loader_block("Loader", 2, loader->AsImage(), GetLoadAddress(), 4, 4);
+		loader_block.Display(dump, loader_options);
+	}
+
+	if(binary_blob_present)
+	{
+		Dumper::Block image_block("Image", 2 + loader->ImageSize() + GetImagePaddingSize(), image->AsImage(), GetLoadAddress() + GetImagePaddingSize(), 4, 4);
+		image_block.Display(dump, Dumper::Image);
+	}
 }
 
 std::string CommodoreFormat::GetDefaultExtension(Linker::Module& module, std::string filename) const
