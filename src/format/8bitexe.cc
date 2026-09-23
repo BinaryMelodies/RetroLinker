@@ -530,7 +530,7 @@ void CommodoreFormat::BASICLine::AddDecimal(int value)
 	AddString(oss.str());
 }
 
-size_t CommodoreFormat::BASICLine::GetSize() const
+size_t CommodoreFormat::BASICLine::ImageSize() const
 {
 	return tokens.size() + 5;
 }
@@ -558,12 +558,12 @@ offset_t CommodoreFormat::BASICLine::WriteFile(Linker::Writer& wr) const
 		wr.WriteData(tokens);
 		wr.WriteWord(1, 0);
 	}
-	return GetSize();
+	return ImageSize();
 }
 
 void CommodoreFormat::BASICLine::CalculateValues()
 {
-	next_address = line_address + GetSize();
+	next_address = line_address + ImageSize();
 }
 
 // CommodoreFormat::BASICFile
@@ -584,6 +584,16 @@ void CommodoreFormat::BASICFile::ReadFile(Linker::Reader& rd)
 		current_address = line.next_address;
 	}
 	end_address = current_address + 2;
+}
+
+offset_t CommodoreFormat::BASICFile::ImageSize() const
+{
+	uint16_t total_size = 0;
+	for(auto& line : lines)
+	{
+		total_size += line.ImageSize();
+	}
+	return total_size + 2;
 }
 
 offset_t CommodoreFormat::BASICFile::WriteFile(Linker::Writer& wr) const
@@ -646,13 +656,8 @@ void CommodoreFormat::SetupDefaultLoader()
 	BASICLine line;
 	line.line_number = 10;
 	line.AddToken(BASICLine::SYS);
-	line.AddString(" (");
-	line.AddDecimal(base_address); // TODO: base_address - loader data size
-	line.AddString(")");
-	while(line.GetSize() < 14) // minimum size to fit a possibly 5-digit load address (TODO: can this be simplified?)
-	{
-		line.tokens.push_back(0);
-	}
+	line.AddString(" ");
+	line.AddDecimal(base_address);
 	loader_section->lines.push_back(line);
 	loader_section->CalculateValues();
 	loader = loader_section;
@@ -667,11 +672,31 @@ void CommodoreFormat::ProcessModule(Linker::Module& module)
 	}
 }
 
+uint16_t CommodoreFormat::GetImagePaddingSize() const
+{
+	if(auto segment = std::dynamic_pointer_cast<Linker::Segment>(image))
+	{
+		if(auto basic = std::dynamic_pointer_cast<BASICFile>(loader))
+		{
+			if(segment->base_address >= basic->load_address + basic->ImageSize())
+			{
+				return segment->base_address - (basic->load_address + basic->ImageSize());
+			}
+			else
+			{
+				Linker::Error << "Error: image address begins before BASIC load address" << std::endl;
+			}
+		}
+	}
+	return 0;
+}
+
 offset_t CommodoreFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
 	wr.WriteWord(2, GetLoadAddress());
 	loader->WriteFile(wr);
+	wr.Skip(GetImagePaddingSize());
 	image->WriteFile(wr);
 	return offset_t(-1);
 }

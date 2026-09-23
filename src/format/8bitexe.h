@@ -347,7 +347,7 @@ namespace Binary
 			void AddToken(Token token);
 			void AddString(std::string text);
 			void AddDecimal(int value);
-			size_t GetSize() const; // including header
+			offset_t ImageSize() const override; // including header
 
 			void ReadFile(Linker::Reader& rd) override;
 			using Linker::Format::WriteFile;
@@ -365,6 +365,7 @@ namespace Binary
 
 			void ReadFile(Linker::Reader& rd) override;
 			using Linker::Format::WriteFile;
+			offset_t ImageSize() const override;
 			offset_t WriteFile(Linker::Writer& wr) const override;
 			void CalculateValues();
 			/* TODO */
@@ -398,6 +399,7 @@ namespace Binary
 		}
 
 		void SetupDefaultLoader();
+		uint16_t GetImagePaddingSize() const;
 
 		void ProcessModule(Linker::Module& module) override;
 

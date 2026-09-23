@@ -1301,7 +1301,7 @@ DefineTarget(
 	Format = "cbm-prg",
 	FormatName = "c64",
 	Versions = [
-		DefineVersion("", LinkerParameters = ["base_address=0x811"]),
+		DefineVersion("", LinkerParameters = ["base_address=0x80E"]),
 	],
 	extension = ".prg")
 
