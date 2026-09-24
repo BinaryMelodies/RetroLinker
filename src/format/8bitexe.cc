@@ -837,7 +837,7 @@ void CommodoreFormat::SetOptions(std::map<std::string, std::string>& options)
 	CommodoreOptionCollector collector;
 	collector.ConsiderOptions(options);
 
-	load_address = collector.sys();
+	load_address = collector.system();
 	if(auto address = collector.load_address())
 	{
 		load_address = *address;

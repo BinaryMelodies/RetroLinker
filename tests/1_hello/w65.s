@@ -61,6 +61,8 @@ Message:
 	.ascii	" ATARI 400/800"
 .elseif	TARGET_PET
 	.ascii	" COMMODORE PET"
+.elseif	TARGET_VIC
+	.ascii	" COMMODORE VIC-20"
 .elseif	TARGET_C64
 	.ascii	" COMMODORE 64"
 .endif

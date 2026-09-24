@@ -68,6 +68,9 @@ Message:
 #ifdef	TARGET_PET
 	.aasc	" COMMODORE PET"
 #endif
+#ifdef	TARGET_VIC
+	.aasc	" COMMODORE VIC-20"
+#endif
 #ifdef	TARGET_C64
 	.aasc	" COMMODORE 64"
 #endif
@@ -84,6 +87,9 @@ Message:
 #endif
 
 #ifdef	TARGET_PET
+#include "../include/c64.asm"
+#endif
+#ifdef	TARGET_VIC
 #include "../include/c64.asm"
 #endif
 #ifdef	TARGET_C64

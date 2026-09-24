@@ -1320,6 +1320,31 @@ DefineTarget(
 	extension = ".prg")
 
 DefineTarget(
+	Description = "Commodore VIC-20 on 6502, using xa assembler",
+	CPU = "mos6502",
+	System = "vic",
+	IncludeName = "c64",
+	Format = "cbm-prg",
+	FormatName = "c64",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["system=vic"], LinkerParameters = ["base_address=0x100D"]),
+	],
+	extension = ".prg")
+
+DefineTarget(
+	Description = "Commodore VIC-20 on 6502, using GNU binutils",
+	CPU = "w65",
+	System = "vic-binutils",
+	TargetName = "vic",
+	IncludeName = "c64",
+	Format = "cbm-prg",
+	FormatName = "c64",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["system=vic"], LinkerParameters = ["base_address=0x100D"]),
+	],
+	extension = ".prg")
+
+DefineTarget(
 	Description = "Commodore 64 on 6502, using xa assembler",
 	CPU = "mos6502",
 	System = "c64",

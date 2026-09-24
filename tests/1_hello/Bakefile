@@ -304,6 +304,14 @@ Target(
 	Format = "cbm-prg",
 	output_file = "pet_2")
 Target(
+	System = "vic",
+	Format = "cbm-prg",
+	output_file = "vic")
+Target(
+	System = "vic-binutils",
+	Format = "cbm-prg",
+	output_file = "vic_2")
+Target(
 	System = "c64",
 	Format = "cbm-prg",
 	output_file = "c64")

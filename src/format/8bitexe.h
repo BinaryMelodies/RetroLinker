@@ -479,12 +479,12 @@ namespace Binary
 				}
 			};
 
-			Linker::Option<Linker::ItemOf<SystemTypeEnumeration>> sys{"sys", "Target Commodore system type", C64_BASIC_START};
+			Linker::Option<Linker::ItemOf<SystemTypeEnumeration>> system{"system", "Target Commodore system type", C64_BASIC_START};
 			Linker::Option<std::optional<offset_t>> load_address{"load_address", "Load address for BASIC code"};
 
 			CommodoreOptionCollector()
 			{
-				InitializeFields(sys, load_address);
+				InitializeFields(system, load_address);
 			}
 		};
 
