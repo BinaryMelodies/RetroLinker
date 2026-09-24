@@ -59,6 +59,8 @@ Message:
 	.ascii	"GREETINGS FROM BINUTILS!"
 .if	TARGET_ATARI400
 	.ascii	" ATARI 400/800"
+.elseif	TARGET_PET
+	.ascii	" COMMODORE PET"
 .elseif	TARGET_C64
 	.ascii	" COMMODORE 64"
 .endif

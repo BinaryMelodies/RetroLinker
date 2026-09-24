@@ -457,6 +457,37 @@ namespace Binary
 		/** @brief Address at which the BASIC program should start for a Commodore 64 */
 		static const uint16_t C64_BASIC_START = 0x0801;
 
+		class CommodoreOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			class SystemTypeEnumeration : public Linker::Enumeration<uint16_t>
+			{
+			public:
+				SystemTypeEnumeration()
+					: Enumeration(
+						"PET", PET_BASIC_START,
+						"VIC20", VIC_BASIC_START,
+						"VIC-20", VIC_BASIC_START,
+						"VIC", VIC_BASIC_START,
+						"C64", C64_BASIC_START)
+				{
+					descriptions = {
+						{ PET_BASIC_START, "Commodore PET" },
+						{ VIC_BASIC_START, "Commodore VIC-20" },
+						{ C64_BASIC_START, "Commodore 64" },
+					};
+				}
+			};
+
+			Linker::Option<Linker::ItemOf<SystemTypeEnumeration>> sys{"sys", "Target Commodore system type", C64_BASIC_START};
+			Linker::Option<std::optional<offset_t>> load_address{"load_address", "Load address for BASIC code"};
+
+			CommodoreOptionCollector()
+			{
+				InitializeFields(sys, load_address);
+			}
+		};
+
 		uint16_t load_address = 0;
 		std::shared_ptr<Linker::Contents> loader;
 
@@ -471,6 +502,9 @@ namespace Binary
 
 		void SetupDefaultLoader();
 		uint16_t GetImagePaddingSize() const;
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void ProcessModule(Linker::Module& module) override;
 

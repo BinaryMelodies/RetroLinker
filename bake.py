@@ -1295,6 +1295,31 @@ DefineTarget(
 	extension = ".xex")
 
 DefineTarget(
+	Description = "Commodore PET on 6502, using xa assembler",
+	CPU = "mos6502",
+	System = "pet",
+	IncludeName = "c64",
+	Format = "cbm-prg",
+	FormatName = "c64",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["system=pet"], LinkerParameters = ["base_address=0x40D"]),
+	],
+	extension = ".prg")
+
+DefineTarget(
+	Description = "Commodore PET on 6502, using GNU binutils",
+	CPU = "w65",
+	System = "pet-binutils",
+	TargetName = "pet",
+	IncludeName = "c64",
+	Format = "cbm-prg",
+	FormatName = "c64",
+	Versions = [
+		DefineVersion("", LinkerOptions = ["system=pet"], LinkerParameters = ["base_address=0x40D"]),
+	],
+	extension = ".prg")
+
+DefineTarget(
 	Description = "Commodore 64 on 6502, using xa assembler",
 	CPU = "mos6502",
 	System = "c64",

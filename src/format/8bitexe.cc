@@ -817,19 +817,36 @@ void CommodoreFormat::SetupDefaultLoader()
 	line.AddToken(BASICLine::SYS);
 	line.AddDecimal(base_address);
 	loader_section->lines.push_back(line);
-	if(load_address + line.ImageSize() > base_address)
+	if(load_address + line.ImageSize() + 2 > base_address)
 	{
 		Linker::Warning << "Warning: base address too low, adjusting load address to 0x" << std::hex << load_address << std::endl;
-		load_address = base_address - line.ImageSize();
+		load_address = base_address - line.ImageSize() - 2;
 	}
 	loader_section->load_address = load_address;
 	loader_section->CalculateValues();
 	loader = loader_section;
 }
 
+std::shared_ptr<Linker::OptionCollector> CommodoreFormat::GetOptions()
+{
+	return std::make_shared<CommodoreOptionCollector>();
+}
+
+void CommodoreFormat::SetOptions(std::map<std::string, std::string>& options)
+{
+	CommodoreOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	load_address = collector.sys();
+	if(auto address = collector.load_address())
+	{
+		load_address = *address;
+	}
+	Linker::Debug << "Debug: selected load address: 0x" << load_address << std::endl;
+}
+
 void CommodoreFormat::ProcessModule(Linker::Module& module)
 {
-	load_address = C64_BASIC_START; // TODO: make configurable
 	GenericBinaryFormat::ProcessModule(module);
 	if(loader == nullptr)
 	{

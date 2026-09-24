@@ -296,6 +296,14 @@ Target(
 	Format = "atari-com",
 	output_file = "atari2")
 Target(
+	System = "pet",
+	Format = "cbm-prg",
+	output_file = "pet")
+Target(
+	System = "pet-binutils",
+	Format = "cbm-prg",
+	output_file = "pet_2")
+Target(
 	System = "c64",
 	Format = "cbm-prg",
 	output_file = "c64")

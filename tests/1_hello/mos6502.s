@@ -11,6 +11,14 @@
 	.xs
 
 start:
+#ifdef	TARGET_PET
+	tsx
+	stx	ExitStack
+#endif
+#ifdef	TARGET_VIC
+	tsx
+	stx	ExitStack
+#endif
 #ifdef	TARGET_C64
 	tsx
 	stx	ExitStack
@@ -57,6 +65,9 @@ Message:
 #ifdef	TARGET_ATARI400
 	.aasc	" ATARI 400/800"
 #endif
+#ifdef	TARGET_PET
+	.aasc	" COMMODORE PET"
+#endif
 #ifdef	TARGET_C64
 	.aasc	" COMMODORE 64"
 #endif
@@ -72,6 +83,9 @@ Message:
 #include "../include/atari400.asm"
 #endif
 
+#ifdef	TARGET_PET
+#include "../include/c64.asm"
+#endif
 #ifdef	TARGET_C64
 #include "../include/c64.asm"
 #endif

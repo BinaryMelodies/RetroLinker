@@ -237,6 +237,14 @@
 .set TARGET_ATARI400, 0
 .endif
 
+.ifndef TARGET_PET
+.set TARGET_PET, 0
+.endif
+
+.ifndef TARGET_VIC
+.set TARGET_VIC, 0
+.endif
+
 .ifndef TARGET_C64
 .set TARGET_C64, 0
 .endif
@@ -601,7 +609,7 @@
 .include "../include/atari400.inc"
 .endif
 
-.if TARGET_C64
+.if TARGET_PET || TARGET_VIC || TARGET_C64
 .include "../include/c64.inc"
 .endif
 
