@@ -701,7 +701,7 @@ void CommodoreFormat::BASICLine::Dump(Dumper::Dumper& dump, std::optional<uint16
 		}
 	}
 
-	line_region.AddField("Line", Dumper::RichTextDisplay::Make(), line_text);
+	line_region.AddField("Line", Dumper::RichTextDisplay::Make("'"), line_text);
 	line_region.Display(dump, display_flags);
 }
 
@@ -812,13 +812,17 @@ uint16_t CommodoreFormat::GetLoadAddress() const
 void CommodoreFormat::SetupDefaultLoader()
 {
 	std::shared_ptr<BASICFile> loader_section = std::make_shared<BASICFile>();
-	loader_section->load_address = load_address;
 	BASICLine line;
 	line.line_number = 10;
 	line.AddToken(BASICLine::SYS);
-	line.AddString(" ");
 	line.AddDecimal(base_address);
 	loader_section->lines.push_back(line);
+	if(load_address + line.ImageSize() > base_address)
+	{
+		Linker::Warning << "Warning: base address too low, adjusting load address to 0x" << std::hex << load_address << std::endl;
+		load_address = base_address - line.ImageSize();
+	}
+	loader_section->load_address = load_address;
 	loader_section->CalculateValues();
 	loader = loader_section;
 }
