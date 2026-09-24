@@ -159,7 +159,17 @@
  * </tr>
  *
  * <tr>
- * <td rowspan='3' colspan='2'><a href="classCOFF_1_1COFFFormat.html">COFF</a></td>
+ * <td rowspan='6' colspan='2'><a href="classCOFF_1_1COFFFormat.html">COFF</a></td>
+ * <td>VAX</td>
+ * <td>UNIX System V</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>WE32K</td>
+ * <td>UNIX System V (untested)</td>
+ * </tr>
+ *
+ * <tr>
  * <td rowspan='2'>Intel 80386</td>
  * <td>DJGPP (since 1.11)</td>
  * </tr>
@@ -169,8 +179,12 @@
  * </tr>
  *
  * <tr>
- * <td>Motorola 68000</td>
+ * <td rowspan='2'>Motorola 68000</td>
  * <td>Concurrent DOS 68K (<tt>.68k</tt>)<br>with crunched relocations (untested)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>A/UX (unimplemented)</td>
  * </tr>
  *
  * <tr>
@@ -227,16 +241,21 @@
  *
  * <tr>
  * <td colspan='2'><a href="classApple_1_1AppleSingleDouble.html">AppleSingle or AppleDouble</a>
- * <br><a href="classApple_1_1ResourceFork.html">Macintosh resource</a>
+ * <br><a href="classApple_1_1MacintoshResourceFileFormat.html">Macintosh resource</a>
  * <br><a href="classApple_1_1MacBinary.html">MacBinary</a></td>
- * <td>Motorola 68000</td>
+ * <td rowspan='2'>Motorola 68000</td>
  * <td>Mac OS</td>
  * </tr>
  *
  * <tr>
- * <td colspan='2'><a href="classApple_1_1PEFFormat.html">PEF</a></td>
- * <td>PowerPC<br>Motorola 68000</td>
+ * <td colspan='2'><a href="classApple_1_1PEFFormat.html">PEF, CFM-68K</a></td>
  * <td>Mac OS (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
+ * <td colspan='2'><a href="classApple_1_1PEFFormat.html">PEF</a></td>
+ * <td>PowerPC</td>
+ * <td>Mac OS (untested)</td>
  * </tr>
  *
  * <tr>
@@ -248,7 +267,7 @@
  * <tr>
  * <td colspan='2'><a href="classApple_1_1OMFFormat.html">OMF executable</a></td>
  * <td>WDC65C816</td>
- * <td>GS/OS (unimplemented)</td>
+ * <td>GS/OS (untested)</td>
  * </tr>
  *
  * <tr>
@@ -260,7 +279,7 @@
  * <tr>
  * <td colspan='2'><a href="classPCOS_1_1CMDFormat.html">Olivetti PCOS binary (<tt>.cmd</tt>, <tt>.sav</tt>)</a></td>
  * <td>Zilog Z8000</td>
- * <td>Olivetti PCOS (unimplemented)</td>
+ * <td>Olivetti PCOS (untested)</td>
  * </tr>
  *
  * <tr>
@@ -282,9 +301,21 @@
  * </tr>
  *
  * <tr>
- * <td colspan='2'><a href="classBinary_1_1AppleFormat.html">Apple ][ (<tt>.bin</tt>)</a></td>
- * <td>MOS 6502</td>
- * <td>Apple ][ (untested)</td>
+ * <td rowspan='2'><a href="classBinary_1_1AppleFormat.html">Apple ][</a></td>
+ * <td>BIN</td>
+ * <td rowspan='3'>MOS 6502</td>
+ * <td>Apple DOS</td>
+ * </tr>
+ *
+ * <tr>
+ * <td>SYS</td>
+ * <td>ProDOS</td>
+ * </tr>
+ *
+ * <tr>
+ * <td><a href="classBinary_1_1SOSFormat.html">Apple ///</a></td>
+ * <td>SOS</td>
+ * <td>Apple SOS</td>
  * </tr>
  *
  * <tr>
@@ -336,7 +367,7 @@
  * </tr>
  *
  * <tr>
- * <td colspan='2'><a href="classBrocaD3X_1_1D3X1Format.html">D3X1</a></td>
+ * <td colspan='2'><a href="classBorcaD3X_1_1D3X1Format.html">D3X1</a></td>
  * <td>Intel 80386</td>
  * <td>D3X DOS extender</td>
  * </tr>
@@ -410,7 +441,7 @@
  * <tr>
  * <td><a href="classOMF_1_1OMFFormat.html">Intel Relocatable Object Module</a></td>
  * <td>Intel 8086<br>Intel 80386</td>
- * <td>16-bit Microsoft<br>Borland<br>Watcom (unimplemented)</td>
+ * <td>16-bit Microsoft<br>Borland<br>Watcom</td>
  * </tr>
  *
  * <tr>

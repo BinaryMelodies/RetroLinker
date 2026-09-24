@@ -1,6 +1,7 @@
 #ifndef MACOS_H
 #define MACOS_H
 
+#include <cstring>
 #include <filesystem>
 #include <optional>
 #include <set>

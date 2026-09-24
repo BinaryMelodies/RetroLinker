@@ -1,6 +1,7 @@
 #ifndef PEFEXE_H
 #define PEFEXE_H
 
+#include "macos.h"
 #include "../common.h"
 #include "../dumper/dumper.h"
 #include "../linker/buffer.h"
@@ -701,6 +702,36 @@ namespace Apple
 		void ProcessRelocations(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
+	};
+
+	class PEFOutputDriver : public MacintoshOutputDriver
+	{
+	public:
+		// TODO: very preliminary
+
+		PEFOutputDriver(target_format_t target = TARGET_DATA_FORK)
+			: MacintoshOutputDriver(target)
+		{
+		}
+
+		PEFOutputDriver(target_format_t target, int produce)
+			: MacintoshOutputDriver(target, produce)
+		{
+		}
+
+		bool FormatSupportsResources() const override;
+
+	private:
+		/** COFF format */
+		std::shared_ptr<PEFFormat> data_fork;
+		/** Direct access to the Mac OS resource fork */
+		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
+		std::shared_ptr<FinderInfo> finder_info;
+
+		std::map<std::string, std::string> options;
+		std::string model;
+		std::string script_file;
+		std::map<std::string, std::string> script_options;
 	};
 }
 

@@ -3621,3 +3621,10 @@ std::string COFFFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	}
 }
 
+// AUXOutputDriver
+
+bool AUXOutputDriver::FormatSupportsResources() const
+{
+	return true;
+}
+

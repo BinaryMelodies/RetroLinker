@@ -2244,3 +2244,10 @@ void PEFFormat::GenerateFile(std::string filename, Linker::Module& module)
 	Linker::OutputFormat::GenerateFile(filename, module);
 }
 
+// PEFOutputDriver
+
+bool PEFOutputDriver::FormatSupportsResources() const
+{
+	return true;
+}
+

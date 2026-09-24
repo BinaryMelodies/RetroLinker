@@ -3,8 +3,10 @@
 
 #include <array>
 #include <map>
-#include "cpm68k.h"
-#include "mzexe.h"
+#include "cpm68k.h" // for Concurrent DOS 68K
+#include "mzexe.h" // for DJGPP
+#include "macos.h" // for A/UX
+
 #include "../common.h"
 #include "../linker/module.h"
 #include "../linker/options.h"
@@ -2007,6 +2009,35 @@ namespace COFF
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 
+	class AUXOutputDriver : public Apple::MacintoshOutputDriver
+	{
+	public:
+		// TODO: very preliminary
+
+		AUXOutputDriver(target_format_t target = TARGET_DATA_FORK)
+			: MacintoshOutputDriver(target)
+		{
+		}
+
+		AUXOutputDriver(target_format_t target, int produce)
+			: MacintoshOutputDriver(target, produce)
+		{
+		}
+
+		bool FormatSupportsResources() const override;
+
+	private:
+		/** COFF format */
+		std::shared_ptr<COFFFormat> data_fork;
+		/** Direct access to the Mac OS resource fork */
+		std::shared_ptr<Apple::MacintoshResourceFileFormat> resource_fork;
+		std::shared_ptr<Apple::FinderInfo> finder_info;
+
+		std::map<std::string, std::string> options;
+		std::string model;
+		std::string script_file;
+		std::map<std::string, std::string> script_options;
+	};
 }
 
 #endif /* COFF_H */
