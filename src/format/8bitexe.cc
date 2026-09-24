@@ -906,7 +906,7 @@ void CommodoreFormat::Dump(Dumper::Dumper& dump) const
 
 	if(binary_blob_present)
 	{
-		Dumper::Block image_block("Image", 2 + loader->ImageSize() + GetImagePaddingSize(), image->AsImage(), load_address + GetImagePaddingSize(), 4, 4);
+		Dumper::Block image_block("Image", 2 + loader->ImageSize() + GetImagePaddingSize(), image->AsImage(), load_address + loader->ImageSize() + GetImagePaddingSize(), 4, 4);
 		image_block.Display(dump, Dumper::Image);
 	}
 }
