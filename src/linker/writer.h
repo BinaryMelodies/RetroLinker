@@ -70,15 +70,27 @@ namespace Linker
 		void WriteData(size_t count, std::istream& in);
 
 		/**
-		 * @brief Read a word
+		 * @brief Write a word
 		 */
 		void WriteWord(size_t bytes, uint64_t value, EndianType endiantype);
 
 		/**
-		 * @brief Read a word
+		 * @brief Write a word
 		 */
 		void WriteWord(size_t bytes, uint64_t value);
 
+		/**
+		 * @brief Write a date-time value according to some epoch
+		 */
+		template <typename Clock>
+			void WriteTimestamp(Timestamp<Clock> timestamp, EndianType endiantype)
+		{
+			WriteWord(sizeof(typename Clock::rep), Clock::to_ticks(timestamp), endiantype);
+		}
+
+		/**
+		 * @brief Write a date-time value according to some epoch
+		 */
 		template <typename Clock>
 			void WriteTimestamp(Timestamp<Clock> timestamp)
 		{

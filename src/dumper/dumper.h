@@ -552,6 +552,11 @@ public:
 	void DisplayValue(Dumper& dump, std::tuple<offset_t> values) override;
 };
 
+/**
+ * @brief A value that holds a time point
+ *
+ * @tparam Clock The clock corresponding to the format of the timestamp
+ */
 template <typename Clock>
 	class TimestampDisplay : public Display<::Timestamp<Clock>>
 {
@@ -579,6 +584,7 @@ public:
 	using Display<Timestamp>::DisplayValue;
 	void DisplayValue(Dumper& dump, std::tuple<offset_t> values)
 	{
+		// convert the first value to the time corresponding to the specified number of ticks
 		DisplayValue(dump, std::make_tuple(Clock::to_time_stamp(std::get<0>(values))));
 	}
 };

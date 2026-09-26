@@ -166,6 +166,7 @@ bool starts_with(std::string str, std::string start);
  */
 bool ends_with(std::string str, std::string end);
 
+/** @brief Represents a month value in the Gregorian calendar */
 enum class Month : unsigned
 {
 	January = 1,
@@ -182,8 +183,9 @@ enum class Month : unsigned
 	December = 12,
 };
 
+/** @brief Provides a type for compile-time constants representing Gregorian dates */
 template <unsigned _Year, Month _Month = Month::January, unsigned _Day = 1>
-	struct CalendarDate
+	struct GregorianCalendarDate
 {
 	static constexpr unsigned Year = _Year;
 	static constexpr ::Month Month = _Month;
@@ -195,7 +197,15 @@ template <unsigned _Year, Month _Month = Month::January, unsigned _Day = 1>
 	}
 };
 
-template <typename Rep, typename Epoch, typename Period = std::ratio<1>>
+/** @brief A static class that encodes a specific timestamp format
+ *
+ * This structure satisfies the requirements for a Clock.
+ *
+ * @tparam Epoch The starting date, corresponding to the zero timestamp value
+ * @tparam Rep The binary representation (typically int32_t)
+ * @tparam Period The unit of time period corresponding to increasing the binary representation by 1
+ */
+template <typename Epoch, typename Rep = int32_t, typename Period = std::ratio<1>>
 	struct VendorClock
 {
 	using rep = Rep;
@@ -256,8 +266,10 @@ template <typename Rep, typename Epoch, typename Period = std::ratio<1>>
 	}
 };
 
-using POSIX_clock = VendorClock<int32_t, CalendarDate<1970, Month::January, 1>>;
+/** @brief Represents the clock for POSIX timestamps */
+using POSIX_clock = VendorClock<GregorianCalendarDate<1970, Month::January, 1>>;
 
+/** @brief Convenience name for a time_point corresponding to a clock */
 template <typename Clock>
 	using Timestamp = std::chrono::time_point<Clock>;
 
