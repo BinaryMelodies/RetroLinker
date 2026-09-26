@@ -889,6 +889,8 @@ void CPM86Format::Dump(Dumper::Dumper& dump) const
 	std::map<size_t, library> first_selectors;
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
+		next_relocation_offset += 4; // intervening zeroes
+
 		Dumper::Region libraries("SRTL group", library_descriptor.offset, uint32_t(library_descriptor.size_paras) << 4, 5);
 		libraries.Display(dump, Dumper::Header);
 		size_t j = 0;
@@ -2055,8 +2057,9 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 		if(segment_types.find(Segments()[i]) == segment_types.end())
 			continue;
 		Descriptor::group_type type = segment_types[Segments()[i]];
-		if(IsSharedRunTimeLibrary() && type != Descriptor::Code && type != Descriptor::SharedCode)
-			continue; // shared run-time libraries only include the code segment
+		//if(IsSharedRunTimeLibrary() && type != Descriptor::Code && type != Descriptor::SharedCode)
+		//	continue; // shared run-time libraries only include the code segment
+		Linker::Debug << "Debug: Generating segment group descriptor #" << j << " as type " << type << std::endl;
 		descriptors[j].type = type;
 		bool is_zero_page = (format != FORMAT_FLEXOS && format != FORMAT_FASTLOAD) && (format == FORMAT_8080 ? i == 0 : i == 1);
 		descriptors[j].attach_zero_page = is_zero_page;
