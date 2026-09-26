@@ -74,7 +74,7 @@ void SymbianFormat::ReadFile(Linker::Reader& rd)
 		compression_type = rd.ReadUnsigned(4);
 	}
 	tool_version = rd.ReadUnsigned(4);
-	timestamp = rd.ReadUnsigned(8);
+	timestamp = rd.ReadTimestamp<Symbian_clock>();
 	flags = flags_type(rd.ReadUnsigned(4));
 	uint32_t code_size = rd.ReadUnsigned(4);
 	(void) code_size; // TODO

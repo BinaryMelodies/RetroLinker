@@ -4,6 +4,9 @@
 #include <array>
 #include "../linker/format.h"
 
+/** @brief Represents the clock for Symbian timestamps */
+using Symbian_clock = VendorClock<GregorianCalendarDate<0, Month::January, 1>, int64_t>;
+
 namespace EPOC
 {
 	class SymbianFormat : public Linker::Format
@@ -86,7 +89,7 @@ namespace EPOC
 		};
 
 		uint32_t tool_version;
-		uint64_t timestamp;
+		::Timestamp<Symbian_clock> timestamp;
 		enum flags_type
 		{
 		};
