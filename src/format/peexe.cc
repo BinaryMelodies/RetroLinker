@@ -2481,7 +2481,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 		{ 0xAA64, "AArch64 (64-bit ARM, little endian)" },
 	};
 	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(::ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
-	header_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
+	header_region.AddOptionalField("Timestamp", Dumper::HexDisplay::Make(), offset_t(POSIX_clock::to_ticks(timestamp))); // TODO: TimestampDisplay
 	// TODO: other fields?
 	header_region.AddOptionalField("Flags",
 		Dumper::BitFieldDisplay::Make()
