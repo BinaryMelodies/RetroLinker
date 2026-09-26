@@ -1310,7 +1310,7 @@ void PEFFormat::ReadFile(Linker::Reader& rd)
 	rd.Seek(8);
 	architecture = cpu_type(rd.ReadUnsigned(4));
 	format_version = rd.ReadUnsigned(4);
-	date_time_stamp = rd.ReadUnsigned(4);
+	date_time_stamp = rd.ReadTimestamp<Macintosh_clock>();
 	old_def_version = rd.ReadUnsigned(4);
 	old_imp_version = rd.ReadUnsigned(4);
 	current_version = rd.ReadUnsigned(4);
@@ -1348,7 +1348,7 @@ offset_t PEFFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteData("Joy!peff");
 	wr.WriteWord(4, architecture);
 	wr.WriteWord(4, format_version);
-	wr.WriteWord(4, date_time_stamp);
+	wr.WriteTimestamp(date_time_stamp);
 	wr.WriteWord(4, old_def_version);
 	wr.WriteWord(4, old_imp_version);
 	wr.WriteWord(4, current_version);
@@ -1595,7 +1595,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	u.value = FromBigEndian32(architecture); // TODO: should be ToBigEndian32
 	header_region.AddField("Architecture", Dumper::StringDisplay::Make("'"), std::string(u.string, 4));
 	header_region.AddField("Format version", Dumper::DecDisplay::Make(), offset_t(format_version));
-	header_region.AddField("Date time stamp", Dumper::DecDisplay::Make(), offset_t(date_time_stamp)); // TODO: format
+	header_region.AddField("Date time stamp", Dumper::TimestampDisplay<Macintosh_clock>::Make(), date_time_stamp);
 	header_region.AddField("Old definition version", Dumper::DecDisplay::Make(), offset_t(old_def_version));
 	header_region.AddField("Old implementation version", Dumper::DecDisplay::Make(), offset_t(old_imp_version));
 	header_region.AddField("Current version", Dumper::DecDisplay::Make(), offset_t(current_version));

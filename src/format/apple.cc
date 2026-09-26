@@ -519,7 +519,7 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::GetRealName()
 	return entry;
 }
 
-void AppleSingleDouble::SetCreationDate(uint32_t CreationDate)
+void AppleSingleDouble::SetCreationDate(AppleSingleDouble::Timestamp CreationDate)
 {
 	std::shared_ptr<Entry> entry;
 	switch(version)
@@ -554,7 +554,7 @@ void AppleSingleDouble::SetCreationDate(uint32_t CreationDate)
 	}
 }
 
-uint32_t AppleSingleDouble::GetCreationDate()
+AppleSingleDouble::Timestamp AppleSingleDouble::GetCreationDate()
 {
 	std::shared_ptr<Entry> entry;
 	switch(version)
@@ -586,10 +586,10 @@ uint32_t AppleSingleDouble::GetCreationDate()
 		if(entry != nullptr)
 			return std::dynamic_pointer_cast<FileDatesInfo>(entry)->CreationDate;
 	}
-	return 0;
+	return { };
 }
 
-uint32_t AppleSingleDouble::ReadCreationDate()
+std::optional<AppleSingleDouble::Timestamp> AppleSingleDouble::ReadCreationDate()
 {
 	switch(version)
 	{
@@ -615,10 +615,10 @@ uint32_t AppleSingleDouble::ReadCreationDate()
 		}
 		break;
 	}
-	return 0;
+	return { };
 }
 
-void AppleSingleDouble::SetModificationDate(uint32_t ModificationDate)
+void AppleSingleDouble::SetModificationDate(AppleSingleDouble::Timestamp ModificationDate)
 {
 	std::shared_ptr<Entry> entry;
 	switch(version)
@@ -658,7 +658,7 @@ void AppleSingleDouble::SetModificationDate(uint32_t ModificationDate)
 	}
 }
 
-uint32_t AppleSingleDouble::GetModificationDate()
+AppleSingleDouble::Timestamp AppleSingleDouble::GetModificationDate()
 {
 	std::shared_ptr<Entry> entry;
 	switch(version)
@@ -696,10 +696,10 @@ uint32_t AppleSingleDouble::GetModificationDate()
 			return std::dynamic_pointer_cast<FileDatesInfo>(entry)->ModificationDate;
 		break;
 	}
-	return 0;
+	return { };
 }
 
-uint32_t AppleSingleDouble::ReadModificationDate()
+std::optional<AppleSingleDouble::Timestamp> AppleSingleDouble::ReadModificationDate()
 {
 	switch(version)
 	{
@@ -726,10 +726,10 @@ uint32_t AppleSingleDouble::ReadModificationDate()
 		}
 		break;
 	}
-	return 0;
+	return { };
 }
 
-void AppleSingleDouble::SetBackupDate(uint32_t BackupDate)
+void AppleSingleDouble::SetBackupDate(AppleSingleDouble::Timestamp BackupDate)
 {
 	std::shared_ptr<Entry> entry;
 	switch(version)
@@ -750,7 +750,7 @@ void AppleSingleDouble::SetBackupDate(uint32_t BackupDate)
 	}
 }
 
-void AppleSingleDouble::SetAccessDate(uint32_t AccessDate)
+void AppleSingleDouble::SetAccessDate(AppleSingleDouble::Timestamp AccessDate)
 {
 	std::shared_ptr<Entry> entry;
 	switch(version)
@@ -1088,18 +1088,18 @@ offset_t FileInfo::Macintosh::ImageSize() const
 void FileInfo::Macintosh::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::BigEndian;
-	CreationDate = rd.ReadUnsigned(4);
-	ModificationDate = rd.ReadUnsigned(4);
-	LastBackupDate = rd.ReadUnsigned(4);
+	CreationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
+	ModificationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
+	LastBackupDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
 	Attributes = rd.ReadUnsigned(4);
 }
 
 offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
-	wr.WriteWord(4, CreationDate);
-	wr.WriteWord(4, ModificationDate);
-	wr.WriteWord(4, LastBackupDate);
+	wr.WriteTimestamp(CreationDate);
+	wr.WriteTimestamp(ModificationDate);
+	wr.WriteTimestamp(LastBackupDate);
 	wr.WriteWord(4, Attributes);
 
 	return offset_t(-1);
@@ -1124,8 +1124,8 @@ offset_t FileInfo::ProDOS::ImageSize() const
 void FileInfo::ProDOS::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::BigEndian;
-	CreationDate = rd.ReadUnsigned(4);
-	ModificationDate = rd.ReadUnsigned(4);
+	CreationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
+	ModificationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
 	Access = rd.ReadUnsigned(2);
 	FileType = rd.ReadUnsigned(2);
 	AuxiliaryType = rd.ReadUnsigned(4);
@@ -1134,8 +1134,8 @@ void FileInfo::ProDOS::ReadFile(Linker::Reader& rd)
 offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
-	wr.WriteWord(4, CreationDate);
-	wr.WriteWord(4, ModificationDate);
+	wr.WriteTimestamp(CreationDate);
+	wr.WriteTimestamp(ModificationDate);
 	wr.WriteWord(2, Access);
 	wr.WriteWord(2, FileType);
 	wr.WriteWord(4, AuxiliaryType);
@@ -1162,14 +1162,14 @@ offset_t FileInfo::MSDOS::ImageSize() const
 void FileInfo::MSDOS::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::BigEndian;
-	ModificationDate = rd.ReadUnsigned(4);
+	ModificationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
 	Attributes = rd.ReadUnsigned(2);
 }
 
 offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
-	wr.WriteWord(4, ModificationDate);
+	wr.WriteTimestamp(ModificationDate);
 	wr.WriteWord(2, Attributes);
 
 	return offset_t(-1);
@@ -1198,9 +1198,9 @@ void FileInfo::AUX::ReadFile(Linker::Reader& rd)
 offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
-	wr.WriteWord(4, CreationDate);
-	wr.WriteWord(4, AccessDate);
-	wr.WriteWord(4, ModificationDate);
+	wr.WriteTimestamp(CreationDate);
+	wr.WriteTimestamp(AccessDate);
+	wr.WriteTimestamp(ModificationDate);
 
 	return offset_t(-1);
 }
@@ -1228,10 +1228,10 @@ void FileDatesInfo::ReadFile(Linker::Reader& rd)
 offset_t FileDatesInfo::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::BigEndian;
-	wr.WriteWord(4, CreationDate);
-	wr.WriteWord(4, ModificationDate);
-	wr.WriteWord(4, BackupDate);
-	wr.WriteWord(4, AccessDate);
+	wr.WriteTimestamp(CreationDate);
+	wr.WriteTimestamp(ModificationDate);
+	wr.WriteTimestamp(BackupDate);
+	wr.WriteTimestamp(AccessDate);
 
 	return offset_t(-1);
 }
@@ -1243,26 +1243,26 @@ void FileDatesInfo::Dump(Dumper::Dumper& dump) const
 	region.Display(dump, Dumper::Header);
 }
 
-void FileDatesInfo::DumpFields(Dumper::Region& region, std::optional<uint32_t> CreationDate, std::optional<uint32_t> ModificationDate, std::optional<uint32_t> BackupDate, std::optional<uint32_t> AccessDate)
+void FileDatesInfo::DumpFields(Dumper::Region& region, std::optional<AppleSingleDouble::Timestamp> CreationDate, std::optional<AppleSingleDouble::Timestamp> ModificationDate, std::optional<AppleSingleDouble::Timestamp> BackupDate, std::optional<AppleSingleDouble::Timestamp> AccessDate)
 {
 	if(CreationDate)
 	{
-		region.AddField("Creation date", Dumper::DecDisplay::Make(), offset_t(*CreationDate)); // TODO: date display
+		region.AddField("Creation date", Dumper::TimestampDisplay<AppleSingleDouble::clock>::Make(), *CreationDate);
 	}
 
 	if(ModificationDate)
 	{
-		region.AddField("Modification date", Dumper::DecDisplay::Make(), offset_t(*ModificationDate)); // TODO: date display
+		region.AddField("Modification date", Dumper::TimestampDisplay<AppleSingleDouble::clock>::Make(), *ModificationDate);
 	}
 
 	if(BackupDate)
 	{
-		region.AddField("Backup date", Dumper::DecDisplay::Make(), offset_t(*BackupDate)); // TODO: date display
+		region.AddField("Backup date", Dumper::TimestampDisplay<AppleSingleDouble::clock>::Make(), *BackupDate);
 	}
 
 	if(AccessDate)
 	{
-		region.AddField("Access date", Dumper::DecDisplay::Make(), offset_t(*AccessDate)); // TODO: date display
+		region.AddField("Access date", Dumper::TimestampDisplay<AppleSingleDouble::clock>::Make(), *AccessDate);
 	}
 }
 
@@ -1861,8 +1861,8 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 void MacBinary::CalculateValues()
 {
 	attributes = apple_single->ReadMacintoshAttributes();
-	creation = apple_single->ReadCreationDate();
-	modification = apple_single->ReadModificationDate();
+	creation = AppleSingleDouble::clock::to_ticks(apple_single->ReadCreationDate().value_or({})); // TODO: conversion
+	modification = AppleSingleDouble::clock::to_ticks(apple_single->ReadModificationDate().value_or({})); // TODO: conversion
 	apple_single->CalculateValues();
 }
 

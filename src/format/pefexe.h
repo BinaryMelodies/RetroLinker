@@ -415,7 +415,7 @@ namespace Apple
 		};
 		cpu_type architecture = PPC;
 		uint32_t format_version = 1;
-		uint32_t date_time_stamp = 0;
+		::Timestamp<Macintosh_clock> date_time_stamp = { };
 		uint32_t old_def_version = 0;
 		uint32_t old_imp_version = 0;
 		uint32_t current_version = 0;

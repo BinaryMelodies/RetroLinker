@@ -32,6 +32,9 @@ namespace Apple
 	uint32_t OSTypeToUInt32(const OSType& type);
 	void UInt32ToOSType(OSType& type, uint32_t value);
 
+	/** @brief Represents the clock for Macintosh timestamps */
+	using Macintosh_clock = VendorClock<GregorianCalendarDate<1904, Month::January, 1>>;
+
 	/* TODO: rework with Linker::Format */
 
 	/**

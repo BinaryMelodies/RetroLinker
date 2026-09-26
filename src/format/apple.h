@@ -26,6 +26,10 @@ namespace Apple
 	class AppleSingleDouble : public Linker::Format
 	{
 	public:
+		/** @brief Represents the clock for AppleSingleDouble timestamps */
+		using clock = VendorClock<GregorianCalendarDate<2000, Month::January, 1>>;
+		using Timestamp = ::Timestamp<clock>;
+
 		offset_t ImageSize() const override;
 		void ReadFile(Linker::Reader& rd) override;
 
@@ -202,10 +206,10 @@ namespace Apple
 		std::shared_ptr<Entry> GetFinderInfo();
 		std::shared_ptr<Entry> GetRealName();
 
-		void SetCreationDate(uint32_t CreationDate);
-		void SetModificationDate(uint32_t ModificationDate);
-		void SetBackupDate(uint32_t BackupDate);
-		void SetAccessDate(uint32_t AccessDate);
+		void SetCreationDate(Timestamp CreationDate);
+		void SetModificationDate(Timestamp ModificationDate);
+		void SetBackupDate(Timestamp BackupDate);
+		void SetAccessDate(Timestamp AccessDate);
 		void SetMacintoshAttributes(uint32_t Attributes);
 		void SetProDOSAccess(uint16_t Access);
 		void SetProDOSFileType(uint16_t FileType);
@@ -213,16 +217,16 @@ namespace Apple
 		void SetMSDOSAttributes(uint16_t Attributes);
 
 		/** @brief Retrieves creation date field and creates it if it does not exist */
-		uint32_t GetCreationDate();
+		Timestamp GetCreationDate();
 		/** @brief Retrieves modification date field and creates it if it does not exist */
-		uint32_t GetModificationDate();
+		Timestamp GetModificationDate();
 		/** @brief Retrieves Macintosh attributes field and creates it if it does not exist */
 		uint32_t GetMacintoshAttributes();
 
 		/** @brief Retrieves creation date field if it exists */
-		uint32_t ReadCreationDate();
+		std::optional<Timestamp> ReadCreationDate();
 		/** @brief Retrieves modification date field if it exists */
-		uint32_t ReadModificationDate();
+		std::optional<Timestamp> ReadModificationDate();
 		/** @brief Retrieves Macintosh attributes field if it exists */
 		uint32_t ReadMacintoshAttributes();
 
@@ -325,14 +329,14 @@ namespace Apple
 	class FileInfo::Macintosh : public FileInfo
 	{
 	public:
-		uint32_t CreationDate;
-		uint32_t ModificationDate;
-		uint32_t LastBackupDate;
+		AppleSingleDouble::Timestamp CreationDate;
+		AppleSingleDouble::Timestamp ModificationDate;
+		AppleSingleDouble::Timestamp LastBackupDate;
 		uint32_t Attributes;
 
-		Macintosh(uint32_t CreationDate = 0,
-				uint32_t ModificationDate = 0,
-				uint32_t LastBackupDate = 0,
+		Macintosh(AppleSingleDouble::Timestamp CreationDate = { },
+				AppleSingleDouble::Timestamp ModificationDate = { },
+				AppleSingleDouble::Timestamp LastBackupDate = { },
 				uint32_t Attributes = 0)
 			: CreationDate(CreationDate), ModificationDate(ModificationDate), LastBackupDate(LastBackupDate), Attributes(Attributes)
 		{
@@ -351,14 +355,14 @@ namespace Apple
 	class FileInfo::ProDOS : public FileInfo
 	{
 	public:
-		uint32_t CreationDate;
-		uint32_t ModificationDate;
+		AppleSingleDouble::Timestamp CreationDate;
+		AppleSingleDouble::Timestamp ModificationDate;
 		uint16_t Access;
 		uint16_t FileType;
 		uint32_t AuxiliaryType;
 
-		ProDOS(uint32_t CreationDate = 0,
-				uint32_t ModificationDate = 0,
+		ProDOS(AppleSingleDouble::Timestamp CreationDate = { },
+				AppleSingleDouble::Timestamp ModificationDate = { },
 				uint16_t Access = 0,
 				uint16_t FileType = 0,
 				uint32_t AuxiliaryType = 0)
@@ -379,10 +383,10 @@ namespace Apple
 	class FileInfo::MSDOS : public FileInfo
 	{
 	public:
-		uint32_t ModificationDate;
+		AppleSingleDouble::Timestamp ModificationDate;
 		uint16_t Attributes;
 
-		MSDOS(uint32_t ModificationDate = 0,
+		MSDOS(AppleSingleDouble::Timestamp ModificationDate = { },
 				uint16_t Attributes = 0)
 			: ModificationDate(ModificationDate), Attributes(Attributes)
 		{
@@ -401,13 +405,13 @@ namespace Apple
 	class FileInfo::AUX : public FileInfo
 	{
 	public:
-		uint32_t CreationDate;
-		uint32_t AccessDate;
-		uint32_t ModificationDate;
+		AppleSingleDouble::Timestamp CreationDate;
+		AppleSingleDouble::Timestamp AccessDate;
+		AppleSingleDouble::Timestamp ModificationDate;
 
-		AUX(uint32_t CreationDate = 0,
-				uint32_t AccessDate = 0,
-				uint32_t ModificationDate = 0)
+		AUX(AppleSingleDouble::Timestamp CreationDate = { },
+				AppleSingleDouble::Timestamp AccessDate = { },
+				AppleSingleDouble::Timestamp ModificationDate = { })
 			: CreationDate(CreationDate), AccessDate(AccessDate), ModificationDate(ModificationDate)
 		{
 		}
@@ -426,16 +430,16 @@ namespace Apple
 	class FileDatesInfo : public AppleSingleDouble::Entry
 	{
 	public:
-		uint32_t CreationDate;
-		uint32_t ModificationDate;
-		uint32_t BackupDate;
-		uint32_t AccessDate;
+		AppleSingleDouble::Timestamp CreationDate;
+		AppleSingleDouble::Timestamp ModificationDate;
+		AppleSingleDouble::Timestamp BackupDate;
+		AppleSingleDouble::Timestamp AccessDate;
 
 		FileDatesInfo(
-				uint32_t CreationDate = 0,
-				uint32_t ModificationDate = 0,
-				uint32_t BackupDate = 0,
-				uint32_t AccessDate = 0)
+				AppleSingleDouble::Timestamp CreationDate = { },
+				AppleSingleDouble::Timestamp ModificationDate = { },
+				AppleSingleDouble::Timestamp BackupDate = { },
+				AppleSingleDouble::Timestamp AccessDate = { })
 			: Entry(AppleSingleDouble::ID_FileDatesInfo),
 				CreationDate(CreationDate), ModificationDate(ModificationDate), BackupDate(BackupDate), AccessDate(AccessDate)
 		{
@@ -449,7 +453,7 @@ namespace Apple
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
-		static void DumpFields(Dumper::Region& region, std::optional<uint32_t> CreationDate, std::optional<uint32_t> ModificationDate, std::optional<uint32_t> BackupDate, std::optional<uint32_t> AccessDate);
+		static void DumpFields(Dumper::Region& region, std::optional<AppleSingleDouble::Timestamp> CreationDate, std::optional<AppleSingleDouble::Timestamp> ModificationDate, std::optional<AppleSingleDouble::Timestamp> BackupDate, std::optional<AppleSingleDouble::Timestamp> AccessDate);
 	};
 
 	class FinderInfo : public AppleSingleDouble::Entry
