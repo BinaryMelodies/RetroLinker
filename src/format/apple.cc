@@ -1733,8 +1733,8 @@ void MacBinary::ReadHeader(Linker::Reader& rd)
 	rd.Skip(1);
 	data_fork_length = rd.ReadUnsigned(4);
 	resource_fork_length = rd.ReadUnsigned(4);
-	creation = rd.ReadUnsigned(4); // TODO: maybe these 2 could be stored in a file field?
-	modification = rd.ReadUnsigned(4);
+	creation = rd.ReadTimestamp<Macintosh_clock>(); // TODO: maybe these 2 could be stored in a file field?
+	modification = rd.ReadTimestamp<Macintosh_clock>();
 	// Get Info extension
 	comment_length = rd.ReadUnsigned(2);
 	if(comment_length != 0 && version < MACBIN1_GETINFO)
@@ -1814,8 +1814,8 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	{
 		WriteWord(wr, 4, 0);
 	}
-	WriteWord(wr, 4, creation);
-	WriteWord(wr, 4, modification);
+	WriteTimestamp(wr, creation);
+	WriteTimestamp(wr, modification);
 	if(version < MACBIN1_GETINFO)
 	{
 		return;
@@ -1861,8 +1861,27 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 void MacBinary::CalculateValues()
 {
 	attributes = apple_single->ReadMacintoshAttributes();
-	creation = AppleSingleDouble::clock::to_ticks(apple_single->ReadCreationDate().value_or({})); // TODO: conversion
-	modification = AppleSingleDouble::clock::to_ticks(apple_single->ReadModificationDate().value_or({})); // TODO: conversion
+
+	auto date_option = apple_single->ReadCreationDate();
+	if(date_option)
+	{
+		creation = Macintosh_clock::convert(*date_option);
+	}
+	else
+	{
+		creation = {};
+	}
+
+	date_option = apple_single->ReadModificationDate();
+	if(date_option)
+	{
+		modification = Macintosh_clock::convert(*date_option);
+	}
+	else
+	{
+		modification = {};
+	}
+
 	apple_single->CalculateValues();
 }
 
@@ -1947,10 +1966,9 @@ void MacBinary::Dump(Dumper::Dumper& dump) const
 		header_region.AddField("Location.x", Dumper::DecDisplay::Make(), offset_t(finder_info->Location.y));
 	}
 	header_region.AddField("Attributes", Dumper::HexDisplay::Make(4), offset_t(attributes)); // TODO: should be a bit field
-	header_region.AddField("Creation", Dumper::DecDisplay::Make(), offset_t(creation)); // TODO: format
-	header_region.AddField("Modification", Dumper::DecDisplay::Make(), offset_t(modification)); // TODO: format
+	header_region.AddField("Creation", Dumper::TimestampDisplay<Macintosh_clock>::Make(), creation);
+	header_region.AddField("Modification", Dumper::TimestampDisplay<Macintosh_clock>::Make(), modification);
 	// TODO: MacBinary III "mBIN" field present, script of file and extended Finder flags
-	header_region.AddOptionalField("Modification", Dumper::DecDisplay::Make(), offset_t(modification)); // TODO: format
 	static const std::map<offset_t, std::string> version_values =
 	{
 		{ MacBinary::MACBIN1, "Revision 1 (1985)" },

@@ -6,6 +6,9 @@
 
 /* Structures common to multiple Apple products */
 
+/** @brief Represents the clock for Macintosh timestamps */
+using Macintosh_clock = VendorClock<GregorianCalendarDate<1904, Month::January, 1>>;
+
 namespace Apple
 {
 	/* TODO: rework with Linker::Format */
@@ -644,8 +647,8 @@ namespace Apple
 		mutable uint16_t crc = 0;
 
 		uint8_t attributes = 0;
-		uint32_t creation = 0;
-		uint32_t modification = 0;
+		::Timestamp<Macintosh_clock> creation = { }; /* TODO: what is the actual epoch? */
+		::Timestamp<Macintosh_clock> modification = { };
 
 		/* only used during parsing */
 		uint32_t data_fork_length = 0;
@@ -683,6 +686,12 @@ namespace Apple
 		void WriteData(Linker::Writer& wr, size_t count, std::string text) const;
 
 		void WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const;
+
+		template <typename Clock>
+			void WriteTimestamp(Linker::Writer& wr, Timestamp<Clock> timestamp) const
+		{
+			WriteWord(wr, sizeof(typename Clock::rep), Clock::to_ticks(timestamp));
+		}
 
 		void ReadHeader(Linker::Reader& rd);
 		void WriteHeader(Linker::Writer& wr) const;

@@ -244,6 +244,17 @@ template <typename Epoch, typename Rep = int32_t, typename Period = std::ratio<1
 		return time_point(std::chrono::duration_cast<duration>(tp - Epoch::to_time_point()));
 	}
 
+	static constexpr time_point to_time_point(std::chrono::sys_days days, std::chrono::nanoseconds ns)
+	{
+		return time_point(std::chrono::duration_cast<duration>(days - Epoch::to_days()) + std::chrono::duration_cast<duration>(ns));
+	}
+
+	template <typename FromClock>
+		static time_point convert(std::chrono::time_point<FromClock> from)
+	{
+		return to_time_point(FromClock::to_days(from), FromClock::to_nanoseconds(from));
+	}
+
 	static constexpr std::chrono::sys_days to_days(time_point tp)
 	{
 		return Epoch::to_days() + std::chrono::duration_cast<std::chrono::days>(tp.time_since_epoch());
