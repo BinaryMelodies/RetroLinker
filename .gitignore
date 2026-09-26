@@ -41,6 +41,7 @@ tests/gui/os2v2/*
 tests/dll/win16/*
 tests/dll/win32/*
 tests/dll/win64/*
+tests/dll/flex286/*
 !tests/dll/*/Makefile
 !tests/dll/*/main.s
 !tests/dll/*/lib.s
