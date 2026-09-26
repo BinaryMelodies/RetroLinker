@@ -1309,6 +1309,15 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 		i++;
 	}
 
+	for(auto& relocation : format.relocations)
+	{
+		if(physical_address <= relocation.first && relocation.first + relocation.second.size <= physical_address + size)
+		{
+			block.AddSignal(relocation.first - physical_address, relocation.second.size);
+			i++;
+		}
+	}
+
 	block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
@@ -1328,12 +1337,12 @@ void COFFFormat::OptionalHeader::Dump(const COFFFormat& coff, Dumper::Dumper& du
 {
 }
 
-COFFFormat::CDOS68K_Relocation::operator size_t() const
+COFFFormat::CDOS_Relocation::operator size_t() const
 {
 	return size;
 }
 
-COFFFormat::CDOS68K_Relocation COFFFormat::CDOS68K_Relocation::Create(size_t size, uint32_t offset, const COFFFormat& format)
+COFFFormat::CDOS_Relocation COFFFormat::CDOS_Relocation::Create(size_t size, uint32_t offset, const COFFFormat& format)
 {
 	return size;
 }
@@ -1512,31 +1521,30 @@ offset_t COFFFormat::FlexOSAOutHeader::CalculateValues(COFFFormat& coff)
 	AOutHeader::CalculateValues(coff);
 	relocations_offset = coff.relocations_offset;
 	stack_size = coff.stack->zero_fill;
-	return DigitalResearch::CPM68KFormat::CDOS68K_MeasureRelocations(coff.relocations);
+	return DigitalResearch::CDOS::MeasureRelocations(coff.relocations);
 }
 
 void COFFFormat::FlexOSAOutHeader::PostReadFile(COFFFormat& coff, Linker::Reader& rd)
 {
-	if(coff.cpu_type == CPU_M68K)
+	if(relocations_offset != 0)
 	{
-		rd.Seek(coff.file_offset + coff.relocations_offset);
-		DigitalResearch::CPM68KFormat::CDOS68K_ReadRelocations(rd, coff.relocations, coff);
+		rd.Seek(coff.file_offset + relocations_offset);
+		DigitalResearch::CDOS::ReadRelocations(rd, coff.relocations, coff);
 	}
 }
 
 void COFFFormat::FlexOSAOutHeader::PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const
 {
-	if(coff.cpu_type == CPU_M68K)
+	if(relocations_offset != 0)
 	{
-		wr.Seek(coff.file_offset + coff.relocations_offset);
-		DigitalResearch::CPM68KFormat::CDOS68K_WriteRelocations(wr, coff.relocations);
+		wr.Seek(coff.file_offset + relocations_offset);
+		DigitalResearch::CDOS::WriteRelocations(wr, coff.relocations);
 	}
 }
 
 void COFFFormat::FlexOSAOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
 	AOutHeader::DumpFields(coff, dump, header_region);
-	header_region.AddField("Data address", Dumper::HexDisplay::Make(), offset_t(data_address));
 	/* TODO: move display to relocation region */
 	header_region.AddField("Relocation offset", Dumper::HexDisplay::Make(), offset_t(relocations_offset));
 	header_region.AddField("Stack size", Dumper::HexDisplay::Make(), offset_t(stack_size));
@@ -2541,6 +2549,20 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 		symbol_entry.Display(dump, Dumper::Symbol);
 		i += 1;
 	}
+
+	// FlexOS relocations
+
+	i = 0;
+	for(auto& relocation : relocations)
+	{
+		Dumper::Entry relocation_entry("Relocation", i + 1, offset_t(-1) /* TODO: offset */, 8);
+		relocation_entry.AddField("Offset", Dumper::HexDisplay::Make(8), offset_t(relocation.first));
+		relocation_entry.AddField("Size", Dumper::DecDisplay::Make(), offset_t(relocation.second.size));
+		// TODO: fill addend
+		relocation_entry.Display(dump, Dumper::Relocation);
+
+		i++;
+	}
 }
 
 /* * * Reader members * * */
@@ -3394,7 +3416,7 @@ void COFFFormat::CalculateValues()
 		}
 	}
 
-	if(type == CDOS68K)
+	if(type == CDOS68K || type == CDOS386)
 	{
 		relocations_offset = offset;
 	}

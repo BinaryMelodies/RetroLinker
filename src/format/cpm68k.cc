@@ -227,7 +227,7 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 		if(GetSignature() == MAGIC_CRUNCHED)
 		{
 			/* relocations must be present */
-			CDOS68K_ReadRelocations(rd, relocations, *this);
+			CDOS::ReadRelocations(rd, relocations, *this);
 			break;
 		}
 	case SYSTEM_CPM68K:
@@ -306,7 +306,7 @@ offset_t CPM68KFormat::MeasureRelocations() const
 	switch(system)
 	{
 	case SYSTEM_CDOS68K:
-		return CDOS68K_MeasureRelocations(relocations);
+		return CDOS::MeasureRelocations(relocations);
 	case SYSTEM_CPM68K:
 		return code->ImageSize() + data->ImageSize();
 	case SYSTEM_GEMDOS:
@@ -384,7 +384,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 		if(GetSignature() == MAGIC_CRUNCHED)
 		{
 			/* relocations must be present */
-			CDOS68K_WriteRelocations(wr, relocations);
+			CDOS::WriteRelocations(wr, relocations);
 			break;
 		}
 	case SYSTEM_CPM68K:

@@ -15,6 +15,105 @@
 
 namespace DigitalResearch
 {
+	namespace CDOS
+	{
+		template <typename SizeType>
+			offset_t MeasureRelocations(const std::map<uint32_t, SizeType>& relocations)
+		{
+			/* TODO: test */
+			offset_t count = 0;
+			offset_t last_relocation = 0;
+			for(auto it : relocations)
+			{
+				offset_t difference = it.first - last_relocation;
+				if(difference != 0 && difference <= 0x7C)
+				{
+					count += 1;
+				}
+				else if(difference < 0x100)
+				{
+					count += 2;
+				}
+				else if(difference < 0x10000)
+				{
+					count += 3;
+				}
+				else
+				{
+					count += 5;
+				}
+			}
+			return count;
+		}
+
+		template <typename SizeType>
+			void WriteRelocations(Linker::Writer& wr, const std::map<uint32_t, SizeType>& relocations)
+		{
+			/* TODO: test */
+			offset_t last_relocation = 0;
+			for(auto it : relocations)
+			{
+				offset_t difference = it.first - last_relocation;
+				uint8_t highbit = it.second/*.size*/ == 2 ? 0x80 : 0x00;
+				if(difference != 0 && difference <= 0x7C)
+				{
+					wr.WriteWord(1, highbit | difference);
+				}
+				else if(difference < 0x100)
+				{
+					wr.WriteWord(1, highbit | 0x7D);
+					wr.WriteWord(1, difference);
+				}
+				else if(difference < 0x10000)
+				{
+					wr.WriteWord(1, highbit | 0x7E);
+					wr.WriteWord(2, difference);
+				}
+				else
+				{
+					wr.WriteWord(1, highbit | 0x7F);
+					wr.WriteWord(4, difference);
+				}
+				last_relocation = it.first;
+			}
+			wr.WriteWord(1, 0);
+		}
+
+		template <typename SizeType, typename Format>
+			void ReadRelocations(Linker::Reader& rd, std::map<uint32_t, SizeType>& relocations, const Format& format)
+		{
+			/* TODO: test */
+			offset_t offset = 0;
+			while(true)
+			{
+				uint8_t byte = rd.ReadUnsigned(1);
+				size_t size = (byte & 0x80) ? 2 : 4;
+				byte &= 0x7F;
+				if(byte == 0)
+				{
+					break;
+				}
+				else if(byte <= 0x7C)
+				{
+					offset += byte;
+				}
+				else if(byte == 0x7D)
+				{
+					offset += rd.ReadUnsigned(1);
+				}
+				else if(byte == 0x7E)
+				{
+					offset += rd.ReadUnsigned(2);
+				}
+				else /*if(byte == 0x7F)*/
+				{
+					offset += rd.ReadUnsigned(4);
+				}
+				relocations[offset] = SizeType::Create(size, offset, format);
+			}
+		}
+	}
+
 	/**
 	 * @brief The native executable format for the Motorola 68000 port of CP/M
 	 *
@@ -206,102 +305,6 @@ namespace DigitalResearch
 		}
 
 		void ReadFile(Linker::Reader& rd) override;
-
-		template <typename SizeType>
-			static offset_t CDOS68K_MeasureRelocations(std::map<uint32_t, SizeType> relocations)
-		{
-			/* TODO: test */
-			offset_t count = 0;
-			offset_t last_relocation = 0;
-			for(auto it : relocations)
-			{
-				offset_t difference = it.first - last_relocation;
-				if(difference != 0 && difference <= 0x7C)
-				{
-					count += 1;
-				}
-				else if(difference < 0x100)
-				{
-					count += 2;
-				}
-				else if(difference < 0x10000)
-				{
-					count += 3;
-				}
-				else
-				{
-					count += 5;
-				}
-			}
-			return count;
-		}
-
-		template <typename SizeType>
-			static void CDOS68K_WriteRelocations(Linker::Writer& wr, std::map<uint32_t, SizeType> relocations)
-		{
-			/* TODO: test */
-			offset_t last_relocation = 0;
-			for(auto it : relocations)
-			{
-				offset_t difference = it.first - last_relocation;
-				uint8_t highbit = it.second/*.size*/ == 2 ? 0x80 : 0x00;
-				if(difference != 0 && difference <= 0x7C)
-				{
-					wr.WriteWord(1, highbit | difference);
-				}
-				else if(difference < 0x100)
-				{
-					wr.WriteWord(1, highbit | 0x7D);
-					wr.WriteWord(1, difference);
-				}
-				else if(difference < 0x10000)
-				{
-					wr.WriteWord(1, highbit | 0x7E);
-					wr.WriteWord(2, difference);
-				}
-				else
-				{
-					wr.WriteWord(1, highbit | 0x7F);
-					wr.WriteWord(4, difference);
-				}
-				last_relocation = it.first;
-			}
-			wr.WriteWord(1, 0);
-		}
-
-		template <typename SizeType, typename Format>
-			static void CDOS68K_ReadRelocations(Linker::Reader& rd, std::map<uint32_t, SizeType> relocations, const Format& format)
-		{
-			/* TODO: test */
-			offset_t offset = 0;
-			while(true)
-			{
-				uint8_t byte = rd.ReadUnsigned(1);
-				size_t size = (byte & 0x80) ? 2 : 4;
-				byte &= 0x7F;
-				if(byte == 0)
-				{
-					break;
-				}
-				else if(byte <= 0x7C)
-				{
-					offset += byte;
-				}
-				else if(byte == 0x7D)
-				{
-					offset += rd.ReadUnsigned(1);
-				}
-				else if(byte == 0x7E)
-				{
-					offset += rd.ReadUnsigned(2);
-				}
-				else /*if(byte == 0x7F)*/
-				{
-					offset += rd.ReadUnsigned(4);
-				}
-				relocations[offset] = SizeType::Create(size, offset, format);
-			}
-		}
 
 		offset_t MeasureRelocations() const;
 
