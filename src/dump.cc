@@ -66,7 +66,48 @@ int main(int argc, char * argv[])
 				format = FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]);
 				/* TODO: enable selecting a format within the determined formats, or force parsing a format at a specified address */
 			}
-			else if(memcmp(argv[i], "--show-", 7) || memcmp(argv[i], "--hide-", 7))
+			else if(memcmp(argv[i], "--on-overflow=", 14) == 0 || strcmp(argv[i], "--on-overflow") == 0)
+			{
+				char * option;
+				if(strlen(argv[i]) < 14)
+				{
+					if(++i < argc)
+					{
+						option = argv[i];
+					}
+					else
+					{
+						Linker::FatalError("Fatal error: --on-overflow expects parameter");
+					}
+				}
+				else
+				{
+					option = &argv[i][14];
+				}
+
+				if(strcmp(option, "default") == 0)
+				{
+					Linker::Debug << "Debug: Read overflow behavior set to `default'" << std::endl;
+					Linker::Reader::global_overflow_behavior = Linker::Reader::OverflowHandlingRequest::Default;
+				}
+				else if(strcmp(option, "force") == 0)
+				{
+					Linker::Debug << "Debug: Read overflow behavior set to `force', all instances of overflow will be ignored" << std::endl;
+					Linker::Reader::global_overflow_behavior = Linker::Reader::OverflowHandlingRequest::Force;
+				}
+				else if(strcmp(option, "report") == 0)
+				{
+					Linker::Debug << "Debug: Read overflow behavior set to `report', all instances of overflow will terminate execution" << std::endl;
+					Linker::Reader::global_overflow_behavior = Linker::Reader::OverflowHandlingRequest::Report;
+				}
+				else
+				{
+					std::ostringstream oss;
+					oss << "Fatal error: Unknown action on read overflow: `" << option << "'";
+					Linker::FatalError(oss.str());
+				}
+			}
+			else if(memcmp(argv[i], "--show-", 7) == 0 || memcmp(argv[i], "--hide-", 7) == 0)
 			{
 				bool show = argv[i][2] != 'h';
 				char * flag = &argv[i][7];

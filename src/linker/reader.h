@@ -28,13 +28,62 @@ namespace Linker
 		 */
 		std::istream * in;
 
+		/**
+		 * @brief Describes how ReadData and all other reading routines should behave when reading exceeds limits (end of file or dynamic boundary)
+		 */
 		enum OverflowHandlingMode
 		{
+			/**
+			 * @brief Display error message, continue parsing
+			 *
+			 * This is intended for data structures that have a static size, permitting the user to view contents even in malformed binary files.
+			 */
 			IgnoreOnOverflow,
+			/**
+			 * @brief Throw a ReadOverflow exception
+			 *
+			 * This is useful when the parse routine can manage overflow errors and continue parsing.
+			 */
 			ReportOnOverflow,
+			/**
+			 * @brief Execution immediately stops
+			 *
+			 * Only use when a read error makes it impossible to continue with parsing.
+			 * Intended for dynamically sized data structures that are crucial for a complete parsing of the file (such as a section header table).
+			 */
 			TerminateOnOverflow,
 		};
+		/** @brief Intended behavior of reading routines on read overflow */
 		OverflowHandlingMode on_overflow = TerminateOnOverflow;
+
+		/**
+		 * @brief Describes how the user expects the parser to behave on read overflow
+		 */
+		enum class OverflowHandlingRequest
+		{
+			/** @brief Let the parser routine decide */
+			Default,
+			/** @brief Ignore all boundary overflows and keep reading */
+			Force,
+			/** @brief Terminate program as soon as boundary overflow happens, even if overflow is harmless */
+			Report,
+		};
+		/** @brief Global flag to control how reading overflow should be handled */
+		static OverflowHandlingRequest global_overflow_behavior;
+
+		inline OverflowHandlingMode GetActionOnOverflow()
+		{
+			switch(global_overflow_behavior)
+			{
+			case OverflowHandlingRequest::Default:
+			default:
+				return on_overflow;
+			case OverflowHandlingRequest::Force:
+				return IgnoreOnOverflow;
+			case OverflowHandlingRequest::Report:
+				return TerminateOnOverflow;
+			}
+		}
 
 		const offset_t start_offset;
 		const offset_t maximum_size;
@@ -149,6 +198,15 @@ namespace Linker
 				return Clock::to_time_point(ReadSigned(sizeof(typename Clock::rep)));
 			else
 				return Clock::to_time_point(ReadUnsigned(sizeof(typename Clock::rep)));
+		}
+
+		template <typename Clock>
+			Timestamp<Clock> ReadTimestamp(EndianType endiantype)
+		{
+			if constexpr(std::is_signed_v<typename Clock::rep>)
+				return Clock::to_time_point(ReadSigned(sizeof(typename Clock::rep), endiantype));
+			else
+				return Clock::to_time_point(ReadUnsigned(sizeof(typename Clock::rep), endiantype));
 		}
 
 		/**

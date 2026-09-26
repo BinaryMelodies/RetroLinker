@@ -3,6 +3,8 @@
 
 using namespace Linker;
 
+Reader::OverflowHandlingRequest Reader::global_overflow_behavior = Reader::OverflowHandlingRequest::Default;
+
 Reader Reader::CreateWindow(offset_t new_start_offset, offset_t new_maximum_size)
 {
 	if(new_start_offset > maximum_size)
