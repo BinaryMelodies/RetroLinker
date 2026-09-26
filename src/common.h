@@ -4,6 +4,7 @@
 #include <cassert>
 #include <cstdint>
 #include <cstddef>
+#include <chrono>
 #include <map>
 #include <memory>
 #include <iostream>
@@ -164,6 +165,101 @@ bool starts_with(std::string str, std::string start);
  * @param start The string that must appear in the end
  */
 bool ends_with(std::string str, std::string end);
+
+enum class Month : unsigned
+{
+	January = 1,
+	February = 2,
+	March = 3,
+	April = 4,
+	May = 5,
+	June = 6,
+	July = 7,
+	August = 8,
+	September = 9,
+	October = 10,
+	November = 11,
+	December = 12,
+};
+
+template <unsigned _Year, Month _Month = Month::January, unsigned _Day = 1>
+	struct CalendarDate
+{
+	static constexpr unsigned Year = _Year;
+	static constexpr ::Month Month = _Month;
+	static constexpr unsigned Day = _Day;
+
+	static constexpr std::chrono::sys_days to_days()
+	{
+		return std::chrono::year(Year) / std::chrono::month(unsigned(Month)) / std::chrono::day(Day);
+	}
+};
+
+template <typename Rep, typename Epoch, typename Period = std::ratio<1>>
+	struct VendorClock
+{
+	using rep = Rep;
+	using period = Period;
+	using duration = std::chrono::duration<rep, period>;
+	using time_point = std::chrono::time_point<VendorClock>;
+	static constexpr bool is_steady = false;
+
+	static constexpr rep to_ticks(duration dur)
+	{
+		return dur.count();
+	}
+
+	static constexpr rep to_ticks(time_point tp)
+	{
+		return to_ticks(tp.time_since_epoch());
+	}
+
+	static constexpr duration to_duration(Rep ticks)
+	{
+		return duration(ticks);
+	}
+
+	static constexpr time_point to_time_point(duration dur)
+	{
+		return time_point(dur);
+	}
+
+	static constexpr time_point to_time_point(Rep ticks)
+	{
+		return time_point(duration(ticks));
+	}
+
+	static constexpr time_point to_time_point(std::chrono::time_point<std::chrono::system_clock> tp)
+	{
+		return time_point(std::chrono::duration_cast<duration>(tp - Epoch::to_time_point()));
+	}
+
+	static constexpr std::chrono::sys_days to_days(time_point tp)
+	{
+		return Epoch::to_days() + std::chrono::duration_cast<std::chrono::days>(tp.time_since_epoch());
+	}
+
+	static constexpr std::chrono::nanoseconds to_nanoseconds(time_point tp)
+	{
+		const auto dur = tp.time_since_epoch();
+		return dur - std::chrono::duration_cast<std::chrono::days>(dur);
+	}
+
+	static std::string to_iso_time(time_point tp)
+	{
+		return std::format("{:%Y-%m-%d} {:%H:%M:%S}", to_days(tp), to_nanoseconds(tp));
+	}
+
+	static time_point now() noexcept
+	{
+		return to_time_point(std::chrono::system_clock::now());
+	}
+};
+
+using POSIX_clock = VendorClock<int32_t, CalendarDate<1970, Month::January, 1>>;
+
+template <typename Clock>
+	using Timestamp = std::chrono::time_point<Clock>;
 
 namespace Linker
 {

@@ -142,6 +142,15 @@ namespace Linker
 		 */
 		uint64_t ReadSigned(size_t bytes);
 
+		template <typename Clock>
+			Timestamp<Clock> ReadTimestamp()
+		{
+			if constexpr(std::is_signed_v<typename Clock::rep>)
+				return Clock::to_time_point(ReadSigned(sizeof(typename Clock::rep)));
+			else
+				return Clock::to_time_point(ReadUnsigned(sizeof(typename Clock::rep)));
+		}
+
 		/**
 		 * @brief Jump to a specific location in the input stream
 		 */

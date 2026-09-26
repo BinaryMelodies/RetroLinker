@@ -1966,7 +1966,7 @@ void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
 	case TICOFF:
 	case TICOFF1:
 		section_count = rd.ReadUnsigned(2);
-		timestamp = rd.ReadUnsigned(4);
+		timestamp = rd.ReadTimestamp<POSIX_clock>();
 		symbol_table_offset = rd.ReadUnsigned(4);
 		symbol_count = rd.ReadUnsigned(4);
 		optional_header_size = rd.ReadUnsigned(2);
@@ -1979,7 +1979,7 @@ void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
 
 	case ECOFF:
 		section_count = rd.ReadUnsigned(2);
-		timestamp = rd.ReadUnsigned(4);
+		timestamp = rd.ReadTimestamp<POSIX_clock>();
 		symbol_table_offset = rd.ReadUnsigned(8); // extended
 		symbol_count = rd.ReadUnsigned(4);
 		optional_header_size = rd.ReadUnsigned(2);
@@ -1988,7 +1988,7 @@ void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
 
 	case XCOFF64:
 		section_count = rd.ReadUnsigned(2);
-		timestamp = rd.ReadUnsigned(4);
+		timestamp = rd.ReadTimestamp<POSIX_clock>();
 		symbol_table_offset = rd.ReadUnsigned(8); // extended
 		optional_header_size = rd.ReadUnsigned(2);
 		flags = rd.ReadUnsigned(2);
@@ -2244,7 +2244,7 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 	case TICOFF1:
 		wr.WriteData(2, signature);
 		wr.WriteWord(2, section_count);
-		wr.WriteWord(4, timestamp);
+		wr.WriteTimestamp(timestamp);
 		wr.WriteWord(4, symbol_table_offset);
 		wr.WriteWord(4, symbol_count);
 		wr.WriteWord(2, optional_header_size);
@@ -2258,7 +2258,7 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 	case ECOFF:
 		wr.WriteData(2, signature);
 		wr.WriteWord(2, section_count);
-		wr.WriteWord(4, timestamp);
+		wr.WriteTimestamp(timestamp);
 		wr.WriteWord(8, symbol_table_offset);
 		wr.WriteWord(4, symbol_count);
 		wr.WriteWord(2, optional_header_size);
@@ -2268,7 +2268,7 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 	case XCOFF64:
 		wr.WriteData(2, signature);
 		wr.WriteWord(2, section_count);
-		wr.WriteWord(4, timestamp);
+		wr.WriteTimestamp(timestamp);
 		wr.WriteWord(8, symbol_table_offset);
 		wr.WriteWord(2, optional_header_size);
 		wr.WriteWord(2, flags);
@@ -2366,7 +2366,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 
 	Dumper::Region header_region("File header", file_offset, 20, 8);
 	header_region.AddField("Signature", Dumper::HexDisplay::Make(4), offset_t(ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
-	header_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
+	header_region.AddField/*AddOptionalField*/("Time stamp", Dumper::TimestampDisplay<POSIX_clock>::Make(), timestamp); // TODO: change back to AddOptionalField
 	header_region.AddOptionalField("Flags",
 		Dumper::BitFieldDisplay::Make()
 			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("no relocations"), true)

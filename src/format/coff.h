@@ -1196,7 +1196,7 @@ namespace COFF
 		/**
 		 * @brief Time stamp, unused (COFF name: f_timdat)
 		 */
-		uint32_t timestamp = 0;
+		::Timestamp<POSIX_clock> timestamp = { };
 		/**
 		 * @brief Offset to the first symbol (COFF name: f_symptr)
 		 */

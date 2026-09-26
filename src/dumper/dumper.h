@@ -552,6 +552,37 @@ public:
 	void DisplayValue(Dumper& dump, std::tuple<offset_t> values) override;
 };
 
+template <typename Clock>
+	class TimestampDisplay : public Display<::Timestamp<Clock>>
+{
+public:
+	typedef ::Timestamp<Clock> Timestamp;
+
+	static std::shared_ptr<TimestampDisplay> Make()
+	{
+		return std::make_shared<TimestampDisplay>();
+	}
+
+	bool IsMissing(std::tuple<Timestamp>& values) override
+	{
+		return Clock::to_ticks(std::get<0>(values)) == 0;
+	}
+
+	void DisplayValue(Dumper& dump, std::tuple<Timestamp> values) override;
+
+	using Display<Timestamp>::IsMissing;
+	bool IsMissing(std::tuple<offset_t>& values)
+	{
+		return std::get<0>(values) == 0;
+	}
+
+	using Display<Timestamp>::DisplayValue;
+	void DisplayValue(Dumper& dump, std::tuple<offset_t> values)
+	{
+		DisplayValue(dump, std::make_tuple(Clock::to_time_stamp(std::get<0>(values))));
+	}
+};
+
 /**
  * @brief A display for a fixed length binary data field
  */
@@ -1151,6 +1182,12 @@ template <typename ... Ts>
 	dump.PrintDec(std::get<0>(values), "");
 	dump.out << suffix << ':';
 	offset_display->DisplayValue(dump, rest<1>(values));
+}
+
+template <typename Clock>
+	void TimestampDisplay<Clock>::DisplayValue(Dumper& dump, std::tuple<Timestamp> values)
+{
+	dump.out << Clock::to_iso_time(std::get<0>(values));
 }
 
 }

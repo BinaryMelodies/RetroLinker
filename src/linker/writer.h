@@ -79,6 +79,12 @@ namespace Linker
 		 */
 		void WriteWord(size_t bytes, uint64_t value);
 
+		template <typename Clock>
+			void WriteTimestamp(Timestamp<Clock> timestamp)
+		{
+			WriteWord(sizeof(typename Clock::rep), Clock::to_ticks(timestamp));
+		}
+
 	protected:
 		void ForceSeek(offset_t offset);
 
