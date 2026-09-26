@@ -624,7 +624,7 @@ size_t PEFormat::ResourceDirectory::ParseResourceDirectoryData(const PEFormat& f
 	size_t longest = partial_identifier.size() + 1;
 
 	flags = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
-	timestamp = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+	timestamp = fmt.ReadTimestamp<>(rva, ::LittleEndian); rva += 4;
 	version.major = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
 	version.minor = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
 	uint16_t name_entry_count = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
@@ -705,7 +705,7 @@ void PEFormat::ResourceDirectory::DumpResourceDirectory(const PEFormat& fmt, Dum
 		directory_region.AddField("Level", Dumper::ChoiceDisplay::Make(level_description), offset_t(dump_level));
 		Resource::DumpIdentifier(partial_identifier, directory_region);
 		directory_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(), offset_t(flags));
-		directory_region.AddField("Timestamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
+		directory_region.AddField("Timestamp", Dumper::TimestampDisplay<POSIX_clock>::Make(), timestamp);
 		directory_region.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(version.major), offset_t(version.minor));
 		directory_region.AddField("Named entry count", Dumper::DecDisplay::Make(), offset_t(name_entries.size()));
 		directory_region.AddField("ID entry count", Dumper::DecDisplay::Make(), offset_t(id_entries.size()));
@@ -885,7 +885,7 @@ uint32_t PEFormat::ResourceDirectory::CollectResourceData(PEFormat& fmt, uint32_
 void PEFormat::ResourceDirectory::WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const
 {
 	wr.WriteWord(4, flags, ::LittleEndian);
-	wr.WriteWord(4, timestamp, ::LittleEndian);
+	wr.WriteTimestamp(timestamp, ::LittleEndian);
 	wr.WriteWord(2, version.major, ::LittleEndian);
 	wr.WriteWord(2, version.minor, ::LittleEndian);
 	wr.WriteWord(2, name_entries.size(), ::LittleEndian);
@@ -1157,7 +1157,7 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	for(auto& library : libraries)
 	{
 		wr.WriteWord(4, library.lookup_table_rva);
-		wr.WriteWord(4, library.timestamp);
+		wr.WriteTimestamp(library.timestamp);
 		wr.WriteWord(4, library.forwarder_chain);
 		wr.WriteWord(4, library.name_rva);
 		wr.WriteWord(4, library.address_table_rva);
@@ -1289,13 +1289,13 @@ void PEFormat::ImportsSection::ParseDirectoryData(const PEFormat& fmt, uint32_t 
 		{
 			ImportedLibrary library("");
 			library.lookup_table_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
-			library.timestamp = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+			library.timestamp = fmt.ReadTimestamp<>(rva, ::LittleEndian); rva += 4;
 			library.forwarder_chain = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
 			library.name_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
 			library.address_table_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
 			if(
 				library.lookup_table_rva == 0
-				&& library.timestamp == 0
+				&& POSIX_clock::to_ticks(library.timestamp) == 0
 				&& library.forwarder_chain == 0
 				&& library.name_rva == 0
 				&& library.address_table_rva == 0)
@@ -1353,7 +1353,7 @@ void PEFormat::ImportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 		library_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(rva));
 		library_region.AddField("Name", Dumper::StringDisplay::Make("\""), library.name);
 		library_region.AddField("Name address", fmt.MakeRVADisplay(), offset_t(library.name_rva));
-		library_region.AddOptionalField("Time stamp", Dumper::HexDisplay::Make(), offset_t(library.timestamp));
+		library_region.AddOptionalField("Time stamp", Dumper::TimestampDisplay<POSIX_clock>::Make(), library.timestamp);
 		library_region.AddOptionalField("Forwarder chain", Dumper::HexDisplay::Make(), offset_t(library.forwarder_chain));
 		library_region.AddField("Lookup table", fmt.MakeRVADisplay(), offset_t(library.lookup_table_rva));
 		library_region.AddField("Address table", fmt.MakeRVADisplay(), offset_t(library.address_table_rva));
@@ -1526,7 +1526,7 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 
 	wr.Seek(section_pointer);
 	wr.WriteWord(4, flags);
-	wr.WriteWord(4, timestamp);
+	wr.WriteTimestamp(timestamp);
 	wr.WriteWord(2, version.major);
 	wr.WriteWord(2, version.minor);
 	wr.WriteWord(4, dll_name_rva);
@@ -1634,7 +1634,7 @@ void PEFormat::ExportsSection::ParseDirectoryData(const PEFormat& fmt, uint32_t 
 {
 	uint32_t rva = directory_rva;
 	flags = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
-	timestamp = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
+	timestamp = fmt.ReadTimestamp<>(rva, ::LittleEndian); rva += 4;
 	version.major = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
 	version.minor = fmt.ReadUnsigned(2, rva, ::LittleEndian); rva += 2;
 	dll_name_rva = fmt.ReadUnsigned(4, rva, ::LittleEndian); rva += 4;
@@ -1703,7 +1703,7 @@ void PEFormat::ExportsSection::DumpDirectory(const PEFormat& fmt, Dumper::Dumper
 	Dumper::Region exports_region("Export table", fmt.RVAToFileOffset(directory_rva), directory_size, 8);
 	exports_region.AddField("Address", Dumper::HexDisplay::Make(), offset_t(directory_rva));
 	exports_region.AddOptionalField("Flags", Dumper::HexDisplay::Make(), offset_t(flags));
-	exports_region.AddField("Timestamp", Dumper::HexDisplay::Make(), offset_t(timestamp));
+	exports_region.AddField("Timestamp", Dumper::TimestampDisplay<POSIX_clock>::Make(), timestamp);
 	exports_region.AddField("Version", Dumper::VersionDisplay::Make(), offset_t(version.major), offset_t(version.minor));
 	exports_region.AddField("DLL name", Dumper::StringDisplay::Make("\""), dll_name);
 	exports_region.AddField("DLL name address", fmt.MakeRVADisplay(), offset_t(dll_name_rva));
@@ -2198,7 +2198,7 @@ uint64_t PEFormat::ReadUnsigned(size_t bytes, uint32_t rva, ::EndianType endiant
 	return ::ReadUnsigned(bytes, bytes, data.data(), endiantype);
 }
 
-uint64_t PEFormat::ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const
+int64_t PEFormat::ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const
 {
 	assert(bytes <= 8);
 	std::vector<uint8_t> data(bytes);
@@ -2481,7 +2481,7 @@ void PEFormat::Dump(Dumper::Dumper& dump) const
 		{ 0xAA64, "AArch64 (64-bit ARM, little endian)" },
 	};
 	header_region.AddField("Machine type", Dumper::ChoiceDisplay::Make(cpu_descriptions, Dumper::HexDisplay::Make(4)), offset_t(::ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
-	header_region.AddOptionalField("Timestamp", Dumper::HexDisplay::Make(), offset_t(POSIX_clock::to_ticks(timestamp))); // TODO: TimestampDisplay
+	header_region.AddOptionalField("Time stamp", Dumper::TimestampDisplay<POSIX_clock>::Make(), timestamp);
 	// TODO: other fields?
 	header_region.AddOptionalField("Flags",
 		Dumper::BitFieldDisplay::Make()

@@ -2366,7 +2366,7 @@ void COFFFormat::Dump(Dumper::Dumper& dump) const
 
 	Dumper::Region header_region("File header", file_offset, 20, 8);
 	header_region.AddField("Signature", Dumper::HexDisplay::Make(4), offset_t(ReadUnsigned(2, 2, reinterpret_cast<const uint8_t *>(signature), endiantype)));
-	header_region.AddField/*AddOptionalField*/("Time stamp", Dumper::TimestampDisplay<POSIX_clock>::Make(), timestamp); // TODO: change back to AddOptionalField
+	header_region.AddOptionalField("Time stamp", Dumper::TimestampDisplay<POSIX_clock>::Make(), timestamp);
 	header_region.AddOptionalField("Flags",
 		Dumper::BitFieldDisplay::Make()
 			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("no relocations"), true)

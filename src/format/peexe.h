@@ -304,11 +304,21 @@ namespace Microsoft
 		/** @brief Loads an unsigned word from the filled section data */
 		uint64_t ReadUnsigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
 		/** @brief Loads a signed word from the filled section data */
-		uint64_t ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
+		int64_t ReadSigned(size_t bytes, uint32_t rva, ::EndianType endiantype) const;
 		/** @brief Loads a sequence of bytes terminated by a specific character from the filled section data */
 		std::string ReadASCII(uint32_t rva, char terminator, size_t maximum = size_t(-1)) const;
 		/** @brief Loads a sequence of bytes */
 		std::string ReadData(uint32_t rva, size_t count) const;
+
+		/** @brief Reads a date-time value according to some epoch */
+		template <typename Clock = POSIX_clock>
+			Timestamp<Clock> ReadTimestamp(uint32_t rva, EndianType endiantype) const
+		{
+			if constexpr(std::is_signed_v<typename Clock::rep>)
+				return Clock::to_time_point(ReadSigned(sizeof(typename Clock::rep), rva, endiantype));
+			else
+				return Clock::to_time_point(ReadUnsigned(sizeof(typename Clock::rep), rva, endiantype));
+		}
 
 		class MemoryPortionImage : public virtual Linker::Image
 		{
@@ -412,7 +422,7 @@ namespace Microsoft
 
 			/** @brief Resource directory characteristics */
 			uint32_t flags = 0;
-			uint32_t timestamp = 0;
+			::Timestamp<POSIX_clock> timestamp = { };
 			version_type version = { };
 			/** @brief Entries that are identified via a string */
 			std::vector<Entry<Name>> name_entries;
@@ -511,7 +521,7 @@ namespace Microsoft
 			uint32_t lookup_table_rva = 0;
 			/** @brief Relative virtual address for the address table, used to access the imported functions, but has the same layout as the lookup table in the image */
 			uint32_t address_table_rva = 0;
-			uint32_t timestamp = 0;
+			::Timestamp<POSIX_clock> timestamp = { };
 			uint32_t forwarder_chain = 0;
 			/** @brief Name of the dynamic linking library included */
 			std::string name;
@@ -644,7 +654,7 @@ namespace Microsoft
 		{
 		public:
 			uint32_t flags = 0;
-			uint32_t timestamp = 0;
+			::Timestamp<POSIX_clock> timestamp = { };
 			version_type version = { };
 			/** @brief The name of this library */
 			std::string dll_name;
