@@ -3133,7 +3133,7 @@ offset_t COFFFormat::FlexOSLibrary::ReadFile(Linker::Reader& rd, offset_t size, 
 	std::string path_name = rd.ReadData(count);
 	path = path_name.substr(0, path_size);
 	name = path_name.substr(path_size, name_size);
-	return size + path_name.size();
+	return 41 + path_name.size();
 }
 
 offset_t COFFFormat::FlexOSLibrary::ImageSize() const
