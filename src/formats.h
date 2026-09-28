@@ -29,6 +29,7 @@ extern const size_t formats_size;
  */
 enum format_type
 {
+	FORMAT_3P, // CauseWay /* TODO: not implemented */
 	FORMAT_68K, // .68k used by CP/M-68K, Concurrent DOS 68K, GEMDOS/Atari TOS, Human68k
 	FORMAT_ADAM, // Adam Seychell's DOS32 DOS extender
 	FORMAT_AIF, // ARM image format /* TODO: not implemented */

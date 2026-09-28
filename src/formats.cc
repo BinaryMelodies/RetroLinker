@@ -12,6 +12,7 @@
 #include "format/cpm68k.h" /* .68k (CP/M-68K), .prg (GEMDOS), .z (Human68k) */
 #include "format/cpm86.h" /* .cmd (CP/M-86) */
 #include "format/cpm8k.h" /* .z8k (CP/M-8000) */
+#include "format/cwexe.h" /* TODO */
 #include "format/dosexe.h" /* TODO: not yet finished or tested */
 #include "format/elf.h"
 #include "format/emxaout.h" /* TODO: not implemented */
@@ -894,6 +895,7 @@ static const struct format_magic format_magics[] =
 	{ std::string(","),                   0, FORMAT_OMF,     "Intel Object Module Format library, 8080/8051" },
 	{ std::string("."),                   0, FORMAT_OMF,     "Intel Object Module Format library, 8096" },
 	{ std::string("2P"),                  0, FORMAT_COFF,    "Microsoft COFF, RISC-V 32-bit" },
+	{ std::string("3P"),                  0, FORMAT_3P,      "CauseWay 3P executable" },
 	{ std::string("Adam"),                0, FORMAT_ADAM,    "Adam Seychell's DOS32 DOS Extender format \"Adam\" executable" },
 	{ std::string("A\x90"),               0, FORMAT_COFF,    "Microsoft COFF, Mitsubishi M32R" },
 	{ std::string("A\xA6"),               0, FORMAT_COFF,    "Microsoft COFF, ARM64EC" },
@@ -1204,6 +1206,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 {
 	switch(file_format.magic.type)
 	{
+	case FORMAT_3P:
+		return std::make_shared<CauseWay::CauseWayFormat>();
 	case FORMAT_68K:
 		return std::make_shared<CPM68KFormat>();
 	case FORMAT_ADAM:
