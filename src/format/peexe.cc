@@ -174,6 +174,7 @@ void PEFormat::PEOptionalHeader::DumpFields(const COFFFormat& coff, Dumper::Dump
 		{ EXE32, "32-bit executable (PE32)" },
 		{ EXE64, "64-bit executable (PE32+)" },
 	};
+	header_region.AddField("Header format", Dumper::StringDisplay::Make(), GetHeaderFormatName(coff));
 	header_region.AddField("File type", Dumper::ChoiceDisplay::Make(magic_choice, Dumper::HexDisplay::Make(4)), offset_t(magic));
 	//header_region.AddOptionalField("Version stamp", Dumper::HexDisplay::Make(), offset_t(version_stamp)); // TODO
 	header_region.AddField("Text size", Dumper::HexDisplay::Make(), offset_t(code_size));
@@ -231,6 +232,11 @@ void PEFormat::PEOptionalHeader::DumpFields(const COFFFormat& coff, Dumper::Dump
 	header_region.AddField("Committed heap size", Dumper::HexDisplay::Make(Is64Bit() ? 16 : 8), offset_t(committed_heap_size));
 	header_region.AddOptionalField("Loader flags (reserved)", Dumper::HexDisplay::Make(), offset_t(win32_version));
 	header_region.AddField("Directory count", Dumper::HexDisplay::Make(), offset_t(data_directories.size()));
+}
+
+std::string PEFormat::PEOptionalHeader::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "PE optional header";
 }
 
 void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format)

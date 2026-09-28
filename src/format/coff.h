@@ -1210,8 +1210,11 @@ namespace COFF
 			std::string name;
 
 			void AssignNameAndVersion(std::string name_and_version);
+			offset_t ReadFile(Linker::Reader& rd, offset_t size, bool& is_definition);
 			offset_t ImageSize() const;
 			offset_t WriteFile(Linker::Writer& wr, bool as_export = false) const;
+
+			void Dump(Dumper::Dumper& dump, std::optional<unsigned> index) const;
 		};
 
 		/**
@@ -1229,9 +1232,12 @@ namespace COFF
 			 */
 			std::vector<FlexOSLibrary> library_imports;
 
+			static std::shared_ptr<FlexOSLibrarySection> ReadFile(Linker::Reader& rd, offset_t size);
 			offset_t ImageSize() const override;
 			using Linker::Contents::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const override;
+
+			void Dump(Dumper::Dumper& dump) const;
 		};
 
 		/**
@@ -1301,6 +1307,8 @@ namespace COFF
 			virtual void PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const;
 
 			virtual void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const;
+
+			virtual std::string GetHeaderFormatName(const COFFFormat& coff) const;
 		};
 
 		/**
@@ -1401,6 +1409,8 @@ namespace COFF
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
+			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
+
 		protected:
 			virtual void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const;
 
@@ -1429,6 +1439,8 @@ namespace COFF
 			void WriteFile(Linker::Writer& wr) const override;
 
 			//offset_t CalculateValues(COFFFormat& coff) override;
+
+			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
 
 		protected:
 			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
@@ -1472,6 +1484,8 @@ namespace COFF
 
 			void PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const override;
 
+			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
+
 		protected:
 			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
 		};
@@ -1502,6 +1516,8 @@ namespace COFF
 			offset_t CalculateValues(COFFFormat& coff) override;
 
 			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
+
+			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
 		};
 
 		/**
@@ -1534,6 +1550,8 @@ namespace COFF
 			void WriteFile(Linker::Writer& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
+
+			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
 
 		protected:
 			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
@@ -1610,6 +1628,8 @@ namespace COFF
 			offset_t CalculateValues(COFFFormat& coff) override;
 
 			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
+
+			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
 		};
 
 		/**
@@ -1763,6 +1783,8 @@ namespace COFF
 			offset_t CalculateValues(COFFFormat& coff) override;
 
 			void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const override;
+
+			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
 		};
 
 		void Clear() override;

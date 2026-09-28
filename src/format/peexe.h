@@ -188,6 +188,8 @@ namespace Microsoft
 			/** @brief Converts an image base relative virtual address into a virtual address */
 			offset_t RVAToAddress(uint32_t rva, bool suppress_on_zero = false) const;
 
+			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
+
 		protected:
 			void DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const override;
 		};

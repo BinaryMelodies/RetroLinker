@@ -1105,6 +1105,11 @@ uint32_t COFFFormat::Section::ImageSize(const COFFFormat& coff_format) const
 void COFFFormat::Section::ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format)
 {
 	rd.Seek(coff_format.file_offset + section_pointer);
+	if(dynamic_cast<FlexOSAOutHeader *>(coff_format.optional_header.get()) && name == ".lib")
+	{
+		image = FlexOSLibrarySection::ReadFile(rd, ImageSize(coff_format));
+		return;
+	}
 	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, ImageSize(coff_format));
 }
 
@@ -1319,6 +1324,11 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 	}
 
 	block.Display(dump, Dumper::Header | Dumper::Image);
+
+	if(auto lib_contents = std::dynamic_pointer_cast<FlexOSLibrarySection>(image))
+	{
+		lib_contents->Dump(dump);
+	}
 }
 
 COFFFormat::OptionalHeader::~OptionalHeader()
@@ -1335,6 +1345,11 @@ void COFFFormat::OptionalHeader::PostWriteFile(const COFFFormat& coff, Linker::W
 
 void COFFFormat::OptionalHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
+}
+
+std::string COFFFormat::OptionalHeader::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "unknown";
 }
 
 COFFFormat::CDOS_Relocation::operator size_t() const
@@ -1415,6 +1430,7 @@ offset_t COFFFormat::AOutHeader::CalculateValues(COFFFormat& coff)
 
 void COFFFormat::AOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
+	header_region.AddField("Header format", Dumper::StringDisplay::Make(), GetHeaderFormatName(coff));
 	static const std::map<offset_t, std::string> magic_choice =
 	{
 		{ OMAGIC, "OMAGIC - impure format (text segment is not write protected, text and data segment are contiguous)" },
@@ -1457,6 +1473,11 @@ void COFFFormat::AOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) 
 	header_region.Display(dump, Dumper::Header);
 }
 
+std::string COFFFormat::AOutHeader::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "standard COFF a.out header";
+}
+
 uint32_t COFFFormat::AOutHeader3B20::GetSize() const
 {
 	return 36;
@@ -1495,6 +1516,11 @@ void COFFFormat::AOutHeader3B20::DumpFields(const COFFFormat& coff, Dumper::Dump
 	AOutHeader::DumpFields(coff, dump, header_region);
 	header_region.AddOptionalField("Reserved field at 0x10", Dumper::HexDisplay::Make(), offset_t(reserved1));
 	header_region.AddOptionalField("Reserved field at 0x14", Dumper::HexDisplay::Make(), offset_t(reserved2));
+}
+
+std::string COFFFormat::AOutHeader3B20::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "standard COFF a.out header with 3B20 additions";
 }
 
 uint32_t COFFFormat::FlexOSAOutHeader::GetSize() const
@@ -1555,9 +1581,13 @@ void COFFFormat::FlexOSAOutHeader::PostWriteFile(const COFFFormat& coff, Linker:
 void COFFFormat::FlexOSAOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
 	AOutHeader::DumpFields(coff, dump, header_region);
-	/* TODO: move display to relocation region */
 	header_region.AddField("Relocation offset", Dumper::HexDisplay::Make(), offset_t(relocations_offset));
 	header_region.AddField("Stack size", Dumper::HexDisplay::Make(), offset_t(stack_size));
+}
+
+std::string COFFFormat::FlexOSAOutHeader::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "standard COFF a.out header with FlexOS additions";
 }
 
 uint32_t COFFFormat::GNUAOutHeader::GetSize() const
@@ -1591,6 +1621,7 @@ void COFFFormat::GNUAOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dum
 {
 	/* TODO: untested */
 	Dumper::Region header_region("Optional header", coff.file_offset + 20, GetSize(), 8);
+	header_region.AddField("Header format", Dumper::StringDisplay::Make(), GetHeaderFormatName(coff));
 	header_region.AddField("Info", Dumper::HexDisplay::Make(), offset_t(info)); // TODO: improve display?
 	header_region.AddField("Text size", Dumper::HexDisplay::Make(), offset_t(code_size));
 	header_region.AddField("Data size", Dumper::HexDisplay::Make(), offset_t(data_size));
@@ -1619,6 +1650,11 @@ void COFFFormat::GNUAOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dum
 	header_region.AddField("Text relocation size", Dumper::HexDisplay::Make(), offset_t(code_relocation_size));
 	header_region.AddField("Data relocation size", Dumper::HexDisplay::Make(), offset_t(data_relocation_size));
 	header_region.Display(dump, Dumper::Header);
+}
+
+std::string COFFFormat::GNUAOutHeader::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "GNU a.out header";
 }
 
 uint32_t COFFFormat::MIPSAOutHeader::GetSize() const
@@ -1656,7 +1692,6 @@ offset_t COFFFormat::MIPSAOutHeader::CalculateValues(COFFFormat& coff)
 
 void COFFFormat::MIPSAOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
 {
-	/* TODO: untested */
 	AOutHeader::DumpFields(coff, dump, header_region);
 	header_region.AddField("Bss address", Dumper::HexDisplay::Make(), offset_t(bss_address));
 	header_region.AddField("GPR mask", Dumper::HexDisplay::Make(), offset_t(gpr_mask));
@@ -1665,6 +1700,11 @@ void COFFFormat::MIPSAOutHeader::DumpFields(const COFFFormat& coff, Dumper::Dump
 	header_region.AddField("CPR #3 mask", Dumper::HexDisplay::Make(), offset_t(cpr_mask[2]));
 	header_region.AddField("CPR #4 mask", Dumper::HexDisplay::Make(), offset_t(cpr_mask[3]));
 	header_region.AddField("GP regiser value", Dumper::HexDisplay::Make(), offset_t(gp_value));
+}
+
+std::string COFFFormat::MIPSAOutHeader::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "standard COFF a.out header with MIPS additions";
 }
 
 uint32_t COFFFormat::ECOFFAOutHeader::GetSize() const
@@ -1716,6 +1756,11 @@ offset_t COFFFormat::ECOFFAOutHeader::CalculateValues(COFFFormat& coff)
 void COFFFormat::ECOFFAOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
 	// TODO
+}
+
+std::string COFFFormat::ECOFFAOutHeader::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "ECOFF a.out header";
 }
 
 uint32_t COFFFormat::XCOFFAOutHeader::GetSize() const
@@ -1857,6 +1902,11 @@ offset_t COFFFormat::XCOFFAOutHeader::CalculateValues(COFFFormat& coff)
 void COFFFormat::XCOFFAOutHeader::Dump(const COFFFormat& coff, Dumper::Dumper& dump) const
 {
 	// TODO
+}
+
+std::string COFFFormat::XCOFFAOutHeader::GetHeaderFormatName(const COFFFormat& coff) const
+{
+	return "XCOFF a.out header";
 }
 
 void COFFFormat::Clear()
@@ -3062,6 +3112,30 @@ void COFFFormat::FlexOSLibrary::AssignNameAndVersion(std::string name_and_versio
 	}
 }
 
+offset_t COFFFormat::FlexOSLibrary::ReadFile(Linker::Reader& rd, offset_t size, bool& is_definition)
+{
+	rd.Skip(2);
+	is_definition = rd.ReadUnsigned(1) == 'A';
+	rd.Skip(1);
+	srtl_load_bias = rd.ReadUnsigned(4);
+	text_load_size = rd.ReadUnsigned(4);
+	data_load_size = rd.ReadUnsigned(4);
+	bss_load_size = rd.ReadUnsigned(4);
+	stack_load_size = rd.ReadUnsigned(4);
+	flags = rd.ReadUnsigned(4);
+	reserved = rd.ReadUnsigned(4);
+	version.major = rd.ReadUnsigned(2);
+	version.minor = rd.ReadUnsigned(2);
+	uint16_t path_size = rd.ReadUnsigned(2);
+	uint16_t name_size = rd.ReadUnsigned(2);
+	size -= 40;
+	offset_t count = std::min(size, offset_t(path_size + name_size + 1));
+	std::string path_name = rd.ReadData(count);
+	path = path_name.substr(0, path_size);
+	name = path_name.substr(path_size, name_size);
+	return size + path_name.size();
+}
+
 offset_t COFFFormat::FlexOSLibrary::ImageSize() const
 {
 	return 41 + path.size() + name.size();
@@ -3088,6 +3162,22 @@ offset_t COFFFormat::FlexOSLibrary::WriteFile(Linker::Writer& wr, bool as_export
 	return ImageSize();
 }
 
+void COFFFormat::FlexOSLibrary::Dump(Dumper::Dumper& dump, std::optional<unsigned> index) const
+{
+	Dumper::Entry library_entry("Library", index.has_value() ? index.value() + 1 : 0, offset_t(-1) /* TODO */, 8);
+	library_entry.AddOptionalField("Library load bias", Dumper::HexDisplay::Make(8), offset_t(srtl_load_bias));
+	library_entry.AddOptionalField("Text load size", Dumper::HexDisplay::Make(8), offset_t(text_load_size));
+	library_entry.AddOptionalField("Data load size", Dumper::HexDisplay::Make(8), offset_t(data_load_size));
+	library_entry.AddOptionalField("BSS load size", Dumper::HexDisplay::Make(8), offset_t(bss_load_size));
+	library_entry.AddOptionalField("Stack load size", Dumper::HexDisplay::Make(8), offset_t(stack_load_size));
+	library_entry.AddOptionalField("Flags", Dumper::HexDisplay::Make(8), offset_t(flags)); // TODO: likely bitfield, undocumented
+	library_entry.AddOptionalField("(reserved)", Dumper::HexDisplay::Make(8), offset_t(reserved));
+	library_entry.AddOptionalField("Library version", Dumper::VersionDisplay::Make(), offset_t(version.major), offset_t(version.minor));
+	library_entry.AddField("Path", Dumper::StringDisplay::Make("'"), path);
+	library_entry.AddField("Name", Dumper::StringDisplay::Make("'"), name);
+	library_entry.Display(dump, Dumper::Import);
+}
+
 offset_t COFFFormat::FlexOSLibrarySection::ImageSize() const
 {
 	offset_t total = 0;
@@ -3109,6 +3199,8 @@ offset_t COFFFormat::FlexOSLibrarySection::WriteFile(Linker::Writer& wr, offset_
 {
 	// TODO: count and offset are ignored
 
+	wr.endiantype = ::LittleEndian; // TODO: this is necessary for AsImage to work
+
 	offset_t total = 0;
 
 	if(library_definition)
@@ -3122,6 +3214,57 @@ offset_t COFFFormat::FlexOSLibrarySection::WriteFile(Linker::Writer& wr, offset_
 	}
 
 	return total;
+}
+
+std::shared_ptr<COFFFormat::FlexOSLibrarySection> COFFFormat::FlexOSLibrarySection::ReadFile(Linker::Reader& rd, offset_t size)
+{
+	auto section = std::make_shared<COFFFormat::FlexOSLibrarySection>();
+
+	while(size > 40) // minimum size for entry
+	{
+		FlexOSLibrary library;
+		bool is_definition;
+		offset_t count = library.ReadFile(rd, size, is_definition);
+		if(is_definition)
+		{
+			if(section->library_definition)
+			{
+				// TODO: wouldn't it be a better idea to include it anyway?
+				Linker::Error << "Error: Duplicate library definition, ignoring" << std::endl;
+			}
+			else
+			{
+				section->library_definition = library;
+			}
+		}
+		else
+		{
+			section->library_imports.push_back(library);
+		}
+
+		if(size < count)
+		{
+			break;
+		}
+		size -= count;
+	}
+
+	return section;
+}
+
+void COFFFormat::FlexOSLibrarySection::Dump(Dumper::Dumper& dump) const
+{
+	if(library_definition.has_value())
+	{
+		library_definition->Dump(dump, {});
+	}
+
+	unsigned library_index = 0;
+	for(auto& import : library_imports)
+	{
+		import.Dump(dump, library_index);
+		library_index ++;
+	}
 }
 
 void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
