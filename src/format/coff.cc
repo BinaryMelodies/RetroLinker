@@ -3220,36 +3220,62 @@ std::shared_ptr<COFFFormat::FlexOSLibrarySection> COFFFormat::FlexOSLibrarySecti
 {
 	auto section = std::make_shared<COFFFormat::FlexOSLibrarySection>();
 
-	while(size > 40) // minimum size for entry
+	offset_t offset = rd.Tell();
+	section->actual_contents = Linker::Buffer::ReadFromFile(rd, size);
+	rd.Seek(offset);
+
+	auto old_overflow = rd.on_overflow;
+	rd.on_overflow = Linker::Reader::ReportOnOverflow;
+	try
 	{
-		FlexOSLibrary library;
-		bool is_definition;
-		offset_t count = library.ReadFile(rd, size, is_definition);
-		if(is_definition)
+		while(size > 40) // minimum size for entry
 		{
-			if(section->library_definition)
+			FlexOSLibrary library;
+			bool is_definition;
+			offset_t count = library.ReadFile(rd, size, is_definition);
+			if(is_definition)
 			{
-				// TODO: wouldn't it be a better idea to include it anyway?
-				Linker::Error << "Error: Duplicate library definition, ignoring" << std::endl;
+				if(section->library_definition)
+				{
+					// TODO: wouldn't it be a better idea to include it anyway?
+					Linker::Error << "Error: Duplicate library definition, ignoring" << std::endl;
+				}
+				else
+				{
+					section->library_definition = library;
+				}
 			}
 			else
 			{
-				section->library_definition = library;
+				section->library_imports.push_back(library);
 			}
-		}
-		else
-		{
-			section->library_imports.push_back(library);
-		}
 
-		if(size < count)
-		{
-			break;
+			if(size < count)
+			{
+				break;
+			}
+			size -= count;
 		}
-		size -= count;
+	}
+	catch(Linker::ReadOverflow)
+	{
 	}
 
+	rd.on_overflow = old_overflow;
+
 	return section;
+}
+
+std::shared_ptr<const Linker::Image> COFFFormat::FlexOSLibrarySection::AsImage() const
+{
+	if(actual_contents)
+	{
+		return actual_contents->AsImage();
+	}
+	else
+	{
+		return Linker::Contents::AsImage();
+	}
 }
 
 void COFFFormat::FlexOSLibrarySection::Dump(Dumper::Dumper& dump) const

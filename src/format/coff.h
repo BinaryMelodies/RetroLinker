@@ -1232,7 +1232,13 @@ namespace COFF
 			 */
 			std::vector<FlexOSLibrary> library_imports;
 
+			/**
+			 * @brief Used internally to represent actual data
+			 */
+			std::shared_ptr<Linker::Contents> actual_contents;
+
 			static std::shared_ptr<FlexOSLibrarySection> ReadFile(Linker::Reader& rd, offset_t size);
+			std::shared_ptr<const Linker::Image> AsImage() const override;
 			offset_t ImageSize() const override;
 			using Linker::Contents::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const override;
