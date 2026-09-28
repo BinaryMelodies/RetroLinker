@@ -3132,7 +3132,7 @@ void PEFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 }
 
-void PEFormat::OnCallDirective(std::string identifier)
+void PEFormat::OnCallDirective(Linker::Module& module, std::string identifier)
 {
 	if(identifier == "GenerateImportThunks")
 	{
@@ -3203,7 +3203,7 @@ void PEFormat::OnCallDirective(std::string identifier)
 			// generate indirect calls to all the imported symbols
 			// TODO: this works for imported procedures, but how do we handle imported values?
 
-			if(current_module->GetImportedSymbols().size() > 0)
+			if(module.GetImportedSymbols().size() > 0)
 			{
 				import_thunk_segment->Fill();
 			}
@@ -3233,7 +3233,7 @@ void PEFormat::OnCallDirective(std::string identifier)
 				}
 			}
 
-			for(const Linker::SymbolName& symbol : current_module->GetImportedSymbols())
+			for(const Linker::SymbolName& symbol : module.GetImportedSymbols())
 			{
 				assert(import_thunk_segment->zero_fill == 0);
 
@@ -3296,7 +3296,7 @@ void PEFormat::OnCallDirective(std::string identifier)
 	}
 	else
 	{
-		Linker::SegmentManager::OnCallDirective(identifier);
+		Linker::SegmentManager::OnCallDirective(module, identifier);
 	}
 }
 
@@ -3473,8 +3473,6 @@ for not resource call "AUTO"
 void PEFormat::Link(Linker::Module& module)
 {
 	std::unique_ptr<Script::List> script = GetScript(module);
-
-	current_module = &module;
 
 	ProcessScript(script, module);
 

@@ -2934,6 +2934,17 @@ void COFFFormat::GenerateModule(Linker::Module& module) const
 
 /* * * Writer members * * */
 
+bool COFFFormat::FormatSupportsLibraries() const
+{
+	switch(type)
+	{
+	case CDOS386:
+		return true;
+	default:
+		return false;
+	}
+}
+
 unsigned COFFFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	if((type == CDOS68K || type == CDOS386) && (section_name == ".stack" || section_name.rfind(".stack.", 0) == 0))
@@ -2966,6 +2977,130 @@ std::vector<Linker::OptionDescription<void> *> COFFFormat::GetLinkerScriptParame
 std::shared_ptr<Linker::OptionCollector> COFFFormat::GetOptions()
 {
 	return std::make_shared<COFFOptionCollector>();
+}
+
+void COFFFormat::FlexOSLibrary::AssignNameAndVersion(std::string name_and_version)
+{
+	// format: "{path}{name}${major}[.{minor}[.{flags in hex}]]"
+
+	// find end of pathname
+	size_t slash_pos = name_and_version.rfind('/');
+	size_t colon_pos = name_and_version.rfind(':');
+	size_t path_len;
+	if(slash_pos != std::string::npos && colon_pos != std::string::npos)
+	{
+		path_len = std::max(slash_pos, colon_pos);
+	}
+	else if(slash_pos != std::string::npos)
+	{
+		path_len = slash_pos;
+	}
+	else if(colon_pos != std::string::npos)
+	{
+		path_len = colon_pos;
+	}
+	else
+	{
+		path_len = 0;
+	}
+
+	this->path = name_and_version.substr(0, path_len);
+
+	// find version information
+	size_t ver_pos = name_and_version.find('$');
+	if(ver_pos == std::string::npos)
+	{
+		this->name = name_and_version.substr(path_len);
+	}
+	else
+	{
+		this->name = name_and_version.substr(path_len, ver_pos);
+
+		ver_pos ++;
+		size_t dot1 = name_and_version.find('.', ver_pos);
+		if(dot1 == std::string::npos)
+		{
+			this->version.major = strtoll(name_and_version.substr(ver_pos).c_str(), nullptr, 10);
+		}
+		else
+		{
+			this->version.major = strtoll(name_and_version.substr(ver_pos, dot1 - ver_pos).c_str(), nullptr, 10);
+
+			dot1++;
+			size_t dot2 = name_and_version.find('.', dot1);
+			if(dot2 == std::string::npos)
+			{
+				this->version.minor = strtoll(name_and_version.substr(dot1).c_str(), nullptr, 10);
+			}
+			else
+			{
+				this->version.minor = strtoll(name_and_version.substr(dot1, dot2 - dot1).c_str(), nullptr, 10);
+				this->flags = strtoll(name_and_version.substr(dot2 + 1).c_str(), nullptr, 16);
+			}
+		}
+	}
+}
+
+offset_t COFFFormat::FlexOSLibrary::ImageSize() const
+{
+	return 41 + path.size() + name.size();
+}
+
+offset_t COFFFormat::FlexOSLibrary::WriteFile(Linker::Writer& wr, bool as_export) const
+{
+	wr.WriteData(4, as_export ? "%SA%" : "%S0%");
+	wr.WriteWord(4, srtl_load_bias);
+	wr.WriteWord(4, text_load_size);
+	wr.WriteWord(4, data_load_size);
+	wr.WriteWord(4, bss_load_size);
+	wr.WriteWord(4, stack_load_size);
+	wr.WriteWord(4, flags);
+	wr.WriteWord(4, reserved);
+	wr.WriteWord(2, version.major);
+	wr.WriteWord(2, version.minor);
+	wr.WriteWord(2, path.size());
+	wr.WriteWord(2, name.size());
+	wr.WriteData(path);
+	wr.WriteData(name);
+	wr.WriteWord(1, 0);
+
+	return ImageSize();
+}
+
+offset_t COFFFormat::FlexOSLibrarySection::ImageSize() const
+{
+	offset_t total = 0;
+
+	if(library_definition)
+	{
+		total += library_definition->ImageSize();
+	}
+
+	for(auto& import : library_imports)
+	{
+		total += import.ImageSize();
+	}
+
+	return total;
+}
+
+offset_t COFFFormat::FlexOSLibrarySection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+{
+	// TODO: count and offset are ignored
+
+	offset_t total = 0;
+
+	if(library_definition)
+	{
+		total += library_definition->WriteFile(wr, true);
+	}
+
+	for(auto& import : library_imports)
+	{
+		total += import.WriteFile(wr);
+	}
+
+	return total;
 }
 
 void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
@@ -3015,12 +3150,119 @@ void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 
 	if(auto slib_name = collector.slib())
 	{
-		// TODO: slib
-		is_flexos386_library = true;
+		// generate shared library
+		flexos386_library_name = FlexOSLibrary();
+		flexos386_library_name->AssignNameAndVersion(slib_name.value());
+
 		if(!option_no_relocation)
 		{
+			// shared libraries are relocatable
 			option_relocation = true;
 		}
+	}
+}
+
+void COFFFormat::OnCallDirective(Linker::Module& module, std::string identifier)
+{
+	if(type == CDOS386 && identifier == "GenerateLibraryInformation")
+	{
+		// generate `.lib` section if needed
+
+		for(auto section : sections)
+		{
+			if(section->name == ".lib")
+			{
+				has_lib_section = true;
+				break;
+			}
+		}
+
+		if(!has_lib_section)
+		{
+			// check for library imports
+			for(const Linker::SymbolName& symbol : module.GetImportedSymbols())
+			{
+				std::string library;
+				if(symbol.GetImportedLibrary(library))
+				{
+					has_lib_section = true;
+					break;
+				}
+			}
+		}
+
+		if(has_lib_section || flexos386_library_name)
+		{
+			std::shared_ptr<COFFFormat::Section> library_section = nullptr;
+
+			for(auto section : sections)
+			{
+				if(section->name == ".lib")
+				{
+					library_section = section;
+					break;
+				}
+			}
+
+			std::shared_ptr<FlexOSLibrarySection> lib_contents;
+
+			if(library_section == nullptr)
+			{
+				lib_contents = std::make_shared<FlexOSLibrarySection>();
+				library_section = std::make_shared<Section>(Section::COFF_Flags::LIB, lib_contents);
+				sections.push_back(library_section);
+			}
+			else
+			{
+				// TODO: we could prepend the generated `.lib` segment before the present `.lib` segment
+				// but that would involve resetting the addresses inside the segment
+				Linker::Warning << "Warning: `.lib` segment already present, no automatic generation" << std::endl;
+				return;
+			}
+
+			if(flexos386_library_name)
+			{
+				// this is a shared library: attach library definition
+				lib_contents->library_definition = flexos386_library_name.value();
+			}
+
+			for(const Linker::SymbolName& symbol : module.GetImportedSymbols())
+			{
+				// TODO: these must appear in their order of appearance
+				std::string library;
+				if(symbol.GetImportedLibrary(library))
+				{
+					// create shared library reference
+					FlexOSLibrary import;
+
+					// replace escaped characters
+					static const std::map<std::string, std::string> replacements =
+					{
+						{ ".COLON.", ":" },
+						{ ".SLASH.", "/" },
+						{ ".DOT.", "." },
+						{ ".VER.", "$" },
+					};
+					for(auto replacement : replacements)
+					{
+						for(auto ix = library.find(replacement.first);
+							ix != std::string::npos;
+							ix = library.find(replacement.first))
+						{
+							library.replace(ix, replacement.first.size(), replacement.second);
+						}
+					}
+
+					import.AssignNameAndVersion(library);
+
+					lib_contents->library_imports.push_back(import);
+				}
+			}
+		}
+	}
+	else
+	{
+		Linker::SegmentManager::OnCallDirective(module, identifier);
 	}
 }
 
@@ -3181,7 +3423,13 @@ std::unique_ptr<Script::List> COFFFormat::GetScript(Linker::Module& module)
 ".code"
 {
 	at ?code_base_address?;
-	all not write align 4;
+	all not write and not ".init" and not ".lib" align 4;
+	align 4;
+};
+
+for ".init"
+{
+	all ".init" align 4;
 	align 4;
 };
 
@@ -3195,15 +3443,24 @@ std::unique_ptr<Script::List> COFFFormat::GetScript(Linker::Module& module)
 ".data"
 {
 	at align(here, 0x1000);
-	all not zero align 4;
+	all not zero and not ".lib" align 4;
 	align 4;
 };
 
 ".bss"
 {
-	all align 4;
+	all not ".lib" align 4;
 	align 4;
 };
+
+for ".lib"
+{
+	at 0;
+	all ".lib" align 4;
+	align 4;
+};
+
+call "GenerateLibraryInformation";
 )";
 
 	if(linker_script != "")
@@ -3276,42 +3533,64 @@ void COFFFormat::ProcessModule(Linker::Module& module)
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
-		if(!rel.Resolve(module, resolution))
+		if(rel.Resolve(module, resolution))
 		{
-			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
-		}
-		rel.WriteWord(resolution.value);
-		if(resolution.target != nullptr && resolution.reference == nullptr)
-		{
-			// Concurrent DOS 68K and FlexOS 386 relocations
-			if(rel.kind == Linker::Relocation::SelectorIndex)
+			rel.WriteWord(resolution.value);
+			if(resolution.target != nullptr && resolution.reference == nullptr)
 			{
-				Linker::Error << "Error: segment relocations not supported, ignoring" << std::endl;
-				continue;
-			}
-			else if(rel.kind != Linker::Relocation::Direct)
-			{
-				Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
-				continue;
-			}
-
-			if(type == CDOS68K || type == CDOS386)
-			{
-				if(option_no_relocation)
+				// Concurrent DOS 68K and FlexOS 386 relocations
+				if(rel.kind == Linker::Relocation::SelectorIndex)
 				{
-					Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
-				}
-				else if(rel.size != 2 && rel.size != 4)
-				{
-					Linker::Error << "Error: Format only supports word and longword relocations: " << rel << ", ignoring" << std::endl;
+					Linker::Error << "Error: segment relocations not supported, ignoring" << std::endl;
 					continue;
 				}
-				else if(option_relocation || type == CDOS68K)
+				else if(rel.kind != Linker::Relocation::Direct)
 				{
-					/* CDOS68K and FlexOS 386 crunched relocations */
-					relocations[rel.source.GetPosition().address] = rel.size;
+					Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+					continue;
+				}
+
+				if(type == CDOS68K || type == CDOS386)
+				{
+					if(option_no_relocation)
+					{
+						Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
+					}
+					else if(rel.size != 2 && rel.size != 4)
+					{
+						Linker::Error << "Error: Format only supports word and longword relocations: " << rel << ", ignoring" << std::endl;
+						continue;
+					}
+					else if(option_relocation || type == CDOS68K)
+					{
+						/* CDOS68K and FlexOS 386 crunched relocations */
+						relocations[rel.source.GetPosition().address] = rel.size;
+					}
 				}
 			}
+		}
+		else
+		{
+			if(type == CDOS386)
+			{
+				if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
+				{
+					std::string library;
+					if(symbol->GetImportedLibrary(library))
+					{
+						if(rel.source.section == nullptr || rel.source.section->name != ".init")
+						{
+							Linker::Error << "Error: imports only allowed in `.init' section, generating anyway" << std::endl;
+						}
+
+						// "%I0%" in little endian representation
+						rel.WriteWord(0x25304925);
+						continue;
+					}
+				}
+			}
+
+			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
 		}
 	}
 
@@ -3376,12 +3655,18 @@ void COFFFormat::CalculateValues()
 		break;
 	case CDOS386:
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
-		if(is_flexos386_library)
+		if(flexos386_library_name)
+		{
 			magic_type = MAGIC_FLEXOS386_SHLIB;
+		}
 		else if(has_lib_section)
+		{
 			magic_type = MAGIC_FLEXOS386_USELIB;
+		}
 		else
+		{
 			magic_type = MAGIC_FLEXOS386;
+		}
 		optional_header = std::make_unique<FlexOSAOutHeader>(magic_type);
 		break;
 	case CDOS68K:
@@ -3451,12 +3736,31 @@ void COFFFormat::CalculateValues()
 	{
 		for(auto& section : sections)
 		{
-			std::shared_ptr<Linker::Segment> image = GetSegment(section);
-			section->name = image->name;
-			section->physical_address = section->address = image->base_address;
-			section->size = image->TotalSize();
-			section->section_pointer = offset;
-			offset += image->data_size;
+			if(std::shared_ptr<Linker::Segment> image = GetSegment(section))
+			{
+				section->name = image->name;
+				section->physical_address = section->address = image->base_address;
+				section->size = image->TotalSize();
+				section->section_pointer = offset;
+				offset += image->data_size;
+			}
+			else
+			{
+				// TODO: other section types?
+				if(std::dynamic_pointer_cast<FlexOSLibrarySection>(section->image))
+				{
+					section->name = ".lib";
+				}
+				else
+				{
+					Linker::Error << "Internal error: unrecognized output segment, no name assigned" << std::endl;
+					section->name = "";
+				}
+				section->physical_address = section->address = 0;
+				section->size = section->image->ImageSize();
+				section->section_pointer = offset;
+				offset += section->size;
+			}
 		}
 	}
 
@@ -3679,7 +3983,10 @@ std::string COFFFormat::GetDefaultExtension(Linker::Module& module, std::string 
 	case CDOS68K:
 		return filename + ".68k";
 	case CDOS386:
-		return filename + ".386";
+		if(flexos386_library_name.has_value())
+			return filename + ".slb";
+		else
+			return filename + ".386";
 	case UNIX:
 	case UNIX_3B20:
 	case UNIX_3B5:

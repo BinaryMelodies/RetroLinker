@@ -950,7 +950,6 @@ namespace Microsoft
 		/** @brief Holds the segment that contains the import thinks */
 		std::shared_ptr<Linker::Segment> import_thunk_segment = nullptr;
 
-		Linker::Module * current_module = nullptr;
 		std::map<std::pair<std::string, std::string>, uint32_t> import_thunks_by_name;
 		std::map<std::pair<std::string, uint16_t>, uint32_t> import_thunks_by_ordinal;
 
@@ -1151,7 +1150,7 @@ namespace Microsoft
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 		void AllocateSymbols(Linker::Module& module) const override;
-		void OnCallDirective(std::string identifier) override;
+		void OnCallDirective(Linker::Module& module, std::string identifier) override;
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);

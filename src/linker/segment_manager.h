@@ -133,7 +133,7 @@ namespace Linker
 		/**
 		 * @brief Callback function for the CALL directive
 		 */
-		virtual void OnCallDirective(std::string identifier);
+		virtual void OnCallDirective(Module& module, std::string identifier);
 
 		/**
 		 * @brief Creates a new segment and attaches it to the image

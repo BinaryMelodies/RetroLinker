@@ -1184,6 +1184,41 @@ namespace COFF
 			virtual void Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const;
 		};
 
+		class FlexOSLibrary
+		{
+		public:
+			// TODO: these are not entirely clear, names based on symbols of COFF binary
+			uint32_t srtl_load_bias = 0;
+			uint32_t text_load_size = 0;
+			uint32_t data_load_size = 0;
+			uint32_t bss_load_size = 0;
+			uint32_t stack_load_size = 0;
+			uint32_t flags = 0x80;
+			uint32_t reserved = 0;
+			struct version_type
+			{
+				uint16_t major, minor;
+			};
+			version_type version = { 0 };
+			std::string path;
+			std::string name;
+
+			void AssignNameAndVersion(std::string name_and_version);
+			offset_t ImageSize() const;
+			offset_t WriteFile(Linker::Writer& wr, bool as_export = false) const;
+		};
+
+		class FlexOSLibrarySection : public Linker::Contents
+		{
+		public:
+			std::optional<FlexOSLibrary> library_definition;
+			std::vector<FlexOSLibrary> library_imports;
+
+			offset_t ImageSize() const override;
+			using Linker::Contents::WriteFile;
+			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const override;
+		};
+
 		/**
 		 * @brief The list of COFF sections
 		 */
@@ -1960,8 +1995,14 @@ namespace COFF
 		 */
 		uint32_t relocations_offset = 0;
 
+		/**
+		 * @brief FlexOS 386 specific: program participates in dynamic linking
+		 */
 		bool has_lib_section = false;
-		bool is_flexos386_library = false;
+		/**
+		 * @brief FlexOS 386 specific: generate shared library (SLB)
+		 */
+		std::optional<FlexOSLibrary> flexos386_library_name;
 
 		COFFFormat(format_type type = GENERIC, COFFVariantType coff_variant = COFF, EndianType endiantype = ::UndefinedEndian)
 			: coff_variant(coff_variant), endiantype(endiantype), type(type)
@@ -1972,6 +2013,8 @@ namespace COFF
 		{
 			Clear();
 		}
+
+		bool FormatSupportsLibraries() const override;
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
@@ -2000,6 +2043,8 @@ namespace COFF
 			/** @brief F_AR32W */
 			FLAG_32BIT_BIG_ENDIAN = 0x0200,
 		};
+
+		void OnCallDirective(Linker::Module& module, std::string identifier) override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 

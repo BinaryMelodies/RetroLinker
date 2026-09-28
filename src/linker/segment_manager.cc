@@ -122,7 +122,7 @@ void SegmentManager::OnNewSegment(std::shared_ptr<Segment> segment)
 	/* extend */
 }
 
-void SegmentManager::OnCallDirective(std::string identifier)
+void SegmentManager::OnCallDirective(Module& module, std::string identifier)
 {
 	/* extend */
 	Linker::FatalError("Fatal error: format does not support the call \"" + identifier + "\" directive");
@@ -242,7 +242,7 @@ void SegmentManager::ProcessScript(std::unique_ptr<List>& directives, Module& mo
 			Linker::Debug << "Debug: end for statement" << std::endl;
 			break;
 		case Node::Call:
-			OnCallDirective(*directive->value->Get<std::string>());
+			OnCallDirective(module, *directive->value->Get<std::string>());
 			// in case the OnCallDirective call modified the segment size
 			current_address = segment_vector.back()->GetEndAddress();
 			break;
