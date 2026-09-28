@@ -1521,6 +1521,16 @@ offset_t COFFFormat::FlexOSAOutHeader::CalculateValues(COFFFormat& coff)
 	AOutHeader::CalculateValues(coff);
 	relocations_offset = coff.relocations_offset;
 	stack_size = coff.stack->zero_fill;
+	if(coff.type == CDOS386)
+	{
+		if(auto init = coff.GetInitSegment())
+		{
+			// FlexOS 386 .init section should be part of the code size
+			Linker::Debug << "Debug: Adding `.init` section to text size, from 0x" << std::hex << code_size << " to ";
+			code_size += init->data_size;
+			Linker::Debug << "0x" << std::hex << code_size << std::endl;
+		}
+	}
 	return DigitalResearch::CDOS::MeasureRelocations(coff.relocations);
 }
 
@@ -3512,6 +3522,16 @@ std::shared_ptr<Linker::Segment> COFFFormat::GetCodeSegment()
 	for(auto& section : sections)
 	{
 		if((section->flags & Section::TEXT))
+			return GetSegment(section);
+	}
+	return nullptr;
+}
+
+std::shared_ptr<Linker::Segment> COFFFormat::GetInitSegment()
+{
+	for(auto& section : sections)
+	{
+		if(section->name == ".init")
 			return GetSegment(section);
 	}
 	return nullptr;

@@ -2074,6 +2074,9 @@ namespace COFF
 
 		std::shared_ptr<Linker::Segment> GetCodeSegment();
 
+		/** @brief Only used by FlexOS 386 */
+		std::shared_ptr<Linker::Segment> GetInitSegment();
+
 		std::shared_ptr<Linker::Segment> GetDataSegment();
 
 		std::shared_ptr<Linker::Segment> GetBssSegment();
