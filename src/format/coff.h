@@ -1829,6 +1829,14 @@ namespace COFF
 			 * @brief Magic number required by FlexOS 386
 			 */
 			MAGIC_FLEXOS386 = 0x01C0,
+			/**
+			 * @brief Magic number required by FlexOS 386 programs participating in shared linking
+			 */
+			MAGIC_FLEXOS386_USELIB = 0x01C1,
+			/**
+			 * @brief Magic number for shared libraries in FlexOS 386
+			 */
+			MAGIC_FLEXOS386_SHLIB = 0x01C8,
 		};
 		opthdr_magic_type magic_type = opthdr_magic_type(0);
 		bool option_unmapped_zero_page = false;
@@ -1862,12 +1870,15 @@ namespace COFF
 			Linker::Option<bool> Nflag{"N", "Impure executable (OMAGIC)"};
 			Linker::Option<bool> nflag{"n", "Pure executable (NMAGIC)"};
 			Linker::Option<bool> zflag{"z", "Demand paged executable (ZMAGIC)"};
+			Linker::Option<std::optional<std::string>> slib{"slib", "Generate FlexOS shared run-time library, parameter: <library name>.<major version>.<minor version>[.<optional flags as hexadecimal value>]"};
+			Linker::Option<bool> reloc{"reloc", "Generate FlexOS relocations (default for CDOS68K and FlexOS 386 libraries)"};
+			Linker::Option<bool> noreloc{"noreloc", "Suppress FlexOS relocations (default for FlexOS 386 programs)"};
 
 			// TODO: make stack size a parameter (for FlexOS)
 
 			COFFOptionCollector()
 			{
-				InitializeFields(stub, type, Nflag, nflag, zflag);
+				InitializeFields(stub, type, Nflag, nflag, zflag, slib, reloc, noreloc);
 			}
 		};
 
@@ -1922,9 +1933,14 @@ namespace COFF
 		format_type type = GENERIC;
 
 		/**
-		 * @brief Suppress relocation generation, only relevant for Concurrent DOS 68K, since the other target formats do not store relocations
+		 * @brief Suppress relocation generation, only relevant for Concurrent DOS 68K and FlexOS 386 libraries, since the other target formats do not store relocations
 		 */
 		bool option_no_relocation = false;
+
+		/**
+		 * @brief Enable relocation generation, only relevant for FlexOS 386
+		 */
+		bool option_relocation = false;
 
 		/**
 		 * @brief Size of MZ stub, only used for DJGPP COFF executables
@@ -1943,6 +1959,9 @@ namespace COFF
 		 * @brief Concurrent DOS 68K: Offset to relocations
 		 */
 		uint32_t relocations_offset = 0;
+
+		bool has_lib_section = false;
+		bool is_flexos386_library = false;
 
 		COFFFormat(format_type type = GENERIC, COFFVariantType coff_variant = COFF, EndianType endiantype = ::UndefinedEndian)
 			: coff_variant(coff_variant), endiantype(endiantype), type(type)

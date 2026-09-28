@@ -82,6 +82,7 @@ void Segment::Append(std::shared_ptr<Section> section)
 	sections.push_back(section);
 	if(align > this->align)
 		this->align = align;
+	Linker::Debug << "Debug: Appending section `" << section->name << "' segment `" << name << "'" << std::endl;
 }
 
 offset_t Segment::WriteFile(std::ostream& out, offset_t size, offset_t offset) const

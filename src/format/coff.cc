@@ -3005,8 +3005,23 @@ void COFFFormat::SetOptions(std::map<std::string, std::string>& options)
 		}
 	}
 
-	/* TODO */
-	option_no_relocation = false;
+	if(collector.reloc() && collector.noreloc())
+	{
+		Linker::FatalError("Fatal error: both reloc and noreloc parameters provided, aborting");
+	}
+
+	option_relocation = collector.reloc();
+	option_no_relocation = collector.noreloc();
+
+	if(auto slib_name = collector.slib())
+	{
+		// TODO: slib
+		is_flexos386_library = true;
+		if(!option_no_relocation)
+		{
+			option_relocation = true;
+		}
+	}
 }
 
 void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
@@ -3059,6 +3074,25 @@ void COFFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			return;
 		}
 		stack = segment;
+	}
+	else if((type == CDOS68K || type == CDOS386) && segment->name == ".init")
+	{
+		// FlexOS
+		Linker::Warning << "Warning: segment " << segment->name << " experimental" << std::endl;
+		sections.push_back(std::make_shared<Section>(Section::TEXT, segment));
+	}
+	else if((type == CDOS68K || type == CDOS386) && segment->name == ".lib")
+	{
+		// FlexOS
+		has_lib_section = true;
+		Linker::Warning << "Warning: segment " << segment->name << " experimental" << std::endl;
+		sections.push_back(std::make_shared<Section>(Section::COFF_Flags::LIB, segment));
+	}
+	else if((type == CDOS68K || type == CDOS386) && segment->name == ".comment")
+	{
+		// FlexOS
+		Linker::Warning << "Warning: segment " << segment->name << " experimental" << std::endl;
+		sections.push_back(std::make_shared<Section>(0, segment));
 	}
 	else
 	{
@@ -3249,30 +3283,34 @@ void COFFFormat::ProcessModule(Linker::Module& module)
 		rel.WriteWord(resolution.value);
 		if(resolution.target != nullptr && resolution.reference == nullptr)
 		{
-			if(type != CDOS68K)
+			// Concurrent DOS 68K and FlexOS 386 relocations
+			if(rel.kind == Linker::Relocation::SelectorIndex)
 			{
-				if(rel.kind == Linker::Relocation::SelectorIndex)
-				{
-					Linker::Error << "Error: segment relocations not supported, ignoring" << std::endl;
-				}
-				else if(rel.kind != Linker::Relocation::Direct)
-				{
-					Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
-				}
-			}
-			else if(option_no_relocation)
-			{
-				Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
-			}
-			else if(rel.size != 2 && rel.size != 4)
-			{
-				Linker::Error << "Error: Format only supports word and longword relocations: " << rel << ", ignoring" << std::endl;
+				Linker::Error << "Error: segment relocations not supported, ignoring" << std::endl;
 				continue;
 			}
-			else
+			else if(rel.kind != Linker::Relocation::Direct)
 			{
-				/* CDOS68K crunched relocations */
-				relocations[rel.source.GetPosition().address] = rel.size;
+				Linker::Error << "Error: unsupported reference type, ignoring" << std::endl;
+				continue;
+			}
+
+			if(type == CDOS68K || type == CDOS386)
+			{
+				if(option_no_relocation)
+				{
+					Linker::Error << "Error: relocations suppressed, generating image anyway" << std::endl;
+				}
+				else if(rel.size != 2 && rel.size != 4)
+				{
+					Linker::Error << "Error: Format only supports word and longword relocations: " << rel << ", ignoring" << std::endl;
+					continue;
+				}
+				else if(option_relocation || type == CDOS68K)
+				{
+					/* CDOS68K and FlexOS 386 crunched relocations */
+					relocations[rel.source.GetPosition().address] = rel.size;
+				}
 			}
 		}
 	}
@@ -3338,7 +3376,13 @@ void COFFFormat::CalculateValues()
 		break;
 	case CDOS386:
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_LITTLE_ENDIAN;
-		optional_header = std::make_unique<FlexOSAOutHeader>(MAGIC_FLEXOS386);
+		if(is_flexos386_library)
+			magic_type = MAGIC_FLEXOS386_SHLIB;
+		else if(has_lib_section)
+			magic_type = MAGIC_FLEXOS386_USELIB;
+		else
+			magic_type = MAGIC_FLEXOS386;
+		optional_header = std::make_unique<FlexOSAOutHeader>(magic_type);
 		break;
 	case CDOS68K:
 		flags = FLAG_NO_RELOCATIONS | FLAG_EXECUTABLE | FLAG_NO_LINE_NUMBERS | FLAG_NO_SYMBOLS | FLAG_32BIT_BIG_ENDIAN;
@@ -3418,7 +3462,10 @@ void COFFFormat::CalculateValues()
 
 	if(type == CDOS68K || type == CDOS386)
 	{
-		relocations_offset = offset;
+		if(relocations.size() != 0)
+		{
+			relocations_offset = offset;
+		}
 	}
 
 	offset += optional_header->CalculateValues(*this);
@@ -3573,7 +3620,7 @@ void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
 		}
 		linker_parameters["code_base_address"] = Linker::Location(code_base_address);
 	}
-	else if(type == CDOS386 && linker_parameters["code_base_address"] != 0x1000)
+	else if(type == CDOS386 && linker_parameters["code_base_address"] != 0x1000 && linker_script == "")
 	{
 		Linker::Warning << "Warning: base address ignored for .code, setting to 0x1000" << std::endl;
 		linker_parameters["code_base_address"] = Linker::Location(0x1000);
