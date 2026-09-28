@@ -1184,6 +1184,12 @@ namespace COFF
 			virtual void Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const;
 		};
 
+		/**
+		 * @brief Represents a FlexOS library entry
+		 *
+		 * Represents a single entry in a FlexOS 386 COFF `.lib` section.
+		 * This is used for importing libraries as well as defining the attributes of the current shared library.
+		 */
 		class FlexOSLibrary
 		{
 		public:
@@ -1208,10 +1214,19 @@ namespace COFF
 			offset_t WriteFile(Linker::Writer& wr, bool as_export = false) const;
 		};
 
+		/**
+		 * @brief Encodes the contents of a FlexOS 386 COFF `.lib` section
+		 */
 		class FlexOSLibrarySection : public Linker::Contents
 		{
 		public:
+			/**
+			 * @brief In a shared library, the first entry provides the attributes of the library
+			 */
 			std::optional<FlexOSLibrary> library_definition;
+			/**
+			 * @brief Sequence of imported libraries
+			 */
 			std::vector<FlexOSLibrary> library_imports;
 
 			offset_t ImageSize() const override;

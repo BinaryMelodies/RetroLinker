@@ -42,6 +42,7 @@ tests/dll/win16/*
 tests/dll/win32/*
 tests/dll/win64/*
 tests/dll/flex286/*
+tests/dll/flex386/*
 !tests/dll/*/Makefile
 !tests/dll/*/main.s
 !tests/dll/*/lib.s

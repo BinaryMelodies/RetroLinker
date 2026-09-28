@@ -2983,6 +2983,8 @@ void COFFFormat::FlexOSLibrary::AssignNameAndVersion(std::string name_and_versio
 {
 	// format: "{path}{name}${major}[.{minor}[.{flags in hex}]]"
 
+	Linker::Debug << "Debug: Parse `" << name_and_version << "'" << std::endl;
+
 	// find end of pathname
 	size_t slash_pos = name_and_version.rfind('/');
 	size_t colon_pos = name_and_version.rfind(':');
@@ -3005,37 +3007,46 @@ void COFFFormat::FlexOSLibrary::AssignNameAndVersion(std::string name_and_versio
 	}
 
 	this->path = name_and_version.substr(0, path_len);
+	Linker::Debug << "Debug: Path `" << this->path << "'" << std::endl;
 
 	// find version information
 	size_t ver_pos = name_and_version.find('$');
 	if(ver_pos == std::string::npos)
 	{
 		this->name = name_and_version.substr(path_len);
+		Linker::Debug << "Debug: Name `" << this->name << "'" << std::endl;
 	}
 	else
 	{
 		this->name = name_and_version.substr(path_len, ver_pos);
+		Linker::Debug << "Debug: Name `" << this->name << "'" << std::endl;
 
 		ver_pos ++;
 		size_t dot1 = name_and_version.find('.', ver_pos);
 		if(dot1 == std::string::npos)
 		{
 			this->version.major = strtoll(name_and_version.substr(ver_pos).c_str(), nullptr, 10);
+			Linker::Debug << "Debug: Major version " << std::dec << this->version.major << std::endl;
 		}
 		else
 		{
 			this->version.major = strtoll(name_and_version.substr(ver_pos, dot1 - ver_pos).c_str(), nullptr, 10);
+			Linker::Debug << "Debug: Major version " << std::dec << this->version.major << std::endl;
 
 			dot1++;
 			size_t dot2 = name_and_version.find('.', dot1);
 			if(dot2 == std::string::npos)
 			{
 				this->version.minor = strtoll(name_and_version.substr(dot1).c_str(), nullptr, 10);
+				Linker::Debug << "Debug: Minor version " << std::dec << this->version.minor << std::endl;
 			}
 			else
 			{
 				this->version.minor = strtoll(name_and_version.substr(dot1, dot2 - dot1).c_str(), nullptr, 10);
+				Linker::Debug << "Debug: Minor version " << std::dec << this->version.minor << std::endl;
+
 				this->flags = strtoll(name_and_version.substr(dot2 + 1).c_str(), nullptr, 16);
+				Linker::Debug << "Debug: Flags 0x" << std::hex << this->flags << std::endl;
 			}
 		}
 	}
@@ -3914,7 +3925,10 @@ void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
 			code_base_address = 0x1000;
 			break;
 		case CDOS386:
-			code_base_address = 0x1000;
+			if(flexos386_library_name.has_value())
+				code_base_address = 0x80000000;
+			else
+				code_base_address = 0x1000;
 			break;
 		case CDOS68K:
 		//case WINDOWS:
@@ -3924,10 +3938,13 @@ void COFFFormat::GenerateFile(std::string filename, Linker::Module& module)
 		}
 		linker_parameters["code_base_address"] = Linker::Location(code_base_address);
 	}
-	else if(type == CDOS386 && linker_parameters["code_base_address"] != 0x1000 && linker_script == "")
+	else if(type == CDOS386)
 	{
-		Linker::Warning << "Warning: base address ignored for .code, setting to 0x1000" << std::endl;
-		linker_parameters["code_base_address"] = Linker::Location(0x1000);
+		if(!flexos386_library_name.has_value() && linker_parameters["code_base_address"] != 0x1000 && linker_script == "")
+		{
+			Linker::Warning << "Warning: base address ignored for .code, setting to 0x1000" << std::endl;
+			linker_parameters["code_base_address"] = Linker::Location(0x1000);
+		}
 	}
 
 	switch(type)
