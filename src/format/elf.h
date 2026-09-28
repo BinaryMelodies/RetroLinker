@@ -17,7 +17,14 @@ namespace ELF
 	/**
 	 * @brief ELF object and executable format
 	 *
-	 * The latest and most widespread file format, developed for the UNIX operating system.
+	 * Developed for the UNIX operating system and supported by almost every modern system and environment that is not Windows or macOS/Mac OS X.
+	 *
+	 * Some intended targets, not all of which are fully supported:
+	 * - UNIX since SVR4, and several other UNIX-like systems, including Linux (but not macOS/Mac OS X and derivatives)
+	 * - PowerPC Amiga derivaitves: AmigaOS 4, AROS, MorphOS, PowerUP (but not WarpOS)
+	 * - BeOS for the AT&T Hobbit and Intel 80386 since Release 4, as well as Haiku
+	 * - OS/2 Warp PowerPC edition
+	 * - DJGPP had an experimental port that used ELF binaries
 	 */
 	class ELFFormat : public virtual Linker::InputFormat, public virtual Linker::SegmentManager
 	{
