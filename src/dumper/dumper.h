@@ -59,7 +59,7 @@ enum display_option
 	Generated = 1 << _Generated,
 
 	None = 0,
-	All = Image | Header | Symbol | Relocation | Import | Export | Control | Miscellaneous | Generated,
+	All = Image | Header | Symbol | Relocation | Import | Export | Control | String | Debug | Resource | Dynamic | Miscellaneous | Redundant | Generated,
 };
 
 class Dumper;

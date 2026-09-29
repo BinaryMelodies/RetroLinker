@@ -1063,15 +1063,20 @@ std::shared_ptr<MacintoshResourceFileFormat::Resource> MacintoshResourceFileForm
 	{
 	case CodeResource::OSType:
 		if(reference.id == 0)
+		{
 			resource = std::make_shared<JumpTableCodeResource>();
+		}
 		else
+		{
 			resource = std::make_shared<CodeResource>(reference.id);
+		}
 		break;
 	case SizeResource::OSType:
 		if(reference.id == 0xFFFF && length == SizeResource::ExpectedLength)
 		{
 			resource = std::make_shared<SizeResource>();
 		}
+		break;
 	}
 	if(resource == nullptr)
 	{
