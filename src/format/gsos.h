@@ -708,10 +708,65 @@ namespace Apple
 	class GSOSResourceFileFormat : public virtual Linker::SegmentManager
 	{
 	public:
+		static constexpr uint32_t FreeBlockSize = 8;
+		static constexpr uint32_t ReferenceRecordSize = 20;
+
+		uint32_t file_version = 0;
+		uint32_t file_to_map = 0;
+		uint32_t file_map_size = 0;
+		std::shared_ptr<Linker::Contents> file_memo;
+
+		uint32_t map_next = 0;
+		uint16_t map_flag = 0;
+		uint32_t map_offset = 0;
+		uint32_t map_size = 0;
+		uint16_t map_to_index = 0;
+		uint16_t map_file_num = 0;
+		uint16_t map_id = 0;
+		uint32_t map_index_size = 0;
+		uint32_t map_index_used = 0;
+		uint16_t map_free_list_size = 0;
+		uint16_t map_free_list_used = 0;
+
+		class FreeBlock
+		{
+		public:
+			uint32_t offset = 0;
+			uint32_t size = 0;
+
+			static FreeBlock ReadFile(Linker::Reader& rd);
+			void WriteFile(Linker::Writer& wr) const;
+			void Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const;
+		};
+
+		class ReferenceRecord
+		{
+		public:
+			uint16_t type = 0;
+			uint32_t id = 0;
+			uint32_t offset = 0;
+			uint16_t attributes = 0;
+			uint32_t size = 0;
+			uint32_t handle = 0;
+
+			std::shared_ptr<Linker::Contents> image;
+
+			static std::shared_ptr<ReferenceRecord> ReadFile(Linker::Reader& rd);
+			void WriteFile(Linker::Writer& wr) const;
+
+			void ReadContents(GSOSResourceFileFormat& format, Linker::Reader& rd);
+			void WriteContents(const GSOSResourceFileFormat& format, Linker::Writer& wr) const;
+			void Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const;
+		};
+
+		std::vector<FreeBlock> free_list;
+		std::vector<std::shared_ptr<ReferenceRecord>> map_index;
+
 		/* TODO */
 		void ReadFile(Linker::Reader& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t ImageSize() const override;
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 

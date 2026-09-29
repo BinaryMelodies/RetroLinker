@@ -1861,12 +1861,168 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeSUPER(SuperC
 
 // GSOSResourceFileFormat
 
+GSOSResourceFileFormat::FreeBlock GSOSResourceFileFormat::FreeBlock::ReadFile(Linker::Reader& rd)
+{
+	FreeBlock block;
+	block.offset = rd.ReadUnsigned(4);
+	block.size = rd.ReadUnsigned(4);
+	return block;
+}
+
+void GSOSResourceFileFormat::FreeBlock::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteWord(4, offset);
+	wr.WriteWord(4, size);
+}
+
+void GSOSResourceFileFormat::FreeBlock::Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const
+{
+	Dumper::Entry free_block_entry("Free block", index + 1, format.file_offset + format.file_to_map + 0x20 + index * FreeBlockSize, 8);
+	free_block_entry.Display(dump, Dumper::Header);
+
+	Dumper::Region free_block_region("Free block", format.file_offset + offset, size, 8);
+	free_block_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index + 1));
+	free_block_region.Display(dump, Dumper::Header);
+}
+
+std::shared_ptr<GSOSResourceFileFormat::ReferenceRecord> GSOSResourceFileFormat::ReferenceRecord::ReadFile(Linker::Reader& rd)
+{
+	auto record = std::make_shared<GSOSResourceFileFormat::ReferenceRecord>();
+	record->type = rd.ReadUnsigned(2);
+	record->id = rd.ReadUnsigned(4);
+	record->offset = rd.ReadUnsigned(4);
+	record->attributes = rd.ReadUnsigned(2);
+	record->size = rd.ReadUnsigned(4);
+	record->handle = rd.ReadUnsigned(4);
+	return record;
+}
+
+void GSOSResourceFileFormat::ReferenceRecord::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteWord(2, type);
+	wr.WriteWord(4, id);
+	wr.WriteWord(4, offset);
+	wr.WriteWord(2, attributes);
+	wr.WriteWord(4, size);
+	wr.WriteWord(4, handle);
+}
+
+void GSOSResourceFileFormat::ReferenceRecord::ReadContents(GSOSResourceFileFormat& format, Linker::Reader& rd)
+{
+	rd.Seek(format.file_offset + offset);
+	image = Linker::Buffer::ReadFromFile(rd, size);
+}
+
+void GSOSResourceFileFormat::ReferenceRecord::WriteContents(const GSOSResourceFileFormat& format, Linker::Writer& wr) const
+{
+	wr.Seek(format.file_offset + offset);
+	image->WriteFile(wr, size);
+}
+
+void GSOSResourceFileFormat::ReferenceRecord::Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const
+{
+	Dumper::Entry resource_entry("Resource reference", index + 1, format.file_offset + format.map_to_index + index * ReferenceRecordSize, 8);
+	resource_entry.AddField("Type", Dumper::HexDisplay::Make(4), offset_t(type));
+	resource_entry.AddField("ID", Dumper::HexDisplay::Make(8), offset_t(id));
+	resource_entry.AddField("Attributes", Dumper::HexDisplay::Make(4), offset_t(attributes));
+	resource_entry.AddField("Data offset", Dumper::HexDisplay::Make(8), offset_t(offset));
+	resource_entry.AddField("Data length", Dumper::HexDisplay::Make(8), offset_t(size));
+	resource_entry.AddOptionalField("[Memory only] Handle", Dumper::HexDisplay::Make(8), offset_t(handle));
+	resource_entry.Display(dump, Dumper::Header | Dumper::Resource);
+
+	Dumper::Block resource_block("Resource", format.file_offset + offset, image->AsImage(), 0, 8);
+	resource_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(index + 1));
+	resource_block.Display(dump, Dumper::Image);
+}
+
 void GSOSResourceFileFormat::ReadFile(Linker::Reader& rd)
 {
-	// TODO
+	rd.endiantype = ::LittleEndian;
+
+	file_offset = rd.Tell();
+
+	file_version = rd.ReadUnsigned(4);
+	file_to_map = rd.ReadUnsigned(4);
+	file_map_size = rd.ReadUnsigned(4);
+	file_memo = Linker::Buffer::ReadFromFile(rd, 128);
+
+	rd.Seek(file_offset + file_to_map);
+	map_next = rd.ReadUnsigned(4);
+	map_flag = rd.ReadUnsigned(2);
+	map_offset = rd.ReadUnsigned(4);
+	map_size = rd.ReadUnsigned(4);
+	map_to_index = rd.ReadUnsigned(2);
+	map_file_num = rd.ReadUnsigned(2);
+	map_id = rd.ReadUnsigned(2);
+	map_index_size = rd.ReadUnsigned(4);
+	map_index_used = rd.ReadUnsigned(4);
+	map_free_list_size = rd.ReadUnsigned(2);
+	map_free_list_used = rd.ReadUnsigned(2);
+
+	free_list.clear();
+	for(uint16_t index = 0; index < map_free_list_used; index ++)
+	{
+		free_list.push_back(FreeBlock::ReadFile(rd));
+	}
+
+	rd.Seek(file_offset + file_to_map + map_to_index);
+	for(uint16_t index = 0; index < map_index_used; index ++)
+	{
+		map_index.push_back(ReferenceRecord::ReadFile(rd));
+	}
+
+	for(auto record : map_index)
+	{
+		record->ReadContents(*this, rd);
+	}
 }
 
 offset_t GSOSResourceFileFormat::WriteFile(Linker::Writer& wr) const
+{
+	wr.endiantype = ::LittleEndian;
+
+	wr.Seek(file_offset);
+	wr.WriteWord(4, file_version);
+	wr.WriteWord(4, file_to_map);
+	wr.WriteWord(4, file_map_size);
+	if(file_memo)
+	{
+		file_memo->WriteFile(wr);
+	}
+
+	wr.Seek(file_offset + file_to_map);
+	wr.WriteWord(4, map_next);
+	wr.WriteWord(2, map_flag);
+	wr.WriteWord(4, map_offset);
+	wr.WriteWord(4, map_size);
+	wr.WriteWord(2, map_to_index);
+	wr.WriteWord(2, map_file_num);
+	wr.WriteWord(2, map_id);
+	wr.WriteWord(4, map_index_size);
+	wr.WriteWord(4, map_index_used);
+	wr.WriteWord(2, map_free_list_size);
+	wr.WriteWord(2, map_free_list_used);
+
+	for(auto& block : free_list)
+	{
+		block.WriteFile(wr);
+	}
+
+	wr.Seek(file_offset + file_to_map + map_to_index);
+	for(auto record : map_index)
+	{
+		record->WriteFile(wr);
+	}
+
+	for(auto record : map_index)
+	{
+		record->WriteContents(*this, wr);
+	}
+
+	return offset_t(-1);
+}
+
+offset_t GSOSResourceFileFormat::ImageSize() const
 {
 	// TODO
 	return offset_t(-1);
@@ -1874,7 +2030,49 @@ offset_t GSOSResourceFileFormat::WriteFile(Linker::Writer& wr) const
 
 void GSOSResourceFileFormat::Dump(Dumper::Dumper& dump) const
 {
-	// TODO
+	dump.SetEncoding(Dumper::Block::encoding_macroman); // TODO: find a GS/OS compatible character set
+
+	dump.SetTitle("GS/OS resource fork format");
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
+	file_region.AddField("Version", Dumper::HexDisplay::Make(8), offset_t(file_version));
+	file_region.Display(dump, Dumper::Header);
+
+	Dumper::Region map_region("Resource map", file_offset + file_to_map, file_map_size, 8);
+	map_region.AddOptionalField("[Memory image only] Offset to next resource file", Dumper::HexDisplay::Make(8), offset_t(map_next));
+	map_region.AddOptionalField("[Memory image only] Flags", Dumper::BitFieldDisplay::Make(4)
+		->AddBitField(1, 1, Dumper::ChoiceDisplay::Make("map changed in memory"), true),
+		offset_t(map_flag));
+	map_region.AddOptionalField("[Memory image only] GS/OS file reference number", Dumper::HexDisplay::Make(4), offset_t(map_file_num));
+	map_region.AddOptionalField("[Memory image only] Resource manager file ID", Dumper::HexDisplay::Make(4), offset_t(map_id));
+	if(map_offset != file_to_map)
+	{
+		map_region.AddField("[Redundant] Offset from start of resource file", Dumper::HexDisplay::Make(8), offset_t(map_offset));
+	}
+	if(map_size != file_map_size)
+	{
+		map_region.AddField("[Redundant] Resource map size", Dumper::HexDisplay::Make(8), offset_t(map_size));
+	}
+	map_region.Display(dump, Dumper::Header);
+
+	Dumper::Region map_index_region("Resource map index", file_offset + file_to_map + map_to_index, map_index_size * ReferenceRecordSize, 8);
+	map_index_region.Display(dump, Dumper::Header);
+
+	size_t index = 0;
+	for(auto record : map_index)
+	{
+		record->Dump(*this, dump, index);
+		index ++;
+	}
+
+	Dumper::Region map_free_list_region("Free block list", file_offset + file_to_map + 0x20, map_free_list_size * FreeBlockSize, 8);
+	map_free_list_region.Display(dump, Dumper::Header);
+
+	index = 0;
+	for(auto& block : free_list)
+	{
+		block.Dump(*this, dump, index);
+		index ++;
+	}
 }
 
 // GSOutputDriver
