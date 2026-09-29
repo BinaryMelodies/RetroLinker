@@ -1921,10 +1921,64 @@ void GSOSResourceFileFormat::ReferenceRecord::WriteContents(const GSOSResourceFi
 
 void GSOSResourceFileFormat::ReferenceRecord::Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const
 {
+	static const std::map<offset_t, std::string> resource_type_names =
+	{
+		{ 0x8001, "Icon specification (rIcon)" },
+		{ 0x8002, "QuickDraw II picture definition (rPicture)" },
+		{ 0x8003, "Control Manager control list (rControlList)" },
+		{ 0x8004, "Control Manager input templates (rControlTemplate)" },
+		{ 0x8005, "GS/OS class 1 input string (rC1InputString)" },
+		{ 0x8006, "Pascal string (rPString)" },
+		{ 0x8007, "Array of Pascal strings (rStringList)" },
+		{ 0x8008, "Menu bar record (rMenuBar)" },
+		{ 0x8009, "Menu template (rMenu)" },
+		{ 0x800A, "Menu item definition (rMenuItem)" },
+		{ 0x800B, "Data for LineEdit LETextBox2 tool call (rTextForLETextBox2)" },
+		// { 0x800C, "" },
+		{ 0x800D, "Color table for control (rCtlColorTbl)" },
+		{ 0x800E, "Parameters for NewWindow2 (rWindParam1)" },
+		{ 0x800F, "Parameters for NewWindow2 (rWindParam2)" },
+		{ 0x8010, "Window Manager color table (rWindColor)" },
+		{ 0x8011, "Text block (rTextBlock)" },
+		{ 0x8012, "TextEdit style information (rStyleBlock)" },
+		{ 0x8013, "Tool set startup record (rToolStartup)" },
+		{ 0x8014, "Resource name (rResName)" },
+		{ 0x8015, "AlertWindow input data (rAlertString)" },
+		{ 0x8016, "Unformatted text (rText)" },
+		// { 0x8017, "" },
+		// { 0x8018, "" },
+		// { 0x8019, "" },
+		{ 0x801A, "Two rectangles (rTwoRects)" },
+		// { 0x801B, "" },
+		{ 0x801C, "List member (rListRef)" },
+		{ 0x801D, "C string (rCString)" },
+		// { 0x801E, "" },
+		// { 0x801F, "" },
+		{ 0x8020, "ErrorWindow input data (rErrorString)" },
+		{ 0x8021, "Keystroke translation table (rKTransTable)" },
+		// { 0x8022, "" },
+		{ 0x8023, "GS/OS class 1 output string (rC1OutputString)" },
+		// { 0x8024, "" },
+		{ 0x8025, "TextEdit ruler information (rTERuler)" },
+	};
+
 	Dumper::Entry resource_entry("Resource reference", index + 1, format.file_offset + format.map_to_index + index * ReferenceRecordSize, 8);
-	resource_entry.AddField("Type", Dumper::HexDisplay::Make(4), offset_t(type));
+	resource_entry.AddField("Type", Dumper::ChoiceDisplay::Make(resource_type_names, "custom", Dumper::HexDisplay::Make(4)), offset_t(type));
 	resource_entry.AddField("ID", Dumper::HexDisplay::Make(8), offset_t(id));
-	resource_entry.AddField("Attributes", Dumper::HexDisplay::Make(4), offset_t(attributes));
+	resource_entry.AddField("Attributes",
+		Dumper::BitFieldDisplay::Make(4)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("page aligned"), true)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("may not use special memory"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("may not cross bank boundary"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("resource has changed in memory"), true)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("preload"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("write-protected"), true)
+			->AddBitField(8, 2, "Purge level", Dumper::DecDisplay::Make(), false)
+			->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("must be loaded at a specific location"), true)
+			->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("requires converter routine"), true)
+			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("cannot be moved in memory"), true)
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("locked: cannot be moved or purged in memory"), true),
+		offset_t(attributes));
 	resource_entry.AddField("Data offset", Dumper::HexDisplay::Make(8), offset_t(offset));
 	resource_entry.AddField("Data length", Dumper::HexDisplay::Make(8), offset_t(size));
 	resource_entry.AddOptionalField("[Memory only] Handle", Dumper::HexDisplay::Make(8), offset_t(handle));
