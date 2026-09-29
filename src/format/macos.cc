@@ -28,9 +28,23 @@ void Apple::UInt32ToOSType(OSType& type, uint32_t value)
 
 // MacintoshResourceFileFormat
 
+std::shared_ptr<Linker::OptionCollector> MacintoshResourceFileFormat::GetOptions()
+{
+	return std::make_shared<MacintoshOptionCollector>();
+}
+
 void MacintoshResourceFileFormat::SetOptions(std::map<std::string, std::string>& options)
 {
-	/* TODO */
+	MacintoshOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	bool _32 = collector._32();
+	// TODO: collector.far();
+
+	if(_32)
+	{
+		size_resource = std::make_shared<SizeResource>(SizeResource::Classic32);
+	}
 }
 
 std::vector<Linker::OptionDescription<void>> MacintoshResourceFileFormat::MemoryModelNames =
@@ -481,6 +495,70 @@ std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::CodeResource::Creat
 	return std::make_unique<Dumper::Block>(name, offset + (is_far ? 0x28 : 4), image->AsImage(), base_address, display_width);
 }
 
+void MacintoshResourceFileFormat::SizeResource::CalculateValues()
+{
+	// do nothing
+}
+
+offset_t MacintoshResourceFileFormat::SizeResource::ImageSize() const
+{
+	return ExpectedLength;
+}
+
+void MacintoshResourceFileFormat::SizeResource::ReadFile(Linker::Reader& rd)
+{
+	Linker::Error << "Error: attempting to read a lone resource" << std::endl;
+	rd.Skip(-4);
+	uint32_t length = rd.ReadUnsigned(4);
+	ReadFile(rd, length);
+}
+
+void MacintoshResourceFileFormat::SizeResource::ReadFile(Linker::Reader& rd, offset_t length)
+{
+	if(length != ExpectedLength)
+	{
+		Linker::Error << "Error: 'SIZE' resource must be " << std::dec << ExpectedLength << " bytes long, actual resource is " << length << std::endl;
+	}
+
+	flags = rd.ReadUnsigned(2);
+	preferred_memory = rd.ReadUnsigned(4);
+	minimum_memory = rd.ReadUnsigned(4);
+}
+
+offset_t MacintoshResourceFileFormat::SizeResource::WriteFile(Linker::Writer& wr) const
+{
+	wr.WriteWord(2, flags);
+	wr.WriteWord(4, preferred_memory);
+	wr.WriteWord(4, minimum_memory);
+	return ExpectedLength;
+}
+
+int MacintoshResourceFileFormat::SizeResource::GetDisplayOptions() const
+{
+	return Dumper::Resource | Dumper::Header;
+}
+
+void MacintoshResourceFileFormat::SizeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+{
+	region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(4)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("displayManagerAware"), true)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("useTextEditServices"), true)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("isStationaryAware"), true)
+			->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("localAndRemoteHLEvents"), true)
+			->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("isHighLevelEventAware"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("is32BitCompatible", "not32BitCompatible"), false)
+			->AddBitField(8, 1, Dumper::ChoiceDisplay::Make("acceptChildDiedEvents", "ignoreChildDiedEvents"), false)
+			->AddBitField(9, 1, Dumper::ChoiceDisplay::Make("getFrontClicks", "dontGetFrontClicks"), false)
+			->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("backgroundAndForeground", "onlyBackground"), false)
+			->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("doesActivateOnFGSwitch/multiFinderAware", "needsActivateOnFGSwitch"), false)
+			->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("canBackground", "cannotBackground"), false)
+			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("acceptSuspendResumeEvents", "ignoreSuspendResumeEvents"), false),
+		offset_t(flags));
+	region.AddField("Preferred memory size", Dumper::HexDisplay::Make(8), offset_t(preferred_memory));
+	region.AddField("Minimum memory size", Dumper::HexDisplay::Make(8), offset_t(minimum_memory));
+}
+
 void MacintoshResourceFileFormat::AddResource(std::shared_ptr<Resource> resource)
 {
 	uint32_t typeval = OSTypeToUInt32(resource->type);
@@ -686,6 +764,11 @@ for(auto section : module.Sections())
 		{
 			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{1, entry}); /* TODO: segment number */
 		}
+	}
+
+	if(size_resource != nullptr)
+	{
+		AddResource(size_resource);
 	}
 }
 
@@ -984,9 +1067,15 @@ std::shared_ptr<MacintoshResourceFileFormat::Resource> MacintoshResourceFileForm
 		else
 			resource = std::make_shared<CodeResource>(reference.id);
 		break;
-	default:
+	case SizeResource::OSType:
+		if(reference.id == 0xFFFF && length == SizeResource::ExpectedLength)
+		{
+			resource = std::make_shared<SizeResource>();
+		}
+	}
+	if(resource == nullptr)
+	{
 		resource = std::make_shared<GenericResource>(type.type, reference.id);
-		break;
 	}
 	resource->name = reference.name;
 	resource->ReadFile(rd, length);

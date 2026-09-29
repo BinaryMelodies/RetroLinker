@@ -193,6 +193,10 @@ Target(
 	System = "macos",
 	output_file = "macos")
 Target(
+	System = "macos",
+	Version = "32bit",
+	output_file = "macos32")
+Target(
 	System = "sql",
 	output_file = "sql")
 Target(

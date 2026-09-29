@@ -895,6 +895,7 @@ DefineTarget(
 	Versions = [
 		DefineVersion("", ModelName = "default", LinkerName = ""),
 		DefineVersion("tiny", ModelName = "tiny"),
+		DefineVersion("32bit", ModelName = "default", LinkerName = "", LinkerOptions = ["32"]),
 	],
 	c_target_options = "-mpcrel",
 	custom_entry = True,

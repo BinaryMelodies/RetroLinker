@@ -86,7 +86,8 @@ message:
 
 	_SysVars
 
-.if	TARGET_MACOS
+.if	0
+#.if	TARGET_MACOS
 # Making it 32-bit aware
 	.section	$$RSRC$_SIZE$FFFF, "a", @progbits
 # reserved, acceptSuspendResumeEvents, reserved, canBackground, doesActivateOnFGSwitch, backgroundAndForeground, dontGetFrontClicks, ignoreChildDiedEvents

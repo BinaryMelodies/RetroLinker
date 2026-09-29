@@ -57,6 +57,19 @@ namespace Apple
 		};
 		memory_model_t memory_model = MODEL_DEFAULT;
 
+		class MacintoshOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<bool> _32{"32", "Make 32-bit clean"};
+			Linker::Option<bool> far{"far", "Far code and data (32-bit Everything) [not implemented]"}; // TODO: not implemented
+
+			MacintoshOptionCollector()
+			{
+				InitializeFields(_32, far);
+			}
+		};
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		static std::vector<Linker::OptionDescription<void>> MemoryModelNames;
@@ -218,6 +231,94 @@ namespace Apple
 			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
+		class SizeResource : public Resource
+		{
+		public:
+			static constexpr uint32_t OSType = OSTypeToUInt32('S', 'I', 'Z', 'E');
+			static constexpr uint32_t ExpectedLength = 10;
+
+			enum target_type
+			{
+				Classic24,
+				Classic32,
+				Carbon,
+			};
+
+			static constexpr uint16_t AcceptSuspendResumeEvents = 0x4000;
+			static constexpr uint16_t CanBackground = 0x1000;
+			static constexpr uint16_t MultiFinderAware = 0x0800;
+			static constexpr uint16_t OnlyBackground = 0x0400;
+			static constexpr uint16_t GetFrontClicks = 0x0200;
+			static constexpr uint16_t AcceptChildDiedEvents = 0x0100;
+			static constexpr uint16_t Is32BitCompatible = 0x0080;
+			static constexpr uint16_t IsHighLevelEventAware = 0x0040;
+			static constexpr uint16_t LocalAndRemoteHLEvents = 0x0020;
+			static constexpr uint16_t IsStationaryAware = 0x0010;
+			static constexpr uint16_t UseTextEditServices = 0x0008;
+			static constexpr uint16_t DisplayManagerAware = 0x0004;
+
+			uint16_t flags = 0;
+			uint32_t preferred_memory = 0;
+			uint32_t minimum_memory = 0;
+
+			static constexpr uint16_t GetDefaultFlags(target_type target)
+			{
+				switch(target)
+				{
+				default:
+				case Classic24:
+					return 0;
+				case Classic32:
+					return Is32BitCompatible;
+				case Carbon:
+					// based on libretro flags
+					return AcceptSuspendResumeEvents | CanBackground | MultiFinderAware | IsHighLevelEventAware;
+				}
+			}
+
+			static constexpr uint32_t GetDefaultMemory(target_type target)
+			{
+				switch(target)
+				{
+				case Classic24:
+				case Classic32:
+					return 100 * 1024;
+				default:
+				case Carbon:
+					// according to Wolfgang Thaller (wdefshell.r)
+					return 500 * 1024;
+				}
+			}
+
+			SizeResource()
+				: Resource("SIZE", 0xFFFF)
+			{
+			}
+
+			SizeResource(target_type target)
+				: Resource("SIZE", 0xFFFF),
+				flags(GetDefaultFlags(target)),
+				preferred_memory(GetDefaultMemory(target)),
+				minimum_memory(GetDefaultMemory(target))
+			{
+			}
+
+			void CalculateValues() override;
+
+			offset_t ImageSize() const override;
+
+			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(Linker::Reader& rd, offset_t length) override;
+
+			using Linker::Format::WriteFile;
+			offset_t WriteFile(Linker::Writer& wr) const override;
+			int GetDisplayOptions() const override;
+			//using Linker::Format::Dump;
+			//void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
+			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
+			//std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
+		};
+
 		MacintoshResourceFileFormat()
 			/*: a5world(".bss")*/
 		{
@@ -262,6 +363,7 @@ namespace Apple
 		std::vector<std::shared_ptr<CodeResource>> codes;
 		std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<CodeResource>> segments;
 		std::shared_ptr<Linker::Segment> a5world;
+		std::shared_ptr<SizeResource> size_resource = nullptr;
 
 		void AddResource(std::shared_ptr<Resource> resource);
 
@@ -390,7 +492,7 @@ namespace Apple
 		void SetAppleSingleDoubleVersion(offset_t version);
 
 		// TODO: extend OutputDriver::DriverOptionCollector
-		class DriverOptionCollector : public Linker::OptionCollector
+		class DriverOptionCollector : public MacintoshResourceFileFormat::MacintoshOptionCollector
 		{
 		public:
 			class MacBinaryVersionEnumerator : public Linker::Enumeration<MacBinary::version_t>
@@ -418,7 +520,8 @@ namespace Apple
 			Linker::Option<std::optional<Linker::ItemOf<MacBinaryVersionEnumerator>>> minmbinver{"minmbinver", "Minimum required version for the MacBinary container"};
 
 			DriverOptionCollector()
-				// TODO: if MacintoshResourceFileFormat gets formats, call its constructor
+				: MacintoshOptionCollector()
+				// TODO: if OutputDriver::DriverOptionCollector is created, call its too constructor
 			{
 				InitializeFields(asver, adver, mbinver, minmbinver);
 			}
