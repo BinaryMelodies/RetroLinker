@@ -32,6 +32,77 @@ namespace Microsoft
 	 * First appeared probably around MS-DOS 1.0 (they were absent from PC DOS 0.9), they were initially identified by
 	 * the new file extension ".exe". Since MS-DOS 2.0, MZ executables may also have the extension ".com", as DOS only looks
 	 * at the first two bytes to determine the file format.
+	 *
+	 * The overall layout of the header is:
+	 *
+	 * <table border='1'>
+	 * <tr>
+	 * <td height='36' width='36'></td>
+	 * <td width='36' style='text-align:center;'>x0</td>
+	 * <td width='36' style='text-align:center;'>x1</td>
+	 * <td width='36' style='text-align:center;'>x2</td>
+	 * <td width='36' style='text-align:center;'>x3</td>
+	 * <td width='36' style='text-align:center;'>x4</td>
+	 * <td width='36' style='text-align:center;'>x5</td>
+	 * <td width='36' style='text-align:center;'>x6</td>
+	 * <td width='36' style='text-align:center;'>x7</td>
+	 * <td width='36' style='text-align:center;'>x8</td>
+	 * <td width='36' style='text-align:center;'>x9</td>
+	 * <td width='36' style='text-align:center;'>xA</td>
+	 * <td width='36' style='text-align:center;'>xB</td>
+	 * <td width='36' style='text-align:center;'>xC</td>
+	 * <td width='36' style='text-align:center;'>xD</td>
+	 * <td width='36' style='text-align:center;'>xE</td>
+	 * <td width='36' style='text-align:center;'>xF</td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>0x</td>
+	 * <td style='text-align:center;'><tt><sub>x</sub>4D</tt><sup>1</sup></td>
+	 * <td style='text-align:center;'><tt><sub>x</sub>5A</tt><sup>1</sup></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>last block size</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>block count</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>fixup count</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>header size</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>minimum extra size</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>maximum extra size</i></td>
+	 * <td colspan='2' style='text-align:center;'><tt><b>SS</b></tt></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>1x</td>
+	 * <td colspan='2' style='text-align:center;'><tt><b>SP</b></tt></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(checksum)</i></td>
+	 * <td colspan='2' style='text-align:center;'><tt><b>IP</b></tt></td>
+	 * <td colspan='2' style='text-align:center;'><tt><b>CS</b></tt></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>fixup offset</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(overlay number<sup>1</sup>)</i></td>
+	 * <td colspan='4' style='background:gray;'></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>2x</td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(behavior bits<sup>2</sup>)</i></td>
+	 * <td colspan='2' style='background:lightgray;text-align:center;'><i>(reserved)</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(OEM ID<sup>3</sup>)</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(OEM info<sup>3</sup>)</i></td>
+	 * <td colspan='8' style='background:lightgray;text-align:center;'><i>(reserved)</i></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>3x</td>
+	 * <td colspan='8' style='background:lightgray;text-align:center;'><i>(reserved)</i></td>
+	 * <td colspan='4' style='text-align:center;font-size:75%;line-height:75%;'><i>(second new executable header offset<sup>4</sup>)</i></td>
+	 * <td colspan='4' style='text-align:center;font-size:75%;line-height:75%;'><i>(new executable header offset<sup>2,3</sup>)</i></td>
+	 * </tr>
+	 * </table>
+	 *
+	 * Notes:
+	 *
+	 * 1. In files with the <tt>DL</tt> signature, the <i>overlay number</i> is replaced with the starting paragraph offset of the data segment.
+	 * 2. Mentioned in documentation for the <tt>NE</tt> file format, see @ref NEFormat.
+	 * 3. Mentioned in documentation for the <tt>LE</tt>/<tt>LX</tt> and <tt>PE</tt> file formats, see @ref LEFormat and @ref PEFormat.
+	 * 4. Used by the Win386 Windows extender.
 	 */
 	class MZFormat : public virtual Linker::SegmentManager
 	{

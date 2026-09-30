@@ -27,6 +27,130 @@ namespace DigitalResearch
 	 * The format was used on a multitude of Digital Research operating systems, from CP/M-86 and DOS Plus to Multiuser DOS, as well as FlexOS.
 	 * It supports many special features, such as shared libraries and attachable residential system extensions.
 	 * These are not currently implemented.
+	 *
+	 * The overall layout of the header is:
+	 *
+	 * <table border='1'>
+	 * <tr>
+	 * <td height='36' width='36'></td>
+	 * <td width='36' style='text-align:center;'>x0</td>
+	 * <td width='36' style='text-align:center;'>x1</td>
+	 * <td width='36' style='text-align:center;'>x2</td>
+	 * <td width='36' style='text-align:center;'>x3</td>
+	 * <td width='36' style='text-align:center;'>x4</td>
+	 * <td width='36' style='text-align:center;'>x5</td>
+	 * <td width='36' style='text-align:center;'>x6</td>
+	 * <td width='36' style='text-align:center;'>x7</td>
+	 * <td width='36' style='text-align:center;'>x8</td>
+	 * <td width='36' style='text-align:center;'>x9</td>
+	 * <td width='36' style='text-align:center;'>xA</td>
+	 * <td width='36' style='text-align:center;'>xB</td>
+	 * <td width='36' style='text-align:center;'>xC</td>
+	 * <td width='36' style='text-align:center;'>xD</td>
+	 * <td width='36' style='text-align:center;'>xE</td>
+	 * <td width='36' style='text-align:center;'>xF</td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>0x</td>
+	 * <td style='text-align:center;font-size:75%;line-height:75%;'><i>type<sub>1</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>length<sub>1</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(base<sub>1</sub>)</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>minimum size<sub>1</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>maximum size<sub>1</sub></i></td>
+	 * <td style='text-align:center;font-size:75%;line-height:75%;'><i>type<sub>2</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>length<sub>2</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(base<sub>2</sub>)</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>minimum size<sub>2</sub></i></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>1x</td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>maximum size<sub>2</sub></i></td>
+	 * <td style='text-align:center;font-size:75%;line-height:75%;'><i>type<sub>3</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>length<sub>3</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(base<sub>3</sub>)</i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>minimum size<sub>3</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>maximum size<sub>3</sub></i></td>
+	 * <td style='text-align:center;font-size:75%;line-height:75%;'><i>type<sub>4</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>length<sub>4</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>(base<sub>4</sub>)</i></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>2x</td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>minimum size<sub>4</sub></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>maximum size<sub>4</sub></i></td>
+	 * <td style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>type<sub>5</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>length<sub>5</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>(base<sub>5</sub><sup>1</sup>)</i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>minimum size<sub>5</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>maximum size<sub>5</sub><sup>1</sup></i></td>
+	 * <td style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>type<sub>6</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>length<sub>6</sub><sup>1</sup></i></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>3x</td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>(base<sub>6</sub>)<sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>minimum size<sub>6</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>maximum size<sub>6</sub><sup>1</sup></i></td>
+	 * <td style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>type<sub>7</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>length<sub>7</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>(base<sub>7</sub><sup>1</sup>)</i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>minimum size<sub>7</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>maximum size<sub>7</sub><sup>1</sup></i></td>
+	 * <td style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>type<sub>8</sub><sup>1</sup></i></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>4x</td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>length<sub>8</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>(base<sub>8</sub><sup>1</sup>)</i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>minimum size<sub>8</sub><sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>maximum size<sub>8</sub><sup>1</sup></i></td>
+	 * <td style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><tt style='background:paleturquoise;'>(<sub>x</sub>FF)</tt><sup>2</sup></td>
+	 * <td colspan='2' style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><i>SRTL length<sub>S</sub><sup>2</sup></i></td>
+	 * <td colspan='2' style='background:lightgray;text-align:center;font-size:75%;line-height:75%;'>0</td>
+	 * <td colspan='2' style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><i>SRTL length<sub>S</sub><sup>2</sup></i></td>
+	 * <td style='background:lightgray;text-align:center;font-size:75%;line-height:75%;'>0</td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>5x</td>
+	 * <td style='background:lightgray;text-align:center;font-size:75%;line-height:75%;'>0</td>
+	 * <td style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><tt  style='background:paleturquoise;'>(<sub>x</sub>FE)</tt><sup>3</sup></td>
+	 * <td colspan='2' style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><i>fastload length<sub>F</sub></i><sup>3</sup></td>
+	 * <td colspan='2' style='background:lightgray;text-align:center;font-size:75%;line-height:75%;'>0</td>
+	 * <td colspan='2' style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><i>fastload length<sub>F</sub></i><sup>3</sup></td>
+	 * <td colspan='2' style='background:lightgray;text-align:center;font-size:75%;line-height:75%;'>0</td>
+	 * <td colspan='6' style='background:gray;'></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>6x</td>
+	 * <td colspan='8' style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><i>SRTL ID name<sup>4</sup></i></td>
+	 * <td colspan='2' style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><i>major version<sup>4</sup></i></td>
+	 * <td colspan='2' style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><i>minor version<sup>4</sup></i></td>
+	 * <td colspan='4' style='background:paleturquoise;text-align:center;font-size:75%;line-height:75%;'><i>flags<sup>4</sup></i></td>
+	 * </tr>
+	 *
+	 * <tr>
+	 * <td height='36' style='text-align:center;'>7x</td>
+	 * <td colspan='10' style='background:gray;'></td>
+	 * <td style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>CDOS flags<sup>1</sup></i></td>
+	 * <td colspan='2' style='background:bisque;text-align:center;font-size:75%;line-height:75%;'><i>RSX offset<sup>1</sup></i></td>
+	 * <td colspan='2' style='text-align:center;font-size:75%;line-height:75%;'><i>fixup offset</i></td>
+	 * <td style='text-align:center;font-size:75%;line-height:75%;'><i>flags</i></td>
+	 * </tr>
+	 *
+	 * </table>
+	 *
+	 * Notes:
+	 * 1. Must be empty in FlexOS binaries.
+	 * 2. FlexOS only, for binaries that require shared libraries to be present.
+	 * 3. FlexOS only, for binaries stored in the POSTLINK/FASTLOAD format.
+	 * 4. FlexOS shared libraries only.
 	 */
 	class CPM86Format : public virtual Linker::SegmentManager
 	{
