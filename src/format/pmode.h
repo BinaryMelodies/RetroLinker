@@ -53,6 +53,7 @@ namespace PMODE
 			uint32_t relocation_count = 0; // only needed during reading
 			uint32_t image_size = 0; // without compression
 			std::shared_ptr<Linker::Contents> image;
+			std::shared_ptr<Linker::Contents> decompressed_image;
 			std::vector<Relocation> relocations;
 		};
 		std::vector<Object> objects;
@@ -66,6 +67,35 @@ namespace PMODE
 		void CalculateValues() override;
 
 		/* * * Reader members * * */
+
+		class CompressedReader
+		{
+		public:
+			std::shared_ptr<Linker::Image> source_image;
+			offset_t image_offset = 0;
+			uint32_t control_word_buffer = 0;
+			uint8_t control_word_size = 0;
+
+			static constexpr size_t DataBufferSize = 4096;
+			std::array<uint8_t, DataBufferSize> data_buffer;
+			// first valid data byte
+			size_t data_buffer_offset = 0;
+			// nubmer of valid bytes in buffer
+			size_t data_buffer_length = 0;
+			// reading position in buffer (should be between first and last valid bytes)
+			size_t data_buffer_position = 0;
+
+			void Start(std::shared_ptr<Linker::Image> image);
+
+			bool IsDataBufferEmpty();
+			void ReadBytes(size_t offset, size_t count, uint8_t * data);
+			void AddBytes(size_t count, uint8_t * data);
+
+			uint32_t ReadNextControlBits(size_t count);
+			uint8_t ReadNextDataByte();
+			void GenerateNextBytes();
+			bool GetNextByte(uint8_t& result);
+		};
 
 		/* * * Writer members * * */
 		using Linker::OutputFormat::GetDefaultExtension;
