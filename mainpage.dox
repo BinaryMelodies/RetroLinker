@@ -211,6 +211,12 @@
  * </tr>
  *
  * <tr>
+ * <td colspan='2'><a href="classCauseWay_1_1CauseWayFormat.html"><tt>3P</tt> (<tt>.exe</tt>)</a></td>
+ * <td><tt>3P</tt> (<tt>.exe</tt>)</td>
+ * <td>CauseWay (unimplemented)</td>
+ * </tr>
+ *
+ * <tr>
  * <td rowspan='3'><a href="classDigitalResearch_1_1CPM68KFormat.html">CP/M-68K binary</a></td>
  * <td>Contiguous binary</td>
  * <td rowspan='3'>Motorola 68000</td>
