@@ -469,12 +469,32 @@ void PMW1Format::Dump(Dumper::Dumper& dump) const
 			object_block = std::make_shared<Dumper::Block>("Object", 0, object.decompressed_image->AsImage(), 0, 8);
 		}
 
-#if 0
 		for(auto& rel : object.relocations)
 		{
-			object_block->AddSignal(rel.source, 1); // TODO: size
+			// using the LE/LX relocation type values
+			size_t size;
+			switch(rel.type)
+			{
+			case 0:
+				size = 1;
+				break;
+			case 2:
+			case 5:
+				size = 2;
+				break;
+			case 3:
+			case 7:
+			case 8:
+				size = 4;
+				break;
+			case 6:
+				size = 6;
+				break;
+			default:
+				continue;
+			}
+			object_block->AddSignal(rel.source, size);
 		}
-#endif
 
 		object_block->Display(dump, Dumper::Header | Dumper::Image | Dumper::Relocation);
 
@@ -482,7 +502,18 @@ void PMW1Format::Dump(Dumper::Dumper& dump) const
 		for(auto& rel : object.relocations)
 		{
 			Dumper::Entry relocation_entry("Relocation", j + 1, file_offset + relocation_table_offset + object.relocation_offset + j * 10, 8);
-			relocation_entry.AddField("Type", Dumper::HexDisplay::Make(2), offset_t(rel.type));
+			// using the LE/LX relocation type values
+			static const std::map<offset_t, std::string> type_names =
+			{
+				{ 0, "8-bit offset" },
+				{ 2, "16-bit selector" },
+				{ 3, "16:16-bit far pointer" },
+				{ 5, "16-bit offset" },
+				{ 6, "16:32-bit far pointer" },
+				{ 7, "32-bit offset" },
+				{ 8, "32-bit self relative offset" },
+			};
+			relocation_entry.AddField("Type", Dumper::ChoiceDisplay::Make(type_names, "undefined", Dumper::HexDisplay::Make(2)), offset_t(rel.type));
 			relocation_entry.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(rel.source));
 			relocation_entry.AddField("Target", Dumper::SectionedDisplay<offset_t>::Make(Dumper::HexDisplay::Make(8)), offset_t(rel.target_object), offset_t(rel.target_offset));
 			// TODO: addend
