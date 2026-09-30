@@ -12,7 +12,17 @@ using namespace PMODE;
 
 void PMW1Format::CompressedReader::Start(std::shared_ptr<Linker::Image> image)
 {
+	using_reader = false;
 	source_image = image;
+	image_offset = 0;
+	uint8_t byte = ReadNextDataByte();
+	AddBytes(1, &byte);
+}
+
+void PMW1Format::CompressedReader::Start(Linker::Reader * reader)
+{
+	using_reader = true;
+	source_reader = reader;
 	uint8_t byte = ReadNextDataByte();
 	AddBytes(1, &byte);
 }
@@ -91,6 +101,20 @@ void PMW1Format::CompressedReader::AddBytes(size_t count, uint8_t * data)
 //	Linker::Debug << "Debug: offset=0x" << std::hex << data_buffer_offset << ", length=0x" << std::hex << data_buffer_length << std::endl;
 }
 
+uint32_t PMW1Format::CompressedReader::ReadNextUnsigned(size_t count)
+{
+	if(using_reader)
+	{
+		return source_reader->ReadUnsigned(count, ::LittleEndian);
+	}
+	else
+	{
+		uint32_t value = source_image->ReadUnsigned(count, image_offset, ::LittleEndian);
+		image_offset += count;
+		return value;
+	}
+}
+
 uint32_t PMW1Format::CompressedReader::ReadNextControlBits(size_t count)
 {
 	uint32_t result;
@@ -104,8 +128,7 @@ uint32_t PMW1Format::CompressedReader::ReadNextControlBits(size_t count)
 	{
 		result = control_word_buffer << (count - control_word_size);
 
-		control_word_buffer = source_image->ReadUnsigned(4, image_offset, ::LittleEndian);
-		image_offset += 4;
+		control_word_buffer = ReadNextUnsigned(4);
 		//Linker::Debug << "Debug: Next control bits 0x" << std::hex << control_word_buffer << " (using " << std::dec << int(count - control_word_size) << " of this word)" << std::endl;
 
 		result |= control_word_buffer >> (32 - count + control_word_size);
@@ -117,8 +140,7 @@ uint32_t PMW1Format::CompressedReader::ReadNextControlBits(size_t count)
 
 uint8_t PMW1Format::CompressedReader::ReadNextDataByte()
 {
-	uint8_t byte = source_image->ReadUnsigned(1, image_offset, ::LittleEndian);
-	image_offset++;
+	uint8_t byte = ReadNextUnsigned(1);
 	//Linker::Debug << "Debug: Next byte 0x" << std::hex << int(byte) << std::endl;
 	return byte;
 }
@@ -235,6 +257,23 @@ bool PMW1Format::CompressedReader::GetNextByte(uint8_t& result)
 	}
 }
 
+uint32_t PMW1Format::CompressedReader::GetNextUnsigned(size_t count)
+{
+	std::vector<uint8_t> bytes;
+	for(size_t position = 0; position < count; position++)
+	{
+		uint8_t byte;
+		if(!GetNextByte(byte))
+		{
+			// underflow
+			return 0;
+		}
+		bytes.push_back(byte);
+	}
+
+	return ::ReadUnsigned(count, count, bytes.data(), ::LittleEndian);
+}
+
 void PMW1Format::ReadFile(Linker::Reader& rd)
 {
 	rd.endiantype = ::LittleEndian;
@@ -261,7 +300,7 @@ void PMW1Format::ReadFile(Linker::Reader& rd)
 		object.file_size = rd.ReadUnsigned(4);
 		object.flags = rd.ReadUnsigned(4);
 		object.relocation_offset = rd.ReadUnsigned(4);
-		object.relocation_count = rd.ReadUnsigned(4);
+		object.relocation_block_count = rd.ReadUnsigned(4);
 		object.image_size = rd.ReadUnsigned(4);
 		objects.push_back(object);
 	}
@@ -269,14 +308,39 @@ void PMW1Format::ReadFile(Linker::Reader& rd)
 	for(auto& object : objects)
 	{
 		rd.Seek(file_offset + relocation_table_offset + object.relocation_offset);
-		for(i = 0; i < object.relocation_count; i++)
+		for(i = 0; i < object.relocation_block_count; i++)
 		{
-			Object::Relocation rel;
-			rel.type = rd.ReadUnsigned(1);
-			rel.source = rd.ReadUnsigned(4);
-			rel.target_object = rd.ReadUnsigned(1);
-			rel.target_offset = rd.ReadUnsigned(4);
-			object.relocations.push_back(rel);
+			uint16_t stored_block_size = rd.ReadUnsigned(2);
+			uint16_t uncompressed_block_size = rd.ReadUnsigned(2);
+			if((flags & 1) == 0 /*|| true*/)
+			{
+				for(uint16_t j = 0; j < stored_block_size; j += 10)
+				{
+					Object::Relocation rel;
+					rel.type = rd.ReadUnsigned(1);
+					rel.source = rd.ReadUnsigned(4);
+					rel.target_object = rd.ReadUnsigned(1);
+					rel.target_offset = rd.ReadUnsigned(4);
+					object.relocations.push_back(rel);
+				}
+			}
+			else
+			{
+				offset_t block_end = rd.Tell() + stored_block_size;
+				CompressedReader crd;
+				Linker::Debug << "Debug: Starting PMW1 decompression" << std::endl;
+				crd.Start(&rd);
+				for(uint16_t j = 0; j < uncompressed_block_size; j += 10)
+				{
+					Object::Relocation rel;
+					rel.type = crd.GetNextUnsigned(1);
+					rel.source = crd.GetNextUnsigned(4);
+					rel.target_object = crd.GetNextUnsigned(1);
+					rel.target_offset = crd.GetNextUnsigned(4);
+					object.relocations.push_back(rel);
+				}
+				rd.Seek(block_end);
+			}
 		}
 	}
 
@@ -329,7 +393,7 @@ offset_t PMW1Format::WriteFile(Linker::Writer& wr) const
 		wr.WriteWord(4, object.file_size);
 		wr.WriteWord(4, object.flags);
 		wr.WriteWord(4, object.relocation_offset);
-		wr.WriteWord(4, object.relocation_count);
+		wr.WriteWord(4, object.relocation_block_count);
 		wr.WriteWord(4, object.image_size);
 	}
 
@@ -395,7 +459,7 @@ void PMW1Format::Dump(Dumper::Dumper& dump) const
 		object_region->AddField("Size in memory", Dumper::HexDisplay::Make(8), offset_t(object.memory_size));
 		object_region->AddField("Size in image", Dumper::HexDisplay::Make(8), offset_t(object.image_size));
 		object_region->AddField("Flags", Dumper::HexDisplay::Make(8), offset_t(object.flags));
-		object_region->AddOptionalField("Relocation count", Dumper::DecDisplay::Make(), offset_t(object.relocation_count));
+		object_region->AddOptionalField("Relocation block count", Dumper::DecDisplay::Make(), offset_t(object.relocation_block_count));
 		object_region->AddOptionalField("Relocation offset", Dumper::HexDisplay::Make(8), offset_t(object.relocation_offset));
 
 		if((flags & 1) != 0 /*&& false*/)

@@ -50,7 +50,7 @@ namespace PMODE
 			uint32_t file_size = 0; // compressed
 			uint32_t flags = 0;
 			uint32_t relocation_offset = 0;
-			uint32_t relocation_count = 0; // only needed during reading
+			uint32_t relocation_block_count = 0;
 			uint32_t image_size = 0; // without compression
 			std::shared_ptr<Linker::Contents> image;
 			std::shared_ptr<Linker::Contents> decompressed_image;
@@ -71,8 +71,13 @@ namespace PMODE
 		class CompressedReader
 		{
 		public:
+			bool using_reader = false;
+
+			Linker::Reader * source_reader = nullptr;
+
 			std::shared_ptr<Linker::Image> source_image;
 			offset_t image_offset = 0;
+
 			uint32_t control_word_buffer = 0;
 			uint8_t control_word_size = 0;
 
@@ -85,16 +90,19 @@ namespace PMODE
 			// reading position in buffer (should be between first and last valid bytes)
 			size_t data_buffer_position = 0;
 
+			void Start(Linker::Reader * reader);
 			void Start(std::shared_ptr<Linker::Image> image);
 
 			bool IsDataBufferEmpty();
 			void ReadBytes(size_t offset, size_t count, uint8_t * data);
 			void AddBytes(size_t count, uint8_t * data);
 
+			uint32_t ReadNextUnsigned(size_t count);
 			uint32_t ReadNextControlBits(size_t count);
 			uint8_t ReadNextDataByte();
 			void GenerateNextBytes();
 			bool GetNextByte(uint8_t& result);
+			uint32_t GetNextUnsigned(size_t count);
 		};
 
 		/* * * Writer members * * */
