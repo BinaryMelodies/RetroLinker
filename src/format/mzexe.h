@@ -85,6 +85,17 @@ namespace Microsoft
 		/** @brief Starting paragraph of program data, only required for .exm files */
 		uint16_t data_segment = 0;
 
+		/** @brief Field with undocumented semantics used for 'NE' files */
+		uint16_t behavior_bits = 0;
+		/** @brief Field with undocumented semantics used for 'LE'/'LX'/'PE' files */
+		uint16_t oem_id = 0;
+		/** @brief Field with undocumented semantics used for 'LE'/'LX'/'PE' files */
+		uint16_t oem_info = 0;
+		/** @brief Offset to new executable file header, usually 'NE'/'LE'/'LX'/'PE' */
+		uint32_t new_header_offset = 0;
+		/** @brief Offset to new executable file header for Win386 */
+		uint32_t win386_new_header_offset = 0;
+
 		/**
 		 * @brief Represents a relocation entry in the header, as a pair of 16-bit words
 		 *

@@ -209,8 +209,21 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 		overlay_number = 0;
 		data_segment = rd.ReadUnsigned(2);
 	}
+
+	if(header_size_paras >= 4 && relocation_offset >= 0x40)
+	{
+		rd.Skip(4);
+		behavior_bits = rd.ReadUnsigned(2);
+		rd.Skip(2);
+		oem_id = rd.ReadUnsigned(2);
+		oem_info = rd.ReadUnsigned(2);
+		rd.Skip(16);
+		win386_new_header_offset = rd.ReadUnsigned(4);
+		new_header_offset = rd.ReadUnsigned(4);
+	}
+
 	relocations.clear();
-	rd.Seek(relocation_offset);
+	rd.Seek(file_offset + relocation_offset);
 	if(relocation_count != 0)
 	{
 		for(size_t i = 0; i < relocation_count; i++)
@@ -222,7 +235,7 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 	}
 	if(GetPifOffset() + 19 <= file_end)
 	{
-		rd.Seek(GetPifOffset());
+		rd.Seek(file_offset + GetPifOffset());
 		if(rd.ReadUnsigned(4) == PIF::MAGIC_BEGIN)
 		{
 			pif = std::make_unique<PIF>();
@@ -234,7 +247,7 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 			}
 		}
 	}
-	rd.Seek(uint32_t(header_size_paras) << 4);
+	rd.Seek(file_offset + (uint32_t(header_size_paras) << 4));
 	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(".text");
 	image = buffer;
 	buffer->ReadFile(rd, ImageSize() - GetHeaderSize());
@@ -243,6 +256,7 @@ void MZFormat::ReadFile(Linker::Reader& rd)
 offset_t MZFormat::WriteFile(Linker::Writer& wr) const
 {
 	wr.endiantype = ::LittleEndian;
+	wr.Seek(file_offset);
 	wr.WriteData(2, signature);
 	wr.WriteWord(2, last_block_size);
 	wr.WriteWord(2, file_size_blocks);
@@ -257,7 +271,20 @@ offset_t MZFormat::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, cs);
 	wr.WriteWord(2, relocation_offset);
 	wr.WriteWord(2, GetSignature() != MAGIC_DL ? overlay_number : data_segment);
-	wr.Seek(relocation_offset);
+
+	if(header_size_paras >= 4 && relocation_offset >= 0x40)
+	{
+		wr.Skip(4);
+		wr.WriteWord(2, behavior_bits);
+		wr.Skip(2);
+		wr.WriteWord(2, oem_id);
+		wr.WriteWord(2, oem_info);
+		wr.Skip(16);
+		wr.WriteWord(4, win386_new_header_offset);
+		wr.WriteWord(4, new_header_offset);
+	}
+
+	wr.Seek(file_offset + relocation_offset);
 	for(auto& rel : relocations)
 	{
 		wr.WriteWord(2, rel.offset);
@@ -265,14 +292,14 @@ offset_t MZFormat::WriteFile(Linker::Writer& wr) const
 	}
 	if(pif)
 	{
-		wr.Seek(GetPifOffset());
+		wr.Seek(file_offset + GetPifOffset());
 		pif->WriteFile(wr);
 	}
-	wr.Seek(uint32_t(header_size_paras) << 4);
+	wr.Seek(file_offset + (uint32_t(header_size_paras) << 4));
 	if(image)
 		image->WriteFile(wr);
 
-	wr.FillTo(ImageSize());
+	wr.FillTo(file_offset + ImageSize());
 
 	return ImageSize();
 }
@@ -302,6 +329,11 @@ void MZFormat::Dump(Dumper::Dumper& dump) const
 	header_region.AddField("Minimum", Dumper::HexDisplay::Make(), offset_t(ImageSize() - GetHeaderSize() + (uint32_t(min_extra_paras) << 4)));
 	header_region.AddField("Maximum", Dumper::HexDisplay::Make(), offset_t(ImageSize() - GetHeaderSize() + (uint32_t(max_extra_paras) << 4)));
 	header_region.AddOptionalField("Checksum", Dumper::HexDisplay::Make(4), offset_t(checksum));
+	header_region.AddOptionalField("Behavior bits", Dumper::HexDisplay::Make(4), offset_t(behavior_bits));
+	header_region.AddOptionalField("OEM Identifier", Dumper::HexDisplay::Make(4), offset_t(oem_id));
+	header_region.AddOptionalField("OEM Information", Dumper::HexDisplay::Make(4), offset_t(oem_info));
+	header_region.AddOptionalField("Offset to new header", Dumper::HexDisplay::Make(8), offset_t(new_header_offset));
+	header_region.AddOptionalField("Offset to second new header", Dumper::HexDisplay::Make(8), offset_t(win386_new_header_offset));
 	header_region.Display(dump, Dumper::Header);
 
 	Dumper::Region relocations_region("Relocations", file_offset + relocation_offset, relocation_count * 4, 8);
