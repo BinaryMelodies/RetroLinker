@@ -27,7 +27,7 @@ LDFLAGS=-O2
 
 all: link dump
 
-.PHONY: all clean distclean tests tests_clean verify force docs unittests
+.PHONY: all clean distclean tests tests_clean verify force docs latex unittests
 
 link: src/link.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
 	$(CXX) -o link src/link.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
@@ -97,6 +97,8 @@ unittests: link
 
 docs:
 	doxygen Doxyfile
+
+latex: docs
 	$(MAKE) -C latex
 
 src/script/scan.o: src/script/scan.cc
