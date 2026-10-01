@@ -1423,9 +1423,9 @@ void ProDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Access, uint16_
 		{ 0x01, "BAD (Bad Block)" },
 		{ 0x02, "PCD (Pascal Code)" },
 		{ 0x03, "PTX (Pascal Text)" },
-		{ 0x04, "TXT (ASCII Text)" },
+		{ 0x04, "TXT (ASCII Text) [Apple DOS: 0x00 'T']" },
 		{ 0x05, "PDA (Pascal Data)" },
-		{ 0x06, "BIN (Binary File)" },
+		{ 0x06, "BIN (Binary File) [Apple DOS: 0x04 'B']" },
 		{ 0x07, "FNT (Apple /// Font)" },
 		{ 0x08, "FOT (HiRes/Double HiRes Graphics)" },
 		{ 0x09, "BA3 (Apple /// BASIC Program)" },
@@ -1446,8 +1446,19 @@ void ProDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Access, uint16_
 		// TODO
 		{ 0xE0, "LBR (Archive)" },
 		// TODO
+		{ 0xF2, "UD2 (User Defined 2) [Apple DOS: 0x08 'S']" },
+		{ 0xF3, "UD3 (User Defined 3)[Apple DOS: 0x20 'AA']" },
+		{ 0xF4, "UD4 (User Defined 4)[Apple DOS: 0x40 'BB']" },
+		{ 0xF5, "UD5 (User Defined 5)" },
+		{ 0xF6, "UD6 (User Defined 6)" },
+		{ 0xF7, "UD7 (User Defined 7)" },
+		{ 0xF8, "UD8 (User Defined 8)" },
 		{ 0xF9, "P16 (ProDOS-16 System File)" },
+		{ 0xFA, "INT (Integer BASIC Program) [Apple DOS: 0x01 'I']" },
 		// TODO
+		{ 0xFC, "BAS (Applesoft BASIC Program) [Apple DOS: 0x02 'A']" },
+		// TODO
+		{ 0xFE, "REL (EDASM Relocatable Code) [Apple DOS: 0x10 'R']" },
 		{ 0xFF, "SYS (ProDOS-8 System File)" },
 	};
 
@@ -1707,6 +1718,7 @@ void MacBinary::ReadHeader(Linker::Reader& rd)
 {
 	version = MACBIN1;
 
+	rd.endiantype = ::BigEndian;
 	rd.Skip(1);
 	if(apple_single == nullptr)
 	{
