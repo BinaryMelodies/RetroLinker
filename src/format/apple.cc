@@ -1433,19 +1433,123 @@ void ProDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Access, uint16_
 		{ 0x0B, "WPF (Generic Word Processing)" },
 		{ 0x0C, "SOS (SOS System File)" },
 		{ 0x0F, "DIR (ProDOS Directory)" },
-		// TODO
+		{ 0x10, "RPD (RPS Data)" },
+		{ 0x11, "RPI (RPS Index)" },
+		{ 0x12, "AFP (AppleFile Discard)" },
+		{ 0x13, "AFM (AppleFile Model)" },
+		{ 0x14, "AFR (AppleFile Report)" },
+		{ 0x15, "SCL (Screen Library)" },
+		{ 0x16, "PFS (PFS Document)" },
+
+		{ 0x19, "ADB (AppleWorks Database)" },
+		{ 0x1A, "AWP (AppleWorks Word Processing)" },
+		{ 0x1B, "ASP (AppleWorks Spreadsheet)" },
+
+		{ 0x20, "TDM (Desktop Manager File)" },
+		{ 0x21, "IPS (Instant Pascal Source)" },
+		{ 0x22, "UPV (UCSD Pascal Volume)" },
+
 		{ 0x29, "3SD (SOS Directory)" },
-		// TODO
+		{ 0x2A, "8SC (Source Code)" },
+		{ 0x2B, "8OB (Object Code)" },
+		{ 0x2C, "8IC (Interpreted Code)" },
+		{ 0x2D, "8LD (Language Data)" },
+		{ 0x2E, "P8C (ProDOS 8 Code Module)" },
+
+		{ 0x41, "OCR (Optical Character Recognition)" },
+		{ 0x42, "FTD (File Type Definition)" },
+
+		{ 0x50, "GWP (Apple IIgs Word Processing)" },
+		{ 0x51, "GSS (Apple IIgs Spreadsheet)" },
+		{ 0x52, "GDB (Apple IIgs Database)" },
+		{ 0x53, "DRW (Object Oriented Graphics)" },
+		{ 0x54, "GDP (Apple IIgs Desktop Publishing)" },
+		{ 0x55, "HMD (HyperMedia)" },
+		{ 0x56, "EDU (Educational Program Data)" },
+		{ 0x57, "STN (Stationary)" },
+		{ 0x58, "HLP (Help File)" },
+		{ 0x59, "COM (Communcations)" },
+		{ 0x5A, "CFG (Configuration)" },
+		{ 0x5B, "ANM (Animation)" },
+		{ 0x5C, "MUM (Multimedia)" },
+		{ 0x5D, "ENT (Entertainment)" },
+		{ 0x5E, "DVU (Development Utility)" },
+
+		{ 0x60, "PRE (PC Pre-Boot)" }, // repeated
+
+		{ 0x66, "NCF (ProDOS File Navigator Command File)" },
+
+		{ 0x6B, "BIO (PC BIOS)" },
+
+		{ 0x6D, "DVR (PC Driver)" },
+		{ 0x6E, "PRE (PC Pre-Boot)" }, // repeated
+		{ 0x6F, "HDV (PC Hard Disk Image)" },
+
 		{ 0x80, "GES (GEOS System File)" },
-		// TODO
+		{ 0x81, "GEA (GEOS Desk Accessory)" },
 		{ 0x82, "GEO (GEOS Application)" },
-		// TODO
+		{ 0x83, "GED (GEOS Document)" },
+		{ 0x84, "GEF (GEOS Font)" },
+		{ 0x85, "GEP (GEOS Printer Driver)" },
+		{ 0x86, "GEI (GEOS Input Driver)" },
+		{ 0x87, "GEX (GEOS Auxiliary Driver)" },
+
+		{ 0x89, "GEV (GEOS Swap File)" },
+
+		{ 0x8B, "GEC (GEOS Clock Driver)" },
+		{ 0x8C, "GEK (GEOS Interface Card Driver)" },
+		{ 0x8D, "GEW (GEOS Formatting Data)" },
+
+		{ 0xA0, "WP  (WordPerfect)" },
+
+		{ 0xAB, "GSB (Apple IIgs BASIC Program)" },
+		{ 0xAC, "TDF (Apple IIgs BASIC TDF)" },
+		{ 0xAD, "BDF (Apple IIgs BASIC Data)" },
+
+		{ 0xB0, "SRC (Apple IIgs Source Code)" },
+		{ 0xB1, "OBJ (Apple IIgs Object Code)" },
+		{ 0xB2, "LIB (Apple IIgs Library)" },
 		{ 0xB3, "S16 (Apple IIgs Application Program)" },
-		// TODO
+		{ 0xB4, "RTL (Apple IIgs Runtime Library)" },
 		{ 0xB5, "EXE (Apple IIgs Shell Script)" },
-		// TODO
+		{ 0xB6, "PIF (Apple IIgs Permanent INIT)" },
+		{ 0xB7, "TIF (Apple IIgs Temporary INIT)" },
+		{ 0xB8, "NDA (Apple IIgs New Desk Accessory)" },
+		{ 0xB9, "CDA (Apple IIgs Classic Desk Accessory)" },
+		{ 0xBA, "TOL (Apple IIgs Tool)" },
+		{ 0xBB, "DRV (Apple IIgs Device Driver)" },
+		{ 0xBC, "LDF (Apple IIgs Generic Load File)" },
+		{ 0xBD, "FST (Apple IIgs File System Translator)" },
+
+		{ 0xBF, "DOC (Apple IIgs Document)" },
+
+		{ 0xC0, "PNT (Apple IIgs Packed Super HiRes)" },
+		{ 0xC1, "PIC (Apple IIgs Super HiRes)" },
+		{ 0xC2, "ANI (PaintWorks Animation)" },
+		{ 0xC3, "PAL (PaintWorks Palette)" },
+
+		{ 0xC5, "OOG (Object-Oriented Graphics)" },
+		{ 0xC6, "SCR (Script)" },
+		{ 0xC7, "CDV (Apple IIgs Control Panel)" },
+		{ 0xC8, "FON (Apple IIgs Font)" },
+		{ 0xC9, "FND (Apple IIgs Finder Data)" },
+		{ 0xCA, "ICN (Apple IIgs Icon File)" },
+
+		{ 0xD5, "MUS (Music)" },
+		{ 0xD6, "INS (Instrument)" },
+		{ 0xD7, "MID (MIDI)" },
+		{ 0xD8, "SND (Apple IIgs Audio)" },
+
+		{ 0xDB, "DBM (DB Master Document)" },
+
 		{ 0xE0, "LBR (Archive)" },
-		// TODO
+
+		{ 0xE2, "ATK (AppleTalk Data)" },
+
+		{ 0xEE, "R16 (EDASM 816 Relocatable Code)" },
+		{ 0xEF, "PAR (Pascal Area)" },
+		{ 0xF0, "CMD (ProDOS Command File)" },
+		{ 0xF1, "OVL (User Defined 1)" },
 		{ 0xF2, "UD2 (User Defined 2) [Apple DOS: 0x08 'S']" },
 		{ 0xF3, "UD3 (User Defined 3)[Apple DOS: 0x20 'AA']" },
 		{ 0xF4, "UD4 (User Defined 4)[Apple DOS: 0x40 'BB']" },
@@ -1455,9 +1559,9 @@ void ProDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Access, uint16_
 		{ 0xF8, "UD8 (User Defined 8)" },
 		{ 0xF9, "P16 (ProDOS-16 System File)" },
 		{ 0xFA, "INT (Integer BASIC Program) [Apple DOS: 0x01 'I']" },
-		// TODO
+		{ 0xFB, "IVR (Integer BASIC Variables)" },
 		{ 0xFC, "BAS (Applesoft BASIC Program) [Apple DOS: 0x02 'A']" },
-		// TODO
+		{ 0xFD, "VAR (Applesoft BASIC Variables)" },
 		{ 0xFE, "REL (EDASM Relocatable Code) [Apple DOS: 0x10 'R']" },
 		{ 0xFF, "SYS (ProDOS-8 System File)" },
 	};
