@@ -638,8 +638,8 @@ namespace Apple
 			/* assigning values to the first two does not matter, because we don't generate the fields that hold them */
 			MACBIN1,
 			MACBIN1_GETINFO, /* extension */
-			MACBIN2 = 0x11,
-			MACBIN3 = 0x12,
+			MACBIN2 = 129,
+			MACBIN3 = 130,
 		};
 		version_t version, minimum_version;
 

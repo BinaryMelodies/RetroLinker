@@ -56,6 +56,7 @@ enum format_type
 	FORMAT_JAVA, // Java class file
 	FORMAT_LE, // Linear executable (OS/2, DOS/4G)
 	FORMAT_LV, // CandyMan's DX64 DOS extender, LV/Float format
+	FORMAT_MACBINARY, // MacBinary
 	FORMAT_MACHO, // Mach-O format
 	FORMAT_MACHO_MULTIPLE, // Multi-architecture binary Mach-O format
 	FORMAT_MINIX, // MINIX a.out

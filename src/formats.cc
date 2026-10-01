@@ -722,11 +722,64 @@ static bool VerifyMacintoshResource(Reader& rd, format_description& description)
 	return true;
 }
 
-static bool VerifyDRPageRelocatable(Reader& rd, format_description& description)
+static bool VerifyMacBinary(Reader& rd, format_description& description, offset_t size)
+{
+	// check for MacBinary format
+	// algorithm is based on magic for Linux file utility
+	// by Eric Fischer and Joerg Jenderek
+	rd.Seek(description.offset + 1);
+	uint8_t name_length = rd.ReadUnsigned(1, ::BigEndian);
+	if(name_length == 0 || name_length > 63)
+		return false;
+	uint8_t filename_start[2];
+	rd.ReadData(2, filename_start);
+	if(filename_start[0] < 0x20)
+		return false;
+	// check against DEGAS mid-res uncompressed bitmap
+	if(filename_start[0] == 0xFF && filename_start[1] == 0xFF)
+		return false;
+	// reserved
+	rd.Seek(description.offset + 74);
+	if(rd.ReadUnsigned(1, ::BigEndian) != 0)
+		return false;
+	// reserved
+	rd.Seek(description.offset + 82);
+	if(rd.ReadUnsigned(1, ::BigEndian) != 0)
+		return false;
+	rd.Seek(description.offset + 122);
+	uint16_t version = rd.ReadUnsigned(2, ::BigEndian);
+	switch(version)
+	{
+	case 0x0000:
+		// MacBinary I
+		// check for reserved fields
+		rd.Seek(101);
+		if(rd.ReadUnsigned(4, ::BigEndian) != 0)
+			return false;
+		// fall through
+	case 0x8181:
+		// MacBinary II
+	case 0x8281:
+		// MacBinary III
+		description.magic.type = FORMAT_MACBINARY;
+		description.magic.description = "MacBinary";
+		return true;
+	default:
+		return false;
+	}
+}
+
+static bool VerifyDRPageRelocatableOrMacBinary(Reader& rd, format_description& description)
 {
 //	Linker::Debug << "Debug: Testing for .PRL" << std::endl;
 	rd.SeekEnd();
 	offset_t size = rd.Tell() - description.offset;
+
+	if(size >= 128 && VerifyMacBinary(rd, description, size))
+	{
+		return true;
+	}
+
 	if(size < 256)
 		return false;
 	rd.Seek(description.offset + 1);
@@ -734,6 +787,9 @@ static bool VerifyDRPageRelocatable(Reader& rd, format_description& description)
 	if(bytes == 0 || size < 256 + uint32_t(bytes))
 		return false;
 //	Linker::Debug << "Debug: Looks like .PRL" << std::endl;
+	description.magic.type = FORMAT_PRL;
+	description.magic.description = "MP/M-80 page relocatable executable (.prl)";
+	description.magic.priority = PRIORITY_LOW;
 	return true;
 }
 
@@ -863,7 +919,7 @@ static const struct format_magic format_magics[] =
 	{ std::string("\x00\x05", 2),         0, FORMAT_COFF,    "Microsoft COFF, Hitachi SH big endian", nullptr, PRIORITY_LOW },
 	{ std::string("\x00" "asm", 4),       0, FORMAT_WASM,    "WebAssembly module format" },
 	{ std::string("\x00" "e", 2),         0, FORMAT_COFF,    "WDC65 COFF object file" },
-	{ std::string("\x00", 1),             0, FORMAT_PRL,     "MP/M-80 page relocatable executable (.prl)", VerifyDRPageRelocatable, PRIORITY_LOW },
+	{ std::string("\x00", 1),             0, format_type(0), "", VerifyDRPageRelocatableOrMacBinary },
 	{ std::string("\x01\x00o65", 5),      0, FORMAT_O65,     "6502 binary relocation format (André Fachat, used by xa)" },
 //	{ std::string("\x01\x01"),            0, FORMAT_AOUT,    "Little endian a.out, UNIX/RT lpd" }, // conflicts with CMD format
 	{ std::string("\x01\x03"),            0, FORMAT_MINIX,   "MINIX/ELKS a.out executable" },
@@ -1260,6 +1316,8 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 		return std::make_shared<LEFormat>();
 	case FORMAT_LV:
 		return std::make_shared<DX64::LVFormat>();
+	case FORMAT_MACBINARY:
+		return std::make_shared<Apple::MacBinary>(); // TODO
 	case FORMAT_MACHO:
 		return std::make_shared<MachOFormat>(); // TODO
 	case FORMAT_MACHO_MULTIPLE:

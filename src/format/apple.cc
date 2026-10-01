@@ -1986,7 +1986,7 @@ void MacBinary::Dump(Dumper::Dumper& dump) const
 		{ MacBinary::MACBIN1, "Revision 1 (1985)" },
 		{ MacBinary::MACBIN1_GETINFO, "Revision 1 (1985) with Get Info extension" },
 		{ MacBinary::MACBIN2, "MacBinary II, Revision 2 (1987)" },
-		{ MacBinary::MACBIN3, "MacBinary III, Revision 3 (1987)" },
+		{ MacBinary::MACBIN3, "MacBinary III, Revision 3 (1996)" },
 	};
 	header_region.AddField("Version (value)", Dumper::DecDisplay::Make(), offset_t(version < MACBIN2 ? 0 : version));
 	header_region.AddField("Version (name)", Dumper::ChoiceDisplay::Make(version_values), offset_t(version < MACBIN2 ? 0 : version));
