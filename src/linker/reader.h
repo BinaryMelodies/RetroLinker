@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 #include "../common.h"
-#include "image.h"
 
 namespace Linker
 {
@@ -25,12 +24,6 @@ namespace Linker
 		 * @brief The default endianness of the binary format, used for reading multibyte numeric data
 		 */
 		EndianType endiantype;
-#if 0
-		/**
-		 * @brief The input stream
-		 */
-		std::istream * in;
-#endif
 
 		/**
 		 * @brief Describes how ReadData and all other reading routines should behave when reading exceeds limits (end of file or dynamic boundary)
@@ -88,23 +81,6 @@ namespace Linker
 				return TerminateOnOverflow;
 			}
 		}
-
-#if 0
-		const offset_t start_offset;
-		const offset_t maximum_size;
-#endif
-
-#if 0
-		Reader(EndianType endiantype, std::istream * in = nullptr)
-			: endiantype(endiantype), in(in), start_offset(0), maximum_size(offset_t(-1))
-		{
-		}
-
-		Reader(offset_t start_offset, offset_t maximum_size, EndianType endiantype, std::istream * in = nullptr)
-			: endiantype(endiantype), in(in), start_offset(start_offset), maximum_size(maximum_size)
-		{
-		}
-#endif
 
 		Reader(EndianType endiantype)
 			: endiantype(endiantype)
@@ -317,6 +293,8 @@ namespace Linker
 
 		offset_t GetImageEnd() override;
 	};
+
+	class Image;
 
 	// TODO: untested
 	class ImageReader : public Reader

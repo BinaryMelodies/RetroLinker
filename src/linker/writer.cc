@@ -1,13 +1,9 @@
 
 #include <cstring>
 #include "writer.h"
+#include "buffer.h"
 
 using namespace Linker;
-
-void Writer::WriteData(size_t count, const void * data)
-{
-	out->write(reinterpret_cast<const char *>(data), count);
-}
 
 size_t Writer::WriteData(size_t max_count, const std::vector<uint8_t>& data, size_t offset)
 {
@@ -39,7 +35,7 @@ void Writer::WriteData(size_t count, std::string text, char padding)
 	{
 		memcpy(data.data(), text.c_str(), count);
 	}
-	out->write(data.data(), count);
+	WriteData(count, data.data());
 }
 
 void Writer::WriteData(std::string text)
@@ -59,7 +55,7 @@ void Writer::WriteData(size_t count, std::istream& in)
 			byte_count = count;
 //Linker::Debug << "Write " << byte_count << " for total " << count << std::endl;
 		in.read(buffer.data(), byte_count);
-		out->write(buffer.data(), byte_count);
+		WriteData(byte_count, buffer.data());
 		count -= byte_count;
 	}
 }
@@ -74,53 +70,6 @@ void Writer::WriteWord(size_t bytes, uint64_t value, EndianType endiantype)
 void Writer::WriteWord(size_t bytes, uint64_t value)
 {
 	WriteWord(bytes, value, endiantype);
-}
-
-void Writer::ForceSeek(offset_t offset)
-{
-//	out->clear(std::ostream::goodbit);
-	out->seekp(0, std::ios_base::end);
-//	assert(offset >= offset_t(out->tellp()));
-	if(offset < offset_t(out->tellp()))
-	{
-		out->seekp(offset);
-	}
-	else
-	{
-		size_t count = offset - out->tellp();
-		for(size_t i = 0; i < count; i++)
-			out->put(0);
-	}
-}
-
-void Writer::Seek(offset_t offset)
-{
-//	if(!out->seekp(offset)) /* TODO: optimize */
-//	{
-		ForceSeek(offset); /* force null fill */
-//	}
-}
-
-void Writer::Skip(offset_t offset)
-{
-	offset_t current = out->tellp();
-//	if(!out->seekp(offset, std::ios_base::cur)) /* TODO: optimize */
-//	{
-		ForceSeek(current + offset); /* force null fill */
-//	}
-}
-
-void Writer::SeekEnd(offset_t offset)
-{
-	if(!out->seekp(offset, std::ios_base::end))
-	{
-		/* TODO */
-	}
-}
-
-offset_t Writer::Tell()
-{
-	return out->tellp();
 }
 
 void Writer::FillTo(offset_t position)
@@ -147,5 +96,82 @@ void Writer::FillTo(offset_t position)
 void Writer::AlignTo(offset_t align)
 {
 	FillTo(::AlignTo(Tell(), align));
+}
+
+void StreamWriter::_FillNulls(size_t count)
+{
+	for(size_t i = 0; i < count; i++)
+		out->put(0);
+}
+
+void StreamWriter::WriteData(size_t count, const void * data)
+{
+	out->write(reinterpret_cast<const char *>(data), count);
+}
+
+void StreamWriter::Seek(offset_t offset)
+{
+	/* TODO: optimize? */
+//	out->clear(std::ostream::goodbit);
+	out->seekp(0, std::ios_base::end);
+//	assert(offset >= offset_t(out->tellp()));
+	if(offset < offset_t(out->tellp()))
+	{
+		out->seekp(offset);
+	}
+	else
+	{
+		_FillNulls(offset - out->tellp());
+	}
+}
+
+void StreamWriter::Skip(offset_t offset)
+{
+	/* TODO: optimize? */
+	offset_t current = out->tellp();
+	Seek(current + offset);
+}
+
+void StreamWriter::SeekEnd(offset_t offset)
+{
+	if(!out->seekp(offset, std::ios_base::end))
+	{
+		/* TODO */
+	}
+}
+
+offset_t StreamWriter::Tell()
+{
+	return out->tellp();
+}
+
+void BufferWriter::WriteData(size_t count, const void * data)
+{
+	buffer->WriteData(count, position, reinterpret_cast<const char *>(data));
+	position += count;
+}
+
+void BufferWriter::Seek(offset_t offset)
+{
+	if(offset < buffer->ImageSize())
+	{
+		buffer->Resize(offset);
+	}
+	position = offset;
+}
+
+void BufferWriter::Skip(offset_t offset)
+{
+	Seek(position + offset);
+}
+
+void BufferWriter::SeekEnd(offset_t offset)
+{
+	Seek(buffer->ImageSize());
+}
+
+offset_t BufferWriter::Tell()
+{
+	return position;
 }
 

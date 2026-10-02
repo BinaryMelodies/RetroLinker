@@ -42,6 +42,19 @@ namespace Linker
 		 */
 		void Resize(offset_t new_size);
 		/**
+		 * @brief Increases the size of the buffer by the specified amount
+		 *
+		 * @param new_size The new size for the buffer. If it is smaller than the current size, nothing is changed.
+		 * @return The actual amount of bytes the buffer was increased by.
+		 */
+		virtual offset_t Expand(offset_t new_size);
+		/**
+		 * @brief Writes data into the buffer image
+		 *
+		 * @return The amount of bytes the buffer was increased by.
+		 */
+		virtual offset_t WriteData(size_t bytes, offset_t offset, const void * buffer);
+		/**
 		 * @brief Append data to buffer
 		 */
 		void Append(std::vector<uint8_t>& additional_data);

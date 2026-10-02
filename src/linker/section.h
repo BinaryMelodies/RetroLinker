@@ -230,7 +230,7 @@ namespace Linker
 		 * @param new_size The new size for the section. If it is smaller than the current size, nothing is changed.
 		 * @return The actual amount of bytes the section was increased by.
 		 */
-		offset_t Expand(offset_t new_size);
+		offset_t Expand(offset_t new_size) override;
 
 		/**
 		 * @brief Expands the section to a size such that its end is at a specified alignment
@@ -244,7 +244,7 @@ namespace Linker
 		 *
 		 * @return The amount of bytes the section was increased by.
 		 */
-		offset_t WriteData(size_t bytes, offset_t offset, const void * buffer);
+		offset_t WriteData(size_t bytes, offset_t offset, const void * buffer) override;
 
 		/**
 		 * @brief Writes a value into the section image

@@ -230,7 +230,7 @@ namespace Microsoft
 			uint32_t fixup_offset = 0;
 
 			/** @brief Represents a relocation record associated to this page */
-			class Relocation : public Linker::Writer
+			class Relocation
 			{
 			public:
 				enum source_type
@@ -281,12 +281,11 @@ namespace Microsoft
 				uint32_t actual_offset = 0;
 
 				Relocation()
-					: Writer(::LittleEndian)
 				{
 				}
 
 				Relocation(unsigned type, unsigned flags, uint16_t offset, uint16_t module, uint32_t target = 0, uint32_t addition = 0)
-					: Writer(::LittleEndian), type(source_type(type)), flags(flag_type(flags)), module(module), target(target), addition(addition)
+					: type(source_type(type)), flags(flag_type(flags)), module(module), target(target), addition(addition)
 				{
 					sources.push_back(Chain{offset});
 				}
@@ -400,7 +399,7 @@ namespace Microsoft
 		};
 
 		/** @brief Represents an entry into the binary, typically DLL exported procedures */
-		class Entry : public Linker::Writer
+		class Entry
 		{
 		public:
 			enum entry_type
@@ -443,17 +442,16 @@ namespace Microsoft
 			std::string import_name;
 
 			Entry()
-				: Writer(::LittleEndian)
 			{
 			}
 
 			Entry(unsigned type)
-				: Writer(::LittleEndian), type(entry_type(type))
+				: type(entry_type(type))
 			{
 			}
 
 			Entry(unsigned type, uint16_t object, unsigned flags, uint32_t offset)
-				: Writer(::LittleEndian), type(entry_type(type)), object(object), flags(flag_type(flags)), offset(offset)
+				: type(entry_type(type)), object(object), flags(flag_type(flags)), offset(offset)
 			{
 			}
 

@@ -85,6 +85,7 @@ void Segment::Append(std::shared_ptr<Section> section)
 	Linker::Debug << "Debug: Appending section `" << section->name << "' segment `" << name << "'" << std::endl;
 }
 
+// TODO: unify ostream and Writer methods?
 offset_t Segment::WriteFile(std::ostream& out, offset_t size, offset_t offset) const
 {
 	offset_t count = 0;
@@ -124,12 +125,39 @@ offset_t Segment::WriteFile(std::ostream& out) const
 
 offset_t Segment::WriteFile(Writer& wr, offset_t count, offset_t offset) const
 {
-	return WriteFile(*wr.out, count, offset);
+	offset_t total_count = 0;
+	for(auto& section : sections)
+	{
+		if(!section->IsZeroFilled())
+		{
+			if(offset > section->ImageSize())
+			{
+				offset -= section->ImageSize();
+			}
+			else
+			{
+				offset_t written = section->WriteFile(wr, count, offset);
+				offset = 0;
+				total_count += written;
+				if(count < written)
+					return total_count;
+				else
+					count -= written;
+			}
+		}
+	}
+	return total_count;
 }
 
 offset_t Segment::WriteFile(Writer& wr) const
 {
-	return WriteFile(*wr.out);
+	offset_t count = 0;
+	for(auto& section : sections)
+	{
+		if(!section->IsZeroFilled())
+			count += section->WriteFile(wr);
+	}
+	return count;
 }
 
 void Segment::WriteData(size_t bytes, offset_t offset, const void * buffer)

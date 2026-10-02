@@ -176,7 +176,9 @@ namespace Linker
 
 		static void WriteFile(std::ostream& out, const Word& word, ::EndianType endian_type, offset_t bytes = EntrySize, offset_t offset = 0)
 		{
-			Writer wr(endian_type, &out);
+			// TODO: bad programming pattern
+			auto _wr = std::make_shared<StreamWriter>(endian_type, &out);
+			Writer& wr = *_wr;
 			WriteFile(wr, word, endian_type, bytes, offset);
 		}
 

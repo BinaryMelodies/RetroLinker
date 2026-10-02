@@ -811,7 +811,9 @@ offset_t MZSimpleStubWriter::GetStubImageSize()
 
 void MZSimpleStubWriter::WriteStubImage(std::ostream& out)
 {
-	Linker::Writer wr(::LittleEndian, &out);
+	// TODO: bad programming pattern
+	auto _wr = std::make_shared<Linker::StreamWriter>(::LittleEndian, &out);
+	Linker::Writer& wr = *_wr;
 	WriteStubImage(wr);
 }
 
@@ -918,7 +920,9 @@ offset_t MZStubWriter::GetStubImageSize()
 
 void MZStubWriter::WriteStubImage(std::ostream& out)
 {
-	Linker::Writer wr(::LittleEndian, &out);
+	// TODO: bad programming pattern
+	auto _wr = std::make_shared<Linker::StreamWriter>(::LittleEndian, &out);
+	Linker::Writer& wr = *_wr;
 	WriteStubImage(wr);
 }
 

@@ -1,5 +1,6 @@
 
 #include "reader.h"
+#include "image.h"
 
 using namespace Linker;
 

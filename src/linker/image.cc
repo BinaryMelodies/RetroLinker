@@ -13,7 +13,10 @@ std::shared_ptr<const Image> Contents::AsImage() const
 	// TODO: find a more efficient way
 	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>();
 	std::ostringstream oss;
-	Writer wr(::UndefinedEndian, &oss);
+	// TODO: bad programming pattern
+	// TODO: use BufferWriter instead
+	auto _wr = std::make_shared<StreamWriter>(::UndefinedEndian, &oss);
+	Writer& wr = *_wr;
 	WriteFile(wr);
 	std::string data = oss.str();
 	buffer->data.assign(data.begin(), data.end());

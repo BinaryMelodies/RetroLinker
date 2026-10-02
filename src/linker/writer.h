@@ -18,20 +18,18 @@ namespace Linker
 		 * @brief The default endianness of the binary format, used for reading multibyte numeric data
 		 */
 		EndianType endiantype;
-		/**
-		 * @brief The output stream
-		 */
-		std::ostream * out;
 
-		Writer(EndianType endiantype, std::ostream * out = nullptr)
-			: endiantype(endiantype), out(out)
+		Writer(EndianType endiantype)
+			: endiantype(endiantype)
 		{
 		}
+
+		virtual ~Writer() = default;
 
 		/**
 		 * @brief Write out a sequence of bytes
 		 */
-		void WriteData(size_t count, const void * data);
+		virtual void WriteData(size_t count, const void * data) = 0;
 
 		/**
 		 * @brief Write out a sequence of bytes
@@ -97,29 +95,25 @@ namespace Linker
 			WriteWord(sizeof(typename Clock::rep), Clock::to_ticks(timestamp));
 		}
 
-	protected:
-		void ForceSeek(offset_t offset);
-
-	public:
 		/**
 		 * @brief Jump to a specific location in the ouput stream
 		 */
-		void Seek(offset_t offset);
+		virtual void Seek(offset_t offset) = 0;
 
 		/**
 		 * @brief Jump to a distance in the output stream
 		 */
-		void Skip(offset_t offset);
+		virtual void Skip(offset_t offset) = 0;
 
 		/**
 		 * @brief Jump to a specific offset from the end
 		 */
-		void SeekEnd(offset_t offset = 0);
+		virtual void SeekEnd(offset_t offset = 0) = 0;
 
 		/**
 		 * @brief Retrieve the current location
 		 */
-		offset_t Tell();
+		virtual offset_t Tell() = 0;
 
 		/**
 		 * @brief Move to a specific offset, fill with zeroes if needed
@@ -130,6 +124,58 @@ namespace Linker
 		 * @brief Align the current pointer
 		 */
 		void AlignTo(offset_t align);
+	};
+
+	class StreamWriter : public Writer
+	{
+	public:
+		/**
+		 * @brief The output stream
+		 */
+		std::ostream * out;
+
+		StreamWriter(EndianType endiantype, std::ostream * out = nullptr)
+			: Writer(endiantype), out(out)
+		{
+		}
+
+		StreamWriter(EndianType endiantype, std::ostream& out)
+			: Writer(endiantype), out(&out)
+		{
+		}
+
+	protected:
+		void _FillNulls(size_t count);
+
+	public:
+		void WriteData(size_t count, const void * data) override;
+		void Seek(offset_t offset) override;
+		void Skip(offset_t offset) override;
+		void SeekEnd(offset_t offset = 0) override;
+		offset_t Tell() override;
+	};
+
+	class Buffer;
+
+	// TODO: untested
+	class BufferWriter : public Writer
+	{
+	public:
+		std::shared_ptr<Linker::Buffer> buffer;
+		offset_t position = 0;
+
+		// TODO: allocate buffer if parameter not provided
+
+		BufferWriter(EndianType endiantype, std::shared_ptr<Linker::Buffer> buffer)
+			: Writer(endiantype), buffer(buffer)
+		{
+		}
+
+		void WriteData(size_t count, const void * data) override;
+		void Seek(offset_t offset) override;
+		void Skip(offset_t offset) override;
+		void SeekEnd(offset_t offset = 0) override;
+		offset_t Tell() override;
 	};
 }
 

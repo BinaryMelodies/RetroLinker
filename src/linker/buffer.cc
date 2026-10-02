@@ -16,6 +16,27 @@ void Buffer::Resize(offset_t new_size)
 	data.resize(new_size);
 }
 
+offset_t Buffer::Expand(offset_t new_size)
+{
+	if(new_size <= ImageSize())
+	{
+		return 0;
+	}
+	else
+	{
+		offset_t extra = new_size - ImageSize();
+		Resize(new_size);
+		return extra;
+	}
+}
+
+offset_t Buffer::WriteData(size_t bytes, offset_t offset, const void * buffer)
+{
+	offset_t expand_count = Expand(offset + bytes);
+	std::copy(reinterpret_cast<const uint8_t *>(buffer), reinterpret_cast<const uint8_t *>(buffer) + bytes, data.data() + offset);
+	return expand_count;
+}
+
 void Buffer::Append(std::vector<uint8_t>& additional_data)
 {
 	data.insert(data.end(), additional_data.begin(), additional_data.end());

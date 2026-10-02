@@ -128,7 +128,9 @@ void OutputFormat::GenerateFile(std::string filename, ::Linker::Module& module)
 
 	std::ofstream out;
 	out.open(filename, std::ios_base::out | std::ios_base::binary);
-	Writer wr(::LittleEndian, &out);
+	// TODO: bad programming pattern
+	auto _wr = std::make_shared<StreamWriter>(::LittleEndian, &out);
+	Writer& wr = *_wr;
 	WriteFile(wr);
 	out.close();
 }

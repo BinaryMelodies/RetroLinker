@@ -2255,7 +2255,9 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 	}
 
 	std::ofstream out;
-	Linker::Writer wr(::BigEndian);
+	// TODO: bad programming pattern
+	auto _wr = std::make_shared<Linker::StreamWriter>(::BigEndian);
+	Linker::Writer& wr = *_wr;
 	switch(target)
 	{
 	case TARGET_NONE:
@@ -2264,7 +2266,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
 		if(data_fork != nullptr)
 		{
-			wr.out = &out;
+			_wr->out = &out;
 			data_fork->WriteFile(wr);
 		}
 		out.close();
@@ -2273,7 +2275,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
 		if(resource_fork != nullptr)
 		{
-			wr.out = &out;
+			_wr->out = &out;
 			resource_fork->WriteFile(wr);
 		}
 		out.close();
@@ -2281,13 +2283,13 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 	case TARGET_APPLE_SINGLE:
 	case TARGET_APPLE_DOUBLE:
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
-		wr.out = &out;
+		_wr->out = &out;
 		apple_single->WriteFile(wr);
 		out.close();
 		break;
 	case TARGET_MAC_BINARY:
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
-		wr.out = &out;
+		_wr->out = &out;
 		mac_binary->WriteFile(wr);
 		out.close();
 		break;
@@ -2309,7 +2311,8 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
 			if(resource_fork != nullptr)
 			{
-				wr.out = &out;
+				// TODO: bad programming pattern
+				_wr->out = &out;
 				resource_fork->WriteFile(wr);
 			}
 			out.close();
@@ -2332,7 +2335,8 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
 			if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_FinderInfo))
 			{
-				wr.out = &out;
+				// TODO: bad programming pattern
+				_wr->out = &out;
 				entry->WriteFile(wr);
 			}
 			out.close();
@@ -2344,7 +2348,8 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		Linker::Debug << "Debug: Generating AppleDouble" << std::endl;
 		std::ofstream out;
 		out.open(apple_single->GetUNIXDoubleFilename(filename) + naps_suffix, std::ios_base::out | std::ios_base::binary);
-		wr.out = &out;
+		// TODO: bad programming pattern
+		_wr->out = &out;
 		if(target != TARGET_APPLE_SINGLE)
 		{
 			apple_single->WriteFile(wr);
@@ -2364,7 +2369,8 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		out.open(
 			(target == TARGET_NONE ? filename : filename + ".mbin") + naps_suffix,
 			std::ios_base::out | std::ios_base::binary);
-		wr.out = &out;
+		// TODO: bad programming pattern
+		_wr->out = &out;
 		mac_binary->WriteFile(wr);
 		out.close();
 	}
