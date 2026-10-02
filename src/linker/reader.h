@@ -15,7 +15,7 @@ namespace Linker
 	};
 
 	/**
-	 * @brief A helper class, encapsulating functionality needed to import binary data
+	 * @brief Abstract base class that encapsulates functionality needed to import binary data
 	 */
 	class Reader : public std::enable_shared_from_this<Reader>
 	{
@@ -242,6 +242,9 @@ namespace Linker
 		offset_t GetRemainingCount();
 	};
 
+	/**
+	 * @brief Reader subclass whose source is a C++ input stream
+	 */
 	class StreamReader : public Reader
 	{
 	public:
@@ -267,6 +270,9 @@ namespace Linker
 		offset_t Tell() override;
 	};
 
+	/**
+	 * @brief Reader subclass that restricts access of another Reader to fixed window
+	 */
 	class WindowReader : public Reader
 	{
 	public:
@@ -297,6 +303,9 @@ namespace Linker
 	class Image;
 
 	// TODO: untested
+	/**
+	 * @brief Reader subclass that reads data from an internally stored image
+	 */
 	class ImageReader : public Reader
 	{
 	public:

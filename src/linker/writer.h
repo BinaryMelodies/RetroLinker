@@ -9,7 +9,7 @@
 namespace Linker
 {
 	/**
-	 * @brief A helper class, encapsulating functionality needed to export binary data
+	 * @brief Abstract base class that encapsulates functionality needed to export binary data
 	 */
 	class Writer
 	{
@@ -126,6 +126,9 @@ namespace Linker
 		void AlignTo(offset_t align);
 	};
 
+	/**
+	 * @brief Writer subclass whose target is a C++ output stream
+	 */
 	class StreamWriter : public Writer
 	{
 	public:
@@ -158,6 +161,9 @@ namespace Linker
 	class Buffer;
 
 	// TODO: untested
+	/**
+	 * @brief Writer subclass that stores data into an internal buffer
+	 */
 	class BufferWriter : public Writer
 	{
 	public:
