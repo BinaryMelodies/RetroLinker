@@ -13,6 +13,7 @@ void W3Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	std::array<char, 2> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "W3");
 	file_end = rd->GetImageEnd();
+	rd->Seek(file_offset + 2);
 	system_version.minor = rd->ReadUnsigned(1);
 	system_version.major = rd->ReadUnsigned(1);
 	uint16_t entry_count = rd->ReadUnsigned(2);
@@ -83,6 +84,7 @@ void W3Format::Dump(Dumper::Dumper& dump) const
 
 // W4Format
 
+#if 0
 class ImageStreambuf : public std::basic_streambuf<char>
 {
 public:
@@ -149,6 +151,7 @@ protected:
 		return result;
 	}
 };
+#endif
 
 class BitStream
 {
@@ -295,6 +298,7 @@ void W4Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	std::array<char, 2> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "W4");
 	file_end = rd->GetImageEnd();
+	rd->Seek(file_offset + 2);
 	system_version.minor = rd->ReadUnsigned(1);
 	system_version.major = rd->ReadUnsigned(1);
 	chunk_size = rd->ReadUnsigned(2);
@@ -308,6 +312,7 @@ void W4Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 			chunks.back().length = chunk.file_offset - chunks.back().file_offset;
 		chunks.emplace_back(chunk);
 	}
+
 	if(chunks.size() > 0)
 		chunks.back().length = file_end - chunks.back().file_offset;
 
@@ -326,9 +331,7 @@ void W4Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	decompressed_block.Display(dump, Dumper::Generated | Dumper::Image);
 #endif
 
-	ImageStreambuf sb(image, file_offset);
-	std::istream in(&sb);
-	auto image_rd = std::make_shared<Linker::StreamReader>(::LittleEndian, in);
+	auto image_rd = std::make_shared<Linker::ShiftedReader>(std::make_shared<Linker::ImageReader>(::LittleEndian, image), file_offset);
 	w3format.ReadFile(image_rd);
 }
 

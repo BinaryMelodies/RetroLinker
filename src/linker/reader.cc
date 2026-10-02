@@ -340,3 +340,41 @@ offset_t ImageReader::GetImageEnd()
 	return image->ImageSize();
 }
 
+size_t ShiftedReader::Read(void * data, size_t max_count)
+{
+	return reader->Read(data, max_count);
+}
+
+void ShiftedReader::Seek(offset_t offset)
+{
+	reader->Seek(offset < displacement ? 0 : offset - displacement);
+}
+
+void ShiftedReader::Skip(offset_t offset)
+{
+	reader->Skip(offset);
+}
+
+void ShiftedReader::SeekEnd(relative_offset_t offset)
+{
+	reader->SeekEnd(offset);
+}
+
+offset_t ShiftedReader::Tell()
+{
+	return displacement + reader->Tell();
+}
+
+offset_t ShiftedReader::GetImageEnd()
+{
+	offset_t actual_end = reader->GetImageEnd();
+	if(actual_end == offset_t(-1))
+	{
+		return actual_end;
+	}
+	else
+	{
+		return displacement + actual_end;
+	}
+}
+

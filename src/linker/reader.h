@@ -291,6 +291,12 @@ namespace Linker
 			_FixupWindow();
 		}
 
+		WindowReader(std::shared_ptr<Reader> reader, offset_t start_offset, offset_t maximum_size)
+			: Reader(reader->endiantype), reader(reader), start_offset(start_offset), maximum_size(maximum_size)
+		{
+			_FixupWindow();
+		}
+
 		size_t Read(void * data, size_t max_count = size_t(-1)) override;
 		void Seek(offset_t offset) override;
 		void Skip(offset_t offset) override;
@@ -314,6 +320,26 @@ namespace Linker
 
 		ImageReader(EndianType endiantype, std::shared_ptr<Image> image)
 			: Reader(endiantype), image(image)
+		{
+		}
+
+		size_t Read(void * data, size_t max_count = size_t(-1)) override;
+		void Seek(offset_t offset) override;
+		void Skip(offset_t offset) override;
+		void SeekEnd(relative_offset_t offset = 0) override;
+		offset_t Tell() override;
+
+		offset_t GetImageEnd() override;
+	};
+
+	class ShiftedReader : public Reader
+	{
+	public:
+		std::shared_ptr<Reader> reader;
+		offset_t displacement;
+
+		ShiftedReader(std::shared_ptr<Reader> reader, offset_t displacement)
+			: Reader(reader->endiantype), reader(reader), displacement(displacement)
 		{
 		}
 

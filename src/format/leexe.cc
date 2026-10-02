@@ -1243,8 +1243,17 @@ void LEFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 
 	if(vxd_version_info_resource_length != 0)
 	{
-		rd->Seek(vxd_version_info_resource_offset);
-		vxd_version_info_resource.ReadFile(rd, vxd_version_info_resource_length);
+		auto previous_overflow = rd->on_overflow;
+		rd->on_overflow = Linker::Reader::ReportOnOverflow;
+		try
+		{
+			rd->Seek(vxd_version_info_resource_offset);
+			vxd_version_info_resource.ReadFile(rd, vxd_version_info_resource_length);
+		}
+		catch(Linker::ReadOverflow)
+		{
+		}
+		rd->on_overflow = previous_overflow;
 	}
 
 	/*** Loader Section ***/
