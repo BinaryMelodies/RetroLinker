@@ -153,12 +153,6 @@ offset_t LEFormat::IteratedPage::View::ImageSize() const
 	return size;
 }
 
-offset_t LEFormat::IteratedPage::View::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
-{
-	// TODO
-	return offset_t(-1);
-}
-
 LEFormat::Page::page_type LEFormat::Page::GetPageType(const LEFormat& fmt) const
 {
 	return page_type(type);

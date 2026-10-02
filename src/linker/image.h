@@ -78,6 +78,12 @@ namespace Linker
 		 * @brief Retrieve byte at a certain offset (optional, might not be defined)
 		 */
 		int GetByte(offset_t offset) const;
+
+		using Contents::WriteFile;
+		/**
+		 * @brief Writes data of non-zero filled sections
+		 */
+		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override final; // TODO: remove 'final'
 	};
 }
 

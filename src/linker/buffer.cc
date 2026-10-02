@@ -50,10 +50,12 @@ std::shared_ptr<Buffer> Buffer::ReadFromFile(Reader& rd, offset_t count)
 	return buffer;
 }
 
+#if 0 // TODO: reenable
 offset_t Buffer::WriteFile(Writer& wr, offset_t count, offset_t offset) const
 {
 	return wr.WriteData(count, data, offset);
 }
+#endif
 
 size_t Buffer::ReadData(size_t bytes, offset_t offset, void * buffer) const
 {

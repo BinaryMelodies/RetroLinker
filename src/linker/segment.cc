@@ -122,10 +122,12 @@ offset_t Segment::WriteFile(std::ostream& out) const
 	return count;
 }
 
+#if 0 // TODO: reenable
 offset_t Segment::WriteFile(Writer& wr, offset_t count, offset_t offset) const
 {
 	return WriteFile(*wr.out, count, offset);
 }
+#endif
 
 offset_t Segment::WriteFile(Writer& wr) const
 {

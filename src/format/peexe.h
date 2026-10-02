@@ -335,8 +335,6 @@ namespace Microsoft
 			}
 
 			offset_t ImageSize() const override;
-			using Linker::Contents::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 		};
 

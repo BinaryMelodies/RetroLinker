@@ -65,3 +65,11 @@ int Image::GetByte(offset_t offset) const
 	return ReadUnsigned(1, offset, ::EndianType(0));
 }
 
+offset_t Image::WriteFile(Writer& wr, offset_t count, offset_t offset) const
+{
+	std::vector<uint8_t> buffer(count);
+	offset_t actual_count = ReadData(count, offset, buffer.data());
+	wr.WriteData(actual_count, buffer.data());
+	return actual_count;
+}
+

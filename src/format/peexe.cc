@@ -409,12 +409,6 @@ offset_t PEFormat::MemoryPortionImage::ImageSize() const
 	return size;
 }
 
-offset_t PEFormat::MemoryPortionImage::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
-{
-	// TODO
-	return offset_t(-1);
-}
-
 size_t PEFormat::MemoryPortionImage::ReadData(size_t bytes, offset_t offset, void * buffer) const
 {
 	if(offset + bytes > size)

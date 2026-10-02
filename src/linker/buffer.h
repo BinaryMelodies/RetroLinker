@@ -74,7 +74,7 @@ namespace Linker
 		 */
 		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd, offset_t count);
 		using Contents::WriteFile;
-		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;
+		//offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override; // TODO: reenable
 		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
 		friend class Section;
