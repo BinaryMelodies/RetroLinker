@@ -10,7 +10,7 @@ void CauseWayFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t CauseWayFormat::WriteFile(Linker::Writer& wr) const
+offset_t CauseWayFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO
 	return offset_t(-1);

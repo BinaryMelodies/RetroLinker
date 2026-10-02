@@ -282,23 +282,23 @@ void HUFormat::CalculateValues()
 	bss_size = GetBssSegment()->zero_fill;
 }
 
-offset_t HUFormat::WriteFile(Linker::Writer& wr) const
+offset_t HUFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteData(3, "HU\0");
-	wr.WriteWord(1, load_mode);
-	wr.WriteWord(4, base_address);
-	wr.WriteWord(4, entry_address);
-	wr.WriteWord(4, code_size);
-	wr.WriteWord(4, data_size);
-	wr.WriteWord(4, bss_size);
-	wr.WriteWord(4, relocation_size);
-	wr.WriteWord(4, symbol_table_size);
-	wr.WriteWord(4, debug_line_number_table_size);
-	wr.WriteWord(4, debug_symbol_table_size);
-	wr.WriteWord(4, debug_string_table_size);
-	wr.Skip(0x10);
-	wr.WriteWord(4, bound_module_list_offset);
+	wr->endiantype = ::BigEndian;
+	wr->WriteData(3, "HU\0");
+	wr->WriteWord(1, load_mode);
+	wr->WriteWord(4, base_address);
+	wr->WriteWord(4, entry_address);
+	wr->WriteWord(4, code_size);
+	wr->WriteWord(4, data_size);
+	wr->WriteWord(4, bss_size);
+	wr->WriteWord(4, relocation_size);
+	wr->WriteWord(4, symbol_table_size);
+	wr->WriteWord(4, debug_line_number_table_size);
+	wr->WriteWord(4, debug_symbol_table_size);
+	wr->WriteWord(4, debug_string_table_size);
+	wr->Skip(0x10);
+	wr->WriteWord(4, bound_module_list_offset);
 
 	code->WriteFile(wr);
 	data->WriteFile(wr);
@@ -312,12 +312,12 @@ offset_t HUFormat::WriteFile(Linker::Writer& wr) const
 			displacement &= ~1;
 		if(relocation.absolute_displacement)
 		{
-			wr.WriteWord(2, 1);
-			wr.WriteWord(4, displacement);
+			wr->WriteWord(2, 1);
+			wr->WriteWord(4, displacement);
 		}
 		else
 		{
-			wr.WriteWord(2, displacement);
+			wr->WriteWord(2, displacement);
 		}
 	}
 

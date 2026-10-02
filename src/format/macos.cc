@@ -127,7 +127,7 @@ void MacintoshResourceFileFormat::GenericResource::ReadFile(const std::shared_pt
 	image = Linker::Buffer::ReadFromFile(rd, length);
 }
 
-offset_t MacintoshResourceFileFormat::GenericResource::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::GenericResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	return image->WriteFile(wr);
 }
@@ -201,34 +201,34 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::sha
 	}
 }
 
-offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, above_a5);
-	wr.WriteWord(4, below_a5);
+	wr->WriteWord(4, above_a5);
+	wr->WriteWord(4, below_a5);
 	if(far_entries.size() == 0)
 	{
-		wr.WriteWord(4, 8 * near_entries.size());
+		wr->WriteWord(4, 8 * near_entries.size());
 	}
 	else
 	{
-		wr.WriteWord(4, 8 + 8 * (near_entries.size() + far_entries.size()));
+		wr->WriteWord(4, 8 + 8 * (near_entries.size() + far_entries.size()));
 	}
-	wr.WriteWord(4, jump_table_offset);
+	wr->WriteWord(4, jump_table_offset);
 	for(const Entry& entry : near_entries)
 	{
-		wr.WriteWord(2, entry.offset);
-		wr.WriteWord(2, MOVE_DATA_SP);
-		wr.WriteWord(2, entry.segment);
-		wr.WriteWord(2, LOADSEG);
+		wr->WriteWord(2, entry.offset);
+		wr->WriteWord(2, MOVE_DATA_SP);
+		wr->WriteWord(2, entry.segment);
+		wr->WriteWord(2, LOADSEG);
 	}
 	if(far_entries.size() != 0)
 	{
-		wr.WriteData(8, "\0\0\xFF\xFF\0\0\0\0");
+		wr->WriteData(8, "\0\0\xFF\xFF\0\0\0\0");
 		for(const Entry& entry : far_entries)
 		{
-			wr.WriteWord(2, entry.segment);
-			wr.WriteWord(2, LOADSEG);
-			wr.WriteWord(4, entry.offset);
+			wr->WriteWord(2, entry.segment);
+			wr->WriteWord(2, LOADSEG);
+			wr->WriteWord(4, entry.offset);
 		}
 	}
 
@@ -363,7 +363,7 @@ void MacintoshResourceFileFormat::CodeResource::ReadRelocations(const std::share
 	}
 }
 
-void MacintoshResourceFileFormat::CodeResource::WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const
+void MacintoshResourceFileFormat::CodeResource::WriteRelocations(const std::shared_ptr<Linker::Writer>& wr, const std::set<uint32_t>& relocations) const
 {
 	/* TODO: test */
 	uint32_t last_relocation = 0;
@@ -372,20 +372,20 @@ void MacintoshResourceFileFormat::CodeResource::WriteRelocations(Linker::Writer&
 		uint32_t offset = relocation - last_relocation;
 		if(offset < 0x100)
 		{
-			wr.WriteWord(1, offset >> 1);
+			wr->WriteWord(1, offset >> 1);
 		}
 		else if(offset < 0x10000)
 		{
-			wr.WriteWord(2, 0x8000 | (offset >> 1));
+			wr->WriteWord(2, 0x8000 | (offset >> 1));
 		}
 		else
 		{
-			wr.WriteWord(1, 0);
-			wr.WriteWord(4, 0x80000000 | (offset >> 1));
+			wr->WriteWord(1, 0);
+			wr->WriteWord(4, 0x80000000 | (offset >> 1));
 		}
 		last_relocation = relocation;
 	}
-	wr.WriteWord(2, 0);
+	wr->WriteWord(2, 0);
 }
 
 void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
@@ -433,27 +433,27 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<L
 	}
 }
 
-offset_t MacintoshResourceFileFormat::CodeResource::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::CodeResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(!is_far)
 	{
-		wr.WriteWord(2, first_near_entry_offset);
-		wr.WriteWord(2, near_entry_count);
+		wr->WriteWord(2, first_near_entry_offset);
+		wr->WriteWord(2, near_entry_count);
 		image->WriteFile(wr);
-		wr.Skip(zero_fill);
+		wr->Skip(zero_fill);
 	}
 	else
 	{
-		wr.WriteData(4, "\xFF\xFF\0\0");
-		wr.WriteWord(4, first_near_entry_offset);
-		wr.WriteWord(4, near_entry_count);
-		wr.WriteWord(4, first_far_entry_offset);
-		wr.WriteWord(4, far_entry_count);
-		wr.WriteWord(4, a5_relocation_offset);
-		wr.WriteWord(4, a5_address);
-		wr.WriteWord(4, segment_relocation_offset);
-		wr.WriteWord(4, base_address);
-		wr.WriteWord(4, 0);
+		wr->WriteData(4, "\xFF\xFF\0\0");
+		wr->WriteWord(4, first_near_entry_offset);
+		wr->WriteWord(4, near_entry_count);
+		wr->WriteWord(4, first_far_entry_offset);
+		wr->WriteWord(4, far_entry_count);
+		wr->WriteWord(4, a5_relocation_offset);
+		wr->WriteWord(4, a5_address);
+		wr->WriteWord(4, segment_relocation_offset);
+		wr->WriteWord(4, base_address);
+		wr->WriteWord(4, 0);
 		image->WriteFile(wr);
 		WriteRelocations(wr, a5_relocations);
 		WriteRelocations(wr, segment_relocations);
@@ -525,11 +525,11 @@ void MacintoshResourceFileFormat::SizeResource::ReadFile(const std::shared_ptr<L
 	minimum_memory = rd->ReadUnsigned(4);
 }
 
-offset_t MacintoshResourceFileFormat::SizeResource::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::SizeResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, flags);
-	wr.WriteWord(4, preferred_memory);
-	wr.WriteWord(4, minimum_memory);
+	wr->WriteWord(2, flags);
+	wr->WriteWord(4, preferred_memory);
+	wr->WriteWord(4, minimum_memory);
 	return ExpectedLength;
 }
 
@@ -903,59 +903,59 @@ void MacintoshResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>
 	}
 }
 
-offset_t MacintoshResourceFileFormat::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshResourceFileFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
-	offset_t write_offset = wr.Tell();
-	wr.WriteWord(4, data_offset);
-	wr.WriteWord(4, map_offset);
-	wr.WriteWord(4, data_length);
-	wr.WriteWord(4, map_length);
+	wr->endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
+	offset_t write_offset = wr->Tell();
+	wr->WriteWord(4, data_offset);
+	wr->WriteWord(4, map_offset);
+	wr->WriteWord(4, data_length);
+	wr->WriteWord(4, map_length);
 	/* data start */
 	for(auto& type : resource_types)
 	{
 		for(auto& reference : type.references)
 		{
 			std::shared_ptr<Resource> resource = reference.data;
-			wr.Seek(write_offset + data_offset + reference.data_offset);
-			wr.WriteWord(4, resource->ImageSize());
+			wr->Seek(write_offset + data_offset + reference.data_offset);
+			wr->WriteWord(4, resource->ImageSize());
 			resource->WriteFile(wr);
 		}
 	}
 	/* map start */
-	wr.Seek(write_offset + map_offset + 22);
-	wr.WriteWord(2, attributes);
-	wr.WriteWord(2, resource_type_list_offset);
-	wr.WriteWord(2, name_list_offset);
-	wr.Seek(write_offset + map_offset + resource_type_list_offset);
-	wr.WriteWord(2, resources.size() - 1);
+	wr->Seek(write_offset + map_offset + 22);
+	wr->WriteWord(2, attributes);
+	wr->WriteWord(2, resource_type_list_offset);
+	wr->WriteWord(2, name_list_offset);
+	wr->Seek(write_offset + map_offset + resource_type_list_offset);
+	wr->WriteWord(2, resources.size() - 1);
 	/* type list */
 	for(auto& type : resource_types)
 	{
 		if(type.references.size() == 0)
 			continue;
-		wr.WriteData(4, type.type);
-		wr.WriteWord(2, type.references.size() - 1);
-		wr.WriteWord(2, type.offset);
+		wr->WriteData(4, type.type);
+		wr->WriteWord(2, type.references.size() - 1);
+		wr->WriteWord(2, type.offset);
 	}
 	/* reference list */
 	for(auto& type : resource_types)
 	{
-		wr.Seek(write_offset + map_offset + resource_type_list_offset + type.offset);
+		wr->Seek(write_offset + map_offset + resource_type_list_offset + type.offset);
 		for(auto& reference : type.references)
 		{
-			wr.WriteWord(2, reference.id);
-			wr.WriteWord(2, reference.name_offset);
-			wr.WriteWord(4, (reference.data_offset & 0x00FFFFFF) | (reference.attributes << 24));
-			wr.Skip(4);
+			wr->WriteWord(2, reference.id);
+			wr->WriteWord(2, reference.name_offset);
+			wr->WriteWord(4, (reference.data_offset & 0x00FFFFFF) | (reference.attributes << 24));
+			wr->Skip(4);
 		}
 	}
 	/* name list */
-	wr.Seek(write_offset + map_offset + name_list_offset);
+	wr->Seek(write_offset + map_offset + name_list_offset);
 	for(auto& name : resource_names)
 	{
-		wr.WriteWord(1, name.size());
-		wr.WriteData(name);
+		wr->WriteWord(1, name.size());
+		wr->WriteData(name);
 	}
 
 	return ImageSize();
@@ -1263,7 +1263,7 @@ void Classic68KDriver::OnReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t Classic68KDriver::OnWriteFile(Linker::Writer& wr) const
+offset_t Classic68KDriver::OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	return resource_fork->WriteFile(wr);
 }

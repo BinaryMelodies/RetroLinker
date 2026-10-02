@@ -12,10 +12,10 @@ void WebAssemblyFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t WebAssemblyFormat::WriteFile(Linker::Writer& wr) const
+offset_t WebAssemblyFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.Seek(0);
+	wr->endiantype = ::LittleEndian;
+	wr->Seek(0);
 	// TODO
 	return ImageSize();
 }

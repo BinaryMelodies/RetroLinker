@@ -81,7 +81,7 @@ AOutFormat::Relocation AOutFormat::Relocation::ReadFile16Bit(const std::shared_p
 	return relocation;
 }
 
-void AOutFormat::Relocation::WriteFile16Bit(Linker::Writer& wr) const
+void AOutFormat::Relocation::WriteFile16Bit(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	uint16_t word_value;
 	switch(segment)
@@ -111,7 +111,7 @@ void AOutFormat::Relocation::WriteFile16Bit(Linker::Writer& wr) const
 	if(relative)
 		word_value |= 1;
 
-	wr.WriteWord(2, word_value);
+	wr->WriteWord(2, word_value);
 }
 
 AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(const std::shared_ptr<Linker::Reader>& rd, word_size_t word_size)
@@ -162,7 +162,7 @@ AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(const std::shared_p
 	return relocation;
 }
 
-void AOutFormat::Relocation::WriteFile32Bit(Linker::Writer& wr, word_size_t word_size) const
+void AOutFormat::Relocation::WriteFile32Bit(const std::shared_ptr<Linker::Writer>& wr, word_size_t word_size) const
 {
 	uint32_t word_value;
 	switch(segment)
@@ -213,8 +213,8 @@ void AOutFormat::Relocation::WriteFile32Bit(Linker::Writer& wr, word_size_t word
 	if(relative)
 		word_value |= 0x01000000;
 
-	wr.WriteWord(word_size, address);
-	wr.WriteWord(4, word_value);
+	wr->WriteWord(word_size, address);
+	wr->WriteWord(4, word_value);
 }
 
 bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
@@ -1300,7 +1300,7 @@ offset_t AOutFormat::ImageSize() const
 	}
 }
 
-void AOutFormat::WriteHeader(Linker::Writer& wr) const
+void AOutFormat::WriteHeader(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	uint16_t written_magic = magic;
 	if(force_magic_number)
@@ -1309,17 +1309,17 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 	switch(word_size)
 	{
 	case WordSize16:
-		wr.WriteWord(word_size, written_magic);
+		wr->WriteWord(word_size, written_magic);
 		break;
 	case WordSize32:
 	case WordSize64:
 		switch(system)
 		{
 		case UNIX:
-			wr.WriteWord(word_size, written_magic | (uint32_t(environment_stamp) << 16));
+			wr->WriteWord(word_size, written_magic | (uint32_t(environment_stamp) << 16));
 			break;
 		default:
-			wr.WriteWord(word_size, written_magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
+			wr->WriteWord(word_size, written_magic | (uint32_t(mid_value) << 16) | (uint32_t(flags) << 24));
 			break;
 		}
 		break;
@@ -1327,61 +1327,61 @@ void AOutFormat::WriteHeader(Linker::Writer& wr) const
 
 	if(magic == MAGIC_V1)
 	{
-		wr.WriteWord(word_size, code_size);
-		wr.WriteWord(word_size, symbol_table_size);
-		wr.WriteWord(word_size, code_relocation_size);
-		wr.WriteWord(word_size, bss_size);
-		wr.WriteWord(word_size, reserved);
+		wr->WriteWord(word_size, code_size);
+		wr->WriteWord(word_size, symbol_table_size);
+		wr->WriteWord(word_size, code_relocation_size);
+		wr->WriteWord(word_size, bss_size);
+		wr->WriteWord(word_size, reserved);
 		return;
 	}
 
-	wr.WriteWord(word_size, code_size);
-	wr.WriteWord(word_size, data_size);
-	wr.WriteWord(word_size, bss_size);
-	wr.WriteWord(word_size, symbol_table_size);
-	wr.WriteWord(word_size, entry_address);
+	wr->WriteWord(word_size, code_size);
+	wr->WriteWord(word_size, data_size);
+	wr->WriteWord(word_size, bss_size);
+	wr->WriteWord(word_size, symbol_table_size);
+	wr->WriteWord(word_size, entry_address);
 	switch(word_size)
 	{
 	case WordSize16:
 		switch(system)
 		{
 		default:
-			wr.WriteWord(word_size, reserved);
-			wr.WriteWord(word_size, relocations_suppressed);
+			wr->WriteWord(word_size, reserved);
+			wr->WriteWord(word_size, relocations_suppressed);
 			break;
 		case UNIX:
-			wr.WriteWord(word_size, environment_stamp);
-			wr.WriteWord(word_size, relocations_suppressed);
+			wr->WriteWord(word_size, environment_stamp);
+			wr->WriteWord(word_size, relocations_suppressed);
 			break;
 		case SYSTEM_V:
-			wr.WriteWord(word_size, (reserved & 0x00FF) | ((code_size >> 8) & 0xFF00));
+			wr->WriteWord(word_size, (reserved & 0x00FF) | ((code_size >> 8) & 0xFF00));
 			// Note: relocations_suppressed should have a set bit in the lower 8 bits if it is non-zero
-			wr.WriteWord(word_size, (relocations_suppressed & 0x00FF) | (environment_stamp << 8));
+			wr->WriteWord(word_size, (relocations_suppressed & 0x00FF) | (environment_stamp << 8));
 			break;
 		}
 		break;
 	case WordSize32:
 	case WordSize64:
-		wr.WriteWord(word_size, code_relocation_size);
-		wr.WriteWord(word_size, data_relocation_size);
+		wr->WriteWord(word_size, code_relocation_size);
+		wr->WriteWord(word_size, data_relocation_size);
 		break;
 	}
 }
 
-offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
+offset_t AOutFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(system == DJGPP1 && stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
 
-	wr.endiantype = endiantype;
+	wr->endiantype = endiantype;
 
 	WriteHeader(wr);
 
 	// we will skip the header, even if it is included in the text section
 	uint32_t text_offset = std::max(GetHeaderSize(), GetTextOffset());
-	wr.Seek(file_offset + text_offset);
+	wr->Seek(file_offset + text_offset);
 
 	code->WriteFile(wr);
 
@@ -1392,13 +1392,13 @@ offset_t AOutFormat::WriteFile(Linker::Writer& wr) const
 	else
 	{
 		uint32_t data_offset = AlignTo(GetTextOffset() + code_size, GetDataOffsetAlign());
-		wr.Seek(file_offset + data_offset);
+		wr->Seek(file_offset + data_offset);
 		data->WriteFile(wr);
-		if(wr.Tell() < file_offset + data_offset + data_size)
+		if(wr->Tell() < file_offset + data_offset + data_size)
 		{
 			// fill to the end
-			wr.Seek(file_offset + data_offset + data_size - 1);
-			wr.WriteWord(1, 0);
+			wr->Seek(file_offset + data_offset + data_size - 1);
+			wr->WriteWord(1, 0);
 		}
 	}
 

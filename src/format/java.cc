@@ -12,10 +12,10 @@ void ClassFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t ClassFormat::WriteFile(Linker::Writer& wr) const
+offset_t ClassFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.Seek(0);
+	wr->endiantype = ::BigEndian;
+	wr->Seek(0);
 	// TODO
 	return ImageSize();
 }

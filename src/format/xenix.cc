@@ -12,7 +12,7 @@ void BOutFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	/* TODO */
 }
 
-offset_t BOutFormat::WriteFile(Linker::Writer& wr) const
+offset_t BOutFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* TODO */
 
@@ -82,35 +82,35 @@ void XOutFormat::Segment::ReadContents(const std::shared_ptr<Linker::Reader>& rd
 	}
 }
 
-void XOutFormat::Segment::WriteHeader(Linker::Writer& wr, const XOutFormat& xout) const
+void XOutFormat::Segment::WriteHeader(const std::shared_ptr<Linker::Writer>& wr, const XOutFormat& xout) const
 {
 	// TODO: untested
 
-	wr.WriteWord(2, type);
-	wr.WriteWord(2, attributes);
-	wr.WriteWord(2, number);
-	wr.WriteWord(1, log2_align);
-	wr.WriteWord(1, reserved1);
+	wr->WriteWord(2, type);
+	wr->WriteWord(2, attributes);
+	wr->WriteWord(2, number);
+	wr->WriteWord(1, log2_align);
+	wr->WriteWord(1, reserved1);
 #if 0
-	wr.WriteWord(4, offset / xout.GetPageSize());
+	wr->WriteWord(4, offset / xout.GetPageSize());
 #else
-	wr.WriteWord(4, offset);
+	wr->WriteWord(4, offset);
 #endif
-	wr.WriteWord(4, file_size);
-	wr.WriteWord(4, memory_size);
-	wr.WriteWord(4, base_address); // TODO: transform according to page size?
-	wr.WriteWord(2, name_offset);
-	wr.WriteWord(2, reserved2);
-	wr.WriteWord(4, reserved3);
+	wr->WriteWord(4, file_size);
+	wr->WriteWord(4, memory_size);
+	wr->WriteWord(4, base_address); // TODO: transform according to page size?
+	wr->WriteWord(2, name_offset);
+	wr->WriteWord(2, reserved2);
+	wr->WriteWord(4, reserved3);
 }
 
-void XOutFormat::Segment::WriteContents(Linker::Writer& wr, const XOutFormat& xout) const
+void XOutFormat::Segment::WriteContents(const std::shared_ptr<Linker::Writer>& wr, const XOutFormat& xout) const
 {
 	// TODO: untested
 
 	if(contents)
 	{
-		wr.Seek(xout.file_offset + offset);
+		wr->Seek(xout.file_offset + offset);
 		contents->WriteFile(wr);
 	}
 }
@@ -379,97 +379,97 @@ void XOutFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	/* TODO */
 }
 
-offset_t XOutFormat::WriteFile(Linker::Writer& wr) const
+offset_t XOutFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
 
-	wr.endiantype = endiantype;
-	wr.Seek(file_offset);
-	wr.WriteData(2, "\x06\x02");
-	wr.WriteWord(2, std::max(uint16_t(0x20), header_size) - 0x20);
-	wr.WriteWord(4, text_size);
-	wr.WriteWord(4, data_size);
-	wr.WriteWord(4, bss_size);
-	wr.WriteWord(4, symbol_table_size);
-	wr.WriteWord(4, relocation_size);
-	wr.WriteWord(4, entry_address);
-	wr.WriteWord(1, GetCPUByte());
-	wr.WriteWord(1, GetRelSymByte());
-	wr.WriteWord(2, runtime_environment);
+	wr->endiantype = endiantype;
+	wr->Seek(file_offset);
+	wr->WriteData(2, "\x06\x02");
+	wr->WriteWord(2, std::max(uint16_t(0x20), header_size) - 0x20);
+	wr->WriteWord(4, text_size);
+	wr->WriteWord(4, data_size);
+	wr->WriteWord(4, bss_size);
+	wr->WriteWord(4, symbol_table_size);
+	wr->WriteWord(4, relocation_size);
+	wr->WriteWord(4, entry_address);
+	wr->WriteWord(1, GetCPUByte());
+	wr->WriteWord(1, GetRelSymByte());
+	wr->WriteWord(2, runtime_environment);
 
 	if(header_size >= 0x24)
 	{
-		wr.WriteWord(4, text_relocation_size);
+		wr->WriteWord(4, text_relocation_size);
 	}
 
 	if(header_size >= 0x28)
 	{
-		wr.WriteWord(4, data_relocation_size);
+		wr->WriteWord(4, data_relocation_size);
 	}
 
 	if(header_size >= 0x2C)
 	{
-		wr.WriteWord(4, text_base_address);
+		wr->WriteWord(4, text_base_address);
 	}
 
 	if(header_size >= 0x30)
 	{
-		wr.WriteWord(4, data_base_address);
+		wr->WriteWord(4, data_base_address);
 	}
 
 	if(header_size >= 0x34)
 	{
-		wr.WriteWord(4, stack_size);
+		wr->WriteWord(4, stack_size);
 	}
 
 	if(header_size >= 0x38)
 	{
-		wr.WriteWord(4, segment_table_offset);
+		wr->WriteWord(4, segment_table_offset);
 	}
 
 	if(header_size >= 0x3C)
 	{
-		wr.WriteWord(4, segment_table_size);
+		wr->WriteWord(4, segment_table_size);
 	}
 
 	if(header_size >= 0x40)
 	{
-		wr.WriteWord(4, machine_dependent_table_offset);
+		wr->WriteWord(4, machine_dependent_table_offset);
 	}
 
 	if(header_size >= 0x44)
 	{
-		wr.WriteWord(4, machine_dependent_table_size);
+		wr->WriteWord(4, machine_dependent_table_size);
 	}
 
 	if(header_size >= 0x45)
 	{
-		wr.WriteWord(1, machine_dependent_table_format);
+		wr->WriteWord(1, machine_dependent_table_format);
 	}
 
 	if(header_size >= 0x46)
 	{
-		wr.WriteWord(1, page_size >> 9);
+		wr->WriteWord(1, page_size >> 9);
 	}
 
 	if(header_size >= 0x47)
 	{
-		wr.WriteWord(1, operating_system);
+		wr->WriteWord(1, operating_system);
 	}
 
 	if(header_size >= 0x48)
 	{
-		wr.WriteWord(1, system_version);
+		wr->WriteWord(1, system_version);
 	}
 
 	if(header_size >= 0x4A)
 	{
-		wr.WriteWord(2, entry_segment);
+		wr->WriteWord(2, entry_segment);
 	}
 
 	if(header_size >= 0x4C)
 	{
-		wr.WriteWord(2, header_reserved1);
+		wr->WriteWord(2, header_reserved1);
 	}
 
 	/* TODO */

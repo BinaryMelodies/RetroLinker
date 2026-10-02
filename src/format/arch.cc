@@ -159,18 +159,18 @@ void ArchiveFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t ArchiveFormat::WriteFile(Linker::Writer& wr) const
+offset_t ArchiveFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::UndefinedEndian; // should not matter
-	wr.Seek(file_offset);
-	wr.WriteData("!<arch>\n");
+	wr->endiantype = ::UndefinedEndian; // should not matter
+	wr->Seek(file_offset);
+	wr->WriteData("!<arch>\n");
 	for(auto& entry : files)
 	{
-		if((wr.Tell() & 1) != 0)
-			wr.Skip(1);
+		if((wr->Tell() & 1) != 0)
+			wr->Skip(1);
 		std::string filename = entry.name;
 		filename.resize(16, ' ');
-		wr.WriteData(filename);
+		wr->WriteData(filename);
 		// TODO
 	}
 	// TODO

@@ -94,48 +94,48 @@ void XPFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO: relocations, format unknown
 }
 
-offset_t XPFormat::WriteFile(Linker::Writer& wr) const
+offset_t XPFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	if(stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
-	wr.Seek(file_offset);
-	wr.WriteData(4, "XP\1\0");
-	wr.WriteWord(4, ldt_offset);
-	wr.WriteWord(4, ldt.size());
-	wr.WriteWord(4, image_offset);
-	wr.WriteWord(4, image->ImageSize());
-	wr.WriteWord(4, relocation_offset);
-	wr.WriteWord(4, relocation_count);
-	wr.WriteWord(4, minimum_extent);
-	wr.WriteWord(4, maximum_extent);
-	wr.WriteWord(4, 0);
-	wr.WriteWord(4, gs);
-	wr.WriteWord(4, fs);
-	wr.WriteWord(4, ds);
-	wr.WriteWord(4, ss);
-	wr.WriteWord(4, cs);
-	wr.WriteWord(4, es);
-	wr.WriteWord(4, edi);
-	wr.WriteWord(4, esi);
-	wr.WriteWord(4, ebp);
-	wr.WriteWord(4, esp);
-	wr.WriteWord(4, ebx);
-	wr.WriteWord(4, edx);
-	wr.WriteWord(4, ecx);
-	wr.WriteWord(4, eax);
-	wr.WriteWord(4, eflags);
-	wr.WriteWord(4, eip);
+	wr->Seek(file_offset);
+	wr->WriteData(4, "XP\1\0");
+	wr->WriteWord(4, ldt_offset);
+	wr->WriteWord(4, ldt.size());
+	wr->WriteWord(4, image_offset);
+	wr->WriteWord(4, image->ImageSize());
+	wr->WriteWord(4, relocation_offset);
+	wr->WriteWord(4, relocation_count);
+	wr->WriteWord(4, minimum_extent);
+	wr->WriteWord(4, maximum_extent);
+	wr->WriteWord(4, 0);
+	wr->WriteWord(4, gs);
+	wr->WriteWord(4, fs);
+	wr->WriteWord(4, ds);
+	wr->WriteWord(4, ss);
+	wr->WriteWord(4, cs);
+	wr->WriteWord(4, es);
+	wr->WriteWord(4, edi);
+	wr->WriteWord(4, esi);
+	wr->WriteWord(4, ebp);
+	wr->WriteWord(4, esp);
+	wr->WriteWord(4, ebx);
+	wr->WriteWord(4, edx);
+	wr->WriteWord(4, ecx);
+	wr->WriteWord(4, eax);
+	wr->WriteWord(4, eflags);
+	wr->WriteWord(4, eip);
 
-	wr.Seek(file_offset + ldt_offset);
+	wr->Seek(file_offset + ldt_offset);
 	for(auto segment : ldt)
 	{
 		segment.WriteFile(wr);
 	}
 
-	wr.Seek(image_offset);
+	wr->Seek(image_offset);
 	image->WriteFile(wr);
 
 	/* TODO */
@@ -210,15 +210,15 @@ XPFormat::Segment XPFormat::Segment::ReadFile(const std::shared_ptr<Linker::Read
 	return segment;
 }
 
-void XPFormat::Segment::WriteFile(Linker::Writer& wr) const
+void XPFormat::Segment::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, limit & 0xFFFF);
-	wr.WriteWord(3, base & 0xFFFFFF);
-	wr.WriteWord(1, access);
-	wr.WriteWord(1,
+	wr->WriteWord(2, limit & 0xFFFF);
+	wr->WriteWord(3, base & 0xFFFFFF);
+	wr->WriteWord(1, access);
+	wr->WriteWord(1,
 		((limit >> 16) & 0x0F)
 		| (flags & 0xF0));
-	wr.WriteWord(1, base >> 24);
+	wr->WriteWord(1, base >> 24);
 }
 
 void XPFormat::Segment::Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned index) const

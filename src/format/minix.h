@@ -118,7 +118,7 @@ namespace MINIX
 			uint16_t type; // not used by MINIX/ELKS
 
 			static Symbol Read(const std::shared_ptr<Linker::Reader>& rd);
-			void Write(Linker::Writer& wr) const;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const;
 		};
 		std::vector<Symbol> symbols;
@@ -151,7 +151,7 @@ namespace MINIX
 
 			static Relocation Read(const std::shared_ptr<Linker::Reader>& rd);
 			void FetchSymbolName(std::vector<Symbol>& symbols);
-			void Write(Linker::Writer& wr) const;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const;
 			size_t GetSize() const;
 		};
@@ -184,7 +184,7 @@ namespace MINIX
 
 		offset_t ImageSize() const override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;

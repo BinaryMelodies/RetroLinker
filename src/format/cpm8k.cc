@@ -27,12 +27,12 @@ CPM8KFormat::Relocation CPM8KFormat::Relocation::ReadFile(const std::shared_ptr<
 	return relocation;
 }
 
-void CPM8KFormat::Relocation::WriteFile(Linker::Writer& wr) const
+void CPM8KFormat::Relocation::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(1, segment);
-	wr.WriteWord(1, type);
-	wr.WriteWord(2, offset);
-	wr.WriteWord(2, target);
+	wr->WriteWord(1, segment);
+	wr->WriteWord(1, type);
+	wr->WriteWord(2, offset);
+	wr->WriteWord(2, target);
 }
 
 CPM8KFormat::Symbol CPM8KFormat::Symbol::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
@@ -45,12 +45,12 @@ CPM8KFormat::Symbol CPM8KFormat::Symbol::ReadFile(const std::shared_ptr<Linker::
 	return symbol;
 }
 
-void CPM8KFormat::Symbol::WriteFile(Linker::Writer& wr) const
+void CPM8KFormat::Symbol::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(1, segment_number);
-	wr.WriteWord(1, type);
-	wr.WriteWord(2, value);
-	wr.WriteData(8, name);
+	wr->WriteWord(1, segment_number);
+	wr->WriteWord(1, type);
+	wr->WriteWord(2, value);
+	wr->WriteData(8, name);
 }
 
 CPM8KFormat::magic_type CPM8KFormat::GetSignature() const
@@ -157,20 +157,20 @@ offset_t CPM8KFormat::ImageSize() const
 	return size;
 }
 
-offset_t CPM8KFormat::WriteFile(Linker::Writer& wr) const
+offset_t CPM8KFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteData(2, signature);
-	wr.WriteWord(2, segment_count);
-	wr.WriteWord(4, total_size);
-	wr.WriteWord(4, relocation_size);
-	wr.WriteWord(4, symbol_table_size);
+	wr->endiantype = ::BigEndian;
+	wr->WriteData(2, signature);
+	wr->WriteWord(2, segment_count);
+	wr->WriteWord(4, total_size);
+	wr->WriteWord(4, relocation_size);
+	wr->WriteWord(4, symbol_table_size);
 
 	for(auto& segment : segments)
 	{
-		wr.WriteWord(1, segment.number);
-		wr.WriteWord(1, segment.type);
-		wr.WriteWord(2, segment.length);
+		wr->WriteWord(1, segment.number);
+		wr->WriteWord(1, segment.type);
+		wr->WriteWord(2, segment.length);
 	}
 
 	for(auto& segment : segments)
@@ -181,7 +181,7 @@ offset_t CPM8KFormat::WriteFile(Linker::Writer& wr) const
 		}
 	}
 
-	wr.Seek(0x10 + 4 * segments.size() + total_size);
+	wr->Seek(0x10 + 4 * segments.size() + total_size);
 
 	for(auto& relocation : relocations)
 	{

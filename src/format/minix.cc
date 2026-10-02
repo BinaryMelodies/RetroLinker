@@ -26,11 +26,11 @@ void MINIXFormat::Relocation::FetchSymbolName(std::vector<Symbol>& symbols)
 	}
 }
 
-void MINIXFormat::Relocation::Write(Linker::Writer& wr) const
+void MINIXFormat::Relocation::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, address);
-	wr.WriteWord(2, symbol);
-	wr.WriteWord(2, type);
+	wr->WriteWord(4, address);
+	wr->WriteWord(2, symbol);
+	wr->WriteWord(2, type);
 }
 
 void MINIXFormat::Relocation::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const
@@ -114,13 +114,13 @@ MINIXFormat::Symbol MINIXFormat::Symbol::Read(const std::shared_ptr<Linker::Read
 	return sym;
 }
 
-void MINIXFormat::Symbol::Write(Linker::Writer& wr) const
+void MINIXFormat::Symbol::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteData(8, name, '\0');
-	wr.WriteWord(4, value);
-	wr.WriteWord(1, sclass);
-	wr.WriteWord(1, numaux);
-	wr.WriteWord(2, type);
+	wr->WriteData(8, name, '\0');
+	wr->WriteWord(4, value);
+	wr->WriteWord(1, sclass);
+	wr->WriteWord(1, numaux);
+	wr->WriteWord(2, type);
 }
 
 void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const
@@ -815,48 +815,48 @@ total_memory
 	heap_top_value
 */
 
-offset_t MINIXFormat::WriteFile(Linker::Writer& wr) const
+offset_t MINIXFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = endian_type;
-	wr.WriteWord(4, 0x00000301 | (uint32_t(format) << 16) | (uint32_t(cpu) << 24));
-	wr.WriteWord(4, header_size | (uint32_t(format_version) << 16));
+	wr->endiantype = endian_type;
+	wr->WriteWord(4, 0x00000301 | (uint32_t(format) << 16) | (uint32_t(cpu) << 24));
+	wr->WriteWord(4, header_size | (uint32_t(format_version) << 16));
 	switch(format_version)
 	{
 	case 0:
-		wr.WriteWord(4, code->ImageSize());
-		wr.WriteWord(4, data->ImageSize());
-		wr.WriteWord(4, bss_size);
-		wr.WriteWord(4, entry_address);
-		wr.WriteWord(4, total_memory); /* total memory */
-		wr.WriteWord(4, symbols.size() * 16);
+		wr->WriteWord(4, code->ImageSize());
+		wr->WriteWord(4, data->ImageSize());
+		wr->WriteWord(4, bss_size);
+		wr->WriteWord(4, entry_address);
+		wr->WriteWord(4, total_memory); /* total memory */
+		wr->WriteWord(4, symbols.size() * 16);
 		break;
 	case 1:
-		wr.WriteWord(2, code->ImageSize());
-		wr.Skip(2);
-		wr.WriteWord(2, data->ImageSize());
-		wr.Skip(2);
-		wr.WriteWord(4, bss_size);
-		wr.Skip(2);
-		wr.WriteWord(4, entry_address);
-		wr.WriteWord(2, heap_size);
-		wr.WriteWord(2, stack_size);
-		wr.WriteWord(4, symbols.size() * 16);
+		wr->WriteWord(2, code->ImageSize());
+		wr->Skip(2);
+		wr->WriteWord(2, data->ImageSize());
+		wr->Skip(2);
+		wr->WriteWord(4, bss_size);
+		wr->Skip(2);
+		wr->WriteWord(4, entry_address);
+		wr->WriteWord(2, heap_size);
+		wr->WriteWord(2, stack_size);
+		wr->WriteWord(4, symbols.size() * 16);
 		break;
 	}
 	if(header_size >= 0x30)
 	{
-		wr.WriteWord(4, code_relocations.size() * 8);
-		wr.WriteWord(4, data_relocations.size() * 8);
-		wr.WriteWord(4, code_relocation_base);
-		wr.WriteWord(4, data_relocation_base);
+		wr->WriteWord(4, code_relocations.size() * 8);
+		wr->WriteWord(4, data_relocations.size() * 8);
+		wr->WriteWord(4, code_relocation_base);
+		wr->WriteWord(4, data_relocation_base);
 		if(header_size >= 0x40)
 		{
-			wr.WriteWord(2, far_code->ImageSize());
-			wr.Skip(2);
-			wr.WriteWord(4, far_code_relocations.size() * 8);
+			wr->WriteWord(2, far_code->ImageSize());
+			wr->Skip(2);
+			wr->WriteWord(4, far_code_relocations.size() * 8);
 		}
 	}
-	wr.Seek(header_size);
+	wr->Seek(header_size);
 	if(code != nullptr)
 	{
 		code->WriteFile(wr);

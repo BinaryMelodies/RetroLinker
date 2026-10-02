@@ -53,11 +53,11 @@ CPM68KFormat::Symbol CPM68KFormat::Symbol::ReadFile(const std::shared_ptr<Linker
 	return symbol;
 }
 
-void CPM68KFormat::Symbol::WriteFile(Linker::Writer& wr) const
+void CPM68KFormat::Symbol::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteData(8, name);
-	wr.WriteWord(2, type);
-	wr.WriteWord(4, value);
+	wr->WriteData(8, name);
+	wr->WriteWord(2, type);
+	wr->WriteWord(4, value);
 }
 
 void CPM68KFormat::SetSignature(magic_type magic)
@@ -356,21 +356,21 @@ offset_t CPM68KFormat::ImageSize() const
 	return file_size;
 }
 
-offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
+offset_t CPM68KFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteData(2, signature);
-	wr.WriteWord(4, code_size);
-	wr.WriteWord(4, data_size);
-	wr.WriteWord(4, bss_size);
-	wr.WriteWord(4, symbol_table_size);
-	wr.WriteWord(4, stack_size);
-	wr.WriteWord(4, (system == SYSTEM_GEMDOS || system == SYSTEM_GEMDOS_EARLY) ? program_flags : code_address);
-	wr.WriteWord(2, relocations_suppressed);
+	wr->endiantype = ::BigEndian;
+	wr->WriteData(2, signature);
+	wr->WriteWord(4, code_size);
+	wr->WriteWord(4, data_size);
+	wr->WriteWord(4, bss_size);
+	wr->WriteWord(4, symbol_table_size);
+	wr->WriteWord(4, stack_size);
+	wr->WriteWord(4, (system == SYSTEM_GEMDOS || system == SYSTEM_GEMDOS_EARLY) ? program_flags : code_address);
+	wr->WriteWord(2, relocations_suppressed);
 	if(GetSignature() == MAGIC_NONCONTIGUOUS)
 	{
-		wr.WriteWord(4, data_address);
-		wr.WriteWord(4, bss_address);
+		wr->WriteWord(4, data_address);
+		wr->WriteWord(4, bss_address);
 	}
 	code->WriteFile(wr);
 	data->WriteFile(wr);
@@ -395,16 +395,16 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 				auto it = relocations.find(code_address + i);
 				if(it == relocations.end())
 				{
-					wr.WriteWord(2, 7);
+					wr->WriteWord(2, 7);
 				}
 				else
 				{
 					if(it->second.size == 4)
 					{
-						wr.WriteWord(2, 5);
+						wr->WriteWord(2, 5);
 						i += 2;
 					}
-					wr.WriteWord(2, it->second.segment);
+					wr->WriteWord(2, it->second.segment);
 				}
 			}
 			for(size_t i = 0; i < data->ImageSize(); i += 2)
@@ -412,16 +412,16 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 				auto it = relocations.find(data_address + i);
 				if(it == relocations.end())
 				{
-					wr.WriteWord(2, 7);
+					wr->WriteWord(2, 7);
 				}
 				else
 				{
 					if(it->second.size == 4)
 					{
-						wr.WriteWord(2, 5);
+						wr->WriteWord(2, 5);
 						i += 2;
 					}
-					wr.WriteWord(2, it->second.segment);
+					wr->WriteWord(2, it->second.segment);
 				}
 			}
 		}
@@ -435,7 +435,7 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 			{
 				if(last_relocation == offset_t(-1))
 				{
-					wr.WriteWord(4, it.first);
+					wr->WriteWord(4, it.first);
 					last_relocation = it.first;
 				}
 				else
@@ -443,17 +443,17 @@ offset_t CPM68KFormat::WriteFile(Linker::Writer& wr) const
 					offset_t difference = it.first - last_relocation;
 					while(difference > 254)
 					{
-						wr.WriteWord(1, 1);
+						wr->WriteWord(1, 1);
 						difference -= 254;
 					}
-					wr.WriteWord(1, difference);
+					wr->WriteWord(1, difference);
 					last_relocation = it.first;
 				}
 			}
 			if(last_relocation == offset_t(-1))
-				wr.WriteWord(4, 0);
+				wr->WriteWord(4, 0);
 			else
-				wr.WriteWord(1, 0);
+				wr->WriteWord(1, 0);
 		}
 		break;
 	case SYSTEM_UNKNOWN:

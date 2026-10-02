@@ -13,10 +13,8 @@ std::shared_ptr<const Image> Contents::AsImage() const
 	// TODO: find a more efficient way
 	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>();
 	std::ostringstream oss;
-	// TODO: bad programming pattern
 	// TODO: use BufferWriter instead
-	auto _wr = std::make_shared<StreamWriter>(::UndefinedEndian, &oss);
-	Writer& wr = *_wr;
+	auto wr = std::make_shared<StreamWriter>(::UndefinedEndian, &oss);
 	WriteFile(wr);
 	std::string data = oss.str();
 	buffer->data.assign(data.begin(), data.end());
@@ -28,7 +26,7 @@ std::shared_ptr<Image> Contents::AsImage()
 	return std::const_pointer_cast<Image>(const_cast<const Contents *>(this)->AsImage());
 }
 
-offset_t Image::WriteFile(Writer& wr) const
+offset_t Image::WriteFile(const std::shared_ptr<Writer>& wr) const
 {
 	return WriteFile(wr, ImageSize());
 }
@@ -67,11 +65,11 @@ int Image::GetByte(offset_t offset) const
 	return ReadUnsigned(1, offset, ::EndianType(0));
 }
 
-offset_t Image::WriteFile(Writer& wr, offset_t count, offset_t offset) const
+offset_t Image::WriteFile(const std::shared_ptr<Writer>& wr, offset_t count, offset_t offset) const
 {
 	std::vector<uint8_t> buffer(count);
 	offset_t actual_count = ReadData(count, offset, buffer.data());
-	wr.WriteData(actual_count, buffer.data());
+	wr->WriteData(actual_count, buffer.data());
 	return actual_count;
 }
 

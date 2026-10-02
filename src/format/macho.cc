@@ -12,7 +12,7 @@ void MachOFormat::LoadCommand::ReadFile(const std::shared_ptr<Linker::Reader>& r
 	// by default, there is nothing to do here
 }
 
-void MachOFormat::LoadCommand::WriteFile(Linker::Writer& wr) const
+void MachOFormat::LoadCommand::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// by default, there is nothing to do here
 }
@@ -34,10 +34,10 @@ std::unique_ptr<MachOFormat::LoadCommand> MachOFormat::LoadCommand::Read(const s
 	return load_command;
 }
 
-void MachOFormat::LoadCommand::Write(Linker::Writer& wr) const
+void MachOFormat::LoadCommand::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, command);
-	wr.WriteWord(4, GetSize());
+	wr->WriteWord(4, command);
+	wr->WriteWord(4, GetSize());
 }
 
 void MachOFormat::GenericDataCommand::Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size)
@@ -45,7 +45,7 @@ void MachOFormat::GenericDataCommand::Read(const std::shared_ptr<Linker::Reader>
 	command_image = Linker::Buffer::ReadFromFile(rd, size);
 }
 
-void MachOFormat::GenericDataCommand::Write(Linker::Writer& wr) const
+void MachOFormat::GenericDataCommand::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	LoadCommand::Write(wr);
 	command_image->WriteFile(wr);
@@ -73,19 +73,19 @@ MachOFormat::Section MachOFormat::Section::Read(const std::shared_ptr<Linker::Re
 	return section;
 }
 
-void MachOFormat::Section::Write(Linker::Writer& wr, int wordsize) const
+void MachOFormat::Section::Write(const std::shared_ptr<Linker::Writer>& wr, int wordsize) const
 {
-	wr.WriteData(16, name, '\0'); // TODO: what is the padding character?
-	wr.WriteData(16, segment_name, '\0'); // TODO: what is the padding character?
-	wr.WriteWord(wordsize, address);
-	wr.WriteWord(wordsize, memory_size);
-	wr.WriteWord(4, offset);
-	wr.WriteWord(4, align_shift);
-	wr.WriteWord(4, relocation_offset);
-	wr.WriteWord(4, relocation_count);
-	wr.WriteWord(4, flags);
-	wr.WriteWord(4, reserved1);
-	wr.WriteWord(4, reserved2);
+	wr->WriteData(16, name, '\0'); // TODO: what is the padding character?
+	wr->WriteData(16, segment_name, '\0'); // TODO: what is the padding character?
+	wr->WriteWord(wordsize, address);
+	wr->WriteWord(wordsize, memory_size);
+	wr->WriteWord(4, offset);
+	wr->WriteWord(4, align_shift);
+	wr->WriteWord(4, relocation_offset);
+	wr->WriteWord(4, relocation_count);
+	wr->WriteWord(4, flags);
+	wr->WriteWord(4, reserved1);
+	wr->WriteWord(4, reserved2);
 }
 
 void MachOFormat::SegmentCommand::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
@@ -93,7 +93,7 @@ void MachOFormat::SegmentCommand::ReadFile(const std::shared_ptr<Linker::Reader>
 	// TODO
 }
 
-void MachOFormat::SegmentCommand::WriteFile(Linker::Writer& wr) const
+void MachOFormat::SegmentCommand::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO
 }
@@ -116,18 +116,18 @@ void MachOFormat::SegmentCommand::Read(const std::shared_ptr<Linker::Reader>& rd
 	}
 }
 
-void MachOFormat::SegmentCommand::Write(Linker::Writer& wr) const
+void MachOFormat::SegmentCommand::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	size_t wordsize = command == SEGMENT_64 ? 8 : 4;
-	wr.WriteData(16, name, '\0'); // TODO: what is the padding character?
-	wr.WriteWord(wordsize, address);
-	wr.WriteWord(wordsize, memory_size);
-	wr.WriteWord(wordsize, offset);
-	wr.WriteWord(wordsize, file_size);
-	wr.WriteWord(4, max_protection);
-	wr.WriteWord(4, init_protection);
-	wr.WriteWord(4, sections.size());
-	wr.WriteWord(4, flags);
+	wr->WriteData(16, name, '\0'); // TODO: what is the padding character?
+	wr->WriteWord(wordsize, address);
+	wr->WriteWord(wordsize, memory_size);
+	wr->WriteWord(wordsize, offset);
+	wr->WriteWord(wordsize, file_size);
+	wr->WriteWord(4, max_protection);
+	wr->WriteWord(4, init_protection);
+	wr->WriteWord(4, sections.size());
+	wr->WriteWord(4, flags);
 	for(auto& section : sections)
 	{
 		section.Write(wr, wordsize);
@@ -197,7 +197,7 @@ void MachOFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t MachOFormat::WriteFile(Linker::Writer& wr) const
+offset_t MachOFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(wordsize != 4 && wordsize != 8)
 	{
@@ -215,10 +215,10 @@ offset_t MachOFormat::WriteFile(Linker::Writer& wr) const
 		switch(wordsize)
 		{
 		case 4:
-			wr.WriteData("\xFE\xED\xFA\xCE");
+			wr->WriteData("\xFE\xED\xFA\xCE");
 			break;
 		case 8:
-			wr.WriteData("\xFE\xED\xFA\xCF");
+			wr->WriteData("\xFE\xED\xFA\xCF");
 			break;
 		}
 		break;
@@ -226,10 +226,10 @@ offset_t MachOFormat::WriteFile(Linker::Writer& wr) const
 		switch(wordsize)
 		{
 		case 4:
-			wr.WriteData("\xCE\xFA\xED\xFE");
+			wr->WriteData("\xCE\xFA\xED\xFE");
 			break;
 		case 8:
-			wr.WriteData("\xFE\xED\xFA\xCF");
+			wr->WriteData("\xFE\xED\xFA\xCF");
 			break;
 		}
 		break;
@@ -237,16 +237,16 @@ offset_t MachOFormat::WriteFile(Linker::Writer& wr) const
 		break;
 	}
 
-	wr.endiantype = endiantype;
-	wr.WriteWord(4, cpu);
-	wr.WriteWord(4, cpu_subtype);
-	wr.WriteWord(4, file_type);
-	wr.WriteWord(4, load_commands.size());
-	wr.WriteWord(4, commands_size);
-	wr.WriteWord(4, flags);
+	wr->endiantype = endiantype;
+	wr->WriteWord(4, cpu);
+	wr->WriteWord(4, cpu_subtype);
+	wr->WriteWord(4, file_type);
+	wr->WriteWord(4, load_commands.size());
+	wr->WriteWord(4, commands_size);
+	wr->WriteWord(4, flags);
 	if(wordsize == 8)
 	{
-		wr.Skip(4);
+		wr->Skip(4);
 	}
 
 	for(auto& command : load_commands)
@@ -284,13 +284,13 @@ FatMachOFormat::Entry FatMachOFormat::Entry::Read(const std::shared_ptr<Linker::
 	return entry;
 }
 
-void FatMachOFormat::Entry::Write(Linker::Writer& wr) const
+void FatMachOFormat::Entry::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, cpu);
-	wr.WriteWord(4, cpu_subtype);
-	wr.WriteWord(4, offset);
-	wr.WriteWord(4, size);
-	wr.WriteWord(4, align);
+	wr->WriteWord(4, cpu);
+	wr->WriteWord(4, cpu_subtype);
+	wr->WriteWord(4, offset);
+	wr->WriteWord(4, size);
+	wr->WriteWord(4, align);
 }
 
 offset_t FatMachOFormat::ImageSize() const
@@ -324,18 +324,18 @@ void FatMachOFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t FatMachOFormat::WriteFile(Linker::Writer& wr) const
+offset_t FatMachOFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.WriteData("\xCA\xFE\xBA\xBE");
-	wr.WriteWord(4, entries.size());
+	wr->endiantype = ::LittleEndian;
+	wr->WriteData("\xCA\xFE\xBA\xBE");
+	wr->WriteWord(4, entries.size());
 	for(auto& entry : entries)
 	{
 		entry.Write(wr);
 	}
 	for(auto& entry : entries)
 	{
-		wr.Seek(entry.offset);
+		wr->Seek(entry.offset);
 		entry.image->WriteFile(wr);
 	}
 	return ImageSize();

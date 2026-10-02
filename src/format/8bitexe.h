@@ -35,7 +35,7 @@ namespace Binary
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -61,7 +61,7 @@ namespace Binary
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -115,7 +115,7 @@ namespace Binary
 		void OnContainerCreated() override;
 		void OnCalculateValues() override;
 		void OnReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
-		offset_t OnWriteFile(Linker::Writer& wr) const override;
+		offset_t OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void OnDump(Dumper::Dumper& dump) const override;
 
 	public:
@@ -281,7 +281,7 @@ namespace Binary
 			/**
 			 * @brief Writes the segment into a file
 			 */
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			/**
 			 * @brief Read relocations
@@ -291,7 +291,7 @@ namespace Binary
 			/**
 			 * @brief Writes relocations
 			 */
-			void WriteRelocations(Linker::Writer& wr) const;
+			void WriteRelocations(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 
 		/**
@@ -320,7 +320,7 @@ namespace Binary
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 	};
 
@@ -428,7 +428,7 @@ namespace Binary
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			void CalculateValues();
 			void Dump(Dumper::Dumper& dump) const override;
 			void Dump(Dumper::Dumper& dump, std::optional<uint16_t> line_index, int display_flags) const;
@@ -444,7 +444,7 @@ namespace Binary
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 			using Linker::Format::WriteFile;
 			offset_t ImageSize() const override;
-			offset_t WriteFile(Linker::Writer& wr) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			void CalculateValues();
 			void Dump(Dumper::Dumper& dump) const override;
 			void Dump(Dumper::Dumper& dump, int display_flags) const;
@@ -512,7 +512,7 @@ namespace Binary
 		void CalculateValues() override;
 		offset_t ImageSize() const override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
@@ -583,7 +583,7 @@ namespace Binary
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		void CalculateValues() override;
@@ -604,7 +604,7 @@ namespace Binary
 			uint16_t size; /* it is supposed to be at most 255, but we can store larger segments by cutting them into pieces */
 			std::shared_ptr<Linker::Contents> image;
 
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 
 		std::vector<std::unique_ptr<Segment>> segments;
@@ -612,7 +612,7 @@ namespace Binary
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
@@ -705,13 +705,13 @@ namespace Binary
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		/** @brief Read without header, only needed for RSX files stored inside a CP/M 3 .COM file */
 		void ReadWithoutHeader(const std::shared_ptr<Linker::Reader>& rd, uint16_t image_size);
 
 		/** @brief Write without header, only needed for RSX files stored inside a CP/M 3 .COM file */
-		void WriteWithoutHeader(Linker::Writer& wr) const;
+		void WriteWithoutHeader(const std::shared_ptr<Linker::Writer>& wr) const;
 
 		void Dump(Dumper::Dumper& dump) const override;
 	};
@@ -729,7 +729,7 @@ namespace Binary
 		void ProcessModule(Linker::Module& module) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
@@ -749,7 +749,7 @@ namespace Binary
 		/* TODO: apparently both .code and .data are loaded at 0x0100 */
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;

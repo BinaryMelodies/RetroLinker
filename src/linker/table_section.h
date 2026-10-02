@@ -136,7 +136,7 @@ namespace Linker
 			return table_bytes + Section::WriteFile(out, bytes - table_bytes, offset + table_bytes);
 		}
 
-		offset_t WriteFile(Writer& wr, offset_t bytes, offset_t offset = 0) const override
+		offset_t WriteFile(const std::shared_ptr<Writer>& wr, offset_t bytes, offset_t offset = 0) const override
 		{
 			offset_t table_bytes = WriteTable(wr, bytes, offset);
 			return table_bytes + Buffer::WriteFile(wr, bytes - table_bytes, offset + table_bytes);
@@ -175,19 +175,17 @@ namespace Linker
 
 		static void WriteFile(std::ostream& out, const Word& word, ::EndianType endian_type, offset_t bytes = EntrySize, offset_t offset = 0)
 		{
-			// TODO: bad programming pattern
-			auto _wr = std::make_shared<StreamWriter>(endian_type, &out);
-			Writer& wr = *_wr;
+			auto wr = std::make_shared<StreamWriter>(endian_type, &out);
 			WriteFile(wr, word, endian_type, bytes, offset);
 		}
 
-		static void WriteFile(Writer& wr, const Word& word, ::EndianType endian_type = ::UndefinedEndian, offset_t bytes = EntrySize, offset_t offset = 0)
+		static void WriteFile(const std::shared_ptr<Writer>& wr, const Word& word, ::EndianType endian_type = ::UndefinedEndian, offset_t bytes = EntrySize, offset_t offset = 0)
 		{
 			(void) endian_type; // ignored
 			// TODO: not dealing with partial entries for now
 			assert(bytes == EntrySize);
 			assert(offset == 0);
-			wr.WriteWord(EntrySize, word.value);
+			wr->WriteWord(EntrySize, word.value);
 		}
 
 		/** @brief The value to be stored */

@@ -250,7 +250,7 @@ void AppleSingleDouble::GenericEntry::ReadFile(const std::shared_ptr<Linker::Rea
 	}
 }
 
-offset_t AppleSingleDouble::GenericEntry::WriteFile(Linker::Writer& out) const
+offset_t AppleSingleDouble::GenericEntry::WriteFile(const std::shared_ptr<Linker::Writer>& out) const
 {
 	if(image != nullptr)
 	{
@@ -916,18 +916,18 @@ void AppleSingleDouble::CalculateValues()
 	image_size = current_offset;
 }
 
-offset_t AppleSingleDouble::WriteFile(Linker::Writer& wr) const
+offset_t AppleSingleDouble::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteWord(4, type);
-	wr.WriteWord(4, version << 16);
-	wr.WriteData(16, home_file_system_string);
-	wr.WriteWord(2, entries.size());
+	wr->endiantype = ::BigEndian;
+	wr->WriteWord(4, type);
+	wr->WriteWord(4, version << 16);
+	wr->WriteData(16, home_file_system_string);
+	wr->WriteWord(2, entries.size());
 	for(auto entry : entries)
 	{
-		wr.WriteWord(4, entry->id);
-		wr.WriteWord(4, entry->file_offset);
-		wr.WriteWord(4, entry->image_size);
+		wr->WriteWord(4, entry->id);
+		wr->WriteWord(4, entry->file_offset);
+		wr->WriteWord(4, entry->image_size);
 	}
 	for(auto entry : entries)
 	{
@@ -1019,10 +1019,10 @@ void RealName::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t RealName::WriteFile(Linker::Writer& wr) const
+offset_t RealName::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteData(name.size(), name.c_str());
+	wr->endiantype = ::BigEndian;
+	wr->WriteData(name.size(), name.c_str());
 
 	return offset_t(-1);
 }
@@ -1044,7 +1044,7 @@ void IconBW::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t IconBW::WriteFile(Linker::Writer& out) const
+offset_t IconBW::WriteFile(const std::shared_ptr<Linker::Writer>& out) const
 {
 	// TODO
 	return ImageSize();
@@ -1067,7 +1067,7 @@ void IconColor::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t IconColor::WriteFile(Linker::Writer& out) const
+offset_t IconColor::WriteFile(const std::shared_ptr<Linker::Writer>& out) const
 {
 	// TODO
 	return ImageSize();
@@ -1094,13 +1094,13 @@ void FileInfo::Macintosh::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	Attributes = rd->ReadUnsigned(4);
 }
 
-offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr) const
+offset_t FileInfo::Macintosh::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteTimestamp(CreationDate);
-	wr.WriteTimestamp(ModificationDate);
-	wr.WriteTimestamp(LastBackupDate);
-	wr.WriteWord(4, Attributes);
+	wr->endiantype = ::BigEndian;
+	wr->WriteTimestamp(CreationDate);
+	wr->WriteTimestamp(ModificationDate);
+	wr->WriteTimestamp(LastBackupDate);
+	wr->WriteWord(4, Attributes);
 
 	return offset_t(-1);
 }
@@ -1131,14 +1131,14 @@ void FileInfo::ProDOS::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	AuxiliaryType = rd->ReadUnsigned(4);
 }
 
-offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr) const
+offset_t FileInfo::ProDOS::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteTimestamp(CreationDate);
-	wr.WriteTimestamp(ModificationDate);
-	wr.WriteWord(2, Access);
-	wr.WriteWord(2, FileType);
-	wr.WriteWord(4, AuxiliaryType);
+	wr->endiantype = ::BigEndian;
+	wr->WriteTimestamp(CreationDate);
+	wr->WriteTimestamp(ModificationDate);
+	wr->WriteWord(2, Access);
+	wr->WriteWord(2, FileType);
+	wr->WriteWord(4, AuxiliaryType);
 
 	return offset_t(-1);
 }
@@ -1166,11 +1166,11 @@ void FileInfo::MSDOS::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	Attributes = rd->ReadUnsigned(2);
 }
 
-offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr) const
+offset_t FileInfo::MSDOS::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteTimestamp(ModificationDate);
-	wr.WriteWord(2, Attributes);
+	wr->endiantype = ::BigEndian;
+	wr->WriteTimestamp(ModificationDate);
+	wr->WriteWord(2, Attributes);
 
 	return offset_t(-1);
 }
@@ -1195,12 +1195,12 @@ void FileInfo::AUX::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 }
 
-offset_t FileInfo::AUX::WriteFile(Linker::Writer& wr) const
+offset_t FileInfo::AUX::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteTimestamp(CreationDate);
-	wr.WriteTimestamp(AccessDate);
-	wr.WriteTimestamp(ModificationDate);
+	wr->endiantype = ::BigEndian;
+	wr->WriteTimestamp(CreationDate);
+	wr->WriteTimestamp(AccessDate);
+	wr->WriteTimestamp(ModificationDate);
 
 	return offset_t(-1);
 }
@@ -1225,13 +1225,13 @@ void FileDatesInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t FileDatesInfo::WriteFile(Linker::Writer& wr) const
+offset_t FileDatesInfo::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteTimestamp(CreationDate);
-	wr.WriteTimestamp(ModificationDate);
-	wr.WriteTimestamp(BackupDate);
-	wr.WriteTimestamp(AccessDate);
+	wr->endiantype = ::BigEndian;
+	wr->WriteTimestamp(CreationDate);
+	wr->WriteTimestamp(ModificationDate);
+	wr->WriteTimestamp(BackupDate);
+	wr->WriteTimestamp(AccessDate);
 
 	return offset_t(-1);
 }
@@ -1291,22 +1291,22 @@ void FinderInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	HomeDirectoryID = rd->ReadSigned(4);
 }
 
-offset_t FinderInfo::WriteFile(Linker::Writer& wr) const
+offset_t FinderInfo::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteData(4, Type);
-	wr.WriteData(4, Creator);
-	wr.WriteWord(2, Flags);
-	wr.WriteWord(2, Location.x);
-	wr.WriteWord(2, Location.y);
-	wr.WriteWord(2, Folder);
+	wr->endiantype = ::BigEndian;
+	wr->WriteData(4, Type);
+	wr->WriteData(4, Creator);
+	wr->WriteWord(2, Flags);
+	wr->WriteWord(2, Location.x);
+	wr->WriteWord(2, Location.y);
+	wr->WriteWord(2, Folder);
 	// extended file information
-	wr.WriteWord(2, IconID);
-	wr.Skip(6);
-	wr.WriteWord(1, Script);
-	wr.Skip(1);
-	wr.WriteWord(2, CommentID);
-	wr.WriteWord(4, HomeDirectoryID);
+	wr->WriteWord(2, IconID);
+	wr->Skip(6);
+	wr->WriteWord(1, Script);
+	wr->Skip(1);
+	wr->WriteWord(2, CommentID);
+	wr->WriteWord(4, HomeDirectoryID);
 
 	return offset_t(-1);
 }
@@ -1356,10 +1356,10 @@ void MacintoshFileInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	Attributes = rd->ReadUnsigned(4);
 }
 
-offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr) const
+offset_t MacintoshFileInfo::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteWord(4, Attributes);
+	wr->endiantype = ::BigEndian;
+	wr->WriteWord(4, Attributes);
 
 	return offset_t(-1);
 }
@@ -1395,12 +1395,12 @@ void ProDOSFileInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	AuxiliaryType = rd->ReadUnsigned(4);
 }
 
-offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
+offset_t ProDOSFileInfo::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteWord(2, Access);
-	wr.WriteWord(2, FileType);
-	wr.WriteWord(4, AuxiliaryType);
+	wr->endiantype = ::BigEndian;
+	wr->WriteWord(2, Access);
+	wr->WriteWord(2, FileType);
+	wr->WriteWord(4, AuxiliaryType);
 
 	return offset_t(-1);
 }
@@ -1665,10 +1665,10 @@ void MSDOSFileInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	Attributes = rd->ReadUnsigned(2);
 }
 
-offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr) const
+offset_t MSDOSFileInfo::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteWord(2, Attributes);
+	wr->endiantype = ::BigEndian;
+	wr->WriteWord(2, Attributes);
 
 	return offset_t(-1);
 }
@@ -1697,7 +1697,7 @@ void AFPShortName::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t AFPShortName::WriteFile(Linker::Writer& out) const
+offset_t AFPShortName::WriteFile(const std::shared_ptr<Linker::Writer>& out) const
 {
 	// TODO
 	return ImageSize();
@@ -1720,7 +1720,7 @@ void AFPFileInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t AFPFileInfo::WriteFile(Linker::Writer& out) const
+offset_t AFPFileInfo::WriteFile(const std::shared_ptr<Linker::Writer>& out) const
 {
 	// TODO
 	return ImageSize();
@@ -1743,7 +1743,7 @@ void AFPDirectoryID::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO
 }
 
-offset_t AFPDirectoryID::WriteFile(Linker::Writer& out) const
+offset_t AFPDirectoryID::WriteFile(const std::shared_ptr<Linker::Writer>& out) const
 {
 	// TODO
 	return ImageSize();
@@ -1784,34 +1784,34 @@ void MacBinary::CRC_Step(uint8_t byte) const
 	crc = (crc << 8) ^ crc_step[(crc >> 8) ^ byte];
 }
 
-void MacBinary::Skip(Linker::Writer& wr, size_t count) const
+void MacBinary::Skip(const std::shared_ptr<Linker::Writer>& wr, size_t count) const
 {
 	for(size_t i = 0; i < count; i++)
 	{
 		CRC_Step(0);
 	}
-	wr.Skip(count);
+	wr->Skip(count);
 }
 
-void MacBinary::WriteData(Linker::Writer& wr, size_t count, const void * data) const
+void MacBinary::WriteData(const std::shared_ptr<Linker::Writer>& wr, size_t count, const void * data) const
 {
 	for(size_t i = 0; i < count; i++)
 	{
 		CRC_Step(static_cast<const char *>(data)[i]);
 	}
-	wr.WriteData(count, data);
+	wr->WriteData(count, data);
 }
 
-void MacBinary::WriteData(Linker::Writer& wr, size_t count, std::string text) const
+void MacBinary::WriteData(const std::shared_ptr<Linker::Writer>& wr, size_t count, std::string text) const
 {
 	for(size_t i = 0; i < count; i++)
 	{
 		CRC_Step(i < text.size() ? text[i] : 0);
 	}
-	wr.WriteData(count, text);
+	wr->WriteData(count, text);
 }
 
-void MacBinary::WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) const
+void MacBinary::WriteWord(const std::shared_ptr<Linker::Writer>& wr, size_t bytes, uint64_t value) const
 {
 	std::vector<uint8_t> data(bytes);
 	::WriteWord(bytes, bytes, data.data(), value, EndianType::BigEndian);
@@ -1881,7 +1881,7 @@ void MacBinary::ReadHeader(const std::shared_ptr<Linker::Reader>& rd)
 	crc = rd->ReadUnsigned(2);
 }
 
-void MacBinary::WriteHeader(Linker::Writer& wr) const
+void MacBinary::WriteHeader(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	CRC_Initialize();
 	WriteWord(wr, 1, 0);
@@ -1971,7 +1971,7 @@ void MacBinary::WriteHeader(Linker::Writer& wr) const
 	WriteWord(wr, 2, secondary_header_size);
 	WriteWord(wr, 1, version);
 	WriteWord(wr, 1, minimum_version);
-	wr.WriteWord(2, crc);
+	wr->WriteWord(2, crc);
 }
 
 void MacBinary::CalculateValues()
@@ -2030,27 +2030,27 @@ void MacBinary::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t MacBinary::WriteFile(Linker::Writer& wr) const
+offset_t MacBinary::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	WriteHeader(wr);
-	wr.Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
+	wr->Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
 	/* secondary header */
 	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
 	{
 		entry->WriteFile(wr);
-		wr.AlignTo(0x80);
+		wr->AlignTo(0x80);
 	}
 	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
 	{
 		entry->WriteFile(wr);
-		wr.AlignTo(0x80);
+		wr->AlignTo(0x80);
 	}
 	if(version >= MACBIN1_GETINFO)
 	{
 		if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_Comment))
 		{
 			entry->WriteFile(wr);
-			wr.AlignTo(0x80);
+			wr->AlignTo(0x80);
 		}
 	}
 
@@ -2185,7 +2185,7 @@ void OutputDriver::OnReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	// TODO: error
 }
 
-offset_t OutputDriver::OnWriteFile(Linker::Writer& wr) const
+offset_t OutputDriver::OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: error
 	return offset_t(-1);
@@ -2255,9 +2255,6 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 	}
 
 	std::ofstream out;
-	// TODO: bad programming pattern
-	auto _wr = std::make_shared<Linker::StreamWriter>(::BigEndian);
-	Linker::Writer& wr = *_wr;
 	switch(target)
 	{
 	case TARGET_NONE:
@@ -2266,7 +2263,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
 		if(data_fork != nullptr)
 		{
-			_wr->out = &out;
+			auto wr = std::make_shared<Linker::StreamWriter>(::BigEndian, out);
 			data_fork->WriteFile(wr);
 		}
 		out.close();
@@ -2275,7 +2272,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
 		if(resource_fork != nullptr)
 		{
-			_wr->out = &out;
+			auto wr = std::make_shared<Linker::StreamWriter>(::BigEndian, out);
 			resource_fork->WriteFile(wr);
 		}
 		out.close();
@@ -2283,14 +2280,18 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 	case TARGET_APPLE_SINGLE:
 	case TARGET_APPLE_DOUBLE:
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
-		_wr->out = &out;
-		apple_single->WriteFile(wr);
+		{
+			auto wr = std::make_shared<Linker::StreamWriter>(::BigEndian, out);
+			apple_single->WriteFile(wr);
+		}
 		out.close();
 		break;
 	case TARGET_MAC_BINARY:
 		out.open(filename + naps_suffix, std::ios_base::out | std::ios_base::binary);
-		_wr->out = &out;
-		mac_binary->WriteFile(wr);
+		{
+			auto wr = std::make_shared<Linker::StreamWriter>(::BigEndian, out);
+			mac_binary->WriteFile(wr);
+		}
 		out.close();
 		break;
 	}
@@ -2311,8 +2312,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
 			if(resource_fork != nullptr)
 			{
-				// TODO: bad programming pattern
-				_wr->out = &out;
+				auto wr = std::make_shared<Linker::StreamWriter>(::BigEndian, out);
 				resource_fork->WriteFile(wr);
 			}
 			out.close();
@@ -2335,8 +2335,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 			out.open(path.string(), std::ios_base::out | std::ios_base::binary);
 			if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_FinderInfo))
 			{
-				// TODO: bad programming pattern
-				_wr->out = &out;
+				auto wr = std::make_shared<Linker::StreamWriter>(::BigEndian, out);
 				entry->WriteFile(wr);
 			}
 			out.close();
@@ -2348,8 +2347,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		Linker::Debug << "Debug: Generating AppleDouble" << std::endl;
 		std::ofstream out;
 		out.open(apple_single->GetUNIXDoubleFilename(filename) + naps_suffix, std::ios_base::out | std::ios_base::binary);
-		// TODO: bad programming pattern
-		_wr->out = &out;
+		auto wr = std::make_shared<Linker::StreamWriter>(::BigEndian, out);
 		if(target != TARGET_APPLE_SINGLE)
 		{
 			apple_single->WriteFile(wr);
@@ -2369,8 +2367,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		out.open(
 			(target == TARGET_NONE ? filename : filename + ".mbin") + naps_suffix,
 			std::ios_base::out | std::ios_base::binary);
-		// TODO: bad programming pattern
-		_wr->out = &out;
+		auto wr = std::make_shared<Linker::StreamWriter>(::BigEndian, out);
 		mac_binary->WriteFile(wr);
 		out.close();
 	}
@@ -2425,7 +2422,7 @@ void OutputDriver::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t OutputDriver::WriteFile(Linker::Writer& wr) const
+offset_t OutputDriver::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	switch(container)
 	{

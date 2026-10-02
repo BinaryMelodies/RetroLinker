@@ -35,20 +35,20 @@ void W3Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t W3Format::WriteFile(Linker::Writer& wr) const
+offset_t W3Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.Seek(file_offset);
-	wr.WriteData("W3");
-	wr.WriteWord(1, system_version.minor);
-	wr.WriteWord(1, system_version.major);
-	wr.WriteWord(2, entries.size());
-	wr.Skip(8);
+	wr->endiantype = ::LittleEndian;
+	wr->Seek(file_offset);
+	wr->WriteData("W3");
+	wr->WriteWord(1, system_version.minor);
+	wr->WriteWord(1, system_version.major);
+	wr->WriteWord(2, entries.size());
+	wr->Skip(8);
 	for(auto& entry : entries)
 	{
-		wr.WriteData(8, entry.filename, ' ');
-		wr.WriteWord(4, entry.file_offset);
-		wr.WriteWord(4, entry.header_size);
+		wr->WriteData(8, entry.filename, ' ');
+		wr->WriteWord(4, entry.file_offset);
+		wr->WriteWord(4, entry.header_size);
 	}
 	// TODO: write contents
 
@@ -332,20 +332,20 @@ void W4Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	w3format.ReadFile(image_rd);
 }
 
-offset_t W4Format::WriteFile(Linker::Writer& wr) const
+offset_t W4Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.Seek(file_offset);
-	wr.WriteData("W4");
-	wr.WriteWord(1, system_version.minor);
-	wr.WriteWord(1, system_version.major);
-	wr.WriteWord(2, chunk_size);
-	wr.WriteWord(2, chunks.size());
-	wr.WriteData("DS");
-	wr.Skip(6);
+	wr->endiantype = ::LittleEndian;
+	wr->Seek(file_offset);
+	wr->WriteData("W4");
+	wr->WriteWord(1, system_version.minor);
+	wr->WriteWord(1, system_version.major);
+	wr->WriteWord(2, chunk_size);
+	wr->WriteWord(2, chunks.size());
+	wr->WriteData("DS");
+	wr->Skip(6);
 	for(auto& chunk : chunks)
 	{
-		wr.WriteWord(4, chunk.file_offset);
+		wr->WriteWord(4, chunk.file_offset);
 	}
 	// TODO: write contents
 

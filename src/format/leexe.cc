@@ -18,7 +18,7 @@ offset_t LEFormat::PageSet::ImageSize() const
 	return size;
 }
 
-offset_t LEFormat::PageSet::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t LEFormat::PageSet::WriteFile(const std::shared_ptr<Linker::Writer>& wr, offset_t count, offset_t offset) const
 {
 	offset_t total_count = 0;
 	for(auto page_index : pages)
@@ -43,7 +43,7 @@ offset_t LEFormat::PageSet::WriteFile(Linker::Writer& wr, offset_t count, offset
 			}
 			while(remainder_of_page > 0)
 			{
-				wr.WriteWord(1, 0);
+				wr->WriteWord(1, 0);
 				remainder_of_page --;
 			}
 		}
@@ -61,7 +61,7 @@ offset_t LEFormat::SegmentPage::ImageSize() const
 	return size;
 }
 
-offset_t LEFormat::SegmentPage::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t LEFormat::SegmentPage::WriteFile(const std::shared_ptr<Linker::Writer>& wr, offset_t count, offset_t offset) const
 {
 	if(offset >= this->size)
 		return 0;
@@ -70,7 +70,7 @@ offset_t LEFormat::SegmentPage::WriteFile(Linker::Writer& wr, offset_t count, of
 	offset_t actual_count = image->WriteFile(wr, count, this->offset + offset);
 	if(actual_count < count)
 	{
-		wr.Skip(count - actual_count);
+		wr->Skip(count - actual_count);
 	}
 	return count;
 }
@@ -123,7 +123,7 @@ std::shared_ptr<LEFormat::IteratedPage> LEFormat::IteratedPage::ReadFromFile(con
 	return page;
 }
 
-offset_t LEFormat::IteratedPage::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t LEFormat::IteratedPage::WriteFile(const std::shared_ptr<Linker::Writer>& wr, offset_t count, offset_t offset) const
 {
 	// TODO: write out the page contents
 	return offset_t(-1);
@@ -455,49 +455,49 @@ LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(const std::share
 	return relocation;
 }
 
-void LEFormat::Page::Relocation::WriteFile(Linker::Writer& wr) const
+void LEFormat::Page::Relocation::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(1, type);
-	wr.WriteWord(1, flags);
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
 	if(IsSourceList())
 	{
-		wr.WriteWord(1, sources.size());
+		wr->WriteWord(1, sources.size());
 	}
 	else
 	{
 		assert(sources.size() == 1);
-		wr.WriteWord(2, sources[0].source);
+		wr->WriteWord(2, sources[0].source);
 	}
 	switch(flags & FlagTypeMask)
 	{
 	case Internal:
-		wr.WriteWord(GetModuleSize(), module);
+		wr->WriteWord(GetModuleSize(), module);
 		if(!IsSelector())
-			wr.WriteWord(GetTargetSize(), target);
+			wr->WriteWord(GetTargetSize(), target);
 		break;
 	case ImportOrdinal:
-		wr.WriteWord(GetModuleSize(), module);
-		wr.WriteWord(GetTargetSize(), target);
+		wr->WriteWord(GetModuleSize(), module);
+		wr->WriteWord(GetTargetSize(), target);
 		if(IsAdditive())
-			wr.WriteWord(GetAdditiveSize(), addition);
+			wr->WriteWord(GetAdditiveSize(), addition);
 		break;
 	case ImportName:
-		wr.WriteWord(GetModuleSize(), module);
-		wr.WriteWord(GetOrdinalSize(), target);
+		wr->WriteWord(GetModuleSize(), module);
+		wr->WriteWord(GetOrdinalSize(), target);
 		if(IsAdditive())
-			wr.WriteWord(GetAdditiveSize(), addition);
+			wr->WriteWord(GetAdditiveSize(), addition);
 		break;
 	case Entry:
-		wr.WriteWord(GetModuleSize(), module);
+		wr->WriteWord(GetModuleSize(), module);
 		if(IsAdditive())
-			wr.WriteWord(GetAdditiveSize(), addition);
+			wr->WriteWord(GetAdditiveSize(), addition);
 		break;
 	}
 	if(IsSourceList())
 	{
 		for(Chain source : sources)
 		{
-			wr.WriteWord(2, source.source);
+			wr->WriteWord(2, source.source);
 			// TODO: write chain
 		}
 	}
@@ -891,9 +891,9 @@ LEFormat::Entry LEFormat::Entry::ReadEntry(const std::shared_ptr<Linker::Reader>
 	return entry;
 }
 
-void LEFormat::Entry::WriteEntryHead(Linker::Writer& wr) const
+void LEFormat::Entry::WriteEntryHead(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(1, type);
+	wr->WriteWord(1, type);
 	switch(type)
 	{
 	case Unused:
@@ -901,37 +901,37 @@ void LEFormat::Entry::WriteEntryHead(Linker::Writer& wr) const
 	case Entry16:
 	case CallGate286:
 	case Entry32:
-		wr.WriteWord(2, object);
+		wr->WriteWord(2, object);
 		break;
 	case Forwarder:
-		wr.WriteWord(2, 0); /* reserved */
+		wr->WriteWord(2, 0); /* reserved */
 		break;
 	}
 }
 
-void LEFormat::Entry::WriteEntryBody(Linker::Writer& wr) const
+void LEFormat::Entry::WriteEntryBody(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	switch(type)
 	{
 	case Unused:
 		break;
 	case Entry16:
-		wr.WriteWord(1, flags);
-		wr.WriteWord(2, offset);
+		wr->WriteWord(1, flags);
+		wr->WriteWord(2, offset);
 		break;
 	case CallGate286:
-		wr.WriteWord(1, flags);
-		wr.WriteWord(2, offset);
-		wr.WriteWord(2, 0); /* reserved - call gate */
+		wr->WriteWord(1, flags);
+		wr->WriteWord(2, offset);
+		wr->WriteWord(2, 0); /* reserved - call gate */
 		break;
 	case Entry32:
-		wr.WriteWord(1, flags);
-		wr.WriteWord(4, offset);
+		wr->WriteWord(1, flags);
+		wr->WriteWord(4, offset);
 		break;
 	case Forwarder:
-		wr.WriteWord(1, flags);
-		wr.WriteWord(2, object); /* module */
-		wr.WriteWord(4, offset); /* ordinal or name */
+		wr->WriteWord(1, flags);
+		wr->WriteWord(2, object); /* module */
+		wr->WriteWord(4, offset); /* ordinal or name */
 		break;
 	}
 }
@@ -1583,169 +1583,169 @@ offset_t LEFormat::ImageSize() const
 	return file_size;
 }
 
-offset_t LEFormat::WriteFile(Linker::Writer& wr) const
+offset_t LEFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = endiantype;
+	wr->endiantype = endiantype;
 	stub.WriteStubImage(wr);
 
 	/* new header */
-	wr.Seek(file_offset);
-	wr.WriteData(signature);
+	wr->Seek(file_offset);
+	wr->WriteData(signature);
 	switch(endiantype)
 	{
 	case ::LittleEndian:
-		wr.WriteData(2, "\0\0");
+		wr->WriteData(2, "\0\0");
 		break;
 	case ::BigEndian:
-		wr.WriteData(2, "\1\1");
+		wr->WriteData(2, "\1\1");
 		break;
 	case ::PDP11Endian:
-		wr.WriteData(2, "\0\1");
+		wr->WriteData(2, "\0\1");
 		break;
 	case ::AntiPDP11Endian:
-		wr.WriteData(2, "\1\0");
+		wr->WriteData(2, "\1\0");
 		break;
 	default:
 		Linker::FatalError("Internal error: invalid endianness");
 	}
-	wr.WriteWord(4, format_level);
-	wr.WriteWord(2, cpu);
-	wr.WriteWord(2, system);
-	wr.WriteWord(4, module_version);
-	wr.WriteWord(4, module_flags);
-	wr.WriteWord(4, page_count); /* page 0 is fake, final page is only used in the page table */
-	wr.WriteWord(4, eip_object);
-	wr.WriteWord(4, eip_value);
-	wr.WriteWord(4, esp_object);
-	wr.WriteWord(4, esp_value);
-	wr.WriteWord(4, page_size); /* page size */
-	wr.WriteWord(4, page_offset_shift); /* or size of last page */
-	wr.WriteWord(4, fixup_section_size);
-	wr.WriteWord(4, fixup_section_checksum);
-	wr.WriteWord(4, loader_section_size);
-	wr.WriteWord(4, loader_section_checksum);
-	wr.WriteWord(4, object_table_offset - file_offset);
-	wr.WriteWord(4, objects.size());
-	wr.WriteWord(4, object_page_table_offset - file_offset);
-	wr.WriteWord(4, object_iterated_pages_offset);
-	wr.WriteWord(4, resource_table_offset - file_offset);
-	wr.WriteWord(4, resource_table_entry_count);
-	wr.WriteWord(4, resident_name_table_offset - file_offset);
-	wr.WriteWord(4, entry_table_offset - file_offset);
-	wr.WriteWord(4, module_directives_offset != 0 ? module_directives_offset - file_offset : 0);
-	wr.WriteWord(4, module_directives.size());
-	wr.WriteWord(4, fixup_page_table_offset - file_offset);
-	wr.WriteWord(4, fixup_record_table_offset - file_offset);
-	wr.WriteWord(4, imported_module_table_offset - file_offset);
-	wr.WriteWord(4, imported_modules.size());
-	wr.WriteWord(4, imported_procedure_table_offset - file_offset);
-	wr.WriteWord(4, per_page_checksum_offset);
-	wr.WriteWord(4, data_pages_offset);
-	wr.WriteWord(4, preload_page_count);
-	wr.WriteWord(4, nonresident_name_table_offset);
-	wr.WriteWord(4, nonresident_name_table_size);
-	wr.WriteWord(4, nonresident_name_table_checksum);
-	wr.WriteWord(4, automatic_data);
-	wr.WriteWord(4, debug_info_offset);
-	wr.WriteWord(4, debug_info_size);
-	wr.WriteWord(4, instance_preload_page_count);
-	wr.WriteWord(4, instance_demand_page_count);
-	wr.WriteWord(4, heap_size);
-	wr.WriteWord(4, stack_size);
+	wr->WriteWord(4, format_level);
+	wr->WriteWord(2, cpu);
+	wr->WriteWord(2, system);
+	wr->WriteWord(4, module_version);
+	wr->WriteWord(4, module_flags);
+	wr->WriteWord(4, page_count); /* page 0 is fake, final page is only used in the page table */
+	wr->WriteWord(4, eip_object);
+	wr->WriteWord(4, eip_value);
+	wr->WriteWord(4, esp_object);
+	wr->WriteWord(4, esp_value);
+	wr->WriteWord(4, page_size); /* page size */
+	wr->WriteWord(4, page_offset_shift); /* or size of last page */
+	wr->WriteWord(4, fixup_section_size);
+	wr->WriteWord(4, fixup_section_checksum);
+	wr->WriteWord(4, loader_section_size);
+	wr->WriteWord(4, loader_section_checksum);
+	wr->WriteWord(4, object_table_offset - file_offset);
+	wr->WriteWord(4, objects.size());
+	wr->WriteWord(4, object_page_table_offset - file_offset);
+	wr->WriteWord(4, object_iterated_pages_offset);
+	wr->WriteWord(4, resource_table_offset - file_offset);
+	wr->WriteWord(4, resource_table_entry_count);
+	wr->WriteWord(4, resident_name_table_offset - file_offset);
+	wr->WriteWord(4, entry_table_offset - file_offset);
+	wr->WriteWord(4, module_directives_offset != 0 ? module_directives_offset - file_offset : 0);
+	wr->WriteWord(4, module_directives.size());
+	wr->WriteWord(4, fixup_page_table_offset - file_offset);
+	wr->WriteWord(4, fixup_record_table_offset - file_offset);
+	wr->WriteWord(4, imported_module_table_offset - file_offset);
+	wr->WriteWord(4, imported_modules.size());
+	wr->WriteWord(4, imported_procedure_table_offset - file_offset);
+	wr->WriteWord(4, per_page_checksum_offset);
+	wr->WriteWord(4, data_pages_offset);
+	wr->WriteWord(4, preload_page_count);
+	wr->WriteWord(4, nonresident_name_table_offset);
+	wr->WriteWord(4, nonresident_name_table_size);
+	wr->WriteWord(4, nonresident_name_table_checksum);
+	wr->WriteWord(4, automatic_data);
+	wr->WriteWord(4, debug_info_offset);
+	wr->WriteWord(4, debug_info_size);
+	wr->WriteWord(4, instance_preload_page_count);
+	wr->WriteWord(4, instance_demand_page_count);
+	wr->WriteWord(4, heap_size);
+	wr->WriteWord(4, stack_size);
 
-	wr.Skip(8);
-	wr.WriteWord(4, vxd_version_info_resource_offset);
-	wr.WriteWord(4, vxd_version_info_resource_length);
-	wr.WriteWord(2, vxd_device_id);
-	wr.WriteWord(2, vxd_ddk_version);
+	wr->Skip(8);
+	wr->WriteWord(4, vxd_version_info_resource_offset);
+	wr->WriteWord(4, vxd_version_info_resource_length);
+	wr->WriteWord(2, vxd_device_id);
+	wr->WriteWord(2, vxd_ddk_version);
 
 	/*** Loader Section ***/
-	wr.Seek(file_offset + 0xC4);
+	wr->Seek(file_offset + 0xC4);
 
 	/* Object Table */
-	assert(wr.Tell() == object_table_offset);
+	assert(wr->Tell() == object_table_offset);
 	for(const Object& object : objects)
 	{
 		if(auto pointer = dynamic_cast<Linker::Segment *>(object.image.get()))
 			assert(object.size == pointer->TotalSize());
-		wr.WriteWord(4, object.size);
-		wr.WriteWord(4, object.address);
-		wr.WriteWord(4, object.flags);
-		wr.WriteWord(4, object.page_table_index);
-		wr.WriteWord(4, object.page_entry_count);
-		wr.WriteWord(4, 0);
+		wr->WriteWord(4, object.size);
+		wr->WriteWord(4, object.address);
+		wr->WriteWord(4, object.flags);
+		wr->WriteWord(4, object.page_table_index);
+		wr->WriteWord(4, object.page_entry_count);
+		wr->WriteWord(4, 0);
 	}
 
 	/* Object Page Table */
-	assert(wr.Tell() == object_page_table_offset);
+	assert(wr->Tell() == object_page_table_offset);
 	if(IsExtendedFormat())
 	{
 		for(const Page& page : pages)
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
-			wr.WriteWord(4, page.offset >> page_offset_shift);
-			wr.WriteWord(2, page.size);
-			wr.WriteWord(2, page.type);
+			wr->WriteWord(4, page.offset >> page_offset_shift);
+			wr->WriteWord(2, page.size);
+			wr->WriteWord(2, page.type);
 		}
 	}
 	else
 	{
 		for(auto page_map_info : page_map_table)
 		{
-			wr.WriteWord(3, std::get<0>(page_map_info), ::BigEndian);
-			wr.WriteWord(1, std::get<1>(page_map_info));
+			wr->WriteWord(3, std::get<0>(page_map_info), ::BigEndian);
+			wr->WriteWord(1, std::get<1>(page_map_info));
 		}
 	}
 
 	/* Resource Table */
-	assert(wr.Tell() == resource_table_offset);
+	assert(wr->Tell() == resource_table_offset);
 	for(auto it : resources)
 	{
-		wr.WriteWord(2, it.second.type_id);
-		wr.WriteWord(2, it.second.name_id);
-		wr.WriteWord(4, it.second.size);
-		wr.WriteWord(2, it.second.object);
-		wr.WriteWord(4, it.second.offset);
+		wr->WriteWord(2, it.second.type_id);
+		wr->WriteWord(2, it.second.name_id);
+		wr->WriteWord(4, it.second.size);
+		wr->WriteWord(2, it.second.object);
+		wr->WriteWord(4, it.second.offset);
 	}
 
 	/* Resident Name Table */
-	assert(wr.Tell() == resident_name_table_offset);
+	assert(wr->Tell() == resident_name_table_offset);
 	for(const Name& name : resident_names)
 	{
-		wr.WriteWord(1, name.name.size());
-		wr.WriteData(name.name.size(), name.name);
-		wr.WriteWord(2, name.ordinal);
+		wr->WriteWord(1, name.name.size());
+		wr->WriteData(name.name.size(), name.name);
+		wr->WriteWord(2, name.ordinal);
 	}
-	wr.WriteWord(1, 0);
+	wr->WriteWord(1, 0);
 
 	/* Entry Table */
-	assert(wr.Tell() == entry_table_offset);
-//offset_t _ = wr.Tell();
+	assert(wr->Tell() == entry_table_offset);
+//offset_t _ = wr->Tell();
 	for(size_t entry_index = 0; entry_index < entries.size();)
 	{
 		size_t entry_count = CountBundles(entry_index);
-		wr.WriteWord(1, entry_count);
+		wr->WriteWord(1, entry_count);
 		entries[entry_index].WriteEntryHead(wr);
 		for(size_t entry_offset = 0; entry_offset < entry_count; entry_offset ++)
 		{
 			entries[entry_index + entry_offset].WriteEntryBody(wr);
 		}
 		entry_index += entry_count;
-//Linker::Debug << "Debug: Write " << wr.Tell() - _ << std::endl; _ = Tell();
+//Linker::Debug << "Debug: Write " << wr->Tell() - _ << std::endl; _ = Tell();
 	}
-	wr.WriteWord(1, 0);
+	wr->WriteWord(1, 0);
 
 	/* Module Format Directives Table */
 	if(module_directives.size() != 0)
 	{
 		// TODO: untested
-		assert(wr.Tell() == module_directives_offset);
+		assert(wr->Tell() == module_directives_offset);
 		for(const ModuleDirective& directive : module_directives)
 		{
-			wr.WriteWord(2, directive.directive);
-			wr.WriteWord(2, directive.length);
-			wr.WriteWord(4, directive.offset - (directive.IsResident() ? file_offset : 0));
+			wr->WriteWord(2, directive.directive);
+			wr->WriteWord(2, directive.length);
+			wr->WriteWord(4, directive.offset - (directive.IsResident() ? file_offset : 0));
 		}
 	}
 
@@ -1755,28 +1755,28 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	/* Per-page Checksum (LX) */
 	if(IsExtendedFormat() && per_page_checksum_offset != 0)
 	{
-		assert(wr.Tell() == per_page_checksum_offset);
+		assert(wr->Tell() == per_page_checksum_offset);
 		for(const Page& page : pages)
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
-			wr.WriteWord(4, page.checksum);
+			wr->WriteWord(4, page.checksum);
 		}
 	}
 
 	/*** Fixup Section ***/
 	/* Fixup Page Table */
-	assert(wr.Tell() == fixup_page_table_offset);
+	assert(wr->Tell() == fixup_page_table_offset);
 	for(const Page& page : pages)
 	{
 		if(&page == &pages.front())
 			continue;
-		wr.WriteWord(4, page.fixup_offset);
+		wr->WriteWord(4, page.fixup_offset);
 	}
 
 	/* Fixup Record Table */
-	assert(wr.Tell() == fixup_record_table_offset);
-//size_t _ = wr.Tell();
+	assert(wr->Tell() == fixup_record_table_offset);
+//size_t _ = wr->Tell();
 	for(const Page& page : pages)
 	{
 		if(&page == &pages.front() || &page == &pages.back())
@@ -1786,42 +1786,42 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		{
 			if(it.second.ComesBefore())
 				it.second.WriteFile(wr);
-//Linker::Debug << "Debug: Receive " << wr.Tell() - _ << std::endl; _ = Tell();
+//Linker::Debug << "Debug: Receive " << wr->Tell() - _ << std::endl; _ = Tell();
 		}
 //Linker::Debug << "Debug: Receive page (after) " << page.relocations.size() << std::endl;
 		for(auto& it : page.relocations)
 		{
 			if(!it.second.ComesBefore())
 				it.second.WriteFile(wr);
-//Linker::Debug << "Debug: Receive " << wr.Tell() - _ << std::endl; _ = Tell();
+//Linker::Debug << "Debug: Receive " << wr->Tell() - _ << std::endl; _ = Tell();
 		}
 	}
 
 	/* Import Module Name Table */
-	assert(wr.Tell() == imported_module_table_offset);
+	assert(wr->Tell() == imported_module_table_offset);
 	for(const std::string& name : imported_modules)
 	{
-		wr.WriteWord(1, name.size());
-		wr.WriteData(name.size(), name);
+		wr->WriteWord(1, name.size());
+		wr->WriteData(name.size(), name);
 	}
 
 	/* Import Procedure Name Table */
-	assert(wr.Tell() == imported_procedure_table_offset);
+	assert(wr->Tell() == imported_procedure_table_offset);
 	for(const std::string& name : imported_procedures)
 	{
-		wr.WriteWord(1, name.size());
-		wr.WriteData(name.size(), name);
+		wr->WriteWord(1, name.size());
+		wr->WriteData(name.size(), name);
 	}
 
 	/* Per-page Checksum (LE) */
 	if(!IsExtendedFormat() && per_page_checksum_offset != 0)
 	{
-		assert(wr.Tell() == per_page_checksum_offset);
+		assert(wr->Tell() == per_page_checksum_offset);
 		for(const Page& page : pages)
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
-			wr.WriteWord(4, page.checksum);
+			wr->WriteWord(4, page.checksum);
 		}
 	}
 
@@ -1832,11 +1832,11 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 		switch(page.GetPageType(*this))
 		{
 		case Page::Preload:
-			wr.Seek(GetPageOffset(physical_page_index));
+			wr->Seek(GetPageOffset(physical_page_index));
 			page.image->WriteFile(wr);
 			break;
 		case Page::Iterated:
-			wr.Seek(GetPageOffset(physical_page_index));
+			wr->Seek(GetPageOffset(physical_page_index));
 			page.image->WriteFile(wr);
 			break;
 		case Page::Invalid:
@@ -1847,7 +1847,7 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 			// TODO
 			break;
 		case Page::Compressed:
-			wr.Seek(GetPageOffset(physical_page_index));
+			wr->Seek(GetPageOffset(physical_page_index));
 			// TODO
 			break;
 		}
@@ -1857,11 +1857,11 @@ offset_t LEFormat::WriteFile(Linker::Writer& wr) const
 	/* Non-Resident Name Table */
 	for(const Name& name : nonresident_names)
 	{
-		wr.WriteWord(1, name.name.size());
-		wr.WriteData(name.name.size(), name.name);
-		wr.WriteWord(2, name.ordinal);
+		wr->WriteWord(1, name.name.size());
+		wr->WriteData(name.name.size(), name.name);
+		wr->WriteWord(2, name.ordinal);
 	}
-	wr.WriteWord(1, 0);
+	wr->WriteWord(1, 0);
 	/* Non-Resident Directives */
 
 	return offset_t(-1);

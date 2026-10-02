@@ -627,7 +627,7 @@ namespace COFF
 			void Read(const std::shared_ptr<Linker::Reader>& rd, const COFFFormat& coff);
 
 			size_t GetSize(const COFFFormat& coff) const;
-			void WriteFile(Linker::Writer& wr, const COFFFormat& coff) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr, const COFFFormat& coff) const;
 			void FillEntry(Dumper::Entry& entry, const COFFFormat& coff) const;
 		};
 
@@ -677,7 +677,7 @@ namespace COFF
 			public:
 				virtual ~AuxiliaryEntry() = default;
 				virtual void Read(const std::shared_ptr<Linker::Reader>& rd) = 0;
-				virtual void Write(Linker::Writer& wr) const = 0;
+				virtual void Write(const std::shared_ptr<Linker::Writer>& wr) const = 0;
 				virtual void FillDumpData(Dumper::Entry& entry) const = 0;
 			};
 
@@ -687,7 +687,7 @@ namespace COFF
 				std::string file_name;
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				void FillDumpData(Dumper::Entry& entry) const override;
 			};
 
@@ -700,7 +700,7 @@ namespace COFF
 				uint16_t line_number_count;
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				void FillDumpData(Dumper::Entry& entry) const override;
 			};
 
@@ -714,7 +714,7 @@ namespace COFF
 				int32_t next_entry_index;
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				void FillDumpData(Dumper::Entry& entry) const override;
 			};
 
@@ -728,7 +728,7 @@ namespace COFF
 				// skip 4 bytes
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				void FillDumpData(Dumper::Entry& entry) const override;
 			};
 
@@ -743,7 +743,7 @@ namespace COFF
 				uint16_t transfer_table_index;
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				void FillDumpData(Dumper::Entry& entry) const override;
 			};
 
@@ -757,7 +757,7 @@ namespace COFF
 				std::array<uint16_t, 4> dimensions;
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				void FillDumpData(Dumper::Entry& entry) const override;
 			};
 
@@ -771,7 +771,7 @@ namespace COFF
 				int32_t next_entry_index; // TODO: only for beginning
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				void FillDumpData(Dumper::Entry& entry) const override;
 			};
 
@@ -784,7 +784,7 @@ namespace COFF
 				uint16_t size;
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				void FillDumpData(Dumper::Entry& entry) const override;
 			};
 
@@ -1171,7 +1171,7 @@ namespace COFF
 			void ReadSectionHeader(const std::shared_ptr<Linker::Reader>& rd, COFFFormat& coff_format);
 
 			/** @brief Writes an entry in the section header table */
-			void WriteSectionHeader(Linker::Writer& wr, const COFFFormat& coff_format);
+			void WriteSectionHeader(const std::shared_ptr<Linker::Writer>& wr, const COFFFormat& coff_format);
 
 			/** @brief Retrieves the size of the section (for PE, the size of the section as stored in the file) */
 			virtual uint32_t ImageSize(const COFFFormat& coff_format) const;
@@ -1179,7 +1179,7 @@ namespace COFF
 			/** @brief Reads the section contents from a stream, can be overloaded by subclasses */
 			virtual void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const COFFFormat& coff_format);
 			/** @brief Writes the section contents to a stream, can be overloaded by subclasses */
-			virtual void WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const;
+			virtual void WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const COFFFormat& coff_format) const;
 			/** @brief Displays the section information and contents */
 			virtual void Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const;
 		};
@@ -1212,7 +1212,7 @@ namespace COFF
 			void AssignNameAndVersion(std::string name_and_version);
 			offset_t ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size, bool& is_definition);
 			offset_t ImageSize() const;
-			offset_t WriteFile(Linker::Writer& wr, bool as_export = false) const;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr, bool as_export = false) const;
 
 			void Dump(Dumper::Dumper& dump, std::optional<unsigned> index) const;
 		};
@@ -1240,7 +1240,7 @@ namespace COFF
 			static std::shared_ptr<FlexOSLibrarySection> ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size);
 			std::shared_ptr<const Linker::Image> AsImage() const override;
 			offset_t ImageSize() const override;
-			offset_t WriteFile(Linker::Writer& wr) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			void Dump(Dumper::Dumper& dump) const;
 		};
@@ -1295,7 +1295,7 @@ namespace COFF
 			 */
 			virtual uint32_t GetSize() const = 0;
 			virtual void ReadFile(const std::shared_ptr<Linker::Reader>& rd) = 0;
-			virtual void WriteFile(Linker::Writer& wr) const = 0;
+			virtual void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const = 0;
 			/**
 			 * @brief Sets up fields to be consistent
 			 *
@@ -1309,7 +1309,7 @@ namespace COFF
 			/**
 			 * @brief Stores any additional data in the file corresponding to this type of optional header
 			 */
-			virtual void PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const;
+			virtual void PostWriteFile(const COFFFormat& coff, const std::shared_ptr<Linker::Writer>& wr) const;
 
 			virtual void Dump(const COFFFormat& coff, Dumper::Dumper& dump) const;
 
@@ -1354,7 +1354,7 @@ namespace COFF
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
@@ -1410,7 +1410,7 @@ namespace COFF
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
@@ -1441,7 +1441,7 @@ namespace COFF
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			//offset_t CalculateValues(COFFFormat& coff) override;
 
@@ -1481,13 +1481,13 @@ namespace COFF
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
 			void PostReadFile(COFFFormat& coff, const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const override;
+			void PostWriteFile(const COFFFormat& coff, const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			std::string GetHeaderFormatName(const COFFFormat& coff) const override;
 
@@ -1516,7 +1516,7 @@ namespace COFF
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& wr) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
@@ -1552,7 +1552,7 @@ namespace COFF
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
@@ -1628,7 +1628,7 @@ namespace COFF
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
@@ -1783,7 +1783,7 @@ namespace COFF
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
@@ -1830,10 +1830,10 @@ namespace COFF
 		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 	protected:
-		offset_t WriteFileContents(Linker::Writer& wr) const;
+		offset_t WriteFileContents(const std::shared_ptr<Linker::Writer>& wr) const;
 
 	public:
 		void Dump(Dumper::Dumper& dump) const override;

@@ -123,7 +123,7 @@ offset_t Segment::WriteFile(std::ostream& out) const
 	return count;
 }
 
-offset_t Segment::WriteFile(Writer& wr, offset_t count, offset_t offset) const
+offset_t Segment::WriteFile(const std::shared_ptr<Writer>& wr, offset_t count, offset_t offset) const
 {
 	offset_t total_count = 0;
 	for(auto& section : sections)
@@ -149,7 +149,7 @@ offset_t Segment::WriteFile(Writer& wr, offset_t count, offset_t offset) const
 	return total_count;
 }
 
-offset_t Segment::WriteFile(Writer& wr) const
+offset_t Segment::WriteFile(const std::shared_ptr<Writer>& wr) const
 {
 	offset_t count = 0;
 	for(auto& section : sections)

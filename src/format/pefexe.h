@@ -54,12 +54,12 @@ namespace Apple
 			/** @brief Determines the required number of bytes to store this value, with an optional minimum size */
 			static size_t GetValueSize(uint32_t value, size_t size_hint = 0);
 			/** @brief Writes a variable length value, with an optional minimum size */
-			static void WriteValue(Linker::Writer& wr, uint32_t value, size_t size_hint = 0);
+			static void WriteValue(const std::shared_ptr<Linker::Writer>& wr, uint32_t value, size_t size_hint = 0);
 
 			/** @brief Reads an initialization pattern and initializes this structure */
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			/** @brief Writes the initialization pattern to a stream */
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 			/** @brief Size of the packed data, as stored in the file */
 			offset_t CodeSize() const;
 			/** @brief Size of the unpacked data, as loaded into memory */
@@ -302,9 +302,9 @@ namespace Apple
 			/** @brief Returns the number of bytes required to encode this opcode */
 			offset_t CodeSize() const;
 			/** @brief Outputs a single relocation opcode to the file */
-			void WriteFile(Linker::Writer& wr)
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr)
 			{
-				wr.WriteWord(CodeSize(), GetWord());
+				wr->WriteWord(CodeSize(), GetWord());
 			}
 			/** @brief Executes the opcode to possibly produce some relocation information and/or alter the state of the pseudo-microprocessor */
 			void GenerateRelocations(RelocationProcessor& processor) const;
@@ -401,8 +401,8 @@ namespace Apple
 			void ReadFile(PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd);
 			size_t GetImageSize(PEFFormat& pef_format);
 			void CalculateValues(PEFFormat& pef_format);
-			void WriteHeader(Linker::Writer& wr) const;
-			void WriteFile(const PEFFormat& pef_format, Linker::Writer& wr) const;
+			void WriteHeader(const std::shared_ptr<Linker::Writer>& wr) const;
+			void WriteFile(const PEFFormat& pef_format, const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 
 		// container header information
@@ -687,12 +687,12 @@ namespace Apple
 		bool FormatSupportsResources() const override;
 
 		void ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd);
-		void WriteLoaderSection(Linker::Writer& wr) const;
+		void WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) const;
 
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		void CalculateValues() override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;

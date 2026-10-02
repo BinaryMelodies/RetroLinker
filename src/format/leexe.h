@@ -119,7 +119,7 @@ namespace Microsoft
 
 			offset_t ImageSize() const override;
 			using Linker::Image::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr, offset_t count, offset_t offset = 0) const override;
 			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 		};
 
@@ -143,7 +143,7 @@ namespace Microsoft
 
 			offset_t ImageSize() const override;
 			using Linker::Image::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr, offset_t count, offset_t offset = 0) const override;
 			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			std::shared_ptr<const Linker::Image> AsImage() const override;
 		};
@@ -164,7 +164,7 @@ namespace Microsoft
 			offset_t ImageSize() const override;
 			using Linker::Image::WriteFile;
 			static std::shared_ptr<IteratedPage> ReadFromFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t size);
-			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr, offset_t count, offset_t offset = 0) const override;
 			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
 			/**
@@ -344,7 +344,7 @@ namespace Microsoft
 				size_t GetSize() const;
 
 				static Relocation ReadFile(const std::shared_ptr<Linker::Reader>& rd, Page& page);
-				void WriteFile(Linker::Writer& wr) const;
+				void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 			};
 			std::map<uint16_t, Relocation> relocations;
 			uint32_t checksum = 0;
@@ -466,9 +466,9 @@ namespace Microsoft
 			static Entry ReadEntryHead(const std::shared_ptr<Linker::Reader>& rd, uint8_t type);
 			static Entry ReadEntry(const std::shared_ptr<Linker::Reader>& rd, uint8_t type, LEFormat::Entry& head);
 
-			void WriteEntryHead(Linker::Writer& wr) const;
+			void WriteEntryHead(const std::shared_ptr<Linker::Writer>& wr) const;
 
-			void WriteEntryBody(Linker::Writer& wr) const;
+			void WriteEntryBody(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 
 		/** @brief Stores a module directive in the module directive table */
@@ -687,7 +687,7 @@ namespace Microsoft
 		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		offset_t GetPageOffset(PhysicalPageNumber physical_page_number) const;

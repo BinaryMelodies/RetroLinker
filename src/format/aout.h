@@ -417,10 +417,10 @@ namespace AOut
 			uint32_t literal_entry = 0;
 
 			static Relocation ReadFile16Bit(const std::shared_ptr<Linker::Reader>& rd, uint16_t offset);
-			void WriteFile16Bit(Linker::Writer& wr) const;
+			void WriteFile16Bit(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			static Relocation ReadFile32Bit(const std::shared_ptr<Linker::Reader>& rd, word_size_t word_size = WordSize32);
-			void WriteFile32Bit(Linker::Writer& wr, word_size_t word_size = WordSize32) const;
+			void WriteFile32Bit(const std::shared_ptr<Linker::Writer>& wr, word_size_t word_size = WordSize32) const;
 		};
 
 		std::vector<Relocation> code_relocations, data_relocations;
@@ -512,9 +512,9 @@ namespace AOut
 
 		offset_t ImageSize() const override;
 
-		void WriteHeader(Linker::Writer& wr) const;
+		void WriteHeader(const std::shared_ptr<Linker::Writer>& wr) const;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
 

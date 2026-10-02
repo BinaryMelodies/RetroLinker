@@ -55,9 +55,9 @@ offset_t O65Format::Module::ReadUnsigned(const std::shared_ptr<Linker::Reader>& 
 	return rd->ReadUnsigned(GetWordSize());
 }
 
-void O65Format::Module::WriteWord(Linker::Writer& wr, offset_t value) const
+void O65Format::Module::WriteWord(const std::shared_ptr<Linker::Writer>& wr, offset_t value) const
 {
-	wr.WriteWord(GetWordSize(), value);
+	wr->WriteWord(GetWordSize(), value);
 }
 
 void O65Format::Module::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
@@ -164,13 +164,13 @@ void O65Format::Module::CalculateValues()
 	}
 }
 
-void O65Format::Module::WriteFile(Linker::Writer& wr) const
+void O65Format::Module::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-//Linker::Debug << wr.Tell() << std::endl;
+//Linker::Debug << wr->Tell() << std::endl;
 
-	wr.endiantype = ::LittleEndian;
-	wr.WriteData(6, "\1\0o65\0");
-	wr.WriteWord(2, mode_word);
+	wr->endiantype = ::LittleEndian;
+	wr->WriteData(6, "\1\0o65\0");
+	wr->WriteWord(2, mode_word);
 	WriteWord(wr, code_base);
 	WriteWord(wr, code_image ? code_image->ImageSize() : 0);
 	WriteWord(wr, data_base);
@@ -183,17 +183,17 @@ void O65Format::Module::WriteFile(Linker::Writer& wr) const
 
 	for(auto& header_option : header_options)
 	{
-		wr.WriteWord(1, header_option.data.size());
-		wr.WriteWord(1, header_option.type);
-		wr.WriteData(header_option.data);
+		wr->WriteWord(1, header_option.data.size());
+		wr->WriteWord(1, header_option.type);
+		wr->WriteData(header_option.data);
 	}
-	wr.WriteWord(1, 0);
+	wr->WriteWord(1, 0);
 
 	WriteWord(wr, undefined_references.size());
 	for(auto& undefined_reference : undefined_references)
 	{
-		wr.WriteData(undefined_reference);
-		wr.WriteWord(1, 0);
+		wr->WriteData(undefined_reference);
+		wr->WriteWord(1, 0);
 	}
 
 	if(code_image)
@@ -211,27 +211,27 @@ void O65Format::Module::WriteFile(Linker::Writer& wr) const
 			int delta = pair.first - offset;
 			while(delta > 0xFE)
 			{
-				wr.WriteWord(1, 0xFF);
+				wr->WriteWord(1, 0xFF);
 				delta -= 0xFE;
 			}
-			wr.WriteWord(1, delta);
-			wr.WriteWord(1, pair.second.type_segment);
+			wr->WriteWord(1, delta);
+			wr->WriteWord(1, pair.second.type_segment);
 			if((pair.second.type_segment & relocation::RELOC_SEGMENT_MASK) == relocation::RELOC_SEGMENT_UNDEFINED)
 				WriteWord(wr, pair.second.symbol_index);
 			if(((pair.second.type_segment & relocation::RELOC_TYPE_MASK) == relocation::RELOC_TYPE_HIGH) && !IsPageRelocatable())
-				wr.WriteWord(1, pair.second.value & 0xFF);
+				wr->WriteWord(1, pair.second.value & 0xFF);
 			else if((pair.second.type_segment & relocation::RELOC_TYPE_MASK) == relocation::RELOC_TYPE_SEG)
-				wr.WriteWord(2, pair.second.value & 0xFFFF);
+				wr->WriteWord(2, pair.second.value & 0xFFFF);
 		}
-		wr.WriteWord(1, 0);
+		wr->WriteWord(1, 0);
 	}
 
 	WriteWord(wr, undefined_references.size());
 	for(auto& global : exported_globals)
 	{
-		wr.WriteData(global.name);
-		wr.WriteWord(1, 0);
-		wr.WriteWord(1, global.segment_id);
+		wr->WriteData(global.name);
+		wr->WriteWord(1, 0);
+		wr->WriteWord(1, global.segment_id);
 		WriteWord(wr, global.value);
 	}
 }
@@ -399,7 +399,7 @@ void O65Format::CalculateValues()
 	}
 }
 
-offset_t O65Format::WriteFile(Linker::Writer& wr) const
+offset_t O65Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	for(auto& module : modules)
 	{

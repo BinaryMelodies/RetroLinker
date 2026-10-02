@@ -256,9 +256,9 @@ namespace DigitalResearch
 			 */
 			void Prepare(CPM86Format& module);
 
-			void WriteDescriptor(Linker::Writer& wr, const CPM86Format& module) const;
+			void WriteDescriptor(const std::shared_ptr<Linker::Writer>& wr, const CPM86Format& module) const;
 
-			virtual void WriteData(Linker::Writer& wr, const CPM86Format& module) const;
+			virtual void WriteData(const std::shared_ptr<Linker::Writer>& wr, const CPM86Format& module) const;
 
 			std::string GetDefaultName() const;
 
@@ -319,7 +319,7 @@ namespace DigitalResearch
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd, CPM86Format& module, bool is_library = false);
 
-			void Write(Linker::Writer& wr) const;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			relocation_source GetSource() const;
 		};
@@ -355,9 +355,9 @@ namespace DigitalResearch
 
 			void ReadModule(const std::shared_ptr<Linker::Reader>& rd);
 
-			void Write(Linker::Writer& wr) const;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 
-			void WriteModule(Linker::Writer& wr) const;
+			void WriteModule(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			offset_t GetFullFileSize() const;
 			void SetOffset(offset_t new_offset);
@@ -401,7 +401,7 @@ namespace DigitalResearch
 
 			bool operator ==(const library_id& other) const;
 
-			void Write(Linker::Writer& wr) const;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd);
 		};
@@ -446,9 +446,9 @@ namespace DigitalResearch
 			{
 			}
 
-			void Write(Linker::Writer& wr) const;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 
-			void WriteExtended(Linker::Writer& wr) const;
+			void WriteExtended(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd);
 
@@ -482,7 +482,7 @@ namespace DigitalResearch
 
 			uint16_t GetSizeParas(const CPM86Format& module) const override;
 
-			void WriteData(Linker::Writer& wr, const CPM86Format& module) const override;
+			void WriteData(const std::shared_ptr<Linker::Writer>& wr, const CPM86Format& module) const override;
 
 			void ReadData(const std::shared_ptr<Linker::Reader>& rd, const CPM86Format& module) override;
 		};
@@ -512,7 +512,7 @@ namespace DigitalResearch
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd);
 
-				void Write(Linker::Writer& wr) const;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 			};
 
 			std::vector<ldt_descriptor> ldt;
@@ -521,7 +521,7 @@ namespace DigitalResearch
 
 			uint16_t GetSizeParas(const CPM86Format& module) const override;
 
-			void WriteData(Linker::Writer& wr, const CPM86Format& module) const override;
+			void WriteData(const std::shared_ptr<Linker::Writer>& wr, const CPM86Format& module) const override;
 
 			void ReadData(const std::shared_ptr<Linker::Reader>& rd, const CPM86Format& module) override;
 		};
@@ -680,7 +680,7 @@ namespace DigitalResearch
 
 		void ReadRelocations(const std::shared_ptr<Linker::Reader>& rd);
 
-		void WriteRelocations(Linker::Writer& wr) const;
+		void WriteRelocations(const std::shared_ptr<Linker::Writer>& wr) const;
 
 		offset_t MeasureRelocations();
 
@@ -689,7 +689,7 @@ namespace DigitalResearch
 		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		offset_t GetFullFileSize() const;
 

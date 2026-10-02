@@ -93,7 +93,7 @@ namespace PharLap
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		using Linker::OutputFormat::GetDefaultExtension;
@@ -189,7 +189,7 @@ namespace PharLap
 			virtual ~AbstractSegment();
 			virtual uint32_t GetStoredSize() const = 0;
 			virtual uint32_t GetLoadedSize() const = 0;
-			virtual void WriteFile(Linker::Writer& wr) const = 0;
+			virtual void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const = 0;
 		};
 
 		/** @brief An entry in a GDT, LDT or IDT image */
@@ -232,7 +232,7 @@ namespace PharLap
 
 			void CalculateValues();
 
-			void WriteEntry(Linker::Writer& wr) const;
+			void WriteEntry(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			void FillEntry(Dumper::Entry& entry) const;
 		};
@@ -247,7 +247,7 @@ namespace PharLap
 
 			uint32_t GetLoadedSize() const override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			void CalculateValues();
 		};
@@ -272,7 +272,7 @@ namespace PharLap
 
 			uint32_t GetLoadedSize() const override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			void ReadImage(Linker::Image& image, offset_t offset);
 			void FillEntries(Dumper::Region& region) const;
 		};
@@ -297,9 +297,9 @@ namespace PharLap
 
 			uint32_t GetLoadedSize() const override;
 
-			void WriteSITEntry(Linker::Writer& wr) const;
+			void WriteSITEntry(const std::shared_ptr<Linker::Writer>& wr) const;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			static std::shared_ptr<SITEntry> ReadSITEntry(const std::shared_ptr<Linker::Reader>& rd);
 		};
@@ -326,7 +326,7 @@ namespace PharLap
 
 			uint32_t GetZeroSize() const override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		};
 
 		/** @brief A relocation entry in the relocation table */
@@ -345,7 +345,7 @@ namespace PharLap
 
 			bool operator <(const Relocation& other) const;
 
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 
 		class RunTimeParameterBlock
@@ -359,7 +359,7 @@ namespace PharLap
 
 			void CalculateValues();
 
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 
 		// not needed for flat binaries
@@ -389,9 +389,9 @@ namespace PharLap
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 
-		void WriteHeader(Linker::Writer& wr) const;
+		void WriteHeader(const std::shared_ptr<Linker::Writer>& wr) const;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		class Flat;
@@ -422,7 +422,7 @@ namespace PharLap
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 	};
 
 	/** @brief Class used for generating multisegmented P3 binaries */
@@ -449,7 +449,7 @@ namespace PharLap
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 	};
 }
 

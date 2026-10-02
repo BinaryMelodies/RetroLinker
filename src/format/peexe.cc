@@ -81,44 +81,44 @@ void PEFormat::PEOptionalHeader::ReadFile(const std::shared_ptr<Linker::Reader>&
 	}
 }
 
-void PEFormat::PEOptionalHeader::WriteFile(Linker::Writer& wr) const
+void PEFormat::PEOptionalHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, magic);
-	wr.WriteWord(2, version_stamp);
-	wr.WriteWord(4, code_size);
-	wr.WriteWord(4, data_size);
-	wr.WriteWord(4, bss_size);
-	wr.WriteWord(4, entry_address);
-	wr.WriteWord(4, code_address);
+	wr->WriteWord(2, magic);
+	wr->WriteWord(2, version_stamp);
+	wr->WriteWord(4, code_size);
+	wr->WriteWord(4, data_size);
+	wr->WriteWord(4, bss_size);
+	wr->WriteWord(4, entry_address);
+	wr->WriteWord(4, code_address);
 	if(!Is64Bit())
 	{
-		wr.WriteWord(4, data_address);
+		wr->WriteWord(4, data_address);
 	}
-	wr.WriteWord(Is64Bit() ? 8 : 4, image_base);
-	wr.WriteWord(4, section_align);
-	wr.WriteWord(4, file_align);
-	wr.WriteWord(2, os_version.major);
-	wr.WriteWord(2, os_version.minor);
-	wr.WriteWord(2, image_version.major);
-	wr.WriteWord(2, image_version.minor);
-	wr.WriteWord(2, subsystem_version.major);
-	wr.WriteWord(2, subsystem_version.minor);
-	wr.WriteWord(4, win32_version);
-	wr.WriteWord(4, total_image_size);
-	wr.WriteWord(4, total_headers_size);
-	wr.WriteWord(4, checksum);
-	wr.WriteWord(2, subsystem);
-	wr.WriteWord(2, flags);
-	wr.WriteWord(Is64Bit() ? 8 : 4, reserved_stack_size);
-	wr.WriteWord(Is64Bit() ? 8 : 4, committed_stack_size);
-	wr.WriteWord(Is64Bit() ? 8 : 4, reserved_heap_size);
-	wr.WriteWord(Is64Bit() ? 8 : 4, committed_heap_size);
-	wr.WriteWord(4, loader_flags);
-	wr.WriteWord(4, data_directories.size());
+	wr->WriteWord(Is64Bit() ? 8 : 4, image_base);
+	wr->WriteWord(4, section_align);
+	wr->WriteWord(4, file_align);
+	wr->WriteWord(2, os_version.major);
+	wr->WriteWord(2, os_version.minor);
+	wr->WriteWord(2, image_version.major);
+	wr->WriteWord(2, image_version.minor);
+	wr->WriteWord(2, subsystem_version.major);
+	wr->WriteWord(2, subsystem_version.minor);
+	wr->WriteWord(4, win32_version);
+	wr->WriteWord(4, total_image_size);
+	wr->WriteWord(4, total_headers_size);
+	wr->WriteWord(4, checksum);
+	wr->WriteWord(2, subsystem);
+	wr->WriteWord(2, flags);
+	wr->WriteWord(Is64Bit() ? 8 : 4, reserved_stack_size);
+	wr->WriteWord(Is64Bit() ? 8 : 4, committed_stack_size);
+	wr->WriteWord(Is64Bit() ? 8 : 4, reserved_heap_size);
+	wr->WriteWord(Is64Bit() ? 8 : 4, committed_heap_size);
+	wr->WriteWord(4, loader_flags);
+	wr->WriteWord(4, data_directories.size());
 	for(auto& dirent : data_directories)
 	{
-		wr.WriteWord(4, dirent.address);
-		wr.WriteWord(4, dirent.size);
+		wr->WriteWord(4, dirent.address);
+		wr->WriteWord(4, dirent.size);
 	}
 }
 
@@ -244,7 +244,7 @@ void PEFormat::Section::ReadSectionData(const std::shared_ptr<Linker::Reader>& r
 	ReadSectionData(rd, dynamic_cast<const PEFormat&>(coff_format));
 }
 
-void PEFormat::Section::WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const
+void PEFormat::Section::WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const COFFFormat& coff_format) const
 {
 	WriteSectionData(wr, dynamic_cast<const PEFormat&>(coff_format));
 }
@@ -373,18 +373,18 @@ void PEFormat::Section::ReadSectionData(const std::shared_ptr<Linker::Reader>& r
 	}
 }
 
-void PEFormat::Section::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
+void PEFormat::Section::WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const
 {
 	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
 	if(section_pointer != 0)
 	{
-		wr.Seek(section_pointer);
+		wr->Seek(section_pointer);
 		image->WriteFile(wr);
-		if(wr.Tell() != section_pointer + size)
+		if(wr->Tell() != section_pointer + size)
 		{
 			// fill in the gap
-			wr.Seek(section_pointer + size - 1);
-			wr.WriteWord(1, 0);
+			wr->Seek(section_pointer + size - 1);
+			wr->WriteWord(1, 0);
 		}
 	}
 }
@@ -524,23 +524,23 @@ uint32_t PEFormat::Resource::AssignAddress(PEFormat& fmt, uint32_t rva)
 	return rva + size;
 }
 
-void PEFormat::Resource::WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const
+void PEFormat::Resource::WriteDirectories(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt, uint32_t section_pointer) const
 {
-	wr.WriteWord(4, data_rva, ::LittleEndian);
-	wr.WriteWord(4, size, ::LittleEndian);
-	wr.WriteWord(4, codepage, ::LittleEndian);
-	wr.WriteWord(4, reserved, ::LittleEndian);
+	wr->WriteWord(4, data_rva, ::LittleEndian);
+	wr->WriteWord(4, size, ::LittleEndian);
+	wr->WriteWord(4, codepage, ::LittleEndian);
+	wr->WriteWord(4, reserved, ::LittleEndian);
 }
 
-offset_t PEFormat::Resource::WriteResource(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
+offset_t PEFormat::Resource::WriteResource(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
 {
 	if(section != nullptr)
 	{
-		wr.Seek(data_rva - rva_to_offset);
+		wr->Seek(data_rva - rva_to_offset);
 		section->WriteFile(wr);
 	}
 
-	return wr.Tell();
+	return wr->Tell();
 }
 
 void PEFormat::ResourceDirectory::AddResource(std::shared_ptr<Resource>& resource, size_t level)
@@ -882,30 +882,30 @@ uint32_t PEFormat::ResourceDirectory::CollectResourceData(PEFormat& fmt, uint32_
 	}
 }
 
-void PEFormat::ResourceDirectory::WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const
+void PEFormat::ResourceDirectory::WriteDirectories(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt, uint32_t section_pointer) const
 {
-	wr.WriteWord(4, flags, ::LittleEndian);
-	wr.WriteTimestamp(timestamp, ::LittleEndian);
-	wr.WriteWord(2, version.major, ::LittleEndian);
-	wr.WriteWord(2, version.minor, ::LittleEndian);
-	wr.WriteWord(2, name_entries.size(), ::LittleEndian);
-	wr.WriteWord(2, id_entries.size(), ::LittleEndian);
+	wr->WriteWord(4, flags, ::LittleEndian);
+	wr->WriteTimestamp(timestamp, ::LittleEndian);
+	wr->WriteWord(2, version.major, ::LittleEndian);
+	wr->WriteWord(2, version.minor, ::LittleEndian);
+	wr->WriteWord(2, name_entries.size(), ::LittleEndian);
+	wr->WriteWord(2, id_entries.size(), ::LittleEndian);
 
 	for(auto& entry : name_entries)
 	{
-		wr.WriteWord(4, entry.identifier.offset);
-		wr.WriteWord(4, entry.content_offset | (entry.IsSubdirectory() ? 0x80000000 : 0));
+		wr->WriteWord(4, entry.identifier.offset);
+		wr->WriteWord(4, entry.content_offset | (entry.IsSubdirectory() ? 0x80000000 : 0));
 	}
 
 	for(auto& entry : id_entries)
 	{
-		wr.WriteWord(4, entry.identifier);
-		wr.WriteWord(4, entry.content_offset | (entry.IsSubdirectory() ? 0x80000000 : 0));
+		wr->WriteWord(4, entry.identifier);
+		wr->WriteWord(4, entry.content_offset | (entry.IsSubdirectory() ? 0x80000000 : 0));
 	}
 
 	for(auto& entry : name_entries)
 	{
-		wr.Seek(section_pointer + entry.content_offset);
+		wr->Seek(section_pointer + entry.content_offset);
 		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
 		{
 			(*leaf)->WriteDirectories(wr, fmt, section_pointer);
@@ -918,7 +918,7 @@ void PEFormat::ResourceDirectory::WriteDirectories(Linker::Writer& wr, const PEF
 
 	for(auto& entry : id_entries)
 	{
-		wr.Seek(section_pointer + entry.content_offset);
+		wr->Seek(section_pointer + entry.content_offset);
 		if(auto leaf = std::get_if<std::shared_ptr<Resource>>(&entry.content))
 		{
 			(*leaf)->WriteDirectories(wr, fmt, section_pointer);
@@ -930,7 +930,7 @@ void PEFormat::ResourceDirectory::WriteDirectories(Linker::Writer& wr, const PEF
 	}
 }
 
-offset_t PEFormat::ResourceDirectory::WriteResources(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
+offset_t PEFormat::ResourceDirectory::WriteResources(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt, uint32_t rva_to_offset) const
 {
 	offset_t last_written_offset = 0;
 	for(auto& entry : name_entries)
@@ -1008,17 +1008,17 @@ void PEFormat::ResourcesSection::ReadSectionData(const std::shared_ptr<Linker::R
 	// TODO
 }
 
-void PEFormat::ResourcesSection::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
+void PEFormat::ResourcesSection::WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const
 {
 	WriteDirectories(wr, fmt, section_pointer);
 
-	wr.Seek(section_pointer + string_table_offset);
+	wr->Seek(section_pointer + string_table_offset);
 	for(auto& s : string_table)
 	{
-		wr.WriteWord(2, AlignTo(s.size(), 2) >> 1, ::LittleEndian);
-		wr.WriteData(s);
+		wr->WriteWord(2, AlignTo(s.size(), 2) >> 1, ::LittleEndian);
+		wr->WriteData(s);
 		if((s.size() & 1) != 0)
-			wr.WriteWord(1, 0);
+			wr->WriteWord(1, 0);
 	}
 
 	offset_t last_written_offset = WriteResources(wr, fmt, section_pointer - address);
@@ -1026,8 +1026,8 @@ void PEFormat::ResourcesSection::WriteSectionData(Linker::Writer& wr, const PEFo
 	if(last_written_offset != section_pointer + size)
 	{
 		// fill in the gap
-		wr.Seek(section_pointer + size - 1);
-		wr.WriteWord(1, 0);
+		wr->Seek(section_pointer + size - 1);
+		wr->WriteWord(1, 0);
 	}
 }
 
@@ -1148,73 +1148,73 @@ void PEFormat::ImportsSection::ReadSectionData(const std::shared_ptr<Linker::Rea
 	// TODO
 }
 
-void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
+void PEFormat::ImportsSection::WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const
 {
 	offset_t rva_to_offset = section_pointer - address;
 
-	wr.Seek(section_pointer);
+	wr->Seek(section_pointer);
 
 	for(auto& library : libraries)
 	{
-		wr.WriteWord(4, library.lookup_table_rva);
-		wr.WriteTimestamp(library.timestamp);
-		wr.WriteWord(4, library.forwarder_chain);
-		wr.WriteWord(4, library.name_rva);
-		wr.WriteWord(4, library.address_table_rva);
+		wr->WriteWord(4, library.lookup_table_rva);
+		wr->WriteTimestamp(library.timestamp);
+		wr->WriteWord(4, library.forwarder_chain);
+		wr->WriteWord(4, library.name_rva);
+		wr->WriteWord(4, library.address_table_rva);
 	}
 
-	wr.WriteWord(4, 0);
-	wr.WriteWord(4, 0);
-	wr.WriteWord(4, 0);
-	wr.WriteWord(4, 0);
-	wr.WriteWord(4, 0);
+	wr->WriteWord(4, 0);
+	wr->WriteWord(4, 0);
+	wr->WriteWord(4, 0);
+	wr->WriteWord(4, 0);
+	wr->WriteWord(4, 0);
 
-	offset_t last_written_offset = wr.Tell();
+	offset_t last_written_offset = wr->Tell();
 
 	// first list the import lookup tables
 	for(auto& library : libraries)
 	{
-		wr.Seek(rva_to_offset + library.lookup_table_rva);
+		wr->Seek(rva_to_offset + library.lookup_table_rva);
 		for(auto& import_entry : library.import_table)
 		{
 			if(auto import_name = std::get_if<ImportedLibrary::Name>(&import_entry))
 			{
-				wr.WriteWord(fmt.Is64Bit() ? 8 : 4, import_name->rva);
+				wr->WriteWord(fmt.Is64Bit() ? 8 : 4, import_name->rva);
 			}
 			else if(auto import_id = std::get_if<ImportedLibrary::Ordinal>(&import_entry))
 			{
-				wr.WriteWord(fmt.Is64Bit() ? 8 : 4, (fmt.Is64Bit() ? 0x8000000000000000 : 0x80000000) + *import_id);
+				wr->WriteWord(fmt.Is64Bit() ? 8 : 4, (fmt.Is64Bit() ? 0x8000000000000000 : 0x80000000) + *import_id);
 			}
 			else
 			{
 				assert(false);
 			}
 		}
-		wr.WriteWord(fmt.Is64Bit() ? 8 : 4, 0);
-		last_written_offset = std::max(last_written_offset, wr.Tell());
+		wr->WriteWord(fmt.Is64Bit() ? 8 : 4, 0);
+		last_written_offset = std::max(last_written_offset, wr->Tell());
 	}
 
 	// then list the import address tables (identical formats)
 	for(auto& library : libraries)
 	{
-		wr.Seek(rva_to_offset + library.address_table_rva);
+		wr->Seek(rva_to_offset + library.address_table_rva);
 		for(auto& import_entry : library.import_table)
 		{
 			if(auto import_name = std::get_if<ImportedLibrary::Name>(&import_entry))
 			{
-				wr.WriteWord(fmt.Is64Bit() ? 8 : 4, import_name->rva);
+				wr->WriteWord(fmt.Is64Bit() ? 8 : 4, import_name->rva);
 			}
 			else if(auto import_id = std::get_if<ImportedLibrary::Ordinal>(&import_entry))
 			{
-				wr.WriteWord(fmt.Is64Bit() ? 8 : 4, (fmt.Is64Bit() ? 0x8000000000000000 : 0x80000000) + *import_id);
+				wr->WriteWord(fmt.Is64Bit() ? 8 : 4, (fmt.Is64Bit() ? 0x8000000000000000 : 0x80000000) + *import_id);
 			}
 			else
 			{
 				assert(false);
 			}
 		}
-		wr.WriteWord(fmt.Is64Bit() ? 8 : 4, 0);
-		last_written_offset = std::max(last_written_offset, wr.Tell());
+		wr->WriteWord(fmt.Is64Bit() ? 8 : 4, 0);
+		last_written_offset = std::max(last_written_offset, wr->Tell());
 	}
 
 	// list all the hint/name pairs
@@ -1224,22 +1224,22 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 		{
 			if(auto import_name = std::get_if<ImportedLibrary::Name>(&import_entry))
 			{
-				wr.Seek(rva_to_offset + import_name->rva);
-				wr.WriteWord(2, import_name->hint);
-				wr.WriteData(import_name->name);
-				wr.WriteWord(1, 0);
-				last_written_offset = std::max(last_written_offset, wr.Tell());
+				wr->Seek(rva_to_offset + import_name->rva);
+				wr->WriteWord(2, import_name->hint);
+				wr->WriteData(import_name->name);
+				wr->WriteWord(1, 0);
+				last_written_offset = std::max(last_written_offset, wr->Tell());
 			}
 		}
 	}
 
 	if(fmt.compatibility == CompatibleGNU)
 	{
-		wr.Seek(rva_to_offset + libraries[0].name_rva - 4 - 8);
+		wr->Seek(rva_to_offset + libraries[0].name_rva - 4 - 8);
 		// TODO: two 32-bit entries
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, address);
-		last_written_offset = std::max(last_written_offset, wr.Tell());
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, address);
+		last_written_offset = std::max(last_written_offset, wr->Tell());
 	}
 
 	// list DLL names
@@ -1248,24 +1248,24 @@ void PEFormat::ImportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 	{
 		if(fmt.compatibility == CompatibleGNU)
 		{
-			wr.Seek(rva_to_offset + library.name_rva - 4);
-			wr.WriteWord(4, address + library_index * 20);
+			wr->Seek(rva_to_offset + library.name_rva - 4);
+			wr->WriteWord(4, address + library_index * 20);
 		}
 		else
 		{
-			wr.Seek(rva_to_offset + library.name_rva);
+			wr->Seek(rva_to_offset + library.name_rva);
 		}
-		wr.WriteData(library.name);
-		wr.WriteWord(1, 0);
-		last_written_offset = std::max(last_written_offset, wr.Tell());
+		wr->WriteData(library.name);
+		wr->WriteWord(1, 0);
+		last_written_offset = std::max(last_written_offset, wr->Tell());
 		library_index ++;
 	}
 
 	if(last_written_offset != section_pointer + size)
 	{
 		// fill in the gap
-		wr.Seek(section_pointer + size - 1);
-		wr.WriteWord(1, 0);
+		wr->Seek(section_pointer + size - 1);
+		wr->WriteWord(1, 0);
 	}
 }
 
@@ -1520,46 +1520,46 @@ void PEFormat::ExportsSection::ReadSectionData(const std::shared_ptr<Linker::Rea
 	// TODO
 }
 
-void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
+void PEFormat::ExportsSection::WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const
 {
 	offset_t rva_to_offset = section_pointer - address;
 
-	wr.Seek(section_pointer);
-	wr.WriteWord(4, flags);
-	wr.WriteTimestamp(timestamp);
-	wr.WriteWord(2, version.major);
-	wr.WriteWord(2, version.minor);
-	wr.WriteWord(4, dll_name_rva);
-	wr.WriteWord(4, ordinal_base);
-	wr.WriteWord(4, entries.rbegin()->first - entries.begin()->first + 1);
-	wr.WriteWord(4, named_exports.size());
-	wr.WriteWord(4, address_table_rva);
-	wr.WriteWord(4, name_table_rva);
-	wr.WriteWord(4, ordinal_table_rva);
+	wr->Seek(section_pointer);
+	wr->WriteWord(4, flags);
+	wr->WriteTimestamp(timestamp);
+	wr->WriteWord(2, version.major);
+	wr->WriteWord(2, version.minor);
+	wr->WriteWord(4, dll_name_rva);
+	wr->WriteWord(4, ordinal_base);
+	wr->WriteWord(4, entries.rbegin()->first - entries.begin()->first + 1);
+	wr->WriteWord(4, named_exports.size());
+	wr->WriteWord(4, address_table_rva);
+	wr->WriteWord(4, name_table_rva);
+	wr->WriteWord(4, ordinal_table_rva);
 
-	offset_t last_written_offset = wr.Tell();
+	offset_t last_written_offset = wr->Tell();
 
 	// export address table
-	wr.Seek(rva_to_offset + address_table_rva);
+	wr->Seek(rva_to_offset + address_table_rva);
 	uint32_t ordinal = ordinal_base;
 	for(auto& ordinal_entry : entries)
 	{
 		while(ordinal < ordinal_entry.first)
 		{
 			Linker::Debug << "Debug: writing " << ordinal << " as unused" << std::endl;
-			wr.WriteWord(4, 0);
+			wr->WriteWord(4, 0);
 			ordinal ++;
 		}
 
 		if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&ordinal_entry.second->value))
 		{
 			Linker::Debug << "Debug: writing " << ordinal << " as forwarder" << std::endl;
-			wr.WriteWord(4, forwarder->rva);
+			wr->WriteWord(4, forwarder->rva);
 		}
 		else if(auto rva = std::get_if<uint32_t>(&ordinal_entry.second->value))
 		{
 			Linker::Debug << "Debug: writing " << ordinal << " as entry" << std::endl;
-			wr.WriteWord(4, *rva);
+			wr->WriteWord(4, *rva);
 		}
 		else
 		{
@@ -1568,55 +1568,55 @@ void PEFormat::ExportsSection::WriteSectionData(Linker::Writer& wr, const PEForm
 
 		ordinal++;
 	}
-	last_written_offset = std::max(last_written_offset, wr.Tell());
+	last_written_offset = std::max(last_written_offset, wr->Tell());
 
 	// export name pointer table
-	wr.Seek(rva_to_offset + name_table_rva);
+	wr->Seek(rva_to_offset + name_table_rva);
 	for(auto named_export : named_exports)
 	{
 		auto& name_rva = entries.find(named_export.second)->second->name.value();
-		wr.WriteWord(4, name_rva.rva);
+		wr->WriteWord(4, name_rva.rva);
 	}
-	last_written_offset = std::max(last_written_offset, wr.Tell());
+	last_written_offset = std::max(last_written_offset, wr->Tell());
 
 	// export ordinal table
-	wr.Seek(rva_to_offset + ordinal_table_rva);
+	wr->Seek(rva_to_offset + ordinal_table_rva);
 	for(auto named_export : named_exports)
 	{
-		wr.WriteWord(2, uint16_t(named_export.second - ordinal_base));
+		wr->WriteWord(2, uint16_t(named_export.second - ordinal_base));
 	}
-	last_written_offset = std::max(last_written_offset, wr.Tell());
+	last_written_offset = std::max(last_written_offset, wr->Tell());
 
-	wr.Seek(rva_to_offset + dll_name_rva);
-	wr.WriteData(dll_name);
-	wr.WriteWord(1, 0);
-	last_written_offset = std::max(last_written_offset, wr.Tell());
+	wr->Seek(rva_to_offset + dll_name_rva);
+	wr->WriteData(dll_name);
+	wr->WriteWord(1, 0);
+	last_written_offset = std::max(last_written_offset, wr->Tell());
 
 	for(auto& ordinal_entry : entries)
 	{
 		if(auto forwarder = std::get_if<ExportedEntry::Forwarder>(&ordinal_entry.second->value))
 		{
-			wr.Seek(rva_to_offset + forwarder->rva);
-			wr.WriteData(forwarder->reference_name);
-			wr.WriteWord(1, 0);
-			last_written_offset = std::max(last_written_offset, wr.Tell());
+			wr->Seek(rva_to_offset + forwarder->rva);
+			wr->WriteData(forwarder->reference_name);
+			wr->WriteWord(1, 0);
+			last_written_offset = std::max(last_written_offset, wr->Tell());
 		}
 	}
 
 	for(auto named_export : named_exports)
 	{
 		auto& name_rva = entries.find(named_export.second)->second->name.value();
-		wr.Seek(rva_to_offset + name_rva.rva);
-		wr.WriteData(name_rva.name);
-		wr.WriteWord(1, 0);
-		last_written_offset = std::max(last_written_offset, wr.Tell());
+		wr->Seek(rva_to_offset + name_rva.rva);
+		wr->WriteData(name_rva.name);
+		wr->WriteWord(1, 0);
+		last_written_offset = std::max(last_written_offset, wr->Tell());
 	}
 
 	if(last_written_offset != section_pointer + size)
 	{
 		// fill in the gap
-		wr.Seek(section_pointer + size - 1);
-		wr.WriteWord(1, 0);
+		wr->Seek(section_pointer + size - 1);
+		wr->WriteWord(1, 0);
 	}
 }
 
@@ -1888,31 +1888,31 @@ void PEFormat::BaseRelocationsSection::ReadSectionData(const std::shared_ptr<Lin
 	// TODO
 }
 
-void PEFormat::BaseRelocationsSection::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
+void PEFormat::BaseRelocationsSection::WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const
 {
 	offset_t offset = section_pointer;
 	for(auto block : blocks_list)
 	{
 		offset = AlignTo(offset, 4);
-		wr.Seek(offset);
-		wr.WriteWord(4, block->page_rva);
-		wr.WriteWord(4, block->block_size);
+		wr->Seek(offset);
+		wr->WriteWord(4, block->page_rva);
+		wr->WriteWord(4, block->block_size);
 
 		for(auto relocation : block->relocations_list)
 		{
-			wr.WriteWord(2, (relocation.type << 12) | (relocation.offset));
+			wr->WriteWord(2, (relocation.type << 12) | (relocation.offset));
 			if(relocation.GetEntryCount(&fmt) >= 2)
 			{
-				wr.WriteWord(2, relocation.parameter);
+				wr->WriteWord(2, relocation.parameter);
 			}
 		}
 
 		offset += block->block_size;
 	}
 
-	while(wr.Tell() < section_pointer + size)
+	while(wr->Tell() < section_pointer + size)
 	{
-		wr.WriteWord(1, 0);
+		wr->WriteWord(1, 0);
 	}
 }
 
@@ -2003,7 +2003,7 @@ void PEFormat::CLRHeaderSection::ReadSectionData(const std::shared_ptr<Linker::R
 	// TODO
 }
 
-void PEFormat::CLRHeaderSection::WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const
+void PEFormat::CLRHeaderSection::WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const
 {
 	// TODO
 }
@@ -2408,12 +2408,12 @@ void PEFormat::CalculateValues()
 	}
 }
 
-offset_t PEFormat::WriteFile(Linker::Writer& wr) const
+offset_t PEFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	stub.WriteStubImage(wr);
-	wr.Seek(file_offset);
-	wr.WriteData(pe_signature);
+	wr->Seek(file_offset);
+	wr->WriteData(pe_signature);
 	WriteFileContents(wr);
 	return offset_t(-1);
 }
@@ -4128,20 +4128,20 @@ void NTResourceFile::ReadIdentifier(const std::shared_ptr<Linker::Reader>& rd, I
 	}
 }
 
-void NTResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
+void NTResourceFile::WriteIdentifier(const std::shared_ptr<Linker::Writer>& wr, const Identifier& id)
 {
 	if(auto ordinal_p = std::get_if<uint16_t>(&id))
 	{
-		wr.WriteWord(2, 0xFFFF, ::LittleEndian);
-		wr.WriteWord(2, *ordinal_p, ::LittleEndian);
+		wr->WriteWord(2, 0xFFFF, ::LittleEndian);
+		wr->WriteWord(2, *ordinal_p, ::LittleEndian);
 	}
 	else if(auto string_p = std::get_if<std::string>(&id))
 	{
 		const std::string& s = *string_p;
-		wr.WriteData(s.size(), s);
-		wr.WriteWord(2, 0, ::LittleEndian);
+		wr->WriteData(s.size(), s);
+		wr->WriteWord(2, 0, ::LittleEndian);
 		if((s.size() % 4) != 0)
-			wr.Skip(4 - (s.size() % 4));
+			wr->Skip(4 - (s.size() % 4));
 	}
 	else
 	{
@@ -4214,30 +4214,30 @@ void NTResourceFile::CalculateValues()
 	}
 }
 
-offset_t NTResourceFile::WriteFile(Linker::Writer& wr) const
+offset_t NTResourceFile::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	for(auto& resource : resources)
 	{
-		offset_t current_offset = wr.Tell();
+		offset_t current_offset = wr->Tell();
 		size_t size = resource.image->ImageSize();
 
-		wr.WriteWord(4, size, ::LittleEndian);
-		wr.WriteWord(4, resource.header_size, ::LittleEndian);
+		wr->WriteWord(4, size, ::LittleEndian);
+		wr->WriteWord(4, resource.header_size, ::LittleEndian);
 
 		WriteIdentifier(wr, resource.type);
 		WriteIdentifier(wr, resource.name);
 
-		wr.WriteWord(4, resource.data_version, ::LittleEndian);
-		wr.WriteWord(2, resource.flags, ::LittleEndian);
-		wr.WriteWord(2, resource.language_id, ::LittleEndian);
-		wr.WriteWord(4, resource.version, ::LittleEndian);
-		wr.WriteWord(4, resource.characteristics, ::LittleEndian);
+		wr->WriteWord(4, resource.data_version, ::LittleEndian);
+		wr->WriteWord(2, resource.flags, ::LittleEndian);
+		wr->WriteWord(2, resource.language_id, ::LittleEndian);
+		wr->WriteWord(4, resource.version, ::LittleEndian);
+		wr->WriteWord(4, resource.characteristics, ::LittleEndian);
 
-		wr.Seek(current_offset + resource.header_size);
+		wr->Seek(current_offset + resource.header_size);
 		resource.image->WriteFile(wr);
 
 		if((size % 4) != 0)
-			wr.Skip(4 - (size % 4));
+			wr->Skip(4 - (size % 4));
 	}
 	return offset_t(-1); // TODO
 }

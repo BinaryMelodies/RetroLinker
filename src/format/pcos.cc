@@ -18,10 +18,10 @@ void CMDFormat::MemoryBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd,
 {
 }
 
-void CMDFormat::MemoryBlock::WriteFile(Linker::Writer& wr) const
+void CMDFormat::MemoryBlock::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(1, type);
-	wr.WriteWord(2, GetLength());
+	wr->WriteWord(1, type);
+	wr->WriteWord(2, GetLength());
 }
 
 std::unique_ptr<CMDFormat::MemoryBlock> CMDFormat::MemoryBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
@@ -97,10 +97,10 @@ void CMDFormat::LoadBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd, u
 	image = Linker::Buffer::ReadFromFile(rd, length - 4);
 }
 
-void CMDFormat::LoadBlock::WriteFile(Linker::Writer& wr) const
+void CMDFormat::LoadBlock::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	MemoryBlock::WriteFile(wr);
-	wr.WriteWord(4, block_id);
+	wr->WriteWord(4, block_id);
 	image->WriteFile(wr);
 }
 
@@ -154,14 +154,14 @@ int CMDFormat::RelocationBlock::GetDisplayOptions() const
 	return Dumper::Relocation;
 }
 
-void CMDFormat::RelocationBlock::WriteFile(Linker::Writer& wr) const
+void CMDFormat::RelocationBlock::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	MemoryBlock::WriteFile(wr);
-	wr.WriteWord(1, source);
-	wr.WriteWord(1, target);
+	wr->WriteWord(1, source);
+	wr->WriteWord(1, target);
 	for(auto rel : offsets)
 	{
-		wr.WriteWord(2, rel);
+		wr->WriteWord(2, rel);
 	}
 }
 
@@ -194,7 +194,7 @@ void CMDFormat::UnknownBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd
 	image = Linker::Buffer::ReadFromFile(rd, length);
 }
 
-void CMDFormat::UnknownBlock::WriteFile(Linker::Writer& wr) const
+void CMDFormat::UnknownBlock::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	MemoryBlock::WriteFile(wr);
 	image->WriteFile(wr);
@@ -227,21 +227,21 @@ void CMDFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t CMDFormat::WriteFile(Linker::Writer& wr) const
+offset_t CMDFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.Seek(0);
-	wr.WriteWord(1, 0x02);
-	wr.WriteWord(2, file_header_size);
-	wr.WriteData("TLOC");
-	wr.WriteData(linker_version);
-	wr.WriteWord(1, type);
-	wr.Skip(2); // unknown
-	wr.WriteWord(3, entry_point);
-	wr.WriteWord(2, stack_size);
-	wr.Skip(44); // unknown
-	wr.WriteWord(2, allocation_length);
-	wr.Seek(3 + file_header_size);
+	wr->endiantype = ::BigEndian;
+	wr->Seek(0);
+	wr->WriteWord(1, 0x02);
+	wr->WriteWord(2, file_header_size);
+	wr->WriteData("TLOC");
+	wr->WriteData(linker_version);
+	wr->WriteWord(1, type);
+	wr->Skip(2); // unknown
+	wr->WriteWord(3, entry_point);
+	wr->WriteWord(2, stack_size);
+	wr->Skip(44); // unknown
+	wr->WriteWord(2, allocation_length);
+	wr->Seek(3 + file_header_size);
 	for(auto& block: blocks)
 	{
 		block->WriteFile(wr);

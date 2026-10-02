@@ -229,49 +229,49 @@ void SeychellDOS32::AdamFormat::ReadFile(const std::shared_ptr<Linker::Reader>& 
 	}
 }
 
-offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
+offset_t SeychellDOS32::AdamFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
 
-	wr.endiantype = ::LittleEndian;
-	wr.Seek(file_offset);
-	wr.WriteData(signature);
-	wr.WriteData(dlink_version);
-	wr.WriteData(minimum_dos_version);
+	wr->endiantype = ::LittleEndian;
+	wr->Seek(file_offset);
+	wr->WriteData(signature);
+	wr->WriteData(dlink_version);
+	wr->WriteData(minimum_dos_version);
 	if(!IsV35())
 	{
-		wr.WriteWord(4, image_size);
-		wr.WriteWord(4, header_size);
-		wr.WriteWord(4, image->ImageSize());
-		wr.WriteWord(4, memory_size);
-		wr.WriteWord(4, eip);
-		wr.WriteWord(4, esp);
-		wr.WriteWord(4, selector_relocation_count);
-		wr.WriteWord(4, flags);
+		wr->WriteWord(4, image_size);
+		wr->WriteWord(4, header_size);
+		wr->WriteWord(4, image->ImageSize());
+		wr->WriteWord(4, memory_size);
+		wr->WriteWord(4, eip);
+		wr->WriteWord(4, esp);
+		wr->WriteWord(4, selector_relocation_count);
+		wr->WriteWord(4, flags);
 		if(offset_relocations_size != 0 && header_size >= 0x2C)
 		{
-			wr.WriteWord(4, offset_relocations_size);
-			wr.Skip(header_size - 0x2C);
+			wr->WriteWord(4, offset_relocations_size);
+			wr->Skip(header_size - 0x2C);
 		}
 		else
 		{
-			wr.Skip(header_size - 0x28);
+			wr->Skip(header_size - 0x28);
 		}
 	}
 	else
 	{
-		wr.WriteWord(4, contents_size);
-		wr.WriteWord(4, image_size);
-		wr.WriteWord(4, header_size);
-		wr.WriteWord(4, eip);
-		wr.WriteWord(4, memory_size);
-		wr.WriteWord(4, esp);
-		wr.WriteWord(4, program_size);
-		wr.WriteWord(4, flags);
-		wr.Skip(header_size - 0x28);
+		wr->WriteWord(4, contents_size);
+		wr->WriteWord(4, image_size);
+		wr->WriteWord(4, header_size);
+		wr->WriteWord(4, eip);
+		wr->WriteWord(4, memory_size);
+		wr->WriteWord(4, esp);
+		wr->WriteWord(4, program_size);
+		wr->WriteWord(4, flags);
+		wr->Skip(header_size - 0x28);
 	}
 
 	image->WriteFile(wr);
@@ -280,13 +280,13 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 	{
 		for(auto rel : selector_relocations)
 		{
-			wr.WriteWord(4, rel);
+			wr->WriteWord(4, rel);
 		}
 
 		// DX64
 		for(auto rel : offset_relocations)
 		{
-			wr.WriteWord(4, rel + 4);
+			wr->WriteWord(4, rel + 4);
 		}
 	}
 	else
@@ -312,15 +312,15 @@ offset_t SeychellDOS32::AdamFormat::WriteFile(Linker::Writer& wr) const
 				if(i > 0)
 					value += 0x80;
 				uint8_t opcode = (value << 4) | (value >> 4);
-				wr.WriteWord(1, opcode);
+				wr->WriteWord(1, opcode);
 				uint8_t scales = i > 1 ? i - 1 : 0;
 				while(scales-- != 0)
 				{
-					wr.WriteWord(1, 0x08);
+					wr->WriteWord(1, 0x08);
 				}
 			}
 			if(rel.second == Selector16)
-				wr.WriteWord(1, 0x00);
+				wr->WriteWord(1, 0x00);
 			relocation_source_offset = rel.first;
 		}
 	}
@@ -682,22 +682,22 @@ void DX64::LVFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	image = Linker::Buffer::ReadFromFile(rd, program_size);
 }
 
-offset_t DX64::LVFormat::WriteFile(Linker::Writer& wr) const
+offset_t DX64::LVFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
 
-	wr.endiantype = ::LittleEndian;
-	wr.Seek(file_offset);
+	wr->endiantype = ::LittleEndian;
+	wr->Seek(file_offset);
 
-	wr.endiantype = ::LittleEndian;
-	wr.WriteData(signature);
-	wr.WriteWord(4, program_size);
-	wr.WriteWord(4, eip);
-	wr.WriteWord(4, esp);
-	wr.WriteWord(4, memory_size);
+	wr->endiantype = ::LittleEndian;
+	wr->WriteData(signature);
+	wr->WriteWord(4, program_size);
+	wr->WriteWord(4, eip);
+	wr->WriteWord(4, esp);
+	wr->WriteWord(4, memory_size);
 	image->WriteFile(wr);
 	return offset_t(-1);
 }
@@ -766,22 +766,22 @@ offset_t BorcaD3X::D3X1Format::ImageSize() const
 	return file_offset + header_size + image->ImageSize();
 }
 
-offset_t BorcaD3X::D3X1Format::WriteFile(Linker::Writer& wr) const
+offset_t BorcaD3X::D3X1Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
 
-	wr.endiantype = ::LittleEndian;
-	wr.Seek(file_offset);
-	wr.WriteData(4, "D3X1");
-	wr.WriteWord(4, header_size);
-	wr.WriteWord(4, binary_size);
-	wr.WriteWord(4, extra_size);
-	wr.WriteWord(4, entry);
-	wr.WriteWord(4, stack_top);
-	wr.Seek(file_offset + header_size);
+	wr->endiantype = ::LittleEndian;
+	wr->Seek(file_offset);
+	wr->WriteData(4, "D3X1");
+	wr->WriteWord(4, header_size);
+	wr->WriteWord(4, binary_size);
+	wr->WriteWord(4, extra_size);
+	wr->WriteWord(4, entry);
+	wr->WriteWord(4, stack_top);
+	wr->Seek(file_offset + header_size);
 	image->WriteFile(wr);
 	return ImageSize();
 }

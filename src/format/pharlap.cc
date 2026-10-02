@@ -204,37 +204,37 @@ void MPFormat::CalculateValues()
 	relocation_count = has_relocations ? relocations.size() : 0;
 }
 
-offset_t MPFormat::WriteFile(Linker::Writer& wr) const
+offset_t MPFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	if(stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
-	wr.Seek(file_offset);
-	wr.WriteData(2, has_relocations ? "MQ" : "MP");
-	wr.WriteWord(2, image_size & 0x1FF);
-	wr.WriteWord(2, (image_size + 0x1FF) >> 9);
-	wr.WriteWord(2, relocation_count);
-	wr.WriteWord(2, (header_size + 0xF) >> 4);
-	wr.WriteWord(2, min_extra_pages);
-	wr.WriteWord(2, max_extra_pages);
-	wr.WriteWord(4, esp);
-	wr.WriteWord(2, checksum); /* TODO */
-	wr.WriteWord(4, eip);
-	wr.WriteWord(2, has_relocations ? relocation_offset : 0);
-	wr.WriteWord(2, 1);
+	wr->Seek(file_offset);
+	wr->WriteData(2, has_relocations ? "MQ" : "MP");
+	wr->WriteWord(2, image_size & 0x1FF);
+	wr->WriteWord(2, (image_size + 0x1FF) >> 9);
+	wr->WriteWord(2, relocation_count);
+	wr->WriteWord(2, (header_size + 0xF) >> 4);
+	wr->WriteWord(2, min_extra_pages);
+	wr->WriteWord(2, max_extra_pages);
+	wr->WriteWord(4, esp);
+	wr->WriteWord(2, checksum); /* TODO */
+	wr->WriteWord(4, eip);
+	wr->WriteWord(2, has_relocations ? relocation_offset : 0);
+	wr->WriteWord(2, 1);
 
 	if(has_relocations && relocations.size() != 0)
 	{
-		wr.Seek(file_offset + relocation_offset);
+		wr->Seek(file_offset + relocation_offset);
 		for(Relocation rel : relocations)
 		{
-			wr.WriteWord(4, rel.value);
+			wr->WriteWord(4, rel.value);
 		}
 	}
 
-	wr.Seek(file_offset + ::AlignTo(header_size, 0x10));
+	wr->Seek(file_offset + ::AlignTo(header_size, 0x10));
 	image->WriteFile(wr);
 
 	return offset_t(-1);
@@ -538,18 +538,18 @@ void P3Format::RunTimeParameterBlock::CalculateValues()
 	ring = 0;
 }
 
-void P3Format::RunTimeParameterBlock::WriteFile(Linker::Writer& wr) const
+void P3Format::RunTimeParameterBlock::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, min_realmode_param);
-	wr.WriteWord(2, max_realmode_param);
-	wr.WriteWord(2, min_int_buffer_size_kb);
-	wr.WriteWord(2, max_int_buffer_size_kb);
-	wr.WriteWord(2, int_stack_count);
-	wr.WriteWord(2, int_stack_size_kb);
-	wr.WriteWord(4, realmode_area_end);
-	wr.WriteWord(2, call_buffer_size_kb);
-	wr.WriteWord(2, flags);
-	wr.WriteWord(2, ring);
+	wr->WriteWord(2, min_realmode_param);
+	wr->WriteWord(2, max_realmode_param);
+	wr->WriteWord(2, min_int_buffer_size_kb);
+	wr->WriteWord(2, max_int_buffer_size_kb);
+	wr->WriteWord(2, int_stack_count);
+	wr->WriteWord(2, int_stack_size_kb);
+	wr->WriteWord(4, realmode_area_end);
+	wr->WriteWord(2, call_buffer_size_kb);
+	wr->WriteWord(2, flags);
+	wr->WriteWord(2, ring);
 }
 
 std::shared_ptr<Linker::OptionCollector> P3Format::GetOptions()
@@ -577,54 +577,54 @@ std::string P3Format::GetDefaultExtension(Linker::Module& module, std::string fi
 	}
 }
 
-void P3Format::WriteHeader(Linker::Writer& wr) const
+void P3Format::WriteHeader(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	if(stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
-	wr.Seek(file_offset);
-	wr.WriteData(2, is_32bit ? "P3" : "P2");
-	wr.WriteWord(2, is_multisegmented ? 2 : 1);
-	wr.WriteWord(2, header_size);
-	wr.WriteWord(4, file_size);
-	wr.WriteWord(2, checksum16); /* TODO */
-	wr.WriteWord(4, runtime_parameters_offset);
-	wr.WriteWord(4, runtime_parameters_size);
-	wr.WriteWord(4, relocation_table_offset);
-	wr.WriteWord(4, relocation_table_size);
-	wr.WriteWord(4, segment_information_table_offset);
-	wr.WriteWord(4, segment_information_table_size);
-	wr.WriteWord(2, segment_information_table_entry_size);
-	wr.WriteWord(4, load_image_offset);
-	wr.WriteWord(4, load_image_size);
-	wr.WriteWord(4, symbol_table_offset);
-	wr.WriteWord(4, symbol_table_size);
-	wr.WriteWord(4, gdt_address);
-	wr.WriteWord(4, gdt_size);
-	wr.WriteWord(4, ldt_address);
-	wr.WriteWord(4, ldt_size);
-	wr.WriteWord(4, idt_address);
-	wr.WriteWord(4, idt_size);
-	wr.WriteWord(4, tss_address);
-	wr.WriteWord(4, tss_size);
-	wr.WriteWord(4, minimum_extra);
-	wr.WriteWord(4, maximum_extra);
-	wr.WriteWord(4, base_load_offset);
-	wr.WriteWord(4, esp);
-	wr.WriteWord(2, ss);
-	wr.WriteWord(4, eip);
-	wr.WriteWord(2, cs);
-	wr.WriteWord(2, ldtr);
-	wr.WriteWord(2, tr);
-	wr.WriteWord(2, flags);
-	wr.WriteWord(4, memory_requirements);
-	wr.WriteWord(4, checksum32); /* TODO */
-	wr.WriteWord(4, stack_size);
+	wr->Seek(file_offset);
+	wr->WriteData(2, is_32bit ? "P3" : "P2");
+	wr->WriteWord(2, is_multisegmented ? 2 : 1);
+	wr->WriteWord(2, header_size);
+	wr->WriteWord(4, file_size);
+	wr->WriteWord(2, checksum16); /* TODO */
+	wr->WriteWord(4, runtime_parameters_offset);
+	wr->WriteWord(4, runtime_parameters_size);
+	wr->WriteWord(4, relocation_table_offset);
+	wr->WriteWord(4, relocation_table_size);
+	wr->WriteWord(4, segment_information_table_offset);
+	wr->WriteWord(4, segment_information_table_size);
+	wr->WriteWord(2, segment_information_table_entry_size);
+	wr->WriteWord(4, load_image_offset);
+	wr->WriteWord(4, load_image_size);
+	wr->WriteWord(4, symbol_table_offset);
+	wr->WriteWord(4, symbol_table_size);
+	wr->WriteWord(4, gdt_address);
+	wr->WriteWord(4, gdt_size);
+	wr->WriteWord(4, ldt_address);
+	wr->WriteWord(4, ldt_size);
+	wr->WriteWord(4, idt_address);
+	wr->WriteWord(4, idt_size);
+	wr->WriteWord(4, tss_address);
+	wr->WriteWord(4, tss_size);
+	wr->WriteWord(4, minimum_extra);
+	wr->WriteWord(4, maximum_extra);
+	wr->WriteWord(4, base_load_offset);
+	wr->WriteWord(4, esp);
+	wr->WriteWord(2, ss);
+	wr->WriteWord(4, eip);
+	wr->WriteWord(2, cs);
+	wr->WriteWord(2, ldtr);
+	wr->WriteWord(2, tr);
+	wr->WriteWord(2, flags);
+	wr->WriteWord(4, memory_requirements);
+	wr->WriteWord(4, checksum32); /* TODO */
+	wr->WriteWord(4, stack_size);
 }
 
-offset_t P3Format::WriteFile(Linker::Writer& wr) const
+offset_t P3Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	WriteHeader(wr);
 	// TODO
@@ -939,21 +939,21 @@ void P3Format::Descriptor::CalculateValues()
 	base = segment ? segment->address : 0;
 }
 
-void P3Format::Descriptor::WriteEntry(Linker::Writer& wr) const
+void P3Format::Descriptor::WriteEntry(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(IsGate())
 	{
-		wr.WriteWord(2, offset & 0xFFFF);
-		wr.WriteWord(2, selector);
-		wr.WriteWord(2, access & 0xFFFF);
-		wr.WriteWord(2, offset >> 16);
+		wr->WriteWord(2, offset & 0xFFFF);
+		wr->WriteWord(2, selector);
+		wr->WriteWord(2, access & 0xFFFF);
+		wr->WriteWord(2, offset >> 16);
 	}
 	else
 	{
-		wr.WriteWord(2, limit & 0xFFFF);
-		wr.WriteWord(3, base & 0xFFFFFF);
-		wr.WriteWord(2, (access | (limit & 0xF0000)) >> 8);
-		wr.WriteWord(1, base >> 24);
+		wr->WriteWord(2, limit & 0xFFFF);
+		wr->WriteWord(3, base & 0xFFFFFF);
+		wr->WriteWord(2, (access | (limit & 0xF0000)) >> 8);
+		wr->WriteWord(1, base >> 24);
 	}
 }
 
@@ -1040,7 +1040,7 @@ uint32_t P3Format::DescriptorTable::GetLoadedSize() const
 	return descriptors.size() * 8;
 }
 
-void P3Format::DescriptorTable::WriteFile(Linker::Writer& wr) const
+void P3Format::DescriptorTable::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	for(auto& descriptor : descriptors)
 	{
@@ -1066,61 +1066,61 @@ uint32_t P3Format::TaskStateSegment::GetLoadedSize() const
 	return is_32bit ? 0x68 : 0x2C;
 }
 
-void P3Format::TaskStateSegment::WriteFile(Linker::Writer& wr) const
+void P3Format::TaskStateSegment::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(is_32bit)
 	{
-		wr.WriteWord(4, link);
-		wr.WriteWord(4, esp0);
-		wr.WriteWord(4, ss0);
-		wr.WriteWord(4, esp1);
-		wr.WriteWord(4, ss1);
-		wr.WriteWord(4, esp2);
-		wr.WriteWord(4, ss2);
-		wr.WriteWord(4, cr3);
-		wr.WriteWord(4, eip);
-		wr.WriteWord(4, eflags);
-		wr.WriteWord(4, eax);
-		wr.WriteWord(4, ecx);
-		wr.WriteWord(4, edx);
-		wr.WriteWord(4, ebx);
-		wr.WriteWord(4, esp);
-		wr.WriteWord(4, ebp);
-		wr.WriteWord(4, esi);
-		wr.WriteWord(4, edi);
-		wr.WriteWord(4, es);
-		wr.WriteWord(4, cs);
-		wr.WriteWord(4, ss);
-		wr.WriteWord(4, ds);
-		wr.WriteWord(4, fs);
-		wr.WriteWord(4, gs);
-		wr.WriteWord(4, ldtr);
-		wr.WriteWord(4, uint32_t(iopb) << 16);
+		wr->WriteWord(4, link);
+		wr->WriteWord(4, esp0);
+		wr->WriteWord(4, ss0);
+		wr->WriteWord(4, esp1);
+		wr->WriteWord(4, ss1);
+		wr->WriteWord(4, esp2);
+		wr->WriteWord(4, ss2);
+		wr->WriteWord(4, cr3);
+		wr->WriteWord(4, eip);
+		wr->WriteWord(4, eflags);
+		wr->WriteWord(4, eax);
+		wr->WriteWord(4, ecx);
+		wr->WriteWord(4, edx);
+		wr->WriteWord(4, ebx);
+		wr->WriteWord(4, esp);
+		wr->WriteWord(4, ebp);
+		wr->WriteWord(4, esi);
+		wr->WriteWord(4, edi);
+		wr->WriteWord(4, es);
+		wr->WriteWord(4, cs);
+		wr->WriteWord(4, ss);
+		wr->WriteWord(4, ds);
+		wr->WriteWord(4, fs);
+		wr->WriteWord(4, gs);
+		wr->WriteWord(4, ldtr);
+		wr->WriteWord(4, uint32_t(iopb) << 16);
 	}
 	else
 	{
-		wr.WriteWord(2, link);
-		wr.WriteWord(2, esp0);
-		wr.WriteWord(2, ss0);
-		wr.WriteWord(2, esp1);
-		wr.WriteWord(2, ss1);
-		wr.WriteWord(2, esp2);
-		wr.WriteWord(2, ss2);
-		wr.WriteWord(2, eip);
-		wr.WriteWord(2, eflags);
-		wr.WriteWord(2, eax);
-		wr.WriteWord(2, ecx);
-		wr.WriteWord(2, edx);
-		wr.WriteWord(2, ebx);
-		wr.WriteWord(2, esp);
-		wr.WriteWord(2, ebp);
-		wr.WriteWord(2, esi);
-		wr.WriteWord(2, edi);
-		wr.WriteWord(2, es);
-		wr.WriteWord(2, cs);
-		wr.WriteWord(2, ss);
-		wr.WriteWord(2, ds);
-		wr.WriteWord(2, ldtr);
+		wr->WriteWord(2, link);
+		wr->WriteWord(2, esp0);
+		wr->WriteWord(2, ss0);
+		wr->WriteWord(2, esp1);
+		wr->WriteWord(2, ss1);
+		wr->WriteWord(2, esp2);
+		wr->WriteWord(2, ss2);
+		wr->WriteWord(2, eip);
+		wr->WriteWord(2, eflags);
+		wr->WriteWord(2, eax);
+		wr->WriteWord(2, ecx);
+		wr->WriteWord(2, edx);
+		wr->WriteWord(2, ebx);
+		wr->WriteWord(2, esp);
+		wr->WriteWord(2, ebp);
+		wr->WriteWord(2, esi);
+		wr->WriteWord(2, edi);
+		wr->WriteWord(2, es);
+		wr->WriteWord(2, cs);
+		wr->WriteWord(2, ss);
+		wr->WriteWord(2, ds);
+		wr->WriteWord(2, ldtr);
 	}
 }
 
@@ -1230,15 +1230,15 @@ uint32_t P3Format::SITEntry::GetLoadedSize() const
 	return GetStoredSize() + GetZeroSize();
 }
 
-void P3Format::SITEntry::WriteSITEntry(Linker::Writer& wr) const
+void P3Format::SITEntry::WriteSITEntry(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, selector);
-	wr.WriteWord(2, flags);
-	wr.WriteWord(4, base_offset);
-	wr.WriteWord(4, GetZeroSize());
+	wr->WriteWord(2, selector);
+	wr->WriteWord(2, flags);
+	wr->WriteWord(4, base_offset);
+	wr->WriteWord(4, GetZeroSize());
 }
 
-void P3Format::SITEntry::WriteFile(Linker::Writer& wr) const
+void P3Format::SITEntry::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO
 }
@@ -1263,7 +1263,7 @@ uint32_t P3Format::Segment::GetZeroSize() const
 	return segment->zero_fill;
 }
 
-void P3Format::Segment::WriteFile(Linker::Writer& wr) const
+void P3Format::Segment::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	segment->WriteFile(wr);
 }
@@ -1278,10 +1278,10 @@ bool P3Format::Relocation::operator <(const Relocation& other) const
 	return selector < other.selector || (selector == other.selector && offset < other.offset);
 }
 
-void P3Format::Relocation::WriteFile(Linker::Writer& wr) const
+void P3Format::Relocation::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, offset);
-	wr.WriteWord(2, selector);
+	wr->WriteWord(4, offset);
+	wr->WriteWord(2, selector);
 }
 
 std::shared_ptr<Linker::Segment> P3Format::Flat::GetSegment()
@@ -1468,14 +1468,14 @@ void P3Format::Flat::CalculateValues()
 	symbol_table_size = 0;
 }
 
-offset_t P3Format::Flat::WriteFile(Linker::Writer& wr) const
+offset_t P3Format::Flat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	P3Format::WriteHeader(wr);
 
-	wr.Seek(file_offset + runtime_parameters_offset);
+	wr->Seek(file_offset + runtime_parameters_offset);
 	runtime_parameters.WriteFile(wr);
 
-	wr.Seek(file_offset + load_image_offset);
+	wr->Seek(file_offset + load_image_offset);
 	image->WriteFile(wr);
 
 	return offset_t(-1);
@@ -1779,11 +1779,11 @@ void P3Format::MultiSegmented::CalculateValues()
 	symbol_table_size = 0;
 }
 
-offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr) const
+offset_t P3Format::MultiSegmented::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	P3Format::WriteHeader(wr);
 
-	wr.Seek(file_offset + segment_information_table_offset);
+	wr->Seek(file_offset + segment_information_table_offset);
 	for(auto abstract_segment : segments)
 	{
 		if(auto segment = std::dynamic_pointer_cast<Segment>(abstract_segment))
@@ -1792,16 +1792,16 @@ offset_t P3Format::MultiSegmented::WriteFile(Linker::Writer& wr) const
 		}
 	}
 
-	wr.Seek(file_offset + relocation_table_offset);
+	wr->Seek(file_offset + relocation_table_offset);
 	for(auto& relocation : relocations)
 	{
 		relocation.WriteFile(wr);
 	}
 
-	wr.Seek(file_offset + runtime_parameters_offset);
+	wr->Seek(file_offset + runtime_parameters_offset);
 	runtime_parameters.WriteFile(wr);
 
-	wr.Seek(file_offset + load_image_offset);
+	wr->Seek(file_offset + load_image_offset);
 	for(auto segment : segments)
 	{
 		segment->WriteFile(wr);

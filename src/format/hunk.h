@@ -126,7 +126,7 @@ namespace Amiga
 			/** @brief Reads the rest of the block after the type word */
 			virtual void Read(const std::shared_ptr<Linker::Reader>& rd);
 			/** @brief Writes the entire block into a file */
-			virtual void Write(Linker::Writer& wr) const;
+			virtual void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 			/** @brief Returns the size of the block as stored inside a file */
 			virtual offset_t FileSize() const;
 			virtual int GetDisplayOptions() const;
@@ -147,7 +147,7 @@ namespace Amiga
 			}
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 		};
 
@@ -166,7 +166,7 @@ namespace Amiga
 			}
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 
 			//int GetDisplayOptions() const override;
@@ -215,7 +215,7 @@ namespace Amiga
 			uint32_t GetAdditionalFlags() const;
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 
 			void AddExtraFields(Dumper::Region& region, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
@@ -226,7 +226,7 @@ namespace Amiga
 			/** @brief Reads the segment data (if any) */
 			virtual void ReadBody(const std::shared_ptr<Linker::Reader>& rd, uint32_t longword_count);
 			/** @brief Writes the segment data (if any) */
-			virtual void WriteBody(Linker::Writer& wr) const;
+			virtual void WriteBody(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 
 		/** @brief Represents the load block of a non-bss segment (hunk) HUNK_CODE/HUNK_DATA/HUNK_PPC_CODE, containing a memory image */
@@ -246,7 +246,7 @@ namespace Amiga
 		protected:
 			uint32_t GetSize() const override;
 			void ReadBody(const std::shared_ptr<Linker::Reader>& rd, uint32_t longword_count) override;
-			void WriteBody(Linker::Writer& wr) const override;
+			void WriteBody(const std::shared_ptr<Linker::Writer>& wr) const override;
 		};
 
 		/** @brief Represents the declaration block of a HUNK_BSS segment (hunk) that needs to be allocated and filled with zero at load time */
@@ -294,7 +294,7 @@ namespace Amiga
 			Relocation::relocation_type GetRelocationType() const;
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 
 			int GetDisplayOptions() const override;
@@ -342,7 +342,7 @@ namespace Amiga
 				/** @brief Read data after type and name */
 				virtual void Read(const std::shared_ptr<Linker::Reader>& rd);
 				/** @brief Write entire unit */
-				virtual void Write(Linker::Writer& wr) const;
+				virtual void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 				/** @brief Size of entire unit, including type and name fields */
 				virtual offset_t FileSize() const;
 				virtual void DumpContents(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const;
@@ -361,7 +361,7 @@ namespace Amiga
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
 				/** @brief Write entire unit */
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				/** @brief Size of entire unit, including type and name fields */
 				offset_t FileSize() const override;
 				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
@@ -385,7 +385,7 @@ namespace Amiga
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
 				/** @brief Write entire unit */
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				/** @brief Size of entire unit, including type and name fields */
 				offset_t FileSize() const override;
 				void DumpContents(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
@@ -403,7 +403,7 @@ namespace Amiga
 
 				void Read(const std::shared_ptr<Linker::Reader>& rd) override;
 				/** @brief Write entire unit */
-				void Write(Linker::Writer& wr) const override;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 				/** @brief Size of entire unit, including type and name fields */
 				offset_t FileSize() const override;
 				void AddExtraFields(Dumper::Dumper& dump, Dumper::Entry& entry, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
@@ -417,7 +417,7 @@ namespace Amiga
 			}
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, const Module& module, const Hunk * hunk, unsigned index, offset_t current_offset) const override;
@@ -436,7 +436,7 @@ namespace Amiga
 			}
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 
 			int GetDisplayOptions() const override;
@@ -469,7 +469,7 @@ namespace Amiga
 			}
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 
 			int GetDisplayOptions() const override;
@@ -490,7 +490,7 @@ namespace Amiga
 			}
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 
 			int GetDisplayOptions() const override;
@@ -510,7 +510,7 @@ namespace Amiga
 				uint16_t type = 0;
 
 				static Definition Read(const std::shared_ptr<Linker::Reader>& rd);
-				void Write(Linker::Writer& wr) const;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 			};
 
 			class HunkEntry
@@ -523,7 +523,7 @@ namespace Amiga
 				std::vector<Definition> definitions;
 
 				static HunkEntry Read(const std::shared_ptr<Linker::Reader>& rd);
-				void Write(Linker::Writer& wr) const;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 				offset_t FileSize() const;
 			};
 
@@ -535,7 +535,7 @@ namespace Amiga
 				std::vector<HunkEntry> hunks;
 
 				static ProgramUnit Read(const std::shared_ptr<Linker::Reader>& rd);
-				void Write(Linker::Writer& wr) const;
+				void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 				offset_t FileSize() const;
 			};
 
@@ -550,7 +550,7 @@ namespace Amiga
 			offset_t StringTableSize() const;
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t FileSize() const override;
 
 			int GetDisplayOptions() const override;
@@ -648,7 +648,7 @@ namespace Amiga
 			bool IsExecutable() const;
 			offset_t ImageSize() const;
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, std::shared_ptr<Block>& next_block, offset_t end);
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 			void Dump(Dumper::Dumper& dump, offset_t current_offset, unsigned index) const;
 
 			/** @brief If a header block is available, checks the associated hunk size in the header, returns 0 otherwise */
@@ -668,14 +668,14 @@ namespace Amiga
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		static std::string ReadString(uint32_t longword_count, const std::shared_ptr<Linker::Reader>& rd);
 		static std::string ReadString(const std::shared_ptr<Linker::Reader>& rd, uint32_t& longword_count);
 		static std::string ReadString(const std::shared_ptr<Linker::Reader>& rd);
-		static void WriteStringContents(Linker::Writer& wr, std::string name);
-		static void WriteString(Linker::Writer& wr, std::string name);
+		static void WriteStringContents(const std::shared_ptr<Linker::Writer>& wr, std::string name);
+		static void WriteString(const std::shared_ptr<Linker::Writer>& wr, std::string name);
 		static offset_t MeasureString(std::string name);
 
 		/* * * Writer members * * */

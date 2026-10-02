@@ -75,7 +75,7 @@ namespace X68000
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;

@@ -25,9 +25,9 @@ offset_t OMFFormat::Segment::ReadUnsigned(const std::shared_ptr<Linker::Reader>&
 	return rd->ReadUnsigned(number_length);
 }
 
-void OMFFormat::Segment::WriteWord(Linker::Writer& wr, offset_t value) const
+void OMFFormat::Segment::WriteWord(const std::shared_ptr<Linker::Writer>& wr, offset_t value) const
 {
-	wr.WriteWord(number_length, value);
+	wr->WriteWord(number_length, value);
 }
 
 std::string OMFFormat::Segment::ReadLabel(const std::shared_ptr<Linker::Reader>& rd) const
@@ -40,15 +40,15 @@ std::string OMFFormat::Segment::ReadLabel(const std::shared_ptr<Linker::Reader>&
 	return rd->ReadData(length);
 }
 
-void OMFFormat::Segment::WriteLabel(Linker::Writer& wr, std::string text) const
+void OMFFormat::Segment::WriteLabel(const std::shared_ptr<Linker::Writer>& wr, std::string text) const
 {
 	uint8_t length = label_length;
 	if(length == 0)
 	{
 		length = text.size();
-		wr.WriteWord(1, length);
+		wr->WriteWord(1, length);
 	}
-	wr.WriteData(length, text);
+	wr->WriteData(length, text);
 }
 
 offset_t OMFFormat::Segment::CalculateValues(uint16_t _segment_number, offset_t current_offset)
@@ -200,72 +200,72 @@ void OMFFormat::Segment::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-void OMFFormat::Segment::WriteFile(Linker::Writer& wr) const
+void OMFFormat::Segment::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.Seek(segment_offset);
+	wr->Seek(segment_offset);
 	switch(endiantype)
 	{
 	case 0:
-		wr.endiantype = ::LittleEndian;
+		wr->endiantype = ::LittleEndian;
 		break;
 	case 1:
-		wr.endiantype = ::BigEndian;
+		wr->endiantype = ::BigEndian;
 		break;
 	default:
 		Linker::Error << "Invalid NUMSEX field: " << endiantype << ", expected 0 or 1" << std::endl;
 	}
 
-	wr.WriteWord(4, version == OMF_VERSION_1 ? total_segment_size >> 9 : total_segment_size);
-	wr.WriteWord(4, bss_size);
-	wr.WriteWord(4, total_size);
+	wr->WriteWord(4, version == OMF_VERSION_1 ? total_segment_size >> 9 : total_segment_size);
+	wr->WriteWord(4, bss_size);
+	wr->WriteWord(4, total_size);
 	if(version == OMF_VERSION_1)
 	{
-		wr.WriteWord(1, (kind & 0x1F) | ((flags >> 8) & 0xE0));
+		wr->WriteWord(1, (kind & 0x1F) | ((flags >> 8) & 0xE0));
 	}
 	else
 	{
-		wr.Skip(1);
+		wr->Skip(1);
 	}
-	wr.WriteWord(1, label_length);
-	wr.WriteWord(1, number_length);
-	wr.WriteWord(1, version >> 8);
-	wr.WriteWord(4, bank_size);
+	wr->WriteWord(1, label_length);
+	wr->WriteWord(1, number_length);
+	wr->WriteWord(1, version >> 8);
+	wr->WriteWord(4, bank_size);
 	if(version == OMF_VERSION_1)
 	{
-		wr.Skip(4);
+		wr->Skip(4);
 	}
 	else
 	{
-		wr.WriteWord(2, (kind & 0x1F) | (flags & 0xFFE0));
-		wr.Skip(2);
+		wr->WriteWord(2, (kind & 0x1F) | (flags & 0xFFE0));
+		wr->Skip(2);
 	}
 
-	wr.WriteWord(4, base_address);
-	wr.WriteWord(4, align);
-	wr.WriteWord(1, endiantype);
+	wr->WriteWord(4, base_address);
+	wr->WriteWord(4, align);
+	wr->WriteWord(1, endiantype);
 	if(version == OMF_VERSION_1)
 	{
-		wr.WriteWord(1, language_card_bank);
+		wr->WriteWord(1, language_card_bank);
 	}
 	else
 	{
-		wr.WriteWord(1, version & 0xFF);
+		wr->WriteWord(1, version & 0xFF);
 	}
-	wr.WriteWord(2, segment_number);
-	wr.WriteWord(4, entry);
-	wr.WriteWord(2, segment_name_offset);
-	wr.WriteWord(2, segment_data_offset);
+	wr->WriteWord(2, segment_number);
+	wr->WriteWord(4, entry);
+	wr->WriteWord(2, segment_name_offset);
+	wr->WriteWord(2, segment_data_offset);
 	/* we permit this field to be present in version 2.0 as well */
 	if(version >= OMF_VERSION_2 && segment_name_offset >= 0x30)
 	{
-		wr.WriteWord(4, temp_org);
+		wr->WriteWord(4, temp_org);
 	}
 
-	wr.Seek(segment_offset + segment_name_offset);
-	wr.WriteData(10, linker_segment_name);
+	wr->Seek(segment_offset + segment_name_offset);
+	wr->WriteData(10, linker_segment_name);
 	WriteLabel(wr, segment_name);
 
-	wr.Seek(segment_offset + segment_data_offset);
+	wr->Seek(segment_offset + segment_data_offset);
 	for(auto& record : records)
 	{
 		record->WriteFile(*this, wr);
@@ -413,7 +413,7 @@ void OMFFormat::Segment::Expression::ReadFile(Segment& segment, const std::share
 	}
 }
 
-void OMFFormat::Segment::Expression::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::Expression::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	for(auto& operand : operands)
 	{
@@ -431,7 +431,7 @@ void OMFFormat::Segment::Expression::WriteFile(const Segment& segment, Linker::W
 		}
 	}
 	if(operation != StackUnderflow)
-		wr.WriteWord(1, operation);
+		wr->WriteWord(1, operation);
 }
 
 std::string OMFFormat::Segment::Expression::GetStandardNotation() const
@@ -727,7 +727,7 @@ void OMFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t OMFFormat::WriteFile(Linker::Writer& wr) const
+offset_t OMFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	for(auto& segment : segments)
 	{
@@ -774,9 +774,9 @@ void OMFFormat::Segment::Record::ReadFile(Segment& segment, const std::shared_pt
 {
 }
 
-void OMFFormat::Segment::Record::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::Record::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(1, type);
+	wr->WriteWord(1, type);
 }
 
 void OMFFormat::Segment::Record::Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options) const
@@ -863,7 +863,7 @@ void OMFFormat::Segment::DataRecord::ReadFile(Segment& segment, const std::share
 	}
 }
 
-void OMFFormat::Segment::DataRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::DataRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
@@ -872,7 +872,7 @@ void OMFFormat::Segment::DataRecord::WriteFile(const Segment& segment, Linker::W
 	}
 	else
 	{
-		wr.WriteWord(4, image->ImageSize());
+		wr->WriteWord(4, image->ImageSize());
 		image->WriteFile(wr);
 	}
 }
@@ -920,7 +920,7 @@ void OMFFormat::Segment::ValueRecord::ReadFile(Segment& segment, const std::shar
 	value = segment.ReadUnsigned(rd);
 }
 
-void OMFFormat::Segment::ValueRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::ValueRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteWord(wr, value);
@@ -972,11 +972,11 @@ void OMFFormat::Segment::RelocationRecord::ReadFile(Segment& segment, const std:
 	}
 }
 
-void OMFFormat::Segment::RelocationRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::RelocationRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
-	wr.WriteWord(1, size);
-	wr.WriteWord(1, shift);
+	wr->WriteWord(1, size);
+	wr->WriteWord(1, shift);
 	if(type == OPC_RELOC)
 	{
 		segment.WriteWord(wr, source);
@@ -984,8 +984,8 @@ void OMFFormat::Segment::RelocationRecord::WriteFile(const Segment& segment, Lin
 	}
 	else /*if(type == OPC_C_RELOC)*/
 	{
-		wr.WriteWord(2, source);
-		wr.WriteWord(2, target);
+		wr->WriteWord(2, source);
+		wr->WriteWord(2, target);
 	}
 }
 
@@ -1037,23 +1037,23 @@ void OMFFormat::Segment::IntersegmentRelocationRecord::ReadFile(Segment& segment
 	}
 }
 
-void OMFFormat::Segment::IntersegmentRelocationRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::IntersegmentRelocationRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
-	wr.WriteWord(1, size);
-	wr.WriteWord(1, shift);
+	wr->WriteWord(1, size);
+	wr->WriteWord(1, shift);
 	if(type == OPC_INTERSEG)
 	{
 		segment.WriteWord(wr, source);
-		wr.WriteWord(2, file_number);
-		wr.WriteWord(2, segment_number);
+		wr->WriteWord(2, file_number);
+		wr->WriteWord(2, segment_number);
 		segment.WriteWord(wr, target);
 	}
 	else /*if(type == OPC_C_INTERSEG)*/
 	{
-		wr.WriteWord(2, source);
-		wr.WriteWord(1, segment_number);
-		wr.WriteWord(2, target);
+		wr->WriteWord(2, source);
+		wr->WriteWord(1, segment_number);
+		wr->WriteWord(2, target);
 	}
 }
 
@@ -1078,7 +1078,7 @@ void OMFFormat::Segment::StringRecord::ReadFile(Segment& segment, const std::sha
 	name = segment.ReadLabel(rd);
 }
 
-void OMFFormat::Segment::StringRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::StringRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteLabel(wr, name);
@@ -1102,13 +1102,13 @@ void OMFFormat::Segment::LabelRecord::ReadFile(Segment& segment, const std::shar
 	private_flag = rd->ReadUnsigned(1);
 }
 
-void OMFFormat::Segment::LabelRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::LabelRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteLabel(wr, name);
-	wr.WriteWord(2, line_length);
-	wr.WriteWord(1, operation);
-	wr.WriteWord(1, private_flag);
+	wr->WriteWord(2, line_length);
+	wr->WriteWord(1, operation);
+	wr->WriteWord(1, private_flag);
 }
 
 void OMFFormat::Segment::LabelRecord::AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const
@@ -1163,13 +1163,13 @@ void OMFFormat::Segment::LabelExpressionRecord::ReadFile(Segment& segment, const
 	expression = segment.ReadExpression(rd);
 }
 
-void OMFFormat::Segment::LabelExpressionRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::LabelExpressionRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteLabel(wr, name);
-	wr.WriteWord(2, line_length);
-	wr.WriteWord(1, operation);
-	wr.WriteWord(1, private_flag);
+	wr->WriteWord(2, line_length);
+	wr->WriteWord(1, operation);
+	wr->WriteWord(1, private_flag);
 	expression->WriteFile(segment, wr);
 }
 
@@ -1190,7 +1190,7 @@ void OMFFormat::Segment::RangeRecord::ReadFile(Segment& segment, const std::shar
 	end = segment.ReadUnsigned(rd);
 }
 
-void OMFFormat::Segment::RangeRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::RangeRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
 	segment.WriteWord(wr, start);
@@ -1219,10 +1219,10 @@ void OMFFormat::Segment::ExpressionRecord::ReadFile(Segment& segment, const std:
 	expression = segment.ReadExpression(rd);
 }
 
-void OMFFormat::Segment::ExpressionRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::ExpressionRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
-	wr.WriteWord(1, size);
+	wr->WriteWord(1, size);
 	expression->WriteFile(segment, wr);
 }
 
@@ -1249,10 +1249,10 @@ void OMFFormat::Segment::RelativeExpressionRecord::ReadFile(Segment& segment, co
 	expression = segment.ReadExpression(rd);
 }
 
-void OMFFormat::Segment::RelativeExpressionRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::RelativeExpressionRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
-	wr.WriteWord(1, size);
+	wr->WriteWord(1, size);
 	segment.WriteWord(wr, origin);
 	expression->WriteFile(segment, wr);
 }
@@ -1275,10 +1275,10 @@ void OMFFormat::Segment::EntryRecord::ReadFile(Segment& segment, const std::shar
 	name = segment.ReadLabel(rd);
 }
 
-void OMFFormat::Segment::EntryRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::EntryRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
-	wr.WriteWord(2, segment_number);
+	wr->WriteWord(2, segment_number);
 	segment.WriteWord(wr, location);
 	segment.WriteLabel(wr, name);
 }
@@ -1344,11 +1344,11 @@ void OMFFormat::Segment::SuperCompactRecord::ReadFile(Segment& segment, const st
 	}
 }
 
-void OMFFormat::Segment::SuperCompactRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
+void OMFFormat::Segment::SuperCompactRecord::WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Record::WriteFile(segment, wr);
-	wr.WriteWord(4, GetLength(segment) - 5);
-	wr.WriteWord(1, super_type);
+	wr->WriteWord(4, GetLength(segment) - 5);
+	wr->WriteWord(1, super_type);
 	uint16_t current_page = 0;
 	std::vector<uint8_t> patches;
 	for(uint16_t offset : offsets)
@@ -1370,7 +1370,7 @@ void OMFFormat::Segment::SuperCompactRecord::WriteFile(const Segment& segment, L
 			/* append byte for skip patch, next page and next patch */
 			WritePatchList(wr, patches);
 			patches.clear();
-			wr.WriteWord(1, 0x7F + ((offset - current_page) >> 8));
+			wr->WriteWord(1, 0x7F + ((offset - current_page) >> 8));
 			patches.push_back(offset & 0xFF);
 		}
 		else
@@ -1378,20 +1378,20 @@ void OMFFormat::Segment::SuperCompactRecord::WriteFile(const Segment& segment, L
 			/* we need two skip patch bytes */
 			WritePatchList(wr, patches);
 			patches.clear();
-			wr.WriteWord(1, 0xFF);
-			wr.WriteWord(1, (offset - current_page) >> 8);
+			wr->WriteWord(1, 0xFF);
+			wr->WriteWord(1, (offset - current_page) >> 8);
 			patches.push_back(offset & 0xFF);
 		}
 	}
 	WritePatchList(wr, patches);
 }
 
-void OMFFormat::Segment::SuperCompactRecord::WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches) const
+void OMFFormat::Segment::SuperCompactRecord::WritePatchList(const std::shared_ptr<Linker::Writer>& wr, const std::vector<uint8_t>& patches) const
 {
-	wr.WriteWord(1, patches.size() - 1);
+	wr->WriteWord(1, patches.size() - 1);
 	for(uint8_t patch : patches)
 	{
-		wr.WriteWord(1, patch);
+		wr->WriteWord(1, patch);
 	}
 }
 
@@ -1869,10 +1869,10 @@ GSOSResourceFileFormat::FreeBlock GSOSResourceFileFormat::FreeBlock::ReadFile(co
 	return block;
 }
 
-void GSOSResourceFileFormat::FreeBlock::WriteFile(Linker::Writer& wr) const
+void GSOSResourceFileFormat::FreeBlock::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, offset);
-	wr.WriteWord(4, size);
+	wr->WriteWord(4, offset);
+	wr->WriteWord(4, size);
 }
 
 void GSOSResourceFileFormat::FreeBlock::Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const
@@ -1897,14 +1897,14 @@ std::shared_ptr<GSOSResourceFileFormat::ReferenceRecord> GSOSResourceFileFormat:
 	return record;
 }
 
-void GSOSResourceFileFormat::ReferenceRecord::WriteFile(Linker::Writer& wr) const
+void GSOSResourceFileFormat::ReferenceRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, type);
-	wr.WriteWord(4, id);
-	wr.WriteWord(4, offset);
-	wr.WriteWord(2, attributes);
-	wr.WriteWord(4, size);
-	wr.WriteWord(4, handle);
+	wr->WriteWord(2, type);
+	wr->WriteWord(4, id);
+	wr->WriteWord(4, offset);
+	wr->WriteWord(2, attributes);
+	wr->WriteWord(4, size);
+	wr->WriteWord(4, handle);
 }
 
 void GSOSResourceFileFormat::ReferenceRecord::ReadContents(GSOSResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd)
@@ -1913,9 +1913,9 @@ void GSOSResourceFileFormat::ReferenceRecord::ReadContents(GSOSResourceFileForma
 	image = Linker::Buffer::ReadFromFile(rd, size);
 }
 
-void GSOSResourceFileFormat::ReferenceRecord::WriteContents(const GSOSResourceFileFormat& format, Linker::Writer& wr) const
+void GSOSResourceFileFormat::ReferenceRecord::WriteContents(const GSOSResourceFileFormat& format, const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.Seek(format.file_offset + offset);
+	wr->Seek(format.file_offset + offset);
 	image->WriteFile(wr);
 }
 
@@ -2031,38 +2031,38 @@ void GSOSResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t GSOSResourceFileFormat::WriteFile(Linker::Writer& wr) const
+offset_t GSOSResourceFileFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 
-	wr.Seek(file_offset);
-	wr.WriteWord(4, file_version);
-	wr.WriteWord(4, file_to_map);
-	wr.WriteWord(4, file_map_size);
+	wr->Seek(file_offset);
+	wr->WriteWord(4, file_version);
+	wr->WriteWord(4, file_to_map);
+	wr->WriteWord(4, file_map_size);
 	if(file_memo)
 	{
 		file_memo->WriteFile(wr);
 	}
 
-	wr.Seek(file_offset + file_to_map);
-	wr.WriteWord(4, map_next);
-	wr.WriteWord(2, map_flag);
-	wr.WriteWord(4, map_offset);
-	wr.WriteWord(4, map_size);
-	wr.WriteWord(2, map_to_index);
-	wr.WriteWord(2, map_file_num);
-	wr.WriteWord(2, map_id);
-	wr.WriteWord(4, map_index_size);
-	wr.WriteWord(4, map_index_used);
-	wr.WriteWord(2, map_free_list_size);
-	wr.WriteWord(2, map_free_list_used);
+	wr->Seek(file_offset + file_to_map);
+	wr->WriteWord(4, map_next);
+	wr->WriteWord(2, map_flag);
+	wr->WriteWord(4, map_offset);
+	wr->WriteWord(4, map_size);
+	wr->WriteWord(2, map_to_index);
+	wr->WriteWord(2, map_file_num);
+	wr->WriteWord(2, map_id);
+	wr->WriteWord(4, map_index_size);
+	wr->WriteWord(4, map_index_used);
+	wr->WriteWord(2, map_free_list_size);
+	wr->WriteWord(2, map_free_list_used);
 
 	for(auto& block : free_list)
 	{
 		block.WriteFile(wr);
 	}
 
-	wr.Seek(file_offset + file_to_map + map_to_index);
+	wr->Seek(file_offset + file_to_map + map_to_index);
 	for(auto record : map_index)
 	{
 		record->WriteFile(wr);

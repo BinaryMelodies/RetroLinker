@@ -27,7 +27,7 @@ void GeodeFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	/* TODO */
 }
 
-offset_t GeodeFormat::WriteFile(Linker::Writer& wr) const
+offset_t GeodeFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* TODO */
 

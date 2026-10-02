@@ -26,21 +26,21 @@ void BFLTFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	/* TODO */
 }
 
-offset_t BFLTFormat::WriteFile(Linker::Writer& wr) const
+offset_t BFLTFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = endian_type;
-	wr.WriteData(4, "bFLT");
-	wr.WriteWord(4, format_version);
-	wr.WriteWord(4, entry);
-	wr.WriteWord(4, data_offset);
-	wr.WriteWord(4, bss_offset);
-	wr.WriteWord(4, bss_end_offset);
-	wr.WriteWord(4, stack_size);
-	wr.WriteWord(4, relocation_offset);
-	wr.WriteWord(4, relocations.size());
-	wr.WriteWord(4, flags);
+	wr->endiantype = endian_type;
+	wr->WriteData(4, "bFLT");
+	wr->WriteWord(4, format_version);
+	wr->WriteWord(4, entry);
+	wr->WriteWord(4, data_offset);
+	wr->WriteWord(4, bss_offset);
+	wr->WriteWord(4, bss_end_offset);
+	wr->WriteWord(4, stack_size);
+	wr->WriteWord(4, relocation_offset);
+	wr->WriteWord(4, relocations.size());
+	wr->WriteWord(4, flags);
 
-	wr.Seek(64);
+	wr->Seek(64);
 
 	if(code != nullptr)
 	{
@@ -51,16 +51,16 @@ offset_t BFLTFormat::WriteFile(Linker::Writer& wr) const
 		data->WriteFile(wr);
 	}
 
-	wr.Seek(relocation_offset);
+	wr->Seek(relocation_offset);
 	for(auto relocation : relocations)
 	{
 		if(format_version <= 2)
 		{
-			wr.WriteWord(4, (relocation.offset & 0x3FFFFFFF) | (relocation.type << 30));
+			wr->WriteWord(4, (relocation.offset & 0x3FFFFFFF) | (relocation.type << 30));
 		}
 		else
 		{
-			wr.WriteWord(4, relocation.offset);
+			wr->WriteWord(4, relocation.offset);
 		}
 	}
 

@@ -86,7 +86,7 @@ namespace DOS16M
 			/**
 			 * @brief Produces the binary contents of the segment
 			 */
-			virtual void WriteContent(Linker::Writer& wr, const BWFormat& bw) const = 0;
+			virtual void WriteContent(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const = 0;
 
 			/**
 			 * @brief Sets up any values before it can be written to file
@@ -96,7 +96,7 @@ namespace DOS16M
 			/**
 			 * @brief Produces the GDT entry for the header
 			 */
-			void WriteHeader(Linker::Writer& wr, const BWFormat& bw) const;
+			void WriteHeader(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const;
 
 			virtual void Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const = 0;
 		};
@@ -122,7 +122,7 @@ namespace DOS16M
 
 			void ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw) override;
 
-			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
+			void WriteContent(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const override;
 
 			void Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const override;
 		};
@@ -141,7 +141,7 @@ namespace DOS16M
 
 			void ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw) override;
 
-			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
+			void WriteContent(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const override;
 
 			void Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const override;
 		};
@@ -165,7 +165,7 @@ namespace DOS16M
 
 			void ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw) override;
 
-			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
+			void WriteContent(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const override;
 
 			void Dump(Dumper::Dumper& dump, const BWFormat& bw, offset_t file_offset, uint16_t selector_offset) const override;
 		};
@@ -254,7 +254,7 @@ namespace DOS16M
 		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
 

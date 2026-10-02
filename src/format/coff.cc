@@ -477,75 +477,75 @@ size_t COFFFormat::Relocation::GetSize(const COFFFormat& coff) const
 	assert(false);
 }
 
-void COFFFormat::Relocation::WriteFile(Linker::Writer& wr, const COFFFormat& coff) const
+void COFFFormat::Relocation::WriteFile(const std::shared_ptr<Linker::Writer>& wr, const COFFFormat& coff) const
 {
 	switch(coff.relocation_format)
 	{
 	case COFF_10:
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(2, type);
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, symbol_index);
+		wr->WriteWord(2, type);
 		break;
 	case COFF_14:
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(2, type);
-		wr.WriteWord(4, offset);
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, symbol_index);
+		wr->WriteWord(2, type);
+		wr->WriteWord(4, offset);
 		break;
 	case COFF_16:
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(4, offset);
-		wr.WriteWord(2, type);
-		wr.WriteWord(2, information);
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, symbol_index);
+		wr->WriteWord(4, offset);
+		wr->WriteWord(2, type);
+		wr->WriteWord(2, information);
 		break;
 	case TICOFF_10:
-		wr.WriteWord(4, address);
-		wr.WriteWord(2, symbol_index);
-		wr.WriteWord(2, information); // reserved
-		wr.WriteWord(2, type);
+		wr->WriteWord(4, address);
+		wr->WriteWord(2, symbol_index);
+		wr->WriteWord(2, information); // reserved
+		wr->WriteWord(2, type);
 		break;
 	case TICOFF_12:
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(2, information); // extended address
-		wr.WriteWord(2, type);
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, symbol_index);
+		wr->WriteWord(2, information); // extended address
+		wr->WriteWord(2, type);
 		break;
 	case ECOFF_8:
-		wr.WriteWord(4, address);
-		wr.WriteWord(3, symbol_index);
+		wr->WriteWord(4, address);
+		wr->WriteWord(3, symbol_index);
 		// type extraction based on binutils
 		// TODO: untested
 		if(coff.endiantype == ::LittleEndian)
 		{
 			uint8_t byte = information & ~0x7C;
 			byte |= ((type << 1) & 0x78) | ((type >> 2) & 0x04);
-			wr.WriteWord(1, byte);
+			wr->WriteWord(1, byte);
 		}
 		else
 		{
 			uint8_t byte = information & ~0x3E;
 			byte |= (type << 1) & 0x3E;
-			wr.WriteWord(1, byte);
+			wr->WriteWord(1, byte);
 		}
 		break;
 	case ECOFF_16:
-		wr.WriteWord(8, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(1, type);
-		wr.WriteWord(3, information);
+		wr->WriteWord(8, address);
+		wr->WriteWord(4, symbol_index);
+		wr->WriteWord(1, type);
+		wr->WriteWord(3, information);
 		break;
 	case XCOFF_10:
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(1, information);
-		wr.WriteWord(1, type);
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, symbol_index);
+		wr->WriteWord(1, information);
+		wr->WriteWord(1, type);
 		break;
 	case XCOFF_14:
-		wr.WriteWord(8, address);
-		wr.WriteWord(4, symbol_index);
-		wr.WriteWord(1, information);
-		wr.WriteWord(1, type);
+		wr->WriteWord(8, address);
+		wr->WriteWord(4, symbol_index);
+		wr->WriteWord(1, information);
+		wr->WriteWord(1, type);
 		break;
 	}
 }
@@ -721,10 +721,10 @@ void COFFFormat::Symbol::FileNameAuxiliaryEntry::Read(const std::shared_ptr<Link
 	rd->Skip(4);
 }
 
-void COFFFormat::Symbol::FileNameAuxiliaryEntry::Write(Linker::Writer& wr) const
+void COFFFormat::Symbol::FileNameAuxiliaryEntry::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteData(14, file_name);
-	wr.WriteWord(4, 0);
+	wr->WriteData(14, file_name);
+	wr->WriteWord(4, 0);
 }
 
 void COFFFormat::Symbol::FileNameAuxiliaryEntry::FillDumpData(Dumper::Entry& entry) const
@@ -1018,7 +1018,7 @@ void COFFFormat::Section::ReadSectionHeader(const std::shared_ptr<Linker::Reader
 	image = std::make_shared<Linker::Section>(name);
 }
 
-void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, const COFFFormat& coff_format)
+void COFFFormat::Section::WriteSectionHeader(const std::shared_ptr<Linker::Writer>& wr, const COFFFormat& coff_format)
 {
 	switch(coff_format.coff_variant)
 	{
@@ -1027,72 +1027,72 @@ void COFFFormat::Section::WriteSectionHeader(Linker::Writer& wr, const COFFForma
 	case COFF:
 	case XCOFF32:
 	case PECOFF:
-		wr.WriteData(8, name);
-		wr.WriteWord(4, physical_address);
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, size);
-		wr.WriteWord(4, section_pointer);
-		wr.WriteWord(4, relocation_pointer);
-		wr.WriteWord(4, line_number_pointer);
-		wr.WriteWord(2, coff_format.coff_variant == PECOFF && (flags & PECOFF_Flags::LNK_NRELOC_OVFL) != 0 ? 0xFFFF : relocation_count);
-		wr.WriteWord(2, line_number_count);
-		wr.WriteWord(coff_format.coff_variant == XCOFF32 ? 2 : 4, flags);
+		wr->WriteData(8, name);
+		wr->WriteWord(4, physical_address);
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, size);
+		wr->WriteWord(4, section_pointer);
+		wr->WriteWord(4, relocation_pointer);
+		wr->WriteWord(4, line_number_pointer);
+		wr->WriteWord(2, coff_format.coff_variant == PECOFF && (flags & PECOFF_Flags::LNK_NRELOC_OVFL) != 0 ? 0xFFFF : relocation_count);
+		wr->WriteWord(2, line_number_count);
+		wr->WriteWord(coff_format.coff_variant == XCOFF32 ? 2 : 4, flags);
 		if(coff_format.coff_variant == XCOFF32)
 		{
-			wr.Skip(2);
+			wr->Skip(2);
 		}
 		break;
 	case TICOFF:
-		wr.WriteData(8, name);
-		wr.WriteWord(4, physical_address);
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, size);
-		wr.WriteWord(4, section_pointer);
-		wr.WriteWord(4, relocation_pointer);
-		wr.WriteWord(4, line_number_pointer);
-		wr.WriteWord(4, relocation_count);
-		wr.WriteWord(4, line_number_count);
-		wr.WriteWord(4, flags);
-		wr.Skip(2);
-		wr.WriteWord(2, memory_page_number);
+		wr->WriteData(8, name);
+		wr->WriteWord(4, physical_address);
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, size);
+		wr->WriteWord(4, section_pointer);
+		wr->WriteWord(4, relocation_pointer);
+		wr->WriteWord(4, line_number_pointer);
+		wr->WriteWord(4, relocation_count);
+		wr->WriteWord(4, line_number_count);
+		wr->WriteWord(4, flags);
+		wr->Skip(2);
+		wr->WriteWord(2, memory_page_number);
 		break;
 	case TICOFF1:
-		wr.WriteData(8, name);
-		wr.WriteWord(4, physical_address);
-		wr.WriteWord(4, address);
-		wr.WriteWord(4, size);
-		wr.WriteWord(4, section_pointer);
-		wr.WriteWord(4, relocation_pointer);
-		wr.WriteWord(4, line_number_pointer);
-		wr.WriteWord(2, relocation_count);
-		wr.WriteWord(2, line_number_count);
-		wr.WriteWord(2, flags);
-		wr.Skip(1);
-		wr.WriteWord(1, memory_page_number);
+		wr->WriteData(8, name);
+		wr->WriteWord(4, physical_address);
+		wr->WriteWord(4, address);
+		wr->WriteWord(4, size);
+		wr->WriteWord(4, section_pointer);
+		wr->WriteWord(4, relocation_pointer);
+		wr->WriteWord(4, line_number_pointer);
+		wr->WriteWord(2, relocation_count);
+		wr->WriteWord(2, line_number_count);
+		wr->WriteWord(2, flags);
+		wr->Skip(1);
+		wr->WriteWord(1, memory_page_number);
 		break;
 	case ECOFF:
-		wr.WriteData(8, name);
-		wr.WriteWord(8, physical_address);
-		wr.WriteWord(8, address);
-		wr.WriteWord(8, size);
-		wr.WriteWord(8, section_pointer);
-		wr.WriteWord(8, relocation_pointer);
-		wr.WriteWord(8, line_number_pointer);
-		wr.WriteWord(2, (flags & ECOFF_Flags::NRELOC_OVERFLOWED) != 0 ? 0xFFFF : relocation_count);
-		wr.WriteWord(2, line_number_count);
-		wr.WriteWord(4, flags);
+		wr->WriteData(8, name);
+		wr->WriteWord(8, physical_address);
+		wr->WriteWord(8, address);
+		wr->WriteWord(8, size);
+		wr->WriteWord(8, section_pointer);
+		wr->WriteWord(8, relocation_pointer);
+		wr->WriteWord(8, line_number_pointer);
+		wr->WriteWord(2, (flags & ECOFF_Flags::NRELOC_OVERFLOWED) != 0 ? 0xFFFF : relocation_count);
+		wr->WriteWord(2, line_number_count);
+		wr->WriteWord(4, flags);
 		break;
 	case XCOFF64:
-		wr.WriteData(8, name);
-		wr.WriteWord(8, physical_address);
-		wr.WriteWord(8, address);
-		wr.WriteWord(8, size);
-		wr.WriteWord(8, section_pointer);
-		wr.WriteWord(8, relocation_pointer);
-		wr.WriteWord(8, line_number_pointer);
-		wr.WriteWord(4, relocation_count);
-		wr.WriteWord(4, line_number_count);
-		wr.WriteWord(4, flags);
+		wr->WriteData(8, name);
+		wr->WriteWord(8, physical_address);
+		wr->WriteWord(8, address);
+		wr->WriteWord(8, size);
+		wr->WriteWord(8, section_pointer);
+		wr->WriteWord(8, relocation_pointer);
+		wr->WriteWord(8, line_number_pointer);
+		wr->WriteWord(4, relocation_count);
+		wr->WriteWord(4, line_number_count);
+		wr->WriteWord(4, flags);
 		break;
 	}
 }
@@ -1113,9 +1113,9 @@ void COFFFormat::Section::ReadSectionData(const std::shared_ptr<Linker::Reader>&
 	std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, ImageSize(coff_format));
 }
 
-void COFFFormat::Section::WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const
+void COFFFormat::Section::WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const COFFFormat& coff_format) const
 {
-	wr.Seek(coff_format.file_offset + section_pointer);
+	wr->Seek(coff_format.file_offset + section_pointer);
 	image->WriteFile(wr);
 }
 
@@ -1339,7 +1339,7 @@ void COFFFormat::OptionalHeader::PostReadFile(COFFFormat& coff, const std::share
 {
 }
 
-void COFFFormat::OptionalHeader::PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const
+void COFFFormat::OptionalHeader::PostWriteFile(const COFFFormat& coff, const std::shared_ptr<Linker::Writer>& wr) const
 {
 }
 
@@ -1372,7 +1372,7 @@ void COFFFormat::UnknownOptionalHeader::ReadFile(const std::shared_ptr<Linker::R
 	buffer->ReadFile(rd, buffer->ImageSize());
 }
 
-void COFFFormat::UnknownOptionalHeader::WriteFile(Linker::Writer& wr) const
+void COFFFormat::UnknownOptionalHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	buffer->WriteFile(wr);
 }
@@ -1404,16 +1404,16 @@ void COFFFormat::AOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	data_address = rd->ReadUnsigned(4);
 }
 
-void COFFFormat::AOutHeader::WriteFile(Linker::Writer& wr) const
+void COFFFormat::AOutHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, magic);
-	wr.WriteWord(2, version_stamp); /* unused */
-	wr.WriteWord(4, code_size); /* not needed for DJGPP */
-	wr.WriteWord(4, data_size); /* not needed for DJGPP */
-	wr.WriteWord(4, bss_size); /* not needed for DJGPP */
-	wr.WriteWord(4, entry_address);
-	wr.WriteWord(4, code_address);
-	wr.WriteWord(4, data_address);
+	wr->WriteWord(2, magic);
+	wr->WriteWord(2, version_stamp); /* unused */
+	wr->WriteWord(4, code_size); /* not needed for DJGPP */
+	wr->WriteWord(4, data_size); /* not needed for DJGPP */
+	wr->WriteWord(4, bss_size); /* not needed for DJGPP */
+	wr->WriteWord(4, entry_address);
+	wr->WriteWord(4, code_address);
+	wr->WriteWord(4, data_address);
 }
 
 offset_t COFFFormat::AOutHeader::CalculateValues(COFFFormat& coff)
@@ -1497,18 +1497,18 @@ void COFFFormat::AOutHeader3B20::ReadFile(const std::shared_ptr<Linker::Reader>&
 	data_address = rd->ReadUnsigned(4);
 }
 
-void COFFFormat::AOutHeader3B20::WriteFile(Linker::Writer& wr) const
+void COFFFormat::AOutHeader3B20::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, magic);
-	wr.WriteWord(2, version_stamp);
-	wr.WriteWord(4, code_size);
-	wr.WriteWord(4, data_size);
-	wr.WriteWord(4, bss_size);
-	wr.WriteWord(4, reserved1);
-	wr.WriteWord(4, reserved2);
-	wr.WriteWord(4, entry_address);
-	wr.WriteWord(4, code_address);
-	wr.WriteWord(4, data_address);
+	wr->WriteWord(2, magic);
+	wr->WriteWord(2, version_stamp);
+	wr->WriteWord(4, code_size);
+	wr->WriteWord(4, data_size);
+	wr->WriteWord(4, bss_size);
+	wr->WriteWord(4, reserved1);
+	wr->WriteWord(4, reserved2);
+	wr->WriteWord(4, entry_address);
+	wr->WriteWord(4, code_address);
+	wr->WriteWord(4, data_address);
 }
 
 void COFFFormat::AOutHeader3B20::DumpFields(const COFFFormat& coff, Dumper::Dumper& dump, Dumper::Region& header_region) const
@@ -1535,11 +1535,11 @@ void COFFFormat::FlexOSAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader
 	stack_size = rd->ReadUnsigned(4);
 }
 
-void COFFFormat::FlexOSAOutHeader::WriteFile(Linker::Writer& wr) const
+void COFFFormat::FlexOSAOutHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	AOutHeader::WriteFile(wr);
-	wr.WriteWord(4, relocations_offset);
-	wr.WriteWord(4, stack_size);
+	wr->WriteWord(4, relocations_offset);
+	wr->WriteWord(4, stack_size);
 }
 
 offset_t COFFFormat::FlexOSAOutHeader::CalculateValues(COFFFormat& coff)
@@ -1569,11 +1569,11 @@ void COFFFormat::FlexOSAOutHeader::PostReadFile(COFFFormat& coff, const std::sha
 	}
 }
 
-void COFFFormat::FlexOSAOutHeader::PostWriteFile(const COFFFormat& coff, Linker::Writer& wr) const
+void COFFFormat::FlexOSAOutHeader::PostWriteFile(const COFFFormat& coff, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(relocations_offset != 0)
 	{
-		wr.Seek(coff.file_offset + relocations_offset);
+		wr->Seek(coff.file_offset + relocations_offset);
 		DigitalResearch::CDOS::WriteRelocations(wr, coff.relocations);
 	}
 }
@@ -1600,16 +1600,16 @@ void COFFFormat::GNUAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>& 
 	/* TODO */
 }
 
-void COFFFormat::GNUAOutHeader::WriteFile(Linker::Writer& wr) const
+void COFFFormat::GNUAOutHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, info); /* ??? */
-	wr.WriteWord(4, code_size);
-	wr.WriteWord(4, data_size);
-	wr.WriteWord(4, bss_size);
-	wr.WriteWord(4, symbol_table_size);
-	wr.WriteWord(4, entry_address);
-	wr.WriteWord(4, code_relocation_size);
-	wr.WriteWord(4, data_relocation_size);
+	wr->WriteWord(4, info); /* ??? */
+	wr->WriteWord(4, code_size);
+	wr->WriteWord(4, data_size);
+	wr->WriteWord(4, bss_size);
+	wr->WriteWord(4, symbol_table_size);
+	wr->WriteWord(4, entry_address);
+	wr->WriteWord(4, code_relocation_size);
+	wr->WriteWord(4, data_relocation_size);
 }
 
 offset_t COFFFormat::GNUAOutHeader::CalculateValues(COFFFormat& coff)
@@ -1674,15 +1674,15 @@ void COFFFormat::MIPSAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>&
 	gp_value = rd->ReadUnsigned(4);
 }
 
-void COFFFormat::MIPSAOutHeader::WriteFile(Linker::Writer& wr) const
+void COFFFormat::MIPSAOutHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	AOutHeader::WriteFile(wr);
-	wr.WriteWord(4, bss_address);
-	wr.WriteWord(4, gpr_mask);
-	wr.WriteWord(4, cpr_mask[0]);
-	wr.WriteWord(4, cpr_mask[1]);
-	wr.WriteWord(4, cpr_mask[2]);
-	wr.WriteWord(4, cpr_mask[3]);
+	wr->WriteWord(4, bss_address);
+	wr->WriteWord(4, gpr_mask);
+	wr->WriteWord(4, cpr_mask[0]);
+	wr->WriteWord(4, cpr_mask[1]);
+	wr->WriteWord(4, cpr_mask[2]);
+	wr->WriteWord(4, cpr_mask[3]);
 }
 
 offset_t COFFFormat::MIPSAOutHeader::CalculateValues(COFFFormat& coff)
@@ -1730,22 +1730,22 @@ void COFFFormat::ECOFFAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>
 	global_pointer = rd->ReadUnsigned(8);
 }
 
-void COFFFormat::ECOFFAOutHeader::WriteFile(Linker::Writer& wr) const
+void COFFFormat::ECOFFAOutHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, magic);
-	wr.WriteWord(2, version_stamp);
-	wr.WriteWord(2, build_revision);
-	wr.Skip(2);
-	wr.WriteWord(8, code_size);
-	wr.WriteWord(8, data_size);
-	wr.WriteWord(8, bss_size);
-	wr.WriteWord(8, entry_address);
-	wr.WriteWord(8, code_address);
-	wr.WriteWord(8, data_address);
-	wr.WriteWord(8, bss_address);
-	wr.WriteWord(4, gpr_mask);
-	wr.WriteWord(4, fpr_mask);
-	wr.WriteWord(8, global_pointer);
+	wr->WriteWord(2, magic);
+	wr->WriteWord(2, version_stamp);
+	wr->WriteWord(2, build_revision);
+	wr->Skip(2);
+	wr->WriteWord(8, code_size);
+	wr->WriteWord(8, data_size);
+	wr->WriteWord(8, bss_size);
+	wr->WriteWord(8, entry_address);
+	wr->WriteWord(8, code_address);
+	wr->WriteWord(8, data_address);
+	wr->WriteWord(8, bss_address);
+	wr->WriteWord(4, gpr_mask);
+	wr->WriteWord(4, fpr_mask);
+	wr->WriteWord(8, global_pointer);
 }
 
 offset_t COFFFormat::ECOFFAOutHeader::CalculateValues(COFFFormat& coff)
@@ -1831,65 +1831,65 @@ void COFFFormat::XCOFFAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>
 	}
 }
 
-void COFFFormat::XCOFFAOutHeader::WriteFile(Linker::Writer& wr) const
+void COFFFormat::XCOFFAOutHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, magic);
-	wr.WriteWord(2, version_stamp);
+	wr->WriteWord(2, magic);
+	wr->WriteWord(2, version_stamp);
 	if(is64)
 	{
-		wr.WriteWord(4, debugger_data);
-		wr.WriteWord(8, code_address);
-		wr.WriteWord(8, data_address);
-		wr.WriteWord(8, toc_address);
+		wr->WriteWord(4, debugger_data);
+		wr->WriteWord(8, code_address);
+		wr->WriteWord(8, data_address);
+		wr->WriteWord(8, toc_address);
 	}
 	else
 	{
-		wr.WriteWord(4, code_size);
-		wr.WriteWord(4, data_size);
-		wr.WriteWord(4, bss_size);
-		wr.WriteWord(4, entry_address);
-		wr.WriteWord(4, code_address);
-		wr.WriteWord(4, data_address);
-		wr.WriteWord(4, toc_address);
+		wr->WriteWord(4, code_size);
+		wr->WriteWord(4, data_size);
+		wr->WriteWord(4, bss_size);
+		wr->WriteWord(4, entry_address);
+		wr->WriteWord(4, code_address);
+		wr->WriteWord(4, data_address);
+		wr->WriteWord(4, toc_address);
 	}
-	wr.WriteWord(2, entry_section);
-	wr.WriteWord(2, code_section);
-	wr.WriteWord(2, data_section);
-	wr.WriteWord(2, toc_section);
-	wr.WriteWord(2, loader_section);
-	wr.WriteWord(2, bss_section);
-	wr.WriteWord(2, code_align);
-	wr.WriteWord(2, data_align);
-	wr.WriteWord(2, module_type);
-	wr.WriteWord(1, cpu_flags);
-	wr.WriteWord(1, cpu_type);
+	wr->WriteWord(2, entry_section);
+	wr->WriteWord(2, code_section);
+	wr->WriteWord(2, data_section);
+	wr->WriteWord(2, toc_section);
+	wr->WriteWord(2, loader_section);
+	wr->WriteWord(2, bss_section);
+	wr->WriteWord(2, code_align);
+	wr->WriteWord(2, data_align);
+	wr->WriteWord(2, module_type);
+	wr->WriteWord(1, cpu_flags);
+	wr->WriteWord(1, cpu_type);
 	if(!is64)
 	{
-		wr.WriteWord(4, maximum_stack_size);
-		wr.WriteWord(4, maximum_data_size);
-		wr.WriteWord(4, debugger_data);
+		wr->WriteWord(4, maximum_stack_size);
+		wr->WriteWord(4, maximum_data_size);
+		wr->WriteWord(4, debugger_data);
 	}
-	wr.WriteWord(1, code_page_size);
-	wr.WriteWord(1, text_page_size);
-	wr.WriteWord(1, stack_page_size);
-	wr.WriteWord(1, flags);
+	wr->WriteWord(1, code_page_size);
+	wr->WriteWord(1, text_page_size);
+	wr->WriteWord(1, stack_page_size);
+	wr->WriteWord(1, flags);
 	if(is64)
 	{
-		wr.WriteWord(8, code_size);
-		wr.WriteWord(8, data_size);
-		wr.WriteWord(8, bss_size);
-		wr.WriteWord(8, entry_address);
-		wr.WriteWord(8, maximum_stack_size);
-		wr.WriteWord(8, maximum_data_size);
+		wr->WriteWord(8, code_size);
+		wr->WriteWord(8, data_size);
+		wr->WriteWord(8, bss_size);
+		wr->WriteWord(8, entry_address);
+		wr->WriteWord(8, maximum_stack_size);
+		wr->WriteWord(8, maximum_data_size);
 	}
-	wr.WriteWord(2, tdata_section);
-	wr.WriteWord(2, tbss_section);
+	wr->WriteWord(2, tdata_section);
+	wr->WriteWord(2, tbss_section);
 	if(is64)
 	{
-		wr.WriteWord(2, xcoff64_flags);
+		wr->WriteWord(2, xcoff64_flags);
 #if 0
 		// TODO: this seems to make the header too long, is it 111 bytes long?
-		wr.WriteWord(1, shared_memory_page);
+		wr->WriteWord(1, shared_memory_page);
 #endif
 	}
 }
@@ -2283,14 +2283,14 @@ void COFFFormat::ReadRestOfFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t COFFFormat::WriteFile(Linker::Writer& wr) const
+offset_t COFFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(type == DJGPP && stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
 
-	wr.endiantype = endiantype;
+	wr->endiantype = endiantype;
 	WriteFileContents(wr);
 	return offset_t(-1);
 }
@@ -2300,7 +2300,7 @@ offset_t COFFFormat::ImageSize() const
 	return file_size;
 }
 
-offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
+offset_t COFFFormat::WriteFileContents(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* File Header */
 	switch(coff_variant)
@@ -2310,37 +2310,37 @@ offset_t COFFFormat::WriteFileContents(Linker::Writer& wr) const
 	case XCOFF32:
 	case TICOFF:
 	case TICOFF1:
-		wr.WriteData(2, signature);
-		wr.WriteWord(2, section_count);
-		wr.WriteTimestamp(timestamp);
-		wr.WriteWord(4, symbol_table_offset);
-		wr.WriteWord(4, symbol_count);
-		wr.WriteWord(2, optional_header_size);
-		wr.WriteWord(2, flags);
+		wr->WriteData(2, signature);
+		wr->WriteWord(2, section_count);
+		wr->WriteTimestamp(timestamp);
+		wr->WriteWord(4, symbol_table_offset);
+		wr->WriteWord(4, symbol_count);
+		wr->WriteWord(2, optional_header_size);
+		wr->WriteWord(2, flags);
 		if(coff_variant == TICOFF || coff_variant == TICOFF1)
 		{
-			wr.WriteWord(2, target);
+			wr->WriteWord(2, target);
 		}
 		break;
 
 	case ECOFF:
-		wr.WriteData(2, signature);
-		wr.WriteWord(2, section_count);
-		wr.WriteTimestamp(timestamp);
-		wr.WriteWord(8, symbol_table_offset);
-		wr.WriteWord(4, symbol_count);
-		wr.WriteWord(2, optional_header_size);
-		wr.WriteWord(2, flags);
+		wr->WriteData(2, signature);
+		wr->WriteWord(2, section_count);
+		wr->WriteTimestamp(timestamp);
+		wr->WriteWord(8, symbol_table_offset);
+		wr->WriteWord(4, symbol_count);
+		wr->WriteWord(2, optional_header_size);
+		wr->WriteWord(2, flags);
 		break;
 
 	case XCOFF64:
-		wr.WriteData(2, signature);
-		wr.WriteWord(2, section_count);
-		wr.WriteTimestamp(timestamp);
-		wr.WriteWord(8, symbol_table_offset);
-		wr.WriteWord(2, optional_header_size);
-		wr.WriteWord(2, flags);
-		wr.WriteWord(4, symbol_count);
+		wr->WriteData(2, signature);
+		wr->WriteWord(2, section_count);
+		wr->WriteTimestamp(timestamp);
+		wr->WriteWord(8, symbol_table_offset);
+		wr->WriteWord(2, optional_header_size);
+		wr->WriteWord(2, flags);
+		wr->WriteWord(4, symbol_count);
 		break;
 	}
 
@@ -3141,23 +3141,23 @@ offset_t COFFFormat::FlexOSLibrary::ImageSize() const
 	return 41 + path.size() + name.size();
 }
 
-offset_t COFFFormat::FlexOSLibrary::WriteFile(Linker::Writer& wr, bool as_export) const
+offset_t COFFFormat::FlexOSLibrary::WriteFile(const std::shared_ptr<Linker::Writer>& wr, bool as_export) const
 {
-	wr.WriteData(4, as_export ? "%SA%" : "%S0%");
-	wr.WriteWord(4, srtl_load_bias);
-	wr.WriteWord(4, text_load_size);
-	wr.WriteWord(4, data_load_size);
-	wr.WriteWord(4, bss_load_size);
-	wr.WriteWord(4, stack_load_size);
-	wr.WriteWord(4, flags);
-	wr.WriteWord(4, reserved);
-	wr.WriteWord(2, version.major);
-	wr.WriteWord(2, version.minor);
-	wr.WriteWord(2, path.size());
-	wr.WriteWord(2, name.size());
-	wr.WriteData(path);
-	wr.WriteData(name);
-	wr.WriteWord(1, 0);
+	wr->WriteData(4, as_export ? "%SA%" : "%S0%");
+	wr->WriteWord(4, srtl_load_bias);
+	wr->WriteWord(4, text_load_size);
+	wr->WriteWord(4, data_load_size);
+	wr->WriteWord(4, bss_load_size);
+	wr->WriteWord(4, stack_load_size);
+	wr->WriteWord(4, flags);
+	wr->WriteWord(4, reserved);
+	wr->WriteWord(2, version.major);
+	wr->WriteWord(2, version.minor);
+	wr->WriteWord(2, path.size());
+	wr->WriteWord(2, name.size());
+	wr->WriteData(path);
+	wr->WriteData(name);
+	wr->WriteWord(1, 0);
 
 	return ImageSize();
 }
@@ -3195,9 +3195,9 @@ offset_t COFFFormat::FlexOSLibrarySection::ImageSize() const
 	return total;
 }
 
-offset_t COFFFormat::FlexOSLibrarySection::WriteFile(Linker::Writer& wr) const
+offset_t COFFFormat::FlexOSLibrarySection::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian; // TODO: this is necessary for AsImage to work
+	wr->endiantype = ::LittleEndian; // TODO: this is necessary for AsImage to work
 
 	offset_t total = 0;
 

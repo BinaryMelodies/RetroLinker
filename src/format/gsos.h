@@ -118,12 +118,12 @@ namespace Apple
 			/** @brief Reads a number the size of number_length */
 			offset_t ReadUnsigned(const std::shared_ptr<Linker::Reader>& rd) const;
 			/** @brief Writes a number the size of number_length */
-			void WriteWord(Linker::Writer& wr, offset_t value) const;
+			void WriteWord(const std::shared_ptr<Linker::Writer>& wr, offset_t value) const;
 
 			/** @brief Reads a string the size of label_length, or variable length if it is 0 */
 			std::string ReadLabel(const std::shared_ptr<Linker::Reader>& rd) const;
 			/** @brief Writes a string the size of label_length, or variable length if it is 0 */
-			void WriteLabel(Linker::Writer& wr, std::string text) const;
+			void WriteLabel(const std::shared_ptr<Linker::Writer>& wr, std::string text) const;
 
 			/** @brief Calculates the values needed to generate segment images
 			 *
@@ -133,7 +133,7 @@ namespace Apple
 			 */
 			offset_t CalculateValues(uint16_t segment_number, offset_t current_offset);
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 			void Dump(Dumper::Dumper& dump, const OMFFormat& omf, unsigned segment_index) const;
 
 			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const;
@@ -222,7 +222,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd);
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const;
 				/** @brief Converts expression into a C-like syntax */
 				std::string GetStandardNotation() const;
 			protected:
@@ -306,7 +306,7 @@ namespace Apple
 				 */
 				virtual offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const;
 				virtual void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd);
-				virtual void WriteFile(const Segment& segment, Linker::Writer& wr) const;
+				virtual void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const;
 				/** @brief Displays information pertaining to this record
 				 *
 				 * @param dump The dumper interface
@@ -345,7 +345,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options = Dumper::None) const override;
 				void ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			};
@@ -364,7 +364,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 				void ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			};
@@ -390,7 +390,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 				void AddSignals(Dumper::Block& block, offset_t current_segment_offset) const override;
 			};
@@ -419,7 +419,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
@@ -436,7 +436,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
@@ -482,7 +482,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
@@ -504,7 +504,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
@@ -527,7 +527,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
@@ -551,7 +551,7 @@ namespace Apple
 				offset_t GetLength(const Segment& segment) const override;
 				offset_t GetMemoryLength(const Segment& segment, offset_t current_address) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 				void ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 			};
@@ -574,7 +574,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
@@ -598,7 +598,7 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 				void AddFields(Dumper::Dumper& dump, Dumper::Region& region, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address) const override;
 			};
 
@@ -627,9 +627,9 @@ namespace Apple
 
 				offset_t GetLength(const Segment& segment) const override;
 				void ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd) override;
-				void WriteFile(const Segment& segment, Linker::Writer& wr) const override;
+				void WriteFile(const Segment& segment, const std::shared_ptr<Linker::Writer>& wr) const override;
 			private:
-				void WritePatchList(Linker::Writer& wr, const std::vector<uint8_t>& patches) const;
+				void WritePatchList(const std::shared_ptr<Linker::Writer>& wr, const std::vector<uint8_t>& patches) const;
 
 			public:
 				void Dump(Dumper::Dumper& dump, const OMFFormat& omf, const Segment& segment, unsigned index, offset_t file_offset, offset_t address, int display_options = Dumper::None) const override;
@@ -696,7 +696,7 @@ namespace Apple
 		void CalculateValues() override;
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		offset_t ImageSize() const override;
 		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
@@ -735,7 +735,7 @@ namespace Apple
 			uint32_t size = 0;
 
 			static FreeBlock ReadFile(const std::shared_ptr<Linker::Reader>& rd);
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 			void Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const;
 		};
 
@@ -752,10 +752,10 @@ namespace Apple
 			std::shared_ptr<Linker::Contents> image;
 
 			static std::shared_ptr<ReferenceRecord> ReadFile(const std::shared_ptr<Linker::Reader>& rd);
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			void ReadContents(GSOSResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd);
-			void WriteContents(const GSOSResourceFileFormat& format, Linker::Writer& wr) const;
+			void WriteContents(const GSOSResourceFileFormat& format, const std::shared_ptr<Linker::Writer>& wr) const;
 			void Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const;
 		};
 
@@ -765,7 +765,7 @@ namespace Apple
 		/* TODO */
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		offset_t ImageSize() const override;
 		void Dump(Dumper::Dumper& dump) const override;
 	};

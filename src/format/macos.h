@@ -130,7 +130,7 @@ namespace Apple
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
 
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			using Resource::Dump;
 			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
@@ -169,7 +169,7 @@ namespace Apple
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
 
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			using Linker::Format::Dump;
 			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
@@ -220,10 +220,10 @@ namespace Apple
 			uint32_t MeasureRelocations(std::set<uint32_t>& relocations) const;
 
 			void ReadRelocations(const std::shared_ptr<Linker::Reader>& rd, std::set<uint32_t>& relocations) const;
-			void WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const;
+			void WriteRelocations(const std::shared_ptr<Linker::Writer>& wr, const std::set<uint32_t>& relocations) const;
 
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			using Linker::Format::Dump;
 			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
@@ -311,7 +311,7 @@ namespace Apple
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
 
 			using Linker::Format::WriteFile;
-			offset_t WriteFile(Linker::Writer& wr) const override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			int GetDisplayOptions() const override;
 			//using Linker::Format::Dump;
 			//void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
@@ -382,7 +382,7 @@ namespace Apple
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
 
@@ -541,7 +541,7 @@ namespace Apple
 		void OnContainerCreated() override;
 		void OnCalculateValues() override;
 		void OnReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
-		offset_t OnWriteFile(Linker::Writer& wr) const override;
+		offset_t OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void OnDump(Dumper::Dumper& dump) const override;
 
 	public:

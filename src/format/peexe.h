@@ -179,7 +179,7 @@ namespace Microsoft
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			offset_t CalculateValues(COFFFormat& coff) override;
 
@@ -234,14 +234,14 @@ namespace Microsoft
 			constexpr const offset_t& virtual_size() const { return physical_address; }
 
 			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const COFFFormat& coff_format) override;
-			void WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const override;
+			void WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const COFFFormat& coff_format) const override;
 			uint32_t ImageSize(const COFFFormat& coff_format) const override;
 			void Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const override;
 
 			/** @brief Reads the contents of the section in the file */
 			virtual void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt);
 			/** @brief Writes the contents of the section to the file */
-			virtual void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const;
+			virtual void WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const;
 			/** @brief Retrieves the size of the section, as stored in the file */
 			virtual uint32_t ImageSize(const PEFormat& fmt) const;
 			/** @brief Retrieves the size of the section, as loaded into memory */
@@ -383,9 +383,9 @@ namespace Microsoft
 			/** @brief Assigns the relative virtual addresses and returns the relative virtual address of the end of the resource */
 			uint32_t AssignAddress(PEFormat& fmt, uint32_t rva);
 			/** @brief Writes the directory entry for this resource */
-			void WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const;
+			void WriteDirectories(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt, uint32_t section_pointer) const;
 			/** @brief Writes the actual resource, returns the file offset after the last written byte */
-			offset_t WriteResource(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
+			offset_t WriteResource(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
 		};
 
 		class ResourcesSection;
@@ -447,9 +447,9 @@ namespace Microsoft
 			/** @brief Calculates the relative virtual addresses of each individual resource at the specified relative level */
 			uint32_t CollectResourceData(PEFormat& fmt, uint32_t rva, size_t level_deeper);
 			/** @brief Recursively writes the directory table and all those of all of its subdirectories and leaves */
-			void WriteDirectories(Linker::Writer& wr, const PEFormat& fmt, uint32_t section_pointer) const;
+			void WriteDirectories(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt, uint32_t section_pointer) const;
 			/** @brief Recursively writes all the resources, returns the file offset after the last written byte */
-			offset_t WriteResources(Linker::Writer& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
+			offset_t WriteResources(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt, uint32_t rva_to_offset) const;
 		};
 
 		/** @brief Represents an `.rsrc` resource section in the binary */
@@ -478,7 +478,7 @@ namespace Microsoft
 			bool IsPresent() const;
 			void Generate(PEFormat& fmt);
 			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
-			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
+			void WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 
@@ -578,7 +578,7 @@ namespace Microsoft
 			bool IsPresent() const;
 			void Generate(PEFormat& fmt);
 			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
-			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
+			void WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 
@@ -694,7 +694,7 @@ namespace Microsoft
 			bool IsPresent() const;
 			void Generate(PEFormat& fmt);
 			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
-			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
+			void WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 
@@ -801,7 +801,7 @@ namespace Microsoft
 			bool IsPresent() const;
 			void Generate(PEFormat& fmt);
 			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
-			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
+			void WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 
@@ -838,7 +838,7 @@ namespace Microsoft
 			using Section::ImageSize;
 
 			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
-			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
+			void WriteSectionData(const std::shared_ptr<Linker::Writer>& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
 
@@ -859,7 +859,7 @@ namespace Microsoft
 		void CalculateValues() override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		enum compatibility_type
@@ -1232,7 +1232,7 @@ namespace Microsoft
 		typedef ResourceFile::Identifier Identifier;
 
 		static void ReadIdentifier(const std::shared_ptr<Linker::Reader>& rd, Identifier& id);
-		static void WriteIdentifier(Linker::Writer& wr, const Identifier& id);
+		static void WriteIdentifier(const std::shared_ptr<Linker::Writer>& wr, const Identifier& id);
 		static offset_t GetIdentifierSize(const Identifier& id);
 
 		class Resource : public ResourceFile::Resource
@@ -1252,7 +1252,7 @@ namespace Microsoft
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size);
 		void CalculateValues();
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		typedef ResourceFile::IdDisplay IdDisplay;

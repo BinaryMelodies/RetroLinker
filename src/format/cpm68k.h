@@ -47,7 +47,7 @@ namespace DigitalResearch
 		}
 
 		template <typename SizeType>
-			void WriteRelocations(Linker::Writer& wr, const std::map<uint32_t, SizeType>& relocations)
+			void WriteRelocations(const std::shared_ptr<Linker::Writer>& wr, const std::map<uint32_t, SizeType>& relocations)
 		{
 			/* TODO: test */
 			offset_t last_relocation = 0;
@@ -57,26 +57,26 @@ namespace DigitalResearch
 				uint8_t highbit = it.second/*.size*/ == 2 ? 0x80 : 0x00;
 				if(difference != 0 && difference <= 0x7C)
 				{
-					wr.WriteWord(1, highbit | difference);
+					wr->WriteWord(1, highbit | difference);
 				}
 				else if(difference < 0x100)
 				{
-					wr.WriteWord(1, highbit | 0x7D);
-					wr.WriteWord(1, difference);
+					wr->WriteWord(1, highbit | 0x7D);
+					wr->WriteWord(1, difference);
 				}
 				else if(difference < 0x10000)
 				{
-					wr.WriteWord(1, highbit | 0x7E);
-					wr.WriteWord(2, difference);
+					wr->WriteWord(1, highbit | 0x7E);
+					wr->WriteWord(2, difference);
 				}
 				else
 				{
-					wr.WriteWord(1, highbit | 0x7F);
-					wr.WriteWord(4, difference);
+					wr->WriteWord(1, highbit | 0x7F);
+					wr->WriteWord(4, difference);
 				}
 				last_relocation = it.first;
 			}
-			wr.WriteWord(1, 0);
+			wr->WriteWord(1, 0);
 		}
 
 		template <typename SizeType, typename Format>
@@ -247,7 +247,7 @@ namespace DigitalResearch
 			uint32_t value;
 
 			static Symbol ReadFile(const std::shared_ptr<Linker::Reader>& rd);
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 		std::vector<Symbol> symbols;
 
@@ -311,7 +311,7 @@ namespace DigitalResearch
 		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
 

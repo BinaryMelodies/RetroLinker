@@ -47,7 +47,7 @@ namespace Linker
 		/**
 		 * @brief Stores data in memory to file
 		 */
-		offset_t WriteFile(Writer& wr) const override = 0;
+		offset_t WriteFile(const std::shared_ptr<Writer>& wr) const override = 0;
 		/**
 		 * @brief Display file contents in a nice manner
 		 */

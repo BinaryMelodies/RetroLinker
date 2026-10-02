@@ -217,7 +217,7 @@ namespace Microsoft
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 
-			void WriteFile(Linker::Writer& wr) const;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const;
 		};
@@ -248,7 +248,7 @@ namespace Microsoft
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
 
@@ -372,7 +372,7 @@ namespace Microsoft
 
 		void WriteStubImage(std::ostream& out);
 
-		void WriteStubImage(Linker::Writer& wr);
+		void WriteStubImage(const std::shared_ptr<Linker::Writer>& wr);
 
 		~MZSimpleStubWriter()
 		{
@@ -409,7 +409,7 @@ namespace Microsoft
 
 		void WriteStubImage(std::ostream& out);
 
-		void WriteStubImage(Linker::Writer& wr);
+		void WriteStubImage(const std::shared_ptr<Linker::Writer>& wr);
 
 		~MZStubWriter()
 		{

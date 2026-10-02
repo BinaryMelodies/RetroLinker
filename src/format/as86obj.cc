@@ -421,7 +421,7 @@ offset_t AS86ObjFormat::ImageSize() const
 	return file_size;
 }
 
-offset_t AS86ObjFormat::WriteFile(Linker::Writer& wr) const
+offset_t AS86ObjFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* TODO */
 	return offset_t(-1);

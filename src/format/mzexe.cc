@@ -60,21 +60,21 @@ void MZFormat::PIF::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	screen_usage = rd->ReadUnsigned(1);
 }
 
-void MZFormat::PIF::WriteFile(Linker::Writer& wr) const
+void MZFormat::PIF::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, MAGIC_BEGIN, LittleEndian);
+	wr->WriteWord(4, MAGIC_BEGIN, LittleEndian);
 
-	wr.WriteWord(2, maximum_extra_paragraphs, LittleEndian);
-	wr.WriteWord(2, minimum_extra_paragraphs, LittleEndian);
-	wr.WriteWord(1, flags);
-	wr.WriteWord(1, 0);
-	wr.WriteWord(1, lowest_used_interrupt);
-	wr.WriteWord(1, highest_used_interrupt);
-	wr.WriteWord(1, com_port_usage);
-	wr.WriteWord(1, lpt_port_usage);
-	wr.WriteWord(1, screen_usage);
+	wr->WriteWord(2, maximum_extra_paragraphs, LittleEndian);
+	wr->WriteWord(2, minimum_extra_paragraphs, LittleEndian);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(1, 0);
+	wr->WriteWord(1, lowest_used_interrupt);
+	wr->WriteWord(1, highest_used_interrupt);
+	wr->WriteWord(1, com_port_usage);
+	wr->WriteWord(1, lpt_port_usage);
+	wr->WriteWord(1, screen_usage);
 
-	wr.WriteWord(4, MAGIC_END, LittleEndian);
+	wr->WriteWord(4, MAGIC_END, LittleEndian);
 }
 
 void MZFormat::PIF::Dump(Dumper::Dumper& dump, offset_t file_offset) const
@@ -253,53 +253,53 @@ void MZFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	buffer->ReadFile(rd, ImageSize() - GetHeaderSize());
 }
 
-offset_t MZFormat::WriteFile(Linker::Writer& wr) const
+offset_t MZFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.Seek(file_offset);
-	wr.WriteData(2, signature);
-	wr.WriteWord(2, last_block_size);
-	wr.WriteWord(2, file_size_blocks);
-	wr.WriteWord(2, relocation_count);
-	wr.WriteWord(2, header_size_paras);
-	wr.WriteWord(2, min_extra_paras);
-	wr.WriteWord(2, max_extra_paras);
-	wr.WriteWord(2, ss);
-	wr.WriteWord(2, sp);
-	wr.WriteWord(2, 0); /* TODO: checksum */
-	wr.WriteWord(2, ip);
-	wr.WriteWord(2, cs);
-	wr.WriteWord(2, relocation_offset);
-	wr.WriteWord(2, GetSignature() != MAGIC_DL ? overlay_number : data_segment);
+	wr->endiantype = ::LittleEndian;
+	wr->Seek(file_offset);
+	wr->WriteData(2, signature);
+	wr->WriteWord(2, last_block_size);
+	wr->WriteWord(2, file_size_blocks);
+	wr->WriteWord(2, relocation_count);
+	wr->WriteWord(2, header_size_paras);
+	wr->WriteWord(2, min_extra_paras);
+	wr->WriteWord(2, max_extra_paras);
+	wr->WriteWord(2, ss);
+	wr->WriteWord(2, sp);
+	wr->WriteWord(2, 0); /* TODO: checksum */
+	wr->WriteWord(2, ip);
+	wr->WriteWord(2, cs);
+	wr->WriteWord(2, relocation_offset);
+	wr->WriteWord(2, GetSignature() != MAGIC_DL ? overlay_number : data_segment);
 
 	if(header_size_paras >= 4 && relocation_offset >= 0x40)
 	{
-		wr.Skip(4);
-		wr.WriteWord(2, behavior_bits);
-		wr.Skip(2);
-		wr.WriteWord(2, oem_id);
-		wr.WriteWord(2, oem_info);
-		wr.Skip(16);
-		wr.WriteWord(4, win386_new_header_offset);
-		wr.WriteWord(4, new_header_offset);
+		wr->Skip(4);
+		wr->WriteWord(2, behavior_bits);
+		wr->Skip(2);
+		wr->WriteWord(2, oem_id);
+		wr->WriteWord(2, oem_info);
+		wr->Skip(16);
+		wr->WriteWord(4, win386_new_header_offset);
+		wr->WriteWord(4, new_header_offset);
 	}
 
-	wr.Seek(file_offset + relocation_offset);
+	wr->Seek(file_offset + relocation_offset);
 	for(auto& rel : relocations)
 	{
-		wr.WriteWord(2, rel.offset);
-		wr.WriteWord(2, rel.segment);
+		wr->WriteWord(2, rel.offset);
+		wr->WriteWord(2, rel.segment);
 	}
 	if(pif)
 	{
-		wr.Seek(file_offset + GetPifOffset());
+		wr->Seek(file_offset + GetPifOffset());
 		pif->WriteFile(wr);
 	}
-	wr.Seek(file_offset + (uint32_t(header_size_paras) << 4));
+	wr->Seek(file_offset + (uint32_t(header_size_paras) << 4));
 	if(image)
 		image->WriteFile(wr);
 
-	wr.FillTo(file_offset + ImageSize());
+	wr->FillTo(file_offset + ImageSize());
 
 	return ImageSize();
 }
@@ -809,15 +809,13 @@ offset_t MZSimpleStubWriter::GetStubImageSize()
 
 void MZSimpleStubWriter::WriteStubImage(std::ostream& out)
 {
-	// TODO: bad programming pattern
-	auto _wr = std::make_shared<Linker::StreamWriter>(::LittleEndian, &out);
-	Linker::Writer& wr = *_wr;
+	auto wr = std::make_shared<Linker::StreamWriter>(::LittleEndian, &out);
 	WriteStubImage(wr);
 }
 
-void MZSimpleStubWriter::WriteStubImage(Linker::Writer& wr)
+void MZSimpleStubWriter::WriteStubImage(const std::shared_ptr<Linker::Writer>& wr)
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	if(OpenAndCheckValidFile())
 	{
 		if(size == offset_t(-1))
@@ -825,26 +823,26 @@ void MZSimpleStubWriter::WriteStubImage(Linker::Writer& wr)
 			GetStubImageSize();
 		}
 		stream.seekg(0);
-		wr.WriteData(size, stream);
+		wr->WriteData(size, stream);
 	}
 	else
 	{
 		/* minimal stub */
-		wr.WriteData(2, "MZ");
-		wr.WriteWord(2, 0x20);
-		wr.WriteWord(2, 1);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 2);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0x20);
-		wr.WriteWord(2, 0);
-		wr.Seek(0x20);
+		wr->WriteData(2, "MZ");
+		wr->WriteWord(2, 0x20);
+		wr->WriteWord(2, 1);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 2);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0x20);
+		wr->WriteWord(2, 0);
+		wr->Seek(0x20);
 	}
 
 	if(stream.is_open())
@@ -916,13 +914,11 @@ offset_t MZStubWriter::GetStubImageSize()
 
 void MZStubWriter::WriteStubImage(std::ostream& out)
 {
-	// TODO: bad programming pattern
-	auto _wr = std::make_shared<Linker::StreamWriter>(::LittleEndian, &out);
-	Linker::Writer& wr = *_wr;
+	auto wr = std::make_shared<Linker::StreamWriter>(::LittleEndian, &out);
 	WriteStubImage(wr);
 }
 
-void MZStubWriter::WriteStubImage(Linker::Writer& wr)
+void MZStubWriter::WriteStubImage(const std::shared_ptr<Linker::Writer>& wr)
 {
 	if(OpenAndCheckValidFile())
 	{
@@ -933,47 +929,47 @@ void MZStubWriter::WriteStubImage(Linker::Writer& wr)
 
 		if(stub_reloc_offset != original_reloc_offset || stub_header_size != original_header_size)
 		{
-			wr.WriteData(2, "MZ");
-			wr.WriteWord(2, stub_file_size & 0x1FF);
-			wr.WriteWord(2, (stub_file_size + 0x1FF) >> 9);
-			wr.WriteWord(2, stub_reloc_count);
-			wr.WriteWord(2, stub_header_size >> 4);
+			wr->WriteData(2, "MZ");
+			wr->WriteWord(2, stub_file_size & 0x1FF);
+			wr->WriteWord(2, (stub_file_size + 0x1FF) >> 9);
+			wr->WriteWord(2, stub_reloc_count);
+			wr->WriteWord(2, stub_header_size >> 4);
 			stream.seekg(0x0A);
-			wr.WriteData(0x0E, stream);
-			wr.WriteWord(2, stub_reloc_offset);
-			wr.Seek(0x3C);
-			wr.WriteWord(4, stub_file_size);
+			wr->WriteData(0x0E, stream);
+			wr->WriteWord(2, stub_reloc_offset);
+			wr->Seek(0x3C);
+			wr->WriteWord(4, stub_file_size);
 			stream.seekg(original_reloc_offset);
-			wr.WriteData(4 * stub_reloc_count, stream);
-			wr.Seek(stub_header_size);
+			wr->WriteData(4 * stub_reloc_count, stream);
+			wr->Seek(stub_header_size);
 			stream.seekg(original_header_size);
-			wr.WriteData(original_file_size - original_header_size, stream);
+			wr->WriteData(original_file_size - original_header_size, stream);
 		}
 		else
 		{
 			stream.seekg(0);
-			wr.WriteData(original_file_size, stream);
+			wr->WriteData(original_file_size, stream);
 		}
 	}
 	else
 	{
 		/* minimal stub */
-		wr.WriteData(2, "MZ");
-		wr.WriteWord(2, 0x40);
-		wr.WriteWord(2, 1);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 4);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0);
-		wr.WriteWord(2, 0x40);
-		wr.WriteWord(2, 0);
-		wr.Seek(0x3C);
-		wr.WriteWord(4, 0x40);
+		wr->WriteData(2, "MZ");
+		wr->WriteWord(2, 0x40);
+		wr->WriteWord(2, 1);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 4);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0);
+		wr->WriteWord(2, 0x40);
+		wr->WriteWord(2, 0);
+		wr->Seek(0x3C);
+		wr->WriteWord(4, 0x40);
 	}
 
 	if(stream.is_open())

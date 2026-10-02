@@ -422,7 +422,7 @@ namespace Microsoft
 			/** @brief Reads an entry within a bundle */
 			static Entry ReadEntry(const std::shared_ptr<Linker::Reader>& rd, uint8_t indicator_byte);
 			/** @brief Writes an entry within a bundle */
-			void WriteEntry(Linker::Writer& wr) const;
+			void WriteEntry(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 
 		/** @brief Represents an imported module in the module reference table */
@@ -644,7 +644,7 @@ namespace Microsoft
 		offset_t ImageSize() const override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
 
@@ -868,7 +868,7 @@ namespace Microsoft
 		typedef std::variant<uint16_t, std::string> Identifier;
 
 		static void ReadIdentifier(const std::shared_ptr<Linker::Reader>& rd, Identifier& id);
-		static void WriteIdentifier(Linker::Writer& wr, const Identifier& id);
+		static void WriteIdentifier(const std::shared_ptr<Linker::Writer>& wr, const Identifier& id);
 		static offset_t GetIdentifierSize(const Identifier& id);
 
 		class Resource
@@ -886,7 +886,7 @@ namespace Microsoft
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size);
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
 		class IdDisplay : public Dumper::Display<Identifier>

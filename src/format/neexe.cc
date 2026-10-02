@@ -386,21 +386,21 @@ NEFormat::Entry NEFormat::Entry::ReadEntry(const std::shared_ptr<Linker::Reader>
 	return entry;
 }
 
-void NEFormat::Entry::WriteEntry(Linker::Writer& wr) const
+void NEFormat::Entry::WriteEntry(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	switch(type)
 	{
 	case Unused:
 		break;
 	case Fixed:
-		wr.WriteWord(1, flags);
-		wr.WriteWord(2, offset);
+		wr->WriteWord(1, flags);
+		wr->WriteWord(2, offset);
 		break;
 	case Movable:
-		wr.WriteWord(1, flags);
-		wr.WriteWord(2, INT_3Fh);
-		wr.WriteWord(1, segment);
-		wr.WriteWord(2, offset);
+		wr->WriteWord(1, flags);
+		wr->WriteWord(2, INT_3Fh);
+		wr->WriteWord(1, segment);
+		wr->WriteWord(2, offset);
 		break;
 	}
 }
@@ -837,56 +837,56 @@ offset_t NEFormat::ImageSize() const
 	return file_size;
 }
 
-offset_t NEFormat::WriteFile(Linker::Writer& wr) const
+offset_t NEFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	stub.WriteStubImage(wr);
 	/* new header */
-	wr.Seek(file_offset);
-	wr.WriteData(signature);
-	wr.WriteWord(1, linker_version.major);
-	wr.WriteWord(1, linker_version.minor);
-	wr.WriteWord(2, entry_table_offset - file_offset);
-	wr.WriteWord(2, entry_table_length);
-	wr.WriteWord(4, crc32);
-	wr.WriteWord(1, program_flags);
-	wr.WriteWord(1, application_flags);
-	wr.WriteWord(2, automatic_data);
-	wr.WriteWord(2, heap_size);
-	wr.WriteWord(2, stack_size);
-	wr.WriteWord(2, ip);
-	wr.WriteWord(2, cs);
-	wr.WriteWord(2, sp);
-	wr.WriteWord(2, ss);
-	wr.WriteWord(2, IsOS2() ? segments.size() + resources.size() : segments.size());
-	wr.WriteWord(2, module_references.size());
-	wr.WriteWord(2, nonresident_name_table_length);
-	wr.WriteWord(2, segment_table_offset - file_offset);
-	wr.WriteWord(2, resource_table_offset - file_offset);
-	wr.WriteWord(2, resident_name_table_offset - file_offset);
-	wr.WriteWord(2, module_reference_table_offset - file_offset);
-	wr.WriteWord(2, imported_names_table_offset - file_offset);
-	wr.WriteWord(4, nonresident_name_table_offset);
-	wr.WriteWord(2, movable_entry_count);
-	wr.WriteWord(2, sector_shift);
-	wr.WriteWord(2, resource_count);
-	wr.WriteWord(1, system);
-	wr.WriteWord(1, additional_flags);
-	wr.WriteWord(2, fast_load_area_offset);
-	wr.WriteWord(2, fast_load_area_length);
-	wr.WriteWord(2, code_swap_area_length);
+	wr->Seek(file_offset);
+	wr->WriteData(signature);
+	wr->WriteWord(1, linker_version.major);
+	wr->WriteWord(1, linker_version.minor);
+	wr->WriteWord(2, entry_table_offset - file_offset);
+	wr->WriteWord(2, entry_table_length);
+	wr->WriteWord(4, crc32);
+	wr->WriteWord(1, program_flags);
+	wr->WriteWord(1, application_flags);
+	wr->WriteWord(2, automatic_data);
+	wr->WriteWord(2, heap_size);
+	wr->WriteWord(2, stack_size);
+	wr->WriteWord(2, ip);
+	wr->WriteWord(2, cs);
+	wr->WriteWord(2, sp);
+	wr->WriteWord(2, ss);
+	wr->WriteWord(2, IsOS2() ? segments.size() + resources.size() : segments.size());
+	wr->WriteWord(2, module_references.size());
+	wr->WriteWord(2, nonresident_name_table_length);
+	wr->WriteWord(2, segment_table_offset - file_offset);
+	wr->WriteWord(2, resource_table_offset - file_offset);
+	wr->WriteWord(2, resident_name_table_offset - file_offset);
+	wr->WriteWord(2, module_reference_table_offset - file_offset);
+	wr->WriteWord(2, imported_names_table_offset - file_offset);
+	wr->WriteWord(4, nonresident_name_table_offset);
+	wr->WriteWord(2, movable_entry_count);
+	wr->WriteWord(2, sector_shift);
+	wr->WriteWord(2, resource_count);
+	wr->WriteWord(1, system);
+	wr->WriteWord(1, additional_flags);
+	wr->WriteWord(2, fast_load_area_offset);
+	wr->WriteWord(2, fast_load_area_length);
+	wr->WriteWord(2, code_swap_area_length);
 	/* following Watcom */
-	wr.WriteWord(1, windows_version.minor);
-	wr.WriteWord(1, windows_version.major);
+	wr->WriteWord(1, windows_version.minor);
+	wr->WriteWord(1, windows_version.major);
 
 	/* Segment table */
-	wr.Seek(segment_table_offset);
+	wr->Seek(segment_table_offset);
 	for(auto segment : segments)
 	{
-		wr.WriteWord(2, segment->data_offset >> sector_shift);
-		wr.WriteWord(2, segment->image->ImageSize());
-		wr.WriteWord(2, segment->flags);
-		wr.WriteWord(2, segment->total_size);
+		wr->WriteWord(2, segment->data_offset >> sector_shift);
+		wr->WriteWord(2, segment->image->ImageSize());
+		wr->WriteWord(2, segment->flags);
+		wr->WriteWord(2, segment->total_size);
 	}
 
 	/* Resource table */
@@ -894,116 +894,116 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 	{
 		for(auto resource : resources)
 		{
-			wr.WriteWord(2, resource->data_offset >> sector_shift);
-			wr.WriteWord(2, resource->image->ImageSize());
-			wr.WriteWord(2, resource->flags);
-			wr.WriteWord(2, resource->total_size);
+			wr->WriteWord(2, resource->data_offset >> sector_shift);
+			wr->WriteWord(2, resource->image->ImageSize());
+			wr->WriteWord(2, resource->flags);
+			wr->WriteWord(2, resource->total_size);
 		}
 
-		wr.Seek(resource_table_offset);
+		wr->Seek(resource_table_offset);
 		for(auto resource : resources)
 		{
-			wr.WriteWord(2, resource->type_id);
-			wr.WriteWord(2, resource->id);
+			wr->WriteWord(2, resource->type_id);
+			wr->WriteWord(2, resource->id);
 		}
 	}
 	else if(resource_types.size() != 0)
 	{
-		wr.Seek(resource_table_offset);
-		wr.WriteWord(2, resource_shift);
+		wr->Seek(resource_table_offset);
+		wr->WriteWord(2, resource_shift);
 		for(auto rtype : resource_types)
 		{
-			wr.WriteWord(2, rtype->type_id);
-			wr.WriteWord(2, rtype->resources.size());
-			wr.Skip(4);
+			wr->WriteWord(2, rtype->type_id);
+			wr->WriteWord(2, rtype->resources.size());
+			wr->Skip(4);
 			for(auto& resource : rtype->resources)
 			{
-				wr.WriteWord(2, resource->data_offset >> resource_shift);
-				wr.WriteWord(2, AlignTo(resource->image->ImageSize(), 1 << resource_shift) >> resource_shift);
-				wr.WriteWord(2, resource->flags);
-				wr.WriteWord(2, resource->id);
-				wr.WriteWord(2, resource->handle);
-				wr.WriteWord(2, resource->usage);
+				wr->WriteWord(2, resource->data_offset >> resource_shift);
+				wr->WriteWord(2, AlignTo(resource->image->ImageSize(), 1 << resource_shift) >> resource_shift);
+				wr->WriteWord(2, resource->flags);
+				wr->WriteWord(2, resource->id);
+				wr->WriteWord(2, resource->handle);
+				wr->WriteWord(2, resource->usage);
 			}
 		}
-		wr.WriteWord(2, 0);
+		wr->WriteWord(2, 0);
 		for(auto& string : resource_strings)
 		{
-			wr.WriteWord(1, string.size());
-			wr.WriteData(string);
+			wr->WriteWord(1, string.size());
+			wr->WriteData(string);
 		}
-		wr.WriteWord(1, 0);
+		wr->WriteWord(1, 0);
 	}
 
 	/* Resident name table */
-	wr.Seek(resident_name_table_offset);
+	wr->Seek(resident_name_table_offset);
 	for(const Name& name : resident_names)
 	{
-		wr.WriteWord(1, name.name.size());
-		wr.WriteData(name.name.size(), name.name.c_str());
-		wr.WriteWord(2, name.ordinal);
+		wr->WriteWord(1, name.name.size());
+		wr->WriteData(name.name.size(), name.name.c_str());
+		wr->WriteWord(2, name.ordinal);
 	}
-	wr.WriteWord(1, 0);
+	wr->WriteWord(1, 0);
 
 	/* Module reference table */
-	wr.Seek(module_reference_table_offset);
+	wr->Seek(module_reference_table_offset);
 	for(auto& module : module_references)
 	{
-		wr.WriteWord(2, module.name_offset);
+		wr->WriteWord(2, module.name_offset);
 	}
 
 	/* Imported name table */
-	wr.Seek(imported_names_table_offset);
+	wr->Seek(imported_names_table_offset);
 	for(const std::string& name : imported_names)
 	{
-		wr.WriteWord(1, name.size());
-		wr.WriteData(name.size(), name.c_str());
+		wr->WriteWord(1, name.size());
+		wr->WriteData(name.size(), name.c_str());
 	}
 
 	/* Entry table */
-	wr.Seek(entry_table_offset);
+	wr->Seek(entry_table_offset);
 	for(size_t entry_index = 0; entry_index < entries.size();)
 	{
 		size_t entry_count = CountBundles(entry_index);
-		wr.WriteWord(1, entry_count);
-		wr.WriteWord(1, entries[entry_index].GetIndicatorByte());
+		wr->WriteWord(1, entry_count);
+		wr->WriteWord(1, entries[entry_index].GetIndicatorByte());
 		for(size_t entry_offset = 0; entry_offset < entry_count; entry_offset ++)
 		{
 			entries[entry_index + entry_offset].WriteEntry(wr);
 		}
 		entry_index += entry_count;
 	}
-	wr.WriteWord(2, 0);
+	wr->WriteWord(2, 0);
 
 	/* Nonresident name table */
-	wr.Seek(nonresident_name_table_offset);
+	wr->Seek(nonresident_name_table_offset);
 	for(const Name& name : nonresident_names)
 	{
-		wr.WriteWord(1, name.name.size());
-		wr.WriteData(name.name.size(), name.name.c_str());
-		wr.WriteWord(2, name.ordinal);
+		wr->WriteWord(1, name.name.size());
+		wr->WriteData(name.name.size(), name.name.c_str());
+		wr->WriteWord(2, name.ordinal);
 	}
-	wr.WriteWord(1, 0);
+	wr->WriteWord(1, 0);
 
 	for(auto segment : segments)
 	{
-		wr.Seek(segment->data_offset);
+		wr->Seek(segment->data_offset);
 		segment->image->WriteFile(wr);
 		if(segment->relocations.size() != 0)
 		{
-			wr.WriteWord(2, segment->relocations.size());
+			wr->WriteWord(2, segment->relocations.size());
 			for(auto& it : segment->relocations)
 			{
-				wr.WriteWord(1, it.type);
-				wr.WriteWord(1, it.flags);
-				wr.WriteWord(2, it.offsets[0]);
-				wr.WriteWord(2, it.module);
-				wr.WriteWord(2, it.target);
+				wr->WriteWord(1, it.type);
+				wr->WriteWord(1, it.flags);
+				wr->WriteWord(2, it.offsets[0]);
+				wr->WriteWord(2, it.module);
+				wr->WriteWord(2, it.target);
 				// TODO: check that this works
 				for(unsigned i = 1; i < it.offsets.size(); i++)
 				{
-					wr.Seek(segment->data_offset + it.offsets[i - 1]);
-					wr.WriteWord(2, it.offsets[i]);
+					wr->Seek(segment->data_offset + it.offsets[i - 1]);
+					wr->WriteWord(2, it.offsets[i]);
 				}
 			}
 		}
@@ -1016,7 +1016,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 		{
 			if(resource->image != nullptr)
 			{
-				wr.Seek(resource->data_offset);
+				wr->Seek(resource->data_offset);
 				resource->image->WriteFile(wr);
 			}
 		}
@@ -1029,7 +1029,7 @@ offset_t NEFormat::WriteFile(Linker::Writer& wr) const
 			{
 				if(resource->image != nullptr)
 				{
-					wr.Seek(resource->data_offset);
+					wr->Seek(resource->data_offset);
 					resource->image->WriteFile(wr);
 				}
 			}
@@ -2395,17 +2395,17 @@ void ResourceFile::ReadIdentifier(const std::shared_ptr<Linker::Reader>& rd, Ide
 	}
 }
 
-void ResourceFile::WriteIdentifier(Linker::Writer& wr, const Identifier& id)
+void ResourceFile::WriteIdentifier(const std::shared_ptr<Linker::Writer>& wr, const Identifier& id)
 {
 	if(auto ordinal_p = std::get_if<uint16_t>(&id))
 	{
-		wr.WriteWord(1, 0xFF);
-		wr.WriteWord(2, *ordinal_p, ::LittleEndian);
+		wr->WriteWord(1, 0xFF);
+		wr->WriteWord(2, *ordinal_p, ::LittleEndian);
 	}
 	else if(auto string_p = std::get_if<std::string>(&id))
 	{
-		wr.WriteData(*string_p);
-		wr.WriteWord(1, 0);
+		wr->WriteData(*string_p);
+		wr->WriteWord(1, 0);
 	}
 	else
 	{
@@ -2457,15 +2457,15 @@ void ResourceFile::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	ReadFile(rd, ending_offset - starting_offset);
 }
 
-offset_t ResourceFile::WriteFile(Linker::Writer& wr) const
+offset_t ResourceFile::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	for(auto& resource : resources)
 	{
 		WriteIdentifier(wr, resource.type);
 		WriteIdentifier(wr, resource.name);
 
-		wr.WriteWord(2, resource.flags, ::LittleEndian);
-		wr.WriteWord(4, resource.image->ImageSize(), ::LittleEndian);
+		wr->WriteWord(2, resource.flags, ::LittleEndian);
+		wr->WriteWord(4, resource.image->ImageSize(), ::LittleEndian);
 		resource.image->WriteFile(wr);
 	}
 	return offset_t(-1); // TODO

@@ -112,56 +112,56 @@ offset_t AIFFormat::ImageSize() const
 	return file_size;
 }
 
-offset_t AIFFormat::WriteFile(Linker::Writer& wr) const
+offset_t AIFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = endiantype;
+	wr->endiantype = endiantype;
 	if(compressed)
 	{
-		wr.WriteWord(4, ARM_BL + ((decompression_code - 16) >> 4));
+		wr->WriteWord(4, ARM_BL + ((decompression_code - 16) >> 4));
 	}
 	else
 	{
-		wr.WriteWord(4, ARM_NOP);
+		wr->WriteWord(4, ARM_NOP);
 	}
 
 	if(relocatable)
 	{
-		wr.WriteWord(4, ARM_BL + ((relocation_code - 16) >> 4));
+		wr->WriteWord(4, ARM_BL + ((relocation_code - 16) >> 4));
 	}
 	else
 	{
-		wr.WriteWord(4, ARM_NOP);
+		wr->WriteWord(4, ARM_NOP);
 	}
 
 	if(has_zero_init)
 	{
-		wr.WriteWord(4, ARM_BL + ((zero_init_code - 24) >> 4));
+		wr->WriteWord(4, ARM_BL + ((zero_init_code - 24) >> 4));
 	}
 	else
 	{
-		wr.WriteWord(4, ARM_NOP);
+		wr->WriteWord(4, ARM_NOP);
 	}
 
 	if(executable)
 	{
-		wr.WriteWord(4, ARM_BL + ((entry + 108) >> 4));
+		wr->WriteWord(4, ARM_BL + ((entry + 108) >> 4));
 	}
 	else
 	{
-		wr.WriteWord(4, ARM_NOP);
+		wr->WriteWord(4, ARM_NOP);
 	}
 
-	wr.WriteWord(4, exit_instruction);
+	wr->WriteWord(4, exit_instruction);
 
-	wr.WriteWord(4, text_size);
-	wr.WriteWord(4, data_size);
-	wr.WriteWord(4, debug_size);
-	wr.WriteWord(4, bss_size);
-	wr.WriteWord(4, image_debut_type);
-	wr.WriteWord(4, image_base);
-	wr.WriteWord(4, workspace);
-	wr.WriteWord(4, address_mode);
-	wr.WriteWord(4, data_base);
+	wr->WriteWord(4, text_size);
+	wr->WriteWord(4, data_size);
+	wr->WriteWord(4, debug_size);
+	wr->WriteWord(4, bss_size);
+	wr->WriteWord(4, image_debut_type);
+	wr->WriteWord(4, image_base);
+	wr->WriteWord(4, workspace);
+	wr->WriteWord(4, address_mode);
+	wr->WriteWord(4, data_base);
 
 	/* TODO: rest of the header */
 

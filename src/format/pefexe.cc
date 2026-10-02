@@ -32,7 +32,7 @@ size_t PEFFormat::PatternInitialization::GetValueSize(uint32_t value, size_t siz
 	return ptr;
 }
 
-void PEFFormat::PatternInitialization::WriteValue(Linker::Writer& wr, uint32_t value, size_t size_hint)
+void PEFFormat::PatternInitialization::WriteValue(const std::shared_ptr<Linker::Writer>& wr, uint32_t value, size_t size_hint)
 {
 	uint8_t data[5];
 	size_t ptr = 0;
@@ -46,11 +46,11 @@ void PEFFormat::PatternInitialization::WriteValue(Linker::Writer& wr, uint32_t v
 	{
 		if(--ptr != 0)
 		{
-			wr.WriteWord(1, 0x80 | data[ptr]);
+			wr->WriteWord(1, 0x80 | data[ptr]);
 		}
 		else
 		{
-			wr.WriteWord(1, data[ptr]);
+			wr->WriteWord(1, data[ptr]);
 		}
 	}
 }
@@ -106,7 +106,7 @@ void PEFFormat::PatternInitialization::ReadFile(const std::shared_ptr<Linker::Re
 	}
 }
 
-void PEFFormat::PatternInitialization::WriteFile(Linker::Writer& wr) const
+void PEFFormat::PatternInitialization::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	uint32_t param = 0;
 	switch(opcode)
@@ -133,11 +133,11 @@ void PEFFormat::PatternInitialization::WriteFile(Linker::Writer& wr) const
 
 	if(param <= 31)
 	{
-		wr.WriteWord(1, (opcode << 5) | param);
+		wr->WriteWord(1, (opcode << 5) | param);
 	}
 	else
 	{
-		wr.WriteWord(1, opcode << 5);
+		wr->WriteWord(1, opcode << 5);
 		WriteValue(wr, param);
 	}
 
@@ -146,19 +146,19 @@ void PEFFormat::PatternInitialization::WriteFile(Linker::Writer& wr) const
 	case Zero:
 		break;
 	case BlockCopy:
-		wr.WriteData(common_data);
+		wr->WriteData(common_data);
 		break;
 	case RepeatedBlock:
 		WriteValue(wr, count - 1);
-		wr.WriteData(common_data);
+		wr->WriteData(common_data);
 		break;
 	case InterleaveRepeatBlockWithBlockCopy:
 		WriteValue(wr, custom_data[0].size()); // TODO: what if there are no custom data? what if they are not the same size?
 		WriteValue(wr, custom_data.size());
-		wr.WriteData(common_data);
+		wr->WriteData(common_data);
 		for(auto& data : custom_data)
 		{
-			wr.WriteData(data);
+			wr->WriteData(data);
 		}
 		break;
 	case InterleaveRepeatBlockWithZero:
@@ -166,7 +166,7 @@ void PEFFormat::PatternInitialization::WriteFile(Linker::Writer& wr) const
 		WriteValue(wr, custom_data.size());
 		for(auto& data : custom_data)
 		{
-			wr.WriteData(data);
+			wr->WriteData(data);
 		}
 		break;
 	default:
@@ -836,21 +836,21 @@ void PEFFormat::Section::CalculateValues(PEFFormat& pef_format)
 	}
 }
 
-void PEFFormat::Section::WriteHeader(Linker::Writer& wr) const
+void PEFFormat::Section::WriteHeader(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, name_offset);
-	wr.WriteWord(4, default_address);
-	wr.WriteWord(4, total_size);
-	wr.WriteWord(4, unpacked_size);
-	wr.WriteWord(4, packed_size);
-	wr.WriteWord(4, container_offset);
-	wr.WriteWord(1, section_kind);
-	wr.WriteWord(1, share_kind);
-	wr.WriteWord(1, alignment);
-	wr.WriteWord(1, reserved);
+	wr->WriteWord(4, name_offset);
+	wr->WriteWord(4, default_address);
+	wr->WriteWord(4, total_size);
+	wr->WriteWord(4, unpacked_size);
+	wr->WriteWord(4, packed_size);
+	wr->WriteWord(4, container_offset);
+	wr->WriteWord(1, section_kind);
+	wr->WriteWord(1, share_kind);
+	wr->WriteWord(1, alignment);
+	wr->WriteWord(1, reserved);
 }
 
-void PEFFormat::Section::WriteFile(const PEFFormat& pef_format, Linker::Writer& wr) const
+void PEFFormat::Section::WriteFile(const PEFFormat& pef_format, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	switch(section_kind)
 	{
@@ -858,19 +858,19 @@ void PEFFormat::Section::WriteFile(const PEFFormat& pef_format, Linker::Writer& 
 	case UnpackedData:
 	case Constant:
 	case ExecutableData:
-		wr.Seek(container_offset);
+		wr->Seek(container_offset);
 		image->WriteFile(wr);
 		break;
 	case PatternInitializedData:
 		// TODO: untested
-		wr.Seek(container_offset);
+		wr->Seek(container_offset);
 		for(auto& pattern : patterns)
 		{
 			pattern.WriteFile(wr);
 		}
 		break;
 	case Loader:
-		wr.Seek(container_offset);
+		wr->Seek(container_offset);
 		pef_format.WriteLoaderSection(wr);
 		break;
 	default:
@@ -1197,28 +1197,28 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
+void PEFFormat::WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	//// header
 
-	wr.WriteWord(4, main_symbol.section);
-	wr.WriteWord(4, main_symbol.offset);
+	wr->WriteWord(4, main_symbol.section);
+	wr->WriteWord(4, main_symbol.offset);
 
-	wr.WriteWord(4, init_symbol.section);
-	wr.WriteWord(4, init_symbol.offset);
+	wr->WriteWord(4, init_symbol.section);
+	wr->WriteWord(4, init_symbol.offset);
 
-	wr.WriteWord(4, term_symbol.section);
-	wr.WriteWord(4, term_symbol.offset);
+	wr->WriteWord(4, term_symbol.section);
+	wr->WriteWord(4, term_symbol.offset);
 
-	wr.WriteWord(4, imported_libraries.size());
-	wr.WriteWord(4, imported_symbols.size());
+	wr->WriteWord(4, imported_libraries.size());
+	wr->WriteWord(4, imported_symbols.size());
 
-	wr.WriteWord(4, reloc_section_indexes.size());
-	wr.WriteWord(4, reloc_instr_offset);
+	wr->WriteWord(4, reloc_section_indexes.size());
+	wr->WriteWord(4, reloc_instr_offset);
 
-	wr.WriteWord(4, loader_strings_offset);
+	wr->WriteWord(4, loader_strings_offset);
 
-	wr.WriteWord(4, export_hash_offset);
+	wr->WriteWord(4, export_hash_offset);
 
 	uint32_t export_hash_table_size = hash_table.size();
 	uint32_t export_hash_table_power = 0;
@@ -1227,28 +1227,28 @@ void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
 		export_hash_table_size >>= 1;
 		export_hash_table_power ++;
 	}
-	wr.WriteWord(4, export_hash_table_power);
-	wr.WriteWord(4, exported_symbols.size());
+	wr->WriteWord(4, export_hash_table_power);
+	wr->WriteWord(4, exported_symbols.size());
 
 	//// imported library descriptions
 
 	for(auto library : imported_libraries)
 	{
-		wr.WriteWord(4, library->name_offset);
-		wr.WriteWord(4, library->old_imp_version);
-		wr.WriteWord(4, library->current_version);
-		wr.WriteWord(4, library->imported_symbol_count);
-		wr.WriteWord(4, library->first_imported_symbol);
-		wr.WriteWord(1, library->options);
-		wr.WriteWord(1, library->reserved_a);
-		wr.WriteWord(2, library->reserved_b);
+		wr->WriteWord(4, library->name_offset);
+		wr->WriteWord(4, library->old_imp_version);
+		wr->WriteWord(4, library->current_version);
+		wr->WriteWord(4, library->imported_symbol_count);
+		wr->WriteWord(4, library->first_imported_symbol);
+		wr->WriteWord(1, library->options);
+		wr->WriteWord(1, library->reserved_a);
+		wr->WriteWord(2, library->reserved_b);
 	}
 
 	//// imported symbol tables
 
 	for(auto symbol : imported_symbols)
 	{
-		wr.WriteWord(4, (symbol->name_offset & 0x00FFFFFF) | ((symbol->symbol_class & 0x0F) << 24) | ((symbol->flags & 0xF0) << 24));
+		wr->WriteWord(4, (symbol->name_offset & 0x00FFFFFF) | ((symbol->symbol_class & 0x0F) << 24) | ((symbol->flags & 0xF0) << 24));
 	}
 
 	//// relocation headers
@@ -1256,15 +1256,15 @@ void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
 	for(auto section_index : reloc_section_indexes)
 	{
 		auto section = sections[section_index];
-		wr.WriteWord(2, section_index);
-		wr.WriteWord(2, section->reserved_a);
-		wr.WriteWord(4, section->reloc_instr_size / 2);
-		wr.WriteWord(4, section->first_reloc_offset / 2);
+		wr->WriteWord(2, section_index);
+		wr->WriteWord(2, section->reserved_a);
+		wr->WriteWord(4, section->reloc_instr_size / 2);
+		wr->WriteWord(4, section->first_reloc_offset / 2);
 	}
 
 	//// relocation area
 
-	wr.Seek(loader_section_offset + reloc_instr_offset);
+	wr->Seek(loader_section_offset + reloc_instr_offset);
 	for(auto opcode : relocs_area)
 	{
 		opcode.WriteFile(wr);
@@ -1272,35 +1272,35 @@ void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
 
 	//// loader string table
 
-	wr.Seek(loader_section_offset + loader_strings_offset);
+	wr->Seek(loader_section_offset + loader_strings_offset);
 	for(auto string : loader_string_table)
 	{
-		wr.WriteData(string);
+		wr->WriteData(string);
 	}
 
 	//// export hash table
 
-	wr.Seek(loader_section_offset + export_hash_offset);
+	wr->Seek(loader_section_offset + export_hash_offset);
 	for(auto& hash_table_entry : hash_table)
 	{
-		wr.WriteWord(4, (uint32_t(hash_table_entry.chain_count) << 18) | (hash_table_entry.first_index & 0x0003FFFF));
+		wr->WriteWord(4, (uint32_t(hash_table_entry.chain_count) << 18) | (hash_table_entry.first_index & 0x0003FFFF));
 	}
 
 	//// export key table
 
 	for(auto& symbol : exported_symbols)
 	{
-		wr.WriteWord(2, symbol->symbol_length);
-		wr.WriteWord(2, symbol->hash_value);
+		wr->WriteWord(2, symbol->symbol_length);
+		wr->WriteWord(2, symbol->hash_value);
 	}
 
 	//// exported symbol table
 
 	for(auto& symbol : exported_symbols)
 	{
-		wr.WriteWord(4, (uint32_t(symbol->symbol_class) << 24) | (symbol->name_offset & 0x00FFFFFF));
-		wr.WriteWord(4, symbol->offset);
-		wr.WriteWord(2, symbol->section & 0xFFFF);
+		wr->WriteWord(4, (uint32_t(symbol->symbol_class) << 24) | (symbol->name_offset & 0x00FFFFFF));
+		wr->WriteWord(4, symbol->offset);
+		wr->WriteWord(2, symbol->section & 0xFFFF);
 	}
 }
 
@@ -1342,19 +1342,19 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t PEFFormat::WriteFile(Linker::Writer& wr) const
+offset_t PEFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
-	wr.WriteData("Joy!peff");
-	wr.WriteWord(4, architecture);
-	wr.WriteWord(4, format_version);
-	wr.WriteTimestamp(date_time_stamp);
-	wr.WriteWord(4, old_def_version);
-	wr.WriteWord(4, old_imp_version);
-	wr.WriteWord(4, current_version);
-	wr.WriteWord(2, sections.size());
-	wr.WriteWord(2, inst_section_count);
-	wr.WriteWord(4, reserved);
+	wr->endiantype = ::BigEndian;
+	wr->WriteData("Joy!peff");
+	wr->WriteWord(4, architecture);
+	wr->WriteWord(4, format_version);
+	wr->WriteTimestamp(date_time_stamp);
+	wr->WriteWord(4, old_def_version);
+	wr->WriteWord(4, old_imp_version);
+	wr->WriteWord(4, current_version);
+	wr->WriteWord(2, sections.size());
+	wr->WriteWord(2, inst_section_count);
+	wr->WriteWord(4, reserved);
 
 	for(auto section : sections)
 	{
@@ -1363,8 +1363,8 @@ offset_t PEFFormat::WriteFile(Linker::Writer& wr) const
 
 	for(auto name : section_name_table)
 	{
-		wr.WriteData(name);
-		wr.WriteWord(1, 0);
+		wr->WriteData(name);
+		wr->WriteWord(1, 0);
 	}
 
 	for(auto section : sections)

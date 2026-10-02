@@ -24,7 +24,7 @@ namespace Linker
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		virtual offset_t WriteFile(Writer& wr) const = 0;
+		virtual offset_t WriteFile(const std::shared_ptr<Writer>& wr) const = 0;
 		/**
 		 * @brief Retrieves a randomly accessible image
 		 */
@@ -72,9 +72,9 @@ namespace Linker
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		virtual offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const;
+		virtual offset_t WriteFile(const std::shared_ptr<Writer>& wr, offset_t count, offset_t offset = 0) const;
 
-		offset_t WriteFile(Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Writer>& wr) const override;
 	};
 }
 

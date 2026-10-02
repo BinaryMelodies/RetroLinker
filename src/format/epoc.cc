@@ -167,25 +167,25 @@ offset_t SymbianFormat::ImageSize() const
 	return offset_t(-1);
 }
 
-offset_t SymbianFormat::WriteFile(Linker::Writer& wr) const
+offset_t SymbianFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian; // TODO
-	wr.WriteWord(4, uid1);
-	wr.WriteWord(4, uid2);
-	wr.WriteWord(4, uid3);
-	wr.WriteWord(4, uid_checksum);
-	wr.WriteData("EPOC");
+	wr->endiantype = ::LittleEndian; // TODO
+	wr->WriteWord(4, uid1);
+	wr->WriteWord(4, uid2);
+	wr->WriteWord(4, uid3);
+	wr->WriteWord(4, uid_checksum);
+	wr->WriteData("EPOC");
 	if(!new_format)
 	{
-		wr.WriteWord(4, cpu);
-		wr.WriteWord(4, code_checksum);
-		wr.WriteWord(4, data_checksum);
+		wr->WriteWord(4, cpu);
+		wr->WriteWord(4, code_checksum);
+		wr->WriteWord(4, data_checksum);
 	}
 	else
 	{
-		wr.WriteWord(4, header_crc);
-		wr.WriteWord(4, module_version);
-		wr.WriteWord(4, compression_type);
+		wr->WriteWord(4, header_crc);
+		wr->WriteWord(4, module_version);
+		wr->WriteWord(4, compression_type);
 	}
 	// TODO
 	return ImageSize();

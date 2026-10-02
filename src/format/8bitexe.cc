@@ -22,15 +22,15 @@ void AppleFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	image = Linker::Buffer::ReadFromFile(rd, size);
 }
 
-offset_t AppleFormat::WriteFile(Linker::Writer& wr) const
+offset_t AppleFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// the writer works as a raw binary writer, including the DOS 3.3 header, or adding a data fork
 
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	if(dos33_header)
 	{
-		wr.WriteWord(2, base_address);
-		wr.WriteWord(2, image->ImageSize());
+		wr->WriteWord(2, base_address);
+		wr->WriteWord(2, image->ImageSize());
 	}
 	image->WriteFile(wr);
 	return offset_t(-1);
@@ -80,21 +80,21 @@ void SOSFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	image = Linker::Buffer::ReadFromFile(rd, size);
 }
 
-offset_t SOSFormat::WriteFile(Linker::Writer& wr) const
+offset_t SOSFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.WriteData(8, "SOS NTRP");
+	wr->endiantype = ::LittleEndian;
+	wr->WriteData(8, "SOS NTRP");
 	if(optional_header != nullptr)
 	{
-		wr.WriteWord(2, optional_header->ImageSize());
+		wr->WriteWord(2, optional_header->ImageSize());
 		optional_header->WriteFile(wr);
 	}
 	else
 	{
-		wr.WriteWord(2, 0);
+		wr->WriteWord(2, 0);
 	}
-	wr.WriteWord(2, base_address);
-	wr.WriteWord(2, image->ImageSize());
+	wr->WriteWord(2, base_address);
+	wr->WriteWord(2, image->ImageSize());
 	image->WriteFile(wr);
 	return ImageSize();
 }
@@ -253,7 +253,7 @@ void AppleDriver::OnReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t AppleDriver::OnWriteFile(Linker::Writer& wr) const
+offset_t AppleDriver::OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	return data_fork->WriteFile(wr);
 }
@@ -385,7 +385,7 @@ void AtariFormat::Segment::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-void AtariFormat::Segment::WriteFile(Linker::Writer& wr) const
+void AtariFormat::Segment::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(uint32_t(address) + GetSize() > 0x10000)
 	{
@@ -394,28 +394,28 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr) const
 	switch(header_type)
 	{
 	case SDX_SYMREQ:
-		wr.WriteWord(2, header_type);
-		wr.WriteWord(1, block_number);
-		wr.WriteData(8, symbol_name);
-		wr.WriteWord(2, address);
+		wr->WriteWord(2, header_type);
+		wr->WriteWord(1, block_number);
+		wr->WriteData(8, symbol_name);
+		wr->WriteWord(2, address);
 		break;
 	case SDX_SYMDEF:
-		wr.WriteWord(2, header_type);
-		wr.WriteData(8, symbol_name);
+		wr->WriteWord(2, header_type);
+		wr->WriteData(8, symbol_name);
 		WriteRelocations(wr);
 		break;
 	case SDX_FIXUPS:
-		wr.WriteWord(2, header_type);
-		wr.WriteWord(1, block_number);
+		wr->WriteWord(2, header_type);
+		wr->WriteWord(1, block_number);
 		WriteRelocations(wr);
 		break;
 	case SDX_RAMALLOC:
 	//case SDX_POSIND:
-		wr.WriteWord(2, header_type);
-		wr.WriteWord(1, block_number);
-		wr.WriteWord(1, control_byte);
-		wr.WriteWord(2, address); // TODO: is this the right field?
-		wr.WriteWord(2, size);
+		wr->WriteWord(2, header_type);
+		wr->WriteWord(1, block_number);
+		wr->WriteWord(1, control_byte);
+		wr->WriteWord(2, address); // TODO: is this the right field?
+		wr->WriteWord(2, size);
 		if((control_byte & CB_RAMALLOC) == 0)
 		{
 			image->WriteFile(wr);
@@ -425,10 +425,10 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr) const
 	case ATARI_SEGMENT:
 		if(!header_type_optional || header_type != ATARI_SEGMENT)
 		{
-			wr.WriteWord(2, header_type);
+			wr->WriteWord(2, header_type);
 		}
-		wr.WriteWord(2, address);
-		wr.WriteWord(2, address + GetSize() - 1);
+		wr->WriteWord(2, address);
+		wr->WriteWord(2, address + GetSize() - 1);
 		image->WriteFile(wr);
 		break;
 	default:
@@ -441,7 +441,7 @@ void AtariFormat::Segment::ReadRelocations(const std::shared_ptr<Linker::Reader>
 	// TODO
 }
 
-void AtariFormat::Segment::WriteRelocations(Linker::Writer& wr) const
+void AtariFormat::Segment::WriteRelocations(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO
 }
@@ -490,9 +490,9 @@ void AtariFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t AtariFormat::WriteFile(Linker::Writer& wr) const
+offset_t AtariFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	for(auto& segment : segments)
 	{
 		segment->WriteFile(wr);
@@ -565,14 +565,14 @@ void CommodoreFormat::BASICLine::ReadFile(const std::shared_ptr<Linker::Reader>&
 	AddString(rd->ReadASCIIZ());
 }
 
-offset_t CommodoreFormat::BASICLine::WriteFile(Linker::Writer& wr) const
+offset_t CommodoreFormat::BASICLine::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, next_address);
+	wr->WriteWord(2, next_address);
 	if(next_address != 0)
 	{
-		wr.WriteWord(2, line_number);
-		wr.WriteData(tokens);
-		wr.WriteWord(1, 0);
+		wr->WriteWord(2, line_number);
+		wr->WriteData(tokens);
+		wr->WriteWord(1, 0);
 	}
 	return ImageSize();
 }
@@ -738,15 +738,15 @@ offset_t CommodoreFormat::BASICFile::ImageSize() const
 	return total_size + 2;
 }
 
-offset_t CommodoreFormat::BASICFile::WriteFile(Linker::Writer& wr) const
+offset_t CommodoreFormat::BASICFile::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	uint16_t total_size = 0;
 	for(auto& line : lines)
 	{
 		total_size += line.WriteFile(wr);
 	}
-	wr.WriteWord(2, 0);
+	wr->WriteWord(2, 0);
 	return total_size + 2;
 }
 
@@ -891,12 +891,12 @@ offset_t CommodoreFormat::ImageSize() const
 	return 2 + loader->ImageSize() + GetImagePaddingSize() + image->ImageSize();
 }
 
-offset_t CommodoreFormat::WriteFile(Linker::Writer& wr) const
+offset_t CommodoreFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.WriteWord(2, load_address);
+	wr->endiantype = ::LittleEndian;
+	wr->WriteWord(2, load_address);
 	loader->WriteFile(wr);
-	wr.Skip(GetImagePaddingSize());
+	wr->Skip(GetImagePaddingSize());
 	image->WriteFile(wr);
 	return ImageSize();
 }
@@ -1047,29 +1047,29 @@ void CPM3Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t CPM3Format::WriteFile(Linker::Writer& wr) const
+offset_t CPM3Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.WriteWord(1, 0xC9);
-	wr.WriteWord(2, image->ImageSize());
-	wr.WriteData(10, preinit_code);
-	wr.WriteWord(1, rsx_table.size() == 0 && loader_active ? 0xFF : 0);
-	wr.Skip(1);
-	wr.WriteWord(1, rsx_table.size());
+	wr->endiantype = ::LittleEndian;
+	wr->WriteWord(1, 0xC9);
+	wr->WriteWord(2, image->ImageSize());
+	wr->WriteData(10, preinit_code);
+	wr->WriteWord(1, rsx_table.size() == 0 && loader_active ? 0xFF : 0);
+	wr->Skip(1);
+	wr->WriteWord(1, rsx_table.size());
 	for(auto& rsx : rsx_table)
 	{
-		wr.WriteWord(2, rsx.offset);
-		wr.WriteWord(2, rsx.module->image->ImageSize());
-		wr.WriteWord(1, rsx.nonbanked_only ? 0xFF : 0);
-		wr.Skip(1);
-		wr.WriteData(8, rsx.name);
-		wr.Skip(2);
+		wr->WriteWord(2, rsx.offset);
+		wr->WriteWord(2, rsx.module->image->ImageSize());
+		wr->WriteWord(1, rsx.nonbanked_only ? 0xFF : 0);
+		wr->Skip(1);
+		wr->WriteData(8, rsx.name);
+		wr->Skip(2);
 	}
-	wr.Seek(0x100);
+	wr->Seek(0x100);
 	image->WriteFile(wr);
 	for(auto& rsx : rsx_table)
 	{
-		wr.Seek(rsx.offset);
+		wr->Seek(rsx.offset);
 		rsx.module->WriteWithoutHeader(wr);
 	}
 	return offset_t(-1);
@@ -1099,16 +1099,16 @@ void CPM3Format::CalculateValues()
 
 // FLEXFormat
 
-void FLEXFormat::Segment::WriteFile(Linker::Writer& wr) const
+void FLEXFormat::Segment::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	std::shared_ptr<Linker::Image> image = this->image->AsImage();
 	for(uint16_t offset = 0; offset < image->ImageSize(); offset += 0xFF)
 	{
 		/* cut the segment up into 255 byte morcels */
-		wr.WriteWord(1, 0x02);
-		wr.WriteWord(2, address + offset);
+		wr->WriteWord(1, 0x02);
+		wr->WriteWord(2, address + offset);
 		uint16_t count = std::min(offset_t(0xFF), image->ImageSize() - address - offset);
-		wr.WriteWord(1, count);
+		wr->WriteWord(1, count);
 		image->WriteFile(wr, count, offset);
 	}
 }
@@ -1122,9 +1122,9 @@ void FLEXFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	segments.push_back(std::move(flex_segment));
 }
 
-offset_t FLEXFormat::WriteFile(Linker::Writer& wr) const
+offset_t FLEXFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
+	wr->endiantype = ::BigEndian;
 	for(auto& segment : segments)
 	{
 		segment->WriteFile(wr);
@@ -1321,25 +1321,25 @@ void PRLFormat::ReadWithoutHeader(const std::shared_ptr<Linker::Reader>& rd, uin
 	}
 }
 
-offset_t PRLFormat::WriteFile(Linker::Writer& wr) const
+offset_t PRLFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.WriteWord(1, 0);
-	wr.WriteWord(2, image->ImageSize());
-	wr.WriteWord(1, 0);
-	wr.WriteWord(2, zero_fill);
-	wr.WriteWord(1, 0);
-	wr.WriteWord(2, load_address); /* load address, non-zero only for OVL files */
-	wr.WriteWord(1, 0);
-	wr.WriteWord(2, cslen); /* length of code group, usually left zero, unless .SPR file on a banked system */
-	wr.Seek(0x0100);
+	wr->endiantype = ::LittleEndian;
+	wr->WriteWord(1, 0);
+	wr->WriteWord(2, image->ImageSize());
+	wr->WriteWord(1, 0);
+	wr->WriteWord(2, zero_fill);
+	wr->WriteWord(1, 0);
+	wr->WriteWord(2, load_address); /* load address, non-zero only for OVL files */
+	wr->WriteWord(1, 0);
+	wr->WriteWord(2, cslen); /* length of code group, usually left zero, unless .SPR file on a banked system */
+	wr->Seek(0x0100);
 	WriteWithoutHeader(wr);
 	return offset_t(-1);
 }
 
-void PRLFormat::WriteWithoutHeader(Linker::Writer& wr) const
+void PRLFormat::WriteWithoutHeader(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	image->WriteFile(wr);
 
 	if(!suppress_relocations) /* suppress relocations only for OVL files */
@@ -1355,7 +1355,7 @@ void PRLFormat::WriteWithoutHeader(Linker::Writer& wr) const
 					reloc_byte |= 1 << (7 - byte);
 				}
 			}
-			wr.WriteWord(1, reloc_byte);
+			wr->WriteWord(1, reloc_byte);
 		}
 	}
 }
@@ -1402,14 +1402,14 @@ void UZIFormat::ProcessModule(Linker::Module& module)
 	entry = 0x0103; /* TODO: enable entry point */
 }
 
-offset_t UZIFormat::WriteFile(Linker::Writer& wr) const
+offset_t UZIFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.WriteWord(1, 0xC3);
-	wr.WriteWord(2, entry);
+	wr->endiantype = ::LittleEndian;
+	wr->WriteWord(1, 0xC3);
+	wr->WriteWord(2, entry);
 	if(uzi180_header)
 	{
-		wr.WriteData("UZI");
+		wr->WriteData("UZI");
 	}
 	image->WriteFile(wr);
 	return offset_t(-1);
@@ -1451,17 +1451,17 @@ void UZI280Format::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 
 /* TODO: apparently both .code and .data are loaded at 0x0100 */
 
-offset_t UZI280Format::WriteFile(Linker::Writer& wr) const
+offset_t UZI280Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.WriteWord(2, 0x00FF);
-	wr.WriteWord(2, data->ImageSize());
-	wr.WriteWord(2, code->ImageSize());
-	wr.AlignTo(512);
+	wr->endiantype = ::LittleEndian;
+	wr->WriteWord(2, 0x00FF);
+	wr->WriteWord(2, data->ImageSize());
+	wr->WriteWord(2, code->ImageSize());
+	wr->AlignTo(512);
 	data->WriteFile(wr);
-	wr.AlignTo(512);
+	wr->AlignTo(512);
 	code->WriteFile(wr);
-	wr.AlignTo(512);
+	wr->AlignTo(512);
 	return offset_t(-1);
 }
 

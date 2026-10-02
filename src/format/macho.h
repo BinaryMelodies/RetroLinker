@@ -133,10 +133,10 @@ namespace MachO
 			static std::unique_ptr<LoadCommand> Read(const std::shared_ptr<Linker::Reader>& rd);
 
 			virtual void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
-			virtual void WriteFile(Linker::Writer& wr) const;
+			virtual void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 
 			virtual void Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size) = 0;
-			virtual void Write(Linker::Writer& wr) const;
+			virtual void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 			virtual offset_t GetSize() const = 0;
 		};
 		std::vector<std::unique_ptr<LoadCommand>> load_commands;
@@ -152,7 +152,7 @@ namespace MachO
 			std::shared_ptr<Linker::Contents> command_image;
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t GetSize() const override;
 		};
 
@@ -172,7 +172,7 @@ namespace MachO
 			uint32_t reserved2 = 0;
 
 			static Section Read(const std::shared_ptr<Linker::Reader>& rd, int wordsize);
-			void Write(Linker::Writer& rd, int wordsize) const;
+			void Write(const std::shared_ptr<Linker::Writer>& rd, int wordsize) const;
 		};
 
 		class SegmentCommand : public LoadCommand
@@ -189,16 +189,16 @@ namespace MachO
 			std::vector<Section> sections;
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
-			void WriteFile(Linker::Writer& wr) const override;
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 			void Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size) override;
-			void Write(Linker::Writer& wr) const override;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const override;
 			offset_t GetSize() const override;
 		};
 
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 	};
@@ -216,7 +216,7 @@ namespace MachO
 			std::shared_ptr<Linker::Contents> image;
 
 			static Entry Read(const std::shared_ptr<Linker::Reader>& rd);
-			void Write(Linker::Writer& wr) const;
+			void Write(const std::shared_ptr<Linker::Writer>& wr) const;
 		};
 		std::vector<Entry> entries;
 
@@ -224,7 +224,7 @@ namespace MachO
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 
 		void Dump(Dumper::Dumper& dump) const override;
 		void CalculateValues() override;

@@ -105,9 +105,9 @@ std::shared_ptr<Buffer> Buffer::ReadFromFile(const std::shared_ptr<Reader>& rd, 
 	return buffer;
 }
 
-offset_t Buffer::WriteFile(Writer& wr, offset_t count, offset_t offset) const
+offset_t Buffer::WriteFile(const std::shared_ptr<Writer>& wr, offset_t count, offset_t offset) const
 {
-	return wr.WriteData(count, data, offset);
+	return wr->WriteData(count, data, offset);
 }
 
 size_t Buffer::ReadData(size_t bytes, offset_t offset, void * buffer) const

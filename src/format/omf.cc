@@ -8,6 +8,78 @@
 
 using namespace OMF;
 
+//// ChecksumWriter
+
+void ChecksumWriter::WriteData(size_t count, const void * data)
+{
+	wr->WriteData(count, data);
+	for(size_t offset = 0; offset < count; offset++)
+	{
+		checksum -= reinterpret_cast<const uint8_t *>(data)[offset];
+	}
+}
+
+void ChecksumWriter::Seek(offset_t offset)
+{
+	Linker::FatalError("Fatal error: absolute seeking not supported for ChecksumWriter");
+}
+
+void ChecksumWriter::Skip(offset_t offset)
+{
+	wr->Skip(offset);
+}
+
+void ChecksumWriter::SeekEnd(offset_t offset)
+{
+	if(offset != 0)
+	{
+		Linker::FatalError("Fatal error: absolute seeking not supported for ChecksumWriter");
+	}
+	// otherwise, we are already at the end
+}
+
+offset_t ChecksumWriter::Tell()
+{
+	return wr->Tell();
+}
+
+// TODO: test that the above implementation works
+#if 0
+void ChecksumWriter::WriteWord(size_t bytes, uint64_t value)
+{
+	wr->WriteWord(bytes, value);
+	for(size_t offset = 0; offset < bytes; offset++, value >>= 8)
+	{
+		checksum -= value;
+	}
+}
+
+size_t ChecksumWriter::WriteData(const std::vector<uint8_t>& data)
+{
+	size_t bytes = wr->WriteData(data);
+	for(size_t offset = 0; offset < bytes; offset++)
+	{
+		checksum -= data[offset];
+	}
+	return bytes;
+}
+
+size_t ChecksumWriter::WriteData(std::string text)
+{
+	wr->WriteData(text);
+	for(size_t offset = 0; offset < text.size(); offset++)
+	{
+		checksum -= text[offset];
+	}
+	return text.size();
+}
+
+void ChecksumWriter::Skip(offset_t count)
+{
+	wr->Skip(count);
+}
+#endif
+
 //// OMFFormat
 
 std::string OMFFormat::ReadString(const std::shared_ptr<Linker::Reader>& rd, size_t max_bytes)
@@ -16,10 +88,10 @@ std::string OMFFormat::ReadString(const std::shared_ptr<Linker::Reader>& rd, siz
 	return rd->ReadData(std::min(size_t(length), max_bytes));
 }
 
-void OMFFormat::WriteString(ChecksumWriter& wr, std::string text)
+void OMFFormat::WriteString(const std::shared_ptr<ChecksumWriter>& wr, std::string text)
 {
-	wr.WriteWord(1, text.size());
-	wr.WriteData(text);
+	wr->WriteWord(1, text.size());
+	wr->WriteData(text);
 }
 
 OMFFormat::index_t OMFFormat::ReadIndex(const std::shared_ptr<Linker::Reader>& rd)
@@ -32,16 +104,16 @@ OMFFormat::index_t OMFFormat::ReadIndex(const std::shared_ptr<Linker::Reader>& r
 	return index;
 }
 
-void OMFFormat::WriteIndex(ChecksumWriter& wr, index_t index)
+void OMFFormat::WriteIndex(const std::shared_ptr<ChecksumWriter>& wr, index_t index)
 {
 	if(index < 0x80)
 	{
-		wr.WriteWord(1, index);
+		wr->WriteWord(1, index);
 	}
 	else
 	{
-		wr.WriteWord(1, (index >> 8) | 0x80);
-		wr.WriteWord(1, index);
+		wr->WriteWord(1, (index >> 8) | 0x80);
+		wr->WriteWord(1, index);
 	}
 }
 
@@ -149,11 +221,11 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::ContentRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+	void OMFFormat::ContentRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
-	wr.WriteWord(2, offset);
-	wr.WriteData(data);
+	wr->WriteWord(1, segment_id);
+	wr->WriteWord(2, offset);
+	wr->WriteData(data);
 }
 
 //// OMFFormat::LineNumber
@@ -168,10 +240,10 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber::Write(FormatType * omf, ChecksumWriter& wr) const
+	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::LineNumber::Write(FormatType * omf, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(2, line_number);
-	wr.WriteWord(2, offset);
+	wr->WriteWord(2, line_number);
+	wr->WriteWord(2, offset);
 }
 
 //// OMFFormat::LineNumbersRecord
@@ -193,9 +265,9 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+	void OMFFormat::LineNumbersRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
+	wr->WriteWord(1, segment_id);
 	for(auto& line_number : line_numbers)
 	{
 		line_number.Write(omf, wr);
@@ -219,11 +291,11 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryHeaderRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+	void OMFFormat::LibraryHeaderRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(2, module_count);
-	wr.WriteWord(2, block_number);
-	wr.WriteWord(2, byte_number);
+	wr->WriteWord(2, module_count);
+	wr->WriteWord(2, block_number);
+	wr->WriteWord(2, byte_number);
 }
 
 //// OMFFormat::LibraryModuleNamesRecord
@@ -249,7 +321,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+	void OMFFormat::LibraryModuleNamesRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& name : names)
 	{
@@ -269,10 +341,10 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location::Write(ChecksumWriter& wr) const
+	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::Location::Write(const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(2, block_number);
-	wr.WriteWord(2, byte_number);
+	wr->WriteWord(2, block_number);
+	wr->WriteWord(2, byte_number);
 }
 
 //// OMFFormat::LibraryModuleLocationsRecord
@@ -293,7 +365,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+	void OMFFormat::LibraryModuleLocationsRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& location : locations)
 	{
@@ -327,7 +399,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::Write(ChecksumWriter& wr) const
+	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::Group::Write(const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& name : names)
 	{
@@ -358,7 +430,7 @@ template <typename RecordTypeByte, typename FormatType, typename ModuleType>
 }
 
 template <typename RecordTypeByte, typename FormatType, typename ModuleType>
-	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const
+	void OMFFormat::LibraryDictionaryRecord<RecordTypeByte, FormatType, ModuleType>::WriteRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& group : groups)
 	{
@@ -499,26 +571,26 @@ uint32_t OMF86Format::ExternalName::ValueSize(OMF86Format * omf, uint32_t length
 		return 5;
 }
 
-void OMF86Format::ExternalName::WriteValue(OMF86Format * omf, ChecksumWriter& wr, uint32_t length)
+void OMF86Format::ExternalName::WriteValue(OMF86Format * omf, const std::shared_ptr<ChecksumWriter>& wr, uint32_t length)
 {
 	if(length <= 0x80)
 	{
-		wr.WriteWord(1, length);
+		wr->WriteWord(1, length);
 	}
 	else if(length < 0x10000)
 	{
-		wr.WriteWord(1, 0x81);
-		wr.WriteWord(2, length);
+		wr->WriteWord(1, 0x81);
+		wr->WriteWord(2, length);
 	}
 	else if(length < 0x1000000)
 	{
-		wr.WriteWord(1, 0x84);
-		wr.WriteWord(3, length);
+		wr->WriteWord(1, 0x84);
+		wr->WriteWord(3, length);
 	}
 	else
 	{
-		wr.WriteWord(1, 0x88);
-		wr.WriteWord(4, length);
+		wr->WriteWord(1, 0x88);
+		wr->WriteWord(4, length);
 	}
 }
 
@@ -603,7 +675,7 @@ uint16_t OMF86Format::ExternalName::GetExternalNameSize(OMF86Format * omf) const
 	return bytes;
 }
 
-void OMF86Format::ExternalName::WriteExternalName(OMF86Format * omf, ChecksumWriter& wr) const
+void OMF86Format::ExternalName::WriteExternalName(OMF86Format * omf, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	if(name_is_index)
 	{
@@ -619,15 +691,15 @@ void OMF86Format::ExternalName::WriteExternalName(OMF86Format * omf, ChecksumWri
 	case External:
 		break;
 	case SegmentIndexCommon:
-		wr.WriteWord(1, value.segment_index);
+		wr->WriteWord(1, value.segment_index);
 		break;
 	case FarCommon:
-		wr.WriteWord(1, common_type);
+		wr->WriteWord(1, common_type);
 		WriteValue(omf, wr, value.far.number);
 		WriteValue(omf, wr, value.far.element_size);
 		break;
 	case NearCommon:
-		wr.WriteWord(1, common_type);
+		wr->WriteWord(1, common_type);
 		WriteValue(omf, wr, value.near.length);
 		break;
 	}
@@ -681,13 +753,13 @@ uint16_t OMF86Format::BaseSpecification::Size(OMF86Format * omf) const
 	}
 }
 
-void OMF86Format::BaseSpecification::Write(OMF86Format * omf, ChecksumWriter& wr) const
+void OMF86Format::BaseSpecification::Write(OMF86Format * omf, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	if(auto frame_number = std::get_if<FrameNumber>(&location))
 	{
 		WriteIndex(wr, 0);
 		WriteIndex(wr, 0);
-		wr.WriteWord(2, *frame_number);
+		wr->WriteWord(2, *frame_number);
 	}
 	else if(auto _location = std::get_if<Location>(&location))
 	{
@@ -738,10 +810,10 @@ uint16_t OMF86Format::SymbolDefinition::Size(OMF86Format * omf, bool is32bit) co
 	return name.size() + IndexSize(type.index) + (is32bit ? 5 : 3);
 }
 
-void OMF86Format::SymbolDefinition::Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const
+void OMF86Format::SymbolDefinition::Write(OMF86Format * omf, const std::shared_ptr<ChecksumWriter>& wr, bool is32bit) const
 {
 	WriteString(wr, name);
-	wr.WriteWord(is32bit ? 4 : 2, offset);
+	wr->WriteWord(is32bit ? 4 : 2, offset);
 	WriteIndex(wr, type.index);
 }
 
@@ -768,10 +840,10 @@ OMF86Format::LineNumber OMF86Format::LineNumber::Read(OMF86Format * omf, const s
 	return line_number;
 }
 
-void OMF86Format::LineNumber::Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const
+void OMF86Format::LineNumber::Write(OMF86Format * omf, const std::shared_ptr<ChecksumWriter>& wr, bool is32bit) const
 {
-	wr.WriteWord(2, number);
-	wr.WriteWord(is32bit ? 4 : 2, offset);
+	wr->WriteWord(2, number);
+	wr->WriteWord(is32bit ? 4 : 2, offset);
 }
 
 //// OMF86Format::DataBlock
@@ -834,22 +906,22 @@ uint16_t OMF86Format::DataBlock::GetIteratedDataBlockSize(OMF86Format * omf, boo
 	return bytes;
 }
 
-void OMF86Format::DataBlock::WriteEnumeratedDataBlock(OMF86Format * omf, ChecksumWriter& wr) const
+void OMF86Format::DataBlock::WriteEnumeratedDataBlock(OMF86Format * omf, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteData(std::get<Data>(content));
+	wr->WriteData(std::get<Data>(content));
 }
 
-void OMF86Format::DataBlock::WriteIteratedDataBlock(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const
+void OMF86Format::DataBlock::WriteIteratedDataBlock(OMF86Format * omf, const std::shared_ptr<ChecksumWriter>& wr, bool is32bit) const
 {
-	wr.WriteWord(is32bit ? 4 : 2, repeat_count); // TODO: Phar Lap always stores 2 bytes
+	wr->WriteWord(is32bit ? 4 : 2, repeat_count); // TODO: Phar Lap always stores 2 bytes
 	if(auto data = std::get_if<Data>(&content))
 	{
-		wr.WriteWord(2, 0);
-		wr.WriteData(*data);
+		wr->WriteWord(2, 0);
+		wr->WriteData(*data);
 	}
 	else if(auto blocks = std::get_if<Blocks>(&content))
 	{
-		wr.WriteWord(2, blocks->size());
+		wr->WriteWord(2, blocks->size());
 		for(auto block : *blocks)
 		{
 			block->WriteIteratedDataBlock(omf, wr, is32bit);
@@ -982,7 +1054,7 @@ uint16_t OMF86Format::Reference::Size(OMF86Format * omf, bool is32bit) const
 	return bytes;
 }
 
-void OMF86Format::Reference::Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const
+void OMF86Format::Reference::Write(OMF86Format * omf, const std::shared_ptr<ChecksumWriter>& wr, bool is32bit) const
 {
 	uint8_t fixdata = 0;
 
@@ -1053,7 +1125,7 @@ void OMF86Format::Reference::Write(OMF86Format * omf, ChecksumWriter& wr, bool i
 		fixdata |= 0x04;
 	}
 
-	wr.WriteWord(1, fixdata);
+	wr->WriteWord(1, fixdata);
 
 	if(auto segment = std::get_if<SegmentIndex>(&frame))
 	{
@@ -1094,10 +1166,10 @@ void OMF86Format::Reference::Write(OMF86Format * omf, ChecksumWriter& wr, bool i
 		switch(omf->omf_version)
 		{
 		case OMF_VERSION_INTEL_40:
-			wr.WriteWord(displacement > 0xFFFF ? 3 : 2, displacement);
+			wr->WriteWord(displacement > 0xFFFF ? 3 : 2, displacement);
 			break;
 		default:
-			wr.WriteWord(is32bit ? 4 : 2, displacement);
+			wr->WriteWord(is32bit ? 4 : 2, displacement);
 			break;
 		}
 	}
@@ -1231,9 +1303,9 @@ uint16_t OMF86Format::ModuleHeaderRecord::GetRecordSize(OMF86Format * omf, Modul
 	return name.size() + 1;
 }
 
-void OMF86Format::ModuleHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ModuleHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteData(name);
+	wr->WriteData(name);
 }
 
 //// OMF86Format::RModuleHeaderRecord
@@ -1260,18 +1332,18 @@ uint16_t OMF86Format::RModuleHeaderRecord::GetRecordSize(OMF86Format * omf, Modu
 	return name.size() + 28;
 }
 
-void OMF86Format::RModuleHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::RModuleHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteData(name);
-	wr.WriteWord(1, module_type);
-	wr.WriteWord(2, segment_record_count);
-	wr.WriteWord(2, group_record_count);
-	wr.WriteWord(2, overlay_record_count);
-	wr.WriteWord(4, overlay_record_offset);
-	wr.WriteWord(4, static_size);
-	wr.WriteWord(4, maximum_static_size);
-	wr.WriteWord(4, dynamic_storage);
-	wr.WriteWord(4, maximum_dynamic_storage);
+	wr->WriteData(name);
+	wr->WriteWord(1, module_type);
+	wr->WriteWord(2, segment_record_count);
+	wr->WriteWord(2, group_record_count);
+	wr->WriteWord(2, overlay_record_count);
+	wr->WriteWord(4, overlay_record_offset);
+	wr->WriteWord(4, static_size);
+	wr->WriteWord(4, maximum_static_size);
+	wr->WriteWord(4, dynamic_storage);
+	wr->WriteWord(4, maximum_dynamic_storage);
 }
 
 //// OMF86Format::ListOfNamesRecord
@@ -1299,7 +1371,7 @@ uint16_t OMF86Format::ListOfNamesRecord::GetRecordSize(OMF86Format * omf, Module
 	return bytes;
 }
 
-void OMF86Format::ListOfNamesRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ListOfNamesRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(uint16_t lname_index = first_lname; lname_index < first_lname + lname_count; lname_index++)
 	{
@@ -1512,7 +1584,7 @@ uint16_t OMF86Format::SegmentDefinitionRecord::GetRecordSize(OMF86Format * omf, 
 	return bytes;
 }
 
-void OMF86Format::SegmentDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::SegmentDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	uint8_t attributes = (alignment << 5) | ((combination & 7) << 2);
 	if(Is32Bit(omf) ? segment_length > 0xFFFFFFFF : segment_length > 0xFFFF)
@@ -1535,29 +1607,29 @@ void OMF86Format::SegmentDefinitionRecord::WriteRecordContents(OMF86Format * omf
 		}
 	}
 
-	wr.WriteWord(1, attributes);
+	wr->WriteWord(1, attributes);
 
 	switch(alignment)
 	{
 	case AlignAbsolute:
 	case AlignUnnamed:
-		wr.WriteWord(2, std::get<Absolute>(location) >> 4);
-		wr.WriteWord(1, std::get<Absolute>(location) & 0x0F);
+		wr->WriteWord(2, std::get<Absolute>(location) >> 4);
+		wr->WriteWord(1, std::get<Absolute>(location) & 0x0F);
 		break;
 	case AlignLTL16:
 		{
 			LoadTimeLocatable ltl = std::get<LoadTimeLocatable>(location);
 			uint8_t ltl_data = (ltl.group_member ? 0x80 : 0) | (ltl.maximum_segment_length > 0xFFFF ? 0x01 : 0);
-			wr.WriteWord(1, ltl_data);
-			wr.WriteWord(2, ltl.maximum_segment_length);
-			wr.WriteWord(2, ltl.group_offset);
+			wr->WriteWord(1, ltl_data);
+			wr->WriteWord(2, ltl.maximum_segment_length);
+			wr->WriteWord(2, ltl.group_offset);
 		}
 		break;
 	default:
 		break;
 	}
 
-	wr.WriteWord(GetOffsetSize(omf), segment_length);
+	wr->WriteWord(GetOffsetSize(omf), segment_length);
 
 	if(alignment != AlignUnnamed)
 	{
@@ -1568,7 +1640,7 @@ void OMF86Format::SegmentDefinitionRecord::WriteRecordContents(OMF86Format * omf
 
 	if(omf->omf_version == OMF_VERSION_PHARLAP && access)
 	{
-		wr.WriteWord(1, access.value() + (use32 ? 0x04 : 0));
+		wr->WriteWord(1, access.value() + (use32 ? 0x04 : 0));
 	}
 }
 
@@ -1752,41 +1824,41 @@ uint16_t OMF86Format::GroupDefinitionRecord::Component::Size(OMF86Format * omf, 
 	}
 }
 
-void OMF86Format::GroupDefinitionRecord::Component::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::GroupDefinitionRecord::Component::Write(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	if(auto absolute = std::get_if<Absolute>(&component))
 	{
-		wr.WriteWord(1, Absolute_type);
-		wr.WriteWord(2, *absolute >> 4);
-		wr.WriteWord(1, *absolute & 0xF);
+		wr->WriteWord(1, Absolute_type);
+		wr->WriteWord(2, *absolute >> 4);
+		wr->WriteWord(1, *absolute & 0xF);
 	}
 	else if(auto lengths = std::get_if<LoadTimeLocatable>(&component))
 	{
-		wr.WriteWord(1, LoadTimeLocatable_type);
+		wr->WriteWord(1, LoadTimeLocatable_type);
 		uint8_t data = 0;
 		if(lengths->maximum_group_length > 0xFFFF)
 			data |= 0x01;
 		if(lengths->group_length > 0xFFFF)
 			data |= 0x02;
-		wr.WriteWord(1, data);
-		wr.WriteWord(2, lengths->maximum_group_length);
-		wr.WriteWord(2, lengths->group_length);
+		wr->WriteWord(1, data);
+		wr->WriteWord(2, lengths->maximum_group_length);
+		wr->WriteWord(2, lengths->group_length);
 	}
 	else if(auto names = std::get_if<SegmentClassOverlayNames>(&component))
 	{
-		wr.WriteWord(1, SegmentClassOverlayNames_type);
+		wr->WriteWord(1, SegmentClassOverlayNames_type);
 		WriteIndex(wr, names->segment_name.index);
 		WriteIndex(wr, names->class_name.index);
 		WriteIndex(wr, names->overlay_name.index);
 	}
 	else if(auto external = std::get_if<ExternalIndex>(&component))
 	{
-		wr.WriteWord(1, ExternalIndex_type);
+		wr->WriteWord(1, ExternalIndex_type);
 		WriteIndex(wr, external->index);
 	}
 	else if(auto segment = std::get_if<SegmentIndex>(&component))
 	{
-		wr.WriteWord(1, SegmentIndex_type);
+		wr->WriteWord(1, SegmentIndex_type);
 		WriteIndex(wr, segment->index);
 	}
 	else
@@ -1854,7 +1926,7 @@ uint16_t OMF86Format::GroupDefinitionRecord::GetRecordSize(OMF86Format * omf, Mo
 	return bytes;
 }
 
-void OMF86Format::GroupDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::GroupDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteIndex(wr, name.index);
 	for(auto& component : components)
@@ -1983,64 +2055,64 @@ uint16_t OMF86Format::TypeDefinitionRecord::LeafDescriptor::Size(OMF86Format * o
 	}
 }
 
-void OMF86Format::TypeDefinitionRecord::LeafDescriptor::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::TypeDefinitionRecord::LeafDescriptor::Write(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	if(std::get_if<Null>(&leaf))
 	{
-		wr.WriteWord(1, NullLeaf);
+		wr->WriteWord(1, NullLeaf);
 	}
 	else if(auto number = std::get_if<uint32_t>(&leaf))
 	{
 		if(*number < 0x80)
 		{
-			wr.WriteWord(1, *number);
+			wr->WriteWord(1, *number);
 		}
 		else if(*number <= 0xFFFF)
 		{
-			wr.WriteWord(1, NumericLeaf16);
-			wr.WriteWord(2, *number);
+			wr->WriteWord(1, NumericLeaf16);
+			wr->WriteWord(2, *number);
 		}
 		else if(*number <= 0xFFFFFF)
 		{
-			wr.WriteWord(1, NumericLeaf24);
-			wr.WriteWord(3, *number);
+			wr->WriteWord(1, NumericLeaf24);
+			wr->WriteWord(3, *number);
 		}
 		else // simplifying storing values
 		{
-			wr.WriteWord(1, SignedNumericLeaf32);
-			wr.WriteWord(4, *number);
+			wr->WriteWord(1, SignedNumericLeaf32);
+			wr->WriteWord(4, *number);
 		}
 	}
 	else if(auto string = std::get_if<std::string>(&leaf))
 	{
-		wr.WriteWord(1, StringLeaf);
+		wr->WriteWord(1, StringLeaf);
 		WriteString(wr, *string);
 	}
 	else if(auto index = std::get_if<TypeIndex>(&leaf))
 	{
-		wr.WriteWord(1, IndexLeaf);
+		wr->WriteWord(1, IndexLeaf);
 		WriteIndex(wr, index->index);
 	}
 	else if(std::get_if<Repeat>(&leaf))
 	{
-		wr.WriteWord(1, RepeatLeaf);
+		wr->WriteWord(1, RepeatLeaf);
 	}
 	else if(auto signed_number = std::get_if<int32_t>(&leaf))
 	{
 		if(-0x80 <= *signed_number && *signed_number < 0x80)
 		{
-			wr.WriteWord(1, SignedNumericLeaf8);
-			wr.WriteWord(1, *signed_number);
+			wr->WriteWord(1, SignedNumericLeaf8);
+			wr->WriteWord(1, *signed_number);
 		}
 		else if(-0x8000 <= *signed_number && *signed_number < 0x8000)
 		{
-			wr.WriteWord(1, SignedNumericLeaf16);
-			wr.WriteWord(2, *signed_number);
+			wr->WriteWord(1, SignedNumericLeaf16);
+			wr->WriteWord(2, *signed_number);
 		}
 		else
 		{
-			wr.WriteWord(1, SignedNumericLeaf32);
-			wr.WriteWord(4, *signed_number);
+			wr->WriteWord(1, SignedNumericLeaf32);
+			wr->WriteWord(4, *signed_number);
 		}
 	}
 	else
@@ -2094,7 +2166,7 @@ uint16_t OMF86Format::TypeDefinitionRecord::GetRecordSize(OMF86Format * omf, Mod
 	return bytes;
 }
 
-void OMF86Format::TypeDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::TypeDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
 	for(size_t leaf_group_number = 0; leaf_group_number < leafs.size(); leaf_group_number += 8)
@@ -2105,7 +2177,7 @@ void OMF86Format::TypeDefinitionRecord::WriteRecordContents(OMF86Format * omf, M
 			if(leafs[leaf_group_number + leaf_number].nice)
 				nice_bits |= 1 << leaf_number;
 		}
-		wr.WriteWord(1, nice_bits);
+		wr->WriteWord(1, nice_bits);
 		for(size_t leaf_number = 0; leaf_number < 8 && leaf_group_number + leaf_number < leafs.size(); leaf_number++)
 		{
 			leafs[leaf_group_number + leaf_number].Write(omf, mod, wr);
@@ -2153,7 +2225,7 @@ uint16_t OMF86Format::SymbolsDefinitionRecord::GetRecordSize(OMF86Format * omf, 
 	return bytes;
 }
 
-void OMF86Format::SymbolsDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::SymbolsDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	bool is32bit = Is32Bit(omf);
 	base.Write(omf, wr);
@@ -2211,7 +2283,7 @@ uint16_t OMF86Format::ExternalNamesDefinitionRecord::GetRecordSize(OMF86Format *
 	return bytes;
 }
 
-void OMF86Format::ExternalNamesDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ExternalNamesDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(uint16_t extdef_index = first_extdef.index; extdef_index < first_extdef.index + extdef_count; extdef_index++)
 	{
@@ -2256,7 +2328,7 @@ uint16_t OMF86Format::LineNumbersRecord::GetRecordSize(OMF86Format * omf, Module
 	return bytes;
 }
 
-void OMF86Format::LineNumbersRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::LineNumbersRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	bool is32bit = Is32Bit(omf);
 	base.Write(omf, wr);
@@ -2302,16 +2374,16 @@ uint16_t OMF86Format::BlockDefinitionRecord::GetRecordSize(OMF86Format * omf, Mo
 	return 7 + base.Size(omf) + name.size() + ((procedure & 0x80) ? 2 : 0) + (name != "" ? IndexSize(type.index) : 0);
 }
 
-void OMF86Format::BlockDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::BlockDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	base.Write(omf, wr);
 	WriteString(wr, name);
-	wr.WriteWord(2, offset);
-	wr.WriteWord(2, length);
-	wr.WriteWord(1, procedure);
+	wr->WriteWord(2, offset);
+	wr->WriteWord(2, length);
+	wr->WriteWord(1, procedure);
 	if((procedure & 0x80))
 	{
-		wr.WriteWord(2, return_address_offset);
+		wr->WriteWord(2, return_address_offset);
 	}
 	if(name != "")
 	{
@@ -2391,21 +2463,21 @@ uint16_t OMF86Format::DebugSymbolsRecord::GetRecordSize(OMF86Format * omf, Modul
 	return bytes;
 }
 
-void OMF86Format::DebugSymbolsRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::DebugSymbolsRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	if(auto spec = std::get_if<BaseSpecification>(&base))
 	{
-		wr.WriteWord(1, frame_type | SymbolBaseMethod);
+		wr->WriteWord(1, frame_type | SymbolBaseMethod);
 		spec->Write(omf, wr);
 	}
 	else if(auto external = std::get_if<ExternalIndex>(&base))
 	{
-		wr.WriteWord(1, frame_type | ExternalMethod);
+		wr->WriteWord(1, frame_type | ExternalMethod);
 		WriteIndex(wr, external->index);
 	}
 	else if(auto block = std::get_if<ExternalIndex>(&base))
 	{
-		wr.WriteWord(1, frame_type | BlockMethod);
+		wr->WriteWord(1, frame_type | BlockMethod);
 		WriteIndex(wr, block->index);
 	}
 	else
@@ -2474,10 +2546,10 @@ uint16_t OMF86Format::RelocatableDataRecord::GetRecordSize(OMF86Format * omf, Mo
 	return bytes;
 }
 
-void OMF86Format::RelocatableDataRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::RelocatableDataRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	base.Write(omf, wr);
-	wr.WriteWord(2, offset);
+	wr->WriteWord(2, offset);
 	if(record_type == RIDATA)
 		data->WriteIteratedDataBlock(omf, wr, false);
 	else
@@ -2517,10 +2589,10 @@ uint16_t OMF86Format::PhysicalDataRecord::GetRecordSize(OMF86Format * omf, Modul
 	return bytes;
 }
 
-void OMF86Format::PhysicalDataRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::PhysicalDataRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(2, address >> 4);
-	wr.WriteWord(1, address & 0xF);
+	wr->WriteWord(2, address >> 4);
+	wr->WriteWord(1, address & 0xF);
 	if(record_type == RIDATA)
 		data->WriteIteratedDataBlock(omf, wr, false);
 	else
@@ -2553,10 +2625,10 @@ uint16_t OMF86Format::LogicalDataRecord::GetRecordSize(OMF86Format * omf, Module
 	return bytes;
 }
 
-void OMF86Format::LogicalDataRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::LogicalDataRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteIndex(wr, segment.index);
-	wr.WriteWord(GetOffsetSize(omf), offset);
+	wr->WriteWord(GetOffsetSize(omf), offset);
 	if(record_type == LIDATA16)
 		data->WriteIteratedDataBlock(omf, wr, false);
 	else if(record_type == LIDATA32)
@@ -2634,42 +2706,42 @@ uint16_t OMF86Format::FixupRecord::Thread::Size(OMF86Format * omf, Module * mod)
 	return bytes;
 }
 
-void OMF86Format::FixupRecord::Thread::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::FixupRecord::Thread::Write(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	uint8_t data_byte = thread_number;
 	if(frame)
 		data_byte |= 0x40;
 	if(auto segmentp = std::get_if<SegmentIndex>(&reference))
 	{
-		wr.WriteWord(1, data_byte | (MethodSegment << 2));
+		wr->WriteWord(1, data_byte | (MethodSegment << 2));
 		WriteIndex(wr, segmentp->index);
 	}
 	else if(auto groupp = std::get_if<GroupIndex>(&reference))
 	{
-		wr.WriteWord(1, data_byte | (MethodGroup << 2));
+		wr->WriteWord(1, data_byte | (MethodGroup << 2));
 		WriteIndex(wr, groupp->index);
 	}
 	else if(auto externalp = std::get_if<ExternalIndex>(&reference))
 	{
-		wr.WriteWord(1, data_byte | (MethodExternal << 2));
+		wr->WriteWord(1, data_byte | (MethodExternal << 2));
 		WriteIndex(wr, externalp->index);
 	}
 	else if(auto frame_numberp = std::get_if<FrameNumber>(&reference))
 	{
-		wr.WriteWord(1, data_byte | (MethodFrame << 2));
+		wr->WriteWord(1, data_byte | (MethodFrame << 2));
 		WriteIndex(wr, *frame_numberp);
 	}
 	else if(std::get_if<UsesSource>(&reference))
 	{
-		wr.WriteWord(1, data_byte | (MethodSource << 2));
+		wr->WriteWord(1, data_byte | (MethodSource << 2));
 	}
 	else if(std::get_if<UsesTarget>(&reference))
 	{
-		wr.WriteWord(1, data_byte | (MethodTarget << 2));
+		wr->WriteWord(1, data_byte | (MethodTarget << 2));
 	}
 	else if(std::get_if<UsesAbsolute>(&reference))
 	{
-		wr.WriteWord(1, data_byte | (MethodAbsolute << 2));
+		wr->WriteWord(1, data_byte | (MethodAbsolute << 2));
 	}
 	else
 	{
@@ -2755,7 +2827,7 @@ uint16_t OMF86Format::FixupRecord::Fixup::Size(OMF86Format * omf, Module * mod, 
 	return 2 + ref.Size(omf, is32bit);
 }
 
-void OMF86Format::FixupRecord::Fixup::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr, bool is32bit) const
+void OMF86Format::FixupRecord::Fixup::Write(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr, bool is32bit) const
 {
 	uint8_t data_byte = 0x80 | ((type & 0xF) << 2) | (offset >> 8);
 
@@ -2769,8 +2841,8 @@ void OMF86Format::FixupRecord::Fixup::Write(OMF86Format * omf, Module * mod, Che
 		data_byte |= 0x20;
 	}
 
-	wr.WriteWord(1, data_byte);
-	wr.WriteWord(1, offset);
+	wr->WriteWord(1, data_byte);
+	wr->WriteWord(1, offset);
 
 	ref.Write(omf, wr, is32bit);
 }
@@ -2824,7 +2896,7 @@ uint16_t OMF86Format::FixupRecord::GetRecordSize(OMF86Format * omf, Module * mod
 	return bytes;
 }
 
-void OMF86Format::FixupRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::FixupRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& data : fixup_data)
 	{
@@ -2906,10 +2978,10 @@ uint16_t OMF86Format::OverlayDefinitionRecord::GetRecordSize(OMF86Format * omf, 
 	return 7 + name.size() + (shared_overlay ? IndexSize(shared_overlay.value().index) : 0) + (adjacent_overlay ? IndexSize(adjacent_overlay.value().index) : 0);
 }
 
-void OMF86Format::OverlayDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::OverlayDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
-	wr.WriteWord(4, location);
+	wr->WriteWord(4, location);
 	uint8_t attributes = 0;
 	if(shared_overlay)
 	{
@@ -2919,7 +2991,7 @@ void OMF86Format::OverlayDefinitionRecord::WriteRecordContents(OMF86Format * omf
 	{
 		attributes |= 0x01;
 	}
-	wr.WriteWord(1, attributes);
+	wr->WriteWord(1, attributes);
 	if(shared_overlay)
 	{
 		WriteIndex(wr, shared_overlay.value().index);
@@ -2967,9 +3039,9 @@ uint16_t OMF86Format::EndRecord::GetRecordSize(OMF86Format * omf, Module * mod) 
 	return 2;
 }
 
-void OMF86Format::EndRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::EndRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, block_type);
+	wr->WriteWord(1, block_type);
 }
 
 //// OMF86Format::RegisterInitializationRecord::Register
@@ -3031,24 +3103,24 @@ uint16_t OMF86Format::RegisterInitializationRecord::Register::Size(OMF86Format *
 	}
 }
 
-void OMF86Format::RegisterInitializationRecord::Register::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::RegisterInitializationRecord::Register::Write(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	uint8_t regtype = reg_id << 6;
 	if(auto * ref = std::get_if<Reference>(&value))
 	{
 		regtype |= 1;
-		wr.WriteWord(1, regtype);
+		wr->WriteWord(1, regtype);
 		ref->Write(omf, wr, false);
 	}
 	else if(auto * init = std::get_if<InitialValue>(&value))
 	{
-		wr.WriteWord(1, regtype);
+		wr->WriteWord(1, regtype);
 		init->base.Write(omf, wr);
 		switch(reg_id)
 		{
 		case CS_IP:
 		case SS_SP:
-			wr.WriteWord(2, init->offset);
+			wr->WriteWord(2, init->offset);
 			break;
 		case DS:
 		case ES:
@@ -3105,7 +3177,7 @@ uint16_t OMF86Format::RegisterInitializationRecord::GetRecordSize(OMF86Format * 
 	return bytes;
 }
 
-void OMF86Format::RegisterInitializationRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::RegisterInitializationRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& reg : registers)
 	{
@@ -3176,7 +3248,7 @@ uint16_t OMF86Format::ModuleEndRecord::GetRecordSize(OMF86Format * omf, Module *
 	return bytes;
 }
 
-void OMF86Format::ModuleEndRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ModuleEndRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	uint8_t module_type = 0;
 	if(main_module)
@@ -3189,14 +3261,14 @@ void OMF86Format::ModuleEndRecord::WriteRecordContents(OMF86Format * omf, Module
 		if(auto * ref = std::get_if<Reference>(&start_address.value()))
 		{
 			module_type |= 1;
-			wr.WriteWord(1, module_type);
+			wr->WriteWord(1, module_type);
 			ref->Write(omf, wr, Is32Bit(omf));
 		}
 		else if(auto * spec = std::get_if<std::tuple<uint16_t, uint16_t>>(&start_address.value()))
 		{
-			wr.WriteWord(1, module_type);
-			wr.WriteWord(2, std::get<0>(*spec));
-			wr.WriteWord(2, std::get<1>(*spec));
+			wr->WriteWord(1, module_type);
+			wr->WriteWord(2, std::get<0>(*spec));
+			wr->WriteWord(2, std::get<1>(*spec));
 		}
 		else
 		{
@@ -3205,7 +3277,7 @@ void OMF86Format::ModuleEndRecord::WriteRecordContents(OMF86Format * omf, Module
 	}
 	else
 	{
-		wr.WriteWord(1, module_type);
+		wr->WriteWord(1, module_type);
 	}
 }
 
@@ -3228,14 +3300,14 @@ uint16_t OMF86Format::BackpatchRecord::GetRecordSize(OMF86Format * omf, Module *
 	return 2 + IndexSize(segment.index) + 2 * GetOffsetSize(omf) * offset_value_pairs.size();
 }
 
-void OMF86Format::BackpatchRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::BackpatchRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteIndex(wr, segment.index);
-	wr.WriteWord(1, type);
+	wr->WriteWord(1, type);
 	for(auto offset_value_pair : offset_value_pairs)
 	{
-		wr.WriteWord(GetOffsetSize(omf), offset_value_pair.offset);
-		wr.WriteWord(GetOffsetSize(omf), offset_value_pair.value);
+		wr->WriteWord(GetOffsetSize(omf), offset_value_pair.offset);
+		wr->WriteWord(GetOffsetSize(omf), offset_value_pair.value);
 	}
 }
 
@@ -3296,9 +3368,9 @@ uint16_t OMF86Format::NamedBackpatchRecord::GetRecordSize(OMF86Format * omf, Mod
 	return bytes;
 }
 
-void OMF86Format::NamedBackpatchRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::NamedBackpatchRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, type);
+	wr->WriteWord(1, type);
 
 	switch(omf->omf_version)
 	{
@@ -3310,13 +3382,13 @@ void OMF86Format::NamedBackpatchRecord::WriteRecordContents(OMF86Format * omf, M
 		break;
 	default:
 		// unable to generate
-		wr.WriteWord(1, 0);
+		wr->WriteWord(1, 0);
 	}
 
 	for(auto offset_value_pair : offset_value_pairs)
 	{
-		wr.WriteWord(GetOffsetSize(omf), offset_value_pair.offset);
-		wr.WriteWord(GetOffsetSize(omf), offset_value_pair.value);
+		wr->WriteWord(GetOffsetSize(omf), offset_value_pair.offset);
+		wr->WriteWord(GetOffsetSize(omf), offset_value_pair.value);
 	}
 }
 
@@ -3403,7 +3475,7 @@ uint16_t OMF86Format::InitializedCommunalDataRecord::GetRecordSize(OMF86Format *
 	return bytes;
 }
 
-void OMF86Format::InitializedCommunalDataRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::InitializedCommunalDataRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	uint8_t flags = 0;
 	if(continued)
@@ -3414,11 +3486,11 @@ void OMF86Format::InitializedCommunalDataRecord::WriteRecordContents(OMF86Format
 		flags |= 0x04;
 	if(code_segment)
 		flags |= 0x08;
-	wr.WriteWord(1, flags);
+	wr->WriteWord(1, flags);
 
-	wr.WriteWord(1, uint8_t(selection_criterion) | uint8_t(allocation_type));
-	wr.WriteWord(1, alignment);
-	wr.WriteWord(GetOffsetSize(omf), offset);
+	wr->WriteWord(1, uint8_t(selection_criterion) | uint8_t(allocation_type));
+	wr->WriteWord(1, alignment);
+	wr->WriteWord(GetOffsetSize(omf), offset);
 	WriteIndex(wr, type.index);
 	base.Write(omf, wr);
 
@@ -3432,7 +3504,7 @@ void OMF86Format::InitializedCommunalDataRecord::WriteRecordContents(OMF86Format
 		break;
 	default:
 		// unable to generate
-		wr.WriteWord(1, 0);
+		wr->WriteWord(1, 0);
 	}
 
 	if(iterated)
@@ -3506,9 +3578,9 @@ uint16_t OMF86Format::SymbolLineNumbersRecord::GetRecordSize(OMF86Format * omf, 
 	return bytes;
 }
 
-void OMF86Format::SymbolLineNumbersRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::SymbolLineNumbersRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, continued ? 0x01 : 0x00);
+	wr->WriteWord(1, continued ? 0x01 : 0x00);
 	switch(omf->omf_version)
 	{
 	case OMF_VERSION_MICROSOFT:
@@ -3519,7 +3591,7 @@ void OMF86Format::SymbolLineNumbersRecord::WriteRecordContents(OMF86Format * omf
 		break;
 	default:
 		// unable to generate
-		wr.WriteWord(1, 0);
+		wr->WriteWord(1, 0);
 	}
 	for(auto& line_number : line_numbers)
 	{
@@ -3559,7 +3631,7 @@ uint16_t OMF86Format::AliasDefinitionRecord::AliasDefinition::Size(OMF86Format *
 	return 2 + alias_name.size() + substitute_name.size();
 }
 
-void OMF86Format::AliasDefinitionRecord::AliasDefinition::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::AliasDefinitionRecord::AliasDefinition::Write(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, alias_name);
 	WriteString(wr, substitute_name);
@@ -3585,7 +3657,7 @@ uint16_t OMF86Format::AliasDefinitionRecord::GetRecordSize(OMF86Format * omf, Mo
 	return bytes;
 }
 
-void OMF86Format::AliasDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::AliasDefinitionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& alias_definition : alias_definitions)
 	{
@@ -3605,7 +3677,7 @@ uint16_t OMF86Format::OMFVersionNumberRecord::GetRecordSize(OMF86Format * omf, M
 	return 2 + version.size();
 }
 
-void OMF86Format::OMFVersionNumberRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::OMFVersionNumberRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, version);
 }
@@ -3624,10 +3696,10 @@ uint16_t OMF86Format::VendorExtensionRecord::GetRecordSize(OMF86Format * omf, Mo
 	return 3 + extension.size();
 }
 
-void OMF86Format::VendorExtensionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::VendorExtensionRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(2, vendor_number);
-	wr.WriteData(extension);
+	wr->WriteWord(2, vendor_number);
+	wr->WriteData(extension);
 }
 
 //// OMF86Format::CommentRecord
@@ -3741,15 +3813,15 @@ uint16_t OMF86Format::CommentRecord::GetRecordSize(OMF86Format * omf, Module * m
 	return 3 + GetCommentSize(omf, mod);
 }
 
-void OMF86Format::CommentRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::CommentRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	uint8_t comment_type = 0;
 	if(no_purge)
 		comment_type |= 0x80;
 	if(no_list)
 		comment_type |= 0x40;
-	wr.WriteWord(1, comment_type);
-	wr.WriteWord(1, comment_class);
+	wr->WriteWord(1, comment_type);
+	wr->WriteWord(1, comment_class);
 	WriteComment(omf, mod, wr);
 }
 
@@ -3766,9 +3838,9 @@ uint16_t OMF86Format::CommentRecord::GenericCommentRecord::GetCommentSize(OMF86F
 	return data.size();
 }
 
-void OMF86Format::CommentRecord::GenericCommentRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::CommentRecord::GenericCommentRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteData(data);
+	wr->WriteData(data);
 }
 
 //// OMF86Format::CommentRecord::EmptyCommentRecord
@@ -3782,7 +3854,7 @@ uint16_t OMF86Format::CommentRecord::EmptyCommentRecord::GetCommentSize(OMF86For
 	return 0;
 }
 
-void OMF86Format::CommentRecord::EmptyCommentRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::CommentRecord::EmptyCommentRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 }
 
@@ -3798,7 +3870,7 @@ uint16_t OMF86Format::CommentRecord::TextCommentRecord::GetCommentSize(OMF86Form
 	return 1 + name.size();
 }
 
-void OMF86Format::CommentRecord::TextCommentRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::CommentRecord::TextCommentRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
 }
@@ -3823,7 +3895,7 @@ uint16_t OMF86Format::NoSegmentPaddingRecord::GetCommentSize(OMF86Format * omf, 
 	return bytes;
 }
 
-void OMF86Format::NoSegmentPaddingRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::NoSegmentPaddingRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& segment : segments)
 	{
@@ -3856,7 +3928,7 @@ uint16_t OMF86Format::ExternalAssociationRecord::ExternalAssociation::Size(OMF86
 	return IndexSize(definition.index) + IndexSize(default_resolution.index);
 }
 
-void OMF86Format::ExternalAssociationRecord::ExternalAssociation::Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ExternalAssociationRecord::ExternalAssociation::Write(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteIndex(wr, definition.index);
 	WriteIndex(wr, default_resolution.index);
@@ -3894,7 +3966,7 @@ uint16_t OMF86Format::ExternalAssociationRecord::GetCommentSize(OMF86Format * om
 	return bytes;
 }
 
-void OMF86Format::ExternalAssociationRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ExternalAssociationRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& association : associations)
 	{
@@ -3932,10 +4004,10 @@ uint16_t OMF86Format::OMFExtensionRecord::GenericOMFExtensionRecord::GetCommentS
 	return data.size() + 1;
 }
 
-void OMF86Format::OMFExtensionRecord::GenericOMFExtensionRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::OMFExtensionRecord::GenericOMFExtensionRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, subtype);
-	wr.WriteData(data);
+	wr->WriteWord(1, subtype);
+	wr->WriteData(data);
 }
 
 //// OMF86Format::OMFExtensionRecord::EmptyOMFExtensionRecord
@@ -3949,9 +4021,9 @@ uint16_t OMF86Format::OMFExtensionRecord::EmptyOMFExtensionRecord::GetCommentSiz
 	return 1;
 }
 
-void OMF86Format::OMFExtensionRecord::EmptyOMFExtensionRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::OMFExtensionRecord::EmptyOMFExtensionRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, subtype);
+	wr->WriteWord(1, subtype);
 }
 
 //// OMF86Format::ImportDefinitionRecord
@@ -3991,17 +4063,17 @@ uint16_t OMF86Format::ImportDefinitionRecord::GetCommentSize(OMF86Format * omf, 
 	return bytes;
 }
 
-void OMF86Format::ImportDefinitionRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ImportDefinitionRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, subtype);
+	wr->WriteWord(1, subtype);
 
 	if(std::get_if<uint16_t>(&entry_ident))
 	{
-		wr.WriteWord(1, 1);
+		wr->WriteWord(1, 1);
 	}
 	else
 	{
-		wr.WriteWord(1, 0);
+		wr->WriteWord(1, 0);
 	}
 
 	WriteString(wr, internal_name);
@@ -4009,7 +4081,7 @@ void OMF86Format::ImportDefinitionRecord::WriteComment(OMF86Format * omf, Module
 
 	if(auto * ordinal = std::get_if<uint16_t>(&entry_ident))
 	{
-		wr.WriteWord(2, *ordinal);
+		wr->WriteWord(2, *ordinal);
 	}
 	else if(auto * imported_name = std::get_if<std::string>(&entry_ident))
 	{
@@ -4049,9 +4121,9 @@ uint16_t OMF86Format::ExportDefinitionRecord::GetCommentSize(OMF86Format * omf, 
 	return bytes;
 }
 
-void OMF86Format::ExportDefinitionRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::ExportDefinitionRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, subtype);
+	wr->WriteWord(1, subtype);
 
 	uint8_t exported_flag = parameter_count;
 
@@ -4075,7 +4147,7 @@ void OMF86Format::ExportDefinitionRecord::WriteComment(OMF86Format * omf, Module
 
 	if(ordinal)
 	{
-		wr.WriteWord(2, ordinal.value());
+		wr->WriteWord(2, ordinal.value());
 	}
 }
 
@@ -4093,14 +4165,14 @@ uint16_t OMF86Format::IncrementalCompilationRecord::GetCommentSize(OMF86Format *
 	return padding_byte_count + 5;
 }
 
-void OMF86Format::IncrementalCompilationRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::IncrementalCompilationRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, subtype);
+	wr->WriteWord(1, subtype);
 
-	wr.WriteWord(2, extdef_delta);
-	wr.WriteWord(2, linnum_delta);
+	wr->WriteWord(2, extdef_delta);
+	wr->WriteWord(2, linnum_delta);
 
-	wr.Skip(padding_byte_count);
+	wr->Skip(padding_byte_count);
 }
 
 //// OMF86Format::LinkerDirectivesRecord
@@ -4121,13 +4193,13 @@ uint16_t OMF86Format::LinkerDirectivesRecord::GetCommentSize(OMF86Format * omf, 
 	return 4;
 }
 
-void OMF86Format::LinkerDirectivesRecord::WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::LinkerDirectivesRecord::WriteComment(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, subtype);
+	wr->WriteWord(1, subtype);
 
-	wr.WriteWord(1, (new_executable ? FlagNewExecutable : 0) | (omit_codeview_publics ? FlagOmitCodeViewPublics : 0) | (run_mpc ? FlagRunMPC : 0));
-	wr.WriteWord(1, pseudocode_version);
-	wr.WriteWord(1, codeview_version);
+	wr->WriteWord(1, (new_executable ? FlagNewExecutable : 0) | (omit_codeview_publics ? FlagOmitCodeViewPublics : 0) | (run_mpc ? FlagRunMPC : 0));
+	wr->WriteWord(1, pseudocode_version);
+	wr->WriteWord(1, codeview_version);
 }
 
 //// OMF86Format::TISLibraryHeaderRecord
@@ -4148,23 +4220,23 @@ uint16_t OMF86Format::TISLibraryHeaderRecord::GetRecordSize(OMF86Format * omf, M
 	return omf->page_size - 3;
 }
 
-void OMF86Format::TISLibraryHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::TISLibraryHeaderRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	assert(false);
 }
 
-void OMF86Format::TISLibraryHeaderRecord::WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const
+void OMF86Format::TISLibraryHeaderRecord::WriteRecord(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	uint16_t page_size = dynamic_cast<OMF86Format *>(omf)->page_size;
-	wr.WriteWord(1, record_type);
-	wr.WriteWord(2, page_size - 3);
-	wr.WriteWord(4, dictionary_offset);
-	wr.WriteWord(2, dictionary_size);
+	wr->WriteWord(1, record_type);
+	wr->WriteWord(2, page_size - 3);
+	wr->WriteWord(4, dictionary_offset);
+	wr->WriteWord(2, dictionary_size);
 	uint8_t flags = 0;
 	if(case_sensitive)
 		flags |= 0x01;
-	wr.WriteWord(1, flags);
-	wr.Skip(page_size - 10);
+	wr->WriteWord(1, flags);
+	wr->Skip(page_size - 10);
 }
 
 //// OMF86Format::TISLibraryEndRecord
@@ -4179,17 +4251,17 @@ uint16_t OMF86Format::TISLibraryEndRecord::GetRecordSize(OMF86Format * omf, Modu
 	return omf->page_size - 3;
 }
 
-void OMF86Format::TISLibraryEndRecord::WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF86Format::TISLibraryEndRecord::WriteRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	assert(false);
 }
 
-void OMF86Format::TISLibraryEndRecord::WriteRecord(OMF86Format * omf, Module * mod, Linker::Writer& wr) const
+void OMF86Format::TISLibraryEndRecord::WriteRecord(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Writer>& wr) const
 {
 	uint16_t page_size = dynamic_cast<OMF86Format *>(omf)->page_size;
-	wr.WriteWord(1, record_type);
-	wr.WriteWord(2, page_size - 3);
-	wr.Skip(page_size - 3);
+	wr->WriteWord(1, record_type);
+	wr->WriteWord(2, page_size - 3);
+	wr->Skip(page_size - 3);
 }
 
 //// OMF86Format
@@ -4448,7 +4520,7 @@ void OMF86Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t OMF86Format::WriteFile(Linker::Writer& wr) const
+offset_t OMF86Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* TODO */
 
@@ -4795,11 +4867,11 @@ OMF80Format::ModuleHeaderRecord::SegmentDefinition OMF80Format::ModuleHeaderReco
 	return segment_definition;
 }
 
-void OMF80Format::ModuleHeaderRecord::SegmentDefinition::Write(OMF80Format * omf, ChecksumWriter& wr) const
+void OMF80Format::ModuleHeaderRecord::SegmentDefinition::Write(OMF80Format * omf, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
-	wr.WriteWord(2, length);
-	wr.WriteWord(1, alignment);
+	wr->WriteWord(1, segment_id);
+	wr->WriteWord(2, length);
+	wr->WriteWord(1, alignment);
 }
 
 //// OMF80Format::ModuleHeaderRecord
@@ -4823,10 +4895,10 @@ uint16_t OMF80Format::ModuleHeaderRecord::GetRecordSize(OMF80Format * omf, Modul
 	return 3 + name.size() + 4 * segment_definitions.size();
 }
 
-void OMF80Format::ModuleHeaderRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::ModuleHeaderRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
-	wr.WriteWord(2, 0); // reserved
+	wr->WriteWord(2, 0); // reserved
 	for(auto& segment_definition : segment_definitions)
 	{
 		segment_definition.Write(omf, wr);
@@ -4875,12 +4947,12 @@ uint16_t OMF80Format::ModuleEndRecord::GetRecordSize(OMF80Format * omf, Module *
 	return 5 + info.size();
 }
 
-void OMF80Format::ModuleEndRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::ModuleEndRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, main ? 1 : 0);
-	wr.WriteWord(1, start_segment_id);
-	wr.WriteWord(2, start_offset);
-	wr.WriteData(info);
+	wr->WriteWord(1, main ? 1 : 0);
+	wr->WriteWord(1, start_segment_id);
+	wr->WriteWord(2, start_offset);
+	wr->WriteData(info);
 }
 
 void OMF80Format::ModuleEndRecord::CalculateValues(OMF80Format * omf, Module * mod)
@@ -4906,9 +4978,9 @@ uint16_t OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition::GetNa
 	return 2 + common_name.size();
 }
 
-void OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition::WriteNamedCommonDefinition(OMF80Format * omf, ChecksumWriter& wr) const
+void OMF80Format::NamedCommonDefinitionsRecord::NamedCommonDefinition::WriteNamedCommonDefinition(OMF80Format * omf, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
+	wr->WriteWord(1, segment_id);
 	WriteString(wr, common_name);
 }
 
@@ -4934,7 +5006,7 @@ uint16_t OMF80Format::NamedCommonDefinitionsRecord::GetRecordSize(OMF80Format * 
 	return bytes;
 }
 
-void OMF80Format::NamedCommonDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::NamedCommonDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& named_common_definition : named_common_definitions)
 	{
@@ -4983,12 +5055,12 @@ uint16_t OMF80Format::ExternalDefinitionsRecord::GetRecordSize(OMF80Format * omf
 	return bytes;
 }
 
-void OMF80Format::ExternalDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::ExternalDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(uint16_t external_name_index = first_external_name; external_name_index < first_external_name + external_name_count; external_name_index++)
 	{
 		WriteString(wr, mod->external_names[external_name_index]);
-		wr.Skip(1);
+		wr->Skip(1);
 	}
 }
 
@@ -5024,11 +5096,11 @@ uint16_t OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::Size(OMF80Forma
 	return 4 + name.size();
 }
 
-void OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::Write(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::SymbolDefinitionsRecord::SymbolDefinition::Write(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(2, offset);
+	wr->WriteWord(2, offset);
 	WriteString(wr, name);
-	wr.Skip(1);
+	wr->Skip(1);
 }
 
 //// OMF80Format::SymbolDefinitionsRecord
@@ -5052,9 +5124,9 @@ uint16_t OMF80Format::SymbolDefinitionsRecord::GetRecordSize(OMF80Format * omf, 
 	return bytes;
 }
 
-void OMF80Format::SymbolDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::SymbolDefinitionsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
+	wr->WriteWord(1, segment_id);
 	for(auto& public_definition : public_definitions)
 	{
 		public_definition.Write(omf, mod, wr);
@@ -5085,12 +5157,12 @@ uint16_t OMF80Format::RelocationsRecord::GetRecordSize(OMF80Format * omf, Module
 	return 2 + 2 * offsets.size();
 }
 
-void OMF80Format::RelocationsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::RelocationsRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, relocation_type);
+	wr->WriteWord(1, relocation_type);
 	for(auto offset : offsets)
 	{
-		wr.WriteWord(2, offset);
+		wr->WriteWord(2, offset);
 	}
 }
 
@@ -5115,9 +5187,9 @@ uint16_t OMF80Format::InterSegmentReferencesRecord::GetRecordSize(OMF80Format * 
 	return 1 + RelocationsRecord::GetRecordSize(omf, mod);
 }
 
-void OMF80Format::InterSegmentReferencesRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::InterSegmentReferencesRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
+	wr->WriteWord(1, segment_id);
 	RelocationsRecord::WriteRecordContents(omf, mod, wr);
 }
 
@@ -5148,13 +5220,13 @@ uint16_t OMF80Format::ExternalReferencesRecord::GetRecordSize(OMF80Format * omf,
 	return 2 + 4 * external_references.size();
 }
 
-void OMF80Format::ExternalReferencesRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::ExternalReferencesRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, relocation_type);
+	wr->WriteWord(1, relocation_type);
 	for(auto& external_reference : external_references)
 	{
-		wr.WriteWord(2, external_reference.name_index.index);
-		wr.WriteWord(2, external_reference.offset);
+		wr->WriteWord(2, external_reference.name_index.index);
+		wr->WriteWord(2, external_reference.offset);
 	}
 }
 
@@ -5183,9 +5255,9 @@ uint16_t OMF80Format::ModuleAncestorRecord::GetRecordSize(OMF80Format * omf, Mod
 	return name.size() + 1;
 }
 
-void OMF80Format::ModuleAncestorRecord::WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF80Format::ModuleAncestorRecord::WriteRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteData(name);
+	wr->WriteData(name);
 }
 
 void OMF80Format::ModuleAncestorRecord::CalculateValues(OMF80Format * omf, Module * mod)
@@ -5314,7 +5386,7 @@ void OMF80Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	file_size = rd->Tell();
 }
 
-offset_t OMF80Format::WriteFile(Linker::Writer& wr) const
+offset_t OMF80Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* TODO */
 
@@ -5405,18 +5477,18 @@ uint16_t OMF51Format::SegmentDefinition::Size(OMF51Format * omf, Module * mod) c
 	return 9 + name.size();
 }
 
-void OMF51Format::SegmentDefinition::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::SegmentDefinition::Write(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
+	wr->WriteWord(1, segment_id);
 
 	uint8_t segment_info = info.WriteSegmentInfo(omf, mod);
 	if(size == 0)
 		segment_info |= SegmentInfo::FlagSegmentEmpty;
-	wr.WriteWord(1, segment_info);
+	wr->WriteWord(1, segment_info);
 
-	wr.WriteWord(1, 0); // reserved
-	wr.WriteWord(2, base);
-	wr.WriteWord(2, size);
+	wr->WriteWord(1, 0); // reserved
+	wr->WriteWord(2, base);
+	wr->WriteWord(2, size);
 	WriteString(wr, name);
 }
 
@@ -5460,12 +5532,12 @@ uint16_t OMF51Format::SymbolDefinition::Size(OMF51Format * omf, Module * mod) co
 	return 6 + name.size();
 }
 
-void OMF51Format::SymbolDefinition::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::SymbolDefinition::Write(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
-	wr.WriteWord(1, info.Write(omf, mod));
-	wr.WriteWord(2, offset);
-	wr.WriteWord(1, 0); // reserved
+	wr->WriteWord(1, segment_id);
+	wr->WriteWord(1, info.Write(omf, mod));
+	wr->WriteWord(2, offset);
+	wr->WriteWord(1, 0); // reserved
 	WriteString(wr, name);
 }
 
@@ -5487,12 +5559,12 @@ uint16_t OMF51Format::ExternalDefinition::Size(OMF51Format * omf, Module * mod) 
 	return 5 + name.size();
 }
 
-void OMF51Format::ExternalDefinition::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::ExternalDefinition::Write(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, block_id);
-	wr.WriteWord(1, external_id);
-	wr.WriteWord(1, info.Write(omf, mod));
-	wr.WriteWord(1, 0); // reserved
+	wr->WriteWord(1, block_id);
+	wr->WriteWord(1, external_id);
+	wr->WriteWord(1, info.Write(omf, mod));
+	wr->WriteWord(1, 0); // reserved
 	WriteString(wr, name);
 }
 
@@ -5512,11 +5584,11 @@ uint16_t OMF51Format::ModuleHeaderRecord::GetRecordSize(OMF51Format * omf, Modul
 	return 4 + name.size();
 }
 
-void OMF51Format::ModuleHeaderRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::ModuleHeaderRecord::WriteRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
-	wr.WriteWord(1, translator_id);
-	wr.WriteWord(1, 0); // reserved
+	wr->WriteWord(1, translator_id);
+	wr->WriteWord(1, 0); // reserved
 }
 
 //// OMF51Format::ModuleEndRecord
@@ -5537,16 +5609,16 @@ uint16_t OMF51Format::ModuleEndRecord::GetRecordSize(OMF51Format * omf, Module *
 	return 6 + name.size();
 }
 
-void OMF51Format::ModuleEndRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::ModuleEndRecord::WriteRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
-	wr.WriteWord(2, 0); // reserved
+	wr->WriteWord(2, 0); // reserved
 	uint8_t register_mask = 0;
 	for(int bank = 0; bank < 4; bank++)
 		if(banks[bank])
 			register_mask |= 1 << bank;
-	wr.WriteWord(1, register_mask);
-	wr.WriteWord(1, 0); // reserved
+	wr->WriteWord(1, register_mask);
+	wr->WriteWord(1, 0); // reserved
 }
 
 //// OMF51Format::SegmentDefinitionsRecord
@@ -5571,7 +5643,7 @@ uint16_t OMF51Format::SegmentDefinitionsRecord::GetRecordSize(OMF51Format * omf,
 	return bytes;
 }
 
-void OMF51Format::SegmentDefinitionsRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::SegmentDefinitionsRecord::WriteRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& segment_definition : segment_definitions)
 	{
@@ -5610,7 +5682,7 @@ uint16_t OMF51Format::PublicSymbolsRecord::GetRecordSize(OMF51Format * omf, Modu
 	return bytes;
 }
 
-void OMF51Format::PublicSymbolsRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::PublicSymbolsRecord::WriteRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& symbol_definition : symbol_definitions)
 	{
@@ -5650,7 +5722,7 @@ uint16_t OMF51Format::ExternalDefinitionsRecord::GetRecordSize(OMF51Format * omf
 	return bytes;
 }
 
-void OMF51Format::ExternalDefinitionsRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::ExternalDefinitionsRecord::WriteRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& external_definition : external_definitions)
 	{
@@ -5681,9 +5753,9 @@ uint16_t OMF51Format::ScopeDefinitionRecord::GetRecordSize(OMF51Format * omf, Mo
 	return 3 + name.size();
 }
 
-void OMF51Format::ScopeDefinitionRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::ScopeDefinitionRecord::WriteRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, block_type);
+	wr->WriteWord(1, block_type);
 	WriteString(wr, name);
 }
 
@@ -5715,12 +5787,12 @@ uint16_t OMF51Format::DebugItemsRecord::Symbol::Size(OMF51Format * omf, Module *
 	return 6 + name.size();
 }
 
-void OMF51Format::DebugItemsRecord::Symbol::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::DebugItemsRecord::Symbol::Write(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
-	wr.WriteWord(1, info.Write(omf, mod));
-	wr.WriteWord(2, offset);
-	wr.WriteWord(1, 0); // reserved
+	wr->WriteWord(1, segment_id);
+	wr->WriteWord(1, info.Write(omf, mod));
+	wr->WriteWord(2, offset);
+	wr->WriteWord(1, 0); // reserved
 	WriteString(wr, name);
 }
 
@@ -5742,12 +5814,12 @@ uint16_t OMF51Format::DebugItemsRecord::SegmentSymbol::Size(OMF51Format * omf, M
 	return 6 + name.size();
 }
 
-void OMF51Format::DebugItemsRecord::SegmentSymbol::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::DebugItemsRecord::SegmentSymbol::Write(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
-	wr.WriteWord(1, info.WriteSegmentInfo(omf, mod));
-	wr.WriteWord(2, offset);
-	wr.WriteWord(1, 0); // reserved
+	wr->WriteWord(1, segment_id);
+	wr->WriteWord(1, info.WriteSegmentInfo(omf, mod));
+	wr->WriteWord(2, offset);
+	wr->WriteWord(1, 0); // reserved
 	WriteString(wr, name);
 }
 
@@ -5762,7 +5834,7 @@ OMF51Format::DebugItemsRecord::LineNumber OMF51Format::DebugItemsRecord::LineNum
 	return line_number;
 }
 
-void OMF51Format::DebugItemsRecord::LineNumber::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::DebugItemsRecord::LineNumber::Write(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 }
 
@@ -5853,11 +5925,11 @@ uint16_t OMF51Format::DebugItemsRecord::GetRecordSize(OMF51Format * omf, Module 
 	return bytes;
 }
 
-void OMF51Format::DebugItemsRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::DebugItemsRecord::WriteRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	if(auto * local_symbols = std::get_if<LocalSymbols>(&contents))
 	{
-		wr.WriteWord(1, Type_LocalSymbols);
+		wr->WriteWord(1, Type_LocalSymbols);
 		for(auto& symbol : local_symbols->symbols)
 		{
 			symbol.Write(omf, mod, wr);
@@ -5865,7 +5937,7 @@ void OMF51Format::DebugItemsRecord::WriteRecordContents(OMF51Format * omf, Modul
 	}
 	else if(auto * public_symbols = std::get_if<Type_PublicSymbols>(&contents))
 	{
-		wr.WriteWord(1, Type_PublicSymbols);
+		wr->WriteWord(1, Type_PublicSymbols);
 		for(auto& symbol : public_symbols->symbols)
 		{
 			symbol.Write(omf, mod, wr);
@@ -5873,7 +5945,7 @@ void OMF51Format::DebugItemsRecord::WriteRecordContents(OMF51Format * omf, Modul
 	}
 	else if(auto * segment_symbols = std::get_if<SegmentSymbols>(&contents))
 	{
-		wr.WriteWord(1, Type_SegmentSymbols);
+		wr->WriteWord(1, Type_SegmentSymbols);
 		for(auto& symbol : segment_symbols->symbols)
 		{
 			symbol.Write(omf, mod, wr);
@@ -5881,7 +5953,7 @@ void OMF51Format::DebugItemsRecord::WriteRecordContents(OMF51Format * omf, Modul
 	}
 	else if(auto * line_numbers = std::get_if<LineNumbers>(&contents))
 	{
-		wr.WriteWord(1, Type_LineNumbers);
+		wr->WriteWord(1, Type_LineNumbers);
 		for(auto& line_number : line_numbers->symbols)
 		{
 			line_number.Write(omf, mod, wr);
@@ -5916,13 +5988,13 @@ OMF51Format::FixupRecord::Fixup OMF51Format::FixupRecord::Fixup::Read(OMF51Forma
 	return fixup;
 }
 
-void OMF51Format::FixupRecord::Fixup::Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::FixupRecord::Fixup::Write(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(2, location);
-	wr.WriteWord(1, relocation);
-	wr.WriteWord(1, reference);
-	wr.WriteWord(1, id);
-	wr.WriteWord(2, offset);
+	wr->WriteWord(2, location);
+	wr->WriteWord(1, relocation);
+	wr->WriteWord(1, reference);
+	wr->WriteWord(1, id);
+	wr->WriteWord(2, offset);
 }
 
 //// OMF51Format::FixupRecord
@@ -5940,7 +6012,7 @@ uint16_t OMF51Format::FixupRecord::GetRecordSize(OMF51Format * omf, Module * mod
 	return 1 + 7 * fixups.size();
 }
 
-void OMF51Format::FixupRecord::WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF51Format::FixupRecord::WriteRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& fixup : fixups)
 	{
@@ -6050,7 +6122,7 @@ void OMF51Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	file_size = rd->Tell();
 }
 
-offset_t OMF51Format::WriteFile(Linker::Writer& wr) const
+offset_t OMF51Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* TODO */
 
@@ -6111,18 +6183,18 @@ uint16_t OMF96Format::SegmentDefinition::Size(OMF96Format * omf, Module * mod) c
 	return IsRelocatable() ? 4 : 5;
 }
 
-void OMF96Format::SegmentDefinition::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::SegmentDefinition::Write(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, segment_id);
+	wr->WriteWord(1, segment_id);
 	if(IsRelocatable())
 	{
-		wr.WriteWord(1, GetAlignment());
+		wr->WriteWord(1, GetAlignment());
 	}
 	else
 	{
-		wr.WriteWord(2, GetBaseAddress());
+		wr->WriteWord(2, GetBaseAddress());
 	}
-	wr.WriteWord(2, size);
+	wr->WriteWord(2, size);
 }
 
 //// OMF96Format::ExternalDefinition
@@ -6140,7 +6212,7 @@ uint16_t OMF96Format::ExternalDefinition::Size(OMF96Format * omf, Module * mod) 
 	return 1 + name.size() + IndexSize(type.index);
 }
 
-void OMF96Format::ExternalDefinition::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::ExternalDefinition::Write(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
 	WriteIndex(wr, type.index);
@@ -6172,9 +6244,9 @@ uint16_t OMF96Format::SymbolDefinition::Size(OMF96Format * omf, Module * mod) co
 	return 3 + name.size() + IndexSize(type.index);
 }
 
-void OMF96Format::SymbolDefinition::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::SymbolDefinition::Write(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(2, offset);
+	wr->WriteWord(2, offset);
 	WriteString(wr, name);
 	WriteIndex(wr, type.index);
 }
@@ -6205,10 +6277,10 @@ uint16_t OMF96Format::ModuleHeaderRecord::GetRecordSize(OMF96Format * omf, Modul
 	return 4 + name.size() + date_time.size();
 }
 
-void OMF96Format::ModuleHeaderRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::ModuleHeaderRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
-	wr.WriteWord(1, translator_id);
+	wr->WriteWord(1, translator_id);
 	WriteString(wr, date_time);
 }
 
@@ -6226,10 +6298,10 @@ uint16_t OMF96Format::ModuleEndRecord::GetRecordSize(OMF96Format * omf, Module *
 	return 3;
 }
 
-void OMF96Format::ModuleEndRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::ModuleEndRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
-	wr.WriteWord(1, main ? MainModule : OtherModule);
-	wr.WriteWord(1, valid ? ValidModule : ErroneousModule);
+	wr->WriteWord(1, main ? MainModule : OtherModule);
+	wr->WriteWord(1, valid ? ValidModule : ErroneousModule);
 }
 
 //// OMF96Format::SegmentDefinitionsRecord
@@ -6254,7 +6326,7 @@ uint16_t OMF96Format::SegmentDefinitionsRecord::GetRecordSize(OMF96Format * omf,
 	return bytes;
 }
 
-void OMF96Format::SegmentDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::SegmentDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& segment_definition : segment_definitions)
 	{
@@ -6356,47 +6428,47 @@ uint16_t OMF96Format::TypeDefinitionRecord::LeafDescriptor::Size(OMF96Format * o
 	}
 }
 
-void OMF96Format::TypeDefinitionRecord::LeafDescriptor::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::TypeDefinitionRecord::LeafDescriptor::Write(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	uint8_t leaf_type = nice ? 0x80 : 0;
 	if(std::get_if<Null>(&leaf))
 	{
-		wr.WriteWord(1, leaf_type | NullLeaf);
+		wr->WriteWord(1, leaf_type | NullLeaf);
 	}
 	else if(auto numericp = std::get_if<int32_t>(&leaf))
 	{
 		if(0 <= *numericp && *numericp < 0x64)
 		{
-			wr.WriteWord(1, leaf_type | *numericp);
+			wr->WriteWord(1, leaf_type | *numericp);
 		}
 		else if(-0x8000 <= *numericp && *numericp < 0x8000)
 		{
-			wr.WriteWord(1, leaf_type | SignedNumericLeaf16);
-			wr.WriteWord(2, *numericp);
+			wr->WriteWord(1, leaf_type | SignedNumericLeaf16);
+			wr->WriteWord(2, *numericp);
 		}
 		else
 		{
-			wr.WriteWord(1, leaf_type | SignedNumericLeaf32);
-			wr.WriteWord(4, *numericp);
+			wr->WriteWord(1, leaf_type | SignedNumericLeaf32);
+			wr->WriteWord(4, *numericp);
 		}
 	}
 	else if(auto stringp = std::get_if<std::string>(&leaf))
 	{
-		wr.WriteWord(1, leaf_type | StringLeaf);
+		wr->WriteWord(1, leaf_type | StringLeaf);
 		WriteString(wr, *stringp);
 	}
 	else if(auto indexp = std::get_if<TypeIndex>(&leaf))
 	{
-		wr.WriteWord(1, leaf_type | IndexLeaf);
+		wr->WriteWord(1, leaf_type | IndexLeaf);
 		WriteIndex(wr, indexp->index);
 	}
 	else if(std::get_if<Repeat>(&leaf))
 	{
-		wr.WriteWord(1, leaf_type | RepeatLeaf);
+		wr->WriteWord(1, leaf_type | RepeatLeaf);
 	}
 	else if(std::get_if<EndOfBranch>(&leaf))
 	{
-		wr.WriteWord(1, leaf_type | EndOfBranchLeaf);
+		wr->WriteWord(1, leaf_type | EndOfBranchLeaf);
 	}
 	else
 	{
@@ -6435,7 +6507,7 @@ uint16_t OMF96Format::TypeDefinitionRecord::GetRecordSize(OMF96Format * omf, Mod
 	return bytes;
 }
 
-void OMF96Format::TypeDefinitionRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::TypeDefinitionRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& leaf : leafs)
 	{
@@ -6474,7 +6546,7 @@ uint16_t OMF96Format::SymbolDefinitionsRecord::GetRecordSize(OMF96Format * omf, 
 	return bytes;
 }
 
-void OMF96Format::SymbolDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::SymbolDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& symbol_definition : symbol_definitions)
 	{
@@ -6513,7 +6585,7 @@ uint16_t OMF96Format::ExternalDefinitionsRecord::GetRecordSize(OMF96Format * omf
 	return bytes;
 }
 
-void OMF96Format::ExternalDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::ExternalDefinitionsRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& external_definition : external_definitions)
 	{
@@ -6577,7 +6649,7 @@ uint16_t OMF96Format::RelocationRecord::Relocation::Size(OMF96Format * omf, Modu
 	return bytes;
 }
 
-void OMF96Format::RelocationRecord::Relocation::Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::RelocationRecord::Relocation::Write(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	uint8_t relocation_type = (reference_type << 2) | alignment;
 	if(std::get_if<ExternalReference>(&reference))
@@ -6588,15 +6660,15 @@ void OMF96Format::RelocationRecord::Relocation::Write(OMF96Format * omf, Module 
 	{
 		relocation_type |= FlagAddendInCode;
 	}
-	wr.WriteWord(1, relocation_type);
-	wr.WriteWord(2, offset);
+	wr->WriteWord(1, relocation_type);
+	wr->WriteWord(2, offset);
 	if(auto valuep = std::get_if<ExternalReference>(&reference))
 	{
-		wr.WriteWord(2, *valuep);
+		wr->WriteWord(2, *valuep);
 	}
 	else if(auto valuep = std::get_if<LocalReference>(&reference))
 	{
-		wr.WriteWord(1, *valuep);
+		wr->WriteWord(1, *valuep);
 	}
 	else
 	{
@@ -6604,7 +6676,7 @@ void OMF96Format::RelocationRecord::Relocation::Write(OMF96Format * omf, Module 
 	}
 	if(addend)
 	{
-		wr.WriteWord(2, addend.value());
+		wr->WriteWord(2, addend.value());
 	}
 }
 
@@ -6628,7 +6700,7 @@ uint16_t OMF96Format::RelocationRecord::GetRecordSize(OMF96Format * omf, Module 
 	return bytes;
 }
 
-void OMF96Format::RelocationRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::RelocationRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	for(auto& relocation : relocations)
 	{
@@ -6662,7 +6734,7 @@ uint16_t OMF96Format::ModuleAncestorRecord::GetRecordSize(OMF96Format * omf, Mod
 	return 2 + name.size() + (segment_definition ? segment_definition.value().Size(omf, mod) : 0);
 }
 
-void OMF96Format::ModuleAncestorRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::ModuleAncestorRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	WriteString(wr, name);
 	if(segment_definition)
@@ -6738,7 +6810,7 @@ uint16_t OMF96Format::BlockDefinitionRecord::GetRecordSize(OMF96Format * omf, Mo
 	return bytes;
 }
 
-void OMF96Format::BlockDefinitionRecord::WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const
+void OMF96Format::BlockDefinitionRecord::WriteRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<ChecksumWriter>& wr) const
 {
 	if(name_and_type)
 	{
@@ -6748,9 +6820,9 @@ void OMF96Format::BlockDefinitionRecord::WriteRecordContents(OMF96Format * omf, 
 	{
 		WriteString(wr, "");
 	}
-	wr.WriteWord(1, segment_id);
-	wr.WriteWord(2, offset);
-	wr.WriteWord(2, size);
+	wr->WriteWord(1, segment_id);
+	wr->WriteWord(2, offset);
+	wr->WriteWord(2, size);
 	uint8_t flags = 0;
 	if(procedure_info)
 	{
@@ -6760,7 +6832,7 @@ void OMF96Format::BlockDefinitionRecord::WriteRecordContents(OMF96Format * omf, 
 			flags |= FlagExternal;
 		}
 	}
-	wr.WriteWord(1, flags);
+	wr->WriteWord(1, flags);
 	if(name_and_type)
 	{
 		WriteIndex(wr, name_and_type.value().type.index);
@@ -6769,14 +6841,14 @@ void OMF96Format::BlockDefinitionRecord::WriteRecordContents(OMF96Format * omf, 
 	{
 		if(auto * reference = std::get_if<ExternalReference>(&procedure_info.value().frame_pointer))
 		{
-			wr.WriteWord(2, *reference);
+			wr->WriteWord(2, *reference);
 		}
 		else if(auto * reference = std::get_if<LocalReference>(&procedure_info.value().frame_pointer))
 		{
-			wr.WriteWord(1, *reference);
+			wr->WriteWord(1, *reference);
 		}
-		wr.WriteWord(2, procedure_info.value().return_offset);
-		wr.WriteWord(1, procedure_info.value().prologue_size);
+		wr->WriteWord(2, procedure_info.value().return_offset);
+		wr->WriteWord(1, procedure_info.value().prologue_size);
 	}
 }
 
@@ -6914,7 +6986,7 @@ void OMF96Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	file_size = rd->Tell();
 }
 
-offset_t OMF96Format::WriteFile(Linker::Writer& wr) const
+offset_t OMF96Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* TODO */
 
@@ -6968,7 +7040,7 @@ void OMFFormatContainer::GenerateModule(Linker::Module& module) const
 	// TODO: otherwise, issue error
 }
 
-offset_t OMFFormatContainer::WriteFile(Linker::Writer& wr) const
+offset_t OMFFormatContainer::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	return contents->WriteFile(wr);
 }

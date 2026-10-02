@@ -369,47 +369,47 @@ void PMW1Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t PMW1Format::WriteFile(Linker::Writer& wr) const
+offset_t PMW1Format::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.Seek(file_offset);
-	wr.WriteData("PMW1");
-	wr.WriteWord(1, version.major);
-	wr.WriteWord(1, version.minor);
-	wr.WriteWord(2, flags);
-	wr.WriteWord(4, eip_object);
-	wr.WriteWord(4, eip);
-	wr.WriteWord(4, esp_object);
-	wr.WriteWord(4, esp);
-	wr.WriteWord(4, object_table_offset);
-	wr.WriteWord(4, objects.size());
-	wr.WriteWord(4, relocation_table_offset);
-	wr.WriteWord(4, data_offset);
+	wr->endiantype = ::LittleEndian;
+	wr->Seek(file_offset);
+	wr->WriteData("PMW1");
+	wr->WriteWord(1, version.major);
+	wr->WriteWord(1, version.minor);
+	wr->WriteWord(2, flags);
+	wr->WriteWord(4, eip_object);
+	wr->WriteWord(4, eip);
+	wr->WriteWord(4, esp_object);
+	wr->WriteWord(4, esp);
+	wr->WriteWord(4, object_table_offset);
+	wr->WriteWord(4, objects.size());
+	wr->WriteWord(4, relocation_table_offset);
+	wr->WriteWord(4, data_offset);
 
-	wr.Seek(file_offset + object_table_offset);
+	wr->Seek(file_offset + object_table_offset);
 	for(auto& object : objects)
 	{
-		wr.WriteWord(4, object.memory_size);
-		wr.WriteWord(4, object.file_size);
-		wr.WriteWord(4, object.flags);
-		wr.WriteWord(4, object.relocation_offset);
-		wr.WriteWord(4, object.relocation_block_count);
-		wr.WriteWord(4, object.image_size);
+		wr->WriteWord(4, object.memory_size);
+		wr->WriteWord(4, object.file_size);
+		wr->WriteWord(4, object.flags);
+		wr->WriteWord(4, object.relocation_offset);
+		wr->WriteWord(4, object.relocation_block_count);
+		wr->WriteWord(4, object.image_size);
 	}
 
 	for(auto& object : objects)
 	{
-		wr.Seek(file_offset + relocation_table_offset + object.relocation_offset);
+		wr->Seek(file_offset + relocation_table_offset + object.relocation_offset);
 		for(auto& rel : object.relocations)
 		{
-			wr.WriteWord(1, rel.type);
-			wr.WriteWord(4, rel.source);
-			wr.WriteWord(1, rel.target_object);
-			wr.WriteWord(4, rel.target_offset);
+			wr->WriteWord(1, rel.type);
+			wr->WriteWord(4, rel.source);
+			wr->WriteWord(1, rel.target_object);
+			wr->WriteWord(4, rel.target_offset);
 		}
 	}
 
-	wr.Seek(file_offset + data_offset);
+	wr->Seek(file_offset + data_offset);
 	for(auto& object : objects)
 	{
 		object.image->WriteFile(wr);

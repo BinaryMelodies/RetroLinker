@@ -30,9 +30,9 @@ offset_t GenericBinaryFormat::ImageSize() const
 	return image->ImageSize();
 }
 
-offset_t GenericBinaryFormat::WriteFile(Linker::Writer& wr) const
+offset_t GenericBinaryFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::UndefinedEndian; /* does not matter */
+	wr->endiantype = ::UndefinedEndian; /* does not matter */
 	return image->WriteFile(wr);
 }
 
@@ -245,9 +245,9 @@ offset_t BinaryFormat::ImageSize() const
 	return image->ImageSize() + (pif != nullptr ? 9 : 0);
 }
 
-offset_t BinaryFormat::WriteFile(Linker::Writer& wr) const
+offset_t BinaryFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::UndefinedEndian; /* does not matter */
+	wr->endiantype = ::UndefinedEndian; /* does not matter */
 	image->WriteFile(wr);
 	if(pif)
 		pif->WriteFile(wr);

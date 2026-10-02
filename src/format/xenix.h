@@ -20,7 +20,7 @@ namespace Xenix
 	public:
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 	};
@@ -88,8 +88,8 @@ namespace Xenix
 			void Calculate(XOutFormat& xout);
 			static Segment ReadHeader(const std::shared_ptr<Linker::Reader>& rd, XOutFormat& xout);
 			void ReadContents(const std::shared_ptr<Linker::Reader>& rd, XOutFormat& xout);
-			void WriteHeader(Linker::Writer& wr, const XOutFormat& xout) const;
-			void WriteContents(Linker::Writer& wr, const XOutFormat& xout) const;
+			void WriteHeader(const std::shared_ptr<Linker::Writer>& wr, const XOutFormat& xout) const;
+			void WriteContents(const std::shared_ptr<Linker::Writer>& wr, const XOutFormat& xout) const;
 			void Dump(Dumper::Dumper& dump, const XOutFormat& xout, uint32_t index) const;
 		};
 
@@ -210,7 +210,7 @@ namespace Xenix
 		void CalculateValues() override;
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
-		offset_t WriteFile(Linker::Writer& wr) const override;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 		/* TODO */
 	};

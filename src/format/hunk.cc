@@ -89,9 +89,9 @@ void HunkFormat::Block::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 }
 
-void HunkFormat::Block::Write(Linker::Writer& wr) const
+void HunkFormat::Block::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, type);
+	wr->WriteWord(4, type);
 }
 
 offset_t HunkFormat::Block::FileSize() const
@@ -165,9 +165,9 @@ void HunkFormat::TextBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 	name = HunkFormat::ReadString(rd);
 }
 
-void HunkFormat::TextBlock::Write(Linker::Writer& wr) const
+void HunkFormat::TextBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, type);
+	wr->WriteWord(4, type);
 	HunkFormat::WriteString(wr, name);
 }
 
@@ -197,20 +197,20 @@ void HunkFormat::HeaderBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-void HunkFormat::HeaderBlock::Write(Linker::Writer& wr) const
+void HunkFormat::HeaderBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, type);
+	wr->WriteWord(4, type);
 	for(auto& name : library_names)
 	{
 		HunkFormat::WriteString(wr, name);
 	}
-	wr.WriteWord(4, 0);
-	wr.WriteWord(4, table_size);
-	wr.WriteWord(4, first_hunk);
-	wr.WriteWord(4, hunk_sizes.size() + first_hunk - 1);
+	wr->WriteWord(4, 0);
+	wr->WriteWord(4, table_size);
+	wr->WriteWord(4, first_hunk);
+	wr->WriteWord(4, hunk_sizes.size() + first_hunk - 1);
 	for(uint32_t size : hunk_sizes)
 	{
-		wr.WriteWord(4, size);
+		wr->WriteWord(4, size);
 	}
 }
 
@@ -295,12 +295,12 @@ void HunkFormat::RelocatableBlock::Read(const std::shared_ptr<Linker::Reader>& r
 	ReadBody(rd, longword_count & ~FlagMask);
 }
 
-void HunkFormat::RelocatableBlock::Write(Linker::Writer& wr) const
+void HunkFormat::RelocatableBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, type);
-	wr.WriteWord(4, GetSizeField());
+	wr->WriteWord(4, type);
+	wr->WriteWord(4, GetSizeField());
 	if(RequiresAdditionalFlags())
-		wr.WriteWord(4, GetAdditionalFlags()); // TODO: this is not tested
+		wr->WriteWord(4, GetAdditionalFlags()); // TODO: this is not tested
 	WriteBody(wr);
 }
 
@@ -338,7 +338,7 @@ void HunkFormat::RelocatableBlock::ReadBody(const std::shared_ptr<Linker::Reader
 {
 }
 
-void HunkFormat::RelocatableBlock::WriteBody(Linker::Writer& wr) const
+void HunkFormat::RelocatableBlock::WriteBody(const std::shared_ptr<Linker::Writer>& wr) const
 {
 }
 
@@ -386,13 +386,13 @@ void HunkFormat::LoadBlock::ReadBody(const std::shared_ptr<Linker::Reader>& rd, 
 	image = Linker::Buffer::ReadFromFile(rd, longword_count * 4);
 }
 
-void HunkFormat::LoadBlock::WriteBody(Linker::Writer& wr) const
+void HunkFormat::LoadBlock::WriteBody(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	uint32_t full_size = GetSize() * 4;
-	offset_t image_start = wr.Tell();
+	offset_t image_start = wr->Tell();
 	image->WriteFile(wr);
-	if(wr.Tell() != image_start + full_size)
-		wr.Skip(image_start + full_size - wr.Tell());
+	if(wr->Tell() != image_start + full_size)
+		wr->Skip(image_start + full_size - wr->Tell());
 }
 
 // BssBlock
@@ -502,29 +502,29 @@ void HunkFormat::RelocationBlock::Read(const std::shared_ptr<Linker::Reader>& rd
 	}
 }
 
-void HunkFormat::RelocationBlock::Write(Linker::Writer& wr) const
+void HunkFormat::RelocationBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	size_t wordwrite = IsShortRelocationBlock() ? 2 : 4;
 
-	wr.WriteWord(4, type);
+	wr->WriteWord(4, type);
 	for(auto& data : relocations)
 	{
 		// to make sure to avoid accidentally closing the list prematurely
 		if(data.offsets.size() == 0)
 			continue;
 
-		wr.WriteWord(wordwrite, data.offsets.size());
-		wr.WriteWord(wordwrite, data.hunk);
+		wr->WriteWord(wordwrite, data.offsets.size());
+		wr->WriteWord(wordwrite, data.hunk);
 		for(auto offset : data.offsets)
 		{
-			wr.WriteWord(wordwrite, offset);
+			wr->WriteWord(wordwrite, offset);
 		}
 	}
-	wr.WriteWord(wordwrite, 0); /* terminator */
+	wr->WriteWord(wordwrite, 0); /* terminator */
 
-	if((wr.Tell() & 3) != 0)
+	if((wr->Tell() & 3) != 0)
 	{
-		wr.Skip(-wr.Tell() & 3);
+		wr->Skip(-wr->Tell() & 3);
 	}
 }
 
@@ -636,9 +636,9 @@ void HunkFormat::SymbolBlock::Unit::Read(const std::shared_ptr<Linker::Reader>& 
 {
 }
 
-void HunkFormat::SymbolBlock::Unit::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::Unit::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, (type << 24) | ((::AlignTo(name.length(), 4) / 4) & 0x00FFFFFF));
+	wr->WriteWord(4, (type << 24) | ((::AlignTo(name.length(), 4) / 4) & 0x00FFFFFF));
 	HunkFormat::WriteStringContents(wr, name);
 }
 
@@ -662,10 +662,10 @@ void HunkFormat::SymbolBlock::Definition::Read(const std::shared_ptr<Linker::Rea
 	value = rd->ReadUnsigned(4);
 }
 
-void HunkFormat::SymbolBlock::Definition::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::Definition::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Unit::Write(wr);
-	wr.WriteWord(4, value);
+	wr->WriteWord(4, value);
 }
 
 offset_t HunkFormat::SymbolBlock::Definition::FileSize() const
@@ -760,13 +760,13 @@ void HunkFormat::SymbolBlock::References::Read(const std::shared_ptr<Linker::Rea
 	}
 }
 
-void HunkFormat::SymbolBlock::References::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::References::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Unit::Write(wr);
-	wr.WriteWord(4, references.size());
+	wr->WriteWord(4, references.size());
 	for(uint32_t reference : references)
 	{
-		wr.WriteWord(4, reference);
+		wr->WriteWord(4, reference);
 	}
 }
 
@@ -801,14 +801,14 @@ void HunkFormat::SymbolBlock::CommonReferences::Read(const std::shared_ptr<Linke
 	}
 }
 
-void HunkFormat::SymbolBlock::CommonReferences::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::CommonReferences::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Unit::Write(wr);
-	wr.WriteWord(4, size);
-	wr.WriteWord(4, references.size());
+	wr->WriteWord(4, size);
+	wr->WriteWord(4, references.size());
 	for(uint32_t reference : references)
 	{
-		wr.WriteWord(4, reference);
+		wr->WriteWord(4, reference);
 	}
 }
 
@@ -835,13 +835,13 @@ void HunkFormat::SymbolBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-void HunkFormat::SymbolBlock::Write(Linker::Writer& wr) const
+void HunkFormat::SymbolBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	for(auto& unit : symbols)
 	{
 		unit->Write(wr);
 	}
-	wr.WriteWord(4, 0);
+	wr->WriteWord(4, 0);
 }
 
 offset_t HunkFormat::SymbolBlock::FileSize() const
@@ -907,13 +907,13 @@ void HunkFormat::DebugBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 	image = Linker::Buffer::ReadFromFile(rd, longword_count * 4);
 }
 
-void HunkFormat::DebugBlock::Write(Linker::Writer& wr) const
+void HunkFormat::DebugBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(4, type);
-	wr.WriteWord(4, ::AlignTo(image->ImageSize(), 4) / 4);
+	wr->WriteWord(4, type);
+	wr->WriteWord(4, ::AlignTo(image->ImageSize(), 4) / 4);
 	image->WriteFile(wr);
 	if((image->ImageSize() & 3) != 0)
-		wr.Skip(-image->ImageSize() & 3);
+		wr->Skip(-image->ImageSize() & 3);
 }
 
 offset_t HunkFormat::DebugBlock::FileSize() const
@@ -956,22 +956,22 @@ void HunkFormat::OverlayBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-void HunkFormat::OverlayBlock::Write(Linker::Writer& wr) const
+void HunkFormat::OverlayBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Block::Write(wr);
-	wr.WriteWord(4, (FileSize() - 8) / 4);
-	wr.WriteWord(4, maximum_level);
-	wr.Skip(4 * (maximum_level - 2));
+	wr->WriteWord(4, (FileSize() - 8) / 4);
+	wr->WriteWord(4, maximum_level);
+	wr->Skip(4 * (maximum_level - 2));
 	for(auto& symbol : overlay_data_table)
 	{
-		wr.WriteWord(4, symbol.offset);
-		wr.WriteWord(4, symbol.res1);
-		wr.WriteWord(4, symbol.res2);
-		wr.WriteWord(4, symbol.level);
-		wr.WriteWord(4, symbol.ordinate);
-		wr.WriteWord(4, symbol.first_hunk);
-		wr.WriteWord(4, symbol.symbol_hunk);
-		wr.WriteWord(4, symbol.symbol_offset);
+		wr->WriteWord(4, symbol.offset);
+		wr->WriteWord(4, symbol.res1);
+		wr->WriteWord(4, symbol.res2);
+		wr->WriteWord(4, symbol.level);
+		wr->WriteWord(4, symbol.ordinate);
+		wr->WriteWord(4, symbol.first_hunk);
+		wr->WriteWord(4, symbol.symbol_hunk);
+		wr->WriteWord(4, symbol.symbol_offset);
 	}
 }
 
@@ -1002,10 +1002,10 @@ void HunkFormat::LibraryBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 	hunks->ReadFile(rd, next_block, end);
 }
 
-void HunkFormat::LibraryBlock::Write(Linker::Writer& wr) const
+void HunkFormat::LibraryBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Block::Write(wr);
-	wr.WriteWord(4, (FileSize() - 8) / 4);
+	wr->WriteWord(4, (FileSize() - 8) / 4);
 	hunks->WriteFile(wr);
 }
 
@@ -1035,11 +1035,11 @@ HunkFormat::IndexBlock::Definition HunkFormat::IndexBlock::Definition::Read(cons
 	return def;
 }
 
-void HunkFormat::IndexBlock::Definition::Write(Linker::Writer& wr) const
+void HunkFormat::IndexBlock::Definition::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, string_offset);
-	wr.WriteWord(2, symbol_offset);
-	wr.WriteWord(2, type);
+	wr->WriteWord(2, string_offset);
+	wr->WriteWord(2, symbol_offset);
+	wr->WriteWord(2, type);
 }
 
 HunkFormat::IndexBlock::HunkEntry HunkFormat::IndexBlock::HunkEntry::Read(const std::shared_ptr<Linker::Reader>& rd)
@@ -1061,18 +1061,18 @@ HunkFormat::IndexBlock::HunkEntry HunkFormat::IndexBlock::HunkEntry::Read(const 
 	return hunk;
 }
 
-void HunkFormat::IndexBlock::HunkEntry::Write(Linker::Writer& wr) const
+void HunkFormat::IndexBlock::HunkEntry::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	HunkEntry hunk;
-	wr.WriteWord(2, string_offset);
-	wr.WriteWord(2, hunk_size);
-	wr.WriteWord(2, hunk_type);
-	wr.WriteWord(2, references.size());
+	wr->WriteWord(2, string_offset);
+	wr->WriteWord(2, hunk_size);
+	wr->WriteWord(2, hunk_type);
+	wr->WriteWord(2, references.size());
 	for(uint16_t ref : references)
 	{
-		wr.WriteWord(2, ref);
+		wr->WriteWord(2, ref);
 	}
-	wr.WriteWord(2, definitions.size());
+	wr->WriteWord(2, definitions.size());
 	for(auto& def : definitions)
 	{
 		def.Write(wr);
@@ -1097,11 +1097,11 @@ HunkFormat::IndexBlock::ProgramUnit HunkFormat::IndexBlock::ProgramUnit::Read(co
 	return unit;
 }
 
-void HunkFormat::IndexBlock::ProgramUnit::Write(Linker::Writer& wr) const
+void HunkFormat::IndexBlock::ProgramUnit::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, string_offset);
-	wr.WriteWord(2, first_hunk_offset);
-	wr.WriteWord(2, hunks.size());
+	wr->WriteWord(2, string_offset);
+	wr->WriteWord(2, first_hunk_offset);
+	wr->WriteWord(2, hunks.size());
 	for(auto& hunk : hunks)
 	{
 		hunk.Write(wr);
@@ -1150,24 +1150,24 @@ void HunkFormat::IndexBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 		rd->Skip(-rd->Tell() & 3);
 }
 
-void HunkFormat::IndexBlock::Write(Linker::Writer& wr) const
+void HunkFormat::IndexBlock::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	Block::Write(wr);
-	wr.WriteWord(4, (FileSize() - 8) / 4);
-	wr.WriteWord(2, StringTableSize());
+	wr->WriteWord(4, (FileSize() - 8) / 4);
+	wr->WriteWord(2, StringTableSize());
 	for(auto& string : strings)
 	{
-		wr.WriteData(string);
-		wr.WriteWord(1, 0);
+		wr->WriteData(string);
+		wr->WriteWord(1, 0);
 	}
-	if((wr.Tell() & 1) != 0)
-		wr.Skip(1);
+	if((wr->Tell() & 1) != 0)
+		wr->Skip(1);
 	for(auto& unit : units)
 	{
 		unit.Write(wr);
 	}
-	if((wr.Tell() & 3) != 0)
-		wr.Skip(-wr.Tell() & 3);
+	if((wr->Tell() & 3) != 0)
+		wr->Skip(-wr->Tell() & 3);
 }
 
 offset_t HunkFormat::IndexBlock::FileSize() const
@@ -1608,7 +1608,7 @@ void HunkFormat::Module::ReadFile(const std::shared_ptr<Linker::Reader>& rd, std
 	}
 }
 
-void HunkFormat::Module::WriteFile(Linker::Writer& wr) const
+void HunkFormat::Module::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(start_block != nullptr)
 	{
@@ -1714,9 +1714,9 @@ void HunkFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t HunkFormat::WriteFile(Linker::Writer& wr) const
+offset_t HunkFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::BigEndian;
+	wr->endiantype = ::BigEndian;
 
 	for(const Module& module : modules)
 	{
@@ -1762,17 +1762,17 @@ std::string HunkFormat::ReadString(const std::shared_ptr<Linker::Reader>& rd)
 	return ReadString(rd, tmp);
 }
 
-void HunkFormat::WriteStringContents(Linker::Writer& wr, std::string name)
+void HunkFormat::WriteStringContents(const std::shared_ptr<Linker::Writer>& wr, std::string name)
 {
 	offset_t size = ::AlignTo(name.size(), 4);
-	wr.WriteData(size, name, '\0');
+	wr->WriteData(size, name, '\0');
 }
 
-void HunkFormat::WriteString(Linker::Writer& wr, std::string name)
+void HunkFormat::WriteString(const std::shared_ptr<Linker::Writer>& wr, std::string name)
 {
 	offset_t size = ::AlignTo(name.size(), 4);
-	wr.WriteWord(4, size / 4);
-	wr.WriteData(size, name, '\0');
+	wr->WriteWord(4, size / 4);
+	wr->WriteData(size, name, '\0');
 }
 
 offset_t HunkFormat::MeasureString(std::string name)

@@ -27,30 +27,30 @@ offset_t ELFFormat::SymbolTable::ImageSize() const
 	return symbols.size() * entsize;
 }
 
-offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::SymbolTable::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
-	offset_t file_offset = wr.Tell();
+	offset_t file_offset = wr->Tell();
 	for(auto symbol : symbols)
 	{
-		wr.Seek(file_offset);
+		wr->Seek(file_offset);
 		file_offset += entsize;
-		wr.WriteWord(4, symbol.name_offset);
+		wr->WriteWord(4, symbol.name_offset);
 		if(wordbytes == 4)
 		{
-			wr.WriteWord(wordbytes, symbol.value);
-			wr.WriteWord(wordbytes, symbol.size);
-			wr.WriteWord(1, (symbol.bind << 4) | (symbol.type & 0xF));
-			wr.WriteWord(1, symbol.other);
-			wr.WriteWord(2, symbol.shndx);
+			wr->WriteWord(wordbytes, symbol.value);
+			wr->WriteWord(wordbytes, symbol.size);
+			wr->WriteWord(1, (symbol.bind << 4) | (symbol.type & 0xF));
+			wr->WriteWord(1, symbol.other);
+			wr->WriteWord(2, symbol.shndx);
 		}
 		else
 		{
-			wr.WriteWord(1, (symbol.bind << 4) | (symbol.type & 0xF));
-			wr.WriteWord(1, symbol.other);
-			wr.WriteWord(2, symbol.shndx);
-			wr.WriteWord(wordbytes, symbol.value);
-			wr.WriteWord(wordbytes, symbol.size);
+			wr->WriteWord(1, (symbol.bind << 4) | (symbol.type & 0xF));
+			wr->WriteWord(1, symbol.other);
+			wr->WriteWord(2, symbol.shndx);
+			wr->WriteWord(wordbytes, symbol.value);
+			wr->WriteWord(wordbytes, symbol.size);
 		}
 	}
 	return ImageSize();
@@ -121,13 +121,13 @@ offset_t ELFFormat::StringTable::ImageSize() const
 	return size;
 }
 
-offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::StringTable::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
 	for(auto& s : strings)
 	{
-		wr.WriteData(s);
-		wr.WriteWord(1, 0);
+		wr->WriteData(s);
+		wr->WriteWord(1, 0);
 	}
 	return ImageSize();
 }
@@ -153,12 +153,12 @@ offset_t ELFFormat::Array::ImageSize() const
 	return array.size() * entsize;
 }
 
-offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::Array::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
 	for(auto& entry : array)
 	{
-		wr.WriteWord(entsize, entry);
+		wr->WriteWord(entsize, entry);
 	}
 	return ImageSize();
 }
@@ -182,16 +182,16 @@ offset_t ELFFormat::SectionGroup::ImageSize() const
 	return (1 + array.size()) * entsize;
 }
 
-offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::SectionGroup::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
-	offset_t file_offset = wr.Tell();
-	wr.WriteWord(4, flags);
+	offset_t file_offset = wr->Tell();
+	wr->WriteWord(4, flags);
 	file_offset += entsize;
 	for(auto& entry : array)
 	{
-		wr.Seek(file_offset);
-		wr.WriteWord(4, entry);
+		wr->Seek(file_offset);
+		wr->WriteWord(4, entry);
 		file_offset += entsize;
 	}
 	return ImageSize();
@@ -546,24 +546,24 @@ offset_t ELFFormat::Relocations::ImageSize() const
 	return relocations.size() * entsize;
 }
 
-offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::Relocations::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
-	offset_t file_offset = wr.Tell();
+	offset_t file_offset = wr->Tell();
 	for(auto& rel : relocations)
 	{
-		wr.Seek(file_offset);
-		wr.WriteWord(wordbytes, rel.offset);
+		wr->Seek(file_offset);
+		wr->WriteWord(wordbytes, rel.offset);
 		if(wordbytes == 4)
 		{
-			wr.WriteWord(wordbytes, (rel.symbol << 8) | (rel.type & 0xFF));
+			wr->WriteWord(wordbytes, (rel.symbol << 8) | (rel.type & 0xFF));
 		}
 		else
 		{
-			wr.WriteWord(wordbytes, (uint64_t(rel.symbol) << 32) | rel.type);
+			wr->WriteWord(wordbytes, (uint64_t(rel.symbol) << 32) | rel.type);
 		}
 		if(!rel.addend_from_section_data)
-			wr.WriteWord(wordbytes, rel.addend);
+			wr->WriteWord(wordbytes, rel.addend);
 		file_offset += entsize;
 	}
 	return ImageSize();
@@ -603,15 +603,15 @@ offset_t ELFFormat::DynamicSection::ImageSize() const
 	return dynamic.size() * entsize;
 }
 
-offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::DynamicSection::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
-	offset_t file_offset = wr.Tell();
+	offset_t file_offset = wr->Tell();
 	for(auto& dyn : dynamic)
 	{
-		wr.Seek(file_offset);
-		wr.WriteWord(wordbytes, dyn.tag);
-		wr.WriteWord(wordbytes, dyn.value);
+		wr->Seek(file_offset);
+		wr->WriteWord(wordbytes, dyn.tag);
+		wr->WriteWord(wordbytes, dyn.value);
 		file_offset += entsize;
 	}
 	return ImageSize();
@@ -753,18 +753,18 @@ offset_t ELFFormat::HashTable::ImageSize() const
 	return (2 + buckets.size() + chains.size()) * 4;
 }
 
-offset_t ELFFormat::HashTable::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::HashTable::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
-	wr.WriteWord(4, buckets.size());
-	wr.WriteWord(4, chains.size());
+	wr->WriteWord(4, buckets.size());
+	wr->WriteWord(4, chains.size());
 	for(auto bucket : buckets)
 	{
-		wr.WriteWord(4, bucket);
+		wr->WriteWord(4, bucket);
 	}
 	for(auto chain : chains)
 	{
-		wr.WriteWord(4, chain);
+		wr->WriteWord(4, chain);
 	}
 	return ImageSize();
 }
@@ -807,24 +807,24 @@ offset_t ELFFormat::NotesSection::ImageSize() const
 	return size;
 }
 
-offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::NotesSection::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
 	for(auto& note : notes)
 	{
 		offset_t namesz = note.name.size() + 1;
 		offset_t descsz = note.descriptor.size() + 1;
-		wr.WriteWord(4, (namesz + 3) & ~3);
-		wr.WriteWord(4, (descsz + 3) & ~3);
-		wr.WriteWord(4, note.type);
-		wr.WriteData(note.name);
-		wr.WriteWord(1, 0);
+		wr->WriteWord(4, (namesz + 3) & ~3);
+		wr->WriteWord(4, (descsz + 3) & ~3);
+		wr->WriteWord(4, note.type);
+		wr->WriteData(note.name);
+		wr->WriteWord(1, 0);
 		if((namesz & 3) != 0)
-			wr.Skip((-namesz & 3));
-		wr.WriteData(note.descriptor);
-		wr.WriteWord(1, 0);
+			wr->Skip((-namesz & 3));
+		wr->WriteData(note.descriptor);
+		wr->WriteWord(1, 0);
 		if((descsz & 3) != 0)
-			wr.Skip((-descsz & 3));
+			wr->Skip((-descsz & 3));
 	}
 	return ImageSize();
 }
@@ -857,7 +857,7 @@ offset_t ELFFormat::VersionRequirements::ImageSize() const
 	return 0;
 }
 
-offset_t ELFFormat::VersionRequirements::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::VersionRequirements::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO
 	return 0;
@@ -881,21 +881,21 @@ offset_t ELFFormat::IBMSystemInfo::ImageSize() const
 	return 8 + os_size;
 }
 
-offset_t ELFFormat::IBMSystemInfo::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::IBMSystemInfo::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO: untested
-	wr.WriteWord(4, os_type);
-	wr.WriteWord(4, os_size);
+	wr->WriteWord(4, os_type);
+	wr->WriteWord(4, os_size);
 	if(IsOS2Specific())
 	{
-		wr.WriteWord(1, os2.sessiontype);
-		wr.WriteWord(1, os2.sessionflags);
-		wr.Skip(14 - 1);
-		wr.WriteWord(1, 0);
+		wr->WriteWord(1, os2.sessiontype);
+		wr->WriteWord(1, os2.sessionflags);
+		wr->Skip(14 - 1);
+		wr->WriteWord(1, 0);
 	}
 	else
 	{
-		wr.WriteData(os_specific);
+		wr->WriteData(os_specific);
 	}
 	return ImageSize();
 }
@@ -939,15 +939,15 @@ offset_t ELFFormat::IBMImportTable::ImageSize() const
 	return imports.size() * entsize;
 }
 
-offset_t ELFFormat::IBMImportTable::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::IBMImportTable::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	offset_t file_offset = wr.Tell();
+	offset_t file_offset = wr->Tell();
 	for(auto& import : imports)
 	{
-		wr.Seek(file_offset);
-		wr.WriteWord(4, import.ordinal);
-		wr.WriteWord(4, import.name_offset);
-		wr.WriteWord(4, (import.type << 24) | (import.dll & 0x00FFFFFF));
+		wr->Seek(file_offset);
+		wr->WriteWord(4, import.ordinal);
+		wr->WriteWord(4, import.name_offset);
+		wr->WriteWord(4, (import.type << 24) | (import.dll & 0x00FFFFFF));
 		file_offset += entsize;
 	}
 	return ImageSize();
@@ -987,15 +987,15 @@ offset_t ELFFormat::IBMExportTable::ImageSize() const
 	return exports.size() * entsize;
 }
 
-offset_t ELFFormat::IBMExportTable::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::IBMExportTable::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	offset_t file_offset = wr.Tell();
+	offset_t file_offset = wr->Tell();
 	for(auto& _export : exports)
 	{
-		wr.Seek(file_offset);
-		wr.WriteWord(4, _export.ordinal);
-		wr.WriteWord(4, _export.symbol_index);
-		wr.WriteWord(4, _export.name_offset);
+		wr->Seek(file_offset);
+		wr->WriteWord(4, _export.ordinal);
+		wr->WriteWord(4, _export.symbol_index);
+		wr->WriteWord(4, _export.name_offset);
 		file_offset += entsize;
 	}
 	return ImageSize();
@@ -1028,7 +1028,7 @@ offset_t ELFFormat::IBMResourceCollection::ImageSize() const
 	return 0;
 }
 
-offset_t ELFFormat::IBMResourceCollection::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::IBMResourceCollection::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	// TODO
 	return 0;
@@ -2167,75 +2167,75 @@ void ELFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t ELFFormat::WriteFile(Linker::Writer& wr) const
+offset_t ELFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	/* TODO: test */
 
-	wr.endiantype = endiantype;
+	wr->endiantype = endiantype;
 
-	wr.WriteData(4, "\x7F" "ELF");
-	wr.WriteWord(1, file_class);
-	wr.WriteWord(1, data_encoding);
-	wr.WriteWord(1, header_version);
-	wr.WriteWord(1, osabi);
-	wr.WriteWord(1, abi_version);
+	wr->WriteData(4, "\x7F" "ELF");
+	wr->WriteWord(1, file_class);
+	wr->WriteWord(1, data_encoding);
+	wr->WriteWord(1, header_version);
+	wr->WriteWord(1, osabi);
+	wr->WriteWord(1, abi_version);
 
-	wr.Seek(16);
+	wr->Seek(16);
 
-	wr.WriteWord(2, object_file_type);
-	wr.WriteWord(2, cpu);
-	wr.WriteWord(4, file_version);
-	wr.WriteWord(wordbytes, entry);
-	wr.WriteWord(wordbytes, program_header_offset); // phoff
-	wr.WriteWord(wordbytes, section_header_offset); // shoff
-	wr.WriteWord(4, flags);
-	wr.WriteWord(2, elf_header_size); // ehsize
-	wr.WriteWord(2, program_header_entry_size); // phentsize
-	wr.WriteWord(2, segments.size()); // phnum
-	wr.WriteWord(2, section_header_entry_size); // shentsize
-	wr.WriteWord(2, sections.size()); // shnum
-	wr.WriteWord(2, section_name_string_table >= SHN_LORESERVE ? SHN_XINDEX : section_name_string_table); // shstrndx
+	wr->WriteWord(2, object_file_type);
+	wr->WriteWord(2, cpu);
+	wr->WriteWord(4, file_version);
+	wr->WriteWord(wordbytes, entry);
+	wr->WriteWord(wordbytes, program_header_offset); // phoff
+	wr->WriteWord(wordbytes, section_header_offset); // shoff
+	wr->WriteWord(4, flags);
+	wr->WriteWord(2, elf_header_size); // ehsize
+	wr->WriteWord(2, program_header_entry_size); // phentsize
+	wr->WriteWord(2, segments.size()); // phnum
+	wr->WriteWord(2, section_header_entry_size); // shentsize
+	wr->WriteWord(2, sections.size()); // shnum
+	wr->WriteWord(2, section_name_string_table >= SHN_LORESERVE ? SHN_XINDEX : section_name_string_table); // shstrndx
 
 	unsigned i;
 
 	i = 0;
 	for(auto& segment : segments)
 	{
-		wr.Seek(program_header_offset + i++ * program_header_entry_size);
-		wr.WriteWord(4, segment.type);
+		wr->Seek(program_header_offset + i++ * program_header_entry_size);
+		wr->WriteWord(4, segment.type);
 		if(wordbytes == 8)
-			wr.WriteWord(4, segment.flags);
-		wr.WriteWord(wordbytes, segment.offset);
-		wr.WriteWord(wordbytes, segment.vaddr);
-		wr.WriteWord(wordbytes, segment.paddr);
-		wr.WriteWord(wordbytes, segment.filesz);
-		wr.WriteWord(wordbytes, segment.memsz);
+			wr->WriteWord(4, segment.flags);
+		wr->WriteWord(wordbytes, segment.offset);
+		wr->WriteWord(wordbytes, segment.vaddr);
+		wr->WriteWord(wordbytes, segment.paddr);
+		wr->WriteWord(wordbytes, segment.filesz);
+		wr->WriteWord(wordbytes, segment.memsz);
 		if(wordbytes == 4)
-			wr.WriteWord(4, segment.flags);
-		wr.WriteWord(wordbytes, segment.align);
+			wr->WriteWord(4, segment.flags);
+		wr->WriteWord(wordbytes, segment.align);
 	}
 
 	i = 0;
 	for(auto& section : sections)
 	{
-		wr.Seek(section_header_offset + i++ * section_header_entry_size);
-		wr.WriteWord(4, section.name_offset);
-		wr.WriteWord(4, section.type);
-		wr.WriteWord(wordbytes, section.flags);
-		wr.WriteWord(wordbytes, section.address);
-		wr.WriteWord(wordbytes, section.file_offset);
-		wr.WriteWord(wordbytes, section.size);
-		wr.WriteWord(4, section.link);
-		wr.WriteWord(4, section.info);
-		wr.WriteWord(wordbytes, section.align);
-		wr.WriteWord(wordbytes, section.entsize);
+		wr->Seek(section_header_offset + i++ * section_header_entry_size);
+		wr->WriteWord(4, section.name_offset);
+		wr->WriteWord(4, section.type);
+		wr->WriteWord(wordbytes, section.flags);
+		wr->WriteWord(wordbytes, section.address);
+		wr->WriteWord(wordbytes, section.file_offset);
+		wr->WriteWord(wordbytes, section.size);
+		wr->WriteWord(4, section.link);
+		wr->WriteWord(4, section.info);
+		wr->WriteWord(wordbytes, section.align);
+		wr->WriteWord(wordbytes, section.entsize);
 	}
 
 	for(auto& section : sections)
 	{
 		if(section.contents != nullptr)
 		{
-			wr.Seek(section.file_offset);
+			wr->Seek(section.file_offset);
 			Linker::Debug << "Debug: writing section contents at offset " << std::hex << section.file_offset << std::endl;
 			section.contents->WriteFile(wr);
 		}
@@ -2245,7 +2245,7 @@ offset_t ELFFormat::WriteFile(Linker::Writer& wr) const
 	{
 		if(block.image != nullptr)
 		{
-			wr.Seek(block.offset);
+			wr->Seek(block.offset);
 			block.image->WriteFile(wr);
 		}
 	}
@@ -2255,27 +2255,27 @@ offset_t ELFFormat::WriteFile(Linker::Writer& wr) const
 		/* BeOS Hobbit section */
 
 		// TODO: untested
-		wr.Seek(hobbit_beos_resource_offset);
-		wr.WriteWord(4, hobbit_beos_resources.size());
+		wr->Seek(hobbit_beos_resource_offset);
+		wr->WriteWord(4, hobbit_beos_resources.size());
 		for(auto& resource : hobbit_beos_resources)
 		{
-			wr.WriteData(4, resource.type);
-			wr.WriteWord(4, resource.unknown1);
-			wr.WriteWord(4, resource.offset);
-			wr.WriteWord(4, resource.size);
-			wr.WriteWord(4, resource.unknown2);
+			wr->WriteData(4, resource.type);
+			wr->WriteWord(4, resource.unknown1);
+			wr->WriteWord(4, resource.offset);
+			wr->WriteWord(4, resource.size);
+			wr->WriteWord(4, resource.unknown2);
 		}
 		for(auto& resource : hobbit_beos_resources)
 		{
-			wr.Seek(hobbit_beos_resource_offset + 4 + 20 * hobbit_beos_resources.size() + resource.offset);
+			wr->Seek(hobbit_beos_resource_offset + 4 + 20 * hobbit_beos_resources.size() + resource.offset);
 			resource.image->WriteFile(wr);
 		}
 
-		wr.SeekEnd();
-		offset_t end = wr.Tell();
-		wr.Seek(end - 8);
-		wr.WriteData(4, "RSRC");
-		wr.WriteWord(4, hobbit_beos_resource_offset);
+		wr->SeekEnd();
+		offset_t end = wr->Tell();
+		wr->Seek(end - 8);
+		wr->WriteData(4, "RSRC");
+		wr->WriteWord(4, hobbit_beos_resource_offset);
 	}
 
 	return offset_t(-1);
@@ -3721,16 +3721,16 @@ FatELFFormat::Record FatELFFormat::Record::Read(const std::shared_ptr<Linker::Re
 	return record;
 }
 
-void FatELFFormat::Record::Write(Linker::Writer& wr) const
+void FatELFFormat::Record::Write(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.WriteWord(2, cpu);
-	wr.WriteWord(1, osabi);
-	wr.WriteWord(1, abi_version);
-	wr.WriteWord(1, file_class);
-	wr.WriteWord(1, data_encoding);
-	wr.Skip(2);
-	wr.WriteWord(8, offset);
-	wr.WriteWord(8, size);
+	wr->WriteWord(2, cpu);
+	wr->WriteWord(1, osabi);
+	wr->WriteWord(1, abi_version);
+	wr->WriteWord(1, file_class);
+	wr->WriteWord(1, data_encoding);
+	wr->Skip(2);
+	wr->WriteWord(8, offset);
+	wr->WriteWord(8, size);
 }
 
 offset_t FatELFFormat::ImageSize() const
@@ -3772,26 +3772,26 @@ void FatELFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	}
 }
 
-offset_t FatELFFormat::WriteFile(Linker::Writer& wr) const
+offset_t FatELFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
-	wr.WriteData("\xFA\x70\x0E\x1F");
-	wr.WriteWord(2, version);
+	wr->endiantype = ::LittleEndian;
+	wr->WriteData("\xFA\x70\x0E\x1F");
+	wr->WriteWord(2, version);
 	if(records.size() > 255)
 	{
 		std::ostringstream oss;
 		oss << "Fatal error: number of binaries exceeds 255, " << records.size() << " found";
 		Linker::FatalError(oss.str());
 	}
-	wr.WriteWord(1, records.size());
-	wr.Skip(1);
+	wr->WriteWord(1, records.size());
+	wr->Skip(1);
 	for(auto& record : records)
 	{
 		record.Write(wr);
 	}
 	for(auto& record : records)
 	{
-		wr.Seek(record.offset);
+		wr->Seek(record.offset);
 		record.image->WriteFile(wr);
 	}
 	return ImageSize();

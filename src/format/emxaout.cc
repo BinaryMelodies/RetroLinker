@@ -62,7 +62,7 @@ offset_t EMXAOutFormat::ImageSize() const
 	return offset_t(-1);
 }
 
-offset_t EMXAOutFormat::WriteFile(Linker::Writer& wr) const
+offset_t EMXAOutFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	if(stub.filename == "")
 	{
@@ -77,16 +77,16 @@ offset_t EMXAOutFormat::WriteFile(Linker::Writer& wr) const
 			Linker::FatalError("Fatal error: Stub is too short (needs at least 86 bytes in the image");
 		}
 
-		wr.endiantype = ::LittleEndian;
+		wr->endiantype = ::LittleEndian;
 
 		// update EMX information in stub
-		wr.Seek(stub.stub_header_size + 16);
-		wr.WriteWord(1, 0xFF); // bind flag
-		wr.Skip(1);
-		wr.WriteWord(4, aout_header_offset);
-		wr.WriteData(dos_options);
+		wr->Seek(stub.stub_header_size + 16);
+		wr->WriteWord(1, 0xFF); // bind flag
+		wr->Skip(1);
+		wr->WriteWord(4, aout_header_offset);
+		wr->WriteData(dos_options);
 
-		wr.Seek(aout_header_offset);
+		wr->Seek(aout_header_offset);
 		AOutFormat::WriteHeader(wr);
 	}
 	return ImageSize();

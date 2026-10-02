@@ -175,13 +175,13 @@ void BWFormat::AbstractSegment::ReadHeader(const std::shared_ptr<Linker::Reader>
 		size += 1;
 }
 
-void BWFormat::AbstractSegment::WriteHeader(Linker::Writer& wr, const BWFormat& bw) const
+void BWFormat::AbstractSegment::WriteHeader(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const
 {
 	uint32_t size = GetSize(bw);
-	wr.WriteWord(2, size > 0 ? size - 1 : 0);
-	wr.WriteWord(3, address);
-	wr.WriteWord(1, access);
-	wr.WriteWord(2, (::AlignTo(total_length, 0x10) >> 4) | flags);
+	wr->WriteWord(2, size > 0 ? size - 1 : 0);
+	wr->WriteWord(3, address);
+	wr->WriteWord(1, access);
+	wr->WriteWord(2, (::AlignTo(total_length, 0x10) >> 4) | flags);
 }
 
 void BWFormat::Segment::SetTotalSize(uint32_t new_value)
@@ -208,7 +208,7 @@ void BWFormat::Segment::ReadContent(const std::shared_ptr<Linker::Reader>& rd, B
 	}
 }
 
-void BWFormat::Segment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
+void BWFormat::Segment::WriteContent(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const
 {
 	if(image)
 	{
@@ -257,7 +257,7 @@ void BWFormat::DummySegment::ReadContent(const std::shared_ptr<Linker::Reader>& 
 {
 }
 
-void BWFormat::DummySegment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
+void BWFormat::DummySegment::WriteContent(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const
 {
 }
 
@@ -360,7 +360,7 @@ void BWFormat::RelocationSegment::ReadContent(const std::shared_ptr<Linker::Read
 	}
 }
 
-void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, const BWFormat& bw) const
+void BWFormat::RelocationSegment::WriteContent(const std::shared_ptr<Linker::Writer>& wr, const BWFormat& bw) const
 {
 	switch(bw.option_relocations)
 	{
@@ -370,13 +370,13 @@ void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, const BWForma
 			/* write both segments */
 			for(auto& relocation : bw.relocations_list)
 			{
-				wr.WriteWord(2, relocation.selector);
+				wr->WriteWord(2, relocation.selector);
 			}
-			wr.AlignTo(0x10);
+			wr->AlignTo(0x10);
 			for(auto& relocation : bw.relocations_list)
 			{
 				assert(relocation.offsets.size() == 1);
-				wr.WriteWord(2, relocation.offsets[0]);
+				wr->WriteWord(2, relocation.offsets[0]);
 			}
 		}
 		break;
@@ -388,19 +388,19 @@ void BWFormat::RelocationSegment::WriteContent(Linker::Writer& wr, const BWForma
 			if(bw.relocations_map.empty())
 			{
 				/* if no relocations are present, create dummy relocation sequence so file appears relocatable */
-				wr.WriteWord(2, 0x0002); /* end of relocations */
-				wr.WriteWord(2, 0x0000); /* 0 relocations */
+				wr->WriteWord(2, 0x0002); /* end of relocations */
+				wr->WriteWord(2, 0x0000); /* 0 relocations */
 			}
 			for(auto& relocation : bw.relocations_list)
 			{
 				if(count == bw.relocations_list.size() - 1)
-					wr.WriteWord(2, relocation.selector | 2);
+					wr->WriteWord(2, relocation.selector | 2);
 				else
-					wr.WriteWord(2, relocation.selector);
-				wr.WriteWord(2, relocation.offsets.size());
+					wr->WriteWord(2, relocation.selector);
+				wr->WriteWord(2, relocation.offsets.size());
 				for(auto offset : relocation.offsets)
 				{
-					wr.WriteWord(2, offset);
+					wr->WriteWord(2, offset);
 				}
 				count++;
 			}
@@ -710,56 +710,56 @@ offset_t BWFormat::ImageSize() const
 	return file_size;
 }
 
-offset_t BWFormat::WriteFile(Linker::Writer& wr) const
+offset_t BWFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr.endiantype = ::LittleEndian;
+	wr->endiantype = ::LittleEndian;
 	if(stub.filename != "")
 	{
 		stub.WriteStubImage(wr);
 	}
-	wr.Seek(file_offset);
-	wr.WriteData(2, "BW");
-	wr.WriteWord(2, file_size & 0x1FF);
-	wr.WriteWord(2, file_size >> 9);
-	wr.Skip(4);
-	wr.WriteWord(2, (min_extra + 0x3FF) >> 10);
-	wr.WriteWord(2, (max_extra + 0x3FF) >> 10);
-	wr.WriteWord(2, ss);
-	wr.WriteWord(2, sp);
-	wr.WriteWord(2, relocsel);
-	wr.WriteWord(2, ip);
-	wr.WriteWord(2, cs);
-	wr.WriteWord(2, runtime_gdt_length);
-	wr.WriteWord(2, version);
-	wr.WriteWord(4, next_header_offset);
-	wr.WriteWord(4, debug_info_offset);
-	wr.WriteWord(2, last_used_selector);
-	wr.WriteWord(2, (private_xm + 0x3FF) >> 10);
-	wr.WriteWord(2, ext_reserve);
-	wr.Skip(6);
-	wr.WriteWord(2, options);
-	wr.WriteWord(2, transparent_stack);
-	wr.WriteWord(2, exp_flags);
-	wr.WriteWord(2, (program_size + 0xF) >> 4);
-	wr.WriteWord(2, gdt_size);
-	wr.WriteWord(2, first_selector);
-	wr.WriteWord(1, default_memory_strategy);
-	wr.Skip(1);
-	wr.WriteWord(2, transfer_buffer_size);
-	wr.Skip(48);
-	wr.WriteData(48, exp_name);
+	wr->Seek(file_offset);
+	wr->WriteData(2, "BW");
+	wr->WriteWord(2, file_size & 0x1FF);
+	wr->WriteWord(2, file_size >> 9);
+	wr->Skip(4);
+	wr->WriteWord(2, (min_extra + 0x3FF) >> 10);
+	wr->WriteWord(2, (max_extra + 0x3FF) >> 10);
+	wr->WriteWord(2, ss);
+	wr->WriteWord(2, sp);
+	wr->WriteWord(2, relocsel);
+	wr->WriteWord(2, ip);
+	wr->WriteWord(2, cs);
+	wr->WriteWord(2, runtime_gdt_length);
+	wr->WriteWord(2, version);
+	wr->WriteWord(4, next_header_offset);
+	wr->WriteWord(4, debug_info_offset);
+	wr->WriteWord(2, last_used_selector);
+	wr->WriteWord(2, (private_xm + 0x3FF) >> 10);
+	wr->WriteWord(2, ext_reserve);
+	wr->Skip(6);
+	wr->WriteWord(2, options);
+	wr->WriteWord(2, transparent_stack);
+	wr->WriteWord(2, exp_flags);
+	wr->WriteWord(2, (program_size + 0xF) >> 4);
+	wr->WriteWord(2, gdt_size);
+	wr->WriteWord(2, first_selector);
+	wr->WriteWord(1, default_memory_strategy);
+	wr->Skip(1);
+	wr->WriteWord(2, transfer_buffer_size);
+	wr->Skip(48);
+	wr->WriteData(48, exp_name);
 	/* TODO */
 
-	wr.Seek(file_offset + 48 + first_selector);
+	wr->Seek(file_offset + 48 + first_selector);
 	for(auto& segment : segments)
 	{
 		segment->WriteHeader(wr, *this);
 	}
-	wr.AlignTo(0x10);
+	wr->AlignTo(0x10);
 	for(auto& segment : segments)
 	{
 		segment->WriteContent(wr, *this);
-		wr.AlignTo(0x10);
+		wr->AlignTo(0x10);
 	}
 
 	return ImageSize();
