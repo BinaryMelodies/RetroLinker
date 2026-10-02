@@ -1571,6 +1571,91 @@ void ProDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Access, uint16_
 		{ 0x0000, "Sequential" },
 	};
 
+	static const std::map<offset_t, std::string> _8IC_file_types =
+	{
+		{ 0x8003, "Apex Program File" },
+	};
+
+	static const std::map<offset_t, std::string> GWP_file_types =
+	{
+		{ 0x5445, "Teach" },
+		{ 0x8001, "DeluxeWrite" },
+		{ 0x8010, "AppleWorks GS" },
+	};
+
+	static const std::map<offset_t, std::string> GSS_file_types =
+	{
+		{ 0x8010, "AppleWorks GS" },
+	};
+
+	static const std::map<offset_t, std::string> GDB_file_types =
+	{
+		{ 0x8010, "AppleWorks GS" },
+		{ 0x8011, "AppleWorks GS Template" },
+		{ 0x8013, "GSAS" },
+	};
+
+	static const std::map<offset_t, std::string> DRW_file_types =
+	{
+		{ 0x8010, "AppleWorks GS" },
+	};
+
+	static const std::map<offset_t, std::string> GDP_file_types =
+	{
+		{ 0x8002, "GraphicWriter" },
+		{ 0x8010, "AppleWorks GS" },
+	};
+
+	static const std::map<offset_t, std::string> HMD_file_types =
+	{
+		{ 0x0001, "HyperCard GS" },
+		{ 0x8001, "Tutor-Tech" },
+		{ 0x8002, "HyperStudio" },
+		{ 0x8003, "Nexus" },
+	};
+
+	static const std::map<offset_t, std::string> COM_file_types =
+	{
+		{ 0x8010, "AppleWorks GS" },
+	};
+
+	static const std::map<offset_t, std::string> LDF_file_types =
+	{
+		{ 0x4001, "Nifty List Module" },
+		{ 0x4002, "Super Info Module" },
+		{ 0x4004, "Twilight Module" },
+		{ 0x4083, "Marinetti Link Layer Module" },
+	};
+
+	static const std::map<offset_t, std::string> PNT_file_types =
+	{
+		{ 0x0001, "Packed Super HiRes" },
+		{ 0x0002, "Apple Preferred Format" },
+		{ 0x0003, "Packed QuickDraw II PICT" },
+	};
+
+	static const std::map<offset_t, std::string> PIC_file_types =
+	{
+		{ 0x0001, "QuickDraw PICT" },
+		{ 0x0002, "Super HiRes 3200" },
+	};
+
+	static const std::map<offset_t, std::string> FON_file_types =
+	{
+		{ 0x0000, "QuickDraw Bitmap Font" },
+		{ 0x0001, "Pointless TrueType Font" },
+	};
+
+	static const std::map<offset_t, std::string> SND_file_types =
+	{
+		{ 0x0000, "AIFF" },
+		{ 0x0001, "AIFF-C" },
+		{ 0x0002, "ASIF Instrument" },
+		{ 0x0003, "Sound Resource" },
+		{ 0x0004, "MIDI Synth Wave" },
+		{ 0x8001, "HyperStudio Sound" },
+	};
+
 	static const std::map<offset_t, std::string> LBR_file_types =
 	{
 		{ 0x0000, "ALU" },
@@ -1580,6 +1665,11 @@ void ProDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Access, uint16_
 		{ 0x8000, "Binary II" },
 		{ 0x8001, "AppleLink ACU" },
 		{ 0x8002, "ShrinkIt" },
+	};
+
+	static const std::map<offset_t, std::string> ATK_file_types =
+	{
+		{ 0xFFFF, "EasyMount Alias" },
 	};
 
 	std::string auxiliary_type_name = "Auxiliary type";
@@ -1595,49 +1685,49 @@ void ProDOSFileInfo::DumpFields(Dumper::Region& region, uint16_t Access, uint16_
 		auxiliary_type_name = "Load address";
 		break;
 	case 0x2C: // 8IC
-		// TODO
+		auxiliary_file_types = &_8IC_file_types;
 		break;
 	case 0x50: // GWP
-		// TODO
+		auxiliary_file_types = &GWP_file_types;
 		break;
 	case 0x51: // GSS
-		// TODO
+		auxiliary_file_types = &GSS_file_types;
 		break;
 	case 0x52: // GDB
-		// TODO
+		auxiliary_file_types = &GDB_file_types;
 		break;
 	case 0x53: // DRW
-		// TODO
+		auxiliary_file_types = &DRW_file_types;
 		break;
 	case 0x54: // GDP
-		// TODO
+		auxiliary_file_types = &GDP_file_types;
 		break;
 	case 0x55: // HMD
-		// TODO
+		auxiliary_file_types = &HMD_file_types;
 		break;
 	case 0x59: // COM
-		// TODO
+		auxiliary_file_types = &COM_file_types;
 		break;
 	case 0xBC: // LDF
-		// TODO
+		auxiliary_file_types = &LDF_file_types;
 		break;
 	case 0xC0: // PNT
-		// TODO
+		auxiliary_file_types = &PNT_file_types;
 		break;
 	case 0xC1: // PIC
-		// TODO
+		auxiliary_file_types = &PIC_file_types;
 		break;
 	case 0xC8: // FON
-		// TODO
+		auxiliary_file_types = &FON_file_types;
 		break;
 	case 0xD8: // SND
-		// TODO
+		auxiliary_file_types = &SND_file_types;
 		break;
 	case 0xE0: // LBR
 		auxiliary_file_types = &LBR_file_types;
 		break;
 	case 0xE2: // ATK
-		// TODO
+		auxiliary_file_types = &ATK_file_types;
 		break;
 	}
 

@@ -9,12 +9,10 @@
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
 
-/* TODO: unimplemented */
-
 namespace Microsoft
 {
 	/**
-	 * @brief WIN386.EXE (TODO: not implemented)
+	 * @brief WIN386.EXE
 	 */
 	class W3Format : public virtual Linker::OutputFormat
 	{
@@ -50,12 +48,14 @@ namespace Microsoft
 	};
 
 	/**
-	 * @brief WMM32.VXD (TODO: not implemented)
+	 * @brief WMM32.VXD
 	 */
 	class W4Format : public virtual Linker::OutputFormat
 	{
 	public:
 		// as documented in https://github.com/JHRobotics/patcher9x/blob/main/doc/VXDLIB_UTF8.txt
+
+		// TODO: VxD resources and non-resident name tables are not parsed correctly
 
 		class Chunk
 		{
