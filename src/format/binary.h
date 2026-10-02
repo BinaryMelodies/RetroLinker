@@ -42,7 +42,7 @@ namespace Binary
 			Clear();
 		}
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 
@@ -120,7 +120,7 @@ namespace Binary
 			Clear();
 		}
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 

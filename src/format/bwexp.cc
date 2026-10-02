@@ -7,41 +7,41 @@
 
 using namespace DOS16M;
 
-void BWFormat::ReadFile(Linker::Reader& rd)
+void BWFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	std::array<char, 2> signature;
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "BW");
 
-	file_size = rd.ReadUnsigned(2);
-	file_size += uint32_t(rd.ReadUnsigned(2)) << 9;
-	rd.Skip(4); // reserved
-	min_extra = uint32_t(rd.ReadUnsigned(2)) << 10;
-	max_extra = uint32_t(rd.ReadUnsigned(2)) << 10;
-	ss = rd.ReadUnsigned(2);
-	sp = rd.ReadUnsigned(2);
-	relocsel = rd.ReadUnsigned(2);
-	ip = rd.ReadUnsigned(2);
-	cs = rd.ReadUnsigned(2);
-	runtime_gdt_length = rd.ReadUnsigned(2);
-	version = rd.ReadUnsigned(2);
-	next_header_offset = rd.ReadUnsigned(4); // TODO: read sequence of spliced images
-	debug_info_offset = rd.ReadUnsigned(4);
-	last_used_selector = rd.ReadUnsigned(2);
-	private_xm = uint32_t(rd.ReadUnsigned(2)) << 10;
-	ext_reserve = rd.ReadUnsigned(2);
-	rd.Skip(6); // reserved
-	options = option_type(rd.ReadUnsigned(2));
-	transparent_stack = rd.ReadUnsigned(2);
-	exp_flags = exp_flag_type(rd.ReadUnsigned(2));
-	program_size = uint32_t(rd.ReadUnsigned(2)) << 4;
-	gdt_size = rd.ReadUnsigned(2);
-	first_selector = rd.ReadUnsigned(2);
-	default_memory_strategy = rd.ReadUnsigned(1);
-	rd.Skip(1); // reserved
-	transfer_buffer_size = rd.ReadUnsigned(2);
-	rd.Skip(48); // TODO
-	exp_name = rd.ReadData(48); // TODO: trim
+	file_size = rd->ReadUnsigned(2);
+	file_size += uint32_t(rd->ReadUnsigned(2)) << 9;
+	rd->Skip(4); // reserved
+	min_extra = uint32_t(rd->ReadUnsigned(2)) << 10;
+	max_extra = uint32_t(rd->ReadUnsigned(2)) << 10;
+	ss = rd->ReadUnsigned(2);
+	sp = rd->ReadUnsigned(2);
+	relocsel = rd->ReadUnsigned(2);
+	ip = rd->ReadUnsigned(2);
+	cs = rd->ReadUnsigned(2);
+	runtime_gdt_length = rd->ReadUnsigned(2);
+	version = rd->ReadUnsigned(2);
+	next_header_offset = rd->ReadUnsigned(4); // TODO: read sequence of spliced images
+	debug_info_offset = rd->ReadUnsigned(4);
+	last_used_selector = rd->ReadUnsigned(2);
+	private_xm = uint32_t(rd->ReadUnsigned(2)) << 10;
+	ext_reserve = rd->ReadUnsigned(2);
+	rd->Skip(6); // reserved
+	options = option_type(rd->ReadUnsigned(2));
+	transparent_stack = rd->ReadUnsigned(2);
+	exp_flags = exp_flag_type(rd->ReadUnsigned(2));
+	program_size = uint32_t(rd->ReadUnsigned(2)) << 4;
+	gdt_size = rd->ReadUnsigned(2);
+	first_selector = rd->ReadUnsigned(2);
+	default_memory_strategy = rd->ReadUnsigned(1);
+	rd->Skip(1); // reserved
+	transfer_buffer_size = rd->ReadUnsigned(2);
+	rd->Skip(48); // TODO
+	exp_name = rd->ReadData(48); // TODO: trim
 
 	uint16_t first_relocation_selector;
 	if((options & OPTION_RELOCATIONS) == 0)
@@ -63,7 +63,7 @@ void BWFormat::ReadFile(Linker::Reader& rd)
 	remaining_relocation_offsets = 0;
 	must_read_relocation_count = false;
 
-	rd.Seek(file_offset + 0xB0);
+	rd->Seek(file_offset + 0xB0);
 	segments.clear();
 
 	for(uint16_t selector = first_selector ? first_selector & ~7 : 0x80; selector <= (last_used_selector & ~7); selector += 8)
@@ -80,10 +80,10 @@ void BWFormat::ReadFile(Linker::Reader& rd)
 		segment->ReadHeader(rd);
 		segments.emplace_back(std::move(segment));
 	}
-	rd.Seek(file_offset + 48 + gdt_size + 1);
+	rd->Seek(file_offset + 48 + gdt_size + 1);
 	for(auto& segment : segments)
 	{
-		rd.Seek(::AlignTo(rd.Tell(), 0x10));
+		rd->Seek(::AlignTo(rd->Tell(), 0x10));
 		segment->ReadContent(rd, *this);
 	}
 
@@ -161,12 +161,12 @@ void BWFormat::AbstractSegment::Prepare(BWFormat& bw)
 		flags = flag_type(flags & ~FLAG_EMPTY);
 }
 
-void BWFormat::AbstractSegment::ReadHeader(Linker::Reader& rd)
+void BWFormat::AbstractSegment::ReadHeader(const std::shared_ptr<Linker::Reader>& rd)
 {
-	size = rd.ReadUnsigned(2);
-	address = rd.ReadUnsigned(3);
-	access = access_type(rd.ReadUnsigned(1));
-	total_length = rd.ReadUnsigned(2);
+	size = rd->ReadUnsigned(2);
+	address = rd->ReadUnsigned(3);
+	access = access_type(rd->ReadUnsigned(1));
+	total_length = rd->ReadUnsigned(2);
 	flags = flag_type(total_length & 0xE000);
 	total_length <<= 4;
 	if((flags & FLAG_EMPTY) != 0)
@@ -200,7 +200,7 @@ uint32_t BWFormat::Segment::GetSize(const BWFormat& bw) const
 	return image ? image->ImageSize() : 0;
 }
 
-void BWFormat::Segment::ReadContent(Linker::Reader& rd, BWFormat& bw)
+void BWFormat::Segment::ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw)
 {
 	if(size != 0)
 	{
@@ -253,7 +253,7 @@ uint32_t BWFormat::DummySegment::GetSize(const BWFormat& bw) const
 	return 0;
 }
 
-void BWFormat::DummySegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
+void BWFormat::DummySegment::ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw)
 {
 }
 
@@ -296,7 +296,7 @@ uint32_t BWFormat::RelocationSegment::GetSize(const BWFormat& bw) const
 	}
 }
 
-void BWFormat::RelocationSegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
+void BWFormat::RelocationSegment::ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw)
 {
 	switch(bw.option_relocations)
 	{
@@ -305,7 +305,7 @@ void BWFormat::RelocationSegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
 		{
 			for(uint16_t segment_offset = 0; segment_offset < size; segment_offset += 2)
 			{
-				uint16_t selector = rd.ReadUnsigned(2);
+				uint16_t selector = rd->ReadUnsigned(2);
 				bw.relocations_list.emplace_back(Relocation{selector, std::vector<uint16_t>{}});
 			}
 		}
@@ -313,7 +313,7 @@ void BWFormat::RelocationSegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
 		{
 			for(uint16_t segment_offset = 0; segment_offset < size; segment_offset += 2)
 			{
-				uint16_t offset = rd.ReadUnsigned(2);
+				uint16_t offset = rd->ReadUnsigned(2);
 				if(offset == 0 && bw.relocations_list[segment_offset / 2].selector == 0)
 				{
 					// remove unused relocation entries
@@ -337,7 +337,7 @@ void BWFormat::RelocationSegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
 		{
 			if(bw.must_read_relocation_count)
 			{
-				bw.remaining_relocation_offsets = rd.ReadUnsigned(2);
+				bw.remaining_relocation_offsets = rd->ReadUnsigned(2);
 				bw.relocations_list.emplace_back(Relocation{uint16_t(bw.last_relocation_selector & ~2), std::vector<uint16_t>{}});
 				bw.must_read_relocation_count = false;
 			}
@@ -345,12 +345,12 @@ void BWFormat::RelocationSegment::ReadContent(Linker::Reader& rd, BWFormat& bw)
 			{
 				if((bw.last_relocation_selector & 2) != 0)
 					break; // no more relocations
-				bw.last_relocation_selector = rd.ReadUnsigned(2);
+				bw.last_relocation_selector = rd->ReadUnsigned(2);
 				bw.must_read_relocation_count = true;
 			}
 			else
 			{
-				bw.relocations_list.back().offsets.push_back(rd.ReadUnsigned(2));
+				bw.relocations_list.back().offsets.push_back(rd->ReadUnsigned(2));
 				bw.remaining_relocation_offsets -= 2;
 			}
 		}

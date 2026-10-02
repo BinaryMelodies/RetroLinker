@@ -416,10 +416,10 @@ namespace AOut
 			/** @brief For invalid bit combinations, stores the bits that are expected to be 0 */
 			uint32_t literal_entry = 0;
 
-			static Relocation ReadFile16Bit(Linker::Reader& rd, uint16_t offset);
+			static Relocation ReadFile16Bit(const std::shared_ptr<Linker::Reader>& rd, uint16_t offset);
 			void WriteFile16Bit(Linker::Writer& wr) const;
 
-			static Relocation ReadFile32Bit(Linker::Reader& rd, word_size_t word_size = WordSize32);
+			static Relocation ReadFile32Bit(const std::shared_ptr<Linker::Reader>& rd, word_size_t word_size = WordSize32);
 			void WriteFile32Bit(Linker::Writer& wr, word_size_t word_size = WordSize32) const;
 		};
 
@@ -430,9 +430,9 @@ namespace AOut
 	private:
 		bool AttemptFetchMagic(uint8_t signature[4]);
 
-		bool CheckFileSizes(Linker::Reader& rd, offset_t image_size);
+		bool CheckFileSizes(const std::shared_ptr<Linker::Reader>& rd, offset_t image_size);
 
-		bool AttemptReadFileWithCurrentSettings(Linker::Reader& rd, uint8_t signature[4], offset_t image_size);
+		bool AttemptReadFileWithCurrentSettings(const std::shared_ptr<Linker::Reader>& rd, uint8_t signature[4], offset_t image_size);
 
 		struct read_attempt_type
 		{
@@ -440,13 +440,13 @@ namespace AOut
 			::EndianType midmag_endiantype;
 		};
 
-		bool AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size, read_attempt_type first_attempt)
+		bool AttemptReadFile(const std::shared_ptr<Linker::Reader>& rd, uint8_t signature[4], offset_t image_size, read_attempt_type first_attempt)
 		{
 			return false;
 		}
 
 		template <typename ... read_attempt_types>
-			bool AttemptReadFile(Linker::Reader& rd, uint8_t signature[4], offset_t image_size, read_attempt_type first_attempt, read_attempt_types ... remaining_attempts)
+			bool AttemptReadFile(const std::shared_ptr<Linker::Reader>& rd, uint8_t signature[4], offset_t image_size, read_attempt_type first_attempt, read_attempt_types ... remaining_attempts)
 		{
 			midmag_endiantype = endiantype = first_attempt.midmag_endiantype;
 			word_size = first_attempt.word_size;
@@ -506,9 +506,9 @@ namespace AOut
 		uint32_t GetDataOffsetAlign() const;
 		uint32_t GetDataAddressAlign() const;
 
-		void ReadHeader(Linker::Reader& rd);
+		void ReadHeader(const std::shared_ptr<Linker::Reader>& rd);
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 

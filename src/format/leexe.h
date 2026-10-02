@@ -163,7 +163,7 @@ namespace Microsoft
 
 			offset_t ImageSize() const override;
 			using Linker::Image::WriteFile;
-			static std::shared_ptr<IteratedPage> ReadFromFile(Linker::Reader& rd, uint16_t size);
+			static std::shared_ptr<IteratedPage> ReadFromFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t size);
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset = 0) const override;
 			size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;
 
@@ -343,7 +343,7 @@ namespace Microsoft
 
 				size_t GetSize() const;
 
-				static Relocation ReadFile(Linker::Reader& rd, Page& page);
+				static Relocation ReadFile(const std::shared_ptr<Linker::Reader>& rd, Page& page);
 				void WriteFile(Linker::Writer& wr) const;
 			};
 			std::map<uint16_t, Relocation> relocations;
@@ -463,8 +463,8 @@ namespace Microsoft
 
 			offset_t GetEntryBodySize() const;
 
-			static Entry ReadEntryHead(Linker::Reader& rd, uint8_t type);
-			static Entry ReadEntry(Linker::Reader& rd, uint8_t type, LEFormat::Entry& head);
+			static Entry ReadEntryHead(const std::shared_ptr<Linker::Reader>& rd, uint8_t type);
+			static Entry ReadEntry(const std::shared_ptr<Linker::Reader>& rd, uint8_t type, LEFormat::Entry& head);
 
 			void WriteEntryHead(Linker::Writer& wr) const;
 
@@ -682,7 +682,7 @@ namespace Microsoft
 
 		bool MayHaveStack() const;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 

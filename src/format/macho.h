@@ -130,12 +130,12 @@ namespace MachO
 
 			virtual ~LoadCommand() = default;
 
-			static std::unique_ptr<LoadCommand> Read(Linker::Reader& rd);
+			static std::unique_ptr<LoadCommand> Read(const std::shared_ptr<Linker::Reader>& rd);
 
-			virtual void ReadFile(Linker::Reader& rd);
+			virtual void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			virtual void WriteFile(Linker::Writer& wr) const;
 
-			virtual void Read(Linker::Reader& rd, offset_t size) = 0;
+			virtual void Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size) = 0;
 			virtual void Write(Linker::Writer& wr) const;
 			virtual offset_t GetSize() const = 0;
 		};
@@ -151,7 +151,7 @@ namespace MachO
 
 			std::shared_ptr<Linker::Contents> command_image;
 
-			void Read(Linker::Reader& rd, offset_t size) override;
+			void Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size) override;
 			void Write(Linker::Writer& wr) const override;
 			offset_t GetSize() const override;
 		};
@@ -171,7 +171,7 @@ namespace MachO
 			uint32_t reserved1 = 0;
 			uint32_t reserved2 = 0;
 
-			static Section Read(Linker::Reader& rd, int wordsize);
+			static Section Read(const std::shared_ptr<Linker::Reader>& rd, int wordsize);
 			void Write(Linker::Writer& rd, int wordsize) const;
 		};
 
@@ -188,15 +188,15 @@ namespace MachO
 			uint32_t flags;
 			std::vector<Section> sections;
 
-			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 			void WriteFile(Linker::Writer& wr) const override;
 
-			void Read(Linker::Reader& rd, offset_t size) override;
+			void Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size) override;
 			void Write(Linker::Writer& wr) const override;
 			offset_t GetSize() const override;
 		};
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -215,13 +215,13 @@ namespace MachO
 			uint32_t align = 0;
 			std::shared_ptr<Linker::Contents> image;
 
-			static Entry Read(Linker::Reader& rd);
+			static Entry Read(const std::shared_ptr<Linker::Reader>& rd);
 			void Write(Linker::Writer& wr) const;
 		};
 		std::vector<Entry> entries;
 
 		offset_t ImageSize() const override;
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

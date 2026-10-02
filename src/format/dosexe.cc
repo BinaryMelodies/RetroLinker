@@ -102,47 +102,47 @@ void SeychellDOS32::AdamFormat::CalculateValues()
 	contents_size = image->ImageSize() + relocations_size;
 }
 
-void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
+void SeychellDOS32::AdamFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "Adam", "DLL ");
 	if(memcmp(signature.data(), "Adam", 4) != 0 && memcmp(signature.data(), "DLL ", 4) != 0)
 	{
 		Linker::Error << "Error: invalid signature" << std::endl;
 	}
-	rd.ReadData(dlink_version);
-	rd.ReadData(minimum_dos_version);
+	rd->ReadData(dlink_version);
+	rd->ReadData(minimum_dos_version);
 
 	if(!IsV35())
 	{
-		image_size = rd.ReadUnsigned(4);
-		header_size = rd.ReadUnsigned(4);
-		program_size = rd.ReadUnsigned(4);
-		memory_size = rd.ReadUnsigned(4);
-		eip = rd.ReadUnsigned(4);
-		esp = rd.ReadUnsigned(4);
-		selector_relocation_count = rd.ReadUnsigned(4);
-		flags = rd.ReadUnsigned(4);
+		image_size = rd->ReadUnsigned(4);
+		header_size = rd->ReadUnsigned(4);
+		program_size = rd->ReadUnsigned(4);
+		memory_size = rd->ReadUnsigned(4);
+		eip = rd->ReadUnsigned(4);
+		esp = rd->ReadUnsigned(4);
+		selector_relocation_count = rd->ReadUnsigned(4);
+		flags = rd->ReadUnsigned(4);
 		if(header_size >= 0x2C)
 		{
-			offset_relocations_size = rd.ReadUnsigned(4);
+			offset_relocations_size = rd->ReadUnsigned(4);
 		}
 		else
 		{
-			rd.Skip(header_size - 0x28);
+			rd->Skip(header_size - 0x28);
 		}
 	}
 	else
 	{
-		contents_size = rd.ReadUnsigned(4);
-		image_size = rd.ReadUnsigned(4);
-		header_size = rd.ReadUnsigned(4);
-		eip = rd.ReadUnsigned(4);
-		memory_size = rd.ReadUnsigned(4);
-		esp = rd.ReadUnsigned(4);
-		program_size = rd.ReadUnsigned(4);
-		flags = rd.ReadUnsigned(4);
-		rd.Skip(header_size - 0x28);
+		contents_size = rd->ReadUnsigned(4);
+		image_size = rd->ReadUnsigned(4);
+		header_size = rd->ReadUnsigned(4);
+		eip = rd->ReadUnsigned(4);
+		memory_size = rd->ReadUnsigned(4);
+		esp = rd->ReadUnsigned(4);
+		program_size = rd->ReadUnsigned(4);
+		flags = rd->ReadUnsigned(4);
+		rd->Skip(header_size - 0x28);
 	}
 
 	image = Linker::Buffer::ReadFromFile(rd, program_size);
@@ -151,7 +151,7 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 	{
 		for(size_t i = 0; i < selector_relocation_count; i++)
 		{
-			uint32_t offset = rd.ReadUnsigned(4);
+			uint32_t offset = rd->ReadUnsigned(4);
 			selector_relocations.push_back(offset);
 			relocations_map[offset] = Selector16;
 		}
@@ -159,7 +159,7 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 		// DX64
 		for(size_t i = 0; i < offset_relocations_size; i += 4)
 		{
-			uint32_t offset = rd.ReadUnsigned(4) - 4;
+			uint32_t offset = rd->ReadUnsigned(4) - 4;
 			offset_relocations.push_back(offset);
 			relocations_map[offset] = Offset32;
 		}
@@ -171,9 +171,9 @@ void SeychellDOS32::AdamFormat::ReadFile(Linker::Reader& rd)
 		uint32_t current_advancement = 0;
 		bool needs_relocation = false;
 
-		while(rd.Tell() < file_offset + header_size + contents_size)
+		while(rd->Tell() < file_offset + header_size + contents_size)
 		{
-			uint8_t opcode = rd.ReadUnsigned(1);
+			uint8_t opcode = rd->ReadUnsigned(1);
 			if(opcode == 0x00)
 			{
 				if(needs_relocation)
@@ -666,18 +666,18 @@ void DX64::LVFormat::SetSignature(format_type type)
 	}
 }
 
-void DX64::LVFormat::ReadFile(Linker::Reader& rd)
+void DX64::LVFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "Flat", "LV\0\0");
 	if(memcmp(signature.data(), "Flat", 4) != 0 && memcmp(signature.data(), "LV\0\0", 4) != 0)
 	{
 		Linker::Error << "Error: invalid signature" << std::endl;
 	}
-	program_size = rd.ReadUnsigned(4);
-	eip = rd.ReadUnsigned(4);
-	esp = rd.ReadUnsigned(4);
-	memory_size = rd.ReadUnsigned(4);
+	program_size = rd->ReadUnsigned(4);
+	eip = rd->ReadUnsigned(4);
+	esp = rd->ReadUnsigned(4);
+	memory_size = rd->ReadUnsigned(4);
 
 	image = Linker::Buffer::ReadFromFile(rd, program_size);
 }
@@ -747,17 +747,17 @@ void DX64::LVFormat::GenerateFile(std::string filename, Linker::Module& module)
 
 /* untested */
 
-void BorcaD3X::D3X1Format::ReadFile(Linker::Reader& rd)
+void BorcaD3X::D3X1Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	std::array<char, 4> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "D3X1");
-	header_size = rd.ReadUnsigned(4);
-	binary_size = rd.ReadUnsigned(4);
-	extra_size = rd.ReadUnsigned(4);
-	entry = rd.ReadUnsigned(4);
-	stack_top = rd.ReadUnsigned(4);
-	rd.Seek(file_offset + header_size);
+	header_size = rd->ReadUnsigned(4);
+	binary_size = rd->ReadUnsigned(4);
+	extra_size = rd->ReadUnsigned(4);
+	entry = rd->ReadUnsigned(4);
+	stack_top = rd->ReadUnsigned(4);
+	rd->Seek(file_offset + header_size);
 	image = Linker::Buffer::ReadFromFile(rd, binary_size);
 }
 

@@ -34,7 +34,7 @@ namespace Apple
 		using Timestamp = ::Timestamp<clock>;
 
 		offset_t ImageSize() const override;
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		enum format_type
 		{
@@ -75,8 +75,8 @@ namespace Apple
 			}
 		public:
 			offset_t ImageSize() const override = 0;
-			static std::shared_ptr<Entry> ReadEntry(Linker::Reader& rd, hfs_type home_file_system);
-			void ReadFile(Linker::Reader& rd) override = 0;
+			static std::shared_ptr<Entry> ReadEntry(const std::shared_ptr<Linker::Reader>& rd, hfs_type home_file_system);
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override = 0;
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& out) const override = 0;
 			void Dump(Dumper::Dumper& dump) const override = 0;
@@ -103,7 +103,7 @@ namespace Apple
 
 			offset_t ImageSize() const override;
 
-			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& out) const override;
@@ -267,7 +267,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -286,7 +286,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 
 		offset_t WriteFile(Linker::Writer& out) const override;
@@ -305,7 +305,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 
 		offset_t WriteFile(Linker::Writer& out) const override;
@@ -347,7 +347,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -375,7 +375,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -397,7 +397,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -421,7 +421,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -450,7 +450,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -486,7 +486,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -508,7 +508,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -534,7 +534,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -556,7 +556,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -577,7 +577,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -597,7 +597,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -617,7 +617,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -693,12 +693,12 @@ namespace Apple
 			WriteWord(wr, sizeof(typename Clock::rep), Clock::to_ticks(timestamp));
 		}
 
-		void ReadHeader(Linker::Reader& rd);
+		void ReadHeader(const std::shared_ptr<Linker::Reader>& rd);
 		void WriteHeader(Linker::Writer& wr) const;
 
 		void CalculateValues();
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -803,7 +803,7 @@ namespace Apple
 		/** @brief Called if there is no container allocated */
 		virtual void OnCalculateValues();
 		/** @brief Called if there is no container allocated */
-		virtual void OnReadFile(Linker::Reader& rd);
+		virtual void OnReadFile(const std::shared_ptr<Linker::Reader>& rd);
 		/** @brief Called if there is no container allocated */
 		virtual offset_t OnWriteFile(Linker::Writer& wr) const;
 		/** @brief Called if there is no container allocated */
@@ -814,7 +814,7 @@ namespace Apple
 		void GenerateFiles(std::string filename, std::shared_ptr<Contents> data_fork, std::shared_ptr<Contents> resource_fork, uint8_t file_type, uint16_t auxiliary_file_type);
 
 	public:
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

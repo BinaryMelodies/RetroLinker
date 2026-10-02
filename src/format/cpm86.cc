@@ -26,14 +26,14 @@ uint16_t CPM86Format::Descriptor::GetSizeParas(const CPM86Format& module) const
 	return ((size + 0xF) >> 4) + zero_page_extra;
 }
 
-void CPM86Format::Descriptor::ReadDescriptor(Linker::Reader& rd)
+void CPM86Format::Descriptor::ReadDescriptor(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint8_t type_byte = rd.ReadUnsigned(1);
+	uint8_t type_byte = rd->ReadUnsigned(1);
 	type = group_type(type_byte);
-	size_paras = rd.ReadUnsigned(2);
-	load_segment = rd.ReadUnsigned(2);
-	min_size_paras = rd.ReadUnsigned(2);
-	max_size_paras = rd.ReadUnsigned(2);
+	size_paras = rd->ReadUnsigned(2);
+	load_segment = rd->ReadUnsigned(2);
+	min_size_paras = rd->ReadUnsigned(2);
+	max_size_paras = rd->ReadUnsigned(2);
 }
 
 void CPM86Format::Descriptor::Prepare(CPM86Format& module)
@@ -104,7 +104,7 @@ std::string CPM86Format::Descriptor::GetDefaultName() const
 	}
 }
 
-void CPM86Format::Descriptor::ReadData(Linker::Reader& rd, const CPM86Format& module)
+void CPM86Format::Descriptor::ReadData(const std::shared_ptr<Linker::Reader>& rd, const CPM86Format& module)
 {
 	if(type == Undefined || type == ActualFixups || size_paras == 0)
 		return;
@@ -128,9 +128,9 @@ CPM86Format::Relocation::operator bool() const
 	return source != 0 || target != 0;
 }
 
-void CPM86Format::Relocation::Read(Linker::Reader& rd, CPM86Format& module, bool is_library)
+void CPM86Format::Relocation::Read(const std::shared_ptr<Linker::Reader>& rd, CPM86Format& module, bool is_library)
 {
-	uint8_t segments = rd.ReadUnsigned(1);
+	uint8_t segments = rd->ReadUnsigned(1);
 	if(segments == 0)
 		return;
 	if(is_library && (segments & 0xF) != 0)
@@ -142,8 +142,8 @@ void CPM86Format::Relocation::Read(Linker::Reader& rd, CPM86Format& module, bool
 	module.CheckValidSegmentGroup(segments >> 4);
 	source = segments >> 4;
 	target = segments & 0xF;
-	paragraph = rd.ReadUnsigned(2);
-	offset = rd.ReadUnsigned(1);
+	paragraph = rd->ReadUnsigned(2);
+	offset = rd->ReadUnsigned(1);
 	return;
 }
 
@@ -164,21 +164,21 @@ void CPM86Format::rsx_record::Clear()
 	contents = nullptr;
 }
 
-void CPM86Format::rsx_record::Read(Linker::Reader& rd)
+void CPM86Format::rsx_record::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	offset_record = rd.ReadUnsigned(2);
-	name = rd.ReadData(8, true);
-	rd.Skip(6);
+	offset_record = rd->ReadUnsigned(2);
+	name = rd->ReadData(8, true);
+	rd->Skip(6);
 }
 
-void CPM86Format::rsx_record::ReadModule(Linker::Reader& rd)
+void CPM86Format::rsx_record::ReadModule(const std::shared_ptr<Linker::Reader>& rd)
 {
 	if(offset_record == RSX_TERMINATE || offset_record == RSX_DYNAMIC)
 		return;
 
 	std::shared_ptr<CPM86Format> module = std::make_shared<CPM86Format>();
 	module->file_offset = offset_record << 7;
-	rd.Seek(module->file_offset);
+	rd->Seek(module->file_offset);
 	module->ReadFile(rd);
 	contents = module;
 }
@@ -284,12 +284,12 @@ void CPM86Format::library_id::Write(Linker::Writer& wr) const
 	wr.WriteWord(4, flags);
 }
 
-void CPM86Format::library_id::Read(Linker::Reader& rd)
+void CPM86Format::library_id::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	name = rd.ReadData(8, true);
-	major_version = rd.ReadUnsigned(2);
-	minor_version = rd.ReadUnsigned(2);
-	flags = rd.ReadUnsigned(4);
+	name = rd->ReadData(8, true);
+	major_version = rd->ReadUnsigned(2);
+	minor_version = rd->ReadUnsigned(2);
+	flags = rd->ReadUnsigned(4);
 }
 
 void CPM86Format::library::Write(Linker::Writer& wr) const
@@ -305,17 +305,17 @@ void CPM86Format::library::WriteExtended(Linker::Writer& wr) const
 	wr.WriteWord(2, unknown);
 }
 
-void CPM86Format::library::Read(Linker::Reader& rd)
+void CPM86Format::library::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	library_id::Read(rd);
-	relocation_count = rd.ReadUnsigned(2);
+	relocation_count = rd->ReadUnsigned(2);
 }
 
-void CPM86Format::library::ReadExtended(Linker::Reader& rd)
+void CPM86Format::library::ReadExtended(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Read(rd);
-	first_selector = rd.ReadUnsigned(2);
-	unknown = rd.ReadUnsigned(2);
+	first_selector = rd->ReadUnsigned(2);
+	unknown = rd->ReadUnsigned(2);
 }
 
 void CPM86Format::LibraryDescriptor::Clear()
@@ -375,10 +375,10 @@ void CPM86Format::LibraryDescriptor::WriteData(Linker::Writer& wr, const CPM86Fo
 	wr.AlignTo(0x10);
 }
 
-void CPM86Format::LibraryDescriptor::ReadData(Linker::Reader& rd, const CPM86Format& module)
+void CPM86Format::LibraryDescriptor::ReadData(const std::shared_ptr<Linker::Reader>& rd, const CPM86Format& module)
 {
-	rd.Seek(offset);
-	uint16_t count = rd.ReadUnsigned(2);
+	rd->Seek(offset);
+	uint16_t count = rd->ReadUnsigned(2);
 	int srtl_entry_size = module.IsFastLoadFormat() ? 22 : 18;
 	if(2 + count * srtl_entry_size > (size_paras << 16))
 	{
@@ -397,15 +397,15 @@ void CPM86Format::LibraryDescriptor::ReadData(Linker::Reader& rd, const CPM86For
 			lib.Read(rd);
 		libraries.push_back(lib);
 	}
-	rd.Seek(offset + (uint32_t(size_paras) << 4));
+	rd->Seek(offset + (uint32_t(size_paras) << 4));
 }
 
-void CPM86Format::FastLoadDescriptor::ldt_descriptor::Read(Linker::Reader& rd)
+void CPM86Format::FastLoadDescriptor::ldt_descriptor::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	limit = rd.ReadUnsigned(2);
-	address = rd.ReadUnsigned(3);
-	group = rd.ReadUnsigned(1);
-	reserved = rd.ReadUnsigned(2);
+	limit = rd->ReadUnsigned(2);
+	address = rd->ReadUnsigned(3);
+	group = rd->ReadUnsigned(1);
+	reserved = rd->ReadUnsigned(2);
 }
 
 void CPM86Format::FastLoadDescriptor::ldt_descriptor::Write(Linker::Writer& wr) const
@@ -438,12 +438,12 @@ void CPM86Format::FastLoadDescriptor::WriteData(Linker::Writer& wr, const CPM86F
 		desc.Write(wr);
 }
 
-void CPM86Format::FastLoadDescriptor::ReadData(Linker::Reader& rd, const CPM86Format& module)
+void CPM86Format::FastLoadDescriptor::ReadData(const std::shared_ptr<Linker::Reader>& rd, const CPM86Format& module)
 {
-	maximum_entries = rd.ReadUnsigned(2);
-	first_free_entry = rd.ReadUnsigned(2);
-	index_base = rd.ReadUnsigned(2);
-	first_used_index = rd.ReadUnsigned(2);
+	maximum_entries = rd->ReadUnsigned(2);
+	first_free_entry = rd->ReadUnsigned(2);
+	index_base = rd->ReadUnsigned(2);
+	first_used_index = rd->ReadUnsigned(2);
 
 	for(size_t i = 8; i < uint32_t(size_paras) << 4; i += 8)
 	{
@@ -521,9 +521,9 @@ bool CPM86Format::IsSharedRunTimeLibrary() const
 	return lib_id.name != "";
 }
 
-void CPM86Format::ReadRelocations(Linker::Reader& rd)
+void CPM86Format::ReadRelocations(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.Seek(file_offset + relocations_offset);
+	rd->Seek(file_offset + relocations_offset);
 	while(true)
 	{
 		Relocation rel;
@@ -532,7 +532,7 @@ void CPM86Format::ReadRelocations(Linker::Reader& rd)
 			break;
 		relocations.push_back(rel);
 	}
-	rd.Skip(3);
+	rd->Skip(3);
 	for(auto& library : library_descriptor.libraries)
 	{
 		for(int i = 0; i < library.relocation_count; i++)
@@ -543,7 +543,7 @@ void CPM86Format::ReadRelocations(Linker::Reader& rd)
 				break;
 			library.relocations.push_back(rel);
 		}
-		rd.Skip(4);
+		rd->Skip(4);
 	}
 }
 
@@ -579,12 +579,12 @@ offset_t CPM86Format::MeasureRelocations()
 	return size;
 }
 
-void CPM86Format::ReadFile(Linker::Reader& rd)
+void CPM86Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
 
-	rd.endiantype = ::LittleEndian;
-	file_offset = rd.Tell();
+	rd->endiantype = ::LittleEndian;
+	file_offset = rd->Tell();
 	for(size_t i = 0; i < 8; i++)
 	{
 		descriptors[i].ReadDescriptor(rd);
@@ -592,34 +592,34 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 			break;
 	}
 
-	rd.Seek(file_offset + 0x48);
+	rd->Seek(file_offset + 0x48);
 	library_descriptor.ReadDescriptor(rd);
 	if(library_descriptor.type != Descriptor::Libraries)
 		library_descriptor.type = Descriptor::Undefined;
 
-	rd.Seek(file_offset + 0x51);
+	rd->Seek(file_offset + 0x51);
 	fastload_descriptor.ReadDescriptor(rd);
 	if(fastload_descriptor.type != Descriptor::FastLoad)
 		fastload_descriptor.type = Descriptor::Undefined;
 
-	rd.Seek(file_offset + 0x60);
+	rd->Seek(file_offset + 0x60);
 	lib_id.Read(rd);
 
-	rd.Seek(file_offset + 0x7A);
-	cpm_flags = rd.ReadUnsigned(1);
-	rsx_table_offset = rd.ReadUnsigned(2) << 7;
-	relocations_offset = rd.ReadUnsigned(2) << 7;
-	flags = rd.ReadUnsigned(1);
+	rd->Seek(file_offset + 0x7A);
+	cpm_flags = rd->ReadUnsigned(1);
+	rsx_table_offset = rd->ReadUnsigned(2) << 7;
+	relocations_offset = rd->ReadUnsigned(2) << 7;
+	flags = rd->ReadUnsigned(1);
 
 	if(library_descriptor.type != Descriptor::Undefined)
 	{
-		library_descriptor.offset = rd.Tell();
+		library_descriptor.offset = rd->Tell();
 		library_descriptor.ReadData(rd, *this);
 	}
 
 	if(fastload_descriptor.type != Descriptor::Undefined)
 	{
-		fastload_descriptor.offset = rd.Tell();
+		fastload_descriptor.offset = rd->Tell();
 		fastload_descriptor.ReadData(rd, *this);
 	}
 
@@ -629,10 +629,10 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 			break;
 		if(descriptors[i].type == Descriptor::Fixups)
 		{
-			if((flags & FLAG_FIXUPS) && relocations_offset == rd.Tell())
+			if((flags & FLAG_FIXUPS) && relocations_offset == rd->Tell())
 			{
 				descriptors[i].type = Descriptor::ActualFixups;
-				rd.Skip(uint32_t(descriptors[i].size_paras) << 4);
+				rd->Skip(uint32_t(descriptors[i].size_paras) << 4);
 				continue;
 			}
 			else
@@ -640,7 +640,7 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 				descriptors[i].type = Descriptor::ActualAuxiliary4;
 			}
 		}
-		descriptors[i].offset = rd.Tell();
+		descriptors[i].offset = rd->Tell();
 		descriptors[i].ReadData(rd, *this);
 	}
 
@@ -651,7 +651,7 @@ void CPM86Format::ReadFile(Linker::Reader& rd)
 
 	if(rsx_table_offset != 0)
 	{
-		rd.Seek(file_offset + rsx_table_offset);
+		rd->Seek(file_offset + rsx_table_offset);
 		for(int i = 0; i < 8; i++)
 		{
 			rsx_table[i].Read(rd);
@@ -2097,9 +2097,7 @@ void CPM86Format::ProcessModule(Linker::Module& module)
 			rsx_file.open(rsx_table[i].rsx_file_name, std::ios_base::in | std::ios_base::binary);
 			if(rsx_file.is_open())
 			{
-				// TODO: bad programming pattern
-				auto _rd = std::make_shared<Linker::StreamReader>(::LittleEndian, rsx_file);
-				Linker::Reader& rd = *_rd;
+				auto rd = std::make_shared<Linker::StreamReader>(::LittleEndian, rsx_file);
 				rsx_table[i].contents = Linker::Buffer::ReadFromFile(rd);
 				rsx_file.close();
 				Linker::Debug << "Debug: read " << rsx_table[i].GetFullFileSize() << " from " << rsx_table[i].rsx_file_name << std::endl;

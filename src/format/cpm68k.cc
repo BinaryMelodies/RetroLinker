@@ -44,12 +44,12 @@ CPM68KFormat::magic_type CPM68KFormat::GetSignature() const
 	return magic_type(0); // invalid
 }
 
-CPM68KFormat::Symbol CPM68KFormat::Symbol::ReadFile(Linker::Reader& rd)
+CPM68KFormat::Symbol CPM68KFormat::Symbol::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Symbol symbol;
-	symbol.name = rd.ReadData(8, true);
-	symbol.type = rd.ReadUnsigned(2);
-	symbol.value = rd.ReadUnsigned(4);
+	symbol.name = rd->ReadData(8, true);
+	symbol.type = rd->ReadUnsigned(2);
+	symbol.value = rd->ReadUnsigned(4);
 	return symbol;
 }
 
@@ -90,27 +90,27 @@ void CPM68KFormat::Clear()
 	stack_segment = nullptr;
 }
 
-void CPM68KFormat::ReadFile(Linker::Reader& rd)
+void CPM68KFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
 
-	rd.endiantype = ::BigEndian;
-	rd.ReadData(2, signature);
-	code_size = rd.ReadUnsigned(4);
-	data_size = rd.ReadUnsigned(4);
-	bss_size = rd.ReadUnsigned(4);
-	symbol_table_size = rd.ReadUnsigned(4);
-	stack_size = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	rd->ReadData(2, signature);
+	code_size = rd->ReadUnsigned(4);
+	data_size = rd->ReadUnsigned(4);
+	bss_size = rd->ReadUnsigned(4);
+	symbol_table_size = rd->ReadUnsigned(4);
+	stack_size = rd->ReadUnsigned(4);
 	if(system == SYSTEM_UNKNOWN && stack_size != 0)
 	{
 		system = SYSTEM_CDOS68K;
 	}
-	program_flags = code_address = rd.ReadUnsigned(4);
-	relocations_suppressed = rd.ReadUnsigned(2);
+	program_flags = code_address = rd->ReadUnsigned(4);
+	relocations_suppressed = rd->ReadUnsigned(2);
 	if(GetSignature() == MAGIC_NONCONTIGUOUS)
 	{
-		data_address = rd.ReadUnsigned(4);
-		bss_address = rd.ReadUnsigned(4);
+		data_address = rd->ReadUnsigned(4);
+		bss_address = rd->ReadUnsigned(4);
 	}
 	if(system == SYSTEM_UNKNOWN)
 	{
@@ -123,8 +123,8 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 		{
 			if(relocations_suppressed == 0)
 			{
-				long current = rd.Tell();
-				if(rd.ReadUnsigned(2) == 0)
+				long current = rd->Tell();
+				if(rd->ReadUnsigned(2) == 0)
 				{
 					/* Early GEMDOS has a 0 longword instead of a 0 word */
 					Linker::Debug << "Debug: Relocation suppression word is 0x0000 followed by another 0x0000 word, assuming early GEMDOS .prg file" << std::endl;
@@ -132,8 +132,8 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 				}
 				else
 				{
-					rd.SeekEnd();
-					offset_t size = rd.Tell();
+					rd->SeekEnd();
+					offset_t size = rd->Tell();
 					size -= current;
 					if(size < 2 * (code_size + data_size) + symbol_table_size)
 					{
@@ -144,14 +144,14 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 					else
 					{
 						/* some fast heuristics */
-						rd.Seek(file_offset + 0x1C + code_size + data_size + symbol_table_size);
-						uint32_t first_relocation = rd.ReadUnsigned(4);
+						rd->Seek(file_offset + 0x1C + code_size + data_size + symbol_table_size);
+						uint32_t first_relocation = rd->ReadUnsigned(4);
 						if(first_relocation > code_size + data_size)
 						{
 							Linker::Debug << "Debug: First relocation too large for GEMDOS, assuming CP/M-68K .68k file" << std::endl;
 							system = SYSTEM_CPM68K;
 						}
-						else if(rd.ReadUnsigned(1) != 0)
+						else if(rd->ReadUnsigned(1) != 0)
 						{
 							Linker::Debug << "Debug: Byte 5 in relocation section non-zero, invalid for CP/M-68K executable, assuming GEMDOS .prg file" << std::endl;
 							system = SYSTEM_GEMDOS;
@@ -162,7 +162,7 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 							system = SYSTEM_CPM68K;
 						}
 					}
-					rd.Seek(current);
+					rd->Seek(current);
 				}
 			}
 
@@ -201,7 +201,7 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 		bss_address = data_address + data_size;
 	}
 
-	rd.Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C));
+	rd->Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C));
 
 	std::shared_ptr<Linker::Buffer> code_section = std::make_shared<Linker::Section>(".text");
 	code_section->ReadFile(rd, code_size);
@@ -211,7 +211,7 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 	data_section->ReadFile(rd, data_size);
 	data = data_section;
 
-	rd.Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C) + code_size + data_size);
+	rd->Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C) + code_size + data_size);
 
 	// TODO: other symbol table formats
 	for(uint32_t symbol_offset = 0; symbol_offset < symbol_table_size; symbol_offset += 14)
@@ -219,7 +219,7 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 		symbols.push_back(Symbol::ReadFile(rd));
 	}
 
-	rd.Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C) + code_size + data_size + symbol_table_size);
+	rd->Seek(file_offset + (GetSignature() == MAGIC_NONCONTIGUOUS ? 0x24 : 0x1C) + code_size + data_size + symbol_table_size);
 
 	switch(system)
 	{
@@ -237,7 +237,7 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 			for(size_t i = 0; i < code_size + data_size; i += 2)
 			{
 				uint32_t base_address = i < code_size ? code_address : data_address;
-				uint16_t word = rd.ReadUnsigned(2);
+				uint16_t word = rd->ReadUnsigned(2);
 				switch(word & 7)
 				{
 				case 1:
@@ -269,13 +269,13 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 	case SYSTEM_GEMDOS_EARLY:
 		if(relocations_suppressed == 0)
 		{
-			uint32_t address = rd.ReadUnsigned(4);
+			uint32_t address = rd->ReadUnsigned(4);
 			if(address != 0)
 			{
 				relocations[address] = Relocation{4, 2};
 				for(;;)
 				{
-					uint8_t disp = rd.ReadUnsigned(1);
+					uint8_t disp = rd->ReadUnsigned(1);
 					if(disp == 0)
 					{
 						break;
@@ -298,7 +298,7 @@ void CPM68KFormat::ReadFile(Linker::Reader& rd)
 		break;
 	}
 
-	file_size = rd.Tell() - file_offset;
+	file_size = rd->Tell() - file_offset;
 }
 
 offset_t CPM68KFormat::MeasureRelocations() const

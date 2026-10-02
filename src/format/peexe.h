@@ -177,7 +177,7 @@ namespace Microsoft
 
 			uint32_t GetSize() const override;
 
-			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 			void WriteFile(Linker::Writer& wr) const override;
 
@@ -233,13 +233,13 @@ namespace Microsoft
 			/** @brief The COFF s_paddr field is redefined to contain the size of the section as loaded into memory */
 			constexpr const offset_t& virtual_size() const { return physical_address; }
 
-			void ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format) override;
+			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const COFFFormat& coff_format) override;
 			void WriteSectionData(Linker::Writer& wr, const COFFFormat& coff_format) const override;
 			uint32_t ImageSize(const COFFFormat& coff_format) const override;
 			void Dump(Dumper::Dumper& dump, const COFFFormat& format, unsigned section_index) const override;
 
 			/** @brief Reads the contents of the section in the file */
-			virtual void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt);
+			virtual void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt);
 			/** @brief Writes the contents of the section to the file */
 			virtual void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const;
 			/** @brief Retrieves the size of the section, as stored in the file */
@@ -477,7 +477,7 @@ namespace Microsoft
 
 			bool IsPresent() const;
 			void Generate(PEFormat& fmt);
-			void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt) override;
+			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
@@ -577,7 +577,7 @@ namespace Microsoft
 
 			bool IsPresent() const;
 			void Generate(PEFormat& fmt);
-			void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt) override;
+			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
@@ -693,7 +693,7 @@ namespace Microsoft
 
 			bool IsPresent() const;
 			void Generate(PEFormat& fmt);
-			void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt) override;
+			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
@@ -800,7 +800,7 @@ namespace Microsoft
 
 			bool IsPresent() const;
 			void Generate(PEFormat& fmt);
-			void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt) override;
+			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
@@ -837,7 +837,7 @@ namespace Microsoft
 			using Section::WriteSectionData;
 			using Section::ImageSize;
 
-			void ReadSectionData(Linker::Reader& rd, const PEFormat& fmt) override;
+			void ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt) override;
 			void WriteSectionData(Linker::Writer& wr, const PEFormat& fmt) const override;
 			uint32_t ImageSize(const PEFormat& fmt) const override;
 			uint32_t MemorySize(const PEFormat& fmt) const override;
@@ -853,7 +853,7 @@ namespace Microsoft
 
 		mutable MZStubWriter stub;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		::EndianType GetMachineEndianType() const;
 		void CalculateValues() override;
@@ -1231,7 +1231,7 @@ namespace Microsoft
 	public:
 		typedef ResourceFile::Identifier Identifier;
 
-		static void ReadIdentifier(Linker::Reader& rd, Identifier& id);
+		static void ReadIdentifier(const std::shared_ptr<Linker::Reader>& rd, Identifier& id);
 		static void WriteIdentifier(Linker::Writer& wr, const Identifier& id);
 		static offset_t GetIdentifierSize(const Identifier& id);
 
@@ -1248,8 +1248,8 @@ namespace Microsoft
 		offset_t file_offset;
 		std::vector<Resource> resources;
 
-		void ReadFile(Linker::Reader& rd) override;
-		void ReadFile(Linker::Reader& rd, offset_t size);
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size);
 		void CalculateValues();
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

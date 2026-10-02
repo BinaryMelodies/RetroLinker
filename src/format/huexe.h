@@ -16,7 +16,7 @@ namespace X68000
 	class HUFormat : public virtual Linker::SegmentManager
 	{
 	public:
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		enum load_mode_type
 		{

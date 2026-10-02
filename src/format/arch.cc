@@ -17,21 +17,21 @@ namespace Archive
 	class FileReaderWrapper : public ArchiveFormat::FileReader
 	{
 	public:
-		std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader&, offset_t);
+		std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>&, offset_t);
 
-		FileReaderWrapper(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader&, offset_t))
+		FileReaderWrapper(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>&, offset_t))
 			: file_reader(file_reader)
 		{
 		}
 
-		std::shared_ptr<Linker::Contents> ReadFile(Linker::Reader& rd, offset_t size) override
+		std::shared_ptr<Linker::Contents> ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size) override
 		{
 			return file_reader(rd, size);
 		}
 	};
 }
 
-void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader& rd, offset_t size))
+void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>& rd, offset_t size))
 {
 	this->file_reader = std::make_shared<FileReaderWrapper>(file_reader);
 }
@@ -41,50 +41,50 @@ namespace Archive
 	class FileReaderWrapper1 : public ArchiveFormat::FileReader
 	{
 	public:
-		std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader&);
+		std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>&);
 
-		FileReaderWrapper1(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader&))
+		FileReaderWrapper1(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>&))
 			: file_reader(file_reader)
 		{
 		}
 
-		std::shared_ptr<Linker::Contents> ReadFile(Linker::Reader& rd, offset_t size) override
+		std::shared_ptr<Linker::Contents> ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size) override
 		{
 			return file_reader(rd);
 		}
 	};
 }
 
-void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader& rd))
+void ArchiveFormat::SetFileReader(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>& rd))
 {
 	this->file_reader = std::make_shared<FileReaderWrapper1>(file_reader);
 }
 
-ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader& rd, offset_t size))
+ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>& rd, offset_t size))
 {
 	SetFileReader(file_reader);
 }
 
-ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader& rd))
+ArchiveFormat::ArchiveFormat(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>& rd))
 {
 	SetFileReader(file_reader);
 }
 
-void ArchiveFormat::ReadFile(Linker::Reader& rd)
+void ArchiveFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::UndefinedEndian; // should not matter
-	file_offset = rd.Tell(); // !<arch>\n
+	rd->endiantype = ::UndefinedEndian; // should not matter
+	file_offset = rd->Tell(); // !<arch>\n
 	if(file_size == offset_t(-1))
 	{
-		rd.SeekEnd();
-		file_size = rd.Tell() - file_offset;
+		rd->SeekEnd();
+		file_size = rd->Tell() - file_offset;
 	}
-	rd.Seek(file_offset + 8);
+	rd->Seek(file_offset + 8);
 	offset_t extended_file_name_table = 0;
-	while(rd.Tell() < file_offset + file_size)
+	while(rd->Tell() < file_offset + file_size)
 	{
 		File entry;
-		entry.name = rd.ReadData(16);
+		entry.name = rd->ReadData(16);
 		size_t last_space = entry.name.find_last_not_of(' ');
 		if(last_space == std::string::npos)
 			last_space = 0;
@@ -95,14 +95,14 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 		if(entry.name == "/")
 		{
 			// System V symbol table
-			rd.Skip(32);
+			rd->Skip(32);
 			// TODO
 		}
 		else if(entry.name == "//")
 		{
 			// System V extended file names
-			rd.Skip(32);
-			extended_file_name_table = rd.Tell() + 12;
+			rd->Skip(32);
+			extended_file_name_table = rd->Tell() + 12;
 		}
 		else
 		{
@@ -122,15 +122,15 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 				entry.sysv_filename = true;
 				entry.name = entry.name.substr(0, entry.name.size() - 1);
 			}
-			entry.modification = std::stoll(rd.ReadData(12), nullptr, 10);
-			entry.owner_id = std::stoll(rd.ReadData(6), nullptr, 10);
-			entry.group_id = std::stoll(rd.ReadData(6), nullptr, 10);
-			entry.mode = std::stoll(rd.ReadData(8), nullptr, 8);
+			entry.modification = std::stoll(rd->ReadData(12), nullptr, 10);
+			entry.owner_id = std::stoll(rd->ReadData(6), nullptr, 10);
+			entry.group_id = std::stoll(rd->ReadData(6), nullptr, 10);
+			entry.mode = std::stoll(rd->ReadData(8), nullptr, 8);
 		}
-		entry.size = std::stoll(rd.ReadData(10), nullptr, 10);
+		entry.size = std::stoll(rd->ReadData(10), nullptr, 10);
 		Linker::Debug << "Debug: archive entry size: " << entry.size << std::endl;
-		rd.Skip(2); // 0x60 0x0A
-		offset_t entry_start = rd.Tell();
+		rd->Skip(2); // 0x60 0x0A
+		offset_t entry_start = rd->Tell();
 		if(file_reader == nullptr || entry.name == "//")
 		{
 			entry.contents = Linker::Buffer::ReadFromFile(rd, entry.size);
@@ -140,9 +140,9 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 			entry.contents = file_reader->ReadFile(rd, entry.size);
 		}
 		files.push_back(entry);
-		rd.Seek(entry_start + entry.size);
-		if((rd.Tell() & 1) != 0)
-			rd.Skip(1);
+		rd->Seek(entry_start + entry.size);
+		if((rd->Tell() & 1) != 0)
+			rd->Skip(1);
 	}
 
 	if(extended_file_name_table != 0)
@@ -151,8 +151,8 @@ void ArchiveFormat::ReadFile(Linker::Reader& rd)
 		{
 			if(entry.name == "" && entry.extended_name_offset != 0)
 			{
-				rd.Seek(extended_file_name_table + entry.extended_name_offset);
-				entry.name = rd.ReadASCII('\n');
+				rd->Seek(extended_file_name_table + entry.extended_name_offset);
+				entry.name = rd->ReadASCII('\n');
 				Linker::Debug << "Debug: extended file name `" << entry.name << "' from offset " << entry.extended_name_offset << std::endl;
 			}
 		}

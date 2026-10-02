@@ -100,7 +100,7 @@ struct format_magic
 	unsigned offset;
 	format_type type;
 	std::string description;
-	bool (* special_parse)(Linker::Reader& in, format_description& description);
+	bool (* special_parse)(const std::shared_ptr<Linker::Reader>& in, format_description& description);
 	format_priority priority;
 };
 
@@ -120,10 +120,10 @@ std::shared_ptr<Linker::Format> FetchFormat(std::string text);
 /**
  * @brief Collects all the possible file formats, this includes skipping over MZ stubs for protected mode DOS or Windows 3.x executables
  */
-void DetermineFormat(std::vector<format_description>& descriptions, Linker::Reader& rd, uint32_t offset = 0);
+void DetermineFormat(std::vector<format_description>& descriptions, const std::shared_ptr<Linker::Reader>& rd, uint32_t offset = 0);
 
-std::shared_ptr<Linker::Contents> ReadArchiveFile(Linker::Reader& rd, offset_t size);
-std::shared_ptr<Linker::Contents> ReadLibraryFile(Linker::Reader& rd, offset_t size);
+std::shared_ptr<Linker::Contents> ReadArchiveFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size);
+std::shared_ptr<Linker::Contents> ReadLibraryFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size);
 
 /**
  * @brief Creates a format object that can be used to read in a binary file
@@ -132,6 +132,6 @@ std::shared_ptr<Linker::Contents> ReadLibraryFile(Linker::Reader& rd, offset_t s
  * @param file_format A descriptor of the file format to create
  * @param file_reader The file reader to be used for entries in an archive
  */
-std::shared_ptr<Linker::Format> CreateFormat(Linker::Reader& rd, format_description& file_format, Archive::ArchiveFormat::file_reader_type * file_reader = ReadArchiveFile);
+std::shared_ptr<Linker::Format> CreateFormat(const std::shared_ptr<Linker::Reader>& rd, format_description& file_format, Archive::ArchiveFormat::file_reader_type * file_reader = ReadArchiveFile);
 
 #endif /* FORMATS_H */

@@ -5,10 +5,10 @@
 
 using namespace Wasm;
 
-void WebAssemblyFormat::ReadFile(Linker::Reader& rd)
+void WebAssemblyFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
-	rd.Seek(0);
+	rd->endiantype = ::LittleEndian;
+	rd->Seek(0);
 	// TODO
 }
 

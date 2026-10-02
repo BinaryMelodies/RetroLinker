@@ -5,10 +5,10 @@
 
 using namespace Java;
 
-void ClassFormat::ReadFile(Linker::Reader& rd)
+void ClassFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	rd.Seek(0);
+	rd->endiantype = ::BigEndian;
+	rd->Seek(0);
 	// TODO
 }
 

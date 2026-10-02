@@ -6,14 +6,14 @@
 
 using namespace Linker;
 
-std::shared_ptr<Section> Section::ReadFromFile(Reader& rd, std::string name, int flags)
+std::shared_ptr<Section> Section::ReadFromFile(const std::shared_ptr<Reader>& rd, std::string name, int flags)
 {
 	std::shared_ptr<Section> section = std::make_shared<Section>(name, flags);
 	section->ReadFile(rd);
 	return section;
 }
 
-std::shared_ptr<Section> Section::ReadFromFile(Reader& rd, offset_t count, std::string name, int flags)
+std::shared_ptr<Section> Section::ReadFromFile(const std::shared_ptr<Reader>& rd, offset_t count, std::string name, int flags)
 {
 	std::shared_ptr<Section> section = std::make_shared<Section>(name, flags);
 	section->ReadFile(rd, count);
@@ -340,10 +340,10 @@ void Section::ReadFile(std::istream& in)
 	in.read(reinterpret_cast<char *>(data.data()), data.size());
 }
 
-void Section::ReadFile(Reader& rd)
+void Section::ReadFile(const std::shared_ptr<Reader>& rd)
 {
 	SetZeroFilled(false);
-	rd.ReadData(data.size(), reinterpret_cast<char *>(data.data()));
+	rd->ReadData(data.size(), reinterpret_cast<char *>(data.data()));
 }
 
 offset_t Section::WriteFile(std::ostream& out, offset_t bytes, offset_t offset) const

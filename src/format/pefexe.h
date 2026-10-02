@@ -50,14 +50,14 @@ namespace Apple
 			std::vector<std::vector<uint8_t>> custom_data;
 
 			/** @brief Reads a variable length value as used by some patterns */
-			static uint32_t ReadValue(Linker::Reader& rd);
+			static uint32_t ReadValue(const std::shared_ptr<Linker::Reader>& rd);
 			/** @brief Determines the required number of bytes to store this value, with an optional minimum size */
 			static size_t GetValueSize(uint32_t value, size_t size_hint = 0);
 			/** @brief Writes a variable length value, with an optional minimum size */
 			static void WriteValue(Linker::Writer& wr, uint32_t value, size_t size_hint = 0);
 
 			/** @brief Reads an initialization pattern and initializes this structure */
-			void ReadFile(Linker::Reader& rd);
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			/** @brief Writes the initialization pattern to a stream */
 			void WriteFile(Linker::Writer& wr) const;
 			/** @brief Size of the packed data, as stored in the file */
@@ -293,7 +293,7 @@ namespace Apple
 			}
 
 			/** @brief Reads and initializes a single relocation opcode record */
-			void ReadFile(Linker::Reader& rd);
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			/** @brief Returns the bit sequence that this opcode is stored as in the file
 			 *
 			 * For 16-bit instructions, the value is stored as a zero extended value in the least significant bits, for 32-bit instructions,
@@ -397,8 +397,8 @@ namespace Apple
 				}
 			}
 
-			void ReadHeader(Linker::Reader& rd);
-			void ReadFile(PEFFormat& pef_format, Linker::Reader& rd);
+			void ReadHeader(const std::shared_ptr<Linker::Reader>& rd);
+			void ReadFile(PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd);
 			size_t GetImageSize(PEFFormat& pef_format);
 			void CalculateValues(PEFFormat& pef_format);
 			void WriteHeader(Linker::Writer& wr) const;
@@ -464,8 +464,8 @@ namespace Apple
 		public:
 			uint32_t name_offset = 0;
 			std::string name = "";
-			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
-			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd, uint16_t length);
+			std::string LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd);
+			std::string LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd, uint16_t length);
 			void StoreNameString(PEFFormat& pef_format);
 			void StoreNameStringNoNull(PEFFormat& pef_format);
 
@@ -593,7 +593,7 @@ namespace Apple
 			}
 
 			using Name::LoadNameString;
-			std::string LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd);
+			std::string LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd);
 		};
 		std::vector<std::shared_ptr<ExportedSymbol>> exported_symbols;
 
@@ -686,10 +686,10 @@ namespace Apple
 		bool FormatSupportsLibraries() const override;
 		bool FormatSupportsResources() const override;
 
-		void ReadLoaderSection(Linker::Reader& rd);
+		void ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd);
 		void WriteLoaderSection(Linker::Writer& wr) const;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		void CalculateValues() override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

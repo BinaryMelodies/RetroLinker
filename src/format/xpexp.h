@@ -83,7 +83,7 @@ namespace Ergo
 			{
 			}
 
-			static Segment ReadFile(Linker::Reader& rd);
+			static Segment ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			void WriteFile(Linker::Writer& wr) const;
 			void Dump(Dumper::Dumper& dump, const XPFormat& xp, unsigned index) const;
 		};
@@ -101,7 +101,7 @@ namespace Ergo
 
 		void Clear() override;
 		void CalculateValues() override;
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		offset_t ImageSize() const override;

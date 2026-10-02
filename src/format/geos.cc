@@ -22,7 +22,7 @@ bool GeodeFormat::FormatIsProtectedMode() const
 	return false;
 }
 
-void GeodeFormat::ReadFile(Linker::Reader& rd)
+void GeodeFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	/* TODO */
 }

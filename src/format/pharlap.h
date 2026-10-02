@@ -27,7 +27,7 @@ namespace PharLap
 			}
 		};
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
@@ -118,7 +118,7 @@ namespace PharLap
 			}
 		};
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		bool FormatSupportsSegmentation() const override;
 
@@ -301,7 +301,7 @@ namespace PharLap
 
 			void WriteFile(Linker::Writer& wr) const override;
 
-			static std::shared_ptr<SITEntry> ReadSITEntry(Linker::Reader& rd);
+			static std::shared_ptr<SITEntry> ReadSITEntry(const std::shared_ptr<Linker::Reader>& rd);
 		};
 
 		/**
@@ -355,7 +355,7 @@ namespace PharLap
 			uint32_t realmode_area_end = 0;
 			uint16_t call_buffer_size_kb = 0, flags = 0, ring = 0;
 
-			void ReadFile(Linker::Reader& rd);
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 
 			void CalculateValues();
 

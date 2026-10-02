@@ -19,7 +19,7 @@ void PMW1Format::CompressedReader::Start(std::shared_ptr<Linker::Image> image)
 	AddBytes(1, &byte);
 }
 
-void PMW1Format::CompressedReader::Start(Linker::Reader * reader)
+void PMW1Format::CompressedReader::Start(std::shared_ptr<Linker::Reader> reader)
 {
 	using_reader = true;
 	source_reader = reader;
@@ -274,62 +274,62 @@ uint32_t PMW1Format::CompressedReader::GetNextUnsigned(size_t count)
 	return ::ReadUnsigned(count, count, bytes.data(), ::LittleEndian);
 }
 
-void PMW1Format::ReadFile(Linker::Reader& rd)
+void PMW1Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	std::array<char, 4> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "PMW1");
-	version.major = rd.ReadUnsigned(1);
-	version.minor = rd.ReadUnsigned(1);
-	flags = rd.ReadUnsigned(2);
-	eip_object = rd.ReadUnsigned(4);
-	eip = rd.ReadUnsigned(4);
-	esp_object = rd.ReadUnsigned(4);
-	esp = rd.ReadUnsigned(4);
-	object_table_offset = rd.ReadUnsigned(4);
-	uint32_t object_count = rd.ReadUnsigned(4);
-	relocation_table_offset = rd.ReadUnsigned(4);
-	data_offset = rd.ReadUnsigned(4);
+	version.major = rd->ReadUnsigned(1);
+	version.minor = rd->ReadUnsigned(1);
+	flags = rd->ReadUnsigned(2);
+	eip_object = rd->ReadUnsigned(4);
+	eip = rd->ReadUnsigned(4);
+	esp_object = rd->ReadUnsigned(4);
+	esp = rd->ReadUnsigned(4);
+	object_table_offset = rd->ReadUnsigned(4);
+	uint32_t object_count = rd->ReadUnsigned(4);
+	relocation_table_offset = rd->ReadUnsigned(4);
+	data_offset = rd->ReadUnsigned(4);
 
-	rd.Seek(file_offset + object_table_offset);
+	rd->Seek(file_offset + object_table_offset);
 	unsigned i;
 	for(i = 0; i < object_count; i++)
 	{
 		Object object;
-		object.memory_size = rd.ReadUnsigned(4);
-		object.file_size = rd.ReadUnsigned(4);
-		object.flags = rd.ReadUnsigned(4);
-		object.relocation_offset = rd.ReadUnsigned(4);
-		object.relocation_block_count = rd.ReadUnsigned(4);
-		object.image_size = rd.ReadUnsigned(4);
+		object.memory_size = rd->ReadUnsigned(4);
+		object.file_size = rd->ReadUnsigned(4);
+		object.flags = rd->ReadUnsigned(4);
+		object.relocation_offset = rd->ReadUnsigned(4);
+		object.relocation_block_count = rd->ReadUnsigned(4);
+		object.image_size = rd->ReadUnsigned(4);
 		objects.push_back(object);
 	}
 
 	for(auto& object : objects)
 	{
-		rd.Seek(file_offset + relocation_table_offset + object.relocation_offset);
+		rd->Seek(file_offset + relocation_table_offset + object.relocation_offset);
 		for(i = 0; i < object.relocation_block_count; i++)
 		{
-			uint16_t stored_block_size = rd.ReadUnsigned(2);
-			uint16_t uncompressed_block_size = rd.ReadUnsigned(2);
+			uint16_t stored_block_size = rd->ReadUnsigned(2);
+			uint16_t uncompressed_block_size = rd->ReadUnsigned(2);
 			if((flags & 1) == 0 /*|| true*/)
 			{
 				for(uint16_t j = 0; j < stored_block_size; j += 10)
 				{
 					Object::Relocation rel;
-					rel.type = rd.ReadUnsigned(1);
-					rel.source = rd.ReadUnsigned(4);
-					rel.target_object = rd.ReadUnsigned(1);
-					rel.target_offset = rd.ReadUnsigned(4);
+					rel.type = rd->ReadUnsigned(1);
+					rel.source = rd->ReadUnsigned(4);
+					rel.target_object = rd->ReadUnsigned(1);
+					rel.target_offset = rd->ReadUnsigned(4);
 					object.relocations.push_back(rel);
 				}
 			}
 			else
 			{
-				offset_t block_end = rd.Tell() + stored_block_size;
+				offset_t block_end = rd->Tell() + stored_block_size;
 				CompressedReader crd;
 				Linker::Debug << "Debug: Starting PMW1 decompression" << std::endl;
-				crd.Start(&rd);
+				crd.Start(rd);
 				for(uint16_t j = 0; j < uncompressed_block_size; j += 10)
 				{
 					Object::Relocation rel;
@@ -339,12 +339,12 @@ void PMW1Format::ReadFile(Linker::Reader& rd)
 					rel.target_offset = crd.GetNextUnsigned(4);
 					object.relocations.push_back(rel);
 				}
-				rd.Seek(block_end);
+				rd->Seek(block_end);
 			}
 		}
 	}
 
-	rd.Seek(file_offset + data_offset);
+	rd->Seek(file_offset + data_offset);
 	for(auto& object : objects)
 	{
 		object.image = Linker::Buffer::ReadFromFile(rd, object.file_size);

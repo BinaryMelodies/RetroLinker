@@ -14,11 +14,11 @@ void AIFFormat::CalculateValues()
 	// TODO
 }
 
-void AIFFormat::ReadFile(Linker::Reader& rd)
+void AIFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = endiantype;
+	rd->endiantype = endiantype;
 
-	decompression_code = rd.ReadUnsigned(4);
+	decompression_code = rd->ReadUnsigned(4);
 	if((decompression_code >> 24) == ARM_BL_OP)
 	{
 		compressed = true;
@@ -35,7 +35,7 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 		decompression_code = 0;
 	}
 
-	relocation_code = rd.ReadUnsigned(4);
+	relocation_code = rd->ReadUnsigned(4);
 	if((relocation_code >> 24) == ARM_BL_OP)
 	{
 		relocatable = true;
@@ -52,7 +52,7 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 		relocation_code = 0;
 	}
 
-	zero_init_code = rd.ReadUnsigned(4);
+	zero_init_code = rd->ReadUnsigned(4);
 	if((zero_init_code >> 24) == ARM_BL_OP)
 	{
 		has_zero_init = true;
@@ -69,7 +69,7 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 		zero_init_code = 0;
 	}
 
-	entry = rd.ReadUnsigned(4);
+	entry = rd->ReadUnsigned(4);
 	if((entry >> 24) == ARM_BL_OP)
 	{
 		// BL instruction
@@ -91,17 +91,17 @@ void AIFFormat::ReadFile(Linker::Reader& rd)
 		entry -= 108;
 	}
 
-	exit_instruction = rd.ReadUnsigned(4);
+	exit_instruction = rd->ReadUnsigned(4);
 
-	text_size = rd.ReadUnsigned(4);
-	data_size = rd.ReadUnsigned(4);
-	debug_size = rd.ReadUnsigned(4);
-	bss_size = rd.ReadUnsigned(4);
-	image_debut_type = debug_type(rd.ReadUnsigned(4));
-	image_base = rd.ReadUnsigned(4);
-	workspace = rd.ReadUnsigned(4);
-	address_mode = address_mode_type(rd.ReadUnsigned(4));
-	data_base = rd.ReadUnsigned(4);
+	text_size = rd->ReadUnsigned(4);
+	data_size = rd->ReadUnsigned(4);
+	debug_size = rd->ReadUnsigned(4);
+	bss_size = rd->ReadUnsigned(4);
+	image_debut_type = debug_type(rd->ReadUnsigned(4));
+	image_base = rd->ReadUnsigned(4);
+	workspace = rd->ReadUnsigned(4);
+	address_mode = address_mode_type(rd->ReadUnsigned(4));
+	data_base = rd->ReadUnsigned(4);
 
 	/* TODO: rest of the header and file */
 

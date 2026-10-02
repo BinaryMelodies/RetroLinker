@@ -117,12 +117,12 @@ offset_t MacintoshResourceFileFormat::GenericResource::ImageSize() const
 	return image->ImageSize();
 }
 
-void MacintoshResourceFileFormat::GenericResource::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::GenericResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	image = Linker::Buffer::ReadFromFile(rd);
 }
 
-void MacintoshResourceFileFormat::GenericResource::ReadFile(Linker::Reader& rd, offset_t length)
+void MacintoshResourceFileFormat::GenericResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length)
 {
 	image = Linker::Buffer::ReadFromFile(rd, length);
 }
@@ -162,28 +162,28 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::ImageSize() const
 	}
 }
 
-void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Linker::Error << "Error: attempting to read a lone resource" << std::endl;
-	rd.Skip(-4);
-	uint32_t length = rd.ReadUnsigned(4);
+	rd->Skip(-4);
+	uint32_t length = rd->ReadUnsigned(4);
 	ReadFile(rd, length);
 }
 
-void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(Linker::Reader& rd, offset_t length)
+void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length)
 {
-	above_a5 = rd.ReadUnsigned(4);
-	below_a5 = rd.ReadUnsigned(4);
-	uint32_t total_entry_size = rd.ReadUnsigned(4);
-	jump_table_offset = rd.ReadUnsigned(4);
+	above_a5 = rd->ReadUnsigned(4);
+	below_a5 = rd->ReadUnsigned(4);
+	uint32_t total_entry_size = rd->ReadUnsigned(4);
+	jump_table_offset = rd->ReadUnsigned(4);
 	uint32_t i;
 	for(i = 0; i < total_entry_size; i += 8)
 	{
 		Entry entry;
-		entry.offset = rd.ReadUnsigned(2);
-		uint16_t _move_data_sp = rd.ReadUnsigned(2); // MOVE_DATA_SP
-		entry.segment = rd.ReadUnsigned(2);
-		uint16_t _loadseg = rd.ReadUnsigned(2); // LOADSEG
+		entry.offset = rd->ReadUnsigned(2);
+		uint16_t _move_data_sp = rd->ReadUnsigned(2); // MOVE_DATA_SP
+		entry.segment = rd->ReadUnsigned(2);
+		uint16_t _loadseg = rd->ReadUnsigned(2); // LOADSEG
 		if(entry.offset == 0 && _move_data_sp == 0xFFFF && entry.segment == 0 && _loadseg == 0)
 		{
 			break;
@@ -194,9 +194,9 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(Linker::Reader
 	for(; i < total_entry_size; i += 8)
 	{
 		Entry entry;
-		entry.segment = rd.ReadUnsigned(2);
-		rd.Skip(2); // LOADSEG
-		entry.offset = rd.ReadUnsigned(4);
+		entry.segment = rd->ReadUnsigned(2);
+		rd->Skip(2); // LOADSEG
+		entry.offset = rd->ReadUnsigned(4);
 		far_entries.push_back(entry);
 	}
 }
@@ -337,26 +337,26 @@ uint32_t MacintoshResourceFileFormat::CodeResource::MeasureRelocations(std::set<
 	return count;
 }
 
-void MacintoshResourceFileFormat::CodeResource::ReadRelocations(Linker::Reader& rd, std::set<uint32_t>& relocations) const
+void MacintoshResourceFileFormat::CodeResource::ReadRelocations(const std::shared_ptr<Linker::Reader>& rd, std::set<uint32_t>& relocations) const
 {
 	/* TODO: test */
 	uint32_t last_relocation = 0;
 	while(true)
 	{
-		uint32_t offset = rd.ReadUnsigned(1);
+		uint32_t offset = rd->ReadUnsigned(1);
 		if(offset == 0)
 		{
-			if((rd.ReadUnsigned(1) & 0x80) == 0)
+			if((rd->ReadUnsigned(1) & 0x80) == 0)
 			{
 				break;
 			}
-			rd.Skip(-1);
-			offset = rd.ReadUnsigned(4) & ~0x80000000;
+			rd->Skip(-1);
+			offset = rd->ReadUnsigned(4) & ~0x80000000;
 		}
 		else if((offset & 0x80) != 0)
 		{
-			rd.Skip(-1);
-			offset = rd.ReadUnsigned(2) & ~0x8000;
+			rd->Skip(-1);
+			offset = rd->ReadUnsigned(2) & ~0x8000;
 		}
 		last_relocation += offset << 1;
 		relocations.insert(last_relocation);
@@ -388,41 +388,41 @@ void MacintoshResourceFileFormat::CodeResource::WriteRelocations(Linker::Writer&
 	wr.WriteWord(2, 0);
 }
 
-void MacintoshResourceFileFormat::CodeResource::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Linker::Error << "Error: attempting to read a lone resource" << std::endl;
-	rd.Skip(-4);
-	uint32_t length = rd.ReadUnsigned(4);
+	rd->Skip(-4);
+	uint32_t length = rd->ReadUnsigned(4);
 	ReadFile(rd, length);
 }
 
-void MacintoshResourceFileFormat::CodeResource::ReadFile(Linker::Reader& rd, offset_t length)
+void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length)
 {
-	offset_t start_offset = rd.Tell();
+	offset_t start_offset = rd->Tell();
 	resource_size = length;
-	first_near_entry_offset = rd.ReadUnsigned(2);
-	near_entry_count = rd.ReadUnsigned(2);
+	first_near_entry_offset = rd->ReadUnsigned(2);
+	near_entry_count = rd->ReadUnsigned(2);
 	if(first_near_entry_offset == 0xFFFF && near_entry_count == 0)
 	{
 		is_far = true;
-		first_near_entry_offset = rd.ReadUnsigned(4);
-		near_entry_count = rd.ReadUnsigned(4);
-		first_far_entry_offset = rd.ReadUnsigned(4);
-		far_entry_count = rd.ReadUnsigned(4);
-		a5_relocation_offset = rd.ReadUnsigned(4);
-		a5_address = rd.ReadUnsigned(4);
-		segment_relocation_offset = rd.ReadUnsigned(4);
-		base_address = rd.ReadUnsigned(4);
-		rd.Skip(4);
+		first_near_entry_offset = rd->ReadUnsigned(4);
+		near_entry_count = rd->ReadUnsigned(4);
+		first_far_entry_offset = rd->ReadUnsigned(4);
+		far_entry_count = rd->ReadUnsigned(4);
+		a5_relocation_offset = rd->ReadUnsigned(4);
+		a5_address = rd->ReadUnsigned(4);
+		segment_relocation_offset = rd->ReadUnsigned(4);
+		base_address = rd->ReadUnsigned(4);
+		rd->Skip(4);
 		image = Linker::Buffer::ReadFromFile(rd, std::min({a5_relocation_offset - 0x28, segment_relocation_offset - 0x28, uint32_t(length - 0x28)}));
 		if(a5_relocation_offset != 0)
 		{
-			rd.Seek(start_offset + a5_relocation_offset);
+			rd->Seek(start_offset + a5_relocation_offset);
 			ReadRelocations(rd, a5_relocations);
 		}
 		if(segment_relocation_offset != 0)
 		{
-			rd.Seek(start_offset + segment_relocation_offset);
+			rd->Seek(start_offset + segment_relocation_offset);
 			ReadRelocations(rd, segment_relocations);
 		}
 	}
@@ -505,24 +505,24 @@ offset_t MacintoshResourceFileFormat::SizeResource::ImageSize() const
 	return ExpectedLength;
 }
 
-void MacintoshResourceFileFormat::SizeResource::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::SizeResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Linker::Error << "Error: attempting to read a lone resource" << std::endl;
-	rd.Skip(-4);
-	uint32_t length = rd.ReadUnsigned(4);
+	rd->Skip(-4);
+	uint32_t length = rd->ReadUnsigned(4);
 	ReadFile(rd, length);
 }
 
-void MacintoshResourceFileFormat::SizeResource::ReadFile(Linker::Reader& rd, offset_t length)
+void MacintoshResourceFileFormat::SizeResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length)
 {
 	if(length != ExpectedLength)
 	{
 		Linker::Error << "Error: 'SIZE' resource must be " << std::dec << ExpectedLength << " bytes long, actual resource is " << length << std::endl;
 	}
 
-	flags = rd.ReadUnsigned(2);
-	preferred_memory = rd.ReadUnsigned(4);
-	minimum_memory = rd.ReadUnsigned(4);
+	flags = rd->ReadUnsigned(2);
+	preferred_memory = rd->ReadUnsigned(4);
+	minimum_memory = rd->ReadUnsigned(4);
 }
 
 offset_t MacintoshResourceFileFormat::SizeResource::WriteFile(Linker::Writer& wr) const
@@ -828,57 +828,57 @@ offset_t MacintoshResourceFileFormat::ImageSize() const
 	return std::max(data_offset + data_length, map_offset + map_length);
 }
 
-void MacintoshResourceFileFormat::ReadFile(Linker::Reader& rd)
+void MacintoshResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
-	offset_t read_offset = rd.Tell();
-	data_offset = rd.ReadUnsigned(4);
-	map_offset = rd.ReadUnsigned(4);
-	data_length = rd.ReadUnsigned(4);
-	map_length = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
+	offset_t read_offset = rd->Tell();
+	data_offset = rd->ReadUnsigned(4);
+	map_offset = rd->ReadUnsigned(4);
+	data_length = rd->ReadUnsigned(4);
+	map_length = rd->ReadUnsigned(4);
 
-	rd.Seek(read_offset + map_offset + 22);
-	attributes = rd.ReadUnsigned(2);
-	resource_type_list_offset = rd.ReadUnsigned(2);
-	name_list_offset = rd.ReadUnsigned(2);
+	rd->Seek(read_offset + map_offset + 22);
+	attributes = rd->ReadUnsigned(2);
+	resource_type_list_offset = rd->ReadUnsigned(2);
+	name_list_offset = rd->ReadUnsigned(2);
 
-	rd.Seek(read_offset + map_offset + resource_type_list_offset);
-	offset_t resource_count = offset_t(rd.ReadUnsigned(2)) + 1;
+	rd->Seek(read_offset + map_offset + resource_type_list_offset);
+	offset_t resource_count = offset_t(rd->ReadUnsigned(2)) + 1;
 
 	/* type list */
 	for(offset_t i = 0; i < resource_count; i++)
 	{
 		ResourceType type;
-		rd.ReadData(4, type.type);
-		type.count = uint32_t(rd.ReadUnsigned(2)) + 1;
-		type.offset = rd.ReadUnsigned(2);
+		rd->ReadData(4, type.type);
+		type.count = uint32_t(rd->ReadUnsigned(2)) + 1;
+		type.offset = rd->ReadUnsigned(2);
 		resource_types.push_back(type);
 	}
 
 	/* reference list */
 	for(auto& type : resource_types)
 	{
-		rd.Seek(read_offset + map_offset + resource_type_list_offset + type.offset);
+		rd->Seek(read_offset + map_offset + resource_type_list_offset + type.offset);
 		for(offset_t i = 0; i < type.count; i++)
 		{
 			ResourceReference reference;
-			reference.id = rd.ReadUnsigned(2);
-			reference.name_offset = rd.ReadUnsigned(2);
-			reference.data_offset = rd.ReadUnsigned(4);
+			reference.id = rd->ReadUnsigned(2);
+			reference.name_offset = rd->ReadUnsigned(2);
+			reference.data_offset = rd->ReadUnsigned(4);
 			reference.attributes = reference.data_offset >> 24;
 			reference.data_offset &= 0x00FFFFFF;
-			rd.Skip(4);
+			rd->Skip(4);
 			type.references.push_back(reference);
 		}
 	}
 
 	/* name list */
-	rd.Seek(read_offset + map_offset + name_list_offset);
+	rd->Seek(read_offset + map_offset + name_list_offset);
 	// first read all the names
-	while(rd.Tell() < read_offset + map_offset + map_length)
+	while(rd->Tell() < read_offset + map_offset + map_length)
 	{
-		uint8_t size = rd.ReadUnsigned(1);
-		resource_names.push_back(rd.ReadData(size));
+		uint8_t size = rd->ReadUnsigned(1);
+		resource_names.push_back(rd->ReadData(size));
 	}
 
 	for(auto& type : resource_types)
@@ -886,15 +886,15 @@ void MacintoshResourceFileFormat::ReadFile(Linker::Reader& rd)
 		for(auto& reference : type.references)
 		{
 			// read resource data
-			rd.Seek(read_offset + data_offset + reference.data_offset);
+			rd->Seek(read_offset + data_offset + reference.data_offset);
 			reference.data = ReadResource(rd, type, reference);
 
 			// read resource name
 			if(reference.name_offset != 0xFFFF)
 			{
-				rd.Seek(read_offset + map_offset + name_list_offset + reference.name_offset);
-				uint8_t size = rd.ReadUnsigned(1);
-				reference.name = rd.ReadData(size);
+				rd->Seek(read_offset + map_offset + name_list_offset + reference.name_offset);
+				uint8_t size = rd->ReadUnsigned(1);
+				reference.name = rd->ReadData(size);
 			}
 
 			// register this resource for convenience
@@ -1055,10 +1055,10 @@ std::string MacintoshResourceFileFormat::GetDefaultExtension(Linker::Module& mod
 	return "a.out";
 }
 
-std::shared_ptr<MacintoshResourceFileFormat::Resource> MacintoshResourceFileFormat::ReadResource(Linker::Reader& rd, const ResourceType& type, const ResourceReference& reference)
+std::shared_ptr<MacintoshResourceFileFormat::Resource> MacintoshResourceFileFormat::ReadResource(const std::shared_ptr<Linker::Reader>& rd, const ResourceType& type, const ResourceReference& reference)
 {
 	std::shared_ptr<Resource> resource = nullptr;
-	uint32_t length = rd.ReadUnsigned(4);
+	uint32_t length = rd->ReadUnsigned(4);
 	switch(OSTypeToUInt32(type.type))
 	{
 	case CodeResource::OSType:
@@ -1249,7 +1249,7 @@ void Classic68KDriver::OnCalculateValues()
 	resource_fork->CalculateValues(); // TODO: untested
 }
 
-void Classic68KDriver::OnReadFile(Linker::Reader& rd)
+void Classic68KDriver::OnReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	if(target == OutputDriver::TARGET_RESOURCE_FORK || (produce & OutputDriver::PRODUCE_RESOURCE_FORK) != 0)
 	{
@@ -1273,7 +1273,7 @@ void Classic68KDriver::OnDump(Dumper::Dumper& dump) const
 	resource_fork->Dump(dump);
 }
 
-void Classic68KDriver::ReadFile(Linker::Reader& rd)
+void Classic68KDriver::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// reading a Classic 68K Mac OS executable cannot be done via its data fork
 	if(target == OutputDriver::TARGET_DATA_FORK)

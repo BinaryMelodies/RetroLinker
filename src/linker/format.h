@@ -43,7 +43,7 @@ namespace Linker
 		/**
 		 * @brief Loads file into memory
 		 */
-		virtual void ReadFile(Reader& rd) = 0;
+		virtual void ReadFile(const std::shared_ptr<Reader>& rd) = 0;
 		/**
 		 * @brief Stores data in memory to file
 		 */
@@ -204,11 +204,11 @@ namespace Linker
 		/**
 		 * @brief Reads a file and loads the information into a module object
 		 */
-		virtual void ProduceModule(ModuleCollector& linker, Reader& rd, std::string file_name);
+		virtual void ProduceModule(ModuleCollector& linker, const std::shared_ptr<Reader>& rd, std::string file_name);
 		/**
 		 * @brief Reads a file and loads the information into a module object, a convenience method when there is a single module generated
 		 */
-		virtual void ProduceModule(Module& module, Reader& rd);
+		virtual void ProduceModule(Module& module, const std::shared_ptr<Reader>& rd);
 		/**
 		 * @brief Loads the information into a module object
 		 */

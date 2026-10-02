@@ -21,7 +21,7 @@ void BFLTFormat::Clear()
 	ClearSegmentManager();
 }
 
-void BFLTFormat::ReadFile(Linker::Reader& rd)
+void BFLTFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	/* TODO */
 }

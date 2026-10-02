@@ -171,9 +171,9 @@ void AS86ObjFormat::SymbolRelocator::Generate(Linker::Module& module, int& curre
 	module.AddRelocation(rel);
 }
 
-std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linker::Reader& rd, int& relocation_size)
+std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(const std::shared_ptr<Linker::Reader>& rd, int& relocation_size)
 {
-	int c = rd.ReadUnsigned(1);
+	int c = rd->ReadUnsigned(1);
 	switch(c >> 4)
 	{
 	case 0x0:
@@ -185,7 +185,7 @@ std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linke
 			return bytecode;
 		}
 	case 0x1:
-		return std::make_unique<SkipBytes>(rd.ReadUnsigned(GetSize(c & 3)));
+		return std::make_unique<SkipBytes>(rd->ReadUnsigned(GetSize(c & 3)));
 	case 0x2:
 		return std::make_unique<ChangeSegment>(c & 0xF);
 	case 0x4:
@@ -207,7 +207,7 @@ std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linke
 	case 0xA:
 	case 0xB:
 		{
-			uint32_t offset = rd.ReadUnsigned(GetSize(relocation_size));
+			uint32_t offset = rd->ReadUnsigned(GetSize(relocation_size));
 			return std::make_unique<SimpleRelocator>(c, offset, GetSize(relocation_size));
 		}
 	case 0xC:
@@ -216,9 +216,9 @@ std::unique_ptr<AS86ObjFormat::ByteCode> AS86ObjFormat::ByteCode::ReadFile(Linke
 	case 0xF:
 		{
 			int index_size = (c & 4) != 0 ? 2 : 1;
-			uint16_t symbol_index = rd.ReadUnsigned(index_size);
+			uint16_t symbol_index = rd->ReadUnsigned(index_size);
 //Linker::Debug << "Debug: symbol index " << symbol_index << std::endl;
-			uint32_t offset = rd.ReadUnsigned(GetSize(c & 3));
+			uint32_t offset = rd->ReadUnsigned(GetSize(c & 3));
 			return std::make_unique<SymbolRelocator>(c, offset, symbol_index, GetSize(relocation_size), GetSize(c & 3), index_size);
 		}
 	default:
@@ -339,64 +339,64 @@ void AS86ObjFormat::Module::Dump(Dumper::Dumper& dump, unsigned index) const
 	}
 }
 
-void AS86ObjFormat::ReadFile(Linker::Reader& rd)
+void AS86ObjFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	file_size = rd.GetImageEnd();
+	file_size = rd->GetImageEnd();
 
-	cpu = cpu_type(rd.ReadUnsigned(2, ::BigEndian));
+	cpu = cpu_type(rd->ReadUnsigned(2, ::BigEndian));
 	switch(cpu)
 	{
 	case CPU_I8086:
 	case CPU_I80386:
-		rd.endiantype = ::LittleEndian;
+		rd->endiantype = ::LittleEndian;
 		break;
 	case CPU_MC6809:
-		rd.endiantype = ::BigEndian;
+		rd->endiantype = ::BigEndian;
 		break;
 	default:
 		Linker::FatalError("Fatal error: invalid file signature");
 	}
-	uint16_t module_count = rd.ReadUnsigned(2);
-	rd.Skip(1); // checksum
+	uint16_t module_count = rd->ReadUnsigned(2);
+	rd->Skip(1); // checksum
 
 	for(uint16_t i = 0; i < module_count; i++)
 	{
 		modules.push_back(Module());
 		Module& module = modules.back();
-		module.file_offset = rd.Tell();
-		module.code_offset = rd.ReadUnsigned(4);
-		module.image_size = rd.ReadUnsigned(4);
-		module.string_table_size = rd.ReadUnsigned(2);
-		module.module_version.major = rd.ReadUnsigned(1);
-		module.module_version.minor = rd.ReadUnsigned(1);
-		module.maximum_segment_size = rd.ReadUnsigned(4);
-		module.segment_sizes_word = rd.ReadUnsigned(4);
+		module.file_offset = rd->Tell();
+		module.code_offset = rd->ReadUnsigned(4);
+		module.image_size = rd->ReadUnsigned(4);
+		module.string_table_size = rd->ReadUnsigned(2);
+		module.module_version.major = rd->ReadUnsigned(1);
+		module.module_version.minor = rd->ReadUnsigned(1);
+		module.maximum_segment_size = rd->ReadUnsigned(4);
+		module.segment_sizes_word = rd->ReadUnsigned(4);
 		for(int j = 0; j < 16; j++)
 		{
-			module.segment_sizes[j] = rd.ReadUnsigned(GetSize(module.segment_sizes_word[j]));
+			module.segment_sizes[j] = rd->ReadUnsigned(GetSize(module.segment_sizes_word[j]));
 		}
-		uint16_t symbol_count = rd.ReadUnsigned(2);
+		uint16_t symbol_count = rd->ReadUnsigned(2);
 		for(uint16_t j = 0; j < symbol_count; j++)
 		{
 			module.symbols.push_back(Symbol());
 			Symbol& symbol = module.symbols.back();
-			symbol.symbol_definition_offset = rd.Tell();
-			symbol.name_offset = rd.ReadUnsigned(2);
-			symbol.symbol_type = rd.ReadUnsigned(2);
+			symbol.symbol_definition_offset = rd->Tell();
+			symbol.name_offset = rd->ReadUnsigned(2);
+			symbol.symbol_type = rd->ReadUnsigned(2);
 			symbol.offset_size = GetSize(symbol.symbol_type >> 14);
 			symbol.segment = symbol.symbol_type & 0xF;
 			symbol.symbol_type &= 0x3FF0;
-			symbol.offset = rd.ReadUnsigned(symbol.offset_size);
+			symbol.offset = rd->ReadUnsigned(symbol.offset_size);
 		}
-		module.string_table_offset = rd.Tell();
-		module.module_name = rd.ReadASCIIZ();
+		module.string_table_offset = rd->Tell();
+		module.module_name = rd->ReadASCIIZ();
 		for(auto& symbol : module.symbols)
 		{
-			rd.Seek(module.string_table_offset + symbol.name_offset);
-			symbol.name = rd.ReadASCIIZ();
+			rd->Seek(module.string_table_offset + symbol.name_offset);
+			symbol.name = rd->ReadASCIIZ();
 		}
 		// TODO: read entire symbol table separately?
-		rd.Seek(module.string_table_offset + module.string_table_size);
+		rd->Seek(module.string_table_offset + module.string_table_size);
 		int relocation_size = 0;
 		while(true)
 		{
@@ -412,7 +412,7 @@ void AS86ObjFormat::ReadFile(Linker::Reader& rd)
 			}
 			module.data.push_back(std::move(bytecode));
 		}
-		module.module_size = rd.Tell() - module.file_offset;
+		module.module_size = rd->Tell() - module.file_offset;
 	}
 }
 

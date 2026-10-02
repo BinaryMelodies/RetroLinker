@@ -1019,22 +1019,22 @@ namespace ELF
 
 			void Dump(Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const;
 
-			static std::shared_ptr<Linker::Section> ReadProgBits(Linker::Reader& rd, offset_t file_offset, const std::string& name, offset_t size);
+			static std::shared_ptr<Linker::Section> ReadProgBits(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, const std::string& name, offset_t size);
 			static std::shared_ptr<Linker::Section> ReadNoBits(const std::string& name, offset_t size);
-			static std::shared_ptr<SymbolTable> ReadSymbolTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, size_t wordbytes);
-			static std::shared_ptr<Relocations> ReadRelocations(Linker::Reader& rd, Section::section_type type, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, uint32_t section_info, size_t wordbytes);
-			static std::shared_ptr<StringTable> ReadStringTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size);
-			static std::shared_ptr<Array> ReadArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
-			static std::shared_ptr<SectionGroup> ReadSectionGroup(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
-			static std::shared_ptr<IndexArray> ReadIndexArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
-			static std::shared_ptr<HashTable> ReadHashTable(Linker::Reader& rd, offset_t file_offset);
-			static std::shared_ptr<DynamicSection> ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes);
-			static std::shared_ptr<NotesSection> ReadNote(Linker::Reader& rd, offset_t file_offset, offset_t section_size);
-			static std::shared_ptr<VersionRequirements> ReadVersionRequirements(Linker::Reader& rd, offset_t file_offset, offset_t section_link, offset_t section_info);
-			static std::shared_ptr<IBMSystemInfo> ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset);
-			static std::shared_ptr<IBMImportTable> ReadIBMImportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
-			static std::shared_ptr<IBMExportTable> ReadIBMExportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
-			static std::shared_ptr<IBMResourceCollection> ReadIBMResourceCollection(Linker::Reader& rd, offset_t file_offset);
+			static std::shared_ptr<SymbolTable> ReadSymbolTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, size_t wordbytes);
+			static std::shared_ptr<Relocations> ReadRelocations(const std::shared_ptr<Linker::Reader>& rd, Section::section_type type, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, uint32_t section_info, size_t wordbytes);
+			static std::shared_ptr<StringTable> ReadStringTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size);
+			static std::shared_ptr<Array> ReadArray(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<SectionGroup> ReadSectionGroup(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<IndexArray> ReadIndexArray(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<HashTable> ReadHashTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset);
+			static std::shared_ptr<DynamicSection> ReadDynamic(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes);
+			static std::shared_ptr<NotesSection> ReadNote(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size);
+			static std::shared_ptr<VersionRequirements> ReadVersionRequirements(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_link, offset_t section_info);
+			static std::shared_ptr<IBMSystemInfo> ReadIBMSystemInfo(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset);
+			static std::shared_ptr<IBMImportTable> ReadIBMImportTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<IBMExportTable> ReadIBMExportTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize);
+			static std::shared_ptr<IBMResourceCollection> ReadIBMResourceCollection(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset);
 		};
 		std::vector<Section> sections;
 
@@ -1144,7 +1144,7 @@ namespace ELF
 		{
 		}
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -1252,14 +1252,14 @@ namespace ELF
 			uint64_t size = 0;
 			std::shared_ptr<Linker::Contents> image;
 
-			static Record Read(Linker::Reader& rd);
+			static Record Read(const std::shared_ptr<Linker::Reader>& rd);
 			void Write(Linker::Writer& wr) const;
 		};
 		uint16_t version = ELFFormat::EV_CURRENT;
 		std::vector<Record> records;
 
 		offset_t ImageSize() const override;
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

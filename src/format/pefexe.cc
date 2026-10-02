@@ -9,13 +9,13 @@
 
 using namespace Apple;
 
-uint32_t PEFFormat::PatternInitialization::ReadValue(Linker::Reader& rd)
+uint32_t PEFFormat::PatternInitialization::ReadValue(const std::shared_ptr<Linker::Reader>& rd)
 {
 	uint32_t value = 0;
 	uint8_t c;
 	do
 	{
-		c = rd.ReadUnsigned(1);
+		c = rd->ReadUnsigned(1);
 		value = (value << 7) | (c & 0x7F);
 	} while((c & 0x80) != 0);
 	return value;
@@ -55,10 +55,10 @@ void PEFFormat::PatternInitialization::WriteValue(Linker::Writer& wr, uint32_t v
 	}
 }
 
-void PEFFormat::PatternInitialization::ReadFile(Linker::Reader& rd)
+void PEFFormat::PatternInitialization::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	file_offset = rd.Tell();
-	uint8_t byte = rd.ReadUnsigned(1);
+	file_offset = rd->Tell();
+	uint8_t byte = rd->ReadUnsigned(1);
 	opcode = opcode_type(byte >> 5);
 	uint32_t param1 = byte & 0x1F;
 	if(param1 == 0)
@@ -72,20 +72,20 @@ void PEFFormat::PatternInitialization::ReadFile(Linker::Reader& rd)
 		count = param1;
 		break;
 	case BlockCopy:
-		rd.ReadData(param1, common_data);
+		rd->ReadData(param1, common_data);
 		break;
 	case RepeatedBlock:
 		count = ReadValue(rd) + 1;
-		rd.ReadData(param1, common_data);
+		rd->ReadData(param1, common_data);
 		break;
 	case InterleaveRepeatBlockWithBlockCopy:
 		param2 = ReadValue(rd);
 		param3 = ReadValue(rd);
-		rd.ReadData(param1, common_data);
+		rd->ReadData(param1, common_data);
 		while(param3-- > 0)
 		{
 			std::vector<uint8_t> data;
-			rd.ReadData(param2, data);
+			rd->ReadData(param2, data);
 			custom_data.push_back(data);
 		}
 		break;
@@ -96,7 +96,7 @@ void PEFFormat::PatternInitialization::ReadFile(Linker::Reader& rd)
 		while(param3-- > 0)
 		{
 			std::vector<uint8_t> data;
-			rd.ReadData(param2, data);
+			rd->ReadData(param2, data);
 			custom_data.push_back(data);
 		}
 		break;
@@ -345,10 +345,10 @@ void PEFFormat::RelocationProcessor::GenerateRelocations()
 	}
 }
 
-void PEFFormat::RelocOpcode::ReadFile(Linker::Reader& rd)
+void PEFFormat::RelocOpcode::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	offset = rd.Tell();
-	uint16_t word = rd.ReadUnsigned(2);
+	offset = rd->Tell();
+	uint16_t word = rd->ReadUnsigned(2);
 	if((word & 0xC000) == 0x0000)
 	{
 		opcode = BySectDWithSkip;
@@ -422,20 +422,20 @@ void PEFFormat::RelocOpcode::ReadFile(Linker::Reader& rd)
 	{
 		opcode = SetPosition;
 		value = uint32_t(word & 0x03FF) << 16;
-		value |= rd.ReadUnsigned(2);
+		value |= rd->ReadUnsigned(2);
 	}
 	else if((word & 0xFC00) == 0xA400)
 	{
 		opcode = LgByImport;
 		value = uint32_t(word & 0x03FF) << 16;
-		value |= rd.ReadUnsigned(2);
+		value |= rd->ReadUnsigned(2);
 	}
 	else if((word & 0xFC00) == 0xB000)
 	{
 		opcode = LgRepeat;
 		value = ((word >> 6) & 0xF) + 1;
 		repeat = uint32_t(word & 0x003F) << 16;
-		repeat |= rd.ReadUnsigned(2);
+		repeat |= rd->ReadUnsigned(2);
 	}
 	else
 	{
@@ -446,7 +446,7 @@ void PEFFormat::RelocOpcode::ReadFile(Linker::Reader& rd)
 		case LgSetSectD:
 			opcode = opcode_type(word & 0xFFC0);
 			value = uint32_t(word & 0x003F) << 16;
-			value |= rd.ReadUnsigned(2);
+			value |= rd->ReadUnsigned(2);
 			break;
 		default:
 			opcode = SmInvalid; // note: this could be LgInvalid and another word could be read
@@ -691,26 +691,26 @@ void PEFFormat::RelocOpcode::Dump(Dumper::Dumper& dump, const PEFFormat& pef_for
 	reloc_entry.Display(dump, Dumper::Relocation | Dumper::Control | display_options);
 }
 
-void PEFFormat::Section::ReadHeader(Linker::Reader& rd)
+void PEFFormat::Section::ReadHeader(const std::shared_ptr<Linker::Reader>& rd)
 {
-	name_offset = rd.ReadUnsigned(4);
-	default_address = rd.ReadUnsigned(4);
-	total_size = rd.ReadUnsigned(4);
-	unpacked_size = rd.ReadUnsigned(4);
-	packed_size = rd.ReadUnsigned(4);
-	container_offset = rd.ReadUnsigned(4);
-	section_kind = section_type(rd.ReadUnsigned(1));
-	share_kind = share_type(rd.ReadUnsigned(1));
-	alignment = rd.ReadUnsigned(1);
-	reserved = rd.ReadUnsigned(1);
+	name_offset = rd->ReadUnsigned(4);
+	default_address = rd->ReadUnsigned(4);
+	total_size = rd->ReadUnsigned(4);
+	unpacked_size = rd->ReadUnsigned(4);
+	packed_size = rd->ReadUnsigned(4);
+	container_offset = rd->ReadUnsigned(4);
+	section_kind = section_type(rd->ReadUnsigned(1));
+	share_kind = share_type(rd->ReadUnsigned(1));
+	alignment = rd->ReadUnsigned(1);
+	reserved = rd->ReadUnsigned(1);
 }
 
-void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
+void PEFFormat::Section::ReadFile(PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd)
 {
 	if(name_offset != NoNameOffset)
 	{
-		rd.Seek(pef_format.GetSectionNameTableOffset());
-		name = rd.ReadASCIIZ();
+		rd->Seek(pef_format.GetSectionNameTableOffset());
+		name = rd->ReadASCIIZ();
 	}
 	else
 	{
@@ -723,20 +723,18 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 	case UnpackedData:
 	case Constant:
 	case ExecutableData:
-		rd.Seek(container_offset);
+		rd->Seek(container_offset);
 		image = Linker::Buffer::ReadFromFile(rd, packed_size);
 		break;
 	case PatternInitializedData:
-		rd.Seek(container_offset);
+		rd->Seek(container_offset);
 		{
-			// TODO: bad programming pattern
-			auto _section_reader = rd.CreateWindow(container_offset, packed_size);
-			Linker::Reader& section_reader = *_section_reader;
-			section_reader.on_overflow = Linker::Reader::ReportOnOverflow;
+			auto section_reader = rd->CreateWindow(container_offset, packed_size);
+			section_reader->on_overflow = Linker::Reader::ReportOnOverflow;
 			patterns.clear();
 			try
 			{
-				while(section_reader.Tell() < packed_size)
+				while(section_reader->Tell() < packed_size)
 				{
 					patterns.push_back(PatternInitialization());
 					patterns.back().ReadFile(section_reader);
@@ -759,12 +757,10 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 		}
 		break;
 	case Loader:
-		rd.Seek(container_offset);
+		rd->Seek(container_offset);
 		pef_format.loader_section_offset = container_offset;
 		{
-			// TODO: bad programming pattern
-			auto _section_reader = rd.CreateWindow(container_offset, packed_size);
-			Linker::Reader& section_reader = *_section_reader;
+			auto section_reader = rd->CreateWindow(container_offset, packed_size);
 			pef_format.ReadLoaderSection(section_reader);
 		}
 		break;
@@ -896,16 +892,16 @@ void PEFFormat::Reference::SetPosition(PEFFormat& pef_format, const Linker::Posi
 	}
 }
 
-std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd)
+std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.Seek(pef_format.loader_strings_offset + name_offset);
-	return name = rd.ReadASCIIZ();
+	rd->Seek(pef_format.loader_strings_offset + name_offset);
+	return name = rd->ReadASCIIZ();
 }
 
-std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd, uint16_t length)
+std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd, uint16_t length)
 {
-	rd.Seek(pef_format.loader_strings_offset + name_offset);
-	return name = rd.ReadData(length);
+	rd->Seek(pef_format.loader_strings_offset + name_offset);
+	return name = rd->ReadData(length);
 }
 
 void PEFFormat::Name::StoreNameString(PEFFormat& pef_format)
@@ -922,7 +918,7 @@ void PEFFormat::Name::StoreNameStringNoNull(PEFFormat& pef_format)
 	pef_format.loader_string_table_size += name.size();
 }
 
-std::string PEFFormat::ExportedSymbol::LoadNameString(const PEFFormat& pef_format, Linker::Reader& rd)
+std::string PEFFormat::ExportedSymbol::LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd)
 {
 	return LoadNameString(pef_format, rd, symbol_length);
 }
@@ -972,34 +968,34 @@ bool PEFFormat::FormatSupportsResources() const
 	return true;
 }
 
-void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
+void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.on_overflow = Linker::Reader::ReportOnOverflow;
+	rd->on_overflow = Linker::Reader::ReportOnOverflow;
 
 	try
 	{
 		//// header
 
-		main_symbol.section = rd.ReadUnsigned(4);
-		main_symbol.offset = rd.ReadUnsigned(4);
+		main_symbol.section = rd->ReadUnsigned(4);
+		main_symbol.offset = rd->ReadUnsigned(4);
 
-		init_symbol.section = rd.ReadUnsigned(4);
-		init_symbol.offset = rd.ReadUnsigned(4);
+		init_symbol.section = rd->ReadUnsigned(4);
+		init_symbol.offset = rd->ReadUnsigned(4);
 
-		term_symbol.section = rd.ReadUnsigned(4);
-		term_symbol.offset = rd.ReadUnsigned(4);
+		term_symbol.section = rd->ReadUnsigned(4);
+		term_symbol.offset = rd->ReadUnsigned(4);
 
-		uint32_t imported_library_count = rd.ReadUnsigned(4);
-		uint32_t total_imported_symbol_count = rd.ReadUnsigned(4);
+		uint32_t imported_library_count = rd->ReadUnsigned(4);
+		uint32_t total_imported_symbol_count = rd->ReadUnsigned(4);
 
-		uint32_t reloc_section_count = rd.ReadUnsigned(4);
-		reloc_instr_offset = rd.ReadUnsigned(4);
+		uint32_t reloc_section_count = rd->ReadUnsigned(4);
+		reloc_instr_offset = rd->ReadUnsigned(4);
 
-		loader_strings_offset = rd.ReadUnsigned(4);
+		loader_strings_offset = rd->ReadUnsigned(4);
 
-		export_hash_offset = rd.ReadUnsigned(4);
-		uint32_t export_hash_table_power = rd.ReadUnsigned(4);
-		uint32_t exported_symbol_count = rd.ReadUnsigned(4);
+		export_hash_offset = rd->ReadUnsigned(4);
+		uint32_t export_hash_table_power = rd->ReadUnsigned(4);
+		uint32_t exported_symbol_count = rd->ReadUnsigned(4);
 
 		//// imported library descriptions
 
@@ -1007,14 +1003,14 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		{
 			auto library = std::make_shared<ImportedLibrary>();
 			imported_libraries.push_back(library);
-			library->name_offset = rd.ReadUnsigned(4);
-			library->old_imp_version = rd.ReadUnsigned(4);
-			library->current_version = rd.ReadUnsigned(4);
-			library->imported_symbol_count = rd.ReadUnsigned(4);
-			library->first_imported_symbol = rd.ReadUnsigned(4);
-			library->options = rd.ReadUnsigned(1);
-			library->reserved_a = rd.ReadUnsigned(1);
-			library->reserved_b = rd.ReadUnsigned(2);
+			library->name_offset = rd->ReadUnsigned(4);
+			library->old_imp_version = rd->ReadUnsigned(4);
+			library->current_version = rd->ReadUnsigned(4);
+			library->imported_symbol_count = rd->ReadUnsigned(4);
+			library->first_imported_symbol = rd->ReadUnsigned(4);
+			library->options = rd->ReadUnsigned(1);
+			library->reserved_a = rd->ReadUnsigned(1);
+			library->reserved_b = rd->ReadUnsigned(2);
 		}
 
 		//// imported symbol tables
@@ -1023,7 +1019,7 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		{
 			auto symbol = std::make_shared<ImportedSymbol>();
 			imported_symbols.push_back(symbol);
-			uint32_t value = rd.ReadUnsigned(4);
+			uint32_t value = rd->ReadUnsigned(4);
 			symbol->symbol_class = symbol_class_type((value >> 24) & 0x0F);
 			symbol->flags = (value >> 24) & 0xF0;
 			symbol->name_offset = value & 0x00FFFFFF;
@@ -1047,13 +1043,13 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 
 		for(uint32_t reloc_section_index = 0; reloc_section_index < reloc_section_count; reloc_section_index++)
 		{
-			uint16_t section_index = rd.ReadUnsigned(2);
+			uint16_t section_index = rd->ReadUnsigned(2);
 			reloc_section_indexes.push_back(section_index);
 			auto section = sections[section_index];
 			section->contains_relocations = true;
-			section->reserved_a = rd.ReadUnsigned(2);
-			section->reloc_instr_size = rd.ReadUnsigned(4) * 2;
-			section->first_reloc_offset = rd.ReadUnsigned(4) * 2;
+			section->reserved_a = rd->ReadUnsigned(2);
+			section->reloc_instr_size = rd->ReadUnsigned(4) * 2;
+			section->first_reloc_offset = rd->ReadUnsigned(4) * 2;
 		}
 
 		//// relocation area
@@ -1064,8 +1060,8 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		{
 			if(section->contains_relocations)
 			{
-				rd.Seek(reloc_instr_offset + section->first_reloc_offset);
-				while(rd.Tell() < reloc_instr_offset + section->first_reloc_offset + section->reloc_instr_size)
+				rd->Seek(reloc_instr_offset + section->first_reloc_offset);
+				while(rd->Tell() < reloc_instr_offset + section->first_reloc_offset + section->reloc_instr_size)
 				{
 					RelocOpcode opcode;
 					opcode.ReadFile(rd);
@@ -1089,9 +1085,9 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		{
 			// read all relocations
 
-			rd.Seek(reloc_instr_offset);
+			rd->Seek(reloc_instr_offset);
 			relocs_area.clear();
-			while(rd.Tell() < loader_strings_offset)
+			while(rd->Tell() < loader_strings_offset)
 			{
 				RelocOpcode opcode;
 				opcode.ReadFile(rd);
@@ -1119,11 +1115,11 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 
 		//// export hash table
 
-		rd.Seek(export_hash_offset);
+		rd->Seek(export_hash_offset);
 		hash_table.resize(1 << export_hash_table_power);
 		for(auto& hash_table_entry : hash_table)
 		{
-			uint32_t value = rd.ReadUnsigned(4);
+			uint32_t value = rd->ReadUnsigned(4);
 			hash_table_entry.chain_count = value >> 18;
 			hash_table_entry.first_index = value & 0x0003FFFF;
 		}
@@ -1134,8 +1130,8 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		{
 			auto symbol = std::make_shared<ExportedSymbol>();
 			exported_symbols.push_back(symbol);
-			symbol->symbol_length = rd.ReadUnsigned(2);
-			symbol->hash_value = rd.ReadUnsigned(2);
+			symbol->symbol_length = rd->ReadUnsigned(2);
+			symbol->hash_value = rd->ReadUnsigned(2);
 		}
 
 		//// exported symbol table
@@ -1144,11 +1140,11 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 
 		for(auto& symbol : exported_symbols)
 		{
-			symbol->name_offset = rd.ReadUnsigned(4);
+			symbol->name_offset = rd->ReadUnsigned(4);
 			symbol->symbol_class = symbol_class_type(symbol->name_offset >> 24);
 			symbol->name_offset &= 0x00FFFFFF;
-			symbol->offset = rd.ReadUnsigned(4);
-			symbol->section = rd.ReadSigned(2); // sign extend to 32-bit
+			symbol->offset = rd->ReadUnsigned(4);
+			symbol->section = rd->ReadSigned(2); // sign extend to 32-bit
 
 			// since exported strings are not (necessarily) null terminated, we need to record where terminations occur
 			// in order to be able to parse the full string table
@@ -1163,23 +1159,23 @@ void PEFFormat::ReadLoaderSection(Linker::Reader& rd)
 		try
 		{
 			// read full string table
-			rd.Seek(loader_strings_offset);
+			rd->Seek(loader_strings_offset);
 			loader_string_table.clear();
 			loader_string_table_size = 0;
-			while(rd.Tell() < export_hash_offset)
+			while(rd->Tell() < export_hash_offset)
 			{
 				// check where the next exported symbol termination occurs
-				auto termination = std::upper_bound(string_terminations.begin(), string_terminations.end(), rd.Tell() - loader_strings_offset);
+				auto termination = std::upper_bound(string_terminations.begin(), string_terminations.end(), rd->Tell() - loader_strings_offset);
 				offset_t maximum;
 				if(termination == string_terminations.end())
 				{
-					maximum = export_hash_offset - rd.Tell();
+					maximum = export_hash_offset - rd->Tell();
 				}
 				else
 				{
-					maximum = *termination - (rd.Tell() - loader_strings_offset);
+					maximum = *termination - (rd->Tell() - loader_strings_offset);
 				}
-				std::string name = rd.ReadASCIIZ(maximum);
+				std::string name = rd->ReadASCIIZ(maximum);
 				if(name.size() < maximum)
 				{
 					// zero terminated
@@ -1308,19 +1304,19 @@ void PEFFormat::WriteLoaderSection(Linker::Writer& wr) const
 	}
 }
 
-void PEFFormat::ReadFile(Linker::Reader& rd)
+void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	rd.Seek(8);
-	architecture = cpu_type(rd.ReadUnsigned(4));
-	format_version = rd.ReadUnsigned(4);
-	date_time_stamp = rd.ReadTimestamp<Macintosh_clock>();
-	old_def_version = rd.ReadUnsigned(4);
-	old_imp_version = rd.ReadUnsigned(4);
-	current_version = rd.ReadUnsigned(4);
-	uint16_t section_count = rd.ReadUnsigned(2);
-	inst_section_count = rd.ReadUnsigned(2);
-	reserved = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	rd->Seek(8);
+	architecture = cpu_type(rd->ReadUnsigned(4));
+	format_version = rd->ReadUnsigned(4);
+	date_time_stamp = rd->ReadTimestamp<Macintosh_clock>();
+	old_def_version = rd->ReadUnsigned(4);
+	old_imp_version = rd->ReadUnsigned(4);
+	current_version = rd->ReadUnsigned(4);
+	uint16_t section_count = rd->ReadUnsigned(2);
+	inst_section_count = rd->ReadUnsigned(2);
+	reserved = rd->ReadUnsigned(4);
 
 	section_name_table_end = GetSectionNameTableOffset();
 	for(uint16_t section_index = 0; section_index < section_count; section_index++)
@@ -1335,9 +1331,9 @@ void PEFFormat::ReadFile(Linker::Reader& rd)
 	}
 
 	// TODO: untested
-	while(rd.Tell() < section_name_table_end)
+	while(rd->Tell() < section_name_table_end)
 	{
-		section_name_table.push_back(rd.ReadASCIIZ());
+		section_name_table.push_back(rd->ReadASCIIZ());
 	}
 
 	for(auto section : sections)

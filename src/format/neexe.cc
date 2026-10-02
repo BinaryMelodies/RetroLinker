@@ -361,7 +361,7 @@ uint8_t NEFormat::Entry::GetIndicatorByte() const
 	}
 }
 
-NEFormat::Entry NEFormat::Entry::ReadEntry(Linker::Reader& rd, uint8_t indicator_byte)
+NEFormat::Entry NEFormat::Entry::ReadEntry(const std::shared_ptr<Linker::Reader>& rd, uint8_t indicator_byte)
 {
 	Entry entry;
 	switch(indicator_byte)
@@ -371,16 +371,16 @@ NEFormat::Entry NEFormat::Entry::ReadEntry(Linker::Reader& rd, uint8_t indicator
 		break;
 	case 0xFF:
 		entry.type = Movable;
-		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
-		rd.Skip(2);
-		entry.segment = rd.ReadUnsigned(1);
-		entry.offset = rd.ReadUnsigned(2);
+		entry.flags = Entry::flag_type(rd->ReadUnsigned(1));
+		rd->Skip(2);
+		entry.segment = rd->ReadUnsigned(1);
+		entry.offset = rd->ReadUnsigned(2);
 		break;
 	default:
 		entry.type = Fixed;
 		entry.segment = indicator_byte;
-		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
-		entry.offset = rd.ReadUnsigned(2);
+		entry.flags = Entry::flag_type(rd->ReadUnsigned(1));
+		entry.offset = rd->ReadUnsigned(2);
 		break;
 	}
 	return entry;
@@ -415,89 +415,89 @@ bool NEFormat::IsOS2() const
 	return (system & ~PharLap) == OS2;
 }
 
-void NEFormat::ReadFile(Linker::Reader& rd)
+void NEFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "NE", "DX" /* DOS/16M variant */);
 
 	/* New header */
 
-	linker_version.major = rd.ReadUnsigned(1);
-	linker_version.minor = rd.ReadUnsigned(1);
-	entry_table_offset = rd.ReadUnsigned(2);
+	linker_version.major = rd->ReadUnsigned(1);
+	linker_version.minor = rd->ReadUnsigned(1);
+	entry_table_offset = rd->ReadUnsigned(2);
 	if(entry_table_offset != 0)
 		entry_table_offset += file_offset;
-	entry_table_length = rd.ReadUnsigned(2);
-	crc32 = rd.ReadUnsigned(4);
-	program_flags = program_flag_type(rd.ReadUnsigned(1));
-	application_flags = application_flag_type(rd.ReadUnsigned(1));
-	automatic_data = rd.ReadUnsigned(2);
-	heap_size = rd.ReadUnsigned(2);
-	stack_size = rd.ReadUnsigned(2);
-	ip = rd.ReadUnsigned(2);
-	cs = rd.ReadUnsigned(2);
-	sp = rd.ReadUnsigned(2);
-	ss = rd.ReadUnsigned(2);
-	uint16_t segment_count = rd.ReadUnsigned(2);
-	uint16_t module_reference_count = rd.ReadUnsigned(2);
-	nonresident_name_table_length = rd.ReadUnsigned(2);
-	segment_table_offset = rd.ReadUnsigned(2);
+	entry_table_length = rd->ReadUnsigned(2);
+	crc32 = rd->ReadUnsigned(4);
+	program_flags = program_flag_type(rd->ReadUnsigned(1));
+	application_flags = application_flag_type(rd->ReadUnsigned(1));
+	automatic_data = rd->ReadUnsigned(2);
+	heap_size = rd->ReadUnsigned(2);
+	stack_size = rd->ReadUnsigned(2);
+	ip = rd->ReadUnsigned(2);
+	cs = rd->ReadUnsigned(2);
+	sp = rd->ReadUnsigned(2);
+	ss = rd->ReadUnsigned(2);
+	uint16_t segment_count = rd->ReadUnsigned(2);
+	uint16_t module_reference_count = rd->ReadUnsigned(2);
+	nonresident_name_table_length = rd->ReadUnsigned(2);
+	segment_table_offset = rd->ReadUnsigned(2);
 	if(segment_table_offset != 0)
 	{
 		segment_table_offset += file_offset;
 	}
-	resource_table_offset = rd.ReadUnsigned(2);
+	resource_table_offset = rd->ReadUnsigned(2);
 	if(resource_table_offset != 0)
 	{
 		resource_table_offset += file_offset;
 	}
-	resident_name_table_offset = rd.ReadUnsigned(2);
+	resident_name_table_offset = rd->ReadUnsigned(2);
 	if(resident_name_table_offset != 0)
 	{
 		resident_name_table_offset += file_offset;
 	}
-	module_reference_table_offset = rd.ReadUnsigned(2);
+	module_reference_table_offset = rd->ReadUnsigned(2);
 	if(module_reference_table_offset != 0)
 	{
 		module_reference_table_offset += file_offset;
 	}
-	imported_names_table_offset = rd.ReadUnsigned(2);
+	imported_names_table_offset = rd->ReadUnsigned(2);
 	if(imported_names_table_offset != 0)
 	{
 		imported_names_table_offset += file_offset;
 	}
-	nonresident_name_table_offset = rd.ReadUnsigned(4);
-	movable_entry_count = rd.ReadUnsigned(2);
-	sector_shift = rd.ReadUnsigned(2);
-	resource_count = rd.ReadUnsigned(2);
-	system = system_type(rd.ReadUnsigned(1));
-	additional_flags = additional_flag_type(rd.ReadUnsigned(1));
-	fast_load_area_offset = rd.ReadUnsigned(2);
-	fast_load_area_length = rd.ReadUnsigned(2);
-	code_swap_area_length = rd.ReadUnsigned(2);
-	windows_version.minor = rd.ReadUnsigned(1);
-	windows_version.major = rd.ReadUnsigned(1);
+	nonresident_name_table_offset = rd->ReadUnsigned(4);
+	movable_entry_count = rd->ReadUnsigned(2);
+	sector_shift = rd->ReadUnsigned(2);
+	resource_count = rd->ReadUnsigned(2);
+	system = system_type(rd->ReadUnsigned(1));
+	additional_flags = additional_flag_type(rd->ReadUnsigned(1));
+	fast_load_area_offset = rd->ReadUnsigned(2);
+	fast_load_area_length = rd->ReadUnsigned(2);
+	code_swap_area_length = rd->ReadUnsigned(2);
+	windows_version.minor = rd->ReadUnsigned(1);
+	windows_version.major = rd->ReadUnsigned(1);
 
-	file_size = rd.Tell();
+	file_size = rd->Tell();
 
 	uint32_t i;
 
 	/* Segment table */
-	rd.Seek(segment_table_offset);
+	rd->Seek(segment_table_offset);
 	segments.clear();
 	// under OS/2, we read the resource segments separately
 	uint16_t actual_segment_count = IsOS2() ? segment_count - resource_count : segment_count;
 	for(i = 0; i < actual_segment_count; i++)
 	{
 		std::shared_ptr<Segment> segment = std::make_shared<Segment>();
-		segment->data_offset = offset_t(rd.ReadUnsigned(2)) << sector_shift;
-		segment->image_size = rd.ReadUnsigned(2);
+		segment->data_offset = offset_t(rd->ReadUnsigned(2)) << sector_shift;
+		segment->image_size = rd->ReadUnsigned(2);
 		if(segment->data_offset != 0 && segment->image_size == 0)
 		{
 			segment->image_size = 0x10000;
 		}
-		segment->flags = Segment::flag_type(rd.ReadUnsigned(2));
-		segment->total_size = rd.ReadUnsigned(2);
+		segment->flags = Segment::flag_type(rd->ReadUnsigned(2));
+		segment->total_size = rd->ReadUnsigned(2);
 		if(segment->total_size == 0)
 		{
 			segment->total_size = 0x10000;
@@ -511,14 +511,14 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		for(i = 0; i < resource_count; i++)
 		{
 			std::shared_ptr<Resource> resource = std::make_shared<Resource>();
-			resource->data_offset = offset_t(rd.ReadUnsigned(2)) << sector_shift;
-			resource->image_size = rd.ReadUnsigned(2);
+			resource->data_offset = offset_t(rd->ReadUnsigned(2)) << sector_shift;
+			resource->image_size = rd->ReadUnsigned(2);
 			if(resource->data_offset != 0 && resource->image_size == 0)
 			{
 				resource->image_size = 0x10000;
 			}
-			resource->flags = Segment::flag_type(rd.ReadUnsigned(2));
-			resource->total_size = rd.ReadUnsigned(2);
+			resource->flags = Segment::flag_type(rd->ReadUnsigned(2));
+			resource->total_size = rd->ReadUnsigned(2);
 			if(resource->total_size == 0)
 			{
 				resource->total_size = 0x10000;
@@ -527,7 +527,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Resource table */
 	resource_types.clear();
@@ -535,11 +535,11 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	{
 		if(resource_count != 0)
 		{
-			rd.Seek(resource_table_offset);
+			rd->Seek(resource_table_offset);
 			for(i = 0; i < resource_count; i++)
 			{
-				resources[i]->type_id = rd.ReadUnsigned(2);
-				resources[i]->id = rd.ReadUnsigned(2);
+				resources[i]->type_id = rd->ReadUnsigned(2);
+				resources[i]->id = rd->ReadUnsigned(2);
 			}
 		}
 	}
@@ -547,28 +547,28 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 	{
 		if(resource_table_offset != 0 && resource_table_offset != resident_name_table_offset)
 		{
-			rd.Seek(resource_table_offset);
-			resource_shift = rd.ReadUnsigned(2);
+			rd->Seek(resource_table_offset);
+			resource_shift = rd->ReadUnsigned(2);
 			while(true)
 			{
-				uint16_t type_id = rd.ReadUnsigned(2);
+				uint16_t type_id = rd->ReadUnsigned(2);
 				if(type_id == 0)
 					break;
 				std::shared_ptr<ResourceType> rtype = std::make_shared<ResourceType>();
 				rtype->type_id = type_id;
-				uint16_t count = rd.ReadUnsigned(2);
-				rd.Skip(4);
+				uint16_t count = rd->ReadUnsigned(2);
+				rd->Skip(4);
 				for(i = 0; i < count; i++)
 				{
 					std::shared_ptr<Resource> resource = std::make_shared<Resource>();
 					resource->type_id = type_id;
-					resource->data_offset = offset_t(rd.ReadUnsigned(2)) << resource_shift;
+					resource->data_offset = offset_t(rd->ReadUnsigned(2)) << resource_shift;
 					// the official Microsoft documentation mistakenly claims that this length is in bytes
-					resource->image_size = offset_t(rd.ReadUnsigned(2)) << resource_shift;
-					resource->flags = Resource::flag_type(rd.ReadUnsigned(2));
-					resource->id = rd.ReadUnsigned(2);
-					resource->handle = rd.ReadUnsigned(2);
-					resource->usage = rd.ReadUnsigned(2);
+					resource->image_size = offset_t(rd->ReadUnsigned(2)) << resource_shift;
+					resource->flags = Resource::flag_type(rd->ReadUnsigned(2));
+					resource->id = rd->ReadUnsigned(2);
+					resource->handle = rd->ReadUnsigned(2);
+					resource->usage = rd->ReadUnsigned(2);
 					rtype->resources.emplace_back(resource);
 				}
 				resource_types.emplace_back(rtype);
@@ -578,19 +578,19 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		resource_strings.clear();
 		while(true)
 		{
-			uint8_t length = rd.ReadUnsigned(1);
+			uint8_t length = rd->ReadUnsigned(1);
 			if(length == 0)
 				break;
-			resource_strings.emplace_back(rd.ReadData(length));
+			resource_strings.emplace_back(rd->ReadData(length));
 		}
 
 		for(auto& rtype : resource_types)
 		{
 			if((rtype->type_id & 0x8000) == 0)
 			{
-				rd.Seek(resource_table_offset + rtype->type_id);
-				uint8_t length = rd.ReadUnsigned(1);
-				rtype->type_id_name = rd.ReadData(length);
+				rd->Seek(resource_table_offset + rtype->type_id);
+				uint8_t length = rd->ReadUnsigned(1);
+				rtype->type_id_name = rd->ReadData(length);
 			}
 			else
 			{
@@ -611,9 +611,9 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 
 				if((resource->id & 0x8000) == 0)
 				{
-					rd.Seek(resource_table_offset + resource->id);
-					uint8_t length = rd.ReadUnsigned(1);
-					resource->id_name = rd.ReadData(length);
+					rd->Seek(resource_table_offset + resource->id);
+					uint8_t length = rd->ReadUnsigned(1);
+					resource->id_name = rd->ReadData(length);
 				}
 				else
 				{
@@ -623,63 +623,63 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Resident name table */
-	rd.Seek(resident_name_table_offset);
+	rd->Seek(resident_name_table_offset);
 	resident_names.clear();
 	while(true)
 	{
-		uint8_t length = rd.ReadUnsigned(1);
+		uint8_t length = rd->ReadUnsigned(1);
 		if(length == 0)
 			break;
 		Name name;
-		name.name = rd.ReadData(length);
-		name.ordinal = rd.ReadUnsigned(2);
+		name.name = rd->ReadData(length);
+		name.ordinal = rd->ReadUnsigned(2);
 		resident_names.emplace_back(name);
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Module reference table */
-	rd.Seek(module_reference_table_offset);
+	rd->Seek(module_reference_table_offset);
 	module_references.clear();
 	for(i = 0; i < module_reference_count; i++)
 	{
-		module_references.emplace_back(ModuleReference(rd.ReadUnsigned(2)));
+		module_references.emplace_back(ModuleReference(rd->ReadUnsigned(2)));
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	// Load module names for convenience
 
 	for(auto& module : module_references)
 	{
-		rd.Seek(imported_names_table_offset + module.name_offset);
-		uint8_t length = rd.ReadUnsigned(1);
-		module.name = rd.ReadData(length);
+		rd->Seek(imported_names_table_offset + module.name_offset);
+		uint8_t length = rd->ReadUnsigned(1);
+		module.name = rd->ReadData(length);
 	}
 
 	/* Imported name table */
-	rd.Seek(imported_names_table_offset);
+	rd->Seek(imported_names_table_offset);
 	imported_names.clear();
-	while(rd.Tell() < entry_table_offset)
+	while(rd->Tell() < entry_table_offset)
 	{
-		uint8_t length = rd.ReadUnsigned(1);
-		imported_names.emplace_back(rd.ReadData(length));
+		uint8_t length = rd->ReadUnsigned(1);
+		imported_names.emplace_back(rd->ReadData(length));
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Entry table */
-	rd.Seek(entry_table_offset);
+	rd->Seek(entry_table_offset);
 	entries.clear();
-	while(rd.Tell() < entry_table_offset + entry_table_length)
+	while(rd->Tell() < entry_table_offset + entry_table_length)
 	{
-		size_t entry_count = rd.ReadUnsigned(1);
+		size_t entry_count = rd->ReadUnsigned(1);
 		if(entry_count == 0)
 			break;
-		uint8_t indicator_byte = rd.ReadUnsigned(1);
+		uint8_t indicator_byte = rd->ReadUnsigned(1);
 		for(i = 0; i < entry_count; i ++)
 		{
 			entries.emplace_back(Entry::ReadEntry(rd, indicator_byte));
@@ -687,30 +687,30 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Nonresident name table */
-	rd.Seek(nonresident_name_table_offset);
+	rd->Seek(nonresident_name_table_offset);
 	nonresident_names.clear();
 	while(true)
 	{
-		uint8_t length = rd.ReadUnsigned(1);
+		uint8_t length = rd->ReadUnsigned(1);
 		if(length == 0)
 			break;
 		Name name;
-		name.name = rd.ReadData(length);
-		name.ordinal = rd.ReadUnsigned(2);
+		name.name = rd->ReadData(length);
+		name.ordinal = rd->ReadUnsigned(2);
 		nonresident_names.emplace_back(name);
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Segment data */
 	for(auto segment : segments)
 	{
 		if(segment->data_offset != 0)
 		{
-			rd.Seek(segment->data_offset);
+			rd->Seek(segment->data_offset);
 			segment->image = Linker::Buffer::ReadFromFile(rd, segment->image_size);
 		}
 		else
@@ -720,15 +720,15 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		if((segment->flags & Segment::Relocations) != 0)
 		{
 			segment->relocations.clear();
-			uint16_t count = rd.ReadUnsigned(2);
+			uint16_t count = rd->ReadUnsigned(2);
 			for(i = 0; i < count; i++)
 			{
 				Segment::Relocation relocation;
-				relocation.type = Segment::Relocation::source_type(rd.ReadUnsigned(1));
-				relocation.flags = Segment::Relocation::flag_type(rd.ReadUnsigned(1));
-				relocation.offsets.push_back(rd.ReadUnsigned(2));
-				relocation.module = rd.ReadUnsigned(2);
-				relocation.target = rd.ReadUnsigned(2);
+				relocation.type = Segment::Relocation::source_type(rd->ReadUnsigned(1));
+				relocation.flags = Segment::Relocation::flag_type(rd->ReadUnsigned(1));
+				relocation.offsets.push_back(rd->ReadUnsigned(2));
+				relocation.module = rd->ReadUnsigned(2);
+				relocation.target = rd->ReadUnsigned(2);
 				if((relocation.flags & Segment::Relocation::Additive) == 0)
 				{
 					uint16_t offset = relocation.offsets[0];
@@ -746,7 +746,7 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 				segment->relocations.emplace_back(relocation);
 			}
 		}
-		file_size = std::max(file_size, rd.Tell());
+		file_size = std::max(file_size, rd->Tell());
 	}
 
 	/* Resource data */
@@ -756,10 +756,10 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 		{
 			if(resource->data_offset != 0)
 			{
-				rd.Seek(resource->data_offset);
+				rd->Seek(resource->data_offset);
 				resource->image = Linker::Buffer::ReadFromFile(rd, resource->image_size);
 			}
-			file_size = std::max(file_size, rd.Tell());
+			file_size = std::max(file_size, rd->Tell());
 		}
 	}
 	else
@@ -770,10 +770,10 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 			{
 				if(resource->data_offset != 0)
 				{
-					rd.Seek(resource->data_offset);
+					rd->Seek(resource->data_offset);
 					resource->image = Linker::Buffer::ReadFromFile(rd, resource->image_size);
 				}
-				file_size = std::max(file_size, rd.Tell());
+				file_size = std::max(file_size, rd->Tell());
 			}
 		}
 	}
@@ -814,9 +814,9 @@ void NEFormat::ReadFile(Linker::Reader& rd)
 
 			if((relocation.flags & Segment::Relocation::TargetTypeMask) == Segment::Relocation::ImportName)
 			{
-				rd.Seek(imported_names_table_offset + relocation.target);
-				uint8_t length = rd.ReadUnsigned(1);
-				relocation.import_name = rd.ReadData(length);
+				rd->Seek(imported_names_table_offset + relocation.target);
+				uint8_t length = rd->ReadUnsigned(1);
+				relocation.import_name = rd->ReadData(length);
 			}
 
 			if((relocation.flags & Segment::Relocation::TargetTypeMask) == Segment::Relocation::Internal && (relocation.module & 0xFF) == 0xFF)
@@ -2379,19 +2379,19 @@ std::string NEFormat::GetDefaultExtension(Linker::Module& module, std::string fi
 		return filename + ".exe";
 }
 
-void ResourceFile::ReadIdentifier(Linker::Reader& rd, Identifier& id)
+void ResourceFile::ReadIdentifier(const std::shared_ptr<Linker::Reader>& rd, Identifier& id)
 {
 	uint8_t first_byte;
 
-	first_byte = rd.ReadUnsigned(1);
+	first_byte = rd->ReadUnsigned(1);
 	if(first_byte == 0xFF)
 	{
-		id = uint16_t(rd.ReadUnsigned(2, ::LittleEndian));
+		id = uint16_t(rd->ReadUnsigned(2, ::LittleEndian));
 	}
 	else
 	{
-		rd.Skip(-1);
-		id = rd.ReadASCIIZ();
+		rd->Skip(-1);
+		id = rd->ReadASCIIZ();
 	}
 }
 
@@ -2429,30 +2429,30 @@ offset_t ResourceFile::GetIdentifierSize(const Identifier& id)
 	}
 }
 
-void ResourceFile::ReadFile(Linker::Reader& rd, offset_t size)
+void ResourceFile::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size)
 {
-	file_offset = rd.Tell();
+	file_offset = rd->Tell();
 
-	while(rd.Tell() < file_offset + size)
+	while(rd->Tell() < file_offset + size)
 	{
 		Resource resource;
 
 		ReadIdentifier(rd, resource.type);
 		ReadIdentifier(rd, resource.name);
 
-		resource.flags = rd.ReadUnsigned(2, ::LittleEndian);
+		resource.flags = rd->ReadUnsigned(2, ::LittleEndian);
 
-		uint32_t size = rd.ReadUnsigned(4, ::LittleEndian);
+		uint32_t size = rd->ReadUnsigned(4, ::LittleEndian);
 		resource.image = Linker::Buffer::ReadFromFile(rd, size);
 
 		resources.emplace_back(resource);
 	}
 }
 
-void ResourceFile::ReadFile(Linker::Reader& rd)
+void ResourceFile::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	offset_t starting_offset = rd.Tell();
-	offset_t ending_offset = rd.GetImageEnd();
+	offset_t starting_offset = rd->Tell();
+	offset_t ending_offset = rd->GetImageEnd();
 
 	ReadFile(rd, ending_offset - starting_offset);
 }

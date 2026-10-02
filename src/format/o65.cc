@@ -50,9 +50,9 @@ int O65Format::Module::GetWordSize() const
 	return mode_word & MODE_SIZE ? 4 : 2;
 }
 
-offset_t O65Format::Module::ReadUnsigned(Linker::Reader& rd) const
+offset_t O65Format::Module::ReadUnsigned(const std::shared_ptr<Linker::Reader>& rd) const
 {
-	return rd.ReadUnsigned(GetWordSize());
+	return rd->ReadUnsigned(GetWordSize());
 }
 
 void O65Format::Module::WriteWord(Linker::Writer& wr, offset_t value) const
@@ -60,19 +60,19 @@ void O65Format::Module::WriteWord(Linker::Writer& wr, offset_t value) const
 	wr.WriteWord(GetWordSize(), value);
 }
 
-void O65Format::Module::ReadFile(Linker::Reader& rd)
+void O65Format::Module::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	char signature[5];
 	Clear();
 
-	rd.endiantype = ::LittleEndian;
-	rd.ReadData(5, signature);
+	rd->endiantype = ::LittleEndian;
+	rd->ReadData(5, signature);
 	if(memcmp(signature, "\1\0o65", 5) != 0)
 		Linker::FatalError("Fatal error: Invalid magic number");
-	if(rd.ReadUnsigned(1) != 0)
+	if(rd->ReadUnsigned(1) != 0)
 		Linker::FatalError("Fatal error: Invalid format version");
 
-	mode_word = rd.ReadUnsigned(2);
+	mode_word = rd->ReadUnsigned(2);
 	code_base = ReadUnsigned(rd);
 	offset_t code_size = ReadUnsigned(rd);
 	data_base = ReadUnsigned(rd);
@@ -83,15 +83,15 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	zero_size = ReadUnsigned(rd);
 	stack_size = ReadUnsigned(rd);
 
-//	Linker::Debug << "At offset " << rd.Tell() << std::endl;
+//	Linker::Debug << "At offset " << rd->Tell() << std::endl;
 
 	int length;
-	while((length = rd.ReadUnsigned(1)) != 0)
+	while((length = rd->ReadUnsigned(1)) != 0)
 	{
 //		Linker::Debug << "Reading optional header entry of length " << length << std::endl;
-		header_options.push_back(header_option(rd.ReadUnsigned(1)));
+		header_options.push_back(header_option(rd->ReadUnsigned(1)));
 		header_options.back().data.resize(length);
-		rd.ReadData(length, header_options.back().data);
+		rd->ReadData(length, header_options.back().data);
 	}
 
 	std::shared_ptr<Linker::Section> code_section = std::make_shared<Linker::Section>(".text");
@@ -110,7 +110,7 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 //	Linker::Debug << "Reading " << undefined_count << " undefined names" << std::endl;
 	for(offset_t i = 0; i < undefined_count; i++)
 	{
-		undefined_references.push_back(rd.ReadASCIIZ());
+		undefined_references.push_back(rd->ReadASCIIZ());
 	}
 
 	std::map<offset_t, relocation> * relocation_parts[2] = { &code_relocations, &data_relocations };
@@ -118,7 +118,7 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	{
 		offset_t offset = -1;
 		int delta;
-		while((delta = rd.ReadUnsigned(1)) != 0)
+		while((delta = rd->ReadUnsigned(1)) != 0)
 		{
 			if(delta == 0xFF)
 			{
@@ -127,13 +127,13 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 			}
 
 			offset += delta;
-			uint8_t type_segment = rd.ReadUnsigned(1);
+			uint8_t type_segment = rd->ReadUnsigned(1);
 			offset_t symbol_index = (type_segment & relocation::RELOC_SEGMENT_MASK) == relocation::RELOC_SEGMENT_UNDEFINED ? ReadUnsigned(rd) : 0;
 			offset_t value =
 				((type_segment & relocation::RELOC_TYPE_MASK) == relocation::RELOC_TYPE_HIGH) && !IsPageRelocatable()
-					? rd.ReadUnsigned(1)
+					? rd->ReadUnsigned(1)
 						: (type_segment & relocation::RELOC_TYPE_MASK) == relocation::RELOC_TYPE_SEG
-						? rd.ReadUnsigned(2)
+						? rd->ReadUnsigned(2)
 							: 0;
 
 			(*relocation_parts[i])[offset] = relocation(type_segment, value, symbol_index);
@@ -143,8 +143,8 @@ void O65Format::Module::ReadFile(Linker::Reader& rd)
 	offset_t exported_count = ReadUnsigned(rd);
 	for(offset_t i = 0; i < exported_count; i++)
 	{
-		std::string name = rd.ReadASCIIZ();
-		uint8_t segment_id = rd.ReadUnsigned(1);
+		std::string name = rd->ReadASCIIZ();
+		uint8_t segment_id = rd->ReadUnsigned(1);
 		offset_t value = ReadUnsigned(rd);
 		exported_globals.push_back(exported_global(name, segment_id, value));
 	}
@@ -382,7 +382,7 @@ void O65Format::Clear()
 	modules.clear();
 }
 
-void O65Format::ReadFile(Linker::Reader& rd)
+void O65Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	do
 	{

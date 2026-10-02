@@ -134,44 +134,44 @@ const std::map<uint32_t, COFF::COFFFormat::MachineType> COFF::COFFFormat::MACHIN
 	return it->second.endian;
 }
 
-void COFFFormat::Relocation::Read(Linker::Reader& rd, const COFFFormat& coff)
+void COFFFormat::Relocation::Read(const std::shared_ptr<Linker::Reader>& rd, const COFFFormat& coff)
 {
 	switch(coff.relocation_format)
 	{
 	case COFF_10:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(4);
-		type = rd.ReadUnsigned(2);
+		address = rd->ReadUnsigned(4);
+		symbol_index = rd->ReadUnsigned(4);
+		type = rd->ReadUnsigned(2);
 		break;
 	case COFF_14:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(4);
-		type = rd.ReadUnsigned(2);
-		offset = rd.ReadUnsigned(4);
+		address = rd->ReadUnsigned(4);
+		symbol_index = rd->ReadUnsigned(4);
+		type = rd->ReadUnsigned(2);
+		offset = rd->ReadUnsigned(4);
 		break;
 	case COFF_16:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(4);
-		offset = rd.ReadUnsigned(4);
-		type = rd.ReadUnsigned(2);
-		information = rd.ReadUnsigned(2);
+		address = rd->ReadUnsigned(4);
+		symbol_index = rd->ReadUnsigned(4);
+		offset = rd->ReadUnsigned(4);
+		type = rd->ReadUnsigned(2);
+		information = rd->ReadUnsigned(2);
 		break;
 	case TICOFF_10:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(2);
-		information = rd.ReadUnsigned(2); // reserved
-		type = rd.ReadUnsigned(2);
+		address = rd->ReadUnsigned(4);
+		symbol_index = rd->ReadUnsigned(2);
+		information = rd->ReadUnsigned(2); // reserved
+		type = rd->ReadUnsigned(2);
 		break;
 	case TICOFF_12:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(4);
-		information = rd.ReadUnsigned(2); // extended address
-		type = rd.ReadUnsigned(2);
+		address = rd->ReadUnsigned(4);
+		symbol_index = rd->ReadUnsigned(4);
+		information = rd->ReadUnsigned(2); // extended address
+		type = rd->ReadUnsigned(2);
 		break;
 	case ECOFF_8:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(3);
-		information = rd.ReadUnsigned(1);
+		address = rd->ReadUnsigned(4);
+		symbol_index = rd->ReadUnsigned(3);
+		information = rd->ReadUnsigned(1);
 		// type extraction based on binutils
 		// TODO: untested
 		if(coff.endiantype == ::LittleEndian)
@@ -186,22 +186,22 @@ void COFFFormat::Relocation::Read(Linker::Reader& rd, const COFFFormat& coff)
 		}
 		break;
 	case ECOFF_16:
-		address = rd.ReadUnsigned(8);
-		symbol_index = rd.ReadUnsigned(4);
-		type = rd.ReadUnsigned(1);
-		information = rd.ReadUnsigned(3);
+		address = rd->ReadUnsigned(8);
+		symbol_index = rd->ReadUnsigned(4);
+		type = rd->ReadUnsigned(1);
+		information = rd->ReadUnsigned(3);
 		break;
 	case XCOFF_10:
-		address = rd.ReadUnsigned(4);
-		symbol_index = rd.ReadUnsigned(4);
-		information = rd.ReadUnsigned(1);
-		type = rd.ReadUnsigned(1);
+		address = rd->ReadUnsigned(4);
+		symbol_index = rd->ReadUnsigned(4);
+		information = rd->ReadUnsigned(1);
+		type = rd->ReadUnsigned(1);
 		break;
 	case XCOFF_14:
-		address = rd.ReadUnsigned(8);
-		symbol_index = rd.ReadUnsigned(4);
-		information = rd.ReadUnsigned(1);
-		type = rd.ReadUnsigned(1);
+		address = rd->ReadUnsigned(8);
+		symbol_index = rd->ReadUnsigned(4);
+		information = rd->ReadUnsigned(1);
+		type = rd->ReadUnsigned(1);
 		break;
 	}
 }
@@ -714,11 +714,11 @@ void COFFFormat::Relocation::FillEntry(Dumper::Entry& entry, const COFFFormat& c
 //	entry.AddField("Target", ???);
 }
 
-void COFFFormat::Symbol::FileNameAuxiliaryEntry::Read(Linker::Reader& rd)
+void COFFFormat::Symbol::FileNameAuxiliaryEntry::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	file_name = rd.ReadData(14);
+	file_name = rd->ReadData(14);
 	file_name.erase(file_name.find_last_not_of('\0') + 1);
-	rd.Skip(4);
+	rd->Skip(4);
 }
 
 void COFFFormat::Symbol::FileNameAuxiliaryEntry::Write(Linker::Writer& wr) const
@@ -732,29 +732,29 @@ void COFFFormat::Symbol::FileNameAuxiliaryEntry::FillDumpData(Dumper::Entry& ent
 	entry.AddField("File name", Dumper::StringDisplay::Make("\'"), file_name);
 }
 
-void COFFFormat::Symbol::Read(Linker::Reader& rd)
+void COFFFormat::Symbol::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	union
 	{
 		char buffer[8];
 		uint32_t word[2];
 	} u;
-	rd.ReadData(8, u.buffer);
+	rd->ReadData(8, u.buffer);
 	if(u.word[0] == 0)
 	{
 		name = "";
-		name_index = ReadUnsigned(4, 4, reinterpret_cast<uint8_t *>(&u.buffer[4]), rd.endiantype);
+		name_index = ReadUnsigned(4, 4, reinterpret_cast<uint8_t *>(&u.buffer[4]), rd->endiantype);
 	}
 	else
 	{
 		name = std::string(u.buffer, strnlen(u.buffer, 8));
 		name_index = 0;
 	}
-	value = rd.ReadUnsigned(4);
-	section_number = rd.ReadUnsigned(2);
-	type = rd.ReadUnsigned(2);
-	storage_class = rd.ReadUnsigned(1);
-	auxiliary_count = rd.ReadUnsigned(1);
+	value = rd->ReadUnsigned(4);
+	section_number = rd->ReadUnsigned(2);
+	type = rd->ReadUnsigned(2);
+	storage_class = rd->ReadUnsigned(1);
+	auxiliary_count = rd->ReadUnsigned(1);
 	uint8_t skip_entries = auxiliary_count;
 	switch(storage_class)
 	{
@@ -846,7 +846,7 @@ void COFFFormat::Symbol::Read(Linker::Reader& rd)
 		break;
 	// TODO: StructureAuxiliaryEntry?
 	}
-	rd.Skip(18 * skip_entries);
+	rd->Skip(18 * skip_entries);
 }
 
 bool COFFFormat::Symbol::IsExternal() const
@@ -920,95 +920,95 @@ bool COFFFormat::Section::PresentInMemory(COFFVariantType coff_variant) const
 	}
 }
 
-void COFFFormat::Section::ReadSectionHeader(Linker::Reader& rd, COFFFormat& coff_format)
+void COFFFormat::Section::ReadSectionHeader(const std::shared_ptr<Linker::Reader>& rd, COFFFormat& coff_format)
 {
 	switch(coff_format.coff_variant)
 	{
 	case COFF:
 	case XCOFF32:
 	case PECOFF:
-		name = rd.ReadData(8, true);
-		physical_address = rd.ReadUnsigned(4);
-		address = rd.ReadUnsigned(4);
-		size = rd.ReadUnsigned(4);
-		section_pointer = rd.ReadUnsigned(4);
-		relocation_pointer = rd.ReadUnsigned(4);
-		line_number_pointer = rd.ReadUnsigned(4);
-		relocation_count = rd.ReadUnsigned(2);
-		line_number_count = rd.ReadUnsigned(2);
-		flags = rd.ReadUnsigned(coff_format.coff_variant == XCOFF32 ? 2 : 4);
+		name = rd->ReadData(8, true);
+		physical_address = rd->ReadUnsigned(4);
+		address = rd->ReadUnsigned(4);
+		size = rd->ReadUnsigned(4);
+		section_pointer = rd->ReadUnsigned(4);
+		relocation_pointer = rd->ReadUnsigned(4);
+		line_number_pointer = rd->ReadUnsigned(4);
+		relocation_count = rd->ReadUnsigned(2);
+		line_number_count = rd->ReadUnsigned(2);
+		flags = rd->ReadUnsigned(coff_format.coff_variant == XCOFF32 ? 2 : 4);
 		if(coff_format.coff_variant == XCOFF32)
 		{
-			rd.Skip(2);
+			rd->Skip(2);
 		}
 		if(coff_format.coff_variant == PECOFF && (flags & PECOFF_Flags::LNK_NRELOC_OVFL) != 0)
 		{
-			offset_t end_of_section_header = rd.Tell();
-			rd.Seek(coff_format.file_offset + relocation_pointer);
-			relocation_count = rd.ReadUnsigned(4);
-			rd.Seek(end_of_section_header);
+			offset_t end_of_section_header = rd->Tell();
+			rd->Seek(coff_format.file_offset + relocation_pointer);
+			relocation_count = rd->ReadUnsigned(4);
+			rd->Seek(end_of_section_header);
 		}
 		break;
 	case TICOFF:
-		name = rd.ReadData(8, true);
-		physical_address = rd.ReadUnsigned(4);
-		address = rd.ReadUnsigned(4);
-		size = rd.ReadUnsigned(4);
-		section_pointer = rd.ReadUnsigned(4);
-		relocation_pointer = rd.ReadUnsigned(4);
-		line_number_pointer = rd.ReadUnsigned(4);
-		relocation_count = rd.ReadUnsigned(4);
-		line_number_count = rd.ReadUnsigned(4);
-		flags = rd.ReadUnsigned(4);
-		rd.Skip(2);
-		memory_page_number = rd.ReadUnsigned(2);
+		name = rd->ReadData(8, true);
+		physical_address = rd->ReadUnsigned(4);
+		address = rd->ReadUnsigned(4);
+		size = rd->ReadUnsigned(4);
+		section_pointer = rd->ReadUnsigned(4);
+		relocation_pointer = rd->ReadUnsigned(4);
+		line_number_pointer = rd->ReadUnsigned(4);
+		relocation_count = rd->ReadUnsigned(4);
+		line_number_count = rd->ReadUnsigned(4);
+		flags = rd->ReadUnsigned(4);
+		rd->Skip(2);
+		memory_page_number = rd->ReadUnsigned(2);
 		break;
 	case TICOFF1:
-		name = rd.ReadData(8, true);
-		physical_address = rd.ReadUnsigned(4);
-		address = rd.ReadUnsigned(4);
-		size = rd.ReadUnsigned(4);
-		section_pointer = rd.ReadUnsigned(4);
-		relocation_pointer = rd.ReadUnsigned(4);
-		line_number_pointer = rd.ReadUnsigned(4);
-		relocation_count = rd.ReadUnsigned(2);
-		line_number_count = rd.ReadUnsigned(2);
-		flags = rd.ReadUnsigned(2);
-		rd.Skip(1);
-		memory_page_number = rd.ReadUnsigned(1);
+		name = rd->ReadData(8, true);
+		physical_address = rd->ReadUnsigned(4);
+		address = rd->ReadUnsigned(4);
+		size = rd->ReadUnsigned(4);
+		section_pointer = rd->ReadUnsigned(4);
+		relocation_pointer = rd->ReadUnsigned(4);
+		line_number_pointer = rd->ReadUnsigned(4);
+		relocation_count = rd->ReadUnsigned(2);
+		line_number_count = rd->ReadUnsigned(2);
+		flags = rd->ReadUnsigned(2);
+		rd->Skip(1);
+		memory_page_number = rd->ReadUnsigned(1);
 		break;
 	case ECOFF:
-		name = rd.ReadData(8, true);
-		physical_address = rd.ReadUnsigned(8);
-		address = rd.ReadUnsigned(8);
-		size = rd.ReadUnsigned(8);
-		section_pointer = rd.ReadUnsigned(8);
-		relocation_pointer = rd.ReadUnsigned(8);
-		line_number_pointer = rd.ReadUnsigned(8);
-		relocation_count = rd.ReadUnsigned(2);
-		line_number_count = rd.ReadUnsigned(2);
-		flags = rd.ReadUnsigned(4);
+		name = rd->ReadData(8, true);
+		physical_address = rd->ReadUnsigned(8);
+		address = rd->ReadUnsigned(8);
+		size = rd->ReadUnsigned(8);
+		section_pointer = rd->ReadUnsigned(8);
+		relocation_pointer = rd->ReadUnsigned(8);
+		line_number_pointer = rd->ReadUnsigned(8);
+		relocation_count = rd->ReadUnsigned(2);
+		line_number_count = rd->ReadUnsigned(2);
+		flags = rd->ReadUnsigned(4);
 		if((flags & ECOFF_Flags::NRELOC_OVERFLOWED) != 0)
 		{
-			offset_t end_of_section_header = rd.Tell();
+			offset_t end_of_section_header = rd->Tell();
 			// skip first relocation entry r_vaddr field
-			rd.Seek(coff_format.file_offset + relocation_pointer + 8);
+			rd->Seek(coff_format.file_offset + relocation_pointer + 8);
 			// read first relocation entry r_symndx field
-			relocation_count = rd.ReadUnsigned(4);
-			rd.Seek(end_of_section_header);
+			relocation_count = rd->ReadUnsigned(4);
+			rd->Seek(end_of_section_header);
 		}
 		break;
 	case XCOFF64:
-		name = rd.ReadData(8, true);
-		physical_address = rd.ReadUnsigned(8);
-		address = rd.ReadUnsigned(8);
-		size = rd.ReadUnsigned(8);
-		section_pointer = rd.ReadUnsigned(8);
-		relocation_pointer = rd.ReadUnsigned(8);
-		line_number_pointer = rd.ReadUnsigned(8);
-		relocation_count = rd.ReadUnsigned(4);
-		line_number_count = rd.ReadUnsigned(4);
-		flags = rd.ReadUnsigned(4);
+		name = rd->ReadData(8, true);
+		physical_address = rd->ReadUnsigned(8);
+		address = rd->ReadUnsigned(8);
+		size = rd->ReadUnsigned(8);
+		section_pointer = rd->ReadUnsigned(8);
+		relocation_pointer = rd->ReadUnsigned(8);
+		line_number_pointer = rd->ReadUnsigned(8);
+		relocation_count = rd->ReadUnsigned(4);
+		line_number_count = rd->ReadUnsigned(4);
+		flags = rd->ReadUnsigned(4);
 		break;
 	}
 
@@ -1102,9 +1102,9 @@ uint32_t COFFFormat::Section::ImageSize(const COFFFormat& coff_format) const
 	return size; //image->ImageSize();
 }
 
-void COFFFormat::Section::ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format)
+void COFFFormat::Section::ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const COFFFormat& coff_format)
 {
-	rd.Seek(coff_format.file_offset + section_pointer);
+	rd->Seek(coff_format.file_offset + section_pointer);
 	if(dynamic_cast<FlexOSAOutHeader *>(coff_format.optional_header.get()) && name == ".lib")
 	{
 		image = FlexOSLibrarySection::ReadFile(rd, ImageSize(coff_format));
@@ -1335,7 +1335,7 @@ COFFFormat::OptionalHeader::~OptionalHeader()
 {
 }
 
-void COFFFormat::OptionalHeader::PostReadFile(COFFFormat& coff, Linker::Reader& rd)
+void COFFFormat::OptionalHeader::PostReadFile(COFFFormat& coff, const std::shared_ptr<Linker::Reader>& rd)
 {
 }
 
@@ -1367,7 +1367,7 @@ uint32_t COFFFormat::UnknownOptionalHeader::GetSize() const
 	return buffer->ImageSize();
 }
 
-void COFFFormat::UnknownOptionalHeader::ReadFile(Linker::Reader& rd)
+void COFFFormat::UnknownOptionalHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	buffer->ReadFile(rd, buffer->ImageSize());
 }
@@ -1392,16 +1392,16 @@ uint32_t COFFFormat::AOutHeader::GetSize() const
 	return 28;
 }
 
-void COFFFormat::AOutHeader::ReadFile(Linker::Reader& rd)
+void COFFFormat::AOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	magic = rd.ReadUnsigned(2);
-	version_stamp = rd.ReadUnsigned(2);
-	code_size = rd.ReadUnsigned(4);
-	data_size = rd.ReadUnsigned(4);
-	bss_size = rd.ReadUnsigned(4);
-	entry_address = rd.ReadUnsigned(4);
-	code_address = rd.ReadUnsigned(4);
-	data_address = rd.ReadUnsigned(4);
+	magic = rd->ReadUnsigned(2);
+	version_stamp = rd->ReadUnsigned(2);
+	code_size = rd->ReadUnsigned(4);
+	data_size = rd->ReadUnsigned(4);
+	bss_size = rd->ReadUnsigned(4);
+	entry_address = rd->ReadUnsigned(4);
+	code_address = rd->ReadUnsigned(4);
+	data_address = rd->ReadUnsigned(4);
 }
 
 void COFFFormat::AOutHeader::WriteFile(Linker::Writer& wr) const
@@ -1483,18 +1483,18 @@ uint32_t COFFFormat::AOutHeader3B20::GetSize() const
 	return 36;
 }
 
-void COFFFormat::AOutHeader3B20::ReadFile(Linker::Reader& rd)
+void COFFFormat::AOutHeader3B20::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	magic = rd.ReadUnsigned(2);
-	version_stamp = rd.ReadUnsigned(2);
-	code_size = rd.ReadUnsigned(4);
-	data_size = rd.ReadUnsigned(4);
-	bss_size = rd.ReadUnsigned(4);
-	reserved1 = rd.ReadUnsigned(4);
-	reserved2 = rd.ReadUnsigned(4);
-	entry_address = rd.ReadUnsigned(4);
-	code_address = rd.ReadUnsigned(4);
-	data_address = rd.ReadUnsigned(4);
+	magic = rd->ReadUnsigned(2);
+	version_stamp = rd->ReadUnsigned(2);
+	code_size = rd->ReadUnsigned(4);
+	data_size = rd->ReadUnsigned(4);
+	bss_size = rd->ReadUnsigned(4);
+	reserved1 = rd->ReadUnsigned(4);
+	reserved2 = rd->ReadUnsigned(4);
+	entry_address = rd->ReadUnsigned(4);
+	code_address = rd->ReadUnsigned(4);
+	data_address = rd->ReadUnsigned(4);
 }
 
 void COFFFormat::AOutHeader3B20::WriteFile(Linker::Writer& wr) const
@@ -1528,11 +1528,11 @@ uint32_t COFFFormat::FlexOSAOutHeader::GetSize() const
 	return 36;
 }
 
-void COFFFormat::FlexOSAOutHeader::ReadFile(Linker::Reader& rd)
+void COFFFormat::FlexOSAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	AOutHeader::ReadFile(rd);
-	relocations_offset = rd.ReadUnsigned(4);
-	stack_size = rd.ReadUnsigned(4);
+	relocations_offset = rd->ReadUnsigned(4);
+	stack_size = rd->ReadUnsigned(4);
 }
 
 void COFFFormat::FlexOSAOutHeader::WriteFile(Linker::Writer& wr) const
@@ -1560,11 +1560,11 @@ offset_t COFFFormat::FlexOSAOutHeader::CalculateValues(COFFFormat& coff)
 	return DigitalResearch::CDOS::MeasureRelocations(coff.relocations);
 }
 
-void COFFFormat::FlexOSAOutHeader::PostReadFile(COFFFormat& coff, Linker::Reader& rd)
+void COFFFormat::FlexOSAOutHeader::PostReadFile(COFFFormat& coff, const std::shared_ptr<Linker::Reader>& rd)
 {
 	if(relocations_offset != 0)
 	{
-		rd.Seek(coff.file_offset + relocations_offset);
+		rd->Seek(coff.file_offset + relocations_offset);
 		DigitalResearch::CDOS::ReadRelocations(rd, coff.relocations, coff);
 	}
 }
@@ -1595,7 +1595,7 @@ uint32_t COFFFormat::GNUAOutHeader::GetSize() const
 	return 32;
 }
 
-void COFFFormat::GNUAOutHeader::ReadFile(Linker::Reader& wr)
+void COFFFormat::GNUAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>& wr)
 {
 	/* TODO */
 }
@@ -1662,16 +1662,16 @@ uint32_t COFFFormat::MIPSAOutHeader::GetSize() const
 	return 56;
 }
 
-void COFFFormat::MIPSAOutHeader::ReadFile(Linker::Reader& rd)
+void COFFFormat::MIPSAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	AOutHeader::ReadFile(rd);
-	bss_address = rd.ReadUnsigned(4);
-	gpr_mask = rd.ReadUnsigned(4);
-	cpr_mask[0] = rd.ReadUnsigned(4);
-	cpr_mask[1] = rd.ReadUnsigned(4);
-	cpr_mask[2] = rd.ReadUnsigned(4);
-	cpr_mask[3] = rd.ReadUnsigned(4);
-	gp_value = rd.ReadUnsigned(4);
+	bss_address = rd->ReadUnsigned(4);
+	gpr_mask = rd->ReadUnsigned(4);
+	cpr_mask[0] = rd->ReadUnsigned(4);
+	cpr_mask[1] = rd->ReadUnsigned(4);
+	cpr_mask[2] = rd->ReadUnsigned(4);
+	cpr_mask[3] = rd->ReadUnsigned(4);
+	gp_value = rd->ReadUnsigned(4);
 }
 
 void COFFFormat::MIPSAOutHeader::WriteFile(Linker::Writer& wr) const
@@ -1712,22 +1712,22 @@ uint32_t COFFFormat::ECOFFAOutHeader::GetSize() const
 	return 80;
 }
 
-void COFFFormat::ECOFFAOutHeader::ReadFile(Linker::Reader& rd)
+void COFFFormat::ECOFFAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	magic = rd.ReadUnsigned(2);
-	version_stamp = rd.ReadUnsigned(2);
-	build_revision = rd.ReadUnsigned(2);
-	rd.Skip(2);
-	code_size = rd.ReadUnsigned(8);
-	data_size = rd.ReadUnsigned(8);
-	bss_size = rd.ReadUnsigned(8);
-	entry_address = rd.ReadUnsigned(8);
-	code_address = rd.ReadUnsigned(8);
-	data_address = rd.ReadUnsigned(8);
-	bss_address = rd.ReadUnsigned(8);
-	gpr_mask = rd.ReadUnsigned(4);
-	fpr_mask = rd.ReadUnsigned(4);
-	global_pointer = rd.ReadUnsigned(8);
+	magic = rd->ReadUnsigned(2);
+	version_stamp = rd->ReadUnsigned(2);
+	build_revision = rd->ReadUnsigned(2);
+	rd->Skip(2);
+	code_size = rd->ReadUnsigned(8);
+	data_size = rd->ReadUnsigned(8);
+	bss_size = rd->ReadUnsigned(8);
+	entry_address = rd->ReadUnsigned(8);
+	code_address = rd->ReadUnsigned(8);
+	data_address = rd->ReadUnsigned(8);
+	bss_address = rd->ReadUnsigned(8);
+	gpr_mask = rd->ReadUnsigned(4);
+	fpr_mask = rd->ReadUnsigned(4);
+	global_pointer = rd->ReadUnsigned(8);
 }
 
 void COFFFormat::ECOFFAOutHeader::WriteFile(Linker::Writer& wr) const
@@ -1768,65 +1768,65 @@ uint32_t COFFFormat::XCOFFAOutHeader::GetSize() const
 	return is64 ? 110 : 72;
 }
 
-void COFFFormat::XCOFFAOutHeader::ReadFile(Linker::Reader& rd)
+void COFFFormat::XCOFFAOutHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	magic = rd.ReadUnsigned(2);
-	version_stamp = rd.ReadUnsigned(2);
+	magic = rd->ReadUnsigned(2);
+	version_stamp = rd->ReadUnsigned(2);
 	if(is64)
 	{
-		debugger_data = rd.ReadUnsigned(4);
-		code_address = rd.ReadUnsigned(8);
-		data_address = rd.ReadUnsigned(8);
-		toc_address = rd.ReadUnsigned(8);
+		debugger_data = rd->ReadUnsigned(4);
+		code_address = rd->ReadUnsigned(8);
+		data_address = rd->ReadUnsigned(8);
+		toc_address = rd->ReadUnsigned(8);
 	}
 	else
 	{
-		code_size = rd.ReadUnsigned(4);
-		data_size = rd.ReadUnsigned(4);
-		bss_size = rd.ReadUnsigned(4);
-		entry_address = rd.ReadUnsigned(4);
-		code_address = rd.ReadUnsigned(4);
-		data_address = rd.ReadUnsigned(4);
-		toc_address = rd.ReadUnsigned(4);
+		code_size = rd->ReadUnsigned(4);
+		data_size = rd->ReadUnsigned(4);
+		bss_size = rd->ReadUnsigned(4);
+		entry_address = rd->ReadUnsigned(4);
+		code_address = rd->ReadUnsigned(4);
+		data_address = rd->ReadUnsigned(4);
+		toc_address = rd->ReadUnsigned(4);
 	}
-	entry_section = rd.ReadUnsigned(2);
-	code_section = rd.ReadUnsigned(2);
-	data_section = rd.ReadUnsigned(2);
-	toc_section = rd.ReadUnsigned(2);
-	loader_section = rd.ReadUnsigned(2);
-	bss_section = rd.ReadUnsigned(2);
-	code_align = rd.ReadUnsigned(2);
-	data_align = rd.ReadUnsigned(2);
-	module_type = rd.ReadUnsigned(2);
-	cpu_flags = rd.ReadUnsigned(1);
-	cpu_type = rd.ReadUnsigned(1);
+	entry_section = rd->ReadUnsigned(2);
+	code_section = rd->ReadUnsigned(2);
+	data_section = rd->ReadUnsigned(2);
+	toc_section = rd->ReadUnsigned(2);
+	loader_section = rd->ReadUnsigned(2);
+	bss_section = rd->ReadUnsigned(2);
+	code_align = rd->ReadUnsigned(2);
+	data_align = rd->ReadUnsigned(2);
+	module_type = rd->ReadUnsigned(2);
+	cpu_flags = rd->ReadUnsigned(1);
+	cpu_type = rd->ReadUnsigned(1);
 	if(!is64)
 	{
-		maximum_stack_size = rd.ReadUnsigned(4);
-		maximum_data_size = rd.ReadUnsigned(4);
-		debugger_data = rd.ReadUnsigned(4);
+		maximum_stack_size = rd->ReadUnsigned(4);
+		maximum_data_size = rd->ReadUnsigned(4);
+		debugger_data = rd->ReadUnsigned(4);
 	}
-	code_page_size = rd.ReadUnsigned(1);
-	text_page_size = rd.ReadUnsigned(1);
-	stack_page_size = rd.ReadUnsigned(1);
-	flags = rd.ReadUnsigned(1);
+	code_page_size = rd->ReadUnsigned(1);
+	text_page_size = rd->ReadUnsigned(1);
+	stack_page_size = rd->ReadUnsigned(1);
+	flags = rd->ReadUnsigned(1);
 	if(is64)
 	{
-		code_size = rd.ReadUnsigned(8);
-		data_size = rd.ReadUnsigned(8);
-		bss_size = rd.ReadUnsigned(8);
-		entry_address = rd.ReadUnsigned(8);
-		maximum_stack_size = rd.ReadUnsigned(8);
-		maximum_data_size = rd.ReadUnsigned(8);
+		code_size = rd->ReadUnsigned(8);
+		data_size = rd->ReadUnsigned(8);
+		bss_size = rd->ReadUnsigned(8);
+		entry_address = rd->ReadUnsigned(8);
+		maximum_stack_size = rd->ReadUnsigned(8);
+		maximum_data_size = rd->ReadUnsigned(8);
 	}
-	tdata_section = rd.ReadUnsigned(2);
-	tbss_section = rd.ReadUnsigned(2);
+	tdata_section = rd->ReadUnsigned(2);
+	tbss_section = rd->ReadUnsigned(2);
 	if(is64)
 	{
-		xcoff64_flags = rd.ReadUnsigned(2);
+		xcoff64_flags = rd->ReadUnsigned(2);
 #if 0
 		// TODO: this seems to make the header too long, is it 111 bytes long?
-		shared_memory_page = rd.ReadUnsigned(1);
+		shared_memory_page = rd->ReadUnsigned(1);
 #endif
 	}
 }
@@ -1992,32 +1992,32 @@ void COFFFormat::DetectCpuType()
 	}
 }
 
-void COFFFormat::ReadFile(Linker::Reader& rd)
+void COFFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	file_offset = rd.Tell();
+	file_offset = rd->Tell();
 	if(file_offset == 0 && (coff_variant == AnyCOFFVariant || coff_variant == COFF) && (type == GENERIC || type == DJGPP))
 	{
 		// try to check for MZ stub
 		std::array<char, 2> signature;
-		rd.ReadData(signature);
+		rd->ReadData(signature);
 		if(signature[0] == 'M' && signature[1] == 'Z')
 		{
-			rd.Seek(0);
+			rd->Seek(0);
 			file_offset = Microsoft::FindActualSignature(rd, signature, "L\1");
 		}
-		rd.Seek(file_offset);
+		rd->Seek(file_offset);
 	}
 	ReadCOFFHeader(rd);
 	ReadOptionalHeader(rd);
 	ReadRestOfFile(rd);
-	file_size = rd.Tell() - file_offset; // TODO: read might have finished inside the COFF image
+	file_size = rd->Tell() - file_offset; // TODO: read might have finished inside the COFF image
 }
 
-void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
+void COFFFormat::ReadCOFFHeader(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.ReadData(2, signature);
+	rd->ReadData(2, signature);
 	DetectCpuType();
-	rd.endiantype = endiantype;
+	rd->endiantype = endiantype;
 
 	if(coff_variant == AnyCOFFVariant)
 	{
@@ -2027,45 +2027,45 @@ void COFFFormat::ReadCOFFHeader(Linker::Reader& rd)
 	switch(coff_variant)
 	{
 	case PECOFF:
-		rd.endiantype = ::LittleEndian;
+		rd->endiantype = ::LittleEndian;
 
 	case COFF:
 	case XCOFF32:
 	case TICOFF:
 	case TICOFF1:
-		section_count = rd.ReadUnsigned(2);
-		timestamp = rd.ReadTimestamp<POSIX_clock>();
-		symbol_table_offset = rd.ReadUnsigned(4);
-		symbol_count = rd.ReadUnsigned(4);
-		optional_header_size = rd.ReadUnsigned(2);
-		flags = rd.ReadUnsigned(2);
+		section_count = rd->ReadUnsigned(2);
+		timestamp = rd->ReadTimestamp<POSIX_clock>();
+		symbol_table_offset = rd->ReadUnsigned(4);
+		symbol_count = rd->ReadUnsigned(4);
+		optional_header_size = rd->ReadUnsigned(2);
+		flags = rd->ReadUnsigned(2);
 		if(coff_variant == TICOFF || coff_variant == TICOFF1)
 		{
-			target = rd.ReadUnsigned(2);
+			target = rd->ReadUnsigned(2);
 		}
 		break;
 
 	case ECOFF:
-		section_count = rd.ReadUnsigned(2);
-		timestamp = rd.ReadTimestamp<POSIX_clock>();
-		symbol_table_offset = rd.ReadUnsigned(8); // extended
-		symbol_count = rd.ReadUnsigned(4);
-		optional_header_size = rd.ReadUnsigned(2);
-		flags = rd.ReadUnsigned(2);
+		section_count = rd->ReadUnsigned(2);
+		timestamp = rd->ReadTimestamp<POSIX_clock>();
+		symbol_table_offset = rd->ReadUnsigned(8); // extended
+		symbol_count = rd->ReadUnsigned(4);
+		optional_header_size = rd->ReadUnsigned(2);
+		flags = rd->ReadUnsigned(2);
 		break;
 
 	case XCOFF64:
-		section_count = rd.ReadUnsigned(2);
-		timestamp = rd.ReadTimestamp<POSIX_clock>();
-		symbol_table_offset = rd.ReadUnsigned(8); // extended
-		optional_header_size = rd.ReadUnsigned(2);
-		flags = rd.ReadUnsigned(2);
-		symbol_count = rd.ReadUnsigned(4); // moved
+		section_count = rd->ReadUnsigned(2);
+		timestamp = rd->ReadTimestamp<POSIX_clock>();
+		symbol_table_offset = rd->ReadUnsigned(8); // extended
+		optional_header_size = rd->ReadUnsigned(2);
+		flags = rd->ReadUnsigned(2);
+		symbol_count = rd->ReadUnsigned(4); // moved
 		break;
 	}
 }
 
-void COFFFormat::ReadOptionalHeader(Linker::Reader& rd)
+void COFFFormat::ReadOptionalHeader(const std::shared_ptr<Linker::Reader>& rd)
 {
 	switch(optional_header_size)
 	{
@@ -2132,16 +2132,16 @@ void COFFFormat::ReadOptionalHeader(Linker::Reader& rd)
 		optional_header = std::make_unique<UnknownOptionalHeader>(optional_header_size);
 	}
 
-//	offset_t optional_header_offset = rd.Tell();
+//	offset_t optional_header_offset = rd->Tell();
 	if(optional_header)
 	{
 		optional_header->ReadFile(rd);
 	}
 //	/* if not recognized, skip optional header */
-//	rd.Seek(optional_header_offset + optional_header_size);
+//	rd->Seek(optional_header_offset + optional_header_size);
 }
 
-void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
+void COFFFormat::ReadRestOfFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	switch(coff_variant)
 	{
@@ -2229,7 +2229,7 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 	{
 		if(section->relocation_count > 0)
 		{
-			rd.Seek(file_offset + section->relocation_pointer);
+			rd->Seek(file_offset + section->relocation_pointer);
 			for(size_t i = 0; i < section->relocation_count; i++)
 			{
 				std::unique_ptr<Relocation> rel = std::make_unique<Relocation>();
@@ -2241,7 +2241,7 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 
 	if(symbol_count > 0)
 	{
-		rd.Seek(file_offset + symbol_table_offset);
+		rd->Seek(file_offset + symbol_table_offset);
 		while(symbols.size() < symbol_count)
 		{
 			std::unique_ptr<Symbol> symbol = std::make_unique<Symbol>();
@@ -2249,14 +2249,14 @@ void COFFFormat::ReadRestOfFile(Linker::Reader& rd)
 			symbols.push_back(std::move(symbol));
 			symbols.resize(symbols.size() + symbols.back()->auxiliary_count);
 		}
-		size_t string_table_offset = rd.Tell();
+		size_t string_table_offset = rd->Tell();
 		for(auto& symbol : symbols)
 		{
 			if(symbol && symbol->name_index != 0)
 			{
-				rd.Seek(string_table_offset + symbol->name_index);
+				rd->Seek(string_table_offset + symbol->name_index);
 				Linker::Debug << "Debug: Reading symbol index: " << symbol->name_index << std::endl;
-				symbol->name = rd.ReadASCIIZ();
+				symbol->name = rd->ReadASCIIZ();
 			}
 		}
 
@@ -3112,25 +3112,25 @@ void COFFFormat::FlexOSLibrary::AssignNameAndVersion(std::string name_and_versio
 	}
 }
 
-offset_t COFFFormat::FlexOSLibrary::ReadFile(Linker::Reader& rd, offset_t size, bool& is_definition)
+offset_t COFFFormat::FlexOSLibrary::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size, bool& is_definition)
 {
-	rd.Skip(2);
-	is_definition = rd.ReadUnsigned(1) == 'A';
-	rd.Skip(1);
-	srtl_load_bias = rd.ReadUnsigned(4);
-	text_load_size = rd.ReadUnsigned(4);
-	data_load_size = rd.ReadUnsigned(4);
-	bss_load_size = rd.ReadUnsigned(4);
-	stack_load_size = rd.ReadUnsigned(4);
-	flags = rd.ReadUnsigned(4);
-	reserved = rd.ReadUnsigned(4);
-	version.major = rd.ReadUnsigned(2);
-	version.minor = rd.ReadUnsigned(2);
-	uint16_t path_size = rd.ReadUnsigned(2);
-	uint16_t name_size = rd.ReadUnsigned(2);
+	rd->Skip(2);
+	is_definition = rd->ReadUnsigned(1) == 'A';
+	rd->Skip(1);
+	srtl_load_bias = rd->ReadUnsigned(4);
+	text_load_size = rd->ReadUnsigned(4);
+	data_load_size = rd->ReadUnsigned(4);
+	bss_load_size = rd->ReadUnsigned(4);
+	stack_load_size = rd->ReadUnsigned(4);
+	flags = rd->ReadUnsigned(4);
+	reserved = rd->ReadUnsigned(4);
+	version.major = rd->ReadUnsigned(2);
+	version.minor = rd->ReadUnsigned(2);
+	uint16_t path_size = rd->ReadUnsigned(2);
+	uint16_t name_size = rd->ReadUnsigned(2);
 	size -= 40;
 	offset_t count = std::min(size, offset_t(path_size + name_size + 1));
-	std::string path_name = rd.ReadData(count);
+	std::string path_name = rd->ReadData(count);
 	path = path_name.substr(0, path_size);
 	name = path_name.substr(path_size, name_size);
 	return 41 + path_name.size();
@@ -3214,16 +3214,16 @@ offset_t COFFFormat::FlexOSLibrarySection::WriteFile(Linker::Writer& wr) const
 	return total;
 }
 
-std::shared_ptr<COFFFormat::FlexOSLibrarySection> COFFFormat::FlexOSLibrarySection::ReadFile(Linker::Reader& rd, offset_t size)
+std::shared_ptr<COFFFormat::FlexOSLibrarySection> COFFFormat::FlexOSLibrarySection::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size)
 {
 	auto section = std::make_shared<COFFFormat::FlexOSLibrarySection>();
 
-	offset_t offset = rd.Tell();
+	offset_t offset = rd->Tell();
 	section->actual_contents = Linker::Buffer::ReadFromFile(rd, size);
-	rd.Seek(offset);
+	rd->Seek(offset);
 
-	auto old_overflow = rd.on_overflow;
-	rd.on_overflow = Linker::Reader::ReportOnOverflow;
+	auto old_overflow = rd->on_overflow;
+	rd->on_overflow = Linker::Reader::ReportOnOverflow;
 	try
 	{
 		while(size > 40) // minimum size for entry
@@ -3259,7 +3259,7 @@ std::shared_ptr<COFFFormat::FlexOSLibrarySection> COFFFormat::FlexOSLibrarySecti
 	{
 	}
 
-	rd.on_overflow = old_overflow;
+	rd->on_overflow = old_overflow;
 
 	return section;
 }

@@ -48,7 +48,7 @@ namespace AS86Obj
 			virtual offset_t GetMemorySize() const = 0;
 			virtual void Dump(Dumper::Dumper& dump, unsigned index, offset_t& file_offset, offset_t& memory_offset) const = 0;
 			virtual void Generate(Linker::Module& module, int& current_segment, std::array<std::shared_ptr<Linker::Section>, 16>& segments) const;
-			static std::unique_ptr<ByteCode> ReadFile(Linker::Reader& rd, int& relocation_size);
+			static std::unique_ptr<ByteCode> ReadFile(const std::shared_ptr<Linker::Reader>& rd, int& relocation_size);
 		};
 
 		class RelocatorSize : public ByteCode
@@ -195,7 +195,7 @@ namespace AS86Obj
 
 		std::vector<Module> modules;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 

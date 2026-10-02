@@ -115,7 +115,7 @@ namespace DigitalResearch
 				}
 			}
 
-			static Relocation ReadFile(Linker::Reader& rd);
+			static Relocation ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			void WriteFile(Linker::Writer& wr) const;
 		};
 
@@ -134,7 +134,7 @@ namespace DigitalResearch
 			uint16_t value;
 			std::string name;
 
-			static Symbol ReadFile(Linker::Reader& rd);
+			static Symbol ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			void WriteFile(Linker::Writer& wr) const;
 		};
 
@@ -176,7 +176,7 @@ namespace DigitalResearch
 			SetSignature(magic);
 		}
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 

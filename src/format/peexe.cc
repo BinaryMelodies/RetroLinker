@@ -38,45 +38,45 @@ offset_t PEFormat::PEOptionalHeader::RVAToAddress(uint32_t rva, bool suppress_on
 		return image_base + rva;
 }
 
-void PEFormat::PEOptionalHeader::ReadFile(Linker::Reader& rd)
+void PEFormat::PEOptionalHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	magic = rd.ReadUnsigned(2);
-	version_stamp = rd.ReadUnsigned(2);
-	code_size = rd.ReadUnsigned(4);
-	data_size = rd.ReadUnsigned(4);
-	bss_size = rd.ReadUnsigned(4);
-	entry_address = rd.ReadUnsigned(4);
-	code_address = rd.ReadUnsigned(4);
+	magic = rd->ReadUnsigned(2);
+	version_stamp = rd->ReadUnsigned(2);
+	code_size = rd->ReadUnsigned(4);
+	data_size = rd->ReadUnsigned(4);
+	bss_size = rd->ReadUnsigned(4);
+	entry_address = rd->ReadUnsigned(4);
+	code_address = rd->ReadUnsigned(4);
 	if(!Is64Bit())
 	{
-		data_address = rd.ReadUnsigned(4);
+		data_address = rd->ReadUnsigned(4);
 	}
-	image_base = rd.ReadUnsigned(Is64Bit() ? 8 : 4);
-	section_align = rd.ReadUnsigned(4);
-	file_align = rd.ReadUnsigned(4);
-	os_version.major = rd.ReadUnsigned(2);
-	os_version.minor = rd.ReadUnsigned(2);
-	image_version.major = rd.ReadUnsigned(2);
-	image_version.minor = rd.ReadUnsigned(2);
-	subsystem_version.major = rd.ReadUnsigned(2);
-	subsystem_version.minor = rd.ReadUnsigned(2);
-	win32_version = rd.ReadUnsigned(4);
-	total_image_size = rd.ReadUnsigned(4);
-	total_headers_size = rd.ReadUnsigned(4);
-	checksum = rd.ReadUnsigned(4);
-	subsystem = SubsystemType(rd.ReadUnsigned(2));
-	flags = rd.ReadUnsigned(2);
-	reserved_stack_size = rd.ReadUnsigned(Is64Bit() ? 8 : 4);
-	committed_stack_size = rd.ReadUnsigned(Is64Bit() ? 8 : 4);
-	reserved_heap_size = rd.ReadUnsigned(Is64Bit() ? 8 : 4);
-	committed_heap_size = rd.ReadUnsigned(Is64Bit() ? 8 : 4);
-	loader_flags = rd.ReadUnsigned(4);
-	uint32_t directory_count = rd.ReadUnsigned(4);
+	image_base = rd->ReadUnsigned(Is64Bit() ? 8 : 4);
+	section_align = rd->ReadUnsigned(4);
+	file_align = rd->ReadUnsigned(4);
+	os_version.major = rd->ReadUnsigned(2);
+	os_version.minor = rd->ReadUnsigned(2);
+	image_version.major = rd->ReadUnsigned(2);
+	image_version.minor = rd->ReadUnsigned(2);
+	subsystem_version.major = rd->ReadUnsigned(2);
+	subsystem_version.minor = rd->ReadUnsigned(2);
+	win32_version = rd->ReadUnsigned(4);
+	total_image_size = rd->ReadUnsigned(4);
+	total_headers_size = rd->ReadUnsigned(4);
+	checksum = rd->ReadUnsigned(4);
+	subsystem = SubsystemType(rd->ReadUnsigned(2));
+	flags = rd->ReadUnsigned(2);
+	reserved_stack_size = rd->ReadUnsigned(Is64Bit() ? 8 : 4);
+	committed_stack_size = rd->ReadUnsigned(Is64Bit() ? 8 : 4);
+	reserved_heap_size = rd->ReadUnsigned(Is64Bit() ? 8 : 4);
+	committed_heap_size = rd->ReadUnsigned(Is64Bit() ? 8 : 4);
+	loader_flags = rd->ReadUnsigned(4);
+	uint32_t directory_count = rd->ReadUnsigned(4);
 	for(uint32_t i = 0; i < directory_count; i++)
 	{
 		DataDirectory dirent;
-		dirent.address = rd.ReadUnsigned(4);
-		dirent.size = rd.ReadUnsigned(4);
+		dirent.address = rd->ReadUnsigned(4);
+		dirent.size = rd->ReadUnsigned(4);
 		data_directories.emplace_back(dirent);
 	}
 }
@@ -239,7 +239,7 @@ std::string PEFormat::PEOptionalHeader::GetHeaderFormatName(const COFFFormat& co
 	return "PE optional header";
 }
 
-void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const COFFFormat& coff_format)
+void PEFormat::Section::ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const COFFFormat& coff_format)
 {
 	ReadSectionData(rd, dynamic_cast<const PEFormat&>(coff_format));
 }
@@ -363,12 +363,12 @@ void PEFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, uns
 	section_block.Display(dump, Dumper::Header | Dumper::Image);
 }
 
-void PEFormat::Section::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
+void PEFormat::Section::ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt)
 {
 	// unlike COFF (particularly for DJGPP), the section_pointer is from the start of the file
 	if(section_pointer != 0)
 	{
-		rd.Seek(section_pointer);
+		rd->Seek(section_pointer);
 		std::dynamic_pointer_cast<Linker::Buffer>(image)->ReadFile(rd, size);
 	}
 }
@@ -1003,7 +1003,7 @@ void PEFormat::ResourcesSection::Generate(PEFormat& fmt)
 	}
 }
 
-void PEFormat::ResourcesSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
+void PEFormat::ResourcesSection::ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt)
 {
 	// TODO
 }
@@ -1143,7 +1143,7 @@ void PEFormat::ImportsSection::Generate(PEFormat& fmt)
 	size = AlignTo(rva - address, fmt.GetOptionalHeader().file_align);
 }
 
-void PEFormat::ImportsSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
+void PEFormat::ImportsSection::ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt)
 {
 	// TODO
 }
@@ -1515,7 +1515,7 @@ void PEFormat::ExportsSection::Generate(PEFormat& fmt)
 	size = AlignTo(rva - address, fmt.GetOptionalHeader().file_align);
 }
 
-void PEFormat::ExportsSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
+void PEFormat::ExportsSection::ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt)
 {
 	// TODO
 }
@@ -1883,7 +1883,7 @@ void PEFormat::BaseRelocationsSection::Generate(PEFormat& fmt)
 	size = AlignTo(full_size, fmt.GetOptionalHeader().file_align);
 }
 
-void PEFormat::BaseRelocationsSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
+void PEFormat::BaseRelocationsSection::ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt)
 {
 	// TODO
 }
@@ -1998,7 +1998,7 @@ void PEFormat::BaseRelocationsSection::DumpDirectory(const PEFormat& fmt, Dumper
 	}
 }
 
-void PEFormat::CLRHeaderSection::ReadSectionData(Linker::Reader& rd, const PEFormat& fmt)
+void PEFormat::CLRHeaderSection::ReadSectionData(const std::shared_ptr<Linker::Reader>& rd, const PEFormat& fmt)
 {
 	// TODO
 }
@@ -2245,9 +2245,9 @@ void PEFormat::AddBaseRelocation(uint32_t rva, BaseRelocation::relocation_type t
 	base_relocations->blocks_map[page_rva]->relocations_map[page_offset] = rel;
 }
 
-void PEFormat::ReadFile(Linker::Reader& rd)
+void PEFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	file_offset = rd.Tell();
+	file_offset = rd->Tell();
 	file_offset = Microsoft::FindActualSignature(rd, pe_signature, "PE\0\0", "PL\0\0" /* TNT DOS Extender variant */);
 
 	ReadCOFFHeader(rd);
@@ -4109,22 +4109,22 @@ std::shared_ptr<PEFormat::RVADisplay> PEFormat::MakeRVADisplay(unsigned width) c
 	return std::make_shared<RVADisplay>(this, width);
 }
 
-void NTResourceFile::ReadIdentifier(Linker::Reader& rd, Identifier& id)
+void NTResourceFile::ReadIdentifier(const std::shared_ptr<Linker::Reader>& rd, Identifier& id)
 {
 	uint16_t first_word;
 
-	first_word = rd.ReadUnsigned(2, ::LittleEndian);
+	first_word = rd->ReadUnsigned(2, ::LittleEndian);
 	if(first_word == 0xFFFF)
 	{
-		id = uint16_t(rd.ReadUnsigned(2, ::LittleEndian));
+		id = uint16_t(rd->ReadUnsigned(2, ::LittleEndian));
 	}
 	else
 	{
-		rd.Skip(-2);
-		std::string s = rd.ReadUTF16ZData();
+		rd->Skip(-2);
+		std::string s = rd->ReadUTF16ZData();
 		id = s;
 		if((s.size() % 4) != 0)
-			rd.Skip(4 - (s.size() % 4));
+			rd->Skip(4 - (s.size() % 4));
 	}
 }
 
@@ -4165,41 +4165,41 @@ offset_t NTResourceFile::GetIdentifierSize(const Identifier& id)
 	}
 }
 
-void NTResourceFile::ReadFile(Linker::Reader& rd, offset_t size)
+void NTResourceFile::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size)
 {
-	file_offset = rd.Tell();
+	file_offset = rd->Tell();
 
-	while(rd.Tell() < file_offset + size)
+	while(rd->Tell() < file_offset + size)
 	{
-		offset_t current_offset = rd.Tell();
+		offset_t current_offset = rd->Tell();
 		Resource resource;
 
-		uint32_t size = rd.ReadUnsigned(4, ::LittleEndian);
-		resource.header_size = rd.ReadUnsigned(4, ::LittleEndian);
+		uint32_t size = rd->ReadUnsigned(4, ::LittleEndian);
+		resource.header_size = rd->ReadUnsigned(4, ::LittleEndian);
 
 		ReadIdentifier(rd, resource.type);
 		ReadIdentifier(rd, resource.name);
 
-		resource.data_version = rd.ReadUnsigned(4, ::LittleEndian);
-		resource.flags = rd.ReadUnsigned(2, ::LittleEndian);
-		resource.language_id = rd.ReadUnsigned(2, ::LittleEndian);
-		resource.version = rd.ReadUnsigned(4, ::LittleEndian);
-		resource.characteristics = rd.ReadUnsigned(4, ::LittleEndian);
+		resource.data_version = rd->ReadUnsigned(4, ::LittleEndian);
+		resource.flags = rd->ReadUnsigned(2, ::LittleEndian);
+		resource.language_id = rd->ReadUnsigned(2, ::LittleEndian);
+		resource.version = rd->ReadUnsigned(4, ::LittleEndian);
+		resource.characteristics = rd->ReadUnsigned(4, ::LittleEndian);
 
-		rd.Seek(current_offset + resource.header_size);
+		rd->Seek(current_offset + resource.header_size);
 		resource.image = Linker::Buffer::ReadFromFile(rd, size);
 
 		resources.emplace_back(resource);
 
 		if((size % 4) != 0)
-			rd.Skip(4 - (size % 4));
+			rd->Skip(4 - (size % 4));
 	}
 }
 
-void NTResourceFile::ReadFile(Linker::Reader& rd)
+void NTResourceFile::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	offset_t starting_offset = rd.Tell();
-	offset_t ending_offset = rd.GetImageEnd();
+	offset_t starting_offset = rd->Tell();
+	offset_t ending_offset = rd->GetImageEnd();
 
 	ReadFile(rd, ending_offset - starting_offset);
 }

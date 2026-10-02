@@ -218,9 +218,7 @@ int main(int argc, char * argv[])
 		message << "Fatal error: Unable to open file " << input;
 		Linker::FatalError(message.str());
 	}
-	// TODO: bad programming pattern
-	auto _rd = std::make_shared<StreamReader>(LittleEndian, in);
-	Reader& rd = *_rd;
+	auto rd = std::make_shared<StreamReader>(LittleEndian, in);
 	int status = 0;
 
 	if(format == nullptr)
@@ -254,7 +252,7 @@ int main(int argc, char * argv[])
 				status = 1;
 				continue;
 			}
-			rd.Seek(file_format.offset);
+			rd->Seek(file_format.offset);
 
 			try
 			{

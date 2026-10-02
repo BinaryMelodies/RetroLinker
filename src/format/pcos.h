@@ -54,7 +54,7 @@ namespace PCOS
 			 *
 			 * @param length The number of bytes in the block, not including the type and length fields
 			 */
-			virtual void ReadFile(Linker::Reader& rd, uint16_t length);
+			virtual void ReadFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t length);
 			/** @brief Writes the contents of the block to the file, including the type and length fields */
 			virtual void WriteFile(Linker::Writer& wr) const;
 			/** @brief Filters for display */
@@ -69,7 +69,7 @@ namespace PCOS
 			void Dump(Dumper::Dumper& dump, offset_t file_offset, const CMDFormat& module) const;
 
 			/** @brief Parses a block, including the type and length fields */
-			static std::unique_ptr<MemoryBlock> ReadFile(Linker::Reader& rd);
+			static std::unique_ptr<MemoryBlock> ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 
 			explicit MemoryBlock(int type)
 				: type(block_type(type))
@@ -91,7 +91,7 @@ namespace PCOS
 			std::shared_ptr<Linker::Contents> image;
 
 			uint16_t GetLength() const override;
-			void ReadFile(Linker::Reader& rd, uint16_t length) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t length) override;
 			void WriteFile(Linker::Writer& wr) const override;
 			int GetDisplayOptions() const override;
 			std::unique_ptr<Dumper::Region> MakeRegion(std::string name, offset_t offset, unsigned display_width) const override;
@@ -115,7 +115,7 @@ namespace PCOS
 			}
 
 			uint16_t GetLength() const override;
-			void ReadFile(Linker::Reader& rd, uint16_t length) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t length) override;
 			void WriteFile(Linker::Writer& wr) const override;
 			int GetDisplayOptions() const override;
 			void AddFields(Dumper::Region& region, const CMDFormat& module) const override;
@@ -134,7 +134,7 @@ namespace PCOS
 			std::shared_ptr<Linker::Contents> image;
 
 			uint16_t GetLength() const override;
-			void ReadFile(Linker::Reader& rd, uint16_t length) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t length) override;
 			void WriteFile(Linker::Writer& wr) const override;
 			std::unique_ptr<Dumper::Region> MakeRegion(std::string name, offset_t offset, unsigned display_width) const override;
 		};
@@ -167,7 +167,7 @@ namespace PCOS
 		{
 		}
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

@@ -102,14 +102,14 @@ offset_t LEFormat::IteratedPage::ImageSize() const
 	return size;
 }
 
-std::shared_ptr<LEFormat::IteratedPage> LEFormat::IteratedPage::ReadFromFile(Linker::Reader& rd, uint16_t size)
+std::shared_ptr<LEFormat::IteratedPage> LEFormat::IteratedPage::ReadFromFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t size)
 {
 	std::shared_ptr<IteratedPage> page = std::make_shared<IteratedPage>();
 	uint32_t offset = 0;
 	while(offset + 5 < size)
 	{
-		uint16_t count = rd.ReadUnsigned(2);
-		uint16_t length = rd.ReadUnsigned(2);
+		uint16_t count = rd->ReadUnsigned(2);
+		uint16_t length = rd->ReadUnsigned(2);
 		if(offset + 4 + length > size)
 			break;
 
@@ -118,7 +118,7 @@ std::shared_ptr<LEFormat::IteratedPage> LEFormat::IteratedPage::ReadFromFile(Lin
 
 		record.count = count;
 		record.data.resize(length);
-		rd.ReadData(record.data);
+		rd->ReadData(record.data);
 	}
 	return page;
 }
@@ -365,53 +365,53 @@ size_t LEFormat::Page::Relocation::GetSize() const
 	return size;
 }
 
-LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& rd, Page& page)
+LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(const std::shared_ptr<Linker::Reader>& rd, Page& page)
 {
 	Relocation relocation;
-	relocation.type = source_type(rd.ReadUnsigned(1));
-	relocation.flags = flag_type(rd.ReadUnsigned(1));
+	relocation.type = source_type(rd->ReadUnsigned(1));
+	relocation.flags = flag_type(rd->ReadUnsigned(1));
 	uint8_t source_list_size;
 	relocation.sources.clear();
 	if(relocation.IsSourceList())
 	{
-		source_list_size = rd.ReadUnsigned(1);
+		source_list_size = rd->ReadUnsigned(1);
 	}
 	else
 	{
 		source_list_size = 0;
-		uint16_t source = rd.ReadUnsigned(2);
+		uint16_t source = rd->ReadUnsigned(2);
 		relocation.sources.emplace_back(Chain{source});
 	}
 	switch(relocation.flags & FlagTypeMask)
 	{
 	case Internal:
-		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
+		relocation.module = rd->ReadUnsigned(relocation.GetModuleSize());
 		if(!relocation.IsSelector())
-			relocation.target = rd.ReadUnsigned(relocation.GetTargetSize());
+			relocation.target = rd->ReadUnsigned(relocation.GetTargetSize());
 		break;
 	case ImportOrdinal:
-		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
-		relocation.target = rd.ReadUnsigned(relocation.GetOrdinalSize());
+		relocation.module = rd->ReadUnsigned(relocation.GetModuleSize());
+		relocation.target = rd->ReadUnsigned(relocation.GetOrdinalSize());
 		if(relocation.IsAdditive())
-			relocation.addition = rd.ReadUnsigned(relocation.GetAdditiveSize());
+			relocation.addition = rd->ReadUnsigned(relocation.GetAdditiveSize());
 		break;
 	case ImportName:
-		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
-		relocation.target = rd.ReadUnsigned(relocation.GetTargetSize());
+		relocation.module = rd->ReadUnsigned(relocation.GetModuleSize());
+		relocation.target = rd->ReadUnsigned(relocation.GetTargetSize());
 		if(relocation.IsAdditive())
-			relocation.addition = rd.ReadUnsigned(relocation.GetAdditiveSize());
+			relocation.addition = rd->ReadUnsigned(relocation.GetAdditiveSize());
 		break;
 	case Entry:
-		relocation.module = rd.ReadUnsigned(relocation.GetModuleSize());
+		relocation.module = rd->ReadUnsigned(relocation.GetModuleSize());
 		if(relocation.IsAdditive())
-			relocation.addition = rd.ReadUnsigned(relocation.GetAdditiveSize());
+			relocation.addition = rd->ReadUnsigned(relocation.GetAdditiveSize());
 		break;
 	}
 	if(relocation.IsSourceList())
 	{
 		for(uint8_t i = 0; i < source_list_size; i++)
 		{
-			uint16_t source = rd.ReadUnsigned(2);
+			uint16_t source = rd->ReadUnsigned(2);
 			relocation.sources.emplace_back(Chain{source});
 
 			uint32_t base_address;
@@ -437,13 +437,13 @@ LEFormat::Page::Relocation LEFormat::Page::Relocation::ReadFile(Linker::Reader& 
 			if(is_chained)
 			{
 				// first chain entry influences the displacement
-				uint32_t target = page.image->AsImage()->ReadUnsigned(4, source, rd.endiantype);
+				uint32_t target = page.image->AsImage()->ReadUnsigned(4, source, rd->endiantype);
 				relocation.sources.back().base_address = base_address -= target;
 				source = target >> 12;
 				while(source != 0xFFF)
 				{
 					// further chain entries introduce new relocations
-					target = page.image->AsImage()->ReadUnsigned(4, source, rd.endiantype);
+					target = page.image->AsImage()->ReadUnsigned(4, source, rd->endiantype);
 					source = target >> 12;
 					target &= 0x000FFFFF;
 					target += base_address;
@@ -840,7 +840,7 @@ offset_t LEFormat::Entry::GetEntryBodySize() const
 	}
 }
 
-LEFormat::Entry LEFormat::Entry::ReadEntryHead(Linker::Reader& rd, uint8_t type)
+LEFormat::Entry LEFormat::Entry::ReadEntryHead(const std::shared_ptr<Linker::Reader>& rd, uint8_t type)
 {
 	Entry entry(type);
 	switch(type)
@@ -850,16 +850,16 @@ LEFormat::Entry LEFormat::Entry::ReadEntryHead(Linker::Reader& rd, uint8_t type)
 	case Entry16:
 	case CallGate286:
 	case Entry32:
-		entry.object = rd.ReadUnsigned(2);
+		entry.object = rd->ReadUnsigned(2);
 		break;
 	case Forwarder:
-		rd.Skip(2); /* reserved */
+		rd->Skip(2); /* reserved */
 		break;
 	}
 	return entry;
 }
 
-LEFormat::Entry LEFormat::Entry::ReadEntry(Linker::Reader& rd, uint8_t type, LEFormat::Entry& head)
+LEFormat::Entry LEFormat::Entry::ReadEntry(const std::shared_ptr<Linker::Reader>& rd, uint8_t type, LEFormat::Entry& head)
 {
 	Entry entry = head;
 	switch(type)
@@ -868,24 +868,24 @@ LEFormat::Entry LEFormat::Entry::ReadEntry(Linker::Reader& rd, uint8_t type, LEF
 		break;
 	case Entry16:
 		entry.object = head.object;
-		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
-		entry.offset = rd.ReadUnsigned(2);
+		entry.flags = Entry::flag_type(rd->ReadUnsigned(1));
+		entry.offset = rd->ReadUnsigned(2);
 		break;
 	case CallGate286:
 		entry.object = head.object;
-		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
-		entry.offset = rd.ReadUnsigned(2);
-		rd.Skip(2); /* reserved - call gate */
+		entry.flags = Entry::flag_type(rd->ReadUnsigned(1));
+		entry.offset = rd->ReadUnsigned(2);
+		rd->Skip(2); /* reserved - call gate */
 		break;
 	case Entry32:
 		entry.object = head.object;
-		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
-		entry.offset = rd.ReadUnsigned(4);
+		entry.flags = Entry::flag_type(rd->ReadUnsigned(1));
+		entry.offset = rd->ReadUnsigned(4);
 		break;
 	case Forwarder:
-		entry.flags = Entry::flag_type(rd.ReadUnsigned(1));
-		entry.object = rd.ReadUnsigned(2); /* module */
-		entry.offset = rd.ReadUnsigned(4); /* ordinal or name */
+		entry.flags = Entry::flag_type(rd->ReadUnsigned(1));
+		entry.object = rd->ReadUnsigned(2); /* module */
+		entry.offset = rd->ReadUnsigned(4); /* ordinal or name */
 		break;
 	}
 	return entry;
@@ -1101,18 +1101,18 @@ bool LEFormat::MayHaveStack() const
 	return (system & 0xFFFF) == OS2 && !IsLibrary();
 }
 
-void LEFormat::ReadFile(Linker::Reader& rd)
+void LEFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	/* new header */
-	file_offset = rd.Tell();
+	file_offset = rd->Tell();
 	file_offset = Microsoft::FindActualSignature(rd, signature, "LE", "LX");
 
-	uint8_t byte_order = rd.ReadUnsigned(1);
+	uint8_t byte_order = rd->ReadUnsigned(1);
 	if(byte_order != 0 && byte_order != 1)
 	{
 		Linker::FatalError("Internal error: invalid byte order");
 	}
-	uint8_t word_order = rd.ReadUnsigned(1);
+	uint8_t word_order = rd->ReadUnsigned(1);
 	if(word_order != 0 && word_order != 1)
 	{
 		Linker::FatalError("Internal error: invalid word order");
@@ -1143,138 +1143,138 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		break;
 	}
 
-	format_level = rd.ReadUnsigned(4);
+	format_level = rd->ReadUnsigned(4);
 	if(format_level != 0)
 	{
 		Linker::Error << "Error: unrecognized LE/LX format level " << format_level << ", ignoring" << std::endl;
 	}
 
-	cpu = cpu_type(rd.ReadUnsigned(2));
-	system = system_type(rd.ReadUnsigned(2));
-	module_version = rd.ReadUnsigned(4);
-	module_flags = rd.ReadUnsigned(4);
-	page_count = rd.ReadUnsigned(4);
-	eip_object = rd.ReadUnsigned(4);
-	eip_value = rd.ReadUnsigned(4);
-	esp_object = rd.ReadUnsigned(4);
-	esp_value = rd.ReadUnsigned(4);
-	page_size = rd.ReadUnsigned(4);
-	page_offset_shift = rd.ReadUnsigned(4); /* or size of last page */
-	fixup_section_size = rd.ReadUnsigned(4);
-	fixup_section_checksum = rd.ReadUnsigned(4);
-	loader_section_size = rd.ReadUnsigned(4);
-	loader_section_checksum = rd.ReadUnsigned(4);
-	object_table_offset = rd.ReadUnsigned(4);
+	cpu = cpu_type(rd->ReadUnsigned(2));
+	system = system_type(rd->ReadUnsigned(2));
+	module_version = rd->ReadUnsigned(4);
+	module_flags = rd->ReadUnsigned(4);
+	page_count = rd->ReadUnsigned(4);
+	eip_object = rd->ReadUnsigned(4);
+	eip_value = rd->ReadUnsigned(4);
+	esp_object = rd->ReadUnsigned(4);
+	esp_value = rd->ReadUnsigned(4);
+	page_size = rd->ReadUnsigned(4);
+	page_offset_shift = rd->ReadUnsigned(4); /* or size of last page */
+	fixup_section_size = rd->ReadUnsigned(4);
+	fixup_section_checksum = rd->ReadUnsigned(4);
+	loader_section_size = rd->ReadUnsigned(4);
+	loader_section_checksum = rd->ReadUnsigned(4);
+	object_table_offset = rd->ReadUnsigned(4);
 	if(object_table_offset != 0)
 	{
 		object_table_offset += file_offset;
 	}
-	uint32_t object_count = rd.ReadUnsigned(4);
-	object_page_table_offset = rd.ReadUnsigned(4);
+	uint32_t object_count = rd->ReadUnsigned(4);
+	object_page_table_offset = rd->ReadUnsigned(4);
 	if(object_page_table_offset != 0)
 	{
 		object_page_table_offset += file_offset;
 	}
-	object_iterated_pages_offset = rd.ReadUnsigned(4);
-	resource_table_offset = rd.ReadUnsigned(4);
+	object_iterated_pages_offset = rd->ReadUnsigned(4);
+	resource_table_offset = rd->ReadUnsigned(4);
 	if(resource_table_offset != 0)
 	{
 		resource_table_offset += file_offset;
 	}
-	resource_table_entry_count = rd.ReadUnsigned(4);
-	resident_name_table_offset = rd.ReadUnsigned(4);
+	resource_table_entry_count = rd->ReadUnsigned(4);
+	resident_name_table_offset = rd->ReadUnsigned(4);
 	if(resident_name_table_offset != 0)
 	{
 		resident_name_table_offset += file_offset;
 	}
-	entry_table_offset = rd.ReadUnsigned(4);
+	entry_table_offset = rd->ReadUnsigned(4);
 	if(entry_table_offset != 0)
 	{
 		entry_table_offset += file_offset;
 	}
-	module_directives_offset = rd.ReadUnsigned(4);
+	module_directives_offset = rd->ReadUnsigned(4);
 	if(module_directives_offset != 0)
 	{
 		module_directives_offset += file_offset;
 	}
-	uint32_t module_directives_count = rd.ReadUnsigned(4);
-	fixup_page_table_offset = rd.ReadUnsigned(4);
+	uint32_t module_directives_count = rd->ReadUnsigned(4);
+	fixup_page_table_offset = rd->ReadUnsigned(4);
 	if(fixup_page_table_offset != 0)
 	{
 		fixup_page_table_offset += file_offset;
 	}
-	fixup_record_table_offset = rd.ReadUnsigned(4);
+	fixup_record_table_offset = rd->ReadUnsigned(4);
 	if(fixup_record_table_offset != 0)
 	{
 		fixup_record_table_offset += file_offset;
 	}
-	imported_module_table_offset = rd.ReadUnsigned(4);
+	imported_module_table_offset = rd->ReadUnsigned(4);
 	if(imported_module_table_offset != 0)
 	{
 		imported_module_table_offset += file_offset;
 	}
-	uint32_t imported_module_count = rd.ReadUnsigned(4);
-	imported_procedure_table_offset = rd.ReadUnsigned(4);
+	uint32_t imported_module_count = rd->ReadUnsigned(4);
+	imported_procedure_table_offset = rd->ReadUnsigned(4);
 	if(imported_procedure_table_offset != 0)
 	{
 		imported_procedure_table_offset += file_offset;
 	}
 
-	per_page_checksum_offset = rd.ReadUnsigned(4);
-	data_pages_offset = rd.ReadUnsigned(4);
-	preload_page_count = rd.ReadUnsigned(4);
-	nonresident_name_table_offset = rd.ReadUnsigned(4);
-	nonresident_name_table_size = rd.ReadUnsigned(4);
-	nonresident_name_table_checksum = rd.ReadUnsigned(4);
-	automatic_data = rd.ReadUnsigned(4);
-	debug_info_offset = rd.ReadUnsigned(4);
-	debug_info_size = rd.ReadUnsigned(4);
-	instance_preload_page_count = rd.ReadUnsigned(4);
-	instance_demand_page_count = rd.ReadUnsigned(4);
-	heap_size = rd.ReadUnsigned(4);
-	stack_size = rd.ReadUnsigned(4);
-	rd.Skip(8);
-	vxd_version_info_resource_offset = rd.ReadUnsigned(4);
-	vxd_version_info_resource_length = rd.ReadUnsigned(4);
-	vxd_device_id = rd.ReadUnsigned(2);
-	vxd_ddk_version = rd.ReadUnsigned(2);
+	per_page_checksum_offset = rd->ReadUnsigned(4);
+	data_pages_offset = rd->ReadUnsigned(4);
+	preload_page_count = rd->ReadUnsigned(4);
+	nonresident_name_table_offset = rd->ReadUnsigned(4);
+	nonresident_name_table_size = rd->ReadUnsigned(4);
+	nonresident_name_table_checksum = rd->ReadUnsigned(4);
+	automatic_data = rd->ReadUnsigned(4);
+	debug_info_offset = rd->ReadUnsigned(4);
+	debug_info_size = rd->ReadUnsigned(4);
+	instance_preload_page_count = rd->ReadUnsigned(4);
+	instance_demand_page_count = rd->ReadUnsigned(4);
+	heap_size = rd->ReadUnsigned(4);
+	stack_size = rd->ReadUnsigned(4);
+	rd->Skip(8);
+	vxd_version_info_resource_offset = rd->ReadUnsigned(4);
+	vxd_version_info_resource_length = rd->ReadUnsigned(4);
+	vxd_device_id = rd->ReadUnsigned(2);
+	vxd_ddk_version = rd->ReadUnsigned(2);
 
-	file_size = rd.Tell();
+	file_size = rd->Tell();
 
 	if(vxd_version_info_resource_length != 0)
 	{
-		rd.Seek(vxd_version_info_resource_offset);
+		rd->Seek(vxd_version_info_resource_offset);
 		vxd_version_info_resource.ReadFile(rd, vxd_version_info_resource_length);
 	}
 
 	/*** Loader Section ***/
 	/* Object Table */
-	rd.Seek(object_table_offset);
+	rd->Seek(object_table_offset);
 	for(uint32_t i = 0; i < object_count; i++)
 	{
 		Object object;
-		object.size = rd.ReadUnsigned(4);
-		object.address = rd.ReadUnsigned(4);
-		object.flags = Object::flag_type(rd.ReadUnsigned(4));
-		object.page_table_index = rd.ReadUnsigned(4);
-		object.page_entry_count = rd.ReadUnsigned(4);
-		rd.Skip(4);
+		object.size = rd->ReadUnsigned(4);
+		object.address = rd->ReadUnsigned(4);
+		object.flags = Object::flag_type(rd->ReadUnsigned(4));
+		object.page_table_index = rd->ReadUnsigned(4);
+		object.page_entry_count = rd->ReadUnsigned(4);
+		rd->Skip(4);
 		objects.emplace_back(object);
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* (LE) Object Page Map Table/(LX) Object Page Table */
-	rd.Seek(object_page_table_offset);
+	rd->Seek(object_page_table_offset);
 	pages.push_back(Page());
 	if(IsExtendedFormat())
 	{
 		for(uint32_t i = 0; i < page_count; i++)
 		{
 			Page page;
-			page.offset = offset_t(rd.ReadUnsigned(4)) << page_offset_shift;
-			page.size = rd.ReadUnsigned(2);
-			page.type = rd.ReadUnsigned(2);
+			page.offset = offset_t(rd->ReadUnsigned(4)) << page_offset_shift;
+			page.size = rd->ReadUnsigned(2);
+			page.type = rd->ReadUnsigned(2);
 			pages.push_back(page);
 		}
 	}
@@ -1287,10 +1287,10 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		}
 
 		offset_t page_map_table_end = resource_table_offset ? resource_table_offset : resident_name_table_offset;
-		while(rd.Tell() < page_map_table_end)
+		while(rd->Tell() < page_map_table_end)
 		{
-			PhysicalPageNumber page_number = PhysicalPageNumber{uint32_t(rd.ReadUnsigned(3, ::BigEndian))};
-			Page::page_type type = Page::page_type(rd.ReadUnsigned(1));
+			PhysicalPageNumber page_number = PhysicalPageNumber{uint32_t(rd->ReadUnsigned(3, ::BigEndian))};
+			Page::page_type type = Page::page_type(rd->ReadUnsigned(1));
 			page_map_table.push_back(std::make_tuple(page_number, type));
 
 			pages[page_number].type = type;
@@ -1298,46 +1298,46 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	}
 	pages.push_back(Page());
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Resource Table */
-	rd.Seek(resource_table_offset);
+	rd->Seek(resource_table_offset);
 	for(uint32_t i = 0; i < resource_table_entry_count; i++)
 	{
 		Resource resource;
-		resource.type_id = rd.ReadUnsigned(2);
-		resource.name_id = rd.ReadUnsigned(2);
-		resource.size = rd.ReadUnsigned(4);
-		resource.object = rd.ReadUnsigned(2);
-		resource.offset = rd.ReadUnsigned(4);
+		resource.type_id = rd->ReadUnsigned(2);
+		resource.name_id = rd->ReadUnsigned(2);
+		resource.size = rd->ReadUnsigned(4);
+		resource.object = rd->ReadUnsigned(2);
+		resource.offset = rd->ReadUnsigned(4);
 		AddResource(resource);
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Resident Name Table */
-	rd.Seek(resident_name_table_offset);
+	rd->Seek(resident_name_table_offset);
 	while(true)
 	{
-		uint8_t length = rd.ReadUnsigned(1);
+		uint8_t length = rd->ReadUnsigned(1);
 		if(length == 0)
 			break;
 		Name name;
-		name.name = rd.ReadData(length);
-		name.ordinal = rd.ReadUnsigned(2);
+		name.name = rd->ReadData(length);
+		name.ordinal = rd->ReadUnsigned(2);
 		resident_names.emplace_back(name);
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Entry Table */
-	rd.Seek(entry_table_offset);
+	rd->Seek(entry_table_offset);
 	while(true)
 	{
-		uint8_t entry_count = rd.ReadUnsigned(1);
+		uint8_t entry_count = rd->ReadUnsigned(1);
 		if(entry_count == 0)
 			break;
-		uint8_t type = rd.ReadUnsigned(1);
+		uint8_t type = rd->ReadUnsigned(1);
 		Entry head = Entry::ReadEntryHead(rd, type);
 		for(uint8_t i = 0; i < entry_count; i ++)
 		{
@@ -1346,23 +1346,23 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Module Format Directives Table */
 	if(module_directives_count != 0)
 	{
-		rd.Seek(module_directives_offset);
+		rd->Seek(module_directives_offset);
 		for(uint32_t i = 0; i < module_directives_count; i++)
 		{
 			ModuleDirective directive;
-			directive.directive = ModuleDirective::directive_number(rd.ReadUnsigned(2));
-			directive.length = rd.ReadUnsigned(2);
-			directive.offset = rd.ReadUnsigned(4);
+			directive.directive = ModuleDirective::directive_number(rd->ReadUnsigned(2));
+			directive.length = rd->ReadUnsigned(2);
+			directive.offset = rd->ReadUnsigned(4);
 			if(directive.IsResident())
 				directive.offset += file_size;
 			module_directives.emplace_back(directive);
 		}
-		file_size = std::max(file_size, rd.Tell());
+		file_size = std::max(file_size, rd->Tell());
 	}
 
 	/* Resident Directives */
@@ -1371,27 +1371,27 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	/* Per-page Checksum */
 	if(per_page_checksum_offset != 0)
 	{
-		rd.Seek(per_page_checksum_offset);
+		rd->Seek(per_page_checksum_offset);
 		for(Page& page : pages)
 		{
 			if(&page == &pages.front() || &page == &pages.back())
 				continue;
-			page.checksum = rd.ReadUnsigned(4);
+			page.checksum = rd->ReadUnsigned(4);
 		}
-		file_size = std::max(file_size, rd.Tell());
+		file_size = std::max(file_size, rd->Tell());
 	}
 
 	/*** Fixup Section ***/
 	/* Fixup Page Table */
-	rd.Seek(fixup_page_table_offset);
+	rd->Seek(fixup_page_table_offset);
 	for(Page& page : pages)
 	{
 		if(&page == &pages.front())
 			continue;
-		page.fixup_offset = rd.ReadUnsigned(4);
+		page.fixup_offset = rd->ReadUnsigned(4);
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Fixup Record Table */
 	for(PhysicalPageNumber physical_page = PhysicalPageNumber{1}; physical_page < pages.size() - 1; physical_page++)
@@ -1399,47 +1399,47 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		Page& page = pages[physical_page];
 		//if(&page == &pages.front() || &page == &pages.back())
 		//	continue;
-		rd.Seek(fixup_record_table_offset + page.fixup_offset);
+		rd->Seek(fixup_record_table_offset + page.fixup_offset);
 		offset_t end = fixup_record_table_offset + pages[physical_page + 1].fixup_offset;
-		while(rd.Tell() < end)
+		while(rd->Tell() < end)
 		{
 			Page::Relocation relocation = Page::Relocation::ReadFile(rd, page);
 			page.relocations[relocation.GetFirstSource()] = relocation;
 		}
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Import Module Name Table */
-	rd.Seek(imported_module_table_offset);
-	while(rd.Tell() < imported_procedure_table_offset && imported_modules.size() < imported_module_count)
+	rd->Seek(imported_module_table_offset);
+	while(rd->Tell() < imported_procedure_table_offset && imported_modules.size() < imported_module_count)
 	{
-		uint8_t length = rd.ReadUnsigned(1);
-		std::string name = rd.ReadData(length);
+		uint8_t length = rd->ReadUnsigned(1);
+		std::string name = rd->ReadData(length);
 		imported_modules.emplace_back(name);
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/* Import Procedure Name Table */
-	rd.Seek(imported_procedure_table_offset);
+	rd->Seek(imported_procedure_table_offset);
 	offset_t imported_procedure_table_end;
 	if(!IsExtendedFormat() && per_page_checksum_offset != 0)
 		imported_procedure_table_end = per_page_checksum_offset;
 	else
 		imported_procedure_table_end = fixup_page_table_offset + fixup_section_size;
-	while(rd.Tell() < imported_procedure_table_end)
+	while(rd->Tell() < imported_procedure_table_end)
 	{
-		uint8_t length = rd.ReadUnsigned(1);
-		std::string name = rd.ReadData(length);
+		uint8_t length = rd->ReadUnsigned(1);
+		std::string name = rd->ReadData(length);
 		imported_procedures.emplace_back(name);
 	}
 
-	file_size = std::max(file_size, rd.Tell());
+	file_size = std::max(file_size, rd->Tell());
 
 	/*** Page Data ***/
 	if(!IsExtendedFormat())
-		rd.Seek(data_pages_offset);
+		rd->Seek(data_pages_offset);
 	for(PhysicalPageNumber physical_page = PhysicalPageNumber{1}; physical_page <= page_count; physical_page++)
 	{
 		Page& page = pages[physical_page];
@@ -1448,12 +1448,12 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 		{
 		case Page::Preload:
 			if(IsExtendedFormat())
-				rd.Seek(data_pages_offset + page.offset);
+				rd->Seek(data_pages_offset + page.offset);
 			page.image = Linker::Buffer::ReadFromFile(rd, size);
 			break;
 		case Page::Iterated:
 			if(IsExtendedFormat())
-				rd.Seek(object_iterated_pages_offset + page.offset);
+				rd->Seek(object_iterated_pages_offset + page.offset);
 			page.image = IteratedPage::ReadFromFile(rd, size);
 			break;
 		case Page::Invalid:
@@ -1465,13 +1465,13 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 			break;
 		case Page::Compressed:
 			if(IsExtendedFormat())
-				rd.Seek(data_pages_offset + page.offset);
+				rd->Seek(data_pages_offset + page.offset);
 			// TODO
 			break;
 		}
 //		Linker::Debug << "Debug: page " << physical_page << std::endl;
 //		assert(pages[physical_page].image != nullptr);
-		file_size = std::max(file_size, rd.Tell());
+		file_size = std::max(file_size, rd->Tell());
 	}
 
 	for(auto& object : objects)
@@ -1489,19 +1489,19 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 	/* Non-Resident Name Table */
 	if(nonresident_name_table_offset != 0)
 	{
-		rd.Seek(nonresident_name_table_offset);
+		rd->Seek(nonresident_name_table_offset);
 		while(true)
 		{
-			uint8_t length = rd.ReadUnsigned(1);
+			uint8_t length = rd->ReadUnsigned(1);
 			if(length == 0)
 				break;
 			Name name;
-			name.name = rd.ReadData(length);
-			name.ordinal = rd.ReadUnsigned(2);
+			name.name = rd->ReadData(length);
+			name.ordinal = rd->ReadUnsigned(2);
 			nonresident_names.emplace_back(name);
 		}
 
-		file_size = std::max(file_size, rd.Tell());
+		file_size = std::max(file_size, rd->Tell());
 	}
 
 	/* Load entry descriptions for readability */
@@ -1560,9 +1560,9 @@ void LEFormat::ReadFile(Linker::Reader& rd)
 
 			if((relocation_record.flags & Page::Relocation::FlagTypeMask) == Page::Relocation::ImportName)
 			{
-				rd.Seek(imported_procedure_table_offset + relocation_record.target);
-				uint8_t length = rd.ReadUnsigned(1);
-				relocation_record.import_name = rd.ReadData(length);
+				rd->Seek(imported_procedure_table_offset + relocation_record.target);
+				uint8_t length = rd->ReadUnsigned(1);
+				relocation_record.import_name = rd->ReadData(length);
 			}
 
 			if((relocation_record.flags & Page::Relocation::FlagTypeMask) == Page::Relocation::Entry)

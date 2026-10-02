@@ -3,11 +3,11 @@
 
 using namespace EMX;
 
-void EMXAOutFormat::ReadFile(Linker::Reader& rd)
+void EMXAOutFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	char signature[2];
-	rd.Seek(0);
-	rd.ReadData(sizeof(signature), signature);
+	rd->Seek(0);
+	rd->ReadData(sizeof(signature), signature);
 	if(signature[0] == 'M' && signature[0] == 'Z')
 	{
 		/* read it as a bound executable */
@@ -15,24 +15,24 @@ void EMXAOutFormat::ReadFile(Linker::Reader& rd)
 
 		LEFormat::ReadFile(rd);
 
-		rd.endiantype = ::LittleEndian;
-		rd.Seek(8);
-		uint16_t header_paragraphs = rd.ReadUnsigned(2);
+		rd->endiantype = ::LittleEndian;
+		rd->Seek(8);
+		uint16_t header_paragraphs = rd->ReadUnsigned(2);
 
-		rd.Seek((header_paragraphs << 4) + 18);
-		aout_header_offset = rd.ReadUnsigned(4);
-		rd.ReadData(dos_options);
-		rd.Seek(aout_header_offset);
-		AOutFormat::magic = AOutFormat::magic_type(rd.ReadUnsigned(2));
-		AOutFormat::mid_value = rd.ReadUnsigned(1);
-		AOutFormat::flags = rd.ReadUnsigned(1);
+		rd->Seek((header_paragraphs << 4) + 18);
+		aout_header_offset = rd->ReadUnsigned(4);
+		rd->ReadData(dos_options);
+		rd->Seek(aout_header_offset);
+		AOutFormat::magic = AOutFormat::magic_type(rd->ReadUnsigned(2));
+		AOutFormat::mid_value = rd->ReadUnsigned(1);
+		AOutFormat::flags = rd->ReadUnsigned(1);
 		AOutFormat::ReadHeader(rd);
 	}
 	else
 	{
 		/* read it as an unbound executable */
 		bound_image = false;
-		rd.Seek(0);
+		rd->Seek(0);
 		AOutFormat::ReadFile(rd);
 	}
 

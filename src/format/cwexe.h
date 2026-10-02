@@ -19,7 +19,7 @@ namespace CauseWay
 		/* * * General members * * */
 		// TODO
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 

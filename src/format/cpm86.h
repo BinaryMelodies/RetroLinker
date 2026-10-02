@@ -249,7 +249,7 @@ namespace DigitalResearch
 			 */
 			virtual uint16_t GetSizeParas(const CPM86Format& module) const;
 
-			void ReadDescriptor(Linker::Reader& rd);
+			void ReadDescriptor(const std::shared_ptr<Linker::Reader>& rd);
 
 			/**
 			 * @brief Sets up any values before it can be written to file
@@ -262,7 +262,7 @@ namespace DigitalResearch
 
 			std::string GetDefaultName() const;
 
-			virtual void ReadData(Linker::Reader& rd, const CPM86Format& module);
+			virtual void ReadData(const std::shared_ptr<Linker::Reader>& rd, const CPM86Format& module);
 		};
 
 		/**
@@ -317,7 +317,7 @@ namespace DigitalResearch
 
 			operator bool() const;
 
-			void Read(Linker::Reader& rd, CPM86Format& module, bool is_library = false);
+			void Read(const std::shared_ptr<Linker::Reader>& rd, CPM86Format& module, bool is_library = false);
 
 			void Write(Linker::Writer& wr) const;
 
@@ -351,9 +351,9 @@ namespace DigitalResearch
 
 			void Clear();
 
-			void Read(Linker::Reader& rd);
+			void Read(const std::shared_ptr<Linker::Reader>& rd);
 
-			void ReadModule(Linker::Reader& rd);
+			void ReadModule(const std::shared_ptr<Linker::Reader>& rd);
 
 			void Write(Linker::Writer& wr) const;
 
@@ -403,7 +403,7 @@ namespace DigitalResearch
 
 			void Write(Linker::Writer& wr) const;
 
-			void Read(Linker::Reader& rd);
+			void Read(const std::shared_ptr<Linker::Reader>& rd);
 		};
 
 		/**
@@ -450,9 +450,9 @@ namespace DigitalResearch
 
 			void WriteExtended(Linker::Writer& wr) const;
 
-			void Read(Linker::Reader& rd);
+			void Read(const std::shared_ptr<Linker::Reader>& rd);
 
-			void ReadExtended(Linker::Reader& rd);
+			void ReadExtended(const std::shared_ptr<Linker::Reader>& rd);
 		};
 
 		/** @brief A special descriptor to represent the group for imported shared runtime libraries */
@@ -484,7 +484,7 @@ namespace DigitalResearch
 
 			void WriteData(Linker::Writer& wr, const CPM86Format& module) const override;
 
-			void ReadData(Linker::Reader& rd, const CPM86Format& module) override;
+			void ReadData(const std::shared_ptr<Linker::Reader>& rd, const CPM86Format& module) override;
 		};
 
 		/** @brief (FlexOS 286 only) The fast loading group (unimplemented) */
@@ -510,7 +510,7 @@ namespace DigitalResearch
 				uint8_t group = 0;
 				uint16_t reserved = 0;
 
-				void Read(Linker::Reader& rd);
+				void Read(const std::shared_ptr<Linker::Reader>& rd);
 
 				void Write(Linker::Writer& wr) const;
 			};
@@ -523,7 +523,7 @@ namespace DigitalResearch
 
 			void WriteData(Linker::Writer& wr, const CPM86Format& module) const override;
 
-			void ReadData(Linker::Reader& rd, const CPM86Format& module) override;
+			void ReadData(const std::shared_ptr<Linker::Reader>& rd, const CPM86Format& module) override;
 		};
 
 		/**
@@ -678,13 +678,13 @@ namespace DigitalResearch
 		bool IsFastLoadFormat() const;
 		bool IsSharedRunTimeLibrary() const;
 
-		void ReadRelocations(Linker::Reader& rd);
+		void ReadRelocations(const std::shared_ptr<Linker::Reader>& rd);
 
 		void WriteRelocations(Linker::Writer& wr) const;
 
 		offset_t MeasureRelocations();
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 

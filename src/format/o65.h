@@ -206,11 +206,11 @@ namespace O65
 			/** @brief Return the size of address/offset values in the file, in bytes (2 or 4) */
 			int GetWordSize() const;
 			/** @brief Reads a module dependent unsigned word, the size of which is given by GetWordSize() */
-			offset_t ReadUnsigned(Linker::Reader& rd) const;
+			offset_t ReadUnsigned(const std::shared_ptr<Linker::Reader>& rd) const;
 			/** @brief Writes a module dependent word, the size of which is given by GetWordSize() */
 			void WriteWord(Linker::Writer& wr, offset_t value) const;
 
-			void ReadFile(Linker::Reader& rd);
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			void CalculateValues();
 			void WriteFile(Linker::Writer& wr) const;
 			void GenerateModule(Linker::Module& module) const;
@@ -231,7 +231,7 @@ namespace O65
 
 		void Clear() override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		void CalculateValues() /*override*/;
 		offset_t WriteFile(Linker::Writer& wr) const override;

@@ -704,17 +704,17 @@ std::shared_ptr<Format> FetchFormat(std::string text)
 	return format;
 }
 
-static bool VerifyMacintoshResource(Reader& rd, format_description& description)
+static bool VerifyMacintoshResource(const std::shared_ptr<Reader>& rd, format_description& description)
 {
-	rd.SeekEnd();
-	offset_t size = rd.Tell() - description.offset;
+	rd->SeekEnd();
+	offset_t size = rd->Tell() - description.offset;
 	if(size < 16)
 		return false;
-	rd.Seek(description.offset);
-	offset_t data_offset = rd.ReadUnsigned(4, ::BigEndian);
-	offset_t map_offset = rd.ReadUnsigned(4, ::BigEndian);
-	offset_t data_length = rd.ReadUnsigned(4, ::BigEndian);
-	offset_t map_length = rd.ReadUnsigned(4, ::BigEndian);
+	rd->Seek(description.offset);
+	offset_t data_offset = rd->ReadUnsigned(4, ::BigEndian);
+	offset_t map_offset = rd->ReadUnsigned(4, ::BigEndian);
+	offset_t data_length = rd->ReadUnsigned(4, ::BigEndian);
+	offset_t map_length = rd->ReadUnsigned(4, ::BigEndian);
 	if(data_offset + data_length > map_offset)
 		return false;
 	if(map_offset + map_length > size)
@@ -722,39 +722,39 @@ static bool VerifyMacintoshResource(Reader& rd, format_description& description)
 	return true;
 }
 
-static bool VerifyMacBinary(Reader& rd, format_description& description, offset_t size)
+static bool VerifyMacBinary(const std::shared_ptr<Reader>& rd, format_description& description, offset_t size)
 {
 	// check for MacBinary format
 	// algorithm is based on magic for Linux file utility
 	// by Eric Fischer and Joerg Jenderek
-	rd.Seek(description.offset + 1);
-	uint8_t name_length = rd.ReadUnsigned(1, ::BigEndian);
+	rd->Seek(description.offset + 1);
+	uint8_t name_length = rd->ReadUnsigned(1, ::BigEndian);
 	if(name_length == 0 || name_length > 63)
 		return false;
 	uint8_t filename_start[2];
-	rd.ReadData(2, filename_start);
+	rd->ReadData(2, filename_start);
 	if(filename_start[0] < 0x20)
 		return false;
 	// check against DEGAS mid-res uncompressed bitmap
 	if(filename_start[0] == 0xFF && filename_start[1] == 0xFF)
 		return false;
 	// reserved
-	rd.Seek(description.offset + 74);
-	if(rd.ReadUnsigned(1, ::BigEndian) != 0)
+	rd->Seek(description.offset + 74);
+	if(rd->ReadUnsigned(1, ::BigEndian) != 0)
 		return false;
 	// reserved
-	rd.Seek(description.offset + 82);
-	if(rd.ReadUnsigned(1, ::BigEndian) != 0)
+	rd->Seek(description.offset + 82);
+	if(rd->ReadUnsigned(1, ::BigEndian) != 0)
 		return false;
-	rd.Seek(description.offset + 122);
-	uint16_t version = rd.ReadUnsigned(2, ::BigEndian);
+	rd->Seek(description.offset + 122);
+	uint16_t version = rd->ReadUnsigned(2, ::BigEndian);
 	switch(version)
 	{
 	case 0x0000:
 		// MacBinary I
 		// check for reserved fields
-		rd.Seek(101);
-		if(rd.ReadUnsigned(4, ::BigEndian) != 0)
+		rd->Seek(101);
+		if(rd->ReadUnsigned(4, ::BigEndian) != 0)
 			return false;
 		// fall through
 	case 0x8181:
@@ -769,11 +769,11 @@ static bool VerifyMacBinary(Reader& rd, format_description& description, offset_
 	}
 }
 
-static bool VerifyDRPageRelocatableOrMacBinary(Reader& rd, format_description& description)
+static bool VerifyDRPageRelocatableOrMacBinary(const std::shared_ptr<Reader>& rd, format_description& description)
 {
 //	Linker::Debug << "Debug: Testing for .PRL" << std::endl;
-	rd.SeekEnd();
-	offset_t size = rd.Tell() - description.offset;
+	rd->SeekEnd();
+	offset_t size = rd->Tell() - description.offset;
 
 	if(size >= 128 && VerifyMacBinary(rd, description, size))
 	{
@@ -782,8 +782,8 @@ static bool VerifyDRPageRelocatableOrMacBinary(Reader& rd, format_description& d
 
 	if(size < 256)
 		return false;
-	rd.Seek(description.offset + 1);
-	uint16_t bytes = rd.ReadUnsigned(2, ::LittleEndian);
+	rd->Seek(description.offset + 1);
+	uint16_t bytes = rd->ReadUnsigned(2, ::LittleEndian);
 	if(bytes == 0 || size < 256 + uint32_t(bytes))
 		return false;
 //	Linker::Debug << "Debug: Looks like .PRL" << std::endl;
@@ -793,20 +793,20 @@ static bool VerifyDRPageRelocatableOrMacBinary(Reader& rd, format_description& d
 	return true;
 }
 
-static bool VerifyHPSystemManager(Reader& rd, format_description& description)
+static bool VerifyHPSystemManager(const std::shared_ptr<Reader>& rd, format_description& description)
 {
 	/* conflicts with Adam DOS32 dynamic library */
-	rd.Seek(description.offset + 2);
+	rd->Seek(description.offset + 2);
 	char rest[2];
-	rd.ReadData(sizeof(rest), rest);
+	rd->ReadData(sizeof(rest), rest);
 	return std::string(rest) != "L "; /* Adam dynamic library */
 }
 
-static bool VerifyMachOOrJava(Reader& rd, format_description& description)
+static bool VerifyMachOOrJava(const std::shared_ptr<Reader>& rd, format_description& description)
 {
 	/* Apple Universal Binary or Java class file */
-	rd.Seek(description.offset + 4);
-	uint32_t value = rd.ReadUnsigned(4, BigEndian);
+	rd->Seek(description.offset + 4);
+	uint32_t value = rd->ReadUnsigned(4, BigEndian);
 	/* according to magic: */
 	/* for Java class files, this is the version (minor.major), which is at least 0x002E */
 	/* for big endian Mach-O, this is the number of architectures, which is currently at most 18 */
@@ -823,30 +823,30 @@ static bool VerifyMachOOrJava(Reader& rd, format_description& description)
 	return true;
 }
 
-static bool VerifyCPM3(Reader& rd, format_description& description)
+static bool VerifyCPM3(const std::shared_ptr<Reader>& rd, format_description& description)
 {
 	/* TODO */
 	return true;
 }
 
-static bool VerifyIntelOMF(Reader& rd, format_description& description)
+static bool VerifyIntelOMF(const std::shared_ptr<Reader>& rd, format_description& description)
 {
 	/* TODO */
 	return true;
 }
 
-static bool VerifyCPM86(Reader& rd, format_description& description)
+static bool VerifyCPM86(const std::shared_ptr<Reader>& rd, format_description& description)
 {
 	int groups = 0;
-	rd.SeekEnd();
-	offset_t size = rd.Tell() - description.offset;
+	rd->SeekEnd();
+	offset_t size = rd->Tell() - description.offset;
 	if(size < 128)
 		return false;
-	rd.Seek(description.offset);
+	rd->Seek(description.offset);
 	uint32_t image_size = 0;
 	for(int i = 0; i < 8; i++)
 	{
-		int type = rd.ReadUnsigned(1, ::LittleEndian);
+		int type = rd->ReadUnsigned(1, ::LittleEndian);
 		if(type == 0)
 			break;
 		if(type > 9)
@@ -857,8 +857,8 @@ static bool VerifyCPM86(Reader& rd, format_description& description)
 		if((groups & type))
 			return false;
 		groups |= type;
-		image_size += uint32_t(rd.ReadUnsigned(2, ::LittleEndian)) << 4;
-		rd.Skip(8);
+		image_size += uint32_t(rd->ReadUnsigned(2, ::LittleEndian)) << 4;
+		rd->Skip(8);
 	}
 	if(size < image_size)
 		return false;
@@ -866,44 +866,44 @@ static bool VerifyCPM86(Reader& rd, format_description& description)
 	return groups & 1;
 }
 
-static bool VerifyGSOS(Reader& rd, format_description& description)
+static bool VerifyGSOS(const std::shared_ptr<Reader>& rd, format_description& description)
 {
-	rd.Seek(description.offset + 0x0E);
-	if(rd.ReadUnsigned(1) != 4)
+	rd->Seek(description.offset + 0x0E);
+	if(rd->ReadUnsigned(1) != 4)
 		return false; /* NUMLEN must be 4 for 32-bit values */
 
-	uint64_t version = rd.ReadUnsigned(1);
+	uint64_t version = rd->ReadUnsigned(1);
 	if(version != 1 && version != 2)
 		return false; /* unexpected VERSION value */
 
-	rd.Seek(description.offset + 0x20);
-	uint64_t endian = rd.ReadUnsigned(1);
+	rd->Seek(description.offset + 0x20);
+	uint64_t endian = rd->ReadUnsigned(1);
 	if(endian != 0 && endian != 1)
 		return false; /* invalid NUMSEX */
 
 	EndianType endian_type = endian == 1 ? BigEndian : LittleEndian;
-	rd.Seek(description.offset + 0x22);
-	if(rd.ReadUnsigned(1, endian_type) != 1)
+	rd->Seek(description.offset + 0x22);
+	if(rd->ReadUnsigned(1, endian_type) != 1)
 		return false; /* invalid SEGNUM, must start with 1 */
 
 	/* if these are all satisfied, there is not much else we can verify */
 	return true;
 }
 
-static bool VerifyFLEX(Reader& rd, format_description& description)
+static bool VerifyFLEX(const std::shared_ptr<Reader>& rd, format_description& description)
 {
 	/* TODO */
 	return false;
 }
 
-static bool VerifyAIF(Reader& rd, format_description& description)
+static bool VerifyAIF(const std::shared_ptr<Reader>& rd, format_description& description)
 {
 	/* The ARM/RISC OS binary format has a special SWI instruction at offset 0x10.
 	 * Other entries are possible as well, but we will only look for this. */
 	char buffer[4];
 	memset(buffer, 0, sizeof(buffer));
-	rd.Seek(description.offset + 0x10);
-	rd.ReadData(sizeof(buffer), buffer);
+	rd->Seek(description.offset + 0x10);
+	rd->ReadData(sizeof(buffer), buffer);
 	return std::string(buffer) == "\x11\x00\x00\xEF";
 }
 
@@ -1158,12 +1158,12 @@ static const struct format_magic library_format_magics[] =
 	{ std::string("\x01\x1F"),            2, FORMAT_AOUT,    "Big endian a.out, System V overlay, separate code/data" },
 };
 
-void DetermineFormatFor(const format_magic * format_magics, size_t format_magics_count, std::vector<format_description>& descriptions, Reader& rd, uint32_t offset)
+void DetermineFormatFor(const format_magic * format_magics, size_t format_magics_count, std::vector<format_description>& descriptions, const std::shared_ptr<Reader>& rd, uint32_t offset)
 {
-	rd.Seek(offset);
+	rd->Seek(offset);
 	char magic[8];
-	rd.ReadData(sizeof magic, magic);
-	uint32_t position = rd.Tell();
+	rd->ReadData(sizeof magic, magic);
+	uint32_t position = rd->Tell();
 	if(position == uint32_t(-1))
 		return;
 	uint32_t bytes_read = position > offset ? position - offset : 0;
@@ -1206,19 +1206,19 @@ Linker::Debug << "\"" << std::endl;
 			{
 			case FORMAT_MZ:
 				{
-					rd.SeekEnd();
-					uint32_t file_size = rd.Tell();
+					rd->SeekEnd();
+					uint32_t file_size = rd->Tell();
 					if(file_size >= 0x06)
 					{
-						rd.Seek(2);
-						uint32_t image_end = rd.ReadUnsigned(2, LittleEndian);
-						image_end = offset + (rd.ReadUnsigned(2, LittleEndian) << 9) - (-image_end & 0x1FF);
+						rd->Seek(2);
+						uint32_t image_end = rd->ReadUnsigned(2, LittleEndian);
+						image_end = offset + (rd->ReadUnsigned(2, LittleEndian) << 9) - (-image_end & 0x1FF);
 						uint32_t new_header = 0;
 
 						if(file_size >= 0x40)
 						{
-							rd.Seek(0x3C);
-							new_header = rd.ReadUnsigned(4, LittleEndian);
+							rd->Seek(0x3C);
+							new_header = rd->ReadUnsigned(4, LittleEndian);
 							if(0 < new_header && new_header < file_size)
 								DetermineFormat(descriptions, rd, new_header);
 						}
@@ -1229,8 +1229,8 @@ Linker::Debug << "\"" << std::endl;
 						if(file_size >= 0x40)
 						{
 							/* Watcom Win386 extender stores an MQ executable here */
-							rd.Seek(0x38);
-							new_header = rd.ReadUnsigned(4, LittleEndian);
+							rd->Seek(0x38);
+							new_header = rd->ReadUnsigned(4, LittleEndian);
 							if(0 < new_header && new_header < file_size)
 								DetermineFormat(descriptions, rd, new_header);
 						}
@@ -1253,12 +1253,12 @@ Linker::Debug << "\"" << std::endl;
 	}
 }
 
-void DetermineFormat(std::vector<format_description>& descriptions, Reader& rd, uint32_t offset)
+void DetermineFormat(std::vector<format_description>& descriptions, const std::shared_ptr<Reader>& rd, uint32_t offset)
 {
 	DetermineFormatFor(format_magics, sizeof(format_magics) / sizeof(format_magics[0]), descriptions, rd, offset);
 }
 
-std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format, Archive::ArchiveFormat::file_reader_type * file_reader)
+std::shared_ptr<Format> CreateFormat(const std::shared_ptr<Reader>& rd, format_description& file_format, Archive::ArchiveFormat::file_reader_type * file_reader)
 {
 	switch(file_format.magic.type)
 	{
@@ -1379,40 +1379,40 @@ std::shared_ptr<Format> CreateFormat(Reader& rd, format_description& file_format
 	Linker::FatalError("Internal error: invalid output format");
 }
 
-std::shared_ptr<Linker::Contents> ReadArchiveFile(Linker::Reader& rd, offset_t size)
+std::shared_ptr<Linker::Contents> ReadArchiveFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size)
 {
 	std::vector<format_description> descriptions;
-	offset_t offset = rd.Tell();
+	offset_t offset = rd->Tell();
 	DetermineFormat(descriptions, rd, offset);
-	rd.Seek(offset);
+	rd->Seek(offset);
 	if(descriptions.size() == 0)
 	{
 		return Linker::Buffer::ReadFromFile(rd, size);
 	}
 	else
 	{
-		std::shared_ptr<Linker::Reader> wrd = rd.CreateWindow(offset, size);
-		std::shared_ptr<Format> format = CreateFormat(*wrd, descriptions[0]);
-		format->ReadFile(*wrd);
+		std::shared_ptr<Linker::Reader> wrd = rd->CreateWindow(offset, size);
+		std::shared_ptr<Format> format = CreateFormat(wrd, descriptions[0]);
+		format->ReadFile(wrd);
 		return format;
 	}
 }
 
-std::shared_ptr<Linker::Contents> ReadLibraryFile(Linker::Reader& rd, offset_t size)
+std::shared_ptr<Linker::Contents> ReadLibraryFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size)
 {
 	std::vector<format_description> descriptions;
-	offset_t offset = rd.Tell();
+	offset_t offset = rd->Tell();
 	DetermineFormatFor(library_format_magics, sizeof library_format_magics / sizeof library_format_magics[0], descriptions, rd, offset);
-	rd.Seek(offset);
+	rd->Seek(offset);
 	if(descriptions.size() == 0)
 	{
 		return Linker::Buffer::ReadFromFile(rd, size);
 	}
 	else
 	{
-		std::shared_ptr<Linker::Reader> wrd = rd.CreateWindow(offset, size);
-		std::shared_ptr<Format> format = CreateFormat(*wrd, descriptions[0]);
-		format->ReadFile(*wrd);
+		std::shared_ptr<Linker::Reader> wrd = rd->CreateWindow(offset, size);
+		std::shared_ptr<Format> format = CreateFormat(wrd, descriptions[0]);
+		format->ReadFile(wrd);
 		return format;
 	}
 }

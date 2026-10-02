@@ -15,11 +15,11 @@ bool HunkFormat::Relocation::operator <(const Relocation& other) const
 
 // Block
 
-std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& rd, bool is_executable)
+std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(const std::shared_ptr<Linker::Reader>& rd, bool is_executable)
 {
-	offset_t current_offset = rd.Tell();
-	uint32_t type = rd.ReadUnsigned(4);
-	if(rd.Tell() < current_offset + 4)
+	offset_t current_offset = rd->Tell();
+	uint32_t type = rd->ReadUnsigned(4);
+	if(rd->Tell() < current_offset + 4)
 		return nullptr;
 	Linker::Debug << "Debug: read " << std::hex << type;
 	if(is_executable)
@@ -85,7 +85,7 @@ std::shared_ptr<HunkFormat::Block> HunkFormat::Block::ReadBlock(Linker::Reader& 
 	return block;
 }
 
-void HunkFormat::Block::Read(Linker::Reader& rd)
+void HunkFormat::Block::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 }
 
@@ -160,7 +160,7 @@ void HunkFormat::Block::AddExtraFields(Dumper::Region& region, const Module& mod
 
 // TextBlock
 
-void HunkFormat::TextBlock::Read(Linker::Reader& rd)
+void HunkFormat::TextBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	name = HunkFormat::ReadString(rd);
 }
@@ -178,7 +178,7 @@ offset_t HunkFormat::TextBlock::FileSize() const
 
 // HeaderBlock
 
-void HunkFormat::HeaderBlock::Read(Linker::Reader& rd)
+void HunkFormat::HeaderBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	while(true)
 	{
@@ -188,12 +188,12 @@ void HunkFormat::HeaderBlock::Read(Linker::Reader& rd)
 			break;
 		library_names.push_back(name);
 	}
-	table_size = rd.ReadUnsigned(4);
-	first_hunk = rd.ReadUnsigned(4);
-	uint32_t last_hunk = rd.ReadUnsigned(4);
+	table_size = rd->ReadUnsigned(4);
+	first_hunk = rd->ReadUnsigned(4);
+	uint32_t last_hunk = rd->ReadUnsigned(4);
 	for(uint32_t i = 0; i < last_hunk - first_hunk + 1; i++)
 	{
-		hunk_sizes.emplace_back(rd.ReadUnsigned(4));
+		hunk_sizes.emplace_back(rd->ReadUnsigned(4));
 	}
 }
 
@@ -280,13 +280,13 @@ uint32_t HunkFormat::RelocatableBlock::GetAdditionalFlags() const
 	return flags & ~LoadPublic;
 }
 
-void HunkFormat::RelocatableBlock::Read(Linker::Reader& rd)
+void HunkFormat::RelocatableBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint32_t longword_count = rd.ReadUnsigned(4);
+	uint32_t longword_count = rd->ReadUnsigned(4);
 	if((longword_count & BitAdditional) == BitAdditional)
 	{
 		loaded_with_additional_flags = true;
-		flags = flag_type(rd.ReadUnsigned(4) | LoadPublic);
+		flags = flag_type(rd->ReadUnsigned(4) | LoadPublic);
 	}
 	else
 	{
@@ -334,7 +334,7 @@ void HunkFormat::RelocatableBlock::AddExtraFields(Dumper::Region& region, const 
 	}
 }
 
-void HunkFormat::RelocatableBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
+void HunkFormat::RelocatableBlock::ReadBody(const std::shared_ptr<Linker::Reader>& rd, uint32_t longword_count)
 {
 }
 
@@ -381,7 +381,7 @@ uint32_t HunkFormat::LoadBlock::GetSize() const
 	return ::AlignTo(image->ImageSize(), 4) / 4;
 }
 
-void HunkFormat::LoadBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
+void HunkFormat::LoadBlock::ReadBody(const std::shared_ptr<Linker::Reader>& rd, uint32_t longword_count)
 {
 	image = Linker::Buffer::ReadFromFile(rd, longword_count * 4);
 }
@@ -407,7 +407,7 @@ uint32_t HunkFormat::BssBlock::GetSize() const
 	return size;
 }
 
-void HunkFormat::BssBlock::ReadBody(Linker::Reader& rd, uint32_t longword_count)
+void HunkFormat::BssBlock::ReadBody(const std::shared_ptr<Linker::Reader>& rd, uint32_t longword_count)
 {
 	size = longword_count;
 }
@@ -474,7 +474,7 @@ HunkFormat::Relocation::relocation_type HunkFormat::RelocationBlock::GetRelocati
 	}
 }
 
-void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
+void HunkFormat::RelocationBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	relocations.clear();
 
@@ -484,21 +484,21 @@ void HunkFormat::RelocationBlock::Read(Linker::Reader& rd)
 
 	while(true)
 	{
-		uint32_t relocation_count = rd.ReadUnsigned(wordread);
+		uint32_t relocation_count = rd->ReadUnsigned(wordread);
 		if(relocation_count == 0)
 			break;
 
 		relocations.emplace_back(RelocationData());
-		relocations.back().hunk = rd.ReadUnsigned(wordread);
+		relocations.back().hunk = rd->ReadUnsigned(wordread);
 		for(uint32_t i = 0; i < relocation_count; i++)
 		{
-			relocations.back().offsets.push_back(rd.ReadUnsigned(wordread));
+			relocations.back().offsets.push_back(rd->ReadUnsigned(wordread));
 		}
 	}
 
-	if((rd.Tell() & 3) != 0)
+	if((rd->Tell() & 3) != 0)
 	{
-		rd.Skip(-rd.Tell() & 3);
+		rd->Skip(-rd->Tell() & 3);
 	}
 }
 
@@ -585,9 +585,9 @@ void HunkFormat::RelocationBlock::Dump(Dumper::Dumper& dump, const Module& modul
 
 // SymbolBlock::Unit
 
-std::unique_ptr<HunkFormat::SymbolBlock::Unit> HunkFormat::SymbolBlock::Unit::ReadData(Linker::Reader& rd)
+std::unique_ptr<HunkFormat::SymbolBlock::Unit> HunkFormat::SymbolBlock::Unit::ReadData(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint32_t length = rd.ReadUnsigned(4);
+	uint32_t length = rd->ReadUnsigned(4);
 	if(length == 0)
 		return nullptr;
 
@@ -632,7 +632,7 @@ std::unique_ptr<HunkFormat::SymbolBlock::Unit> HunkFormat::SymbolBlock::Unit::Re
 	return unit;
 }
 
-void HunkFormat::SymbolBlock::Unit::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::Unit::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 }
 
@@ -657,9 +657,9 @@ void HunkFormat::SymbolBlock::Unit::AddExtraFields(Dumper::Dumper& dump, Dumper:
 
 // SymbolBlock::Definition
 
-void HunkFormat::SymbolBlock::Definition::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::Definition::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	value = rd.ReadUnsigned(4);
+	value = rd->ReadUnsigned(4);
 }
 
 void HunkFormat::SymbolBlock::Definition::Write(Linker::Writer& wr) const
@@ -751,12 +751,12 @@ HunkFormat::Relocation::relocation_type HunkFormat::SymbolBlock::References::Get
 	}
 }
 
-void HunkFormat::SymbolBlock::References::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::References::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint32_t reference_count = rd.ReadUnsigned(4);
+	uint32_t reference_count = rd->ReadUnsigned(4);
 	for(uint32_t i = 0; i < reference_count; i++)
 	{
-		references.push_back(rd.ReadUnsigned(4));
+		references.push_back(rd->ReadUnsigned(4));
 	}
 }
 
@@ -791,13 +791,13 @@ void HunkFormat::SymbolBlock::References::DumpContents(Dumper::Dumper& dump, con
 
 // SymbolBlock::CommonReferences
 
-void HunkFormat::SymbolBlock::CommonReferences::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::CommonReferences::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	size = rd.ReadUnsigned(4);
-	uint32_t reference_count = rd.ReadUnsigned(4);
+	size = rd->ReadUnsigned(4);
+	uint32_t reference_count = rd->ReadUnsigned(4);
 	for(uint32_t i = 0; i < reference_count; i++)
 	{
-		references.push_back(rd.ReadUnsigned(4));
+		references.push_back(rd->ReadUnsigned(4));
 	}
 }
 
@@ -824,7 +824,7 @@ void HunkFormat::SymbolBlock::CommonReferences::AddExtraFields(Dumper::Dumper& d
 
 // SymbolBlock
 
-void HunkFormat::SymbolBlock::Read(Linker::Reader& rd)
+void HunkFormat::SymbolBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	while(true)
 	{
@@ -901,9 +901,9 @@ void HunkFormat::SymbolBlock::Dump(Dumper::Dumper& dump, const Module& module, c
 
 // DebugBlock
 
-void HunkFormat::DebugBlock::Read(Linker::Reader& rd)
+void HunkFormat::DebugBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint32_t longword_count = rd.ReadUnsigned(4);
+	uint32_t longword_count = rd->ReadUnsigned(4);
 	image = Linker::Buffer::ReadFromFile(rd, longword_count * 4);
 }
 
@@ -936,22 +936,22 @@ void HunkFormat::DebugBlock::Dump(Dumper::Dumper& dump, const Module& module, co
 
 // OverlayBlock
 
-void HunkFormat::OverlayBlock::Read(Linker::Reader& rd)
+void HunkFormat::OverlayBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint32_t longword_count = rd.ReadUnsigned(4);
-	maximum_level = rd.ReadUnsigned(4);
-	rd.Skip(4 * (maximum_level - 2));
+	uint32_t longword_count = rd->ReadUnsigned(4);
+	maximum_level = rd->ReadUnsigned(4);
+	rd->Skip(4 * (maximum_level - 2));
 	for(uint32_t i = maximum_level; i < longword_count; i += 8)
 	{
 		OverlaySymbol symbol;
-		symbol.offset = rd.ReadUnsigned(4);
-		symbol.res1 = rd.ReadUnsigned(4);
-		symbol.res2 = rd.ReadUnsigned(4);
-		symbol.level = rd.ReadUnsigned(4);
-		symbol.ordinate = rd.ReadUnsigned(4);
-		symbol.first_hunk = rd.ReadUnsigned(4);
-		symbol.symbol_hunk = rd.ReadUnsigned(4);
-		symbol.symbol_offset = rd.ReadUnsigned(4);
+		symbol.offset = rd->ReadUnsigned(4);
+		symbol.res1 = rd->ReadUnsigned(4);
+		symbol.res2 = rd->ReadUnsigned(4);
+		symbol.level = rd->ReadUnsigned(4);
+		symbol.ordinate = rd->ReadUnsigned(4);
+		symbol.first_hunk = rd->ReadUnsigned(4);
+		symbol.symbol_hunk = rd->ReadUnsigned(4);
+		symbol.symbol_offset = rd->ReadUnsigned(4);
 		overlay_data_table.emplace_back(symbol);
 	}
 }
@@ -993,11 +993,11 @@ void HunkFormat::OverlayBlock::Dump(Dumper::Dumper& dump, const Module& module, 
 
 // LibraryBlock
 
-void HunkFormat::LibraryBlock::Read(Linker::Reader& rd)
+void HunkFormat::LibraryBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint32_t longword_count = rd.ReadUnsigned(4);
-	offset_t end = rd.Tell() + 4 * longword_count;
-	std::shared_ptr<Block> next_block = rd.Tell() < end ? Block::ReadBlock(rd, false) : nullptr;
+	uint32_t longword_count = rd->ReadUnsigned(4);
+	offset_t end = rd->Tell() + 4 * longword_count;
+	std::shared_ptr<Block> next_block = rd->Tell() < end ? Block::ReadBlock(rd, false) : nullptr;
 	hunks = std::make_unique<Module>();
 	hunks->ReadFile(rd, next_block, end);
 }
@@ -1026,12 +1026,12 @@ void HunkFormat::LibraryBlock::Dump(Dumper::Dumper& dump, const Module& module, 
 
 // IndexBlock
 
-HunkFormat::IndexBlock::Definition HunkFormat::IndexBlock::Definition::Read(Linker::Reader& rd)
+HunkFormat::IndexBlock::Definition HunkFormat::IndexBlock::Definition::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Definition def;
-	def.string_offset = rd.ReadUnsigned(2);
-	def.symbol_offset = rd.ReadUnsigned(2);
-	def.type = rd.ReadUnsigned(2);
+	def.string_offset = rd->ReadUnsigned(2);
+	def.symbol_offset = rd->ReadUnsigned(2);
+	def.type = rd->ReadUnsigned(2);
 	return def;
 }
 
@@ -1042,18 +1042,18 @@ void HunkFormat::IndexBlock::Definition::Write(Linker::Writer& wr) const
 	wr.WriteWord(2, type);
 }
 
-HunkFormat::IndexBlock::HunkEntry HunkFormat::IndexBlock::HunkEntry::Read(Linker::Reader& rd)
+HunkFormat::IndexBlock::HunkEntry HunkFormat::IndexBlock::HunkEntry::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	HunkEntry hunk;
-	hunk.string_offset = rd.ReadUnsigned(2);
-	hunk.hunk_size = rd.ReadUnsigned(2);
-	hunk.hunk_type = rd.ReadUnsigned(2); // highest 2 bits are Fast and Chip flags
-	uint16_t ref_count = rd.ReadUnsigned(2);
+	hunk.string_offset = rd->ReadUnsigned(2);
+	hunk.hunk_size = rd->ReadUnsigned(2);
+	hunk.hunk_type = rd->ReadUnsigned(2); // highest 2 bits are Fast and Chip flags
+	uint16_t ref_count = rd->ReadUnsigned(2);
 	for(uint16_t i = 0; i < ref_count; i++)
 	{
-		hunk.references.push_back(rd.ReadUnsigned(2));
+		hunk.references.push_back(rd->ReadUnsigned(2));
 	}
-	uint16_t def_count = rd.ReadUnsigned(2);
+	uint16_t def_count = rd->ReadUnsigned(2);
 	for(uint16_t i = 0; i < def_count; i++)
 	{
 		hunk.definitions.push_back(Definition::Read(rd));
@@ -1084,12 +1084,12 @@ offset_t HunkFormat::IndexBlock::HunkEntry::FileSize() const
 	return 10 + 2 * references.size() + 6 * definitions.size();
 }
 
-HunkFormat::IndexBlock::ProgramUnit HunkFormat::IndexBlock::ProgramUnit::Read(Linker::Reader& rd)
+HunkFormat::IndexBlock::ProgramUnit HunkFormat::IndexBlock::ProgramUnit::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	ProgramUnit unit;
-	unit.string_offset = rd.ReadSigned(2);
-	unit.first_hunk_offset = rd.ReadUnsigned(2);
-	uint16_t hunk_count = rd.ReadUnsigned(2);
+	unit.string_offset = rd->ReadSigned(2);
+	unit.first_hunk_offset = rd->ReadUnsigned(2);
+	uint16_t hunk_count = rd->ReadUnsigned(2);
 	for(uint16_t i = 0; i < hunk_count; i++)
 	{
 		unit.hunks.emplace_back(HunkEntry::Read(rd));
@@ -1128,26 +1128,26 @@ offset_t HunkFormat::IndexBlock::StringTableSize() const
 	return size;
 }
 
-void HunkFormat::IndexBlock::Read(Linker::Reader& rd)
+void HunkFormat::IndexBlock::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO: untested
-	uint32_t longword_count = rd.ReadUnsigned(4);
-	offset_t block_content_offset = rd.Tell();
-	uint16_t string_block_size = rd.ReadUnsigned(2);
-	offset_t string_block_start = rd.Tell();
+	uint32_t longword_count = rd->ReadUnsigned(4);
+	offset_t block_content_offset = rd->Tell();
+	uint16_t string_block_size = rd->ReadUnsigned(2);
+	offset_t string_block_start = rd->Tell();
 	strings.clear();
-	while(rd.Tell() < string_block_start + string_block_size)
+	while(rd->Tell() < string_block_start + string_block_size)
 	{
-		strings.push_back(rd.ReadASCIIZ());
+		strings.push_back(rd->ReadASCIIZ());
 	}
-	if((rd.Tell() & 1) != 0)
-		rd.Skip(1);
-	while(rd.Tell() < block_content_offset + longword_count * 4)
+	if((rd->Tell() & 1) != 0)
+		rd->Skip(1);
+	while(rd->Tell() < block_content_offset + longword_count * 4)
 	{
 		units.emplace_back(ProgramUnit::Read(rd));
 	}
-	if((rd.Tell() & 3) != 0)
-		rd.Skip(-rd.Tell() & 3);
+	if((rd->Tell() & 3) != 0)
+		rd->Skip(-rd->Tell() & 3);
 }
 
 void HunkFormat::IndexBlock::Write(Linker::Writer& wr) const
@@ -1553,7 +1553,7 @@ offset_t HunkFormat::Module::ImageSize() const
 	return size;
 }
 
-void HunkFormat::Module::ReadFile(Linker::Reader& rd, std::shared_ptr<Block>& next_block, offset_t end)
+void HunkFormat::Module::ReadFile(const std::shared_ptr<Linker::Reader>& rd, std::shared_ptr<Block>& next_block, offset_t end)
 {
 	start_block = nullptr;
 	hunks.clear();
@@ -1562,12 +1562,12 @@ void HunkFormat::Module::ReadFile(Linker::Reader& rd, std::shared_ptr<Block>& ne
 	if(next_block->type == Block::HUNK_UNIT || next_block->type == Block::HUNK_HEADER)
 	{
 		start_block = next_block;
-		next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+		next_block = rd->Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 	}
 	else if(next_block->type == Block::HUNK_LIB)
 	{
 		start_block = next_block;
-		next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+		next_block = rd->Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 		if(next_block->type != Block::HUNK_INDEX)
 		{
 			Linker::Error << "Error: expected HUNK_INDEX" << std::endl;
@@ -1575,7 +1575,7 @@ void HunkFormat::Module::ReadFile(Linker::Reader& rd, std::shared_ptr<Block>& ne
 		else
 		{
 			end_block = next_block;
-			next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+			next_block = rd->Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 		}
 		return;
 	}
@@ -1588,7 +1588,7 @@ void HunkFormat::Module::ReadFile(Linker::Reader& rd, std::shared_ptr<Block>& ne
 			if(next_block->type == Block::HUNK_OVERLAY || next_block->type == Block::HUNK_BREAK)
 			{
 				end_block = next_block;
-				next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+				next_block = rd->Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 				return;
 			}
 			else if(next_block->type == Block::HUNK_UNIT || next_block->type == Block::HUNK_LIB)
@@ -1600,11 +1600,11 @@ void HunkFormat::Module::ReadFile(Linker::Reader& rd, std::shared_ptr<Block>& ne
 				hunk.AppendBlock(next_block);
 				if(next_block->type == Block::HUNK_END)
 					break;
-				next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+				next_block = rd->Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 			}
 		}
 		hunks.emplace_back(hunk);
-		next_block = rd.Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
+		next_block = rd->Tell() < end ? Block::ReadBlock(rd, IsExecutable()) : nullptr;
 	}
 }
 
@@ -1699,14 +1699,14 @@ offset_t HunkFormat::ImageSize() const
 	return size;
 }
 
-void HunkFormat::ReadFile(Linker::Reader& rd)
+void HunkFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	offset_t end = rd.GetImageEnd();
+	rd->endiantype = ::BigEndian;
+	offset_t end = rd->GetImageEnd();
 
 	std::shared_ptr<Block> next_block = Block::ReadBlock(rd, IsExecutable());
 
-	while(rd.Tell() < end)
+	while(rd->Tell() < end)
 	{
 		Module module;
 		module.ReadFile(rd, next_block, end);
@@ -1745,18 +1745,18 @@ void HunkFormat::Dump(Dumper::Dumper& dump) const
 	}
 }
 
-std::string HunkFormat::ReadString(uint32_t longword_count, Linker::Reader& rd)
+std::string HunkFormat::ReadString(uint32_t longword_count, const std::shared_ptr<Linker::Reader>& rd)
 {
-	return rd.ReadData(longword_count * 4, '\0');
+	return rd->ReadData(longword_count * 4, '\0');
 }
 
-std::string HunkFormat::ReadString(Linker::Reader& rd, uint32_t& longword_count)
+std::string HunkFormat::ReadString(const std::shared_ptr<Linker::Reader>& rd, uint32_t& longword_count)
 {
-	longword_count = rd.ReadUnsigned(4);
+	longword_count = rd->ReadUnsigned(4);
 	return ReadString(longword_count, rd);
 }
 
-std::string HunkFormat::ReadString(Linker::Reader& rd)
+std::string HunkFormat::ReadString(const std::shared_ptr<Linker::Reader>& rd)
 {
 	uint32_t tmp;
 	return ReadString(rd, tmp);

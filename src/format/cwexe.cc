@@ -5,7 +5,7 @@
 
 using namespace CauseWay;
 
-void CauseWayFormat::ReadFile(Linker::Reader& rd)
+void CauseWayFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }

@@ -1148,10 +1148,10 @@ bool ELFFormat::Section::GetFileSize() const
 	return type == SHT_NOBITS ? 0 : size;
 }
 
-std::shared_ptr<Linker::Section> ELFFormat::Section::ReadProgBits(Linker::Reader& rd, offset_t file_offset, const std::string& name, offset_t size)
+std::shared_ptr<Linker::Section> ELFFormat::Section::ReadProgBits(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, const std::string& name, offset_t size)
 {
 	std::shared_ptr<Linker::Section> section = std::make_shared<Linker::Section>(name);
-	rd.Seek(file_offset);
+	rd->Seek(file_offset);
 	section->Expand(size);
 	section->ReadFile(rd);
 	return section;
@@ -1165,33 +1165,33 @@ std::shared_ptr<Linker::Section> ELFFormat::Section::ReadNoBits(const std::strin
 	return section;
 }
 
-std::shared_ptr<ELFFormat::SymbolTable> ELFFormat::Section::ReadSymbolTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, size_t wordbytes)
+std::shared_ptr<ELFFormat::SymbolTable> ELFFormat::Section::ReadSymbolTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, size_t wordbytes)
 {
 	std::shared_ptr<SymbolTable> symbol_table = std::make_shared<SymbolTable>(wordbytes, entsize);
 	for(size_t j = 0; j < section_size; j += entsize)
 	{
-		rd.Seek(file_offset + j);
+		rd->Seek(file_offset + j);
 		Symbol symbol;
-		symbol.name_offset = rd.ReadUnsigned(4);
+		symbol.name_offset = rd->ReadUnsigned(4);
 		if(wordbytes == 4)
 		{
-			symbol.value = rd.ReadUnsigned(wordbytes);
-			symbol.size = rd.ReadUnsigned(wordbytes);
-			symbol.type = rd.ReadUnsigned(1);
+			symbol.value = rd->ReadUnsigned(wordbytes);
+			symbol.size = rd->ReadUnsigned(wordbytes);
+			symbol.type = rd->ReadUnsigned(1);
 			symbol.bind = symbol.type >> 4;
 			symbol.type &= 0xF;
-			symbol.other = rd.ReadUnsigned(1);
-			symbol.shndx = rd.ReadUnsigned(2);
+			symbol.other = rd->ReadUnsigned(1);
+			symbol.shndx = rd->ReadUnsigned(2);
 		}
 		else
 		{
-			symbol.type = rd.ReadUnsigned(1);
+			symbol.type = rd->ReadUnsigned(1);
 			symbol.bind = symbol.type >> 4;
 			symbol.type &= 0xF;
-			symbol.other = rd.ReadUnsigned(1);
-			symbol.shndx = rd.ReadUnsigned(2);
-			symbol.value = rd.ReadUnsigned(wordbytes);
-			symbol.size = rd.ReadUnsigned(wordbytes);
+			symbol.other = rd->ReadUnsigned(1);
+			symbol.shndx = rd->ReadUnsigned(2);
+			symbol.value = rd->ReadUnsigned(wordbytes);
+			symbol.size = rd->ReadUnsigned(wordbytes);
 		}
 		symbol.sh_link = section_link;
 		symbol_table->symbols.push_back(symbol);
@@ -1199,27 +1199,27 @@ std::shared_ptr<ELFFormat::SymbolTable> ELFFormat::Section::ReadSymbolTable(Link
 	return symbol_table;
 }
 
-std::shared_ptr<ELFFormat::StringTable> ELFFormat::Section::ReadStringTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size)
+std::shared_ptr<ELFFormat::StringTable> ELFFormat::Section::ReadStringTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size)
 {
 	std::shared_ptr<StringTable> string_table = std::make_shared<StringTable>(section_size);
-	rd.Seek(file_offset);
-	while(rd.Tell() < file_offset + section_size)
+	rd->Seek(file_offset);
+	while(rd->Tell() < file_offset + section_size)
 	{
-		std::string s = rd.ReadASCIIZ();
+		std::string s = rd->ReadASCIIZ();
 		string_table->strings.push_back(s);
 	}
 	return string_table;
 }
 
-std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::ReadRelocations(Linker::Reader& rd, Section::section_type type, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, uint32_t section_info, size_t wordbytes)
+std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::ReadRelocations(const std::shared_ptr<Linker::Reader>& rd, Section::section_type type, offset_t file_offset, offset_t section_size, offset_t entsize, uint32_t section_link, uint32_t section_info, size_t wordbytes)
 {
 	std::shared_ptr<Relocations> relocations = std::make_shared<Relocations>(wordbytes, entsize);
 	for(size_t j = 0; j < section_size; j += entsize)
 	{
-		rd.Seek(file_offset + j);
+		rd->Seek(file_offset + j);
 		Relocation rel;
-		rel.offset = rd.ReadUnsigned(wordbytes);
-		offset_t info = rd.ReadUnsigned(wordbytes);
+		rel.offset = rd->ReadUnsigned(wordbytes);
+		offset_t info = rd->ReadUnsigned(wordbytes);
 		if(wordbytes == 4)
 		{
 			rel.symbol = info >> 8;
@@ -1234,7 +1234,7 @@ std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::ReadRelocations(Link
 		if(rel.addend_from_section_data)
 			rel.addend = 0;
 		else
-			rel.addend = rd.ReadUnsigned(wordbytes);
+			rel.addend = rd->ReadUnsigned(wordbytes);
 //		Debug::Debug << "Debug: Type " << sections[i].type << " addend " << rel.addend << std::endl;
 		rel.sh_link = section_link;
 		rel.sh_info = section_info;
@@ -1243,158 +1243,158 @@ std::shared_ptr<ELFFormat::Relocations> ELFFormat::Section::ReadRelocations(Link
 	return relocations;
 }
 
-std::shared_ptr<ELFFormat::Array> ELFFormat::Section::ReadArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+std::shared_ptr<ELFFormat::Array> ELFFormat::Section::ReadArray(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
 {
 	std::shared_ptr<Array> array = std::make_shared<Array>(entsize);
-	rd.Seek(file_offset);
+	rd->Seek(file_offset);
 	for(size_t j = 0; j < section_size / entsize; j++)
 	{
-		array->array.push_back(rd.ReadUnsigned(entsize));
+		array->array.push_back(rd->ReadUnsigned(entsize));
 	}
 	return array;
 }
 
-std::shared_ptr<ELFFormat::SectionGroup> ELFFormat::Section::ReadSectionGroup(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+std::shared_ptr<ELFFormat::SectionGroup> ELFFormat::Section::ReadSectionGroup(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
 {
 	// TODO: untested
 	std::shared_ptr<SectionGroup> section_group = std::make_shared<SectionGroup>(entsize);
-	rd.Seek(file_offset);
-	section_group->flags = rd.ReadUnsigned(4);
+	rd->Seek(file_offset);
+	section_group->flags = rd->ReadUnsigned(4);
 	for(size_t j = 0; j < section_size / entsize; j++)
 	{
-		rd.Seek(file_offset + j * entsize);
-		section_group->array.push_back(rd.ReadUnsigned(4));
+		rd->Seek(file_offset + j * entsize);
+		section_group->array.push_back(rd->ReadUnsigned(4));
 	}
 	return section_group;
 }
 
-std::shared_ptr<ELFFormat::IndexArray> ELFFormat::Section::ReadIndexArray(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+std::shared_ptr<ELFFormat::IndexArray> ELFFormat::Section::ReadIndexArray(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
 {
 	// TODO: untested
 	std::shared_ptr<IndexArray> array = std::make_shared<IndexArray>(entsize);
 	for(size_t j = 0; j < section_size / entsize; j++)
 	{
-		rd.Seek(file_offset + j * entsize);
-		array->array.push_back(rd.ReadUnsigned(4));
+		rd->Seek(file_offset + j * entsize);
+		array->array.push_back(rd->ReadUnsigned(4));
 	}
 	return array;
 }
 
-std::shared_ptr<ELFFormat::HashTable> ELFFormat::Section::ReadHashTable(Linker::Reader& rd, offset_t file_offset)
+std::shared_ptr<ELFFormat::HashTable> ELFFormat::Section::ReadHashTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset)
 {
 	std::shared_ptr<HashTable> hash_table = std::make_shared<HashTable>();
-	rd.Seek(file_offset);
-	uint32_t nbucket = rd.ReadUnsigned(4);
-	uint32_t nchain = rd.ReadUnsigned(4);
+	rd->Seek(file_offset);
+	uint32_t nbucket = rd->ReadUnsigned(4);
+	uint32_t nchain = rd->ReadUnsigned(4);
 	for(size_t j = 0; j < nbucket; j++)
 	{
-		hash_table->buckets.push_back(rd.ReadUnsigned(4));
+		hash_table->buckets.push_back(rd->ReadUnsigned(4));
 	}
 	for(size_t j = 0; j < nchain; j++)
 	{
-		hash_table->chains.push_back(rd.ReadUnsigned(4));
+		hash_table->chains.push_back(rd->ReadUnsigned(4));
 	}
 	return hash_table;
 }
 
-std::shared_ptr<ELFFormat::DynamicSection> ELFFormat::Section::ReadDynamic(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes)
+std::shared_ptr<ELFFormat::DynamicSection> ELFFormat::Section::ReadDynamic(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize, size_t wordbytes)
 {
 	std::shared_ptr<DynamicSection> dynamic_section = std::make_shared<DynamicSection>(wordbytes, entsize);
 	for(size_t j = 0; j < section_size; j += entsize)
 	{
-		rd.Seek(file_offset + j);
+		rd->Seek(file_offset + j);
 		DynamicObject dyn;
-		dyn.tag = rd.ReadSigned(wordbytes);
-		dyn.value = rd.ReadSigned(wordbytes);
+		dyn.tag = rd->ReadSigned(wordbytes);
+		dyn.value = rd->ReadSigned(wordbytes);
 		dynamic_section->dynamic.push_back(dyn);
 	}
 	return dynamic_section;
 }
 
-std::shared_ptr<ELFFormat::NotesSection> ELFFormat::Section::ReadNote(Linker::Reader& rd, offset_t file_offset, offset_t section_size)
+std::shared_ptr<ELFFormat::NotesSection> ELFFormat::Section::ReadNote(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size)
 {
 	std::shared_ptr<NotesSection> notes = std::make_shared<NotesSection>(section_size);
-	rd.Seek(file_offset);
-	while(rd.Tell() < file_offset + section_size)
+	rd->Seek(file_offset);
+	while(rd->Tell() < file_offset + section_size)
 	{
 		Note note;
-		offset_t namesz = rd.ReadUnsigned(4);
-		offset_t descsz = rd.ReadUnsigned(4);
-		note.type = rd.ReadUnsigned(4);
-		note.name = rd.ReadASCIIZ(namesz);
+		offset_t namesz = rd->ReadUnsigned(4);
+		offset_t descsz = rd->ReadUnsigned(4);
+		note.type = rd->ReadUnsigned(4);
+		note.name = rd->ReadASCIIZ(namesz);
 		if((namesz & 3) != 0)
-			rd.Skip((-namesz & 3));
-		note.descriptor = rd.ReadASCIIZ(descsz);
+			rd->Skip((-namesz & 3));
+		note.descriptor = rd->ReadASCIIZ(descsz);
 		if((descsz & 3) != 0)
-			rd.Skip((-descsz & 3));
+			rd->Skip((-descsz & 3));
 		notes->notes.push_back(note);
 	}
 	return notes;
 }
 
-std::shared_ptr<ELFFormat::VersionRequirements> ELFFormat::Section::ReadVersionRequirements(Linker::Reader& rd, offset_t file_offset, offset_t section_link, offset_t section_info)
+std::shared_ptr<ELFFormat::VersionRequirements> ELFFormat::Section::ReadVersionRequirements(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_link, offset_t section_info)
 {
 	std::shared_ptr<VersionRequirements> verneed = std::make_shared<VersionRequirements>();
-	rd.Seek(file_offset);
+	rd->Seek(file_offset);
 	for(offset_t j = 0; j < section_info; j++)
 	{
 		VersionRequirement vern;
-		vern.version = rd.ReadUnsigned(2);
-		uint16_t vn_cnt = rd.ReadUnsigned(2);
-		vern.file_name_offset = rd.ReadUnsigned(4);
-		vern.offset_auxiliary_array = rd.ReadUnsigned(4);
-		vern.offset_next_entry = rd.ReadUnsigned(4);
+		vern.version = rd->ReadUnsigned(2);
+		uint16_t vn_cnt = rd->ReadUnsigned(2);
+		vern.file_name_offset = rd->ReadUnsigned(4);
+		vern.offset_auxiliary_array = rd->ReadUnsigned(4);
+		vern.offset_next_entry = rd->ReadUnsigned(4);
 		Linker::Debug << "Debug: next entry " << vern.offset_next_entry << std::endl;
 		Linker::Debug << "Debug: reading " << vn_cnt << " auxiliary" << std::endl;
-		rd.Seek(file_offset + vern.offset_auxiliary_array);
+		rd->Seek(file_offset + vern.offset_auxiliary_array);
 		for(int i = 0; i < vn_cnt; i++)
 		{
 			VersionRequirement::Auxiliary vernaux;
-			vernaux.hash = rd.ReadUnsigned(4);
-			vernaux.flags = rd.ReadUnsigned(2);
-			vernaux.other = rd.ReadUnsigned(2);
-			vernaux.name_offset = rd.ReadUnsigned(4);
-			vernaux.offset_next_entry = rd.ReadUnsigned(4);
+			vernaux.hash = rd->ReadUnsigned(4);
+			vernaux.flags = rd->ReadUnsigned(2);
+			vernaux.other = rd->ReadUnsigned(2);
+			vernaux.name_offset = rd->ReadUnsigned(4);
+			vernaux.offset_next_entry = rd->ReadUnsigned(4);
 			vern.auxiliary_array.push_back(vernaux);
 			if(i != vn_cnt - 1)
-				rd.Seek(file_offset + vernaux.offset_next_entry);
+				rd->Seek(file_offset + vernaux.offset_next_entry);
 		}
 		verneed->requirements.push_back(vern);
 		if(j != section_info - 1)
-			rd.Seek(file_offset + vern.offset_next_entry);
+			rd->Seek(file_offset + vern.offset_next_entry);
 	}
 	return verneed;
 }
 
-std::shared_ptr<ELFFormat::IBMSystemInfo> ELFFormat::Section::ReadIBMSystemInfo(Linker::Reader& rd, offset_t file_offset)
+std::shared_ptr<ELFFormat::IBMSystemInfo> ELFFormat::Section::ReadIBMSystemInfo(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset)
 {
 	std::shared_ptr<IBMSystemInfo> system_info = std::make_shared<IBMSystemInfo>();
-	rd.Seek(file_offset);
-	system_info->os_type = IBMSystemInfo::system_type(rd.ReadUnsigned(4));
-	system_info->os_size = rd.ReadUnsigned(4);
+	rd->Seek(file_offset);
+	system_info->os_type = IBMSystemInfo::system_type(rd->ReadUnsigned(4));
+	system_info->os_size = rd->ReadUnsigned(4);
 	if(system_info->IsOS2Specific())
 	{
-		system_info->os2.sessiontype = IBMSystemInfo::os2_specific::os2_session(rd.ReadUnsigned(1));
-		system_info->os2.sessionflags = rd.ReadUnsigned(1);
+		system_info->os2.sessiontype = IBMSystemInfo::os2_specific::os2_session(rd->ReadUnsigned(1));
+		system_info->os2.sessionflags = rd->ReadUnsigned(1);
 	}
 	else
 	{
 		system_info->os_specific.resize(system_info->os_size, '\0');
-		rd.ReadData(system_info->os_specific);
+		rd->ReadData(system_info->os_specific);
 	}
 	return system_info;
 }
 
-std::shared_ptr<ELFFormat::IBMImportTable> ELFFormat::Section::ReadIBMImportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+std::shared_ptr<ELFFormat::IBMImportTable> ELFFormat::Section::ReadIBMImportTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
 {
 	std::shared_ptr<IBMImportTable> table = std::make_shared<IBMImportTable>(entsize);
 	for(size_t j = 0; j < section_size; j += entsize)
 	{
-		rd.Seek(file_offset + j);
+		rd->Seek(file_offset + j);
 		IBMImportEntry import;
-		import.ordinal = rd.ReadUnsigned(4);
-		import.name_offset = rd.ReadUnsigned(4);
-		import.dll = rd.ReadUnsigned(4);
+		import.ordinal = rd->ReadUnsigned(4);
+		import.name_offset = rd->ReadUnsigned(4);
+		import.dll = rd->ReadUnsigned(4);
 		import.type = IBMImportEntry::import_type(import.dll >> 24);
 		import.dll &= 0x00FFFFFF;
 		table->imports.push_back(import);
@@ -1402,57 +1402,57 @@ std::shared_ptr<ELFFormat::IBMImportTable> ELFFormat::Section::ReadIBMImportTabl
 	return table;
 }
 
-std::shared_ptr<ELFFormat::IBMExportTable> ELFFormat::Section::ReadIBMExportTable(Linker::Reader& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
+std::shared_ptr<ELFFormat::IBMExportTable> ELFFormat::Section::ReadIBMExportTable(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset, offset_t section_size, offset_t entsize)
 {
 	std::shared_ptr<IBMExportTable> table = std::make_shared<IBMExportTable>(entsize);
 	for(size_t j = 0; j < section_size; j += entsize)
 	{
-		rd.Seek(file_offset + j);
+		rd->Seek(file_offset + j);
 		IBMExportEntry _export;
-		_export.ordinal = rd.ReadUnsigned(4);
-		_export.symbol_index = rd.ReadUnsigned(4);
-		_export.name_offset = rd.ReadUnsigned(4);
+		_export.ordinal = rd->ReadUnsigned(4);
+		_export.symbol_index = rd->ReadUnsigned(4);
+		_export.name_offset = rd->ReadUnsigned(4);
 		table->exports.push_back(_export);
 	}
 	return table;
 }
 
-std::shared_ptr<ELFFormat::IBMResourceCollection> ELFFormat::Section::ReadIBMResourceCollection(Linker::Reader& rd, offset_t file_offset)
+std::shared_ptr<ELFFormat::IBMResourceCollection> ELFFormat::Section::ReadIBMResourceCollection(const std::shared_ptr<Linker::Reader>& rd, offset_t file_offset)
 {
 	std::shared_ptr<IBMResourceCollection> collection = std::make_shared<IBMResourceCollection>();
-	rd.Seek(file_offset);
+	rd->Seek(file_offset);
 	collection->offset = file_offset;
-	collection->version = rd.ReadUnsigned(2);
-	collection->flags = rd.ReadUnsigned(2);
-	collection->name_offset = rd.ReadUnsigned(4);
-	collection->item_array_offset = rd.ReadUnsigned(4); // rioff
-	collection->item_array_entry_size = rd.ReadUnsigned(4); // rientsize
-	uint32_t item_array_count = rd.ReadUnsigned(4); // rinum
-	collection->header_size = rd.ReadUnsigned(4); // rhsize
-	collection->string_table_offset = rd.ReadUnsigned(4); // strtab
-	collection->locale_offset = rd.ReadUnsigned(4); // locale
+	collection->version = rd->ReadUnsigned(2);
+	collection->flags = rd->ReadUnsigned(2);
+	collection->name_offset = rd->ReadUnsigned(4);
+	collection->item_array_offset = rd->ReadUnsigned(4); // rioff
+	collection->item_array_entry_size = rd->ReadUnsigned(4); // rientsize
+	uint32_t item_array_count = rd->ReadUnsigned(4); // rinum
+	collection->header_size = rd->ReadUnsigned(4); // rhsize
+	collection->string_table_offset = rd->ReadUnsigned(4); // strtab
+	collection->locale_offset = rd->ReadUnsigned(4); // locale
 
 	if(collection->locale_offset != 0)
 	{
-		rd.Seek(file_offset + collection->locale_offset);
-		collection->country[0] = rd.ReadUnsigned(2);
-		collection->country[1] = rd.ReadUnsigned(2);
-		collection->language[0] = rd.ReadUnsigned(2);
-		collection->language[1] = rd.ReadUnsigned(2);
+		rd->Seek(file_offset + collection->locale_offset);
+		collection->country[0] = rd->ReadUnsigned(2);
+		collection->country[1] = rd->ReadUnsigned(2);
+		collection->language[0] = rd->ReadUnsigned(2);
+		collection->language[1] = rd->ReadUnsigned(2);
 	}
 
-	rd.Seek(file_offset + collection->string_table_offset + collection->name_offset);
-	collection->name = rd.ReadASCIIZ();
+	rd->Seek(file_offset + collection->string_table_offset + collection->name_offset);
+	collection->name = rd->ReadASCIIZ();
 
 	for(size_t i = 0; i < item_array_count; i++)
 	{
-		rd.Seek(file_offset + collection->item_array_offset + collection->item_array_entry_size * i);
+		rd->Seek(file_offset + collection->item_array_offset + collection->item_array_entry_size * i);
 		IBMResource resource;
-		resource.type = rd.ReadUnsigned(4);
-		resource.ordinal = rd.ReadUnsigned(4);
-		resource.name_offset = rd.ReadUnsigned(4);
-		resource.data_offset = rd.ReadUnsigned(4);
-		resource.data_size = rd.ReadUnsigned(4);
+		resource.type = rd->ReadUnsigned(4);
+		resource.ordinal = rd->ReadUnsigned(4);
+		resource.name_offset = rd->ReadUnsigned(4);
+		resource.data_offset = rd->ReadUnsigned(4);
+		resource.data_size = rd->ReadUnsigned(4);
 		collection->resources.push_back(resource);
 	}
 
@@ -1460,10 +1460,10 @@ std::shared_ptr<ELFFormat::IBMResourceCollection> ELFFormat::Section::ReadIBMRes
 	{
 		if(resource.name_offset != 0)
 		{
-			rd.Seek(file_offset + collection->string_table_offset + resource.name_offset);
-			resource.name = rd.ReadASCIIZ();
+			rd->Seek(file_offset + collection->string_table_offset + resource.name_offset);
+			resource.name = rd->ReadASCIIZ();
 		}
-		rd.Seek(file_offset + resource.data_offset);
+		rd->Seek(file_offset + resource.data_offset);
 		resource.data = Linker::Buffer::ReadFromFile(rd, resource.data_size);
 	}
 
@@ -1668,12 +1668,12 @@ offset_t ELFFormat::Segment::Part::GetActualSize(const ELFFormat& fmt) const
 
 //// ELFFormat
 
-void ELFFormat::ReadFile(Linker::Reader& rd)
+void ELFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	std::array<char, 4> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "\x7F" "ELF"); // for the experimental DJGPP ELF backend
 
-	file_class = rd.ReadUnsigned(1);
+	file_class = rd->ReadUnsigned(1);
 	switch(file_class)
 	{
 	case ELFCLASS32:
@@ -1690,14 +1690,14 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
-	data_encoding = rd.ReadUnsigned(1);
+	data_encoding = rd->ReadUnsigned(1);
 	switch(data_encoding)
 	{
 	case ELFDATA2LSB:
-		endiantype = rd.endiantype = ::LittleEndian;
+		endiantype = rd->endiantype = ::LittleEndian;
 		break;
 	case ELFDATA2MSB:
-		endiantype = rd.endiantype = ::BigEndian;
+		endiantype = rd->endiantype = ::BigEndian;
 		break;
 	default:
 		{
@@ -1707,7 +1707,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		}
 	}
 
-	header_version = rd.ReadUnsigned(1);
+	header_version = rd->ReadUnsigned(1);
 	if(header_version != EV_CURRENT)
 	{
 #if 0
@@ -1718,14 +1718,14 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		Linker::Warning << "Warning: Unrecognized ELF header version " << int(header_version);
 	}
 
-	osabi = rd.ReadUnsigned(1);
-	abi_version = rd.ReadUnsigned(1);
+	osabi = rd->ReadUnsigned(1);
+	abi_version = rd->ReadUnsigned(1);
 
-	rd.Seek(file_offset + 16);
+	rd->Seek(file_offset + 16);
 
-	object_file_type = file_type(rd.ReadUnsigned(2));
-	cpu = cpu_type(rd.ReadUnsigned(2));
-	file_version = rd.ReadUnsigned(4);
+	object_file_type = file_type(rd->ReadUnsigned(2));
+	cpu = cpu_type(rd->ReadUnsigned(2));
+	file_version = rd->ReadUnsigned(4);
 	if(file_version != EV_CURRENT)
 	{
 #if 0
@@ -1736,31 +1736,31 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		Linker::Warning << "Warning: Unrecognized ELF file version " << int(file_version);
 	}
 
-	entry = rd.ReadUnsigned(wordbytes);
-	program_header_offset = rd.ReadUnsigned(wordbytes); // phoff
-	section_header_offset = rd.ReadUnsigned(wordbytes); // shoff
-	flags = rd.ReadUnsigned(4);
-	elf_header_size = rd.ReadUnsigned(2); // ehsize
-	program_header_entry_size = rd.ReadUnsigned(2); // phentsize
-	uint16_t phnum = rd.ReadUnsigned(2);
-	section_header_entry_size = rd.ReadUnsigned(2); // shentsize
-	uint16_t shnum = rd.ReadUnsigned(2);
-	section_name_string_table = rd.ReadUnsigned(2); // shstrndx
+	entry = rd->ReadUnsigned(wordbytes);
+	program_header_offset = rd->ReadUnsigned(wordbytes); // phoff
+	section_header_offset = rd->ReadUnsigned(wordbytes); // shoff
+	flags = rd->ReadUnsigned(4);
+	elf_header_size = rd->ReadUnsigned(2); // ehsize
+	program_header_entry_size = rd->ReadUnsigned(2); // phentsize
+	uint16_t phnum = rd->ReadUnsigned(2);
+	section_header_entry_size = rd->ReadUnsigned(2); // shentsize
+	uint16_t shnum = rd->ReadUnsigned(2);
+	section_name_string_table = rd->ReadUnsigned(2); // shstrndx
 
 	for(size_t i = 0; i < shnum; i++)
 	{
-		rd.Seek(file_offset + section_header_offset + i * section_header_entry_size);
+		rd->Seek(file_offset + section_header_offset + i * section_header_entry_size);
 		Section section;
-		section.name_offset = rd.ReadUnsigned(4);
-		section.type = Section::section_type(rd.ReadUnsigned(4));
-		section.flags = rd.ReadUnsigned(wordbytes);
-		section.address = rd.ReadUnsigned(wordbytes);
-		section.file_offset = rd.ReadUnsigned(wordbytes);
-		section.size = rd.ReadUnsigned(wordbytes);
-		section.link = rd.ReadUnsigned(4);
-		section.info = rd.ReadUnsigned(4);
-		section.align = rd.ReadUnsigned(wordbytes);
-		section.entsize = rd.ReadUnsigned(wordbytes);
+		section.name_offset = rd->ReadUnsigned(4);
+		section.type = Section::section_type(rd->ReadUnsigned(4));
+		section.flags = rd->ReadUnsigned(wordbytes);
+		section.address = rd->ReadUnsigned(wordbytes);
+		section.file_offset = rd->ReadUnsigned(wordbytes);
+		section.size = rd->ReadUnsigned(wordbytes);
+		section.link = rd->ReadUnsigned(4);
+		section.info = rd->ReadUnsigned(4);
+		section.align = rd->ReadUnsigned(wordbytes);
+		section.entsize = rd->ReadUnsigned(wordbytes);
 		sections.push_back(section);
 		if(shnum == SHN_XINDEX && i == 0)
 			shnum = section.info;
@@ -1773,26 +1773,26 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 
 	for(size_t i = 0; i < phnum; i++)
 	{
-		rd.Seek(file_offset + program_header_offset + i * program_header_entry_size);
+		rd->Seek(file_offset + program_header_offset + i * program_header_entry_size);
 		Segment segment;
-		segment.type = Segment::segment_type(rd.ReadUnsigned(4));
+		segment.type = Segment::segment_type(rd->ReadUnsigned(4));
 		if(wordbytes == 8)
-			segment.flags = rd.ReadUnsigned(4);
-		segment.offset = rd.ReadUnsigned(wordbytes);
-		segment.vaddr = rd.ReadUnsigned(wordbytes);
-		segment.paddr = rd.ReadUnsigned(wordbytes);
-		segment.filesz = rd.ReadUnsigned(wordbytes);
-		segment.memsz = rd.ReadUnsigned(wordbytes);
+			segment.flags = rd->ReadUnsigned(4);
+		segment.offset = rd->ReadUnsigned(wordbytes);
+		segment.vaddr = rd->ReadUnsigned(wordbytes);
+		segment.paddr = rd->ReadUnsigned(wordbytes);
+		segment.filesz = rd->ReadUnsigned(wordbytes);
+		segment.memsz = rd->ReadUnsigned(wordbytes);
 		if(wordbytes == 4)
-			segment.flags = rd.ReadUnsigned(4);
-		segment.align = rd.ReadUnsigned(wordbytes);
+			segment.flags = rd->ReadUnsigned(4);
+		segment.align = rd->ReadUnsigned(wordbytes);
 		segments.push_back(segment);
 	}
 
 	for(size_t i = 0; i < shnum; i++)
 	{
-		rd.Seek(file_offset + sections[section_name_string_table].file_offset + sections[i].name_offset);
-		sections[i].name = rd.ReadASCIIZ();
+		rd->Seek(file_offset + sections[section_name_string_table].file_offset + sections[i].name_offset);
+		sections[i].name = rd->ReadASCIIZ();
 #if DISPLAY_LOGS
 		Linker::Debug << "Debug: Section #" << i << ": `" << sections[i].name << "'" << ", type: " << sections[i].type << ", flags: " << sections[i].flags << std::endl;
 #endif
@@ -1942,8 +1942,8 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 		case Section::SHT_DYNSYM:
 			for(Symbol& symbol : section.GetSymbolTable()->symbols)
 			{
-				rd.Seek(file_offset + sections[symbol.sh_link].file_offset + symbol.name_offset);
-				symbol.name = rd.ReadASCIIZ();
+				rd->Seek(file_offset + sections[symbol.sh_link].file_offset + symbol.name_offset);
+				symbol.name = rd->ReadASCIIZ();
 #if DISPLAY_LOGS
 				Linker::Debug << "Debug: Symbol #" << i << ": `" << symbol.name << "' = 0x" << std::hex << symbol.shndx << ":" << std::dec << symbol.value << std::endl;
 #endif
@@ -1984,8 +1984,8 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 				case DT_SONAME:
 				case DT_RPATH:
 //				case DT_RUNPATH:
-					rd.Seek(file_offset + sections[section.link].file_offset + dynamic_object.value);
-					dynamic_object.name = rd.ReadASCIIZ();
+					rd->Seek(file_offset + sections[section.link].file_offset + dynamic_object.value);
+					dynamic_object.name = rd->ReadASCIIZ();
 					break;
 				}
 			}
@@ -1996,16 +1996,16 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			{
 				if(import.name_offset != 0)
 				{
-					rd.Seek(file_offset + sections[section.link].file_offset + import.name_offset);
-					import.name = rd.ReadASCIIZ();
+					rd->Seek(file_offset + sections[section.link].file_offset + import.name_offset);
+					import.name = rd->ReadASCIIZ();
 				}
 				switch(import.type)
 				{
 				default:
 					break;
 				case IBMImportEntry::IMP_STR_IDX:
-					rd.Seek(file_offset + sections[section.link].file_offset + import.dll);
-					import.dll_name = rd.ReadASCIIZ();
+					rd->Seek(file_offset + sections[section.link].file_offset + import.dll);
+					import.dll_name = rd->ReadASCIIZ();
 					break;
 				case IBMImportEntry::IMP_DT_IDX:
 					for(auto& dynamic_section : sections)
@@ -2019,8 +2019,8 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 								{
 									if(dt_needed_index == import.dll)
 									{
-										rd.Seek(file_offset + sections[dynamic_section.link].file_offset + dynobj.value);
-										import.dll_name = rd.ReadASCIIZ();
+										rd->Seek(file_offset + sections[dynamic_section.link].file_offset + dynobj.value);
+										import.dll_name = rd->ReadASCIIZ();
 										break;
 									}
 									else
@@ -2047,8 +2047,8 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			{
 				if(_export.name_offset != 0)
 				{
-					rd.Seek(file_offset + sections[section.info].file_offset + _export.name_offset);
-					_export.name = rd.ReadASCIIZ();
+					rd->Seek(file_offset + sections[section.info].file_offset + _export.name_offset);
+					_export.name = rd->ReadASCIIZ();
 				}
 			}
 			break;
@@ -2116,7 +2116,7 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 			{
 				Block block;
 				block.offset = covered;
-				rd.Seek(file_offset + covered);
+				rd->Seek(file_offset + covered);
 				block.size = next_offset - covered;
 				block.image = Linker::Buffer::ReadFromFile(rd, block.size);
 				blocks.push_back(block);
@@ -2131,35 +2131,35 @@ void ELFFormat::ReadFile(Linker::Reader& rd)
 	if(cpu == EM_HOBBIT)
 	{
 		/* BeOS Hobbit section */
-		rd.SeekEnd();
-		offset_t end = rd.Tell();
-		rd.Seek(end - 8);
-		if(rd.ReadData(4) == "RSRC")
+		rd->SeekEnd();
+		offset_t end = rd->Tell();
+		rd->Seek(end - 8);
+		if(rd->ReadData(4) == "RSRC")
 		{
 			Linker::Debug << "Debug: There is an AT&T Hobbit BeOS resource block" << std::endl;
-			hobbit_beos_resource_offset = rd.ReadUnsigned(4);
-			rd.Seek(hobbit_beos_resource_offset);
-			if(rd.Tell() != hobbit_beos_resource_offset)
+			hobbit_beos_resource_offset = rd->ReadUnsigned(4);
+			rd->Seek(hobbit_beos_resource_offset);
+			if(rd->Tell() != hobbit_beos_resource_offset)
 			{
 				Linker::Warning << "Warning: Invalid resource block" << std::endl;
 				hobbit_beos_resource_offset = 0;
 			}
 			else
 			{
-				uint32_t resource_count = rd.ReadUnsigned(4);
+				uint32_t resource_count = rd->ReadUnsigned(4);
 				for(uint32_t i = 0; i < resource_count; i++)
 				{
 					HobbitBeOSResource resource;
-					rd.ReadData(4, resource.type);
-					resource.unknown1 = rd.ReadUnsigned(4);
-					resource.offset = rd.ReadUnsigned(4);
-					resource.size = rd.ReadUnsigned(4);
-					resource.unknown2 = rd.ReadUnsigned(4);
+					rd->ReadData(4, resource.type);
+					resource.unknown1 = rd->ReadUnsigned(4);
+					resource.offset = rd->ReadUnsigned(4);
+					resource.size = rd->ReadUnsigned(4);
+					resource.unknown2 = rd->ReadUnsigned(4);
 					hobbit_beos_resources.push_back(resource);
 				}
 				for(auto& resource : hobbit_beos_resources)
 				{
-					rd.Seek(hobbit_beos_resource_offset + 4 + 20 * hobbit_beos_resources.size() + resource.offset);
+					rd->Seek(hobbit_beos_resource_offset + 4 + 20 * hobbit_beos_resources.size() + resource.offset);
 					resource.image = Linker::Buffer::ReadFromFile(rd, resource.size);
 				}
 			}
@@ -3707,17 +3707,17 @@ std::string ELFFormat::GetDefaultExtension(Linker::Module& module, std::string f
 
 /* FatELF */
 
-FatELFFormat::Record FatELFFormat::Record::Read(Linker::Reader& rd)
+FatELFFormat::Record FatELFFormat::Record::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Record record;
-	record.cpu = ELFFormat::cpu_type(rd.ReadUnsigned(2));
-	record.osabi = rd.ReadUnsigned(1);
-	record.abi_version = rd.ReadUnsigned(1);
-	record.file_class = rd.ReadUnsigned(1);
-	record.data_encoding = rd.ReadUnsigned(1);
-	rd.Skip(2);
-	record.offset = rd.ReadUnsigned(8);
-	record.size = rd.ReadUnsigned(8);
+	record.cpu = ELFFormat::cpu_type(rd->ReadUnsigned(2));
+	record.osabi = rd->ReadUnsigned(1);
+	record.abi_version = rd->ReadUnsigned(1);
+	record.file_class = rd->ReadUnsigned(1);
+	record.data_encoding = rd->ReadUnsigned(1);
+	rd->Skip(2);
+	record.offset = rd->ReadUnsigned(8);
+	record.size = rd->ReadUnsigned(8);
 	return record;
 }
 
@@ -3746,19 +3746,19 @@ offset_t FatELFFormat::ImageSize() const
 	return furthest;
 }
 
-void FatELFFormat::ReadFile(Linker::Reader& rd)
+void FatELFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
-	rd.Skip(4); // magic code
-	version = rd.ReadUnsigned(2);
+	rd->endiantype = ::LittleEndian;
+	rd->Skip(4); // magic code
+	version = rd->ReadUnsigned(2);
 	if(version != ELFFormat::EV_CURRENT)
 	{
 		std::ostringstream oss;
 		oss << "Fatal error: unknown FatELF version " << version;
 		Linker::FatalError(oss.str());
 	}
-	uint8_t record_count = rd.ReadUnsigned(1);
-	rd.Skip(1);
+	uint8_t record_count = rd->ReadUnsigned(1);
+	rd->Skip(1);
 	for(int i = 0; i < record_count; i++)
 	{
 		records.emplace_back(Record::Read(rd));
@@ -3767,7 +3767,7 @@ void FatELFFormat::ReadFile(Linker::Reader& rd)
 	{
 		std::shared_ptr<ELFFormat> elf = std::make_shared<ELFFormat>();
 		record.image = elf;
-		rd.Seek(record.offset);
+		rd->Seek(record.offset);
 		elf->ReadFile(rd);
 	}
 }

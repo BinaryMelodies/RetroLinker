@@ -14,7 +14,7 @@ uint16_t CMDFormat::MemoryBlock::GetLength() const
 	return 0;
 }
 
-void CMDFormat::MemoryBlock::ReadFile(Linker::Reader& rd, uint16_t length)
+void CMDFormat::MemoryBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t length)
 {
 }
 
@@ -24,9 +24,9 @@ void CMDFormat::MemoryBlock::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, GetLength());
 }
 
-std::unique_ptr<CMDFormat::MemoryBlock> CMDFormat::MemoryBlock::ReadFile(Linker::Reader& rd)
+std::unique_ptr<CMDFormat::MemoryBlock> CMDFormat::MemoryBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	int type = rd.ReadUnsigned(1);
+	int type = rd->ReadUnsigned(1);
 	std::unique_ptr<CMDFormat::MemoryBlock> block;
 	switch(type)
 	{
@@ -45,7 +45,7 @@ std::unique_ptr<CMDFormat::MemoryBlock> CMDFormat::MemoryBlock::ReadFile(Linker:
 		block = std::make_unique<CMDFormat::UnknownBlock>(type);
 		break;
 	}
-	uint16_t length = rd.ReadUnsigned(2);
+	uint16_t length = rd->ReadUnsigned(2);
 	block->ReadFile(rd, length);
 	return block;
 }
@@ -91,9 +91,9 @@ uint16_t CMDFormat::LoadBlock::GetLength() const
 	return 4 + image->ImageSize();
 }
 
-void CMDFormat::LoadBlock::ReadFile(Linker::Reader& rd, uint16_t length)
+void CMDFormat::LoadBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t length)
 {
-	block_id = rd.ReadUnsigned(4);
+	block_id = rd->ReadUnsigned(4);
 	image = Linker::Buffer::ReadFromFile(rd, length - 4);
 }
 
@@ -139,13 +139,13 @@ uint16_t CMDFormat::RelocationBlock::GetLength() const
 	return 2 + 2 * offsets.size();
 }
 
-void CMDFormat::RelocationBlock::ReadFile(Linker::Reader& rd, uint16_t length)
+void CMDFormat::RelocationBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t length)
 {
-	source = rd.ReadUnsigned(1);
-	target = rd.ReadUnsigned(1);
+	source = rd->ReadUnsigned(1);
+	target = rd->ReadUnsigned(1);
 	for(uint16_t i = 2; i < length; i += 2)
 	{
-		offsets.push_back(rd.ReadUnsigned(2));
+		offsets.push_back(rd->ReadUnsigned(2));
 	}
 }
 
@@ -189,7 +189,7 @@ uint16_t CMDFormat::UnknownBlock::GetLength() const
 	return image->ImageSize();
 }
 
-void CMDFormat::UnknownBlock::ReadFile(Linker::Reader& rd, uint16_t length)
+void CMDFormat::UnknownBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd, uint16_t length)
 {
 	image = Linker::Buffer::ReadFromFile(rd, length);
 }
@@ -205,20 +205,20 @@ std::unique_ptr<Dumper::Region> CMDFormat::UnknownBlock::MakeRegion(std::string 
 	return std::make_unique<Dumper::Block>(name, offset, image->AsImage(), 0, display_width, 4, 4);
 }
 
-void CMDFormat::ReadFile(Linker::Reader& rd)
+void CMDFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	rd.Seek(1); // first byte should be 0x02
-	file_header_size = rd.ReadUnsigned(2);
-	rd.Skip(4); // should be "TLOC"
-	rd.ReadData(linker_version);
-	type = file_type(rd.ReadUnsigned(1));
-	rd.Skip(2); // unknown
-	entry_point = rd.ReadUnsigned(3);
-	stack_size = rd.ReadUnsigned(2);
-	rd.Skip(44); // unknown
-	allocation_length = rd.ReadUnsigned(2);
-	rd.Seek(3 + file_header_size);
+	rd->endiantype = ::BigEndian;
+	rd->Seek(1); // first byte should be 0x02
+	file_header_size = rd->ReadUnsigned(2);
+	rd->Skip(4); // should be "TLOC"
+	rd->ReadData(linker_version);
+	type = file_type(rd->ReadUnsigned(1));
+	rd->Skip(2); // unknown
+	entry_point = rd->ReadUnsigned(3);
+	stack_size = rd->ReadUnsigned(2);
+	rd->Skip(44); // unknown
+	allocation_length = rd->ReadUnsigned(2);
+	rd->Seek(3 + file_header_size);
 	while(true)
 	{
 		blocks.push_back(MemoryBlock::ReadFile(rd));

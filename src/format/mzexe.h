@@ -215,7 +215,7 @@ namespace Microsoft
 
 			void SetDefaults();
 
-			void ReadFile(Linker::Reader& rd);
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 
 			void WriteFile(Linker::Writer& wr) const;
 
@@ -245,7 +245,7 @@ namespace Microsoft
 
 		uint32_t GetPifOffset() const;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -421,18 +421,18 @@ namespace Microsoft
 	};
 
 	template <typename T, size_t N, typename Predicate>
-		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, Predicate predicate, bool search_win386_offset = false)
+		offset_t FindActualSignature(const std::shared_ptr<Linker::Reader>& rd, std::array<T, N>& signature, Predicate predicate, bool search_win386_offset = false)
 	{
-		offset_t file_offset = rd.Tell();
-		rd.ReadData(signature);
+		offset_t file_offset = rd->Tell();
+		rd->ReadData(signature);
 		if(file_offset == 0 && !predicate(signature))
 		{
 			// try to find real file offset
-			offset_t file_end = rd.GetImageEnd();
+			offset_t file_end = rd->GetImageEnd();
 
-			rd.Seek(2);
-			uint32_t mz_image_end = rd.ReadUnsigned(2, ::LittleEndian);
-			mz_image_end = (uint32_t(rd.ReadUnsigned(2, ::LittleEndian)) << 9) - (-mz_image_end & 0x1FF);
+			rd->Seek(2);
+			uint32_t mz_image_end = rd->ReadUnsigned(2, ::LittleEndian);
+			mz_image_end = (uint32_t(rd->ReadUnsigned(2, ::LittleEndian)) << 9) - (-mz_image_end & 0x1FF);
 
 			uint32_t win386_header_offset = 0;
 			uint32_t ne_header_offset = 0;
@@ -440,51 +440,51 @@ namespace Microsoft
 			{
 				if(search_win386_offset)
 				{
-					rd.Seek(0x38);
-					win386_header_offset = rd.ReadUnsigned(4, ::LittleEndian);
+					rd->Seek(0x38);
+					win386_header_offset = rd->ReadUnsigned(4, ::LittleEndian);
 				}
 
-				rd.Seek(0x3C);
-				ne_header_offset = rd.ReadUnsigned(4, ::LittleEndian);
+				rd->Seek(0x3C);
+				ne_header_offset = rd->ReadUnsigned(4, ::LittleEndian);
 			}
 
 			if(ne_header_offset != 0 && ne_header_offset + N < file_end)
 			{
-				rd.Seek(ne_header_offset);
-				rd.ReadData(signature);
+				rd->Seek(ne_header_offset);
+				rd->ReadData(signature);
 			}
 
 			if(predicate(signature))
 			{
-				file_offset = rd.Tell() - N;
+				file_offset = rd->Tell() - N;
 			}
 			else
 			{
 				if(mz_image_end != 0 && mz_image_end != ne_header_offset && mz_image_end + N < file_end)
 				{
-					rd.Seek(mz_image_end);
-					rd.ReadData(signature);
+					rd->Seek(mz_image_end);
+					rd->ReadData(signature);
 				}
 
 				if(predicate(signature))
 				{
-					file_offset = rd.Tell() - N;
+					file_offset = rd->Tell() - N;
 				}
 				else
 				{
 					if(win386_header_offset != 0 && win386_header_offset != ne_header_offset && win386_header_offset != mz_image_end && win386_header_offset + N < file_end)
 					{
-						rd.Seek(win386_header_offset);
-						rd.ReadData(signature);
+						rd->Seek(win386_header_offset);
+						rd->ReadData(signature);
 					}
 
 					if(predicate(signature))
 					{
-						file_offset = rd.Tell() - N;
+						file_offset = rd->Tell() - N;
 					}
 					else
 					{
-						rd.Seek(N);
+						rd->Seek(N);
 					}
 				}
 			}
@@ -494,7 +494,7 @@ namespace Microsoft
 	}
 
 	template <typename T, size_t N>
-		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, const char * expected_signature, bool search_win386_offset = false)
+		offset_t FindActualSignature(const std::shared_ptr<Linker::Reader>& rd, std::array<T, N>& signature, const char * expected_signature, bool search_win386_offset = false)
 	{
 		return FindActualSignature(
 			rd,
@@ -504,7 +504,7 @@ namespace Microsoft
 	}
 
 	template <typename T, size_t N>
-		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, const char * expected_signature1, const char * expected_signature2, bool search_win386_offset = false)
+		offset_t FindActualSignature(const std::shared_ptr<Linker::Reader>& rd, std::array<T, N>& signature, const char * expected_signature1, const char * expected_signature2, bool search_win386_offset = false)
 	{
 		return FindActualSignature(
 			rd,
@@ -514,7 +514,7 @@ namespace Microsoft
 	}
 
 	template <typename T, size_t N>
-		offset_t FindActualSignature(Linker::Reader& rd, std::array<T, N>& signature, const char * expected_signature1, const char * expected_signature2, const char * expected_signature3)
+		offset_t FindActualSignature(const std::shared_ptr<Linker::Reader>& rd, std::array<T, N>& signature, const char * expected_signature1, const char * expected_signature2, const char * expected_signature3)
 	{
 		return FindActualSignature(
 			rd,

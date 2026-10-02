@@ -18,7 +18,7 @@ namespace Xenix
 	class BOutFormat : public virtual Linker::SegmentManager
 	{
 	public:
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -86,8 +86,8 @@ namespace Xenix
 			static constexpr uint16_t Attribute_Relocation_8086Segmented = 0x0002;
 
 			void Calculate(XOutFormat& xout);
-			static Segment ReadHeader(Linker::Reader& rd, XOutFormat& xout);
-			void ReadContents(Linker::Reader& rd, XOutFormat& xout);
+			static Segment ReadHeader(const std::shared_ptr<Linker::Reader>& rd, XOutFormat& xout);
+			void ReadContents(const std::shared_ptr<Linker::Reader>& rd, XOutFormat& xout);
 			void WriteHeader(Linker::Writer& wr, const XOutFormat& xout) const;
 			void WriteContents(Linker::Writer& wr, const XOutFormat& xout) const;
 			void Dump(Dumper::Dumper& dump, const XOutFormat& xout, uint32_t index) const;
@@ -208,7 +208,7 @@ namespace Xenix
 
 		void Clear() override;
 		void CalculateValues() override;
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;

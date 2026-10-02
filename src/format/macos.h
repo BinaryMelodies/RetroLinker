@@ -80,7 +80,7 @@ namespace Apple
 		{
 		public:
 			using Linker::Format::ReadFile;
-			virtual void ReadFile(Linker::Reader& rd, offset_t length) = 0;
+			virtual void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) = 0;
 			void Dump(Dumper::Dumper& dump) const override;
 			virtual int GetDisplayOptions() const;
 			virtual void Dump(Dumper::Dumper& dump, offset_t file_offset) const;
@@ -126,8 +126,8 @@ namespace Apple
 
 			offset_t ImageSize() const override;
 
-			void ReadFile(Linker::Reader& rd) override;
-			void ReadFile(Linker::Reader& rd, offset_t length) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) const override;
@@ -165,8 +165,8 @@ namespace Apple
 				LOADSEG = 0xA9F0,
 			};
 
-			void ReadFile(Linker::Reader& rd) override;
-			void ReadFile(Linker::Reader& rd, offset_t length) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) const override;
@@ -214,12 +214,12 @@ namespace Apple
 
 			offset_t ImageSize() const override;
 
-			void ReadFile(Linker::Reader& rd) override;
-			void ReadFile(Linker::Reader& rd, offset_t length) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
 
 			uint32_t MeasureRelocations(std::set<uint32_t>& relocations) const;
 
-			void ReadRelocations(Linker::Reader& rd, std::set<uint32_t>& relocations) const;
+			void ReadRelocations(const std::shared_ptr<Linker::Reader>& rd, std::set<uint32_t>& relocations) const;
 			void WriteRelocations(Linker::Writer& wr, const std::set<uint32_t>& relocations) const;
 
 			using Linker::Format::WriteFile;
@@ -307,8 +307,8 @@ namespace Apple
 
 			offset_t ImageSize() const override;
 
-			void ReadFile(Linker::Reader& rd) override;
-			void ReadFile(Linker::Reader& rd, offset_t length) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) const override;
@@ -342,7 +342,7 @@ namespace Apple
 			std::vector<ResourceReference> references;
 		};
 
-		static std::shared_ptr<Resource> ReadResource(Linker::Reader& rd, const ResourceType& type, const ResourceReference& reference);
+		static std::shared_ptr<Resource> ReadResource(const std::shared_ptr<Linker::Reader>& rd, const ResourceType& type, const ResourceReference& reference);
 
 		uint16_t attributes = 0; /* TODO: parametrize */
 		/** @brief A list of all resource types, as stored in the file */
@@ -379,7 +379,7 @@ namespace Apple
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -540,12 +540,12 @@ namespace Apple
 	protected:
 		void OnContainerCreated() override;
 		void OnCalculateValues() override;
-		void OnReadFile(Linker::Reader& rd) override;
+		void OnReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		offset_t OnWriteFile(Linker::Writer& wr) const override;
 		void OnDump(Dumper::Dumper& dump) const override;
 
 	public:
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		std::string GetDefaultExtension(Linker::Module& module) const override;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;

@@ -8,23 +8,23 @@
 
 using namespace X68000;
 
-void HUFormat::ReadFile(Linker::Reader& rd)
+void HUFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	rd.Skip(3); // "HU\0"
-	load_mode = load_mode_type(rd.ReadUnsigned(1));
-	base_address = rd.ReadUnsigned(4);
-	entry_address = rd.ReadUnsigned(4);
-	code_size = rd.ReadUnsigned(4);
-	data_size = rd.ReadUnsigned(4);
-	bss_size = rd.ReadUnsigned(4);
-	relocation_size = rd.ReadUnsigned(4);
-	symbol_table_size = rd.ReadUnsigned(4);
-	debug_line_number_table_size = rd.ReadUnsigned(4);
-	debug_symbol_table_size = rd.ReadUnsigned(4);
-	debug_string_table_size = rd.ReadUnsigned(4);
-	rd.Skip(0x10);
-	bound_module_list_offset = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	rd->Skip(3); // "HU\0"
+	load_mode = load_mode_type(rd->ReadUnsigned(1));
+	base_address = rd->ReadUnsigned(4);
+	entry_address = rd->ReadUnsigned(4);
+	code_size = rd->ReadUnsigned(4);
+	data_size = rd->ReadUnsigned(4);
+	bss_size = rd->ReadUnsigned(4);
+	relocation_size = rd->ReadUnsigned(4);
+	symbol_table_size = rd->ReadUnsigned(4);
+	debug_line_number_table_size = rd->ReadUnsigned(4);
+	debug_symbol_table_size = rd->ReadUnsigned(4);
+	debug_string_table_size = rd->ReadUnsigned(4);
+	rd->Skip(0x10);
+	bound_module_list_offset = rd->ReadUnsigned(4);
 
 	code = Linker::Buffer::ReadFromFile(rd, code_size);
 	data = Linker::Buffer::ReadFromFile(rd, data_size);
@@ -34,7 +34,7 @@ void HUFormat::ReadFile(Linker::Reader& rd)
 	while(relocation_offset < relocation_size)
 	{
 		Relocation relocation;
-		uint32_t displacement = rd.ReadUnsigned(2);
+		uint32_t displacement = rd->ReadUnsigned(2);
 		relocation_offset += 2;
 		if(displacement == 0x0001)
 		{
@@ -45,7 +45,7 @@ void HUFormat::ReadFile(Linker::Reader& rd)
 				Linker::Error << "Error: relocation section overflow" << std::endl;
 				break;
 			}
-			displacement = rd.ReadUnsigned(4);
+			displacement = rd->ReadUnsigned(4);
 		}
 		else
 		{

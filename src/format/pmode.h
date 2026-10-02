@@ -58,7 +58,7 @@ namespace PMODE
 		};
 		std::vector<Object> objects;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
@@ -73,7 +73,7 @@ namespace PMODE
 		public:
 			bool using_reader = false;
 
-			Linker::Reader * source_reader = nullptr;
+			std::shared_ptr<Linker::Reader> source_reader = nullptr;
 
 			std::shared_ptr<Linker::Image> source_image;
 			offset_t image_offset = 0;
@@ -90,7 +90,7 @@ namespace PMODE
 			// reading position in buffer (should be between first and last valid bytes)
 			size_t data_buffer_position = 0;
 
-			void Start(Linker::Reader * reader);
+			void Start(std::shared_ptr<Linker::Reader> reader);
 			void Start(std::shared_ptr<Linker::Image> image);
 
 			bool IsDataBufferEmpty();

@@ -7,29 +7,29 @@ using namespace Microsoft;
 
 // W3Format
 
-void W3Format::ReadFile(Linker::Reader& rd)
+void W3Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	std::array<char, 2> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "W3");
-	file_end = rd.GetImageEnd();
-	system_version.minor = rd.ReadUnsigned(1);
-	system_version.major = rd.ReadUnsigned(1);
-	uint16_t entry_count = rd.ReadUnsigned(2);
-	rd.Skip(10);
+	file_end = rd->GetImageEnd();
+	system_version.minor = rd->ReadUnsigned(1);
+	system_version.major = rd->ReadUnsigned(1);
+	uint16_t entry_count = rd->ReadUnsigned(2);
+	rd->Skip(10);
 	for(uint16_t entry_index = 0; entry_index < entry_count; entry_index++)
 	{
 		Entry entry;
-		entry.filename = rd.ReadData(8);
+		entry.filename = rd->ReadData(8);
 		entry.filename.erase(entry.filename.find_last_not_of(' ') + 1);
-		entry.file_offset = rd.ReadUnsigned(4);
-		entry.header_size = rd.ReadUnsigned(4);
+		entry.file_offset = rd->ReadUnsigned(4);
+		entry.header_size = rd->ReadUnsigned(4);
 		entries.emplace_back(entry);
 	}
 
 	for(auto& entry : entries)
 	{
-		rd.Seek(entry.file_offset);
+		rd->Seek(entry.file_offset);
 		entry.contents = std::make_shared<LEFormat>();
 		entry.contents->ReadFile(rd);
 	}
@@ -289,21 +289,21 @@ std::shared_ptr<Linker::Buffer> W4Format::DecompressW4()
 	return buffer;
 }
 
-void W4Format::ReadFile(Linker::Reader& rd)
+void W4Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	std::array<char, 2> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "W4");
-	file_end = rd.GetImageEnd();
-	system_version.minor = rd.ReadUnsigned(1);
-	system_version.major = rd.ReadUnsigned(1);
-	chunk_size = rd.ReadUnsigned(2);
-	uint16_t chunk_count = rd.ReadUnsigned(2);
-	rd.Skip(8); // "DS" and null bytes
+	file_end = rd->GetImageEnd();
+	system_version.minor = rd->ReadUnsigned(1);
+	system_version.major = rd->ReadUnsigned(1);
+	chunk_size = rd->ReadUnsigned(2);
+	uint16_t chunk_count = rd->ReadUnsigned(2);
+	rd->Skip(8); // "DS" and null bytes
 	for(uint16_t chunk_index = 0; chunk_index < chunk_count; chunk_index++)
 	{
 		Chunk chunk;
-		chunk.file_offset = rd.ReadUnsigned(4);
+		chunk.file_offset = rd->ReadUnsigned(4);
 		if(chunks.size() > 0)
 			chunks.back().length = chunk.file_offset - chunks.back().file_offset;
 		chunks.emplace_back(chunk);
@@ -313,7 +313,7 @@ void W4Format::ReadFile(Linker::Reader& rd)
 
 	for(auto& chunk : chunks)
 	{
-		rd.Seek(chunk.file_offset);
+		rd->Seek(chunk.file_offset);
 		chunk.contents = Linker::Buffer::ReadFromFile(rd, chunk.length);
 	}
 
@@ -328,9 +328,7 @@ void W4Format::ReadFile(Linker::Reader& rd)
 
 	ImageStreambuf sb(image, file_offset);
 	std::istream in(&sb);
-	// TODO: bad programming pattern
-	auto _image_rd = std::make_shared<Linker::StreamReader>(::LittleEndian, in);
-	Linker::Reader& image_rd = *_image_rd;
+	auto image_rd = std::make_shared<Linker::StreamReader>(::LittleEndian, in);
 	w3format.ReadFile(image_rd);
 }
 

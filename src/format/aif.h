@@ -67,7 +67,7 @@ namespace ARM
 
 		void Clear() override;
 		void CalculateValues() override;
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		offset_t ImageSize() const override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;

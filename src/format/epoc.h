@@ -157,7 +157,7 @@ namespace EPOC
 			std::vector<RelocationBlock> blocks;
 			uint32_t GetSize() const;
 			uint32_t GetCount() const;
-			void ReadFile(Linker::Reader& rd);
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 		};
 		RelocationSection code_relocations, data_relocations;
 
@@ -166,7 +166,7 @@ namespace EPOC
 		{
 		}
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 

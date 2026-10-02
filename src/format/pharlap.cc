@@ -7,33 +7,33 @@ using namespace PharLap;
 
 // MPFormat
 
-void MPFormat::ReadFile(Linker::Reader& rd)
+void MPFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	std::array<char, 2> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "MP", "MQ", true);
 	has_relocations = signature[1] == 'Q';
-	image_size = rd.ReadUnsigned(2);
-	image_size = (uint32_t(rd.ReadUnsigned(2)) << 9) - (-image_size & 0x1FF);
-	relocation_count = rd.ReadUnsigned(2);
-	header_size = uint32_t(rd.ReadUnsigned(2)) << 4;
-	min_extra_pages = rd.ReadUnsigned(2);
-	max_extra_pages = rd.ReadUnsigned(2);
-	esp = rd.ReadUnsigned(4);
-	checksum = rd.ReadUnsigned(2);
-	eip = rd.ReadUnsigned(4);
-	relocation_offset = rd.ReadUnsigned(2);
+	image_size = rd->ReadUnsigned(2);
+	image_size = (uint32_t(rd->ReadUnsigned(2)) << 9) - (-image_size & 0x1FF);
+	relocation_count = rd->ReadUnsigned(2);
+	header_size = uint32_t(rd->ReadUnsigned(2)) << 4;
+	min_extra_pages = rd->ReadUnsigned(2);
+	max_extra_pages = rd->ReadUnsigned(2);
+	esp = rd->ReadUnsigned(4);
+	checksum = rd->ReadUnsigned(2);
+	eip = rd->ReadUnsigned(4);
+	relocation_offset = rd->ReadUnsigned(2);
 
-	rd.Seek(file_offset + relocation_offset);
+	rd->Seek(file_offset + relocation_offset);
 	if(has_relocations && relocation_count != 0)
 	{
 		for(uint16_t relocation_index = 0; relocation_index < relocation_count; relocation_index++)
 		{
-			relocations.push_back(Relocation(rd.ReadUnsigned(4)));
+			relocations.push_back(Relocation(rd->ReadUnsigned(4)));
 		}
 	}
 
-	rd.Seek(file_offset + header_size);
+	rd->Seek(file_offset + header_size);
 	image = Linker::Buffer::ReadFromFile(rd, image_size - header_size);
 }
 
@@ -304,9 +304,9 @@ std::string MPFormat::GetDefaultExtension(Linker::Module& module, std::string fi
 
 // P3Format
 
-void P3Format::ReadFile(Linker::Reader& rd)
+void P3Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	std::array<char, 2> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "P3", "P2");
 	if(signature[0] == 'P' && signature[1] == '3')
@@ -321,7 +321,7 @@ void P3Format::ReadFile(Linker::Reader& rd)
 	{
 		Linker::Error << "Error: invalid signature, assuming 32-bit" << std::endl;
 	}
-	uint16_t level = rd.ReadUnsigned(2);
+	uint16_t level = rd->ReadUnsigned(2);
 	switch(level)
 	{
 	case 1:
@@ -335,41 +335,41 @@ void P3Format::ReadFile(Linker::Reader& rd)
 		is_multisegmented = true;
 		break;
 	}
-	header_size = rd.ReadUnsigned(2);
-	file_size = rd.ReadUnsigned(4);
-	checksum16 = rd.ReadUnsigned(2);
-	runtime_parameters_offset = rd.ReadUnsigned(4);
-	runtime_parameters_size = rd.ReadUnsigned(4);
-	relocation_table_offset = rd.ReadUnsigned(4);
-	relocation_table_size = rd.ReadUnsigned(4);
-	segment_information_table_offset = rd.ReadUnsigned(4);
-	segment_information_table_size = rd.ReadUnsigned(4);
-	segment_information_table_entry_size = rd.ReadUnsigned(2);
-	load_image_offset = rd.ReadUnsigned(4);
-	load_image_size = rd.ReadUnsigned(4);
-	symbol_table_offset = rd.ReadUnsigned(4);
-	symbol_table_size = rd.ReadUnsigned(4);
-	gdt_address = rd.ReadUnsigned(4);
-	gdt_size = rd.ReadUnsigned(4);
-	ldt_address = rd.ReadUnsigned(4);
-	ldt_size = rd.ReadUnsigned(4);
-	idt_address = rd.ReadUnsigned(4);
-	idt_size = rd.ReadUnsigned(4);
-	tss_address = rd.ReadUnsigned(4);
-	tss_size = rd.ReadUnsigned(4);
-	minimum_extra = rd.ReadUnsigned(4);
-	maximum_extra = rd.ReadUnsigned(4);
-	base_load_offset = rd.ReadUnsigned(4);
-	esp = rd.ReadUnsigned(4);
-	ss = rd.ReadUnsigned(2);
-	eip = rd.ReadUnsigned(4);
-	cs = rd.ReadUnsigned(2);
-	ldtr = rd.ReadUnsigned(2);
-	tr = rd.ReadUnsigned(2);
-	flags = rd.ReadUnsigned(2);
-	memory_requirements = rd.ReadUnsigned(4);
-	checksum32 = rd.ReadUnsigned(4);
-	stack_size = rd.ReadUnsigned(4);
+	header_size = rd->ReadUnsigned(2);
+	file_size = rd->ReadUnsigned(4);
+	checksum16 = rd->ReadUnsigned(2);
+	runtime_parameters_offset = rd->ReadUnsigned(4);
+	runtime_parameters_size = rd->ReadUnsigned(4);
+	relocation_table_offset = rd->ReadUnsigned(4);
+	relocation_table_size = rd->ReadUnsigned(4);
+	segment_information_table_offset = rd->ReadUnsigned(4);
+	segment_information_table_size = rd->ReadUnsigned(4);
+	segment_information_table_entry_size = rd->ReadUnsigned(2);
+	load_image_offset = rd->ReadUnsigned(4);
+	load_image_size = rd->ReadUnsigned(4);
+	symbol_table_offset = rd->ReadUnsigned(4);
+	symbol_table_size = rd->ReadUnsigned(4);
+	gdt_address = rd->ReadUnsigned(4);
+	gdt_size = rd->ReadUnsigned(4);
+	ldt_address = rd->ReadUnsigned(4);
+	ldt_size = rd->ReadUnsigned(4);
+	idt_address = rd->ReadUnsigned(4);
+	idt_size = rd->ReadUnsigned(4);
+	tss_address = rd->ReadUnsigned(4);
+	tss_size = rd->ReadUnsigned(4);
+	minimum_extra = rd->ReadUnsigned(4);
+	maximum_extra = rd->ReadUnsigned(4);
+	base_load_offset = rd->ReadUnsigned(4);
+	esp = rd->ReadUnsigned(4);
+	ss = rd->ReadUnsigned(2);
+	eip = rd->ReadUnsigned(4);
+	cs = rd->ReadUnsigned(2);
+	ldtr = rd->ReadUnsigned(2);
+	tr = rd->ReadUnsigned(2);
+	flags = rd->ReadUnsigned(2);
+	memory_requirements = rd->ReadUnsigned(4);
+	checksum32 = rd->ReadUnsigned(4);
+	stack_size = rd->ReadUnsigned(4);
 
 	/* Segment Information Table */
 
@@ -377,7 +377,7 @@ void P3Format::ReadFile(Linker::Reader& rd)
 	{
 		for(uint32_t sit_offset = 0; sit_offset + segment_information_table_entry_size <= segment_information_table_size; sit_offset += segment_information_table_entry_size)
 		{
-			rd.Seek(file_offset + segment_information_table_offset + sit_offset);
+			rd->Seek(file_offset + segment_information_table_offset + sit_offset);
 			segments.push_back(SITEntry::ReadSITEntry(rd));
 		}
 	}
@@ -386,12 +386,12 @@ void P3Format::ReadFile(Linker::Reader& rd)
 
 	if(relocation_table_size != 0)
 	{
-		rd.Seek(file_offset + relocation_table_offset);
+		rd->Seek(file_offset + relocation_table_offset);
 		for(uint32_t relocation_offset = 0; relocation_offset < relocation_table_size; relocation_offset += (is_32bit ? 6 : 4))
 		{
 			Relocation relocation{0, 0};
-			relocation.offset = rd.ReadUnsigned(is_32bit ? 4 : 2);
-			relocation.selector = rd.ReadUnsigned(2);
+			relocation.offset = rd->ReadUnsigned(is_32bit ? 4 : 2);
+			relocation.selector = rd->ReadUnsigned(2);
 			relocations.push_back(relocation);
 		}
 	}
@@ -400,7 +400,7 @@ void P3Format::ReadFile(Linker::Reader& rd)
 
 	if(runtime_parameters_size != 0)
 	{
-		rd.Seek(file_offset + runtime_parameters_offset);
+		rd->Seek(file_offset + runtime_parameters_offset);
 		runtime_parameters.ReadFile(rd); // TODO: pass runtime_parameters_size as parameter
 	}
 
@@ -410,7 +410,7 @@ void P3Format::ReadFile(Linker::Reader& rd)
 
 	/* Load Image */
 
-	rd.Seek(file_offset + load_image_offset);
+	rd->Seek(file_offset + load_image_offset);
 	image = Linker::Buffer::ReadFromFile(rd, file_size - load_image_offset);
 
 	/* Task State Segment */
@@ -509,18 +509,18 @@ bool P3Format::FormatSupportsStackSection() const
 }
 #endif
 
-void P3Format::RunTimeParameterBlock::ReadFile(Linker::Reader& rd)
+void P3Format::RunTimeParameterBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	min_realmode_param = rd.ReadUnsigned(2);
-	max_realmode_param = rd.ReadUnsigned(2);
-	min_int_buffer_size_kb = rd.ReadUnsigned(2);
-	max_int_buffer_size_kb = rd.ReadUnsigned(2);
-	int_stack_count = rd.ReadUnsigned(2);
-	int_stack_size_kb = rd.ReadUnsigned(2);
-	realmode_area_end = rd.ReadUnsigned(4);
-	call_buffer_size_kb = rd.ReadUnsigned(2);
-	flags = rd.ReadUnsigned(2);
-	ring = rd.ReadUnsigned(2);
+	min_realmode_param = rd->ReadUnsigned(2);
+	max_realmode_param = rd->ReadUnsigned(2);
+	min_int_buffer_size_kb = rd->ReadUnsigned(2);
+	max_int_buffer_size_kb = rd->ReadUnsigned(2);
+	int_stack_count = rd->ReadUnsigned(2);
+	int_stack_size_kb = rd->ReadUnsigned(2);
+	realmode_area_end = rd->ReadUnsigned(4);
+	call_buffer_size_kb = rd->ReadUnsigned(2);
+	flags = rd->ReadUnsigned(2);
+	ring = rd->ReadUnsigned(2);
 }
 
 void P3Format::RunTimeParameterBlock::CalculateValues()
@@ -1243,13 +1243,13 @@ void P3Format::SITEntry::WriteFile(Linker::Writer& wr) const
 	// TODO
 }
 
-std::shared_ptr<P3Format::SITEntry> P3Format::SITEntry::ReadSITEntry(Linker::Reader& rd)
+std::shared_ptr<P3Format::SITEntry> P3Format::SITEntry::ReadSITEntry(const std::shared_ptr<Linker::Reader>& rd)
 {
 	std::shared_ptr<SITEntry> segment = std::make_shared<SITEntry>();
-	segment->selector = rd.ReadUnsigned(2);
-	segment->flags = rd.ReadUnsigned(2);
-	segment->base_offset = rd.ReadUnsigned(4);
-	segment->zero_fill = rd.ReadUnsigned(4);
+	segment->selector = rd->ReadUnsigned(2);
+	segment->flags = rd->ReadUnsigned(2);
+	segment->base_offset = rd->ReadUnsigned(4);
+	segment->zero_fill = rd->ReadUnsigned(4);
 	return segment;
 }
 

@@ -47,17 +47,17 @@ void MZFormat::PIF::SetDefaults()
 	screen_usage = 0;
 }
 
-void MZFormat::PIF::ReadFile(Linker::Reader& rd)
+void MZFormat::PIF::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	maximum_extra_paragraphs = rd.ReadUnsigned(2, LittleEndian);
-	minimum_extra_paragraphs = rd.ReadUnsigned(2, LittleEndian);
-	flags = rd.ReadUnsigned(1);
-	rd.Skip(1);
-	lowest_used_interrupt = rd.ReadUnsigned(1);
-	highest_used_interrupt = rd.ReadUnsigned(1);
-	com_port_usage = rd.ReadUnsigned(1);
-	lpt_port_usage = rd.ReadUnsigned(1);
-	screen_usage = rd.ReadUnsigned(1);
+	maximum_extra_paragraphs = rd->ReadUnsigned(2, LittleEndian);
+	minimum_extra_paragraphs = rd->ReadUnsigned(2, LittleEndian);
+	flags = rd->ReadUnsigned(1);
+	rd->Skip(1);
+	lowest_used_interrupt = rd->ReadUnsigned(1);
+	highest_used_interrupt = rd->ReadUnsigned(1);
+	com_port_usage = rd->ReadUnsigned(1);
+	lpt_port_usage = rd->ReadUnsigned(1);
+	screen_usage = rd->ReadUnsigned(1);
 }
 
 void MZFormat::PIF::WriteFile(Linker::Writer& wr) const
@@ -173,81 +173,81 @@ uint32_t MZFormat::GetPifOffset() const
 	return relocation_offset == 0 ? 0x1E : relocation_offset + relocation_count * 4;
 }
 
-void MZFormat::ReadFile(Linker::Reader& rd)
+void MZFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
 
-	offset_t file_end = rd.GetImageEnd();
-	file_offset = rd.Tell();
+	offset_t file_end = rd->GetImageEnd();
+	file_offset = rd->Tell();
 
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 
-	rd.ReadData(2, signature);
+	rd->ReadData(2, signature);
 	if(GetSignature() == magic_type(0))
 	{
 		Linker::FatalError("Invalid magic number");
 	}
-	last_block_size = rd.ReadUnsigned(2);
-	file_size_blocks = rd.ReadUnsigned(2);
-	relocation_count = rd.ReadUnsigned(2);
-	header_size_paras = rd.ReadUnsigned(2);
-	min_extra_paras = rd.ReadUnsigned(2);
-	max_extra_paras = rd.ReadUnsigned(2);
-	ss = rd.ReadUnsigned(2);
-	sp = rd.ReadUnsigned(2);
-	checksum = rd.ReadUnsigned(2);
-	ip = rd.ReadUnsigned(2);
-	cs = rd.ReadUnsigned(2);
-	relocation_offset = rd.ReadUnsigned(2);
+	last_block_size = rd->ReadUnsigned(2);
+	file_size_blocks = rd->ReadUnsigned(2);
+	relocation_count = rd->ReadUnsigned(2);
+	header_size_paras = rd->ReadUnsigned(2);
+	min_extra_paras = rd->ReadUnsigned(2);
+	max_extra_paras = rd->ReadUnsigned(2);
+	ss = rd->ReadUnsigned(2);
+	sp = rd->ReadUnsigned(2);
+	checksum = rd->ReadUnsigned(2);
+	ip = rd->ReadUnsigned(2);
+	cs = rd->ReadUnsigned(2);
+	relocation_offset = rd->ReadUnsigned(2);
 	if(GetSignature() != MAGIC_DL)
 	{
-		overlay_number = rd.ReadUnsigned(2);
+		overlay_number = rd->ReadUnsigned(2);
 		data_segment = 0;
 	}
 	else
 	{
 		overlay_number = 0;
-		data_segment = rd.ReadUnsigned(2);
+		data_segment = rd->ReadUnsigned(2);
 	}
 
 	if(header_size_paras >= 4 && relocation_offset >= 0x40)
 	{
-		rd.Skip(4);
-		behavior_bits = rd.ReadUnsigned(2);
-		rd.Skip(2);
-		oem_id = rd.ReadUnsigned(2);
-		oem_info = rd.ReadUnsigned(2);
-		rd.Skip(16);
-		win386_new_header_offset = rd.ReadUnsigned(4);
-		new_header_offset = rd.ReadUnsigned(4);
+		rd->Skip(4);
+		behavior_bits = rd->ReadUnsigned(2);
+		rd->Skip(2);
+		oem_id = rd->ReadUnsigned(2);
+		oem_info = rd->ReadUnsigned(2);
+		rd->Skip(16);
+		win386_new_header_offset = rd->ReadUnsigned(4);
+		new_header_offset = rd->ReadUnsigned(4);
 	}
 
 	relocations.clear();
-	rd.Seek(file_offset + relocation_offset);
+	rd->Seek(file_offset + relocation_offset);
 	if(relocation_count != 0)
 	{
 		for(size_t i = 0; i < relocation_count; i++)
 		{
-			uint16_t offset = rd.ReadUnsigned(2);
-			uint16_t segment = rd.ReadUnsigned(2);
+			uint16_t offset = rd->ReadUnsigned(2);
+			uint16_t segment = rd->ReadUnsigned(2);
 			relocations.push_back(Relocation(segment, offset));
 		}
 	}
 	if(GetPifOffset() + 19 <= file_end)
 	{
-		rd.Seek(file_offset + GetPifOffset());
-		if(rd.ReadUnsigned(4) == PIF::MAGIC_BEGIN)
+		rd->Seek(file_offset + GetPifOffset());
+		if(rd->ReadUnsigned(4) == PIF::MAGIC_BEGIN)
 		{
 			pif = std::make_unique<PIF>();
 			pif->ReadFile(rd);
-			if(rd.ReadUnsigned(4) != PIF::MAGIC_END)
+			if(rd->ReadUnsigned(4) != PIF::MAGIC_END)
 			{
 				/* failed */
 				pif = nullptr;
 			}
 		}
 	}
-	rd.Seek(file_offset + (uint32_t(header_size_paras) << 4));
+	rd->Seek(file_offset + (uint32_t(header_size_paras) << 4));
 	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(".text");
 	image = buffer;
 	buffer->ReadFile(rd, ImageSize() - GetHeaderSize());
@@ -795,12 +795,10 @@ offset_t MZSimpleStubWriter::GetStubImageSize()
 {
 	if(OpenAndCheckValidFile())
 	{
-		// TODO: bad programming pattern
-		auto _reader = std::make_shared<Linker::StreamReader>(::LittleEndian, stream);
-		Linker::Reader& reader = *_reader;
-		reader.Seek(2);
-		uint32_t file_size = reader.ReadUnsigned(2);
-		return size = (reader.ReadUnsigned(2) << 9) - ((-file_size) & 0x1FF);
+		auto reader = std::make_shared<Linker::StreamReader>(::LittleEndian, stream);
+		reader->Seek(2);
+		uint32_t file_size = reader->ReadUnsigned(2);
+		return size = (reader->ReadUnsigned(2) << 9) - ((-file_size) & 0x1FF);
 	}
 	else
 	{
@@ -883,17 +881,15 @@ offset_t MZStubWriter::GetStubImageSize()
 {
 	if(OpenAndCheckValidFile())
 	{
-		// TODO: bad programming pattern
-		auto _reader = std::make_shared<Linker::StreamReader>(::LittleEndian, stream);
-		Linker::Reader& reader = *_reader;
+		auto reader = std::make_shared<Linker::StreamReader>(::LittleEndian, stream);
 
-		reader.Seek(2);
-		original_file_size = reader.ReadUnsigned(2);
-		original_file_size = (reader.ReadUnsigned(2) << 9) - ((-original_file_size) & 0x1FF);
-		stub_reloc_count = reader.ReadUnsigned(2);
-		original_header_size = uint32_t(reader.ReadUnsigned(2)) << 4;
-		reader.Seek(0x18);
-		stub_reloc_offset = original_reloc_offset = reader.ReadUnsigned(2);
+		reader->Seek(2);
+		original_file_size = reader->ReadUnsigned(2);
+		original_file_size = (reader->ReadUnsigned(2) << 9) - ((-original_file_size) & 0x1FF);
+		stub_reloc_count = reader->ReadUnsigned(2);
+		original_header_size = uint32_t(reader->ReadUnsigned(2)) << 4;
+		reader->Seek(0x18);
+		stub_reloc_offset = original_reloc_offset = reader->ReadUnsigned(2);
 
 		stub_header_size = 0x40;
 		if(stub_reloc_offset < 0x40)

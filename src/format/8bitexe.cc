@@ -9,16 +9,16 @@ using namespace Binary;
 
 // AppleFormat
 
-void AppleFormat::ReadFile(Linker::Reader& rd)
+void AppleFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// the reader assumes there is a DOS 3.3 header, otherwise a different parser could be used
 
 	Clear();
 
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	dos33_header = true;
-	base_address = rd.ReadUnsigned(2);
-	uint16_t size = rd.ReadUnsigned(2);
+	base_address = rd->ReadUnsigned(2);
+	uint16_t size = rd->ReadUnsigned(2);
 	image = Linker::Buffer::ReadFromFile(rd, size);
 }
 
@@ -60,13 +60,13 @@ offset_t SOSFormat::ImageSize() const
 	return 14 + image->ImageSize() + (optional_header ? optional_header->ImageSize() : 0);
 }
 
-void SOSFormat::ReadFile(Linker::Reader& rd)
+void SOSFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
 
-	rd.endiantype = ::LittleEndian;
-	rd.Skip(8); // label
-	uint16_t opt_header_length = rd.ReadUnsigned(2);
+	rd->endiantype = ::LittleEndian;
+	rd->Skip(8); // label
+	uint16_t opt_header_length = rd->ReadUnsigned(2);
 	if(opt_header_length != 0)
 	{
 		optional_header = Linker::Buffer::ReadFromFile(rd, opt_header_length);
@@ -75,8 +75,8 @@ void SOSFormat::ReadFile(Linker::Reader& rd)
 	{
 		optional_header = nullptr;
 	}
-	base_address = rd.ReadUnsigned(2);
-	uint16_t size = rd.ReadUnsigned(2);
+	base_address = rd->ReadUnsigned(2);
+	uint16_t size = rd->ReadUnsigned(2);
 	image = Linker::Buffer::ReadFromFile(rd, size);
 }
 
@@ -182,7 +182,7 @@ void AppleDriver::SetOptions(std::map<std::string, std::string>& options)
 	//this->options = options; // TODO
 }
 
-void AppleDriver::ReadFile(Linker::Reader& rd)
+void AppleDriver::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// reading an Apple ][ executable cannot be done via its resource fork
 	if(target == OutputDriver::TARGET_RESOURCE_FORK)
@@ -241,7 +241,7 @@ void AppleDriver::OnCalculateValues()
 	data_fork->CalculateValues();
 }
 
-void AppleDriver::OnReadFile(Linker::Reader& rd)
+void AppleDriver::OnReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	if(target == OutputDriver::TARGET_DATA_FORK)
 	{
@@ -333,15 +333,15 @@ void AtariFormat::AddEntryPoint(uint16_t entry)
 	segments.push_back(std::move(entry_segment));
 }
 
-void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
+void AtariFormat::Segment::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint16_t word = rd.ReadUnsigned(2);
+	uint16_t word = rd->ReadUnsigned(2);
 	if(word >= SIGNATURE_LOW)
 	{
 		header_type = segment_type(word);
 		header_type_optional = false;
 		if(header_type == ATARI_SEGMENT || header_type == SDX_FIXED)
-			address = rd.ReadUnsigned(2);
+			address = rd->ReadUnsigned(2);
 	}
 	else
 	{
@@ -352,24 +352,24 @@ void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 	switch(header_type)
 	{
 	case SDX_SYMREQ:
-		block_number = rd.ReadUnsigned(1);
-		rd.ReadData(8, symbol_name);
-		address = rd.ReadUnsigned(2);
+		block_number = rd->ReadUnsigned(1);
+		rd->ReadData(8, symbol_name);
+		address = rd->ReadUnsigned(2);
 		break;
 	case SDX_SYMDEF:
-		rd.ReadData(8, symbol_name);
+		rd->ReadData(8, symbol_name);
 		ReadRelocations(rd);
 		break;
 	case SDX_FIXUPS:
-		block_number = rd.ReadUnsigned(1);
+		block_number = rd->ReadUnsigned(1);
 		ReadRelocations(rd);
 		break;
 	case SDX_RAMALLOC:
 	//case SDX_POSIND:
-		block_number = rd.ReadUnsigned(1);
-		control_byte = control_byte_type(rd.ReadUnsigned(1));
-		address = rd.ReadUnsigned(2);
-		size = rd.ReadUnsigned(2);
+		block_number = rd->ReadUnsigned(1);
+		control_byte = control_byte_type(rd->ReadUnsigned(1));
+		address = rd->ReadUnsigned(2);
+		size = rd->ReadUnsigned(2);
 		if((control_byte & CB_RAMALLOC) == 0)
 		{
 			image = Linker::Buffer::ReadFromFile(rd, size);
@@ -377,7 +377,7 @@ void AtariFormat::Segment::ReadFile(Linker::Reader& rd)
 		break;
 	case SDX_FIXED:
 	case ATARI_SEGMENT:
-		size = (rd.ReadUnsigned(2) + 1 - address) & 0xFFFF;
+		size = (rd->ReadUnsigned(2) + 1 - address) & 0xFFFF;
 		image = Linker::Buffer::ReadFromFile(rd, size);
 		break;
 	default:
@@ -436,7 +436,7 @@ void AtariFormat::Segment::WriteFile(Linker::Writer& wr) const
 	}
 }
 
-void AtariFormat::Segment::ReadRelocations(Linker::Reader& rd)
+void AtariFormat::Segment::ReadRelocations(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -473,16 +473,16 @@ void AtariFormat::ProcessModule(Linker::Module& module)
 	/* TODO: enable multiple segments */
 }
 
-void AtariFormat::ReadFile(Linker::Reader& rd)
+void AtariFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	offset_t end = rd.GetImageEnd();
-	uint16_t signature = rd.ReadUnsigned(2);
+	offset_t end = rd->GetImageEnd();
+	uint16_t signature = rd->ReadUnsigned(2);
 	if(signature < Segment::segment_type::SIGNATURE_LOW)
 	{
 		Linker::FatalError("Fatal error: Expected binary image to start with 0xFFFF or valid SpartaDOS X signature");
 	}
-	rd.Seek(0);
-	while(rd.Tell() < end)
+	rd->Seek(0);
+	while(rd->Tell() < end)
 	{
 		std::unique_ptr<Segment> segment = std::make_unique<Segment>();
 		segment->ReadFile(rd);
@@ -551,18 +551,18 @@ size_t CommodoreFormat::BASICLine::ImageSize() const
 	return tokens.size() + 5;
 }
 
-void CommodoreFormat::BASICLine::ReadFile(Linker::Reader& rd)
+void CommodoreFormat::BASICLine::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	tokens.clear();
 
-	next_address = rd.ReadUnsigned(2);
+	next_address = rd->ReadUnsigned(2);
 	if(next_address == 0)
 	{
 		line_number = 0;
 		return;
 	}
-	line_number = rd.ReadUnsigned(2);
-	AddString(rd.ReadASCIIZ());
+	line_number = rd->ReadUnsigned(2);
+	AddString(rd->ReadASCIIZ());
 }
 
 offset_t CommodoreFormat::BASICLine::WriteFile(Linker::Writer& wr) const
@@ -707,9 +707,9 @@ void CommodoreFormat::BASICLine::Dump(Dumper::Dumper& dump, std::optional<uint16
 
 // CommodoreFormat::BASICFile
 
-void CommodoreFormat::BASICFile::ReadFile(Linker::Reader& rd)
+void CommodoreFormat::BASICFile::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	uint16_t current_address = load_address;
 	while(true)
 	{
@@ -723,7 +723,7 @@ void CommodoreFormat::BASICFile::ReadFile(Linker::Reader& rd)
 		lines.push_back(line);
 		ssize_t difference = ssize_t(line.next_address) - ssize_t(current_address + line.ImageSize());
 		current_address = line.next_address;
-		rd.Skip(difference);
+		rd->Skip(difference);
 	}
 	end_address = current_address + 2;
 }
@@ -867,12 +867,12 @@ uint16_t CommodoreFormat::GetImagePaddingSize() const
 	}
 }
 
-void CommodoreFormat::ReadFile(Linker::Reader& rd)
+void CommodoreFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 
 	std::shared_ptr<BASICFile> loader_section = std::make_shared<BASICFile>();
-	loader_section->load_address = load_address = rd.ReadUnsigned(2);
+	loader_section->load_address = load_address = rd->ReadUnsigned(2);
 	loader_section->ReadFile(rd);
 	loader = loader_section;
 
@@ -943,9 +943,7 @@ void CPM3Format::rsx_record::OpenAndPrepare()
 		rsx_file.open(rsx_file_name, std::ios_base::in | std::ios_base::binary);
 		if(rsx_file.is_open())
 		{
-			// TODO: bad programming pattern
-			auto _rd = std::make_shared<Linker::StreamReader>(::LittleEndian, rsx_file);
-			Linker::Reader& rd = *_rd;
+			auto rd = std::make_shared<Linker::StreamReader>(::LittleEndian, rsx_file);
 			module = std::make_shared<PRLFormat>(PRLFormat::APPL_RSX);
 			module->ReadFile(rd);
 			rsx_file.close();
@@ -1014,35 +1012,35 @@ void CPM3Format::SetOptions(std::map<std::string, std::string>& options)
 	}
 }
 
-void CPM3Format::ReadFile(Linker::Reader& rd)
+void CPM3Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
 
-	rd.endiantype = ::LittleEndian;
-	rd.Skip(1);
-	uint16_t data_size = rd.ReadUnsigned(2);
-	rd.ReadData(10, preinit_code);
-	loader_active = rd.ReadUnsigned(1) != 0;
-	rd.Skip(1);
-	uint8_t rsx_count = rd.ReadUnsigned(1);
+	rd->endiantype = ::LittleEndian;
+	rd->Skip(1);
+	uint16_t data_size = rd->ReadUnsigned(2);
+	rd->ReadData(10, preinit_code);
+	loader_active = rd->ReadUnsigned(1) != 0;
+	rd->Skip(1);
+	uint8_t rsx_count = rd->ReadUnsigned(1);
 	for(int i = 0; i < rsx_count; i++)
 	{
 		rsx_record rsx;
-		rsx.offset = rd.ReadUnsigned(2);
-		rsx.length = rd.ReadUnsigned(2);
-		rsx.nonbanked_only = rd.ReadUnsigned(1) != 0;
-		rd.Skip(1);
-		rsx.name = rd.ReadData(8, true);
-		rd.Skip(2);
+		rsx.offset = rd->ReadUnsigned(2);
+		rsx.length = rd->ReadUnsigned(2);
+		rsx.nonbanked_only = rd->ReadUnsigned(1) != 0;
+		rd->Skip(1);
+		rsx.name = rd->ReadData(8, true);
+		rd->Skip(2);
 		rsx_table.push_back(rsx);
 	}
-	rd.Seek(0x100);
+	rd->Seek(0x100);
 	std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(".code");
 	image = buffer;
 	buffer->ReadFile(rd, data_size);
 	for(auto& rsx : rsx_table)
 	{
-		rd.Seek(rsx.offset);
+		rd->Seek(rsx.offset);
 		std::shared_ptr<Linker::Buffer> buffer = std::make_shared<Linker::Section>(".code");
 		rsx.module->image = buffer;
 		buffer->ReadFile(rd, rsx.length);
@@ -1277,25 +1275,25 @@ void PRLFormat::ProcessModule(Linker::Module& module)
 	}
 }
 
-void PRLFormat::ReadFile(Linker::Reader& rd)
+void PRLFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
-	rd.Seek(1);
-	uint16_t image_size = rd.ReadUnsigned(2);
-	rd.Skip(1);
-	zero_fill = rd.ReadUnsigned(2);
-	rd.Skip(1);
-	load_address = rd.ReadUnsigned(2);
-	rd.Skip(1);
-	cslen = rd.ReadUnsigned(2);
-	rd.Seek(0x0100);
+	rd->endiantype = ::LittleEndian;
+	rd->Seek(1);
+	uint16_t image_size = rd->ReadUnsigned(2);
+	rd->Skip(1);
+	zero_fill = rd->ReadUnsigned(2);
+	rd->Skip(1);
+	load_address = rd->ReadUnsigned(2);
+	rd->Skip(1);
+	cslen = rd->ReadUnsigned(2);
+	rd->Seek(0x0100);
 	ReadWithoutHeader(rd, image_size);
 }
 
-void PRLFormat::ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size)
+void PRLFormat::ReadWithoutHeader(const std::shared_ptr<Linker::Reader>& rd, uint16_t image_size)
 {
-	offset_t offset = rd.Tell();
-	offset_t end = rd.GetImageEnd();
+	offset_t offset = rd->Tell();
+	offset_t end = rd->GetImageEnd();
 
 	image = Linker::Buffer::ReadFromFile(rd, image_size);
 
@@ -1306,7 +1304,7 @@ void PRLFormat::ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size)
 		suppress_relocations = false;
 		for(uint16_t byte_offset = 0; byte_offset < image_size; byte_offset += 8)
 		{
-			uint8_t reloc_byte = rd.ReadUnsigned(1);
+			uint8_t reloc_byte = rd->ReadUnsigned(1);
 			for(int byte = 7; byte >= 0; byte --)
 			{
 				if((reloc_byte & 1) != 0 && byte_offset + byte < image_size)

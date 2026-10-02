@@ -32,7 +32,7 @@ namespace Binary
 		{
 		}
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -58,7 +58,7 @@ namespace Binary
 
 		offset_t ImageSize() const override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -114,7 +114,7 @@ namespace Binary
 	protected:
 		void OnContainerCreated() override;
 		void OnCalculateValues() override;
-		void OnReadFile(Linker::Reader& rd) override;
+		void OnReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		offset_t OnWriteFile(Linker::Writer& wr) const override;
 		void OnDump(Dumper::Dumper& dump) const override;
 
@@ -136,7 +136,7 @@ namespace Binary
 		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -276,7 +276,7 @@ namespace Binary
 			/**
 			 * @brief Reads a segment from a file into this object
 			 */
-			void ReadFile(Linker::Reader& rd);
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 
 			/**
 			 * @brief Writes the segment into a file
@@ -286,7 +286,7 @@ namespace Binary
 			/**
 			 * @brief Read relocations
 			 */
-			void ReadRelocations(Linker::Reader& rd);
+			void ReadRelocations(const std::shared_ptr<Linker::Reader>& rd);
 
 			/**
 			 * @brief Writes relocations
@@ -317,7 +317,7 @@ namespace Binary
 
 		void ProcessModule(Linker::Module& module) override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -426,7 +426,7 @@ namespace Binary
 			void AddDecimal(int value);
 			offset_t ImageSize() const override; // including header
 
-			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr) const override;
 			void CalculateValues();
@@ -441,7 +441,7 @@ namespace Binary
 			std::vector<BASICLine> lines;
 			uint16_t end_address = 0;
 
-			void ReadFile(Linker::Reader& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 			using Linker::Format::WriteFile;
 			offset_t ImageSize() const override;
 			offset_t WriteFile(Linker::Writer& wr) const override;
@@ -508,7 +508,7 @@ namespace Binary
 
 		void ProcessModule(Linker::Module& module) override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		void CalculateValues() override;
 		offset_t ImageSize() const override;
 		using Linker::Format::WriteFile;
@@ -580,7 +580,7 @@ namespace Binary
 
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
@@ -702,13 +702,13 @@ namespace Binary
 
 		void ProcessModule(Linker::Module& module) override;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 
 		/** @brief Read without header, only needed for RSX files stored inside a CP/M 3 .COM file */
-		void ReadWithoutHeader(Linker::Reader& rd, uint16_t image_size);
+		void ReadWithoutHeader(const std::shared_ptr<Linker::Reader>& rd, uint16_t image_size);
 
 		/** @brief Write without header, only needed for RSX files stored inside a CP/M 3 .COM file */
 		void WriteWithoutHeader(Linker::Writer& wr) const;

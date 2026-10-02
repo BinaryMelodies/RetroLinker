@@ -110,29 +110,29 @@ namespace Linker
 		 *
 		 * Note that only as many bytes are read in as the size of the buffer.
 		 */
-		virtual void ReadFile(Reader& rd);
+		virtual void ReadFile(const std::shared_ptr<Reader>& rd);
 		/**
 		 * @brief Overwrites buffer data with contents of reader
 		 *
 		 * All the remaining bytes are read, the buffer is expanded if needed but not shrank
 		 */
-		void ReadFileRemaining(Reader& rd);
+		void ReadFileRemaining(const std::shared_ptr<Reader>& rd);
 		/**
 		 * @brief Overwrites buffer data with contents of reader
 		 *
 		 * Exactly the specified amount is read, the buffer is expanded if needed but not shrank
 		 */
-		void ReadFile(Reader& rd, offset_t count);
+		void ReadFile(const std::shared_ptr<Reader>& rd, offset_t count);
 		/**
 		 * @brief Creates a buffer containing the remaining data in the reader
 		 */
-		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd);
+		static std::shared_ptr<Buffer> ReadFromFile(const std::shared_ptr<Reader>& rd);
 		/**
 		 * @brief Creates a buffer containing the specified amount of bytes from the reader
 		 *
 		 * If less data is available, the buffer will be shorter
 		 */
-		static std::shared_ptr<Buffer> ReadFromFile(Reader& rd, offset_t count);
+		static std::shared_ptr<Buffer> ReadFromFile(const std::shared_ptr<Reader>& rd, offset_t count);
 		using Contents::WriteFile;
 		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;
 		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override;

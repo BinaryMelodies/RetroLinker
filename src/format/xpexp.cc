@@ -45,39 +45,39 @@ void XPFormat::Clear()
 	section_groups.clear();
 }
 
-void XPFormat::ReadFile(Linker::Reader& rd)
+void XPFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 	std::array<char, 4> signature;
 	file_offset = Microsoft::FindActualSignature(rd, signature, "XP\1\0", "XP\2\0");
-	ldt_offset = rd.ReadUnsigned(4);
-	uint32_t ldt_count = rd.ReadUnsigned(4);
-	image_offset = rd.ReadUnsigned(4);
-	uint32_t image_size = rd.ReadUnsigned(4);
-	relocation_offset = rd.ReadUnsigned(4);
-	relocation_count = rd.ReadUnsigned(4);
-	minimum_extent = rd.ReadUnsigned(4);
-	maximum_extent = rd.ReadUnsigned(4);
-	rd.Skip(4);
-	gs = rd.ReadUnsigned(4);
-	fs = rd.ReadUnsigned(4);
-	ds = rd.ReadUnsigned(4);
-	ss = rd.ReadUnsigned(4);
-	cs = rd.ReadUnsigned(4);
-	es = rd.ReadUnsigned(4);
-	edi = rd.ReadUnsigned(4);
-	esi = rd.ReadUnsigned(4);
-	ebp = rd.ReadUnsigned(4);
-	esp = rd.ReadUnsigned(4);
-	ebx = rd.ReadUnsigned(4);
-	edx = rd.ReadUnsigned(4);
-	ecx = rd.ReadUnsigned(4);
-	eax = rd.ReadUnsigned(4);
-	eflags = rd.ReadUnsigned(4);
-	eip = rd.ReadUnsigned(4);
+	ldt_offset = rd->ReadUnsigned(4);
+	uint32_t ldt_count = rd->ReadUnsigned(4);
+	image_offset = rd->ReadUnsigned(4);
+	uint32_t image_size = rd->ReadUnsigned(4);
+	relocation_offset = rd->ReadUnsigned(4);
+	relocation_count = rd->ReadUnsigned(4);
+	minimum_extent = rd->ReadUnsigned(4);
+	maximum_extent = rd->ReadUnsigned(4);
+	rd->Skip(4);
+	gs = rd->ReadUnsigned(4);
+	fs = rd->ReadUnsigned(4);
+	ds = rd->ReadUnsigned(4);
+	ss = rd->ReadUnsigned(4);
+	cs = rd->ReadUnsigned(4);
+	es = rd->ReadUnsigned(4);
+	edi = rd->ReadUnsigned(4);
+	esi = rd->ReadUnsigned(4);
+	ebp = rd->ReadUnsigned(4);
+	esp = rd->ReadUnsigned(4);
+	ebx = rd->ReadUnsigned(4);
+	edx = rd->ReadUnsigned(4);
+	ecx = rd->ReadUnsigned(4);
+	eax = rd->ReadUnsigned(4);
+	eflags = rd->ReadUnsigned(4);
+	eip = rd->ReadUnsigned(4);
 
-	rd.Seek(file_offset + ldt_offset);
+	rd->Seek(file_offset + ldt_offset);
 	for(uint32_t i = 0; i < ldt_count; i++)
 	{
 		ldt.push_back(Segment::ReadFile(rd));
@@ -88,7 +88,7 @@ void XPFormat::ReadFile(Linker::Reader& rd)
 		wordsize = ldt[cs >> 3].flags & Segment::FLAG_32BIT ? DWord : Word;
 	}
 
-	rd.Seek(image_offset);
+	rd->Seek(image_offset);
 	image = Linker::Buffer::ReadFromFile(rd, image_size);
 
 	// TODO: relocations, format unknown
@@ -197,16 +197,16 @@ void XPFormat::Dump(Dumper::Dumper& dump) const
 	relocation_region.Display(dump, Dumper::Header | Dumper::Relocation);
 }
 
-XPFormat::Segment XPFormat::Segment::ReadFile(Linker::Reader& rd)
+XPFormat::Segment XPFormat::Segment::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Segment segment;
-	segment.limit = rd.ReadUnsigned(2);
-	segment.base = rd.ReadUnsigned(3);
-	segment.access = rd.ReadUnsigned(1);
-	segment.flags = rd.ReadUnsigned(1);
+	segment.limit = rd->ReadUnsigned(2);
+	segment.base = rd->ReadUnsigned(3);
+	segment.access = rd->ReadUnsigned(1);
+	segment.flags = rd->ReadUnsigned(1);
 	segment.limit |= uint32_t(segment.flags & 0x0F) << 16;
 	segment.flags &= ~0x0F;
-	segment.base |= uint32_t(rd.ReadUnsigned(1)) << 24;
+	segment.base |= uint32_t(rd->ReadUnsigned(1)) << 24;
 	return segment;
 }
 

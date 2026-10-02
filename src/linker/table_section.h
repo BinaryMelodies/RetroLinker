@@ -55,7 +55,7 @@ namespace Linker
 			Section::ReadFile(in);
 		}
 
-		void ReadFile(Reader& rd) override
+		void ReadFile(const std::shared_ptr<Reader>& rd) override
 		{
 			for(auto& entry : entries)
 			{
@@ -163,15 +163,14 @@ namespace Linker
 
 		static void ReadFile(std::istream& in, Word& word, ::EndianType endian_type)
 		{
-			// TODO: bad programming pattern
 			auto rd = std::make_shared<StreamReader>(endian_type, in);
-			ReadFile(*rd, word);
+			ReadFile(rd, word);
 		}
 
-		static void ReadFile(Reader& rd, Word& word, ::EndianType endian_type = ::UndefinedEndian)
+		static void ReadFile(const std::shared_ptr<Reader>& rd, Word& word, ::EndianType endian_type = ::UndefinedEndian)
 		{
 			(void) endian_type; // ignored
-			word.value = rd.ReadUnsigned(EntrySize); // TODO: ReadSigned for signed words
+			word.value = rd->ReadUnsigned(EntrySize); // TODO: ReadSigned for signed words
 		}
 
 		static void WriteFile(std::ostream& out, const Word& word, ::EndianType endian_type, offset_t bytes = EntrySize, offset_t offset = 0)

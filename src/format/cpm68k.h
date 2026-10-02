@@ -80,13 +80,13 @@ namespace DigitalResearch
 		}
 
 		template <typename SizeType, typename Format>
-			void ReadRelocations(Linker::Reader& rd, std::map<uint32_t, SizeType>& relocations, const Format& format)
+			void ReadRelocations(const std::shared_ptr<Linker::Reader>& rd, std::map<uint32_t, SizeType>& relocations, const Format& format)
 		{
 			/* TODO: test */
 			offset_t offset = 0;
 			while(true)
 			{
-				uint8_t byte = rd.ReadUnsigned(1);
+				uint8_t byte = rd->ReadUnsigned(1);
 				size_t size = (byte & 0x80) ? 2 : 4;
 				byte &= 0x7F;
 				if(byte == 0)
@@ -99,15 +99,15 @@ namespace DigitalResearch
 				}
 				else if(byte == 0x7D)
 				{
-					offset += rd.ReadUnsigned(1);
+					offset += rd->ReadUnsigned(1);
 				}
 				else if(byte == 0x7E)
 				{
-					offset += rd.ReadUnsigned(2);
+					offset += rd->ReadUnsigned(2);
 				}
 				else /*if(byte == 0x7F)*/
 				{
-					offset += rd.ReadUnsigned(4);
+					offset += rd->ReadUnsigned(4);
 				}
 				relocations[offset] = SizeType::Create(size, offset, format);
 			}
@@ -246,7 +246,7 @@ namespace DigitalResearch
 			uint16_t type;
 			uint32_t value;
 
-			static Symbol ReadFile(Linker::Reader& rd);
+			static Symbol ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 			void WriteFile(Linker::Writer& wr) const;
 		};
 		std::vector<Symbol> symbols;
@@ -304,7 +304,7 @@ namespace DigitalResearch
 			SetSignature(magic);
 		}
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t MeasureRelocations() const;
 

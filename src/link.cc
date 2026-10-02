@@ -289,8 +289,7 @@ int main(int argc, char * argv[])
 		}
 
 		// TODO: bad programming pattern
-		auto _rd = std::make_shared<StreamReader>(LittleEndian, in);
-		Reader& rd = *_rd;
+		auto rd = std::make_shared<StreamReader>(LittleEndian, in);
 
 		std::vector<format_description> file_formats;
 		DetermineFormat(file_formats, rd);
@@ -303,7 +302,7 @@ int main(int argc, char * argv[])
 			if(input_format != nullptr)
 			{
 				input_format->file_offset = file_format.offset;
-				rd.Seek(file_format.offset);
+				rd->Seek(file_format.offset);
 				break; /* already processed */
 			}
 		}

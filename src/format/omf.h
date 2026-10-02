@@ -73,7 +73,7 @@ namespace OMF
 		virtual ~OMFFormat() = default;
 
 		/** @brief Reads a string prefixed with a length byte */
-		static std::string ReadString(Linker::Reader& rd, size_t max_bytes = size_t(-1));
+		static std::string ReadString(const std::shared_ptr<Linker::Reader>& rd, size_t max_bytes = size_t(-1));
 
 		/** @brief Writes a string prefixed with a length byte */
 		static void WriteString(ChecksumWriter& wr, std::string text);
@@ -82,7 +82,7 @@ namespace OMF
 		typedef uint16_t index_t;
 
 		/** @brief Parses a 1 or 2 byte index value */
-		static index_t ReadIndex(Linker::Reader& rd);
+		static index_t ReadIndex(const std::shared_ptr<Linker::Reader>& rd);
 
 		/** @brief Produces a 1 or 2 byte index value */
 		static void WriteIndex(ChecksumWriter& wr, index_t index);
@@ -120,7 +120,7 @@ namespace OMF
 			}
 
 			/** @brief Reads the record contents, except for the type, length and checksum */
-			virtual void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) = 0;
+			virtual void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) = 0;
 
 			/** @brief Calculates the required bytes to write the record, might be less than record_length */
 			virtual uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const = 0;
@@ -192,10 +192,10 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) override
 			{
 				data.resize(Record<RecordTypeByte, FormatType, ModuleType>::record_length - 1);
-				rd.ReadData(data);
+				rd->ReadData(data);
 			}
 
 			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override
@@ -219,7 +219,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) override
 			{
 			}
 
@@ -250,7 +250,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
 			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
 		};
@@ -270,7 +270,7 @@ namespace OMF
 				uint16_t line_number = 0;
 				uint16_t offset = 0;
 
-				static LineNumber Read(FormatType * omf, Linker::Reader& rd);
+				static LineNumber Read(FormatType * omf, const std::shared_ptr<Linker::Reader>& rd);
 				void Write(FormatType * omf, ChecksumWriter& wr) const;
 			};
 
@@ -282,7 +282,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
 			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
 		};
@@ -304,7 +304,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
 			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
 		};
@@ -322,7 +322,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
 			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
 		};
@@ -340,7 +340,7 @@ namespace OMF
 				/** @brief Offset to the first byte of the library module, as a block:byte pair */
 				uint16_t byte_number;
 
-				static Location Read(Linker::Reader& rd);
+				static Location Read(const std::shared_ptr<Linker::Reader>& rd);
 				void Write(ChecksumWriter& wr) const;
 			};
 
@@ -352,7 +352,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
 			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
 		};
@@ -368,7 +368,7 @@ namespace OMF
 				/** @brief List of public symbols for one library module */
 				std::vector<std::string> names;
 
-				void Read(Linker::Reader& rd);
+				void Read(const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size() const;
 				void Write(ChecksumWriter& wr) const;
 			};
@@ -381,13 +381,13 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(FormatType * omf, ModuleType * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(FormatType * omf, ModuleType * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(FormatType * omf, ModuleType * mod) const override;
 			void WriteRecordContents(FormatType * omf, ModuleType * mod, ChecksumWriter& wr) const override;
 		};
 
 		/** @brief Attempts to parse an OMF file, whether OMF80, OMF86, OMF51 or OMF96 */
-		static std::shared_ptr<OMFFormat> ReadOMFFile(Linker::Reader& rd);
+		static std::shared_ptr<OMFFormat> ReadOMFFile(const std::shared_ptr<Linker::Reader>& rd);
 
 		/** @brief Used to calculate record offsets when generating OMF file */
 		offset_t file_size = 0;
@@ -617,18 +617,18 @@ namespace OMF
 			}
 
 			/** @brief Read a length value, for near or far elements */
-			static uint32_t ReadValue(OMF86Format * omf, Linker::Reader& rd);
+			static uint32_t ReadValue(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd);
 			/** @brief Determines the number of bytes needed for a length value, for near or far elements */
 			static uint32_t ValueSize(OMF86Format * omf, uint32_t length);
 			/** @brief Writes a length value, for near or far elements */
 			static void WriteValue(OMF86Format * omf, ChecksumWriter& wr, uint32_t length);
 
 			/** @brief Parse an EXTDEF or LEXTDEF entry */
-			static ExternalName ReadExternalName(OMF86Format * omf, Linker::Reader& rd, bool local);
+			static ExternalName ReadExternalName(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd, bool local);
 			/** @brief Parse a COMDEF or LCOMDEF entry */
-			static ExternalName ReadCommonName(OMF86Format * omf, Linker::Reader& rd, bool local);
+			static ExternalName ReadCommonName(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd, bool local);
 			/** @brief Parse a CEXTDEF entry */
-			static ExternalName ReadComdatExternalName(OMF86Format * omf, Linker::Reader& rd);
+			static ExternalName ReadComdatExternalName(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd);
 
 			/** @brief Returns the number of bytes required to write this entry */
 			uint16_t GetExternalNameSize(OMF86Format * omf) const;
@@ -669,7 +669,7 @@ namespace OMF
 			/** @brief The actual location of the reference */
 			std::variant<Location, FrameNumber> location;
 
-			void Read(OMF86Format * omf, Linker::Reader& rd);
+			void Read(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd);
 			uint16_t Size(OMF86Format * omf) const;
 			void Write(OMF86Format * omf, ChecksumWriter& wr) const;
 
@@ -690,7 +690,7 @@ namespace OMF
 			/** @brief The type of the symbol, or 0 */
 			TypeIndex type;
 
-			static SymbolDefinition Read(OMF86Format * omf, Linker::Reader& rd, bool local, bool is32bit);
+			static SymbolDefinition Read(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd, bool local, bool is32bit);
 			uint16_t Size(OMF86Format * omf, bool is32bit) const;
 			void Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const;
 
@@ -707,7 +707,7 @@ namespace OMF
 			/** @brief The offset in memory where the line starts */
 			uint32_t offset;
 
-			static LineNumber Read(OMF86Format * omf, Linker::Reader& rd, bool is32bit);
+			static LineNumber Read(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd, bool is32bit);
 			void Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const;
 		};
 
@@ -733,14 +733,14 @@ namespace OMF
 			std::variant<Data, Blocks> content;
 
 			/** @brief Parses the contents of an enumerated record */
-			static std::shared_ptr<DataBlock> ReadEnumeratedDataBlock(OMF86Format * omf, Linker::Reader& rd, uint16_t data_length);
+			static std::shared_ptr<DataBlock> ReadEnumeratedDataBlock(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd, uint16_t data_length);
 			/** @brief Gets the size of an encoded enumerated record in bytes */
 			uint16_t GetEnumeratedDataBlockSize(OMF86Format * omf) const;
 			/** @brief Writes the contents of an enumerated record into a file */
 			void WriteEnumeratedDataBlock(OMF86Format * omf, ChecksumWriter& wr) const;
 
 			/** @brief Parses the contents of an iterated record */
-			static std::shared_ptr<DataBlock> ReadIteratedDataBlock(OMF86Format * omf, Linker::Reader& rd, bool is32bit);
+			static std::shared_ptr<DataBlock> ReadIteratedDataBlock(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd, bool is32bit);
 			/** @brief Gets the size of an encoded iterated record in bytes */
 			uint16_t GetIteratedDataBlockSize(OMF86Format * omf, bool is32bit) const;
 			/** @brief Writes the contents of an iterated record into a file */
@@ -761,7 +761,7 @@ namespace OMF
 			/** @brief Displacement to be added to the value */
 			uint32_t displacement;
 
-			void Read(OMF86Format * omf, Linker::Reader& rd, size_t displacement_size);
+			void Read(OMF86Format * omf, const std::shared_ptr<Linker::Reader>& rd, size_t displacement_size);
 			uint16_t Size(OMF86Format * omf, bool is32bit) const;
 			void Write(OMF86Format * omf, ChecksumWriter& wr, bool is32bit) const;
 
@@ -865,7 +865,7 @@ namespace OMF
 		using LibraryDictionaryRecord = OMFFormat::LibraryDictionaryRecord<record_type_t, OMF86Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
-		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
+		std::shared_ptr<Record> ReadRecord(const std::shared_ptr<Linker::Reader>& rd);
 
 		/** @brief A header record, used for THEADR and LHEADR */
 		class ModuleHeaderRecord : public Record
@@ -879,7 +879,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -930,7 +930,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -951,7 +951,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1072,7 +1072,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1124,7 +1124,7 @@ namespace OMF
 				/** @brief The contents of the component */
 				std::variant<ExternalIndex, SegmentIndex, SegmentClassOverlayNames, LoadTimeLocatable, Absolute> component = ExternalIndex();
 
-				static Component Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				static Component Read(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF86Format * omf, Module * mod) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
@@ -1142,7 +1142,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1194,7 +1194,7 @@ namespace OMF
 				/** @brief Type byte for an signed 32-bit leaf */
 				static constexpr uint8_t SignedNumericLeaf32 = 0x88;
 
-				static LeafDescriptor Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				static LeafDescriptor Read(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF86Format * omf, Module * mod) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
@@ -1244,7 +1244,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1267,7 +1267,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1289,7 +1289,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1312,7 +1312,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1354,7 +1354,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1387,7 +1387,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1411,7 +1411,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1433,7 +1433,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -1454,7 +1454,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1480,7 +1480,7 @@ namespace OMF
 				/** @brief The frame or target reference */
 				frame_reference_type reference = FrameNumber(0);
 
-				static Thread Read(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint8_t leading_data_byte);
+				static Thread Read(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint8_t leading_data_byte);
 				uint16_t Size(OMF86Format * omf, Module * mod) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
@@ -1528,7 +1528,7 @@ namespace OMF
 				/** @brief Reference of this relocation */
 				Reference ref;
 
-				static Fixup Read(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint8_t leading_data_byte, bool is32bit);
+				static Fixup Read(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint8_t leading_data_byte, bool is32bit);
 				uint16_t Size(OMF86Format * omf, Module * mod, bool is32bit) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr, bool is32bit) const;
 
@@ -1544,7 +1544,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1572,7 +1572,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1598,7 +1598,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -1638,7 +1638,7 @@ namespace OMF
 				/** @brief The initial value of the register */
 				std::variant<Reference, InitialValue> value = Reference();
 
-				static Register Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				static Register Read(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF86Format * omf, Module * mod) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
@@ -1654,7 +1654,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1676,7 +1676,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -1715,7 +1715,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1741,7 +1741,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1799,7 +1799,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1823,7 +1823,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1844,7 +1844,7 @@ namespace OMF
 				/** @brief Name it should be substituted with */
 				std::string substitute_name;
 
-				static AliasDefinition Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				static AliasDefinition Read(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF86Format * omf, Module * mod) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
@@ -1856,7 +1856,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -1873,7 +1873,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -1892,7 +1892,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -1942,12 +1942,12 @@ namespace OMF
 			{
 			}
 
-			virtual void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) = 0;
+			virtual void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) = 0;
 			virtual uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const = 0;
 			virtual void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const = 0;
 
-			static std::shared_ptr<CommentRecord> ReadCommentRecord(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t record_length);
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			static std::shared_ptr<CommentRecord> ReadCommentRecord(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t record_length);
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1966,7 +1966,7 @@ namespace OMF
 			{
 			}
 
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+			void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -1983,7 +1983,7 @@ namespace OMF
 				ExternalIndex definition;
 				ExternalIndex default_resolution;
 
-				static ExternalAssociation Read(OMF86Format * omf, Module * mod, Linker::Reader& rd);
+				static ExternalAssociation Read(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF86Format * omf, Module * mod) const;
 				void Write(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const;
 
@@ -1998,7 +1998,7 @@ namespace OMF
 			{
 			}
 
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+			void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2042,7 +2042,7 @@ namespace OMF
 			{
 			}
 
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+			void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -2062,7 +2062,7 @@ namespace OMF
 			{
 			}
 
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+			void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -2079,7 +2079,7 @@ namespace OMF
 			{
 			}
 
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+			void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -2102,7 +2102,7 @@ namespace OMF
 			{
 			}
 
-			void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+			void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 			uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 			void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -2119,7 +2119,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2134,7 +2134,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF86Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF86Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2177,11 +2177,11 @@ namespace OMF
 		uint16_t page_size;
 
 		/** @brief Parses an OMF86 file */
-		static std::shared_ptr<OMF86Format> ReadOMFFile(Linker::Reader& rd);
+		static std::shared_ptr<OMF86Format> ReadOMFFile(const std::shared_ptr<Linker::Reader>& rd);
 
 		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF86Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options);
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -2203,7 +2203,7 @@ namespace OMF
 		{
 		}
 
-		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 	};
@@ -2216,7 +2216,7 @@ namespace OMF
 		{
 		}
 
-		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 	};
@@ -2231,7 +2231,7 @@ namespace OMF
 		{
 		}
 
-		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 	};
@@ -2246,7 +2246,7 @@ namespace OMF
 		{
 		}
 
-		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 	};
@@ -2259,7 +2259,7 @@ namespace OMF
 		{
 		}
 
-		void ReadComment(OMF86Format * omf, Module * mod, Linker::Reader& rd, uint16_t comment_length) override;
+		void ReadComment(OMF86Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd, uint16_t comment_length) override;
 		uint16_t GetCommentSize(OMF86Format * omf, Module * mod) const override;
 		void WriteComment(OMF86Format * omf, Module * mod, ChecksumWriter& wr) const override;
 	};
@@ -2306,7 +2306,7 @@ namespace OMF
 		using LibraryDictionaryRecord = OMFFormat::LibraryDictionaryRecord<record_type_t, OMF80Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
-		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
+		std::shared_ptr<Record> ReadRecord(const std::shared_ptr<Linker::Reader>& rd);
 
 		/**
 		 * @brief Represents one of the 256 segments
@@ -2362,7 +2362,7 @@ namespace OMF
 				uint16_t length = 0;
 				alignment_t alignment = AlignByte;
 
-				static SegmentDefinition Read(OMF80Format * omf, Linker::Reader& rd);
+				static SegmentDefinition Read(OMF80Format * omf, const std::shared_ptr<Linker::Reader>& rd);
 				void Write(OMF80Format * omf, ChecksumWriter& wr) const;
 			};
 
@@ -2374,7 +2374,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2395,7 +2395,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2412,7 +2412,7 @@ namespace OMF
 				segment_id_t segment_id;
 				std::string common_name;
 
-				static NamedCommonDefinition ReadNamedCommonDefinition(OMF80Format * omf, Linker::Reader& rd);
+				static NamedCommonDefinition ReadNamedCommonDefinition(OMF80Format * omf, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t GetNamedCommonDefinitionSize(OMF80Format * omf) const;
 				void WriteNamedCommonDefinition(OMF80Format * omf, ChecksumWriter& wr) const;
 			};
@@ -2424,7 +2424,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2446,7 +2446,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2463,7 +2463,7 @@ namespace OMF
 				uint16_t offset;
 				std::string name;
 
-				static SymbolDefinition Read(OMF80Format * omf, Module * mod, Linker::Reader& rd);
+				static SymbolDefinition Read(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF80Format * omf, Module * mod) const;
 				void Write(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
@@ -2476,7 +2476,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2502,7 +2502,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2520,7 +2520,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2546,7 +2546,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2564,7 +2564,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF80Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF80Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF80Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF80Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2609,11 +2609,11 @@ namespace OMF
 		std::vector<Module> modules;
 
 		/** @brief Parses an OMF80 file */
-		static std::shared_ptr<OMF80Format> ReadOMFFile(Linker::Reader& rd);
+		static std::shared_ptr<OMF80Format> ReadOMFFile(const std::shared_ptr<Linker::Reader>& rd);
 
 		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF80Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options);
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -2659,7 +2659,7 @@ namespace OMF
 		using LibraryDictionaryRecord = OMFFormat::LibraryDictionaryRecord<record_type_t, OMF51Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
-		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
+		std::shared_ptr<Record> ReadRecord(const std::shared_ptr<Linker::Reader>& rd);
 
 		// TODO: document record types
 
@@ -2724,7 +2724,7 @@ namespace OMF
 			uint32_t size;
 			std::string name;
 
-			static SegmentDefinition Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			static SegmentDefinition Read(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 			uint16_t Size(OMF51Format * omf, Module * mod) const;
 			void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 		};
@@ -2756,7 +2756,7 @@ namespace OMF
 			uint16_t offset;
 			std::string name;
 
-			static SymbolDefinition Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			static SymbolDefinition Read(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 			uint16_t Size(OMF51Format * omf, Module * mod) const;
 			void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 		};
@@ -2769,7 +2769,7 @@ namespace OMF
 			SymbolInfo info;
 			std::string name;
 
-			static ExternalDefinition Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+			static ExternalDefinition Read(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 			uint16_t Size(OMF51Format * omf, Module * mod) const;
 			void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 		};
@@ -2791,7 +2791,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -2807,7 +2807,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -2822,7 +2822,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2840,7 +2840,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2858,7 +2858,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2887,7 +2887,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -2906,7 +2906,7 @@ namespace OMF
 				uint16_t offset;
 				std::string name;
 
-				static Symbol Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				static Symbol Read(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF51Format * omf, Module * mod) const;
 				void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
@@ -2931,7 +2931,7 @@ namespace OMF
 				uint16_t offset;
 				std::string name;
 
-				static SegmentSymbol Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				static SegmentSymbol Read(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF51Format * omf, Module * mod) const;
 				void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
@@ -2949,7 +2949,7 @@ namespace OMF
 				uint16_t offset;
 				uint16_t line_number;
 
-				static LineNumber Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				static LineNumber Read(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 
@@ -2971,7 +2971,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3013,7 +3013,7 @@ namespace OMF
 				uint8_t id;
 				uint16_t offset;
 
-				static Fixup Read(OMF51Format * omf, Module * mod, Linker::Reader& rd);
+				static Fixup Read(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				void Write(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
 
@@ -3024,7 +3024,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF51Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF51Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF51Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF51Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3051,11 +3051,11 @@ namespace OMF
 		std::vector<Module> modules;
 
 		/** @brief Parses an OMF51 file */
-		static std::shared_ptr<OMF51Format> ReadOMFFile(Linker::Reader& rd);
+		static std::shared_ptr<OMF51Format> ReadOMFFile(const std::shared_ptr<Linker::Reader>& rd);
 
 		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF51Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options);
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -3109,7 +3109,7 @@ namespace OMF
 		using LibraryDictionaryRecord = OMFFormat::LibraryDictionaryRecord<record_type_t, OMF96Format, Module>;
 
 		/** @brief Parses and returns an instance of the next record */
-		std::shared_ptr<Record> ReadRecord(Linker::Reader& rd);
+		std::shared_ptr<Record> ReadRecord(const std::shared_ptr<Linker::Reader>& rd);
 
 		typedef uint8_t segment_id_t;
 
@@ -3178,7 +3178,7 @@ namespace OMF
 				base_address = address;
 			}
 
-			static SegmentDefinition Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			static SegmentDefinition Read(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 			uint16_t Size(OMF96Format * omf, Module * mod) const;
 			void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 		};
@@ -3206,7 +3206,7 @@ namespace OMF
 			std::string name;
 			TypeIndex type;
 
-			static ExternalDefinition Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			static ExternalDefinition Read(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 			uint16_t Size(OMF96Format * omf, Module * mod) const;
 			void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 
@@ -3221,7 +3221,7 @@ namespace OMF
 			std::string name;
 			TypeIndex type;
 
-			static SymbolDefinition Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+			static SymbolDefinition Read(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 			uint16_t Size(OMF96Format * omf, Module * mod) const;
 			void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 
@@ -3246,7 +3246,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -3268,7 +3268,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 		};
@@ -3283,7 +3283,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3323,7 +3323,7 @@ namespace OMF
 				/** @brief Type byte for an end of branch leaf */
 				static constexpr uint8_t EndOfBranchLeaf = 0x6A;
 
-				static LeafDescriptor Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+				static LeafDescriptor Read(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF96Format * omf, Module * mod) const;
 				void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 
@@ -3339,7 +3339,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3358,7 +3358,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3377,7 +3377,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3417,7 +3417,7 @@ namespace OMF
 				reference_type_t reference_type;
 				alignment_t alignment;
 
-				static Relocation Read(OMF96Format * omf, Module * mod, Linker::Reader& rd);
+				static Relocation Read(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd);
 				uint16_t Size(OMF96Format * omf, Module * mod) const;
 				void Write(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const;
 			};
@@ -3429,7 +3429,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3448,7 +3448,7 @@ namespace OMF
 			{
 			}
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3491,7 +3491,7 @@ namespace OMF
 			static constexpr uint8_t FlagProcedure = 0x40;
 			static constexpr uint8_t FlagExternal = 0x80;
 
-			void ReadRecordContents(OMF96Format * omf, Module * mod, Linker::Reader& rd) override;
+			void ReadRecordContents(OMF96Format * omf, Module * mod, const std::shared_ptr<Linker::Reader>& rd) override;
 			uint16_t GetRecordSize(OMF96Format * omf, Module * mod) const override;
 			void WriteRecordContents(OMF96Format * omf, Module * mod, ChecksumWriter& wr) const override;
 
@@ -3518,11 +3518,11 @@ namespace OMF
 		std::vector<Module> modules;
 
 		/** @brief Parses an OMF96 file */
-		static std::shared_ptr<OMF96Format> ReadOMFFile(Linker::Reader& rd);
+		static std::shared_ptr<OMF96Format> ReadOMFFile(const std::shared_ptr<Linker::Reader>& rd);
 
 		static void DumpAddFields(const Record * record, Dumper::Dumper& dump, Dumper::Region& region, const OMF96Format * omf, const Module * mod, size_t record_index, Dumper::display_option& options);
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -3536,7 +3536,7 @@ namespace OMF
 	public:
 		std::shared_ptr<OMFFormat> contents;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		using Linker::InputFormat::GenerateModule;
 		void GenerateModule(Linker::Module& module) const override;

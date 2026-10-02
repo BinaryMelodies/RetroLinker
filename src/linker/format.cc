@@ -198,13 +198,13 @@ void InputFormat::SetupOptions(std::shared_ptr<OutputFormat> format)
 {
 }
 
-void InputFormat::ProduceModule(ModuleCollector& linker, Reader& rd, std::string file_name)
+void InputFormat::ProduceModule(ModuleCollector& linker, const std::shared_ptr<Reader>& rd, std::string file_name)
 {
 	ReadFile(rd);
 	GenerateModule(linker, file_name);
 }
 
-void InputFormat::ProduceModule(Module& module, Reader& rd)
+void InputFormat::ProduceModule(Module& module, const std::shared_ptr<Reader>& rd)
 {
 	ReadFile(rd);
 	GenerateModule(module);

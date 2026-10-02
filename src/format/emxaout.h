@@ -44,7 +44,7 @@ namespace EMX
 		uint32_t flags = 0;
 		std::array<char, 64> os2_options;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 

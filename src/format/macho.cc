@@ -7,7 +7,7 @@ using namespace MachO;
 
 // TODO: incomplete, untested
 
-void MachOFormat::LoadCommand::ReadFile(Linker::Reader& rd)
+void MachOFormat::LoadCommand::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// by default, there is nothing to do here
 }
@@ -17,11 +17,11 @@ void MachOFormat::LoadCommand::WriteFile(Linker::Writer& wr) const
 	// by default, there is nothing to do here
 }
 
-std::unique_ptr<MachOFormat::LoadCommand> MachOFormat::LoadCommand::Read(Linker::Reader& rd)
+std::unique_ptr<MachOFormat::LoadCommand> MachOFormat::LoadCommand::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	std::unique_ptr<MachOFormat::LoadCommand> load_command;
-	command_type command = command_type(rd.ReadUnsigned(4));
-	uint32_t size = rd.ReadUnsigned(4);
+	command_type command = command_type(rd->ReadUnsigned(4));
+	uint32_t size = rd->ReadUnsigned(4);
 	switch(command & ~REQ_DYLD)
 	{
 	// TODO: other types
@@ -40,7 +40,7 @@ void MachOFormat::LoadCommand::Write(Linker::Writer& wr) const
 	wr.WriteWord(4, GetSize());
 }
 
-void MachOFormat::GenericDataCommand::Read(Linker::Reader& rd, offset_t size)
+void MachOFormat::GenericDataCommand::Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size)
 {
 	command_image = Linker::Buffer::ReadFromFile(rd, size);
 }
@@ -56,20 +56,20 @@ offset_t MachOFormat::GenericDataCommand::GetSize() const
 	return 8 + command_image->ImageSize();
 }
 
-MachOFormat::Section MachOFormat::Section::Read(Linker::Reader& rd, int wordsize)
+MachOFormat::Section MachOFormat::Section::Read(const std::shared_ptr<Linker::Reader>& rd, int wordsize)
 {
 	Section section;
-	section.name = rd.ReadData(16); // TODO: trim
-	section.segment_name = rd.ReadData(16); // TODO: trim
-	section.address = rd.ReadUnsigned(wordsize);
-	section.memory_size = rd.ReadUnsigned(wordsize);
-	section.offset = rd.ReadUnsigned(4);
-	section.align_shift = rd.ReadUnsigned(4);
-	section.relocation_offset = rd.ReadUnsigned(4);
-	section.relocation_count = rd.ReadUnsigned(4);
-	section.flags = rd.ReadUnsigned(4);
-	section.reserved1 = rd.ReadUnsigned(4);
-	section.reserved2 = rd.ReadUnsigned(4);
+	section.name = rd->ReadData(16); // TODO: trim
+	section.segment_name = rd->ReadData(16); // TODO: trim
+	section.address = rd->ReadUnsigned(wordsize);
+	section.memory_size = rd->ReadUnsigned(wordsize);
+	section.offset = rd->ReadUnsigned(4);
+	section.align_shift = rd->ReadUnsigned(4);
+	section.relocation_offset = rd->ReadUnsigned(4);
+	section.relocation_count = rd->ReadUnsigned(4);
+	section.flags = rd->ReadUnsigned(4);
+	section.reserved1 = rd->ReadUnsigned(4);
+	section.reserved2 = rd->ReadUnsigned(4);
 	return section;
 }
 
@@ -88,7 +88,7 @@ void MachOFormat::Section::Write(Linker::Writer& wr, int wordsize) const
 	wr.WriteWord(4, reserved2);
 }
 
-void MachOFormat::SegmentCommand::ReadFile(Linker::Reader& rd)
+void MachOFormat::SegmentCommand::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -98,18 +98,18 @@ void MachOFormat::SegmentCommand::WriteFile(Linker::Writer& wr) const
 	// TODO
 }
 
-void MachOFormat::SegmentCommand::Read(Linker::Reader& rd, offset_t size)
+void MachOFormat::SegmentCommand::Read(const std::shared_ptr<Linker::Reader>& rd, offset_t size)
 {
 	size_t wordsize = command == SEGMENT_64 ? 8 : 4;
-	name = rd.ReadData(16); // TODO: trim
-	address = rd.ReadUnsigned(wordsize);
-	memory_size = rd.ReadUnsigned(wordsize);
-	offset = rd.ReadUnsigned(wordsize);
-	file_size = rd.ReadUnsigned(wordsize);
-	max_protection = rd.ReadUnsigned(4);
-	init_protection = rd.ReadUnsigned(4);
-	uint32_t section_count = rd.ReadUnsigned(4);
-	flags = rd.ReadUnsigned(4);
+	name = rd->ReadData(16); // TODO: trim
+	address = rd->ReadUnsigned(wordsize);
+	memory_size = rd->ReadUnsigned(wordsize);
+	offset = rd->ReadUnsigned(wordsize);
+	file_size = rd->ReadUnsigned(wordsize);
+	max_protection = rd->ReadUnsigned(4);
+	init_protection = rd->ReadUnsigned(4);
+	uint32_t section_count = rd->ReadUnsigned(4);
+	flags = rd->ReadUnsigned(4);
 	for(uint32_t i = 0; i < section_count; i++)
 	{
 		sections.emplace_back(Section::Read(rd, wordsize));
@@ -146,9 +146,9 @@ offset_t MachOFormat::SegmentCommand::GetSize() const
 	}
 }
 
-void MachOFormat::ReadFile(Linker::Reader& rd)
+void MachOFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	std::string signature = rd.ReadData(4);
+	std::string signature = rd->ReadData(4);
 	if(signature == "\xFE\xED\xFA\xCE")
 	{
 		wordsize = 4;
@@ -174,16 +174,16 @@ void MachOFormat::ReadFile(Linker::Reader& rd)
 		Linker::FatalError("Fatal error: invalid Mach-O signature");
 	}
 
-	rd.endiantype = endiantype;
-	cpu = cpu_type(rd.ReadUnsigned(4));
-	cpu_subtype = rd.ReadUnsigned(4);
-	file_type = rd.ReadUnsigned(4);
-	uint32_t command_count = rd.ReadUnsigned(4);
-	commands_size = rd.ReadUnsigned(4);
-	flags = rd.ReadUnsigned(4);
+	rd->endiantype = endiantype;
+	cpu = cpu_type(rd->ReadUnsigned(4));
+	cpu_subtype = rd->ReadUnsigned(4);
+	file_type = rd->ReadUnsigned(4);
+	uint32_t command_count = rd->ReadUnsigned(4);
+	commands_size = rd->ReadUnsigned(4);
+	flags = rd->ReadUnsigned(4);
 	if(wordsize == 8)
 	{
-		rd.Skip(4);
+		rd->Skip(4);
 	}
 
 	for(uint32_t i = 0; i < command_count; i++)
@@ -273,14 +273,14 @@ void MachOFormat::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
-FatMachOFormat::Entry FatMachOFormat::Entry::Read(Linker::Reader& rd)
+FatMachOFormat::Entry FatMachOFormat::Entry::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Entry entry;
-	entry.cpu = MachOFormat::cpu_type(rd.ReadUnsigned(4));
-	entry.cpu_subtype = rd.ReadUnsigned(4);
-	entry.offset = rd.ReadUnsigned(4);
-	entry.size = rd.ReadUnsigned(4);
-	entry.align = rd.ReadUnsigned(4);
+	entry.cpu = MachOFormat::cpu_type(rd->ReadUnsigned(4));
+	entry.cpu_subtype = rd->ReadUnsigned(4);
+	entry.offset = rd->ReadUnsigned(4);
+	entry.size = rd->ReadUnsigned(4);
+	entry.align = rd->ReadUnsigned(4);
 	return entry;
 }
 
@@ -306,11 +306,11 @@ offset_t FatMachOFormat::ImageSize() const
 	return furthest;
 }
 
-void FatMachOFormat::ReadFile(Linker::Reader& rd)
+void FatMachOFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	rd.Skip(4); // magic code
-	uint32_t entry_count = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	rd->Skip(4); // magic code
+	uint32_t entry_count = rd->ReadUnsigned(4);
 	for(uint32_t i = 0; i < entry_count; i++)
 	{
 		entries.emplace_back(Entry::Read(rd));
@@ -319,7 +319,7 @@ void FatMachOFormat::ReadFile(Linker::Reader& rd)
 	{
 		std::shared_ptr<MachOFormat> macho = std::make_shared<MachOFormat>();
 		entry.image = macho;
-		rd.Seek(entry.offset);
+		rd->Seek(entry.offset);
 		macho->ReadFile(rd);
 	}
 }

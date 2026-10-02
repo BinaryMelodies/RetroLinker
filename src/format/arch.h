@@ -23,27 +23,27 @@ namespace Archive
 		{
 		public:
 			virtual ~FileReader();
-			virtual std::shared_ptr<Linker::Contents> ReadFile(Linker::Reader& rd, offset_t size) = 0;
+			virtual std::shared_ptr<Linker::Contents> ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size) = 0;
 		};
 
 		offset_t file_offset = 0;
 		offset_t file_size = offset_t(-1);
 		std::shared_ptr<FileReader> file_reader = nullptr;
 
-		typedef std::shared_ptr<Linker::Contents> file_reader_type(Linker::Reader& rd, offset_t size);
-		typedef std::shared_ptr<Linker::Contents> file_reader1_type(Linker::Reader& rd);
+		typedef std::shared_ptr<Linker::Contents> file_reader_type(const std::shared_ptr<Linker::Reader>& rd, offset_t size);
+		typedef std::shared_ptr<Linker::Contents> file_reader1_type(const std::shared_ptr<Linker::Reader>& rd);
 
 		void SetFileReader(std::shared_ptr<FileReader> file_reader);
-		void SetFileReader(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader& rd, offset_t size));
-		void SetFileReader(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader& rd));
+		void SetFileReader(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>& rd, offset_t size));
+		void SetFileReader(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>& rd));
 
 		ArchiveFormat(std::shared_ptr<FileReader> file_reader = nullptr)
 			: file_reader(file_reader)
 		{
 		}
 
-		ArchiveFormat(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader& rd, offset_t size));
-		ArchiveFormat(std::shared_ptr<Linker::Contents> (* file_reader)(Linker::Reader& rd));
+		ArchiveFormat(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>& rd, offset_t size));
+		ArchiveFormat(std::shared_ptr<Linker::Contents> (* file_reader)(const std::shared_ptr<Linker::Reader>& rd));
 
 		class File
 		{
@@ -60,7 +60,7 @@ namespace Archive
 
 		std::vector<File> files;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		offset_t ImageSize() const override;

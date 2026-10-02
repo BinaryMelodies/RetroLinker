@@ -420,7 +420,7 @@ namespace Microsoft
 			uint8_t GetIndicatorByte() const;
 
 			/** @brief Reads an entry within a bundle */
-			static Entry ReadEntry(Linker::Reader& rd, uint8_t indicator_byte);
+			static Entry ReadEntry(const std::shared_ptr<Linker::Reader>& rd, uint8_t indicator_byte);
 			/** @brief Writes an entry within a bundle */
 			void WriteEntry(Linker::Writer& wr) const;
 		};
@@ -639,7 +639,7 @@ namespace Microsoft
 
 		bool IsOS2() const;
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		offset_t ImageSize() const override;
 
@@ -867,7 +867,7 @@ namespace Microsoft
 
 		typedef std::variant<uint16_t, std::string> Identifier;
 
-		static void ReadIdentifier(Linker::Reader& rd, Identifier& id);
+		static void ReadIdentifier(const std::shared_ptr<Linker::Reader>& rd, Identifier& id);
 		static void WriteIdentifier(Linker::Writer& wr, const Identifier& id);
 		static offset_t GetIdentifierSize(const Identifier& id);
 
@@ -883,8 +883,8 @@ namespace Microsoft
 		offset_t file_offset;
 		std::vector<Resource> resources;
 
-		void ReadFile(Linker::Reader& rd) override;
-		void ReadFile(Linker::Reader& rd, offset_t size);
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t size);
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(Linker::Writer& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;

@@ -16,11 +16,11 @@ void GenericBinaryFormat::Clear()
 	image = nullptr;
 }
 
-void GenericBinaryFormat::ReadFile(Linker::Reader& rd)
+void GenericBinaryFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
 
-	rd.endiantype = ::UndefinedEndian; /* does not matter */
+	rd->endiantype = ::UndefinedEndian; /* does not matter */
 
 	image = Linker::Buffer::ReadFromFile(rd);
 }
@@ -211,28 +211,28 @@ void BinaryFormat::Clear()
 	pif = nullptr;
 }
 
-void BinaryFormat::ReadFile(Linker::Reader& rd)
+void BinaryFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
 
-	rd.endiantype = ::UndefinedEndian; /* does not matter */
+	rd->endiantype = ::UndefinedEndian; /* does not matter */
 
 	/* check for PIF structure at end */
 	/* this is only meaningful for MS-DOS x86 binaries, but the DR PIFED signature is expected to be sufficiently distinguished */
-	offset_t position = rd.Tell();
-	rd.SeekEnd(-relative_offset_t(Microsoft::MZFormat::PIF::SIZE));
-	offset_t count = rd.Tell() - position;
-	if(rd.ReadUnsigned(4, LittleEndian) == Microsoft::MZFormat::PIF::MAGIC_BEGIN)
+	offset_t position = rd->Tell();
+	rd->SeekEnd(-relative_offset_t(Microsoft::MZFormat::PIF::SIZE));
+	offset_t count = rd->Tell() - position;
+	if(rd->ReadUnsigned(4, LittleEndian) == Microsoft::MZFormat::PIF::MAGIC_BEGIN)
 	{
 		pif = std::make_unique<Microsoft::MZFormat::PIF>();
 		pif->ReadFile(rd);
-		if(rd.ReadUnsigned(4, LittleEndian) != Microsoft::MZFormat::PIF::MAGIC_END)
+		if(rd->ReadUnsigned(4, LittleEndian) != Microsoft::MZFormat::PIF::MAGIC_END)
 		{
 			/* failed */
 			pif = nullptr;
 		}
 	}
-	rd.Seek(position);
+	rd->Seek(position);
 
 	if(pif == nullptr)
 		image = Linker::Buffer::ReadFromFile(rd);

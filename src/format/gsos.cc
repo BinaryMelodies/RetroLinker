@@ -20,9 +20,9 @@ using namespace Apple;
 	}
 }
 
-offset_t OMFFormat::Segment::ReadUnsigned(Linker::Reader& rd) const
+offset_t OMFFormat::Segment::ReadUnsigned(const std::shared_ptr<Linker::Reader>& rd) const
 {
-	return rd.ReadUnsigned(number_length);
+	return rd->ReadUnsigned(number_length);
 }
 
 void OMFFormat::Segment::WriteWord(Linker::Writer& wr, offset_t value) const
@@ -30,14 +30,14 @@ void OMFFormat::Segment::WriteWord(Linker::Writer& wr, offset_t value) const
 	wr.WriteWord(number_length, value);
 }
 
-std::string OMFFormat::Segment::ReadLabel(Linker::Reader& rd) const
+std::string OMFFormat::Segment::ReadLabel(const std::shared_ptr<Linker::Reader>& rd) const
 {
 	uint8_t length = label_length;
 	if(length == 0)
 	{
-		length = rd.ReadUnsigned(1);
+		length = rd->ReadUnsigned(1);
 	}
-	return rd.ReadData(length);
+	return rd->ReadData(length);
 }
 
 void OMFFormat::Segment::WriteLabel(Linker::Writer& wr, std::string text) const
@@ -93,61 +93,61 @@ offset_t OMFFormat::Segment::CalculateValues(uint16_t _segment_number, offset_t 
 	return segment_offset + total_segment_size;
 }
 
-void OMFFormat::Segment::ReadFile(Linker::Reader& rd)
+void OMFFormat::Segment::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	segment_offset = rd.Tell();
+	segment_offset = rd->Tell();
 
-	rd.Skip(0x20);
-	endiantype = rd.ReadUnsigned(1);
-	rd.endiantype = GetEndianType();
-	if(rd.endiantype == ::UndefinedEndian)
+	rd->Skip(0x20);
+	endiantype = rd->ReadUnsigned(1);
+	rd->endiantype = GetEndianType();
+	if(rd->endiantype == ::UndefinedEndian)
 	{
 		Linker::Error << "Invalid NUMSEX field: " << endiantype << ", expected 0 or 1" << std::endl;
 	}
 
-	rd.Seek(segment_offset + 0x0F);
-	version = omf_version(rd.ReadUnsigned(1) << 8);
+	rd->Seek(segment_offset + 0x0F);
+	version = omf_version(rd->ReadUnsigned(1) << 8);
 	if(version != OMF_VERSION_1 && version != OMF_VERSION_2)
 	{
 		Linker::Error << "Invalid VERSION field: " << (version >> 8) << ", expected 1 or 2" << std::endl;
 	}
 
-	rd.Seek(segment_offset);
-	total_segment_size = rd.ReadUnsigned(4);
+	rd->Seek(segment_offset);
+	total_segment_size = rd->ReadUnsigned(4);
 	if(version == OMF_VERSION_1)
 	{
 		total_segment_size <<= 9;
 	}
-	bss_size = rd.ReadUnsigned(4);
-	total_size = rd.ReadUnsigned(4);
+	bss_size = rd->ReadUnsigned(4);
+	total_size = rd->ReadUnsigned(4);
 	if(version == OMF_VERSION_1)
 	{
-		uint8_t value = rd.ReadUnsigned(1);
+		uint8_t value = rd->ReadUnsigned(1);
 		kind = segment_kind(value & 0x1F);
 		flags = (value & 0xE0) << 8;
 	}
 	else
 	{
-		rd.Skip(1);
+		rd->Skip(1);
 	}
-	label_length = rd.ReadUnsigned(1);
-	number_length = rd.ReadUnsigned(1);
+	label_length = rd->ReadUnsigned(1);
+	number_length = rd->ReadUnsigned(1);
 	if(number_length != 4)
 	{
 		Linker::Error << "Invalid NUMLEN field " << number_length << ", only 4 is allowed" << std::endl;
 	}
-	rd.Skip(1); // VERSION
-	bank_size = rd.ReadUnsigned(4);
+	rd->Skip(1); // VERSION
+	bank_size = rd->ReadUnsigned(4);
 	if(version == OMF_VERSION_1)
 	{
-		rd.Skip(4);
+		rd->Skip(4);
 	}
 	else
 	{
-		uint16_t value = rd.ReadUnsigned(2);
+		uint16_t value = rd->ReadUnsigned(2);
 		kind = segment_kind(value & 0x1F);
 		flags = value & 0xFFE0;
-		rd.Skip(2);
+		rd->Skip(2);
 	}
 
 	if(kind != SEG_CODE
@@ -162,37 +162,37 @@ void OMFFormat::Segment::ReadFile(Linker::Reader& rd)
 		Linker::Error << "Invalid segment kind" << std::endl;
 	}
 
-	base_address = rd.ReadUnsigned(4);
-	align = rd.ReadUnsigned(4);
-	rd.Skip(1); // NUMSEX
+	base_address = rd->ReadUnsigned(4);
+	align = rd->ReadUnsigned(4);
+	rd->Skip(1); // NUMSEX
 	if(version == OMF_VERSION_1)
 	{
-		language_card_bank = rd.ReadUnsigned(1);
+		language_card_bank = rd->ReadUnsigned(1);
 	}
 	else
 	{
-		version = omf_version(version + rd.ReadUnsigned(1));
+		version = omf_version(version + rd->ReadUnsigned(1));
 		if(version != OMF_VERSION_2 && version != OMF_VERSION_2_1)
 		{
 			Linker::Error << "Invalid REVISION field: " << (version & 0xFF) << ", expected 0 or 1" << std::endl;
 		}
 	}
-	segment_number = rd.ReadUnsigned(2);
-	entry = rd.ReadUnsigned(4);
-	segment_name_offset = rd.ReadUnsigned(2);
-	segment_data_offset = rd.ReadUnsigned(2);
+	segment_number = rd->ReadUnsigned(2);
+	entry = rd->ReadUnsigned(4);
+	segment_name_offset = rd->ReadUnsigned(2);
+	segment_data_offset = rd->ReadUnsigned(2);
 	/* we permit this field to be present in version 2.0 as well */
 	if(version >= OMF_VERSION_2 && segment_name_offset >= 0x30)
 	{
-		temp_org = rd.ReadUnsigned(4);
+		temp_org = rd->ReadUnsigned(4);
 	}
 
-	rd.Seek(segment_offset + segment_name_offset);
-	linker_segment_name = rd.ReadData(10);
+	rd->Seek(segment_offset + segment_name_offset);
+	linker_segment_name = rd->ReadData(10);
 	segment_name = ReadLabel(rd);
 
-	rd.Seek(segment_offset + segment_data_offset);
-	while(rd.Tell() < segment_offset + total_segment_size)
+	rd->Seek(segment_offset + segment_data_offset);
+	while(rd->Tell() < segment_offset + total_segment_size)
 	{
 		records.emplace_back(ReadRecord(rd));
 		if(records.back()->type == Record::OPC_END)
@@ -406,7 +406,7 @@ offset_t OMFFormat::Segment::Expression::GetLength(const Segment& segment) const
 	return length;
 }
 
-void OMFFormat::Segment::Expression::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::Expression::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
 	while(ReadSingleOperation(segment, rd) != End)
 	{
@@ -456,9 +456,9 @@ void OMFFormat::Segment::Expression::PopElementsInto(size_t count, std::vector<s
 	operands.resize(operands.size() - count);
 }
 
-uint8_t OMFFormat::Segment::Expression::ReadSingleOperation(Segment& segment, Linker::Reader& rd)
+uint8_t OMFFormat::Segment::Expression::ReadSingleOperation(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint8_t next_operation = rd.ReadUnsigned(1);
+	uint8_t next_operation = rd->ReadUnsigned(1);
 	if(next_operation == End)
 		return next_operation;
 
@@ -716,14 +716,14 @@ void OMFFormat::CalculateValues()
 	}
 }
 
-void OMFFormat::ReadFile(Linker::Reader& rd)
+void OMFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	offset_t end = rd.GetImageEnd();
-	while(rd.Tell() < end)
+	offset_t end = rd->GetImageEnd();
+	while(rd->Tell() < end)
 	{
 		segments.push_back(std::make_unique<Segment>());
 		segments.back()->ReadFile(rd);
-		rd.Seek(segments.back()->segment_offset + segments.back()->total_segment_size);
+		rd->Seek(segments.back()->segment_offset + segments.back()->total_segment_size);
 	}
 }
 
@@ -770,7 +770,7 @@ offset_t OMFFormat::Segment::Record::GetMemoryLength(const Segment& segment, off
 	return 0;
 }
 
-void OMFFormat::Segment::Record::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::Record::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
 }
 
@@ -850,7 +850,7 @@ offset_t OMFFormat::Segment::DataRecord::GetMemoryLength(const Segment& segment,
 	return image->ImageSize();
 }
 
-void OMFFormat::Segment::DataRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::DataRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
 	if(OPC_CONST_FIRST <= type && type <= OPC_CONST_LAST)
 	{
@@ -858,7 +858,7 @@ void OMFFormat::Segment::DataRecord::ReadFile(Segment& segment, Linker::Reader& 
 	}
 	else
 	{
-		size_t length = rd.ReadUnsigned(4);
+		size_t length = rd->ReadUnsigned(4);
 		image = Linker::Buffer::ReadFromFile(rd, length);
 	}
 }
@@ -915,7 +915,7 @@ offset_t OMFFormat::Segment::ValueRecord::GetMemoryLength(const Segment& segment
 	}
 }
 
-void OMFFormat::Segment::ValueRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::ValueRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
 	value = segment.ReadUnsigned(rd);
 }
@@ -956,10 +956,10 @@ offset_t OMFFormat::Segment::RelocationRecord::GetLength(const Segment& segment)
 	}
 }
 
-void OMFFormat::Segment::RelocationRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::RelocationRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
-	size = rd.ReadUnsigned(1);
-	shift = rd.ReadSigned(1);
+	size = rd->ReadUnsigned(1);
+	shift = rd->ReadSigned(1);
 	if(type == OPC_RELOC)
 	{
 		source = segment.ReadUnsigned(rd);
@@ -967,8 +967,8 @@ void OMFFormat::Segment::RelocationRecord::ReadFile(Segment& segment, Linker::Re
 	}
 	else /*if(type == OPC_C_RELOC)*/
 	{
-		source = rd.ReadUnsigned(2);
-		target = rd.ReadUnsigned(2);
+		source = rd->ReadUnsigned(2);
+		target = rd->ReadUnsigned(2);
 	}
 }
 
@@ -1017,23 +1017,23 @@ offset_t OMFFormat::Segment::IntersegmentRelocationRecord::GetLength(const Segme
 	}
 }
 
-void OMFFormat::Segment::IntersegmentRelocationRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::IntersegmentRelocationRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
-	size = rd.ReadUnsigned(1);
-	shift = rd.ReadUnsigned(1);
+	size = rd->ReadUnsigned(1);
+	shift = rd->ReadUnsigned(1);
 	if(type == OPC_INTERSEG)
 	{
 		source = segment.ReadUnsigned(rd);
-		file_number = rd.ReadUnsigned(2);
-		segment_number = rd.ReadUnsigned(2);
+		file_number = rd->ReadUnsigned(2);
+		segment_number = rd->ReadUnsigned(2);
 		target = segment.ReadUnsigned(rd);
 	}
 	else /*if(type == OPC_C_INTERSEG)*/
 	{
-		source = rd.ReadUnsigned(2);
+		source = rd->ReadUnsigned(2);
 		file_number = 1;
-		segment_number = rd.ReadUnsigned(1);
-		target = rd.ReadUnsigned(2);
+		segment_number = rd->ReadUnsigned(1);
+		target = rd->ReadUnsigned(2);
 	}
 }
 
@@ -1073,7 +1073,7 @@ offset_t OMFFormat::Segment::StringRecord::GetLength(const Segment& segment) con
 	return 1 + (segment.label_length == 0 ? 1 + name.size() : segment.label_length);
 }
 
-void OMFFormat::Segment::StringRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::StringRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
 	name = segment.ReadLabel(rd);
 }
@@ -1094,12 +1094,12 @@ offset_t OMFFormat::Segment::LabelRecord::GetLength(const Segment& segment) cons
 	return 5 + segment.number_length;
 }
 
-void OMFFormat::Segment::LabelRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::LabelRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
 	name = segment.ReadLabel(rd);
-	line_length = rd.ReadUnsigned(2);
-	operation = operation_type(rd.ReadUnsigned(1));
-	private_flag = rd.ReadUnsigned(1);
+	line_length = rd->ReadUnsigned(2);
+	operation = operation_type(rd->ReadUnsigned(1));
+	private_flag = rd->ReadUnsigned(1);
 }
 
 void OMFFormat::Segment::LabelRecord::WriteFile(const Segment& segment, Linker::Writer& wr) const
@@ -1154,12 +1154,12 @@ offset_t OMFFormat::Segment::LabelExpressionRecord::GetLength(const Segment& seg
 	return 5 + segment.number_length + expression->GetLength(segment);
 }
 
-void OMFFormat::Segment::LabelExpressionRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::LabelExpressionRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
 	name = segment.ReadLabel(rd);
-	line_length = rd.ReadUnsigned(2);
-	operation = operation_type(rd.ReadUnsigned(1));
-	private_flag = rd.ReadUnsigned(1);
+	line_length = rd->ReadUnsigned(2);
+	operation = operation_type(rd->ReadUnsigned(1));
+	private_flag = rd->ReadUnsigned(1);
 	expression = segment.ReadExpression(rd);
 }
 
@@ -1184,7 +1184,7 @@ offset_t OMFFormat::Segment::RangeRecord::GetLength(const Segment& segment) cons
 	return 1 + 2 * segment.number_length;
 }
 
-void OMFFormat::Segment::RangeRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::RangeRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
 	start = segment.ReadUnsigned(rd);
 	end = segment.ReadUnsigned(rd);
@@ -1213,9 +1213,9 @@ offset_t OMFFormat::Segment::ExpressionRecord::GetMemoryLength(const Segment& se
 	return size;
 }
 
-void OMFFormat::Segment::ExpressionRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::ExpressionRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
-	size = rd.ReadUnsigned(1);
+	size = rd->ReadUnsigned(1);
 	expression = segment.ReadExpression(rd);
 }
 
@@ -1242,9 +1242,9 @@ offset_t OMFFormat::Segment::RelativeExpressionRecord::GetLength(const Segment& 
 	return 2 + segment.number_length + expression->GetLength(segment);
 }
 
-void OMFFormat::Segment::RelativeExpressionRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::RelativeExpressionRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
-	size = rd.ReadUnsigned(1);
+	size = rd->ReadUnsigned(1);
 	origin = segment.ReadUnsigned(rd);
 	expression = segment.ReadExpression(rd);
 }
@@ -1268,9 +1268,9 @@ offset_t OMFFormat::Segment::EntryRecord::GetLength(const Segment& segment) cons
 	return 3 + segment.number_length + (segment.label_length == 0 ? 1 + name.size() : segment.label_length);
 }
 
-void OMFFormat::Segment::EntryRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::EntryRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
-	segment_number = rd.ReadUnsigned(2);
+	segment_number = rd->ReadUnsigned(2);
 	location = segment.ReadUnsigned(rd);
 	name = segment.ReadLabel(rd);
 }
@@ -1320,20 +1320,20 @@ offset_t OMFFormat::Segment::SuperCompactRecord::GetLength(const Segment& segmen
 	return 6 + record_size;
 }
 
-void OMFFormat::Segment::SuperCompactRecord::ReadFile(Segment& segment, Linker::Reader& rd)
+void OMFFormat::Segment::SuperCompactRecord::ReadFile(Segment& segment, const std::shared_ptr<Linker::Reader>& rd)
 {
-	offset_t record_size = rd.ReadUnsigned(4);
-	offset_t start = rd.Tell();
-	super_type = super_record_type(rd.ReadUnsigned(1));
+	offset_t record_size = rd->ReadUnsigned(4);
+	offset_t start = rd->Tell();
+	super_type = super_record_type(rd->ReadUnsigned(1));
 	uint16_t current_page = 0;
-	while(rd.Tell() < start + record_size)
+	while(rd->Tell() < start + record_size)
 	{
-		uint8_t count = rd.ReadUnsigned(1);
+		uint8_t count = rd->ReadUnsigned(1);
 		if(count <= 0x80)
 		{
 			for(int i = 0; i < count + 1; i++)
 			{
-				offsets.push_back(current_page + rd.ReadUnsigned(1));
+				offsets.push_back(current_page + rd->ReadUnsigned(1));
 			}
 			current_page += 0x100;
 		}
@@ -1546,15 +1546,15 @@ bool OMFFormat::Segment::SuperCompactRecord::GetRelocation(IntersegmentRelocatio
 	}
 }
 
-std::unique_ptr<OMFFormat::Segment::Expression> OMFFormat::Segment::ReadExpression(Linker::Reader& rd)
+std::unique_ptr<OMFFormat::Segment::Expression> OMFFormat::Segment::ReadExpression(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 	return nullptr;
 }
 
-std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::ReadRecord(Linker::Reader& rd)
+std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::ReadRecord(const std::shared_ptr<Linker::Reader>& rd)
 {
-	uint8_t type = rd.ReadUnsigned(1);
+	uint8_t type = rd->ReadUnsigned(1);
 	std::unique_ptr<Record> record = nullptr;
 	switch(type)
 	{
@@ -1861,11 +1861,11 @@ std::unique_ptr<OMFFormat::Segment::Record> OMFFormat::Segment::makeSUPER(SuperC
 
 // GSOSResourceFileFormat
 
-GSOSResourceFileFormat::FreeBlock GSOSResourceFileFormat::FreeBlock::ReadFile(Linker::Reader& rd)
+GSOSResourceFileFormat::FreeBlock GSOSResourceFileFormat::FreeBlock::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	FreeBlock block;
-	block.offset = rd.ReadUnsigned(4);
-	block.size = rd.ReadUnsigned(4);
+	block.offset = rd->ReadUnsigned(4);
+	block.size = rd->ReadUnsigned(4);
 	return block;
 }
 
@@ -1885,15 +1885,15 @@ void GSOSResourceFileFormat::FreeBlock::Dump(const GSOSResourceFileFormat& forma
 	free_block_region.Display(dump, Dumper::Header);
 }
 
-std::shared_ptr<GSOSResourceFileFormat::ReferenceRecord> GSOSResourceFileFormat::ReferenceRecord::ReadFile(Linker::Reader& rd)
+std::shared_ptr<GSOSResourceFileFormat::ReferenceRecord> GSOSResourceFileFormat::ReferenceRecord::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	auto record = std::make_shared<GSOSResourceFileFormat::ReferenceRecord>();
-	record->type = rd.ReadUnsigned(2);
-	record->id = rd.ReadUnsigned(4);
-	record->offset = rd.ReadUnsigned(4);
-	record->attributes = rd.ReadUnsigned(2);
-	record->size = rd.ReadUnsigned(4);
-	record->handle = rd.ReadUnsigned(4);
+	record->type = rd->ReadUnsigned(2);
+	record->id = rd->ReadUnsigned(4);
+	record->offset = rd->ReadUnsigned(4);
+	record->attributes = rd->ReadUnsigned(2);
+	record->size = rd->ReadUnsigned(4);
+	record->handle = rd->ReadUnsigned(4);
 	return record;
 }
 
@@ -1907,9 +1907,9 @@ void GSOSResourceFileFormat::ReferenceRecord::WriteFile(Linker::Writer& wr) cons
 	wr.WriteWord(4, handle);
 }
 
-void GSOSResourceFileFormat::ReferenceRecord::ReadContents(GSOSResourceFileFormat& format, Linker::Reader& rd)
+void GSOSResourceFileFormat::ReferenceRecord::ReadContents(GSOSResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.Seek(format.file_offset + offset);
+	rd->Seek(format.file_offset + offset);
 	image = Linker::Buffer::ReadFromFile(rd, size);
 }
 
@@ -1989,29 +1989,29 @@ void GSOSResourceFileFormat::ReferenceRecord::Dump(const GSOSResourceFileFormat&
 	resource_block.Display(dump, Dumper::Image);
 }
 
-void GSOSResourceFileFormat::ReadFile(Linker::Reader& rd)
+void GSOSResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::LittleEndian;
+	rd->endiantype = ::LittleEndian;
 
-	file_offset = rd.Tell();
+	file_offset = rd->Tell();
 
-	file_version = rd.ReadUnsigned(4);
-	file_to_map = rd.ReadUnsigned(4);
-	file_map_size = rd.ReadUnsigned(4);
+	file_version = rd->ReadUnsigned(4);
+	file_to_map = rd->ReadUnsigned(4);
+	file_map_size = rd->ReadUnsigned(4);
 	file_memo = Linker::Buffer::ReadFromFile(rd, 128);
 
-	rd.Seek(file_offset + file_to_map);
-	map_next = rd.ReadUnsigned(4);
-	map_flag = rd.ReadUnsigned(2);
-	map_offset = rd.ReadUnsigned(4);
-	map_size = rd.ReadUnsigned(4);
-	map_to_index = rd.ReadUnsigned(2);
-	map_file_num = rd.ReadUnsigned(2);
-	map_id = rd.ReadUnsigned(2);
-	map_index_size = rd.ReadUnsigned(4);
-	map_index_used = rd.ReadUnsigned(4);
-	map_free_list_size = rd.ReadUnsigned(2);
-	map_free_list_used = rd.ReadUnsigned(2);
+	rd->Seek(file_offset + file_to_map);
+	map_next = rd->ReadUnsigned(4);
+	map_flag = rd->ReadUnsigned(2);
+	map_offset = rd->ReadUnsigned(4);
+	map_size = rd->ReadUnsigned(4);
+	map_to_index = rd->ReadUnsigned(2);
+	map_file_num = rd->ReadUnsigned(2);
+	map_id = rd->ReadUnsigned(2);
+	map_index_size = rd->ReadUnsigned(4);
+	map_index_used = rd->ReadUnsigned(4);
+	map_free_list_size = rd->ReadUnsigned(2);
+	map_free_list_used = rd->ReadUnsigned(2);
 
 	free_list.clear();
 	for(uint16_t index = 0; index < map_free_list_used; index ++)
@@ -2019,7 +2019,7 @@ void GSOSResourceFileFormat::ReadFile(Linker::Reader& rd)
 		free_list.push_back(FreeBlock::ReadFile(rd));
 	}
 
-	rd.Seek(file_offset + file_to_map + map_to_index);
+	rd->Seek(file_offset + file_to_map + map_to_index);
 	for(uint16_t index = 0; index < map_index_used; index ++)
 	{
 		map_index.push_back(ReferenceRecord::ReadFile(rd));

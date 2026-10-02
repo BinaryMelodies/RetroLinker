@@ -9,12 +9,12 @@
 
 using namespace MINIX;
 
-MINIXFormat::Relocation MINIXFormat::Relocation::Read(Linker::Reader& rd)
+MINIXFormat::Relocation MINIXFormat::Relocation::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Relocation rel;
-	rel.address = rd.ReadUnsigned(4);
-	rel.symbol = rd.ReadUnsigned(2);
-	rel.type = rd.ReadUnsigned(2);
+	rel.address = rd->ReadUnsigned(4);
+	rel.symbol = rd->ReadUnsigned(2);
+	rel.type = rd->ReadUnsigned(2);
 	return rel;
 }
 
@@ -102,15 +102,15 @@ size_t MINIXFormat::Relocation::GetSize() const
 	}
 }
 
-MINIXFormat::Symbol MINIXFormat::Symbol::Read(Linker::Reader& rd)
+MINIXFormat::Symbol MINIXFormat::Symbol::Read(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Symbol sym;
-	sym.name = rd.ReadData(8);
+	sym.name = rd->ReadData(8);
 	sym.name.erase(sym.name.find_last_not_of(' ') + 1);
-	sym.value = rd.ReadSigned(4);
-	sym.sclass = rd.ReadUnsigned(1);
-	sym.numaux = rd.ReadUnsigned(1);
-	sym.type = rd.ReadUnsigned(2);
+	sym.value = rd->ReadSigned(4);
+	sym.sclass = rd->ReadUnsigned(1);
+	sym.numaux = rd->ReadUnsigned(1);
+	sym.type = rd->ReadUnsigned(2);
 	return sym;
 }
 
@@ -148,15 +148,15 @@ void MINIXFormat::Symbol::Dump(Dumper::Dumper& dump, unsigned index, offset_t re
 	symbol_entry.Display(dump, Dumper::Symbol);
 }
 
-void MINIXFormat::ReadFile(Linker::Reader& rd)
+void MINIXFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	std::array<char, 4> signature;
-	rd.endiantype = ::UndefinedEndian; // should not matter
-	rd.ReadData(signature);
+	rd->endiantype = ::UndefinedEndian; // should not matter
+	rd->ReadData(signature);
 	if(signature[3] == '\x01' && signature[2] == '\x03')
 	{
 		// big endian
-		rd.endiantype = endian_type = ::BigEndian;
+		rd->endiantype = endian_type = ::BigEndian;
 		format = format_type(signature[1]);
 		cpu = cpu_type(signature[0]);
 	}
@@ -168,12 +168,12 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 		}
 
 		// little endian
-		rd.endiantype = endian_type = ::LittleEndian;
+		rd->endiantype = endian_type = ::LittleEndian;
 		format = format_type(signature[2]);
 		cpu = cpu_type(signature[3]);
 	}
 
-	uint32_t word2 = rd.ReadUnsigned(4);
+	uint32_t word2 = rd->ReadUnsigned(4);
 	header_size = word2 & 0xFF;
 	format_version = word2 >> 16;
 
@@ -184,24 +184,24 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 	switch(format_version)
 	{
 	case 0:
-		code_size = rd.ReadUnsigned(4);
-		data_size = rd.ReadUnsigned(4);
-		bss_size = rd.ReadUnsigned(4);
-		entry_address = rd.ReadUnsigned(4);
-		total_memory = rd.ReadUnsigned(4);
-		symbol_count = rd.ReadUnsigned(4);
+		code_size = rd->ReadUnsigned(4);
+		data_size = rd->ReadUnsigned(4);
+		bss_size = rd->ReadUnsigned(4);
+		entry_address = rd->ReadUnsigned(4);
+		total_memory = rd->ReadUnsigned(4);
+		symbol_count = rd->ReadUnsigned(4);
 		break;
 	case 1:
-		code_size = rd.ReadUnsigned(2);
-		rd.Skip(2);
-		data_size = rd.ReadUnsigned(2);
-		rd.Skip(2);
-		entry_address = rd.ReadUnsigned(2);
-		rd.Skip(2);
-		entry_address = rd.ReadUnsigned(4);
-		heap_size = rd.ReadUnsigned(2);
-		stack_size = rd.ReadUnsigned(2);
-		symbol_count = rd.ReadUnsigned(4);
+		code_size = rd->ReadUnsigned(2);
+		rd->Skip(2);
+		data_size = rd->ReadUnsigned(2);
+		rd->Skip(2);
+		entry_address = rd->ReadUnsigned(2);
+		rd->Skip(2);
+		entry_address = rd->ReadUnsigned(4);
+		heap_size = rd->ReadUnsigned(2);
+		stack_size = rd->ReadUnsigned(2);
+		symbol_count = rd->ReadUnsigned(4);
 		break;
 	default:
 		{
@@ -215,25 +215,25 @@ void MINIXFormat::ReadFile(Linker::Reader& rd)
 	uint32_t far_code_relocation_size = 0;
 	if(header_size >= 0x30)
 	{
-		code_relocation_size = rd.ReadUnsigned(4);
-		data_relocation_size = rd.ReadUnsigned(4);
-		code_relocation_base = rd.ReadUnsigned(4);
-		data_relocation_base = rd.ReadUnsigned(4);
+		code_relocation_size = rd->ReadUnsigned(4);
+		data_relocation_size = rd->ReadUnsigned(4);
+		code_relocation_base = rd->ReadUnsigned(4);
+		data_relocation_base = rd->ReadUnsigned(4);
 		if(header_size >= 0x40)
 		{
 			if(format_version == 0)
 			{
-				far_code_size = rd.ReadUnsigned(4);
+				far_code_size = rd->ReadUnsigned(4);
 			}
 			else
 			{
-				far_code_size = rd.ReadUnsigned(2);
-				rd.Skip(2);
+				far_code_size = rd->ReadUnsigned(2);
+				rd->Skip(2);
 			}
-			far_code_relocation_size = rd.ReadUnsigned(4);
+			far_code_relocation_size = rd->ReadUnsigned(4);
 		}
 	}
-	rd.Seek(header_size);
+	rd->Seek(header_size);
 
 	if(code_size != 0)
 	{

@@ -34,7 +34,7 @@ namespace MINIX
 			}
 		};
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		bool FormatIs16bit() const override;
 
@@ -117,7 +117,7 @@ namespace MINIX
 			uint8_t numaux; // not used by MINIX/ELKS
 			uint16_t type; // not used by MINIX/ELKS
 
-			static Symbol Read(Linker::Reader& rd);
+			static Symbol Read(const std::shared_ptr<Linker::Reader>& rd);
 			void Write(Linker::Writer& wr) const;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const;
 		};
@@ -149,7 +149,7 @@ namespace MINIX
 			uint16_t type = 0;
 			std::string symbol_name;
 
-			static Relocation Read(Linker::Reader& rd);
+			static Relocation Read(const std::shared_ptr<Linker::Reader>& rd);
 			void FetchSymbolName(std::vector<Symbol>& symbols);
 			void Write(Linker::Writer& wr) const;
 			void Dump(Dumper::Dumper& dump, unsigned index, offset_t relocations_offset) const;

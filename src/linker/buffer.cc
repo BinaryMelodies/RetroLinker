@@ -76,29 +76,29 @@ offset_t Buffer::Append(std::vector<uint8_t>& additional_data)
 	return Append(additional_data.data(), additional_data.size());
 }
 
-void Buffer::ReadFile(Reader& rd)
+void Buffer::ReadFile(const std::shared_ptr<Reader>& rd)
 {
 	ReadFile(rd, data.size());
 }
 
-void Buffer::ReadFileRemaining(Reader& rd)
+void Buffer::ReadFileRemaining(const std::shared_ptr<Reader>& rd)
 {
-	ReadFile(rd, rd.GetRemainingCount());
+	ReadFile(rd, rd->GetRemainingCount());
 }
 
-void Buffer::ReadFile(Reader& rd, offset_t count)
+void Buffer::ReadFile(const std::shared_ptr<Reader>& rd, offset_t count)
 {
-	rd.ReadData(count, data);
+	rd->ReadData(count, data);
 }
 
-std::shared_ptr<Buffer> Buffer::ReadFromFile(Reader& rd)
+std::shared_ptr<Buffer> Buffer::ReadFromFile(const std::shared_ptr<Reader>& rd)
 {
-	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>(rd.GetRemainingCount());
+	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>(rd->GetRemainingCount());
 	buffer->ReadFile(rd);
 	return buffer;
 }
 
-std::shared_ptr<Buffer> Buffer::ReadFromFile(Reader& rd, offset_t count)
+std::shared_ptr<Buffer> Buffer::ReadFromFile(const std::shared_ptr<Reader>& rd, offset_t count)
 {
 	std::shared_ptr<Buffer> buffer = std::make_shared<Buffer>();
 	buffer->ReadFile(rd, count);

@@ -44,10 +44,10 @@ AOutFormat::word_size_t AOutFormat::GetWordSize() const
 	return cpu == PDP11 ? WordSize16 : WordSize32;
 }
 
-AOutFormat::Relocation AOutFormat::Relocation::ReadFile16Bit(Linker::Reader& rd, uint16_t offset)
+AOutFormat::Relocation AOutFormat::Relocation::ReadFile16Bit(const std::shared_ptr<Linker::Reader>& rd, uint16_t offset)
 {
 	Relocation relocation;
-	uint16_t word_value = rd.ReadUnsigned(2);
+	uint16_t word_value = rd->ReadUnsigned(2);
 	relocation.address = offset;
 	relocation.relative = (word_value & 1) != 0;
 	relocation.size = 2;
@@ -114,11 +114,11 @@ void AOutFormat::Relocation::WriteFile16Bit(Linker::Writer& wr) const
 	wr.WriteWord(2, word_value);
 }
 
-AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(Linker::Reader& rd, word_size_t word_size)
+AOutFormat::Relocation AOutFormat::Relocation::ReadFile32Bit(const std::shared_ptr<Linker::Reader>& rd, word_size_t word_size)
 {
 	Relocation relocation;
-	relocation.address = rd.ReadUnsigned(word_size);
-	uint32_t word_value = rd.ReadUnsigned(4);
+	relocation.address = rd->ReadUnsigned(word_size);
+	uint32_t word_value = rd->ReadUnsigned(4);
 	// TODO: check for big endian
 	if((word_value & 0x08000000))
 	{
@@ -240,10 +240,10 @@ bool AOutFormat::AttemptFetchMagic(uint8_t signature[4])
 	return true;
 }
 
-bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
+bool AOutFormat::CheckFileSizes(const std::shared_ptr<Linker::Reader>& rd, offset_t image_size)
 {
 	/* Check if all sizes fit within the image */
-	rd.Seek(file_offset + std::min(4, int(word_size))); // offset 2 or 4
+	rd->Seek(file_offset + std::min(4, int(word_size))); // offset 2 or 4
 	uint32_t full_size = 0;
 	uint32_t load_size = 0;
 	uint32_t next_size;
@@ -256,10 +256,10 @@ bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 		if(i == 3 || i == 5)
 		{
 			/* bss and entry point */
-			rd.Skip(word_size);
+			rd->Skip(word_size);
 			continue;
 		}
-		next_size = rd.ReadUnsigned(word_size);
+		next_size = rd->ReadUnsigned(word_size);
 		if(i == 1 && next_size == 0)
 			return false; // empty text segment
 		if(full_size + next_size < full_size || full_size + next_size > image_size)
@@ -275,8 +275,8 @@ bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 
 	if(word_size == WordSize16)
 	{
-		rd.Seek(file_offset + 7 * word_size);
-		if(rd.ReadUnsigned(word_size) == 0)
+		rd->Seek(file_offset + 7 * word_size);
+		if(rd->ReadUnsigned(word_size) == 0)
 		{
 			// add relocations (same size as text + data)
 			if(full_size + load_size < full_size || full_size + load_size > image_size)
@@ -288,7 +288,7 @@ bool AOutFormat::CheckFileSizes(Linker::Reader& rd, offset_t image_size)
 	return true;
 }
 
-bool AOutFormat::AttemptReadFileWithCurrentSettings(Linker::Reader& rd, uint8_t signature[4], offset_t image_size)
+bool AOutFormat::AttemptReadFileWithCurrentSettings(const std::shared_ptr<Linker::Reader>& rd, uint8_t signature[4], offset_t image_size)
 {
 	if(!AttemptFetchMagic(signature))
 		return false;
@@ -683,31 +683,31 @@ uint32_t AOutFormat::GetDataAddressAlign() const
 	Linker::FatalError("Internal error: invalid system type");
 }
 
-void AOutFormat::ReadHeader(Linker::Reader& rd)
+void AOutFormat::ReadHeader(const std::shared_ptr<Linker::Reader>& rd)
 {
 	if(magic == MAGIC_V1)
 	{
-		code_size = rd.ReadUnsigned(word_size);
-		symbol_table_size = rd.ReadUnsigned(word_size);
-		code_relocation_size = rd.ReadUnsigned(word_size);
-		bss_size = rd.ReadUnsigned(word_size);
-		reserved = rd.ReadUnsigned(word_size);
+		code_size = rd->ReadUnsigned(word_size);
+		symbol_table_size = rd->ReadUnsigned(word_size);
+		code_relocation_size = rd->ReadUnsigned(word_size);
+		bss_size = rd->ReadUnsigned(word_size);
+		reserved = rd->ReadUnsigned(word_size);
 
 		data_size = 0;
 		entry_address = 0;
 		return;
 	}
 
-	code_size = rd.ReadUnsigned(word_size);
-	data_size = rd.ReadUnsigned(word_size);
-	bss_size = rd.ReadUnsigned(word_size);
-	symbol_table_size = rd.ReadUnsigned(word_size);
-	entry_address = rd.ReadUnsigned(word_size);
+	code_size = rd->ReadUnsigned(word_size);
+	data_size = rd->ReadUnsigned(word_size);
+	bss_size = rd->ReadUnsigned(word_size);
+	symbol_table_size = rd->ReadUnsigned(word_size);
+	entry_address = rd->ReadUnsigned(word_size);
 	switch(word_size)
 	{
 	case WordSize16:
-		reserved = rd.ReadUnsigned(word_size);
-		relocations_suppressed = rd.ReadUnsigned(word_size);
+		reserved = rd->ReadUnsigned(word_size);
+		relocations_suppressed = rd->ReadUnsigned(word_size);
 		switch(system)
 		{
 		default:
@@ -732,21 +732,21 @@ void AOutFormat::ReadHeader(Linker::Reader& rd)
 		break;
 	case WordSize32:
 	case WordSize64:
-		code_relocation_size = rd.ReadUnsigned(word_size);
-		data_relocation_size = rd.ReadUnsigned(word_size);
+		code_relocation_size = rd->ReadUnsigned(word_size);
+		data_relocation_size = rd->ReadUnsigned(word_size);
 
 		// environment_stamp is initialized when reading the first word
 		break;
 	}
 }
 
-void AOutFormat::ReadFile(Linker::Reader& rd)
+void AOutFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// note: bound EMX executables are not parsed here
 
 	std::array<uint8_t, 4> signature;
 
-	file_offset = rd.Tell();
+	file_offset = rd->Tell();
 
 	if(file_offset != 0 && system == UNSPECIFIED)
 	{
@@ -754,19 +754,19 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 		system = DJGPP1;
 	}
 
-	offset_t file_end = rd.GetImageEnd();
-	rd.ReadData(signature);
+	offset_t file_end = rd->GetImageEnd();
+	rd->ReadData(signature);
 
 	if(file_offset == 0 && (system == UNSPECIFIED || system == DJGPP1)
 	&& ((signature[0] == 'M' && signature[1] == 'Z')
 		|| (signature[0] == 'Z' && signature[1] == 'M')))
 	{
 		// try to check for MZ stub
-		rd.Seek(0);
+		rd->Seek(0);
 		std::array<uint8_t, 2> magic;
 		file_offset = Microsoft::FindActualSignature(rd, magic, "\7\1", "\10\1", "\13\1");
-		rd.Seek(file_offset);
-		rd.ReadData(signature);
+		rd->Seek(file_offset);
+		rd->ReadData(signature);
 	}
 
 	switch(system)
@@ -1175,19 +1175,19 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 
 	Linker::Debug << "Debug: a.out endian type: " << endiantype << ", CPU type: " << cpu << ", magic value: " << magic << ", word size: " << word_size << std::endl;
 
-	rd.endiantype = endiantype;
+	rd->endiantype = endiantype;
 
-	rd.Seek(file_offset + std::min(4, int(word_size))); // offset 2 or 4
+	rd->Seek(file_offset + std::min(4, int(word_size))); // offset 2 or 4
 
 	ReadHeader(rd);
 
 	// we will skip the header, even if it is included in the text section
 	uint32_t text_offset = std::max(GetHeaderSize(), GetTextOffset());
-	rd.Seek(file_offset + text_offset);
+	rd->Seek(file_offset + text_offset);
 	code = Linker::Section::ReadFromFile(rd, code_size + (text_offset - GetTextOffset()), ".text");
 
 	uint32_t data_offset = AlignTo(GetTextOffset() + code_size, GetDataOffsetAlign());
-	rd.Seek(file_offset + data_offset);
+	rd->Seek(file_offset + data_offset);
 	data = Linker::Section::ReadFromFile(rd, data_size, ".data");
 
 	// TODO: for 16-bit auto-overlay executables (2.9BSD/2.11BSD), read overlays
@@ -1253,9 +1253,9 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			for(size_t i = 0; i < symbol_table_size; i += 8)
 			{
 				Symbol symbol;
-				symbol.name = rd.ReadASCIIZ(8);
-				symbol.type_etc = rd.ReadUnsigned(std::min(4, int(word_size))); // 16-bit or 32-bit
-				symbol.value = rd.ReadUnsigned(word_size);
+				symbol.name = rd->ReadASCIIZ(8);
+				symbol.type_etc = rd->ReadUnsigned(std::min(4, int(word_size))); // 16-bit or 32-bit
+				symbol.value = rd->ReadUnsigned(word_size);
 				symbols.push_back(symbol);
 			}
 			break;
@@ -1263,9 +1263,9 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			for(size_t i = 0; i < symbol_table_size; i += 8)
 			{
 				Symbol symbol;
-				symbol.name_offset = rd.ReadUnsigned(std::max(4, int(word_size))); // 32-bit or 64-bit
-				symbol.type_etc = rd.ReadUnsigned(std::min(4, int(word_size))); // 16-bit or 32-bit
-				symbol.value = rd.ReadUnsigned(word_size);
+				symbol.name_offset = rd->ReadUnsigned(std::max(4, int(word_size))); // 32-bit or 64-bit
+				symbol.type_etc = rd->ReadUnsigned(std::min(4, int(word_size))); // 16-bit or 32-bit
+				symbol.value = rd->ReadUnsigned(word_size);
 				symbols.push_back(symbol);
 			}
 
@@ -1274,8 +1274,8 @@ void AOutFormat::ReadFile(Linker::Reader& rd)
 			Linker::Debug << "Debug: String table offset " << std::hex << string_table_offset << std::endl;
 			for(auto& symbol : symbols)
 			{
-				rd.Seek(string_table_offset + symbol.name_offset);
-				symbol.name = rd.ReadASCIIZ();
+				rd->Seek(string_table_offset + symbol.name_offset);
+				symbol.name = rd->ReadASCIIZ();
 				Linker::Debug << "Debug: Symbol " << symbol.name << " (offset " << symbol.name_offset << ") of type " << symbol.type_etc << " value " << symbol.value << std::endl;
 			}
 			break;

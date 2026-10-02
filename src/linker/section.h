@@ -157,8 +157,8 @@ namespace Linker
 		{
 		}
 
-		static std::shared_ptr<Section> ReadFromFile(Reader& rd, std::string name, int flags = Readable);
-		static std::shared_ptr<Section> ReadFromFile(Reader& rd, offset_t count, std::string name, int flags = Readable);
+		static std::shared_ptr<Section> ReadFromFile(const std::shared_ptr<Reader>& rd, std::string name, int flags = Readable);
+		static std::shared_ptr<Section> ReadFromFile(const std::shared_ptr<Reader>& rd, offset_t count, std::string name, int flags = Readable);
 
 	private:
 		void AlterFlags(bool state, unsigned flags_mask);
@@ -289,7 +289,7 @@ namespace Linker
 		 *
 		 * Note that only as many bytes are read in as the size of the section.
 		 */
-		void ReadFile(Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Reader>& rd) override;
 
 		using Buffer::WriteFile;
 

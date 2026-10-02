@@ -17,13 +17,13 @@ bool CPM8KFormat::Segment::IsPresent() const
 	return type != BSS && type != STACK;
 }
 
-CPM8KFormat::Relocation CPM8KFormat::Relocation::ReadFile(Linker::Reader& rd)
+CPM8KFormat::Relocation CPM8KFormat::Relocation::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Relocation relocation;
-	relocation.segment = rd.ReadUnsigned(1);
-	relocation.type = Relocation::relocation_type(rd.ReadUnsigned(1));
-	relocation.offset = rd.ReadUnsigned(2);
-	relocation.target = rd.ReadUnsigned(2);
+	relocation.segment = rd->ReadUnsigned(1);
+	relocation.type = Relocation::relocation_type(rd->ReadUnsigned(1));
+	relocation.offset = rd->ReadUnsigned(2);
+	relocation.target = rd->ReadUnsigned(2);
 	return relocation;
 }
 
@@ -35,13 +35,13 @@ void CPM8KFormat::Relocation::WriteFile(Linker::Writer& wr) const
 	wr.WriteWord(2, target);
 }
 
-CPM8KFormat::Symbol CPM8KFormat::Symbol::ReadFile(Linker::Reader& rd)
+CPM8KFormat::Symbol CPM8KFormat::Symbol::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Symbol symbol;
-	symbol.segment_number = rd.ReadUnsigned(1);
-	symbol.type = symbol_type(rd.ReadUnsigned(1));
-	symbol.value = rd.ReadUnsigned(2);
-	symbol.name = rd.ReadData(8, true);
+	symbol.segment_number = rd->ReadUnsigned(1);
+	symbol.type = symbol_type(rd->ReadUnsigned(1));
+	symbol.value = rd->ReadUnsigned(2);
+	symbol.name = rd->ReadData(8, true);
 	return symbol;
 }
 
@@ -98,23 +98,23 @@ void CPM8KFormat::Clear()
 	symbols.clear();
 }
 
-void CPM8KFormat::ReadFile(Linker::Reader& rd)
+void CPM8KFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	Clear();
 
-	rd.endiantype = ::BigEndian;
-	rd.ReadData(2, signature);
-	segment_count = rd.ReadUnsigned(2);
-	total_size = rd.ReadUnsigned(4);
-	relocation_size = rd.ReadUnsigned(4);
-	symbol_table_size = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	rd->ReadData(2, signature);
+	segment_count = rd->ReadUnsigned(2);
+	total_size = rd->ReadUnsigned(4);
+	relocation_size = rd->ReadUnsigned(4);
+	symbol_table_size = rd->ReadUnsigned(4);
 
 	for(size_t i = 0; i < segment_count; i++)
 	{
 		Segment segment;
-		segment.number = rd.ReadUnsigned(1);
-		segment.type = Segment::segment_type(rd.ReadUnsigned(1));
-		segment.length = rd.ReadUnsigned(2);
+		segment.number = rd->ReadUnsigned(1);
+		segment.type = Segment::segment_type(rd->ReadUnsigned(1));
+		segment.length = rd->ReadUnsigned(2);
 		segments.push_back(segment);
 	}
 
@@ -126,7 +126,7 @@ void CPM8KFormat::ReadFile(Linker::Reader& rd)
 		segment.image = Linker::Buffer::ReadFromFile(rd, segment.length);
 	}
 
-	rd.Seek(0x10 + 4 * segments.size() + total_size);
+	rd->Seek(0x10 + 4 * segments.size() + total_size);
 
 	for(uint32_t relocation_offset = 0; relocation_offset < relocation_size; relocation_offset += 6)
 	{

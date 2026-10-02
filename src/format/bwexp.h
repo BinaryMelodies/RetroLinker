@@ -26,7 +26,7 @@ namespace DOS16M
 			}
 		};
 
-		void ReadFile(Linker::Reader& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 
 		bool FormatSupportsSegmentation() const override;
 
@@ -79,9 +79,9 @@ namespace DOS16M
 			 */
 			virtual uint32_t GetSize(const BWFormat& bw) const = 0;
 
-			void ReadHeader(Linker::Reader& rd);
+			void ReadHeader(const std::shared_ptr<Linker::Reader>& rd);
 
-			virtual void ReadContent(Linker::Reader& rd, BWFormat& bw) = 0;
+			virtual void ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw) = 0;
 
 			/**
 			 * @brief Produces the binary contents of the segment
@@ -120,7 +120,7 @@ namespace DOS16M
 
 			uint32_t GetSize(const BWFormat& bw) const override;
 
-			void ReadContent(Linker::Reader& rd, BWFormat& bw) override;
+			void ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw) override;
 
 			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
 
@@ -139,7 +139,7 @@ namespace DOS16M
 
 			uint32_t GetSize(const BWFormat& bw) const override;
 
-			void ReadContent(Linker::Reader& rd, BWFormat& bw) override;
+			void ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw) override;
 
 			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
 
@@ -163,7 +163,7 @@ namespace DOS16M
 
 			uint32_t GetSize(const BWFormat& bw) const override;
 
-			void ReadContent(Linker::Reader& rd, BWFormat& bw) override;
+			void ReadContent(const std::shared_ptr<Linker::Reader>& rd, BWFormat& bw) override;
 
 			void WriteContent(Linker::Writer& wr, const BWFormat& bw) const override;
 

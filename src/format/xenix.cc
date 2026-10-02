@@ -7,7 +7,7 @@
 
 using namespace Xenix;
 
-void BOutFormat::ReadFile(Linker::Reader& rd)
+void BOutFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	/* TODO */
 }
@@ -47,37 +47,37 @@ void XOutFormat::Segment::Calculate(XOutFormat& xout)
 	// TODO
 }
 
-XOutFormat::Segment XOutFormat::Segment::ReadHeader(Linker::Reader& rd, XOutFormat& xout)
+XOutFormat::Segment XOutFormat::Segment::ReadHeader(const std::shared_ptr<Linker::Reader>& rd, XOutFormat& xout)
 {
 	Segment segment;
-	segment.type = segment_type(rd.ReadUnsigned(2));
-	segment.attributes = rd.ReadUnsigned(2);
-	segment.number = rd.ReadUnsigned(2);
-	segment.log2_align = rd.ReadUnsigned(1);
-	segment.reserved1 = rd.ReadUnsigned(1);
+	segment.type = segment_type(rd->ReadUnsigned(2));
+	segment.attributes = rd->ReadUnsigned(2);
+	segment.number = rd->ReadUnsigned(2);
+	segment.log2_align = rd->ReadUnsigned(1);
+	segment.reserved1 = rd->ReadUnsigned(1);
 #if 0
-	segment.offset = offset_t(rd.ReadUnsigned(4)) * xout.GetPageSize();
+	segment.offset = offset_t(rd->ReadUnsigned(4)) * xout.GetPageSize();
 #else
-	segment.offset = rd.ReadUnsigned(4);
+	segment.offset = rd->ReadUnsigned(4);
 #endif
-	Linker::Debug << "Debug: file size stored at offset " << std::hex << rd.Tell() << std::endl;
-	segment.file_size = rd.ReadUnsigned(4);
-	segment.memory_size = rd.ReadUnsigned(4);
-	segment.base_address = rd.ReadUnsigned(4); // TODO: transform according to page size?
-	segment.name_offset = rd.ReadUnsigned(2);
-	segment.reserved2 = rd.ReadUnsigned(2);
-	segment.reserved3 = rd.ReadUnsigned(4);
+	Linker::Debug << "Debug: file size stored at offset " << std::hex << rd->Tell() << std::endl;
+	segment.file_size = rd->ReadUnsigned(4);
+	segment.memory_size = rd->ReadUnsigned(4);
+	segment.base_address = rd->ReadUnsigned(4); // TODO: transform according to page size?
+	segment.name_offset = rd->ReadUnsigned(2);
+	segment.reserved2 = rd->ReadUnsigned(2);
+	segment.reserved3 = rd->ReadUnsigned(4);
 	return segment;
 }
 
-void XOutFormat::Segment::ReadContents(Linker::Reader& rd, XOutFormat& xout)
+void XOutFormat::Segment::ReadContents(const std::shared_ptr<Linker::Reader>& rd, XOutFormat& xout)
 {
 	// TODO: also read name
 
 	if(file_size != 0)
 	{
 		Linker::Debug << "Debug: reading " << std::hex << file_size << " from offset " << std::hex << (xout.file_offset + offset) << std::endl;
-		rd.Seek(xout.file_offset + offset);
+		rd->Seek(xout.file_offset + offset);
 		contents = Linker::Buffer::ReadFromFile(rd, file_size);
 	}
 }
@@ -252,12 +252,12 @@ void XOutFormat::CalculateValues()
 	page_size = std::min(offset_t(0x255 << 9), AlignTo(page_size, 0x200));
 }
 
-void XOutFormat::ReadFile(Linker::Reader& rd)
+void XOutFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	file_offset = rd.Tell();
+	file_offset = rd->Tell();
 
-	rd.Seek(file_offset + 0x1C);
-	uint8_t cpu_byte = rd.ReadUnsigned(1);
+	rd->Seek(file_offset + 0x1C);
+	uint8_t cpu_byte = rd->ReadUnsigned(1);
 	cpu = cpu_type(cpu_byte & 0x3F);
 	switch(cpu_byte >> 6)
 	{
@@ -274,100 +274,100 @@ void XOutFormat::ReadFile(Linker::Reader& rd)
 		endiantype = ::AntiPDP11Endian;
 		break;
 	}
-	rd.endiantype = endiantype;
-	rd.Seek(file_offset + 2);
-	header_size = 0x20 + rd.ReadUnsigned(2);
-	text_size = rd.ReadUnsigned(4);
-	data_size = rd.ReadUnsigned(4);
-	bss_size = rd.ReadUnsigned(4);
-	symbol_table_size = rd.ReadUnsigned(4);
-	relocation_size = rd.ReadUnsigned(4);
-	entry_address = rd.ReadUnsigned(4);
-	rd.ReadUnsigned(1);
-	uint8_t relsym_byte = rd.ReadUnsigned(1);
+	rd->endiantype = endiantype;
+	rd->Seek(file_offset + 2);
+	header_size = 0x20 + rd->ReadUnsigned(2);
+	text_size = rd->ReadUnsigned(4);
+	data_size = rd->ReadUnsigned(4);
+	bss_size = rd->ReadUnsigned(4);
+	symbol_table_size = rd->ReadUnsigned(4);
+	relocation_size = rd->ReadUnsigned(4);
+	entry_address = rd->ReadUnsigned(4);
+	rd->ReadUnsigned(1);
+	uint8_t relsym_byte = rd->ReadUnsigned(1);
 	symbol_format = symbol_format_type(relsym_byte & 0xF);
 	relocation_format = relocation_format_type(relsym_byte >> 4);
-	runtime_environment = rd.ReadUnsigned(2);
+	runtime_environment = rd->ReadUnsigned(2);
 
 	if(header_size >= 0x24)
 	{
-		text_relocation_size = rd.ReadUnsigned(4);
+		text_relocation_size = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x28)
 	{
-		data_relocation_size = rd.ReadUnsigned(4);
+		data_relocation_size = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x2C)
 	{
-		text_base_address = rd.ReadUnsigned(4);
+		text_base_address = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x30)
 	{
-		data_base_address = rd.ReadUnsigned(4);
+		data_base_address = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x34)
 	{
-		stack_size = rd.ReadUnsigned(4);
+		stack_size = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x38)
 	{
-		segment_table_offset = rd.ReadUnsigned(4);
+		segment_table_offset = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x3C)
 	{
-		segment_table_size = rd.ReadUnsigned(4);
+		segment_table_size = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x40)
 	{
-		machine_dependent_table_offset = rd.ReadUnsigned(4);
+		machine_dependent_table_offset = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x44)
 	{
-		machine_dependent_table_size = rd.ReadUnsigned(4);
+		machine_dependent_table_size = rd->ReadUnsigned(4);
 	}
 
 	if(header_size >= 0x45)
 	{
-		machine_dependent_table_format = machine_dependent_table_format_type(rd.ReadUnsigned(1));
+		machine_dependent_table_format = machine_dependent_table_format_type(rd->ReadUnsigned(1));
 	}
 
 	if(header_size >= 0x46)
 	{
-		page_size = uint32_t(rd.ReadUnsigned(1)) << 9;
+		page_size = uint32_t(rd->ReadUnsigned(1)) << 9;
 	}
 
 	if(header_size >= 0x47)
 	{
-		operating_system = operating_system_type(rd.ReadUnsigned(1));
+		operating_system = operating_system_type(rd->ReadUnsigned(1));
 	}
 
 	if(header_size >= 0x48)
 	{
-		system_version = system_version_type(rd.ReadUnsigned(1));
+		system_version = system_version_type(rd->ReadUnsigned(1));
 	}
 
 	if(header_size >= 0x4A)
 	{
-		entry_segment = rd.ReadUnsigned(2);
+		entry_segment = rd->ReadUnsigned(2);
 	}
 
 	if(header_size >= 0x4C)
 	{
-		header_reserved1 = rd.ReadUnsigned(2);
+		header_reserved1 = rd->ReadUnsigned(2);
 	}
 
 	segments.clear();
 	for(uint32_t segment_offset = 0; segment_offset < segment_table_size; segment_offset += 0x20)
 	{
-		rd.Seek(file_offset + segment_table_offset + segment_offset);
+		rd->Seek(file_offset + segment_table_offset + segment_offset);
 		segments.emplace_back(Segment::ReadHeader(rd, *this));
 	}
 

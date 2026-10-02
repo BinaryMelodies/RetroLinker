@@ -51,17 +51,17 @@ void AppleSingleDouble::SetHomeFileSystem(hfs_type type)
 	}
 }
 
-void AppleSingleDouble::ReadFile(Linker::Reader& rd)
+void AppleSingleDouble::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	type = format_type(rd.ReadUnsigned(4));
+	rd->endiantype = ::BigEndian;
+	type = format_type(rd->ReadUnsigned(4));
 	if(type != SINGLE && type != DOUBLE)
 	{
 		Linker::Error << "Error: invalid AppleSingle/AppleDouble type" << std::hex << type << std::endl;
 		type = format_type(0);
 	}
-	version = rd.ReadUnsigned(4) >> 16;
-	rd.ReadData(16, home_file_system_string);
+	version = rd->ReadUnsigned(4) >> 16;
+	rd->ReadData(16, home_file_system_string);
 	if(memcmp(home_file_system_string, TXT_Macintosh, 16) == 0)
 	{
 		home_file_system = HFS_Macintosh;
@@ -90,15 +90,15 @@ void AppleSingleDouble::ReadFile(Linker::Reader& rd)
 		}
 		home_file_system = HFS_UNDEFINED;
 	}
-	uint16_t entry_count = rd.ReadUnsigned(2);
+	uint16_t entry_count = rd->ReadUnsigned(2);
 	for(uint16_t i = 0; i < entry_count; i++)
 	{
 		entries.emplace_back(Entry::ReadEntry(rd, home_file_system));
 	}
-	image_size = rd.Tell();
+	image_size = rd->Tell();
 	for(auto entry : entries)
 	{
-		rd.Seek(entry->file_offset);
+		rd->Seek(entry->file_offset);
 		entry->ReadFile(rd);
 		image_size = std::max(image_size, entry->file_offset + entry->image_size);
 	}
@@ -106,11 +106,11 @@ void AppleSingleDouble::ReadFile(Linker::Reader& rd)
 
 // Entry
 
-std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::Entry::ReadEntry(Linker::Reader& rd, hfs_type home_file_system)
+std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::Entry::ReadEntry(const std::shared_ptr<Linker::Reader>& rd, hfs_type home_file_system)
 {
 	std::shared_ptr<Entry> entry;
 
-	uint32_t id = rd.ReadUnsigned(4);
+	uint32_t id = rd->ReadUnsigned(4);
 	switch(id)
 	{
 	case ID_DataFork:
@@ -179,8 +179,8 @@ std::shared_ptr<AppleSingleDouble::Entry> AppleSingleDouble::Entry::ReadEntry(Li
 		entry = std::make_shared<GenericEntry>(id);
 		break;
 	}
-	entry->file_offset = rd.ReadUnsigned(4);
-	entry->image_size = rd.ReadUnsigned(4);
+	entry->file_offset = rd->ReadUnsigned(4);
+	entry->image_size = rd->ReadUnsigned(4);
 	return entry;
 }
 
@@ -221,7 +221,7 @@ offset_t AppleSingleDouble::GenericEntry::ImageSize() const
 	return image ? image->ImageSize() : 0;
 }
 
-void AppleSingleDouble::GenericEntry::ReadFile(Linker::Reader& rd)
+void AppleSingleDouble::GenericEntry::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
 	{
@@ -229,8 +229,8 @@ void AppleSingleDouble::GenericEntry::ReadFile(Linker::Reader& rd)
 	}
 	else if(id == ID_ResourceFork)
 	{
-		uint32_t version = rd.ReadUnsigned(4, EndianType::BigEndian);
-		rd.Skip(-4);
+		uint32_t version = rd->ReadUnsigned(4, EndianType::BigEndian);
+		rd->Skip(-4);
 		if(version >= 128)
 		{
 			auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
@@ -1014,7 +1014,7 @@ offset_t RealName::ImageSize() const
 	return name.size();
 }
 
-void RealName::ReadFile(Linker::Reader& rd)
+void RealName::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -1039,7 +1039,7 @@ offset_t IconBW::ImageSize() const
 	return offset_t(-1); // TODO
 }
 
-void IconBW::ReadFile(Linker::Reader& rd)
+void IconBW::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -1062,7 +1062,7 @@ offset_t IconColor::ImageSize() const
 	return offset_t(-1); // TODO
 }
 
-void IconColor::ReadFile(Linker::Reader& rd)
+void IconColor::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -1085,13 +1085,13 @@ offset_t FileInfo::Macintosh::ImageSize() const
 	return 16;
 }
 
-void FileInfo::Macintosh::ReadFile(Linker::Reader& rd)
+void FileInfo::Macintosh::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	CreationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
-	ModificationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
-	LastBackupDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
-	Attributes = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	CreationDate = rd->ReadTimestamp<AppleSingleDouble::clock>();
+	ModificationDate = rd->ReadTimestamp<AppleSingleDouble::clock>();
+	LastBackupDate = rd->ReadTimestamp<AppleSingleDouble::clock>();
+	Attributes = rd->ReadUnsigned(4);
 }
 
 offset_t FileInfo::Macintosh::WriteFile(Linker::Writer& wr) const
@@ -1121,14 +1121,14 @@ offset_t FileInfo::ProDOS::ImageSize() const
 	return 16;
 }
 
-void FileInfo::ProDOS::ReadFile(Linker::Reader& rd)
+void FileInfo::ProDOS::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	CreationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
-	ModificationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
-	Access = rd.ReadUnsigned(2);
-	FileType = rd.ReadUnsigned(2);
-	AuxiliaryType = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	CreationDate = rd->ReadTimestamp<AppleSingleDouble::clock>();
+	ModificationDate = rd->ReadTimestamp<AppleSingleDouble::clock>();
+	Access = rd->ReadUnsigned(2);
+	FileType = rd->ReadUnsigned(2);
+	AuxiliaryType = rd->ReadUnsigned(4);
 }
 
 offset_t FileInfo::ProDOS::WriteFile(Linker::Writer& wr) const
@@ -1159,11 +1159,11 @@ offset_t FileInfo::MSDOS::ImageSize() const
 	return 6;
 }
 
-void FileInfo::MSDOS::ReadFile(Linker::Reader& rd)
+void FileInfo::MSDOS::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	ModificationDate = rd.ReadTimestamp<AppleSingleDouble::clock>();
-	Attributes = rd.ReadUnsigned(2);
+	rd->endiantype = ::BigEndian;
+	ModificationDate = rd->ReadTimestamp<AppleSingleDouble::clock>();
+	Attributes = rd->ReadUnsigned(2);
 }
 
 offset_t FileInfo::MSDOS::WriteFile(Linker::Writer& wr) const
@@ -1191,7 +1191,7 @@ offset_t FileInfo::AUX::ImageSize() const
 	return 12;
 }
 
-void FileInfo::AUX::ReadFile(Linker::Reader& rd)
+void FileInfo::AUX::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 }
 
@@ -1220,7 +1220,7 @@ offset_t FileDatesInfo::ImageSize() const
 	return 16;
 }
 
-void FileDatesInfo::ReadFile(Linker::Reader& rd)
+void FileDatesInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -1273,22 +1273,22 @@ offset_t FinderInfo::ImageSize() const
 	return 32;
 }
 
-void FinderInfo::ReadFile(Linker::Reader& rd)
+void FinderInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	rd.ReadData(4, Type);
-	rd.ReadData(4, Creator);
-	Flags = rd.ReadSigned(2);
-	Location.x = rd.ReadSigned(2);
-	Location.y = rd.ReadSigned(2);
-	Folder = rd.ReadSigned(2);
+	rd->endiantype = ::BigEndian;
+	rd->ReadData(4, Type);
+	rd->ReadData(4, Creator);
+	Flags = rd->ReadSigned(2);
+	Location.x = rd->ReadSigned(2);
+	Location.y = rd->ReadSigned(2);
+	Folder = rd->ReadSigned(2);
 	// extended file information
-	IconID = rd.ReadSigned(2);
-	rd.Skip(6);
-	Script = rd.ReadSigned(1);
-	rd.Skip(1);
-	CommentID = rd.ReadSigned(2);
-	HomeDirectoryID = rd.ReadSigned(4);
+	IconID = rd->ReadSigned(2);
+	rd->Skip(6);
+	Script = rd->ReadSigned(1);
+	rd->Skip(1);
+	CommentID = rd->ReadSigned(2);
+	HomeDirectoryID = rd->ReadSigned(4);
 }
 
 offset_t FinderInfo::WriteFile(Linker::Writer& wr) const
@@ -1350,10 +1350,10 @@ offset_t MacintoshFileInfo::ImageSize() const
 	return 4;
 }
 
-void MacintoshFileInfo::ReadFile(Linker::Reader& rd)
+void MacintoshFileInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	Attributes = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	Attributes = rd->ReadUnsigned(4);
 }
 
 offset_t MacintoshFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1387,12 +1387,12 @@ offset_t ProDOSFileInfo::ImageSize() const
 	return 8;
 }
 
-void ProDOSFileInfo::ReadFile(Linker::Reader& rd)
+void ProDOSFileInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	Access = rd.ReadUnsigned(2);
-	FileType = rd.ReadUnsigned(2);
-	AuxiliaryType = rd.ReadUnsigned(4);
+	rd->endiantype = ::BigEndian;
+	Access = rd->ReadUnsigned(2);
+	FileType = rd->ReadUnsigned(2);
+	AuxiliaryType = rd->ReadUnsigned(4);
 }
 
 offset_t ProDOSFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1659,10 +1659,10 @@ offset_t MSDOSFileInfo::ImageSize() const
 	return 2;
 }
 
-void MSDOSFileInfo::ReadFile(Linker::Reader& rd)
+void MSDOSFileInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd.endiantype = ::BigEndian;
-	Attributes = rd.ReadUnsigned(2);
+	rd->endiantype = ::BigEndian;
+	Attributes = rd->ReadUnsigned(2);
 }
 
 offset_t MSDOSFileInfo::WriteFile(Linker::Writer& wr) const
@@ -1692,7 +1692,7 @@ offset_t AFPShortName::ImageSize() const
 	return offset_t(-1); // TODO
 }
 
-void AFPShortName::ReadFile(Linker::Reader& rd)
+void AFPShortName::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -1715,7 +1715,7 @@ offset_t AFPFileInfo::ImageSize() const
 	return offset_t(-1); // TODO
 }
 
-void AFPFileInfo::ReadFile(Linker::Reader& rd)
+void AFPFileInfo::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -1738,7 +1738,7 @@ offset_t AFPDirectoryID::ImageSize() const
 	return offset_t(-1); // TODO
 }
 
-void AFPDirectoryID::ReadFile(Linker::Reader& rd)
+void AFPDirectoryID::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO
 }
@@ -1818,67 +1818,67 @@ void MacBinary::WriteWord(Linker::Writer& wr, size_t bytes, uint64_t value) cons
 	WriteData(wr, bytes, data.data());
 }
 
-void MacBinary::ReadHeader(Linker::Reader& rd)
+void MacBinary::ReadHeader(const std::shared_ptr<Linker::Reader>& rd)
 {
 	version = MACBIN1;
 
-	rd.endiantype = ::BigEndian;
-	rd.Skip(1);
+	rd->endiantype = ::BigEndian;
+	rd->Skip(1);
 	if(apple_single == nullptr)
 	{
 		apple_single = std::make_shared<AppleSingleDouble>();
 	}
-	uint8_t name_size = rd.ReadUnsigned(1);
+	uint8_t name_size = rd->ReadUnsigned(1);
 	if(name_size > 63)
 	{
 		Linker::Warning << "Warning: Invalid name size found, truncating: " << name_size << std::endl;
 		name_size = 63;
 	}
 	auto real_name = std::dynamic_pointer_cast<RealName>(apple_single->GetRealName());
-	real_name->name = rd.ReadData(name_size);
-	rd.Skip(63 - name_size);
+	real_name->name = rd->ReadData(name_size);
+	rd->Skip(63 - name_size);
 	auto finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
-	rd.ReadData(4, finder_info->Type);
-	rd.ReadData(4, finder_info->Creator);
-	finder_info->Flags = rd.ReadUnsigned(1) << 8;
-	rd.Skip(1);
-	finder_info->Location.x = rd.ReadUnsigned(2);
-	finder_info->Location.y = rd.ReadUnsigned(2);
-	rd.Skip(2); // TODO: window/folder info?
-	attributes = rd.ReadUnsigned(1);
-	rd.Skip(1);
-	data_fork_length = rd.ReadUnsigned(4);
-	resource_fork_length = rd.ReadUnsigned(4);
-	creation = rd.ReadTimestamp<Macintosh_clock>(); // TODO: maybe these 2 could be stored in a file field?
-	modification = rd.ReadTimestamp<Macintosh_clock>();
+	rd->ReadData(4, finder_info->Type);
+	rd->ReadData(4, finder_info->Creator);
+	finder_info->Flags = rd->ReadUnsigned(1) << 8;
+	rd->Skip(1);
+	finder_info->Location.x = rd->ReadUnsigned(2);
+	finder_info->Location.y = rd->ReadUnsigned(2);
+	rd->Skip(2); // TODO: window/folder info?
+	attributes = rd->ReadUnsigned(1);
+	rd->Skip(1);
+	data_fork_length = rd->ReadUnsigned(4);
+	resource_fork_length = rd->ReadUnsigned(4);
+	creation = rd->ReadTimestamp<Macintosh_clock>(); // TODO: maybe these 2 could be stored in a file field?
+	modification = rd->ReadTimestamp<Macintosh_clock>();
 	// Get Info extension
-	comment_length = rd.ReadUnsigned(2);
+	comment_length = rd->ReadUnsigned(2);
 	if(comment_length != 0 && version < MACBIN1_GETINFO)
 	{
 		version = MACBIN1_GETINFO;
 	}
 	// MacBinary II
-	uint8_t flags_low_byte = rd.ReadUnsigned(1);
+	uint8_t flags_low_byte = rd->ReadUnsigned(1);
 	finder_info->Flags |= flags_low_byte;
 	if(flags_low_byte != 0 && version < MACBIN2)
 	{
 		version = MACBIN2;
 	}
 	// MacBinary III
-	auto signature = rd.ReadData(4);
+	auto signature = rd->ReadData(4);
 	if(signature == "mBIN")
 	{
 		// TODO: script of file and extended Finder flags
 	}
-	rd.Skip(14); // TODO:
-	secondary_header_size = rd.ReadUnsigned(2);
-	uint8_t actual_version = rd.ReadUnsigned(1);
+	rd->Skip(14); // TODO:
+	secondary_header_size = rd->ReadUnsigned(2);
+	uint8_t actual_version = rd->ReadUnsigned(1);
 	if(actual_version != 0)
 	{
 		version = version_t(actual_version);
 	}
-	minimum_version = version_t(rd.ReadUnsigned(1));
-	crc = rd.ReadUnsigned(2);
+	minimum_version = version_t(rd->ReadUnsigned(1));
+	crc = rd->ReadUnsigned(2);
 }
 
 void MacBinary::WriteHeader(Linker::Writer& wr) const
@@ -2001,10 +2001,10 @@ void MacBinary::CalculateValues()
 	apple_single->CalculateValues();
 }
 
-void MacBinary::ReadFile(Linker::Reader& rd)
+void MacBinary::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	ReadHeader(rd);
-	rd.Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
+	rd->Seek(::AlignTo(0x80 + secondary_header_size, 0x80));
 	/* secondary header */
 	if(data_fork_length != 0)
 	{
@@ -2012,7 +2012,7 @@ void MacBinary::ReadFile(Linker::Reader& rd)
 		// TODO: check format
 		auto image = Linker::Buffer::ReadFromFile(rd, data_fork_length);
 		data_fork->image = image;
-		rd.Seek(::AlignTo(rd.Tell(), 0x80));
+		rd->Seek(::AlignTo(rd->Tell(), 0x80));
 	}
 	if(resource_fork_length != 0)
 	{
@@ -2021,7 +2021,7 @@ void MacBinary::ReadFile(Linker::Reader& rd)
 		auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
 		mac_rsrc->ReadFile(rd);
 		resource_fork->image = mac_rsrc;
-		rd.Seek(::AlignTo(rd.Tell(), 0x80));
+		rd->Seek(::AlignTo(rd->Tell(), 0x80));
 	}
 	if(comment_length != 0)
 	{
@@ -2180,7 +2180,7 @@ void OutputDriver::OnCalculateValues()
 	// TODO: error
 }
 
-void OutputDriver::OnReadFile(Linker::Reader& rd)
+void OutputDriver::OnReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	// TODO: error
 }
@@ -2376,7 +2376,7 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 	}
 }
 
-void OutputDriver::ReadFile(Linker::Reader& rd)
+void OutputDriver::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	apple_single = nullptr;
 	mac_binary = nullptr;
