@@ -271,11 +271,14 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 		i++;
 	}
 
-	// skip one value for separator
-	Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
-	entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("separator"), offset_t(true));
-	entry_entry.Display(dump, GetDisplayOptions());
-	i++;
+	if(far_entries.size() > 0)
+	{
+		// skip one value for separator
+		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("separator"), offset_t(true));
+		entry_entry.Display(dump, GetDisplayOptions());
+		i++;
+	}
 
 	for(auto& entry : far_entries)
 	{
