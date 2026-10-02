@@ -57,7 +57,54 @@ namespace Linker
 		/**
 		 * @brief Append data to buffer
 		 */
-		void Append(std::vector<uint8_t>& additional_data);
+
+		/**
+		 * @brief Writes a value into the buffer image
+		 *
+		 * @return The amount of bytes the buffer was increased by.
+		 */
+		virtual offset_t WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype);
+
+		/**
+		 * @brief Writes a value into the buffer image
+		 *
+		 * @return The amount of bytes the buffer was increased by.
+		 */
+		offset_t WriteWord(size_t bytes, offset_t offset, uint64_t value);
+
+		/**
+		 * @brief Writes a value at the current end of the buffer
+		 *
+		 * @return The amount of bytes the buffer was increased by.
+		 */
+		offset_t WriteWord(size_t bytes, uint64_t value, EndianType endiantype);
+
+		/**
+		 * @brief Writes value at the current end of the buffer
+		 *
+		 * @return The amount of bytes the buffer was increased by.
+		 */
+		offset_t WriteWord(size_t bytes, uint64_t value);
+
+		/**
+		 * @brief Appends data at the end of a buffer
+		 *
+		 * @param new_data Pointer to data to append
+		 * @param length Number of bytes of data to load from pointer and insert into buffer
+		 * @return The offset of the newly written data within the buffer
+		 */
+		virtual offset_t Append(const void * new_data, size_t length);
+
+		/**
+		 * @brief Appends data at the end of a buffer
+		 */
+		offset_t Append(const char * new_data);
+
+		/**
+		 * @brief Appends data at the end of a buffer
+		 */
+		offset_t Append(std::vector<uint8_t>& additional_data);
+
 		/**
 		 * @brief Overwrites buffer data with contents of reader
 		 *

@@ -259,32 +259,12 @@ offset_t Section::WriteWord(size_t bytes, offset_t offset, uint64_t value, Endia
 	return expand_count;
 }
 
-offset_t Section::WriteWord(size_t bytes, offset_t offset, uint64_t value)
-{
-	return WriteWord(bytes, offset, value, ::DefaultEndianType);
-}
-
-offset_t Section::WriteWord(size_t bytes, uint64_t value, EndianType endiantype)
-{
-	return WriteWord(bytes, Size(), value, endiantype);
-}
-
-offset_t Section::WriteWord(size_t bytes, uint64_t value)
-{
-	return WriteWord(bytes, value, ::DefaultEndianType);
-}
-
 offset_t Section::Append(const void * new_data, size_t length)
 {
 	assert(!IsZeroFilled());
 	offset_t offset = Size();
 	data.insert(data.end(), reinterpret_cast<const uint8_t *>(new_data), reinterpret_cast<const uint8_t *>(new_data) + length);
 	return offset;
-}
-
-offset_t Section::Append(const char * new_data)
-{
-	return Append(new_data, strlen(new_data));
 }
 
 offset_t Section::Append(const Section& other)

@@ -37,9 +37,43 @@ offset_t Buffer::WriteData(size_t bytes, offset_t offset, const void * buffer)
 	return expand_count;
 }
 
-void Buffer::Append(std::vector<uint8_t>& additional_data)
+offset_t Buffer::WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype)
 {
-	data.insert(data.end(), additional_data.begin(), additional_data.end());
+	offset_t expand_count = Expand(offset + bytes);
+	::WriteWord(bytes, bytes, data.data() + offset, value, endiantype);
+	return expand_count;
+}
+
+offset_t Buffer::WriteWord(size_t bytes, offset_t offset, uint64_t value)
+{
+	return WriteWord(bytes, offset, value, ::DefaultEndianType);
+}
+
+offset_t Buffer::WriteWord(size_t bytes, uint64_t value, EndianType endiantype)
+{
+	return WriteWord(bytes, ImageSize(), value, endiantype);
+}
+
+offset_t Buffer::WriteWord(size_t bytes, uint64_t value)
+{
+	return WriteWord(bytes, value, ::DefaultEndianType);
+}
+
+offset_t Buffer::Append(const void * new_data, size_t length)
+{
+	offset_t old_size = data.size();
+	data.insert(data.end(), reinterpret_cast<const uint8_t *>(new_data), reinterpret_cast<const uint8_t *>(new_data) + length);
+	return old_size;
+}
+
+offset_t Buffer::Append(const char * new_data)
+{
+	return Append(new_data, strlen(new_data));
+}
+
+offset_t Buffer::Append(std::vector<uint8_t>& additional_data)
+{
+	return Append(additional_data.data(), additional_data.size());
 }
 
 void Buffer::ReadFile(Reader& rd)

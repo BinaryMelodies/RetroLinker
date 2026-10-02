@@ -246,43 +246,13 @@ namespace Linker
 		 */
 		offset_t WriteData(size_t bytes, offset_t offset, const void * buffer) override;
 
-		/**
-		 * @brief Writes a value into the section image
-		 *
-		 * @return The amount of bytes the section was increased by.
-		 */
-		offset_t WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype);
-
-		/**
-		 * @brief Writes a value into the section image
-		 *
-		 * @return The amount of bytes the section was increased by.
-		 */
-		offset_t WriteWord(size_t bytes, offset_t offset, uint64_t value);
-
-		/**
-		 * @brief Writes a value at the current end of the section
-		 *
-		 * @return The amount of bytes the section was increased by.
-		 */
-		offset_t WriteWord(size_t bytes, uint64_t value, EndianType endiantype);
-
-		/**
-		 * @brief Writes value at the current end of the section
-		 *
-		 * @return The amount of bytes the section was increased by.
-		 */
-		offset_t WriteWord(size_t bytes, uint64_t value);
+		using Linker::Buffer::WriteWord;
+		offset_t WriteWord(size_t bytes, offset_t offset, uint64_t value, EndianType endiantype) override;
 
 		/**
 		 * @brief Appends data at the end of a section
 		 */
-		offset_t Append(const void * new_data, size_t length);
-
-		/**
-		 * @brief Appends data at the end of a section
-		 */
-		offset_t Append(const char * new_data);
+		offset_t Append(const void * new_data, size_t length) override;
 
 		/**
 		 * @brief Appends (or merges) another section
