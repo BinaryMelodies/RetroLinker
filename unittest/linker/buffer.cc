@@ -39,28 +39,28 @@ void TestBuffer::testReadFile()
 
 	{
 		std::istringstream iss(input);
-		Reader rd(::LittleEndian, &iss);
+		auto rd = std::make_shared<StreamReader>(::LittleEndian, &iss);
 		buffer.ReadFileRemaining(rd);
 		CPPUNIT_ASSERT_EQUAL(offset_t(input.size()), buffer.ImageSize());
 	}
 
 	{
 		std::istringstream iss(input);
-		Reader rd(::LittleEndian, &iss);
+		auto rd = std::make_shared<StreamReader>(::LittleEndian, &iss);
 		buffer.ReadFile(rd, 0);
 		CPPUNIT_ASSERT_EQUAL(offset_t(0), buffer.ImageSize());
 	}
 
 	{
 		std::istringstream iss(input);
-		Reader rd(::LittleEndian, &iss);
+		auto rd = std::make_shared<StreamReader>(::LittleEndian, &iss);
 		buffer.ReadFile(rd, input.size() / 2);
 		CPPUNIT_ASSERT_EQUAL(offset_t(input.size() / 2), buffer.ImageSize());
 	}
 
 	{
 		std::istringstream iss(input);
-		Reader rd(::LittleEndian, &iss);
+		auto rd = std::make_shared<StreamReader>(::LittleEndian, &iss);
 		buffer.ReadFileRemaining(rd);
 		size_t offset = input.size() / 2;
 		CPPUNIT_ASSERT_EQUAL(offset_t(input.size()), buffer.ImageSize());
@@ -76,20 +76,20 @@ void TestBuffer::testWriteFile()
 
 	{
 		std::istringstream iss(input);
-		Reader rd(::LittleEndian, &iss);
+		auto rd = std::make_shared<StreamReader>(::LittleEndian, &iss);
 		buffer.ReadFileRemaining(rd);
 	}
 
 	{
 		std::ostringstream oss;
-		Writer wr(::LittleEndian, &oss);
+		auto wr = std::make_shared<StreamWriter>(::LittleEndian, &oss);
 		buffer.WriteFile(wr);
 		CPPUNIT_ASSERT_EQUAL(oss.str(), input);
 	}
 
 	{
 		std::ostringstream oss;
-		Writer wr(::LittleEndian, &oss);
+		auto wr = std::make_shared<StreamWriter>(::LittleEndian, &oss);
 		offset_t start = input.size() / 5;
 		offset_t length = input.size() / 3;
 		buffer.WriteFile(wr, length, start);

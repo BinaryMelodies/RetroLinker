@@ -306,7 +306,7 @@ std::string TestMZFormat::store()
 {
 	std::string image;
 	std::ostringstream out;
-	Writer wr(::UndefinedEndian, &out);
+	auto wr = std::make_shared<StreamWriter>(::UndefinedEndian, &out);
 	exe.WriteFile(wr);
 	return out.str();
 }
@@ -314,7 +314,7 @@ std::string TestMZFormat::store()
 void TestMZFormat::load(std::string data)
 {
 	std::istringstream in(data);
-	Reader rd(::UndefinedEndian, &in);
+	auto rd = std::make_shared<StreamReader>(::UndefinedEndian, &in);
 	CPPUNIT_ASSERT_NO_THROW(exe.ReadFile(rd));
 }
 

@@ -40,7 +40,7 @@ std::string TestReader::readData(std::string payload)
 	char buffer[payload.size()];
 	std::istringstream * iss = new std::istringstream(payload);
 
-	Reader * reader = new Reader(::LittleEndian, iss);
+	StreamReader * reader = new StreamReader(::LittleEndian, iss);
 	reader->ReadData(sizeof buffer, buffer);
 	std::string result = std::string(buffer, sizeof buffer);
 	CPPUNIT_ASSERT_EQUAL(payload, result);
@@ -70,7 +70,7 @@ void TestReader::testReadBinaryData()
 uint64_t TestReader::readInteger(std::string payload, ::EndianType endiantype, bool isSigned)
 {
 	std::istringstream * iss = new std::istringstream(payload);
-	Reader * reader = new Reader(endiantype, iss);
+	StreamReader * reader = new StreamReader(endiantype, iss);
 
 	uint64_t result =
 		isSigned
@@ -155,7 +155,7 @@ void TestReader::testSeekSkip()
 
 	std::string payload_string(payload, sizeof payload);
 	std::istringstream * iss = new std::istringstream(payload_string);
-	Reader * reader = new Reader(::LittleEndian, iss);
+	StreamReader * reader = new StreamReader(::LittleEndian, iss);
 
 	reader->Seek(123);
 	reader->ReadData(1, buffer);

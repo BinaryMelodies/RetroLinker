@@ -2,6 +2,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestFixture.h>
 
+#include <cstdint>
 #include "../src/unicode.h"
 
 namespace UnitTests
