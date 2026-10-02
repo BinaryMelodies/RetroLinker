@@ -27,10 +27,9 @@ offset_t ELFFormat::SymbolTable::ImageSize() const
 	return symbols.size() * entsize;
 }
 
-offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::SymbolTable::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	offset_t file_offset = wr.Tell();
 	for(auto symbol : symbols)
 	{
@@ -122,10 +121,9 @@ offset_t ELFFormat::StringTable::ImageSize() const
 	return size;
 }
 
-offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::StringTable::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	for(auto& s : strings)
 	{
 		wr.WriteData(s);
@@ -155,10 +153,9 @@ offset_t ELFFormat::Array::ImageSize() const
 	return array.size() * entsize;
 }
 
-offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::Array::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	for(auto& entry : array)
 	{
 		wr.WriteWord(entsize, entry);
@@ -185,10 +182,9 @@ offset_t ELFFormat::SectionGroup::ImageSize() const
 	return (1 + array.size()) * entsize;
 }
 
-offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::SectionGroup::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	offset_t file_offset = wr.Tell();
 	wr.WriteWord(4, flags);
 	file_offset += entsize;
@@ -550,10 +546,9 @@ offset_t ELFFormat::Relocations::ImageSize() const
 	return relocations.size() * entsize;
 }
 
-offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::Relocations::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	offset_t file_offset = wr.Tell();
 	for(auto& rel : relocations)
 	{
@@ -608,10 +603,9 @@ offset_t ELFFormat::DynamicSection::ImageSize() const
 	return dynamic.size() * entsize;
 }
 
-offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::DynamicSection::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	offset_t file_offset = wr.Tell();
 	for(auto& dyn : dynamic)
 	{
@@ -759,10 +753,9 @@ offset_t ELFFormat::HashTable::ImageSize() const
 	return (2 + buckets.size() + chains.size()) * 4;
 }
 
-offset_t ELFFormat::HashTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::HashTable::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	wr.WriteWord(4, buckets.size());
 	wr.WriteWord(4, chains.size());
 	for(auto bucket : buckets)
@@ -814,10 +807,9 @@ offset_t ELFFormat::NotesSection::ImageSize() const
 	return size;
 }
 
-offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::NotesSection::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	for(auto& note : notes)
 	{
 		offset_t namesz = note.name.size() + 1;
@@ -865,7 +857,7 @@ offset_t ELFFormat::VersionRequirements::ImageSize() const
 	return 0;
 }
 
-offset_t ELFFormat::VersionRequirements::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::VersionRequirements::WriteFile(Linker::Writer& wr) const
 {
 	// TODO
 	return 0;
@@ -889,10 +881,9 @@ offset_t ELFFormat::IBMSystemInfo::ImageSize() const
 	return 8 + os_size;
 }
 
-offset_t ELFFormat::IBMSystemInfo::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::IBMSystemInfo::WriteFile(Linker::Writer& wr) const
 {
 	// TODO: untested
-	assert(offset == 0 && count == ImageSize());
 	wr.WriteWord(4, os_type);
 	wr.WriteWord(4, os_size);
 	if(IsOS2Specific())
@@ -948,9 +939,8 @@ offset_t ELFFormat::IBMImportTable::ImageSize() const
 	return imports.size() * entsize;
 }
 
-offset_t ELFFormat::IBMImportTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::IBMImportTable::WriteFile(Linker::Writer& wr) const
 {
-	assert(offset == 0 && count == ImageSize());
 	offset_t file_offset = wr.Tell();
 	for(auto& import : imports)
 	{
@@ -997,9 +987,8 @@ offset_t ELFFormat::IBMExportTable::ImageSize() const
 	return exports.size() * entsize;
 }
 
-offset_t ELFFormat::IBMExportTable::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::IBMExportTable::WriteFile(Linker::Writer& wr) const
 {
-	assert(offset == 0 && count == ImageSize());
 	offset_t file_offset = wr.Tell();
 	for(auto& _export : exports)
 	{
@@ -1039,7 +1028,7 @@ offset_t ELFFormat::IBMResourceCollection::ImageSize() const
 	return 0;
 }
 
-offset_t ELFFormat::IBMResourceCollection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t ELFFormat::IBMResourceCollection::WriteFile(Linker::Writer& wr) const
 {
 	// TODO
 	return 0;

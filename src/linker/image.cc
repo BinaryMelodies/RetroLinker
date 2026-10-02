@@ -25,8 +25,7 @@ std::shared_ptr<Image> Contents::AsImage()
 	return std::const_pointer_cast<Image>(const_cast<const Contents *>(this)->AsImage());
 }
 
-// TODO: move
-offset_t RandomAccessContents::WriteFile(Writer& wr) const
+offset_t Image::WriteFile(Writer& wr) const
 {
 	return WriteFile(wr, ImageSize());
 }

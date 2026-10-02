@@ -3195,10 +3195,8 @@ offset_t COFFFormat::FlexOSLibrarySection::ImageSize() const
 	return total;
 }
 
-offset_t COFFFormat::FlexOSLibrarySection::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
+offset_t COFFFormat::FlexOSLibrarySection::WriteFile(Linker::Writer& wr) const
 {
-	// TODO: count and offset are ignored
-
 	wr.endiantype = ::LittleEndian; // TODO: this is necessary for AsImage to work
 
 	offset_t total = 0;

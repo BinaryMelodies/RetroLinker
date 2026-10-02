@@ -51,6 +51,11 @@ offset_t LEFormat::PageSet::WriteFile(Linker::Writer& wr, offset_t count, offset
 	return total_count;
 }
 
+size_t LEFormat::PageSet::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+	Linker::FatalError("Fatal error: PageSet::ReadData not implemented"); // TODO
+}
+
 offset_t LEFormat::SegmentPage::ImageSize() const
 {
 	return size;
@@ -68,6 +73,11 @@ offset_t LEFormat::SegmentPage::WriteFile(Linker::Writer& wr, offset_t count, of
 		wr.Skip(count - actual_count);
 	}
 	return count;
+}
+
+size_t LEFormat::SegmentPage::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+	Linker::FatalError("Fatal error: PageSet::ReadData not implemented"); // TODO
 }
 
 std::shared_ptr<const Linker::Image> LEFormat::SegmentPage::AsImage() const
@@ -117,6 +127,12 @@ offset_t LEFormat::IteratedPage::WriteFile(Linker::Writer& wr, offset_t count, o
 {
 	// TODO
 	return offset_t(-1);
+}
+
+size_t LEFormat::IteratedPage::ReadData(size_t bytes, offset_t offset, void * buffer) const
+{
+	// TODO
+	return size_t(-1);
 }
 
 size_t LEFormat::IteratedPage::View::ReadData(size_t bytes, offset_t offset, void * buffer) const
@@ -540,7 +556,7 @@ void LEFormat::Page::FillDumpRelocations(Dumper::Dumper& dump, Dumper::Block& pa
 
 void LEFormat::Page::DumpPhysicalPage(Dumper::Dumper& dump, const LEFormat& fmt, uint32_t object_number, PhysicalPageNumber page_index) const
 {
-	Dumper::Block page_block("Page", fmt.GetPageOffset(page_index), image->AsImage(),
+	Dumper::Block page_block("Page", fmt.GetPageOffset(page_index), std::const_pointer_cast<Linker::Image>(image->AsImage()),
 		object_number < fmt.objects.size() ? fmt.objects[object_number].address + (uint32_t(page_index) - fmt.objects[object_number].page_table_index) * fmt.page_size : 0,
 		8);
 	FillDumpRegion(dump, page_block, fmt, object_number, page_index);

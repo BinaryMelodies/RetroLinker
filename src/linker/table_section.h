@@ -136,15 +136,16 @@ namespace Linker
 			return table_bytes + Section::WriteFile(out, bytes - table_bytes, offset + table_bytes);
 		}
 
-#if 0 // TODO: reenable
 		offset_t WriteFile(Writer& wr, offset_t bytes, offset_t offset = 0) const override
 		{
 			offset_t table_bytes = WriteTable(wr, bytes, offset);
 			return table_bytes + Buffer::WriteFile(wr, bytes - table_bytes, offset + table_bytes);
 		}
-#endif
 
-		//size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override // TODO: create
+		size_t ReadData(size_t bytes, offset_t offset, void * buffer) const override
+		{
+			Linker::FatalError("Fatal error: ReadData not implemented");
+		}
 
 		void Reset() override
 		{

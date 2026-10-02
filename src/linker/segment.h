@@ -94,7 +94,7 @@ namespace Linker
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-//		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override; // TODO: reenable
+		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */

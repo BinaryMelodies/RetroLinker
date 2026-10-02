@@ -35,19 +35,7 @@ namespace Linker
 		std::shared_ptr<Image> AsImage();
 	};
 
-	// TODO: temporary
-	class RandomAccessContents : public Contents
-	{
-	public:
-		/**
-		 * @brief Writes data of non-zero filled sections
-		 */
-		virtual offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const = 0;
-
-		offset_t WriteFile(Writer& wr) const override;
-	};
-
-	class Image : public RandomAccessContents, public std::enable_shared_from_this<Image>
+	class Image : public Contents, public std::enable_shared_from_this<Image>
 	{
 	public:
 		std::shared_ptr<const Image> AsImage() const override;
@@ -80,10 +68,13 @@ namespace Linker
 		int GetByte(offset_t offset) const;
 
 		using Contents::WriteFile;
+
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override final; // TODO: remove 'final'
+		virtual offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const;
+
+		offset_t WriteFile(Writer& wr) const override;
 	};
 }
 
