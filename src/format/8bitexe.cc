@@ -1101,6 +1101,7 @@ void CPM3Format::CalculateValues()
 
 void FLEXFormat::Segment::WriteFile(Linker::Writer& wr) const
 {
+	std::shared_ptr<Linker::Image> image = this->image->AsImage();
 	for(uint16_t offset = 0; offset < image->ImageSize(); offset += 0xFF)
 	{
 		/* cut the segment up into 255 byte morcels */

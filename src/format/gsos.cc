@@ -1916,7 +1916,7 @@ void GSOSResourceFileFormat::ReferenceRecord::ReadContents(GSOSResourceFileForma
 void GSOSResourceFileFormat::ReferenceRecord::WriteContents(const GSOSResourceFileFormat& format, Linker::Writer& wr) const
 {
 	wr.Seek(format.file_offset + offset);
-	image->WriteFile(wr, size);
+	image->WriteFile(wr);
 }
 
 void GSOSResourceFileFormat::ReferenceRecord::Dump(const GSOSResourceFileFormat& format, Dumper::Dumper& dump, size_t index) const

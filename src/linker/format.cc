@@ -22,16 +22,6 @@ offset_t Format::ImageSize() const
 	Linker::FatalError("Internal error: format does not provide image size");
 }
 
-offset_t Format::WriteFile(Writer& wr, offset_t count, offset_t offset) const
-{
-	if(offset != 0)
-	{
-		Linker::FatalError("Internal error: format cannot generate partial data");
-	}
-	// count is ignored
-	return WriteFile(wr);
-}
-
 bool OutputFormat::AddSupplementaryOutputFormat(std::string subformat)
 {
 	return false;

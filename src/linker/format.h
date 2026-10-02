@@ -54,7 +54,6 @@ namespace Linker
 		virtual void Dump(Dumper::Dumper& dump) const;
 
 		offset_t ImageSize() const override;
-		offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const override;
 	};
 
 	/**

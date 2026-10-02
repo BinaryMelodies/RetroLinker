@@ -24,11 +24,7 @@ namespace Linker
 		/**
 		 * @brief Writes data of non-zero filled sections
 		 */
-		virtual offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const = 0;
-		/**
-		 * @brief Writes data of non-zero filled sections
-		 */
-		virtual offset_t WriteFile(Writer& wr) const;
+		virtual offset_t WriteFile(Writer& wr) const = 0;
 		/**
 		 * @brief Retrieves a randomly accessible image
 		 */
@@ -39,7 +35,19 @@ namespace Linker
 		std::shared_ptr<Image> AsImage();
 	};
 
-	class Image : public Contents, public std::enable_shared_from_this<Image>
+	// TODO: temporary
+	class RandomAccessContents : public Contents
+	{
+	public:
+		/**
+		 * @brief Writes data of non-zero filled sections
+		 */
+		virtual offset_t WriteFile(Writer& wr, offset_t count, offset_t offset = 0) const = 0;
+
+		offset_t WriteFile(Writer& wr) const override;
+	};
+
+	class Image : public RandomAccessContents, public std::enable_shared_from_this<Image>
 	{
 	public:
 		std::shared_ptr<const Image> AsImage() const override;

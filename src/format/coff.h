@@ -1220,7 +1220,7 @@ namespace COFF
 		/**
 		 * @brief Encodes the contents of a FlexOS 386 COFF `.lib` section
 		 */
-		class FlexOSLibrarySection : public Linker::Contents
+		class FlexOSLibrarySection : public Linker::RandomAccessContents
 		{
 		public:
 			/**
@@ -1240,7 +1240,7 @@ namespace COFF
 			static std::shared_ptr<FlexOSLibrarySection> ReadFile(Linker::Reader& rd, offset_t size);
 			std::shared_ptr<const Linker::Image> AsImage() const override;
 			offset_t ImageSize() const override;
-			using Linker::Contents::WriteFile;
+			using Linker::RandomAccessContents::WriteFile;
 			offset_t WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const override;
 
 			void Dump(Dumper::Dumper& dump) const;

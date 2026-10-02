@@ -538,7 +538,7 @@ namespace ELF
 		uint16_t section_header_entry_size = 0;
 		uint32_t section_name_string_table = 0;
 
-		class SectionContents : public Linker::Contents
+		class SectionContents : public Linker::RandomAccessContents
 		{
 		public:
 			virtual void AddDumperFields(std::unique_ptr<Dumper::Region>& region, Dumper::Dumper& dump, const ELFFormat& fmt, unsigned index) const;
