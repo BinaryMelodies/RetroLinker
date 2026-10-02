@@ -287,7 +287,10 @@ int main(int argc, char * argv[])
 			message << "Fatal error: Unable to open file " << input;
 			Linker::FatalError(message.str());
 		}
-		Reader rd (LittleEndian, &in);
+
+		// TODO: bad programming pattern
+		auto _rd = std::make_shared<StreamReader>(LittleEndian, in);
+		Reader& rd = *_rd;
 
 		std::vector<format_description> file_formats;
 		DetermineFormat(file_formats, rd);

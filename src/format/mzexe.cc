@@ -795,8 +795,9 @@ offset_t MZSimpleStubWriter::GetStubImageSize()
 {
 	if(OpenAndCheckValidFile())
 	{
-		Linker::Reader reader(::LittleEndian);
-		reader.in = &stream;
+		// TODO: bad programming pattern
+		auto _reader = std::make_shared<Linker::StreamReader>(::LittleEndian, stream);
+		Linker::Reader& reader = *_reader;
 		reader.Seek(2);
 		uint32_t file_size = reader.ReadUnsigned(2);
 		return size = (reader.ReadUnsigned(2) << 9) - ((-file_size) & 0x1FF);
@@ -880,8 +881,10 @@ offset_t MZStubWriter::GetStubImageSize()
 {
 	if(OpenAndCheckValidFile())
 	{
-		Linker::Reader reader(::LittleEndian);
-		reader.in = &stream;
+		// TODO: bad programming pattern
+		auto _reader = std::make_shared<Linker::StreamReader>(::LittleEndian, stream);
+		Linker::Reader& reader = *_reader;
+
 		reader.Seek(2);
 		original_file_size = reader.ReadUnsigned(2);
 		original_file_size = (reader.ReadUnsigned(2) << 9) - ((-original_file_size) & 0x1FF);

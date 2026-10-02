@@ -5,40 +5,15 @@ using namespace Linker;
 
 Reader::OverflowHandlingRequest Reader::global_overflow_behavior = Reader::OverflowHandlingRequest::Default;
 
-Reader Reader::CreateWindow(offset_t new_start_offset, offset_t new_maximum_size)
+std::shared_ptr<Reader> Reader::CreateWindow(offset_t new_start_offset, offset_t new_maximum_size)
 {
-	if(new_start_offset > maximum_size)
-	{
-		new_start_offset = maximum_size;
-	}
-
-	if(maximum_size != offset_t(-1))
-	{
-		if(new_maximum_size == offset_t(-1))
-		{
-			new_maximum_size = maximum_size - new_start_offset;
-		}
-		else if(new_start_offset + new_maximum_size > maximum_size)
-		{
-			new_maximum_size = maximum_size - new_start_offset;
-		}
-	}
-
-	new_start_offset += start_offset;
-
-	return Reader(new_start_offset, new_maximum_size, endiantype, in);
+	return std::make_shared<WindowReader>(endiantype, shared_from_this(), new_start_offset, new_maximum_size);
 }
 
 void Reader::ReadData(size_t count, void * data)
 {
 	offset_t _off = Tell();
-	size_t permitted_count = count;
-	if(maximum_size != offset_t(-1) && offset_t(in->tellg()) + permitted_count > start_offset + maximum_size)
-	{
-		permitted_count = start_offset + maximum_size - in->tellg();
-	}
-	in->read(reinterpret_cast<char *>(data), permitted_count);
-	size_t actual_count = in->gcount();
+	size_t actual_count = Read(reinterpret_cast<char *>(data), count);
 	if(actual_count != count)
 	{
 		Linker::Error << "Error: Reading error at offset 0x" << std::hex << _off << ": tried reading " << std::dec << count << " only managed " << std::dec << actual_count << std::endl;
@@ -83,12 +58,12 @@ std::string Reader::ReadASCII(char terminator, size_t maximum)
 {
 	std::string tmp;
 	int c;
-	offset_t last_position = offset_t(in->tellg());
-	while(tmp.size() < maximum && (c = in->get()) != terminator)
+	offset_t last_position = Tell();
+	while(tmp.size() < maximum && (c = ReadUnsigned(1)) != terminator)
 	{
-		if(last_position == offset_t(in->tellg()))
+		if(last_position == Tell())
 			break;
-		last_position = offset_t(in->tellg());
+		last_position = Tell();
 		tmp += c;
 	}
 	return tmp;
@@ -123,8 +98,8 @@ std::string Reader::ReadUTF16Data(const char terminator[2], size_t maximum)
 	while(tmp.size() < (maximum < (size_t(-1) >> 1) ? 2 * maximum : size_t(-1)))
 	{
 		uint8_t data[2];
-		data[0] = in->get();
-		data[1] = in->get();
+		data[0] = ReadUnsigned(1);
+		data[1] = ReadUnsigned(1);
 		if(data[0] == terminator[0] && data[1] == terminator[1])
 			break;
 		tmp += data[0];
@@ -180,43 +155,117 @@ uint64_t Reader::ReadSigned(size_t bytes)
 	return ReadSigned(bytes, endiantype);
 }
 
-void Reader::Seek(offset_t offset)
+offset_t Reader::GetImageEnd()
+{
+	offset_t current = Tell();
+	SeekEnd();
+	offset_t total = Tell();
+	Seek(current);
+	return total;
+}
+
+offset_t Reader::GetRemainingCount()
+{
+	return GetImageEnd() - Tell();
+}
+
+size_t StreamReader::Read(void * data, size_t max_count)
+{
+	in->read(reinterpret_cast<char *>(data), max_count);
+	return in->gcount();
+}
+
+void StreamReader::Seek(offset_t offset)
 {
 	in->clear();
+	in->seekg(offset, std::ios_base::beg);
+	in->clear();
+}
+
+void StreamReader::Skip(offset_t offset)
+{
+	in->clear();
+	in->seekg(offset, std::ios_base::cur);
+	in->clear();
+}
+
+void StreamReader::SeekEnd(relative_offset_t offset)
+{
+	in->clear();
+	in->seekg(offset, std::ios_base::end);
+	in->clear();
+}
+
+offset_t StreamReader::Tell()
+{
+	return in->tellg();
+}
+
+void WindowReader::_FixupWindow()
+{
+	if(auto window_reader = std::dynamic_pointer_cast<WindowReader>(reader))
+	{
+		if(window_reader->maximum_size != offset_t(-1))
+		{
+			if(start_offset > window_reader->maximum_size)
+			{
+				start_offset = window_reader->maximum_size;
+			}
+
+			if(maximum_size == offset_t(-1)
+			|| start_offset + maximum_size > maximum_size)
+			{
+				maximum_size = window_reader->maximum_size - start_offset;
+			}
+		}
+
+		start_offset += window_reader->start_offset;
+		reader = window_reader;
+	}
+}
+
+size_t WindowReader::Read(void * data, size_t max_count)
+{
+	size_t permitted_count = max_count;
+	if(maximum_size != offset_t(-1) && reader->Tell() + permitted_count > start_offset + maximum_size)
+	{
+		permitted_count = start_offset + maximum_size - reader->Tell();
+	}
+	return reader->Read(data, permitted_count);
+}
+
+void WindowReader::Seek(offset_t offset)
+{
 	if(maximum_size != offset_t(-1) && offset > maximum_size)
 	{
 		offset = maximum_size;
 	}
-	in->seekg(start_offset + offset, std::ios_base::beg);
-	in->clear();
+	reader->Seek(start_offset + offset);
 }
 
-void Reader::Skip(offset_t offset)
+void WindowReader::Skip(offset_t offset)
 {
-	in->clear();
-	if(maximum_size != offset_t(-1) && offset_t(in->tellg()) + offset > start_offset + maximum_size)
+	if(maximum_size != offset_t(-1) && reader->Tell() + offset > start_offset + maximum_size)
 	{
-		offset = start_offset + maximum_size - in->tellg();
+		offset = start_offset + maximum_size - reader->Tell();
 	}
 	if(start_offset != 0)
 	{
-		offset += in->tellg();
+		offset += reader->Tell();
 		if(offset < start_offset)
 		{
 			offset = start_offset;
 		}
-		in->seekg(offset, std::ios_base::beg);
+		reader->Seek(offset);
 	}
 	else
 	{
-		in->seekg(offset, std::ios_base::cur);
+		reader->Skip(offset);
 	}
-	in->clear();
 }
 
-void Reader::SeekEnd(relative_offset_t offset)
+void WindowReader::SeekEnd(relative_offset_t offset)
 {
-	in->clear();
 	if(maximum_size != offset_t(-1))
 	{
 		offset_t actual_offset = start_offset + maximum_size + offset;
@@ -228,45 +277,20 @@ void Reader::SeekEnd(relative_offset_t offset)
 		{
 			actual_offset = start_offset + maximum_size;
 		}
-		in->seekg(actual_offset, std::ios_base::beg);
+		reader->Seek(actual_offset);
 	}
 	else
 	{
-		in->seekg(offset, std::ios_base::end);
+		reader->SeekEnd(offset);
 	}
-	in->clear();
 }
 
-offset_t Reader::Tell()
+offset_t WindowReader::Tell()
 {
-#if 0
-	if(in->fail())
-		in->clear();
-	if(in->eof())
-	{
-		in->clear();
-		SeekEnd();
-	}
-	offset_t value = in->tellg();
-	if(value == offset_t(-1))
-	{
-	Linker::Debug << "no!" << std::endl;
-		in->clear();
-		value = in->tellg();
-	}
-	return value;
-#endif
-	if(start_offset != 0)
-	{
-		return offset_t(in->tellg()) - start_offset;
-	}
-	else
-	{
-		return in->tellg();
-	}
+	return Tell() - start_offset;
 }
 
-offset_t Reader::GetImageEnd()
+offset_t WindowReader::GetImageEnd()
 {
 	if(maximum_size != offset_t(-1))
 	{
@@ -274,16 +298,44 @@ offset_t Reader::GetImageEnd()
 	}
 	else
 	{
-		offset_t current = Tell();
-		SeekEnd();
-		offset_t total = Tell();
-		Seek(current);
-		return total;
+		return Reader::GetImageEnd();
 	}
 }
 
-offset_t Reader::GetRemainingCount()
+size_t ImageReader::Read(void * data, size_t max_count)
 {
-	return GetImageEnd() - Tell();
+	size_t actual_read = image->ReadData(max_count, position, data);
+	position += actual_read;
+	return actual_read;
+}
+
+void ImageReader::Seek(offset_t offset)
+{
+	position = offset;
+}
+
+void ImageReader::Skip(offset_t offset)
+{
+	position += offset;
+}
+
+void ImageReader::SeekEnd(relative_offset_t offset)
+{
+	offset_t total_size = image->ImageSize();
+	if(total_size == offset_t(-1))
+	{
+		FatalError("Fatal error: attempting to go to end to image of undetermined size");
+	}
+	position = total_size + offset;
+}
+
+offset_t ImageReader::Tell()
+{
+	return position;
+}
+
+offset_t ImageReader::GetImageEnd()
+{
+	return image->ImageSize();
 }
 

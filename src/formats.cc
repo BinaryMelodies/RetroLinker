@@ -1391,9 +1391,9 @@ std::shared_ptr<Linker::Contents> ReadArchiveFile(Linker::Reader& rd, offset_t s
 	}
 	else
 	{
-		Linker::Reader wrd = rd.CreateWindow(offset, size);
-		std::shared_ptr<Format> format = CreateFormat(wrd, descriptions[0]);
-		format->ReadFile(wrd);
+		std::shared_ptr<Linker::Reader> wrd = rd.CreateWindow(offset, size);
+		std::shared_ptr<Format> format = CreateFormat(*wrd, descriptions[0]);
+		format->ReadFile(*wrd);
 		return format;
 	}
 }
@@ -1410,9 +1410,9 @@ std::shared_ptr<Linker::Contents> ReadLibraryFile(Linker::Reader& rd, offset_t s
 	}
 	else
 	{
-		Linker::Reader wrd = rd.CreateWindow(offset, size);
-		std::shared_ptr<Format> format = CreateFormat(wrd, descriptions[0]);
-		format->ReadFile(wrd);
+		std::shared_ptr<Linker::Reader> wrd = rd.CreateWindow(offset, size);
+		std::shared_ptr<Format> format = CreateFormat(*wrd, descriptions[0]);
+		format->ReadFile(*wrd);
 		return format;
 	}
 }

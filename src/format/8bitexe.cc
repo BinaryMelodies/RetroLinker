@@ -943,7 +943,9 @@ void CPM3Format::rsx_record::OpenAndPrepare()
 		rsx_file.open(rsx_file_name, std::ios_base::in | std::ios_base::binary);
 		if(rsx_file.is_open())
 		{
-			Linker::Reader rd(::LittleEndian, &rsx_file);
+			// TODO: bad programming pattern
+			auto _rd = std::make_shared<Linker::StreamReader>(::LittleEndian, rsx_file);
+			Linker::Reader& rd = *_rd;
 			module = std::make_shared<PRLFormat>(PRLFormat::APPL_RSX);
 			module->ReadFile(rd);
 			rsx_file.close();

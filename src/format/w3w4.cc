@@ -328,7 +328,9 @@ void W4Format::ReadFile(Linker::Reader& rd)
 
 	ImageStreambuf sb(image, file_offset);
 	std::istream in(&sb);
-	Linker::Reader image_rd(::LittleEndian, &in);
+	// TODO: bad programming pattern
+	auto _image_rd = std::make_shared<Linker::StreamReader>(::LittleEndian, in);
+	Linker::Reader& image_rd = *_image_rd;
 	w3format.ReadFile(image_rd);
 }
 

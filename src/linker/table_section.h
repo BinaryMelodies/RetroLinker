@@ -163,8 +163,9 @@ namespace Linker
 
 		static void ReadFile(std::istream& in, Word& word, ::EndianType endian_type)
 		{
-			Reader rd(endian_type, &in);
-			ReadFile(rd, word);
+			// TODO: bad programming pattern
+			auto rd = std::make_shared<StreamReader>(endian_type, in);
+			ReadFile(*rd, word);
 		}
 
 		static void ReadFile(Reader& rd, Word& word, ::EndianType endian_type = ::UndefinedEndian)

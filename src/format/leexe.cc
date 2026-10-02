@@ -125,7 +125,7 @@ std::shared_ptr<LEFormat::IteratedPage> LEFormat::IteratedPage::ReadFromFile(Lin
 
 offset_t LEFormat::IteratedPage::WriteFile(Linker::Writer& wr, offset_t count, offset_t offset) const
 {
-	// TODO
+	// TODO: write out the page contents
 	return offset_t(-1);
 }
 

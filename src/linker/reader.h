@@ -3,9 +3,11 @@
 
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <vector>
 #include "../common.h"
+#include "image.h"
 
 namespace Linker
 {
@@ -16,17 +18,19 @@ namespace Linker
 	/**
 	 * @brief A helper class, encapsulating functionality needed to import binary data
 	 */
-	class Reader
+	class Reader : public std::enable_shared_from_this<Reader>
 	{
 	public:
 		/**
 		 * @brief The default endianness of the binary format, used for reading multibyte numeric data
 		 */
 		EndianType endiantype;
+#if 0
 		/**
 		 * @brief The input stream
 		 */
 		std::istream * in;
+#endif
 
 		/**
 		 * @brief Describes how ReadData and all other reading routines should behave when reading exceeds limits (end of file or dynamic boundary)
@@ -85,9 +89,12 @@ namespace Linker
 			}
 		}
 
+#if 0
 		const offset_t start_offset;
 		const offset_t maximum_size;
+#endif
 
+#if 0
 		Reader(EndianType endiantype, std::istream * in = nullptr)
 			: endiantype(endiantype), in(in), start_offset(0), maximum_size(offset_t(-1))
 		{
@@ -97,8 +104,21 @@ namespace Linker
 			: endiantype(endiantype), in(in), start_offset(start_offset), maximum_size(maximum_size)
 		{
 		}
+#endif
 
-		Reader CreateWindow(offset_t new_start_offset, offset_t new_maximum_size = offset_t(-1));
+		Reader(EndianType endiantype)
+			: endiantype(endiantype)
+		{
+		}
+
+		std::shared_ptr<Reader> CreateWindow(offset_t new_start_offset, offset_t new_maximum_size = offset_t(-1));
+
+		virtual ~Reader() = default;
+
+		/**
+		 * @brief Read in as many bytes as possible
+		 */
+		virtual size_t Read(void * data, size_t max_count = size_t(-1)) = 0;
 
 		/**
 		 * @brief Read in a sequence of bytes
@@ -218,32 +238,105 @@ namespace Linker
 		/**
 		 * @brief Jump to a specific location in the input stream
 		 */
-		void Seek(offset_t offset);
+		virtual void Seek(offset_t offset) = 0;
 
 		/**
 		 * @brief Jump to a distance in the input stream
 		 */
-		void Skip(offset_t offset);
+		virtual void Skip(offset_t offset) = 0;
 
 		/**
 		 * @brief Jump to end of the input stream
 		 */
-		void SeekEnd(relative_offset_t offset = 0);
+		virtual void SeekEnd(relative_offset_t offset = 0) = 0;
 
 		/**
 		 * @brief Retrieve the current location
 		 */
-		offset_t Tell();
+		virtual offset_t Tell() = 0;
 
 		/**
 		 * @brief Returns the last location that can be read
 		 */
-		offset_t GetImageEnd();
+		virtual offset_t GetImageEnd();
 
 		/**
 		 * @brief Returns the byte count until the last location that can be read
 		 */
 		offset_t GetRemainingCount();
+	};
+
+	class StreamReader : public Reader
+	{
+	public:
+		/**
+		 * @brief The input stream
+		 */
+		std::istream * in;
+
+		StreamReader(EndianType endiantype, std::istream * in = nullptr)
+			: Reader(endiantype), in(in)
+		{
+		}
+
+		StreamReader(EndianType endiantype, std::istream& in)
+			: Reader(endiantype), in(&in)
+		{
+		}
+
+		size_t Read(void * data, size_t max_count = size_t(-1)) override;
+		void Seek(offset_t offset) override;
+		void Skip(offset_t offset) override;
+		void SeekEnd(relative_offset_t offset = 0) override;
+		offset_t Tell() override;
+	};
+
+	class WindowReader : public Reader
+	{
+	public:
+		std::shared_ptr<Reader> reader;
+		offset_t start_offset;
+		offset_t maximum_size;
+
+	protected:
+		/** @brief If reader is itself a WindowReader, adjust the window and reference the reader directly */
+		void _FixupWindow();
+
+	public:
+		WindowReader(EndianType endiantype, std::shared_ptr<Reader> reader, offset_t start_offset, offset_t maximum_size)
+			: Reader(endiantype), reader(reader), start_offset(start_offset), maximum_size(maximum_size)
+		{
+			_FixupWindow();
+		}
+
+		size_t Read(void * data, size_t max_count = size_t(-1)) override;
+		void Seek(offset_t offset) override;
+		void Skip(offset_t offset) override;
+		void SeekEnd(relative_offset_t offset = 0) override;
+		offset_t Tell() override;
+
+		offset_t GetImageEnd() override;
+	};
+
+	// TODO: untested
+	class ImageReader : public Reader
+	{
+	public:
+		std::shared_ptr<Image> image;
+		offset_t position = 0;
+
+		ImageReader(EndianType endiantype, std::shared_ptr<Image> image)
+			: Reader(endiantype), image(image)
+		{
+		}
+
+		size_t Read(void * data, size_t max_count = size_t(-1)) override;
+		void Seek(offset_t offset) override;
+		void Skip(offset_t offset) override;
+		void SeekEnd(relative_offset_t offset = 0) override;
+		offset_t Tell() override;
+
+		offset_t GetImageEnd() override;
 	};
 }
 

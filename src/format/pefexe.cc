@@ -729,7 +729,9 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 	case PatternInitializedData:
 		rd.Seek(container_offset);
 		{
-			Linker::Reader section_reader = rd.CreateWindow(container_offset, packed_size);
+			// TODO: bad programming pattern
+			auto _section_reader = rd.CreateWindow(container_offset, packed_size);
+			Linker::Reader& section_reader = *_section_reader;
 			section_reader.on_overflow = Linker::Reader::ReportOnOverflow;
 			patterns.clear();
 			try
@@ -760,7 +762,9 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, Linker::Reader& rd)
 		rd.Seek(container_offset);
 		pef_format.loader_section_offset = container_offset;
 		{
-			Linker::Reader section_reader = rd.CreateWindow(container_offset, packed_size);
+			// TODO: bad programming pattern
+			auto _section_reader = rd.CreateWindow(container_offset, packed_size);
+			Linker::Reader& section_reader = *_section_reader;
 			pef_format.ReadLoaderSection(section_reader);
 		}
 		break;
