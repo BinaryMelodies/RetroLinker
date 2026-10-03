@@ -373,6 +373,11 @@ namespace Apple
 
 		void Link(Linker::Module& module);
 
+	protected:
+		/** @brief Checks if this relocation belongs to an A5-relative addressing mode */
+		bool CheckA5Relative(Linker::Relocation& rel);
+
+	public:
 		void ProcessModule(Linker::Module& module) override;
 
 		void CalculateValues() override;

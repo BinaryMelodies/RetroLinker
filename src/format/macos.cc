@@ -615,6 +615,7 @@ std::unique_ptr<Script::List> MacintoshResourceFileFormat::GetScript(Linker::Mod
 {
 	/* TODO: make placing .comm/.bss data inside the .a5world optional */
 
+	// place all zero sections into a5world, all .code/.text/.data/.rodata gets placed into the first segment, make separate code segments for each other section
 	static const char * SimpleScript = R"(
 ".a5world"
 {
@@ -649,6 +650,7 @@ for any
 };
 )";
 
+	// place all sections except a5world into the first segment
 	static const char * TinyScript = R"(
 ".a5world"
 {
@@ -698,6 +700,63 @@ void MacintoshResourceFileFormat::Link(Linker::Module& module)
 	ProcessScript(script, module);
 }
 
+bool MacintoshResourceFileFormat::CheckA5Relative(Linker::Relocation& rel)
+{
+	auto section = rel.source.section;
+	auto offset  = rel.source.offset;
+
+	if(section == nullptr || offset < 2)
+		return false;
+
+	offset -= 2;
+	uint16_t word = section->ReadUnsigned(2, offset, ::BigEndian);
+
+	Linker::Debug << "Debug: following " << std::hex << word << std::endl;
+	if((word & 0x003F) == 0x002D && rel.size == 2)
+	{
+		// i16(a5)
+		Linker::Debug << "Debug: i16(a5)" << std::endl;
+		return true;
+	}
+
+	if((word & 0x3000) != 0x0000 && (word & 0xCFC0) == 0x0B40)
+	{
+		// move ..., i16(a5)
+		Linker::Debug << "Debug: move ..., i16(a5)" << std::endl;
+		return true;
+	}
+
+	if(((word & 0x01DC) == 0x01D0 && rel.size == 2)
+	|| ((word & 0x01DC) == 0x01D8 && rel.size == 4))
+	{
+		// i16(a5,...)
+		// i32(a5,...)
+
+		if((word & 0x0027) == 0x0004
+		|| (word & 0x0024) == 0x0024)
+		{
+			// reserved
+			return false;
+		}
+
+		if(offset < 2)
+			return false;
+
+		offset -= 2;
+		word = section->ReadUnsigned(2, offset, ::BigEndian);
+
+		if((word & 0x003F) == 0x0035)
+		{
+			Linker::Debug << "Debug: imm(a5,...)" << std::endl;
+			return true;
+		}
+
+		// TODO: what if it is the extended addressing target of a move?
+	}
+
+	return false;
+}
+
 void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 {
 	jump_table = std::make_shared<JumpTableCodeResource>();
@@ -738,23 +797,61 @@ for(auto section : module.Sections())
 			Linker::Error << "Error: Unable to resolve relocation: " << rel << std::endl;
 		}
 
-		if(resolution.target == nullptr /* relocation to a specific segment */
-		|| resolution.target->sections.size() == 0
-		|| !resolution.target->sections[0]->IsExecutable())
+		enum
 		{
-			// TODO: A5-relative vs. A5-absolute addresses
+			SimpleRelocation,
+			JumpTableEntry,
+			SegmentRelative,
+			A5Relative,
+		} relocation_type = SimpleRelocation;
+
+		if(resolution.target != nullptr /* relocation to a specific segment */
+		&& resolution.target->sections.size() > 0)
+		{
+			if(resolution.target->sections[0]->IsExecutable())
+			{
+				if(CheckA5Relative(rel))
+				{
+					relocation_type = JumpTableEntry;
+				}
+				else
+				{
+					relocation_type = SegmentRelative;
+				}
+			}
+			else if(resolution.target == a5world)
+			{
+				if(!CheckA5Relative(rel))
+				{
+					relocation_type = A5Relative;
+				}
+			}
+			else
+			{
+				Linker::Error << "Error: Invalid relocation: " << rel << std::endl;
+				continue;
+			}
+		}
+
+		switch(relocation_type)
+		{
+		case SimpleRelocation:
 			rel.WriteWord(resolution.value);
-		}
-		else if(resolution.target != rel.source.GetPosition().segment) /* different segment than source */
-		{
-			Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
+			break;
+		case JumpTableEntry:
 			/* jsr method_name(a5) can be replaced by an entry */
+			Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
 			entry_relocations[resolution.target][resolution.value].push_back(rel);
-		}
-		else
-		{
-			// TODO: segment-relative addresses
-			Linker::Error << "Error: Unimplemented: " << rel << "->" << resolution << std::endl;
+			break;
+		case SegmentRelative:
+			Linker::Error << "Error: Unimplemented segment-relative: " << rel << std::endl;
+			break;
+		case A5Relative:
+			Linker::Error << "Error: Unimplemented A5-relative: " << rel << std::endl;
+			break;
+		default:
+			Linker::Error << "Internal error: Undefined relocation: " << rel << std::endl;
+			break;
 		}
 	}
 

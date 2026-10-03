@@ -33,14 +33,30 @@ start:
 
 	_LoadA	text_common1, a0
 	bsrw	PutString
+.if TARGET_MACOS
+.if MODEL_TINY
+	lea.l	common1(pc), a0
+.else
+	lea.l	common1(a5), a0
+.endif
+.else
 	_LoadA	common1, a0
+.endif
 	move.l	a0, d0
 	bsrw	PutLong
 	bsrw	PutNewLine
 
 	_LoadA	text_common2, a0
 	bsrw	PutString
+.if TARGET_MACOS
+.if MODEL_TINY
+	lea.l	common2(pc), a0
+.else
+	lea.l	common2(a5), a0
+.endif
+.else
 	_LoadA	common2, a0
+.endif
 	move.l	a0, d0
 	bsrw	PutLong
 	bsrw	PutNewLine
