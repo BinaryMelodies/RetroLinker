@@ -191,6 +191,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::sha
 		uint16_t _loadseg = rd->ReadUnsigned(2); // LOADSEG
 		if(entry.offset == 0 && _move_data_sp == 0xFFFF && entry.segment == 0 && _loadseg == 0)
 		{
+			i += 8;
 			break;
 		}
 		near_entries.push_back(entry);
