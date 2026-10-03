@@ -94,6 +94,13 @@ start:
 	bsrw	PutNewLine
 .endif
 
+.if TARGET_MACOS
+.ifdef MODEL_DEFAULT
+	bsrw	WaitForKey
+	jsr	FarFunction(a5)
+.endif
+.endif
+
 	bsrw	WaitForKey
 	bsrw	Exit
 
@@ -163,6 +170,42 @@ WaitForKey:
 
 Exit:
 	_Exit
+
+.if TARGET_MACOS
+.ifdef MODEL_DEFAULT
+	.section	SecondSegment, "ax", @progbits
+
+FarFunction:
+	_LoadA	far_message, a0
+	bsrw	FarPutString
+	bsrw	FarPutNewLine
+
+	rts
+
+FarPutString:
+1:
+	move.b	(a0)+, d0
+	beqs	1f
+	move.l	a0, -(sp)
+	bsrw	FarPutChar
+	move.l	(sp)+, a0
+	bras	1b
+1:
+	rts
+
+FarPutChar:
+	_PutChar	d0
+	rts
+
+FarPutNewLine:
+	_PutNewLine
+	rts
+
+far_message:
+	.ascii	"Greetings from another segment!"
+
+.endif
+.endif
 
 	.section	.data
 

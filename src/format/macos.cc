@@ -489,7 +489,7 @@ int MacintoshResourceFileFormat::CodeResource::GetDisplayOptions() const
 
 void MacintoshResourceFileFormat::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
-	Resource::Dump(dump, file_offset);
+	Resource::Dump(dump, file_offset + (is_far ? 40 : 4));
 	// TODO: print relocations
 }
 
@@ -728,6 +728,8 @@ for(auto section : module.Sections())
 	/* must be the first entry */
 	codes[0]->near_entries.insert(entry_offset);
 
+	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>> entry_relocations;
+
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -735,11 +737,42 @@ for(auto section : module.Sections())
 		{
 			Linker::Error << "Error: Unable to resolve relocation: " << rel << std::endl;
 		}
-		rel.WriteWord(resolution.value);
-		if(resolution.target != nullptr)
+
+		if(resolution.target != nullptr /* relocation to a specific segment */
+		&& resolution.target->sections.size() > 0
+		&& resolution.target->sections[0]->IsExecutable() /* segment is executable */
+		&& resolution.target != rel.source.GetPosition().segment) /* different segment than source */
 		{
-			/* TODO: how do we deal with relocations? */
-			/* idea: jsr method_name(a5) can be replaced by an entry */
+			Linker::Error << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
+			/* jsr method_name(a5) can be replaced by an entry */
+			entry_relocations[resolution.target][resolution.value].push_back(rel);
+		}
+		else
+		{
+			rel.WriteWord(resolution.value);
+		}
+	}
+
+	// allocate jump table entries
+	for(auto& resource : codes)
+	{
+		auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
+
+		auto iter = entry_relocations.find(segment);
+		if(iter == entry_relocations.end())
+			continue;
+
+		for(auto entry_offset : iter->second)
+		{
+			offset_t offset = entry_offset.first;
+			if(offset <= 0xFFFF)
+			{
+				resource->near_entries.insert(offset);
+			}
+			else
+			{
+				resource->far_entries.insert(offset);
+			}
 		}
 	}
 
@@ -750,22 +783,55 @@ for(auto section : module.Sections())
 	{
 		/* since the first entry is already loaded, we have to skip it */
 		resource->first_near_entry_offset = resource == codes[0] ? 0 : jump_table->near_entries.size() * 8;
+		uint32_t jump_table_offset = 32 + resource->first_near_entry_offset + 2;
 		for(uint16_t entry : resource->near_entries)
 		{
 			if(resource == codes[0] && entry == entry_offset)
 				continue; /* already inserted */
-			jump_table->near_entries.push_back(JumpTableCodeResource::Entry{1, entry}); /* TODO: segment number */
+
+			jump_table->near_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
+
+			auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
+			auto resource_iter = entry_relocations.find(segment);
+			if(resource_iter != entry_relocations.end())
+			{
+				auto entry_iter = resource_iter->second.find(entry);
+				if(entry_iter != resource_iter->second.end())
+				{
+					for(auto& rel : entry_iter->second)
+					{
+						rel.WriteWord(jump_table_offset);
+					}
+				}
+			}
+			jump_table_offset += 8;
 		}
 	}
 	for(auto& resource : codes)
 	{
 		if(resource->far_entries.size() == 0)
 			continue;
-		resource->first_far_entry_offset = jump_table->far_entries.size() * 8;
+		resource->first_far_entry_offset = jump_table->near_entries.size() * 8 + 8 + jump_table->far_entries.size() * 8;
 		//jump_table->far_entries.insert(jump_table->far_entries.end(), resource->far_entries.begin(), resource->far_entries.end());
+		uint32_t jump_table_offset = 32 + resource->first_far_entry_offset + 2;
 		for(uint32_t entry : resource->far_entries)
 		{
-			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{1, entry}); /* TODO: segment number */
+			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
+
+			auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
+			auto resource_iter = entry_relocations.find(segment);
+			if(resource_iter != entry_relocations.end())
+			{
+				auto entry_iter = resource_iter->second.find(entry);
+				if(entry_iter != resource_iter->second.end())
+				{
+					for(auto& rel : entry_iter->second)
+					{
+						rel.WriteWord(jump_table_offset);
+					}
+				}
+			}
+			jump_table_offset += 8;
 		}
 	}
 
