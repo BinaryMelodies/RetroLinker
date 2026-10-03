@@ -39,7 +39,12 @@ void MacintoshResourceFileFormat::SetOptions(std::map<std::string, std::string>&
 	collector.ConsiderOptions(options);
 
 	bool _32 = collector._32();
-	// TODO: collector.far();
+
+	if(collector.far())
+	{
+		allow_far_segments = true;
+		_32 = true;
+	}
 
 	if(_32)
 	{
@@ -305,7 +310,7 @@ void MacintoshResourceFileFormat::CodeResource::CalculateValues()
 	}
 	else
 	{
-		a5_relocation_offset = 0x28 + ImageSize() + zero_fill;
+		a5_relocation_offset = 0x28 + image->ImageSize() + zero_fill;
 		segment_relocation_offset = a5_relocation_offset + MeasureRelocations(a5_relocations);
 		resource_size = segment_relocation_offset + MeasureRelocations(segment_relocations);
 	}
@@ -480,6 +485,21 @@ void MacintoshResourceFileFormat::CodeResource::AddFields(Dumper::Dumper& dump, 
 		region.AddField("Segment address", Dumper::HexDisplay::Make(8), offset_t(base_address));
 	}
 
+	// note: this should never fail
+	if(auto pointer = dynamic_cast<Dumper::Block *>(&region))
+	{
+		auto& block = *pointer;
+
+		for(auto offset : segment_relocations)
+		{
+			block.AddSignal(offset, 4);
+		}
+
+		for(auto offset : a5_relocations)
+		{
+			block.AddSignal(offset, 4);
+		}
+	}
 }
 
 int MacintoshResourceFileFormat::CodeResource::GetDisplayOptions() const
@@ -490,7 +510,24 @@ int MacintoshResourceFileFormat::CodeResource::GetDisplayOptions() const
 void MacintoshResourceFileFormat::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
 	Resource::Dump(dump, file_offset + (is_far ? 40 : 4));
-	// TODO: print relocations
+
+	unsigned i = 0;
+	for(auto offset : segment_relocations)
+	{
+		Dumper::Entry relocation_entry("Segment relocation", i + 1, offset_t(-1) /* TODO */, 8);
+		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(offset));
+		relocation_entry.Display(dump, Dumper::Relocation);
+		i ++;
+	}
+
+	i = 0;
+	for(auto offset : a5_relocations)
+	{
+		Dumper::Entry relocation_entry("A5 relocation", i + 1, offset_t(-1) /* TODO */, 8);
+		relocation_entry.AddField("Source", Dumper::HexDisplay::Make(8), offset_t(offset));
+		relocation_entry.Display(dump, Dumper::Relocation);
+		i ++;
+	}
 }
 
 std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::CodeResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
@@ -726,14 +763,14 @@ bool MacintoshResourceFileFormat::CheckA5Relative(Linker::Relocation& rel)
 		return true;
 	}
 
-	if(((word & 0x01DC) == 0x01D0 && rel.size == 2)
-	|| ((word & 0x01DC) == 0x01D8 && rel.size == 4))
+	if(((word & 0x01B0) == 0x0120 && rel.size == 2)
+	|| ((word & 0x01B0) == 0x0130 && rel.size == 4))
 	{
 		// i16(a5,...)
 		// i32(a5,...)
 
-		if((word & 0x0027) == 0x0004
-		|| (word & 0x0024) == 0x0024)
+		if((word & 0x0047) == 0x0004
+		|| (word & 0x0044) == 0x0044)
 		{
 			// reserved
 			return false;
@@ -844,10 +881,36 @@ for(auto section : module.Sections())
 			entry_relocations[resolution.target][resolution.value].push_back(rel);
 			break;
 		case SegmentRelative:
-			Linker::Error << "Error: Unimplemented segment-relative: " << rel << std::endl;
+			if(!allow_far_segments)
+			{
+				Linker::Error << "Error: segment relative absolute addressing only supported for far segments (enable using -Sfar)" << std::endl;
+			}
+			else if(rel.size != 4)
+			{
+				Linker::Error << "Error: invalid segment relative relocation" << std::endl;
+			}
+			else
+			{
+				auto position = rel.source.GetPosition();
+				segments[position.segment]->segment_relocations.insert(position.address - position.segment->base_address);
+				rel.WriteWord(resolution.value);
+			}
 			break;
 		case A5Relative:
-			Linker::Error << "Error: Unimplemented A5-relative: " << rel << std::endl;
+			if(!allow_far_segments)
+			{
+				Linker::Error << "Error: A5 relative absolute addressing only supported for far segments (enable using -Sfar)" << std::endl;
+			}
+			else if(rel.size != 4)
+			{
+				Linker::Error << "Error: invalid A5 relative relocation" << std::endl;
+			}
+			else
+			{
+				auto position = rel.source.GetPosition();
+				segments[position.segment]->a5_relocations.insert(position.address - position.segment->base_address);
+				rel.WriteWord(resolution.value);
+			}
 			break;
 		default:
 			Linker::Error << "Internal error: Undefined relocation: " << rel << std::endl;
@@ -871,9 +934,13 @@ for(auto section : module.Sections())
 			{
 				resource->near_entries.insert(offset);
 			}
-			else
+			else if(allow_far_segments)
 			{
 				resource->far_entries.insert(offset);
+			}
+			else
+			{
+				Linker::Error << "Error: entry offset out of bounds (enable far segments using -Sfar)" << std::endl;
 			}
 		}
 	}
@@ -909,6 +976,7 @@ for(auto section : module.Sections())
 			jump_table_offset += 8;
 		}
 	}
+
 	for(auto& resource : codes)
 	{
 		if(resource->far_entries.size() == 0)
@@ -934,6 +1002,21 @@ for(auto section : module.Sections())
 				}
 			}
 			jump_table_offset += 8;
+		}
+	}
+
+	for(auto& resource : codes)
+	{
+		if(resource->far_entries.size() != 0
+		|| resource->a5_relocations.size() != 0
+		|| resource->segment_relocations.size() != 0)
+		{
+			resource->is_far = true;
+			resource->base_address = std::dynamic_pointer_cast<Linker::Segment>(resource->image)->base_address;
+			if(a5world)
+			{
+				resource->a5_address = a5world->base_address;
+			}
 		}
 	}
 

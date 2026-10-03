@@ -345,6 +345,8 @@ namespace Apple
 		static std::shared_ptr<Resource> ReadResource(const std::shared_ptr<Linker::Reader>& rd, const ResourceType& type, const ResourceReference& reference);
 
 		uint16_t attributes = 0; /* TODO: parametrize */
+		/* command line parameter */
+		bool allow_far_segments = false;
 		/** @brief A list of all resource types, as stored in the file */
 		std::vector<ResourceType> resource_types;
 		/** @brief A list of all resource names, as stored in the file */
