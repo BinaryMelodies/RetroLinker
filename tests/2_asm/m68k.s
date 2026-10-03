@@ -26,7 +26,12 @@ start:
 	move.l	(sp)+, d0
 	sub.l	#1b - start, d0
 .if TARGET_MACOS
+.if MODEL_TINY
+	lea.l	stored_pc(pc), a0
+	move.l	d0, (a0)
+.else
 	move.l	d0, stored_pc(a5)
+.endif
 .else
 	_StoreL	d0, stored_pc
 .endif
@@ -54,7 +59,11 @@ start:
 	_LoadA	text_pc, a0
 	bsrw	PutString
 .if TARGET_MACOS
+.if MODEL_TINY
+	move.l	stored_pc(pc), d0
+.else
 	move.l	stored_pc(a5), d0
+.endif
 .else
 	_LoadL	stored_pc, d0
 .endif

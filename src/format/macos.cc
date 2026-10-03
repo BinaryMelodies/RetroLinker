@@ -738,18 +738,23 @@ for(auto section : module.Sections())
 			Linker::Error << "Error: Unable to resolve relocation: " << rel << std::endl;
 		}
 
-		if(resolution.target != nullptr /* relocation to a specific segment */
-		&& resolution.target->sections.size() > 0
-		&& resolution.target->sections[0]->IsExecutable() /* segment is executable */
-		&& resolution.target != rel.source.GetPosition().segment) /* different segment than source */
+		if(resolution.target == nullptr /* relocation to a specific segment */
+		|| resolution.target->sections.size() == 0
+		|| !resolution.target->sections[0]->IsExecutable())
 		{
-			Linker::Error << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
+			// TODO: A5-relative vs. A5-absolute addresses
+			rel.WriteWord(resolution.value);
+		}
+		else if(resolution.target != rel.source.GetPosition().segment) /* different segment than source */
+		{
+			Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
 			/* jsr method_name(a5) can be replaced by an entry */
 			entry_relocations[resolution.target][resolution.value].push_back(rel);
 		}
 		else
 		{
-			rel.WriteWord(resolution.value);
+			// TODO: segment-relative addresses
+			Linker::Error << "Error: Unimplemented: " << rel << "->" << resolution << std::endl;
 		}
 	}
 
