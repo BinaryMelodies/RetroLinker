@@ -485,22 +485,6 @@ void MacintoshResourceFileFormat::CodeResource::AddFields(Dumper::Dumper& dump, 
 		region.AddField("Segment relocation offset", Dumper::HexDisplay::Make(8), offset_t(segment_relocation_offset));
 		region.AddField("Segment address", Dumper::HexDisplay::Make(8), offset_t(base_address));
 	}
-
-	// note: this should never fail
-	if(auto pointer = dynamic_cast<Dumper::Block *>(&region))
-	{
-		auto& block = *pointer;
-
-		for(auto offset : segment_relocations)
-		{
-			block.AddSignal(offset, 4);
-		}
-
-		for(auto offset : a5_relocations)
-		{
-			block.AddSignal(offset, 4);
-		}
-	}
 }
 
 int MacintoshResourceFileFormat::CodeResource::GetDisplayOptions() const
@@ -510,7 +494,21 @@ int MacintoshResourceFileFormat::CodeResource::GetDisplayOptions() const
 
 void MacintoshResourceFileFormat::CodeResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
 {
-	Resource::Dump(dump, file_offset + (is_far ? 40 : 4));
+	Resource::Dump(dump, file_offset);
+
+	Dumper::Block segment_block("Segment", file_offset + (is_far ? 0x28 : 4), image->AsImage(), base_address, 8);
+
+	for(auto offset : segment_relocations)
+	{
+		segment_block.AddSignal(offset, 4);
+	}
+
+	for(auto offset : a5_relocations)
+	{
+		segment_block.AddSignal(offset, 4);
+	}
+
+	segment_block.Display(dump, Dumper::Image);
 
 	unsigned i = 0;
 	for(auto offset : segment_relocations)
@@ -529,11 +527,6 @@ void MacintoshResourceFileFormat::CodeResource::Dump(Dumper::Dumper& dump, offse
 		relocation_entry.Display(dump, Dumper::Relocation);
 		i ++;
 	}
-}
-
-std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::CodeResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
-{
-	return std::make_unique<Dumper::Block>(name, offset + (is_far ? 0x28 : 4), image->AsImage(), base_address, display_width);
 }
 
 void MacintoshResourceFileFormat::SizeResource::CalculateValues()

@@ -228,7 +228,6 @@ namespace Apple
 			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
 			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
-			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
 		class SizeResource : public Resource
