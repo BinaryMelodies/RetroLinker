@@ -288,7 +288,7 @@ void WindowReader::SeekEnd(relative_offset_t offset)
 
 offset_t WindowReader::Tell()
 {
-	return Tell() - start_offset;
+	return reader->Tell() - start_offset;
 }
 
 offset_t WindowReader::GetImageEnd()
