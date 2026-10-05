@@ -240,15 +240,6 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::AddFields(Dumper::Dumpe
 {
 	region.AddField("Above A5", Dumper::HexDisplay::Make(8), offset_t(above_a5));
 	region.AddField("Below A5", Dumper::HexDisplay::Make(8), offset_t(below_a5));
-	offset_t jump_table_size;
-	if(far_entries.size() == 0)
-	{
-		jump_table_size = 8 * near_entries.size();
-	}
-	else
-	{
-		jump_table_size = 8 + 8 * (near_entries.size() + far_entries.size());
-	}
 	region.AddField("Jump table size", Dumper::HexDisplay::Make(8), offset_t(jump_table_size));
 	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(jump_table_offset));
 }
