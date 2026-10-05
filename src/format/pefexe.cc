@@ -9,6 +9,49 @@
 
 using namespace Apple;
 
+void PEFHeaderBase::ReadBaseFields(const std::shared_ptr<Linker::Reader>& rd)
+{
+	architecture = cpu_type(rd->ReadUnsigned(4));
+	format_version = rd->ReadUnsigned(4);
+	date_time_stamp = rd->ReadTimestamp<Macintosh_clock>();
+	old_def_version = rd->ReadUnsigned(4);
+	old_imp_version = rd->ReadUnsigned(4);
+	current_version = rd->ReadUnsigned(4);
+	section_count = rd->ReadUnsigned(2);
+	inst_section_count = rd->ReadUnsigned(2);
+}
+
+void PEFHeaderBase::WriteBaseFields(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	wr->WriteWord(4, architecture);
+	wr->WriteWord(4, format_version);
+	wr->WriteTimestamp(date_time_stamp);
+	wr->WriteWord(4, old_def_version);
+	wr->WriteWord(4, old_imp_version);
+	wr->WriteWord(4, current_version);
+	wr->WriteWord(2, section_count);
+	wr->WriteWord(2, inst_section_count);
+}
+
+void PEFHeaderBase::AddBaseFields(Dumper::Region& header_region) const
+{
+	// convert architecture word back to ASCII string
+	union
+	{
+		uint32_t value;
+		char string[4];
+	} u;
+	u.value = FromBigEndian32(architecture); // TODO: should be ToBigEndian32
+	header_region.AddField("Architecture", Dumper::StringDisplay::Make("'"), std::string(u.string, 4));
+	header_region.AddField("Format version", Dumper::DecDisplay::Make(), offset_t(format_version));
+	header_region.AddField("Date time stamp", Dumper::TimestampDisplay<Macintosh_clock>::Make(), date_time_stamp);
+	header_region.AddField("Old definition version", Dumper::DecDisplay::Make(), offset_t(old_def_version));
+	header_region.AddField("Old implementation version", Dumper::DecDisplay::Make(), offset_t(old_imp_version));
+	header_region.AddField("Current version", Dumper::DecDisplay::Make(), offset_t(current_version));
+	header_region.AddField("Section count", Dumper::DecDisplay::Make(), offset_t(section_count));
+	header_region.AddField("Instantiated section count", Dumper::DecDisplay::Make(), offset_t(inst_section_count));
+}
+
 uint32_t PEFFormat::PatternInitialization::ReadValue(const std::shared_ptr<Linker::Reader>& rd)
 {
 	uint32_t value = 0;
@@ -101,7 +144,7 @@ void PEFFormat::PatternInitialization::ReadFile(const std::shared_ptr<Linker::Re
 		}
 		break;
 	default:
-		// TODO: undefined
+		Linker::Error << "Error: invalid pattern format " << opcode << std::endl;
 		break;
 	}
 }
@@ -709,7 +752,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, const std::shared_ptr<L
 {
 	if(name_offset != NoNameOffset)
 	{
-		rd->Seek(pef_format.GetSectionNameTableOffset());
+		rd->Seek(pef_format.GetSectionNameTableOffset() + name_offset);
 		name = rd->ReadASCIIZ();
 	}
 	else
@@ -1304,18 +1347,25 @@ void PEFFormat::WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) co
 	}
 }
 
+void PEFFormat::EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
+{
+	if(effect_handled)
+	{
+		// avoid modifying resources twice
+		return;
+	}
+
+	effect_handled = true;
+
+	auto wrd = rd->CreateWindow(offset, length);
+	ReadFile(wrd);
+}
+
 void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	rd->endiantype = ::BigEndian;
 	rd->Seek(8);
-	architecture = cpu_type(rd->ReadUnsigned(4));
-	format_version = rd->ReadUnsigned(4);
-	date_time_stamp = rd->ReadTimestamp<Macintosh_clock>();
-	old_def_version = rd->ReadUnsigned(4);
-	old_imp_version = rd->ReadUnsigned(4);
-	current_version = rd->ReadUnsigned(4);
-	uint16_t section_count = rd->ReadUnsigned(2);
-	inst_section_count = rd->ReadUnsigned(2);
+	ReadBaseFields(rd);
 	reserved = rd->ReadUnsigned(4);
 
 	section_name_table_end = GetSectionNameTableOffset();
@@ -1346,14 +1396,7 @@ offset_t PEFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	wr->endiantype = ::BigEndian;
 	wr->WriteData("Joy!peff");
-	wr->WriteWord(4, architecture);
-	wr->WriteWord(4, format_version);
-	wr->WriteTimestamp(date_time_stamp);
-	wr->WriteWord(4, old_def_version);
-	wr->WriteWord(4, old_imp_version);
-	wr->WriteWord(4, current_version);
-	wr->WriteWord(2, sections.size());
-	wr->WriteWord(2, inst_section_count);
+	WriteBaseFields(wr);
 	wr->WriteWord(4, reserved);
 
 	for(auto section : sections)
@@ -1380,6 +1423,7 @@ void PEFFormat::CalculateValues()
 	format_version = 1;
 	reserved = 0;
 
+	section_count = sections.size();
 	inst_section_count = 0;
 	// move all instantiated sections before all uninstantiated sections
 	for(uint16_t section_index = 0; section_index < sections.size(); section_index++)
@@ -1586,21 +1630,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Container header", file_offset, ContainerHeaderSize, 8);
-	// convert architecture word back to ASCII string
-	union
-	{
-		uint32_t value;
-		char string[4];
-	} u;
-	u.value = FromBigEndian32(architecture); // TODO: should be ToBigEndian32
-	header_region.AddField("Architecture", Dumper::StringDisplay::Make("'"), std::string(u.string, 4));
-	header_region.AddField("Format version", Dumper::DecDisplay::Make(), offset_t(format_version));
-	header_region.AddField("Date time stamp", Dumper::TimestampDisplay<Macintosh_clock>::Make(), date_time_stamp);
-	header_region.AddField("Old definition version", Dumper::DecDisplay::Make(), offset_t(old_def_version));
-	header_region.AddField("Old implementation version", Dumper::DecDisplay::Make(), offset_t(old_imp_version));
-	header_region.AddField("Current version", Dumper::DecDisplay::Make(), offset_t(current_version));
-	header_region.AddField("Section count", Dumper::DecDisplay::Make(), offset_t(sections.size()));
-	header_region.AddField("Instantiated section count", Dumper::DecDisplay::Make(), offset_t(inst_section_count));
+	AddBaseFields(header_region);
 	header_region.AddOptionalField("Reserved field", Dumper::HexDisplay::Make(8), offset_t(reserved));
 	header_region.Display(dump, Dumper::Header);
 
@@ -2242,6 +2272,245 @@ void PEFFormat::GenerateFile(std::string filename, Linker::Module& module)
 	linker_parameters["data_section_align"] = 0x00000010;
 
 	Linker::OutputFormat::GenerateFile(filename, module);
+}
+
+void PEFHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	rd->endiantype = ::BigEndian;
+	rd->Seek(8);
+	ReadBaseFields(rd);
+	memory_address = rd->ReadUnsigned(4);
+	exported_symbol_count = rd->ReadUnsigned(4);
+	rd->Skip(4);
+	secondary_resource_id = rd->ReadUnsigned(2);
+	last_valid_code_resource = rd->ReadUnsigned(2);
+	below_a5_size = rd->ReadUnsigned(4);
+}
+
+offset_t PEFHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	wr->endiantype = ::BigEndian;
+	wr->WriteData("JOA!rseg"); // TODO: not sure why "JOA!"
+	WriteBaseFields(wr);
+	wr->WriteWord(4, memory_address);
+	wr->WriteWord(4, exported_symbol_count);
+	wr->WriteWord(4, 0);
+	wr->WriteWord(2, secondary_resource_id);
+	wr->WriteWord(2, last_valid_code_resource);
+	wr->WriteWord(4, below_a5_size);
+	return 0x38;
+}
+
+void PEFHeader::AddFields(Dumper::Region& header_region) const
+{
+	AddBaseFields(header_region);
+	header_region.AddField("Memory address", Dumper::HexDisplay::Make(8), offset_t(memory_address));
+	header_region.AddField("Exported symbol count", Dumper::DecDisplay::Make(), offset_t(exported_symbol_count));
+	header_region.AddField("Secondary resource ID", Dumper::DecDisplay::Make(), offset_t(secondary_resource_id));
+	header_region.AddField("Last valid CODE resource", Dumper::DecDisplay::Make(), offset_t(last_valid_code_resource));
+	header_region.AddField("Below A5 size", Dumper::HexDisplay::Make(8), offset_t(below_a5_size));
+}
+
+void PEFHeader::EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
+{
+	if(effect_handled)
+	{
+		// avoid modifying resources twice
+		return;
+	}
+
+	effect_handled = true;
+
+	auto wrd = rd->CreateWindow(offset, length);
+	ReadFile(wrd);
+
+	// convert the referenced resource
+
+	for(auto& type : format.resource_types)
+	{
+		if(memcmp(type.type, "rseg", 4) != 0)
+			continue;
+
+		for(auto& reference : type.references)
+		{
+			if(reference.id != secondary_resource_id)
+				continue;
+
+			auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFFormat>(), reference.data);
+			rseg->EffectFormatImmediately(format, rd, format.file_offset + format.data_offset + reference.data_offset + 4, reference.data->ImageSize());
+			reference.data = rseg;
+			return;
+		}
+	}
+}
+
+void RSegResource::CalculateValues()
+{
+	if(raw_data)
+	{
+		raw_data->CalculateValues();
+	}
+	std::visit([](auto&& pef)
+	{
+		using T = std::decay_t<decltype(pef)>;
+		if constexpr(std::is_same_v<T, std::shared_ptr<PEFFormat>>)
+		{
+			pef->CalculateValues();
+		}
+		else if constexpr(std::is_same_v<T, std::shared_ptr<PEFHeader>>)
+		{
+			// do nothing
+		}
+		else
+		{
+			static_assert(false);
+		}
+	}, structured_data);
+}
+
+offset_t RSegResource::ImageSize() const
+{
+	if(raw_data)
+	{
+		return raw_data->ImageSize();
+	}
+
+	return std::visit([](auto&& pef)
+	{
+		using T = std::decay_t<decltype(pef)>;
+		if constexpr(std::is_same_v<T, std::shared_ptr<PEFFormat>>)
+		{
+			return pef->ImageSize();
+		}
+		else if constexpr(std::is_same_v<T, std::shared_ptr<PEFHeader>>)
+		{
+			return offset_t(0x38);
+		}
+		else
+		{
+			static_assert(false);
+		}
+	}, structured_data);
+}
+
+void RSegResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	Linker::Error << "Error: attempting to read a lone resource" << std::endl;
+	rd->Skip(-4);
+	uint32_t length = rd->ReadUnsigned(4);
+	ReadFile(rd, length);
+}
+
+void RSegResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length)
+{
+	return std::visit([&rd](auto&& pef)
+	{
+		pef->ReadFile(rd);
+	}, structured_data);
+}
+
+offset_t RSegResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	return std::visit([&wr](auto&& pef)
+	{
+		return pef->WriteFile(wr);
+	}, structured_data);
+}
+
+int RSegResource::GetDisplayOptions() const
+{
+	return Dumper::Header;
+}
+
+void RSegResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
+{
+//	if(raw_data) // TODO: combine raw_data display data?
+//	{
+//		raw_data->Dump(dump, file_offset);
+//	}
+//	else
+//	{
+	Resource::Dump(dump, file_offset);
+//	}
+
+	return std::visit([&dump](auto&& pef)
+	{
+		using T = std::decay_t<decltype(pef)>;
+		if constexpr(std::is_same_v<T, std::shared_ptr<PEFFormat>>)
+		{
+			pef->Dump(dump);
+		}
+		else if constexpr(std::is_same_v<T, std::shared_ptr<PEFHeader>>)
+		{
+			// do nothing
+		}
+		else
+		{
+			static_assert(false);
+		}
+	}, structured_data);
+}
+
+void RSegResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+{
+	return std::visit([&dump, &region](auto&& pef)
+	{
+		using T = std::decay_t<decltype(pef)>;
+		if constexpr(std::is_same_v<T, std::shared_ptr<PEFFormat>>)
+		{
+			// do nothing
+		}
+		else if constexpr(std::is_same_v<T, std::shared_ptr<PEFHeader>>)
+		{
+			pef->AddFields(region);
+		}
+		else
+		{
+			static_assert(false);
+		}
+	}, structured_data);
+}
+
+std::unique_ptr<Dumper::Region> RSegResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
+{
+	if(raw_data)
+	{
+		return raw_data->CreateRegion(name, offset, length, display_width);
+	}
+	else
+	{
+		return Resource::CreateRegion(name, offset, length, display_width);
+	}
+}
+
+void RSegResource::EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
+{
+	std::visit([&format, &rd, offset, length](auto&& pef)
+	{
+		using T = std::decay_t<decltype(pef)>;
+		if constexpr(std::is_same_v<T, std::shared_ptr<PEFFormat>>)
+		{
+			pef->EffectFormatImmediately(format, rd, offset, length);
+		}
+		else if constexpr(std::is_same_v<T, std::shared_ptr<PEFHeader>>)
+		{
+			pef->EffectFormatImmediately(format, rd, offset, length);
+		}
+		else
+		{
+			static_assert(false);
+		}
+	}, structured_data);
+}
+
+void RSegResource::EffectFormat(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd)
+{
+	if(raw_data)
+	{
+		raw_data->EffectFormat(format, rd);
+	}
+
+	//EffectFormatImmediately(format, rd, raw_data ? raw_data->ImageSize() : offset_t(-1));
 }
 
 // PEFOutputDriver

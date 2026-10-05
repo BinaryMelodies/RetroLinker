@@ -86,6 +86,8 @@ namespace Apple
 			virtual void Dump(Dumper::Dumper& dump, offset_t file_offset) const;
 			virtual void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const;
 			virtual std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const;
+			/** @brief Apply some changes to the format after parsing */
+			virtual void EffectFormat(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd);
 
 		protected:
 			Resource(const char type[4], uint16_t id, uint8_t attributes = 0)
@@ -476,6 +478,8 @@ namespace Apple
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
 			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
 			//std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
+
+			void EffectFormat(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd) override;
 		};
 
 		MacintoshResourceFileFormat()

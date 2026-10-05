@@ -1,6 +1,7 @@
 
 #include <cstring>
 #include "macos.h"
+#include "pefexe.h" // needed for 'rseg' resources
 #include "../linker/options.h"
 #include "../linker/position.h"
 #include "../linker/reader.h"
@@ -105,6 +106,10 @@ void MacintoshResourceFileFormat::Resource::Dump(Dumper::Dumper& dump, offset_t 
 }
 
 void MacintoshResourceFileFormat::Resource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+{
+}
+
+void MacintoshResourceFileFormat::Resource::EffectFormat(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd)
 {
 }
 
@@ -909,6 +914,41 @@ void MacintoshResourceFileFormat::CodeFragmentResource::Dump(Dumper::Dumper& dum
 	}
 }
 
+void MacintoshResourceFileFormat::CodeFragmentResource::EffectFormat(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd)
+{
+	for(auto& member : members)
+	{
+		if(member.where == Member::Resource)
+		{
+			// convert the referenced resource
+
+			for(auto& type : format.resource_types)
+			{
+				if(OSTypeToUInt32(type.type) != member.offset)
+					continue;
+
+				bool found = false;
+
+				for(auto& reference : type.references)
+				{
+					if(reference.id != member.length)
+						continue;
+
+					auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFHeader>(), reference.data);
+					rseg->EffectFormatImmediately(format, rd, format.file_offset + format.data_offset + reference.data_offset + 4, reference.data->ImageSize());
+					reference.data = rseg;
+
+					found = true;
+					break;
+				}
+
+				if(found)
+					break;
+			}
+		}
+	}
+}
+
 void MacintoshResourceFileFormat::AddResource(std::shared_ptr<Resource> resource)
 {
 	uint32_t typeval = OSTypeToUInt32(resource->type);
@@ -1463,6 +1503,14 @@ void MacintoshResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>
 
 			// register this resource for convenience
 			AddResource(reference.data);
+		}
+	}
+
+	for(auto& type : resource_types)
+	{
+		for(auto& reference : type.references)
+		{
+			reference.data->EffectFormat(*this, rd);
 		}
 	}
 }

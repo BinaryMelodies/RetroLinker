@@ -16,13 +16,36 @@ namespace Linker
 
 namespace Apple
 {
+	class PEFHeaderBase
+	{
+	public:
+		// values are stored as the bigendian 32-bit word
+		enum cpu_type
+		{
+			M68K = 0x6D36386B, // 'm68k'
+			PPC  = 0x70777063, // 'pwpc'
+		};
+		cpu_type architecture = PPC;
+		uint32_t format_version = 1;
+		::Timestamp<Macintosh_clock> date_time_stamp = { };
+		uint32_t old_def_version = 0;
+		uint32_t old_imp_version = 0;
+		uint32_t current_version = 0;
+		uint16_t section_count = 0;
+		uint16_t inst_section_count = 0;
+		uint32_t reserved = 0;
+
+		void ReadBaseFields(const std::shared_ptr<Linker::Reader>& rd);
+		void WriteBaseFields(const std::shared_ptr<Linker::Writer>& wr) const;
+		void AddBaseFields(Dumper::Region& header_region) const;
+	};
+
 	/**
 	 * @brief PowerPC Classic Mac OS "PEF" file format
 	 */
-	class PEFFormat : public virtual Linker::SegmentManager
+	class PEFFormat : public virtual Linker::SegmentManager, public PEFHeaderBase
 	{
 	public:
-		// TODO: untested
 		/** @brief Pattern initialization data
 		 *
 		 * For pattern initialized data sections (data sections that are not unpacked), they are stored in the file as
@@ -407,20 +430,6 @@ namespace Apple
 
 		// container header information
 
-		// values are stored as the bigendian 32-bit word
-		enum cpu_type
-		{
-			M68K = 0x6D36386B, // 'm68k'
-			PPC  = 0x70777063, // 'pwpc'
-		};
-		cpu_type architecture = PPC;
-		uint32_t format_version = 1;
-		::Timestamp<Macintosh_clock> date_time_stamp = { };
-		uint32_t old_def_version = 0;
-		uint32_t old_imp_version = 0;
-		uint32_t current_version = 0;
-		uint32_t reserved = 0;
-		uint16_t inst_section_count = 0;
 		std::vector<std::shared_ptr<Section>> sections;
 		std::vector<std::string> section_name_table;
 		uint32_t section_name_table_end = 0;
@@ -689,6 +698,11 @@ namespace Apple
 		void ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd);
 		void WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) const;
 
+	private:
+		bool effect_handled = false;
+	public:
+		void EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
+
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		void CalculateValues() override;
 		using Linker::Format::WriteFile;
@@ -702,6 +716,65 @@ namespace Apple
 		void ProcessRelocations(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
+	};
+
+	class PEFHeader : public PEFHeaderBase
+	{
+	private:
+		bool effect_handled = false;
+	public:
+		uint32_t memory_address = 0;
+		uint32_t exported_symbol_count = 0;
+		uint16_t secondary_resource_id = 0;
+		uint16_t last_valid_code_resource = 0;
+		uint32_t below_a5_size = 0;
+
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
+		void AddFields(Dumper::Region& header_region) const;
+
+		void EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
+	};
+
+	class RSegResource : public MacintoshResourceFileFormat::Resource
+	{
+	public:
+		std::variant<std::shared_ptr<PEFFormat>, std::shared_ptr<PEFHeader>> structured_data;
+		std::shared_ptr<MacintoshResourceFileFormat::Resource> raw_data;
+
+		RSegResource(std::shared_ptr<PEFHeader> structured_data, std::shared_ptr<MacintoshResourceFileFormat::Resource> raw_data = nullptr)
+			: Resource(
+				raw_data ? raw_data->type : "rseg",
+				raw_data ? raw_data->id   : 0),
+			structured_data(structured_data), raw_data(raw_data)
+		{
+		}
+
+		RSegResource(std::shared_ptr<PEFFormat> structured_data, std::shared_ptr<MacintoshResourceFileFormat::Resource> raw_data = nullptr)
+			: Resource(
+				raw_data ? raw_data->type : "rseg",
+				raw_data ? raw_data->id   : 1),
+			structured_data(structured_data), raw_data(raw_data)
+		{
+		}
+
+		void CalculateValues() override;
+
+		offset_t ImageSize() const override;
+
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
+		int GetDisplayOptions() const override;
+		using Linker::Format::Dump;
+		void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
+		void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
+		std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
+
+		void EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
+		void EffectFormat(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd) override;
 	};
 
 	class PEFOutputDriver : public MacintoshOutputDriver

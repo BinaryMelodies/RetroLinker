@@ -221,7 +221,7 @@ void WindowReader::_FixupWindow()
 		}
 
 		start_offset += window_reader->start_offset;
-		reader = window_reader;
+		reader = window_reader->reader;
 	}
 }
 
