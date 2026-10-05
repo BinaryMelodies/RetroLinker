@@ -249,10 +249,15 @@ namespace Apple
 			{
 				Classic24,
 				Classic32,
+				AUX32,
 				Carbon,
 			};
 
+			/** @deprecated */
+			static constexpr uint16_t SaveScreen = 0x8000;
 			static constexpr uint16_t AcceptSuspendResumeEvents = 0x4000;
+			/** @deprecated */
+			static constexpr uint16_t DisableOptionSwitch = 0x2000;
 			static constexpr uint16_t CanBackground = 0x1000;
 			static constexpr uint16_t MultiFinderAware = 0x0800;
 			static constexpr uint16_t OnlyBackground = 0x0400;
@@ -278,6 +283,9 @@ namespace Apple
 					return 0;
 				case Classic32:
 					return Is32BitCompatible;
+				case AUX32:
+					// based on A/UX tools
+					return AcceptSuspendResumeEvents | MultiFinderAware | GetFrontClicks | Is32BitCompatible;
 				case Carbon:
 					// based on libretro flags
 					return AcceptSuspendResumeEvents | CanBackground | MultiFinderAware | IsHighLevelEventAware;
@@ -291,6 +299,9 @@ namespace Apple
 				case Classic24:
 				case Classic32:
 					return 100 * 1024;
+				case AUX32:
+					// based on A/UX tools
+					return 32 * 1024;
 				default:
 				case Carbon:
 					// according to Wolfgang Thaller (wdefshell.r)

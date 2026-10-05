@@ -634,7 +634,9 @@ void MacintoshResourceFileFormat::SizeResource::AddFields(Dumper::Dumper& dump, 
 			->AddBitField(10, 1, Dumper::ChoiceDisplay::Make("backgroundAndForeground", "onlyBackground"), false)
 			->AddBitField(11, 1, Dumper::ChoiceDisplay::Make("doesActivateOnFGSwitch/multiFinderAware", "needsActivateOnFGSwitch"), false)
 			->AddBitField(12, 1, Dumper::ChoiceDisplay::Make("canBackground", "cannotBackground"), false)
-			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("acceptSuspendResumeEvents", "ignoreSuspendResumeEvents"), false),
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("enableOptionSwitch (obsolete)"/*, "disableOptionSwitch"*/), true)
+			->AddBitField(14, 1, Dumper::ChoiceDisplay::Make("acceptSuspendResumeEvents", "ignoreSuspendResumeEvents"), false)
+			->AddBitField(15, 1, Dumper::ChoiceDisplay::Make("saveScreen (obsolete)"/*, "dontSaveScreen"*/), true),
 		offset_t(flags));
 	region.AddField("Preferred memory size", Dumper::HexDisplay::Make(8), offset_t(preferred_memory));
 	region.AddField("Minimum memory size", Dumper::HexDisplay::Make(8), offset_t(minimum_memory));
