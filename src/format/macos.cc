@@ -147,12 +147,14 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::CalculateValues()
 	jump_table_offset = 32;
 	if(far_entries.size() == 0)
 	{
-		above_a5 = 0x30 + 8 * near_entries.size();
+		jump_table_size = 8 * near_entries.size();
 	}
 	else
 	{
-		above_a5 = 0x30 + 8 + 8 * (near_entries.size() + far_entries.size());
+		jump_table_size = 8 + 8 * (near_entries.size() + far_entries.size());
 	}
+	// TODO: CFM-68K must set it to the actual jump table size, not the loader stub jump table size
+	above_a5 = 0x30 + jump_table_size;
 }
 
 offset_t MacintoshResourceFileFormat::JumpTableCodeResource::ImageSize() const
@@ -179,10 +181,10 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::sha
 {
 	above_a5 = rd->ReadUnsigned(4);
 	below_a5 = rd->ReadUnsigned(4);
-	uint32_t total_entry_size = rd->ReadUnsigned(4);
+	jump_table_size = rd->ReadUnsigned(4);
 	jump_table_offset = rd->ReadUnsigned(4);
 	uint32_t i;
-	for(i = 0; i < total_entry_size; i += 8)
+	for(i = 0; i < jump_table_size && i + 16 < length; i += 8)
 	{
 		Entry entry;
 		entry.offset = rd->ReadUnsigned(2);
@@ -197,7 +199,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::sha
 		near_entries.push_back(entry);
 	}
 
-	for(; i < total_entry_size; i += 8)
+	for(; i < jump_table_size && i + 16 < length; i += 8)
 	{
 		Entry entry;
 		entry.segment = rd->ReadUnsigned(2);
@@ -211,14 +213,7 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(const std
 {
 	wr->WriteWord(4, above_a5);
 	wr->WriteWord(4, below_a5);
-	if(far_entries.size() == 0)
-	{
-		wr->WriteWord(4, 8 * near_entries.size());
-	}
-	else
-	{
-		wr->WriteWord(4, 8 + 8 * (near_entries.size() + far_entries.size()));
-	}
+	wr->WriteWord(4, jump_table_size);
 	wr->WriteWord(4, jump_table_offset);
 	for(const Entry& entry : near_entries)
 	{
@@ -255,7 +250,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::AddFields(Dumper::Dumpe
 		jump_table_size = 8 + 8 * (near_entries.size() + far_entries.size());
 	}
 	region.AddField("Jump table size", Dumper::HexDisplay::Make(8), offset_t(jump_table_size));
-	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(32));
+	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(jump_table_offset));
 }
 
 int MacintoshResourceFileFormat::JumpTableCodeResource::GetDisplayOptions() const
@@ -305,15 +300,19 @@ void MacintoshResourceFileFormat::CodeResource::CalculateValues()
 
 	near_entry_count = near_entries.size();
 	far_entry_count = far_entries.size();
-	if(!is_far)
+	switch(header_format)
 	{
+	case Near:
 		resource_size = 4 + image->ImageSize() + zero_fill;
-	}
-	else
-	{
+		break;
+	case Far:
 		a5_relocation_offset = 0x28 + image->ImageSize() + zero_fill;
 		segment_relocation_offset = a5_relocation_offset + MeasureRelocations(a5_relocations);
 		resource_size = segment_relocation_offset + MeasureRelocations(segment_relocations);
+		break;
+	case CFM_68K:
+		resource_size = 0x28 + image->ImageSize() + zero_fill;
+		break;
 	}
 }
 
@@ -411,9 +410,10 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<L
 	resource_size = length;
 	first_near_entry_offset = rd->ReadUnsigned(2);
 	near_entry_count = rd->ReadUnsigned(2);
+
 	if(first_near_entry_offset == 0xFFFF && near_entry_count == 0)
 	{
-		is_far = true;
+		header_format = Far;
 		first_near_entry_offset = rd->ReadUnsigned(4);
 		near_entry_count = rd->ReadUnsigned(4);
 		first_far_entry_offset = rd->ReadUnsigned(4);
@@ -435,24 +435,36 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<L
 			ReadRelocations(rd, segment_relocations);
 		}
 	}
+	else if(first_near_entry_offset == 0xFFFD && near_entry_count == 0)
+	{
+		header_format = CFM_68K;
+		first_near_entry_offset = 0;
+		near_entry_count = 0;
+		first_far_entry_offset = rd->ReadUnsigned(4);
+		far_entry_count = rd->ReadUnsigned(4);
+		first_transition_vector_offset = rd->ReadUnsigned(4);
+		transition_vector_count = rd->ReadUnsigned(4);
+		rd->Skip(20);
+		image = Linker::Buffer::ReadFromFile(rd, length - 0x28);
+	}
 	else
 	{
-		is_far = false;
+		header_format = Near;
 		image = Linker::Buffer::ReadFromFile(rd, length - 4);
 	}
 }
 
 offset_t MacintoshResourceFileFormat::CodeResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	if(!is_far)
+	switch(header_format)
 	{
+	case Near:
 		wr->WriteWord(2, first_near_entry_offset);
 		wr->WriteWord(2, near_entry_count);
 		image->WriteFile(wr);
 		wr->Skip(zero_fill);
-	}
-	else
-	{
+		break;
+	case Far:
 		wr->WriteData(4, "\xFF\xFF\0\0");
 		wr->WriteWord(4, first_near_entry_offset);
 		wr->WriteWord(4, near_entry_count);
@@ -466,6 +478,20 @@ offset_t MacintoshResourceFileFormat::CodeResource::WriteFile(const std::shared_
 		image->WriteFile(wr);
 		WriteRelocations(wr, a5_relocations);
 		WriteRelocations(wr, segment_relocations);
+		break;
+	case CFM_68K:
+		wr->WriteData(4, "\xFF\xFD\0\0");
+		wr->WriteWord(4, first_far_entry_offset);
+		wr->WriteWord(4, far_entry_count);
+		wr->WriteWord(4, first_transition_vector_offset);
+		wr->WriteWord(4, transition_vector_count);
+		wr->WriteWord(4, 0);
+		wr->WriteWord(4, 0);
+		wr->WriteWord(4, 0);
+		wr->WriteWord(4, 0);
+		wr->WriteWord(4, 0);
+		image->WriteFile(wr);
+		break;
 	}
 
 	return ImageSize();
@@ -473,17 +499,38 @@ offset_t MacintoshResourceFileFormat::CodeResource::WriteFile(const std::shared_
 
 void MacintoshResourceFileFormat::CodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
 {
-	region.AddField("Type", Dumper::ChoiceDisplay::Make("far", "near"), offset_t(is_far));
-	region.AddField("Near entry count", Dumper::DecDisplay::Make(), offset_t(near_entry_count));
-	region.AddField("First near entry offset", Dumper::HexDisplay::Make(is_far ? 8 : 4), offset_t(first_near_entry_offset));
-	if(is_far)
+	static const std::map<offset_t, std::string> header_format_string =
+	{
+		{ Near, "near" },
+		{ Far, "far" },
+		{ CFM_68K, "CFM-68K" },
+	};
+
+	region.AddField("Type", Dumper::ChoiceDisplay::Make(header_format_string), offset_t(header_format));
+	if(header_format != CFM_68K)
+	{
+		region.AddField("Near entry count", Dumper::DecDisplay::Make(), offset_t(near_entry_count));
+		region.AddField("First near entry offset", Dumper::HexDisplay::Make(header_format == Near ? 4 : 8), offset_t(first_near_entry_offset));
+	}
+
+	if(header_format != Near)
 	{
 		region.AddField("Far entry count", Dumper::DecDisplay::Make(), offset_t(far_entry_count));
 		region.AddField("First far entry offset", Dumper::HexDisplay::Make(8), offset_t(first_far_entry_offset));
+	}
+
+	if(header_format == Far)
+	{
 		region.AddField("A5 relocation offset", Dumper::HexDisplay::Make(8), offset_t(a5_relocation_offset));
 		region.AddField("A5 value", Dumper::HexDisplay::Make(8), offset_t(a5_address));
 		region.AddField("Segment relocation offset", Dumper::HexDisplay::Make(8), offset_t(segment_relocation_offset));
 		region.AddField("Segment address", Dumper::HexDisplay::Make(8), offset_t(base_address));
+	}
+
+	if(header_format == CFM_68K)
+	{
+		region.AddField("Transition vector count", Dumper::DecDisplay::Make(), offset_t(transition_vector_count));
+		region.AddField("First transition vector offset", Dumper::HexDisplay::Make(8), offset_t(first_transition_vector_offset));
 	}
 }
 
@@ -496,16 +543,25 @@ void MacintoshResourceFileFormat::CodeResource::Dump(Dumper::Dumper& dump, offse
 {
 	Resource::Dump(dump, file_offset);
 
-	Dumper::Block segment_block("Segment", file_offset + (is_far ? 0x28 : 4), image->AsImage(), base_address, 8);
+	Dumper::Block segment_block(
+		"Segment",
+		file_offset + (header_format == Near ? 0x04 : 0x28),
+		image->AsImage(),
+		base_address + (header_format == Near ? 0 : 0x28), // TODO: entries in near segments start after the header, far segments include the size of header
+		8);
 
 	for(auto offset : segment_relocations)
 	{
-		segment_block.AddSignal(offset, 4);
+		if(offset < 0x28)
+			continue;
+		segment_block.AddSignal(offset - 0x28, 4);
 	}
 
 	for(auto offset : a5_relocations)
 	{
-		segment_block.AddSignal(offset, 4);
+		if(offset < 0x28)
+			continue;
+		segment_block.AddSignal(offset - 0x28, 4);
 	}
 
 	segment_block.Display(dump, Dumper::Image);
@@ -1005,7 +1061,7 @@ for(auto section : module.Sections())
 		|| resource->a5_relocations.size() != 0
 		|| resource->segment_relocations.size() != 0)
 		{
-			resource->is_far = true;
+			resource->header_format = CodeResource::Far;
 			resource->base_address = std::dynamic_pointer_cast<Linker::Segment>(resource->image)->base_address;
 			if(a5world)
 			{
@@ -1281,7 +1337,7 @@ void MacintoshResourceFileFormat::Dump(Dumper::Dumper& dump) const
 	{
 		for(auto& reference : type.references)
 		{
-			reference.data->Dump(dump, file_offset + data_offset + reference.data_offset);
+			reference.data->Dump(dump, file_offset + data_offset + reference.data_offset + 4);
 		}
 	}
 

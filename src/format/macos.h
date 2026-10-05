@@ -151,7 +151,8 @@ namespace Apple
 
 			uint32_t above_a5 = 0;
 			uint32_t below_a5 = 0;
-			uint32_t jump_table_offset = 32;
+			uint32_t jump_table_size = 0;
+			uint32_t jump_table_offset = 32; // seems to be fixed for Macintosh programs
 			std::vector<Entry> near_entries;
 			std::vector<Entry> far_entries;
 
@@ -190,7 +191,13 @@ namespace Apple
 			{
 			}
 
-			bool is_far = false; /* TODO: test far segments thoroughly */
+			enum HeaderFormat
+			{
+				Near,
+				Far,
+				CFM_68K,
+			};
+			HeaderFormat header_format = Near;
 			uint32_t a5_address = 0; /* TODO: meaning */
 			uint32_t base_address = 0; /* TODO: meaning */
 
@@ -202,10 +209,12 @@ namespace Apple
 			uint16_t far_entry_count = 0;
 			std::set<uint32_t> a5_relocations;
 			std::set<uint32_t> segment_relocations;
+			uint32_t transition_vector_count = 0;
 
 			/* filled in after calculation */
 			uint32_t first_near_entry_offset;
 			uint32_t first_far_entry_offset;
+			uint32_t first_transition_vector_offset;
 			uint32_t a5_relocation_offset;
 			uint32_t segment_relocation_offset;
 			uint32_t resource_size;
