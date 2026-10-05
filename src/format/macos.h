@@ -338,6 +338,89 @@ namespace Apple
 			//std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
+		class CodeFragmentResource : public Resource
+		{
+		public:
+			static constexpr uint32_t OSType = OSTypeToUInt32('c', 'f', 'r', 'g');
+
+			class Member
+			{
+			public:
+				enum architecture_type : uint32_t
+				{
+					PowerPC = OSTypeToUInt32('p', 'w', 'p', 'c'),
+					Motorola68K = OSTypeToUInt32('m', '6', '8', 'k'),
+					//Compiled // not an actual architecture but a compiler macro
+				};
+				architecture_type architecture;
+				enum update_level_type : uint8_t
+				{
+					FullLib = 0,
+					UpdateLib = 1,
+				};
+				update_level_type update_level = FullLib;
+				uint32_t current_version = 0;
+				uint32_t old_def_version = 0;
+				uint32_t app_stack_size = 0;
+				int16_t app_subdir_id = 0;
+				enum usage_type : uint8_t
+				{
+					ImportLibrary = 0,
+					Application = 1,
+					DropInAddition = 2,
+					StubLibrary = 3,
+					WeakStubLibrary = 4,
+				};
+				usage_type usage;
+				enum where_type : uint8_t
+				{
+					Memory = 0,
+					DataFork = 1,
+					Resource = 2,
+					NamedFragment = 3, // reserved
+					CFBundle = 4,
+					CFBundleInt = 5,
+				};
+				where_type where = DataFork;
+				uint32_t offset = 0;
+				uint32_t length = 0;
+				uint32_t space_id = 0;
+				uint16_t extension_count = 0;
+				uint16_t member_size = 0;
+				std::string name;
+
+				Member(architecture_type architecture)
+					: architecture(architecture)
+				{
+				}
+
+				offset_t ImageSize() const;
+			};
+
+			uint16_t version = 1;
+			std::vector<Member> members;
+
+			CodeFragmentResource()
+				: Resource("cfrg", 0x0000)
+			{
+			}
+
+			void CalculateValues() override;
+
+			offset_t ImageSize() const override;
+
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
+
+			using Linker::Format::WriteFile;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
+			int GetDisplayOptions() const override;
+			using Linker::Format::Dump;
+			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
+			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
+			//std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
+		};
+
 		MacintoshResourceFileFormat()
 			/*: a5world(".bss")*/
 		{

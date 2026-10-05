@@ -642,6 +642,257 @@ void MacintoshResourceFileFormat::SizeResource::AddFields(Dumper::Dumper& dump, 
 	region.AddField("Minimum memory size", Dumper::HexDisplay::Make(8), offset_t(minimum_memory));
 }
 
+offset_t MacintoshResourceFileFormat::CodeFragmentResource::Member::ImageSize() const
+{
+	offset_t size = 58;
+	// TODO: extension
+	return (size + 3) & ~3;
+}
+
+void MacintoshResourceFileFormat::CodeFragmentResource::CalculateValues()
+{
+	// TODO
+}
+
+offset_t MacintoshResourceFileFormat::CodeFragmentResource::ImageSize() const
+{
+	offset_t total_size = 8;
+	for(auto& member : members)
+	{
+		total_size += member.ImageSize();
+	}
+	return total_size;
+}
+
+void MacintoshResourceFileFormat::CodeFragmentResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	Linker::Error << "Error: attempting to read a lone resource" << std::endl;
+	rd->Skip(-4);
+	uint32_t length = rd->ReadUnsigned(4);
+	ReadFile(rd, length);
+}
+
+void MacintoshResourceFileFormat::CodeFragmentResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length)
+{
+	offset_t offset = rd->Tell();
+
+	rd->Skip(10);
+	version = rd->ReadUnsigned(2);
+	rd->Skip(18);
+	uint16_t member_count = rd->ReadUnsigned(2);
+	for(uint16_t index = 0; index < member_count; index++)
+	{
+		uint32_t arch = rd->ReadUnsigned(4);
+		Member member = Member(Member::architecture_type(arch));
+		rd->Skip(3);
+		member.update_level = Member::update_level_type(rd->ReadUnsigned(1));
+		member.current_version = rd->ReadUnsigned(4);
+		member.old_def_version = rd->ReadUnsigned(4);
+		member.app_stack_size = rd->ReadUnsigned(4);
+		member.app_subdir_id = rd->ReadSigned(2);
+		member.usage = Member::usage_type(rd->ReadUnsigned(1));
+		member.where = Member::where_type(rd->ReadUnsigned(1));
+		member.offset = rd->ReadUnsigned(4);
+		member.length = rd->ReadUnsigned(4);
+		member.space_id = rd->ReadUnsigned(4);
+		// note: the Mac OS RT manual is wrong about the size of this field, as can be seen from CodeFragments.h
+		rd->Skip(2);
+		member.extension_count = rd->ReadUnsigned(2);
+		member.member_size = rd->ReadUnsigned(2);
+		uint8_t length = rd->ReadUnsigned(1);
+		member.name = rd->ReadData(std::min(15, int(length)));
+		if(length < 15)
+		{
+			rd->Skip(15 - length);
+		}
+		// TODO: extensions
+		members.push_back(member);
+
+		offset_t current_offset = rd->Tell();
+		if(((current_offset - offset) & 3) != 0)
+		{
+			rd->Skip(4 - ((current_offset - offset) & 3));
+		}
+	}
+}
+
+offset_t MacintoshResourceFileFormat::CodeFragmentResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	offset_t offset = wr->Tell();
+	offset_t byte_count = 8;
+	wr->Skip(10);
+	wr->WriteWord(2, version);
+	wr->Skip(18);
+	wr->WriteWord(2, members.size());
+	for(auto& member : members)
+	{
+		byte_count += 58;
+		wr->WriteWord(4, member.architecture);
+		wr->Skip(3);
+		wr->WriteWord(1, member.update_level);
+		wr->WriteWord(4, member.current_version);
+		wr->WriteWord(4, member.old_def_version);
+		wr->WriteWord(4, member.app_stack_size);
+		wr->WriteWord(2, member.app_subdir_id);
+		wr->WriteWord(1, member.usage);
+		wr->WriteWord(1, member.where);
+		wr->WriteWord(4, member.offset);
+		wr->WriteWord(4, member.length);
+		wr->WriteWord(4, member.space_id);
+		// note: the Mac OS RT manual is wrong about the size of this field, as can be seen from CodeFragments.h
+		wr->Skip(2);
+		wr->WriteWord(2, member.extension_count);
+		wr->WriteWord(2, member.member_size);
+		wr->WriteWord(1, std::min(size_t(15), member.name.size()));
+		wr->WriteData(15, member.name);
+		if(member.name.size() < 15)
+		{
+			wr->Skip(15 - member.name.size());
+		}
+		// TODO: extensions
+
+		offset_t current_offset = wr->Tell();
+		if(((current_offset - offset) & 3) != 0)
+		{
+			wr->Skip(4 - ((current_offset - offset) & 3));
+		}
+	}
+	return byte_count;
+}
+
+int MacintoshResourceFileFormat::CodeFragmentResource::GetDisplayOptions() const
+{
+	return Dumper::Resource | Dumper::Header;
+}
+
+void MacintoshResourceFileFormat::CodeFragmentResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
+{
+	region.AddField("Version", Dumper::DecDisplay::Make(), offset_t(version));
+}
+
+void MacintoshResourceFileFormat::CodeFragmentResource::Dump(Dumper::Dumper& dump, offset_t file_offset) const
+{
+	Resource::Dump(dump, file_offset);
+
+	offset_t member_offset = 8;
+	offset_t member_index = 0;
+	for(auto& member : members)
+	{
+		Dumper::Region member_region("Member", file_offset + member_offset, member.ImageSize(), 8); // TODO: extensions
+		member_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(member_index + 1));
+		static const std::map<offset_t, std::string> architecture_strings =
+		{
+			{ Member::PowerPC, "PowerPC" },
+			{ Member::Motorola68K, "Motorola 68K" },
+		};
+		member_region.AddField("Architecture", Dumper::ChoiceDisplay::Make(architecture_strings), offset_t(member.architecture));
+		char architecture_bytes[4];
+		::WriteWord(4, 4, reinterpret_cast<uint8_t *>(architecture_bytes), member.architecture, ::BigEndian);
+		member_region.AddField("Architecture (data)", Dumper::StringDisplay::Make("'"), std::string(architecture_bytes, 4));
+		static const std::map<offset_t, std::string> update_strings =
+		{
+			{ Member::FullLib, "IsComplete (FullLib)" },
+			{ Member::UpdateLib, "UpdateLib" },
+		};
+		member_region.AddField("Update level", Dumper::ChoiceDisplay::Make(update_strings), offset_t(member.update_level));
+		member_region.AddOptionalField("Current version", Dumper::DecDisplay::Make(), offset_t(member.current_version));
+		member_region.AddOptionalField("Oldest definition version", Dumper::DecDisplay::Make(), offset_t(member.old_def_version));
+
+		switch(member.usage)
+		{
+		case Member::Application:
+			if(member.app_stack_size == 0)
+				member_region.AddField("Application stack size", Dumper::StringDisplay::Make(""), std::string("default stack size")); // TODO: use default string
+			else
+				member_region.AddField("Application stack size", Dumper::HexDisplay::Make(8), offset_t(member.app_stack_size));
+			member_region.AddOptionalField("Library directory", Dumper::DecDisplay::Make(), offset_t(member.app_subdir_id)); // TODO: what does it mean?
+			break;
+		case Member::DropInAddition:
+			member_region.AddOptionalField("Reserved field (Usage 1)", Dumper::HexDisplay::Make(8), offset_t(member.app_stack_size));
+			member_region.AddOptionalField("Reserved field (Usage 2)", Dumper::HexDisplay::Make(4), offset_t(uint16_t(member.app_subdir_id)));
+			break;
+		case Member::ImportLibrary:
+		case Member::StubLibrary:
+		case Member::WeakStubLibrary:
+			member_region.AddOptionalField("Reserved field (Usage 1)", Dumper::HexDisplay::Make(8), offset_t(member.app_stack_size));
+			member_region.AddOptionalField("Library flags",
+				Dumper::BitFieldDisplay::Make(4)
+					->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("map privately"), true),
+				offset_t(uint16_t(member.app_subdir_id)));
+			break;
+		}
+
+		static const std::map<offset_t, std::string> usage_strings =
+		{
+			{ Member::ImportLibrary, "Import library" },
+			{ Member::Application, "Application" },
+			{ Member::DropInAddition, "Plug-in (drop-in addition)" },
+			{ Member::StubLibrary, "Stub library (for linking only)" }, // according to CodeFragments.h
+			{ Member::WeakStubLibrary, "Weak stub library (for linking only)" }, // according to CodeFragments.h
+		};
+
+		member_region.AddField("Architecture", Dumper::ChoiceDisplay::Make(usage_strings), offset_t(member.usage));
+
+		static const std::map<offset_t, std::string> where_strings =
+		{
+			{ Member::Memory, "Read-only memory" },
+			{ Member::DataFork, "Data fork" },
+			{ Member::Resource, "Resource" },
+			{ Member::NamedFragment, "Reserved (\"named fragment\")" },
+			{ Member::CFBundle, "CFBundle" },
+			{ Member::CFBundleInt, "CFBundleInt" }, // TODO???
+		};
+
+		member_region.AddField("Fragment location", Dumper::ChoiceDisplay::Make(where_strings), offset_t(member.where));
+
+		switch(member.where)
+		{
+		case Member::DataFork:
+			member_region.AddField("Data fork offset", Dumper::HexDisplay::Make(8), offset_t(member.offset));
+			if(member.length == 0)
+				member_region.AddField("Data fork length", Dumper::StringDisplay::Make(""), std::string("full data fork")); // TODO: use default string
+			else
+				member_region.AddField("Data fork length", Dumper::HexDisplay::Make(8), offset_t(member.length));
+			break;
+		case Member::Resource:
+			{
+				char ostype_bytes[4];
+				::WriteWord(4, 4, reinterpret_cast<uint8_t *>(ostype_bytes), member.offset, ::BigEndian);
+				member_region.AddField("Resource type", Dumper::StringDisplay::Make("'"), std::string(ostype_bytes, 4));
+			}
+			member_region.AddField("Resource ID", Dumper::DecDisplay::Make(), offset_t(int16_t(member.length)));
+			break;
+		case Member::NamedFragment:
+		case Member::Memory: // TODO: unknown
+		case Member::CFBundle: // TODO: unknown
+		case Member::CFBundleInt: // TODO: unknown
+			member_region.AddOptionalField("Reserved 1", Dumper::HexDisplay::Make(8), offset_t(member.offset));
+			member_region.AddOptionalField("Reserved 2", Dumper::HexDisplay::Make(8), offset_t(member.length));
+			break;
+		}
+
+		if(member.where == Member::Memory)
+		{
+			member_region.AddField("Address space ID", Dumper::HexDisplay::Make(8), offset_t(member.space_id));
+		}
+		else
+		{
+			member_region.AddOptionalField("Reserved 3", Dumper::HexDisplay::Make(8), offset_t(member.space_id));
+		}
+
+		member_region.AddOptionalField("Extension count", Dumper::DecDisplay::Make(), offset_t(member.extension_count));
+		member_region.AddField("Member size", Dumper::HexDisplay::Make(4), offset_t(member.member_size));
+		member_region.AddField("Name", Dumper::StringDisplay::Make("'"), std::string(member.name));
+
+		member_offset += 58;
+		// TODO: extensions
+
+		member_region.Display(dump, Dumper::Header);
+		member_offset = (member_offset + 3) & ~3;
+		member_index ++;
+	}
+}
+
 void MacintoshResourceFileFormat::AddResource(std::shared_ptr<Resource> resource)
 {
 	uint32_t typeval = OSTypeToUInt32(resource->type);
@@ -935,7 +1186,7 @@ for(auto section : module.Sections())
 			else
 			{
 				auto position = rel.source.GetPosition();
-				segments[position.segment]->segment_relocations.insert(position.address - position.segment->base_address);
+				segments[position.segment]->segment_relocations.insert(position.address - position.segment->base_address + 0x28);
 				rel.WriteWord(resolution.value);
 			}
 			break;
@@ -951,7 +1202,7 @@ for(auto section : module.Sections())
 			else
 			{
 				auto position = rel.source.GetPosition();
-				segments[position.segment]->a5_relocations.insert(position.address - position.segment->base_address);
+				segments[position.segment]->a5_relocations.insert(position.address - position.segment->base_address + 0x28);
 				rel.WriteWord(resolution.value);
 			}
 			break;
@@ -1372,6 +1623,12 @@ std::shared_ptr<MacintoshResourceFileFormat::Resource> MacintoshResourceFileForm
 		if(reference.id == 0xFFFF && length == SizeResource::ExpectedLength)
 		{
 			resource = std::make_shared<SizeResource>();
+		}
+		break;
+	case CodeFragmentResource::OSType:
+		if(reference.id == 0x0000)
+		{
+			resource = std::make_shared<CodeFragmentResource>();
 		}
 		break;
 	}
