@@ -361,7 +361,9 @@ namespace Apple
 				update_level_type update_level = FullLib;
 				uint32_t current_version = 0;
 				uint32_t old_def_version = 0;
+				static constexpr uint32_t DefaultStackSize = 0;
 				uint32_t app_stack_size = 0;
+				static constexpr int16_t NoAppSubFolder = 0;
 				int16_t app_subdir_id = 0;
 				enum usage_type : uint8_t
 				{
@@ -382,7 +384,9 @@ namespace Apple
 					CFBundleInt = 5,
 				};
 				where_type where = DataFork;
+				static constexpr uint32_t RSEG = OSTypeToUInt32('r', 's', 'e', 'g');
 				uint32_t offset = 0;
+				static constexpr uint32_t CFragGoesToEOF = 0;
 				uint32_t length = 0;
 				uint32_t space_id = 0;
 				uint16_t extension_count = 0;
@@ -395,6 +399,59 @@ namespace Apple
 				}
 
 				offset_t ImageSize() const;
+				static Member ReadFile(const std::shared_ptr<Linker::Reader>& rd);
+				offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
+
+				/** @brief Initialize with default settings */
+				static Member CreateApplication(architecture_type architecture, std::string name)
+				{
+					Member member = Member(architecture);
+					member.update_level = FullLib;
+					member.current_version = 0;
+					member.old_def_version = 0;
+					member.app_stack_size = DefaultStackSize;
+					member.app_subdir_id = NoAppSubFolder;
+					member.usage = Application;
+					if(architecture == Motorola68K)
+					{
+						member.where = Resource;
+						member.offset = RSEG;
+						member.length = 0;
+					}
+					else
+					{
+						member.where = DataFork;
+						member.offset = 0;
+						member.length = CFragGoesToEOF;
+					}
+					member.name = name;
+					if(member.name.size() > 15)
+					{
+						member.name = member.name.substr(0, 15);
+					}
+					return member;
+				}
+
+				/** @brief Initialize with default settings */
+				static Member CreateLibrary(architecture_type architecture, std::string name, uint32_t current_version, uint32_t old_def_version)
+				{
+					Member member = Member(architecture);
+					member.update_level = FullLib;
+					member.current_version = current_version;
+					member.old_def_version = old_def_version;
+					member.app_stack_size = DefaultStackSize;
+					member.app_subdir_id = NoAppSubFolder;
+					member.usage = ImportLibrary;
+					member.where = DataFork;
+					member.offset = 0;
+					member.length = CFragGoesToEOF;
+					member.name = name;
+					if(member.name.size() > 15)
+					{
+						member.name = member.name.substr(0, 15);
+					}
+					return member;
+				}
 			};
 
 			uint16_t version = 1;

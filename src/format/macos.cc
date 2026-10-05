@@ -649,6 +649,84 @@ offset_t MacintoshResourceFileFormat::CodeFragmentResource::Member::ImageSize() 
 	return (size + 3) & ~3;
 }
 
+MacintoshResourceFileFormat::CodeFragmentResource::Member MacintoshResourceFileFormat::CodeFragmentResource::Member::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	offset_t offset = rd->Tell();
+
+	uint32_t arch = rd->ReadUnsigned(4);
+	Member member = Member(Member::architecture_type(arch));
+	rd->Skip(3);
+	member.update_level = Member::update_level_type(rd->ReadUnsigned(1));
+	member.current_version = rd->ReadUnsigned(4);
+	member.old_def_version = rd->ReadUnsigned(4);
+	member.app_stack_size = rd->ReadUnsigned(4);
+	member.app_subdir_id = rd->ReadSigned(2);
+	member.usage = Member::usage_type(rd->ReadUnsigned(1));
+	member.where = Member::where_type(rd->ReadUnsigned(1));
+	member.offset = rd->ReadUnsigned(4);
+	member.length = rd->ReadUnsigned(4);
+	member.space_id = rd->ReadUnsigned(4);
+	// note: the Mac OS RT manual is wrong about the size of this field, as can be seen from CodeFragments.h
+	rd->Skip(2);
+	member.extension_count = rd->ReadUnsigned(2);
+	member.member_size = rd->ReadUnsigned(2);
+	uint8_t length = rd->ReadUnsigned(1);
+	member.name = rd->ReadData(std::min(15, int(length)));
+	if(length < 15)
+	{
+		rd->Skip(15 - length);
+	}
+
+	// TODO: extensions
+
+	offset_t current_offset = rd->Tell();
+	if(((current_offset - offset) & 3) != 0)
+	{
+		rd->Skip(4 - ((current_offset - offset) & 3));
+	}
+
+	return member;
+}
+
+offset_t MacintoshResourceFileFormat::CodeFragmentResource::Member::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	offset_t offset = wr->Tell();
+	offset_t byte_count = 58;
+
+	wr->WriteWord(4, architecture);
+	wr->Skip(3);
+	wr->WriteWord(1, update_level);
+	wr->WriteWord(4, current_version);
+	wr->WriteWord(4, old_def_version);
+	wr->WriteWord(4, app_stack_size);
+	wr->WriteWord(2, app_subdir_id);
+	wr->WriteWord(1, usage);
+	wr->WriteWord(1, where);
+	wr->WriteWord(4, offset);
+	wr->WriteWord(4, length);
+	wr->WriteWord(4, space_id);
+	// note: the Mac OS RT manual is wrong about the size of this field, as can be seen from CodeFragments.h
+	wr->Skip(2);
+	wr->WriteWord(2, extension_count);
+	wr->WriteWord(2, member_size);
+	wr->WriteWord(1, std::min(size_t(15), name.size()));
+	wr->WriteData(15, name);
+	if(name.size() < 15)
+	{
+		wr->Skip(15 - name.size());
+	}
+	// TODO: extensions
+
+	offset_t current_offset = wr->Tell();
+	if(((current_offset - offset) & 3) != 0)
+	{
+		wr->Skip(4 - ((current_offset - offset) & 3));
+		byte_count += 4 - ((current_offset - offset) & 3);
+	}
+
+	return byte_count;
+}
+
 void MacintoshResourceFileFormat::CodeFragmentResource::CalculateValues()
 {
 	// TODO
@@ -674,51 +752,18 @@ void MacintoshResourceFileFormat::CodeFragmentResource::ReadFile(const std::shar
 
 void MacintoshResourceFileFormat::CodeFragmentResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length)
 {
-	offset_t offset = rd->Tell();
-
 	rd->Skip(10);
 	version = rd->ReadUnsigned(2);
 	rd->Skip(18);
 	uint16_t member_count = rd->ReadUnsigned(2);
 	for(uint16_t index = 0; index < member_count; index++)
 	{
-		uint32_t arch = rd->ReadUnsigned(4);
-		Member member = Member(Member::architecture_type(arch));
-		rd->Skip(3);
-		member.update_level = Member::update_level_type(rd->ReadUnsigned(1));
-		member.current_version = rd->ReadUnsigned(4);
-		member.old_def_version = rd->ReadUnsigned(4);
-		member.app_stack_size = rd->ReadUnsigned(4);
-		member.app_subdir_id = rd->ReadSigned(2);
-		member.usage = Member::usage_type(rd->ReadUnsigned(1));
-		member.where = Member::where_type(rd->ReadUnsigned(1));
-		member.offset = rd->ReadUnsigned(4);
-		member.length = rd->ReadUnsigned(4);
-		member.space_id = rd->ReadUnsigned(4);
-		// note: the Mac OS RT manual is wrong about the size of this field, as can be seen from CodeFragments.h
-		rd->Skip(2);
-		member.extension_count = rd->ReadUnsigned(2);
-		member.member_size = rd->ReadUnsigned(2);
-		uint8_t length = rd->ReadUnsigned(1);
-		member.name = rd->ReadData(std::min(15, int(length)));
-		if(length < 15)
-		{
-			rd->Skip(15 - length);
-		}
-		// TODO: extensions
-		members.push_back(member);
-
-		offset_t current_offset = rd->Tell();
-		if(((current_offset - offset) & 3) != 0)
-		{
-			rd->Skip(4 - ((current_offset - offset) & 3));
-		}
+		members.push_back(Member::ReadFile(rd));
 	}
 }
 
 offset_t MacintoshResourceFileFormat::CodeFragmentResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	offset_t offset = wr->Tell();
 	offset_t byte_count = 8;
 	wr->Skip(10);
 	wr->WriteWord(2, version);
@@ -726,36 +771,7 @@ offset_t MacintoshResourceFileFormat::CodeFragmentResource::WriteFile(const std:
 	wr->WriteWord(2, members.size());
 	for(auto& member : members)
 	{
-		byte_count += 58;
-		wr->WriteWord(4, member.architecture);
-		wr->Skip(3);
-		wr->WriteWord(1, member.update_level);
-		wr->WriteWord(4, member.current_version);
-		wr->WriteWord(4, member.old_def_version);
-		wr->WriteWord(4, member.app_stack_size);
-		wr->WriteWord(2, member.app_subdir_id);
-		wr->WriteWord(1, member.usage);
-		wr->WriteWord(1, member.where);
-		wr->WriteWord(4, member.offset);
-		wr->WriteWord(4, member.length);
-		wr->WriteWord(4, member.space_id);
-		// note: the Mac OS RT manual is wrong about the size of this field, as can be seen from CodeFragments.h
-		wr->Skip(2);
-		wr->WriteWord(2, member.extension_count);
-		wr->WriteWord(2, member.member_size);
-		wr->WriteWord(1, std::min(size_t(15), member.name.size()));
-		wr->WriteData(15, member.name);
-		if(member.name.size() < 15)
-		{
-			wr->Skip(15 - member.name.size());
-		}
-		// TODO: extensions
-
-		offset_t current_offset = wr->Tell();
-		if(((current_offset - offset) & 3) != 0)
-		{
-			wr->Skip(4 - ((current_offset - offset) & 3));
-		}
+		byte_count += member.WriteFile(wr);
 	}
 	return byte_count;
 }
@@ -801,7 +817,7 @@ void MacintoshResourceFileFormat::CodeFragmentResource::Dump(Dumper::Dumper& dum
 		switch(member.usage)
 		{
 		case Member::Application:
-			if(member.app_stack_size == 0)
+			if(member.app_stack_size == Member::DefaultStackSize)
 				member_region.AddField("Application stack size", Dumper::StringDisplay::Make(""), std::string("default stack size")); // TODO: use default string
 			else
 				member_region.AddField("Application stack size", Dumper::HexDisplay::Make(8), offset_t(member.app_stack_size));
@@ -849,7 +865,7 @@ void MacintoshResourceFileFormat::CodeFragmentResource::Dump(Dumper::Dumper& dum
 		{
 		case Member::DataFork:
 			member_region.AddField("Data fork offset", Dumper::HexDisplay::Make(8), offset_t(member.offset));
-			if(member.length == 0)
+			if(member.length == Member::CFragGoesToEOF)
 				member_region.AddField("Data fork length", Dumper::StringDisplay::Make(""), std::string("full data fork")); // TODO: use default string
 			else
 				member_region.AddField("Data fork length", Dumper::HexDisplay::Make(8), offset_t(member.length));
