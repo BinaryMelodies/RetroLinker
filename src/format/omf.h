@@ -32,15 +32,9 @@ namespace OMF
 		using Linker::Writer::WriteData;
 		void WriteData(size_t count, const void * data) override;
 		void Seek(offset_t offset) override;
-		void Skip(offset_t offset) override;
-		void SeekEnd(offset_t offset = 0) override;
+		void Skip(relative_offset_t offset) override;
+		void SeekEnd(relative_offset_t offset = 0) override;
 		offset_t Tell() override;
-#if 0
-		void WriteWord(size_t bytes, uint64_t value) override;
-		size_t WriteData(const std::vector<uint8_t>& data) override;
-		size_t WriteData(std::string text) override;
-		void Skip(offset_t count) override;
-#endif
 	};
 
 	/**

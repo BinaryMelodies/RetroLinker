@@ -87,7 +87,7 @@ namespace Linker
 		{
 		}
 
-		std::shared_ptr<Reader> CreateWindow(offset_t new_start_offset, offset_t new_maximum_size = offset_t(-1));
+		std::shared_ptr<Reader> CreateWindow(offset_t new_start_offset, offset_t new_maximum_size = offset_t(-1), offset_t displacement = 0);
 
 		virtual ~Reader() = default;
 
@@ -219,7 +219,7 @@ namespace Linker
 		/**
 		 * @brief Jump to a distance in the input stream
 		 */
-		virtual void Skip(offset_t offset) = 0;
+		virtual void Skip(relative_offset_t offset) = 0;
 
 		/**
 		 * @brief Jump to end of the input stream
@@ -265,7 +265,7 @@ namespace Linker
 
 		size_t Read(void * data, size_t max_count = size_t(-1)) override;
 		void Seek(offset_t offset) override;
-		void Skip(offset_t offset) override;
+		void Skip(relative_offset_t offset) override;
 		void SeekEnd(relative_offset_t offset = 0) override;
 		offset_t Tell() override;
 	};
@@ -277,29 +277,136 @@ namespace Linker
 	{
 	public:
 		std::shared_ptr<Reader> reader;
+
+		/** @brief The first offset in the base reader that is accessible, 0 meaning all */
 		offset_t start_offset;
+		/** @brief The maximum number of bytes in the base reader that are accessible, offset_t(-1) is reserved to mean all */
 		offset_t maximum_size;
+		/** @brief The lowest address that is allowed to be accessed, the offset at which the byte at start_offset is found */
+		offset_t window_offset;
+
+		// The WindowReader offsets [window_offset, window_offset + maximum_size) is mapped to [start_offset, start_offset + maximum_size)
+		// everything outside the window is treated as out of bounds
 
 	protected:
-		/** @brief If reader is itself a WindowReader, adjust the window and reference the reader directly */
-		void _FixupWindow();
-
-	public:
-		WindowReader(EndianType endiantype, std::shared_ptr<Reader> reader, offset_t start_offset, offset_t maximum_size)
-			: Reader(endiantype), reader(reader), start_offset(start_offset), maximum_size(maximum_size)
+		void _ValidateParameters()
 		{
-			_FixupWindow();
+			if(maximum_size != offset_t(-1))
+			{
+				assert(start_offset <= offset_t(-1) - maximum_size);
+				assert(window_offset <= offset_t(-1) - maximum_size);
+			}
 		}
 
-		WindowReader(std::shared_ptr<Reader> reader, offset_t start_offset, offset_t maximum_size)
-			: Reader(reader->endiantype), reader(reader), start_offset(start_offset), maximum_size(maximum_size)
+		/** @brief Decrease the window by shifting its lower bound by addend */
+		void _ShiftStartOffset(offset_t addend)
 		{
-			_FixupWindow();
+			if(maximum_size != offset_t(-1) && maximum_size <= addend)
+			{
+				maximum_size = 0;
+			}
+			else
+			{
+				maximum_size -= addend;
+				if(window_offset > addend)
+				{
+					window_offset -= addend;
+				}
+				else
+				{
+					window_offset = 0;
+					start_offset += addend; // TODO: overflow
+				}
+			}
+
+			_ValidateParameters();
+		}
+
+		/** @brief Decrease the window by decrementing its upper bound */
+		void _RestrictMaximumSize(offset_t new_maximum)
+		{
+			if(maximum_size < new_maximum)
+			{
+				maximum_size = new_maximum;
+				_ValidateParameters();
+			}
+		}
+
+		/** @brief Shift the address values at which the window is accessed, so the previous offset O is accessed at O + extra_displacement */
+		void _AddDisplacement(offset_t displacement)
+		{
+			window_offset += displacement; // TODO: overflow
+			_ValidateParameters();
+		}
+
+		static std::shared_ptr<Reader> _GetReader(std::shared_ptr<Reader> reader)
+		{
+			if(auto window_reader = std::dynamic_pointer_cast<WindowReader>(reader))
+			{
+				return window_reader->reader;
+			}
+			else
+			{
+				return reader;
+			}
+		}
+
+		static offset_t _GetStartOffset(std::shared_ptr<Reader> reader)
+		{
+			if(auto window_reader = std::dynamic_pointer_cast<WindowReader>(reader))
+			{
+				return window_reader->start_offset;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+		static offset_t _GetMaximumSize(std::shared_ptr<Reader> reader)
+		{
+			if(auto window_reader = std::dynamic_pointer_cast<WindowReader>(reader))
+			{
+				return window_reader->maximum_size;
+			}
+			else
+			{
+				return offset_t(-1);
+			}
+		}
+
+		static offset_t _GetWindowOffset(std::shared_ptr<Reader> reader)
+		{
+			if(auto window_reader = std::dynamic_pointer_cast<WindowReader>(reader))
+			{
+				return window_reader->window_offset;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+	public:
+		WindowReader(EndianType endiantype, std::shared_ptr<Reader> reader, offset_t start_offset, offset_t maximum_size, offset_t displacement = 0)
+			: Reader(endiantype), reader(_GetReader(reader)), start_offset(_GetStartOffset(reader)), maximum_size(_GetMaximumSize(reader)), window_offset(_GetWindowOffset(reader))
+		{
+			_ShiftStartOffset(start_offset);
+			_RestrictMaximumSize(maximum_size);
+			_AddDisplacement(displacement);
+		}
+
+		WindowReader(std::shared_ptr<Reader> reader, offset_t start_offset, offset_t maximum_size, offset_t displacement = 0)
+			: Reader(reader->endiantype), reader(_GetReader(reader)), start_offset(_GetStartOffset(reader)), maximum_size(_GetMaximumSize(reader)), window_offset(_GetWindowOffset(reader))
+		{
+			_ShiftStartOffset(start_offset);
+			_RestrictMaximumSize(maximum_size);
+			_AddDisplacement(displacement);
 		}
 
 		size_t Read(void * data, size_t max_count = size_t(-1)) override;
 		void Seek(offset_t offset) override;
-		void Skip(offset_t offset) override;
+		void Skip(relative_offset_t offset) override;
 		void SeekEnd(relative_offset_t offset = 0) override;
 		offset_t Tell() override;
 
@@ -325,27 +432,7 @@ namespace Linker
 
 		size_t Read(void * data, size_t max_count = size_t(-1)) override;
 		void Seek(offset_t offset) override;
-		void Skip(offset_t offset) override;
-		void SeekEnd(relative_offset_t offset = 0) override;
-		offset_t Tell() override;
-
-		offset_t GetImageEnd() override;
-	};
-
-	class ShiftedReader : public Reader
-	{
-	public:
-		std::shared_ptr<Reader> reader;
-		offset_t displacement;
-
-		ShiftedReader(std::shared_ptr<Reader> reader, offset_t displacement)
-			: Reader(reader->endiantype), reader(reader), displacement(displacement)
-		{
-		}
-
-		size_t Read(void * data, size_t max_count = size_t(-1)) override;
-		void Seek(offset_t offset) override;
-		void Skip(offset_t offset) override;
+		void Skip(relative_offset_t offset) override;
 		void SeekEnd(relative_offset_t offset = 0) override;
 		offset_t Tell() override;
 

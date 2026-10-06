@@ -752,7 +752,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, const std::shared_ptr<L
 {
 	if(name_offset != NoNameOffset)
 	{
-		rd->Seek(pef_format.GetSectionNameTableOffset() + name_offset);
+		rd->Seek(pef_format.file_offset + pef_format.GetSectionNameTableOffset() + name_offset);
 		name = rd->ReadASCIIZ();
 	}
 	else
@@ -766,11 +766,11 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, const std::shared_ptr<L
 	case UnpackedData:
 	case Constant:
 	case ExecutableData:
-		rd->Seek(container_offset);
+		rd->Seek(pef_format.file_offset + container_offset);
 		image = Linker::Buffer::ReadFromFile(rd, packed_size);
 		break;
 	case PatternInitializedData:
-		rd->Seek(container_offset);
+		rd->Seek(pef_format.file_offset + container_offset);
 		{
 			auto section_reader = rd->CreateWindow(container_offset, packed_size);
 			section_reader->on_overflow = Linker::Reader::ReportOnOverflow;
@@ -800,7 +800,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, const std::shared_ptr<L
 		}
 		break;
 	case Loader:
-		rd->Seek(container_offset);
+		rd->Seek(pef_format.file_offset + container_offset);
 		pef_format.loader_section_offset = container_offset;
 		{
 			auto section_reader = rd->CreateWindow(container_offset, packed_size);
@@ -901,19 +901,19 @@ void PEFFormat::Section::WriteFile(const PEFFormat& pef_format, const std::share
 	case UnpackedData:
 	case Constant:
 	case ExecutableData:
-		wr->Seek(container_offset);
+		wr->Seek(pef_format.file_offset + container_offset);
 		image->WriteFile(wr);
 		break;
 	case PatternInitializedData:
 		// TODO: untested
-		wr->Seek(container_offset);
+		wr->Seek(pef_format.file_offset + container_offset);
 		for(auto& pattern : patterns)
 		{
 			pattern.WriteFile(wr);
 		}
 		break;
 	case Loader:
-		wr->Seek(container_offset);
+		wr->Seek(pef_format.file_offset + container_offset);
 		pef_format.WriteLoaderSection(wr);
 		break;
 	default:
@@ -937,13 +937,13 @@ void PEFFormat::Reference::SetPosition(PEFFormat& pef_format, const Linker::Posi
 
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd->Seek(pef_format.loader_strings_offset + name_offset);
+	rd->Seek(pef_format.file_offset + pef_format.loader_strings_offset + name_offset);
 	return name = rd->ReadASCIIZ();
 }
 
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd, uint16_t length)
 {
-	rd->Seek(pef_format.loader_strings_offset + name_offset);
+	rd->Seek(pef_format.file_offset + pef_format.loader_strings_offset + name_offset);
 	return name = rd->ReadData(length);
 }
 
@@ -1103,7 +1103,7 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 		{
 			if(section->contains_relocations)
 			{
-				rd->Seek(reloc_instr_offset + section->first_reloc_offset);
+				rd->Seek(file_offset + reloc_instr_offset + section->first_reloc_offset);
 				while(rd->Tell() < reloc_instr_offset + section->first_reloc_offset + section->reloc_instr_size)
 				{
 					RelocOpcode opcode;
@@ -1128,7 +1128,7 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 		{
 			// read all relocations
 
-			rd->Seek(reloc_instr_offset);
+			rd->Seek(file_offset + reloc_instr_offset);
 			relocs_area.clear();
 			while(rd->Tell() < loader_strings_offset)
 			{
@@ -1158,7 +1158,7 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 
 		//// export hash table
 
-		rd->Seek(export_hash_offset);
+		rd->Seek(file_offset + export_hash_offset);
 		hash_table.resize(1 << export_hash_table_power);
 		for(auto& hash_table_entry : hash_table)
 		{
@@ -1202,7 +1202,7 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 		try
 		{
 			// read full string table
-			rd->Seek(loader_strings_offset);
+			rd->Seek(file_offset + loader_strings_offset);
 			loader_string_table.clear();
 			loader_string_table_size = 0;
 			while(rd->Tell() < export_hash_offset)
@@ -1307,7 +1307,7 @@ void PEFFormat::WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) co
 
 	//// relocation area
 
-	wr->Seek(loader_section_offset + reloc_instr_offset);
+	wr->Seek(file_offset + loader_section_offset + reloc_instr_offset);
 	for(auto opcode : relocs_area)
 	{
 		opcode.WriteFile(wr);
@@ -1315,7 +1315,7 @@ void PEFFormat::WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) co
 
 	//// loader string table
 
-	wr->Seek(loader_section_offset + loader_strings_offset);
+	wr->Seek(file_offset + loader_section_offset + loader_strings_offset);
 	for(auto string : loader_string_table)
 	{
 		wr->WriteData(string);
@@ -1323,7 +1323,7 @@ void PEFFormat::WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) co
 
 	//// export hash table
 
-	wr->Seek(loader_section_offset + export_hash_offset);
+	wr->Seek(file_offset + loader_section_offset + export_hash_offset);
 	for(auto& hash_table_entry : hash_table)
 	{
 		wr->WriteWord(4, (uint32_t(hash_table_entry.chain_count) << 18) | (hash_table_entry.first_index & 0x0003FFFF));
@@ -1357,14 +1357,16 @@ void PEFFormat::EffectFormatImmediately(MacintoshResourceFileFormat& format, con
 
 	effect_handled = true;
 
-	auto wrd = rd->CreateWindow(offset, length);
+	auto wrd = rd->CreateWindow(offset, length, offset);
+	wrd->Seek(offset);
 	ReadFile(wrd);
 }
 
 void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	rd->endiantype = ::BigEndian;
-	rd->Seek(8);
+	file_offset = rd->Tell();
+	rd->Skip(8);
 	ReadBaseFields(rd);
 	reserved = rd->ReadUnsigned(4);
 
@@ -2277,7 +2279,7 @@ void PEFFormat::GenerateFile(std::string filename, Linker::Module& module)
 void PEFHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	rd->endiantype = ::BigEndian;
-	rd->Seek(8);
+	rd->Skip(8);
 	ReadBaseFields(rd);
 	memory_address = rd->ReadUnsigned(4);
 	exported_symbol_count = rd->ReadUnsigned(4);
@@ -2321,7 +2323,8 @@ void PEFHeader::EffectFormatImmediately(MacintoshResourceFileFormat& format, con
 
 	effect_handled = true;
 
-	auto wrd = rd->CreateWindow(offset, length);
+	auto wrd = rd->CreateWindow(offset, length, offset);
+	wrd->Seek(offset);
 	ReadFile(wrd);
 
 	// convert the referenced resource

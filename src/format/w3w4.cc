@@ -331,7 +331,8 @@ void W4Format::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	decompressed_block.Display(dump, Dumper::Generated | Dumper::Image);
 #endif
 
-	auto image_rd = std::make_shared<Linker::ShiftedReader>(std::make_shared<Linker::ImageReader>(::LittleEndian, image), file_offset);
+	//auto image_rd = std::make_shared<Linker::ShiftedReader>(std::make_shared<Linker::ImageReader>(::LittleEndian, image), file_offset);
+	auto image_rd = std::make_shared<Linker::ImageReader>(::LittleEndian, image)->CreateWindow(0, offset_t(-1), file_offset);
 	w3format.ReadFile(image_rd);
 }
 

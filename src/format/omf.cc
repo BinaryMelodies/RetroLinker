@@ -24,12 +24,12 @@ void ChecksumWriter::Seek(offset_t offset)
 	Linker::FatalError("Fatal error: absolute seeking not supported for ChecksumWriter");
 }
 
-void ChecksumWriter::Skip(offset_t offset)
+void ChecksumWriter::Skip(relative_offset_t offset)
 {
 	wr->Skip(offset);
 }
 
-void ChecksumWriter::SeekEnd(offset_t offset)
+void ChecksumWriter::SeekEnd(relative_offset_t offset)
 {
 	if(offset != 0)
 	{
@@ -42,43 +42,6 @@ offset_t ChecksumWriter::Tell()
 {
 	return wr->Tell();
 }
-
-// TODO: test that the above implementation works
-#if 0
-void ChecksumWriter::WriteWord(size_t bytes, uint64_t value)
-{
-	wr->WriteWord(bytes, value);
-	for(size_t offset = 0; offset < bytes; offset++, value >>= 8)
-	{
-		checksum -= value;
-	}
-}
-
-size_t ChecksumWriter::WriteData(const std::vector<uint8_t>& data)
-{
-	size_t bytes = wr->WriteData(data);
-	for(size_t offset = 0; offset < bytes; offset++)
-	{
-		checksum -= data[offset];
-	}
-	return bytes;
-}
-
-size_t ChecksumWriter::WriteData(std::string text)
-{
-	wr->WriteData(text);
-	for(size_t offset = 0; offset < text.size(); offset++)
-	{
-		checksum -= text[offset];
-	}
-	return text.size();
-}
-
-void ChecksumWriter::Skip(offset_t count)
-{
-	wr->Skip(count);
-}
-#endif
 
 //// OMFFormat
 

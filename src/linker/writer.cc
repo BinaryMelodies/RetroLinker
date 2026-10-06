@@ -125,14 +125,14 @@ void StreamWriter::Seek(offset_t offset)
 	}
 }
 
-void StreamWriter::Skip(offset_t offset)
+void StreamWriter::Skip(relative_offset_t offset)
 {
 	/* TODO: optimize? */
 	offset_t current = out->tellp();
 	Seek(current + offset);
 }
 
-void StreamWriter::SeekEnd(offset_t offset)
+void StreamWriter::SeekEnd(relative_offset_t offset)
 {
 	if(!out->seekp(offset, std::ios_base::end))
 	{
@@ -160,12 +160,12 @@ void BufferWriter::Seek(offset_t offset)
 	position = offset;
 }
 
-void BufferWriter::Skip(offset_t offset)
+void BufferWriter::Skip(relative_offset_t offset)
 {
 	Seek(position + offset);
 }
 
-void BufferWriter::SeekEnd(offset_t offset)
+void BufferWriter::SeekEnd(relative_offset_t offset)
 {
 	Seek(buffer->ImageSize());
 }

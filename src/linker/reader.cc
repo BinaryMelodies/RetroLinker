@@ -6,9 +6,9 @@ using namespace Linker;
 
 Reader::OverflowHandlingRequest Reader::global_overflow_behavior = Reader::OverflowHandlingRequest::Default;
 
-std::shared_ptr<Reader> Reader::CreateWindow(offset_t new_start_offset, offset_t new_maximum_size)
+std::shared_ptr<Reader> Reader::CreateWindow(offset_t new_start_offset, offset_t new_maximum_size, offset_t displacement)
 {
-	return std::make_shared<WindowReader>(endiantype, shared_from_this(), new_start_offset, new_maximum_size);
+	return std::make_shared<WindowReader>(endiantype, shared_from_this(), new_start_offset, new_maximum_size, displacement);
 }
 
 void Reader::ReadData(size_t count, void * data)
@@ -183,7 +183,7 @@ void StreamReader::Seek(offset_t offset)
 	in->clear();
 }
 
-void StreamReader::Skip(offset_t offset)
+void StreamReader::Skip(relative_offset_t offset)
 {
 	in->clear();
 	in->seekg(offset, std::ios_base::cur);
@@ -202,10 +202,12 @@ offset_t StreamReader::Tell()
 	return in->tellg();
 }
 
+#if 0
 void WindowReader::_FixupWindow()
 {
 	if(auto window_reader = std::dynamic_pointer_cast<WindowReader>(reader))
 	{
+		// TODO: how to handle displacement?
 		if(window_reader->maximum_size != offset_t(-1))
 		{
 			if(start_offset > window_reader->maximum_size)
@@ -221,22 +223,43 @@ void WindowReader::_FixupWindow()
 		}
 
 		start_offset += window_reader->start_offset;
+		displacement += window_reader->displacement;
 		reader = window_reader->reader;
 	}
 }
+#endif
 
 size_t WindowReader::Read(void * data, size_t max_count)
 {
+	offset_t current = reader->Tell();
+//	std::cerr << "Debug: WindowReader::Read." << std::hex << current << "(" << std::hex << max_count << ");" << std::endl;
+	if(current < start_offset)
+	{
+		reader->Seek(start_offset);
+		current = start_offset;
+	}
+
 	size_t permitted_count = max_count;
-	if(maximum_size != offset_t(-1) && reader->Tell() + permitted_count > start_offset + maximum_size)
+	if(maximum_size != offset_t(-1) && current + permitted_count > start_offset + maximum_size)
 	{
 		permitted_count = start_offset + maximum_size - reader->Tell();
 	}
+//	std::cerr << "Debug: actual Read." << std::hex << current << "(" << std::hex << permitted_count << ");" << std::endl;
 	return reader->Read(data, permitted_count);
 }
 
 void WindowReader::Seek(offset_t offset)
 {
+	if(offset < window_offset)
+	{
+		offset = 0;
+	}
+	else
+	{
+		offset -= window_offset;
+	}
+
+	// check if the position overflows the read window limit
 	if(maximum_size != offset_t(-1) && offset > maximum_size)
 	{
 		offset = maximum_size;
@@ -244,20 +267,32 @@ void WindowReader::Seek(offset_t offset)
 	reader->Seek(start_offset + offset);
 }
 
-void WindowReader::Skip(offset_t offset)
+void WindowReader::Skip(relative_offset_t offset)
 {
+	// check if the position overflows the read window limit
 	if(maximum_size != offset_t(-1) && reader->Tell() + offset > start_offset + maximum_size)
 	{
 		offset = start_offset + maximum_size - reader->Tell();
 	}
+
 	if(start_offset != 0)
 	{
-		offset += reader->Tell();
-		if(offset < start_offset)
+		// do not permit seeking before the start of the read window
+		offset_t actual_offset = reader->Tell();
+		if(offset < 0 && offset_t(-offset) <= actual_offset)
 		{
-			offset = start_offset;
+			actual_offset = 0;
 		}
-		reader->Seek(offset);
+		else
+		{
+			actual_offset += offset;
+		}
+
+		if(actual_offset < start_offset)
+		{
+			actual_offset = start_offset;
+		}
+		reader->Seek(actual_offset);
 	}
 	else
 	{
@@ -288,7 +323,16 @@ void WindowReader::SeekEnd(relative_offset_t offset)
 
 offset_t WindowReader::Tell()
 {
-	return reader->Tell() - start_offset;
+	offset_t actual_offset = reader->Tell();
+	if(actual_offset < start_offset)
+	{
+		actual_offset = 0;
+	}
+	else
+	{
+		actual_offset -= start_offset;
+	}
+	return actual_offset + window_offset;
 }
 
 offset_t WindowReader::GetImageEnd()
@@ -315,7 +359,7 @@ void ImageReader::Seek(offset_t offset)
 	position = offset;
 }
 
-void ImageReader::Skip(offset_t offset)
+void ImageReader::Skip(relative_offset_t offset)
 {
 	position += offset;
 }
@@ -338,43 +382,5 @@ offset_t ImageReader::Tell()
 offset_t ImageReader::GetImageEnd()
 {
 	return image->ImageSize();
-}
-
-size_t ShiftedReader::Read(void * data, size_t max_count)
-{
-	return reader->Read(data, max_count);
-}
-
-void ShiftedReader::Seek(offset_t offset)
-{
-	reader->Seek(offset < displacement ? 0 : offset - displacement);
-}
-
-void ShiftedReader::Skip(offset_t offset)
-{
-	reader->Skip(offset);
-}
-
-void ShiftedReader::SeekEnd(relative_offset_t offset)
-{
-	reader->SeekEnd(offset);
-}
-
-offset_t ShiftedReader::Tell()
-{
-	return displacement + reader->Tell();
-}
-
-offset_t ShiftedReader::GetImageEnd()
-{
-	offset_t actual_end = reader->GetImageEnd();
-	if(actual_end == offset_t(-1))
-	{
-		return actual_end;
-	}
-	else
-	{
-		return displacement + actual_end;
-	}
 }
 

@@ -103,12 +103,12 @@ namespace Linker
 		/**
 		 * @brief Jump to a distance in the output stream
 		 */
-		virtual void Skip(offset_t offset) = 0;
+		virtual void Skip(relative_offset_t offset) = 0;
 
 		/**
 		 * @brief Jump to a specific offset from the end
 		 */
-		virtual void SeekEnd(offset_t offset = 0) = 0;
+		virtual void SeekEnd(relative_offset_t offset = 0) = 0;
 
 		/**
 		 * @brief Retrieve the current location
@@ -153,8 +153,8 @@ namespace Linker
 	public:
 		void WriteData(size_t count, const void * data) override;
 		void Seek(offset_t offset) override;
-		void Skip(offset_t offset) override;
-		void SeekEnd(offset_t offset = 0) override;
+		void Skip(relative_offset_t offset) override;
+		void SeekEnd(relative_offset_t offset = 0) override;
 		offset_t Tell() override;
 	};
 
@@ -179,8 +179,8 @@ namespace Linker
 
 		void WriteData(size_t count, const void * data) override;
 		void Seek(offset_t offset) override;
-		void Skip(offset_t offset) override;
-		void SeekEnd(offset_t offset = 0) override;
+		void Skip(relative_offset_t offset) override;
+		void SeekEnd(relative_offset_t offset = 0) override;
 		offset_t Tell() override;
 	};
 }
