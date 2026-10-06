@@ -716,6 +716,9 @@ namespace Apple
 		void ProcessRelocations(Linker::Module& module);
 		void ProcessModule(Linker::Module& module) override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
+
+		/** @brief If generated via the PEFOutputDriver, this will contain a reference to the resource fork */
+		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
 	};
 
 	class PEFHeader : public PEFHeaderBase
@@ -794,9 +797,37 @@ namespace Apple
 
 		bool FormatSupportsResources() const override;
 
+		class CodeFragment
+		{
+		public:
+			/** @brief Entry in the 'cfrg'0 resource for this fragment */
+			MacintoshResourceFileFormat::CodeFragmentResource::Member member;
+			/** @brief The stored PEF container */
+			std::shared_ptr<PEFFormat> pef_format;
+			/** @brief For m68k only, the stored PEF header in 'rsrg'0 */
+			std::shared_ptr<PEFHeader> pef_header;
+
+			/** @brief Initialize with default settings */
+			static CodeFragment CreateEmptyPEF();
+			/** @brief Initialize with default settings */
+			static CodeFragment CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture, std::string name);
+			/** @brief Initialize with default settings */
+			static CodeFragment CreateLibrary(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture, std::string name, uint32_t current_version, uint32_t old_def_version);
+		};
+
+		class DataFork : public Linker::OutputFormat
+		{
+		public:
+			std::vector<CodeFragment> fragments;
+
+			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
+			void Dump(Dumper::Dumper& dump) const override;
+		};
+
 	private:
-		/** COFF format */
-		std::shared_ptr<PEFFormat> data_fork;
+		/** PEF format */
+		std::shared_ptr<DataFork> data_fork;
 		/** Direct access to the Mac OS resource fork */
 		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
 		std::shared_ptr<FinderInfo> finder_info;
@@ -805,6 +836,31 @@ namespace Apple
 		std::string model;
 		std::string script_file;
 		std::map<std::string, std::string> script_options;
+
+	public:
+
+		//std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+		//void SetOptions(std::map<std::string, std::string>& options) override;
+
+		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
+		void SetModel(std::string model) override;
+
+		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
+
+		void GenerateFile(std::string filename, Linker::Module& module) override;
+
+	protected:
+		void OnContainerCreated() override;
+		void OnCalculateValues() override;
+		void OnReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+		offset_t OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
+		void OnDump(Dumper::Dumper& dump) const override;
+
+	public:
+		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+
+		std::string GetDefaultExtension(Linker::Module& module) const override;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 }
 

@@ -772,7 +772,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, const std::shared_ptr<L
 	case PatternInitializedData:
 		rd->Seek(pef_format.file_offset + container_offset);
 		{
-			auto section_reader = rd->CreateWindow(container_offset, packed_size);
+			auto section_reader = rd->CreateWindow(pef_format.file_offset + container_offset, packed_size);
 			section_reader->on_overflow = Linker::Reader::ReportOnOverflow;
 			patterns.clear();
 			try
@@ -803,7 +803,7 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, const std::shared_ptr<L
 		rd->Seek(pef_format.file_offset + container_offset);
 		pef_format.loader_section_offset = container_offset;
 		{
-			auto section_reader = rd->CreateWindow(container_offset, packed_size);
+			auto section_reader = rd->CreateWindow(pef_format.file_offset + container_offset, packed_size);
 			pef_format.ReadLoaderSection(section_reader);
 		}
 		break;
@@ -937,13 +937,13 @@ void PEFFormat::Reference::SetPosition(PEFFormat& pef_format, const Linker::Posi
 
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd->Seek(pef_format.file_offset + pef_format.loader_strings_offset + name_offset);
+	rd->Seek(pef_format.loader_strings_offset + name_offset);
 	return name = rd->ReadASCIIZ();
 }
 
 std::string PEFFormat::Name::LoadNameString(const PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd, uint16_t length)
 {
-	rd->Seek(pef_format.file_offset + pef_format.loader_strings_offset + name_offset);
+	rd->Seek(pef_format.loader_strings_offset + name_offset);
 	return name = rd->ReadData(length);
 }
 
@@ -1008,7 +1008,7 @@ bool PEFFormat::FormatSupportsLibraries() const
 
 bool PEFFormat::FormatSupportsResources() const
 {
-	return true;
+	return true; // Note: resource_fork must be set for this to work
 }
 
 void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
@@ -1103,7 +1103,7 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 		{
 			if(section->contains_relocations)
 			{
-				rd->Seek(file_offset + reloc_instr_offset + section->first_reloc_offset);
+				rd->Seek(reloc_instr_offset + section->first_reloc_offset);
 				while(rd->Tell() < reloc_instr_offset + section->first_reloc_offset + section->reloc_instr_size)
 				{
 					RelocOpcode opcode;
@@ -1128,7 +1128,7 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 		{
 			// read all relocations
 
-			rd->Seek(file_offset + reloc_instr_offset);
+			rd->Seek(reloc_instr_offset);
 			relocs_area.clear();
 			while(rd->Tell() < loader_strings_offset)
 			{
@@ -1158,7 +1158,7 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 
 		//// export hash table
 
-		rd->Seek(file_offset + export_hash_offset);
+		rd->Seek(export_hash_offset);
 		hash_table.resize(1 << export_hash_table_power);
 		for(auto& hash_table_entry : hash_table)
 		{
@@ -1202,7 +1202,7 @@ void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 		try
 		{
 			// read full string table
-			rd->Seek(file_offset + loader_strings_offset);
+			rd->Seek(loader_strings_offset);
 			loader_string_table.clear();
 			loader_string_table_size = 0;
 			while(rd->Tell() < export_hash_offset)
@@ -1646,7 +1646,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		if(section->IsInstantiated() && section->section_kind != Section::PatternInitializedData)
 		{
 			section_region = std::make_unique<Dumper::Block>("Section",
-				section->container_offset,
+				file_offset + section->container_offset,
 				section->image->AsImage(),
 				section->default_address,
 				8);
@@ -1654,7 +1654,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		else
 		{
 			section_region = std::make_unique<Dumper::Region>("Section",
-				section->container_offset,
+				file_offset + section->container_offset,
 				section->packed_size,
 				8);
 		}
@@ -2026,11 +2026,59 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	auto first_section = segment->sections[0];
 	if(first_section->GetFlags() & Linker::Section::Resource)
 	{
-		// TODO
+		if(resource_fork == nullptr)
+		{
+			Linker::Error << "Error: no resource fork generated" << std::endl;
+		}
+		else
+		{
+			std::shared_ptr<Linker::Section> section = segment->sections.front();
+			/* other resources */
+			Linker::ResourceIdentifier_String * type = std::get_if<std::string>(&section->resource_type);
+			if(type == nullptr || type->size() != 4)
+			{
+				Linker::Error << "Error: resources are expected to have a 4-character type" << std::endl;
+				return;
+			}
+			Linker::ResourceIdentifier_Integer * id = std::get_if<Linker::ResourceIdentifier_Integer>(&section->resource_id);
+			if(id == nullptr || *id > 0xFFFF)
+			{
+				Linker::Error << "Error: resources are expected to have a 16-bit ID" << std::endl;
+				return;
+			}
+			Linker::Debug << "Debug: Adding resource type " << *type << ", id " << *id << std::endl;
+			std::shared_ptr<MacintoshResourceFileFormat::GenericResource> rsrc = std::make_shared<MacintoshResourceFileFormat::GenericResource>(type->c_str(), *id);
+			rsrc->image = segment;
+			resource_fork->AddResource(rsrc);
+		}
 	}
 	else if(first_section->IsExecutable())
 	{
-		sections.push_back(std::make_shared<Section>(Section::Code, Section::GlobalShare, segment));
+		if(architecture == M68K)
+		{
+			if(resource_fork == nullptr)
+			{
+				Linker::Error << "Error: no resource fork generated" << std::endl;
+			}
+			else
+			{
+				unsigned segment_id = resource_fork->codes.size() + 1;
+				// reserve 'CODE'6 for the loader
+				if(segment_id >= 6)
+				{
+					segment_id ++;
+				}
+				std::shared_ptr<MacintoshResourceFileFormat::CodeResource> codeN = std::make_shared<MacintoshResourceFileFormat::CodeResource>(segment_id, nullptr /*jump_table*/); // TODO: the runtime jump table (found in the PEF container) is different from the startup jump table (stored in 'CODE'0)
+				codeN->image = segment;
+				resource_fork->codes.push_back(codeN);
+				resource_fork->segments[segment] = codeN;
+				resource_fork->AddResource(codeN);
+			}
+		}
+		else
+		{
+			sections.push_back(std::make_shared<Section>(Section::Code, Section::GlobalShare, segment));
+		}
 	}
 	else
 	{
@@ -2261,6 +2309,10 @@ void PEFFormat::GenerateFile(std::string filename, Linker::Module& module)
 	switch(module.cpu)
 	{
 	case Linker::Module::M68K:
+		if(resource_fork == nullptr)
+		{
+			Linker::Error << "Error: no resource fork generated, PEF file will not work properly" << std::endl;
+		}
 		architecture = M68K;
 		break;
 	case Linker::Module::PPC:
@@ -2516,10 +2568,307 @@ void RSegResource::EffectFormat(MacintoshResourceFileFormat& format, const std::
 	//EffectFormatImmediately(format, rd, raw_data ? raw_data->ImageSize() : offset_t(-1));
 }
 
+PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateEmptyPEF()
+{
+	return CodeFragment
+	{
+		MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateEmpty(),
+		std::make_shared<PEFFormat>()
+	};
+}
+
+PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture, std::string name)
+{
+	switch(architecture)
+	{
+	case MacintoshResourceFileFormat::CodeFragmentResource::Member::PowerPC:
+	default:
+		return CodeFragment
+		{
+			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
+			std::make_shared<PEFFormat>()
+		};
+	case MacintoshResourceFileFormat::CodeFragmentResource::Member::Motorola68K:
+		return CodeFragment
+		{
+			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
+			std::make_shared<PEFFormat>(),
+			std::make_shared<PEFHeader>(),
+		};
+	}
+}
+
+PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateLibrary(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture, std::string name, uint32_t current_version, uint32_t old_def_version)
+{
+	return CodeFragment
+	{
+		MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateLibrary(architecture, name, current_version, old_def_version),
+		std::make_shared<PEFFormat>()
+	};
+}
+
+void PEFOutputDriver::DataFork::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	fragments[0].pef_format->ReadFile(rd);
+}
+
+offset_t PEFOutputDriver::DataFork::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	for(auto& fragment : fragments)
+	{
+		if(fragment.member.where == MacintoshResourceFileFormat::CodeFragmentResource::Member::DataFork)
+		{
+			wr->Seek(fragment.member.offset);
+			fragment.pef_format->WriteFile(wr);
+		}
+	}
+	return offset_t(-1); // TODO
+}
+
+void PEFOutputDriver::DataFork::Dump(Dumper::Dumper& dump) const
+{
+	// TODO
+	fragments[0].pef_format->Dump(dump);
+}
+
 // PEFOutputDriver
 
 bool PEFOutputDriver::FormatSupportsResources() const
 {
 	return true;
+}
+
+#if 0
+std::shared_ptr<Linker::OptionCollector> PEFOutputDriver::GetOptions()
+{
+	return std::make_shared<DriverOptionCollector>();
+}
+
+void PEFOutputDriver::SetOptions(std::map<std::string, std::string>& options)
+{
+	DriverOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	offset_t asdver = 0;
+
+	if(std::optional<offset_t> option = collector.asver())
+	{
+		options.erase(collector.asver.name);
+		switch(*option)
+		{
+		case 1:
+		case 2:
+			asdver = *option;
+			break;
+		default:
+			Linker::Error << "Error: invalid AppleSingle/AppleDouble version: " << std::dec << *option << std::endl;
+		}
+	}
+
+	if(auto option = collector.adver())
+	{
+		options.erase(collector.adver.name);
+		switch(*option)
+		{
+		case 1:
+		case 2:
+			if(asdver == 0)
+			{
+				asdver = *option;
+			}
+			else if(asdver != *option)
+			{
+				Linker::Error << "Error: `asver' and `adver' have been provided with unequivalent values" << std::endl;
+			}
+			break;
+		default:
+			Linker::Error << "Error: invalid AppleSingle/AppleDouble version: " << std::dec << *option << std::endl;
+		}
+	}
+
+	if(asdver != 0)
+	{
+		SetAppleSingleDoubleVersion(asdver);
+	}
+
+	if(auto option = collector.mbinver())
+	{
+		macbinary_version = *option;
+	}
+
+	if(auto option = collector.minmbinver())
+	{
+		macbinary_minimum_version = *option;
+	}
+
+	if(macbinary_minimum_version > macbinary_version)
+	{
+		if(collector.mbinver() && collector.minmbinver())
+		{
+			Linker::Error << "Error: Minimum provided version for MacBinary is larger than actual version" << std::endl;
+		}
+		else
+		{
+			macbinary_minimum_version = macbinary_version;
+		}
+	}
+
+	this->options = options;
+}
+#endif
+
+std::vector<Linker::OptionDescription<void>> PEFOutputDriver::GetMemoryModelNames()
+{
+	PEFFormat tmp;
+	return tmp.GetMemoryModelNames();
+}
+
+void PEFOutputDriver::SetModel(std::string model)
+{
+	this->model = model;
+}
+
+void PEFOutputDriver::SetLinkScript(std::string script_file, std::map<std::string, std::string>& options)
+{
+	this->script_file = script_file;
+	this->script_options = options;
+}
+
+void PEFOutputDriver::GenerateFile(std::string filename, Linker::Module& module)
+{
+	switch(module.cpu)
+	{
+	case Linker::Module::M68K:
+		data_fork = std::make_shared<DataFork>();
+		data_fork->fragments.push_back(CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::Motorola68K, filename));
+		break;
+	case Linker::Module::PPC:
+		data_fork = std::make_shared<DataFork>();
+		data_fork->fragments.push_back(CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::PowerPC, filename));
+	default:
+		Linker::Error << "Error: Format only supports Motorola 68000 and PowerPC binaries" << std::endl;
+		break;
+	}
+
+	resource_fork = std::make_shared<MacintoshResourceFileFormat>();
+
+	data_fork->fragments[0].pef_format->resource_fork = resource_fork;
+
+	data_fork->fragments[0].pef_format->SetOptions(options);
+	data_fork->fragments[0].pef_format->SetModel(model);
+	data_fork->fragments[0].pef_format->SetLinkScript(script_file, script_options);
+
+	data_fork->fragments[0].pef_format->ProcessModule(module);
+
+	// create 'cfrg'0
+	auto code_fragment = std::make_shared<MacintoshResourceFileFormat::CodeFragmentResource>();
+	for(auto& fragment : data_fork->fragments)
+	{
+		// TODO: the fragment has to be fully initialized by this point, because it is copied by value
+		// for now, this should be enough
+		code_fragment->members.push_back(fragment.member);
+	}
+	resource_fork->AddResource(code_fragment);
+
+	// create 'rseg'0, 'rseg'1
+	size_t rseg_count = 0;
+	for(auto& fragment : data_fork->fragments)
+	{
+		if(fragment.pef_header != nullptr)
+		{
+			auto rseg0 = std::make_shared<RSegResource>(fragment.pef_header);
+			rseg0->id = rseg_count ++; // should be 0
+			resource_fork->AddResource(rseg0);
+			auto rseg1 = std::make_shared<RSegResource>(fragment.pef_format);
+			rseg1->id = rseg_count ++; // should be 1
+			resource_fork->AddResource(rseg1);
+		}
+	}
+
+	GenerateFiles(filename, data_fork, resource_fork);
+}
+
+void PEFOutputDriver::OnContainerCreated()
+{
+	// if an AppleSingleDouble container is created, we need to allocate the FinderInfo entry
+	// this is also needed if no actual AppleSingle/AppleDouble file is created, as this might be placed under the .finf directory
+
+	finder_info = std::dynamic_pointer_cast<FinderInfo>(apple_single->GetFinderInfo());
+	if(finder_info != nullptr)
+	{
+		finder_info->SetTypeAndCreator("APPL", "????");
+	}
+}
+
+void PEFOutputDriver::OnCalculateValues()
+{
+	// TODO
+	for(auto& fragment : data_fork->fragments)
+	{
+		fragment.pef_format->CalculateValues(); // TODO: untested
+	}
+}
+
+void PEFOutputDriver::OnReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	if(target == OutputDriver::TARGET_DATA_FORK)
+	{
+		ReadFile(rd);
+	}
+	else
+	{
+		Linker::FatalError("Fatal error: Reading the specified format is not supported");
+	}
+}
+
+offset_t PEFOutputDriver::OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	return data_fork->WriteFile(wr);
+}
+
+void PEFOutputDriver::OnDump(Dumper::Dumper& dump) const
+{
+	data_fork->Dump(dump);
+}
+
+void PEFOutputDriver::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	data_fork = std::make_shared<DataFork>();
+	data_fork->fragments.push_back(CodeFragment::CreateEmptyPEF());
+	data_fork->fragments[0].pef_format->ReadFile(rd);
+}
+
+std::string PEFOutputDriver::GetDefaultExtension(Linker::Module& module) const
+{
+	switch(target)
+	{
+	case OutputDriver::TARGET_NONE:
+	case OutputDriver::TARGET_DATA_FORK:
+		return "a.out";
+	default:
+		return Linker::OutputFormat::GetDefaultExtension(module);
+	}
+}
+
+std::string PEFOutputDriver::GetDefaultExtension(Linker::Module& module, std::string filename) const
+{
+	switch(target)
+	{
+	case OutputDriver::TARGET_NONE:
+	case OutputDriver::TARGET_DATA_FORK:
+		return filename;
+	case OutputDriver::TARGET_RESOURCE_FORK:
+		return filename + ".res"; // A/UX convention (see A/UX Toolbox: Macintosh ROM Interface)
+	case OutputDriver::TARGET_APPLE_SINGLE:
+		return filename + ".as"; // used by CiderPress
+	case OutputDriver::TARGET_APPLE_DOUBLE:
+		return filename + ".ad"; // understood by Retro68
+	case OutputDriver::TARGET_MAC_BINARY:
+		return filename + ".bin"; // understood by Retro68
+	default:
+		return filename; // should not happen
+	}
 }
 

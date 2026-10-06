@@ -301,22 +301,22 @@ namespace Linker
 		/** @brief Decrease the window by shifting its lower bound by addend */
 		void _ShiftStartOffset(offset_t addend)
 		{
-			if(maximum_size != offset_t(-1) && maximum_size <= addend)
+			if(window_offset > addend)
 			{
-				maximum_size = 0;
+				window_offset -= addend;
 			}
 			else
 			{
-				maximum_size -= addend;
-				if(window_offset > addend)
+				if(maximum_size != offset_t(-1) && maximum_size <= addend - window_offset)
 				{
-					window_offset -= addend;
+					maximum_size = 0;
 				}
 				else
 				{
-					window_offset = 0;
-					start_offset += addend; // TODO: overflow
+					maximum_size -= addend - window_offset;
+					start_offset += addend - window_offset; // TODO: overflow
 				}
+				window_offset = 0;
 			}
 
 			_ValidateParameters();
@@ -325,7 +325,7 @@ namespace Linker
 		/** @brief Decrease the window by decrementing its upper bound */
 		void _RestrictMaximumSize(offset_t new_maximum)
 		{
-			if(maximum_size < new_maximum)
+			if(new_maximum < maximum_size)
 			{
 				maximum_size = new_maximum;
 				_ValidateParameters();

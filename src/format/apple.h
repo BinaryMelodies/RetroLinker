@@ -769,6 +769,8 @@ namespace Apple
 
 		MacBinary::version_t macbinary_version = MacBinary::MACBIN3, macbinary_minimum_version = MacBinary::MACBIN2;
 
+		void SetAppleSingleDoubleVersion(offset_t version);
+
 	protected:
 		OutputDriver(target_format_t target = TARGET_DATA_FORK, produce_format_t produce = produce_format_t(0))
 			: target(target), produce(produce_format_t(produce))

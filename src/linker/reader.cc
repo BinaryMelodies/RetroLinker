@@ -8,7 +8,15 @@ Reader::OverflowHandlingRequest Reader::global_overflow_behavior = Reader::Overf
 
 std::shared_ptr<Reader> Reader::CreateWindow(offset_t new_start_offset, offset_t new_maximum_size, offset_t displacement)
 {
-	return std::make_shared<WindowReader>(endiantype, shared_from_this(), new_start_offset, new_maximum_size, displacement);
+//	if(auto window_reader = dynamic_cast<WindowReader *>(this))
+//	{
+//		Linker::Debug << "Debug: Old window " << std::hex << window_reader->start_offset << " -> " << window_reader->maximum_size << " : " << window_reader->window_offset << std::endl;
+//	}
+//	Linker::Debug << "Debug: Create " << std::hex << new_start_offset << " -> " << new_maximum_size << " : " << displacement << std::endl;
+
+	auto window_reader = std::make_shared<WindowReader>(endiantype, shared_from_this(), new_start_offset, new_maximum_size, displacement);
+//	Linker::Debug << "Debug: New window " << std::hex << window_reader->start_offset << " -> " << window_reader->maximum_size << " : " << window_reader->window_offset << std::endl;
+	return window_reader;
 }
 
 void Reader::ReadData(size_t count, void * data)
@@ -232,7 +240,7 @@ void WindowReader::_FixupWindow()
 size_t WindowReader::Read(void * data, size_t max_count)
 {
 	offset_t current = reader->Tell();
-//	std::cerr << "Debug: WindowReader::Read." << std::hex << current << "(" << std::hex << max_count << ");" << std::endl;
+//	Linker::Debug << "Debug: WindowReader::Read." << std::hex << current << "(" << std::hex << max_count << ");" << std::endl;
 	if(current < start_offset)
 	{
 		reader->Seek(start_offset);
@@ -244,7 +252,7 @@ size_t WindowReader::Read(void * data, size_t max_count)
 	{
 		permitted_count = start_offset + maximum_size - reader->Tell();
 	}
-//	std::cerr << "Debug: actual Read." << std::hex << current << "(" << std::hex << permitted_count << ");" << std::endl;
+//	Linker::Debug << "Debug: actual Read." << std::hex << current << "(" << std::hex << permitted_count << ");" << std::endl;
 	return reader->Read(data, permitted_count);
 }
 

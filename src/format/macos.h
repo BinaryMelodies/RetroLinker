@@ -404,6 +404,11 @@ namespace Apple
 				static Member ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 				offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 
+				static Member CreateEmpty()
+				{
+					return Member(architecture_type(0));
+				}
+
 				/** @brief Initialize with default settings */
 				static Member CreateApplication(architecture_type architecture, std::string name)
 				{
@@ -658,9 +663,6 @@ namespace Apple
 		std::map<std::string, std::string> script_options;
 
 	public:
-		// TODO: move to OutputDriver
-		void SetAppleSingleDoubleVersion(offset_t version);
-
 		// TODO: extend OutputDriver::DriverOptionCollector
 		class DriverOptionCollector : public MacintoshResourceFileFormat::MacintoshOptionCollector
 		{

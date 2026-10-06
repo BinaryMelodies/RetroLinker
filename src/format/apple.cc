@@ -2263,6 +2263,22 @@ bool OutputDriver::AddSupplementaryOutputFormat(std::string subformat)
 	return false;
 }
 
+void OutputDriver::SetAppleSingleDoubleVersion(offset_t version)
+{
+	switch(version)
+	{
+	case 1:
+		apple_single_double_version = 1;
+		// TODO: only for MacintoshDriver, use HFS_ProDOS for AppleDriver
+		home_file_system = AppleSingleDouble::HFS_Macintosh;
+		break;
+	case 2:
+		apple_single_double_version = 2;
+		home_file_system = AppleSingleDouble::HFS_UNDEFINED;
+		break;
+	}
+}
+
 void OutputDriver::OnContainerCreated() { }
 
 void OutputDriver::OnCalculateValues()

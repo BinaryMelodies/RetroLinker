@@ -1724,21 +1724,6 @@ bool Classic68KDriver::FormatSupportsResources() const
 	return true;
 }
 
-void Classic68KDriver::SetAppleSingleDoubleVersion(offset_t version)
-{
-	switch(version)
-	{
-	case 1:
-		apple_single_double_version = 1;
-		home_file_system = AppleSingleDouble::HFS_Macintosh;
-		break;
-	case 2:
-		apple_single_double_version = 2;
-		home_file_system = AppleSingleDouble::HFS_UNDEFINED;
-		break;
-	}
-}
-
 std::shared_ptr<Linker::OptionCollector> Classic68KDriver::GetOptions()
 {
 	return std::make_shared<DriverOptionCollector>();
