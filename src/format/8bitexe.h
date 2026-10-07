@@ -597,43 +597,7 @@ namespace DigitalResearch
 
 		void CalculateValues() override;
 	};
-}
 
-namespace FLEX
-{
-	/**
-	 * @brief FLEX .cmd file format from Technical Systems Consultants
-	 */
-	class FLEXFormat : public Binary::GenericBinaryFormat
-	{
-	public:
-		/* TODO: enable setting the base address, default should be ??? */
-
-		struct Segment
-		{
-		public:
-			uint16_t address;
-			uint16_t size; /* it is supposed to be at most 255, but we can store larger segments by cutting them into pieces */
-			std::shared_ptr<Linker::Contents> image;
-
-			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
-		};
-
-		std::vector<std::unique_ptr<Segment>> segments;
-
-		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
-
-		using Linker::Format::WriteFile;
-		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
-		void Dump(Dumper::Dumper& dump) const override;
-
-		using Linker::OutputFormat::GetDefaultExtension;
-		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
-	};
-}
-
-namespace DigitalResearch // TODO: move namespace FLEX and combine
-{
 	/**
 	 * @brief MP/M .prl file format
 	 */
@@ -729,6 +693,39 @@ namespace DigitalResearch // TODO: move namespace FLEX and combine
 		void WriteWithoutHeader(const std::shared_ptr<Linker::Writer>& wr) const;
 
 		void Dump(Dumper::Dumper& dump) const override;
+	};
+}
+
+namespace FLEX
+{
+	/**
+	 * @brief FLEX .cmd file format from Technical Systems Consultants
+	 */
+	class FLEXFormat : public Binary::GenericBinaryFormat
+	{
+	public:
+		/* TODO: enable setting the base address, default should be ??? */
+
+		struct Segment
+		{
+		public:
+			uint16_t address;
+			uint16_t size; /* it is supposed to be at most 255, but we can store larger segments by cutting them into pieces */
+			std::shared_ptr<Linker::Contents> image;
+
+			void WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
+		};
+
+		std::vector<std::unique_ptr<Segment>> segments;
+
+		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
+
+		using Linker::Format::WriteFile;
+		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
+		void Dump(Dumper::Dumper& dump) const override;
+
+		using Linker::OutputFormat::GetDefaultExtension;
+		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
 }
 
