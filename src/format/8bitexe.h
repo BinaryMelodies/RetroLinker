@@ -15,7 +15,7 @@
 /* a collection of various simple 8-bit formats */
 /* TODO: should this be reorganized? */
 
-namespace Binary
+namespace Apple
 {
 	/**
 	 * @brief BIN file for Apple ][
@@ -167,11 +167,14 @@ namespace Binary
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
+}
 
+namespace Atari
+{
 	/**
 	 * @brief EXE file for Atari 400/800
 	 */
-	class AtariFormat : public GenericBinaryFormat
+	class AtariFormat : public Binary::GenericBinaryFormat
 	{
 	public:
 		/* exe, obj, com are also used */
@@ -323,11 +326,14 @@ namespace Binary
 		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 	};
+}
 
+namespace Commodore
+{
 	/**
 	 * @brief PRG file for Commodore PET/VIC-20/64
 	 */
-	class CommodoreFormat : public GenericBinaryFormat
+	class CommodoreFormat : public Binary::GenericBinaryFormat
 	{
 	public:
 		class BASICLine : public Linker::Format
@@ -518,13 +524,16 @@ namespace Binary
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
+}
 
+namespace DigitalResearch
+{
 	class PRLFormat;
 
 	/**
 	 * @brief CP/M Plus .com file format
 	 */
-	class CPM3Format : public GenericBinaryFormat
+	class CPM3Format : public Binary::GenericBinaryFormat
 	{
 	public:
 		class CPM3OptionCollector : public Linker::OptionCollector
@@ -588,11 +597,14 @@ namespace Binary
 
 		void CalculateValues() override;
 	};
+}
 
+namespace FLEX
+{
 	/**
-	 * @brief FLEX .cmd file format
+	 * @brief FLEX .cmd file format from Technical Systems Consultants
 	 */
-	class FLEXFormat : public GenericBinaryFormat
+	class FLEXFormat : public Binary::GenericBinaryFormat
 	{
 	public:
 		/* TODO: enable setting the base address, default should be ??? */
@@ -618,11 +630,14 @@ namespace Binary
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module, std::string filename) const override;
 	};
+}
 
+namespace DigitalResearch // TODO: move namespace FLEX and combine
+{
 	/**
 	 * @brief MP/M .prl file format
 	 */
-	class PRLFormat : public GenericBinaryFormat
+	class PRLFormat : public Binary::GenericBinaryFormat
 	{
 	public:
 		class PRLOptionCollector : public Linker::OptionCollector
@@ -715,11 +730,14 @@ namespace Binary
 
 		void Dump(Dumper::Dumper& dump) const override;
 	};
+}
 
+namespace UZI
+{
 	/**
 	 * @brief UZI/UZI280 file formats
 	 */
-	class UZIFormat : public GenericBinaryFormat
+	class UZIFormat : public Binary::GenericBinaryFormat
 	{
 	public:
 		/* TODO */
@@ -739,7 +757,7 @@ namespace Binary
 	/**
 	 * @brief UZI280 file format
 	 */
-	class UZI280Format : public GenericBinaryFormat
+	class UZI280Format : public Binary::GenericBinaryFormat
 	{
 	public:
 		std::shared_ptr<Linker::Contents> code, data;

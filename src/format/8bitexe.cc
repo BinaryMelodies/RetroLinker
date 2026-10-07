@@ -6,6 +6,12 @@
 #include "../linker/resolution.h"
 
 using namespace Binary;
+using namespace Apple;
+using namespace Atari;
+using namespace Commodore;
+using namespace DigitalResearch;
+using namespace FLEX;
+using namespace UZI;
 
 // AppleFormat
 

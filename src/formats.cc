@@ -592,34 +592,34 @@ format_specification formats[] =
 		"Olivetti M20 PCOS cmd format (version 2)" }, // note: "version" here simply refers to the first byte in the header
 	/* 6502 */
 	{ "atari-com", // TODO: testing
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AtariFormat>(); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Atari::AtariFormat>(); },
 		"Atari 8-bit file format" },
 	{ "cbm-prg", // TODO: testing
-		[]() -> std::shared_ptr<Format> { return std::make_shared<CommodoreFormat>(); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Commodore::CommodoreFormat>(); },
 		"Commodore 8-bit file format" },
 	{ "apple-bin",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_BIN, AppleDriver::HEADER_BIN); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::AppleDriver>(Apple::AppleDriver::FILE_TYPE_BIN, Apple::AppleDriver::HEADER_BIN); },
 		"Apple 8-bit BIN file format" },
 	{ "apple-bin-dos33",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_BIN, AppleDriver::HEADER_DOS33); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::AppleDriver>(Apple::AppleDriver::FILE_TYPE_BIN, Apple::AppleDriver::HEADER_DOS33); },
 		"Apple 8-bit BIN file format with DOS 3.3 header" },
 	{ "apple-bin-raw",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_BIN, AppleDriver::HEADER_RAW); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::AppleDriver>(Apple::AppleDriver::FILE_TYPE_BIN, Apple::AppleDriver::HEADER_RAW); },
 		"Apple 8-bit BIN file format with no header" },
 	{ "applesingle-bin",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_BIN, AppleDriver::TARGET_APPLE_SINGLE); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::AppleDriver>(Apple::AppleDriver::FILE_TYPE_BIN, Apple::AppleDriver::TARGET_APPLE_SINGLE); },
 		"Apple 8-bit BIN file format stored in AppleSingle container" },
 	{ "apple-sys",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_SYS, AppleDriver::HEADER_RAW); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::AppleDriver>(Apple::AppleDriver::FILE_TYPE_SYS, Apple::AppleDriver::HEADER_RAW); },
 		"Apple 8-bit SYS file format" },
 	{ "applesingle-sys",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_SYS, AppleDriver::TARGET_APPLE_SINGLE); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::AppleDriver>(Apple::AppleDriver::FILE_TYPE_SYS, Apple::AppleDriver::TARGET_APPLE_SINGLE); },
 		"Apple 8-bit SYS file format stored in AppleSingle container" },
 	{ "sos",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_SOS, AppleDriver::TARGET_DATA_FORK); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::AppleDriver>(Apple::AppleDriver::FILE_TYPE_SOS, Apple::AppleDriver::TARGET_DATA_FORK); },
 		"Apple /// 8-bit SOS file format" },
 	{ "applesingle-sos",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<AppleDriver>(AppleDriver::FILE_TYPE_SOS, AppleDriver::TARGET_APPLE_SINGLE); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::AppleDriver>(Apple::AppleDriver::FILE_TYPE_SOS, Apple::AppleDriver::TARGET_APPLE_SINGLE); },
 		"Apple /// 8-bit SOS file format stored in AppleSingle container" },
 	/* BFLT */
 	{ "bflt", []() -> std::shared_ptr<Format> { return std::make_shared<BFLT::BFLTFormat>(); },
@@ -1280,13 +1280,13 @@ std::shared_ptr<Format> CreateFormat(const std::shared_ptr<Reader>& rd, format_d
 	case FORMAT_APPLE:
 		return std::make_shared<Apple::AppleSingleDouble>();
 	case FORMAT_APPLEII:
-		return std::make_shared<AppleFormat>(); // TODO: test
+		return std::make_shared<Apple::AppleFormat>(); // TODO: test
 	case FORMAT_AR:
 		return std::make_shared<ArchiveFormat>(file_reader); // TODO: test
 	case FORMAT_AS86:
 		return std::make_shared<AS86ObjFormat>(); // TODO: test
 	case FORMAT_ATARI:
-		return std::make_shared<AtariFormat>(); // TODO: test
+		return std::make_shared<Atari::AtariFormat>(); // TODO: test
 	case FORMAT_BFLT:
 		return std::make_shared<BFLT::BFLTFormat>(); // TODO: test
 	case FORMAT_BW:
@@ -1306,7 +1306,7 @@ std::shared_ptr<Format> CreateFormat(const std::shared_ptr<Reader>& rd, format_d
 	case FORMAT_FLAT:
 		return std::make_shared<BinaryFormat>();
 	case FORMAT_FLEX:
-		return std::make_shared<FLEXFormat>(); // TODO
+		return std::make_shared<FLEX::FLEXFormat>(); // TODO
 	case FORMAT_GEOS:
 		return std::make_shared<GEOS::GeodeFormat>(); // TODO
 	case FORMAT_GSOS:
@@ -1358,9 +1358,9 @@ std::shared_ptr<Format> CreateFormat(const std::shared_ptr<Reader>& rd, format_d
 	case FORMAT_RSRC_GS:
 		return std::make_shared<Apple::GSOSResourceFileFormat>();
 	case FORMAT_SOS:
-		return std::make_shared<SOSFormat>();
+		return std::make_shared<Apple::SOSFormat>();
 	case FORMAT_UZI280:
-		return std::make_shared<UZI280Format>(); // TODO
+		return std::make_shared<UZI::UZI280Format>(); // TODO
 	case FORMAT_WASM:
 		return std::make_shared<Wasm::WebAssemblyFormat>(); // TODO
 	case FORMAT_W3:
