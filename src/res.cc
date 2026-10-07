@@ -25,9 +25,20 @@ using namespace Linker;
 
 void usage(char * argv0)
 {
-	std::cerr << "Usage: " << argv0 << "[options] <input file>" << std::endl;
+	std::cerr << "Usage: " << argv0 << " <expression>" << std::endl;
+	std::cerr << "\tBasic operations:" << std::endl;
 	std::cerr << "\t-h" << std::endl << "\t\tDisplay this help page" << std::endl;
-	std::cerr << "\t-F<format>" << std::endl << "\t\tSelect output format" << std::endl;
+	std::cerr << "\t-l <filename>" << std::endl << "\t\tRead specified file" << std::endl;
+	std::cerr << "\tUnary operators:" << std::endl;
+	std::cerr << "\t-f <format> <command>" << std::endl << "\t\tSelect input format for command" << std::endl;
+	std::cerr << "\tnot <predicate>" << std::endl << "\t\tNegate predicate" << std::endl;
+	std::cerr << "\tBinary operators:" << std::endl;
+	std::cerr << "\t<selector>@<identifier|integer|string>" << std::endl << "\t\tSelect named tag in selector" << std::endl;
+	std::cerr << "\t<file|predicate> and <predicate>" << std::endl << "\t\tFilter resources where predicate holds" << std::endl;
+	std::cerr << "\t<file|predicate> except <predicate>" << std::endl << "\t\tFilter resources where predicate does not hold" << std::endl;
+	std::cerr << "\t<predicate> or <predicate>" << std::endl << "\t\tLogical 'or' between predicates" << std::endl;
+	std::cerr << "\t<file> or <file>" << std::endl << "\t\tInclude resources from second file that are missing from the first file" << std::endl;
+	std::cerr << "\t<file> add <file>" << std::endl << "\t\tOverwrite resources in first file with those from the second file" << std::endl;
 }
 
 enum system_type
@@ -668,110 +679,607 @@ void read(std::shared_ptr<Format> format, std::shared_ptr<Reader> rd)
 	extract_resources(format);
 }
 
-int main(int argc, char * argv[])
-{
-	// TODO: multiple input files
-	std::string input = "";
-	std::shared_ptr<Format> format = nullptr;
+class AST;
 
-	for(int i = 1; i < argc; i++)
+void add_resources(std::shared_ptr<Format> base_format, std::shared_ptr<Format> source_format, bool overwrite);
+void apply_filter(std::shared_ptr<Format> format, std::shared_ptr<AST> predicate, bool positive_filter);
+
+struct OptionSet
+{
+	char * argv0;
+	std::optional<std::string> format;
+
+	OptionSet(char * argv0)
+		: argv0(argv0)
 	{
-		if(argv[i][0] == '-')
+	}
+};
+
+class AST
+{
+public:
+	virtual ~AST() = default;
+
+	int execute(char * argv0)
+	{
+		return execute(OptionSet(argv0));
+	}
+
+	virtual int execute(const OptionSet& options)
+	{
+		extract_resources(evaluate(options)); // TODO
+		return 0;
+	}
+
+	virtual std::shared_ptr<Format> evaluate(const OptionSet& options)
+	{
+		Linker::FatalError("Internal error");
+	}
+};
+
+class Literal : public AST
+{
+public:
+	std::string literal;
+
+	Literal(std::string literal)
+		: literal(literal)
+	{
+	}
+};
+
+class Selector : public AST
+{
+public:
+	std::shared_ptr<AST> structure;
+	std::string name;
+
+	Selector(std::shared_ptr<AST> structure, std::string name)
+		: structure(structure), name(name)
+	{
+	}
+};
+
+class Command : public AST
+{
+public:
+	enum operator_type
+	{
+		Load,
+		Help,
+	};
+	operator_type op;
+	std::string parameter;
+
+	Command(operator_type op, std::string parameter)
+		: op(op), parameter(parameter)
+	{
+	}
+
+	int execute(const OptionSet& options) override
+	{
+		if(op == Help)
 		{
-			if(argv[i][1] == 'h')
-			{
-				usage(argv[0]);
-				exit(0);
-			}
-			else if(argv[i][1] == 'F')
-			{
-				format = FetchFormat(argv[i][2] ? &argv[i][2] : argv[++i]);
-			}
+			usage(options.argv0);
 		}
 		else
 		{
-			if(input != "")
+			evaluate(options);
+		}
+		return 0;
+	}
+
+	std::shared_ptr<Format> evaluate(const OptionSet& options) override
+	{
+		switch(op)
+		{
+		case Help:
+			usage(options.argv0);
+			Linker::FatalError("Fatal error: HELP operator in evaluation context");
+		case Load:
 			{
-				Linker::Error << "Error: Multiple input files provided, ignoring" << std::endl;
+				std::ifstream in;
+				in.open(parameter, std::ios_base::in | std::ios_base::binary);
+				if(!in.is_open())
+				{
+					std::ostringstream message;
+					message << "Fatal error: Unable to open file " << parameter;
+					Linker::FatalError(message.str());
+				}
+				auto rd = std::make_shared<StreamReader>(LittleEndian, in);
+				//int status = 0;
+
+				std::shared_ptr<Format> format;
+
+				if(options.format.has_value())
+				{
+					format = FetchFormat(options.format.value());
+					read(format, rd);
+				}
+				else
+				{
+					std::vector<format_description> file_formats;
+					DetermineFormat(file_formats, rd);
+
+					if(file_formats.size() == 0)
+					{
+						Linker::FatalError("Fatal error: Unable to determine file format");
+					}
+
+					format_priority highest_priority = PRIORITY_NONE;
+
+					for(auto& file_format : file_formats)
+					{
+						if(file_format.magic.priority > highest_priority)
+							highest_priority = file_format.magic.priority;
+					}
+
+					// TODO: there should be only one format
+
+					for(auto& file_format : file_formats)
+					{
+						if(file_format.magic.priority != highest_priority)
+							continue;
+
+						Linker::Debug << "Debug: Reading as " << file_format.magic.description << std::endl;
+						format = CreateFormat(rd, file_format);
+						if(!format)
+						{
+							Linker::Error << "Error: Unable to parse file, unimplemented format " << file_format.magic.description << std::endl;
+							//status = 1;
+							continue;
+						}
+						rd->Seek(file_format.offset);
+
+						try
+						{
+							read(format, rd);
+						}
+						catch(Linker::Exception&)
+						{
+						}
+					}
+
+					for(auto& file_format : file_formats)
+					{
+						if(file_format.magic.priority == highest_priority)
+							continue;
+
+						Linker::Debug << "Debug: Other possible format: " << file_format.magic.description << std::endl;
+					}
+				}
+				return format;
 			}
-			input = argv[i];
+		default:
+			assert(false);
+		}
+	}
+};
+
+class Unary : public AST
+{
+public:
+	enum operator_type
+	{
+		Not,
+		Format,
+	};
+	operator_type op;
+	std::string parameter;
+	std::shared_ptr<AST> operand;
+
+	Unary(operator_type op, std::string parameter, std::shared_ptr<AST> operand)
+		: op(op), parameter(parameter), operand(operand)
+	{
+	}
+
+	Unary(operator_type op, std::shared_ptr<AST> operand)
+		: op(op), operand(operand)
+	{
+	}
+
+	std::shared_ptr<Linker::Format> evaluate(const OptionSet& options) override
+	{
+		switch(op)
+		{
+		case Not:
+			Linker::FatalError("Fatal error: NOT operator in evaluation context");
+		case Format:
+			{
+				OptionSet modified = options;
+				modified.format = parameter;
+				return operand->evaluate(modified);
+			}
+		default:
+			assert(false);
+		}
+	}
+};
+
+class Binary : public AST
+{
+public:
+	enum operator_type
+	{
+		And,
+		Or,
+		Except,
+		Add,
+	};
+	operator_type op;
+	std::shared_ptr<AST> lhs, rhs;
+
+	Binary(operator_type op, std::shared_ptr<AST> lhs, std::shared_ptr<AST> rhs)
+		: op(op), lhs(lhs), rhs(rhs)
+	{
+	}
+
+	std::shared_ptr<Format> evaluate(const OptionSet& options) override
+	{
+		std::shared_ptr<Format> format = lhs->evaluate(options);
+		std::shared_ptr<Format> format2;
+		switch(op)
+		{
+		case And:
+			apply_filter(format, rhs, true);
+			return format;
+		case Except:
+			apply_filter(format, rhs, false);
+			return format;
+		case Or:
+			format2 = lhs->evaluate(options);
+			add_resources(format, format2, false);
+			return format;
+		case Add:
+			format2 = lhs->evaluate(options);
+			add_resources(format, format2, true);
+			return format;
+		default:
+			assert(false);
+		}
+	}
+};
+
+class Parser
+{
+public:
+	int argc;
+	char * arg;
+	char ** argv;
+
+	Parser(int argc, char ** argv)
+		: argc(argc), arg(*argv), argv(argv + 1)
+	{
+	}
+
+	int peek_char()
+	{
+		if(argc == 0)
+		{
+			return -1;
+		}
+		else
+		{
+			return *arg;
 		}
 	}
 
-	if(input == "")
+	int next_char()
+	{
+		if(argc == 0)
+		{
+			return -1;
+		}
+		else if(*arg == '\0')
+		{
+			arg = *argv++;
+			argc--;
+			return 0;
+		}
+		else
+		{
+			return *arg++;
+		}
+	}
+
+	enum token_type
+	{
+		token_empty = 0, // not a real token
+		token_eof,
+		token_error,
+		token_string,
+		token_integer,
+		token_identifier,
+	};
+
+	token_type parse_token(std::string& result)
+	{
+		int c;
+		std::string string;
+		while((c = next_char()) == ' ' || c == '\0')
+			;
+		if(c == -1)
+		{
+			return token_eof;
+		}
+		else if(c == '"' || c == '\'')
+		{
+			int q = c;
+			while((c = next_char()) != -1 && c != q)
+			{
+				string += c;
+			}
+			if(c == -1)
+			{
+				Linker::FatalError("Fatal error: unterminated string literal");
+				return token_error;
+			}
+			result = string;
+			return token_string;
+		}
+		else if(isalnum(c) || c == '_' || c == '.' || c == '-')
+		{
+			token_type type = token_integer;
+			int base = 10;
+			string += c;
+			while(isalnum(c = peek_char()) || c == '_' || c == '.' || c == '-')
+			{
+				string += next_char();
+				switch(base)
+				{
+				case 10:
+					if(string == "0x")
+					{
+						base = 16;
+						type = token_integer;
+					}
+					else if(string == "0o")
+					{
+						base = 8;
+						type = token_integer;
+					}
+					else if(string == "0b")
+					{
+						base = 2;
+						type = token_integer;
+					}
+					else if(!('0' <= c && c <= '9'))
+					{
+						type = token_identifier;
+					}
+					break;
+				case 16:
+					if(!(('0' <= c && c <= '9') || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f')))
+					{
+						type = token_identifier;
+					}
+					break;
+				case 8:
+					if(!('0' <= c && c <= '7'))
+					{
+						type = token_identifier;
+					}
+					break;
+				case 2:
+					if(!('0' <= c && c <= '1'))
+					{
+						type = token_identifier;
+					}
+					break;
+				}
+			}
+			result = string;
+			return type;
+		}
+		else
+		{
+			return token_type(c);
+		}
+	}
+
+	token_type last_token = token_empty;
+	std::string last_token_string;
+
+	token_type peek_token(std::string& result)
+	{
+		if(last_token == token_empty)
+		{
+			last_token = parse_token(last_token_string);
+		}
+		result = last_token_string;
+		return last_token;
+	}
+
+	token_type next_token(std::string& result)
+	{
+		token_type type = peek_token(result);
+		last_token = token_empty;
+		last_token_string.clear();
+		return type;
+	}
+
+	std::shared_ptr<AST> parse_primary()
+	{
+		std::shared_ptr<AST> result;
+
+		std::string text;
+		token_type next = next_token(text);
+
+		switch(int(next))
+		{
+		case '(':
+			result = parse_expression();
+			if(next_token(text) != ')')
+			{
+				Linker::FatalError("Fatal error: Syntax error in expression");
+			}
+			return result;
+		case token_identifier:
+			if(text == "not")
+			{
+				return std::make_shared<Unary>(Unary::Not, parse_primary());
+			}
+			else if(text == "-h")
+			{
+				return std::make_shared<Command>(Command::Help, "");
+			}
+			// TODO: create command
+			else if(text == "-f")
+			{
+				switch(next_token(text))
+				{
+				case token_identifier:
+				case token_string:
+				case token_integer:
+					return std::make_shared<Unary>(Unary::Format, text, parse_primary());
+				default:
+					Linker::FatalError("Fatal error: Syntax error in expression");
+				}
+			}
+			else if(text == "-l")
+			{
+				switch(next_token(text))
+				{
+				case token_identifier:
+				case token_string:
+				case token_integer:
+					return std::make_shared<Command>(Command::Load, text);
+				default:
+					Linker::FatalError("Fatal error: Syntax error in expression");
+				}
+			}
+		case token_string:
+		case token_integer:
+			result = std::make_shared<Literal>(text);
+			while(peek_token(text) == '@')
+			{
+				next = next_token(text);
+				switch(next)
+				{
+				case token_string:
+				case token_integer:
+				case token_identifier:
+					result = std::make_shared<Selector>(result, text);
+					break;
+				default:
+					Linker::FatalError("Fatal error: Syntax error in expression");
+				}
+			}
+			return result;
+		default:
+			Linker::FatalError("Fatal error: Syntax error in expression");
+		}
+	}
+
+	std::shared_ptr<AST> parse_conjunction()
+	{
+		std::shared_ptr<AST> result;
+
+		std::string text;
+		token_type next;
+
+		result = parse_primary();
+
+		while(true)
+		{
+			next = peek_token(text);
+			switch(next)
+			{
+			case token_identifier:
+				if(text == "and")
+				{
+					next_token(text);
+					result = std::make_shared<Binary>(Binary::And, result, parse_primary());
+				}
+				else if(text == "except")
+				{
+					next_token(text);
+					result = std::make_shared<Binary>(Binary::Except, result, parse_primary());
+				}
+				else
+				{
+					return result;
+				}
+			default:
+				return result;
+			}
+		}
+	}
+
+	std::shared_ptr<AST> parse_expression()
+	{
+		std::shared_ptr<AST> result;
+
+		std::string text;
+		token_type next;
+
+		result = parse_conjunction();
+
+		while(true)
+		{
+			next = peek_token(text);
+			switch(next)
+			{
+			case token_identifier:
+				if(text == "or")
+				{
+					next_token(text);
+					result = std::make_shared<Binary>(Binary::Or, result, parse_conjunction());
+				}
+				else if(text == "add")
+				{
+					next_token(text);
+					result = std::make_shared<Binary>(Binary::Add, result, parse_conjunction());
+				}
+				else
+				{
+					return result;
+				}
+			default:
+				return result;
+			}
+		}
+	}
+
+	std::shared_ptr<AST> parse_command()
+	{
+		auto result = parse_expression();
+
+		std::string text;
+
+		int i;
+
+		if((i = next_token(text)) != token_eof)
+		{
+			Linker::FatalError("Fatal error: Superfluous tokens at end of expression");
+		}
+
+		return result;
+	}
+};
+
+void add_resources(std::shared_ptr<Format> base_format, std::shared_ptr<Format> source_format, bool overwrite)
+{
+	// TODO
+}
+
+void apply_filter(std::shared_ptr<Format> format, std::shared_ptr<AST> predicate, bool positive_filter)
+{
+	// TODO
+}
+
+int main(int argc, char * argv[])
+{
+	if(argc == 1)
 	{
 		usage(argv[0]);
-		exit(0);
+		return 0;
 	}
 
-	std::ifstream in;
-	in.open(input, std::ios_base::in | std::ios_base::binary);
-	if(!in.is_open())
-	{
-		std::ostringstream message;
-		message << "Fatal error: Unable to open file " << input;
-		Linker::FatalError(message.str());
-	}
-	auto rd = std::make_shared<StreamReader>(LittleEndian, in);
-	int status = 0;
+	Parser parser(argc - 1, argv + 1);
 
-	if(format == nullptr)
-	{
-		std::vector<format_description> file_formats;
-		DetermineFormat(file_formats, rd);
+	auto command = parser.parse_command();
 
-		if(file_formats.size() == 0)
-		{
-			Linker::FatalError("Fatal error: Unable to determine file format");
-		}
-
-		format_priority highest_priority = PRIORITY_NONE;
-
-		for(auto& file_format : file_formats)
-		{
-			if(file_format.magic.priority > highest_priority)
-				highest_priority = file_format.magic.priority;
-		}
-
-		// TODO: there should be only one format
-
-		for(auto& file_format : file_formats)
-		{
-			if(file_format.magic.priority != highest_priority)
-				continue;
-
-			Linker::Debug << "Debug: Reading as " << file_format.magic.description << std::endl;
-			format = CreateFormat(rd, file_format);
-			if(!format)
-			{
-				Linker::Error << "Error: Unable to parse file, unimplemented format " << file_format.magic.description << std::endl;
-				status = 1;
-				continue;
-			}
-			rd->Seek(file_format.offset);
-
-			try
-			{
-				read(format, rd);
-			}
-			catch(Linker::Exception&)
-			{
-			}
-		}
-
-		for(auto& file_format : file_formats)
-		{
-			if(file_format.magic.priority == highest_priority)
-				continue;
-
-			Linker::Debug << "Debug: Other possible format: " << file_format.magic.description << std::endl;
-		}
-	}
-	else
-	{
-		read(format, rd);
-	}
-
-	return status;
+	return command->execute(argv[0]);
 }
 
