@@ -1918,3 +1918,145 @@ std::string Classic68KDriver::GetDefaultExtension(Linker::Module& module, std::s
 	}
 }
 
+Runtime::Value MacintoshResourceFileFormat::ResourceInformation::GetAttributes() const
+{
+	Runtime::Value res = Runtime::Value::MakeTable();
+	res["type"] = std::string(resource_type.type, 4);
+	if(resource_reference.name.has_value())
+	{
+		res["name"] = resource_reference.name.value();
+	}
+	res["id"] = offset_t(uint16_t(resource_reference.id));
+	res["flags"] = offset_t(resource_reference.attributes);
+	return res;
+}
+
+void MacintoshResourceFileFormat::ResourceIterator::Step() const
+{
+	while(resource_types_iterator != resource_types.end())
+	{
+		if(resource_references_iterator == resource_types_iterator->references.end())
+		{
+			++resource_types_iterator;
+			if(resource_types_iterator == resource_types.end())
+				return;
+
+			resource_references_iterator = resource_types_iterator->references.begin();
+		}
+		else
+		{
+			++resource_references_iterator;
+		}
+
+		if(resource_references_iterator != resource_types_iterator->references.end())
+		{
+			return;
+		}
+	}
+}
+
+std::shared_ptr<const Runtime::Resource> MacintoshResourceFileFormat::ResourceIterator::Get() const
+{
+	return std::make_shared<ResourceInformation>(*resource_types_iterator, *resource_references_iterator);
+}
+
+bool MacintoshResourceFileFormat::ResourceIterator::SameAs(const Runtime::ResourceIterator * _other) const
+{
+	const ResourceIterator * other = dynamic_cast<const ResourceIterator *>(_other);
+	if(other == nullptr)
+		return false;
+
+	if(resource_types_iterator != other->resource_types_iterator)
+		return false;
+
+	if(resource_types_iterator == resource_types.end())
+		return true;
+
+	if(resource_references_iterator != other->resource_references_iterator)
+		return false;
+	else
+		return true;
+}
+
+void MacintoshResourceFileFormat::ResourceIterator::Erase()
+{
+	resource_references_iterator = resource_types_iterator->references.erase(resource_references_iterator);
+	if(resource_types_iterator->references.empty())
+	{
+		resource_types_iterator = resource_types.erase(resource_types_iterator);
+		if(resource_types_iterator != resource_types.end())
+		{
+			resource_references_iterator = resource_types_iterator->references.begin();
+		}
+	}
+}
+
+std::shared_ptr<Runtime::ResourceIterator> MacintoshResourceFileFormat::Iterate()
+{
+	return std::make_shared<ResourceIterator>(
+		resource_types,
+		resource_types.begin(),
+		resource_types.begin()->references.begin());
+}
+
+std::shared_ptr<Runtime::ResourceIterator> MacintoshResourceFileFormat::EndOfIteration()
+{
+	return std::make_shared<ResourceIterator>(
+		resource_types,
+		resource_types.end(),
+		resource_types.begin()->references.begin());
+}
+
+std::shared_ptr<Runtime::ResourceIterator> MacintoshResourceFileFormat::FindResource(const Runtime::Value& value)
+{
+	for(auto resource_type_iterator = resource_types.begin();
+		resource_type_iterator != resource_types.end();
+		++resource_type_iterator)
+	{
+		auto& resource_type = *resource_type_iterator;
+		if(auto * string = value["type"].GetString())
+		{
+			if(std::string(resource_type.type, 4) != *string)
+				continue;
+		}
+		else if(auto * integer = value["type"].GetInteger())
+		{
+			if(ReadUnsigned(4, 4, reinterpret_cast<const uint8_t *>(resource_type.type), ::BigEndian) != *integer)
+				continue;
+		}
+		else
+		{
+			Linker::Error << "Error: missing or invalid entry 'type'" << std::endl;
+		}
+
+		for(auto resource_reference_iterator = resource_type.references.begin();
+			resource_reference_iterator != resource_type.references.end();
+			++resource_reference_iterator)
+		{
+			auto& resource_reference = *resource_reference_iterator;
+
+			if(auto * integer = value["id"].GetInteger())
+			{
+				if(resource_reference.id != *integer)
+					continue;
+			}
+			else
+			{
+				Linker::Error << "Error: missing or invalid entry 'id'" << std::endl;
+			}
+
+			return std::make_shared<ResourceIterator>(
+				resource_types,
+				resource_type_iterator,
+				resource_reference_iterator);
+		}
+	}
+
+	return nullptr;
+}
+
+void MacintoshResourceFileFormat::AddResource(std::shared_ptr<Runtime::Resource> resource)
+{
+	// TODO
+}
+

@@ -15,6 +15,10 @@ SCRIPT_HEADERS=../src/script/script.h
 SCRIPT_CXXFILES=../src/script/scan.cc ../src/script/parse.tab.cc
 SCRIPT_OFILES=$(SCRIPT_CXXFILES:.cc=.o)
 
+RUNTIME_HEADERS=$(addprefix src/runtime/, value.h resource.h)
+RUNTIME_CXXFILES=$(RUNTIME_HEADERS:.h=.cc)
+RUNTIME_OFILES=$(RUNTIME_CXXFILES:.cc=.o)
+
 MAIN_HEADERS=../src/common.h ../src/unicode.h
 MAIN_CXXFILES=$(MAIN_HEADERS:.h=.cc)
 MAIN_OFILES=$(MAIN_CXXFILES:.cc=.o)
@@ -26,8 +30,8 @@ CXXFLAGS+= -g
 
 all: main
 
-main: main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) unicode.cc linker/*.cc format/*.cc
-	$(CXX) -o main main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) -lcppunit $(CXXFLAGS)
+main: main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(RUNTIME_OFILES) unicode.cc linker/*.cc format/*.cc
+	$(CXX) -o main main.cc $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(RUNTIME_OFILES) -lcppunit $(CXXFLAGS)
 
 clean:
 	rm -rf main results.xml

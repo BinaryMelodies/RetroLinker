@@ -15,6 +15,10 @@ SCRIPT_HEADERS=src/script/script.h
 SCRIPT_CXXFILES=src/script/scan.cc src/script/parse.tab.cc
 SCRIPT_OFILES=$(SCRIPT_CXXFILES:.cc=.o)
 
+RUNTIME_HEADERS=$(addprefix src/runtime/, value.h resource.h)
+RUNTIME_CXXFILES=$(RUNTIME_HEADERS:.h=.cc)
+RUNTIME_OFILES=$(RUNTIME_CXXFILES:.cc=.o)
+
 MAIN_HEADERS=src/common.h src/unicode.h src/formats.h
 MAIN_CXXFILES=$(MAIN_HEADERS:.h=.cc)
 MAIN_OFILES=$(MAIN_CXXFILES:.cc=.o)
@@ -29,21 +33,21 @@ all: link dump res
 
 .PHONY: all clean distclean tests tests_clean verify force docs latex unittests
 
-link: src/link.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
+link: src/link.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES) $(RUNTIME_HEADERS) $(RUNTIME_OFILES)
 	$(CXX) -o link src/link.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
 
-dump: src/dump.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
-	$(CXX) -o dump src/dump.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
+dump: src/dump.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES) $(RUNTIME_HEADERS) $(RUNTIME_OFILES)
+	$(CXX) -o dump src/dump.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(RUNTIME_OFILES) $(CXXFLAGS) $(LDFLAGS)
 
-res: src/res.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES)
-	$(CXX) -o res src/res.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(CXXFLAGS) $(LDFLAGS)
+res: src/res.o $(MAIN_HEADERS) $(MAIN_OFILES) $(LINKER_HEADERS) $(LINKER_OFILES) $(FORMAT_HEADERS) $(FORMAT_OFILES) $(DUMPER_HEADERS) $(DUMPER_OFILES) $(SCRIPT_HEADERS) $(SCRIPT_OFILES) $(RUNTIME_HEADERS) $(RUNTIME_OFILES)
+	$(CXX) -o res src/res.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) $(RUNTIME_OFILES) $(CXXFLAGS) $(LDFLAGS)
 
 force:
 	rm -f link dump
 	make all
 
 clean: tests_clean
-	rm -rf link src/link.o dump src/dump.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) src/script/scan.cc src/script/parse.tab.cc src/script/parse.tab.hh
+	rm -rf link src/link.o dump src/dump.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(RUNTIME_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) src/script/scan.cc src/script/parse.tab.cc src/script/parse.tab.hh
 
 tests_clean:
 	$(MAKE) -C tests/1_hello clean
@@ -58,7 +62,7 @@ tests_clean:
 	$(MAKE) -C unittest clean
 
 distclean: clean
-	rm -rf *~ src/*~ src/format/*~ src/linker/*~ src/dumper/*~ src/script/*~ __pycache__ results.xml
+	rm -rf *~ src/*~ src/format/*~ src/linker/*~ src/dumper/*~ src/script/*~ src/runtime/*~ __pycache__ results.xml
 	rm -rf latex docs doxygen.log
 	$(MAKE) -C tests/include distclean
 	$(MAKE) -C tests/1_hello distclean

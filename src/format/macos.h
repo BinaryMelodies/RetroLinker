@@ -13,6 +13,7 @@
 #include "../linker/segment.h"
 #include "../linker/segment_manager.h"
 #include "../linker/writer.h"
+#include "../runtime/resource.h"
 
 /* Classic 68000 Mac OS file formats */
 
@@ -42,7 +43,7 @@ namespace Apple
 	 *
 	 * This format has been obsoleted in favor of the PEF format, used on PowerPC based Macintosh computers.
 	 */
-	class MacintoshResourceFileFormat : public virtual Linker::SegmentManager
+	class MacintoshResourceFileFormat : public virtual Linker::SegmentManager, public Runtime::ResourceManager
 	{
 	public:
 		bool FormatSupportsResources() const override
@@ -565,6 +566,48 @@ namespace Apple
 
 		using Linker::OutputFormat::GetDefaultExtension;
 		std::string GetDefaultExtension(Linker::Module& module) const override;
+
+
+		/** @brief Interface for the resource manager */
+		class ResourceInformation : public Runtime::Resource
+		{
+		public:
+			ResourceType resource_type;
+			ResourceReference resource_reference;
+
+			ResourceInformation(ResourceType resource_type, ResourceReference resource_reference)
+				: resource_type(resource_type), resource_reference(resource_reference)
+			{
+			}
+
+			Runtime::Value GetAttributes() const override;
+		};
+
+		class ResourceIterator : public Runtime::ResourceIterator
+		{
+		public:
+			std::vector<ResourceType>& resource_types;
+			mutable std::vector<ResourceType>::iterator resource_types_iterator;
+			mutable std::vector<ResourceReference>::iterator resource_references_iterator;
+
+			ResourceIterator(
+				std::vector<ResourceType>& resource_types,
+				std::vector<ResourceType>::iterator resource_types_iterator,
+				std::vector<ResourceReference>::iterator resource_references_iterator)
+			: resource_types(resource_types), resource_types_iterator(resource_types_iterator), resource_references_iterator(resource_references_iterator)
+			{
+			}
+
+			void Step() const override;
+			std::shared_ptr<const Runtime::Resource> Get() const override;
+			bool SameAs(const Runtime::ResourceIterator * other) const override;
+			void Erase() override;
+		};
+
+		std::shared_ptr<Runtime::ResourceIterator> Iterate() override;
+		std::shared_ptr<Runtime::ResourceIterator> EndOfIteration() override;
+		std::shared_ptr<Runtime::ResourceIterator> FindResource(const Runtime::Value& value) override;
+		void AddResource(std::shared_ptr<Runtime::Resource> resource) override;
 	};
 
 	/**
