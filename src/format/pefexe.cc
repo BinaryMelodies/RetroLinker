@@ -1347,7 +1347,7 @@ void PEFFormat::WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) co
 	}
 }
 
-void PEFFormat::EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
+void PEFFormat::ReparseResource(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
 {
 	if(effect_handled)
 	{
@@ -2365,7 +2365,7 @@ void PEFHeader::AddFields(Dumper::Region& header_region) const
 	header_region.AddField("Below A5 size", Dumper::HexDisplay::Make(8), offset_t(below_a5_size));
 }
 
-void PEFHeader::EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
+void PEFHeader::ReparseResource(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
 {
 	if(effect_handled)
 	{
@@ -2392,7 +2392,7 @@ void PEFHeader::EffectFormatImmediately(MacintoshResourceFileFormat& format, con
 				continue;
 
 			auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFFormat>(), reference.data);
-			rseg->EffectFormatImmediately(format, rd, format.file_offset + format.data_offset + reference.data_offset + 4, reference.data->ImageSize());
+			rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference.data_offset + 4, reference.data->ImageSize());
 			reference.data = rseg;
 			return;
 		}
@@ -2538,18 +2538,18 @@ std::unique_ptr<Dumper::Region> RSegResource::CreateRegion(std::string name, off
 	}
 }
 
-void RSegResource::EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
+void RSegResource::ReparseResource(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
 {
 	std::visit([&format, &rd, offset, length](auto&& pef)
 	{
 		using T = std::decay_t<decltype(pef)>;
 		if constexpr(std::is_same_v<T, std::shared_ptr<PEFFormat>>)
 		{
-			pef->EffectFormatImmediately(format, rd, offset, length);
+			pef->ReparseResource(format, rd, offset, length);
 		}
 		else if constexpr(std::is_same_v<T, std::shared_ptr<PEFHeader>>)
 		{
-			pef->EffectFormatImmediately(format, rd, offset, length);
+			pef->ReparseResource(format, rd, offset, length);
 		}
 		else
 		{
@@ -2565,7 +2565,7 @@ void RSegResource::EffectFormat(MacintoshResourceFileFormat& format, const std::
 		raw_data->EffectFormat(format, rd);
 	}
 
-	//EffectFormatImmediately(format, rd, raw_data ? raw_data->ImageSize() : offset_t(-1));
+	//ReparseResource(format, rd, raw_data ? raw_data->ImageSize() : offset_t(-1));
 }
 
 PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateEmptyPEF()
@@ -2785,6 +2785,9 @@ void PEFOutputDriver::GenerateFile(std::string filename, Linker::Module& module)
 			resource_fork->AddResource(rseg1);
 		}
 	}
+
+	// create 'SIZE'-1
+	resource_fork->AddResource(std::make_shared<MacintoshResourceFileFormat::SizeResource>(MacintoshResourceFileFormat::SizeResource::Classic32));
 
 	GenerateFiles(filename, data_fork, resource_fork);
 }

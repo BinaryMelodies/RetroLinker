@@ -6,6 +6,7 @@ src/script/parse.tab.hh
 src/script/scan.cc
 link
 dump
+res
 unittest/main
 results.xml
 /docs

@@ -834,6 +834,9 @@ namespace Apple
 		{
 		}
 
+		/** Direct access to the GS/OS resource fork */
+		std::shared_ptr<GSOSResourceFileFormat> resource_fork;
+
 	protected:
 		bool SupportedSupplementaryFormat(OutputDriver::produce_format_t produce) override;
 	};

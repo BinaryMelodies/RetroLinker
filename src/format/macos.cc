@@ -935,7 +935,7 @@ void MacintoshResourceFileFormat::CodeFragmentResource::EffectFormat(MacintoshRe
 						continue;
 
 					auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFHeader>(), reference.data);
-					rseg->EffectFormatImmediately(format, rd, format.file_offset + format.data_offset + reference.data_offset + 4, reference.data->ImageSize());
+					rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference.data_offset + 4, reference.data->ImageSize());
 					reference.data = rseg;
 
 					found = true;

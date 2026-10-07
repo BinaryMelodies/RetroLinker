@@ -627,6 +627,9 @@ namespace Apple
 		{
 		}
 
+		/** Direct access to the Mac OS resource fork */
+		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
+
 	protected:
 		bool SupportedSupplementaryFormat(OutputDriver::produce_format_t produce) override;
 
@@ -653,8 +656,6 @@ namespace Apple
 		bool FormatSupportsResources() const override;
 
 	private:
-		/** Direct access to the Mac OS resource fork */
-		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
 		std::shared_ptr<FinderInfo> finder_info;
 
 		std::map<std::string, std::string> options;

@@ -41,6 +41,18 @@ void usage(char * argv0)
 	std::cerr << std::endl << "\t\t" << last->documentation << std::endl;
 }
 
+void dump(std::shared_ptr<Format> format, std::shared_ptr<Reader> rd, int show_options, int hide_options)
+{
+	format->ReadFile(rd);
+	Dumper::Dumper dump(std::cout);
+	dump.hide_options = hide_options;
+	if(show_options != 0)
+	{
+		dump.show_options = show_options;
+	}
+	format->Dump(dump);
+}
+
 /**
  * @brief The main entry to the dumper
  */
@@ -256,14 +268,7 @@ int main(int argc, char * argv[])
 
 			try
 			{
-				format->ReadFile(rd);
-				Dumper::Dumper dump(std::cout);
-				dump.hide_options = hide_options;
-				if(show_options != 0)
-				{
-					dump.show_options = show_options;
-				}
-				format->Dump(dump);
+				dump(format, rd, show_options, hide_options);
 			}
 			catch(Linker::Exception&)
 			{
@@ -280,14 +285,7 @@ int main(int argc, char * argv[])
 	}
 	else
 	{
-		format->ReadFile(rd);
-		Dumper::Dumper dump(std::cout);
-		dump.hide_options = hide_options;
-		if(show_options != 0)
-		{
-			dump.show_options = show_options;
-		}
-		format->Dump(dump);
+		dump(format, rd, show_options, hide_options);
 	}
 
 	return status;

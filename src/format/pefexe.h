@@ -16,6 +16,9 @@ namespace Linker
 
 namespace Apple
 {
+	/**
+	 * @brief Represents the common parts of a PEF container and the 'rseg'0 resource in a CFM-68K binary
+	 */
 	class PEFHeaderBase
 	{
 	public:
@@ -701,7 +704,7 @@ namespace Apple
 	private:
 		bool effect_handled = false;
 	public:
-		void EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
+		void ReparseResource(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
 
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		void CalculateValues() override;
@@ -721,6 +724,9 @@ namespace Apple
 		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
 	};
 
+	/**
+	 * @brief Represents the contents of an 'rseg'0 resource in a CFM-68K binary, a cut-down version of the full PEF container
+	 */
 	class PEFHeader : public PEFHeaderBase
 	{
 	private:
@@ -736,13 +742,24 @@ namespace Apple
 		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 		void AddFields(Dumper::Region& header_region) const;
 
-		void EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
+		void ReparseResource(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
 	};
 
+	/**
+	 * @brief Represents an 'rseg' resource in a Macintosh resource file
+	 *
+	 * The resource which contains the PEF metadata is determined by the 'cfrg'0 resource, therefore its contents could be in
+	 * a resource of any type. To accomodate this, 'rseg' resources are not parsed immediately on encounter, but rather when a 'cfrg'0
+	 * resource (or another 'rseg' resource) mentions them by ID.
+	 *
+	 * Since the actual parsing might occur once the resource is already read in, this class contains a reference to the previous parse.
+	 */
 	class RSegResource : public MacintoshResourceFileFormat::Resource
 	{
 	public:
+		/** @brief The parsed contents of the resource */
 		std::variant<std::shared_ptr<PEFFormat>, std::shared_ptr<PEFHeader>> structured_data;
+		/** @brief The contents of the resource, processed before recognizing it as an 'rseg' resource */
 		std::shared_ptr<MacintoshResourceFileFormat::Resource> raw_data;
 
 		RSegResource(std::shared_ptr<PEFHeader> structured_data, std::shared_ptr<MacintoshResourceFileFormat::Resource> raw_data = nullptr)
@@ -776,10 +793,13 @@ namespace Apple
 		void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
 		std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 
-		void EffectFormatImmediately(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
+		void ReparseResource(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length);
 		void EffectFormat(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd) override;
 	};
 
+	/**
+	 * @brief Handles generation of a PEF binary and other files, such as a resource file
+	 */
 	class PEFOutputDriver : public MacintoshOutputDriver
 	{
 	public:
@@ -828,8 +848,6 @@ namespace Apple
 	private:
 		/** PEF format */
 		std::shared_ptr<DataFork> data_fork;
-		/** Direct access to the Mac OS resource fork */
-		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
 		std::shared_ptr<FinderInfo> finder_info;
 
 		std::map<std::string, std::string> options;
