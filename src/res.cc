@@ -9,6 +9,7 @@
 #include <vector>
 #include "common.h"
 #include "format/apple.h"
+#include "format/elf.h"
 #include "format/gsos.h"
 #include "format/leexe.h"
 #include "format/macos.h"
@@ -39,6 +40,8 @@ enum system_type
 	System_Windows,
 	System_WindowsNT,
 	System_OS2,
+	System_OS2_PPC,
+	System_BeOS, // TODO: not implemented
 	System_Macintosh,
 	System_GSOS,
 };
@@ -53,6 +56,7 @@ static inline bool IsMicrosoftResource(system_type type)
 	case System_Windows3x:*/
 	case System_Windows:
 	case System_OS2:
+	//case System_OS2_PPC: // TODO: not sure
 		return true;
 	default:
 		return false;
@@ -77,7 +81,7 @@ void SetSystem(system_type type)
 	}
 }
 
-/** @brief A YAML-like data format */
+/** @brief A YAML/JSON-like data format */
 class Value
 {
 public:
@@ -308,6 +312,7 @@ void extract_resources(const std::shared_ptr<Apple::GSOSResourceFileFormat>& for
 void extract_resources(const std::shared_ptr<Microsoft::NEFormat>& format);
 void extract_resources(const std::shared_ptr<Microsoft::LEFormat>& format);
 void extract_resources(const std::shared_ptr<Microsoft::PEFormat>& format);
+void extract_resources(const std::shared_ptr<ELF::ELFFormat>& format);
 void extract_resources(const std::shared_ptr<Microsoft::ResourceFile>& format);
 void extract_resources(const std::shared_ptr<Microsoft::NTResourceFile>& format);
 void extract_resources(const std::shared_ptr<Format>& format);
@@ -371,11 +376,65 @@ void extract_resources(const std::shared_ptr<Apple::MacintoshResourceFileFormat>
 	}
 }
 
+static std::map<offset_t, std::string> gs_os_resource_type_names =
+{
+	{ 0x8001, "rIcon" },
+	{ 0x8002, "rPicture" },
+	{ 0x8003, "rControlList" },
+	{ 0x8004, "rControlTemplate" },
+	{ 0x8005, "rC1InputString" },
+	{ 0x8006, "rPString" },
+	{ 0x8007, "rStringList" },
+	{ 0x8008, "rMenuBar" },
+	{ 0x8009, "rMenu" },
+	{ 0x800A, "rMenuItem" },
+	{ 0x800B, "rTextForLETextBox2" },
+	// { 0x800C, "" },
+	{ 0x800D, "rCtlColorTbl" },
+	{ 0x800E, "rWindParam1" },
+	{ 0x800F, "rWindParam2" },
+	{ 0x8010, "rWindColor" },
+	{ 0x8011, "rTextBlock" },
+	{ 0x8012, "rStyleBlock" },
+	{ 0x8013, "rToolStartup" },
+	{ 0x8014, "rResName" },
+	{ 0x8015, "rAlertString" },
+	{ 0x8016, "rText" },
+	// { 0x8017, "" },
+	// { 0x8018, "" },
+	// { 0x8019, "" },
+	{ 0x801A, "rTwoRects" },
+	// { 0x801B, "" },
+	{ 0x801C, "rListRef" },
+	{ 0x801D, "rCString" },
+	// { 0x801E, "" },
+	// { 0x801F, "" },
+	{ 0x8020, "rErrorString" },
+	{ 0x8021, "rKTransTable" },
+	// { 0x8022, "" },
+	{ 0x8023, "rC1OutputString" },
+	// { 0x8024, "" },
+	{ 0x8025, "rTERuler" },
+};
+
 void extract_resources(const std::shared_ptr<Apple::GSOSResourceFileFormat>& format)
 {
 	std::cout << "GS/OS" << std::endl;
 	SetSystem(System_GSOS);
-	// TODO
+	for(auto reference_record : format->map_index)
+	{
+		Value res = Value::MakeTable();
+		res["type"] = offset_t(reference_record->type);
+		auto type_name = gs_os_resource_type_names.find(reference_record->type);
+		if(type_name != gs_os_resource_type_names.end())
+		{
+			res["type-desc"] = type_name->second;
+		}
+		res["id"] = offset_t(reference_record->id);
+		res["flags"] = offset_t(reference_record->attributes);
+
+		std::cout << res << std::endl;
+	}
 }
 
 void extract_resources(const std::shared_ptr<Microsoft::NEFormat>& format)
@@ -385,26 +444,19 @@ void extract_resources(const std::shared_ptr<Microsoft::NEFormat>& format)
 		std::cout << "NE for OS/2" << std::endl;
 		SetSystem(System_OS2);
 
+		// TODO: needs testing
+
 		for(auto resource : format->resources)
 		{
 			Value res = Value::MakeTable();
-			if(resource->type_id_name.has_value())
+			res["type"] = offset_t(resource->type_id);
+			auto type_name = Microsoft::OS2::resource_type_id_descriptions.find(resource->type_id);
+			if(type_name != Microsoft::OS2::resource_type_id_descriptions.end())
 			{
-				res["type"] = resource->type_id_name.value();
-			}
-			else
-			{
-				res["type"] = offset_t(resource->type_id);
+				res["type-desc"] = type_name->second;
 			}
 
-			if(resource->id_name.has_value())
-			{
-				res["id"] = resource->id_name.value();
-			}
-			else
-			{
-				res["id"] = offset_t(resource->id);
-			}
+			res["id"] = offset_t(resource->id);
 			res["name"] = res["id"]; // duplicate
 			res["flags"] = offset_t(resource->flags);
 
@@ -439,6 +491,11 @@ void extract_resources(const std::shared_ptr<Microsoft::NEFormat>& format)
 				else
 				{
 					res["type"] = offset_t(resource->type_id);
+					auto type_name = Microsoft::Windows::resource_type_id_descriptions.find(resource->type_id);
+					if(type_name != Microsoft::Windows::resource_type_id_descriptions.end())
+					{
+						res["type-desc"] = type_name->second;
+					}
 				}
 
 				if(resource->id_name.has_value())
@@ -465,11 +522,71 @@ void extract_resources(const std::shared_ptr<Microsoft::LEFormat>& format)
 	// TODO
 }
 
+void extract_pe_resources(const std::shared_ptr<Microsoft::PEFormat::Resource>& resource, std::vector<Value> levels)
+{
+	Value res = Value::MakeTable();
+	res["levels"] = levels;
+	if(levels.size() == 3)
+	{
+		res["type"] = levels[0];
+		if(auto integer = levels[0].GetInteger())
+		{
+			auto type_name = Microsoft::Windows::resource_type_id_descriptions.find(*integer);
+			if(type_name != Microsoft::Windows::resource_type_id_descriptions.end())
+			{
+				res["type-desc"] = type_name->second;
+			}
+		}
+		res["name"] = res["id"] = levels[1];
+		res["language"] = levels[2];
+	}
+	res["codepage"] = resource->codepage;
+
+	std::cout << res << std::endl;
+}
+
+void extract_pe_resources(const std::shared_ptr<Microsoft::PEFormat::ResourceDirectory>& resource_directory, std::vector<Value>& levels)
+{
+	for(auto& entry : resource_directory->name_entries)
+	{
+		std::visit([&entry, levels](auto&& content)
+		{
+			auto levels_ = levels;
+			levels_.push_back(entry.identifier.name);
+			extract_pe_resources(content, levels_);
+		}, entry.content);
+	}
+
+	for(auto& entry : resource_directory->id_entries)
+	{
+		std::visit([&entry, levels](auto&& content)
+		{
+			auto levels_ = levels;
+			levels_.push_back(offset_t(entry.identifier));
+			extract_pe_resources(content, levels_);
+		}, entry.content);
+	}
+}
+
 void extract_resources(const std::shared_ptr<Microsoft::PEFormat>& format)
 {
 	std::cout << "PE" << std::endl;
 	SetSystem(System_WindowsNT);
+	if(format->resources != nullptr)
+	{
+		std::vector<Value> levels;
+		extract_pe_resources(format->resources, levels);
+	}
+}
+
+void extract_resources(const std::shared_ptr<ELF::ELFFormat>& format)
+{
+	// TODO: check if it contains SHT_RES (SHT_OLD_RES is not parsed yet) or PT_RES
+	std::cout << "ELF" << std::endl;
+	SetSystem(System_OS2_PPC);
 	// TODO
+
+	// TODO: also for BeOS?
 }
 
 void extract_resources(const std::shared_ptr<Microsoft::ResourceFile>& format)
@@ -525,6 +642,10 @@ void extract_resources(const std::shared_ptr<Format>& format)
 	else if(auto pe_format = std::dynamic_pointer_cast<Microsoft::PEFormat>(format))
 	{
 		extract_resources(pe_format);
+	}
+	else if(auto elf_format = std::dynamic_pointer_cast<ELF::ELFFormat>(format))
+	{
+		extract_resources(elf_format);
 	}
 	else if(auto resource_file = std::dynamic_pointer_cast<Microsoft::ResourceFile>(format))
 	{
