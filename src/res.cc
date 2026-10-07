@@ -29,6 +29,54 @@ void usage(char * argv0)
 	std::cerr << "\t-F<format>" << std::endl << "\t\tSelect output format" << std::endl;
 }
 
+enum system_type
+{
+	System_Unspecified,
+	/** @brief Refers to formats found in a resource file, which includes OS/2 and 16-bit Windows, but not Windows NT */
+	System_UnknownMicrosoft,
+	/*System_Windows1x,
+	System_Windows3x,*/
+	System_Windows,
+	System_WindowsNT,
+	System_OS2,
+	System_Macintosh,
+	System_GSOS,
+};
+system_type SystemType = System_Unspecified;
+
+static inline bool IsMicrosoftResource(system_type type)
+{
+	switch(type)
+	{
+	case System_UnknownMicrosoft:
+	/*case System_Windows1x:
+	case System_Windows3x:*/
+	case System_Windows:
+	case System_OS2:
+		return true;
+	default:
+		return false;
+	}
+}
+
+void SetSystem(system_type type)
+{
+	if(SystemType == type
+	|| (type == System_UnknownMicrosoft && IsMicrosoftResource(SystemType)))
+		return;
+
+
+	if(SystemType == System_Unspecified
+	|| (SystemType == System_UnknownMicrosoft && IsMicrosoftResource(type)))
+	{
+		SystemType = type;
+	}
+	else
+	{
+		Linker::FatalError("Fatal error: incompatible systems");
+	}
+}
+
 /** @brief A YAML-like data format */
 class Value
 {
@@ -249,6 +297,8 @@ std::ostream& operator <<(std::ostream& out, const Value& value)
 	return out;
 }
 
+// TODO: use virtual methods
+
 void extract_resources(const std::shared_ptr<Apple::MacintoshOutputDriver>& format);
 void extract_resources(const std::shared_ptr<Apple::GSOutputDriver>& format);
 void extract_resources(const std::shared_ptr<Apple::AppleSingleDouble>& format);
@@ -302,6 +352,7 @@ void extract_resources(const std::shared_ptr<Apple::MacBinary>& format)
 void extract_resources(const std::shared_ptr<Apple::MacintoshResourceFileFormat>& format)
 {
 	std::cout << "Mac OS" << std::endl;
+	SetSystem(System_Macintosh);
 	for(auto& resource_type : format->resource_types)
 	{
 		for(auto& resource_reference : resource_type.references)
@@ -314,6 +365,7 @@ void extract_resources(const std::shared_ptr<Apple::MacintoshResourceFileFormat>
 			}
 			res["id"] = offset_t(uint16_t(resource_reference.id));
 			res["flags"] = offset_t(resource_reference.attributes);
+
 			std::cout << res << std::endl;
 		}
 	}
@@ -322,36 +374,115 @@ void extract_resources(const std::shared_ptr<Apple::MacintoshResourceFileFormat>
 void extract_resources(const std::shared_ptr<Apple::GSOSResourceFileFormat>& format)
 {
 	std::cout << "GS/OS" << std::endl;
+	SetSystem(System_GSOS);
 	// TODO
 }
 
 void extract_resources(const std::shared_ptr<Microsoft::NEFormat>& format)
 {
-	std::cout << "NE" << std::endl;
-	// TODO
+	if(format->IsOS2())
+	{
+		std::cout << "NE for OS/2" << std::endl;
+		SetSystem(System_OS2);
+
+		for(auto resource : format->resources)
+		{
+			Value res = Value::MakeTable();
+			if(resource->type_id_name.has_value())
+			{
+				res["type"] = resource->type_id_name.value();
+			}
+			else
+			{
+				res["type"] = offset_t(resource->type_id);
+			}
+
+			if(resource->id_name.has_value())
+			{
+				res["id"] = resource->id_name.value();
+			}
+			else
+			{
+				res["id"] = offset_t(resource->id);
+			}
+			res["name"] = res["id"]; // duplicate
+			res["flags"] = offset_t(resource->flags);
+
+			std::cout << res << std::endl;
+		}
+	}
+	else
+	{
+		/*if(format->windows_version.major >= 3)
+		{
+			std::cout << "NE for Windows 3.x or later" << std::endl;
+			SetSystem(System_Windows3x);
+		}
+		else
+		{
+			std::cout << "NE for Windows 1.x/2.x or unknown system" << std::endl;
+			SetSystem(System_Windows1x);
+		}*/
+		std::cout << "NE for Windows or unknown system" << std::endl;
+		SetSystem(System_Windows);
+
+		for(auto resource_type : format->resource_types)
+		{
+			for(auto resource : resource_type->resources)
+			{
+				Value res = Value::MakeTable();
+
+				if(resource->type_id_name.has_value())
+				{
+					res["type"] = resource->type_id_name.value();
+				}
+				else
+				{
+					res["type"] = offset_t(resource->type_id);
+				}
+
+				if(resource->id_name.has_value())
+				{
+					res["id"] = resource->id_name.value();
+				}
+				else
+				{
+					res["id"] = offset_t(resource->id);
+				}
+				res["name"] = res["id"]; // duplicate
+				res["flags"] = offset_t(resource->flags);
+
+				std::cout << res << std::endl;
+			}
+		}
+	}
 }
 
 void extract_resources(const std::shared_ptr<Microsoft::LEFormat>& format)
 {
-	std::cout << "LE" << std::endl;
+	std::cout << "LE/LX" << std::endl;
+	SetSystem(System_OS2);
 	// TODO
 }
 
 void extract_resources(const std::shared_ptr<Microsoft::PEFormat>& format)
 {
 	std::cout << "PE" << std::endl;
+	SetSystem(System_WindowsNT);
 	// TODO
 }
 
 void extract_resources(const std::shared_ptr<Microsoft::ResourceFile>& format)
 {
 	std::cout << "resources" << std::endl;
+	SetSystem(System_UnknownMicrosoft);
 	// TODO
 }
 
 void extract_resources(const std::shared_ptr<Microsoft::NTResourceFile>& format)
 {
 	std::cout << "NT resources" << std::endl;
+	SetSystem(System_WindowsNT);
 	// TODO
 }
 
