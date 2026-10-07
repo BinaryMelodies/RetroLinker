@@ -111,6 +111,16 @@ void extract_resources(const std::shared_ptr<Microsoft::ResourceFile>& format);
 void extract_resources(const std::shared_ptr<Microsoft::NTResourceFile>& format);
 void extract_resources(const std::shared_ptr<Format>& format);
 
+void extract_resources(const std::shared_ptr<Runtime::ResourceManager>& format)
+{
+	// TODO: set system
+
+	for(auto resource : format->Iterate())
+	{
+		std::cout << resource->GetProperties() << std::endl;
+	}
+}
+
 void extract_resources(const std::shared_ptr<Apple::MacintoshOutputDriver>& format)
 {
 	extract_resources(format->resource_fork);
@@ -152,27 +162,7 @@ void extract_resources(const std::shared_ptr<Apple::MacintoshResourceFileFormat>
 {
 	std::cout << "Mac OS" << std::endl;
 	SetSystem(System_Macintosh);
-	/*for(auto& resource_type : format->resource_types)
-	{
-		for(auto& resource_reference : resource_type.references)
-		{
-			Value res = Value::MakeTable();
-			res["type"] = std::string(resource_type.type, 4);
-			if(resource_reference.name.has_value())
-			{
-				res["name"] = resource_reference.name.value();
-			}
-			res["id"] = offset_t(uint16_t(resource_reference.id));
-			res["flags"] = offset_t(resource_reference.attributes);
-
-			std::cout << res << std::endl;
-		}
-	}*/
-
-	for(auto resource : *format)
-	{
-		std::cout << resource->GetAttributes() << std::endl;
-	}
+	extract_resources(std::dynamic_pointer_cast<Runtime::ResourceManager>(format));
 }
 
 static std::map<offset_t, std::string> gs_os_resource_type_names =

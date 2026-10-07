@@ -10,7 +10,7 @@ namespace Runtime
 	{
 	public:
 		virtual ~Resource() = default;
-		virtual Value GetAttributes() const = 0;
+		virtual Value GetProperties() const = 0;
 	};
 
 	class ResourceIterator
@@ -27,7 +27,7 @@ namespace Runtime
 		virtual void Erase() = 0;
 	};
 
-	class ResourceManager
+	class ResourceIterable
 	{
 	public:
 		struct Iterator
@@ -72,22 +72,20 @@ namespace Runtime
 			}
 		};
 
-		virtual ~ResourceManager() = default;
-
-		virtual std::shared_ptr<ResourceIterator> Iterate() = 0;
-		std::shared_ptr<const ResourceIterator> Iterate() const
+		virtual std::shared_ptr<ResourceIterator> BeginIteration() = 0;
+		std::shared_ptr<const ResourceIterator> BeginIteration() const
 		{
-			return std::const_pointer_cast<const ResourceIterator>(const_cast<ResourceManager *>(this)->Iterate());
+			return std::const_pointer_cast<const ResourceIterator>(const_cast<ResourceIterable *>(this)->BeginIteration());
 		}
 		virtual std::shared_ptr<ResourceIterator> EndOfIteration() = 0;
 		std::shared_ptr<const ResourceIterator> EndOfIteration() const
 		{
-			return std::const_pointer_cast<const ResourceIterator>(const_cast<ResourceManager *>(this)->EndOfIteration());
+			return std::const_pointer_cast<const ResourceIterator>(const_cast<ResourceIterable *>(this)->EndOfIteration());
 		}
 
 		ConstIterator begin() const
 		{
-			return ConstIterator{Iterate()};
+			return ConstIterator{BeginIteration()};
 		}
 
 		ConstIterator end() const
@@ -97,12 +95,24 @@ namespace Runtime
 
 		Iterator begin()
 		{
-			return Iterator{Iterate()};
+			return Iterator{BeginIteration()};
 		}
 
 		Iterator end()
 		{
 			return Iterator{EndOfIteration()};
+		}
+	};
+
+	class ResourceManager
+	{
+	public:
+		virtual ~ResourceManager() = default;
+
+		virtual ResourceIterable& Iterate() = 0;
+		const ResourceIterable& Iterate() const
+		{
+			return const_cast<const ResourceIterable&>(const_cast<ResourceManager *>(this)->Iterate());
 		}
 
 		virtual std::shared_ptr<ResourceIterator> FindResource(const Value& value) = 0;
@@ -111,7 +121,7 @@ namespace Runtime
 			return std::const_pointer_cast<const ResourceIterator>(const_cast<ResourceManager *>(this)->FindResource(value));
 		}
 
-		virtual void AddResource(std::shared_ptr<Resource> resource) = 0;
+		virtual bool UpdateResource(std::shared_ptr<Resource> resource) = 0;
 	};
 }
 

@@ -1918,7 +1918,7 @@ std::string Classic68KDriver::GetDefaultExtension(Linker::Module& module, std::s
 	}
 }
 
-Runtime::Value MacintoshResourceFileFormat::ResourceInformation::GetAttributes() const
+Runtime::Value MacintoshResourceFileFormat::ResourceInformation::GetProperties() const
 {
 	Runtime::Value res = Runtime::Value::MakeTable();
 	res["type"] = std::string(resource_type.type, 4);
@@ -1991,7 +1991,12 @@ void MacintoshResourceFileFormat::ResourceIterator::Erase()
 	}
 }
 
-std::shared_ptr<Runtime::ResourceIterator> MacintoshResourceFileFormat::Iterate()
+Runtime::ResourceIterable& MacintoshResourceFileFormat::Iterate()
+{
+	return *this;
+}
+
+std::shared_ptr<Runtime::ResourceIterator> MacintoshResourceFileFormat::BeginIteration()
 {
 	return std::make_shared<ResourceIterator>(
 		resource_types,
@@ -2055,8 +2060,13 @@ std::shared_ptr<Runtime::ResourceIterator> MacintoshResourceFileFormat::FindReso
 	return nullptr;
 }
 
-void MacintoshResourceFileFormat::AddResource(std::shared_ptr<Runtime::Resource> resource)
+bool MacintoshResourceFileFormat::UpdateResource(std::shared_ptr<Runtime::Resource> resource)
 {
-	// TODO
+	if(auto actual_resource = std::dynamic_pointer_cast<Resource>(resource))
+	{
+		AddResource(actual_resource);
+		return true;
+	}
+	return false;
 }
 

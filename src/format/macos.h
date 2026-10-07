@@ -43,7 +43,7 @@ namespace Apple
 	 *
 	 * This format has been obsoleted in favor of the PEF format, used on PowerPC based Macintosh computers.
 	 */
-	class MacintoshResourceFileFormat : public virtual Linker::SegmentManager, public Runtime::ResourceManager
+	class MacintoshResourceFileFormat : public virtual Linker::SegmentManager, public Runtime::ResourceManager, protected Runtime::ResourceIterable
 	{
 	public:
 		bool FormatSupportsResources() const override
@@ -580,7 +580,7 @@ namespace Apple
 			{
 			}
 
-			Runtime::Value GetAttributes() const override;
+			Runtime::Value GetProperties() const override;
 		};
 
 		class ResourceIterator : public Runtime::ResourceIterator
@@ -604,10 +604,11 @@ namespace Apple
 			void Erase() override;
 		};
 
-		std::shared_ptr<Runtime::ResourceIterator> Iterate() override;
+		Runtime::ResourceIterable& Iterate() override;
+		std::shared_ptr<Runtime::ResourceIterator> BeginIteration() override;
 		std::shared_ptr<Runtime::ResourceIterator> EndOfIteration() override;
 		std::shared_ptr<Runtime::ResourceIterator> FindResource(const Runtime::Value& value) override;
-		void AddResource(std::shared_ptr<Runtime::Resource> resource) override;
+		bool UpdateResource(std::shared_ptr<Runtime::Resource> resource) override;
 	};
 
 	/**
