@@ -1242,6 +1242,11 @@ for(auto section : module.Sections())
 				{
 					relocation_type = JumpTableEntry;
 				}
+				else if(resolution.target != rel.source.GetPosition().segment)
+				{
+					Linker::Error << "Error: Invalid relocation: " << rel << std::endl;
+					continue;
+				}
 				else
 				{
 					relocation_type = SegmentRelative;
@@ -1524,7 +1529,7 @@ for(auto section : module.Sections())
 			resource->base_address = std::dynamic_pointer_cast<Linker::Segment>(resource->image)->base_address;
 			if(a5world)
 			{
-				//resource->a5_address = a5world->base_address;
+				resource->a5_address = a5world->base_address + a5world->TotalSize();
 			}
 		}
 	}
