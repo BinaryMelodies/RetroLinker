@@ -107,6 +107,13 @@ start:
 .ifdef MODEL_DEFAULT
 	bsrw	WaitForKey
 	jsr	FarFunction(a5)
+
+	_LoadA	text_jump_table_address, a0
+	bsrw	PutString
+	lea.l	FarFunction(a5), a0
+	move.l	2(a0), d0
+	bsrw	PutLong
+	bsrw	PutNewLine
 .endif
 .endif
 
@@ -189,6 +196,15 @@ FarFunction:
 	bsrw	FarPutString
 	bsrw	FarPutNewLine
 
+	_LoadA	text_far_segment_address, a0
+	bsrw	FarPutString
+	bsrw	1f
+1:
+	move.l	(sp)+, d0
+	sub.l	#1b - FarFunction, d0
+	bsrw	FarPutLong
+	bsrw	FarPutNewLine
+
 	rts
 
 FarPutString:
@@ -202,6 +218,38 @@ FarPutString:
 1:
 	rts
 
+FarPutLong:
+	move.l	d0, -(sp)
+	swap	d0
+	bsrw	FarPutWord
+	move.l	(sp)+, d0
+#	bras	FarPutWord
+
+FarPutWord:
+	move.w	d0, -(sp)
+	lsr.w	#8, d0
+	bsrw	FarPutByte
+	move.w	(sp)+, d0
+#	bras	FarPutByte
+
+FarPutByte:
+	move.w	d0, -(sp)
+	lsr.w	#4, d0
+	bsrw	FarPutNibble
+	move.w	(sp)+, d0
+#	bras	FarPutNibble
+
+FarPutNibble:
+	and.w	#0xF, d0
+	cmp.b	#10, d0
+	bccs	1f
+	add.b	#'0', d0
+	bras	2f
+1:
+	add.b	#'A' - 10, d0
+2:
+#	bras	FarPutChar
+
 FarPutChar:
 	_PutChar	d0
 	rts
@@ -212,6 +260,9 @@ FarPutNewLine:
 
 far_message:
 	.ascii	"Greetings from another segment!"
+
+text_far_segment_address:
+	.asciz	"Far segment address: "
 
 .endif
 .endif
@@ -289,6 +340,13 @@ text_bss_var:
 	.asciz	"bss_var: "
 text_a5world_var:
 	.asciz	"a5world_var: "
+.endif
+
+.if TARGET_MACOS
+.ifdef MODEL_DEFAULT
+text_jump_table_address:
+	.asciz	"Jump table entry: "
+.endif
 .endif
 
 	.section	.bss
