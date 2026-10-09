@@ -43,7 +43,7 @@ void MacintoshResourceFileFormat::SetOptions(std::map<std::string, std::string>&
 
 	if(collector.far())
 	{
-		allow_far_segments = true;
+		use_far_segments = true;
 		_32 = true;
 	}
 
@@ -1021,6 +1021,14 @@ std::unique_ptr<Script::List> MacintoshResourceFileFormat::GetScript(Linker::Mod
 	align 2;
 };
 
+for ".init"
+{
+	at 0;
+	all ".init"
+		align 2;
+	align 2;
+};
+
 for not resource
 {
 	at 0;
@@ -1158,21 +1166,45 @@ for(auto section : module.Sections())
 	Linker::Debug << "Debug: Setting the A5 world to " << a5world->zero_fill << std::endl;
 
 	uint32_t entry_offset = 0;
+	std::shared_ptr<CodeResource> entry_segment = codes[0];
 	Linker::Location entry;
 	if(module.FindGlobalSymbol(".entry", entry))
 	{
 		Linker::Position position = entry.GetPosition();
-		if(position.segment != codes[0]->image)
+		entry_offset = position.address;
+		entry_segment = segments[position.segment];
+	}
+
+	std::shared_ptr<CodeResource> far_entry_segment;
+	uint32_t far_entry_offset = 0;
+	if(use_far_segments)
+	{
+		Linker::Location init;
+		if(module.FindGlobalSymbol(".init", init))
 		{
-			Linker::Error << "Error: entry point must be in `.code' segment, using offset .code:0 instead" << std::endl;
+			Linker::Position position = init.GetPosition();
+			// move .entry to the far_entry_* variables
+			far_entry_segment = entry_segment;
+			far_entry_offset = entry_offset;
+			// fill the entry_* variables with .init
+			entry_segment = segments[position.segment];
+			entry_offset = position.address;
 		}
 		else
 		{
-			entry_offset = position.address;
+			Linker::Error << "Error: no .init segment found, generating anyway" << std::endl;
 		}
 	}
-	/* must be the first entry */
-	codes[0]->near_entries.insert(entry_offset);
+
+	entry_segment->near_entries.insert(entry_offset);
+	if(use_far_segments)
+	{
+		if(far_entry_offset > 0xFFFF)
+		{
+			Linker::Error << "Error: starting point beyond the 64 KiB boundary" << std::endl; // TODO: is it possible to enable this?
+		}
+		far_entry_segment->near_entries.insert(far_entry_offset);
+	}
 
 	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>> entry_relocations;
 
@@ -1231,7 +1263,7 @@ for(auto section : module.Sections())
 			entry_relocations[resolution.target][resolution.value].push_back(rel);
 			break;
 		case SegmentRelative:
-			if(!allow_far_segments)
+			if(!use_far_segments)
 			{
 				Linker::Error << "Error: segment relative absolute addressing only supported for far segments (enable using -Sfar)" << std::endl;
 			}
@@ -1247,7 +1279,7 @@ for(auto section : module.Sections())
 			}
 			break;
 		case A5Relative:
-			if(!allow_far_segments)
+			if(!use_far_segments)
 			{
 				Linker::Error << "Error: A5 relative absolute addressing only supported for far segments (enable using -Sfar)" << std::endl;
 			}
@@ -1284,9 +1316,9 @@ for(auto section : module.Sections())
 			{
 				resource->near_entries.insert(offset);
 			}
-			else if(allow_far_segments)
+			else if(use_far_segments)
 			{
-				resource->far_entries.insert(offset);
+				resource->far_entries.insert(offset + 0x28);
 			}
 			else
 			{
@@ -1296,49 +1328,84 @@ for(auto section : module.Sections())
 	}
 
 	/* must be the first entry */
-	jump_table->near_entries.push_back(JumpTableCodeResource::Entry{1, entry_offset});
+	uint32_t jump_table_offset = 8;
 
-	for(auto& resource : codes)
+	jump_table->near_entries.push_back(JumpTableCodeResource::Entry{entry_segment->id, entry_offset});
+
+	// near model: the startup segment
+	// far model: the init segment
+
+	entry_segment->first_near_entry_offset = 0;
+	for(uint16_t entry : entry_segment->near_entries)
 	{
-		/* since the first entry is already loaded, we have to skip it */
-		resource->first_near_entry_offset = resource == codes[0] ? 0 : jump_table->near_entries.size() * 8;
-		uint32_t jump_table_offset = 32 + resource->first_near_entry_offset + 2;
-		for(uint16_t entry : resource->near_entries)
+		if(entry == entry_offset)
+			continue; /* already inserted */
+
+		jump_table->near_entries.push_back(JumpTableCodeResource::Entry{entry_segment->id, entry});
+
+		auto segment = std::dynamic_pointer_cast<Linker::Segment>(entry_segment->image);
+		auto resource_iter = entry_relocations.find(segment);
+		if(resource_iter != entry_relocations.end())
 		{
-			if(resource == codes[0] && entry == entry_offset)
-				continue; /* already inserted */
-
-			jump_table->near_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
-
-			auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
-			auto resource_iter = entry_relocations.find(segment);
-			if(resource_iter != entry_relocations.end())
+			auto entry_iter = resource_iter->second.find(entry);
+			if(entry_iter != resource_iter->second.end())
 			{
-				auto entry_iter = resource_iter->second.find(entry);
-				if(entry_iter != resource_iter->second.end())
+				for(auto& rel : entry_iter->second)
 				{
-					for(auto& rel : entry_iter->second)
-					{
-						rel.WriteWord(jump_table_offset);
-					}
+					rel.WriteWord(jump_table_offset + 32 + 2);
 				}
 			}
-			jump_table_offset += 8;
+		}
+		jump_table_offset += 8;
+	}
+
+	if(!use_far_segments)
+	{
+		for(auto& resource : codes)
+		{
+			/* since the first entry is already loaded, we have to skip it */
+			if(resource == entry_segment)
+				continue;
+
+			resource->first_near_entry_offset = jump_table_offset;
+			for(uint16_t entry : resource->near_entries)
+			{
+				jump_table->near_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
+
+				auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
+				auto resource_iter = entry_relocations.find(segment);
+				if(resource_iter != entry_relocations.end())
+				{
+					auto entry_iter = resource_iter->second.find(entry);
+					if(entry_iter != resource_iter->second.end())
+					{
+						for(auto& rel : entry_iter->second)
+						{
+							rel.WriteWord(jump_table_offset + 32 + 2);
+						}
+					}
+				}
+				jump_table_offset += 8;
+			}
 		}
 	}
 
-	for(auto& resource : codes)
-	{
-		if(resource->far_entries.size() == 0)
-			continue;
-		resource->first_far_entry_offset = jump_table->near_entries.size() * 8 + 8 + jump_table->far_entries.size() * 8;
-		//jump_table->far_entries.insert(jump_table->far_entries.end(), resource->far_entries.begin(), resource->far_entries.end());
-		uint32_t jump_table_offset = 32 + resource->first_far_entry_offset + 2;
-		for(uint32_t entry : resource->far_entries)
-		{
-			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
+	jump_table_offset += 8;
 
-			auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
+	if(use_far_segments)
+	{
+		jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, far_entry_offset});
+
+		far_entry_segment->first_near_entry_offset = jump_table_offset;
+		jump_table_offset += 8;
+		for(uint16_t entry : far_entry_segment->near_entries)
+		{
+			if(entry == far_entry_offset)
+				continue; /* already inserted */
+
+			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, entry});
+
+			auto segment = std::dynamic_pointer_cast<Linker::Segment>(far_entry_segment->image);
 			auto resource_iter = entry_relocations.find(segment);
 			if(resource_iter != entry_relocations.end())
 			{
@@ -1347,25 +1414,117 @@ for(auto section : module.Sections())
 				{
 					for(auto& rel : entry_iter->second)
 					{
-						rel.WriteWord(jump_table_offset);
+						rel.WriteWord(jump_table_offset + 32 + 2);
 					}
 				}
 			}
 			jump_table_offset += 8;
 		}
+
+		for(auto& resource : codes)
+		{
+			if(resource->header_format == CodeResource::Near)
+				continue;
+
+			/* since the first entry is already loaded, we have to skip it */
+			if(resource == far_entry_segment)
+				continue;
+
+			resource->first_near_entry_offset = jump_table_offset;
+			for(uint16_t entry : resource->near_entries)
+			{
+				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
+
+				auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
+				auto resource_iter = entry_relocations.find(segment);
+				if(resource_iter != entry_relocations.end())
+				{
+					auto entry_iter = resource_iter->second.find(entry);
+					if(entry_iter != resource_iter->second.end())
+					{
+						for(auto& rel : entry_iter->second)
+						{
+							rel.WriteWord(jump_table_offset + 32 + 2);
+						}
+					}
+				}
+				jump_table_offset += 8;
+			}
+		}
+
+		if(far_entry_segment->far_entries.size() != 0)
+		{
+			far_entry_segment->first_far_entry_offset = jump_table_offset;
+			for(uint32_t entry : far_entry_segment->far_entries)
+			{
+				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, entry});
+
+				auto segment = std::dynamic_pointer_cast<Linker::Segment>(far_entry_segment->image);
+				auto resource_iter = entry_relocations.find(segment);
+				if(resource_iter != entry_relocations.end())
+				{
+					auto entry_iter = resource_iter->second.find(entry);
+					if(entry_iter != resource_iter->second.end())
+					{
+						for(auto& rel : entry_iter->second)
+						{
+							rel.WriteWord(jump_table_offset + 32 + 2);
+						}
+					}
+				}
+				jump_table_offset += 8;
+			}
+		}
+
+		for(auto& resource : codes)
+		{
+			if(resource->header_format == CodeResource::Near)
+				continue;
+			if(resource == far_entry_segment)
+				continue;
+			if(resource->far_entries.size() == 0)
+				continue;
+			resource->first_far_entry_offset = jump_table_offset;
+			for(uint32_t entry : resource->far_entries)
+			{
+				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
+
+				auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
+				auto resource_iter = entry_relocations.find(segment);
+				if(resource_iter != entry_relocations.end())
+				{
+					auto entry_iter = resource_iter->second.find(entry);
+					if(entry_iter != resource_iter->second.end())
+					{
+						for(auto& rel : entry_iter->second)
+						{
+							rel.WriteWord(jump_table_offset + 32 + 2);
+						}
+					}
+				}
+				jump_table_offset += 8;
+			}
+		}
+	}
+
+	for(auto& entry : jump_table->far_entries)
+	{
+		// skip segment header
+		entry.offset += 0x28;
 	}
 
 	for(auto& resource : codes)
 	{
 		if(resource->far_entries.size() != 0
 		|| resource->a5_relocations.size() != 0
-		|| resource->segment_relocations.size() != 0)
+		|| resource->segment_relocations.size() != 0
+		|| (use_far_segments && resource != entry_segment))
 		{
 			resource->header_format = CodeResource::Far;
 			resource->base_address = std::dynamic_pointer_cast<Linker::Segment>(resource->image)->base_address;
 			if(a5world)
 			{
-				resource->a5_address = a5world->base_address;
+				//resource->a5_address = a5world->base_address;
 			}
 		}
 	}
@@ -1435,18 +1594,18 @@ offset_t MacintoshResourceFileFormat::ImageSize() const
 void MacintoshResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	rd->endiantype = ::BigEndian; /* in case we write the resource fork directly, without an AppleSingle/AppleDouble wrapper */
-	offset_t read_offset = rd->Tell();
+	file_offset = rd->Tell();
 	data_offset = rd->ReadUnsigned(4);
 	map_offset = rd->ReadUnsigned(4);
 	data_length = rd->ReadUnsigned(4);
 	map_length = rd->ReadUnsigned(4);
 
-	rd->Seek(read_offset + map_offset + 22);
+	rd->Seek(file_offset + map_offset + 22);
 	attributes = rd->ReadUnsigned(2);
 	resource_type_list_offset = rd->ReadUnsigned(2);
 	name_list_offset = rd->ReadUnsigned(2);
 
-	rd->Seek(read_offset + map_offset + resource_type_list_offset);
+	rd->Seek(file_offset + map_offset + resource_type_list_offset);
 	offset_t resource_count = offset_t(rd->ReadUnsigned(2)) + 1;
 
 	/* type list */
@@ -1462,7 +1621,7 @@ void MacintoshResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>
 	/* reference list */
 	for(auto& type : resource_types)
 	{
-		rd->Seek(read_offset + map_offset + resource_type_list_offset + type.offset);
+		rd->Seek(file_offset + map_offset + resource_type_list_offset + type.offset);
 		for(offset_t i = 0; i < type.count; i++)
 		{
 			ResourceReference reference;
@@ -1477,9 +1636,9 @@ void MacintoshResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>
 	}
 
 	/* name list */
-	rd->Seek(read_offset + map_offset + name_list_offset);
+	rd->Seek(file_offset + map_offset + name_list_offset);
 	// first read all the names
-	while(rd->Tell() < read_offset + map_offset + map_length)
+	while(rd->Tell() < file_offset + map_offset + map_length)
 	{
 		uint8_t size = rd->ReadUnsigned(1);
 		resource_names.push_back(rd->ReadData(size));
@@ -1490,13 +1649,13 @@ void MacintoshResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>
 		for(auto& reference : type.references)
 		{
 			// read resource data
-			rd->Seek(read_offset + data_offset + reference.data_offset);
+			rd->Seek(file_offset + data_offset + reference.data_offset);
 			reference.data = ReadResource(rd, type, reference);
 
 			// read resource name
 			if(reference.name_offset != 0xFFFF)
 			{
-				rd->Seek(read_offset + map_offset + name_list_offset + reference.name_offset);
+				rd->Seek(file_offset + map_offset + name_list_offset + reference.name_offset);
 				uint8_t size = rd->ReadUnsigned(1);
 				reference.name = rd->ReadData(size);
 			}

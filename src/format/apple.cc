@@ -223,9 +223,11 @@ offset_t AppleSingleDouble::GenericEntry::ImageSize() const
 
 void AppleSingleDouble::GenericEntry::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
+	offset_t current_offset = rd->Tell();
 	if(auto format = std::dynamic_pointer_cast<Linker::Format>(image))
 	{
-		format->ReadFile(rd);
+		auto wrd = rd->CreateWindow(current_offset, image_size, current_offset);
+		format->ReadFile(wrd);
 	}
 	else if(id == ID_ResourceFork)
 	{
@@ -234,13 +236,15 @@ void AppleSingleDouble::GenericEntry::ReadFile(const std::shared_ptr<Linker::Rea
 		if(version >= 128)
 		{
 			auto mac_rsrc = std::make_shared<MacintoshResourceFileFormat>();
-			mac_rsrc->ReadFile(rd);
+			auto wrd = rd->CreateWindow(current_offset, image_size, current_offset);
+			mac_rsrc->ReadFile(wrd);
 			image = mac_rsrc;
 		}
 		else
 		{
 			auto gsos_rsrc = std::make_shared<GSOSResourceFileFormat>();
-			gsos_rsrc->ReadFile(rd);
+			auto wrd = rd->CreateWindow(current_offset, image_size, current_offset);
+			gsos_rsrc->ReadFile(wrd);
 			image = gsos_rsrc;
 		}
 	}

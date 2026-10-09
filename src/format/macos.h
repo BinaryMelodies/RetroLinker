@@ -53,7 +53,9 @@ namespace Apple
 
 		enum memory_model_t
 		{
+			/** @brief Each non-zero section becomes its own CODE segment, except .code/.text/.data/.rodata becomes its own section */
 			MODEL_DEFAULT,
+			/** @brief Create a single CODE segment containing all executable, non-zero filled and zero filled data, as well as .a5world and any resources */
 			MODEL_TINY,
 		};
 		memory_model_t memory_model = MODEL_DEFAULT;
@@ -515,7 +517,7 @@ namespace Apple
 
 		uint16_t attributes = 0; /* TODO: parametrize */
 		/* command line parameter */
-		bool allow_far_segments = false;
+		bool use_far_segments = false;
 		/** @brief A list of all resource types, as stored in the file */
 		std::vector<ResourceType> resource_types;
 		/** @brief A list of all resource names, as stored in the file */
