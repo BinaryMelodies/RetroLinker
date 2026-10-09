@@ -1013,18 +1013,18 @@ std::unique_ptr<Script::List> MacintoshResourceFileFormat::GetScript(Linker::Mod
 	align 2;
 } at -size of ".a5world";
 
-".code"
-{
-	at 0;
-	all ".code" or ".text" or ".data" or ".rodata"
-		align 2;
-	align 2;
-};
-
 for ".init"
 {
 	at 0;
 	all ".init"
+		align 2;
+	align 2;
+};
+
+".code"
+{
+	at 0;
+	all ".code" or ".text" or ".data" or ".rodata"
 		align 2;
 	align 2;
 };
