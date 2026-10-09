@@ -468,11 +468,9 @@ size_t COFFFormat::Relocation::GetSize(const COFFFormat& coff) const
 		Linker::Error << "Error: Unknown relocation type" << std::endl;
 		return -1;
 	case XCOFF32:
-		Linker::Error << "Error: Unknown relocation type" << std::endl;
-		return -1;
 	case XCOFF64:
-		Linker::Error << "Error: Unknown relocation type" << std::endl;
-		return -1;
+		// TODO: bits might not be consecutive
+		return ((information & 0x3F) + 8) >> 3;
 	}
 	assert(false);
 }
@@ -654,6 +652,33 @@ void COFFFormat::Relocation::FillEntry(Dumper::Entry& entry, const COFFFormat& c
 		{ R_W65_DP,       "dp" },
 	};
 
+	static const std::map<offset_t, std::string> xcoff_relocation_type_names =
+	{
+		{ R_XCOFF_POS,    "R_POS" },
+		{ R_XCOFF_NEG,    "R_NEG" },
+		{ R_XCOFF_REL,    "R_REL" },
+		{ R_XCOFF_TOC,    "R_TOC" },
+		{ R_XCOFF_GL,     "R_GL" },
+		{ R_XCOFF_TCL,    "R_TCL" },
+		{ R_XCOFF_BA,     "R_BA" },
+		{ R_XCOFF_BR,     "R_BR" },
+		{ R_XCOFF_RL,     "R_RL" },
+		{ R_XCOFF_RLA,    "R_RLA" },
+		{ R_XCOFF_REF,    "R_REF" },
+		{ R_XCOFF_TRL,    "R_TRL" },
+		{ R_XCOFF_TRLA,   "R_TRLA" },
+		{ R_XCOFF_RBA,    "R_RBA" },
+		{ R_XCOFF_RBR,    "R_RBR" },
+		{ R_XCOFF_TLS,    "R_TLS" },
+		{ R_XCOFF_TLS_IE, "R_TLS_IE" },
+		{ R_XCOFF_TLS_LD, "R_TLS_LD" },
+		{ R_XCOFF_TLS_LE, "R_TLS_LE" },
+		{ R_XCOFF_TLSM,   "R_TLSM" },
+		{ R_XCOFF_TLSML,  "R_TLSML" },
+		{ R_XCOFF_TOCU,   "R_TOCU" },
+		{ R_XCOFF_TOCL,   "R_TOCL" },
+	};
+
 	const std::map<offset_t, std::string> * relocation_type_names = nullptr;
 	switch(coff.coff_variant)
 	{
@@ -699,18 +724,45 @@ void COFFFormat::Relocation::FillEntry(Dumper::Entry& entry, const COFFFormat& c
 			break;
 		}
 		break;
+	case XCOFF32:
+	case XCOFF64:
+		relocation_type_names = &xcoff_relocation_type_names;
+		break;
 	default:
 		Linker::Error << "Internal error: unknown COFF variant" << std::endl;
 		break;
 	}
 
 	entry.AddField("Source", Dumper::HexDisplay::Make(), offset_t(address));
-	entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(GetSize(coff)));
+	if(coff.coff_variant != XCOFF32 && coff.coff_variant != XCOFF64)
+	{
+		entry.AddField("Size", Dumper::HexDisplay::Make(1), offset_t(GetSize(coff)));
+	}
 	if(relocation_type_names != nullptr)
 		entry.AddField("Type", Dumper::ChoiceDisplay::Make(*relocation_type_names, Dumper::HexDisplay::Make(4)), offset_t(type));
 	entry.AddOptionalField("Address", Dumper::HexDisplay::Make(), offset_t(address));
+
+	switch(coff.coff_variant)
+	{
+	case COFF:
+	case PECOFF:
+		break;
+	case XCOFF32:
+	case XCOFF64:
+		entry.AddField(
+			"Size",
+			Dumper::BitFieldDisplay::Make(1)
+				->AddBitField(0, 6, "Number of bits minus 1", Dumper::DecDisplay::Make(), false)
+				->AddBitField(6, 1, Dumper::ChoiceDisplay::Make("binder replaced instruction"), true)
+				->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("signed", "unsigned"), false),
+			offset_t(information));
+		break;
+	default:
+		break;
+	}
+
 	/* TODO */
-	entry.AddField("Symbol index", Dumper::HexDisplay::Make(), offset_t(symbol_index));
+	entry.AddField("Symbol index", Dumper::DecDisplay::Make(), offset_t(symbol_index + 1));
 //	entry.AddField("Target", ???);
 }
 
@@ -1310,7 +1362,11 @@ void COFFFormat::Section::Dump(Dumper::Dumper& dump, const COFFFormat& format, u
 		// TODO: fill addend
 		relocation_entry.Display(dump, Dumper::Relocation);
 
-		block.AddSignal(relocation->address - address, relocation->GetSize(format));
+		size_t relocation_size = relocation->GetSize(format);
+		if(relocation_size != size_t(-1))
+		{
+			block.AddSignal(relocation->address - address, relocation_size);
+		}
 		i++;
 	}
 

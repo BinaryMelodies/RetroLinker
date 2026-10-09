@@ -597,6 +597,30 @@ namespace COFF
 		static constexpr uint16_t R_W65_PCR16    = 0x09;
 		static constexpr uint16_t R_W65_DP       = 0x0A;
 
+		static constexpr uint8_t R_XCOFF_POS = 0x00;
+		static constexpr uint8_t R_XCOFF_NEG = 0x01;
+		static constexpr uint8_t R_XCOFF_REL = 0x02;
+		static constexpr uint8_t R_XCOFF_TOC = 0x03;
+		static constexpr uint8_t R_XCOFF_GL = 0x05;
+		static constexpr uint8_t R_XCOFF_TCL = 0x06;
+		static constexpr uint8_t R_XCOFF_BA = 0x08;
+		static constexpr uint8_t R_XCOFF_BR = 0x0A;
+		static constexpr uint8_t R_XCOFF_RL = 0x0C;
+		static constexpr uint8_t R_XCOFF_RLA = 0x0D;
+		static constexpr uint8_t R_XCOFF_REF = 0x0F;
+		static constexpr uint8_t R_XCOFF_TRL = 0x12;
+		static constexpr uint8_t R_XCOFF_TRLA = 0x13;
+		static constexpr uint8_t R_XCOFF_RBA = 0x18;
+		static constexpr uint8_t R_XCOFF_RBR = 0x1A;
+		static constexpr uint8_t R_XCOFF_TLS = 0x20;
+		static constexpr uint8_t R_XCOFF_TLS_IE = 0x21;
+		static constexpr uint8_t R_XCOFF_TLS_LD = 0x22;
+		static constexpr uint8_t R_XCOFF_TLS_LE = 0x23;
+		static constexpr uint8_t R_XCOFF_TLSM = 0x24;
+		static constexpr uint8_t R_XCOFF_TLSML = 0x25;
+		static constexpr uint8_t R_XCOFF_TOCU = 0x30;
+		static constexpr uint8_t R_XCOFF_TOCL = 0x31;
+
 		/**
 		 * @brief A generic COFF relocation
 		 */
