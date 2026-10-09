@@ -2,6 +2,9 @@ Recipe([
 	Assemble(Input = "{cpu_name}_1.s", Output = "obj/{output_file}{extension}.1.o", Arguments = [
 		DefineSymbol("CPU_{cpu_name.upper()}"),
 		DefineSymbol("TARGET_{target_name.upper()}"),
+		IfDefined("version_name"),
+			DefineSymbol("VERSION_{version_name.upper()}"),
+		EndIf,
 		IfDefined("format_name"),
 			DefineSymbol("FORMAT_{format_name.upper()}"),
 		EndIf,

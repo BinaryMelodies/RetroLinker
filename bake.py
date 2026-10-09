@@ -241,7 +241,7 @@ EndFor = EndFor()
 
 class DefineVersion:
 	"""Provides variation in executable generation where the file format does not change significantly. Typically used for linking model or relocation suppression."""
-	def __init__(self, Id, ModelName = None, LinkerName = None, AssemblerOptions = (), LinkerOptions = (), LinkerParameters = (), AssemblerFlags = None):
+	def __init__(self, Id, ModelName = None, LinkerName = None, AssemblerOptions = (), LinkerOptions = (), LinkerParameters = (), AssemblerFlags = None, **keywords):
 		"""
 			Id - version is identified by this
 			ModelName - passed to assembler as symbol MODEL_*
@@ -256,6 +256,7 @@ class DefineVersion:
 		self.linker_options = tuple(LinkerOptions)
 		self.linker_parameters = tuple(LinkerParameters)
 		self.assembler_flags = AssemblerFlags
+		self.keywords = keywords
 
 class DefineTarget:
 	"""Registers a new target, for CPU/OS/binary format. Instantiating this class automatically registers the target for compilation."""
@@ -299,6 +300,8 @@ class DefineTarget:
 			keywords['format_name'] = self.format_name
 		keywords['linker_format_name'] = self.linker_name
 		if version != "" or version in self.versions:
+			keywords.update(self.versions[version].keywords)
+			keywords['version_name'] = self.versions[version].id
 			keywords['model_name'] = self.versions[version].model_name
 			if self.versions[version].linker_name != "":
 				keywords['linker_model_name'] = self.versions[version].linker_name
@@ -896,6 +899,7 @@ DefineTarget(
 		DefineVersion("", ModelName = "default", LinkerName = ""),
 		DefineVersion("tiny", ModelName = "tiny"),
 		DefineVersion("32bit", ModelName = "default", LinkerName = "", LinkerOptions = ["32"]),
+		DefineVersion("far", ModelName = "default", LinkerName = "", LinkerOptions = ["far"], additional_arguments = [ENV.get("MACFARLOAD", "../nomacfarload.o"), "-d.init=init"]), # TODO: requires an object file containing an .init section and entry named init that patches LoadSeg
 	],
 	c_target_options = "-mpcrel",
 	custom_entry = True,

@@ -3,6 +3,9 @@ Recipe([
 	Assemble(Input = "{cpu_name}.s", Output = "obj/{output_file}{extension}.o", Arguments = [
 		DefineSymbol("CPU_{cpu_name.upper()}"),
 		DefineSymbol("TARGET_{target_name.upper()}"),
+		IfDefined("version_name"),
+			DefineSymbol("VERSION_{version_name.upper()}"),
+		EndIf,
 		IfDefined("format_name"),
 			DefineSymbol("FORMAT_{format_name.upper()}"),
 		EndIf,
@@ -14,6 +17,11 @@ Recipe([
 		EndFor
 		], Dependency = ["../include/{include_name}.inc", "../include/common.inc"], Executable = "{output_file}{extension}"),
 	Link(Format = "{linker_format_name}", Input = "obj/{output_file}{extension}.o", Output = "{output_file}{extension}", Arguments = [
+		IfDefined("additional_arguments"),
+			ForAll("argument", In = "additional_arguments"),
+				"{argument}",
+			EndFor,
+		EndIf,
 		IfDefined("linker_model_name"),
 			"-M{linker_model_name}",
 		EndIf,
@@ -322,6 +330,10 @@ Target(
 	System = "macos",
 	Version = "tiny",
 	output_file = "macos-tiny")
+Target(
+	System = "macos",
+	Version = "far",
+	output_file = "macos-far")
 Target(
 	System = "sql",
 	output_file = "sql")

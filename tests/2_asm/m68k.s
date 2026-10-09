@@ -70,6 +70,16 @@ start:
 	bsrw	PutLong
 	bsrw	PutNewLine
 
+.if TARGET_MACOS
+.ifdef VERSION_FAR
+	_LoadA	text_start_relocation, a0
+	bsrw	PutString
+	move.l	#start, d0
+	bsrw	PutLong
+	bsrw	PutNewLine
+.endif
+.endif
+
 	_LoadA	text_sp, a0
 	bsrw	PutString
 	move.l	sp, d0
@@ -82,6 +92,14 @@ start:
 	move.l	a5, d0
 	bsrw	PutLong
 	bsrw	PutNewLine
+
+.ifdef VERSION_FAR
+	_LoadA	text_a5_relocation, a0
+	bsrw	PutString
+	move.l	#a5world_end, d0
+	bsrw	PutLong
+	bsrw	PutNewLine
+.endif
 
 	_LoadA	text_bss_var, a0
 	bsrw	PutString
@@ -347,6 +365,14 @@ text_a5world_var:
 text_jump_table_address:
 	.asciz	"Jump table entry: "
 .endif
+
+.ifdef VERSION_FAR
+text_start_relocation:
+	.asciz	"Entry point (relocated): "
+
+text_a5_relocation:
+	.asciz	"A5 base (relocated): "
+.endif
 .endif
 
 	.section	.bss
@@ -365,6 +391,9 @@ a5world_var:
 	.skip	4
 .endif
 	_SysVars
+.if	TARGET_MACOS
+a5world_end:
+.endif
 
 .if OPTION_EXPLICIT_STACK
 	.section	.stack, "aw", @nobits
