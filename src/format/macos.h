@@ -187,6 +187,9 @@ namespace Apple
 		public:
 			static constexpr uint32_t OSType = OSTypeToUInt32('C', 'O', 'D', 'E');
 
+			static constexpr uint32_t NearSegmentHeaderSize = 0x4;
+			static constexpr uint32_t FarSegmentHeaderSize = 0x28;
+
 			std::shared_ptr<JumpTableCodeResource> jump_table;
 			std::shared_ptr<Linker::Contents> image;
 			uint32_t zero_fill = 0; // used for code generation

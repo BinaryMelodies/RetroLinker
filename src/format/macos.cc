@@ -299,15 +299,15 @@ void MacintoshResourceFileFormat::CodeResource::CalculateValues()
 	switch(header_format)
 	{
 	case Near:
-		resource_size = 4 + image->ImageSize() + zero_fill;
+		resource_size = NearSegmentHeaderSize + image->ImageSize() + zero_fill;
 		break;
 	case Far:
-		a5_relocation_offset = 0x28 + image->ImageSize() + zero_fill;
+		a5_relocation_offset = FarSegmentHeaderSize + image->ImageSize() + zero_fill;
 		segment_relocation_offset = a5_relocation_offset + MeasureRelocations(a5_relocations);
 		resource_size = segment_relocation_offset + MeasureRelocations(segment_relocations);
 		break;
 	case CFM_68K:
-		resource_size = 0x28 + image->ImageSize() + zero_fill;
+		resource_size = FarSegmentHeaderSize + image->ImageSize() + zero_fill;
 		break;
 	}
 }
@@ -419,7 +419,12 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<L
 		segment_relocation_offset = rd->ReadUnsigned(4);
 		base_address = rd->ReadUnsigned(4);
 		rd->Skip(4);
-		image = Linker::Buffer::ReadFromFile(rd, std::min({a5_relocation_offset - 0x28, segment_relocation_offset - 0x28, uint32_t(length - 0x28)}));
+		image = Linker::Buffer::ReadFromFile(
+			rd,
+			std::min({
+				a5_relocation_offset - FarSegmentHeaderSize,
+				segment_relocation_offset - FarSegmentHeaderSize,
+				uint32_t(length - FarSegmentHeaderSize)}));
 		if(a5_relocation_offset != 0)
 		{
 			rd->Seek(start_offset + a5_relocation_offset);
@@ -441,12 +446,12 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<L
 		first_transition_vector_offset = rd->ReadUnsigned(4);
 		transition_vector_count = rd->ReadUnsigned(4);
 		rd->Skip(20);
-		image = Linker::Buffer::ReadFromFile(rd, length - 0x28);
+		image = Linker::Buffer::ReadFromFile(rd, length - FarSegmentHeaderSize);
 	}
 	else
 	{
 		header_format = Near;
-		image = Linker::Buffer::ReadFromFile(rd, length - 4);
+		image = Linker::Buffer::ReadFromFile(rd, length - NearSegmentHeaderSize);
 	}
 }
 
@@ -541,23 +546,23 @@ void MacintoshResourceFileFormat::CodeResource::Dump(Dumper::Dumper& dump, offse
 
 	Dumper::Block segment_block(
 		"Segment",
-		file_offset + (header_format == Near ? 0x04 : 0x28),
+		file_offset + (header_format == Near ? CodeResource::NearSegmentHeaderSize : CodeResource::FarSegmentHeaderSize),
 		image->AsImage(),
-		base_address + (header_format == Near ? 0 : 0x28), // TODO: entries in near segments start after the header, far segments include the size of header
+		base_address + (header_format == Near ? 0 : CodeResource::FarSegmentHeaderSize), // TODO: entries in near segments start after the header, far segments include the size of header
 		8);
 
 	for(auto offset : segment_relocations)
 	{
-		if(offset < 0x28)
+		if(offset < CodeResource::FarSegmentHeaderSize)
 			continue;
-		segment_block.AddSignal(offset - 0x28, 4);
+		segment_block.AddSignal(offset - CodeResource::FarSegmentHeaderSize, 4);
 	}
 
 	for(auto offset : a5_relocations)
 	{
-		if(offset < 0x28)
+		if(offset < CodeResource::FarSegmentHeaderSize)
 			continue;
-		segment_block.AddSignal(offset - 0x28, 4);
+		segment_block.AddSignal(offset - CodeResource::FarSegmentHeaderSize, 4);
 	}
 
 	segment_block.Display(dump, Dumper::Image);
@@ -968,6 +973,10 @@ void MacintoshResourceFileFormat::OnNewSegment(std::shared_ptr<Linker::Segment> 
 	else if(!(segment->sections.front()->GetFlags() & Linker::Section::Resource))
 	{
 		std::shared_ptr<CodeResource> codeN = std::make_shared<CodeResource>(codes.size() + 1, jump_table);
+		if(use_far_segments && segment->name != ".init")
+		{
+			codeN->header_format = CodeResource::Far;
+		}
 		codeN->image = segment;
 		codes.push_back(codeN);
 		segments[segment] = codeN;
@@ -1274,7 +1283,7 @@ for(auto section : module.Sections())
 			else
 			{
 				auto position = rel.source.GetPosition();
-				segments[position.segment]->segment_relocations.insert(position.address - position.segment->base_address + 0x28);
+				segments[position.segment]->segment_relocations.insert(CodeResource::FarSegmentHeaderSize + position.address - position.segment->base_address);
 				rel.WriteWord(resolution.value);
 			}
 			break;
@@ -1290,7 +1299,7 @@ for(auto section : module.Sections())
 			else
 			{
 				auto position = rel.source.GetPosition();
-				segments[position.segment]->a5_relocations.insert(position.address - position.segment->base_address + 0x28);
+				segments[position.segment]->a5_relocations.insert(CodeResource::FarSegmentHeaderSize + position.address - position.segment->base_address);
 				rel.WriteWord(resolution.value);
 			}
 			break;
@@ -1318,7 +1327,7 @@ for(auto section : module.Sections())
 			}
 			else if(use_far_segments)
 			{
-				resource->far_entries.insert(offset + 0x28);
+				resource->far_entries.insert(offset);
 			}
 			else
 			{
@@ -1394,7 +1403,7 @@ for(auto section : module.Sections())
 
 	if(use_far_segments)
 	{
-		jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, far_entry_offset});
+		jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, CodeResource::FarSegmentHeaderSize + far_entry_offset});
 
 		far_entry_segment->first_near_entry_offset = jump_table_offset;
 		jump_table_offset += 8;
@@ -1403,7 +1412,7 @@ for(auto section : module.Sections())
 			if(entry == far_entry_offset)
 				continue; /* already inserted */
 
-			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, entry});
+			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, CodeResource::FarSegmentHeaderSize + entry});
 
 			auto segment = std::dynamic_pointer_cast<Linker::Segment>(far_entry_segment->image);
 			auto resource_iter = entry_relocations.find(segment);
@@ -1433,7 +1442,7 @@ for(auto section : module.Sections())
 			resource->first_near_entry_offset = jump_table_offset;
 			for(uint16_t entry : resource->near_entries)
 			{
-				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
+				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, CodeResource::FarSegmentHeaderSize + entry});
 
 				auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
 				auto resource_iter = entry_relocations.find(segment);
@@ -1457,7 +1466,7 @@ for(auto section : module.Sections())
 			far_entry_segment->first_far_entry_offset = jump_table_offset;
 			for(uint32_t entry : far_entry_segment->far_entries)
 			{
-				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, entry});
+				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, CodeResource::FarSegmentHeaderSize + entry});
 
 				auto segment = std::dynamic_pointer_cast<Linker::Segment>(far_entry_segment->image);
 				auto resource_iter = entry_relocations.find(segment);
@@ -1478,8 +1487,6 @@ for(auto section : module.Sections())
 
 		for(auto& resource : codes)
 		{
-			if(resource->header_format == CodeResource::Near)
-				continue;
 			if(resource == far_entry_segment)
 				continue;
 			if(resource->far_entries.size() == 0)
@@ -1487,7 +1494,7 @@ for(auto section : module.Sections())
 			resource->first_far_entry_offset = jump_table_offset;
 			for(uint32_t entry : resource->far_entries)
 			{
-				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
+				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, CodeResource::FarSegmentHeaderSize + entry});
 
 				auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
 				auto resource_iter = entry_relocations.find(segment);
@@ -1507,12 +1514,6 @@ for(auto section : module.Sections())
 		}
 	}
 
-	for(auto& entry : jump_table->far_entries)
-	{
-		// skip segment header
-		entry.offset += 0x28;
-	}
-
 	for(auto& resource : codes)
 	{
 		if(resource->far_entries.size() != 0
@@ -1520,7 +1521,6 @@ for(auto section : module.Sections())
 		|| resource->segment_relocations.size() != 0
 		|| (use_far_segments && resource != entry_segment))
 		{
-			resource->header_format = CodeResource::Far;
 			resource->base_address = std::dynamic_pointer_cast<Linker::Segment>(resource->image)->base_address;
 			if(a5world)
 			{
