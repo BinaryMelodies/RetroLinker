@@ -1499,7 +1499,10 @@ for(auto section : module.Sections())
 			if(resource == far_entry_segment)
 				continue;
 			if(resource->far_entries.size() == 0)
+			{
+				resource->first_far_entry_offset = 0;
 				continue;
+			}
 			resource->first_far_entry_offset = jump_table_offset;
 			for(uint32_t entry : resource->far_entries)
 			{
