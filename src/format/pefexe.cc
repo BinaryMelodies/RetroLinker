@@ -1388,9 +1388,14 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 		section_name_table.push_back(rd->ReadASCIIZ());
 	}
 
+	image_size = rd->Tell() - file_offset;
 	for(auto section : sections)
 	{
 		section->ReadFile(*this, rd);
+
+		offset_t current_end = section->container_offset + section->packed_size;
+		if(current_end > image_size)
+			current_end = image_size;
 	}
 }
 
@@ -1617,10 +1622,16 @@ void PEFFormat::CalculateValues()
 		}
 		section_offset = section->container_offset + section->GetImageSize(*this);
 	}
+	image_size = section_offset;
 
 	main_symbol.StoreSectionIndex();
 	init_symbol.StoreSectionIndex();
 	term_symbol.StoreSectionIndex();
+}
+
+offset_t PEFFormat::ImageSize() const
+{
+	return image_size;
 }
 
 void PEFFormat::Dump(Dumper::Dumper& dump) const
@@ -2570,11 +2581,10 @@ void RSegResource::EffectFormat(MacintoshResourceFileFormat& format, const std::
 
 PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateEmptyPEF()
 {
-	return CodeFragment
-	{
+	return CodeFragment(
 		MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateEmpty(),
 		std::make_shared<PEFFormat>()
-	};
+	);
 }
 
 PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture, std::string name)
@@ -2583,28 +2593,51 @@ PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateApplication(M
 	{
 	case MacintoshResourceFileFormat::CodeFragmentResource::Member::PowerPC:
 	default:
-		return CodeFragment
-		{
+		return CodeFragment(
 			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
 			std::make_shared<PEFFormat>()
-		};
+		);
 	case MacintoshResourceFileFormat::CodeFragmentResource::Member::Motorola68K:
-		return CodeFragment
-		{
+		return CodeFragment(
 			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
 			std::make_shared<PEFFormat>(),
-			std::make_shared<PEFHeader>(),
-		};
+			std::make_shared<PEFHeader>()
+		);
 	}
 }
 
 PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateLibrary(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture, std::string name, uint32_t current_version, uint32_t old_def_version)
 {
-	return CodeFragment
-	{
+	return CodeFragment(
 		MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateLibrary(architecture, name, current_version, old_def_version),
 		std::make_shared<PEFFormat>()
-	};
+	);
+}
+
+offset_t PEFOutputDriver::DataFork::ImageSize() const
+{
+	offset_t total_size = 0;
+	for(auto fragment : fragments)
+	{
+		if(fragment.member->where == MacintoshResourceFileFormat::CodeFragmentResource::Member::DataFork)
+		{
+			offset_t fragment_end = fragment.member->offset;
+			if(fragment.member->length != MacintoshResourceFileFormat::CodeFragmentResource::Member::CFragGoesToEOF)
+			{
+				fragment_end += fragment.member->length;
+			}
+			else if(fragment.pef_format != nullptr)
+			{
+				fragment_end += fragment.pef_format->ImageSize();
+			}
+
+			if(fragment_end > total_size)
+			{
+				total_size = fragment_end;
+			}
+		}
+	}
+	return total_size;
 }
 
 void PEFOutputDriver::DataFork::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
@@ -2617,13 +2650,13 @@ offset_t PEFOutputDriver::DataFork::WriteFile(const std::shared_ptr<Linker::Writ
 {
 	for(auto& fragment : fragments)
 	{
-		if(fragment.member.where == MacintoshResourceFileFormat::CodeFragmentResource::Member::DataFork)
+		if(fragment.member->where == MacintoshResourceFileFormat::CodeFragmentResource::Member::DataFork)
 		{
-			wr->Seek(fragment.member.offset);
+			wr->Seek(fragment.member->offset);
 			fragment.pef_format->WriteFile(wr);
 		}
 	}
-	return offset_t(-1); // TODO
+	return ImageSize();
 }
 
 void PEFOutputDriver::DataFork::Dump(Dumper::Dumper& dump) const
@@ -2633,6 +2666,11 @@ void PEFOutputDriver::DataFork::Dump(Dumper::Dumper& dump) const
 }
 
 // PEFOutputDriver
+
+bool PEFOutputDriver::FormatSupportsLibraries() const
+{
+	return true;
+}
 
 bool PEFOutputDriver::FormatSupportsResources() const
 {
@@ -2737,15 +2775,18 @@ void PEFOutputDriver::SetLinkScript(std::string script_file, std::map<std::strin
 
 void PEFOutputDriver::GenerateFile(std::string filename, Linker::Module& module)
 {
+	std::string basename = std::filesystem::path(filename).filename().string();
+
 	switch(module.cpu)
 	{
 	case Linker::Module::M68K:
 		data_fork = std::make_shared<DataFork>();
-		data_fork->fragments.push_back(CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::Motorola68K, filename));
+		data_fork->fragments.push_back(CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::Motorola68K, basename));
 		break;
 	case Linker::Module::PPC:
 		data_fork = std::make_shared<DataFork>();
-		data_fork->fragments.push_back(CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::PowerPC, filename));
+		data_fork->fragments.push_back(CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::PowerPC, basename));
+		break;
 	default:
 		Linker::Error << "Error: Format only supports Motorola 68000 and PowerPC binaries" << std::endl;
 		break;
@@ -2804,12 +2845,32 @@ void PEFOutputDriver::OnContainerCreated()
 	}
 }
 
-void PEFOutputDriver::OnCalculateValues()
+void PEFOutputDriver::CalculateValues()
 {
-	// TODO
 	for(auto& fragment : data_fork->fragments)
 	{
-		fragment.pef_format->CalculateValues(); // TODO: untested
+		fragment.pef_format->CalculateValues();
+	}
+	resource_fork->CalculateValues();
+
+	offset_t current_offset = 0;
+	CodeFragment * last_fragment = nullptr;
+
+	for(auto& fragment : data_fork->fragments)
+	{
+		if(fragment.member->where == MacintoshResourceFileFormat::CodeFragmentResource::Member::DataFork)
+		{
+			fragment.pef_format->SetFileOffset(current_offset);
+			fragment.member->offset = current_offset;
+			fragment.member->length = fragment.pef_format->ImageSize();
+			current_offset += fragment.member->length;
+			last_fragment = &fragment;
+		}
+	}
+
+	if(last_fragment != nullptr)
+	{
+		last_fragment->member->length = MacintoshResourceFileFormat::CodeFragmentResource::Member::CFragGoesToEOF;
 	}
 }
 

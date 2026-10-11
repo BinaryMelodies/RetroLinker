@@ -17,6 +17,11 @@ void Format::Clear()
 {
 }
 
+void Format::SetFileOffset(offset_t new_offset)
+{
+	file_offset = new_offset;
+}
+
 offset_t Format::ImageSize() const
 {
 	Linker::FatalError("Internal error: format does not provide image size");

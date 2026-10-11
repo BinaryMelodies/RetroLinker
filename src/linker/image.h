@@ -18,7 +18,9 @@ namespace Linker
 	public:
 		virtual ~Contents() = default;
 		/**
-		 * @brief Retrieves size of stored data
+		 * @brief Retrieves the offset of the byte after the last one belonging to this format from the first one
+		 *
+		 * @return The size of the image, or offset_t(-1) if it cannot be determined before writing to the file
 		 */
 		virtual offset_t ImageSize() const = 0;
 		/**

@@ -28,6 +28,9 @@ namespace Linker
 	class Format : public virtual Contents
 	{
 	public:
+		/**
+		 * @brief The offset of the first byte used by this format in the file it is stored in
+		 */
 		offset_t file_offset;
 
 		Format(offset_t file_offset = 0)
@@ -52,7 +55,10 @@ namespace Linker
 		 * @brief Display file contents in a nice manner
 		 */
 		virtual void Dump(Dumper::Dumper& dump) const;
-
+		/**
+		 * @brief Attempts to alter the offset to the first byte of the format from the beginning of the file
+		 */
+		virtual void SetFileOffset(offset_t new_offset);
 		offset_t ImageSize() const override;
 	};
 

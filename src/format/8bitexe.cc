@@ -242,7 +242,7 @@ void AppleDriver::OnContainerCreated()
 	apple_single->SetProDOSAuxiliaryType(GetAuxiliaryFileType());
 }
 
-void AppleDriver::OnCalculateValues()
+void AppleDriver::CalculateValues()
 {
 	data_fork->CalculateValues();
 }

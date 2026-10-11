@@ -366,7 +366,7 @@ format_specification formats[] =
 		"Classic Macintosh 'CODE' resource executable, stored as MacBinary format" },
 	/* PEF */
 	{ "pef",
-		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::PEFOutputDriver>(); },
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::PEFOutputDriver>(Apple::Classic68KDriver::TARGET_DATA_FORK, Apple::Classic68KDriver::PRODUCE_RESOURCE_FORK | Apple::Classic68KDriver::PRODUCE_FINDER_INFO | Apple::Classic68KDriver::PRODUCE_APPLE_DOUBLE | Apple::Classic68KDriver::PRODUCE_MAC_BINARY); },
 		"Classic PowerPC Macintosh Preferred Executable Format" },
 	/* Hunk */
 	{ "amiga",

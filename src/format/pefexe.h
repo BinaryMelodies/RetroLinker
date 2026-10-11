@@ -436,6 +436,7 @@ namespace Apple
 		std::vector<std::shared_ptr<Section>> sections;
 		std::vector<std::string> section_name_table;
 		uint32_t section_name_table_end = 0;
+		offset_t image_size = 0;
 
 		static constexpr uint32_t ContainerHeaderSize = 40;
 		static constexpr uint32_t SectionHeaderSize = 28;
@@ -708,6 +709,7 @@ namespace Apple
 
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		void CalculateValues() override;
+		offset_t ImageSize() const override;
 		using Linker::Format::WriteFile;
 		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
@@ -815,17 +817,28 @@ namespace Apple
 		{
 		}
 
+		bool FormatSupportsLibraries() const override;
 		bool FormatSupportsResources() const override;
 
 		class CodeFragment
 		{
 		public:
 			/** @brief Entry in the 'cfrg'0 resource for this fragment */
-			MacintoshResourceFileFormat::CodeFragmentResource::Member member;
-			/** @brief The stored PEF container */
+			std::shared_ptr<MacintoshResourceFileFormat::CodeFragmentResource::Member> member;
+			/** @brief The stored PEF container, stored in the resource fork in 'rsrg'1 if pef_header is non-null */
 			std::shared_ptr<PEFFormat> pef_format;
 			/** @brief For m68k only, the stored PEF header in 'rsrg'0 */
 			std::shared_ptr<PEFHeader> pef_header;
+
+			CodeFragment(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture)
+				: member(std::make_shared<MacintoshResourceFileFormat::CodeFragmentResource::Member>(architecture))
+			{
+			}
+
+			CodeFragment(std::shared_ptr<MacintoshResourceFileFormat::CodeFragmentResource::Member> member, std::shared_ptr<PEFFormat> pef_format = nullptr, std::shared_ptr<PEFHeader> pef_header = nullptr)
+				: member(member), pef_format(pef_format), pef_header(pef_header)
+			{
+			}
 
 			/** @brief Initialize with default settings */
 			static CodeFragment CreateEmptyPEF();
@@ -840,6 +853,7 @@ namespace Apple
 		public:
 			std::vector<CodeFragment> fragments;
 
+			offset_t ImageSize() const override;
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			void Dump(Dumper::Dumper& dump) const override;
@@ -867,9 +881,10 @@ namespace Apple
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
+		void CalculateValues() override;
+
 	protected:
 		void OnContainerCreated() override;
-		void OnCalculateValues() override;
 		void OnReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		offset_t OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void OnDump(Dumper::Dumper& dump) const override;

@@ -407,68 +407,68 @@ namespace Apple
 				}
 
 				offset_t ImageSize() const;
-				static Member ReadFile(const std::shared_ptr<Linker::Reader>& rd);
+				static std::shared_ptr<Member> ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 				offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;
 
-				static Member CreateEmpty()
+				static std::shared_ptr<Member> CreateEmpty()
 				{
-					return Member(architecture_type(0));
+					return std::make_shared<Member>(architecture_type(0));
 				}
 
 				/** @brief Initialize with default settings */
-				static Member CreateApplication(architecture_type architecture, std::string name)
+				static std::shared_ptr<Member> CreateApplication(architecture_type architecture, std::string name)
 				{
-					Member member = Member(architecture);
-					member.update_level = FullLib;
-					member.current_version = 0;
-					member.old_def_version = 0;
-					member.app_stack_size = DefaultStackSize;
-					member.app_subdir_id = NoAppSubFolder;
-					member.usage = Application;
+					std::shared_ptr<Member> member = std::make_shared<Member>(architecture);
+					member->update_level = FullLib;
+					member->current_version = 0;
+					member->old_def_version = 0;
+					member->app_stack_size = DefaultStackSize;
+					member->app_subdir_id = NoAppSubFolder;
+					member->usage = Application;
 					if(architecture == Motorola68K)
 					{
-						member.where = Resource;
-						member.offset = RSEG;
-						member.length = 0;
+						member->where = Resource;
+						member->offset = RSEG;
+						member->length = 0;
 					}
 					else
 					{
-						member.where = DataFork;
-						member.offset = 0;
-						member.length = CFragGoesToEOF;
+						member->where = DataFork;
+						member->offset = 0;
+						member->length = CFragGoesToEOF;
 					}
-					member.name = name;
-					if(member.name.size() > 15)
+					member->name = name;
+					if(member->name.size() > 15)
 					{
-						member.name = member.name.substr(0, 15);
+						member->name = member->name.substr(0, 15);
 					}
 					return member;
 				}
 
 				/** @brief Initialize with default settings */
-				static Member CreateLibrary(architecture_type architecture, std::string name, uint32_t current_version, uint32_t old_def_version)
+				static std::shared_ptr<Member> CreateLibrary(architecture_type architecture, std::string name, uint32_t current_version, uint32_t old_def_version)
 				{
-					Member member = Member(architecture);
-					member.update_level = FullLib;
-					member.current_version = current_version;
-					member.old_def_version = old_def_version;
-					member.app_stack_size = DefaultStackSize;
-					member.app_subdir_id = NoAppSubFolder;
-					member.usage = ImportLibrary;
-					member.where = DataFork;
-					member.offset = 0;
-					member.length = CFragGoesToEOF;
-					member.name = name;
-					if(member.name.size() > 15)
+					std::shared_ptr<Member> member = std::make_shared<Member>(architecture);
+					member->update_level = FullLib;
+					member->current_version = current_version;
+					member->old_def_version = old_def_version;
+					member->app_stack_size = DefaultStackSize;
+					member->app_subdir_id = NoAppSubFolder;
+					member->usage = ImportLibrary;
+					member->where = DataFork;
+					member->offset = 0;
+					member->length = CFragGoesToEOF;
+					member->name = name;
+					if(member->name.size() > 15)
 					{
-						member.name = member.name.substr(0, 15);
+						member->name = member->name.substr(0, 15);
 					}
 					return member;
 				}
 			};
 
 			uint16_t version = 1;
-			std::vector<Member> members;
+			std::vector<std::shared_ptr<Member>> members;
 
 			CodeFragmentResource()
 				: Resource("cfrg", 0x0000)
@@ -757,11 +757,11 @@ namespace Apple
 
 		void SetLinkScript(std::string script_file, std::map<std::string, std::string>& options) override;
 
+		void CalculateValues() override;
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 
 	protected:
 		void OnContainerCreated() override;
-		void OnCalculateValues() override;
 		void OnReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		offset_t OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void OnDump(Dumper::Dumper& dump) const override;

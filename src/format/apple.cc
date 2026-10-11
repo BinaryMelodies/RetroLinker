@@ -210,10 +210,6 @@ void AppleSingleDouble::Entry::DumpEntry(Dumper::Dumper& dump, unsigned index) c
 	entry_region.Display(dump, Dumper::All);
 }
 
-void AppleSingleDouble::Entry::CalculateValues()
-{
-}
-
 // GenericEntry
 
 offset_t AppleSingleDouble::GenericEntry::ImageSize() const
@@ -303,16 +299,6 @@ void AppleSingleDouble::GenericEntry::Dump(Dumper::Dumper& dump) const
 		Dumper::Block block(region_name, file_offset, image->AsImage(), 0, 8);
 		block.Display(dump, display_option);
 	}
-}
-
-void AppleSingleDouble::GenericEntry::CalculateValues()
-{
-	if(auto format = std::dynamic_pointer_cast<Linker::OutputFormat>(image))
-	{
-		format->CalculateValues();
-	}
-
-	image_size = image != nullptr ? image->ImageSize() : 0;
 }
 
 const char AppleSingleDouble::TXT_undefined[16] = "";
@@ -896,7 +882,7 @@ void AppleSingleDouble::SetMSDOSAttributes(uint16_t Attributes)
 	}
 }
 
-void AppleSingleDouble::CalculateValues()
+void AppleSingleDouble::CalculateOffsets()
 {
 	unsigned entry_bitmap = 0;
 	for(auto entry : entries)
@@ -904,7 +890,7 @@ void AppleSingleDouble::CalculateValues()
 		if(entry->id < 32)
 			entry_bitmap |= 1 << entry->id;
 	}
-	if(type == SINGLE && (entry_bitmap & (1 << ID_DataFork)) != 0)
+	if(type == SINGLE && (entry_bitmap & (1 << ID_DataFork)) == 0)
 	{
 		GetDataFork();
 	}
@@ -912,9 +898,19 @@ void AppleSingleDouble::CalculateValues()
 	offset_t current_offset = 26 + 12 * entries.size();
 	for(auto entry : entries)
 	{
+		if(type == DOUBLE && entry->id == ID_DataFork)
+		{
+			continue; // not part of the image
+		}
+
 		entry->file_offset = current_offset;
-		entry->CalculateValues();
+		entry->SetFileOffset(entry->file_offset);
 		entry->image_size = entry->ImageSize();
+		if(entry->image_size == offset_t(-1))
+		{
+			// force generation of image to calculate its size
+			entry->image_size = entry->AsImage()->ImageSize();
+		}
 		current_offset = entry->file_offset + entry->image_size;
 	}
 	image_size = current_offset;
@@ -929,12 +925,23 @@ offset_t AppleSingleDouble::WriteFile(const std::shared_ptr<Linker::Writer>& wr)
 	wr->WriteWord(2, entries.size());
 	for(auto entry : entries)
 	{
+		if(type == DOUBLE && entry->id == ID_DataFork)
+		{
+			continue; // not part of the image
+		}
+
 		wr->WriteWord(4, entry->id);
 		wr->WriteWord(4, entry->file_offset);
 		wr->WriteWord(4, entry->image_size);
 	}
 	for(auto entry : entries)
 	{
+		if(type == DOUBLE && entry->id == ID_DataFork)
+		{
+			continue; // not part of the image
+		}
+
+		wr->Seek(entry->file_offset);
 		entry->WriteFile(wr);
 	}
 
@@ -2068,7 +2075,7 @@ void MacBinary::WriteHeader(const std::shared_ptr<Linker::Writer>& wr) const
 	wr->WriteWord(2, crc);
 }
 
-void MacBinary::CalculateValues()
+void MacBinary::CalculateOffsets()
 {
 	attributes = apple_single->ReadMacintoshAttributes();
 
@@ -2091,8 +2098,6 @@ void MacBinary::CalculateValues()
 	{
 		modification = {};
 	}
-
-	apple_single->CalculateValues();
 }
 
 void MacBinary::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
@@ -2285,9 +2290,8 @@ void OutputDriver::SetAppleSingleDoubleVersion(offset_t version)
 
 void OutputDriver::OnContainerCreated() { }
 
-void OutputDriver::OnCalculateValues()
+void OutputDriver::CalculateValues()
 {
-	// TODO: error
 }
 
 void OutputDriver::OnReadFile(const std::shared_ptr<Linker::Reader>& rd)
@@ -2351,16 +2355,15 @@ void OutputDriver::GenerateFiles(std::string filename, std::shared_ptr<Contents>
 		naps_suffix = oss.str();
 	}
 
+	CalculateValues();
+
 	switch(container)
 	{
-	case CONTAINER_NONE:
-		OnCalculateValues();
-		break;
-	case CONTAINER_APPLE_SINGLE:
-		apple_single->CalculateValues();
-		break;
 	case CONTAINER_MAC_BINARY:
-		mac_binary->CalculateValues();
+		mac_binary->CalculateOffsets();
+	case CONTAINER_APPLE_SINGLE:
+		apple_single->CalculateOffsets();
+	case CONTAINER_NONE:
 		break;
 	}
 

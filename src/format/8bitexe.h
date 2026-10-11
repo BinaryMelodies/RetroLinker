@@ -113,7 +113,6 @@ namespace Apple
 
 	protected:
 		void OnContainerCreated() override;
-		void OnCalculateValues() override;
 		void OnReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 		offset_t OnWriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void OnDump(Dumper::Dumper& dump) const override;
@@ -137,6 +136,8 @@ namespace Apple
 		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
+
+		void CalculateValues() override;
 
 		void GenerateFile(std::string filename, Linker::Module& module) override;
 		void Dump(Dumper::Dumper& dump) const override;
