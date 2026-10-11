@@ -3,14 +3,32 @@
 
 	.section	.text
 
+.if	TARGET_MACOS
+	.section	.data
+	.global	start
 start:
+	.long	.start, TOC, 0
+	.section	.text
+.start:
+.else
+start:
+.endif
 	_StartUp
 .if	OPTION_EXPLICIT_STACK
 	# TODO
 .endif
 
+.if	!TARGET_MACOS
 	lis	r4, message@ha
 	la	r4, message@l(r4)
+.else
+	.section	.toc
+message_TOC:
+	.long	message
+	.section	.text
+	lwz	r9, message_TOC - .toc(r2)
+	lwz	r4, 0(r9)
+.endif
 	bl	PutString
 	bl	PutNewLine
 	bl	WaitForKey
@@ -36,8 +54,18 @@ PutString:
 	blr
 
 PutNewLine:
+.if	OPTION_NEWLINE_PROC
+	mflr	r0
+	stwu	r0, -4(r1)
+	_PutNewLine
+	lwz	r0, 0(r1)
+	la	r1, 4(r1)
+	mtlr	r0
+	blr
+.else
 	li	r3, 10
 #	b	PutChar
+.endif
 
 PutChar:
 	_PutChar	r3
@@ -56,6 +84,8 @@ message:
 	.ascii	"Greetings!"
 .if TARGET_LINUX
 	.ascii	" Linux (32-bit PowerPC)"
+.elseif	TARGET_MACOS
+	.ascii	" Mac OS (PowerPC)"
 .endif
 
 	.byte	0

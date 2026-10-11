@@ -906,6 +906,21 @@ DefineTarget(
 	additional_outputs = ('{output_file}.mbin', '%{output_file}', '.finf/{output_file}', '.rsrc/{output_file}'))
 
 DefineTarget(
+	Description = "Apple Mac OS on Classic Macintosh PEF executable for PowerPC",
+	CPU = "ppc",
+	System = "macos_ppc",
+	TargetName = "macos",
+	IncludeName = "macos",
+	LinkerName = "pef",
+	Versions = [
+		DefineVersion("", ModelName = "default", LinkerName = ""),
+		#DefineVersion("carbon", ModelName = "default"), # TODO
+	],
+	required_entry = True,
+	custom_entry = True,
+	additional_outputs = ('{output_file}.mbin', '%{output_file}', '.finf/{output_file}', '.rsrc/{output_file}'))
+
+DefineTarget(
 	Description = "QDOS on Sinclair QL Motorola 68000",
 	CPU = "m68k",
 	System = "sql",
