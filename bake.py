@@ -899,7 +899,7 @@ DefineTarget(
 		DefineVersion("", ModelName = "default", LinkerName = ""),
 		DefineVersion("tiny", ModelName = "tiny"),
 		DefineVersion("32bit", ModelName = "default", LinkerName = "", LinkerOptions = ["32"]),
-		DefineVersion("far", ModelName = "default", LinkerName = "", LinkerOptions = ["far"], additional_arguments = [ENV.get("MACFARLOAD", "../nomacfarload.o"), "-d.init=init"]), # TODO: requires an object file containing an .init section and entry named init that patches LoadSeg
+		DefineVersion("far", ModelName = "default", LinkerName = "", LinkerOptions = ["far", "32"], additional_arguments = [ENV.get("MACFARLOAD", "../nomacfarload.o"), "-d.init=init"]), # TODO: requires an object file containing an .init section and entry named init that patches LoadSeg
 	],
 	c_target_options = "-mpcrel",
 	custom_entry = True,

@@ -2109,7 +2109,8 @@ std::unique_ptr<Script::List> PEFFormat::GetScript(Linker::Module& module)
 ".data"
 {
 	at 0;
-	all not zero and not resource;
+	all not zero and not ".toc" and not resource;
+	all ".toc" align 4;
 	all zero and not resource;
 	at align(here, ?data_section_align?);
 };
