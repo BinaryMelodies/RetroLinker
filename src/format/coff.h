@@ -597,6 +597,8 @@ namespace COFF
 		static constexpr uint16_t R_W65_PCR16    = 0x09;
 		static constexpr uint16_t R_W65_DP       = 0x0A;
 
+		// XCOFF relocation types
+
 		static constexpr uint8_t R_XCOFF_POS = 0x00;
 		static constexpr uint8_t R_XCOFF_NEG = 0x01;
 		static constexpr uint8_t R_XCOFF_REL = 0x02;
@@ -620,6 +622,32 @@ namespace COFF
 		static constexpr uint8_t R_XCOFF_TLSML = 0x25;
 		static constexpr uint8_t R_XCOFF_TOCU = 0x30;
 		static constexpr uint8_t R_XCOFF_TOCL = 0x31;
+
+		// ECOFF relocation types
+
+		static constexpr uint16_t R_ECOFF_ABS = 0x00;
+		static constexpr uint16_t R_ECOFF_REFLONG = 0x01;
+		static constexpr uint16_t R_ECOFF_REFQUAD = 0x02;
+		static constexpr uint16_t R_ECOFF_GPREL32 = 0x03;
+		static constexpr uint16_t R_ECOFF_LITERAL = 0x04;
+		static constexpr uint16_t R_ECOFF_LITUSE = 0x05;
+		static constexpr uint16_t R_ECOFF_GPDISP = 0x06;
+		static constexpr uint16_t R_ECOFF_BRADDR = 0x07;
+		static constexpr uint16_t R_ECOFF_HINT = 0x08;
+		static constexpr uint16_t R_ECOFF_SREL16 = 0x09;
+		static constexpr uint16_t R_ECOFF_SREL32 = 0x0A;
+		static constexpr uint16_t R_ECOFF_SREL64 = 0x0B;
+		static constexpr uint16_t R_ECOFF_OP_PUSH = 0x0C;
+		static constexpr uint16_t R_ECOFF_OP_STORE = 0x0D;
+		static constexpr uint16_t R_ECOFF_OP_PSUB = 0x0E;
+		static constexpr uint16_t R_ECOFF_OP_PRSHIFT = 0x0F;
+		static constexpr uint16_t R_ECOFF_GPVALUE = 0x10;
+		static constexpr uint16_t R_ECOFF_GPRELHIGH = 0x11;
+		static constexpr uint16_t R_ECOFF_GPRELLOW = 0x12;
+		static constexpr uint16_t R_ECOFF_IMMED = 0x13;
+		static constexpr uint16_t R_ECOFF_TLS_LITERAL = 0x14;
+		static constexpr uint16_t R_ECOFF_TLS_HIGH = 0x15;
+		static constexpr uint16_t R_ECOFF_TLS_LOW = 0x16;
 
 		/**
 		 * @brief A generic COFF relocation
