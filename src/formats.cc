@@ -368,6 +368,9 @@ format_specification formats[] =
 	{ "pef",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::PEFOutputDriver>(Apple::Classic68KDriver::TARGET_DATA_FORK, Apple::Classic68KDriver::PRODUCE_RESOURCE_FORK | Apple::Classic68KDriver::PRODUCE_FINDER_INFO | Apple::Classic68KDriver::PRODUCE_APPLE_DOUBLE | Apple::Classic68KDriver::PRODUCE_MAC_BINARY); },
 		"Classic PowerPC Macintosh Preferred Executable Format" },
+	{ "cfm-68k",
+		[]() -> std::shared_ptr<Format> { return std::make_shared<Apple::PEFOutputDriver>(Apple::Classic68KDriver::TARGET_DATA_FORK, Apple::Classic68KDriver::PRODUCE_RESOURCE_FORK | Apple::Classic68KDriver::PRODUCE_FINDER_INFO | Apple::Classic68KDriver::PRODUCE_APPLE_DOUBLE | Apple::Classic68KDriver::PRODUCE_MAC_BINARY); },
+		"CFM-68K Macintosh Preferred Executable Format" }, // TODO: this is basically the same
 	/* Hunk */
 	{ "amiga",
 		[]() -> std::shared_ptr<Format> { return std::make_shared<HunkFormat>(); },

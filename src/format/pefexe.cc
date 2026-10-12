@@ -2193,7 +2193,7 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 
 std::unique_ptr<Script::List> PEFFormat::GetScript(Linker::Module& module)
 {
-	static const char * DefaultScript = R"(
+	static const char * DefaultScript_PPC = R"(
 ".code"
 {
 	all execute;
@@ -2215,13 +2215,41 @@ std::unique_ptr<Script::List> PEFFormat::GetScript(Linker::Module& module)
 }
 )";
 
+	static const char * DefaultScript_68K = R"(
+for execute
+{
+	all any;
+	at align(here, ?code_section_align?);
+};
+
+".data"
+{
+	at 0;
+	all not zero and not resource;
+	all zero and not resource;
+	at align(here, ?data_section_align?);
+};
+
+".rsrc"
+{
+	all resource; // TODO
+}
+)";
+
 	if(linker_script != "")
 	{
 		return SegmentManager::GetScript(module);
 	}
 	else
 	{
-		return Script::parse_string(DefaultScript);
+		switch(architecture)
+		{
+		case M68K:
+			return Script::parse_string(DefaultScript_68K);
+		default:
+		case PPC:
+			return Script::parse_string(DefaultScript_PPC);
+		}
 	}
 }
 

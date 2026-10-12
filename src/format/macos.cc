@@ -266,9 +266,9 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadJumpTable(const std
 		switch(mode)
 		{
 		case FromResource:
-			if(insn == LOADSEG)
+			if(insn != LOADSEG)
 			{
-				Linker::Error << "Error: Segmented and flattened jump table entries found in same jump table" << std::endl;
+				Linker::Error << "Error: Unrecognized jump table entry in jump table" << std::endl;
 			}
 			break;
 		case FromPEFContainer:
@@ -1783,10 +1783,11 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 	jump_table = std::make_shared<JumpTableCodeResource>();
 	AddResource(jump_table);
 
-for(auto section : module.Sections())
-{
-	Linker::Debug << "Debug: " << *section << std::endl;
-}
+	for(auto section : module.Sections())
+	{
+		Linker::Debug << "Debug: " << *section << std::endl;
+	}
+
 	Link(module);
 	jump_table->jump_table->below_a5 = a5world->zero_fill;
 	Linker::Debug << "Debug: Setting the A5 world to " << a5world->zero_fill << std::endl;
