@@ -1397,6 +1397,52 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 		if(current_end > image_size)
 			current_end = image_size;
 	}
+
+	if(architecture == M68K)
+	{
+		// find the jump table
+		std::shared_ptr<Section> jump_table_section;
+		uint32_t a5_offset;
+		// first try to look at the initial A5 value, read from the main symbol
+		if(main_symbol.IsPresent() && main_symbol.section < sections.size())
+		{
+			// find jump table via entry symbol
+			auto main_symbol_section = sections[main_symbol.section];
+			if(main_symbol_section->image != nullptr
+			&& main_symbol.offset + 8 <= main_symbol_section->image->ImageSize())
+			{
+				// check initial A5 value
+				uint32_t a5_value_offset = main_symbol.offset + 4;
+				auto& relocations = main_symbol_section->relocations;
+
+				// to determine the section containing the A5 world, we will check if there is a section relocation at this offset
+				auto a5_relocation = relocations.find(a5_value_offset);
+				if(a5_relocation != relocations.end()
+				&& a5_relocation->second.type == Relocation::Section
+				&& a5_relocation->second.number < sections.size())
+				{
+					jump_table_section = sections[a5_relocation->second.number];
+					auto main_symbol_image = main_symbol_section->image->AsImage();
+					a5_offset = main_symbol_image->ReadUnsigned(4, a5_value_offset, ::BigEndian);
+				}
+			}
+		}
+
+		if(jump_table_section == nullptr)
+		{
+			// TODO: we need the A5 value from the 'rseg'0 resource
+			return;
+		}
+
+		// TODO: what if this is a library? that is determined by the 'cfrg'0 resource
+
+		jump_table = std::make_shared<MacintoshResourceFileFormat::JumpTableCodeResource>();
+		jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K;
+
+		auto ird = std::make_shared<Linker::ImageReader>(::BigEndian, jump_table_section->image->AsImage());
+		ird->Seek(a5_offset);
+		jump_table->ReadJumpTable(ird, std::max(offset_t(a5_offset), ird->GetImageEnd()) - a5_offset, MacintoshResourceFileFormat::JumpTableCodeResource::FromPEFContainer);
+	}
 }
 
 offset_t PEFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
@@ -2025,6 +2071,11 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	Dumper::Region section_names_region("Section name table", GetSectionNameTableOffset(), section_name_table_end - GetSectionNameTableOffset(), 8);
 	// TODO: print names
 	section_names_region.Display(dump, Dumper::String);
+
+	if(jump_table != nullptr)
+	{
+		jump_table->Dump(dump, 0 /* TODO */);
+	}
 
 	// TODO
 }

@@ -563,6 +563,8 @@ namespace Apple
 			}
 		};
 		std::vector<std::shared_ptr<ImportedLibrary>> imported_libraries;
+		// only for CFM-68K
+		std::shared_ptr<MacintoshResourceFileFormat::JumpTableCodeResource> jump_table;
 		// only used for generation
 		std::map<std::string, std::shared_ptr<ImportedLibrary>> named_imported_libraries;
 		std::vector<std::shared_ptr<ImportedSymbol>> imported_symbols;

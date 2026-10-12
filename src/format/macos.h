@@ -147,12 +147,48 @@ namespace Apple
 			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
+		/** @brief Represents the information stored in a jump table */
+		class JumpTable
+		{
+		public:
+			struct Entry
+			{
+				uint16_t segment;
+				uint32_t offset;
+			};
+
+			struct TransitionVector
+			{
+				uint32_t seg_loader_offset;
+				uint32_t a5_offset;
+				uint16_t segment;
+				uint32_t offset;
+			};
+
+			uint32_t above_a5 = 0;
+			uint32_t below_a5 = 0;
+			uint32_t jump_table_size = 0;
+			uint32_t jump_table_offset = 32; // seems to be fixed for Macintosh programs
+			/** @brief Entries with a 16-bit segment offset, used for near model jump tables, for near model format entries in far model jump tables and classic format entries in CFM-68K jump tables */
+			std::vector<Entry> legacy_entries;
+			/** @brief Entries with a 32-bit segment offset, used for far model format entries in far model jump tables and regular format entries in CFM-68K jump tables */
+			std::vector<Entry> extended_entries;
+			std::vector<TransitionVector> transition_vectors;
+		};
+
 		/** @brief Stores a 68K jump table, found in 'CODE'0 resources */
 		class JumpTableCodeResource : public Resource
 		{
 		public:
+			std::shared_ptr<JumpTable> jump_table;
+
+			JumpTableCodeResource(std::shared_ptr<JumpTable> jump_table)
+				: Resource("CODE", 0), jump_table(jump_table)
+			{
+			}
+
 			JumpTableCodeResource()
-				: Resource("CODE", 0)
+				: JumpTableCodeResource(std::make_shared<JumpTable>())
 			{
 			}
 
@@ -166,23 +202,18 @@ namespace Apple
 				CFM_68K,
 				/** @brief CFM-68K startup jump table as stored in the 'CODE'0 resource, with a single classic format entry */
 				CFM_68K_StartUp,
+				/** @brief CFM-68K shared library jump table as stored in the PEF container, with a single classic format entry
+				 *
+				 * All jump table entries and transition vectors are stored in a flattened format
+				 */
+				CFM_68K_Library,
+				/** @brief CFM-68K shared library jump table as stored in the PEF container, with a single classic format entry
+				 *
+				 * Jump table entries are stored in their segmented format, transition vectors are stored in an 8-byte unflattened format
+				 */
+				CFM_68K_Unflattened_Library,
 			};
 			JumpTableFormat jump_table_format = Near;
-
-			struct Entry
-			{
-				uint16_t segment;
-				uint32_t offset;
-			};
-
-			uint32_t above_a5 = 0;
-			uint32_t below_a5 = 0;
-			uint32_t jump_table_size = 0;
-			uint32_t jump_table_offset = 32; // seems to be fixed for Macintosh programs
-			/** @brief Entries with a 16-bit segment offset, used for near model jump tables, for near model format entries in far model jump tables and classic format entries in CFM-68K jump tables */
-			std::vector<Entry> legacy_entries;
-			/** @brief Entries with a 32-bit segment offset, used for far model format entries in far model jump tables and regular format entries in CFM-68K jump tables */
-			std::vector<Entry> extended_entries;
 
 			void CalculateValues() override;
 
@@ -192,12 +223,36 @@ namespace Apple
 			{
 				MOVE_DATA_SP = 0x3F3C,
 				LOADSEG = 0xA9F0,
+				JMP_ABS_L = 0x4EF9,
+
 				FAR_VERSION_MARK = 0xFFFF,
 				CFM_68K_VERSION_MARK = 0xFFFD,
 			};
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length) override;
+
+			/** @brief Describes how a jump table should be handled */
+			enum jump_table_parse_mode
+			{
+				/** @brief No information, try to make the best out of it (untested) */
+				FromUnknown,
+				/** @brief The jump table is found inside a 'CODE' resource */
+				FromResource,
+				/** @brief The jump table is found inside a PEF container data section */
+				FromPEFContainer,
+			};
+
+			/** @brief Read full jump table
+			 *
+			 * When the jump table is found in a resource, this will also determine what format the jump table is in.
+			 * For PEF containers, the format of the jump table must be assigned prior to calling this function.
+			 *
+			 * @param rd The reader
+			 * @param length The expected length of the jump table
+			 * @param mode Whether to parse it as a jump table found inside a 'CODE' resource or a PEF container data section
+			 */
+			void ReadJumpTable(const std::shared_ptr<Linker::Reader>& rd, offset_t length, jump_table_parse_mode mode);
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;

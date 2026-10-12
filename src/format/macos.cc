@@ -149,19 +149,21 @@ std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::GenericResource::Cr
 
 void MacintoshResourceFileFormat::JumpTableCodeResource::CalculateValues()
 {
-	jump_table_offset = 32;
+	jump_table->jump_table_offset = 32;
 	switch(jump_table_format)
 	{
 	case Near:
 	case CFM_68K_StartUp:
-		jump_table_size = 8 * legacy_entries.size();
+		jump_table->jump_table_size = 8 * jump_table->legacy_entries.size();
 		break;
 	case Far:
 	case CFM_68K:
-		jump_table_size = 8 + 8 * (legacy_entries.size() + extended_entries.size());
+	case CFM_68K_Library:
+	case CFM_68K_Unflattened_Library:
+		jump_table->jump_table_size = 8 + 8 * (jump_table->legacy_entries.size() + jump_table->extended_entries.size());
 		break;
 	}
-	above_a5 = 0x30 + jump_table_size;
+	jump_table->above_a5 = 0x30 + jump_table->jump_table_size;
 }
 
 offset_t MacintoshResourceFileFormat::JumpTableCodeResource::ImageSize() const
@@ -170,10 +172,12 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::ImageSize() const
 	{
 	case Near:
 	case CFM_68K_StartUp:
-		return 16 + 8 * legacy_entries.size();
+		return 16 + 8 * jump_table->legacy_entries.size();
 	case Far:
 	case CFM_68K:
-		return 24 + 8 * (legacy_entries.size() + extended_entries.size());
+	case CFM_68K_Library:
+	case CFM_68K_Unflattened_Library:
+		return 24 + 8 * (jump_table->legacy_entries.size() + jump_table->extended_entries.size());
 	default:
 		assert(false);
 	}
@@ -189,54 +193,176 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::sha
 
 void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t length)
 {
-	above_a5 = rd->ReadUnsigned(4);
-	below_a5 = rd->ReadUnsigned(4);
-	jump_table_size = rd->ReadUnsigned(4);
-	jump_table_offset = rd->ReadUnsigned(4);
-	uint32_t i;
-	for(i = 0; i < jump_table_size && i + 16 < length; i += 8)
+	ReadJumpTable(rd, std::min(offset_t(16 + jump_table->jump_table_size), offset_t(length)), FromResource);
+}
+
+void MacintoshResourceFileFormat::JumpTableCodeResource::ReadJumpTable(const std::shared_ptr<Linker::Reader>& rd, offset_t length, jump_table_parse_mode mode)
+{
+	offset_t start_offset = rd->Tell();
+	offset_t read_offset = 0;
+	switch(mode)
 	{
-		Entry entry;
+	case FromResource:
+		jump_table->above_a5 = rd->ReadUnsigned(4);
+		jump_table->below_a5 = rd->ReadUnsigned(4);
+		jump_table->jump_table_size = rd->ReadUnsigned(4);
+		jump_table->jump_table_offset = rd->ReadUnsigned(4);
+
+		read_offset = 16;
+		break;
+	case FromPEFContainer:
+		rd->Skip(32);
+
+		read_offset = 32;
+		break;
+	default:
+		break;
+	}
+
+	for(read_offset = 0; read_offset < length; read_offset += 8)
+	{
+		JumpTable::Entry entry;
 		entry.offset = rd->ReadUnsigned(2);
 		uint16_t _move_data_sp = rd->ReadUnsigned(2); // MOVE_DATA_SP
 		entry.segment = rd->ReadUnsigned(2);
 		uint16_t _loadseg = rd->ReadUnsigned(2); // LOADSEG
+
 		if(entry.offset == 0 && entry.segment == 0 && _loadseg == 0)
 		{
 			if(_move_data_sp == FAR_VERSION_MARK)
 			{
-				jump_table_format = Far;
-				i += 8;
+				if(mode != FromPEFContainer)
+				{
+					jump_table_format = Far;
+				}
+				read_offset += 8;
 				break;
 			}
 			else if(_move_data_sp == CFM_68K_VERSION_MARK)
 			{
-				jump_table_format = CFM_68K;
-				i += 16;
+				if(mode != FromPEFContainer)
+				{
+					jump_table_format = CFM_68K;
+				}
+				read_offset += 16;
 				rd->Skip(8);
 				break;
 			}
 		}
-		legacy_entries.push_back(entry);
+		jump_table->legacy_entries.push_back(entry);
 	}
 
-	for(; i < jump_table_size && i + 16 < length; i += 8)
+	bool still_reading_table = true;
+	for(; read_offset < length && still_reading_table; read_offset += 8)
 	{
-		Entry entry;
+		JumpTable::Entry entry;
 		entry.segment = rd->ReadUnsigned(2);
-		rd->Skip(2); // LOADSEG
+		uint16_t insn = rd->ReadUnsigned(2);
+		switch(mode)
+		{
+		case FromResource:
+			if(insn == LOADSEG)
+			{
+				Linker::Error << "Error: Segmented and flattened jump table entries found in same jump table" << std::endl;
+			}
+			break;
+		case FromPEFContainer:
+			if(insn == JMP_ABS_L)
+			{
+				if(jump_table_format == CFM_68K_Library)
+					break;
+			}
+			else if(insn == LOADSEG)
+			{
+				if(jump_table_format != CFM_68K_Library)
+					break;
+			}
+			else
+			{
+				rd->Skip(-4);
+				still_reading_table = false;
+				break;
+			}
+			Linker::Error << "Error: Unrecognized second word in jump table entry" << std::endl;
+			break;
+		case FromUnknown:
+			if(insn == JMP_ABS_L)
+			{
+				jump_table_format = CFM_68K_Library;
+			}
+			else if(insn == LOADSEG)
+			{
+				if(jump_table_format == CFM_68K_Library)
+				{
+					Linker::Error << "Error: Segmented and flattened jump table entries found in same jump table" << std::endl;
+				}
+			}
+			else
+			{
+				rd->Skip(-4);
+				still_reading_table = false;
+				break;
+			}
+			Linker::Error << "Error: Unrecognized second word in jump table entry" << std::endl;
+			break;
+		}
+		if(!still_reading_table)
+			break;
 		entry.offset = rd->ReadUnsigned(4);
-		extended_entries.push_back(entry);
+		jump_table->extended_entries.push_back(entry);
+	}
+
+	if(mode == FromPEFContainer)
+	{
+		while(rd->Tell() < start_offset + length)
+		{
+			JumpTable::TransitionVector tvector;
+			uint32_t word;
+			switch(jump_table_format)
+			{
+			case CFM_68K_Library:
+				tvector.offset = rd->ReadUnsigned(4);
+				tvector.a5_offset = rd->ReadUnsigned(4);
+				break;
+			case CFM_68K_Unflattened_Library:
+				word = rd->ReadUnsigned(4);
+				tvector.a5_offset = rd->ReadUnsigned(4);
+				tvector.segment = word >> 24;
+				tvector.offset = (word & 0x00FFFFFF) << 1;
+				break;
+			default:
+				tvector.seg_loader_offset = rd->ReadUnsigned(4);
+				tvector.a5_offset = rd->ReadUnsigned(4);
+				word = rd->ReadUnsigned(4);
+				tvector.segment = (word >> 20) & 0x03FF;
+				tvector.offset = (word & 0x000FFFFF) << 1;
+				break;
+			}
+			jump_table->transition_vectors.push_back(tvector);
+		}
 	}
 }
 
 offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	wr->WriteWord(4, above_a5);
-	wr->WriteWord(4, below_a5);
-	wr->WriteWord(4, jump_table_size);
-	wr->WriteWord(4, jump_table_offset);
-	for(const Entry& entry : legacy_entries)
+	switch(jump_table_format)
+	{
+	case Near:
+	case Far:
+	case CFM_68K_StartUp:
+		wr->WriteWord(4, jump_table->above_a5);
+		wr->WriteWord(4, jump_table->below_a5);
+		wr->WriteWord(4, jump_table->jump_table_size);
+		wr->WriteWord(4, jump_table->jump_table_offset);
+		break;
+	case CFM_68K:
+	case CFM_68K_Library:
+	case CFM_68K_Unflattened_Library:
+		wr->Skip(32);
+		break;
+	}
+
+	for(const JumpTable::Entry& entry : jump_table->legacy_entries)
 	{
 		wr->WriteWord(2, entry.offset);
 		wr->WriteWord(2, MOVE_DATA_SP);
@@ -250,22 +376,33 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(const std
 		break;
 	case Far:
 		wr->WriteData(8, "\0\0\xFF\xFF\0\0\0\0");
-		for(const Entry& entry : extended_entries)
+		for(const JumpTable::Entry& entry : jump_table->extended_entries)
 		{
 			wr->WriteWord(2, entry.segment);
 			wr->WriteWord(2, LOADSEG);
 			wr->WriteWord(4, entry.offset);
 		}
 		break;
-	case CFM_68K:
-		break;
 	case CFM_68K_StartUp:
+		break;
+	case CFM_68K:
 		wr->WriteData(8, "\0\0\xFF\xFD\0\0\0\0");
 		wr->WriteData(8, "\0\0\0\0\0\0\0\0");
-		for(const Entry& entry : extended_entries)
+		for(const JumpTable::Entry& entry : jump_table->extended_entries)
 		{
 			wr->WriteWord(2, entry.segment);
 			wr->WriteWord(2, LOADSEG);
+			wr->WriteWord(4, entry.offset);
+		}
+		break;
+	case CFM_68K_Library:
+	case CFM_68K_Unflattened_Library:
+		wr->WriteData(8, "\0\0\xFF\xFD\0\0\0\0");
+		wr->WriteData(8, "\0\0\0\0\0\0\0\0");
+		for(const JumpTable::Entry& entry : jump_table->extended_entries)
+		{
+			wr->WriteWord(2, 0);
+			wr->WriteWord(2, JMP_ABS_L);
 			wr->WriteWord(4, entry.offset);
 		}
 		break;
@@ -282,13 +419,15 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::AddFields(Dumper::Dumpe
 		{ Far, "far model" },
 		{ CFM_68K, "CFM-68K" },
 		{ CFM_68K_StartUp, "startup for CFM-68K (near model)" },
+		{ CFM_68K_Library, "CFM-68K (library entry)" },
+		{ CFM_68K_Unflattened_Library, "CFM-68K (library entry, unflattened)" },
 	};
 
 	region.AddField("Jump table format", Dumper::ChoiceDisplay::Make(jump_table_format_names), offset_t(jump_table_format));
-	region.AddField("Above A5", Dumper::HexDisplay::Make(8), offset_t(above_a5));
-	region.AddField("Below A5", Dumper::HexDisplay::Make(8), offset_t(below_a5));
-	region.AddField("Jump table size", Dumper::HexDisplay::Make(8), offset_t(jump_table_size));
-	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(jump_table_offset));
+	region.AddField("Above A5", Dumper::HexDisplay::Make(8), offset_t(jump_table->above_a5));
+	region.AddField("Below A5", Dumper::HexDisplay::Make(8), offset_t(jump_table->below_a5));
+	region.AddField("Jump table size", Dumper::HexDisplay::Make(8), offset_t(jump_table->jump_table_size));
+	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(jump_table->jump_table_offset));
 }
 
 int MacintoshResourceFileFormat::JumpTableCodeResource::GetDisplayOptions() const
@@ -301,13 +440,15 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 	Resource::Dump(dump, file_offset);
 
 	unsigned i = 0;
-	for(auto& entry : legacy_entries)
+	offset_t current_offset = file_offset + 16;
+	for(auto& entry : jump_table->legacy_entries)
 	{
-		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+		Dumper::Entry entry_entry("Entry", i + 1, current_offset);
 		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("near"), offset_t(true));
 		entry_entry.AddField("Value", Dumper::SegmentedDisplay::Make(4), offset_t(entry.segment), offset_t(entry.offset));
 		entry_entry.Display(dump, GetDisplayOptions());
 		i++;
+		current_offset += 8;
 	}
 
 	switch(jump_table_format)
@@ -317,39 +458,87 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 	case Far:
 		{
 			// skip one value for separator
-			Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+			Dumper::Entry entry_entry("Entry", i + 1, current_offset);
 			entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("separator (far)"), offset_t(true));
 			entry_entry.Display(dump, GetDisplayOptions());
 			i++;
+			current_offset += 8;
 		}
 		break;
 	case CFM_68K_StartUp:
 		return;
 	case CFM_68K:
+	case CFM_68K_Library:
+	case CFM_68K_Unflattened_Library:
 		{
 			// skip one value for separator
-			Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+			Dumper::Entry entry_entry("Entry", i + 1, current_offset);
 			entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("separator (CFM-68K)"), offset_t(true));
 			entry_entry.Display(dump, GetDisplayOptions());
 			i++;
+			current_offset += 8;
 		}
 
 		{
 			// skip one value for reserved
-			Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+			Dumper::Entry entry_entry("Entry", i + 1, current_offset);
 			entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("reserved"), offset_t(true));
 			entry_entry.Display(dump, GetDisplayOptions());
 			i++;
+			current_offset += 8;
 		}
 		break;
 	}
 
-	for(auto& entry : extended_entries)
+	for(auto& entry : jump_table->extended_entries)
 	{
-		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+		Dumper::Entry entry_entry("Entry", i + 1, current_offset);
 		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("far"), offset_t(true));
-		entry_entry.AddField("Value", Dumper::SegmentedDisplay::Make(8), offset_t(entry.segment), offset_t(entry.offset));
+		if(jump_table_format == CFM_68K_Library && entry.segment == 0)
+		{
+			entry_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(entry.offset));
+		}
+		else
+		{
+			entry_entry.AddField("Value", Dumper::SegmentedDisplay::Make(8), offset_t(entry.segment), offset_t(entry.offset));
+		}
 		entry_entry.Display(dump, GetDisplayOptions());
+		i++;
+		current_offset += 8;
+	}
+
+	i = 0;
+	for(auto& tvector : jump_table->transition_vectors)
+	{
+		Dumper::Entry tvector_entry("Transition vector", i + 1, current_offset);
+
+		static const std::map<offset_t, std::string> jump_table_format_names =
+		{
+			{ CFM_68K_Library, "Flattened library vector" },
+			{ CFM_68K_Unflattened_Library, "Unflattened library vector" },
+			{ CFM_68K, "Application vector" },
+		};
+
+		tvector_entry.AddField("Type", Dumper::ChoiceDisplay::Make(jump_table_format_names), offset_t(jump_table_format));
+
+		switch(jump_table_format)
+		{
+		case CFM_68K_Library:
+			tvector_entry.AddField("Value", Dumper::HexDisplay::Make(8), offset_t(tvector.offset));
+			current_offset += 8;
+			break;
+		case CFM_68K_Unflattened_Library:
+			tvector_entry.AddField("Value", Dumper::SegmentedDisplay::Make(8), offset_t(tvector.segment), offset_t(tvector.offset));
+			current_offset += 8;
+			break;
+		default:
+			tvector_entry.AddField("Value", Dumper::SegmentedDisplay::Make(8), offset_t(tvector.segment), offset_t(tvector.offset));
+			tvector_entry.AddField("Segment loader offset", Dumper::HexDisplay::Make(8), offset_t(tvector.seg_loader_offset));
+			current_offset += 12;
+			break;
+		}
+		tvector_entry.AddField("A5 offset", Dumper::HexDisplay::Make(8), offset_t(tvector.a5_offset));
+		tvector_entry.Display(dump, GetDisplayOptions());
 		i++;
 	}
 }
@@ -366,7 +555,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 	first_near_entry_offset = jump_table_offset;
 	if(starting_entry.has_value())
 	{
-		jump_table->legacy_entries.push_back(JumpTableCodeResource::Entry{id, starting_entry.value()});
+		jump_table->jump_table->legacy_entries.push_back(JumpTable::Entry{id, starting_entry.value()});
 		jump_table_offset += 8;
 	}
 
@@ -375,7 +564,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 		if(starting_entry.has_value() && entry == starting_entry.value())
 			continue; /* already inserted */
 
-		jump_table->legacy_entries.push_back(JumpTableCodeResource::Entry{id, entry});
+		jump_table->jump_table->legacy_entries.push_back(JumpTable::Entry{id, entry});
 
 		if(entry_relocations != nullptr)
 		{
@@ -404,7 +593,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 	first_near_entry_offset = jump_table_offset;
 	if(starting_entry.has_value())
 	{
-		jump_table->extended_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + starting_entry.value()});
+		jump_table->jump_table->extended_entries.push_back(JumpTable::Entry{id, CodeResource::FarSegmentHeaderSize + starting_entry.value()});
 		jump_table_offset += 8;
 	}
 
@@ -413,7 +602,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 		if(starting_entry.has_value() && entry == starting_entry.value())
 			continue; /* already inserted */
 
-		jump_table->extended_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
+		jump_table->jump_table->extended_entries.push_back(JumpTable::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
 
 		if(entry_relocations != nullptr)
 		{
@@ -447,7 +636,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentFarEntries(
 		first_far_entry_offset = jump_table_offset;
 		for(uint32_t entry : far_entries)
 		{
-			jump_table->extended_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
+			jump_table->jump_table->extended_entries.push_back(JumpTable::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
 
 			if(entry_relocations != nullptr)
 			{
@@ -1132,7 +1321,7 @@ void MacintoshResourceFileFormat::CodeFragmentResource::EffectFormat(MacintoshRe
 			if(auto jump_table = std::dynamic_pointer_cast<JumpTableCodeResource>(reference->data))
 			{
 				if(jump_table->jump_table_format == JumpTableCodeResource::Near
-				&& jump_table->legacy_entries.size() == 1)
+				&& jump_table->jump_table->legacy_entries.size() == 1)
 				{
 					// set to startup format
 					jump_table->jump_table_format = JumpTableCodeResource::CFM_68K_StartUp;
@@ -1407,7 +1596,7 @@ for(auto section : module.Sections())
 	Linker::Debug << "Debug: " << *section << std::endl;
 }
 	Link(module);
-	jump_table->below_a5 = a5world->zero_fill;
+	jump_table->jump_table->below_a5 = a5world->zero_fill;
 	Linker::Debug << "Debug: Setting the A5 world to " << a5world->zero_fill << std::endl;
 
 	uint32_t entry_offset = 0;
