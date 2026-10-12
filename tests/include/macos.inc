@@ -3,7 +3,7 @@
 	.section	.toc, "aw", @progbits
 	.global	TOC
 TOC:
-.macro	__SYSCALL	__syscall
+.macro	__SYSCALL	__syscall, __wordcount
 	# Get transition vector address
 	lwz	r12, \__syscall\()_TOC - .toc(r2)
 	# Store current global address
@@ -12,11 +12,15 @@ TOC:
 	lwz	r0, 0(r12)
 	# Load global address for function
 	lwz	r2, 4(r12)
+	# Create linkage area/parameter area to avoid overwriting stack
+	la	r1, -24 - 4 * \__wordcount(r1)
 	# Jump and link to function
 	mtlr	r0
 	blrl
 	# Delay slot
 	nop
+	# Restore stack pointer
+	la	r1, 24 + 4 * \__wordcount(r1)
 	# Restore current global address
 	lwz	r2, 0(r1)
 	la	r1, 4(r1)
@@ -43,63 +47,63 @@ __DEFSYSCALL	ExitToShell
 .if	CPU_M68K
 	.short	0xA86E
 .elseif	CPU_PPC
-	__SYSCALL	InitGraf
+	__SYSCALL	InitGraf, 1
 .endif
 .endm
 .macro	__InitFonts
 .if	CPU_M68K
 	.short	0xA8FE
 .elseif	CPU_PPC
-	__SYSCALL	InitFonts
+	__SYSCALL	InitFonts, 0
 .endif
 .endm
 .macro	__InitWindows
 .if	CPU_M68K
 	.short	0xA912
 .elseif	CPU_PPC
-	__SYSCALL	InitWindows
+	__SYSCALL	InitWindows, 0
 .endif
 .endm
 .macro	__InitCursor
 .if	CPU_M68K
 	.short	0xA850
 .elseif	CPU_PPC
-	__SYSCALL	InitCursor
+	__SYSCALL	InitCursor, 0
 .endif
 .endm
 .macro	__DrawChar
 .if	CPU_M68K
 	.short	0xA883
 .elseif	CPU_PPC
-	__SYSCALL	DrawChar
+	__SYSCALL	DrawChar, 1
 .endif
 .endm
 .macro	__TextMode
 .if	CPU_M68K
 	.short	0xA889
 .elseif	CPU_PPC
-	__SYSCALL	TextMode
+	__SYSCALL	TextMode, 1
 .endif
 .endm
 .macro	__MoveTo
 .if	CPU_M68K
 	.short	0xA893
 .elseif	CPU_PPC
-	__SYSCALL	MoveTo
+	__SYSCALL	MoveTo, 2
 .endif
 .endm
 .macro	__GetNextEvent
 .if	CPU_M68K
 	.short	0xA970
 .elseif	CPU_PPC
-	__SYSCALL	GetNextEvent
+	__SYSCALL	GetNextEvent, 2
 .endif
 .endm
 .macro	__ExitToShell
 .if	CPU_M68K
 	.short	0xA9F4
 .elseif	CPU_PPC
-	__SYSCALL	ExitToShell
+	__SYSCALL	ExitToShell, 0
 .endif
 .endm
 

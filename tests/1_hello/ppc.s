@@ -26,8 +26,7 @@ start:
 message_TOC:
 	.long	message
 	.section	.text
-	lwz	r9, message_TOC - .toc(r2)
-	lwz	r4, 0(r9)
+	lwz	r4, message_TOC - .toc(r2)
 .endif
 	bl	PutString
 	bl	PutNewLine
@@ -68,11 +67,29 @@ PutNewLine:
 .endif
 
 PutChar:
+.if	TARGET_MACOS
+	mflr	r0
+	stwu	r0, -4(r1)
+.endif
 	_PutChar	r3
+.if	TARGET_MACOS
+	lwz	r0, 0(r1)
+	la	r1, 4(r1)
+	mtlr	r0
+.endif
 	blr
 
 WaitForKey:
+.if	TARGET_MACOS
+	mflr	r0
+	stwu	r0, -4(r1)
+.endif
 	_WaitForKey
+.if	TARGET_MACOS
+	lwz	r0, 0(r1)
+	la	r1, 4(r1)
+	mtlr	r0
+.endif
 	blr
 
 Exit:
