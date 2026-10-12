@@ -155,13 +155,18 @@ namespace Apple
 			{
 				uint16_t segment;
 				uint32_t offset;
+				/** @brief Section number: only in PEF flattened shared libraries */
+				std::optional<uint32_t> section;
 			};
 
 			struct TransitionVector
 			{
+				std::optional<uint32_t> seg_loader_section;
 				uint32_t seg_loader_offset;
+				std::optional<uint32_t> a5_section;
 				uint32_t a5_offset;
 				uint16_t segment;
+				std::optional<uint32_t> section;
 				uint32_t offset;
 			};
 
@@ -217,6 +222,8 @@ namespace Apple
 
 			void CalculateValues() override;
 
+			offset_t JumpTableSize() const;
+
 			offset_t ImageSize() const override;
 
 			enum
@@ -251,8 +258,9 @@ namespace Apple
 			 * @param rd The reader
 			 * @param length The expected length of the jump table
 			 * @param mode Whether to parse it as a jump table found inside a 'CODE' resource or a PEF container data section
+			 * @param section_relocations For PEF container data, also check if there are section relocations at the specified offsets
 			 */
-			void ReadJumpTable(const std::shared_ptr<Linker::Reader>& rd, offset_t length, jump_table_parse_mode mode);
+			void ReadJumpTable(const std::shared_ptr<Linker::Reader>& rd, offset_t length, jump_table_parse_mode mode, std::map<offset_t, offset_t> section_relocations = {});
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;

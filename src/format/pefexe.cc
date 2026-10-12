@@ -1439,9 +1439,19 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 		jump_table = std::make_shared<MacintoshResourceFileFormat::JumpTableCodeResource>();
 		jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K;
 
+		std::map<offset_t, offset_t> section_relocations;
+		for(auto& relocation : jump_table_section->relocations)
+		{
+			if(a5_offset <= relocation.first
+			&& relocation.second.type == Relocation::Section)
+			{
+				section_relocations[relocation.first - a5_offset] = relocation.second.number;
+			}
+		}
+
 		auto ird = std::make_shared<Linker::ImageReader>(::BigEndian, jump_table_section->image->AsImage());
 		ird->Seek(a5_offset);
-		jump_table->ReadJumpTable(ird, std::max(offset_t(a5_offset), ird->GetImageEnd()) - a5_offset, MacintoshResourceFileFormat::JumpTableCodeResource::FromPEFContainer);
+		jump_table->ReadJumpTable(ird, std::max(offset_t(a5_offset), ird->GetImageEnd()) - a5_offset, MacintoshResourceFileFormat::JumpTableCodeResource::FromPEFContainer, section_relocations);
 	}
 }
 
