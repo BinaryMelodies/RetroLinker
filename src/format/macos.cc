@@ -150,27 +150,32 @@ std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::GenericResource::Cr
 void MacintoshResourceFileFormat::JumpTableCodeResource::CalculateValues()
 {
 	jump_table_offset = 32;
-	if(far_entries.size() == 0)
+	switch(jump_table_format)
 	{
-		jump_table_size = 8 * near_entries.size();
+	case Near:
+	case CFM_68K_StartUp:
+		jump_table_size = 8 * legacy_entries.size();
+		break;
+	case Far:
+	case CFM_68K:
+		jump_table_size = 8 + 8 * (legacy_entries.size() + extended_entries.size());
+		break;
 	}
-	else
-	{
-		jump_table_size = 8 + 8 * (near_entries.size() + far_entries.size());
-	}
-	// TODO: CFM-68K must set it to the actual jump table size, not the loader stub jump table size
 	above_a5 = 0x30 + jump_table_size;
 }
 
 offset_t MacintoshResourceFileFormat::JumpTableCodeResource::ImageSize() const
 {
-	if(far_entries.size() == 0)
+	switch(jump_table_format)
 	{
-		return 16 + 8 * near_entries.size();
-	}
-	else
-	{
-		return 24 + 8 * (near_entries.size() + far_entries.size());
+	case Near:
+	case CFM_68K_StartUp:
+		return 16 + 8 * legacy_entries.size();
+	case Far:
+	case CFM_68K:
+		return 24 + 8 * (legacy_entries.size() + extended_entries.size());
+	default:
+		assert(false);
 	}
 }
 
@@ -196,12 +201,23 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::sha
 		uint16_t _move_data_sp = rd->ReadUnsigned(2); // MOVE_DATA_SP
 		entry.segment = rd->ReadUnsigned(2);
 		uint16_t _loadseg = rd->ReadUnsigned(2); // LOADSEG
-		if(entry.offset == 0 && _move_data_sp == 0xFFFF && entry.segment == 0 && _loadseg == 0)
+		if(entry.offset == 0 && entry.segment == 0 && _loadseg == 0)
 		{
-			i += 8;
-			break;
+			if(_move_data_sp == FAR_VERSION_MARK)
+			{
+				jump_table_format = Far;
+				i += 8;
+				break;
+			}
+			else if(_move_data_sp == CFM_68K_VERSION_MARK)
+			{
+				jump_table_format = CFM_68K;
+				i += 16;
+				rd->Skip(8);
+				break;
+			}
 		}
-		near_entries.push_back(entry);
+		legacy_entries.push_back(entry);
 	}
 
 	for(; i < jump_table_size && i + 16 < length; i += 8)
@@ -210,7 +226,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadFile(const std::sha
 		entry.segment = rd->ReadUnsigned(2);
 		rd->Skip(2); // LOADSEG
 		entry.offset = rd->ReadUnsigned(4);
-		far_entries.push_back(entry);
+		extended_entries.push_back(entry);
 	}
 }
 
@@ -220,22 +236,39 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(const std
 	wr->WriteWord(4, below_a5);
 	wr->WriteWord(4, jump_table_size);
 	wr->WriteWord(4, jump_table_offset);
-	for(const Entry& entry : near_entries)
+	for(const Entry& entry : legacy_entries)
 	{
 		wr->WriteWord(2, entry.offset);
 		wr->WriteWord(2, MOVE_DATA_SP);
 		wr->WriteWord(2, entry.segment);
 		wr->WriteWord(2, LOADSEG);
 	}
-	if(far_entries.size() != 0)
+
+	switch(jump_table_format)
 	{
+	case Near:
+		break;
+	case Far:
 		wr->WriteData(8, "\0\0\xFF\xFF\0\0\0\0");
-		for(const Entry& entry : far_entries)
+		for(const Entry& entry : extended_entries)
 		{
 			wr->WriteWord(2, entry.segment);
 			wr->WriteWord(2, LOADSEG);
 			wr->WriteWord(4, entry.offset);
 		}
+		break;
+	case CFM_68K:
+		break;
+	case CFM_68K_StartUp:
+		wr->WriteData(8, "\0\0\xFF\xFD\0\0\0\0");
+		wr->WriteData(8, "\0\0\0\0\0\0\0\0");
+		for(const Entry& entry : extended_entries)
+		{
+			wr->WriteWord(2, entry.segment);
+			wr->WriteWord(2, LOADSEG);
+			wr->WriteWord(4, entry.offset);
+		}
+		break;
 	}
 
 	return ImageSize();
@@ -243,6 +276,15 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(const std
 
 void MacintoshResourceFileFormat::JumpTableCodeResource::AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const
 {
+	static const std::map<offset_t, std::string> jump_table_format_names =
+	{
+		{ Near, "near model" },
+		{ Far, "far model" },
+		{ CFM_68K, "CFM-68K" },
+		{ CFM_68K_StartUp, "startup for CFM-68K (near model)" },
+	};
+
+	region.AddField("Jump table format", Dumper::ChoiceDisplay::Make(jump_table_format_names), offset_t(jump_table_format));
 	region.AddField("Above A5", Dumper::HexDisplay::Make(8), offset_t(above_a5));
 	region.AddField("Below A5", Dumper::HexDisplay::Make(8), offset_t(below_a5));
 	region.AddField("Jump table size", Dumper::HexDisplay::Make(8), offset_t(jump_table_size));
@@ -259,7 +301,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 	Resource::Dump(dump, file_offset);
 
 	unsigned i = 0;
-	for(auto& entry : near_entries)
+	for(auto& entry : legacy_entries)
 	{
 		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
 		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("near"), offset_t(true));
@@ -268,16 +310,41 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 		i++;
 	}
 
-	if(far_entries.size() > 0)
+	switch(jump_table_format)
 	{
-		// skip one value for separator
-		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
-		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("separator"), offset_t(true));
-		entry_entry.Display(dump, GetDisplayOptions());
-		i++;
+	case Near:
+		return;
+	case Far:
+		{
+			// skip one value for separator
+			Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+			entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("separator (far)"), offset_t(true));
+			entry_entry.Display(dump, GetDisplayOptions());
+			i++;
+		}
+		break;
+	case CFM_68K_StartUp:
+		return;
+	case CFM_68K:
+		{
+			// skip one value for separator
+			Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+			entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("separator (CFM-68K)"), offset_t(true));
+			entry_entry.Display(dump, GetDisplayOptions());
+			i++;
+		}
+
+		{
+			// skip one value for reserved
+			Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
+			entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("reserved"), offset_t(true));
+			entry_entry.Display(dump, GetDisplayOptions());
+			i++;
+		}
+		break;
 	}
 
-	for(auto& entry : far_entries)
+	for(auto& entry : extended_entries)
 	{
 		Dumper::Entry entry_entry("Entry", i + 1, file_offset + 16 + i * 8);
 		entry_entry.AddField("Type", Dumper::ChoiceDisplay::Make("far"), offset_t(true));
@@ -299,7 +366,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 	first_near_entry_offset = jump_table_offset;
 	if(starting_entry.has_value())
 	{
-		jump_table->near_entries.push_back(JumpTableCodeResource::Entry{id, starting_entry.value()});
+		jump_table->legacy_entries.push_back(JumpTableCodeResource::Entry{id, starting_entry.value()});
 		jump_table_offset += 8;
 	}
 
@@ -308,7 +375,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 		if(starting_entry.has_value() && entry == starting_entry.value())
 			continue; /* already inserted */
 
-		jump_table->near_entries.push_back(JumpTableCodeResource::Entry{id, entry});
+		jump_table->legacy_entries.push_back(JumpTableCodeResource::Entry{id, entry});
 
 		if(entry_relocations != nullptr)
 		{
@@ -337,7 +404,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 	first_near_entry_offset = jump_table_offset;
 	if(starting_entry.has_value())
 	{
-		jump_table->far_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + starting_entry.value()});
+		jump_table->extended_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + starting_entry.value()});
 		jump_table_offset += 8;
 	}
 
@@ -346,7 +413,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 		if(starting_entry.has_value() && entry == starting_entry.value())
 			continue; /* already inserted */
 
-		jump_table->far_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
+		jump_table->extended_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
 
 		if(entry_relocations != nullptr)
 		{
@@ -380,7 +447,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentFarEntries(
 		first_far_entry_offset = jump_table_offset;
 		for(uint32_t entry : far_entries)
 		{
-			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
+			jump_table->extended_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
 
 			if(entry_relocations != nullptr)
 			{
@@ -519,7 +586,7 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<L
 	first_near_entry_offset = rd->ReadUnsigned(2);
 	near_entry_count = rd->ReadUnsigned(2);
 
-	if(first_near_entry_offset == 0xFFFF && near_entry_count == 0)
+	if(first_near_entry_offset == JumpTableCodeResource::FAR_VERSION_MARK && near_entry_count == 0)
 	{
 		header_format = Far;
 		first_near_entry_offset = rd->ReadUnsigned(4);
@@ -548,7 +615,7 @@ void MacintoshResourceFileFormat::CodeResource::ReadFile(const std::shared_ptr<L
 			ReadRelocations(rd, segment_relocations);
 		}
 	}
-	else if(first_near_entry_offset == 0xFFFD && near_entry_count == 0)
+	else if(first_near_entry_offset == JumpTableCodeResource::CFM_68K_VERSION_MARK && near_entry_count == 0)
 	{
 		header_format = CFM_68K;
 		first_near_entry_offset = 0;
@@ -1033,37 +1100,86 @@ void MacintoshResourceFileFormat::CodeFragmentResource::Dump(Dumper::Dumper& dum
 
 void MacintoshResourceFileFormat::CodeFragmentResource::EffectFormat(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd)
 {
+	bool use_cfm68k_jump_table = false;
+
 	for(auto member : members)
 	{
+		if(member->architecture == Member::Motorola68K)
+		{
+			// TODO: is this the right assumption to make?
+			use_cfm68k_jump_table = true;
+		}
+
 		if(member->where == Member::Resource)
 		{
 			// convert the referenced resource
 
-			for(auto& type : format.resource_types)
+			Apple::OSType os_type;
+			UInt32ToOSType(os_type, member->offset);
+			if(auto reference = format.FindResourceReference(os_type, member->length))
 			{
-				if(OSTypeToUInt32(type.type) != member->offset)
-					continue;
-
-				bool found = false;
-
-				for(auto& reference : type.references)
-				{
-					if(reference.id != member->length)
-						continue;
-
-					auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFHeader>(), reference.data);
-					rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference.data_offset + 4, reference.data->ImageSize());
-					reference.data = rseg;
-
-					found = true;
-					break;
-				}
-
-				if(found)
-					break;
+				auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFHeader>(), reference->data);
+				rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference->data_offset + 4, reference->data->ImageSize());
+				reference->data = rseg;
 			}
 		}
 	}
+
+	if(use_cfm68k_jump_table)
+	{
+		if(auto reference = format.FindResourceReference(Apple::OSType { 'C', 'O', 'D', 'E' }, 0x0000))
+		{
+			if(auto jump_table = std::dynamic_pointer_cast<JumpTableCodeResource>(reference->data))
+			{
+				if(jump_table->jump_table_format == JumpTableCodeResource::Near
+				&& jump_table->legacy_entries.size() == 1)
+				{
+					// set to startup format
+					jump_table->jump_table_format = JumpTableCodeResource::CFM_68K_StartUp;
+				}
+				else
+				{
+					Linker::Warning << "Warning: jump table not in CFM-68K startup format" << std::endl;
+				}
+			}
+		}
+	}
+}
+
+std::shared_ptr<MacintoshResourceFileFormat::Resource> MacintoshResourceFileFormat::FindResource(const OSType& type, uint16_t id)
+{
+	uint32_t typeval = OSTypeToUInt32(type);
+	auto resource_type_iter = resources.find(typeval);
+	if(resource_type_iter != resources.end())
+	{
+		auto& resource_type = resource_type_iter->second;
+		auto resource_iter = resource_type.find(id);
+		if(resource_iter != resource_type.end())
+		{
+			return resource_iter->second;
+		}
+	}
+
+	return nullptr;
+}
+
+MacintoshResourceFileFormat::ResourceReference * MacintoshResourceFileFormat::FindResourceReference(const OSType& type, uint16_t id)
+{
+	for(auto& resource_type : resource_types)
+	{
+		if(OSTypeToUInt32(resource_type.type) != OSTypeToUInt32(type))
+			continue;
+
+		for(auto& reference : resource_type.references)
+		{
+			if(reference.id != id)
+				continue;
+
+			return &reference;
+		}
+	}
+
+	return  nullptr;
 }
 
 void MacintoshResourceFileFormat::AddResource(std::shared_ptr<Resource> resource)
@@ -1484,6 +1600,8 @@ for(auto section : module.Sections())
 
 	if(use_far_segments)
 	{
+		jump_table->jump_table_format = JumpTableCodeResource::Far;
+
 		far_entry_segment->StoreFarSegmentNearEntries(jump_table, find_segment_specific_entry_relocations(entry_relocations, far_entry_segment), jump_table_offset, far_entry_offset);
 
 		for(auto& resource : codes)

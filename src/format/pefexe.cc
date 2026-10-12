@@ -2393,21 +2393,11 @@ void PEFHeader::ReparseResource(MacintoshResourceFileFormat& format, const std::
 
 	// convert the referenced resource
 
-	for(auto& type : format.resource_types)
+	if(auto reference = format.FindResourceReference(Apple::OSType {'r', 's', 'e', 'g'}, secondary_resource_id)) // TODO: is this really what secondary resource ID means?
 	{
-		if(memcmp(type.type, "rseg", 4) != 0)
-			continue;
-
-		for(auto& reference : type.references)
-		{
-			if(reference.id != secondary_resource_id)
-				continue;
-
-			auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFFormat>(), reference.data);
-			rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference.data_offset + 4, reference.data->ImageSize());
-			reference.data = rseg;
-			return;
-		}
+		auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFFormat>(), reference->data);
+		rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference->data_offset + 4, reference->data->ImageSize());
+		reference->data = rseg;
 	}
 }
 
@@ -2576,8 +2566,6 @@ void RSegResource::EffectFormat(MacintoshResourceFileFormat& format, const std::
 	{
 		raw_data->EffectFormat(format, rd);
 	}
-
-	//ReparseResource(format, rd, raw_data ? raw_data->ImageSize() : offset_t(-1));
 }
 
 PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateEmptyPEF()

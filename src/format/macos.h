@@ -79,6 +79,9 @@ namespace Apple
 		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
 		void SetModel(std::string model) override;
 
+		/**
+		 * @brief A single resource in the resource file
+		 */
 		class Resource : public Linker::Format
 		{
 		public:
@@ -117,6 +120,9 @@ namespace Apple
 			virtual void CalculateValues() = 0;
 		};
 
+		/**
+		 * @brief Stores a resource with no specific format, as as sequence of raw bytes
+		 */
 		class GenericResource : public Resource
 		{
 		public:
@@ -125,6 +131,7 @@ namespace Apple
 			{
 			}
 
+			/** @brief The raw contents of the resource */
 			std::shared_ptr<Linker::Contents> image;
 
 			void CalculateValues() override;
@@ -140,6 +147,7 @@ namespace Apple
 			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
+		/** @brief Stores a 68K jump table, found in 'CODE'0 resources */
 		class JumpTableCodeResource : public Resource
 		{
 		public:
@@ -147,6 +155,19 @@ namespace Apple
 				: Resource("CODE", 0)
 			{
 			}
+
+			enum JumpTableFormat
+			{
+				/** @brief Near model jump table, with only near model format entries */
+				Near,
+				/** @brief Far model jump table, with a single near model format entries and several far model format entries */
+				Far,
+				/** @brief CFM-68K jump table as stored in the PEF container, with a single classic format entries and several regular format entries */
+				CFM_68K,
+				/** @brief CFM-68K startup jump table as stored in the 'CODE'0 resource, with a single classic format entry */
+				CFM_68K_StartUp,
+			};
+			JumpTableFormat jump_table_format = Near;
 
 			struct Entry
 			{
@@ -158,8 +179,10 @@ namespace Apple
 			uint32_t below_a5 = 0;
 			uint32_t jump_table_size = 0;
 			uint32_t jump_table_offset = 32; // seems to be fixed for Macintosh programs
-			std::vector<Entry> near_entries;
-			std::vector<Entry> far_entries;
+			/** @brief Entries with a 16-bit segment offset, used for near model jump tables, for near model format entries in far model jump tables and classic format entries in CFM-68K jump tables */
+			std::vector<Entry> legacy_entries;
+			/** @brief Entries with a 32-bit segment offset, used for far model format entries in far model jump tables and regular format entries in CFM-68K jump tables */
+			std::vector<Entry> extended_entries;
 
 			void CalculateValues() override;
 
@@ -169,6 +192,8 @@ namespace Apple
 			{
 				MOVE_DATA_SP = 0x3F3C,
 				LOADSEG = 0xA9F0,
+				FAR_VERSION_MARK = 0xFFFF,
+				CFM_68K_VERSION_MARK = 0xFFFD,
 			};
 
 			void ReadFile(const std::shared_ptr<Linker::Reader>& rd) override;
@@ -182,6 +207,7 @@ namespace Apple
 			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
 		};
 
+		/** @brief Stores as 68K code segment, found in 'CODE' resources */
 		class CodeResource : public Resource
 		{
 		public:
@@ -201,13 +227,16 @@ namespace Apple
 
 			enum HeaderFormat
 			{
+				/** @brief Near model segment, segment starts with a 4-byte header */
 				Near,
+				/** @brief Far model segment, segment starts with a 40-byte header and potentially followed by segment based and A5 based relocations */
 				Far,
+				/** @brief CFM-68K segment, segment starts with a 40-byte header */
 				CFM_68K,
 			};
 			HeaderFormat header_format = Near;
 			uint32_t a5_address = 0; /* TODO: meaning */
-			uint32_t base_address = 0; /* TODO: meaning */
+			uint32_t base_address = 0;
 
 			// used for generation
 			std::set<uint16_t> near_entries;
@@ -287,6 +316,7 @@ namespace Apple
 			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
 		};
 
+		/** @brief Stores a 'SIZE'-1 resource, containing information related to program behavior, such as being able to run in 32-bit clean mode */
 		class SizeResource : public Resource
 		{
 		public:
@@ -386,6 +416,7 @@ namespace Apple
 			//std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
+		/** @brief Stores a 'cfrg'0 resource, used to store PowerPC and CFM-68K code fragments */
 		class CodeFragmentResource : public Resource
 		{
 		public:
@@ -582,6 +613,8 @@ namespace Apple
 		std::shared_ptr<SizeResource> size_resource = nullptr;
 
 		void AddResource(std::shared_ptr<Resource> resource);
+		std::shared_ptr<Resource> FindResource(const OSType& type, uint16_t id);
+		ResourceReference * FindResourceReference(const OSType& type, uint16_t id);
 
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 
