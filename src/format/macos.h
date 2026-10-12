@@ -237,7 +237,7 @@ namespace Apple
 			 */
 			void StoreNearSegmentEntries(
 				std::shared_ptr<JumpTableCodeResource> jump_table,
-				std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+				std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 				uint32_t& jump_table_offset,
 				std::optional<uint32_t> starting_entry = {});
 
@@ -251,7 +251,7 @@ namespace Apple
 			 */
 			void StoreFarSegmentNearEntries(
 				std::shared_ptr<JumpTableCodeResource> jump_table,
-				std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+				std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 				uint32_t& jump_table_offset,
 				std::optional<uint32_t> starting_entry = {});
 
@@ -264,7 +264,7 @@ namespace Apple
 			 */
 			void StoreFarSegmentFarEntries(
 				std::shared_ptr<JumpTableCodeResource> jump_table,
-				std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+				std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 				uint32_t& jump_table_offset);
 
 			void CalculateValues() override;
