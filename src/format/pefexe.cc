@@ -1430,14 +1430,47 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 
 		if(jump_table_section == nullptr)
 		{
-			// TODO: we need the A5 value from the 'rseg'0 resource
-			return;
+			for(auto section : sections)
+			{
+				if(section->section_kind == Section::UnpackedData
+				|| section->section_kind == Section::PatternInitializedData)
+				{
+					if(jump_table_section == nullptr)
+					{
+						jump_table_section = section;
+					}
+					else
+					{
+						Linker::Warning << "Warning: unable to determine section containing A5 world, abandoning" << std::endl;
+						return;
+					}
+				}
+			}
+
+			if(jump_table_section == nullptr)
+			{
+				Linker::Warning << "Warning: unable to determine section containing A5 world, no data section found" << std::endl;
+				return;
+			}
+
+			a5_offset = below_a5_size;
 		}
 
-		// TODO: what if this is a library? that is determined by the 'cfrg'0 resource
-
 		jump_table = std::make_shared<MacintoshResourceFileFormat::JumpTableCodeResource>();
-		jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K;
+		switch(type)
+		{
+		default: // TODO
+		case UnknownBinary: // TODO
+		case Application:
+			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K;
+			break;
+		case ImportLibrary:
+			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K_Library;
+			break;
+		case UnflattenedLibrary:
+			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K_Unflattened_Library;
+			break;
+		}
 
 		std::map<offset_t, offset_t> section_relocations;
 		for(auto& relocation : jump_table_section->relocations)
@@ -2456,7 +2489,9 @@ void PEFHeader::ReparseResource(MacintoshResourceFileFormat& format, const std::
 
 	if(auto reference = format.FindResourceReference(Apple::OSType {'r', 's', 'e', 'g'}, secondary_resource_id)) // TODO: is this really what secondary resource ID means?
 	{
-		auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFFormat>(), reference->data);
+		auto pef = std::make_shared<PEFFormat>(type);
+		pef->below_a5_size = below_a5_size;
+		auto rseg = std::make_shared<RSegResource>(pef, reference->data);
 		rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference->data_offset + 4, reference->data->ImageSize());
 		reference->data = rseg;
 	}
@@ -2645,12 +2680,12 @@ PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateApplication(M
 	default:
 		return CodeFragment(
 			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
-			std::make_shared<PEFFormat>()
+			std::make_shared<PEFFormat>(PEFFormat::Application)
 		);
 	case MacintoshResourceFileFormat::CodeFragmentResource::Member::Motorola68K:
 		return CodeFragment(
 			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
-			std::make_shared<PEFFormat>(),
+			std::make_shared<PEFFormat>(PEFFormat::Application),
 			std::make_shared<PEFHeader>()
 		);
 	}
@@ -2660,7 +2695,7 @@ PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateLibrary(Macin
 {
 	return CodeFragment(
 		MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateLibrary(architecture, name, current_version, old_def_version),
-		std::make_shared<PEFFormat>()
+		std::make_shared<PEFFormat>(PEFFormat::ImportLibrary)
 	);
 }
 

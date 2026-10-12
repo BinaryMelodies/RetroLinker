@@ -37,6 +37,26 @@ namespace Apple
 		uint16_t section_count = 0;
 		uint16_t inst_section_count = 0;
 		uint32_t reserved = 0;
+		uint32_t below_a5_size = 0;
+
+		enum binary_type
+		{
+			/** @brief File type to generate not specified */
+			UnknownBinary = -1,
+			/** @brief A shared library */
+			ImportLibrary = 0,
+			/** @brief An application */
+			Application = 1,
+			/** @brief A shared library in an intermediate, unflattened format */
+			UnflattenedLibrary = 0x100,
+		};
+		/** @brief Specifies the generated or parsed binary type */
+		binary_type type;
+
+		PEFHeaderBase(binary_type type = UnknownBinary)
+			: type(type)
+		{
+		}
 
 		void ReadBaseFields(const std::shared_ptr<Linker::Reader>& rd);
 		void WriteBaseFields(const std::shared_ptr<Linker::Writer>& wr) const;
@@ -49,6 +69,11 @@ namespace Apple
 	class PEFFormat : public virtual Linker::SegmentManager, public PEFHeaderBase
 	{
 	public:
+		PEFFormat(binary_type type = UnknownBinary)
+			: PEFHeaderBase(type)
+		{
+		}
+
 		/** @brief Pattern initialization data
 		 *
 		 * For pattern initialized data sections (data sections that are not unpacked), they are stored in the file as
@@ -740,7 +765,11 @@ namespace Apple
 		uint32_t exported_symbol_count = 0;
 		uint16_t secondary_resource_id = 0;
 		uint16_t last_valid_code_resource = 0;
-		uint32_t below_a5_size = 0;
+
+		PEFHeader(binary_type type = UnknownBinary)
+			: PEFHeaderBase(type)
+		{
+		}
 
 		void ReadFile(const std::shared_ptr<Linker::Reader>& rd);
 		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const;

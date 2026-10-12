@@ -262,6 +262,9 @@ namespace Apple
 			 */
 			void ReadJumpTable(const std::shared_ptr<Linker::Reader>& rd, offset_t length, jump_table_parse_mode mode, std::map<offset_t, offset_t> section_relocations = {});
 
+			/** @brief Generate the section relocations in a PEF container data section */
+			void CollectRelocations(std::map<offset_t, offset_t>& section_relocations); // TODO: untested
+
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 			using Linker::Format::Dump;

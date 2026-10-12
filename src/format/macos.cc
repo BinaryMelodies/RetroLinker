@@ -288,7 +288,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadJumpTable(const std
 				still_reading_table = false;
 				break;
 			}
-			Linker::Error << "Error: Unrecognized second word in jump table entry" << std::endl;
+			Linker::Error << "Error: Unrecognized second word in jump table entry for PEF container" << std::endl;
 			break;
 		case FromUnknown:
 			if(insn == JMP_ABS_L)
@@ -329,7 +329,6 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadJumpTable(const std
 	{
 		while(read_offset < length)
 		{
-std::cerr << std::hex << read_offset << "," << length << "," << rd->Tell() << std::endl;
 			JumpTable::TransitionVector tvector;
 			uint32_t word;
 			std::map<offset_t, offset_t>::iterator section_relocation;
@@ -393,6 +392,74 @@ std::cerr << std::hex << read_offset << "," << length << "," << rd->Tell() << st
 			}
 			jump_table->transition_vectors.push_back(tvector);
 		}
+	}
+}
+
+void MacintoshResourceFileFormat::JumpTableCodeResource::CollectRelocations(std::map<offset_t, offset_t>& section_relocations)
+{
+	switch(jump_table_format)
+	{
+	case Near:
+	case Far:
+	case CFM_68K_StartUp:
+		return;
+	default:
+		break;
+	}
+
+	offset_t table_offset = 32 + 8 * jump_table->legacy_entries.size() + 16;
+
+	for(const JumpTable::Entry& entry : jump_table->extended_entries)
+	{
+		if(entry.section.has_value())
+		{
+			section_relocations[table_offset + 4] = entry.section.value();
+		}
+		table_offset += 8;
+	}
+
+	switch(jump_table_format)
+	{
+	default:
+		break;
+	case CFM_68K:
+		for(const JumpTable::TransitionVector& tvector : jump_table->transition_vectors)
+		{
+			if(tvector.seg_loader_section.has_value())
+			{
+				section_relocations[table_offset] = tvector.seg_loader_section.value();
+			}
+			if(tvector.a5_section.has_value())
+			{
+				section_relocations[table_offset + 4] = tvector.a5_section.value();
+			}
+			table_offset += 12;
+		}
+		break;
+	case CFM_68K_Library:
+		for(const JumpTable::TransitionVector& tvector : jump_table->transition_vectors)
+		{
+			if(tvector.section.has_value())
+			{
+				section_relocations[table_offset] = tvector.section.value();
+			}
+			if(tvector.a5_section.has_value())
+			{
+				section_relocations[table_offset + 4] = tvector.a5_section.value();
+			}
+			table_offset += 8;
+		}
+		break;
+	case CFM_68K_Unflattened_Library:
+		for(const JumpTable::TransitionVector& tvector : jump_table->transition_vectors)
+		{
+			if(tvector.a5_section.has_value())
+			{
+				section_relocations[table_offset + 4] = tvector.a5_section.value();
+			}
+			table_offset += 8;
+		}
+		break;
 	}
 }
 
@@ -1417,11 +1484,22 @@ void MacintoshResourceFileFormat::CodeFragmentResource::EffectFormat(MacintoshRe
 		{
 			// convert the referenced resource
 
+			PEFHeaderBase::binary_type type;
+			if(member->usage == Member::Application)
+			{
+				type = PEFHeaderBase::Application;
+			}
+			else
+			{
+				// TODO: DropInAddition?
+				type = PEFHeaderBase::ImportLibrary;
+			}
+
 			Apple::OSType os_type;
 			UInt32ToOSType(os_type, member->offset);
 			if(auto reference = format.FindResourceReference(os_type, member->length))
 			{
-				auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFHeader>(), reference->data);
+				auto rseg = std::make_shared<RSegResource>(std::make_shared<PEFHeader>(type), reference->data);
 				rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference->data_offset + 4, reference->data->ImageSize());
 				reference->data = rseg;
 			}
